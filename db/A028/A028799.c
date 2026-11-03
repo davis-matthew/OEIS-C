@@ -8,7 +8,8 @@
  *            modulo 86
  * Range:     u8 n <= 42, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool residue_found[86];
 static bool residue_initialized = false;
@@ -45,7 +47,7 @@ static void ensure_cache_size(size_t needed)
     /* Grow cache if necessary */
     if (cache_size == 0) {
         cache_size = 64;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();
     }
     while (cache_len < needed) {
@@ -58,10 +60,10 @@ static void ensure_cache_size(size_t needed)
         /* Store it */
         if (cache_len == cache_size) {
             size_t new_size = cache_size * 2;
-            seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, new_size);
             if (!new_cache) abort();
-            memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+            mem_free(cache);
             cache = new_cache;
             cache_size = new_size;
         }

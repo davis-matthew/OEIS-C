@@ -11,7 +11,8 @@
  *            counted with multiplicity. The number is in th...
  * Range:     u8 n <= 87, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd32
+ * Validated: standard, pass, 89 terms through n = 9036 (2026-11-03)
+ * Helpers:   gcd_u32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd32.h"
+#include "../utils/gcd_u32.h"
+#include "../utils/mem.h"
 
 static const idx_t SIEVE_LIMIT = 2000000;   /* upper bound for sieving */
 
@@ -77,7 +79,7 @@ static void ensure_seq_cap(size_t needed)
     size_t new_cap = seq_cap ? seq_cap << 1 : 64;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 
@@ -103,7 +105,7 @@ static bool good_candidate(idx_t m)
 
         for (unsigned t = 0; t < e; ++t) {
             for (size_t i = 0; i < count; ++i) {
-                if (gcd32(idx, indices[i]) == 1)
+                if (gcd_u32(idx, indices[i]) == 1)
                     return false;
             }
             indices[count++] = idx;

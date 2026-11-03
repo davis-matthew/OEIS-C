@@ -10,6 +10,7 @@
  *            a(3) = 2000, a(4) = 2600, a(5) = 5000, a(6) = 7784
  * Range:     u8 none, u16 n <= 9, u32 n <= 25, u64 n <= 57, u128 n <= 121,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 193 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

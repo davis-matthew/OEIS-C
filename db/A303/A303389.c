@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 80, u16 n <= 9373, u32 n <= 9373, u64 n <= 9373,
- *            u128 n <= 9373, big any n
- * Helpers:   none
+ * Range:     u8 n <= 80, u16 n <= 9373, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 96 terms through n = 9373 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     if (!tri) {                    /* first call – initialise      */
         tri_cap = 16;
-        tri = (seq_t *)malloc(tri_cap * sizeof(seq_t));
+        tri = mem_new(seq_t, tri_cap);
         tri[0] = (seq_t)0;         /* T(0) = 0                      */
         tri_sz = 1;
     }
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         /* Ensure capacity */
         if (tri_sz == tri_cap) {
             tri_cap = tri_cap * 2;
-            tri = (seq_t *)realloc(tri, tri_cap * sizeof(seq_t));
+            tri = mem_resize(seq_t, tri, tri_cap);
         }
         tri[tri_sz++] = next_tri;
     }
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 
     if (!pow5) {                    /* first call – initialise      */
         pow_cap = 16;
-        pow5 = (seq_t *)malloc(pow_cap * sizeof(seq_t));
+        pow5 = mem_new(seq_t, pow_cap);
         pow5[0] = (seq_t)1;          /* 5^0 = 1                       */
         pow_sz = 1;
     }
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         /* Ensure capacity */
         if (pow_sz == pow_cap) {
             pow_cap = pow_cap * 2;
-            pow5 = (seq_t *)realloc(pow5, pow_cap * sizeof(seq_t));
+            pow5 = mem_resize(seq_t, pow5, pow_cap);
         }
         pow5[pow_sz++] = next_pow;
     }

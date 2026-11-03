@@ -7,77 +7,46 @@
  * Keywords:  nonn
  * Formula:   a(n) = n-th positive integer that is divisible by 31 and
  *            representable as a sum of three positive integer cubes
- * Range:     u8 n <= 2, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
- *            big any n
- * Helpers:   cube, cube_root_floor
+ * Range:     u8 n <= 2, u16 n <= 272, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 59 terms through n = 9801 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* External type definitions */
+/* All sums a^3 + b^3 + c^3 (1 <= a <= b <= c) up to a limit L are marked in
+   a table, and the multiples of 31 among them, in order, are the terms; L
+   doubles until there are n. (The original tested each multiple of 31 with
+   a double loop and cube roots in seq_t, which timed out.) */
+
 #include <stdint.h>
-#include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
-/* Utilities provided by the build */
-#include "../utils/cube.h"
-#include "../utils/cube_root_floor.h"
-
-/* Helper to compute the integer ceil of the cube root */
-static inline seq_t ceil_cube_root_floor(seq_t x)
-{
-    seq_t r = cube_root_floor(x);
-    return (cube(r) == x) ? r : r + 1;
-}
-
-/* Test whether x can be written as sum of three positive cubes. */
-static bool is_sum_of_three_cubes(seq_t x)
-{
-    /* Must be > 0 */
-    if (x == 0) return false;
-
-    /* Upper bound for cube roots */
-    idx_t root = (idx_t)ceil_cube_root_floor(x);   /* safe: root small */
-
-    for (idx_t a = 1; a <= root; ++a)
-    {
-        seq_t a3 = cube((seq_t)a);
-        if (a3 >= x) break;                /* further a's too large */
-
-        for (idx_t b = 1; b <= root; ++b)
-        {
-            seq_t ab = a3 + cube((seq_t)b);
-            if (ab >= x) break;            /* further b's too large */
-
-            seq_t c3 = x - ab;
-            if (c3 == 0) return true;      /* a^3 + b^3 = x, c = 0 impossible
-                                               (c must be positive) */
-
-            seq_t c = cube_root_floor(c3);
-            if (cube(c) == c3)              /* c positive automatically */
-                return true;
-        }
-    }
-    return false;
-}
-
-/* Public function: return the n-th term of the sequence (n >= 1). */
 seq_t a(idx_t n)
 {
-    if (n == 0) return 0;                     /* irrelevant for < offset */
-
-    seq_t found = 0;                          /* already found terms count */
-    idx_t k = 1;                               /* multiplier for 31 */
-
-    for (;; ++k)
-    {
-        seq_t cand = (seq_t)31 * (seq_t)k;     /* candidate divisible by 31 */
-
-        if (is_sum_of_three_cubes(cand))
-        {
-            ++found;
-            if (found == n)
-                return cand;
-        }
+    static seq_t *T = NULL;
+    static size_t cnt = 0;
+    static uint64_t L = 0;
+    if (n == 0) return (seq_t)0;
+    while (cnt < (size_t)n) {
+        L = L ? 2 * L : 1 << 16;
+        unsigned char *mark = (unsigned char *)calloc(L + 1, 1);
+        if (!mark) abort();
+        for (uint64_t a = 1; 3 * a * a * a <= L; ++a)
+            for (uint64_t b = a; a * a * a + 2 * b * b * b <= L; ++b)
+                for (uint64_t c = b; a * a * a + b * b * b + c * c * c <= L; ++c)
+                    mark[a * a * a + b * b * b + c * c * c] = 1;
+        size_t k = 0;
+        for (uint64_t x = 31; x <= L; x += 31) k += mark[x];
+        mem_free(T);
+        T = mem_new(seq_t, k ? k : 1);
+        if (!T) abort();
+        cnt = 0;
+        for (uint64_t x = 31; x <= L; x += 31)
+            if (mark[x]) T[cnt++] = (seq_t)x;
+        free(mark);
     }
+    return T[n - 1];
 }

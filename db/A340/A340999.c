@@ -8,13 +8,15 @@
  *            squares
  * Range:     u8 n <= 255, u16 n <= 303, u32 n <= 303, u64 n <= 303,
  *            u128 n <= 303, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 303 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root for unsigned 64‑bit values.  */
 static idx_t isqrt(idx_t n) {
@@ -43,13 +45,13 @@ static idx_t  max_cached = 0;        /* highest n for which we have computed */
 static void recompute(idx_t max_n) {
     /* Deallocate old arrays.  */
     for (int k = 0; k <= 8; ++k) {
-        free(dp[k]);
+        mem_free(dp[k]);
         dp[k] = NULL;
     }
 
     /* Allocate new arrays, zeroed.  */
     for (int k = 0; k <= 8; ++k) {
-        dp[k] = (seq_t *)calloc((size_t)(max_n + 1), sizeof(seq_t));
+        dp[k] = mem_new(seq_t, (size_t)(max_n + 1));
         if (!dp[k]) exit(EXIT_FAILURE);   /* allocation failure aborts */
     }
 

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   int_sqrt_ull
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,7 @@
 */
 
 #include <stdint.h>
-#include "../utils/int_sqrt_ull.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
         unsigned long long val = NN - four_i2;          /* = (n/2)² - i²  scaled by 4 */
         /* We need the number of odd integers m with m² < val.
            Let M = floor( √(val-1) ); then the count is 2 * floor((M+1)/2). */
-        unsigned long long M = int_sqrt_ull(val - 1);
+        unsigned long long M = isqrt_u64(val - 1);
         unsigned long long cnt = 2ULL * ((M + 1ULL) / 2ULL);   /* number of j for this i */
 
         if (i == 0)

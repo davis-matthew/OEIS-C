@@ -10,21 +10,22 @@
  *            search
  * Range:     u8 n <= 257, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_u64, gcd
+ * Validated: standard, pass, 105 terms through n = 942 (2026-11-01)
+ * Helpers:   gcd, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
     if (n == (idx_t)0) return (seq_t)0;          /* safety for n=0 */
 
     uint64_t tn = (uint64_t)n;                    /* n fits in 64‑bit */
-    idx_t  divcnt = divisor_count_u64(tn);        /* d(n) */
+    idx_t  divcnt = num_divisors(tn);        /* d(n) */
 
     seq_t target = (seq_t)divcnt;                /* we need this many coprimes */
     seq_t count  = (seq_t)0;                      /* how many found so far */

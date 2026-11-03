@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has84
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,36 @@
    offset 1 (a(1) = 76). */
 
 #include <stdbool.h>
-#include "../utils/has84.h"
+
+/* Returns true if the base‑9 expansion of x contains the adjacent
+   digits 8 followed by 4.  The check is performed while converting
+   x to base 9, so it works for any seq_t size. */
+static bool has84(seq_t x)
+{
+    /* An empty representation has no digits. */
+    if (x == 0)
+        return false;
+
+    /* Scan digits from least significant to most significant.
+       Detect the pattern 4 (previous) followed by 8 (current). */
+    seq_t prev = 0;          /* previous (less significant) digit */
+    bool first = true;       /* flag for the first digit */
+
+    while (x > 0) {
+        seq_t digit = x % 9;      /* current least–significant digit */
+        x = x / 9;
+
+        if (!first) {
+            /* We have seen a previous digit already. */
+            if (digit == 8 && prev == 4)
+                return true;
+        }
+
+        prev = digit;
+        first = false;
+    }
+    return false;
+}
 
 /* Returns the n-th value of the sequence (n >= 1).  The function
    increments successive integers until it finds the n‑th one that

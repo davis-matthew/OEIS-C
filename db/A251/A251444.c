@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment. */
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Initialise the cache if it is the first call. */
     if (seq_cache == NULL) {
         /* Allocate space for the first 6 terms (indices 0..6). */
-        seq_cache = (seq_t *)malloc((size_t)(6 + 1) * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, (size_t)(6 + 1));
         if (!seq_cache) return 0;       /* allocation failed, return 0 */
         seq_cache[0] = 0;               /* dummy, never used in recurrence */
         seq_cache[1] = 45;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     /* Ensure the cache has room for indices up to n. */
     if (n + 1 > seq_cache_size + 1) {
         /* Reallocate to size n+1 (indices 0..n). */
-        seq_t *tmp = (seq_t *)realloc(seq_cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, (size_t)(n + 1));
         if (!tmp) return 0;             /* reallocation failed */
         seq_cache = tmp;
         /* No need to initialise new entries because they will be filled below. */

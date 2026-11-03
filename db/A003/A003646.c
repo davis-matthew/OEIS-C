@@ -11,7 +11,8 @@
  *            b^2-4ac = D, under the rho reduction operator
  * Range:     u8 n <= 106, u16 n <= 106, u32 n <= 106, u64 n <= 106,
  *            u128 n <= 106, big any n
- * Helpers:   isqrt_ll, reduced
+ * Validated: partial, pass, 105 terms through n = 106 (2026-11-01)
+ * Helpers:   isqrt_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isqrt_ll.h"
-#include "../utils/reduced.h"
+#include "../utils/isqrt_i64.h"
+
+static bool reduced(long long a, long long b, long long D) {
+    long long A = a < 0 ? -a : a;
+    long long t;
+    if (b <= 0 || b * b >= D) return false;
+    if ((2 * A + b) * (2 * A + b) <= D) return false;
+    t = 2 * A - b;
+    if (t > 0 && t * t >= D) return false;
+    return true;
+}
 
 static bool sqfree_ll(long long m) {
     for (long long p = 2; p * p <= m; p++)
@@ -47,7 +57,7 @@ seq_t a(idx_t n) {
         if (is_fund_pos(D)) cnt++;
     }
     if (D == 1) return (seq_t)1;
-    s = isqrt_ll(D);
+    s = isqrt_i64(D);
     fa = (long long *)malloc(sizeof(long long) * cap);
     fb = (long long *)malloc(sizeof(long long) * cap);
     for (b = (D % 2); b <= s; b += 2) {

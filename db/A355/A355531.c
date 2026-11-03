@@ -11,7 +11,8 @@
  *            (reversed, i.e. decreasing)
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/compute_pi.h"
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 #define MAX_PRIME 100000  /* sieve up to this value for small primes */
 
@@ -56,7 +58,7 @@ static void init_primes(void) {
 static inline seq_t prime_index(uint64_t p) {
     if (p <= MAX_PRIME && prime_index_map[(size_t)p])
         return (seq_t)prime_index_map[(size_t)p];
-    return (seq_t)compute_pi((idx_t)p - 1) + 1;
+    return (seq_t)prime_pi((idx_t)p - 1) + 1;
 }
 
 /* Main OEIS sequence function. */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,6 +41,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Internal static data structures ---------- */
 static seq_t **rows_data   = NULL;   /* pointers to rows */
@@ -70,22 +72,22 @@ static void ensure_rows_upto(idx_t r)
     if (rows_count == 0) {
         ensure_rows_array_size(16);          /* small initial capacity */
         /* Row 0 */
-        rows_data[0] = (seq_t *)malloc(sizeof(seq_t));
+        rows_data[0] = mem_new(seq_t, 1);
         rows_data[0][0] = (seq_t)1;
         row_start[0] = (idx_t)0;
         row_size[0] = 1;
         /* Row 1 */
-        rows_data[1] = (seq_t *)malloc(sizeof(seq_t));
+        rows_data[1] = mem_new(seq_t, 1);
         rows_data[1][0] = (seq_t)1;
         row_start[1] = row_start[0] + row_size[0];
         row_size[1] = 1;
         /* Row 2 */
-        rows_data[2] = (seq_t *)malloc(sizeof(seq_t));
+        rows_data[2] = mem_new(seq_t, 1);
         rows_data[2][0] = (seq_t)1;
         row_start[2] = row_start[1] + row_size[1];
         row_size[2] = 1;
         /* Row 3 */
-        rows_data[3] = (seq_t *)malloc(sizeof(seq_t));
+        rows_data[3] = mem_new(seq_t, 1);
         rows_data[3][0] = (seq_t)2;
         row_start[3] = row_start[2] + row_size[2];
         row_size[3] = 1;
@@ -98,7 +100,7 @@ static void ensure_rows_upto(idx_t r)
         size_t      L   = 1 + (size_t)(cur / 4);      /* number of elements in this row */
 
         /* Allocate the row itself. */
-        seq_t *row = (seq_t *)malloc(L * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, L);
 
         /* Compute each entry using the recurrence. */
         for (size_t k = 0; k < L; ++k) {

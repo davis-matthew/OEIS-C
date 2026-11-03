@@ -11,13 +11,15 @@
  *            row, coefficients from constant term to highest degree
  * Range:     u8 n <= 23, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,16 +30,16 @@ seq_t a(idx_t n)
     idx_t row = (idx_t)ceil((d - 1.0) / 2.0);
 
     /* Previous row arrays: u_prev and v_prev. */
-    seq_t *u_prev = (seq_t*)malloc(row * sizeof(seq_t));
-    seq_t *v_prev = (seq_t*)malloc(row * sizeof(seq_t));
+    seq_t *u_prev = mem_new(seq_t, row);
+    seq_t *v_prev = mem_new(seq_t, row);
     if (!u_prev || !v_prev) return (seq_t)0;   /* allocation failure */
 
     /* base row 1 */
     u_prev[0] = (seq_t)1;
     v_prev[0] = (seq_t)1;
     if (n == 1) {
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         return (seq_t)1;
     }
 
@@ -45,11 +47,11 @@ seq_t a(idx_t n)
     idx_t cumulative = 1;          /* coefficients processed so far */
 
     for (idx_t r = 2; r <= row; ++r) {
-        seq_t *u_new = (seq_t*)malloc(r * sizeof(seq_t));
-        seq_t *v_new = (seq_t*)malloc(r * sizeof(seq_t));
+        seq_t *u_new = mem_new(seq_t, r);
+        seq_t *v_new = mem_new(seq_t, r);
         if (!u_new || !v_new) {
-            free(u_prev); free(v_prev);
-            free(u_new); free(v_new);
+            mem_free(u_prev); mem_free(v_prev);
+            mem_free(u_new); mem_free(v_new);
             return (seq_t)0;
         }
 
@@ -67,13 +69,13 @@ seq_t a(idx_t n)
         if (n <= cumulative + r) {
             idx_t pos = n - cumulative - 1;   /* zero–based position */
             seq_t result = u_new[pos];
-            free(u_prev); free(v_prev);
-            free(u_new); free(v_new);
+            mem_free(u_prev); mem_free(v_prev);
+            mem_free(u_new); mem_free(v_new);
             return result;
         }
 
         /* Prepare for next row */
-        free(u_prev); free(v_prev);
+        mem_free(u_prev); mem_free(v_prev);
         u_prev = u_new;
         v_prev = v_new;
         prev_len = r;
@@ -81,6 +83,6 @@ seq_t a(idx_t n)
     }
 
     /* Should never reach here */
-    free(u_prev); free(v_prev);
+    mem_free(u_prev); mem_free(v_prev);
     return (seq_t)0;
 }

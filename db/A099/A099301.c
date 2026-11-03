@@ -7,7 +7,8 @@
  * Formula:   a(n) = arithmetic derivative of the divisor count d(n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 114 terms through n = 9663 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Factorisation routine:  factors a number into primes and exponents.    */
@@ -77,14 +79,14 @@ static idx_t computed = 0;           /* greatest n for which a(n) is known */
 static void grow_cache(size_t new_cap)
 {
     size_t sc = new_cap * sizeof(seq_t);
-    seq_t* newp = (seq_t*)malloc(sc);
+    seq_t* newp = mem_new(seq_t, (sc) / sizeof(seq_t));
     if (!newp) return; /* allocation failure – leave cache unchanged */
     if (cache) {
-        memcpy(newp, cache, computed * sizeof(seq_t));
-        free(cache);
+        mem_copy(newp, cache, computed * sizeof(seq_t));
+        mem_free(cache);
     }
     /* initialise new entries to 0 */
-    memset(newp + computed, 0, (new_cap - computed) * sizeof(seq_t));
+    mem_set(newp + computed, 0, (new_cap - computed) * sizeof(seq_t));
     cache = newp;
     cache_cap = new_cap;
 }

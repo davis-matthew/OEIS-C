@@ -8,7 +8,8 @@
  *            number (A002808), with c(1)=4, c(2)=6, …
  * Range:     i8 n <= 96, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 131 terms through n = 9646 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h" /* bool isPrimeTrial(seq_t n) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *composite_list = NULL;   /* array of composites, 0‑based: composite_list[0] = 4 */
 static size_t comp_cnt   = 0;          /* number of composites stored */
@@ -34,12 +36,11 @@ static void ensure_composites(idx_t m)
     while (comp_cnt < (size_t)m) {
         ++last_checked;
         /* Test whether last_checked is composite. */
-        if (!isPrimeTrial((seq_t)last_checked)) {
+        if (!is_prime_seq((seq_t)last_checked)) {
             /* Grow the array if necessary. */
             if (comp_cnt >= comp_cap) {
                 size_t new_cap = comp_cap ? (comp_cap << 1) : 16;
-                seq_t *tmp = (seq_t *)realloc(composite_list,
-                                              new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, composite_list, new_cap);
                 if (!tmp) abort();            /* out of memory – terminate */
                 composite_list = tmp;
                 comp_cap = new_cap;

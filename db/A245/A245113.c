@@ -7,17 +7,52 @@
  * Formula:   a(n) = 4^n * binomial(3*n+1/2, n) / (6*n+1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   build_primes_upto, factor_and_update, seq_mul, seq_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
-#include "../utils/factor_and_update.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Update exponent array: add sign * exponent of val's prime factors */
+static void factor_and_update(uint64_t val, int sign,
+                              const uint64_t *primes, size_t prime_cnt,
+                              int *exp)
+{
+    uint64_t x = val;
+    for (size_t i = 0; i < prime_cnt && primes[i] * primes[i] <= x; ++i) {
+        if (x % primes[i] == 0) {
+            int c = 0;
+            while (x % primes[i] == 0) {
+                x /= primes[i];
+                ++c;
+            }
+            exp[i] += sign * c;
+        }
+    }
+    if (x > 1) {
+        /* x is a prime > sqrt(val) */
+        size_t lo = 0, hi = prime_cnt;
+        while (lo < hi) {
+            size_t mid = (lo + hi) >> 1;
+            if (primes[mid] < x) lo = mid + 1;
+            else hi = mid;
+        }
+        if (lo < prime_cnt && primes[lo] == x)
+            exp[lo] += sign;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -59,7 +94,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < prime_cnt; ++i) {
         int e = exp[i];
         if (e > 0) {
-            seq_t pw = seq_pow((seq_t)primes[i], (idx_t)e);
+            seq_t pw = ipow_idx((seq_t)primes[i], (idx_t)e);
             result = seq_mul(result, pw);
         }
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 49, u64 n <= 200, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* adjacency information */
 static unsigned char *adjacent[256];
@@ -79,8 +81,8 @@ static void build_adjacency(void)
 /* Initialise DP tables (once) */
 static void init_state_arrays(void)
 {
-    dp_cur = (seq_t *)malloc(256 * sizeof(seq_t));
-    dp_nxt = (seq_t *)malloc(256 * sizeof(seq_t));
+    dp_cur = mem_new(seq_t, 256);
+    dp_nxt = mem_new(seq_t, 256);
 }
 
 /* Ensure that a_cache[1..n] is ready */
@@ -90,7 +92,7 @@ static void ensure_cache(idx_t n)
 
     size_t needed = (size_t)n + 1;
     if (a_cache_size < needed) {
-        seq_t *new_cache = (seq_t *)realloc(a_cache, needed * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, a_cache, needed);
         if (!new_cache) abort();
         a_cache   = new_cache;
         a_cache_size = needed;
@@ -107,7 +109,7 @@ static void ensure_cache(idx_t n)
 
     /* compute intermediate terms up to n */
     for (idx_t step = max_computed + 1; step <= n; ++step) {
-        memset(dp_nxt, 0, 256 * sizeof(seq_t));
+        mem_set(dp_nxt, 0, 256 * sizeof(seq_t));
         for (int u = 0; u < 256; ++u) {
             seq_t val = dp_cur[u];
             if (val == 0) continue;

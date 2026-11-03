@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
         rows_cap = 4;  /* initial capacity */
         u_rows = (seq_t **)malloc(rows_cap * sizeof(seq_t *));
         v_rows = (seq_t **)malloc(rows_cap * sizeof(seq_t *));
-        u_rows[0] = (seq_t *)malloc(sizeof(seq_t));  /* length 1 */
-        v_rows[0] = (seq_t *)malloc(sizeof(seq_t));
+        u_rows[0] = mem_new(seq_t, 1);  /* length 1 */
+        v_rows[0] = mem_new(seq_t, 1);
         u_rows[0][0] = (seq_t)1;
         v_rows[0][0] = (seq_t)1;
         rows_count = 1;
@@ -78,8 +80,8 @@ seq_t a(idx_t n)
         }
 
         /* Allocate coefficient vectors for the new row */
-        seq_t *u_next = (seq_t *)malloc(new_len * sizeof(seq_t));
-        seq_t *v_next = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *u_next = mem_new(seq_t, new_len);
+        seq_t *v_next = mem_new(seq_t, new_len);
 
         /* Previous row data */
         seq_t *u_prev = u_rows[rows_count - 1];

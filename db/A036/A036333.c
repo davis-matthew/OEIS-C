@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2222, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _digit_len_uint64
+ * Validated: standard, pass, 58 terms through n = 9628 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/_digit_len_uint64.h"
+#include "../utils/mem.h"
+
+/* ---------- helper: digit length of a uint64_t ----------------- */
+static inline int _digit_len_uint64(uint64_t n)
+{
+    if (n >= 1000000000ULL) return 10;
+    if (n >= 100000000ULL)  return 9;
+    if (n >= 10000000ULL)   return 8;
+    if (n >= 1000000ULL)    return 7;
+    if (n >= 100000ULL)     return 6;
+    if (n >= 10000ULL)      return 5;
+    if (n >= 1000ULL)       return 4;
+    if (n >= 100ULL)        return 3;
+    if (n >= 10ULL)         return 2;
+    return 1;
+}
 
 /* ---------- simple prime sieve up to 1,000,000 (enough for sqrt) */
 #define PRIME_SIEVE_LIMIT 1000000
@@ -63,7 +79,7 @@ static void _ensure_cache_cap(idx_t need)
     if ((size_t)need <= _cache_cap) return;
     size_t ncap = _cache_cap == 0 ? 8 : _cache_cap * 2;
     while (ncap < (size_t)need) ncap *= 2;
-    seq_t *newp = (seq_t*)realloc(_cache, ncap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, _cache, ncap);
     if (!newp) exit(EXIT_FAILURE);
     _cache = newp;
     _cache_cap = ncap;

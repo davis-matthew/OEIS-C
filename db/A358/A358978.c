@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 82 terms through n = 9132 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    in the Zeckendorf representation of k. */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Global buffer holding Fibonacci numbers used in Zeckendorf
    representations.  fib[0] = 1, fib[1] = 2. */
@@ -31,7 +34,7 @@ static void ensure_fib_cap(size_t new_cap) {
     if (new_cap <= fib_cap) return;
     size_t new_capacity = fib_cap ? fib_cap * 2 : 4;
     while (new_capacity < new_cap) new_capacity *= 2;
-    seq_t *tmp = (seq_t*)realloc(fib, new_capacity * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fib, new_capacity);
     if (!tmp) abort(); /* allocation failure */
     fib = tmp;
     fib_cap = new_capacity;

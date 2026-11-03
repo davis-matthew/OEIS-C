@@ -9,7 +9,8 @@
  *            expansion of x
  * Range:     u8 n <= 253, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow2_popcount
+ * Validated: standard, pass, 91 terms through n = 9422 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 /*  This implementation uses only integer arithmetic and no libraries. */
 
 #include <stdint.h>
-#include "../utils/pow2_popcount.h"
+
+static inline seq_t pow2_popcount(idx_t n)
+{
+    /* compute 2^{popcount(n)} */
+    int pc = 0;
+    idx_t t = n;
+    while (t) {
+        t &= t - 1;  /* clear the lowest set bit */
+        pc++;
+    }
+    seq_t result = (seq_t)1;
+    for (int i = 0; i < pc; ++i) {
+        result *= (seq_t)2; /* multiplication is defined modulo 2^bits for unsigned */
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

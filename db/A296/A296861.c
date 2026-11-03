@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 148, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   equal_pits_peaks
+ * Validated: standard, pass, 82 terms through n = 9045 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,30 @@
  * allocation. */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/equal_pits_peaks.h"
+
+static bool equal_pits_peaks(seq_t x)
+{
+    /* For digits < 3 there are no interior positions → equal. */
+    if (x < (seq_t)3) return true;
+
+    /* Temporary buffer for the base‑3 digits (least‑significant first). */
+    uint8_t buf[128];          /* enough for 128‑bit values (≤86 digits) */
+    size_t len = 0;
+    seq_t t = x;
+    while (t > (seq_t)0) {
+        buf[len++] = (uint8_t)(t % (seq_t)3);
+        t /= (seq_t)3;
+    }
+    if (len < 3) return true;
+
+    int pits = 0, peaks = 0;
+    for (size_t i = 1; i + 1 < len; ++i) {
+        uint8_t a = buf[i - 1], b = buf[i], c = buf[i + 1];
+        if (a > b && b < c) ++pits;
+        else if (a < b && b > c) ++peaks;
+    }
+    return pits == peaks;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 9086 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    The sequence has period 233280.  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache of one period */
 static const idx_t period = 233280ULL;
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache on first call */
     if (!cache) {
-        cache = (seq_t *)malloc(period * sizeof(seq_t));
+        cache = mem_new(seq_t, period);
         if (!cache) abort();         /* allocation failure */
         cache[0] = (seq_t)1;
         for (size_t i = 1; i < period; ++i) {

@@ -8,13 +8,16 @@
  * Formula:   a(n) = 2^⌊√n⌋ * C(2⌊√n⌋, n - ⌊√n⌋^2)
  * Range:     u8 n <= 17, u16 n <= 52, u32 n <= 152, u64 n <= 546,
  *            u128 n <= 1976, big any n
+ * Validated: standard, pass, 68 terms through n = 9934 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 /* Integer floor square root for unsigned 64‑bit indices */
 static idx_t floor_sqrt_u64(idx_t n)

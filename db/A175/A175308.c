@@ -10,7 +10,8 @@
  *            (k+1) == 0 a(1) = 0, a(2) = 4, a(3) = 9, …
  * Range:     u8 n <= 47, u16 n <= 3972, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 8637 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Fast doubling Fibonacci modulo mod.
    Computes F(n) and F(n+1) % mod into *fn and *fn1. */
@@ -71,9 +73,9 @@ seq_t a(idx_t n)
             /* Append test_k to list */
             if (len == cap) {
                 size_t newcap = (cap == 0 ? 256 : cap << 1);
-                seq_t *tmp = (seq_t *)realloc(list, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, list, newcap);
                 if (!tmp) {                 /* allocation failure */
-                    free(list);
+                    mem_free(list);
                     list = NULL;
                     cap = len = 0;
                     return 0;

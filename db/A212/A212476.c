@@ -12,14 +12,15 @@
  *            weighted by the number of (first, last) pairs that...
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 31 terms through n = 189 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static uint64_t pattern_counts[25];
 static int pattern_counts_ready = 0;
@@ -71,10 +72,10 @@ static seq_t count_leq(idx_t N, idx_t U)
     idx_t max_t = U / 4;                 /* floor(U/4) */
     for (idx_t t = 0; t <= max_t; ++t)
     {
-        seq_t c1 = binom(N, t);
+        seq_t c1 = binomial(N, t);
         if (c1 == 0) continue;
         idx_t a = U - 4 * t + N;         /* binomial arguments must be >= N */
-        seq_t c2 = binom(a, N);
+        seq_t c2 = binomial(a, N);
         seq_t term = c1 * c2;
         if (t & 1) res -= term;
         else       res += term;

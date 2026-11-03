@@ -10,12 +10,14 @@
  *            standard one‑dimensional DP for distinct parts, excluding part 8
  * Range:     u8 n <= 38, u16 n <= 90, u32 n <= 254, u64 n <= 818,
  *            u128 n <= 2867, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9802 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_buf = NULL;   /* buffer holding DP values up to current target */
 static idx_t dp_cap = 0;       /* current capacity of dp_buf (in elements) */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Ensure the DP buffer is large enough */
     if (target + 1 > dp_cap) {
-        seq_t *new_buf = (seq_t *)realloc(dp_buf, (target + 1) * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, dp_buf, (target + 1));
         if (!new_buf) abort();                /* memory allocation failed */
         dp_buf = new_buf;
         dp_cap = target + 1;

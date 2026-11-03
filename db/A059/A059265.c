@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime64, powmod64
+ * Validated: standard, pass, 71 terms through n = 994 (2026-11-03)
+ * Helpers:   is_prime_u64, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/powmod64.h"   /* powmod64(uint64_t base, uint64_t exp, uint64_t mod) */
-#include "../utils/is_prime64.h" /* is_prime64(uint64_t n) */
+#include "../utils/is_prime_u64.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t gcd_uint64(uint64_t a, uint64_t b)
 {
@@ -38,7 +39,7 @@ static bool good_prime(uint64_t p)
     /* p is an odd prime, p > 2 */
     uint64_t d  = gcd_uint64(p - 1U, 14ULL);
     uint64_t exp = (p - 1U) / d;
-    return powmod64(2ULL, exp, p) != 1ULL;
+    return powmod_u64(2ULL, exp, p) != 1ULL;
 }
 
 seq_t a(idx_t n)
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
     uint64_t p = 3;         /* first odd prime */
 
     for (;;) {
-        if (is_prime64(p) && good_prime(p)) {
+        if (is_prime_u64(p) && good_prime(p)) {
             ++count;
             if (count == n) return (seq_t)p;
         }

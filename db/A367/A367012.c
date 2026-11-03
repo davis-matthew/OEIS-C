@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{k=0..n} k! * (n-k)^k
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 37 terms through n = 304 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Computes a(n) = Sum_{k=0..n} k! * (n-k)^k.
  *  idx_t is the index type, seq_t is the sequence value type.
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
         seq_t pow = (seq_t)1;            /* default for k == 0 */
 
         if (k != (idx_t)0) {
-            pow = big_pow((seq_t)(n - k), (seq_t)k);
+            pow = ipow((seq_t)(n - k), (seq_t)k);
         }
 
         seq_t term = fact * pow;         /* k! * (n-k)^k   */

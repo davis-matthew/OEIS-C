@@ -7,8 +7,9 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = (greatest prime factor of n) modulo (least prime factor
  *            of n)
- * Range:     u8 n <= 9552, u16 n <= 9552, u32 n <= 9552, u64 n <= 9552,
- *            u128 n <= 9552, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9552 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

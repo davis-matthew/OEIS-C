@@ -8,7 +8,8 @@
  *            successive-absolute-differences mapping (Orphans A271639)
  * Range:     u8 none, u16 n <= 7394, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_to_str
+ * Validated: standard, pass, 68 terms through n = 9698 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_to_str.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* Return true if the number x has no parent. */
 static bool is_orphan(const seq_t x)

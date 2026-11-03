@@ -9,12 +9,14 @@
  *            a(3)=8, a(4)=13, a(5)=24. The recurrence holds for n≥6
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 34, u64 n <= 67, u128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* dynamic array of sequence values   */
 static size_t capacity = 0;      /* number of elements allocated      */
@@ -25,7 +27,7 @@ static void ensure_capacity(idx_t n)
 {
     if (capacity < (size_t)n) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* unrecoverable allocation failure */
         cache = tmp;
         capacity = new_cap;

@@ -8,8 +8,9 @@
  * Formula:   a(n) = largest prime p such that the exponent of p in the
  *            canonical prime factorization of n is the minimal exponent among
  *            all primes in that factorization
- * Range:     u8 n <= 256, u16 n <= 9650, u32 n <= 9650, u64 n <= 9650,
- *            u128 n <= 9650, big any n
+ * Range:     u8 n <= 256, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 90 terms through n = 9650 (2026-11-01)
  * Helpers:   factorize
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factorize.h"
 
 seq_t a(idx_t n) {

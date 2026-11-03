@@ -11,7 +11,8 @@
  *            the square‑free numbers in increasing order
  * Range:     u8 n <= 53, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #ifndef MAX_N
 #define MAX_N 10000   /* Largest n that the static arrays can handle efficiently */
 #endif
+#include "../utils/mem.h"
 
 /* Static storage for the common case n <= MAX_N */
 static seq_t dp0[MAX_N + 1];
@@ -77,16 +79,16 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* Allocate DP tables */
-    seq_t *t0 = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *t1 = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *t2 = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *t3 = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *t4 = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *t0 = mem_new(seq_t, N + 1);
+    seq_t *t1 = mem_new(seq_t, N + 1);
+    seq_t *t2 = mem_new(seq_t, N + 1);
+    seq_t *t3 = mem_new(seq_t, N + 1);
+    seq_t *t4 = mem_new(seq_t, N + 1);
 
     /* Allocate and initialise the square‑free mask */
     unsigned char *sqfree = (unsigned char*)calloc(N + 1, 1);
     if (!t0 || !t1 || !t2 || !t3 || !t4 || !sqfree) {
-        free(t0); free(t1); free(t2); free(t3); free(t4); free(sqfree);
+        mem_free(t0); mem_free(t1); mem_free(t2); mem_free(t3); mem_free(t4); free(sqfree);
         return 0;
     }
     for (size_t i = 0; i <= N; ++i) sqfree[i] = 1;
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
     /* Build list of square‑free numbers */
     idx_t *vec = (idx_t*)malloc((N + 1) * sizeof(idx_t));
     if (!vec) {
-        free(t0); free(t1); free(t2); free(t3); free(t4); free(sqfree);
+        mem_free(t0); mem_free(t1); mem_free(t2); mem_free(t3); mem_free(t4); free(sqfree);
         return 0;
     }
     size_t m = 0;
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = t4[N];
-    free(t0); free(t1); free(t2); free(t3); free(t4);
+    mem_free(t0); mem_free(t1); mem_free(t2); mem_free(t3); mem_free(t4);
     free(sqfree); free(vec);
     return result;
 }

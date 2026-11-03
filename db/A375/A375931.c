@@ -9,15 +9,18 @@
  * Formula:   a(n) = Product_{p^e||n, e = max_i e_i} p^e
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 87 terms through n = 9927 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     /* a(0) is undefined, return 0 for safety */
@@ -42,7 +45,7 @@ seq_t a(idx_t n) {
     for (size_t i = 0; i < cnt; ++i) {
         if (exps[i] == maxe) {
             /* seq_pow returns the power in the seq_t type */
-            seq_t term = seq_pow((seq_t)primes[i], exps[i]);
+            seq_t term = ipow_idx((seq_t)primes[i], exps[i]);
             result = result * term;
         }
     }

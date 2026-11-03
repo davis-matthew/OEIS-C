@@ -10,7 +10,8 @@
  *            efficiently
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime, powmod64
+ * Validated: standard, pass, 70 terms through n = 944 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
-#include "../utils/powmod64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* static cache for already found terms */
 static seq_t *cache = NULL;          /* array of found primes */
@@ -31,10 +34,10 @@ static uint64_t last_checked = 1;    /* last prime examined */
 static void cache_grow(void)
 {
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-    seq_t *newp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, new_cap);
     if (cache) {
-        memcpy(newp, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(newp, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = newp;
     cache_cap = new_cap;
@@ -45,7 +48,7 @@ static void cache_grow(void)
 static int is_residue41(uint64_t p)
 {
     /* when p == 41 the symbol is 0, so this will return 0. */
-    uint64_t res = powmod64(41ull, (p - 1) / 2, p);
+    uint64_t res = powmod_u64(41ull, (p - 1) / 2, p);
     return res == 1;
 }
 

@@ -10,12 +10,14 @@
  *            a(6)=15, a(7)=20, a(8)=28, a(9)=40
  * Range:     u8 n <= 14, u16 n <= 30, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* number of subsets of {1,…,n} with no two elements differing by 2, 4, or 5 */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* initial capacity: 16 elements (more than the 10 base values) */
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort(); /* allocation failure */
 
         /* base values a(0) … a(9) */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t newcap = cap ? (cap << 1) : 16;
         while (newcap <= (size_t)n) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort(); /* allocation failure */
         cache = tmp;
         cap   = newcap;

@@ -8,12 +8,14 @@
  *            binomial(d + n/d - 2, d - 1)
  * Range:     i8 n <= 23, i16 n <= 90, i32 n <= 314, i64 n <= 1146,
  *            i128 n <= 4319, big any n
+ * Validated: standard, pass, 82 terms through n = 9182 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* using the provided gcd generator */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* multiplicative binomial calculation avoiding overflow */

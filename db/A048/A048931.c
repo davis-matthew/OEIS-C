@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 1141, u32 n <= 1141, u64 n <= 1141,
  *            u128 n <= 1141, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Upper bound on the searched sums (the largest known term). */
 static const idx_t MAX_LIMIT = 26132;
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
 
         term_count = tc;
         if (term_count > 0) {
-            terms = (seq_t *)malloc(term_count * sizeof(seq_t));
+            terms = mem_new(seq_t, term_count);
             if (!terms) {
                 free(cnt);
                 free(cubes);

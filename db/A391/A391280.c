@@ -12,13 +12,16 @@
  *            a(n)=T(n_idx,k)
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     idx_t k     = r;       /* k coordinate */
 
     /* T(n_idx,k) = π(n_idx·k) – π(n_idx·(k–1)) */
-    seq_t upper = compute_pi(n_idx * k);
-    seq_t lower = compute_pi(n_idx * (k - 1));
+    seq_t upper = prime_pi(n_idx * k);
+    seq_t lower = prime_pi(n_idx * (k - 1));
     return upper - lower;
 }

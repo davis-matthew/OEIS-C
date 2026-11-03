@@ -13,14 +13,32 @@
  *            2^w (exact whe...
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 14, u64 n <= 22, u128 n <= 35,
  *            big any n
- * Helpers:   a2816_detect, a2816_inv
+ * Validated: standard, pass, 40 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a2816_detect.h"
-#include "../utils/a2816_inv.h"
+#include "../utils/mem.h"
+
+static int a2816_detect(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x = (seq_t)(x * 2);
+    return x == 0;
+}
+
+static seq_t a2816_inv(seq_t q) {
+    seq_t x = q;
+    int i;
+    for (i = 0; i < 8; i++) {
+        seq_t t = (seq_t)(q * x);
+        t = (seq_t)((seq_t)2 - t);
+        x = (seq_t)(x * t);
+    }
+    return x;
+}
 
 static seq_t *a2816_cache = NULL;
 static idx_t a2816_cap = 0;
@@ -34,7 +52,7 @@ seq_t a(idx_t n) {
 
     if (a2816_cache == NULL) {
         a2816_cap = (n < 1000) ? 1000 : n + 100;
-        a2816_cache = (seq_t *)malloc((size_t)(a2816_cap + 1) * sizeof(seq_t));
+        a2816_cache = mem_new(seq_t, (size_t)(a2816_cap + 1));
         a2816_cache[0] = 0;
         a2816_cache[1] = 1;
         a2816_cache[2] = 0;
@@ -49,9 +67,9 @@ seq_t a(idx_t n) {
 
     if (n > a2816_cap) {
         idx_t newcap = n + 100;
-        seq_t *nc = (seq_t *)malloc((size_t)(newcap + 1) * sizeof(seq_t));
+        seq_t *nc = mem_new(seq_t, (size_t)(newcap + 1));
         for (i = 0; i <= a2816_done; i++) nc[i] = a2816_cache[i];
-        free(a2816_cache);
+        mem_free(a2816_cache);
         a2816_cache = nc;
         a2816_cap = newcap;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 580, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   minimal_sum
+ * Validated: standard, pass, 115 terms through n = 8837 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,22 @@
  */
 
 #include <stdlib.h>
-#include "../utils/minimal_sum.h"
+
+static seq_t minimal_sum(seq_t n) {
+    /* A063655: smallest x+y with x*y = n, x,y >= 1 */
+    if (n <= 1) return (seq_t)2;          /* special case for n == 1 */
+
+    seq_t minSum = n + (seq_t)1;          /* start with pair (1,n) */
+    for (seq_t d = (seq_t)2; d * d <= n; ++d) {
+        if (n % d == (seq_t)0) {
+            seq_t other = n / d;
+            seq_t sum = d + other;
+            if (sum < minSum)
+                minSum = sum;
+        }
+    }
+    return minSum;
+}
 
 seq_t a(idx_t n) {
     /* sequence starts with the input value n */

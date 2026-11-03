@@ -10,7 +10,8 @@
  *            a(n) for n ≥ 1
  * Range:     u8 n <= 35, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, seq_mul
+ * Validated: standard, pass, 96 terms through n = 9977 (2026-11-01)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
+#include <string.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {

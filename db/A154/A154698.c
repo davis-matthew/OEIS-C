@@ -12,7 +12,8 @@
  *            the flattened sequence are a(0) = 2, a(1) = 5, a(2) = 5
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 37, u64 n <= 94, u128 n <= 230,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 211 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --------- small helper: compute X^e for small integer base X (2 or 3) --------- */
 static seq_t
@@ -44,7 +46,7 @@ static idx_t  max_row = 0;      /* highest row index that has been allocated */
 static void
 allocate_row(idx_t i)
 {
-    seq_t *row = (seq_t *)malloc((size_t)(i + 1) * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)(i + 1));
     if (!row)
         abort();                 /* fatal: out of memory */
 

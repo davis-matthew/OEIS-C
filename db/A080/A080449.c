@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   mul_overflows_u64, pow10
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,8 +37,33 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pow10.h"          /* pow10(idx_t) -> seq_t */
-#include "../utils/mul_overflows_u64.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Guarded multiplication for 64‑bit builds.  Returns true if overflow. */
+static bool mul_overflows_u64(uint64_t a, uint64_t b, uint64_t *res)
+{
+#if defined(__SIZEOF_INT128__)
+    unsigned __int128 prod = (unsigned __int128)a * b;
+    if (prod > (unsigned __int128)UINT64_MAX) return true;
+    *res = (uint64_t)prod;
+    return false;
+#else
+    /* Fallback (no 128‑bit type available): use division test. */
+    if (b != 0 && a > UINT64_MAX / b) return true;
+    *res = a * b;
+    return false;
+#endif
+}
 
 static seq_t *cache = NULL;        /* 1‑based: cache[1] = a(1) */
 static size_t cache_cap = 0;       /* current allocated size (in seq_t) */
@@ -48,7 +74,7 @@ static void ensure_cache_capacity(idx_t n)
 {
     if ((size_t)n >= cache_cap) {
         size_t new_cap = (size_t)(n + 1);           /* indices 0 … n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;                          /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

@@ -7,13 +7,15 @@
  * Formula:   a(n) = 6*(6*n+1)*a(n-1)/n, a(0) = 1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 541 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0; /* number of valid entries: memo[0..memo_len-1] */
@@ -31,7 +33,7 @@ static uint64_t gcd_u64(uint64_t x, uint64_t y) {
 seq_t a(idx_t n) {
     if (memo_len == 0) {
         memo_cap = 16;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         memo[0] = 1;
         memo_len = 1;
     }
@@ -40,9 +42,9 @@ seq_t a(idx_t n) {
     if (n >= memo_cap) {
         idx_t new_cap = memo_cap;
         while (new_cap <= n) new_cap *= 2;
-        seq_t *nm = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *nm = mem_new(seq_t, new_cap);
         for (idx_t i = 0; i < memo_len; i++) nm[i] = memo[i];
-        free(memo);
+        mem_free(memo);
         memo = nm;
         memo_cap = new_cap;
     }

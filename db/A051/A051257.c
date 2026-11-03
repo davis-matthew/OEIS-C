@@ -8,14 +8,32 @@
  * Formula:   a(n) = Sum_{k=0..n} (k+1)! * (C(n, k) mod (k+2))
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   generate_primes_upto
+ * Validated: standard, pass, 36 terms through n = 195 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/generate_primes_upto.h"
+
+/* Generate the list of primes up to limit <= 10000.
+   The array `primes` must have space for at least 11000 entries
+   and `cnt` will contain the number of primes found. */
+static void generate_primes_upto(idx_t limit, idx_t *primes, size_t *cnt) {
+    static unsigned char sieve[10001] = {0};
+    idx_t i, j;
+    for (i = 0; i <= limit; ++i) sieve[i] = 0;
+    *cnt = 0;
+    for (i = 2; i <= limit; ++i) {
+        if (!sieve[i]) {
+            if (*cnt < 11000) primes[(*cnt)++] = i;
+            if (i * i <= limit) {
+                for (j = i * i; j <= limit; j += i) sieve[j] = 1;
+            }
+        }
+    }
+}
 
 /* auxiliary: exponent of prime p in m! */
 static inline idx_t exp_factorial(idx_t m, idx_t p) {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for primes */
 static uint32_t *primes = NULL;
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
 
     while (seen < target) {
         ++row;                                 /* build next row */
-        curr = (seq_t*)malloc((size_t)row * sizeof(seq_t));
+        curr = mem_new(seq_t, (size_t)row);
         if (!curr)
             exit(EXIT_FAILURE);
 
@@ -95,18 +97,18 @@ seq_t a(idx_t n)
         if (seen + slice >= target) {
             idx_t offset = target - seen - 1;   /* 0‑based offset in this row */
             seq_t answer = curr[offset];
-            free(prev);
-            free(curr);
+            mem_free(prev);
+            mem_free(curr);
             return answer;
         }
 
         seen += slice;
-        free(prev);
+        mem_free(prev);
         prev = curr;
         curr = NULL;
     }
 
     /* should never be reached */
-    free(prev);
+    mem_free(prev);
     return (seq_t)0;
 }

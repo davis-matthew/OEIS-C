@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 0, i16 n <= 2, i32 n <= 6, i64 n <= 12, i128 n <= 23,
  *            big any n
- * Helpers:   pow_minus7_int
+ * Validated: standard, pass, 34 terms through n = 383 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,17 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/pow_minus7_int.h"
+
+/* Integer power of -7.
+   The exponent is small enough (≤ ~10000) that a loop is adequate and
+   the result fits in seq_t for the indices that are actually requested. */
+static seq_t pow_minus7_int(idx_t exp)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        r *= (seq_t)(-7);
+    return r;
+}
 
 /* Do not change MAX_N – the build defines an appropriate bound. */
 #ifndef MAX_N

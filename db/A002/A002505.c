@@ -11,14 +11,29 @@
  *            LambertW((8n+1)/(8e)))
  * Range:     u8 n <= 109, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   a002505_lambert_w
+ * Validated: standard, pass, 74 terms through n = 2920 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdint.h>
-#include "../utils/a002505_lambert_w.h"
+
+static double a002505_lambert_w(double z) {
+    double w;
+    int i;
+    if (z <= 0.0) return 0.0;
+    if (z < 3.0) w = log1p(z);
+    else w = log(z) - log(log(z));
+    for (i = 0; i < 100; i++) {
+        double ew = exp(w);
+        double delta = (w * ew - z) / (ew * (1.0 + w));
+        w -= delta;
+        if (fabs(delta) < 1e-15 * (1.0 + fabs(w))) break;
+    }
+    return w;
+}
 
 #define A002505_PI 3.14159265358979323846
 #define A002505_E  2.71828182845904523536

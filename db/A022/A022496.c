@@ -11,13 +11,15 @@
  *            ((1-x)^2*(1-x^3)^2*(1-x^4)^2*(1-x^6)^2)
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* numerator coefficients (index corresponds to power of x) */
 static const int numer[18] = {
@@ -83,7 +85,7 @@ static void ensure_f(idx_t n)
     if (f_len > (size_t)n) return;
 
     size_t newlen = (size_t)n + 1;
-    f = (seq_t *)realloc(f, newlen * sizeof(seq_t));
+    f = mem_resize(seq_t, f, newlen);
 
     /* zero new entries */
     for (size_t i = f_len; i < newlen; ++i) f[i] = 0;

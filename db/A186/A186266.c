@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 35,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 37 terms through n = 780 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cache of computed terms */
 static size_t a_cached = 0;     /* highest index cached + 1 */
@@ -29,7 +31,7 @@ static void a_ensure(idx_t max)
 
     /* allocate (max+1) entries */
     size_t new_sz = (size_t)max + 1;
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_sz * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_sz);
     if (!new_cache) exit(1);  /* allocation failure; abort */
 
     for (idx_t i = a_cached; i <= max; ++i) {

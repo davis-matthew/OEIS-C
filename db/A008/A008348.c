@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 6453, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 8628 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helpers for prime generation ------------------------------------ */
 static idx_t *prime_list   = NULL; /* 0‑based: prime_list[0] = 2 */
@@ -88,8 +90,7 @@ seq_t a(idx_t n)
 
     if (n >= cache_size) {          /* need to grow cache      */
         idx_t new_size = n + 1;      /* indices 0 … n inclusive*/
-        cache = (seq_t *)realloc(cache,
-                                  new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         if (!cache) abort();
 
         /* Initialisation for a(0). */

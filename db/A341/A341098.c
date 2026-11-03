@@ -8,7 +8,8 @@
  *            parts
  * Range:     u8 n <= 102, u16 n <= 126, u32 n <= 126, u64 n <= 126,
  *            u128 n <= 126, big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 126 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* idx_t and seq_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* Step 2: allocate DP arrays. */
     seq_t **new_dp = (seq_t **)calloc(11, sizeof(seq_t *));
     for (int k = 0; k <= 10; ++k)
-        new_dp[k] = (seq_t *)calloc(limit + 1, sizeof(seq_t));
+        new_dp[k] = mem_new(seq_t, limit + 1);
 
     new_dp[0][0] = 1;   /* one way to partitition 0 with 0 parts */
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     /* Step 4: free old resources and install new ones. */
     if (dp != NULL) {
         for (int k = 0; k <= 10; ++k)
-            free(dp[k]);
+            mem_free(dp[k]);
         free(dp);
     }
     if (sqf != NULL)

@@ -9,8 +9,9 @@
  *            n, where p_k is the k‑th prime. For n=1,2,3 the * block is
  *            0,1,2; for n=4…7 the block is 0,1,2,3; for n=8…13 * the block is
  *            0,1,2,3,4,5; and so on
- * Range:     u8 n <= 6391, u16 n <= 9340, u32 n <= 9340, u64 n <= 9340,
- *            u128 n <= 9340, big any n
+ * Range:     u8 n <= 6391, u16 n <= 11326, u32 n <= 11326, u64 n <= 11326,
+ *            u128 n <= 11326, big any n
+ * Validated: standard, pass, 101 terms through n = 9340 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

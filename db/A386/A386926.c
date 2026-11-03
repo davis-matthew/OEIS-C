@@ -8,15 +8,28 @@
  * Formula:   a(n) = denominator of sum_{k=1..n} d(k+1)/d(k)
  * Range:     u8 n <= 8, u16 n <= 37, u32 n <= 1449, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, gcd, seq_realloc
+ * Validated: standard, pass, 77 terms through n = 9766 (2026-11-01)
+ * Helpers:   gcd, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/num_divisors.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -35,8 +48,8 @@ seq_t a(idx_t n)
             cache_cap = n;
         }
         for (idx_t k = cache_len + 1; k <= n; ++k) {
-            seq_t d_k = (seq_t)divisor_count_u64((uint64_t)k);
-            seq_t d_k_plus1 = (seq_t)divisor_count_u64((uint64_t)(k + 1));
+            seq_t d_k = (seq_t)num_divisors((uint64_t)k);
+            seq_t d_k_plus1 = (seq_t)num_divisors((uint64_t)(k + 1));
 
             seq_t new_num = numerator * d_k + denominator * d_k_plus1;
             seq_t new_den = denominator * d_k;

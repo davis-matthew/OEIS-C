@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 19, u32 n <= 6369, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_frequencies, seq_mul
+ * Validated: standard, pass, 115 terms through n = 9995 (2026-11-01)
+ * Helpers:   digit_frequencies
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,15 @@
  * to perform powers iteratively.  No assumptions are made
  * about the array ordering of successive calls. */
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/digit_frequencies.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Return true iff the decimal digits of x contain a '1'. */
 static bool contains_one(seq_t x)

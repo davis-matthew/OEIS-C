@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"  /* int_sqrt(idx_t) */
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static idx_t *primes      = NULL;  /* list of primes */
 static size_t primes_sz   = 0;     /* number of primes stored */
@@ -76,7 +78,7 @@ static void grow_u_seq(size_t needed) {
     if (u_cap >= needed) return;
     size_t new_cap = u_cap ? u_cap << 1U : 16U;
     while (new_cap < needed) new_cap <<= 1U;
-    seq_t *tmp = (seq_t *)realloc(u_seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, u_seq, new_cap);
     if (!tmp) exit(1);
     u_seq = tmp;
     u_cap = new_cap;
@@ -91,7 +93,7 @@ static void generate_next_prime(void) {
 
     for (;;) {
         bool prime = true;
-        idx_t limit = int_sqrt(cand);
+        idx_t limit = isqrt(cand);
         for (size_t i = 0; i < primes_sz && primes[i] <= limit; ++i) {
             if (cand % primes[i] == 0) {
                 prime = false;

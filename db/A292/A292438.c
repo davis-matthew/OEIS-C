@@ -7,8 +7,9 @@
  * Formula:   a(0) = 1, a(1) = 1, a(2) = 0; for n > 2: a(n) = 1 - is_prime(n -
  *            ((n+1) % 2)) * is_prime(n + ((n+1) % 2)) where is_prime is the
  *            helper from utils/is_prime.h (A010051 in OEIS)
- * Range:     u8 n <= 9655, u16 n <= 9655, u32 n <= 9655, u64 n <= 9655,
- *            u128 n <= 9655, big any n
+ * Range:     u8 n <= 65539, u16 n <= 65539, u32 n <= 65539, u64 n <= 65539,
+ *            u128 n <= 65539, big any n
+ * Validated: standard, pass, 137 terms through n = 9655 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

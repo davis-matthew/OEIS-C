@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 11, i64 n <= 18, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    the code works correctly for successive calls in any order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for memoised values */
 static seq_t *cache      = NULL;   /* cache array */
@@ -34,7 +36,7 @@ static void ensure_capacity(idx_t n)
     if ((size_t)n + 1 <= cache_cap) return;
 
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(EXIT_FAILURE);   /* out of memory */
 
     /* initialise the newly allocated slots to zero */

@@ -7,6 +7,7 @@
  * Formula:   a(n) = sigma_3(3*n) (sum of cubes of divisors of 3*n)
  * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

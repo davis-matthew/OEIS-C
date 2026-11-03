@@ -10,18 +10,45 @@
  *            q^(1/2)*T(q) with T(q) = Sum_{k in Z} q^(2k(k+1)), so a(n) =
  *            [q^n] t3^11 + 26*[q^(n-2)] t3^7*T^4 + 24*[q^(n-3)] t3^5*T^6 +
  *            13*[q^(n-4)] t3^3*T^8, t3...
- * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 73, u64 n <= 8941,
- *            u128 n <= 8941, big any n
- * Helpers:   alloc_zero, release, sparse_mul
+ * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 73, u64 n <= 10011,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 47 terms through n = 8941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/sparse_mul.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* dst = src * theta_3(q^2) (which == 0) or src * T(q) (which == 1), truncated to len */
+static void sparse_mul(seq_t *dst, const seq_t *src, idx_t len, int which) {
+    for (idx_t i = 0; i < len; i++) {
+        seq_t s = 0;
+        if (which == 0) {
+            s += src[i];
+            for (idx_t k = 1; 2 * k * k <= i; k++)
+                s += 2 * src[i - 2 * k * k];
+        } else {
+            for (idx_t k = 0; 2 * k * (k + 1) <= i; k++)
+                s += 2 * src[i - 2 * k * (k + 1)];
+        }
+        dst[i] = s;
+    }
+}
 
 static seq_t *P3[12];
 static seq_t *PT[9];

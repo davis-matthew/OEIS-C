@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 41, u64 n <= 87, u128 n <= 179,
  *            big any n
- * Helpers:   lower_bound_seq
+ * Validated: standard, pass, 52 terms through n = 1989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
     a(n) and b(n) are the complementary increasing sequences.   */
 
 #include <stdlib.h>
-#include "../utils/lower_bound_seq.h"
+#include "../utils/mem.h"
+
+/* binary search: first index ≥ val */
+static idx_t
+lower_bound_seq(const seq_t *arr, idx_t size, seq_t val)
+{
+    idx_t lo = 0, hi = size;
+    while (lo < hi) {
+        idx_t mid = lo + ((hi - lo) >> 1);
+        if (arr[mid] < val)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo;
+}
 
 /*  The main function that returns the nth a‑term. */
 seq_t a(idx_t n)
@@ -37,7 +53,7 @@ seq_t a(idx_t n)
     /* initialise arrays on first call */
     if (a_arr == NULL) {
         a_cap = 2;
-        a_arr = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_cap);
         if (a_arr == NULL) return 0;     /* out of memory – return 0 */
         a_arr[0] = (seq_t)1;
         a_arr[1] = (seq_t)2;
@@ -45,7 +61,7 @@ seq_t a(idx_t n)
     }
     if (b_arr == NULL) {
         b_cap = 2;
-        b_arr = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_arr = mem_new(seq_t, b_cap);
         if (b_arr == NULL) return 0;
         b_arr[0] = (seq_t)3;
         b_arr[1] = (seq_t)4;
@@ -72,7 +88,7 @@ seq_t a(idx_t n)
         /* store b_k */
         if (b_sz == b_cap) {
             b_cap = (b_cap == 0) ? 2 : b_cap << 1;
-            b_arr = (seq_t *)realloc(b_arr, b_cap * sizeof(seq_t));
+            b_arr = mem_resize(seq_t, b_arr, b_cap);
             if (b_arr == NULL) return 0;
         }
         b_arr[b_sz++] = b_k;
@@ -83,7 +99,7 @@ seq_t a(idx_t n)
 
         if (a_sz == a_cap) {
             a_cap = (a_cap == 0) ? 2 : a_cap << 1;
-            a_arr = (seq_t *)realloc(a_arr, a_cap * sizeof(seq_t));
+            a_arr = mem_resize(seq_t, a_arr, a_cap);
             if (a_arr == NULL) return 0;
         }
         a_arr[a_sz++] = term;

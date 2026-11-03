@@ -8,7 +8,8 @@
  *            product_{k=1..n} (2k-1)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    the cast will widen automatically.  The algorithm is O(n). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (computed == 0) {
         cap = (n + 1 > 2) ? n + 1 : 2;
-        arr = (seq_t *)malloc(cap * sizeof(seq_t));
+        arr = mem_new(seq_t, cap);
         if (!arr)
             return 0;            /* allocation failed – safe fallback */
         arr[0] = 0;              /* unused dummy entry */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cap * 2;
         if (new_cap < n + 1)
             new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, arr, new_cap);
         if (!tmp)
             return 0;            /* allocation failed – safe fallback */
         arr = tmp;

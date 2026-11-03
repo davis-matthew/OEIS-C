@@ -11,6 +11,7 @@
  *            flattening the rows of T
  * Range:     i8 n <= 16, i16 n <= 36, i32 n <= 91, i64 n <= 231,
  *            i128 n <= 595, big any n
+ * Validated: standard, pass, 71 terms through n = 9832 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

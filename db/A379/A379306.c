@@ -9,6 +9,7 @@
  *            counts, with multiplicity, each such index that is squarefree
  * Range:     u8 n <= 7078, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 8935 (2026-11-01)
  * Helpers:   is_prime, is_squarefree, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,9 +19,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/sieve_primes.h"
-#include "../utils/is_squarefree.h"
+#include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/is_squarefree.h"
+#include "../utils/sieve_primes.h"
 
 static idx_t *primes = NULL;
 static size_t primes_cnt = 0;

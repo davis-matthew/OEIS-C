@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 1132, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 65 terms through n = 8786 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Local helper: compute σ from prime factorisation */
 static seq_t
@@ -49,7 +51,7 @@ ensure_terms(idx_t target)
 {
     if (terms == NULL) {
         terms_cap = 1024;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) abort();
     }
 
@@ -84,7 +86,7 @@ ensure_terms(idx_t target)
             if (sigma_cand == sigma_der) {
                 if (terms_count == terms_cap) {
                     terms_cap *= 2;
-                    terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                     if (!terms) abort();
                 }
                 terms[terms_count++] = (seq_t)cand;

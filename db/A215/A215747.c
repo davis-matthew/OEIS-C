@@ -7,7 +7,8 @@
  * Formula:   a(n) = (-2)^n mod n
  * Range:     u8 n <= 258, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 91 terms through n = 8591 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,11 @@
    mod_pow(base, exp, mod).  For n <= 2 the base (-2) is congruent
    to 0 modulo n and therefore a(n) = 0.  For n > 2 the base
    reduces to n-2, which is the least non‑negative residue of -2. */
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -26,5 +31,5 @@ seq_t a(idx_t n)
     seq_t sn = (seq_t)n;           /* communicate the modulus as seq_t */
 
     seq_t base = (n <= 2) ? 0 : (sn - 2);
-    return mod_pow(base, n, sn);
+    return powmod(base, n, sn);
 }

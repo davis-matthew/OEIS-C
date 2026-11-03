@@ -11,14 +11,30 @@
  *            4)
  * Range:     u8 n <= 13, u16 n <= 27, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   p_small
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* required headers for malloc and printf if needed */
 #include <stdlib.h>
-#include "../utils/p_small.h"
+
+/* compute the partition numbers p(0..7) without using a table */
+static seq_t p_small(idx_t n)
+{
+    /* static size 8 (maximum n is 7) */
+    seq_t dp[8];
+    for (idx_t i = 0; i < 8; ++i)
+        dp[i] = (seq_t)0;
+    dp[0] = (seq_t)1;
+
+    for (idx_t coin = 1; coin <= n; ++coin)
+        for (idx_t sum = coin; sum <= n; ++sum)
+            dp[sum] += dp[sum - coin];
+
+    return dp[n];
+}
 
 /* compute 5^e for unsigned integer exponent e */
 static seq_t pow5(idx_t e)

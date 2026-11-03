@@ -8,7 +8,8 @@
  *            a(n)+n is prime
  * Range:     u8 n <= 50, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   mul_mod
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mul_mod.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* 64‑bit modular multiplication using 128‑bit intermediate. */
 
@@ -25,8 +28,8 @@ static inline uint64_t modpow(uint64_t a, uint64_t e, uint64_t mod)
 {
     uint64_t res = 1;
     while (e) {
-        if (e & 1) res = mul_mod(res, a, mod);
-        a = mul_mod(a, a, mod);
+        if (e & 1) res = mulmod(res, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return res;
@@ -55,7 +58,7 @@ static inline bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool cont = false;
         for (unsigned r = 1; r < s; ++r) {
-            x = mul_mod(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { cont = true; break; }
         }
         if (cont) continue;
@@ -80,7 +83,7 @@ seq_t a(idx_t n)
     if (n + 1 > capacity) {
         idx_t new_cap = capacity ? capacity << 1 : 16;
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(values, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, values, (size_t)new_cap);
         if (!tmp) return 0; /* allocation failure */
         values = tmp;
         capacity = new_cap;

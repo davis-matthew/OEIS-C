@@ -9,13 +9,15 @@
  *            up to degree 3n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* computed a(n) values */
 static idx_t  cache_sz = 0;
@@ -30,7 +32,7 @@ static idx_t  temp_sz = 0;       /* size of temp array */
 static void ensure_size(seq_t **arr, idx_t *sz, idx_t needed)
 {
     if (needed * 3 + 1 > *sz) {
-        seq_t *tmp = (seq_t *)realloc(*arr, (needed * 3 + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, (needed * 3 + 1));
         if (!tmp) abort();
         *arr = tmp;
         for (idx_t i = *sz; i <= needed * 3; ++i) (*arr)[i] = 0;
@@ -41,19 +43,19 @@ static void ensure_size(seq_t **arr, idx_t *sz, idx_t needed)
 static void init(void)
 {
     if (!cache) {
-        cache = (seq_t *)calloc(1, sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();
         cache[0] = 1;
         cache_sz = 1;
     }
     if (!coeff) {
-        coeff = (seq_t *)calloc(1, sizeof(seq_t));
+        coeff = mem_new(seq_t, 1);
         if (!coeff) abort();
         coeff[0] = 1;
         coeff_sz = 1;
     }
     if (!temp) {
-        temp = (seq_t *)calloc(1, sizeof(seq_t));
+        temp = mem_new(seq_t, 1);
         if (!temp) abort();
         temp_sz = 1;
     }
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
         /* store a(cur_n) = coefficient of x^cur_n */
         cache[cur_n] = coeff[cur_n];
         if (cur_n + 1 > cache_sz) {
-            cache = (seq_t *)realloc(cache, (cur_n + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (cur_n + 1));
             if (!cache) abort();
             cache_sz = cur_n + 1;
         }

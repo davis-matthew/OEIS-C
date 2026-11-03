@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache for memoised terms (indices 0 .. max_computed) */
 static seq_t *cache = NULL;
@@ -38,7 +40,7 @@ static void ensure_capacity(idx_t need)
         while (new_size < need) {
             new_size <<= 1;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) {
             /* Out‑of‑memory – abort. */
             exit(1);

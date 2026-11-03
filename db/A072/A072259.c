@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((6*n+37)*4^n - 1)/3
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 12, u64 n <= 28, u128 n <= 59,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 933 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

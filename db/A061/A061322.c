@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) * (1 + a(n-1)/n^2), a(0) = 2
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 7, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,14 +24,14 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {               /* initialise cache with a(0) */
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         *cache = (seq_t)2;             /* a(0) = 2 */
     }
 
     if (n + 1 > cache_len) {           /* extend cache up to index n */
         idx_t i;
         idx_t new_len = n + 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         for (i = cache_len; i < new_len; ++i) {
             seq_t prev = cache[i - 1];          /* a(i-1) */
             seq_t k    = (seq_t)i;              /* current index */

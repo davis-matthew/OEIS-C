@@ -8,13 +8,23 @@
  * Formula:   a(0) = 1; a(n) = 49 * 48^(n-1) for n >= 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   seq_mul, seq_one
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_mul.h"
-#include "../utils/seq_one.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 /* Helper: binary exponentiation of 48 for exponent exp */
 static seq_t pow48(idx_t exp)

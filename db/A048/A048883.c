@@ -8,11 +8,13 @@
  *            binary expansion of n (A000120)
  * Range:     u8 n <= 62, u16 n <= 2046, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 94 terms through n = 9778 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 static inline unsigned int popcount_u64(idx_t x) {

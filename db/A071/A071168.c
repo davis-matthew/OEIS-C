@@ -7,14 +7,15 @@
  * Formula:   a(n) = prime(n) mod phi(n)
  * Range:     u8 n <= 54, u16 n <= 7532, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi_uint64
+ * Validated: standard, pass, 97 terms through n = 9360 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/phi_uint64.h"
+#include "../utils/totient_u64.h"
 
 /* Global storage for the list of primes generated so far. */
 static idx_t *prime_list   = NULL;   /* 0‑based array of primes */
@@ -79,7 +80,7 @@ seq_t a(idx_t n)
 
     /* Euler's totient φ(n).  The helper returns uint64_t,
        which fits into seq_t for the values of n used here. */
-    seq_t phi_n = (seq_t)phi_uint64(n);
+    seq_t phi_n = (seq_t)totient_u64(n);
 
     /* Compute the required residue. */
     seq_t result = prime_n % phi_n;

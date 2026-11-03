@@ -9,13 +9,15 @@
  *            a(1)=3, b(0)=2, b(1)=4
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- dynamic array helpers ---------- */
 
@@ -24,7 +26,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t newcap = *cap ? *cap * 2 : 8;
         while (newcap < need) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
         if (!tmp) abort();
         *arr = tmp;
         *cap = newcap;
@@ -62,8 +64,8 @@ static void init(void)
 {
     /* allocate sequences with some capacity */
     cap_a = cap_b = 8;
-    a_seq = (seq_t *)malloc(cap_a * sizeof(seq_t));
-    b_seq = (seq_t *)malloc(cap_b * sizeof(seq_t));
+    a_seq = mem_new(seq_t, cap_a);
+    b_seq = mem_new(seq_t, cap_b);
     if (!a_seq || !b_seq) abort();
 
     /* set initial values */

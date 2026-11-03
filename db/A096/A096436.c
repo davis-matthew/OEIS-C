@@ -9,7 +9,8 @@
  *            available squares and 1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached table of minimal counts */
 static seq_t *dp      = NULL;   /* dp[0] is always 0             */
@@ -42,7 +44,7 @@ static void ensure_dp(idx_t n)
     idx_t new_cap = dp_cap ? dp_cap * 2 : 1;
     if (new_cap <= n) new_cap = n + 1;   /* at least n+1 slots */
 
-    seq_t *new_dp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, new_cap);
     if (!new_dp) abort();
     dp = new_dp;
     dp_cap = new_cap;

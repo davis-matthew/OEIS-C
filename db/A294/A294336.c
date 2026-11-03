@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(1)=1; for n>1, a(n)=∑_{d|A052409(n)} a(d) * where A052409(n)
  *            is the largest k such that n=m^k with m>1
- * Range:     u8 n <= 9380, u16 n <= 9380, u32 n <= 9380, u64 n <= 9380,
- *            u128 n <= 9380, big any n
- * Helpers:   none
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9380 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *a_cache   = NULL;  /* sequence values a[0..a_cache_sz] */
@@ -46,12 +48,12 @@ ensure_cache(idx_t n)
         return;                     /* already available */
 
     /* grow the a_cache array */
-    seq_t *new_a = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, (n + 1));
     if (!new_a)
         return;                     /* allocation failure – let caller handle */
     if (a_cache) {
-        memcpy(new_a, a_cache, (a_cache_sz + 1) * sizeof(seq_t));
-        free(a_cache);
+        mem_copy(new_a, a_cache, (a_cache_sz + 1) * sizeof(seq_t));
+        mem_free(a_cache);
     }
     a_cache = new_a;
 

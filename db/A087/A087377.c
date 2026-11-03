@@ -10,13 +10,14 @@
  *            1,2,3,... (row n has n terms)
  * Range:     u8 n <= 698, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 100 terms through n = 4953 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +45,7 @@ seq_t a(idx_t n)
     idx_t k = 1;
     while (1) {
         idx_t val = r * k + 1;
-        if (isPrime(val)) {
+        if (is_prime(val)) {
             if (count == col) {
                 return (seq_t)k;
             }

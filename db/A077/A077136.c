@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 78 terms through n = 9945 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/isPrime.h"   /* isPrime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Cached terms */
 static seq_t *cache      = NULL;
@@ -36,7 +38,7 @@ static void ensure_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = (cache_cap == 0) ? 1 : cache_cap * 2;
     if (need > new_cap) new_cap = need;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) abort();
     cache = new_arr;
     cache_cap = new_cap;
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         uint64_t m = next_candidate;
 
         /* Skip primes */
-        if (isPrime(m)) {
+        if (is_prime(m)) {
             ++next_candidate;
             continue;
         }
@@ -79,12 +81,12 @@ seq_t a(idx_t n)
                 uint64_t e = m / d;          /* complementary divisor */
 
                 /* Check divisor d */
-                if (!(isPrime(d) || isPrime(d - 1)))
+                if (!(is_prime(d) || is_prime(d - 1)))
                     ok = false;
                 if (!ok) break;
 
                 /* Check e if distinct */
-                if (e != d && !(isPrime(e) || isPrime(e - 1)))
+                if (e != d && !(is_prime(e) || is_prime(e - 1)))
                     ok = false;
             }
         }

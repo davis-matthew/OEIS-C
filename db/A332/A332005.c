@@ -10,7 +10,8 @@
  *            3k(k-1)/2 + 1, for k = 1,2,3,…
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    dp[sum][k] = number of subsets of size k whose elements sum to sum.
    After filling dp, a(n) = Σ_k dp[n][k] * k! . */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* DP table dimensions */
     size_t rows = (size_t)(N + 1);
     size_t cols = (size_t)(ct_count + 1);
-    seq_t *dp = (seq_t*)calloc(rows * cols, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, rows * cols);
     if (!dp)
         return (seq_t)0;          /* out of memory – return 0 as safe value */
 
@@ -67,9 +69,9 @@ seq_t a(idx_t n)
     }
 
     /* Precompute factorials up to ct_count */
-    seq_t *fact = (seq_t*)calloc(ct_count + 1, sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, ct_count + 1);
     if (!fact) {
-        free(dp);
+        mem_free(dp);
         return (seq_t)0;
     }
     fact[0] = (seq_t)1;
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
             result += cnt * fact[sz];
     }
 
-    free(dp);
-    free(fact);
+    mem_free(dp);
+    mem_free(fact);
     return result;
 }

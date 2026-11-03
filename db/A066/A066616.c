@@ -8,12 +8,14 @@
  * Formula:   a(1)=1; a(n)=a(n-1) if n | a(n-1) a(n)=n*a(n-1) otherwise (n>=2)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 42, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* cache[0] unused, cache[1] holds a(1)  */
 static idx_t cache_size = 0;       /* allocated slots (including index 0) */
@@ -23,7 +25,7 @@ static idx_t computed_max = 0;     /* largest n computed so far */
 static void ensure_cache(idx_t n)
 {
     if (n + 1 <= cache_size) return;
-    seq_t *new_cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) exit(1);                 /* out of memory */
     cache = new_cache;
     cache_size = n + 1;

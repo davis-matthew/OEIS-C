@@ -13,7 +13,8 @@
  *            -a(n-20)-a(n-21)+a(n-22) for n>21, with initi...
  * Range:     u8 n <= 30, u16 n <= 128, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,10 +43,10 @@ seq_t a(idx_t n)
     if (n >= max_computed) {
         size_t new_size = (size_t)n + 1;
         if (!values) {
-            values = (seq_t *)malloc(new_size * sizeof(seq_t));
-            memset(values, 0, new_size * sizeof(seq_t));
+            values = mem_new(seq_t, new_size);
+            mem_set(values, 0, new_size * sizeof(seq_t));
         } else if (new_size > max_computed) {
-            values = (seq_t *)realloc(values, new_size * sizeof(seq_t));
+            values = mem_resize(seq_t, values, new_size);
         }
 
         /* compute missing values */

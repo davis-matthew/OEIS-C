@@ -7,15 +7,16 @@
  * Formula:   a(n) = 32*A000045(n) (Fibonacci sequence with F0=0, F1=1)
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 40, u64 n <= 86, u128 n <= 178,
  *            big any n
- * Helpers:   fib_n
+ * Validated: standard, pass, 46 terms through n = 924 (2026-11-01)
+ * Helpers:   fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fib_n.h"
+#include "../utils/fibonacci.h"
 
 seq_t a(idx_t n)
 {
-    return fib_n(n) * (seq_t)32;
+    return fibonacci(n) * (seq_t)32;
 }

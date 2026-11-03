@@ -11,13 +11,15 @@
  *            doubled until at least n terms have been id...
  * Range:     u8 n <= 51, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define OFFSET 2540U   /* difference between k and k+2540 */
 
@@ -65,17 +67,17 @@ static void extend_range(uint32_t new_limit)
     }
 
     /* rebuild cache with all k <= new_limit satisfying the condition */
-    free(cache);            /* discard old cache */
+    mem_free(cache);            /* discard old cache */
     cache_len = 0;
     cache_cap = new_limit + 32U; /* initial capacity */
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) abort();
 
     for (uint32_t k = 1; k <= new_limit; ++k) {
         if (d[k] == d[k + OFFSET]) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2U;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) abort();
             }
             cache[cache_len++] = (seq_t)k;

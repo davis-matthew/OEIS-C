@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  dp_counts[i] contains the minimal number of positive cubes needed to represent i;
     values larger than 255 are treated as “unreachable” (INF). */
@@ -72,7 +74,7 @@ static void enlarge(size_t new_max) {
         if (best == 8) {
             if (terms_cnt == terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 1024;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_cnt++] = (seq_t)i;
         }

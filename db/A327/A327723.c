@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   msd_seq
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/msd_seq.h"
+#include "../utils/mem.h"
+
+static uint64_t msd_seq(seq_t x)      /* most significant digit of x   */
+{
+    seq_t v = x;
+    while (v >= 10) v /= 10;
+    return (uint64_t)v;
+}
 
 /*--- helpers --------------------------------------------------------*/
 
@@ -45,11 +53,11 @@ static void ensure_seq_capacity(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2U : 16U;
     if (new_cap < needed) new_cap = needed;
-    seq_t *new_seq = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_new(seq_t, new_cap);
     if (!new_seq) abort();
     if (seq) {
-        memcpy(new_seq, seq, seq_len * sizeof(seq_t));
-        free(seq);
+        mem_copy(new_seq, seq, seq_len * sizeof(seq_t));
+        mem_free(seq);
     }
     seq     = new_seq;
     seq_cap = new_cap;

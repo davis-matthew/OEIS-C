@@ -9,7 +9,8 @@
  *            (Prime(n)+2) mod 4
  * Range:     u8 n <= 30, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   build_primes, estimate_upper_for_n, next_prime
+ * Validated: partial, pass, 55 terms through n = 56 (2026-11-01)
+ * Helpers:   build_primes, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/build_primes.h"          /* void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
-#include "../utils/estimate_upper_for_n.h"  /* size_t estimate_upper_for_n(size_t n); */
-#include "../utils/next_prime.h"            /* uint64_t next_prime(uint64_t start); */
+#include <stdint.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/build_primes.h"
+#include "../utils/next_prime.h"
+
+/* Estimate an upper bound for the n-th prime using Rosser's theorem. */
+static size_t estimate_upper_for_n(size_t n)
+{
+    if (n < 6) return 15;
+    double dn = (double)n;
+    double est = dn * (log(dn) + log(log(dn)));
+    return (size_t)(est) + 10;
+}
 
 /* Static storage for primes */
 static idx_t *prime_list = NULL;   /* array of primes, 1‑indexed logically */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: check if integer m satisfies the defining condition. */
 static bool is_valid(idx_t m)
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             if (cache_len >= cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 8 : (cache_cap << 1);
                 seq_t *new_cache =
-                    (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) {
                     /* Allocation failed – abort or handle as needed. */
                     abort();

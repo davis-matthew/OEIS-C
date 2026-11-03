@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 62, u32 n <= 2046, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   word_bits
+ * Validated: standard, pass, 58 terms through n = 8732 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,29 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/word_bits.h"
+
+/*  Return the index (0‑based) of the n‑th word and its length.
+ *  The bits of the returned index represent the word: 0 → digit 1,
+ *  1 → digit 2.  Positions are counted from most significant bit
+ *  (leftmost digit).  The length of the word is stored in *len_out. */
+static inline uint64_t word_bits(idx_t n, uint64_t *len_out)
+{
+    unsigned __int128 cum = 0;   /* cumulative number of words up to current length */
+    unsigned __int128 add;       /* words of current length */
+    uint64_t   L = 0;            /* current length */
+
+    while (true) {
+        ++L;
+        add = (unsigned __int128)1 << L;   /* 2^L words of length L */
+        cum += add;
+        if ((unsigned __int128)n <= cum)
+            break;
+    }
+
+    *len_out = L;
+    unsigned __int128 prev = cum - add;            /* cumulative up to length L-1 */
+    return (uint64_t)((unsigned __int128)n - prev - 1); /* 0‑based inner index */
+}
 
 seq_t a(idx_t n)
 {

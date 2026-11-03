@@ -10,6 +10,7 @@
  *            2^{#positive(ri)} * (-1)^{r1+r2+r3} )
  * Range:     i8 n <= 88, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 79 terms through n = 9257 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

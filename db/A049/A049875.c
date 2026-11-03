@@ -9,12 +9,14 @@
  *            a(3)=6
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;          /* cache of computed terms */
 static idx_t A_size = 0;         /* allocated size of A */
@@ -27,7 +29,7 @@ static void ensure_size(idx_t n)
     if (A_size <= n) {
         idx_t new_size = (A_size == 0) ? 8 : A_size;
         while (new_size <= n) new_size <<= 1;         /* double size until sufficient */
-        seq_t *tmp = (seq_t *)realloc(A, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, new_size);
         if (!tmp) abort();                            /* allocation failed */
         A      = tmp;
         A_size = new_size;

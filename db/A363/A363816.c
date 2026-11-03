@@ -7,7 +7,8 @@
  * Formula:   A(x) = -2*x / (1-sqrt(1+4*x*(1-x)^2))
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 16, i64 n <= 29, i128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence (derived from the functional equation) */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
         idx_t new_cap = capacity ? capacity * 2 : 8;
         while (new_cap <= n + 1)
             new_cap *= 2;
-        seq_t *tmp_a = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
-        seq_t *tmp_s = (seq_t *)realloc(s_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp_a = mem_resize(seq_t, a_vals, new_cap);
+        seq_t *tmp_s = mem_resize(seq_t, s_vals, new_cap);
         if (!tmp_a || !tmp_s) return 0; /* allocation failure (should not happen) */
         a_vals = tmp_a;
         s_vals = tmp_s;

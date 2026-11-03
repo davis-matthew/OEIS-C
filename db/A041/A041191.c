@@ -10,7 +10,8 @@
  *            a(14)=216277, a(15)=352437, a(16)=921151, a(17)=3115890
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 24, u64 n <= 44, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* Allocate a reasonable starting capacity (enough for n up to ~10k) */
         cap = 20001;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0; /* allocation failure – return zero */
         for (size_t i = 0; i < 18; ++i) cache[i] = init_vals[i];
     }
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t new_cap = cap;
         while ((size_t)n >= new_cap) new_cap <<= 1; /* double */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp) {
             cache = tmp;
             cap = new_cap;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             /* If realloc fails, try a minimal incremental grow */
             new_cap = cap;
             while ((size_t)n >= new_cap) new_cap += 1024;
-            tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return (seq_t)0; /* give up */
             cache = tmp;
             cap = new_cap;

@@ -11,13 +11,15 @@
  *            T(0,0)=1, T(1,0)=2, T(1,1)=-1, and T(n,k)=0 if k<0 or k>n
  * Range:     i8 n <= 15, i16 n <= 50, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     {
         idx_t r = next_row;                      /* current row index          */
         size_t len = (size_t)r + 1;               /* number of elements in row  */
-        seq_t *curr = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, len);
         if (!curr) return 0;                     /* allocation failure        */
 
         /* compute the current row */
@@ -59,8 +61,8 @@ seq_t a(idx_t n)
         if (cache_cap < needed) {
             size_t new_cap = cache_cap ? (size_t)cache_cap * 2 : 16;
             while (new_cap < (size_t)needed) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-            if (!tmp) { free(curr); return 0; }
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+            if (!tmp) { mem_free(curr); return 0; }
             cache = tmp;
             cache_cap = (idx_t)new_cap;
         }
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
             cache[cache_size++] = curr[k];
 
         /* shift row buffers for next iteration */
-        if (prev2) free(prev2);
+        if (prev2) mem_free(prev2);
         prev2 = prev1;
         prev1 = curr;
         ++next_row;

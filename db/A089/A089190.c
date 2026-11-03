@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor[(Prime[n] + PrimePi[n]) / 2]
  * Range:     u8 n <= 54, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   realloc_check
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,13 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/realloc_check.h"
+
+/* ---------- memory helpers ---------- */
+static void *realloc_check(void *ptr, size_t new_size) {
+    void *p = realloc(ptr, new_size);
+    if (!p) abort();          /* best–effort failure handling */
+    return p;
+}
 
 /* ---------- global caching data ---------- */
 static idx_t    sieve_limit      = 0;      /* largest number for which a sieve exists */

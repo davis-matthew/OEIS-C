@@ -9,22 +9,23 @@
  *            index within the triangle equals that divisor; otherwise 0. The
  *            row r is the smallest integer with r(r+1)/2 >= n, and the column
  *            k = n - r(r-1)/2
- * Range:     u8 n <= 9896, u16 n <= 9896, u32 n <= 9896, u64 n <= 9896,
- *            u128 n <= 9896, big any n
- * Helpers:   int_sqrt_uint128
+ * Range:     u8 n <= 23220, u16 n <= 23220, u32 n <= 23220, u64 n <= 23220,
+ *            u128 n <= 23220, big any n
+ * Validated: standard, pass, 121 terms through n = 9896 (2026-11-01)
+ * Helpers:   isqrt_u128_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/int_sqrt_uint128.h"
+#include "../utils/isqrt_u128_to_u64.h"
 
 seq_t a(idx_t n)
 {
     /* Find the row r such that r(r+1)/2 >= n  */
     unsigned __int128 val = (unsigned __int128)8 * n + 1;
-    uint64_t root = int_sqrt_uint128(val);
+    uint64_t root = isqrt_u128_to_u64(val);
     uint64_t r = (root - 1) >> 1;          /* (root-1)/2 */
     if ((unsigned __int128)r * (r + 1) / 2 < n) ++r;
 

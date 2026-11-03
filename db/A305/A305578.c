@@ -7,13 +7,15 @@
  * Formula:   a(n) = ∑_{k=0..n} binomial(n,k) * k!! * (n-k)!!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 27, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 696 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for double–factorials.  df_cache[i] holds i!!.
    The cache grows only as far as needed. */
@@ -27,13 +29,13 @@ ensure_double_factorial(idx_t n)
 {
     if (df_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (!new_arr) return;        /* out of memory – leave old cache */
         new_arr[0] = (seq_t)1;
         if (n >= 1) new_arr[1] = (seq_t)1;
         for (idx_t i = 2; i <= n; ++i)
             new_arr[i] = (seq_t)i * new_arr[i - 2];
-        free(df_cache);
+        mem_free(df_cache);
         df_cache = new_arr;
         df_cap   = new_cap;
     }

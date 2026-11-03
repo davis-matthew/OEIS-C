@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   check_row_masks
+ * Validated: standard, pass, 38 terms through n = 194 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,40 @@
    the king‑move neighbor constraint for a 5‑column binary array. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/check_row_masks.h"
+
+/* Check whether a single row mask satisfies the constraint
+   given the presence of a previous row and/or next row, and their masks. */
+static bool check_row_masks(uint32_t prev_mask, bool prev_present,
+                            uint32_t cur_mask, bool next_present,
+                            uint32_t next_mask)
+{
+    for (int c = 0; c < 5; ++c) {
+        int cell_val = (cur_mask >> c) & 1;
+        int sum = 0;
+        for (int dr = -1; dr <= 1; ++dr) {
+            for (int dc = -1; dc <= 1; ++dc) {
+                if (dr == 0 && dc == 0) continue;
+                int nc = c + dc;
+                if (nc < 0 || nc >= 5) continue;
+                uint32_t mask;
+                if (dr == -1) {
+                    if (!prev_present) continue;
+                    mask = prev_mask;
+                } else if (dr == 0) {
+                    mask = cur_mask;
+                } else { /* dr == 1 */
+                    if (!next_present) continue;
+                    mask = next_mask;
+                }
+                int neigh = (mask >> nc) & 1;
+                sum += neigh;
+            }
+        }
+        sum %= 3;
+        if (sum == cell_val) return false;
+    }
+    return true;
+}
 
 static uint32_t trans_mid[32][32];      /* next masks allowed when both prev & next present */
 static uint32_t trans_prev_absent[32];  /* next masks when prev absent, next present */

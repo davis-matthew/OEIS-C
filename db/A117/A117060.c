@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 20, u64 n <= 29, u128 n <= 35,
  *            big any n
- * Helpers:   digit_frequencies
+ * Validated: standard, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build. */
 seq_t a(idx_t n) {
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     /* initialise the cache on first call */
     if (!terms) {
         term_cap = 32;
-        terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, term_cap);
         term_len = 0;
     }
 
@@ -51,10 +53,10 @@ seq_t a(idx_t n) {
             if (term_len == term_cap) {
                 /* grow the cache */
                 size_t new_cap = term_cap * 2;
-                seq_t *new_terms = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_terms = mem_new(seq_t, new_cap);
                 for (size_t i = 0; i < term_len; ++i)
                     new_terms[i] = terms[i];
-                free(terms);
+                mem_free(terms);
                 terms = new_terms;
                 term_cap = new_cap;
             }

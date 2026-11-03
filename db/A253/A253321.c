@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 24, u64 n <= 56, u128 n <= 120,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>   /* abort, malloc, realloc */
 #include <stdint.h>   /* if needed for types */
+#include "../utils/mem.h"
 
 /* Compute the nth term of OEIS sequence A253321 (1‑based indexing). */
 seq_t a(idx_t n)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
        values, whichever is bigger. */
     if (cache == NULL) {
         idx_t sz = (n > 15) ? n + 1 : 16;  /* +1 because we ignore index 0 */
-        cache = (seq_t *)malloc(sz * sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
         if (!cache) abort();
         cache_max = sz;
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold up to n.  If not, reallocate. */
     if (cache_max <= n) {
         idx_t new_size = n + 1;            /* extend to index n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         cache = tmp;
         cache_max = new_size;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 34, u32 n <= 6922, u64 n <= 6922,
  *            u128 n <= 6922, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 6753 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const uint64_t LIMIT = 2000000ULL;      /* sieve bound, enough for n ≤ 10 000 */
 static uint32_t *spf = NULL;                  /* smallest prime factor array */
@@ -87,7 +89,7 @@ static void grow_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     if (newp) { cache = newp; cache_cap = new_cap; }
 }
 
@@ -96,7 +98,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {
         init_sieve();
-        cache = (seq_t *)malloc(16 * sizeof(seq_t));
+        cache = mem_new(seq_t, 16);
         cache_cap = 16;
         cache_size = 0;
         last_checked = 0;

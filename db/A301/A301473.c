@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 /*   Summarize the square of the previous term (digits in increasing order),
  *   starting with a(1) = 1.
  *   a(n) is built by squaring a(n‑1), counting the frequency of each
@@ -30,6 +32,7 @@
 #include <string>
 #include <vector>
 #endif
+#include "../utils/mem.h"
 
 /* Forward declaration of cache routine */
 static void ensure_cache(idx_t n);
@@ -211,7 +214,7 @@ static void ensure_cache(idx_t n)
     /* Initialise */
     if (cache_len == 0) {
         cache[0] = (seq_t)1;
-        str_cache[0] = strdup("1");
+        str_cache[0] = mem_strdup("1");
         cache_len = 1;
     }
 

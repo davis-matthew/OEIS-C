@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 4, u64 n <= 30, u128 n <= 1000,
  *            big any n
- * Helpers:   _floor_isqrt_u64, alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 34 terms through n = 999 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,20 @@
    O(n) time with moderate memory overhead. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -50,7 +62,7 @@ seq_t a(idx_t n)
     even_cur[0] = 1;   /* zero vector has even parity and norm 0 */
 
     /* Maximal coordinate needed for the square bound. */
-    idx_t maxM = _floor_isqrt_u64(maxSum);
+    idx_t maxM = isqrt(maxSum);
 
     /* Process the 26 coordinates one by one. */
     for (idx_t dim = 0; dim < 26; ++dim) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   contains_36_or_63
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains_36_or_63.h"
+#include "../utils/mem.h"
+
+/* Helper: does decimal representation of x contain "36" or "63"? */
+static inline bool contains_36_or_63(uint64_t x)
+{
+    while (x >= 10ULL) {
+        uint64_t d1 = x % 10ULL;
+        uint64_t d2 = (x / 10ULL) % 10ULL;
+        if ((d1 == 6ULL && d2 == 3ULL) || (d1 == 3ULL && d2 == 6ULL))
+            return true;
+        x /= 10ULL;
+    }
+    return false;
+}
 
 /* Return the nth term of OEIS A044022, 1‑based index. */
 seq_t a(idx_t n)
@@ -46,7 +60,7 @@ seq_t a(idx_t n)
         /* Store k in the cache */
         if (len == cap) {
             size_t new_cap = (cap ? cap * 2 : 16);
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();   /* memory exhausted */
             cache = tmp;
             cap   = new_cap;

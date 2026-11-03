@@ -9,15 +9,17 @@
  *            A052330(2*A052331(n)). The implementation builds the unique
  *            factorization sequence A050376 and multiplies the successors of
  *            its distinct factors
- * Range:     u8 n <= 1, u16 n <= 9806, u32 n <= 9806, u64 n <= 9806,
- *            u128 n <= 9806, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1, u16 n <= 14039, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 95 terms through n = 9806 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------  STATIC STATE  ---------- */
 static seq_t *A_array = NULL;   /* 1‑based array of A050376 values      */
@@ -48,7 +50,7 @@ static void generate_A(idx_t limit)
     prod_list[prod_cnt++] = 1;          /* empty product */
     possible[1] = true;
 
-    seq_t *newA = (seq_t*)malloc(max_size * sizeof(seq_t));
+    seq_t *newA = mem_new(seq_t, max_size);
     if (!newA) { free(possible); free(prod_list); return; }
     newA[0] = 0;                        /* unused, keep 1‑based indexing */
 
@@ -74,7 +76,7 @@ static void generate_A(idx_t limit)
 
     free(possible);
     free(prod_list);
-    free(A_array);
+    mem_free(A_array);
 
     A_array = newA;
     A_len   = count;

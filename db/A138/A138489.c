@@ -11,7 +11,8 @@
  *            encountered
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Compute 10^e as seq_t.  e is a small non‑negative integer. */
 static seq_t pow10_idx(int e)
@@ -87,7 +89,7 @@ static void ensure_cache(size_t needed)
     size_t new_cap = cache_cap ? (cache_cap << 1) : 128;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();          /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;
@@ -97,7 +99,7 @@ static void ensure_cache(size_t needed)
 seq_t a(idx_t n)
 {
     if (!cache) {
-        cache = (seq_t *)malloc(128 * sizeof(seq_t));
+        cache = mem_new(seq_t, 128);
         if (!cache) abort();    /* allocation failure */
         cache_cap = 128;
         cache_sz  = 0;

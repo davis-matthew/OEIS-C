@@ -8,7 +8,8 @@
  * Formula:   a(n) = n + A002034(n)
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   minimal_m_prime_power
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,35 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/minimal_m_prime_power.h"
+
+/* For a prime power p^e, compute the minimal m such that p^e | m!.
+   The result is always at least e (for p=2) and at most p*e, so a
+   safe upper bound is p*e.  The binary search runs on m and counts
+   the exponent of p in m! by successive division. */
+static seq_t minimal_m_prime_power(uint64_t p, uint64_t e)
+{
+    seq_t low  = 1;
+    seq_t high = (seq_t)p * (seq_t)e;
+    if (high == 0)          /* defensive against overflow for huge n */
+        high = low + 1;
+
+    while (low < high) {
+        seq_t mid = low + (high - low) / 2;
+        seq_t v   = 0;
+        seq_t div = p;
+        while (div <= mid) {
+            v += mid / div;
+            if (div > mid / p)   /* prevent div from overflowing seq_t */
+                break;
+            div *= p;
+        }
+        if (v >= e)
+            high = mid;
+        else
+            low  = mid + 1;
+    }
+    return low;
+}
 
 /* Thread‑safe, static prime list generation used by the factoriser. */
 static uint64_t *primes = NULL;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of k ≤ n with σ(k) ≤ σ(n) (σ = A000203)
  * Range:     u8 n <= 258, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9380 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +22,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Allocate array [0..n] for divisors sums, 0 unused */
-    seq_t *sigma = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (n + 1));
     if (!sigma)
         return 0;   /* allocation failed; return 0 as placeholder */
 
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
         if (sigma[k] <= sigma_n)
             ++count;
 
-    free(sigma);
+    mem_free(sigma);
     return count;
 }

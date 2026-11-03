@@ -9,15 +9,27 @@
  *            one 2
  * Range:     u8 n <= 32, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   count_block2, count_with_length
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes a(n) for 1 <= n. */
 #include <stdbool.h>
-#include "../utils/count_block2.h"
-#include "../utils/count_with_length.h"
+
+/* Count of numbers of length L with most significant digit 2. */
+static idx_t count_block2(idx_t L)
+{
+    return ((idx_t)1) << (L - 1); /* 2^(L-1) */
+}
+
+/* Total count of numbers of length L. */
+static idx_t count_with_length(idx_t L)
+{
+    if (L == 1) return 1;
+    return ((idx_t)(L + 1)) << (L - 2); /* (L+1)*2^(L-2) */
+}
 
 /* Count of strings of length rem over {0,2,3} with exactly one 2
    given whether a 2 has already been used. */

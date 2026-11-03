@@ -11,7 +11,8 @@
  *            small seq_t types
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 40, u64 n <= 82, u128 n <= 151,
  *            big any n
- * Helpers:   seq_gcd, seq_realloc
+ * Validated: standard, pass, 61 terms through n = 3681 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_gcd.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include "../utils/gcd.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -71,10 +84,10 @@ seq_t a(idx_t n)
         /* Cancel common factors to keep intermediate products bounded */
         seq_t g;
 
-        g = seq_gcd(b, e);   b /= g;   e /= g;
-        g = seq_gcd(d, c);   d /= g;   c /= g;
-        g = seq_gcd(a_val, e); a_val /= g; e /= g;
-        g = seq_gcd(a_val, d); a_val /= g; d /= g;
+        g = gcd(b, e);   b /= g;   e /= g;
+        g = gcd(d, c);   d /= g;   c /= g;
+        g = gcd(a_val, e); a_val /= g; e /= g;
+        g = gcd(a_val, d); a_val /= g; d /= g;
 
         /* Compute numerator and denominator */
         seq_t num = a_val;
@@ -85,7 +98,7 @@ seq_t a(idx_t n)
         den *= e;
 
         /* Final reduction to keep fraction in lowest terms */
-        g = seq_gcd(num, den);
+        g = gcd(num, den);
         p[i] = num / g;
         q[i] = den / g;
     }

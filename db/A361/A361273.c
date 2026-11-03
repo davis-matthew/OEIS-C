@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_size = 8;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return 0; /* out of memory, return 0 as sentinel */
         for (size_t i = 0; i < cache_size; ++i)
             cache[i] = init[i];
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_size)
     {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (new_cache == NULL) return 0; /* allocation failed */
         /* fill new entries using the recurrence */
         for (size_t i = cache_size; i < new_size; ++i)

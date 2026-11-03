@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_squarefree, next_prime
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_squarefree, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"
 #include "../utils/is_squarefree.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Cache for already found terms */
 static seq_t *a_cache = NULL;   /* array of terms */
@@ -36,7 +38,7 @@ static void a_append(uint64_t prime)
 {
     if (a_cache_len == a_cache_cap) {
         size_t grow = a_cache_cap == 0 ? 16 : a_cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(a_cache, grow * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, grow);
         if (!tmp) abort();
         a_cache = tmp;
         a_cache_cap = grow;

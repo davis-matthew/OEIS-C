@@ -12,12 +12,14 @@
  *            a(10)=2693,a(11)=6041,a(12)=14257,a(13)=33349,a(14)=76941
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 26, u64 n <= 53, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values: indices 0..memo_size */
 static seq_t *memo = NULL;
@@ -29,7 +31,7 @@ static void ensure_size(idx_t n)
     if (n <= memo_size) return;
 
     /* Allocate new array */
-    seq_t *new_mem = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_mem = mem_new(seq_t, (size_t)(n + 1));
     if (!new_mem) abort(); /* Allocation failure is fatal */
 
     /* Copy existing data */
@@ -41,7 +43,7 @@ static void ensure_size(idx_t n)
         new_mem[i] = 0;
 
     /* Replace old array */
-    free(memo);
+    mem_free(memo);
     memo = new_mem;
     memo_size = n;
 }

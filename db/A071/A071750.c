@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    stored.  The nth stored index is returned as the nth sequence value. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static tables of partition residues modulo 13 and of the requested k’s */
 static uint8_t *p = NULL;          /* p[0] = 1 (partition of 0)          */
@@ -38,7 +40,7 @@ static void grow_uint8(void) {
 static void grow_seq(void) {
     if (zero_size == zero_cap) {
         zero_cap = zero_cap ? zero_cap * 2 : 16;
-        zero = (seq_t *)realloc(zero, zero_cap * sizeof(seq_t));
+        zero = mem_resize(seq_t, zero, zero_cap);
     }
 }
 

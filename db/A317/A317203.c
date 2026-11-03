@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1200, u16 n <= 1200, u32 n <= 1200, u64 n <= 1200,
  *            u128 n <= 1200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 113 terms through n = 1010 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    iteratively and caches the result for future calls. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Cached word: 1‑based indexed characters 1,2,3 */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
 
     if (!initialized) {
         /* initialise with the starting word "31" */
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         cache[0] = 3;
         cache[1] = 1;
         size  = 2;
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
         }
 
         /* build next iteration in a temporary array */
-        seq_t *next = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, new_size);
         size_t pos = 0;
         for (size_t i = 0; i < cur_size; ++i) {
             seq_t v = cache[i];
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
                 next[pos++] = 3;
             }
         }
-        free(cache);
+        mem_free(cache);
         cache = next;
         size  = new_size;
     }

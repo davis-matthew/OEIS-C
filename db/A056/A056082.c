@@ -8,13 +8,15 @@
  *            (i.e., k ≡ 1,57,68,124 (mod 125))
  * Range:     u8 n <= 9, u16 n <= 2097, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9677 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Includes */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The sequence function */
 seq_t a(idx_t n)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         /* Ensure capacity */
         if (terms_len == terms_cap) {
             size_t new_cap = terms_cap ? terms_cap * 2 : 128;
-            seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+            seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
             if (!new_terms) {
                 /* In a production build you might handle allocation failure */
                 abort();

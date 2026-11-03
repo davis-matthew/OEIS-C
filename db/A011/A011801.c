@@ -12,12 +12,14 @@
  *            the nth element of the triangle read by rows
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 36, u64 n <= 105, u128 n <= 300,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1268 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
     idx_t k = n - prev_terms;
 
     /* allocate two rows of size r+2 (indices 0..r+1) */
-    seq_t *prev = (seq_t*)calloc((size_t)(r + 2), sizeof(seq_t));
-    seq_t *curr = (seq_t*)calloc((size_t)(r + 2), sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(r + 2));
+    seq_t *curr = mem_new(seq_t, (size_t)(r + 2));
 
     /* base row T(1,1) = 1 */
     prev[1] = 1;
@@ -56,8 +58,8 @@ seq_t a(idx_t n)
     seq_t result = prev[k];
 
     /* free temporary storage */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
 
     return result;
 }

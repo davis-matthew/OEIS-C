@@ -8,7 +8,8 @@
  *            prime(p-2))
  * Range:     u8 n <= 6, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* the build supplies seq_t (unsigned integer type) and idx_t (uint64_t)   */
 static idx_t sieve_limit = 0;      /* current upper bound of the sieve      */
@@ -50,7 +52,7 @@ static void ensure_twin_count(idx_t n)
 
         /* ---------- Collect primes that satisfy the condition ------- */
         size_t cap = (limit / 10) + 10;        /* a rough estimate      */
-        seq_t *arr = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *arr = mem_new(seq_t, cap);
         if (!arr) abort();                     /* insufficient memory   */
         size_t len = 0;
 
@@ -64,7 +66,7 @@ static void ensure_twin_count(idx_t n)
                 if (len == cap)
                 {
                     cap *= 2;
-                    arr = (seq_t *)realloc(arr, cap * sizeof(seq_t));
+                    arr = mem_resize(seq_t, arr, cap);
                     if (!arr) abort();         /* insufficient memory   */
                 }
                 arr[len++] = (seq_t)p;
@@ -75,7 +77,7 @@ static void ensure_twin_count(idx_t n)
 
         /* Replace any previously stored array.  */
         if (twin_primes)
-            free(twin_primes);
+            mem_free(twin_primes);
         twin_primes = arr;
         twin_count  = len;
         sieve_limit = limit;

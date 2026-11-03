@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 38,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: standard, pass, 40 terms through n = 533 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"  /* pow_seq(seq_t a, int k) */
-#include "../utils/binomial.h" /* binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
 
 typedef uint64_t idx_t;  /* defined by build system – included here for clarity */
 
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         if (two_m == 0) {
             pow_val = (expo == 0) ? 1 : 0;
         } else {
-            pow_val = pow_seq((seq_t)two_m, (int)expo);
+            pow_val = ipow_i32((seq_t)two_m, (int)expo);
         }
 
         result += binom * pow_val;

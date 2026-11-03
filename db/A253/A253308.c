@@ -13,7 +13,8 @@
  *            Computed by dynamic programming over all possible pairs o...
  * Range:     u8 none, u16 n <= 4, u32 n <= 11, u64 n <= 25, u128 n <= 53,
  *            big any n
- * Helpers:   pair_diff
+ * Validated: standard, pass, 35 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/pair_diff.h"
+
+/* Compute the difference for a 2×2 subblock given its top and bottom rows
+   and the column of its left‑top corner (0 or 1). */
+static int8_t pair_diff(const int top[3], const int bot[3], int col) {
+    int a = top[col];
+    int b = top[col + 1];
+    int c = bot[col];
+    int d = bot[col + 1];
+    int diag   = (a > d) ? a : d;   /* maximum on main diagonal */
+    int anti   = (b > c) ? b : c;   /* maximum on anti‑diagonal */
+    return (int8_t)(diag - anti);   /* value in [-2,2] */
+}
 
 /* ------------------------------------------------------------------ */
 /*  Precomputation (run once)                                         */

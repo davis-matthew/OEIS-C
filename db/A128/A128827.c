@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_small, seq_one
+ * Validated: standard, pass, 54 terms through n = 9960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,23 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mul_small.h"
-#include "../utils/seq_one.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 typedef struct {
     seq_t val;          /* the perfect power value */
@@ -34,7 +50,7 @@ static void heap_push(node_t **heap, size_t *size, size_t *cap, node_t n)
 {
     if (*size >= *cap) {
         size_t newcap = (*cap == 0) ? 2 : (*cap << 1);
-        node_t *tmp = (node_t *)realloc(*heap, newcap * sizeof(node_t));
+        node_t *tmp = mem_resize(node_t, *heap, newcap);
         *heap = tmp;
         *cap = newcap;
     }
@@ -97,7 +113,7 @@ seq_t a(idx_t n)
     /* initialise heap and cache once */
     if (!heap_inited) {
         heap_cap = MAX_BASE;  /* capacity for initial nodes */
-        heap = (node_t *)malloc(heap_cap * sizeof(node_t));
+        heap = mem_new(node_t, heap_cap);
         heap_size = 0;
         for (unsigned int b = 2U; b <= MAX_BASE; ++b) {
             node_t node;
@@ -111,7 +127,7 @@ seq_t a(idx_t n)
 
     if (!cache_inited) {
         cache_cap = 32;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 1;                /* term 1 = 1 */
         cache[0] = seq_one();         /* first term */
         cache_inited = true;
@@ -138,7 +154,7 @@ seq_t a(idx_t n)
                 /* store the new term */
                 if (cache_len == (idx_t)cache_cap) {
                     size_t newcap = cache_cap ? cache_cap << 1 : 32;
-                    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, newcap);
                     cache = tmp;
                     cache_cap = newcap;
                 }

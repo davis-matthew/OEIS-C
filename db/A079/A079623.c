@@ -7,12 +7,14 @@
  * Formula:   a(1)=1; a(2)=1; a(3)=4; a(n)=abs(a(n-1)-a(n-2)-a(n-3)) for n>3
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 119 terms through n = 9617 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* 1‑indexed cache of computed terms   */
 static idx_t cache_cap = 0;          /* current allocated size (index+1)   */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         size_t init_cap = 4;         /* indices 0..3, 0 unused */
-        cache = (seq_t *)malloc(sizeof(seq_t) * init_cap);
+        cache = mem_new(seq_t, init_cap);
         if (!cache) return (seq_t)0; /* allocation failure – unlikely in judge */
         cache_cap = init_cap;
         cache[1] = (seq_t)1;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if (n >= cache_cap) {
         size_t new_cap = (size_t)n + 1; /* indices 0..n */
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return (seq_t)0; /* allocation failure */
         cache = new_cache;
         cache_cap = new_cap;

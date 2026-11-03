@@ -8,7 +8,8 @@
  * Formula:   a(n) computed by a transfer‑matrix DP over allowed column pairs
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static int V;                 /* number of admissible column patterns (54) */
@@ -104,8 +106,8 @@ static void init(void) {
     free(counts);
 
     /* ---- 3. Allocate DP arrays ---- */
-    dp_curr = (seq_t *)calloc(S, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(S, sizeof(seq_t));
+    dp_curr = mem_new(seq_t, S);
+    dp_next = mem_new(seq_t, S);
 
     initialized = true;
 }

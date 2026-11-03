@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   is_log_concave, permute_and_count
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,28 @@
    constant 12 for n ≥ 10. */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_log_concave.h"
-#include "../utils/permute_and_count.h"
+
+static bool is_log_concave(const int *perm, idx_t n) {
+    for (idx_t i = 1; i + 1 < n; ++i) {
+        seq_t left  = (seq_t)perm[i - 1];
+        seq_t mid   = (seq_t)perm[i];
+        seq_t right = (seq_t)perm[i + 1];
+        if (mid * mid < left * right) return false;
+    }
+    return true;
+}
+
+static void permute_and_count(int *perm, idx_t pos, idx_t n, seq_t *count) {
+    if (pos == n) {
+        if (is_log_concave(perm, n)) (*count)++;
+        return;
+    }
+    for (idx_t i = pos; i < n; ++i) {
+        int tmp = perm[pos]; perm[pos] = perm[i]; perm[i] = tmp;
+        permute_and_count(perm, pos + 1, n, count);
+        tmp = perm[pos]; perm[pos] = perm[i]; perm[i] = tmp;
+    }
+}
 
 static seq_t cache[10] = {0};
 

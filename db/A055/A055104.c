@@ -10,7 +10,8 @@
  *            {1,2,3,4}
  * Range:     u8 n <= 29, u16 n <= 208, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * seq_t integer type (uint8_t … unsigned __int128) provided by the build. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p4 = NULL;   /* array of P4 values */
 static idx_t  p4_max = 0;  /* highest index for which p4 is computed */
@@ -30,7 +32,7 @@ static idx_t  p4_max = 0;  /* highest index for which p4 is computed */
 static void ensure_p4(idx_t needed)
 {
     if (p4 == NULL || needed > p4_max) {
-        p4 = (seq_t *)realloc(p4, (size_t)(needed + 1) * sizeof(seq_t));
+        p4 = mem_resize(seq_t, p4, (size_t)(needed + 1));
         /* initialize array to zero */
         for (idx_t i = 0; i <= needed; ++i) {
             p4[i] = 0;

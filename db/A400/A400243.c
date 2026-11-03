@@ -9,7 +9,8 @@
  *            with a(0) = 1
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;  /* memoised a(k) values, 0..cache_len-1    */
 static idx_t cache_len = 0;  /* number of currently stored values      */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     /* Allocate/expand the cache if necessary. */
     size_t needed = (size_t)n + 1;
     if (cache_cap < needed) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         cache = tmp;
         cache_cap = needed;
     }

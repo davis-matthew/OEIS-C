@@ -9,9 +9,10 @@
  *            concatenating, for each m = 2, 3, 4, …, the set of all integers
  *            * x (0 < x < m) satisfying x² ≡ 1 (mod m). The offset is 2, so *
  *            a(2) is the first entry, which is the sole solution for m = 2
- * Range:     u8 n <= 1011, u16 n <= 9686, u32 n <= 9686, u64 n <= 9686,
- *            u128 n <= 9686, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1011, u16 n <= 10394, u32 n <= 10394, u64 n <= 10394,
+ *            u128 n <= 10394, big any n
+ * Validated: standard, pass, 93 terms through n = 9686 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build */
 typedef uint64_t idx_t;          /* indices are 64‑bit unsigned integers */
@@ -32,10 +34,10 @@ static idx_t next_m = 2;         /* next modulus to process */
 static void grow_cache(void)
 {
     size_t new_cap = table_cap ? table_cap * 2 : 16;
-    seq_t *new_buf = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_new(seq_t, new_cap);
     if (!new_buf) abort();   /* out of memory */
-    memcpy(new_buf, table, table_len * sizeof(seq_t));
-    free(table);
+    mem_copy(new_buf, table, table_len * sizeof(seq_t));
+    mem_free(table);
     table = new_buf;
     table_cap = new_cap;
 }

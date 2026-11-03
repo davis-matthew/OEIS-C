@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 6109, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9362 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* If the build supplies a different name for the 128‑bit type,
    include its header here.  Otherwise seq_t may be an arbitrary
@@ -42,7 +44,7 @@ static inline void push_nt(idx_t m)
 {
     if (nt_len == nt_cap) {
         nt_cap = nt_cap == 0 ? 8 : nt_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(nonTotient4, nt_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, nonTotient4, nt_cap);
         if (!tmp) return;               /* out of memory; silently ignore */
         nonTotient4 = tmp;
     }

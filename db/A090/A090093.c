@@ -8,6 +8,7 @@
  *            n+1, n+2, n+3)
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
  * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/gcd_u64.h"
 
 /* Simple gcd for uint64_t */

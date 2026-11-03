@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} d^d * binomial(d, n/d-1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, binomial, factor_u64, seq_mul
+ * Validated: standard, pass, 34 terms through n = 363 (2026-11-01)
+ * Helpers:   binomial, factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,10 +16,17 @@
 #include <stdint.h>
 #include <stddef.h>
 /* Utility function prototypes */
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
 #include "../utils/factor_u64.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Recursive divisor enumeration and term accumulation */
 static void gen_divisors(const uint64_t *primes,
@@ -31,7 +39,7 @@ static void gen_divisors(const uint64_t *primes,
 {
     if (idx == ntf) {
         seq_t bin = binomial((idx_t)cur, (idx_t)(n / cur - 1));
-        seq_t pow = big_pow((seq_t)cur, (seq_t)cur);
+        seq_t pow = ipow((seq_t)cur, (seq_t)cur);
         seq_t term = seq_mul(bin, pow);
         *sum += term;
         return;

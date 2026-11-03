@@ -10,16 +10,18 @@
  *            + binomial(n-2, n-k) with the special cases T(0,0)=0, T(1,0)=0,
  *            T(1,1)=1. The sequence is read row‑by‑row: first the row 0
  *            entry, then the entries of row 1, then of row...
- * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 27, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   _floor_isqrt_u64, binomial
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /*--- Find the row r such that r(r+1)/2 ≤ n < (r+1)(r+2)/2 ---*/
     idx_t m = 8 * n + 1;
-    idx_t s = _floor_isqrt_u64(m);          /* floor(sqrt(8n+1)) */
+    idx_t s = isqrt(m);          /* floor(sqrt(8n+1)) */
     idx_t r = (s - 1) >> 1;                 /* r = (s-1)/2 */
     idx_t prev = r * (r + 1) / 2;           /* number of elements before row r */
     idx_t k   = n - prev;                   /* column within the row */

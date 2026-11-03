@@ -7,6 +7,7 @@
  * Formula:   a(n) = 0 for odd n, a(n) = 2 * σ(n/2) for even n
  * Range:     u8 n <= 119, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 106 terms through n = 9786 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

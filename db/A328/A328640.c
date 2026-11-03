@@ -7,13 +7,15 @@
  * Formula:   a(p^e) = (-1)^e*(p^3 + 1) (multiplicative)
  * Range:     i8 n <= 5, i16 n <= 32, i32 n <= 1229, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 61 terms through n = 9840 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     seq_t res = 1;
 
     while (m > 1) {
-        uint64_t p = _smallest_prime_factor(m);
+        uint64_t p = smallest_prime_factor(m);
         int exp = 0;
         while (m % p == 0) {
             m /= p;

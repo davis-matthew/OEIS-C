@@ -12,12 +12,14 @@
  *            corresponding number by writing the digits in t...
  * Range:     u8 n <= 1, u16 n <= 175, u32 n <= 1023, u64 n <= 1023,
  *            u128 n <= 1023, big any n
- * Helpers:   none
+ * Validated: full, pass, 1023 terms through n = 1023 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort that works for any seq_t size. */
 static int cmp_seq(const void *a, const void *b)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         const size_t total = ((size_t)1) << 10;   /* 2^10 subsets of digits */
         len = total - 1;                          /* exclude empty subset */
 
-        list = (seq_t *)malloc(len * sizeof(seq_t));
+        list = mem_new(seq_t, len);
         if (!list) return (seq_t)0;               /* allocation failure */
 
         /* Build each number from its digit subset. */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort numerically. */
-        qsort(list, len, sizeof(seq_t), cmp_seq);
+        mem_qsort(list, len, sizeof(seq_t), cmp_seq);
     }
 
     if (n == 0 || (idx_t)n > len)

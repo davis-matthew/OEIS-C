@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 24, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   seq_alloc_array
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,14 @@
 
 #include <stddef.h>          /* size_t */
 #include <stdbool.h>         /* bool (required for compatibility) */
-#include "../utils/seq_alloc_array.h"  /* seq_alloc_array */
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Maximum number of rows needed for n up to ~10000 (ceiling solution) */
 #define MAX_ROWS 200

@@ -9,7 +9,8 @@
  *            a(0)=0, a(1)=1, a(2)=3, a(3)=1, a(4)=7
  * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 53, u64 n <= 107,
  *            u128 n <= 214, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 4729 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    library <stdlib.h>. No other headers or external symbols are needed. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external types supplied by the build; do NOT redefine them */
 /* typedef seq_t;   --- already defined elsewhere */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (!cache)
     {
         cap = 5;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache)
             return (seq_t)0;         /* out of memory → return 0 as safe fallback */
 
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
             new_cap = new_cap * 2 + 1;  /* +1 avoids infinite loop for cap==0 */
 
         /* reallocate memory */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             return (seq_t)0;          /* realloc failed → return 0 */
 

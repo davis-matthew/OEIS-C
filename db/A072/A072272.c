@@ -10,13 +10,15 @@
  *            3*a(2t+1)+2*a(t)
  * Range:     u8 n <= 22, u16 n <= 510, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 8028 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
             newcap <<= 1;
 
         /* realloc (cast for C++ compatibility) */
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) {
             /* allocation failed – compute without caching */
             if (n == 0)
@@ -48,9 +50,9 @@ seq_t a(idx_t n)
 
         /* zero the new part of the array */
         if (cache == NULL) {
-            memset(tmp, 0, newcap * sizeof(seq_t));
+            mem_set(tmp, 0, newcap * sizeof(seq_t));
         } else {
-            memset(tmp + capacity, 0, (newcap - capacity) * sizeof(seq_t));
+            mem_set(tmp + capacity, 0, (newcap - capacity) * sizeof(seq_t));
         }
 
         cache = tmp;

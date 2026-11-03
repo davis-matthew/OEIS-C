@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 9, i32 n <= 9, i64 n <= 9, i128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence: primes that are 1 mod 4, with 2 as the first element. */
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static size_t estimate_limit(size_t n)
 {
@@ -63,9 +65,9 @@ seq_t a(idx_t n)
         }
 
         /* Build the list of 2 or 1 mod 4 primes. */
-        if (list) free(list);
+        if (list) mem_free(list);
         list_cap = limit / 10 + 10;          /* rough estimate */
-        list = (seq_t*)malloc(list_cap * sizeof(seq_t));
+        list = mem_new(seq_t, list_cap);
         if (!list) { free(sieve); return 0; }  /* allocation failure */
 
         list_size = 0;
@@ -76,8 +78,8 @@ seq_t a(idx_t n)
                 if (list_size == list_cap)
                 {
                     list_cap = list_cap + list_cap / 2 + 10;
-                    seq_t *tmp = (seq_t*)realloc(list, list_cap * sizeof(seq_t));
-                    if (!tmp) { free(list); free(sieve); return 0; }
+                    seq_t *tmp = mem_resize(seq_t, list, list_cap);
+                    if (!tmp) { mem_free(list); free(sieve); return 0; }
                     list = tmp;
                 }
                 list[list_size++] = (seq_t)i;

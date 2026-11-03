@@ -12,12 +12,14 @@
  *            a(4)=6, a(5)=11, a(6)=6, …
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Polynomials: polys[n] points to an array of length n (coefficient of x^k at index k),
  * with polys[0] = NULL (for P(0)=0). */
@@ -42,7 +44,7 @@ static void ensure_polys(idx_t need)
     /* Compute subsequent polynomials. */
     for (idx_t n = max_poly_computed + 1; n <= need; ++n)
     {
-        polys[n] = (seq_t *)malloc(sizeof(seq_t) * n);
+        polys[n] = mem_new(seq_t, n);
         if (!polys[n])
             abort();                   /* allocation failure */
 

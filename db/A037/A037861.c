@@ -9,6 +9,7 @@
  *            with a(0)=1 (binary "0" contains one 0 and no 1's)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 89 terms through n = 8950 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

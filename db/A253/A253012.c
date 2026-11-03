@@ -7,6 +7,7 @@
  * Formula:   a(n) = ceil( (n+1) * (n+2) / 12 )
  * Range:     u8 n <= 14, u16 n <= 418, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
+ * Validated: standard, pass, 76 terms through n = 2383 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,12 +9,14 @@
  * Formula:   a(n) = Sum_{i=ceil(n/2)..n} p(i) ( p = partition numbers )
  * Range:     u8 n <= 12, u16 n <= 34, u32 n <= 107, u64 n <= 372,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Storage for partition numbers p[0..] and their prefix sums pref[0..] */
 static seq_t *p      = NULL;   /* p[i] = partition number of i */
@@ -37,8 +39,8 @@ ensure_up_to(idx_t n)
         new_cap <<= 1;
 
     if (new_cap != cap) {
-        p    = (seq_t *)realloc(p,    new_cap * sizeof(seq_t));
-        pref = (seq_t *)realloc(pref, new_cap * sizeof(seq_t));
+        p    = mem_resize(seq_t, p, new_cap);
+        pref = mem_resize(seq_t, pref, new_cap);
         cap  = new_cap;
     }
 

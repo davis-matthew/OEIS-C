@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 56, u32 n <= 109, u64 n <= 215,
  *            u128 n <= 426, big any n
- * Helpers:   icube_root
+ * Validated: standard, pass, 72 terms through n = 9588 (2026-11-03)
+ * Helpers:   icbrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/icube_root.h"
+#include "../utils/icbrt.h"
+#include "../utils/mem.h"
 
 /* Memoised dynamic programming table. */
 static seq_t *dp = NULL;          /* array of dp[0…max_comp] */
@@ -36,7 +38,7 @@ static void ensure_dp(idx_t n)
     /* Expand capacity if needed. */
     size_t need = (size_t)(n + 1);
     if (need > dp_cap) {
-        seq_t *newdp = (seq_t *)realloc(dp, need * sizeof(seq_t));
+        seq_t *newdp = mem_resize(seq_t, dp, need);
         if (!newdp)
             abort();  /* allocation failed */
         /* Initialise new entries to zero. */
@@ -54,7 +56,7 @@ static void ensure_dp(idx_t n)
     /* Compute dp values up to n. */
     for (idx_t k = max_comp + 1; k <= n; ++k) {
         seq_t sum = (seq_t)0;
-        idx_t r = icube_root(k);
+        idx_t r = icbrt(k);
         for (idx_t j = 1; j <= r; ++j) {
             idx_t cube = j * j * j;
             sum += dp[k - cube];
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
 
     seq_t ans = dp[n];
     /* Subtract the single‑cube composition if n itself is a cube. */
-    idx_t r = icube_root(n);
+    idx_t r = icbrt(n);
     if (r * r * r == n)
         ans -= (seq_t)1;
 

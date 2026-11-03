@@ -8,14 +8,16 @@
  * Formula:   a(n) = H_{A056556(n)}(A056557(n), A056558(n))
  * Range:     u8 n <= 28, u16 n <= 28, u32 n <= 28, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  (See problem description for A399497) */
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 /* Hyperoperation H_k(a, b) for k >= 0.
  * Uses seq_t for operands and returns seq_t.
@@ -47,7 +49,7 @@ static seq_t hyperop(int level, seq_t a, seq_t b)
     /* levels 1 … 3 ------------------------------------------------------- */
     if (level == 1) return a + b;          /* H_1(a,b) = a+b */
     if (level == 2) return a * b;          /* H_2(a,b) = a*b */
-    if (level == 3) return big_pow(a, b);  /* H_3(a,b) = a^b */
+    if (level == 3) return ipow(a, b);  /* H_3(a,b) = a^b */
 
     /* level >= 4 --------------------------------------------------------- */
     seq_t prev = hyperop(level, a, b - 1);

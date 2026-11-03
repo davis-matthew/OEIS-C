@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   isPrimeTrial
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
 
 /* static data for memoisation */
 static size_t          primes_capacity = 0;
@@ -72,7 +73,7 @@ static void ensure_cumulative(idx_t target)
             p = 2ULL;
         } else {
             p = primes_array[prime_count - 1] + 1ULL;
-            while (!isPrimeTrial((seq_t)p))
+            while (!is_prime_seq((seq_t)p))
                 ++p;
         }
         primes_array[prime_count] = p;

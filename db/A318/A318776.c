@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 33, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
    Uses the provided binom(idx_t a, idx_t b) and pow2(idx_t exp).
 */
 
-#include "../utils/binom.h"   /* binom() */
-#include "../utils/pow2.h"    /* pow2() */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
     idx_t exp = row - 5 * k;                 /* exponent for the power of 2 */
     idx_t bin_idx = row - 4 * k;             /* argument for the binomial */
 
-    seq_t val = binom(bin_idx, k);
+    seq_t val = binomial(bin_idx, k);
     val *= pow2(exp);
     return val;
 }

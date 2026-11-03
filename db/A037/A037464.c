@@ -8,13 +8,14 @@
  *            largest_prime_factor(2*n+1))
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 83 terms through n = 9980 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +27,8 @@ seq_t a(idx_t n)
     seq_t fp_high = 0;
 
     /* gpf(1) is not defined by the utils: guard it explicitly */
-    if (low > 1)  fp_low  = (seq_t)gpf((uint64_t)low);
-    if (high > 1) fp_high = (seq_t)gpf((uint64_t)high);
+    if (low > 1)  fp_low  = (seq_t)largest_prime_factor((uint64_t)low);
+    if (high > 1) fp_high = (seq_t)largest_prime_factor((uint64_t)high);
 
     return (fp_low > fp_high) ? fp_low : fp_high;
 }

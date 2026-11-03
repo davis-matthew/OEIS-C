@@ -7,13 +7,15 @@
  * Formula:   a(n) = the nth divisor of 546 (sorted ascending)
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t cache[16];
 static bool initialized = false;
@@ -38,7 +40,7 @@ static void init_divisors(void) {
         }
         temp[count++] = prod;
     }
-    qsort(temp, count, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(temp, count, sizeof(seq_t), cmp_seq_t);
     for (int i = 0; i < 16; ++i) cache[i] = temp[i];
 }
 

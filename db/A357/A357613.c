@@ -8,14 +8,16 @@
  * Formula:   a(n) = binomial(2*row, k) * binomial(3*row - k, 2*row) where
  *            (row, k) are obtained by flattening the triangle T(n,k) read by
  *            rows
- * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 35, u64 n <= 35, u128 n <= 35,
+ * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Utility: binomial(idx_t n, idx_t k) from the helpers */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

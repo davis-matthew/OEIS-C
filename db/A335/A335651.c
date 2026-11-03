@@ -12,13 +12,15 @@
  *            OP(m)=Σ_{j=0..m} p(j)*d(m-j)
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- internal state ---------- */
 static seq_t *sigma_arr = NULL;
@@ -35,11 +37,11 @@ static void recompute_upto(idx_t N)
     size_t sz  = (size_t)size;
 
     /* allocate new arrays */
-    seq_t *new_sigma = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *new_p     = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *new_d     = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *new_op    = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *new_a     = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *new_sigma = mem_new(seq_t, sz);
+    seq_t *new_p     = mem_new(seq_t, sz);
+    seq_t *new_d     = mem_new(seq_t, sz);
+    seq_t *new_op    = mem_new(seq_t, sz);
+    seq_t *new_a     = mem_new(seq_t, sz);
 
     /* zero init */
     for (size_t i = 0; i < sz; ++i) {
@@ -93,11 +95,11 @@ static void recompute_upto(idx_t N)
     }
 
     /* free old arrays if any */
-    free(sigma_arr);
-    free(p_arr);
-    free(d_arr);
-    free(op_arr);
-    free(a_arr);
+    mem_free(sigma_arr);
+    mem_free(p_arr);
+    mem_free(d_arr);
+    mem_free(op_arr);
+    mem_free(a_arr);
 
     /* assign new arrays to static state */
     sigma_arr = new_sigma;

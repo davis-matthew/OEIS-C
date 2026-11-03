@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = (4*n+3)*a(n-1) - 2*(2*n-1)*(n-1)*a(n-2), a(0)=2, a(1)=14
- * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 16,
+ * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 25,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 384 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   a(n) = Numerator of 1/det(M) where M[i,j] = 1/gcd(i,j)
  * Range:     i8 n <= 7, i16 n <= 12, i32 n <= 19, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/seq_pow.h"       /* provides seq_pow(seq_t, idx_t) */
+#include "../utils/ipow_idx.h"
 
 static idx_t   max_limit   = 0;
 static idx_t *primes      = NULL;
@@ -99,7 +100,7 @@ seq_t a(idx_t n) {
         idx_t d = d_exp[q];
         if (v > d) {                     /* remaining exponent in numerator */
             idx_t exp = v - d;
-            result *= seq_pow((seq_t)q, exp);
+            result *= ipow_idx((seq_t)q, exp);
         }
     }
     free(d_exp);

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 295 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 idx_t _floor_isqrt_u64(idx_t);  /* provided by the build system */
  
@@ -30,14 +32,14 @@ idx_t _floor_isqrt_u64(idx_t);  /* provided by the build system */
 seq_t a(idx_t n)
 {
     /* factorials */
-    seq_t *fact = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, n + 1);
     if (!fact) return 0;
     fact[0] = 1;
     for (idx_t i = 1; i <= n; ++i) fact[i] = fact[i - 1] * i;
  
     /* dp array for w_j(m) */
-    seq_t *dp   = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    if (!dp) { free(fact); return 0; }
+    seq_t *dp   = mem_new(seq_t, n + 1);
+    if (!dp) { mem_free(fact); return 0; }
     dp[0] = 1;   /* w_0(0)=1 */
  
     seq_t sum = 0;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         }
     }
  
-    free(dp);
-    free(fact);
+    mem_free(dp);
+    mem_free(fact);
     return sum;
 }

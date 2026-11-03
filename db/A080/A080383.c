@@ -7,18 +7,34 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of j (0 ≤ j ≤ n) such that C(n,⌊n/2⌋) is divisible
  *            by C(n,j)
- * Range:     u8 n <= 8895, u16 n <= 8895, u32 n <= 8895, u64 n <= 8895,
- *            u128 n <= 8895, big any n
- * Helpers:   adjust_exp, build_primes, build_spf
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 118 terms through n = 8895 (2026-11-01)
+ * Helpers:   build_primes, build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
 #include "../utils/build_spf.h"
-#include "../utils/adjust_exp.h"
+
+/* ------------------------------------------------------------------ */
+static void adjust_exp(idx_t val, int delta, int *exp, idx_t *spf, int *prime_idx)
+{
+    while (val > 1) {
+        idx_t p = spf[val];
+        int cnt = 0;
+        while (val % p == 0) {
+            val /= p;
+            ++cnt;
+        }
+        exp[prime_idx[p]] += delta * cnt;
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /* Update the prime exponent array for a factor value.                 */

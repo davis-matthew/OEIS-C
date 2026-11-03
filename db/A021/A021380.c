@@ -8,7 +8,8 @@
  *            long division. a(0) = 0, a(1) = 0, a(2) = 2, …
  * Range:     u8 n <= 1, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
     the total work for any sequence of calls is linear in the largest n
     seen.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
        period of length 40.  */
     if (cache_size == 0) {
         cache_cap   = 24;                       /* at least 24 slots */
-        cache       = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache       = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;            /* allocation failure */
 
         seq_t r = (seq_t)1;                    /* initial remainder = 1 */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         cache_cap <<= 1;                         /* grow by factor 2 */
     }
     if (cache_cap > cache_size) {                /* reallocate if needed */
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) return (seq_t)0;               /* allocation failure */
         cache = tmp;
     }

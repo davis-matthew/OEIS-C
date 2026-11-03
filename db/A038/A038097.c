@@ -12,13 +12,41 @@
  *            is the number of all graphs * (not necessar...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   binomial, pow2
+ * Validated: standard, pass, 29 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"
-#include "../utils/pow2.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
+
+/* Compute 2^exp for any exponent that may not fit in the bit width of seq_t. */
+static seq_t pow2(idx_t exp)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= (seq_t)2;
+    return res;
+}
 #include <stdlib.h>
 #include <string.h>
 
@@ -35,18 +63,18 @@ seq_t a(idx_t n)
     /* Ensure memo table is large enough. */
     if (n + 1 > memo_cap) {
         size_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (!tmp) abort(); /* allocation failed */
         memo = tmp;
         /* initialise new entries to 0 */
-        memset(&memo[memo_cap], 0, (new_cap - memo_cap) * sizeof(seq_t));
+        mem_set(&memo[memo_cap], 0, (new_cap - memo_cap) * sizeof(seq_t));
         memo_cap = new_cap;
     }
 
     /* Ensure pow2C table is large enough. */
     if (n > pow2C_cap) {
         size_t new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(pow2C, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow2C, new_cap);
         if (!tmp) abort();
         pow2C = tmp;
         /* compute new entries */

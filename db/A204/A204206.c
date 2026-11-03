@@ -11,7 +11,8 @@
  *            3 The sequence a(n) consists of the entries of th...
  * Range:     u8 n <= 28, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   grow_row, pow2
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +20,20 @@
 /* Standard headers, no dependencies on other headers. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Utility function to compute 2^exp as seq_t.  The exact
    implementation is supplied by the build system in the
    ``../utils/pow2.h`` utility.  */
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/grow_row.h"
+
+/* Helper: grow an auxiliary row buffer in the same style.  */
+static seq_t *grow_row(idx_t len)
+{
+    seq_t *row = mem_new(seq_t, (size_t)len);
+    return row;
+}
 
 /* Public type definitions are provided by the build system:
    seq_t   -- integer type for sequence values
@@ -52,7 +61,7 @@ static void ensure_seq_capacity(idx_t need)
     idx_t new_cap = seq_cap ? seq_cap * 2 : 64;
     while (new_cap < seq_len + need)
         new_cap *= 2;
-    seq = (seq_t *)realloc(seq, (size_t)new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, (size_t)new_cap);
     seq_cap = new_cap;
 }
 
@@ -113,7 +122,7 @@ seq_t a(idx_t n)
             seq[seq_len++] = curr[i];
 
         /* Shift the row buffers for the next iteration.  */
-        free(prevprev);
+        mem_free(prevprev);
         prevprev = prev;
         prevprev_len = prev_len;
 

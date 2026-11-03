@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   diff_of_2x2
+ * Validated: standard, pass, 32 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,27 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/diff_of_2x2.h"
+
+/* helper to compute sorted 4 values and return max - 2nd_smallest */
+static inline int diff_of_2x2(const int *a, const int *b, int offset)
+{
+    int v[4];
+    v[0] = a[offset];
+    v[1] = a[offset + 1];
+    v[2] = b[offset];
+    v[3] = b[offset + 1];
+    /* simple insertion sort for 4 elements */
+    for (int i = 1; i < 4; ++i) {
+        int key = v[i];
+        int j = i - 1;
+        while (j >= 0 && v[j] > key) {
+            v[j + 1] = v[j];
+            --j;
+        }
+        v[j + 1] = key;
+    }
+    return v[3] - v[1];
+}
 
 /* precomputed constants */
 #define ROWS 27

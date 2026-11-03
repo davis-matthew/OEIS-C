@@ -8,6 +8,7 @@
  * Formula:   a(n) = Bell(popcount( (n-1) xor ((n-1)>>1) ))
  * Range:     u8 n <= 85, u16 n <= 682, u32 n <= 4096, u64 n <= 4096,
  *            u128 n <= 4096, big any n
+ * Validated: standard, pass, 91 terms through n = 3925 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

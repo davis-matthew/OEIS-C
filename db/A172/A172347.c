@@ -12,13 +12,15 @@
  *            F(1)=F(2)=1 and F(n)=F(n-1)+3*F(n-2)
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 45, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for partial products c(n) */
 static seq_t *carr = NULL;
@@ -34,7 +36,7 @@ static void ensure_c(idx_t up_to)
 {
     if (carr == NULL) {
         cap = 4;
-        carr = (seq_t *)malloc(cap * sizeof(seq_t));
+        carr = mem_new(seq_t, cap);
         if (!carr) return;                /* allocation failed; caller will fail gracefully */
         carr[0] = (seq_t)1;               /* c(0) = 1 */
         size_c = 1;
@@ -45,7 +47,7 @@ static void ensure_c(idx_t up_to)
     while (size_c <= up_to) {
         if (size_c >= cap) {
             cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(carr, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, carr, cap);
             if (!tmp) return;            /* allocation failed */
             carr = tmp;
         }

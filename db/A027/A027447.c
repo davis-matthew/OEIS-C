@@ -11,17 +11,19 @@
  *            q). Since L_i is divisible by every integer ≤...
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   _floor_isqrt_u64, gcd
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     /* Determine the row i and column j of the n‑th triangle entry */
-    idx_t i = (_floor_isqrt_u64(1 + 8 * n) - 1) / 2;
+    idx_t i = (isqrt(1 + 8 * n) - 1) / 2;
     if (i * (i + 1) / 2 < n) ++i;               /* adjust for exact root  */
     idx_t j = n - (i - 1) * i / 2;              /* 1‑based column index   */
 

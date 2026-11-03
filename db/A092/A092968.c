@@ -7,7 +7,8 @@
  * Formula:   a(n) = n such that 2n^2+11 is prime. a(1)=0, a(2)=1, …
  * Range:     u8 n <= 95, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 83 terms through n = 9759 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_mod64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---------- 64‑bit deterministic Miller–Rabin primality test ---------- */
 
@@ -23,8 +26,8 @@ static inline uint64_t pow_mod64(uint64_t base, uint64_t exp, uint64_t mod) {
     uint64_t result = 1;
     base %= mod;
     while (exp) {
-        if (exp & 1) result = mul_mod64(result, base, mod);
-        base = mul_mod64(base, base, mod);
+        if (exp & 1) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -45,7 +48,7 @@ static bool is_prime_ull(uint64_t n) {
         if (x == 1 || x == n-1) continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { composite = false; break; }
         }
         if (composite) return false;
@@ -68,7 +71,7 @@ seq_t a(idx_t n) {
         if (is_prime_ull(val)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-                seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 cache = tmp;
                 cache_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   has23_in_base6
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 /* ---------------- standard includes ---------------- */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has23_in_base6.h"
+#include "../utils/mem.h"
+
+/* --------- helper: does x contain the digit sequence 2,3 in base 6? */
+static bool has23_in_base6(seq_t x)
+{
+    int prev = -1;                       /* previous low‑significant digit */
+    while (x > 0) {
+        seq_t d = x % 6;                 /* next digit (low‑significant) */
+        if (prev == 3 && d == 2)         /* found the sequence 2,3 */
+            return true;
+        prev = (int)d;
+        x /= 6;
+    }
+    return false;
+}
 
 /* --------- helper: does the number satisfy the definition? */
 static bool satisfies(seq_t n)
@@ -43,9 +58,9 @@ static void ensure_capacity(idx_t need)
     idx_t new_cap = cache_cap ? cache_cap << 1 : 64;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) {
-        free(cache);
+        mem_free(cache);
         abort(); /* unrecoverable – used only for test harnesses */
     }
     cache = new_ptr;

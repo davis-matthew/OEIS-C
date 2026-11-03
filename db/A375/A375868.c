@@ -8,7 +8,8 @@
  *            Stirling numbers of the second kind
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state */
@@ -35,12 +37,12 @@ seq_t a(idx_t n) {
         init = 1;
         /* initialize cache for a(0) */
         cache_cap = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = 1;
         cached_max = 0;
         /* initialize previous row (S(0,0) = 1) */
         prev_cap = 1;
-        prev = (seq_t*)malloc(sizeof(seq_t));
+        prev = mem_new(seq_t, 1);
         prev[0] = 1;
         cur = NULL;
         cur_cap = 0;
@@ -53,7 +55,7 @@ seq_t a(idx_t n) {
     for (idx_t i = cached_max + 1; i <= n; ++i) {
         /* enlarge cur array to size i+1 if needed */
         if ((i + 1) > cur_cap) {
-            cur = (seq_t*)realloc(cur, (i + 1) * sizeof(seq_t));
+            cur = mem_resize(seq_t, cur, (i + 1));
             cur_cap = i + 1;
         }
 
@@ -79,7 +81,7 @@ seq_t a(idx_t n) {
 
         /* enlarge cache if needed */
         if ((i + 1) > cache_cap) {
-            cache = (seq_t*)realloc(cache, (i + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (i + 1));
             cache_cap = i + 1;
         }
         cache[i] = ai;

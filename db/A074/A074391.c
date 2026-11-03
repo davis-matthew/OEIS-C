@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 66 terms through n = 1988 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 
 /* Euclidean algorithm for the generic seq_t type (assumes % and /= are defined) */

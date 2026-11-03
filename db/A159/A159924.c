@@ -12,12 +12,14 @@
  *            m: a = 1 else a = 1 + Σ_{s=k}^{m-1} S_s The...
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 91, u64 n <= 210,
  *            u128 n <= 595, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9829 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *S = NULL;          /* S[0] unused, S[i] = sum rows 1..i */
 static seq_t *prefixS = NULL;    /* prefixS[i] = Σ_{j=1}^i S[j], prefixS[0]=0 */
@@ -34,11 +36,11 @@ static void grow_to(size_t need)
     while (newcap < need)
         newcap <<= 1;
     if (cap == 0) {
-        S = (seq_t *)malloc((newcap + 1) * sizeof(seq_t));
-        prefixS = (seq_t *)malloc((newcap + 1) * sizeof(seq_t));
+        S = mem_new(seq_t, (newcap + 1));
+        prefixS = mem_new(seq_t, (newcap + 1));
     } else {
-        S = (seq_t *)realloc(S, (newcap + 1) * sizeof(seq_t));
-        prefixS = (seq_t *)realloc(prefixS, (newcap + 1) * sizeof(seq_t));
+        S = mem_resize(seq_t, S, (newcap + 1));
+        prefixS = mem_resize(seq_t, prefixS, (newcap + 1));
     }
     if (!S || !prefixS) {
         /* If allocation fails, leave state unchanged; caller may check for 0. */

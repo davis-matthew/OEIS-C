@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 38, u64 n <= 77, u128 n <= 155,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 1640 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    a(0)=1, a(n)=a(n-1)+p(n). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (cap == 0) {
         cap = 1;
-        p = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
-        a_seq = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        p = mem_resize(seq_t, NULL, cap);
+        a_seq = mem_resize(seq_t, NULL, cap);
         if (!p || !a_seq) abort();          /* allocation failure */
         p[0] = (seq_t)1;
         a_seq[0] = p[0];
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
     if (n > cap - 1) {
         idx_t new_cap = cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp_p = (seq_t *)realloc(p, new_cap * sizeof(seq_t));
-        seq_t *tmp_a = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+        seq_t *tmp_p = mem_resize(seq_t, p, new_cap);
+        seq_t *tmp_a = mem_resize(seq_t, a_seq, new_cap);
         if (!tmp_p || !tmp_a) abort();
         p = tmp_p;
         a_seq = tmp_a;

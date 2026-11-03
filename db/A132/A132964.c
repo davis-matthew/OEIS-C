@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 45, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* flattened sequence */
 static size_t seq_cap = 0, seq_len = 0;
@@ -36,7 +38,7 @@ static void ensure_up_to(idx_t n)
     while (seq_len <= (size_t)n) {
         idx_t i = next_row;                 /* current row index */
         size_t len = (size_t)(i + 1);       /* row length */
-        seq_t *row_cur = (seq_t*)calloc(len, sizeof(seq_t));
+        seq_t *row_cur = mem_new(seq_t, len);
         if (!row_cur) abort();
 
         if (i == 0) {
@@ -62,8 +64,7 @@ static void ensure_up_to(idx_t n)
         for (size_t j = 0; j < len; ++j) {
             if (seq_len >= seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-                seq_t *tmp = (seq_t*)realloc(seq,
-                                             new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                 if (!tmp) abort();
                 seq = tmp;
                 seq_cap = new_cap;
@@ -72,7 +73,7 @@ static void ensure_up_to(idx_t n)
         }
 
         /* rotate row buffers */
-        free(row_prev2);
+        mem_free(row_prev2);
         row_prev2 = row_prev;
         row_prev2_len = row_prev_len;
         row_prev = row_cur;

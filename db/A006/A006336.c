@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) + a([n/phi]), a(1) = 1, where phi = (1+sqrt(5))/2
  * Range:     u8 n <= 17, u16 n <= 62, u32 n <= 324, u64 n <= 3004,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9406 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *memo = NULL;
@@ -23,20 +25,20 @@ seq_t a(idx_t n) {
     
     if (memo == NULL) {
         memo_len = (n < 1000) ? 1000 : (n + 100);
-        memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_len);
         for (idx_t i = 0; i < memo_len; i++) {
             memo[i] = 0;
         }
     } else if (n >= memo_len) {
         idx_t new_len = n + 100;
-        seq_t *new_memo = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_len);
         for (idx_t i = 0; i < memo_len; i++) {
             new_memo[i] = memo[i];
         }
         for (idx_t i = memo_len; i < new_len; i++) {
             new_memo[i] = 0;
         }
-        free(memo);
+        mem_free(memo);
         memo = new_memo;
         memo_len = new_len;
     }

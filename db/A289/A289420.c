@@ -7,12 +7,35 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 20, u64 n <= 37, u128 n <= 72,
  *            big any n
- * Helpers:   compute_leq
+ * Validated: standard, pass, 40 terms through n = 880 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_leq.h"
+static seq_t compute_leq(idx_t n, int H)
+{
+    /* H is at most 7; arrays sized for the maximum. */
+    seq_t dp[8];
+    seq_t nxt[8];
+    for (int i = 0; i <= H; ++i) dp[i] = 0;
+    dp[0] = 1;                     /* start at height 0, zero steps taken */
+
+    idx_t steps = n * 2;            /* total up/down steps in a Dyck path */
+    for (idx_t step = 0; step < steps; ++step)
+    {
+        for (int i = 0; i <= H; ++i) nxt[i] = 0;
+        for (int h = 0; h <= H; ++h)
+        {
+            seq_t val = dp[h];
+            if (val == 0) continue; /* skip empty state – works for any seq_t */
+            if (h < H) nxt[h + 1] += val;   /* up step */
+            if (h > 0) nxt[h - 1] += val;   /* down step */
+        }
+        for (int i = 0; i <= H; ++i) dp[i] = nxt[i];
+    }
+    return dp[0];                 /* back to ground level at the end */
+}
 /* Implementation: a(n) = number of Dyck paths of semilength n and
    height exactly 7.
    For each n ≥ 7 we count Dyck paths whose maximum height is ≤ 7 and

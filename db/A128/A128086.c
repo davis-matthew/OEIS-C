@@ -9,7 +9,8 @@
  *            q^{2k‑1})
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,12 +37,12 @@ seq_t a(idx_t n)
 
     /* Allocate coefficient vectors of size n+1 */
     size_t N = (size_t)n;
-    seq_t *dp = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *newdp = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, N + 1);
+    seq_t *newdp = mem_new(seq_t, N + 1);
     if (!dp || !newdp) {
         /* Allocation failed – return 0 as sentinel */
-        free(dp);
-        free(newdp);
+        mem_free(dp);
+        mem_free(newdp);
         return (seq_t)0;
     }
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[n];
 
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
     return result;
 }

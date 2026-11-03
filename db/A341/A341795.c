@@ -10,7 +10,8 @@
  *            binomial(l+2,3)=n
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
     Then a(n) is the sum over all s of freq[s] * freq[n‑s].   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     idx_t m = k - 1;            /* number of tetrahedral numbers to use */
 
     /* allocate array of tetrahedral numbers */
-    seq_t *T = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+    seq_t *T = mem_new(seq_t, (m + 1));
     if (!T) {
         return 0;
     }
@@ -49,9 +51,9 @@ seq_t a(idx_t n)
     }
 
     /* allocate frequency array for pair sums up to n */
-    seq_t *freq = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *freq = mem_new(seq_t, (size_t)(n + 1));
     if (!freq) {
-        free(T);
+        mem_free(T);
         return 0;
     }
 
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         result += f1 * f2;
     }
 
-    free(T);
-    free(freq);
+    mem_free(T);
+    mem_free(freq);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   days_in_month, is_leap_year
+ * Validated: full, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/days_in_month.h"
-#include "../utils/is_leap_year.h"
+#include "../utils/mem.h"
+
+/* Gregorian calendar leap year test (proleptic). */
+static inline bool is_leap_year(int year) {
+    if (year % 400 == 0) return true;
+    if (year % 100 == 0) return false;
+    return (year % 4 == 0);
+}
+
+/* days in month for a given year. */
+static inline int days_in_month(int year, int month) {
+    switch (month) {
+        case 1: case 3: case 5: case 7: case 8: case 10: case 12: return 31;
+        case 4: case 6: case 9: case 11: return 30;
+        case 2: return is_leap_year(year) ? 29 : 28;
+        default: return 0;
+    }
+}
 
 /* mirror mapping for calculator display: 0→0,1→1,2→5,5→2,8→8 */
 static const int8_t MIRROR[10] = {
@@ -83,7 +100,7 @@ static void compute_sequence(void) {
     }
 
     /* sort by numeric value to obtain OEIS order */
-    qsort(seq_terms, seq_count, sizeof(seq_t), cmp_seq);
+    mem_qsort(seq_terms, seq_count, sizeof(seq_t), cmp_seq);
 }
 
 /* public function */

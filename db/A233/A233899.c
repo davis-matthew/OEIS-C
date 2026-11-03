@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------  CONSTANTS AND GLOBAL DATA  ----------------------------- */
 
@@ -110,7 +112,7 @@ static void init_data(void)
 
     /* allocate memo table */
     memo_cap  = DEFAULT_MAXN + 1;
-    memo      = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+    memo      = mem_new(seq_t, memo_cap);
     if (!memo) abort();
     memo_size = 0;
 }
@@ -127,7 +129,7 @@ seq_t a(idx_t n)
     /* extend memo array if necessary */
     if (n > memo_cap) {
         size_t newcap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(memo, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, newcap);
         if (!tmp) abort();
         memo = tmp;
         memo_cap = newcap;

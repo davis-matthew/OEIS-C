@@ -9,6 +9,7 @@
  * Formula:   a(0)=4, a(1)=7, a(n)=2*(3-(-1)^n + n + (-1)^n*n) for n>1
  * Range:     u8 n <= 63, u16 n <= 127, u32 n <= 127, u64 n <= 127,
  *            u128 n <= 127, big any n
+ * Validated: standard, pass, 84 terms through n = 123 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            = 1 + 2*(number of parts of p)
  * Range:     u8 n <= 59, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t _cache_size = 0;
 static seq_t * _cache = NULL;
@@ -52,10 +54,10 @@ static void compute_sequence_up_to(idx_t N)
     /* dp[size][sum] : subsets of distinct numbers up to current i
        having exact size 'size' and sum 'sum'.  Size ranges 0..kmax. */
     size_t dp_rows = kmax_int + 1;
-    seq_t *dp = (seq_t *)calloc(dp_rows * (N_int + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_rows * (N_int + 1));
     dp[0 * (N_int + 1) + 0] = 1;          /* empty subset */
 
-    seq_t *a = (seq_t *)calloc(N_int + 1, sizeof(seq_t));   /* result array */
+    seq_t *a = mem_new(seq_t, N_int + 1);   /* result array */
 
     /* Main loop over potential maximal part values m = i. */
     for (idx_t i = 1; i <= Mmax; ++i)
@@ -96,8 +98,8 @@ static void compute_sequence_up_to(idx_t N)
     for (int i = 0; i <= N_int; ++i)
         _cache[i] = a[i];
 
-    free(dp);
-    free(a);
+    mem_free(dp);
+    mem_free(a);
 }
 
 /* External function required by the build. */
@@ -105,9 +107,9 @@ seq_t a(idx_t n)
 {
     if (_cache_size <= n)
     {
-        free(_cache);
+        mem_free(_cache);
         _cache_size = n + 1;
-        _cache     = (seq_t *)calloc(_cache_size, sizeof(seq_t));
+        _cache     = mem_new(seq_t, _cache_size);
         compute_sequence_up_to(n);
     }
     return _cache[n];

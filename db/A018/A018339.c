@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth divisor of 220 (sorted ascending)
  * Range:     u8 n <= 12, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *p1, const void *p2)
 {
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        qsort(divisors, 12, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(divisors, 12, sizeof(seq_t), cmp_seq_t);
         initialized = true;
     }
 

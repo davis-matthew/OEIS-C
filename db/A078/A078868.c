@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   idx_from_digit, make_value
+ * Validated: full, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/idx_from_digit.h"
-#include "../utils/make_value.h"
+#include "../utils/mem.h"
+
+/* map a digit d∈{2,4,6} to an index 0,1,2  */
+static inline int idx_from_digit(int d)
+{
+    return (d == 2) ? 0 : (d == 4) ? 1 : 2;
+}
+
+/* convert four digits to the 4‑digit decimal value */
+static inline seq_t make_value(int d1, int d2, int d3, int d4)
+{
+    return (seq_t)d1 * 1000U + (seq_t)d2 * 100U + (seq_t)d3 * 10U + (seq_t)d4;
+}
 
 /* comparison function for qsort (ascending) */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -107,10 +119,10 @@ seq_t a(idx_t n)
 
         /* ---------- 3. Store sorted list in cache ---------- */
         cache_len = tmp_len;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) exit(EXIT_FAILURE);
         for (size_t i = 0; i < cache_len; ++i) cache[i] = tmp_values[i];
-        qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
     }
 
     if (n == 0 || (idx_t)n > cache_len) return 0;

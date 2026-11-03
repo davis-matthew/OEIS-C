@@ -11,7 +11,8 @@
  *            parts)
  * Range:     u8 n <= 25, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n < 1) return 0;
 
     int N = (int)n;                /* n is small enough for int arithmetic */
-    seq_t *dp = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (N + 1));
     if (!dp) return 0;            /* allocation failed, return zero */
 
     /* initialise dp array to zeros */
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     return ans;
 }

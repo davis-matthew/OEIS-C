@@ -8,12 +8,14 @@
  * Formula:   a(n) = Σ_{i=1}^{⌊n/2⌋} i * L_{n-i+1}
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n >= lucas_len) {
         idx_t old_len = lucas_len;
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(lucas_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, lucas_cache, new_len);
         if (!tmp) exit(1);
         lucas_cache = tmp;
         idx_t start;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     if (n >= a_len) {
         idx_t old_len = a_len;
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_len);
         if (!tmp) exit(1);
         a_cache = tmp;
         /* initialize new entries to 0 */

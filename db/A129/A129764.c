@@ -9,14 +9,22 @@
  *            1/(i+j+k-2) ]
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   binom_choose_2, gcd
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t a, seq_t b) */
-#include "../utils/binom_choose_2.h"
+#include "../utils/gcd.h"
+
+/* Compute binomial coefficient C(x,2) = x*(x-1)/2.
+   Return 0 for x < 2. */
+static inline seq_t binom_choose_2(seq_t x)
+{
+    if (x < 2) return 0;
+    return x * (x - 1) / 2;
+}
 
 /* Count triples 1 ≤ i,j,k ≤ n with i + j + k = t + 2.
    Uses inclusion–exclusion with binomial coefficients about n. */

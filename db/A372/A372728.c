@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   jacobi_symbol
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,31 @@
  */
 
 #include <stdint.h>
-#include "../utils/jacobi_symbol.h"
+#include <stdbool.h>
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* ---- auxiliary: compute the Kronecker symbol (a / n) for n > 0 ---- */
 static inline seq_t

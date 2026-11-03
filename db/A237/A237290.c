@@ -8,8 +8,9 @@
  * Formula:   a(n) = sum of distinct subset sums of all divisors of n The sum
  *            is taken over all positive numbers k <= σ(n) that can be
  *            obtained as the sum of a subset of the distinct divisors of n
- * Range:     u8 n <= 11, u16 n <= 143, u32 n <= 7942, u64 n <= 7942,
- *            u128 n <= 7942, big any n
+ * Range:     u8 n <= 11, u16 n <= 143, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 70 terms through n = 7942 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

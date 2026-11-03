@@ -7,14 +7,15 @@
  * Formula:   a(n) = 2^n + 7^n
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   pow_u
+ * Validated: standard, pass, 36 terms through n = 938 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_u.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
-    return pow_u((seq_t)2, n) + pow_u((seq_t)7, n);
+    return ipow_idx((seq_t)2, n) + ipow_idx((seq_t)7, n);
 }

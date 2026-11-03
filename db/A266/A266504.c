@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 26, u32 n <= 50, u64 n <= 100,
  *            u128 n <= 202, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build environment. */
 extern seq_t a(idx_t n);
@@ -37,7 +39,7 @@ grow_cache(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while ((size_t)n + 1 > new_cap) new_cap <<= 1;   /* give room for n */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;                               /* abort on out‑of‑memory */
     /* Zero the newly allocated part to avoid garbage. */
     for (size_t i = cache_cap; i < new_cap; ++i) tmp[i] = 0;

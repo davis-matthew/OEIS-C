@@ -9,8 +9,9 @@
  *            = k. For m = P^e*j, with P the largest prime factor of m, s(m)
  *            >= m/P. So every m with s(m) <= L can be listed from j <= L and
  *            primes P <= L
- * Range:     u8 n <= 16, u16 n <= 8941, u32 n <= 9761, u64 n <= 9761,
- *            u128 n <= 9761, big any n
+ * Range:     u8 n <= 16, u16 n <= 8941, u32 n <= 13863, u64 n <= 13863,
+ *            u128 n <= 13863, big any n
+ * Validated: standard, pass, 69 terms through n = 9761 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

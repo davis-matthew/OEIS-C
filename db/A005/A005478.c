@@ -11,8 +11,8 @@
  *            native modular arithmetic. Survivors get a strong...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 11, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   addmod, fibmod, grow_arr, has_small_divisor, is_prime,
- *            seq_is_big
+ * Validated: standard, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +20,62 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/grow_arr.h"
-#include "../utils/addmod.h"
-#include "../utils/fibmod.h"
-#include "../utils/has_small_divisor.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t *grow_arr(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *r = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) r[i] = old[i];
+    if (old) mem_free(old);
+    return r;
+}
+
+static seq_t addmod(seq_t x, seq_t y, seq_t m) {
+    seq_t t = m - y;
+    if (x >= t) return x - t;
+    return x + y;
+}
+
+/* F(k) mod q, q < 2^32, fast doubling */
+static uint64_t fibmod(uint64_t k, uint64_t q) {
+    uint64_t fa = 0, fb = 1;
+    int hb = 63;
+    while (hb > 0 && ((k >> hb) & 1) == 0) hb--;
+    for (int i = hb; i >= 0; i--) {
+        uint64_t t = (2 * fb + q - fa) % q;
+        uint64_t c = (fa * t) % q;
+        uint64_t d = ((fa * fa) % q + (fb * fb) % q) % q;
+        if ((k >> i) & 1) {
+            fa = d;
+            fb = (c + d) % q;
+        } else {
+            fa = c;
+            fb = d;
+        }
+    }
+    return fa;
+}
+
+/* true if F(k) (k prime, k > 100) has a small divisor */
+static bool has_small_divisor(uint64_t k) {
+    const uint64_t LIM = 4294967295ULL;
+    for (uint64_t j = 1; j <= 20000; j++) {
+        uint64_t base = 2 * j * k;
+        if (base + 1 > LIM) break;
+        uint64_t q = (j & 1) ? base - 1 : base + 1;
+        if (fibmod(k, q) == 0) return true;
+    }
+    return false;
+}
 
 static seq_t mulmod(seq_t x, seq_t y, seq_t m) {
     if (seq_is_big()) return (x * y) % m;
@@ -100,7 +150,7 @@ seq_t a(idx_t n) {
         fk1 = t;
         k++;
         if (!seq_is_big() && fk1 < fk) ovf = true;
-        if ((k == 4 || is_prime(k)) && is_prime_fib(fk, k)) {
+        if ((k == 4 || is_prime_u64(k)) && is_prime_fib(fk, k)) {
             if (nfound == cap) {
                 idx_t nc = cap ? cap * 2 : 16;
                 found = grow_arr(found, cap, nc);

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   has_no_adjacent
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,24 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has_no_adjacent.h"
+
+/* Check whether a base‑6 representation of x has no equal adjacent digits. */
+static bool has_no_adjacent(seq_t x)
+{
+    /* Special case: 0 has no pairs, thus it passes. */
+    if (x == 0) return true;
+
+    seq_t prev = 6;   /* impossible digit */
+    bool first = true;
+    while (x > 0) {
+        seq_t d = x % 6;
+        if (!first && d == prev) return false;
+        prev = d;
+        first = false;
+        x = x / 6;
+    }
+    return true;
+}
 
 #if !defined(MAX_CACHE)
 #   define MAX_CACHE 200000   /* enough for n up to 100 000 */

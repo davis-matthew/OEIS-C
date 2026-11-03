@@ -7,13 +7,15 @@
  * Formula:   a(n) = T(n, floor(n/2)) where T is Catalan triangle. Closed
  *            forms: n = 2k => a(n) = binomial(2k+2, k+1) / (k+2) n = 2k+1 =>
  *            a(n) = 3 * binomial(2k+2, k) / (k+3)
- * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 29, u64 n <= 36, u128 n <= 36,
+ * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 32, u64 n <= 36, u128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

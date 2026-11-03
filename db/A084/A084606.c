@@ -9,7 +9,8 @@
  *            2x^2)^(floor(sqrt(n)))
  * Range:     u8 n <= 28, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   ensure_capacity
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,39 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/ensure_capacity.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size) /* elem_size: sizeof(T) */
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, new_cap);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 seq_t a(idx_t n) {
     /* Static state: cached sequence values and rows of the triangular array */
@@ -33,11 +66,11 @@ seq_t a(idx_t n) {
 
     /* Initialise for the first call: row 0 contains only the coefficient 1. */
     if (!initialized) {
-        ensure_capacity(1, &data_cap, (void**)&data, sizeof(seq_t));
+        ensure_capacity(1, &data_cap, OEISC_VPP(&data), sizeof(seq_t));
         data[0] = 1;
         data_size = 1;
 
-        prev_row = (seq_t *)malloc(sizeof(seq_t));
+        prev_row = mem_new(seq_t, 1);
         prev_row[0] = 1;
         prev_len = 1;
         last_row = 0;
@@ -55,7 +88,7 @@ seq_t a(idx_t n) {
         size_t curr_len = 2 * r + 1;            /* number of terms in row r */
 
         /* Allocate a temporary array for the current row. */
-        seq_t *curr = (seq_t *)calloc(curr_len, sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, curr_len);
 
         /* Compute each coefficient of row r using the recurrence
          * a(r,k) = a(r-1,k) + 2*a(r-1,k-1) + 2*a(r-1,k-2).        */
@@ -71,12 +104,12 @@ seq_t a(idx_t n) {
         }
 
         /* Append the newly computed row to the flat sequence array. */
-        ensure_capacity(data_size + curr_len, &data_cap, (void**)&data, sizeof(seq_t));
+        ensure_capacity(data_size + curr_len, &data_cap, OEISC_VPP(&data), sizeof(seq_t));
         for (size_t i = 0; i < curr_len; ++i)
             data[data_size++] = curr[i];
 
         /* Prepare for the next iteration: the new row becomes the previous one. */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = curr;
         prev_len = curr_len;
         last_row = r;

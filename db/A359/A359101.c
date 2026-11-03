@@ -7,18 +7,20 @@
  * Formula:   a(n) = phi(5 * n)/4
  * Range:     u8 n <= 51, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 95 terms through n = 9756 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0)
         return 0;
     idx_t m = n * (idx_t)5;
-    seq_t ph = phi(m);
+    seq_t ph = totient(m);
     return ph / 4;
 }

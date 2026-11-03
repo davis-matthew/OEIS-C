@@ -11,13 +11,15 @@
  *            memoisation. It is compatible with both C11 and C++17
  * Range:     u8 n <= 520, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 7585 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n);   /* forward declaration for the build system */
 
@@ -35,7 +37,7 @@ static void _ensure_rows_up_to(idx_t n)
     /* Initialise the first row if we have no data yet. */
     if (flatten == NULL) {
         flat_cap = 1;
-        flatten = (seq_t *)malloc(flat_cap * sizeof(seq_t));
+        flatten = mem_new(seq_t, flat_cap);
         if (flatten == NULL) abort();
         flatten[0] = 0;   /* row0 = [0] */
         flat_len = 1;
@@ -66,7 +68,7 @@ static void _ensure_rows_up_to(idx_t n)
         }
 
         /* Allocate space for the new row */
-        seq_t *row = (seq_t *)malloc(curr_len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, curr_len);
         if (!row) {
             free(cnt); free(offset); abort();
         }
@@ -85,16 +87,16 @@ static void _ensure_rows_up_to(idx_t n)
         if (flat_cap < flat_len + curr_len) {
             size_t new_cap = flat_cap ? flat_cap * 2 : 1;
             while (new_cap < flat_len + curr_len) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(flatten, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, flatten, new_cap);
             if (!tmp) abort();
             flatten = tmp;
             flat_cap = new_cap;
         }
-        memcpy(flatten + flat_len, row, curr_len * sizeof(seq_t));
+        mem_copy(flatten + flat_len, row, curr_len * sizeof(seq_t));
         flat_len += curr_len;
 
         /* Clean up temporary structures */
-        free(row);
+        mem_free(row);
         free(cnt);
         free(offset);
     }

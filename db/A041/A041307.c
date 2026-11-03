@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 23, u64 n <= 45, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    Then a(n) = q_n.  First terms: 1, 1, 8, 9, 17, 26, 69, … */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Periodic partial quotients for n >= 1 */
 static const seq_t period[22] = {
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap < target) {
         size_t new_cap = cache_cap == 0 ? 8 : cache_cap;
         while (new_cap < (size_t)target) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

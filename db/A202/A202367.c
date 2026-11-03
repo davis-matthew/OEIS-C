@@ -10,15 +10,16 @@
  *            floor((n-1)/(ceil((p-1)/2)*p^k)) )
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 /* OEIS A202367: LCM of denominators of coefficients of the polynomials
  * Q^(2)_m(n). This implementation follows the conjectured product formula
@@ -65,7 +66,7 @@ seq_t a(idx_t n)
             power *= p;
         }
 
-        seq_t term = big_pow((seq_t)p, (seq_t)exp_sum);
+        seq_t term = ipow((seq_t)p, (seq_t)exp_sum);
         ans *= term;
     }
 

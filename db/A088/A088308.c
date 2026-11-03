@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 4409 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  Helper: simple primality test (works for numbers up to a few hundred thousands) */
 static inline bool is_prime_simple(idx_t v) {
@@ -45,8 +47,7 @@ static void ensure_cache_capacity(size_t need) {
     while (cache_capacity < need) {
         cache_capacity = (cache_capacity == 0) ? 1024 : (cache_capacity << 1);
     }
-    composite_last_digit_cache = (seq_t *)realloc(
-        composite_last_digit_cache, cache_capacity * sizeof(seq_t));
+    composite_last_digit_cache = mem_resize(seq_t, composite_last_digit_cache, cache_capacity);
     /*  In the unlikely event of allocation failure we let the runtime crash –
         the problem specification guarantees that calls will be small enough.  */
 }

@@ -11,19 +11,21 @@
  *            n≥7)
  * Range:     u8 n <= 46, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
     static idx_t cache_len = 0;
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(7 * sizeof(seq_t));
+        cache = mem_new(seq_t, 7);
         cache[0] = 1;
         cache[1] = 6;
         cache[2] = 12;
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
 
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        cache = (seq_t *)realloc(cache, (size_t)new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)new_len);
         for (idx_t i = cache_len; i <= n; ++i) {
             cache[i] = 2 * cache[i-1] - cache[i-2] - cache[i-4] + 2 * cache[i-5] - cache[i-6];
         }

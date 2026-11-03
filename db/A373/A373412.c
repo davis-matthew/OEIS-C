@@ -12,7 +12,8 @@
  *            >1, and summing each antirun
  * Range:     u8 n <= 6, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool is_nonsquarefree(uint64_t m, uint32_t *primes, size_t primesCount)
 {
@@ -96,10 +98,10 @@ seq_t a(idx_t n)
                     /* end of current antirun; store its sum */
                     if (sumCap == 0) {
                         sumCap = 16;
-                        sums = (seq_t *)malloc(sumCap * sizeof(seq_t));
+                        sums = mem_new(seq_t, sumCap);
                     } else if (sumCount == sumCap) {
                         sumCap *= 2;
-                        sums = (seq_t *)realloc(sums, sumCap * sizeof(seq_t));
+                        sums = mem_resize(seq_t, sums, sumCap);
                     }
                     sums[sumCount++] = currentSum;
                     currentSum = (seq_t)candidate;   /* start new antirun */

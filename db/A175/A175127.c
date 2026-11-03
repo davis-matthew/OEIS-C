@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint32_t *spf = NULL;           /* smallest prime factor array  */
 static idx_t      spf_len = 0;         /* length of SPF array (0..spf_len-1) */
@@ -87,8 +89,7 @@ static void ensure_tables(idx_t n)
         if (t >= max_step_cap) {
             idx_t new_cap = max_step_cap ? max_step_cap * 2 : 16;
             while (new_cap <= t) new_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(max_m_for_step,
-                                         new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, max_m_for_step, new_cap);
             if (!tmp) return;            /* allocation failure – abort    */
             /* initialise new slots to 0 */
             for (idx_t i = max_step_cap; i < new_cap; ++i)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   bigomega
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <limits.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 /* global state */
 static bool initialized = false;
@@ -80,7 +82,7 @@ static void ensure_seq(idx_t n)
     if (!initialized) {                     /* first exercise */
         build_sieve(limit);
         seqCap = 64;
-        seqVals = (seq_t*)malloc(seqCap * sizeof(seq_t));
+        seqVals = mem_new(seq_t, seqCap);
         seqSize = 0;
         lastChecked = 1;
         initialized = true;
@@ -128,7 +130,7 @@ static void ensure_seq(idx_t n)
             /* store the term */
             if (seqSize == seqCap) {
                 seqCap *= 2;
-                seqVals = (seq_t*)realloc(seqVals, seqCap * sizeof(seq_t));
+                seqVals = mem_resize(seq_t, seqVals, seqCap);
             }
             seqVals[seqSize++] = (seq_t)lastChecked;
         }

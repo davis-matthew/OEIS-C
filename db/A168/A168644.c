@@ -8,9 +8,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy, tabl, less
  * Formula:   not stated
- * Range:     u8 n <= 39, u16 n <= 158, u32 n <= 574, u64 n <= 1325,
+ * Range:     u8 n <= 39, u16 n <= 159, u32 n <= 575, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 1278 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,8 @@
  * to compute binomial coefficients exactly in the sequence type.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* Find row r such that r*(r+1)/2 ≤ n < (r+1)*(r+2)/2. */
@@ -49,19 +51,19 @@ seq_t a(idx_t n) {
         return (seq_t)1;
 
     if (r <= 5) {
-        seq_t coeff = (seq_t)(7 - (int)r) * binom(r, k);
+        seq_t coeff = (seq_t)(7 - (int)r) * binomial(r, k);
         seq_t sub   = 0;
         if (k == 0 || k == r)
             sub = (seq_t)(6 - (int)r);
         return coeff - sub;
     } else {
         /* r >= 6 */
-        seq_t result = (seq_t)5 * binom(r, k);
+        seq_t result = (seq_t)5 * binomial(r, k);
 
         /* subtract the terms from j=0..3 */
         for (int j = 0; j <= 3; ++j) {
             idx_t j_idx = (idx_t)j;
-            seq_t c     = binom(r, j_idx);
+            seq_t c     = binomial(r, j_idx);
             if (k == j_idx)
                 result -= (seq_t)(4 - j) * c;
             if (k == r - j_idx)

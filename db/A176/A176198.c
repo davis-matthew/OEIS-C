@@ -13,7 +13,8 @@
  *            (2(k-i)+1)^n. Since f(n,0) = 2, we have T(n,k) = f(n,k) –...
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 69, u64 n <= 160,
  *            u128 n <= 446, big any n
- * Helpers:   binom, pow_uint
+ * Validated: standard, pass, 71 terms through n = 1264 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,17 +23,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/pow_uint.h"/* seq_t pow_uint(uint64_t base, idx_t exp); */
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 static seq_t compute_f(idx_t row, idx_t k)
 {
     seq_t sum_even = 0;
     seq_t sum_odd  = 0;
     for (idx_t i = 0; i <= k; ++i) {
-        seq_t binom_coeff = binom(row + 1, i);
+        seq_t binom_coeff = binomial(row + 1, i);
         uint64_t base     = 2 * (k - i) + 1;          /* odd positive integer */
-        seq_t pow_val     = pow_uint(base, row);      /* (2(k-i)+1)^row */
+        seq_t pow_val     = ipow_u64_idx(base, row);      /* (2(k-i)+1)^row */
         seq_t term        = binom_coeff * pow_val;    /* binom * power */
 
         if (i & 1U) /* odd i */

@@ -15,12 +15,14 @@
  *            a(1)=60, a(2)=119, a(3)=223, a(4)=603, a(5)=1251, a(6)...
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 21, u64 n <= 45, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values (index 0 unused) */
 static seq_t *cache = NULL;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the 16 known entries if needed */
     if (cache_len < 16) {
         cache_len = 16;
-        cache = (seq_t *)malloc((cache_len + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_len + 1));
         for (idx_t i = 1; i <= cache_len; ++i)
             cache[i] = init[i];
     }
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     if (cache_len < n) {
         idx_t old_len = cache_len;
         cache_len = n;
-        cache = (seq_t *)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (cache_len + 1));
 
         for (idx_t m = old_len + 1; m <= cache_len; ++m) {
             if (m <= 16) {                  /* keep the hard‑coded values */

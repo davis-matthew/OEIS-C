@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(0) = 1; a(n) = 3 if n is even and n > 0; a(n) = 4 * a(n >> 1)
  *            - 1 if n is odd
- * Range:     u8 n <= 30, u16 n <= 510, u32 n <= 9335, u64 n <= 9335,
- *            u128 n <= 9335, big any n
+ * Range:     u8 n <= 30, u16 n <= 510, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 88 terms through n = 9335 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

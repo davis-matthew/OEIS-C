@@ -10,7 +10,8 @@
  *            Sum_{k>=0} 1/k!
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a1355_digit, a1355_iszero
+ * Validated: standard, pass, 116 terms through n = 9420 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a1355_digit.h"
-#include "../utils/a1355_iszero.h"
+
+static int a1355_digit(const uint32_t *x, idx_t d) {
+    idx_t p, q;
+    uint32_t v;
+    int j;
+    if (d == 0) return (int)x[0];
+    p = d - 1;
+    v = x[1 + p / 4];
+    q = p % 4;
+    for (j = 0; j < 3 - (int)q; j++) v /= 10;
+    return (int)(v % 10);
+}
+
+static int a1355_iszero(const uint32_t *x, size_t L) {
+    size_t i;
+    for (i = 0; i < L; i++) if (x[i]) return 0;
+    return 1;
+}
 
 #define A1355_B 10000u
 

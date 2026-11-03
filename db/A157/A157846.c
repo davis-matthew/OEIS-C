@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,13 +29,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: dynamic array of seq_t values. */
 static void push_seq(const seq_t *value, seq_t **array, size_t *len, size_t *cap)
 {
     if (*len >= *cap) {
         size_t newcap = (*cap == 0) ? 256 : (*cap << 1);
-        *array = (seq_t *)realloc(*array, newcap * sizeof(seq_t));
+        *array = mem_resize(seq_t, *array, newcap);
         if (!*array) abort();
         *cap = newcap;
     }
@@ -110,7 +112,7 @@ static void precompute(void)
     }
 
     /* Sort the means. */
-    qsort(tmp, tmp_len, sizeof(seq_t), seq_compare);
+    mem_qsort(tmp, tmp_len, sizeof(seq_t), seq_compare);
 
     /* Deduplicate. */
     size_t uniq_len = 0;

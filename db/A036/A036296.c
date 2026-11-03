@@ -7,11 +7,13 @@
  * Formula:   a(n) = 2^(n - v2(n+2)), where v2(x) is the exponent of 2 in x
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 977 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Computes the denominator of  Σ_{i=1..n} i/2^i  (OEIS A036296) */

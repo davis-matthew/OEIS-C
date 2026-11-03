@@ -10,6 +10,7 @@
  * Formula:   a(n) = (2*n+3+(-1)^n)*(2*n+3-3*(-1)^n)*(2*n+15+5*(-1)^n)/384
  * Range:     u8 n <= 19, u16 n <= 143, u32 n <= 1164, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 77 terms through n = 4999 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

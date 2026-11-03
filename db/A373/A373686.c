@@ -9,7 +9,8 @@
  *            practical number and 0 ≤ y ≤ x
  * Range:     u8 n <= 1884, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_practical_uint32
+ * Validated: standard, pass, 96 terms through n = 9960 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,36 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_practical_uint32.h"
+
+/* Determine if m is a practical number (m ≤ cache_limit). */
+static bool is_practical_uint32(uint32_t m, uint32_t *spf)
+{
+    if (m == 1) return true;
+    uint32_t temp = m;
+    uint32_t prev_prime = 0;
+    uint64_t sigma = 1;   /* sigma of the processed part */
+
+    while (temp > 1) {
+        uint32_t p = spf[temp];
+        uint32_t exp = 0;
+        while (temp % p == 0) {
+            temp /= p;
+            exp++;
+        }
+        if (prev_prime == 0) {           /* first prime factor */
+            if (p != 2) return false;    /* practical numbers must start with 2 */
+        } else {
+            if (p > sigma + 1) return false;
+        }
+        /* compute σ(p^exp) = (p^{exp+1}-1)/(p-1) */
+        uint64_t term = 1;
+        for (uint32_t i = 0; i < exp + 1; ++i) term *= p;
+        uint64_t compSum = (term - 1ULL) / (p - 1ULL);
+        sigma = sigma * compSum;
+        prev_prime = p;
+    }
+    return true;
+}
 
 static idx_t cache_limit = 0;
 static uint32_t *spf = NULL;          /* smallest prime factor */

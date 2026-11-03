@@ -11,12 +11,14 @@
  *            1, 25, 124, 836, 5227, 33263, 210954, 1338995, 8497693, 53931843
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* 1‑based array of computed terms */
 static size_t cache_alloc = 0;       /* size of allocated array (index 0 unused) */
@@ -29,7 +31,7 @@ static void expand_cache(idx_t n)
     while (new_size <= (size_t)n) {
         new_size *= 2;
     }
-    cache = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (new_size + 1));
     cache_alloc = new_size;
 }
 

@@ -11,12 +11,14 @@
  *            a(7)=30
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 49, u64 n <= 1096,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 8114 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *cache = NULL;      /* array of computed terms */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t max_index)
     if (required < 8)          /* keep a minimal size for the initial block */
         required = 8;
 
-    seq_t *new_cache = (seq_t *)malloc(required * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, required);
     if (!new_cache)                /* allocation failed – keep old state */
         return;
 
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t max_index)
     if (cache) {
         for (idx_t i = 0; i < cache_size; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     cache = new_cache;

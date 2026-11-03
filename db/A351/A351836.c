@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   is_evil_seq
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
  * conditions hold and then returns k. */
 
 #include <stdbool.h>
-#include "../utils/is_evil_seq.h"
+
+/* Return true if x has an even number of 1‑bits.  The shift amount is
+ * an unsigned integer so that the code works for ordinary unsigned types
+ * as well as the arbitrary‑precision seq_t class. */
+static inline bool is_evil_seq(seq_t x)
+{
+    unsigned cnt = 0;
+    while (x) {
+        cnt += (unsigned)(x & (seq_t)1);
+        x >>= (unsigned)1;   /* shift by integer 1 */
+    }
+    return (cnt & 1U) == 0;
+}
 
 seq_t a(idx_t n)
 {

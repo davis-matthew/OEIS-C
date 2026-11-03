@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 63, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached triangle entries */
 static seq_t *triangle = NULL;        /* linear array of T(r,k) values */
@@ -59,7 +61,7 @@ compute_triangle_upto(idx_t n)
     /* Total number of entries up to row rmax (inclusive). */
     idx_t new_size = (rmax + 1) * (rmax + 2) / 2;
 
-    triangle = (seq_t *)realloc(triangle, new_size * sizeof(seq_t));
+    triangle = mem_resize(seq_t, triangle, new_size);
     if (triangle == NULL) {
         /* Out of memory; abort (the build environment is expected
          * to provide enough memory for this small cache). */

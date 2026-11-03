@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = 1 if floor(log2(n)) is odd, else 0
- * Range:     u8 n <= 9296, u16 n <= 9296, u32 n <= 9296, u64 n <= 9296,
- *            u128 n <= 9296, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9296 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

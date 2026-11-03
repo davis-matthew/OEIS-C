@@ -10,6 +10,7 @@
  *            2^k for 0 ≤ k < r
  * Range:     i8 n <= 15, i16 n <= 35, i32 n <= 52, i64 n <= 52, i128 n <= 52,
  *            big any n
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

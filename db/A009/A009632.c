@@ -8,13 +8,15 @@
  *            with a(0) = 0, a(1) = 1
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 14, i64 n <= 21, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the OEIS sequence A009632.
  * The values satisfy        2 a(n) = rhs - 2 n a(n-1) - n(n-1) a(n-2)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (cache_len == 0)
     {
         cache_len = 2;                   /* need at least a[0] and a[1] */
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
     }
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     {
         size_t old_len = cache_len;
         cache_len = (size_t)(n + 1);
-        cache = (seq_t*)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
 
         for (idx_t i = (idx_t)old_len; i <= n; ++i)
         {

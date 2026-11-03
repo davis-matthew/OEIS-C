@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,7 +43,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* Compute gcd for 64‑bit unsigned integers */
 
@@ -82,7 +83,7 @@ seq_t a(idx_t n)
                 unsigned long long qmin = p + 1;
                 unsigned long long qmax = NN - p;
                 for (unsigned long long q = qmin; q <= qmax; ++q) {
-                    if (gcd_uint64(p, q) != 1) continue;
+                    if (gcd_u64(p, q) != 1) continue;
                     unsigned long long D = p + q;
                     if (NN % D == 0) ++ans;
                 }
@@ -90,7 +91,7 @@ seq_t a(idx_t n)
                 /* Outer loop over q; break when D > n */
                 unsigned long long q = p + 1;
                 while (true) {
-                    if (gcd_uint64(p, q) != 1) {
+                    if (gcd_u64(p, q) != 1) {
                         ++q;
                         continue;
                     }

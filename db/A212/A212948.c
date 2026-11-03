@@ -12,7 +12,8 @@
  *            for seq_t ( + – * / % )
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
     if (N == 0u) return 0;
 
     /* allocate arrays for h, g (binomial), and f (=g^6) */
-    seq_t *h = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *g = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *f = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *h = mem_new(seq_t, (N + 1));
+    seq_t *g = mem_new(seq_t, (N + 1));
+    seq_t *f = mem_new(seq_t, (N + 1));
 
     /* base values */
     h[0] = (seq_t)1;
@@ -65,9 +67,9 @@ seq_t a(idx_t n)
     seq_t result = (n & 1) ? -h[N] : h[N];
 
     /* free allocated memory */
-    free(h);
-    free(g);
-    free(f);
+    mem_free(h);
+    mem_free(g);
+    mem_free(f);
 
     return result;
 }

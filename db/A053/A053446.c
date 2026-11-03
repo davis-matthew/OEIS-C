@@ -7,13 +7,17 @@
  * Formula:   a(n) = multiplicative order of 3 modulo floor((3*n-1)/2)
  * Range:     u8 n <= 77, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 93 terms through n = 9737 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 static void factorize(uint64_t n, uint64_t *pr, int *ex, size_t *cnt)
 {
@@ -69,7 +73,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt2; ++i) {
         uint64_t q = primes2[i];
         while (order % q == 0) {
-            if (mod_pow(3, order / q, (seq_t)m) == 1)
+            if (powmod(3, order / q, (seq_t)m) == 1)
                 order /= q;
             else
                 break;

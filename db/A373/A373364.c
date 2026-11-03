@@ -10,14 +10,17 @@
  *            factors with multiplicity (A001414) and the arithmetic
  *            derivative (A003415) of n, then returns their greatest common
  *            divisor
- * Range:     u8 n <= 512, u16 n <= 8252, u32 n <= 8252, u64 n <= 8252,
- *            u128 n <= 8252, big any n
+ * Range:     u8 n <= 512, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 111 terms through n = 8252 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
 

@@ -10,13 +10,14 @@
  *            computed exactly with integer sqrt
  * Range:     u8 n <= 0, u16 n <= 28, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   a004951_isqrt128
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a004951_isqrt128.h"
+#include "../utils/isqrt_u128.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
     A = (unsigned __int128)n * 2207 + 1;
     B = (unsigned __int128)n * 987;
     /* m = ceil(B*sqrt(5)); 5*B^2 is never a perfect square for B > 0 */
-    r = a004951_isqrt128(5 * B * B);
+    r = isqrt_u128(5 * B * B);
     m = r + 1;
     k = (A - m) / 2;
     return (seq_t)n * 2207 - (seq_t)(uint64_t)k;

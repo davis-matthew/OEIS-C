@@ -9,12 +9,14 @@
  *            parts equal to (Fibonacci(k) – 1) for all k ≥ 3
  * Range:     u8 n <= 31, u16 n <= 126, u32 n <= 741, u64 n <= 3500,
  *            u128 n <= 3500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 3336 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* DP array: dp[i] = number of partitions of i using the coin set.
        Allocate an array of seq_t of size n+1. */
-    seq_t *dp = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     dp[0] = (seq_t)1;
     for (idx_t i = 1; i <= n; ++i) dp[i] = (seq_t)0;
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     }
 
     /* Clean up */
-    free(dp);
+    mem_free(dp);
     free(coins);
 
     return ans;

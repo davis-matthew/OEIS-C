@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, factorize, mod_pow, seq_realloc
+ * Validated: standard, pass, 73 terms through n = 845 (2026-11-01)
+ * Helpers:   build_primes_upto, factorize, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
-#include "../utils/factorize.h"
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/factorize.h"
+#include "../utils/powmod.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Return true if 47 is a primitive root modulo prime p (p > 2).  */
 static bool isPrimitiveRoot47(uint64_t p)
@@ -39,7 +52,7 @@ static bool isPrimitiveRoot47(uint64_t p)
     for (size_t i = 0; i < nf; ++i) {
         uint64_t q   = pf[i];
         uint64_t exp = phi / q;
-        if (mod_pow((seq_t)47, exp, (seq_t)p) == (seq_t)1)
+        if (powmod((seq_t)47, exp, (seq_t)p) == (seq_t)1)
             return false;   /* fails the primitivity test */
     }
     return true;

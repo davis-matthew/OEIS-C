@@ -8,13 +8,15 @@
  *            fraction for sqrt(989)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 23, u64 n <= 39, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 162 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const uint64_t D = 989;      /* D for sqrt(D) */
 static const uint64_t A0 = 31;      /* floor(sqrt(989)) */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Initialise on the first call */
     if (denoms == NULL) {
         denoms_cap = 256;
-        denoms = (seq_t*)malloc(denoms_cap * sizeof(seq_t));
+        denoms = mem_new(seq_t, denoms_cap);
         if (denoms == NULL) return 0;   /* allocation failure */
 
         /* Term 0: k0 = 1 */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         /* Ensure capacity for the new term */
         if (denoms_len + 1 > denoms_cap) {
             size_t new_cap = denoms_cap * 2;
-            seq_t *tmp = (seq_t*)realloc(denoms, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, denoms, new_cap);
             if (tmp == NULL) return 0;   /* allocation failure */
             denoms = tmp;
             denoms_cap = new_cap;

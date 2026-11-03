@@ -7,7 +7,8 @@
  * Formula:   a(n) = (5*(5*n - 2)/n) * a(n-1); a(0) = 1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 32 terms through n = 704 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* first call: allocate cache and set a(0) */
     if (cache == NULL) {
         cap = 1;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;           /* allocation failure */
         cache[0] = (seq_t)1;
         computed_max = 0;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* enlarge cache if needed */
     if ((idx_t)(cap - 1) < n) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;            /* allocation failure */
         cache = tmp;
         cap = new_cap;

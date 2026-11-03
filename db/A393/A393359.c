@@ -11,7 +11,8 @@
  *            proper divisors of n
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 43, u128 n <= 74,
  *            big any n
- * Helpers:   binomial, sigma_of
+ * Validated: standard, pass, 56 terms through n = 1195 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/sigma_of.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* compare function for descending order of uint64_t values */
 static int cmp_desc(const void *a, const void *b)

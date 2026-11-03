@@ -8,7 +8,8 @@
  *            where a(1) = k + 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- Helper: Euclidean gcd for seq_t ---------- */
 static seq_t gcd_seq_t(seq_t a, seq_t b)
@@ -46,21 +48,19 @@ seq_t a(idx_t n)
             size_t new_cap = capacity ? capacity << 1 : 8;
             while (new_cap < need) new_cap <<= 1;
 
-            seq_t *new_vals  = (seq_t *)malloc(new_cap * sizeof(seq_t));
-            seq_t *new_lcm   = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_vals  = mem_new(seq_t, new_cap);
+            seq_t *new_lcm   = mem_new(seq_t, new_cap);
             if (!new_vals || !new_lcm) { /* allocation failed */
-                free(new_vals);
-                free(new_lcm);
+                mem_free(new_vals);
+                mem_free(new_lcm);
                 return 0;
             }
 
             if (computed > 0) {
-                memcpy(new_vals, vals,
-                       computed * sizeof(seq_t));
-                memcpy(new_lcm, lcm_arr,
-                       computed * sizeof(seq_t));
-                free(vals);
-                free(lcm_arr);
+                mem_copy(new_vals, vals, computed * sizeof(seq_t));
+                mem_copy(new_lcm, lcm_arr, computed * sizeof(seq_t));
+                mem_free(vals);
+                mem_free(lcm_arr);
             }
             vals      = new_vals;
             lcm_arr   = new_lcm;

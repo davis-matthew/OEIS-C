@@ -11,12 +11,14 @@
  *            the recurrence * p_k(n) = p_k(n-k) + p_{k-1}(n-1)...
  * Range:     u8 n <= 96, u16 n <= 444, u32 n <= 7476, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9470 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -38,13 +40,13 @@ seq_t a(idx_t n)
     if (needed > cacheSize) {
         /* Free old table */
         if (dp) {
-            for (int k = 0; k < 6; ++k) free(dp[k]);
+            for (int k = 0; k < 6; ++k) mem_free(dp[k]);
             free(dp);
         }
         /* Allocate new table */
         dp = (seq_t **)malloc(6 * sizeof(seq_t *));
         for (int k = 0; k < 6; ++k) {
-            dp[k] = (seq_t *)calloc(needed, sizeof(seq_t));
+            dp[k] = mem_new(seq_t, needed);
         }
         /* Initialize dp[0] */
         dp[0][0] = (seq_t)1;

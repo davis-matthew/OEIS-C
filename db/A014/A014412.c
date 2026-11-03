@@ -8,7 +8,8 @@
  *            of
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define PERIOD 403
 
@@ -34,8 +36,8 @@ static void init_seq(void)
     seq_t Q[Qdeg + 1];
     seq_t a_local[PERIOD] = {0};
 
-    memset(N, 0, sizeof(N));
-    memset(D, 0, sizeof(D));
+    mem_set(N, 0, sizeof(N));
+    mem_set(D, 0, sizeof(D));
 
     /* Build N(x) = (x-1)(x^403-1) = x^404 - x^403 - x + 1 */
     N[404] = (seq_t)1;

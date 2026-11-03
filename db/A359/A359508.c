@@ -7,8 +7,9 @@
  * Formula:   a(n) = log₂(A359507(n)-1). Computed via recurrence: a(1) = 0,
  *            a(2) = 1, a(3) = 1; for k>0: a(4k) = 1, a(4k+1) = 2, a(4k+2) =
  *            1, a(4k+3) = a(k) + 2
- * Range:     u8 n <= 9519, u16 n <= 9519, u32 n <= 9519, u64 n <= 9519,
- *            u128 n <= 9519, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9519 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

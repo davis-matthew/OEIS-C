@@ -9,13 +9,15 @@
  *            a(4)=1, a(5)=0, a(6)=5, a(7)=0, a(8)=15, a(9)=1, a(10)=35
  * Range:     u8 n <= 16, u16 n <= 27, u32 n <= 50, u64 n <= 96, u128 n <= 188,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 extern idx_t _floor_isqrt_u64(idx_t);   /* dummy extern to avoid empty file warning */
 
@@ -34,7 +36,7 @@ static void grow_cache(size_t new_cap)
 {
     if (new_cap <= cache_cap)
         return;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)                /* allocation failed – give up */
         return;
     cache = new_cache;
@@ -50,7 +52,7 @@ static void ensure_terms(idx_t n)
     if (cache == NULL) {
         /* first allocation – at least space for the initial 11 terms */
         cache_cap = 64;                 /* arbitrary small start */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)                     /* allocation failed – give up */
             return;
         for (size_t i = 0; i < 11; ++i)

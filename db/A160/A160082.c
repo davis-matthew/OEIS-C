@@ -10,12 +10,14 @@
  *            any order are O(1) * after the initial computation
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 7, i64 n <= 11, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 414 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise cache to hold the first two terms */
     if (sz == 0) {
         size_t ncap = 2;
-        cache = (seq_t *)malloc(ncap * sizeof(seq_t));
+        cache = mem_new(seq_t, ncap);
         if (!cache) abort();
         cap = ncap;
         cache[0] = (seq_t)1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1ULL > cap) {
         size_t newcap = cap ? cap * 2 : 2;
         while (newcap <= (size_t)n + 1ULL) newcap <<= 1;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         if (!cache) abort();
         cap = newcap;
     }

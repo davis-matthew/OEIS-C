@@ -8,7 +8,8 @@
  * Formula:   a(n) = A084797(A001358(n))
  * Range:     u8 n <= 10, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sieve_primes
+ * Validated: standard, pass, 69 terms through n = 915 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,33 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sieve_primes.h"
+
+/* Construct an array of all primes ≤ limit using a simple sieve. */
+static void sieve_primes(int limit, uint32_t **primes_out, size_t *cnt_out)
+{
+    bool *is_comp = (bool*)malloc((limit + 1) * sizeof(bool));
+    if (!is_comp) { *primes_out = NULL; *cnt_out = 0; return; }
+
+    for (int i = 0; i <= limit; ++i) is_comp[i] = false;
+
+    for (int i = 2; i * i <= limit; ++i)
+        if (!is_comp[i])
+            for (int j = i * i; j <= limit; j += i)
+                is_comp[j] = true;
+
+    size_t cnt = 0;
+    for (int i = 2; i <= limit; ++i)
+        if (!is_comp[i]) ++cnt;
+
+    uint32_t *pr = (uint32_t*)malloc(cnt * sizeof(uint32_t));
+    size_t idx = 0;
+    for (int i = 2; i <= limit; ++i)
+        if (!is_comp[i]) pr[idx++] = (uint32_t)i;
+
+    free(is_comp);
+    *primes_out = pr;
+    *cnt_out    = cnt;
+}
 
 /* Type definitions supplied by the build system:
    idx_t and seq_t are unsigned integer types.  */

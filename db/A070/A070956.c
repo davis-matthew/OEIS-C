@@ -10,14 +10,36 @@
  *            factors of t
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   h
+ * Validated: standard, pass, 115 terms through n = 9946 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/h.h"
+
+/* helper: number of distinct prime factors of t (t>=1) */
+static seq_t h(idx_t t)
+{
+    if (t == 1)
+        return (seq_t)1;
+    int k = 0;                 /* ω(t) */
+    idx_t temp = t;
+    for (idx_t p = 2; p * p <= temp; ++p)
+    {
+        if (temp % p == 0)
+        {
+            ++k;
+            while (temp % p == 0)
+                temp /= p;
+        }
+    }
+    if (temp > 1)  /* remaining prime factor */
+        ++k;
+    /* h(t) = 2^{k-1}  (k>=1) */
+    return (seq_t)(((seq_t)1) << (k - 1));
+}
 
 seq_t a(idx_t n)
 {

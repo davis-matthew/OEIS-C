@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of partitions of n into parts each ≡ 3 (mod 5)
  * Range:     u8 n <= 94, u16 n <= 230, u32 n <= 654, u64 n <= 2090,
  *            u128 n <= 7268, big any n
+ * Validated: standard, pass, 97 terms through n = 9718 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

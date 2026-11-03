@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   is_eta
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,40 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_eta.h"
+
+static bool is_eta(seq_t x)
+{
+    /* 1 is the first eta number */
+    if (x == (seq_t)1)
+        return true;
+
+    /* Every candidate we test is odd (we increment by 2 below). */
+    seq_t tmp = x;
+
+    /* Trial division by odd primes.  The loop terminates when p*p > tmp. */
+    seq_t p = 3;
+    while (p * p <= tmp) {
+        if (tmp % p == 0) {
+            /* If we find a prime ≡ 3 (mod 4), x is definitely an eta number. */
+            if (p % 4 == 3)
+                return true;
+            /* Remove all copies of the current prime. */
+            while (tmp % p == 0)
+                tmp /= p;
+        }
+        p += 2;   /* skip even numbers */
+    }
+
+    /* If a prime factor larger than sqrt(tmp) remains, it is equal to tmp. */
+    if (tmp > (seq_t)1) {
+        if (tmp % 4 == 3)
+            return true;
+        /* tmp % 4 == 1 would mean all prime factors are 1 mod 4 */
+    }
+
+    /* No prime factor ≡ 3 (mod 4) was found → not an eta number. */
+    return false;
+}
 
 seq_t a(idx_t n)
 {

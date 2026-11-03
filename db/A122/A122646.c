@@ -8,18 +8,20 @@
  *            interpreted as a base‑n numeral
  * Range:     u8 n <= 52, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     /* Compute φ(n) */
-    seq_t phi_val = phi(n);
+    seq_t phi_val = totient(n);
 
     /* Extract decimal digits of φ(n) (least significant first) */
     unsigned char digits[256];      /* should be enough for any seq_t s.t. φ(n) < 10^256 */

@@ -13,13 +13,15 @@
  *            T(n,1)-1, T(n,k) = 3*T(n-1,k-2)+1 for k >= 3. The sequen...
  * Range:     u8 n <= 33, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
 #include <math.h>     /* sqrt */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,16 +40,16 @@ seq_t a(idx_t n)
     /* Compute the triangle row by row until reaching row r.
        We build each row from the previous one.  */
     size_t prev_len = 1;
-    seq_t *prev = (seq_t *)malloc(prev_len * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, prev_len);
     if (!prev)
         return (seq_t)0;   /* allocation failure -> zero */
     prev[0] = (seq_t)0;     /* T(1,1) = 0 */
 
     for (idx_t cur = 2; cur <= r; ++cur) {
         size_t curr_len = 2 * cur - 1;
-        seq_t *curr = (seq_t *)malloc(curr_len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, curr_len);
         if (!curr) {
-            free(prev);
+            mem_free(prev);
             return (seq_t)0;   /* allocation failure -> zero */
         }
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             curr[idx] = prev[prev_index] * (seq_t)3 + (seq_t)1;
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_len = curr_len;
     }
@@ -70,6 +72,6 @@ seq_t a(idx_t n)
     /* Retrieve the requested column value.  */
     seq_t value = prev[k - 1];
 
-    free(prev);
+    mem_free(prev);
     return value;
 }

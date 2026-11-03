@@ -9,14 +9,40 @@
  *            (1,2,3,5,8)
  * Range:     u8 n <= 98, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_fib_digit_product
+ * Validated: standard, pass, 80 terms through n = 959 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_fib_digit_product.h"
+
+/* Return true if the iterated product of the digits of x is a Fibonacci
+   number.  The Fibonacci numbers we encounter after iterating are
+   1, 2, 3, 5, 8 (single digits). */
+static bool is_fib_digit_product(uint64_t x)
+{
+    /* First product of digits, abort if a zero digit is found. */
+    uint64_t prod = 1;
+    for (uint64_t t = x; t > 0; t /= 10) {
+        uint64_t d = t % 10;
+        if (d == 0) return false;            /* product becomes 0 → not Fibonacci */
+        prod *= d;
+    }
+
+    /* Continue iterating while the product has two or more digits. */
+    while (prod >= 10) {
+        uint64_t next = 1;
+        for (uint64_t t = prod; t > 0; t /= 10) {
+            next *= t % 10;
+        }
+        prod = next;
+    }
+
+    /* prod is now a single digit.  Check against the Fibonacci set. */
+    return (prod == 1 || prod == 2 || prod == 3 || prod == 5 || prod == 8);
+}
 
 /* OEIS sequence A028891 */
 seq_t a(idx_t n)

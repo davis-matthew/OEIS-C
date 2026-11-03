@@ -7,23 +7,25 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n has no pair of consecutive prime divisors,
  *            otherwise 0
- * Range:     u8 n <= 9611, u16 n <= 9611, u32 n <= 9611, u64 n <= 9611,
- *            u128 n <= 9611, big any n
- * Helpers:   int_sqrt, next_prime
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9611 (2026-11-01)
+ * Helpers:   isqrt, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include "../utils/isqrt.h"
 #include "../utils/next_prime.h"
-#include "../utils/int_sqrt.h"
 
 seq_t a(idx_t n)
 {
     if (n <= 1)
         return (seq_t)1;
 
-    idx_t limit = int_sqrt(n);
+    idx_t limit = isqrt(n);
     uint64_t p = 2;
     while (p <= limit) {
         if (((uint64_t)n) % p == 0) {

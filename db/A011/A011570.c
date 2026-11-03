@@ -7,6 +7,7 @@
  * Formula:   a(n) = Stirling numbers of the second kind S(21,n)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 21, u128 n <= 21,
  *            big any n
+ * Validated: full, pass, 21 terms through n = 21 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

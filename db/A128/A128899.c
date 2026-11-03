@@ -11,12 +11,14 @@
  *            successive triangular numbers. That is, for n > 0: * l...
  * Range:     u8 n <= 28, u16 n <= 67, u32 n <= 210, u64 n <= 667,
  *            u128 n <= 2416, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9766 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 /* Forward declarations of helper functions */
 static void build_triangle_up_to(idx_t m);
@@ -41,7 +43,7 @@ static void build_triangle_up_to(idx_t m)
     /* Build rows from the current highest up to m */
     for (idx_t i = triangle_rows; i <= m; ++i) {
         /* Allocate current row of length i+1 */
-        seq_t *row = (seq_t*)malloc((size_t)(i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(i + 1));
         if (!row) exit(1);
 
         /* First entry */

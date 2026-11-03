@@ -9,15 +9,19 @@
  *            (mod p). The first term is p = 2
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 69 terms through n = 963 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static size_t _found_len = 0;
 static size_t _found_cap = 0;
@@ -41,7 +45,7 @@ static inline bool _good_prime(idx_t p)
     if (p == 2) return true;
     idx_t g = _gcd_idx(18, p-1);
     idx_t exp = (p-1) / g;
-    seq_t res = mod_pow((seq_t)2, (uint64_t)exp, (seq_t)p);
+    seq_t res = powmod((seq_t)2, (uint64_t)exp, (seq_t)p);
     return res == (seq_t)1;
 }
 
@@ -50,7 +54,7 @@ seq_t a(idx_t n)
     /* Ensure the static storage is initialized */
     if (_found == NULL) {
         _found_cap = 16;
-        _found = (seq_t *)malloc(_found_cap * sizeof(seq_t));
+        _found = mem_new(seq_t, _found_cap);
         _found_len = 0;
     }
 
@@ -60,7 +64,7 @@ seq_t a(idx_t n)
             if (_good_prime(_next_check)) {
                 if (_found_len == _found_cap) {
                     _found_cap <<= 1;
-                    _found = (seq_t *)realloc(_found, _found_cap * sizeof(seq_t));
+                    _found = mem_resize(seq_t, _found, _found_cap);
                 }
                 _found[_found_len++] = (seq_t)_next_check;
             }

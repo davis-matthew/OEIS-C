@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations */
 static void generate(seq_t curr, uint16_t usedMask, uint64_t prod, uint8_t len);
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
 {
     if (!cache_init) {                      /* first call, build cache */
         cache_cap = 1024;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         generate(0, 0, 1, 0);               /* build all candidates */
-        qsort(cache, cache_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(cache, cache_len, sizeof(seq_t), cmp_seq);
         cache_init = true;
     }
     if (n == 0 || (idx_t)n > cache_len) return 0; /* out of bounds */
@@ -73,7 +75,7 @@ static void add_value(seq_t val)
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap == 0) new_cap = 128;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
     cache[cache_len++] = val;

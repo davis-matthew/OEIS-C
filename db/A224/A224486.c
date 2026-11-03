@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 3636, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 73 terms through n = 8878 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Cache of found terms (k values). */
 static seq_t *cache = NULL;          /* array holding the sequence values */
@@ -32,7 +36,7 @@ static void ensure_cache_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                      /* out of memory */
     cache = tmp;
@@ -49,7 +53,7 @@ seq_t a(idx_t n)
     while (cache_len < n) {
         idx_t k = next_test_k++;
         seq_t m = ((seq_t)2 * (seq_t)k) + (seq_t)1;   /* 2k+1   */
-        seq_t pow_mod = mod_pow((seq_t)2, (uint64_t)k, m);
+        seq_t pow_mod = powmod((seq_t)2, (uint64_t)k, m);
         /* Check 2^k ≡ -1 (mod m), i.e. pow_mod == m-1. */
         if (pow_mod == m - (seq_t)1) {
             ensure_cache_capacity(cache_len + 1);

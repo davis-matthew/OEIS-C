@@ -11,6 +11,7 @@
  *            dividing m (i.e. the number of trailing zero bits of m)
  * Range:     i8 n <= 84, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 91 terms through n = 9107 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

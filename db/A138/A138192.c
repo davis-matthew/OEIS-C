@@ -13,13 +13,15 @@
  *            p(x,t)=Exp[x*t]/(1-2t)^3
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     idx_t diff = up - k;                /* = (r-1)-k = n-k */
 
     /* binom(r - k, 2) == binom(diff + 2, 2). */
-    seq_t bin = binom(diff + 2, 2);
+    seq_t bin = binomial(diff + 2, 2);
 
     /* 2^diff */
     seq_t p2 = pow2(diff);

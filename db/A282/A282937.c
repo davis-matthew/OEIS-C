@@ -8,12 +8,14 @@
  *            (sigma=divisor–sum)
  * Range:     i8 n <= 6, i16 n <= 118, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 789 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, calloc, realloc, free, abort */
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;   /* a_cache[0..a_size]             */
 static idx_t  a_size    = 0;      /* highest index computed          */
@@ -24,11 +26,11 @@ static idx_t  sigma_size= 0;      /* highest index available         */
 static void recompute_sigma(idx_t limit)
 {
     if (sigma_arr) {
-        free(sigma_arr);
+        mem_free(sigma_arr);
         sigma_arr = NULL;
     }
 
-    sigma_arr = (seq_t*)calloc((size_t)(limit + 1), sizeof(seq_t));
+    sigma_arr = mem_new(seq_t, (size_t)(limit + 1));
     if (!sigma_arr) abort();
 
     for (idx_t i = 1; i <= limit; ++i) {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 {
     /* Initialise the caches on first call */
     if (!a_cache) {
-        a_cache = (seq_t*)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache) abort();
         a_cache[0] = (seq_t)1;      /* a(0) = 1 */
         a_size   = 0;
@@ -57,8 +59,7 @@ seq_t a(idx_t n)
             recompute_sigma(sigma_needed);
 
         /* Grow the a_cache to at least n */
-        seq_t *new_cache = (seq_t*)realloc(a_cache,
-                                           (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, a_cache, (size_t)(n + 1));
         if (!new_cache) abort();
         a_cache = new_cache;
 

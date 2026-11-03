@@ -9,14 +9,16 @@
  *            / 120
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* fast exponentiation for 128‑bit intermediate calculations */
 static inline __int128 pow128(unsigned long long base, idx_t exp)
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     seq_t pos = 0;
     seq_t neg = 0;
     for (size_t i = 0; i < sizeof(terms)/sizeof(terms[0]); ++i) {
-        seq_t p = big_pow((seq_t)terms[i].base, (seq_t)n);
+        seq_t p = ipow((seq_t)terms[i].base, (seq_t)n);
         if (terms[i].coeff >= 0) {
             pos += p * (seq_t)terms[i].coeff;
         } else {

@@ -11,9 +11,10 @@
  *            denominators. The value a(n) is 1 if n is odd, otherwise it
  *            equals 2^k where k is the exponent of the denominator of f(2^v),
  *            v=v...
- * Range:     u8 n <= 31, u16 n <= 511, u32 n <= 9826, u64 n <= 9826,
- *            u128 n <= 9826, big any n
- * Helpers:   pow2
+ * Range:     u8 n <= 31, u16 n <= 511, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9826 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"          /* pow2(seq_t exp) */
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t num;   /* odd numerator of f(2^e) */
@@ -38,7 +40,7 @@ static void grow_arrays(idx_t need_cap) {
     if (need_cap <= h_cap) return;
     idx_t new_cap = h_cap ? h_cap * 2 : 16;
     if (new_cap < need_cap) new_cap = need_cap;
-    data_t *new_h = (data_t *)realloc(h_frac, new_cap * sizeof(data_t));
+    data_t *new_h = mem_resize(data_t, h_frac, new_cap);
     h_frac = new_h;
     h_cap = new_cap;
     idx_t *new_den = (idx_t *)realloc(den_exp, new_cap * sizeof(idx_t));

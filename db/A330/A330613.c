@@ -10,8 +10,9 @@
  *            with the triangle read row by row (0‑based columns). r is found
  *            by * solving r*(r+1)/2 >= n, and k = n - r*(r-1)/2 - 1. This
  *            implements * OEIS A330613
- * Range:     u8 n <= 66, u16 n <= 8792, u32 n <= 8792, u64 n <= 8792,
- *            u128 n <= 8792, big any n
+ * Range:     u8 n <= 66, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 82 terms through n = 8792 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

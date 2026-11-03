@@ -10,13 +10,15 @@
  *            decimal representation starts with (last_digit(a(n‑1)) + 1)
  * Range:     u8 n <= 109, u16 n <= 115, u32 n <= 115, u64 n <= 115,
  *            u128 n <= 115, big any n
- * Helpers:   none
+ * Validated: partial, pass, 116 terms through n = 115 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache for the generated sequence.  The cache is grown only
    forward; no deletions are performed.  This works for both C and
@@ -32,7 +34,7 @@ static void ensure_cache(size_t min_cap) {
         size_t new_cap = cache_cap ? (cache_cap << 1) : 64;
         if (new_cap < min_cap) new_cap = min_cap;
 #if defined(__cplusplus)
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
 #else
         cache = realloc(cache, new_cap * sizeof(seq_t));
 #endif

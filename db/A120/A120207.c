@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(1)=6; a(n)=floor((59+sum_{i=1}^{n-1} a(i))/9) */
 
 #include <stdlib.h> /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,10 +36,8 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap)
         {
             size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-            seq_t *tmp_seq = (seq_t *)realloc(seq_cache,
-                                               new_cap * sizeof(seq_t));
-            seq_t *tmp_sum = (seq_t *)realloc(sum_cache,
-                                               new_cap * sizeof(seq_t));
+            seq_t *tmp_seq = mem_resize(seq_t, seq_cache, new_cap);
+            seq_t *tmp_sum = mem_resize(seq_t, sum_cache, new_cap);
             if (!tmp_seq || !tmp_sum)          /* allocation failed */
             {
                 /* If allocation failed, keep old data and return 0. */

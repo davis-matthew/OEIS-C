@@ -7,18 +7,45 @@
  * Formula:   a(n) = Π_{k=1…n} σ(k,k) where σ(k,k)=∑_{d|k} d^k
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   build_spf, seq_alloc, seq_mul, seq_pow, seq_realloc
+ * Validated: standard, pass, 28 terms through n = 37 (2026-11-01)
+ * Helpers:   build_spf, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_spf.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Global static state – visible to all functions in this file */
 static seq_t *prod_cache   = NULL;  /* cache of a(0)…a(max_computed)        */
@@ -47,7 +74,7 @@ static seq_t sigma_k(idx_t k)
         }
 
         /* pk = p^k */
-        seq_t pk = seq_pow((seq_t)p, k);
+        seq_t pk = ipow_idx((seq_t)p, k);
 
         /* sum = 1 + pk + pk^2 + … + pk^exp */
         seq_t term = (seq_t)1;

@@ -8,7 +8,8 @@
  *            Φ_170(x)
  * Range:     i8 n <= 64, i16 n <= 64, i32 n <= 64, i64 n <= 64, i128 n <= 64,
  *            big any n
- * Helpers:   mul_by_factor
+ * Validated: full, pass, 65 terms through n = 64 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 /* where μ is the Möbius function.  The coefficients are computed once and cached. */
 
 #include <stddef.h>
-#include "../utils/mul_by_factor.h"
+
+/* Multiply polynomial 'poly' (degree *deg) by (x^k – 1).  The result fits in
+   the fixed-size buffer of 200 coefficients. */
+static void mul_by_factor(seq_t *poly, int *deg, int k)
+{
+    seq_t tmp[200] = {0};
+    for (int i = 0; i <= *deg; ++i) {
+        tmp[i + k] += poly[i];   /* x^k * poly */
+        tmp[i]     -= poly[i];   /* – poly */
+    }
+    *deg += k;
+    for (int i = 0; i <= *deg; ++i)
+        poly[i] = tmp[i];
+}
 
 /* Compute coefficient array of Φ_170(x) the first time this function is called.
    The coefficients are then returned for any subsequent call. */

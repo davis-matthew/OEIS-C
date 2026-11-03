@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_semiprime_u64
+ * Validated: standard, pass, 71 terms through n = 917 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_semiprime_u64.h"
+
+/* helper: test if x (64‑bit) is a semiprime (product of exactly two prime factors) */
+static bool is_semiprime_u64(uint64_t x, const uint32_t *primes, size_t primes_cnt)
+{
+    if (x < 4) return false;          /* 4 = 2*2 is the smallest semiprime */
+    int count = 0;
+    uint64_t t = x;
+    for (size_t i = 0; i < primes_cnt; ++i) {
+        uint32_t p = primes[i];
+        if ((uint64_t)p * (uint64_t)p > t) break;
+        while (t % p == 0) {
+            count++;
+            t /= p;
+            if (count > 2) return false;
+        }
+    }
+    if (t > 1) count++;               /* final prime factor */
+    return count == 2;
+}
 
 /* helper: digit sum of a 64‑bit integer */
 static uint64_t digit_sum_u64(uint64_t x)

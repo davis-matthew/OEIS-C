@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Recurrence: a(0)=0, a(1)=0, a(2)=1, a(n)=2*a(n-1)+2*a(n-2)+3^(n-2) for n>=3 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached values of a(n) */
 static seq_t *a_cache = NULL;
@@ -33,7 +35,7 @@ static void grow_a(idx_t n)
 
     /* Allocate the minimum needed space (round up a bit for efficiency) */
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_a = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_cache, new_cap);
     if (!new_a) exit(EXIT_FAILURE);
     a_cache = new_a;
     a_cap   = new_cap;

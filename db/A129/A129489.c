@@ -9,7 +9,8 @@
  *            any of the first n odd primes (3,5,7,...)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   _fits_prime
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_fits_prime.h"
+
+/* Test whether a candidate k satisfies the digit condition for a single odd prime p. */
+static bool _fits_prime(seq_t k, uint32_t p)
+{
+    seq_t half = ((seq_t)p - (seq_t)1) / (seq_t)2; /* floor((p-1)/2) */
+    seq_t tmp = k;
+    while (tmp > 0) {
+        seq_t digit = tmp % (seq_t)p;
+        if (digit > half) return false;
+        tmp /= (seq_t)p;
+    }
+    return true;
+}
 
 /* Pre‑computed primes up to 200000 ensure the first 10000 odd primes
  * are available (the 10000th odd prime is 104729). */

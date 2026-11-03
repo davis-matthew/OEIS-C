@@ -7,18 +7,21 @@
  * Formula:   a(n) = ((n+2)*(2n+7)^n + 1)/(n+3)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 295 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     seq_t N      = (seq_t)n;
     seq_t base   = (seq_t)(2 * N + 7);
-    seq_t pow_val = big_pow(base, N);          /* (2n+7)^n   */
+    seq_t pow_val = ipow(base, N);          /* (2n+7)^n   */
     seq_t num = (N + 2) * pow_val + 1;         /* (n+2)*(2n+7)^n + 1  */
     return num / (N + 3);                      /* divide by n+3   */
 }

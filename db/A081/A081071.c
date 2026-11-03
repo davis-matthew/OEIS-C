@@ -11,12 +11,14 @@
  *            4*n+2, which is only about 40 000 iterat...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 893 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache for Lucas numbers. */
 static idx_t lucas_max_computed = 0;   /* highest index that has been computed */
@@ -29,7 +31,7 @@ static void ensure_lucas(idx_t max_index)
         return;                           /* already available */
 
     size_t new_size = (size_t)(max_index + 1);   /* indices 0 .. max_index */
-    seq_t *new_cache = (seq_t *)realloc(lucas_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, lucas_cache, new_size);
     if (!new_cache) abort();                /* allocation failed */
 
     lucas_cache = new_cache;

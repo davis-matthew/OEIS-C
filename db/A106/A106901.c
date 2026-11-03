@@ -8,7 +8,8 @@
  *            (computed by exhaustive search)
  * Range:     u8 n <= 11, u16 n <= 1224, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq_t, isPrime64
+ * Validated: standard, pass, 65 terms through n = 9916 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,17 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isPrime64.h"
-#include "../utils/cmp_seq_t.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+static int cmp_seq_t(const void *a, const void *b)
+{
+    seq_t va = *(const seq_t *)a;
+    seq_t vb = *(const seq_t *)b;
+    if (va < vb) return -1;
+    if (va > vb) return 1;
+    return 0;
+}
 
 #define MAX_PRIMES 30000          /* enough for n up to ~10000 */
 
@@ -42,7 +52,7 @@ static void generate_primes_up_to(uint64_t limit)
             if (val > limit)
                 break;
             uint64_t v = (uint64_t)val;
-            if (v >= 3 && isPrime64(v)) {
+            if (v >= 3 && is_prime_u64(v)) {
                 if (count < MAX_PRIMES)
                     prime_list[count++] = (seq_t)v;
             }
@@ -53,7 +63,7 @@ static void generate_primes_up_to(uint64_t limit)
     }
 
     /* sort and remove duplicates */
-    qsort(prime_list, count, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(prime_list, count, sizeof(seq_t), cmp_seq_t);
     size_t uniq = 0;
     for (size_t i = 0; i < count; ++i) {
         if (uniq == 0 || prime_list[i] != prime_list[uniq - 1]) {

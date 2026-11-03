@@ -10,14 +10,30 @@
  *            dynamic programming over rows
  * Range:     u8 none, u16 n <= 5, u32 n <= 17, u64 n <= 42, u128 n <= 91,
  *            big any n
- * Helpers:   valid_triplet
+ * Validated: standard, pass, 39 terms through n = 208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/valid_triplet.h"
+
+/* Checks whether rows a, b, c (0..31) satisfy the 3×3 subblock constraints. */
+static inline bool valid_triplet(int a, int b, int c)
+{
+    for (int j = 0; j < 3; ++j) {
+        int d1 = ((a >> j) & 1)
+              + ((b >> (j + 1)) & 1)
+              + ((c >> (j + 2)) & 1);
+        if (d1 == 1) return false;
+        int d2 = ((a >> (j + 2)) & 1)
+              + ((b >> (j + 1)) & 1)
+              + ((c >> j) & 1);
+        if (d2 == 2) return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

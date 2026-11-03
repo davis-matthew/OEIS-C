@@ -11,12 +11,14 @@
  *            a(8)=517, a(9)=1007
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 27, u64 n <= 54, u128 n <= 109,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
        and populate the bootstrap terms. */
     if (!cache) {
         idx_t init_size = 10;              /* want room for indices 0..9 */
-        cache = (seq_t *)malloc(sizeof(seq_t) * init_size);
+        cache = mem_new(seq_t, init_size);
         if (!cache) return 0;              /* out of memory → zero result */
 
         for (idx_t i = 0; i < init_size; ++i) cache[i] = 0;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         idx_t new_size = cache_n * 2;
         if (new_size < required) new_size = required * 2;
 
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return 0;            /* out of memory → zero */
 
         for (idx_t i = 0; i <= cache_n; ++i)
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         for (idx_t i = cache_n + 1; i < new_size; ++i)
             new_cache[i] = 0;
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
     }
 

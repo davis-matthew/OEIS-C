@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 92, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
- * Helpers:   bin_str_from_uint64, find_first_occurrence
+ * Validated: partial, pass, 93 terms through n = 92 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,38 @@
    of all previous binary values.  If it never appears, a(n)=0.  */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/bin_str_from_uint64.h"
-#include "../utils/find_first_occurrence.h"
+#include "../utils/mem.h"
+
+static size_t bin_str_from_uint64(idx_t v, char *buf)
+/* fill buf with the binary representation of v (most‑significant bit first)
+   and return its length */
+{
+    if (v == (idx_t)0) { buf[0] = '0'; return 1; }
+    size_t len = 0;
+    idx_t tmp = v;
+    while (tmp > 0) { buf[len++] = (tmp & (idx_t)1) ? '1' : '0'; tmp >>= 1; }
+    /* reverse to get MSB first */
+    for (size_t i = 0; i < len / 2; ++i) {
+        char c = buf[i]; buf[i] = buf[len - 1 - i]; buf[len - 1 - i] = c;
+    }
+    return len;
+}
+
+static long long find_first_occurrence(const char *txt, size_t txtlen,
+                                       const char *pat, size_t patlen)
+/* return 0‑based index of first occurrence of pat in txt.
+   If not found, return -1.  */
+{
+    if (patlen == 0) return 0;
+    if (txtlen < patlen) return -1;
+    for (size_t i = 0; i + patlen <= txtlen; ++i) {
+        size_t j;
+        for (j = 0; j < patlen; ++j)
+            if (txt[i + j] != pat[j]) break;
+        if (j == patlen) return (long long)i;
+    }
+    return -1;
+}
 
 /* ---------  helper functions ----------------------------------- */
 
@@ -47,7 +78,7 @@ static void init_global_state(void)
     if (a_cache != NULL) return;
 
     a_cap = 128;
-    a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+    a_cache = mem_new(seq_t, a_cap);
     a_len = 0;
 
     bin_cap = 1024;
@@ -94,7 +125,7 @@ seq_t a(idx_t n)
         if ((size_t)n + 1 > a_cap) {
             size_t newcap = a_cap ? a_cap * 2 : 256;
             while (newcap < (size_t)n + 1) newcap *= 2;
-            seq_t *tmp = (seq_t *)realloc(a_cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_cache, newcap);
             if (!tmp) return (seq_t)0;     /* allocation failure */
             a_cache = tmp;
             a_cap = newcap;

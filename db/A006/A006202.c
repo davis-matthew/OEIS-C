@@ -12,7 +12,8 @@
  *            binomial(n,a) * 2^(a*(n-a)) * g3(n-a)) / 32
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   grow_zero, pw2, seq_is_fixed_width, u128_to_seq
+ * Validated: standard, pass, 32 terms through n = 78 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,44 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pw2.h"
-#include "../utils/grow_zero.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/u128_to_seq.h"
+#include <string.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 typedef unsigned __int128 u128;
 
@@ -86,14 +121,14 @@ static void ensure_big(idx_t n)
         s = 0;
         for (a = 1; a < m; a++) {
             c = c * (seq_t)(m - a + 1) / (seq_t)a;
-            s += c * pw2(a * (m - a));
+            s += c * pow2(a * (m - a));
         }
         F2b[m] = s;
         c = 1;
         s = 0;
         for (a = 1; a < m; a++) {
             c = c * (seq_t)(m - a + 1) / (seq_t)a;
-            s += c * pw2(a * (m - a)) * F2b[m - a];
+            s += c * pow2(a * (m - a)) * F2b[m - a];
         }
         G3b[m] = s / 48;
     }
@@ -111,7 +146,7 @@ seq_t a(idx_t n)
     s = 0;
     for (k = 1; k < n; k++) {
         c = c * (seq_t)(n - k + 1) / (seq_t)k;
-        s += c * pw2(k * (n - k)) * G3b[n - k];
+        s += c * pow2(k * (n - k)) * G3b[n - k];
     }
     return s / 32;
 }

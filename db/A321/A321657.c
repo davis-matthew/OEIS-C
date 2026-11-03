@@ -7,7 +7,8 @@
  * Formula:   a(n) is the nth base‑4 deletable prime (OEIS A321657)
  * Range:     u8 n <= 40, u16 n <= 2796, u32 n <= 2796, u64 n <= 2796,
  *            u128 n <= 2796, big any n
- * Helpers:   deletable_contains
+ * Validated: standard, pass, 72 terms through n = 2494 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/deletable_contains.h"
+#include "../utils/mem.h"
+
+/* Helper: binary search on a sorted array of seq_t */
+static bool deletable_contains(const seq_t *arr, size_t cnt, seq_t key)
+{
+    size_t lo = 0, hi = cnt;
+    while (lo < hi)
+    {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] == key) return true;
+        if (arr[mid] < key) lo = mid + 1; else hi = mid;
+    }
+    return false;
+}
 
 /* Helper: test if a prime p is base‑4 deletable using current deletable list */
 static bool is_deletable(seq_t p, const seq_t *deletable, size_t deletableCnt)
@@ -63,8 +77,8 @@ seq_t a(idx_t n)
     static seq_t nextCandidate = 2;
 
     /* ---------- ensure storage capacities ---------- */
-    if (primesCap == 0) { primesCap = 16; primes = (seq_t*)malloc(primesCap * sizeof(seq_t)); }
-    if (deletableCap == 0) { deletableCap = 16; deletable = (seq_t*)malloc(deletableCap * sizeof(seq_t)); }
+    if (primesCap == 0) { primesCap = 16; primes = mem_new(seq_t, primesCap); }
+    if (deletableCap == 0) { deletableCap = 16; deletable = mem_new(seq_t, deletableCap); }
 
     /* ---------- generate until we have n deletable primes ---------- */
     for (;;)
@@ -98,7 +112,7 @@ seq_t a(idx_t n)
             if (primesCnt == primesCap)
             {
                 primesCap <<= 1;
-                seq_t *tmp = (seq_t*)realloc(primes, primesCap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, primesCap);
                 if (!tmp) abort();
                 primes = tmp;
             }
@@ -110,7 +124,7 @@ seq_t a(idx_t n)
                 if (deletableCnt == deletableCap)
                 {
                     deletableCap <<= 1;
-                    seq_t *tmp = (seq_t*)realloc(deletable, deletableCap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, deletable, deletableCap);
                     if (!tmp) abort();
                     deletable = tmp;
                 }

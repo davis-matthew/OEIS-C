@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   seq_alloc_array, seq_free_array
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_array.h"   /* seq_alloc_array(size_t)   */
-#include "../utils/seq_free_array.h"    /* seq_free_array(seq_t*)    */
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Triangular number, used only for index calculation. */
 static inline idx_t triangular_idx(idx_t t) { return t*(t+1)/2; }

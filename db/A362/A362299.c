@@ -8,13 +8,15 @@
  * Formula:   a(n) = 10*a(n-1) - 15*a(n-2), a(0) = 1, a(1) = 7
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence value type, index type are provided by the build. */
 extern seq_t a(idx_t n);   /* declaration for clarity */
@@ -30,14 +32,14 @@ seq_t a(idx_t n)
     /* Ensure cache is at least two entries for the base cases. */
     if (cache == NULL) {
         cache_cap = 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         /* base values */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)7;
     } else if ((size_t)n + 1 > cache_cap) {
         /* Grow cache to accommodate n. */
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         /* If realloc fails, we keep the old buffer; the sequence
          * calculation will still work, but memory usage may grow slowly. */
         if (tmp != NULL)

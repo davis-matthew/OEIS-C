@@ -11,12 +11,14 @@
  *            v(n,x) = 2x*u(n-1,x) + v(n-1,x) + 1
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* flattened coefficients of u(n,x) */
 static size_t cache_len = 0;     /* number of terms stored in cache          */
@@ -34,7 +36,7 @@ static inline void cache_push(seq_t val)
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
         if (new_cap < cache_len + 1) new_cap = cache_len + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -46,8 +48,8 @@ static void init(void)
 {
     /* u(1) = v(1) = 1 */
     u_deg = v_deg = 0;
-    u = (seq_t*)calloc(u_deg + 1, sizeof(seq_t));
-    v = (seq_t*)calloc(v_deg + 1, sizeof(seq_t));
+    u = mem_new(seq_t, u_deg + 1);
+    v = mem_new(seq_t, v_deg + 1);
     u[0] = (seq_t)1;
     v[0] = (seq_t)1;
 
@@ -70,8 +72,8 @@ seq_t a(idx_t n)
         idx_t new_u_deg = (next_n - 1) / 2; /* floor((next_n-1)/2) */
         idx_t new_v_deg =  next_n / 2;      /* floor(next_n/2)     */
 
-        seq_t *u_next = (seq_t*)calloc(new_u_deg + 1, sizeof(seq_t));
-        seq_t *v_next = (seq_t*)calloc(new_v_deg + 1, sizeof(seq_t));
+        seq_t *u_next = mem_new(seq_t, new_u_deg + 1);
+        seq_t *v_next = mem_new(seq_t, new_v_deg + 1);
 
         /* Constant terms (degree 0). */
         u_next[0] = u[0] + v[0] + (seq_t)1;
@@ -96,8 +98,8 @@ seq_t a(idx_t n)
             cache_push(u_next[i]);
 
         /* Advance to the next row. */
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = u_next;
         v = v_next;
         u_deg = new_u_deg;

@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of divisors d of n such that sigma(d) <= 2*d <
  *            ∏_{p|d} nextprime(p)^{v_p(d)} (A003961)
- * Range:     u8 n <= 62, u16 n <= 8816, u32 n <= 8816, u64 n <= 8816,
- *            u128 n <= 8816, big any n
+ * Range:     u8 n <= 62, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 8816 (2026-11-01)
  * Helpers:   factor_u64, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/next_prime.h"
 

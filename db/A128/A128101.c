@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Helper tables: reachable masks and their tile counts                  */
@@ -54,8 +56,8 @@ static seq_t tiling_2x2_count(idx_t r, idx_t k)
     size_t dim    = (size_t)maxK + 1;            /* k dimension */
     size_t totCnt = 5 * dim;                    /* 5 masks * k dimension */
 
-    seq_t *dp_cur  = (seq_t *)calloc(totCnt, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(totCnt, sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, totCnt);
+    seq_t *dp_next = mem_new(seq_t, totCnt);
     if (!dp_cur || !dp_next) abort();
 
     /* start state: no pending tiles, 0 2×2 tiles used */
@@ -64,7 +66,7 @@ static seq_t tiling_2x2_count(idx_t r, idx_t k)
     idx_t curMaxK = 0;                          /* max k reachable so far */
 
     for (idx_t col = 0; col < r; ++col) {
-        memset(dp_next, 0, totCnt * sizeof(seq_t));
+        mem_set(dp_next, 0, totCnt * sizeof(seq_t));
 
         for (int mi = 0; mi < 5; ++mi) {
             const int oldMask = MASKS[mi];
@@ -96,8 +98,8 @@ static seq_t tiling_2x2_count(idx_t r, idx_t k)
     }
 
     seq_t result = dp_cur[0 * dim + k];
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return result;
 }
 

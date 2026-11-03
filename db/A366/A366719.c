@@ -7,15 +7,19 @@
  * Formula:   a(n) = smallest prime dividing 12^n + 1
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 511, u64 n <= 511,
  *            u128 n <= 511, big any n
- * Helpers:   build_primes_upto, isPrimeTrial, mod_pow
+ * Validated: standard, pass, 86 terms through n = 499 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime_seq, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +44,7 @@ seq_t a(idx_t n)
 
         if (p == 2) continue;               /* 12^n is even for n>0 */
 
-        seq_t mod_val = mod_pow((seq_t)12, n, (seq_t)p);
+        seq_t mod_val = powmod((seq_t)12, n, (seq_t)p);
         if (mod_val == (seq_t)p - (seq_t)1) return (seq_t)p;
     }
 
@@ -49,10 +53,10 @@ seq_t a(idx_t n)
     if (cand % 2 == 0) cand++;              /* start with an odd candidate */
 
     for (;;) {
-        if (isPrimeTrial((seq_t)cand)) {
+        if (is_prime_seq((seq_t)cand)) {
             /* Only use candidates that fit into seq_t */
             if ((seq_t)cand == cand) {
-                seq_t mod_val = mod_pow((seq_t)12, n, (seq_t)cand);
+                seq_t mod_val = powmod((seq_t)12, n, (seq_t)cand);
                 if (mod_val == (seq_t)cand - (seq_t)1) return (seq_t)cand;
             }
         }

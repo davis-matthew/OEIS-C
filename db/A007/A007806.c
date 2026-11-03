@@ -9,7 +9,8 @@
  *            increased until the floor is certain
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 42, u128 n <= 84,
  *            big any n
- * Helpers:   a7806_add, a7806_div, a7806_gcd, a7806_mul, a7806_powop
+ * Validated: standard, pass, 44 terms through n = 996 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,11 +18,61 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a7806_add.h"
-#include "../utils/a7806_div.h"
-#include "../utils/a7806_gcd.h"
-#include "../utils/a7806_mul.h"
-#include "../utils/a7806_powop.h"
+#include "../utils/gcd_u64.h"
+
+static void a7806_add(uint32_t *s, size_t *slen, const uint32_t *b, size_t blen) {
+    size_t L = *slen > blen ? *slen : blen;
+    uint64_t c = 0;
+    size_t j;
+    for (j = 0; j < L; j++) {
+        uint64_t t = (uint64_t)s[j] + (j < blen ? b[j] : 0) + c;
+        s[j] = (uint32_t)t;
+        c = t >> 32;
+    }
+    if (c) s[L++] = (uint32_t)c;
+    *slen = L;
+}
+
+static uint32_t a7806_div(uint32_t *v, size_t *len, uint32_t m) {
+    uint64_t r = 0;
+    size_t j = *len;
+    while (j > 0) {
+        j--;
+        uint64_t cur = (r << 32) | v[j];
+        v[j] = (uint32_t)(cur / m);
+        r = cur % m;
+    }
+    while (*len > 0 && v[*len - 1] == 0) (*len)--;
+    return (uint32_t)r;
+}
+
+static void a7806_mul(uint32_t *v, size_t *len, uint32_t m) {
+    uint64_t c = 0;
+    size_t j;
+    for (j = 0; j < *len; j++) {
+        uint64_t t = (uint64_t)v[j] * m + c;
+        v[j] = (uint32_t)t;
+        c = t >> 32;
+    }
+    if (c) v[(*len)++] = (uint32_t)c;
+}
+
+/* multiply (isdiv=0) or floor-divide (isdiv=1) v by x^e; returns 1 if any remainder */
+static int a7806_powop(uint32_t *v, size_t *len, uint64_t x, uint64_t e, int isdiv) {
+    int inexact = 0;
+    uint64_t rem = e;
+    while (rem > 0) {
+        uint64_t p = x, k = 1;
+        while (k < rem && p * x <= 0xFFFFFFFFull) { p *= x; k++; }
+        if (isdiv) {
+            if (a7806_div(v, len, (uint32_t)p)) inexact = 1;
+        } else {
+            a7806_mul(v, len, (uint32_t)p);
+        }
+        rem -= k;
+    }
+    return inexact;
+}
 
 seq_t a(idx_t n) {
     uint64_t bl = 0, t;
@@ -45,7 +96,7 @@ seq_t a(idx_t n) {
             memset(T, 0, w * sizeof(uint32_t));
             memcpy(T + w, B, blen * sizeof(uint32_t));
             tlen = w + blen;
-            d = a7806_gcd(n, i);
+            d = gcd_u64(n, i);
             np = n / d;
             ip = i / d;
             if (np > 1) a7806_powop(T, &tlen, np, i, 0);

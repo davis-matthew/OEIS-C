@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy, tabf, base
  * Formula:   not stated
- * Range:     u8 n <= 511, u16 n <= 8406, u32 n <= 8406, u64 n <= 8406,
- *            u128 n <= 8406, big any n
- * Helpers:   T_compute
+ * Range:     u8 n <= 511, u16 n <= 65534, u32 n <= 65534, u64 n <= 65534,
+ *            u128 n <= 65534, big any n
+ * Validated: standard, pass, 91 terms through n = 8406 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,21 @@
 */
 
 #include <stdint.h>
-#include "../utils/T_compute.h"
+
+static seq_t T_compute(idx_t r, idx_t j)
+{
+    if (r == 0)          /* base case */
+        return 0;
+
+    idx_t half = (idx_t)1 << (r - 1);
+    if (j < half)        /* first half of the row   */
+        return (seq_t)2 * T_compute(r - 1, j);
+    else {               /* second half (reflected) */
+        idx_t k   = j - half;
+        idx_t rev = half - k - 1;
+        return (seq_t)2 * T_compute(r - 1, rev) + 1;
+    }
+}
 
 /* main sequence function */
 seq_t a(idx_t n)

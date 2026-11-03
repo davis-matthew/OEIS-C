@@ -10,17 +10,19 @@
  *            concatenated by row (row m contains all partitions of m)
  * Range:     u8 n <= 9295, u16 n <= 9295, u32 n <= 9295, u64 n <= 9295,
  *            u128 n <= 9295, big any n
- * Helpers:   none
+ * Validated: standard, pass, 112 terms through n = 7125 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Reallocate an array of seq_t values. */
 static seq_t *seq_realloc(seq_t *old, size_t /*old_cap*/, size_t new_cap)
 {
-    return (seq_t *)realloc(old, new_cap * sizeof(seq_t));
+    return mem_resize(seq_t, old, new_cap);
 }
 
 /* Generate all partitions of 'rem' into parts not exceeding 'max_part'.

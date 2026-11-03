@@ -8,17 +8,40 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sigma(sigma(A350388(n))) * sigma(sigma(A350389(n)))
- * Range:     u8 n <= 53, u16 n <= 5543, u32 n <= 8729, u64 n <= 8729,
- *            u128 n <= 8729, big any n
- * Helpers:   factor_u64, pow_uint, seq_mul, sigma_of
+ * Range:     u8 n <= 53, u16 n <= 5543, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 87 terms through n = 8729 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
-#include "../utils/sigma_of.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t unitary_square_divisor(uint64_t n)
 {
@@ -32,7 +55,7 @@ static seq_t unitary_square_divisor(uint64_t n)
     seq_t result = 1;
     for (size_t i = 0; i < cnt; ++i)
         if ((ex[i] & 1u) == 0)           /* exponent even */
-            result = seq_mul(result, pow_uint(pr[i], (idx_t)ex[i]));
+            result = seq_mul(result, ipow_u64_idx(pr[i], (idx_t)ex[i]));
     return result;
 }
 
@@ -48,7 +71,7 @@ static seq_t unitary_odd_divisor(uint64_t n)
     seq_t result = 1;
     for (size_t i = 0; i < cnt; ++i)
         if (ex[i] & 1u)                  /* exponent odd */
-            result = seq_mul(result, pow_uint(pr[i], (idx_t)ex[i]));
+            result = seq_mul(result, ipow_u64_idx(pr[i], (idx_t)ex[i]));
     return result;
 }
 

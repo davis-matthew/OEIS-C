@@ -13,12 +13,14 @@
  *            1‑based indexing
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 34, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     /* Allocate storage for the previous row (row 1) */
     size_t prev_len = 2;                    /* indices 0..1 */
-    seq_t *prev = (seq_t *)malloc(prev_len * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, prev_len);
     prev[1] = (seq_t)1;                     /* T(1,1) = 1 */
 
     seq_t pow2 = (seq_t)1;                  /* 2^(row-1) for the current row */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     for (idx_t row = 2; row <= r; ++row) {
         pow2 <<= 1;                         /* 2^(row-1) */
         size_t curr_len = (size_t)(row + 1);/* indices 0..row */
-        seq_t *curr = (seq_t *)malloc(curr_len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, curr_len);
 
         curr[1] = prev[row - 1];            /* T(row,1) = T(row-1,row-1) */
 
@@ -59,13 +61,13 @@ seq_t a(idx_t n)
             curr[j] = curr[j - 1] + term;   /* T(row,j) = prev + term */
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_len = curr_len;
     }
 
     /* Extract the required element */
     seq_t result = prev[k];
-    free(prev);
+    mem_free(prev);
     return result;
 }

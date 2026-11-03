@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   maxrun_odd
+ * Validated: standard, pass, 80 terms through n = 9734 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/maxrun_odd.h"
+#include "../utils/mem.h"
+
+/* Return true iff the largest run of consecutive 1 bits in v has odd length. */
+static bool maxrun_odd(seq_t v)
+{
+    seq_t curr = 0, maxrun = 0;
+    while (v)
+    {
+        if (v & (seq_t)1)          /* current bit is 1   */
+        {
+            curr++;
+            if (curr > maxrun) maxrun = curr;
+        }
+        else
+            curr = 0;              /* bit is 0, reset run */
+        v >>= 1;
+    }
+    return (maxrun & (seq_t)1) != 0;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;   /* allocated capacity of cache */
@@ -33,7 +52,7 @@ static void grow_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t newcap = cache_cap ? cache_cap * 2 : 16;
     while (newcap < needed) newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp) abort();          /* out of memory */
     cache = tmp;
     cache_cap = newcap;

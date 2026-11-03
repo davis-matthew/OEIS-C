@@ -11,12 +11,14 @@
  *            sequence a(n) is the flattened triangle read row‑by‑row
  * Range:     u8 n <= 73, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Persistent storage for the triangle: triangle[r][k] = T(r,k). */
 static seq_t **triangle = NULL;
@@ -34,7 +36,7 @@ static void ensure_rows(idx_t row_needed)
 
     for (idx_t r = max_rows; r <= row_needed; ++r) {
         /* Allocate row r of length r+1. */
-        triangle[r] = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+        triangle[r] = mem_new(seq_t, (r + 1));
 
         if (r == 0) {                    /* T(0,0)=1 */
             triangle[0][0] = (seq_t)1;

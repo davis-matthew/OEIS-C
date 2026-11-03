@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{d|n, d ≡ 3 (mod 5)} (-1)^{(d-3)/5}
  * Range:     i8 n <= 102, i16 n <= 102, i32 n <= 102, i64 n <= 102,
  *            i128 n <= 102, big any n
+ * Validated: partial, pass, 102 terms through n = 102 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,14 +8,17 @@
  *            antidiagonals of the table T(n,k)
  * Range:     u8 n <= 9870, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 121 terms through n = 9157 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -39,5 +42,5 @@ seq_t a(idx_t n)
     uint64_t i = offset + 1;                     /* n-coordinate */
     uint64_t j = d - offset;                     /* k-coordinate */
 
-    return mod_pow((seq_t)i, j, (seq_t)j);
+    return powmod((seq_t)i, j, (seq_t)j);
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: full, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached sequence values */
 static size_t cache_cap = 0;         /* capacity of cache */
@@ -30,7 +33,7 @@ static seq_t next_candidate = 1;     /* next integer to test */
 static bool has_longer_palindrome(seq_t x)
 {
     if (x == 0) return false;
-    size_t len = bitlen_seq_t(x);
+    size_t len = bit_length(x);
     if (len <= 3) return false;          /* impossible to have longer palindromes */
 
     for (size_t k = 4; k <= len; ++k) {   /* length of window */
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
             /* grow cache if needed */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? 2 * cache_cap : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0;          /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

@@ -9,6 +9,7 @@
  *            80626*n^5 + 19978*n^6 + 2017*n^7) / 5040
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 25, u64 n <= 137, u128 n <= 137,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 129 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

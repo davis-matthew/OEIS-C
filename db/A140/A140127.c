@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 8, i16 n <= 9, i32 n <= 10, i64 n <= 11, i128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>   /* malloc, realloc, exit */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* 1‑based array of computed terms */
 static size_t cache_cap = 0;    /* allocated size (number of elements) */
@@ -32,7 +34,7 @@ static void ensure_capacity(idx_t n)
     while (new_cap <= (size_t)n + 1)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache && new_cap > 0)
     {
         /* Out of memory – terminate the program. */

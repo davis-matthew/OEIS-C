@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 43, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   alloc_seq_array, floor_sqrt, free_seq_array, get_digits
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   get_digits, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,40 @@
     decimal digits is itself a triangular number.
     a(n) is the n‑th such triangular number (1‑based, a(1)=0).  */
 #include <stddef.h>
-#include "../utils/get_digits.h"          /* void get_digits(seq_t x, uint8_t *buf, size_t *len); */
-#include "../utils/floor_sqrt.h"          /* seq_t floor_sqrt(seq_t x); */
-#include "../utils/alloc_seq_array.h"     /* seq_t *alloc_seq_array(size_t n); */
-#include "../utils/free_seq_array.h"      /* void free_seq_array(seq_t *p); */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/get_digits.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;      /* cached triangular numbers */
 static size_t cache_len = 0;     /* number of cached terms */

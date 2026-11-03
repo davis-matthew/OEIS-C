@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 314, u32 n <= 315, u64 n <= 315,
  *            u128 n <= 315, big any n
- * Helpers:   asc_digits, next_num
+ * Validated: standard, pass, 87 terms through n = 298 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,35 @@
  */
 
 #include <stdint.h>   /* for uint8_t */
-#include "../utils/asc_digits.h"
-#include "../utils/next_num.h"
+
+/* Compute the ascending digit number of x (leading zeros are dropped). */
+static seq_t asc_digits(seq_t x)
+{
+    uint8_t cnt[10] = {0};
+    seq_t tmp = x;
+
+    /* Count digits. */
+    while (tmp > 0) {
+        cnt[(int)(tmp % 10)]++;
+        tmp /= 10;
+    }
+
+    /* Build the ascending number. */
+    seq_t asc = 0;
+    for (int d = 0; d < 10; ++d) {
+        uint8_t t = cnt[d];
+        while (t--) {
+            asc = asc * 10 + (seq_t)d;
+        }
+    }
+    return asc;
+}
+
+/* Next number in the sequence: n + asc_digits(n). */
+static inline seq_t next_num(seq_t n)
+{
+    return n + asc_digits(n);
+}
 
 /* Main sequence function.  Uses Floyd’s tortoise‑and‑hare cycle detection. */
 seq_t a(idx_t n)

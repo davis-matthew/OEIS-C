@@ -9,12 +9,14 @@
  *            (a(0),...,a(4)) = (0,0,3,7,12)
  * Range:     u8 n <= 17, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* First call – initialise the cache with the five known terms. */
     if (cache == NULL) {
         cache_len = 5;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         for (size_t i = 0; i < 5; ++i)
             cache[i] = init_vals[i];
     }
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* Extend the cache to contain the term at index n. */
     size_t new_len = (size_t)n + 1;
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
 
     for (size_t i = cache_len; i < new_len; ++i) {
         /* Use the recurrence to compute a(i). */

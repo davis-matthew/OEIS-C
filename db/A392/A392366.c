@@ -7,12 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 105, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 63 terms through n = 9556 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes a(n) = the nth odd squarefree number, squared. */
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_squarefree.h"
 
 seq_t a(idx_t n)

@@ -10,13 +10,32 @@
  *            exactly 1)
  * Range:     u8 n <= 85, u16 n <= 7738, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_isolated_zero
+ * Validated: standard, pass, 79 terms through n = 9709 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_isolated_zero.h"
+
+static bool has_isolated_zero(seq_t x)
+{
+    seq_t y = x;
+    seq_t zero_run = 0;
+    while (y != 0)
+    {
+        if ((y & 1) == 0)
+            zero_run++;
+        else
+        {
+            if (zero_run == 1)          /* isolated 0 detected */
+                return true;
+            zero_run = 0;
+        }
+        y >>= 1;
+    }
+    return zero_run == 1;               /* trailing zero run of length 1 */
+}
 
 seq_t a(idx_t n)
 {

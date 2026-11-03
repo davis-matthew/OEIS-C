@@ -8,6 +8,7 @@
  *            periodic of period 18: 2,1,4,5,1,4,2,7,7,5,7,7,2,4,1,5,4,1,
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

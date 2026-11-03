@@ -9,12 +9,14 @@
  *            representation * of k is congruent to 1 modulo 9
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
             if (runs % 9 == 1) {
                 if (cache_size >= cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 16;
-                    seq_t *tmp_alloc = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    seq_t *tmp_alloc = mem_resize(seq_t, cache, cache_cap);
                     if (!tmp_alloc)   /* allocation failed – return 0 as a fallback */
                         return 0;
                     cache = tmp_alloc;

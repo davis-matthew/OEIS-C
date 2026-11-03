@@ -11,7 +11,8 @@
  *            a(7)=32, a(8)=35, a(9)=39, a(10)=45
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Memoized sequence array */
 static seq_t *cache = NULL;          /* pointer to sequence of values   */
@@ -35,7 +37,7 @@ static void ensure_capacity(size_t need)
     while (newcap < need)
         newcap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     assert(tmp);                     /* abort on allocation failure   */
     cache = tmp;
     cache_cap = newcap;

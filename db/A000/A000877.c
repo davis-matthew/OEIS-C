@@ -12,8 +12,8 @@
  *            length, or length divisible by 3. Conjugacy c...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   x877_gcd, x877_irred, x877_mulm, x877_pdeg, x877_pgcd,
- *            x877_powx, x877_prem, x877_xmod
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64, ilog2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +21,52 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/x877_gcd.h"
-#include "../utils/x877_irred.h"
-#include "../utils/x877_mulm.h"
-#include "../utils/x877_pdeg.h"
-#include "../utils/x877_pgcd.h"
-#include "../utils/x877_powx.h"
-#include "../utils/x877_prem.h"
-#include "../utils/x877_xmod.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ilog2_u64.h"
+
+static uint64_t x877_mulm(uint64_t a, uint64_t b, uint64_t f, int d) {
+    uint64_t r = 0;
+    while (b) {
+        if (b & 1) r ^= a;
+        b >>= 1; a <<= 1;
+        if ((a >> d) & 1) a ^= f;
+    }
+    return r;
+}
+
+static uint64_t x877_prem(uint64_t a, uint64_t b) {
+    int db = ilog2_u64(b), da;
+    while ((da = ilog2_u64(a)) >= db) a ^= b << (da - db);
+    return a;
+}
+
+static uint64_t x877_pgcd(uint64_t a, uint64_t b) {
+    while (b) { uint64_t t = x877_prem(a, b); a = b; b = t; }
+    return a;
+}
+
+static uint64_t x877_xmod(uint64_t f, int d) { return d == 1 ? x877_prem(2, f) : 2; }
+
+static int x877_irred(uint64_t f, int d) {
+    uint64_t xp[70];
+    int i, p, dd;
+    xp[0] = x877_xmod(f, d);
+    for (i = 1; i <= d; i++) xp[i] = x877_mulm(xp[i - 1], xp[i - 1], f, d);
+    if (xp[d] != xp[0]) return 0;
+    dd = d;
+    for (p = 2; p <= dd; p++) {
+        if (dd % p) continue;
+        while (dd % p == 0) dd /= p;
+        if (x877_pgcd(f, xp[d / p] ^ xp[0]) != 1) return 0;
+    }
+    return 1;
+}
+
+static uint64_t x877_powx(uint64_t e, uint64_t f, int d) {
+    uint64_t r = 1, b = x877_xmod(f, d);
+    while (e) { if (e & 1) r = x877_mulm(r, b, f, d); b = x877_mulm(b, b, f, d); e >>= 1; }
+    return r;
+}
 
 typedef unsigned __int128 x877_u128;
 typedef struct { uint64_t len, cnt; } x877_ent;
@@ -70,7 +108,7 @@ static void x877_apply(int j, const int *parts, int np, int sum, int r, const x8
     for (a1 = 0; a1 < dsz; a1++)
         for (b1 = 0; b1 < csz; b1++) {
             uint64_t l1 = dist[a1].len, l2 = comp[b1].len;
-            uint64_t L = l1 / x877_gcd(l1, l2) * l2, c = dist[a1].cnt * comp[b1].cnt;
+            uint64_t L = l1 / gcd_u64(l1, l2) * l2, c = dist[a1].cnt * comp[b1].cnt;
             int f = -1;
             for (i = 0; i < nsz; i++) if (nd[i].len == L) { f = i; break; }
             if (f < 0) { nd[nsz].len = L; nd[nsz].cnt = c; nsz++; }

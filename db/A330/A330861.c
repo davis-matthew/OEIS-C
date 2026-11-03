@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 442, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 108 terms through n = 7954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    T(m) = m*(m+1)/2 is the m‑th triangular number.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
        every element starts at zero, which works for both plain integer
        types and arbitrary‑precision classes. */
     size_t len = (size_t)(n + 1);
-    seq_t *pair_counts = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *pair_counts = mem_new(seq_t, len);
     if (!pair_counts) return (seq_t)0;  /* out of memory – return 0 */
 
     /* Count unordered pairs (i, j) with i ≤ j and T(i)+T(j) = s (0 ≤ s ≤ n). */
@@ -51,6 +53,6 @@ seq_t a(idx_t n)
         result += pair_counts[(size_t)rem];
     }
 
-    free(pair_counts);
+    mem_free(pair_counts);
     return result;
 }

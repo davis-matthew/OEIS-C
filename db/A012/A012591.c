@@ -8,7 +8,8 @@
  * Formula:   a(n) = n!*coeff of x^n in tanh(arcsinh(x)*exp(x))
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 19, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types provided by the build system. */
 extern idx_t  _floor_isqrt_u64(idx_t n);       /* unused, but aliased for safety */
@@ -42,15 +44,15 @@ seq_t a(idx_t n)
     size_t size = (size_t)n + 1;
 
     /* Free old memory if we are recomputing. */
-    free(c); free(d); free(v); free(b); free(f);
+    mem_free(c); mem_free(d); mem_free(v); mem_free(b); mem_free(f);
 
-    c = (seq_t*)malloc(sizeof(seq_t) * size);
-    d = (seq_t*)malloc(sizeof(seq_t) * size);
-    v = (seq_t*)malloc(sizeof(seq_t) * size);
-    b = (seq_t*)malloc(sizeof(seq_t) * size);
+    c = mem_new(seq_t, size);
+    d = mem_new(seq_t, size);
+    v = mem_new(seq_t, size);
+    b = mem_new(seq_t, size);
     /* f is needed for computing the b coefficients and has size floor(n/2)+1 */
     size_t msize = n / 2 + 1;
-    f = (seq_t*)malloc(sizeof(seq_t) * msize);
+    f = mem_new(seq_t, msize);
 
     /* -----   1.  Compute the b‑series coefficients  ----- */
     f[0] = (seq_t)1;                       /* f[0] = 1  */

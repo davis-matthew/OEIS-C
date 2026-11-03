@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   omega_uint64
+ * Validated: standard, pass, 76 terms through n = 9590 (2026-11-03)
+ * Helpers:   bigomega_u64_to_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/omega_uint64.h"
+#include "../utils/bigomega_u64_to_u64.h"
+#include "../utils/mem.h"
 
 /* ----------  cache for the sequence  ---------- */
 static seq_t *term_cache = NULL;
@@ -36,7 +38,7 @@ static void ensure_cache(size_t needed)
     if (needed <= term_cap) return;
     size_t new_cap = term_cap ? (term_cap << 1) : 16;
     while (new_cap < needed) new_cap <<= 1;
-    void *tmp = realloc(term_cache, new_cap * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, term_cache, new_cap);
     term_cache = (seq_t *)tmp;
     term_cap   = new_cap;
 }
@@ -53,9 +55,9 @@ seq_t a(idx_t n)
         ++last_checked;                      /* next candidate number */
         if (last_checked <= 1) continue;     /* skip 1 (never qualifies) */
 
-        uint64_t om  = omega_uint64(last_checked);
-        uint64_t omp = omega_uint64(last_checked - 1);
-        uint64_t omn = omega_uint64(last_checked + 1);
+        uint64_t om  = bigomega_u64_to_u64(last_checked);
+        uint64_t omp = bigomega_u64_to_u64(last_checked - 1);
+        uint64_t omn = bigomega_u64_to_u64(last_checked + 1);
 
         if (om > omp && om > omn) {           /* qualifies as a term */
             ensure_cache(term_count + 1);

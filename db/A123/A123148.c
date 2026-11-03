@@ -10,12 +10,15 @@
  *            ⌊(√(8·n + 1) - 1)/2⌋ and k = n - r·(r + 1)/2
  * Range:     i8 n <= 46, i16 n <= 174, i32 n <= 603, i64 n <= 1325,
  *            i128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1317 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include utilities for binomial coefficients and powers of two */
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

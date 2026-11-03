@@ -7,8 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _smallest_prime_factor, is_prime, mod_pow, seq_alloc,
- *            seq_realloc
+ * Validated: standard, pass, 73 terms through n = 989 (2026-11-01)
+ * Helpers:   is_prime, powmod, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +18,31 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"         /* seq_t mod_pow(seq_t, uint64_t, seq_t) */
-#include "../utils/seq_alloc.h"       /* seq_t *seq_alloc(size_t) */
-#include "../utils/seq_realloc.h"     /* seq_t *seq_realloc(seq_t*, size_t, size_t) */
-#include "../utils/_smallest_prime_factor.h" /* uint64_t _smallest_prime_factor(uint64_t) */
-#include "../utils/is_prime.h"        /* bool is_prime(idx_t) */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/smallest_prime_factor.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Cached list of terms.  cache[i] holds a(i+1). */
 static seq_t *cache      = NULL;  /* memoised values */
@@ -72,7 +92,7 @@ static bool is_primitive_root_89(uint64_t p)
 
     /* Collect distinct prime factors of p-1. */
     while (m > 1) {
-        uint64_t f = _smallest_prime_factor(m);
+        uint64_t f = smallest_prime_factor(m);
         /* keep each factor only once */
         bool already = false;
         for (size_t i = 0; i < uniq_cnt; ++i) {
@@ -90,7 +110,7 @@ static bool is_primitive_root_89(uint64_t p)
     /* Check that 89^( (p-1)/q ) != 1 for each distinct factor q. */
     for (size_t i = 0; i < uniq_cnt; ++i) {
         uint64_t exp = (p - 1) / uniq[i];
-        seq_t r = mod_pow((seq_t)89, exp, (seq_t)p);
+        seq_t r = powmod((seq_t)89, exp, (seq_t)p);
         if (r == (seq_t)1)
             return false;                 /* order is proper divisor */
     }

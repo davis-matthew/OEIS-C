@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   bitlen_seq_t, next_poly
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,20 @@
    after n‑1 iterations, interpreted as a decimal integer.  */
 
 #include <stddef.h>                  /* for size_t */
-#include "../utils/bitlen_seq_t.h"   /* bitlen_seq_t() */
-#include "../utils/next_poly.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+
+/* One step of the map on a polynomial represented by bits of seq_t. */
+static inline seq_t next_poly (seq_t f)
+{
+    if ((f & (seq_t)1) == 0)           /* f(0)=0 : divide by x */
+        return f >> 1;
+
+    /* f(0)=1 : ((x²+1)f + 1) / x */
+    /* (x²+1)f  →  (f << 2) ^ f   (addition in GF(2) is XOR) */
+    seq_t tmp = ((f << 2) ^ f ^ (seq_t)1);
+    return tmp >> 1;                  /* divide by x */
+}
 
 /* a(n) (offset 1) */
 seq_t a (idx_t n)
@@ -37,7 +50,7 @@ seq_t a (idx_t n)
 
     /* Convert the binary coefficient string of f to a decimal integer */
     seq_t val = 0;
-    size_t bits = bitlen_seq_t (f);
+    size_t bits = bit_length (f);
     for (size_t i = bits; i > 0; --i) {
         val = val * (seq_t)10 + ((f >> (i - 1)) & (seq_t)1);
     }

@@ -12,13 +12,15 @@
  *            s1_2[]....
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 440 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* a(n) values */
 static size_t a_len   = 0;          /* number of computed entries */
@@ -39,7 +41,7 @@ static void grow_cache(idx_t size, seq_t **cache, size_t *cap, size_t *len)
     if (*cap >= (size_t)size) return;
     size_t new_cap = (*cap > 0 ? *cap * 2 : 1);
     if (new_cap < (size_t)size) new_cap = (size_t)size;
-    seq_t *new_mem = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, *cache, new_cap);
     if (!new_mem) { /* fall back to abort if allocation fails */
         abort();
     }

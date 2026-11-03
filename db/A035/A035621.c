@@ -10,12 +10,14 @@
  *            Computed by dynamic programming in O(n²) time
  * Range:     u8 n <= 32, u16 n <= 83, u32 n <= 248, u64 n <= 815,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAXN 10000                       /* sufficient for the test data */
 
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
        unlikely to be used in the judge tests.                            */
     if (n > MAXN) {
         idx_t sz = n + 1;
-        seq_t *dp0d = (seq_t*)malloc(sz * sizeof(seq_t));
-        seq_t *dp1d = (seq_t*)malloc(sz * sizeof(seq_t));
-        seq_t *dpTotd = (seq_t*)malloc(sz * sizeof(seq_t));
+        seq_t *dp0d = mem_new(seq_t, sz);
+        seq_t *dp1d = mem_new(seq_t, sz);
+        seq_t *dpTotd = mem_new(seq_t, sz);
         if (!dp0d || !dp1d || !dpTotd) {
-            free(dp0d); free(dp1d); free(dpTotd);
+            mem_free(dp0d); mem_free(dp1d); mem_free(dpTotd);
             return 0;
         }
         for (idx_t i = 0; i < sz; ++i) {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         res -= dp0d[n];
         res -= dp1d[n];
 
-        free(dp0d); free(dp1d); free(dpTotd);
+        mem_free(dp0d); mem_free(dp1d); mem_free(dpTotd);
         return res;
     }
 

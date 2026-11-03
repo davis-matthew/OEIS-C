@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 /* Helper: swap two uint8_t values */
 static void swap_uint8(uint8_t *a, uint8_t *b)
@@ -51,7 +52,7 @@ static void permute_unique(uint8_t *digits, uint8_t len, uint8_t pos,
         for (uint8_t i = 0; i < len; ++i)
             val = val * 10 + digits[i];
 
-        uint64_t d = divisor_count_u64((uint64_t)val);
+        uint64_t d = num_divisors((uint64_t)val);
         if (d < *bestDiv || (d == *bestDiv && val < *best)) {
             *bestDiv = d;
             *best = val;

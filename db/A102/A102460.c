@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is a Lucas number, else 0
- * Range:     u8 n <= 9694, u16 n <= 9694, u32 n <= 9694, u64 n <= 9694,
- *            u128 n <= 9694, big any n
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 140 terms through n = 9694 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

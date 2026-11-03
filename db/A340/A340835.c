@@ -10,21 +10,22 @@
  *            from 0 to n+1 is sufficient
  * Range:     u8 n <= 991, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rev
+ * Validated: standard, pass, 84 terms through n = 8653 (2026-11-01)
+ * Helpers:   reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rev.h"
+#include "../utils/reverse_digits_idx.h"
 
 /* seq_t and idx_t are provided by the build environment. */
 seq_t a(idx_t n)
 {
     /* The range [0 , n+1] always contains the answer. */
     for (idx_t k = 0; k <= n + 1; ++k) {
-        if (rev(k) >= n)
+        if (reverse_digits_idx(k) >= n)
             return (seq_t)k;
     }
     /* By construction this point is unreachable. */

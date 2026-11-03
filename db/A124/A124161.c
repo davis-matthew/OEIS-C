@@ -10,7 +10,8 @@
  *            a(3)=15, a(4)=48, a(5)=121
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 216, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 55 terms through n = 8471 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/alloc_seq.h"
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *cache = NULL;      /* dynamically grown cache */
 static size_t cache_len = 0;     /* number of elements cached (>=1 means cache[0] exists) */
@@ -33,7 +42,7 @@ static void ensure_cache(idx_t n)
         new_cache = alloc_seq(new_len);
     } else {
         /* reallocate with standard malloc semantics (works for C/C++) */
-        new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        new_cache = mem_resize(seq_t, cache, new_len);
     }
     if (new_cache == NULL) abort();   /* allocation failed */
     /* initialize new entries if expanding beyond initial values */

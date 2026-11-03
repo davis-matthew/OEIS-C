@@ -7,8 +7,9 @@
  * Keywords:  sign, base
  * Formula:   a(n) = bottom entry of the difference table of the positions of
  *            the ones in the binary representation of n
- * Range:     i8 n <= 3998, i16 n <= 9470, i32 n <= 9470, i64 n <= 9470,
- *            i128 n <= 9470, big any n
+ * Range:     i8 n <= 3998, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 98 terms through n = 9470 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

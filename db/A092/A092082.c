@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 36, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   compute_row_col
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,26 @@
  *  O(r²) where r ≈ √(2n). */
 
 #include <stdlib.h>   /* malloc, free, calloc, realloc */
-#include "../utils/compute_row_col.h"
+#include "../utils/mem.h"
+
+/* Convert a flattened index 'k' (1‑based) into its (row, col) coordinates
+ * in the triangle.  The calculation uses 128‑bit arithmetic to avoid
+ * overflow for large indices.                                                         */
+static void compute_row_col(idx_t k, idx_t *row, idx_t *col)
+{
+    idx_t lo = 1, hi = k;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo) / 2;
+        __int128 tri = (__int128)mid * (mid + 1) / 2;
+        if (tri >= k)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    *row = lo;
+    __int128 prev_tri = (__int128)(lo - 1) * lo / 2;
+    *col = (idx_t)(k - prev_tri);
+}
 
 static seq_t **triangle = NULL;   /* triangle[row] is a pointer to its row (1‑based) */
 static idx_t   max_row   = 0;     /* highest row that has been computed */
@@ -38,7 +58,7 @@ static void ensure_rows(idx_t up_to)
     if (triangle == NULL) {
         /* initialize with the first row: row 1 */
         triangle = (seq_t **)calloc(2, sizeof(seq_t*));  /* indices 0,1 */
-        seq_t *row1 = (seq_t *)malloc(2 * sizeof(seq_t));
+        seq_t *row1 = mem_new(seq_t, 2);
         row1[0] = 0;        /* unused */
         row1[1] = 1;        /* a(1,1) = 1 */
         triangle[1] = row1;
@@ -49,7 +69,7 @@ static void ensure_rows(idx_t up_to)
     while (max_row < up_to) {
         idx_t curr = max_row + 1;          /* new row number          */
         seq_t *prev = triangle[max_row];   /* previous row            */
-        seq_t *row  = (seq_t *)malloc((curr + 1) * sizeof(seq_t));
+        seq_t *row  = mem_new(seq_t, (curr + 1));
         row[0] = 0;                        /* unused 0‑th column     */
 
         for (idx_t m = 1; m <= curr; ++m) {

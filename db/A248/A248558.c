@@ -7,11 +7,13 @@
  * Formula:   a(n) = (digit of e at position n)² (n ≥ 1)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /* Computes the nth square of the nth decimal digit of e.   */
 /* This implementation precomputes e to a fixed precision (10000 digits). */
 

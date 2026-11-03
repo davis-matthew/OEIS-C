@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 19, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *g_coeff  = NULL;   /* g_n = 2^(n-1)  for n>=1, g_0 = 0   */
 static seq_t *e_coeff  = NULL;   /* e_n  coefficient of exp(g)        */
@@ -34,18 +36,18 @@ static void compute_to(idx_t nmax)
     size_t newsize = (size_t)nmax + 1;
     if (newsize > stored_n) {
         /* free old memory if any */
-        free(g_coeff);
-        free(e_coeff);
-        free(e_neg);
-        free(B_coeff);
-        free(a_coeff);
+        mem_free(g_coeff);
+        mem_free(e_coeff);
+        mem_free(e_neg);
+        mem_free(B_coeff);
+        mem_free(a_coeff);
 
         /* allocate fresh arrays */
-        g_coeff  = (seq_t*)malloc(sizeof(seq_t)*newsize);
-        e_coeff  = (seq_t*)malloc(sizeof(seq_t)*newsize);
-        e_neg    = (seq_t*)malloc(sizeof(seq_t)*newsize);
-        B_coeff  = (seq_t*)malloc(sizeof(seq_t)*newsize);
-        a_coeff  = (seq_t*)malloc(sizeof(seq_t)*newsize);
+        g_coeff  = mem_new(seq_t, newsize);
+        e_coeff  = mem_new(seq_t, newsize);
+        e_neg    = mem_new(seq_t, newsize);
+        B_coeff  = mem_new(seq_t, newsize);
+        a_coeff  = mem_new(seq_t, newsize);
         stored_n = newsize;
     }
 
@@ -65,7 +67,7 @@ static void compute_to(idx_t nmax)
     e_coeff[0] = 1;
     e_neg[0]   = 1;
     /* binomials: C[k] = binom(cur_n, k) */
-    seq_t *C = (seq_t*)calloc(newsize, sizeof(seq_t));
+    seq_t *C = mem_new(seq_t, newsize);
     C[0] = 1; /* binom(0,0)=1 */
 
     for (size_t m = 0; m < (size_t)nmax; ++m) {
@@ -85,7 +87,7 @@ static void compute_to(idx_t nmax)
             C[k] = C[k - 1] + C[k];
         /* C[0] stays 1 */
     }
-    free(C);
+    mem_free(C);
 
     /* B[n] = (e[n] + e_neg[n]) / 2  for all n */
     for (i = 0; i <= (size_t)nmax; ++i)
@@ -96,7 +98,7 @@ static void compute_to(idx_t nmax)
        a[n] = - sum_{k=1}^{n} binom(n,k) * B[k] * a[n-k]
     */
     a_coeff[0] = 1;
-    C = (seq_t*)calloc(newsize, sizeof(seq_t));
+    C = mem_new(seq_t, newsize);
     C[0] = 1; /* binom(0,0)=1 */
 
     for (k = 1; k <= (size_t)nmax; ++k) {
@@ -109,7 +111,7 @@ static void compute_to(idx_t nmax)
             sum += C[i] * B_coeff[i] * a_coeff[k - i];
         a_coeff[k] = -sum;
     }
-    free(C);
+    mem_free(C);
 }
 
 /* External linkage as required */

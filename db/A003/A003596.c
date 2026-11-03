@@ -8,16 +8,18 @@
  *            (Hamming-style), starting from a(1) = 1
  * Range:     u8 n <= 15, u16 n <= 48, u32 n <= 169, u64 n <= 634,
  *            u128 n <= 2451, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9784 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
-    seq_t *seq = (seq_t *)calloc((size_t)n, sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (size_t)n);
     seq[0] = 1;
 
     idx_t i2 = 0, i11 = 0;
@@ -52,6 +54,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = seq[n - 1];
-    free(seq);
+    mem_free(seq);
     return result;
 }

@@ -9,13 +9,15 @@
  *            ∈ [1,n]^2 : a*d = x}| S(t) = Σ_{i=1}^{t} R(i)
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *R = NULL;
 static seq_t *S = NULL;
@@ -27,15 +29,15 @@ seq_t a(idx_t n)
 
     /* Ensure internal arrays are large enough */
     if (n > cap) {
-        free(R);
-        free(S);
-        R = (seq_t *)malloc(n * sizeof(seq_t));
-        S = (seq_t *)malloc(n * sizeof(seq_t));
+        mem_free(R);
+        mem_free(S);
+        R = mem_new(seq_t, n);
+        S = mem_new(seq_t, n);
         cap = n;
     }
 
     /* Initialize arrays */
-    memset(R, 0, n * sizeof(seq_t));
+    mem_set(R, 0, n * sizeof(seq_t));
 
     /* Compute R(x): number of ordered pairs (a,d) with a*d = x (x <= n-1) */
     idx_t n1 = n - 1;

@@ -14,13 +14,14 @@
  *            reduced to lowest * terms and the numerator is returned
  * Range:     u8 n <= 120, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _gcd128
+ * Validated: standard, pass, 89 terms through n = 9339 (2026-11-01)
+ * Helpers:   gcd_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/_gcd128.h"
+#include "../utils/gcd_u128.h"
 
 #define MAX_K 64   /* maximum number of factorial‑base digits needed
                     * for a 64‑bit integer (20! < 2^64 < 21!). */
@@ -60,7 +61,7 @@ seq_t a(idx_t n)
     }
 
     /* ---------- 4. reduce the fraction and return numerator ----- */
-    unsigned __int128 g = _gcd128(num, denom);
+    unsigned __int128 g = gcd_u128(num, denom);
     unsigned __int128 reduced = num / g;
 
     return (seq_t)reduced;

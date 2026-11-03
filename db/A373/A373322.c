@@ -10,7 +10,8 @@
  *            binom(n-1,k) * 2^(n-1-k) * a(k)
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 36, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- static storage ---------- */
 static seq_t *cache_array = 0;      /* memoised a(n) */
@@ -35,7 +37,7 @@ static void ensure_cache_capacity(size_t need) {
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap : 8;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache_array, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache_array, new_cap);
     cache_array = tmp;
     cache_cap   = new_cap;
 }
@@ -45,7 +47,7 @@ static void ensure_pow2_up_to(size_t e) {
     if (e < pow2_cap) return;
     size_t new_cap = pow2_cap ? pow2_cap : 1;
     while (new_cap <= e) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(pow2_array, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pow2_array, new_cap);
     pow2_array = tmp;
     if (pow2_cap == 0) {                 /* first allocation */
         pow2_array[0] = (seq_t)1;
@@ -102,7 +104,7 @@ seq_t a(idx_t n) {
     if (!initialized) {
         /* initial cache with a(0)=a(1)=1, a(2)=1 */
         cache_cap   = 8;
-        cache_array = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache_array = mem_new(seq_t, cache_cap);
         cache_array[0] = (seq_t)1;
         cache_array[1] = (seq_t)1;
         cache_array[2] = (seq_t)1;
@@ -110,7 +112,7 @@ seq_t a(idx_t n) {
 
         /* pow2_array with 2^0 */
         pow2_cap   = 1;
-        pow2_array = (seq_t *)malloc(pow2_cap * sizeof(seq_t));
+        pow2_array = mem_new(seq_t, pow2_cap);
         pow2_array[0] = (seq_t)1;
 
         initialized = true;

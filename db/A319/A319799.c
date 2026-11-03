@@ -11,12 +11,14 @@
  *            coin‑change dynamic programming
  * Range:     u8 n <= 73, u16 n <= 220, u32 n <= 810, u64 n <= 3644,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9397 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   // malloc, free
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;   // DP table: dp[s] = number of partitions of s
 static idx_t max_n = 0;    // largest n for which dp has been computed
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n > max_n) {
         idx_t new_max = n;
         size_t len = (size_t)new_max + 1;
-        seq_t *newdp = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, len);
         if (!newdp) return 0;   // allocation failed
 
         /* Initialize */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(dp);
+        mem_free(dp);
         dp = newdp;
         max_n = new_max;
     }

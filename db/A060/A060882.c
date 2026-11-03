@@ -8,7 +8,8 @@
  *            prime
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 9, i64 n <= 15, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static caches used by all calls */
 static uint32_t *primes      = NULL;  /* list of primes found */
@@ -59,7 +61,7 @@ static void ensure_primorial(size_t need)
     if (need >= prim_cap) {
         size_t new_cap = prim_cap ? prim_cap * 2 : 16;
         while (new_cap <= need) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(prim_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prim_cache, new_cap);
         if (!tmp) abort();
         prim_cache = tmp;
         prim_cap   = new_cap;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
 
     /* Initialise prim_cache on first use. */
     if (!prim_cache) {
-        prim_cache = (seq_t *)malloc(sizeof(seq_t));
+        prim_cache = mem_new(seq_t, 1);
         if (!prim_cache) abort();
         prim_cache[0] = (seq_t)1;    /* P_0 = 1 */
         prim_cap    = 1;

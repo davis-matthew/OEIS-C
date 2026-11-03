@@ -8,7 +8,8 @@
  * Formula:   a(n) = 6*a(n-2) + 6*a(n-3), a(0)=0, a(1)=1, a(2)=2
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    any idx_t type that is a C unsigned integer (typically uint64_t). */
 
 #include <stdlib.h>   /* malloc, realloc, NULL */
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cache for computed values   */
 static idx_t a_cap   = 0;       /* current allocated capacity  */
@@ -35,7 +37,7 @@ static void a_ensure(idx_t n)
     /* realloc works fine for NULL pointer, returns a pointer to the
        new area or NULL on failure. The cast is required for C++ but
        has no effect in C. */
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_cap   = new_cap;
 }
 

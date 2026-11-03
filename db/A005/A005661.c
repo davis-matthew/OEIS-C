@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 3586, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   A005661_c2, A005661_c3, alloc_array, grow_arr
+ * Validated: standard, pass, 73 terms through n = 9829 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,40 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/alloc_array.h"
-#include "../utils/grow_arr.h"
-#include "../utils/A005661_c2.h"
-#include "../utils/A005661_c3.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_array(idx_t n) {
+    seq_t *p = mem_new(seq_t, (n + 1));
+    for (idx_t i = 0; i <= n; i++) {
+        p[i] = 0;
+    }
+    return p;
+}
+
+static seq_t *grow_arr(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *r = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) r[i] = old[i];
+    if (old) mem_free(old);
+    return r;
+}
+
+/* candidate 2x-2; returns false on wraparound in fixed-width types */
+static bool A005661_c2(seq_t x, seq_t *out)
+{
+    seq_t c = x * 2 - 2;
+    if ((c + 2) / 2 != x) return false;
+    *out = c;
+    return true;
+}
+
+static bool A005661_c3(seq_t x, seq_t *out)
+{
+    seq_t c = x * 3 - 3;
+    if ((c + 3) / 3 != x) return false;
+    *out = c;
+    return true;
+}
 
 static seq_t *A005661_t = 0;
 static idx_t A005661_len = 0, A005661_cap = 0;

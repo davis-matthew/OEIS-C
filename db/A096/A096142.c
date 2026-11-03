@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static state for the on‑demand sieve */
 static bool initialized = false;
@@ -46,11 +48,11 @@ static void build_sieve(idx_t limit)
     /* Allocate/resize arrays */
     free(is_prime);
     free(prime_index);
-    free(prime_list);
+    mem_free(prime_list);
 
     is_prime = (bool *)calloc((size_t)(limit + 1), sizeof(bool));
     prime_index = (int *)calloc((size_t)(limit + 1), sizeof(int));
-    prime_list = (seq_t *)calloc((size_t)(limit + 1), sizeof(seq_t));
+    prime_list = mem_new(seq_t, (size_t)(limit + 1));
 
     if (!is_prime || !prime_index || !prime_list) {
         /* Allocation failure – abort */

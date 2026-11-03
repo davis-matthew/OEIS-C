@@ -12,7 +12,8 @@
  *            0. This is done by a dynamic program over rows
  * Range:     u8 none, u16 n <= 2, u32 n <= 4, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Required includes */
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* State size: previous row mask (6 bits) + pending mask (6 bits) */
 #define STATE_COUNT 4096        /* 2^(6+6) */
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     int next_count = 0;
 
     /* initialise */
-    memset(cur, 0, sizeof(cur));
+    mem_set(cur, 0, sizeof(cur));
 
     /* ----- first row (row 0) --------------------------------- */
     for (int C = 0; C < 64; ++C)
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
     /* process remaining rows (there are n more rows after the first) */
     for (idx_t r = 0; r < n; ++r)
     {
-        memset(next, 0, sizeof(next));
+        mem_set(next, 0, sizeof(next));
         next_count = 0;
 
         for (int ai = 0; ai < cur_count; ++ai)
@@ -156,7 +158,7 @@ seq_t a(idx_t n)
             }
         }
 
-        memcpy(cur, next, sizeof(cur));
+        mem_copy(cur, next, sizeof(cur));
         cur_count = next_count;
         for (int i = 0; i < cur_count; ++i)
             cur_active[i] = next_active[i];

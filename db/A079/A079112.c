@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   bitlen_idx
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   bit_length_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen_idx.h"
+#include "../utils/bit_length_idx.h"
 
 /* External linkage */
 seq_t a(idx_t n)
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
         {
             idx_t offset = n - count - 1;   /* 0‑based position inside block */
 
-            unsigned len = bitlen_idx(pow2);/* odd length L (bitlen(2^(L-1)) = L) */
+            unsigned len = bit_length_idx(pow2);/* odd length L (bitlen(2^(L-1)) = L) */
             seq_t  res  = 1;                /* most significant binary digit = 1 */
 
             /* process the remaining L‑1 bits of the binary representation */

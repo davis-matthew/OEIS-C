@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Build one triangle row and append its values to the cache. */
 static void build_row(idx_t r,
@@ -59,7 +71,7 @@ static void build_row(idx_t r,
     if (needed > *cache_capacity) {
         size_t new_cap = (*cache_capacity) ? (*cache_capacity) * 2 : 4;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *cache, new_cap);
         *cache = tmp;
         *cache_capacity = new_cap;
     }

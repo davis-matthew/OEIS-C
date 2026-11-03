@@ -7,14 +7,16 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = gcd(C(r,k), C(r,k-1)) where r is the row with *
  *            triangular(r-1) < n <= triangular(r) and k = n - triangular(r-1)
- * Range:     u8 n <= 31, u16 n <= 179, u32 n <= 611, u64 n <= 1275,
+ * Range:     u8 n <= 58, u16 n <= 179, u32 n <= 611, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 94 terms through n = 1249 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

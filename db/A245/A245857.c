@@ -10,6 +10,7 @@
  *            size ≥ 4, and A245790(n) counts those with all blocks size ≥ 5
  * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 17, u64 n <= 26, u128 n <= 42,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 400 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

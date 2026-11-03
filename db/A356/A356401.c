@@ -7,86 +7,36 @@
  * Formula:   a(n) = n! * Sum_{k=1..n} Sum_{d|k} (-1)^(d+1)/(d * (k/d)!)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+/* A356401: a(n) = n! Sum_{k=1..n} Sum_{d|k} (-1)^(d+1)/(d (k/d)!). So a(n) = n a(n-1) + Sum_{d|n} (-1)^(d+1) n!/(d m!) with m = n/d, and n!/(d m!) = m (m+1)(m+2)...(n-1) (for d = 1, 1): products only.
+ * Stirling rows by their recurrences and plain products only, so exact modulo
+ * the width (the original's caches read entries that realloc had left unset,
+ * or divided values that had wrapped). */
+
 #include <stdlib.h>
-#include <stdbool.h>
+#include "../utils/mem.h"
 
-/* Static storage for factorials */
-static seq_t *fact = NULL;
-static size_t fact_cap = 0;
-static idx_t fact_last = 0;
-
-/* Ensure factorials up to n are available */
-static void ensure_factorial(idx_t n)
-{
-    if (n <= fact_last) return;
-
-    size_t new_cap = fact_cap > 0 ? fact_cap : 1;
-    while (new_cap <= (size_t)n) new_cap <<= 1;
-
-    fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
-    fact_cap = new_cap;
-
-    if (fact_last == 0) fact[0] = (seq_t)1;
-
-    for (idx_t i = fact_last + 1; i <= n; ++i)
-        fact[i] = fact[i - 1] * (seq_t)i;
-
-    fact_last = n;
-}
-
-/* Static storage for already computed a(n) values */
-static seq_t *cache = NULL;
-static size_t cache_cap = 0;
-static idx_t cache_last = 0;
-
-/* Ensure cache array can hold values up to n */
-static void ensure_cache(idx_t n)
-{
-    if (n <= cache_last) return;
-
-    size_t new_cap = cache_cap > 0 ? cache_cap : 1;
-    while (new_cap <= (size_t)n) new_cap <<= 1;
-
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-    cache_cap = new_cap;
-
-    cache_last = n;
-}
-
-/* Main function to compute a(n) */
 seq_t a(idx_t n)
 {
-    if (n == 0) return 0;
-
-    ensure_cache(n);
-    if (cache[n] != 0) return cache[n];   /* value already computed */
-
-    ensure_factorial(n);
-
-    seq_t pos = 0, neg = 0;
-    seq_t fn = fact[n];
-
-    for (idx_t d = 1; d <= n; ++d) {
-        idx_t max_m = n / d;
-        bool positive = (d & 1);            /* d odd => sign +, even => sign - */
-
-        for (idx_t m = 1; m <= max_m; ++m) {
-            seq_t tmp   = fn / fact[m];           /* n! / m!  (integer) */
-            seq_t term  = tmp / (seq_t)d;        /* term = n! / (d * m!) (integer) */
-
-            if (positive)
-                pos += term;
-            else
-                neg += term;
+    seq_t r = (seq_t)0;
+    for (size_t m = 1; m <= (size_t)n; ++m) {
+        seq_t t = (seq_t)0;
+        for (size_t d = 1; d <= m; ++d) {
+            if (m % d) continue;
+            size_t q = m / d;
+            seq_t p = (seq_t)1;
+            if (d > 1) {
+                p = (seq_t)q;
+                for (size_t i = q + 1; i < m; ++i) p *= (seq_t)i;
+            }
+            if (d & 1) t += p; else t -= p;
         }
+        r = (seq_t)m * r + t;
     }
-
-    seq_t res = pos - neg;    /* pos >= neg for all n >= 1 */
-    cache[n] = res;
-    return res;
+    return r;
 }

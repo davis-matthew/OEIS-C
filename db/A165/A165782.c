@@ -12,12 +12,14 @@
  *            10 the terms satisfy the linear recurrence a(...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 471 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first ten values (a(0) … a(9)) */
     if (cache == NULL) {
         cache_len = 10;
-        cache = (seq_t *)malloc((size_t)cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_len);
         if (cache == NULL) return (seq_t)0;  /* allocation failure */
         cache[0] = 1;
         cache[1] = 7;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
     /* extend the cache to include terms up to index n */
     size_t new_len = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (tmp == NULL) return (seq_t)0;          /* allocation failure */
     cache = tmp;
 

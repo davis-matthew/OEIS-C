@@ -6,14 +6,16 @@
  * Keywords:  easy, nonn, look
  * Formula:   a(n) = number of subsets of distinct Lucas numbers that sum to n
  *            (A067595)
- * Range:     u8 n <= 9761, u16 n <= 9761, u32 n <= 9761, u64 n <= 9761,
- *            u128 n <= 9761, big any n
- * Helpers:   none
+ * Range:     u8 n <= 15127, u16 n <= 15127, u32 n <= 15127, u64 n <= 15127,
+ *            u128 n <= 15127, big any n
+ * Validated: standard, pass, 121 terms through n = 9761 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     if (dp == NULL || n > dp_limit) {
         /* Allocate array for sums 0..n. */
         size_t size = (size_t)(n + 1);
-        seq_t *newdp = (seq_t *)calloc(size, sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, size);
         if (!newdp) return 0;           /* allocation failure – should not happen */
         newdp[0] = (seq_t)1;            /* empty subset sums to 0 */
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             curr = next;
         }
 
-        free(dp);
+        mem_free(dp);
         dp = newdp;
         dp_limit = n;
     }

@@ -11,7 +11,8 @@
  *            A343000
  * Range:     u8 n <= 3, u16 n <= 33, u32 n <= 3200, u64 n <= 3200,
  *            u128 n <= 3200, big any n
- * Helpers:   generate_products_rec
+ * Validated: standard, pass, 57 terms through n = 3171 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/generate_products_rec.h"
+
+/* Recursive generation of all square‑free products of distinct primes from the
+ * given list that do not exceed 'limit'.  The products are appended to 'out_arr'. */
+static void generate_products_rec(size_t idx, uint64_t curr, const uint64_t *primes,
+                                  size_t primes_len, uint64_t limit,
+                                  uint64_t **out_arr, size_t *len, size_t *cap)
+{
+    for (size_t i = idx; i < primes_len; ++i) {
+        uint64_t p = primes[i];
+        if (p > limit / curr) break;        /* further primes would exceed limit */
+        uint64_t new_prod = curr * p;
+        if (*len == *cap) {
+            *cap = (*cap ? *cap * 2 : 128);
+            *out_arr = (uint64_t *)realloc(*out_arr, (*cap) * sizeof(uint64_t));
+        }
+        (*out_arr)[*len] = new_prod;
+        (*len)++;
+        generate_products_rec(i + 1, new_prod, primes, primes_len, limit,
+                              out_arr, len, cap);
+    }
+}
 
 /* Helper to compare uint64_t values for qsort. */
 static int cmp_uint64(const void *a, const void *b)

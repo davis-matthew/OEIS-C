@@ -7,12 +7,14 @@
  * Formula:   a(n) = n! * n! * n (equivalently, n!*(n+1)! - n!^2, offset 0)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 166 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
     /* First call – initialise the tables for index 0. */
     if (!fact) {
         capacity = 1;
-        fact = (seq_t *)malloc(sizeof(seq_t) * capacity);
-        value = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        fact = mem_new(seq_t, capacity);
+        value = mem_new(seq_t, capacity);
         fact[0] = (seq_t)1;         /* 0! = 1 */
         value[0] = (seq_t)0;        /* a(0) = 0 */
         max_n = 0;
@@ -39,8 +41,8 @@ seq_t a(idx_t n)
         /* Expand the allocated space if necessary. */
         if (required > capacity) {
             capacity = required * 2;
-            fact = (seq_t *)realloc(fact, sizeof(seq_t) * capacity);
-            value = (seq_t *)realloc(value, sizeof(seq_t) * capacity);
+            fact = mem_resize(seq_t, fact, capacity);
+            value = mem_resize(seq_t, value, capacity);
         }
 
         /* Compute factorials and a(i) for all new indices. */

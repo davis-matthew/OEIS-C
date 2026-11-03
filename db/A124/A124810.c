@@ -8,11 +8,13 @@
  *            3^(n-2) - 1/2 * 3^((n-2)/2) if n is even (for n >= 3, a(3)=3)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 26, u128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 26 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n) {

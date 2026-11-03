@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Cache storage */
 static seq_t *cache = NULL;          /* array of found knife numbers */
@@ -36,7 +48,7 @@ static idx_t cache_cnt = 0;          /* number of elements stored */
 static bool
 is_knife_number(seq_t num)
 {
-    int len = digit_len(num);                /* total number of decimal digits */
+    int len = num_digits(num);                /* total number of decimal digits */
     for (int bdigits = 1; bdigits < len; ++bdigits) {
         seq_t powb = pow10((idx_t)bdigits);  /* 10^bdigits   */
         seq_t b    = num % powb;             /* suffix (b)   */
@@ -57,7 +69,7 @@ ensure_cache(size_t min_cap)
     if (cache_cap >= min_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < min_cap) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                     /* out‑of‑memory */
     cache = tmp;
     cache_cap = new_cap;

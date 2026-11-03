@@ -12,7 +12,8 @@
  *            right,...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 25, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* See the OEIS entry A091534 for the definition and the first terms. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,12 +39,12 @@ seq_t a(idx_t n)
         /* row 1 ----------------------------------------------------------- */
         current_row = 1;
         prev_row_len = 2 * current_row + 1;              /* indices 0..2   */
-        prev_row = (seq_t *)malloc(prev_row_len * sizeof(seq_t));
+        prev_row = mem_new(seq_t, prev_row_len);
         for (idx_t i = 0; i < prev_row_len; ++i) prev_row[i] = 0;
         prev_row[2] = (seq_t)1;                          /* a(1,2) = 1 */
 
         cache_len = 1;
-        cache = (seq_t *)malloc((cache_len + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_len + 1));
         cache[0] = 0;                                      /* unused 0‑index */
         cache[1] = (seq_t)1;                               /* a(1)   */
     }
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         /* --- compute next row ------------------------------------------ */
         idx_t next_row_num = current_row + 1;
         idx_t next_len = 2 * next_row_num + 1;              /* size of new row */
-        seq_t *next_row = (seq_t *)malloc(next_len * sizeof(seq_t));
+        seq_t *next_row = mem_new(seq_t, next_len);
 
         /* initialise all entries to 0 (not strictly needed) */
         for (idx_t i = 0; i < next_len; ++i) next_row[i] = 0;
@@ -84,8 +86,7 @@ seq_t a(idx_t n)
 
         /* --- append new row to the global cache --------------------------- */
         idx_t add_count = 2 * next_row_num - 1;      /* number of k values used */
-        cache = (seq_t *)realloc(cache,
-                                 (cache_len + add_count + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (cache_len + add_count + 1));
 
         /* cache is 1‑based, so copy into positions cache_len+1 .. cache_len+add_count */
         idx_t offset = cache_len + 1;
@@ -95,7 +96,7 @@ seq_t a(idx_t n)
         cache_len += add_count;
 
         /* free previous row and move to next */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = next_row;
         prev_row_len = next_len;
         current_row = next_row_num;

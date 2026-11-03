@@ -8,13 +8,15 @@
  *            a(4)=17, a(5)=23 (for n>5)
  * Range:     u8 n <= 48, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,13 +31,13 @@ seq_t a(idx_t n)
     if (n > cache_size) {
         idx_t new_size = n;        /* we need indices up to n inclusive */
         size_t alloc_bytes = ((size_t)new_size + 1) * sizeof(seq_t);
-        seq_t *new_cache = (seq_t *)malloc(alloc_bytes);
+        seq_t *new_cache = mem_new(seq_t, (alloc_bytes) / sizeof(seq_t));
         if (!new_cache) return 0;  /* out of memory: return 0 (unlikely) */
 
         /* Copy old data if any */
         if (cache) {
-            memcpy(new_cache, cache, ((size_t)cache_size + 1) * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, ((size_t)cache_size + 1) * sizeof(seq_t));
+            mem_free(cache);
         } else {
             /* initialise index 0 slot to 0 for safety */
             new_cache[0] = 0;

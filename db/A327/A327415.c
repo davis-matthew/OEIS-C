@@ -8,14 +8,17 @@
  *            defined in OEIS A327415
  * Range:     u8 n <= 53, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   is_prime, seq_pow
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-01)
+ * Helpers:   ipow_idx, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/is_prime.h"
-#include "../utils/seq_pow.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
         }
         if (p < 3) p = 3; /* safety: for very small n */
         idx_t k = (n - p) / 2;
-        seq_t prod = seq_pow((seq_t)2, k);
+        seq_t prod = ipow_idx((seq_t)2, k);
         prod *= (seq_t)p;
         return prod;
     }

@@ -12,7 +12,8 @@
  *            A155580)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache for memoised values */
 static seq_t *cache = NULL;
@@ -34,14 +36,13 @@ static void ensure_cache(idx_t n)
     /* Allocate or grow the cache */
     if (cache == NULL) {
         /* No cache yet: allocate a new array of size n+1 */
-        cache = (seq_t *)realloc(NULL, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, (n + 1));
         if (!cache)
             abort();
         cache_size = 0;
     } else if (n + 1 > cache_size) {
         /* Grow the existing cache */
-        seq_t *new_cache = (seq_t *)realloc(cache,
-                                            (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache)
             abort();
         cache = new_cache;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   alloc_seq_array, seq_free_array
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *cache = NULL;          /* DP array, grows as needed */
 static idx_t max_prepared = 0;       /* largest n computed so far */

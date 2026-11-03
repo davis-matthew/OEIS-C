@@ -9,6 +9,7 @@
  *            p_{k+3} + p_{k+4}) / 5 for some k. a(1) = 79, a(2) = 281, …
  * Range:     u8 none, u16 n <= 340, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 62 terms through n = 976 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

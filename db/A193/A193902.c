@@ -11,12 +11,14 @@
  *            - 1 else : a(n) = 2^(r+1) - 2^(r-k) (0 <= k < r)
  * Range:     u8 n <= 35, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static inline idx_t triangular_root(idx_t n)

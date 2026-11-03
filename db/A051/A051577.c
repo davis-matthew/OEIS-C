@@ -11,7 +11,8 @@
  *            most once; subsequent * calls return the...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 246 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External type definitions supplied by the build */
 extern seq_t a(idx_t n);
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Ensure cache has at least one element for a(0) */
     if (cache_len == 0) {
         size_t new_cap = 8; /* initial capacity */
-        cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
         if (cache == NULL) {
             /* Handle allocation failure – in the test environment
              * this should never happen. */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         /* Resize array if needed */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (new_cache == NULL) {
                 /* Allocation failed – return zero as a fallback. */
                 return (seq_t)0;

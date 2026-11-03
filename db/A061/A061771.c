@@ -12,7 +12,8 @@
  *            calls (in any order) can be answered quickly
  * Range:     u8 n <= 34, u16 n <= 2504, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9843 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- 64‑bit deterministic Miller–Rabin primality test ---------- */
 static inline uint64_t mulmod(uint64_t a, uint64_t b, uint64_t mod)
@@ -77,9 +79,9 @@ static int is_prime_64(uint64_t n)
 
 /* ---------- Reallocation helper that works in both C and C++ ---------- */
 #ifdef __cplusplus
-#define RELOC(p, sz) reinterpret_cast<seq_t*>(realloc((p),(sz)))
+#define RELOC(p, sz) mem_resize(seq_t, (p), ((sz)) / sizeof(seq_t))
 #else
-#define RELOC(p, sz) (seq_t*)realloc((p),(sz))
+#define RELOC(p, sz) mem_resize(seq_t, (p), ((sz)) / sizeof(seq_t))
 #endif
 
 /* ----------  Sequence generator ---------- */

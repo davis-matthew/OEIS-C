@@ -7,14 +7,26 @@
  * Formula:   a(2k-1) = Fibonacci(k), a(2k) = Fibonacci(k+2)
  * Range:     u8 n <= 23, u16 n <= 45, u32 n <= 91, u64 n <= 183,
  *            u128 n <= 369, big any n
- * Helpers:   fib
+ * Validated: standard, pass, 66 terms through n = 991 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* n is 1‑based.  For odd n: k = (n+1)/2, a(n)=fib(k).         */
 /* For even n: k = (n+1)/2, a(n)=fib(k+2).                     */
-#include "../utils/fib.h"
+#include <stdbool.h>
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {

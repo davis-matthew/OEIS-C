@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   get_digits, is_subsequence
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/get_digits.h"
-#include "../utils/is_subsequence.h"
+#include "../utils/mem.h"
+
+/* Check whether all digits of 'prev' appear in the same order inside
+   'cand' (both buffers are MSB‑first). */
+static bool is_subsequence(const uint8_t *prev, size_t prev_len,
+                           const uint8_t *cand, size_t cand_len)
+{
+    size_t i = 0, j = 0;
+    while (i < prev_len && j < cand_len) {
+        if (prev[i] == cand[j]) ++i;
+        ++j;
+    }
+    return i == prev_len;
+}
 
 /* Max number of decimal digits we expect to handle for any n <= 10000
    (kept generously large). */
@@ -95,7 +109,7 @@ seq_t a(idx_t n)
     /* initialise cache */
     if (cache_cap == 0) {
         size_t init_cap = 2;          /* indices 0 and 1 */
-        cache = (seq_t *)realloc(NULL, init_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, init_cap);
         if (!cache) return 0;
         cache[1] = (seq_t)4;          /* a(1) = 4 */
         cache_cap = 1;                /* terms up to 1 are cached */
@@ -104,7 +118,7 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if ((size_t)n > cache_cap) {
         size_t new_cap = (size_t)n + 1;   /* allocate up to index n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;
         cache = tmp;
         for (size_t i = cache_cap + 1; i <= (size_t)n; ++i) {

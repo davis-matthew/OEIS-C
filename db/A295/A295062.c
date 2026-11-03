@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Lookup helper: binary search for equality in a sorted array. */
 static inline int
@@ -49,8 +51,8 @@ static seq_t next_candidate = 1;  /* next integer to test for the mex */
 static void
 init_seq(void)
 {
-    a_vals = (seq_t *)malloc(2 * sizeof(seq_t));
-    b_vals = (seq_t *)malloc(2 * sizeof(seq_t));
+    a_vals = mem_new(seq_t, 2);
+    b_vals = mem_new(seq_t, 2);
     if (!a_vals || !b_vals)
         exit(1);
 
@@ -69,7 +71,7 @@ init_seq(void)
 static void
 append_a(seq_t val)
 {
-    seq_t *tmp = (seq_t *)realloc(a_vals, (a_len + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_vals, (a_len + 1));
     if (!tmp)
         exit(1);
     a_vals = tmp;
@@ -80,7 +82,7 @@ append_a(seq_t val)
 static void
 append_b(seq_t val)
 {
-    seq_t *tmp = (seq_t *)realloc(b_vals, (b_len + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, b_vals, (b_len + 1));
     if (!tmp)
         exit(1);
     b_vals = tmp;

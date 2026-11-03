@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 4095, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 8606 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Integer quotients of n/τ(n) for n where n/τ(n) is integer, sorted by n. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static size_t term_count = 0;
 static idx_t next_x = 1;
@@ -50,9 +52,9 @@ static void ensure_capacity(size_t needed) {
     if (needed <= cache_capacity) return;
     size_t new_cap = cache_capacity ? cache_capacity * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *newp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, terms, new_cap);
     if (!newp) { /* Allocation failed: abort to avoid UB. */
-        if (terms) free(terms);
+        if (terms) mem_free(terms);
         exit(1);
     }
     terms = newp;

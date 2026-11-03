@@ -7,6 +7,7 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{i=1..11} (1 + x^(4*i-1))
  * Range:     u8 n <= 253, u16 n <= 253, u32 n <= 253, u64 n <= 253,
  *            u128 n <= 253, big any n
+ * Validated: full, pass, 254 terms through n = 253 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,13 +11,30 @@
  *            pair
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_adjacent_09_90
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_adjacent_09_90.h"
+
+/* Return true iff x has adjacent digits 0 and 9 in either order. */
+static inline bool has_adjacent_09_90(seq_t x)
+{
+    if (x < 10)          /* single digit cannot contain an adjacent pair */
+        return false;
+    seq_t last = x % 10;
+    x /= 10;
+    while (x) {
+        seq_t cur = x % 10;
+        if ((last == 0 && cur == 9) || (last == 9 && cur == 0))
+            return true;
+        last = cur;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

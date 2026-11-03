@@ -11,13 +11,15 @@
  *            a(9)=43, a(10)=48, a(11)=54, a(12)=60
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache and copy base values */
     if (!cache) {
         cache_cap = 32;                    /* start with 32 slots */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;       /* abort on allocation failure */
         for (size_t i = 0; i < 13; ++i)
             cache[i] = init[i];
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Grow cache if requested index is beyond current capacity */
     if (n >= cache_cap) {
         while (n >= cache_cap) cache_cap <<= 1;   /* double until adequate */
-        seq_t *newp = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+        seq_t *newp = mem_resize(seq_t, cache, cache_cap);
         if (!newp) return (seq_t)0;               /* abort on failure */
         cache = newp;
     }

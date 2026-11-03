@@ -8,14 +8,28 @@
  *            * a(n-k)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 21, i128 n <= 22,
  *            big any n
- * Helpers:   binomial, ensure_enough
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/ensure_enough.h"
+#include "../utils/mem.h"
+
+/* helper: enlarge a dynamic array */
+static void ensure_enough(seq_t **p, size_t *cp, size_t needed)
+{
+    if (needed > *cp) {
+        size_t new_cap = needed;
+        if (new_cap < 16) new_cap = 16;
+        seq_t *tmp = mem_resize(seq_t, *p, new_cap);
+        if (!tmp) abort();
+        *p = tmp;
+        *cp = new_cap;
+    }
+}
 
 /* cache for a(n) values */
 static seq_t *a_cache   = NULL;

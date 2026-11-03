@@ -8,7 +8,8 @@
  * Formula:   a(n) = sum_{k=1..n} A046760(k)
  * Range:     u8 n <= 13, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   digit_count, digits, factor_u64
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   factor_u64, mem, num_digits0, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,11 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/digit_count.h" /* digit_count(uint64_t n) */
-#include "../utils/digits.h"      /* digits(idx_t x) */
+#include <math.h>
+#include "../utils/factor_u64.h"
+#include "../utils/num_digits0.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
 
 /*
  * Test whether a 64‑bit integer m is extravagant.
@@ -43,12 +46,12 @@ static bool is_extravagant(uint64_t m)
 
     size_t D = 0;                    /* digits needed for factorisation */
     for (size_t i = 0; i < cnt; ++i) {
-        D += digits(primes[i]);          /* digits of the prime */
+        D += num_digits_idx(primes[i]);          /* digits of the prime */
         if (exps[i] > 1)
-            D += digits(exps[i]);        /* digits of the exponent if >1 */
+            D += num_digits_idx(exps[i]);        /* digits of the exponent if >1 */
     }
 
-    size_t l = digit_count(m);          /* digits of m itself */
+    size_t l = num_digits0(m);          /* digits of m itself */
     return D > l;
 }
 
@@ -67,7 +70,7 @@ seq_t a(idx_t n)
     /* lazy initialisation */
     if (!cum) {
         cap = 16;
-        cum = (seq_t *)malloc(cap * sizeof(seq_t));
+        cum = mem_new(seq_t, cap);
         cum[0] = 0;
         len = 1;
     }
@@ -78,7 +81,7 @@ seq_t a(idx_t n)
         if (is_extravagant(last_checked)) {
             if (len >= cap) {
                 size_t new_cap = cap * 2;
-                cum = (seq_t *)realloc(cum, new_cap * sizeof(seq_t));
+                cum = mem_resize(seq_t, cum, new_cap);
                 cap = new_cap;
             }
             cum[len] = cum[len - 1] + (seq_t)last_checked;

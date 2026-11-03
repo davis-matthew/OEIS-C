@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 124, u16 n <= 5150, u32 n <= 5150, u64 n <= 5150,
  *            u128 n <= 5150, big any n
- * Helpers:   index_to_nm
+ * Validated: standard, pass, 82 terms through n = 5071 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,27 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/index_to_nm.h"
+
+/* ------------------------------------------------------------ */
+static void index_to_nm(idx_t idx, idx_t *n_out, idx_t *m_out)
+{
+    idx_t low = 0, high = idx;
+    idx_t n = 0;
+    /* binary search for the greatest n with n*(n+1)/2 <= idx */
+    while (low <= high) {
+        idx_t mid = low + ((high - low) >> 1);
+        __int128 tri = (__int128)mid * (mid + 1) / 2;
+        if (tri <= idx) {
+            n = mid;
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+    *n_out = n;
+    __int128 base = (__int128)n * (n + 1) / 2;
+    *m_out = (idx_t)((__int128)idx - base);
+}
 
 /* Maximum prime index needed for the test cases (n <= 10000 → n ≈ 140) */
 #define PRIME_LIMIT 2000000        /* 2 000 000 → 148 933 primes (more than enough) */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    The function enumerates such numbers in increasing order. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t (*C)[3] = NULL;   /* C[rem][c] : number of ways to finish rem bits with trailing ones c */
 static seq_t *CUM   = NULL;    /* CUM[L]  : total number of admissible strings of length ≤ L */
@@ -28,8 +30,8 @@ static void ensure_len(size_t L)
 {
     if (!initialized) {
         /* base case: length 0 */
-        C = (seq_t (*)[3])malloc(sizeof(*C));
-        CUM = (seq_t*)malloc(sizeof(seq_t));
+        C = mem_new(seq_t[3], 1);
+        CUM = mem_new(seq_t, 1);
         for (int c = 0; c < 3; ++c) C[0][c] = 1;
         CUM[0] = 0;
         C_size = 1;
@@ -39,8 +41,8 @@ static void ensure_len(size_t L)
 
     size_t new_size = L + 1;
     if (C_size < new_size) {
-        C = (seq_t (*)[3])realloc(C, new_size * sizeof(*C));
-        CUM = (seq_t*)realloc(CUM, new_size * sizeof(seq_t));
+        C = mem_resize(seq_t[3], C, new_size);
+        CUM = mem_resize(seq_t, CUM, new_size);
         /* compute new entries */
         for (size_t t = C_size; t <= L; ++t) {
             if (t == 0) continue;          /* already initialized above */

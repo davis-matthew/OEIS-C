@@ -14,13 +14,14 @@
  *            by summing over the possible number of z^2 terms j...
  * Range:     u8 n <= 49, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   choose
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/choose.h"
+#include "../utils/binomial.h"
 
 /* ---------- integer square root for 64‑bit values ---------- */
 static idx_t isqrt_u64(idx_t x)
@@ -55,8 +56,8 @@ seq_t a(idx_t n)
 
     for (idx_t j = jmin; j <= jmax; ++j) {
         idx_t i = k - (j << 1);              /* i = k – 2j */
-        seq_t term = choose(exp, j);
-        term = term * choose(exp - j, i);
+        seq_t term = binomial(exp, j);
+        term = term * binomial(exp - j, i);
         sum += term;
     }
     return sum;

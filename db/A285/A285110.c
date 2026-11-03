@@ -11,13 +11,14 @@
  *            (Prime indices are 1‑based: prime(1)=2, prime(2)=3, …)
  * Range:     u8 n <= 8192, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   trailing_zero_count
+ * Validated: standard, pass, 137 terms through n = 6718 (2026-11-01)
+ * Helpers:   ctz_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/trailing_zero_count.h"
+#include "../utils/ctz_idx.h"
 
 /* First 70 primes (enough for positions up to 63).  Index 0 -> prime(1). */
 static const seq_t primes[] =
@@ -44,8 +45,8 @@ seq_t a(idx_t n)
 
     if ((n & (n - 1)) == 0) return 2;   /* power of two */
 
-    unsigned pos1 = trailing_zero_count(n);
-    unsigned pos2 = pos1 + 1 + trailing_zero_count(n >> (pos1 + 1));
+    unsigned pos1 = ctz_idx(n);
+    unsigned pos2 = pos1 + 1 + ctz_idx(n >> (pos1 + 1));
 
     /* Retrieve primes using 0‑based indices (prime(1+pos) -> primes[pos]) */
     seq_t p1 = primes[pos2];

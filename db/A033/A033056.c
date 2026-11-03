@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   valid_base5
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,31 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/valid_base5.h"
+
+/* Return true if v satisfies the property. */
+static bool valid_base5(seq_t v)
+{
+    if (v == 0)               /* 0 is not in the sequence      */
+        return false;
+
+    unsigned int digits[64];
+    idx_t len = 0;
+    seq_t tmp = v;
+
+    while (tmp) {
+        digits[(size_t)len++] = (unsigned int)(tmp % 5);
+        tmp /= 5;
+    }
+
+    /* Digits are stored LSB→MSB in digits[0..len-1].
+       We need to examine them from MSB→LSB (position 0 is MSB). */
+    for (idx_t pos = 0; pos < len; ++pos) {
+        unsigned int d = digits[(size_t)(len - 1 - pos)];
+        if ((pos & 1u) && ((d & 1u) == 0))   /* odd position must be odd digit */
+            return false;
+    }
+    return true;
+}
 
 /* Return the nth term of the sequence, where n ≥ 1. */
 seq_t a(idx_t n)

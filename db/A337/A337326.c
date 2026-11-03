@@ -12,7 +12,8 @@
  *            to the largest n requested
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------- */
 /*              static storage and cache management                    */
@@ -53,7 +55,7 @@ static void ensure_spf(size_t limit)
 static void ensure_counts(size_t limit)
 {
     if (counts_cap < limit + 1) {
-        seq_t *new_counts = (seq_t *)realloc(counts, (limit + 1) * sizeof(seq_t));
+        seq_t *new_counts = mem_resize(seq_t, counts, (limit + 1));
         if (!new_counts) abort();
         counts = new_counts;
         counts_cap = limit + 1;
@@ -63,7 +65,7 @@ static void ensure_counts(size_t limit)
 static void ensure_best(size_t size)
 {
     if (best_cap < size) {
-        seq_t *new_best = (seq_t *)realloc(best, size * sizeof(seq_t));
+        seq_t *new_best = mem_resize(seq_t, best, size);
         if (!new_best) abort();
         /* initialise new entries with SENTINEL */
         for (size_t i = best_cap; i < size; ++i) {

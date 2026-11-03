@@ -7,7 +7,8 @@
  * Formula:   a(n) is the n-th prime p with p ≡ 0, 2, 3, 4, or 5 (mod 17)
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 65 terms through n = 940 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Public sequence function ----------------------------------------------------- */
 seq_t a(idx_t n)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
                 if (qcnt >= qcap)
                 {
                     qcap = qcap ? qcap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(qprimes, qcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, qprimes, qcap);
                     if (!tmp) exit(EXIT_FAILURE);
                     qprimes = tmp;
                 }

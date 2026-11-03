@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 10, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: standard, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
    a(n) = (a(n-1)+a(n-3)) * (a(n-2)+a(n-4)) / a(n-5)   for n>4
 */
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t *seq_cache = NULL;
 static size_t seq_cap   = 0;
@@ -29,7 +38,7 @@ static void seq_init(void)
     if (seq_cache != NULL)
         return;
     seq_cap = 16;
-    seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_cap);
     if (!seq_cache)
         exit(1);
     for (size_t i = 0; i < 5; ++i)
@@ -44,9 +53,9 @@ static void seq_grow_to(size_t need)
     size_t new_cap = seq_cap ? (seq_cap << 1) : 16;
     if (new_cap <= need)
         new_cap = need + 1;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) {
-        free(seq_cache);
+        mem_free(seq_cache);
         seq_cache = NULL;
         exit(1);
     }

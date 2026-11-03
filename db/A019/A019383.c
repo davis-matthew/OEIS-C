@@ -11,7 +11,8 @@
  *            prime 59 itself is excluded because 59 ≡ 0 * (mo...
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes, mod_pow
+ * Validated: standard, pass, 73 terms through n = 941 (2026-11-01)
+ * Helpers:   build_primes, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/build_primes.h"  /* void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
-#include "../utils/mod_pow.h"       /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/powmod.h"
 
 static idx_t *prime_array = NULL;         /* primes up to the current sieve limit */
 static size_t prime_array_len = 0;
@@ -64,7 +67,7 @@ static bool is_primitive_root_59(idx_t p)
     for (size_t i = 0; i < prime_array_len && prime_array[i] * prime_array[i] <= n; ++i) {
         idx_t q = prime_array[i];
         if (n % q == 0) {
-            if (mod_pow(base, phi / q, (seq_t)p) == (seq_t)1)
+            if (powmod(base, phi / q, (seq_t)p) == (seq_t)1)
                 return false;
             while (n % q == 0)
                 n /= q;
@@ -72,7 +75,7 @@ static bool is_primitive_root_59(idx_t p)
     }
 
     if (n > 1) {                       /* remaining prime factor */
-        if (mod_pow(base, phi / n, (seq_t)p) == (seq_t)1)
+        if (powmod(base, phi / n, (seq_t)p) == (seq_t)1)
             return false;
     }
 

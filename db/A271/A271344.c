@@ -12,13 +12,29 @@
  *            The sequence a(n) is the row‑major flattening of T
  * Range:     i8 n <= 94, i16 n <= 94, i32 n <= 94, i64 n <= 94, i128 n <= 94,
  *            big any n
- * Helpers:   column_value
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/column_value.h"
+
+static inline seq_t column_value(idx_t r, idx_t k)
+{
+    if (k == 1)
+        return (seq_t)1;
+    idx_t r0 = k * (k + 1) / 2;
+    if (r < r0)
+        return (seq_t)0;
+    idx_t diff = r - r0;
+    if (diff % k == 0)
+    {
+        idx_t m = diff / k;
+        return -(((seq_t)2 * (seq_t)m + (seq_t)1));
+    }
+    return (seq_t)0;
+}
 
 static inline idx_t row_length(idx_t r)
 {

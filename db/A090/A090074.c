@@ -11,13 +11,23 @@
  *            365468864563
  * Range:     u8 none, u16 none, u32 n <= 0, u64 n <= 3, u128 n <= 11,
  *            big any n
- * Helpers:   str_to_seq
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/str_to_seq.h"
+
+static seq_t str_to_seq(const char *s)
+{
+    seq_t r = 0;
+    while (*s) {
+        r = r * 10 + (seq_t)(*s - '0');
+        ++s;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {

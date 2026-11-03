@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, fini, full
  * Formula:   not stated
- * Range:     u8 n <= 14, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
- *            big any n
+ * Range:     u8 n <= 14, u16 n <= 62, u32 n <= 359, u64 n <= 359,
+ *            u128 n <= 359, big any n
+ * Validated: full, pass, 359 terms through n = 359 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

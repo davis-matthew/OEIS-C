@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 16, i16 n <= 36, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *a_arr = NULL;          /* a[1..max_n]   */
 static seq_t *S_arr = NULL;          /* S[1..max_n]   */
@@ -35,8 +37,8 @@ static void ensure_capacity(idx_t n)
     if (n <= max_n) return;
 
     /* Reallocate arrays to size n+1 (ignoring index 0). */
-    a_arr = (seq_t *)realloc(a_arr, (n + 1) * sizeof(seq_t));
-    S_arr = (seq_t *)realloc(S_arr, (n + 1) * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, (n + 1));
+    S_arr = mem_resize(seq_t, S_arr, (n + 1));
 
     for (idx_t i = max_n + 1; i <= n; ++i) {
         if (i == 1) {

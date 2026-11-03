@@ -9,7 +9,8 @@
  *            z*(z+1)*(z+2)/6 with x > 0, y,z ≥ 0
  * Range:     u8 n <= 548, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9548 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    query and needs only O(n) space. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the pre–computed counts
    of triangular+tetrahedral sums.  The array
@@ -45,7 +47,7 @@ static void ensure_tritetra_counts(idx_t needed)
        zero‑initialise it.  We rebuild the entire table
        each time we increase the size to keep the code simple. */
     size_t  new_size = (size_t)(needed + 1);
-    seq_t *new_counts = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_counts = mem_new(seq_t, new_size);
     if (!new_counts)
         return;  /* allocation failure; subsequent calls will fail */
 
@@ -70,7 +72,7 @@ static void ensure_tritetra_counts(idx_t needed)
     /* Replace the old table.  The old memory can be freed
        after the replacement to avoid leaks. */
     if (tritetra_counts)
-        free(tritetra_counts);
+        mem_free(tritetra_counts);
     tritetra_counts = new_counts;
     tritetra_maxsize = needed;
 }

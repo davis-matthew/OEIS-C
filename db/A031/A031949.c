@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    length L, locates the length of the nth term, then lexicographically
    selects the k‑th number of that length using combinatorial enumeration. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Pow‑2 cache: pow2[i] = 2^i as seq_t.  The cache is enlarged lazily. */
 static seq_t *pow2_cache = NULL;
@@ -29,7 +31,7 @@ static void ensure_pow2(size_t needed)
         return;
 
     size_t new_size = needed + 1;
-    seq_t *new_cache = (seq_t *)realloc(pow2_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, pow2_cache, new_size);
     if (!new_cache)
         exit(1); /* Allocation failed */
 

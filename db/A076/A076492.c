@@ -8,14 +8,16 @@
  *            (n+1)!
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   popcount10
+ * Validated: standard, pass, 96 terms through n = 973 (2026-11-03)
+ * Helpers:   mem, popcount_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/popcount10.h"
+#include "../utils/popcount_u32.h"
+#include "../utils/mem.h"
 
 /* compute the sequence */
 seq_t a(idx_t n)
@@ -46,12 +48,12 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = (size_t)n + 1;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     else if ((size_t)n + 1 > cache_cap)
     {
         cache_cap = (size_t)n + 1;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* compute terms until we reach n */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
             mask_next |= 1U << fact[i];
 
         /* a(cur_n) = number of common decimal digits of n! and (n+1)! */
-        cache[cur_n] = (seq_t)popcount10(mask_cur & mask_next);
+        cache[cur_n] = (seq_t)popcount_u32(mask_cur & mask_next);
 
         /* step forward */
         cur_n++;

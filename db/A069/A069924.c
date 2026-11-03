@@ -7,14 +7,15 @@
  * Formula:   a(n) = #{ k : 1 ≤ k ≤ n , φ(k) divides k }
  * Range:     u8 n <= 79, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi_of_k
+ * Validated: standard, pass, 95 terms through n = 9638 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/phi_of_k.h"
+#include "../utils/totient.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
     seq_t count = 0;
 
     for (idx_t k = 1; k <= n; ++k) {
-        seq_t phi = phi_of_k(k);
+        seq_t phi = totient(k);
         if ((seq_t)k % phi == 0)
             ++count;
     }

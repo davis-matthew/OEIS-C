@@ -12,12 +12,14 @@
  *            coefficients, all results are non‑negative)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 21, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* initialise memo if first call */
     if (memo == NULL) {
         memo_len = 8;
-        memo = (seq_t *)malloc(sizeof(seq_t) * memo_len);
+        memo = mem_new(seq_t, memo_len);
         if (memo == NULL) return 0; /* allocation failure, return zero */
         for (idx_t i = 0; i < memo_len; ++i)
             memo[i] = init[i];
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* extend memo to hold n elements */
     if (n > memo_len) {
-        seq_t *new_mem = (seq_t *)realloc(memo, sizeof(seq_t) * n);
+        seq_t *new_mem = mem_resize(seq_t, memo, n);
         if (new_mem == NULL) return 0; /* allocation failure */
         memo = new_mem;
         /* compute missing values */

@@ -8,13 +8,14 @@
  *            8*binomial(2n+1,n-3)/(n+5))
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 34, u128 n <= 67,
  *            big any n
- * Helpers:   a3518_gcd
+ * Validated: standard, pass, 41 terms through n = 492 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a3518_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
         seq_t gs;
         if (m == 0) break; /* width overflow: value no longer representable */
         r = (uint64_t)(v % m);
-        g = a3518_gcd(D, r);
+        g = gcd_u64(D, r);
         gs = (seq_t)g;
         if (gs == 0) break;
         v /= gs;

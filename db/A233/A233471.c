@@ -7,16 +7,21 @@
  * Formula:   a(n) = 3^n mod n^2
  * Range:     u8 n <= 15, u16 n <= 276, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 75 terms through n = 9647 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* not used for the official offset */
     seq_t mod = (seq_t)n * (seq_t)n;/* n^2 as the modulus */
-    return mod_pow((seq_t)3, n, mod);
+    return powmod((seq_t)3, n, mod);
 }

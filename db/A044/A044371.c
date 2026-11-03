@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_39
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,28 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/contains_39.h"
+
+/* Return true iff the decimal representation of x contains "39". */
+static bool contains_39(seq_t x)
+{
+    if (x == 0)
+        return false;
+
+    uint8_t digits[128];   /* enough for up to 128-bit numbers          */
+    size_t len = 0;
+    seq_t t = x;
+
+    while (t > 0) {
+        digits[len++] = (uint8_t)(t % 10);
+        t /= 10;
+    }
+
+    for (int i = (int)len - 1; i >= 1; --i) {
+        if (digits[i] == 3 && digits[i - 1] == 9)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -11,12 +11,14 @@
  *            sequence offset is 2: a(2) is the first term listed in OEIS
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 27, u64 n <= 53, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,12 +32,12 @@ seq_t a(idx_t n)
 
     /* Extend cache if necessary */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
         if (!cache)
             return (seq_t)0;          /* allocation failure fallback */
         cache_size = n + 1;
     } else if ((idx_t)(n + 1) > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!tmp)
             return (seq_t)0;          /* allocation failure fallback */
         cache = tmp;

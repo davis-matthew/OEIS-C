@@ -11,12 +11,14 @@
  *            triangle in row‑major order
  * Range:     u8 n <= 25, u16 n <= 62, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
         idx_t len = ((2 * r - 1) / 3) + 1;
         if (n <= cum + len) {
             idx_t k = n - cum - 1;    /* index within the row (0‑based) */
-            seq_t a1 = binom(2 * r - 2 * k - 1, k);
-            seq_t a2 = binom(2 * k, r - k - 1);
+            seq_t a1 = binomial(2 * r - 2 * k - 1, k);
+            seq_t a2 = binomial(2 * k, r - k - 1);
             seq_t denom = (seq_t)(2 * r - 2 * k - 1);
             return (a1 * a2) / denom;
         }

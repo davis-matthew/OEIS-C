@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    than the number of solutions. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
         const idx_t a_max = 6;
 
         cache_cap = 16; /* initial capacity */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
 
         for (idx_t a = a_min; a <= a_max; ++a) {
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
 
                 if (cache_len == cache_cap) {
                     cache_cap <<= 1;
-                    cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)a;
             }

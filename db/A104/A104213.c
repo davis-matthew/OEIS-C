@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 3741, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _digit_sum_prime_small, _digit_sum_uint64
+ * Validated: standard, pass, 70 terms through n = 8797 (2026-11-03)
+ * Helpers:   digit_sum_u64_to_i32, is_prime_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/_digit_sum_prime_small.h"
-#include "../utils/_digit_sum_uint64.h"
+#include "../utils/digit_sum_u64_to_i32.h"
+#include "../utils/is_prime_i32.h"
+#include "../utils/mem.h"
 
 /* ---------- dynamic array for primes (uint64_t) ---------- */
 static uint64_t * _prime_list = NULL;
@@ -73,7 +75,7 @@ static void _ensure_seq_cache(idx_t needed)
     if (_cache_cap >= needed) return;
     idx_t new_cap = _cache_cap ? _cache_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(_seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, _seq_cache, new_cap);
     _seq_cache = new_arr;
     _cache_cap = new_cap;
 }
@@ -87,8 +89,8 @@ seq_t a(idx_t n)
         _ensure_seq_cache(n);
         while (_cache_size < n) {
             uint64_t p = _next_prime();
-            int s = _digit_sum_uint64(p);
-            if (!_digit_sum_prime_small(s)) {
+            int s = digit_sum_u64_to_i32(p);
+            if (!is_prime_i32(s)) {
                 _seq_cache[_cache_size++] = (seq_t)p;
             }
         }

@@ -11,8 +11,9 @@
  *            T(i,j) = (i*j + i)/2 if i is even, j is odd; T(i,j) = (i*j +
  *            j)/2 if i is odd, j is even; T(i,j) = (i*j)/2 if i,j are even.
  *            The pair (i,j) for index n satisfies i+j = D w...
- * Range:     u8 n <= 920, u16 n <= 9928, u32 n <= 9928, u64 n <= 9928,
- *            u128 n <= 9928, big any n
+ * Range:     u8 n <= 920, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 82 terms through n = 9928 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

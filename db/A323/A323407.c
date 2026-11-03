@@ -6,8 +6,9 @@
  * Keywords:  sign, mult
  * Formula:   a(n) = multiplicative with a(p^e) = e*(1-p) for e <= 2, and
  *            a(p^e) = 2*a(p^(e-1)) - p*a(p^(e-2)) for e > 2
- * Range:     i8 n <= 130, i16 n <= 9959, i32 n <= 9959, i64 n <= 9959,
- *            i128 n <= 9959, big any n
+ * Range:     i8 n <= 130, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 9959 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

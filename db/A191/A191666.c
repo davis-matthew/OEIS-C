@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 137, u32 n <= 529, u64 n <= 2081,
  *            u128 n <= 5050, big any n
- * Helpers:   diag_coords
+ * Validated: standard, pass, 77 terms through n = 4528 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,29 @@
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/diag_coords.h"
+
+/* Convert linear index n (1‑based) to matrix coordinates (i,j)
+   using antidiagonal ordering: (i,j) are 1‑based row and column indices. */
+static inline void
+diag_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    /* Find the smallest diagonal number d such that d*(d+1)/2 >= n. */
+    long double r = sqrtl(8.0L * (long double)n + 1.0L);
+    idx_t d = (idx_t)((r - 1.0L) / 2.0L);          /* floor estimate */
+
+    /* Correct the estimate to satisfy the inequality. */
+    while ((unsigned __int128)d * (d + 1) / 2 < n)
+        ++d;
+    while (d > 0 && (unsigned __int128)(d - 1) * d / 2 >= n)
+        --d;
+
+    /* Elements before diagonal d are (d-1)*d/2. */
+    unsigned __int128 before = (unsigned __int128)(d - 1) * d / 2;
+    idx_t offset = (idx_t)(n - before - 1);       /* 0‑based offset on this diagonal */
+
+    *i = offset + 1;               /* rows are counted from 1 */
+    *j = d - offset;               /* columns are counted from 1 */
+}
 
 seq_t
 a(idx_t n)

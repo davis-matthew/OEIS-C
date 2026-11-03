@@ -7,13 +7,15 @@
  * Formula:   a(n) = nth divisor of 104 in ascending order (0 if n > 8)
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         /* 104 = 2^3 * 13^1 -> (3+1)*(1+1) = 8 divisors */
         div_cnt = 8;
         div_cap = 8;
-        divs = (seq_t *)malloc(div_cnt * sizeof(seq_t));
+        divs = mem_new(seq_t, div_cnt);
         if (!divs) return 0;          /* allocation failed */
 
         size_t pos = 0;

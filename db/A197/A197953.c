@@ -7,12 +7,14 @@
  * Formula:   a(n) = 1 + Σ_{d|n , d>1} d * a(n/d) (offset 1, a(1)=1)
  * Range:     u8 n <= 23, u16 n <= 191, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoized cache of already‑computed values. */
 static seq_t *cache = NULL;
@@ -27,8 +29,7 @@ static void grow_cache(idx_t n)
     idx_t old_size = cache_size;      /* highest already stored index + 1 */
 
     /* Reallocate memory to fit indices 0 … n. */
-    seq_t *tmp = (seq_t*)realloc(cache,
-                                 (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
     if (!tmp) abort();                /* allocation failure */
     cache     = tmp;
     cache_size = n + 1;
@@ -62,7 +63,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache on first call. */
     if (!cache) {
-        cache = (seq_t*)calloc(2, sizeof(seq_t)); /* indices 0 and 1 */
+        cache = mem_new(seq_t, 2); /* indices 0 and 1 */
         if (!cache) abort();
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;

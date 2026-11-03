@@ -7,12 +7,14 @@
  * Formula:   a(n) = n mod phi(n) (phi is Euler's totient function)
  * Range:     u8 n <= 529, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 108 terms through n = 9103 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +22,7 @@ seq_t a(idx_t n)
     seq_t n_seq = (seq_t)n;
 
     /* Compute phi(n) */
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
 
     /* Avoid division by zero (phi(0) is undefined, but n>=1) */
     if (phi_n == 0)

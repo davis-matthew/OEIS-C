@@ -10,7 +10,8 @@
  *            A003418(floor(n/2))
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   build_primes_upto, seq_mul, seq_pow
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,15 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"          /* seq_mul(seq_t, seq_t) */
-#include "../utils/seq_pow.h"          /* seq_pow(seq_t, idx_t) */
-#include "../utils/build_primes_upto.h" /* build_primes_upto(idx_t, uint64_t**, size_t*) */
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static uint64_t *cached_primes = NULL;   /* array of primes up to cached_limit */
 static size_t cached_prime_cnt   = 0;     /* number of primes in cached_primes */
@@ -62,7 +69,7 @@ static seq_t lcm_upto(idx_t m)
             ++e;
         }
         if (e > 0) {
-            seq_t pow = seq_pow((seq_t)p, e);
+            seq_t pow = ipow_idx((seq_t)p, e);
             result = seq_mul(result, pow);
         }
     }

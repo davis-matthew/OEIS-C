@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9601 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper comparison for qsort on seq_t values. */
 static int cmp_seq(const void *a, const void *b)
@@ -43,7 +45,7 @@ static void build_up_to(idx_t limit)
     /* Free previously allocated arrays */
     free(phi);
     free(max_phi);
-    free(cache);
+    mem_free(cache);
 
     /* Allocate space for φ and the maximum tracker */
     phi = (idx_t *)malloc(sizeof(idx_t) * (limit + 1));
@@ -81,7 +83,7 @@ static void build_up_to(idx_t limit)
             ++cnt;
 
     /* Allocate and fill the cache with those maxima */
-    cache = (seq_t *)malloc(sizeof(seq_t) * cnt);
+    cache = mem_new(seq_t, cnt);
     if (!cache)
         return;   /* allocation failure */
 
@@ -91,7 +93,7 @@ static void build_up_to(idx_t limit)
             cache[pos++] = (seq_t)max_phi[i];
 
     /* Sort cache to provide ascending sequence */
-    qsort(cache, cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(cache, cnt, sizeof(seq_t), cmp_seq);
 
     /* Update global state */
     cache_size = cnt;

@@ -9,6 +9,7 @@
  *            prime)
  * Range:     u8 n <= 110, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 88 terms through n = 959 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
 
 /* static cache of primes */

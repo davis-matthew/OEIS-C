@@ -9,15 +9,17 @@
  * Formula:   a(n) = T(r,k) where r and k are obtained from the index n by
  *            solving n = r(r-1)/2 + k (1 ≤ k ≤ r). T(r,k) = binomial(r,k) *
  *            Σ_{e=0..k} (-1)^e * binomial(k,e) * binomial((k-e)*r, r)
- * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 39, u64 n <= 97, u128 n <= 264,
+ * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 39, u64 n <= 97, u128 n <= 264,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 52 terms through n = 1827 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t idx)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t idx)
     seq_t S = 0;
     for (idx_t e = 0; e <= k; ++e)
     {
-        seq_t term = binom(k, e) * binom((k - e) * r, r);
+        seq_t term = binomial(k, e) * binomial((k - e) * r, r);
         if (e & 1U)
             S -= term;
         else
@@ -38,5 +40,5 @@ seq_t a(idx_t idx)
     }
 
     /* final value */
-    return binom(r, k) * S;
+    return binomial(r, k) * S;
 }

@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, nice
  * Formula:   a(n) = prime(n) - (-1)^(prime(n))
- * Range:     u8 n <= 54, u16 n <= 6542, u32 n <= 9010, u64 n <= 9010,
- *            u128 n <= 9010, big any n
+ * Range:     u8 n <= 54, u16 n <= 6542, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 77 terms through n = 9010 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

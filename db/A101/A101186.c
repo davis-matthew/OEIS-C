@@ -12,7 +12,8 @@
  *            calls
  * Range:     u8 n <= 4, u16 n <= 328, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   modpow_u64, mulmod_u64
+ * Validated: standard, pass, 61 terms through n = 9541 (2026-11-03)
+ * Helpers:   mem, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/modpow_u64.h"
-#include "../utils/mulmod_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 static bool isPrime64(uint64_t n)
 {
@@ -51,12 +53,12 @@ static bool isPrime64(uint64_t n)
     {
         uint64_t a = bases[i] % n;
         if (a == 0ULL) continue;
-        uint64_t x = modpow_u64(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1ULL || x == n-1) continue;
         bool composite = true;
         for (int r = 1; r < s; ++r)
         {
-            x = mulmod_u64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1)
             {
                 composite = false;
@@ -81,7 +83,7 @@ static void ensure_cap(size_t needed)
     if (k_cap >= needed) return;
     size_t new_cap = k_cap == 0 ? 16 : k_cap * 2;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(k_list, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, k_list, new_cap);
     if (!tmp) return;           /* silently ignore allocation failure */
     k_list = tmp;
     k_cap   = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = exp( Σ_{k≥1} A001333(k)^k * 2^k * x^k / k )
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   pow2, pow_seq
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   ipow_i32, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"    /* seq_t pow2(idx_t exp) */
-#include "../utils/pow_seq.h" /* seq_t pow_seq(seq_t a, int k) */
+#include "../utils/ipow_i32.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Dynamic storage for Pell numbers (Pell[0] ... Pell[max_index])       */
@@ -34,7 +36,7 @@ static idx_t  pell_max   = 0;      /* highest index computed */
 static void init_pell(void)
 {
     if (pell_cache) return;
-    pell_cache = (seq_t *)malloc(2 * sizeof(seq_t));
+    pell_cache = mem_new(seq_t, 2);
     if (!pell_cache) exit(1);
     pell_cache[0] = 0;
     pell_cache[1] = 1;
@@ -49,7 +51,7 @@ static void ensure_pell(idx_t need)
     if (need <= pell_max) return;
 
     size_t new_cap = (size_t)(need + 1);
-    seq_t *new_ptr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_new(seq_t, new_cap);
     if (!new_ptr) exit(1);
 
     /* copy existing values */
@@ -60,7 +62,7 @@ static void ensure_pell(idx_t need)
         new_ptr[i] = 2 * new_ptr[i-1] + new_ptr[i-2];
     }
 
-    free(pell_cache);
+    mem_free(pell_cache);
     pell_cache = new_ptr;
     pell_cap   = new_cap;
     pell_max   = need;
@@ -76,7 +78,7 @@ static idx_t  a_max   = 0;        /* highest n computed */
 static void init_a_cache(void)
 {
     if (a_cache) return;
-    a_cache = (seq_t *)malloc(sizeof(seq_t));
+    a_cache = mem_new(seq_t, 1);
     if (!a_cache) exit(1);
     a_cache[0] = 1;   /* a(0) = 1 */
     a_cap   = 1;
@@ -90,12 +92,12 @@ static void ensure_a_cache(idx_t need)
     if (need < a_cap) return;
 
     size_t new_cap = (size_t)(need + 1);
-    seq_t *new_ptr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_new(seq_t, new_cap);
     if (!new_ptr) exit(1);
 
     for (size_t i = 0; i < a_cap; ++i) new_ptr[i] = a_cache[i];
     /* remaining entries will be filled later */
-    free(a_cache);
+    mem_free(a_cache);
     a_cache = new_ptr;
     a_cap   = new_cap;
 }
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
         seq_t sum = 0;
         for (idx_t k = 1; k <= cur; ++k) {
             seq_t diff   = pell_cache[k+1] - pell_cache[k];          /* A001333(k) */
-            seq_t powd   = pow_seq(diff, (int)k);                    /* (A001333(k))^k */
+            seq_t powd   = ipow_i32(diff, (int)k);                    /* (A001333(k))^k */
             seq_t term   = powd * pow2((idx_t)k) * a_cache[cur - k];
             sum += term;
         }

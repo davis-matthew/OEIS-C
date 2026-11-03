@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, changed
  * Formula:   a(n) = Sum_{k=0..n} binomial(4*k,k)*binomial(4*(n-k),n-k)
- * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
+ * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 37 terms through n = 194 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Computes the OEIS sequence A078995.  Uses memoisation and
    a cached table of the binomial factors b(k) = binomial(4*k,k). */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if ((idx_t)(n + 1) > (idx_t)b_cap) {
         size_t new_cap = (b_cap == 0) ? 1 : b_cap;
         while (new_cap <= (size_t)(n + 1)) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b_cache, new_cap);
         if (!tmp) exit(1);
         b_cache = tmp;
         b_cap   = new_cap;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     if ((idx_t)(n + 1) > (idx_t)a_cap) {
         size_t new_cap = (a_cap == 0) ? 1 : a_cap;
         while (new_cap <= (size_t)(n + 1)) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) exit(1);
         a_cache = tmp;
         a_cap   = new_cap;

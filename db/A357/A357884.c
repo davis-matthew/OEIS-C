@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_digits_local
+ * Validated: standard, pass, 83 terms through n = 9313 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/get_digits_local.h"
+#include "../utils/mem.h"
+
+/* Local helper: convert x to base‑10 digits (least significant first). */
+static void get_digits_local(seq_t x, uint8_t *buf, size_t *len)
+{
+    if (x == (seq_t)0) {
+        buf[0] = 0;
+        *len = 1;
+        return;
+    }
+    seq_t tmp = x;
+    size_t count = 0;
+    while (tmp != (seq_t)0) {
+        buf[count++] = (uint8_t)(tmp % (seq_t)10);
+        tmp /= (seq_t)10;
+    }
+    *len = count;
+}
 
 static seq_t *cache = NULL;   /* cache[1..] holds a(k) values          */
 static idx_t cache_n = 0;     /* largest n for which cache[n] is valid */
@@ -33,7 +51,7 @@ static void compute_upto(idx_t desired_n)
 
     /* Allocate space for indices 1..desired_n (index 0 unused). */
     size_t new_cap = (size_t)desired_n + 1;
-    seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_cap);
     if (!p) abort();
     cache = p;
 

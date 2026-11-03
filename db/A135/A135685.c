@@ -12,7 +12,8 @@
  *            T(n-1,j) + ( T(n-2,j) + (j≥2 ? T(n-2,j-2) : 0) ). The...
  * Range:     i8 n <= 55, i16 n <= 171, i32 n <= 595, i64 n <= 2275,
  *            i128 n <= 8643, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9385 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static data for memoisation */
 static seq_t **rows = NULL;          /* array of pointers to rows of T   */
@@ -35,7 +37,7 @@ static void append_B(seq_t val)
 {
     if (B_count == B_cap) {
         size_t new_cap = (B_cap == 0) ? 16 : B_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, B, new_cap);
         if (!tmp) abort();           /* out of memory */
         B = tmp;
         B_cap = new_cap;
@@ -52,14 +54,14 @@ static void ensure_B_to(idx_t needed)
         rows = (seq_t **)malloc(rows_cap * sizeof(seq_t *));
         if (!rows) abort();
         /* row 0: length 1, T(0,0)=0 */
-        seq_t *row0 = (seq_t *)calloc(1, sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         row0[0] = (seq_t)0;
         rows[0] = row0;
         rows_size = 1;
     }
     if (rows_size == 1) {
         /* row 1: length 2, T(1,0)=0, T(1,1)=1 */
-        seq_t *row1 = (seq_t *)calloc(2, sizeof(seq_t));
+        seq_t *row1 = mem_new(seq_t, 2);
         row1[0] = (seq_t)0;
         row1[1] = (seq_t)1;
         if (rows_size == rows_cap) {
@@ -84,7 +86,7 @@ static void ensure_B_to(idx_t needed)
             rows = tmp;
         }
         size_t len = n + 1;
-        seq_t *new_row = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, len);
         if (!new_row) abort();
 
         /* compute sign = -2*(-1)^n   */

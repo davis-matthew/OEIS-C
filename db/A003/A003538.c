@@ -7,13 +7,22 @@
  * Formula:   a(n) = n-th smallest divisor of 2^30 - 1
  * Range:     u8 n <= 1, u16 n <= 23, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   compare_seq
+ * Validated: full, pass, 96 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/compare_seq.h"
+#include "../utils/mem.h"
+
+static int compare_seq(const void *a, const void *b) {
+    seq_t x = *(const seq_t *)a;
+    seq_t y = *(const seq_t *)b;
+    if (x < y) return -1;
+    if (x > y) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n) {
     static seq_t *divisors = NULL;
@@ -28,7 +37,7 @@ seq_t a(idx_t n) {
         seq_t p151[] = {1, 151};
         seq_t p331[] = {1, 331};
         
-        divisors = (seq_t *)malloc(96 * sizeof(seq_t));
+        divisors = mem_new(seq_t, 96);
         int idx = 0;
         
         for (int e0 = 0; e0 < 3; e0++) {
@@ -45,7 +54,7 @@ seq_t a(idx_t n) {
             }
         }
         
-        qsort(divisors, 96, sizeof(seq_t), compare_seq);
+        mem_qsort(divisors, 96, sizeof(seq_t), compare_seq);
         computed = 1;
     }
     

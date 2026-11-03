@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k>=1} floor(n/2^k + 1/2)*2^k
  * Range:     u8 n <= 39, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

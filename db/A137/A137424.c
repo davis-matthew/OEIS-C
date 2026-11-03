@@ -7,13 +7,16 @@
  * Formula:   a(n) = binomial(digsum(n), n mod digsum(n))
  * Range:     u8 n <= 28, u16 n <= 198, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 92 terms through n = 9878 (2026-11-01)
  * Helpers:   binomial, digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/digit_sum.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/digit_sum.h"
 
 seq_t a(idx_t n)
 {

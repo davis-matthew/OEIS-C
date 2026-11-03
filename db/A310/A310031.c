@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   allocate_seq
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,14 @@
  */
 
 #include <stdlib.h>
-#include "../utils/allocate_seq.h"
+
+static inline seq_t* allocate_seq(idx_t size) {
+#ifdef __cplusplus
+    return new seq_t[size];
+#else
+    return (seq_t*)malloc(size * sizeof(seq_t));
+#endif
+}
 
 static const seq_t init_vals[24] = {
     1, 3, 5, 8, 12, 16, 19, 20, 21, 24,

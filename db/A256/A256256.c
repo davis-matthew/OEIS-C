@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 6*A006046(n) = 6 * sum_{i=0}^{n-1} 2^{popcount(i)}
- * Range:     u8 n <= 11, u16 n <= 383, u32 n <= 9356, u64 n <= 9356,
- *            u128 n <= 9356, big any n
+ * Range:     u8 n <= 11, u16 n <= 383, u32 n <= 16386, u64 n <= 16386,
+ *            u128 n <= 16386, big any n
+ * Validated: standard, pass, 81 terms through n = 9356 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

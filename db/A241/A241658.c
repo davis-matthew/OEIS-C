@@ -9,7 +9,8 @@
  *            no such semiprime exists. Indexing starts at 1
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   build_spf, is_prime_small
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   build_spf, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdlib.h>
 
 /* Utility includes.  The build system supplies these headers. */
-#include "../utils/build_spf.h"     /* void build_spf(idx_t limit, idx_t **spf_out); */
-#include "../utils/is_prime_small.h"/* bool is_prime_small(seq_t n); */
+#include <stdint.h>
+#include "../utils/build_spf.h"
+#include "../utils/is_prime_seq.h"
 
 /* Static caches for semiprimes and smallest‑prime factors. */
 static idx_t *spf_cache = NULL;    /* smallest prime factor array */
@@ -52,7 +54,7 @@ static void ensure_cache(idx_t limit)
         idx_t p = spf_cache[n];
         if (p == n) continue;                /* prime -> not semiprime */
         idx_t q = n / p;
-        if (q > 1 && is_prime_small((seq_t)q))
+        if (q > 1 && is_prime_seq((seq_t)q))
             semiprime_cache[n] = 1;
     }
 }

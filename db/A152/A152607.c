@@ -11,14 +11,16 @@
  *            digit sequence is a prime
  * Range:     u8 n <= 7, u16 n <= 25, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static bool adjacency[10][10];
 static bool adj_inited = false;
@@ -28,7 +30,7 @@ static void init_adjacency(void)
     if (adj_inited) return;
     for (int d1 = 0; d1 <= 9; ++d1)
         for (int d2 = 0; d2 <= 9; ++d2)
-            adjacency[d1][d2] = is_prime_small(d1 * 10 + d2);
+            adjacency[d1][d2] = is_prime_seq(d1 * 10 + d2);
     adj_inited = true;
 }
 
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     /* initial allocation */
     if (capacity == 0) {
         capacity = 64;
-        terms = (seq_t*)malloc(sizeof(seq_t) * capacity);
+        terms = mem_new(seq_t, capacity);
         if (!terms) return 0;
     }
 
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         /* grow storage if needed */
         if (terms_size == (size_t)capacity) {
             capacity <<= 1;
-            terms = (seq_t*)realloc(terms, sizeof(seq_t) * capacity);
+            terms = mem_resize(seq_t, terms, capacity);
             if (!terms) return 0;
         }
 

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for computed rows of the triangle */
 static seq_t **T_rows = NULL;      /* array of pointers to rows (1‑based) */
@@ -40,7 +42,7 @@ static void ensure_rows(size_t up_to) {
     }
 
     for (size_t r = T_rows_len + 1; r <= up_to; ++r) {
-        seq_t *row = (seq_t *)malloc(sizeof(seq_t) * (r + 1));
+        seq_t *row = mem_new(seq_t, (r + 1));
         if (!row) exit(EXIT_FAILURE);
 
         if (r == 1) {

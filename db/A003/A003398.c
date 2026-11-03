@@ -9,14 +9,19 @@
  *            limit until at least n terms are found
  * Range:     u8 n <= 1, u16 n <= 34, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3398_cmp
+ * Validated: standard, pass, 57 terms through n = 9539 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a3398_cmp.h"
+
+static int a3398_cmp(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
 
 static uint64_t *a3398_buf = NULL;
 static size_t a3398_cnt = 0, a3398_cap = 0;

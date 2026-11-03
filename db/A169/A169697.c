@@ -7,6 +7,7 @@
  * Formula:   a(n) = (3^(m+1)-2^(m+1))*3^popcount(t) where n = 2^m*(2t+1)
  * Range:     u8 n <= 31, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

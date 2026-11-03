@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 19, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
        but we store a(i) at tab[i‑1]. */
     if (n > max_n) {
         idx_t new_max = n;
-        tab = (seq_t*)realloc(tab, new_max * sizeof(seq_t));
+        tab = mem_resize(seq_t, tab, new_max);
         /* Compute new terms one by one. */
         for (idx_t i = max_n + 1; i <= n; ++i) {
             if (i == 1)        tab[i-1] = 5;

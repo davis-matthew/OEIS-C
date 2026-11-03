@@ -8,11 +8,13 @@
  *            and 0 ≤ j ≤ i
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t pow_seq(seq_t base, idx_t exp)

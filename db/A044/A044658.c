@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   has_28
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,30 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/has_28.h"
+
+/* test whether the base‑9 digits of x contain the consecutive digits 2,8 */
+static bool has_28(seq_t x)
+{
+    if (x == 0) return false;               /* "0" has no substring */
+
+    /* buffer for the base‑9 digits – more than enough for even huge values */
+    uint8_t digits[128];
+    size_t len = 0;
+
+    seq_t t = x;
+    while (t > 0) {
+        digits[len++] = (uint8_t)(t % 9);
+        t /= 9;
+    }
+
+    if (len < 2) return false;
+    /* digits[0] is least significant, digits[len‑1] most significant */
+    for (size_t i = len - 1; i > 0; --i) {
+        if (digits[i] == 2 && digits[i - 1] == 8)
+            return true;
+    }
+    return false;
+}
 
 /* sequence element: n-th term of A044658 (n ≥ 1) */
 seq_t a(idx_t n)

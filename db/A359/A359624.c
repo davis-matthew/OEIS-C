@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 33, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   count_distinct_primes, is_squarefree
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   is_squarefree, mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/is_squarefree.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Helper to test whether a value is a product of exactly three distinct
    primes.  It uses the fast 64‑bit routine when the value fits in a
@@ -35,7 +38,7 @@ static bool is_product_of_three_distinct_primes(seq_t v)
     /* 64‑bit case – much faster */
     if (v <= UINT64_MAX) {
         uint64_t n = (uint64_t)v;
-        return (count_distinct_primes(n) == 3);
+        return (omega(n) == 3);
     }
 
     /* Big‑integer case – naive trial division, enough for the sizes
@@ -77,7 +80,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -89,7 +92,7 @@ seq_t a(idx_t n)
         if (is_product_of_three_distinct_primes(tri)) {
             if (cache_len >= cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = tri;
         }

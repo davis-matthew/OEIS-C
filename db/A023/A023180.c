@@ -8,13 +8,15 @@
  *            (offset 1)
  * Range:     u8 n <= 7, u16 n <= 295, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* multiply modulo, using 128‑bit arithmetic */
 static uint64_t mul_mod_uint64(uint64_t a, uint64_t b, uint64_t mod)
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     if (vals == NULL)
     {
         cap = 16;
-        vals = (seq_t *)realloc(NULL, sizeof(seq_t) * cap);
+        vals = mem_resize(seq_t, NULL, cap);
     }
 
     while (len < n)
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
             if (len == cap)
             {
                 cap *= 2;
-                vals = (seq_t *)realloc(vals, sizeof(seq_t) * cap);
+                vals = mem_resize(seq_t, vals, cap);
             }
             vals[len++] = (seq_t)k;
         }

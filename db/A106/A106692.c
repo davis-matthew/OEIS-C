@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
- *            big any n
- * Helpers:   my_is_prime
+ * Range:     u8 n <= 1, u16 n <= 343, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 8693 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/my_is_prime.h"   /* provides my_is_prime(uint64_t) */
+#include <stdint.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,11 +37,11 @@ seq_t a(idx_t n)
     while (sz < n) {
         next_k++;                           /* next candidate k */
         seq_t p = (seq_t)97 * next_k - 11;  /* compute 97*k-11 */
-        if (my_is_prime((uint64_t)p)) {     /* test primality */
+        if (is_prime_u64((uint64_t)p)) {     /* test primality */
             /* ensure capacity */
             if (sz == cap) {
                 idx_t new_cap = (cap ? cap << 1 : 16);
-                vals = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+                vals = mem_resize(seq_t, vals, new_cap);
                 cap = new_cap;
             }
             vals[sz++] = next_k;            /* store found k */

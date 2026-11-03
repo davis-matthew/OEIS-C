@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 60, u32 n <= 130, u64 n <= 317,
  *            u128 n <= 847, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1085 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Find smallest s with s*(s-1)/2 >= n (n >= 1) */
 static idx_t find_t(idx_t n)
@@ -55,13 +57,13 @@ static void build_table(idx_t N, idx_t K)
 
     /* free old table */
     for (idx_t i = 1; i <= cur_n_max; ++i)
-        free(T[i]);
+        mem_free(T[i]);
     free(T);
 
     /* allocate new table */
     T = (seq_t **)calloc((size_t)(N + 1), sizeof(seq_t *));
     for (idx_t i = 1; i <= N; ++i)
-        T[i] = (seq_t *)calloc((size_t)(K + 1), sizeof(seq_t));
+        T[i] = mem_new(seq_t, (size_t)(K + 1));
 
     /* base case */
     for (idx_t k = 1; k <= K; ++k)

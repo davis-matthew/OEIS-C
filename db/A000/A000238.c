@@ -11,18 +11,45 @@
  *            reconstruct by CRT (Garner) modulo 2^w; arbitrary-...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 31, u128 n <= 57,
  *            big any n
- * Helpers:   a238_inv, a238_is_fixed, a238_mul, a238_pow, u128_to_seq
+ * Validated: standard, pass, 42 terms through n = 978 (2026-11-01)
+ * Helpers:   mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/a238_inv.h"
-#include "../utils/a238_is_fixed.h"
-#include "../utils/a238_mul.h"
-#include "../utils/a238_pow.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static uint64_t a238_inv(uint64_t a, uint64_t p)
+{
+    return powmod_u64(a % p, p - 2, p);
+}
+
+static int a238_is_fixed(void)
+{
+    static int f = -1;
+    if (f < 0) {
+        seq_t x = 1;
+        int i;
+        for (i = 0; i < 200; i++) x *= 2;
+        f = (x == 0) ? 1 : 0;
+    }
+    return f;
+}
 
 /* ---------- exact path (arbitrary precision) ---------- */
 #define A238_CAP 20005
@@ -87,13 +114,13 @@ static void a238_mod_extend(idx_t n)
             for (d = 1; d * d <= m; d++) {
                 if (m % d == 0) {
                     idx_t e = m / d;
-                    s = (s + a238_mul(d % p, R[d], p)) % p;
-                    if (e != d) s = (s + a238_mul(e % p, R[e], p)) % p;
+                    s = (s + mulmod(d % p, R[d], p)) % p;
+                    if (e != d) s = (s + mulmod(e % p, R[e], p)) % p;
                 }
             }
             S[m] = (s * 2) % p;
-            for (k = 1; k <= m; k++) t = (t + a238_mul(S[k], R[m - k + 1], p)) % p;
-            R[m + 1] = a238_mul(t, a238_inv(m, p), p);
+            for (k = 1; k <= m; k++) t = (t + mulmod(S[k], R[m - k + 1], p)) % p;
+            R[m + 1] = mulmod(t, a238_inv(m, p), p);
         }
         a238_mn = m + 1;
     }
@@ -112,15 +139,15 @@ static seq_t a238_fixed(idx_t n)
         uint64_t p = a238_P[j];
         uint64_t *R = a238_MR[j];
         uint64_t sum = 0;
-        for (i = 1; i < n; i++) sum = (sum + a238_mul(R[i], R[n - i], p)) % p;
+        for (i = 1; i < n; i++) sum = (sum + mulmod(R[i], R[n - i], p)) % p;
         x[j] = (R[n] + p - sum) % p;
     }
     /* Garner */
     y1 = x[0];
-    y2 = a238_mul((x[1] + p2 - y1 % p2) % p2, a238_inv(p1 % p2, p2), p2);
-    t = (y1 % p3 + a238_mul(p1 % p3, y2 % p3, p3)) % p3;
-    y3 = a238_mul((x[2] + p3 - t) % p3,
-                  a238_inv(a238_mul(p1 % p3, p2 % p3, p3), p3), p3);
+    y2 = mulmod((x[1] + p2 - y1 % p2) % p2, a238_inv(p1 % p2, p2), p2);
+    t = (y1 % p3 + mulmod(p1 % p3, y2 % p3, p3)) % p3;
+    y3 = mulmod((x[2] + p3 - t) % p3,
+                  a238_inv(mulmod(p1 % p3, p2 % p3, p3), p3), p3);
     res = (unsigned __int128)y1
         + (unsigned __int128)p1 * y2
         + (unsigned __int128)p1 * p2 * y3;

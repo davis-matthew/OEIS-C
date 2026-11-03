@@ -12,14 +12,29 @@
  *            G = 1/((1-tu)(1-(1+2t)u-tu^2+t^3u^3)) = Sum G_n(t) u^n: G_n =...
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 14, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   a492_add
+ * Validated: partial, pass, 18 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a492_add.h"
+#include "../utils/mem.h"
+
+static void a492_add(seq_t *P, seq_t *Q, seq_t **gp, seq_t **gn,
+                     idx_t n, idx_t j, idx_t k, idx_t d, int c) {
+    if (n < j || k < d) return;
+    idx_t r = (n - j) % 5, i = k - d;
+    seq_t v = (seq_t)(unsigned)(c > 0 ? c : -c);
+    if (c > 0) {
+        *P += v * gp[r][i];
+        *Q += v * gn[r][i];
+    } else {
+        *P += v * gn[r][i];
+        *Q += v * gp[r][i];
+    }
+}
 
 static seq_t *a492_cache = 0;
 static idx_t a492_max = 0;
@@ -29,13 +44,13 @@ static void a492_build(idx_t N) {
     int r;
     idx_t i, n, k;
     for (r = 0; r < 5; r++) {
-        gp[r] = (seq_t *)calloc(N + 1, sizeof(seq_t));
-        gn[r] = (seq_t *)calloc(N + 1, sizeof(seq_t));
+        gp[r] = mem_new(seq_t, N + 1);
+        gn[r] = mem_new(seq_t, N + 1);
         for (i = 0; i <= N; i++) { gp[r][i] = 0; gn[r][i] = 0; }
     }
-    seq_t *fact = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *b6 = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *res = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, N + 1);
+    seq_t *b6 = mem_new(seq_t, N + 1);
+    seq_t *res = mem_new(seq_t, N + 1);
     fact[0] = 1;
     for (i = 1; i <= N; i++) fact[i] = fact[i - 1] * (seq_t)i;
     for (i = 0; i <= N; i++) {
@@ -81,10 +96,10 @@ static void a492_build(idx_t N) {
         }
     }
 
-    for (r = 0; r < 5; r++) { free(gp[r]); free(gn[r]); }
-    free(fact);
-    free(b6);
-    if (a492_cache) free(a492_cache);
+    for (r = 0; r < 5; r++) { mem_free(gp[r]); mem_free(gn[r]); }
+    mem_free(fact);
+    mem_free(b6);
+    if (a492_cache) mem_free(a492_cache);
     a492_cache = res;
     a492_max = N;
 }

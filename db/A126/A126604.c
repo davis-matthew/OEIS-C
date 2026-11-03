@@ -8,12 +8,14 @@
  *            a(2) = 3
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑based array: cache[i] = a(i) */
 static idx_t  cache_max = 0;  /* highest index currently cached */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Ensure the cache is allocated and contains the base values */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(3 * sizeof(seq_t));  /* indices 0,1,2 */
+        cache = mem_new(seq_t, 3);  /* indices 0,1,2 */
         if (!cache) return 0;                       /* allocation failed */
         cache[0] = 0;          /* unused */
         cache[1] = 4;          /* a(1) */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Expand the cache if necessary */
     if (cache_max < n) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return 0;    /* reallocation failed */
         cache = tmp;
         /* initialize unused entries to 0 for safety */

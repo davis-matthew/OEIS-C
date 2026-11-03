@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_57
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
    requested index in O(number_of_needed_terms). */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/has_57.h"
+
+/* Return true if decimal representation of x contains the
+   consecutive digits 5 followed by 7. */
+static bool has_57(seq_t x)
+{
+    seq_t prev = 10;          /* sentinel that is not a digit (0-9) */
+    while (x != 0) {
+        seq_t d = x % 10;
+        if (prev == 7 && d == 5) return true;
+        prev = d;
+        x = x / 10;
+    }
+    return false;
+}
 
 /* Return the nth term (1‑based) of A044770.  */
 seq_t a(idx_t n)

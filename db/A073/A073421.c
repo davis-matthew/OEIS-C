@@ -8,13 +8,23 @@
  *            number
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   roman_char_to_digit
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/roman_char_to_digit.h"
+
+static inline int roman_char_to_digit(char c)
+{
+    /* Roman symbols used are I, V, X, L, C, D, M.  Express each as a base‑36 digit: */
+    if ('0' <= c && c <= '9')
+        return c - '0';
+    if ('A' <= c && c <= 'Z')
+        return c - 'A' + 10;
+    return 0; /* should never happen for valid Roman numerals */
+}
 
 seq_t a(idx_t n)
 {

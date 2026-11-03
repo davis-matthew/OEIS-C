@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   is_squarefree, seq_alloc_array, seq_free_array
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <math.h>
 #include "../utils/is_squarefree.h"
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *sqfree_cache = NULL;          /* cached square‑free numbers   */
 static size_t cache_len   = 0;              /* number of cached entries     */
@@ -43,7 +54,7 @@ static void ensure_cache_capacity(size_t need)
         return;                           /* allocation failed: caller will see missing entries */
 
     if (sqfree_cache) {
-        memcpy(new_cache, sqfree_cache, cache_len * sizeof(seq_t));
+        mem_copy(new_cache, sqfree_cache, cache_len * sizeof(seq_t));
         seq_free_array(sqfree_cache);
     }
     sqfree_cache = new_cache;

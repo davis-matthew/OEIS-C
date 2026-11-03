@@ -12,13 +12,15 @@
  *            greatest requested index and keeps a running cumulative sum
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;     /* stores a(i), 0‑based index for a(i+1) */
 static seq_t *cum_cache = NULL;  /* cumulative sums: cum_cache[i] = a(1)+...+a(i+1) */
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* guarantee capacity at least 4 */
         size_t init_cap = 4;
-        a_cache = (seq_t *)realloc(a_cache, init_cap * sizeof(seq_t));
-        cum_cache = (seq_t *)realloc(cum_cache, init_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, init_cap);
+        cum_cache = mem_resize(seq_t, cum_cache, init_cap);
         cache_cap = init_cap;
 
         a_cache[0] = (seq_t)1;          /* a(1)   */
@@ -56,8 +58,8 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap << 1 : 4;
         while (new_cap < (size_t)n)
             new_cap <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-        cum_cache = (seq_t *)realloc(cum_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        cum_cache = mem_resize(seq_t, cum_cache, new_cap);
         cache_cap = new_cap;
     }
 

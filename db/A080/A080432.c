@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Helpers ------------------------------------------------------------------*/
 static void grow_seq(seq_t **arr, size_t *cap, size_t need)
@@ -24,7 +26,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t new_cap = (*cap > 0) ? (*cap << 1) : 4;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     *arr = tmp;
     *cap = new_cap;

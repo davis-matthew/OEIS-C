@@ -12,13 +12,15 @@
  *            a(1)=0
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build system. */
 static seq_t *fact    = NULL;  /* factorials */
@@ -33,10 +35,10 @@ static void init_arrays(void)
 {
     if (fact != NULL) return;                    /* already initialised */
     cap = 16;                                    /* initial capacity */
-    fact   = (seq_t *)malloc(cap * sizeof(seq_t));
-    powAbs = (seq_t *)malloc(cap * sizeof(seq_t));
-    ratio  = (seq_t *)malloc(cap * sizeof(seq_t));
-    a_seq  = (seq_t *)malloc(cap * sizeof(seq_t));
+    fact   = mem_new(seq_t, cap);
+    powAbs = mem_new(seq_t, cap);
+    ratio  = mem_new(seq_t, cap);
+    a_seq  = mem_new(seq_t, cap);
     if (!fact || !powAbs || !ratio || !a_seq) return; /* allocation failed */
 
     /* base case n = 0 */
@@ -58,10 +60,10 @@ static void ensure_capacity(idx_t n)
     if ((size_t)(n + 1) > cap) {
         size_t new_cap = cap * 2;
         while ((size_t)(n + 1) > new_cap) new_cap <<= 1;
-        fact   = (seq_t *)realloc(fact,   new_cap * sizeof(seq_t));
-        powAbs = (seq_t *)realloc(powAbs, new_cap * sizeof(seq_t));
-        ratio  = (seq_t *)realloc(ratio,  new_cap * sizeof(seq_t));
-        a_seq  = (seq_t *)realloc(a_seq,  new_cap * sizeof(seq_t));
+        fact   = mem_resize(seq_t, fact, new_cap);
+        powAbs = mem_resize(seq_t, powAbs, new_cap);
+        ratio  = mem_resize(seq_t, ratio, new_cap);
+        a_seq  = mem_resize(seq_t, a_seq, new_cap);
         if (!fact || !powAbs || !ratio || !a_seq) return; /* failure */
         cap = new_cap;
     }

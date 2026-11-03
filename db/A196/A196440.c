@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 361, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 83 terms through n = 907 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* Euclidean gcd for uint64_t */
 
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
         /* Update L if k does not divide n and we haven’t overflowed yet */
         if (!overflow && (un % k != 0))
         {
-            uint64_t g = gcd_uint64(L, k);
+            uint64_t g = gcd_u64(L, k);
             __uint128_t t = ((__uint128_t)L / g) * k;
             if (t > (__uint128_t)un)
                 overflow = true;          /* L will be > n hence > k for all future k */

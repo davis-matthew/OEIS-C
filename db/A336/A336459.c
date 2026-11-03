@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 448, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 110 terms through n = 9814 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h" /* void factor_u64(uint64_t, uint64_t*, uint64_t*, size_t*) */
-#include "../utils/seq_pow.h"     /* seq_t seq_pow(seq_t, idx_t) */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 /* Compute the divisor summatory function sigma for a 64‑bit integer. */
 static seq_t sigma_uint64(uint64_t n)
@@ -42,7 +44,7 @@ static seq_t sigma_uint64(uint64_t n)
         idx_t e = (idx_t)ex[i];
 
         /* term = (p^(e+1) - 1) / (p - 1) */
-        seq_t num   = seq_pow(p, (idx_t)(e + 1)) - (seq_t)1;
+        seq_t num   = ipow_idx(p, (idx_t)(e + 1)) - (seq_t)1;
         seq_t den   = p - (seq_t)1;
         seq_t term  = num / den;
 

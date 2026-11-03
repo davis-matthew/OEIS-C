@@ -7,13 +7,15 @@
  * Formula:   a(n) = 2^(2^n - 1) - 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computed via recurrence a(0)=0, a(n)=2*a(n-1)^2+4*a(n-1)+1 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     if (n + 1 > cache_sz) {
         size_t new_sz = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (!tmp) return (seq_t)0; /* allocation failure fallback */
         cache = tmp;
         if (cache_sz == 0) {

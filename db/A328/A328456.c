@@ -8,7 +8,8 @@
  *            0
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   build_primes_upto, seq_gcd
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,15 +17,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_gcd.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
 
 /* LCM of two seq_t values, treating a zero as a neutral element. */
 static seq_t lcm_seq(seq_t a, seq_t b)
 {
     if (a == 0) return b;
     if (b == 0) return a;
-    seq_t g = seq_gcd(a, b);
+    seq_t g = gcd(a, b);
     return (a / g) * b;
 }
 

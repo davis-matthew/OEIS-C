@@ -9,7 +9,8 @@
  *            two 2's
  * Range:     u8 n <= 21, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global cache of computed terms. */
 static seq_t *global_cache   = NULL; /* pointer to stored terms */
@@ -52,7 +54,7 @@ static void generate_len(int L) {
 
     if (combos > temp_cap) {
         temp_cap = combos;
-        temp_buf = (seq_t *)realloc(temp_buf, temp_cap * sizeof(seq_t));
+        temp_buf = mem_resize(seq_t, temp_buf, temp_cap);
         if (!temp_buf) abort();
     }
 
@@ -88,13 +90,13 @@ static void generate_len(int L) {
     }
 
     /* Sort the values of this length. */
-    qsort(temp_buf, temp_sz, sizeof(seq_t), cmp_seq);
+    mem_qsort(temp_buf, temp_sz, sizeof(seq_t), cmp_seq);
 
     /* Append them to the global cache. */
     for (size_t idx = 0; idx < temp_sz; ++idx) {
         if (global_size == global_cap) {
             size_t new_cap = global_cap ? global_cap * 2 : 16;
-            global_cache = (seq_t *)realloc(global_cache, new_cap * sizeof(seq_t));
+            global_cache = mem_resize(seq_t, global_cache, new_cap);
             if (!global_cache) abort();
             global_cap = new_cap;
         }

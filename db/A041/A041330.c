@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 19, u64 n <= 36, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence for numerators of convergents to sqrt(179):
  *   p_{-2} = 0,  p_{-1} = 1,
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     if (cap <= n) {
         size_t newcap = n + 1;
         if (newcap < 32) newcap = 32;   /* grow modestly first */
-        p = (seq_t *)realloc(p, newcap * sizeof(seq_t));
+        p = mem_resize(seq_t, p, newcap);
         cap = newcap;
     }
 

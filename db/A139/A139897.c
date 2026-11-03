@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 413, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static seq_t *seq = NULL;     /* array of found primes */
@@ -44,7 +46,7 @@ static void init(void)
 
     /* Allocate array for results, starting with capacity 10,000. */
     size_t cap = 10000;
-    seq = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq = mem_new(seq_t, cap);
     seq_len = 0;
 
     /* Collect primes that are 3 or ≡83 or 107 (mod 120). */
@@ -53,7 +55,7 @@ static void init(void)
             if (p == 3 || p % 120 == 83 || p % 120 == 107) {
                 if (seq_len >= cap) {
                     cap <<= 1;                  /* double capacity */
-                    seq = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, cap);
                 }
                 seq[seq_len++] = (seq_t)p;
             }

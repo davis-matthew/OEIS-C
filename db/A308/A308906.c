@@ -9,7 +9,8 @@
  *            squarefree parts
  * Range:     u8 n <= 31, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_squarefree
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 6) return (seq_t)0;            /* by definition the first non‑zero term is a(6) */
@@ -41,8 +43,8 @@ seq_t a(idx_t n) {
     seq_t **count = (seq_t **)malloc(7 * sizeof(seq_t *));
     seq_t **sum_min = (seq_t **)malloc(7 * sizeof(seq_t *));
     for (int k = 0; k < 7; ++k) {
-        count[k]   = (seq_t *)calloc(len, sizeof(seq_t));
-        sum_min[k] = (seq_t *)calloc(len, sizeof(seq_t));
+        count[k]   = mem_new(seq_t, len);
+        sum_min[k] = mem_new(seq_t, len);
     }
     count[0][0] = 1;   /* one way to sum to 0 with 0 parts */
 
@@ -73,8 +75,8 @@ seq_t a(idx_t n) {
     /* Clean up */
     free(sf);
     for (int k = 0; k < 7; ++k) {
-        free(count[k]);
-        free(sum_min[k]);
+        mem_free(count[k]);
+        mem_free(sum_min[k]);
     }
     free(count);
     free(sum_min);

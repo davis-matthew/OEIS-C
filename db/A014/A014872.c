@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* dynamic cache of values a(1), a(2), ... */
 static seq_t *cache      = NULL;   /* array of terms */
@@ -46,7 +48,7 @@ static void ensure_cap(size_t needed)
     size_t new_cap = cache_cap ? cache_cap << 1 : 4;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
 
     if (!cache) {        /* first call – initialise cache */
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
         next_k = 1;
     }

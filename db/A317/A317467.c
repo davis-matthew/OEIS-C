@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 4096, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   key_from_xy, spiral_number
+ * Validated: standard, pass, 70 terms through n = 9980 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,32 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/key_from_xy.h"
-#include "../utils/spiral_number.h"
+
+/* encode an (x,y) pair as a unique 64‑bit key  */
+static inline uint64_t key_from_xy(int32_t x, int32_t y)
+{
+    return ((((uint64_t)(int32_t)x) << 32) | ((uint32_t)(int32_t)y)) + 1ULL;
+}
+
+static uint64_t spiral_number(int32_t x, int32_t y)
+{
+    if (x == 0 && y == 0) return 1ULL;
+    int32_t ax = x < 0 ? -x : x;
+    int32_t ay = y < 0 ? -y : y;
+    int32_t n  = ax > ay ? ax : ay;      /* ring index   */
+    uint64_t prev = (uint64_t)(2 * n - 1) * (uint64_t)(2 * n - 1);
+    uint64_t offset;
+    if (x == n && y > -n) {             /* right side, up   */
+        offset = (uint64_t)(y + n);
+    } else if (y == n && x < n) {       /* top side, left   */
+        offset = (uint64_t)(2 * n + (n - x));
+    } else if (x == -n && y < n) {      /* left side, down  */
+        offset = (uint64_t)(4 * n + (n - y));
+    } else {                            /* bottom side, right*/
+        offset = (uint64_t)(6 * n + (x + n));
+    }
+    return prev + offset;
+}
 
 /* ---------- hash set of visited positions ------------ */
 #define VIS_TABLE_SIZE 32768   /* power of two, > 2× expected visited squares */

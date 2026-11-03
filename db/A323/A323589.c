@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{k=1}^{n-1} (k^k + (n-k)^(n-k))
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 27 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
    types. The routine works for any seq_t that supports the basic
    integer operations listed in the specification. */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +37,8 @@ seq_t a(idx_t n)
         seq_t base_k   = (seq_t)k;
         seq_t base_nk  = (seq_t)(n - k);
 
-        seq_t pow_k  = big_pow(base_k, base_k);       /* k^k     */
-        seq_t pow_nk = big_pow(base_nk, base_nk);     /* (n-k)^(n-k) */
+        seq_t pow_k  = ipow(base_k, base_k);       /* k^k     */
+        seq_t pow_nk = ipow(base_nk, base_nk);     /* (n-k)^(n-k) */
 
         result *= (pow_k + pow_nk);
     }

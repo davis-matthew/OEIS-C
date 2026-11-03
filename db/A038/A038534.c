@@ -8,11 +8,14 @@
  *            of 1‑bits in the binary expansion of n (A000120)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 35,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 187 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

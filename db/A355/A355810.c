@@ -10,11 +10,13 @@
  * Formula:   a(n) = XOR triangle of distinct powers of two summing to n
  * Range:     u8 n <= 255, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 84 terms through n = 6693 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

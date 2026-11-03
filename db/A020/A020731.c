@@ -10,7 +10,8 @@
  *            achieves its maximum at k=floor(N/2)
  * Range:     u8 n <= 116, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --- static data for sieving --- */
 #define MAX_N 200000            /* upper bound for sieve and computation */
@@ -112,7 +114,7 @@ static void ensure_terms(idx_t n)
             /* grow cache if needed */
             if (seq_len + 1 > seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 8;
-                seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = (seq_t)tested_n;
         }

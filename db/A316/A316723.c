@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 163, u16 n <= 809, u32 n <= 5757, u64 n <= 9869,
  *            u128 n <= 9869, big any n
- * Helpers:   d_of_idx
+ * Validated: standard, pass, 107 terms through n = 9366 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/d_of_idx.h"
+#include "../utils/mem.h"
+
+/* Find d such that d*(d+1)/2 <= n < (d+1)*(d+2)/2.  */
+static idx_t d_of_idx(idx_t n)
+{
+    /* naive incremental search – fast enough for n ≤ 10⁴.  */
+    idx_t d = 0;
+    idx_t tri = 0;
+    while (tri + d + 1 <= n) {
+        d += 1;
+        tri += d;
+    }
+    return d;
+}
 
 /* Forward declaration (provided by the build system) */
 typedef uint64_t idx_t;      /* index type */
@@ -40,7 +54,7 @@ static void ensure_coeff_table(size_t new_size)
         return;               /* already big enough */
 
     size_t side = new_size + 1;
-    seq_t *new_table = (seq_t *)malloc(side * side * sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, side * side);
     if (!new_table) abort();   /* allocation failure */
 
     /* initialise column 0 : product of zero factors = 1 */
@@ -59,7 +73,7 @@ static void ensure_coeff_table(size_t new_size)
         }
     }
 
-    if (coeff_table) free(coeff_table);
+    if (coeff_table) mem_free(coeff_table);
     coeff_table = new_table;
     grid_side = side;
 }

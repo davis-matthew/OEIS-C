@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1, i16 n <= 7, i32 n <= 14, i64 n <= 16, i128 n <= 16,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -59,7 +79,7 @@ seq_t a(idx_t n)
                 if (sz == cap)
                 {
                     size_t new_cap = (cap == 0 ? 10 : cap * 2);
-                    seq_t *tmp = (seq_t *)realloc(sol, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, sol, new_cap);
                     if (!tmp && new_cap > 0)   /* allocation failed */
                         return (seq_t)0;
                     sol = tmp;

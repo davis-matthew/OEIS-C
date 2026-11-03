@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1235, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 4637 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;                 /* memoised a(n) values, 0‑based */
 static size_t seq_cap  = 0;
@@ -45,7 +47,7 @@ static void ensure_seq_cap(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap > 0 ? seq_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 
@@ -55,7 +57,7 @@ static void ensure_prime_cap(size_t needed)
     size_t new_cap = prime_cap > 0 ? prime_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
     prime_vals = (uint64_t *)realloc(prime_vals, new_cap * sizeof(uint64_t));
-    prime_cnts = (seq_t   *)realloc(prime_cnts, new_cap * sizeof(seq_t));
+    prime_cnts = mem_resize(seq_t, prime_cnts, new_cap);
     prime_cap = new_cap;
 }
 

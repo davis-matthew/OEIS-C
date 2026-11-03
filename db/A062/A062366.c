@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   nextodd_collatz
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,24 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/nextodd_collatz.h"
+
+/* Return the next odd number in the Collatz trajectory of x. */
+static seq_t nextodd_collatz(seq_t x)
+{
+    if ((x & (seq_t)1) == (seq_t)0) {       /* x even: shift until odd */
+        while ((x & (seq_t)1) == (seq_t)0) {
+            x >>= 1;
+        }
+        return x;
+    } else {                                 /* x odd: 3x+1 then shift */
+        unsigned __int128 y = (unsigned __int128)x * (unsigned __int128)3 + (unsigned __int128)1;
+        x = (seq_t)y;
+        while ((x & (seq_t)1) == (seq_t)0) {
+            x >>= 1;
+        }
+        return x;
+    }
+}
 
 /* Euclidean GCD for seq_t (works for any unsigned integer type). */
 static seq_t gcd_seq_t(seq_t a, seq_t b)

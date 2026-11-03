@@ -7,6 +7,7 @@
  * Formula:   a(n) = (2*n+1)*25^n
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 12, u128 n <= 26,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 195 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

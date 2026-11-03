@@ -10,7 +10,8 @@
  *            cumulative_{<N} tau(i))
  * Range:     u8 n <= 56, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static size_t psize = 0;
 static size_t pcap  = 0;
@@ -168,6 +169,6 @@ seq_t a(idx_t n)
 
     uint64_t k = divs[m - 1];
     seq_t  base = (seq_t)(row / k);
-    seq_t  res  = big_pow(base, (seq_t)(k - 1));
+    seq_t  res  = ipow(base, (seq_t)(k - 1));
     return res;
 }

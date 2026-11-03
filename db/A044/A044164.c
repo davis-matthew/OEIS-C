@@ -10,13 +10,32 @@
  *            does not. (brute‑force search)
  * Range:     u8 n <= 6, u16 n <= 1445, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has35
+ * Validated: standard, pass, 65 terms through n = 9576 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has35.h"
+
+static bool has35(seq_t x)
+{
+    /* Quick reject for zero */
+    if (x == 0)
+        return false;
+
+    seq_t last = x % 7;
+    x /= 7;
+    while (x > 0)
+    {
+        seq_t d = x % 7;
+        if (d == 3 && last == 5)
+            return true;
+        last = d;
+        x /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,14 +8,26 @@
  *            a(2)=2
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 9, u64 n <= 11, u128 n <= 12,
  *            big any n
- * Helpers:   grow_arr, zalloc_arr
+ * Validated: standard, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/zalloc_arr.h"
-#include "../utils/grow_arr.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
 
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
+
+static seq_t *grow_arr(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *r = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) r[i] = old[i];
+    if (old) mem_free(old);
+    return r;
+}
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;

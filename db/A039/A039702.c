@@ -7,7 +7,8 @@
  * Formula:   a(n) = n-th prime modulo 4 (computed by incremental sieve)
  * Range:     u8 n <= 5910, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Internal storage for primes */
 static seq_t *primes = NULL;           /* dynamic array of primes (uint64_t) */
@@ -31,7 +33,7 @@ static void ensure_primes(idx_t n)
         primes_used = 1;
         if (primes_alloc == 0) {
             primes_alloc = 16;
-            primes = (seq_t *)malloc(primes_alloc * sizeof(seq_t));
+            primes = mem_new(seq_t, primes_alloc);
         }
         primes[0] = 2;
     }
@@ -40,7 +42,7 @@ static void ensure_primes(idx_t n)
         /* Resize the array if necessary */
         if (primes_used >= primes_alloc) {
             size_t new_alloc = (primes_alloc == 0) ? 16 : primes_alloc * 2;
-            seq_t *tmp = (seq_t *)realloc(primes, new_alloc * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, primes, new_alloc);
             if (!tmp) abort();  /* abort on allocation failure */
             primes = tmp;
             primes_alloc = new_alloc;

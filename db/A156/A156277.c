@@ -8,8 +8,9 @@
  * Keywords:  easy, sign, mult
  * Formula:   a(n) = -μ(3n) = µ(n) for n not divisible by 3 and squarefree,
  *            else 0
- * Range:     i8 n <= 9371, i16 n <= 9371, i32 n <= 9371, i64 n <= 9371,
- *            i128 n <= 9371, big any n
+ * Range:     i8 n <= 100000, i16 n <= 100000, i32 n <= 100000,
+ *            i64 n <= 100000, i128 n <= 100000, big any n
+ * Validated: standard, pass, 122 terms through n = 9371 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

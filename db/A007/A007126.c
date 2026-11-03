@@ -12,7 +12,8 @@
  *            and fixed points, which are added in closed form
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 12, u64 n <= 15, u128 n <= 20,
  *            big any n
- * Helpers:   ig
+ * Validated: standard, pass, 36 terms through n = 87 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ig.h"
+#include "../utils/gcd_i32.h"
 
 typedef struct { uint32_t *d; int len; int cap; } bn_t;
 
@@ -162,7 +163,7 @@ static void build(int M) {
         L_ = L; D_o = L / 3 + 1; D_e = L / 4 + 1; DC = L / 2 + 1;
         gtab = (int *)malloc((size_t)(L + 1) * (size_t)(L + 1) * sizeof(int));
         for (t = 0; t <= L; t++)
-            for (o = 0; o <= L; o++) gtab[t * (L + 1) + o] = ig(t, o);
+            for (o = 0; o <= L; o++) gtab[t * (L + 1) + o] = gcd_i32(t, o);
         n3 = (L + 1) * D_o * D_e;
         G3 = (bn_t *)calloc((size_t)n3, sizeof(bn_t));
         E3 = (bn_t *)calloc((size_t)n3, sizeof(bn_t));

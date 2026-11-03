@@ -12,7 +12,8 @@
  *            a(3)=7, a(4)=1, ... as given in A210037
  * Range:     u8 n <= 23, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    combination that satisfies the requirements. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t max_row = 0;          /* highest row that has been computed */
 static seq_t **u_rows = NULL;      /* u_rows[r] points to coefficients of u(r,x) */
@@ -46,8 +48,8 @@ static void ensure_rows(idx_t r)
         size_t u_len = (row == 1 ? 1 : row - 1);
         size_t v_len = (row == 1 ? 1 : row);
 
-        seq_t *u = (seq_t*)calloc(u_len, sizeof(seq_t));
-        seq_t *v = (seq_t*)calloc(v_len, sizeof(seq_t));
+        seq_t *u = mem_new(seq_t, u_len);
+        seq_t *v = mem_new(seq_t, v_len);
 
         if (row == 1) {
             u[0] = 1;

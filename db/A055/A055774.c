@@ -7,6 +7,7 @@
  * Formula:   a(n) = lcm(n!, n^n) = ∏_{p≤n} p^{max(v_p(n!), n·v_p(n))}
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 18,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 200 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

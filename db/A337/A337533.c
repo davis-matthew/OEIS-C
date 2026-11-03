@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 229, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 75 terms through n = 9898 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,13 +27,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build system */
 typedef uint64_t idx_t;   /* unsigned integer index */
 
 /* Forward declarations for helper header files - unused here, but
    kept so the file compiles under the build environment.  */
-#include "../utils/gcd.h"   /* just an example; not actually called */
+#include "../utils/gcd.h"
 
 /* ----------------------------------------------------------------------- */
 /* Static state for memoised computation                                   */
@@ -102,7 +104,7 @@ static void extend(idx_t limit)
     /* The very first term */
     if (in_limit == 0) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 1;
         seq[0]  = (seq_t)1;                 /* a(1) = 1 */
         in_seq[1] = 1;                       /* 1 is in the sequence */
@@ -136,7 +138,7 @@ static void extend(idx_t limit)
             in_seq[m] = 1;
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)m;
         }

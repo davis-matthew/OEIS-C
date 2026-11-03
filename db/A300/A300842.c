@@ -11,12 +11,15 @@
  *            - 28*3^n)*n^2 - 84*n^3) / 21
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 29 terms through n = 100 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Computes a(n) = number of 4‑cycles in the n‑Keller graph. */
 seq_t a(idx_t n)
@@ -27,20 +30,20 @@ seq_t a(idx_t n)
     seq_t sn = (seq_t)n;
 
     /* ----- Pre‑computed powers ----- */
-    seq_t pow2_4n1   = big_pow((seq_t)2,     (seq_t)(4*n + 1));   /* 2^(4n+1)      */
-    seq_t pow3n      = big_pow((seq_t)3,     sn);                 /* 3^n           */
-    seq_t pow4n      = big_pow((seq_t)4,     sn);                 /* 4^n           */
-    seq_t pow4n1     = big_pow((seq_t)4,     (seq_t)(n + 1));     /* 4^(n+1)       */
-    seq_t pow4_2n1   = big_pow((seq_t)4,     (seq_t)(2*n + 1));   /* 4^(2n+1)      */
-    seq_t pow6_2n1   = big_pow((seq_t)6,     (seq_t)(2*n + 1));   /* 6^(2n+1)      */
-    seq_t pow9n      = big_pow((seq_t)9,     sn);                 /* 9^n           */
-    seq_t pow21n     = big_pow((seq_t)21,    sn);                 /* 21^n          */
-    seq_t pow27n     = big_pow((seq_t)27,    sn);                 /* 27^n          */
-    seq_t pow64n     = big_pow((seq_t)64,    sn);                 /* 64^n          */
-    seq_t pow3_n2    = big_pow((seq_t)3,     (seq_t)(n + 2));     /* 3^(n+2)       */
-    seq_t pow9_np1   = big_pow((seq_t)9,     (seq_t)(n + 1));     /* 9^(n+1)       */
-    seq_t pow7n      = big_pow((seq_t)7,     sn);                 /* 7^n           */
-    seq_t pow2_2np1  = big_pow((seq_t)2,     (seq_t)(2*n + 1));   /* 2^(2n+1)      */
+    seq_t pow2_4n1   = ipow((seq_t)2,     (seq_t)(4*n + 1));   /* 2^(4n+1)      */
+    seq_t pow3n      = ipow((seq_t)3,     sn);                 /* 3^n           */
+    seq_t pow4n      = ipow((seq_t)4,     sn);                 /* 4^n           */
+    seq_t pow4n1     = ipow((seq_t)4,     (seq_t)(n + 1));     /* 4^(n+1)       */
+    seq_t pow4_2n1   = ipow((seq_t)4,     (seq_t)(2*n + 1));   /* 4^(2n+1)      */
+    seq_t pow6_2n1   = ipow((seq_t)6,     (seq_t)(2*n + 1));   /* 6^(2n+1)      */
+    seq_t pow9n      = ipow((seq_t)9,     sn);                 /* 9^n           */
+    seq_t pow21n     = ipow((seq_t)21,    sn);                 /* 21^n          */
+    seq_t pow27n     = ipow((seq_t)27,    sn);                 /* 27^n          */
+    seq_t pow64n     = ipow((seq_t)64,    sn);                 /* 64^n          */
+    seq_t pow3_n2    = ipow((seq_t)3,     (seq_t)(n + 2));     /* 3^(n+2)       */
+    seq_t pow9_np1   = ipow((seq_t)9,     (seq_t)(n + 1));     /* 9^(n+1)       */
+    seq_t pow7n      = ipow((seq_t)7,     sn);                 /* 7^n           */
+    seq_t pow2_2np1  = ipow((seq_t)2,     (seq_t)(2*n + 1));   /* 2^(2n+1)      */
 
     /* ----- Inside the 21*... parentheses ----- */
     seq_t inside = -pow2_4n1           // -2^(4n+1)
@@ -83,7 +86,7 @@ seq_t a(idx_t n)
     seq_t divstep = numerator / (seq_t)21;
 
     /* ----- Multiply by 2^(2*n-3) ----- */
-    seq_t pref = big_pow((seq_t)2, (seq_t)(2*n - 3));
+    seq_t pref = ipow((seq_t)2, (seq_t)(2*n - 3));
     seq_t result = pref * divstep;
 
     return result;

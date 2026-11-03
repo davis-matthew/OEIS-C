@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 45, u64 n <= 92, u128 n <= 231,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 448 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Integer square root of a 64‑bit unsigned number. */
 static idx_t isqrt_u64(idx_t x)
@@ -62,12 +64,12 @@ seq_t a(idx_t n)
     idx_t need = r + 1;
 
     /* Allocate temporary rows for DP. */
-    seq_t *prev_row = (seq_t*)malloc((need + 1) * sizeof(seq_t));
-    seq_t *curr_row = (seq_t*)malloc((need + 1) * sizeof(seq_t));
+    seq_t *prev_row = mem_new(seq_t, (need + 1));
+    seq_t *curr_row = mem_new(seq_t, (need + 1));
     if (!prev_row || !curr_row) {
         /* Allocation failed; return 0 as a safe fallback. */
-        free(prev_row);
-        free(curr_row);
+        mem_free(prev_row);
+        mem_free(curr_row);
         return (seq_t)0;
     }
 
@@ -98,8 +100,8 @@ seq_t a(idx_t n)
     }
 
     /* Free temporary memory. */
-    free(prev_row);
-    free(curr_row);
+    mem_free(prev_row);
+    mem_free(curr_row);
 
     /* Return the product. */
     return val1 * val2;

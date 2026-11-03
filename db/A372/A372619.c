@@ -10,13 +10,14 @@
  *            downwards with OEIS offset 1. (See sequence A372619.)
  * Range:     u8 n <= 220, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 94 terms through n = 9189 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
 
 /* Find the smallest s ≥ 2 such that s·(s‑1)/2 ≥ n.  */
 static inline idx_t
@@ -49,11 +50,11 @@ a(idx_t n)
     idx_t i = offset + 1;                          /* row index                 */
     idx_t j = s - i;                               /* column index              */
 
-    seq_t denom = calc_phi((seq_t)j);               /* φ(j)                      */
+    seq_t denom = totient_seq((seq_t)j);               /* φ(j)                      */
     seq_t sum   = 0;
     for (idx_t k = 1; k <= i; ++k) {
         seq_t prod = (seq_t)j * k;                  /* k·j                        */
-        sum += calc_phi(prod);                     /* φ(k·j)  */
+        sum += totient_seq(prod);                     /* φ(k·j)  */
     }
     return sum / denom;                            /* integer division           */
 }

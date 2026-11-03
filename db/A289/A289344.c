@@ -11,7 +11,8 @@
  *            of m) The implementation computes σ₁, par...
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 7, i64 n <= 14, i128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,14 +30,14 @@ seq_t a(idx_t n)
     size_t N = (size_t)(n + 1);
 
     /* allocate and zero all working arrays */
-    seq_t *p      = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *sigma  = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *b      = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *a_arr  = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *p      = mem_new(seq_t, N);
+    seq_t *sigma  = mem_new(seq_t, N);
+    seq_t *b      = mem_new(seq_t, N);
+    seq_t *a_arr  = mem_new(seq_t, N);
 
     if (!p || !sigma || !b || !a_arr) {
         /* allocation failure – free any that were allocated */
-        free(p); free(sigma); free(b); free(a_arr);
+        mem_free(p); mem_free(sigma); mem_free(b); mem_free(a_arr);
         return (seq_t)0;
     }
 
@@ -83,10 +85,10 @@ seq_t a(idx_t n)
     seq_t result = a_arr[n];
 
     /* free temporary storage */
-    free(p);
-    free(sigma);
-    free(b);
-    free(a_arr);
+    mem_free(p);
+    mem_free(sigma);
+    mem_free(b);
+    mem_free(a_arr);
 
     return result;
 }

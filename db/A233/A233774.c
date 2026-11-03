@@ -10,13 +10,15 @@
  *            a(4)=15, …)
  * Range:     u8 n <= 27, u16 n <= 932, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9595 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static caches */
 static seq_t *r_cache = NULL;
@@ -45,8 +47,8 @@ static void ensure_capacity(idx_t n)
     if (cache_cap > (size_t)n) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    r_cache = (seq_t *)realloc(r_cache, new_cap * sizeof(seq_t));
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    r_cache = mem_resize(seq_t, r_cache, new_cap);
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     cache_cap = new_cap;
 }
 

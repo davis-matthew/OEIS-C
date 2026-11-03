@@ -7,7 +7,8 @@
  * Formula:   a(n) = product of divisors of product of divisors of n
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   factor_u64, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
         tau_n *= (seq_t)(exps[i] + 1);
 
     /* E_i = e_i * τ(n) / 2  (= exponent of p_i in D(n) = product of divisors of n) */
-    seq_t *E = (seq_t *)malloc(primes_cnt * sizeof(seq_t));
+    seq_t *E = mem_new(seq_t, primes_cnt);
     for (size_t i = 0; i < primes_cnt; ++i)
         E[i] = ((seq_t)exps[i] * tau_n) / 2;
 
@@ -55,10 +58,10 @@ seq_t a(idx_t n)
     seq_t result = 1;
     for (size_t i = 0; i < primes_cnt; ++i) {
         seq_t exp_final = (E[i] * tau_m) / 2;
-        seq_t pow_val   = big_pow((seq_t)primes[i], exp_final);
+        seq_t pow_val   = ipow((seq_t)primes[i], exp_final);
         result *= pow_val;
     }
 
-    free(E);
+    mem_free(E);
     return result;
 }

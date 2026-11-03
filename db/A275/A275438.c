@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static tables storing the rows of the triangle */
 static seq_t **rows = NULL;          /* array of pointers to rows */
@@ -64,7 +66,7 @@ static void ensure_rows_and_prefix(size_t up_to)
         size_t n   = rows_count;
         size_t len = 1 + n / 3;               /* number of k‑values in this row */
 
-        seq_t *row_arr = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row_arr = mem_new(seq_t, len);
         if (!row_arr) abort();
 
         /* Base rows */

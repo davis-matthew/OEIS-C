@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 953, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   exponent_missing, factor_u64
+ * Validated: standard, pass, 66 terms through n = 964 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,27 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64(...) */
-#include "../utils/exponent_missing.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* Return true if binary pattern bin_exp[0..len_exp-1] is NOT found
+ * as a contiguous substring of bin_n[0..len_n-1]. */
+static bool exponent_missing(const uint8_t *bin_n, size_t len_n,
+                             const uint8_t *bin_exp, size_t len_exp)
+{
+    if (len_exp > len_n) return true;
+    for (size_t start = 0; start + len_exp <= len_n; ++start) {
+        bool ok = true;
+        for (size_t i = 0; i < len_exp; ++i) {
+            if (bin_n[start + i] != bin_exp[i]) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok) return false;          /* pattern found */
+    }
+    return true;                       /* pattern not found */
+}
 
 /* Convert a 64‑bit integer to an array of bits (MSB first). */
 static void to_bin(uint64_t x, uint8_t *buf, size_t *len)
@@ -87,7 +107,7 @@ static void ensure_cache_cap(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();   /* out of memory */
     cache = new_cache;
     cache_cap = new_cap;

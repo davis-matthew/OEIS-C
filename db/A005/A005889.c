@@ -12,12 +12,29 @@
  *            the close-packed layers, which lie at s...
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   a005889_c
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a005889_c.h"
+static long long a005889_c(idx_t m) {
+  long long c1 = 0, c2 = 0;
+  idx_t d;
+  if (m == 0 || m % 3 != 1) return 0;
+  for (d = 1; d * d <= m; d++) {
+    if (m % d == 0) {
+      idx_t e = m / d;
+      if (d % 3 == 1) c1++;
+      else if (d % 3 == 2) c2++;
+      if (e != d) {
+        if (e % 3 == 1) c1++;
+        else if (e % 3 == 2) c2++;
+      }
+    }
+  }
+  return 3 * (c1 - c2);
+}
 
 seq_t a(idx_t n) {
   seq_t s = 0;

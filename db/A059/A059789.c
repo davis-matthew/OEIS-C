@@ -11,6 +11,7 @@
  *            sieve to at least 2*prime(n), finds the first pr...
  * Range:     u8 n <= 102, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
+ * Validated: partial, pass, 103 terms through n = 102 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -36,7 +37,7 @@ static void sieve_up_to(idx_t limit)
     /* allocate and initialise is_prime array */
     bool *is_prime = (bool*)malloc((limit + 1) * sizeof(bool));
     if (!is_prime) abort();
-    memset(is_prime, 0xFF, (limit + 1) * sizeof(bool)); /* all true */
+    for (i = 0; i <= limit; ++i) is_prime[i] = true;
     if (limit >= 0) is_prime[0] = false;
     if (limit >= 1) is_prime[1] = false;
 

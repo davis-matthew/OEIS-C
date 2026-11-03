@@ -10,13 +10,26 @@
  *            == 0 or 2 (mod 3) divides m to a power e == 1 (mod 3)
  * Range:     u8 n <= 68, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a001074_ok
+ * Validated: standard, pass, 74 terms through n = 927 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001074_ok.h"
+
+static int a001074_ok(uint64_t m) {
+    uint64_t p;
+    for (p = 2; p * p <= m; p++) {
+        if (m % p == 0) {
+            unsigned e = 0;
+            while (m % p == 0) { m /= p; e++; }
+            if (e % 3 == 1 && p % 3 != 1) return 0;
+        }
+    }
+    if (m > 1 && m % 3 != 1) return 0;   /* remaining prime with exponent 1 */
+    return 1;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

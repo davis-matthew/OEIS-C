@@ -9,13 +9,15 @@
  *            * where p(n) are the partition numbers (OEIS A000041)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 922 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *part     = NULL;   /* p(n) partition numbers   */
 static seq_t *part_a   = NULL;   /* a(n) sequence values     */
@@ -37,8 +39,8 @@ ensure_up_to(idx_t n)
     while (cap < require)
         cap <<= 1;
 
-    part   = (seq_t *)realloc(part,   cap * sizeof(seq_t));
-    part_a = (seq_t *)realloc(part_a, cap * sizeof(seq_t));
+    part   = mem_resize(seq_t, part, cap);
+    part_a = mem_resize(seq_t, part_a, cap);
 
     /* compute new values */
     for (size_t i = used; i < require; ++i) {

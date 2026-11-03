@@ -10,6 +10,7 @@
  *            binomial(r, k) + 3^r · binomial(r – 2, k – 1) – 1
  * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 111, u64 n <= 388,
  *            u128 n <= 1399, big any n
+ * Validated: standard, pass, 71 terms through n = 4880 (2026-11-01)
  * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow3.h"
 

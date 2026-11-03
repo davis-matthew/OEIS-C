@@ -8,14 +8,20 @@
  *            prime factorization (Legendre's formula)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 42,
  *            big any n
- * Helpers:   a002293_leg
+ * Validated: standard, pass, 40 terms through n = 905 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a002293_leg.h"
+
+static uint64_t a002293_leg(uint64_t m, uint64_t p) {
+    uint64_t e = 0;
+    while (m) { m /= p; e += m; }
+    return e;
+}
 
 seq_t a(idx_t n) {
     seq_t r = 1;

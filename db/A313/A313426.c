@@ -13,12 +13,14 @@
  *            a(11)=51, a(12)=60, a(13)=67, a(14)=67, a(15)=72, a(16...
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache to store computed values between calls. */
 static seq_t *cache = NULL;
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_size) return;          /* already computed */
 
     /* Allocate new cache of size n+1. */
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+    seq_t *new_cache = mem_new(seq_t, (n + 1));
     if (!new_cache) exit(EXIT_FAILURE);
 
     /* Initial values for indices 0..16. */
@@ -67,7 +69,7 @@ static void ensure_cache(idx_t n)
     }
 
     /* Replace old cache. */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = n + 1;
 }

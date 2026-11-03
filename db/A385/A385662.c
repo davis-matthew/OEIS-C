@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   d_power_divisible_by, divisor_count_u64, factor_u64
+ * Validated: standard, pass, 116 terms through n = 9284 (2026-11-01)
+ * Helpers:   factor_u64, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,16 +22,26 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/d_power_divisible_by.h"
+#include "../utils/num_divisors.h"
+
+/* Test whether d^d ≡ 0 (mod n).  d and n are small (≤ 10 000). */
+static bool
+d_power_divisible_by(uint64_t d, uint64_t n)
+{
+    uint64_t r = 1 % n;  /* r = 1 mod n */
+    for (uint64_t i = 0; i < d; ++i)
+        r = (r * d) % n;
+    return r == 0;
+}
 
 /* Recursive computation without caching (every call recomputes). */
 static seq_t
 compute_a(idx_t n)
 {
     if ((n % 4) == 0) {                     /* n divisible by 4 */
-        return (seq_t)divisor_count_u64(n / 2);
+        return (seq_t)num_divisors(n / 2);
     }
 
     if ((n % 2) == 1) {                     /* n odd */
@@ -70,7 +81,7 @@ compute_a(idx_t n)
 
     /* n = 2 m with m odd */
     idx_t m = n / 2;
-    return compute_a(m) + (seq_t)divisor_count_u64(m);
+    return compute_a(m) + (seq_t)num_divisors(m);
 }
 
 /* Public entry point */

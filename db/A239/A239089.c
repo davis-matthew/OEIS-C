@@ -11,7 +11,8 @@
  *            triple (d, e, f) of consecutive digits with d > e >= f
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* State of the sequence */
 static seq_t *seq = NULL;          /* stored terms */
@@ -53,7 +55,7 @@ static void ensure_seq_capacity(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) exit(1);
     seq = tmp;
     seq_cap = new_cap;
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
 
     /* Allocate storage for the sequence if needed. */
     if (!seq) {
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) return (seq_t)0;
         used = (uint8_t *)calloc(used_cap, sizeof(uint8_t));
         if (!used) return (seq_t)0;

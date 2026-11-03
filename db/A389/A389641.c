@@ -11,14 +11,16 @@
  *            1
  * Range:     u8 n <= 45, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 /* Compute a single entry of the array A(i,k). */
 static seq_t A_row_col(idx_t i, idx_t k)
@@ -35,7 +37,7 @@ static seq_t A_row_col(idx_t i, idx_t k)
         for (idx_t r = 0; r < k; ++r) {
             numerator = numerator * (seq_t)(i - (t - 1) * k - r);
         }
-        seq_t denom = pow_uint((uint64_t)t, k);   /* t^k */
+        seq_t denom = ipow_u64_idx((uint64_t)t, k);   /* t^k */
         term = term * numerator / denom;
         sum += term;
     }

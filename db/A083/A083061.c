@@ -12,13 +12,33 @@
  *            a(0)=1. All other values are obtained by the re...
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   compute_shift
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/compute_shift.h"
+#include "../utils/mem.h"
+
+/*  Compute shift[t] = coefficient of x^t in Tprev(x+1).
+    For each k we add binom(k,t)*prev[k] to shift[t] for t=0..k.  */
+static void compute_shift(const seq_t *prev, idx_t prev_len,
+                          seq_t *shift)
+{
+    for (idx_t t = 0; t < prev_len; ++t) shift[t] = 0;
+
+    for (idx_t k = 0; k < prev_len; ++k) {
+        seq_t bin = 1;                     /* binom(k,0) */
+        for (idx_t t = 0; t <= k; ++t) {
+            shift[t] += prev[k] * bin;
+            if (t < k) {
+                /* Next binom(k, t+1) = binom(k, t) * (k - t) / (t + 1) */
+                bin = bin * (seq_t)(k - t) / (seq_t)(t + 1);
+            }
+        }
+    }
+}
 
 /* --------------------------------------------------------------------- */
 /*  Dynamic storage for the rows of the triangle.  Each rows[i] points
@@ -52,9 +72,9 @@ static void compute_next_row(idx_t row_index)
     const seq_t *prev = rows[row_index - 1];   /* previous row pointer */
 
     /* Allocate temporary arrays */
-    seq_t *shift = (seq_t *)malloc(prev_len * sizeof(seq_t));
-    seq_t *r     = (seq_t *)malloc((prev_len + 1) * sizeof(seq_t));
-    seq_t *next  = (seq_t *)malloc((prev_len + 1) * sizeof(seq_t));
+    seq_t *shift = mem_new(seq_t, prev_len);
+    seq_t *r     = mem_new(seq_t, (prev_len + 1));
+    seq_t *next  = mem_new(seq_t, (prev_len + 1));
 
     /* 1. Shift coefficients: Tprev(x+1) */
     compute_shift(prev, prev_len, shift);
@@ -78,8 +98,8 @@ static void compute_next_row(idx_t row_index)
     rows[row_index] = next;
 
     /* Clean up */
-    free(shift);
-    free(r);
+    mem_free(shift);
+    mem_free(r);
 }
 
 /* --------------------------------------------------------------------- */
@@ -97,7 +117,7 @@ static void ensure_rows(idx_t r)
     while (rows_len <= r) {
         if (rows_len == 0) {
             /* Base case: T(0,x) = 1 -> row 0 has one element 1 */
-            seq_t *row0 = (seq_t *)malloc(sizeof(seq_t));
+            seq_t *row0 = mem_new(seq_t, 1);
             row0[0] = 1;
             ensure_rows_capacity(1);
             rows[0] = row0;

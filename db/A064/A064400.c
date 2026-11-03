@@ -9,16 +9,18 @@
  * Formula:   a(n) = 3*n*phi(n)
  * Range:     u8 n <= 10, u16 n <= 148, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 69 terms through n = 8223 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
-    seq_t res = phi(n);          /* Euler's totient of n */
+    seq_t res = totient(n);          /* Euler's totient of n */
     res = res * (seq_t)n;        /* multiply by n   */
     res = res * 3;               /* multiply by 3   */
     return res;

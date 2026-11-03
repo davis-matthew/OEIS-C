@@ -8,12 +8,14 @@
  *            (11n+6+n³+6n²)·a(n) - (n²+5n+6)·a(n+1) + (2n+6)·a(n+2)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     if (cache_size == 0)
     {
         cache_size = 3;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = 1;
         cache[1] = 0;
         cache[2] = 0;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_size)
     {
         size_t new_size = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
 
         for (size_t i = cache_size; i <= n; ++i)
         {

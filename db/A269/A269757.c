@@ -12,7 +12,8 @@
  *            black cell turn 60° left, flip to white and move forw...
  * Range:     u8 n <= 4635, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   hash_coords
+ * Validated: standard, pass, 87 terms through n = 9618 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/hash_coords.h"
+
+/* 64‑bit mixed hash for axial coordinates */
+static inline uint64_t hash_coords(int32_t q, int32_t r)
+{
+    return ((uint64_t)(uint32_t)q * 1199540897ull) ^
+           ((uint64_t)(uint32_t)r * 1610612741ull);
+}
 
 /* Cell used in the hash table */
 typedef struct {

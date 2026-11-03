@@ -9,11 +9,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 184, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_alloc
+ * Validated: standard, pass, 98 terms through n = 9972 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /*  A276006 – numbers with at least one hit in their factorial base representation.
  *  The implementation treats the sequence as a monotone list and caches
  *  each term as it is discovered.  For each new integer the factorial‑base
@@ -28,7 +30,16 @@
 #ifdef __cplusplus
 /*  For big‑integer builds the array must be allocated with the provided
  *  helper which performs construction of each element.                       */
-#include "../utils/seq_alloc.h"
+#include <stdlib.h>
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 #endif
 
 /* Maximum number of terms kept in the cache; sufficient for n up to about

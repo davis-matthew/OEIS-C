@@ -9,6 +9,7 @@
  *            +7*a(n-2)+13*a(n-3)+52*a(n-4)+19*a(n-5)-36*a(n-6)+2*a(n-7)-98*a(n-8)-31*a(n-9)+32*a(n-10)+22*a(n-11)+6*a(n-12)+a(n-13)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 28, u128 n <= 57,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 196 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

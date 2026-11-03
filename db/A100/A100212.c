@@ -7,14 +7,16 @@
  * Keywords:  nonn, easy
  * Formula:   a(8k+4)=2^(4k+3) a(8k+5)=5*2^(4k+2) a(8k+6)=3*2^(4k+3)
  *            a(8k+7)=2^(4k+3) a(n)=0 otherwise
- * Range:     u8 n <= 12, u16 n <= 28, u32 n <= 53, u64 n <= 53, u128 n <= 53,
- *            big any n
- * Helpers:   pow_seq
+ * Range:     u8 n <= 12, u16 n <= 28, u32 n <= 60, u64 n <= 124,
+ *            u128 n <= 252, big any n
+ * Validated: standard, pass, 70 terms through n = 883 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     /* Handle the zero first block */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     idx_t exp = 4 * k + 3;             /* exponent for 2^(4k+3)       */
 
     /* Base power of 2: 2^(4k+3) */
-    seq_t pow = pow_seq((seq_t)2, exp);
+    seq_t pow = ipow_idx((seq_t)2, exp);
 
     switch (r) {
         case 4:                       /* a(8k+4) = 2^(4k+3)         */
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
             return pow;
 
         case 5:                       /* a(8k+5) = 5*2^(4k+2)      */
-            return (pow_seq((seq_t)2, exp - 1)) * (seq_t)5;
+            return (ipow_idx((seq_t)2, exp - 1)) * (seq_t)5;
 
         case 6:                       /* a(8k+6) = 3*2^(4k+3)      */
             return pow * (seq_t)3;

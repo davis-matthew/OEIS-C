@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 44, u32 n <= 90, u64 n <= 230, u128 n <= 629,
  *            big any n
- * Helpers:   big_pow, calc_phi, factorial, floor_sqrt
+ * Validated: standard, pass, 84 terms through n = 7806 (2026-11-01)
+ * Helpers:   ipow, ipow_i32, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,40 @@
 /* OEIS A047916: Triangular array read by rows
    a(n,k) = φ(n/k) * (n/k)^k * k!   if k | n else 0   (1 ≤ k ≤ n)
    The sequence a(n) is the flattened array: a(1), a(2), a(3), ...   */
-#include "../utils/calc_phi.h"
-#include "../utils/factorial.h"
-#include "../utils/big_pow.h"
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/totient_seq.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,8 +70,8 @@ seq_t a(idx_t n)
     idx_t q = r / k;                           /* integer division */
 
     /* Compute the formula: φ(q) * q^k * k! */
-    seq_t phi_val = calc_phi((seq_t)q);
-    seq_t pow_val  = big_pow((seq_t)q, (seq_t)k);
+    seq_t phi_val = totient_seq((seq_t)q);
+    seq_t pow_val  = ipow((seq_t)q, (seq_t)k);
     seq_t fact_val = factorial((idx_t)k);
 
     return phi_val * pow_val * fact_val;

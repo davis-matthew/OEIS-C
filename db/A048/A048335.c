@@ -7,7 +7,8 @@
  * Formula:   a(n) = (n - 10*floor((n-1)/10))*(11^floor((n+9)/10) - 1)/10
  * Range:     u8 n <= 21, u16 n <= 44, u32 n <= 91, u64 n <= 183,
  *            u128 n <= 370, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Initial values (a(0) … a(19)) are listed explicitly. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[20] = {
     0ULL, 1ULL, 2ULL, 3ULL, 4ULL, 5ULL, 6ULL, 7ULL, 8ULL, 9ULL,
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Ensure the cache has enough space. */
     if (n >= capacity) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) /* allocation failed – return 0 as a safe fallback */
             return (seq_t)0;
         cache = tmp;

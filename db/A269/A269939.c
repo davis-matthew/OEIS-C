@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 72, u64 n <= 163,
  *            u128 n <= 424, big any n
- * Helpers:   new_row
+ * Validated: standard, pass, 71 terms through n = 1211 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,13 @@
  */
 
 #include <stdlib.h>
-#include "../utils/new_row.h"
+#include "../utils/mem.h"
+
+/* Helper: allocate a new row of length len (len = row_index+1) */
+static seq_t *new_row(idx_t len)
+{
+    return mem_new(seq_t, (size_t)len);
+}
 
 static seq_t **rows = NULL;      /* array of pointers to each row */
 static idx_t   max_row = 0;       /* highest row that has been computed */

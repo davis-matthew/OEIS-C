@@ -9,7 +9,8 @@
  *            prime‑power divisors * (excluding 1) is an integer
  * Range:     u8 n <= 131, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 7910 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Dynamic cache for sequence values */
 static seq_t *seq_cache = NULL;
@@ -30,7 +32,7 @@ static void append_cache(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-        seq_t *new_mem = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_mem) abort();
         seq_cache = new_mem;
         cache_cap = new_cap;

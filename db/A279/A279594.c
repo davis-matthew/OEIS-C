@@ -10,12 +10,14 @@
  *            –∑_{k=1}^{n} ⌊(k+1) r⌋ · a(n–k) for n≥1
  * Range:     i8 n <= 36, i16 n <= 79, i32 n <= 161, i64 n <= 325,
  *            i128 n <= 654, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- Utility: integer square root of an unsigned __int128 value --- */
 static unsigned long long isqrt_uint128(unsigned __int128 x)
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* Expand cache if needed */
     if (n + 1 > cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
         if (!tmp && new_size > 0) {
             /* Allocation failed – abort as the evaluation harness
                cannot continue. */

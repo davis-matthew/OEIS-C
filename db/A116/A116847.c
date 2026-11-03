@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 46, u128 n <= 93,
  *            big any n
- * Helpers:   free_seq_array, seq_alloc_array
+ * Validated: standard, pass, 46 terms through n = 910 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,22 @@
                      + 7*a(n-5) - a(n-6)   (n >= 7)
    Initial terms: a(1)=1, a(2)=2, a(3)=5, a(4)=14, a(5)=41, a(6)=119 */
 
-#include "../utils/seq_alloc_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;   /* cache[0] unused, cache[i] = a(i) for i >= 1 */
 static idx_t cache_len = 0;   /* highest index stored, 0 if uninitialised */

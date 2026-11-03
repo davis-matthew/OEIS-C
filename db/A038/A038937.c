@@ -9,14 +9,33 @@
  *            definition)
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   goodPrime
+ * Validated: standard, pass, 61 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/goodPrime.h"
+#include "../utils/mem.h"
+
+static bool goodPrime(uint64_t p)
+{
+    if (p == 2 || p == 29) return true;
+    int leg2 = ((p % 8) == 1 || (p % 8) == 7) ? 1 : -1;
+    uint64_t r = p % 29;
+    /* Quadratic residues modulo 29 */
+    static const uint8_t residues[14] =
+        {1, 4, 9, 16, 25, 7, 20, 6, 23, 13, 5, 28, 24, 22};
+    int leg29 = -1;
+    for (int i = 0; i < 14; ++i) {
+        if (r == residues[i]) {
+            leg29 = 1;
+            break;
+        }
+    }
+    return leg2 == leg29;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +56,7 @@ seq_t a(idx_t n)
     /* Initialize qualifiers list and add the first prime 2 */
     if (qual == NULL) {
         qual_cap = 8;
-        qual = (seq_t *)malloc(qual_cap * sizeof(seq_t));
+        qual = mem_new(seq_t, qual_cap);
         qual_size = 0;
     }
     if (qual_size == 0) {
@@ -68,7 +87,7 @@ seq_t a(idx_t n)
                 /* Expand qualifiers storage if needed */
                 if (qual_size == qual_cap) {
                     qual_cap *= 2;
-                    qual = (seq_t *)realloc(qual, qual_cap * sizeof(seq_t));
+                    qual = mem_resize(seq_t, qual, qual_cap);
                 }
                 qual[qual_size++] = (seq_t)p;
             }

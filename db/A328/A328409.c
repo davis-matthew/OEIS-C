@@ -9,13 +9,15 @@
  *            triple condition i>j<k or i<=j>=k
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 15, u64 n <= 24, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 473 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* #include <stdint.h> is optional, seq_t and idx_t are provided by the build. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define NEG 0   /* previous difference was negative          */
 #define ZERO 1  /* previous difference was zero              */
@@ -31,12 +33,12 @@ seq_t a(idx_t n)
        each state holds counts for values 0 .. n   (size n+1) */
     seq_t *cur[3], *next[3];
     idx_t sz = n + 1;                     /* maximum value index */
-    cur[NEG]   = (seq_t *)calloc(sz, sizeof(seq_t));
-    cur[ZERO]  = (seq_t *)calloc(sz, sizeof(seq_t));
-    cur[POS]   = (seq_t *)calloc(sz, sizeof(seq_t));
-    next[NEG]  = (seq_t *)calloc(sz, sizeof(seq_t));
-    next[ZERO] = (seq_t *)calloc(sz, sizeof(seq_t));
-    next[POS]  = (seq_t *)calloc(sz, sizeof(seq_t));
+    cur[NEG]   = mem_new(seq_t, sz);
+    cur[ZERO]  = mem_new(seq_t, sz);
+    cur[POS]   = mem_new(seq_t, sz);
+    next[NEG]  = mem_new(seq_t, sz);
+    next[ZERO] = mem_new(seq_t, sz);
+    next[POS]  = mem_new(seq_t, sz);
 
     /* initialise state for i = 1 (e1)  */
     cur[ZERO][0] = (seq_t)1;      /* e1 = 0  -> d1 = 0  (zero)  */
@@ -92,8 +94,8 @@ seq_t a(idx_t n)
     }
 
     /* free allocated memory (optional) */
-    free(cur[NEG]); free(cur[ZERO]); free(cur[POS]);
-    free(next[NEG]); free(next[ZERO]); free(next[POS]);
+    mem_free(cur[NEG]); mem_free(cur[ZERO]); mem_free(cur[POS]);
+    mem_free(next[NEG]); mem_free(next[ZERO]); mem_free(next[POS]);
 
     return ans;
 }

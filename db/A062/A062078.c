@@ -8,7 +8,8 @@
  *            result is 0
  * Range:     u8 n <= 577, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _gcd_seq_local
+ * Validated: standard, pass, 95 terms through n = 9628 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* Implementation is O(number of digits of n) per call. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_gcd_seq_local.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
     while (n > 0) {
         unsigned d = (unsigned)(n % 10);
         if (d == 0) return 0;
-        seq_t g = _gcd_seq_local(lcm, (seq_t)d);
+        seq_t g = gcd(lcm, (seq_t)d);
         lcm = (lcm / g) * d;
         n /= 10;
     }

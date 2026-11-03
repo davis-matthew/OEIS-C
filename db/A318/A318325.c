@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} [mu(n/d) > 0]*(sigma(d)-d)
- * Range:     u8 n <= 16, u16 n <= 4225, u32 n <= 8558, u64 n <= 8558,
- *            u128 n <= 8558, big any n
- * Helpers:   factor_u64, pow_seq
+ * Range:     u8 n <= 16, u16 n <= 4225, u32 n <= 65536, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 107 terms through n = 8558 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
 #include <stdlib.h>
 
 /* utility functions available from the build */
-#include "../utils/factor_u64.h"   /* factor_u64(n, primes, exps, &cnt) */
-#include "../utils/pow_seq.h"      /* pow_seq(base, exp) */
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_i32.h"
 
 /* ---------------------------------------------------------------- */
 /* Computes a(n) for the OEIS sequence A318325                      */
@@ -53,11 +54,11 @@ seq_t a(idx_t n) {
             int exp   = (int)(exps[i] - bit); /* exponent in d = n/k */
 
             /* sigma(p^exp) = (p^(exp+1) - 1)/(p - 1) */
-            seq_t sigma = (pow_seq(p, exp + 1) - 1) / (p - 1);
+            seq_t sigma = (ipow_i32(p, exp + 1) - 1) / (p - 1);
             part *= sigma;
 
             /* compute p^exp for dval   (pow_seq handles exp == 0 correctly) */
-            seq_t pow_part = pow_seq(p, exp);
+            seq_t pow_part = ipow_i32(p, exp);
             dval *= pow_part;
         }
 

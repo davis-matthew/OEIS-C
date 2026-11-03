@@ -10,12 +10,14 @@
  *            after the first expansion. It uses only C11 standard features
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  seq_t and idx_t are typedef’d elsewhere in the build. */
 seq_t a(idx_t n)
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     if ((size_t)n >= allocCap) {
         size_t newCap = (n < 16 ? 16 : n * 2) + 1;  /* +1 for index 0 */
         /* resize arrays */
-        part = (seq_t *)realloc(part, newCap * sizeof(seq_t));
-        pref = (seq_t *)realloc(pref, newCap * sizeof(seq_t));
+        part = mem_resize(seq_t, part, newCap);
+        pref = mem_resize(seq_t, pref, newCap);
         /* initialise newly allocated elements */
         for (size_t i = allocCap; i < newCap; ++i) {
             part[i] = (seq_t)0;

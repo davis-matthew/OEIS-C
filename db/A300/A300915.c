@@ -9,15 +9,17 @@
  *            (p^2-1)*p^(3e-2)/2 for odd primes p
  * Range:     u8 n <= 8, u16 n <= 52, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, pow_seq
+ * Validated: standard, pass, 56 terms through n = 955 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -42,11 +44,11 @@ seq_t a(idx_t n)
             else if (e == 2)
                 term = 24;
             else
-                term = 3 * pow_seq((seq_t)2, 3 * e - 4);
+                term = 3 * ipow_i32((seq_t)2, 3 * e - 4);
         } else {
             seq_t pp   = (seq_t)p * (seq_t)p;
             seq_t part1 = (pp - 1) / 2;          /* (p^2-1)/2  */
-            seq_t part2 = pow_seq((seq_t)p, 3 * e - 2);
+            seq_t part2 = ipow_i32((seq_t)p, 3 * e - 2);
             term = part1 * part2;
         }
 

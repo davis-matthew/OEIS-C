@@ -7,13 +7,15 @@
  * Keywords:  nonn, easy, tabl
  * Formula:   a(n) = gcd(T(r), T(c)), where T(x) = x*(x+1)/2, and r, c satisfy
  *            n = r(r+1)/2 + c, 0 <= c <= r
- * Range:     u8 n <= 275, u16 n <= 9924, u32 n <= 9924, u64 n <= 9924,
- *            u128 n <= 9924, big any n
+ * Range:     u8 n <= 275, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 136 terms through n = 9924 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static idx_t triangular_root(idx_t n) {

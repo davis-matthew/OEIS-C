@@ -10,12 +10,14 @@
  *            dp[i-c];
  * Range:     u8 n <= 50, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate a table for the DP values up to n. */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp)
         abort();                /* allocation failed */
 
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -10,6 +10,7 @@
  *            offset 2 (a(2) is the first term)
  * Range:     u8 n <= 7, u16 n <= 121, u32 n <= 2017, u64 n <= 2017,
  *            u128 n <= 2017, big any n
+ * Validated: standard, pass, 71 terms through n = 1888 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,7 @@
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

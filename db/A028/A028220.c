@@ -7,7 +7,8 @@
  * Formula:   a(n) = (11^(n+3)-6*9^(n+3)+8^(n+4)-3*7^(n+3))/24
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of OEIS A028220  */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Helper to grow the cache up to needed size */
     if (cache == NULL) {
         /* Allocate initial capacity for indices 0..3 */
-        cache = (seq_t *)malloc(sizeof(seq_t) * 4);
+        cache = mem_new(seq_t, 4);
         if (!cache) return 0; /* out of memory; behaviour undefined */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)35;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         /* Prevent overflow of size_t when allocating very large arrays */
         return 0;
     }
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (size_t)new_cap);
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
     if (!tmp) return 0; /* allocation failure */
     cache = tmp;
 

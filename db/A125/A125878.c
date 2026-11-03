@@ -10,6 +10,7 @@
  *            prime factor of φ up to that limit
  * Range:     i8 n <= 7, i16 n <= 51, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

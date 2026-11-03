@@ -8,13 +8,14 @@
  *            exponent e is even. a(1) = 1
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   powseq
+ * Validated: standard, pass, 97 terms through n = 7748 (2026-11-01)
+ * Helpers:   ipow_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/powseq.h"
+#include "../utils/ipow_u32.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
             return (seq_t)0;
 
         unsigned k = (e - 1) >> 1;      /* (e−1)/2 */
-        seq_t factor = powseq((seq_t)p, k);
+        seq_t factor = ipow_u32((seq_t)p, k);
         factor *= ((seq_t)p - 1);
         result *= factor;
     }

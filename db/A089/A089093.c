@@ -8,7 +8,8 @@
  *            (z/6)[1/(1-z-z^2)^6-1/(1-z^2-z^4)^3-1/(1-z^3-z^6)^2+1/(1-z^6-z^12)]
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 25, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* The provided build specifies seq_t and idx_t */
 extern seq_t T_value(idx_t r, idx_t k);
@@ -158,7 +160,7 @@ static void init_sequence(void)
 
     /* Allocate and initialise the cache with the first 48 values */
     cache_len = 48;
-    seq_cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, cache_len);
     for (size_t i = 0; i < cache_len; ++i)
         seq_cache[i] = init_a[i];
 }
@@ -174,7 +176,7 @@ seq_t a(idx_t n)
     size_t target = (size_t)n;
     if (target > cache_len) {
         /* extend cache to target terms */
-        seq_cache = (seq_t *)realloc(seq_cache, target * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, target);
         for (size_t idx = cache_len; idx < target; ++idx) {
             seq_t sum = 0;
             for (int k = 1; k <= 48; ++k)

@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 39, u16 n <= 158, u32 n <= 575, u64 n <= 1325,
+ * Range:     u8 n <= 39, u16 n <= 159, u32 n <= 576, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 71 terms through n = 1075 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Computes OEIS sequence A135087 (triangle read by rows).
    Formula: T(n,k) = 4*binomial(n,k) - (n==0?3:1).               */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

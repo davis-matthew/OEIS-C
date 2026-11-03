@@ -8,7 +8,8 @@
  *            is prime
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   build_primes_upto, ensure_capacity, is_prime
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,39 @@
 #include <stdint.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/is_prime.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size) /* elem_size: sizeof(T) */
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, new_cap);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 static bool _initialized = false;
 static uint64_t * _primes = NULL;          /* array of primes */
@@ -42,7 +75,7 @@ static void _init_cache(void)
     build_primes_upto(LIMIT, &_primes, &_prime_count);
 
     _cache_cap = 1024;
-    _cache = (seq_t *)malloc(_cache_cap * sizeof(seq_t));
+    _cache = mem_new(seq_t, _cache_cap);
 
     for (size_t i = 0; i < _prime_count; ++i) {
         uint64_t pk = _primes[i];                     /* prime(k), k = i+1 */
@@ -56,7 +89,7 @@ static void _init_cache(void)
         if (t >= 2 && is_prime(t)) {
             if (_cache_len == _cache_cap)
                 ensure_capacity(_cache_len + 1, &_cache_cap,
-                                (void **)&_cache, sizeof(seq_t));
+                                OEISC_VPP(&_cache), sizeof(seq_t));
             _cache[_cache_len++] = (seq_t)(i + 1);     /* k is 1‑based */
         }
     }

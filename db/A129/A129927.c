@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 32, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Prime sieve up to 1 000 000 – enough for k up to ~10⁶. */
 static size_t        prime_cnt   = 0;   /* number of primes found  */
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t*)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         if (!cache) exit(1);
     }
 
@@ -117,9 +119,8 @@ seq_t a(idx_t n)
 
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t*)realloc(cache,
-                                              cache_cap * sizeof(seq_t));
-                if (!tmp) { free(cache); exit(1); }
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
+                if (!tmp) { mem_free(cache); exit(1); }
                 cache = tmp;
             }
             cache[cache_len++] = val;

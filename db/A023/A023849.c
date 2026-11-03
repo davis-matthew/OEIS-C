@@ -9,6 +9,7 @@
  *            e_p(m!) is the exponent of prime p in m! (Legendre’s formula)
  * Range:     u8 n <= 487, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 93 terms through n = 8406 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_primes.h"
 
 seq_t a(idx_t n)

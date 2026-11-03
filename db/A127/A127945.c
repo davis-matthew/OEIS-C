@@ -9,6 +9,7 @@
  *            * 2^{n + C(n+1,2)} where C(a,b) is a choose b
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 6, i64 n <= 9, i128 n <= 14,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 76 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

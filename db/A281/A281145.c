@@ -7,14 +7,17 @@
  * Formula:   a(n) = 1 + Sum_{d|n, d<n} a(d)^(n/d)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 47, u64 n <= 95, u128 n <= 167,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 63 terms through n = 3342 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t max_computed = 0;
@@ -25,7 +28,7 @@ static void ensure_cache(idx_t n)
     if (n <= max_computed) return;
 
     size_t new_cap = (size_t)n + 1;           /* indices 0..n */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);                       /* out of memory */
     cache = tmp;
 
@@ -40,12 +43,12 @@ static void ensure_cache(idx_t n)
             if (i % d == 0)
             {
                 if (d < i) {
-                    seq_t pw = big_pow(cache[d], (seq_t)(i / d));
+                    seq_t pw = ipow(cache[d], (seq_t)(i / d));
                     sum += pw;
                 }
                 idx_t other = i / d;
                 if (other != d && other < i) {
-                    seq_t pw = big_pow(cache[other], (seq_t)(i / other));
+                    seq_t pw = ipow(cache[other], (seq_t)(i / other));
                     sum += pw;
                 }
             }

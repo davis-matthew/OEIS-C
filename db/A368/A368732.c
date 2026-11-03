@@ -8,7 +8,8 @@
  *            semiprime (product of exactly two primes, with multiplicity)
  * Range:     u8 n <= 35, u16 n <= 2608, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, is_prime
+ * Validated: standard, pass, 73 terms through n = 9942 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Determine whether x is a semiprime (exactly two prime factors,
    counting multiplicity).  x >= 2.  The function assumes that
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         if (ok) {
             if (seq_len >= seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 64;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)prime_list[next_prime_idx - 1];
         }

@@ -9,13 +9,15 @@
  *            4*a(n-1) - 6*a(n-2) + 4*a(n-3) - a(n-4) + a(n-8) for n ≥ 9
  * Range:     u8 n <= 15, u16 n <= 26, u32 n <= 49, u64 n <= 95, u128 n <= 187,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 869 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached values for any call order. */
 static seq_t *cache          = NULL;
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* Initialise the cache to hold indices 0..7. */
         cache_size = 8;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) exit(EXIT_FAILURE);
         for (idx_t i = 0; i < 8; ++i) cache[i] = base[i];
         computed_max = 7;
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t n)
     if (n >= cache_size) {
         /* Grow the array to cover index n. */
         size_t new_size = (size_t)n + 1U;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) exit(EXIT_FAILURE);
         cache   = tmp;
         cache_size = new_size;

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 953, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 61 terms through n = 8691 (2026-11-01)
  * Helpers:   factor_uint64, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,8 +23,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/factor_uint64.h"   /* factor_uint64() */
-#include "../utils/sieve_primes.h"   /* sieve_primes() */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/factor_uint64.h"
+#include "../utils/sieve_primes.h"
 
 /* Maximum number of terms to cache (should be > expected maximum n during tests) */
 #define MAX_TERMS 50000

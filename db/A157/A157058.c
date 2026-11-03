@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{i=1}^{min(n,9)} C(n+1,i) * C(8,i-1) * C(n-i+9,9)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 12, u64 n <= 47, u128 n <= 572,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 922 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

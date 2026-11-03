@@ -9,7 +9,8 @@
  *            and not yet seen, otherwise a(n)=5*a(n-1)
  * Range:     u8 n <= 19, u16 n <= 213, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9238 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute or fetch the n-th term of A050108. */
 seq_t a(idx_t n)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         if (cache_size < needed) {
             size_t new_size = cache_size == 0 ? 64 : cache_size * 2;
             if (new_size < needed) new_size = needed;
-            seq_t *tmp = (seq_t *)realloc(terms, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, new_size);
             if (!tmp) {
                 /* Out of memory – aborting. */
                 abort();

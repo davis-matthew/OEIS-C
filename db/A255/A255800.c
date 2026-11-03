@@ -13,12 +13,14 @@
  *            for all n > 15
  * Range:     u8 none, u16 n <= 51, u32 n <= 147, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _init_values[16] = {
     0,      /* a(0) unused */
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* Allocate small initial space (enough for 16 elements) */
         cache_cap = 16;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return 0;          /* allocation failed */
         /* Load initial values */
         for (idx_t i = 1; i <= 15; ++i)
@@ -62,7 +64,7 @@ seq_t a(idx_t n) {
         size_t new_cap = cache_cap;
         while (new_cap < (size_t)(n + 1))
             new_cap <<= 1;                 /* double until big enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return 0;          /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

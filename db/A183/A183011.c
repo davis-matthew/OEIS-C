@@ -11,7 +11,8 @@
  *            table of partitions and grows it as needed
  * Range:     i8 n <= 2, i16 n <= 13, i32 n <= 62, i64 n <= 273,
  *            i128 n <= 1145, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 2470 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Partition cache */
 static seq_t *p_cache = NULL;
@@ -34,7 +36,7 @@ static void ensure_partitions(idx_t n) {
     size_t new_cap = (p_cap == 0) ? 1 : p_cap;
     while (new_cap <= (size_t)n) new_cap <<= 1;
 
-    seq_t *new_ptr = (seq_t *)realloc(p_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, p_cache, new_cap);
     if (!new_ptr) abort();
     p_cache = new_ptr;
     p_cap = new_cap;

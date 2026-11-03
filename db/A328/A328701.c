@@ -11,13 +11,19 @@
  *            Floyd’s cycle‑finding algorithm
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   f_mod
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/f_mod.h"
+
+static inline seq_t f_mod(seq_t x, idx_t n)
+{
+    /* Compute (x^2 + x + 1) modulo n using only seq_t arithmetic. */
+    return (x * x + x + 1) % (seq_t)n;
+}
 
 seq_t a(idx_t n)
 {

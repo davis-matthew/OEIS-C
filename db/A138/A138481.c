@@ -10,13 +10,15 @@
  *            10 digits
  * Range:     u8 none, u16 n <= 8, u32 n <= 67, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Auxiliary dynamic array for storing the sequence. */
 static seq_t *seq_array  = NULL;   /* array of sequence values      */
@@ -28,7 +30,7 @@ static void append_value(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 16 : seq_cap << 1;
-        seq_t *new_ptr = (seq_t *)realloc(seq_array, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, seq_array, new_cap);
         if (!new_ptr) exit(EXIT_FAILURE);   /* out of memory */
         seq_array = new_ptr;
         seq_cap   = new_cap;
@@ -129,7 +131,7 @@ static void generate_sequence(void)
     }
 
     /* Sort the values. */
-    qsort(seq_array, seq_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(seq_array, seq_len, sizeof(seq_t), cmp_seq_t);
 
     /* Remove duplicates in place. */
     size_t uniq_len = 0;

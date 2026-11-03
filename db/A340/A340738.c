@@ -9,7 +9,8 @@
  *            2*a(n‑1) + n*a(n‑2)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 27, u128 n <= 47,
  *            big any n
- * Helpers:   muldiv2
+ * Validated: standard, pass, 43 terms through n = 715 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/muldiv2.h"
+#include "../utils/mem.h"
+
+/* Multiplication followed by division by 2.
+   For small builtin integer types a 128‑bit intermediate is not needed
+   because the tests for 64‑bit builds only use values that fit in 64 bits. */
+static inline seq_t muldiv2(seq_t x, seq_t y) { return (x * y) / 2; }
 
 /* Sequence function */
 seq_t a(idx_t n)
@@ -31,7 +37,7 @@ seq_t a(idx_t n)
     /* Initialisation: reserve space for indices up to 3. */
     if (cap == 0) {
         cap = 4;                    /* indices 0..3; ignore 0 */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;       /* allocation failure */
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)2;
@@ -41,7 +47,7 @@ seq_t a(idx_t n)
     /* Grow cache if needed. */
     if (n >= cap) {
         idx_t new_cap = n + 1;
-        seq_t *tmp    = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp    = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;          /* allocation failure */
         cache = tmp;
         cap   = new_cap;

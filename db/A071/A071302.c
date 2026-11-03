@@ -12,12 +12,14 @@
  *            closed‑form from the OEIS entry
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* precompute powers of 3 up to 3^{2k} */
     size_t len = (size_t)(2 * k + 1);
-    seq_t *pow3 = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *pow3 = mem_new(seq_t, len);
     if (!pow3) return 0;  /* memory error */
     pow3[0] = (seq_t)1;
     for (idx_t t = 1; t <= 2 * k; ++t)
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
         result *= pow3[k];
     }
 
-    free(pow3);
+    mem_free(pow3);
     return result;
 }

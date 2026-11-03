@@ -8,13 +8,15 @@
  *            a(k) * a(n-1-k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, calloc, realloc, free */
 #include <stdint.h>   /* for uint64_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,10 +30,9 @@ seq_t a(idx_t n)
 
     /* Grow the cache to the required size.                           */
     if (cache == NULL) {
-        cache = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
     } else if ((size_t)(n + 1) > cache_size) {
-        cache = (seq_t *)realloc(cache,
-                                 (size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
     }
 
     /* Compute missing values from the current cache_size up to n.   */

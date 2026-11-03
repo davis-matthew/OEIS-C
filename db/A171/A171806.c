@@ -9,15 +9,60 @@
  * Formula:   a(n) = number of permutations in S_5 of order n
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   count_type, fact_small
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_type.h"
-#include "../utils/fact_small.h"
+
+/* helper: factorial for small values (n <= 5) */
+static seq_t fact_small(idx_t n)
+{
+    seq_t f = 1;
+    for (idx_t i = 2; i <= n; ++i) {
+        f *= (seq_t)i;
+    }
+    return f;
+}
+
+/* compute number of permutations of a given cycle type
+   cycle[5] holds the cycle lengths, zeros allowed */
+static seq_t count_type(const idx_t cycle[5])
+{
+    /* multiplicity of cycle lengths */
+    idx_t freq[6] = {0}; /* indices 1..5 used */
+    for (int i = 0; i < 5; ++i) {
+        if (cycle[i] > 0) {
+            freq[cycle[i]] += 1;
+        }
+    }
+
+    /* denominator: product over lengths of (freq[l]! * l^freq[l]) */
+    seq_t denom = 1;
+    for (int l = 1; l <= 5; ++l) {
+        if (freq[l] == 0) continue;
+        /* freq[l]! */
+        denom *= fact_small(freq[l]);
+
+        /* l^freq[l] */
+        seq_t pw = 1;
+        for (idx_t k = 0; k < freq[l]; ++k) {
+            pw *= (seq_t)l;
+        }
+        denom *= pw;
+    }
+
+    /* total factorial of 5 */
+    static seq_t total_fact = 0;
+    if (total_fact == 0) {
+        total_fact = fact_small(5); /* 120 */
+    }
+
+    return total_fact / denom;
+}
 
 /* helper: gcd for idx_t */
 static idx_t gcd_idx(idx_t a, idx_t b)

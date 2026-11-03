@@ -8,12 +8,14 @@
  * Formula:   a(n) = 8905 + 2^n*(10560*n + 21528) + 4^n*(11520*n + 3648)
  * Range:     u8 none, u16 n <= 0, u32 n <= 7, u64 n <= 17, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"  /* pow2(idx_t exp) -> seq_t */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * a(n) = 5*a(n-2) + 4*a(n-3)  for n > 2
  */
 #include <stdlib.h>  /* malloc, realloc, size_t, NULL */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Ensure cache is large enough to hold a[0] .. a[n] */
     if (n + 1 > cache_len) {
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_len);
         if (!new_cache) {
             /* allocation failure – exit or handle as needed */
             /* In a contest environment returning 0 is acceptable */

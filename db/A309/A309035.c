@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t key;     /* sequence value */
@@ -87,7 +89,7 @@ static void ensure_seq_cap(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *new_ptr = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, seq_vals, new_cap);
     seq_vals = new_ptr;
     seq_cap  = new_cap;
 }
@@ -108,14 +110,14 @@ static void init_once(void)
 
     /* allocate sequence array */
     seq_cap = 16;
-    seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, seq_cap);
     seq_vals[0] = 0;
     seq_vals[1] = 0;
     seq_len   = 2;
 
     /* hash table */
     hash_cap = 1 << 16;   /* power of two */
-    hash_tbl = (Entry *)calloc(hash_cap, sizeof(Entry));
+    hash_tbl = mem_new(Entry, hash_cap);
     /* store value 0 with first=0, count=2 (indices 0 and 1) */
     insert_entry((seq_t)0, 0);
     Entry *e0 = find_entry((seq_t)0);

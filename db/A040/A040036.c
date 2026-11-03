@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 77 terms through n = 994 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,11 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"    /* bool is_prime(idx_t x); */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +40,7 @@ seq_t a(idx_t n)
     /* grow the cached array when needed */
     if (seq_len == 0) {
         seq_cap = 32;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
 
     /* keep generating primes until we have at least n terms */
@@ -54,7 +58,7 @@ seq_t a(idx_t n)
             ok = true;
         } else {
             /* test 3^((p-1)/3) mod p == 1 */
-            seq_t res = mod_pow((seq_t)3,
+            seq_t res = powmod((seq_t)3,
                                 (uint64_t)((next_candidate - 1) / 3),
                                 (seq_t)next_candidate);
             ok = (res == (seq_t)1);
@@ -64,7 +68,7 @@ seq_t a(idx_t n)
             /* store the prime in the cache */
             if (seq_len >= seq_cap) {
                 seq_cap = seq_cap * 2 + 16;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)next_candidate;
         }

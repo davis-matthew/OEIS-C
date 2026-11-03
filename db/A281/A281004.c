@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 55, u32 n <= 128, u64 n <= 136,
  *            u128 n <= 136, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 130 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed list of terms that fit into seq_t.  The array is large
    enough to hold all known terms; the actual number of stored terms
@@ -73,7 +75,7 @@ static void init_terms(void) {
 
     terms_len = idx;
     /* Ensure the list is sorted. */
-    qsort(terms, terms_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(terms, terms_len, sizeof(seq_t), seq_cmp);
 }
 
 /* Return the n‑th term of the sequence (n≥1). */

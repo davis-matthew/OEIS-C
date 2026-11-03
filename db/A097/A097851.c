@@ -10,12 +10,14 @@
  *            m<0)
  * Range:     u8 n <= 25, u16 n <= 90, u32 n <= 872, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* partition counts for parts 2..7 */
 static idx_t dp_size = 0;         /* array length (indices 0..dp_size-1) */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (need >= dp_size) {
         idx_t new_size = need + 1;
         size_t alloc_bytes = (size_t)new_size * sizeof(seq_t);
-        seq_t *newdp = (seq_t *)realloc(dp, alloc_bytes);
+        seq_t *newdp = mem_resize(seq_t, dp, (alloc_bytes) / sizeof(seq_t));
         if (!newdp) return 0;                /* allocation failure: return 0 as fallback */
 
         /* Initialise the new array: p(0)=1, all others 0. */

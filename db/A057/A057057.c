@@ -8,13 +8,15 @@
  * Formula:   a(n) = round( sqrt( 2*binomial(n,3) ) )
  * Range:     u8 n <= 6, u16 n <= 35, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   floor_sqrt_seq
+ * Validated: partial, pass, 53 terms through n = 55 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*           = round( sqrt( n*(n-1)*(n-2) / 3 ) )   */
-#include "../utils/floor_sqrt_seq.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Upper bound for sqrt(num/3) ;
        n*floor(sqrt(n)) is larger than the desired result for all n≥3. */
-    seq_t sqrt_n = floor_sqrt_seq(n_seq);
+    seq_t sqrt_n = isqrt_seq(n_seq);
     seq_t high = n_seq * sqrt_n + 1;
     seq_t low  = 0;
 

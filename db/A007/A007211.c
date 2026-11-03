@@ -11,7 +11,8 @@
  *            part at step m, so that case is resolved by self-co...
  * Range:     u8 n <= 20, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   add_part, alloc_zero, release
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/add_part.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static void add_part(seq_t *P, idx_t N, idx_t s) {
+    idx_t j;
+    for (j = s; j <= N; j++) P[j] += P[j - s];
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_n = 0;

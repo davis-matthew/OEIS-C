@@ -6,8 +6,9 @@
  * Keywords:  sign, mult
  * Formula:   a(n) = product over prime powers p^e || n of (-1)^e * (p+1) *
  *            p^(e-1), with a(1) = 1
- * Range:     i8 n <= 59, i16 n <= 7958, i32 n <= 7958, i64 n <= 7958,
- *            i128 n <= 7958, big any n
+ * Range:     i8 n <= 59, i16 n <= 11549, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 7958 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

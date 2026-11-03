@@ -11,13 +11,15 @@
  *            Intermediate calculations are * performed i...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build environment */
 typedef uint64_t idx_t;   /* NOTE: the build replaces these types as needed */
@@ -38,7 +40,7 @@ static void ensure_capacity(idx_t n)
 
     if (cache_cap >= need) return;
 
-    seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, need);
     if (tmp == NULL) exit(EXIT_FAILURE);
     cache = tmp;
     cache_cap = need;

@@ -10,14 +10,30 @@
  *            largest at m = 636
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   a1219_is_tri, a1219_isqrt
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a1219_is_tri.h"
-#include "../utils/a1219_isqrt.h"
+
+static uint64_t a1219_isqrt(uint64_t x) {
+	uint64_t lo = 0, hi = 4294967295ULL, mid;
+	if (hi > x) hi = x;
+	while (lo < hi) {
+		mid = lo + (hi - lo + 1) / 2;
+		if (mid * mid <= x) lo = mid;
+		else hi = mid - 1;
+	}
+	return lo;
+}
+
+static int a1219_is_tri(uint64_t N) {
+	uint64_t d = 8 * N + 1;
+	uint64_t r = a1219_isqrt(d);
+	return r * r == d;
+}
 
 seq_t a(idx_t n) {
 	static uint64_t cache[16];

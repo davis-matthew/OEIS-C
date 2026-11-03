@@ -8,7 +8,8 @@
  * Formula:   a(n) = 3^(2n - v3(S_n)), where S_n = sum_{k=0}^n C_k * 9^{n-k}
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@ static idx_t v3_idx(idx_t x)
 }
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -104,5 +106,5 @@ seq_t a(idx_t n)
 
     /* The denominator after reduction is 3^(2*n - v) */
     idx_t exp = 2 * n - v;
-    return seq_pow((seq_t)3, exp);
+    return ipow_idx((seq_t)3, exp);
 }

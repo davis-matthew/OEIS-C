@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 1752, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rev
+ * Validated: standard, pass, 81 terms through n = 9939 (2026-11-03)
+ * Helpers:   mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,21 +21,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/rev.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 /* Test whether x satisfies the definition:
    for every divisor d of x, reverse(d) divides reverse(x). */
 static bool good_candidate(idx_t x)
 {
-    seq_t rev_x = (seq_t)rev(x);          /* reverse of n */
+    seq_t rev_x = (seq_t)reverse_digits_idx(x);          /* reverse of n */
     for (idx_t d = 1; d * d <= x; ++d) {
         if (x % d == 0) {
-            seq_t rev_d = (seq_t)rev(d);
+            seq_t rev_d = (seq_t)reverse_digits_idx(d);
             if (rev_x % rev_d != 0)
                 return false;
             idx_t d2 = x / d;
             if (d2 != d) {
-                seq_t rev_d2 = (seq_t)rev(d2);
+                seq_t rev_d2 = (seq_t)reverse_digits_idx(d2);
                 if (rev_x % rev_d2 != 0)
                     return false;
             }
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             /* Ensure capacity. */
             if (c_len == c_cap) {
                 c_cap = c_cap ? c_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, c_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, c_cap);
                 cache = tmp;
             }
             cache[c_len++] = (seq_t)last_checked;

@@ -10,6 +10,7 @@
  * Formula:   a(n) = 3*n*n - max_{1≤k≤n-1} min( k*(4*n-k), (n-k)*(3*n-k) )
  * Range:     u8 n <= 12, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 57 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

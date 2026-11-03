@@ -7,7 +7,8 @@
  * Formula:   a(n) = A001597(n) - A000040(n)
  * Range:     i8 n <= 1, i16 n <= 55, i32 n <= 1, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static seq_t *pp_arr = NULL;
@@ -36,7 +38,7 @@ static int cmp_seq(const void *a, const void *b) {
 static void push_pp(seq_t v) {
     if (pp_size == pp_cap) {
         pp_cap = pp_cap ? pp_cap * 2 : 16;
-        pp_arr = (seq_t *)realloc(pp_arr, pp_cap * sizeof(seq_t));
+        pp_arr = mem_resize(seq_t, pp_arr, pp_cap);
     }
     pp_arr[pp_size++] = v;
 }
@@ -63,7 +65,7 @@ static void init(void) {
     /* ---- generate perfect powers up to 10¹² ---- */
     const seq_t limit = (seq_t)1000000000000ULL;     /* 1 000 000 000 000 */
     pp_cap = 1 << 10;
-    pp_arr = (seq_t *)malloc(pp_cap * sizeof(seq_t));
+    pp_arr = mem_new(seq_t, pp_cap);
     pp_size = 0;
     push_pp((seq_t)1);                               /* include 1 */
 

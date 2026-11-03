@@ -7,15 +7,19 @@
  * Formula:   a(n) = prime p such that ord_p(3) is odd Sequence A385220
  * Range:     u8 n <= 19, u16 n <= 2206, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small, mod_pow
+ * Validated: standard, pass, 73 terms through n = 9885 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Compute a(n): nth prime p whose multiplicative order of 3 modulo p is odd */
 seq_t a(idx_t n)
@@ -36,7 +40,7 @@ seq_t a(idx_t n)
         if (cache_len == 0) {
             if (cache_cap == 0) {
                 cache_cap = 16;
-                cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+                cache = mem_new(seq_t, cache_cap);
             }
             cache[cache_len++] = (seq_t)2;
             continue;
@@ -58,7 +62,7 @@ seq_t a(idx_t n)
             }
 
             /* Primality test */
-            if (!is_prime_small((seq_t)cand)) {
+            if (!is_prime_seq((seq_t)cand)) {
                 cand += 2;
                 continue;
             }
@@ -71,11 +75,11 @@ seq_t a(idx_t n)
 
             /* Check if 3^odd_part ≡ 1 (mod p) */
             uint64_t exp = (uint64_t)odd_part;  /* safe for the range we need */
-            if (mod_pow(3, exp, p_seq) == 1) {
+            if (powmod(3, exp, p_seq) == 1) {
                 /* p qualifies */
                 if (cache_len == cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 16;
-                    cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = p_seq;
                 next_candidate = cand + 2;  /* start after this prime */

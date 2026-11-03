@@ -10,14 +10,17 @@
  *            computed values and generates primes dynamically as needed
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* ---------- Prime handling ---------- */
 static idx_t   *prime_list = NULL; /* increasing list of primes */
@@ -43,7 +46,7 @@ static void ensure_primes(idx_t limit)
 
     idx_t start = prime_list[prime_cnt - 1] + 1;
     for (idx_t n = start; n <= limit; ++n) {
-        idx_t root = int_sqrt(n);
+        idx_t root = isqrt(n);
         bool is_prime = true;
         for (size_t i = 0; i < prime_cnt && prime_list[i] <= root; ++i) {
             if (n % prime_list[i] == 0) {
@@ -92,7 +95,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache_cap == 0) {
         cache_cap = 3;                /* indices 0,1,2 valid */
-        seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
         if (!seq_cache) return (seq_t)0;
         seq_cache[0] = 0;             /* unused dummy */
         seq_cache[1] = 1;
@@ -103,7 +106,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (cache_cap <= n) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) return (seq_t)0;
         seq_cache = tmp;
         cache_cap = (idx_t)new_cap;

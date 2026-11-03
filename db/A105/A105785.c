@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{j=1..n-1} binom(n-1,j) * (j+1)^j * a(n-1-j) with
  *            a(0)=1, a(1)=0
- * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
+ * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 374 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 /* Exponentiation by squaring for seq_t.  Works for arbitrary‑precision integer types as well. */
@@ -47,7 +49,7 @@ static void ensure_seq_cap(idx_t needed)
     if (needed < seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     while (new_cap <= (size_t)needed) new_cap *= 2;
-    seq_vals = (seq_t*)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, new_cap);
     seq_cap  = (idx_t)new_cap;
 }
 
@@ -57,7 +59,7 @@ static void ensure_pow_cap(idx_t needed)
     if (needed < pow_cap) return;
     size_t new_cap = pow_cap ? pow_cap * 2 : 8;
     while (new_cap <= (size_t)needed) new_cap *= 2;
-    pow_vals = (seq_t*)realloc(pow_vals, new_cap * sizeof(seq_t));
+    pow_vals = mem_resize(seq_t, pow_vals, new_cap);
     pow_cap  = (idx_t)new_cap;
 }
 

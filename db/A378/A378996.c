@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac, easy
  * Formula:   a(n) = 2*n / gcd(sigma(2*n), 2*n) (denominator of σ(2*n)/(2*n))
- * Range:     u8 n <= 48, u16 n <= 8772, u32 n <= 8772, u64 n <= 8772,
- *            u128 n <= 8772, big any n
+ * Range:     u8 n <= 48, u16 n <= 32767, u32 n <= 32769, u64 n <= 32769,
+ *            u128 n <= 32769, big any n
+ * Validated: standard, pass, 100 terms through n = 8772 (2026-11-01)
  * Helpers:   build_primes, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/gcd.h"
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/gcd.h"
 
 /* static storage for primes */
 static idx_t  *prime_list = NULL;

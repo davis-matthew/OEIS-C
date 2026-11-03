@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   floor_cube_root
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_cube_root.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Helper to test whether v can be expressed as a sum of two positive cubes. */
 static bool
@@ -62,7 +83,7 @@ ensure_cache(idx_t n)
             /* add to cache */
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) abort();
                 cache = new_cache;
                 cache_cap = new_cap;

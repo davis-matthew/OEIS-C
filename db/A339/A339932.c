@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    `class` or `template`).  */
 
 #include <stdlib.h>  /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *a_cache          = NULL;   /* 1‑indexed array of computed terms   */
 static idx_t  a_cache_size     = 0;      /* largest n that has been computed    */
@@ -37,7 +39,7 @@ static void a_ensure_cache(idx_t n)
         new_cap <<= 1;          /* double until sufficient */
 
     /* realloc returns void*; cast explicitly for C++ compatibility. */
-    seq_t *tmp = (seq_t *)realloc(a_cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, (new_cap + 1));
     if (!tmp)
         abort();                /* memory allocation failed */
 

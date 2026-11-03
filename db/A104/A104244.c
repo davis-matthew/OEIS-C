@@ -11,8 +11,9 @@
  *            the square array A by descending antidiagonals. Here P_m(x) =
  *            Σ_i e_i * x^(i-1) and the prime factorisation of m is m = Π_{i}
  *            p_i^e_i
- * Range:     u8 n <= 84, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
- *            big any n
+ * Range:     u8 n <= 84, u16 n <= 240, u32 n <= 718, u64 n <= 2438,
+ *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 110 terms through n = 4604 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

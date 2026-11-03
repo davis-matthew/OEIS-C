@@ -10,12 +10,14 @@
  *            a(7)=104, a(8)=168, a(9)=273
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 34, u64 n <= 69, u128 n <= 138,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle the first nine terms directly */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     if (n > cached_n) {
         /* Allocate at least n+1 entries (index 0 unused) */
         idx_t new_cap = n + 1;
-        seq_t *temp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *temp = mem_resize(seq_t, cache, new_cap);
         if (!temp) exit(1);          /* allocation failed */
         cache = temp;
 

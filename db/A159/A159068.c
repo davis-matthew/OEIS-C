@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n} binomial(n,k) * gcd(k,n)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 61, u128 n <= 125,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 825 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* the binomial coefficient C(n,k). All arithmetic is performed in seq_t, */
 /* ensuring exactness for arbitrary precision builds. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

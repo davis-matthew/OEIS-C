@@ -9,12 +9,14 @@
  *            continued‑fraction convergents to sqrt(988)
  * Range:     u8 none, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void compute_initial_terms(seq_t *arr)
 {
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
 
     if (cached_len == 0) {
         /* allocate space for the first 32 terms */
-        cache = (seq_t*)calloc(32, sizeof(seq_t));
+        cache = mem_new(seq_t, 32);
         if (!cache)
             abort();
         compute_initial_terms(cache);
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 
     /* extend the cache if needed */
     size_t new_len = (size_t)n + 1;
-    cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     if (!cache)
         abort();
 

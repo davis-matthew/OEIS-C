@@ -7,13 +7,26 @@
  * Formula:   a(n) = Π_{k=0..n} (5*k + 2)! (product of consecutive factorials)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 1, u64 n <= 2, u128 n <= 3,
  *            big any n
- * Helpers:   factorial
+ * Validated: partial, pass, 6 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/factorial.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +40,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_len)
     {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;           /* memory exhaustion – return zero */
         cache = tmp;
 

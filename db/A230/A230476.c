@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{i=1..n} d(8*i+1) - Sum_{i=1..n} d(2*i+1)
  * Range:     u8 n <= 369, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9618 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *div_counts = NULL;   /* divisor counts up to the current limit */
 static idx_t div_cap = 0;          /* allocated size of div_counts */
@@ -29,7 +31,7 @@ static void ensure_div_counts(idx_t limit)
         return;                     /* already sufficient */
 
     /* Allocate new array of size limit+1, initialized to zero. */
-    seq_t *new_counts = (seq_t*)calloc((size_t)limit + 1, sizeof(seq_t));
+    seq_t *new_counts = mem_new(seq_t, (size_t)limit + 1);
     if (!new_counts)
         exit(1);                    /* out of memory */
 
@@ -40,7 +42,7 @@ static void ensure_div_counts(idx_t limit)
     }
 
     /* Free old array and replace pointers/capacity. */
-    free(div_counts);
+    mem_free(div_counts);
     div_counts = new_counts;
     div_cap    = limit + 1;
 }

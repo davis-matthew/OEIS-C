@@ -11,7 +11,8 @@
  *            leading zeros). The sequence is generated in...
  * Range:     u8 n <= 32, u16 n <= 1833, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains_deletable, is_deletable
+ * Validated: standard, pass, 73 terms through n = 9509 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,61 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/contains_deletable.h"
-#include "../utils/is_deletable.h"
+
+/* Helper: binary search – returns true if val is in sorted array a[0..len-1] */
+static bool contains_deletable(const idx_t *a, size_t len, idx_t val)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (a[mid] < val)
+            lo = mid + 1;
+        else if (a[mid] > val)
+            hi = mid;
+        else
+            return true;
+    }
+    return false;
+}
+
+/* Helper: test whether a prime candidate is deletable.
+   'del' contains all already known deletable primes (strictly < cand). */
+static bool is_deletable(idx_t cand, const idx_t *del, size_t del_sz)
+{
+    /* Extract binary digits of cand into bits[0] = LSB, bits[len-1] = MSB.
+       128 bits are enough for our purposes (values < 2^128). */
+    uint8_t bits[128];
+    size_t len = 0;
+    idx_t tmp = cand;
+    while (tmp) {
+        bits[len++] = (uint8_t)(tmp & 1);
+        tmp >>= 1;
+    }
+    if (len == 0) return false;            /* should never happen for primes */
+
+    /* Try deleting each digit. */
+    for (size_t d = 0; d < len; ++d) {
+        /* Deleting the most significant digit (d == len-1) creates
+           leading zero if the next digit is 0. */
+        if (d == len - 1 && len > 1 && bits[len - 2] == 0)
+            continue;
+
+        idx_t val = 0;
+        /* Build the number after deletion from MSB to LSB. */
+        for (size_t j = len; j-- > 0;) {
+            if (j == d) continue;
+            val = (val << 1) | bits[j];
+        }
+
+        /* Skip the empty string or a single digit that is 0 or 1. */
+        if (val <= 1) continue;
+
+        /* Must be a previously known deletable prime. */
+        if (contains_deletable(del, del_sz, val))
+            return true;
+    }
+    return false;
+}
 
 /* Public function – OEIS sequence A096246 */
 seq_t a(idx_t n)

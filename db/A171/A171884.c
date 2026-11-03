@@ -9,8 +9,9 @@
  *            ≤ n ≤ 6·3^k (i.e. 6*3^k ≥ n). Let power=3^k. If n is even: a(n)
  *            = 7·power – 2 + (n – 2·power)/2. If n is odd : a(n) = 5·power –
  *            1 – ((n + 1 – 2·power)/2)
- * Range:     u8 n <= 162, u16 n <= 9462, u32 n <= 9462, u64 n <= 9462,
- *            u128 n <= 9462, big any n
+ * Range:     u8 n <= 162, u16 n <= 13122, u32 n <= 13122, u64 n <= 13122,
+ *            u128 n <= 13122, big any n
+ * Validated: standard, pass, 84 terms through n = 9462 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_21
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,23 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/contains_21.h"
+#include "../utils/mem.h"
+
+/* test whether the decimal representation of x contains the substring "21" */
+static inline bool contains_21(seq_t x)
+{
+    if (x == (seq_t)0)
+        return false;
+    int prev = -1;                     /* previous (more significant) digit */
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)10);  /* current (least significant) digit */
+        if (prev == 1 && d == 2)       /* found "21" scanning LSB‑to‑MSB */
+            return true;
+        prev = d;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* compute the n-th term of the sequence, 1‑based index */
 seq_t a(idx_t n)
@@ -40,7 +57,7 @@ seq_t a(idx_t n)
     /* one‑time initialization */
     if (!cache) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;     /* allocation failure – unlikely */
         cache[1] = (seq_t)21;            /* a(1) = 21 */
         max_n = 1;
@@ -52,7 +69,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap * 2;
         if (new_cap < (size_t)n + 1)
             new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;       /* allocation failure – unlikely */
         cache = tmp;
         cap = new_cap;

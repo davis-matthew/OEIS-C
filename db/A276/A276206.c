@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 4852, u16 n <= 9056, u32 n <= 9056, u64 n <= 9056,
- *            u128 n <= 9056, big any n
- * Helpers:   none
+ * Range:     u8 n <= 4852, u16 n <= 199999, u32 n <= 199999, u64 n <= 199999,
+ *            u128 n <= 199999, big any n
+ * Validated: standard, pass, 137 terms through n = 9056 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator used only if sorting is needed (not used in final version). */
 static int seq_cmp(const void *p, const void *q)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         if (need > cap) {
             size_t newcap = cap ? cap * 2 : 4;
             while (newcap < need) newcap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) abort();   /* allocation failed */
             cache = tmp;
             cap = newcap;

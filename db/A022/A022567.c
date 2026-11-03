@@ -7,15 +7,29 @@
  * Formula:   a(n) = sum_{T_k = k*(k+1)/2, 0 ≤ T_k ≤ n} p(n - T_k)
  * Range:     u8 n <= 13, u16 n <= 37, u32 n <= 115, u64 n <= 390,
  *            u128 n <= 1400, big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: standard, pass, 61 terms through n = 8579 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *p_cache = NULL;
 static idx_t p_cap = 0;

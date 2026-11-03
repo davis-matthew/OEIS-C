@@ -8,6 +8,7 @@
  *            mod 3)=1, 2*floor(n/3)+3 if (n mod 3)=2
  * Range:     i8 n <= 96, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 76 terms through n = 956 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

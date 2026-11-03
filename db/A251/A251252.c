@@ -9,12 +9,14 @@
  *            3*a(n-1) + 4*a(n-2) – 14*a(n-3) + 3*a(n-4) + 3*a(n-5) for n ≥ 6
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 19, u64 n <= 40, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for memoised values.
@@ -26,13 +28,13 @@ seq_t a(idx_t n) {
     /* Allocate or extend cache to size n+1 (index n included). */
     if (cache == NULL) {
         capacity = n + 1;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL) return 0;    /* out of memory – unlikely in test harness */
     } else if (capacity <= n) {
         /* double the capacity to amortise reallocation cost */
         size_t new_capacity = (capacity < 64) ? 64 : capacity * 2;
         if (new_capacity <= n) new_capacity = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (tmp == NULL) return 0;     /* out of memory */
         cache = tmp;
         capacity = new_capacity;

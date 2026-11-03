@@ -9,13 +9,15 @@
  *            See OEIS A015345
  * Range:     i8 n <= 7, i16 n <= 7, i32 n <= 8, i64 n <= 10, i128 n <= 14,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 25 terms through n = 172 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     for (idx_t i = 1; i <= n; ++i) {
         idx_t up = i < 7 ? i : 7;
         for (idx_t j = up; j >= 1; --j) {
-            seq_t powq = big_pow((seq_t)-6, (seq_t)(i - j));
+            seq_t powq = ipow((seq_t)-6, (seq_t)(i - j));
             dp[j] = dp[j] + powq * dp[j - 1];
         }
     }

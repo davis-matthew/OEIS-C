@@ -9,13 +9,15 @@
  *            a(4)=0, a(5)=0, a(6)=1, a(7)=7
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 34, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Multiplication by a small unsigned integer.
    For C++ builds the template takes care of arbitrary‑precision types.
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t n)
     /* Allocate or enlarge the array. */
     idx_t new_len = (n + 1 > cache_len) ? (n + 1) : cache_len;
     if (new_len > cache_len) {
-        seq_t *p = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, new_len);
         if (!p) abort();                /* allocation failure */
         cache = p;
     }

@@ -9,7 +9,8 @@
  *            1/k^m ≡ 0 (mod 37^3) (37^3 = 50653)
  * Range:     u8 n <= 13, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Modulus 37^3 */
 #define MOD 50653U
@@ -68,7 +70,7 @@ static void ensure_terms(size_t need)
     if (need > matches_cap) {
         size_t new_cap = (matches_cap == 0) ? 32 : matches_cap * 2;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(matches, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, matches, new_cap);
         if (!tmp) abort();              /* allocation failure */
         matches = tmp;
         matches_cap = new_cap;

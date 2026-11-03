@@ -7,13 +7,22 @@
  * Formula:   a(n) = a(n-1) + (-1)^floor(n/2)*a(floor(n/2)), a(1)=1
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 126 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *cache       = NULL;   /* 1‑based cache (cache[0] unused) */
 static idx_t  cache_cap   = 0;      /* current capacity of cache array */
@@ -37,7 +46,7 @@ static void ensure_cache(idx_t needed)
     for (idx_t i = cache_cap; i < new_cap; ++i)
         new_arr[i] = 0;
 
-    free(cache);
+    mem_free(cache);
     cache     = new_arr;
     cache_cap = new_cap;
 }

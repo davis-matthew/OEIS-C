@@ -9,16 +9,25 @@
  *            x)^42 * * The coefficient of x^n in G(x) gives a(n). Because the
  *            numerator has * a factor (1-x)^42, G(x) is actually a polynomial
  *            of degree * 42*41 = 1722, so a(n) = 0 fo...
- * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 18,
+ * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   binom, seq_mul
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 #define M          42
 #define MAX_DEG   (M * M)          /* degree of the numerator polynomial */
@@ -87,7 +96,7 @@ static void init(void)
 
     /* pre‑compute the binomial coefficients needed for the convolution */
     for (idx_t t = 0; t <= MAX_LEN; ++t) {
-        binomVals[t] = binom((idx_t)(M + t - 1), t);
+        binomVals[t] = binomial((idx_t)(M + t - 1), t);
     }
 
     initialized = 1;

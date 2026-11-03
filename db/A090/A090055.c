@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   dfs_divisors, digit_counts, divisor_is_good
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,52 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/dfs_divisors.h"
 #include "../utils/digit_counts.h"
-#include "../utils/divisor_is_good.h"
+
+/* ---------- check whether a divisor is a non‑trivial permutation ---------- */
+static bool divisor_is_good(seq_t d, seq_t k,
+                            const unsigned char cnt_k[10],
+                            int zeros_k, int tz)
+{
+    if (d == k) return false;                 /* identical permutation */
+
+    /* trivial shift by trailing zeros */
+    seq_t tmp = k;
+    for (int z = 0; z <= tz; ++z) {
+        if (tmp == d) return false;
+        tmp /= (seq_t)10;
+    }
+
+    unsigned char cnt_d[10];
+    digit_counts(d, cnt_d);
+
+    for (int dgt = 1; dgt < 10; ++dgt)
+        if (cnt_d[dgt] != cnt_k[dgt]) return false;
+    if (cnt_d[0] > zeros_k) return false;
+
+    return true;
+}
+
+/* ---------- recursive divisor enumeration -------------------------------- */
+static bool dfs_divisors(const seq_t *factors, const int *exps,
+                         size_t fcnt, size_t idx,
+                         seq_t cur, seq_t k,
+                         const unsigned char cnt_k[10],
+                         int zeros_k, int tz)
+{
+    if (idx == fcnt) {
+        return divisor_is_good(cur, k, cnt_k, zeros_k, tz);
+    }
+    seq_t acc = cur;
+    for (int e = 0; e <= exps[idx]; ++e) {
+        if (dfs_divisors(factors, exps, fcnt, idx + 1,
+                         acc, k, cnt_k, zeros_k, tz))
+            return true;
+        if (e == exps[idx]) break;
+        acc *= factors[idx];
+    }
+    return false;
+}
 
 /* ---------- prime sieve ------------------------------------------------- */
 #define PRIME_LIMIT 2000000

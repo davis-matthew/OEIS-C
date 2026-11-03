@@ -7,6 +7,7 @@
  * Formula:   a(n) = (p_n * p_{n+1} * p_{n+2})^2
  * Range:     u8 none, u16 n <= 2, u32 n <= 12, u64 n <= 256, u128 n <= 10000,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 9495 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
 
 static idx_t *prime_cache = NULL;

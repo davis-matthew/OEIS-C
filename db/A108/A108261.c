@@ -9,12 +9,14 @@
  * Formula:   a(n) = 6*a(n-1) – a(n-2) – 4, a(0)=2, a(1)=3
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation buffer and its size information */
 static seq_t *dp      = NULL;   /* sequence values */
@@ -31,7 +33,7 @@ static void ensure_capacity(idx_t needed)
     if (capacity <= needed) {
         idx_t newCap = capacity ? capacity << 1 : 16;
         while (newCap <= needed) newCap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(dp, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, newCap);
         dp = tmp;
         capacity = newCap;
     }

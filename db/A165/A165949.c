@@ -7,15 +7,23 @@
  * Formula:   a(n) = ∏_{d|n, d≥3, 2*d+1 is prime} (2*d+1)
  * Range:     u8 n <= 14, u16 n <= 29, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   seq_mul, seq_one
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_one.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <string.h>
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 #define MAXP 20001  /* 2*10000 + 1   (covers all 2*d+1 needed for n≤10000) */
 

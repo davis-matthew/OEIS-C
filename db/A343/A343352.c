@@ -9,7 +9,8 @@
  *            ) · a(n‑k), n≥1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff = NULL;          /* a(n) values          */
 static size_t  cached_n = 0;         /* number of cached entries (max index+1) */
@@ -34,9 +36,9 @@ seq_t a(idx_t n)
     size_t new_size = (size_t)n + 1;                 /* indices 0..n inclusive */
     if (new_size > cached_n) {
         size_t old = cached_n;
-        coeff   = (seq_t *)realloc(coeff,   new_size * sizeof(seq_t));
-        weight  = (seq_t *)realloc(weight,  new_size * sizeof(seq_t));
-        sdiv    = (seq_t *)realloc(sdiv,   new_size * sizeof(seq_t));
+        coeff   = mem_resize(seq_t, coeff, new_size);
+        weight  = mem_resize(seq_t, weight, new_size);
+        sdiv    = mem_resize(seq_t, sdiv, new_size);
         if (!coeff || !weight || !sdiv) abort();
 
         /* zero‑initialize new slots */

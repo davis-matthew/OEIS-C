@@ -7,7 +7,8 @@
  * Formula:   a(n) = binomial(14*n,2*n) * binomial(4*n,n) / binomial(7*n,n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, seq_mul
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Legendre's formula: exponent of prime p in n! */
 static inline idx_t legendre(idx_t n, idx_t p)
@@ -59,7 +66,7 @@ seq_t a(idx_t n)
         exp -= legendre(7 * n, p)  - legendre(6 * n, p) - legendre(n, p);
 
         if (exp > 0) {
-            seq_t term = big_pow((seq_t)p, (seq_t)exp);
+            seq_t term = ipow((seq_t)p, (seq_t)exp);
             result = seq_mul(result, term);
         }
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state for memoisation */
 static seq_t *dp_cur    = NULL;      /* DP vector for current row */
@@ -46,7 +48,7 @@ static idx_t  cache_sz   = 0;
 static void ensure_cache(idx_t n)
 {
     if (n <= cache_sz) return;
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) abort();        /* out of memory */
     for (idx_t i = cache_sz + 1; i <= n; ++i) new_cache[i] = 0;
     cache = new_cache;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     if (n <= cache_sz) return cache[n];
     /* Initialise on first call.  dp[0] corresponds to i = 0. */
     if (dp_cur == NULL) {
-        dp_cur = (seq_t *)malloc(sizeof(seq_t));  /* size 1   */
+        dp_cur = mem_new(seq_t, 1);  /* size 1   */
         dp_cur[0] = (seq_t)1;                     /* only p(0)=0 */
         dp_size = 1;
         dp_i = 0;
@@ -71,10 +73,10 @@ seq_t a(idx_t n)
     /* Extend the DP rows up to i = n-1 (length n). */
     for (idx_t i = dp_i + 1; i <= n - 1; ++i) {
         idx_t new_size = 6 * i + 1;              /* size of new row    */
-        seq_t *new_dp = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_size);
 
         /* Prefix sums of the previous row for O(1) range sums. */
-        seq_t *pref = (seq_t *)malloc((dp_size + 1) * sizeof(seq_t));
+        seq_t *pref = mem_new(seq_t, (dp_size + 1));
         pref[0] = (seq_t)0;
         for (idx_t j = 0; j < dp_size; ++j) pref[j + 1] = pref[j] + dp_cur[j];
 
@@ -90,8 +92,8 @@ seq_t a(idx_t n)
             row_sum  += new_dp[v];
         }
 
-        free(pref);
-        free(dp_cur);          /* free previous row */
+        mem_free(pref);
+        mem_free(dp_cur);          /* free previous row */
 
         dp_cur = new_dp;       /* advance to new row          */
         dp_size = new_size;

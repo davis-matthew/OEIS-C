@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   is_prime, jacobi_symbol
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,32 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t x); */
-#include "../utils/jacobi_symbol.h"     /* int jacobi_symbol(uint64_t a, uint64_t n); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* cache of primes discovered so far */
 static uint64_t *prime_cache = NULL;
@@ -59,11 +84,11 @@ static void ensure_seq_cache(size_t needed)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) abort();
     if (seq_cache) {
-        memcpy(tmp, seq_cache, seq_len * sizeof(seq_t));
-        free(seq_cache);
+        mem_copy(tmp, seq_cache, seq_len * sizeof(seq_t));
+        mem_free(seq_cache);
     }
     seq_cache = tmp;
     seq_cap = new_cap;

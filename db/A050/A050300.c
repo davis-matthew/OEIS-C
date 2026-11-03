@@ -10,16 +10,67 @@
  *            parts)
  * Range:     u8 n <= 15, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   alloc_matrix, create_partition_matrix, free_matrix, multiply
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_matrix.h"
-#include "../utils/create_partition_matrix.h"
-#include "../utils/free_matrix.h"
-#include "../utils/multiply.h"
+#include "../utils/mem.h"
+
+/* Allocate a zeroed square matrix of size (R+1)×(R+1). The indices
+   0..R are used; 0‑th row/col are unused. */
+static seq_t** alloc_matrix(idx_t R)
+{
+    seq_t **M = (seq_t**)malloc((R + 1) * sizeof(seq_t*));
+    for (idx_t i = 0; i <= R; ++i)
+        M[i] = mem_new(seq_t, R + 1);
+    return M;
+}
+
+/* Create the partition triangle P of size R.  P[i][j] is the number of
+   partitions of i into exactly j parts. */
+static seq_t** create_partition_matrix(idx_t R)
+{
+    seq_t **P = alloc_matrix(R);
+    P[0][0] = 1;                /* empty partition */
+
+    for (idx_t i = 1; i <= R; ++i) {
+        for (idx_t j = 1; j <= i; ++j) {
+            if (i == j || j == 1)
+                P[i][j] = 1; /* one part or all parts used */
+            else
+                P[i][j] = P[i-1][j-1] + P[i-j][j];
+        }
+    }
+    return P;
+}
+
+/* Free a matrix allocated by alloc_matrix. */
+static void free_matrix(seq_t **M, idx_t R)
+{
+    for (idx_t i = 0; i <= R; ++i)
+        mem_free(M[i]);
+    free(M);
+}
+
+/* Multiply two lower‑triangular matrices A and B of size R.  The result
+   is a new matrix C = A·B. */
+static seq_t** multiply(const seq_t **A, const seq_t **B, idx_t R)
+{
+    seq_t **C = alloc_matrix(R);
+
+    for (idx_t i = 1; i <= R; ++i) {
+        for (idx_t j = 1; j <= i; ++j) {
+            seq_t sum = 0;
+            for (idx_t k = j; k <= i; ++k)
+                sum += A[i][k] * B[k][j];
+            C[i][j] = sum;
+        }
+    }
+    return C;
+}
 
 /*---------------------------------------------------------------------*/
 

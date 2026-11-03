@@ -9,12 +9,14 @@
  *            n>4
  * Range:     u8 n <= 1, u16 n <= 14, u32 n <= 37, u64 n <= 83, u128 n <= 175,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;   /* 1‑based array, index 0 unused */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* capacity up to 4 is sufficient for the initial terms */
         cache_size = 4;
-        cache = (seq_t *)malloc((cache_size + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_size + 1));
         if (cache == NULL)
             return 0; /* out of memory, caller must handle */
         cache[1] = (seq_t)42;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
     /* Extend cache to hold up to n */
     idx_t new_size = n;
-    seq_t *tmp = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_size + 1));
     if (tmp == NULL)
         return 0; /* out of memory */
     cache = tmp;

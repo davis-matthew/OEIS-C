@@ -9,14 +9,24 @@
  *            hits; 2n/(2n-j)*C(2n-j,j) = C(2n-j,j)+C(2n-j-1,j-1))
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 14, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   a185_c5
+ * Validated: standard, pass, 35 terms through n = 249 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a185_c5.h"
+
+static seq_t a185_c5(idx_t j)
+{
+    seq_t c = (seq_t)j;
+    c = c * (seq_t)(j - 1) / 2;
+    c = c * (seq_t)(j - 2) / 3;
+    c = c * (seq_t)(j - 3) / 4;
+    c = c * (seq_t)(j - 4) / 5;
+    return c;
+}
 
 #define A185_PMAX 141
 

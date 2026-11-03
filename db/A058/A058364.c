@@ -9,12 +9,14 @@
  *            10 (Offset 1)
  * Range:     u8 n <= 28, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* enlarge cache if necessary */
     if (n > cache_size) {
-        seq_t *newc = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *newc = mem_resize(seq_t, cache, (size_t)n);
         if (newc == NULL) {
             /* allocation failure – unlikely for given limits */
             return (seq_t)0;

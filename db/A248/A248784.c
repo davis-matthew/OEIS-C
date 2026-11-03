@@ -8,6 +8,7 @@
  *            p^t⌋*(n+1) - p^t*⌊n/p^t⌋*(⌊n/p^t⌋+1)/2)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 23, u64 n <= 45, u128 n <= 88,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 895 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

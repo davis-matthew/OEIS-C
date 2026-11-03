@@ -12,12 +12,14 @@
  *            a(6)=464, a(7)=1113, a(8)=264...
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 47, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* One‑time initialization: store first 18 known terms. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * 19);   /* indices 0..18 */
+        cache = mem_new(seq_t, 19);   /* indices 0..18 */
         if (!cache) exit(EXIT_FAILURE);
         static const seq_t init[18] = {
             (seq_t)1,  (seq_t)6,   (seq_t)24,  (seq_t)74,   (seq_t)180,
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* Grow cache if we have to store a higher index. */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         for (idx_t i = cache_size; i < new_size; ++i) cache[i] = (seq_t)0;

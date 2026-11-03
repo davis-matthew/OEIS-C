@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 511, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 7834 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Integer square root of a 128‑bit unsigned integer, used for
@@ -69,11 +71,11 @@ static void cache_ensure(idx_t need)
     size_t new_cap = seq_cap ? seq_cap << 1 : 64;
     while (new_cap < seq_len + need)
         new_cap <<= 1;
-    seq_t *new_mem = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_new(seq_t, new_cap);
     if (!new_mem) exit(1);          /* OOM – acceptable in this context */
     if (seq_cache) {
-        memcpy(new_mem, seq_cache, seq_len * sizeof(seq_t));
-        free(seq_cache);
+        mem_copy(new_mem, seq_cache, seq_len * sizeof(seq_t));
+        mem_free(seq_cache);
     }
     seq_cache = new_mem;
     seq_cap   = new_cap;

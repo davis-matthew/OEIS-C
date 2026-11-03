@@ -9,7 +9,8 @@
  *            and both x and y are palindromes in base 10
  * Range:     u8 none, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   floor_sqrt, is_palindrome, is_prime, rev
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   ipow_i32, is_palindrome_base, is_prime, mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,29 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/is_palindrome_base.h"
 #include "../utils/is_prime.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/rev.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *seq_values = NULL;  /* stored terms of the sequence */
 static size_t seq_len   = 0;      /* number of terms stored */
@@ -30,15 +50,15 @@ static idx_t  next_candidate = 2; /* next integer to test for primality */
 /* test whether a prime p satisfies the definition */
 static bool prime_has_palindrome_product(idx_t p)
 {
-    seq_t revp = rev(p);                      /* reverse of p */
+    seq_t revp = reverse_digits_idx(p);                      /* reverse of p */
     if (revp <= (seq_t)1) return false;       /* need factors > 1 */
     seq_t limit = floor_sqrt(revp);
     for (seq_t d = (seq_t)2; d <= limit; ++d) {
         if (revp % d == (seq_t)0) {
             seq_t d2 = revp / d;
             if (d > (seq_t)1 && d2 > (seq_t)1 &&
-                is_palindrome(d, (idx_t)10) &&
-                is_palindrome(d2, (idx_t)10)) {
+                is_palindrome_base(d, (idx_t)10) &&
+                is_palindrome_base(d2, (idx_t)10)) {
                 return true;
             }
         }
@@ -53,7 +73,7 @@ static void grow_seq(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     if (new_cap < need) new_cap = need;
 #ifdef __cplusplus
-    seq_values = static_cast<seq_t*>(realloc(seq_values, new_cap * sizeof(seq_t)));
+    seq_values = mem_resize(seq_t, seq_values, new_cap);
 #else
     seq_values = realloc(seq_values, new_cap * sizeof(seq_t));
 #endif

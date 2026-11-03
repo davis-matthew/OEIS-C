@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 27, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   get_digit_mask, next_prime
+ * Validated: full, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/next_prime.h"
-#include "../utils/get_digit_mask.h"
+#include "../utils/mem.h"
+
+/* Compute the digit mask of n; return true if all digits are distinct. */
+static bool get_digit_mask(uint64_t n, unsigned int *mask_out)
+{
+    unsigned int mask = 0;
+    while (n > 0) {
+        unsigned int d = n % 10;
+        if (mask & (1u << d))        /* repeated digit */
+            return false;
+        mask |= (1u << d);
+        n /= 10;
+    }
+    *mask_out = mask;
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +58,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (size == 0) {
         cap = 8;                                 /* initial capacity */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)2;
         size  = 1;
         last_prime = 2;
@@ -74,7 +90,7 @@ seq_t a(idx_t n)
         /* Grow cache if necessary */
         if (size == cap) {
             size_t new_cap = cap + cap / 2 + 1;                      /* 1.5× + 1 */
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0;                                     /* allocation failed */
             cache = tmp;
             cap = new_cap;

@@ -10,15 +10,39 @@
  *            k‑th power, otherwise 0
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   is_perfect_kth_power, pow_check_uint64
+ * Validated: standard, pass, 101 terms through n = 9607 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/is_perfect_kth_power.h"
-#include "../utils/pow_check_uint64.h"
+
+static inline uint64_t pow_check_uint64(uint64_t base, int exp, uint64_t limit)
+{
+    __int128 result = 1;
+    for (int i = 0; i < exp; ++i) {
+        result *= base;
+        if (result > limit) return limit + 1; /* overflow or too big */
+    }
+    return (uint64_t)result;
+}
+
+/* Return 1 if n is a perfect k‑th power, else 0. */
+static inline int is_perfect_kth_power(uint64_t n, int k)
+{
+    /* Special case n==1 handled outside of the loop. */
+    uint64_t r = (uint64_t)(pow((double)n, 1.0 / k) + 0.5);
+    if (r < 1) r = 1;
+
+    /* Adjust down if we overshoot. */
+    while (pow_check_uint64(r, k, n) > n) --r;
+    /* Adjust up if we undershoot. */
+    while (pow_check_uint64(r, k, n) < n) ++r;
+
+    return pow_check_uint64(r, k, n) == n;
+}
 
 seq_t a(idx_t n)
 {

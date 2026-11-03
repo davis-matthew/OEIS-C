@@ -8,7 +8,8 @@
  *            (sorted)
  * Range:     u8 n <= 3, u16 n <= 667, u32 n <= 667, u64 n <= 667,
  *            u128 n <= 667, big any n
- * Helpers:   mod_pow
+ * Validated: full, pass, 667 terms through n = 667 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/mod_pow.h"   /* for mod_pow(seq_t, uint64_t, seq_t) */
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *residues = NULL;  /* sorted array of distinct residues */
 static size_t residue_count = 0;
@@ -34,7 +37,7 @@ static void init_residues(void)
     /* Compute residues for k = 0 .. 3330 */
     const seq_t MOD = (seq_t)3331;
     for (idx_t k = 0; k < 3331; ++k) {
-        seq_t r = mod_pow((seq_t)k, (uint64_t)5, MOD);
+        seq_t r = powmod((seq_t)k, (uint64_t)5, MOD);
         seen[(size_t)r] = true;
     }
 
@@ -44,7 +47,7 @@ static void init_residues(void)
             ++residue_count;
 
     /* Allocate and populate the sorted residue array */
-    residues = (seq_t *)malloc(residue_count * sizeof(seq_t));
+    residues = mem_new(seq_t, residue_count);
     if (!residues)
         return; /* allocation failure: we silently fall back to empty array */
 

@@ -12,7 +12,8 @@
  *            obtained by dynamic programming over all 6⁵ possible rows
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 37,
  *            big any n
- * Helpers:   row_pair_ok
+ * Validated: standard, pass, 32 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/row_pair_ok.h"
+#include "../utils/mem.h"
+
+/* Check whether two rows can be placed consecutively. */
+static bool row_pair_ok(const uint8_t row_a[5], const uint8_t row_b[5]) {
+    for (idx_t col = 0; col < 4; ++col) {
+        int a = row_a[col];
+        int b = row_a[col + 1];
+        int c = row_b[col];
+        int d = row_b[col + 1];
+        int s = 0;
+        int diff;
+
+        diff = b - a; s += diff * diff;
+        diff = c - a; s += diff * diff;
+        diff = d - b; s += diff * diff;
+        diff = c - d; s += diff * diff;
+        diff = c - b; s += diff * diff;
+        diff = d - a; s += diff * diff;
+
+        if (s != 11) return false;
+    }
+    return true;
+}
 
 #define N_STATES 7776  /* 6⁵ */
 
@@ -89,8 +112,8 @@ static void init(void) {
     free(rows);
 
     /* Allocate DP vectors. */
-    dp_cur  = (seq_t *) calloc(N_STATES, sizeof(seq_t));
-    dp_next = (seq_t *) calloc(N_STATES, sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, N_STATES);
+    dp_next = mem_new(seq_t, N_STATES);
 
     built = true;
 }

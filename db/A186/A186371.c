@@ -8,7 +8,8 @@
  *            computed iteratively and cached)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for factorial values */
 static seq_t *fact_cache = NULL;   /* fact_cache[i] = i!  (fact_cache[0] = 1) */
@@ -25,7 +27,7 @@ static size_t fact_cache_len = 0;  /* number of elements stored */
 static void ensure_fact_cache(idx_t n)
 {
     if (fact_cache == NULL) {
-        fact_cache = (seq_t *)malloc(sizeof(seq_t));
+        fact_cache = mem_new(seq_t, 1);
         if (fact_cache == NULL) return;          /* allocation error – fail silently */
         fact_cache[0] = (seq_t)1;
         fact_cache_len = 1;
@@ -34,7 +36,7 @@ static void ensure_fact_cache(idx_t n)
     if ((size_t)n + 1 <= fact_cache_len) return; /* already present */
 
     size_t new_len = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(fact_cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, fact_cache, new_len);
     if (new_cache == NULL) return;   /* allocation error – fail silently */
     fact_cache = new_cache;
 

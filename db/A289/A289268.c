@@ -11,14 +11,17 @@
  *            where p = 1 << floor_log2_uint64(n/2) (p = 1 when n = 0)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: standard, pass, 49 terms through n = 118 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
-#include "../utils/floor_log2_uint64.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
         }
         else
         {
-            p = ((idx_t)1) << floor_log2_uint64(m);
+            p = ((idx_t)1) << ilog2(m);
         }
         seq_t sub = pow2(p) - (seq_t)1;
         return top - sub;

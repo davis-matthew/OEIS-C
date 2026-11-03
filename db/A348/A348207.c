@@ -11,15 +11,24 @@
  *            arithmetic) (Here C(m,k) = binomial(m,k).)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 13, i128 n <= 17,
  *            big any n
- * Helpers:   binomial, seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *a_cache   = NULL;   /* cache of a(n) values (index 0 unused) */
 static idx_t  max_computed = 0;   /* largest n for which a_cache is valid */

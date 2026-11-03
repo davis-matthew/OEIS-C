@@ -10,15 +10,16 @@
  *            L(x) equals n⁻¹ * a(n), which gives the above divisor sum
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 20, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   big_pow, pow_seq
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   ipow, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_i32.h"
 
 /* Return the n-th term of A322209.  n is 0‑based. */
 seq_t a(idx_t n)
@@ -35,10 +36,10 @@ seq_t a(idx_t n)
 
         /* process divisor d */
         {
-            seq_t pow2_d = big_pow((seq_t)2, (seq_t)d);   /* 2^d   */
+            seq_t pow2_d = ipow((seq_t)2, (seq_t)d);   /* 2^d   */
             seq_t base  = pow2_d + (seq_t)1;             /* 2^d+1 */
             int    exp  = (int)(n / d);                /* n/d   */
-            seq_t term  = pow_seq(base, exp);           /* base^exp */
+            seq_t term  = ipow_i32(base, exp);           /* base^exp */
             term        = term * (seq_t)d;              /* d * base^exp */
             sum        += term;                         /* accumulate */
         }
@@ -49,10 +50,10 @@ seq_t a(idx_t n)
 
         /* process the complementary divisor other */
         {
-            seq_t pow2_other = big_pow((seq_t)2, (seq_t)other);
+            seq_t pow2_other = ipow((seq_t)2, (seq_t)other);
             seq_t base       = pow2_other + (seq_t)1;
             int    exp       = (int)(n / other); /* which equals d */
-            seq_t term       = pow_seq(base, exp);
+            seq_t term       = ipow_i32(base, exp);
             term             = term * (seq_t)other;
             sum              += term;
         }

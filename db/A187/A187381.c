@@ -12,12 +12,14 @@
  *            No external data tables are used beyond the eight in...
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,11 +36,11 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if (n > capacity) {
         idx_t new_cap = (n > 16 ? n : 16);
-        seq_t *new_cache = (seq_t *)malloc((new_cap + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (new_cap + 1));
         if (!new_cache) return (seq_t)0;   /* allocation failure */
         /* copy already computed values */
         for (idx_t i = 1; i <= capacity; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         capacity = new_cap;
     }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = n * gcd(210, n) * (2 - (n mod 2))
  * Range:     u8 n <= 13, u16 n <= 209, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 8162 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

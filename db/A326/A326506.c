@@ -12,12 +12,14 @@
  *            The root is forced to be 1 for n > 5; for n = 5...
  * Range:     u8 n <= 17, u16 n <= 50, u32 n <= 442, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* DP arrays: dp[i][k] = number of ways in subtree i (root not chosen)
        to obtain exactly k zeros in that subtree. */
-    seq_t (*dp)[K + 1] = (seq_t (*)[K + 1])malloc((n + 1) * sizeof(seq_t [K + 1]));
+    seq_t (*dp)[K + 1] = mem_new(seq_t[K + 1], n + 1);
     for (idx_t i = n; (idx_t)i >= 1; --i) {
         for (idx_t k = 0; k <= K; ++k) dp[i][k] = (seq_t)0;
 
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[1][K];
-    free(dp);
+    mem_free(dp);
     free(subsize);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 169, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   leftmost_digit
+ * Validated: standard, pass, 80 terms through n = 9803 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>   /* for malloc, realloc */
-#include "../utils/leftmost_digit.h"
+#include "../utils/mem.h"
+
+static seq_t leftmost_digit(seq_t x)
+{
+    /* Return the leftmost decimal digit of x.  x is always > 0. */
+    while (x >= (seq_t)10)
+        x /= (seq_t)10;
+    return x;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +47,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 16;   /* initial capacity */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         /* Assume malloc succeeds; in production code check for NULL. */
     }
 
@@ -55,7 +64,7 @@ seq_t a(idx_t n)
             if (cache_len >= cache_cap)
             {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = next_check;
         }

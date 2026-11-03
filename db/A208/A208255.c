@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Prefix: seq_t and idx_t are defined by the build system. */
 extern seq_t a(idx_t n);
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
     /* First initialisation: copy the first nine terms. */
     if (cache == NULL) {
         cache_len = 9;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) abort();
         for (size_t i = 0; i < cache_len; ++i)
             cache[i] = base[i];
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
 
     /* Expand the cache to accommodate the requested term. */
     size_t new_len = (size_t)n;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (new_cache == NULL) abort();
     cache = new_cache;
 

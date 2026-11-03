@@ -11,15 +11,58 @@
  *            the edges of the associated edge‑graph
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   binary_indices_mask, is_disconnected
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binary_indices_mask.h"
-#include "../utils/is_disconnected.h"
+
+/* utility: mask of binary indices of x (positions of 1 bits, 1‑based) */
+static inline uint64_t binary_indices_mask(idx_t x)
+{
+    uint64_t mask = 0;
+    uint8_t pos = 1;
+    while (x) {
+        if (x & 1) mask |= 1ULL << (pos - 1);
+        x >>= 1;
+        ++pos;
+    }
+    return mask;
+}
+
+/* utility: test if the remaining nodes after removing removedMask are
+ * disconnected (or none left).  adj[i] contains bitmask of neighbors of i. */
+static inline bool is_disconnected(const uint64_t adj[], int E,
+                                   uint64_t removedMask)
+{
+    uint64_t remMask = (~removedMask) & ((E == 64) ? ~0ULL
+                         : ((1ULL << E) - 1));
+    if (remMask == 0) return true;              /* empty graph */
+    int start = __builtin_ctzll(remMask);        /* first remaining node */
+
+    uint64_t visited = 0;
+    uint64_t stack[64];
+    int sp = 0;
+    stack[sp++] = start;
+    visited |= 1ULL << start;
+
+    while (sp) {
+        int v = (int)stack[--sp];
+        uint64_t neigh = adj[v] & remMask;
+        while (neigh) {
+            int u = __builtin_ctzll(neigh);
+            neigh &= neigh - 1;
+            if (!(visited & (1ULL << u))) {
+                visited |= 1ULL << u;
+                stack[sp++] = u;
+            }
+        }
+    }
+    return visited != remMask;
+}
 
 seq_t a(idx_t n)
 {

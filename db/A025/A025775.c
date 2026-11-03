@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into parts 1, 4, and 11
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
             /* if requested n is larger than initial capacity, just jump to it */
             cap = n + 1;
         }
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL)
             return 0; /* allocation failed – return 0 as a fallback */
         computed = 0;
@@ -44,11 +46,11 @@ seq_t a(idx_t n)
         /* double until we have enough space */
         while (cap < (size_t)n + 1)
             cap <<= 1;
-        seq_t *new_cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, cap);
         if (new_cache == NULL)
             return 0; /* allocation failed – return 0 */
-        memcpy(new_cache, cache, computed * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, computed * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
     }
 

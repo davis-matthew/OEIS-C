@@ -12,13 +12,15 @@
  *            are the coefficients of u2 (q₀=1). The recurrenc...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* coefficients of u1 (degree 42) -------------------------------------- */
 static const long long P[43] = {
@@ -78,7 +80,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL || need > cache_cap) {
         size_t newcap = cache_cap ? cache_cap * 2 : 128;
         while (need > newcap) newcap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return;          /* out of memory – caller will handle */
         cache = tmp;
         cache_cap = newcap;

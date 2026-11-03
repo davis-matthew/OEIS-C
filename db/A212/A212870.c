@@ -9,7 +9,8 @@
  *            that none of x,y,z divides x+y+z
  * Range:     u8 n <= 13, u16 n <= 77, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   count_with_div, idx_max, idx_min, ll_max, ll_min, ll_min3
+ * Validated: standard, pass, 64 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,12 +18,59 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/count_with_div.h"
-#include "../utils/idx_max.h"
-#include "../utils/idx_min.h"
-#include "../utils/ll_max.h"
-#include "../utils/ll_min.h"
-#include "../utils/ll_min3.h"
+#include "../utils/mem.h"
+
+/* Count number of nondecreasing triples containing a specific divisor d. */
+static inline seq_t count_with_div(idx_t S, idx_t d, idx_t n) {
+    long long T = (long long)S - (long long)d;      /* sum of the other two numbers */
+    seq_t cnt = 0;
+
+    /* case 1: d is the smallest element (a = d) */
+    long long lower_b = (long long)d;
+    long long t_minus_n = (T > (long long)n) ? T - (long long)n : 0;
+    if (t_minus_n > lower_b) lower_b = t_minus_n;
+    long long upper_b = T / 2;
+    if (upper_b > (long long)n) upper_b = (long long)n;
+    if (lower_b <= upper_b) cnt += (seq_t)(upper_b - lower_b + 1);
+
+    /* case 2: d is the middle element (b = d), a != d */
+    if (d > 1) {
+        long long lower_a = 1;
+        long long val = (T > (long long)n) ? T - (long long)n : 0;
+        if (val > lower_a) lower_a = val;      /* a ≥ T - n for c ≤ n */
+
+        long long upper_a = (long long)d - 1;   /* a ≤ d-1 to keep a < d */
+        if (upper_a > T / 2) upper_a = T / 2;   /* enforce a ≤ floor(T/2) to keep b ≤ c */
+
+        long long t_minus_d = T - (long long)d; /* a ≤ T - d to keep c ≥ d */
+        if (t_minus_d < upper_a) upper_a = t_minus_d;
+
+        if (lower_a <= upper_a) cnt += (seq_t)(upper_a - lower_a + 1);
+    }
+
+    /* case 3: d is the largest element (c = d), a & b < d */
+    long long lower_a2 = 1;
+    long long val2 = (T > (long long)d) ? T - (long long)d + 1 : 1;  /* a > T - d */
+    if (val2 > lower_a2) lower_a2 = val2;
+    long long upper_a2 = (long long)d - 1;   /* a ≤ d-1 */
+    if (upper_a2 > T / 2) upper_a2 = T / 2; /* enforce a ≤ floor(T/2) for a ≤ b */
+
+    if (lower_a2 <= upper_a2) cnt += (seq_t)(upper_a2 - lower_a2 + 1);
+
+    return cnt;
+}
+
+static inline idx_t idx_max(idx_t a, idx_t b) { return a > b ? a : b; }
+
+static inline idx_t idx_min(idx_t a, idx_t b) { return a < b ? a : b; }
+
+static inline long long ll_max(long long a, long long b) { return a > b ? a : b; }
+
+static inline long long ll_min(long long a, long long b) { return a < b ? a : b; }
+
+static inline long long ll_min3(long long a, long long b, long long c) {
+    return ll_min(a, ll_min(b, c));
+}
 
 seq_t a(idx_t n) {
     if (n < 1) return (seq_t)0;
@@ -32,7 +80,7 @@ seq_t a(idx_t n) {
 
     /* --- compute total number of nondecreasing triples for each sum S --- */
     long long *diff = (long long*)calloc(sz, sizeof(long long));
-    seq_t *total   = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *total   = mem_new(seq_t, sz);
     if (!diff || !total) return (seq_t)0;
 
     for (idx_t a_val = 1; a_val <= n; ++a_val) {
@@ -98,6 +146,6 @@ seq_t a(idx_t n) {
         result += allowedS;
     }
 
-    free(total);
+    mem_free(total);
     return result;
 }

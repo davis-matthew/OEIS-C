@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declaration of the sequence function */
 seq_t a(idx_t n);
@@ -84,7 +86,7 @@ static void init_state(void)
 
     /* initialise value/seen arrays for zero count 0 */
     seen_cap = 8;
-    val = (seq_t *)malloc(seen_cap * sizeof(seq_t));
+    val = mem_new(seq_t, seen_cap);
     seen = (bool *)malloc(seen_cap * sizeof(bool));
     for (i = 0; i < (int)seen_cap; ++i) {
         seen[i] = false;
@@ -148,7 +150,7 @@ seq_t a(idx_t n)
         /* enlarge value/seen arrays if needed */
         if (z >= seen_cap) {
             size_t new_cap = z + 8;
-            val  = (seq_t *)realloc(val, new_cap * sizeof(seq_t));
+            val  = mem_resize(seq_t, val, new_cap);
             seen = (bool *)realloc(seen, new_cap * sizeof(bool));
             for (size_t i = seen_cap; i < new_cap; ++i) {
                 seen[i] = false;

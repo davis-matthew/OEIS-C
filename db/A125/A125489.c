@@ -10,13 +10,20 @@
  *            trace( M^n ) where M[i][j] = 1 if |i – j| ≤ 9, otherwise 0
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   absdiff_int
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/absdiff_int.h"   /* for absdiff_int */
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+static inline int absdiff_int(int a, int b) {
+    return a > b ? a - b : b - a;
+}
 
 #define DIGITS 32
 #define DIFF_LIMIT 9

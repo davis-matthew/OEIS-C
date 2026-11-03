@@ -10,13 +10,15 @@
  *            1,3,4,4,4,... (A113311)) * Generates OEIS sequence A115285
  * Range:     u8 n <= 13, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;  /* cached sequence values */
 static idx_t cache_size = 0U;/* number of values already computed */
@@ -33,7 +35,7 @@ ensure_cache(idx_t n)
     if (needed <= cache_size)
         return;
 
-    cache = (seq_t *)realloc(cache, (size_t)needed * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (size_t)needed);
     if (!cache)
         abort();
 

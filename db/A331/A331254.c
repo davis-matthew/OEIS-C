@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   gcd64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /* ---------- 128‑bit multiplication helper --------------------------------*/
 #if defined(__SIZEOF_INT128__)  /* GCC, Clang, MSVC on 64‑bit */
@@ -146,7 +147,7 @@ static void build_triangles(uint32_t max_side)
                 uint64_t c2 = (uint64_t)c * c;
                 uint64_t num = a2 * b2 * c2;              /* numerator of R²     */
 
-                uint64_t g = gcd64(num, den);
+                uint64_t g = gcd_u64(num, den);
                 num /= g;
                 den /= g;
 

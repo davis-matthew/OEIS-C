@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache for the sequence values */
 static seq_t *a_list   = NULL;
@@ -94,7 +96,7 @@ static void init(void)
         uint32_t c_cur  = cnt_sum[2 * k];
         uint32_t c_next = cnt_sum[2 * (k + 1)];
         if (c_prev == c_cur && c_cur == c_next) {
-            a_list = (seq_t *)realloc(a_list, (a_len + 1) * sizeof(seq_t));
+            a_list = mem_resize(seq_t, a_list, (a_len + 1));
             a_list[a_len++] = (seq_t)k;
         }
     }

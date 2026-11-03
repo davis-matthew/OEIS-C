@@ -9,13 +9,15 @@
  *            = 00010001 and g1 = f²(1) = 1111110001
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* initialise with the first odd‑iteration word (11) if needed */
     if (len == 0) {
-        buf = (seq_t *)malloc(2 * sizeof(seq_t));
+        buf = mem_new(seq_t, 2);
         buf[0] = 1;
         buf[1] = 1;
         len = 2;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         }
 
         idx_t new_len = zeros * 8 + ones * 10;
-        seq_t *new_buf = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, new_len);
         seq_t *p = new_buf;
 
         static const seq_t g0[8]  = {0,0,0,1,0,0,0,1};
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(buf);
+        mem_free(buf);
         buf = new_buf;
         len = new_len;
     }

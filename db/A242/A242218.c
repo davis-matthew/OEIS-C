@@ -12,7 +12,8 @@
  *            that mean is a semiprime (exactly two prime factors...
  * Range:     u8 none, u16 n <= 305, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 60 terms through n = 9957 (2026-11-03)
+ * Helpers:   mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdint.h>   /* uint64_t */
 #include <stdbool.h>  /* bool */
 #include <stdlib.h>   /* malloc, calloc, realloc, free */
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /*--------------------------------------------------------------*/
 /* static state used for lazy initialization                  */
@@ -88,7 +90,7 @@ static void build_primes(idx_t limit)
 static void collect_answers(void)
 {
     /* Rough upper bound: at most 'prime_count' answers. */
-    answer_list = (seq_t *)malloc(prime_count * sizeof(seq_t));
+    answer_list = mem_new(seq_t, prime_count);
     answer_count = 0;
 
     for (size_t i = 0; i + 2 < prime_count; ++i)
@@ -105,7 +107,7 @@ static void collect_answers(void)
         int  factor_cnt = 0;
         while (x > 1)
         {
-            uint64_t d = _smallest_prime_factor(x);
+            uint64_t d = smallest_prime_factor(x);
             while (x % d == 0)
             {
                 x /= d;

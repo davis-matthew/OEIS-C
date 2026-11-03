@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy, nice
  * Formula:   not stated
- * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 59, u128 n <= 116,
+ * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 31, u64 n <= 59, u128 n <= 116,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 51 terms through n = 2881 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
    a(n) = ∑_{d≡n (mod 2), 0≤d≤⌊n/3⌋} (n−2d)! / (((n−3d)/2)!² d!)
         = ∑_{d≡n (mod 2)} C(n−2d, k) · C((n−d)/2, k),  where k = (n−3d)/2 */
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +36,8 @@ seq_t a(idx_t n)
         idx_t m = (n - d) / 2;
 
         /* term = C(L, k) * C(m, k) */
-        seq_t term = binom(L, k);
-        term *= binom(m, k);
+        seq_t term = binomial(L, k);
+        term *= binomial(m, k);
 
         sum += term;
     }

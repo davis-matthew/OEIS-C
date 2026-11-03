@@ -12,13 +12,15 @@
  *            57346376 a(11) = 340979312 a(12) = 2027446948 a(13...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Basic constant table */
@@ -54,14 +56,14 @@ seq_t a(idx_t n) {
     /* Allocate or extend the cache if necessary */
     if (cache == NULL) {
         cache_cap = (size_t)(required + 1);
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;  /* failed allocation, return 0 as a placeholder */
         for (int i = 1; i <= 13; ++i) {
             cache[i] = init[i];
         }
         computed_up_to = 13;
     } else if (cache_cap <= (size_t)required) {
-        cache = (seq_t *)realloc(cache, (size_t)(required + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(required + 1));
         if (!cache) return 0;  /* failed allocation */
         for (size_t i = cache_cap; i <= (size_t)required; ++i) {
             cache[i] = 0;

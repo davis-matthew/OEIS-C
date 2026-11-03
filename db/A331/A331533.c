@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 152, u16 n <= 4766, u32 n <= 7118, u64 n <= 7118,
  *            u128 n <= 7118, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 6975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    returning the n‑th element.  No external libraries are required. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_buf  = NULL;   /* cached sequence terms */
 static size_t seq_len  = 0;      /* number of stored terms   */
@@ -33,7 +35,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_buf = (seq_t *)realloc(seq_buf, new_cap * sizeof(seq_t));
+    seq_buf = mem_resize(seq_t, seq_buf, new_cap);
     seq_cap = new_cap;
 }
 

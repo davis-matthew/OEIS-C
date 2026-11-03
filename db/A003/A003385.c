@@ -9,14 +9,19 @@
  *            found), sort, dedupe, a(n) = n-th smallest distinct sum
  * Range:     u8 n <= 1, u16 n <= 36, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3385_cmpu
+ * Validated: standard, pass, 56 terms through n = 9132 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a3385_cmpu.h"
+
+static int a3385_cmpu(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
 
 static uint64_t a3385_pw[201];
 static uint64_t *a3385_buf = NULL;

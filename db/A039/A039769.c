@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   not stated
  * Range:     u8 n <= 94, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 6646, big any n
- * Helpers:   gcd, is_prime, phi
+ *            u128 n <= 8092, big any n
+ * Validated: standard, pass, 75 terms through n = 9868 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,11 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/phi.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include "../utils/is_prime.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static data for memoisation */
@@ -38,7 +41,7 @@ seq_t a(idx_t n) {
     /* Grow array capacity as needed */
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) exit(EXIT_FAILURE);   /* abort on OOM */
         seq = tmp;
         seq_cap = new_cap;
@@ -51,7 +54,7 @@ seq_t a(idx_t n) {
             ++next;
 
         /* Compute phi(next) and gcd(phi, next-1) */
-        seq_t phi_val = phi(next);
+        seq_t phi_val = totient(next);
         seq_t g = gcd(phi_val, (seq_t)(next - 1));
 
         if (g > 1) {

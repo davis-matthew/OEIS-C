@@ -8,6 +8,7 @@
  * Formula:   a(0) = 1, a(n) = 6 * n * (n^2 + 1) for n>0
  * Range:     u8 n <= 3, u16 n <= 22, u32 n <= 894, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 57 terms through n = 938 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

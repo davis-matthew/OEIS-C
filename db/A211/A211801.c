@@ -10,12 +10,14 @@
  *            complement for each fixed w by a two‑pointer scan over x and y
  * Range:     u8 n <= 5, u16 n <= 31, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
     static idx_t cubes_cap = 0;
 
     if (n > cubes_cap) {
-        free(cubes);
-        cubes = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        mem_free(cubes);
+        cubes = mem_new(seq_t, (n + 1));
         cubes_cap = n;
     }
 

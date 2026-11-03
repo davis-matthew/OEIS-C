@@ -7,24 +7,26 @@
  * Formula:   a(n) = min_{k=1..n} (a(k-1) + 2^k*(n + a(n-k))), a(0) = 0
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 62, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
 
 seq_t a(idx_t n) {
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = 0;
         cache_len = 1;
     }
     if (n >= cache_len) {
-        cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         for (idx_t m = cache_len; m <= n; m++) {
             /* k = 1 candidate */
             seq_t best = cache[0] + (seq_t)2 * ((seq_t)m + cache[m - 1]);

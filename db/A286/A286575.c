@@ -8,14 +8,16 @@
  *            of A001316(L) = 2^popcount(L). Equivalently * a(n) =
  *            2^sum_{runs} popcount(run length). * * This implements the
  *            run‑length transform of A001316 as defined in A286575
- * Range:     u8 n <= 9714, u16 n <= 9714, u32 n <= 9714, u64 n <= 9714,
- *            u128 n <= 9714, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 125 terms through n = 9714 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Count the number of 1 bits in an unsigned integer. */

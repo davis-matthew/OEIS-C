@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   is_prime_seq
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* ---------- internal helper ----------------------------------------- */
 static inline bool is_prime(seq_t x)
@@ -54,7 +56,7 @@ static void init_static(void)
 
     /* initialise cache with a(1) */
     cache_len = 2;
-    cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_len);
     cache[0] = (seq_t)0;                   /* dummy */
     cache[1] = (seq_t)1;
     cur_sum = (seq_t)1;
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
         /* expand cache if needed */
         if (i >= cache_len) {
             size_t new_len = i + 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_len);
             if (!tmp) abort();               /* memory exhausted */
             cache = tmp;
             cache_len = new_len;

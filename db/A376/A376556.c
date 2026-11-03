@@ -9,6 +9,7 @@
  *            exponents of C(n,⌊n/2⌋)
  * Range:     u8 n <= 626, u16 n <= 6908, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 8770 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,6 @@
 #include <string.h>
 /* Include helper that returns 2^exp as a seq_t */
 #include "../utils/pow2.h"
-
 
 /* Maximum N expected in tests – enough for n up to 20000.
  *  Adjust if needed. */

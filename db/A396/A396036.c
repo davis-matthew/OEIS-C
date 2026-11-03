@@ -9,12 +9,14 @@
  *            [1,27,365,3331,22123,112605,444281,1364891,3244921]
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     idx_t limit = n < 9 ? n : 8;
     for (idx_t k = 0; k <= limit; ++k)
     {
-        res += B[k] * binom(n, k);
+        res += B[k] * binomial(n, k);
     }
     return res;
 }

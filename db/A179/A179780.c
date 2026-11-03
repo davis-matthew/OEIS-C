@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 71 terms through n = 998 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* External integer types provided by the build system. */
 seq_t a(idx_t n)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Initialise state on first call. */
     if (!seq) {
         seq_cap = 256;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
 
         primes_cap = 64;
         primes = (uint64_t*)malloc(primes_cap * sizeof(uint64_t));
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         if ((g1 % g2) != 0 && (g2 % g1) != 0) {
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_t *tmp = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, seq_cap);
                 seq = tmp;
             }
             seq[seq_len++] = (seq_t)q; /* store as seq_t */

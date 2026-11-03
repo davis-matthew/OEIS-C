@@ -7,13 +7,15 @@
  * Formula:   a(n) = (n-2)*a(n-2) + a(n-3); a(1)=0, a(2)=1, a(3)=1
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 21, u64 n <= 35, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 678 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         size_t newCap = cap ? cap * 2 : 4;
         while (newCap < (size_t)n)
             newCap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newCap);
         if (!tmp)                 /* out of memory – return 0 as a safe fallback */
             return 0;
         cache = tmp;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Initialise base values on first use */
     if (maxComp == 0) {
         if (cap < 3) {          /* make room for a(1), a(2), a(3) */
-            seq_t *tmp = (seq_t *)realloc(cache, (size_t)3 * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (size_t)3);
             if (!tmp)
                 return 0;
             cache = tmp;

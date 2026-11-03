@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of q^n in ∏_{d|46} θ₃(q^d)
  * Range:     u8 n <= 575, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9879 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Internal cache */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ static void extend_cache(idx_t up)
     if (cache_len > up) return;            /* already up to date */
 
     /* Allocate new array of size up+1.  Zero-initialise. */
-    seq_t *new_cache = (seq_t *)malloc((up + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (up + 1));
     if (!new_cache) exit(1);
     for (idx_t i = 0; i <= up; ++i) new_cache[i] = 0;
 
@@ -65,7 +67,7 @@ static void extend_cache(idx_t up)
     seq_t *old = cache;
     cache = new_cache;
     cache_len = up + 1;
-    free(old);
+    mem_free(old);
 }
 
 /* Return the n‑th term of the sequence. */

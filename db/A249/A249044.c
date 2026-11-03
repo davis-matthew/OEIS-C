@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 5824, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, sumdigits
+ * Validated: standard, pass, 78 terms through n = 8370 (2026-11-03)
+ * Helpers:   digit_sum_idx, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/digit_sum_idx.h"
 #include "../utils/is_prime.h"
-#include "../utils/sumdigits.h"
+#include "../utils/mem.h"
 
 /*-----------------  helper data structures  -----------------*/
 
@@ -55,8 +57,7 @@ static void ensure_cache(size_t need)
     if (cache_cap < need) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc((void *)cache,
-                                      new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;
@@ -77,7 +78,7 @@ seq_t a(idx_t n)
         /* generate g(m) for all m < candidate that have not yet been processed */
         while (processed_m < candidate) {
             idx_t m = processed_m + 1;
-            idx_t g = m + sumdigits(m);
+            idx_t g = m + digit_sum_idx(m);
             ensure_generated((size_t)g);
             generated[(size_t)g] = 1;
             processed_m = m;

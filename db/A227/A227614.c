@@ -8,7 +8,8 @@
  *            perimeter n‑2)
  * Range:     u8 n <= 53, u16 n <= 115, u32 n <= 302, u64 n <= 927,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,28 +33,28 @@ seq_t a(idx_t n)
     const size_t sz = (size_t)target + 1;   /* array size for each run-length state */
 
     /* current DP arrays: dp0,dp1,dp2 correspond to run lengths 0,1,2 ending at i‑1 */
-    seq_t *dp0 = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *dp1 = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *dp2 = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp0 = mem_new(seq_t, sz);
+    seq_t *dp1 = mem_new(seq_t, sz);
+    seq_t *dp2 = mem_new(seq_t, sz);
     if (!dp0 || !dp1 || !dp2) return 0;    /* allocation failure */
 
     dp0[0] = 1;                                   /* empty subset */
 
     /* temporary arrays for next state */
-    seq_t *ndp0 = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *ndp1 = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *ndp2 = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *ndp0 = mem_new(seq_t, sz);
+    seq_t *ndp1 = mem_new(seq_t, sz);
+    seq_t *ndp2 = mem_new(seq_t, sz);
     if (!ndp0 || !ndp1 || !ndp2) {
-        free(dp0); free(dp1); free(dp2);
+        mem_free(dp0); mem_free(dp1); mem_free(dp2);
         return 0;
     }
 
     /* number 4 is forbidden (otherwise part 3 would have two neighbors) */
     for (idx_t val = 5; val <= target; ++val) {
         /* reset next arrays */
-        memset(ndp0, 0, sz * sizeof(seq_t));
-        memset(ndp1, 0, sz * sizeof(seq_t));
-        memset(ndp2, 0, sz * sizeof(seq_t));
+        mem_set(ndp0, 0, sz * sizeof(seq_t));
+        mem_set(ndp1, 0, sz * sizeof(seq_t));
+        mem_set(ndp2, 0, sz * sizeof(seq_t));
 
         size_t v = (size_t)val;
         for (size_t s = 0; s <= target; ++s) {
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp0[target] + dp1[target] + dp2[target];
 
-    free(dp0); free(dp1); free(dp2);
-    free(ndp0); free(ndp1); free(ndp2);
+    mem_free(dp0); mem_free(dp1); mem_free(dp2);
+    mem_free(ndp0); mem_free(ndp1); mem_free(ndp2);
     return result;
 }

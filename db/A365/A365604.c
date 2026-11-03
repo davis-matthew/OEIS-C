@@ -9,12 +9,14 @@
  *            (k-1)! * C(n,k) * a(n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact = NULL;          /* factorials */
 static idx_t fact_max = 0;
@@ -31,13 +33,13 @@ static void need_factorial(idx_t n)
 
     if (fact == NULL) {
         fact_cap = 1;
-        fact = (seq_t*)malloc(sizeof(seq_t));
+        fact = mem_new(seq_t, 1);
         fact[0] = 1;
         fact_max = 0;
     }
     if (n + 1 > fact_cap) {
         fact_cap = n + 1;
-        fact = (seq_t*)realloc(fact, fact_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, fact_cap);
     }
     for (idx_t i = fact_max + 1; i <= n; ++i) {
         fact[i] = fact[i - 1] * i;
@@ -52,13 +54,13 @@ static void need_a_cache(idx_t n)
 
     if (a_cache == NULL) {
         a_cache_cap = 1;
-        a_cache = (seq_t*)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         a_cache[0] = 1;
         a_cache_max = 0;
     }
     if (n + 1 > a_cache_cap) {
         a_cache_cap = n + 1;
-        a_cache = (seq_t*)realloc(a_cache, a_cache_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, a_cache_cap);
     }
 }
 

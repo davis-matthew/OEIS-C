@@ -13,14 +13,25 @@
  *            (c-b+1)(b+c), computes the common sum S = (b...
  * Range:     u8 none, u16 none, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   cmp_seq
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/cmp_seq.h"   /* cmp_seq for qsort */
+#include "../utils/mem.h"
+
+/* Comparator for qsort on seq_t values. */
+static int cmp_seq(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* static cache of unique sums */
 static seq_t *cache = NULL;
@@ -32,7 +43,7 @@ static void build_cache(idx_t n)
     if (cache_len >= (size_t)n) return;          /* already enough */
 
     /* if we already have a cache, free it to rebuild */
-    free(cache);
+    mem_free(cache);
     cache = NULL;
     cache_len = 0;
 
@@ -43,7 +54,7 @@ static void build_cache(idx_t n)
     while (1) {
         /* temporary buffer to gather all found sums */
         size_t temp_cap = 8192;
-        seq_t *temp = (seq_t *)malloc(temp_cap * sizeof(seq_t));
+        seq_t *temp = mem_new(seq_t, temp_cap);
         if (!temp) return;   /* allocation failure: give up */
         size_t temp_len = 0;
 
@@ -74,9 +85,8 @@ static void build_cache(idx_t n)
                 /* store if space permits */
                 if (temp_len >= temp_cap) {
                     temp_cap *= 2;
-                    seq_t *newp = (seq_t *)realloc(temp,
-                                                  temp_cap * sizeof(seq_t));
-                    if (!newp) { free(temp); return; }
+                    seq_t *newp = mem_resize(seq_t, temp, temp_cap);
+                    if (!newp) { mem_free(temp); return; }
                     temp = newp;
                 }
                 temp[temp_len++] = S;
@@ -84,18 +94,18 @@ static void build_cache(idx_t n)
         }
 
         /* sort and deduplicate */
-        qsort(temp, temp_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(temp, temp_len, sizeof(seq_t), cmp_seq);
 
         /* count unique values */
         size_t uniq_len = 0;
-        seq_t *uniq = (seq_t *)malloc(temp_len * sizeof(seq_t));
-        if (!uniq) { free(temp); return; }
+        seq_t *uniq = mem_new(seq_t, temp_len);
+        if (!uniq) { mem_free(temp); return; }
         for (size_t i = 0; i < temp_len; ++i) {
             if (i == 0 || temp[i] != temp[i - 1]) {
                 uniq[uniq_len++] = temp[i];
             }
         }
-        free(temp);
+        mem_free(temp);
 
         if (uniq_len >= (size_t)n) {
             cache = uniq;
@@ -104,7 +114,7 @@ static void build_cache(idx_t n)
         }
 
         /* not enough terms – enlarge search space */
-        free(uniq);
+        mem_free(uniq);
         max_uv *= 2;
         /* safety guard – should never hit this with n<=10000 */
         if (max_uv > 20000) { max_uv = 20000; }

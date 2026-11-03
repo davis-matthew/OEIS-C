@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   valid_middle
+ * Validated: standard, pass, 35 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/valid_middle.h"
+#include "../utils/mem.h"
+
+static bool valid_middle(uint8_t up, uint8_t cur, uint8_t down)
+{
+    for (int j = 0; j < 4; ++j) {
+        int ones = 0;
+        if (j > 0)     ones += (cur >> (j - 1)) & 1;
+        if (j < 3)     ones += (cur >> (j + 1)) & 1;
+        ones += (up   >> j) & 1;
+        ones += (down >> j) & 1;
+        int neigh = (j > 0) + (j < 3) + 1 + 1;      /* left/right/up/down */
+        if (ones > neigh / 2) return false;
+    }
+    return true;
+}
 
 /*--------------------------------------------------------------------
  *  Helper functions that test the condition for a single row.
@@ -103,7 +118,7 @@ seq_t a(idx_t n)
 
     static seq_t dp_cur[256];
     static seq_t dp_next[256];
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
 
     /* initial pair of rows: top row (r0) and second row (r1) */
     for (int r0 = 0; r0 < 16; ++r0) {
@@ -115,7 +130,7 @@ seq_t a(idx_t n)
 
     /* iterate for remaining rows (step 2 ... rows-1) */
     for (idx_t step = 2; step < rows; ++step) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int state = 0; state < 256; ++state) {
             seq_t cnt = dp_cur[state];
             if (!cnt) continue;
@@ -129,7 +144,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     /* final row must satisfy the bottom condition */

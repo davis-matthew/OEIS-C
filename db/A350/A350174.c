@@ -7,7 +7,8 @@
  * Formula:   a(n) = largest k such that sum of first k primes <= n
  * Range:     u8 n <= 128, u16 n <= 128, u32 n <= 128, u64 n <= 128,
  *            u128 n <= 128, big any n
- * Helpers:   none
+ * Validated: partial, pass, 129 terms through n = 128 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
                 {
                     size_t new_cap = prime_cap ? prime_cap << 1 : 16;
                     uint64_t *p_t  = (uint64_t *)realloc(primes, new_cap * sizeof(uint64_t));
-                    seq_t   *c_t  = (seq_t *)realloc(cum,    new_cap * sizeof(seq_t));
+                    seq_t   *c_t  = mem_resize(seq_t, cum, new_cap);
                     primes = p_t;
                     cum    = c_t;
                     prime_cap = new_cap;

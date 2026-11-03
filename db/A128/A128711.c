@@ -11,16 +11,42 @@
  *            and b(p^e) = b(p)·b(p^(e−1)) − p²·b(p^(e−2)) for e≥2
  * Range:     i8 n <= 35, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   b_prime, find_rep, int_sqrt32
+ * Validated: standard, pass, 87 terms through n = 877 (2026-11-01)
+ * Helpers:   isqrt_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/b_prime.h"
-#include "../utils/find_rep.h"
-#include "../utils/int_sqrt32.h"
+#include "../utils/isqrt_u32.h"
+
+/* find (x,y) with p = x² + 2y² for odd prime p≡1,3(mod8) */
+static bool find_rep(uint32_t p, uint32_t *x, uint32_t *y) {
+    uint32_t limit = isqrt_u32(p);
+    for (uint32_t i = 0; (uint64_t)i * i <= p; ++i) {
+        uint32_t rem = p - i * i;
+        if (rem & 1) continue;                 /* must be even */
+        uint32_t y2 = rem >> 1;
+        uint32_t yy = isqrt_u32(y2);
+        if ((uint64_t)yy * yy == y2) {
+            *x = i;
+            *y = yy;
+            return true;
+        }
+    }
+    return false;   /* should not happen for p≡1,3(mod8) */
+}
+
+/* b(p) for an odd prime p≡1,3(mod8) */
+static seq_t b_prime(uint32_t p) {
+    uint32_t x, y;
+    find_rep(p, &x, &y);              /* y is unused, only here to satisfy return check */
+    int sign = (((p - 1) >> 1) & 1) ? -1 : 1;
+    seq_t val = (seq_t)2 * ((seq_t)2 * (seq_t)x * (seq_t)x - (seq_t)p);
+    if (sign < 0) val = -val;
+    return val;
+}
 
 /* power of a prime: p^e where e>=0 */
 static seq_t pow_uint32(uint32_t p, uint32_t e) {

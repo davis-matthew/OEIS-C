@@ -8,17 +8,19 @@
  *            using 2^(2^m)/2 = p(m) with p(0) = 1, p(m+1) = 2*p(m)^2
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t k, j;
-    seq_t *row = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-    seq_t *p = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *p = mem_new(seq_t, (size_t)(n + 1));
     seq_t pos = 0, neg = 0, result;
 
     /* binomial row n by Pascal's rule (exact, additions only) */
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     }
     result = pos - neg;
 
-    free(row);
-    free(p);
+    mem_free(row);
+    mem_free(p);
     return result;
 }

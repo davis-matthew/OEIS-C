@@ -6,9 +6,10 @@
  * Keywords:  nonn, easy
  * Formula:   a(0)=0, a(n)=1 + a(n-A081290(n)) for n>0 where A081290(n) is the
  *            largest Catalan number ≤ n
- * Range:     u8 n <= 212, u16 n <= 9247, u32 n <= 9247, u64 n <= 9247,
- *            u128 n <= 9247, big any n
- * Helpers:   none
+ * Range:     u8 n <= 212, u16 n <= 16796, u32 n <= 16796, u64 n <= 16796,
+ *            u128 n <= 16796, big any n
+ * Validated: standard, pass, 115 terms through n = 9247 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (!init) {
         /* Start with C0 = 1 */
         cat_cap = 16;
-        cat_vals = (seq_t *)malloc(cat_cap * sizeof(seq_t));
+        cat_vals = mem_new(seq_t, cat_cap);
         if (!cat_vals) return 0;  /* Out of memory: return 0 as fallback */
         cat_vals[0] = 1;
         cat_cnt = 1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         while (true) {
             if (cat_cnt == cat_cap) {
                 size_t new_cap = cat_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cat_vals, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cat_vals, new_cap);
                 if (!tmp) return count;  /* Out of memory */
                 cat_vals = tmp;
                 cat_cap = new_cap;

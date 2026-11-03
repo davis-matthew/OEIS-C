@@ -11,12 +11,14 @@
  *            1) // odd i (2nd,4th,… element) * curr[i] = prev...
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,13 +30,13 @@ seq_t a(idx_t n)
 
     /* Start with the first row: [1] */
     idx_t  prev_len = 1;
-    seq_t *prev = (seq_t *)malloc(prev_len * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, prev_len);
     prev[0] = (seq_t)1;
 
     /* Build rows up to row r */
     for (idx_t cur_row = 2; cur_row <= r; ++cur_row) {
         idx_t  curr_len = prev_len + 1;
-        seq_t *curr = (seq_t *)malloc(curr_len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, curr_len);
 
         for (idx_t i = 0; i < curr_len; ++i) {
             if (i == 0) {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_len = curr_len;
     }
@@ -56,6 +58,6 @@ seq_t a(idx_t n)
     idx_t col_index = (idx_t)(n - tri_before - 1);           /* 0‑based */
 
     seq_t result = prev[col_index];
-    free(prev);
+    mem_free(prev);
     return result;
 }

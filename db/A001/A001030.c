@@ -10,18 +10,19 @@
  *            floor(n*(1+sqrt(2)) + 1/sqrt(2)) = n + floor((2n+1)/sqrt(2))
  * Range:     u8 n <= 8119, u16 n <= 8119, u32 n <= 8119, u64 n <= 8119,
  *            u128 n <= 8119, big any n
- * Helpers:   a1030_isqrt
+ * Validated: standard, pass, 121 terms through n = 7490 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a1030_isqrt.h"
+#include "../utils/isqrt_u128.h"
 
 seq_t a(idx_t n) {
     unsigned __int128 hi = 2 * (unsigned __int128)n + 1;
     unsigned __int128 lo = 2 * (unsigned __int128)n - 1;
-    unsigned __int128 r1 = a1030_isqrt(hi * hi / 2);
-    unsigned __int128 r0 = a1030_isqrt(lo * lo / 2);
+    unsigned __int128 r1 = isqrt_u128(hi * hi / 2);
+    unsigned __int128 r0 = isqrt_u128(lo * lo / 2);
     return (seq_t)(unsigned)(r1 - r0);
 }

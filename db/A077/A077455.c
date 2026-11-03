@@ -8,6 +8,7 @@
  *            (p^(12e+3)+p^(8e+2)+p^(4e+1)+1) / (p³+p²+p+1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 40, u128 n <= 1626,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 8889 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

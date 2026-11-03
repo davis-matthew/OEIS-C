@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  *  1, 3, 1, 8, 5, 1, 21, 19, 7, 1, 55, 65, 34, 9, 1, 144, … */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;   /* pointer to each row of the array   */
 static idx_t  triangle_size = 0;  /* number of rows currently stored     */
@@ -33,7 +35,7 @@ ensure_triangle(idx_t r)
 {
     while (triangle_size <= r) {
         idx_t i = triangle_size;        /* index of the new row          */
-        seq_t *row = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (row == NULL) abort();       /* out of memory                 */
 
         if (i == 0) {                    /* base row 0,0 = 1              */

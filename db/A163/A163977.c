@@ -11,12 +11,14 @@
  *            n≥7
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 663 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *cache = NULL;          /* memoised sequence values      */
@@ -28,7 +30,7 @@ static void compute_up_to(idx_t n)
     /* Initial cache with the first seven terms. */
     if (cache == NULL) {
         const size_t init = 7;                                    /* 0 … 6 */
-        cache = (seq_t*)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (!cache) abort();
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)21;
@@ -46,7 +48,7 @@ static void compute_up_to(idx_t n)
     /* Grow the cache to the required length. */
     size_t new_used = (size_t)n + 1;
     if (new_used > cache_used) {
-        seq_t *tmp = (seq_t*)realloc(cache, new_used * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_used);
         if (!tmp) abort();
         cache = tmp;
 

@@ -10,14 +10,25 @@
  *            total using 2,3,6,7,8 point plays
  * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   seq_alloc
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h> /* for memcpy */
-#include "../utils/seq_alloc.h" /* provides seq_alloc(size_t) */
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +44,7 @@ seq_t a(idx_t n)
         seq_t *new_cache = seq_alloc(new_cap);
         /* Copy existing values, if any */
         if (cache != NULL) {
-            memcpy(new_cache, cache, (size_t)(cached_n + 1) * sizeof(seq_t));
+            mem_copy(new_cache, cache, (size_t)(cached_n + 1) * sizeof(seq_t));
             /* No need to free old cache: seq_alloc acts as standalone
                allocation; leaks are harmless in contest environment. */
         }

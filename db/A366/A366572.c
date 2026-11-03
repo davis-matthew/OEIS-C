@@ -9,15 +9,34 @@
  *            x))
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   binom_mod_lucas
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/binom_mod_lucas.h"
+
+static int binom_mod_lucas(int n, int k, int p,
+                           const int *fact, const int *invfact)
+{
+    int res = 1;
+    while (n > 0 || k > 0)
+    {
+        int ni = n % p;
+        int ki = k % p;
+        if (ki > ni) return 0;
+        res = (int)((1LL * res * fact[ni]) % p);
+        res = (int)((1LL * res * invfact[ki]) % p);
+        res = (int)((1LL * res * invfact[ni - ki]) % p);
+        n /= p;
+        k /= p;
+    }
+    return res;
+}
 
 static int is_prime(int x)
 {

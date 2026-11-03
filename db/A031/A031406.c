@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* floor integer square root for 64‑bit values (used only to skip squares) */
 static inline idx_t int_sqrt(idx_t n)
@@ -57,13 +59,13 @@ seq_t a(idx_t n)
         /* ensure cache can hold at least n terms */
         if (cache_cap == 0) {
             cache_cap = 32;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         }
         while (cache_len < n) {
             /* grow cache for new entries */
             if (cache_len >= cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
 
             idx_t k = next_k++;

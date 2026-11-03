@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   digit_count_uint64, is_prime
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,11 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"      /* is_prime(uint64_t) */
-#include "../utils/digit_count_uint64.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits_u64.h"
+#include "../utils/mem.h"
 
 /* Return the smallest prime strictly greater than cur. */
 static uint64_t next_prime_after(uint64_t cur)
@@ -31,7 +35,7 @@ static uint64_t next_prime_after(uint64_t cur)
     if ((cand & 1) == 0)
         cand++;
     for (;;) {
-        if (is_prime(cand))
+        if (is_prime_u64(cand))
             return cand;
         cand += 2;
     }
@@ -64,7 +68,7 @@ seq_t a(idx_t n)
     /* Ensure the storage array is large enough. */
     if (capacity == 0) {
         capacity = 64;
-        terms = (seq_t *)malloc(capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, capacity);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -74,7 +78,7 @@ seq_t a(idx_t n)
         last_checked = p;
 
         /* Compute the concatenated number: 9876543210 * 10^d + p. */
-        int d = digit_count_uint64(p);
+        int d = num_digits_u64(p);
         if (d >= 20) /* safety: too many digits for our pow10 array */
             break;   /* it should not happen for the intended limits */
 
@@ -84,11 +88,11 @@ seq_t a(idx_t n)
            support (p has at most 9 digits). */
         uint64_t concat = (uint64_t)concat128;
 
-        if (is_prime(concat)) {
+        if (is_prime_u64(concat)) {
             /* Store p.  Expand storage if necessary. */
             if (found == capacity) {
                 capacity <<= 1;
-                terms = (seq_t *)realloc(terms, capacity * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, capacity);
             }
             terms[found++] = (seq_t)p;
         }

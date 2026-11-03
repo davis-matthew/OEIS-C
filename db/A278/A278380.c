@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 12, u64 n <= 37, u128 n <= 202,
  *            big any n
- * Helpers:   bits_from_row
+ * Validated: standard, pass, 37 terms through n = 195 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,13 @@
  * n ≥ 1.
  */
 #include <stdbool.h> /* for bool */
-#include "../utils/bits_from_row.h"
+
+/* Helper to convert a row integer (0–7) into its column bits. */
+static inline void bits_from_row(int row, int *a, int *b, int *c) {
+    *a = (row >> 2) & 1;   /* most significant bit: column 1 */
+    *b = (row >> 1) & 1;   /* middle bit: column 2 */
+    *c = row & 1;          /* least significant bit: column 3 */
+}
 
 #define MAX_S 3       /* 0 = equal so far, 1 = first column < second, 2 = first column > second */
 #define MAX_M 4       /* count of mistakes, we only keep counts 0..3 */

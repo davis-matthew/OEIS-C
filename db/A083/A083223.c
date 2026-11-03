@@ -7,18 +7,19 @@
  * Formula:   a(n) = (5*6^n+(-6)^n)/6
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   _pow_seq_t
+ * Validated: standard, pass, 40 terms through n = 296 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_pow_seq_t.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* 6^n */
-    seq_t pow6 = _pow_seq_t((seq_t)6, n);
+    seq_t pow6 = ipow_idx((seq_t)6, n);
 
     /* n = 0  → a(0) = 6^0 = 1 */
     if (n == (idx_t)0)
@@ -29,6 +30,6 @@ seq_t a(idx_t n)
     if ((n & (idx_t)1) == 0)
         return pow6;
 
-    seq_t pow6prev = _pow_seq_t((seq_t)6, n - (idx_t)1);
+    seq_t pow6prev = ipow_idx((seq_t)6, n - (idx_t)1);
     return (seq_t)4 * pow6prev;
 }

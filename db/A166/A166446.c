@@ -8,12 +8,14 @@
  *            a(3)=1, a(4)=0, a(5)=0
  * Range:     i8 n <= 77, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for computed values. */
@@ -23,13 +25,13 @@ seq_t a(idx_t n) {
 
     /* If the cache is empty, allocate space for at least (n+1) entries.   */
     if (cache == NULL) {
-        cache = (seq_t *)realloc(NULL, ((size_t)n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, ((size_t)n + 1));
         if (!cache) abort();                 /* allocation failure */
         cache_size = (size_t)n + 1;
         cache[0] = 1;                        /* a(0) = 1                   */
         cached_upto = 0;
     } else if ((size_t)n + 1 > cache_size) {
-        cache = (seq_t *)realloc(cache, ((size_t)n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, ((size_t)n + 1));
         if (!cache) abort();
         cache_size = (size_t)n + 1;
     }

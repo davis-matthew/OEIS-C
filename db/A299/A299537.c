@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2000, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   is_power_of_4
+ * Validated: standard, pass, 96 terms through n = 1862 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,14 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_power_of_4.h"
+
+/* --------- check power of 4 ------------------------------------- */
+static inline bool is_power_of_4(idx_t val, idx_t *powers, size_t pcnt)
+{
+    for (size_t i = 0; i < pcnt; ++i)
+        if (powers[i] == val) return true;
+    return false;
+}
 
 /* --------- integer square root ------------------------------------ */
 static inline uint32_t isqrt_uint64(uint64_t v)

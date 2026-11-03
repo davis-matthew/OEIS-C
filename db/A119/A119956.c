@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 72 terms through n = 913 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Static cache to memoise discovered terms */
 static seq_t *cache = NULL;
@@ -29,11 +31,11 @@ static void ensure_capacity(void)
 {
     if (len == cap) {
         size_t newcap = cap ? cap * 2 : 32;
-        seq_t *newarr = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *newarr = mem_new(seq_t, newcap);
         if (!newarr) abort();
         if (cache) {
-            memcpy(newarr, cache, len * sizeof(seq_t));
-            free(cache);
+            mem_copy(newarr, cache, len * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = newarr;
         cap   = newcap;

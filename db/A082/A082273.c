@@ -10,14 +10,16 @@
  *            exists, otherwise 0
  * Range:     u8 none, u16 none, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 #define MAX_PAL_LIMIT 10000000u  /* upper bound for palindromes searched */
 
@@ -51,7 +53,7 @@ static void init_palindromes(void)
     /* approximate upper bound on number of palindromes <= MAX_PAL_LIMIT */
     /* length 1-7: 9 + 9 + 90 + 90 + 900 + 900 + 9000 = 10898 */
     size_t alloc_size = 20000;
-    pal_array = (seq_t*)malloc(sizeof(seq_t) * alloc_size);
+    pal_array = mem_new(seq_t, alloc_size);
     pal_count = 0;
 
     /* generate palindromes by length */
@@ -80,7 +82,7 @@ static void init_palindromes(void)
             if (pal > MAX_PAL_LIMIT) break;
             if (pal_count >= alloc_size) {
                 alloc_size *= 2;
-                pal_array = (seq_t*)realloc(pal_array, sizeof(seq_t) * alloc_size);
+                pal_array = mem_resize(seq_t, pal_array, alloc_size);
             }
             pal_array[pal_count++] = pal;
         }
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < pal_count; ++i) {
         seq_t p = pal_array[i];
         seq_t sum = nn + p;
-        if (is_palindrome(sum, 10)) {
+        if (is_palindrome_base(sum, 10)) {
             return sum;      /* a(n) = n + p */
         }
     }

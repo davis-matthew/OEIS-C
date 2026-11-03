@@ -9,7 +9,8 @@
  *            Σ_{j=0}^{k} binom(k,j) * B_j(2), B_0(2)=1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 13, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static storage for B_k(2) */
 static seq_t *B = NULL;          /* B[0]..B[n] values */
@@ -30,7 +32,7 @@ static void extend_bell(idx_t limit)
 
     /* handle initial allocation */
     if (B == NULL) {
-        B = (seq_t*)malloc(need * sizeof(seq_t));
+        B = mem_new(seq_t, need);
         if (!B) return;          /* allocation failed – caller will get 0 */
         B[0] = 1;                /* B_0(2) = 1 */
         B_cap = need;
@@ -54,7 +56,7 @@ static void extend_bell(idx_t limit)
 
     /* already allocated, but not large enough */
     if (need > B_cap) {
-        seq_t *tmp = (seq_t*)realloc(B, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, B, need);
         if (!tmp) return;          /* allocation failed */
         B = tmp;
         size_t start = B_cap;      /* values B[0..B_cap-1] already present */

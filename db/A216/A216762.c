@@ -9,12 +9,15 @@
  *            the result > 1
  * Range:     u8 n <= 16, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
         if (m <= 1)                   /* stop when ceil(log₂(m)) ≤ 1 */
             break;
 
-        idx_t fl      = floor_log2_uint64(m);
+        idx_t fl      = ilog2(m);
         idx_t ceil_l  = (m == ((idx_t)1 << fl)) ? fl : fl + 1;
 
         if (ceil_l <= 1)

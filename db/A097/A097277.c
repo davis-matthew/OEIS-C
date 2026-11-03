@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 16, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return a(n) for n >= 1 (a(0) is defined as 0). */
 seq_t a(idx_t n)
@@ -41,11 +43,11 @@ seq_t a(idx_t n)
 
     /* 2.  DP arrays: dp[r] = #permutations of current length ending
      *     with rank r (1‑based among the current set of numbers). */
-    seq_t *dp     = (seq_t *)malloc((n + 2) * sizeof(seq_t));
-    seq_t *new_dp = (seq_t *)malloc((n + 2) * sizeof(seq_t));
+    seq_t *dp     = mem_new(seq_t, (n + 2));
+    seq_t *new_dp = mem_new(seq_t, (n + 2));
     if (!dp || !new_dp) {
         free(isPrime);
-        free(dp); free(new_dp);
+        mem_free(dp); mem_free(new_dp);
         return (seq_t)0;
     }
     for (idx_t i = 0; i <= n + 1; ++i) dp[i] = 0;
@@ -82,6 +84,6 @@ seq_t a(idx_t n)
     for (idx_t i = 1; i <= n; ++i) total = total + dp[i];
 
     free(isPrime);
-    free(dp);  free(new_dp);   /* both pointers are no longer needed */
+    mem_free(dp);  mem_free(new_dp);   /* both pointers are no longer needed */
     return total;
 }

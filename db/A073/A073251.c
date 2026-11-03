@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 4952, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, is_squarefree
+ * Validated: standard, pass, 67 terms through n = 7929 (2026-11-03)
+ * Helpers:   is_prime, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include "../utils/is_prime.h"
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 /* Cached sequence terms */
 static seq_t *cache          = NULL;
@@ -34,7 +36,7 @@ static void append_term(uint64_t k)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

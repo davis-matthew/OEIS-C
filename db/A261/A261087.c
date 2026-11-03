@@ -12,7 +12,8 @@
  *            of divisors). Corresponds to OEIS A261087
  * Range:     u8 n <= 3, u16 n <= 786, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 8640 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const size_t MAX_LIMIT = 2000000;          /* sieve upper bound */
 
@@ -36,9 +38,9 @@ static void init(void)
         return;
 
     /* Allocate arrays */
-    steps       = (seq_t *)malloc((MAX_LIMIT + 1) * sizeof(seq_t));
+    steps       = mem_new(seq_t, (MAX_LIMIT + 1));
     tau         = (uint16_t *)malloc((MAX_LIMIT + 1) * sizeof(uint16_t));
-    good_primes = (seq_t *)malloc((MAX_LIMIT + 1) * sizeof(seq_t)); /* generous */
+    good_primes = mem_new(seq_t, (MAX_LIMIT + 1)); /* generous */
 
     /* Smallest prime factor sieve (spf) */
     int *spf = (int *)malloc((MAX_LIMIT + 1) * sizeof(int));

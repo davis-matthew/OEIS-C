@@ -12,12 +12,15 @@
  *            p_i) and a(n) = L(n)*(Ω(n)-1)
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_smallest_prime_factor.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     idx_t omega = 0;
 
     while (rem > 1) {
-        uint64_t p = _smallest_prime_factor(rem);
+        uint64_t p = smallest_prime_factor(rem);
         idx_t e = 0;
         while (rem % p == 0) {
             rem /= p;

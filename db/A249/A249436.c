@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 200, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------- configuration ---------------------------------------------- */
 #define PRIME_LIMIT 2000000   /* upper bound for k to be examined */
@@ -139,8 +141,7 @@ seq_t a(idx_t n)
             if (seq_len == seq_cap)
             {
                 seq_cap = seq_cap ? seq_cap * 2 : 64;
-                seq_cache = (seq_t *)realloc(seq_cache,
-                                              seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
                 if (!seq_cache) abort();
             }
             seq_cache[seq_len++] = (seq_t)next_k;

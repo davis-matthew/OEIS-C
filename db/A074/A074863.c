@@ -9,13 +9,15 @@
  *            a(0)=a(1)=a(2)=a(3)=1, where R(x) is the decimal reverse of x
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 131,
  *            big any n
- * Helpers:   reverse_value
+ * Validated: standard, pass, 52 terms through n = 912 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/reverse_value.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* Cached array of already computed terms. */
 static seq_t *cache = NULL;          /* pointer to the cache array       */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     {
         /* Start with a modest size; will grow as necessary. */
         cache_alloc = 16;
-        cache = (seq_t *)malloc((size_t)cache_alloc * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_alloc);
         if (cache == NULL) return 0; /* allocation failure */
     }
     else if (n + 1 > cache_alloc)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         /* Grow to at least n+1 elements. */
         idx_t new_alloc = cache_alloc;
         while (n + 1 > new_alloc) new_alloc <<= 1;   /* double until fit */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_alloc);
         if (tmp == NULL) return 0; /* allocation failure */
         cache = tmp;
         cache_alloc = new_alloc;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             cache[i] = 1;
         else
             cache[i] = cache[i - 1] + cache[i - 2] + cache[i - 3]
-                     + reverse_value(cache[i - 4]);
+                     + reverse_digits(cache[i - 4]);
     }
 
     cache_computed = n + 1;   /* all indices < n+1 are now computed */

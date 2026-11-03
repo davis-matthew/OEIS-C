@@ -9,7 +9,8 @@
  *            18,
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    integer types for bigger ones.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Return 0 for n < 2 (outside the OEIS offset; not expected) */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     /* Initialise cache on first use */
     if (cache == NULL) {
         max_cached = 2;
-        cache = (seq_t*)malloc((max_cached + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (max_cached + 1));
         for (idx_t i = 0; i <= max_cached; ++i) cache[i] = 0;
         cache[2] = (seq_t)1;      /* a(2) = 1 */
         pow3_state = 3;           /* 3^(2-1) = 3 */
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     /* Extend cache up to n if necessary */
     if (n > max_cached) {
         /* Allocate more space */
-        cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
 
         /* Compute new terms consecutively */
         for (idx_t i = max_cached + 1; i <= n; ++i) {

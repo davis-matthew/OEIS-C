@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 107, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 79 terms through n = 9637 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;      /* cached sequence values   */
 static size_t cache_size = 0;        /* number of values stored  */
@@ -29,9 +32,9 @@ static idx_t  next_test   = 1;        /* next integer to test     */
  * representation of its own bit-length. */
 static bool contains_its_length(seq_t m) {
     /* Length of m in bits */
-    unsigned int len_m = bitlen_seq_t(m);      /* 1 .. 128 */
+    unsigned int len_m = bit_length(m);      /* 1 .. 128 */
     /* Binary representation of len_m */
-    unsigned int len_len = bitlen_seq_t(len_m);
+    unsigned int len_len = bit_length(len_m);
     seq_t target = (seq_t)len_m;
     /* mask for the len_len-bit window */
     seq_t mask = ((seq_t)1 << len_len) - 1;
@@ -52,7 +55,7 @@ static void ensure_cache_capacity(size_t need) {
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < need)
         new_cap *= 2;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     cache_cap = new_cap;
 }
 

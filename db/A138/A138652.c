@@ -10,9 +10,10 @@
  *            2*n. * 2. Factorize m using factor_u64. * 3. Generate all
  *            divisors of m. * 4. Sort the divisors. * 5. Count how many
  *            consecutive differences divide m. * 6. Return that count
- * Range:     u8 n <= 405, u16 n <= 8476, u32 n <= 8476, u64 n <= 8476,
- *            u128 n <= 8476, big any n
- * Helpers:   factor_u64
+ * Range:     u8 n <= 405, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 8476 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"   /* function: void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t */
 static int seq_cmp(const void *a, const void *b)
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     size_t dcnt = divisor_count(prime_cnt, exps);
 
     /* 4. Generate all divisors. */
-    seq_t *divs = (seq_t *)malloc(dcnt * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, dcnt);
     if (!divs) return 0;          /* allocation failure – unlikely for small n */
 
     divs[0] = 1;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     }
 
     /* 5. Sort the divisors in ascending order. */
-    qsort(divs, dcnt, sizeof(seq_t), seq_cmp);
+    mem_qsort(divs, dcnt, sizeof(seq_t), seq_cmp);
 
     /* 6. Count differences that divide m. */
     seq_t count = 0;
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
     }
 
     /* Clean up. */
-    free(divs);
+    mem_free(divs);
 
     return count;
 }

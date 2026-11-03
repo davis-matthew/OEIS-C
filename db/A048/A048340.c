@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n - 15*floor((n-1)/15)) * (16^floor((n+14)/15) - 1) / 15
  * Range:     u8 n <= 30, u16 n <= 60, u32 n <= 120, u64 n <= 240,
  *            u128 n <= 480, big any n
+ * Validated: standard, pass, 69 terms through n = 1441 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

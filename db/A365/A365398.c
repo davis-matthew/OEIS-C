@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1309, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sigma_of
+ * Validated: standard, pass, 84 terms through n = 8819 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +52,7 @@ seq_t a(idx_t n)
 
     /* Ensure a_arr can store up to index n. */
     if (a_cap < (size_t)(n + 1)) {
-        seq_t *tmp = (seq_t *)realloc(a_arr, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, (n + 1));
         if (!tmp) return 0;               /* allocation failure */
         a_arr = tmp;
         a_cap = n + 1;
@@ -46,7 +62,7 @@ seq_t a(idx_t n)
     if (tails_cap < (size_t)(n + 1)) {
         size_t new_cap = tails_cap == 0 ? 1 : tails_cap * 2;
         if (new_cap < (size_t)(n + 1)) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(tails, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tails, new_cap);
         if (!tmp) return 0;               /* allocation failure */
         tails = tmp;
         tails_cap = new_cap;

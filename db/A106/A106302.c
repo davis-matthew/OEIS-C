@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 7, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
- *            big any n
- * Helpers:   period_of_tribonacci_mod_prime
+ * Range:     u8 n <= 7, u16 n <= 57, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 63 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/period_of_tribonacci_mod_prime.h"
+#include "../utils/mem.h"
+
+/* ---------- calculation of the pre‑period for a given prime ---------- */
+static seq_t period_of_tribonacci_mod_prime(uint64_t p)
+{
+    seq_t period = 0;
+    uint64_t a = 0, b = 0, c = 1;          /* initial Tribonacci state T0,T1,T2 */
+
+    do {
+        uint64_t next = (a + b + c) % p;
+        a = b;  b = c;  c = next;
+        period += 1;
+    } while (!(a == 0 && b == 0 && c == 1));
+
+    return period;
+}
 
 /* ---------- utility: generate the first ~20 000 primes (up to 200 000) ---------- */
 #define PRIME_LIMIT   200000          /* > the 10 000th prime (104 729) */
@@ -72,7 +88,7 @@ seq_t a(idx_t n)
 {
     /* allow any order of calls; cache per index */
     if (!cache_initialized) {
-        memset(period_cache, 0, sizeof(period_cache));
+        mem_set(period_cache, 0, sizeof(period_cache));
         cache_initialized = true;
     }
 

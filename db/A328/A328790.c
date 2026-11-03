@@ -9,12 +9,14 @@
  *            x^(6k))^2
  * Range:     u8 n <= 21, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static arrays to cache computed values up to the maximal n seen so far. */
@@ -24,18 +26,18 @@ seq_t a(idx_t n) {
 
     /* First call – allocate the smallest possible arrays */
     if (dp == NULL) {
-        dp = (seq_t*)calloc(1, sizeof(seq_t));
+        dp = mem_new(seq_t, 1);
         if (!dp) return (seq_t)0;      /* OOM – unlikely in controlled tests */
         dp[0] = 1;
-        next_arr = (seq_t*)calloc(1, sizeof(seq_t));
+        next_arr = mem_new(seq_t, 1);
         cur_max = 0;
     }
 
     /* If a larger n is requested, recompute from scratch up to that n. */
     if (n > cur_max) {
         size_t new_size = n + 1;
-        dp = (seq_t*)realloc(dp, new_size * sizeof(seq_t));
-        next_arr = (seq_t*)realloc(next_arr, new_size * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, new_size);
+        next_arr = mem_resize(seq_t, next_arr, new_size);
         if (!dp || !next_arr) return (seq_t)0;  /* OOM */
 
         /* Clear the extended part of dp.  dp[0] must be 1. */

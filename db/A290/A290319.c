@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 44, u64 n <= 119, u128 n <= 324,
  *            big any n
- * Helpers:   mul_by_int
+ * Validated: standard, pass, 82 terms through n = 9596 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,13 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul_by_int.h"
+#include "../utils/mem.h"
+
+/* helper: multiply seq_t value by an integer (works for all seq_t types) */
+static inline seq_t mul_by_int(seq_t v, idx_t m)
+{
+    return v * (seq_t)m;
+}
 
 /* dynamic storage for the triangle rows */
 static seq_t **triangle_rows   = NULL;   /* array of pointers to rows   */
@@ -39,7 +46,7 @@ static void init_triangle(void)
 {
     row_capacity = 1;
     triangle_rows = (seq_t**)malloc(row_capacity * sizeof(seq_t*));
-    triangle_rows[0] = (seq_t*)malloc(sizeof(seq_t));
+    triangle_rows[0] = mem_new(seq_t, 1);
     triangle_rows[0][0] = (seq_t)1;          /* T(0,0)=1 */
     max_row_computed = 0;
 }
@@ -82,7 +89,7 @@ static void build_rows_upto(idx_t r)
 
     for (idx_t i = max_row_computed + 1; i <= r; ++i) {
         /* allocate storage for row i (length i+1) */
-        triangle_rows[i] = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        triangle_rows[i] = mem_new(seq_t, (i + 1));
         seq_t *row_prev = triangle_rows[i - 1];
         idx_t coeff = 4 * i - 3;      /* (4*i-3) is safe for i≥1 */
 

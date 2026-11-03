@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 727, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 89 terms through n = 986 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool _is_prime(uint64_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         }
 
         /*  Re‑allocate prefix array  */
-        seq_t *pref_new = (seq_t *)realloc(pref, new_n * sizeof(seq_t));
+        seq_t *pref_new = mem_resize(seq_t, pref, new_n);
         if (!pref_new)
             return 0;
         pref = pref_new;

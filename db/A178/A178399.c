@@ -12,7 +12,8 @@
  *            jacobi_symbol. Indexing starts at 1
  * Range:     u8 n <= 7, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   is_prime, jacobi_symbol, rev
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   is_prime, mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,33 @@
 #include <stdlib.h>
 #include <stdio.h>          /* for NULL */
 
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t)          */
-#include "../utils/rev.h"              /* idx_t rev(idx_t)              */
-#include "../utils/jacobi_symbol.h"    /* int jacobi_symbol(uint64_t,uint64_t) */
+#include "../utils/is_prime.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 static seq_t *seq = NULL;          /* stored terms of the sequence   */
 static size_t seq_len = 0;         /* number of terms stored         */
@@ -36,7 +61,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 4;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) { /* allocation failed; abort */
         abort();
     }
@@ -62,7 +87,7 @@ static void generate_to(idx_t n)
             last_checked = p + 1;
 
             /* Reverse */
-            uint64_t r = rev(p);
+            uint64_t r = reverse_digits_idx(p);
             if (r == p) continue;           /* skip palindromic primes */
             if (!is_prime(r)) continue;
 

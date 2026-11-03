@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 152, u32 n <= 560, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 121 terms through n = 1259 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,6 +26,7 @@
  *     else if j==1     →  2^(i-1)
  *     else             →  0
  */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

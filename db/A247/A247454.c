@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 126, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- minimal big‑integer type (base 2^32) ---------- */
 typedef struct {
@@ -143,7 +145,7 @@ static void cache_ensure(size_t need) {
     if (need <= cache_cap) return;
     size_t newcap = cache_cap ? cache_cap << 1 : 16;
     while (newcap < need) newcap <<= 1;
-    void *tmp = realloc(seq_cache, newcap * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, seq_cache, newcap);
     if (!tmp) abort();
     seq_cache = (seq_t *)tmp;
     cache_cap = newcap;

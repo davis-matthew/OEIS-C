@@ -7,21 +7,24 @@
  * Formula:   a(n) = 9*12^n - 2*8^(n+1) + 9*6^n - 4^n
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     seq_t nseq = (seq_t)n;
     seq_t n1seq = nseq + 1;
 
-    seq_t pow12 = big_pow((seq_t)12, nseq);
-    seq_t pow6  = big_pow((seq_t)6,  nseq);
-    seq_t pow8  = big_pow((seq_t)8,  n1seq);
-    seq_t pow4  = big_pow((seq_t)4,  nseq);
+    seq_t pow12 = ipow((seq_t)12, nseq);
+    seq_t pow6  = ipow((seq_t)6,  nseq);
+    seq_t pow8  = ipow((seq_t)8,  n1seq);
+    seq_t pow4  = ipow((seq_t)4,  nseq);
 
     seq_t term1 = (seq_t)9 * pow12;
     seq_t term3 = (seq_t)9 * pow6;

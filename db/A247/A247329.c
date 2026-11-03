@@ -7,7 +7,8 @@
  * Formula:   a(n) = \sum_{k=0..n} (-1)^{n-k} \binom{n}{k}\,Stirling1(n+1,k+1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 407 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Hence a(n) = sum_{k=0..n} C(n,k) * |c(n+1,k+1)|, where c(.) are unsigned Stirling numbers of the first kind */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,11 +36,11 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* create minimal c array of capacity 2 (indices 0 and 1)  */
         c_cap = 4;
-        c = (seq_t*)malloc(c_cap * sizeof(seq_t));
+        c = mem_new(seq_t, c_cap);
         c[0] = 1;          /* row 0: only c[0] = 1 */
         current_row = 0;    /* current_row == 0  (row 0)     */
         cache_cap = 8;
-        cache    = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache    = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         if (n + 1 > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 8;
             while (new_cap <= n + 1) new_cap *= 2;
-            cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
                 if (c_cap <= m + 1) {
                     size_t new_c_cap = c_cap ? c_cap * 2 : 4;
                     while (new_c_cap <= m + 2) new_c_cap *= 2;
-                    c = (seq_t*)realloc(c, new_c_cap * sizeof(seq_t));
+                    c = mem_resize(seq_t, c, new_c_cap);
                     c_cap = new_c_cap;
                 }
                 seq_t old_m = c[m];

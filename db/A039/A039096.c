@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 126, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_2_and_8
+ * Validated: standard, pass, 85 terms through n = 9186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,24 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_equal_2_and_8.h"
+#include "../utils/mem.h"
+
+/* Test whether a number has equal 2's and 8's when written in base‑9. */
+static inline bool has_equal_2_and_8(seq_t x)
+{
+    int count2 = 0, count8 = 0;
+
+    if (x == (seq_t)0)                /* 0 has zero 2's and zero 8's */
+        return true;
+
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)9);
+        if (d == 2)      ++count2;
+        else if (d == 8) ++count8;
+        x = x / (seq_t)9;
+    }
+    return count2 == count8;
+}
 
 /* Return the n-th element of A039096 (offset 1).  n >= 1. */
 seq_t a(idx_t n)
@@ -39,7 +57,7 @@ seq_t a(idx_t n)
         /* Initial allocation if the cache is empty. */
         if (cache_size == 0) {
             cache_cap  = 16;
-            cache       = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache       = mem_new(seq_t, cache_cap);
             if (!cache) return (seq_t)0;   /* allocation failure */
             cache[0] = (seq_t)0;
             cache_size = 1;
@@ -58,7 +76,7 @@ seq_t a(idx_t n)
             /* Ensure we have space for one more entry. */
             if (cache_size >= cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {                     /* allocation failure */
                     freel: /* nothing to free; we simply leak to return 0 */
                     return (seq_t)0;

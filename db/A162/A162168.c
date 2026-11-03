@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k=1..39} (1 + x + … + x^{2k-1})
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     /* One-time allocation and initialization */
     if (poly == NULL) {
         /* Allocate buffers of size MAXDEG+1 and zero‑initialize them */
-        poly = (seq_t *)calloc((size_t)(MAXDEG + 1), sizeof(seq_t));
-        tmp  = (seq_t *)calloc((size_t)(MAXDEG + 1), sizeof(seq_t));
+        poly = mem_new(seq_t, (size_t)(MAXDEG + 1));
+        tmp  = mem_new(seq_t, (size_t)(MAXDEG + 1));
         if (poly == NULL || tmp == NULL) {
             /* In an embedded / constraint environment, we could
                handle error here; for this implementation we assume

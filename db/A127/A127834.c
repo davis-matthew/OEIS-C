@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   is_debruijn
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,31 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_debruijn.h"
+
+/* Helper: test whether an 8‑bit value x is a de Bruijn sequence of order 3
+   (i.e., all 8 3‑bit patterns appear exactly once in the cyclic string) */
+static bool is_debruijn(seq_t x)
+{
+    /* Extract bits into an array for easier indexing */
+    bool bits[8];
+    for (int i = 0; i < 8; ++i) {
+        bits[i] = !!((x >> (7 - i)) & 1);
+    }
+
+    bool seen[8] = {false};
+    for (int i = 0; i < 8; ++i) {
+        int b0 = bits[i];
+        int b1 = bits[(i + 1) & 7];      /* wrap-around */
+        int b2 = bits[(i + 2) & 7];
+        int pat = (b0 << 2) | (b1 << 1) | b2;
+        if (seen[pat]) return false;     /* duplicate pattern */
+        seen[pat] = true;
+    }
+    /* All 8 patterns must appear */
+    for (int i = 0; i < 8; ++i)
+        if (!seen[i]) return false;
+    return true;
+}
 
 static seq_t residues[16];
 static size_t residue_count = 0;

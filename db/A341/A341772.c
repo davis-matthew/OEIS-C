@@ -8,7 +8,8 @@
  *            the sequence values exactly
  * Range:     u8 n <= 14, u16 n <= 224, u32 n <= 660, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9632 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,14 +25,14 @@ seq_t a(idx_t n)
 
     /* ---------- φ array ----------
        φ(i) = i initially, then subtract multiples. */
-    seq_t *phi = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, (size_t)n + 1);
     if (!phi) return 0;
     for (idx_t i = 1; i <= n; ++i) phi[i] = (seq_t)i;
 
     /* ---------- Smallest prime factor (spf) array ----------
        spf[i] = smallest prime factor of i (0 means unset). */
     uint32_t *spf = (uint32_t *)calloc((size_t)n + 1, sizeof(uint32_t));
-    if (!spf) { free(phi); return 0; }
+    if (!spf) { mem_free(phi); return 0; }
 
     for (idx_t i = 2; i <= n; ++i)
     {
@@ -57,8 +59,8 @@ seq_t a(idx_t n)
 
     /* ---------- Jordan totient J₂ array ----------
        J₂(k) = k² · Π_{p|k} (1 - 1/p²).  Compute multiplicatively. */
-    seq_t *j2 = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    if (!j2) { free(phi); free(spf); return 0; }
+    seq_t *j2 = mem_new(seq_t, (size_t)n + 1);
+    if (!j2) { mem_free(phi); free(spf); return 0; }
     j2[0] = 0;
     j2[1] = 1;
 
@@ -92,8 +94,8 @@ seq_t a(idx_t n)
 
     /* ---------- Clean up ----------
        All temporary allocations are freed. */
-    free(phi);
-    free(j2);
+    mem_free(phi);
+    mem_free(j2);
     free(spf);
     return result;
 }

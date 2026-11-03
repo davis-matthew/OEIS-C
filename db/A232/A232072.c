@@ -13,7 +13,8 @@
  *            unmatched‑mask that tracks cells still lacking a matching...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* helper structure for a transition */
 struct Trans { uint8_t q; uint8_t v; };
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     static seq_t dp[32][32];
     static seq_t nextdp[32][32];
 
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* initialise first row (row 0) with top‑left fixed to 0 */
     for (int p = 0; p < 32; ++p) {
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
 
     /* perform n transitions (row 1 … row n) */
     for (idx_t step = 1; step <= n; ++step) {
-        memset(nextdp, 0, sizeof(nextdp));
+        mem_set(nextdp, 0, sizeof(nextdp));
 
         for (int p = 0; p < 32; ++p) {
             for (int u = 0; u < 32; ++u) {
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
 
         /* swap dp and nextdp */
         for (int i = 0; i < 32; ++i)
-            memcpy(dp[i], nextdp[i], 32 * sizeof(seq_t));
+            mem_copy(dp[i], nextdp[i], 32 * sizeof(seq_t));
     }
 
     /* sum all states with no unmatched cells in the last row */

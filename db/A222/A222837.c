@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 20, u64 n <= 48, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
      a(7)=138240, a(8)=301056, a(9)=642048, a(10)=1382400, a(11)=3022848,
      a(12)=6690816, a(13)=14816256, a(14)=32741376 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache       = NULL;      /* array 0..n   (index 0 unused)          */
 static size_t cache_size  = 0;         /* allocated slots (>= needed)          */
@@ -55,7 +57,7 @@ static void ensure_cache(idx_t n)
     /* First allocation – also set the 14 base values */
     if (cache_len == 0) {
         size_t needed = 15;           /* indices 0..14 inclusive              */
-        cache = (seq_t*)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (!cache) abort();          /* out of memory */
         cache_size = needed;
         for (size_t i = 0; i < needed; ++i)
@@ -69,7 +71,7 @@ static void ensure_cache(idx_t n)
     if (cache_size <= (size_t)n) {
         size_t old_size = cache_size;
         size_t new_size = (size_t)n + 1;   /* indices 0..n inclusive */
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         cache = tmp;
         for (size_t i = old_size; i <= (size_t)n; ++i)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,26 @@
    starting from 0 for a square suffix and count the matches until the n‑th
    match is found. */
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static bool has_square_suffix(idx_t m)
 {

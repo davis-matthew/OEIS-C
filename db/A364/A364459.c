@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 116 terms through n = 9802 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /*
  * Sequence A364459: Number of primes in the interval [n,n+log(n)^2].
  * Formula: a(n) = #{p prime | n ≤ p ≤ n + ⌊log(n)^2⌋ }   (n ≥ 1)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 1277, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 71 terms through n = 7695 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,26 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ------------------------------------------------------------------
  * Generic popcount for any seq_t that supports bitwise &, >>
@@ -96,7 +116,7 @@ static void cache_grow(idx_t needed)
     if (needed <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 4;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *p = (seq_t *)realloc(cache_arr, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache_arr, new_cap);
     if (!p) exit(1);
     cache_arr = p;
     cache_cap = new_cap;

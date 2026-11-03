@@ -12,14 +12,17 @@
  *            sequence with these initial values)
  * Range:     u8 n <= 30, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 66 terms through n = 68 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h> /* size_t */
 #include <stdlib.h> /* realloc, abort */
-#include "../utils/pow2.h" /* pow2(exp) returns 2^exp in seq_t */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *trib_cache = NULL;   /* stores Tri(k) for k = 0 ... max_index */
 static size_t trib_len   = 0;      /* number of Tribonacci values computed (next index to compute) */
@@ -31,11 +34,11 @@ static void ensure_tribonacci(size_t up_to)
 
     /* Allocate memory for trib_cache if necessary */
     if (!trib_cache) {
-        trib_cache = (seq_t *)realloc(NULL, (up_to + 1) * sizeof(seq_t));
+        trib_cache = mem_resize(seq_t, NULL, (up_to + 1));
         if (!trib_cache) abort();
         trib_len = 0;
     } else if (trib_len <= up_to) {
-        trib_cache = (seq_t *)realloc(trib_cache, (up_to + 1) * sizeof(seq_t));
+        trib_cache = mem_resize(seq_t, trib_cache, (up_to + 1));
         if (!trib_cache) abort();
     }
 

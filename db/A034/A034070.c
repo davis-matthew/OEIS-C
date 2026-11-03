@@ -9,14 +9,17 @@
  *            offset 0.)
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 9, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 /* Compute floor of the fifth root of x
    (maximum r such that r^5 <= x). */
@@ -24,13 +27,13 @@ static idx_t fifth_root_floor(seq_t x)
 {
     idx_t low = 0, high = 1;
     /* Find an upper bound for the root */
-    while (pow_seq((seq_t)high, 5) <= x) {
+    while (ipow_i32((seq_t)high, 5) <= x) {
         high <<= 1;
     }
     /* Binary search */
     while (low + 1 < high) {
         idx_t mid = low + ((high - low) >> 1);
-        if (pow_seq((seq_t)mid, 5) <= x)
+        if (ipow_i32((seq_t)mid, 5) <= x)
             low = mid;
         else
             high = mid;
@@ -54,8 +57,8 @@ static int digit_count_idx(idx_t n)
 static seq_t find_next_candidate(seq_t prev_a, idx_t n)
 {
     int d = digit_count_idx(n);
-    seq_t pow10k   = pow_seq((seq_t)10, d);   /* 10^d      */
-    seq_t pow10_5k = pow_seq(pow10k, 5);      /* 10^(5d)   */
+    seq_t pow10k   = ipow_i32((seq_t)10, d);   /* 10^d      */
+    seq_t pow10_5k = ipow_i32(pow10k, 5);      /* 10^(5d)   */
 
     seq_t start = prev_a + (seq_t)1;          /* candidate start */
 
@@ -66,8 +69,8 @@ static seq_t find_next_candidate(seq_t prev_a, idx_t n)
         seq_t base1 = ((seq_t)b) * pow10k + (seq_t)n;         /* m*10^d + n   */
         seq_t base2 = base1 + (seq_t)1;                       /* m*10^d + n+1 */
 
-        seq_t num1 = pow_seq(base1, 5);  /* (m*10^d + n)^5          */
-        seq_t num2 = pow_seq(base2, 5);  /* (m*10^d + n + 1)^5      */
+        seq_t num1 = ipow_i32(base1, 5);  /* (m*10^d + n)^5          */
+        seq_t num2 = ipow_i32(base2, 5);  /* (m*10^d + n + 1)^5      */
 
         seq_t L = (num1 + pow10_5k - (seq_t)1) / pow10_5k;     /* ceil(low^5)  */
         seq_t U = (num2 - (seq_t)1) / pow10_5k;                /* floor(high^5) */
@@ -96,7 +99,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

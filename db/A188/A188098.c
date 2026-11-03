@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 21, u32 n <= 66, u64 n <= 156, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[16] = {
     0,                      /* dummy for 0-index */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* initialise the cache on first call */
     if (cache == NULL) {
         cache_size = 15;                     /* we need indices up to 15 */
-        cache = (seq_t *)malloc((cache_size + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_size + 1));
         for (idx_t i = 0; i <= cache_size; ++i)
             cache[i] = 0;                     /* clear element 0 */
         for (idx_t i = 1; i <= cache_size; ++i)
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     /* grow the cache if the required n is larger */
     if (n > cache_size) {
         idx_t new_size = n;
-        cache = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (new_size + 1));
         cache_size = new_size;
     }
 

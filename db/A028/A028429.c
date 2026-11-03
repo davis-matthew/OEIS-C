@@ -10,14 +10,36 @@
  *            and returned in decimal (i.e. as its integer value)
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   digit_len_base8, log8_idx
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h> /* for size_t */
-#include "../utils/digit_len_base8.h"
-#include "../utils/log8_idx.h"
+
+/* number of base‑8 digits of v (v >= 0) */
+static inline int digit_len_base8(seq_t v)
+{
+    int l = 0;
+    if (v == (seq_t)0) return 1;
+    while (v) {
+        v /= (seq_t)8;
+        ++l;
+    }
+    return l;
+}
+
+/* integer base‑8 logarithm: floor(log_8(x))  (x >= 0) */
+static inline idx_t log8_idx(idx_t x)
+{
+    idx_t r = 0;
+    while (x >= 8) {
+        x /= 8;
+        ++r;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {

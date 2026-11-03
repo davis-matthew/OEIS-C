@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1024*n^10 - 2304*n^8 + 1792*n^6 - 560*n^4 + 60*n^2 - 1
  * Range:     i8 n <= 1, i16 n <= 1, i32 n <= 4, i64 n <= 39, i128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 984 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

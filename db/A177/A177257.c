@@ -11,12 +11,14 @@
  *            be an unsigned integer type of arbitrary preci...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 24, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 499 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*---  cache of Bell numbers -------------------------------------------*/
 /* B[k] holds Bell(k).  Initially empty.  When recomputed B will contain
@@ -29,13 +31,13 @@ static void recompute_bell(idx_t limit)
 {
     /* allocate space for indices 0 .. limit : total (limit+1) elements */
     idx_t new_cap = limit + 1;
-    seq_t *newB = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *newB = mem_new(seq_t, new_cap);
     if (!newB)          /* out of memory – caller will receive 0 */
         return;
 
     /* free old cache (if any) */
     if (B)
-        free((void *)B);
+        mem_free(B);
 
     B = newB;
     B_cap = new_cap;

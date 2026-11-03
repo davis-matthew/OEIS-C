@@ -10,13 +10,14 @@
  *            1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 41,
  *            big any n
- * Helpers:   a006633_gcd
+ * Validated: standard, pass, 38 terms through n = 974 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a006633_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t r = 1;
@@ -29,7 +30,7 @@ seq_t a(idx_t n) {
         df[0] = 3 * k; df[1] = 3 * k + 5; df[2] = 3 * k + 4; df[3] = k + 2;
         for (i = 0; i < 5; i++)
             for (j = 0; j < 4; j++) {
-                uint64_t g = a006633_gcd(nf[i], df[j]);
+                uint64_t g = gcd_u64(nf[i], df[j]);
                 if (g > 1) { nf[i] /= g; df[j] /= g; }
             }
         for (i = 0; i < 5; i++) N *= nf[i];

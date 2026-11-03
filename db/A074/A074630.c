@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 4304, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9314 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* State of the on‑demand sieve. */
 static size_t max_checked = 0;           /* largest k already processed   */
@@ -33,7 +35,7 @@ static void append_term(seq_t val)
 {
     if (res_len == res_cap) {
         size_t new_cap = res_cap ? res_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, results, new_cap);
         if (!tmp) abort();
         results = tmp;
         res_cap = new_cap;

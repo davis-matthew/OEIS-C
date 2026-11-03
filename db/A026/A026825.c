@@ -11,12 +11,14 @@
  *            sum of distinct integers ≥5. It stores a table...
  * Range:     u8 n <= 50, u16 n <= 109, u32 n <= 288, u64 n <= 881,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 890 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;     /* dp[s] = # of subsets of {5,6,…} summing to s */
 static idx_t max_m = 0;      /* largest m = n-4 that has been precomputed */
@@ -30,8 +32,7 @@ seq_t a(idx_t n)
 
     if (dp == NULL || m > max_m) {
         /* Allocate / expand the DP array to size m+1 (indices 0 … m).   */
-        seq_t *new_dp = (seq_t *)realloc(dp,
-                                          (size_t)(m + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, (size_t)(m + 1));
         if (!new_dp) {
             /* Allocation failed – terminate the program.                */
             exit(EXIT_FAILURE);

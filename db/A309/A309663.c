@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   next_prime
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/next_prime.h"   /* declares uint64_t next_prime(uint64_t) */
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* ----- initialise on first invocation --------------------------------- */
     if (len == 0) {
         cap   = 8;
-        starts = (seq_t *)malloc(cap * sizeof(seq_t));
+        starts = mem_new(seq_t, cap);
         if (!starts) abort();            /* fatal error if memory cannot be allocated */
 
         starts[0] = (seq_t)2;            /* first run starts with prime 2 */
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
                    'next' starts a new run.  Store it.                 */
                 if (len == cap) {
                     size_t new_cap = (cap == 0 ? 8 : cap << 1);
-                    seq_t *tmp = (seq_t *)realloc(starts, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, starts, new_cap);
                     if (!tmp) abort();          /* fatal error if realloc fails */
                     starts = tmp;
                     cap    = new_cap;

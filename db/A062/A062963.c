@@ -7,7 +7,8 @@
  * Formula:   a(n) = mu(n) * (phi(n)+1)/2
  * Range:     i8 n <= 261, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   mobius, phi
+ * Validated: standard, pass, 110 terms through n = 9179 (2026-11-01)
+ * Helpers:   mobius, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 
 #include <stdint.h>
 #include "../utils/mobius.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
     if (mu == 0)
         return (seq_t)0;          /* not square‑free, product is 0 */
 
-    seq_t phi_val = phi(n);
+    seq_t phi_val = totient(n);
     seq_t H = (phi_val + (seq_t)1) / (seq_t)2; /* ceil(phi/2) */
     return mu * H;
 }

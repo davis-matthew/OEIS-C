@@ -8,13 +8,15 @@
  *            L(n)=L(n-1)+L(n-2)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod100
+ * Validated: standard, pass, 85 terms through n = 9396 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod100.h"
+
+static inline seq_t mod100(seq_t x) { return (seq_t)((unsigned int)x % 100u); }
 
 /* fast doubling to compute (F_n, F_{n+1}) modulo 100 */
 static void fib_pair(idx_t n, seq_t *fn, seq_t *fn1)

@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{k=1..n} k^(gcd(k,n) - 1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     seq_t sum = 0;
@@ -28,7 +31,7 @@ seq_t a(idx_t n) {
         else if (e == 1)    /* k^1 = k */
             term = (seq_t)k;
         else                /* general exponent */
-            term = big_pow((seq_t)k, e);
+            term = ipow((seq_t)k, e);
 
         sum += term;
     }

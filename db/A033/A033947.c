@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 32, i16 n <= 3822, i32 n <= 4883, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 106 terms through n = 9625 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Pool of all primes up to the chosen limit. */
 static uint64_t *prime_dual = NULL;      /* primes of build_primes_upto */
@@ -132,8 +134,7 @@ seq_t a(idx_t n)
     ensure_prime_list((size_t)n);
 
     while (seq_cache_len < (size_t)n) {
-        seq_t *tmp = (seq_t *)realloc(seq_cache,
-                                      (seq_cache_len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, (seq_cache_len + 1));
         seq_cache = tmp;
         compute_value(seq_cache_len + 1);
         ++seq_cache_len;

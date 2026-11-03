@@ -8,14 +8,28 @@
  *            year therefore ends on a Wednesday because it has 365 days)
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   weekday_jan1
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/weekday_jan1.h"
+
+/* Day of week for 1 January of a given year.
+ * Returns 0=Saturday, 1=Sunday, … , 6=Friday.
+ * Uses Zeller's congruence for the Gregorian calendar. */
+static inline int weekday_jan1(int year)
+{
+    int y = year - 1;    /* treat January as month 13 of previous year */
+    int m = 13;
+    int q = 1;           /* day of month */
+    int K = y % 100;
+    int J = y / 100;
+    int h = (q + (13 * (m + 1)) / 5 + K + K / 4 + J / 4 + 5 * J) % 7;
+    return h;
+}
 
 /* Gregorian leap‑year test. */
 static inline bool is_leap_year(int year)

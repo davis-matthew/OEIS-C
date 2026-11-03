@@ -8,7 +8,8 @@
  * Formula:   a(n) = (prime(n)-1)/ord(6,prime(n))
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, mod_pow
+ * Validated: standard, pass, 99 terms through n = 983 (2026-11-01)
+ * Helpers:   build_primes_upto, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,19 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto      */
-#include "../utils/_prime_limit_for_idx.h"/* _prime_limit_for_idx   */
-#include "../utils/mod_pow.h"             /* mod_pow                */
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/powmod.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 static uint64_t *primes = NULL;   /* array of first primes */
 static size_t primes_cnt = 0;     /* number of primes stored */
@@ -56,7 +67,7 @@ static uint64_t reduce_order(uint64_t p, uint64_t order)
             while (order % q == 0)
             {
                 uint64_t cand = order / q;
-                if (mod_pow(6, cand, p) == 1)
+                if (powmod(6, cand, p) == 1)
                     order = cand;
                 else
                     break;
@@ -70,7 +81,7 @@ static uint64_t reduce_order(uint64_t p, uint64_t order)
         while (order % q == 0)
         {
             uint64_t cand = order / q;
-            if (mod_pow(6, cand, p) == 1)
+            if (powmod(6, cand, p) == 1)
                 order = cand;
             else
                 break;

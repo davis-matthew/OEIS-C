@@ -7,7 +7,8 @@
  * Formula:   a(n) = e*(Gamma(2*n,1) - Gamma(n,1))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 214 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache for A000522 values */
 static seq_t *s_cache = NULL;   /* pointer to cached values */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t needed)
         return;
 
     size_t new_cap = (needed + 1) * 2;
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         exit(EXIT_FAILURE);
 
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t needed)
         new_cache[i] = s_cache[i];
 
     /* free old cache if it existed */
-    free(s_cache);
+    mem_free(s_cache);
     s_cache = new_cache;
     s_cap   = new_cap;
 }

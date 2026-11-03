@@ -8,12 +8,23 @@
  *            digit (0, 6, 8, 9)
  * Range:     u8 n <= 149, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_loop_digit
+ * Validated: standard, pass, 80 terms through n = 994 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/has_loop_digit.h"
+static int has_loop_digit(seq_t x) {
+    seq_t temp = x;
+    do {
+        seq_t digit = temp % 10;
+        if (digit == 0 || digit == 6 || digit == 8 || digit == 9) {
+            return 1;
+        }
+        temp /= 10;
+    } while (temp > 0);
+    return 0;
+}
 
 seq_t a(idx_t n) {
     seq_t count = 0;

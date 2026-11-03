@@ -9,13 +9,15 @@
  *            static cache allows O(n √n) incremental computation
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *mod3_cache = NULL;   /* stores p(n) mod 3 for 0..size-1   */
 static idx_t  cache_size  = 0;     /* number of computed terms           */
@@ -32,8 +34,8 @@ ensure_cache(idx_t n)
         idx_t new_cap = cache_cap ? cache_cap * 2 : 64;
         while (new_cap < n + 1) new_cap <<= 1;
         mod3_cache = (mod3_cache
-                      ? (seq_t *)realloc(mod3_cache, new_cap * sizeof(seq_t))
-                      : (seq_t *)malloc(new_cap * sizeof(seq_t)));
+                      ? mem_resize(seq_t, mod3_cache, new_cap)
+                      : mem_new(seq_t, new_cap));
         cache_cap = new_cap;
     }
 

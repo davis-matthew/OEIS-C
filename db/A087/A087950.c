@@ -11,7 +11,8 @@
  *            for which the k‑continued fraction of sqrt(2) is periodic)
  * Range:     u8 n <= 58, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   abs128, hash_state, leq128
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,38 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/abs128.h"
-#include "../utils/hash_state.h"
-#include "../utils/leq128.h"
+#include "../utils/mem.h"
+
+/* utility: absolute value for signed __int128 */
+static inline __int128 abs128(__int128 x) { return x >= 0 ? x : -x; }
+
+/* hash function for a state (a,b,c) */
+static inline uint64_t hash_state(__int128 a, __int128 b, __int128 c)
+{
+    uint64_t ua = (uint64_t)((unsigned __int128)a);
+    uint64_t ub = (uint64_t)((unsigned __int128)b);
+    uint64_t uc = (uint64_t)((unsigned __int128)c);
+    return ua ^ (ub << 27) ^ (uc << 53);
+}
+
+/* tests whether  a*C <= A + B*sqrt(2)  */
+static inline bool leq128(__int128 A, __int128 B, __int128 C, __int128 a)
+{
+    __int128 D = a * C - A;          /* D = a*C - A  */
+    if (B >= 0) {
+        if (D <= 0) return true;
+        /* D > 0, need D^2 <= 2*B^2 */
+        __int128 left  = D * D;
+        __int128 right = (__int128)2 * B * B;
+        return left <= right;
+    } else { /* B < 0 */
+        if (D > 0) return false;
+        /* D <= 0, need (-D)^2 >= 2*B^2 */
+        __int128 left  = (-D) * (-D);
+        __int128 right = (__int128)2 * B * B;
+        return left >= right;
+    }
+}
 
 /* gcd for signed __int128 */
 static inline __int128 gcd128(__int128 a, __int128 b)
@@ -134,7 +164,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap < (size_t)n) {
         size_t new_cap = cache_cap == 0 ? 64 : cache_cap * 2;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return; /* out of memory – should not happen */
         cache = tmp;
         cache_cap = new_cap;

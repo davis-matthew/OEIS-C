@@ -8,7 +8,8 @@
  *            primes
  * Range:     u8 n <= 6, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"  /* bool is_prime(uint64_t n) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *qual = NULL;     /* cache of qualifying primes             */
 static idx_t  qual_cap = 0;    /* current allocation capacity (in entries) */
@@ -29,7 +32,7 @@ static void maybe_grow(void)
 {
     if (qual_len >= qual_cap) {
         idx_t new_cap = qual_cap ? qual_cap << 1 : 16;
-        qual = (seq_t *)realloc((void *)qual, new_cap * sizeof(seq_t));
+        qual = mem_resize(seq_t, qual, new_cap);
         qual_cap = new_cap;
     }
 }
@@ -42,10 +45,10 @@ seq_t a(idx_t n)
         maybe_grow();
 
         /* Test primality of the candidate. */
-        if (is_prime(next_candidate)) {
+        if (is_prime_u64(next_candidate)) {
             /* Check the two required conditions. */
-            if (is_prime(next_candidate + 16ULL) &&
-                is_prime(16ULL * next_candidate + 1ULL)) {
+            if (is_prime_u64(next_candidate + 16ULL) &&
+                is_prime_u64(16ULL * next_candidate + 1ULL)) {
                 /* Store the qualifying prime. */
                 qual[qual_len++] = (seq_t)next_candidate;
             }

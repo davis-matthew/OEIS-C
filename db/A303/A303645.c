@@ -9,7 +9,8 @@
  *            ties are broken by the smaller integer
  * Range:     i8 n <= 24, i16 n <= 24, i32 n <= 24, i64 n <= 24, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 struct Pair {
     int sum;   /* sum of prime factors (with multiplicity) */
@@ -89,7 +91,7 @@ static void build_sequence(void)
     qsort(pairs, LIMIT, sizeof(struct Pair), pair_cmp);
 
     /* allocate the permutation array (1‑based indexing) */
-    perm = (seq_t *)malloc((LIMIT + 1) * sizeof(seq_t));
+    perm = mem_new(seq_t, (LIMIT + 1));
     if (!perm) {
         free(spf); free(primes); free(sum); free(pairs); return;
     }

@@ -8,13 +8,15 @@
  *            a(1)=1, a(2)=7, a(3)=29, a(4)=103
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* cache[0] unused, cache[1..] holds a(n) */
 static size_t cache_cap = 0;        /* allocated capacity (>= max_n+1) */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* initial allocation: at least space for indices 0..7 */
         cache_cap = target > 8 ? target : 8;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();
 
         /* preset first four terms */
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t n)
     /* grow capacity to at least target */
     size_t new_cap = cache_cap;
     while (new_cap < target) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp == NULL) {
         /* realloc failed: keep old cache to avoid memory loss */
         abort();

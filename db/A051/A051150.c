@@ -11,12 +11,14 @@
  *            triangle
  * Range:     i8 n <= 6, i16 n <= 15, i32 n <= 32, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,12 +38,12 @@ seq_t a(idx_t n)
     idx_t col = n - (r - 1) * r / 2;
 
     /* Allocate two rows of length r+1 (we ignore index 0). */
-    seq_t *prev = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
-    seq_t *cur  = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(r + 1));
+    seq_t *cur  = mem_new(seq_t, (size_t)(r + 1));
     if (!prev || !cur) {
         /* Memory allocation failed; return 0 (should not happen in tests). */
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return 0;
     }
 
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     seq_t result = prev[col];
 
     /* Free allocated memory. */
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }

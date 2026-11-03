@@ -13,7 +13,8 @@
  *            antidiagonal
  * Range:     u8 n <= 22, u16 n <= 46, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *factorial_tbl = NULL;
 static seq_t **T_tbl = NULL;
@@ -30,14 +32,14 @@ static seq_t **T_tbl = NULL;
 static void init_tables(void)
 {
     /* factorials */
-    factorial_tbl = (seq_t *)malloc((MAX_K + 1) * sizeof(seq_t));
+    factorial_tbl = mem_new(seq_t, (MAX_K + 1));
     factorial_tbl[0] = (seq_t)1;
     for (idx_t i = 1; i <= MAX_K; ++i)
         factorial_tbl[i] = factorial_tbl[i-1] * (seq_t)i;
 
     /* 2‑D table T[k][j] of partitions of k into j blocks of size ≥2 */
     T_tbl = (seq_t**)malloc((MAX_K + 1) * sizeof(seq_t*));
-    seq_t *data = (seq_t*)calloc((MAX_K + 1) * (MAX_K + 1), sizeof(seq_t));
+    seq_t *data = mem_new(seq_t, (MAX_K + 1) * (MAX_K + 1));
     for (idx_t k = 0; k <= MAX_K; ++k)
         T_tbl[k] = data + k * (MAX_K + 1);
 

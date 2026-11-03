@@ -8,12 +8,13 @@
  *            i=1..n
  * Range:     u8 n <= 23, u16 n <= 35, u32 n <= 71, u64 n <= 131,
  *            u128 n <= 251, big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 65 terms through n = 982 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 /* Compute a(n) */
 seq_t a(idx_t n)
@@ -32,5 +33,5 @@ seq_t a(idx_t n)
     }
 
     /* return 6^exponent */
-    return pow_int((seq_t)6, exponent);
+    return ipow_idx((seq_t)6, exponent);
 }

@@ -11,13 +11,16 @@
  *            = n – i*(i+1)/2. Then a(n) = binomial(i,j)*3^(i-j)*8^j
  * Range:     u8 n <= 7, u16 n <= 22, u32 n <= 60, u64 n <= 220, u128 n <= 766,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: standard, pass, 53 terms through n = 835 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +38,8 @@ seq_t a(idx_t n)
     seq_t val = binomial(i, j); /* binomial coefficient */
 
     /* powers of 3 and 8.  The exponent fits in int for all supported n. */
-    val *= pow_seq((seq_t)3, (int)(i - j));
-    val *= pow_seq((seq_t)8, (int)j);
+    val *= ipow_i32((seq_t)3, (int)(i - j));
+    val *= ipow_i32((seq_t)8, (int)j);
 
     return val;
 }

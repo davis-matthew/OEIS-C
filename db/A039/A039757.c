@@ -11,6 +11,7 @@
  *            triangle of coefficients of * (x–1)(x–3)(x–5)…(x–(2n–1))
  * Range:     i8 n <= 10, i16 n <= 27, i32 n <= 65, i64 n <= 153,
  *            i128 n <= 434, big any n
+ * Validated: standard, pass, 71 terms through n = 9583 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

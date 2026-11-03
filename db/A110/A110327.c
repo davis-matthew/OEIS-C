@@ -10,13 +10,31 @@
  *            Pell(0)=0, Pell(1)=1 and Pell(m)=2*Pell(m-1)+Pell(m-2)
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   pell_number
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pell_number.h"
+
+/* The recursion is O(m) and fits easily into seq_t for the required  */
+static seq_t pell_number(idx_t m)
+{
+    if (m == 0)
+        return (seq_t)0;
+    if (m == 1)
+        return (seq_t)1;
+    seq_t prev2 = (seq_t)0;   /* P(0)   */
+    seq_t prev1 = (seq_t)1;   /* P(1)   */
+    seq_t curr;
+    for (idx_t i = 2; i <= m; ++i) {
+        curr = (seq_t)2 * prev1 + prev2; /* P(i) = 2*P(i-1)+P(i-2) */
+        prev2 = prev1;
+        prev1 = curr;
+    }
+    return curr;
+}
 
 /* ------------------------------------------------------------------ */
 /* Small helper to compute the Pell number P(m) for 0 ≤ m ≤ 10000.     */

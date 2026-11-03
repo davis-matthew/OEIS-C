@@ -8,13 +8,15 @@
  * Formula:   a(n) = T(r,k) where r = ⌊(√(8n+1)-1)/2⌋, k = n - r(r+1)/2 *
  *            T(r,k) = binomial(2r,r) * binomial(r,k) * (triangle read by
  *            rows, see OEIS A356546)
- * Range:     u8 n <= 9, u16 n <= 29, u32 n <= 44, u64 n <= 44, u128 n <= 44,
+ * Range:     u8 n <= 10, u16 n <= 29, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* finds the row index r such that n lies in that row of the triangle */

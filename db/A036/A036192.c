@@ -7,6 +7,7 @@
  * Formula:   a(n) = discrete logarithm base 5 of n modulo 157
  * Range:     u8 n <= 156, u16 n <= 156, u32 n <= 156, u64 n <= 156,
  *            u128 n <= 156, big any n
+ * Validated: full, pass, 156 terms through n = 156 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

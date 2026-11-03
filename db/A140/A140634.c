@@ -8,7 +8,8 @@
  *            (i.e., primes p such that p % 210 == 41 || p % 210 == 169)
  * Range:     u8 n <= 2, u16 n <= 270, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 59 terms through n = 914 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* The sequence type and index type are provided by the build. */
 extern seq_t *seq_alloc_array(size_t n); /* not used, but allowed to be present */
@@ -38,7 +41,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = cache_capacity ? cache_capacity * 2 : 64;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort(); /* out of memory */
     cache = tmp;
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
     {
         uint64_t candidate = 210ULL * next_k + (uint64_t)residues[next_r];
         /* Skip 1, but all candidates are >= 41, so this check is for completeness */
-        if (candidate >= 2 && is_prime_small(candidate))
+        if (candidate >= 2 && is_prime_seq(candidate))
         {
             /* Store the found prime */
             ensure_capacity(cache_count + 1);

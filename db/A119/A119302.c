@@ -8,6 +8,7 @@
  *            ⌊(√(8n+1)–1)/2⌋ and k = n – r(r+1)/2
  * Range:     i8 n <= 31, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    T(r,k) = (C(2k,r‑k)+3*C(2k,r‑k‑1))·(–1)^(r‑k) for 0 ≤ k ≤ r. */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Integer square‑root: floor(sqrt(x)) for unsigned 64‑bit x. */

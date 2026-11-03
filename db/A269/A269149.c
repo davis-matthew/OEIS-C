@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 4, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
 
 /* EdgeList: simple dynamic array of 16‑bit indices */
 typedef struct {
@@ -30,6 +38,19 @@ typedef struct {
 } EdgeList;
 
 /* Ensure a dynamic array has at least `needed` capacity. */
+#ifdef __cplusplus
+template <class T>
+static inline void
+ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem) /* elem: sizeof(T) */
+{
+    if (needed > *cap) {
+        size_t newcap = (*cap) ? (*cap) * 2 : 16;
+        while (newcap < needed) newcap <<= 1;
+        *ptr = mem_resize(T, *ptr, newcap);
+        *cap = newcap;
+    }
+}
+#else
 static inline void
 ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem)
 {
@@ -40,12 +61,13 @@ ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem)
         *cap = newcap;
     }
 }
+#endif
 
 /* Push a value into an EdgeList. */
 static inline void
 push_back(EdgeList *el, uint16_t val)
 {
-    ensure_capacity(el->len + 1, &el->cap, (void **)&el->data, sizeof(uint16_t));
+    ensure_capacity(el->len + 1, &el->cap, OEISC_VPP(&el->data), sizeof(uint16_t));
     el->data[el->len++] = val;
 }
 
@@ -102,10 +124,10 @@ seq_t a(idx_t n)
     }
 
     /* DP arrays for counts with current total 0 or 1. */
-    seq_t *dp0 = (seq_t *)calloc(active, sizeof(seq_t));
-    seq_t *dp1 = (seq_t *)calloc(active, sizeof(seq_t));
-    seq_t *new0 = (seq_t *)calloc(active, sizeof(seq_t));
-    seq_t *new1 = (seq_t *)calloc(active, sizeof(seq_t));
+    seq_t *dp0 = mem_new(seq_t, active);
+    seq_t *dp1 = mem_new(seq_t, active);
+    seq_t *new0 = mem_new(seq_t, active);
+    seq_t *new1 = mem_new(seq_t, active);
 
     /* Initialise for the first row. */
     for (size_t i = 0; i < active; ++i) {
@@ -124,10 +146,10 @@ seq_t a(idx_t n)
         free(adj0);
         free(adj1);
         free(rows);
-        free(dp0);
-        free(dp1);
-        free(new0);
-        free(new1);
+        mem_free(dp0);
+        mem_free(dp1);
+        mem_free(new0);
+        mem_free(new1);
         return ans;
     }
 
@@ -172,9 +194,9 @@ seq_t a(idx_t n)
     free(adj0);
     free(adj1);
     free(rows);
-    free(dp0);
-    free(dp1);
-    free(new0);
-    free(new1);
+    mem_free(dp0);
+    mem_free(dp1);
+    mem_free(new0);
+    mem_free(new1);
     return ans;
 }

@@ -6,16 +6,18 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = binomial(n+7,3)*binomial(2*(n+4),n+2)/20 -
  *            (n+4)*(n+3)*4^(n+1)
- * Range:     u8 n <= 0, u16 n <= 4, u32 n <= 8, u64 n <= 19, u128 n <= 19,
+ * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 8, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     seq_t part1 = (c1 * c2) / 20;
 
     /* 4^(n+1) */
-    seq_t pow4 = pow_seq((seq_t)4, (int)(n + 1));
+    seq_t pow4 = ipow_i32((seq_t)4, (int)(n + 1));
 
     /* (n+4)*(n+3)*4^(n+1) */
     seq_t part2 = (seq_t)(n + 4) * (seq_t)(n + 3) * pow4;

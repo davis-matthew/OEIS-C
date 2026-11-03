@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   build_primes_upto, prime_limit_for_idx, smallest_prime_factor
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd_u64, is_prime_u64, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,54 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/prime_limit_for_idx.h"
+#include <stddef.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/smallest_prime_factor.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+
+/* utility – estimate an upper bound for the n-th prime (Rosser–Schoenfeld) */
+static idx_t prime_limit_for_idx(idx_t n)
+{
+    if (n < 6)
+        return 12;                               /* prime(6)=13 */
+    double dn   = (double)n;
+    double lgn  = log(dn);
+    double lgln = log(lgn);
+    /* p_n < n(ln n + ln ln n) for n ≥ 6, add a safety margin */
+    double limit = dn * (lgn + lgln) + 3.0;
+    return (idx_t)limit;
+}
+
+/* Pollard–Rho: find a non‑trivial divisor of n (n composite) */
+static uint64_t pollard(uint64_t n) {
+    if (n % 2 == 0) return 2;
+    uint64_t c = 1;
+    while (1) {
+        uint64_t x = 2, y = 2, d = 1;
+        while (d == 1) {
+            x = (mulmod(x, x, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            uint64_t diff = x > y ? x - y : y - x;
+            d = gcd_u64(diff, n);
+        }
+        if (d != n) return d;
+        ++c;  /* try another constant */
+    }
+}
+
+/* recursive smallest prime factor */
+static uint64_t smallest_prime_factor(uint64_t n) {
+    if (n % 2 == 0) return 2;
+    if (is_prime_u64(n)) return n;
+    uint64_t d = pollard(n);
+    uint64_t s1 = smallest_prime_factor(d);
+    uint64_t s2 = smallest_prime_factor(n / d);
+    return (s1 < s2) ? s1 : s2;
+}
 
 /* Computed by simulating the iteration process for the n-th prime. */
 

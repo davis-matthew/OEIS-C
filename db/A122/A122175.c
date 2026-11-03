@@ -8,15 +8,17 @@
  * Formula:   a(n) = let r = ⌊(√(8 n + 1) − 1)/2⌋, k = n − r(r + 1)/2, then
  *            a(n) = binom( k(k + 1)/2 + r − k , r − k ) where binom(x,y) is
  *            binomial(x,y) (see utils/binom.h)
- * Range:     u8 n <= 30, u16 n <= 59, u32 n <= 68, u64 n <= 68, u128 n <= 68,
+ * Range:     u8 n <= 31, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include needed utilities */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Integer square‑root for 64‑bit unsigned integers.
    Uses binary search, no <math.h> dependence. */
@@ -54,5 +56,5 @@ a(idx_t n)
     idx_t numer = k * (k + 1) / 2 + r - k;
     idx_t denom = r - k;
 
-    return binom(numer, denom);
+    return binomial(numer, denom);
 }

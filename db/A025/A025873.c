@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[24] = {
     1, 0, 0, 0, 1, 0, 0, 0,
@@ -47,12 +49,12 @@ seq_t a(idx_t n)
         if (init_cap < 24)
             init_cap = 24;   /* ensure space for the 24 initial values */
 
-        cache = (seq_t *)calloc(init_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (cache == NULL)
             return 0;   /* allocation failed – return 0 as a safe fallback */
 
         /* copy the initial 24 values into the cache   */
-        memcpy(cache, init_vals, sizeof(init_vals));
+        mem_copy(cache, init_vals, sizeof(init_vals));
 
         cap = init_cap;
         computed = 23;
@@ -60,12 +62,12 @@ seq_t a(idx_t n)
     /* Expand the cache if the requested index is beyond the current capacity */
     else if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             return 0;   /* allocation failed – return 0 as a safe fallback */
 
         /* zero the newly allocated part   */
-        memset(tmp + cap, 0, (new_cap - cap) * sizeof(seq_t));
+        mem_set(tmp + cap, 0, (new_cap - cap) * sizeof(seq_t));
 
         cache = tmp;
         cap   = new_cap;

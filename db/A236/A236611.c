@@ -13,13 +13,15 @@
  *            a(12)=2076...
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 26, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[13] = {
     (seq_t)81ULL,
@@ -43,10 +45,10 @@ static size_t cache_size = 0;        /* number of stored terms */
 /* Resize cache if needed; after this cache_size == new_cap. */
 static void ensure_cache(size_t new_cap) {
     if (new_cap <= cache_size) return;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) exit(1);                /* out of memory */
     for (size_t i = 0; i < cache_size; ++i) new_cache[i] = cache[i];
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = new_cache;
     cache_size = new_cap;
 }
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
     /* lazily allocate cache with initial values */
     if (!cache) {
         cache_size = 13;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) exit(1);
         for (size_t i = 0; i < 13; ++i) cache[i] = init_vals[i];
     }

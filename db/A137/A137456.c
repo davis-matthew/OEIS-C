@@ -13,6 +13,7 @@
  *            is indexed starting at 1
  * Range:     i8 n <= 18, i16 n <= 42, i32 n <= 64, i64 n <= 64, i128 n <= 64,
  *            big any n
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

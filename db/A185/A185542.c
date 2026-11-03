@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(n^(5/2)) * (floor(n^(5/2)) + 1) / 2
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 96, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   isqrt_uint128_to_idx
+ * Validated: standard, pass, 53 terms through n = 4533 (2026-11-01)
+ * Helpers:   isqrt_u128_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
    square root.  The final result is cast to seq_t.                         */
 
 #include <stdint.h>
-#include "../utils/isqrt_uint128_to_idx.h"
+#include "../utils/isqrt_u128_to_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
     unsigned __int128 n128 = n;
     unsigned __int128 n5 = n128 * n128 * n128 * n128 * n128;   /* n^5 */
 
-    idx_t m = isqrt_uint128_to_idx(n5);   /* floor sqrt(n^5) = floor(n^(5/2)) */
+    idx_t m = isqrt_u128_to_idx(n5);   /* floor sqrt(n^5) = floor(n^(5/2)) */
 
     seq_t m_seq = (seq_t)m;
     return m_seq * (m_seq + (seq_t)1) / (seq_t)2;

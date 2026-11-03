@@ -11,16 +11,57 @@
  *            n (A001221) and lpf(n) = largest prime factor of n (A006530).
  *            The sequence assigns a unique increasing integer to each
  *            distinct pair in the order of first appearance, produ...
- * Range:     u8 n <= 810, u16 n <= 9661, u32 n <= 9661, u64 n <= 9661,
- *            u128 n <= 9661, big any n
- * Helpers:   count_distinct_primes, largest_prime_factor
+ * Range:     u8 n <= 810, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9661 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/count_distinct_primes.h"
-#include "../utils/largest_prime_factor.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Count distinct prime factors of an unsigned 64-bit integer n.
+   The result fits in a signed int for all n that may be passed. */
+static int count_distinct_primes(uint64_t n)
+{
+    if (n <= 1)
+        return 0;
+
+    int cnt = 0;
+    /* Handle factor 2 separately. */
+    if (n % 2 == 0) {
+        cnt++;
+        while (n % 2 == 0)
+            n /= 2;
+    }
+    /* Test odd divisors up to sqrt(n). */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            cnt++;
+            while (n % p == 0)
+                n /= p;
+        }
+    }
+    if (n > 1)   /* Remaining prime factor. */
+        cnt++;
+    return cnt;
+}
+
+/*  Works for all n used in the tests (≤ 10 000).                       */
+static uint64_t largest_prime_factor(uint64_t n)
+{
+    uint64_t max = 1U;
+    while ((n & 1ULL) == 0ULL) { max = 2U; n >>= 1; }
+    for (uint64_t i = 3ULL; i * i <= n; i += 2ULL) {
+        while (n % i == 0ULL) { max = i; n /= i; }
+    }
+    if (n > 2ULL) max = n;
+    return max;
+}
 
 /* Structure to store a discovered pair and its assigned value. */
 typedef struct {
@@ -42,7 +83,7 @@ static void ensure_seq_capacity(size_t needed)
     if (seq_cache == NULL || seq_len < needed) {
         size_t new_cap = seq_len ? seq_len * 2 : 8;
         while (new_cap < needed) new_cap *= 2;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_len = new_cap;
     }
 }
@@ -50,10 +91,10 @@ static void ensure_seq_capacity(size_t needed)
 static void ensure_pair_capacity(void)
 {
     if (pair_table == NULL) {
-        pair_table = (pair_val_t *)malloc(8 * sizeof(pair_val_t));
+        pair_table = mem_new(pair_val_t, 8);
     } else if (pair_cnt >= 8) {
         size_t new_cap = pair_cnt * 2;
-        pair_table = (pair_val_t *)realloc(pair_table, new_cap * sizeof(pair_val_t));
+        pair_table = mem_resize(pair_val_t, pair_table, new_cap);
     }
 }
 
@@ -84,9 +125,9 @@ seq_t a(idx_t n)
 
     /* Compute up to n if necessary. */
     if (seq_cache == NULL) {
-        seq_cache = (seq_t *)malloc(8 * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, 8);
         seq_len = 8;
-        pair_table = (pair_val_t *)malloc(8 * sizeof(pair_val_t));
+        pair_table = mem_new(pair_val_t, 8);
         pair_cnt = 0;
         /* initial term for n = 1 */
         pair_val_t p = {0ULL, 0ULL, (seq_t)1};

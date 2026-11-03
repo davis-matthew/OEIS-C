@@ -9,7 +9,8 @@
  *            p² | F_k
  * Range:     u8 n <= 16, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   gen_divisors_recursive
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,27 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gen_divisors_recursive.h"
+
+/* ---------- divisor enumeration ---------- */
+static void gen_divisors_recursive(const uint32_t *primes_arr, const int *exps,
+                                   size_t cnt, size_t cur_idx, uint64_t cur,
+                                   uint64_t *divs, size_t *len, size_t *cap)
+{
+    if (cur_idx == cnt) {
+        if (*len == *cap) {
+            *cap <<= 1;
+            divs = (uint64_t*)realloc(divs, *cap * sizeof(uint64_t));
+        }
+        divs[(*len)++] = cur;
+        return;
+    }
+    uint64_t mul = 1;
+    for (int e = 0; e <= exps[cur_idx]; ++e) {
+        gen_divisors_recursive(primes_arr, exps, cnt, cur_idx + 1, cur * mul,
+                               divs, len, cap);
+        mul *= primes_arr[cur_idx];
+    }
+}
 
 /* ---------- constants ---------- */
 #define PRIME_LIMIT 300000     /* sufficient to cover ~10kth term */

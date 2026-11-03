@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 67, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **poly_rows = NULL;   /* poly_rows[d] → array of coefficients of b(d) */
 static idx_t   max_degree = 0;     /* highest degree computed so far */
@@ -37,11 +39,11 @@ static void ensure_polys_upto(idx_t deg)
         poly_cap   = 2;   /* for degrees 0 and 1 */
         poly_rows  = (seq_t **)malloc(poly_cap * sizeof(seq_t *));
         /* b(0) = 1 */
-        seq_t *b0 = (seq_t *)malloc(sizeof(seq_t));
+        seq_t *b0 = mem_new(seq_t, 1);
         b0[0] = (seq_t)1;
         poly_rows[0] = b0;
         /* b(1) = w  →  0 + 1·w  */
-        seq_t *b1 = (seq_t *)malloc(2 * sizeof(seq_t));
+        seq_t *b1 = mem_new(seq_t, 2);
         b1[0] = (seq_t)0;
         b1[1] = (seq_t)1;
         poly_rows[1] = b1;
@@ -63,7 +65,7 @@ static void ensure_polys_upto(idx_t deg)
     /* Compute each new row up to 'deg'. */
     for (idx_t d = max_degree + 1; d <= deg; ++d) {
         size_t len = (size_t)d + 1;                   /* number of coefficients */
-        seq_t *p   = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *p   = mem_new(seq_t, len);
 
         seq_t *prev1 = poly_rows[d - 1];
         seq_t *prev2 = (d >= 2) ? poly_rows[d - 2] : NULL;

@@ -11,12 +11,14 @@
  *            a(0)=1 is used only for the recurrence
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 28, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;            /* array storing computed values */
 static size_t cache_len = 0;           /* number of stored elements (indices 0..len-1) */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* Allocate space for indices 0..4 (5 elements). */
         cache_len = 5;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();
 
         /* Base values.  a(0) is only used for the recurrence. */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         size_t old_len = cache_len;
         size_t new_len = (size_t)n + 1;
 
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) abort();
         cache = new_cache;
         cache_len = new_len;

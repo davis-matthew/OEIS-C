@@ -8,12 +8,14 @@
  *            0) Offset: 1 (i.e. a(1) is the first term)
  * Range:     u8 n <= 191, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9661 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* enlarge cache if needed */
     if (n > cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) abort();
         cache = tmp;
         cap   = n;

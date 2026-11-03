@@ -7,12 +7,14 @@
  * Formula:   a(n) = (n/2)*(2 + (2+sqrt(3))^n + (2-sqrt(3))^n)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Memoized values of S_k = (2+√3)^k + (2-√3)^k.
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
 
     if (sz == 0) {                /* initialize the table */
         sz = 2;
-        S = (seq_t *)malloc(sizeof(seq_t) * sz);
+        S = mem_new(seq_t, sz);
         if (!S) return 0;        /* out of memory – unlikely */
         S[0] = 2;
         S[1] = 4;
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
 
     if (n >= sz) {
         idx_t new_sz = n + 1;
-        seq_t *tmp = (seq_t *)realloc(S, sizeof(seq_t) * new_sz);
+        seq_t *tmp = mem_resize(seq_t, S, new_sz);
         if (!tmp) return 0;      /* out of memory – unlikely */
         S = tmp;
         for (idx_t i = sz; i <= n; ++i) {

@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + 36*a(n-2), a(0)=1, a(1)=6
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Memoized recurrence computation; works for any seq_t implementation. */
 seq_t a(idx_t n) {
@@ -28,14 +30,14 @@ seq_t a(idx_t n) {
     /* Allocate or expand cache if necessary. */
     if (cache == NULL) {
         cache_size = n + 1;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();          /* fatal if memory allocation fails */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)6;          /* we know n >= 2 when we reach here    */
         cache_last = 1;
     } else if (n + 1 > cache_size) {
         cache_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_size);
         if (!tmp) abort();
         cache = tmp;
     }

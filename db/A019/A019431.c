@@ -6,8 +6,9 @@
  * Keywords:  nonn, cofr, easy
  * Formula:   a(0) = 0, a(1) = 7, a(n) = (-1 + 3*(-1)^n - 8*(-1 + (-1)^n)*n) /
  *            2 for n > 1
- * Range:     u8 n <= 32, u16 n <= 8192, u32 n <= 9992, u64 n <= 9992,
- *            u128 n <= 9992, big any n
+ * Range:     u8 n <= 32, u16 n <= 8192, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 90 terms through n = 9992 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

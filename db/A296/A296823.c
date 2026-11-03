@@ -10,13 +10,45 @@
  *            by dynamic programming over columns
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   _is_valid
+ * Validated: standard, pass, 35 terms through n = 206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>           /* for size_t */
-#include "../utils/_is_valid.h"
+
+/* Test whether, given three consecutive columns (prev, curr, next),
+   every 1 in curr satisfies the adjacency requirement.  */
+static int _is_valid(int prev, int curr, int next)
+{
+    for (int r = 0; r < 4; ++r)
+    {
+        if ((curr & (1 << r)) == 0)
+            continue;                 /* no 1 in this cell */
+
+        int cnt = 0;
+
+        /* neighbours from previous and next columns (diagonals and horizontals) */
+        for (int dr = -1; dr <= 1; ++dr)
+        {
+            int rr = r + dr;
+            if (rr >= 0 && rr < 4)
+            {
+                if (prev & (1 << rr)) ++cnt;
+                if (next & (1 << rr)) ++cnt;
+            }
+        }
+
+        /* vertical neighbours in the same column */
+        if (r > 0     && (curr & (1 << (r - 1)))) ++cnt;
+        if (r < 3     && (curr & (1 << (r + 1)))) ++cnt;
+
+        if (cnt < 2 || cnt > 4)               /* must be 2,3 or 4 */
+            return 0;
+    }
+    return 1;
+}
 
 static int _valid_inited = 0;
 static int _valid[16][16][16];

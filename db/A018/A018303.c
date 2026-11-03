@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n‑th divisor of 147 in ascending order
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort – works for all arithmetic or big‑int seq_t */
 static int compare_seq(const void *a, const void *b)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
             }
         }
         div_count = idx;
-        qsort(divs, div_count, sizeof(seq_t), compare_seq);
+        mem_qsort(divs, div_count, sizeof(seq_t), compare_seq);
         initialized = true;
     }
 

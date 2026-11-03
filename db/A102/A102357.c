@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, easy, nonn, fini, full
  * Formula:   not stated
- * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
- *            big any n
+ * Range:     u8 n <= 124, u16 n <= 2024, u32 n <= 2024, u64 n <= 2024,
+ *            u128 n <= 2024, big any n
+ * Validated: full, pass, 2024 terms through n = 2024 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

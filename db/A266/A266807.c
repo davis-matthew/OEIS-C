@@ -9,6 +9,7 @@
  *            with a(0)=2, a(1)=-90, a(2)=-166, a(3)=-2166, a(4)=-12010
  * Range:     i8 n <= 1, i16 n <= 4, i32 n <= 10, i64 n <= 19, i128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

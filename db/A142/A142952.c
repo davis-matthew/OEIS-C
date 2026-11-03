@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 214, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 60 terms through n = 841 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mul_mod64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---------------------  primality test for 64‑bit values  --------------------- */
 
@@ -27,8 +29,8 @@ static uint64_t pow_mod64(uint64_t base, uint64_t exp, uint64_t mod) {
     uint64_t result = 1 % mod;
     base %= mod;
     while (exp) {
-        if (exp & 1) result = mul_mod64(result, base, mod);
-        base = mul_mod64(base, base, mod);
+        if (exp & 1) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -57,7 +59,7 @@ static bool is_prime_u64(uint64_t n) {
         if (x == 1 || x == n - 1) continue;
         bool cont = false;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { cont = true; break; }
         }
         if (!cont) return false;
@@ -76,11 +78,11 @@ static void grow_cache(size_t needed) {
     if (cache_cap >= needed) return;
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) { /* allocation failure – abort */ abort(); }
     if (prime_cache) {
         for (size_t i = 0; i < cache_size; ++i) new_arr[i] = prime_cache[i];
-        free(prime_cache);
+        mem_free(prime_cache);
     }
     prime_cache = new_arr;
     cache_cap   = new_cap;

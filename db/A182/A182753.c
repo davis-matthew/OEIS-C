@@ -7,12 +7,26 @@
  * Formula:   a(2n) = 14 * 35^(n-1), a(2n+1) = 35^n
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   pow35
+ * Validated: standard, pass, 39 terms through n = 989 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow35.h"
+static seq_t pow35(idx_t exp)
+{
+    seq_t base  = 35;      /* 35 as seq_t */
+    seq_t result = 1;      /* initial result */
+    while (exp)
+    {
+        if (exp & 1)        /* multiply result when current bit is set */
+            result *= base;
+        exp >>= 1;          /* shift exponent */
+        if (exp)            /* square base for next bit */
+            base *= base;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

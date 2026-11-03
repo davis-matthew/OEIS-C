@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 193, u16 n <= 1054, u32 n <= 1054, u64 n <= 1054,
  *            u128 n <= 1054, big any n
- * Helpers:   candidate_valid
+ * Validated: standard, pass, 127 terms through n = 1012 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,69 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/candidate_valid.h"
+#include "../utils/mem.h"
+
+/* Test whether appending 'cand' keeps the string valid.
+ * pos, last_two, twos are the current state *before* the append.
+ * If the append is valid, new_pos, new_last_two, new_twos are set
+ * to the state *after* the append and the function returns true.
+ */
+static bool candidate_valid(idx_t cand,
+                            idx_t *pos, idx_t *last_two, idx_t *twos,
+                            idx_t *new_pos, idx_t *new_last_two, idx_t *new_twos)
+{
+    idx_t pos_cur = *pos;
+    idx_t last_two_cur = *last_two;
+    idx_t twos_cur = *twos;
+
+    /* Buffer to hold decimal digits (max 20 for 64‑bit values).  */
+    char buf[32];
+    int len = 0;
+    if (cand == 0) {
+        buf[len++] = '0';
+    } else {
+        idx_t tmp = cand;
+        while (tmp>0) {
+            buf[len++] = (char)('0' + (tmp % 10));
+            tmp /= 10;
+        }
+        /* reverse to most‑significant order */
+        for (int i=0; i<len/2; ++i) {
+            char c = buf[i];
+            buf[i] = buf[len-1-i];
+            buf[len-1-i] = c;
+        }
+    }
+
+    /* Position where the next '2' must appear, if any. */
+    idx_t next_two_pos = (twos_cur==0) ? (idx_t)-1 : last_two_cur + twos_cur;
+
+    for (int i=0; i<len; ++i) {
+        char ch = buf[i];
+
+        /* If a '2' is required at this position, it must be present. */
+        if (next_two_pos != (idx_t)-1 && pos_cur == next_two_pos && ch!='2')
+            return false;
+
+        if (ch=='2') {
+            if (last_two_cur != (idx_t)-1) {
+                idx_t required_gap = twos_cur - 1;
+                idx_t actual_gap   = pos_cur - last_two_cur - 1;
+                if (actual_gap != required_gap) return false;
+            }
+            last_two_cur = pos_cur;
+            twos_cur++;
+        }
+        pos_cur++;
+        /* Recompute required position for the next '2'. */
+        next_two_pos = (twos_cur==0) ? (idx_t)-1 : last_two_cur + twos_cur;
+    }
+
+    *new_pos = pos_cur;
+    *new_last_two = last_two_cur;
+    *new_twos = twos_cur;
+    return true;
+}
 
 /* ----------  helpers for sequence build  ---------- */
 
@@ -48,7 +111,7 @@ static inline void ensure_seq_cap(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 

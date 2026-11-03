@@ -9,12 +9,14 @@
  *            The function returns a(n) for any n >= 0 with memoised values
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 8, i64 n <= 11, i128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (A == NULL)
     {
         Acap = (n + 1 > 64) ? n + 1 : 64;
-        A    = (seq_t *)malloc(Acap * sizeof(seq_t));
+        A    = mem_new(seq_t, Acap);
         A[0] = (seq_t)1;            /* a(0) = 1 */
         Amax = 0;
     }
@@ -40,14 +42,14 @@ seq_t a(idx_t n)
         size_t newcap = Acap ? Acap * 2 : 64;
         while (newcap < (size_t)(n + 1))
             newcap *= 2;
-        A = (seq_t *)realloc(A, newcap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, newcap);
         Acap = newcap;
     }
 
     if (P == NULL)
     {
         Pcap = (n + 1 > 64) ? n + 1 : 64;
-        P    = (seq_t *)malloc(Pcap * sizeof(seq_t));
+        P    = mem_new(seq_t, Pcap);
         P[0] = (seq_t)1;            /* (-2)^0 = 1 */
         Pmax = 0;
     }
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         size_t newcap = Pcap ? Pcap * 2 : 64;
         while (newcap < (size_t)(n + 1))
             newcap *= 2;
-        P = (seq_t *)realloc(P, newcap * sizeof(seq_t));
+        P = mem_resize(seq_t, P, newcap);
         Pcap = newcap;
     }
 

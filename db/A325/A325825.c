@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   gf3_inv
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gf3_inv.h"
+
+static uint8_t gf3_inv(uint8_t a)          /* inverse in GF(3); 1->1, 2->2 */
+{
+    return a == 1 ? 1 : 2;
+}
 
 /* small polynomial over GF(3) */
 typedef struct {

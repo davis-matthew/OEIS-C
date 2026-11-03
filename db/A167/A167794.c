@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 70 terms through n = 998 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* ---------- prime sieve for trial division ---------- */
 static uint64_t *prime_tbl = NULL;   /* array of primes */
@@ -81,7 +84,7 @@ static void ensure_term_cap(size_t needed)
 {
     if (term_cap >= needed) return;
     while (term_cap < needed) term_cap = term_cap ? term_cap * 2 : 16;
-    seq_t *tmp = (seq_t*)realloc(term_arr, term_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, term_arr, term_cap);
     term_arr = tmp;
 }
 
@@ -105,13 +108,13 @@ static bool is_root_prime(uint64_t p)
         uint64_t q = prime_tbl[i];
         if (q * q > tmp) break;
         if (tmp % q == 0) {
-            seq_t v = mod_pow((seq_t)6, (uint64_t)(ph / q), (seq_t)p);
+            seq_t v = powmod((seq_t)6, (uint64_t)(ph / q), (seq_t)p);
             if (v == 1) return false;
             while (tmp % q == 0) tmp /= q;
         }
     }
     if (tmp > 1) {
-        seq_t v = mod_pow((seq_t)6, (uint64_t)(ph / tmp), (seq_t)p);
+        seq_t v = powmod((seq_t)6, (uint64_t)(ph / tmp), (seq_t)p);
         if (v == 1) return false;
     }
     return true;
@@ -142,7 +145,7 @@ static bool is_prime_power_with_root(uint64_t m)
 
     /* lift condition: 6^(p-1) mod p^2 != 1 */
     seq_t mod = (seq_t)p * (seq_t)p;
-    seq_t v = mod_pow((seq_t)6, (uint64_t)(p - 1), mod);
+    seq_t v = powmod((seq_t)6, (uint64_t)(p - 1), mod);
     return v != 1;
 }
 

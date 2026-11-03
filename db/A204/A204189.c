@@ -7,6 +7,7 @@
  * Formula:   a(n) = 43142746595714191 + 5283234035979900*(n-1)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 26, u128 n <= 26,
  *            big any n
+ * Validated: full, pass, 26 terms through n = 26 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

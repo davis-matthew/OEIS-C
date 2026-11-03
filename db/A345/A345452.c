@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ----- static data structures ----- */
 static uint32_t *spf  = NULL;      /* smallest prime factor table (0..N)    */
@@ -118,13 +120,13 @@ static void ensure_cache(size_t n)
     /* Grow cache capacity if necessary.  */
     if (cache_cap == 0) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             abort();
     } else {
         while (cache_cap < n)
             cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         if (!cache)
             abort();
     }

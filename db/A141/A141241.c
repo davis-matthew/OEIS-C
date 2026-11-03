@@ -9,7 +9,8 @@
  *            number of divisors is nonprime (i.e., A139118(n))
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, is_prime_small
+ * Validated: standard, pass, 115 terms through n = 8974 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"   /* divisor_count_u64(uint64_t) */
-#include "../utils/is_prime_small.h"     /* is_prime_small(seq_t) */
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* Cache of sequence values */
 static seq_t *cache   = NULL;  /* array of computed a(k) values        */
@@ -46,7 +49,7 @@ static void grow_cache(size_t min_cap)
         new_cap = min_cap;
 
     /* realloc returns void* in C and C++; cast to seq_t* explicitly. */
-    seq_t *new_arr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr)   /* allocation failed; let caller handle the error */
         return;
     cache   = new_arr;
@@ -62,10 +65,10 @@ seq_t a(idx_t n)
     /* Expand the cache until we have at least n terms stored. */
     while (cache_len < (size_t)n) {
         ++last_i;                                 /* next integer i   */
-        seq_t tau = divisor_count_u64(last_i);     /* τ(i)             */
+        seq_t tau = num_divisors(last_i);     /* τ(i)             */
 
         /* τ(i) is nonprime → append to the sequence. */
-        if (!is_prime_small(tau)) {
+        if (!is_prime_seq(tau)) {
             grow_cache(cache_len + 1);
             if (!cache)               /* allocation failure */
                 return 0;

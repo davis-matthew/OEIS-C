@@ -13,14 +13,19 @@
  *            smallest
  * Range:     u8 n <= 19, u16 n <= 339, u32 n <= 1217, u64 n <= 1217,
  *            u128 n <= 1217, big any n
- * Helpers:   lh_cmp
+ * Validated: standard, pass, 66 terms through n = 1203 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/lh_cmp.h"
+
+static int lh_cmp(const void *x, const void *y) {
+    uint64_t u = *(const uint64_t *)x, v = *(const uint64_t *)y;
+    return (u < v) ? -1 : (u > v) ? 1 : 0;
+}
 
 static uint64_t *lh_vals = NULL;
 static idx_t lh_cnt = 0;

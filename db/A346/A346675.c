@@ -9,7 +9,8 @@
  *            prime pair (q–2 is also prime)
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t       current_limit = 0;  /* upper limit used by the sieve */
 
@@ -56,7 +58,7 @@ static void ensure_qualifiers(idx_t needed)
         qual_cnt = 0;
         if (qual_cap < 16) {
             qual_cap = 16;
-            qual = (seq_t *)realloc(qual, qual_cap * sizeof(seq_t));
+            qual = mem_resize(seq_t, qual, qual_cap);
         }
 
         idx_t last_prime = 0;
@@ -65,7 +67,7 @@ static void ensure_qualifiers(idx_t needed)
                 if (last_prime >= 3 && is_prime[last_prime - 2]) {
                     if (qual_cnt == qual_cap) {
                         qual_cap <<= 1;              /* grow capacity */
-                        qual = (seq_t *)realloc(qual, qual_cap * sizeof(seq_t));
+                        qual = mem_resize(seq_t, qual, qual_cap);
                     }
                     qual[qual_cnt++] = (seq_t)i;     /* store as seq_t */
                 }

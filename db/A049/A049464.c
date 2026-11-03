@@ -11,12 +11,14 @@
  *            = 2*x*y*deriv(y,x) + (1+x)*y^2 - * (2*x+1)*y +...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate an array of n+1 terms (we ignore g[0] when n==0). */
-    seq_t *g = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *g = mem_new(seq_t, (size_t)n + 1);
     if (!g)
         return (seq_t)0;                /* fallback – allocation failed */
 
@@ -56,6 +58,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = g[n];
-    free(g);
+    mem_free(g);
     return result;
 }

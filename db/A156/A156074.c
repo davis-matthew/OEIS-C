@@ -10,6 +10,7 @@
  *            = 3 + prime(r+1) - prime(k+1) - prime(r-k+1)
  * Range:     u8 n <= 5150, u16 n <= 5150, u32 n <= 5150, u64 n <= 5150,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 107 terms through n = 4588 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

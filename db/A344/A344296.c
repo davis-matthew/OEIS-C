@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   _floor_isqrt_u64, is_prime
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   is_prime, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,8 +32,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"           /* bool is_prime(idx_t)    */
-#include "../utils/_floor_isqrt_u64.h"   /* idx_t _floor_isqrt_u64(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t   *term_cache = NULL;    /* cached sequence values        */
 static size_t   cache_cnt  = 0;       /* number of cached terms         */
@@ -114,7 +116,7 @@ static void ensure_terms(idx_t needed)
         if (m == 1) {
             if (cache_cnt == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
                 if (!tmp) abort();
                 term_cache = tmp;
                 cache_cap  = new_cap;
@@ -124,7 +126,7 @@ static void ensure_terms(idx_t needed)
         }
 
         /* Prepare primes up to sqrt(m) */
-        uint64_t sqrt_m = _floor_isqrt_u64((idx_t)m) + 1;
+        uint64_t sqrt_m = isqrt((idx_t)m) + 1;
         ensure_prime_limit(sqrt_m);
 
         unsigned long long omega = 0;
@@ -143,7 +145,7 @@ static void ensure_terms(idx_t needed)
                 ++omega;
                 sum_idx += (i + 1);        /* 1‑based prime index */
             } while (temp % p == 0);
-            sqrt_m = _floor_isqrt_u64((idx_t)temp) + 1;
+            sqrt_m = isqrt((idx_t)temp) + 1;
         }
 
         /* Remaining factor, if any, is a prime > sqrt(original m) */
@@ -156,7 +158,7 @@ static void ensure_terms(idx_t needed)
         if ((omega << 1) >= sum_idx) {
             if (cache_cnt == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
                 if (!tmp) abort();
                 term_cache = tmp;
                 cache_cap  = new_cap;

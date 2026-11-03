@@ -8,16 +8,27 @@
  *            (k+1)^(k-2) (Stirling transform of A007831)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 11, u64 n <= 18, u128 n <= 29,
  *            big any n
- * Helpers:   a007832_pow, alloc_zero, release
+ * Validated: standard, pass, 37 terms through n = 374 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/a007832_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +50,7 @@ seq_t a(idx_t n)
 
     if (n & 1) pos += 1;
     for (k = 2; k <= n; k++) {
-        seq_t t = a007832_pow((seq_t)(k + 1), k - 2) * S[k];
+        seq_t t = ipow_idx((seq_t)(k + 1), k - 2) * S[k];
         if (((n - k) & 1) == 0) pos += t;
         else neg += t;
     }

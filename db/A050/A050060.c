@@ -10,13 +10,15 @@
  *            2*n-3-2^(p+1) and p = floor(log2(n-2))
  * Range:     u8 n <= 22, u16 n <= 57, u32 n <= 195, u64 n <= 770,
  *            u128 n <= 3633, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 7908 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Memoization cache */
 static seq_t *cache = NULL;      /* array of a(n) values, index starts at 1 */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
     while (new_cap < need)
         new_cap *= 2;
 
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) {
         /* In a contest setting we abort on allocation failure. */
         abort();

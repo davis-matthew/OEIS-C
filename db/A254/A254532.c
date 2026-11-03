@@ -9,7 +9,8 @@
  *            partial sum is prime
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 34, u64 n <= 62, u128 n <= 116,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,15 +30,15 @@ seq_t a(idx_t n)
 
     /* DP arrays: cur holds counts for the current step,
        next holds counts for the next step. */
-    seq_t *cur = (seq_t *)calloc(max_sum + 1, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(max_sum + 1, sizeof(seq_t));
-    if (!cur || !next) { free(cur); free(next); return 0; }
+    seq_t *cur = mem_new(seq_t, max_sum + 1);
+    seq_t *next = mem_new(seq_t, max_sum + 1);
+    if (!cur || !next) { mem_free(cur); mem_free(next); return 0; }
 
     cur[0] = 1;  /* start with sum 0 */
 
     /* Sieve of Eratosthenes up to max_sum to identify prime sums. */
     unsigned char *is_prime = (unsigned char *)malloc(max_sum + 1);
-    if (!is_prime) { free(cur); free(next); return 0; }
+    if (!is_prime) { mem_free(cur); mem_free(next); return 0; }
     for (size_t i = 0; i <= max_sum; ++i) is_prime[i] = 1;
     if (max_sum >= 0) is_prime[0] = 0;
     if (max_sum >= 1) is_prime[1] = 0;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         size_t next_max = (size_t)3 * (size_t)step;
 
         /* Zero out the next array up to next_max. */
-        memset(next, 0, (next_max + 1) * sizeof(seq_t));
+        mem_set(next, 0, (next_max + 1) * sizeof(seq_t));
 
         for (size_t s = 0; s <= curr_max; ++s) {
             seq_t cnt = cur[s];
@@ -75,8 +77,8 @@ seq_t a(idx_t n)
     for (size_t s = 0; s <= max_sum; ++s) total += cur[s];
 
     /* Clean up. */
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     free(is_prime);
 
     return total;

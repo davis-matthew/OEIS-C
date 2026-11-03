@@ -11,12 +11,39 @@
  *            contains an equal number of +1 and –1 trits
  * Range:     u8 n <= 18, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   balanced_zero_digit_sum
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/balanced_zero_digit_sum.h"
+static int balanced_zero_digit_sum(seq_t value)
+{
+    const seq_t ONE  = (seq_t)1;
+    const seq_t TWO  = (seq_t)2;
+    const seq_t THREE = (seq_t)3;
+
+    seq_t pos = (seq_t)0;
+    seq_t neg = (seq_t)0;
+    seq_t x   = value;
+
+    while (x != (seq_t)0)
+    {
+        seq_t r = x % THREE;
+        x      = x / THREE;
+        if (r == TWO)            /* digit –1 (balanced ternary uses 2 to represent –1) */
+        {
+            neg++;
+            x += ONE;            /* carry to the next higher trit */
+        }
+        else if (r == ONE)       /* digit +1 */
+        {
+            pos++;
+        }
+        /* r == 0 corresponds to trit 0 – nothing to do */
+    }
+    return pos == neg;
+}
 
 seq_t a(idx_t n)
 {

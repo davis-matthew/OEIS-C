@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *vals = NULL;         /* Array of found k values          */
 static size_t vals_len = 0;        /* Number of stored values          */
@@ -38,7 +40,7 @@ static void ensure_vals_capacity(size_t needed)
     if (needed <= vals_cap) return;
     size_t new_cap = vals_cap ? vals_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *new_ptr = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, vals, new_cap);
     vals = new_ptr;
     vals_cap = new_cap;
 }

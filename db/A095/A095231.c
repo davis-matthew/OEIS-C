@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 166, u16 n <= 200, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   digit_len, pow10_mod_simple
+ * Validated: standard, pass, 94 terms through n = 197 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,8 +33,17 @@
 #include <stddef.h>
 #include <stdbool.h>
 /* digit_len is provided by the build */
-#include "../utils/digit_len.h"
-#include "../utils/pow10_mod_simple.h"
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* fast 10^len mod m, where m ≤ SEQ_CACHE_MAX and len is small */
+static inline seq_t pow10_mod_simple(seq_t mod, int len)
+{
+    seq_t res = 1 % mod;
+    for (int i = 0; i < len; ++i)
+        res = (res * 10) % mod;   /* values stay < mod*10, safe */
+    return res;
+}
 
 #define SEQ_CACHE_MAX 2000000   /* sufficient for all test cases (n ≤ 10 000) */
 
@@ -66,7 +76,7 @@ seq_t a(idx_t n)
            (R * 10^len(x) + x) % mod == 1 % mod */
         seq_t x = (seq_t)1;
         while (true) {
-            int lenx  = digit_len(x);
+            int lenx  = num_digits(x);
             seq_t pow10x = pow10_mod_simple(mod, lenx);
             seq_t cand = (R * pow10x + (x % mod)) % mod;
             if (cand == (seq_t)(1 % mod))
@@ -76,7 +86,7 @@ seq_t a(idx_t n)
 
         /* store new term */
         cache[i] = x;
-        clen[i]  = digit_len(x);
+        clen[i]  = num_digits(x);
     }
 
     cache_size = (size_t)n;   /* all terms up to n are now cached */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 79,
  *            big any n
- * Helpers:   binomial, catalan, seq_mul
+ * Validated: standard, pass, 43 terms through n = 199 (2026-11-03)
+ * Helpers:   binomial, catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,14 +31,22 @@
 #include <stdint.h>
 
 /* The following helpers are provided by the build environment */
+#include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Optional inclusion of seq_mul for arbitrary‑precision builds.
  * It is not needed in this code, but the header guard prevents a
  * compilation error when the function is absent. */
 #if __has_include("../utils/seq_mul.h")
-#include "../utils/seq_mul.h"
 #endif
 
 /* ===========================================================================
@@ -54,7 +63,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* initial allocation */
         cap = 16;
-        cache = (seq_t *)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return;          /* out of memory – should not happen */
         /* fill first three terms explicitly for recurrence branch */
         cache[0] = (seq_t)1;
@@ -65,7 +74,7 @@ static void ensure_cache(idx_t n)
     if (n + 1 <= cap) return;
     /* grow cache */
     while (n + 1 > cap) cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, cap);
     if (!new_cache) return;
     cache = new_cache;
 }

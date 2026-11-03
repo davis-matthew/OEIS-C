@@ -11,7 +11,8 @@
  *            3*(n+4)*(n+5)*a(n+4) + (9+2*n)*a(n+5) + a(n+6) = 0
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 12, i64 n <= 19, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 399 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed terms */
@@ -37,10 +39,10 @@ seq_t a(idx_t n) {
             /* Allocate cache if first time */
             if (cache_cap == 0) {
                 cache_cap = 64;             /* initial capacity */
-                cache = (seq_t*)realloc(NULL, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, NULL, cache_cap);
             } else if (cache_len >= cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             /* Load next initial term */
             cache[cache_len] = init[cache_len];
@@ -74,7 +76,7 @@ seq_t a(idx_t n) {
         /* Ensure cache capacity */
         if (cache_len >= cache_cap) {
             cache_cap = cache_cap ? cache_cap * 2 : 64;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len] = val;
         cache_len++;

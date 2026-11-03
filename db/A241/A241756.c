@@ -10,14 +10,22 @@
  *            exponent of 2 dividing n (number of trailing zeros in n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_mul.h"   /* seq_mul(seq_t a, seq_t b)  */
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static inline idx_t v2(idx_t n)
 {
@@ -39,7 +47,7 @@ seq_t a(idx_t n)
         /* exponent increment for this step */
         idx_t exp = 1 + v2(i);
         /* factor = 8^exp */
-        seq_t factor = seq_pow((seq_t)8, exp);
+        seq_t factor = ipow_idx((seq_t)8, exp);
         /* multiply */
         result = seq_mul(result, factor);
     }

@@ -12,7 +12,8 @@
  *            sequence
  * Range:     u8 n <= 90, u16 n <= 299, u32 n <= 1127, u64 n <= 4370,
  *            u128 n <= 7380, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 7291 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    per call and memoises Fibonacci numbers.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for Fibonacci numbers */
 static seq_t *fib = NULL;   /* fib[i] = Fib(i)  with fib[0] = 0, fib[1] = 1 */
@@ -35,7 +37,7 @@ static void ensure_fib(idx_t need)
     while (new_cap < need)
         new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t *)realloc(fib, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, fib, (new_cap + 1));
     if (!new_arr) abort();
     fib = new_arr;
 

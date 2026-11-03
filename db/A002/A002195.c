@@ -11,8 +11,8 @@
  *            2n+1)
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 7, i64 n <= 11, i128 n <= 16,
  *            big any n
- * Helpers:   p2195_addmul, p2195_bitlen, p2195_cmp, p2195_divsmall,
- *            p2195_muladd, p2195_norm, p2195_sub
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   bit_length_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +20,91 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/p2195_addmul.h"
-#include "../utils/p2195_bitlen.h"
-#include "../utils/p2195_cmp.h"
-#include "../utils/p2195_divsmall.h"
-#include "../utils/p2195_muladd.h"
-#include "../utils/p2195_norm.h"
-#include "../utils/p2195_sub.h"
+#include "../utils/bit_length_u64.h"
+
+static size_t p2195_norm(const uint32_t *x, size_t len)
+{
+    while (len > 0 && x[len - 1] == 0) len--;
+    return len;
+}
+
+/* acc += x*y */
+static void p2195_addmul(uint32_t *acc, size_t *al, size_t cap,
+                         const uint32_t *x, size_t xl, const uint32_t *y, size_t yl)
+{
+    size_t i, j;
+    for (i = 0; i < yl; i++) {
+        uint64_t carry = 0, yi = y[i];
+        size_t k;
+        if (!yi) continue;
+        for (j = 0; j < xl; j++) {
+            uint64_t t = (uint64_t)acc[i + j] + (uint64_t)x[j] * yi + carry;
+            acc[i + j] = (uint32_t)t;
+            carry = t >> 32;
+        }
+        k = i + xl;
+        while (carry && k < cap) {
+            uint64_t t = (uint64_t)acc[k] + carry;
+            acc[k] = (uint32_t)t;
+            carry = t >> 32;
+            k++;
+        }
+    }
+    *al = p2195_norm(acc, cap);
+}
+
+static int p2195_cmp(const uint32_t *a, size_t al, const uint32_t *b, size_t bl)
+{
+    size_t i;
+    if (al != bl) return al < bl ? -1 : 1;
+    i = al;
+    while (i > 0) {
+        i--;
+        if (a[i] != b[i]) return a[i] < b[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+/* q = x / d, returns remainder */
+static uint32_t p2195_divsmall(const uint32_t *x, size_t xl, uint32_t d, uint32_t *q)
+{
+    uint64_t r = 0;
+    size_t i = xl;
+    while (i > 0) {
+        i--;
+        r = (r << 32) | x[i];
+        if (q) q[i] = (uint32_t)(r / d);
+        r %= d;
+    }
+    return (uint32_t)r;
+}
+
+/* x = x*s + y */
+static void p2195_muladd(uint32_t *x, size_t *xl, uint32_t s, const uint32_t *y, size_t yl)
+{
+    size_t L = *xl > yl ? *xl : yl, i;
+    uint64_t carry = 0;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (i < *xl ? (uint64_t)x[i] * s : 0) + (i < yl ? (uint64_t)y[i] : 0) + carry;
+        x[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    if (carry) x[L++] = (uint32_t)carry;
+    *xl = p2195_norm(x, L);
+}
+
+/* a -= b, requires a >= b */
+static void p2195_sub(uint32_t *a, size_t *al, const uint32_t *b, size_t bl)
+{
+    size_t i;
+    int64_t borrow = 0;
+    for (i = 0; i < *al; i++) {
+        int64_t t = (int64_t)a[i] - (i < bl ? (int64_t)b[i] : 0) - borrow;
+        if (t < 0) { t += ((int64_t)1 << 32); borrow = 1; } else borrow = 0;
+        a[i] = (uint32_t)t;
+    }
+    *al = p2195_norm(a, *al);
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +117,7 @@ seq_t a(idx_t n)
     size_t M = 2 * N + 1, p;
     seq_t res = 0;
 
-    for (k = 1; k <= N; k++) bitsP += (uint64_t)p2195_bitlen((uint64_t)k * k + 1);
+    for (k = 1; k <= N; k++) bitsP += (uint64_t)bit_length_u64((uint64_t)k * k + 1);
     CP = (size_t)(bitsP / 32) + 2;
     CL = (2 * (N + 1)) / 32 + 4;
     CA = CP + CL + 4;

@@ -11,7 +11,8 @@
  *            exactly
  * Range:     u8 n <= 10, u16 n <= 34, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   a158_isqrt
+ * Validated: partial, pass, 41 terms through n = 43 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/a158_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 static long double *a158_v = NULL;
 static uint64_t a158_vn = 0;
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
     long double ln = (long double)n;
     if (n < 3) return 0;
     m = (uint64_t)n - 2;
-    N = a158_isqrt(m * m * m);   /* largest x with x^(2/3) <= n-2 */
+    N = isqrt_u64(m * m * m);   /* largest x with x^(2/3) <= n-2 */
     if (N < 1) N = 1;
     a158_build(N);
 

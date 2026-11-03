@@ -9,14 +9,66 @@
  *            divide n
  * Range:     u8 n <= 325, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_non_dividing_proper_divisor
+ * Validated: standard, pass, 92 terms through n = 9818 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_non_dividing_proper_divisor.h"
+
+/*------------------------------------------------------------------*/
+static bool
+has_non_dividing_proper_divisor(idx_t k, idx_t n, const idx_t *spf)
+{
+    if (k <= 1)
+        return false;            /* 1 has no proper divisors */
+
+    /* Factor k into primes and exponents */
+    idx_t primes[20];
+    int   exps[20];
+    int   pcnt = 0;
+    idx_t tmp = k;
+    while (tmp > 1) {
+        idx_t p = spf[tmp];
+        int   e = 0;
+        while (tmp % p == 0) {
+            tmp /= p;
+            ++e;
+        }
+        primes[pcnt] = p;
+        exps[pcnt]   = e;
+        ++pcnt;
+    }
+
+    /* Enumerate all divisors of k (including 1 and k) */
+    idx_t divisors[128];
+    int   dcnt = 1;
+    divisors[0] = 1;
+    for (int i = 0; i < pcnt; ++i) {
+        idx_t p = primes[i];
+        int   e = exps[i];
+        int   prev = dcnt;
+        idx_t mult = 1;
+        for (int t = 1; t <= e; ++t) {
+            mult *= p;
+            for (int j = 0; j < prev; ++j) {
+                divisors[dcnt++] = divisors[j] * mult;
+            }
+        }
+    }
+
+    /* Test each proper divisor */
+    for (int i = 0; i < dcnt; ++i) {
+        idx_t d = divisors[i];
+        if (d == k)         /* skip k itself */
+            continue;
+        if (n % d != 0)     /* found a divisor that does not divide n */
+            return true;
+    }
+    return false;
+}
 
 /*------------------------------------------------------------------*/
 /*  Smallest prime factor sieve (up to a dynamic limit).            */

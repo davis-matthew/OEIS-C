@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 0, u16 n <= 143, u32 n <= 416, u64 n <= 1356,
- *            u128 n <= 64, big any n
- * Helpers:   none
+ * Range:     u8 n <= 55, u16 n <= 143, u32 n <= 416, u64 n <= 1356,
+ *            u128 n <= 4772, big any n
+ * Validated: standard, pass, 92 terms through n = 9826 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
     sum_{m>=0} x^{(m+1)(m+4)/2} / prod_{k=1}^{m+1} (1 - x^{2k}) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,13 +33,13 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         size_t new_size = (size_t)(n + 1);
         /* allocate new cache */
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return (seq_t)0;
 
         /* dynamic programming on even part sizes */
-        seq_t *dp = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, new_size);
         if (!dp) {
-            free(new_cache);
+            mem_free(new_cache);
             return (seq_t)0;
         }
         dp[0] = (seq_t)1;          /* empty partition */
@@ -63,8 +65,8 @@ seq_t a(idx_t n)
             ++m;
         }
 
-        free(dp);
-        free(cache);          /* free old cache if any */
+        mem_free(dp);
+        mem_free(cache);          /* free old cache if any */
         cache = new_cache;
         cache_size = new_size;
     }

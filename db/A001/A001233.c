@@ -10,6 +10,7 @@
  *            31)*(3*n^2 - 33*n + 91)*a(n-5) - (n-6)^6*a(n-6), with a(6) = 1
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 14, u64 n <= 21, u128 n <= 34,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 88 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,9 +7,10 @@
  * Formula:   a(1) = 1; for n > 1, * a(n) = –∑_{d|n, d<n} A344695(n/d) · a(d),
  *            * where A344695(k) = gcd( σ(k), ψ(k) ), * σ(k) = sum of divisors
  *            of k, * ψ(k) = ∏_{p^e||k} p^{e‑1}·(p+1)
- * Range:     i8 n <= 31, i16 n <= 1023, i32 n <= 9713, i64 n <= 9713,
- *            i128 n <= 9713, big any n
- * Helpers:   none
+ * Range:     i8 n <= 31, i16 n <= 1023, i32 n <= 12000, i64 n <= 12000,
+ *            i128 n <= 12000, big any n
+ * Validated: standard, pass, 85 terms through n = 9713 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- small helpers ---- */
 
@@ -126,7 +128,7 @@ static void ensure_cache(idx_t n)
 {
     if (n <= cache_cap) return;
     idx_t new_cap = n * 2;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_done  = (bool  *)realloc(a_done , new_cap * sizeof(bool  ));
     for (idx_t i = cache_cap; i < new_cap; ++i) {
         a_cache[i] = (seq_t)0;

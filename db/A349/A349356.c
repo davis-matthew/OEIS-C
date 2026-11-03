@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   a(n) = ∏_{p^e‖n} 2*(p+1)^(e-1) (multiplicative, a(1)=1)
- * Range:     u8 n <= 63, u16 n <= 2047, u32 n <= 7348, u64 n <= 7348,
- *            u128 n <= 7348, big any n
+ * Range:     u8 n <= 63, u16 n <= 2047, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 109 terms through n = 7348 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

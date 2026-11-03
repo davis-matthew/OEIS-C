@@ -11,13 +11,15 @@
  *            – 3 a(n‑12) + a(n‑13) + c(n), with the boundary co...
  * Range:     u8 n <= 6, u16 n <= 22, u32 n <= 159, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* recurrence coefficients r[k] = coefficient of a(n-k), 1 ≤ k ≤ 13 */
 static const int r_coef[14] = {
@@ -44,9 +46,9 @@ seq_t a(idx_t n)
         idx_t new_len = n + 1;
         seq_t *newc = NULL;
         if (cache_len == 0)
-            newc = (seq_t *)malloc(new_len * sizeof(seq_t));
+            newc = mem_new(seq_t, new_len);
         else
-            newc = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            newc = mem_resize(seq_t, cache, new_len);
         if (!newc) abort();
         cache = newc;
         /* initialise first two entries (a(0) and a(1)) */

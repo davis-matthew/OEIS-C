@@ -9,13 +9,15 @@
  *            (1,2,4,8,15,29,56,...) with a(0)=1
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* ---------- build tetranacci part list up to n ---------- */
     if (tetr_count == 0) {
         tetr_cap = 8;
-        tetr = (seq_t*)malloc(sizeof(seq_t) * tetr_cap);
+        tetr = mem_new(seq_t, tetr_cap);
         tetr[0] = (seq_t)1;
         tetr[1] = (seq_t)2;
         tetr[2] = (seq_t)4;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     while (tetr_count == 0 || tetr[tetr_count - 1] <= (seq_t)n) {
         if (tetr_count >= tetr_cap) {
             tetr_cap = tetr_cap ? tetr_cap * 2 : 8;
-            tetr = (seq_t*)realloc(tetr, sizeof(seq_t) * tetr_cap);
+            tetr = mem_resize(seq_t, tetr, tetr_cap);
         }
         /* next tetranacci = sum of the previous four */
         seq_t next = tetr[tetr_count - 1] + tetr[tetr_count - 2] +
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* ---------- extend dp array up to n ---------- */
     if (dp_cap < n + 1) {
         idx_t new_cap = n + 1;
-        dp = (seq_t*)realloc(dp, sizeof(seq_t) * new_cap);
+        dp = mem_resize(seq_t, dp, new_cap);
         dp_cap = new_cap;
     }
 

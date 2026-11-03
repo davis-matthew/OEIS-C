@@ -6,14 +6,16 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = binomial(5*r , 5*j) where r = largest integer with
  *            r*(r+1)/2 ≤ n, j = n - r*(r+1)/2
- * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 30, u64 n <= 39, u128 n <= 39,
+ * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 38, u64 n <= 39, u128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Binomial helper supplied by the build environment */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

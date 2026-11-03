@@ -8,7 +8,8 @@
  * Formula:   p such that 1000-p is also prime (OEIS A126692)
  * Range:     u8 n <= 16, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Simple primality test for numbers <= 1000 */
 static inline bool is_prime_small(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         /* We know at most 1000 primes, so array of 200 is safe */
-        valid = (seq_t *)malloc(sizeof(seq_t) * 200);
+        valid = mem_new(seq_t, 200);
         valid_cnt = 0;
         for (idx_t p = 2; p <= 1000; ++p) {
             if (is_prime_small(p) && is_prime_small(1000 - p)) {

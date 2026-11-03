@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 57, u64 n <= 57, u128 n <= 57,
+ * Range:     u8 n <= 22, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    Sequence terms are obtained by flattening the infinite matrix along antidiagonals
    (s = i + j) and listing entries in the natural order of each diagonal
    (i = 0 … s).  This function computes a(n) for any n >= 1. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static idx_t _diag_index(idx_t n) {
     /* Find the smallest t such that (t+1)(t+2)/2 >= n.
@@ -54,5 +56,5 @@ seq_t a(idx_t n) {
     idx_t a = three_i > three_j ? three_i : three_j;
     idx_t b = three_i < three_j ? three_i : three_j;
 
-    return binom(a, b);
+    return binomial(a, b);
 }

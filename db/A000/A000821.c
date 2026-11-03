@@ -12,18 +12,32 @@
  *            translation vectors b are grouped by the Jordan type of the e...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   bpow2, gcd_u64, is_big_mode, pdeg_of, pmod2
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64, ilog2_u64, pow2_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/bpow2.h"
 #include "../utils/gcd_u64.h"
-#include "../utils/is_big_mode.h"
-#include "../utils/pdeg_of.h"
-#include "../utils/pmod2.h"
+#include "../utils/ilog2_u64.h"
+#include "../utils/pow2_i64.h"
+
+static int is_big_mode(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return x != 0;
+}
+
+static uint64_t pmod2(uint64_t a, uint64_t g)
+{
+    int dg = ilog2_u64(g), da;
+    while ((da = ilog2_u64(a)) >= dg) a ^= g << (da - dg);
+    return a;
+}
 
 #define MAXN 40
 
@@ -147,7 +161,7 @@ static void process(void)
         unsigned __int128 Qf = 0;
         if (g_big) {
             seq_t D = 1;
-            for (i = 0; i < ne; i++) D *= (bpow2(elist[i]) - 1);
+            for (i = 0; i < ne; i++) D *= (pow2_i64(elist[i]) - 1);
             Qb = gP / D;
         } else {
             unsigned __int128 D = 1;
@@ -168,8 +182,8 @@ static void process(void)
             x1 = n * (n - 1) / 2 - E + n - lcs + 3 * (int)c;
             x2 = s > 1 ? n * (n - 1) / 2 - E + n - lc[s - 1] + 3 * (int)c : -1;
             if (g_big) {
-                seq_t term = bpow2(x1);
-                if (x2 >= 0) term -= bpow2(x2);
+                seq_t term = pow2_i64(x1);
+                if (x2 >= 0) term -= pow2_i64(x2);
                 gS += Qb * term;
             } else {
                 unsigned __int128 term = (unsigned __int128)1 << x1;
@@ -220,10 +234,10 @@ seq_t a(idx_t n)
     cur_depth = 0;
     if (g_big) {
         gP = 1;
-        for (k = 1; k <= nn; k++) gP *= (bpow2(k) - 1);
+        for (k = 1; k <= nn; k++) gP *= (pow2_i64(k) - 1);
         gS = 0;
         rec(0, nn);
-        return gS / (gP * bpow2((long long)nn * (nn + 1) / 2));
+        return gS / (gP * pow2_i64((long long)nn * (nn + 1) / 2));
     } else {
         unsigned __int128 v;
         seq_t res = 0;

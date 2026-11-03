@@ -10,13 +10,15 @@
  *            / 2 (φ = Euler's totient)
  * Range:     u8 n <= 25, u16 n <= 366, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 9910 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 static seq_t phi_uint64(uint64_t m)
 {

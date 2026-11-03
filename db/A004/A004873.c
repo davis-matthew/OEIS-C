@@ -8,14 +8,16 @@
  *            computed via unbounded knapsack DP
  * Range:     u8 n <= 12, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   a000272_ipow
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a000272_ipow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -26,7 +28,7 @@ static void build_memo(idx_t needed) {
     uint64_t target = (uint64_t)needed * 50;
     
     while (target <= (1ULL << 31)) {
-        seq_t *dp = (seq_t *)malloc((size_t)(target + 1) * sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, (size_t)(target + 1));
         
         for (uint64_t i = 0; i <= target; i++) {
             dp[i] = (seq_t)12;
@@ -34,7 +36,7 @@ static void build_memo(idx_t needed) {
         dp[0] = (seq_t)0;
         
         for (idx_t base = 1; base <= 1000; base++) {
-            seq_t power = a000272_ipow((seq_t)base, (idx_t)7);
+            seq_t power = ipow_idx((seq_t)base, (idx_t)7);
             uint64_t power_u64 = (uint64_t)power;
             
             if (power_u64 > target) break;
@@ -56,7 +58,7 @@ static void build_memo(idx_t needed) {
         }
         
         if ((idx_t)count >= needed) {
-            memo = (seq_t *)realloc(memo, (size_t)count * sizeof(seq_t));
+            memo = mem_resize(seq_t, memo, (size_t)count);
             uint64_t idx = 0;
             for (uint64_t i = 0; i <= target && idx < count; i++) {
                 if (dp[i] <= (seq_t)11) {
@@ -64,11 +66,11 @@ static void build_memo(idx_t needed) {
                 }
             }
             memo_len = (idx_t)count;
-            free(dp);
+            mem_free(dp);
             return;
         }
         
-        free(dp);
+        mem_free(dp);
         target *= 2;
     }
 }

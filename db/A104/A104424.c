@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 46, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
- *            big any n
- * Helpers:   has_no_four
+ * Range:     u8 n <= 46, u16 n <= 2240, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 74 terms through n = 9558 (2026-11-03)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_no_four.h"
+
+/* Returns true iff x contains no digit 4. */
+static bool has_no_four(uint64_t x)
+{
+    if (x == 0) return true;
+    while (x) {
+        if ((x % 10) == 4) return false;
+        x /= 10;
+    }
+    return true;
+}
 
 /* ==========================================================
  *                         Prime sieve
@@ -27,12 +38,14 @@
 static bool sieve_built = false;
 static uint64_t *prime_list = NULL;   /* prime_list[1] = 2, prime_list[2] = 3, ... */
 static size_t prime_count = 0;        /* number of primes stored (prime_list[prime_count] is the last) */
-static const size_t SIEVE_LIMIT = 5000000;   /* 5 000 000 → ~348k primes */
+static size_t SIEVE_LIMIT = 5000000;    /* doubled when more primes are needed */   /* 5 000 000 → ~348k primes */
 
 /* Builds the sieve and fills prime_list.  Only done once. */
 static void build_sieve(void)
 {
     if (sieve_built) return;
+    free(prime_list);
+    prime_list = NULL;
 
     /* Boolean array: 1 = prime candidate, 0 = composite. */
     uint8_t *is_prime = (uint8_t *)malloc(SIEVE_LIMIT + 1);
@@ -96,7 +109,12 @@ seq_t a(idx_t n)
 
     size_t found = 0;
     for (size_t i = 1; ; ++i) {
-        if (i > prime_count) break;  /* safety – normally never reached */
+        if (i > prime_count) {       /* past the sieve: double it */
+            SIEVE_LIMIT *= 2;
+            sieve_built = false;
+            build_sieve();
+            if (!sieve_built) return (seq_t)0;
+        }
         uint64_t p = prime_list[i];
 
         if (!has_no_four(i)) continue;

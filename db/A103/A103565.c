@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 2 + 3*(A103564(n))^2 (i.e., 2 + 3 * p_n^2, where p_n is
  *            the nth prime)
- * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 31, u64 n <= 31, u128 n <= 31,
- *            big any n
+ * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 320, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 47 terms through n = 989 (2026-11-01)
  * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

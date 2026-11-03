@@ -8,12 +8,14 @@
  *            a(n)=a(n-2)-a(n-1)-1 (n>=3)
  * Range:     i8 n <= 12, i16 n <= 24, i32 n <= 47, i64 n <= 93, i128 n <= 185,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 extern seq_t fib(idx_t n);   /* provided by utils/fib.h, not used directly here */
 
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialize cache once */
     if (!initialized) {
         cache_size = 3;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;                 /* out of memory – fall back to 0 */
         for (idx_t i = 0; i < cache_size; ++i)
             cache[i] = base[i];
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if (n >= cache_size) {
         idx_t new_size = n + 1;                /* allocate exactly enough */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return 0;              /* out of memory – return 0 */
         cache = new_cache;
         /* compute missing values using recurrence */

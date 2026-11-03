@@ -8,9 +8,10 @@
  * Formula:   a(1) = 0; a(2) = 1; a(n) = s + Σ_{i=1..s} ( a(e_i) + a(k_i -
  *            k_{i-1}) ), with k_0 = 0 where n = ∏_{i=1..s} p(k_i)^{e_i} and
  *            p(k) is the k‑th prime
- * Range:     u8 n <= 9668, u16 n <= 9668, u32 n <= 9668, u64 n <= 9668,
- *            u128 n <= 9668, big any n
- * Helpers:   none
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 97 terms through n = 9668 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----------  Cache for a(n) values  ---------- */
 static seq_t *a_cache      = NULL;
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n + 1 <= a_cap) return;
     size_t new_cap = a_cap ? a_cap * 2 : 16;
     while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-    a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_used  = (unsigned char*)realloc(a_used, new_cap * sizeof(unsigned char));
     if (!a_cache || !a_used) exit(EXIT_FAILURE);
     for (size_t i = a_cap; i < new_cap; ++i) a_used[i] = 0;

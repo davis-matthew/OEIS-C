@@ -7,7 +7,8 @@
  * Formula:   a(n) = n*a(n-1) if GCD(n,a(n-1)) = 1 else a(n) = a(n-1) a(1) = 1
  * Range:     i8 n <= 6, i16 n <= 16, i32 n <= 28, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise cache with a(1) = 1 */
     if (cache == NULL) {
         cap = 64;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache)
             return 0;                       /* allocation failure */
         cache[0] = 0;                       /* unused */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         size_t newcap = cap * 2;
         if (newcap < (size_t)n + 1)
             newcap = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp)
             return 0;                       /* allocation failure */
         cache = tmp;

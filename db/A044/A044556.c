@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has52
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,27 @@
  */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has52.h"
+#include "../utils/mem.h"
+
+static bool has52(seq_t val)
+{
+    if (val == 0) return false;           /* empty string "0" has no "52" */
+    int digits[32];                       /* enough for 64‑bit values    */
+    int len = 0;
+    seq_t x = val;
+    while (x > 0)
+    {
+        digits[len++] = (int)(x % 7);
+        x /= 7;
+    }
+    /* digits[len-1] is the most significant digit */
+    for (int i = len - 1; i > 0; --i)
+    {
+        if (digits[i] == 5 && digits[i - 1] == 2)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -49,7 +70,7 @@ seq_t a(idx_t n)
             if (num_terms == cap)
             {
                 size_t new_cap = cap == 0 ? 32 : cap * 2;
-                terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, new_cap);
                 cap = new_cap;
             }
             terms[num_terms++] = m;

@@ -11,7 +11,8 @@
  *            the condition
  * Range:     u8 n <= 3, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool good(seq_t v)
 {
@@ -37,7 +39,7 @@ static void append(seq_t **arr, size_t *len, size_t *cap, seq_t val)
 {
     if (*len >= *cap) {
         size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         *arr = tmp;
         *cap = new_cap;

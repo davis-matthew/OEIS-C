@@ -10,14 +10,25 @@
  *            Fib(1)=Fib(2)=1
  * Range:     u8 n <= 28, u16 n <= 153, u32 n <= 780, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   fib_seq
+ * Validated: standard, pass, 87 terms through n = 973 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/fib_seq.h"
+
+static seq_t fib_seq(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t a = 1, b = 1, c;
+    for (idx_t i = 3; i <= n; ++i) {
+        c = a + b;
+        a = b;
+        b = c;
+    }
+    return b;
+}
 
 seq_t a(idx_t n) {
     /* Find the row r such that r*(r+1)/2 >= n */

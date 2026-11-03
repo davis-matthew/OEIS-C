@@ -12,7 +12,8 @@
  *            * for each s=0,1,2,... traverse k from s down to 0 (n=s-k)
  * Range:     u8 n <= 30, u16 n <= 49, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Note: `seq_t` and `idx_t` are defined by the build. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t N)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t N)
     for (idx_t r = 0; r <= n; ++r)
     {
         size_t len = 2 * r + 1;
-        seq_t *curr = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, len);
         if (!curr) exit(1);       /* allocation failure */
 
         if (r == 0)
@@ -83,13 +85,13 @@ seq_t a(idx_t N)
         }
 
         /* Free previous row and move current to prev_row. */
-        if (prev_row) free(prev_row);
+        if (prev_row) mem_free(prev_row);
         prev_row = curr;
         prev_len = len;
     }
 
     /* The desired value is at index k of the last row (n). */
     seq_t result = prev_row[k];
-    free(prev_row);
+    mem_free(prev_row);
     return result;
 }

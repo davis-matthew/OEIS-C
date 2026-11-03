@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   sum_cubes
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
    eventually reaches a 3‑digit narcissistic number > 9 (153, 370, 371, 407). */
 
 #include <stdbool.h>
-#include "../utils/sum_cubes.h"
+
+static inline seq_t sum_cubes(seq_t x)
+{
+    seq_t sum = 0;
+    while (x > 0) {
+        seq_t d = x % 10;
+        sum += d * d * d;
+        x /= 10;
+    }
+    return sum;
+}
 
 static inline bool is_target(seq_t v)
 {

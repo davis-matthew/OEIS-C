@@ -8,7 +8,8 @@
  *            A062198(n) for n>0)
  * Range:     u8 n <= 13, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   is_semiprime_uint64, seq_malloc
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,40 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_semiprime_uint64.h"
-#include "../utils/seq_malloc.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* true if x is the product of exactly two primes (possibly the same) */
+static bool is_semiprime_uint64(uint64_t x)
+{
+    if (x < 4)
+        return false;
+    uint64_t d = 0;
+    if (x % 2 == 0)
+        d = 2;
+    else {
+        for (uint64_t dd = 3; dd <= x / dd; dd += 2) {
+            if (x % dd == 0) {
+                d = dd;
+                break;
+            }
+        }
+    }
+    if (d == 0)
+        return false;                      /* x is prime */
+    uint64_t second = x / d;
+    return is_prime_u64(second);
+}
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
 
 /* ---------- Static state ---------- */
 static bool state_initialized = false;
@@ -37,7 +70,7 @@ static void ensure_sum_capacity(idx_t need)
     seq_t *new_arr = seq_malloc(new_cap);
     for (idx_t i = 0; i < sum_size; ++i)
         new_arr[i] = sum_arr[i];
-    free(sum_arr);
+    mem_free(sum_arr);
     sum_arr = new_arr;
     sum_cap = new_cap;
 }

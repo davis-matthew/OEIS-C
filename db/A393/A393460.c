@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 286, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   is_prime, rev
+ * Validated: standard, pass, 102 terms through n = 9776 (2026-11-01)
+ * Helpers:   is_prime, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/rev.h"
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
         if (r == 0 || (r % 10) == 0)
             continue;
 
-        idx_t rev_r = rev(r);
+        idx_t rev_r = reverse_digits_idx(r);
         if (is_prime(rev_r))
             return (seq_t)p;
     }

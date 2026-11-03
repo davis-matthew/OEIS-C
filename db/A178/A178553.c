@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, build_primes_upto, seq_from_str
+ * Validated: standard, pass, 47 terms through n = 9747 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 /* Computes the nth prime containing exactly four 4 digits
    (OEIS A178553). */
 
@@ -19,9 +21,36 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/append_candidate.h"
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_from_str.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 /* Convert a 64‑bit unsigned integer to seq_t (works for all builds). */
 static inline seq_t uint64_to_seq(uint64_t v)

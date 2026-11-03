@@ -11,7 +11,8 @@
  *            8(i–1) with b_1 ≤ b_2 ≤ … ≤ b_k, b_i ≥ 1
  * Range:     u8 n <= 67, u16 n <= 178, u32 n <= 534, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *P_table = NULL;   /* flat array P[s*(kmax+1)+k] */
 static idx_t N_max = 0;         /* maximum n pre‑computed */
@@ -51,7 +53,7 @@ static void init_dp(idx_t max_n)
     size_t rows = (size_t)(N_max + 1);
     size_t cols = (size_t)(K_max + 1);
     size_t size = rows * cols;
-    P_table = (seq_t *)malloc(size * sizeof(seq_t));
+    P_table = mem_new(seq_t, size);
     if (!P_table) exit(EXIT_FAILURE);   /* allocation failure */
 
     /* initialise to zero */

@@ -9,6 +9,7 @@
  * Formula:   a(n) = 2^n * (n^2 + 7n + 8) - 1
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 22, u64 n <= 52, u128 n <= 114,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 949 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

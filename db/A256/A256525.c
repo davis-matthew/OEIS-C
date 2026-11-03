@@ -8,12 +8,14 @@
  *            parts
  * Range:     u8 n <= 7, u16 n <= 36, u32 n <= 622, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 828 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) - partitions of 3*n into at most 5 parts */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* if we haven't computed up to the required index yet, recompute */
     if (dp == NULL || target > current_max) {
         /* allocate new table up to target */
-        seq_t *newdp = (seq_t *)calloc((size_t)(target + 1), sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, (size_t)(target + 1));
         if (newdp == NULL) { /* allocation failed – return 0 (undefined) */ }
         newdp[0] = 1; /* there's exactly one partition of 0 */
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         }
 
         /* free old table and store the new one */
-        free(dp);
+        mem_free(dp);
         dp = newdp;
         current_max = target;
     }

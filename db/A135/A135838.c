@@ -9,6 +9,7 @@
  *            2^⌊m/2⌋ * binomial(m-1,k-1) read row by row. Indices are 1‑based
  * Range:     u8 n <= 30, u16 n <= 95, u32 n <= 286, u64 n <= 1054,
  *            u128 n <= 3957, big any n
+ * Validated: standard, pass, 71 terms through n = 4096 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 /* Find the row r such that 1 + 2 + … + r  >=  n            (r >= 1)   */
 static idx_t find_row(idx_t n)

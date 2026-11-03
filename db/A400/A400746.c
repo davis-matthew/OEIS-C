@@ -11,12 +11,14 @@
  *            total
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* size_t, realloc */
+#include "../utils/mem.h"
 
 /* Cached sequence entries and auxiliary tables */
 static seq_t *a_seq   = NULL;   /* a[n]   */
@@ -35,9 +37,9 @@ static void ensure_capacity(size_t need)
     while (new_sz <= need)
         new_sz <<= 1;
 
-    a_seq    = (seq_t *)realloc(a_seq,    new_sz * sizeof(seq_t));
-    S_seq    = (seq_t *)realloc(S_seq,    new_sz * sizeof(seq_t));
-    pow2_seq = (seq_t *)realloc(pow2_seq, new_sz * sizeof(seq_t));
+    a_seq    = mem_resize(seq_t, a_seq, new_sz);
+    S_seq    = mem_resize(seq_t, S_seq, new_sz);
+    pow2_seq = mem_resize(seq_t, pow2_seq, new_sz);
 
     for (size_t i = cache_sz; i < new_sz; ++i) {
         a_seq   [i] = 0;

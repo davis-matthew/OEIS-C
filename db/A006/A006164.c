@@ -8,12 +8,14 @@
  *            1,1,2,3,4,5
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static const seq_t base_cases[] = {0, 1, 1, 2, 3, 4, 5};
@@ -28,12 +30,12 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         cache_len = 512;
-        cache = (seq_t *)calloc(cache_len, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
     }
     
     while (n >= cache_len) {
         idx_t new_len = cache_len * 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         for (idx_t i = cache_len; i < new_len; i++) {
             new_cache[i] = 0;
         }

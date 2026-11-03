@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 10, u128 n <= 22,
  *            big any n
- * Helpers:   _allowed
+ * Validated: standard, pass, 29 terms through n = 186 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_allowed.h"
+
+static inline bool _allowed(int s, int t)
+{
+    for (int j = 0; j < 3; ++j)
+    {
+        int a = (s >> (2 * j))     & 3;   /* (i,j)   */
+        int b = (s >> (2 * (j + 1))) & 3;   /* (i,j+1) */
+        int c = (t >> (2 * j))     & 3;   /* (i+1,j) */
+        int d = (t >> (2 * (j + 1))) & 3;   /* (i+1,j+1) */
+        int inc = (a < b) + (b < d) + (d < c) + (c < a);
+        if (inc != 2) return false;
+    }
+    return true;
+}
 
 static bool _adj_init = false;
 static uint16_t _succ[256][256];

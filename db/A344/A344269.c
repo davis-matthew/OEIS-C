@@ -10,7 +10,8 @@
  *            increasing order * to avoid double counting
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,15 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 #define MAX_SMALL_K 25   /* 6^(k-1) fits in uint64_t for k≤25 */
 
@@ -46,10 +54,9 @@ static seq_t pow6_seq_value(idx_t k)
     if (k < 2) return (seq_t)1;
     if ((size_t)k >= pow6_seq_len) {
         size_t new_len = k + 1;
-        pow6_seq_cache = (seq_t *)realloc(pow6_seq_cache,
-                                            new_len * sizeof(seq_t));
+        pow6_seq_cache = mem_resize(seq_t, pow6_seq_cache, new_len);
         for (size_t i = pow6_seq_len; i < new_len; ++i)
-            pow6_seq_cache[i] = big_pow((seq_t)6, (seq_t)(i - 1));
+            pow6_seq_cache[i] = ipow((seq_t)6, (seq_t)(i - 1));
         pow6_seq_len = new_len;
     }
     return pow6_seq_cache[k];
@@ -126,7 +133,7 @@ static seq_t _a_rec(idx_t n, idx_t start)
     if (start == 2) {
         if (n >= a_cache_len) {
             size_t new_len = n + 1;
-            a_cache = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, new_len);
             for (size_t i = a_cache_len; i < new_len; ++i) a_cache[i] = 0;
             a_cache_len = new_len;
         }

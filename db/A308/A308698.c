@@ -9,14 +9,26 @@
  *            ∑_{d|n} d^(k*d) (n≥1, k≥0)
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 31, u64 n <= 59, u128 n <= 97,
  *            big any n
- * Helpers:   antidiagonal_coords, big_pow
+ * Validated: standard, pass, 61 terms through n = 1316 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/antidiagonal_coords.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* mapping from linear index n to pair (i,j) on the antidiagonals of T */
+static inline void antidiagonal_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    /* find s such that (s+1)(s+2)/2 <= n < (s+2)(s+3)/2 */
+    idx_t s = 0;
+    while (((s + 1) * (s + 2)) / 2 <= n) ++s;
+    idx_t pos = n - (s * (s + 1)) / 2;  /* 0 <= pos <= s */
+    *i = pos;
+    *j = s - pos;
+}
 
 /* Compute the entry A(n,k) for a given row n (1‑based) and column k. */
 static seq_t row_value(idx_t n, idx_t k)
@@ -26,10 +38,10 @@ static seq_t row_value(idx_t n, idx_t k)
     {
         if (n % d == 0)
         {
-            sum += big_pow((seq_t)d, (seq_t)(k * d));
+            sum += ipow((seq_t)d, (seq_t)(k * d));
             idx_t d2 = n / d;
             if (d2 != d)
-                sum += big_pow((seq_t)d2, (seq_t)(k * d2));
+                sum += ipow((seq_t)d2, (seq_t)(k * d2));
         }
     }
     return sum;

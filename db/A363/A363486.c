@@ -8,6 +8,7 @@
  *            A363486). For n=1 the multiset is empty and a(1)=0
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,7 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(idx_t, uint64_t **, size_t *) */
+#include "../utils/build_primes_upto.h"
 
 static uint64_t *prime_list = NULL;  /* 0‑based array of primes, 1‑based indices */
 static size_t prime_list_cnt = 0;

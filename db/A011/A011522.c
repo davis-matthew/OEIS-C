@@ -8,6 +8,7 @@
  *            > 12 the value is 0
  * Range:     i8 none, i16 none, i32 n <= 12, i64 n <= 12, i128 n <= 12,
  *            big any n
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

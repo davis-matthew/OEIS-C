@@ -9,7 +9,8 @@
  *            prime factors (counted with multiplicity) as n
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega, factor_u64, seq_pow
+ * Validated: standard, pass, 96 terms through n = 8080 (2026-11-01)
+ * Helpers:   bigomega, factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include <stdlib.h>
 #include "../utils/bigomega.h"
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* Recursive helper to explore all divisors of n */
 static void dfs(const uint64_t *primes, const uint64_t *exps, size_t idx, size_t cnt,
@@ -44,7 +46,7 @@ static void dfs(const uint64_t *primes, const uint64_t *exps, size_t idx, size_t
     for (uint64_t e = 0; e <= exps[idx]; ++e) {
         seq_t next = current;
         if (e > 0) {
-            seq_t pp = seq_pow((seq_t)primes[idx], (idx_t)e);
+            seq_t pp = ipow_idx((seq_t)primes[idx], (idx_t)e);
             next = current * pp;
         }
         dfs(primes, exps, idx + 1, cnt, next, currOmega + (int)e, target, best);

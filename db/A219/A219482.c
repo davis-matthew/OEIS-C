@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9734, u16 n <= 9734, u32 n <= 9734, u64 n <= 9734,
- *            u128 n <= 9734, big any n
- * Helpers:   none
+ * Range:     u8 n <= 15360, u16 n <= 15360, u32 n <= 15360, u64 n <= 15360,
+ *            u128 n <= 15360, big any n
+ * Validated: standard, pass, 117 terms through n = 9734 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    generalized Fibonacci sequence starting 1, 9, 10, 19, 29, 48, ... */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Re‑allocate DP table if we are asked for a larger n. */
     if (dp == NULL || needed > dp_size) {
-        seq_t *newdp = (seq_t *)malloc(needed * sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, needed);
         if (newdp == NULL) {                /* allocation failed */
             return (seq_t)0;
         }
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old table. */
-        if (dp != NULL) free(dp);
+        if (dp != NULL) mem_free(dp);
         dp      = newdp;
         dp_size = needed;
     }

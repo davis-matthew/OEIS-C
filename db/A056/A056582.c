@@ -8,14 +8,15 @@
  * Formula:   a(n) = GCD(n^n, product(k^k) for k<n)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 35 terms through n = 197 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Integer exponentiation by squaring for seq_t.
    Works for built-in unsigned integers and for
@@ -56,7 +57,7 @@ seq_t a(idx_t n)
             }
 
             idx_t exponent = eMax < S ? eMax : S;
-            seq_t p_pow = pow_uint((uint64_t)p, exponent);
+            seq_t p_pow = ipow_u64_idx((uint64_t)p, exponent);
             result *= p_pow;
         }
     }
@@ -79,7 +80,7 @@ seq_t a(idx_t n)
         }
 
         idx_t exponent = eMax < S ? eMax : S;
-        seq_t p_pow = pow_uint((uint64_t)p, exponent);
+        seq_t p_pow = ipow_u64_idx((uint64_t)p, exponent);
         result *= p_pow;
     }
 

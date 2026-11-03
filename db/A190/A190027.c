@@ -10,7 +10,8 @@
  *            a(n-7)
  * Range:     u8 n <= 3, u16 n <= 23, u32 n <= 59, u64 n <= 131, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* a(6)=430, a(7)=506, a(8)=610, a(9)=790, a(10)=1094, a(11)=1539.               */
 #pragma once
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build (idx_t, seq_t).  */
 seq_t a(idx_t n)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* allocate space for indices 0..11 at first call */
         alloc = 12;
-        cache = (seq_t *)malloc(alloc * sizeof(seq_t));
+        cache = mem_new(seq_t, alloc);
         if (cache == NULL) return (seq_t)0;   /* allocation failure */
         for (size_t i = 0; i < alloc; ++i)
             cache[i] = init[i];
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         size_t new_alloc = alloc;
         while ((size_t)(n + 1) > new_alloc)
             new_alloc <<= 1;                 /* double until big enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
         if (tmp == NULL) return (seq_t)0;     /* allocation failure */
         cache = tmp;
         alloc = new_alloc;

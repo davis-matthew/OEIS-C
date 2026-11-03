@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   build_primes_upto, build_spf
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   build_primes_upto, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include "../utils/build_primes_upto.h"
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static uint64_t *primes = NULL;      /* primes[i] = i-th prime (0‑based) */
@@ -57,10 +59,10 @@ static void push_term(seq_t v)
 {
     if (terms_cap == 0) {
         terms_cap = 16;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     } else if (terms_len == terms_cap) {
         terms_cap *= 2;
-        terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_len++] = v;
 }

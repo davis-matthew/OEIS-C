@@ -8,13 +8,15 @@
  * Formula:   a(0)=1, a(1)=0; a(2^i + j)=2*a(j)+3*a(j+1) for 0 <= j < 2^i
  * Range:     u8 n <= 27, u16 n <= 503, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9758 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,9 +29,9 @@ seq_t a(idx_t n)
     if (cap < n + 1) {
         size_t new_cap = (cap == 0) ? 16 : cap * 2;
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {                  /* allocation failed – use new if needed   */
-            tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            tmp = mem_new(seq_t, new_cap);
             if (!tmp) return (seq_t)0;      /* fallback – unlikely in test          */
         }
         cache = tmp;

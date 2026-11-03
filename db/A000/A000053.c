@@ -12,6 +12,7 @@
  *            but that is just the same data in another form....
  * Range:     u8 n <= 29, u16 n <= 29, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: full, pass, 29 terms through n = 29 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

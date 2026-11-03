@@ -10,13 +10,15 @@
  *            (1)*(1,2)*(1,2,3)*…*(1,2,…,n)
  * Range:     u8 n <= 260, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 2970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t *perm = NULL;           /* current permutation (1-indexed)   */
 static idx_t *tmp  = NULL;           /* temporary buffer for shifting     */
@@ -41,8 +43,7 @@ seq_t a(idx_t n)
         unsigned char *new_visited =
             (unsigned char*)realloc(visited,
                                     (size_t)(newMax + 1) * sizeof(unsigned char));
-        seq_t *new_a_arr = (seq_t*)realloc(a_arr,
-                                           (size_t)(newMax + 1) * sizeof(seq_t));
+        seq_t *new_a_arr = mem_resize(seq_t, a_arr, (size_t)(newMax + 1));
         if (!new_perm || !new_tmp || !new_visited || !new_a_arr)
             return (seq_t)0; /* allocation failure */
 

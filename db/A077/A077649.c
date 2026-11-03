@@ -7,15 +7,35 @@
  * Formula:   a(n) = the first decimal digit of the n-th composite number
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   isPrimeTrial, seq_alloc_new_array, seq_realloc
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/isPrimeTrial.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_realloc.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *composites = NULL;
 static size_t comp_cap   = 0;
@@ -34,7 +54,7 @@ static void ensure_composites(idx_t n)
 {
     while (comp_cnt < (size_t)n) {
         curr_num++;                                 /* next integer to test   */
-        if (!isPrimeTrial((seq_t)curr_num)) {        /* composite?             */
+        if (!is_prime_seq((seq_t)curr_num)) {        /* composite?             */
             if (comp_cnt == comp_cap) {              /* enlarge buffer         */
                 size_t new_cap = comp_cap ? comp_cap*2 : 64;
                 composites = seq_realloc(composites, comp_cap, new_cap);

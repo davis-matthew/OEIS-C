@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 36, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(0)=1; for n>0, a(n)=∑_{k=1}^{⌊√√n⌋} a(n-k²) */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root: floor(sqrt(n)) for idx_t. */
 static idx_t _isqrt_u64(idx_t n)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (kmax == 0) kmax = 1;  /* safety, should not happen for n>0 */
 
     /* Allocate DP array of size n+1. */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) {
         return 0;  /* out of memory; caller may handle */
     }
@@ -65,6 +67,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   pow2_mod_uint64
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 */
 
 #include <stdint.h>
-#include "../utils/pow2_mod_uint64.h"
+
+static uint64_t pow2_mod_uint64(uint64_t exp, uint64_t mod)
+{
+    uint64_t result = 1 % mod;
+    uint64_t base   = 2 % mod;
+    while (exp > 0) {
+        if (exp & 1U)
+            result = (uint64_t)((__uint128_t)result * base % mod);
+        base = (uint64_t)((__uint128_t)base * base % mod);
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

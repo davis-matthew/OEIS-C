@@ -11,7 +11,8 @@
  *            odd * composite number using a primality test from the...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 121 terms through n = 9786 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *diff_arr = NULL;     /* stored differences */
 static size_t diff_cap = 0;        /* current allocated capacity */
@@ -36,13 +38,13 @@ static void ensure_diff_cap(size_t needed)
     size_t new_cap = diff_cap ? diff_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) /* allocation failure – shouldn't happen in test env */
         return;
     if (diff_arr) {
         /* Preserve already computed differences. */
-        memcpy(new_arr, diff_arr, diff_len * sizeof(seq_t));
-        free(diff_arr);
+        mem_copy(new_arr, diff_arr, diff_len * sizeof(seq_t));
+        mem_free(diff_arr);
     }
     diff_arr = new_arr;
     diff_cap = new_cap;

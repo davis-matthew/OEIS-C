@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 18, u64 n <= 39, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static unsigned char col0[81], col1[81], col2[81], col3[81];
 static unsigned char row0sum[81], row1sum[81];
@@ -131,7 +133,7 @@ seq_t a(idx_t n)
     seq_t *nextp = nxt;
 
     /* initialize all state counts to zero */
-    memset(currp, 0, sizeof(curr));
+    mem_set(currp, 0, sizeof(curr));
     /* all pairs of first two rows are initially valid */
     for (int a = 0; a < 81; ++a)
         for (int b = 0; b < 81; ++b)
@@ -140,7 +142,7 @@ seq_t a(idx_t n)
     /* DP: add rows 3 … h */
     for (idx_t row = 3; row <= h; ++row) {
         /* clear next array */
-        memset(nextp, 0, sizeof(nxt));
+        mem_set(nextp, 0, sizeof(nxt));
 
         for (int a = 0; a < 81; ++a) {
             for (int b = 0; b < 81; ++b) {

@@ -11,14 +11,17 @@
  *            fully reduced
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 43, u128 n <= 87,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 46 terms through n = 1994 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static size_t cached_n = 0;          /* largest index already computed */
 static size_t capacity   = 0;        /* allocated size of the array (>= cached_n+1) */
@@ -36,7 +39,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = capacity ? capacity : 16;
     while (new_cap <= (size_t)n + 1)
         new_cap <<= 1;
-    a_val = (seq_t *)realloc(a_val, new_cap * sizeof(seq_t));
+    a_val = mem_resize(seq_t, a_val, new_cap);
     capacity = new_cap;
 }
 

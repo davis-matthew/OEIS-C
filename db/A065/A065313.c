@@ -7,7 +7,8 @@
  * Formula:   a(n) = pi(n * pi(n))
  * Range:     u8 n <= 77, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 889 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint8_t *is_prime = NULL;          /* 0 = composite, 1 = prime */
 static seq_t *pi_table = NULL;            /* pi[i] = number of primes ≤ i   */
@@ -49,7 +51,7 @@ static void ensure_sieve(idx_t limit)
     /* Resize storage for the new range */
     size_t new_size = (size_t)limit + 1U;
     uint8_t *tmp_prime = (uint8_t *)realloc(is_prime, new_size);
-    seq_t *tmp_pi = (seq_t *)realloc(pi_table, new_size * sizeof(seq_t));
+    seq_t *tmp_pi = mem_resize(seq_t, pi_table, new_size);
     if (!tmp_prime || !tmp_pi) return;    /* allocation failed – abort */
 
     is_prime = tmp_prime;

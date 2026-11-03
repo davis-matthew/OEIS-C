@@ -7,11 +7,13 @@
  * Formula:   a(n) = ceil(4^n/20 - (n^2 + 1)*2^(n-1))
  * Range:     i8 n <= 1, i16 n <= 6, i32 n <= 15, i64 n <= 23, i128 n <= 23,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static seq_t ceil_div_seq(seq_t a, seq_t b)

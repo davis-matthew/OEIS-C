@@ -9,7 +9,8 @@
  *            by at most 10
  * Range:     u8 n <= 16, u16 n <= 48, u32 n <= 205, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 1955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #else
 #include <stdint.h>
 #endif
+#include "../utils/mem.h"
 
 /* Helper macro to add two seq_t values safely when seq_t is 64‑bit */
 #define ADD_INPLACE(a, b)                          \
@@ -56,7 +58,7 @@ static void compute_upto(idx_t N) {
     for (size_t m = 1; m <= n; ++m) {
         size_t maxRem = n - m;              /* remaining sum after removing one m */
         /* zero dp[0..maxRem] */
-        memset(dp, 0, (maxRem + 1) * sizeof(seq_t));
+        mem_set(dp, 0, (maxRem + 1) * sizeof(seq_t));
         dp[0] = (seq_t)1;
 
         size_t upper = m + 10;

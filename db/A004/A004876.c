@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 795, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 9135 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Generate all numbers that are sums of at most 3 nonzero 8th powers, sort, and return the n-th one */
 
@@ -44,10 +46,10 @@ static void ensure_generated(idx_t n) {
     
     // Allocate buffer
     idx_t max_size = 2 + k_max + k_max * k_max + k_max * k_max * k_max;
-    seq_t *buf = (seq_t *)malloc(max_size * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, max_size);
     
     // Store 8th powers
-    seq_t *powers = (seq_t *)malloc((k_max + 1) * sizeof(seq_t));
+    seq_t *powers = mem_new(seq_t, (k_max + 1));
     for (idx_t i = 1; i <= k_max; i++) {
         powers[i] = pow8((seq_t)i);
     }
@@ -77,7 +79,7 @@ static void ensure_generated(idx_t n) {
     }
     
     // Sort
-    qsort(buf, cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(buf, cnt, sizeof(seq_t), cmp_seq);
     
     // Deduplicate
     idx_t dedup = 0;
@@ -87,10 +89,10 @@ static void ensure_generated(idx_t n) {
         }
     }
     
-    if (memo != NULL) free(memo);
+    if (memo != NULL) mem_free(memo);
     memo = buf;
     memo_len = dedup;
-    free(powers);
+    mem_free(powers);
 }
 
 seq_t a(idx_t n) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 175, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>   /* malloc, calloc, realloc, free */
 #include <stdint.h>   /* uint64_t, uint32_t */
+#include "../utils/mem.h"
 
 /* ---------- prime sieve (static, one‑shot) ---------- */
 static int *prime_list   = NULL;   /* array of primes */
@@ -115,7 +117,7 @@ static void grow_cache(size_t min_cap)
     if (ccap >= min_cap) return;
     size_t new_cap = ccap ? ccap * 2 : 16;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *new_ptr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) return;            /* out of memory – not expected */
     cache = new_ptr;
     ccap  = new_cap;

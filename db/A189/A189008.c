@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 135, u16 n <= 135, u32 n <= 135, u64 n <= 135,
  *            u128 n <= 135, big any n
- * Helpers:   int_cube_root
+ * Validated: partial, pass, 135 terms through n = 135 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
      else a(n) = 1 - a(n - ⌊∛n⌋)                     */
 
 #include <stdlib.h>
-#include "../utils/int_cube_root.h"
+#include <stdint.h>
+#include <limits.h>
+#include "../utils/mem.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 static seq_t *cache = NULL;     /* memoisation array */
 static idx_t  cache_cap = 0;    /* allocated size of cache   */
@@ -34,7 +52,7 @@ seq_t a(idx_t n)
     /* Ensure capacity for n+1 indices (0..n) */
     idx_t need_cap = n + 1;
     if (need_cap > cache_cap) {
-        seq_t *tmp = (seq_t*)realloc(cache, need_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need_cap);
         if (!tmp) return 0; /* allocation failure */
         cache = tmp;
         cache_cap = need_cap;

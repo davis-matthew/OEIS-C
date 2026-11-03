@@ -11,7 +11,8 @@
  *            is the n‑th positive integer not in a())
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Grow a dynamic array of seq_t objects */
 static void grow_to(seq_t **arr, size_t *cap, size_t needed)
@@ -26,7 +28,7 @@ static void grow_to(seq_t **arr, size_t *cap, size_t needed)
     if (*cap >= needed) return;
     size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
     while (new_cap < needed) new_cap <<= 1;
-    *arr = (seq_t*)realloc(*arr, new_cap * sizeof(**arr));
+    *arr = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
     *cap = new_cap;
 }
 

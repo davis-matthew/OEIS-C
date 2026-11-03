@@ -8,12 +8,14 @@
  *            for n ≥ 1
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 11, i64 n <= 18, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* allocate or extend cache as needed */
     if (cache_size <= n) {
         size_t newsize = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (!tmp) return (seq_t)0; /* allocation failure, return 0 */
         cache = tmp;
         /* initialise new slots */

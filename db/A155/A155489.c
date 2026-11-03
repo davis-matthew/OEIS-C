@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime, largest_digit_seq
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 #include <stdlib.h>
 
 #include "../utils/is_prime.h"
-#include "../utils/largest_digit_seq.h"
+#include "../utils/mem.h"
+
+/* Return the largest decimal digit of x.  Works for all seq_t. */
+static unsigned largest_digit_seq(seq_t x)
+{
+    unsigned m = 0;
+    while (x)
+    {
+        unsigned d = (unsigned)(x % 10);
+        if (d > m) m = d;
+        x /= 10;
+    }
+    return m;
+}
 
 seq_t a(idx_t n)
 {
@@ -61,7 +75,7 @@ seq_t a(idx_t n)
                 if (odd_q) {
                     if (terms_sz == terms_cap) {
                         terms_cap = terms_cap ? terms_cap * 2 : 8;
-                        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                        terms = mem_resize(seq_t, terms, terms_cap);
                     }
                     terms[terms_sz++] = (seq_t)p_val;
                 }

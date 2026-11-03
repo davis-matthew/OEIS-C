@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} (1 + x^k)^{τ_k(k)}
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 33, u64 n <= 72, u128 n <= 160,
  *            big any n
- * Helpers:   build_spf, seq_alloc_new_array
+ * Validated: standard, pass, 51 terms through n = 998 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,14 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/build_spf.h"
-#include "../utils/seq_alloc_new_array.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 seq_t a(idx_t n)
 {

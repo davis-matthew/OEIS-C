@@ -13,6 +13,7 @@
  *            cumulative up to r, * then compute k = n – cumul...
  * Range:     u8 n <= 67, u16 n <= 202, u32 n <= 688, u64 n <= 2474,
  *            u128 n <= 2600, big any n
+ * Validated: standard, pass, 94 terms through n = 2402 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

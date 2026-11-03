@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const int TARGET[5] = {3, 0, 2, 1, 4};
 static const int REQ[5]    = {0, 1, 2, 3, 4};
@@ -130,8 +132,8 @@ static void init_tables(void) {
     }
 
     /* Allocate DP arrays */
-    dp_cur  = (seq_t*)malloc(STATES * sizeof(seq_t));
-    dp_next = (seq_t*)malloc(STATES * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, STATES);
+    dp_next = mem_new(seq_t, STATES);
 }
 
 seq_t a(idx_t n) {
@@ -146,7 +148,7 @@ seq_t a(idx_t n) {
 
     size_t i;
     /* Initial DP for the first row */
-    memset(dp_cur, 0, STATES * sizeof(seq_t));
+    mem_set(dp_cur, 0, STATES * sizeof(seq_t));
     for (int code = 0; code < ROWS; ++code) {
         uint8_t mask = 0;
         for (int j = 0; j < 3; ++j)
@@ -157,7 +159,7 @@ seq_t a(idx_t n) {
     /* For n == 1 we skip transitions */
     if (n > 1) {
         for (idx_t row = 1; row < n; ++row) {
-            memset(dp_next, 0, STATES * sizeof(seq_t));
+            mem_set(dp_next, 0, STATES * sizeof(seq_t));
             for (i = 0; i < STATES; ++i) {
                 seq_t cnt = dp_cur[i];
                 if (!cnt) continue;

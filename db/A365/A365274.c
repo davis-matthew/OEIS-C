@@ -9,12 +9,14 @@
  *            1, 2, 3, 5, 7, 13, 18, 31]
  * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial values of the sequence */
 static const seq_t init_vals[10] = {
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_sz <= n) {
         /* realloc returns void* in C++: cast to the proper type */
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         /* In a real implementation, you would check tmp for NULL. */
         cache = tmp;
         cache_sz = n + 1;

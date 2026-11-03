@@ -9,7 +9,8 @@
  *            – a(n-1)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 23, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 547 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cache of computed a(n) */
 static size_t  a_cap   = 0;     /* allocated capacity of a_cache */
@@ -29,7 +31,7 @@ static void ensure_capacity(size_t needed, size_t *cap, seq_t **ptr)
     if (*cap < needed) {
         size_t newcap = needed * 2 + 16;
 #if defined(__cplusplus)
-        *ptr = reinterpret_cast<seq_t*>(realloc(*ptr, newcap * sizeof(seq_t)));
+        *ptr = reinterpret_cast<seq_t*>(mem_resize(seq_t, *ptr, newcap));
 #else
         *ptr = realloc(*ptr, newcap * sizeof(seq_t));
 #endif

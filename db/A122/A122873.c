@@ -11,7 +11,8 @@
  *            incrementally, caching results per base
  * Range:     u8 n <= 39, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   find_base, seq_mul
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,27 @@
 #include <stdlib.h>
 
 /* seq_mul is provided by the build. */
-#include "../utils/seq_mul.h"
-#include "../utils/find_base.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* ---------- find base and row offset for a linear index s = n-1 ---------- */
+static void find_base(idx_t s, idx_t *base, idx_t *offset)
+{
+    idx_t low = 1, high = s + 1;   /* base <= s+1 */
+    while (low < high) {
+        idx_t mid = (low + high + 1) / 2;
+        __uint128_t val = (__uint128_t)mid * (mid - 1) / 2;
+        if (val <= s) low = mid;
+        else          high = mid - 1;
+    }
+    *base = low;
+    *offset = (idx_t)(*base) * ((*base) - 1) / 2;
+}
 
 /* ---------- largest digit of val in base base; base fits in idx_t ---------- */
 static inline seq_t max_digit(seq_t val, idx_t base)
@@ -70,7 +90,7 @@ static RowCache *get_row_cache(idx_t base)
     if (!row_cache[base]) {
         RowCache *rc = (RowCache*)calloc(1, sizeof(RowCache));
         if (!rc) exit(EXIT_FAILURE);
-        rc->values   = (seq_t*)calloc(base, sizeof(seq_t));
+        rc->values   = mem_new(seq_t, base);
         rc->filled   = (bool*)calloc(base, sizeof(bool));
         rc->remaining = base;      /* all digits still unknown */
         rc->next_x = 0;            /* start testing from 0 */

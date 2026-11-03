@@ -12,13 +12,15 @@
  *            suitable for n up to about 10 000 * and works with any...
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 typedef struct {
     uint64_t key;
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
     static int initialized = 0;
     if (!initialized) {
         initialized = 1;
-        hash_table = (HashEntry *)calloc(hash_size, sizeof(HashEntry));
+        hash_table = mem_new(HashEntry, hash_size);
         if (!hash_table) abort();    /* memory error */
         init_allowed(n);
     } else if (n > allowed_size) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 46, u32 n <= 49, u64 n <= 55, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(n) = a(n-1) * n   (n > 46),  a(46) = 5760 */
 
 #include <stdlib.h>   /* realloc, exit */
+#include "../utils/mem.h"
 
 /* Starting index of the sequence in OEIS notation. */
 static const idx_t OFFSET = 46ULL;
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
         return;      /* already cached */
 
     /* Reallocate cache to the larger size. */
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * needed);
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (!tmp) {
         /* Allocation failed – abort the program.  This is safe for
            both the C and C++ compilation modes. */

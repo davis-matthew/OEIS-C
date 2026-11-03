@@ -9,13 +9,29 @@
  *            binomial(floor((n+7)/2), 4). Initial values: a(1)=1, a(2)=2
  * Range:     u8 n <= 4, u16 n <= 28, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   b_value, binom_choose4
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/b_value.h"
-#include "../utils/binom_choose4.h"
+static seq_t binom_choose4(seq_t N)
+{
+    /* Compute N choose 4 = N*(N-1)*(N-2)*(N-3)/24 */
+    seq_t r = N * (N - 1);
+    r *= (N - 2);
+    r *= (N - 3);
+    r /= 24;
+    return r;
+}
+
+static seq_t b_value(idx_t n)
+{
+    /* b(n) = C(floor((n+7)/2), 4) */
+    idx_t m = (n + 7) / 2;          /* floor((n+7)/2) */
+    seq_t mm = (seq_t)m;
+    return binom_choose4(mm);
+}
 
 seq_t a(idx_t n)
 {

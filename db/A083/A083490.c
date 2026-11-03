@@ -12,12 +12,14 @@
  *            a(18)=700, a(19)=812, a(20)=900, a(21)=1112, a(22)=3000, a(23...
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 71, u64 n <= 149,
  *            u128 n <= 302, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static const seq_t init_terms[24] = {
     (seq_t)2,  (seq_t)4,  (seq_t)6,  (seq_t)8,  (seq_t)10,
@@ -43,7 +45,7 @@ ensure_cache(idx_t n)
     while (new_cap <= (size_t)n) new_cap <<= 1;   /* multiply by 2 */
 
     /* Reallocate memory; cast the result to seq_t* for C++ compatibility. */
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     if (!cache) abort();   /* allocation failure */
 
     /* If this is the first allocation or we were below the 24‑term zone,

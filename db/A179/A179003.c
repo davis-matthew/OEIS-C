@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,11 @@
    order are efficient. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"     /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/is_prime.h"    /* bool is_prime(idx_t n); */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* memoised list of k */
 static size_t cache_size = 0;   /* number of stored k */
@@ -33,7 +37,7 @@ static void grow_cache(size_t need)
         size_t new_cap = cache_cap ? (cache_cap << 1) : 8;
         while (new_cap < need)
             new_cap <<= 1;
-        seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, new_cap);
         cache = newp;
         cache_cap = new_cap;
     }
@@ -49,7 +53,7 @@ seq_t a(idx_t n)
         uint64_t e = (uint64_t)k * 2 - 1;
 
         /* Calculate r = 2^e mod m. */
-        seq_t r = mod_pow((seq_t)2, e, m);
+        seq_t r = powmod((seq_t)2, e, m);
 
         /* If the residue r is prime, record k. */
         if (is_prime((idx_t)r)) {

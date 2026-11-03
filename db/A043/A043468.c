@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   hasFour3s
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/hasFour3s.h"
+#include "../utils/mem.h"
+
+/*  Return true if v (in base 9) contains exactly four digits 3.  */
+static bool hasFour3s(seq_t v)
+{
+    int cnt = 0;
+    while (v > (seq_t)0) {
+        if (v % (seq_t)9 == (seq_t)3) {
+            ++cnt;
+            if (cnt > 4)
+                return false;
+        }
+        v /= (seq_t)9;
+    }
+    return cnt == 4;
+}
 
 static seq_t *cache = NULL;      /* cached terms */
 static size_t cache_len = 0;     /* number of cached terms */
@@ -31,7 +47,7 @@ static seq_t next_candidate = 1; /* next integer to test */
 static void grow_cache(size_t new_cap)
 {
     /*  Reallocate the array to the new capacity.  */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp == NULL) {
         /*  Allocation failed – abort: sequence cannot be computed.  */
         abort();

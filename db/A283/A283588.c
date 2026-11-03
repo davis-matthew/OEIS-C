@@ -12,13 +12,15 @@
  *            a(6)=71,a(7)=219,a(8)=439,a(9)=875,a(10)=1735,a(11)=3547,a(12)=6839
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 125 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* realloc, NULL */
+#include "../utils/mem.h"
 
 /* Computes a(n) of OEIS A283588 */
 seq_t a(idx_t n)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         /* Allocate a modest initial size, but at least enough for n */
         cache_cap = (size_t)(n > 32 ? n/2 + 32 : 32);
         cache_cap = (cache_cap > (size_t)n ? cache_cap : (size_t)n + 1);
-        cache = (seq_t*)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         if (!cache) return (seq_t)0;   /* allocation failed */
 
         static const seq_t init[13] = {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
         seq_t *tmp = NULL;
 #ifdef __cplusplus
-        tmp = static_cast<seq_t*>(realloc(cache, new_cap * sizeof(seq_t)));
+        tmp = mem_resize(seq_t, cache, new_cap);
 #else
         tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
 #endif

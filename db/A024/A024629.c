@@ -7,6 +7,7 @@
  * Formula:   a(0) = 0, a(3*n + r) = 10*a(2*n) + r (r = 0,1,2)
  * Range:     u8 n <= 8, u16 n <= 23, u32 n <= 185, u64 n <= 7190,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 54 terms through n = 8523 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

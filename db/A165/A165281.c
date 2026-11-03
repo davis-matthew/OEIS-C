@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n+1)*(6*n^4 - 51*n^3 + 161*n^2 - 251*n + 251)
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 60, u64 n <= 4985,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 45 terms through n = 10000 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

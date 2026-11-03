@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   digit_product_all_nonzero, seq_alloc_new_array, seq_realloc
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,40 @@
  * constant factor, suitable for n up to at least 10 000. */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/digit_product_all_nonzero.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* product of non‑zero decimal digits of x;
+ * returns 0 if any digit is zero. */
+static seq_t digit_product_all_nonzero(seq_t x) {
+    seq_t p = 1;
+    while (x > 0) {
+        seq_t d = x % 10;
+        if (d == 0)
+            return 0;      /* has a zero digit → not Zuckerman */
+        p *= d;
+        x /= 10;
+    }
+    return p;
+}
 
 /* sum of decimal digits of x */
 static seq_t digit_sum(seq_t x) {

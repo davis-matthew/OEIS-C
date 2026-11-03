@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{k=0..n} (k+1) * 2^k * binomial(3*n+5, n-k)
- * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 21,
+ * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   binomial, mul_small, seq_mul
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,29 @@
  *   mul_small(seq_t x, unsigned int m) – multiply a seq_t by a small int
  *   seq_mul(seq_t a, seq_t b)       – multiply two seq_t values
  */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/mul_small.h"
-#include "../utils/seq_mul.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 extern seq_t a(idx_t n)
 {

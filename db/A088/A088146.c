@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 6542, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9588 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Dynamic cache of the first primes */
 static seq_t *prime_cache      = NULL;   /* array of primes */
@@ -36,8 +38,7 @@ static void grow_cache(idx_t min_needed)
         prime_capacity = 8;
     while (prime_capacity < min_needed)
         prime_capacity <<= 1;
-    prime_cache = (seq_t *)realloc(prime_cache,
-                                   (size_t)prime_capacity * sizeof(seq_t));
+    prime_cache = mem_resize(seq_t, prime_cache, (size_t)prime_capacity);
 }
 
 /* Simple trial‑division test for a candidate number,

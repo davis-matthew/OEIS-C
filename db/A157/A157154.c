@@ -12,13 +12,15 @@
  *            row‑wise: a(0)=1, a(1)=1, a(2)=1, …
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 59, u64 n <= 158,
  *            u128 n <= 415, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Public function that returns the nth term of OEIS A157154.
    The types idx_t and seq_t are supplied externally by the build system. */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
         /* Build each missing row, starting from the first unbuilt one. */
         for (idx_t i = rows; i <= r; ++i) {
-            seq_t *row = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, (i + 1));
             if (!row) return (seq_t)0;   /* allocation failure (unlikely)      */
 
             for (idx_t j = 0; j <= i; ++j) {

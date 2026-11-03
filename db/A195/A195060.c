@@ -10,13 +10,23 @@
  *            a(4*n+3) = A045943(n+1) (with n an integer ≥0)
  * Range:     u8 n <= 49, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   A032528, A045943
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/A032528.h"
-#include "../utils/A045943.h"
+static seq_t A032528(idx_t n)  /* n ≥ 1 */
+{
+    seq_t raw = (seq_t)n * ((seq_t)3 * n + 1) / 2;
+    seq_t sub = (seq_t)((n + 1) / 2);          /* floor((n+1)/2) */
+    return raw - sub;
+}
+
+static seq_t A045943(idx_t n)  /* n ≥ 1 */
+{
+    return (seq_t)3 * (seq_t)n * ((seq_t)n + 1) / 2;
+}
 static seq_t A001318(idx_t t)
 {
     if (t == 0) return (seq_t)0;

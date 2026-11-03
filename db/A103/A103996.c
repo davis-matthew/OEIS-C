@@ -7,12 +7,14 @@
  * Formula:   a(n) = -Sum_{i=0}^{n-1} a(i) * C(n+1,i), a(0)=1
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 14, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 245 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for previously computed terms */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* ensure cache initialized and contains term 0 */
     if (size == 0) {
         size_t newcap = 1;
-        cache = (seq_t *)realloc(NULL, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, newcap);
         if (!cache) return 0; /* allocation failure, return zero (unlikely) */
         cache[0] = (seq_t)1; /* a(0) = 1 */
         cap = newcap;
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     if (n >= (idx_t)cap) {
         size_t newcap = cap;
         while (newcap <= (size_t)n) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return 0; /* allocation failure */
         cache = tmp;
         cap = newcap;

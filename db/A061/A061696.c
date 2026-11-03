@@ -7,7 +7,8 @@
  * Formula:   a(n) = n!^2 * [x^n] exp(BesselI(0,2*sqrt(x)) - 1 - x)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *alloc_cache(idx_t n) {
     static seq_t *cache = NULL;
@@ -26,7 +28,7 @@ static seq_t *alloc_cache(idx_t n) {
     static idx_t  len   = 0;
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache) {
             cache[0] = (seq_t)1;
             cap = 1;
@@ -36,7 +38,7 @@ static seq_t *alloc_cache(idx_t n) {
 
     if ((size_t)(n + 1) > cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return NULL;
         cache = tmp;
         cap   = new_cap;

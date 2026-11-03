@@ -11,13 +11,14 @@
  *            term = d * binom(q, d - 1) * (-1)^{d+1} (add...
  * Range:     i8 n <= 19, i16 n <= 74, i32 n <= 339, i64 n <= 1424,
  *            i128 n <= 5944, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 97 terms through n = 6384 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +40,7 @@ seq_t a(idx_t n)
         /* positive‑side contribution from d */
         if (q <= d + 1) {         /* k = q‑1 is between 0 and d */
             idx_t k = q - 1;
-            seq_t term = binom(d, k);
+            seq_t term = binomial(d, k);
             term *= (seq_t)d;
             if (k & 1)
                 term = -term;
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
 
         /* negative‑side contribution from d */
         if (q >= d - 1) {         /* d‑1 <= q */
-            seq_t term = binom(q, d - 1);
+            seq_t term = binomial(q, d - 1);
             term *= (seq_t)d;
             /* sign = (-1)^{d+1}  =>  negative when d is even */
             if ((d & 1) == 0)   /* d even */
@@ -67,7 +68,7 @@ seq_t a(idx_t n)
         /* positive‑side from e */
         if (q <= d + 1) {
             idx_t k = q - 1;
-            seq_t term = binom(d, k);
+            seq_t term = binomial(d, k);
             term *= (seq_t)d;
             if (k & 1)
                 term = -term;
@@ -76,7 +77,7 @@ seq_t a(idx_t n)
 
         /* negative‑side from e */
         if (q >= d - 1) {
-            seq_t term = binom(q, d - 1);
+            seq_t term = binomial(q, d - 1);
             term *= (seq_t)d;
             if ((d & 1) == 0)
                 term = -term;

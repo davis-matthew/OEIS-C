@@ -7,13 +7,15 @@
  * Formula:   Numbers that are the sum of at most 3 nonzero 10th powers
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 
 static seq_t *sequence = NULL;
@@ -29,7 +31,7 @@ static int compare_seq_t(const void *a, const void *b) {
 
 seq_t a(idx_t n) {
     if (sequence == NULL) {
-        seq_t *powers = (seq_t *)malloc(300 * sizeof(seq_t));
+        seq_t *powers = mem_new(seq_t, 300);
         idx_t num_powers = 0;
         seq_t prev_power = 0;
         
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
         idx_t m = num_powers;
         idx_t capacity = 1 + m + m * (m + 1) / 2 + m * (m + 1) * (m + 2) / 6 + 100;
         
-        seq_t *temp = (seq_t *)malloc(capacity * sizeof(seq_t));
+        seq_t *temp = mem_new(seq_t, capacity);
         idx_t count = 0;
         
         temp[count++] = 0;
@@ -79,9 +81,9 @@ seq_t a(idx_t n) {
             }
         }
         
-        free(powers);
+        mem_free(powers);
         
-        qsort(temp, count, sizeof(seq_t), compare_seq_t);
+        mem_qsort(temp, count, sizeof(seq_t), compare_seq_t);
         
         idx_t unique_count = 0;
         for (idx_t i = 0; i < count; i++) {
@@ -90,11 +92,11 @@ seq_t a(idx_t n) {
             }
         }
         
-        sequence = (seq_t *)malloc(unique_count * sizeof(seq_t));
-        memcpy(sequence, temp, unique_count * sizeof(seq_t));
+        sequence = mem_new(seq_t, unique_count);
+        mem_copy(sequence, temp, unique_count * sizeof(seq_t));
         sequence_len = unique_count;
         
-        free(temp);
+        mem_free(temp);
     }
     
     return sequence[n - 1];

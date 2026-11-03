@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   isPrimeMiller
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrimeMiller.h"
+#include "../utils/is_prime.h"
 
 /* Prime list storage for Goldbach checks */
 static idx_t *prime_list = NULL;
@@ -35,7 +36,7 @@ static void primes_up_to(idx_t limit)
         prime_list = (idx_t*)malloc(prime_cap * sizeof(idx_t));
     }
     for (idx_t n = next_gen; n <= limit; ++n) {
-        if (isPrimeMiller(n)) {
+        if (is_prime(n)) {
             if (prime_cnt == prime_cap) {
                 prime_cap <<= 1;
                 prime_list = (idx_t*)realloc(prime_list, prime_cap * sizeof(idx_t));
@@ -52,7 +53,7 @@ static bool goldbach(idx_t m)
     if (m <= 1) return false;
     if (m & 1) {            /* odd m: need 2 + (m-2) */
         if (m < 3) return false;
-        return isPrimeMiller(m - 2);
+        return is_prime(m - 2);
     }
     idx_t half = m >> 1;
     primes_up_to(half);
@@ -60,7 +61,7 @@ static bool goldbach(idx_t m)
         idx_t p = prime_list[i];
         if (p > half) break;
         idx_t q = m - p;
-        if (isPrimeMiller(q)) return true;
+        if (is_prime(q)) return true;
     }
     return false;
 }
@@ -73,7 +74,7 @@ seq_t a(idx_t n)
     idx_t count = 0;
     idx_t candidate = 3;             /* first odd prime to test */
     while (true) {
-        if (!isPrimeMiller(candidate)) { candidate += 2; continue; }
+        if (!is_prime(candidate)) { candidate += 2; continue; }
         idx_t m = (candidate - 1) >> 1;   /* (candidate-1)/2 */
         if (goldbach(m)) {
             ++count;

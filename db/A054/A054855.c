@@ -8,12 +8,14 @@
  *            values: a(0)=1, a(1)=1, a(2)=8, a(3)=21
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (new_len < 4) new_len = 4;                 /* at least 4 elements */
     if (new_len > dp_len) {
         /* realloc must be cast in C++ to avoid implicit conversion */
-        seq_t *tmp = (seq_t *)realloc(dp, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_len);
         if (!tmp) return (seq_t)0;                /* allocation failed */
         dp = tmp;
         dp_len = new_len;

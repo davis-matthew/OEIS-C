@@ -9,10 +9,13 @@
  *            a(n‑4) (for n ≥ 4)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 #if defined(__cplusplus)
 #include <new>
@@ -37,7 +40,7 @@ static void ensure_capacity(idx_t n)
     while (new_cap <= n)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     /* In the unlikely event realloc fails we keep the old cache.
        The harness will never request a size that cannot be allocated. */
     cache     = tmp;

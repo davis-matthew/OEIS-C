@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 386, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 75 terms through n = 9980 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
  * by every non‑zero digit of n. The algorithm finds the least multiple
  * of the lcm of those digits that has n as a prefix.
  */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static inline seq_t lcm_seq_t(seq_t a, seq_t b)

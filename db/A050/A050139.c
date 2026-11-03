@@ -9,7 +9,8 @@
  *            {0, a(1), ..., a(n-1)}; otherwise a(n)=4*n
  * Range:     u8 n <= 65, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9168 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_arr      = NULL; /* array of computed a(n) values, 1-based */
 static size_t seq_cap      = 0;    /* allocated capacity of seq_arr */
@@ -30,7 +32,7 @@ static void ensure_seq_cap(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap == 0 ? 2 : seq_cap;
     while (new_cap < needed) new_cap <<= 1;
-    seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, new_cap);
     seq_cap = new_cap;
 }
 

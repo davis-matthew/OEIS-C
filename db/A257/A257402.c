@@ -9,7 +9,8 @@
  *            eta(q^24)^2 / (eta(q) * eta(q^4) * eta(q^6))
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,12 @@
 
 /* The function is written for C11 and C++17. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array for coefficients up to n.  The array is zeroed. */
-    seq_t *coeff = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (size_t)(n + 1));
     if (!coeff) return (seq_t)0;      /* out of memory – unlikely for n≤10000 */
     coeff[0] = (seq_t)1;              /* G(0) = 1 */
 
@@ -67,6 +69,6 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = coeff[n];
-    free(coeff);
+    mem_free(coeff);
     return ans;
 }

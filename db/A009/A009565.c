@@ -9,14 +9,17 @@
  *            sinh(exp(x)*x)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 38,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 40 terms through n = 529 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
 
     while (m <= n) {
         /* Add the term for this odd m. */
-        seq_t power = seq_pow((seq_t)m, (idx_t)(n - m));
+        seq_t power = ipow_idx((seq_t)m, (idx_t)(n - m));
         sum += C * power;
 
         /* Prepare C for the next odd m = m+2.

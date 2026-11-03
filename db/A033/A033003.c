@@ -8,13 +8,27 @@
  *            digits of length exactly 2)
  * Range:     u8 n <= 8, u16 n <= 84, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   map_except
+ * Validated: standard, pass, 58 terms through n = 986 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/map_except.h"
+
+/* Map a base‑4 digit to the allowed base‑5 digit when the previous
+   pair digit is prev.  Allowed digits are {0,1,2,3,4} \ {prev}. */
+static uint8_t map_except(uint8_t d, uint8_t prev)
+{
+    uint8_t cnt = 0;
+    for (uint8_t x = 0; x <= 4; ++x)
+    {
+        if (x == prev) continue;
+        if (cnt == d) return x;
+        ++cnt;
+    }
+    return 0; /* unreachable */
+}
 
 seq_t a(idx_t n)
 {

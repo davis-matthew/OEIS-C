@@ -14,6 +14,7 @@
  *            For the position k = n‑low+1 (1‑based) in that row th...
  * Range:     u8 n <= 243, u16 n <= 6764, u32 n <= 6764, u64 n <= 6764,
  *            u128 n <= 6764, big any n
+ * Validated: standard, pass, 105 terms through n = 6075 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

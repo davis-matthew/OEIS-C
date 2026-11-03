@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 22, u32 n <= 56, u64 n <= 154, u128 n <= 443,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    (1 + k x^k + x^{k+1}) is multiplied into the current polynomial. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Allocate coefficient array a[0..n] */
     size_t N = (size_t)n + 1;
-    seq_t *coef = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *coef = mem_new(seq_t, N);
     if (!coef) return 0;               /* allocation failed – return 0 */
 
     coef[0] = (seq_t)1;                /* start with polynomial '1' */
@@ -43,6 +45,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coef[n];
-    free(coef);
+    mem_free(coef);
     return result;
 }

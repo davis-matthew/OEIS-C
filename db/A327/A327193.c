@@ -9,18 +9,20 @@
  * Formula:   a(n) = max over all binary splits of min(prefix, suffix) of n
  * Range:     u8 n <= 861, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 103 terms through n = 7129 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;
-    unsigned len = floor_log2_uint64(n) + 1;   /* number of bits of n */
+    unsigned len = ilog2(n) + 1;   /* number of bits of n */
     seq_t best = 0;
     for (unsigned k = 0; k <= len; ++k) {
         seq_t pref, suff;

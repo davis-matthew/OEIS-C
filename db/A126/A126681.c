@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{i=5..n} Stirling_2(i,5)
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 8, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    unsigned integer types or the arbitrary-precision class seq_t.  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Sequentially compute a(n).  The function is thread‑unsafe (no
    synchronization), but meets the requirements. */
@@ -60,10 +62,10 @@ seq_t a(idx_t n)
             /* Grow product array if needed */
             if (prod_len == prod_cap) {
                 size_t new_cap = prod_cap ? prod_cap * 2 : 4;
-                seq_t *newp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *newp = mem_new(seq_t, new_cap);
                 if (prod) {
-                    memcpy(newp, prod, prod_len * sizeof(seq_t));
-                    free(prod);
+                    mem_copy(newp, prod, prod_len * sizeof(seq_t));
+                    mem_free(prod);
                 }
                 prod = newp;
                 prod_cap = new_cap;

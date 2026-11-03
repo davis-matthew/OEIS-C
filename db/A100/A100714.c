@@ -9,7 +9,8 @@
  *            prime number (A005811(A000040(n)))
  * Range:     u8 n <= 54, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   count_runs
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/count_runs.h"
+#include "../utils/mem.h"
+
+static seq_t count_runs(seq_t p)
+{
+    /* Count maximal consecutive runs of identical bits in the binary
+       representation of p.  We examine the bits from least significant
+       to most significant. */
+    seq_t runs  = 0;
+    int   prev  = -1;   /* -1 indicates that no bit has been seen yet */
+
+    while (p > 0) {
+        int bit = (int)(p & 1);
+        if (bit != prev) {
+            ++runs;
+            prev = bit;
+        }
+        p >>= 1;
+    }
+    return runs;
+}
 
 /* Between passes we keep a dynamic array of primes.  The array is
    grown lazily and reused across different calls to a().  The
@@ -52,7 +72,7 @@ static seq_t get_kth_prime(idx_t k)
             /* Store the new prime. */
             if (prime_count == prime_cap) {
                 idx_t new_cap = prime_cap ? prime_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(prime_list, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_list, new_cap);
                 if (!tmp) abort(); /* allocation failed */
                 prime_list = tmp;
                 prime_cap  = new_cap;

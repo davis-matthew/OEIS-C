@@ -7,12 +7,21 @@
  * Formula:   a(n) = 2^((n-1)&1) * 3^((n-1)>>1)
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Exponentiation by squaring: compute 3^exp in seq_t */
 static seq_t pow3(idx_t exp)

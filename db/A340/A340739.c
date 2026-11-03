@@ -11,6 +11,7 @@
  *            with k the largest exponent such that 2^k divides (3x+1)
  * Range:     u8 n <= 4, u16 n <= 2244, u32 n <= 8194, u64 n <= 8194,
  *            u128 n <= 8194, big any n
+ * Validated: standard, pass, 84 terms through n = 7898 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

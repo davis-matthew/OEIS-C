@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * integers and keeps the ones that satisfy the property. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if (cache_cap < n)
     {
-        cache = (seq_t*)realloc(cache, (size_t)n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)n);
         cache_cap = n;
     }
 

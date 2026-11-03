@@ -11,7 +11,8 @@
  *            entry
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------------- Prime utilities ----------------- */
 #define PRIME_LIMIT 200000  /* enough for n up to about 10000 */
@@ -132,7 +134,7 @@ static void ensure_cache_cap(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < needed) new_cap *= 2;
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

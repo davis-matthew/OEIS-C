@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static const uint32_t PRIME_LIMIT = 5000000;   /* should cover ≥10 000 terms */
 
@@ -75,7 +77,7 @@ ensure_terms_cap(size_t need)
     size_t new_cap = terms_cap ? terms_cap * 2 : 1024;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
     if (!new_arr)
         exit(1);
     terms = new_arr;
@@ -104,7 +106,7 @@ generate_terms(idx_t n_needed)
 
         /* Handle values < 49 (they appear before the special 49). */
         if (k <= (seq_t)48) {
-            if (is_prime_small(k)) {
+            if (is_prime_seq(k)) {
                 ensure_terms_cap(terms_size + 1);
                 terms[terms_size++] = k;
             }
@@ -128,7 +130,7 @@ generate_terms(idx_t n_needed)
         }
 
         /* Normal case: k > 49 and 49 already inserted. */
-        if (is_prime_small(k)) {
+        if (is_prime_seq(k)) {
             ensure_terms_cap(terms_size + 1);
             terms[terms_size++] = k;
         }

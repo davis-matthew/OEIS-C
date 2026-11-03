@@ -9,14 +9,28 @@
  *            contains the same non‑zero number of the digits 3 and 6
  * Range:     u8 n <= 5, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_equal_nonzero_36
+ * Validated: standard, pass, 66 terms through n = 938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_equal_nonzero_36.h"
+#include "../utils/mem.h"
+
+/* Test whether a number has an equal, non‑zero number of digits 3 and 6. */
+static bool has_equal_nonzero_36(seq_t x)
+{
+    int cnt3 = 0, cnt6 = 0;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d == 3) ++cnt3;
+        else if (d == 6) ++cnt6;
+        x /= 10;
+    }
+    return cnt3 > 0 && cnt3 == cnt6;
+}
 
 /* Return the n-th element of the sequence (n >= 1). */
 seq_t a(idx_t n)
@@ -34,7 +48,7 @@ seq_t a(idx_t n)
         /* store the found term */
         if (len == cap) {
             cap = cap ? cap * 2 : 8;                  /* grow capacity */
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
         cache[len++] = next;
         ++next;   /* advance for the next search */

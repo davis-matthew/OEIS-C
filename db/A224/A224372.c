@@ -12,7 +12,8 @@
  *            ... a(18) are computed by a DP over unimodal rows): * a(1)...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 7, u64 n <= 15, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Types provided by the build, do not define them here.           */
@@ -110,8 +112,8 @@ static void init_rows_and_transitions(void)
 /*---------------------------------------------------------------------*/
 static void compute_small_terms(void)
 {
-    seq_t *dp_prev = (seq_t *)calloc((size_t)R, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc((size_t)R, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, (size_t)R);
+    seq_t *dp_next = mem_new(seq_t, (size_t)R);
 
     /* Each row may start a 1‑length array. */
     for (idx_t i = 0; i < R; ++i) dp_prev[i] = (seq_t)1;
@@ -134,8 +136,8 @@ static void compute_small_terms(void)
         dp_next = tmp;
     }
 
-    free(dp_prev);
-    free(dp_next);
+    mem_free(dp_prev);
+    mem_free(dp_next);
     memo_size = 18;
 }
 
@@ -147,7 +149,7 @@ static void enlarge_memo(idx_t n)
     if (n <= memo_size) return;
 
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_mem = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_cap);
     if (!new_mem) exit(1);   /* allocation failed */
     memo = new_mem;
 
@@ -176,7 +178,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         initialized = 1;
         init_rows_and_transitions();
-        memo = (seq_t *)calloc((size_t)19, sizeof(seq_t)); /* indices 0..18, use 1..18 */
+        memo = mem_new(seq_t, (size_t)19); /* indices 0..18, use 1..18 */
         compute_small_terms();
     }
 

@@ -9,7 +9,8 @@
  *            true iff every prime factor p of k satisfies p ≡ ±1 (mod 8)
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static int *prime_list = NULL;       /* array of computed primes */
 static size_t prime_count = 0;       /* number of primes stored */
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
         if (good_k(next_k)) {
             if (term_count >= terms_cap) {
                 size_t new_cap = terms_cap == 0 ? 16 : terms_cap * 2;
-                seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
                 if (!new_terms) exit(1);
                 terms = new_terms;
                 terms_cap = new_cap;

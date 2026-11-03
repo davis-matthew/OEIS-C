@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    where A356541(k) = Σ_{d|k} d * (d!)^(k/d-1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Ensure storage for a[n] exists */
     if (n + 1 > A_cap) {
-        A = (seq_t*)realloc(A, (n + 1) * sizeof(seq_t));
+        A = mem_resize(seq_t, A, (n + 1));
         if (A == NULL) return 0;      /* allocation error */
         for (size_t i = A_cap; i <= n; ++i) A[i] = (seq_t)0;
         A_cap = n + 1;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Base case */
     if (n == 0) {
         if (A_cap == 0) {
-            A = (seq_t*)malloc(sizeof(seq_t));
+            A = mem_new(seq_t, 1);
             if (A == NULL) return 0;
             A[0] = (seq_t)1;
             A_cap = 1;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute factorials up to n */
-    seq_t *fact = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (n + 1));
     if (!fact) return 0;
     fact[0] = (seq_t)1;
     for (idx_t i = 1; i <= n; ++i) {
@@ -64,8 +66,8 @@ seq_t a(idx_t n)
     }
 
     /* Compute B[k] = A356541(k) for 1 <= k <= n */
-    seq_t *B = (seq_t*)calloc(n + 1, sizeof(seq_t));
-    if (!B) { free(fact); return 0; }
+    seq_t *B = mem_new(seq_t, n + 1);
+    if (!B) { mem_free(fact); return 0; }
     for (idx_t d = 1; d <= n; ++d) {
         seq_t pow = (seq_t)1;
         for (idx_t k = d; k <= n; k += d) {
@@ -91,8 +93,8 @@ seq_t a(idx_t n)
     A_max = n;
 
     /* Clean up temporary arrays */
-    free(fact);
-    free(B);
+    mem_free(fact);
+    mem_free(B);
 
     return A[n];
 }

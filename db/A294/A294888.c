@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n, d<n} if nonabundant(d) then d else 0
- * Range:     u8 n <= 219, u16 n <= 9012, u32 n <= 9012, u64 n <= 9012,
- *            u128 n <= 9012, big any n
- * Helpers:   none
+ * Range:     u8 n <= 219, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 107 terms through n = 9012 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Global caches, rebuilt only when a larger n is requested. */
 static seq_t *sigma          = NULL;  /* sigma[d] = sum of all divisors of d (including d) */
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t limit)
 
     /* Allocate or grow the σ array. */
     seq_t *old_sigma = sigma;
-    sigma = (seq_t *)realloc(sigma, (size_t)(limit + 1) * sizeof(seq_t));
+    sigma = mem_resize(seq_t, sigma, (size_t)(limit + 1));
     if (!sigma) abort();
 
     /* Compute σ for all numbers up to limit using the divisor–sieve. */

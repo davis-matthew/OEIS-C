@@ -9,7 +9,8 @@
  *            1 (Miller-Rabin), memoized
  * Range:     u8 n <= 3, u16 n <= 24, u32 n <= 3205, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   a2648_isprime, a2648_mulmod, a2648_powmod
+ * Validated: standard, pass, 54 terms through n = 4975 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a2648_isprime.h"
-#include "../utils/a2648_mulmod.h"
-#include "../utils/a2648_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t *a2648_ms = NULL;
 static idx_t a2648_cnt = 0, a2648_cap = 0;
@@ -29,7 +30,7 @@ seq_t a(idx_t n) {
     while (a2648_cnt < n) {
         uint64_t m = a2648_next;
         a2648_next += 2;
-        if (a2648_isprime(3 * m * m + 1)) {
+        if (is_prime_u64(3 * m * m + 1)) {
             if (a2648_cnt == a2648_cap) {
                 idx_t nc = a2648_cap ? a2648_cap * 2 : 1024;
                 a2648_ms = (uint64_t *)realloc(a2648_ms, nc * sizeof(uint64_t));

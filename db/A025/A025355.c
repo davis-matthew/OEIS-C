@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Integer square root for 64‑bit unsigned values (floor).               */
@@ -102,7 +104,7 @@ static void recompute(idx_t new_max_sum)
 
     /* Build the sorted list of qualifying numbers.       */
     size_t new_cap = 1024;
-    seq_t *new_list = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_list = mem_new(seq_t, new_cap);
     if (!new_list) { free(sq); free(conv); free(all_equal); free(dup_two); return; }
     size_t new_len = 0;
 
@@ -118,8 +120,8 @@ static void recompute(idx_t new_max_sum)
         if (ordered_distinct >= 54U) {
             if (new_len == new_cap) {
                 new_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(new_list, new_cap * sizeof(seq_t));
-                if (!tmp) { free(new_list); break; }
+                seq_t *tmp = mem_resize(seq_t, new_list, new_cap);
+                if (!tmp) { mem_free(new_list); break; }
                 new_list = tmp;
             }
             new_list[new_len++] = (seq_t)val;
@@ -136,7 +138,7 @@ static void recompute(idx_t new_max_sum)
     seq_t *old = seq_list;
     seq_list = new_list;
     seq_len  = new_len;
-    if (old) free(old);
+    if (old) mem_free(old);
 
     current_max_sum = new_max_sum;
 }

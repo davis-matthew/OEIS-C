@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t seq_len_up_to = 0;        /* maximum n computed previously   */
 static seq_t *seq_vals      = NULL;    /* stored a(n) values (index starts at 1) */
@@ -37,7 +39,7 @@ static void ensure_seq_cap(idx_t max_n)
     if ((size_t)max_n + 1 <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 128;
     while (new_cap <= (size_t)max_n + 1) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
     seq_vals = tmp;
     seq_cap = new_cap;
 }

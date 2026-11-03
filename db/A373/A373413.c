@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   is_squarefree
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 /* static state between calls */
 static seq_t *runs = NULL;      /* array of sums of discovered squarefree runs */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         /* Ensure capacity to store the new run sum */
         if (runs_count == runs_cap) {
             size_t new_cap = (runs_cap == 0) ? 32 : runs_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(runs, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, runs, new_cap);
             if (!tmp) return 0;   /* allocation failed */
             runs = tmp;
             runs_cap = new_cap;

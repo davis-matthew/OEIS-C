@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 101, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 930 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declaration */
 static void recompute(uint64_t limit);
@@ -69,7 +71,7 @@ static void recompute(uint64_t limit)
 
     /* build cumulative sums */
     size_t new_len = twin_len + 1;          /* include sentinel 0 */
-    seq_t *new_cum = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cum = mem_new(seq_t, new_len);
     if (!new_cum) abort();
     new_cum[0] = 0;
     for (size_t i = 1; i < new_len; ++i) {
@@ -77,7 +79,7 @@ static void recompute(uint64_t limit)
     }
 
     /* free old data */
-    if (cum_sum) free(cum_sum);
+    if (cum_sum) mem_free(cum_sum);
     free(twin);
     free(is_prime);
 

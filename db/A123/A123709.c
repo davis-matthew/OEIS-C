@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1 + #{ k in 1..n-1 | Moebius(n,k+1) <> Moebius(n,k) }
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 92 terms through n = 9521 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Implementation: count transitions of Möbius values for k = 1..n */
 
 /* Include the μ–function from the utilities */
+#include <stdint.h>
 #include "../utils/mobius.h"
 
 seq_t a(idx_t n)

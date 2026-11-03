@@ -11,7 +11,8 @@
  *            odd part of * k! is not congruent to 7 modulo 8
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* cache the fact that 0! = 1 is representable (odd part = 1) */
     if (sz == 0) {
         cap = 256;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)0;          /* k = 0 */
         sz = 1;
     }
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
             /* store term */
             if (sz == cap) {
                 cap *= 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[sz++] = (seq_t)cur_k;
         }

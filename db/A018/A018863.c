@@ -7,14 +7,17 @@
  * Formula:   a(n) = smallest power of 6 that begins with n
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   big_pow, digits
+ * Validated: standard, pass, 24 terms through n = 249 (2026-11-01)
+ * Helpers:   ipow, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/digits.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/num_digits_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -28,11 +31,11 @@ seq_t a(idx_t n)
         ++e;
     }
     if (tmp == 1) {
-        return big_pow((seq_t)6, (seq_t)e);   /* a(6^k) = 6^k */
+        return ipow((seq_t)6, (seq_t)e);   /* a(6^k) = 6^k */
     }
 
     /* Number of decimal digits of n */
-    int D = digits(n);
+    int D = num_digits_idx(n);
     /* Logarithmic window for the leading digits of 6^e */
     double nd = (double)n;
     double a_window = log10(nd) - (double)(D - 1);
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
         frac += LOG10_6;
         if (frac >= 1.0) frac -= floor(frac);   /* keep within [0,1) */
         if (frac >= a_window && frac < b_window) {
-            return big_pow((seq_t)6, (seq_t)exp);
+            return ipow((seq_t)6, (seq_t)exp);
         }
     }
 }

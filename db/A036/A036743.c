@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 3999, u32 n <= 3999, u64 n <= 3999,
  *            u128 n <= 3999, big any n
- * Helpers:   cmp_reverse
+ * Validated: full, pass, 3999 terms through n = 3999 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>   /* for uint16_t */
-#include "../utils/cmp_reverse.h"
+
+/* Comparator for qsort: reverse lexicographic order of roman.   */
+static int cmp_reverse(const void *a, const void *b)
+{
+    const char *const *ra = (const char *const *)a;
+    const char *const *rb = (const char *const *)b;
+    return strcmp(*rb, *ra);   /* descending */
+}
 
 /* ------------------------------------------------------------- */
 /* Helper: convert an integer (1..3999) to its Roman numeral.     */

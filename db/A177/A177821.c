@@ -12,7 +12,8 @@
  *            distinct simple Lie groups of dimension...
  * Range:     u8 n <= 24, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   seq_one
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Utility function from the build environment */
-#include "../utils/seq_one.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 /* Return the number of divisors of n (for n up to 10000). */
 static idx_t divisor_count(idx_t n)
@@ -124,7 +127,7 @@ static void compute_cache(idx_t limit)
     }
 
     /* Recompute DP array. */
-    seq_t *new_dp = (seq_t *)calloc((size_t)(limit + 1), sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, (size_t)(limit + 1));
     if (!new_dp)
     {
         free(m);
@@ -145,7 +148,7 @@ static void compute_cache(idx_t limit)
     }
 
     /* Replace old cache. */
-    free(dp_cache);
+    mem_free(dp_cache);
     dp_cache = new_dp;
     dp_cache_limit = limit;
 

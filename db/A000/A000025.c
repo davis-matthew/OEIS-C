@@ -11,13 +11,15 @@
  *            + a(m - k*(3*k+1)/2)), a(0) = 1
  * Range:     i8 n <= 32, i16 n <= 109, i32 n <= 384, i64 n <= 1399,
  *            i128 n <= 5258, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *A_tab = 0;
 static long long A_len = 0; /* number of computed terms */
@@ -39,7 +41,7 @@ static void a_extend(long long n)
             c[m] += ((k + j) & 1) ? -4 : 4;
     }
 
-    T = (seq_t *)malloc((size_t)need * sizeof(seq_t));
+    T = mem_new(seq_t, (size_t)need);
     for (i = 0; i < A_len; i++) T[i] = A_tab[i];
     for (m = A_len; m < need; m++) {
         seq_t s = 0;
@@ -55,7 +57,7 @@ static void a_extend(long long n)
         T[m] = s;
     }
     free(c);
-    if (A_tab) free(A_tab);
+    if (A_tab) mem_free(A_tab);
     A_tab = T;
     A_len = need;
 }

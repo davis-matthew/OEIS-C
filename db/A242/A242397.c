@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 4757 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(n)) for idx_t values. */
 static inline idx_t integer_sqrt(idx_t n)
@@ -84,7 +86,7 @@ static void ensure_capacity(size_t needed, size_t *cap, seq_t **arr)
     if (*cap < needed) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();
         *arr = tmp;
         *cap = new_cap;

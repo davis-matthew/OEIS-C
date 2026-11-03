@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t   *central  = NULL;   /* list of odd central polygonal numbers (≥3) */
 static size_t  central_sz  = 0;    /* number of items in the list   */
@@ -41,7 +43,7 @@ ensure_central_upto(idx_t limit)
         if ( (c & (seq_t)1) != 0 ) {
             if (central_sz == central_cap) {
                 central_cap = (central_cap == 0) ? 16 : central_cap * 2;
-                central = (seq_t*)realloc(central, central_cap * sizeof(seq_t));
+                central = mem_resize(seq_t, central, central_cap);
                 if (!central) abort();  /* memory allocation failure */
             }
             central[central_sz++] = c;

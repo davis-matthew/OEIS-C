@@ -9,13 +9,15 @@
  *            patterns 000 and 011, and the vertical patterns 0 1 1 and 1 0 1
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 17, u64 n <= 39, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 /* Static tables used to compute the recurrence described above. */
@@ -108,7 +110,7 @@ static void init(void)
 
     /* 3. Initialise DP for length 2 (every pair of allowed rows). */
     dp_size = (size_t)n_allowed * n_allowed;
-    dp_cur  = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, dp_size);
     for (size_t ai = 0; ai < n_allowed; ++ai)
         for (size_t bi = 0; bi < n_allowed; ++bi)
             dp_cur[ai * n_allowed + bi] = (seq_t)1;
@@ -117,7 +119,7 @@ static void init(void)
 
     /* 4. Total cache: store a(1) and a(2). */
     total_cap   = 64;
-    total_cache = (seq_t *)calloc(total_cap + 1, sizeof(seq_t)); /* 1‑based index */
+    total_cache = mem_new(seq_t, total_cap + 1); /* 1‑based index */
     total_len   = 2;
 
     total_cache[1] = (seq_t)n_allowed;
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
 
     /* Extend DP up to requested length. */
     while (cur_len < n) {
-        seq_t *newdp = (seq_t *)calloc(dp_size, sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, dp_size);
 
         for (size_t ai = 0; ai < n_allowed; ++ai) {
             for (size_t bi = 0; bi < n_allowed; ++bi) {
@@ -151,7 +153,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(dp_cur);
+        mem_free(dp_cur);
         dp_cur = newdp;
         ++cur_len;
 
@@ -162,7 +164,7 @@ seq_t a(idx_t n)
         if (cur_len > total_len) {
             if (cur_len > total_cap) {
                 size_t newcap = total_cap ? total_cap * 2 : 128;
-                seq_t *tmp = (seq_t *)realloc(total_cache, (newcap + 1) * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, total_cache, (newcap + 1));
                 total_cache = tmp;
                 total_cap   = newcap;
             }

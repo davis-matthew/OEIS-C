@@ -11,6 +11,7 @@
  *            23660, 33855, 58675, 93344, 134047, 232723, 370928
  * Range:     u8 none, u16 n <= 11, u32 n <= 35, u64 n <= 83, u128 n <= 179,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 190 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,7 +12,8 @@
  *            - 3 if n is a perfect square - 6 if n is...
  * Range:     i8 n <= 87, i16 n <= 87, i32 n <= 87, i64 n <= 87, i128 n <= 87,
  *            big any n
- * Helpers:   floor_cuberoot_uint64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/floor_cuberoot_uint64.h"
+
+/* Integer cube root for uint64_t using binary search */
+static uint64_t floor_cuberoot_uint64(uint64_t x)
+{
+    uint64_t low = 0, high = x;
+    while (low <= high) {
+        uint64_t mid = (low + high) >> 1;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube == x)
+            return mid;
+        if (cube < x)
+            low = mid + 1;
+        else
+            high = mid - 1;
+    }
+    return high;
+}
 
 /* Integer square root for uint64_t using binary search */
 static uint64_t floor_sqrt_uint64(uint64_t x)

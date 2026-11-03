@@ -11,7 +11,8 @@
  *            ≥ 1
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define ROW_COUNT 1024              /* 4^5 possible rows */
 #define MAX_DEGREE 64               /* generous upper bound on adjacency list size */
@@ -104,10 +106,10 @@ seq_t a(idx_t n)
     /* Allocate or grow totals array if needed */
     if (totals_len < n + 2) {
         idx_t new_len = n + 2;
-        seq_t *new_totals = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_totals = mem_new(seq_t, new_len);
         if (totals) {
-            memcpy(new_totals, totals, totals_len * sizeof(seq_t));
-            free(totals);
+            mem_copy(new_totals, totals, totals_len * sizeof(seq_t));
+            mem_free(totals);
         }
         totals = new_totals;
         totals_len = new_len;
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
 
         for (idx_t step = 1; step <= n; ++step) {
             /* zero dp_next */
-            memset(dp_next, 0, ROW_COUNT * sizeof(seq_t));
+            mem_set(dp_next, 0, ROW_COUNT * sizeof(seq_t));
 
             /* Transition */
             for (idx_t i = 0; i < ROW_COUNT; ++i) {
@@ -138,7 +140,7 @@ seq_t a(idx_t n)
             totals[step] = sum;
 
             /* Move dp_next to dp_cur for next iteration */
-            memcpy(dp_cur, dp_next, ROW_COUNT * sizeof(seq_t));
+            mem_copy(dp_cur, dp_next, ROW_COUNT * sizeof(seq_t));
         }
         max_n_computed = n;
         return totals[n];
@@ -150,7 +152,7 @@ seq_t a(idx_t n)
 
     /* Compute from previous maximum up to the new n */
     for (idx_t step = max_n_computed + 1; step <= n; ++step) {
-        memset(dp_next, 0, ROW_COUNT * sizeof(seq_t));
+        mem_set(dp_next, 0, ROW_COUNT * sizeof(seq_t));
 
         for (idx_t i = 0; i < ROW_COUNT; ++i) {
             seq_t val = dp_cur[i];
@@ -166,7 +168,7 @@ seq_t a(idx_t n)
         for (idx_t i = 0; i < ROW_COUNT; ++i) sum += dp_next[i];
         totals[step] = sum;
 
-        memcpy(dp_cur, dp_next, ROW_COUNT * sizeof(seq_t));
+        mem_copy(dp_cur, dp_next, ROW_COUNT * sizeof(seq_t));
     }
     max_n_computed = n;
     return totals[n];

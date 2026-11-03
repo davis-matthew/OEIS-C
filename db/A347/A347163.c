@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1200, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 75 terms through n = 8440 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 /* Helper from the build environment */
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Integer square root for unsigned 64‑bit values              */
@@ -66,11 +68,11 @@ static void seq_push(seq_t v)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) abort();
         if (seq) {
-            memcpy(tmp, seq, seq_len * sizeof(seq_t));
-            free(seq);
+            mem_copy(tmp, seq, seq_len * sizeof(seq_t));
+            mem_free(seq);
         }
         seq = tmp;
         seq_cap = new_cap;

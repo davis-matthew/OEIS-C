@@ -10,6 +10,7 @@
  *            index of the first element in row r
  * Range:     u8 n <= 8255, u16 n <= 8255, u32 n <= 8255, u64 n <= 8255,
  *            u128 n <= 8255, big any n
+ * Validated: standard, pass, 107 terms through n = 7841 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

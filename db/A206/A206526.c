@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n/2)*137 + (n%2 ? 31 : -31)
  * Range:     u8 n <= 4, u16 n <= 957, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 60 terms through n = 992 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

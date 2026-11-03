@@ -10,13 +10,20 @@
  *            convention.)
  * Range:     u8 n <= 62, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_digits
+ * Validated: standard, pass, 78 terms through n = 946 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_digits.h"
+
+/* Count decimal digits 0–9 in the array `digits` of length `len`. */
+static void count_digits(const uint8_t *digits, int len, unsigned int *cnt)
+{
+    for (int d = 0; d < 10; ++d) cnt[d] = 0;
+    for (int i = 0; i < len; ++i) cnt[digits[i]]++;
+}
 
 /* Maximum number of decimal digits needed for n up to about 10 000.
    This is ample for all k that ever need to be checked. */

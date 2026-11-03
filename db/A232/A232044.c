@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed values: cache[i] holds a(i+1). */
 static seq_t *cache = NULL;
@@ -71,8 +73,8 @@ seq_t a(idx_t n)
     /* Ensure cache is large enough. */
     if (cache_len < n) {
         size_t new_len = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
-        if (!tmp) { free(cache); cache = NULL; cache_len = 0; return (seq_t)0; }
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
+        if (!tmp) { mem_free(cache); cache = NULL; cache_len = 0; return (seq_t)0; }
         cache = tmp;
 
         /* Fill initial values up to 15 if they were not already set. */

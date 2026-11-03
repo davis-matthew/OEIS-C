@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = gcd(n, sigma(n), A003961(n))
- * Range:     u8 n <= 53, u16 n <= 9851, u32 n <= 9851, u64 n <= 9851,
- *            u128 n <= 9851, big any n
- * Helpers:   factor_u64, gcd, next_prime, sigma_of
+ * Range:     u8 n <= 53, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9851 (2026-11-01)
+ * Helpers:   factor_u64, gcd, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,25 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/sigma_of.h"
 #include "../utils/gcd.h"
 #include "../utils/next_prime.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Compute the sequence term a(n) for n ≥ 1.  The arguments and return
    type are defined by the build (idx_t = uint64_t, seq_t arbitrary

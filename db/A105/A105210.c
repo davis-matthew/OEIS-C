@@ -7,84 +7,158 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = a(n-1) + 1 + Σ p, where the sum is over distinct prime
  *            factors p of a(n-1) with p < a(n-1); a(1) = 393
- * Range:     u8 none, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
- *            big any n
- * Helpers:   none
+ * Range:     u8 none, u16 n <= 116, u32 n <= 407, u64 n <= 1854,
+ *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 60 terms through n = 1918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include <stdlib.h>
+/* a(1) = 393; a(n) = a(n-1) + 1 + the sum of the distinct prime factors
+ * of a(n-1) below a(n-1) (0 if it is prime). The terms pass 2^64 (about 3e20
+ * by n = 2000), so they are factored in unsigned __int128: trial division by
+ * the small primes, then for what is left an exact Miller-Rabin test (the
+ * first 13 prime bases decide every number below 3.3e24) and Brent's
+ * Pollard rho. mulmod splits one factor into 35-bit halves so that every
+ * product fits in 128 bits (moduli below 2^81; the terms here stay below
+ * 2^69). (The original did trial
+ * division to sqrt(a(n)) in seq_t, which cannot finish at these sizes.)
+ * Widths narrower than the terms wrap, as before; big is exact. */
+
+#include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
 
-/* sum of distinct prime factors of v that are strictly less than v
-   (i.e. v's non‑trivial prime divisors) */
-static seq_t sum_distinct_prime_factors_less(seq_t v)
+typedef unsigned __int128 u128;
+
+static u128 mulmod(u128 a, u128 b, u128 m)          /* a, b < m < 2^81 */
 {
-    seq_t sum = 0;
-    seq_t rem = v;
-
-    for (seq_t p = (seq_t)2; p <= rem / p; ++p)
-    {
-        if (rem % p == 0)
-        {
-            sum += p;
-            while (rem % p == 0)
-                rem /= p;
-        }
-    }
-
-    /* rem may be 1 or a prime factor > sqrt(v) */
-    if (rem > 1 && rem != v)
-        sum += rem;
-
-    return sum;
+    u128 b1 = b >> 35, b0 = b & (((u128)1 << 35) - 1);
+    u128 hi = (a * b1) % m;                           /* < 2^81 * 2^46 */
+    hi = ((hi << 35) % m + (a * b0) % m) % m;
+    return hi;
 }
 
-/* memoisation of previously computed terms */
-static seq_t *memo = NULL;
-static idx_t memo_cap  = 0;
-static idx_t memo_last = 0;
-
-/* ensure the memo array can hold values up to index n */
-static void ensure_memo_capacity(idx_t n)
+static u128 powmod(u128 b, u128 e, u128 m)
 {
-    if (memo_cap >= n + 1)
-        return;
-
-    idx_t new_cap = memo_cap ? memo_cap * 2 : 4;
-    if (new_cap < n + 1)
-        new_cap = n + 1;
-
-    seq_t *new_mem = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
-    if (!new_mem)
-        return;                                 /* allocation failure – caller will handle */
-
-    memo = new_mem;
-    memo_cap = new_cap;
-
-    /* initialise the first term on first allocation */
-    if (memo_last == 0)
-    {
-        memo[1] = (seq_t)393;
-        memo_last = 1;
+    u128 r = 1 % m;
+    b %= m;
+    while (e) {
+        if (e & 1) r = mulmod(r, b, m);
+        b = mulmod(b, b, m);
+        e >>= 1;
     }
+    return r;
+}
+
+static bool is_prime128(u128 n)
+{
+    static const unsigned P[13] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41};
+    if (n < 2) return false;
+    for (int i = 0; i < 13; ++i)
+        if (n % P[i] == 0) return n == P[i];
+    u128 d = n - 1;
+    int s = 0;
+    while (!(d & 1)) { d >>= 1; ++s; }
+    for (int i = 0; i < 13; ++i) {
+        u128 x = powmod(P[i], d, n);
+        if (x == 1 || x == n - 1) continue;
+        bool ok = false;
+        for (int r = 1; r < s; ++r) {
+            x = mulmod(x, x, n);
+            if (x == n - 1) { ok = true; break; }
+        }
+        if (!ok) return false;
+    }
+    return true;
+}
+
+static u128 gcd128(u128 a, u128 b)
+{
+    while (b) { u128 t = a % b; a = b; b = t; }
+    return a;
+}
+
+static u128 rho(u128 n)                               /* a nontrivial factor of composite n */
+{
+    if (!(n & 1)) return 2;
+    for (u128 c = 1;; ++c) {
+        u128 y = 2, x = 2, g = 1, q = 1, ys = 2;
+        uint64_t r = 1, m = 128;
+        do {
+            x = y;
+            for (uint64_t i = 0; i < r; ++i) y = (mulmod(y, y, n) + c) % n;
+            uint64_t k = 0;
+            do {
+                ys = y;
+                for (uint64_t i = 0; i < m && i < r - k; ++i) {
+                    y = (mulmod(y, y, n) + c) % n;
+                    q = mulmod(q, x > y ? x - y : y - x, n);
+                }
+                g = gcd128(q, n);
+                k += m;
+            } while (k < r && g == 1);
+            r *= 2;
+        } while (g == 1);
+        if (g == n) {
+            do {
+                ys = (mulmod(ys, ys, n) + c) % n;
+                g = gcd128(x > ys ? x - ys : ys - x, n);
+            } while (g == 1);
+        }
+        if (g != n) return g;
+    }
+}
+
+/* add the distinct prime factors of n to ps[0..*np) */
+static void factor_into(u128 n, u128 *ps, int *np)
+{
+    if (n == 1) return;
+    if (is_prime128(n)) {
+        for (int i = 0; i < *np; ++i)
+            if (ps[i] == n) return;
+        ps[(*np)++] = n;
+        return;
+    }
+    u128 d = rho(n);
+    factor_into(d, ps, np);
+    factor_into(n / d, ps, np);
+}
+
+static u128 sopf_below(u128 v)
+{
+    u128 ps[128], m = v, sum = 0;
+    int np = 0;
+    for (uint64_t p = 2; p < 10000 && (u128)p * p <= m; ++p)
+        if (m % p == 0) {
+            ps[np++] = p;
+            while (m % p == 0) m /= p;
+        }
+    factor_into(m, ps, &np);
+    for (int i = 0; i < np; ++i)
+        if (ps[i] < v) sum += ps[i];
+    return sum;
 }
 
 seq_t a(idx_t n)
 {
-    if (n < 1)
-        return (seq_t)0;                 /* undefined for n < 1 */
-
-    ensure_memo_capacity(n);
-
-    for (idx_t i = memo_last + 1; i <= n; ++i)
-    {
-        seq_t prev = memo[i - 1];
-        seq_t add  = 1 + sum_distinct_prime_factors_less(prev);
-        memo[i] = prev + add;
+    static seq_t *A = NULL;
+    static u128 last = 0;                             /* a(len) exactly */
+    static size_t len = 0, cap = 0;
+    if (n == 0) return (seq_t)0;
+    while (len < (size_t)n) {
+        u128 v = len ? last + 1 + sopf_below(last) : (u128)393;
+        if (len == cap) {
+            cap = cap ? 2 * cap : 64;
+            seq_t *t = mem_resize(seq_t, A, cap);
+            if (!t) abort();
+            A = t;
+        }
+        seq_t hi = (seq_t)(uint64_t)(v >> 64), lo = (seq_t)(uint64_t)v;
+        A[len++] = sizeof(seq_t) > 8 ? ((hi << 32) << 32) + lo : lo;
+        last = v;
     }
-
-    memo_last = n;
-    return memo[n];
+    return A[n - 1];
 }

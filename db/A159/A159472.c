@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) - 72*(n-1)*a(n-2), with a(0)=1, a(1)=1
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 7, i64 n <= 14, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;  /* dynamic array of computed values      */
 static size_t cap   = 0;     /* allocated capacity (in elements)      */
@@ -24,7 +26,7 @@ static void grow_cache(idx_t need)
     if (cap >= (size_t)need) return;
     size_t new_cap = cap ? cap : 1;
     while (new_cap < (size_t)need) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();            /* allocation failed – terminate */
     cache = tmp;
     cap   = new_cap;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 {
     /* initialise cache with the first two terms if empty */
     if (!cache) {
-        cache = (seq_t*)calloc(2, sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) abort();
         cache[0] = 1;
         cache[1] = 1;

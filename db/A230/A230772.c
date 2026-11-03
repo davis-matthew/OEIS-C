@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of primes p with n ≤ p < 3·n/2 (half‑open interval
  * Range:     u8 n <= 4439, u16 n <= 6667, u32 n <= 6667, u64 n <= 6667,
  *            u128 n <= 6667, big any n
+ * Validated: standard, pass, 111 terms through n = 6644 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,13 +12,29 @@
  *            concatenation * of all these values. Algorithm: find the di...
  * Range:     u8 n <= 49, u16 n <= 98, u32 n <= 221, u64 n <= 514,
  *            u128 n <= 1257, big any n
- * Helpers:   fib_poly
+ * Validated: standard, pass, 94 terms through n = 1058 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fib_poly.h"
+
+/* Compute F_k(n), the Fibonacci polynomial of order k evaluated at n. */
+static seq_t fib_poly(seq_t n_val, idx_t k)
+{
+    if (k == 0) return 0;
+    if (k == 1) return 1;
+    seq_t f_prev = 0;
+    seq_t f_cur  = 1;
+    for (idx_t i = 2; i <= k; ++i)
+    {
+        seq_t f_next = f_cur * n_val + f_prev;
+        f_prev = f_cur;
+        f_cur = f_next;
+    }
+    return f_cur;
+}
 
 seq_t a(idx_t n)
 {

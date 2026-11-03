@@ -13,14 +13,17 @@
  *            cache,...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 103 terms through n = 9639 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* Return the number of prime exponents equal to 2 in the factorisation
    of the n‑th biquadrate‑free integer.  */
@@ -75,7 +78,7 @@ seq_t a(idx_t n)
         if (!bad) {
             if (cache_size == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache      = tmp;
                 cache_cap  = new_cap;
             }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 4154 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t val;      /* divisor value */
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     }
 
     /* sort divisors in ascending order */
-    qsort(divs, cnt, sizeof(Div), cmpDiv);
+    mem_qsort(divs, cnt, sizeof(Div), cmpDiv);
 
     /* find the smallest divisor such that all larger divisors are pairwise
        non‑coprime (i.e., their pairwise GCD > 1) */

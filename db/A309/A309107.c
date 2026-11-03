@@ -11,13 +11,15 @@
  *            of van Eck’s sequence.)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache: holds up to 'len' terms (indices 1..len) in cache[0..len-1] */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t need)
     if (cap < need) {
         idx_t new_cap = cap ? cap * 2 : 2;
         if (new_cap < need) new_cap = need;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 }

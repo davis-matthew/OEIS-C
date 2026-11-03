@@ -10,18 +10,20 @@
  *            k*(k+1)/2 (mod 2^r) for the irregular table A329278
  * Range:     u8 n <= 533, u16 n <= 8190, u32 n <= 8190, u64 n <= 8190,
  *            u128 n <= 8190, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 91 terms through n = 7065 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
     /* Find row index r: r = floor(log2(n+1)) */
-    unsigned r = floor_log2_uint64(n + 1);
+    unsigned r = ilog2(n + 1);
 
     /* Compute 2^r and offset k */
     idx_t pow2 = ((idx_t)1 << r);

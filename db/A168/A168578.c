@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 23, i16 n <= 56, i32 n <= 56, i64 n <= 56, i128 n <= 56,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 56 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
  *           for even N its signed value is kept.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
     idx_t e = coeff_idx - prev_T;     /* 1 ≤ e ≤ N-1 */
 
     /* Binomial coefficients C(N−1, e−1) and C(N−1, e) */
-    seq_t bin1 = binom(N - 1, e - 1);
-    seq_t bin2 = binom(N - 1, e);
+    seq_t bin1 = binomial(N - 1, e - 1);
+    seq_t bin2 = binomial(N - 1, e);
 
     /* Sign factors depending on the parity of N and e */
     int sign1 = 1;

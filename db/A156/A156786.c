@@ -13,14 +13,26 @@
  *            L(r,0)=L(r,r)=(-1)^r
  * Range:     i8 n <= 15, i16 n <= 36, i32 n <= 79, i64 n <= 211,
  *            i128 n <= 563, big any n
- * Helpers:   factorial_simple, offset_row
+ * Validated: standard, pass, 64 terms through n = 4773 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/factorial_simple.h"
-#include "../utils/offset_row.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <math.h>
+#include "../utils/triangular.h"
+
+/* simple factorial: n! */
+static seq_t factorial_simple(idx_t n)
+{
+    seq_t res = 1;
+    for (idx_t i = 1; i <= n; ++i)
+        res = res * (seq_t)i;
+    return res;
+}
 
 /* multiplicative binomial coefficient: C(n,k) */
 static seq_t binom_multiplicative(idx_t n, idx_t k)
@@ -40,10 +52,10 @@ seq_t a(idx_t n)
 {
     /* Find row r such that offset_row(r) <= n < offset_row(r+1) */
     idx_t r = 0;
-    while (offset_row(r + 1) <= n)
+    while (triangular(r + 1) <= n)
         ++r;
 
-    idx_t m = n - offset_row(r);   /* column index within the row */
+    idx_t m = n - triangular(r);   /* column index within the row */
 
     /* Special cases */
     if (r == 0 && m == 0)

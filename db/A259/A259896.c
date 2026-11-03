@@ -10,13 +10,15 @@
  *            solutions (x,y) to * x² + 6·y² = 8 n + 7
  * Range:     u8 n <= 373, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 103 terms through n = 9809 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Integer square root for seq_t using a binary‑search on bits. */
 static seq_t int_sqrt(seq_t n)
@@ -25,7 +27,7 @@ static seq_t int_sqrt(seq_t n)
         return n;
 
     seq_t r = 0;
-    seq_t bit = ((seq_t)1) << ((bitlen_seq_t(n) - 1) / 2);
+    seq_t bit = ((seq_t)1) << ((bit_length(n) - 1) / 2);
 
     while (bit) {
         seq_t res = r + bit;

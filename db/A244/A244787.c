@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute ⌊√x⌋ for a 64‑bit unsigned integer.  Uses 128‑bit
    arithmetic to avoid overflow. */
@@ -77,13 +79,13 @@ seq_t a(idx_t n)
     }
 
     /* Allocate two DP rows of size maxwidth. */
-    seq_t *dp1 = (seq_t *)calloc((size_t)maxwidth, sizeof(seq_t));
-    seq_t *dp2 = (seq_t *)calloc((size_t)maxwidth, sizeof(seq_t));
+    seq_t *dp1 = mem_new(seq_t, (size_t)maxwidth);
+    seq_t *dp2 = mem_new(seq_t, (size_t)maxwidth);
     if (!dp1 || !dp2) {
         free(lo);
         free(hi);
-        free(dp1);
-        free(dp2);
+        mem_free(dp1);
+        mem_free(dp2);
         return (seq_t)0u;
     }
 
@@ -133,8 +135,8 @@ seq_t a(idx_t n)
     /* Clean up. */
     free(lo);
     free(hi);
-    free(dp1);
-    free(dp2);
+    mem_free(dp1);
+    mem_free(dp2);
 
     return total;
 }

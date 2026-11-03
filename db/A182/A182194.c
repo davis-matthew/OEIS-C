@@ -8,14 +8,16 @@
  * Formula:   a(n) = b(m) + b(m-1) – n – 2 where b(1)=2, b(2)=3,
  *            b(k)=b(k-2)^2+1 and m = min{k | b(k) > n+1}. This follows the
  *            OEIS definition
- * Range:     u8 n <= 99, u16 n <= 9442, u32 n <= 9442, u64 n <= 9442,
- *            u128 n <= 9442, big any n
- * Helpers:   none
+ * Range:     u8 n <= 99, u16 n <= 10200, u32 n <= 10200, u64 n <= 10200,
+ *            u128 n <= 10200, big any n
+ * Validated: standard, pass, 87 terms through n = 9442 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute a(n) for n >= 1 */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise the first two elements on first call */
     if (b_len == 0) {
         b_len = 2;
-        b = (seq_t *)malloc(b_len * sizeof(seq_t));
+        b = mem_new(seq_t, b_len);
         if (!b) return (seq_t)0;                 /* allocation failed, return 0 */
         b[0] = (seq_t)2;                     /* b(1) */
         b[1] = (seq_t)3;                     /* b(2) */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         seq_t next = prev2 * prev2 + 1;
 
         /* reallocate to hold the new element */
-        b = (seq_t *)realloc(b, (b_len + 1) * sizeof(seq_t));
+        b = mem_resize(seq_t, b, (b_len + 1));
         if (!b) return (seq_t)0;                 /* allocation failed, return 0 */
         b[b_len] = next;
         b_len++;

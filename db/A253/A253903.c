@@ -8,13 +8,42 @@
  *            m(m+1)(2m+1)/6 for some integer m≥0; otherwise a(n) = 0
  * Range:     u8 n <= 54, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   square_pyramidal
+ * Validated: standard, pass, 107 terms through n = 8517 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/square_pyramidal.h"
+
+/* Compute the square pyramidal number for a given m. */
+static seq_t square_pyramidal(idx_t m)
+{
+    seq_t a = m;          /* m          */
+    seq_t b = m + 1;      /* m + 1      */
+    seq_t c = 2 * m + 1;  /* 2m + 1     */
+
+    /* Divide one of a, b, c by 2 (exactly one is even). */
+    if ((a & 1) == 0) {
+        a /= 2;
+    } else if ((b & 1) == 0) {
+        b /= 2;
+    } else {
+        c /= 2;
+    }
+
+    /* Divide one of a, b, c by 3 (exactly one is divisible by 3). */
+    if ((a % 3) == 0) {
+        a /= 3;
+    } else if ((b % 3) == 0) {
+        b /= 3;
+    } else {
+        c /= 3;
+    }
+
+    /* The product now equals m(m+1)(2m+1)/6 and fits in seq_t. */
+    return a * b * c;
+}
 
 /* Return the characteristic value at index n. */
 seq_t a(idx_t n)

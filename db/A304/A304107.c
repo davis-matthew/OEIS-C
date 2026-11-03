@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 129, u16 n <= 8701, u32 n <= 8701, u64 n <= 8701,
- *            u128 n <= 8701, big any n
- * Helpers:   bitlen_seq_t
+ * Range:     u8 n <= 129, u16 n <= 32769, u32 n <= 32769, u64 n <= 32769,
+ *            u128 n <= 32769, big any n
+ * Validated: standard, pass, 98 terms through n = 8701 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 /* Determine whether the integer m corresponds to a squarefree
    polynomial over GF(2)[X] (i.e., no duplicated irreducible divisors). */
@@ -30,7 +31,7 @@ static bool is_squarefree(idx_t m)
 
     /* Derivative over GF(2): keep bits of odd degrees, shifted right one. */
     seq_t d = (seq_t)0;
-    unsigned int deg = bitlen_seq_t(f);
+    unsigned int deg = bit_length(f);
     for (unsigned int i = 1; i < deg; i += 2)
         if (f & (((seq_t)1) << i))
             d |= (((seq_t)1) << (i - 1));
@@ -39,8 +40,8 @@ static bool is_squarefree(idx_t m)
     seq_t a = f;
     seq_t b = d;
     while (b != (seq_t)0) {
-        unsigned int deg_a = bitlen_seq_t(a);
-        unsigned int deg_b = bitlen_seq_t(b);
+        unsigned int deg_a = bit_length(a);
+        unsigned int deg_b = bit_length(b);
         if (deg_a < deg_b) {
             seq_t tmp = a; a = b; b = tmp;
             continue;

@@ -9,7 +9,8 @@
  *            the table holds at least n terms; a(n) is the n-th marked value
  * Range:     u8 n <= 8, u16 n <= 1314, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3351_p5, a3351_rec
+ * Validated: standard, pass, 65 terms through n = 9114 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a3351_p5.h"
-#include "../utils/a3351_rec.h"
+
+static uint64_t a3351_p5(uint64_t b) {
+    return b * b * b * b * b;
+}
+
+static void a3351_rec(int k, uint64_t minb, uint64_t sum, uint64_t X,
+                      unsigned char *mark) {
+    uint64_t b;
+    if (k == 0) {
+        mark[sum] = 1;
+        return;
+    }
+    for (b = minb; sum + (uint64_t)k * a3351_p5(b) <= X; b++)
+        a3351_rec(k - 1, b, sum + a3351_p5(b), X, mark);
+}
 
 static uint64_t *a3351_terms = NULL;
 static idx_t a3351_count = 0;

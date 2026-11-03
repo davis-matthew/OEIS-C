@@ -7,16 +7,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 4170, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 116 terms through n = 7690 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Compute A303579: length of each non‑decreasing run in the totient sequence */
 #include <stdlib.h>
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,19 +32,19 @@ seq_t a(idx_t n)
 
     /* Initialise on first call */
     if (!runs) {
-        prev_phi = phi(1);                         /* φ(1) = 1                    */
+        prev_phi = totient(1);                         /* φ(1) = 1                    */
         current_k = 2;                             /* start with k = 2             */
         current_run_len = 1;                       /* run starts with φ(1)         */
     }
 
     /* Produce runs until the nth one is finished and stored */
     while (runs_used < n) {
-        seq_t phi_k = phi(current_k);
+        seq_t phi_k = totient(current_k);
 
         if (phi_k < prev_phi) {                    /* run ends here               */
             if (runs_used >= runs_cap) {           /* grow array if needed        */
                 size_t new_cap = runs_cap ? runs_cap << 1 : 16;
-                seq_t *tmp = (seq_t *)realloc(runs, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, runs, new_cap);
                 if (!tmp) return 0;                /* allocation failure          */
                 runs = tmp;
                 runs_cap = new_cap;

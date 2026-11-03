@@ -7,12 +7,14 @@
  * Formula:   a(n) = 591*2^n - 273
  * Range:     u8 none, u16 n <= 6, u32 n <= 22, u64 n <= 26, u128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the nth term of OEIS sequence A278131. */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

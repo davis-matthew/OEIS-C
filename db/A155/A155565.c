@@ -10,7 +10,8 @@
  *            a(1) = 0, a(2) = 1, a(3) = 4, ... (as in the OEIS entry)
  * Range:     u8 n <= 38, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------- */
 /* Helper to compute floor( sqrt(n) ) without using floating point */
@@ -116,7 +118,7 @@ static void ensure_rep_limit(idx_t new_limit)
 static void grow_term_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-    seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE); /* allocation failed */
     term_cache = tmp;
     cache_cap = new_cap;

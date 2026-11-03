@@ -13,13 +13,15 @@
  *            collected, sorted ascending, and appended to a global...
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* local comparator for qsort returning <0,0,>0 for seq_t values */
 static int seq_cmp(const void *p1, const void *p2)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         /* number of unordered triples from 1..r */
         idx_t triples = r * (r - 1) * (r - 2) / 6;
 
-        seq_t *tmp = (seq_t *)malloc(triples * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, triples);
         if (!tmp)
             return 0;        /* allocation failed */
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
                     tmp[pos++] = (seq_t)i * (seq_t)j * (seq_t)k;
 
         /* sort and deduplicate */
-        qsort(tmp, triples, sizeof(seq_t), seq_cmp);
+        mem_qsort(tmp, triples, sizeof(seq_t), seq_cmp);
         size_t uniq = 0;
         for (size_t p = 0; p < triples; ++p)
         {
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
             size_t new_cap = ccap ? ccap * 2 : 128;
             while (new_cap < needed)
                 new_cap *= 2;
-            seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
             if (!new_ptr)
                 return 0;    /* allocation failed */
             cache = new_ptr;
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
             cache[csize + t] = tmp[t];
         csize += uniq;
 
-        free(tmp);
+        mem_free(tmp);
         ++next_r;
     }
 

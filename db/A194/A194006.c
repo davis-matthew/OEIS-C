@@ -7,13 +7,15 @@
  * Formula:   a(n) = sum_{k=1..n} binom(n-1,k-1) * (3^k - 2*2^k + 2) * a(n-k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 461 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system */
 seq_t a(idx_t n)
@@ -26,14 +28,14 @@ seq_t a(idx_t n)
     /* resize cache if necessary */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;      /* a(0) = 1 */
         cache_len = 1;
     } else if (n >= (idx_t)cache_len) {
         /* grow cache to at least n+1 entries */
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return (seq_t)0; /* allocation failed; caller may handle */
         cache = tmp;
         cache_cap = new_cap;

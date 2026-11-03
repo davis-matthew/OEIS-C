@@ -8,13 +8,28 @@
  *            monotone, so a binary search on k works
  * Range:     u8 n <= 2111, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   power_geq
+ * Validated: standard, pass, 106 terms through n = 8635 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/power_geq.h"
+
+static bool power_geq(seq_t k, seq_t n_val) {
+    /* Return true iff (k+1)^k >= n_val.
+       The loop stops as soon as the intermediate power would exceed n_val
+       to avoid overflow on seq_t of bounded size. */
+    seq_t base = k + 1;
+    seq_t power = 1;
+    for (idx_t i = 0; i < (idx_t)k; ++i) {
+        /* If multiplying would overflow beyond n_val, we can stop. */
+        if (power > n_val / base)
+            return true;
+        power *= base;
+    }
+    return power >= n_val;
+}
 
 seq_t a(idx_t n) {
     /* Convert the index to seq_t for comparisons. */

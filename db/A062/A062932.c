@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 733, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- helper: decimal palindrome test ---------- */
 static bool is_palindrome(seq_t x)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* initialise cache with a(0)=0 on first call */
     if (cache_len == 0) {
         cache_len = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = 0;                    /* a(0) = 0 */
         computed_up_to = 0;
     }
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     /* enlarge cache if needed */
     if (n >= cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) {
             /* allocation failure – in the test harness this should never happen,
                but we guard just in case */

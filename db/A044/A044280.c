@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 890, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_32_base9
+ * Validated: standard, pass, 63 terms through n = 9726 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/has_32_base9.h"
+
+/* Return true iff x contains the digit pair 3 followed by 2 when
+ * expressed in base 9.  The test is performed from least significant
+ * to most significant digit, which detects a high→low pattern
+ * 3,2 when prev_digit == 2 and cur_digit == 3. */
+static bool has_32_base9(seq_t x)
+{
+    int prev_digit = -1;          /* digit examined one step before */
+    while (x != 0) {
+        int cur_digit = (int)(x % 9);
+        if (prev_digit == 2 && cur_digit == 3)
+            return true;
+        prev_digit = cur_digit;
+        x = x / 9;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

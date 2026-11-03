@@ -8,6 +8,7 @@
  * Formula:   a(n) = sum_{p prime in (n^2,(n+1)^2)} ((n+1)^2 – p)
  * Range:     u8 n <= 13, u16 n <= 610, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 77 terms through n = 9894 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

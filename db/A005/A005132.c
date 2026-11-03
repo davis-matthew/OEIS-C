@@ -8,15 +8,17 @@
  * Keywords:  nonn, nice, hear, look
  * Formula:   a(n) = a(n-1) - n if nonnegative and not already in sequence,
  *            otherwise a(n) = a(n-1) + n; a(0) = 0
- * Range:     u8 n <= 100, u16 n <= 9387, u32 n <= 9387, u64 n <= 9387,
- *            u128 n <= 9387, big any n
- * Helpers:   none
+ * Range:     u8 n <= 100, u16 n <= 16000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 87 terms through n = 9387 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -27,11 +29,11 @@ seq_t a(idx_t n) {
     }
     
     if (cache == NULL) {
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         cache[0] = 0;
         cache_len = 1;
     } else {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
     }
     
     for (idx_t i = cache_len; i <= n; i++) {

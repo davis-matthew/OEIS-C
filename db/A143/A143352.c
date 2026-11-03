@@ -10,14 +10,15 @@
  *            otherwise a(n) = 0. This implements OEIS A143352
  * Range:     i8 n <= 105, i16 n <= 105, i32 n <= 105, i64 n <= 105,
  *            i128 n <= 105, big any n
- * Helpers:   divisor_count_u64, mobius
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   mobius, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
 #include "../utils/mobius.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
     idx_t m = r / k;                           /* integer division       */
 
     /* Compute d(m) * mu(k).  divisor_count_u64 expects uint64_t.  */
-    seq_t divcnt = (seq_t)divisor_count_u64((uint64_t)m);
+    seq_t divcnt = (seq_t)num_divisors((uint64_t)m);
     seq_t mu     = mobius(k);
 
     return divcnt * mu;

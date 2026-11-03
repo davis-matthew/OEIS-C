@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 107, u16 n <= 1105, u32 n <= 1105, u64 n <= 1105,
  *            u128 n <= 1105, big any n
- * Helpers:   _isqrt_seq, _satisfies, _three_sq_ok
+ * Validated: standard, pass, 80 terms through n = 1061 (2026-11-03)
+ * Helpers:   isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_isqrt_seq.h"
-#include "../utils/_satisfies.h"
-#include "../utils/_three_sq_ok.h"
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
+
+static bool _three_sq_ok(seq_t n)
+{
+    if (n == 0) return true;
+    /* remove all factors 4 */
+    while ((n & 3) == 0) n >>= 2;
+    /* n is of form 8k+7 -> not representable as a sum of three squares */
+    return (n & 7) != 7;
+}
+
+/* check whether n satisfies the required property */
+static bool _satisfies(seq_t n)
+{
+    if (n == 0) return true;
+    seq_t tmax = isqrt_seq(n - 1);
+    for (seq_t t = 0; t <= tmax; ++t) {
+        seq_t rem = n - t * t;
+        if (!_three_sq_ok(rem))
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +59,7 @@ seq_t a(idx_t n)
     /* initialise */
     if (terms_len == 0) {
         terms_cap = 64;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms[0] = (seq_t)0; /* a(1) = 0 */
         terms_len = 1;
         next_candidate = 1;
@@ -47,7 +69,7 @@ seq_t a(idx_t n)
         if (_satisfies(next_candidate)) {
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = next_candidate;
         }

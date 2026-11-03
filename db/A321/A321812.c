@@ -8,14 +8,17 @@
  *            p^e in the odd part of n of (1 + p^8 + p^16 + … + p^(8e))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 16, u64 n <= 256,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 43 terms through n = 9375 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* remove all factors of 2 (the ‘odd part’ of n) */
@@ -37,7 +40,7 @@ seq_t a(idx_t n) {
         seq_t prime_seq = (seq_t)prime;
 
         /* compute p^8 once */
-        seq_t p8 = big_pow(prime_seq, (seq_t)8);
+        seq_t p8 = ipow(prime_seq, (seq_t)8);
 
         /* sum_{k=0}^{e} p^{8k}  (geometric series) */
         seq_t sum = (seq_t)1;            /* the 1 corresponding to k = 0 */

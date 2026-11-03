@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 2779, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9505 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    The sequence a(n) is returned for n ≥ 1. */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int cmp_seq(const void *a, const void *b)
@@ -56,7 +58,7 @@ static void init_cache(void)
         max_triples = ((m - 2) * (m - 3) * (m - 4)) / 6 + 10;
     }
 
-    cache = (seq_t *)malloc(sizeof(seq_t) * max_triples);
+    cache = mem_new(seq_t, max_triples);
     cache_cap = max_triples;
     size_t pos = 0;
 
@@ -69,7 +71,7 @@ static void init_cache(void)
     }
 
     /* sort the sums */
-    qsort(cache, pos, sizeof(seq_t), cmp_seq);
+    mem_qsort(cache, pos, sizeof(seq_t), cmp_seq);
 
     /* remove duplicates (shouldn't occur but be safe) */
     size_t uniq = 0;

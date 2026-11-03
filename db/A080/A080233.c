@@ -8,13 +8,15 @@
  * Formula:   a(n) = C(r,c) - C(r,c-1) where r is the row such that r*(r+1)/2
  *            <= n < (r+1)*(r+2)/2, c = n - r*(r+1)/2. For c = 0 the value is
  *            always 1
- * Range:     i8 n <= 38, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
+ * Range:     i8 n <= 65, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static idx_t find_row(idx_t n)

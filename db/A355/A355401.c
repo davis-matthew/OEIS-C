@@ -14,13 +14,15 @@
  *            entries of T row by row, i.e. a(0) = T(0,0), a(1)=...
  * Range:     u8 n <= 15, u16 n <= 21, u32 n <= 36, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2.h"       /* seq_t pow2(idx_t) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 /* computes the q-binomial coefficient [N,K]_2 for 0<=K<=N */
 static seq_t binom_q2(idx_t N, idx_t K)

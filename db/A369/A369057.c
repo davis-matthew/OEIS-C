@@ -9,8 +9,9 @@
  * Formula:   count the representations k = p*q + p*r + q*r with odd primes p
  *            ≤ q ≤ r and 1 ≤ k ≤ 4n-1. a(n) is this count for the range [1,
  *            4n‑1]
- * Range:     u8 n <= 225, u16 n <= 9885, u32 n <= 9885, u64 n <= 9885,
- *            u128 n <= 9885, big any n
+ * Range:     u8 n <= 225, u16 n <= 16727, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 102 terms through n = 9885 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

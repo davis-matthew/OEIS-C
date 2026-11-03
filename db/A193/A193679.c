@@ -8,7 +8,8 @@
  * Formula:   a(n) = product_{p|n} p^(phi(n)/(p-1))
  * Range:     u8 n <= 13, u16 n <= 27, u32 n <= 44, u64 n <= 98, u128 n <= 164,
  *            big any n
- * Helpers:   calc_phi, factor_u64
+ * Validated: standard, pass, 60 terms through n = 986 (2026-11-01)
+ * Helpers:   factor_u64, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stddef.h>
 
 /* Helper utilities */
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
 
 /* Fast exponentiation for seq_t */
 static seq_t pow_uint(seq_t base, idx_t exp)
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
     if (n == 1) return (seq_t)1;
 
     /* φ(n) */
-    seq_t phi_n = calc_phi((seq_t)n);
+    seq_t phi_n = totient_seq((seq_t)n);
 
     /* Factor n into prime factors */
     uint64_t primes[64];

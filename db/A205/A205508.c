@@ -12,7 +12,8 @@
  *            the classical factorisation formula: * if n contains a prime...
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 24, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   representations_of_two_squares
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,40 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/representations_of_two_squares.h"
+
+/* Computes A004018(n): number of ordered representations of n as a^2 + b^2 */
+static seq_t representations_of_two_squares(idx_t n) {
+    if (n == 0) return (seq_t)1;  /* only 0^2 + 0^2 */
+
+    seq_t prod = 1;          /* product over primes ≡1 mod 4 of (e+1) */
+    idx_t m = n;
+    for (idx_t p = 2; (seq_t)p * p <= (seq_t)m; ++p) {
+        if (m % p == 0) {
+            int exp = 0;
+            while (m % p == 0) {
+                ++exp;
+                m /= p;
+            }
+            if ((p & 3) == 1) {          /* p ≡ 1 (mod 4) */
+                prod *= (seq_t)(exp + 1);
+            } else if ((p & 3) == 3) {   /* p ≡ 3 (mod 4) */
+                if (exp & 1) return (seq_t)0;  /* odd exponent → no reps */
+            }
+            /* p ≡ 2 (mod 4) or p=2: ignore */
+        }
+    }
+    /* remaining prime factor m > 1 */
+    if (m > 1) {
+        if ((m & 3) == 1) {          /* p ≡ 1 (mod 4) */
+            prod *= (seq_t)2;        /* exponent is 1 → factor (1+1)=2 */
+        } else if ((m & 3) == 3) {   /* p ≡ 3 (mod 4) */
+            return (seq_t)0;         /* exponent odd → no reps */
+        }
+        /* m ≡ 2 (mod 4) or m=2: ignore */
+    }
+
+    return prod * (seq_t)4;          /* final multiplier */
+}
 
 /* Forward declare helper for integer square root (may be provided).
  * If not available, a simple implementation is provided later.

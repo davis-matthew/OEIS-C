@@ -8,12 +8,15 @@
  * Formula:   a(0) = 83, a(n) = 6*(32*4^n-5*2^n) for n > 0
  * Range:     u8 n <= 0, u16 n <= 4, u32 n <= 12, u64 n <= 28, u128 n <= 60,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 898 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"   /* provides big_pow(seq_t, seq_t) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,8 +24,8 @@ seq_t a(idx_t n)
         return (seq_t)83;
     }
 
-    seq_t four_n = big_pow((seq_t)4, (seq_t)n);   /* 4^n */
-    seq_t two_n  = big_pow((seq_t)2, (seq_t)n);   /* 2^n */
+    seq_t four_n = ipow((seq_t)4, (seq_t)n);   /* 4^n */
+    seq_t two_n  = ipow((seq_t)2, (seq_t)n);   /* 2^n */
 
     seq_t term = (seq_t)32 * four_n - (seq_t)5 * two_n;
     term *= (seq_t)6;

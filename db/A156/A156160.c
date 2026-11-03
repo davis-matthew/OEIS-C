@@ -7,12 +7,14 @@
  * Formula:   a(n) = 34*a(n-1)-a(n-2)-2312; a(1)=169, a(2)=2809
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* start with capacity for indices 0..2 (we ignore index 0) */
         size_t init_cap = 3;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) return 0; /* allocation failure; caller will get 0 */
         cache_size = 2;
         cache[1] = (seq_t)169;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         new_cap *= 2;
     new_cap += 1; /* extra slot for index 0 */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return 0; /* allocation failure */
     cache = tmp;
 

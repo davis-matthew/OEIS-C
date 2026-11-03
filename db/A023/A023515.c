@@ -8,6 +8,7 @@
  *            to be 1)
  * Range:     u8 n <= 7, u16 n <= 55, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 56 terms through n = 4856 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 /* Cached prime array (prime_cache[0] = prime(1) = 2). */

@@ -10,7 +10,8 @@
  *            come in any order
  * Range:     u8 none, u16 n <= 565, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, factor_u64, grow_seq
+ * Validated: standard, pass, 60 terms through n = 9187 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,23 @@
 #include <stdlib.h>
 
 /* Helper headers provided by the build system. */
-#include "../utils/_floor_isqrt_u64.h"
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
-#include "../utils/grow_seq.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Return true iff the sequence of exponents (unsorted prime signature)
    is unimodal (weakly increasing then weakly decreasing). */
@@ -56,7 +70,7 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n)
     {
         /* Ensure prime list covers sqrt(next_candidate). */
-        uint64_t limit = _floor_isqrt_u64((idx_t)next_candidate) + 1;
+        uint64_t limit = isqrt((idx_t)next_candidate) + 1;
         if (limit > prime_limit)
         {
             free(primes);                     /* discard old list */

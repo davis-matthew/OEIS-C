@@ -7,15 +7,28 @@
  * Formula:   a(n) = (∑_{i=1}^{n-1} a(i))^n, with a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow, resize
+ * Validated: standard, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
-#include "../utils/resize.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper for reallocation that is valid in both C and C++ */
+static seq_t *resize(seq_t *old, size_t newcap)
+{
+#ifdef __cplusplus
+    return reinterpret_cast<seq_t*>(mem_resize(seq_t, old, newcap));
+#else
+    return (seq_t*)realloc(old, newcap * sizeof(seq_t));
+#endif
+}
 
 /* Memoisation storage */
 static seq_t *seq_cache   = NULL;   /* a(n) values (index n-1)          */
@@ -49,7 +62,7 @@ seq_t a(idx_t n)
                 value = 1;                     /* a(1) = 1 */
             } else {
                 seq_t base = sum_prefix[k - 2];  /* Σ_{i=1}^{k-1} a(i) */
-                value = big_pow(base, (seq_t)k);
+                value = ipow(base, (seq_t)k);
             }
             seq_cache[k - 1] = value;
             if (k == 1) {

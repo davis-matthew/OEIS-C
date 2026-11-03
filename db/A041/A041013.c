@@ -9,13 +9,15 @@
  *            reverse(a(n)) > a(n) else 2 * a(n)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 27, u64 n <= 56, u128 n <= 114,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper: reverse decimal digits of a seq_t number */
 static seq_t reverse_decimal(seq_t v)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cap = 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = 1;
         max_n = 0;
     }
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         while (n >= new_cap)
             new_cap <<= 1;
 
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap   = new_cap;
 
         for (idx_t i = max_n + 1; i <= n; ++i)

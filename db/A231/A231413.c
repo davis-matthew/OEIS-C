@@ -11,12 +11,14 @@
  *            computation; can be called in any order
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build system */
 seq_t a(idx_t n);
@@ -32,10 +34,10 @@ seq_t a(idx_t n)
     /* Ensure the cache has room for terms up to index n-1 */
     if (n > cache_size) {
         /* Reallocate array to size n (C++ needs explicit cast) */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp) {
             /* Allocation failed – free existing cache and return 0 */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_size = 0;
             return (seq_t)0;

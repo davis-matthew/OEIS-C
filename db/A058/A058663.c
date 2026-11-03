@@ -5,15 +5,17 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(n-1, n-phi(n))
- * Range:     u8 n <= 564, u16 n <= 9881, u32 n <= 9881, u64 n <= 9881,
- *            u128 n <= 9881, big any n
- * Helpers:   _phi, gcd
+ * Range:     u8 n <= 564, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 119 terms through n = 9881 (2026-11-01)
+ * Helpers:   gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_phi.h"   /* provides _phi(idx_t n) returning seq_t   */
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t a, seq_t b) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
     seq_t n_val = (seq_t)n;
 
     /* φ(n) */
-    seq_t phi_n = _phi(n);
+    seq_t phi_n = totient(n);
 
     /* cototient(n) = n - φ(n) */
     seq_t cototient = n_val - phi_n;

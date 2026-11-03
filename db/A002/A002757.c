@@ -12,13 +12,20 @@
  *            multiplicity of part j; a(n) = Sum_{k=0..n} G(k)*p(n-k)
  * Range:     u8 n <= 2, u16 n <= 12, u32 n <= 54, u64 n <= 230, u128 n <= 984,
  *            big any n
- * Helpers:   alloc_zero
+ * Validated: standard, pass, 47 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *Pa = 0, *Ga = 0, *Ta = 0;
 static idx_t cap = 0;

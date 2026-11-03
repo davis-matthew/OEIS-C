@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 135, i16 n <= 8191, i32 n <= 8191, i64 n <= 8191,
  *            i128 n <= 8191, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 7164 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
                a(2m)   = a(m) + m,
                a(2m+1) = 2 * a(m). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static memoisation table */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* grow the memoisation table if needed */
     if ((size_t)n >= memo_size) {
         size_t new_size = n + 1;
-        seq_t* new_mem = (seq_t*)realloc(memo, new_size * sizeof(seq_t));
+        seq_t* new_mem = mem_resize(seq_t, memo, new_size);
         unsigned char* new_done = (unsigned char*)realloc(done, new_size * sizeof(unsigned char));
         if (!new_mem || !new_done) {
             /* allocation failed – abort (caller should handle this ) */

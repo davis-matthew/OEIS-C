@@ -12,12 +12,14 @@
  *            + v(m-1,x) + 1 The sequence is obtain...
  * Range:     u8 n <= 40, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of polynomial coefficient arrays */
 static idx_t   max_row = 0;          /* number of rows already computed (≥0) */
@@ -46,8 +48,8 @@ static void ensure_rows(idx_t target)
         idx_t n = max_row + 1;          /* next row to compute, 1‑based */
 
         /* allocate coefficient arrays for this row */
-        seq_t *new_u = (seq_t*)malloc(n * sizeof(seq_t));
-        seq_t *new_v = (seq_t*)malloc(n * sizeof(seq_t));
+        seq_t *new_u = mem_new(seq_t, n);
+        seq_t *new_v = mem_new(seq_t, n);
         if (!new_u || !new_v) abort();
 
         if (n == 1)                    /* base case */

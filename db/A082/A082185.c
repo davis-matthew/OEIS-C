@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 119, u32 n <= 1013, u64 n <= 1013,
  *            u128 n <= 1013, big any n
- * Helpers:   binom_u64, digits_int, pow_seq10
+ * Validated: standard, pass, 83 terms through n = 915 (2026-11-01)
+ * Helpers:   binomial_idx, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,21 @@
  * (e.g., subset {1,3,4} → 134). */
 
 #include <stdint.h>
-#include "../utils/binom_u64.h"
-#include "../utils/digits_int.h"
-#include "../utils/pow_seq10.h"
+#include "../utils/binomial_idx.h"
+#include "../utils/num_digits_idx.h"
+
+/* ---- helper: power of 10^exp as seq_t ---- */
+static seq_t pow_seq10(int exp)
+{
+    seq_t result = 1;
+    seq_t base   = 10;
+    while (exp) {
+        if (exp & 1) result = result * base;
+        base = base * base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* ---- main sequence function ---- */
 seq_t a(idx_t n)
@@ -45,7 +58,7 @@ seq_t a(idx_t n)
     idx_t idx_in_row = offset_within_row;
     idx_t s = 1;
     for (idx_t k = 1; k <= r; ++k) {
-        idx_t c = binom_u64(r, k);
+        idx_t c = binomial_idx(r, k);
         if (idx_in_row < c) {
             s = k;
             break;
@@ -60,7 +73,7 @@ seq_t a(idx_t n)
     idx_t comb_idx = 0;
 
     for (idx_t element = 1; element <= r && remaining > 0; ++element) {
-        idx_t skip = binom_u64(r - element, remaining - 1);
+        idx_t skip = binomial_idx(r - element, remaining - 1);
         if (skip <= position) {
             position -= skip;          /* skip this element */
         } else {
@@ -72,7 +85,7 @@ seq_t a(idx_t n)
     /* concatenate the selected elements into the final value */
     seq_t value = 0;
     for (idx_t i = 0; i < s; ++i) {
-        int d = digits_int(comb[i]);
+        int d = num_digits_idx(comb[i]);
         value = value * pow_seq10(d) + (seq_t)comb[i];
     }
 

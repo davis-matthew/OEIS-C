@@ -12,14 +12,15 @@
  *            sieve
  * Range:     u8 n <= 110, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a5524_isqrt
+ * Validated: standard, pass, 85 terms through n = 8073 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a5524_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 static uint64_t *pp_list = NULL;   /* prime powers > 1, in order */
 static uint64_t *pp_base = NULL;   /* prime p */
@@ -70,7 +71,7 @@ seq_t a(idx_t n) {
     uint64_t q = pp_list[n - 1];
     uint64_t p = pp_base[n - 1];
     uint64_t e = pp_exp[n - 1];
-    uint64_t t = a5524_isqrt(4 * q);
+    uint64_t t = isqrt_u64(4 * q);
     uint64_t N;
     if (e >= 3 && (e & 1) && t % p == 0) N = q + t;
     else N = q + 1 + t;

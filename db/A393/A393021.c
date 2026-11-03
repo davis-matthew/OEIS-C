@@ -8,9 +8,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 9746, i16 n <= 9746, i32 n <= 9746, i64 n <= 9746,
- *            i128 n <= 9746, big any n
- * Helpers:   none
+ * Range:     i8 n <= 11520, i16 n <= 11520, i32 n <= 11520, i64 n <= 11520,
+ *            i128 n <= 11520, big any n
+ * Validated: standard, pass, 105 terms through n = 9746 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    deterministically, so no floating‑point or sorting is needed. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed x‑coordinates. */
 static seq_t  *cache   = NULL;   /* array of x‑coordinates */
@@ -36,9 +38,9 @@ static void ensure_cache_size(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) { /* allocation failed: reset cache */
-        free(cache);
+        mem_free(cache);
         cache = NULL;
         cache_len = 0;
         cache_cap = 0;

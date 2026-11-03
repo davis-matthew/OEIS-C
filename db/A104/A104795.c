@@ -7,14 +7,16 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = binom(r,k)+1 when k<r, a(n) = 1 when k==r, where r =
  *            floor((sqrt(8*n+1)-1)/2), k = n - r(r+1)/2
- * Range:     u8 n <= 39, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
+ * Range:     u8 n <= 69, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -37,6 +39,6 @@ seq_t a(idx_t n)
     if (k == r)
         return (seq_t)1;           /* last element of the row */
 
-    seq_t val = binom(r, k);      /* C(r, k) */
+    seq_t val = binomial(r, k);      /* C(r, k) */
     return val + (seq_t)1;        /* add 1 as per definition */
 }

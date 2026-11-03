@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 34, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   minimal_value_with_sum
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,23 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/minimal_value_with_sum.h"
+
+static seq_t minimal_value_with_sum(idx_t m, idx_t sum)
+{
+    if (m == 0) return 0;
+    static uint8_t digits[2000];   /* sufficient for maximum m (~1100) */
+    idx_t rem = sum;
+    for (idx_t i = 0; i < m; ++i) {
+        uint8_t d = (rem >= 9) ? 9 : (uint8_t)rem;
+        digits[i] = d;
+        rem -= d;
+    }
+    seq_t val = 0;
+    for (idx_t i = m; i > 0; --i) {
+        val = val * 10 + digits[i - 1];
+    }
+    return val;
+}
 
 seq_t a(idx_t n)
 {

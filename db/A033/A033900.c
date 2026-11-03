@@ -7,12 +7,14 @@
  * Formula:   a(1)=19; a(n)=a(n-1)+sort_ascending_digits(a(n-1)) for n>1
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the integer formed by sorting the decimal digits of x
    in ascending order (leading zeros omitted). */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* First call: initialise storage for a(1). */
     if (!cache) {
         cache_cap = 2;            /* indices 0 and 1 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             return 0;            /* allocation failure */
         cache[0] = 0;            /* unused */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     if (n > cache_len) {
         size_t needed = (size_t)n + 1;          /* indices 0..n */
         if (needed > cache_cap) {
-            seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, needed);
             if (!tmp)
                 return 0;          /* allocation failure */
             cache = tmp;

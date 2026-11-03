@@ -8,6 +8,7 @@
  *            = 0 for n > 0 and row n=5: S(5,1..5) = 1, 15, 25, 10, 1
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 30, u128 n <= 58,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 198 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,12 +11,14 @@
  *            a(3)=15, a(4)=18, a(5)=23, a(6)=30
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 {
     /* If cache not yet initialized, create and fill base values */
     if (cache_cap == 0) {
-        cache = (seq_t*)malloc(7 * sizeof(seq_t));
+        cache = mem_new(seq_t, 7);
         if (!cache) return 0; /* fallback */
         for (size_t i = 0; i < 7; ++i) cache[i] = base[i];
         cache_cap = 7;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     size_t idx = (size_t)n;
     if (idx < cache_cap) return cache[idx];
     /* Grow cache to accommodate up to idx */
-    cache = (seq_t*)realloc(cache, (idx + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (idx + 1));
     if (!cache) return 0; /* fallback */
     /* Compute new values using the recurrence */
     for (size_t i = cache_cap; i <= idx; ++i) {

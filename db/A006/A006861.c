@@ -11,17 +11,42 @@
  *            with its own child, which then belongs to the n...
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   alloc_zero, canon, hsh, release
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/canon.h"
-#include "../utils/hsh.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static uint64_t canon(uint64_t m) {
+    int h, t;
+    uint64_t r = 0;
+    m >>= __builtin_ctzll(m);
+    h = 63 - __builtin_clzll(m);
+    for (t = 0; t <= h; t++)
+        if ((m >> t) & 1ULL) r |= 1ULL << (h - t);
+    return r < m ? r : m;
+}
+
+static size_t hsh(uint64_t k) {
+    k ^= k >> 33; k *= 0xff51afd7ed558ccdULL; k ^= k >> 33;
+    k *= 0xc4ceb9fe1a85ec53ULL; k ^= k >> 33;
+    return (size_t)k;
+}
 
 #define KMAX 64
 

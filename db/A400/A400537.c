@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy, new
  * Formula:   a(n) = (24*n^4 + 32*n^3 + 24*n^2 + 16*n + 3)/3
- * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 150, u64 n <= 10000,
- *            u128 n <= 10000, big any n
+ * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 33, u64 n <= 33, u128 n <= 33,
+ *            big any n
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

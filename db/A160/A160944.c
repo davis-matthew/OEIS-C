@@ -8,11 +8,13 @@
  *            digital sum of x
  * Range:     u8 n <= 6, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 
 seq_t a(idx_t n)

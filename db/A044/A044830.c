@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   even_runs_more
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,34 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/even_runs_more.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑4 representation of x has more even‑length
+   runs than odd‑length runs. */
+static bool even_runs_more(seq_t x)
+{
+    int prev_digit = -1;   /* previous digit: -1 means none yet */
+    int run_len   = 0;     /* length of current run */
+    int even = 0, odd = 0; /* counts of even/odd runs */
+
+    while (x > (seq_t)0) {
+        int digit = (int)(x & (seq_t)3);   /* last base‑4 digit (0…3) */
+        if (digit == prev_digit) {
+            run_len++;
+        } else {
+            if (prev_digit != -1) {
+                if ((run_len & 1) == 0) even++; else odd++;
+            }
+            prev_digit = digit;
+            run_len = 1;
+        }
+        x >>= 2;                   /* divide by 4 */
+    }
+    if (prev_digit != -1) {
+        if ((run_len & 1) == 0) even++; else odd++;
+    }
+    return even > odd;
+}
 
 /* Return a(n), the n‑th positive integer with the property above.  The
    function keeps an internal cache so that calls in any order remain
@@ -39,10 +67,9 @@ seq_t a(idx_t n)
         if (even_runs_more(next_candidate)) {
             if (cache_used == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                               new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
-                    free(cache);
+                    mem_free(cache);
                     cache = NULL;
                     cache_used = 0;
                     cache_cap = 0;

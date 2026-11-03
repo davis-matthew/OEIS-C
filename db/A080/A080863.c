@@ -8,7 +8,8 @@
  * Formula:   a(n) = numbers k such that lpf(k)-2 = lpf(k+2)
  * Range:     u8 n <= 9, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* storage for the dynamic data */
 static struct {
@@ -38,7 +40,7 @@ static void growTerms(void)
 {
     if (data.termsSize == data.termsCap) {
         size_t newCap = data.termsCap ? data.termsCap * 2 : 4;
-        seq_t *newPtr = (seq_t *)realloc(data.terms, newCap * sizeof(seq_t));
+        seq_t *newPtr = mem_resize(seq_t, data.terms, newCap);
         if (!newPtr) abort();
         data.terms = newPtr;
         data.termsCap = newCap;

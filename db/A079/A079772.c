@@ -12,7 +12,8 @@
  *            arbitrary order
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   extend_array
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/extend_array.h"
+
+/* ------------------------------------------------------------ */
+static void extend_array(uint64_t **arr, size_t *cap, size_t required)
+{
+    if (*cap >= required) return;
+    size_t new_cap = (*cap == 0) ? 8 : *cap * 2;
+    while (new_cap < required) new_cap <<= 1;
+    uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(uint64_t));
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* == Internal dynamic arrays == */
 

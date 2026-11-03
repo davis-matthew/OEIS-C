@@ -9,14 +9,20 @@
  *            grow B until at least n terms are known
  * Range:     u8 n <= 1, u16 n <= 18, u32 n <= 2659, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   A3394_cmp
+ * Validated: standard, pass, 54 terms through n = 9829 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/A3394_cmp.h"
+
+static int A3394_cmp(const void *x, const void *y)
+{
+	uint64_t u = *(const uint64_t *)x, v = *(const uint64_t *)y;
+	return (u > v) - (u < v);
+}
 
 static uint64_t *A3394_vals = NULL;
 static idx_t A3394_cnt = 0;

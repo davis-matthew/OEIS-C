@@ -8,6 +8,7 @@
  *            prime q
  * Range:     u8 n <= 2574, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 101 terms through n = 9508 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,7 @@
  * smallest admissible p is fast enough. */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
 
 /* Return the value of the sequence at index n (n >= 3).  For indices
  * below the offset the function returns 0; the value is not defined. */

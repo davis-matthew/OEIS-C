@@ -7,22 +7,24 @@
  * Formula:   a(n) = (n+1) * Sum_{k=1}^{n-1} a(k) * a(n-k), a(1)=1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 466 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper to grow the cache as needed */
 static void ensure_cache(idx_t n, seq_t **cache, size_t *cap) {
     if (*cache == NULL) {
         *cap = (size_t)n + 1;
-        *cache = (seq_t*)malloc((*cap) * sizeof(seq_t));
+        *cache = mem_new(seq_t, (*cap));
     } else if (*cap <= (size_t)n) {
         size_t new_cap = *cap * 2;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
-        *cache = (seq_t*)realloc(*cache, new_cap * sizeof(seq_t));
+        *cache = mem_resize(seq_t, *cache, new_cap);
         *cap = new_cap;
     }
 }

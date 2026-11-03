@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   cmp_long
+ * Validated: full, pass, 56 terms through n = 56 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/cmp_long.h"
+
+/* Comparison function for qsort on signed 64‑bit integers. */
+static int cmp_long(const void *a, const void *b) {
+    long long va = *(const long long *)a;
+    long long vb = *(const long long *)b;
+    return (va > vb) - (va < vb);
+}
 
 /* Check that all entries in the difference triangle of arr[0..len-1] are distinct. */
 static bool triangle_distinct(const seq_t *arr, size_t len) {

@@ -7,12 +7,14 @@
  * Formula:   a(n) = -a(n-1) + a(n-2) - a(n-3), a(0)=1, a(1)=-2, a(2)=3
  * Range:     i8 n <= 8, i16 n <= 17, i32 n <= 35, i64 n <= 71, i128 n <= 144,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* dynamic cache for all values that have already been computed  */
 static seq_t *cache          = NULL;           /* array of seq_t values          */
@@ -26,7 +28,7 @@ static void init_cache(void)
         return;
     cache_cap = 3;
     cache_len = 3;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (cache == NULL)      /* allocation failure – give up */
         return;
     cache[0] = (seq_t)1;
@@ -42,7 +44,7 @@ static void ensure_capacity(idx_t n)
     /* need capacity for indices 0..n inclusive */
     while (n >= cache_cap) {
         idx_t new_cap = cache_cap == 0 ? 4 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)      /* realloc failed – leave as is */
             return;
         cache = tmp;

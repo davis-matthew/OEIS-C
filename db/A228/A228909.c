@@ -7,22 +7,24 @@
  * Formula:   a(n) = 7^n - 6*6^n + 15*5^n - 20*4^n + 15*3^n - 6*2^n + 1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 40 terms through n = 888 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
     /* Compute the powers once */
-    seq_t p7 = pow_seq((seq_t)7, (int)n);
-    seq_t p6 = pow_seq((seq_t)6, (int)n);
-    seq_t p5 = pow_seq((seq_t)5, (int)n);
-    seq_t p4 = pow_seq((seq_t)4, (int)n);
-    seq_t p3 = pow_seq((seq_t)3, (int)n);
-    seq_t p2 = pow_seq((seq_t)2, (int)n);
+    seq_t p7 = ipow_i32((seq_t)7, (int)n);
+    seq_t p6 = ipow_i32((seq_t)6, (int)n);
+    seq_t p5 = ipow_i32((seq_t)5, (int)n);
+    seq_t p4 = ipow_i32((seq_t)4, (int)n);
+    seq_t p3 = ipow_i32((seq_t)3, (int)n);
+    seq_t p2 = ipow_i32((seq_t)2, (int)n);
 
     /* Evaluate the linear combination */
     seq_t result = p7;

@@ -12,6 +12,7 @@
  *            (x+1) * ∏_{d|n,d>1} f_d(x)^2 and for even n, T_n(x)+1 = ∏_{...
  * Range:     u8 n <= 2049, u16 n <= 2049, u32 n <= 2049, u64 n <= 2049,
  *            u128 n <= 2049, big any n
+ * Validated: standard, pass, 119 terms through n = 2042 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

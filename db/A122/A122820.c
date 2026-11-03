@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external integer types supplied by the build system */
 typedef uint64_t idx_t;   /* index type */
@@ -45,7 +47,7 @@ static void grow_primes(void) {
 static void grow_prefix(void) {
     if (prefix_cap == 0) prefix_cap = 32;
     else                prefix_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(prefix, prefix_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prefix, prefix_cap);
     if (!tmp) exit(EXIT_FAILURE);
     prefix = tmp;
 }
@@ -134,7 +136,7 @@ static void init(void) {
     if (!primes) exit(EXIT_FAILURE);
 
     prefix_cap = 32;
-    prefix = (seq_t *)malloc(prefix_cap * sizeof(seq_t));
+    prefix = mem_new(seq_t, prefix_cap);
     if (!prefix) exit(EXIT_FAILURE);
     prefix[0] = (seq_t)0;
     prefix_size = 1;

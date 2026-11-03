@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = 1 + [2|n] + [3|n] (number of divisors of n that are ≤ 3)
- * Range:     u8 n <= 9474, u16 n <= 9474, u32 n <= 9474, u64 n <= 9474,
- *            u128 n <= 9474, big any n
+ * Range:     u8 n <= 12000, u16 n <= 12000, u32 n <= 12000, u64 n <= 12000,
+ *            u128 n <= 12000, big any n
+ * Validated: standard, pass, 106 terms through n = 9474 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

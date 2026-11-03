@@ -8,7 +8,8 @@
  *            (unrestricted partitions using only divisors of n that are < n)
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 239, u64 n <= 839,
  *            u128 n <= 4679, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9739 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Function must match the required signature */
 seq_t a(idx_t n)
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Allocate temporary partition DP table of size n+1 */
     size_t dp_len = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(dp_len * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_len);
     if (!dp) {
         free(divs);
         return (seq_t)0;          /* allocation failed */
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     seq_t result = dp[(size_t)n];
 
     /* Clean up */
-    free(dp);
+    mem_free(dp);
     free(divs);
 
     return result;

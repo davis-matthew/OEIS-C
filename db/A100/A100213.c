@@ -8,13 +8,15 @@
  * Formula:   For n = 2k-1 (odd): a(n) = 2^(k-3) * (2^(k+2) + 5 + (-1)^k -
  *            6*cos(kπ/2) + 4*sin(kπ/2)) For n = 2k (even): a(n) = 2^(k-2) *
  *            (2^(k+2) + 3 - 2*(-1)^k - cos(kπ/2) + 5*sin(kπ/2))
- * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 33, u128 n <= 33,
+ * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 800 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

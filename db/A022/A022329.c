@@ -8,6 +8,7 @@
  * Formula:   a(n) = exponent of 3 in the n‑th number of the form 2^i * 3^j
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 123 terms through n = 9138 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

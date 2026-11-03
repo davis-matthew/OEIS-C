@@ -10,12 +10,14 @@
  *            function x*(1+x^3)/((1+x^2)*(1-x)^3)
  * Range:     u8 n <= 22, u16 n <= 362, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 863 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Allocate (and grow) cache if needed */
     if (dp_capacity == 0) {
         dp_capacity = 64;
-        dp = (seq_t *)malloc(dp_capacity * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_capacity);
         dp[0] = 0;                 /* a(0) */
         dp_size = 1;
     }
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         /* Grow to at least n+1 */
         if (dp_capacity <= n) {
             while (dp_capacity <= n) dp_capacity <<= 1;
-            dp = (seq_t *)realloc(dp, dp_capacity * sizeof(seq_t));
+            dp = mem_resize(seq_t, dp, dp_capacity);
         }
         for (idx_t i = dp_size; i <= n; ++i) {
             /* Helper values (default 0 for negative indices) */

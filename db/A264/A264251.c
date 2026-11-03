@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 28, u128 n <= 57,
  *            big any n
- * Helpers:   free_seq
+ * Validated: standard, pass, 37 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,15 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/free_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 #ifdef __cplusplus
 /* When compiled as C++ use new/delete which invoke constructors */

@@ -7,12 +7,14 @@
  * Formula:   a(n) = A000085(n) - ∑_{j=0}^{n-1} A000085(j)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     /* first‑time initialization: compute values for i=0,1 */
     if (max_n == (idx_t)-1) {
         cap = 2;                           /* enough for indices 0 and 1 */
-        I      = (seq_t *)malloc(cap * sizeof(seq_t));
-        prefix = (seq_t *)malloc(cap * sizeof(seq_t));
+        I      = mem_new(seq_t, cap);
+        prefix = mem_new(seq_t, cap);
         if (!I || !prefix) {
             /* allocation failed – return 0 (unlikely on valid builds) */
             return (seq_t)0;
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
     if (n > max_n) {
         size_t new_cap = (size_t)n + 1;
         if (new_cap > cap) {
-            seq_t *tmpI  = (seq_t *)realloc(I,     new_cap * sizeof(seq_t));
-            seq_t *tmpP  = (seq_t *)realloc(prefix, new_cap * sizeof(seq_t));
+            seq_t *tmpI  = mem_resize(seq_t, I, new_cap);
+            seq_t *tmpP  = mem_resize(seq_t, prefix, new_cap);
             if (!tmpI || !tmpP) {
                 /* reallocation failed – return 0 */
                 return (seq_t)0;

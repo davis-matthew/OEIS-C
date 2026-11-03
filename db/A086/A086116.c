@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac
  * Formula:   a(n) = numerator( n * binomial(n-1, floor(n/2)) / 2^(n-1) )
- * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 33, u128 n <= 33,
+ * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   binomial, exp_fact2
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,18 @@
 /* Implements the simplified reduction exploiting only powers of two. */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/exp_fact2.h"
+
+/* Legendre's formula: exponent of 2 in n! */
+static idx_t exp_fact2(idx_t n) {
+    idx_t exp = 0;
+    while (n > 0) {
+        n >>= 1;
+        exp += n;
+    }
+    return exp;
+}
 
 seq_t a(idx_t n) {
     /* n >= 1 according to the sequence offset */

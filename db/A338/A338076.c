@@ -7,7 +7,8 @@
  * Formula:   a(n) = 6^n * (3*n)! / (n!)^3
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 18,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 31 terms through n = 247 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr)
 {
@@ -27,7 +30,7 @@ static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr)
     size_t new_cap = (*cap_ptr > 0) ? (*cap_ptr * 2) : 1;
     while (new_cap < needed)
         new_cap <<= 1;
-    *cache_ptr = (seq_t *)realloc(*cache_ptr, new_cap * sizeof(seq_t));
+    *cache_ptr = mem_resize(seq_t, *cache_ptr, new_cap);
     *cap_ptr = new_cap;
 }
 

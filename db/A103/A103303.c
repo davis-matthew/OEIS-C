@@ -8,12 +8,19 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   pow10_idx
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10_idx.h"
+static seq_t pow10_idx(idx_t exp)
+{
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= 10;
+    return res;
+}
 /*  a(n) = the n-th digit in the infinite string
      S = "0123456789101112…",
      obtained by concatenating the decimal representations of all

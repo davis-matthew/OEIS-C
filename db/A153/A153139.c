@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   is_prime_3digit
+ * Validated: standard, pass, 49 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,13 +24,25 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_3digit.h"
+#include "../utils/mem.h"
+
+/* static helper to check primality of numbers up to 999 */
+static bool is_prime_3digit(int x)
+{
+    if (x < 100) return false;
+    if (x % 2 == 0) return x == 2;
+    if (x % 3 == 0) return x == 3;
+    for (int d = 5; d * d <= x; d += 6) {
+        if (x % d == 0 || x % (d + 2) == 0) return false;
+    }
+    return true;
+}
 
 /* build the list of all n satisfying the property, once */
 static void build_sequence(seq_t **out, size_t *cnt)
 {
     size_t capacity = 64;          /* enough for 60 elements */
-    seq_t *arr = (seq_t *)malloc(capacity * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, capacity);
     size_t length = 0;
 
     for (uint64_t n = 10000; n <= 31622; ++n) {
@@ -42,7 +55,7 @@ static void build_sequence(seq_t **out, size_t *cnt)
         if (is_prime_3digit(p1) && is_prime_3digit(p2) && is_prime_3digit(p3)) {
             if (length == capacity) {
                 capacity *= 2;
-                arr = (seq_t *)realloc(arr, capacity * sizeof(seq_t));
+                arr = mem_resize(seq_t, arr, capacity);
             }
             arr[length++] = (seq_t)n;
         }

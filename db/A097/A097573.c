@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /*  OEIS A097573 – denominator of f(n) where  
     f(1) = 1,  f(n+1) = n^2/f(n) + f(n)/n^2 + 2 */
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of previously computed denominators */
@@ -29,7 +32,7 @@ seq_t a(idx_t n) {
     /* initialise on first call */
     if (!denom) {
         denom_cap = 4;                       /* arbitrary small start size          */
-        denom = (seq_t*)malloc(denom_cap * sizeof(seq_t));
+        denom = mem_new(seq_t, denom_cap);
         if (!denom) return 0;                /* out‑of‑memory → 0 (should not happen) */
         denom[1] = 1;                        /* a(1) = 1                              */
     }
@@ -38,7 +41,7 @@ seq_t a(idx_t n) {
     while ((size_t)n >= denom_cap) {
         size_t new_cap = denom_cap * 2;
         if ((size_t)n + 1 > new_cap) new_cap = n + 1;
-        denom = (seq_t*)realloc(denom, new_cap * sizeof(seq_t));
+        denom = mem_resize(seq_t, denom, new_cap);
         denom_cap = new_cap;
     }
 

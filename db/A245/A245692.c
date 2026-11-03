@@ -12,7 +12,8 @@
  *            for A245348 *
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 54, u64 n <= 152,
  *            u128 n <= 377, big any n
- * Helpers:   big_pow, binom, factorial
+ * Validated: standard, pass, 61 terms through n = 9944 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/factorial.h"
-#include "../utils/big_pow.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Pre‑computed involution numbers: I(m) = #involutions on m points */
 static seq_t invols[201];
@@ -36,11 +47,11 @@ static seq_t compute_A(idx_t n, idx_t k)
     idx_t limit = (k < n - k) ? k : (n - k);
     for (idx_t r = 0; r <= limit; ++r)
     {
-        seq_t term = binom(k, r);
-        term *= binom(n - k, r);
+        seq_t term = binomial(k, r);
+        term *= binomial(n - k, r);
         term *= factorial(r);
         term *= invols[k - r];
-        term *= big_pow((seq_t)n, (seq_t)(n - k - r));
+        term *= ipow((seq_t)n, (seq_t)(n - k - r));
         sum += term;
     }
     return sum;

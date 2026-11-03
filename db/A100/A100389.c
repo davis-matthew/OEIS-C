@@ -7,12 +7,14 @@
  * Formula:   a(n) = Bell(n) - Fibonacci(n)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct { seq_t a; seq_t b; } FibPair;
 
@@ -35,7 +37,7 @@ static FibPair fib_pair(idx_t n)
 seq_t a(idx_t n)
 {
     /* Compute Bell(n) via recurrence B_{m+1} = Σ_{k=0}^{m} C(m,k) B_k */
-    seq_t *B = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *B = mem_new(seq_t, (n + 1));
     if (!B) return (seq_t)0;          /* allocation failure → 0 */
     B[0] = (seq_t)1;
     for (idx_t m = 0; m < n; ++m) {
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         B[m + 1] = sum;
     }
     seq_t bell_n = B[n];
-    free(B);
+    mem_free(B);
 
     /* Compute Fibonacci(n) */
     seq_t fib_n = fib_pair(n).a;

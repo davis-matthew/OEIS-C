@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3999, u32 n <= 3999, u64 n <= 3999,
  *            u128 n <= 3999, big any n
+ * Validated: full, pass, 3999 terms through n = 3999 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -39,7 +40,7 @@ static void int_to_roman(unsigned n, char *dest)
 
 struct Entry {
     int     val;
-    char    s[12];
+    char    s[16];          /* MMMDCCCLXXXVIII has 15 */
 };
 
 static int cmp_entry(const void *a, const void *b)

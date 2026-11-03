@@ -8,13 +8,26 @@
  *            fibonomial(n,k)
  * Range:     u8 n <= 22, u16 n <= 39, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial, fib
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/fib.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* Compute the Fibonomial coefficient {n choose k}_F = n!_F / (k!_F (n-k)!_F) */
 /* The expression is product_{i=1..k} F_{n-k+i} / F_i, which remains integer at each step. */

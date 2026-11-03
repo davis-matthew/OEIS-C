@@ -10,6 +10,7 @@
  *            Sum_{k=1..m} s(k)*r(m-k+1) with s(k) = Sum_{d|k} d*r(d)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 17, u64 n <= 28, u128 n <= 50,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 963 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

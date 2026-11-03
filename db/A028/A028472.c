@@ -11,7 +11,8 @@
  *            are pre‑computed once by a depth‑first search...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define WIDTH 10
 #define STATES (1 << WIDTH)
@@ -81,7 +83,7 @@ static void ensure_memo_capacity(idx_t needed)
     if (needed < memo_cap) return;
     idx_t new_cap = memo_cap ? memo_cap * 2 : 16;
     while (new_cap <= needed) new_cap <<= 1;
-    seq_t *new_mem = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_cap);
     if (!new_mem) return;  /* allocation failure – terminate silently */
     memo = new_mem;
     memo_cap = new_cap;
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
 
     /* Initialise DP state if first call */
     if (cur_col == 0) {
-        memset(cur, 0, sizeof(cur));
+        mem_set(cur, 0, sizeof(cur));
         cur[0] = 1;
         /* initialise memo */
         memo = NULL;
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
 
     /* Extend memo and compute DP up to n */
     for (idx_t col = cur_col + 1; col <= n; ++col) {
-        memset(next, 0, sizeof(next));
+        mem_set(next, 0, sizeof(next));
 
         for (int m = 0; m < STATES; ++m) {
             seq_t val = cur[m];
@@ -121,7 +123,7 @@ seq_t a(idx_t n)
                 next[t] += val * (seq_t)cnt;
             }
         }
-        memcpy(cur, next, sizeof(cur));
+        mem_copy(cur, next, sizeof(cur));
 
         /* Memoise result for this n */
         ensure_memo_capacity(col);

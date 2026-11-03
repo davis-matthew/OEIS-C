@@ -10,13 +10,15 @@
  *            1,2,3,…
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     for (idx_t num = 1; count < target; ++num)
     {
-        idx_t len = floor_log2_uint64(num) + 1;   /* bit length of num */
+        idx_t len = ilog2(num) + 1;   /* bit length of num */
 
         for (idx_t bit = 0; bit < len && count < target; ++bit)
         {

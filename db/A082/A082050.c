@@ -7,14 +7,36 @@
  * Formula:   a(n) = Σ_{d|n, d%3!=1} d (sum of divisors of n not ≡1 mod 3)
  * Range:     u8 n <= 107, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dfs_rec
+ * Validated: standard, pass, 88 terms through n = 9007 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/dfs_rec.h"
+
+/* Recursive helper to enumerate all divisors using the factorization.
+   pr[]   : array of prime factors (uint64_t)
+   exps[] : corresponding exponents
+   count  : number of distinct prime factors
+   idx    : current recursion depth
+   current: current divisor value built so far
+   sum    : pointer to running sum of qualifying divisors */
+static void dfs_rec(const uint64_t *pr, const int *exps, int count,
+                    int idx, seq_t current, seq_t *sum)
+{
+    if (idx == count) {
+        if ((current % (seq_t)3) != (seq_t)1)
+            *sum += current;
+        return;
+    }
+    seq_t val = current;
+    for (int k = 0; k <= exps[idx]; ++k) {
+        dfs_rec(pr, exps, count, idx + 1, val, sum);
+        val *= (seq_t)pr[idx];
+    }
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

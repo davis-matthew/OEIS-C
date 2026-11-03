@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac
  * Formula:   a(n) = sigma(n) / gcd(sigma(n), sum_{d|n} sigma(d))
- * Range:     u8 n <= 59, u16 n <= 9863, u32 n <= 9863, u64 n <= 9863,
- *            u128 n <= 9863, big any n
- * Helpers:   gcd, sigma_of
+ * Range:     u8 n <= 59, u16 n <= 19999, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 85 terms through n = 9863 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,21 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/sigma_of.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Integer square‑root (floor) for uint64_t, no overflow. */
 static uint64_t u64_sqrt(uint64_t x)

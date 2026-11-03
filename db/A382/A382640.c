@@ -9,12 +9,14 @@
  *            24*binomial(n,3) + 9*binomial(n,2) + 3*n + 1
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 58, u64 n <= 2300,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 49 terms through n = 9998 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Computes A382640: number of words of length n over 4 symbols

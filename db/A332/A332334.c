@@ -10,15 +10,17 @@
  *            a(1)=a(2)=1
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   build_primes_upto, phi
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   build_primes_upto, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/phi.h"
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/totient.h"
 
 /* Static storage for the list of primes up to the largest φ(n) seen so far */
 static uint64_t *primes = NULL;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 {
     if (n <= 2) return (seq_t)1;
 
-    seq_t phi_val = phi(n);
+    seq_t phi_val = totient(n);
     idx_t phi_idx = (idx_t)phi_val;           /* φ(n) fits in idx_t for n ≤ 10000 */
     ensure_primes(phi_idx);
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^k where k = floor((sqrt(8*n+1)+1)/2)
  * Range:     u8 n <= 27, u16 n <= 119, u32 n <= 495, u64 n <= 2015,
  *            u128 n <= 8127, big any n
+ * Validated: standard, pass, 71 terms through n = 8121 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

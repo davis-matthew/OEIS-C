@@ -13,14 +13,29 @@
  *            an...
  * Range:     u8 n <= 42, u16 n <= 87, u32 n <= 203, u64 n <= 485,
  *            u128 n <= 1210, big any n
- * Helpers:   _compute_T
+ * Validated: standard, pass, 82 terms through n = 8686 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_compute_T.h"
+
+/* Compute T(n,k) = Sum_{j=0..n} floor(j/3) * k^(n-j). */
+static seq_t _compute_T(int n, int k)
+{
+    seq_t sum   = 0;
+    seq_t power = 1;          /* k^(n-j) for current j, starting j=n. */
+
+    for (int j = n; j >= 0; --j) {
+        int m = j / 3;
+        if (m != 0)
+            sum += (seq_t)m * power;
+        power *= (seq_t)k;
+    }
+    return sum;
+}
 
 /* Find the diagonal number d (0‑based) for a given zero‑based index idx:
    smallest d such that (d+1)*(d+2)/2 > idx.  Uses 128‑bit arithmetic

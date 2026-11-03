@@ -8,19 +8,21 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/2⌋} 5^(n-2k) * C(n+1, n-2k) * C(2k+1, k)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 38 terms through n = 781 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Implementation uses multiplicative recurrence for the binomials.
    The computation is exact for any seq_t implementation provided.   */
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
     /* 5^n  */
-    seq_t pow5 = pow_seq((seq_t)5, (int)n);
+    seq_t pow5 = ipow_i32((seq_t)5, (int)n);
 
     /* cumulative sum of terms   */
     seq_t total = (seq_t)0;

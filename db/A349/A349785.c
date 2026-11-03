@@ -7,14 +7,18 @@
  * Formula:   a(n) = 1 + Product_{d|n, d < n} a(d)^phi(n/d)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 15, u64 n <= 23, u128 n <= 35,
  *            big any n
- * Helpers:   big_pow, calc_phi
+ * Validated: standard, pass, 43 terms through n = 161 (2026-11-03)
+ * Helpers:   ipow, mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +29,7 @@ seq_t a(idx_t n)
 
     if (n > cap) {
         size_t new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;               /* out of memory */
         for (size_t i = cap; i < new_cap; ++i) tmp[i] = 0;
         cache = tmp;
@@ -46,8 +50,8 @@ seq_t a(idx_t n)
             if (d1 < n) {
                 seq_t val = (d1 == 1) ? 2 : cache[d1 - 1];
                 if (d1 > 1 && val == 0) val = a(d1);
-                seq_t phi = calc_phi((seq_t)(n / d1));
-                seq_t pow = big_pow(val, phi);
+                seq_t phi = totient_seq((seq_t)(n / d1));
+                seq_t pow = ipow(val, phi);
                 prod *= pow;
             }
 
@@ -55,8 +59,8 @@ seq_t a(idx_t n)
             if (d2 != d1 && d2 < n) {
                 seq_t val = (d2 == 1) ? 2 : cache[d2 - 1];
                 if (d2 > 1 && val == 0) val = a(d2);
-                seq_t phi = calc_phi((seq_t)(n / d2));
-                seq_t pow = big_pow(val, phi);
+                seq_t phi = totient_seq((seq_t)(n / d2));
+                seq_t pow = ipow(val, phi);
                 prod *= pow;
             }
         }

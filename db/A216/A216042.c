@@ -11,7 +11,8 @@
  *            max_{1≤j≤n} s2(2j) and odd_j is the odd part of (2j)!...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   popcount_u64
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem, popcount
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/popcount_u64.h"
+#include "../utils/popcount.h"
+#include "../utils/mem.h"
 
 /* helper: popcount for 64‑bit */
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
     /* initialise on first call */
     if (!ks) {
         ks_cap = 16;
-        ks = (seq_t*)malloc(ks_cap * sizeof(seq_t));
+        ks = mem_new(seq_t, ks_cap);
         ks[0] = (seq_t)1;   /* k = 1 (n = 0) */
         ks_size = 1;
     }
@@ -59,7 +61,7 @@ seq_t a(idx_t n) {
 
         /* compute s2(2n) */
         uint64_t two_n = (uint64_t)2 * cur_n;
-        int s2 = popcount_u64(two_n);
+        int s2 = popcount(two_n);
 
         /* if maximum increases, shift the running sum */
         if ((unsigned int)s2 > cur_M) {
@@ -95,7 +97,7 @@ seq_t a(idx_t n) {
             seq_t new_k = (seq_t)(cur_n + 1);
             if (ks_size >= ks_cap) {
                 size_t new_cap = ks_cap * 2;
-                ks = (seq_t*)realloc(ks, new_cap * sizeof(seq_t));
+                ks = mem_resize(seq_t, ks, new_cap);
                 ks_cap = new_cap;
             }
             ks[ks_size++] = new_k;

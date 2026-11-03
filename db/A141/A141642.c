@@ -8,14 +8,15 @@
  *            number
  * Range:     u8 n <= 65, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 76 terms through n = 674 (2026-11-01)
  * Helpers:   digit_sum, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
 #include "../utils/digit_sum.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {

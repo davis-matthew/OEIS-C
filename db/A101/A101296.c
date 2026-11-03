@@ -7,9 +7,10 @@
  * Formula:   a(n) = rank of the prime–signature of n. * The rank is the
  *            position (1‑based) of the least representative of * that
  *            signature when all least representatives are ordered by value
- * Range:     u8 n <= 2943, u16 n <= 9510, u32 n <= 9510, u64 n <= 9510,
- *            u128 n <= 9510, big any n
- * Helpers:   extract_signature
+ * Range:     u8 n <= 2943, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 136 terms through n = 9510 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,33 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/extract_signature.h"
+
+/* --------- factorisation and signature extraction ----------------------- */
+static void extract_signature(idx_t n, uint8_t *exps, uint8_t *len_out) {
+    uint8_t len = 0;
+    uint64_t x  = n;
+    /* factor 2 */
+    uint8_t cnt = 0;
+    while ((x & 1ULL) == 0) { cnt++; x >>= 1; }
+    if (cnt) exps[len++] = cnt;
+    /* odd factors */
+    uint64_t p = 3;
+    while (p * p <= x) {
+        cnt = 0;
+        while (x % p == 0) { cnt++; x /= p; }
+        if (cnt) exps[len++] = cnt;
+        p += 2;
+    }
+    if (x > 1) exps[len++] = 1;
+    /* bubble sort (len ≤ 16) */
+    for (uint8_t i = 1; i < len; ++i) {
+        uint8_t key = exps[i];
+        uint8_t j = i;
+        while (j > 0 && exps[j-1] > key) { exps[j] = exps[j-1]; --j; }
+        exps[j] = key;
+    }
+    *len_out = len;
+}
 
 /* --------- small prime list, enough for signature lengths we need -------- */
 static const uint64_t small_primes[] = {

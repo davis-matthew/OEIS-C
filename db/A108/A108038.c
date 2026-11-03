@@ -8,8 +8,9 @@
  *            F(0)=0, F(1)=1). a(n) is the entry read row‑wise from this
  *            triangle. The implementation computes the Fibonacci values by
  *            fast doubling and then evaluates the formula
- * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
- *            big any n
+ * Range:     u8 n <= 78, u16 n <= 300, u32 n <= 1128, u64 n <= 4371,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 90 terms through n = 9896 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

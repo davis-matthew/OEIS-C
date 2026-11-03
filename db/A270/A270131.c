@@ -10,6 +10,7 @@
  *            even, a(n) = (4*n^3+18*n^2+23*n-15)/6 for n>2 odd
  * Range:     u8 n <= 2, u16 n <= 24, u32 n <= 128, u64 n <= 128,
  *            u128 n <= 128, big any n
+ * Validated: standard, pass, 59 terms through n = 122 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            recurrence given in the OEIS entry)
  * Range:     i8 none, i16 n <= 1, i32 n <= 3, i64 n <= 8, i128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 416 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build environment. */
 static seq_t *a_cache   = NULL;   /* a(n)  */
@@ -32,22 +34,22 @@ static void extend_cache(idx_t n)
 
     /* Allocate new, zero‑initialised arrays of size n+1 (indices 0..n). */
     size_t sz = (size_t)(n + 1);
-    seq_t *new_a     = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *new_sigma = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *new_e4    = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *new_a     = mem_new(seq_t, sz);
+    seq_t *new_sigma = mem_new(seq_t, sz);
+    seq_t *new_e4    = mem_new(seq_t, sz);
     if (!new_a || !new_sigma || !new_e4) {
         /* In the unlikely event of allocation failure, abort. */
         abort();
     }
-    memset(new_a,     0, sz * sizeof(seq_t));
-    memset(new_sigma, 0, sz * sizeof(seq_t));
-    memset(new_e4,    0, sz * sizeof(seq_t));
+    mem_set(new_a, 0, sz * sizeof(seq_t));
+    mem_set(new_sigma, 0, sz * sizeof(seq_t));
+    mem_set(new_e4, 0, sz * sizeof(seq_t));
 
     /* Copy existing values into the new arrays. */
     if (cache_n > 0) {
-        memcpy(new_a,     a_cache,     (size_t)(cache_n + 1) * sizeof(seq_t));
-        memcpy(new_sigma, sigma_cache, (size_t)(cache_n + 1) * sizeof(seq_t));
-        memcpy(new_e4,    e4_cache,    (size_t)(cache_n + 1) * sizeof(seq_t));
+        mem_copy(new_a, a_cache, (size_t)(cache_n + 1) * sizeof(seq_t));
+        mem_copy(new_sigma, sigma_cache, (size_t)(cache_n + 1) * sizeof(seq_t));
+        mem_copy(new_e4, e4_cache, (size_t)(cache_n + 1) * sizeof(seq_t));
     }
 
     /* Compute σ_3 values for all indices up to n. */
@@ -80,9 +82,9 @@ static void extend_cache(idx_t n)
     }
 
     /* Replace old arrays with the new ones. */
-    free(a_cache);
-    free(sigma_cache);
-    free(e4_cache);
+    mem_free(a_cache);
+    mem_free(sigma_cache);
+    mem_free(e4_cache);
     a_cache     = new_a;
     sigma_cache = new_sigma;
     e4_cache    = new_e4;

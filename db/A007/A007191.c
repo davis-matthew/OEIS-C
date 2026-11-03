@@ -12,16 +12,44 @@
  *            Product_{k odd} (1 - x^k), then P^24 = P^16 * P^8 by repeated...
  * Range:     i8 n <= 0, i16 n <= 3, i32 n <= 14, i64 n <= 56, i128 n <= 217,
  *            big any n
- * Helpers:   alloc_zero, mul_trunc, release, seq_is_big
+ * Validated: standard, pass, 38 terms through n = 4973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/mul_trunc.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static void mul_trunc(seq_t *r, const seq_t *x, const seq_t *y, idx_t L) {
+    idx_t i, j;
+    for (i = 0; i < L; i++) r[i] = 0;
+    for (i = 0; i < L; i++) {
+        if (x[i] == 0) continue;
+        for (j = 0; i + j < L; j++)
+            r[i + j] += x[i] * y[j];
+    }
+}
 
 static seq_t *cache = 0;
 static idx_t clen = 0;

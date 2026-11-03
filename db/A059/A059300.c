@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 39, u32 n <= 98, u64 n <= 266,
  *            u128 n <= 764, big any n
- * Helpers:   binom, binomial_multiplicative
+ * Validated: standard, pass, 71 terms through n = 1218 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
  *      T(r,k) = C(r+1,k) * (r-k+1)^k
  *  (C is the binomial coefficient.)                    */
 
-#include "../utils/binom.h"   /* if available; otherwise we implement binom below */
-#include "../utils/binomial_multiplicative.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
     idx_t k = n - start;
 
     /* binomial part C(r+1,k) */
-    seq_t bin = binomial_multiplicative(r + 1ULL, k);
+    seq_t bin = binomial(r + 1ULL, k);
 
     /* power part (r-k+1)^k */
     seq_t base = (seq_t)(r - k + 1ULL);

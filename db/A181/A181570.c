@@ -8,7 +8,8 @@
  *            the sum of two non‑zero squares in exactly two unordered ways
  * Range:     u8 n <= 2, u16 n <= 26, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   append_candidate, factor_u64, is_prime, isqrt_seq
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,44 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/isqrt_seq.h"
-#include "../utils/append_candidate.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 #ifndef seq_t
 /* seq_t is defined by the build system */

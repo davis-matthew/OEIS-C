@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 46,
  *            big any n
- * Helpers:   alloc_seq_array, digit_counts, digit_len, free_seq_array, pow10
+ * Validated: standard, pass, 30 terms through n = 9551 (2026-11-03)
+ * Helpers:   digit_counts, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +22,31 @@
 #include <stdint.h>
 
 /* utilities for arbitrary‑precision integer and digit handling */
-#include "../utils/alloc_seq_array.h"   /* seq_t *alloc_seq_array(size_t n); */
-#include "../utils/free_seq_array.h"    /* void free_seq_array(seq_t *p); */
-#include "../utils/digit_counts.h"     /* void digit_counts(seq_t x, unsigned char cnt[10]); */
-#include "../utils/digit_len.h"        /* int digit_len(seq_t x); */
-#include "../utils/pow10.h"            /* seq_t pow10(idx_t e); */
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/digit_counts.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* cached sequence values */
 static seq_t *terms   = NULL;   /* array of terms */
@@ -73,7 +94,7 @@ seq_t a(idx_t n)
             if (freq[d] == 0)
                 continue;
             seq_t f   = (seq_t)freq[d];
-            int   flen = digit_len(f);
+            int   flen = num_digits(f);
             seq_t pow  = pow10((idx_t)flen);
             term = term * pow  + f;   /* append frequency */
             term = term * 10      + d;/* append digit itself   */

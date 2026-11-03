@@ -10,12 +10,14 @@
  *            otherwise
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 491 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of already computed a(i) */
 static idx_t cache_size = 0;    /* number of elements stored in cache */
@@ -26,13 +28,13 @@ static void ensure_cache(idx_t n)
     if (n < cache_size) return;
 
     idx_t new_size = n + 1;
-    seq_t *new_arr = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_size);
     if (!new_arr) exit(1);               /* memory failure */
 
     /* copy old entries into new array */
     for (idx_t i = 0; i < cache_size; ++i) new_arr[i] = cache[i];
     /* free the old array */
-    free(cache);
+    mem_free(cache);
     /* replace with the new, larger array */
     cache = new_arr;
 

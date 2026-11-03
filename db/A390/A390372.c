@@ -11,7 +11,8 @@
  *            a(1) = 1
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 3612, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_seq
+ * Validated: standard, pass, 86 terms through n = 9977 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/pow_seq.h"
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_i32.h"
 
 /* Compute the local factor a(p^e) */
 static seq_t local_factor(uint64_t p, uint64_t e)
@@ -32,7 +34,7 @@ static seq_t local_factor(uint64_t p, uint64_t e)
     int exp1 = (int)(2 * t + 2);
 
     seq_t p_seq    = (seq_t)p;
-    seq_t p_pow    = pow_seq(p_seq, exp1);
+    seq_t p_pow    = ipow_i32(p_seq, exp1);
     seq_t denom    = p_seq * p_seq - 1;
     seq_t numerator = (p_pow - 1) * p_seq;
     seq_t term     = numerator / denom;
@@ -41,7 +43,7 @@ static seq_t local_factor(uint64_t p, uint64_t e)
 
     if (e % 4 == 2) {
         int half = (int)(e / 2);
-        seq_t p_half = pow_seq(p_seq, half);
+        seq_t p_half = ipow_i32(p_seq, half);
         result -= p_half;
     }
 

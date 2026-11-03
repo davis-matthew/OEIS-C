@@ -10,13 +10,15 @@
  *            n≥3 a(n)=50·a(n‑1) – 49·a(n‑2)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* external integer types are provided by the build system */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise cache on first use */
     if (!cache) {
         cache_size = 4; /* indices 0..3 are safe */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) exit(1);              /* allocation failure */
         cache[0] = (seq_t)0;              /* unused */
         cache[1] = (seq_t)14;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_size) {
         size_t new_size = cache_size;
         while ((size_t)n >= new_size) new_size <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) exit(1);
         cache = tmp;
         cache_size = new_size;

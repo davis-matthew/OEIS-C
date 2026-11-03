@@ -9,13 +9,18 @@
  *            the binary expansion of k
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   thue_morse_parity
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/thue_morse_parity.h"
+
+static inline int thue_morse_parity(idx_t x)
+{
+    return __builtin_popcountll((unsigned long long)x) & 1;
+}
 
 seq_t a(idx_t n)
 {

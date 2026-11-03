@@ -10,13 +10,15 @@
  *            a(1)=2038,a(2)=21466,a(3)=224698,a(4)=2270854,a(5)=23369314,a(6)=240280270,a(7)=2466606274,a(8)=25348415950,a(9)=2604...
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 16, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t init[13] = {
     (seq_t)2038ULL,
@@ -45,10 +47,10 @@ static void ensure_cache(idx_t n)
     size_t new_len = (size_t)n + 1;   /* 1‑based array */
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        cache = mem_new(seq_t, new_len);
         if (!cache) exit(1);
     } else if (new_len > (size_t)cache_len + 1) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) exit(1);
         cache = tmp;
     }

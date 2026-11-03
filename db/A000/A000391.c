@@ -11,15 +11,19 @@
  *            product, using 1/(1-x^k)^b = Sum_j C(b+j-1,j) x^(kj)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 48, u128 n <= 110,
  *            big any n
- * Helpers:   bseq, lcl_gcd
+ * Validated: standard, pass, 44 terms through n = 478 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/bseq.h"
-#include "../utils/lcl_gcd.h"
+#include "../utils/gcd_u64.h"
+
+static seq_t bseq(idx_t d) {
+    return (seq_t)d * ((seq_t)d + 1) * ((seq_t)d + 2) * ((seq_t)d + 3) / 24;
+}
 
 #define MAXN 20001
 
@@ -42,7 +46,7 @@ static void init_fixed(void) {
         for (j = 1; j <= J; j++) {
             seq_t X = B[j - 1];
             unsigned long long r = (unsigned long long)(long long)(X % (seq_t)j);
-            unsigned long long g = lcl_gcd(r, (unsigned long long)j);
+            unsigned long long g = gcd_u64(r, (unsigned long long)j);
             seq_t q = X / (seq_t)g;
             seq_t y = (bk + (seq_t)(j - 1)) / (seq_t)(j / g);
             B[j] = q * y;

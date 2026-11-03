@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{p^2|n} p^2 (sum of squares of primes that divide n
  *            with exponent at least 2)
- * Range:     u8 n <= 288, u16 n <= 9816, u32 n <= 9816, u64 n <= 9816,
- *            u128 n <= 9816, big any n
+ * Range:     u8 n <= 288, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 107 terms through n = 9816 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

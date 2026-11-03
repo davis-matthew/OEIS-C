@@ -12,7 +12,8 @@
  *            that are <= sqrt(k)
  * Range:     u8 n <= 70, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, rec_sigma_small
+ * Validated: standard, pass, 86 terms through n = 9267 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,30 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/rec_sigma_small.h"
+#include "../utils/mem.h"
+
+/* recursively accumulate sigma_small(k) by exploring divisors <= sqrt_k */
+static void rec_sigma_small(size_t idx,
+                            seq_t cur,
+                            const uint64_t *primes,
+                            const uint64_t *exps,
+                            size_t cnt,
+                            idx_t sqrt_k,
+                            seq_t *sum)
+{
+    if (cur > (seq_t)sqrt_k) return;
+    if (idx == cnt) {
+        *sum += cur;
+        return;
+    }
+    uint64_t p = primes[idx];
+    seq_t prod = cur;
+    for (uint64_t e = 0; e <= exps[idx]; ++e) {
+        if (prod > (seq_t)sqrt_k) break;
+        rec_sigma_small(idx + 1, prod, primes, exps, cnt, sqrt_k, sum);
+        prod *= (seq_t)p;
+    }
+}
 
 /* integer square‑root for 64‑bit values */
 static idx_t isqrt_u64(idx_t n)
@@ -84,7 +108,7 @@ seq_t a(idx_t n)
             /* store the ratio */
             if (ratios_len >= ratios_cap) {
                 size_t new_cap = (ratios_cap == 0) ? 8 : ratios_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(ratios, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, ratios, new_cap);
                 if (!tmp) abort();
                 ratios   = tmp;
                 ratios_cap = new_cap;

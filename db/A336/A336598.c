@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 55, u64 n <= 153,
  *            u128 n <= 406, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 9798 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Utility to compute the starting index of row r in the flat array.  */
 static inline idx_t triangular_start(idx_t r) {
@@ -68,14 +70,14 @@ static void ensure_rows(idx_t needed) {
     /* Allocate or grow the triangle storage.  */
     idx_t new_len = (needed * (needed + 1)) / 2;
     if (triangle == NULL) {
-        triangle = (seq_t*)malloc(sizeof(seq_t) * new_len);
+        triangle = mem_new(seq_t, new_len);
     } else {
-        triangle = (seq_t*)realloc(triangle, sizeof(seq_t) * new_len);
+        triangle = mem_resize(seq_t, triangle, new_len);
     }
 
     /* Allocate or grow the double‑factorial storage.  */
     if (df == NULL) {
-        df = (seq_t*)malloc(sizeof(seq_t) * (needed + 1));
+        df = mem_new(seq_t, (needed + 1));
         /* initialise base cases  */
         df[0] = 1;          /* (-1)!! = 1  */
         if (needed >= 1) {
@@ -83,7 +85,7 @@ static void ensure_rows(idx_t needed) {
             df_rows = 1;
         }
     } else if (needed > df_rows) {
-        df = (seq_t*)realloc(df, sizeof(seq_t) * (needed + 1));
+        df = mem_resize(seq_t, df, (needed + 1));
     }
 
     /* Compute new rows one by one.  */

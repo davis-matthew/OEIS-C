@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t divs[24];
 static bool init = false;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
             }
             pow2 = pow2 * (seq_t)2;
         }
-        qsort(divs, i, sizeof(seq_t), cmp_seq);
+        mem_qsort(divs, i, sizeof(seq_t), cmp_seq);
         init = true;
     }
     if (n <= 24) {

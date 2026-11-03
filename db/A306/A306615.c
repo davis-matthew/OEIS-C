@@ -9,7 +9,8 @@
  *            prime divisor of n^k − 1, or 0 if no such k exists
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64, is_prime, powmod64
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, is_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 /* utilities from the build environment */
-#include "../utils/is_prime.h"
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
-#include "../utils/powmod64.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod_u64.h"
 
 /* least k such that 2n-p is prime with p | n^k-1, else 0 */
 seq_t a(idx_t n)
@@ -57,7 +58,7 @@ seq_t a(idx_t n)
         for (size_t j = 0; j < fcnt; ++j) {
             uint64_t fac = fpr[j];
             while (order % fac == 0 &&
-                   powmod64(NN % p, order / fac, p) == 1) {
+                   powmod_u64(NN % p, order / fac, p) == 1) {
                 order /= fac;
             }
         }

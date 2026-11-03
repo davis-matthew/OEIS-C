@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_all_digits_base6
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
  *  contains all digits 0,1,2,3,4,5 at least once. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_all_digits_base6.h"
+
+/* Helper: test whether a number in base 6 contains all digits 0–5. */
+static bool has_all_digits_base6(seq_t v)
+{
+    unsigned mask = 0;
+    if (v == 0) return false;              /* 0 does not have all digits */
+    while (v) {
+        unsigned d = (unsigned)(v % 6);    /* digit 0–5 */
+        mask |= 1u << d;
+        v /= 6;
+    }
+    return mask == 0x3Fu;                  /* 0b111111 = bits 0–5 set */
+}
 
 /*  Main sequence function. */
 seq_t a(idx_t n)

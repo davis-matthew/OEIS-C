@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = 12*((n-1)/4) + [0,3,8,11][(n-1)%4]
- * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
- *            big any n
+ * Range:     u8 n <= 86, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
+ *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 77 terms through n = 4752 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

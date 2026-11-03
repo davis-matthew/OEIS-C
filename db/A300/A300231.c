@@ -9,9 +9,10 @@
  *            appearance, where A001065(n) = sum of proper divisors of n and
  *            A009194(n) = gcd(n, σ(n)), and the pair is encoded by the Cantor
  *            pairing function: P(x,y) = (x+y)(x+y+1)/2 + y
- * Range:     u8 n <= 47, u16 n <= 1669, u32 n <= 9506, u64 n <= 9506,
- *            u128 n <= 9506, big any n
- * Helpers:   gcd, sum_proper_div
+ * Range:     u8 n <= 47, u16 n <= 1669, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 112 terms through n = 9506 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,39 @@
    Cantor values so that repeated calls to a() are O(1). */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/sum_proper_div.h"
+#include "../utils/mem.h"
+
+/* Compute sum of proper divisors of n (σ(n) - n). */
+static seq_t sum_proper_div(idx_t n)
+{
+    /* Compute σ(n) by prime factorisation. */
+    idx_t tmp = n;
+    seq_t sigma = 1;
+
+    for (idx_t p = 2; p <= tmp / p; ++p) {
+        if (tmp % p == 0) {
+            seq_t term  = 1;      /* (p^0 + p^1 + ... + p^e) */
+            seq_t power = 1;      /* p^k */
+            while (tmp % p == 0) {
+                tmp /= p;
+                power *= (seq_t)p;
+                term += power;
+            }
+            sigma *= term;
+        }
+    }
+    if (tmp > 1) {                  /* remaining prime residue */
+        seq_t residue = (seq_t)tmp;
+        sigma *= (1 + residue);
+    }
+
+    /* σ(n) - n gives the sum of *proper* divisors. */
+    if (n > 0)
+        sigma -= (seq_t)n;
+    return sigma;                   /* returns 0 for n = 1 */
+}
 
 /* Cantor pairing for non‑negative integers. */
 static seq_t cantor_pair(seq_t a, seq_t b)
@@ -36,9 +68,9 @@ static void ensure_cap(seq_t **arr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t newcap = (*cap ? *cap * 2 : 8);
         while (newcap < needed) newcap *= 2;
-        seq_t *newarr = (seq_t*)malloc(newcap * sizeof(seq_t));
+        seq_t *newarr = mem_new(seq_t, newcap);
         for (size_t i = 0; i < *cap; ++i) newarr[i] = (*arr)[i];
-        free(*arr);
+        mem_free(*arr);
         *arr  = newarr;
         *cap  = newcap;
     }

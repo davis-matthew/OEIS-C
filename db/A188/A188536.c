@@ -9,7 +9,8 @@
  *            49 primes whose sum is a multiple of 7
  * Range:     u8 none, u16 n <= 24, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 8280 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Prime generation ----------------------------------------------------
  * A simple sieve up to a fixed limit (≈1.6 M) which produces about
@@ -69,7 +71,7 @@ static void grow_terms(size_t new_cap)
     if (new_cap <= terms_cap) return;
     size_t new_size = terms_cap ? terms_cap * 2 : 128;
     if (new_size < new_cap) new_size = new_cap;
-    seq_t *new_arr = (seq_t *)realloc(terms, new_size * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, terms, new_size);
     if (!new_arr) exit(EXIT_FAILURE);
     terms = new_arr;
     terms_cap = new_size;

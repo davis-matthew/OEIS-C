@@ -9,7 +9,8 @@
  *            the first n primes (the n‑th primorial)
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   get_first_n_primes
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,47 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/get_first_n_primes.h"
+
+/* Return an array containing the first n primes (n >= 1).
+   The array is allocated with malloc and must be freed by the caller. */
+static idx_t* get_first_n_primes(idx_t n)
+{
+    if (n == 0) return NULL;
+
+    /* For n <= 10000 the 200000th number is more than enough (the
+       10000th prime is 104729). */
+    const idx_t limit = 200000;
+    uint8_t *is_composite = (uint8_t*)calloc((size_t)limit + 1, sizeof(uint8_t));
+    if (!is_composite) return NULL;
+
+    idx_t *primes = (idx_t*)malloc((size_t)n * sizeof(idx_t));
+    if (!primes) {
+        free(is_composite);
+        return NULL;
+    }
+
+    size_t found = 0;
+    for (idx_t i = 2; i <= limit && found < n; ++i) {
+        if (!is_composite[i]) {
+            primes[found++] = i;
+            if (i * i <= limit) {
+                for (idx_t j = i * i; j <= limit; j += i)
+                    is_composite[j] = 1;
+            }
+        }
+    }
+
+    free(is_composite);
+
+    /* In the unlikely event we did not find enough primes, grow the limit. */
+    if (found < n) {
+        /* Grow limit and retry. This never happens for n <= 10000. */
+        free(primes);
+        return NULL;
+    }
+
+    return primes;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

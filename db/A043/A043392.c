@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   four_fives_base6
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,21 @@
    four digits equal to 5. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/four_fives_base6.h"
+#include "../utils/mem.h"
+
+/* Helper: true iff v has exactly four 5's in its base‑6 expansion. */
+static bool four_fives_base6(idx_t v)
+{
+    idx_t count = 0;
+    while (v > 0) {
+        if ((v % 6) == 5) {
+            if (++count > 4)
+                return false;
+        }
+        v /= 6;
+    }
+    return count == 4;
+}
 
 /* Ensure that the dynamic array has room for at least need more elements. */
 static void grow_array(seq_t **arr, size_t *cap, size_t need)
@@ -24,7 +39,7 @@ static void grow_array(seq_t **arr, size_t *cap, size_t need)
     size_t new_cap = (*cap > 0) ? *cap : 1;
     while (new_cap < *cap + need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (tmp == NULL)
         exit(EXIT_FAILURE); /* allocation failed */
     *arr = tmp;

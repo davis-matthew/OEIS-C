@@ -9,7 +9,8 @@
  *            positive
  * Range:     u8 none, u16 n <= 4, u32 n <= 12, u64 n <= 28, u128 n <= 60,
  *            big any n
- * Helpers:   det3x3_int
+ * Validated: standard, pass, 36 terms through n = 171 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/det3x3_int.h"
+
+/* r1,r2,r3 are 4‑bit rows (0..15).  col is 0 or 1.                  */
+static int det3x3_int(int r1, int r2, int r3, int col)
+{
+    int a00 = (r1 >> col)     & 1;
+    int a01 = (r1 >> (col+1)) & 1;
+    int a02 = (r1 >> (col+2)) & 1;
+
+    int a10 = (r2 >> col)     & 1;
+    int a11 = (r2 >> (col+1)) & 1;
+    int a12 = (r2 >> (col+2)) & 1;
+
+    int a20 = (r3 >> col)     & 1;
+    int a21 = (r3 >> (col+1)) & 1;
+    int a22 = (r3 >> (col+2)) & 1;
+
+    return a00 * (a11 * a22 - a12 * a21)
+         - a01 * (a10 * a22 - a12 * a20)
+         + a02 * (a10 * a21 - a11 * a20);
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper: 3×3 determinant of rows r1,r2,r3 on columns col..col+2   */

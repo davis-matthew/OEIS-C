@@ -8,7 +8,8 @@
  *            100000000001
  * Range:     u8 n <= 40, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   gcd_u64, insertion_sort_u64, mul_mod_u64, pollard_rho_u64
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
+ * Helpers:   gcd_u64, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,47 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/gcd_u64.h"
-#include "../utils/insertion_sort_u64.h"
-#include "../utils/mul_mod_u64.h"
-#include "../utils/pollard_rho_u64.h"
+#include "../utils/mulmod.h"
+
+/* ------------------------------------------------------------------ */
+static void insertion_sort_u64(uint64_t *a, size_t n)
+{
+    for (size_t i = 1; i < n; ++i)
+    {
+        uint64_t key = a[i];
+        size_t j = i;
+        while (j > 0 && a[j - 1] > key)
+        {
+            a[j] = a[j - 1];
+            --j;
+        }
+        a[j] = key;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+static uint64_t pollard_rho_u64(uint64_t n)
+{
+    if (n % 2ULL == 0)
+        return 2ULL;
+
+    for (uint64_t c = 1; ; ++c)
+    {
+        uint64_t x = 2, y = 2, d = 1;
+        while (d == 1)
+        {
+            x = (mulmod(x, x, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            uint64_t diff = x > y ? x - y : y - x;
+            d = gcd_u64(diff, n);
+        }
+        if (d != n)
+            return d;
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /*  Modular arithmetic for 64‑bit numbers                               */
@@ -31,8 +69,8 @@ static uint64_t pow_mod_u64(uint64_t base, uint64_t exp, uint64_t mod)
     while (exp)
     {
         if (exp & 1)
-            result = mul_mod_u64(result, base, mod);
-        base = mul_mod_u64(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -76,7 +114,7 @@ static bool is_prime_u64(uint64_t n)
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r)
         {
-            x = mul_mod_u64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1)
             {
                 composite = false;

@@ -9,13 +9,15 @@
  *            a(0)=1, a(1)=2, a(2)=7, a(3)=24
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Standard headers */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Internal cache for dynamic programming */
 static seq_t *cache = NULL;    /* growing array of already computed a(n) */
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
             new_cap = need;
         seq_t *tmp;
 #ifdef __cplusplus
-        tmp = static_cast<seq_t*>(realloc(cache, new_cap * sizeof(seq_t)));
+        tmp = mem_resize(seq_t, cache, new_cap);
 #else
         tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
 #endif

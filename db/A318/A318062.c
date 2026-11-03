@@ -10,12 +10,14 @@
  *            a(1)=1, a(2)=5, a(3)=18, a(4)=67. Recurrence holds for all n ≥ 5
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Allocate cache on first call */
     if (cache == NULL)
     {
-        cache = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (N + 1));
         if (cache == NULL) return 0;   /* fallback, should not happen */
         max_n = 0;
     }
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (N > max_n)
     {
         /* Resize array to hold indices up to N */
-        cache = (seq_t*)realloc(cache, (N + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (N + 1));
         if (cache == NULL) return 0;   /* fallback */
 
         /* Compute all new terms */

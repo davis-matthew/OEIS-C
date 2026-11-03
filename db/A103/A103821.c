@@ -7,16 +7,28 @@
  * Formula:   a(0)=1, a(1)=3, a(2)=11; for n≥3, a(n) = ((5n-2)*a(n-1) -
  *            2*a(n-2) - 4*(n-1)*a(n-3)) / n (recurrence found in the OEIS
  *            entry)
- * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 25, u128 n <= 25,
+ * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 29, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>               /* for malloc, realloc, abort */
+#include "../utils/mem.h"
 
-static seq_t *a_cache = NULL;     /* memoised values a(0)..a(len-1) */
+/* the code below runs in wide_t: 128 bits at the fixed widths (never narrower
+   than seq_t), seq_t itself for big, so values that pass 2^64 on the way to a
+   term that fits stay exact; a() returns the term in seq_t */
+#ifdef __cplusplus
+typedef seq_t wide_t;
+#else
+typedef __typeof__((seq_t)0 + (__int128)0) wide_t;
+#endif
+#define seq_t wide_t
+
+static seq_t *a_cache = NULL;     /* memoised values a_wide(0)..a_wide(len-1) */
 static idx_t a_cache_len = 0;     /* number of cached entries */
 
 /* Ensure base values are present */
@@ -24,7 +36,7 @@ static void a_ensure_base(void)
 {
     if (a_cache_len != 0) return;
     a_cache_len = 3;
-    a_cache = (seq_t *)malloc(a_cache_len * sizeof(seq_t));
+    a_cache = mem_new(seq_t, a_cache_len);
     if (!a_cache) abort();
     a_cache[0] = (seq_t)1;
     a_cache[1] = (seq_t)3;
@@ -39,7 +51,7 @@ static void a_ensure_upto(idx_t n)
 
     /* Grow the cache */
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, (size_t)new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, (size_t)new_len);
     if (!tmp) abort();
     a_cache = tmp;
 
@@ -62,7 +74,7 @@ static void a_ensure_upto(idx_t n)
     a_cache_len = new_len;
 }
 
-seq_t a(idx_t n)
+seq_t a_wide(idx_t n)
 {
     /* Return cached term if already computed */
     if (a_cache_len > n && a_cache[n] != 0) {
@@ -72,4 +84,10 @@ seq_t a(idx_t n)
     /* Ensure all needed terms are computed */
     a_ensure_upto(n);
     return a_cache[n];
+}
+
+#undef seq_t
+seq_t a(idx_t n)
+{
+    return (seq_t)a_wide(n);
 }

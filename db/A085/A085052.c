@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/is_prime_small.h"   /* is_prime_small(idx_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Static tables of primes and cumulative sums. */
 static uint64_t *primes = NULL;   /* primes[0] = 2, primes[1] = 3, ... */
@@ -60,7 +62,7 @@ ensure_primes_up_to(idx_t limit)
         if (!is_comp[i]) ++new_cnt;
 
     uint64_t *new_pr = (uint64_t *)malloc(new_cnt * sizeof(uint64_t));
-    seq_t   *new_cum = (seq_t   *)malloc((new_cnt + 1) * sizeof(seq_t));
+    seq_t   *new_cum = mem_new(seq_t, (new_cnt + 1));
     if (!new_pr || !new_cum) abort();
 
     size_t idx = 0;
@@ -75,7 +77,7 @@ ensure_primes_up_to(idx_t limit)
 
     free(is_comp);
     free(primes);
-    free(cum);
+    mem_free(cum);
 
     primes = new_pr;
     primes_cnt = new_cnt;
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
         /* Scan through primes until a suitable prime is found. */
         for (size_t k = 0; k < primes_cnt; ++k) {
             seq_t candidate = (seq_t)n + cum[k + 1];
-            if (candidate > (seq_t)n && is_prime_small((idx_t)candidate))
+            if (candidate > (seq_t)n && is_prime_seq((idx_t)candidate))
                 return candidate;
         }
 

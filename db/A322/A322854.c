@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 51, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   hex_pyramidal
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/hex_pyramidal.h"
+#include "../utils/mem.h"
+
+static seq_t hex_pyramidal(idx_t k)
+{
+    seq_t kk  = (seq_t)k;
+    seq_t term = kk * (kk + 1) * (4 * kk - 1) / 6;
+    return term;
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -35,7 +43,7 @@ static void ensure_cache(idx_t m)
 
     if ((size_t)(m + 1) > cache_cap) {
         size_t new_cap = (m + 1) * 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 
@@ -45,7 +53,7 @@ static void ensure_cache(idx_t m)
             break;
         if (hex_len == hex_cap) {
             size_t new_hex_cap = hex_cap ? hex_cap * 2 : 8;
-            hex_vals = (seq_t *)realloc(hex_vals, new_hex_cap * sizeof(seq_t));
+            hex_vals = mem_resize(seq_t, hex_vals, new_hex_cap);
             hex_cap = new_hex_cap;
         }
         hex_vals[hex_len++] = hp;

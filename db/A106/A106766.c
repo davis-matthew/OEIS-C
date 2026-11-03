@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 283, u32 n <= 7900, u64 n <= 7900,
  *            u128 n <= 7900, big any n
- * Helpers:   _digit_sum_uint64, is_prime_uint64
+ * Validated: standard, pass, 56 terms through n = 7391 (2026-11-03)
+ * Helpers:   digit_sum_u64_to_i32, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_prime_uint64.h"
-#include "../utils/_digit_sum_uint64.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/digit_sum_u64_to_i32.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +32,8 @@ seq_t a(idx_t n)
     uint64_t candidate = 2;
 
     while (1) {
-        if (is_prime_uint64(candidate)) {
-            if (_digit_sum_uint64(candidate) == 29) {
+        if (is_prime_u64(candidate)) {
+            if (digit_sum_u64_to_i32(candidate) == 29) {
                 ++count;
                 if (count == n) {
                     return (seq_t)candidate;

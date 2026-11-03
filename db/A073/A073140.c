@@ -11,14 +11,24 @@
  *            = popcount(n)
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   bit_length_idx
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/bit_length_idx.h"
+
+/* Return bit length of an unsigned integer.
+   For x==0 the length is defined as 1. */
+static inline idx_t bit_length_idx(idx_t x)
+{
+    if (x == 0) return 1;
+    idx_t len = 0;
+    while (x) { x >>= 1; ++len; }
+    return len;
+}
 
 /* Count bits set in a 64‑bit integer. */
 static inline idx_t popcount_u64(idx_t x)

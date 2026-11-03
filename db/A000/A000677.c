@@ -12,16 +12,35 @@
  *            trees...
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 29, u64 n <= 51, u128 n <= 92,
  *            big any n
- * Helpers:   a677_from_u128, a677_u128_zero, alloc_zero
+ * Validated: standard, pass, 51 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/a677_from_u128.h"
-#include "../utils/a677_u128_zero.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t a677_from_u128(unsigned __int128 v)
+{
+    int i;
+    seq_t r = (seq_t)(uint64_t)(v >> 64);
+    for (i = 0; i < 8; i++) r = r * 256;
+    r += (seq_t)(uint64_t)v;
+    return r;
+}
+
+static unsigned __int128 *a677_u128_zero(idx_t len)
+{
+    return (unsigned __int128 *)calloc((size_t)(len ? len : 1), sizeof(unsigned __int128));
+}
 
 #define A677_DEFINE(NAME, T, ALLOC)                                         \
 static void NAME(long long N, T *out)                                       \

@@ -12,13 +12,15 @@
  *            Transition tables are pre‑computed once
  * Range:     u8 none, u16 n <= 1, u32 n <= 11, u64 n <= 30, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Size constants for the state automaton */
 #define BASE   7U
@@ -100,8 +102,8 @@ seq_t a(idx_t n) {
     init_transitions();
 
     /* Allocate DP arrays */
-    seq_t *cur = (seq_t*)calloc(STATES, sizeof(seq_t));
-    seq_t *nxt = (seq_t*)calloc(STATES, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, STATES);
+    seq_t *nxt = mem_new(seq_t, STATES);
     if (!cur || !nxt) return 0;                 /* allocation failure */
 
     /* Initialize DP for the first 5 positions: all 5‑tuples are allowed */
@@ -130,8 +132,8 @@ seq_t a(idx_t n) {
     for (size_t s = 0; s < STATES; ++s) ans += cur[s];
 
     /* Free DP arrays */
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
 
     return ans;
 }

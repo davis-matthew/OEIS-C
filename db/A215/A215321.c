@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n‑th prime ≡ 1,2,3,5,6 (mod 19) (search approach)
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache of all primes found so far (uint64_t) */
 static uint64_t *all_primes = NULL;
@@ -47,7 +49,7 @@ static void push_allowed(seq_t p)
 {
     if (allowed_count >= allowed_cap) {
         size_t new_cap = allowed_cap == 0 ? 4 : allowed_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(allowed, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, allowed, new_cap);
         if (!tmp) exit(1);            /* fatal error */
         allowed = tmp;
         allowed_cap = new_cap;

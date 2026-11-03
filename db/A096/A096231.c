@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 35, u32 n <= 75, u64 n <= 153,
  *            u128 n <= 311, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 7873 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>   /* realloc */
 #include <stdint.h>   /* uint64_t */
+#include "../utils/mem.h"
 
 static const seq_t _base[7] = {1, 3, 5, 7, 9, 12, 16};
 
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* ensure the cache can hold indices up to n */
     idx_t needed = n + 1;
     if (cache_len < needed) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp)   /* allocation failed; return 0 as a defensive sentinel */
             return 0;
         cache = tmp;

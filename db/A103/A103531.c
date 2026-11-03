@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, seq_malloc, seq_realloc
+ * Validated: standard, pass, 77 terms through n = 937 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"      /* provides bool is_prime(uint64_t) */
-#include "../utils/seq_malloc.h"   /* provides seq_t *seq_malloc(idx_t) */
-#include "../utils/seq_realloc.h"  /* provides seq_t *seq_realloc(seq_t*, idx_t) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +59,7 @@ seq_t a(idx_t n)
     while (len < n) {
         uint64_t cand = cur_k * 1000000ULL + 235711ULL; /* k*10^6 + 235711 */
 
-        if (is_prime(cand)) {
+        if (is_prime_u64(cand)) {
             if (len >= cap) {                /* grow storage if needed */
                 cap <<= 1;
                 arr = seq_realloc(arr, cap);

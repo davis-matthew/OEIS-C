@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n-1} (-1)^k * binomial(n,k)^2 * (n-k-1)!
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 14, i64 n <= 21, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute factorials up to n-1 in a static cache. */
 static seq_t *fact_cache = NULL;
@@ -32,15 +34,14 @@ seq_t a(idx_t n)
     /* Reserve or grow the factorial cache. */
     if (fact_cache == NULL) {
         fact_cache_size = needed;
-        fact_cache = (seq_t *)malloc(fact_cache_size * sizeof(seq_t));
+        fact_cache = mem_new(seq_t, fact_cache_size);
         if (!fact_cache)
             exit(EXIT_FAILURE);
         fact_cache[0] = 1;                     /* 0! */
         for (idx_t i = 1; i < fact_cache_size; ++i)
             fact_cache[i] = fact_cache[i-1] * (seq_t)i;
     } else if (needed > fact_cache_size) {
-        seq_t *tmp = (seq_t *)realloc(fact_cache,
-                                      needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_cache, needed);
         if (!tmp)
             exit(EXIT_FAILURE);
         for (idx_t i = fact_cache_size; i < needed; ++i)

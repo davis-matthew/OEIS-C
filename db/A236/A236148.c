@@ -9,7 +9,8 @@
  *            Initial values for n = 1..5: 81, 414, 2148, 11064, 57132
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 25, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, calloc, free */
+#include "../utils/mem.h"
 
 static const seq_t init_vals[5] = {
     (seq_t)81,    (seq_t)414,    (seq_t)2148,
@@ -40,8 +42,8 @@ static void ensure_cache(idx_t n)
 
     /* Allocate (or reallocate) the cache array. */
     seq_t *tmp = (cache == NULL)
-        ? (seq_t*)calloc(need, sizeof(seq_t))
-        : (seq_t*)realloc(cache, need * sizeof(seq_t));
+        ? mem_new(seq_t, need)
+        : mem_resize(seq_t, cache, need);
 
     if (tmp == NULL) {
         /* Allocation failed; terminate the program. */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate a modest initial size to avoid many reallocs for small n. */
         size_t init_cap = (size_t)(n > 16 ? 16 : n + 1);
-        cache      = (seq_t*)calloc(init_cap, sizeof(seq_t));
+        cache      = mem_new(seq_t, init_cap);
         if (cache == NULL) abort();
         for (size_t i = 1; i <= 5; ++i)
             cache[i] = init_vals[i - 1];

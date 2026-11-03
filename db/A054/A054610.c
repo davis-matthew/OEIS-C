@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n} phi(d) * 3^(n/d) (OEIS A054610)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 2058 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

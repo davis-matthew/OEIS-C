@@ -9,12 +9,13 @@
  *            L_{k‑2})
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   lucas_k
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   lucas
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/lucas_k.h"
+#include "../utils/lucas.h"
 
 /* External sequence function.  n ≥ 1.  n == 0 is undefined but returns 0. */
 seq_t a(idx_t n)
@@ -24,5 +25,5 @@ seq_t a(idx_t n)
     /* Index of the Lucas number: 3n‑2 for odd n, 3n‑1 for even n. */
     idx_t idx = (n & 1U) ? (3 * n - 2) : (3 * n - 1);
 
-    return lucas_k(idx);
+    return lucas(idx);
 }

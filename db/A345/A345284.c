@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{p|n, p prime} p# (primorial of p)
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 28, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

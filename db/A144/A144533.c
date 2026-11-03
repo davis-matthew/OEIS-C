@@ -8,12 +8,14 @@
  *            a(n) = 2*a(n-1)+a(n-2), for n ≥ 2
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* ensure cache contains at least a(0) and a(1) */
     if (buf == NULL) {
         cap = 2;
-        buf = (seq_t*)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         if (buf == NULL) exit(1);          /* allocation failure */
         buf[0] = 0;
         buf[1] = 1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= len) {
         size_t needed = (size_t)n + 1;
         if (needed > cap) {
-            seq_t *tmp = (seq_t*)realloc(buf, needed * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, buf, needed);
             if (tmp == NULL) exit(1);      /* allocation failure */
             buf = tmp;
             cap = needed;

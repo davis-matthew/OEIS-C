@@ -9,7 +9,8 @@
  *            a(3)=34. The recurrence holds for all n≥4
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* This function works both for scalar seq_t types and for
    arbitrary‑precision integer classes.  The only restriction is
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         while (new_size <= n)
             new_size *= 2;
 
-        seq_t *tmp = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_size);
         /* Initialise new entries to their default value via assignment. */
         for (idx_t i = 0; i < new_size; ++i)
             tmp[i] = (seq_t)0;
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
         for (idx_t i = 0; i < copy_len; ++i)
             tmp[i] = cache[i];
 
-        free(big_cache);
+        mem_free(big_cache);
         big_cache = tmp;
         big_size  = new_size;
     }

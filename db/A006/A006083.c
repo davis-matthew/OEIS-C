@@ -7,8 +7,9 @@
  * Formula:   a(1)=1, a(2)=2, a(3)=1, a(4)=3, a(5)=1, a(6)=1, a(7)=1, a(8)=3,
  *            then for k>=1: a(6*k+3)=a(6*k+6)=2*k+1, a(6*k+4)=a(6*k+8)=3,
  *            a(6*k+5)=a(6*k+7)=1
- * Range:     u8 n <= 770, u16 n <= 9906, u32 n <= 9906, u64 n <= 9906,
- *            u128 n <= 9906, big any n
+ * Range:     u8 n <= 770, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 110 terms through n = 9906 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

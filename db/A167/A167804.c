@@ -10,7 +10,8 @@
  *            an odd prime p
  * Range:     u8 n <= 15, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 68 terms through n = 975 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Return true if -8 is a primitive root modulo cand. */
 static bool has_primitive_neg8(uint64_t cand)
@@ -62,14 +65,14 @@ static bool has_primitive_neg8(uint64_t cand)
     /* Factor φ and attempt to reduce the order. */
     for (uint64_t d = 2; d * d <= t; d += (d == 2 ? 1 : 2)) {
         if (t % d == 0) {
-            while (ord % d == 0 && mod_pow(base, (uint64_t)(ord / d), (seq_t)cand) == 1)
+            while (ord % d == 0 && powmod(base, (uint64_t)(ord / d), (seq_t)cand) == 1)
                 ord /= d;
             while (t % d == 0)
                 t /= d;
         }
     }
     if (t > 1) {                          /* last prime factor of φ */
-        while (ord % t == 0 && mod_pow(base, (uint64_t)(ord / t), (seq_t)cand) == 1)
+        while (ord % t == 0 && powmod(base, (uint64_t)(ord / t), (seq_t)cand) == 1)
             ord /= t;
     }
 
@@ -91,7 +94,7 @@ seq_t a(idx_t n)
         if (has_primitive_neg8(cand)) {
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, new_cap);
                 terms_cap = new_cap;
             }
             terms[terms_len++] = (seq_t)cand;

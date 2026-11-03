@@ -9,7 +9,8 @@
  *            The sequence is periodic with period 1815
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 1866 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* DIVISORS of 1815: 3 * 5 * 11^2 */
 static const idx_t DIVISORS[12] = {
@@ -33,7 +35,7 @@ static seq_t *poly_mul(const seq_t *a, idx_t da, const seq_t *b,
                        idx_t db)
 {
     idx_t d = da + db;
-    seq_t *c = (seq_t *)calloc((size_t)(d + 1), sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (size_t)(d + 1));
     for (idx_t i = 0; i <= da; ++i) {
         for (idx_t j = 0; j <= db; ++j) {
             c[i + j] += a[i] * b[j];
@@ -48,10 +50,10 @@ static seq_t *poly_div(const seq_t *numer, idx_t dn,
                        const seq_t *denom, idx_t dd)
 {
     idx_t dq = dn - dd;
-    seq_t *qr = (seq_t *)calloc((size_t)(dq + 1), sizeof(seq_t));
+    seq_t *qr = mem_new(seq_t, (size_t)(dq + 1));
     /* working copy of numerator */
-    seq_t *wrk = (seq_t *)calloc((size_t)(dn + 1), sizeof(seq_t));
-    memcpy(wrk, numer, (size_t)(dn + 1) * sizeof(seq_t));
+    seq_t *wrk = mem_new(seq_t, (size_t)(dn + 1));
+    mem_copy(wrk, numer, (size_t)(dn + 1) * sizeof(seq_t));
 
     for (idx_t i = dn; i >= dd; --i) {
         seq_t coeff = wrk[i];
@@ -60,7 +62,7 @@ static seq_t *poly_div(const seq_t *numer, idx_t dn,
             wrk[i - dd + j] -= coeff * denom[j];
         }
     }
-    free(wrk);
+    mem_free(wrk);
     return qr;
 }
 
@@ -79,7 +81,7 @@ static void compute_all_phi(seq_t *phi[], idx_t deg_phi[])
     for (int i = 0; i < 12; ++i) {
         idx_t d = DIVISORS[i];
         if (d == 1) {          /* Φ_1(x) = x - 1 */
-            phi[i] = (seq_t *)calloc(2, sizeof(seq_t));
+            phi[i] = mem_new(seq_t, 2);
             phi[i][0] = (seq_t)-1;
             phi[i][1] = (seq_t)1;
             deg_phi[i] = 1;
@@ -87,7 +89,7 @@ static void compute_all_phi(seq_t *phi[], idx_t deg_phi[])
         }
 
         /* product of Φ_e for all proper divisors e of d */
-        seq_t *prod = (seq_t *)calloc(1, sizeof(seq_t));
+        seq_t *prod = mem_new(seq_t, 1);
         prod[0] = (seq_t)1;
         idx_t deg_prod = 0;
 
@@ -95,14 +97,14 @@ static void compute_all_phi(seq_t *phi[], idx_t deg_phi[])
             if (d % DIVISORS[j] == 0) {
                 seq_t *newp = poly_mul(prod, deg_prod,
                                        phi[j], deg_phi[j]);
-                free(prod);
+                mem_free(prod);
                 prod = newp;
                 deg_prod += deg_phi[j];
             }
         }
 
         /* numerator x^d - 1 */
-        seq_t *num = (seq_t *)calloc((size_t)(d + 1), sizeof(seq_t));
+        seq_t *num = mem_new(seq_t, (size_t)(d + 1));
         num[0] = (seq_t)-1;
         num[d]  = (seq_t)1;
 
@@ -112,8 +114,8 @@ static void compute_all_phi(seq_t *phi[], idx_t deg_phi[])
         idx_t deg_phi_d = d - deg_prod;   /* degree of Φ_d */
 
         /* free temporaries except the result */
-        free(prod);
-        free(num);
+        mem_free(prod);
+        mem_free(num);
 
         phi[i] = phi_d;
         deg_phi[i] = deg_phi_d;
@@ -146,7 +148,7 @@ seq_t a(idx_t n)
 
         /* free temporary φ polynomials (not needed later) */
         for (int i = 0; i < 12; ++i) {
-            free(phi[i]);
+            mem_free(phi[i]);
         }
 
         ready = true;

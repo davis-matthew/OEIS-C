@@ -7,12 +7,35 @@
  * Formula:   a(n) = Sum_{d|n} d^2 * φ(d) (equivalently, Sum_{d|n} φ(d^3))
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_num
+ * Validated: standard, pass, 56 terms through n = 974 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/factor_num.h"
+static void factor_num(idx_t n, idx_t *pr, int *exp, int *cnt)
+{
+    int c = 0;
+    idx_t m = n;
+    for (idx_t p = 2; p * p <= m; p += (p == 2 ? 1 : 2)) {
+        if (m % p == 0) {
+            int e = 0;
+            while (m % p == 0) {
+                m /= p;
+                e++;
+            }
+            pr[c] = p;
+            exp[c] = e;
+            c++;
+        }
+    }
+    if (m > 1) {
+        pr[c] = m;
+        exp[c] = 1;
+        c++;
+    }
+    *cnt = c;
+}
 
 static void dfs_div(int idx, seq_t cur, seq_t phi_cur,
                     const idx_t *pr, const int *exp, int cnt, seq_t *sum)

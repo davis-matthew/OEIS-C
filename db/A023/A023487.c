@@ -8,12 +8,14 @@
  * Formula:   a(n) = A000032(n+3) + A001690(n+1)
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 43, u64 n <= 89, u128 n <= 181,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached Lucas numbers, indexed by k */
 static seq_t *lucas_cache = NULL;
@@ -33,7 +35,7 @@ static void ensure_lucas(idx_t k)
             new_cap <<= 1;
     }
 
-    seq_t *tmp = (seq_t *)realloc(lucas_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, lucas_cache, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);
     lucas_cache = tmp;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime, seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,16 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/is_prime.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Returns the n-th prime number that is not 3 or 5.
    a(1) = 2, a(2) = 7, a(3) = 11, …  */

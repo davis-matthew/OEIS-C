@@ -12,20 +12,22 @@
  *            n c = n - r(r-1)/2
  * Range:     u8 n <= 16, u16 n <= 39, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   _floor_isqrt_u64, binomial
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0; /* safety, although n>=1 per spec */
     /* find row r */
     idx_t v = 1 + 8 * n;                     /* 8*n fits in 64-bit for n up to ~10^10 */
-    idx_t root = _floor_isqrt_u64(v);        /* floor(sqrt(v))   */
+    idx_t root = isqrt(v);        /* floor(sqrt(v))   */
     idx_t r = (root - 1) / 2;                /* approx floor((sqrt(1+8n)-1)/2) */
     if (r * (r + 1) / 2 < n) ++r;            /* ensure r*(r+1)/2 >= n */
 

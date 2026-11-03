@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6843, u16 n <= 6843, u32 n <= 6843, u64 n <= 6843,
  *            u128 n <= 6843, big any n
- * Helpers:   stern_coeff
+ * Validated: standard, pass, 122 terms through n = 6400 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,23 @@
    Stern polynomials B(n,t).  */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/stern_coeff.h"
+
+/* recursively retrieve the coefficient of t^k in B(n,t)   */
+static seq_t stern_coeff(idx_t n, idx_t k)
+{
+    if (n == 0) return 0;
+    if (n == 1) return (k == 0) ? (seq_t)1 : (seq_t)0;
+
+    if ((n & 1) == 0)                /* B(2m) = t * B(m)             */
+    {
+        if (k == 0) return 0;
+        return stern_coeff(n >> 1, k - 1);
+    }
+    else                             /* B(2m+1) = B(m+1) + B(m)      */
+    {
+        return stern_coeff(n >> 1, k) + stern_coeff((n >> 1) + 1, k);
+    }
+}
 
 /* ----  store lengths of rows and cumulative counts  ---- */
 static idx_t *row_len = NULL;       /* number of coefficients in row i  */

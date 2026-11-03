@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,14 @@
    Recurrence: !0 = 1, !1 = 0, !k = (k-1)*( !(k-1)+!(k-2) ) */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void grow_arr(seq_t **arr, size_t *cap, size_t needed)
 {
     if (*cap > needed) return;
     size_t new_cap = (*cap == 0) ? 1 : *cap * 2;
     while (new_cap <= needed) new_cap *= 2;
-    *arr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

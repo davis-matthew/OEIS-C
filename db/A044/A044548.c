@@ -11,14 +11,31 @@
  *            terms found so far
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_41
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_41.h"
+#include "../utils/mem.h"
+
+/* Test whether a base‑7 representation of v contains the adjacent pair 4,1.
+   We scan from least significant digit upwards; the pair "41" in normal
+   left‑to‑right order appears as "1,4" in this reversed scan. */
+static inline bool has_41(seq_t v)
+{
+    int prev = -1;             /* previous remainder after division by 7   */
+    while (v > 0) {
+        int r = (int)(v % 7);  /* remainder is always < 7               */
+        if (prev == 1 && r == 4)
+            return true;       /* "1,4" in reverse scan -> "4,1" found   */
+        prev = r;
+        v /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +48,7 @@ seq_t a(idx_t n)
     /* Grow the cache lazily */
     if (cap == 0) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we have at least n of them */
@@ -41,7 +58,7 @@ seq_t a(idx_t n)
             /* store it */
             if (sz + 1 > cap) {
                 cap <<= 1; /* double the capacity */
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[sz++] = cur;
         }

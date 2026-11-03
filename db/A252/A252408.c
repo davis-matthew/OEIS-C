@@ -12,6 +12,7 @@
  *            antidiagonal sum are not in that set
  * Range:     u8 none, u16 n <= 10, u32 n <= 29, u64 n <= 66, u128 n <= 140,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 207 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

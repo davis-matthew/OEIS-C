@@ -9,6 +9,7 @@
  *            Recurrence initial values: a(0)=0, a(1)=1, a(2)=22, a(3)=464
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(1) = 1; for n > 1, a(n) = sum_{k=1}^{n-1} a(gcd(k, a(n-1)))
- * Range:     u8 n <= 28, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
- *            big any n
- * Helpers:   seq_malloc, seq_realloc
+ * Range:     u8 n <= 28, u16 n <= 344, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 78 terms through n = 9612 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,26 @@
 /* compile with both C11 and C++17 */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_malloc.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 /* Euclidean GCD for seq_t values (works for arbitrary‑precision integer classes) */
 static seq_t my_gcd(seq_t a, seq_t b)

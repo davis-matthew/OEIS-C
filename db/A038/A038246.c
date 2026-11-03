@@ -9,12 +9,14 @@
  *            antidiagonals: 0 → (0,0), 1 → (1,0), 2 → (1,1), 3 → (2,0),
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t pow_seq(seq_t base, idx_t exp)

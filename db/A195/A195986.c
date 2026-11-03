@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 1 if n is odd, otherwise a(n) = v2(n) + 3 * where v2(n)
  *            is the exponent of the largest power of 2 dividing n
- * Range:     u8 n <= 9468, u16 n <= 9468, u32 n <= 9468, u64 n <= 9468,
- *            u128 n <= 9468, big any n
+ * Range:     u8 n <= 16383, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 102 terms through n = 9468 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

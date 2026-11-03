@@ -11,12 +11,14 @@
  *            length 26 with sum 0 and sum of absolute values 2n
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 44, u64 n <= 166, u128 n <= 259,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 251 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define KMAX 26
 #define RROWS (KMAX + 1)
@@ -34,14 +36,13 @@ static void expand_table(idx_t target_n)
     size_t old_size = (size_t)(P_max_n + 1) * RROWS;
     size_t new_size = (size_t)(target_n + 1) * RROWS;
 
-    seq_t *newP = (seq_t *)realloc(P, new_size * sizeof(seq_t));
+    seq_t *newP = mem_resize(seq_t, P, new_size);
     if (!newP) abort();   /* out of memory */
     P = newP;
 
     /* Zero the newly added entries */
     if (new_size > old_size)
-        memset((void *)(P + old_size), 0,
-               (new_size - old_size) * sizeof(seq_t));
+        mem_set((P + old_size), 0, (new_size - old_size) * sizeof(seq_t));
 
     /* Base case: p_0(0) = 1 */
     if (P_max_n == 0 && P[0] == (seq_t)0) P[0] = (seq_t)1;
@@ -65,7 +66,7 @@ seq_t a(idx_t n)
 
     /* Initialize the table on first call */
     if (P == NULL) {
-        P = (seq_t *)calloc(RROWS, sizeof(seq_t));
+        P = mem_new(seq_t, RROWS);
         if (!P) abort();
         P[0] = (seq_t)1;           /* p_0(0) */
     }

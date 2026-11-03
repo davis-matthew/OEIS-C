@@ -12,12 +12,14 @@
  *            entry: (t^26 + 2t^25 + … + 2t + 1) / (861 t^2...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Ensure cache large enough for the requested index */
     if (cached <= n) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) { /* allocation failed – abort with NULL? */
             /* In an environment where errno handling is required,
                one might set errno and return 0.  Here we simply

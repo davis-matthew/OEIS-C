@@ -7,12 +7,14 @@
  * Formula:   a(n) = n-th divisor of 402 in increasing order (1-indexed)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *a, const void *b) {
     seq_t va = *(const seq_t *)a;
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
                 }
             }
         }
-        qsort(divisors, cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(divisors, cnt, sizeof(seq_t), cmp_seq);
         divisor_count = cnt;
         initialized = 1;
     }

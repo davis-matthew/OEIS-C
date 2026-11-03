@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   digit_product, is_prime_small
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   digit_product, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_product.h"   /* seq_t digit_product(seq_t x); */
-#include "../utils/is_prime_small.h"  /* bool is_prime_small(seq_t n); */
+#include "../utils/digit_product.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* grow the cache array as needed */
     if (cache_used + 1 > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();  /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     while (cache_used < (size_t)n) {
         /* find next prime whose digit product root is 8 */
         while (1) {
-            if (is_prime_small(next_candidate)) {
+            if (is_prime_seq(next_candidate)) {
                 seq_t x = (seq_t)next_candidate;
                 while (x >= 10)          /* reduce until single digit */
                     x = digit_product(x);

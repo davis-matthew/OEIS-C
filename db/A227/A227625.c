@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 1900, i16 n <= 1900, i32 n <= 1900, i64 n <= 1900,
  *            i128 n <= 1900, big any n
+ * Validated: standard, pass, 101 terms through n = 1870 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
    a(n) = -1 if n is a prime > 3 with n % 6 == 5,
    a(2) = -1, a(3) = 1; otherwise a(n) = 0. */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

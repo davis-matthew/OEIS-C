@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 42, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
- *            big any n
- * Helpers:   digits_allowed
+ * Range:     u8 n <= 42, u16 n <= 2908, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 9784 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/digits_allowed.h"
+#include "../utils/mem.h"
+
+/* true iff all decimal digits of x are not 4, 6 or 9 */
+static inline bool digits_allowed(uint64_t x)
+{
+    while (x > 0) {
+        unsigned d = x % 10;
+        if (d == 4 || d == 6 || d == 9) return false;
+        x /= 10;
+    }
+    return true;
+}
 
 static seq_t *values    = NULL; /* cached sequence values */
 static idx_t  values_cap = 0, values_len = 0;
@@ -93,7 +105,7 @@ seq_t a(idx_t n)
             /* grow cache if needed */
             if (values_len == values_cap) {
                 size_t new_cap = values_cap ? values_cap * 2 : 4;
-                seq_t *tmp = (seq_t*)realloc(values, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, values, new_cap);
                 if (!tmp) exit(1);
                 values = tmp;
                 values_cap = new_cap;

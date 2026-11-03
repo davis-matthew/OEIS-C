@@ -10,13 +10,15 @@
  *            first call and returns the requested term
  * Range:     u8 n <= 1, u16 n <= 16, u32 n <= 7381, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9028 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compare two seq_t values for qsort or min selections.  */
 #if defined(__cplusplus)
@@ -50,7 +52,7 @@ static idx_t  col_len    = 0;      /* allocated length of col array       */
 static void ensure_tri(idx_t n) {
     if (tri_len > n) return;
     size_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(tri, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, tri, new_len);
     if (!tmp) return;   /* allocation failed – we abort gracefully */
     tri = tmp;
     /* fill new entries */
@@ -79,7 +81,7 @@ seq_t a(idx_t n) {
     /* initialise static data on first call */
     if (!terms) {
         /* triangular numbers from T(0) up to T(MAX_I) */
-        tri = (seq_t *)malloc((MAX_I + 1) * sizeof(seq_t));
+        tri = mem_new(seq_t, (MAX_I + 1));
         if (!tri) return 0;
         tri[0] = 0;
         for (idx_t i = 1; i <= MAX_I; ++i)
@@ -88,14 +90,14 @@ seq_t a(idx_t n) {
 
         /* column indices for each row */
         col = (idx_t *)malloc((MAX_I + 1) * sizeof(idx_t));
-        if (!col) { free(tri); return 0; }
+        if (!col) { mem_free(tri); return 0; }
         for (idx_t i = 0; i <= MAX_I; ++i) col[i] = i;
         col_len = MAX_I + 1;
 
         /* terms cache: start with term 0 */
         terms_cap = 20000;          /* initial capacity > target 10k */
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
-        if (!terms) { free(tri); free(col); return 0; }
+        terms = mem_new(seq_t, terms_cap);
+        if (!terms) { mem_free(tri); free(col); return 0; }
         terms[0] = 0;
         terms_len = 1;
     }
@@ -122,7 +124,7 @@ seq_t a(idx_t n) {
         if (min_val != terms[terms_len - 1]) {
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                 if (!tmp) return 0;   /* allocation failed */
                 terms = tmp;
             }

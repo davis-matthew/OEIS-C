@@ -10,15 +10,44 @@
  *            memoised so that any order of calls works
  * Range:     i8 n <= 13, i16 n <= 23, i32 n <= 45, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   add_contribution, grow_arrays
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/add_contribution.h"
-#include "../utils/grow_arrays.h"
+#include "../utils/mem.h"
+
+/* Add the contribution of a given d to all multiples of d up to the current capacity. */
+static void add_contribution(idx_t d, seq_t *a_arr, seq_t *b_arr, idx_t cap)
+{
+    seq_t val = a_arr[d] * (seq_t)d;       /* d * a(d)           */
+    for (idx_t k = d; k <= cap; k += d) {  /* k = m * d, m >= 1 */
+        idx_t m = k / d;                   /* quotient m          */
+        seq_t sign = (m & 1) ? -(seq_t)1 : (seq_t)1; /* (-1)^m */
+        b_arr[k] += sign * val;
+    }
+}
+
+/* Internal helper to grow the static arrays. */
+static void grow_arrays(idx_t needed, seq_t **a_arr, seq_t **b_arr, idx_t *cap)
+{
+    if (needed <= *cap)
+        return;
+    idx_t new_cap = (*cap == 0) ? 64 : *cap * 2;
+    while (new_cap < needed)
+        new_cap *= 2;
+    *a_arr = mem_resize(seq_t, *a_arr, (new_cap + 1));
+    *b_arr = mem_resize(seq_t, *b_arr, (new_cap + 1));
+    /* initialise new slots to zero */
+    for (idx_t i = *cap + 1; i <= new_cap; ++i) {
+        (*a_arr)[i] = (seq_t)0;
+        (*b_arr)[i] = (seq_t)0;
+    }
+    *cap = new_cap;
+}
 
 /* The following types are provided by the build system. */
 extern seq_t a(idx_t n); /* Forward declaration for potential recursion. */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   alloc_seq_array, seq_free_array
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,19 @@
 /* We use a classic O(n) unbounded‑coin dynamic‑programming algorithm. */
 
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* External linkage as required. */
 seq_t a(idx_t n)

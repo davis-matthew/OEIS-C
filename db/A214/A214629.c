@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 1803, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, digit_product, digit_sum, is_prime_small
+ * Validated: standard, pass, 67 terms through n = 7951 (2026-11-03)
+ * Helpers:   digit_product, digit_sum, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,27 @@
 #include <stdbool.h>
 #endif
 
-#include "../utils/digit_sum.h"
 #include "../utils/digit_product.h"
-#include "../utils/is_prime_small.h"
-#include "../utils/append_candidate.h"
+#include "../utils/digit_sum.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 static bool _seq_a_init_done = false;
 /* Adjust this limit if higher indices are needed. */
@@ -97,7 +115,7 @@ seq_t a(idx_t n)
         seq_t prod = digit_product((seq_t)p);
         seq_t sp = sum + prod;
 
-        if (is_prime_small(sp))
+        if (is_prime_seq(sp))
             /* Store the prime p itself, not the sum+product. */
             append_candidate(&_SEQ_A_VALUES, &_SEQ_A_VALUES_LEN,
                               &_SEQ_A_VALUES_CAP, (seq_t)p);

@@ -12,7 +12,8 @@
  *            degree m of the set {2,…,r}
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 
     if (e == NULL) {
         size_t init_size = 2;               /* need indices 0 and 1 */
-        e = (seq_t *)calloc(init_size, sizeof(seq_t));
+        e = mem_new(seq_t, init_size);
         if (!e) abort();
         e[0] = (seq_t)1;                   /* e[0] = 1 for empty set   */
         cur_max_r = 1;                     /* empty set corresponds to r = 1 */
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     /* Grow the cache if we need a larger set {2,…,r} */
     if (r > cur_max_r) {
         size_t new_size = (size_t)(r + 1);  /* indices 0 … r   */
-        seq_t *tmp = (seq_t *)realloc(e, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, e, new_size);
         if (!tmp) abort();
         e = tmp;
 
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     /* Compute the required coefficient */
     idx_t m = r - 1 - k;                    /* degree of symmetric sum  */
     seq_t coeff = e[m];
-    seq_t pow_rk = seq_pow( (seq_t)r, k );
+    seq_t pow_rk = ipow_idx( (seq_t)r, k );
 
     return coeff * pow_rk;
 }

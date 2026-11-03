@@ -9,7 +9,8 @@
  *            fixed point
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mp_add, mp_div, mp_iszero
+ * Validated: standard, pass, 121 terms through n = 8939 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,34 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mp_add.h"
-#include "../utils/mp_div.h"
-#include "../utils/mp_iszero.h"
+
+static void mp_add(uint32_t *x, const uint32_t *y, idx_t len) {
+    uint64_t carry = 0;
+    idx_t i = len;
+    while (i > 0) {
+        i--;
+        uint64_t s = (uint64_t)x[i] + y[i] + carry;
+        x[i] = (uint32_t)s;
+        carry = s >> 32;
+    }
+}
+
+static void mp_div(uint32_t *x, idx_t len, uint32_t d) {
+    uint64_t rem = 0;
+    idx_t i;
+    for (i = 0; i < len; i++) {
+        uint64_t cur = (rem << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+}
+
+static int mp_iszero(const uint32_t *x, idx_t len) {
+    idx_t i;
+    for (i = 0; i < len; i++)
+        if (x[i]) return 0;
+    return 1;
+}
 
 #define PI_GUARD 3
 

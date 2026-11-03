@@ -7,13 +7,16 @@
  * Formula:   a(n) = ∏_{k=1..n} (k!)^(k!)
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 6 terms through n = 5 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +25,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 1; k <= n; ++k) {
         factorial *= (seq_t)k;               /* factorial = k!           */
-        seq_t power = big_pow(factorial, factorial); /* (k!)^(k!) */
+        seq_t power = ipow(factorial, factorial); /* (k!)^(k!) */
         result *= power;                     /* accumulate product       */
     }
 

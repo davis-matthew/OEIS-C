@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy, base
  * Formula:   a(n) = 1 if the total number of 1-bits in the exponents of the
  *            prime factorization of n is even, otherwise 0
- * Range:     u8 n <= 9344, u16 n <= 9344, u32 n <= 9344, u64 n <= 9344,
- *            u128 n <= 9344, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 136 terms through n = 9344 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

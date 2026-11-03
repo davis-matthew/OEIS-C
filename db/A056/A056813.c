@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, is_prime
+ * Validated: standard, pass, 121 terms through n = 9595 (2026-11-01)
+ * Helpers:   is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 static uint64_t *prime_tbl = NULL;   /* dynamic array of primes */
 static size_t prime_cap = 0;         /* allocated size of prime_tbl         */
@@ -92,7 +93,7 @@ seq_t a(idx_t n)
     /* For n < 2 the sqrt is 0 or 1 → answer is 1 */
     if (n < 2) return 1;
 
-    uint64_t r = _floor_isqrt_u64(n);          /* ⌊√n⌋ */
+    uint64_t r = isqrt(n);          /* ⌊√n⌋ */
     uint64_t p = largest_prime_le(r);          /* largest prime ≤ r, or 1 */
     return (seq_t)p;
 }

@@ -9,7 +9,8 @@
  *            primes)
  * Range:     u8 n <= 21, u16 n <= 40, u32 n <= 80, u64 n <= 162,
  *            u128 n <= 330, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 664 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *F = 0;
 static idx_t Flen = 0;
@@ -34,8 +36,8 @@ static void build_f(idx_t len) {
     for (idx_t p = 3; p < len; p += 2) {
         if (!comp[p]) pr[np++] = p;
     }
-    seq_t *g = (seq_t *)malloc((size_t)len * sizeof(seq_t));
-    memset(g, 0, (size_t)len * sizeof(seq_t));
+    seq_t *g = mem_new(seq_t, (size_t)len);
+    mem_set(g, 0, (size_t)len * sizeof(seq_t));
     g[0] = 1;
     for (idx_t m = 1; m < len; m++) {
         seq_t s = 0;
@@ -46,7 +48,7 @@ static void build_f(idx_t len) {
     }
     free(comp);
     free(pr);
-    if (F) free(F);
+    if (F) mem_free(F);
     F = g;
     Flen = len;
 }

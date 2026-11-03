@@ -7,14 +7,23 @@
  * Formula:   a(n) = (a(n-1)-1)^2 + 1, a(0) = 12
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: standard, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +39,7 @@ seq_t a(idx_t n)
     if (target >= cache_cap) {
         size_t new_cap = cache_cap == 0 ? 1 : cache_cap * 2;
         while (new_cap <= target) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Allocation failure – return 0 as a safe fallback. */
             return (seq_t)0;

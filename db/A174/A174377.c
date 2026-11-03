@@ -10,6 +10,7 @@
  *            A174377 read row‑by‑row)
  * Range:     u8 n <= 22, u16 n <= 39, u32 n <= 111, u64 n <= 311,
  *            u128 n <= 839, big any n
+ * Validated: standard, pass, 82 terms through n = 1278 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

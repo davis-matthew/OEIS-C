@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 38, i16 n <= 149, i32 n <= 587, i64 n <= 2234,
  *            i128 n <= 2555, big any n
- * Helpers:   binomial64, term_for_nk
+ * Validated: standard, pass, 107 terms through n = 2171 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/binomial64.h"
-#include "../utils/term_for_nk.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/*  contribution of pair (n,k) for exponent m = n^2 + k                */
+static inline seq_t
+term_for_nk(idx_t n, idx_t k)
+{
+    seq_t binom = binomial( (idx_t)(2*n - k), k );
+    seq_t den   = (seq_t)(2*n - 2*k + 1);
+    /* numerator = binom * (2*n+1), divide by den, all 128‑bit   */
+    seq_t num   = (seq_t)(((__int128)binom * (2*n + 1)) / den);
+    if (k & 1) num = -num;
+    return num;
+}
 
 /* ------------------------------------------------------------------ */
 
@@ -61,13 +74,13 @@ a(idx_t n)
         }
 
         /* convert 128‑bit accumulated values to seq_t */
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) { free(tmp128); return (seq_t)0; }
         for (size_t i = 0; i < new_cap; ++i) tmp[i] = (seq_t)tmp128[i];
         free(tmp128);
 
         /* dispose old cache and install new one */
-        free(cache);
+        mem_free(cache);
         cache = tmp;
         cache_cap = new_cap;
         cache_max = n;

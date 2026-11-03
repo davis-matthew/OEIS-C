@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 218, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Initial values: a(0)=6, a(1)=6, a(2)=-6, a(3)=24, a(4)=12, a(5)=-24, a(6)=54, a(7)=18 */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0; /* number of computed entries */
@@ -25,7 +27,7 @@ static void init_cache(void) {
     if (cache != NULL) return;
     /* allocate capacity for first 8 terms */
     cache_capacity = 8;
-    cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_capacity);
     if (cache == NULL) { abort(); }
     cache[0] = (seq_t)6;
     cache[1] = (seq_t)6;
@@ -43,7 +45,7 @@ static void ensure_capacity_upto(idx_t n) {
     if (needed <= cache_capacity) return;
     size_t new_cap = cache_capacity ? cache_capacity : 8;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (new_cache == NULL) { abort(); }
     cache = new_cache;
     cache_capacity = new_cap;

@@ -13,13 +13,15 @@
  *            index n in a(n) is obtained by stacking the rows of...
  * Range:     u8 n <= 28, u16 n <= 79, u32 n <= 192, u64 n <= 531,
  *            u128 n <= 1542, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 2477 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (rows_len <= r) {
         for (idx_t i = rows_len; i <= r; ++i) {
             /* Allocate storage for row i (i+1 elements). */
-            seq_t *row = (seq_t *)malloc((size_t)(i + 1) * sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, (size_t)(i + 1));
             /* Ensure the rows array can hold the new pointer. */
             if (rows == NULL) {
                 rows = (seq_t **)malloc(sizeof(seq_t *));

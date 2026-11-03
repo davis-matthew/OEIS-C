@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t divisor_count(idx_t n)
 {
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 
     /* Allocate or grow the cache */
     idx_t new_cap = n + 1;   /* indices 0..n inclusive */
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) return 0;      /* out of memory – in real use handle error */
     a_cache = tmp;
 

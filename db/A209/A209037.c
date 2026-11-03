@@ -8,7 +8,8 @@
  *            ⌊n/3⌋)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    made. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Cache of previously computed values.  cache[i] holds a(i) for
@@ -43,8 +45,8 @@ static void compute_until(idx_t n)
     if (n <= max_n) return;         /* already computed up to n */
 
     /* Allocate temporary arrays for the DP. */
-    seq_t *dp_next = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *dp_cur  = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp_next = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *dp_cur  = mem_new(seq_t, (size_t)(n + 1));
     if (!dp_next || !dp_cur) return;   /* allocation failure – abort */
 
     /* p(0,ℓ)=1 for all ℓ. */
@@ -53,16 +55,16 @@ static void compute_until(idx_t n)
     /* m[i] = max(1, ⌊i/3⌋) for all i ≤ n. */
     idx_t *m = (idx_t*)malloc((size_t)(n + 1) * sizeof(idx_t));
     if (!m) {
-        free(dp_next); free(dp_cur);
+        mem_free(dp_next); mem_free(dp_cur);
         return;
     }
     for (idx_t i = 0; i <= n; ++i)
         m[i] = (i < 3 ? (idx_t)1 : i / 3);
 
     /* Allocate a new cache to hold the results. */
-    seq_t *new_cache = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)(n + 1));
     if (!new_cache) {
-        free(dp_next); free(dp_cur); free(m);
+        mem_free(dp_next); mem_free(dp_cur); free(m);
         return;
     }
 
@@ -89,10 +91,10 @@ static void compute_until(idx_t n)
     }
 
     /* Free temporary buffers. */
-    free(dp_next); free(dp_cur); free(m);
+    mem_free(dp_next); mem_free(dp_cur); free(m);
 
     /* Replace the old cache with the new one. */
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = new_cache;
     max_n = n;
 }

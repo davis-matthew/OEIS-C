@@ -9,6 +9,7 @@
  *            n*(n-1)/4 if n≡2 or 3 (mod 4): a(n) = n*(n-1)/2
  * Range:     u8 n <= 25, u16 n <= 362, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 72 terms through n = 4568 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

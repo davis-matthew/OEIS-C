@@ -12,7 +12,8 @@
  *            x², … of * u(n,x). The cumulative number of...
  * Range:     u8 n <= 20, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- Global state (memoization) ---------- */
 
@@ -69,14 +71,14 @@ seq_t a(idx_t n)
     /* ---------- Initialise the first two rows on first entry ---------- */
     if (rows_cnt == 0) {
         /* Row 1: u(1,x) = 1 */
-        seq_t *row1 = (seq_t *)malloc(sizeof(seq_t));
+        seq_t *row1 = mem_new(seq_t, 1);
         if (!row1) return 0;
         row1[0] = 1;
         add_row(row1, 1);
         prev2 = row1; len_prev2 = 1;
 
         /* Row 2: u(2,x) = 2 */
-        seq_t *row2 = (seq_t *)malloc(sizeof(seq_t));
+        seq_t *row2 = mem_new(seq_t, 1);
         if (!row2) return 0;
         row2[0] = 2;
         add_row(row2, 1);
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
     while (cum_terms[rows_cnt-1] < (size_t)n) {
         /* length of the next row: max(length(prev1), length(prev2)+1) */
         size_t len_next = (len_prev2 + 1 > len_prev1) ? (len_prev2 + 1) : len_prev1;
-        seq_t *next = (seq_t *)calloc(len_next, sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, len_next);
         if (!next) return 0; /* failed allocation */
 
         /* 2*u(prev1) */

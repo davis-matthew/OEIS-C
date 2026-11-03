@@ -8,9 +8,10 @@
  * Formula:   Numbers k for which A328845(k) is a multiple of 3. This is
  *            computed by checking whether the Fibonacci‑based arithmetic
  *            derivative d(k) ≡ 0 (mod 3)
- * Range:     u8 n <= 82, u16 n <= 9903, u32 n <= 9903, u64 n <= 9903,
- *            u128 n <= 9903, big any n
- * Helpers:   fib_mod3_prime
+ * Range:     u8 n <= 82, u16 n <= 12000, u32 n <= 12000, u64 n <= 12000,
+ *            u128 n <= 12000, big any n
+ * Validated: standard, pass, 87 terms through n = 9903 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/fib_mod3_prime.h"
+#include "../utils/mem.h"
+
+/* Fibonacci modulo 3 for a prime p.
+   For p>2, fib(p) mod 3 depends only on p mod 8:
+      p ≡ 1,7 (mod 8) → 1
+      p ≡ 3,5 (mod 8) → 2
+   For p = 2 → 1.  */
+static int fib_mod3_prime(idx_t p)
+{
+    if (p == 2) return 1;
+    switch (p & 7UL) {          /* p % 8 */
+        case 1: case 7: return 1;
+        case 3: case 5: return 2;
+        default: return 0;     /* never for a prime > 2 */
+    }
+}
 
 /* Smallest prime factor array (SPF) up to a fixed limit.  */
 static uint32_t *spf = NULL;
@@ -83,11 +99,11 @@ static void ensure_terms(idx_t n)
 {
     if (!seq_cache) {
         seq_cap = 8;
-        seq_cache = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         seq_len = 0;
         if (seq_len + 2 > seq_cap) {
             seq_cap = 16;
-            seq_cache = (seq_t*)realloc(seq_cache, seq_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
         }
         seq_cache[seq_len++] = (seq_t)0;   /* a(1) = 0 */
         seq_cache[seq_len++] = (seq_t)1;   /* a(2) = 1 */
@@ -99,7 +115,7 @@ static void ensure_terms(idx_t n)
         if (good_candidate(next_candidate)) {
             if (seq_len >= seq_cap) {
                 seq_cap <<= 1;
-                seq_cache = (seq_t*)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = (seq_t)next_candidate;
         }

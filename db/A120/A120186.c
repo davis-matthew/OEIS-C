@@ -7,13 +7,15 @@
  * Formula:   a(1)=1, a(n)=ceil( Sum_{i=1}^{n-1} a(i) / 7 )
  * Range:     u8 n <= 46, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t computed_max = 0;
 static seq_t *cache = NULL;
@@ -25,11 +27,11 @@ static void grow_cache(idx_t n)
     if (n <= cache_cap) return;
     size_t newcap = cache_cap ? cache_cap * 2 : 1;
     while (newcap < (size_t)n) newcap <<= 1;
-    seq_t *newp = (seq_t*)malloc(newcap * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, newcap);
     if (!newp) abort();
     if (cache) {
-        memcpy(newp, cache, computed_max * sizeof(seq_t));
-        free(cache);
+        mem_copy(newp, cache, computed_max * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = newp;
     cache_cap = newcap;

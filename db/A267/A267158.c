@@ -11,7 +11,8 @@
  *            = 13, a(8) = 6, a(9) = 15, a(10) = 8, a(11) = 21, a(12) = 6
  * Range:     u8 n <= 130, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *cache = NULL;
@@ -43,20 +45,20 @@ static void ensure_cache(idx_t n)
     while (new_size <= (size_t)n)
         new_size <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
         abort();          /* allocation failed */
 
     if (!cache) {
         /* first allocation: zero initialise (optional) */
-        memset(new_cache, 0, new_size * sizeof(seq_t));
+        mem_set(new_cache, 0, new_size * sizeof(seq_t));
     }
     cache   = new_cache;
     cache_size = new_size;
 
     if (!base_set) {
         /* copy the known initial terms into the cache */
-        memcpy(cache, base_vals, sizeof(base_vals));
+        mem_copy(cache, base_vals, sizeof(base_vals));
         base_set = 1;
         computed_max = 12;
     }

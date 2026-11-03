@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 11,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 33 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -30,7 +31,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 #define MAX_N 20000   /* enough for all tests (n ≤ 10 000) */
 

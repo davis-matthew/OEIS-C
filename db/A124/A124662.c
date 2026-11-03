@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
     if (primes_len == 0) {
         primes_cap = 16;
         good_cap   = 16;
-        primes = (seq_t*)malloc(primes_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, primes_cap);
         tested = (uint8_t*)malloc(primes_cap * sizeof(uint8_t));
-        good   = (seq_t*)malloc(good_cap   * sizeof(seq_t));
+        good   = mem_new(seq_t, good_cap);
 
         /* add prime 2 */
         primes[primes_len++] = (seq_t)2;
@@ -71,8 +73,7 @@ seq_t a(idx_t n)
                 /* ensure capacity for new prime */
                 if (primes_len >= primes_cap) {
                     primes_cap *= 2;
-                    primes = (seq_t*)realloc(primes,
-                         primes_cap * sizeof(seq_t));
+                    primes = mem_resize(seq_t, primes, primes_cap);
                     tested = (uint8_t*)realloc(tested,
                          primes_cap * sizeof(uint8_t));
                 }
@@ -101,8 +102,7 @@ seq_t a(idx_t n)
                     if (good_flag) {
                         if (good_len >= good_cap) {
                             good_cap *= 2;
-                            good = (seq_t*)realloc(good,
-                                  good_cap * sizeof(seq_t));
+                            good = mem_resize(seq_t, good, good_cap);
                         }
                         good[good_len++] = center;
                     }

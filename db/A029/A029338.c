@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Number of partitions of n into parts 4, 5, 8 and 10.
    a(0) = 1; a(n) = ∑_{c∈{4,5,8,10}} a(n−c)   (with a(k)=0 for k<0)  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static state for a simple memoised DP table up to the largest
    n ever requested.  The table is recomputed from scratch at
@@ -28,7 +30,7 @@ static void ensure_capacity(size_t size)
     if (dp == NULL) {
         /* first allocation */
         current_cap = size;
-        dp = (seq_t *)malloc(current_cap * sizeof(seq_t));
+        dp = mem_new(seq_t, current_cap);
         if (dp == NULL) abort(); /* OOM */
         return;
     }
@@ -37,7 +39,7 @@ static void ensure_capacity(size_t size)
     /* enlarge, keep existing data (we will fill new area with 0) */
     size_t new_cap = current_cap;
     while (new_cap < size) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, new_cap);
     if (tmp == NULL) abort(); /* OOM */
     /* initialise added slots to zero */
     for (size_t i = current_cap; i < new_cap; ++i) tmp[i] = (seq_t)0;

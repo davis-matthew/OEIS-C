@@ -9,14 +9,34 @@
  *            the curve has only nine integer solutions, all of which lie
  *            between -2000 and 2000
  * Range:     i8 none, i16 none, i32 none, i64 n <= 9, i128 n <= 9, big any n
- * Helpers:   floor_sqrt
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/floor_sqrt.h"   /* provides floor_sqrt(seq_t) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* static storage for pre‑computed sequence values */
 static seq_t _sol[16];

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Catalan(n-1) * Motzkin(n)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Ensure Catalan numbers up to C(n-1) */
     if (cat_size < n) {
         idx_t new_size = n;        /* need entries 0 .. n-1 */
-        seq_t *tmp = (seq_t *)realloc(cat, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cat, new_size);
         if (!tmp) exit(EXIT_FAILURE);
         cat = tmp;
         if (cat_size == 0) {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Ensure Motzkin numbers up to M(n) */
     if (mot_size < n + 1) {
         idx_t new_size = n + 1;  /* need entries 0 .. n */
-        seq_t *tmp = (seq_t *)realloc(mot, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, mot, new_size);
         if (!tmp) exit(EXIT_FAILURE);
         mot = tmp;
         if (mot_size == 0) {

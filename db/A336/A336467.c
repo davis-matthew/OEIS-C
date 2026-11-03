@@ -7,16 +7,19 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = ∏_{p odd prime | n} A000265(p+1)^{v_p(n)}, with a(2)=1.
  *            (OEIS A336467)
- * Range:     u8 n <= 520, u16 n <= 8639, u32 n <= 8639, u64 n <= 8639,
- *            u128 n <= 8639, big any n
- * Helpers:   _smallest_prime_factor, odd_part
+ * Range:     u8 n <= 520, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 8639 (2026-11-01)
+ * Helpers:   odd_part, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include <stdbool.h>
 #include "../utils/odd_part.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n) {
     seq_t result = 1;
@@ -24,7 +27,7 @@ seq_t a(idx_t n) {
     if (m <= 1) return result;
 
     while (m > 1) {
-        uint64_t spf = _smallest_prime_factor(m);
+        uint64_t spf = smallest_prime_factor(m);
 
         if (spf == 2) {
             /* All powers of 2 contribute 1, so just strip them out. */

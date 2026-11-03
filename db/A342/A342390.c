@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = nth smallest integer divisible by 1093 or 3511
- * Range:     u8 none, u16 n <= 39, u32 n <= 9973, u64 n <= 9973,
- *            u128 n <= 9973, big any n
+ * Range:     u8 none, u16 n <= 39, u32 n <= 11995, u64 n <= 11995,
+ *            u128 n <= 11995, big any n
+ * Validated: standard, pass, 55 terms through n = 9973 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

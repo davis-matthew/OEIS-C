@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base
  * Formula:   a(n) = LevenshteinDistance(binary(n), binary(n^2))
- * Range:     u8 n <= 9711, u16 n <= 9711, u32 n <= 9711, u64 n <= 9711,
- *            u128 n <= 9711, big any n
- * Helpers:   levenshtein
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 118 terms through n = 9711 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,31 @@
 /*   (minimal edit (insert, delete, substitute) steps in binary).  */
 
 #include <stdint.h>
-#include "../utils/levenshtein.h"
+
+/* Levenshtein distance between two bit arrays of lengths len1 and len2. */
+static int levenshtein(const uint8_t *a, int len1, const uint8_t *b, int len2)
+{
+    /* Two rows of DP, indices 0..len2.  Size is small (≪128). */
+    int prev[128] = {0};
+    int curr[128] = {0};
+
+    for (int j = 0; j <= len2; ++j) prev[j] = j;
+
+    for (int i = 1; i <= len1; ++i) {
+        curr[0] = i;
+        for (int j = 1; j <= len2; ++j) {
+            int cost = (a[i-1] == b[j-1]) ? 0 : 1;
+            int del = prev[j] + 1;
+            int ins = curr[j-1] + 1;
+            int sub = prev[j-1] + cost;
+            int val = del < ins ? del : ins;
+            val = sub < val ? sub : val;
+            curr[j] = val;
+        }
+        for (int j = 0; j <= len2; ++j) prev[j] = curr[j];
+    }
+    return prev[len2];
+}
 
 /* Compute number of bits required to represent x.  For x==0 return 1. */
 static int bitlen_uint64(uint64_t x)

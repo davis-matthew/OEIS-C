@@ -11,15 +11,45 @@
  *            square
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt, four_x4
+ * Validated: standard, pass, 97 terms through n = 9827 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/four_x4.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* ------------------------------------------------------------------------
+   Helper: compute 4*x^4 as seq_t for a given x (idx_t).
+   ------------------------------------------------------------------------ */
+static seq_t four_x4(idx_t x)
+{
+    seq_t xx = (seq_t)x * (seq_t)x;
+    seq_t xxxx = xx * xx;
+    return ((seq_t)4) * xxxx;
+}
 
 /* Static table of precomputed values up to MAX_N. */
 /* MAX_N is chosen large enough for typical tests (≈2·10⁴). */
@@ -35,9 +65,9 @@ static void compute_sums(idx_t max_n)
 {
     /* Allocate or reallocate the table */
     if (sums == NULL) {
-        sums = (seq_t *)malloc((max_n + 1) * sizeof(seq_t));
+        sums = mem_new(seq_t, (max_n + 1));
     } else {
-        sums = (seq_t *)realloc(sums, (max_n + 1) * sizeof(seq_t));
+        sums = mem_resize(seq_t, sums, (max_n + 1));
     }
     /* Initialise to zero */
     for (idx_t i = 0; i <= max_n; ++i) sums[i] = 0;
@@ -57,7 +87,7 @@ static void compute_sums(idx_t max_n)
 
     /* List of squares up to max_n for quick w² generation */
     size_t wcnt = ymax + 1;          /* w ranges 0..ymax */
-    seq_t *w_sqr = (seq_t *)malloc(wcnt * sizeof(seq_t));
+    seq_t *w_sqr = mem_new(seq_t, wcnt);
     for (idx_t w = 0; w < wcnt; ++w) w_sqr[w] = (seq_t)w * (seq_t)w;
 
     /* Core triple loop over x,y,z */
@@ -96,7 +126,7 @@ static void compute_sums(idx_t max_n)
         }
     }
 
-    free(w_sqr);
+    mem_free(w_sqr);
 }
 
 /* ------------------------------------------------------------------------

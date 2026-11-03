@@ -12,13 +12,15 @@
  *            The implementation computes a(n) by dynamic p...
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (!cached_n)
     {
-        cache = (seq_t *)malloc(sizeof(seq_t) * 2); /* indices 0 and 1 */
+        cache = mem_new(seq_t, 2); /* indices 0 and 1 */
         cache[1] = 11;
         for (int i = 0; i < 11; ++i) cur[i] = 1;
         cached_n = 1;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     idx_t new_n = n;
     if (new_n > cached_n)
     {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (new_n + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_n + 1));
         if (!tmp) return 0;           /* allocation failed: return 0 */
         cache = tmp;
 

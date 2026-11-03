@@ -7,6 +7,7 @@
  * Formula:   a(2n-1) = n*a(2n-2), a(2n) = n*a(2n-1) + 1, a(1) = 1
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 25, u128 n <= 41,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 179 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

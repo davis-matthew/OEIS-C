@@ -10,12 +10,35 @@
  *            is the ordinary Fibonacci sequence (F(0)=0, F(1)=1)
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   fib_fast_local
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fib_fast_local.h"
+/* Fast doubling Fibonacci.
+ * After calling fib_fast_local(n, &fn, &fn1), fn = F(n) and fn1 = F(n+1). */
+static void fib_fast_local(idx_t n, seq_t *fn, seq_t *fn1)
+{
+    if (n == 0) {
+        *fn  = (seq_t)0;
+        *fn1 = (seq_t)1;
+        return;
+    }
+    seq_t a, b;
+    fib_fast_local(n >> 1, &a, &b);       /* a = F(k), b = F(k+1), k = n/2 */
+    seq_t two_b = b + b;                   /* 2 * F(k+1) */
+    seq_t c = a * (two_b - a);             /* F(2k)   = F(k) * (2*F(k+1) – F(k)) */
+    seq_t d = a * a + b * b;               /* F(2k+1) = F(k)^2 + F(k+1)^2 */
+
+    if ((n & 1) == 0) {
+        *fn  = c;
+        *fn1 = d;
+    } else {
+        *fn  = d;
+        *fn1 = c + d;
+    }
+}
 static idx_t row_of_index(idx_t n)
 {
     /* Binary search for the row containing the flattened index n

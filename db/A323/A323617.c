@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 520, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factorize, is_prime, mod_pow, seq_alloc, seq_realloc
+ * Validated: standard, pass, 66 terms through n = 9681 (2026-11-01)
+ * Helpers:   factorize, is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,32 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factorize.h"
-#include "../utils/mod_pow.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;      /* array of found primes */
 static size_t cache_cap = 0;     /* allocated capacity of cache */
@@ -64,7 +86,7 @@ static void ensure_cache(idx_t n)
         /* check that 3 is a primitive root modulo p */
         bool three_primitive = true;
         for (int i = 0; i < pf_cnt && three_primitive; ++i) {
-            seq_t pow = mod_pow((seq_t)3,
+            seq_t pow = powmod((seq_t)3,
                                 (next_candidate - 1) / primes[i],
                                 (seq_t)next_candidate);
             if (pow == (seq_t)1)
@@ -76,7 +98,7 @@ static void ensure_cache(idx_t n)
         /* ensure 243 is NOT a primitive root modulo p */
         bool low_order = false;
         for (int i = 0; i < pf_cnt && !low_order; ++i) {
-            seq_t pow = mod_pow((seq_t)243,
+            seq_t pow = powmod((seq_t)243,
                                 (next_candidate - 1) / primes[i],
                                 (seq_t)next_candidate);
             if (pow == (seq_t)1)

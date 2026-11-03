@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 12, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   is_prime_digit_diff, ok_fib
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,33 @@
  * state is stored; the sequence is generated on demand. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_digit_diff.h"
-#include "../utils/ok_fib.h"
+
+/* Helper: true if d is 2, 3, 5, or 7. */
+static inline bool is_prime_digit_diff(uint8_t d)
+{
+    return d == 2 || d == 3 || d == 5 || d == 7;
+}
+
+/* Helper: true if x satisfies the sequence property. */
+static inline bool ok_fib(seq_t x)
+{
+    seq_t t = x;
+    uint8_t min_d = 9, max_d = 0;
+
+    /* 0 has an empty digit set – it does not satisfy the condition */
+    if (t == (seq_t)0) {
+        return false;
+    }
+
+    while (t > (seq_t)0) {
+        uint8_t d = (uint8_t)(t % (seq_t)10);
+        if (d < min_d) min_d = d;
+        if (d > max_d) max_d = d;
+        t /= (seq_t)10;
+    }
+
+    return is_prime_digit_diff(max_d - min_d);
+}
 
 /* Main routine: returns the n-th term of the sequence. */
 seq_t a(idx_t n)

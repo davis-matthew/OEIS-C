@@ -11,12 +11,14 @@
  *            requested
  * Range:     u8 n <= 137, u16 n <= 960, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 825 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;                /* dynamic programming table */
 static idx_t  dp_cap = 0;               /* allocated capacity (number of slots) */
@@ -30,9 +32,9 @@ static void recompute_upto(idx_t n)
 {
     /* Ensure the array is large enough.  Allocate exactly n+1 slots. */
     if (n + 1 > dp_cap) {
-        seq_t *tmp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, (n + 1));
         if (!tmp) abort();           /* fatal error on allocation failure */
-        free(dp);
+        mem_free(dp);
         dp = tmp;
         dp_cap = n + 1;
     }
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         /* First call: allocate a small table.  Size is irrelevant
            because recompute_upto will resize it promptly. */
         dp_cap = 16;
-        dp = (seq_t *)malloc(dp_cap * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_cap);
         if (!dp) abort();
         dp_len = 0;
     }

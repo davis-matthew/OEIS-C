@@ -5,13 +5,15 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = (n+3)*binomial(n+8, 8)/3 (OEIS A053310, offset 0)
- * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 38, u64 n <= 503, u128 n <= 1000,
+ * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 38, u64 n <= 503, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 972 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

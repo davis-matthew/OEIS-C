@@ -10,12 +10,14 @@
  *            least one run has length exactly 8)
  * Range:     u8 n <= 16, u16 n <= 25, u32 n <= 42, u64 n <= 73, u128 n <= 130,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 52 terms through n = 174 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   // provides binom(idx_t a, idx_t b) returning seq_t
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -35,10 +37,10 @@ seq_t a(idx_t n)
         seq_t second = 0;   // C(n-8k-1, k-1)  (exists iff n >= 8k+1)
 
         if (n >= 7*k + 1)            /* n-7k-1 >= 0 */
-            first = binom(n - 7*k - 1, k - 1);
+            first = binomial(n - 7*k - 1, k - 1);
 
         if (n >= 8*k + 1)            /* n-8k-1 >= 0 */
-            second = binom(n - 8*k - 1, k - 1);
+            second = binomial(n - 8*k - 1, k - 1);
 
         /* difference counts compositions with at least one part = 8 */
         seq_t diff = first;

@@ -10,6 +10,7 @@
  *            empty and the product is 1
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 35, u128 n <= 64,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 993 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,9 @@
   
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto() */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
  
 /* static cache for primes up to the largest limit requested so far */
 static uint64_t *prime_list = NULL;

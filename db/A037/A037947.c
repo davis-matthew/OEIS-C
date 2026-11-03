@@ -10,11 +10,13 @@
  *            E6(q)=1-504∑_{n≥1} σ₅(n) q^n
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 6, i64 n <= 34, i128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 916 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>      /* size_t */
 #include <stdint.h>      /* uint64_t */
 

@@ -8,6 +8,7 @@
  *            prime(n+1)-1
  * Range:     u8 n <= 53, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
  * Helpers:   is_squarefree, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_squarefree.h"   /* declares bool is_squarefree(seq_t) */
-#include "../utils/sieve_first_n_primes.h"  /* declares void sieve_first_n_primes(idx_t, uint32_t **, size_t *) */
+#include <string.h>
+#include <math.h>
+#include "../utils/is_squarefree.h"
+#include "../utils/sieve_first_n_primes.h"
 
 static uint32_t *prime_cache = NULL;   /* NULL until primes are computed */
 static size_t prime_cache_count = 0;   /* number of primes stored in prime_cache */

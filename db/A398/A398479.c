@@ -8,19 +8,22 @@
  * Formula:   a(n) = (2*n)^n * binomial(3*n, n) / (n + 1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 16,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: standard, pass, 32 terms through n = 256 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* (2*n)^n */
     seq_t base = (seq_t)(n * 2);
-    seq_t pow_term = seq_pow(base, n);
+    seq_t pow_term = ipow_idx(base, n);
 
     /* binomial(3*n, n) */
     seq_t bin_term = binomial((idx_t)(3 * n), (idx_t)n);

@@ -11,13 +11,28 @@
  *            selecting those * that satisfy this property
  * Range:     u8 n <= 6, u16 n <= 7662, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_nonzero67
+ * Validated: standard, pass, 66 terms through n = 8518 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/has_equal_nonzero67.h"
+#include "../utils/mem.h"
+
+/* check whether x (encoded as idx_t) satisfies the condition:
+ * the same nonzero number of 6's and 7's in its base‑9 representation. */
+static int has_equal_nonzero67(idx_t x)
+{
+    int count6 = 0, count7 = 0;
+    while (x > 0) {
+        int d = x % 9;
+        if (d == 6) count6++;
+        else if (d == 7) count7++;
+        x /= 9;
+    }
+    return count6 == count7 && count6 > 0;
+}
 
 static seq_t *terms = NULL;     /* stored terms in increasing order */
 static idx_t  term_count = 0;   /* number of stored terms */
@@ -29,7 +44,7 @@ static void append_term(seq_t value)
 {
     if (term_count == term_cap) {
         idx_t new_cap = (term_cap == 0) ? 4 : term_cap * 2;
-        seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
         if (new_arr == NULL) abort(); /* out of memory */
         terms = new_arr;
         term_cap = new_cap;

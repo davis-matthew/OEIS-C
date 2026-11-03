@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 368, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, next_prime, rev
+ * Validated: standard, pass, 62 terms through n = 9871 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/next_prime.h"
 #include "../utils/is_prime.h"
-#include "../utils/rev.h"
+#include "../utils/next_prime.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached A217614 terms (seq_t type) */
 static size_t cache_cap   = 0;    /* current capacity of cache */
@@ -34,7 +36,7 @@ static bool is_emirp(uint64_t p)
 {
     if (p < 10)                     /* single‑digit primes are not emirps */
         return false;
-    uint64_t revp = rev(p);
+    uint64_t revp = reverse_digits_idx(p);
     if (revp == p)                  /* palindromic prime */
         return false;
     return is_prime(revp);
@@ -45,7 +47,7 @@ static void append_cache(seq_t val)
 {
     if (cache_len == cache_cap) {
         cache_cap = cache_cap ? 2 * cache_cap : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) exit(EXIT_FAILURE);   /* out of memory */
         cache = tmp;
     }

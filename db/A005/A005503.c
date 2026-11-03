@@ -12,7 +12,8 @@
  *            for d >= 3, Refl(m) = m*(2*C(s)-C(s-1)), s=(m-1...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   tot
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/tot.h"
+#include "../utils/totient_u64.h"
 
 typedef struct { uint32_t *d; size_t cap; } bn_t;
 
@@ -110,7 +111,7 @@ seq_t a(idx_t n) {
             bn_binom(&u, 2 * p - 2, p - 1);
             bn_sub(&t, &u);
         }
-        bn_mul_small(&t, (uint32_t)tot(d));
+        bn_mul_small(&t, (uint32_t)totient_u64(d));
         bn_add(&sum, &t);
     }
     if (m % 2 == 1) {

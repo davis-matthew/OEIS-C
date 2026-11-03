@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_zero_oct
+ * Validated: standard, pass, 74 terms through n = 8590 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_zero_oct.h"
+#include "../utils/mem.h"
+
+/* Return true if v (in base 8) contains at least one zero digit. */
+static bool has_zero_oct(idx_t v)
+{
+    if (v == 0)                 /* 0 itself has a zero digit */
+        return true;
+    while (v != 0) {
+        if ((v % (idx_t)8) == 0)
+            return true;        /* found a 0 digit */
+        v /= (idx_t)8;          /* move to next octal digit */
+    }
+    return false;               /* no zero digit found */
+}
 
 /* Static memoisation storage --------------------------------------------------- */
 /* Array of computed terms.  The array is grown as needed. */
@@ -39,7 +53,7 @@ static void grow_cache(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr)               /* allocation failure – abort */
         abort();
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 8397 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- Static state ---------- */
 static seq_t *b_arr   = NULL;   /* values of b   */
@@ -85,7 +87,7 @@ static void ensure_b_capacity(size_t idx)
     if (idx < b_cap) return;
     size_t new_cap = b_cap ? b_cap * 2 : 256;
     while (new_cap <= idx) new_cap *= 2;
-    seq_t *new_b = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
+    seq_t *new_b = mem_resize(seq_t, b_arr, new_cap);
     if (!new_b) exit(EXIT_FAILURE);
     b_arr = new_b;
     b_cap = new_cap;
@@ -96,7 +98,7 @@ static void ensure_a_capacity(size_t idx)
     if (idx < a_cap) return;
     size_t new_cap = a_cap ? a_cap * 2 : 256;
     while (new_cap <= idx) new_cap *= 2;
-    seq_t *new_a = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_arr, new_cap);
     if (!new_a) exit(EXIT_FAILURE);
     a_arr = new_a;
     a_cap = new_cap;

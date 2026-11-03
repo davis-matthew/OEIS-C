@@ -10,7 +10,8 @@
  *            prime. Counts start at n = 1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 54, u64 n <= 2800,
  *            u128 n <= 2800, big any n
- * Helpers:   mul_mod
+ * Validated: standard, pass, 41 terms through n = 2732 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/mul_mod.h"
+#include "../utils/mulmod.h"
 
 /* ---------- Miller–Rabin helpers for 64‑bit integers ---------- */
 
@@ -26,8 +27,8 @@ static inline uint64_t pow_mod(uint64_t a, uint64_t d, uint64_t mod)
 {
     uint64_t r = 1;
     while (d) {
-        if (d & 1ULL) r = mul_mod(r, a, mod);
-        a = mul_mod(a, a, mod);
+        if (d & 1ULL) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         d >>= 1ULL;
     }
     return r;
@@ -66,7 +67,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1ULL || x == n - 1ULL) continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mul_mod(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1ULL) {
                 composite = false;
                 break;

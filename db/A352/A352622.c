@@ -9,7 +9,8 @@
  * Formula:   a(n) = Sum_{d|n} A111336(d)
  * Range:     u8 n <= 1801, u16 n <= 1801, u32 n <= 1801, u64 n <= 1801,
  *            u128 n <= 1801, big any n
- * Helpers:   _a111336, _is_pow2
+ * Validated: standard, pass, 94 terms through n = 1750 (2026-11-01)
+ * Helpers:   is_pow2_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,38 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_a111336.h"
-#include "../utils/_is_pow2.h"
+#include "../utils/is_pow2_idx.h"
+
+/* Number of regular convex polytopes with exactly 'v' vertices. */
+static inline seq_t _a111336(idx_t v)
+{
+    seq_t cnt = 1;               /* simplex (always present) */
+
+    /* polygon exists for all v >= 3, except the triangle (v==3) which
+       coincides with the simplex. */
+    if (v >= 4u)
+        cnt += 1;
+
+    /* cross‑polytope (2d vertices) exists for any even v >= 6.  The case
+       v==4 is already counted by the polygon. */
+    if ((v & 1u) == 0u && v >= 6u)
+        cnt += 1;
+
+    /* hypercube (2^k vertices) exists for any v that is a power of two
+       with v >= 8.  The cases v==2 and v==4 are already counted. */
+    if (is_pow2_idx(v) && v >= 8u)
+        cnt += 1;
+
+    /* Exceptional 3‑D regular polytopes (not counted above). */
+    if (v == 12u || v == 20u)
+        cnt += 1;
+
+    /* Exceptional 4‑D regular polytopes. */
+    if (v == 24u || v == 120u || v == 600u)
+        cnt += 1;
+
+    return cnt;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

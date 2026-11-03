@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 33, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(n) = 4*a(n-1) - 2*a(n-3) - 5*a(n-4) + a(n-6);
    initial values: a(1)=4, a(2)=16, a(3)=62, a(4)=235, a(5)=888, a(6)=3349 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the OEIS sequence A250346.  The function is memoized: it keeps a
    static array containing all terms that have been computed so far, and it
@@ -34,11 +36,10 @@ seq_t a(idx_t n)
 
     /* Allocate (or grow) the cache array to fit indices 0..n. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(((size_t)n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, ((size_t)n + 1));
         if (cache == NULL) return 0;          /* allocation failure */
     } else if (n > max_comp) {
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      ((size_t)n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, ((size_t)n + 1));
         if (tmp == NULL) return 0;            /* allocation failure */
         cache = tmp;
     }

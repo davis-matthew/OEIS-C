@@ -9,13 +9,15 @@
  *            sum_{i=1..n} d(i), where d(i) counts divisors of i)
  * Range:     u8 n <= 59, u16 n <= 7247, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9148 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return number of positive divisors of n (A000005).  */
 static seq_t divisor_count(idx_t n)
@@ -43,7 +45,7 @@ static void ensure_up_to(idx_t n)
     if (cache_size == 0)
     {
         /* First allocation.  */
-        seq_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, (n + 1));
         if (!seq_cache)
             return;
         seq_cache[0] = (seq_t)1;     /* a(0) */
@@ -59,7 +61,7 @@ static void ensure_up_to(idx_t n)
     else if (cache_size <= n)
     {
         idx_t old_size = cache_size;
-        seq_cache = (seq_t *)realloc(seq_cache, (n + 1) * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, (n + 1));
         if (!seq_cache)
             return;
         /* Compute new values from old_size to n.  */

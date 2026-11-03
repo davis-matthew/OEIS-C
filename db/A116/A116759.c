@@ -9,6 +9,7 @@
  *            240)/240
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

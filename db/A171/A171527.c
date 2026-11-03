@@ -7,7 +7,8 @@
  * Formula:   a(n) = numerator of A002808(n)/n
  * Range:     u8 n <= 200, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 95 terms through n = 8655 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>   /* uint64_t */
 #include <math.h>     /* sqrt */
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Cache of n-th composite numbers */
 static seq_t *composites = NULL;
@@ -50,7 +52,7 @@ ensure_composites(idx_t n)
     /* Grow composites array if necessary. */
     if (comp_cap == 0) {
         comp_cap = 4;
-        composites = (seq_t *)realloc(composites, comp_cap * sizeof(seq_t));
+        composites = mem_resize(seq_t, composites, comp_cap);
     }
 
     while (comp_cnt < (size_t)n) {
@@ -82,8 +84,7 @@ ensure_composites(idx_t n)
             /* Composite number: store it. */
             if (comp_cnt == comp_cap) {
                 comp_cap = comp_cap ? comp_cap * 2 : 4;
-                composites = (seq_t *)realloc(composites,
-                                              comp_cap * sizeof(seq_t));
+                composites = mem_resize(seq_t, composites, comp_cap);
             }
             composites[comp_cnt++] = (seq_t)last_candidate;
         }

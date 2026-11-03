@@ -9,7 +9,8 @@
  *            in increasing order)
  * Range:     i8 n <= 130, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   _factor_u64
+ * Validated: standard, pass, 65 terms through n = 1000 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,41 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_factor_u64.h"
+#include <stddef.h>
+
+/* ---------- Trial division factorisation ----------------------------------- */
+static void _factor_u64(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    *cnt = 0;
+    if (n < 2) return;
+    /* factor 2 separately */
+    if ((n & 1ULL) == 0) {
+        pr[*cnt] = 2ULL;
+        exp[*cnt] = 0;
+        while ((n & 1ULL) == 0) {
+            n >>= 1;
+            exp[*cnt] += 1;
+        }
+        (*cnt)++;
+    }
+    /* odd primes */
+    for (uint64_t d = 3ULL; d * d <= n; d += 2ULL) {
+        if (n % d == 0) {
+            pr[*cnt] = d;
+            exp[*cnt] = 0;
+            while (n % d == 0) {
+                n /= d;
+                exp[*cnt] += 1;
+            }
+            (*cnt)++;
+        }
+    }
+    if (n > 1) {
+        pr[*cnt] = n;
+        exp[*cnt] = 1;
+        (*cnt)++;
+    }
+}
 
 /* Comparison function for qsort on uint64_t values */
 static int cmp_uint64(const void *a, const void *b)

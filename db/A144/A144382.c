@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 78, i16 n <= 78, i32 n <= 78, i64 n <= 78, i128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include "../utils/mem.h"
 
 /* --- Helper structure for cached rows ----------------------------------- */
 typedef struct {
@@ -88,7 +90,7 @@ static seq_t get_T(idx_t row, idx_t k)
     if (RE->cap <= (size_t)k) {
         size_t old_cap = RE->cap;
         size_t new_cap = (size_t)k + 1;
-        seq_t *new_coeff = (seq_t *)realloc(RE->coeff, new_cap * sizeof(seq_t));
+        seq_t *new_coeff = mem_resize(seq_t, RE->coeff, new_cap);
         if (!new_coeff) exit(EXIT_FAILURE);
         RE->coeff = new_coeff;
         /* Fill new entries */

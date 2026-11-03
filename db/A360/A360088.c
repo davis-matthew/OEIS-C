@@ -9,12 +9,14 @@
  *            values: a(0)=1, a(1)=-1, a(2)=-3, a(3)=1, a(4)=13
  * Range:     i8 n <= 7, i16 n <= 16, i32 n <= 32, i64 n <= 33, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -22,7 +24,7 @@ seq_t a(idx_t n) {
 
     /* create base entries if cache is empty */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * 5);
+        cache = mem_new(seq_t, 5);
         if (cache == NULL)
             return (seq_t)0; /* allocation error – unlikely in tests */
         cache[0] = (seq_t)1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
 
     /* otherwise grow the cache to size n+1 */
     size_t old_cap = cache_cap;
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (new_cache == NULL)
         return (seq_t)0; /* allocation error */
     cache = new_cache;

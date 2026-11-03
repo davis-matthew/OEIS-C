@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = number of distinct prime factors common to σ(n) and φ(n)
- * Range:     u8 n <= 775, u16 n <= 9313, u32 n <= 9313, u64 n <= 9313,
- *            u128 n <= 9313, big any n
- * Helpers:   phi, sigma_of
+ * Range:     u8 n <= 775, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9313 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,36 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/sigma_of.h"
-#include "../utils/phi.h"
+#include <stdlib.h>
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+static seq_t phi(idx_t m)
+{
+    seq_t result = (seq_t)m;
+    idx_t d = 2;
+    for (; d * d <= m; ++d) {
+        if (m % d == 0) {
+            while (m % d == 0) m /= d;
+            result -= result / (seq_t)d;
+        }
+    }
+    if (m > 1) result -= result / (seq_t)m;
+    return result;
+}
 
 /* --------------------------------------------------------------------- */
 /* Factor a uint64_t into its prime bases and exponents by trial division. */

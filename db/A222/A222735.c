@@ -9,13 +9,15 @@
  *            The sequence starts at n=7
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 136, u64 n <= 413,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 855 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* calloc, free, memcpy */
+#include "../utils/mem.h"
 
 /* Cached partition numbers */
 static seq_t *partitions = NULL;
@@ -28,15 +30,15 @@ static void ensure_partitions(idx_t n)
         return;
 
     size_t newsize = (size_t)(n + 1);
-    seq_t *newp = (seq_t *)calloc(newsize, sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, newsize);
     if (!newp)                /* out of memory – keep old cache, caller gets 0 */
         return;
 
     /* copy previous data */
     if (partitions)
     {
-        memcpy(newp, partitions, (size_t)(part_max + 1) * sizeof(seq_t));
-        free(partitions);
+        mem_copy(newp, partitions, (size_t)(part_max + 1) * sizeof(seq_t));
+        mem_free(partitions);
     }
 
     newp[0] = (seq_t)1;       /* p(0)=1 */

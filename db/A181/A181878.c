@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, easy, tabf
  * Formula:   not stated
- * Range:     i8 n <= 20, i16 n <= 75, i32 n <= 84, i64 n <= 84, i128 n <= 84,
+ * Range:     i8 n <= 26, i16 n <= 84, i32 n <= 84, i64 n <= 84, i128 n <= 84,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
    with 0 ≤ m ≤ 2k, and the triangle is read row‑by‑row.
    Starting indices: a(0)=1, a(1)=1, … */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Given the global index n, compute the triangle row r and column m. */
 static void row_col(idx_t n, idx_t *r, idx_t *c)
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
                 idx_t up = up0 - offset;         /* current upper index */
 
                 if (up < low) continue;          /* binomial = 0 */
-                sum += binom(up, low);
+                sum += binomial(up, low);
             }
         }
     } else {                           /* odd row 2k+1 */
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
             idx_t up = up0 - offset;         /* current upper index */
 
             if (up < low) continue;          /* binomial = 0 */
-            sum += binom(up, low);
+            sum += binomial(up, low);
         }
     }
 

@@ -8,7 +8,8 @@
  *            modulo p (i.e. 30^((p‑1)/2) ≡ p‑1 (mod p))
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 61 terms through n = 934 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *cache  = NULL;
 static size_t cache_cnt = 0;
@@ -29,18 +32,18 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         if (!cache) exit(1);
     }
 
     idx_t p = last_checked + 1;
     while (cache_cnt < n) {
         if (is_prime(p)) {
-            seq_t rem = mod_pow((seq_t)30, (p - 1) / 2, (seq_t)p);
+            seq_t rem = powmod((seq_t)30, (p - 1) / 2, (seq_t)p);
             if (rem == (seq_t)(p - 1)) {
                 if (cache_cnt == cache_cap) {
                     cache_cap <<= 1;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                     if (!cache) exit(1);
                 }
                 cache[cache_cnt++] = (seq_t)p;

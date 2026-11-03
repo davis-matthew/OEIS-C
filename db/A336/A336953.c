@@ -6,20 +6,21 @@
  * Keywords:  nonn, base, look
  * Formula:   a(n) = rotate the binary representation of n right by n
  *            positions (mod bit length)
- * Range:     u8 n <= 259, u16 n <= 7655, u32 n <= 7655, u64 n <= 7655,
- *            u128 n <= 7655, big any n
- * Helpers:   bitlen_seq_t
+ * Range:     u8 n <= 259, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 84 terms through n = 7655 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
     /* Bit length of n – for n = 0 treat it as 1 bit. */
-    idx_t len = (n == 0) ? 1 : bitlen_seq_t((seq_t)n);
+    idx_t len = (n == 0) ? 1 : bit_length((seq_t)n);
     idx_t k   = n % len;
 
     /* No rotation needed. */

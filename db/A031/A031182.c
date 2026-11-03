@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   sum_fourth_digits
+ * Validated: partial, pass, 100 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,21 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/sum_fourth_digits.h"
+#include "../utils/mem.h"
+
+/* helper: compute sum of fourth powers of decimal digits of x */
+static seq_t
+sum_fourth_digits(seq_t x)
+{
+    seq_t sum = 0;
+    while (x > 0) {
+        unsigned d = (unsigned)(x % 10);
+        seq_t d4 = (seq_t)d * d * d * d;
+        sum += d4;
+        x /= 10;
+    }
+    return sum;
+}
 
 /* maximum value that can arise from a single iteration of the
  * digit‑power function for numbers that appear from starting
@@ -52,7 +67,7 @@ seq_t a(idx_t n)
     /* initialise static arrays once */
     if (!_seq_init) {
         memset(_visited, 0xff, sizeof(_visited)); /* -1 */
-        memset(_period, 0, sizeof(_period));
+        mem_set(_period, 0, sizeof(_period));
         _seq_init = true;
     }
 

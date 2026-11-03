@@ -9,7 +9,8 @@
  *            sequence φ(1), φ(2), … , φ(n)
  * Range:     u8 n <= 783, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 85 terms through n = 9936 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,18 +21,19 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/phi.h"          /* provides seq_t phi(idx_t m) */
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0;   /* offset is 1; n=0 is unused */
 
     /* allocate an array that can hold up to n tails of the LNDS */
-    seq_t *tails = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *tails = mem_new(seq_t, (size_t)n);
     size_t len = 0;                  /* current number of tails */
 
     for (idx_t i = 1; i <= n; ++i) {
-        seq_t x = phi(i);            /* value φ(i) */
+        seq_t x = totient(i);            /* value φ(i) */
 
         /* binary search for the first tail > x (upper_bound) */
         size_t lo = 0, hi = len;
@@ -49,6 +51,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(tails);                     /* release the temporary buffer */
+    mem_free(tails);                     /* release the temporary buffer */
     return (seq_t)len;               /* length of the longest nondecreasing subsequence */
 }

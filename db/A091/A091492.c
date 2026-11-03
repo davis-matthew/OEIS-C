@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    and c = n – r(r+1)/2.                                            */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*             Cached storage of the triangle T(n,k)                     */
@@ -51,7 +53,7 @@ static void ensure_triangle_rows(idx_t max_row)
     /* Compute the new rows (from the current end up to max_row) */
     for (idx_t n = (idx_t)triangle_rows; n <= max_row; ++n) {
         /* Allocate memory for one row (length n+1) */
-        triangle[n] = (seq_t *)malloc(((size_t)n + 1) * sizeof(seq_t));
+        triangle[n] = mem_new(seq_t, ((size_t)n + 1));
 
         /* Fill the row */
         for (idx_t k = 0; k <= n; ++k) {

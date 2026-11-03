@@ -9,25 +9,27 @@
  *            (n-i) * b(n, i) + b(n+1, i)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
     
-    seq_t *prev = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (n + 1));
+    seq_t *curr = mem_new(seq_t, (n + 1));
     
     prev[1] = 1;
     seq_t result = 1;
     
     if (n == 1) {
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return result;
     }
     
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
         result += prev[i];
     }
     
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

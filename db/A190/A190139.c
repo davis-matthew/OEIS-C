@@ -9,13 +9,15 @@
  *            a(-2) = a(-1) = 0
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 47, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The function keeps a cache that grows as needed and can be called in any order. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;          /* allocated elements */
@@ -24,7 +26,7 @@ static idx_t max_computed = 0;        /* highest index for which a value is stor
 static void ensure_cache(idx_t n) {
     if (cache == NULL) {
         cache_cap = 4; /* at least big enough for indices 0..3 when needed */
-        cache = (seq_t*)malloc(sizeof(seq_t)*cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return; /* allocation failed – let caller handle zero */
         /* initial known values */
         cache[0] = (seq_t)1;
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n) {
     /* Grow the cache to at least n+1 */
     while (cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap << 1;
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t)*new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return; /* allocation failed – abort */
         cache = tmp;
         cache_cap = new_cap;

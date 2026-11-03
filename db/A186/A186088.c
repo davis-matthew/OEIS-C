@@ -11,7 +11,8 @@
  *            The γ_k are the forward differences of the first 35 terms
  * Range:     u8 none, u16 none, u32 n <= 6, u64 n <= 26, u128 n <= 147,
  *            big any n
- * Helpers:   row_le
+ * Validated: standard, pass, 32 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/row_le.h"
+
+/* --------------------------------------------------------------------
+   Helpers for lexicographic comparison
+--------------------------------------------------------------------*/
+static inline bool row_le(const uint8_t *x, const uint8_t *y)
+{
+    if (x[0] < y[0]) return true;
+    if (x[0] > y[0]) return false;
+    if (x[1] < y[1]) return true;
+    if (x[1] > y[1]) return false;
+    return x[2] <= y[2];
+}
 
 #define ROWS 125                  /* 5^3 possible rows */
 #define PAIRS (ROWS * ROWS)       /* pairs of consecutive rows */

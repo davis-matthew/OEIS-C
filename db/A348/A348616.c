@@ -10,7 +10,8 @@
  *            using divisor lists
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #define PTR_CAST(type, p) ((type)(p))
 #define INT_CAST(type, v) ((type)(v))
 #endif
+#include "../utils/mem.h"
 
 /* divisor data structures */
 static int *div_sizes = NULL;          /* number of divisors >= 2 for each n */
@@ -89,12 +91,11 @@ static seq_t total_factorizations(idx_t n)
 
     if (n > Tmax || Tcache == NULL) {
         idx_t newmax = n;
-        seq_t *newc = PTR_CAST(seq_t *, realloc(Tcache,
-                            (size_t)(newmax + 1) * sizeof(seq_t)));
+        seq_t *newc = PTR_CAST(seq_t *, mem_resize(seq_t, Tcache, (size_t)(newmax + 1)));
         if (!newc) return INT_CAST(seq_t, 0);   /* allocation failed */
 
         if (Tcache == NULL) {
-            memset(newc, 0, (size_t)(newmax + 1) * sizeof(seq_t));
+            mem_set(newc, 0, (size_t)(newmax + 1) * sizeof(seq_t));
         } else {
             /* initialise new entries */
             for (idx_t i = Tmax + 1; i <= newmax; ++i)

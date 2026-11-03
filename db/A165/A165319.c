@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) is the n-th prime p such that the number of divisors of
  *            (p+1) is a power of 2
- * Range:     u8 n <= 24, u16 n <= 3271, u32 n <= 9306, u64 n <= 9306,
- *            u128 n <= 9306, big any n
- * Helpers:   divisor_count_u64, is_power_of_two, is_prime
+ * Range:     u8 n <= 24, u16 n <= 3271, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 71 terms through n = 9306 (2026-11-03)
+ * Helpers:   is_pow2, is_prime, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/is_pow2.h"
 #include "../utils/is_prime.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/is_power_of_two.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -31,19 +33,19 @@ seq_t a(idx_t n) {
 
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_len < (size_t)n) {
         last_checked++;
         if (is_prime(last_checked)) {
             uint64_t p_plus1 = last_checked + 1;
-            size_t div_cnt = divisor_count_u64(p_plus1);
+            size_t div_cnt = num_divisors(p_plus1);
             seq_t d_seq = (seq_t)div_cnt;
-            if (is_power_of_two(d_seq)) {
+            if (is_pow2(d_seq)) {
                 if (cache_len == cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)last_checked;
             }

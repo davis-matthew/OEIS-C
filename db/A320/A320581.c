@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   is_closed
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,52 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_closed.h"
+
+/* Check whether a word of length n is closed.
+ * A word is closed if it contains a border that occurs only as its
+ * prefix and suffix (any such border suffices). */
+static bool is_closed(const char *s, size_t n)
+{
+    if (n <= 1) return true;
+
+    static int *pi = NULL;
+    static int pi_cap = 0;
+    if ((int)n > pi_cap) {
+        int *tmp = (int *)realloc(pi, n * sizeof(int));
+        if (!tmp) return false;
+        pi = tmp;
+        pi_cap = (int)n;
+    }
+
+    int len = 0;
+    pi[0] = 0;
+    for (size_t i = 1; i < n; ++i) {
+        while (len > 0 && s[i] != s[len]) len = pi[len - 1];
+        if (s[i] == s[len]) ++len;
+        pi[i] = len;
+    }
+
+    int b = pi[n - 1];
+    if (b == 0) return false;
+
+    while (b > 0) {
+        bool interior = false;
+        for (size_t j = 1; j <= n - (size_t)b - 1; ++j) {
+            if (s[j] == s[0]) {
+                size_t k;
+                for (k = 0; k < (size_t)b; ++k)
+                    if (s[j + k] != s[k]) break;
+                if (k == (size_t)b) {
+                    interior = true;
+                    break;
+                }
+            }
+        }
+        if (!interior) return true;
+        b = pi[b - 1];
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

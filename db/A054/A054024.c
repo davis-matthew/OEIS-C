@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = sigma(n) mod n (sum of divisors of n modulo n)
- * Range:     u8 n <= 294, u16 n <= 9506, u32 n <= 9506, u64 n <= 9506,
- *            u128 n <= 9506, big any n
+ * Range:     u8 n <= 294, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 97 terms through n = 9506 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

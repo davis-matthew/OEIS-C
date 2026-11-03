@@ -12,13 +12,28 @@
  *            satisfy S(m) = (2^...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   binom, seq_is_fixed_width
+ * Validated: partial, pass, 16 terms through n = 17 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/seq_is_fixed_width.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static seq_t shl_seq(seq_t x, idx_t e) {
     if (seq_is_fixed_width() && e >= (idx_t)(8 * sizeof(seq_t)))
@@ -42,7 +57,7 @@ seq_t a(idx_t n) {
             nU = (seq_t)(nU - 1);
         S = nS;
         U = nU;
-        seq_t term = (seq_t)(binom(n - 1, m) * S);
+        seq_t term = (seq_t)(binomial(n - 1, m) * S);
         result = (seq_t)(result + shl_seq(term, n - 1 - m));
     }
     return result;

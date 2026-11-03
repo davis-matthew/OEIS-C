@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in Product_{k>=1}(1 - x^{k(k+1)/2})
  * Range:     i8 n <= 411, i16 n <= 8587, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 9379 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,11 +18,12 @@
    triangular numbers up to n.  Works for any seq_t and idx_t types
    supported by the build. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate DP array of size n+1 */
-    seq_t *dp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp)
         return 0;          /* allocation failure – return 0 */
 
@@ -43,6 +45,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

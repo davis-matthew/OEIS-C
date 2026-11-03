@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 7625 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *a, const void *b)
 {
@@ -46,7 +48,7 @@ static void init_seq(void)
 
     /* odd numbers from 1 to 283 inclusive, count = (283+1)/2 = 142 */
     odd_cnt = 142;
-    odd_sqs = (seq_t *)malloc(odd_cnt * sizeof(seq_t));
+    odd_sqs = mem_new(seq_t, odd_cnt);
     for (size_t i = 0; i < odd_cnt; ++i) {
         seq_t odd = (seq_t)(2 * (seq_t)i + 1);
         odd_sqs[i] = odd * odd;
@@ -54,7 +56,7 @@ static void init_seq(void)
 
     /* number of distinct triples = C(odd_cnt,3) */
     sums_sz = (odd_cnt * (odd_cnt - 1) * (odd_cnt - 2)) / 6;
-    sums = (seq_t *)malloc(sums_sz * sizeof(seq_t));
+    sums = mem_new(seq_t, sums_sz);
 
     size_t pos = 0;
     for (size_t a = 0; a + 2 < odd_cnt; ++a)
@@ -63,7 +65,7 @@ static void init_seq(void)
                 sums[pos++] = odd_sqs[a] + odd_sqs[b] + odd_sqs[c];
 
     /* sort the sums */
-    qsort(sums, pos, sizeof(seq_t), cmp_seq);
+    mem_qsort(sums, pos, sizeof(seq_t), cmp_seq);
 
     /* deduplicate in place */
     size_t uniq = 0;

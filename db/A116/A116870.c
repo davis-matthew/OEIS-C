@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{k=0..6} Catalan(k) * Catalan(n+6-k)
- * Range:     u8 none, u16 n <= 3, u32 n <= 11, u64 n <= 23, u128 n <= 23,
+ * Range:     u8 none, u16 n <= 4, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@ static const seq_t SMALL_CATS[7] = { 1, 1, 2, 5, 14, 42, 132 };
 
 /* Include the helper that computes Catalan numbers.  The helper accepts
    an idx_t argument and returns a seq_t. */
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 /* Compute a(n) for any non‑negative n.  The function uses at most seven

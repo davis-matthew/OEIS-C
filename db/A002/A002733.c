@@ -8,14 +8,15 @@
  *            whether (k^2+1)/10 is prime
  * Range:     u8 n <= 25, u16 n <= 2744, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a001220_isprime
+ * Validated: standard, pass, 55 terms through n = 9756 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a001220_isprime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
 
 	for (;;) {
 		uint64_t p = (k * k + 1) / 10;
-		if (a001220_isprime(p)) {
+		if (is_prime_u64(p)) {
 			count++;
 			if (count == n)
 				return (seq_t)k;

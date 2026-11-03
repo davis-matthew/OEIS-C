@@ -11,7 +11,8 @@
  *            most significant) contains 0
  * Range:     u8 n <= 55, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- local utility ------------------------------------------------ */
 #define MAX_F 2000  /* all values produced by f fit in this range */
@@ -60,7 +62,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t need)
     size_t newcap = (*cap > 0) ? (*cap * 2) : 8;
     if (newcap < need)
         newcap = need;
-    *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap = newcap;
 }
 

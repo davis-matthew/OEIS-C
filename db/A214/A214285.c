@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed factorials of digits 0–9. */
 static const seq_t fact[10] = {
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
 
         /* Estimate upper bound for number of pairs (very conservative). */
         size_t cap = 16;
-        pair_vals = (seq_t *)malloc(cap * sizeof(seq_t));
+        pair_vals = mem_new(seq_t, cap);
         if (!pair_vals)
             return 0;                       /* allocation failure */
 
@@ -83,9 +85,9 @@ seq_t a(idx_t n)
             if (i < m_idx) {
                 if (pair_cnt + 2 > cap) {
                     cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(pair_vals, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, pair_vals, cap);
                     if (!tmp) {
-                        free(pair_vals);
+                        mem_free(pair_vals);
                         pair_vals = NULL;
                         return 0;           /* allocation failure */
                     }

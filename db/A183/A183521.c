@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Computation:  DP over rows.
    For each n×4 array over {0,1,2} each cell must equal either
@@ -113,8 +115,8 @@ seq_t a(idx_t n)
     /* DP arrays */
     static seq_t dp_cur[ROWS * ROWS];
     static seq_t dp_next[ROWS * ROWS];
-    memset(dp_cur, 0, sizeof(dp_cur));
-    memset(dp_next, 0, sizeof(dp_next));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_next, 0, sizeof(dp_next));
 
     /* initial state: zero row above first row */
     for (int cur = 0; cur < ROWS; ++cur) {
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
 
     /* process rows 2 … n */
     for (idx_t step = 2; step <= n; ++step) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int prev = 0; prev < ROWS; ++prev) {
             for (int cur = 0; cur < ROWS; ++cur) {
                 seq_t val = dp_cur[prev * ROWS + cur];
@@ -148,7 +150,7 @@ seq_t a(idx_t n)
             }
         }
         /* move dp_next to dp_cur for next iteration */
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     /* final check: last row must satisfy constraint with zero row below */

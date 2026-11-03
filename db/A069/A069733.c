@@ -10,13 +10,39 @@
  *            / 2^e be the odd part of n, then a(n) = 2 * τ(m)
  * Range:     u8 n <= 460, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   odd_divisor_count
+ * Validated: standard, pass, 120 terms through n = 9977 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/odd_divisor_count.h"
+
+/* Count the number of divisors of an odd integer m (m <= ULONG_MAX). */
+static seq_t odd_divisor_count(seq_t m)
+{
+    seq_t tau = 1;
+    if (m == 0) return 0;          /* defensive: should not occur */
+    /* trial division over odd factors, m is odd */
+    while (m % 3ULL == 0ULL) {
+        int exp = 0;
+        do { m /= 3ULL; ++exp; } while (m % 3ULL == 0ULL);
+        tau *= (seq_t)(exp + 1);
+    }
+    seq_t p = 5;
+    seq_t step = 2;
+    while (p * p <= m) {
+        while (m % p == 0ULL) {
+            int exp = 0;
+            do { m /= p; ++exp; } while (m % p == 0ULL);
+            tau *= (seq_t)(exp + 1);
+        }
+        p += step;
+        step = 6 - step;          /* cycle through 5,7,11,13,... */
+    }
+    if (m > 1ULL) tau *= 2;       /* remaining prime factor */
+    return tau;
+}
 
 seq_t a(idx_t n)
 {

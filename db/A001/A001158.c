@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{p^e || n} (p^(3e+3)-1)/(p^3-1) (multiplicative)
  * Range:     u8 n <= 6, u16 n <= 39, u32 n <= 1547, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 58 terms through n = 9794 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

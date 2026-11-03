@@ -9,12 +9,13 @@
  *            intermediate exceeds the result
  * Range:     u8 n <= 12, u16 n <= 14, u32 n <= 17, u64 n <= 26, u128 n <= 29,
  *            big any n
- * Helpers:   a4353_gcd
+ * Validated: partial, pass, 19 terms through n = 29 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a4353_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     if (n < 11) return 0;
@@ -24,7 +25,7 @@ seq_t a(idx_t n) {
     for (idx_t i = 1; i <= k; i++) {
         seq_t num = base + (seq_t)i;
         seq_t den = (seq_t)i;
-        seq_t g = a4353_gcd(r, den);
+        seq_t g = gcd(r, den);
         r /= g;
         den /= g;
         num /= den;

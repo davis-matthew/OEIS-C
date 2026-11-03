@@ -8,7 +8,8 @@
  *            Sum_{d|n} φ(n/d) * ( 2^(2*d-1) - binomial(2*d-1, d) ) )
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 35, u128 n <= 67,
  *            big any n
- * Helpers:   binomial, phi, pow2
+ * Validated: standard, pass, 44 terms through n = 841 (2026-11-01)
+ * Helpers:   binomial, pow2, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,11 @@
  * arbitrary‑precision build. */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/phi.h"
 #include "../utils/pow2.h"
+#include "../utils/totient.h"
 
 /* 128‑bit helper (two 64‑bit limbs) */
 typedef struct { uint64_t lo; uint64_t hi; } uv128;
@@ -95,7 +98,7 @@ seq_t a(idx_t n) {
             if (n % i == 0) {
                 /* divisor d = i */
                 uint64_t d = (uint64_t)i;
-                uint64_t phi_val = (uint64_t)phi((idx_t)(n / d));
+                uint64_t phi_val = (uint64_t)totient((idx_t)(n / d));
 
                 uv128 pow_part = pow2_uv128(2 * d - 1);
                 uv128 binom_part = binom_uv128(2 * d - 1, d);
@@ -106,7 +109,7 @@ seq_t a(idx_t n) {
                 /* second divisor d = n/i if distinct */
                 if (i != n / i) {
                     uint64_t d2 = (uint64_t)(n / i);
-                    uint64_t phi_val2 = (uint64_t)phi((idx_t)(n / d2));
+                    uint64_t phi_val2 = (uint64_t)totient((idx_t)(n / d2));
 
                     uv128 pow_part2 = pow2_uv128(2 * d2 - 1);
                     uv128 binom_part2 = binom_uv128(2 * d2 - 1, d2);
@@ -136,7 +139,7 @@ seq_t a(idx_t n) {
         if (n % i == 0) {
             /* divisor d = i */
             idx_t d = i;
-            seq_t phi_val = phi(n / d);
+            seq_t phi_val = totient(n / d);
             seq_t pow_part = pow2(2 * d - 1);
             seq_t binom_part = binomial(2 * d - 1, d);
             seq_t diff = pow_part - binom_part;
@@ -146,7 +149,7 @@ seq_t a(idx_t n) {
             /* second divisor d = n/i if distinct */
             if (i != n / i) {
                 idx_t d2 = n / i;
-                seq_t phi_val2 = phi(n / d2);
+                seq_t phi_val2 = totient(n / d2);
                 seq_t pow_part2 = pow2(2 * d2 - 1);
                 seq_t binom_part2 = binomial(2 * d2 - 1, d2);
                 seq_t diff2 = pow_part2 - binom_part2;

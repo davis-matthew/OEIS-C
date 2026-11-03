@@ -10,7 +10,8 @@
  *            B(i,j)=abs(B(i,j-1)-B(i+1,j)), for i>j, B(i,j)=B(i-1,j)+B(i,j+1)
  * Range:     i8 n <= 149, i16 n <= 999, i32 n <= 999, i64 n <= 999,
  *            i128 n <= 999, big any n
- * Helpers:   digit_count
+ * Validated: standard, pass, 65 terms through n = 947 (2026-11-03)
+ * Helpers:   mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stddef.h>
 
 /* count decimal digits of a uint64_t (header provided by the utils) */
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
 
 /* absolute value for seq_t (handles signed integer or big‑int types) */
 static seq_t abs_seq(seq_t v)
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
 
     /* Allocate matrix of size k × k dynamically (k ≤ 20) */
     size_t sz = k * k;
-    seq_t *B = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *B = mem_new(seq_t, sz);
     if (!B) return (seq_t)0;  /* return 0 on allocation failure */
 
     /* Initialize all entries to 0 */
@@ -77,7 +80,7 @@ seq_t a(idx_t n)
     /* Compute determinant using the Bareiss (fraction‑free) algorithm */
     if (k == 1) {
         seq_t result = B[0];
-        free(B);
+        mem_free(B);
         return result;
     }
 
@@ -86,7 +89,7 @@ seq_t a(idx_t n)
     for (size_t r = 0; r < k - 1; ++r) {
         seq_t pivot = B[r * k + r];
         if (pivot == (seq_t)0) {
-            free(B);
+            mem_free(B);
             return (seq_t)0;   /* singular matrix */
         }
         for (size_t i = r + 1; i < k; ++i) {
@@ -100,6 +103,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = B[(k - 1) * k + (k - 1)];
-    free(B);
+    mem_free(B);
     return result;
 }

@@ -9,16 +9,27 @@
  *            + B*u^2*(608*B^3 + 3328*B^2*u + 8448*B*u^2 + 4096*u^3), with B =
  *            A and u = C/4 = Sum_{i,j>=0} q^(((2i+1)^2+(2j+1)^2)/2))
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 47, u64 n <= 4001,
- *            u128 n <= 8825, big any n
- * Helpers:   alloc_zero, release
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 45 terms through n = 8825 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *a006913_cache = NULL;
 static idx_t a006913_len = 0;

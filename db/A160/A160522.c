@@ -8,7 +8,8 @@
  * Formula:   a(n) = odd composite number at position n - (2*n + 2)
  * Range:     u8 n <= 80, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 86 terms through n = 889 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *odd_comps = NULL;   /* array of odd composite numbers */
 static size_t odd_comps_len = 0;  /* number of stored composites */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         /* Increase capacity if needed */
         if (odd_comps_cap == 0) {
             odd_comps_cap = 128;
-            odd_comps = (seq_t *)malloc(odd_comps_cap * sizeof(seq_t));
+            odd_comps = mem_new(seq_t, odd_comps_cap);
         }
         while (odd_comps_len < target) {
             /* Find the next odd composite */
@@ -43,15 +45,14 @@ seq_t a(idx_t n)
             if ((cand & 1) == 0) cand++;
 
             /* Check for composite: not prime and >1 */
-            while (isPrimeTrial(cand)) {
+            while (is_prime_seq(cand)) {
                 cand += 2; /* skip next odd */
             }
 
             /* Store it */
             if (odd_comps_len == odd_comps_cap) {
                 odd_comps_cap *= 2;
-                odd_comps = (seq_t *)realloc(odd_comps,
-                                             odd_comps_cap * sizeof(seq_t));
+                odd_comps = mem_resize(seq_t, odd_comps, odd_comps_cap);
             }
             odd_comps[odd_comps_len++] = cand;
             next_odd_candidate = cand + 2;

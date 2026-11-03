@@ -8,12 +8,14 @@
  *            a(3*n+1) = a(n); a(3*n+2) = 0
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* ensure space for indices 0 … n */
     size_t needed = (size_t)(n + 1 > 3 ? n + 1 : 3);
     if (cache == NULL) {
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (!cache) return (seq_t)0;            /* allocation failure */
         cache_size = (idx_t)needed;
         cache[0] = (seq_t)1;
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         cache[2] = (seq_t)0;
         top_computed = 2;
     } else if ((idx_t)needed > cache_size) {
-        cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, needed);
         if (!cache) return (seq_t)0;            /* allocation failure */
         cache_size = (idx_t)needed;
     }

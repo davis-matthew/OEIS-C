@@ -7,19 +7,20 @@
  * Formula:   a(n) = floor(n*(4*sqrt(2)+9)/7)
  * Range:     u8 n <= 2, u16 n <= 45, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 81 terms through n = 980 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 /* integer square root: floor(sqrt(x)) for arbitrary integer type seq_t */
 static inline seq_t isqrt_seq(seq_t x)
 {
     if (x == 0) return 0;
-    unsigned bits = bitlen_seq_t(x);
+    unsigned bits = bit_length(x);
     seq_t low  = 0;
     seq_t high = ((seq_t)1) << ((bits + 1) / 2); /* 2^(ceil(bits/2)) is an upper bound */
 

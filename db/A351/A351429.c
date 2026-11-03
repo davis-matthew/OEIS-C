@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 26, i16 n <= 43, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declaration of the required function */
 seq_t a(idx_t n);
@@ -67,9 +69,9 @@ static void init_tables(void)
 {
     if (initialized) return;
     const idx_t dim = MAX_S + 1;
-    T = (seq_t*)malloc(dim * dim * sizeof(seq_t));
-    S = (seq_t*)malloc(dim * dim * sizeof(seq_t));
-    fact = (seq_t*)malloc(dim * sizeof(seq_t));
+    T = mem_new(seq_t, dim * dim);
+    S = mem_new(seq_t, dim * dim);
+    fact = mem_new(seq_t, dim);
     if (!T || !S || !fact) {
         /* if allocation fails, abort the program; in a real
            library we would handle this more gracefully. */

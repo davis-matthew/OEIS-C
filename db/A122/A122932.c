@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000085(n) - 2^(n-1)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *invol_cache = NULL;   /* cache of involution counts */
 static size_t   invol_cap   = 0;     /* allocated size of the cache   */
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold values up to n */
     if ((size_t)n >= invol_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(invol_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, invol_cache, new_cap);
         if (tmp == NULL) abort();          /* out of memory */
         invol_cache = tmp;
         invol_cap   = new_cap;

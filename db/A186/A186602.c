@@ -13,12 +13,14 @@
  *            a(13)=56857, a(14)=59338, a(15)=67619, a(16)=89028,...
  * Range:     u8 none, u16 n <= 14, u32 n <= 65, u64 n <= 171, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* 1‑based array of computed terms */
 static idx_t  cache_size = 0;        /* allocated length (edges are 0 … size‑1) */
@@ -57,9 +59,9 @@ static void ensure_capacity(idx_t needed)
 
     size_t new_size = (size_t)(needed + 1);
     if (cache == NULL)
-        cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        cache = mem_new(seq_t, new_size);
     else
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
 
     /* On allocation failure, leave cache untouched – sequence may not
        be usable but behaviour for invalid memory is undefined anyway. */

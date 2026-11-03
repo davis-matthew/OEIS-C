@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑based cache array, cache[i] = a(i) */
 static idx_t  cache_size = 0; /* number of allocated slots (>= cache_n+1) */
@@ -38,7 +40,7 @@ static void ensure_capacity(idx_t need)
     if (cache_size > need) return;
     idx_t new_cap = cache_size ? cache_size << 1 : 64;
     while (new_cap <= need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     /* If realloc fails, the program will crash – acceptable for this
        competitive‑programming context. */
     cache = tmp;

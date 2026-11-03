@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
+ * Validated: partial, pass, 86 terms through n = 88 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

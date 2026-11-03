@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return the nth element of the sequence.  Indexing starts at 1. */
 seq_t a(idx_t n)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         parity[0] = 1;                   /* p(0) = 1 (odd) */
         parity_len = 1;
         seq_cap = 16;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 0;
         initialized = true;
     }
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         if (parity[next_even] == 0) {
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap * 2;
-                seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                 if (!tmp) abort();        /* allocation failure */
                 seq = tmp;
                 seq_cap = new_cap;

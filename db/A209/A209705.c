@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;    /* triangle[r-1] holds row r (0‑based) */
 static size_t triangle_rows = 0;   /* number of rows currently built */
@@ -56,7 +58,7 @@ static void ensure_triangle_rows(size_t needed)
     /* Create any new rows. */
     for (size_t i = triangle_rows; i < needed; ++i) {
         size_t r   = i + 1;          /* row number (1‑based) */
-        seq_t *row = (seq_t *)malloc(r * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, r);
         if (!row) abort();
         triangle[i] = row;
 

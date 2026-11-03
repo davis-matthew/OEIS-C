@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(k+2,2) * binomial(3*k, n-k)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 19, u64 n <= 40, u128 n <= 85,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 44 terms through n = 389 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cached values of a(n) */
 static size_t seq_size  = 0;      /* first unused index (size of used part) */
@@ -34,14 +37,14 @@ ensure_cache_upto(idx_t n)
         seq_cap = n + 1;
         if (seq_cap < 16)
             seq_cap = 16;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         seq_size = 0;
     }
     else if (seq_cap < (size_t)(n + 1)) {
         size_t new_cap = seq_cap * 2;
         if (new_cap < (size_t)(n + 1))
             new_cap = n + 1;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cap = new_cap;
     }
 
@@ -51,8 +54,8 @@ ensure_cache_upto(idx_t n)
             /* use binomial sum definition for the first 13 terms */
             seq_t val = 0;
             for (idx_t k = 0; k <= i; ++k) {
-                seq_t t1 = binom(k + 2, 2);      /* binomial(k+2,2) */
-                seq_t t2 = binom(3 * k, i - k);   /* binomial(3*k,i-k) */
+                seq_t t1 = binomial(k + 2, 2);      /* binomial(k+2,2) */
+                seq_t t2 = binomial(3 * k, i - k);   /* binomial(3*k,i-k) */
                 val += t1 * t2;
             }
             seq_cache[i] = val;

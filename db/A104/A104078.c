@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 1759, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9479 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Table of whether a number <= sum_table_limit is a sum of two
  * positive squares.  Value 1 means yes, 0 means no.  The table
@@ -84,7 +86,7 @@ static void ensure_terms_alloc(idx_t size)
     idx_t new_alloc = terms_alloc > 0 ? terms_alloc * 2 : 8;
     while (new_alloc < size) new_alloc *= 2;
 
-    seq_t *new_terms = (seq_t*)realloc(terms, new_alloc * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_alloc);
     if (!new_terms) return; /* allocation failure unlikely */
 
     terms = new_terms;

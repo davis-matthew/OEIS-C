@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Upper bound for precomputation – chosen to be comfortably > the 10000‑th term. */
 static const size_t CAP = 2000000;
@@ -91,7 +93,7 @@ static void append(seq_t val)
 {
     if (seq_len >= seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 64;
-        seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
         if (!seq_cache) exit(1);
     }
     seq_cache[seq_len++] = val;

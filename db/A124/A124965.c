@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 71 terms through n = 9377 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache  = NULL;   /* array of discovered odd remainders */
@@ -39,14 +42,13 @@ seq_t a(idx_t n) {
             cur += 1;
 
         /* r = 2^cur (mod cur) */
-        seq_t r = mod_pow((seq_t)2, (uint64_t)cur, (seq_t)cur);
+        seq_t r = powmod((seq_t)2, (uint64_t)cur, (seq_t)cur);
 
         /* If the remainder is odd, store it */
         if ((r & (seq_t)1) != 0) {
             if (count == cap) {               /* grow cache if needed */
                 size_t newcap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                               newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) abort();
                 cache = tmp;
                 cap   = newcap;

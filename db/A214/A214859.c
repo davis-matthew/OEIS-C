@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy, tabf
  * Formula:   Triangle read by rows, T(n,k) = n^2 - k*(k+1)/2 if k*(k+1)/2 ≤
  *            n^2, read by rows
- * Range:     u8 n <= 171, u16 n <= 9679, u32 n <= 9679, u64 n <= 9679,
- *            u128 n <= 9679, big any n
+ * Range:     u8 n <= 171, u16 n <= 28428, u32 n <= 28428, u64 n <= 28428,
+ *            u128 n <= 28428, big any n
+ * Validated: standard, pass, 85 terms through n = 9679 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

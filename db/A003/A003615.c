@@ -11,16 +11,48 @@
  *            x^(2s) + W3(s) y^3 x^(3s)), where, with P=[x^s]S_p, Q=...
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 23, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   alloc_zero, binom3, release, seq_is_fixed_width
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/binom3.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t binom3(seq_t P) {
+    seq_t x, y, z;
+    if (P < 3) return 0;
+    x = P; y = P - 1; z = P - 2;
+    if (x % 3 == 0) x /= 3; else if (y % 3 == 0) y /= 3; else z /= 3;
+    if (x % 2 == 0) x /= 2; else y /= 2;
+    return x * y * z;
+}
 
 static seq_t *cache = NULL;
 static idx_t cacheN = 0;

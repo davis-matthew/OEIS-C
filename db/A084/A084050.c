@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   is_permutable_to_palindrome
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,51 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_permutable_to_palindrome.h"
+#include "../utils/mem.h"
+
+/* Test whether n can be permuted to produce a palindrome
+ * after stripping leading zeros.  The rule is:
+ *   * Count digits of n.
+ *   * Let z = number of zeros.
+ *   * Let odd = number of digits with odd count.
+ *   * If z == 0, accept if odd ≤ 1.
+ *   * If z > 0, we may either keep the zero parity as is
+ *     (remove an even number of zeros) or toggle it
+ *     (remove an odd number).  Accept if either
+ *     odd ≤ 1 or odd toggled ≤ 1. */
+static bool is_permutable_to_palindrome(seq_t n) {
+    unsigned int cnt[10] = {0};
+    seq_t x = n;
+
+    /* Count digits. */
+    while (x > (seq_t)0) {
+        unsigned int d = (unsigned)(x % (seq_t)10);
+        cnt[d] = cnt[d] + 1;
+        x = x / (seq_t)10;
+    }
+
+    unsigned int zero_cnt = cnt[0];
+    unsigned int odd = 0;
+    for (int i = 0; i < 10; ++i)
+        if (cnt[i] & 1U)
+            odd += 1U;
+
+    if (zero_cnt == 0)
+        return odd <= 1U;
+
+    /* Keep zero parity unchanged (remove even number of zeros). */
+    if (odd <= 1U)
+        return true;
+
+    /* Toggle zero parity (remove odd number of zeros). */
+    unsigned int odd_toggled = odd;
+    if (zero_cnt & 1U)
+        odd_toggled -= 1U;  /* zero count was odd -> becomes even */
+    else
+        odd_toggled += 1U;  /* zero count was even -> becomes odd */
+
+    return odd_toggled <= 1U;
+}
 
 /* a(n): nth term of A084050 (1‑based).  The function lazily
  * computes terms and caches them to avoid recomputation on
@@ -45,7 +90,7 @@ seq_t a(idx_t n) {
             if (cache_size == cache_cap) {
                 /* Grow cache (double). */
                 size_t new_cap = (cache_cap == 0) ? 128 : (size_t)cache_cap * 2;
-                seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
                 if (!new_buf) {
                     /* Allocation failure – abort with zero. */
                     return (seq_t)0;

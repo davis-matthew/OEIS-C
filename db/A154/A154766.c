@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_one_even_digit
+ * Validated: standard, pass, 80 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_one_even_digit.h"
+#include "../utils/mem.h"
+
+/* Counts the number of even digits in x; returns true if exactly one. */
+static bool has_one_even_digit(seq_t x)
+{
+    int count = 0;
+    const seq_t ten = (seq_t)10;
+    while (x != (seq_t)0) {
+        int d = (int)(x % ten);
+        if ((d & 1) == 0) {
+            ++count;
+            if (count > 1) return false;
+        }
+        x /= ten;
+    }
+    return count == 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,7 +62,7 @@ seq_t a(idx_t n)
 
         /* Allocate initial storage for indices */
         idx_cap = 32;
-        indices = (seq_t *)malloc(idx_cap * sizeof(seq_t));
+        indices = mem_new(seq_t, idx_cap);
         idx_size = 0;
 
         /* The first prime (2) has exactly one even digit, so add k=1 */
@@ -81,7 +98,7 @@ seq_t a(idx_t n)
                 /* Store the 1‑based index of this prime */
                 if (idx_size == idx_cap) {
                     idx_cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(indices, idx_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, indices, idx_cap);
                     indices = tmp;
                 }
                 indices[idx_size++] = (seq_t)primes_size;

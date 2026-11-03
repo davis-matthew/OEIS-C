@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_adjacent_09
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,31 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_09.h"
+#include "../utils/mem.h"
+
+/* Test whether a decimal integer x contains the adjacent pair 0,9
+   in either order.  The test works for values of any width that
+   seq_t supports. */
+static bool has_adjacent_09(seq_t x)
+{
+    /* A single digit cannot contain an adjacent pair. */
+    if (x < (seq_t)10)
+        return false;
+
+    seq_t prev = x % (seq_t)10;   /* units digit */
+    x /= (seq_t)10;               /* remove units digit */
+
+    seq_t curr;
+    while (x != (seq_t)0) {
+        curr = x % (seq_t)10;     /* next digit to the left */
+        if ((prev == (seq_t)9 && curr == (seq_t)0) ||
+            (prev == (seq_t)0 && curr == (seq_t)9))
+            return true;
+        prev = curr;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* Cache storage for previously found terms. */
 static seq_t *cache      = NULL;    /* array of found terms */
@@ -37,7 +62,7 @@ static void ensure_cache_capacity(idx_t min_cap)
         idx_t new_cap = cache_cap ? cache_cap * 2 : 8;
         if (new_cap < min_cap)
             new_cap = min_cap;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp)
             exit(EXIT_FAILURE); /* allocation failed */
         cache = tmp;

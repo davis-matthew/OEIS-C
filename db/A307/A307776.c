@@ -7,12 +7,14 @@
  * Formula:   a(1) = 1; a(n+1) = Σ_{d|n} (-1)^{(n/d)+1} * a(d)
  * Range:     i8 n <= 118, i16 n <= 510, i32 n <= 2566, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9771 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* the exact types seq_t and idx_t are supplied by the build system */
 seq_t a(idx_t n)
@@ -28,8 +30,7 @@ seq_t a(idx_t n)
 
     if (n > cache_size) {
         /* enlarge the cache to hold entries up to n (index 0 unused) */
-        seq_t *new_cache = (seq_t *)realloc(cache,
-                                            (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!new_cache) abort();
         cache = new_cache;
 

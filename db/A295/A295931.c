@@ -8,7 +8,8 @@
  * Formula:   a(n) = sum_{k | gcd of prime exponents of n} tau(k)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, tau_small
+ * Validated: standard, pass, 103 terms through n = 9869 (2026-11-01)
+ * Helpers:   factor_u64, num_divisors_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/factor_u64.h"   /* for factor_u64 */
-#include "../utils/tau_small.h"
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/num_divisors_idx.h"
 
 static idx_t gcd_idx(idx_t a, idx_t b)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* simple enumeration of divisors since g <= 64 (for n <= 1e4) */
     for (idx_t d = 1; d <= g; ++d) {
         if (g % d == 0) {
-            sum += tau_small(d);
+            sum += num_divisors_idx(d);
         }
     }
     return sum;

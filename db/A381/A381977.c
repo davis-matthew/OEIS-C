@@ -9,7 +9,8 @@
  *            when the integers 0..n-1 are evenly spaced on a circle
  * Range:     u8 n <= 42, u16 n <= 616, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   fenwick_sum
+ * Validated: standard, pass, 76 terms through n = 1985 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/fenwick_sum.h"
+
+static uint32_t fenwick_sum(const uint32_t *bit, size_t size, size_t idx)
+{
+    uint32_t s = 0;
+    for (; idx > 0; idx -= idx & -idx) s += bit[idx];
+    return s;
+}
 
 /* Structure to hold a chord's sorted endpoints */
 typedef struct {

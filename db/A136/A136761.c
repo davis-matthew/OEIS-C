@@ -7,6 +7,7 @@
  * Formula:   a(n) = leading digit of n! in base 11 (0‑based)
  * Range:     u8 n <= 9999, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
+ * Validated: standard, pass, 116 terms through n = 9917 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

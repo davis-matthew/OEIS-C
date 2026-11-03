@@ -6,15 +6,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = #{ (k, j) | n = k^2 * j, j <= k, gcd(k, j) = 1 }
- * Range:     u8 n <= 9659, u16 n <= 9659, u32 n <= 9659, u64 n <= 9659,
- *            u128 n <= 9659, big any n
- * Helpers:   gcd_local
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9659 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_local.h"
+#include "../utils/gcd.h"
 
 /* Local gcd for seq_t values – helper function, not part of the provided list */
 
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
         idx_t j = n / k2;                     /* remaining factor */
         if (j > k)
             continue;
-        if (gcd_local((seq_t)k, (seq_t)j) == 1)
+        if (gcd((seq_t)k, (seq_t)j) == 1)
             ++count;
     }
     return count;

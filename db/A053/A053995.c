@@ -7,7 +7,8 @@
  * Formula:   a(n) = (3^n-1)(3^n-3)(3^n-3^2)...(3^n-3^(n-1))/n!
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   _gcd_seq_t, _pow_seq_t
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
  * keeps the intermediate values small enough for the 64‑bit build and
  * works for arbitrary‑precision builds as well. */
 #include <stdint.h>
-#include "../utils/_pow_seq_t.h"            /* multiplicative power helper, if available */
-#include "../utils/_gcd_seq_t.h"           /* gcd for possible cancellation, optional */
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 
 static seq_t pow3(idx_t n)
 {

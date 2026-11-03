@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{k=0}^{n-1} (a(k) XOR a(n-1-k)), a(0)=1, a(1)=2
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 41, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Uses a dynamic array that grows as needed.  All arithmetic is
    performed in the seq_t type supplied by the build system. */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static void ensure_cache(idx_t needed, seq_t **data, size_t *cap)
 {
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t needed, seq_t **data, size_t *cap)
         size_t new_cap = (*cap == 0) ? 2 : *cap;
         while (new_cap <= needed)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(*data, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *data, new_cap);
         if (!tmp)
             abort();          /* terminate on out‑of‑memory */
         *data = tmp;

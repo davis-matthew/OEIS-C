@@ -7,12 +7,14 @@
  * Formula:   a(n) = sum_{k=0}^{n-1} C(n+1,3k) * C(n-1,3k)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0U; k <= maxk; ++k) {
         idx_t t = 3U * k;
-        seq_t c1 = binom(n + 1U, t); /* C(n+1, 3k)   */
-        seq_t c2 = binom(n - 1U, t); /* C(n-1, 3k)   */
+        seq_t c1 = binomial(n + 1U, t); /* C(n+1, 3k)   */
+        seq_t c2 = binomial(n - 1U, t); /* C(n-1, 3k)   */
         sum += c1 * c2;
     }
     return sum;

@@ -8,14 +8,27 @@
  *            modulo 7. Computed by dynamic programming (unbounded knapsack)
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *dp = NULL;       /* dp[i] holds a(i) */
 static idx_t dp_size = 0;     /* current array size (dp_size-1 is max n computed) */

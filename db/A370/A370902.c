@@ -9,7 +9,8 @@
  *            square‑free
  * Range:     u8 n <= 48, u16 n <= 1649, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf, seq_alloc, seq_pow, seq_realloc
+ * Validated: standard, pass, 75 terms through n = 9824 (2026-11-01)
+ * Helpers:   build_spf, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,28 @@
 #include <stdlib.h>
 
 #include "../utils/build_spf.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t powerful_part(idx_t n, const idx_t *spf)
 {
@@ -33,7 +53,7 @@ static seq_t powerful_part(idx_t n, const idx_t *spf)
             exp++;
         }
         if (exp >= 2) {
-            prod *= seq_pow((seq_t)prime, exp);
+            prod *= ipow_idx((seq_t)prime, exp);
         }
     }
     return prod;

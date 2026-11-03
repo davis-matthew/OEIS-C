@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 540, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _grow_used
+ * Validated: standard, pass, 86 terms through n = 9842 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,13 +23,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/_grow_used.h"
+#include "../utils/mem.h"
+
+static void _grow_used(idx_t upto, bool **used_ptr, idx_t *cap_ptr) {
+    while (*cap_ptr <= upto) {
+        idx_t new_cap = (*cap_ptr) ? (*cap_ptr) * 2 : 1;
+        while (new_cap <= upto) new_cap *= 2;
+        bool *new_used = (bool *)realloc(*used_ptr, new_cap * sizeof(bool));
+        if (!new_used) exit(1);
+        memset(new_used + *cap_ptr, 0, (new_cap - *cap_ptr) * sizeof(bool));
+        *used_ptr = new_used;
+        *cap_ptr = new_cap;
+    }
+}
 
 static void _grow_seq(idx_t upto, seq_t **seq_ptr, idx_t *cap_ptr) {
     while (*cap_ptr <= upto) {
         idx_t new_cap = (*cap_ptr) ? (*cap_ptr) * 2 : 1;
         while (new_cap <= upto) new_cap *= 2;
-        seq_t *new_seq = (seq_t *)realloc(*seq_ptr, new_cap * sizeof(seq_t));
+        seq_t *new_seq = mem_resize(seq_t, *seq_ptr, new_cap);
         if (!new_seq) exit(1);
         *seq_ptr = new_seq;
         *cap_ptr = new_cap;

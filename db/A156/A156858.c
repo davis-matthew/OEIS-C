@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   build_spf, is_prime
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   build_spf, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include "../utils/build_spf.h"
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* static state ----------------------------------------------------- */
 static idx_t *spf          = NULL;   /* SPF table up to spf_limit */
@@ -46,7 +48,7 @@ static void recompute_spf(idx_t limit) {
 static void append_result(seq_t val) {
     if (results_len == results_cap) {
         size_t new_cap = results_cap ? results_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, results, new_cap);
         if (!tmp) abort();          /* avoid OOM */
         results = tmp;
         results_cap = new_cap;

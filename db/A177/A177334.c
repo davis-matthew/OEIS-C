@@ -9,7 +9,8 @@
  *            power of two not exceeding the exponent of prime p in n!
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 54 terms through n = 929 (2026-11-02)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Prime cache */
 static uint32_t *prime_list = NULL;
@@ -90,7 +91,7 @@ seq_t a(idx_t n)
         idx_t remaining = exp;
         while (remaining) {
             idx_t t = remaining & -remaining;                 /* lowest 1‑bit */
-            seq_t term = pow_uint((uint64_t)p, t);
+            seq_t term = ipow_u64_idx((uint64_t)p, t);
             if (term > best) best = term;
             remaining -= t;
         }

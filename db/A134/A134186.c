@@ -8,12 +8,14 @@
  *            a(n) = -a(n‑1) + 2·a(n‑2) + 2·a(n‑3) – a(n‑5)
  * Range:     i8 n <= 14, i16 n <= 27, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     if (size == 0) {                       /* initialise first 5 terms */
         size = 5;
-        seq = (seq_t *)malloc((size_t)size * sizeof(seq_t));
+        seq = mem_new(seq_t, (size_t)size);
         if (!seq) return (seq_t)0;
         seq[0] = 4;
         seq[1] = 3;
@@ -34,8 +36,7 @@ seq_t a(idx_t n)
     }
 
     if (n > size) {                        /* extend cache up to n   */
-        seq_t *tmp = (seq_t *)realloc(seq,
-                                      (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, (size_t)n);
         if (!tmp) return (seq_t)0;
         seq = tmp;
         for (idx_t i = size + 1; i <= n; ++i)  /* i → a(i)              */

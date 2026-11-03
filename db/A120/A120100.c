@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- helper to compute 10^exp mod mod ---------- */
 static inline uint64_t mod_pow10(uint64_t exp, uint64_t mod)
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         /* Candidate satisfies the condition – store it */
         if (seq_len == seq_cap) {
             seq_cap = seq_cap ? seq_cap * 2 : 16;
-            seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
         }
         seq_cache[seq_len++] = (seq_t)cand;
     }

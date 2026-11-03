@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, fini, full, easy
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 17, u32 n <= 6622, u64 n <= 9111,
- *            u128 n <= 9111, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1, u16 n <= 17, u32 n <= 6475, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: full, pass, 16383 terms through n = 16383 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define NUM_DIGITS 14
 #define NUM_SUBSETS ((1ULL << NUM_DIGITS) - 1)   /* 16383 */
@@ -53,7 +55,7 @@ static void init_values(void)
         values[mask - 1] = v;      /* store 0‑based index */
     }
     /* Sort the array so that a(1) is the smallest, a(2) the next, etc. */
-    qsort(values, NUM_SUBSETS, sizeof(seq_t), cmp_seq);
+    mem_qsort(values, NUM_SUBSETS, sizeof(seq_t), cmp_seq);
     initialized = true;
 }
 

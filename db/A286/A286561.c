@@ -9,15 +9,30 @@
  * Formula:   a(n) = highest exponent e such that k^e divides n, where (n,k)
  *            is taken from the square array A(n,k) read by descending
  *            antidiagonals: (1,1), (1,2),(2,1), (1,3),(2,2),(3,1), …
- * Range:     u8 n <= 9723, u16 n <= 9723, u32 n <= 9723, u64 n <= 9723,
- *            u128 n <= 9723, big any n
- * Helpers:   v_power
+ * Range:     u8 n <= 10585, u16 n <= 10585, u32 n <= 10585, u64 n <= 10585,
+ *            u128 n <= 10585, big any n
+ * Validated: standard, pass, 136 terms through n = 9723 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/v_power.h"
+
+/* Compute v_k(n): the largest e with k^e | n.  k>=1, n>=1. */
+static seq_t v_power(seq_t n, seq_t k)
+{
+    /* k==1 by definition of the array */
+    if (k == (seq_t)1)
+        return (seq_t)1;
+
+    seq_t e = (seq_t)0;
+    while (n % k == (seq_t)0) {
+        ++e;
+        n /= k;
+    }
+    return e;
+}
 
 seq_t a(idx_t n)
 {

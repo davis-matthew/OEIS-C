@@ -12,13 +12,15 @@
  *            r) The sequence a(n) lists the triangle entri...
  * Range:     u8 n <= 49, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     if (cached_rows < need_row) {
         for (idx_t r = cached_rows + 1; r <= need_row; ++r) {
             idx_t len = r;                     /* length of this row */
-            seq_t *cur = (seq_t *)malloc(len * sizeof(seq_t));
+            seq_t *cur = mem_new(seq_t, len);
             for (idx_t k = 0; k < len; ++k) {
                 seq_t val;
                 if (r == 1) {            /* first row */
@@ -74,14 +76,14 @@ seq_t a(idx_t n)
                 /* append to flattened data array */
                 if (data_size == data_capacity) {
                     size_t new_cap = data_capacity ? data_capacity * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(data, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, data, new_cap);
                     data = tmp;
                     data_capacity = new_cap;
                 }
                 data[data_size++] = val;
             }
             /* free previous row and store current row as previous */
-            free(prev_row);
+            mem_free(prev_row);
             prev_row = cur;
             prev_len = len;
         }

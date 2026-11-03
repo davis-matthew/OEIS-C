@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 31, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    degree k of p(x,m) is computed recursively using only elements ≤k. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Assume seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -44,12 +46,12 @@ seq_t a(idx_t n)
     const size_t len = (size_t)k + 1;           /* number of coefficients we need */
 
     /* Allocate coefficient arrays */
-    seq_t *prev2 = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *prev1 = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *curr  = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *prev2 = mem_new(seq_t, len);
+    seq_t *prev1 = mem_new(seq_t, len);
+    seq_t *curr  = mem_new(seq_t, len);
     if (!prev2 || !prev1 || !curr) {
         /* Allocation failed – return 0 as a safe fallback. */
-        free(prev2); free(prev1); free(curr);
+        mem_free(prev2); mem_free(prev1); mem_free(curr);
         return 0;
     }
 
@@ -93,9 +95,9 @@ seq_t a(idx_t n)
     }
 
     /* Free allocated memory */
-    free(prev2);
-    free(prev1);
-    free(curr);
+    mem_free(prev2);
+    mem_free(prev1);
+    mem_free(curr);
 
     return ans;
 }

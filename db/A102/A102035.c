@@ -11,7 +11,8 @@
  *            element obtained by row‑major order
  * Range:     u8 n <= 37, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* global storage for the triangle */
 static seq_t **triangle = NULL;
@@ -56,7 +58,7 @@ static void ensure_rows_up_to(idx_t r)
         triangle = tmp;
     }
     for (idx_t i = max_row + 1; i <= r; ++i) {
-        triangle[i] = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        triangle[i] = mem_new(seq_t, (i + 1));
         if (triangle[i] == NULL) abort();
         if (i == 0) {
             triangle[0][0] = (seq_t)1;

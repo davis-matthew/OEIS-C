@@ -11,6 +11,7 @@
  * Formula:   a(n) = 160*a(n-1) - 2304*a(n-2), a(1)=10, a(2)=1184
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 18,
  *            big any n
+ * Validated: standard, pass, 28 terms through n = 196 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

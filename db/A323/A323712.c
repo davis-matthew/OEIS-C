@@ -14,6 +14,7 @@
  *            of the right pile
  * Range:     u8 n <= 261, u16 n <= 1024, u32 n <= 1024, u64 n <= 1024,
  *            u128 n <= 1024, big any n
+ * Validated: standard, pass, 88 terms through n = 1004 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -7,13 +7,16 @@
  * Formula:   a(1) = 1; for n >= 2: a(n) = (a(n-1)-1)^(n-1) - 1
  * Range:     i8 n <= 4, i16 n <= 5, i32 n <= 5, i64 n <= 6, i128 n <= 6,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_pow.h"   /* seq_t seq_pow(seq_t base, idx_t exp); */
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* Ensure that *arr has at least n elements (capacity >= n). */
 static void ensure_cache(idx_t n, seq_t **arr, size_t *cap)
@@ -21,7 +24,7 @@ static void ensure_cache(idx_t n, seq_t **arr, size_t *cap)
     if (*cap < n) {
         size_t newcap = (*cap) ? (*cap) * 2 : 1;
         while (newcap < n) newcap <<= 1;
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
             } else {
                 seq_t prev = cache[i - 2];     /* a(i-1) */
                 seq_t base = prev - (seq_t)1; /* a(i-1)-1 */
-                seq_t pwr  = seq_pow(base, i - 1); /* (a(i-1)-1)^(i-1) */
+                seq_t pwr  = ipow_idx(base, i - 1); /* (a(i-1)-1)^(i-1) */
                 cache[i - 1] = pwr - (seq_t)1;     /* a(i) */
             }
         }

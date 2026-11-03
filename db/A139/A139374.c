@@ -8,14 +8,37 @@
  *            L(n)=L(n-1)+L(n-2))
  * Range:     u8 n <= 234, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   add_decimal_digits
+ * Validated: standard, pass, 84 terms through n = 9697 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/add_decimal_digits.h"
+
+/* ------------------------------------------------------------------ */
+static void add_decimal_digits(const uint8_t *a, size_t als,
+                               const uint8_t *b, size_t bls,
+                               uint8_t *out, size_t *ols)
+{
+    size_t i, maxlen = (als > bls ? als : bls);
+    uint8_t carry = 0;
+    for (i = 0; i < maxlen; ++i) {
+        uint8_t da = (i < als) ? a[i] : 0;
+        uint8_t db = (i < bls) ? b[i] : 0;
+        uint16_t sum = (uint16_t)da + (uint16_t)db + (uint16_t)carry;
+        out[i] = (uint8_t)(sum % 10);
+        carry   = (uint8_t)(sum / 10);
+    }
+    if (carry) {
+        out[i++] = carry;
+    }
+    while (i > 1 && out[i-1] == 0) { /* strip possible leading zeros */
+        --i;
+    }
+    *ols = i;
+}
 
 /* ------------------------------------------------------------------ */
 /* Computes the digit sum of the n-th Lucas number using decimal digits  */

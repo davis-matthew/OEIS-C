@@ -12,15 +12,31 @@
  *            3(8x+4)x^3/((1+x)^3(1-x)^6), A_4 = 3(10-2x)x^2/(...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   a677_from_u128, seq_big_mode
+ * Validated: standard, pass, 34 terms through n = 450 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a677_from_u128.h"
-#include "../utils/seq_big_mode.h"
+#include <stdint.h>
+
+static seq_t a677_from_u128(unsigned __int128 v)
+{
+    int i;
+    seq_t r = (seq_t)(uint64_t)(v >> 64);
+    for (i = 0; i < 8; i++) r = r * 256;
+    r += (seq_t)(uint64_t)v;
+    return r;
+}
+
+static int seq_big_mode(void) {
+  seq_t x = 1;
+  int i;
+  for (i = 0; i < 130; i++) x = x + x;
+  return x != 0;
+}
 
 #define PD 32
 

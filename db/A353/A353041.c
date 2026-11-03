@@ -7,13 +7,17 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n-1,k-1) * 3^{k*(k-1)/2}
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +35,7 @@ seq_t a(idx_t n)
 
         /* exponent e = k*(k-1)/2 calculated on seq_t type */
         seq_t exp = (seq_t)k * ((seq_t)k - 1) / 2;
-        seq_t term = bin * big_pow((seq_t)3, exp);
+        seq_t term = bin * ipow((seq_t)3, exp);
 
         total += term;
     }

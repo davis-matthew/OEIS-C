@@ -10,7 +10,8 @@
  *            The offset is 3 in the OEIS data
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------
    static parameters
@@ -90,7 +92,7 @@ static void ensure_a_cache_size(size_t needed)
     size_t new_cap = a_cache_cap ? a_cache_cap << 1 : 8;
     while (new_cap < needed) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) return;  /* allocation failure – keep old cache */
     a_cache = tmp;
     for (size_t i = a_cache_cap; i < new_cap; ++i) a_cache[i] = (seq_t)0;

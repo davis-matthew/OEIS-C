@@ -12,13 +12,22 @@
  *            found
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   _is5smooth
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/_is5smooth.h"
+
+/* Return true iff x contains no prime factor > 5 */
+static bool _is5smooth(seq_t x)
+{
+    while (x % 2 == 0) x /= 2;
+    while (x % 3 == 0) x /= 3;
+    while (x % 5 == 0) x /= 5;
+    return x == (seq_t)1;
+}
 
 seq_t a(idx_t n)
 {

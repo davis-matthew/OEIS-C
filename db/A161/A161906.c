@@ -10,13 +10,15 @@
  *            ≤ √r. The sequence is the concatenation of these rows (offset 1)
  * Range:     u8 n <= 199, u16 n <= 3550, u32 n <= 3550, u64 n <= 3550,
  *            u128 n <= 3550, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 3503 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static tables for divisor counts and prefix sums of inferior divisor
    counts.  For arbitrary-precision builds the tables are indexed by
@@ -58,8 +60,8 @@ static void ensure_tables(idx_t needed)
         new_size <<= 1;           /* grow to next power of two */
 
     /* Allocate +1 extra slot so that indices 0..new_size are valid */
-    divcnt   = (seq_t *)realloc(divcnt, (new_size + 1) * sizeof(seq_t));
-    prefix   = (seq_t *)realloc(prefix, (new_size + 1) * sizeof(seq_t));
+    divcnt   = mem_resize(seq_t, divcnt, (new_size + 1));
+    prefix   = mem_resize(seq_t, prefix, (new_size + 1));
 
     /* Recompute divisor counts and prefix sums from scratch */
     for (idx_t i = 0; i <= new_size; ++i)

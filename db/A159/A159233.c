@@ -11,12 +11,14 @@
  *            from the GF)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 21, u128 n <= 372,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 35 terms through n = 936 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         if (n < k + 4) continue;          /* term only contributes for n ≥ k+4 */
 
         idx_t m = n - k + 11;              /* binomial argument a = n‑k+11 */
-        seq_t c = binom(m, 15);            /* C(m,15) */
+        seq_t c = binomial(m, 15);            /* C(m,15) */
 
         sum += c * q[k];
     }

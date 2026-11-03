@@ -9,12 +9,14 @@
  *            sequence is periodic with period 2257
  * Range:     i8 n <= 3000, i16 n <= 3000, i32 n <= 3000, i64 n <= 3000,
  *            i128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 2885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* calloc, free, abort */
+#include "../utils/mem.h"
 
 #define PERIOD 2257
 #define DEG_A 2258          /* degree of (x^2257-1)*(x-1) = x^2258 - x^2257 - x + 1 */
@@ -28,9 +30,9 @@ static seq_t *F = NULL;          /* coefficients of Φ2257   */
 static int f_computed = 0;       /* 0 => not yet computed */
 
 /* Allocate memory for an array of seq_t of the given size */
-static void *alloc_seq_array(size_t n)
+static seq_t *alloc_seq_array(size_t n)
 {
-    return calloc(n, sizeof(seq_t));
+    return mem_new(seq_t, n);
 }
 
 static void compute_F(void)
@@ -73,8 +75,8 @@ static void compute_F(void)
         F[i] = quot[i];
     }
 
-    free(rem);
-    free(quot);
+    mem_free(rem);
+    mem_free(quot);
     f_computed = 1;
 }
 

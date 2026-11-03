@@ -10,7 +10,8 @@
  *            (m + prodigits m) and (q * prodigits q)
  * Range:     u8 n <= 11, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   digit_prod_u64
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   digit_product_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/digit_prod_u64.h"
+#include "../utils/digit_product_u64.h"
+#include "../utils/mem.h"
 
 /* Helper functions for 64‑bit operands ---------------------------------------------------- */
 static inline uint64_t digit_sum_u64(uint64_t n) {
@@ -67,7 +69,7 @@ static void ensure_bools(size_t sz) {
 static void push_result(seq_t v) {
     if (res_len >= res_cap) {
         res_cap = res_cap ? res_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(results, res_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, results, res_cap);
         if (!tmp) abort();
         results = tmp;
     }
@@ -85,7 +87,7 @@ static void build_up_to(idx_t target) {
         /* Fill the three boolean arrays */
         for (size_t k = 1; k <= B; ++k) {
             uint64_t sum = digit_sum_u64(k);
-            uint64_t prod = digit_prod_u64(k);
+            uint64_t prod = digit_product_u64(k);
 
             size_t v1 = k + sum;
             if (v1 <= B) s1[v1] = 1;

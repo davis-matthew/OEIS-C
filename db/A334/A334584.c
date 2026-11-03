@@ -9,7 +9,8 @@
  *            shortest side is prime (computed by search)
  * Range:     u8 n <= 56, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   area_integer, gcd_u64
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,34 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/area_integer.h"
 #include "../utils/gcd_u64.h"
+
+/* Test whether a triangle with perimeter p and side lengths a,b
+   (c is implied as p-a-b) has an integer area.  Uses 128‑bit arithmetic
+   and a binary search for the square root. */
+static bool area_integer(uint64_t p, uint64_t a, uint64_t b)
+{
+    /* Heron’s formula squared: 16*A² = p(p-2a)(p-2b)(2a+2b-p) */
+    unsigned __int128 t = (unsigned __int128)p * (p - 2 * a);
+    t *= (unsigned __int128)(p - 2 * b);
+    t *= (unsigned __int128)(2 * a + 2 * b - p);
+
+    /* The product must be divisible by 16. */
+    if ((t & 15u) != 0) return false;
+    t >>= 4;                 /* now t = A² */
+
+    /* Binary search for sqrt(t). */
+    unsigned __int128 lo = 0, hi = (unsigned __int128)1 << 64;
+    while (lo < hi) {
+        unsigned __int128 mid = (lo + hi) >> 1;
+        unsigned __int128 sq  = mid * mid;
+        if (sq >= t)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo * lo == t;
+}
 
 /* Simple GCD for 64‑bit integers. */
 

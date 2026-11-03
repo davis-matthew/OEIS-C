@@ -12,7 +12,8 @@
  *            over conjugacy classes of B_n (signed cycle types)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   z889_fexp, z889_gcd, z889_mu, z889_v2
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   ctz_i64, gcd_i64, mobius_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/z889_fexp.h"
-#include "../utils/z889_gcd.h"
-#include "../utils/z889_mu.h"
-#include "../utils/z889_v2.h"
+#include "../utils/ctz_i64.h"
+#include "../utils/gcd_i64.h"
+#include "../utils/mobius_i64.h"
+
+/* log2 of number of points of {0..3} fixed by h^L, or -1 if none */
+static int z889_fexp(int h, long long L) {
+    switch (h) {
+    case 0: return 2;
+    case 1: return (L % 2 == 0) ? 2 : 1;
+    case 2: return (L % 3 == 0) ? 2 : 0;
+    case 3: return (L % 2 == 0) ? 2 : -1;
+    default: return (L % 4 == 0) ? 2 : -1;
+    }
+}
 
 static uint32_t *z889_Z;
 static int z889_n, z889_nc;
@@ -48,7 +59,7 @@ static void z889_process(unsigned __int128 den) {
     long long *dv, *fx, *cc;
     for (i = 0; i < z889_nc; i++) {
         long long p = z889_s[i] ? 2LL * z889_k[i] : (long long)z889_k[i];
-        M = M / z889_gcd(M, p) * p;
+        M = M / gcd_i64(M, p) * p;
     }
     for (d = 1; d <= M; d++) if (M % d == 0) nd++;
     dv = (long long *)malloc(sizeof(long long) * nd);
@@ -61,15 +72,15 @@ static void z889_process(unsigned __int128 den) {
         d = dv[i];
         for (j = 0; j < z889_nc; j++) {
             long long k = z889_k[j];
-            if (z889_s[j] && !(z889_v2(d) > z889_v2(k))) { zero = 1; break; }
-            e += (int)z889_gcd(d, k);
+            if (z889_s[j] && !(ctz_i64(d) > ctz_i64(k))) { zero = 1; break; }
+            e += (int)gcd_i64(d, k);
         }
         fx[i] = zero ? 0 : (1LL << e);
     }
     for (i = 0; i < nd; i++) {
         long long L = dv[i], s = 0;
         for (j = 0; j <= i; j++)
-            if (L % dv[j] == 0) s += (long long)z889_mu(L / dv[j]) * fx[j];
+            if (L % dv[j] == 0) s += (long long)mobius_i64(L / dv[j]) * fx[j];
         cc[i] = s / L;
     }
     for (h = 0; h < 5; h++) {

@@ -7,12 +7,14 @@
  * Formula:   a(0) = 1; a(n) = (1/3) * Σ_{k=1..n} (4^k – 1) * a(k-1) * a(n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build environment */
 seq_t a(idx_t n)
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
     /* allocate or grow the caches as needed */
     if (cache_cap < n + 1) {
         idx_t new_cap = n + 1;
-        a_cache   = (seq_t *)realloc(a_cache,   new_cap * sizeof(seq_t));
-        pow4_cache= (seq_t *)realloc(pow4_cache,new_cap * sizeof(seq_t));
+        a_cache   = mem_resize(seq_t, a_cache, new_cap);
+        pow4_cache= mem_resize(seq_t, pow4_cache, new_cap);
         cache_cap = new_cap;
     }
 

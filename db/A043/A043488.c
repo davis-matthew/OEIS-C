@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   count_eights_in_base9
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
    property.  The function returns the n‑th such number (n ≥ 1). */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/count_eights_in_base9.h"
+#include "../utils/mem.h"
+
+static inline int count_eights_in_base9(idx_t n)
+{
+    int cnt = 0;
+    while (n) {
+        if ((n % 9) == 8)
+            ++cnt;
+        n /= 9;
+    }
+    return cnt;
+}
 
 static seq_t *cache = NULL;          /* cached terms of the sequence */
 static size_t cache_len = 0;           /* number of terms cached so far */
@@ -35,8 +47,7 @@ seq_t a(idx_t n)
         if (count_eights_in_base9(last_num) == 4) {
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap) ? (cache_cap << 1) : 8;
-                seq_t *tmp = (seq_t *)realloc((void *)cache,
-                                            new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* Allocation failed; return zero as error value. */
                     return 0;

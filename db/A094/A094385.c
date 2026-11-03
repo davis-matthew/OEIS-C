@@ -8,14 +8,16 @@
  * Formula:   a(n) = T(r,c) where r = ⌊(√(8n+1)−1)/2⌋, c = n−r(r+1)/2. T(n,k)
  *            = binomial(2n,k−1)·binomial(2n−k−1,n−k)/n (n,k≥1), T(n,0)=0ⁿ.
  *            a(0)=1. The sequence is the triangle read by rows
- * Range:     u8 n <= 15, u16 n <= 43, u32 n <= 125, u64 n <= 361,
+ * Range:     u8 n <= 23, u16 n <= 48, u32 n <= 125, u64 n <= 361,
  *            u128 n <= 1195, big any n
- * Helpers:   binom, gcd
+ * Validated: standard, pass, 71 terms through n = 1279 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* compute the two binomial factors */
-    seq_t b1 = binom(2 * r, c - 1);
-    seq_t b2 = binom(2 * r - c - 1, r - c);
+    seq_t b1 = binomial(2 * r, c - 1);
+    seq_t b2 = binomial(2 * r - c - 1, r - c);
 
     seq_t rseq = (seq_t)r;
 

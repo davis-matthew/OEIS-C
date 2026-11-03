@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 9276 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #ifndef LIMIT
 #define LIMIT 2000000   /* maximal k we inspect (φ(k) ≤ LIMIT ≤ n) */
 #endif
+#include "../utils/mem.h"
 
 /* Representation of an abelian group as invariant factor list */
 typedef struct {
@@ -206,7 +208,7 @@ static void init_all(void)
 
     /* Allocate per‑n lists and output cache */
     rep_lists = (RepList *)calloc(LIMIT + 1, sizeof(RepList));
-    output_cache = (seq_t *)calloc(LIMIT + 1, sizeof(seq_t));
+    output_cache = mem_new(seq_t, LIMIT + 1);
     if (!rep_lists || !output_cache) abort();
 
     /* Build representations for each k */

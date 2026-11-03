@@ -11,13 +11,15 @@
  *            functions
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial five terms (static to avoid re‑allocation on each call) */
 static const seq_t init_vals[5] = {
@@ -38,7 +40,7 @@ static void ensure_capacity(idx_t need)
     if (need + 1 > cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 8;
         if (new_cap < need + 1) new_cap = need + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp) abort();            /* Out of memory – terminate */
         cache       = tmp;
         cache_cap   = new_cap;
@@ -50,7 +52,7 @@ static void init_cache(idx_t min_cap)
 {
     if (cache == NULL) {
         cache_cap = (min_cap > 5 ? min_cap : 5);
-        cache = (seq_t *)malloc((size_t)cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (!cache) abort();
         for (idx_t i = 0; i < 5; ++i) {
             cache[i] = init_vals[i];

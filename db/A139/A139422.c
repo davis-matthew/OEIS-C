@@ -9,14 +9,16 @@
  *            number of positive divisors of m
  * Range:     u8 n <= 19, u16 n <= 2720, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 77 terms through n = 8796 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* Memoization state */
 static seq_t *cache = NULL;       /* array of computed terms */
@@ -28,7 +30,7 @@ static idx_t last_computed = 0;   /* largest index whose value is known */
    10 000. */
 static inline seq_t divisor_count(seq_t x)
 {
-    return (seq_t)divisor_count_u64((uint64_t)x);
+    return (seq_t)num_divisors((uint64_t)x);
 }
 
 seq_t a(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary. */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) /* allocation failed – let the caller handle the OOM. */
             return (seq_t)0;
         cache = tmp;

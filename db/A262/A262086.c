@@ -8,7 +8,8 @@
  * Formula:   a(n) = k such that phi(k + 10) = phi(k) + 10
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of seq_t and idx_t are provided externally. */
 
@@ -34,7 +36,7 @@ static void init_phi_sieve(void)
 
     /* Allocate array [0 .. phi_limit] */
     size_t sz = (size_t)(phi_limit + 1);
-    phi_arr = (seq_t *)malloc(sz * sizeof(seq_t));
+    phi_arr = mem_new(seq_t, sz);
     if (phi_arr == NULL)
         abort();                    /* memory allocation failed */
 
@@ -71,7 +73,7 @@ static void ensure_cache_capacity(size_t needed)
     while (new_cap < needed)
         new_cap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                    /* memory allocation failed */
     cache = tmp;
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             abort();
         cache_cnt = 0;

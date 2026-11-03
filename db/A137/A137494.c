@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return true if any decimal digit of x is 2, 3, 5, or 7. */
 static bool has_prime_digit(seq_t x)
@@ -64,9 +66,9 @@ seq_t a(idx_t n)
         if (!has_prime_digit(f_prev)) {
             if (cache_len >= cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {                 /* allocation failure – return 0 */
-                    free(cache);
+                    mem_free(cache);
                     cache = NULL;
                     cache_len = cache_cap = 0;
                     return (seq_t)0;

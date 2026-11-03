@@ -8,8 +8,9 @@
  * Formula:   a(m,n) = 2 when m = n = 2 a(m,n) = (m+1)/2 when n = 1 and m is
  *            odd a(m,n) = ceil( m/2 + 2*n/3 ) otherwise (The function below
  *            reads the triangle by rows; a(1)=1, a(2)=2, a(3)=2, …)
- * Range:     u8 n <= 1161, u16 n <= 9963, u32 n <= 9963, u64 n <= 9963,
- *            u128 n <= 9963, big any n
+ * Range:     u8 n <= 1161, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 95 terms through n = 9963 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

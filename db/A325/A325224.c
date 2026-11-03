@@ -10,6 +10,7 @@
  *            where n = ∏ p_i^{e_i}
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-01)
  * Helpers:   build_primes, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,8 +23,8 @@
 #include <stdlib.h>
 
 /* Helper headers (names match the function names). */
-#include "../utils/factor_u64.h"
 #include "../utils/build_primes.h"
+#include "../utils/factor_u64.h"
 
 /* Static cache of primes up to the largest n seen. */
 static idx_t *prime_list = NULL;   /* array of prime numbers */

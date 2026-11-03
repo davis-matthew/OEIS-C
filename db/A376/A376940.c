@@ -14,6 +14,7 @@
  *            This yields the conductor of Q(A_n)
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 31, u64 n <= 58, u128 n <= 103,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 2316 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,8 +23,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/build_primes_upto.h"   /* For build_primes_upto   */
-#include "../utils/is_prime.h"           /* For is_prime           */
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {
     static idx_t prime_limit = 0;

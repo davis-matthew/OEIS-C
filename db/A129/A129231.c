@@ -7,7 +7,8 @@
  * Formula:   a(0) = 0, a(n) = floor(n*sqrt(2)) - a(n-1) for all n ≥ 1
  * Range:     u8 n <= 360, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9866 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Memoisation storage */
 static seq_t *cache = NULL;      /* array of stored terms */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
     if (new_cap <= (size_t)n + 1)
         new_cap = (size_t)n + 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();          /* out of memory – terminate */
     cache = tmp;

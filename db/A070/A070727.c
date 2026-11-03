@@ -7,12 +7,17 @@
  * Formula:   a(n) = n^7 mod 47
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   mul_mod_small
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mul_mod_small.h"
+static seq_t mul_mod_small(seq_t x, seq_t y)
+{
+    /* multiply modulo 47 using a type safe intermediate */
+    return (seq_t)(((unsigned long long)x * (unsigned long long)y) % 47);
+}
 
 seq_t a(idx_t n)
 {

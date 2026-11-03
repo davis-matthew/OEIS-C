@@ -9,17 +9,19 @@
  *            using the given coin denominations
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate DP array for values 0..n */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp)
         return 0; /* allocation failure – in practice this should not happen */
 
@@ -40,6 +42,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

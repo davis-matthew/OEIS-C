@@ -11,6 +11,7 @@
  *            n nodes * and height ≤ h. The computation uses a d...
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 37, u64 n <= 90, u128 n <= 340,
  *            big any n
+ * Validated: full, pass, 341 terms through n = 340 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

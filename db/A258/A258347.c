@@ -7,21 +7,23 @@
  * Formula:   a(n) = coeff of x^n in ∏_{k≥1} (1-x^k)^(-k(k+1))
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 24, u64 n <= 58, u128 n <= 142,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == (idx_t)0) return (seq_t)1;
 
     /* allocate two working arrays of size n+1 */
-    seq_t *dp1 = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *dp2 = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp1 = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *dp2 = mem_new(seq_t, (size_t)(n + 1));
     if (!dp1 || !dp2) { /* memory failure unlikely; abort if it occurs */
         return (seq_t)0;
     }
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp1[n];
-    free(dp1);
-    free(dp2);
+    mem_free(dp1);
+    mem_free(dp2);
     return result;
 }

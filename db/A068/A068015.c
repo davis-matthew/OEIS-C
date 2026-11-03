@@ -7,7 +7,8 @@
  * Formula:   a(n) = A007510(n+1) - A007510(n) (gaps between non‑twin primes)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 84 terms through n = 965 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *non_twin = NULL;   /* array of non‑twin primes (seq_t type) */
 static size_t non_cnt  = 0;      /* number of primes stored */
@@ -29,7 +31,7 @@ static void grow_if_needed(void)
 {
     if (non_cnt >= non_cap) {
         size_t new_cap = (non_cap == 0) ? 16 : non_cap << 1;
-        seq_t *tmp = (seq_t *)realloc(non_twin, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, non_twin, new_cap);
         if (!tmp) abort();
         non_twin = tmp;
         non_cap = new_cap;

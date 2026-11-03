@@ -9,16 +9,18 @@
  *            a(idx_t n) and uses helper routines from the utils directory
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_prime, pow_uint
+ * Validated: standard, pass, 100 terms through n = 7609 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     factor_u64(n, primes, exps, &cnt);
 
     for (size_t i = 0; i < cnt; ++i) {
-        seq_t cost = pow_uint(primes[i], exps[i] + 1);
+        seq_t cost = ipow_u64_idx(primes[i], exps[i] + 1);
         if (cost < min_cost) {
             min_cost = cost;
             best = primes[i];

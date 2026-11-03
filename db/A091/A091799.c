@@ -13,14 +13,66 @@
  *            ≥ 1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_value, compute_k
+ * Validated: standard, pass, 115 terms through n = 9905 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/append_value.h"
-#include "../utils/compute_k.h"
+#include "../utils/mem.h"
+
+/* Append the decimal representation of *value* to *buf* (which may grow). */
+static void append_value(char **buf, size_t *cap, size_t *len, seq_t value)
+{
+    char tmp[55];
+    int pos = 0;
+    if (value == 0) {
+        tmp[pos++] = '0';
+    } else {
+        while (value != 0) {
+            unsigned d = (unsigned)(value % 10);
+            tmp[pos++] = '0' + d;
+            value /= 10;
+        }
+    }
+    if (*len + pos > *cap) {
+        size_t newcap = (*cap == 0) ? 64 : (*cap << 1);
+        while (newcap < *len + pos) newcap <<= 1;
+        char *newbuf = (char *)realloc(*buf, newcap);
+        if (!newbuf) abort();
+        *buf = newbuf;
+        *cap = newcap;
+    }
+    for (int i = pos - 1; i >= 0; --i)
+        (*buf)[(*len)++] = tmp[i];
+}
+
+/* Compute the maximal repetition count k at the end of the string S
+ * of length L (S contains decimal digits). */
+static seq_t compute_k(const char *S, size_t L)
+{
+    if (L == 0) return 0;
+    int *pi = (int *)malloc(L * sizeof(int));
+    if (!pi) abort();
+    pi[0] = 0;
+    for (size_t pos = 1; pos < L; ++pos) {
+        int j = pi[pos - 1];
+        char cur = S[L - 1 - pos];
+        while (j > 0 && cur != S[L - 1 - j]) j = pi[j - 1];
+        if (cur == S[L - 1 - j]) ++j;
+        pi[pos] = j;
+    }
+    seq_t max_k = 1;
+    for (size_t j = 0; j < L; ++j) {
+        int l = (int)(j + 1);
+        int period = l - pi[j];
+        int k = (l % period == 0) ? (l / period) : 1;
+        if ((seq_t)k > max_k) max_k = k;
+    }
+    free(pi);
+    return max_k;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +88,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         size_t newcap = cache_cap ? cache_cap << 1 : 64;
         while (newcap < (size_t)n) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = newcap;

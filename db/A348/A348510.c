@@ -8,15 +8,17 @@
  * Formula:   a(n) = numerator of τ(n) / σ_{-1}(n) - n, where τ(n) is the
  *            number of divisors of n and σ_{-1}(n) = Σ_{d|n} 1/d. The
  *            numerator is taken in lowest terms
- * Range:     i8 n <= 9, i16 n <= 256, i32 n <= 9482, i64 n <= 9482,
- *            i128 n <= 9482, big any n
- * Helpers:   gcd, pow_uint_uint
+ * Range:     i8 n <= 9, i16 n <= 256, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 9482 (2026-11-01)
+ * Helpers:   gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/pow_uint_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Sequence value a(n) as defined. */
 seq_t a(idx_t n)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
             remaining /= 2ULL;
             ++e;
         }
-        seq_t ppow_e   = pow_uint_uint(2ULL, e);    /* 2^e */
+        seq_t ppow_e   = ipow_u64_idx(2ULL, e);    /* 2^e */
         seq_t ppow_ep1 = ppow_e * (seq_t)2ULL;      /* 2^(e+1) */
         seq_t Np = ppow_e * (seq_t)(2ULL - 1ULL) * (seq_t)(e + 1ULL);
         seq_t Dp = ppow_ep1 - (seq_t)1;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
                 remaining /= p;
                 ++e;
             }
-            seq_t ppow_e   = pow_uint_uint(p, e);       /* p^e */
+            seq_t ppow_e   = ipow_u64_idx(p, e);       /* p^e */
             seq_t ppow_ep1 = ppow_e * (seq_t)p;         /* p^(e+1) */
             seq_t Np = ppow_e * (seq_t)(p - 1ULL) * (seq_t)(e + 1ULL);
             seq_t Dp = ppow_ep1 - (seq_t)1;

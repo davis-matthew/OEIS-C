@@ -8,14 +8,18 @@
  *            brute‑force search)
  * Range:     u8 n <= 30, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 86 terms through n = 838 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +30,7 @@ seq_t a(idx_t n)
     seq_t p = 2;                         /* start from the first prime */
 
     for (;; ++p) {
-        if (is_prime((idx_t)p) && mod_pow(p, (uint64_t)n, mod) == (seq_t)1)
+        if (is_prime((idx_t)p) && powmod(p, (uint64_t)n, mod) == (seq_t)1)
             return p;
     }
 }

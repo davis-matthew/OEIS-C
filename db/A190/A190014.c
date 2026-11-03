@@ -10,13 +10,37 @@
  *            * a(d)
  * Range:     u8 n <= 54, u16 n <= 2336, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   arith_derivative
+ * Validated: standard, pass, 118 terms through n = 4886 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/arith_derivative.h"
+#include "../utils/mem.h"
+
+/* --- arithmetic derivative ------------------------------------------------- */
+static seq_t arith_derivative(idx_t m)
+{
+    if (m <= 1) return 0;
+
+    seq_t res = 0;
+    idx_t tmp = m;
+    for (idx_t p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            int exp = 0;
+            while (tmp % p == 0) {
+                tmp /= p;
+                ++exp;
+            }
+            res += (seq_t)(m / p) * exp;
+        }
+    }
+    if (tmp > 1) {          /* remaining prime factor */
+        res += (seq_t)(m / tmp);  /* exponent = 1 */
+    }
+    return res;
+}
 
 /* --- simple hash table for memoisation ------------------------------------- */
 struct Entry {
@@ -32,7 +56,7 @@ static void hash_init(void)
 {
     if (hash_table) return;
     hash_capacity = 131072; /* 2^17, power of two for masking */
-    hash_table = (struct Entry *)calloc(hash_capacity, sizeof(struct Entry));
+    hash_table = mem_new(struct Entry, hash_capacity);
 }
 
 static struct Entry *hash_find(idx_t key)
@@ -64,7 +88,7 @@ static struct Entry *hash_insert(idx_t key, seq_t value)
     /* rehash if load factor exceeds 0.7 */
     if (hash_size > hash_capacity * 7 / 10) {
         size_t new_capacity = hash_capacity << 1;
-        struct Entry *new_table = (struct Entry *)calloc(new_capacity, sizeof(struct Entry));
+        struct Entry *new_table = mem_new(struct Entry, new_capacity);
         for (size_t i = 0; i < hash_capacity; ++i) {
             if (hash_table[i].key != 0) {
                 size_t j = hash_table[i].key & (new_capacity - 1);
@@ -72,7 +96,7 @@ static struct Entry *hash_insert(idx_t key, seq_t value)
                 new_table[j] = hash_table[i];
             }
         }
-        free(hash_table);
+        mem_free(hash_table);
         hash_table = new_table;
         hash_capacity = new_capacity;
     }

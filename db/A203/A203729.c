@@ -9,13 +9,15 @@
  *            14400, a(2) = 539456
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 10, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t new_size = cache_size > 0 ? cache_size : 1;
         while (new_size <= n) new_size <<= 1; /* double until big enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) { /* allocation failure – abort */
             /* In a contest environment one might exit or handle error */
             return (seq_t)0;

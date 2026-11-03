@@ -15,7 +15,8 @@
  *            enumerated with the parts equal to 1 handled in closed form....
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 12, u64 n <= 16, u128 n <= 21,
  *            big any n
- * Helpers:   q2854_addshift
+ * Validated: standard, pass, 36 terms through n = 88 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/q2854_addshift.h"
+
+static void q2854_addshift(uint32_t *acc, size_t AL, const uint32_t *src, size_t SL, uint64_t sh) {
+    size_t w = (size_t)(sh / 32);
+    unsigned b = (unsigned)(sh % 32);
+    uint64_t prev = 0, carry = 0;
+    size_t i;
+    for (i = 0; i <= SL && w + i < AL; i++) {
+        uint64_t cur = i < SL ? src[i] : 0;
+        uint32_t piece = b ? (uint32_t)((cur << b) | (prev >> (32 - b))) : (uint32_t)cur;
+        prev = cur;
+        uint64_t s = (uint64_t)acc[w + i] + piece + carry;
+        acc[w + i] = (uint32_t)s;
+        carry = s >> 32;
+    }
+    for (size_t k = w + i; carry && k < AL; k++) {
+        uint64_t s = (uint64_t)acc[k] + carry;
+        acc[k] = (uint32_t)s;
+        carry = s >> 32;
+    }
+}
 
 typedef unsigned __int128 q2854_u128;
 

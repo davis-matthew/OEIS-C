@@ -8,8 +8,9 @@
  * Formula:   a(n) = T(r,c) where r(r+1)/2 ≤ n < (r+1)(r+2)/2, T(r,k) is the
  *            coefficient in the expansion cos(x)^r = (1/2)^r Σ_{k=0..r}
  *            T(r,k) cos(kx)
- * Range:     u8 n <= 35, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 56, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
 
 /* Dependencies                                                     */
 #include <stdint.h>                     /* UINT64_MAX, uint64_t etc. */
-#include "../utils/binomial.h"          /* binomial(idx_t n, idx_t k)   */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 /* ------------------------------------------------------------------ */
 /* Return the coefficient T(n,k) as defined in the OEIS entry         */

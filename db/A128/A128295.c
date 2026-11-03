@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,11 @@
    b(1) = 1
    b(n+1) = b(n) * [b(1);b(2),...,b(n)]   (continued fraction with rational terms) */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/gcd.h"
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* multiply two quotients a/b and c/d with cross‑cancellation to avoid overflow.
    Both a,b,c,d are already in lowest terms. */
@@ -38,8 +42,8 @@ seq_t a(idx_t n)
     if (n == 1) return 1;
 
     /* storage for b(1)..b(n) as numerators and denominators */
-    seq_t *num = (seq_t *)malloc(n * sizeof(seq_t));
-    seq_t *den = (seq_t *)malloc(n * sizeof(seq_t));
+    seq_t *num = mem_new(seq_t, n);
+    seq_t *den = mem_new(seq_t, n);
     if (!num || !den) return 0;    /* allocation failure – caller should handle */
 
     num[0] = 1;   /* b(1) = 1/1  */
@@ -77,7 +81,7 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = num[n-1];         /* numerator of b(n) */
-    free(num);
-    free(den);
+    mem_free(num);
+    mem_free(den);
     return ans;
 }

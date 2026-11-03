@@ -11,14 +11,15 @@
  *            Sum_{t=1..n-1} C(n-1,t-1)*s(t)*u(n-t)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   a3028_p2
+ * Validated: standard, pass, 29 terms through n = 50 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a3028_p2.h"
+#include "../utils/pow2.h"
 
 #define A3028_NMAX 256
 
@@ -42,7 +43,7 @@ static void a3028_step(idx_t n) {
     if (n == 0) return;
     /* pw[n][d] = 2^(d(n-1)) */
     {
-        seq_t base = a3028_p2(n - 1);
+        seq_t base = pow2(n - 1);
         A3028_pw[n][0] = 1;
         for (j = 1; j <= n; j++) A3028_pw[n][j] = A3028_pw[n][j - 1] * base;
     }
@@ -50,7 +51,7 @@ static void a3028_step(idx_t n) {
     A3028_g[n][0] = 1;
     for (m = 1; m < n; m++) {
         t = n - m;
-        seq_t v = A3028_pw[m][m] * a3028_p2(t * m);
+        seq_t v = A3028_pw[m][m] * pow2(t * m);
         for (j = 0; j < m; j++)
             v -= A3028_C[m][j] * A3028_g[t][j] * A3028_pw[m][m - j];
         A3028_g[t][m] = v;

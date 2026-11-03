@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 42, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_digits
+ * Validated: standard, pass, 49 terms through n = 9143 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_digits.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* helper to count distinct decimal digits of a 128‑bit number */
+static unsigned
+count_distinct_digits(unsigned __int128 v)
+{
+    unsigned mask = 0;
+    if (v == 0) return 1;
+    while (v > 0) {
+        int d = v % 10;
+        mask |= 1u << d;
+        v /= 10;
+    }
+    return __builtin_popcount(mask);
+}
 
 /* Static cache of found terms. */
 static seq_t *terms = NULL;
@@ -33,7 +49,7 @@ static void ensure_terms_cap(size_t min_cap)
     if (min_cap <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : min_cap;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *new_ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
     if (!new_ptr) abort();
     terms = new_ptr;
     terms_cap = new_cap;

@@ -12,8 +12,9 @@
  *            * (row m) its divisors are listed in increasing order. Whenever
  *            an odd * divisor occurs a new sublist is started, and all
  *            following even * divisors are appended to it unt...
- * Range:     u8 n <= 9554, u16 n <= 9554, u32 n <= 9554, u64 n <= 9554,
- *            u128 n <= 9554, big any n
+ * Range:     u8 n <= 13282, u16 n <= 13282, u32 n <= 13282, u64 n <= 13282,
+ *            u128 n <= 13282, big any n
+ * Validated: standard, pass, 118 terms through n = 9554 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

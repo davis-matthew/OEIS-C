@@ -6,91 +6,49 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 10, u32 n <= 45, u64 n <= 45, u128 n <= 45,
- *            big any n
- * Helpers:   floor_sqrt
+ * Range:     u8 n <= 6, u16 n <= 165, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 61 terms through n = 9331 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* Computation: return the n‑th integer k such that
- * k + the sum of the 4th powers of the decimal digits of k is a perfect square. */
-#include <stdlib.h>
+/* k is a term iff k + (sum of the 4th powers of its digits) is a square.
+   Searched in order in 64 bits (in seq_t it timed out under big), with the
+   terms cached. */
+
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
 
-static const int pow4_int[10] = {
-    0,     /* 0^4 */
-    1,     /* 1^4 */
-    16,    /* 2^4 */
-    81,    /* 3^4 */
-    256,   /* 4^4 */
-    625,   /* 5^4 */
-    1296,  /* 6^4 */
-    2401,  /* 7^4 */
-    4096,  /* 8^4 */
-    6561   /* 9^4 */
-};
-
-/* cache for previously found sequence terms */
-static seq_t *cache = NULL;
-static size_t cache_len = 0;
-static size_t cache_cap = 0;
-static seq_t last_k = 0;
-
-/* Ensure the cache can hold at least 'need' elements. */
-static void ensure_capacity(size_t need)
+static bool is_square_u64(uint64_t x)
 {
-    if (need <= cache_cap)
-        return;
-    size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-    while (new_cap < need)
-        new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-    cache = tmp;
-    cache_cap = new_cap;
-}
-
-/* Test whether x is a perfect square using floor_sqrt. */
-static int is_square(seq_t x)
-{
-    seq_t r = floor_sqrt(x);
+    uint64_t r = 0;
+    for (uint64_t b = (uint64_t)1 << 31; b; b >>= 1)
+        if ((r + b) * (r + b) <= x) r += b;
     return r * r == x;
 }
 
-/* Sum of fourth powers of the decimal digits of k. */
-static seq_t digit_sum4(seq_t k)
-{
-    seq_t sum = 0;
-    while (k > 0) {
-        int d = (int)(k % 10);
-        sum += (seq_t)pow4_int[d];
-        k /= 10;
-    }
-    return sum;
-}
-
-/* Main sequence routine */
 seq_t a(idx_t n)
 {
-    if (n == 0)
-        return 0;          /* defined only for n >= 1 */
-
-    /* extend cache until it contains at least n terms */
-    while (cache_len < (size_t)n) {
-        seq_t k = last_k + 1;   /* next candidate */
-        for (;;) {
-            seq_t s = digit_sum4(k);
-            seq_t v = k + s;
-            if (is_square(v)) {
-                ensure_capacity(cache_len + 1);
-                cache[cache_len++] = k;
-                last_k = k;
-                break;
-            }
-            k++;
+    static const uint64_t P4[10] = {0, 1, 16, 81, 256, 625, 1296, 2401, 4096, 6561};
+    static seq_t *cache = NULL;
+    static size_t len = 0, cap = 0;
+    static uint64_t last = 0;
+    if (n == 0) return (seq_t)0;
+    while (len < (size_t)n) {
+        uint64_t k = ++last, s = 0;
+        for (uint64_t t = k; t; t /= 10) s += P4[t % 10];
+        if (!is_square_u64(k + s)) continue;
+        if (len == cap) {
+            cap = cap ? 2 * cap : 64;
+            seq_t *t = mem_resize(seq_t, cache, cap);
+            if (!t) abort();
+            cache = t;
         }
+        cache[len++] = (seq_t)k;
     }
-
-    return cache[(size_t)n - 1];
+    return cache[n - 1];
 }

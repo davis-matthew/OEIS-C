@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   mul_small, pow2
+ * Validated: standard, pass, 43 terms through n = 975 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,22 @@
    a(n) = 3*a(n-1) – 3*a(n-2) + a(n-3) + p(n) – 3*p(n-1) + 3*p(n-2) – p(n-3) + 2^(2*n-5)  
    where p(n) is the partition function with p(0)=1. */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* Static caches for sequence values and partition numbers */
 static seq_t *a_cache = NULL;
@@ -38,7 +53,7 @@ static void ensure_array(size_t *cap, seq_t **array, idx_t n)
         size_t new_cap = (*cap == 0) ? 1 : *cap;
         while ((size_t)n + 1 > new_cap)
             new_cap <<= 1;
-        *array = (seq_t *)realloc(*array, new_cap * sizeof(seq_t));
+        *array = mem_resize(seq_t, *array, new_cap);
         /* new entries will be filled before use */
         *cap = new_cap;
     }

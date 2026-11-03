@@ -7,15 +7,16 @@
  * Formula:   a(n) = Sum_{d|n} (n-d)^tau(d) (OEIS A345273)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 47, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   build_spf, seq_pow
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   build_spf, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/build_spf.h"   /* provides build_spf(idx_t limit, idx_t **spf_out) */
-#include "../utils/seq_pow.h"    /* provides seq_pow(seq_t base, idx_t exp) */
+#include "../utils/build_spf.h"
+#include "../utils/ipow_idx.h"
 
 static uint32_t *tau_cache = NULL;      /* tau_cache[i] = tau(i), 1‑based */
 static idx_t    tau_cap   = 0;           /* maximum index computed in tau_cache */
@@ -84,13 +85,13 @@ a(idx_t n)
         if (n % i == 0) {
             /* divisor d1 = i */
             idx_t d1 = i;
-            seq_t term1 = seq_pow((seq_t)(n - d1), (idx_t)tau_cache[d1]);
+            seq_t term1 = ipow_idx((seq_t)(n - d1), (idx_t)tau_cache[d1]);
             sum += term1;
 
             /* paired divisor d2 = n / i, if distinct */
             idx_t d2 = n / i;
             if (d2 != d1) {
-                seq_t term2 = seq_pow((seq_t)(n - d2), (idx_t)tau_cache[d2]);
+                seq_t term2 = ipow_idx((seq_t)(n - d2), (idx_t)tau_cache[d2]);
                 sum += term2;
             }
         }

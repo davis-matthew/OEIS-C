@@ -9,12 +9,14 @@
  *            n*a(n-1) - 1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 /* cache of previously computed terms */
@@ -55,7 +57,7 @@ static void ensure_cache_to(idx_t n) {
     /* bootstrap a(1) if this is the first call */
     if (cur_max == 0) {
         size_t init_len = 2;              /* indices 0 and 1 */
-        cache = (seq_t *)realloc(cache, init_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, init_len);
         if (!cache) abort();
         cache_len = init_len;
         cache[1] = (seq_t)1;              /* a(1) = 1 */
@@ -68,7 +70,7 @@ static void ensure_cache_to(idx_t n) {
     if (needed > cache_len) {
         size_t new_len = cache_len ? cache_len * 2 : 16;
         while (new_len <= n) new_len <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
         cache_len = new_len;

@@ -9,13 +9,26 @@
  *            overflows before the division by 256
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 28,
  *            big any n
- * Helpers:   pow_split
+ * Validated: standard, pass, 34 terms through n = 96 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_split.h"
+
+static void pow_split(int base, idx_t e, seq_t *q, uint64_t *r) {
+    seq_t qq = 0;
+    uint64_t rr = 1;
+    idx_t i;
+    for (i = 0; i < e; i++) {
+        uint64_t t = rr * (uint64_t)base;
+        qq = qq * base + (seq_t)(t >> 8);
+        rr = t & 255;
+    }
+    *q = qq;
+    *r = rr;
+}
 
 seq_t a(idx_t n) {
     idx_t e = 2 * n + 1;

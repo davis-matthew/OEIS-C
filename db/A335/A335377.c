@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_totally_co_strong_uint32
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/is_totally_co_strong_uint32.h"
+#include "../utils/mem.h"
+
+/* ---------- check if a sequence of parts is totally co‑strong ---------- */
+static bool is_totally_co_strong_uint32(const uint32_t *seq, size_t len)
+{
+    if (len == 0) return true;                 /* empty */
+    if (len == 1 && seq[0] == 1) return true;  /* {1} */
+
+    /* run‑lengths of the sequence */
+    uint32_t run[256];
+    size_t rlen = 0;
+    size_t pos = 0;
+    while (pos < len) {
+        size_t start = pos;
+        while (pos < len && seq[pos] == seq[start]) ++pos;
+        run[rlen++] = (uint32_t)(pos - start);
+    }
+
+    /* run‑lengths must be weakly increasing */
+    for (size_t i = 1; i < rlen; ++i)
+        if (run[i] < run[i - 1]) return false;
+
+    /* recursive test on run‑lengths */
+    return is_totally_co_strong_uint32(run, rlen);
+}
 
 /* ---------- prime sieve (needed for factorisation) ---------- */
 #define PRIME_SIEVE_MAX 2000000   /* covers all primes needed for n up to ~1e5 */
@@ -141,7 +166,7 @@ seq_t a(idx_t n)
         if (is_non_totally_co_strong((uint64_t)last_checked)) {
             if (cache_len == cache_cap) {        /* grow cache if needed */
                 cache_cap = cache_cap ? cache_cap * 2 : 4;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)last_checked;
         }

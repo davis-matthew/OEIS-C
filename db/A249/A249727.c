@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9874, u16 n <= 9874, u32 n <= 9874, u64 n <= 9874,
- *            u128 n <= 9874, big any n
+ * Range:     u8 n <= 10016, u16 n <= 10016, u32 n <= 10016, u64 n <= 10016,
+ *            u128 n <= 10016, big any n
+ * Validated: standard, pass, 133 terms through n = 9874 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,6 +24,7 @@
    position n − cum inside that block, i.e. 1 ≤ a(n) ≤ π(m).
    Otherwise add π(m) to cum and continue.
 */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 #include <stdbool.h>
 

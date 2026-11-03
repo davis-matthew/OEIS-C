@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{i=1..n} C(i+6,7)^2
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 13, u64 n <= 68, u128 n <= 1379,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 4984 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

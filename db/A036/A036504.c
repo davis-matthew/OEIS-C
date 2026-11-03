@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 12, u64 n <= 18, u128 n <= 28,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 37 terms through n = 237 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,14 @@
 /* Numerator of n^(n-1)/n! */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -50,7 +57,7 @@ seq_t a(idx_t n)
 
             idx_t exp = exp_num > leg ? exp_num - leg : 0;
             if (exp > 0)
-                result = seq_mul(result, seq_pow((seq_t)p, exp));
+                result = seq_mul(result, ipow_idx((seq_t)p, exp));
         }
     }
 
@@ -71,7 +78,7 @@ seq_t a(idx_t n)
 
         idx_t exp = exp_num > leg ? exp_num - leg : 0;
         if (exp > 0)
-            result = seq_mul(result, seq_pow((seq_t)p, exp));
+            result = seq_mul(result, ipow_idx((seq_t)p, exp));
     }
 
     return result;

@@ -10,13 +10,33 @@
  *            1 at indices 0 and 1
  * Range:     u8 n <= 10, u16 n <= 27, u32 n <= 562, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow10, reverse_first_digits
+ * Validated: standard, pass, 54 terms through n = 998 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
-#include "../utils/reverse_first_digits.h"
+#include <stdint.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static inline seq_t reverse_first_digits(seq_t x, idx_t d)
+{
+    seq_t rev = 0;
+    for (idx_t i = 0; i < d; ++i) {
+        rev = rev * 10 + x % (seq_t)10;
+        x   = x / (seq_t)10;
+    }
+    return rev;
+}
 
 static inline idx_t pow10_idx(idx_t p)
 {

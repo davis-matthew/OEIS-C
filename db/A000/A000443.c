@@ -7,13 +7,15 @@
  * Formula:   Numbers that are sum of 2 squares in exactly 3 ways
  * Range:     u8 none, u16 n <= 677, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9033 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *terms = NULL;
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
         }
         
         // Find new terms with exactly 3 representations
-        seq_t *new_terms = (seq_t *)malloc((size_t)(limit - max_checked) * sizeof(seq_t));
+        seq_t *new_terms = mem_new(seq_t, (size_t)(limit - max_checked));
         idx_t new_count = 0;
         for (seq_t i = max_checked + 1; i <= limit; i++) {
             if (count[(size_t)i] == 3) {
@@ -52,11 +54,11 @@ seq_t a(idx_t n) {
             terms = new_terms;
             terms_count = new_count;
         } else {
-            seq_t *merged = (seq_t *)malloc((size_t)(terms_count + new_count) * sizeof(seq_t));
-            memcpy(merged, terms, (size_t)terms_count * sizeof(seq_t));
-            memcpy(merged + (size_t)terms_count, new_terms, (size_t)new_count * sizeof(seq_t));
-            free(terms);
-            free(new_terms);
+            seq_t *merged = mem_new(seq_t, (size_t)(terms_count + new_count));
+            mem_copy(merged, terms, (size_t)terms_count * sizeof(seq_t));
+            mem_copy(merged + (size_t)terms_count, new_terms, (size_t)new_count * sizeof(seq_t));
+            mem_free(terms);
+            mem_free(new_terms);
             terms = merged;
             terms_count += new_count;
         }

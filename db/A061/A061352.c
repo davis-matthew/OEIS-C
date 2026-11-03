@@ -7,6 +7,7 @@
  * Formula:   a(n) = (1 + ((n-1+1)/2) + 2*((n-1)/2)*((n-1)/2+1)) mod 10
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

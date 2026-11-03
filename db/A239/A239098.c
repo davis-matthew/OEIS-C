@@ -9,7 +9,8 @@
  *            T(m,n)=(m-1)*T(m-1,n)+(m-1+n)*T(m-1,n-1)
  * Range:     u8 n <= 17, u16 n <= 31, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Sequence a(n) is the triangle read by rows (triangular indexing). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache of computed rows; rows[m][n] = T(m,n) for 0 ≤ n ≤ m */
 static seq_t **rows = NULL;          /* pointer array of rows */
@@ -44,7 +46,7 @@ static void ensure_rows(size_t mmax)
     /* Compute any missing rows */
     for (size_t m = num_rows; m <= mmax; ++m) {
         size_t len = m + 1;
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row)
             exit(1);   /* out of memory */
 

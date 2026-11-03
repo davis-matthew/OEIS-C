@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   add_root_uint64, build_min_value, mult_root_uint64
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,46 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/add_root_uint64.h"
-#include "../utils/build_min_value.h"
-#include "../utils/mult_root_uint64.h"
+
+/* --------- helpers for digital roots on uint64_t -------------------- */
+static int add_root_uint64(uint64_t x)
+{
+    while (x >= 10) {
+        uint64_t s = 0;
+        while (x) { s += x % 10; x /= 10; }
+        x = s;
+    }
+    return (int)x;
+}
+
+/* Build the smallest decimal number from the digit count array.
+   All digits are 1..9; the smallest lexicographic (numeric) order
+   is obtained by concatenating digits in ascending order. */
+static uint64_t build_min_value(const int *c, int total_len)
+{
+    (void)total_len;          /* unused, but kept for clarity */
+    uint64_t val = 0;
+    for (int d = 1; d <= 9; ++d) {
+        for (int i = 0; i < c[d]; ++i)
+            val = val * 10 + (uint64_t)d;
+    }
+    return val;
+}
+
+static int mult_root_uint64(uint64_t x)
+{
+    while (x >= 10) {
+        uint64_t p = 1;
+        while (x) {
+            int d = x % 10;
+            if (d == 0) p = 0;
+            else p *= (uint64_t)d;
+            x /= 10;
+        }
+        x = p;
+    }
+    return (int)x;
+}
 
 /* This function implements the definition of OEIS sequence A272029:
    a(n) = least k > n such that the additive and multiplicative

@@ -8,7 +8,8 @@
  *            binomial(2*k,n-k)
  * Range:     i8 n <= 6, i16 n <= 11, i32 n <= 20, i64 n <= 29, i128 n <= 29,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t max_computed = 0;
@@ -25,7 +27,7 @@ static idx_t max_computed = 0;
 static void grow_cache(idx_t n)
 {
     if (cache == NULL) {
-        cache = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
         if (cache == NULL)
             abort();
         /* Compute the first value a(0) = 1 */
@@ -35,7 +37,7 @@ static void grow_cache(idx_t n)
             return;
         }
     } else if (n > max_computed) {
-        seq_t *tmp = (seq_t*)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (tmp == NULL)
             abort();
         cache = tmp;

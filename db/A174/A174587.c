@@ -11,6 +11,7 @@
  *            (Eulerian(0,0)=1 and Eulerian(n,k)=0 for k>n)
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 36, i64 n <= 38, i128 n <= 38,
  *            big any n
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

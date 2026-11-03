@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(1) = 1; * for n > 1, a(n) = (214013 * (a(n-1) mod 2^16) +
  *            13523655) mod 2^24
- * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 9813, u64 n <= 9813,
- *            u128 n <= 9813, big any n
+ * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 44 terms through n = 9813 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

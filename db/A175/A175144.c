@@ -9,7 +9,8 @@
  *            d(m) is the number of positive divisors of m
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, divisor_count_u64
+ * Validated: standard, pass, 87 terms through n = 9362 (2026-11-01)
+ * Helpers:   build_primes_upto, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 /* Compute the n-th term of sequence A175144.
    The function is thread‑safe apart from the static cache and is
@@ -54,8 +56,8 @@ seq_t a(idx_t n)
     uint64_t p = primes[n - 1];
 
     /* Compute the divisor counts of p−1 and p+1. */
-    uint64_t d_minus = divisor_count_u64(p - 1);
-    uint64_t d_plus  = divisor_count_u64(p + 1);
+    uint64_t d_minus = num_divisors(p - 1);
+    uint64_t d_plus  = num_divisors(p + 1);
 
     /* Sum and cast to the output type. */
     return (seq_t)(d_minus + d_plus);

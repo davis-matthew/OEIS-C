@@ -10,7 +10,8 @@
  *            A001055(k) is the number of unordered factorizations of k
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------
    Inner recursive routine that counts unordered factorizations
@@ -66,9 +68,8 @@ seq_t a(idx_t n)
            1.  Prepare the exponent and memoisation tables
            --------------------------------------------------------- */
         STRIDE = (idx_t)sqrt((double)LIMIT) + 1;
-        CACHE   = (seq_t*)calloc((LIMIT + 1) * STRIDE,
-                                 sizeof(seq_t));
-        PREFIX  = (seq_t*)calloc(LIMIT + 1, sizeof(seq_t));
+        CACHE   = mem_new(seq_t, (LIMIT + 1) * STRIDE);
+        PREFIX  = mem_new(seq_t, LIMIT + 1);
 
         /* ---------------------------------------------------------
            2.  Smallest prime factor sieve for all numbers up to LIMIT

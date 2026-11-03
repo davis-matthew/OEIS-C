@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   _size_t_to_str, seq_from_str
+ * Validated: standard, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,41 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/_size_t_to_str.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* convert a size_t integer to decimal digits stored consecutively in buf;
+   len is filled with the number of digits. */
+static void _size_t_to_str(size_t n, unsigned char *buf, size_t *len)
+{
+    size_t pos = 0;
+    if (n == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    while (n > 0) {
+        buf[pos++] = (unsigned char)('0' + (n % 10));
+        n /= 10;
+    }
+    /* reverse to get proper order */
+    for (size_t i = 0; i < pos / 2; ++i) {
+        unsigned char tmp = buf[i];
+        buf[i] = buf[pos - 1 - i];
+        buf[pos - 1 - i] = tmp;
+    }
+    *len = pos;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +73,7 @@ seq_t a(idx_t n)
         while (new_lim <= (size_t)n) {
             new_lim *= 2;
         }
-        seq_t *new_cache = (seq_t*)realloc(cache, new_lim * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_lim);
         cache = new_cache;
         cache_cap = new_lim;
     }

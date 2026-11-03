@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;
 static idx_t term_count = 0;
@@ -53,7 +55,7 @@ static void init_terms(void)
         if (cnt[s] >= 3)
             ++count_terms;
 
-    seq_t *tmp = (seq_t *)malloc(count_terms * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, count_terms);
     if (!tmp) {
         free(cnt);
         return;

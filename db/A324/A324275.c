@@ -10,12 +10,14 @@
  *            34, a(6) = 53, a(7) = 64
  * Range:     u8 n <= 14, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[7] = {2, 9, 14, 27, 34, 53, 64};
 static seq_t *memo = NULL;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (memo == NULL || memo_size <= nn)
     {
         size_t newsize = nn + 1;                /* indices 0..n inclusive */
-        seq_t *tmp = (seq_t *)realloc(memo, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, newsize);
         if (tmp == NULL)
             abort();                            /* out of memory */
         memo = tmp;

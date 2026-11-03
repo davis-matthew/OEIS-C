@@ -9,12 +9,36 @@
  *            expressions listed in the OEIS entry
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   compute_R
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_R.h"
+/* Helper: compute the value R(i, j) for positive i, j. */
+static seq_t compute_R(idx_t i, idx_t j)
+{
+    seq_t i_seq = (seq_t)i;
+    seq_t j_seq = (seq_t)j;
+    seq_t i_sq  = i_seq * i_seq;
+    seq_t k_sq  = j_seq * j_seq;
+
+    if ((j & 1) == 0) {          /* k even  */
+        if (i == 1) {            /* n = 1, k even */
+            return (k_sq + 2 * j_seq) / 2;
+        } else {                 /* n > 1, k even */
+            seq_t two_j_minus3 = ((seq_t)2 * j_seq) - 3;
+            return (i_sq + two_j_minus3 * i_seq + k_sq - 2 * j_seq) / 2;
+        }
+    } else {                     /* k odd */
+        if (i == 1) {            /* n = 1, k odd */
+            return (k_sq + 2 * j_seq - 1) / 2;
+        } else {                 /* n > 1, k odd */
+            seq_t two_j_minus1 = ((seq_t)2 * j_seq) - 1;
+            return (i_sq + two_j_minus1 * i_seq + k_sq - 2 * j_seq - 1) / 2;
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

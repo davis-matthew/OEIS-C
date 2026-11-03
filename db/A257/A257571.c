@@ -8,13 +8,29 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   depth_of, parent_of
+ * Validated: standard, pass, 102 terms through n = 914 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/depth_of.h"
-#include "../utils/parent_of.h"
+/* Return the parent of x in the tree.  x is guaranteed > 0. */
+static inline idx_t parent_of(idx_t x)
+{
+    return (x & 1u) ? (x - 1) : (x >> 1);
+}
+
+/* Compute the depth of node x (distance from the root 0). */
+static inline idx_t depth_of(idx_t x)
+{
+    idx_t d = 0;
+    while (x != 0)
+    {
+        x = parent_of(x);
+        ++d;
+    }
+    return d;
+}
 /* 
  * Formula: a(n) = distance between nodes h and k in the tree where
  * for each x > 0 the unique parent is

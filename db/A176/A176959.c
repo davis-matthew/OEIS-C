@@ -11,13 +11,15 @@
  *            = sum_{p=0}^{n} a(p)*a(n-p) - n
  * Range:     i8 n <= 8, i16 n <= 14, i32 n <= 23, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Includes needed for malloc/realloc.  No other functions are required. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system. */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialisation: create space for a(0) and a(1). */
     if (cache == NULL) {
         cache_cap = 2;                         /* at least 0 and 1 */
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         if (!cache) abort();                   /* allocation error */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)0;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while ((size_t)(n+1) > new_cap)
             new_cap <<= 1;                     /* double until large enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache     = tmp;
         cache_cap = new_cap;

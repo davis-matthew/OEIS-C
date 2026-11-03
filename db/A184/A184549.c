@@ -9,12 +9,14 @@
  *            a(2)=17, a(3)=23, a(4)=28
  * Range:     u8 n <= 36, u16 n <= 9361, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9693 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *cache = NULL;          /* dynamic array of computed terms */
@@ -27,7 +29,7 @@ static void ensure_terms(idx_t n)
         return;
 
     /* Allocate or grow the cache to hold indices 0…n (inclusive) */
-    seq_t *new_cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache)                    /* allocation failed – leave old cache untouched */
         return;
 

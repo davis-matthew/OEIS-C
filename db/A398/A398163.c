@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 142, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_semi2free
+ * Validated: standard, pass, 85 terms through n = 9592 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_semi2free.h"
+#include "../utils/mem.h"
+
+/* true iff in the prime factorisation of n no exponent equals 2         */
+static inline bool is_semi2free(uint64_t n)
+{
+    if (n <= 1)            /* 1 is trivially semi‑2‑free                        */
+        return true;
+    for (uint64_t p = 2; p * p <= n; ++p) {
+        if (n % p == 0) {
+            int exp = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++exp;
+            }
+            if (exp == 2)            /* exponent 2 found → not allowed           */
+                return false;
+        }
+    }
+    /* remaining n > 1 is a prime factor with exponent 1 → fine       */
+    return true;
+}
 
 /* ---------  memoised generator  ------------------------------------- */
 static seq_t *cache      = NULL;  /* stored terms                          */
@@ -37,7 +58,7 @@ static void reserve_cache(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 4;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                  /* out of memory                           */
     cache      = tmp;

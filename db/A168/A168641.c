@@ -11,15 +11,18 @@
  *            (p(x,0)=1, p(x,1)=x+1). The sequence is a(n)=T(r,k) where r =
  *            row index and k = column index obtained from n by interpreting
  *            the triangle row–by–row
- * Range:     u8 n <= 39, u16 n <= 159, u32 n <= 608, u64 n <= 1325,
+ * Range:     u8 n <= 48, u16 n <= 160, u32 n <= 609, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   binomial, int_sqrt
+ * Validated: standard, pass, 82 terms through n = 1204 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
     /* Determine row index r such that offset(r) ≤ n < offset(r+1),
        where offset(r) = r*(r+1)/2.  This is the floor of
        (sqrt(1+8n)-1)/2.  int_sqrt returns the floor of the square root. */
-    idx_t s = int_sqrt((idx_t)1 + (idx_t)8 * n);
+    idx_t s = isqrt((idx_t)1 + (idx_t)8 * n);
     idx_t r = (s - (idx_t)1) / (idx_t)2;
 
     idx_t offset = r * (r + (idx_t)1) / (idx_t)2;

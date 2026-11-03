@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_adj34_43
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
     the substring 34 or 43, but the decimal representation of k+1 does not.
     The function returns the n‑th such number, with offset 1 (a(1)=34). */
 #include <stdbool.h>
-#include "../utils/has_adj34_43.h"
+
+static inline bool has_adj34_43(seq_t x) {
+    if (x < (seq_t)10) return false;
+    while (x >= (seq_t)10) {
+        seq_t d0 = x % (seq_t)10;                     /* least significant digit */
+        seq_t d1 = (x / (seq_t)10) % (seq_t)10;       /* next more significant digit */
+        if ((d0 == (seq_t)3 && d1 == (seq_t)4) ||
+            (d0 == (seq_t)4 && d1 == (seq_t)3))
+            return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;        /* number of qualifying k's found */

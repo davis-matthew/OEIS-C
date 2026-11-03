@@ -11,13 +11,25 @@
  *            P2(z)*Y(z), Y(z) = Sum_{m>=0} m!*rho^m, rho = z(1-z)/...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 24,
  *            big any n
- * Helpers:   a1888_acc
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/a1888_acc.h"
+
+static void a1888_acc(seq_t *P, seq_t *M, long long c, seq_t vp, seq_t vm) {
+    if (c > 0) {
+        seq_t s = (seq_t)(unsigned long long)c;
+        *P += s * vp;
+        *M += s * vm;
+    } else if (c < 0) {
+        seq_t s = (seq_t)(unsigned long long)(-c);
+        *P += s * vm;
+        *M += s * vp;
+    }
+}
 
 static seq_t a1888_yp[8], a1888_ym[8], a1888_av[8];
 static long long a1888_cur = -1;

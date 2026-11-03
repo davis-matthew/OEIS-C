@@ -11,14 +11,16 @@
  *            arithmetic
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Compute a(n) for arbitrary-precision seq_t. */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         /* Base for the power term. */
         seq_t base = (seq_t)(3 * k + 1);
         /* Power (3k+1)^(n-k). */
-        seq_t powv = seq_pow(base, n - k);
+        seq_t powv = ipow_idx(base, n - k);
 
         /* Contribution of this k. */
         sum += binom * prod * powv;

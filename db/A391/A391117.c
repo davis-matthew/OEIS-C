@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   digit_counts
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,11 @@
    representation has no '7' digit.  Results are cached
    for fast random access.  */
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached valid terms */
 static size_t cache_len = 0;  /* number of cached terms */
@@ -31,7 +36,7 @@ static idx_t current_k = 0;    /* exponent of current power */
 static void add_value(seq_t val) {
     if (cache_len + 1 > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 8;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* safe guard */
         cache = tmp;
         cache_cap = new_cap;

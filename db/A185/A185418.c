@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for computed T(n,k) values */
 static seq_t   *cache_data = NULL; /* flat array */
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t max_row)
 
     size_t new_size = (size_t)new_rows * (new_cols + 1);
 
-    seq_t  *new_data = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t  *new_data = mem_new(seq_t, new_size);
     bool   *new_flag = (bool  *)malloc(new_size * sizeof(bool));
 
     if (!new_data || !new_flag) {
@@ -66,7 +68,7 @@ static void ensure_cache(idx_t max_row)
     }
 
     /* free old memory */
-    free(cache_data);
+    mem_free(cache_data);
     free(cache_flag);
 
     cache_data  = new_data;

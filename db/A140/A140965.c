@@ -8,14 +8,15 @@
  *            (search by trial multiples)
  * Range:     u8 n <= 12, u16 n <= 66, u32 n <= 300, u64 n <= 300,
  *            u128 n <= 300, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 65 terms through n = 286 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
     uint64_t step = (uint64_t)n;
     uint64_t m = step;          /* start from the first multiple n */
 
-    while (divisor_count_u64(m) < n)
+    while (num_divisors(m) < n)
         m += step;
 
     return (seq_t)m;

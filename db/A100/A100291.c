@@ -7,7 +7,8 @@
  * Formula:   a(n) = sorted unique values of a^4 + b^3 for a,b > 0
  * Range:     u8 none, u16 n <= 409, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq_impl
+ * Validated: standard, pass, 68 terms through n = 7986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
    redefine them. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_seq_impl.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static int cmp_seq_impl(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*x > *y) return  1;
+    return 0;
+}
 
 /* ------------------------------------------------------------------ */
 /* Compare function for qsort. Unsuitable for arbitrary-precision
@@ -37,7 +48,7 @@ static void push_value(seq_t val)
 {
     if (seq_size >= seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
         if (!tmp) return;               /* allocation failed – abort further work */
         seq_vals = tmp;
         seq_cap  = new_cap;
@@ -77,7 +88,7 @@ static void init_sequence(void)
     /* Reserve space for all pair sums; the real number of distinct
        values will be smaller due to collisions. */
     seq_cap  = max_a * max_b + 1;
-    seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, seq_cap);
     seq_size = 0;
 
     /* Enumerate all sums a^4 + b^3, a,b > 0. */
@@ -90,7 +101,7 @@ static void init_sequence(void)
     }
 
     /* Sort the array. */
-    qsort(seq_vals, seq_size, sizeof(seq_t), cmp_seq_impl);
+    mem_qsort(seq_vals, seq_size, sizeof(seq_t), cmp_seq_impl);
 
     /* Deduplicate in place. */
     size_t uniq = 0;

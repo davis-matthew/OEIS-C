@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 721, u32 n <= 5700, u64 n <= 5700,
  *            u128 n <= 5700, big any n
- * Helpers:   grow_seq_array, mod_pow, next_prime
+ * Validated: standard, pass, 67 terms through n = 5378 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,23 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/next_prime.h"
-#include "../utils/grow_seq_array.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* Cached list of discovered “good” primes. */
 static seq_t       *good_primes = NULL; /* array of seq_t holding the primes */
@@ -55,7 +70,7 @@ seq_t a(idx_t n)
 
         /* Check the congruence 2^p ≡ 2 (mod p+2). */
         seq_t mod  = (seq_t)(p + 2);
-        seq_t val  = mod_pow((seq_t)2, p, mod);
+        seq_t val  = powmod((seq_t)2, p, mod);
         if (val == (seq_t)2) {
             /* Ensure we have room to store the new good prime. */
             if (good_cnt == good_cap) {

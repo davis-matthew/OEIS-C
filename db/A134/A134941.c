@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, fini, full, nonn
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 4241, u64 n <= 9577,
- *            u128 n <= 9577, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3938, u64 n <= 21846,
+ *            u128 n <= 21846, big any n
+ * Validated: full, pass, 21846 terms through n = 21846 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #ifdef __cplusplus
 #include <algorithm>
 #endif
+#include "../utils/mem.h"
 
 static int seq_compare(const void *a, const void *b)
 {
@@ -44,7 +46,7 @@ static const idx_t MOUNTAIN_COUNT = 21846;
 seq_t a(idx_t n)
 {
     if (mountain_cache == NULL) {
-        mountain_cache = (seq_t *)malloc(sizeof(seq_t) * MOUNTAIN_COUNT);
+        mountain_cache = mem_new(seq_t, MOUNTAIN_COUNT);
         idx_t pos = 0;
 
         /* first term */

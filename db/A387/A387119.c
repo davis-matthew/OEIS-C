@@ -8,9 +8,10 @@
  *            divisors in common (OEIS A387119). The function computes the
  *            term by a brute‑force search with precomputed primes and
  *            smallest prime factors
- * Range:     u8 n <= 45, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 45, u16 n <= 7729, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 73 terms through n = 9679 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline idx_t gcd_idx(idx_t a, idx_t b)
 {
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
         {
             size_t new_cap = seq_cap ? seq_cap * 2 : 16;
             while (new_cap < need) new_cap *= 2;
-            seq = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             seq_cap = new_cap;
         }
 

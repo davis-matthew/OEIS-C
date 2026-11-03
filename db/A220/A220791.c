@@ -8,13 +8,15 @@
  *            matrices over GF(13) )
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 25 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Count nonsingular n x n matrices over GF(13). */
 seq_t a(idx_t n)
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     const seq_t mod = (seq_t)13;        /* field size */
     /* Pre‑compute 13ⁿ as seq_t. */
-    seq_t pn = seq_pow(mod, n);
+    seq_t pn = ipow_idx(mod, n);
 
     seq_t prod = (seq_t)1;   /* ∏(pn – 13ᶦ)  */
     seq_t powi = (seq_t)1;   /* keeps 13ᶦ */

@@ -11,13 +11,15 @@
  *            the carry‑free condition
  * Range:     u8 n <= 449, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 9099 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache of already-computed values; the cache grows to store up to
    the largest n requested. */
@@ -28,7 +30,7 @@ static seq_t *ensure_cache(idx_t n)
 {
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return NULL; /* Allocation failed */
         /* Zero the new part of the cache */
         for (size_t i = cache_size; i < new_size; ++i) new_cache[i] = (seq_t)0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   is_pow2_uint64
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_pow2_uint64.h"
+
+/* Check whether a non‑negative 64‑bit integer is 0 or a power of two. */
+static inline bool is_pow2_uint64(uint64_t x)
+{
+    return x == 0 || (x & (x - 1)) == 0;
+}
 
 seq_t a(idx_t n)
 {

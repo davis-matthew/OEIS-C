@@ -13,13 +13,16 @@
  *            lexicographically. This function finds the digit...
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   digit_len
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/digit_len.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n) {
     // Safety: n >= 1
@@ -48,7 +51,7 @@ seq_t a(idx_t n) {
                 /* Compute number of decimal digits in this sequence */
                 idx_t seq_digits = 0;
                 for (int i = 0; i < L; ++i) {
-                    seq_digits += (idx_t)digit_len((seq_t)seq[i]);
+                    seq_digits += (idx_t)num_digits((seq_t)seq[i]);
                 }
 
                 if (total_digits + seq_digits >= n) {
@@ -56,7 +59,7 @@ seq_t a(idx_t n) {
                     idx_t offset = n - total_digits - 1;  // 0‑based within the sequence
                     for (int i = 0; i < L; ++i) {
                         seq_t val = (seq_t)seq[i];
-                        int lenv = digit_len(val);
+                        int lenv = num_digits(val);
                         if (offset < (idx_t)lenv) {
                             /* Extract the offset‑th digit of val (most significant first) */
                             char buf[32];

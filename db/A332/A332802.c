@@ -9,7 +9,8 @@
  * Formula:   a(n) = 4*Π_{i=1}^{n-1} p_i – 1 for n ≥ 2; a(0)=0, a(1)=2
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *prod = NULL;      /* prod[k] = product of first k primes (prod[0]=1) */
 static size_t prod_cap = 0;
@@ -34,7 +36,7 @@ static void ensure_prod_storage(size_t need)
     if (prod_len >= need) return;
     size_t new_cap = prod_cap ? prod_cap * 2 : 8;
     while (new_cap < need) new_cap <<= 1;
-    prod = (seq_t*)realloc(prod, new_cap * sizeof(seq_t));
+    prod = mem_resize(seq_t, prod, new_cap);
     prod_cap = new_cap;
 }
 
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     /* initialise static arrays on first call */
     if (prod_cap == 0) {
         prod_cap = 8;
-        prod = (seq_t*)malloc(prod_cap * sizeof(seq_t));
+        prod = mem_new(seq_t, prod_cap);
         prod[0] = (seq_t)1;   /* product of zero primes */
         prod_len = 1;
 

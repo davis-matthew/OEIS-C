@@ -10,18 +10,19 @@
  *            distinct prime factors of m
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rad
+ * Validated: standard, pass, 96 terms through n = 8840 (2026-11-01)
+ * Helpers:   radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/rad.h"
+#include "../utils/radical.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0;
     if (n % 4 == 0) return (seq_t)0;
     if ((n & 1ULL) == 1)          /* odd n */
-        return rad(n);
-    return rad(n >> 1);           /* n ≡ 2 (mod 4) */
+        return radical(n);
+    return radical(n >> 1);           /* n ≡ 2 (mod 4) */
 }

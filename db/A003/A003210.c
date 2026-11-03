@@ -9,12 +9,14 @@
  *            body-centered cubic lattice
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *memo = NULL;
@@ -22,7 +24,7 @@ seq_t a(idx_t n) {
     
     if (memo == NULL) {
         memo_size = 128;
-        memo = (seq_t *)malloc(memo_size * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_size);
         memo[0] = 1;
         memo[1] = 8;
         memo[2] = 56;
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     if (n >= memo_size) {
         idx_t new_size = memo_size;
         while (new_size <= n) new_size *= 2;
-        memo = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, new_size);
         memo_size = new_size;
     }
     

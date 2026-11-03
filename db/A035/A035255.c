@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   legendre_11
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,28 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/legendre_11.h"
+#include "../utils/mem.h"
+
+/* Helper: compute the Legendre symbol (11/p) for an odd prime p≠11.
+   Returns 0 if p=11, 1 if the symbol is +1, -1 if -1.  p=2 is handled
+   separately. */
+static int legendre_11(uint64_t p)
+{
+    if (p == 11) return 0;          /* (11/11)=0 */
+    if (p == 2)  return -1;         /* (11/2) = -1  (11≡3 mod 8) */
+
+    uint64_t exp = (p - 1) / 2;
+    uint64_t base = 11 % p;
+    uint64_t mod  = p;
+    uint64_t res  = 1;
+
+    while (exp) {
+        if (exp & 1) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return (res == 1) ? 1 : -1;     /* res cannot be 0 here */
+}
 
 /* Test whether an integer n satisfies the parity condition on its
    prime exponents. */
@@ -72,7 +94,7 @@ static void ensure_capacity(size_t need)
     if (seq_cap >= need) return;
     size_t new_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
     while (new_cap < need) new_cap *= 2;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 

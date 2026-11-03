@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 4, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   digit_sum_seq, sqrt_floor
+ * Validated: standard, pass, 26 terms through n = 49 (2026-11-03)
+ * Helpers:   digit_sum, isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_sum_seq.h"
-#include "../utils/sqrt_floor.h"
+#include <stdint.h>
+#include "../utils/digit_sum.h"
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,15 +52,15 @@ seq_t a(idx_t n)
         seq_t cur = f_prev;                     /* current Fibonacci value */
 
         /* test digit sum for perfect square */
-        seq_t ds = digit_sum_seq(cur);
-        seq_t r  = sqrt_floor(ds);
+        seq_t ds = digit_sum(cur);
+        seq_t r  = isqrt_seq(ds);
         if (r * r == ds) {
             /* avoid duplicate Fibonacci values (e.g. the second “1”) */
             if (terms_len == 0 || cur != terms[terms_len - 1]) {
                 /* grow array if necessary */
                 if (terms_len == terms_cap) {
                     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                     if (!tmp) abort();
                     terms = tmp;
                     terms_cap = new_cap;

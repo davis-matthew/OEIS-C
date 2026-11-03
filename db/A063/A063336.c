@@ -11,12 +11,14 @@
  *            a(12) = 1069, a(13) = 1179
  * Range:     i8 n <= 3, i16 n <= 42, i32 n <= 42, i64 n <= 42, i128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Initial allocation and initial values. */
     if (!cache) {
         cache_size = 14;                   /* indices 0 … 13 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         /* Ensure the allocation succeeded – if it fails, we fallback to a naïve
            computation for the requested index only (rare case, kept simple). */
         if (!cache)
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold index n. */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) {
             /* Reallocation failed – compute the requested term on the fly
                and return it (no caching). This fallback keeps the function
@@ -68,9 +70,9 @@ seq_t a(idx_t n)
             if (n <= 13)
                 return cache[n];
             /* For n > 13, use the recurrence with temporary variables. */
-            seq_t a_n_m4 = cache[n - 4];
-            seq_t a_n_m6 = cache[n - 6];
-            seq_t a_n_m10 = cache[n - 10];
+            seq_t a_n_m4 = tmp[n - 4];
+            seq_t a_n_m6 = tmp[n - 6];
+            seq_t a_n_m10 = tmp[n - 10];
             return a_n_m4 + a_n_m6 - a_n_m10;
         }
         cache = tmp;

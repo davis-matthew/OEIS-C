@@ -11,12 +11,14 @@
  *            triangle in row‑major order
  * Range:     u8 n <= 20, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the computed triangle */
 static seq_t **triangle = NULL;   /* triangle[r][k], 1‑based rows */
@@ -36,7 +38,7 @@ static void ensure_rows(idx_t r_needed)
     /* Compute missing rows */
     for (idx_t r = triangle_rows + 1; r <= r_needed; ++r) {
         size_t len = (size_t)r;
-        seq_t *row = (seq_t *)malloc(sizeof(seq_t) * len);
+        seq_t *row = mem_new(seq_t, len);
         if (!row) abort();
 
         if (r == 1) {

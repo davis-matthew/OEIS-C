@@ -8,13 +8,15 @@
  * Formula:   a(n) = a(n-1)+1442*a(n-3)-1442*a(n-4)-a(n-6)+a(n-7)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 19, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 826 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Initial values: a(1)=1, a(2)=5, a(3)=39, a(4)=760, a(5)=6494, a(6)=55518, a(7)=1095199 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[7] = {
     (seq_t)1,    /* a(1) */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     size_t need = (size_t)n;
     if (need > cache_size) {
         /* Allocate or grow the cache */
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) abort();                /* allocation failure */
         cache = tmp;
 

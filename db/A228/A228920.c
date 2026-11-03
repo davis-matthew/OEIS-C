@@ -8,7 +8,8 @@
  * Formula:   a(n) = ((2+2i)^n + (2-2i)^n + 4^n)/4
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  *             a(n)=8*a(n-1)-24*a(n-2)+32*a(n-3)  for n>=4 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* reserve at least three base terms */
     if (cached == 0) {
-        cache = (seq_t *)malloc(3 * sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         cap   = 3;
         cache[0] = 2;   /* a(1) */
         cache[1] = 4;   /* a(2) */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap;
         while ((idx_t)new_cap < n)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();   /* memory allocation failed */
         cache = tmp;

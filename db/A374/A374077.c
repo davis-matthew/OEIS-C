@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} 1/(1 + x^{5k-2})
  * Range:     i8 n <= 75, i16 n <= 75, i32 n <= 75, i64 n <= 75, i128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    for each m = 5k−2 (k = 1,2,…) and for all i ≥ m.   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of previously computed values. */
 static seq_t *dp_cache = NULL;        /* array holding a(0)…a(n) */
@@ -25,7 +27,7 @@ static idx_t  dp_cache_size = 0;      /* number of entries stored (>=1) */
 static void recompute_until(idx_t n)
 {
     size_t sz = (size_t)(n + 1);
-    seq_t *newdp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, sz);
     if (!newdp) exit(EXIT_FAILURE);      /* abort if allocation fails */
 
     /* initialize */
@@ -42,7 +44,7 @@ static void recompute_until(idx_t n)
     }
 
     /* replace old cache */
-    free(dp_cache);
+    mem_free(dp_cache);
     dp_cache = newdp;
     dp_cache_size = sz;
 }

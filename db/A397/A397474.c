@@ -9,13 +9,15 @@
  *            distinct indices i<j<n such that a(i)*a(j)=a(n-1)
  * Range:     u8 n <= 94, u16 n <= 2612, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* computed terms, 0-based index */
 static size_t seq_cap = 0;
@@ -32,7 +34,7 @@ static void ensure_seq_capacity(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     seq = tmp;
     seq_cap = new_cap;
 }
@@ -41,7 +43,7 @@ static void ensure_vals_capacity()
 {
     if (vals_len == vals_cap) {
         size_t new_cap = (vals_cap == 0) ? 16 : vals_cap * 2;
-        vals = (seq_t*)realloc(vals, new_cap * sizeof(seq_t));
+        vals = mem_resize(seq_t, vals, new_cap);
         freq = (size_t*)realloc(freq, new_cap * sizeof(size_t));
         vals_cap = new_cap;
     }

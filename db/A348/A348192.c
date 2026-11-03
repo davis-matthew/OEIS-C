@@ -9,13 +9,16 @@
  *            the current value and its sum of decimal digits.)
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
+ * Validated: partial, pass, 98 terms through n = 97 (2026-11-01)
  * Helpers:   digit_sum, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_sum.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     seq_t steps = 0;          /* result stored in seq_t */

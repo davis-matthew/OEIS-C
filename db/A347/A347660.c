@@ -10,12 +10,14 @@
  *            parts to 5
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Allocate a 2‑D array [k][sum] with k = 0..5 and sum = 0..n. */
     size_t rows = 6;
     size_t cols = (size_t)(n + 1);
-    seq_t *parts = (seq_t *)malloc(rows * cols * sizeof(seq_t));
+    seq_t *parts = mem_new(seq_t, rows * cols);
     if (!parts) return (seq_t)0;  /* allocation failure – return 0 */
 
     /* Helper macro to index the array */
@@ -56,6 +58,6 @@ seq_t a(idx_t n)
     for (size_t k = 0; k <= 5; ++k)
         result += parts[IDX(k, n)];
 
-    free(parts);
+    mem_free(parts);
     return result;
 }

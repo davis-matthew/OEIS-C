@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   int_gcd, seq_alloc
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   gcd_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/int_gcd.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 /* GCD for integers (used only on values <= 600). */
 
@@ -49,9 +59,8 @@ static void add_triple (uint64_t p, seq_t a)
 {
     if (triples_sz >= triples_cap) {
         size_t new_cap = (triples_cap == 0) ? 128 : triples_cap * 2;
-        struct triple *tmp = (struct triple *)realloc(triples,
-                                                       new_cap * sizeof(struct triple));
-        if (!tmp) { free(triples); exit(1); }
+        struct triple *tmp = mem_resize(struct triple, triples, new_cap);
+        if (!tmp) { mem_free(triples); exit(1); }
         triples = tmp;
         triples_cap = new_cap;
     }
@@ -78,7 +87,7 @@ static void generate_all_triples (void)
     const idx_t U_MAX = 600;  /* ensures many primitives */
     for (idx_t u = 2; u <= U_MAX; ++u) {
         for (idx_t v = 1; v < u; ++v) {
-            if (int_gcd((int)u, (int)v) != 1) continue;
+            if (gcd_i32((int)u, (int)v) != 1) continue;
             if ( (u & 1) == (v & 1) ) continue;   /* different parity */
 
             /* ----- first class: u > 3v, (u-3v) not divisible by 5 ----- */
@@ -113,14 +122,14 @@ static void generate_all_triples (void)
     }
 
     /* Sort the triples by increasing perimeter, then extract the a‑values. */
-    qsort(triples, triples_sz, sizeof(struct triple), cmp_triple);
+    mem_qsort(triples, triples_sz, sizeof(struct triple), cmp_triple);
     seq_vals = seq_alloc(triples_sz);   /* memory is value‑initialized */
     for (size_t i = 0; i < triples_sz; ++i)
         seq_vals[i] = triples[i].a;
     seq_len = triples_sz;
 
     initialized = true;
-    free(triples);   /* no longer needed */
+    mem_free(triples);   /* no longer needed */
 }
 
 /* Public sequence routine. */

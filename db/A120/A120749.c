@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 44, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 82 terms through n = 941 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
         {k*sqrt(2)} > 1/2  <=>  2*k*k - m*m > m
    where m = floor(sqrt(2*k*k)).
 */
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static const unsigned int prefix[5] = {0,2,5,7,9};   // not used; kept for reference
 

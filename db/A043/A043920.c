@@ -8,14 +8,32 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_adjacent_15
+ * Validated: standard, pass, 61 terms through n = 939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_adjacent_15.h"
+#include "../utils/mem.h"
+
+static bool has_adjacent_15(seq_t x)
+{
+    int prev = -1;          /* sentinel indicating no previous digit */
+    while (x > 0)
+    {
+        int d = (int)(x % 7);
+        if (prev >= 0)
+        {
+            if ((prev == 1 && d == 5) || (prev == 5 && d == 1))
+                return true;
+        }
+        prev = d;
+        x = x / 7;
+    }
+    return false;
+}
 
 /* Returns the nth integer k (n ≥ 1) such that the base‑7 representation
    of k contains the adjacent digits 1 and 5 (either "15" or "51") and
@@ -41,7 +59,7 @@ seq_t a(idx_t n)
     if (cap == 0)
     {
         cap = 64;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
     }
 
     /* Generate additional candidates until we have at least n of them. */
@@ -55,10 +73,10 @@ seq_t a(idx_t n)
             if (used >= cap)
             {
                 size_t newcap = cap * 2;
-                seq_t *tmp = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, newcap);
                 if (!tmp)   /* allocation failed – abort */
                 {
-                    free(seq);
+                    mem_free(seq);
                     seq = NULL;
                     cap = 0;
                     used = 0;

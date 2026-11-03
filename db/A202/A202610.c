@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 12, u64 n <= 28, u128 n <= 60,
  *            big any n
- * Helpers:   forbidden_triple
+ * Validated: standard, pass, 36 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
    rows).  The algorithm is independent of any hard‑coded table
    and works for any n ≥ 1.  */
 #include <stdint.h>
-#include "../utils/forbidden_triple.h"
+
+/* Test whether a triple of bits equals 001 or 010 */
+static int forbidden_triple(int a, int b, int c)
+{
+    return (a == 0 && b == 0 && c == 1) || (a == 0 && b == 1 && c == 0);
+}
 
 /* Constants */
 enum {

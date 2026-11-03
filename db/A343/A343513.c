@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=1..n} (k/gcd(n, k))^3
  * Range:     u8 n <= 6, u16 n <= 24, u32 n <= 366, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9531 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"  /* provides seq_t gcd(seq_t a, seq_t b) */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     seq_t sum = 0;            /* accumulator */

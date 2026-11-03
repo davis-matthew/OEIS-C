@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 141, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute the sum of the decimal digits of x. */
 static seq_t digit_sum(seq_t x)
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
             if (prod > m) {
                 if (len == cap) {
                     size_t newcap = cap == 0 ? 8 : cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, newcap);
                     if (!tmp)
                         return 0;        /* allocation failure */
                     cache = tmp;

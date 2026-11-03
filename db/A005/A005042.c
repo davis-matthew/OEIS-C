@@ -11,15 +11,33 @@
  *            over seq_t); a(n) is the n-th prime prefix
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   addmod_s, seq_is_fixed_width
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/addmod_s.h"
+#include <stdint.h>
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t addmod_s(seq_t x, seq_t y, seq_t m) {
+	/* x, y < m; no overflow */
+	if (x >= m - y) return x - (m - y);
+	return x + y;
+}
 
 static const char pi_digits[] =
 	"3141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067";

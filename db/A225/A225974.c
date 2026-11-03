@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   persistence_cnt
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,33 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/persistence_cnt.h"
+#include "../utils/mem.h"
+
+/* Count the number of iterations of “multiply digits squared”
+ * needed to reach 0 or 1 for a given non‑negative integer k. */
+static int persistence_cnt(seq_t k)
+{
+    if (k == 0 || k == 1)
+        return 0;
+    int steps = 0;
+    seq_t cur = k;
+    while (cur > 1) {
+        seq_t prod = 1;
+        seq_t x    = cur;
+        while (x > 0) {
+            unsigned d = (unsigned)(x % 10);
+            if (d == 0) {            /* zero digit immediately forces 0 */
+                prod = 0;
+                break;
+            }
+            prod *= (seq_t)d * (seq_t)d;
+            x /= 10;
+        }
+        ++steps;
+        cur = prod;
+    }
+    return steps;
+}
 
 /* Keep the minimal value for each persistence in a growing table. */
 static seq_t *min_val      = NULL;   /* min_val[p] = smallest k with persistence p */
@@ -40,7 +67,7 @@ seq_t a(idx_t n)
     /* Initialise the data structures on the first call. */
     if (min_val == NULL) {
         cap = 32;
-        min_val = (seq_t*)malloc(cap * sizeof(seq_t));
+        min_val = mem_new(seq_t, cap);
         has_val = (bool*)malloc(cap * sizeof(bool));
         if (!min_val || !has_val)   /* allocation failed */
             return (seq_t)0;
@@ -58,10 +85,10 @@ seq_t a(idx_t n)
         size_t new_cap = cap;
         while ((size_t)n >= new_cap)
             new_cap *= 2;
-        seq_t *tmp_val = (seq_t*)realloc(min_val, new_cap * sizeof(seq_t));
+        seq_t *tmp_val = mem_resize(seq_t, min_val, new_cap);
         bool   *tmp_has = (bool*)realloc(has_val, new_cap * sizeof(bool));
         if (!tmp_val || !tmp_has) {   /* realloc failed */
-            free(min_val);
+            mem_free(min_val);
             free(has_val);
             min_val = NULL;
             has_val = NULL;
@@ -92,10 +119,10 @@ seq_t a(idx_t n)
                 size_t new_cap = cap;
                 while ((size_t)p >= new_cap)
                     new_cap *= 2;
-                seq_t *tmp_val = (seq_t*)realloc(min_val, new_cap * sizeof(seq_t));
+                seq_t *tmp_val = mem_resize(seq_t, min_val, new_cap);
                 bool   *tmp_has = (bool*)realloc(has_val, new_cap * sizeof(bool));
                 if (!tmp_val || !tmp_has) {
-                    free(min_val);
+                    mem_free(min_val);
                     free(has_val);
                     min_val = NULL;
                     has_val = NULL;

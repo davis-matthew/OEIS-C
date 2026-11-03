@@ -10,14 +10,17 @@
  *            accepts any idx_t ≥ 1 and returns the n‑th term as a seq_t
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 5, u128 n <= 10,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 /* Cache of Pell numbers: pell[i] = P(i).  P(0)=0, P(1)=1. */
 static seq_t *pell = NULL;
@@ -33,13 +36,13 @@ ensure_pell(size_t idx)
 
     size_t new_cap = idx + 1;
     if (pell == NULL) {
-        pell = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        pell = mem_new(seq_t, new_cap);
         if (!pell) abort();
         pell[0] = (seq_t)0;
         pell[1] = (seq_t)1;
         pell_len = 2;
     } else if (new_cap > pell_cap) {
-        seq_t *tmp = (seq_t*)realloc(pell, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pell, new_cap);
         if (!tmp) abort();
         pell = tmp;
     }
@@ -66,6 +69,6 @@ seq_t a(idx_t n)
     seq_t p = pell[idx];
     seq_t plus  = p + (seq_t)1;
     seq_t minus = p - (seq_t)1;
-    seq_t res = pow_seq(plus, 5) + pow_seq(minus, 5);
+    seq_t res = ipow_i32(plus, 5) + ipow_i32(minus, 5);
     return res;
 }

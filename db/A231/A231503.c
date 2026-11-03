@@ -8,12 +8,14 @@
  *            sum of base‑3 digits of i
  * Range:     u8 n <= 24, u16 n <= 1436, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9665 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cumulative sums up to current size-1 */
 static idx_t cache_cap = 0;          /* number of elements currently stored */
@@ -31,7 +33,7 @@ static inline unsigned int digit_sum_base3(idx_t x) {
 seq_t a(idx_t n) {
     if (cache_cap == 0) {
         /* initialise with a(0) = 0 */
-        cache = (seq_t *)malloc(1 * sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0; /* fallback on allocation failure */
         cache[0] = (seq_t)0;
         cache_cap = 1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
 
     /* extend cache up to n if needed */
     if (n >= cache_cap) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!new_cache) return (seq_t)0; /* allocation failure */
         cache = new_cache;
 

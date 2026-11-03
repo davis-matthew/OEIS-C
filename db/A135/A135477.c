@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   big_pow, floor_sqrt
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   ipow, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Comparator for qsort */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -56,20 +76,20 @@ seq_t a(idx_t n)
     {
         /* Free old array if it exists */
         if (values != NULL) {
-            free(values);
+            mem_free(values);
             values = NULL;
         }
 
         /* Allocate initial capacity and reset counter */
         values_cap = 1024;
-        values = (seq_t *)malloc(values_cap * sizeof(seq_t));
+        values = mem_new(seq_t, values_cap);
         if (!values) abort();
         values_len = 0;
 
         /* Enumerate all pairs (y,x) such that x²–6^y ≤ LIMIT and is positive */
         for (idx_t y = 0;; ++y)
         {
-            seq_t pw = big_pow((seq_t)6, (seq_t)y);     /* 6^y        */
+            seq_t pw = ipow((seq_t)6, (seq_t)y);     /* 6^y        */
             seq_t sqrt_pw = floor_sqrt(pw);            /* ⌊√6^y⌋      */
             seq_t x0 = sqrt_pw + 1;                    /* minimal x   */
             seq_t val_min = (x0 * x0) - pw;             /* minimal val */
@@ -87,7 +107,7 @@ seq_t a(idx_t n)
                 if (values_len == values_cap)
                 {
                     values_cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(values, values_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, values, values_cap);
                     if (!tmp) abort();
                     values = tmp;
                 }
@@ -96,7 +116,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the collected values */
-        qsort(values, values_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(values, values_len, sizeof(seq_t), cmp_seq_t);
 
         /* If we now have enough values stop */
         if (n <= values_len)

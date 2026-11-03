@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 17, i32 n <= 33, i64 n <= 35, i128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoisation */
@@ -36,15 +38,15 @@ seq_t a(idx_t n) {
         size_t newcap = cap ? cap * 2 : 1;
         while (newcap <= (size_t)n) newcap *= 2;
 
-        seq_t *new_cache = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, newcap);
         if (!new_cache) return 0;          /* allocation failure: return 0 sentinel */
 
         /* copy existing data if any, initialise zero for new elements */
         if (cache) {
-            memcpy(new_cache, cache, cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cap * sizeof(seq_t));
+            mem_free(cache);
         }
-        memset(&new_cache[cap], 0, (newcap - cap) * sizeof(seq_t));
+        mem_set(&new_cache[cap], 0, (newcap - cap) * sizeof(seq_t));
         cache = new_cache;
         cap = newcap;
 

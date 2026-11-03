@@ -9,13 +9,14 @@
  *            is the sum of the k-th powers of all divisors of m
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 /* Compute the sum of the k-th powers of the divisors of m. */
 static seq_t sigma_k(idx_t m, idx_t k)
@@ -27,10 +28,10 @@ static seq_t sigma_k(idx_t m, idx_t k)
     idx_t d;
     for (d = 1; d * d <= m; ++d) {
         if (m % d == 0) {
-            total += pow_seq((seq_t)d, (int)k);
+            total += ipow_i32((seq_t)d, (int)k);
             idx_t d2 = m / d;
             if (d2 != d)
-                total += pow_seq((seq_t)d2, (int)k);
+                total += ipow_i32((seq_t)d2, (int)k);
         }
     }
     return total;

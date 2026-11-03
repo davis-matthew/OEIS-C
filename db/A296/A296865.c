@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pits_over_peaks
+ * Validated: standard, pass, 72 terms through n = 9274 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,35 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pits_over_peaks.h"
+#include "../utils/mem.h"
+
+static bool pits_over_peaks(seq_t x)
+{
+    /* collect base‑4 digits, least significant first */
+    uint8_t digits[128];
+    size_t len = 0;
+    seq_t v = x;
+    do {
+        digits[len++] = (uint8_t)(v % 4);
+        v = v / 4;
+    } while (v != 0);
+
+    if (len < 3)            /* no interior digit to be a pit or peak */
+        return false;
+
+    size_t pits  = 0;
+    size_t peaks = 0;
+    for (size_t i = 1; i <= len-2; ++i) {
+        uint8_t a = digits[i-1];
+        uint8_t b = digits[i];
+        uint8_t c = digits[i+1];
+        if (a > b && b < c)
+            ++pits;
+        else if (a < b && b > c)
+            ++peaks;
+    }
+    return pits > peaks;
+}
 
 /* Sequence: numbers with more pits than peaks in their base‑4 digits.
    Computed by simple enumeration up to the requested index. */
@@ -42,7 +71,7 @@ seq_t a(idx_t n)
                 if (size == cap) {
                     size_t new_cap = cap ? cap * 2 : 8;
                     seq_t *tmp =
-                        (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                        mem_resize(seq_t, terms, new_cap);
                     if (!tmp)
                         abort();      /* out of memory */
                     terms = tmp;

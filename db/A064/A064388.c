@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- Static data ----------------------------------------------------- */
 static seq_t *terms = NULL;      /* array of generated terms */
@@ -42,7 +44,7 @@ static void ensure_terms_capacity(size_t need)
     /* Allocate the first chunk lazily. */
     if (terms_cap == 0) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* Grow if needed. */
@@ -50,7 +52,7 @@ static void ensure_terms_capacity(size_t need)
         size_t new_cap = terms_cap * 2;
         if (new_cap < need)
             new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         terms = tmp;
         terms_cap = new_cap;
     }

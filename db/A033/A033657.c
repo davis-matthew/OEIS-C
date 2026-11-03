@@ -7,14 +7,16 @@
  * Formula:   a(0) = 23; a(n) = a(n-1) + reverse_decimal(a(n-1)) for n > 0
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 20, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/reverse_decimal.h"  /* provides seq_t reverse_decimal(seq_t) */
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;   /* number of elements stored (>=1 when cache initialized) */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     /* First time: allocate and initialize a(0) = 23 */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();          /* unrecoverable allocation failure */
         cache[0] = 23;                /* a(0) */
         cache_len = 1;
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
     while (new_cap <= (size_t)n) {
         new_cap = new_cap ? new_cap * 2 : 1;
     }
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     if (!newp) abort();
     cache = newp;
     cache_cap = new_cap;
@@ -49,7 +51,7 @@ static void ensure_cache(idx_t n)
     /* Compute missing terms iteratively */
     for (idx_t i = cache_len; i <= n; ++i) {
         seq_t prev = cache[i - 1];
-        seq_t rev  = reverse_decimal(prev);
+        seq_t rev  = reverse_digits(prev);
         cache[i]   = prev + rev;      /* a(i) = a(i-1) + reverse_decimal(a(i-1)) */
     }
     cache_len = n + 1;

@@ -10,12 +10,14 @@
  *            (offset 2): a(2)=1, a(3)=3, a(4)=10, a(5)=33, a(6)=108, a(7)=353
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 18, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define MAX_N 10000   /* enough for all tests (n up to about 10000) */
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
         /* if larger n occurs, extend cache lazily (not needed for current tests) */
         /* simply compute up to n using a temporary array of size n+1 (fallback) */
         size_t size = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)malloc(size * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, size);
         if (!tmp) abort();   /* allocation failure */
         for (size_t i = 0; i <= n; ++i) tmp[i] = 0;
         /* copy already computed values */
@@ -64,7 +66,7 @@ seq_t a(idx_t n) {
             tmp[i] = num / ((seq_t)(i + 1));
         }
         seq_t res = tmp[n];
-        free(tmp);
+        mem_free(tmp);
         return res;
     }
 

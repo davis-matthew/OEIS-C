@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    skipping any element equal to 2. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,17 +36,17 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (!seq) {
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
 
         prev_len = 1;
-        prev = (seq_t *)malloc(prev_len * sizeof(seq_t));
+        prev = mem_new(seq_t, prev_len);
         prev[0] = (seq_t)1;
 
         seq_len = 0;
         seq[seq_len++] = (seq_t)1;   /* a(0) */
         if (seq_len == seq_cap) {
             seq_cap <<= 1;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = (seq_t)1;   /* a(1) – row 1 equals row 0 */
     }
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* generate rows until we have at least n+1 terms stored */
     while (seq_len <= (size_t)n) {
         size_t new_len = prev_len + 1;
-        seq_t *new_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
 
         new_row[0] = prev[0] + (seq_t)2;
         for (size_t i = 1; i + 0 < new_len - 1; ++i)
@@ -65,13 +67,13 @@ seq_t a(idx_t n)
             if (v != (seq_t)2) {
                 if (seq_len == seq_cap) {
                     seq_cap <<= 1;
-                    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                 }
                 seq[seq_len++] = v;
             }
         }
 
-        free(prev);
+        mem_free(prev);
         prev = new_row;
         prev_len = new_len;
     }

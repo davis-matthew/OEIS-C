@@ -12,15 +12,29 @@
  *            For 1 ≤ n ≤ 18: a(n) = p(n) + 33*Σ_{k=1..n...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   init_coefficients, seq_alloc_array
+ * Validated: standard, pass, 32 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 //#include <stdint.h>  // seq_t and idx_t are defined by the test harness
 #include <stddef.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/init_coefficients.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+// coefficient of numerator P(t)
+static void init_coefficients(seq_t p[20]) {
+    p[0] = 1;
+    for (size_t i = 1; i < 19; ++i) p[i] = 2;
+    p[19] = 1;
+}
 
 static seq_t *cache     = NULL;
 static size_t cache_len = 0;
@@ -32,7 +46,7 @@ static void ensure_cache(idx_t n) {
         seq_t *new_cache = seq_alloc_array((size_t)n + 1);
         if (cache != NULL) {
             for (size_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = (size_t)n + 1;

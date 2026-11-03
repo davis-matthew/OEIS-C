@@ -12,7 +12,8 @@
  *            + 2 t^2 + 2 t + 1) / (78 t^10 - 12 t^9 -...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 497 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function must have external linkage */
 seq_t a(idx_t n)
@@ -48,12 +50,12 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate at least 16 slots to avoid frequent reallocs */
         cache_cap = (n + 1 > 16) ? n + 1 : 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;   /* a(0) = 1 (from G(t)) */
         cache_max = 0;
     } else if ((idx_t)(n + 1) > cache_cap) {
         cache_cap = n + 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Compute missing terms up to n */

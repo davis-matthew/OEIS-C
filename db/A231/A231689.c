@@ -5,14 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base
  * Formula:   a(n) = Sum_{i=0..n} digsum(i)^4
- * Range:     u8 n <= 3, u16 n <= 27, u32 n <= 9398, u64 n <= 9398,
- *            u128 n <= 9398, big any n
- * Helpers:   none
+ * Range:     u8 n <= 3, u16 n <= 27, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 70 terms through n = 9398 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for the OEIS sequence A231689.
    seq_t and idx_t are provided by the build system. */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* If this is the first call, allocate and compute up to n. */
     if (cache == NULL) {
         cache_cap = (size_t)n + 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort(); /* allocation failure */
 
         /* Compute cumulative sums from 0 to n. */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* If a larger n is requested, grow the cache. */
     if (n > cache_max) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort(); /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

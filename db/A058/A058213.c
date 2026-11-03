@@ -13,7 +13,8 @@
  *            31 * and 32 terms for m ≥ 32
  * Range:     u8 n <= 34, u16 n <= 134, u32 n <= 526, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 74 terms through n = 908 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Pre‑computed Fermat primes and their product table. */
 static const seq_t fermat_primes[5] = {3, 5, 17, 257, 65537};
@@ -116,6 +118,6 @@ seq_t a(idx_t n)
     }
 
     /* Sort solutions and return the requested element. */
-    qsort(solutions, sol_cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(solutions, sol_cnt, sizeof(seq_t), cmp_seq);
     return solutions[(size_t)offset];
 }

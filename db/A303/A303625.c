@@ -13,6 +13,7 @@
  *            362, 1283, 5411, 22516, 96189, 417555, 1829258, 809...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 30, u128 n <= 60,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 204 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

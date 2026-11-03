@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 21,
  *            big any n
- * Helpers:   seq_alloc, seq_pow
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,17 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static void grow_seq_array(seq_t **arr, size_t *cap, idx_t need)
 {
@@ -65,10 +75,10 @@ seq_t a(idx_t n)
             for (idx_t d = 1; d * d <= (idx_t)k; ++d) {
                 if ((k % d) == 0) {
                     if ((d & 1) != 0)
-                        sk += seq_pow((seq_t)d, (idx_t)k);
+                        sk += ipow_idx((seq_t)d, (idx_t)k);
                     idx_t q = k / d;
                     if (q != d && ((q & 1) != 0))
-                        sk += seq_pow((seq_t)q, (idx_t)k);
+                        sk += ipow_idx((seq_t)q, (idx_t)k);
                 }
             }
             S[k] = sk;

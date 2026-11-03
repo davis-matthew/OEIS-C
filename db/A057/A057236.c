@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 38, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   mul_mod_u64
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
  * Computed by checking each integer n. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mul_mod_u64.h"
+#include <stdbool.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* 64‑bit modular multiplication using 128‑bit intermediate. */
 
@@ -27,8 +30,8 @@ static inline uint64_t pow_mod_u64(uint64_t base, uint64_t exp, uint64_t mod)
     base %= mod;
     while (exp) {
         if (exp & 1u)
-            result = mul_mod_u64(result, base, mod);
-        base = mul_mod_u64(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1u;
     }
     return result;
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
     /* Allocate or enlarge cache on first use. */
     if (!seq) {
         seq_cap = 16;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 0;
     }
 
@@ -66,7 +69,7 @@ seq_t a(idx_t n)
         if (s == 0u) {
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)m;
         }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000069(n) + A000069(n+1) (offset 1)
  * Range:     u8 n <= 64, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 6808 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for odious numbers (1‑based indices) */
 static seq_t *odious = NULL;    /* odious[k-1] = A000069(k)  */
@@ -29,7 +31,7 @@ static void ensure_odious(idx_t n)
         /* Grow the array if needed. */
         if (odious_len == odious_cap) {
             size_t new_cap = odious_cap ? odious_cap * 2 : 16;
-            void *tmp = realloc(odious, new_cap * sizeof(seq_t));
+            void *tmp = mem_resize(seq_t, odious, new_cap);
             if (!tmp)
                 exit(EXIT_FAILURE);
             odious = (seq_t*)tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   gcd, phi
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
     adding 1/phi and checking the condition. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/phi.h"   /* seq_t phi(idx_t m); */
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t a, seq_t b); */
+#include "../utils/gcd.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
     seq_t D = 1;     /* denominator of Σ 1/phi */
 
     for (idx_t x = 0; ; ++x) {
-        seq_t phi_val = phi(n + x);          /* phi(n+x) */
+        seq_t phi_val = totient(n + x);          /* phi(n+x) */
         /* Update sum: N/D + 1/phi = (N*phi + D)/(D*phi) */
         seq_t newN = N * phi_val + D;
         seq_t newD = D * phi_val;

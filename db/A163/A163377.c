@@ -8,25 +8,26 @@
  *            is Euler's totient
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   calc_phi, divisor_count_u64
+ * Validated: standard, pass, 112 terms through n = 686 (2026-11-01)
+ * Helpers:   num_divisors, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/calc_phi.h"
+#include "../utils/num_divisors.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
     /* Compute τ(n) – number of divisors of n */
-    seq_t tau_n = divisor_count_u64((uint64_t)n);
+    seq_t tau_n = num_divisors((uint64_t)n);
 
     /* Compute φ(τ(n)) – Euler's totient of τ(n) */
-    seq_t phi_val = calc_phi(tau_n);
+    seq_t phi_val = totient_seq(tau_n);
 
     /* Compute τ(φ(τ(n))) – number of divisors of φ(τ(n)) */
-    seq_t tau_phi = divisor_count_u64((uint64_t)phi_val);
+    seq_t tau_phi = num_divisors((uint64_t)phi_val);
 
     return tau_phi;
 }

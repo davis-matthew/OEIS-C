@@ -8,12 +8,14 @@
  *            1, a(2) = 1
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of computed values, 1‑based */
 static idx_t cache_cap = 0;      /* size of allocated array (number of elements) */
@@ -25,14 +27,14 @@ a(idx_t n)
     /* ensure the cache can hold indices up to n */
     if (cache == NULL) {
         idx_t cap = (n + 1 > 3) ? n + 1 : 3;    /* at least 3 for a(1), a(2) */
-        cache = (seq_t *)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache_cap = cap;
         cache[1] = 1;
         cache[2] = 1;
         computed = 2;
     } else if (n + 1 > cache_cap) {
         idx_t cap = n + 1;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
         cache_cap = cap;
     }
 

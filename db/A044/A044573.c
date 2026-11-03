@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has_base8_0_5
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,26 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_base8_0_5.h"
+
+/* --------------------------------------------------------------------
+ * Return true if the base‑8 representation of x contains the
+ * substring 0,5.  Operates directly on seq_t values.
+ * -------------------------------------------------------------------- */
+static bool has_base8_0_5(seq_t x)
+{
+    if (x == 0) return false;   /* single digit "0" cannot contain 0,5 */
+
+    seq_t prev = x % 8;
+    x /= 8;
+    while (x > 0) {
+        seq_t cur = x % 8;
+        if ((cur == 0) && (prev == 5))
+            return true;
+        prev = cur;
+        x /= 8;
+    }
+    return false;
+}
 
 /* --------------------------------------------------------------------
  * State kept for memoisation

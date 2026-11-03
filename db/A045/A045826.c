@@ -9,7 +9,8 @@
  *            to A005887(m)/2 as described in OEIS A045826
  * Range:     u8 n <= 421, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (req_m > max_m_done) {
         /* Allocate new storage */
         idx_t new_size = req_m + 1;
-        seq_t *new_r3 = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_r3 = mem_new(seq_t, new_size);
         if (!new_r3) {
             return 0; /* allocation failure, unlikely in tests */
         }
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         }
 
         /* replace the old array */
-        free(r3);
+        mem_free(r3);
         r3 = new_r3;
         max_m_done = req_m;
     }

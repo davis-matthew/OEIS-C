@@ -10,7 +10,8 @@
  *            0,1,2,3,8281,8282,8283,... For n ≤ 4 the values are n‑1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   check_bases
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
    in increasing numeric order, and selecting those that also use
    only digits 0–3 in bases 5–8.  */
 #include <stdbool.h>
-#include "../utils/check_bases.h"
+
+/* Helper that checks whether all digits of val in bases 5–9 are 0..3. */
+static bool check_bases(seq_t val)
+{
+    for (idx_t base = 5; base <= 9; ++base) {
+        seq_t t   = val;
+        seq_t b   = base;           /* promotes base to seq_t type          */
+        while (t > 0) {
+            seq_t d = t % b;
+            if (d >= 4) return false;
+            t /= b;
+        }
+    }
+    return true;
+}
 
 /* Recursive enumeration of base‑9 numbers with digits 0‑3.
    Parameters:

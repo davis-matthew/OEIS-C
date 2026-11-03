@@ -8,13 +8,27 @@
  *            a(n)=4*a(n-1)+14*a(n-2)-10*a(n-4)+a(n-6) for n≥6
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 37 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static const seq_t BASE[6] = {
     (seq_t)1,  (seq_t)3,  (seq_t)22,
@@ -33,7 +47,7 @@ seq_t a(idx_t n)
         cache_cap = 16;
         if (cache_cap < (size_t)n + 1)
             cache_cap = (size_t)n + 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return (seq_t)0;   /* allocation failed */
 
         /* store the first 6 known terms */
@@ -49,7 +63,7 @@ seq_t a(idx_t n)
             new_cap = cache_cap + 1;
         if (new_cap < (size_t)n + 1)
             new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return (seq_t)0;   /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

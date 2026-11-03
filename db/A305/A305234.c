@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   count_distinct_primes
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,16 +18,17 @@
    (i.e. the same value of A001221). */
 
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
 
 seq_t a(idx_t n)
 {
-    int w = count_distinct_primes((uint64_t)n);
+    int w = omega((uint64_t)n);
     seq_t cnt = 0;
 
     for (idx_t m = n + 1; ; ++m)
     {
-        if (count_distinct_primes((uint64_t)m) != w)
+        if (omega((uint64_t)m) != w)
             break;
         ++cnt;
     }

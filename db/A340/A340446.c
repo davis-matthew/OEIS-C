@@ -12,12 +12,14 @@
  *            as possible. The sequence is computed by greedy construction
  * Range:     u8 n <= 63, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 8177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static arrays holding the computed sequence and the set of values used.
    Both grow as needed.  All indices and sizes are kept in size_t as they
@@ -35,7 +37,7 @@ static void ensure_seq(size_t needed)
     if (seq_cap < needed) {
         size_t newcap = (seq_cap > 0) ? seq_cap * 2 : 64;
         while (newcap < needed) newcap <<= 1;
-        seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, newcap);
         seq_cap = newcap;
     }
 }
@@ -46,7 +48,7 @@ static void ensure_used(size_t needed)
     if (used_cap < needed) {
         size_t newcap = (used_cap > 0) ? used_cap * 2 : 64;
         while (newcap < needed) newcap <<= 1;
-        used = (seq_t *)realloc(used, newcap * sizeof(seq_t));
+        used = mem_resize(seq_t, used, newcap);
         used_cap = newcap;
     }
 }

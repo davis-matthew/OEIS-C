@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9, u16 n <= 2504, u32 n <= 9804, u64 n <= 9804,
- *            u128 n <= 9804, big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 9, u16 n <= 2504, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 93 terms through n = 9804 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *K = NULL;          /* A121765 values (k)   */
 static size_t cap_K = 0;
@@ -44,7 +46,7 @@ static void append_value(seq_t **arr, size_t *cap, size_t *size, seq_t val)
 {
     if (*size >= *cap) {
         size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();                      /* allocation failure */
         *arr = tmp;
         *cap = new_cap;

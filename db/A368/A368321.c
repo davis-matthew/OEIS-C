@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
                 a(n) = 4^n + 2 * Σ_{k=1..n} binomial(n,k) * a(n-k)  (n ≥ 1) */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache      = NULL;  /* array of computed a(n)          */
@@ -30,10 +32,10 @@ seq_t a(idx_t n)
     /* allocate or grow cache to hold values up to n */
     if (cache == NULL) {
         cache_cap = (size_t)n + 1;
-        cache = (seq_t*)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if ((size_t)n + 1 > cache_cap) {
         cache_cap = (size_t)n + 1;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* compute any missing terms up to n */

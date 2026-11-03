@@ -8,12 +8,14 @@
  *            binomial(4*n-2*k+2,n-2*k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static inline uint64_t binom_u64(idx_t nn, idx_t kk)
 {
@@ -51,8 +53,8 @@ seq_t a(idx_t n)
         idx_t maxk = n / 2;
         for (idx_t k = 0; k <= maxk; ++k)
         {
-            seq_t b1 = binom(n + k, k);
-            seq_t b2 = binom(4 * n - 2 * k + 2, n - 2 * k);
+            seq_t b1 = binomial(n + k, k);
+            seq_t b2 = binomial(4 * n - 2 * k + 2, n - 2 * k);
             sum += b1 * b2;
         }
         return sum / (seq_t)(n + 1);

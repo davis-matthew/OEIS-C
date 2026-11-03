@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 70 terms through n = 1000 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <string.h>
 
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         if ((size_t)n > cap) {
             size_t new_cap = cap ? cap * 2 : 16;
             if (new_cap < (size_t)n) new_cap = n;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL) return 0;  /* allocation failure – return 0 */
             cache = tmp;
             cap = new_cap;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
             }
 
             /* Euler's criterion: p^35 mod 71 */
-            seq_t leg = mod_pow((seq_t)cur, exp, mod);
+            seq_t leg = powmod((seq_t)cur, exp, mod);
             if (leg == nonres) {
                 cache[count++] = (seq_t)cur;  /* record quadratic nonresidue */
             }

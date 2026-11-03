@@ -9,7 +9,8 @@
  *            ten decimal digits
  * Range:     u8 n <= 215, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 7752 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
             /* store the exponent */
             if (exponents_len >= exponents_cap) {
                 size_t new_cap = exponents_cap ? exponents_cap * 2 : 64;
-                exponents = (seq_t *)realloc(exponents, new_cap * sizeof(seq_t));
+                exponents = mem_resize(seq_t, exponents, new_cap);
                 exponents_cap = new_cap;
             }
             exponents[exponents_len++] = (seq_t)current_exp;

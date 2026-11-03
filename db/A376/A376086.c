@@ -8,13 +8,15 @@
  *            (initial value)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The following function is required by the build environment.
    It returns the nth term of OEIS sequence A376086.
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* If this is the first call, allocate space for required terms. */
     if (cache_len == 0) {
         if (n == 0) {
-            cache = (seq_t *)malloc(sizeof(seq_t));
+            cache = mem_new(seq_t, 1);
             if (!cache)              /* allocation failure – abort */
                 return (seq_t)0;
             cache[0] = (seq_t)1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
             return cache[0];
         } else {
             /* Allocate for 0..n */
-            cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+            cache = mem_new(seq_t, (n + 1));
             if (!cache)
                 return (seq_t)0;
             cache[0] = (seq_t)1;
@@ -53,10 +55,10 @@ seq_t a(idx_t n)
 
     /* Extend cache up to n (inclusive). */
     {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) {
             /* Allocation failed – return 0 (caller should treat as error). */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_len = 0;
             return (seq_t)0;

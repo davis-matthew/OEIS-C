@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(0)=1, a(1)=0, a(2)=1, a(3)=2;
    for n>=4, a(n)=a(n-1)+a(n-5)-a(n-6) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_arr = NULL;
 static idx_t a_size = 0;
@@ -22,7 +24,7 @@ static idx_t a_size = 0;
 seq_t a(idx_t n) {
     /* initialize the table if empty */
     if (a_size == 0) {
-        a_arr = (seq_t *)malloc(sizeof(seq_t));
+        a_arr = mem_new(seq_t, 1);
         if (!a_arr) exit(1);            /* allocation failed */
         a_arr[0] = (seq_t)1;            /* a(0) */
         a_size = 1;
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
 
     /* grow the table up to n */
     idx_t new_size = n + 1;
-    a_arr = (seq_t *)realloc(a_arr, new_size * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, new_size);
     if (!a_arr) exit(1);                /* allocation failed */
 
     /* compute new entries */

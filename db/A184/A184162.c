@@ -11,15 +11,42 @@
  *            All work is * performed with integer arithmet...
  * Range:     u8 n <= 1417, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9790 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* small helper to grow an array */
+#ifdef __cplusplus
+template <class T>
+static T *
+grow_array(T *ptr, size_t *cap, size_t need, size_t elem_size)
+{
+    if (need <= *cap)
+        return ptr;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 1;
+    while (new_cap < need)
+        new_cap++;
+    T *tmp = mem_resize(T, ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp && new_cap > 0)                /* allocation failed */
+        exit(EXIT_FAILURE);
+    *cap = new_cap;
+    return tmp;
+}
+#else
 static void *
 grow_array(void *ptr, size_t *cap, size_t need, size_t elem_size)
 {
@@ -34,6 +61,7 @@ grow_array(void *ptr, size_t *cap, size_t need, size_t elem_size)
     *cap = new_cap;
     return tmp;
 }
+#endif
 
 seq_t a(idx_t n)
 {

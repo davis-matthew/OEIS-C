@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 732, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen64, is_prime_u64
+ * Validated: standard, pass, 63 terms through n = 9924 (2026-11-03)
+ * Helpers:   bit_length_u64_to_u32, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/bitlen64.h"   /* extern unsigned bitlen64(uint64_t);      */
-#include "../utils/is_prime_u64.h" /* extern bool is_prime_u64(uint64_t);      */
+#include "../utils/bit_length_u64_to_u32.h"
+#include "../utils/is_prime_u64.h"
 
 /* --------- Helper for prime generation ----------------------------------- */
 
@@ -69,7 +70,7 @@ static void extend_sieve(uint64_t limit)
 
 static bool good_prime(uint32_t p)
 {
-    unsigned L = bitlen64((uint64_t)p);
+    unsigned L = bit_length_u64_to_u32((uint64_t)p);
 
     for (unsigned i = 0; i < L; ++i) {
         uint64_t q = (uint64_t)p ^ ((uint64_t)1 << i);

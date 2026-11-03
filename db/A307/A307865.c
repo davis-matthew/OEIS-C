@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 259, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 103 terms through n = 9466 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"    /* provides seq_t mod_pow(seq_t, uint64_t, seq_t); */
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[n] holds a(n) or (seq_t)-1 if not yet computed */
 static idx_t cache_cap = 0;      /* current capacity of the cache array */
@@ -29,7 +32,7 @@ static void ensure_cache(idx_t n)
 {
     if (n >= cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Allocation failed – abort the program (should never happen). */
             abort();
@@ -59,7 +62,7 @@ seq_t a(idx_t n)
 
     for (seq_t b = 0; b < m; ++b) {
         /* mod_pow returns b^n mod m */
-        seq_t r = mod_pow(b, (uint64_t)n, m);
+        seq_t r = powmod(b, (uint64_t)n, m);
         if (r == target)
             ++cnt;
     }

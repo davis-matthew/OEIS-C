@@ -11,14 +11,16 @@
  *            0<=i<=(n+1)/2
  * Range:     u8 n <= 37, u16 n <= 104, u32 n <= 350, u64 n <= 1209,
  *            u128 n <= 2650, big any n
+ * Validated: standard, pass, 80 terms through n = 2436 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t a, idx_t b) */
-#include "../utils/pow2.h"       /* provides seq_t pow2(idx_t exp) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     idx_t target = n;          /* 1‑based index of desired term */

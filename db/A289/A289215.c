@@ -7,6 +7,7 @@
  * Formula:   a(n) = n! * Sum_{i=0..n} 9^i / i! * C(n,i)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 26,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 404 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 1 iff A003968(n) is a multiple of n
- * Range:     u8 n <= 622, u16 n <= 8831, u32 n <= 8831, u64 n <= 8831,
- *            u128 n <= 8831, big any n
- * Helpers:   factor_u64, mod_pow
+ * Range:     u8 n <= 622, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 8831 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,63 @@
  * via the prescribed header paths. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+/* Trial‑division factorisation producing distinct primes
+   pr[i] and their multiplicities ex[i].  The caller
+   must provide arrays large enough for the factors. */
+static void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt)
+{
+    size_t i = 0;
+    if (n <= 1) { *cnt = 0; return; }
+    /* Factor 2. */
+    while ((n & 1) == 0) {
+        if (i && pr[i - 1] == 2) {
+            ++ex[i - 1];
+        } else {
+            pr[i] = 2;
+            ex[i] = 1;
+            ++i;
+        }
+        n >>= 1;
+    }
+    /* Odd factors. */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            pr[i] = p;
+            ex[i] = 0;
+            while (n % p == 0) {
+                ++ex[i];
+                n /= p;
+            }
+            ++i;
+        }
+    }
+    if (n > 1) {
+        pr[i] = n;
+        ex[i] = 1;
+        ++i;
+    }
+    *cnt = i;
+}
+
+/* modular exponentiation using 128‑bit intermediate.
+   Works for any seq_t. */
+static seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod)
+{
+    seq_t res = 1 % mod;
+    base   %= mod;
+    while (exp) {
+        if (exp & 1)
+            res = (unsigned __int128)res * base % mod;
+        exp >>= 1;
+        if (exp)
+            base = (unsigned __int128)base * base % mod;
+    }
+    return res;
+}
 
 /* Sequence element type and index type are provided by the build. */
 seq_t a(idx_t n)

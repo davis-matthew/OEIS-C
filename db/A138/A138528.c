@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6113, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 110 terms through n = 9924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    built sequentially up to the requested index n.  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
     /* initialise */
     if (used == 0) {
         cap = 64;
-        vals = (seq_t*)malloc(cap * sizeof(seq_t));
-        pref = (seq_t*)malloc(cap * sizeof(seq_t));
+        vals = mem_new(seq_t, cap);
+        pref = mem_new(seq_t, cap);
         if (!vals || !pref) exit(EXIT_FAILURE);
 
         vals[1] = (seq_t)1;
@@ -57,8 +59,8 @@ seq_t a(idx_t n)
         idx_t new_cap = cap;
         while (new_cap <= n) new_cap <<= 1;
 
-        seq_t *tmp_vals = (seq_t*)realloc(vals, new_cap * sizeof(seq_t));
-        seq_t *tmp_pref = (seq_t*)realloc(pref, new_cap * sizeof(seq_t));
+        seq_t *tmp_vals = mem_resize(seq_t, vals, new_cap);
+        seq_t *tmp_pref = mem_resize(seq_t, pref, new_cap);
         if (!tmp_vals || !tmp_pref) exit(EXIT_FAILURE);
         vals = tmp_vals;
         pref = tmp_pref;

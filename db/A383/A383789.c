@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 159, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_counts, digit_len
+ * Validated: standard, pass, 87 terms through n = 945 (2026-11-03)
+ * Helpers:   digit_counts, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,8 +31,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 /* Headers for helper functions that operate on seq_t */
-#include "../utils/digit_len.h"
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;           /* array holding the sequence values      */
 static size_t seq_sz  = 0;          /* number of terms stored                */
@@ -42,7 +45,7 @@ static void grow_seq(void)
 {
     if (seq_sz == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 64;
-        seq_t *newp = (seq_t *)realloc(seq, sizeof(seq_t) * new_cap);
+        seq_t *newp = mem_resize(seq_t, seq, new_cap);
         if (!newp) abort();                    /* allocation failure */
         seq = newp;
         seq_cap = new_cap;
@@ -69,7 +72,7 @@ seq_t a(idx_t n)
     /* compute terms up to the requested index */
     while ((idx_t)seq_sz < n) {
         seq_t prev = seq[seq_sz - 1];
-        unsigned prev_len = digit_len(prev);
+        unsigned prev_len = num_digits(prev);
 
         /* digit counts of the previous term */
         unsigned char prev_cnt[10] = {0};
@@ -88,7 +91,7 @@ seq_t a(idx_t n)
                 }
             }
             if (!used) {
-                unsigned cand_len = digit_len(cand);
+                unsigned cand_len = num_digits(cand);
                 if (cand_len != prev_len) {
                     unsigned char cand_cnt[10];
                     digit_counts(cand, cand_cnt);

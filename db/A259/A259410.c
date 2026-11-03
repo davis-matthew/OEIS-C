@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 - sigma(n) + sigma(n)^2 - sigma(n)^3 + sigma(n)^4
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 107, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 49 terms through n = 9559 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* Cache of primes used to factorise numbers up to a given limit. */

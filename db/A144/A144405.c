@@ -10,7 +10,8 @@
  *            (3*binomial(row, col)^2 - binomial(row, col) - 1)
  * Range:     u8 n <= 11, u16 n <= 30, u32 n <= 95, u64 n <= 309,
  *            u128 n <= 1100, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 71 terms through n = 1305 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static inline idx_t isqrt_u64(idx_t n)
 {
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     idx_t col = (idx_t)(n - (idx_t)offset);
 
     /* Binomial coefficient */
-    seq_t b = binom(row, col);
+    seq_t b = binomial(row, col);
 
     /* Compute T(row, col) */
     seq_t b2 = b * b;                /* b^2 */

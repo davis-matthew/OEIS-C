@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;          /* cache of computed terms */
 static size_t term_count = 0;        /* how many terms are cached */
@@ -53,10 +55,10 @@ static void append_term(seq_t val)
 {
     if (capacity == 0) {
         capacity = 16;
-        terms = (seq_t *)malloc(capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, capacity);
     } else if (term_count == capacity) {
         capacity *= 2;
-        terms = (seq_t *)realloc(terms, capacity * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, capacity);
     }
     terms[term_count++] = val;
 }

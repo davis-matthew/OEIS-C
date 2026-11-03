@@ -15,14 +15,44 @@
  *            to decimal
  * Range:     u8 n <= 7259, u16 n <= 7259, u32 n <= 7259, u64 n <= 7259,
  *            u128 n <= 7259, big any n
- * Helpers:   factorial_zero_digit
+ * Validated: standard, pass, 136 terms through n = 6446 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdint.h>
-#include "../utils/factorial_zero_digit.h"
+
+/* Compute A(n,d): zero the digit at position d in factorial base of n */
+static seq_t factorial_zero_digit(seq_t n, idx_t d)
+{
+    /* digits[i] holds the digit at factorial position i (i! multiplier) */
+    int digits[256] = {0};
+    idx_t pos = 0;
+    seq_t temp = n;
+    idx_t k = 1;            /* current factorial base multiplier (i+1)! */
+
+    /* build factorial base representation */
+    while (temp > 0) {
+        digits[pos] = (int)(temp % (k + 1));
+        temp /= (k + 1);
+        ++pos;
+        ++k;
+    }
+    idx_t len = pos;
+
+    /* recompute decimal value with digit d set to zero */
+    seq_t val = 0;
+    seq_t mult = 1;        /* holds (i+1)! */
+    for (idx_t i = 0; i < len; ++i) {
+        int dig = digits[i];
+        if (i == d) dig = 0;
+        val += (seq_t)dig * mult;
+        mult *= (seq_t)(i + 2);   /* next factorial multiplier */
+    }
+    return val;
+}
 
 /* Find diagonal t such that t*(t+1)/2 <= n < (t+1)*(t+2)/2 */
 static inline idx_t diag_of(idx_t n)

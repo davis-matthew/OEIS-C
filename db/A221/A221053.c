@@ -10,17 +10,20 @@
  *            129600*4^n*n^2 + 7852*2^n*n - 633600*4^n*n
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 19, u128 n <= 49,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 33 terms through n = 972 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow2n = seq_pow((seq_t)2, n);
-    seq_t pow4n = seq_pow((seq_t)4, n);
+    seq_t pow2n = ipow_idx((seq_t)2, n);
+    seq_t pow4n = ipow_idx((seq_t)4, n);
     seq_t n_seq = (seq_t)n;
     seq_t n_sq  = n_seq * n_seq;
 

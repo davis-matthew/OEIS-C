@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return the decimal reversal of a < 2^64 integer. */
 static inline uint64_t rev_uint64(uint64_t x)
@@ -65,7 +67,7 @@ static void init_sequence(void)
     qsort(sums, (size_t)LIMIT, sizeof(uint64_t), cmp_uint64);
 
     /* Scan sorted sums and keep numbers that occur exactly twice. */
-    seq_arr = (seq_t *)malloc((size_t)LIMIT * sizeof(seq_t));  /* worst case allocation */
+    seq_arr = mem_new(seq_t, (size_t)LIMIT);  /* worst case allocation */
     if (seq_arr == NULL) abort();
 
     uint64_t current = sums[0];

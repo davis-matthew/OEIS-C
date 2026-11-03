@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{k=0..n} C(n,k) * k^{n-k} * A_8(k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 37 terms through n = 200 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* Static cache for p(k) = A_8(k) */
 static seq_t *p_seq = NULL;      /* p(k) values   */
@@ -41,7 +43,7 @@ ensure_p(idx_t n)
 
     /* Allocate or enlarge array */
     size_t new_cap = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(p_seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, p_seq, new_cap);
     if (!tmp) return;            /* silently abort on OOM */
 
     p_seq = tmp;
@@ -103,7 +105,7 @@ ensure_a(idx_t n)
 
     /* Allocate or enlarge array for a(n) */
     size_t new_cap = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_seq, new_cap);
     if (!tmp) return;
     a_seq = tmp;
 
@@ -124,7 +126,7 @@ ensure_a(idx_t n)
             binom = (binom * (seq_t)(m - k + 1)) / (seq_t)k;
 
             /* k^{m-k} */
-            seq_t powk = seq_pow((seq_t)k, m - k);
+            seq_t powk = ipow_idx((seq_t)k, m - k);
 
             /* Term = C(m,k) * p(k) * k^{m-k} */
             total += binom * p_seq[k] * powk;

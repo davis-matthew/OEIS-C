@@ -11,12 +11,14 @@
  *            O(n) recurrence that works for any idx_t n
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     {
         /* we need at least 20 entries to start */
         idx_t init_capacity = 20;
-        cache = (seq_t *)malloc(sizeof(seq_t) * init_capacity);
+        cache = mem_new(seq_t, init_capacity);
         cache_capacity = init_capacity;
 
         /* compute a(0)..a(19) by the inhomogeneous recurrence */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         if (new_capacity == 0) new_capacity = 64;
         while (new_capacity <= n)
             new_capacity <<= 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_capacity);
+        cache = mem_resize(seq_t, cache, new_capacity);
         cache_capacity = new_capacity;
     }
 

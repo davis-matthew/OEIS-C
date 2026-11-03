@@ -9,6 +9,7 @@
  *            A000642(x) = x*(T(x)^2 + T(x^2))/2
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 42, u128 n <= 84,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 95 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

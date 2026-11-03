@@ -12,7 +12,8 @@
  *            condition on the partial sum
  * Range:     u8 n <= 22, u16 n <= 1702, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   prime_idx
+ * Validated: standard, pass, 88 terms through n = 9774 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/prime_idx.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* --- Prime test for seq_t (deterministic Miller–Rabin for 64‑bit) --- */
 static inline seq_t mod_mul(seq_t a, seq_t b, seq_t mod)
@@ -98,14 +100,14 @@ static void ensure_cache(idx_t n)
     if (cache_len >= (size_t)n) return;
     size_t new_len = cache_len ? cache_len << 1 : 16;
     while (new_len < (size_t)n) new_len <<= 1;
-    seq_t *tmpa = (seq_t *)realloc(a_cache,   new_len * sizeof(seq_t));
+    seq_t *tmpa = mem_resize(seq_t, a_cache, new_len);
     if (!tmpa) abort();
-    seq_t *tmpb = (seq_t *)realloc(sum_cache, new_len * sizeof(seq_t));
+    seq_t *tmpb = mem_resize(seq_t, sum_cache, new_len);
     if (!tmpb) abort();
     a_cache   = tmpa;
     sum_cache = tmpb;
     /* zero new part of sum_cache */
-    memset(sum_cache + cache_len, 0, (new_len - cache_len) * sizeof(seq_t));
+    mem_set(sum_cache + cache_len, 0, (new_len - cache_len) * sizeof(seq_t));
     cache_len = new_len;
 }
 
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
 
         for (; cur < n; ++cur)
         {
-            bool needPrime = prime_idx((idx_t)(cur + 1));
+            bool needPrime = is_prime((idx_t)(cur + 1));
             /* previous partial sum */
             seq_t prevSum = (cur == 0) ? 0 : sum_cache[cur-1];
 

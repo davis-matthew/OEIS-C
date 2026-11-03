@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   append_forward, digit_count_uint32
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   num_digits_u32_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/append_forward.h"
-#include "../utils/digit_count_uint32.h"
+#include "../utils/num_digits_u32_to_u64.h"
+
+/* append decimal representation of val to buffer buf at *pos
+   (writes most‑significant digit first) */
+static inline void append_forward(uint32_t val, char *buf, size_t *pos)
+{
+    uint8_t tmp[10];
+    int t = 0;
+    do { tmp[t++] = (uint8_t)(val % 10); val /= 10; } while (val);
+    /* tmp[0] contains least significant digit, reverse it */
+    for (int i = t - 1; i >= 0; --i)
+        buf[(*pos)++] = (char)(tmp[i] + '0');
+}
 
 /* ----------------------------------------------------------------- */
 /* global state to cache composites                                       */
@@ -87,7 +99,7 @@ seq_t a(idx_t n)
     /* total number of digits in the forward concatenation */
     size_t lenC = 0;
     for (size_t i = 0; i < need; ++i)
-        lenC += digit_count_uint32(composites[i]);
+        lenC += num_digits_u32_to_u64(composites[i]);
 
     /* allocate buffers for forward and reverse strings */
     char *C = (char*)malloc(lenC);

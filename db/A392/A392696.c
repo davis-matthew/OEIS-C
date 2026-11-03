@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 7184, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, build_spf
+ * Validated: standard, pass, 78 terms through n = 9399 (2026-11-03)
+ * Helpers:   build_primes_upto, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,9 @@
 #include <stddef.h>
 #include <inttypes.h>
 #include <limits.h>
-#include "../utils/build_spf.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 #define SIEVE_LIMIT 2000000ULL   /* sufficient for the required range */
 
@@ -73,7 +75,7 @@ static void append_qual(seq_t val)
 {
     if (qual_size == qual_cap) {
         size_t new_cap = (qual_cap == 0) ? 4 : qual_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(qual, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, qual, new_cap);
         if (!tmp) abort();
         qual = tmp;
         qual_cap = new_cap;

@@ -7,17 +7,34 @@
  * Keywords:  nonn
  * Formula:   a(n) = gcd(sigma(n), A048250(n)) where sigma(n) is the sum of
  *            divisors and A048250(n) is the sum of squarefree divisors
- * Range:     u8 n <= 137, u16 n <= 9504, u32 n <= 9504, u64 n <= 9504,
- *            u128 n <= 9504, big any n
- * Helpers:   factor_u64, gcd, sigma_of
+ * Range:     u8 n <= 137, u16 n <= 23729, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 101 terms through n = 9504 (2026-11-01)
+ * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd.h"
-#include "../utils/sigma_of.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* a(n) = gcd( σ(n), ∏_{p|n}(1+p) ) */
 seq_t a(idx_t n)

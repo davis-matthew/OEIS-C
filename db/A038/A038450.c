@@ -8,6 +8,7 @@
  *            digits equal to 1 (and all other digits equal to 0)
  * Range:     u8 none, u16 none, u32 n <= 45, u64 n <= 10000, u128 n <= 10000,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 9060 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

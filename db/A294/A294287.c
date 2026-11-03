@@ -9,11 +9,13 @@
  *            - n^3/8 (if n is even)
  * Range:     u8 n <= 6, u16 n <= 23, u32 n <= 362, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 55 terms through n = 891 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -9,7 +9,8 @@
  *            i(i+1)/2 >= n and j = n - i(i-1)/2
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   _popcount_seq
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   popcount_seq_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 /* Standard includes for basic operations */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_popcount_seq.h"
+#include "../utils/popcount_seq_to_i32.h"
 
 /* Helper function to compute the row index i for a given linear index n. */
 static inline idx_t _row_index(idx_t n)
@@ -47,5 +48,5 @@ seq_t a(idx_t n)
 
     /* Compute number of common 1-bit positions between i+1 and j */
     seq_t common = i1 & (seq_t)j;
-    return (seq_t)_popcount_seq(common);
+    return (seq_t)popcount_seq_to_i32(common);
 }

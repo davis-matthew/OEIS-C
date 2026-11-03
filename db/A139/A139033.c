@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 215, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   floor_sqrt, isPrimeGeneric, seq_alloc, seq_realloc
+ * Validated: standard, pass, 53 terms through n = 1698 (2026-11-03)
+ * Helpers:   ipow_i32, is_prime_u128, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,70 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include <stddef.h>
+#include <limits.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {

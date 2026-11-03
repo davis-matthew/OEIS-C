@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,6 +42,7 @@
 
 #include <stdlib.h>        /* malloc, realloc, free */
 #include <stddef.h>        /* size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -54,12 +56,12 @@ seq_t a(idx_t n)
     /* ---------- initialise cache for n == 0 ---------- */
     if (cache_cap == 0) {
         cache_cap = 1;                            /* at least space for m=0 */
-        a_cache   = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-        g2_cache  = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-        q_cache   = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        a_cache   = mem_new(seq_t, cache_cap);
+        g2_cache  = mem_new(seq_t, cache_cap);
+        q_cache   = mem_new(seq_t, cache_cap);
         if (!a_cache || !g2_cache || !q_cache) {
             /* allocation failure – return 0 (unspecified) */
-            free(a_cache); free(g2_cache); free(q_cache);
+            mem_free(a_cache); mem_free(g2_cache); mem_free(q_cache);
             return (seq_t)0;
         }
         a_cache[0]  = (seq_t)1;                   /* a[0] = 1 */
@@ -74,13 +76,13 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
         seq_t *tmp;
-        tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) goto error;
         a_cache = tmp;
-        tmp = (seq_t *)realloc(g2_cache, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, g2_cache, new_cap);
         if (!tmp) goto error;
         g2_cache = tmp;
-        tmp = (seq_t *)realloc(q_cache, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, q_cache, new_cap);
         if (!tmp) goto error;
         q_cache = tmp;
         cache_cap = new_cap;
@@ -160,8 +162,8 @@ seq_t a(idx_t n)
     return a_cache[(size_t)n];
 
 error:
-    free(a_cache);
-    free(g2_cache);
-    free(q_cache);
+    mem_free(a_cache);
+    mem_free(g2_cache);
+    mem_free(q_cache);
     return (seq_t)0;
 }

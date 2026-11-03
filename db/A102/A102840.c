@@ -6,16 +6,28 @@
  * Keywords:  sign
  * Formula:   a(0) = 0, a(1) = 1, a(n) = ((2*n-1)*a(n-1) - 5*n*a(n-2)) / (n-1)
  *            for n >= 2
- * Range:     i8 n <= 4, i16 n <= 9, i32 n <= 23, i64 n <= 32, i128 n <= 32,
+ * Range:     i8 n <= 6, i16 n <= 12, i32 n <= 26, i64 n <= 52, i128 n <= 107,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 866 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
-seq_t a(idx_t n)
+/* the code below runs in wide_t: 128 bits at the fixed widths (never narrower
+   than seq_t), seq_t itself for big, so values that pass 2^64 on the way to a
+   term that fits stay exact; a() returns the term in seq_t */
+#ifdef __cplusplus
+typedef seq_t wide_t;
+#else
+typedef __typeof__((seq_t)0 + (__int128)0) wide_t;
+#endif
+#define seq_t wide_t
+
+seq_t a_wide(idx_t n)
 {
     /* static storage for memoised values */
     static seq_t *seq   = NULL;
@@ -23,11 +35,11 @@ seq_t a(idx_t n)
     static idx_t last   = 0;   /* highest index already computed */
 
     /* Ensure capacity for at least n+1 elements, but at least 2 for the
-       initial values a(0) and a(1). */
+       initial values a_wide(0) and a_wide(1). */
     idx_t needed = n + 1;
     if (needed < 2) needed = 2;
     if (needed > cap) {
-        seq_t *tmp = (seq_t *)realloc(seq, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, needed);
         if (!tmp) return 0;           /* allocation failure */
         seq = tmp;
         cap = needed;
@@ -52,4 +64,10 @@ seq_t a(idx_t n)
     last = n;
 
     return seq[n];
+}
+
+#undef seq_t
+seq_t a(idx_t n)
+{
+    return (seq_t)a_wide(n);
 }

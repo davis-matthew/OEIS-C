@@ -8,7 +8,8 @@
  *            ≤ n)
  * Range:     u8 n <= 655, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 94 terms through n = 9241 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         size_t sz = (size_t)n + 1;
 
         uint8_t *new_sqfree = (uint8_t*)malloc(sz);
-        seq_t *new_prefix  = (seq_t*)malloc(sz * sizeof(seq_t));
+        seq_t *new_prefix  = mem_new(seq_t, sz);
         assert(new_sqfree != NULL && new_prefix != NULL);
 
         /* Initially assume all numbers ≥ 1 are square‑free. */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         new_sqfree[0] = 0;
 
         /* Sieve primes up to √n */
-        idx_t lim = _floor_isqrt_u64(n);
+        idx_t lim = isqrt(n);
         size_t l   = (size_t)lim;
         uint8_t *is_prime = (uint8_t*)malloc(l + 1);
         assert(is_prime != NULL);
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         }
 
         free(sqfree);
-        free(prefix);
+        mem_free(prefix);
         sqfree = new_sqfree;
         prefix = new_prefix;
         cache_n = n;

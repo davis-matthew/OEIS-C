@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    The first 20 terms (n=1…20) are provided to seed the recurrence. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int coeff[20] = {
     4,   23, 113,  52,  385,
@@ -55,7 +57,7 @@ static void ensure_capacity(idx_t n) {
     if (new_cap < 64)
         new_cap = 64;                 /* start with a small size */
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();                      /* out of memory */
 

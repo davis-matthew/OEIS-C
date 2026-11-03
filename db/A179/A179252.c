@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom_count
+ * Validated: standard, pass, 49 terms through n = 9891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/binom_count.h"
+#include "../utils/mem.h"
+
+/* Binomial coefficient C(n,k) for 0 <= k <= n < MAX_FIB */
+static size_t binom_count(int n, int k)
+{
+    if (k > n) return 0;
+    if (k > n - k) k = n - k;
+    size_t r = 1;
+    for (int i = 1; i <= k; ++i)
+        r = r * (size_t)(n - k + i) / (size_t)i;
+    return r;
+}
 
 /* ------------------------------------------------------------ */
 /* Fibonacci numbers (1‑based) */
@@ -92,16 +104,16 @@ static void ensure_cache(idx_t need)
         ++N;
 
     size_t total = binom_count(N - K + 1, K);
-    seq_t *tmp = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, total);
     if (!tmp) exit(1);
 
     size_t produced = 0;
     generate_rec(0, 1, N, (seq_t)0, tmp, &produced);
     /* produced should equal total */
 
-    qsort(tmp, total, sizeof(seq_t), cmp_seq);
+    mem_qsort(tmp, total, sizeof(seq_t), cmp_seq);
 
-    free(cache);
+    mem_free(cache);
     cache = tmp;
     cache_len = total;
 }

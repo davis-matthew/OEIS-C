@@ -9,12 +9,14 @@
  *            binomial(n - floor((n-1)/2), k)
  * Range:     u8 n <= 16, u16 n <= 28, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The sum counts subsets of size 6k with exactly 5k small (≤(n-1)/2) and k large elements. */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

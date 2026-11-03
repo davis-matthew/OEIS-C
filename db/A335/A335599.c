@@ -9,13 +9,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A335599:  smallest m>0 such that m+popcount(m)=n or n-1. */
-#include "../utils/bitlen_seq_t.h"   /* provides unsigned bitlen_seq_t(seq_t x); */
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 static seq_t popcount_seq_t(seq_t x)
 {
@@ -31,7 +33,7 @@ static seq_t find_min_m(idx_t target)
 {
     if (target == 0)
         return (seq_t)0;
-    unsigned bitlen = bitlen_seq_t((seq_t)target);
+    unsigned bitlen = bit_length((seq_t)target);
     for (int k = (int)bitlen; k >= 0; --k) {
         seq_t k_t   = (seq_t)k;
         seq_t m     = ((seq_t)target) - k_t;

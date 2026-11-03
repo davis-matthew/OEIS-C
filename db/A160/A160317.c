@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 9, i128 n <= 18,
  *            big any n
- * Helpers:   grow_seq_array
+ * Validated: standard, pass, 31 terms through n = 366 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 
 /* Include necessary headers */
 #include <stddef.h>          /* size_t */
-#include "../utils/grow_seq_array.h"   /* grow_seq_array */
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;          /* array of pre‑computed terms */

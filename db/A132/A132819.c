@@ -11,7 +11,8 @@
  *            row by row. This implementation finds the (r,k)...
  * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
 #include <stdbool.h>
 
 /* Utility functions provided by the build system */
-#include "../utils/binom.h"  /* seq_t binom(idx_t a, idx_t b) */
-#include "../utils/gcd.h"    /* seq_t gcd(seq_t a, seq_t b) */
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -47,8 +48,8 @@ seq_t a(idx_t n)
         return 1;
 
     /* Binomial factors */
-    seq_t bin1 = binom(r, k);         /* C(r,k)   */
-    seq_t bin2 = binom(r - 1, k - 2); /* C(r‑1,k‑2) */
+    seq_t bin1 = binomial(r, k);         /* C(r,k)   */
+    seq_t bin2 = binomial(r - 1, k - 2); /* C(r‑1,k‑2) */
 
     /* Coefficient f(r,k) = k(k+1) / (2(k-1)) */
     seq_t num = (seq_t)k * (seq_t)(k + 1);   /* numerator   */

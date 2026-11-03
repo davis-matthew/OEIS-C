@@ -9,7 +9,8 @@
  *            = 1, k2 = 4, k_{n+1} = 6*k_n - k_{n-1} + 2). T(i) = i*(i+1)/2
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static caches for already computed values */
 static seq_t *a_cache = NULL;
@@ -32,9 +34,9 @@ static void grow_cache(size_t need)
     size_t newcap = cache_cap ? cache_cap * 2 : 1;
     while (newcap < need) newcap *= 2;
 
-    seq_t *newk = (seq_t *)realloc(k_cache, newcap * sizeof(seq_t));
-    seq_t *newm = (seq_t *)realloc(m_cache, newcap * sizeof(seq_t));
-    seq_t *newa = (seq_t *)realloc(a_cache, newcap * sizeof(seq_t));
+    seq_t *newk = mem_resize(seq_t, k_cache, newcap);
+    seq_t *newm = mem_resize(seq_t, m_cache, newcap);
+    seq_t *newa = mem_resize(seq_t, a_cache, newcap);
     if (!newk || !newm || !newa) abort();     /* out of memory – terminate */
 
     k_cache = newk;

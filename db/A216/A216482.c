@@ -11,6 +11,7 @@
  *            found multiple m is then divided by n to obtain the multiplier k
  * Range:     i8 n <= 8, i16 n <= 98, i32 n <= 988, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 100 terms through n = 8338 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

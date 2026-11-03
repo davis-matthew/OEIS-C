@@ -8,12 +8,14 @@
  * Formula:   a(1) = 19, a(n) = reverse_decimal(a(n-1)) + 1 (n > 1)
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
     seq_t val = (seq_t)19;
     for (idx_t i = 2; i <= n; ++i)
     {
-        val = reverse_decimal(val) + 1;
+        val = reverse_digits(val) + 1;
     }
     return val;
 }

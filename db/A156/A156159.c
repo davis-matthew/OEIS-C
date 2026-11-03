@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 16, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    no overflow occurs for all n whose value fits in uint64_t. */
 
 #include <stdlib.h>   /* for malloc, realloc, free, exit */
+#include "../utils/mem.h"
 
 static const seq_t INITIAL[7] = {
     0,
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Expand cache as needed */
     if (n > CACHE_SIZE) {
         idx_t new_size = n;
-        seq_t *tmp = (seq_t *)realloc(CACHE, (new_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, CACHE, (new_size + 1));
         if (!tmp) exit(1);           /* allocation failed */
         CACHE = tmp;
         /* Fill new entries */

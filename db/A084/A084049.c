@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 618, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 62 terms through n = 978 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -28,7 +29,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/digit_sum.h"   /* seq_t digit_sum(seq_t); */
+#include "../utils/digit_sum.h"
 
 #define NMAX 2000000   /* sufficient for n up to about 10 000 */
 

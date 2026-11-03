@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     /* --- first call: initialise storage and base values -- */
     if (size == 0) {
         size = 16;                      /* initial capacity */
-        a_arr = (seq_t *)malloc(size * sizeof(seq_t));
-        c_arr = (seq_t *)malloc(size * sizeof(seq_t));
+        a_arr = mem_new(seq_t, size);
+        c_arr = mem_new(seq_t, size);
         if (!a_arr || !c_arr) return 0; /* allocation failure: safe return */
 
         a_arr[0] = 1;                   /* a(0) */
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
     if (n >= size) {
         size_t newsize = (size_t)(n + 1);
         if (newsize < size * 2) newsize = size * 2;   /* grow by factor 2 */
-        a_arr = (seq_t *)realloc(a_arr, newsize * sizeof(seq_t));
-        c_arr = (seq_t *)realloc(c_arr, newsize * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, newsize);
+        c_arr = mem_resize(seq_t, c_arr, newsize);
         size  = newsize;
     }
 

@@ -13,7 +13,8 @@
  *            m*m!*lcm(1..m...
  * Range:     i8 n <= 7, i16 n <= 10, i32 n <= 13, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   c2179_vfact
+ * Validated: partial, pass, 21 terms through n = 22 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/c2179_vfact.h"
+
+static uint64_t c2179_vfact(uint64_t m, uint64_t p) {
+    uint64_t s = 0;
+    while (m) { m /= p; s += m; }
+    return s;
+}
 
 typedef struct { uint32_t *d; size_t len; } c2179_bn;
 

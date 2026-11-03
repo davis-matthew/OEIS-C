@@ -13,13 +13,15 @@
  *            <= end(r) * with start(r) = (r^2-3r+8)/2, end(r) = (r^2-...
  * Range:     u8 n <= 14, u16 n <= 33, u32 n <= 85, u64 n <= 221,
  *            u128 n <= 580, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 4926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static bool initialized = false;
@@ -54,12 +56,12 @@ seq_t a(idx_t n) {
 
         /* Allocate triangle storage */
         for (int r = 2; r <= r_max; ++r) {
-            T[r] = (seq_t *)malloc((r + 1) * sizeof(seq_t)); /* use indices 1..r-1 */
+            T[r] = mem_new(seq_t, (r + 1)); /* use indices 1..r-1 */
         }
 
         /* Temporary arrays for recurrence */
-        seq_t *prev = (seq_t *)calloc(r_max + 1, sizeof(seq_t));
-        seq_t *curr = (seq_t *)calloc(r_max + 1, sizeof(seq_t));
+        seq_t *prev = mem_new(seq_t, r_max + 1);
+        seq_t *curr = mem_new(seq_t, r_max + 1);
 
         /* n = 2 */
         prev[1] = 2;
@@ -80,8 +82,8 @@ seq_t a(idx_t n) {
             /* Advance */
             for (int i = 1; i <= n; ++i) prev[i] = curr[i];
         }
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
 
         initialized = true;
     }

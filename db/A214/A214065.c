@@ -10,11 +10,13 @@
  *            computing Fibonacci numbers modulo (n-m) using fast doubling
  * Range:     u8 n <= 386, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 115 terms through n = 987 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* modular multiplication using 128-bit to avoid overflow */

@@ -9,12 +9,14 @@
  *            x^2 + x^3 + x^4 + x^5 + x^6))
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 88, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -25,18 +27,18 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         cache_size = (n + 1 < 128) ? 128 : n + 128;
-        cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[7] = 1;
         computed_up_to = 7;
     }
     
     while (n >= cache_size) {
         idx_t new_size = cache_size * 2;
-        seq_t *new_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         for (idx_t i = 0; i < cache_size; i++) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*a(n-1) + a(n-2); a(0)=1, a(1)=8
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* a simple growable cache */
 static seq_t *cache = NULL;     /* array of computed terms */
@@ -25,13 +27,13 @@ static void ensure_capacity(idx_t target)
         return;
 
     idx_t new_cap = target + 1;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp)
         return;                 /* out of memory – let the caller see garbage */
     /* copy old values */
     for (idx_t i = 0; i < cache_cap; ++i)
         tmp[i] = cache[i];
-    free(cache);                /* free old storage */
+    mem_free(cache);                /* free old storage */
     cache = tmp;
     cache_cap = new_cap;
 }

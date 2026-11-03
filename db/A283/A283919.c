@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 111, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   init_spf, smallest_square_factor
+ * Validated: standard, pass, 98 terms through n = 9842 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,46 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/init_spf.h"
-#include "../utils/smallest_square_factor.h"
+#include "../utils/mem.h"
+
+/* Ensure that the SPF array is initialised and contains values up to
+ * SPF_UPPER_LIMIT. This function is called only once. */
+static void init_spf(idx_t *spf_arr, idx_t limit)
+{
+    for (idx_t i = 2; i <= limit; ++i) {
+        if (spf_arr[i] == 0) {
+            spf_arr[i] = i;
+            if (i <= limit / i) {
+                idx_t ii = i * i;
+                for (idx_t j = ii; j <= limit; j += i) {
+                    if (spf_arr[j] == 0) {
+                        spf_arr[j] = i;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/* Compute the smallest square factor of a non‑squarefree number.
+ * Returns 0 if the number is squarefree (should not happen for our
+ * callers). */
+static seq_t smallest_square_factor(idx_t x, idx_t *spf)
+{
+    while (x > 1) {
+        idx_t p = spf[x];
+        idx_t exp = 0;
+        while (x % p == 0) {
+            x /= p;
+            ++exp;
+        }
+        if (exp >= 2) {
+            seq_t sq = (seq_t)p * (seq_t)p;
+            return sq;
+        }
+    }
+    return 0;                /* squarefree */
+}
 
 /* ------------------------------------------------------------ */
 /*                 Static helper definitions                  */
@@ -57,7 +96,7 @@ seq_t a(idx_t n)
 
         /* Allocate cache for sequence terms */
         cache_cap = 2000;            /* generous initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) {
             free(spf);
             return 0;                /* allocation failure            */
@@ -81,9 +120,9 @@ seq_t a(idx_t n)
             /* Grow cache if needed */
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) {
-                    free(cache);
+                    mem_free(cache);
                     free(spf);
                     return 0;            /* allocation failure      */
                 }

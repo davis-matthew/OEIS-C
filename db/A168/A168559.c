@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(n+1)*(2*n+1)/6 - 1 (sum of squares from 2 to n)
  * Range:     u8 n <= 4, u16 n <= 31, u32 n <= 1290, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 58 terms through n = 8641 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

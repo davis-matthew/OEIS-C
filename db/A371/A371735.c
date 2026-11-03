@@ -12,7 +12,8 @@
  *            explores subsets summing to the target
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   rec_part
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,34 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rec_part.h"
+
+/* Recursive helper: try to partition 'mask' into 'rem_k' blocks each summing to 'target'.
+   subset_sum[mask] contains the sum of the indices in 'mask'.
+   memo stores results for (mask,rem_k); stride = m+1. */
+static bool rec_part(uint16_t mask,
+                     int rem_k,
+                     int target,
+                     const int *subset_sum,
+                     int8_t *memo,
+                     int stride)
+{
+    if (rem_k == 0) return mask == 0;
+    if (mask == 0) return false;
+
+    int idx = mask * stride + rem_k;
+    if (memo[idx] != -1) return memo[idx];
+
+    int first_bit_idx = __builtin_ctz(mask);
+    uint16_t first_bit = 1u << first_bit_idx;
+
+    for (uint16_t sub = mask; sub; sub = (sub - 1) & mask) {
+        if ((sub & first_bit) == 0) continue;   /* must contain first element */
+        if (subset_sum[sub] != target) continue;
+        if (rec_part(mask ^ sub, rem_k - 1, target, subset_sum, memo, stride))
+            return memo[idx] = 1;
+    }
+    return memo[idx] = 0;
+}
 
 seq_t a(idx_t n)
 {

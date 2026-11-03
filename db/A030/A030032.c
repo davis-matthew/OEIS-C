@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 19, u32 n <= 34, u64 n <= 62, u128 n <= 118,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence: a(0)=1; for n>=0, a(n+1)= Σ_{k=0..⌊n/3⌋} a(k)*a(n-k) */
 
@@ -26,11 +28,11 @@ static void ensure_cache(idx_t n)
     /* Allocate or grow the cache if necessary */
     if (!cache) {
         cache_cap = (size_t)(n + 1 > 512 ? n + 1 : 512);
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return; /* Allocation failure – not expected in tests */
     } else if ((size_t)(n + 1) > cache_cap) {
         cache_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) return;
         cache = tmp;
     }

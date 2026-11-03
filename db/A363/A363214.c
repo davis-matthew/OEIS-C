@@ -10,13 +10,15 @@
  *            of m (p(0)=1)
  * Range:     u8 n <= 30, u16 n <= 64, u32 n <= 165, u64 n <= 489,
  *            u128 n <= 1608, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9600 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of partition numbers p(i) for i = 0 .. current_size-1. */
 static seq_t *part_cache = NULL;   /* array indexed by m */
@@ -33,7 +35,7 @@ static void ensure_partition(idx_t need)
     size_t new_cap = part_capacity ? part_capacity : 1;
     while (new_cap <= (size_t)need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(part_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, part_cache, new_cap);
     if (!tmp)
         abort(); /* allocation failed */
     part_cache = tmp;

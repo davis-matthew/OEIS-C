@@ -9,7 +9,8 @@
  *            triangle T(n,k) = binomial(n - ⌊k/2⌋, ⌈k/2⌉) - binomial(n -
  *            ⌈k/2⌉, ⌊k/2⌋) (triangle read by rows)
  * Range:     u8 n <= 72, u16 n <= 390, u32 n <= 1350, u64 n <= 4899,
- *            u128 n <= 9777, big any n
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 107 terms through n = 9777 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

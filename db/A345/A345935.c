@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = number of divisors d of n with A002034(d) = A002034(n)
- * Range:     u8 n <= 9840, u16 n <= 9840, u32 n <= 9840, u64 n <= 9840,
- *            u128 n <= 9840, big any n
- * Helpers:   factorise_u64, min_k_prime_power, smarandache_u64
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9840 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,76 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factorise_u64.h"
-#include "../utils/min_k_prime_power.h"
-#include "../utils/smarandache_u64.h"
+
+/* ------------------------------------------------------------ */
+static void factorise_u64(uint64_t n, uint64_t *primes, int *exps, size_t *cnt)
+{
+    size_t c = 0;
+    if (n <= 1) { *cnt = 0; return; }
+    for (uint64_t p = 2; p * p <= n; ++p)
+    {
+        if (n % p == 0)
+        {
+            int e = 0;
+            while (n % p == 0)
+            {
+                n /= p;
+                ++e;
+            }
+            primes[c] = p;
+            exps[c]   = e;
+            ++c;
+        }
+    }
+    if (n > 1)
+    {
+        primes[c] = n;
+        exps[c]   = 1;
+        ++c;
+    }
+    *cnt = c;
+}
+
+/* ------------------------------------------------------------ */
+static seq_t min_k_prime_power(uint64_t p, int e)
+{
+    /* The value of k is guaranteed to be <= n for the problem size.
+       We use the 64‑bit integer type for intermediate arithmetic.  */
+    idx_t k = 0;
+    while (1)
+    {
+        ++k;
+        idx_t t = p;
+        idx_t sum = 0;
+        while (t <= k)
+        {
+            sum += k / t;
+            if (t > k / p) break; /* avoid overflow of t *= p   */
+            t *= p;
+        }
+        if (sum >= e) break;
+    }
+    return (seq_t)k;
+}
+
+/* ------------------------------------------------------------ */
+static seq_t smarandache_u64(uint64_t n)
+{
+    if (n <= 1) return (seq_t)1;
+
+    uint64_t primes[64];
+    int exps[64];
+    size_t cnt;
+    factorise_u64(n, primes, exps, &cnt);
+
+    seq_t res = 0;
+    for (size_t i = 0; i < cnt; ++i)
+    {
+        seq_t k = min_k_prime_power(primes[i], exps[i]);
+        if (k > res) res = k;
+    }
+    return res;
+}
 
 /* ------------------------------------------------------------ */
 /* Factorisation of a 64‑bit number (trial division).          */

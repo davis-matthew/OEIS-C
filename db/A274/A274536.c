@@ -7,7 +7,8 @@
  * Formula:   a(n) = 6 * sigma(n)
  * Range:     u8 n <= 16, u16 n <= 2905, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9910 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static uint64_t *spf_cache = NULL;   /* smallest prime factor for each integer */
 static seq_t    *sigma_cache = NULL; /* sigma values (sum of divisors) */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
         /* Allocate new arrays */
         uint64_t *new_spf = (uint64_t*)malloc((new_limit + 1) * sizeof(uint64_t));
-        seq_t    *new_sigma = (seq_t*)malloc((new_limit + 1) * sizeof(seq_t));
+        seq_t    *new_sigma = mem_new(seq_t, (new_limit + 1));
 
         /* Compute smallest prime factors up to new_limit */
         memset(new_spf, 0, (new_limit + 1) * sizeof(uint64_t));
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
 
         /* Replace old caches */
         free(spf_cache);
-        free(sigma_cache);
+        mem_free(sigma_cache);
         spf_cache   = new_spf;
         sigma_cache = new_sigma;
         spf_size    = new_limit + 1;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1970, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, is_prime_small
+ * Validated: standard, pass, 103 terms through n = 9975 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime_seq, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"       // for is_prime_small
-#include "../utils/_floor_isqrt_u64.h"     // for _floor_isqrt_u64
-#include "../utils/build_primes_upto.h"    // for build_primes_upto
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/isqrt.h"
 
 /* seq_t and idx_t are defined by the compile system. */
 static uint64_t *primes = NULL;
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
        For any n there is a multiple of 4 within distance ≤ 3,
        so the answer is always 0, 1, 2, or 3.  We find the minimal
        distance by checking all prime squares p² ≤ n+3. */
-    idx_t limit = _floor_isqrt_u64(n + 3);
+    idx_t limit = isqrt(n + 3);
     ensure_primes_upto(limit);
 
     seq_t best = (seq_t)4;   /* initialize with value > any possible distance */

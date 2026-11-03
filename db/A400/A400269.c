@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..⌊n/3⌋} binomial(4*k+1, n-3*k) * a(k) with a(0)
  *            = 1
- * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 36, u64 n <= 37, u128 n <= 37,
+ * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Global cache for the sequence values */
 static seq_t *a_cache = NULL;
@@ -30,14 +32,14 @@ static void a_cache_ensure(idx_t n)
     if (a_cache == NULL) {
         /* Allocate space for indices 0..n */
         cache_size = n + 1;
-        a_cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        a_cache = mem_new(seq_t, cache_size);
         /* set a(0) */
         a_cache[0] = (seq_t)1;
         cache_computed_up_to = 0;
     } else if (n + 1 > cache_size) {
         /* Reallocate to a larger size */
         cache_size = n + 1;
-        a_cache = (seq_t *)realloc(a_cache, cache_size * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, cache_size);
     }
 }
 

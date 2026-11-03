@@ -12,12 +12,14 @@
  *            204, … b2 : 2, 12, 70, 408, … These are exactly the in...
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- internal storage for the two Pell‑type sequences ---------- */
 static seq_t *b1  = NULL;  /* sequence for x² – 8y² = 1      */
@@ -33,7 +35,7 @@ static void init_b1(void)
 {
     if (b1) return;
     cap_b1 = 2;
-    b1   = (seq_t *)malloc(cap_b1 * sizeof(seq_t));
+    b1   = mem_new(seq_t, cap_b1);
     if (!b1) exit(1);
     b1[0] = 1;               /* b1[0] = 1  */
     b1[1] = 6;               /* b1[1] = 6  */
@@ -44,7 +46,7 @@ static void init_b2(void)
 {
     if (b2) return;
     cap_b2 = 2;
-    b2   = (seq_t *)malloc(cap_b2 * sizeof(seq_t));
+    b2   = mem_new(seq_t, cap_b2);
     if (!b2) exit(1);
     b2[0] = 2;               /* b2[0] = 2  */
     b2[1] = 12;              /* b2[1] = 12 */
@@ -57,7 +59,7 @@ static void grow_b1(idx_t need)
     while (len_b1 <= need) {
         if (len_b1 >= cap_b1) {          /* double capacity */
             size_t new_cap = cap_b1 * 2;
-            seq_t *tmp = (seq_t *)realloc(b1, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, b1, new_cap);
             if (!tmp) exit(1);
             b1 = tmp;
             cap_b1 = new_cap;
@@ -76,7 +78,7 @@ static void grow_b2(idx_t need)
     while (len_b2 <= need) {
         if (len_b2 >= cap_b2) {
             size_t new_cap = cap_b2 * 2;
-            seq_t *tmp = (seq_t *)realloc(b2, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, b2, new_cap);
             if (!tmp) exit(1);
             b2 = tmp;
             cap_b2 = new_cap;

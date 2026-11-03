@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 93, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_squarefree
+ * Validated: standard, pass, 76 terms through n = 9955 (2026-11-03)
+ * Helpers:   factor_u64, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static workspace for memoisation */
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
                     /* store this term */
                     if (size == cap) {
                         size_t newcap = (cap == 0) ? 16 : cap << 1;
-                        seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+                        seq = mem_resize(seq_t, seq, newcap);
                         cap = newcap;
                     }
                     seq[size++] = cand;

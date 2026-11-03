@@ -10,7 +10,8 @@
  *            simple sieve and computes the digit reversal manually
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   estimate_upper_bound_primes
+ * Validated: standard, pass, 62 terms through n = 969 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/estimate_upper_bound_primes.h"
+
+static size_t estimate_upper_bound_primes(size_t n) {
+    if (n < 6) return 15;
+    double dn = (double)n;
+    double upper = dn * (log(dn) + log(log(dn))) + 3.0;
+    return (size_t)upper;
+}
 
 static uint64_t *primes = NULL;
 static size_t prime_count = 0;

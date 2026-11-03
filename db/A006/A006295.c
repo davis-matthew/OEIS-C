@@ -11,14 +11,23 @@
  *            B(k-1)*2*(2k+5)/k
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 57,
  *            big any n
- * Helpers:   a006295_g, a006295_mdiv
+ * Validated: standard, pass, 38 terms through n = 931 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a006295_g.h"
-#include "../utils/a006295_mdiv.h"
+#include "../utils/gcd_u64.h"
+
+/* returns x*f/k exactly (known to be an integer), keeping intermediates small */
+static seq_t a006295_mdiv(seq_t x, uint64_t f, uint64_t k) {
+    uint64_t r = (uint64_t)(x % (seq_t)k);
+    uint64_t g = gcd_u64(k, r);
+    x /= (seq_t)g;
+    uint64_t t = k / g;
+    return x * (seq_t)(f / t);
+}
 
 seq_t a(idx_t n) {
     if (n < 3) return 0;

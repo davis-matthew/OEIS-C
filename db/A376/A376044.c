@@ -11,12 +11,14 @@
  *            efficient and correct for every n ≥ 0
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations for memoisation */
 static seq_t *cache = NULL;        /* array of a(i) values */
@@ -31,7 +33,7 @@ ensure_cache(idx_t n)
         /* Allocate space for at least 2 entries and for n+1 in case n > 1 */
         idx_t cap = 2;
         if (n + 1 > cap) cap = n + 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(1);   /* fatal: out of memory */
         cache_cap = cap;
         cache[0] = (seq_t)1;
@@ -40,7 +42,7 @@ ensure_cache(idx_t n)
     } else if (n + 1 > cache_cap) {
         idx_t new_cap = cache_cap * 2;
         if (n + 1 > new_cap) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = new_cap;

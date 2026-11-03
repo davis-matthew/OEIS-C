@@ -9,14 +9,23 @@
  *            formula)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   legendre_exp
+ * Validated: standard, pass, 38 terms through n = 198 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/legendre_exp.h"
+
+static uint64_t legendre_exp(uint64_t m, uint64_t p) {
+    uint64_t s = 0;
+    while (m) {
+        m /= p;
+        s += m;
+    }
+    return s;
+}
 
 seq_t a(idx_t n) {
     uint64_t m = 4 * (uint64_t)n + 8;

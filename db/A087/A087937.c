@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 1623, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_u64, isqrt64
+ * Validated: standard, pass, 66 terms through n = 9873 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 
 /* Utility for primality testing (available in the build). */
 #include "../utils/is_prime_u64.h"
-#include "../utils/isqrt64.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 /* Cached sequence values. */
 static seq_t *cache = NULL;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on first use. */
     if (cache_cap == 0) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(EXIT_FAILURE);
     }
 
@@ -60,13 +62,13 @@ seq_t a(idx_t n)
         /* Find the representation p = m² + n² (unique for primes ≡1 mod 4). */
         uint64_t m = 0, n_val = 0;
         bool found = false;
-        uint64_t limit = isqrt64(p >> 1);   /* n ≤ sqrt(p/2) */
+        uint64_t limit = isqrt_u64(p >> 1);   /* n ≤ sqrt(p/2) */
         for (uint64_t t = 1; t <= limit; ++t) {
             uint64_t t2 = t * t;
             uint64_t rem = p - t2;
             uint64_t msq = t2 + rem;       /* same as p, for clarity */
             (void)msq;                     /* silence unused warning */
-            uint64_t sqrt_rem = isqrt64(rem);
+            uint64_t sqrt_rem = isqrt_u64(rem);
             if (sqrt_rem * sqrt_rem == rem) {
                 m = sqrt_rem;
                 n_val = t;
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
         /* Store the prime hypotenuse in the cache. */
         if (cache_cnt == cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
             if (!cache) exit(EXIT_FAILURE);
         }
         cache[cache_cnt++] = (seq_t)p;

@@ -11,7 +11,8 @@
  *            requested number * of terms has not yet been...
  * Range:     u8 none, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* -----  static state  ----- */
 
@@ -38,7 +40,7 @@ static void compute_until(idx_t request_len)
 
     /* Free previous storage if we are recomputing. */
     if (seq != NULL) {
-        free(seq);
+        mem_free(seq);
         seq = NULL;
     }
 
@@ -87,7 +89,7 @@ static void compute_until(idx_t request_len)
 
         if (count >= (size_t)request_len) {
             /* Allocate and store the terms in strictly increasing order. */
-            seq = (seq_t *)malloc(count * sizeof(seq_t));
+            seq = mem_new(seq_t, count);
             if (seq == NULL)
                 abort();
             size_t idx = 0;

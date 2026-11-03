@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has28
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
    the substring "28" but whose successor n+1 does not contain it. */
 
 #include <stdbool.h>
-#include "../utils/has28.h"
+
+/* Return true if x contains the substring "28".  We scan digits from
+   least‑significant to most‑significant, so the pattern 2→8 in the normal
+   decimal order is detected as 8 (current digit) followed by 2 (previous
+   digit in the loop). */
+static bool has28(seq_t x)
+{
+    int prev = -1;
+    while (x > 0)
+    {
+        int digit = (int)(x % 10);
+        if (digit == 2 && prev == 8)
+            return true;
+        prev = digit;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

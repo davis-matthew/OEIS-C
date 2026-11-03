@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 11, u128 n <= 24,
  *            big any n
- * Helpers:   idx_to_digits
+ * Validated: standard, pass, 29 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,16 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/idx_to_digits.h"
+#include "../utils/mem.h"
+
+/* Convert a row index to 6 base‑4 digits.  Index 0 -> digits{0,…,0}. */
+static void idx_to_digits(unsigned char *d, uint16_t idx)
+{
+    for (int i = 0; i < 6; ++i) {
+        d[i] = idx & 3;
+        idx >>= 2;
+    }
+}
 
 #define ROWS 4096
 #define MAX_N 10001   /* valid up to n=10000 */
@@ -145,7 +155,7 @@ seq_t a(idx_t n)
     while (computed_n < n) {
         for (int C = 0; C <= 6; ++C) {
             /* clear next state */
-            memset(next[C], 0, sizeof(seq_t) * ROWS);
+            mem_set(next[C], 0, sizeof(seq_t) * ROWS);
 
             /* propagate from current rows */
             for (int r = 0; r < ROWS; ++r) {
@@ -164,7 +174,7 @@ seq_t a(idx_t n)
             totals[C][computed_n + 1] = sum;
 
             /* prepare for next iteration */
-            memcpy(curr[C], next[C], sizeof(seq_t) * ROWS);
+            mem_copy(curr[C], next[C], sizeof(seq_t) * ROWS);
         }
         ++computed_n;
     }

@@ -14,7 +14,8 @@
  *            a(2)=6642, a(3)=254694, a(4)=9640008, a(5)=367156350, a(6...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Edge representation: undirected graph over colors 0..5 */
 static bool edges[6][6] = {0};
@@ -95,7 +97,7 @@ static void init_sequence(void)
     /* DP to compute a(1)..a(15) */
     static seq_t dp_prev[1296];
     static seq_t dp_new[1296];
-    memset(dp_prev, 0, sizeof(dp_prev));
+    mem_set(dp_prev, 0, sizeof(dp_prev));
     for (int s = 0; s < num_states; ++s) dp_prev[s] = (seq_t)1;
 
     /* a(1) */
@@ -104,7 +106,7 @@ static void init_sequence(void)
     initVals[1] = sum;
 
     for (int row = 2; row <= 15; ++row) {
-        memset(dp_new, 0, sizeof(dp_new));
+        mem_set(dp_new, 0, sizeof(dp_new));
         for (int i = 0; i < num_states; ++i) {
             seq_t val = dp_prev[i];
             if (!val) continue;
@@ -116,7 +118,7 @@ static void init_sequence(void)
         sum = 0;
         for (int s = 0; s < num_states; ++s) sum += dp_new[s];
         initVals[row] = sum;
-        memcpy(dp_prev, dp_new, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_new, sizeof(dp_prev));
     }
 
     initialized = true;

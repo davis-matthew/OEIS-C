@@ -7,13 +7,34 @@
  * Formula:   a(n) = nearest integer to n^(1/4)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_fourth_root
+ * Validated: standard, pass, 103 terms through n = 9613 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/floor_fourth_root.h"
+
+/* Integer floor of the fourth root of n (n <= 2^64-1).
+   Uses a binary search on the interval [0,65535], which contains
+   all possible fourth roots of 64‑bit integers. */
+static idx_t floor_fourth_root(idx_t n)
+{
+    idx_t low = 0;
+    idx_t high = 65535;               /* maximum possible fourth root */
+
+    while (low < high) {
+        idx_t mid = (low + high + 1) >> 1;
+        idx_t mid2 = mid * mid;       /* mid^2 <= 2^32-1 */
+        idx_t mid4 = mid2 * mid2;     /* mid^4 < 2^64 */
+
+        if (mid4 <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {

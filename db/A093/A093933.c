@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 253, u32 n <= 911, u64 n <= 911,
  *            u128 n <= 911, big any n
- * Helpers:   build_primes_upto
+ * Validated: full, pass, 911 terms through n = 911 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/build_primes_upto.h"   /* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static uint64_t *prime_list   = NULL;   /* list of all primes ≤ LIMIT */
 static size_t   prime_count  = 0;        /* number of primes in prime_list */
@@ -52,7 +54,7 @@ static void init_sequence(void)
     /* Allocate cache for the sequence values.  The sequence has 911 terms,
        so a capacity of 1024 provides a small buffer beyond that. */
     cache_cap = 1024;
-    cache_seq = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache_seq = mem_new(seq_t, cache_cap);
     if (!cache_seq) abort();
 
     /* Store the first term a(1)=3 and mark prime 3 as used. */
@@ -81,7 +83,7 @@ static void ensure_up_to(idx_t n)
     if ((size_t)n > cache_cap) {
         size_t new_cap = cache_cap;
         while ((size_t)n > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache_seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache_seq, new_cap);
         if (!tmp) abort();
         cache_seq = tmp;
         cache_cap = new_cap;

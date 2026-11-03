@@ -12,6 +12,7 @@
  *            34012980*n - 23053764 n odd : 36*n^9 - 936*n^8 +...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 10, u64 n <= 58, u128 n <= 58,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 57 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

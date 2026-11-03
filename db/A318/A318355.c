@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 14, i32 n <= 19, i64 n <= 30, i128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 635 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache for computed terms */
 static seq_t *cache = NULL;   /* array of terms   */
@@ -35,12 +37,12 @@ static void ensure_capacity(idx_t n)
     idx_t newcap = (cache_cap ? cache_cap << 1 : 8);
     while (newcap <= n)
         newcap <<= 1;
-    seq_t *newc = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newc = mem_new(seq_t, newcap);
     if (!newc)
         abort();
     if (cache) {
-        memcpy(newc, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(newc, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = newc;
     cache_cap = newcap;

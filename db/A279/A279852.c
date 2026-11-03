@@ -12,14 +12,32 @@
  *            a(6)=1758, a(7)=5441, a(8)=16500, a(9)=49253
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 41, u128 n <= 86,
  *            big any n
- * Helpers:   recurrence_term
+ * Validated: standard, pass, 41 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/recurrence_term.h"
+#include "../utils/mem.h"
+
+/* compute a single term using the recurrence, using 128‑bit intermediates
+   when seq_t is 64‑bit or less */
+static inline seq_t recurrence_term(seq_t a1, seq_t a2, seq_t a4, seq_t a5, seq_t a6)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 t1 = (unsigned __int128)a1 * 4;
+        unsigned __int128 t2 = (unsigned __int128)a2 * 2;
+        unsigned __int128 t3 = (unsigned __int128)a4 * 9;
+        unsigned __int128 t4 = (unsigned __int128)a5 * 4;
+        unsigned __int128 t5 = (unsigned __int128)a6 * 4;
+        unsigned __int128 res = t1 - t2 - t3 - t4 - t5;
+        return (seq_t)res;
+    } else {
+        return a1 * 4 - a2 * 2 - a4 * 9 - a5 * 4 - a6 * 4;
+    }
+}
 
 /* Base values for n = 1..9 (index 0 unused) */
 static const seq_t base_vals[10] = {
@@ -45,7 +63,7 @@ static void ensure_capacity(idx_t need)
     if (need + 1 <= cache_cap) return;
 
     size_t new_cap = (size_t)(need + 1) * 2 + 16;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     cache = new_arr;
     cache_cap = new_cap;
 }

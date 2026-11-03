@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>   /* uint64_t */
 #include <stddef.h>   /* size_t */
 #include <stdbool.h>  /* bool */
+#include "../utils/mem.h"
 
 /* Static storage for the sequence and the usage counts of each value */
 static seq_t *seq = NULL;          /* 1‑indexed array of a(n) (0 = not yet set) */
@@ -40,7 +42,7 @@ static void ensure_seq(size_t n)
     if (n <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 4;
     while (new_cap < n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, (new_cap + 1));
     if (!tmp) abort();
     /* zero new slots */
     for (size_t i = seq_cap + 1; i <= new_cap; ++i) tmp[i] = (seq_t)0;

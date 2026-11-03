@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 440, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 65 terms through n = 9962 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 #ifdef __cplusplus
 #include <vector>
@@ -78,9 +79,9 @@ seq_t a(idx_t n)
     /* Generate primes until we have at least n elements. */
     while (good_cnt() < (size_t)n) {
         uint64_t p = candidate;
-        if (is_prime(p) &&
-            is_prime(20*p - 3ULL) &&
-            is_prime(20*p + 3ULL)) {
+        if (is_prime_u64(p) &&
+            is_prime_u64(20*p - 3ULL) &&
+            is_prime_u64(20*p + 3ULL)) {
             add_good((seq_t)p);
         }
 

@@ -11,6 +11,7 @@
  *            3*n*(3*n+4)/4 if n mod 4 == 2
  * Range:     u8 n <= 4, u16 n <= 84, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 64 terms through n = 4517 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,7 +11,8 @@
  *            coefficients). The recurrence uses only integer operat...
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 6, i64 n <= 11, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 249 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,19 +42,19 @@ seq_t a(idx_t n)
         idx_t new_cap = (cap == 0) ? 8 : cap * 2;
         if (new_cap < M + 1) new_cap = M + 1;
 
-        seq_t *dnew  = (seq_t *)malloc(sizeof(seq_t) * new_cap);
-        seq_t *d2new = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        seq_t *dnew  = mem_new(seq_t, new_cap);
+        seq_t *d2new = mem_new(seq_t, new_cap);
         if (!dnew || !d2new) {
             /* allocation failed – free any partially allocated memory */
-            if (dnew)  free(dnew);
-            if (d2new) free(d2new);
+            if (dnew)  mem_free(dnew);
+            if (d2new) mem_free(d2new);
             return (seq_t)0;
         }
 
-        if (d)   memcpy(dnew,   d,   sizeof(seq_t) * cap);
-        if (d2)  memcpy(d2new, d2,  sizeof(seq_t) * cap);
-        if (d)   free(d);
-        if (d2)  free(d2);
+        if (d)   mem_copy(dnew, d, sizeof(seq_t) * cap);
+        if (d2)  mem_copy(d2new, d2, sizeof(seq_t) * cap);
+        if (d)   mem_free(d);
+        if (d2)  mem_free(d2);
 
         d   = dnew;
         d2  = d2new;

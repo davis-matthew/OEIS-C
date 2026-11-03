@@ -11,13 +11,15 @@
  *            < n – 1 ≤ 2^(p+1)
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* a(n) values, 1‑based index  */
 static seq_t *S_cache = NULL;          /* prefix sums S(n) = a(1)+···+a(n) */
@@ -42,12 +44,12 @@ ensure_cache(idx_t n)
 
     /* Allocate new arrays (indices 0..n, we use 1..n) */
     idx_t cap = n + 1;   /* capacity needed */
-    seq_t *a_new = (seq_t *)malloc(sizeof(seq_t) * (size_t)cap);
-    seq_t *S_new = (seq_t *)malloc(sizeof(seq_t) * (size_t)cap);
+    seq_t *a_new = mem_new(seq_t, (size_t)cap);
+    seq_t *S_new = mem_new(seq_t, (size_t)cap);
     if (!a_new || !S_new) {
         /* allocation failure – leave cache unchanged to avoid corruption */
-        free(a_new);
-        free(S_new);
+        mem_free(a_new);
+        mem_free(S_new);
         return;
     }
 
@@ -79,8 +81,8 @@ ensure_cache(idx_t n)
     }
 
     /* Free old arrays */
-    free(a_cache);
-    free(S_cache);
+    mem_free(a_cache);
+    mem_free(S_cache);
 
     /* Assign new arrays and update cache size */
     a_cache = a_new;

@@ -11,13 +11,15 @@
  *            occurrence
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 9062 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache of sigma values.  */
 static seq_t *sigma_cache = NULL;
@@ -34,7 +36,7 @@ static void ensure_sigma(idx_t n)
     if (new_alloc < n)                 /* can overflow */
         new_alloc = n + 10;
 
-    seq_t *new_cache = (seq_t *)malloc((new_alloc + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (new_alloc + 1));
     if (!new_cache)                    /* allocation failed */
         return;
 
@@ -50,7 +52,7 @@ static void ensure_sigma(idx_t n)
     }
 
     /* replace old cache */
-    free(sigma_cache);
+    mem_free(sigma_cache);
     sigma_cache = new_cache;
     sigma_alloc = new_alloc;
 }

@@ -10,13 +10,15 @@
  *            any seq_t and idx_t that the build system supplies
  * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 17, u64 n <= 26, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 571 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *bell = NULL;   /* Bell numbers B(0), B(1), ... */
 static idx_t bell_len = 0;   /* number of computed Bell numbers */
@@ -30,15 +32,15 @@ ensure_bell(idx_t n)
         return;
 
     size_t new_len = (size_t)(n + 1);
-    seq_t *new_bell = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_bell = mem_new(seq_t, new_len);
     if (new_bell == NULL)
         exit(1);               /* allocation failed */
 
     /* copy existing values */
     if (bell_len > 0)
-        memcpy(new_bell, bell, bell_len * sizeof(seq_t));
+        mem_copy(new_bell, bell, bell_len * sizeof(seq_t));
     if (bell)
-        free(bell);
+        mem_free(bell);
     bell = new_bell;
 
     /* compute missing Bell numbers */

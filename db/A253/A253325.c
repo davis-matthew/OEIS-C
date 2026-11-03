@@ -13,7 +13,8 @@
  *            a(n−10) * +16 a(n−11)+20 a(n−12)−8 a(n−13)
  * Range:     u8 none, u16 n <= 2, u32 n <= 19, u64 n <= 51, u128 n <= 115,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* coefficients of the 13‑term recurrence, indexed 0..12 for k=1..13 */
 static const int coeffs[13] = { 4, 2, -26, 16, 62, -70, -62, 109, 14, -76, 16, 20, -8 };
@@ -51,11 +53,11 @@ static void compute_first_26_terms(seq_t *base)
     compute_block_sums();
 
     const size_t STATES = 256U * 256U;
-    seq_t *dp      = (seq_t *)malloc(STATES * sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)malloc(STATES * sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, STATES);
+    seq_t *dp_next = mem_new(seq_t, STATES);
     if (!dp || !dp_next) return; /* allocation failed */
 
-    memset(dp, 0, STATES * sizeof(seq_t));
+    mem_set(dp, 0, STATES * sizeof(seq_t));
 
     /* initial states for a(1): only horizontal monotonicity */
     for (int prev = 0; prev < 256; ++prev) {
@@ -75,7 +77,7 @@ static void compute_first_26_terms(seq_t *base)
 
     /* iterative steps 2 … 26 */
     for (int step = 2; step <= 26; ++step) {
-        memset(dp_next, 0, STATES * sizeof(seq_t));
+        mem_set(dp_next, 0, STATES * sizeof(seq_t));
         for (int prev = 0; prev < 256; ++prev) {
             for (int cur = 0; cur < 256; ++cur) {
                 seq_t curcnt = dp[prev * 256 + cur];
@@ -108,8 +110,8 @@ static void compute_first_26_terms(seq_t *base)
         base[step] = total;
     }
 
-    free(dp);
-    free(dp_next);
+    mem_free(dp);
+    mem_free(dp_next);
 }
 
 /* Memoized sequence values */
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
         static seq_t base[27];          /* indices 1..26 used */
         compute_first_26_terms(base);
 
-        memo = (seq_t *)malloc(27 * sizeof(seq_t));
+        memo = mem_new(seq_t, 27);
         if (!memo) return 0;            /* out of memory, unlikely */
         memo[0] = 0;
         for (int i = 1; i <= 26; ++i) memo[i] = base[i];
@@ -136,7 +138,7 @@ seq_t a(idx_t n)
     if (n <= memo_n) return memo[n];
 
     /* extend memo up to n using the recurrence */
-    memo = (seq_t *)realloc(memo, (n + 1) * sizeof(seq_t));
+    memo = mem_resize(seq_t, memo, (n + 1));
     for (size_t i = memo_n + 1; i <= n; ++i) {
         seq_t pos = 0, neg = 0;
         for (int k = 0; k < 13; ++k) {

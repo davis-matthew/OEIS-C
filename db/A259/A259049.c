@@ -7,12 +7,16 @@
  * Formula:   a(n) = Product_{i=0..n-1} i!^2 (i+2n)!^2 / (i+n)!^4
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/ipow.h"
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -83,7 +87,7 @@ seq_t a(idx_t n)
         idx_t exp = 2 * S1 + 2 * S2 - 4 * S3;
 
         if (exp > 0) {
-            seq_t powv = big_pow((seq_t)p, (seq_t)exp);
+            seq_t powv = ipow((seq_t)p, (seq_t)exp);
             result = result * powv;
         }
     }

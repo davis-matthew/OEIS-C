@@ -10,14 +10,29 @@
  *            / n⌋ until a value produces a product with all distinct digits
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   distinct_digits128
+ * Validated: standard, pass, 39 terms through n = 9690 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/distinct_digits128.h"
+
+/* Helper to test whether an unsigned 128‑bit integer has all distinct decimal
+   digits. */
+static inline bool distinct_digits128(unsigned __int128 v)
+{
+    unsigned mask = 0;
+    if (v == 0) return true;
+    while (v) {
+        unsigned d = (unsigned)(v % 10);
+        if (mask & (1U << d)) return false;
+        mask |= 1U << d;
+        v /= 10;
+    }
+    return true;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

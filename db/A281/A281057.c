@@ -14,12 +14,14 @@
  *            a(13)=24417, a(14)=43846
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 35, u64 n <= 78, u128 n <= 168,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for terms 1..n inclusive.  seq[0] is unused. */
     size_t size = (size_t)(n + 1);
-    seq_t *seq = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, size);
     if (!seq) {
         /* In a real library we would handle allocation failure; */
         /* here we simply return 0 as a fallback. */
@@ -80,6 +82,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

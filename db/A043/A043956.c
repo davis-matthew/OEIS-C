@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adjacent_47
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,30 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_adjacent_47.h"
+#include "../utils/mem.h"
+
+/* Helper that tests whether x (in base 8) contains 4 next to 7 in either order. */
+static inline bool has_adjacent_47(seq_t x)
+{
+    if (x == 0)
+        return false;            /* zero has no adjacent digits */
+
+    unsigned char digits[256];  /* enough for 128‑bit numbers */
+    size_t len = 0;
+
+    while (x > 0) {
+        digits[len++] = (unsigned char)(x % 8);
+        x /= 8;
+    }
+
+    for (size_t i = len; i > 1; --i) {
+        unsigned char d1 = digits[i - 1];      /* more significant digit */
+        unsigned char d2 = digits[i - 2];      /* less significant digit */
+        if ((d1 == 4 && d2 == 7) || (d1 == 7 && d2 == 4))
+            return true;
+    }
+    return false;
+}
 
 /* Memoised cache of terms already computed. */
 static seq_t *cache = NULL;
@@ -32,7 +56,7 @@ static void ensure_cache_capacity(void)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {
             /* In the unlikely event of allocation failure, terminate. */
             abort();

@@ -9,7 +9,8 @@
  *            is also a 4‑almost prime
  * Range:     u8 n <= 2, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute floor(sqrt(x)) for a 64‑bit integer without overflow. */
 static uint32_t isqrt_u64(uint64_t x)
@@ -104,7 +106,7 @@ static void push_term(seq_t val)
 {
     if (term_cnt == term_cap) {
         size_t new_cap = term_cap ? term_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(term_list, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, term_list, new_cap);
         if (!tmp) return;          /* graceful OOM */
         term_list = tmp;
         term_cap = new_cap;

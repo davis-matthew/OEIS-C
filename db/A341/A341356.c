@@ -9,8 +9,9 @@
  *            successive odd numbers) that does not exceed n. The returned
  *            value is the most significant digit in the A097801-base
  *            representation of n
- * Range:     u8 n <= 781, u16 n <= 9790, u32 n <= 9790, u64 n <= 9790,
- *            u128 n <= 9790, big any n
+ * Range:     u8 n <= 781, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 122 terms through n = 9790 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

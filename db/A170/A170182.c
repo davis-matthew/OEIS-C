@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
     recurrence and are used as seeds for the linear recurrence.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_vals = NULL;      /* a(n) values */
 static seq_t *pref   = NULL;      /* prefix sums Σ_{j=0}^{i} a(j) */
@@ -43,8 +45,8 @@ static void ensure_cache(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    a_vals = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
-    pref   = (seq_t *)realloc(pref,   new_cap * sizeof(seq_t));
+    a_vals = mem_resize(seq_t, a_vals, new_cap);
+    pref   = mem_resize(seq_t, pref, new_cap);
     cache_cap = (idx_t)new_cap;
 
     idx_t start = cache_len;

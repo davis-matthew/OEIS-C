@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} C(n,k) * Stirling2(n,k)^2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 275 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Works for all n >= 0 and for arbitrary‑precision seq_t. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate space for one row of Stirling numbers: size n+1. */
-    seq_t *S = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (n + 1));
     if (!S)
         return (seq_t)0;   /* allocation failure – unlikely in test harness */
 
@@ -67,6 +69,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(S);
+    mem_free(S);
     return result;
 }

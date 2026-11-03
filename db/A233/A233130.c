@@ -10,12 +10,14 @@
  *            sequence)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 24, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Lazy memoisation of the sequence. The static variables hold the
    values for all n that have been requested so far. The sequence is
@@ -35,7 +37,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t new_cap = (*cap > 0) ? (*cap) * 2 : 1;
         while (new_cap < needed) new_cap *= 2;
-        *arr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     if (n >= t_cap) {
         size_t new_cap = (t_cap > 0) ? t_cap * 2 : 1;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        tot_seq = (seq_t*)realloc(tot_seq, new_cap * sizeof(seq_t));
+        tot_seq = mem_resize(seq_t, tot_seq, new_cap);
         t_cap   = new_cap;
     }
     tot_seq[n] = catalan_cur * pow2_cur;

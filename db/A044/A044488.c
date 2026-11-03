@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has05
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
 /* Sequence: Numbers n such that the base‑6 representation of n contains
    the substring "05" but the base‑6 representation of n+1 does not. */
 #include <stdbool.h>
-#include "../utils/has05.h"
+
+static bool has05(seq_t x)
+{
+    if (x == 0) return false;                     /* single digit "0" has no pair */
+    seq_t prev = x % 6;                           /* least significant digit   */
+    x /= 6;
+    while (x > 0) {
+        seq_t cur = x % 6;                        /* next more significant digit */
+        if (cur == 0 && prev == 5) return true;   /* found "0,5" (high→low order) */
+        prev = cur;
+        x /= 6;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

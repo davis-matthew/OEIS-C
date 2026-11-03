@@ -11,13 +11,15 @@
  *            a(8)=3048
  * Range:     u8 n <= 3, u16 n <= 22, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* 
  * Computes the nth term (1‑based) of OEIS sequence A200205.
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Ensure at least space for indices 1..max(n,8). */
         capacity = (size_t)(n > 8 ? n : 8) + 1;   /* +1 to make indices match n */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL) { /* out of memory – return 0 as safe fallback */
             return (seq_t)0;
         }
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > capacity) {
         size_t new_cap = capacity * 2;
         if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) { /* allocation failed – return cached value if possible */
             return cache[stored];
         }

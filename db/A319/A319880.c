@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2^n - n# (where n# = product of all primes ≤ n)
  * Range:     i8 n <= 8, i16 n <= 15, i32 n <= 28, i64 n <= 52, i128 n <= 100,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 917 (2026-11-01)
  * Helpers:   build_primes_upto, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/pow2.h"
 

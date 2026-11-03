@@ -5,15 +5,17 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 1 if σ(n) - n is a multiple of 4, otherwise 0
- * Range:     u8 n <= 9512, u16 n <= 9512, u32 n <= 9512, u64 n <= 9512,
- *            u128 n <= 9512, big any n
- * Helpers:   none
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 141 terms through n = 9512 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *sigma = NULL;      /* array of σ values, 1‑based */
 static size_t sigma_capacity = 0;
@@ -27,7 +29,7 @@ static void ensure_sigma(idx_t n)
 
     /* Allocate new array */
     size_t new_cap = needed;
-    seq_t *new_sigma = (seq_t *)malloc(sizeof(seq_t) * (new_cap + 1));
+    seq_t *new_sigma = mem_new(seq_t, (new_cap + 1));
     if (!new_sigma)
         exit(EXIT_FAILURE);          /* out of memory */
 
@@ -47,7 +49,7 @@ static void ensure_sigma(idx_t n)
 
     /* Replace old array */
     if (sigma)
-        free(sigma);
+        mem_free(sigma);
     sigma = new_sigma;
     sigma_capacity = new_cap;
 }

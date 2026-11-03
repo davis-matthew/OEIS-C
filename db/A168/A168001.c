@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 999, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 855 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * memoises the results so that each call works in O(n) time. */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the first (most significant) decimal digit of x. */
 static seq_t first_digit(seq_t x)
@@ -38,12 +40,12 @@ seq_t a(idx_t n)
         size_t new_cap = capacity ? capacity * 2 : 128;
         while (new_cap < n)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) return 0;          /* allocation failure: return 0 */
         for (size_t i = 0; i < length; ++i)
             tmp[i] = cache[i];
         if (cache)
-            free(cache);
+            mem_free(cache);
         cache   = tmp;
         capacity = new_cap;
     }

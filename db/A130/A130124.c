@@ -8,11 +8,13 @@
  *            n (row number), * k = n - (r-1)*r/2 (column number)
  * Range:     u8 n <= 24, u16 n <= 98, u32 n <= 421, u64 n <= 1801,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 71 terms through n = 4992 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(0)=0, a(1)=1; for n≥2, let i be the largest power of two ≤ n,
  *            j=n‑i, then a(n)=2*a(j)+a(j+1)
- * Range:     u8 n <= 123, u16 n <= 4090, u32 n <= 9241, u64 n <= 9241,
- *            u128 n <= 9241, big any n
- * Helpers:   alloc_seq_array
+ * Range:     u8 n <= 123, u16 n <= 4090, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 96 terms through n = 9241 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,13 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"   /* alloc_seq_array */
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -48,7 +55,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i <= cache_last; ++i) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

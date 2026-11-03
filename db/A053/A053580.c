@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 21, u32 n <= 8765, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digits_allowed, mulmod64
+ * Validated: standard, pass, 53 terms through n = 9504 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digits_allowed.h"
-#include "../utils/mulmod64.h"
+#include "../utils/mulmod.h"
+
+/* test whether all decimal digits of x are 0,6,8,9 */
+static bool digits_allowed(uint64_t x)
+{
+    while (x) {
+        uint64_t d = x % 10;
+        if (d != 0 && d != 6 && d != 8 && d != 9) return false;
+        x /= 10;
+    }
+    return true;
+}
 
 static uint64_t *prime_list = NULL;
 static size_t prime_len   = 0;
@@ -34,8 +45,8 @@ static uint64_t powmod64(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t res = 1 % mod;
     base %= mod;
     while (exp) {
-        if (exp & 1) res = mulmod64(res, base, mod);
-        base = mulmod64(base, base, mod);
+        if (exp & 1) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return res;
@@ -62,7 +73,7 @@ static bool is_prime64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mulmod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;

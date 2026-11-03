@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 165, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9602 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *divcnt = NULL;   /* divisor counts for 1..max_n   */
 static idx_t  max_n   = 0;     /* largest n for which divcnt is valid */
@@ -32,7 +34,7 @@ ensure_divcnt(idx_t n)
 
     /* Allocate or grow the array.  Cast the void* from realloc
        to seq_t* so that the code compiles in C++ as well. */
-    seq_t *newp = (seq_t *)realloc(divcnt, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, divcnt, (size_t)(n + 1));
     if (!newp) abort();          /* allocation failure */
     divcnt = newp;
 

@@ -10,12 +10,21 @@
  *            s(2*m+1) = s(m) + s(m+1)
  * Range:     u8 n <= 2345, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   stern
+ * Validated: standard, pass, 94 terms through n = 9461 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/stern.h"
+static seq_t stern(idx_t m) {
+    seq_t x = 1, y = 0;   /* invariant: s(original) = x*s(m) + y*s(m+1) */
+    while (m > 0) {
+        if (m & 1) y += x;
+        else x += y;
+        m >>= 1;
+    }
+    return y;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;

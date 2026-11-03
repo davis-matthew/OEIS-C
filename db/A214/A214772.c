@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n into parts 6, 9 or 20
  * Range:     u8 n <= 701, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 827 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the number of partitions of n into parts 6, 9 or 20. */
 seq_t a(idx_t n)
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Allocate or enlarge the array if needed. */
     if (dp_size <= n) {
-        dp = (seq_t *)realloc(dp, sizeof(seq_t) * ((size_t)(n + 1)));
+        dp = mem_resize(seq_t, dp, ((size_t)(n + 1)));
         dp_size = n + 1;
     }
 

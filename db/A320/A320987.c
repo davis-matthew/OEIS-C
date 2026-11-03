@@ -8,12 +8,15 @@
  *            >= 2, where F_k is the k-th Fibonacci number (F_0 = 0, F_1 = 1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 2; i <= n; ++i) {
         /* exponent = F_{i-1} = f1 */
-        seq_t power = big_pow((seq_t)5, (seq_t)f1);   /* 5^(F_{i-1}) */
+        seq_t power = ipow((seq_t)5, (seq_t)f1);   /* 5^(F_{i-1}) */
         seq_t new_a = power * a1 + a0;                /* a(i) */
 
         /* shift for next step */

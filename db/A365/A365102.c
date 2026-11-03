@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of distinct residues of x^n (mod n^5), x=0..n^5-1
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

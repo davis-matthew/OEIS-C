@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_44
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_44.h"
+#include "../utils/mem.h"
+
+/* Test whether a given number contains the consecutive digits 44
+   in its base‑9 representation. */
+static bool has_44(seq_t x)
+{
+    unsigned int prev = 10;         /* something other than 4          */
+    while (x > 0)
+    {
+        unsigned int d = (unsigned)(x % 9);  /* digit 0…8               */
+        x /= 9;
+        if (prev == 4 && d == 4)
+            return true;
+        prev = d;
+    }
+    return false;
+}
 
 static seq_t *memo = NULL;          /* array of found terms            */
 static idx_t  memo_cnt = 0;         /* number of terms currently stored*/
@@ -46,12 +63,12 @@ static void ensure_terms(idx_t target)
             if (memo == NULL)
             {
                 memo_cap = 16;
-                memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+                memo = mem_new(seq_t, memo_cap);
             }
             else if ((size_t)(memo_cnt + 1) > memo_cap)
             {
                 memo_cap *= 2;
-                memo = (seq_t *)realloc(memo, memo_cap * sizeof(seq_t));
+                memo = mem_resize(seq_t, memo, memo_cap);
             }
             memo[memo_cnt++] = cand;
         }

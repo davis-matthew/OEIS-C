@@ -8,19 +8,20 @@
  * Formula:   a(n) = n*(n-1)^n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0)
         return (seq_t)0;
     const seq_t base = (seq_t)(n - 1);
-    const seq_t power = pow_int(base, n);
+    const seq_t power = ipow_idx(base, n);
     return (seq_t)n * power;
 }

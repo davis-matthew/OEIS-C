@@ -11,13 +11,15 @@
  *            initial values a(1)..a(12) given in the OEIS entry
  * Range:     u8 none, u16 n <= 3, u32 n <= 28, u64 n <= 71, u128 n <= 158,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[13] = {
     0ULL,          // 0 (unused, offset 1)
@@ -53,11 +55,11 @@ seq_t a(idx_t n)
     if (idx + 1 > cache_alloc) {
         size_t old_alloc = cache_alloc;
         cache_alloc = idx + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_alloc);
         if (!tmp) abort();
         cache = tmp;
         /* Zero the new part of the array (old values are preserved). */
-        memset(&cache[old_alloc], 0, (cache_alloc - old_alloc) * sizeof(seq_t));
+        mem_set(&cache[old_alloc], 0, (cache_alloc - old_alloc) * sizeof(seq_t));
 
         /* Initialise the first 12 entries (indices 1..12). */
         for (size_t i = 1; i <= 12 && i < cache_alloc; ++i)

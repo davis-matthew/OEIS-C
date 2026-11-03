@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 26, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 66 terms through n = 9977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,23 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) */
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 typedef struct {
     seq_t value;    /* current k^2 + binom(2*m,m) */
@@ -90,7 +106,7 @@ static void cache_ensure_capacity(size_t req) {
     if (req <= cache_cap) return;
     size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
     while (new_cap < req) new_cap <<= 1;
-    seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     if (!new_buf) {
         /* allocation failed – for safety abort; in contest environment
            we can treat this as unrecoverable */

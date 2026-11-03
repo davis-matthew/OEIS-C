@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define ROWS 81              /* 3^4 possible rows */
 #define UP_FLAGS 16          /* 2^4 possible up‑neighbor flags */
@@ -95,19 +97,19 @@ seq_t a(idx_t n)
 {
     if (!tables_built) {
         precompute_tables();
-        dp_cur  = (seq_t*)calloc(STATES, sizeof(seq_t));
-        dp_next = (seq_t*)calloc(STATES, sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, STATES);
+        dp_next = mem_new(seq_t, STATES);
         tables_built = true;
     }
 
     /* Initialise for first row */
-    memset(dp_cur, 0, STATES * sizeof(seq_t));
+    mem_set(dp_cur, 0, STATES * sizeof(seq_t));
     for (int r = 0; r < ROWS; ++r)
         dp_cur[r * UP_FLAGS] = 1;   /* up_mask = 0 */
 
     /* Process subsequent rows */
     for (idx_t row = 2; row <= n; ++row) {
-        memset(dp_next, 0, STATES * sizeof(seq_t));
+        mem_set(dp_next, 0, STATES * sizeof(seq_t));
         for (int s = 0; s < STATES; ++s) {
             if (dp_cur[s] == 0) continue;
             uint8_t cnt = TRANS_CNT[s];

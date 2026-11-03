@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 1344, u32 n <= 9591, u64 n <= 9591,
- *            u128 n <= 9591, big any n
- * Helpers:   digit_counts
+ * Range:     u8 n <= 1, u16 n <= 1344, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 76 terms through n = 9591 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/digit_counts.h"
+#include "../utils/mem.h"
 
 /* counts how many digit occurrences are shared by x and y */
 static inline unsigned int shared_digit_count(seq_t x, seq_t y)
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
     /* initialise static data on first call */
     if (!init) {
         seq_cap = 128;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 0;
 
         used_cap = 1024;
@@ -99,7 +102,7 @@ seq_t a(idx_t n)
                 /* accept candidate */
                 if (seq_len == seq_cap) {
                     size_t new_cap = seq_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                     if (!tmp) abort();
                     seq = tmp;
                     seq_cap = new_cap;

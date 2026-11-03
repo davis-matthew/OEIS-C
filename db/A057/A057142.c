@@ -8,13 +8,15 @@
  * Formula:   a(n) = maximum number of ordered pairs (i,j) with 1≤i,j≤n such
  *            that i·j equals a fixed value, i.e. the largest multiplicity in
  *            the n×n multiplication table
- * Range:     u8 n <= 9601, u16 n <= 9601, u32 n <= 9601, u64 n <= 9601,
- *            u128 n <= 9601, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 95 terms through n = 9601 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
 

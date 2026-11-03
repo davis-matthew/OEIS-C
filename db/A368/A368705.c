@@ -9,11 +9,15 @@
  *            (ceil(n/k)-floor(n/k))
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
  * Helpers:   gcd, is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include "../utils/is_squarefree.h"
 

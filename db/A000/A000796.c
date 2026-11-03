@@ -7,8 +7,9 @@
  * Formula:   Pi = 16*arctan(1/5) - 4*arctan(1/239) (Machin, 1706),
  *            arctan(1/m) = Sum_{k>=0} (-1)^k/((2k+1)*m^(2k+1)); a(n) = n-th
  *            digit of Pi, computed in fixed-point base-10^9 arithmetic
- * Range:     u8 n <= 9880, u16 n <= 9880, u32 n <= 9880, u64 n <= 9880,
- *            u128 n <= 9880, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9880 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

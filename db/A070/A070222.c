@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 486, u32 n <= 4600, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_uint64_own
+ * Validated: standard, pass, 70 terms through n = 8456 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,29 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/factor_uint64_own.h"
+#include "../utils/mem.h"
+
+/* Factorise n into distinct prime factors and their exponents.
+   fac[0..cnt-1]   : distinct prime factors (each < 2^63)
+   exp[0..cnt-1]   : corresponding exponents
+   cnt             : number of distinct factors (≤ 64)            */
+static void factor_uint64_own(uint64_t n, uint64_t fac[64], uint8_t exp[64], size_t *cnt)
+{
+    *cnt = 0;
+    uint64_t x = n;
+    for (uint64_t p = 2; p * p <= x; ++p) {
+        if (x % p == 0) {
+            fac[(*cnt)] = p;
+            uint8_t e = 0;
+            do { x /= p; ++e; } while (x % p == 0);
+            exp[(*cnt)++] = e;
+        }
+    }
+    if (x > 1) {
+        fac[(*cnt)] = x;
+        exp[(*cnt)++] = 1;
+    }
+}
 
 /*=== Memoisation storage ===*/
 static seq_t *terms      = NULL;    /* stored sequence values           */
@@ -35,7 +58,7 @@ static void add_term(seq_t v)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();                     /* out of memory */
         terms  = tmp;
         terms_cap = new_cap;

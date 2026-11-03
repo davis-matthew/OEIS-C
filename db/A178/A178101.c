@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 476, u16 n <= 9988, u32 n <= 9988, u64 n <= 9988,
- *            u128 n <= 9988, big any n
+ * Range:     u8 n <= 476, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 116 terms through n = 9988 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,8 +22,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 /* exponent of prime p in m! (Legendre's formula) */
 static inline uint64_t exp_factorial(uint64_t m, uint64_t p)

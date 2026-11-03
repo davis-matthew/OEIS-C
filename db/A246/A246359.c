@@ -6,8 +6,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = maximum digit in factorial base expansion of n with a(0)
  *            = 0
- * Range:     u8 n <= 2390, u16 n <= 9693, u32 n <= 9693, u64 n <= 9693,
- *            u128 n <= 9693, big any n
+ * Range:     u8 n <= 2390, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 113 terms through n = 9693 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

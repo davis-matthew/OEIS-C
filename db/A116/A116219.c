@@ -9,7 +9,8 @@
  * Formula:   a(n) = Sum_{j=0..n} (-6)^j * binomial(n,j) * (3*n-3*j)!
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 149 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Computes a(n) for a 3n‑set partition problem. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached factorials up to the largest n seen so far.
    fact[i] = i!   (i ranges from 0 to 3*max_n). */
@@ -29,14 +31,14 @@ static void ensure_factorial(idx_t upto)
     if (fact == NULL) {
         /* first time: allocate and compute factorials */
         fact_size = upto + 1;
-        fact = (seq_t *)malloc(fact_size * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_size);
         fact[0] = 1;
         for (idx_t i = 1; i <= upto; ++i)
             fact[i] = fact[i - 1] * i;
     } else if (upto >= fact_size) {
         /* enlarge array */
         idx_t new_size = upto + 1;
-        fact = (seq_t *)realloc(fact, new_size * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_size);
         for (idx_t i = fact_size; i <= upto; ++i)
             fact[i] = fact[i - 1] * i;
         fact_size = new_size;

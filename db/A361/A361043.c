@@ -12,15 +12,17 @@
  *            sequence a is the flattening of A by descending antidiagonals *
  *            (0,0), (0,1), (1,0), (0,2), (1,1), (2,0), … * so a(0) = A(0,0),
  *            a(1) = A(0,1), a(2) = A(1,0), …
- * Range:     u8 n <= 22, u16 n <= 39, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 29, u16 n <= 47, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binomial.h"   /* provides: seq_t binomial(idx_t n, idx_t k); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

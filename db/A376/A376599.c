@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 80, i16 n <= 80, i32 n <= 80, i64 n <= 80, i128 n <= 80,
  *            big any n
- * Helpers:   build_primes_upto, ensure_capacity
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,41 @@
 #include <stdlib.h>
 
 #include "../utils/build_primes_upto.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 static seq_t *b_cache = NULL;        /* cache of non‑prime‑powers */
 static size_t b_cache_len = 0;       /* number of elements stored */
@@ -82,7 +117,7 @@ static void ensure_b_cache(idx_t need)
         if (!is_prime_power(candidate)) {
             /* Append candidate to b_cache */
             ensure_capacity(b_cache_len + 1, &b_cache_cap,
-                            (void **)&b_cache, sizeof(seq_t));
+                            OEISC_VPP(&b_cache), sizeof(seq_t));
             b_cache[b_cache_len] = (seq_t)candidate;
             ++b_cache_len;
         }

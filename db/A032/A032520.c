@@ -7,13 +7,14 @@
  * Formula:   a(n) = Σ_{k=1..n} ⌊k^(3/13)⌋
  * Range:     u8 n <= 7, u16 n <= 40, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 /* Utility: Return true if base^k <= x without overflow. */
 static bool pow_leq(seq_t base, idx_t k, seq_t x)

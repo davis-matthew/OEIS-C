@@ -10,13 +10,15 @@
  *            continued fraction of √938
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 23, u64 n <= 44, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 167 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute the first len denominators of the convergents of sqrt(938).  */
 static void compute_initial_terms(seq_t *arr, size_t len)
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     /* initialise the cache with the first 20 terms             */
     if (cache_len == 0) {
         cache_len = 20;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         compute_initial_terms(cache, cache_len);
     }
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
     /* grow the cache up to n (inclusive) */
     idx_t new_len = n + 1;
-    cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     for (idx_t i = cache_len; i <= n; ++i) {
         if (i < 20) continue;                /* already set by init */
         cache[i] = ((seq_t)34302 * cache[i - 10]) - cache[i - 20];

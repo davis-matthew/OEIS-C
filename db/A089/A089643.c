@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = v_3( binom(3n, n) ) = Σ_{k≥1} ( ⌊3n/3^k⌋ – ⌊n/3^k⌋ –
  *            ⌊2n/3^k⌋ ) Computed in O(log_3 n) by iterating over powers of 3
- * Range:     u8 n <= 9544, u16 n <= 9544, u32 n <= 9544, u64 n <= 9544,
- *            u128 n <= 9544, big any n
+ * Range:     u8 n <= 19683, u16 n <= 19683, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 121 terms through n = 9544 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

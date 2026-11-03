@@ -9,14 +9,16 @@
  *            floor((√(8n+1)-1)/2), k = n - r(r+1)/2, T(r,k) = binomial(k,r-k)
  *            * binomial(r+2k,r+k) / (r+k+1) (the triangle is read row‑by‑row
  *            and flattened into a sequence)
- * Range:     u8 n <= 12, u16 n <= 26, u32 n <= 61, u64 n <= 61, u128 n <= 61,
+ * Range:     u8 n <= 13, u16 n <= 34, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

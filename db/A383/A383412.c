@@ -13,7 +13,8 @@
  *            builds the sequence lexicographically by te...
  * Range:     u8 n <= 2850, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9669 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration matching the required interface */
 seq_t a(idx_t n);
@@ -48,7 +50,7 @@ static void ensure_a_capacity(size_t needed)
     if (needed <= a_cap) return;
     size_t new_cap = a_cap ? a_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    a_seq = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+    a_seq = mem_resize(seq_t, a_seq, new_cap);
     a_cap = new_cap;
 }
 

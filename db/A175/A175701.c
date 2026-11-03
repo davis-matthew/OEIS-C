@@ -8,16 +8,19 @@
  * Formula:   a(n) = n ^ (phi(n)+1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   big_pow, phi
+ * Validated: standard, pass, 35 terms through n = 292 (2026-11-01)
+ * Helpers:   ipow, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     /* Compute a(n) = n raised to (phi(n)+1), using the provided φ and big_pow utilities. */
-    return big_pow((seq_t)n, phi(n) + (seq_t)1);
+    return ipow((seq_t)n, totient(n) + (seq_t)1);
 }

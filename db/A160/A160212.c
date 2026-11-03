@@ -9,12 +9,14 @@
  *            a(n)=6*a(n-3)-a(n-6) for n>6
  * Range:     u8 none, u16 n <= 9, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, realloc, exit */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (n > sz)
     {
         idx_t new_sz = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (tmp == NULL) exit(EXIT_FAILURE);  /* allocation failed */
         cache = tmp;
         /* fill new entries */

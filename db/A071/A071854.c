@@ -7,6 +7,7 @@
  * Formula:   a(n) = ω(C(2n,n)) – π(n) (ω = number of distinct prime factors)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 121 terms through n = 989 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes.h"   /* provides build_primes(idx_t , idx_t **, size_t *) */
+#include <stdint.h>
+#include "../utils/build_primes.h"
 
 /* Cached list of primes up to the largest limit requested so far. */
 static idx_t *prime_list = NULL;

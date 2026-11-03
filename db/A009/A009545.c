@@ -7,12 +7,25 @@
  * Formula:   a(n) = -4*a(n-4) for n>3 with a(0)=0, a(1)=1, a(2)=2, a(3)=2
  * Range:     i8 n <= 16, i16 n <= 32, i32 n <= 64, i64 n <= 128,
  *            i128 n <= 256, big any n
- * Helpers:   neg_four_pow
+ * Validated: standard, pass, 67 terms through n = 1955 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/neg_four_pow.h"
+/* Computes (−4)^exp for non‑negative exp */
+static seq_t neg_four_pow(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = (seq_t)-4;
+    while (exp)
+    {
+        if (exp & 1) result *= base;
+        if (exp > 1) base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 64 terms through n = 923 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Static cache of sequence values.
    cache[0] holds a(1). */
@@ -35,14 +37,14 @@ ensure_n(idx_t n)
         /* Grow the cache if necessary. */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
             if (!new_arr) abort();         /* out‑of‑memory – exit the program */
             cache = new_arr;
             cache_cap = new_cap;
         }
 
         /* Skip prime number 5. */
-        if (next_candidate != 5 && is_prime_small((seq_t)next_candidate)) {
+        if (next_candidate != 5 && is_prime_seq((seq_t)next_candidate)) {
             cache[cache_len++] = (seq_t)next_candidate;
         }
         next_candidate++;  /* advance to the next candidate */

@@ -10,6 +10,7 @@
  *            S[0]=1, others 0. a(n)=S[0] after n steps
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

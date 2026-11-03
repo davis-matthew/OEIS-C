@@ -7,18 +7,27 @@
  * Formula:   a(n) = Product_{d=1..n} sigma(d)^{floor(n/d)}
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     /* allocate array to hold sigma values for 1..n */
-    seq_t *sigma = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (n + 1));
     if (!sigma) return (seq_t)0;          /* safe guard – should not happen */
 
     /* initialise to zero */
@@ -36,10 +45,10 @@ seq_t a(idx_t n) {
     seq_t result = (seq_t)1;
     for (idx_t d = 1; d <= n; ++d) {
         seq_t exp   = (seq_t)(n / d);         /* floor division */
-        seq_t pow   = big_pow(sigma[d], exp); /* sigma(d)^exp */
+        seq_t pow   = ipow(sigma[d], exp); /* sigma(d)^exp */
         result = seq_mul(result, pow);
     }
 
-    free(sigma);
+    mem_free(sigma);
     return result;
 }

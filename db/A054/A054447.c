@@ -10,12 +10,14 @@
  *            of the Pell‑convolution triangle)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 22, u64 n <= 47, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 2264 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialize cache if first call */
     if (cache == NULL) {
         cache_capacity = 4; /* at least indices 0..3 */
-        cache = (seq_t *)malloc((size_t)cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_capacity);
         if (!cache) abort(); /* allocation failure → fatal */
 
         cache[0] = (seq_t)1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         while (new_cap < n + 1)
             new_cap = new_cap ? new_cap * 2 : 1;   /* exponential growth, avoid 0 */
 
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!new_cache) abort(); /* allocation failure → fatal */
         cache         = new_cache;
         cache_capacity = new_cap;

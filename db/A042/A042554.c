@@ -7,6 +7,7 @@
  * Formula:   a(n) = numerator of the n-th convergent to sqrt(806)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 17, u64 n <= 35, u128 n <= 75,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 200 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

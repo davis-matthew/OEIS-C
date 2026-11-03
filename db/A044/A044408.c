@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has76
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,29 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/has76.h"
+#include "../utils/mem.h"
+
+/* Test whether x contains the adjacent digits 7 followed by 6
+   (i.e. the decimal string of x has “76”).  Works for any unsigned
+   seq_t (including __int128 or arbitrary‑precision types). */
+static bool has76(seq_t x)
+{
+    /* Numbers with fewer than two digits cannot contain “76”. */
+    if (x < (seq_t)10) return false;
+
+    seq_t prev = x % (seq_t)10;   /* units digit */
+    x /= (seq_t)10;               /* remove units digit */
+
+    while (x > (seq_t)0) {
+        seq_t cur = x % (seq_t)10;          /* next digit from right */
+        if (cur == (seq_t)7 && prev == (seq_t)6) {
+            return true;                   /* found "76" */
+        }
+        prev = cur;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* Main sequence function with external linkage. */
 seq_t a(idx_t n)
@@ -37,14 +60,14 @@ seq_t a(idx_t n)
     /* Minimum initial capacity. */
     if (cache_cap == 0) {
         cache_cap = 256;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return (seq_t)0;   /* out of memory – undefined */
     }
 
     /* Grow the cache if necessary. */
     if (cache_sz + 1 > cache_cap) {
         size_t new_cap = cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return (seq_t)0;     /* out of memory – undefined */
         cache = tmp;
         cache_cap = new_cap;

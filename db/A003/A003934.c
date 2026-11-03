@@ -7,6 +7,7 @@
  * Formula:   a(n) = q^25 * Product_{i=1..5} (q^(2i) - 1), where q =
  *            A000961(n+1) is the n-th prime power > 1
  * Range:     u8 none, u16 none, u32 none, u64 n <= 1, u128 n <= 4, big any n
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

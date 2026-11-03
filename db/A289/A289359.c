@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* Initialise with the first word [0] */
     if (wlen == 0) {
-        word = (seq_t *)malloc(sizeof(seq_t));
+        word = mem_new(seq_t, 1);
         if (!word) abort();       /* allocation failure */
         word[0] = (seq_t)0;
         wlen   = 1;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate new word */
-        seq_t *newword = (seq_t *)malloc(newlen * sizeof(seq_t));
+        seq_t *newword = mem_new(seq_t, newlen);
         if (!newword) abort(); /* allocation failure */
 
         /* Build next word */
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old word */
-        free(word);
+        mem_free(word);
         word = newword;
         wlen = newlen;
     }

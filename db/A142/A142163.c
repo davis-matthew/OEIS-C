@@ -7,14 +7,17 @@
  * Formula:   a(n) = the n-th prime congruent to 7 mod 39
  * Range:     u8 n <= 3, u16 n <= 273, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 60 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* memoised cache of computed terms */
 static seq_t *cache = NULL;
@@ -29,7 +32,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 32;
     while (new_cap < needed)
         new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

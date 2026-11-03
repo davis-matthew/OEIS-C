@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * This follows the recurrence described in the OEIS entry. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with a(0) = 2 */
     if (size == 0) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;           /* out of memory; unlikely in tests */
         cache[0] = 2;
         size = 1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* extend cache to hold terms up to n */
-    seq_t *tmp = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
     if (!tmp) return 0;                   /* out of memory */
     cache = tmp;
 

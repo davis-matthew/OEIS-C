@@ -7,7 +7,8 @@
  * Formula:   a(n) = 1 + Sum_{d|n-1} φ((n-1)/d) * a(d) (offset 1)
  * Range:     u8 n <= 15, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    arguments, run in O(n + n log log n) time for n up to about 10 000.  */
 /* All arithmetic is performed using the generic seq_t type.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Make sure cache can hold index n */
     if (max_computed < n) {
         idx_t new_cap = n + 1; /* indices 0..n inclusive */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0; /* allocation failure */
         cache = tmp;
         /* initialise freshly allocated part to zero */

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 17^n mod 23
  * Range:     u8 n <= 2000, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 95 terms through n = 1979 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
  * order of calls and for any index n ≥ 1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t max_row = 0;
 static seq_t **u_rows = NULL;
@@ -56,8 +58,8 @@ static void ensure_rows_up_to(idx_t r)
     v_rows = (seq_t **)realloc(v_rows, new_cap * sizeof(seq_t *));
 
     for (idx_t rr = max_row + 1; rr <= r; ++rr) {
-        seq_t *u = (seq_t *)calloc((size_t)rr, sizeof(seq_t));
-        seq_t *v = (seq_t *)calloc((size_t)rr, sizeof(seq_t));
+        seq_t *u = mem_new(seq_t, (size_t)rr);
+        seq_t *v = mem_new(seq_t, (size_t)rr);
 
         if (rr == 1) {
             u[0] = 1;

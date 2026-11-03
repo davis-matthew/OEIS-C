@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(10 * (10^n mod 374) / 374)
  * Range:     u8 n <= 1, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *pow_cache = NULL;    /* Cache of 10^i mod 374 for i = 0..m. */
 static size_t pow_cache_len = 0;   /* Number of cached entries. */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (n + 1 > pow_cache_len) {
         size_t new_len = (size_t)(n + 1);
         /* Allocate or grow the cache. */
-        pow_cache = (seq_t *)realloc(pow_cache, new_len * sizeof(seq_t));
+        pow_cache = mem_resize(seq_t, pow_cache, new_len);
         /* Initialize cache[0] if this is the first allocation. */
         if (pow_cache_len == 0) {
             pow_cache[0] = (seq_t)1;          /* 10^0 mod 374 = 1 */

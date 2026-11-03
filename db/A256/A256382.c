@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_sqrt_floor
+ * Validated: standard, pass, 71 terms through n = 999 (2026-11-03)
+ * Helpers:   isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_sqrt_floor.h"
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Utility: integer square root of an arbitrary precision number seq_t  */
@@ -65,7 +67,7 @@ is_semiprime(seq_t x)
     if (x < (seq_t)4)
         return false;
 
-    seq_t sqrt_x = seq_sqrt_floor(x);
+    seq_t sqrt_x = isqrt_seq(x);
     uint64_t sqrt_x_u = (uint64_t)sqrt_x;   /* will fit in 64‑bit for the needed range */
     ensure_primes_up_to(sqrt_x_u);
 
@@ -77,7 +79,7 @@ is_semiprime(seq_t x)
             seq_t q = x / p;
             /* Check whether q is prime.  q is guaranteed to be <= sqrt(x) * sqrt(x) = x,
                but typically <= sqrt(x)^2, so it fits in 64‑bit for the range we care about. */
-            seq_t sqrt_q = seq_sqrt_floor(q);
+            seq_t sqrt_q = isqrt_seq(q);
             bool q_prime = true;
             for (size_t j = 0; j < g_prime_cnt &&
                                  (seq_t)g_primes[j] <= sqrt_q; ++j)
@@ -107,10 +109,10 @@ append_term(seq_t v)
 {
     if (g_cap == 0) {
         g_cap   = 16;
-        g_terms = (seq_t *)malloc(g_cap * sizeof(seq_t));
+        g_terms = mem_new(seq_t, g_cap);
     } else if (g_len == g_cap) {
         g_cap   = g_cap * 2;
-        g_terms = (seq_t *)realloc(g_terms, g_cap * sizeof(seq_t));
+        g_terms = mem_resize(seq_t, g_terms, g_cap);
     }
     g_terms[g_len++] = v;
 }

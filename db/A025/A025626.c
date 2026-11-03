@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 24, u32 n <= 83, u64 n <= 306,
  *            u128 n <= 1177, big any n
- * Helpers:   mul_small, seq_cmp
+ * Validated: standard, pass, 54 terms through n = 9494 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,30 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_small.h"   /* big_pow for small factors */
-#include "../utils/seq_cmp.h"     /* comparison of seq_t values */
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +63,7 @@ seq_t a(idx_t n)
     /* first call – initialise cache with the first term */
     if (!init) {
         cap   = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;                 /* allocation failure */
         cache[0] = (seq_t)1;                  /* 6^0 * 7^0 = 1 */
         len     = 1;
@@ -53,7 +76,7 @@ seq_t a(idx_t n)
     while (len < (size_t)n) {
         if (len >= cap) {                     /* double capacity */
             size_t new_cap = cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0;               /* allocation failure */
             cache = tmp;
             cap   = new_cap;

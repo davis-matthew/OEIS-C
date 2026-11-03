@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 624, u16 n <= 9939, u32 n <= 9939, u64 n <= 9939,
- *            u128 n <= 9939, big any n
- * Helpers:   none
+ * Range:     u8 n <= 624, u16 n <= 10945, u32 n <= 10945, u64 n <= 10945,
+ *            u128 n <= 10945, big any n
+ * Validated: standard, pass, 104 terms through n = 9939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    the 1‑based positions of 1, 2, 3, … in rows n-2 and n-1 flattened. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,16 +41,16 @@ seq_t a(idx_t n)
 
     /* lazy initialization for first two rows */
     if (flat_len == 0) {
-        row_pp = (seq_t *)malloc(sizeof(seq_t));
+        row_pp = mem_new(seq_t, 1);
         row_pp_len = 1;
         row_pp[0] = 1;
 
-        row_prev = (seq_t *)malloc(sizeof(seq_t));
+        row_prev = mem_new(seq_t, 1);
         row_prev_len = 1;
         row_prev[0] = 1;
 
         flat_cap = 2;
-        flat = (seq_t *)malloc(flat_cap * sizeof(seq_t));
+        flat = mem_new(seq_t, flat_cap);
         flat_len = 0;
         flat[flat_len++] = 1; /* a(1) */
         flat[flat_len++] = 1; /* a(2) */
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         for (size_t k = 1; k <= len_next; ++k) pos_filled[k] = pos_start[k];
 
         /* array to hold positions of flattened sequence */
-        seq_t *pos_array = (seq_t *)malloc(len_next * sizeof(seq_t));
+        seq_t *pos_array = mem_new(seq_t, len_next);
 
         /* populate pos_array with 1‑based positions of each entry */
         size_t idx_flat = 0;
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
         }
 
         /* build new row by concatenating sorted groups */
-        seq_t *row_next = (seq_t *)malloc(len_next * sizeof(seq_t));
+        seq_t *row_next = mem_new(seq_t, len_next);
         size_t out_idx = 0;
         for (size_t k = 1; k <= len_next; ++k) {
             size_t start = pos_start[k];
@@ -114,13 +116,13 @@ seq_t a(idx_t n)
         free(freq);
         free(pos_start);
         free(pos_filled);
-        free(pos_array);
+        mem_free(pos_array);
 
         /* extend the flattened table */
         if (flat_cap < flat_len + len_next) {
             size_t new_cap = flat_cap ? flat_cap : 16;
             while (new_cap < flat_len + len_next) new_cap <<= 1;
-            flat = (seq_t *)realloc(flat, new_cap * sizeof(seq_t));
+            flat = mem_resize(seq_t, flat, new_cap);
             flat_cap = new_cap;
         }
         for (size_t i = 0; i < len_next; ++i) {
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
         }
 
         /* prepare for next iteration */
-        free(row_pp);                     /* old oldest row */
+        mem_free(row_pp);                     /* old oldest row */
         row_pp = row_prev;
         row_pp_len = row_prev_len;
         row_prev = row_next;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Utility: compute Fibonacci numbers until a value >= target. */
 static bool is_fibonacci(seq_t target)
@@ -73,7 +75,7 @@ static void append_term(seq_t **arr, idx_t *len, idx_t *cap, seq_t val)
     if (*len == *cap)
     {
         *cap = (*cap == 0) ? 64 : (*cap << 1);
-        *arr = (seq_t *)realloc(*arr, (*cap) * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (*cap));
     }
     (*arr)[(*len)++] = val;
 }

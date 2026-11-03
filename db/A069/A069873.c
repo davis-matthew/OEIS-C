@@ -10,14 +10,16 @@
  *            exists * (for all n divisible by 5)
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 20, u128 n <= 26,
  *            big any n
- * Helpers:   digit_len
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     for (;;) {
         /* Number of decimal digits of the current power of 2. */
-        int pow2_digits = digit_len(pow2);
+        int pow2_digits = num_digits(pow2);
 
         /* Extend pow10_big (and its modulus) until it matches pow2_digits. */
         while (current_d < pow2_digits) {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = 1 + LCM(1,2,…,n) (OEIS A075059)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array holding a(0), a(1), … */
 static idx_t cache_size = 0;    /* number of computed entries (may be 0) */
@@ -30,8 +32,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_size) return;                 /* already available */
 
     idx_t new_size = n + 1;                     /* need entries 0…n */
-    seq_t *new_cache = (seq_t *)realloc(cache,
-                                        new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) exit(EXIT_FAILURE);         /* allocation failure */
 
     /* Initialize first term if cache was empty */

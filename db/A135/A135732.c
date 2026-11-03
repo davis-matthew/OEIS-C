@@ -9,7 +9,8 @@
  *            and computes the required distances.)
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   estimate_limit_for_index
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
 #include <stdint.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/estimate_limit_for_index.h"
+
+/* Estimate an upper bound on the n-th prime (for n >= 6).  Uses
+   p_n ≤ n (log n + log log n).  For small n we use a hard‑coded value. */
+static idx_t estimate_limit_for_index(size_t target_index)
+{
+    if (target_index < 6) return 15;  /* small n handled explicitly */
+    double n = (double)target_index;
+    double bound = n * (log(n) + log(log(n))) + 3.0;
+    return (idx_t)(bound + 0.5);       /* round up */
+}
 
 /* Static storage for the list of primes (0‑based): prime_list[0] = 2, etc. */
 static idx_t *prime_list = NULL;        /* array of primes */

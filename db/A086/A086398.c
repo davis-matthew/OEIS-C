@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 93, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9564 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    idx_t == uint64_t.  This implementation is valid C11 and C++17.  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper used during generation. */
 static bool _seq_contains_value(idx_t val);
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     /* Initialise storage on first use. */
     if (a_cap == 0) {
         a_cap = 1; /* space for a(1) */
-        a_vals = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
         if (!a_vals)
             exit(EXIT_FAILURE);
         a_vals[0] = (seq_t)1;   /* a(1) = 1 */
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     /* Grow the array if necessary to hold up to index n. */
     if ((size_t)n > a_cap) {
         size_t new_cap = (size_t)n; /* exactly enough for n terms */
-        seq_t *tmp = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
         if (!tmp)
             exit(EXIT_FAILURE);
         a_vals = tmp;

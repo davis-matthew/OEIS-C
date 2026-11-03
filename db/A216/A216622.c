@@ -8,16 +8,17 @@
  * Formula:   a(n) = T(i,j) where i,j are the coordinates of the n‑th
  *            antidiagonal element of the square array T(n,k) = Σ_{c|n,d|k}
  *            φ(lcm(c,d))
- * Range:     u8 n <= 508, u16 n <= 9618, u32 n <= 9618, u64 n <= 9618,
- *            u128 n <= 9618, big any n
- * Helpers:   calc_phi, gcd
+ * Range:     u8 n <= 508, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 87 terms through n = 9618 (2026-11-01)
+ * Helpers:   gcd, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
 
 static void get_divisors(idx_t n, idx_t *buf, idx_t *len)
 {
@@ -45,7 +46,7 @@ static seq_t compute_T(idx_t i, idx_t j)
             seq_t c = (seq_t)di[a];
             seq_t d = (seq_t)dj[b];
             seq_t lcm = (c / gcd(c, d)) * d;
-            sum += calc_phi(lcm);
+            sum += totient_seq(lcm);
         }
     }
     return sum;

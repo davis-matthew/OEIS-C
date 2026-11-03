@@ -12,13 +12,15 @@
  *            U(x,y) ) The flattened index n is mapped to ro...
  * Range:     u8 n <= 28, u16 n <= 69, u32 n <= 237, u64 n <= 794,
  *            u128 n <= 2883, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 7369 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* --------------------------------------------------------------------- */
 #include <stdlib.h>  /* malloc, free, abort */
+#include "../utils/mem.h"
 
 static idx_t  computedMax = 0;   /* highest r already computed       */
 static seq_t *S          = NULL; /* cumulative sum table S[i*(max+1)+j] */
@@ -44,11 +46,11 @@ build_table(idx_t maxR)
 {
     size_t dim   = (size_t)(maxR + 1);
     size_t size  = dim * dim;
-    seq_t *newS  = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *newS  = mem_new(seq_t, size);
     if (!newS) abort();
 
     /* Free previous table if any. */
-    if (S) free(S);
+    if (S) mem_free(S);
     S = newS;
 
     /* Compute table row by row. */

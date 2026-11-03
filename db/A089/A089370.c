@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   pow10_small
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
  *  (least‑significant side), beginning with n and proceeding down to 1.
  */
 #include <stdbool.h>
-#include "../utils/pow10_small.h"
+#include <stdlib.h>
+#include <stdint.h>
+
+/* --- Helper to compute 10^e where e is small (max 10) --- */
+static seq_t pow10_small(int e)
+{
+    seq_t r = 1;
+    while (e--) r *= 10;
+    return r;
+}
 
 /* Return 10^e as a seq_t (safe for small e). */
 

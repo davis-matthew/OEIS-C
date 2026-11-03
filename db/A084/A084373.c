@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   smallest_digit
+ * Validated: standard, pass, 70 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/smallest_digit.h"
+#include "../utils/mem.h"
+
+/* Compute the smallest decimal digit of n.
+   Returns 0 if any digit is 0. */
+static int smallest_digit(uint64_t n)
+{
+    int d = 9;
+    while (n > 0) {
+        int dig = n % 10;
+        if (dig < d) {
+            d = dig;
+            if (d == 0)
+                return 0;
+        }
+        n /= 10;
+    }
+    return d;
+}
 
 /* Count the number of positive divisors of n.
    The computation stops as soon as the count exceeds 9
@@ -59,7 +77,7 @@ seq_t a(idx_t n)
     if (cache_len < (size_t)n) {
         if (cache == NULL) {
             cache_cap = 64;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         }
         while (cache_len < (size_t)n) {
             uint64_t k = current_k;
@@ -73,7 +91,7 @@ seq_t a(idx_t n)
             if ((uint64_t)min_digit == tau) {
                 if (cache_len == cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)k;
             }

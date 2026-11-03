@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator of 2^n * (3*n - 3)! / (((n-1)!)^3 * (2*n)!)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   exponent_in_factorial
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/exponent_in_factorial.h"
+
+static int64_t exponent_in_factorial(uint64_t n, uint64_t p) {
+    int64_t exp = 0;
+    uint64_t pk = p;
+    while (pk <= n) {
+        exp += n / pk;
+        if (pk > n / p) break;
+        pk *= p;
+    }
+    return exp;
+}
 
 static bool *sieve_of_eratosthenes(uint64_t limit) {
     bool *is_prime = (bool *)malloc((limit + 1) * sizeof(bool));

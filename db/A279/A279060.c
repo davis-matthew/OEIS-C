@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = number of divisors d of n with d ≡ 1 (mod 6)
- * Range:     u8 n <= 8693, u16 n <= 8693, u32 n <= 8693, u64 n <= 8693,
- *            u128 n <= 8693, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 137 terms through n = 8693 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,6 +26,9 @@
    The computation uses only integer arithmetic and works for
    unsigned 8/16/32/64‑bit seq_t or arbitrary‑precision seq_t. */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include <stdbool.h>
 

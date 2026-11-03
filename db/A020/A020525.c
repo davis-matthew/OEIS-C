@@ -7,12 +7,15 @@
  * Formula:   a(n) = 2^(5*n+1) - 5*2^(4*n) + 5*2^(2*n) - 1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 636 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     seq_t two = (seq_t)2;
@@ -23,9 +26,9 @@ seq_t a(idx_t n) {
     seq_t exp2n   = (seq_t)(2 * n);
 
     /* powers of two */
-    seq_t pow5n1 = big_pow(two, exp5n1);
-    seq_t pow4n  = big_pow(two, exp4n);
-    seq_t pow2n  = big_pow(two, exp2n);
+    seq_t pow5n1 = ipow(two, exp5n1);
+    seq_t pow4n  = ipow(two, exp4n);
+    seq_t pow2n  = ipow(two, exp2n);
 
     /* combine according to the formula */
     seq_t res = pow5n1;

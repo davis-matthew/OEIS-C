@@ -12,13 +12,36 @@
  *            (3‑tuples over {0,1,2}) and an adjacency matrix for each...
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   max_plus_medians
+ * Validated: standard, pass, 36 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/max_plus_medians.h"
+
+/* Helper: compute sum of max + two medians for a 2×2 block
+ * given its four entries a,b,c,d ordered as:
+ *   a b
+ *   c d
+ * The values a,b,c,d are in {0,1,2}. */
+static inline int max_plus_medians(int a, int b, int c, int d)
+{
+    /* Determine max and minimum (min).  The median values are
+     * the sum of the remaining two after removing max and min.  */
+    int mx = a;
+    if (b > mx) mx = b;
+    if (c > mx) mx = c;
+    if (d > mx) mx = d;
+
+    int mn = a;
+    if (b < mn) mn = b;
+    if (c < mn) mn = c;
+    if (d < mn) mn = d;
+
+    int sum = a + b + c + d;
+    return sum - mn;
+}
 
 #define R 27          /* number of possible rows (3‑tuples) */
 #define S_MAX 6       /* S ranges from 0 to 6 */

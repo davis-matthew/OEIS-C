@@ -11,7 +11,8 @@
  *            totient, sigma = sum of divisors.)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   build_primes, col_of_index
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,14 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes.h"
-#include "../utils/col_of_index.h"
+
+static idx_t col_of_index(idx_t idx, idx_t row)
+{
+    idx_t prev = (row - 1) * row / 2;
+    return idx - prev;
+}
 
 /* ---------- Helper to obtain row and column ---------- */
 static idx_t row_of_index(idx_t idx)

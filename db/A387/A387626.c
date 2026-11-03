@@ -10,13 +10,15 @@
  *            a(4)=7, a(5)=21, a(6)=43, a(7)=73
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 30, u64 n <= 60, u128 n <= 119,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[0..cache_count-1] */
 static size_t cache_count = 0;   /* number of elements stored */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_count <= (size_t)n) {
         size_t new_count = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_count * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_count);
         if (!tmp) abort();                /* allocation failed */
         cache = tmp;
         for (size_t i = cache_count; i < new_count; ++i) {

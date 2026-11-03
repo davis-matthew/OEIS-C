@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 130, u32 n <= 513, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* constants ----------------------------------------------------------- */
 
@@ -114,7 +116,7 @@ static void ensure_values_cap(size_t needed)
     if (needed > values_cap) {
         size_t new_cap = values_cap ? values_cap << 1 : OUTPUT_CAP_INIT;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(values, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, values, new_cap);
         values = tmp;
         values_cap = new_cap;
     }
@@ -124,13 +126,13 @@ static void ensure_values_cap(size_t needed)
 static void initialise(void)
 {
     /* allocate heap */
-    heap = (HeapNode*)malloc((MAX_N + 1) * sizeof(HeapNode));
+    heap = mem_new(HeapNode, (MAX_N + 1));
 
     /* allocate sequence states */
-    seq_states = (SeqState*)malloc((MAX_N + 1) * sizeof(SeqState));
+    seq_states = mem_new(SeqState, (MAX_N + 1));
 
     /* allocate output array */
-    values = (seq_t*)malloc(OUTPUT_CAP_INIT * sizeof(seq_t));
+    values = mem_new(seq_t, OUTPUT_CAP_INIT);
     values_cap = OUTPUT_CAP_INIT;
     values_len = 0;
 
@@ -143,7 +145,7 @@ static void initialise(void)
             /* sequence 1 is constant 1 – no buffer needed */
             seq_states[n].buf = NULL;
         } else {
-            seq_states[n].buf = (seq_t*)calloc(n, sizeof(seq_t));
+            seq_states[n].buf = mem_new(seq_t, n);
             seq_states[n].buf[n - 1] = 1;       /* s(n-1) = 1   */
             seq_states[n].sum = 1;              /* sum of last n terms */
         }

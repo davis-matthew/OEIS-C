@@ -9,13 +9,15 @@
  *            values a(1)=1, a(2)=7, a(3)=23, a(4)=86
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Implements seq_t a(idx_t n) computing the OEIS sequence A303890 */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Resize the cache so that it can hold index n */
     if (!cache || n >= size) {
         idx_t newsize = n + 1; /* indices 0..n inclusive                           */
-        seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (!tmp) abort();    /* unlikely to happen, but safe nonetheless   */
         cache = tmp;
         size  = newsize;

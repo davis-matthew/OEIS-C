@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 29, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,27 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *cache        = NULL; /* computed a(n) values */
 static idx_t  cache_cap    = 0;
@@ -46,7 +67,7 @@ static void grow_seq_t_arr(seq_t **arr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t nc = (*cap == 0) ? 8 : (*cap << 1);
         while (nc < needed) nc <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, nc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, nc);
         *arr = tmp;
         *cap = nc;
     }

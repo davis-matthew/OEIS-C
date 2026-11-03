@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   count_pf_uint64, digit_root_uint64
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   bigomega_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,29 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/count_pf_uint64.h"
-#include "../utils/digit_root_uint64.h"
+#include "../utils/bigomega_u64_to_u32.h"
+
+/* Compute the digital root of x (x is 64‑bit unsigned). */
+static unsigned int digit_root_uint64(uint64_t x)
+{
+    if (x == 0)
+        return 0;
+    unsigned int sum = 0;
+    while (x > 0) {
+        sum += x % 10;
+        x /= 10;
+    }
+    /* Reduce to a single digit. */
+    while (sum >= 10) {
+        unsigned int tmp = 0;
+        while (sum > 0) {
+            tmp += sum % 10;
+            sum /= 10;
+        }
+        sum = tmp;
+    }
+    return sum;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -35,7 +57,7 @@ seq_t a(idx_t n)
         while (found < 9) {
             unsigned int dr = digit_root_uint64(m);
             if (dr != 0) {
-                unsigned int pf = count_pf_uint64(m);
+                unsigned int pf = bigomega_u64_to_u32(m);
                 if (pf == dr) {
                     unsigned int d = dr;
                     if (d <= 9 && val[d] == 0) {

@@ -8,7 +8,8 @@
  *            concatenating the base‑(15-n) digits as decimal digits
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   digit_len_uint32, seq_pow
+ * Validated: full, pass, 14 terms through n = 13 (2026-11-02)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
-#include "../utils/digit_len_uint32.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+
+/* helper to compute the number of decimal digits of a small integer (0 ≤ d < 10000) */
+static int digit_len_uint32(unsigned d)
+{
+    if (d >= 1000) return 4;
+    if (d >= 100)  return 3;
+    if (d >= 10)   return 2;
+    return 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -71,7 +81,7 @@ seq_t a(idx_t n)
     for (int i = (int)len - 1; i >= 0; --i) {
         uint32_t d = digits[i];
         int dlen = digit_len_uint32(d);
-        seq_t pow10d = seq_pow((seq_t)10, (idx_t)dlen);
+        seq_t pow10d = ipow_idx((seq_t)10, (idx_t)dlen);
         result = result * pow10d + (seq_t)d;
     }
 

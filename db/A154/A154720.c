@@ -14,19 +14,20 @@
  *            otherwise zeroes are written. The sequence lists t...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, is_prime_small
+ * Validated: standard, pass, 97 terms through n = 9704 (2026-11-01)
+ * Helpers:   is_prime_seq, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* Find the row r such that (r−1)² < n ≤ r² */
-    idx_t r = _floor_isqrt_u64(n - 1) + 1;               /* r ≥ 1 */
+    idx_t r = isqrt(n - 1) + 1;               /* r ≥ 1 */
     idx_t prev_sq = (r - 1) * (r - 1);                   /* (r‑1)² */
     idx_t pos = n - prev_sq;                             /* 1‑based position in the row */
 
@@ -38,8 +39,8 @@ seq_t a(idx_t n)
     idx_t right = r + d;                                  /* number at right side     */
 
     /* Check whether both sides are noncomposite (1 or prime) */
-    bool left_ok  = (left  == 1) || is_prime_small(left);
-    bool right_ok = (right == 1) || is_prime_small(right);
+    bool left_ok  = (left  == 1) || is_prime_seq(left);
+    bool right_ok = (right == 1) || is_prime_seq(right);
 
     if (!left_ok || !right_ok)
         return (seq_t)0;                                   /* at least one side composite */

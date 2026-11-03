@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 124, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   largest_prime_factor_u64
+ * Validated: standard, pass, 78 terms through n = 9970 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /* Computes composite integers k whose largest prime factor > sqrt(k) (OEIS A063763) */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/largest_prime_factor_u64.h"
+#include "../utils/largest_prime_factor.h"
 
 /* Integer square root (floor) for unsigned 64‑bit integers */
 static uint64_t int_sqrt_u64(uint64_t n)
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
     while (found < n)
     {
         k++;   /* investigate next integer */
-        uint64_t lpf = largest_prime_factor_u64(k);
+        uint64_t lpf = largest_prime_factor(k);
         if (lpf == k) continue;   /* prime, not composite */
 
         uint64_t sqrt_k = int_sqrt_u64(k);

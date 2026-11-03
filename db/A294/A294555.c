@@ -10,7 +10,8 @@
  *            2, b(0) = 3, b(1) = 4 (least new numbers)
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static tables for a(n) and b(n) */
 static seq_t *a_arr = NULL;
@@ -38,13 +40,13 @@ static void init_sequences(void)
         return;
 
     a_cap = 4;
-    a_arr = (seq_t *)malloc(a_cap * sizeof(seq_t));
+    a_arr = mem_new(seq_t, a_cap);
     a_arr[0] = (seq_t)1;
     a_arr[1] = (seq_t)2;
     a_len = 2;
 
     b_cap = 4;
-    b_arr = (seq_t *)malloc(b_cap * sizeof(seq_t));
+    b_arr = mem_new(seq_t, b_cap);
     b_arr[0] = (seq_t)3;
     b_arr[1] = (seq_t)4;
     b_len = 2;
@@ -83,7 +85,7 @@ static void ensure_a(idx_t n)
             /* grow b array if needed */
             if (b_len >= b_cap) {
                 b_cap = b_cap ? b_cap * 2 : 4;
-                b_arr = (seq_t *)realloc(b_arr, b_cap * sizeof(seq_t));
+                b_arr = mem_resize(seq_t, b_arr, b_cap);
             }
             b_arr[b_len++] = cand;
             next_candidate = cand + (seq_t)1;
@@ -96,7 +98,7 @@ static void ensure_a(idx_t n)
         /* grow a array if needed */
         if (a_len >= a_cap) {
             a_cap = a_cap ? a_cap * 2 : 4;
-            a_arr = (seq_t *)realloc(a_arr, a_cap * sizeof(seq_t));
+            a_arr = mem_resize(seq_t, a_arr, a_cap);
         }
         a_arr[a_len++] = val;
     }

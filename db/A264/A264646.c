@@ -10,13 +10,15 @@
  *            of S (1‑based). For n = 1, digit_1_of_S is defined to be 1
  * Range:     u8 n <= 25, u16 n <= 6553, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9432 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Memoised values of the sequence. */
 static seq_t *values = NULL;
@@ -35,7 +37,7 @@ static void ensure_values_cap(size_t needed)
         size_t new_cap = values_cap ? values_cap * 2 : 128;
         if (new_cap < needed)
             new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, values, new_cap);
         values = tmp;
         values_cap = new_cap;
     }

@@ -10,7 +10,8 @@
  *            distinct primes
  * Range:     u8 n <= 9, u16 n <= 266, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_distinct_primes, is_palindrome, is_squarefree
+ * Validated: standard, pass, 76 terms through n = 994 (2026-11-03)
+ * Helpers:   is_palindrome_base, is_squarefree, mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 #include "../utils/is_squarefree.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Global cache of qualifying palindromic numbers. */
 static seq_t *pal_list = NULL;     /* array of palindromic numbers */
@@ -40,10 +42,10 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = pal_cap ? pal_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(*new_arr));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (pal_list) {
         for (size_t i = 0; i < pal_len; ++i) new_arr[i] = pal_list[i];
-        free(pal_list);
+        mem_free(pal_list);
     }
     pal_list = new_arr;
     pal_cap  = new_cap;
@@ -54,7 +56,7 @@ static void ensure_capacity(size_t needed)
 static bool good_candidate(uint64_t n)
 {
     if (n == 0) return false;
-    return is_squarefree((seq_t)n) && ((count_distinct_primes(n) & 1) == 0);
+    return is_squarefree((seq_t)n) && ((omega(n) & 1) == 0);
 }
 
 /* Generate qualifying palindromic numbers until we have at least
@@ -63,7 +65,7 @@ static void generate_more(size_t n)
 {
     while (pal_len <= n) {
         uint64_t x = next_candidate++;
-        if (!is_palindrome((seq_t)x, 10)) continue;
+        if (!is_palindrome_base((seq_t)x, 10)) continue;
         if (!good_candidate(x)) continue;
         ensure_capacity(pal_len + 1);
         pal_list[pal_len++] = (seq_t)x;

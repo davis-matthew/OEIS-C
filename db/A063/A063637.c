@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = the nth prime p such that p+2 is a semiprime (product of
  *            two primes, counted with multiplicity)
- * Range:     u8 n <= 24, u16 n <= 2132, u32 n <= 9513, u64 n <= 9513,
- *            u128 n <= 9513, big any n
- * Helpers:   none
+ * Range:     u8 n <= 24, u16 n <= 2132, u32 n <= 14190, u64 n <= 14190,
+ *            u128 n <= 14190, big any n
+ * Validated: standard, pass, 71 terms through n = 9513 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t _prime_limit = 2000000;   /* initial sieve limit */
 static idx_t * _primes = NULL;          /* list of primes up to _prime_limit */
@@ -96,9 +98,9 @@ static void _ensure_terms(idx_t need)
         _compute_primes(limit);
 
         /* Discard previous terms */
-        if (_terms) { free(_terms); _terms = NULL; }
+        if (_terms) { mem_free(_terms); _terms = NULL; }
         size_t tcap = limit;
-        _terms = (seq_t *)malloc(tcap * sizeof(seq_t));
+        _terms = mem_new(seq_t, tcap);
         if (!_terms) exit(EXIT_FAILURE);
         _term_cnt = 0;
 
@@ -107,8 +109,8 @@ static void _ensure_terms(idx_t need)
             if (_is_semiprime((uint64_t)_primes[i] + 2)) {
                 if (_term_cnt >= tcap) {
                     tcap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(_terms, tcap * sizeof(seq_t));
-                    if (!tmp) { free(_terms); exit(EXIT_FAILURE); }
+                    seq_t *tmp = mem_resize(seq_t, _terms, tcap);
+                    if (!tmp) { mem_free(_terms); exit(EXIT_FAILURE); }
                     _terms = tmp;
                 }
                 _terms[_term_cnt++] = p;

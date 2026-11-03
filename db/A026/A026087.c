@@ -12,12 +12,14 @@
  *            The computation uses a dynamic‑programming recurrence
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 23, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free, realloc */
+#include "../utils/mem.h"
 
 static seq_t *dp_prev = NULL;   /* DP array for current step   */
 static seq_t *dp_curr = NULL;   /* DP array for next step      */
@@ -35,8 +37,8 @@ static void ensure_dp_capacity(idx_t n)
         /* first allocation */
         dp_offset = (long long)n;
         dp_capacity = (size_t)(2 * n + 1);
-        dp_prev = (seq_t *)malloc(dp_capacity * sizeof(seq_t));
-        dp_curr = (seq_t *)malloc(dp_capacity * sizeof(seq_t));
+        dp_prev = mem_new(seq_t, dp_capacity);
+        dp_curr = mem_new(seq_t, dp_capacity);
         for (size_t i = 0; i < dp_capacity; ++i) {
             dp_prev[i] = 0;
             dp_curr[i] = 0;
@@ -55,8 +57,8 @@ static void ensure_dp_capacity(idx_t n)
     long long new_offset = (long long)n;
     size_t new_capacity = (size_t)(2 * n + 1);
 
-    seq_t *new_prev = (seq_t *)malloc(new_capacity * sizeof(seq_t));
-    seq_t *new_curr = (seq_t *)malloc(new_capacity * sizeof(seq_t));
+    seq_t *new_prev = mem_new(seq_t, new_capacity);
+    seq_t *new_curr = mem_new(seq_t, new_capacity);
     for (size_t i = 0; i < new_capacity; ++i) {
         new_prev[i] = 0;
         new_curr[i] = 0;
@@ -70,8 +72,8 @@ static void ensure_dp_capacity(idx_t n)
         new_prev[new_idx] = dp_prev[old_idx];
     }
 
-    free(dp_prev);
-    free(dp_curr);
+    mem_free(dp_prev);
+    mem_free(dp_curr);
     dp_prev = new_prev;
     dp_curr = new_curr;
     dp_offset = new_offset;
@@ -83,7 +85,7 @@ static void ensure_res_capacity(idx_t n)
 {
     if (res_cap > n) return;
     size_t new_cap = (size_t)(n + 1);
-    seq_t *new_res = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+    seq_t *new_res = mem_resize(seq_t, results, new_cap);
     if (new_res != results) {
         results = new_res;
     }

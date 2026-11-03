@@ -12,9 +12,10 @@
  *            there exists an odd prime p dividing sigma(k) with
  *            valuation(p,k) ≠ valuation(p,sigma(k)), and p does not divide
  *            A003961(k) (i.e., p ≠ nextprime(r) for any prime divisor r of k)
- * Range:     u8 n <= 81, u16 n <= 9435, u32 n <= 9435, u64 n <= 9435,
- *            u128 n <= 9435, big any n
- * Helpers:   factor_u64, next_prime
+ * Range:     u8 n <= 81, u16 n <= 29825, u32 n <= 29826, u64 n <= 29826,
+ *            u128 n <= 29826, big any n
+ * Validated: standard, pass, 86 terms through n = 9435 (2026-11-03)
+ * Helpers:   factor_u64, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"      /* factor_u64 */
-#include "../utils/next_prime.h"      /* next_prime */
+#include "../utils/factor_u64.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* ---------- helper to test a single even k ---------- */
 static bool satisfies_even(uint64_t k)
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
         /* store the found value */
         seq_t val = (seq_t)current_k;
         size_t new_cap = cache_len + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache[cache_len++] = val;
 

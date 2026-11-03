@@ -11,9 +11,10 @@
  *            sequence * is generated locally by scanning integers k ≥ 1 and
  *            keeping the ones * that satisfy the condition, storing them in
  *            sorted order. The result * is memoised, so call...
- * Range:     u8 n <= 35, u16 n <= 1768, u32 n <= 10000, u64 n <= 10000,
+ * Range:     u8 n <= 42, u16 n <= 1768, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_seq, largest_prime_factor, odd_part, sigma_of, to_idx
+ * Validated: standard, pass, 83 terms through n = 9662 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem, odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,11 +28,43 @@
 
 /* Include the required utilities for prime factors, sigma,
  * odd part, and array growth. */
-#include "../utils/largest_prime_factor.h"   /* uint64_t largest_prime_factor(uint64_t); */
-#include "../utils/odd_part.h"                /* seq_t odd_part(seq_t); */
-#include "../utils/sigma_of.h"               /* seq_t sigma_of(idx_t); */
-#include "../utils/grow_seq.h"               /* void grow_seq(seq_t **arr, size_t *cap, size_t need); */
-#include "../utils/to_idx.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/odd_part.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+
+/* convert a seq_t to idx_t (assumes value fits into idx_t) */
+static inline idx_t to_idx(seq_t v)
+{
+    return (idx_t)v;                  /* C‑style cast works for both C and C++ */
+}
 
 /* Internal state for memoisation */
 static seq_t *terms = NULL;      /* array of found k's (as seq_t) */
@@ -49,7 +82,7 @@ seq_t a(idx_t n)
     /* Initialise storage on first call */
     if (terms == NULL) {
         terms_capacity = 64;
-        terms = (seq_t*)calloc(terms_capacity, sizeof(seq_t));
+        terms = mem_new(seq_t, terms_capacity);
         if (!terms) abort(); /* allocation failure */
     }
 
@@ -75,7 +108,7 @@ seq_t a(idx_t n)
             /* Store k as seq_t */
             if (terms_count == terms_capacity) {
                 terms_capacity *= 2;
-                terms = (seq_t*)realloc(terms, terms_capacity * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_capacity);
                 if (!terms) abort();
             }
             terms[terms_count++] = (seq_t)k;

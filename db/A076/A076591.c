@@ -7,12 +7,14 @@
  * Formula:   a(1) = 1, a(2) = 2, a(n) = a(n-1) + (a(n-2) mod n) for n > 2
  * Range:     u8 n <= 29, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed terms.  cache_len holds the largest
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
 
     /* Ensure base terms a(1) and a(2) are present. */
     if (cache_len < 2) {
-        cache = (seq_t *)realloc(cache, 3 * sizeof(seq_t)); /* indices 0,1,2 */
+        cache = mem_resize(seq_t, cache, 3); /* indices 0,1,2 */
         cache[1] = 1;
         cache[2] = 2;
         cache_len = 2;
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
         return cache[n];
 
     /* Extend the cache up to index n. */
-    cache = (seq_t *)realloc(cache, (size_t)(n + 2) * sizeof(seq_t)); /* +2 for safe indexing */
+    cache = mem_resize(seq_t, cache, (size_t)(n + 2)); /* +2 for safe indexing */
 
     for (idx_t i = cache_len + 1; i <= n; ++i) {
         seq_t rem = cache[i - 2] % (seq_t)i;

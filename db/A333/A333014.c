@@ -10,7 +10,8 @@
  *            = k*(3*k-1)/2.)
  * Range:     u8 none, u16 none, u32 n <= 5000, u64 n <= 5000, u128 n <= 5000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 4634 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         /* Re‑compute until we have at least n terms. */
         while (terms_len < (size_t)n) {
             /* Reset the previously allocated term array. */
-            free(terms);
+            mem_free(terms);
             terms     = NULL;
             terms_cap = 0;
             terms_len = 0;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
                 if (pk > bound - 1) break;   /* P(k) + P(1) would exceed bound */
                 ++max_k;
             }
-            seq_t *pent = (seq_t *)malloc((max_k + 1) * sizeof(seq_t));
+            seq_t *pent = mem_new(seq_t, (max_k + 1));
             if (!pent) return 0;                /* out of memory */
             pent[0] = 0;                         /* unused */
             for (size_t k = 1; k <= max_k; ++k)
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
                ---------------------------------------------------------- */
             uint16_t *cnt = (uint16_t *)calloc((size_t)bound + 1,
                                                sizeof(uint16_t));
-            if (!cnt) { free(pent); return 0; }
+            if (!cnt) { mem_free(pent); return 0; }
 
             for (size_t k = 2; k <= max_k; ++k) {
                 seq_t pk = pent[k];
@@ -79,9 +81,8 @@ seq_t a(idx_t n)
                 if (cnt[s] == 4) {
                     if (terms_len == terms_cap) {
                         size_t new_cap = terms_cap ? terms_cap * 2 : 128;
-                        seq_t *tmp = (seq_t *)realloc(terms,
-                                                      new_cap * sizeof(seq_t));
-                        if (!tmp) { free(pent); free(cnt); return 0; }
+                        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
+                        if (!tmp) { mem_free(pent); free(cnt); return 0; }
                         terms     = tmp;
                         terms_cap = new_cap;
                     }
@@ -89,7 +90,7 @@ seq_t a(idx_t n)
                 }
             }
 
-            free(pent);
+            mem_free(pent);
             free(cnt);
 
             /* If we still need more terms, increase the bound and try again. */

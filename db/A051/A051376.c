@@ -8,7 +8,8 @@
  * Formula:   a(n) = (8^n - 7^n - 6*4^n + 6*3^n + 11*2^n - 17)/6
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 42,
  *            big any n
- * Helpers:   big_pow, pow_simple_uint
+ * Validated: standard, pass, 36 terms through n = 990 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,16 @@
    than or equal to 8 bytes; otherwise it uses the generic big‑pow
    routine from the utils library. */
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/pow_simple_uint.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+static inline __int128 pow_simple_uint(unsigned base, idx_t exp)
+{
+    __int128 r = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        r *= base;
+    return r;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,11 +46,11 @@ seq_t a(idx_t n)
         return (seq_t)(num / 6);
     } else {
         /* Use the arbitrary‑precision big_pow routine for larger seq_t types. */
-        seq_t pow8 = big_pow((seq_t)8, (seq_t)n);
-        seq_t pow7 = big_pow((seq_t)7, (seq_t)n);
-        seq_t pow4 = big_pow((seq_t)4, (seq_t)n);
-        seq_t pow3 = big_pow((seq_t)3, (seq_t)n);
-        seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
+        seq_t pow8 = ipow((seq_t)8, (seq_t)n);
+        seq_t pow7 = ipow((seq_t)7, (seq_t)n);
+        seq_t pow4 = ipow((seq_t)4, (seq_t)n);
+        seq_t pow3 = ipow((seq_t)3, (seq_t)n);
+        seq_t pow2 = ipow((seq_t)2, (seq_t)n);
 
         seq_t pos = pow8 + ((seq_t)6 * pow3) + ((seq_t)11 * pow2);
         seq_t neg = pow7 + ((seq_t)6 * pow4) + (seq_t)17;

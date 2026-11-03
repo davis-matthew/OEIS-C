@@ -8,8 +8,9 @@
  *            that are perfect cubes. Equivalent to a(n) = d(n) – Π_i
  *            (⌊e_i/3⌋+1), where e_i are the exponents in the prime
  *            factorization of n
- * Range:     u8 n <= 9696, u16 n <= 9696, u32 n <= 9696, u64 n <= 9696,
- *            u128 n <= 9696, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9696 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

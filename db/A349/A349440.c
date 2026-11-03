@@ -8,12 +8,14 @@
  *            P(1)=0, P(2)=2, P(k)=P(k‑2)+P(k‑3))
  * Range:     u8 n <= 257, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 104 terms through n = 9879 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"    /* included only for seq_t & idx_t definitions */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 static idx_t _gcd_uint64(idx_t a, idx_t b)
 {

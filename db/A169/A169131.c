@@ -12,7 +12,8 @@
  *            the * current alternating run between them...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- constants ---------- */
 #define NUM_GENS 22          /* number of generators S_i  */
@@ -47,13 +49,13 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* allocate room for at least n+2 entries (a(0) .. a(n)) */
         cache_cap = (size_t)(n + 4);
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;               /* a(0) = 1 */
         cache[1] = (seq_t)NUM_GENS;        /* a(1) = 22 */
     } else if (cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         /* new elements are zero-initialised by realloc? */
         cache_cap = new_cap;
     }
@@ -68,8 +70,8 @@ static void expand_to(idx_t n)
 
     /* initialise DP arrays on first call for n>=2 */
     if (dp_curr == NULL) {
-        dp_curr = (seq_t *)calloc(STATE_COUNT, sizeof(seq_t));
-        dp_next = (seq_t *)calloc(STATE_COUNT, sizeof(seq_t));
+        dp_curr = mem_new(seq_t, STATE_COUNT);
+        dp_next = mem_new(seq_t, STATE_COUNT);
 
         /* length 2: all ordered pairs of distinct generators */
         for (int i = 0; i < NUM_GENS; ++i) {
@@ -90,7 +92,7 @@ static void expand_to(idx_t n)
 
     for (idx_t len = max_len + 1; len <= n; ++len) {
         /* zero next array */
-        memset(dp_next, 0, STATE_COUNT * sizeof(seq_t));
+        mem_set(dp_next, 0, STATE_COUNT * sizeof(seq_t));
 
         /* transitions from all current states */
         for (int prev = 0; prev < NUM_GENS; ++prev) {

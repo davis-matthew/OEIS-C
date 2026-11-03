@@ -11,7 +11,8 @@
  *            system)
  * Range:     u8 n <= 29, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   estimate_prime_upper_bound
+ * Validated: partial, pass, 49 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/estimate_prime_upper_bound.h"
+#include <math.h>
+#include "../utils/mem.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* static storage for the list of known primes, 1‑based */
 static seq_t *primes = NULL;          /* primes[0] = 2, primes[1] = 3, ... */
@@ -42,7 +53,7 @@ ensure_primes(idx_t need)
     /* find an upper bound for the nth prime and allocate the sieve */
     idx_t limit = estimate_prime_upper_bound(need);
     if (sieve) {
-        free((void *)sieve);
+        free(sieve);
         sieve = NULL;
     }
     sieve = (uint8_t *)calloc((size_t)limit + 1, sizeof(uint8_t));
@@ -64,12 +75,12 @@ ensure_primes(idx_t need)
 
     /* allocate the primes array */
     if (primes) {
-        free((void *)primes);
+        mem_free(primes);
         primes = NULL;
     }
-    primes = (seq_t *)malloc((size_t)count * sizeof(seq_t));
+    primes = mem_new(seq_t, (size_t)count);
     if (!primes) {
-        free((void *)sieve);
+        free(sieve);
         sieve = NULL;
         return;                      /* allocation failure – abort */
     }

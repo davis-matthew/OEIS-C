@@ -7,8 +7,9 @@
  * Formula:   a(0) = 0 a(4n) = 2*a(n) a(4n+1) = 2*a(n) + 1 a(4n+2) = 2*a(n) +
  *            1 a(4n+3) = 2*a(n) This recurrence implements the
  *            XOR‑contraction of the binary representation of n
- * Range:     u8 n <= 8794, u16 n <= 8794, u32 n <= 8794, u64 n <= 8794,
- *            u128 n <= 8794, big any n
+ * Range:     u8 n <= 16383, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 99 terms through n = 8794 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

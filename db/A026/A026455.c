@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 212, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------- Bitset of forbidden values ---------- */
 static uint64_t *forb_bits   = NULL;
@@ -80,10 +82,10 @@ ensure_cache_capacity(size_t n)
     while (new_cap < n + 1)
         new_cap <<= 1;
 
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     /* zero the newly allocated space for safety */
     if (new_cap > cache_cap)
-        memset(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
     cache_cap = new_cap;
 }
 

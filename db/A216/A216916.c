@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *triangle = NULL;      /* flat storage of the triangle */
 static idx_t  computed_r = 0;       /* highest row computed so far     */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 {
     /* ensure row 0 exists */
     if (!triangle) {
-        triangle = (seq_t *)malloc(sizeof(seq_t));
+        triangle = mem_new(seq_t, 1);
         if (!triangle) { return 0; }      /* allocation failed */
         triangle[0] = (seq_t)1;
         computed_size = 1;
@@ -63,8 +65,7 @@ seq_t a(idx_t n)
         for (idx_t new_r = computed_r + 1; new_r <= r; ++new_r) {
             size_t new_size = (size_t)(new_r + 1) * (new_r + 2) / 2;
             if (new_size > computed_size) {
-                seq_t *tmp = (seq_t *)realloc(triangle,
-                                              new_size * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, triangle, new_size);
                 if (!tmp) return 0;   /* reallocation failed */
                 triangle     = tmp;
                 computed_size = new_size;

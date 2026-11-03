@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
+ * Range:     u8 none, u16 n <= 966, u32 n <= 966, u64 n <= 966, u128 n <= 966,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static state to keep the sequence between calls. */
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
         }
         cnt = (size_t)(k - 1); /* number of positive tetrahedrons <= current_limit */
 
-        seq_t *tetra = (seq_t *)malloc(cnt * sizeof(seq_t));
+        seq_t *tetra = mem_new(seq_t, cnt);
         for (size_t i = 0; i < cnt; ++i) {
             idx_t kk = (idx_t)(i + 1);
             tetra[i] = (seq_t)kk * (seq_t)(kk + 1) * (seq_t)(kk + 2) / 6;
@@ -93,7 +95,7 @@ seq_t a(idx_t n) {
                 new_terms++;
         }
 
-        seq_t *new_arr = (seq_t *)malloc(new_terms * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_terms);
         size_t pos = 0;
         for (size_t v = 1; v <= current_limit; ++v) {
             if (rep[v] && !is_tetra[v])
@@ -101,12 +103,12 @@ seq_t a(idx_t n) {
         }
 
         /* Replace old arrays. */
-        free(terms);
+        mem_free(terms);
         terms = new_arr;
         terms_cnt = new_terms;
 
         /* Clean up temporary arrays. */
-        free(tetra);
+        mem_free(tetra);
         free(is_tetra);
         free(rep);
     }

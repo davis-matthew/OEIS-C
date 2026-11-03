@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 16, u16 n <= 48, u32 n <= 57, u64 n <= 57, u128 n <= 57,
+ * Range:     u8 n <= 16, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,15 +22,16 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 /* Compute the single entry T(n,k) using the summation formula. */
 static seq_t triangle_value(idx_t n, idx_t k)
 {
     seq_t sum = 0;
     for (idx_t i = 0; i <= n - k; ++i) {
-        seq_t c1 = binom(k, i);
-        seq_t c2 = binom(n + 2 * k - i - 1, 3 * k - 1);
+        seq_t c1 = binomial(k, i);
+        seq_t c2 = binomial(n + 2 * k - i - 1, 3 * k - 1);
         sum += c1 * c2;
     }
     return sum;

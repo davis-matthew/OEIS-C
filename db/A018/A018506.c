@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   cmp_div
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,14 @@
 /* a(n) = the n-th divisor of 534 in increasing order */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_div.h"
+#include "../utils/mem.h"
+
+/* compare function for qsort */
+static int cmp_div(const void *p, const void *q) {
+    seq_t v1 = *(const seq_t *)p;
+    seq_t v2 = *(const seq_t *)q;
+    return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
+}
 
 seq_t a(idx_t n) {
     /* sequence is defined for n ≥ 1; return 0 for out of range */
@@ -38,7 +46,7 @@ seq_t a(idx_t n) {
             }
         }
         /* sort the divisors */
-        qsort(divs, 8, sizeof(seq_t), cmp_div);
+        mem_qsort(divs, 8, sizeof(seq_t), cmp_div);
         init = true;
     }
     /* return the requested element if it exists */

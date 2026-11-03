@@ -9,13 +9,39 @@
  *            floor[(-1 + sqrt(8*n1 - 7))/2] (largest k with k(k+1)/2 < n1)
  * Range:     u8 n <= 8509, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   _triangular_index
+ * Validated: standard, pass, 135 terms through n = 9008 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/_triangular_index.h"
+
+static inline idx_t _triangular_index(idx_t N)
+{
+    if (N <= 1)
+        return 0;
+    idx_t low = 0;
+    idx_t high = (idx_t)(sqrtl((long double)(2.0L * N)) + 3); /* upper bound */
+    idx_t ans = 0;
+    while (low <= high)
+    {
+        idx_t mid = low + ((high - low) >> 1);
+        unsigned __int128 tri = (unsigned __int128)mid * (mid + 1) / 2;
+        if (tri < (unsigned __int128)N)
+        {
+            ans = mid;
+            low = mid + 1;
+        }
+        else
+        {
+            if (mid == 0)
+                break;
+            high = mid - 1;
+        }
+    }
+    return ans;
+}
 
 seq_t a(idx_t n)
 {

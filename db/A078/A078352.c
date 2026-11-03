@@ -7,17 +7,20 @@
  * Formula:   a(n) = 18^(n^2)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 23 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* exponent = n * n, computed in seq_t to avoid overflow of idx_t */
     seq_t exponent = (seq_t)n * (seq_t)n;
     seq_t base = (seq_t)18;
-    return big_pow(base, exponent);
+    return ipow(base, exponent);
 }

@@ -11,12 +11,15 @@
  *            Catalan(n-m)^2 (cf. the OEIS A354127 triangle description)
  * Range:     u8 n <= 14, u16 n <= 28, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
 

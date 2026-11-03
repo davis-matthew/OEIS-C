@@ -13,12 +13,14 @@
  *            is used to keep the computation * efficient...
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of a(n) */
 static seq_t *a_cache = NULL;
@@ -31,13 +33,13 @@ seq_t a(idx_t n)
 {
     /* initialise caches on first use */
     if (a_cache_size == 0) {
-        a_cache = (seq_t *)realloc(a_cache, sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, 1);
         if (!a_cache) abort();
         a_cache[0] = 1;                 /* a(0) = 1 */
         a_cache_size = 1;
     }
     if (cat_cache_size == 0) {
-        cat_cache = (seq_t *)realloc(cat_cache, sizeof(seq_t));
+        cat_cache = mem_resize(seq_t, cat_cache, 1);
         if (!cat_cache) abort();
         cat_cache[0] = 1;                 /* Cat(0) = 1 */
         cat_cache_size = 1;
@@ -48,8 +50,7 @@ seq_t a(idx_t n)
 
     /* grow a_cache to required length */
     if (n + 1 > a_cache_size) {
-        seq_t *tmp = (seq_t *)realloc(a_cache,
-                                      sizeof(seq_t) * (n + 1));
+        seq_t *tmp = mem_resize(seq_t, a_cache, (n + 1));
         if (!tmp) abort();
         a_cache = tmp;
         /* the new entries will be overwritten immediately */
@@ -63,8 +64,7 @@ seq_t a(idx_t n)
         idx_t maxk = i >> 1;   /* floor(i/2) */
         if (cat_cache_size <= maxk) {
             idx_t need = maxk + 1;
-            seq_t *tmp = (seq_t *)realloc(cat_cache,
-                                          sizeof(seq_t) * need);
+            seq_t *tmp = mem_resize(seq_t, cat_cache, need);
             if (!tmp) abort();
             cat_cache = tmp;
             /* extend the cache from old size to new size */

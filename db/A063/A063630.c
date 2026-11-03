@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  seq_t and idx_t are provided by the build environment.      */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         if (cap_seen < 1) {
             cap_seen = 8;
             seen = (bool *)malloc(cap_seen * sizeof(bool));
-            res  = (seq_t *)malloc(cap_seen * sizeof(seq_t));
+            res  = mem_new(seq_t, cap_seen);
             if (!seen || !res) abort();
         }
         /* count of 4’s in 9^1 is 0, so a(0)=1 */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap_seen ? cap_seen : 8;
         while (new_cap <= (size_t)n) new_cap <<= 1;
         bool   *new_seen = (bool *)realloc(seen, new_cap * sizeof(bool));
-        seq_t  *new_res  = (seq_t *)realloc(res,  new_cap * sizeof(seq_t));
+        seq_t  *new_res  = mem_resize(seq_t, res, new_cap);
         if (!new_seen || !new_res) abort();
         memset(new_seen + cap_seen, 0, (new_cap - cap_seen) * sizeof(bool));
         seen = new_seen;
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
             size_t new_cap = cap_seen ? cap_seen : 8;
             while (new_cap <= cnt4) new_cap <<= 1;
             bool   *new_seen = (bool *)realloc(seen, new_cap * sizeof(bool));
-            seq_t  *new_res  = (seq_t *)realloc(res,  new_cap * sizeof(seq_t));
+            seq_t  *new_res  = mem_resize(seq_t, res, new_cap);
             if (!new_seen || !new_res) abort();
             memset(new_seen + cap_seen, 0, (new_cap - cap_seen) * sizeof(bool));
             seen = new_seen;

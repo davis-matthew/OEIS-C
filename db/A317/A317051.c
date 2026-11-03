@@ -10,13 +10,16 @@
  *            (row-major). a(0) = T(0,0) = 1
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     idx_t k = n - count;                  /* column within the row */
 
     /* Compute 9^k * binomial(row-k, k). */
-    seq_t pow9   = pow_uint(9, k);
+    seq_t pow9   = ipow_u64_idx(9, k);
     seq_t binom  = binomial(row - k, k);
 
     return pow9 * binom;

@@ -7,11 +7,13 @@
  * Formula:   a(2n-1) = 2^n + 2, a(2n) = 2^n + 1. (a(1)=4, a(2)=3, …)
  * Range:     u8 n <= 14, u16 n <= 30, u32 n <= 62, u64 n <= 126,
  *            u128 n <= 254, big any n
+ * Validated: standard, pass, 62 terms through n = 951 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 7, u32 n <= 20, u64 n <= 46, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    The recurrence holds for all n≥11. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base[10] = {
     470ULL, 1142ULL, 2402ULL, 4790ULL, 12302ULL,
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* Allocate space for all terms up to n. */
     size_t N = (size_t)n;
-    seq_t *arr = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, N);
     if (arr == NULL) return 0;           /* allocation failure */
 
     /* Initialise with the known base values. */
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[N - 1];
-    free(arr);
+    mem_free(arr);
     return result;
 }

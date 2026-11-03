@@ -12,8 +12,9 @@
  *            bits of n. For i = 0 .. L‑1 b_i = bit (L-1-i) of n, c_i = bit i
  *            of n, r_i = ~(b_i & c_i). The resulting binary string r_0 r_1 …
  *            r_(L‑1) is converted to decimal
- * Range:     u8 n <= 255, u16 n <= 9546, u32 n <= 9546, u64 n <= 9546,
- *            u128 n <= 9546, big any n
+ * Range:     u8 n <= 255, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 91 terms through n = 9546 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

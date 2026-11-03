@@ -12,7 +12,8 @@
  *            since its last occurrence; when that counter reache...
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   build_primes
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/build_primes.h"   /* provides build_primes */
+#include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 #define PRIME_LIMIT 200000         /* enough for n up to ~10 000 */
 
@@ -64,7 +66,7 @@ static void _init(void)
 
     /* per‑prime arrays */
     seen  = (bool*)calloc(prime_count, sizeof(bool));
-    cnt   = (seq_t*)calloc(prime_count, sizeof(seq_t));
+    cnt   = mem_new(seq_t, prime_count);
 
     /* bitset: one row per prime */
     bitset_words = (prime_count + 63u) >> 6;
@@ -88,7 +90,7 @@ static void _ensure_cache(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

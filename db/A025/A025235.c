@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{t=0..floor(n/2)} binom(n, 2t) * 2^t * Catalan(t)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 36, u128 n <= 70,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 44 terms through n = 908 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp); */
+#include "../utils/mem.h"
+
+/* Compute 2^exp for any exponent that may not fit in the bit width of seq_t. */
+static seq_t pow2(idx_t exp)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= (seq_t)2;
+    return res;
+}
 
 /* Cache of Catalan numbers */
 static seq_t *cat = NULL;
@@ -28,7 +38,7 @@ static void ensure_catalan(idx_t u)
 {
     if ((idx_t)u >= (idx_t)cat_cap) {
         size_t new_cap = (size_t)u + 1;          /* at least<|reserved_200494|> u+1 */
-        seq_t *tmp = (seq_t *)realloc(cat, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cat, new_cap);
         if (!tmp) abort();
         cat = tmp;
 

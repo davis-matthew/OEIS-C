@@ -11,14 +11,34 @@
  *            For n < 2 a direct scan gives a(0) = 0, a(1) = 10
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   dfs_a003001, pers_u64
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/dfs_a003001.h"
-#include "../utils/pers_u64.h"
+
+static int pers_u64(uint64_t x) {
+    int c = 0;
+    while (x >= 10) {
+        uint64_t p = 1;
+        while (x) { p *= x % 10; x /= 10; }
+        x = p;
+        c++;
+    }
+    return c;
+}
+
+static int dfs_a003001(int pos, int L, int mind, uint64_t prod, int target, int *dig) {
+    int d;
+    if (pos == L) return pers_u64(prod) == target;
+    for (d = mind; d <= 9; d++) {
+        dig[pos] = d;
+        if (dfs_a003001(pos + 1, L, d, prod * (uint64_t)d, target, dig)) return 1;
+    }
+    return 0;
+}
 
 seq_t a(idx_t n) {
     static seq_t cache[32];

@@ -13,13 +13,15 @@
  *            (row‑by‑row, starting at n = 1) is OEIS A137350
  * Range:     i8 n <= 41, i16 n <= 41, i32 n <= 41, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*---  static data used by the function ----------------------------------*/
 static seq_t **rows         = NULL;   /* pointers to coefficient arrays   */
@@ -50,14 +52,14 @@ static void init_rows(void)
     ensure_rows_capacity(3);
 
     /* Row 0 (r = 0): Q(x,0) = 1, coeffs {1} */
-    rows[0]      = (seq_t*)malloc(sizeof(seq_t));
+    rows[0]      = mem_new(seq_t, 1);
     rows[0][0]   = (seq_t)1;
     len_rows[0]  = 1;
     start_rows[0]= 1;
     total_terms  = 1;
 
     /* Row 1 (r = 1): Q(x,1) = -1 + x, coeffs {-1,1} */
-    rows[1]      = (seq_t*)malloc(2*sizeof(seq_t));
+    rows[1]      = mem_new(seq_t, 2);
     rows[1][0]   = (seq_t)-1;
     rows[1][1]   = (seq_t)1;
     len_rows[1]  = 2;
@@ -65,7 +67,7 @@ static void init_rows(void)
     total_terms  = 3;
 
     /* Row 2 (r = 2): Q(x,2) = x, coeffs {0,1} */
-    rows[2]      = (seq_t*)malloc(2*sizeof(seq_t));
+    rows[2]      = mem_new(seq_t, 2);
     rows[2][0]   = (seq_t)0;
     rows[2][1]   = (seq_t)1;
     len_rows[2]  = 2;
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         size_t len_prev3 = len_rows[next_row - 3];
         size_t len_next = len_prev2 + 1 > len_prev3 ? len_prev2 + 1 : len_prev3;
 
-        seq_t *next = (seq_t*)malloc(len_next * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, len_next);
         const seq_t *prev2 = rows[next_row - 2];          /* Q(r-2)       */
         const seq_t *prev3 = rows[next_row - 3];          /* Q(r-3)       */
 

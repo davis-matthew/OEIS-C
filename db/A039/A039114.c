@@ -9,6 +9,7 @@
  *            and 3's
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
 
 static bool equal_zero_three(seq_t v) {

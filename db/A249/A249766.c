@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The following types are defined by the build system */
 extern unsigned long long isqrt_idx(unsigned long long);
@@ -54,7 +56,7 @@ static size_t heap_cap  = 0;
 static void heap_init(size_t cap)
 {
     heap_cap = cap;
-    heap = (struct Node *)malloc(cap * sizeof(struct Node));
+    heap = mem_new(struct Node, cap);
     heap_size = 0;
 }
 
@@ -69,7 +71,7 @@ static void heap_push(struct Node n)
 {
     if (heap_size == heap_cap) {
         heap_cap = heap_cap == 0 ? 128 : heap_cap << 1;
-        heap = (struct Node *)realloc(heap, heap_cap * sizeof(struct Node));
+        heap = mem_resize(struct Node, heap, heap_cap);
     }
     size_t idx = heap_size++;
     heap[idx] = n;
@@ -125,7 +127,7 @@ static void build_sequence(void)
     size_t gen_count = 0;
     /* Maximum number of generators is sum_{d=1}^{D_MAX}(d+1)^2 <= 400 */
     gen_cap = 500;   /* safe upper bound */
-    generators = (struct Node *)malloc(gen_cap * sizeof(struct Node));
+    generators = mem_new(struct Node, gen_cap);
 
     for (int d = 1; d <= D_MAX; ++d) {
         seq_t ten_d = pow10[d];
@@ -148,7 +150,7 @@ static void build_sequence(void)
 
                 if (gen_count == gen_cap) {
                     gen_cap <<= 1;
-                    generators = (struct Node *)realloc(generators, gen_cap * sizeof(struct Node));
+                    generators = mem_resize(struct Node, generators, gen_cap);
                 }
                 generators[gen_count++] = n;
             }
@@ -157,14 +159,14 @@ static void build_sequence(void)
 
     /* Prepare heap and output cache */
     heap_init(gen_count);
-    seq_cache = (seq_t *)malloc(MAX_TERMS * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, MAX_TERMS);
     seq_len = 0;
 
     /* Push all initial generators into the heap */
     for (size_t i = 0; i < gen_count; ++i) heap_push(generators[i]);
 
     /* Free generators array (we no longer need initial copies) */
-    free(generators);
+    mem_free(generators);
 
     /* Generate terms until we have enough or the heap is exhausted */
     while (seq_len < MAX_TERMS && heap_size > 0) {
@@ -185,7 +187,7 @@ static void build_sequence(void)
 
     /* If we didn't reach MAX_TERMS, shrink the cache */
     if (seq_len < MAX_TERMS) {
-        seq_cache = (seq_t *)realloc(seq_cache, seq_len * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_len);
     }
 }
 /* ------------------------------------------- */

@@ -10,7 +10,8 @@
  * Formula:   a(n) = 2 * Sum_{j=0..⌊n/2⌋} C(n,2j) * A000110(j)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 40, u128 n <= 72,
  *            big any n
- * Helpers:   binom_acc
+ * Validated: standard, pass, 46 terms through n = 996 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 /* A000110(j) is the j-th Bell number.  */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom_acc.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------- */
 /*  Cache for Bell numbers B_j , j ≥ 0        */
@@ -35,7 +37,7 @@ static void ensure_bell(size_t max_index)
         size_t new_cap = bell_cap ? bell_cap * 2 : 8;
         while (new_cap <= max_index)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(bell, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, bell, new_cap);
         if (!tmp) abort();            /* out of memory */
         bell      = tmp;
         bell_cap  = new_cap;
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     for (idx_t j = 0; j <= j_max; ++j) {
-        seq_t cmb = binom_acc(n, 2 * j);
+        seq_t cmb = binomial(n, 2 * j);
         sum += cmb * bell[(size_t)j];
     }
     return sum * ((seq_t)2);

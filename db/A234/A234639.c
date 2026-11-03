@@ -11,7 +11,8 @@
  *            for larger arguments σ is computed by trial...
  * Range:     u8 n <= 3, u16 n <= 16, u32 n <= 404, u64 n <= 404,
  *            u128 n <= 404, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 380 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- constants and global tables ---------- */
 #define MAX_N 5000000U   /* sieve limit: 5 000 000 */
@@ -133,7 +135,7 @@ seq_t a(idx_t n)
         if ((s3 % (seq_t)2) == 1) {    /* σ(σ(σ(m))) is odd */
             if (terms_len == terms_cap) {
                 terms_cap = terms_cap * 2 + 10;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
                 if (!terms) abort();   /* allocation failure */
             }
             terms[terms_len++] = (seq_t)m;

@@ -10,7 +10,8 @@
  *            element of this sequence (a(1) = 2)
  * Range:     u8 n <= 27, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   is_prime, is_prime_small, is_special_digit
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   is_prime, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t x); */
-#include "../utils/is_prime_small.h"    /* bool is_prime_small(seq_t x); */
-#include "../utils/is_special_digit.h"
+#include "../utils/is_prime.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* helper: determine whether a decimal digit is 1 or a prime digit */
+static inline bool is_special_digit(uint64_t d)
+{
+    return d == 1ULL || d == 2ULL || d == 3ULL || d == 5ULL || d == 7ULL;
+}
 
 static seq_t *filtered = NULL;   /* array of qualifying primes          */
 static size_t filtered_len = 0;  /* number of stored primes             */
@@ -36,7 +43,7 @@ static void ensure_filtered_cap(size_t need)
     size_t new_cap = filtered_cap ? filtered_cap * 2 : 16;
     if (new_cap < need)
         new_cap = need;
-    seq_t *newp = (seq_t *)realloc(filtered, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, filtered, new_cap);
     filtered = newp;
     filtered_cap = new_cap;
 }
@@ -62,7 +69,7 @@ seq_t a(idx_t n)
         }
 
         /* if the sum itself is prime, store the candidate */
-        if (is_prime_small((seq_t)sum))
+        if (is_prime_seq((seq_t)sum))
         {
             ensure_filtered_cap(filtered_len + 1);
             filtered[filtered_len++] = (seq_t)candidate;

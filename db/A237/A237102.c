@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   _subblock_diff, seq_alloc, seq_realloc
+ * Validated: standard, pass, 32 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,45 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/_subblock_diff.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+static inline int _subblock_diff(int a, int b, int c, int d)
+{
+    int cnt[3] = {0, 0, 0};
+    cnt[a]++; cnt[b]++; cnt[c]++; cnt[d]++;
+
+    /* maximum value among the four entries */
+    int maxv = 2;
+    while (maxv > 0 && cnt[maxv] == 0) maxv--;
+
+    /* upper median (third element of the sorted list) */
+    int cum = 0, upper = 0;
+    for (int v = 0; v < 3; ++v) {
+        cum += cnt[v];
+        if (cum >= 3) { upper = v; break; }
+    }
+    return maxv - upper;   /* can be 0, 1, or 2 */
+}
 
 /* --------------------------------------------------------------------- *
  *  For each pair of rows (i,j) we pre‑compute whether the two 2×2 subblocks

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 32, u32 n <= 64, u64 n <= 128,
  *            u128 n <= 256, big any n
+ * Validated: standard, pass, 65 terms through n = 6350 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
  * Then a(n) = (2*y‑1)·2^(x‑1).
  * Equivalently, if k = v₂(n) (exponent of 2) and odd = n >> k,
  * x = (odd+1)/2, then a(n) = (2*k+1) · 2^(x‑1).  */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

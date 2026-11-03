@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------------- */
 /* Global data structures ---------------------------------------------------- */
@@ -49,7 +51,7 @@ static void grow_cache(idx_t needed)
     if (needed < cache_cap) return;
     idx_t new_cap = cache_cap ? (cache_cap << 1) : 16;
     while (new_cap <= needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -136,8 +138,8 @@ static void build(void)
     free(valid_codes);
 
     /* Allocate DP vectors */
-    dp_cur  = (seq_t *)calloc(Nstates, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(Nstates, sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, Nstates);
+    dp_next = mem_new(seq_t, Nstates);
 
     /* Initialise DP for the first row */
     for (int i = 0; i < Nstates; ++i)
@@ -149,7 +151,7 @@ static void build(void)
 
     /* Prepare cache */
     cache_cap = init_states + 1;          /* at least one entry for n=1 */
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[1] = total;
     max_cached = 1;
 }
@@ -165,7 +167,7 @@ seq_t a(idx_t n)
     /* Extend DP to desired n */
     for (idx_t step = max_cached + 1; step <= n; ++step) {
         /* Transition dp_cur -> dp_next */
-        memset(dp_next, 0, Nstates * sizeof(seq_t));
+        mem_set(dp_next, 0, Nstates * sizeof(seq_t));
         for (int i = 0; i < Nstates; ++i) {
             seq_t val = dp_cur[i];
             if (!val) continue;

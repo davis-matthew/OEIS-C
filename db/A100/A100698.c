@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = the n-th prime of the form k^3 - k + 1 (OEIS A100698)
- * Range:     u8 n <= 3, u16 n <= 16, u32 n <= 37, u64 n <= 37, u128 n <= 37,
- *            big any n
+ * Range:     u8 n <= 3, u16 n <= 16, u32 n <= 317, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 53 terms through n = 854 (2026-11-01)
  * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,7 +15,6 @@
 
 #include <stdbool.h>
 #include "../utils/is_prime_seq.h"
-
 
 seq_t a(idx_t n)
 {

@@ -5,15 +5,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = #{ (x,y) : 0 < x < y ≤ n , x*y = 3n }
- * Range:     u8 n <= 9623, u16 n <= 9623, u32 n <= 9623, u64 n <= 9623,
- *            u128 n <= 9623, big any n
- * Helpers:   int_sqrt
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 124 terms through n = 9623 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +22,7 @@ seq_t a(idx_t n)
     idx_t m = n * 3;
 
     /* upper bound for factor search */
-    idx_t sqrt_m = int_sqrt(m);
+    idx_t sqrt_m = isqrt(m);
 
     seq_t count = 0;
 

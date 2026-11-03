@@ -9,15 +9,17 @@
  *            smallest powerful multiple of n)
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 72 terms through n = 9629 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         uint64_t p = primes[i];
         uint64_t e = exps[i];
         if (e < 2) e = 2;                     /* ensure exponent >= 2 */
-        seq_t term = big_pow((seq_t)p, (seq_t)e) - 1;
+        seq_t term = ipow((seq_t)p, (seq_t)e) - 1;
         result *= term;                       /* multiplicative property */
     }
     return result;

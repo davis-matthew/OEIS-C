@@ -8,13 +8,29 @@
  *            r = floor((sqrt(8*n + 1) - 1) / 2) and k = r - (n - r*(r+1)/2)
  * Range:     u8 n <= 44, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   w_triangle
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/w_triangle.h"
+
+/* Compute w(r, k) from the triangle A193979. */
+static inline seq_t
+w_triangle(idx_t r, idx_t k)
+{
+    /* Use signed 128‑bit for intermediate calculations to allow
+       possible negative values of the b_k term. */
+    __int128 kk = (int64_t)k;
+    __int128 rk = (int64_t)r;
+    /* a_k = (k^2 + k + 2) / 2 */
+    __int128 ak = (kk * kk + kk + 2) / 2;
+    /* b_k = (-k^3 + 3k^2 - 2k + 6) / 6 */
+    __int128 bk = (-kk * kk * kk + 3 * kk * kk - 2 * kk + 6) / 6;
+    __int128 val = ak * rk + bk;
+    return (seq_t)val;
+}
 
 /* Integer square root for 64‑bit values (floor). */
 static inline idx_t

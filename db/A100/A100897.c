@@ -7,16 +7,17 @@
  * Formula:   a(n) = 7nn7
  * Range:     u8 none, u16 n <= 9, u32 n <= 999, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digits
+ * Validated: standard, pass, 47 terms through n = 9440 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digits.h"
+#include "../utils/num_digits_idx.h"
 
 seq_t a(idx_t n) {
-    int d = digits(n);
+    int d = num_digits_idx(n);
     seq_t pow10 = (seq_t)1;
     for (int i = 0; i < d; ++i) pow10 *= (seq_t)10;
 

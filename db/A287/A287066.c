@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9161 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    calls are fast. */
 
 #include <stdlib.h>  /* malloc, free */
+#include "../utils/mem.h"
 
 /* External types supplied by the build system */
 extern seq_t a(idx_t);
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Initialise with the starting word "1" on first call. */
     if (length == 0) {
-        buffer = (seq_t*)malloc(sizeof(seq_t));
+        buffer = mem_new(seq_t, 1);
         if (!buffer) return (seq_t)0; /* allocation failure, return 0 */
         buffer[0] = (seq_t)1;
         length   = 1;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         idx_t old_len = length;
         /* New length ≤ 2 × old_len; allocate a bit extra. */
         size_t alloc_cap = (size_t)(old_len * 2 + 1);
-        seq_t *new_buf = (seq_t*)malloc(alloc_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, alloc_cap);
         if (!new_buf) return (seq_t)0; /* allocation failure */
 
         idx_t new_len = 0;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(buffer);
+        mem_free(buffer);
         buffer = new_buf;
         length = new_len;
     }

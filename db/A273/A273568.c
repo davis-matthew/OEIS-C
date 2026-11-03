@@ -11,7 +11,8 @@
  *            2*y - 4*z = 2*c^3 for some non‑negative integer c
  * Range:     u8 n <= 5147, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9577 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* integer square root: floor(sqrt(n)) */
 static inline idx_t isqrt(idx_t n)
@@ -86,8 +88,8 @@ seq_t a(idx_t n)
 {
     if (n >= cache_size) {
         idx_t new_limit = n + 1;
-        if (cache) free(cache);
-        cache = (seq_t *)malloc(new_limit * sizeof(seq_t));
+        if (cache) mem_free(cache);
+        cache = mem_new(seq_t, new_limit);
         compute_counts(n, cache);
         cache_size = new_limit;
     }

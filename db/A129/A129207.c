@@ -10,12 +10,14 @@
  *            a(n). This recurrence generates OEIS A129207
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 4, i64 n <= 6, i128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoization */
 static seq_t *seq_cache  = NULL;   /* computed a(i) values */
@@ -28,7 +30,7 @@ static void ensure_cap(idx_t upto)
     if (upto + 1 > seq_cap) {
         idx_t new_cap = seq_cap ? (seq_cap << 1) : 8;
         while (new_cap <= upto) new_cap <<= 1;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cap   = new_cap;
     }
 }

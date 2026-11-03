@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   sigma_of_plain
+ * Validated: full, pass, 29 terms through n = 29 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,32 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/sigma_of_plain.h"
+
+/* Local implementation of sigma(n): sum of all positive divisors of n */
+static seq_t sigma_of_plain(idx_t n)
+{
+    if (n <= 1) return 1;     /* sigma(0)=0, sigma(1)=1 */
+    seq_t sum = 1;
+    idx_t remaining = n;
+    for (idx_t p = 2; p * p <= remaining; ++p)
+    {
+        if (remaining % p == 0)
+        {
+            seq_t term = 1;
+            seq_t pk = 1;
+            while (remaining % p == 0)
+            {
+                remaining /= p;
+                pk *= p;
+                term += pk;
+            }
+            sum *= term;
+        }
+    }
+    if (remaining > 1)        /* last prime factor > sqrt(n) */
+        sum *= (1 + remaining);
+    return sum;
+}
 
 /* Static storage for the 28-cycle; computed on first call */
 static seq_t cycle[28];

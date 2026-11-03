@@ -8,6 +8,7 @@
  * Formula:   a(n) = denominator( Sum_{k=1..n} (-1)^(k+1) / psi(k) )
  * Range:     u8 n <= 13, u16 n <= 36, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* psi(k) = Dedekind ψ function */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* ---------- Prime table ---------------------------------------------------- */

@@ -13,7 +13,8 @@
  *            divided by 4 and converted to seq_t
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 26, u128 n <= 50,
  *            big any n
- * Helpers:   a5033_add, a5033_coef, a5033_leg, a5033_mul
+ * Validated: standard, pass, 40 terms through n = 198 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,70 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a5033_add.h"
-#include "../utils/a5033_coef.h"
-#include "../utils/a5033_leg.h"
-#include "../utils/a5033_mul.h"
+
+static void a5033_add(uint32_t *d, size_t *len, const uint32_t *s, size_t slen) {
+    uint64_t c = 0;
+    size_t i, n = *len > slen ? *len : slen;
+    for (i = 0; i < n; i++) {
+        uint64_t t = c;
+        if (i < *len) t += d[i];
+        if (i < slen) t += s[i];
+        d[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    *len = n;
+    if (c) d[(*len)++] = (uint32_t)c;
+}
+
+static uint64_t a5033_leg(uint64_t x, uint64_t p) {
+    uint64_t e = 0;
+    while (x) {
+        x /= p;
+        e += x;
+    }
+    return e;
+}
+
+static void a5033_mul(uint32_t *d, size_t *len, uint32_t mul) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        uint64_t t = (uint64_t)d[i] * mul + c;
+        d[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    while (c) {
+        d[(*len)++] = (uint32_t)c;
+        c >>= 32;
+    }
+}
+
+/* d := [z^j] G^k = k * (3j+k-1)! / (j! * (2j+k)!) */
+static void a5033_coef(uint32_t *d, size_t *len, uint64_t k, uint64_t j,
+                       const unsigned char *comp) {
+    uint64_t top = 3 * j + k, p;
+    d[0] = 1;
+    *len = 1;
+    for (p = 2; p <= top; p++) {
+        uint64_t e, kk = k, mul = 1;
+        if (comp[p]) continue;
+        e = 0;
+        while (kk % p == 0) {
+            kk /= p;
+            e++;
+        }
+        e += a5033_leg(top - 1, p);
+        e -= a5033_leg(j, p) + a5033_leg(2 * j + k, p);
+        while (e--) {
+            if (mul * p > 0xFFFFFFFFULL) {
+                a5033_mul(d, len, (uint32_t)mul);
+                mul = 1;
+            }
+            mul *= p;
+        }
+        if (mul > 1) a5033_mul(d, len, (uint32_t)mul);
+    }
+}
 
 seq_t a(idx_t n) {
     uint64_t m, top, i, j;

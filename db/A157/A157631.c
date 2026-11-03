@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 30, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   offset_row, pos
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,11 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/offset_row.h"
-#include "../utils/pos.h"
+#include <math.h>
+#include "../utils/triangular.h"
+#include "../utils/mem.h"
+
+static inline idx_t pos(idx_t n, idx_t k) { return triangular(n) + k; }
 
 /* cache for A(n,k) values */
 static seq_t *cache = NULL;
@@ -62,7 +66,7 @@ static void ensure_precompute(idx_t r_needed)
     /* First time: allocate space for row 0 */
     if (cache == NULL) {
         cache_size = 1;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = (seq_t)1;       /* A(0,0) = 1 */
         max_row_done = 0;
     }
@@ -70,11 +74,11 @@ static void ensure_precompute(idx_t r_needed)
     if (r_needed <= max_row_done) return;
 
     /* Allocate space for rows until r_needed */
-    idx_t new_size = offset_row(r_needed + 1);
+    idx_t new_size = triangular(r_needed + 1);
     if (new_size > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) { /* allocation failed */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_size = 0;
             max_row_done = 0;
@@ -106,7 +110,7 @@ static void ensure_precompute(idx_t r_needed)
 static idx_t row_of(idx_t idx)
 {
     idx_t r = 0;
-    while (offset_row(r + 1) <= idx) ++r;
+    while (triangular(r + 1) <= idx) ++r;
     return r;
 }
 
@@ -117,7 +121,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)1;
 
     idx_t r = row_of(n);
-    idx_t k = n - offset_row(r);
+    idx_t k = n - triangular(r);
     ensure_precompute(r);
     return get_A(r, k);
 }

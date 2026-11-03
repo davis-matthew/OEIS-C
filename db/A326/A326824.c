@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   calc_phi
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
 
 /* static cache ---------------------------------------------------------- */
 #define CACHE_SIZE 200000
@@ -56,7 +57,7 @@ seq_t a(idx_t n)
 
     /* divisor d = 1 */
     {
-        seq_t phi_n = calc_phi((seq_t)n);          /* phi(n) */
+        seq_t phi_n = totient_seq((seq_t)n);          /* phi(n) */
         sum += phi_n * (seq_t)1 * cache[1];        /* a(1) == 1 */
     }
 
@@ -64,7 +65,7 @@ seq_t a(idx_t n)
     for (idx_t d = 2; (d * d) <= n; ++d) {
         if (n % d == 0) {
             /* divisor d */
-            seq_t phi_nd = calc_phi((seq_t)(n / d));
+            seq_t phi_nd = totient_seq((seq_t)(n / d));
             if (cache[d] == 0)                 /* recursive memoisation */
                 a(d);
             sum += phi_nd * (seq_t)d * cache[d];
@@ -72,7 +73,7 @@ seq_t a(idx_t n)
             /* paired divisor n/d, distinct from d */
             idx_t d2 = n / d;
             if (d2 != d) {
-                seq_t phi_nd2 = calc_phi((seq_t)(n / d2));   /* phi(d)  */
+                seq_t phi_nd2 = totient_seq((seq_t)(n / d2));   /* phi(d)  */
                 if (cache[d2] == 0)
                     a(d2);
                 sum += phi_nd2 * (seq_t)d2 * cache[d2];

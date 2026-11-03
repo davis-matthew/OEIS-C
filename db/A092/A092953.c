@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of primes p < n such that n + p is prime
  * Range:     u8 n <= 3569, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 118 terms through n = 9504 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*  Static storage for primes, sieve limit, and cached a(n) values  */
 static idx_t sieve_limit = 0;            /* maximum number currently sieved      */
@@ -53,12 +55,11 @@ static void ensure_cache_capacity(idx_t n)
     if ((size_t)n + 1 <= cache_alloced)
         return;
     size_t new_cap = ((size_t)n + 1) * 2;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();
     /*  Initialise new entries to 0                         */
     if (cache)
-        memset((void*)(new_cache + cache_alloced), 0,
-               (new_cap - cache_alloced) * sizeof(seq_t));
+        mem_set((new_cache + cache_alloced), 0, (new_cap - cache_alloced) * sizeof(seq_t));
     cache = new_cache;
     cache_alloced = new_cap;
 }

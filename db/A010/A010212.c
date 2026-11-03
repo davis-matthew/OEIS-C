@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, cofr
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
+ * Range:     u8 none, u16 n <= 30, u32 n <= 14, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   alloc_seq_array, floor_sqrt
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,32 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/alloc_seq_array.h"
+#include <stdlib.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -74,7 +99,7 @@ seq_t a(idx_t n)
             seq_t *tmp = alloc_seq_array(cache_cap);
             for (size_t i = 0; i < cache_len; ++i)
                 tmp[i] = cache[i];
-            free(tmp);           /* free the old array */
+            mem_free(tmp);           /* free the old array */
             cache = tmp;
         }
 

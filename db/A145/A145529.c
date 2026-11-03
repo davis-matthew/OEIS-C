@@ -11,12 +11,14 @@
  *            arbitrary‑precision, etc.)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Multiply a small integer by a seq_t value without overflow when seq_t
    is a small unsigned integer type.  For larger types, normal multiplication
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!cache) {
         /* allocate space for indices 0..2 (we ignore index 0) */
-        cache = (seq_t *)malloc(sizeof(seq_t) * 3);
+        cache = mem_new(seq_t, 3);
         if (!cache) return 0;      /* allocation failure – return 0 */
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)1453;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
 
     /* extend the cache to hold result up to n */
     {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * ((size_t)n + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, ((size_t)n + 1));
         if (!tmp)
             return 0;  /* allocation failure – return 0 */
         cache = tmp;

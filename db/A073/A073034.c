@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    later calls.  */
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool is_prime_candidate(idx_t val, const idx_t *primes, size_t primes_cnt) {
     for (size_t i = 0; i < primes_cnt; ++i) {
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
     /* helper to grow digit array */
     if (digit_cnt + 1 > digit_cap) {
         size_t new_cap = digit_cap ? digit_cap * 2 : 32;
-        seq_t *tmp = (seq_t *)realloc(digit_list, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, digit_list, new_cap);
         if (!tmp) return 0;
         digit_list = tmp;
         digit_cap = new_cap;
@@ -94,8 +96,7 @@ seq_t a(idx_t n) {
                     /* ensure capacity for each push */
                     if (digit_cnt + 1 > digit_cap) {
                         size_t new_cap = digit_cap ? digit_cap * 2 : 32;
-                        seq_t *tmp = (seq_t *)realloc(digit_list,
-                                                      new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, digit_list, new_cap);
                         if (!tmp) return 0;
                         digit_list = tmp;
                         digit_cap = new_cap;

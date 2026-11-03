@@ -9,14 +9,54 @@
  *            J(0)=0, J(1)=1, J(m)=J(m-1)+2*J(m-2)
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   jacobsthal, row_of
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* include the utility that provides row_of */
-#include "../utils/row_of.h"
-#include "../utils/jacobsthal.h"
+#include <stdint.h>
+
+static inline idx_t
+row_of(idx_t n)                 /* return r with r(r+1)/2 ≤ n < (r+1)(r+2)/2 */
+{
+    idx_t low  = 0;
+    idx_t high = 1;
+    /* exponential search to find an upper bound */
+    while ((unsigned __int128)high * (high + 1) / 2 <= n) {
+        low  = high;
+        high <<= 1;              /* double high */
+    }
+    /* binary search between low (inclusive) and high (inclusive) */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1) + 1; /* upper mid to avoid infinite loop */
+        if ((unsigned __int128)mid * (mid + 1) / 2 <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
+
+/* Compute Jacobsthal number J(m) for 0 <= m <= ~200 */
+static seq_t jacobsthal(idx_t m)
+{
+    if (m == 0)
+        return 0;
+    if (m == 1)
+        return 1;
+
+    seq_t j0 = 0;            /* J(0) */
+    seq_t j1 = 1;            /* J(1) */
+    seq_t js;
+    for (idx_t i = 2; i <= m; ++i) {
+        js = j1 + (seq_t)2 * j0;   /* J(i) = J(i-1) + 2*J(i-2) */
+        j0 = j1;
+        j1 = js;
+    }
+    return js;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

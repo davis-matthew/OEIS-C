@@ -8,9 +8,10 @@
  * Formula:   a(n) = kth smallest number which is a product of two primes *
  *            (semiprime) whose prime factors have the same number of decimal
  *            digits. * The sequence is sorted in ascending order
- * Range:     u8 n <= 10, u16 n <= 436, u32 n <= 9120, u64 n <= 9120,
- *            u128 n <= 9120, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10, u16 n <= 436, u32 n <= 10537, u64 n <= 10537,
+ *            u128 n <= 10537, big any n
+ * Validated: standard, pass, 71 terms through n = 9120 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
 
         /* Generate all products p*q with p <= q */
         size_t prod_cnt = pr_cnt * (pr_cnt + 1ULL) / 2ULL;
-        seq_t *products = (seq_t *)malloc(prod_cnt * sizeof(seq_t));
+        seq_t *products = mem_new(seq_t, prod_cnt);
         if (!products) abort();
         size_t pidx = 0;
         for (size_t i = 0; i < pr_cnt; ++i) {
@@ -86,22 +88,22 @@ seq_t a(idx_t n)
         }
 
         /* Sort the new products */
-        qsort(products, prod_cnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(products, prod_cnt, sizeof(seq_t), cmp_seq_t);
 
         /* Ensure cache has enough capacity and append new products */
         if (cache_cap < cache_size + prod_cnt) {
             size_t new_cap = (cache_cap == 0) ? (prod_cnt * 2) : (cache_cap * 2);
             if (new_cap < cache_size + prod_cnt) new_cap = cache_size + prod_cnt;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = new_cap;
         }
-        memcpy(cache + cache_size, products, prod_cnt * sizeof(seq_t));
+        mem_copy(cache + cache_size, products, prod_cnt * sizeof(seq_t));
         cache_size += prod_cnt;
 
         /* Clean up temporary arrays */
-        free(products);
+        mem_free(products);
         free(primes);
         free(is_composite);
     }

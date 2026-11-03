@@ -10,14 +10,25 @@
  *            contains a run of n consecutive cards of the same color
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   gcd, total_combination
+ * Validated: full, pass, 52 terms through n = 52 (2026-11-02)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/total_combination.h"
+
+static seq_t total_combination(void) {
+    static seq_t cached = 0;
+    if (cached) return cached;
+    seq_t res = 1;
+    for (seq_t k = 1; k <= 26; ++k)
+        res = res * (52 - (26 - k)) / k;   /* compute C(52,26) */
+    cached = res;
+    return res;
+}
 
 /* DP arrays (max indices 26 for counts, 26 for run length, 2 for color). */
 static seq_t memo_dp[27][27][27][2];

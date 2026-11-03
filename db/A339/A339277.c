@@ -12,20 +12,22 @@
  *            O(N) time per coin
  * Range:     u8 n <= 23, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t limit = 2 * n;                     /* we need partitions of y = 2*n   */
-    seq_t *dp   = (seq_t*)calloc((size_t)limit + 1, sizeof(seq_t));
-    seq_t *newdp= (seq_t*)calloc((size_t)limit + 1, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (size_t)limit + 1);
+    seq_t *newdp= mem_new(seq_t, (size_t)limit + 1);
     if (!dp || !newdp) {
-        free(dp); free(newdp);
+        mem_free(dp); mem_free(newdp);
         return 0; /* OOM – unlikely for the intended ranges */
     }
     dp[0] = 1;                                /* empty partition */
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[limit];
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
     return result;
 }

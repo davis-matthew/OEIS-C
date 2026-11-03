@@ -8,12 +8,15 @@
  * Formula:   a(n) = Sum_{i=1..2^n} i*C(2^n-1,i-1) = (2^n+1)*2^{2^n-2}
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,13 +24,13 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Compute 2^n */
-    seq_t pow2n = big_pow((seq_t)2, (seq_t)n);
+    seq_t pow2n = ipow((seq_t)2, (seq_t)n);
 
     /* Exponent for the large power: 2^n - 2 */
     seq_t exponent = pow2n - (seq_t)2;
 
     /* 2^(2^n - 2) */
-    seq_t pow2exp = big_pow((seq_t)2, exponent);
+    seq_t pow2exp = ipow((seq_t)2, exponent);
 
     /* (2^n + 1) * 2^(2^n - 2) */
     seq_t result = pow2exp * (pow2n + (seq_t)1);

@@ -11,12 +11,14 @@
  *            7722793, a(15) = 36222648
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 16, u64 n <= 34, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed first 16 terms – needed to seed the recurrence */
 static const seq_t _base[16] = {
@@ -36,7 +38,7 @@ static void _ensure_cache(idx_t n)
 {
     if (_cache == NULL) {                /* first allocation */
         _cap = (n >= 16) ? n + 1 : 16;
-        _cache = (seq_t*)calloc((size_t)_cap, sizeof(seq_t));
+        _cache = mem_new(seq_t, (size_t)_cap);
         if (_cache == NULL) return;      /* allocation failed – abort silently */
         for (idx_t i = 0; i < 16; ++i) _cache[i] = _base[i];
         _last = 15;
@@ -48,7 +50,7 @@ static void _ensure_cache(idx_t n)
     /* Grow the cache – exponential growth keeps amortised O(1) */
     idx_t newcap = _cap;
     while ((idx_t)n + 1 > newcap) newcap *= 2;
-    seq_t *tmp = (seq_t*)realloc(_cache, (size_t)newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _cache, (size_t)newcap);
     if (tmp == NULL) return;            /* realloc failed – abort silently */
     _cache = tmp;
     _cap   = newcap;

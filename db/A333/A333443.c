@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 490, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9094 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* integer square root, floor of sqrt(n), without floating point */
 static inline idx_t int_isqrt(idx_t n)
@@ -84,7 +86,7 @@ static void recompute_counts(idx_t limit)
 
     /* resize terms array */
     if (g_terms_cap < (size_t)limit) {
-        seq_t *tmp = (seq_t *)realloc(g_terms, (size_t)limit * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, g_terms, (size_t)limit);
         if (!tmp) abort();            /* OOM – unlikely */
         g_terms = tmp;
         g_terms_cap = (size_t)limit;

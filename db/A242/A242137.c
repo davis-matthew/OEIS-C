@@ -11,13 +11,15 @@
  *            any order
  * Range:     u8 n <= 81, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9757 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root for 64‑bit unsigned integers */
 static inline uint64_t _isqrt_u64(uint64_t x)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         if (T_next >= upper) { /* m satisfies the condition */
             if (len == cap) {           /* grow capacity if needed */
                 size_t newcap = cap ? (cap << 1) : 64;
-                seq_t *tmp = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, newcap);
                 if (!tmp) {             /* allocation failed – abort */
                     exit(EXIT_FAILURE);
                 }

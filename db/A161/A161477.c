@@ -7,6 +7,7 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k=1}^{16} (1 + x + … + x^k)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 22, u64 n <= 136, u128 n <= 136,
  *            big any n
+ * Validated: full, pass, 137 terms through n = 136 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

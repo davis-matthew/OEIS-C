@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   alloc
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,11 +26,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Use the general allocation functions if available,
    otherwise fall back to standard malloc/realloc */
 #if defined(HAVE_SEQ_ALLOC) && defined(HAVE_SEQ_REALLOC)
-#include "../utils/alloc.h"  /* assumes seq_alloc and seq_realloc are declared */
+
+static void *alloc(size_t n){ return malloc(n); }
 #else
 static void *seq_alloc(size_t cap)  { return malloc(cap); }
 static void *seq_realloc(void *old, size_t, size_t new_cap) { return realloc(old, new_cap); }
@@ -63,7 +66,7 @@ seq_t a(idx_t n)
     /* Grow the cache when needed */
     if (cache == NULL) {
         cache_cap = 256;
-        cache = (seq_t *)seq_alloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();
     }
     if (primes == NULL) {

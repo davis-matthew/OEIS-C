@@ -7,7 +7,8 @@
  * Formula:   a(n) = (sum of first n primes) – (sum of first n non‑primes)
  * Range:     i8 n <= 14, i16 n <= 59, i32 n <= 59, i64 n <= 59, i128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const size_t INITIAL_LIMIT = 200000;   /* enough for n≈10000 */
 
@@ -65,7 +67,7 @@ static void rebuild_tables(void)
         if (is_prime[i]) primes[idx++] = i;
 
     /* Build prefix sum of primes */
-    sum_primes = (seq_t*)calloc(pcnt + 1, sizeof(seq_t));
+    sum_primes = mem_new(seq_t, pcnt + 1);
     if (!sum_primes) exit(1);
     sum_primes[0] = 0;
     for (size_t i = 0; i < pcnt; ++i)
@@ -84,7 +86,7 @@ static void rebuild_tables(void)
         if (!(i >= 2 && is_prime[i])) nonprimes[idx++] = i;
 
     /* Build prefix sum of non‑primes */
-    sum_nonprimes = (seq_t*)calloc(ncnt + 1, sizeof(seq_t));
+    sum_nonprimes = mem_new(seq_t, ncnt + 1);
     if (!sum_nonprimes) exit(1);
     sum_nonprimes[0] = 0;
     for (size_t i = 0; i < ncnt; ++i)
@@ -119,9 +121,9 @@ seq_t a(idx_t n)
         }
         /* Free old tables. */
         free(primes);
-        free(sum_primes);
+        mem_free(sum_primes);
         free(nonprimes);
-        free(sum_nonprimes);
+        mem_free(sum_nonprimes);
         init_done = false;
         rebuild_tables();
         init_done = true;

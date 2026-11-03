@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 62 terms through n = 922 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Sequence: primes congruent to 0,1,4,5,6 (mod 7) (search) */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

@@ -8,7 +8,8 @@
  *            form x^2+6*y^2)
  * Range:     u8 n <= 12, u16 n <= 1618, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 72 terms through n = 9918 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
                 /* Ensure capacity */
                 if (list_len >= list_cap) {
                     size_t new_cap = list_cap ? list_cap * 2 : 8;
-                    seq_t *tmp = (seq_t *)realloc(list, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, list, new_cap);
                     if (!tmp) abort();          /* allocation failed */
                     list = tmp;
                     list_cap = new_cap;

@@ -9,13 +9,21 @@
  *            automatically satisfied
  * Range:     u8 n <= 231, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   distinct_last_two_digits
+ * Validated: standard, pass, 117 terms through n = 9802 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/distinct_last_two_digits.h"
+
+static inline bool distinct_last_two_digits(seq_t x) {
+    if (x < (seq_t)10)          /* 0 … 9 are all accepted */
+        return true;
+    seq_t last = x % (seq_t)10;
+    seq_t tens = (x / (seq_t)10) % (seq_t)10;
+    return last != tens;
+}
 
 seq_t a(idx_t n) {
     /* The OEIS offset is 1, so n ≥ 1.  Convert once to seq_t for arithmetic. */

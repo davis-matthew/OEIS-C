@@ -10,15 +10,40 @@
  *            for the other two bases
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   append_candidate, pow4_uint64
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/append_candidate.h"
-#include "../utils/pow4_uint64.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+/* --------------------------------------------------------------------- */
+static inline uint64_t pow4_uint64(int e)
+{
+    /* 4^e == 1 << (2*e) ; e is small (<=30) so this is safe. */
+    return ((uint64_t)1) << (2 * e);
+}
 
 /* --------------------------------------------------------------------- */
 /*  Check whether value x is a palindrome in the given base.  */

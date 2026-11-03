@@ -12,12 +12,14 @@
  *            +13824*a(n-18). Initial terms used for n ≤ 22: a(1) = 1, a(2)...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 29, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t initial[22] = {
     (seq_t)1UL,        (seq_t)8UL,        (seq_t)22UL,        (seq_t)108UL,
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Ensure cache has at least n values, growing if necessary */
     if (cache == NULL) {
         size_t need = (n > 22) ? (size_t)n : 22;
-        cache = (seq_t *)realloc(NULL, need * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, need);
         cache_len = need;
 
         /* Copy initial terms */
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
             cache[(size_t)(i-1)] = pos - neg;
         }
     } else if (cache_len < (size_t)n) {
-        cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, n);
         for (idx_t i = (idx_t)cache_len + 1; i <= n; ++i) {
             seq_t a1  = cache[(size_t)(i-2)];
             seq_t a3  = cache[(size_t)(i-4)];

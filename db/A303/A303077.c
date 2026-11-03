@@ -10,7 +10,8 @@
  *            in the same order (not necessarily consecutive) in binary(n) }
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 88 terms through n = 9739 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -56,7 +57,7 @@ seq_t a(idx_t n)
                 val = (val << 1) | bits[i];
         }
 
-        if (val > best && is_prime_small(val))
+        if (val > best && is_prime_seq(val))
             best = val;
     }
 

@@ -14,13 +14,15 @@
  *            2*(2m+1)*binomial(2m,m), where R(m) = P_...
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 18, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 23 terms through n = 28 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
         }
         w[k % 8] = pos - neg;
     }
-    cb = binom(2 * m, m);
+    cb = binomial(2 * m, m);
     return w[m % 8] - (seq_t)2 * ((seq_t)2 * (seq_t)m + 1) * cb;
 }

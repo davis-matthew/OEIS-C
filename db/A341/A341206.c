@@ -12,7 +12,8 @@
  *            cache holds the DP tables for the largest...
  * Range:     u8 n <= 12, u16 n <= 19, u32 n <= 286, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_array, is_palindrome
+ * Validated: standard, pass, 51 terms through n = 9839 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,16 +21,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* If the build supplies a helper is_palindrome, use it; otherwise
    provide a minimal local implementation (decimal base only). */
 #ifndef NO_IS_PALINDROME
-#include "../utils/is_palindrome.h"
-#include "../utils/alloc_seq_array.h"
+#include <stddef.h>
+#include "../utils/is_palindrome_base.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 #else
 /* Very small helper: check if seq_t value (treated as unsigned) is a
    palindrome in base 10. */
-static bool is_palindrome(seq_t x, idx_t base) {
+static bool is_palindrome_base(seq_t x, idx_t base) {
     (void)base;          /* ignore base, only decimal used */
     uint64_t n = (uint64_t)x;
     uint64_t rev = 0, temp = n;
@@ -55,12 +62,12 @@ static void recompute(idx_t n) {
     pal = (idx_t *)malloc((size_t)(n + 1) * sizeof(idx_t));
     pal_cnt = 0;
     for (idx_t v = 1; v <= n; ++v)
-        if (is_palindrome((seq_t)v, 10))
+        if (is_palindrome_base((seq_t)v, 10))
             pal[pal_cnt++] = v;
 
     /* --- 2. rebuild DP arrays -------------------------------------------- */
     for (int k = 0; k <= 9; ++k) {
-        if (dp[k]) free(dp[k]);            /* old array */
+        if (dp[k]) mem_free(dp[k]);            /* old array */
         dp[k] = alloc_seq_array((size_t)n + 1); /* new, zeroed */
     }
 

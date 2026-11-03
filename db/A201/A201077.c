@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 31, u32 n <= 95, u64 n <= 311,
  *            u128 n <= 1000, big any n
- * Helpers:   apply_inv_factor
+ * Validated: standard, pass, 56 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,15 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/apply_inv_factor.h"
+#include "../utils/mem.h"
+
+/*   after this, a[i] = old_a[i] + a[i-m] + a[i-2m] + ...   */
+static void apply_inv_factor(seq_t *a, size_t n, idx_t m)
+{
+    size_t step = (size_t)m;
+    for (size_t i = step; i <= n; ++i)
+        a[i] += a[i - step];
+}
 
 /* Auxiliary: multiply the current series by (1 - q^m)^{-1}  */
 
@@ -34,7 +43,7 @@ seq_t a(idx_t n)
     if (n == (idx_t)0) return (seq_t)1;
 
     size_t N = (size_t)n;
-    seq_t *coef = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *coef = mem_new(seq_t, N + 1);
     if (!coef) return (seq_t)0;      /* memory failure: return 0 */
 
     coef[0] = (seq_t)1;   /* start with 1 */
@@ -74,6 +83,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coef[N];
-    free(coef);
+    mem_free(coef);
     return result;
 }

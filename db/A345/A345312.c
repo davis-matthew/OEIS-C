@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{p|n} (n/p)^gcd(p,n/p)
  * Range:     u8 n <= 24, u16 n <= 48, u32 n <= 120, u64 n <= 288,
  *            u128 n <= 840, big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 83 terms through n = 8899 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     seq_t sum = 0;
@@ -27,7 +30,7 @@ seq_t a(idx_t n) {
             /* compute (n/p)^gcd(p, n/p) */
             seq_t base = (seq_t)(n / p);
             seq_t g     = gcd((seq_t)p, base);
-            sum += big_pow(base, g);
+            sum += ipow(base, g);
             /* remove all powers of p from temp */
             while (temp % p == 0)
                 temp /= p;
@@ -37,7 +40,7 @@ seq_t a(idx_t n) {
     if (temp > 1) {
         seq_t base = (seq_t)(n / temp);
         seq_t g    = gcd((seq_t)temp, base);
-        sum += big_pow(base, g);
+        sum += ipow(base, g);
     }
     return sum;
 }

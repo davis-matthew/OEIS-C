@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 343, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   append_candidate, is_prime, seq_alloc_array
+ * Validated: standard, pass, 63 terms through n = 920 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,32 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"          /* provides is_prime(idx_t x) */
-#include "../utils/seq_alloc_array.h"   /* provides seq_alloc_array(size_t n) */
-#include "../utils/append_candidate.h"  /* provides append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val) */
+#include <stdlib.h>
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 seq_t a(idx_t n)
 {

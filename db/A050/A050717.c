@@ -6,9 +6,10 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = the nth integer n such that inserting digit 7 between
  *            every pair of adjacent decimal digits of n yields a prime
- * Range:     u8 n <= 2, u16 n <= 857, u32 n <= 6495, u64 n <= 9267,
- *            u128 n <= 9267, big any n
- * Helpers:   insert_sevens
+ * Range:     u8 n <= 2, u16 n <= 857, u32 n <= 6495, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 71 terms through n = 9267 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/insert_sevens.h"
+#include "../utils/mem.h"
+
+/* Insert digit 7 between every two adjacent digits of n. */
+static seq_t insert_sevens(seq_t n)
+{
+    if (n == 0) return 0;
+
+    uint8_t digits[20];
+    size_t len = 0;
+    seq_t tmp = n;
+    while (tmp) {
+        digits[len++] = (uint8_t)(tmp % 10);
+        tmp /= 10;
+    }
+
+    seq_t res = digits[len - 1];
+    for (int i = (int)len - 2; i >= 0; --i) {
+        res = res * 10 + 7;
+        res = res * 10 + digits[i];
+    }
+    return res;
+}
 
 static seq_t mul_mod64(seq_t a, seq_t b, seq_t mod)
 {
@@ -100,7 +122,7 @@ seq_t a(idx_t n)
         if (is_prime(ins)) {
             if (cache_len + 1 > cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len] = cand;
             ++cache_len;

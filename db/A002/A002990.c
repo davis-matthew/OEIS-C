@@ -11,19 +11,46 @@
  *            Count vertex-rooted valid trees V, and subtract unorde...
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 29, u64 n <= 51, u128 n <= 93,
  *            big any n
- * Helpers:   a2990_gcd, a2990_isfixed, a2990_pairs, a2990_tri, a2990_tri0,
- *            a2990_zalloc
+ * Validated: standard, pass, 49 terms through n = 945 (2026-11-03)
+ * Helpers:   gcd_idx, mem, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a2990_gcd.h"
-#include "../utils/a2990_isfixed.h"
-#include "../utils/a2990_pairs.h"
-#include "../utils/a2990_tri.h"
-#include "../utils/a2990_tri0.h"
-#include "../utils/a2990_zalloc.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
+
+static int a2990_isfixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x += x;
+    return x == 0;
+}
+
+/* x*(x-1)/2 */
+static seq_t a2990_tri0(seq_t x) {
+    if (x == 0) return 0;
+    if (x % 2 == 0) return (x / 2) * (x - 1);
+    return x * ((x - 1) / 2);
+}
+
+/* unordered pairs of trees from G with total size k; rep: allow equal trees */
+static seq_t a2990_pairs(const seq_t *G, idx_t k, int rep) {
+    seq_t s = 0;
+    idx_t i;
+    for (i = 1; 2 * i < k; i++) s += G[i] * G[k - i];
+    if (k > 0 && k % 2 == 0) s += rep ? triangular_seq(G[k / 2]) : a2990_tri0(G[k / 2]);
+    return s;
+}
+
+static seq_t *a2990_zalloc(idx_t len) {
+    seq_t *p = mem_new(seq_t, len);
+    idx_t i;
+    for (i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *a2990_res = NULL;
 static idx_t a2990_len = 0;
@@ -54,7 +81,7 @@ static void a2990_build(idx_t N) {
                     seq_t sj = (seq_t)j, sg, dd, num;
                     idx_t g;
                     if (sj == 0) { for (; j <= J; j++) mc[j] = 0; break; }
-                    g = a2990_gcd((idx_t)(res % sj), j);
+                    g = gcd_idx((idx_t)(res % sj), j);
                     sg = (seq_t)g;
                     dd = (seq_t)(j / g);
                     if (sg == 0 || dd == 0) { for (; j <= J; j++) mc[j] = 0; break; }
@@ -96,9 +123,9 @@ static void a2990_build(idx_t N) {
         V -= E;
         r[n] = V;
     }
-    free(T); free(B0); free(B1); free(B2); free(B3); free(Bt);
-    free(M); free(c); free(mc);
-    if (a2990_res) free(a2990_res);
+    mem_free(T); mem_free(B0); mem_free(B1); mem_free(B2); mem_free(B3); mem_free(Bt);
+    mem_free(M); mem_free(c); mem_free(mc);
+    if (a2990_res) mem_free(a2990_res);
     a2990_res = r;
     a2990_len = N + 1;
 }

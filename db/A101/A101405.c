@@ -7,7 +7,8 @@
  * Formula:   a(n) = n^π(n-1) where π(x) is the number of primes ≤ x
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/pow_seq.h"   /* provides seq_t pow_seq(seq_t base, idx_t exp) */
+#include "../utils/ipow_idx.h"
 
 static idx_t *pi_table = NULL;       /* cumulative prime counts */
 static bool *prime_mark = NULL;      /* sieve marks */
@@ -69,5 +70,5 @@ seq_t a(idx_t n)
     ensure_sieve_up_to(n - 1);
 
     idx_t pi_val = pi_table[n - 1];
-    return pow_seq((seq_t)n, pi_val);
+    return ipow_idx((seq_t)n, pi_val);
 }

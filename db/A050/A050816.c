@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   digits
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /* Sequence A050816: a(n) is the nth Fibonacci number F(k) where F(k) ends with the
  * decimal digits of k. The indices k are taken in increasing order. */
 #include <stdbool.h>
-#include "../utils/digits.h"
+#include "../utils/num_digits_idx.h"
 
 /* Pre-computed powers of 10 (seq_t).  Adjust MAX_DIGITS if larger indices are
  * required.  The values remain valid for `int` indices up to 10¹⁴. */
@@ -66,7 +67,7 @@ seq_t a(idx_t n)
         ++fib_i;
 
         /* Determine number of decimal digits of the index fib_i. */
-        int d = digits(fib_i);
+        int d = num_digits_idx(fib_i);
         /* Use the pre-computed power of 10 for modulo comparison. */
         seq_t mod = fib_next % pow10[d];
         if (mod == (seq_t)fib_i) {

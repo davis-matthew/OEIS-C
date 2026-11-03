@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 5049, u32 n <= 5049, u64 n <= 5049,
  *            u128 n <= 5049, big any n
- * Helpers:   gcd, idx_from_coords
+ * Validated: standard, pass, 88 terms through n = 4829 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/idx_from_coords.h"
+#include "../utils/mem.h"
+
+/* index into flattened triangle: row m, column n (0‑based) */
+static inline size_t idx_from_coords(idx_t m, idx_t n)
+{
+    return ((size_t)m * (m + 1)) / 2 + n;
+}
 
 /* static cached state ---------------------------------------------------- */
 
@@ -74,7 +81,7 @@ static void ensure_triangle_capacity(size_t needed)
     if (new_cap == 0) new_cap = 4;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(triangle_data, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, triangle_data, new_cap);
     if (!tmp) abort();
     triangle_data = tmp;
     triangle_cap  = new_cap;
@@ -88,7 +95,7 @@ static void init_state(void)
         return;
     /* initialise row 0 */
     triangle_cap  = 4;
-    triangle_data = (seq_t*)calloc(triangle_cap, sizeof(seq_t));
+    triangle_data = mem_new(seq_t, triangle_cap);
     if (!triangle_data) abort();
     triangle_data[0] = 1;
     triangle_max_row = 0;

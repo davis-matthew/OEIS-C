@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 22, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   good_n
+ * Validated: full, pass, 22 terms through n = 22 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/good_n.h"
+
+static bool good_n(seq_t n)
+{
+    uint16_t mask = 0;           /* bits 0..9 for digits 0..9 */
+    seq_t x = n;
+
+    /* digits of n */
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (mask & (1u << d))   return false;   /* repeated digit */
+        mask |= (1u << d);
+        x = x / 10;
+    }
+
+    /* digits of n² */
+    seq_t y = n * n;
+    while (y > 0) {
+        int d = (int)(y % 10);
+        if (mask & (1u << d))   return false;
+        mask |= (1u << d);
+        y = y / 10;
+    }
+    return true;
+}
 
 static seq_t        terms[22] = {};  /* cache of found terms            */
 static idx_t        term_cnt  = 0;   /* number of terms stored (≤22)   */

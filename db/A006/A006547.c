@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum ((-1)^(i+1)*binomial(n,i)*2^i*(2*i-1)!, i=1..n)
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 5, i64 n <= 9, i128 n <= 13,
  *            big any n
- * Helpers:   binom, pw2
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/pw2.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
             factorial *= (seq_t)(2*i - 1);
         }
         
-        seq_t term = binom(n, i) * pw2(i) * factorial;
+        seq_t term = binomial(n, i) * pow2(i) * factorial;
         
         if (i % 2 == 1) {
             result += term;

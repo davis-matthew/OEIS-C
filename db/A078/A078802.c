@@ -12,12 +12,14 @@
  *            = T(n-1,k) + T(n-2,k-1) + T(n-3,k-2) * Initial rows:...
  * Range:     u8 n <= 69, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the computed part of the triangular array. */
 static seq_t **triangle = NULL;
@@ -31,7 +33,7 @@ static void build_triangle(idx_t need)
 
     triangle = (seq_t **)realloc(triangle, (need + 1) * sizeof(seq_t *));
     for (idx_t i = triangle_size; i <= need; ++i) {
-        triangle[i] = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        triangle[i] = mem_new(seq_t, (i + 1));
     }
 
     for (idx_t i = 0; i <= need; ++i) {

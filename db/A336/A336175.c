@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 616, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_alloc, seq_cmp
+ * Validated: standard, pass, 78 terms through n = 9968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,27 @@
 #include <stdbool.h>
 
 /* Use the utilities provided by the framework.  */
-#include "../utils/seq_alloc.h"       /* seq_alloc(size_t) -> seq_t*   */
-#include "../utils/seq_cmp.h"         /* int seq_cmp(const void*,const void*) */
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* -------------------------------------------------------------------------- */
 /* Types supplied by the build system:  seq_t, idx_t.  We rely on them only
@@ -89,14 +109,14 @@ static void _generate_powerful (void)
             seq_t val = (seq_t)(a2 * b3);
             if (_pow_len == cap) {            /* grow the array */
                 cap <<= 1;
-                _pow_nums = (seq_t*)realloc(_pow_nums, cap * sizeof(seq_t));
+                _pow_nums = mem_resize(seq_t, _pow_nums, cap);
             }
             _pow_nums[_pow_len++] = val;
         }
     }
 
     /* Sort the array.  */
-    qsort(_pow_nums, _pow_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(_pow_nums, _pow_len, sizeof(seq_t), seq_cmp);
 
     /* Remove duplicates in place.  */
     size_t uniq = 0;

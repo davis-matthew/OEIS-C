@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n} (-1)^(n-k)*binomial(n-1,k-1)*tau(k)
  * Range:     i8 n <= 8, i16 n <= 16, i32 n <= 31, i64 n <= 63, i128 n <= 127,
  *            big any n
+ * Validated: standard, pass, 54 terms through n = 793 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

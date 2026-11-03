@@ -8,6 +8,7 @@
  * Formula:   a(n) = ∑_{i=1..⌊n/2⌋} μ(i)² (number of square‑free i ≤ ⌊n/2⌋)
  * Range:     u8 n <= 837, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 87 terms through n = 9721 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

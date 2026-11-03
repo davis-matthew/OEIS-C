@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 144, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9665 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Sequence A389079 (odd nonsquarefree numbers satisfying a divisor sum inequality).
    The function `a` searches successive odd integers, uses a prime sieve for factorisation,
@@ -121,7 +123,7 @@ seq_t a(idx_t n)
             /* Store the term, growing capacity if necessary. */
             if (terms_cnt == terms_cap) {
                 size_t new_cap = terms_cap == 0 ? 64 : terms_cap * 2;
-                seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
                 if (!new_terms) exit(1);
                 terms      = new_terms;
                 terms_cap  = new_cap;

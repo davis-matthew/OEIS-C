@@ -10,13 +10,17 @@
  *            This is the row‑major flattening of that triangle
  * Range:     u8 n <= 23, u16 n <= 48, u32 n <= 110, u64 n <= 284,
  *            u128 n <= 791, big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 75 terms through n = 9377 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Find the row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2.
@@ -37,7 +41,7 @@ seq_t a(idx_t n) {
         return (r == 0) ? (seq_t)1 : (seq_t)0;
     }
 
-    seq_t pow_val = big_pow((seq_t)c, (seq_t)(r - c));
+    seq_t pow_val = ipow((seq_t)c, (seq_t)(r - c));
     seq_t bin = binomial(r, c);
     return bin * pow_val;
 }

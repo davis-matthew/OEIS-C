@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 84, u32 n <= 200, u64 n <= 482,
  *            u128 n <= 1207, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9044 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* static caches for partition numbers p(0..max_n) and
    A002865(j)=p(j)-p(j-1) values */
@@ -41,7 +43,7 @@ static void ensure_partitions(idx_t need)
         return;
 
     /* allocate new array */
-    seq_t *new_parts = (seq_t *)calloc((size_t)need, sizeof(seq_t));
+    seq_t *new_parts = mem_new(seq_t, (size_t)need);
     if (!new_parts)
         return;                         /* out of memory – unlikely in tests */
 
@@ -55,7 +57,7 @@ static void ensure_partitions(idx_t need)
     }
 
     /* replace old array */
-    free(partitions);
+    mem_free(partitions);
     partitions = new_parts;
     part_len   = need;
 }
@@ -68,7 +70,7 @@ static void ensure_A002865(idx_t need)
 
     ensure_partitions(need);             /* need corresponding p values */
 
-    seq_t *new_A = (seq_t *)malloc((size_t)need * sizeof(seq_t));
+    seq_t *new_A = mem_new(seq_t, (size_t)need);
     if (!new_A)
         return;                         /* out of memory – unlikely */
 
@@ -77,7 +79,7 @@ static void ensure_A002865(idx_t need)
         new_A[j] = partitions[j] - partitions[j - 1];
     }
 
-    free(A002865_vals);
+    mem_free(A002865_vals);
     A002865_vals = new_A;
     A_len        = need;
 }

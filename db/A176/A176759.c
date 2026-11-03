@@ -11,13 +11,15 @@
  *            k = 1, l = -1
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 21, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper to ensure the cache is large enough */
 static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr)
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr)
     if (n >= *cap_ptr) {
         size_t new_cap = (*cap_ptr == 0) ? 4 : (*cap_ptr << 1);
         while (new_cap <= n) new_cap <<= 1;
-        *cache_ptr = (seq_t *)realloc(*cache_ptr, new_cap * sizeof(seq_t));
+        *cache_ptr = mem_resize(seq_t, *cache_ptr, new_cap);
         for (idx_t i = *cap_ptr; i < new_cap; ++i) (*cache_ptr)[i] = 0;
         *cap_ptr = new_cap;
     }

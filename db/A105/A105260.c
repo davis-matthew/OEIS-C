@@ -9,14 +9,16 @@
  *            (floor(2*i/3)+1), and k = n - sum_{i=0}^{r-1} (floor(2*i/3)+1).
  *            The triangle entry T(r,k) is defined as C(2r-2k, k). Thus the
  *            sequence a(n) lists the triangle entries row‑by‑row
- * Range:     u8 n <= 26, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
+ * Range:     u8 n <= 39, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -35,5 +37,5 @@ seq_t a(idx_t n)
     idx_t k = n;              /* column index within row r   */
     idx_t N = 2 * r - 2 * k;   /* choose upper argument       */
 
-    return binom(N, k);
+    return binomial(N, k);
 }

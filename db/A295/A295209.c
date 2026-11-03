@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 26, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define COLS 4
 #define STATE_BITS (COLS * 3)   /* 12 bits per state */
@@ -104,22 +106,22 @@ seq_t a(idx_t n)
 
     /* Initialise DP memoisation structures once */
     if (!dp_cur) {
-        dp_cur  = (seq_t*)calloc(MAX_STATE, sizeof(seq_t));
-        dp_next = (seq_t*)calloc(MAX_STATE, sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, MAX_STATE);
+        dp_next = mem_new(seq_t, MAX_STATE);
         /* start with an empty previous row (state 0) */
         dp_cur[0] = (seq_t)1;
 
         memo_size   = 1;      /* memo[0] unused */
-        memo        = (seq_t*)calloc(memo_size, sizeof(seq_t));
+        memo        = mem_new(seq_t, memo_size);
         computed_max = 0;
     }
 
     /* Extend memo array if needed */
     if (n >= memo_size) {
         idx_t new_size = n + 1;
-        seq_t *new_memo = (seq_t*)calloc(new_size, sizeof(seq_t));
-        memcpy(new_memo, memo, memo_size * sizeof(seq_t));
-        free(memo);
+        seq_t *new_memo = mem_new(seq_t, new_size);
+        mem_copy(new_memo, memo, memo_size * sizeof(seq_t));
+        mem_free(memo);
         memo = new_memo;
         memo_size = new_size;
     }

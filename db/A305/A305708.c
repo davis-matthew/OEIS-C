@@ -11,13 +11,15 @@
  *            The binomial coefficients C(n−1, k−1) are computed multi...
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 15, i64 n <= 24, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Static caches for a(n) and for the real parts of (1+i)^k          */
@@ -41,7 +43,7 @@ static void ensure_r_cache(idx_t idx)
         return;
 
     size_t new_cap = (size_t)(idx + 1);
-    r_cache = (seq_t*)realloc(r_cache, new_cap * sizeof(seq_t));
+    r_cache = mem_resize(seq_t, r_cache, new_cap);
     if (!r_cache)
         abort();
 
@@ -67,7 +69,7 @@ static void ensure_a_cache(idx_t idx)
 
     /* Grow a_cache */
     size_t new_cap = (size_t)(idx + 1);
-    a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     if (!a_cache)
         abort();
 
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
     /* First‑time initialisation of the caches */
     if (a_cache == NULL)
     {
-        a_cache = (seq_t*)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache) abort();
         a_cache[0] = 1;
         a_cap = 1;
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
 
     if (r_cache == NULL)
     {
-        r_cache = (seq_t*)malloc(sizeof(seq_t));
+        r_cache = mem_new(seq_t, 1);
         if (!r_cache) abort();
         r_cache[0] = 1;          /* Re[(1+i)^0] = 1 */
         r_cap = 1;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 109, u32 n <= 109, u64 n <= 109,
  *            u128 n <= 109, big any n
- * Helpers:   build_primes, mod_pow
+ * Validated: partial, pass, 109 terms through n = 109 (2026-11-03)
+ * Helpers:   build_primes, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,11 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include <string.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static bool _a330406_initialized = false;
 static const idx_t _sieve_limit = 3000000;       /* primes up to this limit */
@@ -64,7 +68,7 @@ static void _ensure_cache(idx_t n)
 
     /* extend the cache up to n */
     size_t new_size = _cache_size;
-    _a_cache = (seq_t *)realloc(_a_cache, n * sizeof(seq_t));
+    _a_cache = mem_resize(seq_t, _a_cache, n);
 
     for (size_t k = _cache_size; k < (size_t)n; ++k) {
         /* k = 0 corresponds to a(1) */
@@ -74,7 +78,7 @@ static void _ensure_cache(idx_t n)
 
         seq_t q_ans = 0;
         for (size_t j = 0; j < _prime_count && _prime_list[j] < p; ++j) {
-            seq_t r = mod_pow((seq_t)_prime_list[j], exp, (seq_t)p);
+            seq_t r = powmod((seq_t)_prime_list[j], exp, (seq_t)p);
             if (r == target) {
                 q_ans = _prime_list[j];
                 break;

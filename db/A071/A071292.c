@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 82, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   floor_sqrt, is_prime_small
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   ipow_i32, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ---- cache tables ---- */
 static uint64_t *prime_cache = NULL;   /* primes, 1-based indexing (prime_cache[0] = 2) */
@@ -45,7 +65,7 @@ static void grow_uint64_array(uint64_t **arr, size_t *cnt, size_t new_cnt)
 /* helper to grow an array of seq_t */
 static void grow_seq_array(seq_t **arr, size_t *cnt, size_t new_cnt)
 {
-    seq_t *tmp = (seq_t*)realloc(*arr, new_cnt * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cnt);
     *arr = tmp;
     *cnt = new_cnt;
 }
@@ -57,7 +77,7 @@ static void ensure_primes(idx_t n)
         uint64_t start = (prime_cache_cnt == 0) ? 2 : prime_cache[prime_cache_cnt-1] + 1;
         uint64_t p = start;
         for (;; ++p) {
-            if (is_prime_small(p)) break;
+            if (is_prime_seq(p)) break;
         }
         size_t new_cnt = prime_cache_cnt + 1;
         grow_uint64_array(&prime_cache, &prime_cache_cnt, new_cnt);

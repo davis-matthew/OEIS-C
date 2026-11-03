@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 18, u128 n <= 39,
  *            big any n
- * Helpers:   delta_idx, weight_from_delta
+ * Validated: standard, pass, 33 terms through n = 201 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,29 @@
    such that every 2×2 subblock has its diagonal sum differing
    from its antidiagonal sum by 2. */
 #include <stddef.h>
-#include "../utils/delta_idx.h"
-#include "../utils/weight_from_delta.h"
+
+static inline int delta_idx(int d0, int d1, int d2)
+{
+    return (d0 + 4) * 81 + (d1 + 4) * 9 + (d2 + 4);
+}
+
+/* weight of a state: number of possible offsets giving rows within 0..4 */
+static inline int weight_from_delta(int d0, int d1, int d2)
+{
+    int p = 0, minp = 0, maxp = 0;
+    int ds[3] = {d0, d1, d2};
+    for (int i = 0; i < 3; ++i) {
+        p += ds[i];
+        if (p < minp) minp = p;
+        if (p > maxp) maxp = p;
+    }
+    int lo = -minp;
+    int hi = 4 - maxp;
+    if (lo < 0) lo = 0;
+    if (hi > 4) hi = 4;
+    if (lo > hi) return 0;
+    return hi - lo + 1;
+}
 
 #define MAX_STATES 729       /* 9^3 possible difference triples */
 

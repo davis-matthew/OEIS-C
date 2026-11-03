@@ -12,13 +12,15 @@
  *            a(n) = -5^(r-c) This reproduces the OEIS...
  * Range:     i8 n <= 6, i16 n <= 21, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n‑th term of A152862 (zero‑based).  */
 seq_t a(idx_t n)
@@ -44,14 +46,14 @@ seq_t a(idx_t n)
     idx_t need = r + 1;                   /* need up to 5^(r+1) */
     if (!pows) {
         pow_cap = 1;
-        pows = (seq_t *)malloc(sizeof(seq_t) * pow_cap);
+        pows = mem_new(seq_t, pow_cap);
         pows[0] = (seq_t)1;
         pow_len = 1;
     }
     while (pow_len <= need) {
         if (pow_len == pow_cap) {
             pow_cap *= 2;
-            pows = (seq_t *)realloc(pows, sizeof(seq_t) * pow_cap);
+            pows = mem_resize(seq_t, pows, pow_cap);
         }
         pows[pow_len] = pows[pow_len - 1] * (seq_t)5;
         pow_len++;

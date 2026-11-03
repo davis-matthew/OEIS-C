@@ -8,7 +8,8 @@
  *            a(1)=3
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 277 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* pointer to cached terms   */
 static size_t cache_len = 0;       /* number of terms in cache */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 {
     /* Ensure cache contains a(0) and a(1). */
     if (cache_len < 2) {
-        cache = (seq_t *)realloc(cache, 2 * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, 2);
         cache_len = 2;
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)3;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Extend cache if necessary. */
     if (cache_len <= (size_t)n) {
         /* Grow the array to hold terms up to n. */
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
 
         /* Compute new terms using the recurrence. */
         for (size_t i = cache_len; i <= (size_t)n; ++i) {

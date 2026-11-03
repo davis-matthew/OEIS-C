@@ -11,13 +11,15 @@
  *            values * so that subsequent or out‑of‑order calls are fast
  * Range:     u8 n <= 61, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* cached values a(1)..a(cacheSize) */
@@ -56,12 +58,12 @@ seq_t a(idx_t n) {
         /* store the new a(totalDigits) into cache */
         if (cacheSize == cacheCap) {
             size_t newCap = cacheCap == 0 ? 64 : cacheCap * 2;
-            seq_t *newCache = (seq_t *)malloc(newCap * sizeof(seq_t));
+            seq_t *newCache = mem_new(seq_t, newCap);
             if (newCache == NULL) exit(1);   /* allocation failed */
             if (cache != NULL) {
                 for (idx_t i = 0; i < cacheSize; ++i)
                     newCache[i] = cache[i];
-                free(cache);
+                mem_free(cache);
             }
             cache = newCache;
             cacheCap = newCap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* limit up to which we search for expressible numbers.
    200 000 is sufficient for the first ≈10 000 terms.  */
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         for (idx_t i = 1; i <= LIMIT; ++i)
             if (!rep[i]) ++cnt;
 
-        terms = (seq_t *)malloc((size_t)cnt * sizeof(seq_t));
+        terms = mem_new(seq_t, (size_t)cnt);
         if (!terms) abort();
 
         idx_t pos = 0;

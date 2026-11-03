@@ -13,13 +13,15 @@
  *            4‑tuples. No hard‑coded terms are used
  * Range:     u8 none, u16 n <= 4, u32 n <= 14, u64 n <= 32, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
 
     /* Extend to length N */
     for (idx_t len=5; len <= N; ++len) {
-        memset(dp_new, 0, sizeof(dp_new));
+        mem_set(dp_new, 0, sizeof(dp_new));
         for (int s=0; s<256; ++s) {
             seq_t val = dp[s];
             if (!val) continue;
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
                 dp_new[t] += val;
             }
         }
-        memcpy(dp, dp_new, sizeof(dp));
+        mem_copy(dp, dp_new, sizeof(dp));
     }
 
     /* Sum all ending states */

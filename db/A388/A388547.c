@@ -10,15 +10,16 @@
  *            a(n) is the triangle read by rows: a(1)=T(1,1), a(2)=T(2,1),
  *            a(3)=T(2,2), a(4)=T(3,1), a(5)=T(3,2), a(6)=T(3,3), … The
  *            function below implements this definition exactly
- * Range:     u8 n <= 21, u16 n <= 136, u32 n <= 528, u64 n <= 1275,
+ * Range:     u8 n <= 36, u16 n <= 136, u32 n <= 528, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 94 terms through n = 1269 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b); */
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
         /* n' = row + 1 - (col-1)*i  (rationally the same as the
            formula's n+1-(k-1)*i) */
         idx_t np = row + 1 - (col - 1) * i;
-        seq_t term = binom(np, 2 * i);
+        seq_t term = binomial(np, 2 * i);
         sum += term;
     }
     return sum;

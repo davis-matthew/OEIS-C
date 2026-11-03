@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} k^(n-k) * (n-k)^k / k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= n; ++k) {
         if (k != 0 && k != n) {             /* interior terms only   */
             seq_t term = r;
-            term *= pow_seq((seq_t)k, (int)(n - k));
-            term *= pow_seq((seq_t)(n - k), (int)k);
+            term *= ipow_i32((seq_t)k, (int)(n - k));
+            term *= ipow_i32((seq_t)(n - k), (int)k);
             sum += term;
         }
         if (k < n)                         /* prepare next r = n!/(k+1)! */

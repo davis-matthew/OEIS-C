@@ -8,7 +8,8 @@
  * Formula:   a(n) = least semiprime that is the sum of n consecutive primes
  * Range:     u8 n <= 5, u16 n <= 154, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 8875 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------------------------- */
 /*   Helper: generate primes as uint64_t --------------------------------- */
@@ -67,7 +69,7 @@ static void ensure_cache(idx_t n)
     if (n < 3) return;
     while (value_cache_cap <= (size_t)n) {
         size_t new_cap = value_cache_cap ? value_cache_cap * 2 : 16;
-        seq_t *new_cache = (seq_t *)realloc(value_cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, value_cache, new_cap);
         if (!new_cache) abort();
         for (size_t i = value_cache_cap; i < new_cap; ++i) new_cache[i] = 0;
         value_cache = new_cache;

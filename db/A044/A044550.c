@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has43
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
    does not.  A simple search with caching is used. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has43.h"
+#include "../utils/mem.h"
+
+/* True if base‑7 representation of n contains the substring 4,3. */
+static inline bool has43(seq_t n)
+{
+    seq_t prev = n % (seq_t)7;
+    n /= (seq_t)7;
+    while (n > (seq_t)0) {
+        seq_t curr = n % (seq_t)7;
+        if (prev == (seq_t)3 && curr == (seq_t)4)
+            return true;
+        prev = curr;
+        n /= (seq_t)7;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;           /* stored terms          */
 static size_t cache_cap = 0;          /* allocated space       */
@@ -33,11 +49,11 @@ static void grow_cache(size_t needed)
     size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

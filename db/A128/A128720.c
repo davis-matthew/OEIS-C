@@ -10,13 +10,15 @@
  *            + c(n-2) where c(k) = sum_{j=0}^{k} a(j) * a(k-j)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 41, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;     /* cache of previously computed values */
 static idx_t  cache_size = 0;     /* current allocated capacity */
@@ -29,7 +31,7 @@ grow_cache(idx_t need)
     if (need < cache_size) return;
     size_t new_cap = cache_size ? cache_size * 2 : 16;
     while (new_cap <= (size_t)need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) abort();                 /* allocation failed */
     a_cache = tmp;
     cache_size = new_cap;

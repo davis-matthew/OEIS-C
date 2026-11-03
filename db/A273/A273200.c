@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper to sort uint64_t values */
 static int cmp_uint64(const void *a, const void *b) {
@@ -137,7 +139,7 @@ static void ensure_cache_capacity(size_t needed) {
     if (cache_len >= needed) return;
     size_t new_cap = cache_len ? cache_len * 2 : 128;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
 }

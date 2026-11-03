@@ -11,14 +11,41 @@
  *            as (1-yz)/(P-tQ) and using E(R)=Sum m! R^m, which satisfies R...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   h1885_conv, h1885_pmul
+ * Validated: partial, pass, 22 terms through n = 23 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/h1885_conv.h"
-#include "../utils/h1885_pmul.h"
+
+static void h1885_conv(long long p[][12], long long out[][3]) {
+    int i, j, t;
+    for (i = 0; i < 10; i++)
+        for (t = 0; t < 3; t++) {
+            long long s = 0;
+            for (j = t; j < 12; j++) {
+                long long bn = (t == 0) ? 1 : (t == 1 ? j : (long long)j * (j - 1) / 2);
+                long long v = p[i][j] * bn;
+                if ((j - t) & 1) s -= v; else s += v;
+            }
+            out[i][t] = s;
+        }
+}
+
+static void h1885_pmul(long long x[][12], long long y[][12], long long r[][12]) {
+    int i, j, k, l;
+    for (i = 0; i < 10; i++)
+        for (j = 0; j < 12; j++)
+            r[i][j] = 0;
+    for (i = 0; i < 10; i++)
+        for (j = 0; j < 12; j++) {
+            if (x[i][j] == 0) continue;
+            for (k = 0; i + k < 10; k++)
+                for (l = 0; j + l < 12; l++)
+                    r[i + k][j + l] += x[i][j] * y[k][l];
+        }
+}
 
 #define H1885_MAXN 20001
 

@@ -9,6 +9,7 @@
  *            are the Tribonacci numbers (T(k)=T(k-1)+T(k-2)+T(k-3))
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 35, u128 n <= 71,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 958 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

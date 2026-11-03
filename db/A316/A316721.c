@@ -8,6 +8,7 @@
  *            x^(2k))
  * Range:     u8 n <= 22, u16 n <= 63, u32 n <= 292, u64 n <= 4769,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9339 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

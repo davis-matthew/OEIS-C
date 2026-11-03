@@ -9,13 +9,15 @@
  *            |p(i)-i| between 1 and 5 for all i
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define K 5
 #define B (2 * K + 1)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     static seq_t dp_next[1u << B];
 
     /* Initialize DP */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initial mask at i = 1 */
     uint32_t init_mask = 0;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
 
     /* DP over rows i = 1 .. n */
     for (idx_t i = 1; i <= n; ++i) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (uint32_t mask = 0; mask <= FULL; ++mask) {
             seq_t ways = dp[mask];
             if (!ways)
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap dp arrays */
-        memcpy(dp, dp_next, sizeof(dp));
+        mem_copy(dp, dp_next, sizeof(dp));
     }
 
     /* After processing all rows, all columns must be used -> mask == FULL */

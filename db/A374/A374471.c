@@ -8,8 +8,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 1 if bigomega(n) and A064547(n) are both even, else 0
- * Range:     u8 n <= 9489, u16 n <= 9489, u32 n <= 9489, u64 n <= 9489,
- *            u128 n <= 9489, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 141 terms through n = 9489 (2026-11-01)
  * Helpers:   bigomega, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"
+#include <stdlib.h>
 #include "../utils/bigomega.h"
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n) {
     /* Condition 1: bigomega(n) even */

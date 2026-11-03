@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   gcd, is_prime_small
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   gcd, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 /* Searches for the smallest composite integer > n that is
    relatively prime to n and whose difference with n is also composite. */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -26,13 +29,13 @@ seq_t a(idx_t n)
 
     for (;;) {
         /* cand must be composite (not prime and >1) */
-        if (cand > one && !is_prime_small(cand)) {
+        if (cand > one && !is_prime_seq(cand)) {
             /* coprime to n */
             seq_t g = gcd(cand, (seq_t)n);
             if (g == one) {
                 seq_t diff = cand - (seq_t)n;
                 /* diff must also be composite */
-                if (diff > one && !is_prime_small(diff)) {
+                if (diff > one && !is_prime_seq(diff)) {
                     return cand;
                 }
             }

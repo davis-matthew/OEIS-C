@@ -8,12 +8,14 @@
  * Formula:   a(n) = H(2n+1)*(2n+1)!/n!
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache_buf   = NULL;   /* a(n) values */
 static seq_t *prod_buf    = NULL;   /* P_n = (n+1)…(2n+1) */
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
     /* Resize buffers if needed */
     if (n >= buf_size) {
         idx_t new_size = n + 1;
-        cache_buf = (seq_t *)realloc(cache_buf, new_size * sizeof(seq_t));
-        prod_buf  = (seq_t *)realloc(prod_buf,  new_size * sizeof(seq_t));
+        cache_buf = mem_resize(seq_t, cache_buf, new_size);
+        prod_buf  = mem_resize(seq_t, prod_buf, new_size);
 
         /* Fill missing entries */
         for (idx_t i = buf_size; i <= n; ++i) {

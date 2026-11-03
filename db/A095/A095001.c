@@ -12,12 +12,13 @@
  *            in O(exp) steps. This * method is fast enoug...
  * Range:     u8 n <= 14, u16 n <= 29, u32 n <= 59, u64 n <= 122,
  *            u128 n <= 242, big any n
- * Helpers:   rad
+ * Validated: standard, pass, 61 terms through n = 6131 (2026-11-01)
+ * Helpers:   radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/rad.h"       /* seq_t rad(idx_t m); */
+#include "../utils/radical.h"
 
 static inline seq_t pow_seq_t(seq_t base, idx_t exp)
 {
@@ -35,11 +36,11 @@ seq_t a(idx_t n)
             idx_t d1 = i;
             idx_t d2 = n / i;
 
-            seq_t rad1 = rad(d1);
+            seq_t rad1 = radical(d1);
             sum += pow_seq_t(rad1, n / d1);
 
             if (d2 != d1) {
-                seq_t rad2 = rad(d2);
+                seq_t rad2 = radical(d2);
                 sum += pow_seq_t(rad2, n / d2);
             }
         }

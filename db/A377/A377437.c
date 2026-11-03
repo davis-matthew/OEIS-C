@@ -12,13 +12,21 @@
  *            = 5*x+1 and repeat. Steps count the number of 5x...
  * Range:     u8 n <= 22, u16 n <= 9929, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   remove23
+ * Validated: standard, pass, 120 terms through n = 9930 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/remove23.h"
+
+/* Helper to remove all factors of 2 and 3 from x */
+static inline seq_t remove23(seq_t x)
+{
+    while ((x % 2) == 0) x /= 2;
+    while ((x % 3) == 0) x /= 3;
+    return x;
+}
 
 /* OEIS A377437: number of 5x+1 steps to reach 1 */
 seq_t a(idx_t n)

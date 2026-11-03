@@ -5,18 +5,20 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, fini, nonn, bref
  * Formula:   a(n) = s^φ(s) where s = sum of decimal digits of a(n)
- * Range:     u8 none, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 3,
+ * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   big_pow, calc_phi, digit_sum
+ * Validated: partial, pass, 3 terms through n = 3 (2026-11-01)
+ * Helpers:   digit_sum, ipow, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
 #include "../utils/digit_sum.h"
-#include "../utils/calc_phi.h"
+#include "../utils/ipow.h"
+#include "../utils/totient_seq.h"
 
 /* Computes the n‑th term of OEIS A135235.  */
 seq_t a(idx_t n) {
@@ -33,8 +35,8 @@ seq_t a(idx_t n) {
         size_t i;
         for (idx_t s = 1; s <= MAX_S; ++s) {
             seq_t base = (seq_t)s;
-            seq_t phi  = calc_phi(base);
-            seq_t val  = big_pow(base, phi);
+            seq_t phi  = totient_seq(base);
+            seq_t val  = ipow(base, phi);
             seq_t sum  = digit_sum(val);
             if (sum == base) {
                 /* store the found value */

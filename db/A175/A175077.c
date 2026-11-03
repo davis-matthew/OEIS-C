@@ -9,6 +9,7 @@
  *            is the largest prime less than r, until reaching 1 or 2
  * Range:     u8 n <= 106, u16 n <= 106, u32 n <= 106, u64 n <= 106,
  *            u128 n <= 106, big any n
+ * Validated: partial, pass, 106 terms through n = 106 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

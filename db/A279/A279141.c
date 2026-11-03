@@ -14,13 +14,15 @@
  *            a(10)=10101000001, a(11)=11100, a(12)=1010111010101, a(...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 116 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Base values for n = 0 … 15.  These are the decimal numbers whose
    decimal digits form the binary representation of the CA x‑axis. */
@@ -54,7 +56,7 @@ static void ensure_cache(idx_t n)
         return;
 
     idx_t new_len = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache)      /* allocation failed – leave old cache */
         return;
     cache = new_cache;

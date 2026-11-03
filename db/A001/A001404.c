@@ -10,15 +10,24 @@
  *            reads the triangle by rows
  * Range:     u8 n <= 36, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   alloc_seq, release
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/release.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 seq_t a(idx_t n) {
     idx_t r = 0, start = 0;

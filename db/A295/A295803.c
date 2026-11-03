@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 3 terms through n = 3 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External linkage as required. */
 seq_t a(idx_t n)
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
             if (dp[K * stride + j] == 6) ++cnt;
         }
 
-        list = (seq_t *)malloc(sizeof(seq_t) * cnt);
+        list = mem_new(seq_t, cnt);
         if (!list) {
             free(dp);
             return 0;

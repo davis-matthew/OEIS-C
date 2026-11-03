@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 5, u16 n <= 610, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9552 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 #if defined(__cplusplus)
 #include <vector>
@@ -161,7 +163,7 @@ seq_t a(idx_t n)
                 uint64_t v = (uint64_t)v128;
                 if (!seen[v]) {
                     seen[v] = true;
-                    if (v >= 7 && is_prime(v))
+                    if (v >= 7 && is_prime_u64(v))
                         add_prime((seq_t)v);
                 }
                 ++x;

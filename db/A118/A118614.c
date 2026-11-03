@@ -9,14 +9,15 @@
  *            the decimal reversal of x
  * Range:     u8 n <= 6, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   reverse_decimal_seq
+ * Validated: standard, pass, 72 terms through n = 999 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/reverse_decimal_seq.h"
+#include "../utils/reverse_digits.h"
 
 /* Sequence A118614.  */
 seq_t a(idx_t n)
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
     if (n == 1) return val;
     for (idx_t i = 2; i <= n; ++i)
     {
-        seq_t rev = reverse_decimal_seq(val);
+        seq_t rev = reverse_digits(val);
         val = rev + (seq_t)28;
     }
     return val;

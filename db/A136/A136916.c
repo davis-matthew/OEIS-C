@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 28, u32 n <= 431, u64 n <= 1045,
  *            u128 n <= 1045, big any n
- * Helpers:   allowed_uint128
+ * Validated: standard, pass, 68 terms through n = 805 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,19 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/allowed_uint128.h"
+#include "../utils/mem.h"
+
+/* Allowed digit test for __int128 numbers (used for squares). */
+static bool allowed_uint128(unsigned __int128 x)
+{
+    if (x == 0) return true;
+    while (x) {
+        int d = (int)(x % 10);
+        if (d != 0 && d != 2 && d != 5 && d != 7 && d != 8) return false;
+        x /= 10;
+    }
+    return true;
+}
 
 /* Dynamic array to hold computed sequence values. */
 static seq_t *seq_cache   = NULL;   /* pointer to array of seq_t values */
@@ -37,7 +50,7 @@ static void ensure_capacity(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 1;
     if (new_cap < need) new_cap = need;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap   = new_cap;
 }
 

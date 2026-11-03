@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} |Stirling1(n,k)| * n^k * k!
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   allocate_arr, resize_arr
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,26 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/allocate_arr.h"
-#include "../utils/resize_arr.h"
+
+/* Helper allocators usable in both C and C++. */
+static seq_t* allocate_arr(size_t n) {
+#ifdef __cplusplus
+    return new seq_t[n];
+#else
+    return (seq_t*)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static seq_t* resize_arr(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* newp = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i) newp[i] = old[i];
+    delete [] old;
+    return newp;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static void free_arr(seq_t* p) {
 #ifdef __cplusplus

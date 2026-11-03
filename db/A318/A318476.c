@@ -7,16 +7,19 @@
  * Formula:   a(n) = 2^(sum_{p^e∣∣n} Catalan(e))
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 31, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   big_pow, catalan, factor_u64
+ * Validated: standard, pass, 111 terms through n = 499 (2026-11-01)
+ * Helpers:   catalan, factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
-#include "../utils/big_pow.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,5 +33,5 @@ seq_t a(idx_t n)
         seq_t cat = catalan((idx_t)exps[i]);
         sum += cat;
     }
-    return big_pow((seq_t)2, sum);
+    return ipow((seq_t)2, sum);
 }

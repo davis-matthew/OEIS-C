@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 115, u32 n <= 268, u64 n <= 654,
  *            u128 n <= 1277, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 82 terms through n = 1201 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
  * in the array and evaluates T(row,column) directly using integer arithmetic.
  */
  
-#include "../utils/big_pow.h"   /* provides seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
  
 seq_t a(idx_t n)
 {
@@ -54,8 +57,8 @@ seq_t a(idx_t n)
     idx_t exp1 = k - 2;
     idx_t exp2 = (k - 1) >> 1;           /* floor((k-1)/2) */
     
-    seq_t term1 = big_pow(half, (seq_t)exp1);
-    seq_t term2 = big_pow(half, (seq_t)exp2);
+    seq_t term1 = ipow(half, (seq_t)exp1);
+    seq_t term2 = ipow(half, (seq_t)exp2);
     
     seq_t sum = term1 + term2;
     return sum >> 1;                     /* divide by 2 */

@@ -9,12 +9,14 @@
  *            ∏_{i=1..4}(1−x^i)^2
  * Range:     i8 n <= 47, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,12 +33,12 @@ seq_t a(idx_t n)
     /* recompute if we need a larger range or we have no cache yet */
     if (need > max_cached || c_arr == NULL) {
         /* free old cache */
-        if (c_arr) free(c_arr);
-        if (f_arr) free(f_arr);
+        if (c_arr) mem_free(c_arr);
+        if (f_arr) mem_free(f_arr);
 
         /* allocate new cache */
-        c_arr = (seq_t *)malloc((need + 1) * sizeof(seq_t));
-        f_arr = (seq_t *)malloc((need + 1) * sizeof(seq_t));
+        c_arr = mem_new(seq_t, (need + 1));
+        f_arr = mem_new(seq_t, (need + 1));
         if (!c_arr || !f_arr) return 0;   /* allocation failed */
 
         /* initialize to zero */

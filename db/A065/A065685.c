@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, prime_limit_for_idx, starts_with_six
+ * Validated: standard, pass, 121 terms through n = 940 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,28 @@
 
 /* forward declaration of the helper that supplies primes */
 #include "../utils/build_primes_upto.h"
-#include "../utils/prime_limit_for_idx.h"
-#include "../utils/starts_with_six.h"
+#include "../utils/mem.h"
+
+/* utility – estimate an upper bound for the n-th prime (Rosser–Schoenfeld) */
+static idx_t prime_limit_for_idx(idx_t n)
+{
+    if (n < 6)
+        return 12;                               /* prime(6)=13 */
+    double dn   = (double)n;
+    double lgn  = log(dn);
+    double lgln = log(lgn);
+    /* p_n < n(ln n + ln ln n) for n ≥ 6, add a safety margin */
+    double limit = dn * (lgn + lgln) + 3.0;
+    return (idx_t)limit;
+}
+
+/* test whether a 64‑bit integer starts with the digit 6 */
+static inline bool starts_with_six(uint64_t x)
+{
+    while (x >= 10)
+        x /= 10;
+    return x == 6;
+}
 
 /* the sequence function */
 seq_t a(idx_t n)
@@ -44,7 +65,7 @@ seq_t a(idx_t n)
         for (;;) {
             /* free old data if any */
             if (primes != NULL)   free(primes);
-            if (prefix != NULL)   free(prefix);
+            if (prefix != NULL)   mem_free(prefix);
 
             /* obtain all primes ≤ limit */
             build_primes_upto(limit, &primes, &primes_cnt);
@@ -57,7 +78,7 @@ seq_t a(idx_t n)
         }
 
         /* build the prefix array */
-        prefix = (seq_t *)calloc(primes_cnt + 1, sizeof(seq_t));
+        prefix = mem_new(seq_t, primes_cnt + 1);
         if (prefix == NULL)
             exit(EXIT_FAILURE);
 

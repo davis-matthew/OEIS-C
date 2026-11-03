@@ -7,7 +7,8 @@
  * Formula:   a(n) = n - 2*cos(n*Pi/3) + Lucas(n)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* a(n) values are defined for n >= 1 (offset = 1) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for Lucas numbers, indexed by n (Lucas(0) = 2, Lucas(1) = 1) */
 static seq_t *lucas_cache = NULL;
@@ -27,7 +29,7 @@ static void ensure_lucas(idx_t n)
         return;                       /* already computed */
 
     idx_t new_len = n + 1;                          /* allocate up to n inclusive */
-    seq_t *new_cache = (seq_t *)realloc(lucas_cache, (size_t)new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, lucas_cache, (size_t)new_len);
     if (!new_cache)
         exit(1);                                 /* allocation failure */
 

@@ -11,18 +11,50 @@
  *            without that division: b = Product_{k>=1} 1/(1-x^k)...
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 53, u128 n <= 113,
  *            big any n
- * Helpers:   gcd_seq, grow_zero, release, seq_is_fixed_width, zalloc_arr
+ * Validated: standard, pass, 47 terms through n = 995 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_seq.h"
-#include "../utils/grow_zero.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/zalloc_arr.h"
-#include "../utils/release.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *E_[4];
 static seq_t *C_[3];
@@ -72,7 +104,7 @@ static seq_t a_fixed(idx_t n) {
             idx_t J = N / k;
             g[0] = 1;
             for (idx_t j = 1; j <= J; j++) {
-                seq_t t = gcd_seq(g[j - 1], (seq_t)j);
+                seq_t t = gcd(g[j - 1], (seq_t)j);
                 seq_t gp = (seq_t)(g[j - 1] / t);
                 seq_t jj = (seq_t)((seq_t)j / t);
                 seq_t num = (seq_t)(m + (seq_t)(j - 1));

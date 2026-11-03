@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,11 @@
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 static const idx_t primes_to_check[7] = {
     3ULL, 7ULL, 79ULL, 2731ULL, 8191ULL, 121369ULL, 22366891ULL
@@ -34,7 +38,7 @@ static bool satisfies(idx_t p)
     for (idx_t k = 0; k < 7; ++k) {
         /* modulus = p * primes_to_check[k] */
         seq_t modulus = (seq_t)p * (seq_t)primes_to_check[k];
-        if (mod_pow(two, p - 1, modulus) != (seq_t)1)
+        if (powmod(two, p - 1, modulus) != (seq_t)1)
             return false;
     }
     return true;

@@ -12,7 +12,8 @@
  *            squarefree, * 1 < m < k, and every prime divisor of m div...
  * Range:     u8 n <= 66, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Assumes seq_t and idx_t are defined elsewhere in the build. */
 
@@ -78,7 +80,7 @@ static void init(void)
 
     /* Initialize sequence storage */
     seq_cap = 128;
-    seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
 
     /* Clean up temporary primes array */
     free(primes);
@@ -91,7 +93,7 @@ static void append_seq(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap <<= 1;
-        seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
     seq[seq_len++] = val;
 }

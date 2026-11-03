@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 39,
  *            big any n
- * Helpers:   row_has110
+ * Validated: standard, pass, 33 terms through n = 188 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/row_has110.h"
+
+/* Return true if the 6‑bit row contains the substring 1 1 0. */
+static bool row_has110(uint8_t r)
+{
+    for (int j = 0; j <= 3; ++j)
+        if (((r >> j) & 0x7u) == 0x6u)   /* 0b110 == 6 */
+            return true;
+    return false;
+}
 
 #define STATE_ROWS 64                     /* 2^6 possible row patterns */
 #define MAX_ROWS   33                     /* actual number of allowed rows */

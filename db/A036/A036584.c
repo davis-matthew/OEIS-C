@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2175, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   val_of_letter
+ * Validated: standard, pass, 115 terms through n = 7976 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,16 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/val_of_letter.h"
+
+/* Map a present letter to its output value. */
+static inline seq_t val_of_letter(char l)
+{
+    switch (l) {
+    case 'a': return (seq_t)3;
+    case 'b': return (seq_t)1;
+    default : return (seq_t)2;    /* 'c' */
+    }
+}
 
 /* ------------------------------------------------------------ */
 /* static tables holding lengths a_len[k], b_len[k], c_len[k]    */

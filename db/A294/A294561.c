@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
 
     /* allocate sequences up to n */
     size_t len = (size_t)(n + 1);
-    seq_t *A = (seq_t*)malloc(len * sizeof(seq_t));
-    seq_t *B = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, len);
+    seq_t *B = mem_new(seq_t, len);
     if (!A || !B) abort();       /* memory unavailable */
 
     /* initial values */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = A[n];
-    free(A);
-    free(B);
+    mem_free(A);
+    mem_free(B);
     return result;
 }

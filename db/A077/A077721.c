@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 158, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 46 terms through n = 9879 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_mod64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ----- Miller–Rabin for 64‑bit integers --------------------------------- */
 
@@ -33,8 +35,8 @@ static uint64_t pow_mod64(uint64_t a, uint64_t exp, uint64_t mod)
 {
     uint64_t res = 1;
     while (exp) {
-        if (exp & 1) res = mul_mod64(res, a, mod);
-        a = mul_mod64(a, a, mod);
+        if (exp & 1) res = mulmod(res, a, mod);
+        a = mulmod(a, a, mod);
         exp >>= 1;
     }
     return res;
@@ -59,7 +61,7 @@ static bool is_prime_u64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool comp = true;
         for (int r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { comp = false; break; }
         }
         if (comp) return false;
@@ -99,7 +101,7 @@ static void ensure_prime_cap(size_t need)
     if (prime_cap >= need) return;
     size_t new_cap = prime_cap ? prime_cap << 1 : 512;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(prime_list, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_list, new_cap);
     if (!tmp) abort();
     prime_list = tmp;
     prime_cap  = new_cap;

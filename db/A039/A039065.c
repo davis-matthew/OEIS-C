@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   equal23bit6
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/equal23bit6.h"
+#include "../utils/mem.h"
+
+/* Count 2's and 6's in the base‑8 representation of x.
+ * Works for integral types (including __int128) and for
+ * arbitrary‑precision integer types that support % and /. */
+static bool equal23bit6(seq_t x) {
+    idx_t cnt2 = 0, cnt6 = 0;
+    seq_t t = x;
+    while (t != 0) {
+        unsigned int d = (unsigned int)(t % (seq_t)8);
+        if (d == 2) ++cnt2;
+        else if (d == 6) ++cnt6;
+        t /= (seq_t)8;
+    }
+    return cnt2 == cnt6;
+}
 
 static seq_t *cache = NULL;               /* array of found terms   */
 static idx_t  cache_size = 0;             /* number of cached terms */
@@ -36,7 +52,7 @@ static void grow_cache(idx_t need) {
     if (need <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort(); /* memory allocation failed */
     cache = new_cache;
     cache_cap = new_cap;

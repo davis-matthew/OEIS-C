@@ -6,9 +6,10 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = coefficient of x^n in (1 + x) * ∏_{k≥1} (1 + x^(2^k-1) +
  *            2·x^(2^k))
- * Range:     u8 n <= 121, u16 n <= 4087, u32 n <= 9559, u64 n <= 9559,
- *            u128 n <= 9559, big any n
- * Helpers:   none
+ * Range:     u8 n <= 121, u16 n <= 4087, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 93 terms through n = 9559 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,13 @@
    allocation functions from <stdlib.h>. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* The polynomial coefficients up to degree n */
     size_t len = (size_t)n + 1;
-    seq_t *coeff = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, len);
     if (!coeff) return 0;                       /* allocation failure */
 
     /* Initial factor (1 + x) */
@@ -34,9 +36,9 @@ seq_t a(idx_t n)
 
     /* Multiply by each factor (1 + x^(2^k-1) + 2·x^(2^k)) */
     for (idx_t m = 2; m - 1 <= n; m <<= 1) {
-        seq_t *newcoeff = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *newcoeff = mem_new(seq_t, len);
         if (!newcoeff) {
-            free(coeff);
+            mem_free(coeff);
             return 0;
         }
 
@@ -59,11 +61,11 @@ seq_t a(idx_t n)
             }
         }
 
-        free(coeff);
+        mem_free(coeff);
         coeff = newcoeff;
     }
 
     seq_t result = coeff[n];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

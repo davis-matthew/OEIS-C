@@ -9,15 +9,26 @@
  * Formula:   a(n) = Sum_{d|n} Kronecker(19,d) (multiplicative)
  * Range:     u8 n <= 4338, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   legendre_19_over_prime, mod_mul_128, mod_pow_128
+ * Validated: standard, pass, 97 terms through n = 9445 (2026-11-01)
+ * Helpers:   mulmod_seq, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/legendre_19_over_prime.h"
-#include "../utils/mod_mul_128.h"
-#include "../utils/mod_pow_128.h"
+#include "../utils/mulmod_seq.h"
+#include "../utils/powmod.h"
+
+static int legendre_19_over_prime(uint64_t p)
+{
+    /* p is an odd prime > 2, p != 19 */
+    seq_t val = powmod(19, (p - 1) / 2, p);
+    if (val == 1)
+        return 1;
+    if (val == (seq_t)(p - 1))
+        return -1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {

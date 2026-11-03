@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 7, u16 n <= 49, u32 n <= 4419, u64 n <= 9730,
- *            u128 n <= 9730, big any n
+ * Range:     u8 n <= 7, u16 n <= 49, u32 n <= 4419, u64 n <= 10345,
+ *            u128 n <= 10345, big any n
+ * Validated: standard, pass, 59 terms through n = 9730 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

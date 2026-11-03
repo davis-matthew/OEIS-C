@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 94, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 8500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Small deterministic test of 64‑bit primality.  Works for all values used
    in this sequence because 10*k-97 stays below 2^64 for the practical
@@ -50,11 +52,11 @@ seq_t a(idx_t n) {
     /* Allocate or expand cache as needed. */
     if (cache == NULL) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0; /* Allocation failed – unlikely in test. */
     } else if (cache_len >= cache_cap) {
         cache_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) return 0; /* Reallocation failed – unlikely in test. */
         cache = tmp;
     }
@@ -69,7 +71,7 @@ seq_t a(idx_t n) {
             /* Add to cache. */
             if (cache_len >= cache_cap) {
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) return 0;
                 cache = tmp;
             }

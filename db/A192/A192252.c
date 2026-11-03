@@ -9,7 +9,8 @@
  *            a(1)=1, a(2)=3
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * dependencies are required.  */
 
 #include <stdlib.h>   /* for malloc/realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Extend cache if necessary */
     if (n >= cached) {
         idx_t new_size = n + 1;              /* new required size */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;                  /* allocation failure – return 0 */
         cache = tmp;
         /* initialise missing terms */

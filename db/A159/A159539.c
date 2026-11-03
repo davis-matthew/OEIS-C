@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 5, i64 n <= 11, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 325 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(0)=1, a(1)=22, a(n)=22*a(n-1)-578*(n-1)*a(n-2) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;   /* memoization table */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
 
     /* Extend cache to hold up to a(n) */
     size_t new_len = n + 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) abort();            /* allocation failed */
     cache = tmp;
 

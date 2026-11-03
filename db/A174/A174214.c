@@ -9,13 +9,16 @@
  *            Offset: 9 (a(9) = 14)
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 66 terms through n = 74 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t  cache_len = 0;      /* current allocated array size (indexable up to cache_len-1) */
@@ -27,11 +30,11 @@ static void ensure_cache(idx_t needed)
 {
     if (needed < cache_len) return;
     idx_t new_len = needed + 1;          /* allocate indices 0..needed inclusive */
-    seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache) abort();             /* die on OOM – test harness will not hit this */
     /* copy existing values */
     for (idx_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = new_len;
 }

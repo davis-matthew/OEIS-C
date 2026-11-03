@@ -8,13 +8,15 @@
  * Formula:   a(n) = Motzkin(r(n)), where r(n) = 7*((n-1)/7+1) - ((n-1)%7)
  * Range:     u8 none, u16 n <= 7, u32 n <= 21, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* ---------------  Include standard header  ----------------- */
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 /* ---------------  Static storage for Motzkin numbers  -------- */
 static seq_t *motzkin = NULL;      /* M(0), M(1), … */
@@ -31,7 +33,7 @@ static void ensure_motzkin_upto(idx_t idx)
         size_t new_cap = motzkin_cap ? motzkin_cap * 2 : 16;
         if (new_cap < need)
             new_cap = need;
-        seq_t *tmp = (seq_t*)realloc(motzkin, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, motzkin, new_cap);
         /* If realloc fails we simply crash; this is acceptable for this use‑case */
         motzkin = tmp;
         motzkin_cap = new_cap;

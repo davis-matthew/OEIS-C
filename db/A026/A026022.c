@@ -11,13 +11,15 @@
  *            rows, where T(n,0)=1, T(n,k)=C(n,k)-C(n,k-4) for 1≤k≤n, and
  *            T(n,n)=1. The triangle is read row by row, skipping the leading
  *            1 for rows n≥5
- * Range:     u8 n <= 34, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
+ * Range:     u8 n <= 54, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

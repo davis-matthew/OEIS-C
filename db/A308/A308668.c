@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{d|n} d^(n/d + n)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 375 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Computes a(n) for the OEIS sequence A308668.
    The function works for any order of calls and uses memoization
@@ -29,13 +31,13 @@ seq_t a(idx_t n)
             idx_t d2 = n / d;
             /* term for divisor d: d^(n + d2) */
             seq_t exp1 = (seq_t)n + (seq_t)d2;
-            sum += big_pow((seq_t)d, exp1);
+            sum += ipow((seq_t)d, exp1);
 
             if (d2 != d)
             {
                 /* term for complementary divisor d2: d2^(n + d) */
                 seq_t exp2 = (seq_t)n + (seq_t)d;
-                sum += big_pow((seq_t)d2, exp2);
+                sum += ipow((seq_t)d2, exp2);
             }
         }
     }

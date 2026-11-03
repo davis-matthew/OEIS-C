@@ -11,7 +11,8 @@
  *            skip those products until the nth remaining integer is found
  * Range:     u8 none, u16 n <= 9, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Helper: compare two seq_t values for qsort. */
 static int seq_cmp(const void *a, const void *b) {
@@ -75,7 +77,7 @@ seq_t a(idx_t n) {
         }
         excnt = cnt;
         /* Sort excluded values to enable binary search. */
-        qsort(excluded, excnt, sizeof(seq_t), seq_cmp);
+        mem_qsort(excluded, excnt, sizeof(seq_t), seq_cmp);
         ready = true;
     }
 

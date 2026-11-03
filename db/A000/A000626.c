@@ -11,15 +11,45 @@
  *            U(x^2))/2 and h2(U) = (U(x)^2 + U(x^2))/2: A000628(n)...
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 26, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   a626_ch2, a626_div3, a626_realloc
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a626_ch2.h"
-#include "../utils/a626_div3.h"
-#include "../utils/a626_realloc.h"
+#include "../utils/mem.h"
+
+/* c*(c-1)/2, halving the even factor first */
+static seq_t a626_ch2(seq_t c)
+{
+    if (c % 2 == 0) return (c / 2) * (c - 1);
+    return c * ((c - 1) / 2);
+}
+
+/* exact x/3; in fixed width, x is the value mod 2^w */
+static seq_t a626_div3(seq_t x)
+{
+    seq_t q = x / 3;
+    seq_t r = x % 3;
+    if (r != 0) {
+        seq_t m = 0;
+        m -= 1;
+        seq_t inv = (m / 3) * 2 + 1;
+        q += r * inv;
+    }
+    return q;
+}
+
+static seq_t *a626_realloc(seq_t *old, idx_t oldlen, idx_t newcap)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newcap);
+    idx_t i;
+    for (i = 0; i < newcap; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *S_ = NULL, *P_ = NULL, *E_ = NULL, *H_ = NULL, *R_ = NULL;
 static idx_t cap_ = 0, len_ = 0;

@@ -8,7 +8,8 @@
  * Formula:   a(n) = n-th integer such that digit_sum(n^2) == 1 or 9
  * Range:     u8 n <= 7, u16 n <= 26, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static storage for memoized terms */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* ensure the buffer has enough capacity */
     if (terms_len + 1 > terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         terms = tmp;
         terms_cap = new_cap;
     }

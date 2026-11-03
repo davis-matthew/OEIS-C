@@ -9,12 +9,14 @@
  *            programming
  * Range:     u8 n <= 35, u16 n <= 119, u32 n <= 335, u64 n <= 1079,
  *            u128 n <= 5039, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9638 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;
 static size_t dp_cap = 0;
@@ -23,7 +25,7 @@ static void ensure_dp_size(size_t needed)
 {
     if (dp_cap < needed)
     {
-        seq_t *newdp = (seq_t *)realloc(dp, needed * sizeof(seq_t));
+        seq_t *newdp = mem_resize(seq_t, dp, needed);
         if (!newdp) exit(1);  /* allocation failed */
         dp = newdp;
         dp_cap = needed;

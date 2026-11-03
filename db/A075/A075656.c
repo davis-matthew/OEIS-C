@@ -8,13 +8,14 @@
  *            the distinct prime factors of n
  * Range:     i8 n <= 64, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   rad_of
+ * Validated: standard, pass, 82 terms through n = 943 (2026-11-01)
+ * Helpers:   radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/rad_of.h"
+#include "../utils/radical.h"
 
 seq_t a(idx_t n)
 {
@@ -23,6 +24,6 @@ seq_t a(idx_t n)
         return (seq_t)1;
     }
 
-    seq_t rad = rad_of(n);
+    seq_t rad = radical(n);
     return (seq_t)n + rad;
 }

@@ -8,6 +8,7 @@
  * Formula:   a(n) = 4^n*(1728*n - 1872) + 2340*2^n - 270
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 9, u64 n <= 24, u128 n <= 55,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

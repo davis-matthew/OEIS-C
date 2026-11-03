@@ -12,13 +12,15 @@
  *            a(3)=86, a(4)=1094, a(5)=15184, * a(6)=219934, a(7)=3249298
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static inline seq_t mul_small(seq_t x, int coeff)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* ensure capacity up to n */
     if (n > seq_len) {
-        seq = (seq_t *)realloc(seq, (size_t)(n + 1) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (size_t)(n + 1));
         if (seq == NULL) abort();
 
         for (idx_t i = seq_len + 1; i <= n; ++i) {

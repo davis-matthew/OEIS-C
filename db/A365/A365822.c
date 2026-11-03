@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 1503, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   first_digit_idx
+ * Validated: standard, pass, 71 terms through n = 9503 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,15 @@
 /* Assumes seq_t and idx_t are defined elsewhere in the build. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/first_digit_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: first digit of a natural number (idx_t). */
+static int first_digit_idx(idx_t n)
+{
+    while (n >= 10)
+        n /= 10;
+    return (int)n;          /* 0‑9 */
+}
 
 /* Helper: number of decimal digits of a natural number (idx_t). */
 static int digit_count_idx(idx_t n)
@@ -64,7 +73,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = terms_cap ? terms_cap * 2 : 32;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) {
         /* In practice this should not happen in the test harness. */
         abort();

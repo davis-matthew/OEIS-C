@@ -10,12 +10,14 @@
  *            d_{k+1} ) The period ends when a_{k+1} == 2*a(0)
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (n > 0 && period_len == 0) {
         /* dynamic array building */
         size_t cap = 8;
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         if (!period) return 0;          /* allocation failure */
         period_len = 0;
 
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
             /* grow array if necessary */
             if (period_len >= cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(period, cap * sizeof(seq_t));
-                if (!tmp) { free(period); return 0; }
+                seq_t *tmp = mem_resize(seq_t, period, cap);
+                if (!tmp) { mem_free(period); return 0; }
                 period = tmp;
             }
             period[period_len++] = (seq_t)a_next;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 94, i16 n <= 256, i32 n <= 780, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 893 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Euclidean gcd for positive idx_t values */
 static inline idx_t gcd_idx(idx_t a, idx_t b)
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
 
     if (target > cap) {
         /* Allocate or grow the coefficient array. */
-        seq_t *new_arr = (seq_t *)calloc(target, sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, target);
         if (new_arr == NULL)
             exit(1);
 
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(coeff);
+        mem_free(coeff);
         coeff = new_arr;
         cap   = target;
     }

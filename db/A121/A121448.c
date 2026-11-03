@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   binomial, offset_idx, seq_mul
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-01)
+ * Helpers:   binomial, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,17 @@
  *           where r is the largest integer with r(r+1)/2 ≤ n,
  *           k = n – r(r+1)/2.  If r-k is odd then T(r,k)=0.
  */
-#include "../utils/binomial.h" /* binomial() */
-#include "../utils/seq_mul.h"  /* seq_mul() */
-#include "../utils/offset_idx.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/triangular.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -43,7 +52,7 @@ seq_t a(idx_t n)
     }
 
     idx_t r        = low;
-    idx_t offset_r = offset_idx(r);
+    idx_t offset_r = triangular(r);
     idx_t k        = n - offset_r;
 
     /* parity check */

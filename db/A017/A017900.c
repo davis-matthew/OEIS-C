@@ -8,6 +8,7 @@
  *            = a(n‑1) + a(n‑6) (OEIS A017900)
  * Range:     u8 n <= 31, u16 n <= 53, u32 n <= 97, u64 n <= 185,
  *            u128 n <= 362, big any n
+ * Validated: standard, pass, 71 terms through n = 897 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

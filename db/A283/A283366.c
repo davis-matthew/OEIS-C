@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _is_power_of_two_uint, _is_square_uint, _isqrt_uint
+ * Validated: standard, pass, 97 terms through n = 9973 (2026-11-01)
+ * Helpers:   is_square_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,9 +31,30 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_is_power_of_two_uint.h"
-#include "../utils/_is_square_uint.h"
-#include "../utils/_isqrt_uint.h"
+#include "../utils/is_square_u32.h"
+
+/* Test whether a positive integer is a power of two. */
+static bool _is_power_of_two_uint(unsigned v)
+{
+    return v > 0 && (v & (v - 1)) == 0;
+}
+
+/* Integer square root: floor(sqrt(v)) for 0 <= v <= 2^32. */
+static unsigned _isqrt_uint(unsigned v)
+{
+    unsigned lo = 0, hi = v;
+    while (lo <= hi) {
+        unsigned mid = (lo + hi) >> 1;
+        unsigned sq = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
 
 /* Main sequence function.  Builds the count from scratch for
  * each call.  No caching is used to keep the implementation
@@ -67,7 +89,7 @@ seq_t a(idx_t n)
                 if (cond < 0) {
                     ok = false;                     /* negative can't be square or positive power of two */
                 } else {
-                    ok = _is_square_uint(ucond)   || _is_power_of_two_uint(ucond);
+                    ok = is_square_u32(ucond)   || _is_power_of_two_uint(ucond);
                 }
                 if (ok) {
                     count += 1;

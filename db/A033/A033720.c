@@ -7,13 +7,15 @@
  * Formula:   number of integer solutions to a^2 + 2*b^2 + 4*c^2 + 8*d^2 = n
  * Range:     u8 n <= 143, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return ⌊√n⌋ for unsigned 64‑bit integers, no overflow. */
 static idx_t floor_sqrt_u64(idx_t n)
@@ -28,12 +30,12 @@ seq_t a(idx_t n)
 {
     /* Allocate arrays for partial sums of (a,b) and (c,d). */
     size_t sz = (size_t)(n + 1);
-    seq_t *AB = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *CD = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *AB = mem_new(seq_t, sz);
+    seq_t *CD = mem_new(seq_t, sz);
     if (!AB || !CD) {
         /* Allocation failure – unlikely for small n. */
-        free(AB);
-        free(CD);
+        mem_free(AB);
+        mem_free(CD);
         return (seq_t)0;
     }
 
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     for (idx_t s = 0; s <= n; ++s)
         result += AB[(size_t)s] * CD[(size_t)(n - s)];
 
-    free(AB);
-    free(CD);
+    mem_free(AB);
+    mem_free(CD);
     return result;
 }

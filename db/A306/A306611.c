@@ -10,12 +10,14 @@
  *            -619, a(6) = 2621 Offset: 1
  * Range:     i8 n <= 3, i16 n <= 8, i32 n <= 16, i64 n <= 26, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types are provided by the build system */
 typedef idx_t idx_t;   /* already defined elsewhere */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         while (new_cap < n)
             new_cap <<= 1;                        /* double until large enough */
 
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) abort();                       /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

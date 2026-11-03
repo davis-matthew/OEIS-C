@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   dlen_uint64
+ * Validated: standard, pass, 37 terms through n = 968 (2026-11-01)
+ * Helpers:   num_digits_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/dlen_uint64.h"
+#include "../utils/num_digits_u64_to_u32.h"
 
 /* Prefix array holding the cumulative number of digits in 1..i.  */
 static uint64_t *pref      = NULL; /* pref[i] = total digits 1..i */
@@ -50,7 +51,7 @@ static void ensure_pref(uint64_t need) {
             pref = tmp;
             pref_cap = new_cap;
         }
-        uint64_t digits = dlen_uint64(next);
+        uint64_t digits = num_digits_u64_to_u32(next);
         pref[next] = pref[pref_len] + digits;
         ++pref_len;
     }

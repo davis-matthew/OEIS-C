@@ -7,12 +7,14 @@
  * Formula:   sum of the smallest three distinct primes congruent to 1 (mod n)
  * Range:     u8 n <= 12, u16 n <= 520, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 68 terms through n = 972 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 /* Compute a(n) for n >= 1 (a(0) is undefined, returns 0).  */

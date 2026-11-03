@@ -12,13 +12,15 @@
  *            a(2) = 13952, a(3) = 6049792
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= allocated)
     {
         size_t new_alloc = (size_t)n + 1;        /* slots 0..n inclusive */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_alloc);
+        seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
         if (!tmp) return 0;                    /* allocation failure → 0 */
         cache = tmp;
 

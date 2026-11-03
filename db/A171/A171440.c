@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{j=0..min(6,n), j≡n (mod2)} binomial(6,j)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
+ * Validated: standard, pass, 86 terms through n = 100 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,8 @@
 /*   (which is equivalent to the expansion of (1+x)^5/(1-x)) */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* provides binomial(idx_t, idx_t) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 static const seq_t binom6[7] = {1, 6, 15, 20, 15, 6, 1};
 

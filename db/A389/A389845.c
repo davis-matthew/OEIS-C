@@ -8,15 +8,17 @@
  *            n-3*k) / k!
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: standard, pass, 37 terms through n = 295 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A389845: a(0)=1, a(1)=0, a(2)=0, … */
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         seq_t binom = binomial(n - k - 1, n - 3 * k);
 
         /* (k+1)^(k-1) */
-        seq_t pow = seq_pow((seq_t)(k + 1), (idx_t)(k - 1));
+        seq_t pow = ipow_idx((seq_t)(k + 1), (idx_t)(k - 1));
 
         /* term = ratio * binom * pow = (n! / k!) * binom * pow */
         seq_t term = ratio * binom;

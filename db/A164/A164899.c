@@ -11,7 +11,8 @@
  *            binom(r-c, i) * 10^(c-1-i)
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 65, u64 n <= 230, u128 n <= 819,
  *            big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 61 terms through n = 1218 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
 /* Include required utilities */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Helper: find row index r such that r*(r-1)/2 < n ≤ r*(r+1)/2 */
 static idx_t find_row(idx_t n) {

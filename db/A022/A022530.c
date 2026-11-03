@@ -7,12 +7,17 @@
  * Formula:   a(n) = (n+1)^14 - n^14
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 24, u128 n <= 750,
  *            big any n
- * Helpers:   pow14_seq
+ * Validated: standard, pass, 34 terms through n = 988 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow14_seq.h"
+static inline seq_t pow14_seq(seq_t base) {
+    seq_t result = 1;
+    for (int i = 0; i < 14; ++i) result *= base;
+    return result;
+}
 
 seq_t a(idx_t n) {
     seq_t sn   = (seq_t)n;

@@ -8,6 +8,7 @@
  *            10))*10^k)/3) where n = m*10^k - 1 with m mod 10 > 0
  * Range:     i8 n <= 98, i16 n <= 9999, i32 n <= 9999, i64 n <= 9999,
  *            i128 n <= 9999, big any n
+ * Validated: standard, pass, 141 terms through n = 9687 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

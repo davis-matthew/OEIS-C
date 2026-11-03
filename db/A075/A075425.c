@@ -9,12 +9,14 @@
  *            where rad is the square‑free kernel
  * Range:     u8 n <= 1757, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rad
+ * Validated: standard, pass, 120 terms through n = 9985 (2026-11-01)
+ * Helpers:   radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/rad.h"
+#include <stdbool.h>
+#include "../utils/radical.h"
 #include <stdbool.h>
 
 seq_t a(idx_t n)
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* The mapping strictly decreases; the loop terminates at 1. */
     while (cur > 1) {
-        seq_t r = rad(cur);          /* r ∈ seq_t, r ≥ 1 and r ≤ cur   */
+        seq_t r = radical(cur);          /* r ∈ seq_t, r ≥ 1 and r ≤ cur   */
         cur = (idx_t)(r - 1);        /* next value is ≤ cur - 1           */
         ++steps;
     }

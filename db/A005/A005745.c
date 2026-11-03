@@ -9,13 +9,15 @@
  *            ((x^3-1)^2*(x^2-1)^2*(x-1)^4)
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 99, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 static const int q[15] = {1, -4, 4, 2, -2, -4, -3, 12, -3, -4, -2, 2, 4, -4, 1};
@@ -32,7 +34,7 @@ static Memoization memo = {NULL, NULL, 0};
 static seq_t compute(idx_t n) {
     if (n >= memo.size) {
         idx_t new_size = (n + 1) * 2;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         bool *new_computed = (bool *)malloc(new_size * sizeof(bool));
         
         if (memo.cache != NULL) {
@@ -40,7 +42,7 @@ static seq_t compute(idx_t n) {
                 new_cache[i] = memo.cache[i];
                 new_computed[i] = memo.computed[i];
             }
-            free(memo.cache);
+            mem_free(memo.cache);
             free(memo.computed);
         }
         

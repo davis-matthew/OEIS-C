@@ -11,8 +11,9 @@
  *            ∏_{i=1..s} (1−q^i)^(−i) · ∏_{j≥s+1} (1−q^j)^(−s). * The
  *            implementation first computes the pair (s,n) from t...
  * Range:     u8 n <= 88, u16 n <= 346, u32 n <= 1645, u64 n <= 9169,
- *            u128 n <= 9058, big any n
- * Helpers:   compute_B
+ *            u128 n <= 20100, big any n
+ * Validated: standard, pass, 107 terms through n = 9058 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,47 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/compute_B.h"
+#include "../utils/mem.h"
+
+static seq_t compute_B(idx_t s, idx_t ncol)
+{
+    if (ncol == 0) return (seq_t)1;
+
+    size_t len = (size_t)ncol + 1;
+    seq_t *dp    = mem_new(seq_t, len);
+    seq_t *newdp = mem_new(seq_t, len);
+    if (!dp || !newdp) {
+        mem_free(dp); mem_free(newdp);
+        return (seq_t)0;
+    }
+
+    dp[0] = (seq_t)1;
+
+    for (idx_t part = 1; part <= ncol; ++part) {
+        idx_t exp  = part <= s ? part : s;
+        idx_t maxH = ncol / part;
+
+        mem_set(newdp, 0, len * sizeof(seq_t));
+
+        seq_t coef = (seq_t)1;
+        for (idx_t h = 0; h <= maxH; ++h) {
+            size_t shift = (size_t)h * (size_t)part;
+            if (h > 0) {
+                coef = coef * (seq_t)(exp - 1 + h);
+                coef = coef / (seq_t)h;   /* exact division */
+            }
+
+            for (size_t t = shift; t < len; ++t) {
+                newdp[t] += dp[t - shift] * coef;
+            }
+        }
+        mem_copy(dp, newdp, len * sizeof(seq_t));
+    }
+
+    seq_t result = dp[ncol];
+    mem_free(dp); mem_free(newdp);
+    return result;
+}
 
 static void antidiagonal_coords(idx_t n, idx_t *s, idx_t *c)
 {

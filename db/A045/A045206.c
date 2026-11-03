@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   a045206_valid
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,24 @@
 /* Sequence A045206: the n-th integer whose base‑5 representation
  * contains exactly one digit 0 and no digit 4, found by exhaustive search. */
 #include <stdbool.h>
-#include "../utils/a045206_valid.h"
+
+static inline bool a045206_valid(seq_t v)
+{
+    if (v == (seq_t)0)               /* the number 0 itself is allowed */
+        return true;
+    int zero = 0;
+    seq_t t = v;
+    while (t > (seq_t)0) {
+        int d = (int)(t % (seq_t)5);
+        if (d == 0) {
+            if (++zero > 1)
+                return false;
+        } else if (d == 4)
+            return false;
+        t /= (seq_t)5;
+    }
+    return zero == 1;
+}
 
 seq_t a(idx_t n)
 {

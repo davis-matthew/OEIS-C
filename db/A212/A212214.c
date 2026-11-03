@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 41, u32 n <= 126, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external types provided by the build */
 extern seq_t a(idx_t n);      /* prototype required by the build */
@@ -50,7 +52,7 @@ static const double HT_MAX_LOAD = 0.7;
 static void ht_init(void)
 {
     ht_size = 1 << 18;                 /* 262144 entries (power of two) */
-    ht      = (ht_entry *)calloc(ht_size, sizeof(ht_entry));
+    ht      = mem_new(ht_entry, ht_size);
 }
 
 /* 64‑bit multiplicative hash (Knuth) */
@@ -63,7 +65,7 @@ static inline uint64_t ht_hash(uint64_t k)
 static void ht_rehash(void)
 {
     size_t new_size = ht_size << 1;
-    ht_entry *new_ht = (ht_entry *)calloc(new_size, sizeof(ht_entry));
+    ht_entry *new_ht = mem_new(ht_entry, new_size);
 
     for (size_t i = 0; i < ht_size; ++i) {
         if (ht[i].key != 0) {
@@ -74,7 +76,7 @@ static void ht_rehash(void)
             new_ht[h].val = ht[i].val;
         }
     }
-    free(ht);
+    mem_free(ht);
     ht = new_ht;
     ht_size = new_size;
     /* ht_used unchanged */

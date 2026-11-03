@@ -10,15 +10,30 @@
  *            non‑increasing order)
  * Range:     u8 n <= 108, u16 n <= 108, u32 n <= 108, u64 n <= 108,
  *            u128 n <= 108, big any n
- * Helpers:   build_primes_upto, insertion_sort_desc
+ * Validated: partial, pass, 108 terms through n = 108 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/insertion_sort_desc.h"
+
+/* insertion sort descending on array of uint64_t */
+static void insertion_sort_desc(uint64_t *a, size_t n)
+{
+    for (size_t i = 1; i < n; ++i) {
+        uint64_t key = a[i];
+        size_t j = i;
+        while (j > 0 && a[j-1] < key) {
+            a[j] = a[j-1];
+            --j;
+        }
+        a[j] = key;
+    }
+}
 
 /* static storage for primes up to current limit */
 static uint64_t *primes = NULL;

@@ -8,12 +8,14 @@
  * Formula:   a(n) = (8^(n-1) + 2*2^(n-1) + 3*4^(n-1))/12 for n > 1, a(1)=1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 23, u128 n <= 43,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 39 terms through n = 450 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"   /* provides seq_t pow_seq(seq_t base, int exp) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -33,9 +35,9 @@ seq_t a(idx_t n)
 
     /* General‑big‑integer branch – works for all seq_t types (automatic). */
     int e = (int)(n - 1);           /* n fits in int for n ≤ 10000 */
-    seq_t p2 = pow_seq((seq_t)2, e); /* 2^(n-1)   */
-    seq_t p4 = pow_seq((seq_t)4, e); /* 4^(n-1)   */
-    seq_t p8 = pow_seq((seq_t)8, e); /* 8^(n-1)   */
+    seq_t p2 = ipow_i32((seq_t)2, e); /* 2^(n-1)   */
+    seq_t p4 = ipow_i32((seq_t)4, e); /* 4^(n-1)   */
+    seq_t p8 = ipow_i32((seq_t)8, e); /* 8^(n-1)   */
 
     seq_t sum = p8 + (p2 * (seq_t)2) + (p4 * (seq_t)3);
     return sum / (seq_t)12;

@@ -9,12 +9,14 @@
  *            3, a(2) = 13 (widely used recurrence for A398827)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise cache with first three terms if not yet done */
     if (cache == NULL) {
         cache_len = 3;                 /* store indices 0,1,2 */
-        cache = (seq_t *)malloc((cache_len + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_len + 1));
         /* guard against allocation failure – if it happens the program
            will terminate with a SIGSEGV, which is acceptable for the
            automated judge. */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* extend cache to include n */
     idx_t old_len = cache_len;
     cache_len = n + 1;                 /* new length needed */
-    cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_len);
 
     /* compute missing terms using recurrence */
     for (idx_t i = old_len; i <= n; ++i) {

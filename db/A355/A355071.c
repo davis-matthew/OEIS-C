@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 5, i64 n <= 7, i128 n <= 10,
  *            big any n
- * Helpers:   pow4_uint, seq_alloc
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,32 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/pow4_uint.h"
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+/* Compute 4^e where e is a 64‑bit exponent.
+   Uses binary exponentiation and only integer ops. */
+static seq_t pow4_uint(idx_t e)
+{
+    seq_t result = 1;
+    seq_t base   = 4;
+    while (e)
+    {
+        if (e & 1U)
+            result = result * base;
+        base = base * base;
+        e >>= 1U;
+    }
+    return result;
+}
 
 /* Static cache for a(n). */
 static seq_t *cache = NULL;       /* a[0…] */
@@ -40,7 +65,7 @@ static void ensure_upto(idx_t n)
         size_t new_cap = cache_cap ? cache_cap : 4U;
         while (new_cap < needed)
             new_cap <<= 1U;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

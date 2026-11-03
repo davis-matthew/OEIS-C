@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 29, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    Off‑set: a(1) corresponds to index 1. */
 
 #include <stdlib.h>   /* abort, malloc, realloc */
+#include "../utils/mem.h"
 
 /* Cache of previously computed terms; indices 0..n-2 store a(1)..a(n-1). */
 static seq_t *cache = NULL;
@@ -37,7 +39,7 @@ static void ensure_cache_size(idx_t n)
     if ((size_t)n <= cache_sz) return;
     /* Grow to the requested size. */
     size_t new_sz = (size_t)n;
-    seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_sz);
     if (!tmp) abort();  /* out of memory */
     cache = tmp;
     cache_sz = new_sz;

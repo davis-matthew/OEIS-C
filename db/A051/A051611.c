@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 110, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 901 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  * or larger arbitrary‑precision types) and any idx_t (uint64_t). */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Unsigned 128‑bit intermediate type.  Works both in C and C++. */
 typedef unsigned __int128 u128;
@@ -86,10 +88,10 @@ seq_t a(idx_t n)
         /* Ensure enough capacity. */
         if (capacity == 0) {
             capacity = 1;
-            terms = (seq_t*)malloc(capacity * sizeof(seq_t));
+            terms = mem_new(seq_t, capacity);
         } else if (size == capacity) {
             capacity *= 2;
-            terms = (seq_t*)realloc(terms, capacity * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, capacity);
         }
         /* Test the next integer. */
         ++tested;

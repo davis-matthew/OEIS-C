@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   is_prime_seq
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (n > cap) {
         idx_t new_cap = cap ? cap * 2 : 16;
         while (new_cap < n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(k_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, k_vals, new_cap);
         if (!tmp) abort();          /* allocation failure */
         k_vals = tmp;
         cap = new_cap;

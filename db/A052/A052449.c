@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 10, u64 n <= 14, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 92 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,12 +44,12 @@ seq_t a(idx_t n)
     if (new_cap > prod_cap)
     {
         prod_cap = new_cap;
-        prod = (seq_t*)realloc(prod, prod_cap * sizeof(seq_t));
+        prod = mem_resize(seq_t, prod, prod_cap);
     }
     if (new_cap > fib_cap)
     {
         fib_cap = new_cap;
-        fib = (seq_t*)realloc(fib, fib_cap * sizeof(seq_t));
+        fib = mem_resize(seq_t, fib, fib_cap);
     }
 
     /* Initialisation: set base Fibonacci values and their product. */

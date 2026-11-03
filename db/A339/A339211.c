@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 8816 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Global state */
 static idx_t *fib = NULL;          /* Fibonacci numbers for Zeckendorf */
@@ -119,7 +121,7 @@ static void ensure_self_cap(size_t cap)
     if (cap <= self_cap) return;
     size_t new_cap = self_cap == 0 ? 128 : self_cap;
     while (new_cap < cap) new_cap += 64;   /* modest growth */
-    seq_t *tmp = (seq_t *)realloc(self_nums, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, self_nums, new_cap);
     if (!tmp) exit(1);
     self_nums = tmp;
     self_cap = new_cap;
@@ -130,7 +132,7 @@ static void init_state(void)
 {
     if (self_nums != NULL) return;   /* already initialised */
     self_cap = 128;
-    self_nums = (seq_t *)malloc(self_cap * sizeof(seq_t));
+    self_nums = mem_new(seq_t, self_cap);
     if (!self_nums) exit(1);
 
     gen_cap = 256;

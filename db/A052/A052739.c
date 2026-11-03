@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(0) = 0, a(1) = 0, a(2) = 2, a(3) = 24, a(4) = 288.
    For n ≥ 3:  a(n+2) = (4*n^2‑4)·a(n) + (4*n+2)·a(n+1).   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         idx_t need = (n + 1 > 5) ? n + 1 : 5;
 
         /* allocate or enlarge the storage */
-        seq = (seq_t *)realloc(seq, need * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, need);
 
         /* initialise the first five values when the array is first created */
         if (seq_size == 0) {

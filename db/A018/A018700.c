@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort that works for any seq_t supporting < and >. */
 static int cmp_seq(const void *p1, const void *p2)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
                 for (size_t k = 0; k < 3; ++k)
                     divisors[idx++] = p2[i] * p3[j] * p7[k];
         cnt = 18;
-        qsort(divisors, cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(divisors, cnt, sizeof(seq_t), cmp_seq);
     }
 
     if (n == 0 || n > cnt)

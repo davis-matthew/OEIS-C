@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 57 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /*  OEIS A062436
     a(n) = nearest integer to (log(n!))^(log(log(1+n)))   (n >= 2)
     Offest: 2 (a(2) is the first term)

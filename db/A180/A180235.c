@@ -8,6 +8,7 @@
  * Formula:   a(n) = ceil((a(n-1)+a(n-2)+a(n-3))/2), a(0)=a(1)=0, a(2)=2
  * Range:     u8 n <= 22, u16 n <= 49, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

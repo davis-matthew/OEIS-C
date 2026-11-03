@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 106, u16 n <= 106, u32 n <= 106, u64 n <= 106,
  *            u128 n <= 106, big any n
- * Helpers:   max_k_for_row
+ * Validated: partial, pass, 106 terms through n = 106 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,21 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/max_k_for_row.h"
+
+/* Return the largest k such that k*(3*k-2) <= row.  */
+static inline idx_t max_k_for_row(idx_t row)
+{
+    idx_t k = 0;
+    idx_t k_candidate = 1;
+    while (1) {
+        idx_t start = k_candidate * (((idx_t)3 * k_candidate) - 2);
+        if (start > row)
+            break;
+        k = k_candidate;
+        ++k_candidate;
+    }
+    return k;
+}
 
 /* Return the value of the triangle entry (row, col).  */
 static inline seq_t triangle_value(idx_t row, idx_t col)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 174, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   is_palindrome, reverse_seq
+ * Validated: standard, pass, 58 terms through n = 975 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,16 +21,17 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"   /* is_palindrome(seq_t, idx_t) */
-#include "../utils/reverse_seq.h"    /* reverse_seq(seq_t) */
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static bool needs_exact_steps(seq_t x) {
-    if (is_palindrome(x, 10))
+    if (is_palindrome_base(x, 10))
         return false;               /* exclude starting palindromes */
     for (int s = 1; s <= 12; ++s) {
-        seq_t rev = reverse_seq(x);
+        seq_t rev = reverse_digits(x);
         x += rev;
-        if (is_palindrome(x, 10))
+        if (is_palindrome_base(x, 10))
             return s == 12;         /* true only if reached at step 12 */
     }
     return false;
@@ -49,7 +51,7 @@ static void resize_cache(size_t n) {
     size_t new_cap = 16;
     while (new_cap < n)
         new_cap <<= 1;
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     cache = newp;
     cache_capacity = new_cap;
 }
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
 {
     /* compute terms until we have at least n stored */
     while (cache_size < (size_t)n) {
-        if (!is_palindrome(candidate, 10) && needs_exact_steps(candidate))
+        if (!is_palindrome_base(candidate, 10) && needs_exact_steps(candidate))
             append_cache(candidate);
         ++candidate;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 39, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* global data */
 static idx_t max_n = 0;
@@ -54,9 +56,9 @@ static void ensure_computed(idx_t needed)
     /* allocate new arrays */
     size_t new_size = needed + 1;
     if (phi_arr) free(phi_arr);
-    if (f_arr)   free(f_arr);
+    if (f_arr)   mem_free(f_arr);
     phi_arr = (idx_t *)malloc(new_size * sizeof(idx_t));
-    f_arr   = (seq_t *)malloc(new_size * sizeof(seq_t));
+    f_arr   = mem_new(seq_t, new_size);
     if (!phi_arr || !f_arr)
         exit(1);                     /* out of memory */
 
@@ -80,7 +82,7 @@ static void ensure_computed(idx_t needed)
             uint32_t p = primes[k];
             idx_t d     = (rem / prodP) % p;
             if (d > 0) {
-                res *= big_pow((seq_t)p, (seq_t)d);
+                res *= ipow((seq_t)p, (seq_t)d);
             }
             rem   -= d * prodP;
             prodP *= p;

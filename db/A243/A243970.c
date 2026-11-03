@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = Smallest positive integer m such that n can be expressed
  *            as a partial sum of the divisors of m taken in decreasing order
- * Range:     u8 n <= 255, u16 n <= 9851, u32 n <= 9851, u64 n <= 9851,
- *            u128 n <= 9851, big any n
- * Helpers:   zero_array
+ * Range:     u8 n <= 255, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 85 terms through n = 9851 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/zero_array.h"
+#include "../utils/mem.h"
+
+/* Helper to reinitialize an array to zero. */
+static void zero_array(seq_t *arr, idx_t len)
+{
+    mem_set(arr, 0, (size_t)len * sizeof(seq_t));
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -26,7 +33,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate a temporary array for answers up to n. */
-    seq_t *ans = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *ans = mem_new(seq_t, (size_t)(n + 1));
     if (!ans) return (seq_t)0;     /* safety: out‑of‑memory */
 
     ans[0] = (seq_t)1;             /* a(0) value, never used for n>0 */
@@ -81,6 +88,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = ans[n];
-    free(ans);
+    mem_free(ans);
     return res;
 }

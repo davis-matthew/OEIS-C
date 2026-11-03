@@ -12,6 +12,7 @@
  *            after at least one rotation (a(0)=0)
  * Range:     i8 n <= 121, i16 n <= 9841, i32 n <= 9841, i64 n <= 9841,
  *            i128 n <= 9841, big any n
+ * Validated: standard, pass, 73 terms through n = 9010 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

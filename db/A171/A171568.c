@@ -11,14 +11,17 @@
  *            function builds the triangle row by row, accumulating te...
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 idx_t row_for(idx_t n)
 {
@@ -46,12 +49,12 @@ seq_t a(idx_t n)
     /* initialize on first call */
     if (prev_row == NULL) {
         prev_len = 1;
-        prev_row = (seq_t*)malloc(prev_len * sizeof(seq_t));
+        prev_row = mem_new(seq_t, prev_len);
         prev_row[0] = 1;                /* row 0: [1] */
         current_row = 0;
 
         flat_len = 1;
-        flat = (seq_t*)malloc(flat_len * sizeof(seq_t));
+        flat = mem_new(seq_t, flat_len);
         flat[0] = 1;
     }
 
@@ -64,7 +67,7 @@ seq_t a(idx_t n)
         size_t n_prev = prev_len;          /* n_prev = current_row + 1 */
         size_t new_len = n_prev + 1;       /* length of new row */
 
-        seq_t *new_row = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
 
         /* sum_future holds Σ_{j=k+1}^{n_prev-1} prev_row[j] for current k */
         seq_t sum_future = 0;
@@ -89,12 +92,12 @@ seq_t a(idx_t n)
             /* should never happen with reasonable inputs */
             return 0;
         }
-        flat = (seq_t*)realloc(flat, flat_len * sizeof(seq_t));
+        flat = mem_resize(seq_t, flat, flat_len);
         for (size_t i = 0; i < new_len; ++i)
             flat[old_flat_len + i] = new_row[i];
 
         /* free old row, update pointers */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = new_row;
         prev_len = new_len;
         current_row++;

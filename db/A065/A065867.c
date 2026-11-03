@@ -11,7 +11,8 @@
  *            calls are fast
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: standard, pass, 70 terms through n = 895 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/cmp_seq_t.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* cached sequence */
 static seq_t *g_cache = NULL;
@@ -80,7 +92,7 @@ recompute(size_t needed)
         if (!primes || !is_prime) break;          /* allocation failure */
 
         /* prefix sums of primes (as seq_t) */
-        seq_t *cum = (seq_t *)malloc((primes_cnt + 1) * sizeof(seq_t));
+        seq_t *cum = mem_new(seq_t, (primes_cnt + 1));
         if (!cum) { free(primes); free(is_prime); break; }
         cum[0] = (seq_t)0;
         for (size_t i = 1; i <= primes_cnt; ++i)
@@ -88,9 +100,9 @@ recompute(size_t needed)
 
         /* collect candidate sums */
         size_t tmp_cap = 1024;
-        seq_t *tmp = (seq_t *)malloc(tmp_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, tmp_cap);
         size_t tmp_cnt = 0;
-        if (!tmp) { free(primes); free(is_prime); free(cum); break; }
+        if (!tmp) { free(primes); free(is_prime); mem_free(cum); break; }
 
         for (size_t start = 0; start < primes_cnt; ++start) {
             for (size_t len = 2; start + len <= primes_cnt; ++len) {
@@ -102,8 +114,8 @@ recompute(size_t needed)
                 if (is_prime[(size_t)sum]) {
                     if (tmp_cnt == tmp_cap) {
                         tmp_cap <<= 1;
-                        seq_t *tmp2 = (seq_t *)realloc(tmp, tmp_cap * sizeof(seq_t));
-                        if (!tmp2) { free(tmp); free(cum); free(primes); free(is_prime); break; }
+                        seq_t *tmp2 = mem_resize(seq_t, tmp, tmp_cap);
+                        if (!tmp2) { mem_free(tmp); mem_free(cum); free(primes); free(is_prime); break; }
                         tmp = tmp2;
                     }
                     tmp[tmp_cnt++] = sum;
@@ -112,30 +124,30 @@ recompute(size_t needed)
             if (tmp_cnt < tmp_cap) { /* inner loop terminated by failure; continue outer loop */ }
         }
 
-        free(cum);
+        mem_free(cum);
         free(primes);
         free(is_prime);
 
         /* sort and deduplicate */
         if (tmp_cnt > 0) {
-            qsort(tmp, tmp_cnt, sizeof(seq_t), cmp_seq_t);
+            mem_qsort(tmp, tmp_cnt, sizeof(seq_t), cmp_seq_t);
             size_t uniq_cnt = 1;
             for (size_t i = 1; i < tmp_cnt; ++i)
                 if (tmp[i] != tmp[uniq_cnt-1]) tmp[uniq_cnt++] = tmp[i];
 
             /* replace cache if larger */
             if (uniq_cnt > g_cache_size) {
-                seq_t *new_cache = (seq_t *)malloc(uniq_cnt * sizeof(seq_t));
+                seq_t *new_cache = mem_new(seq_t, uniq_cnt);
                 if (new_cache) {
-                    memcpy(new_cache, tmp, uniq_cnt * sizeof(seq_t));
-                    free(g_cache);
+                    mem_copy(new_cache, tmp, uniq_cnt * sizeof(seq_t));
+                    mem_free(g_cache);
                     g_cache = new_cache;
                     g_cache_size = uniq_cnt;
                 }
             }
-            free(tmp);
+            mem_free(tmp);
         } else {
-            free(tmp);
+            mem_free(tmp);
         }
 
         /* check if enough terms found */

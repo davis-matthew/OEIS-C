@@ -9,7 +9,8 @@
  *            the number of digits of n³.)
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 220, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len_uint64, isPrime_u64, mod_mul_u64, mod_pow_u64
+ * Validated: standard, pass, 49 terms through n = 9466 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, num_digits_u64, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/digit_len_uint64.h"
-#include "../utils/isPrime_u64.h"
-#include "../utils/mod_mul_u64.h"
-#include "../utils/mod_pow_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/num_digits_u64.h"
+#include "../utils/powmod_u64.h"
 
 /* --- auxiliary: Miller–Rabin primality for 64‑bit integers --- */
 
@@ -76,7 +77,7 @@ seq_t a(idx_t n) {
     unsigned __int128 cube128 = n128 * n128 * n128;
     uint64_t cube64 = (uint64_t)cube128; /* safe for n up to 10⁴ */
 
-    int d = digit_len_uint64(cube64);   /* digits of n³ */
+    int d = num_digits_u64(cube64);   /* digits of n³ */
 
     /* try increasing padding length t = 0,1,2,… */
     for (int t = 0; ; ++t) {
@@ -98,7 +99,7 @@ seq_t a(idx_t n) {
                 if (cand128 > (unsigned __int128)UINT64_MAX) goto next_t; /* skip excessive larger numbers */
 
                 uint64_t cand = (uint64_t)cand128;
-                if (isPrime_u64(cand))
+                if (is_prime_u64(cand))
                     return (seq_t)cand;
             }
         }

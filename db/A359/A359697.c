@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 202, u16 n <= 4950, u32 n <= 4950, u64 n <= 4950,
  *            u128 n <= 4950, big any n
- * Helpers:   carryless_prod
+ * Validated: standard, pass, 94 terms through n = 4641 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,39 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/carryless_prod.h"
+
+/* ------------------------------------------------------------------ */
+static inline seq_t carryless_prod(idx_t a, idx_t b)
+{
+    /* Extract decimal digits of a and b.  */
+    uint8_t da[64] = {0};
+    uint8_t db[64] = {0};
+    size_t na = 0, nb = 0;
+
+    /* Since a,b ≥ 1 for the triangle, the loops always execute once. */
+    do { da[na++] = (uint8_t)(a % 10); a /= 10; } while (a);
+    do { db[nb++] = (uint8_t)(b % 10); b /= 10; } while (b);
+
+    /* Result can have at most na + nb - 1 digits.  */
+    uint8_t res[128] = {0};
+    for (size_t i = 0; i < na; ++i) {
+        for (size_t j = 0; j < nb; ++j) {
+            uint8_t prod = da[i] * db[j];
+            res[i + j] += prod;
+            res[i + j] %= 10;          /* carryless addition */
+        }
+    }
+
+    /* Convert digit array back to seq_t.  */
+    seq_t value  = 0;
+    seq_t mult   = 1;
+    size_t len = na + nb - 1;
+    for (size_t i = 0; i < len; ++i) {
+        value += ((seq_t)res[i]) * mult;
+        mult *= 10;
+    }
+    return value;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Find the row number r such that r*(r+1)/2 ≥ n  (n ≥ 1)               */

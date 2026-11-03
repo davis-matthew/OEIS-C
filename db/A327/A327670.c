@@ -8,8 +8,9 @@
  * Formula:   a(n) is the sum of all positive divisors d of n that have an
  *            even number of distinct prime factors (including 0, which counts
  *            1)
- * Range:     u8 n <= 143, u16 n <= 9883, u32 n <= 9883, u64 n <= 9883,
- *            u128 n <= 9883, big any n
+ * Range:     u8 n <= 143, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 9883 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

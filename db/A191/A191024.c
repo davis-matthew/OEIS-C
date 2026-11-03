@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,29 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Helper: grow an array of type T. */
+#ifdef __cplusplus
+template <class T>
+static void grow_array(T **ptr, size_t *size, size_t *cap, size_t elem_size)
+{
+    if (*cap == 0) {
+        *cap = 64;
+    } else {
+        *cap <<= 1;
+    }
+    *ptr = mem_resize(T, *ptr, (*cap * elem_size) / sizeof(T));
+}
+#else
 static void grow_array(void **ptr, size_t *size, size_t *cap, size_t elem_size)
 {
     if (*cap == 0) {
@@ -29,6 +51,7 @@ static void grow_array(void **ptr, size_t *size, size_t *cap, size_t elem_size)
     }
     *ptr = realloc(*ptr, *cap * elem_size);
 }
+#endif
 
 /* Global state for caching results and primes. */
 static seq_t *cache = NULL;
@@ -51,7 +74,7 @@ static const bool isResidue[31] = {
 static void add_prime(idx_t p)
 {
     if (prime_len == prime_cap) {
-        grow_array((void **)&prime_list, &prime_len, &prime_cap, sizeof(idx_t));
+        grow_array(OEISC_VPP(&prime_list), &prime_len, &prime_cap, sizeof(idx_t));
     }
     prime_list[prime_len++] = p;
 }
@@ -60,7 +83,7 @@ static void add_prime(idx_t p)
 static void add_cache(seq_t v)
 {
     if (cache_len == cache_cap) {
-        grow_array((void **)&cache, &cache_len, &cache_cap, sizeof(seq_t));
+        grow_array(OEISC_VPP(&cache), &cache_len, &cache_cap, sizeof(seq_t));
     }
     cache[cache_len++] = v;
 }

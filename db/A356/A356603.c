@@ -12,13 +12,14 @@
  *            implements the mapping from the k‑th composition in...
  * Range:     u8 n <= 12, u16 n <= 46, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 static const uint32_t odd_primes[32] = {
     2,   5,   11,   17,   23,   31,   41,   47,
@@ -55,7 +56,7 @@ seq_t a(idx_t n)
     for (int j = 0; j < m; ++j) {
         int exp = diff[m - 1 - j];          /* reversed */
         seq_t prime = (seq_t)odd_primes[j];
-        res *= pow_seq(prime, exp);
+        res *= ipow_i32(prime, exp);
     }
     return res;
 }

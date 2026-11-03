@@ -10,7 +10,8 @@
  *            = 111, a(10) = 129, a(11) = 144, a(12) = 164, a(13) = 176
  * Range:     i8 n <= 9, i16 n <= 51, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* initialize base values up to n = 13 */
     if (!vals) {
         size = 14; /* indices 0..13 */
-        vals = (seq_t*)calloc(size, sizeof(seq_t));
+        vals = mem_new(seq_t, size);
         /* set known values */
         vals[2] = (seq_t)-1;
         vals[3] = (seq_t)13;
@@ -49,11 +51,11 @@ seq_t a(idx_t n)
     /* extend memoization array if needed */
     if (n >= size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t*)realloc(vals, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, vals, new_size);
         if (!tmp) /* allocation failed */
             return 0;
         vals = tmp;
-        memset(vals + size, 0, (new_size - size) * sizeof(seq_t));
+        mem_set(vals + size, 0, (new_size - size) * sizeof(seq_t));
         /* compute new values iteratively */
         for (idx_t i = size; i <= n; ++i) {
             if (i <= 13) {

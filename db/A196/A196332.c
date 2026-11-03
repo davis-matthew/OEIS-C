@@ -10,7 +10,8 @@
  *            the empirical relation in OEIS A196332
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 46, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS 125
 #define COLS 3
@@ -144,7 +146,7 @@ static void compute_first_terms(seq_t *term)
     static seq_t cur_dp[ROWS*ROWS];
     static seq_t next_dp[ROWS*ROWS];
 
-    memset(cur_dp, 0, sizeof(cur_dp));
+    mem_set(cur_dp, 0, sizeof(cur_dp));
 
     /* initial states after adding second row */
     for (int r1 = 0; r1 < ROWS; ++r1)
@@ -153,7 +155,7 @@ static void compute_first_terms(seq_t *term)
                 cur_dp[r1*ROWS + r2] = 1;
 
     for (i = 3; i <= 17; ++i) {
-        memset(next_dp, 0, sizeof(next_dp));
+        mem_set(next_dp, 0, sizeof(next_dp));
         for (int idx = 0; idx < ROWS*ROWS; ++idx) {
             seq_t cnt = cur_dp[idx];
             if (cnt == 0) continue;
@@ -163,7 +165,7 @@ static void compute_first_terms(seq_t *term)
                 if (trans_ok[pp][p][cur])
                     next_dp[p*ROWS + cur] += cnt;
         }
-        memcpy(cur_dp, next_dp, sizeof(cur_dp));
+        mem_copy(cur_dp, next_dp, sizeof(cur_dp));
 
         /* compute term i from bottom row validation */
         seq_t total = 0;
@@ -198,7 +200,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_size = 17;
-        cache = (seq_t*)malloc((cache_size + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_size + 1));
         compute_first_terms(cache);
     }
 
@@ -206,7 +208,7 @@ seq_t a(idx_t n)
 
     /* extend cache up to n */
     if (n > cache_size) {
-        cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         for (idx_t i = cache_size + 1; i <= n; ++i) {
             seq_t sum_pos = 0;
             seq_t sum_neg = 0;

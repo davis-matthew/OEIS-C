@@ -9,7 +9,8 @@
  *            negative common differences)
  * Range:     u8 none, u16 none, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,18 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* ------------------------------------------------------------------------- */
 /* Data structures */
@@ -58,7 +69,7 @@ static void grow_heap(size_t need)
     if (need <= heap_cap) return;
     size_t new_cap = heap_cap ? heap_cap * 2 : 128;
     while (new_cap < need) new_cap *= 2;
-    Cand *tmp = (Cand *)realloc(heap, new_cap * sizeof(Cand));
+    Cand *tmp = mem_resize(Cand, heap, new_cap);
     if (!tmp) abort();
     heap = tmp;
     heap_cap = new_cap;
@@ -103,7 +114,7 @@ static void grow_output(size_t need)
     if (need <= output_cap) return;
     size_t new_cap = output_cap ? output_cap * 2 : 128;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(output, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, output, new_cap);
     if (!tmp) abort();
     output = tmp;
     output_cap = new_cap;
@@ -120,7 +131,7 @@ static void extend_candidate(Cand c)
     seq_t next_term = (seq_t)next_term128;
 
     /* Compute new concatenated value = previous * 10^len(next_term) + next_term */
-    seq_t new_val = c.val * pow10((idx_t)digit_len(next_term)) + next_term;
+    seq_t new_val = c.val * pow10((idx_t)num_digits(next_term)) + next_term;
     Cand nxt = { new_val, c.a, c.d, c.k + 1 };
     push_heap(nxt);
 }
@@ -141,8 +152,8 @@ static void init_candidates(void)
             seq_t term2 = (seq_t)((int64_t)a + d);
             seq_t term3 = (seq_t)third;
 
-            seq_t val = term1 * pow10((idx_t)digit_len(term2)) + term2;
-            val = val * pow10((idx_t)digit_len(term3)) + term3;
+            seq_t val = term1 * pow10((idx_t)num_digits(term2)) + term2;
+            val = val * pow10((idx_t)num_digits(term3)) + term3;
 
             Cand c = { val, (int64_t)a, d, 3 };
             push_heap(c);

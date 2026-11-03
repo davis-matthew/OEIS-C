@@ -6,14 +6,26 @@
  * Keywords:  nonn
  * Formula:   a(n) = 37 written in base n
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 12, big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +47,7 @@ seq_t a(idx_t n)
     seq_t res = 0;
     for (idx_t i = count; i > 0; --i) {
         seq_t digit = (seq_t)digits[i - 1];
-        int len = digit_len(digit);
+        int len = num_digits(digit);
         res = res * pow10((idx_t)len) + digit;
     }
     return res;

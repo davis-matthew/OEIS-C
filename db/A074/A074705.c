@@ -8,7 +8,8 @@
  * Formula:   a(n) = #{ primes p | p_{n-1}^2 < p < p_{n+1}^2 }, a(1) = 4
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   estimate_prime_limit
+ * Validated: standard, pass, 71 terms through n = 964 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/estimate_prime_limit.h"
+
+/* Estimate an upper bound for the n‑th prime using p_n < n(ln n + ln ln n) */
+static int estimate_prime_limit(idx_t n)
+{
+    if (n < 6) return 15;                 /* p_6 = 13, a small constant */
+    double nn = (double)n;
+    double ub = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (int)ub;
+}
 
 /* ------------------------------------------------------------------ */
 /* Prime generation – up to a required index.                          */

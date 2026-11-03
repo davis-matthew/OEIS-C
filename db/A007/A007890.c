@@ -9,12 +9,39 @@
  *            digit); a(n) = 14233221 for n >= 13
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   describe_decreasing
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/describe_decreasing.h"
+static seq_t describe_decreasing(seq_t num) {
+    int digit_count[10] = {0};
+    seq_t temp = num;
+    while (temp > 0) {
+        int d = (int)(temp % 10);
+        digit_count[d]++;
+        temp /= 10;
+    }
+    seq_t result = 0;
+    for (int d = 9; d >= 0; d--) {
+        int c = digit_count[d];
+        if (c > 0) {
+            int digs[12];
+            int k = 0;
+            while (c > 0) {
+                digs[k++] = c % 10;
+                c /= 10;
+            }
+            while (k > 0) {
+                k--;
+                result = result * 10 + (seq_t)digs[k];
+            }
+            result = result * 10 + (seq_t)d;
+        }
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     seq_t current = 1;

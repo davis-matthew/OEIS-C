@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_semiprime_omega
+ * Validated: standard, pass, 71 terms through n = 9921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_semiprime_omega.h"
+#include "../utils/mem.h"
+
+/* check whether a small integer omega is a semiprime */
+static inline bool is_semiprime_omega(uint8_t omega)
+{
+    if (omega < 2) return false;
+    uint32_t cnt = 0;
+    uint32_t n = omega;
+    for (uint32_t p = 2; p * p <= n; ++p)
+    {
+        while (n % p == 0)
+        {
+            ++cnt;
+            n /= p;
+            if (cnt > 2) return false;
+        }
+    }
+    if (n > 1) ++cnt;
+    return cnt == 2;
+}
 
 /* static storage for the sequence terms */
 static seq_t *seq      = NULL;   /* array of found terms */
@@ -98,7 +118,7 @@ static void ensure_sequence(idx_t n)
                 /* grow seq array if necessary */
                 if (seq_size == 0)
                 {
-                    seq = (seq_t*)malloc(256 * sizeof(seq_t));
+                    seq = mem_new(seq_t, 256);
                     seq_cap = 256;
                     seq[0] = (seq_t)i;
                     seq_size = 1;
@@ -106,7 +126,7 @@ static void ensure_sequence(idx_t n)
                 else if ((size_t)seq_size >= seq_cap)
                 {
                     seq_cap *= 2;
-                    seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                     seq[seq_size++] = (seq_t)i;
                 }
                 else

@@ -10,20 +10,25 @@
  *            catalan(n-1) * (n+1)^(n-1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, catalan
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   catalan, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;               /* offset starts at 1, guard against underflow */
 
     seq_t cat = catalan(n - 1);          /* Catalan number C_{n-1} */
-    seq_t pow = big_pow((seq_t)(n + 1), (seq_t)(n - 1));  /* (n+1)^(n-1) */
+    seq_t pow = ipow((seq_t)(n + 1), (seq_t)(n - 1));  /* (n+1)^(n-1) */
 
     return cat * pow;
 }

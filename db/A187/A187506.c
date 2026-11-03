@@ -14,13 +14,15 @@
  *            recurrence for all n ≥ 12
  * Range:     u8 n <= 20, u16 n <= 35, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised evaluation of the sequence. */
 seq_t a(idx_t n)
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         /* Grow the array to at least n+1 elements.  Use realloc to keep
            existing data.  The cast to size_t is safe because n ≤ 10000
            in the use‑cases.  */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!tmp) { /* allocation failed – leave return value undefined */
             return 0;
         }
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             /* If cache was previously NULL we fill the first 12 rows. */
             if (cache_len < 12) {
                 /* Ensure there is space for the initial 12.  */
-                cache = (seq_t *)realloc(cache, 12 * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, 12);
                 cache_len = 12;
             }
             cache[0] = 0;  /* a(0) */

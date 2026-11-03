@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} (1 + 3^n x^k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow, free_seq_array, seq_alloc_new_array
+ * Validated: standard, pass, 32 terms through n = 126 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,21 @@
  * we compute all needed P_at_most values by dynamic programming. */
 
 #include <stddef.h>   /* for size_t */
-#include "../utils/big_pow.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1; /* a(0) = 1 */
@@ -54,7 +67,7 @@ seq_t a(idx_t n) {
     }
 
     /* Base value of M = 3^n */
-    seq_t M = big_pow(3, (seq_t)n);
+    seq_t M = ipow(3, (seq_t)n);
     seq_t Mpow = 1;           /* M^r, starts with r=0 -> 1 */
     seq_t ans = 0;
 

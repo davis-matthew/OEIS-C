@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   p_n_value
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/p_n_value.h"
+#include "../utils/mem.h"
+
+/* Helper: inhomogeneous part of the recurrence */
+static seq_t p_n_value(idx_t n)
+{
+    if (n == 0 || n == 39)
+        return (seq_t)1;
+    if (n <= 38)
+        return (seq_t)2;
+    return (seq_t)0;
+}
 
 /* Helper: resize the cache if necessary */
 static void ensure_cache_size(size_t new_len, seq_t **cache, size_t *cap)
@@ -37,7 +48,7 @@ static void ensure_cache_size(size_t new_len, seq_t **cache, size_t *cap)
     size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
     while (new_cap < new_len)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *cache, new_cap);
     if (!tmp)
         abort();                /* out of memory */
     *cache = tmp;

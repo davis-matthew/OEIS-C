@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* OEIS A068983: a(n) = Sum_{k=0..n} (k^k - k!)  (offset 1) */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         if (k == 0) {
             powk = (seq_t)1;         /* 0^0 = 1 */
         } else {
-            powk = big_pow((seq_t)k, (seq_t)k);
+            powk = ipow((seq_t)k, (seq_t)k);
             fact *= (seq_t)k;        /* k! = (k-1)! * k */
         }
         sum += powk - fact;

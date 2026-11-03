@@ -8,7 +8,8 @@
  * Formula:   a(n) = number of distinct lcm(i,j) for 1 ≤ i < j ≤ n
  * Range:     u8 n <= 16, u16 n <= 315, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _popcount8
+ * Validated: standard, pass, 73 terms through n = 980 (2026-11-01)
+ * Helpers:   popcount_u8
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/_popcount8.h"
+#include "../utils/popcount_u8.h"
 
 /* Euclidean algorithm for seq_t */
 static inline seq_t _gcd_seq_t(seq_t a, seq_t b)
@@ -82,7 +83,7 @@ seq_t a(idx_t n)
     /* count set bits */
     seq_t count = 0;
     for (size_t i = 0; i < bitset_bytes; ++i) {
-        count += (seq_t)_popcount8(bitset[i]);
+        count += (seq_t)popcount_u8(bitset[i]);
     }
     return count;
 }

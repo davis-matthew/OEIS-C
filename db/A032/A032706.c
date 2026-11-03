@@ -9,7 +9,8 @@
  *            decimal concatenation 6 k 1 is prime
  * Range:     u8 n <= 74, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_mul_u128, mod_pow_u128
+ * Validated: standard, pass, 76 terms through n = 933 (2026-11-03)
+ * Helpers:   mem, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_mul_u128.h"
-#include "../utils/mod_pow_u128.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* --- helpers ----------------------------------------------------------- */
 static uint32_t decimal_digits(uint64_t x)
@@ -62,11 +64,11 @@ static bool is_prime_u64(uint64_t n)
     for (size_t i = 0; i < sizeof(bases)/sizeof(bases[0]); ++i) {
         uint64_t a = bases[i] % n;
         if (a == 0) return true;
-        uint64_t x = mod_pow_u128(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n - 1) continue;
         bool cont_flag = false;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mod_mul_u128(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { cont_flag = true; break; }
         }
         if (!cont_flag) return false;
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
             /* grow cache if necessary */
             if (len == cap) {
                 size_t new_cap = (cap == 0) ? 128 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 cache = tmp;
                 cap = new_cap;

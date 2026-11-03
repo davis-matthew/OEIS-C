@@ -8,14 +8,29 @@
  * Formula:   a(1) = 6; a(n+1) = sum of squares of the base‑12 digits of a(n)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sum_sq_digits12
+ * Validated: standard, pass, 82 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/sum_sq_digits12.h"
+#include "../utils/mem.h"
+
+/* Compute the sum of the squares of the base‑12 digits of v. */
+static seq_t sum_sq_digits12(seq_t v)
+{
+    seq_t sum = 0;
+    while (v != 0)
+    {
+        /* v % 12 gives one base‑12 digit, works for 128‑bit and big integers */
+        int d = (int)(v % 12);
+        sum += (seq_t)d * d;
+        v /= 12;
+    }
+    return sum;
+}
 
 /* Static cache for already computed terms. 0‑based indices. */
 static seq_t *cache      = NULL;   /* array of terms */
@@ -30,14 +45,14 @@ static void ensure_cap(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         abort();   /* out of memory */
 
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

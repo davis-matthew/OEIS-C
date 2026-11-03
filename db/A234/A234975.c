@@ -12,7 +12,8 @@
  *            a(7)=87941706 (indices start at 1 as in OEIS)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* 
  * seq_t and idx_t are defined by the build system.
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate up to at least 7 terms, or more if n is larger */
         idx_t alloc_sz = (n > 7) ? n : 7;
-        cache = (seq_t *)malloc(alloc_sz * sizeof(seq_t));
+        cache = mem_new(seq_t, alloc_sz);
         if (!cache) exit(1);
 
         /* first seven terms */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     if (n > cached_n) {
         idx_t old_sz = cached_n;
         idx_t new_sz = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (!tmp) exit(1);
         cache = tmp;
 

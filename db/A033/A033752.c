@@ -10,13 +10,15 @@
  *            contributing a factor 2
  * Range:     u8 n <= 27, u16 n <= 179, u32 n <= 7094, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 8653 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for previously computed terms. */
 static seq_t *cache   = NULL;
@@ -26,7 +28,7 @@ static idx_t  cache_sz = 0;   /* valid indices 0 .. cache_sz-1 */
 static void recompute_up_to(idx_t new_n)
 {
     /* Allocate a working array for the convolution result. */
-    seq_t *cur = (seq_t *)calloc(new_n + 1, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, new_n + 1);
     if (!cur) abort();           /* allocation failure */
     cur[0] = (seq_t)1;           /* start with coefficient 1 at q^0 */
 
@@ -37,7 +39,7 @@ static void recompute_up_to(idx_t new_n)
         idx_t d = divisors[di];
 
         /* Allocate next array for convolution with θ₃(q^d). */
-        seq_t *next = (seq_t *)calloc(new_n + 1, sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, new_n + 1);
         if (!next) abort();
 
         /* Perform the convolution. */
@@ -60,12 +62,12 @@ static void recompute_up_to(idx_t new_n)
         }
 
         /* Prepare for next divisor. */
-        free(cur);
+        mem_free(cur);
         cur = next;
     }
 
     /* Replace old cache with the newly computed values. */
-    free(cache);
+    mem_free(cache);
     cache   = cur;
     cache_sz = new_n + 1;   /* indices 0 .. new_n are valid now */
 }

@@ -8,6 +8,7 @@
  * Formula:   a(n) = ∑_{b=2}^{n-1} (digit_sum(n,b) mod b)
  * Range:     u8 n <= 37, u16 n <= 607, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 73 terms through n = 8692 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

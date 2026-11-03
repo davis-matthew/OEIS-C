@@ -8,12 +8,13 @@
  *            binomial(n+3*k-1, n-k) / (n-k+1) (s = 4)
  * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 14, i64 n <= 26, i128 n <= 26,
  *            big any n
- * Helpers:   binom_my
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_my.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -23,10 +24,10 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t k = 0; k <= n; ++k) {
         /* term1 = binomial(n-k+1, k) */
-        seq_t term1 = binom_my(n - k + 1, k);
+        seq_t term1 = binomial(n - k + 1, k);
 
         /* term2 = binomial(n + 3*k - 1, n - k) */
-        seq_t term2 = binom_my(n + 3 * k - 1, n - k);
+        seq_t term2 = binomial(n + 3 * k - 1, n - k);
 
         /* denom = n - k + 1 */
         seq_t denom = (seq_t)(n - k + 1);

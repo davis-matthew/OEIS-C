@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 173, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len_u, digit_product_u
+ * Validated: standard, pass, 105 terms through n = 9926 (2026-11-03)
+ * Helpers:   digit_product, mem, num_digits_seq_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
  * it has cached the requested n‑th element.  No closed‑form formula
  * exists for this sequence. */
 #include <stdlib.h>
-#include "../utils/digit_len_u.h"
-#include "../utils/digit_product_u.h"
+#include "../utils/digit_product.h"
+#include "../utils/num_digits_seq_to_u32.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,13 +32,13 @@ seq_t a(idx_t n)
     static seq_t next_to_test = 0;    /* next natural number to examine */
 
     while (current_index < n) {
-        seq_t prod = digit_product_u(next_to_test);
-        unsigned d = digit_len_u(next_to_test);
+        seq_t prod = digit_product(next_to_test);
+        unsigned d = num_digits_seq_to_u32(next_to_test);
         if (prod % (seq_t)d == 0) {
             /* Ensure enough space */
             if (current_index + 1 >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *p = mem_resize(seq_t, cache, new_cap);
                 if (!p) exit(1);          /* out of memory */
                 cache = p;
                 cache_cap = new_cap;

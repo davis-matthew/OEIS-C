@@ -13,7 +13,8 @@
  *            second...
  * Range:     u8 n <= 17, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binomial, decoupage
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/binomial.h"
-#include "../utils/decoupage.h"
+#include "../utils/mem.h"
+
+/* Given linear index n (1‑based), compute its row r and column k. */
+static void decoupage(idx_t n, size_t *r, size_t *k)
+{
+    /* Find minimal r with r(r+1)/2 ≥ n. */
+    size_t lo = 1, hi = 1;
+    while (((__int128)hi * (hi + 1) / 2) < n) hi <<= 1;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (((__int128)mid * (mid + 1) / 2) >= n)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    *r = lo;
+    /* Previous count of entries before row r. */
+    size_t prev = (size_t)(((__int128)(lo - 1) * lo) / 2);
+    *k = (size_t)n - prev;   /* 1‑based column */
+}
 
 /* Cached array of Stirling numbers S₂(n,k), 1 ≤ k ≤ n.  S[n] points to
    an array of length n+1 with indices 0…n.  Index 0 is unused. */
@@ -44,7 +64,7 @@ static void ensure_stirling(size_t new_n)
 
     /* Build new rows. */
     for (size_t n = max_n + 1; n <= new_n; ++n) {
-        seq_t *row = (seq_t *)calloc(n + 1, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, n + 1);
         if (!row) abort();
         row[0] = 0;
         row[1] = 1;

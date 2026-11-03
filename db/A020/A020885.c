@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 23, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 67 terms through n = 9623 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Estimate maximum number of entries required for the tests.  The
    chosen limit is comfortably larger than the number of primitive
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Lazy initialization: generate and sort once. */
     if (!initialized) {
         size_t cap = MAX_CAPACITY;
-        values = (seq_t *)calloc(cap, sizeof(seq_t));
+        values = mem_new(seq_t, cap);
         if (!values) return 0;  /* allocation failed – should not happen */
 
         count = 0;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         }
 
         /* Any remaining capacity is unused; no need to shrink. */
-        qsort(values, count, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(values, count, sizeof(seq_t), cmp_seq_t);
 
         initialized = true;
     }

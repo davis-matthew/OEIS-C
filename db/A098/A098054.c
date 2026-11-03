@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 51, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   signed_add
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,24 @@
 */
 
 #include <stdbool.h>
-#include "../utils/signed_add.h"
+
+static inline void signed_add(seq_t m1, bool s1,
+                              seq_t m2, bool s2,
+                              seq_t *out_m, bool *out_s)
+{
+    if (s1 == s2) {
+        *out_m = m1 + m2;
+        *out_s = s1;
+    } else {
+        if (m1 >= m2) {
+            *out_m = m1 - m2;
+            *out_s = s1;
+        } else {
+            *out_m = m2 - m1;
+            *out_s = s2;
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

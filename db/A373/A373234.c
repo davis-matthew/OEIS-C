@@ -10,6 +10,7 @@
  *            first term)
  * Range:     u8 n <= 23, u16 n <= 223, u32 n <= 223, u64 n <= 223,
  *            u128 n <= 223, big any n
+ * Validated: full, pass, 223 terms through n = 223 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

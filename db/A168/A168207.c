@@ -8,12 +8,14 @@
  *            closed form a(n) = (10*n + 17 + 19*(-1)^n)/4)
  * Range:     u8 n <= 99, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 881 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with the first term if it is empty. */
     if (cache_size == 0) {
-        cache     = (seq_t *)malloc(sizeof(seq_t));
+        cache     = mem_new(seq_t, 1);
         if (cache == NULL)
             abort();               /* malloc failure – propagate an error */
         cache[0]  = (seq_t)2;   /* a(1) */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         return cache[n - 1];
 
     /* Grow the cache to size n.  This is O(n) and keeps O(n) time overall. */
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * (size_t)n);
+    seq_t *new_cache = mem_new(seq_t, (size_t)n);
     if (new_cache == NULL)
         abort();                  /* memory allocation failed */
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i < cache_size; ++i)
         new_cache[i] = cache[i];
 
-    free(cache);
+    mem_free(cache);
     cache     = new_cache;
 
     /* Compute the missing terms using the recurrence. */

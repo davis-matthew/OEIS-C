@@ -6,8 +6,9 @@
  * Keywords:  sign, easy
  * Formula:   a(n) = (n+1)/2 if n odd; -n/4 if n % 4 == 0; ((n-2)/4) - n if n
  *            % 4 == 2
- * Range:     i8 n <= 172, i16 n <= 9676, i32 n <= 9676, i64 n <= 9676,
- *            i128 n <= 9676, big any n
+ * Range:     i8 n <= 172, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 80 terms through n = 9676 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

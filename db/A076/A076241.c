@@ -9,7 +9,8 @@
  *            “second–order prime”
  * Range:     u8 n <= 16, u16 n <= 1223, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   estimate_np
+ * Validated: standard, pass, 93 terms through n = 4897 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/estimate_np.h"
+
+/* Estimate an upper bound for the nth prime (Rosser's theorem) */
+static size_t estimate_np(size_t n)
+{
+    if (n < 6) return 15;
+    double dn   = (double)n;
+    double bound = dn * (log(dn) + log(log(dn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* static state for the prime sieve */
 static uint32_t *primes = NULL;          /* array of primes */

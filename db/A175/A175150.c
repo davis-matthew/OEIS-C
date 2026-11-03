@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 104 terms through n = 9221 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of largest computed index */
 static idx_t max_n = 0;      /* largest n with valid data          */
@@ -61,7 +63,7 @@ static void ensure_upto(idx_t N)
     /* enlarge divisor array */
     size_t new_sz = (size_t)N;
     uint32_t *new_d  = (uint32_t*)realloc(d, new_sz * sizeof(uint32_t));
-    seq_t   *new_a  = (seq_t  *)realloc(a_arr, new_sz * sizeof(seq_t));
+    seq_t   *new_a  = mem_resize(seq_t, a_arr, new_sz);
     if (!new_d || !new_a) abort();
 
     d    = new_d;

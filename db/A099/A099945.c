@@ -8,6 +8,7 @@
  * Formula:   a(n) = 27*2^n - 28
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 27, u64 n <= 59, u128 n <= 123,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 984 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

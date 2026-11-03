@@ -11,13 +11,15 @@
  *            row‑wise: first row n=1, then row n=2, etc
  * Range:     u8 n <= 24, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of the coefficient arrays for all rows that have been computed. */
 static seq_t **u_rows = NULL;   /* pointer to the array of u coefficients for each row */
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
 {
     /* Ensure at least row 1 is computed. */
     if (max_rows == 0) {
-        seq_t *u0 = (seq_t*)malloc(sizeof(seq_t));
-        seq_t *v0 = (seq_t*)malloc(sizeof(seq_t));
+        seq_t *u0 = mem_new(seq_t, 1);
+        seq_t *v0 = mem_new(seq_t, 1);
         u0[0] = (seq_t)1;
         v0[0] = (seq_t)1;
         u_rows = (seq_t**)malloc(sizeof(seq_t*));
@@ -60,8 +62,8 @@ seq_t a(idx_t n)
         idx_t len_u = (curr == 1) ? 1 : curr - 1;   /* #(coefficients of u(curr,x)) */
         idx_t len_v = (curr == 1) ? 1 : curr;       /* #(coefficients of v(curr,x)) */
 
-        seq_t *u = (seq_t*)malloc(len_u * sizeof(seq_t));
-        seq_t *v = (seq_t*)malloc(len_v * sizeof(seq_t));
+        seq_t *u = mem_new(seq_t, len_u);
+        seq_t *v = mem_new(seq_t, len_v);
 
         if (curr == 1) {
             u[0] = (seq_t)1;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 586 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Utility to grow a dynamically allocated array to the required size.
  * The array element type is seq_t and the size is tracked by *size. */
@@ -32,7 +34,7 @@ static void grow_array(seq_t **arr, size_t *size, size_t newsize)
 {
     if (newsize <= *size)
         return;
-    seq_t *tmp = (seq_t *)realloc(*arr, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, newsize);
     if (!tmp)
         abort();                  /* allocation failed */
     *arr = tmp;

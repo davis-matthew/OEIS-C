@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = curling number of (b(1), …, b(n‑1)) where b(k) is the
  *            Thue–Morse sequence offset to 1. b(k) = parity(k−1) (0‑based)
- * Range:     u8 n <= 8339, u16 n <= 8339, u32 n <= 8339, u64 n <= 8339,
- *            u128 n <= 8339, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 116 terms through n = 8339 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
 static const uint64_t BASE = 91138233ULL;   /* hash base */
 
@@ -42,6 +44,14 @@ static idx_t cur_len = 0;                           /* number of bits computed  
 static inline uint64_t sub_hash(idx_t l, idx_t r)
 {
     return hash_arr[r] - hash_arr[l] * pow_arr[r - l];
+}
+
+/* blocks [a, a+L) and [b, b+L) equal? The hash modulo 2^64 is only a
+   filter: the Thue-Morse word is the classic input on which it collides
+   (from a(16384) on), so a match is confirmed directly. */
+static inline int same(idx_t a, idx_t b, idx_t L)
+{
+    return sub_hash(a, a + L) == sub_hash(b, b + L) && memcmp(seq_morse + a, seq_morse + b, (size_t)L) == 0;
 }
 
 /* extend pre‑computed arrays up to length 'needed_len' (0‑based)   */
@@ -83,12 +93,13 @@ static seq_t curling_number(idx_t m)
         idx_t l1 = m - 2 * L, r1 = m - L;     /* first block      */
         idx_t l2 = m - L,     r2 = m;         /* second block     */
 
-        if (sub_hash(l1, r1) == sub_hash(l2, r2)) {        /* last two blocks equal */
+        (void)r1; (void)r2;
+        if (same(l1, l2, L)) {                              /* last two blocks equal */
             int repeats = 2;
             idx_t pos = m - 2 * L;
             /* extend leftwards to count further repetitions */
             while (pos >= L) {
-                if (sub_hash(pos - L, pos) == sub_hash(pos, pos + L)) {
+                if (same(pos - L, pos, L)) {
                     ++repeats;
                     pos -= L;
                 } else break;

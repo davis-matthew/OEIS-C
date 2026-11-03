@@ -9,13 +9,15 @@
  *            function (1‑x)/(1‑4x+3x²‑x³)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 38, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* first call: allocate cache and initialise seed values */
     if (buf == NULL) {
         size_t init = 3;                   /* at least 3 needed for a(0..2) */
-        buf = (seq_t *)malloc(init * sizeof(seq_t));
+        buf = mem_new(seq_t, init);
         if (buf == NULL) return (seq_t)0;  /* out‑of‑memory fallback */
         buflen = init;
         buf[0] = (seq_t)1;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         while (newlen <= (size_t)n) {
             newlen = newlen * 2;
         }
-        seq_t *tmp = (seq_t *)realloc(buf, newlen * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, newlen);
         if (tmp == NULL) return (seq_t)0;  /* out‑of‑memory fallback */
         buf    = tmp;
         buflen = newlen;

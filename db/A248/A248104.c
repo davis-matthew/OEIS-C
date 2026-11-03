@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache of found positions */
 static seq_t *pos_cache = NULL;
@@ -50,11 +52,11 @@ static void grow_cache(size_t need)
     if (need > cache_cap) {
         size_t newcap = cache_cap ? cache_cap * 2 : 64;
         if (newcap < need) newcap = need;
-        seq_t *tmp = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, newcap);
         if (!tmp) abort();
         if (pos_cache) {
-            memcpy(tmp, pos_cache, cache_len * sizeof(seq_t));
-            free(pos_cache);
+            mem_copy(tmp, pos_cache, cache_len * sizeof(seq_t));
+            mem_free(pos_cache);
         }
         pos_cache = tmp;
         cache_cap = newcap;

@@ -7,13 +7,15 @@
  * Formula:   a(n) = 1 + Sum_{d|n, d>1} binomial( a(n/d) + d - 1 , d )
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 71, u64 n <= 143,
  *            u128 n <= 287, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 2139 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declarations */
 static seq_t *cache = NULL;
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
         return;
 
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* out of memory, terminate */
         exit(1);

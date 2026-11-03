@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 20, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   build_primes, pow_int
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   build_primes, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,7 @@
 #include <stdint.h>
 
 #include "../utils/build_primes.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 /* static storage for primes */
 static idx_t *prime_list = NULL;
@@ -59,7 +60,7 @@ ensure_primes(idx_t n)
 static seq_t
 five_power(seq_t x)
 {
-    return pow_int(x, 5);
+    return ipow_idx(x, 5);
 }
 
 /* main sequence function */

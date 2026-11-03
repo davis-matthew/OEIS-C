@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 28, u64 n <= 28, u128 n <= 28,
- *            big any n
- * Helpers:   is_prime_seq
+ * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 123, u64 n <= 4600,
+ *            u128 n <= 4600, big any n
+ * Validated: standard, pass, 44 terms through n = 4226 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for found primes and the next candidate index */
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     /* Grow the primes array as necessary */
     if (primes_capacity == 0) {
         primes_capacity = 16;
-        primes = (seq_t *)malloc(primes_capacity * sizeof(seq_t));
+        primes = mem_new(seq_t, primes_capacity);
         if (!primes) exit(1);
     }
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
             /* Store the new prime, extending the array if needed */
             if (primes_found == primes_capacity) {
                 size_t new_cap = primes_capacity * 2;
-                seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, new_cap);
                 if (!tmp) exit(1);
                 primes = tmp;
                 primes_capacity = new_cap;

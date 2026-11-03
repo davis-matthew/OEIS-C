@@ -9,12 +9,14 @@
  *            a(n-1-k) (n ≥ 1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of sequence A351798.  The result is
    returned as type seq_t.  The function is fully self‑contained and
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         return 1;
 
     /* Allocate workspace for a(0)…a(n).  */
-    seq_t *arr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (n + 1));
     if (!arr)
         exit(EXIT_FAILURE);  /* out of memory */
 
@@ -51,6 +53,6 @@ seq_t a(idx_t n)
 
     seq_t result = arr[n];
 
-    free(arr);
+    mem_free(arr);
     return result;
 }

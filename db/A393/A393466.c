@@ -12,13 +12,15 @@
  *            satisfies the type and header constraints
  * Range:     u8 n <= 1873, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9544 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: integer square root for an unsigned 64‑bit integer.
    Works without floating point.  */
@@ -53,7 +55,7 @@ static void ensure_dist_capacity(size_t need)
     if (dist_cap >= need) return;
     size_t new_cap = dist_cap ? dist_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(distances, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, distances, new_cap);
     if (!new_ptr) exit(EXIT_FAILURE); /* fatal error */
     distances = new_ptr;
     dist_cap  = new_cap;

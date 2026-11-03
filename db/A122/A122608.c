@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 20, i32 n <= 37, i64 n <= 37, i128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The build supplies seq_t and idx_t types. */
 
@@ -34,11 +36,11 @@ static void ensure_cache(idx_t n)
     /* Allocate/expand the cache */
     if (cache == NULL) {
         cache_cap = (size_t)(n < 5 ? 5 : n);   /* at least 5 terms for init */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if ((size_t)n > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < (size_t)n) new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

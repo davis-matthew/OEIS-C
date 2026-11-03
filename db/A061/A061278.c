@@ -10,13 +10,20 @@
  *            n≥2)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 68,
  *            big any n
- * Helpers:   alloc_cache
+ * Validated: standard, pass, 43 terms through n = 750 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_cache.h"
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *seq_cache = NULL;   /* cache of previously computed terms   */
 static idx_t  cache_len = 0;      /* number of elements stored (max index+1)  */
@@ -32,7 +39,7 @@ seq_t a(idx_t n) {
 
         /* copy old values into the new cache */
         for (idx_t i = 0; i < old_len; ++i) new_cache[i] = seq_cache[i];
-        free(seq_cache);
+        mem_free(seq_cache);
         seq_cache = new_cache;
 
         /* initialise the base values if they are missing */

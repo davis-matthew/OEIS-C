@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 99, u16 n <= 9557, u32 n <= 9557, u64 n <= 9557,
- *            u128 n <= 9557, big any n
- * Helpers:   none
+ * Range:     u8 n <= 99, u16 n <= 10920, u32 n <= 10920, u64 n <= 10920,
+ *            u128 n <= 10920, big any n
+ * Validated: standard, pass, 93 terms through n = 9557 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;          /* array of found terms */
 static idx_t  terms_cnt = 0;         /* number of terms cached */
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
             /* store term */
             if (terms_cnt == terms_alloc) {
                 size_t new_alloc = terms_alloc ? terms_alloc * 2 : 1024;
-                seq_t *tmp = (seq_t *)realloc(terms, new_alloc * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_alloc);
                 if (!tmp) abort();          /* allocation failure */
                 terms = tmp;
                 terms_alloc = new_alloc;

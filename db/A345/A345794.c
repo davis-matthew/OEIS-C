@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 105, u32 n <= 105, u64 n <= 105, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    as a sum of nine positive cubes (order of the cubes does not matter). */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;
 static size_t terms_len = 0;
@@ -27,7 +29,7 @@ static size_t current_max_sum = 0;
 static void recompute_terms(size_t max_sum)
 {
     /* free previous list */
-    free(terms);
+    mem_free(terms);
     terms = NULL;
     terms_len = 0;
 
@@ -78,7 +80,7 @@ static void recompute_terms(size_t max_sum)
     }
 
     /* allocate storage for the terms */
-    terms = (seq_t *)malloc(count * sizeof(seq_t));
+    terms = mem_new(seq_t, count);
     if (!terms) {        /* out of memory */
         free(dp);
         return;

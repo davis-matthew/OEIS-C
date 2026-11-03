@@ -6,6 +6,7 @@
  * Keywords:  nonn
  * Formula:   a(n) = decimal concatenation of the base‑n digits of 39
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 13, big any n
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    The function memoizes results so calls in any order are efficient. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* First time: allocate and populate cache with initial terms */
     if (cache_len == 0) {
         cache_len = 9;                     /* we store indices 0..8 */
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         for (idx_t i = 0; i < cache_len; ++i)
             cache[i] = init[i];
     }
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_len) {
         idx_t new_len = n + 1;
         /* realloc can handle NULL pointer case */
-        seq_t *new_cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) {
             /* allocation failure – return 0 as a sane fallback */
             return (seq_t)0;

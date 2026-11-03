@@ -7,13 +7,15 @@
  * Formula:   a(n) = A007088(A171763(n))
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 255, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 48 terms through n = 9837 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
        2^(L-2)-1 >= n  <=> 2^(L-2) >= n+1
        Let k = ceil(log2(n+1)), then L = k+2.                      */
     idx_t n_plus_one = n + 1;
-    uint32_t k = floor_log2_uint64(n_plus_one);
+    uint32_t k = ilog2(n_plus_one);
     if (((seq_t)1 << k) < n_plus_one) {
         ++k;
     }

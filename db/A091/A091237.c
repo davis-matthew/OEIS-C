@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9428 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -47,6 +48,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Dynamic array of run lengths.  Allocated only when needed. */
 static seq_t *run_cache = NULL;
@@ -73,13 +75,12 @@ static void grow_run_cache(size_t needed)
         return;
     if (run_cache_cap == 0) {
         run_cache_cap = 64;
-        run_cache = (seq_t *)malloc(run_cache_cap * sizeof(seq_t));
+        run_cache = mem_new(seq_t, run_cache_cap);
     }
     while (run_cache_cap < needed) {
         run_cache_cap <<= 1;
     }
-    seq_t *tmp = (seq_t *)realloc(run_cache,
-                                 run_cache_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, run_cache, run_cache_cap);
     if (!tmp)
         exit(1);
     run_cache = tmp;

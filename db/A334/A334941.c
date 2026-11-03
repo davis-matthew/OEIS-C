@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define MAX_W   20            /* maximal substring length required for n ≤ 10000 */
 
@@ -62,7 +64,7 @@ static void grow_seq_storage(size_t n)
     if (seq_cap >= n) return;
 
     size_t new_cap = n * 2 + 10;          /* exponential growth */
-    seq_t *tmp = (seq_t *)realloc(seq, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, (new_cap + 1));
     if (!tmp) abort();
     seq = tmp;
     seq_cap = new_cap;

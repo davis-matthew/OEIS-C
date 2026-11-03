@@ -8,14 +8,26 @@
  * Formula:   a(n) = 2*a(n-1) - a(n-3) + a(floor(n/2)), a(0)=1, a(1)=1, a(2)=1
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 44, u64 n <= 90, u128 n <= 182,
  *            big any n
- * Helpers:   alloc_cache, free_cache
+ * Validated: standard, pass, 54 terms through n = 889 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>                     /* for size_t */
-#include "../utils/alloc_cache.h"      /* seq_t *alloc_cache(idx_t n) */
-#include "../utils/free_cache.h"       /* void free_cache(seq_t *p) */
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

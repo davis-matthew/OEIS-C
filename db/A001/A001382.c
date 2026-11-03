@@ -12,17 +12,66 @@
  *            codewords are enumerated, and the weights are counted
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   a1382_deg, a1382_gcd, a1382_mod, a1382_rec
+ * Validated: full, pass, 9 terms through n = 8 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a1382_deg.h"
-#include "../utils/a1382_gcd.h"
-#include "../utils/a1382_mod.h"
-#include "../utils/a1382_rec.h"
+
+static int a1382_deg(const int *p)
+{
+    int i;
+    for (i = 23; i >= 0; i--)
+        if (p[i]) return i;
+    return -1;
+}
+
+/* a <- a mod b over GF(3) */
+static void a1382_mod(int *a, const int *b)
+{
+    int db = a1382_deg(b), da = a1382_deg(a), i;
+    int inv = b[db]; /* inverse of 1 is 1, of 2 is 2 mod 3 */
+    while (da >= db) {
+        int c = (a[da] * inv) % 3;
+        for (i = 0; i <= db; i++)
+            a[i + da - db] = ((a[i + da - db] - c * b[i]) % 3 + 3) % 3;
+        da = a1382_deg(a);
+    }
+}
+
+static void a1382_gcd(int *a, int *b, int *out)
+{
+    int x[24], y[24], t[24];
+    memcpy(x, a, sizeof x);
+    memcpy(y, b, sizeof y);
+    while (a1382_deg(y) >= 0) {
+        memcpy(t, x, sizeof t);
+        a1382_mod(t, y);
+        memcpy(x, y, sizeof x);
+        memcpy(y, t, sizeof y);
+    }
+    memcpy(out, x, sizeof x);
+}
+
+static void a1382_rec(int k, int G[12][24], int cur[13][24], uint64_t *cnt)
+{
+    int c, j;
+    if (k == 12) {
+        int w = 0;
+        for (j = 0; j < 24; j++)
+            if (cur[12][j]) w++;
+        cnt[w]++;
+        return;
+    }
+    for (c = 0; c < 3; c++) {
+        for (j = 0; j < 24; j++)
+            cur[k + 1][j] = (cur[k][j] + c * G[k][j]) % 3;
+        a1382_rec(k + 1, G, cur, cnt);
+    }
+}
 
 static uint64_t a1382_cnt[25];
 static int a1382_done = 0;

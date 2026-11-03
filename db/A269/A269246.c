@@ -9,11 +9,15 @@
  *            representation of n^3
  * Range:     u8 n <= 15, u16 n <= 40, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
 
 seq_t a(idx_t n)

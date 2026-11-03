@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 106 terms through n = 9841 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *f_values = NULL;
 static size_t f_max = 0;
@@ -39,7 +42,7 @@ static size_t f_max = 0;
 /* Compute f(e) for 0 ≤ e ≤ max_e and store in f_values. */
 static void compute_f_table(size_t max_e)
 {
-    f_values = (seq_t *)calloc(max_e + 1, sizeof(seq_t));
+    f_values = mem_new(seq_t, max_e + 1);
     f_values[0] = (seq_t)1;   /* unused but harmless */
 
     for (size_t e = 1; e <= max_e; ++e) {

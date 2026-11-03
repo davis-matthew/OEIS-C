@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 7170, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   assign_rec
+ * Validated: standard, pass, 88 terms through n = 9079 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,33 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/assign_rec.h"
+
+/* --- Helper: recursive assignment of disjoint substrings ----------------- */
+static bool assign_rec(const int order[], int idx, int total,
+                       bool used[],
+                       const int occStart[][64],
+                       const int patlen[],
+                       const int occCount[])
+{
+    if (idx == total) return true;
+    int pi = order[idx];
+    int plen = patlen[pi];
+    int oc = occCount[pi];
+    for (int o = 0; o < oc; ++o) {
+        int start = occStart[pi][o];
+        bool conflict = false;
+        for (int j = 0; j < plen; ++j) {
+            if (used[start + j]) { conflict = true; break; }
+        }
+        if (conflict) continue;
+        for (int j = 0; j < plen; ++j) used[start + j] = true;
+        if (assign_rec(order, idx + 1, total, used,
+                       occStart, patlen, occCount))
+            return true;
+        for (int j = 0; j < plen; ++j) used[start + j] = false;
+    }
+    return false;
+}
 
 /* --- Helper: trial‑division factorisation --------------------------------- */
 static void factor(uint64_t n, uint64_t primes[], int *cnt)

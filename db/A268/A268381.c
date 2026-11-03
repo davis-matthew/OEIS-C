@@ -11,13 +11,15 @@
  *            incrementally using a smallest‑prime‑factor sieve
  * Range:     u8 n <= 123, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9765 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Cache for the generated sequence terms                            */
@@ -31,10 +33,10 @@ static void grow_seq(void)
 {
     if (seq_cap == 0) {
         seq_cap = 128;
-        seq_arr = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
     } else {
         seq_cap <<= 1;                     /* double the capacity          */
-        seq_arr = (seq_t*)realloc(seq_arr, seq_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
     }
 }
 

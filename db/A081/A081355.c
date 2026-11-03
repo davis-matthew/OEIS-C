@@ -7,8 +7,9 @@
  * Formula:   a(n) = Levenshtein distance between the decimal representations
  *            of n and n*n (edit distance with insert/delete/substitute cost
  *            1)
- * Range:     u8 n <= 16, u16 n <= 523, u32 n <= 9535, u64 n <= 9535,
- *            u128 n <= 9535, big any n
+ * Range:     u8 n <= 16, u16 n <= 523, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9535 (2026-11-01)
  * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   cube, is_prime, seq_to_dec_string
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,9 +28,44 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"
-#include "../utils/cube.h"
-#include "../utils/seq_to_dec_string.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/is_prime_u64.h"
+
+/* Compute x^3 using seq_t arithmetic. */
+static seq_t cube(seq_t x)
+{
+    return x * x * x;
+}
+
+/* Convert a seq_t value to a decimal string.  The buffer must be
+   large enough to hold the result.  */
+static void seq_to_dec_string(seq_t val, char *buf, size_t buflen)
+{
+    seq_t v = val;
+    if (v == 0) {
+        if (buflen >= 2) {
+            buf[0] = '0';
+            buf[1] = '\0';
+        }
+        return;
+    }
+    size_t pos = 0;
+    /* Extract digits in reverse order. */
+    while (v != 0 && pos + 1 < buflen) {
+        seq_t d = v % 10;
+        v = v / 10;
+        buf[pos++] = (char)('0' + (int)d);
+    }
+    /* Null‑terminate and reverse the string. */
+    if (pos >= buflen) pos = buflen - 1;
+    buf[pos] = '\0';
+    for (size_t i = 0; i < pos / 2; ++i) {
+        char tmp = buf[i];
+        buf[i] = buf[pos - 1 - i];
+        buf[pos - 1 - i] = tmp;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -52,7 +88,7 @@ seq_t a(idx_t n)
             sum += (uint8_t)(*p - '0');
 
         /* Test primality of the digit sum. */
-        if (is_prime(sum)) {
+        if (is_prime_u64(sum)) {
             ++count;
             if (count == n)
                 return cube_val;

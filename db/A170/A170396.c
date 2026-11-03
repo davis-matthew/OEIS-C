@@ -12,13 +12,15 @@
  *            implies the following linear recurrence: For 0 ≤...
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         capacity = (n + 1) >= 100 ? n + 1 : 100;
-        cache = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        cache = mem_new(seq_t, capacity);
         cache[0] = (seq_t)1;
         cum_sum  = (seq_t)1;
         computed = 0;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     {
         idx_t new_cap = capacity;
         while (new_cap <= n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        cache = mem_resize(seq_t, cache, new_cap);
         capacity = new_cap;
     }
 

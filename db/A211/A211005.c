@@ -10,13 +10,15 @@
  *            integer 1 as the first non‑prime
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define SIEVE_LIMIT 2000000U   /* enough for n up to about 10000 */
 
@@ -80,7 +82,7 @@ static void ensure_cache_upto(idx_t n)
             /* Status changed – finish previous run */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

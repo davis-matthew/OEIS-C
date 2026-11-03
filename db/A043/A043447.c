@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 980, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_six_digits
+ * Validated: standard, pass, 53 terms through n = 9447 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,26 @@
 /* Sequence: a(n) = the n‑th positive integer whose base‑8 representation contains exactly three 6's. */
 
 #include <stdlib.h>
-#include "../utils/count_six_digits.h"
+#include "../utils/mem.h"
+
+/* Count the digits equal to 6 in the base‑8 representation of x.
+   Returns the exact count, allowing early exit only when the count
+   exceeds 3. */
+static int count_six_digits(seq_t x)
+{
+    int cnt = 0;
+    while (x > 0)
+    {
+        if ((x % 8) == 6)
+        {
+            ++cnt;
+            if (cnt > 3)            /* more than needed, stop */
+                return cnt;
+        }
+        x /= 8;
+    }
+    return cnt;
+}
 
 /* Memoisation state. */
 static seq_t *cache      = NULL;   /* stored terms */
@@ -33,7 +53,7 @@ static void ensure_cache_capacity(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                    /* allocation failure */
 

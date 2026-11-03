@@ -10,18 +10,21 @@
  *            bit_k(n) is the k‑th bit of n (LSB at k = 0). a(0) = 0
  * Range:     i8 n <= 83, i16 n <= 83, i32 n <= 83, i64 n <= 83, i128 n <= 83,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0;
 
-    unsigned len = floor_log2_uint64(n);   /* A070939(n) = floor(log2(n)) */
+    unsigned len = ilog2(n);   /* A070939(n) = floor(log2(n)) */
     seq_t sum = 0;
     idx_t tmp = n;
     unsigned bit = 0;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = the n-th prime p such that p ≡ 16 (mod 53)
  * Range:     u8 none, u16 n <= 115, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 57 terms through n = 933 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,7 +15,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"  /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
 
 static idx_t *prime_cache = NULL;   /* cache of primes ≡ 16 mod 53 */
 static idx_t cached_n   = 0;        /* number of primes cached so far   */

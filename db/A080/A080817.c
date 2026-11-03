@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = (ceil(sqrt(n*(n+1)/2)))^2 - n*(n-1)/2
- * Range:     u8 n <= 10, u16 n <= 44, u32 n <= 68, u64 n <= 68, u128 n <= 68,
+ * Range:     u8 n <= 22, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   _isqrt
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /* Uses the utility function _isqrt to compute the floor square root 
    of an arbitrary‑precision integer. */
 
-#include "../utils/_isqrt.h"
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
     seq_t tN = ns * (ns + 1) / 2;
 
     /* Floor square root of T_n */
-    seq_t floor_sqrt = _isqrt(tN);
+    seq_t floor_sqrt = isqrt_seq(tN);
 
     /* Ceil square root: increment if floor^2 < T_n */
     seq_t ceil_sqrt = floor_sqrt;

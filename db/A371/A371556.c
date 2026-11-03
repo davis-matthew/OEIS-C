@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 52 terms through n = 53 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
               2^(2r-1) + 1 if (n-2) mod 4 = 3
 */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = ∑_{t≥1, 2^t ≤ n/2} ∑_{k=2}^{⌊n/2^t⌋} φ(k)
- * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 61, u64 n <= 61, u128 n <= 61,
+ * Range:     u8 n <= 49, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /*              φ denotes Euler's totient function. */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static size_t maxN = 0;
 static uint64_t *phi_arr = NULL;   /* φ values */
@@ -25,7 +27,7 @@ static void recompute_phi_prefix(size_t new_maxN)
 {
     size_t N = new_maxN;
     uint64_t *phi = (uint64_t *)realloc(phi_arr, (N + 1) * sizeof(uint64_t));
-    seq_t   *pref = (seq_t   *)realloc(pref_arr, (N + 1) * sizeof(seq_t));
+    seq_t   *pref = mem_resize(seq_t, pref_arr, (N + 1));
     if (!phi || !pref) { /* in the unlikely event of malloc failure */
         exit(EXIT_FAILURE);
     }
@@ -33,7 +35,7 @@ static void recompute_phi_prefix(size_t new_maxN)
     pref_arr = pref;
 
     /* Linear sieve for φ up to N */
-    size_t *primes = (size_t *)malloc((N / 10 + 1) * sizeof(size_t));
+    size_t *primes = (size_t *)malloc((N / 2 + 2) * sizeof(size_t));   /* (N/10 + 1 was too few for small N) */
     size_t primes_cnt = 0;
     size_t *is_comp = (size_t *)calloc(N + 1, sizeof(size_t));
     if (!primes || !is_comp) {

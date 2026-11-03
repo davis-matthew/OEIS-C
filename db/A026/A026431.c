@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 150, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_ensure_capacity
+ * Validated: standard, pass, 76 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_ensure_capacity.h"
+#include "../utils/mem.h"
+
+/* grow the dynamic array if needed */
+static void seq_ensure_capacity(seq_t **arr, size_t *capacity, size_t needed)
+{
+    if (*capacity >= needed) return;
+    size_t new_cap = (*capacity == 0) ? 16 : (*capacity << 1);
+    if (new_cap < needed) new_cap = needed;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort(); /* allocation failure */
+    *arr = tmp;
+    *capacity = new_cap;
+}
 
 /* ensure a[0] is a dummy so that a[1] … a[seq_count] are the sequence */
 static inline bool seq_contains(const seq_t *seq, size_t count, seq_t value)

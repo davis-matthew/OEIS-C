@@ -12,6 +12,7 @@
  *            '6' r == 2 : result is the decimal integer '...
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 30, u64 n <= 59, u128 n <= 117,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 988 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

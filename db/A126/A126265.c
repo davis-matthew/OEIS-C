@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 68, u32 n <= 242, u64 n <= 861,
  *            u128 n <= 3748, big any n
- * Helpers:   _new_row, binom
+ * Validated: standard, pass, 109 terms through n = 9277 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,8 +33,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/_new_row.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Allocate a zero‑initialised array of seq_t of given length. */
+static seq_t * _new_row(size_t len)
+{
+    seq_t *p = mem_new(seq_t, len);
+    if (!p) abort();
+    for (size_t i = 0; i < len; ++i)
+        p[i] = 0;
+    return p;
+}
 
 static idx_t    _row_cnt   = 0;          /* number of rows computed          */
 static idx_t    _total_entries = 0;     /* total number of elements stored   */
@@ -94,7 +105,7 @@ static void _ensure_upto(idx_t n)
                 seq_t *b = _polys[r - k];
                 size_t len_b = _row_len[r - k];
 
-                seq_t coeff = binom(r - 1, k - 1);
+                seq_t coeff = binomial(r - 1, k - 1);
                 coeff = coeff * (seq_t)k;   /* coefficient in recurrence */
 
                 idx_t shift = k - 1;        /* q^{k-1} shift */

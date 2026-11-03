@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 1855, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_fibs
+ * Validated: standard, pass, 94 terms through n = 9666 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,27 @@
  */
 
 #include <stddef.h>
-#include "../utils/compute_fibs.h"
+
+static void compute_fibs(idx_t n, seq_t *F, size_t *len)
+{
+    /* Generate Fibonacci numbers starting from F_0 = 0, F_1 = 1 */
+    seq_t f0 = 0, f1 = 1;
+    size_t i = 0;
+    F[i++] = f0;                    /* F_0 */
+    if (n >= 1) {                  /* ensure at least F_1 is stored when needed */
+        F[i++] = f1;                /* F_1 */
+    }
+    while (1) {
+        seq_t f2 = f0 + f1;
+        F[i++] = f2;                /* store current Fibonacci number */
+        if (f2 > (seq_t)n) {       /* we need the first F_k > n for the loop bound */
+            break;
+        }
+        f0 = f1;
+        f1 = f2;
+    }
+    *len = i;
+}
 
 seq_t a(idx_t n)
 {

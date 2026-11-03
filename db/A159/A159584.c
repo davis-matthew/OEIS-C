@@ -10,13 +10,15 @@
  *            3 (mod 12) = 3 if k ≡ 2 (mod 12) = 0 otherwise
  * Range:     i8 n <= 63, i16 n <= 63, i32 n <= 63, i64 n <= 63, i128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
         return (seq_t)0;           /* undefined for n=0 */
 
     idx_t N = n - 1;                 /* coefficient of q^N */
-    seq_t *coeff = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (size_t)(N + 1));
     if (!coeff)
         return (seq_t)0;            /* allocation failed */
 
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coeff[N];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

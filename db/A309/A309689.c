@@ -12,13 +12,15 @@
  *            a(0)=0,a(1)=0,a(2)=0,a(3)=0,a(4)=0,a(5)=1,a(6)=2,a(7)=2,a(8)=2,a(9)=3
  * Range:     u8 n <= 78, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,12 +32,12 @@ seq_t a(idx_t n)
     /* Allocate or grow cache */
     if (cache == NULL) {
         cap = 64;                         /* arbitrary initial size */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
     if (need > cap) {
         size_t newcap = cap;
         while (newcap < need) newcap <<= 1;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cap = newcap;
     }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 104 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    are efficient and the sequence can be computed once and reused. */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;  /* 0‑based array holding a(1), a(2), … */
 static idx_t cached_len  = 0;     /* number of terms currently computed  */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         if (cache_cap < n) {
             idx_t new_cap = n * 2;                     /* growth factor          */
             size_t alloc  = (size_t)new_cap * sizeof(seq_t);
-            cache = (seq_t *)realloc(cache, alloc);    /* cast required by C++   */
+            cache = mem_resize(seq_t, cache, (alloc) / sizeof(seq_t));    /* cast required by C++   */
             /* realloc may return NULL if memory allocation fails;
                we ignore that here because the build system
                guarantees that the program will have enough memory. */

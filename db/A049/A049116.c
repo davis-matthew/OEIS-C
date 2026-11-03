@@ -11,14 +11,16 @@
  *            power of two encountered
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, is_power_of_two
+ * Validated: standard, pass, 108 terms through n = 9998 (2026-11-01)
+ * Helpers:   is_pow2, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/calc_phi.h"
-#include "../utils/is_power_of_two.h"
+#include <stdint.h>
+#include "../utils/is_pow2.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -27,13 +29,13 @@ seq_t a(idx_t n)
 
     while (1)
     {
-        if (is_power_of_two(m) && m > max)
+        if (is_pow2(m) && m > max)
             max = m;
 
         if (m == (seq_t)1)
             break;
 
-        m = calc_phi(m);
+        m = totient_seq(m);
     }
 
     return max;

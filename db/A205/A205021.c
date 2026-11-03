@@ -12,7 +12,8 @@
  *            above
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS 64
 #define DIAM 19
@@ -58,8 +60,8 @@ static void init_small_terms(seq_t *pre_out)
         det_init = 1;
     }
 
-    seq_t *dp = (seq_t *)calloc(TOTAL, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(TOTAL, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, TOTAL);
+    seq_t *dp_next = mem_new(seq_t, TOTAL);
 
     /* base case: arrays with 2 rows (n = 1) */
     for (int r0 = 0; r0 < ROWS; ++r0) {
@@ -117,13 +119,13 @@ static void init_small_terms(seq_t *pre_out)
         seq_t *tmp = dp;
         dp = dp_next;
         dp_next = tmp;
-        memset(dp_next, 0, TOTAL * sizeof(seq_t));
+        mem_set(dp_next, 0, TOTAL * sizeof(seq_t));
 
         pre_out[n] = sum_array(dp, TOTAL);
     }
 
-    free(dp);
-    free(dp_next);
+    mem_free(dp);
+    mem_free(dp_next);
 }
 
 /* public function to return a(n) for any n >= 1 */

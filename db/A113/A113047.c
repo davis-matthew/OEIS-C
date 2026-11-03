@@ -7,8 +7,9 @@
  * Formula:   a(n) = 1 if 2*n+1 is a power of 3, else 0 This is the
  *            characteristic function of ternary repunits (n = (3^j-1)/2 for
  *            some j ≥ 0)
- * Range:     u8 n <= 9779, u16 n <= 9779, u32 n <= 9779, u64 n <= 9779,
- *            u128 n <= 9779, big any n
+ * Range:     u8 n <= 29524, u16 n <= 29524, u32 n <= 29524, u64 n <= 29524,
+ *            u128 n <= 29524, big any n
+ * Validated: standard, pass, 138 terms through n = 9779 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

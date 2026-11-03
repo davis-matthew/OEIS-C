@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1)^2 - a(n-1) - 1, a(0) = 6
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th term of OEIS sequence A144746.
  * The function uses memoisation with a static cache so that
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* special handling for the first term */
     if (n == 0) {
         if (cache == NULL) {
-            cache = (seq_t *)malloc(sizeof(seq_t));
+            cache = mem_new(seq_t, 1);
             if (cache == NULL) return (seq_t)0;   /* allocation failure */
             cache[0] = (seq_t)6;
         }
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     /* Ensure the cache is large enough for index n */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
         if (cache == NULL) return (seq_t)0;   /* allocation failure */
         cache[0] = (seq_t)6;
         cache_n = 0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache and compute missing terms up to n */
     if (n > cache_n) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (new_cache == NULL) return (seq_t)0;   /* allocation failure */
         cache = new_cache;
 

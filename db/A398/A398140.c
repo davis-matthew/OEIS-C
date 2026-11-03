@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   factor_u64, is_prime_small, is_prime_small_acc
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   factor_u64, is_prime_seq, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,9 +39,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"     /* factor_u64() */
-#include "../utils/is_prime_small.h" /* is_prime_small() */
-#include "../utils/is_prime_small_acc.h"
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- test if v belongs to A141399: v*(v+1) has consecutive
  *             primes starting with 2 */
@@ -63,7 +65,7 @@ static bool is_A141399(uint64_t v)
     /* verify that all primes up to max_p appear in the list */
     for (uint64_t p = 2; p <= max_p; ++p)
     {
-        if (!is_prime_small_acc(p)) continue;          /* p is not prime – skip */
+        if (!is_prime_u64(p)) continue;          /* p is not prime – skip */
         bool found = false;
         for (size_t i = 0; i < cnt_v; ++i)
             if (primes_v[i] == p) { found = true; break; }
@@ -84,7 +86,7 @@ static void ensure_cache_capacity(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

@@ -7,11 +7,14 @@
  * Formula:   a(n) = mu(n) * 2^(n-1)
  * Range:     i8 n <= 9, i16 n <= 16, i32 n <= 32, i64 n <= 41, i128 n <= 41,
  *            big any n
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
  * Helpers:   mobius, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/mobius.h"
 #include "../utils/pow2.h"
 

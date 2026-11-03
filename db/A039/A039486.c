@@ -9,7 +9,8 @@
  *            contains the same nonzero number of digits 6 and 10
  * Range:     u8 n <= 4, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has_equal_nonzero_6_and_10
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
 /*  Compile with:  -std=c11   (C)  or  -std=c++17   (C++)  */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has_equal_nonzero_6_and_10.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a number satisfies the condition. */
+static int has_equal_nonzero_6_and_10(seq_t val)
+{
+    unsigned count6 = 0, count10 = 0;
+    seq_t x = val;
+
+    while (x > 0) {
+        int digit = (int)(x % 11);
+        if (digit == 6)
+            ++count6;
+        else if (digit == 10)
+            ++count10;
+        x /= 11;
+    }
+    return (count6 == count10) && (count6 > 0);
+}
 
 /*  External linkage – the requested function */
 seq_t a(idx_t n)
@@ -39,7 +57,7 @@ seq_t a(idx_t n)
             /* Ensure cache capacity */
             if (len >= cap) {
                 size_t newcap = (cap == 0) ? 4 : cap << 1;
-                seq_t *tmp = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, newcap);
                 if (!tmp)
                     exit(1);               /* allocation failed */
                 seq = tmp;

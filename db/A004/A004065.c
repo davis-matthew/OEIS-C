@@ -12,13 +12,15 @@
  *            in binary, or changing a final 1 to 0
  * Range:     u8 n <= 28, u16 n <= 89, u32 n <= 236, u64 n <= 988,
  *            u128 n <= 7674, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 7769 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *memo = NULL;
@@ -26,8 +28,8 @@ seq_t a(idx_t n) {
     
     if (memo == NULL) {
         memo_len = 1024;
-        memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
-        memset(memo, 0, memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_len);
+        mem_set(memo, 0, memo_len * sizeof(seq_t));
         memo[0] = 1;
     }
     
@@ -38,10 +40,10 @@ seq_t a(idx_t n) {
     if (n >= memo_len) {
         idx_t new_len = memo_len;
         while (new_len <= n) new_len *= 2;
-        seq_t *new_memo = (seq_t *)malloc(new_len * sizeof(seq_t));
-        memcpy(new_memo, memo, memo_len * sizeof(seq_t));
-        memset(new_memo + memo_len, 0, (new_len - memo_len) * sizeof(seq_t));
-        free(memo);
+        seq_t *new_memo = mem_new(seq_t, new_len);
+        mem_copy(new_memo, memo, memo_len * sizeof(seq_t));
+        mem_set(new_memo + memo_len, 0, (new_len - memo_len) * sizeof(seq_t));
+        mem_free(memo);
         memo = new_memo;
         memo_len = new_len;
     }

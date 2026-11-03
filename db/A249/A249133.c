@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 9960, u16 n <= 9960, u32 n <= 9960, u64 n <= 9960,
- *            u128 n <= 9960, big any n
- * Helpers:   binom_mod2
+ * Range:     u8 n <= 10200, u16 n <= 10200, u32 n <= 10200, u64 n <= 10200,
+ *            u128 n <= 10200, big any n
+ * Validated: standard, pass, 102 terms through n = 9960 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,13 @@
  */
 
 #include <stdint.h>
-#include "../utils/binom_mod2.h"
+
+/* Binomial coefficient mod 2.  Returns 0 or 1. */
+static inline seq_t binom_mod2(idx_t n, idx_t k)
+{
+    /* assume k <= n */
+    return ((k & (n - k)) == 0) ? (seq_t)1 : (seq_t)0;
+}
 
 /* Integer square root: floor(sqrt(x)) for 0 <= x < 2^64. */
 static inline idx_t floor_sqrt_u64(idx_t x)

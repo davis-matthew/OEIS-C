@@ -9,6 +9,7 @@
  * Formula:   a(n) = binomial(2n,n)^2 - sum_{k=0}^{n} binomial(n,k)^4
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

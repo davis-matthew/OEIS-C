@@ -11,14 +11,26 @@
  *            T(n,1)=T(n,n)=1. Offset is 1
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 48, u64 n <= 96, u128 n <= 179,
  *            big any n
- * Helpers:   fib
+ * Validated: standard, pass, 71 terms through n = 1241 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/fib.h"
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,12 +44,12 @@ seq_t a(idx_t n)
 
     /* Allocate two rows (indices 1..r) */
     idx_t rowSize = r + 2;                /* small slack */
-    seq_t *prev = (seq_t *)malloc(rowSize * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(rowSize * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, rowSize);
+    seq_t *curr = mem_new(seq_t, rowSize);
     if (!prev || !curr) {
         /* allocation failure – return 0 as a safe sentinel */
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
 
@@ -65,7 +77,7 @@ seq_t a(idx_t n)
 
     seq_t result = prev[offset + 1];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

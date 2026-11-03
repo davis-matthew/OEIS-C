@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Constants for the rational approximation φ ≈ 14930352/9227465 */
 static const uint64_t PHI_NUM   = 14930352ULL;  /* numerator   */
@@ -45,10 +47,10 @@ static void ensure_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap << 1 : 128;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (cache)
-        memcpy(new_arr, cache, cache_size * sizeof(seq_t));
-    free(cache);
+        mem_copy(new_arr, cache, cache_size * sizeof(seq_t));
+    mem_free(cache);
     cache = new_arr;
     cache_cap = new_cap;
 }

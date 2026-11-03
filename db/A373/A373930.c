@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term (1‑indexed).  If n ≤ 7 the value is taken from
    the known initial values; otherwise the recurrence is applied.  Results
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         /* First allocation: reserve enough space for the required
            terms, but at least 8. */
         cache_cap = (needed > 8 ? needed : 8);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0; /* out of memory */
         /* Initialise the first 7 terms. */
         static const seq_t init[7] = {
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         /* Grow the array – double its size or just enough for *needed*. */
         size_t new_cap = cache_cap * 2;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0; /* out of memory */
         cache = tmp;
         cache_cap = new_cap;

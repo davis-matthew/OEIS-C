@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(0)=0; * For n>0, let k>1 such that F(k) ≤ n < F(k+1) (F =
  *            Fibonacci). * Then a(n)=F(k)+a(F(k+1)-n-1)
- * Range:     u8 n <= 232, u16 n <= 8305, u32 n <= 8305, u64 n <= 8305,
- *            u128 n <= 8305, big any n
+ * Range:     u8 n <= 232, u16 n <= 10945, u32 n <= 10945, u64 n <= 10945,
+ *            u128 n <= 10945, big any n
+ * Validated: standard, pass, 84 terms through n = 8305 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,13 +8,14 @@
  *            divisor d of n, add d if n/d is a square, else add 1)
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   is_square_u64
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   is_square_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_square_u64.h"
+#include "../utils/is_square_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
             continue;
 
         idx_t m = n / d;                /* n/d for the first divisor d   */
-        if (is_square_u64(m))
+        if (is_square_idx(m))
             sum += (seq_t)d;
         else
             sum += (seq_t)1;
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
         idx_t d2 = n / d;               /* the paired divisor n/d       */
         if (d2 != d) {                  /* skip the square root case     */
             idx_t m2 = n / d2;          /* which is equal to d           */
-            if (is_square_u64(m2))
+            if (is_square_idx(m2))
                 sum += (seq_t)d2;
             else
                 sum += (seq_t)1;

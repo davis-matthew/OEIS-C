@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 40, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         size_t new_size = new_max_row * (new_max_row + 1) / 2;     /* total entries needed */
 
         /* realloc can handle a NULL pointer */
-        seq_t *new_tri = (seq_t *)realloc(triangle, new_size * sizeof(seq_t));
+        seq_t *new_tri = mem_resize(seq_t, triangle, new_size);
         if (!new_tri) {
             /* Allocation failed – program must terminate elsewhere */
             return (seq_t)0;

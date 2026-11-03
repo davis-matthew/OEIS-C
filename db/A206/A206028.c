@@ -9,7 +9,8 @@
  *            sigma is the sum‑of‑divisors function (A000203)
  * Range:     u8 n <= 47, u16 n <= 6299, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq_t, factor_u64, sigma_of
+ * Validated: standard, pass, 82 terms through n = 9869 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,33 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/sigma_of.h"   /* sigma_of(idx_t n) : returns seq_t */
-#include "../utils/cmp_seq_t.h"  /* cmp_seq_t(const void *p1, const void *p2) */
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* recursively generate all divisors of n from its prime factorization */
 static void gen_divisors(size_t idx, uint64_t cur,
@@ -61,8 +86,7 @@ seq_t a(idx_t n)
     }
 
     /* sort sigma_values to identify duplicates */
-    qsort(sigma_vals, sigma_cnt, sizeof(seq_t),
-          (int(*)(const void*, const void*))cmp_seq_t);
+    mem_qsort(sigma_vals, sigma_cnt, sizeof(seq_t), (int(*)(const void*, const void*))cmp_seq_t);
 
     /* sum distinct values */
     seq_t sum = 0;

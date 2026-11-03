@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    and stores the indices where the value is a multiple of 4. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- static data ---------- */
 static seq_t *part_mod4 = NULL;   /* p(k) modulo 4, indexed by k */
@@ -34,7 +36,7 @@ static void ensure_part_cap(size_t needed)
     {
         size_t new_cap = part_alloc ? part_alloc * 2 : 16;
         while (new_cap < needed) new_cap *= 2;
-        part_mod4 = (seq_t *)realloc(part_mod4, new_cap * sizeof(seq_t));
+        part_mod4 = mem_resize(seq_t, part_mod4, new_cap);
         part_alloc = new_cap;
     }
 }

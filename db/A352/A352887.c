@@ -8,15 +8,46 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   binomial, phi
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(0)=1, a(n)=∑_{k=1..n} φ(k)*C(n,k)*a(n‑k) */
 #include <stdlib.h>
-#include "../utils/binomial.h"
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
+
+static seq_t phi(idx_t m)
+{
+    seq_t result = (seq_t)m;
+    idx_t d = 2;
+    for (; d * d <= m; ++d) {
+        if (m % d == 0) {
+            while (m % d == 0) m /= d;
+            result -= result / (seq_t)d;
+        }
+    }
+    if (m > 1) result -= result / (seq_t)m;
+    return result;
+}
 
 static seq_t *a_cache = NULL;          /* cache for a(1)…a(n); a(0) is implicit 1   */
 static size_t a_cap   = 0;
@@ -33,7 +64,7 @@ seq_t a(idx_t n)
     /* Ensure phi_cache contains φ(k) for 1 ≤ k ≤ n. */
     if (phi_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(phi_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, phi_cache, new_cap);
         if (!tmp) abort();
         phi_cache = tmp;
         for (idx_t i = 1; i <= n; ++i) phi_cache[i] = (seq_t)i;
@@ -47,7 +78,7 @@ seq_t a(idx_t n)
     /* Ensure a_cache covers 1..n. */
     if (a_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();
         a_cache = tmp;
         for (idx_t i = a_cap; i <= n; ++i) a_cache[i] = (seq_t)0;

@@ -11,13 +11,15 @@
  *            a(7)=6540, a(8)=8551, * a(9)=10761, a(10)=13991
  * Range:     u8 none, u16 n <= 15, u32 n <= 49, u64 n <= 118, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- static data ---------- */
 static const seq_t init_values[10] = {
@@ -37,7 +39,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         exit(EXIT_FAILURE);  /* allocation failed */
     cache = new_cache;

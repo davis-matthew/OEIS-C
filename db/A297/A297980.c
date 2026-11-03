@@ -10,12 +10,14 @@
  *            a(5) = 24 (Sequence A297980)
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 35, u64 n <= 70, u128 n <= 141,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 173 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* 1‑indexed cache of computed terms */
 static idx_t cache_len = 0;     /* number of allocated slots (cache_len - 1 is max index stored) */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache if necessary */
     if (cache == NULL) {
         cache_len = n + 1;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) {
             abort();   /* allocation failure */
         }
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     if (cache_len <= n) {
         idx_t old_len = cache_len;
         cache_len = n + 1;
-        seq_t *new_cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, cache_len);
         if (new_cache == NULL) {
             abort();   /* allocation failure */
         }
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         for (idx_t i = 1; i < old_len; ++i) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
 
         /* Compute new entries */

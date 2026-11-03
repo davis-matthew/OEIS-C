@@ -7,6 +7,7 @@
  * Formula:   a(1)=0; a(n)=2*n for 2≤n≤5; a(6)=16; a(n)=12*n-60 for n≥7
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

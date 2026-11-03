@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 9, u32 n <= 16, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   build_primes, mod_pow
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   build_primes, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Static cache of primes 1 + 1024*b and of computed terms */
 static idx_t *primes_of_form = NULL;
@@ -56,7 +60,7 @@ static void init_globals(void)
     free(all_primes);
 
     /* Allocate cache for terms */
-    term_cache = (seq_t *)malloc(primes_of_form_cnt * sizeof(seq_t));
+    term_cache = mem_new(seq_t, primes_of_form_cnt);
     term_cache_cnt = 0;
 }
 
@@ -91,7 +95,7 @@ static seq_t compute_term_for_prime(idx_t prime)
         bool ok = true;
         for (size_t i = 0; i < nf; ++i) {
             uint64_t f = facs[i];
-            seq_t r = mod_pow((seq_t)g, N / f, (seq_t)p);
+            seq_t r = powmod((seq_t)g, N / f, (seq_t)p);
             if (r == 1) { ok = false; break; }
         }
         if (ok) break;
@@ -99,8 +103,8 @@ static seq_t compute_term_for_prime(idx_t prime)
     }
 
     /* Compute base = g^q  and inc = g^(2q). */
-    seq_t base = mod_pow((seq_t)g, q, (seq_t)p);
-    seq_t inc  = mod_pow((seq_t)g, 2 * q, (seq_t)p);
+    seq_t base = powmod((seq_t)g, q, (seq_t)p);
+    seq_t inc  = powmod((seq_t)g, 2 * q, (seq_t)p);
 
     /* Enumerate the 512 solutions and keep the minimal. */
     seq_t best = base;

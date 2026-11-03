@@ -10,7 +10,8 @@
  *            Computed by dynamic programming over columns
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 18, u64 n <= 39, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAXMASK (1 << 5)          /* 5‑bit column masks */
 #define MAXSTATE (32 * 32)        /* 256 possible state pairs */
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
     /* iterate additional columns */
     for (idx_t step = 3; step <= n; ++step) {
         /* zero next array */
-        memset(dp_nxt, 0, M * M * sizeof(seq_t));
+        mem_set(dp_nxt, 0, M * M * sizeof(seq_t));
 
         for (int i = 0; i < M; ++i) {
             for (int j = 0; j < M; ++j) {
@@ -121,7 +123,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp_cur, dp_nxt, M * M * sizeof(seq_t));
+        mem_copy(dp_cur, dp_nxt, M * M * sizeof(seq_t));
     }
 
     /* sum all final states */

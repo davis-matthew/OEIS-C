@@ -8,7 +8,8 @@
  * Formula:   a(1) = 2, a(n) = min{x > a(n‑1) | a(n‑1)+x is prime} (n ≥ 2)
  * Range:     u8 n <= 65, u16 n <= 7220, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   modmul64
+ * Validated: standard, pass, 75 terms through n = 9875 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/modmul64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---- deterministic Miller-Rabin for 64‑bit integers ---- */
 
@@ -24,8 +27,8 @@ static inline uint64_t modpow64(uint64_t a, uint64_t e, uint64_t mod) {
     uint64_t result = 1;
     uint64_t base   = a % mod;
     while (e) {
-        if (e & 1) result = modmul64(result, base, mod);
-        base = modmul64(base, base, mod);
+        if (e & 1) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         e >>= 1;
     }
     return result;
@@ -54,7 +57,7 @@ static bool isPrime64(uint64_t n) {
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = modmul64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;
@@ -75,7 +78,7 @@ seq_t a(idx_t n)
     /* initial allocation */
     if (cache == NULL) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* compute missing terms up to n */
@@ -98,7 +101,7 @@ seq_t a(idx_t n)
         /* grow cache if necessary */
         if (pref == cap) {
             cap <<= 1;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
         cache[pref] = val;
         ++pref;

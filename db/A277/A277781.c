@@ -7,7 +7,8 @@
  * Formula:   a(n) = min{ k>n | n*k is a cube or n*k^2 is a cube }
  * Range:     u8 n <= 16, u16 n <= 6064, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floorCubeRoot
+ * Validated: standard, pass, 73 terms through n = 9951 (2026-11-01)
+ * Helpers:   icbrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/floorCubeRoot.h"
+#include "../utils/icbrt_seq.h"
 
 /* ---------- Helper: factorisation of a 64‑bit integer ---------- */
 static void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt)
@@ -67,8 +68,8 @@ seq_t a(idx_t n)
     }
 
     /* Find smallest t such that k = k_min * t^3 > n */
-    seq_t t1 = floorCubeRoot(sn / k1) + 1;
-    seq_t t2 = floorCubeRoot(sn / k2) + 1;
+    seq_t t1 = icbrt_seq(sn / k1) + 1;
+    seq_t t2 = icbrt_seq(sn / k2) + 1;
 
     seq_t t1s = t1 * t1;
     seq_t t1c = t1s * t1;

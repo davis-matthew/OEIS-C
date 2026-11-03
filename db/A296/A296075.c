@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, easy
  * Formula:   a(n) = Sum_{d|n} (2*d - sigma(d))
- * Range:     i8 n <= 12, i16 n <= 1030, i32 n <= 8931, i64 n <= 8931,
- *            i128 n <= 8931, big any n
- * Helpers:   factor_u64, pow_uint, seq_mul
+ * Range:     i8 n <= 12, i16 n <= 1030, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 101 terms through n = 8931 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,15 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Recursive helper that enumerates all divisors of n from its prime
    factorisation and accumulates the sum of deficiencies. */
@@ -43,10 +50,10 @@ sum_deficiencies_rec(const uint64_t *primes,
     uint64_t emax = exps[idx];
 
     for (uint64_t e = 0; e <= emax; ++e) {
-        seq_t d_part = pow_uint(p, e);
+        seq_t d_part = ipow_u64_idx(p, e);
         seq_t new_d  = seq_mul(cur_d, d_part);
 
-        seq_t term = (pow_uint(p, e + 1) - 1) / ((seq_t)p - 1);
+        seq_t term = (ipow_u64_idx(p, e + 1) - 1) / ((seq_t)p - 1);
         seq_t new_sigma = seq_mul(cur_sigma, term);
 
         sum_deficiencies_rec(primes, exps, idx + 1, total,

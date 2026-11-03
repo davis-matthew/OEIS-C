@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 38, u128 n <= 76,
  *            big any n
- * Helpers:   init_cycle
+ * Validated: standard, pass, 42 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,35 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/init_cycle.h"
+
+static void init_cycle(int *cycle, size_t *period)
+{
+    static int a0 = 0;
+    static int initialized = 0;
+    if (initialized) return;
+    /* Integer square root of 818 */
+    a0 = 28;   /* floor(sqrt(818)) */
+    const int D = 818;
+    int m = 0;
+    int d = 1;
+    int a = a0;
+    size_t p = 0;
+    while (1)
+    {
+        /* compute next m, d, a */
+        int m1 = d * a - m;
+        int d1 = (D - m1 * m1) / d;
+        int a1 = (a0 + m1) / d1;   /* floor division, exact for integer */
+        cycle[p++] = a1;
+        if (d1 == 1 && a1 == 2 * a0)   /* end of period for sqrt(D) */
+            break;
+        m = m1;
+        d = d1;
+        a = a1;
+    }
+    *period = p;
+    initialized = 1;
+}
 
 seq_t a(idx_t n)
 {

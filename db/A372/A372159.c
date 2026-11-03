@@ -8,7 +8,8 @@
  *            Σ_{k=1..n} binomial(n-1, k-1) * (k+3)^{k-1} / k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   alloc_seq, big_pow, binomial, free_seq
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,22 @@
 #include <stdlib.h>      /* free */
 
 /* Utility functions (provided by the build) */
-#include "../utils/big_pow.h"     /* big_pow(seq_t base, seq_t exp)       */
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b)           */
-#include "../utils/alloc_seq.h"  /* alloc_seq(size_t)                   */
-#include "../utils/free_seq.h"   /* free_seq(seq_t*)                    */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Static cache for factorials and sequence values */
 static seq_t *fact_cache = NULL;
@@ -107,7 +120,7 @@ seq_t a(idx_t n)
         seq_t part = fact_n / fact_cache[k];
 
         /* pow_val = (k+3)^(k-1) */
-        seq_t pow_val = big_pow((seq_t)(k + 3), (seq_t)(k - 1));
+        seq_t pow_val = ipow((seq_t)(k + 3), (seq_t)(k - 1));
 
         /* term = 3 * comb * pow_val * part */
         seq_t term = comb * pow_val;

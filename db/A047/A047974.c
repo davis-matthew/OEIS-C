@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 27, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * precision type that supports the standard arithmetic operators.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for memoised terms */
 static seq_t *cache = NULL;      /* array of terms */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
 
     idx_t new_size = n + 1;      /* we need indices 0..n inclusive */
 
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_size);
     if (!tmp && new_size > 0)    /* allocation failure – abort */
         abort();
 

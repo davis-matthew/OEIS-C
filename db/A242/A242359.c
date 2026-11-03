@@ -13,12 +13,14 @@
  *            s...
  * Range:     u8 n <= 2500, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 2421 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct { seq_t num; seq_t den; } frac_t;
 typedef struct { size_t len; frac_t *data; } row_t;
@@ -48,7 +50,7 @@ static void ensure_row(int r) {
 
     if (r == 1) {
         rows[r].len = 1;
-        rows[r].data = (frac_t *)malloc(sizeof(frac_t));
+        rows[r].data = mem_new(frac_t, 1);
         rows[r].data[0].num = 1;
         rows[r].data[0].den = 1;
         return;
@@ -56,7 +58,7 @@ static void ensure_row(int r) {
 
     if (r == 2) {
         rows[r].len = 1;
-        rows[r].data = (frac_t *)malloc(sizeof(frac_t));
+        rows[r].data = mem_new(frac_t, 1);
         rows[r].data[0].num = 2;
         rows[r].data[0].den = 1;
         return;
@@ -71,7 +73,7 @@ static void ensure_row(int r) {
     size_t lenC = lenA + lenB;
 
     rows[r].len = lenC;
-    rows[r].data = (frac_t *)malloc(lenC * sizeof(frac_t));
+    rows[r].data = mem_new(frac_t, lenC);
 
     size_t ia = 0;                /* index into row r-1          */
     size_t ib = lenB;             /* index into row r-2 (backward) */

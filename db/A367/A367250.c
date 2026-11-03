@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    out in the integer type seq_t supplied by the build; for arbitrary‑
    precision builds this gives exact results for all n.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* Allocate a new cache large enough for n. */
-    seq_t *new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (n + 1));
     if (new_cache == NULL)          /* allocation failed – shouldn't happen */
         return (seq_t)0;
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     }
 
     /* Release the old cache and store the new one. */
-    free(cache);
+    mem_free(cache);
     cache      = new_cache;
     cache_size = n;
 

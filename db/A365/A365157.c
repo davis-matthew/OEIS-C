@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..n}
  *            binomial(2*(n+k+1),k)*binomial(3*k,n-k)/(n+k+1)
- * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 20,
+ * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Derived from the recurrence A(x) = (1 + x*A(x)^2*(1 + x*A(x))^3)^2 (s=3, t=2) */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

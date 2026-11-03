@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   cmp_seq_t, seq_alloc_array, seq_free_array
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,29 @@
 #include <limits.h>
 
 /* utility functions that are part of the framework */
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/cmp_seq_t.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* maximum number of Fibonacci indices to precompute.
    It must be large enough to cover all terms that fit into
@@ -72,7 +93,7 @@ seq_t a(idx_t n)
         }
 
         /* ---- sort the sums ---------------------------------------- */
-        qsort(candidates, total_pairs, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(candidates, total_pairs, sizeof(seq_t), cmp_seq_t);
 
         /* ---- deduplicate ------------------------------------------- */
         unique_terms = seq_alloc_array(total_pairs);

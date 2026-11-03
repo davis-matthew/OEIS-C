@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 40, u32 n <= 83, u64 n <= 170,
  *            u128 n <= 343, big any n
- * Helpers:   feasible
+ * Validated: standard, pass, 64 terms through n = 8048 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,22 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/feasible.h"
+
+/* Helper: check whether the remaining digit sum rem can be formed with
+ * R digits, the last of which must be even.
+ * If R == 0, the check is performed by the caller. */
+static bool feasible(unsigned long long rem, unsigned int R)
+{
+    if (R == 0)
+        return rem == 0;              /* empty tail: sum must be zero */
+
+    /* try an even digit for the next position */
+    for (unsigned int e = 0; e <= 8; e += 2) {
+        if (rem >= e && rem - e <= 9ULL * (R - 1))
+            return true;
+    }
+    return false;
+}
 
 /* DFS to build the digits of the desired number.
  * pos : current position (0 … L-1)

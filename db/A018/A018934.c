@@ -8,12 +8,14 @@
  *            (subfact(k) is the number of derangements of k objects, !k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *D = NULL;    /* cache of !k (subfactorials)       */
 static idx_t Dsize = (idx_t)-1;  /* last index fully computed; -1 means none yet */
@@ -25,7 +27,7 @@ static void ensure_derangements(idx_t n)
     /* Grow the storage if required. */
     if ( (size_t)(n + 1) > Dcap ) {
         size_t new_cap = (size_t)(n + 1) * 2;
-        seq_t *tmp = (seq_t*)realloc(D, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, D, new_cap);
         if (!tmp) abort();           /* allocation failed */
         D = tmp;
         Dcap = new_cap;

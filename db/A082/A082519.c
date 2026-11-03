@@ -5,15 +5,16 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = |{ k | 1 ≤ k ≤ n-1 and k² + (n-k)² is prime }|
- * Range:     u8 n <= 894, u16 n <= 9440, u32 n <= 9440, u64 n <= 9440,
- *            u128 n <= 9440, big any n
- * Helpers:   isPrime
+ * Range:     u8 n <= 894, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 105 terms through n = 9440 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k < n; ++k) {
         idx_t nk   = n - k;
         idx_t term = k * k + nk * nk;   /* value to test for primality */
-        if (isPrime(term))
+        if (is_prime(term))
             ++count;
     }
     return count;

@@ -8,13 +8,15 @@
  *            contains only the digits 0,2,4,6,7,8 and at least one digit 7
  * Range:     u8 n <= 14, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         if (ok && has7) {
             if (len == cap) {
                 size_t newcap = (cap == 0 ? 16 : cap << 1);
-                table = (seq_t *)realloc(table, newcap * sizeof(seq_t));
+                table = mem_resize(seq_t, table, newcap);
                 cap = newcap;
             }
             table[len] = last;

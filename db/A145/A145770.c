@@ -8,6 +8,7 @@
  * Formula:   a(n) = number of elements of order n in Alt(10)
  * Range:     u8 none, u16 n <= 1, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
+ * Validated: full, pass, 21 terms through n = 21 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

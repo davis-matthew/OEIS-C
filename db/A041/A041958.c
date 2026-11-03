@@ -11,13 +11,15 @@
  *            continued‑fraction algorithm). All work is performed in seq...
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 26, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 164 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached numerators               */
 static idx_t cache_size = 0;     /* number of terms stored          */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Grow the cache to include a(n) */
     if (n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
 
         /* First term already known */
         if (cache_size == 0) {

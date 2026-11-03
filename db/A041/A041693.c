@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 20, u64 n <= 36, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Period handling ------------------------------------ */
 
@@ -55,9 +57,9 @@ static void compute_period(void)
 
         if (period_cap <= period_len) {
             size_t new_cap = period_cap ? period_cap * 2 : 12;
-            seq_t *tmp = (seq_t *)realloc(period, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, period, new_cap);
             if (!tmp) {
-                free(period);
+                mem_free(period);
                 period = NULL;
                 period_len = 0;
                 period_cap = 0;
@@ -93,7 +95,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap < needed) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;          /* allocation failed – abort */
         cache = tmp;
         cache_cap = new_cap;

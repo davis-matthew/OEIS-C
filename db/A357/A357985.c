@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 24, i16 n <= 45, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* static arrays for values and coordinates */
 static seq_t *values = NULL;   /* a(n) values */
@@ -43,6 +53,16 @@ static int step   = 1;   /* length of current leg  */
 static int remain = 1;   /* steps left in current leg */
 
 /* Ensure array has capacity at least `needed`. */
+#ifdef __cplusplus
+template <class T>
+static void grow_array(T **arr, size_t *cap, size_t needed, size_t elem_size) {
+    if (*cap >= needed) return;
+    size_t newcap = (*cap == 0) ? 64 : (*cap << 1);
+    while (newcap < needed) newcap <<= 1;
+    *arr = mem_resize(T, *arr, (newcap * elem_size) / sizeof(T));
+    *cap = newcap;
+}
+#else
 static void grow_array(void **arr, size_t *cap, size_t needed, size_t elem_size) {
     if (*cap >= needed) return;
     size_t newcap = (*cap == 0) ? 64 : (*cap << 1);
@@ -50,6 +70,7 @@ static void grow_array(void **arr, size_t *cap, size_t needed, size_t elem_size)
     *arr = realloc(*arr, newcap * elem_size);
     *cap = newcap;
 }
+#endif
 
 /* Ensure all terms up to `n` have been computed. */
 static void ensure_up_to(idx_t n) {
@@ -57,9 +78,9 @@ static void ensure_up_to(idx_t n) {
 
     /* First initialisation */
     if (values_len == 0) {
-        grow_array((void **)&values, &values_cap, 1, sizeof(seq_t));
-        grow_array((void **)&xs,     &xs_cap,     1, sizeof(int));
-        grow_array((void **)&ys,     &ys_cap,     1, sizeof(int));
+        grow_array(OEISC_VPP(&values), &values_cap, 1, sizeof(seq_t));
+        grow_array(OEISC_VPP(&xs),     &xs_cap,     1, sizeof(int));
+        grow_array(OEISC_VPP(&ys),     &ys_cap,     1, sizeof(int));
 
         values[0] = 0;
         xs[0]     = 0;
@@ -84,9 +105,9 @@ static void ensure_up_to(idx_t n) {
 
         /* Prepare space for the new term */
         size_t i = values_len;          /* index of new term */
-        grow_array((void **)&values, &values_cap, i + 1, sizeof(seq_t));
-        grow_array((void **)&xs,     &xs_cap,     i + 1, sizeof(int));
-        grow_array((void **)&ys,     &ys_cap,     i + 1, sizeof(int));
+        grow_array(OEISC_VPP(&values), &values_cap, i + 1, sizeof(seq_t));
+        grow_array(OEISC_VPP(&xs),     &xs_cap,     i + 1, sizeof(int));
+        grow_array(OEISC_VPP(&ys),     &ys_cap,     i + 1, sizeof(int));
 
         xs[i] = curx;
         ys[i] = cury;

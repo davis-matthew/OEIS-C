@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 440 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,12 +16,13 @@
 /* Compute A277175: a(n) = Sum_{i=0..n} Catalan(i) * (n-i)!
  * Sequence of convolutions of Catalan numbers and factorials. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Note: idx_t and seq_t are defined by the build system. */
 seq_t a(idx_t n)
 {
     /* Precompute factorials up to n */
-    seq_t *fact = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (n + 1));
     fact[0] = 1;
     for (idx_t i = 1; i <= n; ++i)
         fact[i] = fact[i - 1] * (seq_t)i;
@@ -42,6 +44,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(fact);
+    mem_free(fact);
     return ans;
 }

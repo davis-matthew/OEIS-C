@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 176, u32 n <= 176, u64 n <= 176, u128 n <= 176,
  *            big any n
- * Helpers:   alloc_uint8_array
+ * Validated: standard, pass, 59 terms through n = 169 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,15 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/alloc_uint8_array.h"
+#include "../utils/mem.h"
+
+/* ---------- Helper: build an array of byte values ---------- */
+static uint8_t *alloc_uint8_array(size_t sz)
+{
+    uint8_t *p = (uint8_t *)malloc(sz);
+    if (p) memset(p, 0, sz);
+    return p;
+}
 
 /* ---------- Static state ---------- */
 static seq_t *terms      = NULL;  /* array of terms found so far          */
@@ -39,7 +48,7 @@ static void ensure_terms_capacity(size_t new_cap)
     while (terms_cap < new_cap) terms_cap <<= 1;
     /* realloc may be used directly – the build ensures seq_t is trivially
        constructible so a plain cast is sufficient even in C++. */
-    terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, terms_cap);
 }
 
 /* ---------- Helper: compute terms up to a required index ---------- */

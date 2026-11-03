@@ -9,6 +9,7 @@
  *            binomial(2*k, k)
  * Range:     u8 n <= 15, u16 n <= 25, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 /* Uses the supplied helper function binomial(idx_t n, idx_t k). */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

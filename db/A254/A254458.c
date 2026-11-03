@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   dfs_transition
+ * Validated: standard, pass, 31 terms through n = 194 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,37 @@
     using vertical bars and horizontal bars that may start here. */
 
 #include <stdbool.h>
-#include "../utils/dfs_transition.h"
+
+/* Helper: recursively generate all transitions from a given mask s.
+   `cnt[t]` is incremented for every way that yields the outgoing
+   mask t. */
+static void dfs_transition(int row, int curr_mask, int next_mask, int *cnt)
+{
+    if (row == 6) {                      /* column is completely filled */
+        ++cnt[next_mask];
+        return;
+    }
+
+    if (curr_mask & (1 << row)) {        /* cell already occupied */
+        /* Option 1: continue horizontal bar to next column */
+        dfs_transition(row + 1, curr_mask, next_mask | (1 << row), cnt);
+        /* Option 2: terminate horizontal bar here */
+        dfs_transition(row + 1, curr_mask, next_mask, cnt);
+    } else {
+        /* Option 1: place a vertical bar starting at this row */
+        int mask = curr_mask;
+        for (int h = 1; row + h <= 6; ++h) {
+            if (mask & (1 << (row + h - 1)))
+                break;                  /* cannot extend past an occupied cell */
+            int new_mask = mask | (1 << (row + h - 1));
+            dfs_transition(row + h, new_mask, next_mask, cnt);
+        }
+
+        /* Option 2: start a horizontal bar that extends to next column */
+        dfs_transition(row + 1, curr_mask | (1 << row),
+                       next_mask | (1 << row), cnt);
+    }
+}
 
 /* Main function */
 seq_t a(idx_t n)

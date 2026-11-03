@@ -13,14 +13,30 @@
  *            permutations of the same * multiset that do not start with...
  * Range:     u8 n <= 108, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_permutation_arr
+ * Validated: standard, pass, 84 terms through n = 9904 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/next_permutation_arr.h"
+
+static bool next_permutation_arr(uint8_t *a, int n) {
+    if (n < 2) return false;
+    int i = n - 2;
+    while (i >= 0 && a[i] >= a[i + 1]) --i;
+    if (i < 0) return false;
+    int j = n - 1;
+    while (a[j] <= a[i]) --j;
+    uint8_t tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    int l = i + 1, r = n - 1;
+    while (l < r) {
+        tmp = a[l]; a[l] = a[r]; a[r] = tmp;
+        ++l; --r;
+    }
+    return true;
+}
 
 static seq_t digits_to_value(const uint8_t *d, int len) {
     seq_t val = 0;

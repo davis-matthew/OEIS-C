@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 46, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,11 +44,11 @@ seq_t a(idx_t n)
     idx_t j = n - prev_sum - 1;
 
     /* Allocate two buffers of size r (enough for all rows). */
-    seq_t *prev = (seq_t *)calloc(r, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(r, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, r);
+    seq_t *next = mem_new(seq_t, r);
     if (!prev || !next) {
         /* Allocation failure: return 0 (undefined behaviour otherwise). */
-        free(prev); free(next);
+        mem_free(prev); mem_free(next);
         return 0;
     }
 
@@ -70,8 +72,8 @@ seq_t a(idx_t n)
 
         if (i == r) {  /* Desired row reached */
             seq_t result = next[j];
-            free(prev);
-            free(next);
+            mem_free(prev);
+            mem_free(next);
             return result;
         }
 
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
         /* No need to clear 'next'; it will be overwritten in the next loop. */
     }
 
-    free(prev);
-    free(next);
+    mem_free(prev);
+    mem_free(next);
     return 0;   /* Fallback; should never be reached. */
 }

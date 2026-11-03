@@ -10,15 +10,17 @@
  *            elements of the generalized Fibonacci sequence beginning 2, 7,
  *            9, 16, 25, 41, …, where the sequence satisfies f(0)=2, f(1)=7
  *            and f(k)=f(k-1)+f(k-2) for k≥2
- * Range:     u8 n <= 9091, u16 n <= 9091, u32 n <= 9091, u64 n <= 9091,
- *            u128 n <= 9091, big any n
- * Helpers:   none
+ * Range:     u8 n <= 13153, u16 n <= 13153, u32 n <= 13153, u64 n <= 13153,
+ *            u128 n <= 13153, big any n
+ * Validated: standard, pass, 121 terms through n = 9091 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (n == 0) return 1;
 
     /* Allocate an array to count ways to form each sum up to n. */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return 0;  /* allocation failed */
 
     for (idx_t i = 0; i <= n; ++i) dp[i] = 0;
@@ -60,6 +62,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

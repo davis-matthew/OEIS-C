@@ -10,22 +10,24 @@
  *            (1 + x^(2^k−1) + x^(2^k))
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate two DP arrays of size n+1, zeroed.  */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp     = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *newdp  = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp     = mem_new(seq_t, sz);
+    seq_t *newdp  = mem_new(seq_t, sz);
     if (!dp || !newdp) {             /* out of memory – return 0 */
-        free(dp); free(newdp);
+        mem_free(dp); mem_free(newdp);
         return (seq_t)0;
     }
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
     return result;
 }

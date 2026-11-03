@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 112 terms through n = 9326 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    previously generated terms.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* Initialise with the starting symbol 0 on first call */
     if (word == NULL) {
-        word = (seq_t*)malloc(sizeof(seq_t));
+        word = mem_new(seq_t, 1);
         word[0] = (seq_t)0;      /* first term */
         len = 1;
     }
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         idx_t newlen = c0 * 2 + c1 * 2 + c2 * 1;
 
         /* Allocate new word */
-        seq_t *newword = (seq_t*)malloc(sizeof(seq_t) * newlen);
+        seq_t *newword = mem_new(seq_t, newlen);
 
         /* Build new word by applying the morphism */
         idx_t j = 0;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old word */
-        free(word);
+        mem_free(word);
         word = newword;
         len  = newlen;
     }

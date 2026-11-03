@@ -10,12 +10,14 @@
  *            a(2)=4, a(3)=8, a(4)=36
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 24, u64 n <= 49, u128 n <= 102,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the function that will be called by the tests */
 seq_t a(idx_t n);
@@ -34,7 +36,7 @@ static void grow_cache(idx_t max_needed)
     while (new_cap < (size_t)(max_needed + 1))
         new_cap <<= 1;          /* grow exponentially for amortised O(1) */
 
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (new_cap + 1));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -47,7 +49,7 @@ static void init_cache(void)
 
     /* Allocate space for indices 0…4 (index 0 unused) */
     cache_cap = 8;
-    cache = (seq_t *)malloc(sizeof(seq_t) * (cache_cap + 1));
+    cache = mem_new(seq_t, (cache_cap + 1));
     /* The values are known from the OEIS entry */
     cache[0] = (seq_t)0;      /* unused but defined */
     cache[1] = (seq_t)0;

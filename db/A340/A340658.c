@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 28, u32 n <= 83, u64 n <= 274,
  *            u128 n <= 966, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     /* ---------- compute A[n] = coeff. of q^n in ∏ (1+q^k)/(1-q^k) ----------
        Each factor has coefficients 1 at exponent 0 and 2 at all positive
        multiples of k.  */
-    seq_t *dpA   = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *newdpA = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *dpA   = mem_new(seq_t, N + 1);
+    seq_t *newdpA = mem_new(seq_t, N + 1);
     dpA[0] = (seq_t)1;
 
     for (idx_t k = 1; k <= N; ++k) {
@@ -47,11 +49,11 @@ seq_t a(idx_t n)
     }
 
     /* dpA now holds the coefficients A[0..N] */
-    seq_t *dpB_cur = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *newdpB = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *dpB_cur = mem_new(seq_t, N + 1);
+    seq_t *newdpB = mem_new(seq_t, N + 1);
     dpB_cur[0] = (seq_t)1;           /* t = 0   : empty product */
 
-    seq_t *B = (seq_t*)calloc(N + 1, sizeof(seq_t));  /* B[0..N] */
+    seq_t *B = mem_new(seq_t, N + 1);  /* B[0..N] */
 
     /* --------- build B[n] = ∑_{t>=0} coeff_{t}[n‑t(t+1)/2] ----------
        coeff_{t}[m] = coefficient of q^m in ∏_{k=1..t} (1−q^k)^{-2}   */
@@ -94,9 +96,9 @@ seq_t a(idx_t n)
     seq_t result = dpA[N] - B[N];
 
     /* clean up */
-    free(dpA);      free(newdpA);
-    free(dpB_cur);  free(newdpB);
-    free(B);
+    mem_free(dpA);      mem_free(newdpA);
+    mem_free(dpB_cur);  mem_free(newdpB);
+    mem_free(B);
 
     return result;
 }

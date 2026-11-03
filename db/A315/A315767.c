@@ -11,12 +11,14 @@
  *            a(7)=40,a(8)=46,a(9)=52,a(10)=58,a(11)=64,a(12)=70
  * Range:     u8 n <= 43, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 seq_t a(idx_t n)
 {
     static seq_t *cache = NULL;
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Create initial cache of size 13 and fill known values */
     if (max_comp == (idx_t)-1) {
-        cache = (seq_t*)malloc(sizeof(seq_t) * 13);
+        cache = mem_new(seq_t, 13);
         if (!cache) return 0;  /* unlikely, but prevents undefined behaviour */
 
         cache[0] = 1;  cache[1] = 6;  cache[2] = 12;  cache[3] = 18;  cache[4] = 24;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Ensure sufficient storage */
     size_t need = (size_t)n + 1;
     if (need > ((size_t)max_comp + 1)) {
-        cache = (seq_t*)realloc(cache, need * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, need);
         /* realloc may return NULL only if need > 0 and memory allocation fails;
            in such a situation returning 0 is acceptable since the build will
            not test the overflow scenario. */

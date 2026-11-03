@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 31, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static idx_t *spf = NULL;
 static idx_t spf_limit = 0;
@@ -103,7 +123,7 @@ static void ensure_n(idx_t n)
 {
     if (!seq_values) {
         values_cap = 64;
-        seq_values = (seq_t *)malloc(values_cap * sizeof(seq_t));
+        seq_values = mem_new(seq_t, values_cap);
         if (!seq_values) exit(1);
     }
     const idx_t INITIAL_SPF = 200000;
@@ -124,8 +144,7 @@ static void ensure_n(idx_t n)
                          (int)prime_cnt, k, &wx)) {
             if (values_cnt == values_cap) {
                 values_cap *= 2;
-                seq_values = (seq_t *)realloc(seq_values,
-                                              values_cap * sizeof(seq_t));
+                seq_values = mem_resize(seq_t, seq_values, values_cap);
                 if (!seq_values) exit(1);
             }
             seq_values[values_cnt++] = wx;

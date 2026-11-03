@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 79 terms through n = 9304 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *terms      = NULL;   /* array of computed terms */
 static size_t terms_cap  = 0;       /* current allocation size  */
@@ -50,12 +52,12 @@ a(idx_t n)
                 idx_t d2 = last_m / i;
 
                 idx_t p = d1 + 1;
-                if (p > 3 && is_prime_small((seq_t)p))
+                if (p > 3 && is_prime_seq((seq_t)p))
                     prod = (seq_t)((prod * (p % 30)) % 30);
 
                 if (d1 != d2) {
                     p = d2 + 1;
-                    if (p > 3 && is_prime_small((seq_t)p))
+                    if (p > 3 && is_prime_seq((seq_t)p))
                         prod = (seq_t)((prod * (p % 30)) % 30);
                 }
             }
@@ -74,7 +76,7 @@ a(idx_t n)
             /* grow terms array if necessary */
             if (terms_cnt >= terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 64;
-                seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
                 if (!new_terms)
                     exit(EXIT_FAILURE);
                 terms      = new_terms;

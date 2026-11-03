@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Returns true iff all adjacent digits of x alternate,
    starting with x%10 > next digit. */
@@ -57,7 +59,7 @@ static void ensure_cache_capacity(idx_t needed)
     if ((size_t)needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 4;
     while (new_cap < (size_t)needed) new_cap *= 2;
-    seq_t *p = (seq_t*)realloc(cached, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cached, new_cap);
     cached = p;
     cache_cap = new_cap;
 }

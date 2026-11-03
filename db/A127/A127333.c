@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum_{i=0}^{5} prime(n+i)
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache of generated primes. */
 static seq_t *primes = NULL;       /* array of primes */
@@ -32,7 +34,7 @@ static void extend_primes_to(idx_t needed)
     /* Initialise cache on first call. */
     if (primes == NULL) {
         prime_cap = 64;
-        primes = (seq_t *)malloc(prime_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, prime_cap);
         if (primes == NULL)
             return;               /* allocation failed – unlikely in tests */
         primes[0] = (seq_t)2;
@@ -56,7 +58,7 @@ static void extend_primes_to(idx_t needed)
         if (is_prime) {
             if (prime_cnt == prime_cap) {
                 prime_cap *= 2;
-                seq_t *new_arr = (seq_t *)realloc(primes, prime_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, primes, prime_cap);
                 if (new_arr == NULL)
                     return;           /* allocation failed – leave cache partial */
                 primes = new_arr;

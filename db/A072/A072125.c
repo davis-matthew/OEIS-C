@@ -9,13 +9,15 @@
  *            that the sum of the first k digits is NOT divisible by 3
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* cache of generated sequence values */
 static seq_t *cache = NULL;         /* array of seq_t values     */
@@ -38,7 +40,7 @@ static idx_t pos = 0;
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp == NULL) {
         /* allocation failure – terminate the program */
         abort();
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     /* one‑time initialization of the cache */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) {
             abort();
         }

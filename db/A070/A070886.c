@@ -8,7 +8,8 @@
  * Formula:   Let r = ⌊√n⌋ and i = n – r². If i is odd, a(n)=0;
  * Range:     u8 n <= 9999, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   floor_isqrt
+ * Validated: standard, pass, 115 terms through n = 8098 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,13 @@
 /*  which equals 1 iff (k & r) == k (Lucas' theorem).           */
 /*  E.g. a(0)=1, a(1)=1, a(2)=0, a(3)=1, a(4)=1, etc.           */
 
-#include "../utils/floor_isqrt.h"   /* provides floor_isqrt(idx_t) */
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* Compute r = floor(sqrt(n)) */
-    idx_t r = floor_isqrt(n);
+    idx_t r = isqrt(n);
 
     /* Offset within row r */
     idx_t offset = n - r * r;       /* n - r^2 */

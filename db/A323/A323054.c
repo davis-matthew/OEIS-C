@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 93, u32 n <= 269, u64 n <= 350,
  *            u128 n <= 350, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 350 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external integer types supplied by the build environment */
 seq_t a(idx_t n)
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
     }
 
     /* ----------  DP arrays  ---------- */
-    seq_t *dp     = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *newdp  = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp     = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *newdp  = mem_new(seq_t, (size_t)(n + 1));
     if (!dp || !newdp) {
         free(isPower);
         return (seq_t)0;
@@ -71,9 +73,9 @@ seq_t a(idx_t n)
         }
 
         /* count admissible subset sums for this root */
-        seq_t *sumCnt = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_t *sumCnt = mem_new(seq_t, (size_t)(n + 1));
         if (!sumCnt) {
-            free(dp); free(newdp); free(isPower);
+            mem_free(dp); mem_free(newdp); free(isPower);
             return (seq_t)0;
         }
 
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
         }
 
         /* convolution: incorporate this root into the global DP */
-        memset(newdp, 0, (size_t)(n + 1) * sizeof(seq_t));
+        mem_set(newdp, 0, (size_t)(n + 1) * sizeof(seq_t));
         for (idx_t s = 0; s <= n; ++s) {
             if (dp[s] == (seq_t)0) continue;
             seq_t val_s = dp[s];
@@ -128,15 +130,15 @@ seq_t a(idx_t n)
         dp = newdp;
         newdp = tmp;
 
-        free(sumCnt);
+        mem_free(sumCnt);
     }
 
     seq_t result = dp[n];
 
     /* clean up */
     free(isPower);
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
 
     return result;
 }

@@ -9,12 +9,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   phi_value
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi_value.h"
+#include "../utils/totient.h"
 /*  A057741 – number of elements of order k in D_{2n}, row‑wise indexed.
  *  For the row r (the n in D_{2r}) and column k (1 ≤ k ≤ g(r))
  *  with g(1)=2 and g(r)=r for r>1,
@@ -73,7 +74,7 @@ seq_t a(idx_t n)
     }
 
     if (r % k == 0)                               /* other orders dividing r */
-        return phi_value(k);
+        return totient(k);
 
     return 0;                                      /* no elements of such order */
 }

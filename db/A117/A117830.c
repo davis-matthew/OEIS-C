@@ -10,6 +10,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 88 terms through n = 9452 (2026-11-01)
  * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@
 /*  a(1) = 5, a(n) = reverse_digits(a(n-1)) + 4   for n ≥ 2. */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/reverse_digits.h"
 
 static seq_t  cycle[64];      /* storage for the 54‑term cycle */

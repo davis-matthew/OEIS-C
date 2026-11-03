@@ -8,9 +8,10 @@
  *            smallest non‑negative integer m such that * m = N - φ(N) for
  *            some integer N and m is even. * The sequence begins 0, 2, 4, 6,
  *            8, 12, 14, …
- * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 9548, u64 n <= 9548,
- *            u128 n <= 9548, big any n
- * Helpers:   cmp_seq_t
+ * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 80 terms through n = 9548 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/cmp_seq_t.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +57,7 @@ seq_t a(idx_t n)
 
         /* ---------- step 2: collect even cototients ---------- */
         size_t cap = LIMIT;            /* temporary array capacity */
-        seq_t *list = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *list = mem_new(seq_t, cap);
         if (!list) { free(phi); return (seq_t)0; }
         size_t cnt = 0;
         for (size_t i = 1; i <= LIMIT; ++i)
@@ -57,8 +68,8 @@ seq_t a(idx_t n)
                 if (cnt == cap) /* extend if needed (unlikely) */
                 {
                     cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(list, cap * sizeof(seq_t));
-                    if (!tmp) { free(list); free(phi); return (seq_t)0; }
+                    seq_t *tmp = mem_resize(seq_t, list, cap);
+                    if (!tmp) { mem_free(list); free(phi); return (seq_t)0; }
                     list = tmp;
                 }
                 list[cnt++] = m;
@@ -66,7 +77,7 @@ seq_t a(idx_t n)
         }
 
         /* ---------- step 3: sort and deduplicate ---------- */
-        qsort(list, cnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(list, cnt, sizeof(seq_t), cmp_seq_t);
 
         /* count unique values */
         terms_size = 0;
@@ -74,8 +85,8 @@ seq_t a(idx_t n)
             if (i == 0 || list[i] != list[i - 1])
                 ++terms_size;
 
-        terms = (seq_t *)malloc(terms_size * sizeof(seq_t));
-        if (!terms) { free(list); free(phi); return (seq_t)0; }
+        terms = mem_new(seq_t, terms_size);
+        if (!terms) { mem_free(list); free(phi); return (seq_t)0; }
 
         size_t idx = 0;
         for (size_t i = 0; i < cnt; ++i)
@@ -83,7 +94,7 @@ seq_t a(idx_t n)
                 terms[idx++] = list[i];
 
         /* cleanup */
-        free(list);
+        mem_free(list);
         free(phi);
     }
 

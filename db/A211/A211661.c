@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1 if n<3, 2 if 3≤n<27, 3 if 27≤n<3^27, 4 otherwise
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4*a(n-1) + 2^(n-1) - 1 for n >= 2, a(0) = 0, a(1) = 0
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 193 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

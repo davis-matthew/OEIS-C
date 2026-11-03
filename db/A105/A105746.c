@@ -10,13 +10,27 @@
  *            resulting c is minimal
  * Range:     u8 n <= 6, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   mul128
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mul128.h"
+#include <stdlib.h>
+#include <stdalign.h>
+
+/* Helper: safe multiplication using 128‑bit intermediate when
+   available and seq_t is a built‑in integer.  For arbitrary‑precision
+   types the plain * operator is used. */
+static inline seq_t mul128(seq_t a, seq_t b)
+{
+#if defined(__SIZEOF_INT128__) && !defined(__cplusplus)
+    return (seq_t)((unsigned __int128)(unsigned long long)a * b);
+#else
+    return a * b;
+#endif
+}
 
 seq_t a(idx_t n)
 {

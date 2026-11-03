@@ -12,7 +12,8 @@
  *            decimal concatenation a(n‑1) a(n) is prime
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------- */
 /*   Global state (static to this translation unit)                     */
@@ -155,7 +157,7 @@ static void ensure_terms(size_t needed)
     if (needed <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 
@@ -194,7 +196,7 @@ seq_t a(idx_t n)
 
     /* Initialise on first call. */
     if (!terms) {
-        terms    = (seq_t*)malloc(16 * sizeof(seq_t));
+        terms    = mem_new(seq_t, 16);
         used     = (bool*)malloc(16 * sizeof(bool));
         memset(used, 0, 16 * sizeof(bool));
         terms_cap = used_cap = 16;

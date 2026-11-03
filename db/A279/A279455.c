@@ -10,7 +10,8 @@
  *            factors)
  * Range:     u8 n <= 132, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 4507 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Check whether a given integer n satisfies the condition:
    (tau(n) – omega(n)) divides n.  The function uses only 64‑bit
@@ -75,7 +77,7 @@ static void append_term(idx_t value)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 16 : seq_cap << 1;
-        seq_t *tmp = (seq_t *)realloc(seq_array, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_array, new_cap);
         if (!tmp) abort();  /* allocation failure */
         seq_array = tmp;
         seq_cap = new_cap;

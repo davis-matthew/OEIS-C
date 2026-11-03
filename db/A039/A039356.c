@@ -9,7 +9,8 @@
  *            contains * an equal non‑zero number of digits 6 and 7
  * Range:     u8 n <= 8, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialize cache on the first call */
     if (terms == NULL) {
         cap = 64;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         /* In case of allocation failure, abort */
         if (terms == NULL) { abort(); }
         size = 0;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         if (cnt6 == cnt7 && cnt6 > 0) {
             if (size == cap) {          /* grow cache if necessary */
                 cap *= 2;
-                seq_t *new_terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                seq_t *new_terms = mem_resize(seq_t, terms, cap);
                 if (new_terms == NULL) { abort(); }
                 terms = new_terms;
             }

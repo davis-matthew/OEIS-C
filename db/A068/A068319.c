@@ -9,12 +9,23 @@
  *            a(1)=1
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   lpf
+ * Validated: standard, pass, 90 terms through n = 8918 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/lpf.h"
+#include <stdbool.h>
+#include <stdint.h>
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 #include <stdint.h>
 
 seq_t a(idx_t n)

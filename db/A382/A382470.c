@@ -7,16 +7,28 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(k+3,3) * binomial(2*k,2*n-2*k)
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 17, u64 n <= 38, u128 n <= 82,
  *            big any n
- * Helpers:   alloc_seq_array, binomial, free_seq_array
+ * Validated: standard, pass, 42 terms through n = 379 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static const idx_t INIT_TERMS = 16;
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static bool is_happy(seq_t x)
 {
@@ -53,8 +55,7 @@ seq_t a(idx_t n)
         /* Test if this prime is unhappy. */
         if (!is_happy((seq_t)p)) {
             /* Grow the cache and store the new unhappy prime. */
-            seq_t *tmp = (seq_t *)realloc(unhappy_cache,
-                                          (cache_len + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, unhappy_cache, (cache_len + 1));
             if (!tmp) {
                 /* Allocation failure: return 0 as an error indicator. */
                 return (seq_t)0;

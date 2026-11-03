@@ -9,12 +9,14 @@
  *            L_1=1, L_2=3, L_m=L_{m-1}+L_{m-2}
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build environment. */
 seq_t a(idx_t n)
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
         idx_t new_cap = L_cap ? L_cap << 1 : 8;
         while (new_cap < needed) new_cap <<= 1;
 
-        L    = (seq_t*)realloc(L,    new_cap * sizeof(seq_t));
-        cumL = (seq_t*)realloc(cumL, new_cap * sizeof(seq_t));
+        L    = mem_resize(seq_t, L, new_cap);
+        cumL = mem_resize(seq_t, cumL, new_cap);
         L_cap = new_cap;
 
         /* Re‑compute all Lucas numbers and prefix sums up to L_cap-1 */

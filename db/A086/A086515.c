@@ -7,6 +7,7 @@
  * Formula:   a(n) = 3*n - 3 + (n mod 2) (for n >= 1)
  * Range:     i8 n <= 43, i16 n <= 62, i32 n <= 62, i64 n <= 62, i128 n <= 62,
  *            big any n
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

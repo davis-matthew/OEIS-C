@@ -7,7 +7,8 @@
  * Formula:   a(n) = A001358(A001358(A001358(A001358(n))))
  * Range:     u8 n <= 4, u16 n <= 323, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   uint32_cmp
+ * Validated: standard, pass, 60 terms through n = 9868 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/uint32_cmp.h"
+
+/* comparator for qsort */
+static int uint32_cmp(const void *a, const void *b)
+{
+    uint32_t va = *(const uint32_t *)a;
+    uint32_t vb = *(const uint32_t *)b;
+    return (int)(va - vb);
+}
 
 /* maximum value needed for the 4‑fold semiprime mapping
    n ≤ 10 000  →  a(n) < 10⁷, 4th index < 1 000 000  */

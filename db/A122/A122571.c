@@ -7,12 +7,14 @@
  * Formula:   a(n) = 14*a(n-1) - a(n-2), a(1)=a(2)=1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 848 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Allocate (or resize) the cache to hold up to index n */
     idx_t required_len = (n > 2) ? n : 2;          /* ensure at least 2 slots */
-    seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * (required_len + 1));
+    seq_t *tmp = mem_resize(seq_t, cache, (required_len + 1));
     if (!tmp && (required_len + 1) > 0)
         return (seq_t)0;   /* allocation failure – unlikely for small n */
 

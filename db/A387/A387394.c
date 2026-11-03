@@ -8,13 +8,23 @@
  *            of all divisors of n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_2s
+ * Validated: standard, pass, 115 terms through n = 9483 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_2s.h"
+
+static inline seq_t count_2s(idx_t x)
+{
+    seq_t c = 0;
+    while (x > 0) {
+        if (x % 10 == 2) ++c;
+        x /= 10;
+    }
+    return c;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,14 +7,24 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   pow10
+ * Validated: full, pass, 16 terms through n = 31 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* A213614: decimal digit of 9460730472580800 at position n (offset 16) */
 #include <stdint.h>
-#include "../utils/pow10.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

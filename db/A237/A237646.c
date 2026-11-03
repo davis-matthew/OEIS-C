@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 31, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   convolution
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,7 +42,26 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/convolution.h"
+#include "../utils/mem.h"
+
+/* multiply two polynomials A (sizeA) and B (sizeB), store result
+ * in C up to degree max_deg (inclusive).  C must be already zeroed
+ * and of size at least max_deg+1.
+ */
+static void convolution(const seq_t *A, size_t sizeA,
+                        const seq_t *B, size_t sizeB,
+                        seq_t *C, size_t max_deg)
+{
+    for (size_t i = 0; i < sizeA; ++i) {
+        seq_t ai = A[i];
+        if (ai == 0) continue;
+        size_t limit = max_deg - i;
+        if (limit >= sizeB) limit = sizeB - 1;
+        for (size_t j = 0; j <= limit; ++j) {
+            C[i+j] += ai * B[j];
+        }
+    }
+}
 
 static const int p_coeff[15] = {1,1,4,3,9,6,13,7,13,6,9,3,4,1,1};
 
@@ -54,7 +74,7 @@ static void seq_push_back(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap*2 : 16;
-        seq_arr = (seq_t*)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, new_cap);
         seq_cap = new_cap;
     }
     seq_arr[seq_len++] = val;
@@ -79,20 +99,20 @@ static void ensure_up_to(idx_t N)
 
     /* build the polynomial S(x) = Σ a[i] x^{2i}  (i=0..half) */
     size_t sizeS = 2*half + 1;
-    seq_t *S = (seq_t*)calloc(sizeS, sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, sizeS);
     for (idx_t i = 0; i <= half; ++i) {
         S[2*i] = seq_arr[i];
     }
 
     /* need d(m) for m up to N, so we compute D(x) = S(x)^4 up to degree N */
     size_t maxDeg = N;
-    seq_t *S2 = (seq_t*)calloc(maxDeg+1, sizeof(seq_t));
+    seq_t *S2 = mem_new(seq_t, maxDeg+1);
     convolution(S, sizeS, S, sizeS, S2, maxDeg);
 
-    seq_t *D = (seq_t*)calloc(maxDeg+1, sizeof(seq_t));
+    seq_t *D = mem_new(seq_t, maxDeg+1);
     convolution(S2, maxDeg+1, S2, maxDeg+1, D, maxDeg);
 
-    free(S);  free(S2);
+    mem_free(S);  mem_free(S2);
 
     /* now compute a[n] for n = seq_len .. N */
     for (idx_t n = seq_len; n <= N; ++n) {
@@ -103,7 +123,7 @@ static void ensure_up_to(idx_t N)
         }
         seq_push_back(sum);
     }
-    free(D);
+    mem_free(D);
 }
 
 /* exported function */

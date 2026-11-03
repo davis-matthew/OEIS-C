@@ -9,12 +9,14 @@
  *            i ≤ 40, j ≥ 0 with 5^i ≥ 4^j, sorted ascending
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for the sequence. */
 static int initialized = 0;
@@ -38,7 +40,7 @@ seq_t a (idx_t n)
     {
         /* Generate all valid differences. */
         size_t cap = 2000;
-        seq_t *dif = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *dif = mem_new(seq_t, cap);
         size_t cnt  = 0;
         seq_t pow5 = 1;          /* 5^0 */
         for (idx_t i = 0; i <= 40; ++i)
@@ -49,7 +51,7 @@ seq_t a (idx_t n)
                 if (cnt == cap)
                 {
                     cap <<= 1;
-                    dif = (seq_t *)realloc(dif, cap * sizeof(seq_t));
+                    dif = mem_resize(seq_t, dif, cap);
                 }
                 dif[cnt++] = pow5 - pow4;
 
@@ -69,7 +71,7 @@ seq_t a (idx_t n)
         }
 
         /* Sort the differences. */
-        qsort(dif, cnt, sizeof(seq_t), seq_compare);
+        mem_qsort(dif, cnt, sizeof(seq_t), seq_compare);
 
         /* Remove duplicates. */
         size_t uniq = 0;
@@ -80,13 +82,13 @@ seq_t a (idx_t n)
         }
 
         /* Store the final sequence. */
-        seq_vals = (seq_t *)malloc(uniq * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, uniq);
         for (size_t i = 0; i < uniq; ++i)
             seq_vals[i] = dif[i];
         seq_len = uniq;
 
         /* Free temporary buffer. */
-        free(dif);
+        mem_free(dif);
         initialized = 1;
     }
 

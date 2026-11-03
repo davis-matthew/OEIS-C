@@ -8,12 +8,14 @@
  *            Σ_{k=1}^{n} ⌊ (n-k) / π ⌋ )
  * Range:     u8 n <= 38, u16 n <= 640, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 859 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const unsigned long long SCALE = 1000000000000ULL;   /* 10^12 */
 static const unsigned long long PINT  = 3141592653589ULL;   /* floor(π * SCALE) */
@@ -34,7 +36,7 @@ static void ensure_cumulative_cap(idx_t needed)
     idx_t newCap = cumulativeCap ? cumulativeCap * 2 : 16;
     while (newCap < needed)
         newCap *= 2;
-    cumulative = (seq_t *)realloc(cumulative, newCap * sizeof(seq_t));
+    cumulative = mem_resize(seq_t, cumulative, newCap);
     cumulativeCap = newCap;
 }
 
@@ -46,7 +48,7 @@ static void ensure_ceil_cap(idx_t needed)
     idx_t newCap = ceilCap ? ceilCap * 2 : 16;
     while (newCap <= needed)
         newCap *= 2;
-    ceilArr = (seq_t *)realloc(ceilArr, newCap * sizeof(seq_t));
+    ceilArr = mem_resize(seq_t, ceilArr, newCap);
     ceilCap = newCap;
 }
 
@@ -62,7 +64,7 @@ static void extend_ceil_arr(idx_t needed)
         if (ceilSize >= ceilCap) {
             /* enlarge the array (should not happen due to ensure_ceil_cap) */
             idx_t newCap = ceilCap ? ceilCap * 2 : 16;
-            ceilArr = (seq_t *)realloc(ceilArr, newCap * sizeof(seq_t));
+            ceilArr = mem_resize(seq_t, ceilArr, newCap);
             ceilCap = newCap;
         }
         ceilArr[ceilSize++] = (seq_t)ceilk;

@@ -9,11 +9,13 @@
  * Formula:   a(n) = (3 + (n mod 2)) * 2^floor(n/2) - 4, with offset 1
  * Range:     u8 n <= 13, u16 n <= 29, u32 n <= 61, u64 n <= 125,
  *            u128 n <= 253, big any n
+ * Validated: standard, pass, 58 terms through n = 4752 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

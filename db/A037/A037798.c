@@ -8,13 +8,15 @@
  * Formula:   a(n) = sum_{k=0}^{n-1} (3-(k%4)) * 9^{n-1-k}
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 912 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return a(n) for the OEIS sequence A037798.  */
 seq_t a(idx_t n)
@@ -30,12 +32,12 @@ seq_t a(idx_t n)
 
 	/* Allocate more space if necessary. */
 	if (idx > cap) {
-		seq_t *tmp = (seq_t*)malloc(idx * sizeof(*tmp));
+		seq_t *tmp = mem_new(seq_t, idx);
 		if (!tmp) return 0; /* allocation failure, return 0 */
 		if (cache) {
 			for (size_t i = 0; i < max_n; ++i)
 				tmp[i] = cache[i];
-			free(cache);
+			mem_free(cache);
 		}
 		cache = tmp;
 		cap = idx;

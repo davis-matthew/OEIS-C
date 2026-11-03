@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(5^(n/3))
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 41, u64 n <= 82, u128 n <= 165,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: standard, pass, 53 terms through n = 174 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,19 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "../utils/seq_from_str.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 #define BI_BASE 1000000000U       /* 1e9, fits in 32 bits */
 
@@ -172,7 +185,7 @@ static Bi *bi_pow_uint64(uint64_t base, idx_t exp)
 static char *bi_to_string(const Bi *a)
 {
     if (a->len == 1 && a->d[0] == 0)
-        return strdup("0");
+        return mem_strdup("0");
 
     int total_digits = (int)((a->len - 1) * 9);
     uint32_t ms = a->d[a->len - 1];

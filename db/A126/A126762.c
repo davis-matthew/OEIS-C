@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 250, u16 n <= 996, u32 n <= 996, u64 n <= 996,
  *            u128 n <= 996, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 88 terms through n = 954 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,10 @@
  * constraints.
  */
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +37,7 @@ seq_t a(idx_t n)
     /* Special case for n == 0 is irrelevant (offset is 1) */
     while (true) {
         /* Compute n^k mod k and compare to n */
-        seq_t res = mod_pow(nn, k, (seq_t)k);
+        seq_t res = powmod(nn, k, (seq_t)k);
         if (res == nn) {
             return (seq_t)k;
         }

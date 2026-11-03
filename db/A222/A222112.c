@@ -9,12 +9,14 @@
  *            in base 3
  * Range:     u8 n <= 16, u16 n <= 16, u32 n <= 16, u64 n <= 256,
  *            u128 n <= 256, big any n
+ * Validated: standard, pass, 45 terms through n = 8831 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 /* Cache for values f(m) where m < 64 (exponent positions) */

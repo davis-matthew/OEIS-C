@@ -10,12 +10,14 @@
  *            a(1)=1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 411 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const unsigned int d[16] = {
     0, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 1, 1, 1
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         size_t sz = (size_t)(n + 1);
         if (sz < 1) sz = 1;
-        cache = (seq_t *)malloc(sz * sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
         cache[0] = (seq_t)1;
         cached = 0;
     }
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Grow cache to accommodate n */
     if (n > cached) {
         size_t new_sz = (size_t)(n + 1);
-        cache = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_sz);
     }
 
     /* Compute missing values up to n */

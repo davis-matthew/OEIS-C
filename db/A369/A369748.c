@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{p|n, p prime} prime(n/p)
- * Range:     u8 n <= 77, u16 n <= 6509, u32 n <= 9459, u64 n <= 9459,
- *            u128 n <= 9459, big any n
+ * Range:     u8 n <= 77, u16 n <= 6509, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 9459 (2026-11-01)
  * Helpers:   build_primes_upto, build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,8 +24,9 @@
 
 /* Prototypes of helper functions from the utils directory.          */
 /* These headers provide the declarations needed for the compiler.   */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(uint64_t limit, uint64_t **primes_out, size_t *cnt_out) */
-#include "../utils/build_spf.h"           /* build_spf(uint64_t limit, uint64_t **spf_out) */
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/build_spf.h"
 
 /* Cached tables.  They are initialized on the first call to a()   */
 static uint64_t *prime_arr = NULL;   /* prime values array */

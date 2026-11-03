@@ -10,15 +10,21 @@
  *            factorization
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 12, u64 n <= 26, u128 n <= 57,
  *            big any n
- * Helpers:   a007160_v, a007160_vfact
+ * Validated: standard, pass, 39 terms through n = 150 (2026-11-01)
+ * Helpers:   valuation_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a007160_v.h"
-#include "../utils/a007160_vfact.h"
+#include "../utils/valuation_u64.h"
+
+static long long a007160_vfact(uint64_t m, uint64_t p) {
+    long long e = 0;
+    while (m) { m /= p; e += (long long)m; }
+    return e;
+}
 
 seq_t a(idx_t n) {
     uint64_t lim = 2 * n + 4, i, j;
@@ -29,9 +35,9 @@ seq_t a(idx_t n) {
         if (comp[i]) continue;
         for (j = i * i; j <= lim; j += i) comp[j] = 1;
         e = a007160_vfact(2 * n + 4, i)
-          + a007160_v(n + 1, i) + a007160_v(n + 2, i) + a007160_v(n + 3, i)
+          + valuation_u64(n + 1, i) + valuation_u64(n + 2, i) + valuation_u64(n + 3, i)
           - a007160_vfact(n - 1, i) - a007160_vfact(n + 5, i)
-          - a007160_v(24, i);
+          - valuation_u64(24, i);
         while (e-- > 0) r *= (seq_t)i;
     }
     free(comp);

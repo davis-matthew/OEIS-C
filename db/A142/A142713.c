@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 10, i32 n <= 12, i64 n <= 13, i128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* index 0 unused, seq_cache[1] = a(1) */
 static idx_t seq_cache_size = 0;  /* highest n that has been cached */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     if (n > seq_cache_size) {
         idx_t old_size = seq_cache_size;               /* last cached n */
         idx_t new_size = n + 1;                        /* indices 0 … n */
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_size);
         if (!tmp) abort();                             /* allocation failed */
         seq_cache = tmp;
         seq_cache_size = n;                            /* new highest cached n */

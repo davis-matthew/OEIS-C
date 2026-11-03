@@ -7,6 +7,7 @@
  * Keywords:  nonn, fini, full
  * Formula:   a(n) = 3^24 * 5^30 * 11^24 * 17^20 * (8*n - 7) (n ≥ 1)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

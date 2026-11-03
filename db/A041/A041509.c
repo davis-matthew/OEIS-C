@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator of the nth convergent of sqrt(271)
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 22, u64 n <= 44, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>   /* for uint64_t used in idx_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (denoms == NULL) {               /* first call */
         /* allocate space for q_0 */
         denoms_cap = 1;
-        denoms = (seq_t *)malloc(sizeof(seq_t) * denoms_cap);
+        denoms = mem_new(seq_t, denoms_cap);
         if (denoms == NULL) return 0;   /* allocation failed */
         denoms[0] = (seq_t)1;            /* q_0 = 1 */
         last_computed = 0;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     if (denoms_cap <= (size_t)n + 1) {
         size_t new_cap = denoms_cap ? denoms_cap : 2;
         while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(denoms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, denoms, new_cap);
         if (tmp == NULL) return 0;       /* allocation failed */
         denoms        = tmp;
         denoms_cap    = new_cap;

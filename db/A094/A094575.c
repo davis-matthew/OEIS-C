@@ -11,7 +11,8 @@
  *            exponent arithmetic
  * Range:     u8 n <= 33, u16 n <= 7604, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9293 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
     for all supported integer sizes. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Exponent of prime p in n!  (Legendre's formula)  */
 static inline idx_t exp_in_factorial(idx_t n, idx_t p)
@@ -83,7 +85,7 @@ static void ensure_terms(idx_t n)
         /* store term */
         if (a_len == a_cap) {          /* grow array if needed */
             size_t new_cap = a_cap ? a_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
             if (!tmp) abort();         /* allocation failed */
             a_cache = tmp;
             a_cap = new_cap;

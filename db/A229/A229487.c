@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 210, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_X_LIMIT 10000000U   /* sieved range for forward iteration   */
 
@@ -85,7 +87,7 @@ static void init(void)
     if (init_done) return;
     compute_phi_and_primes();
 
-    best = (seq_t *)calloc(prime_count, sizeof(seq_t));
+    best = mem_new(seq_t, prime_count);
     for (unsigned int x = 2; x <= MAX_X_LIMIT; ++x) {
         unsigned int v = x;
         while (phi[v] != v - 1) {          /* stop when v is prime   */

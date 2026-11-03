@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  * operators.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         /* allocate space for the first two terms */
-        cache = (seq_t *)calloc(2, sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (cache == NULL) return 0;          /* allocation failure – return zero */
         cache[0] = 0;
         cache[1] = 1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
     /* otherwise expand the cache to n+1 */
     idx_t new_len = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (new_cache == NULL) {
         /* memory failure – fall back to returning zero */
         return 0;

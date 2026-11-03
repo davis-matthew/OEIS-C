@@ -12,15 +12,67 @@
  *            recurr...
  * Range:     u8 n <= 10, u16 n <= 14, u32 n <= 24, u64 n <= 38, u128 n <= 64,
  *            big any n
- * Helpers:   b_full, b_half, inv_h, inv_t
+ * Validated: standard, pass, 47 terms through n = 496 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/b_full.h"
-#include "../utils/b_half.h"
-#include "../utils/inv_h.h"
-#include "../utils/inv_t.h"
+/* B(j) */
+static seq_t b_full(idx_t j)
+{
+    seq_t p = 1, q = 2, r;
+    idx_t i;
+    if (j == 0) return 1;
+    for (i = 2; i <= j; i++) {
+        r = 2 * q + (seq_t)(2 * i - 2) * p;
+        p = q;
+        q = r;
+    }
+    return q;
+}
+
+/* B(j)/2 for j >= 1 */
+static seq_t b_half(idx_t j)
+{
+    seq_t p = 1, q = 3, r;
+    idx_t i;
+    if (j == 1) return 1;
+    for (i = 3; i <= j; i++) {
+        r = 2 * q + (seq_t)(2 * i - 2) * p;
+        p = q;
+        q = r;
+    }
+    return q;
+}
+
+/* t(k)/2 for k >= 2 */
+static seq_t inv_h(idx_t k)
+{
+    seq_t p = 1, q = 2, r;
+    idx_t i;
+    if (k == 2) return 1;
+    for (i = 4; i <= k; i++) {
+        r = q + (seq_t)(i - 1) * p;
+        p = q;
+        q = r;
+    }
+    return q;
+}
+
+/* t(k) */
+static seq_t inv_t(idx_t k)
+{
+    seq_t p = 1, q = 1, r;
+    idx_t i;
+    if (k == 0) return 1;
+    for (i = 2; i <= k; i++) {
+        r = q + (seq_t)(i - 1) * p;
+        p = q;
+        q = r;
+    }
+    return q;
+}
 
 seq_t a(idx_t n)
 {

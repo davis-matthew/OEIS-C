@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 39, u64 n <= 85, u128 n <= 177,
  *            big any n
- * Helpers:   binary_search_seq_t
+ * Validated: standard, pass, 51 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,23 @@
    b(0)=1, b(1)=2, b(2)=5; a and b are increasing complementary sequences. */
 
 #include <stdlib.h>
-#include "../utils/binary_search_seq_t.h"
+#include "../utils/mem.h"
+
+/* binary search over a[0..len-1] expecting a sorted array */
+static int binary_search_seq_t(seq_t *arr, size_t len, seq_t val)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = (lo + hi) / 2;
+        if (arr[mid] == val)
+            return 1;
+        if (arr[mid] < val)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return 0;
+}
 
 /* static storage for memoised sequence values */
 static seq_t *a_cache = NULL;
@@ -35,8 +52,8 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     if (new_cap <= (size_t)n + 1)
         new_cap = (size_t)n + 1;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-    b_cache = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
+    b_cache = mem_resize(seq_t, b_cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -46,8 +63,8 @@ static void init(void)
     if (initialized)
         return;
     cache_cap = 8;
-    a_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-    b_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    a_cache = mem_new(seq_t, cache_cap);
+    b_cache = mem_new(seq_t, cache_cap);
 
     a_cache[0] = (seq_t)3;
     a_cache[1] = (seq_t)4;

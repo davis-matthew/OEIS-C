@@ -8,18 +8,20 @@
  *            4): a(n)=2φ(n)+φ(n/2)
  * Range:     u8 n <= 177, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 84 terms through n = 9567 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses the phi function from "../utils/phi.h" */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
     if (n & 1u)                               /* n odd      */
         return phi_n;
     else
@@ -27,6 +29,6 @@ seq_t a(idx_t n)
         if ((n & 3u) == 0u)                   /* n ≡ 0 (mod 4) */
             return phi_n + phi_n;             /* 2φ(n)       */
         else                                  /* n ≡ 2 (mod 4) */
-            return phi_n + phi_n + phi(n / 2);
+            return phi_n + phi_n + totient(n / 2);
     }
 }

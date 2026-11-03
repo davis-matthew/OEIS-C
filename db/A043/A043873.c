@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    with (number of runs in base‑4 representation of m) ≡ 6 (mod 10) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Count the number of runs in the base‑4 representation of v. */
 static inline int count_runs_base4(seq_t v)
@@ -42,7 +44,7 @@ static inline void ensure_capacity(size_t need)
     if (need <= array_cap) return;
     size_t new_cap = array_cap ? array_cap * 2 : 2;
     while (new_cap < need) new_cap *= 2;
-    term_arr = (seq_t *)realloc(term_arr, new_cap * sizeof(seq_t));
+    term_arr = mem_resize(seq_t, term_arr, new_cap);
     array_cap = new_cap;
 }
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
             if (term_count == array_cap) {
                 size_t new_cap = array_cap ? array_cap * 2 : 2;
                 while (new_cap <= term_count) new_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(term_arr, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, term_arr, new_cap);
                 term_arr = tmp;
                 array_cap = new_cap;
             }

@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   sieve sigma(m) over odd m up to a bound and collect the odd m
  *            with sigma(m) > 2m (search)
- * Range:     u8 none, u16 n <= 143, u32 n <= 9754, u64 n <= 9754,
- *            u128 n <= 9754, big any n
+ * Range:     u8 none, u16 n <= 143, u32 n <= 32000, u64 n <= 32000,
+ *            u128 n <= 32000, big any n
+ * Validated: standard, pass, 54 terms through n = 9754 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

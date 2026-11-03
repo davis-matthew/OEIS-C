@@ -7,13 +7,14 @@
  * Formula:   a(n) = Σ_{k ≥ 0} floor( n * (sqrt(2)-1)^k ), a(0) = 0
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   floor_sqrt_u128
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_sqrt_u128.h"
+#include "../utils/isqrt_u128.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
         unsigned __int128 abs_m = m >= 0 ? (unsigned __int128)m
                                         : (unsigned __int128)(-m);
         unsigned __int128 t = abs_m * abs_m * 2u;        /* 2*m*m   */
-        unsigned __int128 s = floor_sqrt_u128(t);        /* floor(sqrt(t)) = floor(|m|*sqrt(2)) */
+        unsigned __int128 s = isqrt_u128(t);        /* floor(sqrt(t)) = floor(|m|*sqrt(2)) */
 
         __int128 floor_val;
         if (m >= 0)

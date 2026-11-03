@@ -7,6 +7,7 @@
  * Formula:   a(n) = signed Stirling number of the first kind s(20, n)
  * Range:     i8 none, i16 none, i32 none, i64 n <= 20, i128 n <= 20,
  *            big any n
+ * Validated: full, pass, 20 terms through n = 20 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

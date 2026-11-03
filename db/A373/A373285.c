@@ -12,7 +12,8 @@
  *            for h=0..A321944(k)-1
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Static storage for all terms that have been generated so far. */
 static seq_t *terms = NULL;
@@ -81,7 +83,7 @@ static void grow_terms(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp)
         abort();
     terms = tmp;

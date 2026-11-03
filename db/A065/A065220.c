@@ -7,6 +7,7 @@
  * Formula:   a(n) = Fibonacci(n) - n
  * Range:     i8 n <= 11, i16 n <= 23, i32 n <= 46, i64 n <= 92, i128 n <= 184,
  *            big any n
+ * Validated: standard, pass, 59 terms through n = 294 (2026-11-01)
  * Helpers:   fib_pair
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

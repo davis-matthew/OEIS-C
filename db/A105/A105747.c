@@ -10,12 +10,28 @@
  *            values: a(0)=1, a(1)=4, a(2)=23
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   ensure_seq_array
+ * Validated: standard, pass, 32 terms through n = 346 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/ensure_seq_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Ensure an array of seq_t is large enough to hold indexes [0..min_needed] */
+static void ensure_seq_array(seq_t **arr, size_t *cap, size_t min_needed)
+{
+    if (*cap <= min_needed) {
+        size_t newcap = (*cap) ? (*cap) * 2 : 16;
+        if (newcap <= min_needed) newcap = min_needed + 1;
+        *arr = mem_resize(seq_t, *arr, newcap);
+        for (size_t i = *cap; i < newcap; ++i) (*arr)[i] = 0;
+        *cap = newcap;
+    }
+}
 
 static seq_t *dp = NULL;     /* memoization buffer */
 static size_t dp_cap = 0;    /* allocated capacity */

@@ -6,14 +6,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = (1/(n+1)) * Sum_{k=0..floor(n/4)} binomial(n+1,k) *
  *            binomial(n+1,n-4*k)
- * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 25, u64 n <= 46, u128 n <= 87,
+ * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 25, u64 n <= 46, u128 n <= 87,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 2047 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

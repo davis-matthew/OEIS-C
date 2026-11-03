@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   has_equal_7_and_10
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
    an equal number of digits 7 and 10.  The sequence starts with
    0, 1, 2, 3, 4, 5, 6, 8, 9, 11, … as in OEIS A039206.  */
 #include <stdbool.h>
-#include "../utils/has_equal_7_and_10.h"
+
+static bool has_equal_7_and_10(seq_t x)
+{
+    int diff = 0;               /* count7 – count10 */
+    while (x) {
+        seq_t r = x % 11;
+        x     = x / 11;
+        if (r == 7)    diff++;
+        else if (r == 10) diff--;
+    }
+    return diff == 0;
+}
 
 seq_t a(idx_t n)
 {

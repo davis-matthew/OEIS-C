@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true if the base‑7 representation of x contains an adjacent
    pair of digits 0 and 1 (in either order). */
@@ -59,8 +61,7 @@ seq_t a(idx_t n)
             /* Allocate more space if needed. */
             if (table_len >= table_cap) {
                 table_cap = table_cap ? table_cap * 2 : 16;
-                table = (seq_t *)realloc(table,
-                                         table_cap * sizeof(seq_t));
+                table = mem_resize(seq_t, table, table_cap);
             }
             table[table_len++] = k;
         }

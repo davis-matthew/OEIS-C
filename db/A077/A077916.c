@@ -8,13 +8,15 @@
  *            a(1)=-1, a(2)=5, a(3)=-10
  * Range:     i8 n <= 5, i16 n <= 11, i32 n <= 22, i64 n <= 45, i128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     /* initialise base terms on first call */
     if (cache_alloc == 0) {
         cache_alloc = 4;
-        cache = (seq_t *)malloc(cache_alloc * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_alloc);
         cache[0] = 1;
         cache[1] = -1;
         cache[2] = 5;
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
         size_t new_alloc = cache_alloc;
         while (idx >= new_alloc)
             new_alloc <<= 1;          /* double until enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
         cache = tmp;
         cache_alloc = new_alloc;
     }

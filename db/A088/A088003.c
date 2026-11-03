@@ -11,6 +11,7 @@
  * Formula:   a(n) = n*(2*n*(5*n+12)-3*(-1)^n+11)/48
  * Range:     u8 n <= 3, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

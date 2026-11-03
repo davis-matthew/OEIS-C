@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   distinct_base3
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,24 @@
    first 11 such numbers are 0,1,2,3,5,6,7,11,15,19,21. */
 
 #include <stdbool.h>
-#include "../utils/distinct_base3.h"
+
+static bool distinct_base3(seq_t x)
+{
+    unsigned int mask = 0;          /* bits 0,1,2 used for digits 0,1,2 */
+
+    if (x == 0)
+        return true;                /* single digit 0 is distinct */
+
+    while (x > 0)
+    {
+        unsigned int d = (unsigned int)(x % 3);  /* current trit */
+        if (mask & (1U << d))
+            return false;                         /* repeated digit */
+        mask |= 1U << d;
+        x /= 3;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

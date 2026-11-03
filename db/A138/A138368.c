@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 36, u32 n <= 3756, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_big
+ * Validated: standard, pass, 55 terms through n = 8691 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,51 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_big.h"
+#include "../utils/mem.h"
+
+/* Miller–Rabin primality test for seq_t (supports 8/16/32/64/128/ arbitrary-precision) */
+static bool is_prime_big(seq_t n) {
+    if (n < 2) return false;
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    /* write n-1 as d * 2^s with d odd */
+    seq_t d = n - 1;
+    unsigned s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    /* deterministic bases covering 128‑bit values */
+    static const int base_list[] = {2,3,5,7,11,13,17,19,23,29,31,37};
+    const int num_bases = sizeof(base_list)/sizeof(base_list[0]);
+
+    for (int i = 0; i < num_bases; i++) {
+        seq_t a = (seq_t)base_list[i];
+        if (a >= n) continue;
+
+        /* compute a^d mod n */
+        seq_t x = 1;
+        seq_t pow = a % n;
+        seq_t exp = d;
+        while (exp > 0) {
+            if (exp & 1) x = (x * pow) % n;
+            pow = (pow * pow) % n;
+            exp >>= 1;
+        }
+
+        if (x == 1 || x == n-1) continue;
+
+        bool cont = false;
+        for (unsigned r = 1; r < s; r++) {
+            x = (x * x) % n;
+            if (x == n-1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
 
 /* fast 64‑bit deterministic Miller–Rabin */
 static uint64_t modmul64(uint64_t a, uint64_t b, uint64_t mod)
@@ -110,7 +155,7 @@ seq_t a(idx_t n)
             /* grow cache if necessary */
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

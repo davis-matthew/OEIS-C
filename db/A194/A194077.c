@@ -12,7 +12,8 @@
  *            1, s₂ = 2, sᵢ = sᵢ₋₁ + (i-1)² + 1 for i ≥ 3 The j‑...
  * Range:     u8 n <= 54, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Utility for triangular numbers ---------- */
 static inline idx_t triangular(idx_t k)
@@ -40,7 +42,7 @@ static void ensure_start(idx_t need)
     size_t new_cap = old_cap ? old_cap * 2 : 4;
     while (new_cap <= (size_t)need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(start_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, start_cache, new_cap);
     if (!tmp) /* out of memory: abort */
         abort();
     start_cache = tmp;

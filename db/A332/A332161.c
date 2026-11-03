@@ -7,7 +7,8 @@
  * Formula:   a(n) = 6*(10^(2*n+1)-1)/9 - 5*10^n
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 4, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(n) = 111*a(n-1) - 1110*a(n-2) + 1000*a(n-3); a(0)=1, a(1)=616, a(2)=66166; */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -26,12 +28,12 @@ seq_t a(idx_t n) {
         idx_t new_cap = capacity ? capacity * 2 : 3;
         while (new_cap < n + 1)
             new_cap *= 2;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache)
             abort(); /* allocation failure */
         if (cache) {
-            memcpy(new_cache, cache, used * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, used * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         capacity = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} Stirling1(n,k) * (k+1)^3
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 21, i128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 237 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +20,13 @@
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array for Stirling numbers of the current row. */
     size_t sz = (size_t)(n + 1);
-    seq_t *S = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, sz);
     if (!S) return 0;               /* out of memory; return zero as a safe fallback */
 
     /* Initialise s(0,0)=1, all other entries zero. */
@@ -48,6 +50,6 @@ seq_t a(idx_t n)
         ans += S[k] * v;
     }
 
-    free(S);
+    mem_free(S);
     return ans;
 }

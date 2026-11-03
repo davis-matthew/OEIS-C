@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{d|n} (n/d)^(d-1) * binomial(n/d + d - 2, d - 1)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 50, u64 n <= 107,
  *            u128 n <= 224, big any n
+ * Validated: standard, pass, 61 terms through n = 4886 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Integer square root: floor(sqrt(n)) for 0 <= n < 2^64 */

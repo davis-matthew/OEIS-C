@@ -10,13 +10,15 @@
  *            Recurrence: a(n) = (1/n) * Sum_{k=1}^n k*R(k)*a(n-k)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
@@ -32,14 +34,14 @@ seq_t a(idx_t n) {
     /* allocate or resize arrays as needed */
     if (n + 1 > cap) {
         /* free old memory */
-        if (aVals) free(aVals);
-        if (rVals) free(rVals);
+        if (aVals) mem_free(aVals);
+        if (rVals) mem_free(rVals);
         if (tau)  free(tau);
 
         /* allocate new size */
         cap = n + 1;
-        aVals = (seq_t *)calloc((size_t)cap, sizeof(seq_t));
-        rVals = (seq_t *)calloc((size_t)cap, sizeof(seq_t));
+        aVals = mem_new(seq_t, (size_t)cap);
+        rVals = mem_new(seq_t, (size_t)cap);
         tau   = (uint32_t *)calloc((size_t)cap, sizeof(uint32_t));
 
         computed_upto = 0;          /* will be recomputed below */

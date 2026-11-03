@@ -8,13 +8,15 @@
  *            reverse_digits(a(n-1)) (decimal reverse)
  * Range:     u8 none, u16 n <= 1, u32 n <= 11, u64 n <= 34, u128 n <= 81,
  *            big any n
- * Helpers:   rev_digits
+ * Validated: standard, pass, 36 terms through n = 934 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/rev_digits.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* Cache of computed terms */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ static void grow_cache(idx_t needed)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 4;
     while (new_cap <= needed)
         new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     cache = new_ptr;
     cache_cap = new_cap;
 }
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     grow_cache(n);
     for (idx_t i = cache_len; i <= n; ++i) {
         seq_t prev = cache[i-1];
-        seq_t rev = rev_digits(prev);
+        seq_t rev = reverse_digits(prev);
         cache[i] = prev + rev;
     }
     cache_len = n + 1;

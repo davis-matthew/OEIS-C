@@ -7,6 +7,7 @@
  * Formula:   a(n) = (7 + (-1)^n + 18*n^2)/4 for n > 0, a(0) = 1
  * Range:     u8 n <= 7, u16 n <= 120, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 61 terms through n = 957 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

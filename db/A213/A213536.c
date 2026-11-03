@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 1273, u32 n <= 1273, u64 n <= 1273,
  *            u128 n <= 1273, big any n
+ * Validated: standard, pass, 74 terms through n = 1215 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -26,6 +27,7 @@
    integers) and for any idx_t (uint64_t).
 */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

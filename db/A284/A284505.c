@@ -8,6 +8,7 @@
  *            (1‑based index)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 102 terms through n = 9993 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -54,7 +55,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free((void *)cache);
+        free(cache);
         cache = new_cache;
         cache_len = pos;
     }

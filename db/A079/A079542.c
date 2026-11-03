@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,7 +22,7 @@
 #include <stdint.h>   /* uint64_t, size_t */
 #include <stdlib.h>   /* malloc, free, realloc */
 #include <stdbool.h>  /* bool */
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t, seq_t) */
+#include "../utils/gcd.h"
 
 /*  Helper to compute lcm of two seq_t values. */
 static inline seq_t lcm_seq(seq_t a, seq_t b)

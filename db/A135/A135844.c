@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 57, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime, powmod64
+ * Validated: standard, pass, 57 terms through n = 997 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/powmod64.h"
 #include "../utils/next_prime.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* polynomial type – degree ≤ 5 */
 typedef struct {
@@ -84,7 +94,7 @@ static void poly_mod(poly_t *r, const poly_t *a, const poly_t *b, uint64_t mod)
         int da = poly_deg(&temp, mod);
         if (da < db) break;
 
-        uint64_t inv = powmod64(b->c[db], mod - 2, mod);
+        uint64_t inv = powmod_u64(b->c[db], mod - 2, mod);
         uint64_t factor = (temp.c[da] * inv) % mod;
         int shift = da - db;
         for (int i = db; i >= 0; --i) {
@@ -112,6 +122,17 @@ static void poly_gcd(poly_t *res, poly_t a, poly_t b, uint64_t mod)
 }
 
 /* dynamic array helper */
+#ifdef __cplusplus
+template <class T>
+static void grow_array(size_t *cap, T **ptr, size_t need, size_t elem)
+{
+    if (need <= *cap) return;
+    size_t newcap = (*cap > 0) ? (*cap << 1) : 16;
+    while (newcap < need) newcap <<= 1;
+    *ptr = mem_resize(T, *ptr, (newcap * elem) / sizeof(T));
+    *cap = newcap;
+}
+#else
 static void grow_array(size_t *cap, void **ptr, size_t need, size_t elem)
 {
     if (need <= *cap) return;
@@ -120,6 +141,7 @@ static void grow_array(size_t *cap, void **ptr, size_t need, size_t elem)
     *ptr = realloc(*ptr, newcap * elem);
     *cap = newcap;
 }
+#endif
 
 /* check whether a prime p makes x^5 - x - 1 split completely mod p */
 static bool prime_has_property(uint64_t p)
@@ -180,7 +202,7 @@ seq_t a(idx_t n)
         static uint64_t candidate = 2;
         candidate = next_prime(candidate);
         if (prime_has_property(candidate)) {
-            grow_array(&results_cap, (void **)&results, results_len + 1, sizeof(seq_t));
+            grow_array(&results_cap, OEISC_VPP(&results), results_len + 1, sizeof(seq_t));
             results[results_len++] = (seq_t)candidate;
         }
         ++candidate;  /* ensure next prime will be > current */

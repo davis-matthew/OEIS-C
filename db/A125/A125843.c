@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Cached values: 1‑based array where cache[i] = a(i). */
 static seq_t *cache       = NULL;   /* array of a(k) */
@@ -30,7 +33,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* Start with capacity for indices 0 and 1. */
         cache_cap = 2;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();
         cache[1] = (seq_t)1;
         cache_computed = 1;
@@ -41,7 +44,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 2;
         while (new_cap < (size_t)n + 1)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();
         cache = tmp;
         cache_cap = new_cap;

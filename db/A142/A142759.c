@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime congruent to 32 (mod 59) (n ≥ 1)
  * Range:     u8 none, u16 n <= 108, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 56 terms through n = 977 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"    /* declares bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Cache for already discovered primes ≡ 32 (mod 59) */
 static seq_t *prime_cache = NULL;   /* dynamic array of seq_t */
@@ -35,7 +37,7 @@ static void ensure_cache_capacity(size_t needed)
         new_cap *= 2;
 
     /* Reallocate the array of seq_t; the cast satisfies the compiler. */
-    seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
     if (!tmp && new_cap > 0) {
         /* Allocation failed – terminate the program safely. */
         /* The OEIS harness should never hit this for the required limits. */

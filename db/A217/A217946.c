@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 5, u32 n <= 13, u64 n <= 28, u128 n <= 60,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 1604 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
    (n+1)^2*(n+4)*(8*n^2+32*n+33)*a(n+1) =
         2*(2*n+3)*(n+2)*(8*n^2+48*n+73)*a(n)
 */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

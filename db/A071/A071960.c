@@ -7,14 +7,27 @@
  * Formula:   a(n)=largest k≥0 such that product_{i=0..k}(n+i) divides n!
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   legendre_factorial
+ * Validated: standard, pass, 121 terms through n = 989 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/legendre_factorial.h"
+
+/* Legendre exponent of prime p in n! */
+static int legendre_factorial(int n, int p)
+{
+    int exp = 0;
+    long long div = p;
+    while (div <= n) {
+        exp += n / (int)div;
+        if (div > (long long)n / p) break;
+        div *= p;
+    }
+    return exp;
+}
 
 /* maximum value needed for sieve – enough for all test cases (n≤10000) */
 #define MAX_LIMIT 200000

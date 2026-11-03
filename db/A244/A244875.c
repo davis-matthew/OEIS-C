@@ -9,6 +9,7 @@
  *            250530*n^4 + 86576*n^5 + 17724*n^6 + 1688*n^7) / 80640
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 39, u64 n <= 980, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 999 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

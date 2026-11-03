@@ -9,12 +9,14 @@
  *            single '1' with "10", and a lone '0' stays '0'
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9567 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     if (buf == NULL) {
         /* start with "00" */
-        buf = (seq_t*)malloc(4 * sizeof(seq_t));
+        buf = mem_new(seq_t, 4);
         buf[0] = (seq_t)0;
         buf[1] = (seq_t)0;
         buflen = 2;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* extend until we have at least n symbols */
     while (buflen < n) {
         idx_t new_cap = buflen * 2 + 4;                 /* worst case */
-        seq_t *newbuf = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *newbuf = mem_new(seq_t, new_cap);
         idx_t pos = 0;
         for (idx_t i = 0; i < buflen; ) {
             if (buf[i] == (seq_t)0 && i + 1 < buflen && buf[i + 1] == (seq_t)0) {
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
                 i += 1;
             }
         }
-        free(buf);
+        mem_free(buf);
         buf = newbuf;
         buflen = pos;
     }

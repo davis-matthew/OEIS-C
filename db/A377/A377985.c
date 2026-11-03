@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = 2*n - phi(A003961(n))
- * Range:     i8 n <= 63, i16 n <= 1023, i32 n <= 9786, i64 n <= 9786,
- *            i128 n <= 9786, big any n
+ * Range:     i8 n <= 63, i16 n <= 1023, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 9786 (2026-11-01)
  * Helpers:   factor_u64, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/next_prime.h"
 

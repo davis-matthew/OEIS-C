@@ -8,6 +8,7 @@
  * Formula:   a(n) = floor((prime(n)^2 - 6*prime(n) + 12) / 12)
  * Range:     u8 n <= 16, u16 n <= 154, u32 n <= 4000, u64 n <= 4000,
  *            u128 n <= 4000, big any n
+ * Validated: standard, pass, 66 terms through n = 3932 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* Cached primes for the current maximum n requested. */

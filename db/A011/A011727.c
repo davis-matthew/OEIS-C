@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9764, u16 n <= 9764, u32 n <= 9764, u64 n <= 9764,
- *            u128 n <= 9764, big any n
- * Helpers:   none
+ * Range:     u8 n <= 17000, u16 n <= 17000, u32 n <= 17000, u64 n <= 17000,
+ *            u128 n <= 17000, big any n
+ * Validated: standard, pass, 97 terms through n = 9764 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* first initialisation */
     if (cache == NULL) {
         cap = 14;                     /* indices 0 … 13 available */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) exit(EXIT_FAILURE);
         for (size_t i = 0; i < 13; ++i) cache[i] = (seq_t)0; /* a(0)…a(12) = 0 */
         cache[13] = (seq_t)1;          /* a(13) = 1 */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         val &= (seq_t)1;                       /* keep only the least significant bit */
 
         /* grow the cache by one element */
-        seq_t *new_cache = (seq_t *)realloc(cache, (cap + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (cap + 1));
         if (new_cache == NULL) exit(EXIT_FAILURE);
         cache = new_cache;
         cache[idx] = val;

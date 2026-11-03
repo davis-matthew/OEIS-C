@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   cmp_seq
+ * Validated: standard, pass, 72 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_seq.h"
+#include "../utils/mem.h"
+
+/* comparison helper for qsort on seq_t values */
+static int cmp_seq(const void *a, const void *b)
+{
+    seq_t v1 = *(const seq_t *)a;
+    seq_t v2 = *(const seq_t *)b;
+    if (v1 < v2) return -1;
+    if (v1 > v2) return 1;
+    return 0;
+}
 
 /* The main sequence function */
 seq_t a(idx_t n)
@@ -67,7 +78,7 @@ seq_t a(idx_t n)
 
         /* 2. Generate all products p*q where p divides (q-1) and p < q. */
         size_t prod_cap = prime_cnt * 10;   /* initial capacity */
-        products = (seq_t *)malloc(prod_cap * sizeof(seq_t));
+        products = mem_new(seq_t, prod_cap);
         if (!products) { free(primes); return 0; }
 
         for (pi = 0; pi < prime_cnt; ++pi)          /* p = primes[pi] is smaller */
@@ -81,8 +92,7 @@ seq_t a(idx_t n)
                     if (prod_cnt >= prod_cap)
                     {
                         prod_cap *= 2;
-                        products = (seq_t *)realloc(products,
-                                                     prod_cap * sizeof(seq_t));
+                        products = mem_resize(seq_t, products, prod_cap);
                         if (!products) { free(primes); return 0; }
                     }
                     products[prod_cnt++] = (seq_t)p * (seq_t)q;
@@ -94,7 +104,7 @@ seq_t a(idx_t n)
 
         /* 3. Sort and remove duplicates (duplicates can occur if q has several
            prime factors p that both divide q-1). */
-        qsort(products, prod_cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(products, prod_cnt, sizeof(seq_t), cmp_seq);
         size_t uniq = 0;
         for (size_t i = 0; i < prod_cnt; ++i)
         {

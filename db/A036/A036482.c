@@ -7,13 +7,15 @@
  * Formula:   a(n) = partition(11*n + 9) mod 11
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9351 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for partition numbers modulo 11.
    p_cache[i] holds p(i) mod 11 for 0 <= i <= current maximum.
@@ -31,7 +33,7 @@ static void ensure_partition_cache(idx_t N)
 
     /* Allocate or grow cache */
     if (p_cache == NULL) {
-        p_cache = (seq_t *)malloc((size_t)(N + 1) * sizeof(seq_t));
+        p_cache = mem_new(seq_t, (size_t)(N + 1));
         if (p_cache == NULL) {
             /* In an actual program we would handle allocation failure;
                for the purposes of the sequence function we simply
@@ -39,7 +41,7 @@ static void ensure_partition_cache(idx_t N)
             abort();
         }
     } else {
-        seq_t *tmp = (seq_t *)realloc(p_cache, (size_t)(N + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, p_cache, (size_t)(N + 1));
         if (tmp == NULL) abort();
         p_cache = tmp;
     }

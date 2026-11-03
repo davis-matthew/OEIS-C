@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   none
+ * Validated: partial, pass, 102 terms through n = 102 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
     and returning
         a(n) = m*(m+2*a(n-1)) / (4*a(n-2))   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_seq = NULL;    /* cached terms, 1‑based indexing */
 static idx_t  a_used = 0;      /* current highest index stored */
@@ -35,7 +37,7 @@ static void ensure_capacity(idx_t n)
     if (n <= a_cap) return;
     idx_t new_cap = a_cap * 2 + 2;          /* >1 */
     while (new_cap < n) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(a_seq, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_seq, (new_cap + 1));
     if (!new_arr) abort();                 /* memory exhausted */
     a_seq = new_arr;
     a_cap = new_cap;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 {
     if (n == 0) return 0;                 /* undefined but guard */
     if (a_seq == NULL) {
-        a_seq = (seq_t *)calloc(3, sizeof(seq_t));   /* indices 0..2 */
+        a_seq = mem_new(seq_t, 3);   /* indices 0..2 */
         if (!a_seq) abort();
         a_cap = 2;                      /* we have entries for 0..2 */
         a_seq[1] = (seq_t)1;

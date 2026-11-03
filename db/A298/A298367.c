@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    for n >= 5: a(n)=a(n-1)+a(n-2)+2*a(n-3)+5*a(n-4)+14*a(n-5) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage required by the build system. */
 seq_t a(idx_t n)
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     if (cache_cap < needed) {
         /* Allocate a new larger buffer. */
-        seq_t *new_cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, needed);
         if (new_cache == NULL) {
             /* Allocation failed: return 0 as a sentinel. */
             return (seq_t)0;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
             for (size_t i = 0; i < cache_len; ++i) {
                 new_cache[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = needed;

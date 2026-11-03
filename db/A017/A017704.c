@@ -10,14 +10,42 @@
  *            n^20)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 9, u128 n <= 84,
  *            big any n
- * Helpers:   vp_pow_minus1
+ * Validated: standard, pass, 28 terms through n = 9168 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/vp_pow_minus1.h"
+
+/* Exponent of prime p in a^m-1.  If p | a, the result is 0. */
+static uint64_t vp_pow_minus1(uint64_t a, uint64_t m, uint64_t p)
+{
+    if (a % p == 0)
+        return 0;
+
+    uint64_t exp = 0;
+    unsigned __int128 mod = p;      /* current modulus p^exp */
+    while (1) {
+        /* compute a^m mod mod */
+        unsigned __int128 base = a % mod;
+        unsigned __int128 res = 1;
+        uint64_t e = m;
+        while (e) {
+            if (e & 1ULL)
+                res = (res * base) % mod;
+            base = (base * base) % mod;
+            e >>= 1ULL;
+        }
+        if (res != 1)
+            break;
+        exp++;
+        mod *= p;
+        /* avoid overflow of mod: the exponent will be small (≤ ~30), so this is safe. */
+    }
+    return exp;
+}
 
 /* simple trial division factorisation of n (≤ 10^4).  Stores primes and exponents. */
 static void factor_uint64(uint64_t n, uint64_t primes[], uint64_t exps[], size_t *cnt)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,16 +23,17 @@
 
 #include <stddef.h>          /* size_t */
 #include <stdlib.h>          /* malloc, realloc, free */
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static void ensure_capacity(idx_t n, seq_t **A, seq_t **fact, seq_t **f, size_t *cap)
 {
     if (n + 1 <= *cap) return;
     size_t new_cap = (*cap == 0) ? 64 : 2 * (*cap);
     if (new_cap < (size_t)(n + 1)) new_cap = (size_t)(n + 1);
-    *A    = (seq_t *)realloc(*A,    new_cap * sizeof(seq_t));
-    *fact = (seq_t *)realloc(*fact, new_cap * sizeof(seq_t));
-    *f    = (seq_t *)realloc(*f,    new_cap * sizeof(seq_t));
+    *A    = mem_resize(seq_t, *A, new_cap);
+    *fact = mem_resize(seq_t, *fact, new_cap);
+    *f    = mem_resize(seq_t, *f, new_cap);
     *cap   = new_cap;
 }
 
@@ -47,13 +49,13 @@ seq_t a(idx_t n)
     /* Initialise on first call */
     if (sz == 0) {
         cap = 64;
-        A   = (seq_t *)malloc(cap * sizeof(seq_t));
-        fact = (seq_t *)malloc(cap * sizeof(seq_t));
-        f    = (seq_t *)malloc(cap * sizeof(seq_t));
+        A   = mem_new(seq_t, cap);
+        fact = mem_new(seq_t, cap);
+        f    = mem_new(seq_t, cap);
         if (!A || !fact || !f) { /* allocation failure, return 0 as safety */
-            if (A) free(A);
-            if (fact) free(fact);
-            if (f) free(f);
+            if (A) mem_free(A);
+            if (fact) mem_free(fact);
+            if (f) mem_free(f);
             return (seq_t)0;
         }
         A[0]   = (seq_t)1;   /* a(0) = 1 */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Returns the n-th term of A206783 (n ≥ 1).  */
 seq_t a(idx_t n)
@@ -131,13 +133,13 @@ seq_t a(idx_t n)
             }
         }
         /* 4. DP arrays */
-        dp_cur  = (seq_t *)calloc(S, sizeof(seq_t));
-        dp_next = (seq_t *)calloc(S, sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, S);
+        dp_next = mem_new(seq_t, S);
         if (!dp_cur || !dp_next) exit(EXIT_FAILURE);
 
         /* 5. Base cases */
         /* a(1): number of legal rows */
-        cache = (seq_t *)malloc(3 * sizeof(seq_t)); /* index 0 unused */
+        cache = mem_new(seq_t, 3); /* index 0 unused */
         if (!cache) exit(EXIT_FAILURE);
         cache[1] = (seq_t)L;  /* a(1) = L == 33 */
         /* a(2): any pair of legal rows, no vertical restriction yet */
@@ -155,7 +157,7 @@ seq_t a(idx_t n)
     /* --- extend cache if needed ---------------------------------------- */
     if (n > computed_n) {
         /* Reallocate cache */
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) exit(EXIT_FAILURE);
         cache = new_cache;
 

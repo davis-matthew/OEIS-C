@@ -9,18 +9,19 @@
  *            q^(1/4))
  * Range:     u8 n <= 658, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a004013_isqrt
+ * Validated: standard, pass, 107 terms through n = 9279 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a004013_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     seq_t cnt = 0;
     long long N = (long long)n;
-    long long s = (long long)a004013_isqrt((unsigned long long)n);
+    long long s = (long long)isqrt_u64((unsigned long long)n);
     long long x, y;
     for (x = -s; x <= s; x++) {
         long long rx = N - x * x;
@@ -30,7 +31,7 @@ seq_t a(idx_t n) {
             long long z;
             if (r < 0) continue;
             if (((x - y) & 1) != 0) continue;
-            z = (long long)a004013_isqrt((unsigned long long)r);
+            z = (long long)isqrt_u64((unsigned long long)r);
             if (z * z != r) continue;
             if (((z - x) & 1) != 0) continue;
             if (z == 0) cnt += 1;

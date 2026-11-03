@@ -9,13 +9,15 @@
  *            a(9)=90, a(10)=10
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Base values for indices 1..10.  Index 0 is unused. */
 static const seq_t _base_vals[11] = {0, 10, 20, 30, 40, 5,
@@ -35,13 +37,13 @@ static void _ensure_cache(idx_t n)
     seq_t *new_cache;
 
     if (cache == NULL) {
-        new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) abort();
         /* Initialize available base values. */
         for (size_t i = 1; i <= 10 && i < new_cap; ++i)
             new_cache[i] = _base_vals[i];
     } else {
-        new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();
     }
     cache = new_cache;

@@ -12,16 +12,56 @@
  *            (n-1)*(n-3)*(n-5))/96 if n == 1,5 (mod 6)
  * Range:     u8 n <= 15, u16 n <= 42, u32 n <= 364, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   a005513_eval_seq, seq_is_fixed_width, u128_to_seq
+ * Validated: standard, pass, 55 terms through n = 4955 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/a005513_eval_seq.h"
+#include <stdlib.h>
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static seq_t a005513_eval_seq(idx_t n) {
+    seq_t nn = (seq_t)n;
+    seq_t m = nn - 1;
+    seq_t c = 1;
+    unsigned i;
+    idx_t r = n % 6;
+    for (i = 1; i <= 5; i++)
+        c = c * (m - 5 + i) / i;
+    if (r == 0)
+        return (24 * c + 3 * (nn + 1) * (nn - 2) * (nn - 4) + 16 * nn) / 288;
+    if (r == 3)
+        return (24 * c + 3 * (nn - 1) * (nn - 3) * (nn - 5) + 16 * nn - 48) / 288;
+    if (r == 2 || r == 4)
+        return (8 * c + (nn + 1) * (nn - 2) * (nn - 4)) / 96;
+    return (8 * c + (nn - 1) * (nn - 3) * (nn - 5)) / 96;
+}
 
 typedef unsigned __int128 a005513_u128;
 

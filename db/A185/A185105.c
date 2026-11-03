@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 78, u64 n <= 190,
  *            u128 n <= 561, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9718 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t **table = NULL;          /* array of pointers to rows   */
 static size_t  rows_alloc = 0;        /* number of rows stored       */
@@ -54,7 +56,7 @@ static void ensure_rows(idx_t r)
         idx_t newR = rows_alloc + 1;                /* next row index (1‑based) */
 
         /* Allocate space for the new row: indices 0 … newR. */
-        seq_t *row = (seq_t*)malloc((size_t)(newR + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(newR + 1));
         if (!row) abort();                          /* OOM → abort */
 
         /* Update the factorial to (newR+1)! */

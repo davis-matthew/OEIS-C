@@ -5,15 +5,30 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, changed
  * Formula:   a(n) = n - sum of the distinct prime factors of n
- * Range:     u8 n <= 269, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
- * Helpers:   factor_distinct_uint64
+ * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
+ *            big any n
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factor_distinct_uint64.h"
+#include <stdlib.h>
+#include <stdbool.h>
+
+/* ---------- factorise n into distinct prime factors (array of up to 32) ---------- */
+static void factor_distinct_uint64(uint64_t n, uint64_t fac[32], size_t *cnt)
+{
+    *cnt = 0;
+    for (uint64_t d = 2; d * d <= n; ++d) {
+        if (n % d == 0) {
+            fac[(*cnt)++] = d;
+            while (n % d == 0) n /= d;
+        }
+    }
+    if (n > 1) fac[(*cnt)++] = n;
+}
 
 seq_t a(idx_t n)
 {

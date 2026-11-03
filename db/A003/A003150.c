@@ -10,12 +10,14 @@
  *            floor(n/d) - floor((n+1)/d), which is 0 or 1 for d >= 2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t N, d, m;
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     N = 2 * n;
 
     /* p[d] starts as F(d) and is sieved down to its primitive part P(d) */
-    p = (seq_t *)malloc((size_t)(N + 1) * sizeof(seq_t));
+    p = mem_new(seq_t, (size_t)(N + 1));
     p[0] = 0;
     p[1] = 1;
     for (d = 2; d <= N; d++) p[d] = p[d - 1] + p[d - 2];
@@ -43,6 +45,6 @@ seq_t a(idx_t n) {
         if (e > 0) r *= p[d];
     }
 
-    free(p);
+    mem_free(p);
     return r;
 }

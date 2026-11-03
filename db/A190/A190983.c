@@ -7,13 +7,15 @@
  * Formula:   a(n) = 9*a(n-1) - 6*a(n-2), a(0)=0, a(1)=1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 499 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of sequence A190983.
  * The function memoizes results in a static array, allowing
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* if cache uninitialized or too small, allocate/resize */
     if (cache == NULL || n >= cache_cap) {
         idx_t new_cap = n + 1;                    /* need indices 0..n */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (new_cache == NULL) {                  /* allocation failed */
             abort();                              /* cannot recover */
         }

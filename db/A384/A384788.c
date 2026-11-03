@@ -13,7 +13,8 @@
  *            A(0,2),A(1,1),A(2,0), ...)
  * Range:     u8 n <= 17, u16 n <= 25, u32 n <= 42, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow, binomial, index_to_coord
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
-#include "../utils/index_to_coord.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Convert a flat index to array coordinates (i,j). */
+static inline void index_to_coord(idx_t n, idx_t *i, idx_t *j)
+{
+    /* Find s such that s*(s+1)/2 ≤ n < (s+1)*(s+2)/2. */
+    idx_t s = 0;
+    while ((s + 1) * (s + 2) / 2 <= n)
+        ++s;
+    idx_t offset = n - s * (s + 1) / 2;
+    *i = offset;          /* row   */
+    *j = s - offset;      /* column */
+}
 
 /* Compute the sequence value a(n). */
 seq_t a(idx_t n)
@@ -35,7 +48,7 @@ seq_t a(idx_t n)
     /* Allocate a (s+1) x (s+1) 2‑D array. */
     seq_t **A = (seq_t **)malloc((s + 1) * sizeof(seq_t *));
     for (idx_t r = 0; r <= s; ++r)
-        A[r] = (seq_t *)calloc((s + 1), sizeof(seq_t));
+        A[r] = mem_new(seq_t, (s + 1));
 
     /* Base row: A(0,k) = 1 for all k. */
     for (idx_t k = 0; k <= s; ++k)
@@ -47,8 +60,8 @@ seq_t a(idx_t n)
         for (idx_t col = 1; col <= s; ++col) {
             seq_t sum = (seq_t)0;
             for (idx_t jsel = 1; jsel <= row; ++jsel) {
-                seq_t pow2  = big_pow((seq_t)2, (seq_t)(row - jsel));
-                seq_t pow_nk = big_pow((seq_t)(row + col), (seq_t)(jsel - 1));
+                seq_t pow2  = ipow((seq_t)2, (seq_t)(row - jsel));
+                seq_t pow_nk = ipow((seq_t)(row + col), (seq_t)(jsel - 1));
                 seq_t bin     = binomial(row, jsel);
                 seq_t sub = pow2;
                 sub *= pow_nk;
@@ -64,7 +77,7 @@ seq_t a(idx_t n)
 
     /* Free the allocated array. */
     for (idx_t r = 0; r <= s; ++r)
-        free(A[r]);
+        mem_free(A[r]);
     free(A);
 
     return result;

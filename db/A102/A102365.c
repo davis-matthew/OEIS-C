@@ -10,13 +10,15 @@
  *            or k>n, T(n,k) = (n-k)*T(n-1,k-1) + (2*k+1)*T(n-1,k)
  * Range:     u8 n <= 22, u16 n <= 38, u32 n <= 94, u64 n <= 215,
  *            u128 n <= 539, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;     /* pointers to each triangle row */
 static idx_t  num_rows = 0;     /* number of rows currently stored (next index) */
@@ -44,7 +46,7 @@ static void ensure_rows(idx_t r)
     /* Build missing rows */
     for (; num_rows <= r; ++num_rows) {
         idx_t size = num_rows + 1;
-        seq_t *row = (seq_t*)malloc(size * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, size);
         if (!row) {
             /* memory failure – abort; sequence value undefined */
             exit(1);

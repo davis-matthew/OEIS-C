@@ -8,13 +8,15 @@
  * Formula:   a(n) = (a(n-1)*a(n-2)+a(n-1)+a(n-2))/a(n-3), a(1)=a(2)=a(3)=1
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 20, u64 n <= 38, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 1446 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Multiplication by 14 with overflow safety for integral seq_t types. */
 #if defined(__cplusplus) && (__cplusplus >= 201703L)
@@ -50,7 +52,7 @@ static void ensure_odd(idx_t k)
 
     if (!odd) {
         odd_cap = 4;
-        odd = (seq_t *)calloc(odd_cap + 1, sizeof(seq_t));
+        odd = mem_new(seq_t, odd_cap + 1);
         /* initial values for a(1), a(3), a(5) */
         odd[1] = (seq_t)1;
         odd[2] = (seq_t)1;
@@ -61,7 +63,7 @@ static void ensure_odd(idx_t k)
 
     idx_t new_cap = odd_cap ? odd_cap : 4;
     while (new_cap < k) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(odd, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, odd, (new_cap + 1));
     if (!tmp) exit(1);                /* fatal, but unlikely */
     odd = tmp;
     odd_cap = new_cap;
@@ -79,7 +81,7 @@ static void ensure_even(idx_t k)
 
     if (!even) {
         even_cap = 4;
-        even = (seq_t *)calloc(even_cap + 1, sizeof(seq_t));
+        even = mem_new(seq_t, even_cap + 1);
         /* initial values for a(2), a(4), a(6) */
         even[1] = (seq_t)1;
         even[2] = (seq_t)3;
@@ -90,7 +92,7 @@ static void ensure_even(idx_t k)
 
     idx_t new_cap = even_cap ? even_cap : 4;
     while (new_cap < k) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(even, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, even, (new_cap + 1));
     if (!tmp) exit(1);                /* fatal, but unlikely */
     even = tmp;
     even_cap = new_cap;

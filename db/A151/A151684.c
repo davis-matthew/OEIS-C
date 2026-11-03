@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 39, i16 n <= 67, i32 n <= 67, i64 n <= 67, i128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* series coefficients up to cache_len-1 */
 static idx_t  cache_len = 0;   /* number of terms stored */
@@ -32,9 +34,9 @@ static idx_t  cache_len = 0;   /* number of terms stored */
 static void compute_series(idx_t N, seq_t *F)
 {
     /* F[0..N] will contain the series coefficients a(0)..a(N)   */
-    seq_t *h      = (seq_t *)calloc(N+1, sizeof(seq_t));
-    seq_t *newh   = (seq_t *)calloc(N+1, sizeof(seq_t));
-    seq_t *inv    = (seq_t *)calloc(N+1, sizeof(seq_t));
+    seq_t *h      = mem_new(seq_t, N+1);
+    seq_t *newh   = mem_new(seq_t, N+1);
+    seq_t *inv    = mem_new(seq_t, N+1);
     idx_t  k, pow, e1, e2, i, j, m, maxdeg;
 
     /* initialize base series */
@@ -48,7 +50,7 @@ static void compute_series(idx_t N, seq_t *F)
         pow = (uint64_t)1 << n;                    /* 2^n   */
 
         /* -------- build g(n) --------------- */
-        seq_t *g = (seq_t *)calloc(N+1, sizeof(seq_t));
+        seq_t *g = mem_new(seq_t, N+1);
         g[0] = 1;
         if (pow - 1 <= (uint64_t)N) g[pow-1] += 1;
         if (pow <= (uint64_t)N)     g[pow]   += 1;
@@ -96,27 +98,27 @@ static void compute_series(idx_t N, seq_t *F)
             }
         }
 
-        free(g);
+        mem_free(g);
     }
 
     /* finally add the base series (1 + 2x) */
     F[0] += 1;
     if (N >= 1) F[1] += 2;
 
-    free(h);
-    free(newh);
-    free(inv);
+    mem_free(h);
+    mem_free(newh);
+    mem_free(inv);
 }
 
 seq_t a(idx_t n)
 {
     if (n >= cache_len) {
         /* allocate or enlarge cache */
-        seq_t *new_cache = (seq_t *)calloc(n+1, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, n+1);
         if (cache != NULL) {
             for (idx_t i = 0; i < cache_len; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_len = n+1;

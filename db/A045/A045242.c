@@ -9,7 +9,8 @@
  *            two 3's
  * Range:     u8 none, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Computes a(n) for any n >= 1, memoizing previously computed terms. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* internal cache for memoization */
 static seq_t  *cache   = NULL;   /* array of computed terms */
@@ -29,7 +31,7 @@ static void ensure_capacity(seq_t **arr, size_t *len, size_t *cap, size_t add)
 {
     while (*len + add > *cap) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
     /* ensure enough terms are cached */
     while (cache_len < (size_t)n) {
         enumerate_len(next_len, 0, 0, 2, 2);   /* generate all of this length */
-        qsort(cache, cache_len, sizeof(seq_t), cmp_seq);  /* keep sorted */
+        mem_qsort(cache, cache_len, sizeof(seq_t), cmp_seq);  /* keep sorted */
         ++next_len;                     /* next base‑5 length */
     }
     return cache[n - 1];               /* a(1) corresponds to cache[0] */

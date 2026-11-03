@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   backtrack
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,40 @@
    returns the n‑th such number, with a(1)=1. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/backtrack.h"
+
+/* Backtracking helper:
+   pos[] – indices sorted in descending order
+   idx   – current position in pos[]
+   m     – total number of indices
+   k     – number of blocks desired
+   blockSum – required sum for each block
+   blockSums[] – current sum in each block
+   Returns true if a complete assignment yields all blocks equal to blockSum. */
+static bool backtrack(int idx, int m, int k, int blockSum,
+                      const int *pos, int *blockSums)
+{
+    if (idx == m) {
+        /* All indices assigned – check that each block reached blockSum */
+        for (int i = 0; i < k; ++i)
+            if (blockSums[i] != blockSum)
+                return false;
+        return true;
+    }
+    int val = pos[idx];
+    for (int i = 0; i < k; ++i) {
+        if (blockSums[i] + val > blockSum)
+            continue;
+        /* Symmetry pruning: skip blocks with the same current sum as
+           a previous block to avoid exploring equivalent configurations. */
+        if (i > 0 && blockSums[i] == blockSums[i-1])
+            continue;
+        blockSums[i] += val;
+        if (backtrack(idx + 1, m, k, blockSum, pos, blockSums))
+            return true;
+        blockSums[i] -= val;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

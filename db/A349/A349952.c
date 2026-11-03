@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   build_primes_upto, has_any_prime_power, pow_seq
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,21 @@
 #include <stdbool.h>
 
 /* Utility functions provided by the build */
-#include "../utils/pow_seq.h"           /* seq_t pow_seq(seq_t base, int exp); */
-#include "../utils/build_primes_upto.h" /* build_primes_upto(idx_t limit, uint64_t **out, size_t *cnt); */
-#include "../utils/has_any_prime_power.h"
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Test whether num has a divisor equal to any prime power listed.  */
+static bool has_any_prime_power(const seq_t *powers, size_t cnt, seq_t num, int exp)
+{
+    for (size_t i = 0; i < cnt; ++i)
+    {
+        seq_t pwr = powers[i];
+        if (pwr > num) break;
+        if ((num % pwr) == 0) return true;
+    }
+    return false;
+}
 
 /* ------------------------------------------------------------------ */
 /* Primes – we need primes up to sqrt(maximum searched value).
@@ -59,18 +72,18 @@ static void init_primes_and_powers(void)
 
     /* ---- prime powers --------------------------------------------- */
     /* allocate maximal possible size (prime_count) */
-    sq_primes   = (seq_t*)malloc(prime_count * sizeof(seq_t));
-    cube_primes = (seq_t*)malloc(prime_count * sizeof(seq_t));
-    fourth_primes = (seq_t*)malloc(prime_count * sizeof(seq_t));
+    sq_primes   = mem_new(seq_t, prime_count);
+    cube_primes = mem_new(seq_t, prime_count);
+    fourth_primes = mem_new(seq_t, prime_count);
     if (sq_primes == NULL || cube_primes == NULL || fourth_primes == NULL)
         exit(EXIT_FAILURE);
 
     for (size_t i = 0; i < prime_count; ++i)
     {
         uint64_t p = prime_list[i];
-        sq_primes[i]   = pow_seq((seq_t)p, 2);
-        cube_primes[i] = pow_seq((seq_t)p, 3);
-        fourth_primes[i] = pow_seq((seq_t)p, 4);
+        sq_primes[i]   = ipow_i32((seq_t)p, 2);
+        cube_primes[i] = ipow_i32((seq_t)p, 3);
+        fourth_primes[i] = ipow_i32((seq_t)p, 4);
     }
     primes_sq_cnt   = prime_count;
     primes_cube_cnt = prime_count;
@@ -96,7 +109,7 @@ static void ensure_cache_cap(size_t needed)
     if (needed <= seq_cache_cap) return;
     size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     seq_cache   = tmp;
     seq_cache_cap = new_cap;

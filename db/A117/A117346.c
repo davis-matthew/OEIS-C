@@ -12,7 +12,8 @@
  *            the OEIS definition via the minimum distance from...
  * Range:     u8 n <= 43, u16 n <= 4381, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_seq_array, sigma_of
+ * Validated: standard, pass, 79 terms through n = 9962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,36 @@
 #include <stdbool.h>  /* bool */
 #include <math.h>     /* log(double) */
 
-#include "../utils/sigma_of.h"
-#include "../utils/grow_seq_array.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* Static cache of discovered sequence terms. */
 static seq_t *seq_cache    = NULL;   /* dynamically grown array of terms   */

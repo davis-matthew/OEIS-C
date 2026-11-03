@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(1)=1; a(n+1)=Σ_{d|n} σ(d)·a(d)  (σ = sum of divisors) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -33,7 +35,7 @@ static inline idx_t isqrt(idx_t n)
 /* recompute sigma[1..N] */
 static void recompute_sigma(idx_t N)
 {
-    seq_t *new_sigma = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *new_sigma = mem_new(seq_t, (N + 1));
     if (!new_sigma) exit(1);
     for (idx_t i = 0; i <= N; ++i) new_sigma[i] = 0;
 
@@ -42,7 +44,7 @@ static void recompute_sigma(idx_t N)
             new_sigma[j] += (seq_t)i;
         }
     }
-    if (sigma) free(sigma);
+    if (sigma) mem_free(sigma);
     sigma = new_sigma;
     sigma_size = N;
 }
@@ -58,13 +60,13 @@ seq_t a(idx_t n)
             recompute_sigma(n);
 
         /* allocate new cache array */
-        seq_t *new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         if (!new_cache) exit(1);
         for (idx_t i = 0; i <= n; ++i) new_cache[i] = 0;
 
         /* copy existing values */
         for (idx_t i = 1; i <= cache_size; ++i) new_cache[i] = cache[i];
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = new_cache;
 
         /* compute new terms */

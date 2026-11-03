@@ -8,14 +8,16 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 68 terms through n = 8456 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computed by search: numbers m such that both m and m+1 have at least 3 distinct prime factors. */
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
 
 /* Return the n-th term (n>=1) of OEIS A321503.
    This function scans integers sequentially, counting those m that satisfy
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     uint64_t m = 1;
     uint64_t placed = 0ULL;
     for (;; ++m) {
-        if (count_distinct_primes(m)   >= 3 &&
-            count_distinct_primes(m + 1) >= 3) {
+        if (omega(m)   >= 3 &&
+            omega(m + 1) >= 3) {
             ++placed;
             if (placed == n)
                 return (seq_t)m;

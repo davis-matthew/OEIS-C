@@ -11,15 +11,26 @@
  *            of call order
  * Range:     u8 n <= 1, u16 n <= 401, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse_digits, seq_alloc_array, seq_free
+ * Validated: standard, pass, 59 terms through n = 9964 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 seq_t a(idx_t n)
 {

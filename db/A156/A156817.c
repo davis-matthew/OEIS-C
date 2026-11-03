@@ -12,13 +12,15 @@
  *            sequence lists all triangle coefficients row‑wise
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
     }
 
     /* allocate row 0 and row 1 */
-    seq_t *prev2 = (seq_t *)malloc(sizeof(seq_t) * 1);  /* row 0 */
+    seq_t *prev2 = mem_new(seq_t, 1);  /* row 0 */
     prev2[0] = (seq_t)1;
-    seq_t *prev  = (seq_t *)malloc(sizeof(seq_t) * 3);  /* row 1 */
+    seq_t *prev  = mem_new(seq_t, 3);  /* row 1 */
     prev[0] = (seq_t)1;
     prev[1] = (seq_t)2;
     prev[2] = (seq_t)1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* build up to row r */
     for (idx_t i = 2; i <= r; ++i) {
         size_t len  = 2 * (size_t)i + 1;
-        seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * len);
+        seq_t *curr = mem_new(seq_t, len);
 
         seq_t base   = (seq_t)4 * (seq_t)(i - 1);   /* 4*(i-1)   */
         seq_t coeff2 = (seq_t)2 * (seq_t)(i - 1);   /* 2*(i-1)   */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
             curr[(size_t)m] = t1 + t2 + t3;
         }
 
-        free(prev2);      /* free row i-2 */
+        mem_free(prev2);      /* free row i-2 */
         prev2 = prev;     /* shift rows   */
         prev  = curr;
     }
@@ -78,8 +80,8 @@ seq_t a(idx_t n)
     /* retrieve the desired coefficient */
     seq_t result = prev[(size_t)k];
 
-    free(prev);   /* free row r   */
-    free(prev2);  /* free row r-1 */
+    mem_free(prev);   /* free row r   */
+    mem_free(prev2);  /* free row r-1 */
 
     return result;
 }

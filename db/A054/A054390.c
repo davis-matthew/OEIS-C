@@ -10,12 +10,14 @@
  *            recurrence follows directly from the OEIS definition of A054390
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9344 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* C and C++ compatible implementation */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise cache with the base terms a(0), a(1), a(2) */
     if (cache == NULL)
     {
-        cache = (seq_t *)malloc(3 * sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         if (cache == NULL)          /* allocation failure – give a default value */
             return 0;
         cache[0] = 1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (n >= cache_size)
     {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL)            /* allocation failure – return default */
             return 0;
         cache = tmp;

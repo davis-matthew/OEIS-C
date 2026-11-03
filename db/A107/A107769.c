@@ -9,7 +9,8 @@
  *            3*a(n-1)+a(n-2)-7*a(n-3) +3*a(n-4)-a(n-5)+a(n-6)+a(n-7) (n≥7)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 50, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 837 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Includes needed for memory allocation and exit.  The types seq_t and idx_t
    are supplied by the build system; no other definitions are required. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial seven terms of the sequence.  They are read‑only constants. */
 static const seq_t init[7] = { (seq_t)0, (seq_t)1, (seq_t)2, (seq_t)8,
@@ -39,7 +41,7 @@ static void ensure_capacity(idx_t need)
     size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
     while (new_cap <= (size_t)need) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);            /* fatal: out of memory */
 
     cache      = tmp;

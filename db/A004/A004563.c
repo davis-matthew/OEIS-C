@@ -10,7 +10,8 @@
  *            state and memoizing every digit produced so far
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mp_cmp, mp_shl, mp_sub
+ * Validated: standard, pass, 115 terms through n = 9923 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,38 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mp_cmp.h"
-#include "../utils/mp_shl.h"
-#include "../utils/mp_sub.h"
+
+static int mp_cmp(const uint32_t *x, size_t xl, const uint32_t *y, size_t yl) {
+    size_t i;
+    if (xl != yl) return xl < yl ? -1 : 1;
+    for (i = xl; i-- > 0;) {
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+static void mp_shl(uint32_t *x, size_t *len, int s, uint32_t add) {
+    uint32_t c = add;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        uint32_t w = x[i];
+        x[i] = (w << s) | c;
+        c = w >> (32 - s);
+    }
+    if (c) x[(*len)++] = c;
+}
+
+static void mp_sub(uint32_t *x, size_t *xl, const uint32_t *y, size_t yl) {
+    uint64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < *xl; i++) {
+        uint64_t yi = (i < yl) ? y[i] : 0;
+        uint64_t d = (uint64_t)x[i] - yi - borrow;
+        x[i] = (uint32_t)d;
+        borrow = (d >> 63) & 1;
+    }
+    while (*xl > 0 && x[*xl - 1] == 0) (*xl)--;
+}
 
 static uint32_t *Ybuf = 0, *Rbuf = 0, *Tbuf = 0;
 static size_t ylen = 0, rlen = 0, wcap = 0;

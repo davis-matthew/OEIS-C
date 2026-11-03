@@ -10,6 +10,7 @@
  *            largest prime divisor of n
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,9 @@
 
 /* This function implements the OEIS sequence A332288. */
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

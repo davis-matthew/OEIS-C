@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 20, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
  * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,8 +22,9 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pow2.h"          /* seq_t pow2(idx_t exp); */
-#include "../utils/gcd.h"           /* seq_t gcd(seq_t a, seq_t b); */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/pow2.h"
 
 static idx_t find_row(idx_t linear)
 {

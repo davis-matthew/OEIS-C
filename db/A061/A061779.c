@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 145, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime, next_prime
+ * Validated: standard, pass, 54 terms through n = 9066 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *grow_seq(seq_t *arr, size_t *cap, size_t need)
 {
@@ -28,7 +30,7 @@ static seq_t *grow_seq(seq_t *arr, size_t *cap, size_t need)
         size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
         while (newcap < need) newcap <<= 1;
         /* cast the result of realloc to seq_t*  (required by the rules) */
-        seq_t *tmp = (seq_t *)realloc(arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, arr, newcap);
         if (!tmp) { /* allocation failure */ exit(1); }
         arr = tmp;
         *cap = newcap;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     while (terms_len < (size_t)n) {
         idx_t p;
         /* find the next prime >= last_checked */
-        if (isPrime(last_checked)) {
+        if (is_prime(last_checked)) {
             p = last_checked;
         } else {
             p = next_prime((uint64_t)last_checked);

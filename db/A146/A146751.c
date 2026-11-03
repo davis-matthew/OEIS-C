@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
         1, 1, 1, 11, 30, 11, 201, 683, 539, 121, …          */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the computed rows of coefficients */
 static seq_t **coeff_rows = NULL;
@@ -43,7 +45,7 @@ static void ensure_rows(idx_t up_to)
 
     /* compute new rows */
     for (idx_t i = rows_count; i <= up_to; ++i) {
-        seq_t *row = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (!row) exit(1);                    /* allocation failure */
 
         if (i == 0) {                         /* r(x,0) = 1 */

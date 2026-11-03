@@ -11,12 +11,14 @@
  *            a(10) = 174, a(11) = 238 * This function comp...
  * Range:     u8 n <= 11, u16 n <= 49, u32 n <= 788, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9936 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached terms */
 static size_t cache_size = 0; /* number of cached terms */
@@ -42,7 +44,7 @@ static void init_cache(void) {
 
     /* Allocate at least 12 entries, with some spare room for growth */
     size_t initial_capacity = 32;
-    cache = (seq_t *)malloc(initial_capacity * sizeof(seq_t));
+    cache = mem_new(seq_t, initial_capacity);
     for (size_t i = 0; i < 12; ++i) cache[i] = init_values[i];
     for (size_t i = 12; i < initial_capacity; ++i) cache[i] = 0;
 
@@ -53,7 +55,7 @@ static void grow_cache_to(size_t needed) {
     if (needed < cache_size) return;
     size_t new_size = cache_size * 2;
     if (new_size < needed) new_size = needed;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) { /* allocation failed; abort (no error handling requested) */
         abort();
     }

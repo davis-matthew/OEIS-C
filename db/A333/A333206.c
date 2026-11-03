@@ -7,6 +7,7 @@
  * Formula:   a(n) = least decimal digit of n^3
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 4963, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 115 terms through n = 9959 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

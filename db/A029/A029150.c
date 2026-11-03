@@ -8,6 +8,7 @@
  *            n*((n^2) mod 3)/18)
  * Range:     u8 none, u16 n <= 31, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 73 terms through n = 958 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

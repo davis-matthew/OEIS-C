@@ -8,6 +8,7 @@
  *            Φ_185(x)
  * Range:     i8 n <= 144, i16 n <= 144, i32 n <= 144, i64 n <= 144,
  *            i128 n <= 144, big any n
+ * Validated: full, pass, 145 terms through n = 144 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

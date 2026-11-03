@@ -8,7 +8,8 @@
  *            inequality
  * Range:     u8 none, u16 n <= 37, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_seq_array, sieve_primes, sieve_spf
+ * Validated: standard, pass, 62 terms through n = 8069 (2026-11-03)
+ * Helpers:   mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,33 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/sieve_spf.h"
+#include <string.h>
 #include "../utils/sieve_primes.h"
-#include "../utils/grow_seq_array.h"
+#include "../utils/mem.h"
+
+/* Helper: simple sieve to fill spf[2..limit] (smallest prime factor) */
+static void sieve_spf(uint32_t *spf, size_t limit) {
+    for (size_t i = 2; i * i <= limit; ++i) {
+        if (spf[i] == 0) {          /* i is prime */
+            for (size_t j = i * i; j <= limit; j += i)
+                if (spf[j] == 0) spf[j] = (uint32_t)i;
+        }
+    }
+    for (size_t i = 2; i <= limit; ++i)
+        if (spf[i] == 0) spf[i] = (uint32_t)i;
+}
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 static bool initialized = false;
 static uint32_t *spf = NULL;

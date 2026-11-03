@@ -10,12 +10,14 @@
  *            where a() and b() are increasing complementary sequences
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the generated values */
 static seq_t *a_seq = NULL;      /* array of a values     */
@@ -32,7 +34,7 @@ static void ensure_a_cap(idx_t needed)
     if (needed >= a_cap) {
         idx_t new_cap = a_cap ? a_cap * 2 : 4;
         while (new_cap <= needed) new_cap <<= 1;
-        a_seq = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+        a_seq = mem_resize(seq_t, a_seq, new_cap);
         a_cap = new_cap;
     }
 }
@@ -43,7 +45,7 @@ static void ensure_b_cap(idx_t needed)
     if (needed >= b_cap) {
         idx_t new_cap = b_cap ? b_cap * 2 : 4;
         while (new_cap <= needed) new_cap <<= 1;
-        b_seq = (seq_t *)realloc(b_seq, new_cap * sizeof(seq_t));
+        b_seq = mem_resize(seq_t, b_seq, new_cap);
         b_cap = new_cap;
     }
 }
@@ -68,7 +70,7 @@ static void init_sequence(idx_t n_needed)
     /* first time: allocate minimal capacity and set the initial values */
     if (a_seq == NULL) {
         a_cap = 4;
-        a_seq = (seq_t *)calloc(a_cap, sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
         a_seq[0] = (seq_t)1;      /* a(0) */
         a_seq[1] = (seq_t)2;      /* a(1) */
         a_len = 2;
@@ -76,7 +78,7 @@ static void init_sequence(idx_t n_needed)
 
     if (b_seq == NULL) {
         b_cap = 4;
-        b_seq = (seq_t *)calloc(b_cap, sizeof(seq_t));
+        b_seq = mem_new(seq_t, b_cap);
         b_seq[0] = (seq_t)3;      /* b(0) */
         b_len = 1;
         candidate = (seq_t)4;     /* next candidate for b */

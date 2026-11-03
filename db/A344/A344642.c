@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 6, u16 n <= 316, u32 n <= 9168, u64 n <= 9168,
- *            u128 n <= 9168, big any n
- * Helpers:   none
+ * Range:     u8 n <= 6, u16 n <= 316, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 72 terms through n = 9168 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* comparison routine for qsort; works for any sized unsigned seq_t */
 static int cmp_seq_t(const void *a, const void *b) {
@@ -57,7 +59,7 @@ static void compute_terms(void) {
                     ++total;
 
     /* allocate temporary array for all sums that fit into seq_t */
-    seq_t *sums = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *sums = mem_new(seq_t, total);
     size_t pos = 0;
 
     /* maximum representable value of seq_t (converted to 64‑bit) */
@@ -76,7 +78,7 @@ static void compute_terms(void) {
     /* resize for actual number of sums retained */
     total = pos;
     /* sort the sums to identify duplicate representations */
-    qsort(sums, total, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(sums, total, sizeof(seq_t), cmp_seq_t);
 
     /* first count how many sums occur exactly once */
     size_t singles = 0;
@@ -88,7 +90,7 @@ static void compute_terms(void) {
     }
 
     /* store the unique sums in term_array */
-    term_array = (seq_t *)malloc(singles * sizeof(seq_t));
+    term_array = mem_new(seq_t, singles);
     size_t idx = 0;
     for (size_t i = 0; i < total; ) {
         size_t j = i + 1;
@@ -97,7 +99,7 @@ static void compute_terms(void) {
         i = j;
     }
     term_count = singles;
-    free(sums);
+    mem_free(sums);
     initialized = true;
 }
 

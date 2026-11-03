@@ -8,13 +8,15 @@
  *            integers with x³ + y³ + z³ + w³ = n (OEIS A173678)
  * Range:     u8 n <= 26, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 127 terms through n = 9335 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute integer cube root: largest r such that r³ ≤ n. */
 static idx_t int_cube_root(idx_t n)
@@ -41,14 +43,14 @@ static void build_pre_cache(void)
     if (pre_cache != NULL) return;
 
     pre_cache_len = LIMIT + 1;
-    pre_cache = (seq_t *)malloc(pre_cache_len * sizeof(seq_t));
+    pre_cache = mem_new(seq_t, pre_cache_len);
     if (!pre_cache) return; /* out of memory – unlikely */
 
     for (idx_t i = 0; i < pre_cache_len; ++i) pre_cache[i] = 0;
 
     idx_t m = int_cube_root(LIMIT);
     /* Pre‑compute cubes to avoid recomputation */
-    seq_t *cubes = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+    seq_t *cubes = mem_new(seq_t, (m + 1));
     for (idx_t i = 0; i <= m; ++i) cubes[i] = (seq_t)i * i * i;
 
     for (idx_t a = 0; a <= m; ++a) {
@@ -68,7 +70,7 @@ static void build_pre_cache(void)
             }
         }
     }
-    free(cubes);
+    mem_free(cubes);
 }
 
 /* Main sequence function. */

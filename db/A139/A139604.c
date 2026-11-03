@@ -14,7 +14,8 @@
  *            terms (degrees 0..k), * and the terms are listed in...
  * Range:     i8 n <= 25, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The following types are provided by the build system */
 extern idx_t _floor_isqrt_u64(idx_t n);  /* unused */
@@ -42,11 +44,11 @@ static void ensure_T(idx_t r)
 
         if (i == 0) {
             /* T_0(x) = 1 */
-            T[0] = (seq_t *)malloc(sizeof(seq_t));
+            T[0] = mem_new(seq_t, 1);
             T[0][0] = 1;
         } else if (i == 1) {
             /* T_1(x) = x */
-            T[1] = (seq_t *)malloc(sizeof(seq_t) * 2);
+            T[1] = mem_new(seq_t, 2);
             T[1][0] = 0;
             T[1][1] = 1;
         } else {
@@ -54,7 +56,7 @@ static void ensure_T(idx_t r)
              *   T_i(x) = 2*x*T_{i-1}(x) - T_{i-2}(x)   */
             seq_t *prev  = T[i - 1];
             seq_t *prev2 = T[i - 2];
-            seq_t *cur   = (seq_t *)malloc(sizeof(seq_t) * (i + 1));
+            seq_t *cur   = mem_new(seq_t, (i + 1));
 
             /* Initialize to zero */
             for (size_t j = 0; j < (size_t)(i + 1); ++j) cur[j] = 0;

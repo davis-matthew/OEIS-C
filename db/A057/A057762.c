@@ -11,7 +11,8 @@
  *            satisfies p ≡ ±1 (mod 5)
  * Range:     u8 n <= 61, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------------*/
 /*--- prime sieve -------------------------------------------------*/
@@ -119,12 +121,12 @@ static void ensure_cache_cap(void)
     if (cache_cap == 0)
     {
         cache_cap = 64;
-        cache = (seq_t*)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     else if (cache_size + 1 > cache_cap)
     {
         cache_cap *= 2;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 

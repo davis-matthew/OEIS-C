@@ -9,14 +9,15 @@
  *            a digit sum equal to n; return 0 if no such multiple exists
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   sum_digits_idx_t
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   digit_sum_idx_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/sum_digits_idx_t.h"
+#include "../utils/digit_sum_idx_to_i32.h"
 
 /* Global data used by the recursive search. */
 #define MAX_P 25                          /* maximum suffix length tried   */
@@ -78,7 +79,7 @@ seq_t a(idx_t n)
 
     /* No special handling needed for n == 0 (offset starts at 1). */
     int n_int = (int)n;                  /* n fits in int (<=10000) */
-    int ds = sum_digits_idx_t(n);        /* digit sum of n            */
+    int ds = digit_sum_idx_to_i32(n);        /* digit sum of n            */
     int need_sum = n_int - ds;           /* sum that must come from suffix */
     if (need_sum <= 0) {                 /* exact digit sum achieved by n itself */
         return (seq_t)n;

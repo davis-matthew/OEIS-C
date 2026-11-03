@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    where a[0] = 26 and for n ≥ 1 the coefficients
    a[1],a[2],a[3],a[4] repeat 1,4,1,52.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *den = NULL;          /* cached denominators                          */
 static size_t den_cap = 0;         /* allocated capacity (bytes of seq_t)          */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold entries up to n. */
     size_t needed = (size_t)(n + 1);
     if (needed > den_cap) {
-        seq_t *tmp = (seq_t *)realloc(den, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, den, needed);
         if (!tmp) abort();        /* out of memory: terminate the program */
         den = tmp;
         den_cap = needed;

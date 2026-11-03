@@ -9,15 +9,18 @@
  *            exactly three distinct prime factors. OEIS offset 1
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_distinct_primes, next_prime
+ * Validated: standard, pass, 69 terms through n = 904 (2026-11-03)
+ * Helpers:   mem, next_prime, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,13 +43,13 @@ seq_t a(idx_t n)
         uint64_t cand = last_checked_prime + 1;
 
         /* check that cand has exactly three distinct prime factors */
-        if (count_distinct_primes(cand) == 3)
+        if (omega(cand) == 3)
         {
             /* grow cache if necessary */
             if (seq_len == seq_cap)
             {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)cand;
         }

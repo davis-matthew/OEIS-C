@@ -6,16 +6,21 @@
  * Keywords:  easy, nonn, tabf
  * Formula:   a(n) = (∑ b(i))! / (∏ b(i)!) where b = composition number n in
  *            standard order (A066099)
- * Range:     u8 n <= 46, u16 n <= 350, u32 n <= 8190, u64 n <= 9428,
- *            u128 n <= 9428, big any n
- * Helpers:   binom, floor_log2_uint64, seq_one
+ * Range:     u8 n <= 46, u16 n <= 350, u32 n <= 8190, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 86 terms through n = 9428 (2026-11-01)
+ * Helpers:   binomial, ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/binom.h"
-#include "../utils/seq_one.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ilog2.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {
@@ -26,7 +31,7 @@ seq_t a(idx_t n)
     /* Find the sum m of the composition.
        Compositions of sum m start at index 2^(m-1).  The condition
        2^(m-1) <= n < 2^m implies m = floor_log2(n) + 1. */
-    idx_t m = (idx_t)floor_log2_uint64(n) + (idx_t)1u;
+    idx_t m = (idx_t)ilog2(n) + (idx_t)1u;
 
     /* r is the 0‑based offset inside the block of compositions of sum m. */
     idx_t r = n - ((idx_t)1u << (m - 1u));
@@ -64,7 +69,7 @@ seq_t a(idx_t n)
     remaining = m;
     for (idx_t i = 0u; i < pos; ++i)
     {
-        seq_t bin = binom(remaining, parts[i]);
+        seq_t bin = binomial(remaining, parts[i]);
         result = result * bin;
         remaining -= parts[i];
     }

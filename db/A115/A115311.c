@@ -7,13 +7,15 @@
  * Formula:   a(n) = gcd(Lucas(n) - 1, Fibonacci(n) - 1)
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 46, u64 n <= 60, u128 n <= 60,
  *            big any n
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
  * Helpers:   fib_pair, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fib_pair.h"   /* fib_pair(idx_t n, seq_t *fn, seq_t *fn1) */
-#include "../utils/gcd.h"        /* gcd(seq_t a, seq_t b) */
+#include <stdint.h>
+#include "../utils/fib_pair.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

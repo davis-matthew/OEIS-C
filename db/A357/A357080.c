@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-02)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@
    collects the valid k's, and returns the nth element.
    A(1) = 0, A(2) = 1, A(3) = 80, ... */
 
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_sum.h"
 #include <stddef.h>
 

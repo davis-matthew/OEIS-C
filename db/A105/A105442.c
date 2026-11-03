@@ -13,7 +13,8 @@
  *            factors of φ(n) is > 1. * This implementati...
  * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   generate_divisors, substrings_ok, to_binary_str, totient_uint64
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,73 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/generate_divisors.h"
-#include "../utils/substrings_ok.h"
-#include "../utils/to_binary_str.h"
-#include "../utils/totient_uint64.h"
+#include "../utils/mem.h"
+
+/* ---------- Generate all divisors of n from its factorisation ---------- */
+static void generate_divisors(const uint64_t *primes,
+                              const uint8_t  *exps,
+                              size_t          cnt,
+                              uint64_t        *divs,
+                              size_t         *out_cnt)
+{
+    size_t sz = 1;                /* start with divisor 1 */
+    divs[0] = 1;
+    for (size_t i = 0; i < cnt; ++i) {
+        uint64_t p = primes[i];
+        uint8_t  e = exps[i];
+        size_t cur_sz = sz;      /* number of divisors before adding p^k */
+        for (size_t j = 0; j < cur_sz; ++j) {
+            uint64_t base = divs[j];
+            uint64_t mul  = 1;
+            for (uint8_t k = 1; k <= e; ++k) {
+                mul *= p;
+                divs[sz++] = base * mul;
+            }
+        }
+    }
+    *out_cnt = sz;
+}
+
+/* ---------- Convert a non‑negative integer to binary string ---------- */
+static void to_binary_str(uint64_t x, char *buf)
+{
+    int pos = 0;
+    if (x == 0) {
+        buf[pos++] = '0';
+        buf[pos]   = '\0';
+        return;
+    }
+    int bitlen = 0;
+    uint64_t tmp = x;
+    while (tmp) { ++bitlen; tmp >>= 1; }
+    for (int i = bitlen - 1; i >= 0; --i)
+        buf[pos++] = ((x >> i) & 1) ? '1' : '0';
+    buf[pos] = '\0';
+}
+
+/* ---------- Check that every divisor's binary string is a substring of n's ---------- */
+static bool substrings_ok(const char *n_str, const uint64_t *divs, size_t div_cnt)
+{
+    char d_str[129];
+    for (size_t i = 0; i < div_cnt; ++i) {
+        to_binary_str(divs[i], d_str);
+        if (!strstr(n_str, d_str))
+            return false;
+    }
+    return true;
+}
+
+/* ---------- Euler's totient from factorisation ---------- */
+static uint64_t totient_uint64(uint64_t n,
+                               const uint64_t *primes,
+                               const uint8_t  *exps,
+                               size_t          cnt)
+{
+    uint64_t phi = n;
+    for (size_t i = 0; i < cnt; ++i)
+        phi = phi - phi / primes[i];
+    return phi;
+}
 
 /* ---------- Prime sieve (for uint64_t trial division) ---------- */
 #define PRIME_SIEVE_LIMIT 1000000U   /* sqrt(1e12) ≈ 1e6, sufficient for the search */
@@ -139,11 +203,11 @@ static void ensure_cache(idx_t n)
     /* grow cache capacity (double strategy) */
     if (cap == 0) {
         cap = 1024;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
     while (cap < n) {
         cap *= 2;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     /* continue searching from last found + 1 */

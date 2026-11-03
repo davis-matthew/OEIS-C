@@ -8,7 +8,8 @@
  *            binomial(2*k,k) * k * a(n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Static cache for memoised values */
 static seq_t *cache = NULL;
@@ -30,17 +32,16 @@ static void ensure_up_to(idx_t target_n)
     /* Grow the cache if necessary */
     if (t + 1 > cache_size) {
         size_t new_size = t + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache)           /* allocation failure – unlikely */
             return;
         /* Copy existing values if any */
         if (cache) {
-            memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+            mem_free(cache);
         }
         /* Zero the new slots */
-        memset(new_cache + cache_size, 0,
-               (new_size - cache_size) * sizeof(seq_t));
+        mem_set(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
         cache = new_cache;
         cache_size = new_size;
         /* Initialise a(0) after first allocation (or whenever it may be zero) */

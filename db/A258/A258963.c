@@ -12,12 +12,14 @@
  *            satisfies this linear recurrence for every n ≥ 11
  * Range:     u8 none, u16 n <= 21, u32 n <= 53, u64 n <= 117, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 static const seq_t init_vals[10] = {
     676, 614, 288, 340, 384, 466, 552, 724, 912, 1248
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Allocate a temporary array to hold the terms up to n.
        The buffer is indexed from 1 to n inclusive. */
     size_t len = (size_t)n + 1;
-    seq_t *buf = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, len);
     if (!buf) {
         /* In an environment where malloc fails we return 0 as a
            sentinel value; the test harness expects the sequence
@@ -56,6 +58,6 @@ seq_t a(idx_t n)
     seq_t result = buf[n];
 
     /* Clean up. */
-    free(buf);
+    mem_free(buf);
     return result;
 }

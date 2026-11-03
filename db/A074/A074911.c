@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 78, u64 n <= 210,
  *            u128 n <= 595, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 4726 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
  * NOTE: Only +, -, *, /, and indexing are used on seq_t.
  */
 #include <stdlib.h>  /* for malloc / realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* a(0) is not defined in the OEIS entry – return 0 for safety. */
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
         if (needed > vals_cap) {
             size_t new_cap = vals_cap ? vals_cap * 2 : 16;
             while (new_cap < needed) new_cap *= 2;
-            vals = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+            vals = mem_resize(seq_t, vals, new_cap);
             vals_cap = new_cap;
         }
 

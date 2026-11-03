@@ -10,13 +10,15 @@
  *            a(6)=24095)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 29, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function definition */
 seq_t a(idx_t n)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Initialize cache on first call */
     if (cache == NULL) {
         capacity = 16;                 /* initial capacity */
-        cache = (seq_t*)malloc(sizeof(seq_t) * capacity);
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL)            /* out of memory – abort */
             abort();
         /* zero the array to avoid garbage */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Grow the array if it cannot contain index n */
     while (n >= capacity) {
         size_t new_cap = capacity << 1;
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             abort();
         /* initialize newly allocated elements to zero */

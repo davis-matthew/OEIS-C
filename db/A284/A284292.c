@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 1702, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_digit8, is_prime
+ * Validated: standard, pass, 64 terms through n = 8346 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/has_digit8.h"
+#include "../utils/mem.h"
+
+/* check whether a seq_t integer contains digit 8 */
+static bool has_digit8(seq_t x) {
+    while (x != (seq_t)0) {
+        if ((x % (seq_t)10) == (seq_t)8)
+            return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* Cache for primes containing digit 8 */
 static seq_t  *prime8_cache   = NULL;
@@ -33,7 +44,7 @@ static void ensure_cache_capacity(size_t needed) {
             prime8_cap = 10;
         while (prime8_cap < needed)
             prime8_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(prime8_cache, prime8_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime8_cache, prime8_cap);
         prime8_cache = tmp;
     }
 }

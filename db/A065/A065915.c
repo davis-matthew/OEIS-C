@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2^(2*v2(n)+4) - 1 where v2(n) is the exponent of 2 in n
  * Range:     u8 n <= 7, u16 n <= 127, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 78 terms through n = 928 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Compute the exponent of 2 dividing n (trailing zeros of n) */

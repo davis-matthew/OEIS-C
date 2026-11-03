@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((prime(n))^6-(prime(n))^4)/24
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 12, u64 n <= 23, u128 n <= 23,
  *            big any n
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 /* Cache for the first primes computed so far. */

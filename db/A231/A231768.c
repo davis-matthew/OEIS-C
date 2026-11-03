@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   valid_first, valid_last
+ * Validated: standard, pass, 31 terms through n = 195 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,53 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/valid_first.h"
-#include "../utils/valid_last.h"
+
+/* Validate the first column (no left neighbour) against its right
+   neighbour R.  Similar logic to valid_middle but with only the right
+   side neighbours. */
+static bool valid_first(uint8_t M, uint8_t R)
+{
+    for (int r = 0; r < 5; ++r) {
+        int ones = 0;
+
+        /* Right neighbour */
+        if (R & (1U << r)) ++ones;
+        /* Up‑right */
+        if (r > 0 && (R & (1U << (r - 1)))) ++ones;
+        /* Down‑right */
+        if (r < 4 && (R & (1U << (r + 1)))) ++ones;
+
+        int total = 1;          /* right */
+        if (r > 0) total += 1;  /* up‑right */
+        if (r < 4) total += 1;  /* down‑right */
+
+        if ((ones << 1) > total) return false;
+    }
+    return true;
+}
+
+/* Validate the last column (no right neighbour) against its left
+   neighbour L.  */
+static bool valid_last(uint8_t L, uint8_t M)
+{
+    for (int r = 0; r < 5; ++r) {
+        int ones = 0;
+
+        /* Left neighbour */
+        if (L & (1U << r)) ++ones;
+        /* Up‑left */
+        if (r > 0 && (L & (1U << (r - 1)))) ++ones;
+        /* Down‑left */
+        if (r < 4 && (L & (1U << (r + 1)))) ++ones;
+
+        int total = 1;          /* left */
+        if (r > 0) total += 1;  /* up‑left */
+        if (r < 4) total += 1;  /* down‑left */
+
+        if ((ones << 1) > total) return false;
+    }
+    return true;
+}
 
 /* ----------------------------------------------------------------------
  * Helper functions – all defined at file scope so they are legal C/C++.

@@ -8,7 +8,8 @@
  *            and generating the sequence breadth‑first
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialize storage on first call */
     if (terms == NULL) {
         capacity = 64;
-        terms = (seq_t *)malloc(capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, capacity);
         if (terms == NULL) return (seq_t)0;   /* allocation failed, return 0 */
         terms[0] = (seq_t)0;                  /* a(0) */
         size = 1;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 
             if (size == capacity) {
                 capacity = (capacity == 0) ? 64 : capacity * 2;
-                terms = (seq_t *)realloc(terms, capacity * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, capacity);
                 if (terms == NULL) return (seq_t)0;   /* allocation failed */
             }
             terms[size++] = child;

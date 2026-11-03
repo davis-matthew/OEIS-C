@@ -10,14 +10,18 @@
  *            the condition
  * Range:     u8 n <= 46, u16 n <= 7399, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, gcd, pow_uint
+ * Validated: standard, pass, 79 terms through n = 9541 (2026-11-01)
+ * Helpers:   gcd, ipow_u64_idx, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/pow_uint.h"
-#include "../utils/digit_len.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +30,8 @@ seq_t a(idx_t n)
 
     while (1) {
         /*----- test whether candidate satisfies the definition -----*/
-        int k = digit_len(candidate);          /* number of decimal digits */
-        seq_t pow10 = pow_uint(10, (idx_t)(k - 1));
+        int k = num_digits(candidate);          /* number of decimal digits */
+        seq_t pow10 = ipow_u64_idx(10, (idx_t)(k - 1));
 
         seq_t rot = candidate;
         seq_t g = 0;                          /* running GCD of rotations */

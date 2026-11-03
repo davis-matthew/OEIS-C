@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{k=1}^n (4k-3)^2 = (8 n(n+1)(2n+1)-36 n(n+1)+27 n)/3
  * Range:     u8 n <= 2, u16 n <= 16, u32 n <= 650, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 53 terms through n = 987 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

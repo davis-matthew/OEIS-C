@@ -8,14 +8,16 @@
  * Formula:   a(n) = binomial(r - k - 1, ceil(r/2) - 1) where r is the row
  *            containing the nth triangle entry and k is the column in that
  *            row. For r = 0 the value is 1
- * Range:     u8 n <= 24, u16 n <= 109, u32 n <= 341, u64 n <= 1224,
+ * Range:     u8 n <= 41, u16 n <= 109, u32 n <= 341, u64 n <= 1224,
  *            u128 n <= 2600, big any n
+ * Validated: standard, pass, 97 terms through n = 2400 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

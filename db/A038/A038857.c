@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/cmp_seq_t.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* Static storage for generated values */
 static seq_t *data = NULL;          /* sorted unique cube differences ending with 2 */
@@ -32,13 +43,13 @@ static bool built = false;          /* whether the sequence has been generated *
 static void build_sequence_for_x(idx_t max_x) {
     /* Free any previously allocated memory */
     if (data != NULL) {
-        free(data);
+        mem_free(data);
     }
 
     /* Estimate number of (x,y) pairs: max_x*(max_x-1)/2 */
     size_t approx_pairs = (size_t)max_x * (max_x - 1) / 2;
     size_t capacity = approx_pairs; /* at most one candidate per pair */
-    data = (seq_t *)malloc(capacity * sizeof(seq_t));
+    data = mem_new(seq_t, capacity);
     if (data == NULL) {
         /* Allocation failure: terminate. */
         abort();
@@ -60,7 +71,7 @@ static void build_sequence_for_x(idx_t max_x) {
     }
 
     /* Sort the raw list */
-    qsort(data, raw_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(data, raw_len, sizeof(seq_t), cmp_seq_t);
 
     /* Deduplicate in-place */
     size_t uniq_len = 0;

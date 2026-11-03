@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 45, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 2212 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static memoisation state */
@@ -29,8 +31,8 @@ seq_t a(idx_t n) {
 
     /* initialise for the first-ever call */
     if (maxN == 0 && n == 0) {
-        p = (seq_t *)malloc(sizeof(seq_t));
-        a_arr = (seq_t *)malloc(sizeof(seq_t));
+        p = mem_new(seq_t, 1);
+        a_arr = mem_new(seq_t, 1);
         if (!p || !a_arr) exit(1);
         p[0] = (seq_t)1;
         a_arr[0] = (seq_t)1;
@@ -43,17 +45,17 @@ seq_t a(idx_t n) {
         idx_t newSize = n + 1;
 
         /* grow the partition array */
-        seq_t *new_p = (seq_t *)realloc(p, newSize * sizeof(seq_t));
+        seq_t *new_p = mem_resize(seq_t, p, newSize);
         if (!new_p) exit(1);
         p = new_p;
 
         /* grow the sequence array */
-        seq_t *new_a = (seq_t *)realloc(a_arr, newSize * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_arr, newSize);
         if (!new_a) exit(1);
         a_arr = new_a;
 
         /* reset partition numbers and recompute them up to n */
-        memset(p, 0, newSize * sizeof(seq_t));
+        mem_set(p, 0, newSize * sizeof(seq_t));
         p[0] = (seq_t)1;                     /* p(0) = 1 */
         for (idx_t i = 1; i <= n; ++i) {
             for (idx_t j = i; j <= n; ++j) {

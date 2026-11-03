@@ -11,14 +11,26 @@
  *            k = n - ((r-1)*r/2 + 1) + 1
  * Range:     i8 n <= 6, i16 n <= 15, i32 n <= 36, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   binomial, factorial
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>             /* for standard integer types */
-#include "../utils/factorial.h" /* provides seq_t factorial(idx_t n)      */
-#include "../utils/binomial.h"  /* provides seq_t binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {

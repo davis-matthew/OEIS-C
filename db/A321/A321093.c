@@ -12,12 +12,22 @@
  *            s(k) = 3 k % 3 == 1 : s(k) = 4 - s((k-1)/3)
  * Range:     u8 n <= 200, u16 n <= 200, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   s_of_k
+ * Validated: partial, pass, 201 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/s_of_k.h"
+static seq_t s_of_k(idx_t k)
+{
+    if (k == 0) return 1;          /* a(1) */
+    if (k % 3 == 0) return 1;      /* a(9*m+1) */
+    if (k % 3 == 2) return 3;      /* a(9*m+7) */
+    /* k % 3 == 1 */
+    idx_t m = (k - 1) / 3;
+    seq_t val = s_of_k(m);
+    return 4 - val;
+}
 
 seq_t a(idx_t n)
 {

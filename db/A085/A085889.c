@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   digits_consecutive
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,39 @@
    by 0).  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digits_consecutive.h"
+#include "../utils/mem.h"
+
+/* Return true if the decimal digits of x are consecutive
+   in ascending order (wrapping 9→0 allowed).  */
+static bool digits_consecutive(seq_t x)
+{
+    /* Store digits least‑to‑most; 200 is plenty for any seq_t. */
+    uint32_t digits[200];
+    int len = 0;
+
+    if (x == 0) {
+        /* 0 is technically not a 7‑smooth number, but the
+           check is never called for it.  */
+        return true;
+    }
+    while (x > 0) {
+        digits[len++] = (uint32_t)(x % 10);
+        x /= 10;
+    }
+    if (len <= 1) return true;   /* single digit is always consecutive */
+
+    uint32_t prev = digits[len - 1];          /* most significant digit */
+    for (int i = len - 2; i >= 0; --i) {
+        uint32_t cur = digits[i];
+        if (prev == 9) {
+            if (cur != 0) return false;      /* 9 must be followed by 0 */
+        } else {
+            if (cur != prev + 1) return false; /* otherwise it must +1 */
+        }
+        prev = cur;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,13 +66,13 @@ seq_t a(idx_t n)
     /* first call: initialise arrays */
     if (hum == NULL) {
         hum_cap = 1024;
-        hum = (seq_t *)malloc(hum_cap * sizeof(seq_t));
+        hum = mem_new(seq_t, hum_cap);
         hum[0] = 1;
         hum_sz = 1;
         i2 = i3 = i5 = i7 = 0;
 
         vals_cap = 256;
-        vals = (seq_t *)malloc(vals_cap * sizeof(seq_t));
+        vals = mem_new(seq_t, vals_cap);
         vals[0] = 1;           /* 1 is the first qualifying number */
         vals_sz = 1;
     }
@@ -59,7 +92,7 @@ seq_t a(idx_t n)
         /* append new humble number */
         if (hum_sz == hum_cap) {
             hum_cap <<= 1;
-            hum = (seq_t *)realloc(hum, hum_cap * sizeof(seq_t));
+            hum = mem_resize(seq_t, hum, hum_cap);
         }
         hum[hum_sz++] = next;
 
@@ -73,7 +106,7 @@ seq_t a(idx_t n)
         if (digits_consecutive(next)) {
             if (vals_sz == vals_cap) {
                 vals_cap <<= 1;
-                vals = (seq_t *)realloc(vals, vals_cap * sizeof(seq_t));
+                vals = mem_resize(seq_t, vals, vals_cap);
             }
             vals[vals_sz++] = next;
         }

@@ -8,6 +8,7 @@
  *            - 1 ) / 2 ) * k = n - (row-1)*row / 2 (1 ≤ k ≤ row)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 22, u64 n <= 33, u128 n <= 33,
  *            big any n
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

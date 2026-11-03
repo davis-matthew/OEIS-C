@@ -8,6 +8,7 @@
  * Formula:   a(n) = ∏_{p^e‖n} p^{ e+1 if e is even, e-1 if e is odd }
  * Range:     u8 n <= 48, u16 n <= 1680, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 110 terms through n = 9695 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

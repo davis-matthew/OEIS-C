@@ -10,13 +10,15 @@
  *            removed)
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Local comparison routine for qsort. */
 static int cmp_seq(const void *p1, const void *p2)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* Initial capacity – plenty for i ≤ 40, j ≤ 27. */
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) /* allocation failure – abort */ exit(1);
         size_t len = 0;
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
                 if (len == cache_cap) {
                     /* Grow the cache. */
                     cache_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                     if (!tmp) exit(1);
                     cache = tmp;
                 }
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the values. */
-        qsort(cache, len, sizeof(seq_t), cmp_seq);
+        mem_qsort(cache, len, sizeof(seq_t), cmp_seq);
 
         /* Remove duplicates in‑place. */
         size_t uniq = 0;

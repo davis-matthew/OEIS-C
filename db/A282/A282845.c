@@ -9,7 +9,8 @@
  *            palindromes (A084092)
  * Range:     u8 n <= 11, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* small primes needed for prime‑power test (≤ 100) */
 static const uint32_t primes_small[] =
@@ -97,8 +99,8 @@ seq_t a(idx_t n)
 
     /* dynamic programming for convolution of 6 copies */
     size_t M = maxN + 1;
-    seq_t *ways = (seq_t *)calloc(M, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(M, sizeof(seq_t));
+    seq_t *ways = mem_new(seq_t, M);
+    seq_t *next = mem_new(seq_t, M);
 
     /* k = 1 */
     for (size_t i = 0; i < spc; ++i) {
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
 
     /* k = 2 .. 6 */
     for (int k = 2; k <= 6; ++k) {
-        memset(next, 0, M * sizeof(seq_t));
+        mem_set(next, 0, M * sizeof(seq_t));
         for (size_t s = 0; s < M; ++s) {
             seq_t val = ways[s];
             if (!val) continue;
@@ -126,7 +128,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = ways[maxN];
-    free(ways);
-    free(next);
+    mem_free(ways);
+    mem_free(next);
     return result;
 }

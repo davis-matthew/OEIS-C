@@ -12,14 +12,21 @@
  *            5 possible values of the expression and cou...
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   row_digit
+ * Validated: standard, pass, 37 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/row_digit.h"
+
+/* rows are encoded as a base‑3 number: 0..8 (two digits) */
+static int row_digit(int row, int pos)
+/* pos = 0 for first column, pos = 1 for second column */
+{
+    return (row / (pos == 0 ? 3 : 1)) % 3;
+}
 
 /* compute the value: max + upper‑median – min for a 2×2 block given
    two rows (r1,r2) encoded 0..8. */

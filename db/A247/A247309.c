@@ -10,6 +10,7 @@
  *            otherwise, where F(0)=0, F(1)=1 and F(–1)=1
  * Range:     u8 n <= 21, u16 n <= 38, u32 n <= 72, u64 n <= 141,
  *            u128 n <= 281, big any n
+ * Validated: standard, pass, 64 terms through n = 979 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 23, u16 n <= 141, u32 n <= 541, u64 n <= 1000,
+ * Range:     u8 n <= 38, u16 n <= 142, u32 n <= 542, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 77 terms through n = 991 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,7 @@
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/binom.h"    /* declares seq_t binom(idx_t, idx_t) */
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
     idx_t k = offset + 1;   /* 1 ≤ k ≤ r‑1 */
 
     /* The value is twice the binomial coefficient. */
-    seq_t val = binom(r, k);
+    seq_t val = binomial(r, k);
     val *= (seq_t)2;
     return val;
 }

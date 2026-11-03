@@ -8,12 +8,14 @@
  *            recurrence follows from the generating function 1/(1−x²+x⁴)
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         /* grow to at least n+1 elements; use a minimal growth policy */
         size_t new_cap = (size_t)n + 1;
         if (new_cap < 16) new_cap = 16;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

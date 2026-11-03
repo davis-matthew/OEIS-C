@@ -7,14 +7,23 @@
  * Formula:   Largest base-9 palindrome m <= n, returned in base 10
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   left_value
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/left_value.h"
+
+/* Helper: compute value of left half (base-9 digits) as seq_t */
+static seq_t left_value(const unsigned char *left, size_t len)
+{
+    seq_t val = 0;
+    for (size_t i = 0; i < len; ++i)
+        val = val * (seq_t)9 + left[i];
+    return val;
+}
 
 /* Helper: build palindrome from left half. */
 static seq_t build_pal(const unsigned char *left, size_t halfLen, bool odd)

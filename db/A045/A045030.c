@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3344, u32 n <= 5700, u64 n <= 5700,
  *            u128 n <= 5700, big any n
- * Helpers:   has_three_zeroes_two_ones
+ * Validated: standard, pass, 53 terms through n = 5621 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
  */
 
 #include <stdbool.h>
-#include "../utils/has_three_zeroes_two_ones.h"
+
+/* Test whether a number x has exactly three 0's and two 1's in its
+ * base‑4 representation. */
+static bool has_three_zeroes_two_ones(seq_t x)
+{
+    idx_t zeros = 0, ones = 0;
+    seq_t t = x;
+
+    while (t > (seq_t)0) {
+        unsigned digit = (unsigned)(t % (seq_t)4);
+        if (digit == 0)      zeros++;
+        else if (digit == 1) ones++;
+        t /= (seq_t)4;
+    }
+    return zeros == 3 && ones == 2;
+}
 
 /* Return the n‑th term of the sequence (a(1) = 257). */
 seq_t a(idx_t n)

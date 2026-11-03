@@ -8,7 +8,8 @@
  * Formula:   a(n+1) = 1 + min( 2*a(floor(n/2)), 3*a(floor(n/3)) ), a(0) = 0
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   alloc_seq_array, free_cache
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,19 @@
 #include <stdlib.h>
 
 /* helpers supplied by the testing harness */
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_cache.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* The sequence cache (values already computed) */
 static seq_t *cache = NULL;

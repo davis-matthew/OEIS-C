@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
     For n ≤ 10 000 this is well below the two‑second per‑call limit.   */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* ---- handle base case n == 0 --------------------------------- */
     if (n == 0) {
         if (lenA == 0) {                     /* initialise A[0] */
-            A = (seq_t*)realloc(A, sizeof(seq_t));
+            A = mem_resize(seq_t, A, 1);
             if (!A) return 0;                /* allocation failure */
             A[0]  = (seq_t)1;
             lenA  = 1;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* ---- ensure capacity for A and S up to index n ---------------- */
     size_t target = (size_t)n;
     if (target + 1 > capA) {
-        seq_t *tmp = (seq_t*)realloc(A, (target + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, (target + 1));
         if (!tmp) return 0;
         A = tmp;
         capA = target + 1;

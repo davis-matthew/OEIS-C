@@ -9,7 +9,8 @@
  * Formula:   a(n) = sum_{d|n, d is prime power} phi(n/d)
  * Range:     u8 n <= 511, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 99 terms through n = 9427 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
             for (;;)
             {
                 if (n_const % power == 0)
-                    result += phi(n_const / power);
+                    result += totient(n_const / power);
 
                 /* next power, avoid overflow */
                 if (power > n_const / p)
@@ -61,7 +62,7 @@ seq_t a(idx_t n)
         for (;;)
         {
             if (n_const % power == 0)
-                result += phi(n_const / power);
+                result += totient(n_const / power);
 
             if (power > n_const / p)
                 break;

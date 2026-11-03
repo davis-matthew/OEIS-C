@@ -9,7 +9,8 @@
  *            0 if no such x exists
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   digit_square_sum
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
    once and caching the results. */
 
 #include <stdbool.h>
-#include "../utils/digit_square_sum.h"
+#include <stdlib.h>
+
+/* Helper: sum of squares of decimal digits of a 64‑bit integer. */
+static uint64_t digit_square_sum(uint64_t x)
+{
+    uint64_t sum = 0;
+    while (x > 0) {
+        uint64_t d = x % 10;
+        sum += d * d;
+        x /= 10;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n) {
     /* 153 possible values: 0 … 152. */

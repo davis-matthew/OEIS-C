@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} fibonacci(k+1)*binomial(2*n-1,n-k)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 31, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     }
 
     /* Fibonacci numbers up to F_{n+1} (F_1 = 1, F_2 = 1) */
-    seq_t *fib = (seq_t *)malloc((n + 2) * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, (n + 2));
     if (!fib) return 0;                       /* out of memory */
     fib[1] = 1;
     fib[2] = 1;
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
         --j;
     }
 
-    free(fib);
+    mem_free(fib);
     return sum;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 319, u32 n <= 1226, u64 n <= 5814,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9076 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /*--- System headers -------------------------------------------------------*/
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 /*--- Global DP state -----------------------------------------------------*/
 static seq_t *dp = NULL;        /* DP array storing a(0)...a(max_n) */
@@ -32,11 +34,11 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > dp_cap) {
         /* Free previous table if it exists */
         if (dp != NULL) {
-            free(dp);
+            mem_free(dp);
         }
 
         /* Allocate new table of size n+1 */
-        dp = (seq_t *)malloc(sizeof(seq_t) * (size_t)(n + 1));
+        dp = mem_new(seq_t, (size_t)(n + 1));
         dp_cap = (size_t)(n + 1);
 
         /* Initialise: only one way to partition 0 (empty partition) */

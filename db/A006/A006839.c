@@ -9,14 +9,39 @@
  *            gcd(k,n)=1, with last quotient = 1
  * Range:     u8 n <= 294, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cf_max, gcd_local
+ * Validated: standard, pass, 124 terms through n = 9853 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/cf_max.h"
-#include "../utils/gcd_local.h"
+#include "../utils/gcd.h"
+
+static seq_t cf_max(seq_t k, seq_t n) {
+    seq_t max_cf = 0;
+    seq_t a = k, b = n;
+    
+    while (b > 0) {
+        seq_t q = a / b;
+        seq_t r = a % b;
+        
+        if (r == 0) {
+            if (q > 1) {
+                if (q - 1 > max_cf) max_cf = q - 1;
+            } else {
+                if (q > max_cf) max_cf = q;
+            }
+        } else {
+            if (q > max_cf) max_cf = q;
+        }
+        
+        a = b;
+        b = r;
+    }
+    
+    return max_cf;
+}
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;
@@ -26,7 +51,7 @@ seq_t a(idx_t n) {
     bool first = true;
     
     for (seq_t k = 1; k < n_seq; k++) {
-        if (gcd_local(k, n_seq) == 1) {
+        if (gcd(k, n_seq) == 1) {
             seq_t max_cf = cf_max(k, n_seq);
             if (first) {
                 min_val = max_cf;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 414, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   jacobi_symbol, mod_pow, seq_alloc, seq_realloc
+ * Validated: standard, pass, 62 terms through n = 9459 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,54 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
-#include "../utils/jacobi_symbol.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Helper: test whether a candidate k satisfies the condition. */
 static bool good_k(idx_t k)
@@ -35,9 +80,9 @@ static bool good_k(idx_t k)
     seq_t mod = (seq_t)k;
     seq_t one = 1;
 
-    if (mod_pow((seq_t)2, m, mod) != one) return false;
-    if (mod_pow((seq_t)3, m, mod) != one) return false;
-    if (mod_pow((seq_t)5, m, mod) != one) return false;
+    if (powmod((seq_t)2, m, mod) != one) return false;
+    if (powmod((seq_t)3, m, mod) != one) return false;
+    if (powmod((seq_t)5, m, mod) != one) return false;
 
     return true;
 }

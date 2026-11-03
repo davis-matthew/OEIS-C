@@ -12,15 +12,38 @@
  *            the n‑th such k * (offset 1). The implementation me...
  * Range:     u8 n <= 79, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_bit_cap, ensure_term_cap
+ * Validated: standard, pass, 80 terms through n = 9472 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/ensure_bit_cap.h"
-#include "../utils/ensure_term_cap.h"
+#include "../utils/mem.h"
+
+/* Ensure an array `arr` has capacity for at least `needed` elements. */
+static void ensure_bit_cap(char **arr, idx_t *cap, idx_t needed)
+{
+    if (needed < *cap)
+        return;
+    idx_t newcap = (*cap) ? (*cap << 1) : 64;
+    while (newcap <= needed)
+        newcap <<= 1;
+    *arr = (char *)realloc(*arr, (size_t)newcap * sizeof(char));
+    *cap = newcap;
+}
+
+static void ensure_term_cap(seq_t **arr, idx_t *cap, idx_t needed)
+{
+    if (needed < *cap)
+        return;
+    idx_t newcap = (*cap) ? (*cap << 1) : 64;
+    while (newcap <= needed)
+        newcap <<= 1;
+    *arr = mem_resize(seq_t, *arr, (size_t)newcap);
+    *cap = newcap;
+}
 
 seq_t a(idx_t n)
 {

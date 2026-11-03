@@ -11,6 +11,7 @@
  *            "15"; * a(5) = 1·t + 5 = 1·15 + 5 = 20. * * Notes...
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 56, u64 n <= 303,
  *            u128 n <= 2169, big any n
+ * Validated: standard, pass, 54 terms through n = 9948 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

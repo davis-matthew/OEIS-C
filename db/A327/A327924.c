@@ -11,16 +11,29 @@
  *            (m,n) read by ascending antidiagonals in the square array
  * Range:     u8 n <= 5050, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   gcd, make_zero_seq_array, phi
+ * Validated: standard, pass, 107 terms through n = 4358 (2026-11-01)
+ * Helpers:   gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/phi.h"   /* seq_t phi(idx_t m); */
-#include "../utils/make_zero_seq_array.h"
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/totient.h"
+
+/* Utility to allocate a zero‑initialised array of seq_t, compatible with C and C++. */
+static seq_t *make_zero_seq_array(idx_t n)
+{
+#if defined(__cplusplus)
+    seq_t *arr = new seq_t[n];
+    for (idx_t i = 0; i < n; ++i) arr[i] = 0;
+    return arr;
+#else
+    return calloc(n, sizeof(seq_t));
+#endif
+}
 
 #define MAX_M 200   /* sufficient for n ≤ 10 000 */
 
@@ -31,7 +44,7 @@ static bool phi_computed[MAX_M + 1] = { false };
 static seq_t get_phi(int m)
 {
     if (!phi_computed[m]) {
-        phi_table[m] = phi((idx_t)m);
+        phi_table[m] = totient((idx_t)m);
         phi_computed[m] = true;
     }
     return phi_table[m];

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   exp_in_binom
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/exp_in_binom.h"
+#include "../utils/mem.h"
+
+/* Exponent of prime p in binomial(2n,n) using Legendre's formula.
+   Returns 0 if p does not divide the binomial. */
+static int exp_in_binom(idx_t n, uint32_t p)
+{
+    int exp = 0;
+    idx_t m = 2 * n;
+    while (m) {
+        exp += m / p;
+        m /= p;
+    }
+    m = n;
+    while (m) {
+        exp -= 2 * (m / p);
+        m /= p;
+    }
+    return exp;
+}
 
 /* Prime sieve state */
 static uint8_t *is_prime = NULL;   /* prime flag array */
@@ -134,7 +153,7 @@ seq_t a(idx_t n)
         if (ok) {       /* store the term */
             if (terms_size == terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 4;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_size++] = (seq_t)last_candidate;
         }

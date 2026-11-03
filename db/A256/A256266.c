@@ -9,8 +9,9 @@
  *            Σ_{k=1..n} (2^{⌊log₂ k⌋+1} – k) The difference term 2^{⌊log₂
  *            k⌋+1} – k is equal to the next power of two greater than k minus
  *            k. This is computed iteratively here
- * Range:     u8 n <= 11, u16 n <= 239, u32 n <= 9757, u64 n <= 9757,
- *            u128 n <= 9757, big any n
+ * Range:     u8 n <= 11, u16 n <= 239, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 77 terms through n = 9757 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

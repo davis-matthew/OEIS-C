@@ -12,7 +12,8 @@
  *            term is 1
  * Range:     u8 n <= 19, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   square_digit_sum
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/square_digit_sum.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether sum of two digits is a square (0,1,4,9,16). */
+static inline bool square_digit_sum(int a, int b)
+{
+    int s = a + b;
+    return s == 0 || s == 1 || s == 4 || s == 9 || s == 16;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,8 +42,8 @@ seq_t a(idx_t n)
     /* Ensure we have at least the first term initialized. */
     if (seq_len == 0) {
         seq_cap = 64;
-        seq    = (seq_t *)malloc(seq_cap * sizeof(seq_t));
-        used   = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq    = mem_new(seq_t, seq_cap);
+        used   = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;
         used[0] = seq[0];
         seq_len  = 1;
@@ -49,8 +57,8 @@ seq_t a(idx_t n)
     while (seq_len < target) {
         if (seq_len >= seq_cap) {
             seq_cap *= 2;
-            seq   = (seq_t *)realloc(seq,   seq_cap * sizeof(seq_t));
-            used  = (seq_t *)realloc(used,  seq_cap * sizeof(seq_t));
+            seq   = mem_resize(seq_t, seq, seq_cap);
+            used  = mem_resize(seq_t, used, seq_cap);
         }
 
         /* Search for the next term, starting from 1 upward. */

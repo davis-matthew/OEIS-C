@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(144*n)
  * Range:     u8 none, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   estimate_prime_upper_bound
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/estimate_prime_upper_bound.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 static uint8_t  *sieve      = NULL;   /* 0 = prime, 1 = composite */
 static size_t    sieve_size = 0;

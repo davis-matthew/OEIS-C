@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 114, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_digits, digit_sum_uint64, is_prime
+ * Validated: standard, pass, 83 terms through n = 9137 (2026-11-03)
+ * Helpers:   digit_sum_u64, is_prime_u64, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,12 @@
 /* No closed formula; we generate terms by scanning integers and testing the condition. */
 
 #include <stdbool.h>
-#include "../utils/count_digits.h"
-#include "../utils/digit_sum_uint64.h"
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/digit_sum_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -29,11 +33,11 @@ seq_t a(idx_t n)
 
     while (true) {
         uint64_t cand64 = (uint64_t)candidate;          /* candidate fits 64 bit for expected ranges */
-        uint64_t sum = digit_sum_uint64(cand64);        /* sum of decimal digits */
-        idx_t len = count_digits(candidate);            /* number of decimal digits */
+        uint64_t sum = digit_sum_u64(cand64);        /* sum of decimal digits */
+        idx_t len = num_digits_idx(candidate);            /* number of decimal digits */
         uint64_t val = sum * (uint64_t)len + 1;         /* value to test for primality */
 
-        if (is_prime(val)) {
+        if (is_prime_u64(val)) {
             ++count;
             if (count == n) {
                 return (seq_t)candidate;

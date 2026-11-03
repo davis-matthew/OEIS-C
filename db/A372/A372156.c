@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2*n! * Sum_{k=0..n} (n-k+2)^(k-1) * binomial(k, n-k) / k!
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Fast power for seq_t, exponent is a small non‑negative integer */
 static seq_t pow_seq_int(seq_t base, idx_t exp)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Extend factorial cache up to n if necessary */
     if (n > fact_cap)
     {
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         if (!new_cache)
             return (seq_t)0;   /* allocation failure – should not happen */
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             new_cache[i] = new_cache[i - (idx_t)1] * (seq_t)i;
 
         if (fact_cache)
-            free(fact_cache);
+            mem_free(fact_cache);
         fact_cache = new_cache;
         fact_cap = n;
     }
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     for (idx_t k = (idx_t)1; k <= n; ++k)
     {
         /* binomial(k, n-k) is zero when k < n-k, handled automatically by binom() */
-        seq_t bin = binom(k, n - k);
+        seq_t bin = binomial(k, n - k);
         if (bin == (seq_t)0)
             continue;
 

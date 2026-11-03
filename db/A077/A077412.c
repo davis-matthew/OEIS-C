@@ -7,13 +7,15 @@
  * Formula:   a(n) = 16*a(n-1) - a(n-2), a(0) = 1, a(1) = 16
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 741 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>          /* for memset */
+#include "../utils/mem.h"
 
 /* cache of already computed terms */
 static seq_t *cache      = NULL;
@@ -39,18 +41,18 @@ static void ensure_cache(idx_t n)
 
     seq_t *ptr;
     if (cache == NULL)
-        ptr = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        ptr = mem_new(seq_t, cache_cap);
     else
-        ptr = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+        ptr = mem_resize(seq_t, cache, cache_cap);
     if (!ptr)
         exit(1);                    /* allocation failure */
 
     if (cache == NULL) {
         /* freshly allocated block – zero it */
-        memset(ptr, 0, sizeof(seq_t) * cache_cap);
+        mem_set(ptr, 0, sizeof(seq_t) * cache_cap);
     } else if (cache_cap > old_cap) {
         /* newly added tail – zero it */
-        memset(ptr + old_cap, 0, sizeof(seq_t) * (cache_cap - old_cap));
+        mem_set(ptr + old_cap, 0, sizeof(seq_t) * (cache_cap - old_cap));
     }
 
     cache = ptr;

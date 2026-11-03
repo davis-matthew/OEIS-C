@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 10, u16 n <= 52, u32 n <= 1966, u64 n <= 8932,
- *            u128 n <= 8932, big any n
- * Helpers:   is_primitive
+ * Range:     u8 n <= 10, u16 n <= 52, u32 n <= 1966, u64 n <= 16222,
+ *            u128 n <= 16222, big any n
+ * Validated: standard, pass, 68 terms through n = 8932 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
    out those that are non‑primitive. */
 
 #include <stdbool.h>
-#include "../utils/is_primitive.h"
+
+/* Test whether a word (digits[0..len-1]) is primitive. */
+static bool is_primitive(int len, const uint8_t *digits)
+{
+    for (int d = 1; d < len; ++d) {
+        if (len % d != 0) continue;
+        bool ok = true;
+        for (int i = 0; i < len; ++i) {
+            if (digits[i] != digits[i % d]) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok) return false;   /* found a smaller period -> imprimitive */
+    }
+    return true;
+}
 
 /* Möbius function for small integers. */
 static int mobius(int n)

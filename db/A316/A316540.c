@@ -13,12 +13,14 @@
  *            9: 9751 10: 26557 11: 72773 12: 199700
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 43, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 static const seq_t init[13] = {
     0ULL,  /* 0 unused to keep indices 1‑based */
@@ -41,13 +43,13 @@ static void ensure_cache(idx_t upto)
     if (!cache) {
         /* initial allocation larger than the first 12 elements */
         cache_size =  16;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return;            /* abort on OOM; caller will crash */
     }
     while (cache_size <= upto) {
         idx_t new_size = cache_size * 2;
         if (new_size == 0) new_size = 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return;              /* abort on OOM; caller will crash */
         cache = tmp;
         cache_size = new_size;

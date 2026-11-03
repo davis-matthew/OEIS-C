@@ -12,11 +12,13 @@
  *            binom(n,k) * g_m[n-k] for n ≥ m The implementation co...
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 21, u64 n <= 30, u128 n <= 47,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 396 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 #include <stdlib.h>
 #ifdef __cplusplus
 #  include <algorithm>

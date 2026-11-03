@@ -8,7 +8,8 @@
  * Formula:   a(n) = (d-9)/2 where d is the nth divisor >=9 of 178605
  * Range:     u8 n <= 7, u16 n <= 36, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *p, const void *q)
 {
@@ -57,7 +59,7 @@ static void init_a032782_table(seq_t *table, size_t *len)
 
     *len = idx;
     /* Sort the list of k-values increasingly */
-    qsort(table, idx, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(table, idx, sizeof(seq_t), cmp_seq_t);
 }
 
 seq_t a(idx_t n)

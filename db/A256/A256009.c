@@ -12,13 +12,16 @@
  *            even → Σ_{i=0}^{k/2} C(r,i) - if k ≤ r-2 and k...
  * Range:     u8 n <= 43, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

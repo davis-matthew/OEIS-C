@@ -8,11 +8,14 @@
  * Formula:   a(n) = C(n)*C(n+2), where C(k) is the k‑th Catalan number
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)

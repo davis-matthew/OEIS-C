@@ -13,12 +13,14 @@
  *            infinite, a(n)=0. (Only n=4 is conjecturally infinite.)
  * Range:     u8 n <= 7, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9463 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 static const idx_t MAX_LIFETIME = 1000000;   /* upper bound to treat the sequence as infinite */
 
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
      * f[0] is unused; f[1] … f[n] are initialised to 1. */
     idx_t max_index = n + MAX_LIFETIME;
     size_t fsize = (size_t)max_index + 2;   /* extras to avoid overflow in indexing */
-    seq_t *f = (seq_t *)malloc(fsize * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, fsize);
     if (!f) return 0;                      /* out of memory – treat as infinite */
 
     for (idx_t i = 1; i <= n; ++i)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     }
 
     /* Clean up memory. */
-    free(f);
+    mem_free(f);
 
     /* If we reached the artificial limit, treat the sequence as infinite. */
     if (k > max_index) return 0;

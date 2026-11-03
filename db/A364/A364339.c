@@ -8,7 +8,8 @@
  *            (6*k+1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   binom, to_size_t
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,12 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
-#include "../utils/to_size_t.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Normalise index n to idx_t; use it only for sizes in this function. */
+static size_t to_size_t(idx_t n) { return (size_t)n; }
 
 static seq_t *seq_cache   = NULL;   /* a(0)..a(cache_cap-1) */
 static seq_t *bin_cache   = NULL;   /* binom(6*k+1,k) for k < bin_cap   */
@@ -33,12 +38,12 @@ static void ensure_cache(size_t need)
     if (need + 1 <= cache_cap)
         return;
     size_t new_cap = (need + 1) * 2;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);
     if (seq_cache) {
         for (size_t i = 0; i < cache_size; ++i)
             new_arr[i] = seq_cache[i];
-        free(seq_cache);
+        mem_free(seq_cache);
     }
     seq_cache = new_arr;
     cache_cap = new_cap;
@@ -50,12 +55,12 @@ static void ensure_bin(size_t k)
     if (k + 1 <= bin_cap)
         return;
     size_t new_cap = (k + 1) * 2;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);
     if (bin_cache) {
         for (size_t i = 0; i < bin_size; ++i)
             new_arr[i] = bin_cache[i];
-        free(bin_cache);
+        mem_free(bin_cache);
     }
     bin_cache = new_arr;
     bin_cap   = new_cap;
@@ -76,13 +81,13 @@ seq_t a(idx_t n)
             /* Build binom(6*k+1,k) if necessary */
             ensure_bin(to_size_t(k));
             if ((size_t)k >= bin_size) {
-                seq_t val = binom((idx_t)(6ULL * k + 1), (idx_t)k);
+                seq_t val = binomial((idx_t)(6ULL * k + 1), (idx_t)k);
                 bin_cache[(size_t)k] = val;
                 bin_size = to_size_t(k) + 1;
             }
 
             seq_t bin1 = bin_cache[(size_t)k];
-            seq_t bin2 = binom((idx_t)(6ULL * k + 1), (idx_t)(i - k));
+            seq_t bin2 = binomial((idx_t)(6ULL * k + 1), (idx_t)(i - k));
             seq_t divisor = (seq_t)(6ULL * k + 1);
 
             /* (bin1 / divisor) * bin2  -- exact division */

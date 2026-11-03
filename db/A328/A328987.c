@@ -12,7 +12,8 @@
  *            of A,B,C after A[n] has been added; C[n] = n + A[...
  * Range:     u8 n <= 43, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for the generated sequence */
 static seq_t *C_cache  = NULL;    /* C[n] values */
@@ -39,7 +41,7 @@ static void ensure_cache_cap(idx_t n)
     if ((size_t)(n + 1) <= C_cap) return;
     size_t new_cap = C_cap ? C_cap : 16;
     while ((size_t)(n + 1) > new_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(C_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, C_cache, new_cap);
     if (!tmp) return;            /* allocation failure; ignore – tests will not hit it */
     C_cache = tmp;
     C_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 1157, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 8926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static bool          g_initialized = false;
 static uint32_t     *g_spf          = NULL;   /* smallest prime factor for numbers up to LIMIT */
@@ -44,7 +46,7 @@ static void grow_uint32(uint32_t **arr, size_t *len, size_t *cap, size_t add) {
 static void grow_seq(seq_t **arr, size_t *len, size_t *cap, size_t add) {
     if (*len + add > *cap) {
         *cap = (*cap == 0) ? 16 : (*cap * 2);
-        *arr = (seq_t*)realloc(*arr, *cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     }
 }
 
@@ -74,7 +76,7 @@ static void init_once(void) {
 
     /* 2. build semiprime list (numbers with exactly two prime factors) */
     g_semip_cap   = 2000000;                      /* initial capacity */
-    g_semiprimes  = (seq_t*)malloc(g_semip_cap * sizeof(seq_t));
+    g_semiprimes  = mem_new(seq_t, g_semip_cap);
 
     for (uint32_t n = 4; n <= LIMIT; ++n) {
         uint32_t p = g_spf[n];
@@ -88,7 +90,7 @@ static void init_once(void) {
     /* 3. build answer list: primes p where exactly one prime lies between
        semiprime(p) and semiprime(p+1) */
     g_ans_cap   = 100000;                          /* initial capacity */
-    g_answers   = (seq_t*)malloc(g_ans_cap * sizeof(seq_t));
+    g_answers   = mem_new(seq_t, g_ans_cap);
 
     for (size_t idx = 0; idx < g_prime_cnt; ++idx) {
         uint32_t p = g_prime[idx];

@@ -7,7 +7,8 @@
  * Formula:   a(n) = φ(n) + ω(n) (Euler's totient + number of distinct primes)
  * Range:     u8 n <= 69, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   allocate_seq_array
+ * Validated: standard, pass, 85 terms through n = 9785 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include "../utils/allocate_seq_array.h"
+
+static seq_t *allocate_seq_array(size_t n)
+{
+#ifdef __cplusplus
+    return new seq_t[n];
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
 
 static seq_t *phi = NULL;   /* φ(i) for 0 ≤ i < cap   */
 static seq_t *omega = NULL; /* ω(i) for 0 ≤ i < cap   */

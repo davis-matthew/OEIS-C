@@ -12,13 +12,15 @@
  *            given in the OEIS entry for A122533
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;      /* memo[i] holds a(i) for i ≥ 1 */
 static size_t cap = 0;          /* allocated capacity (indices 1 … cap) */
@@ -29,8 +31,7 @@ static void ensure_capacity(idx_t n)
 {
     if ((size_t)n > cap) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(memo,
-                                      (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, (new_cap + 1));
         if (!tmp) abort();          /* out of memory */
         memo = tmp;
         cap   = new_cap;

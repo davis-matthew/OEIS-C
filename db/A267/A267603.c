@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_sq_mod5
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_sq_mod5.h"
+#include "../utils/mem.h"
+
+/* Helper: test if x is a quadratic residue modulo 5. */
+static inline bool is_sq_mod5(uint64_t x)
+{
+    uint64_t r = x % 5;
+    return (r == 0u || r == 1u || r == 4u);
+}
 
 /* Quadratic residues modulo 19 (precomputed). */
 static const bool SQ_MOD19[19] = {
@@ -60,7 +68,7 @@ static void ensure_cache(idx_t n)
     if (cache_len == 0)
     {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_len < (size_t)n)
@@ -79,7 +87,7 @@ static void ensure_cache(idx_t n)
             if (cache_len >= cache_cap)
             {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)cand;
         }

@@ -9,7 +9,8 @@
  *            divisors of n
  * Range:     u8 n <= 37, u16 n <= 6811, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: integer square root (floor) for uint64_t */
 static uint64_t isqrt_u64(uint64_t n)
@@ -126,7 +128,7 @@ seq_t a(idx_t n)
         if (tau_k == tau_k2) {
             if (terms_cnt == terms_cap) { /* grow array */
                 size_t new_cap = terms_cap ? terms_cap * 2 : 8;
-                seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
                 if (!new_terms)
                     exit(1);
                 terms = new_terms;

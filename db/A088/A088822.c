@@ -8,6 +8,7 @@
  *            largest_prime_factor(1) defined as 0
  * Range:     u8 n <= 31, u16 n <= 672, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 73 terms through n = 9984 (2026-11-01)
  * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 611, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9855 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
         Σ_{d∈{1,2,5,10}} d * k_d(k_d+1)/2 = n.  */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values.  Recomputes when a larger n is requested. */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_len) {
         /* Allocate array for new limit. */
         size_t N = (size_t)(n + 1);           /* array length = n+1 */
-        seq_t *arr = (seq_t *)calloc(N, sizeof(seq_t));
+        seq_t *arr = mem_new(seq_t, N);
         if (!arr) return 0;                    /* out of memory -> 0 */
 
         arr[0] = (seq_t)1;                    /* initial product = 1 */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
             /* Compute triangular numbers scaled by d up to N-1. */
             size_t tcap = 16;
             idx_t *tvals = (idx_t *)malloc(tcap * sizeof(idx_t));
-            if (!tvals) { free(arr); return 0; }
+            if (!tvals) { mem_free(arr); return 0; }
             size_t tcount = 0;
             idx_t k = 0, t;
             while (1) {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
                 if (tcount >= tcap) {
                     tcap <<= 1;
                     idx_t *tmp = (idx_t *)realloc(tvals, tcap * sizeof(idx_t));
-                    if (!tmp) { free(tvals); free(arr); return 0; }
+                    if (!tmp) { free(tvals); mem_free(arr); return 0; }
                     tvals = tmp;
                 }
                 tvals[tcount++] = t;
@@ -62,8 +64,8 @@ seq_t a(idx_t n)
             }
 
             /* Convolution with the current divisor's series. */
-            seq_t *newarr = (seq_t *)calloc(N, sizeof(seq_t));
-            if (!newarr) { free(tvals); free(arr); return 0; }
+            seq_t *newarr = mem_new(seq_t, N);
+            if (!newarr) { free(tvals); mem_free(arr); return 0; }
             for (size_t ti = 0; ti < tcount; ++ti) {
                 idx_t shift = tvals[ti];
                 for (idx_t idx = shift; idx < N; ++idx) {
@@ -72,12 +74,12 @@ seq_t a(idx_t n)
             }
 
             free(tvals);
-            free(arr);                     /* free previous array */
+            mem_free(arr);                     /* free previous array */
             arr = newarr;                  /* use new array for next divisor */
         }
 
         /* Store the computed values in the cache. */
-        free(cache);
+        mem_free(cache);
         cache = arr;
         cache_len = N;
     }

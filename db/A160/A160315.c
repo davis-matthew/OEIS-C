@@ -8,12 +8,14 @@
  *            ≥ 0)
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 9, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 353 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,12 +25,12 @@ seq_t a(idx_t n)
     /* Allocate or grow cache to at least n+1 elements */
     if (cache == NULL) {
         /* First request: allocate array for n+1 elements */
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         if (!cache) return (seq_t)0;      /* out of memory → zero */
     }
     else if (n > max_n) {
         /* Expand cache to accommodate n */
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return (seq_t)0;        /* out of memory → zero */
         cache = tmp;
     }

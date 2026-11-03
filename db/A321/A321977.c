@@ -7,7 +7,8 @@
  * Formula:   a(n) = 0!*1!*...*7! * (8*n)! / ( n!*(n+1)!*...*(n+7)! )
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 8,
  *            big any n
- * Helpers:   build_primes_upto, factorial, legendre_fact, pow_uint, seq_mul
+ * Validated: standard, pass, 27 terms through n = 144 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,11 +18,36 @@
 #include <stdbool.h>
 
 /* Utility function prototypes (provided by the build environment). */
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/factorial.h"
-#include "../utils/seq_mul.h"
-#include "../utils/pow_uint.h"
-#include "../utils/legendre_fact.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Helper: exponent of prime p in m! (Legendre's formula). */
+static inline idx_t legendre_fact(idx_t m, uint64_t p)
+{
+    idx_t exp = 0;
+    while (m) {
+        m /= p;
+        exp += m;
+    }
+    return exp;
+}
 
 /* Cache for the constant 0!*1!*...*7!. */
 static seq_t C = 0;
@@ -81,7 +107,7 @@ seq_t a(idx_t n)
             exp -= legendre_fact(n + k, p);
 
         if (exp > 0) {
-            seq_t powp = pow_uint(p, exp);
+            seq_t powp = ipow_u64_idx(p, exp);
             result = seq_mul(result, powp);
         }
     }

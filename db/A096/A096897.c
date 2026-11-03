@@ -8,12 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   gcd64_local
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd64_local.h"
+#include "../utils/gcd_u64.h"
 /* This computes the least semiperimeter of a primitive Pythagorean
    triangle whose even leg is 4n.  For a given n, all factor pairs
    (m,k) with m·k = 2n, gcd(m,k)=1, m>k, and m and k of opposite
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
 
         if (m <= k) continue;                /* need m>k */
 
-        if (gcd64_local(m, k) != 1) continue;/* primitive condition */
+        if (gcd_u64(m, k) != 1) continue;/* primitive condition */
         if (((m ^ k) & 1) == 0) continue;   /* opposite parity */
 
         seq_t s = (seq_t)m * (m + k);

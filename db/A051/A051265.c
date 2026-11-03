@@ -8,7 +8,8 @@
  * Formula:   a(n) = max_{1 ≤ k ≤ n , gcd(k,n)=1} ω(k)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd64_uint64
+ * Validated: standard, pass, 121 terms through n = 9813 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd64_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* dynamically computed array of distinct prime‑factor counts */
 static seq_t *omega = NULL;          /* omega[i] = ω(i) */
@@ -28,7 +30,7 @@ static size_t omega_size = 0;
 static void ensure_omega(size_t limit)
 {
     if (omega == NULL || limit + 1 > omega_size) {
-        seq_t *new_omega = (seq_t *)realloc(omega, (limit + 1) * sizeof(seq_t));
+        seq_t *new_omega = mem_resize(seq_t, omega, (limit + 1));
         if (!new_omega) return;   /* out‑of‑memory: simply return, caller will yield 0 */
         omega = new_omega;
         omega_size = limit + 1;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
     seq_t max_omega = 0;
     for (uint64_t k = 1; k <= N; ++k) {
-        if (gcd64_uint64(k, N) == 1) {
+        if (gcd_u64(k, N) == 1) {
             seq_t w = omega[(size_t)k];
             if (w > max_omega) max_omega = w;
         }

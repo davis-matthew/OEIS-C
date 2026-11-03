@@ -7,6 +7,7 @@
  * Formula:   a(n) = numerator of ∑_{k=2}^{n-1, n mod k ≠ 0} n/k
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* The running fraction is kept in lowest terms after each addition. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* ------------------------------------------------------------------ */

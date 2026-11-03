@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sos
+ * Validated: standard, pass, 96 terms through n = 8431 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,27 @@
  * as the sum of two squares. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sos.h"
+
+static bool sos(int64_t n) {
+    if (n < 0) return false;
+    uint64_t u = (uint64_t)n;
+    if (u == 0) return true;          /* 0 = 0^2+0^2 */
+    /* factor out 2^a (ignored, 2≡2 mod4) */
+    while ((u & 1) == 0) u >>= 1;
+    for (uint64_t p = 3; p * p <= u; p += 2) {
+        if (u % p == 0) {
+            int cnt = 0;
+            while (u % p == 0) {
+                u /= p;
+                ++cnt;
+            }
+            if ((p % 4 == 3) && (cnt & 1) /* odd exponent */)
+                return false;
+        }
+    }
+    if (u > 1 && (u % 4 == 3)) return false;
+    return true;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;                /* defined only for n>=1, but safe */

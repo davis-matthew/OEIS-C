@@ -7,12 +7,18 @@
  * Formula:   a(n) = n*10^n + (10^n - 1)/9
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 19,
  *            big any n
- * Helpers:   pow10_simple
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10_simple.h"
+static seq_t pow10_simple(idx_t e)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < e; ++i) r *= 10;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

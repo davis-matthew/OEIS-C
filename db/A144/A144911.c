@@ -11,7 +11,8 @@
  *            initial values: a(1)=1, a(2)=2, a(3)=2
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   core_seq, rad
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,33 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/rad.h"
-#include "../utils/core_seq.h"
+#include "../utils/radical.h"
+#include "../utils/mem.h"
+
+/* ---- core(n) : product of primes with odd exponent in n ---- */
+static seq_t core_seq(seq_t n)
+{
+    if (n <= 1)          /* core(0)=0, core(1)=1 */
+        return n;
+
+    seq_t temp = n;
+    seq_t core = 1;
+
+    for (idx_t p = 2; (seq_t)p * (seq_t)p <= temp; ++p) {
+        int cnt = 0;
+        while (temp % (seq_t)p == 0) {
+            temp /= (seq_t)p;
+            ++cnt;
+        }
+        if (cnt & 1) {               /* keep one copy if exponent odd */
+            core *= (seq_t)p;
+        }
+    }
+    if (temp > 1) {                  /* remaining prime factor, exponent 1 */
+        core *= temp;
+    }
+    return core;
+}
 
 /* ---- sequence function a(n) ---- */
 seq_t a(idx_t n)
@@ -44,12 +70,12 @@ seq_t a(idx_t n)
     seq_t *cur  = NULL;
 
     for (idx_t cur_row = 1; cur_row <= r; ++cur_row) {
-        cur = (seq_t *)malloc(cur_row * sizeof(seq_t));
+        cur = mem_new(seq_t, cur_row);
         if (!cur)                /* allocation failed */
             return 0;
 
         /* Left edge */
-        cur[0] = rad(cur_row);
+        cur[0] = radical(cur_row);
 
         /* Right edge */
         cur[cur_row - 1] = core_seq((seq_t)cur_row);
@@ -65,13 +91,13 @@ seq_t a(idx_t n)
         /* If this is the desired row, return the element */
         if (cur_row == r) {
             seq_t result = cur[k - 1];
-            free(prev);
-            free(cur);
+            mem_free(prev);
+            mem_free(cur);
             return result;
         }
 
         /* Move to next row */
-        free(prev);
+        mem_free(prev);
         prev = cur;
         cur  = NULL;
     }

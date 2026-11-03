@@ -11,17 +11,69 @@
  *            24*Sum_{i=1..m-1} i^2*(35*i^2 - 52*i*m + 18*m^2)*sigma(...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 10, u64 n <= 79, u128 n <= 4482,
  *            big any n
- * Helpers:   add_signed, ramanujan_tau, sigma11, u128_to_seq
+ * Validated: standard, pass, 37 terms through n = 8944 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/add_signed.h"
-#include "../utils/ramanujan_tau.h"
-#include "../utils/sigma11.h"
-#include "../utils/u128_to_seq.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+/* add c*t (signed) into pos/neg */
+static void add_signed(seq_t *pos, seq_t *neg, __int128 t, uint64_t c)
+{
+    if (t >= 0) *pos += u128_to_seq((unsigned __int128)t) * c;
+    else *neg += u128_to_seq((unsigned __int128)(-t)) * c;
+}
+
+static __int128 ramanujan_tau(uint64_t m)
+{
+    uint64_t *sg;
+    uint64_t i, j;
+    __int128 s = 0, mm, res;
+    if (m == 0) return 0;
+    sg = (uint64_t *)calloc((size_t)m + 1, sizeof(uint64_t));
+    for (i = 1; i <= m; i++)
+        for (j = i; j <= m; j += i)
+            sg[j] += i;
+    mm = (__int128)m;
+    for (i = 1; i < m; i++) {
+        __int128 ii = (__int128)i;
+        __int128 poly = 35 * ii * ii - 52 * ii * mm + 18 * mm * mm;
+        s += ii * ii * poly * (__int128)sg[i] * (__int128)sg[m - i];
+    }
+    res = mm * mm * mm * mm * (__int128)sg[m] - 24 * s;
+    free(sg);
+    return res;
+}
+
+static seq_t sigma11(uint64_t m)
+{
+    seq_t s = 0;
+    uint64_t d;
+    for (d = 1; d <= m; d++) {
+        if (m % d == 0) {
+            seq_t p = 1;
+            int k;
+            for (k = 0; k < 11; k++) p = p * (uint64_t)d;
+            s += p;
+        }
+    }
+    return s;
+}
 
 seq_t a(idx_t n)
 {

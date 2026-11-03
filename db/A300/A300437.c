@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,7 @@
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -66,8 +67,8 @@ seq_t a(idx_t n)
         for (idx_t i = 0; i <= total; ++i)
         {
             idx_t j = total - i;
-            seq_t a1 = binom(two_m + i - 1u, two_m - 1u);
-            seq_t a2 = binom(m, j);
+            seq_t a1 = binomial(two_m + i - 1u, two_m - 1u);
+            seq_t a2 = binomial(m, j);
             seq_t prod = a1 * (seq_t)t;
             prod *= a2;
             sum += prod;

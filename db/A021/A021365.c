@@ -11,13 +11,15 @@
  *            performed in O(n_non_cached) time and can be called in an...
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdint.h>   /* uint64_t */
+#include "../utils/mem.h"
 
 static seq_t *digits_cache   = NULL;
 static size_t digits_len      = 0;   /* total number of digits stored   */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
        hold one digit and a remainder of the fraction. */
     if (digits_cache == NULL) {
         digits_capacity = 1;
-        digits_cache = (seq_t *)malloc(digits_capacity * sizeof(seq_t));
+        digits_cache = mem_new(seq_t, digits_capacity);
         if (digits_cache == NULL)   /* unlikely in the test harness */
             return (seq_t)0;
         digits_len = 0;
@@ -47,8 +49,7 @@ seq_t a(idx_t n)
     if (idx >= digits_capacity) {
         size_t new_cap = digits_capacity;
         while (new_cap <= idx) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(digits_cache,
-                                      new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, digits_cache, new_cap);
         if (tmp == NULL)   /* unlikely in the test harness */
             return (seq_t)0;
         digits_cache = tmp;

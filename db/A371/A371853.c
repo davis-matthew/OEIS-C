@@ -7,56 +7,132 @@
  * Formula:   return the decimal digits of 2^1257787 – 1, indexed from 378632.
  *            The first call precomputes the prime as a decimal string using
  *            the arbitrary–precision helpers pow2 and seq_to_str
- * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
- * Helpers:   pow2, seq_to_str
+ * Range:     u8 n <= 378721, u16 n <= 378721, u32 n <= 378721,
+ *            u64 n <= 378721, u128 n <= 378721, big any n
+ * Validated: partial, pass, 90 terms through n = 378721 (2026-11-03)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+/* A371853: the decimal digits of 2^1257787 - 1, which has 378632 of them; the
+ * offset is 378632, so a(378632) is the leading digit.
+ *
+ * A digit far down needs the whole number: it is built exactly in base 10^9,
+ * multiplying by 2^29 at a time. The leading digits come much faster from
+ * 2^1257787 computed by squaring with only the top LEAD_LIMBS limbs kept: each
+ * truncation is off by under one unit in the last of the limbs, and the 50 or
+ * so steps leave the first LEAD_DIGITS digits exact. (Subtracting 1 changes
+ * only the last digit: 2^k ends in 2, 4, 6 or 8.) Digits are small, so this is
+ * the same at every width. */
+
+#include <stdint.h>
 #include <stdlib.h>
-#include <stddef.h>
-#include "../utils/pow2.h"
-#include "../utils/seq_to_str.h"
+#include <string.h>
 
-static char *prime_str = NULL;
-static size_t prime_len = 0;
-static const idx_t OFFSET = 378632ULL;
-static int prime_ready = 0;
+#define EXPONENT 1257787
+#define DIGITS 378632                   /* = the offset */
+#define LEAD_LIMBS 340                    /* 3060 digits */
+#define LEAD_DIGITS 3000
 
-/* Compute 2^1257787 and store its decimal representation (minus 1) */
-static void init_prime(void)
+static unsigned char *all = NULL;         /* every digit, once built */
+static unsigned char lead[LEAD_DIGITS];
+static int lead_built = 0;
+
+static void build_all(void)
 {
-    if (prime_ready)
-        return;
+    const size_t LIMBS = DIGITS / 9 + 2;
+    uint32_t *L = (uint32_t *)calloc(LIMBS, sizeof *L);   /* little-endian base 10^9 */
+    all = (unsigned char *)malloc(DIGITS + 9);
+    if (!L || !all) abort();
+    size_t len = 1;
+    L[0] = 1;
+    for (int left = EXPONENT; left > 0;) {
+        int s = left < 29 ? left : 29;
+        left -= s;
+        uint64_t carry = 0;
+        for (size_t j = 0; j < len; ++j) {
+            uint64_t v = ((uint64_t)L[j] << s) + carry;
+            L[j] = (uint32_t)(v % 1000000000u);
+            carry = v / 1000000000u;
+        }
+        while (carry) {
+            L[len++] = (uint32_t)(carry % 1000000000u);
+            carry /= 1000000000u;
+        }
+    }
+    L[0] -= 1;
+    size_t pos = 0;
+    for (size_t j = len; j-- > 0;) {
+        char buf[9];
+        uint32_t v = L[j];
+        for (int d = 0; d < 9; ++d) { buf[d] = (char)(v % 10); v /= 10; }
+        int top = 8;
+        if (j == len - 1) while (top > 0 && buf[top] == 0) --top;
+        for (int d = top; d >= 0; --d) all[pos++] = (unsigned char)buf[d];
+    }
+    free(L);
+}
 
-    /* 2^1257787 as a big integer. */
-    seq_t p = pow2((idx_t)1257787);
+/* r = the top LEAD_LIMBS limbs of x*y (big-endian base 10^9, leading limb nonzero) */
+static void mul_top(const uint32_t *x, int nx, const uint32_t *y, int ny, uint32_t *r, int *nr)
+{
+    uint64_t prod[2 * LEAD_LIMBS + 1];
+    int n = nx + ny;
+    memset(prod, 0, sizeof prod);
+    for (int i = nx - 1; i >= 0; --i)                 /* little-endian accumulation */
+        for (int j = ny - 1; j >= 0; --j) {
+            int k = (nx - 1 - i) + (ny - 1 - j);
+            prod[k] += (uint64_t)x[i] * y[j];
+            prod[k + 1] += prod[k] / 1000000000u;
+            prod[k] %= 1000000000u;
+        }
+    for (int k = 0; k < n; ++k) {
+        prod[k + 1] += prod[k] / 1000000000u;
+        prod[k] %= 1000000000u;
+    }
+    while (n > 1 && prod[n - 1] == 0) --n;
+    int keep = n < LEAD_LIMBS ? n : LEAD_LIMBS;
+    for (int i = 0; i < keep; ++i) r[i] = (uint32_t)prod[n - 1 - i];
+    *nr = keep;
+}
 
-    /* First find length, then allocate buffer. */
-    size_t len;
-    seq_to_str(p, NULL, &len);
-
-    prime_len = len;
-    prime_str = (char *)malloc(len + 1);
-    seq_to_str(p, prime_str, &len);
-
-    /* Subtract 1: the last digit is guaranteed to be > '0'. */
-    prime_str[len - 1]--;
-
-    prime_str[len] = '\0';
-    prime_ready = 1;
+static void build_lead(void)
+{
+    uint32_t res[LEAD_LIMBS] = {1}, base[LEAD_LIMBS] = {2}, t[LEAD_LIMBS];
+    int nres = 1, nbase = 1, nt;
+    for (unsigned e = EXPONENT; e; e >>= 1) {
+        if (e & 1) {
+            mul_top(res, nres, base, nbase, t, &nt);
+            memcpy(res, t, sizeof t);
+            nres = nt;
+        }
+        if (e > 1) {
+            mul_top(base, nbase, base, nbase, t, &nt);
+            memcpy(base, t, sizeof t);
+            nbase = nt;
+        }
+    }
+    int pos = 0;
+    for (int i = 0; i < nres && pos < LEAD_DIGITS; ++i) {
+        char buf[9];
+        uint32_t v = res[i];
+        for (int d = 0; d < 9; ++d) { buf[d] = (char)(v % 10); v /= 10; }
+        int top = 8;
+        if (i == 0) while (top > 0 && buf[top] == 0) --top;
+        for (int d = top; d >= 0 && pos < LEAD_DIGITS; --d) lead[pos++] = (unsigned char)buf[d];
+    }
+    lead_built = 1;
 }
 
 seq_t a(idx_t n)
 {
-    if (n < OFFSET)
-        return (seq_t)0;
-
-    init_prime();
-
-    idx_t pos = n - OFFSET;
-    if ((size_t)pos >= prime_len)
-        return (seq_t)0;
-
-    return (seq_t)(prime_str[pos] - '0');
+    if (n < DIGITS || n >= 2 * (idx_t)DIGITS) return (seq_t)0;
+    size_t i = (size_t)(n - DIGITS);              /* position from the left */
+    if (DIGITS > 100000 && i < LEAD_DIGITS) {
+        if (!lead_built) build_lead();
+        return (seq_t)lead[i];
+    }
+    if (!all) build_all();
+    return (seq_t)all[i];
 }

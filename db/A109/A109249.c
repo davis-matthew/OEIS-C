@@ -11,13 +11,15 @@
  *            a(6)=63,a(7)=203,a(8)=627
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 21, u64 n <= 41, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Initialise the memoisation array on the first call */
     if (memo_len == 0) {
         memo_cap = 12;                 /* some spare room */
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (!memo) return 0;           /* allocation failure – unlikely */
         for (size_t i = 0; i < 9; ++i)
             memo[i] = base[i];
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* Grow the array if the requested index is beyond the current capacity */
     if ((size_t)n >= memo_cap) {
         size_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (!tmp) return 0;           /* allocation failure – unlikely */
         memo   = tmp;
         memo_cap = new_cap;

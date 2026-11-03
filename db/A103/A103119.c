@@ -9,14 +9,16 @@
  *            fast enough for n up to about 10 000
  * Range:     u8 n <= 40, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 72 terms through n = 972 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     while (count < n) {
         /* Form the number k0999.  For k up to ~1e6 this fits in uint64_t. */
         uint64_t val = k * 10000ULL + 999ULL;
-        if (is_prime(val)) {
+        if (is_prime_u64(val)) {
             count++;
             if (count == n)
                 return (seq_t)k;

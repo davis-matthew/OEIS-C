@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n)^2 modulo prime(n+1)
  * Range:     u8 n <= 6, u16 n <= 54, u32 n <= 6926, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 8934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Static storage for the prime list (1‑based indexing) */
 static seq_t *prime_list = NULL;   /* array of primes */
@@ -45,7 +47,7 @@ static void rebuild_primes_upto(idx_t limit)
         if (is_prime[i]) cnt++;
 
     /* Reallocate the prime list to accommodate all primes <= limit */
-    seq_t *new_list = (seq_t *)realloc(prime_list, (size_t)cnt * sizeof(seq_t));
+    seq_t *new_list = mem_resize(seq_t, prime_list, (size_t)cnt);
     if (!new_list) {
         free(is_prime);
         return;

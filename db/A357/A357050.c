@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*--- elementary factorisation ------------------------------------------*/
 static size_t factorize(uint64_t n, uint64_t primes[], int exps[])
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
 
     /*--- 4. Subset‑sum DP ------------------------------------------------*/
     size_t tgt = (size_t)target;
-    seq_t *dp = (seq_t *)calloc(tgt + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, tgt + 1);
     dp[0] = (seq_t)1;
 
     for (size_t i = 0; i < div_cnt; ++i) {
@@ -131,7 +133,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[tgt];
-    free(dp);
+    mem_free(dp);
     free(divs);
     return result;
 }

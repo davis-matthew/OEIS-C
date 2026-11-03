@@ -10,7 +10,8 @@
  *            over integers u,v with u*a + v*b = 1 (and (x,y) = (g*a, g*b))
  * Range:     u8 n <= 8, u16 n <= 36, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   min_uv_sq, modinv_idx, seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,51 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/min_uv_sq.h"
-#include "../utils/modinv_idx.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+/* modular inverse of a modulo m (gcd(a,m)=1) */
+static idx_t modinv_idx(idx_t a, idx_t m)
+{
+    int64_t r0 = a, r1 = m;
+    int64_t s0 = 1, s1 = 0;
+    int64_t t0 = 0, t1 = 1;
+    while (r1) {
+        int64_t q = r0 / r1;
+        int64_t r2 = r0 - q * r1;
+        int64_t s2 = s0 - q * s1;
+        int64_t t2 = t0 - q * t1;
+        r0 = r1; r1 = r2;
+        s0 = s1; s1 = s2;
+        t0 = t1; t1 = t2;
+    }
+    /* r0 == 1, s0 is the inverse of a modulo m */
+    int64_t inv = s0 % (int64_t)m;
+    if (inv < 0) inv += (int64_t)m;
+    return (idx_t)inv;
+}
+
+/* minimal u^2+v^2 for coprime a,b */
+static seq_t min_uv_sq(idx_t a, idx_t b)
+{
+    idx_t inv = modinv_idx(a, b);          /* 0 <= inv < b */
+    int64_t u = (int64_t)inv;
+    if (u > (int64_t)b / 2) u -= (int64_t)b;   /* bring u to [-b/2, b/2] */
+    int64_t v = (1 - u * (int64_t)a) / (int64_t)b;
+
+    int64_t absu = u >= 0 ? u : -u;
+    int64_t absv = v >= 0 ? v : -v;
+    seq_t squ = (seq_t)absu * (seq_t)absu;
+    seq_t sqv = (seq_t)absv * (seq_t)absv;
+    return squ + sqv;
+}
 
 /* Euclidean gcd for idx_t */
 static idx_t gcd_idx(idx_t a, idx_t b)

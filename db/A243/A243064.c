@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   count_k, gcd_u64
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,54 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_k.h"
 #include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
+
+/* Count how many k satisfy the conditions for a given n */
+static uint64_t count_k(uint64_t n)
+{
+    uint64_t cnt = 0;
+    /* iterate over all divisors b of n */
+    for (uint64_t i = 1; (unsigned __int128)i * i <= n; ++i) {
+        if (n % i) continue;
+        uint64_t ds[2] = { i, n / i };
+        for (int di = 0; di < 2; ++di) {
+            uint64_t b = ds[di];
+            uint64_t d = n / b;          /* m = n/b */
+            /* cases with a > b */
+            for (uint64_t a = b + 1; ; ++a) {
+                uint64_t s = a + b;
+                uint64_t t = a - b;
+                uint64_t g_ab = gcd_u64(a, b);
+                if (g_ab != 1) continue;
+                uint64_t g_st = gcd_u64(s, t);
+                unsigned __int128 l128 = (unsigned __int128)(s / g_st) * t;
+                if (l128 > d) break;   /* l increases with a */
+                uint64_t l = (uint64_t)l128;
+                if (d % l == 0) {
+                    ++cnt;
+                    if (cnt > 1) return cnt;   /* early exit */
+                }
+            }
+            /* cases with a < b */
+            for (uint64_t a = 1; a < b; ++a) {
+                uint64_t g_ab = gcd_u64(a, b);
+                if (g_ab != 1) continue;
+                uint64_t s = a + b;
+                uint64_t t = b - a;
+                uint64_t g_st = gcd_u64(s, t);
+                unsigned __int128 l128 = (unsigned __int128)(s / g_st) * t;
+                if (l128 > d) continue;   /* l too large */
+                uint64_t l = (uint64_t)l128;
+                if (d % l == 0) {
+                    ++cnt;
+                    if (cnt > 1) return cnt;
+                }
+            }
+        }
+    }
+    return cnt;
+}
 
 /* --- helpers --------------------------------------------------- */
 
@@ -46,7 +93,7 @@ static void ensure_capacity(size_t needed)
     if (terms_cap < needed) {
         size_t newcap = terms_cap == 0 ? 16 : terms_cap * 2;
         while (newcap < needed) newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, newcap);
         if (!tmp) exit(EXIT_FAILURE);
         terms = tmp;
         terms_cap = newcap;

@@ -9,6 +9,7 @@
  *            n == 0) a(n) = s / n; otherwise a(n) = s
  * Range:     u8 n <= 17, u16 n <= 31, u32 n <= 54, u64 n <= 100,
  *            u128 n <= 195, big any n
+ * Validated: standard, pass, 66 terms through n = 4661 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

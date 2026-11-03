@@ -7,14 +7,16 @@
  * Formula:   a(n) = A003415(n^2) = 2*n*A003415(n)
  * Range:     u8 n <= 11, u16 n <= 127, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 63 terms through n = 936 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-
 
 seq_t a(idx_t n)
 {

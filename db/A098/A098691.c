@@ -11,14 +11,33 @@
  *            enumerated with q descending
  * Range:     u8 n <= 33, u16 n <= 74, u32 n <= 182, u64 n <= 427,
  *            u128 n <= 1160, big any n
- * Helpers:   mobius_odd
+ * Validated: standard, pass, 79 terms through n = 1204 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mobius_odd.h"
+
+/* Möbius function for an odd integer d (d ≥ 1). */
+static int mobius_odd(idx_t d)
+{
+    int mu = 1;
+    idx_t n = d;
+    for (idx_t p = 3; p * p <= n; p += 2) {        /* d is odd, no factor 2 */
+        if (n % p == 0) {
+            int cnt = 0;
+            while (n % p == 0) {
+                n /= p;
+                if (++cnt > 1) return 0;           /* squared prime factor -> μ = 0 */
+            }
+            mu = -mu;
+        }
+    }
+    if (n > 1) mu = -mu;                            /* remaining odd prime factor */
+    return mu;
+}
 
 /* Compute base^exp as unsigned __int128.  base is assumed to be < 2^64. */
 static unsigned __int128 pow128_uint128(uint64_t base, idx_t exp)

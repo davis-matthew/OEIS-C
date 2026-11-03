@@ -8,7 +8,8 @@
  *            (OEIS A176985)
  * Range:     u8 n <= 13, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum, is_prime, is_prime_small
+ * Validated: standard, pass, 64 terms through n = 959 (2026-11-03)
+ * Helpers:   digit_sum, is_prime, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"
 #include "../utils/digit_sum.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Return the n-th term of the sequence, a(1) = 2. */
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise storage once */
     if (seq == NULL) {
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (seq == NULL) return 0; /* allocation failed */
     }
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* grow the array if necessary */
     if (seq_len == seq_cap) {
         seq_cap <<= 1;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
         if (seq == NULL) return 0;
     }
 
@@ -55,13 +57,13 @@ seq_t a(idx_t n)
         seq_t ds = digit_sum((seq_t)next_candidate);
 
         /* check if digit sum + 5 is prime */
-        if (is_prime_small(ds + (seq_t)5)) {
+        if (is_prime_seq(ds + (seq_t)5)) {
             seq[seq_len++] = (seq_t)next_candidate;
 
             /* ensure capacity for further terms (if needed) */
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
                 if (seq == NULL) return 0;
             }
         }

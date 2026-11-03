@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,13 +29,16 @@
 */
 
 #include <stdlib.h>
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/pow2.h"    /* seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* pre‑compute binomial coefficients C(n,u) for all u */
-    seq_t *Cnu = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *Cnu = mem_new(seq_t, (n + 1));
     if (!Cnu) return 0;
     Cnu[0]  = 1;
     for (idx_t u = 0; u < n; ++u) {
@@ -42,19 +46,19 @@ seq_t a(idx_t n)
     }
 
     /* pre‑compute powers of two up to n-1 */
-    seq_t *pow2_arr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    if (!pow2_arr) { free(Cnu); return 0; }
+    seq_t *pow2_arr = mem_new(seq_t, (n + 1));
+    if (!pow2_arr) { mem_free(Cnu); return 0; }
     pow2_arr[0] = 1;
     for (idx_t e = 1; e <= n; ++e) {
         pow2_arr[e] = pow2_arr[e - 1] * 2;
     }
 
     /* pre‑compute T(k) = binom(k, floor(k/2)) for all k */
-    seq_t *T = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    if (!T) { free(Cnu); free(pow2_arr); return 0; }
+    seq_t *T = mem_new(seq_t, (n + 1));
+    if (!T) { mem_free(Cnu); mem_free(pow2_arr); return 0; }
     for (idx_t k = 0; k <= n; ++k) {
         idx_t r = k / 2;
-        T[k] = binom(k, r);
+        T[k] = binomial(k, r);
     }
 
     seq_t total = 0;
@@ -87,8 +91,8 @@ seq_t a(idx_t n)
         total += S * T[k];
     }
 
-    free(Cnu);
-    free(pow2_arr);
-    free(T);
+    mem_free(Cnu);
+    mem_free(pow2_arr);
+    mem_free(T);
     return total;
 }

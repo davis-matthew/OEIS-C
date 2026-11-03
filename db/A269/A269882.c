@@ -10,13 +10,15 @@
  *            a(2)=432, a(3)=11280, a(4)=250992, a(5)=5125008
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache for memoised terms */
 static seq_t *cache   = NULL;      /* array indexed 0..n (0 unused)      */
@@ -29,12 +31,12 @@ static void ensure_capacity(idx_t n)
     size_t need = (size_t)(n + 1);          /* count ∈ [0..n] inclusive      */
     if (need <= cachecap)
         return;
-    seq_t *p = (seq_t *)realloc(cache, need * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, need);
     if (!p) abort();                       /* allocation failed */
     cache = p;
     if (cachecap < need) {
         /* zero new entries; index 0 remains unused            */
-        memset(cache + cachecap, 0, (need - cachecap) * sizeof(seq_t));
+        mem_set(cache + cachecap, 0, (need - cachecap) * sizeof(seq_t));
     }
     cachecap = need;
 }

@@ -9,7 +9,8 @@
  *            Initial values: a(0)=0, a(1)=0, a(2)=0, a(3)=0, a(4)=2, a(5)=8
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, free, NULL, memcpy */
 #include <string.h>   /* memcpy */
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *cache     = NULL;       /* array of cached values   */
@@ -54,7 +56,7 @@ static void grow_cache(size_t need)
 
     /* zero any newly allocated part – guarantees determinism */
     if (new_sz > cache_sz) {
-        memset(&new_cache[cache_sz], 0, (new_sz - cache_sz) * sizeof(seq_t));
+        mem_set(&new_cache[cache_sz], 0, (new_sz - cache_sz) * sizeof(seq_t));
     }
 
     cache = new_cache;

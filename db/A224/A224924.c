@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{k≥0} 2^k · (number of i∈[0,n] with the k‑th bit set)^2
  * Range:     u8 n <= 10, u16 n <= 66, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 64 terms through n = 797 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

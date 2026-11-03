@@ -12,17 +12,31 @@
  *            positions, the cell value can be chosen in f(L) = Sum_{...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   a1424_gcd, a1424_is_big, a1424_mul, a1424_pw
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   gcd_u64, ipow_u64_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a1424_gcd.h"
-#include "../utils/a1424_is_big.h"
-#include "../utils/a1424_mul.h"
-#include "../utils/a1424_pw.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ipow_u64_to_seq.h"
+
+static int a1424_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x = x * 2;
+    return x != 0;
+}
+
+static void a1424_mul(seq_t *q, uint64_t *r, uint64_t m, uint64_t D)
+{
+    uint64_t t = *r * m;
+    *q = (seq_t)(*q * (uint64_t)m) + (seq_t)(t / D);
+    *r = t % D;
+}
 
 typedef struct {
     idx_t n;
@@ -80,7 +94,7 @@ static seq_t a1424_bg(const a1424_ctx *c, int from, int to)
     for (i = from; i < to; i++) {
         if (c->fb[i] == 0) return 0;
         if (c->fb[i] == 1) continue;
-        v *= a1424_pw(c->fb[i], c->fe[i]);
+        v *= ipow_u64_to_seq(c->fb[i], c->fe[i]);
     }
     return v;
 }
@@ -92,7 +106,7 @@ static void a1424_leaf(a1424_ctx *c)
     /* fix(sigma): ordered pairs of cycles */
     for (i = 0; i < k; i++)
         for (j = 0; j < k; j++) {
-            uint64_t a = c->sz[i], b = c->sz[j], g = a1424_gcd(a, b);
+            uint64_t a = c->sz[i], b = c->sz[j], g = gcd_u64(a, b);
             a1424_push(c, a1424_f(c, a / g * b), c->mu[i] * c->mu[j] * g);
         }
     n1 = c->nf;
@@ -114,7 +128,7 @@ static void a1424_leaf(a1424_ctx *c)
         for (j = i + 1; j < k; j++) {
             uint64_t b = c->sz[j], mb = c->mu[j];
             uint64_t bp = (b & 1) ? b : b / 2;
-            uint64_t L2 = ap / a1424_gcd(ap, bp) * bp;
+            uint64_t L2 = ap / gcd_u64(ap, bp) * bp;
             a1424_push(c, a1424_f(c, 2 * L2), ma * mb * (a * b / L2));
         }
     }
@@ -122,7 +136,7 @@ static void a1424_leaf(a1424_ctx *c)
         seq_t z = 1;
         for (i = 0; i < k; i++) {
             idx_t t;
-            z *= a1424_pw(c->sz[i], c->mu[i]);
+            z *= ipow_u64_to_seq(c->sz[i], c->mu[i]);
             for (t = 2; t <= c->mu[i]; t++) z *= (seq_t)t;
         }
         c->S += (a1424_bg(c, 0, n1) + a1424_bg(c, n1, c->nf)) * (c->fact / z);

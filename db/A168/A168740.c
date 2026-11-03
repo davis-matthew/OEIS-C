@@ -9,12 +9,14 @@
  *            where N(0) = 1 N(1)…N(17) = 2 N(18) = 1 N(k) = 0 for k > 18
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 432 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,9 +28,9 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap)
     {
         if (cache == NULL)
-            cache = (seq_t *)calloc((n + 1), sizeof(seq_t));
+            cache = mem_new(seq_t, (n + 1));
         else
-            cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (n + 1));
 
         /* Compute new terms one by one */
         for (idx_t i = cap; i <= n; ++i)

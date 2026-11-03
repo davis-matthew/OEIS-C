@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 11, u64 n <= 26, u128 n <= 54,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 35 terms through n = 187 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *periodic = NULL;
 static size_t period_len = 0;
@@ -48,7 +68,7 @@ static void init_period(void) {
     } while (a_cur != 2 * a0_small); /* period ends when a_k == 2*a0 */
 
     period_len = len;
-    periodic = (seq_t *)malloc(period_len * sizeof(seq_t));
+    periodic = mem_new(seq_t, period_len);
     for (size_t i = 0; i < period_len; ++i)
         periodic[i] = (seq_t)terms_buf[i];
 }

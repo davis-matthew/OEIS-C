@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   factor_u64, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/pow_uint.h"    /* pow_uint(uint64_t base, idx_t exp) -> seq_t */
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 /* Compute ps(x) = φ(σ(x)) for an unsigned integer x.  The result is
  * a seq_t value.  All arithmetic is performed with seq_t, so the
@@ -45,7 +47,7 @@ static seq_t ps(seq_t x)
     /* σ(x) = Π (p^(e+1)-1)/(p-1) over prime factors */
     seq_t sigma = 1;
     for (size_t i = 0; i < pc; ++i) {
-        seq_t t = pow_uint(pu[i], (idx_t)(ex[i] + 1));
+        seq_t t = ipow_u64_idx(pu[i], (idx_t)(ex[i] + 1));
         t = t - (seq_t)1;           /* p^(e+1)-1 */
         t = t / (seq_t)(pu[i] - 1); /* divide by p-1 */
         sigma = sigma * t;
@@ -64,7 +66,7 @@ static seq_t ps(seq_t x)
     /* φ(σ) = Π p^(e-1)*(p-1) over prime factors of σ */
     seq_t phi = 1;
     for (size_t i = 0; i < pc; ++i) {
-        seq_t t = pow_uint(pu[i], (idx_t)(ex[i] - 1));
+        seq_t t = ipow_u64_idx(pu[i], (idx_t)(ex[i] - 1));
         t = t * (seq_t)(pu[i] - 1);
         phi = phi * t;
     }
@@ -96,7 +98,7 @@ static void cache_grow(idx_t new_cap)
 {
     if (new_cap <= cache_cap)
         return;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) {
         /* allocation failed – abort program */
         abort();

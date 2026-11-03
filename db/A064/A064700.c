@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 2505, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_capacity, mul_digits
+ * Validated: standard, pass, 75 terms through n = 9803 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,35 @@
    (product of the decimal digits of the number, repeated until a single digit is obtained). */
 
 #include <stddef.h>                  /* for size_t, NULL */
-#include "../utils/ensure_capacity.h"  /* ensure_capacity */
-#include "../utils/mul_digits.h"
+#include <stdbool.h>
+#include <stdlib.h>
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+
+static inline seq_t mul_digits(seq_t x)
+{
+    /* Return the product of the decimal digits of x,
+       or 0 if x contains a zero digit. */
+    seq_t prod = 1;
+    seq_t tmp  = x;
+    while (tmp > 0) {
+        seq_t d = tmp % 10;
+        if (d == 0) return 0;
+        prod *= d;
+        tmp /= 10;
+    }
+    return prod;
+}
 
 seq_t a(idx_t n)
 {

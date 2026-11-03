@@ -7,7 +7,8 @@
  * Formula:   a(n) = binomial(2*p-1, p-1) modulo p^5, where p = prime(n)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 23, u64 n <= 935, u128 n <= 1000,
  *            big any n
- * Helpers:   mod_inv128
+ * Validated: standard, pass, 43 terms through n = 965 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,30 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_inv128.h"
+
+/* Compute the modular inverse of a modulo mod, using 128‑bit arithmetic.
+   Returns -1 if a and mod are not coprime. */
+static inline __int128 mod_inv128(__int128 a, __int128 mod)
+{
+    __int128 t0 = 1, t1 = 0;
+    __int128 r0 = a % mod, r1 = mod;
+
+    while (r1 != 0) {
+        __int128 q   = r0 / r1;
+        __int128 tmp = r0;
+        r0           = r1;
+        r1           = tmp % r1;
+
+        __int128 tmp_t = t0 - q * t1;
+        t0 = t1;
+        t1 = tmp_t;
+    }
+    if (r0 != 1)
+        return -1;                 /* not invertible */
+    if (t0 < 0)
+        t0 += mod;
+    return t0;
+}
 
 /* Simple sieve to generate all primes up to LIMIT (once). */
 static uint32_t *prime_list   = NULL;

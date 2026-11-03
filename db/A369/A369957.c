@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 439, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega, free_seq_array, is_prime, seq_alloc
+ * Validated: standard, pass, 69 terms through n = 9813 (2026-11-03)
+ * Helpers:   bigomega, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,25 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include <stdint.h>
 #include "../utils/bigomega.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/free_seq_array.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Static storage for the sequence values. */
 static seq_t *seq_vals  = NULL;   /* array of found primes               */

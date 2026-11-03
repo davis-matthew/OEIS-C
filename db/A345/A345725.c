@@ -9,11 +9,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   ceildiv, floordiv, gcd_int
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-02)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Computing OEIS sequence A345725.
  * An term a(n) is given by
  *    a(n) = m * sumsq - sum^2
@@ -27,9 +29,22 @@
  */
 
 #include <stdint.h>
-#include "../utils/ceildiv.h"
-#include "../utils/floordiv.h"
-#include "../utils/gcd_int.h"
+#include <stddef.h>
+#include "../utils/gcd_i32.h"
+
+/* integer ceil division for possibly negative numerator, positive denominator */
+static inline int64_t ceildiv(int64_t num, int64_t den)
+{
+    if (num >= 0) return (num + den - 1) / den;
+    return - ((-num) / den);
+}
+
+/* integer floor division for possibly negative numerator, positive denominator */
+static inline int64_t floordiv(int64_t num, int64_t den)
+{
+    if (num >= 0) return num / den;
+    return - ((-num + den - 1) / den);
+}
 
 /* small gcd for int arguments */
 
@@ -100,7 +115,7 @@ seq_t a(idx_t n)
         int x = (int)ix;
         for (idx_t iy = ix + 1; iy <= n; ++iy) {
             int y = (int)iy;
-            if (gcd_int(x, y) == 1) {
+            if (gcd_i32(x, y) == 1) {
                 int S = min_uv_sum(x, y);
                 sum += (long long)S * 2;
                 sumsq += ((long long)S * S) * 2;

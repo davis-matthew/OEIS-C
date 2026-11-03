@@ -12,7 +12,8 @@
  *            a(8)=630, a(9)=1626, a(10)=2950, a(11)=6627, a(12)=16...
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 27, u64 n <= 55, u128 n <= 110,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;             /* dynamic cache for sequence values   */
 static idx_t  computed_max = 0;          /* highest index computed so far      */
@@ -30,7 +32,7 @@ static void init_cache(idx_t n_needed)
 {
     if (cache == NULL) {
         cache_size = (n_needed + 1 > MIN_CACHE ? n_needed + 1 : MIN_CACHE);
-        cache = (seq_t *)calloc((size_t)cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_size);
         /* set the first 17 terms (a(0) unused) */
         cache[1]  = 1;
         cache[2]  = 9;
@@ -53,10 +55,9 @@ static void init_cache(idx_t n_needed)
     } else if (n_needed + 1 > cache_size) {
         /* enlarge the cache to at least n_needed+1 elements */
         idx_t new_size = n_needed + 1;
-        cache = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)new_size);
         if (new_size > cache_size) {
-            memset(cache + cache_size, 0,
-                   (size_t)(new_size - cache_size) * sizeof(seq_t));
+            mem_set(cache + cache_size, 0, (size_t)(new_size - cache_size) * sizeof(seq_t));
         }
         cache_size = new_size;
     }

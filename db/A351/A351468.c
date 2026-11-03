@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1057, u16 n <= 8643, u32 n <= 8643, u64 n <= 8643,
  *            u128 n <= 8643, big any n
- * Helpers:   cum_len, newey_T
+ * Validated: standard, pass, 86 terms through n = 8344 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,35 @@
  *  a(n) returns the term at overall position n (offset 2).  */
 
 #include <stdint.h>
-#include "../utils/cum_len.h"
-#include "../utils/newey_T.h"
+
+static inline seq_t cum_len(idx_t r)
+{
+    /* total number of terms up to and including row r (r ≥ 2) */
+    seq_t rr = (seq_t)r;
+    seq_t a  = rr * (rr + 1) * (2 * rr + 1) / 6;
+    seq_t res = a - rr * rr + 3 * rr - 3;
+    return res;
+}
+
+static inline seq_t newey_T(idx_t n, idx_t k)
+{
+    if (k <= n)
+        return (seq_t)k;               /* the first n entries */
+
+    /* n ≥ 2, so n-1 ≥ 1 */
+    idx_t ns1 = n - 1;                 /* n-1 */
+    idx_t m   = k - 2;                 /* shift so that k=2 → m=0 */
+    idx_t q   = m / ns1;
+    idx_t r   = m % ns1;
+
+    if (r == 0 && q < n)
+        return (seq_t)1;
+
+    /* 2 + ((r - q) mod (n-1))  */
+    idx_t qmod = q % ns1;              /* q modulo (n-1) */
+    idx_t diff = (r + ns1 - qmod) % ns1;
+    return (seq_t)(2 + diff);
+}
 
 seq_t a(idx_t n)
 {

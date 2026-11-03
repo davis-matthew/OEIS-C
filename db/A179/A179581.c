@@ -8,12 +8,14 @@
  * Formula:   a(n) = 729*3^n + 8*(n+6)*(n-3)*2^n + (n+5)*(n+4)*(n-17)*(n+6)/24
  * Range:     u8 none, u16 n <= 4, u32 n <= 14, u64 n <= 34, u128 n <= 50,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 50 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
 

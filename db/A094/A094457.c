@@ -9,6 +9,7 @@
  *            prime exponent vectors ≤ 2)
  * Range:     u8 n <= 261, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 89 terms through n = 9575 (2026-11-01)
  * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
 
 /* Find the largest prime < p.  Returns 0 if none (p ≤ 2). */
 static uint64_t prev_prime(uint64_t p)

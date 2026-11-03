@@ -8,8 +8,9 @@
  * Formula:   a(n) counts arithmetic progressions with common difference 3,
  *            having at least two terms, that sum to n: n = (k)(2a + 3(k-1))/2
  *            with a >= 1, k >= 2
- * Range:     u8 n <= 148, u16 n <= 9817, u32 n <= 9817, u64 n <= 9817,
- *            u128 n <= 9817, big any n
+ * Range:     u8 n <= 148, u16 n <= 10045, u32 n <= 10045, u64 n <= 10045,
+ *            u128 n <= 10045, big any n
+ * Validated: standard, pass, 113 terms through n = 9817 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

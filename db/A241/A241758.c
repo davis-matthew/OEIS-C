@@ -12,7 +12,8 @@
  *            addition. The sequence is the smallest such pri...
  * Range:     u8 n <= 108, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   carry_count
+ * Validated: standard, pass, 86 terms through n = 9874 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/carry_count.h"
+#include "../utils/mem.h"
+
+/* Count carries when adding a and b in binary. */
+static inline unsigned int carry_count(idx_t a, idx_t b)
+{
+    unsigned int cnt = 0, carry = 0;
+    while (a || b || carry) {
+        unsigned int sum = (a & 1u) + (b & 1u) + carry;
+        if (sum >= 2u) {
+            ++cnt;
+            carry = 1;
+        } else {
+            carry = 0;
+        }
+        a >>= 1;
+        b >>= 1;
+    }
+    return cnt;
+}
 
 /* Upper bound for prime sieve.  Sufficient for n up to about 10000. */
 static const idx_t SIEVE_LIMIT = 10000000u;
@@ -116,7 +135,7 @@ static void seq_ensure_capacity(idx_t needed)
     if (needed <= (idx_t)seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
     while (new_cap < (size_t)needed) new_cap <<= 1;
-    seq_cache = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap   = new_cap;
 }
 

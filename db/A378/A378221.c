@@ -7,8 +7,9 @@
  * Keywords:  sign, mult
  * Formula:   multiplicative with a(p) = -q-1, a(p^2)=q, a(p^k)=0 for k>2,
  *            where q = next prime after p
- * Range:     i8 n <= 29, i16 n <= 2729, i32 n <= 9447, i64 n <= 9447,
- *            i128 n <= 9447, big any n
+ * Range:     i8 n <= 29, i16 n <= 2729, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 88 terms through n = 9447 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

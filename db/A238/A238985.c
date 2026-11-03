@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 245, u32 n <= 1162, u64 n <= 4382,
  *            u128 n <= 9785, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 8511 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc */
 #include <stdbool.h>  /* bool */
+#include "../utils/mem.h"
 
 static inline bool has_no_zero(seq_t v)
 {
@@ -55,12 +57,12 @@ seq_t a(idx_t n)
     /* ------------------------------------------------------------------ */
     if (smooth == NULL) {
         smooth_cap   = 64;
-        smooth       = (seq_t *)malloc(smooth_cap * sizeof(seq_t));
+        smooth       = mem_new(seq_t, smooth_cap);
         smooth[0]    = (seq_t)1;
         smooth_len   = 1;
 
         zeroless_cap = 64;
-        zeroless     = (seq_t *)malloc(zeroless_cap * sizeof(seq_t));
+        zeroless     = mem_new(seq_t, zeroless_cap);
         zeroless[0]  = (seq_t)1;
         zeroless_len = 1;
     }
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         /* Append to the smooth list, growing capacity if required */
         if (smooth_len == smooth_cap) {
             smooth_cap *= 2;
-            smooth = (seq_t *)realloc(smooth, smooth_cap * sizeof(seq_t));
+            smooth = mem_resize(seq_t, smooth, smooth_cap);
         }
         smooth[smooth_len++] = next;
 
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
             /* Append to zeroless list, growing if necessary */
             if (zeroless_len == zeroless_cap) {
                 zeroless_cap *= 2;
-                zeroless = (seq_t *)realloc(zeroless, zeroless_cap * sizeof(seq_t));
+                zeroless = mem_resize(seq_t, zeroless, zeroless_cap);
             }
             zeroless[zeroless_len++] = next;
         }

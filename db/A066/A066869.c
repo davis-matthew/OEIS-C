@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of the first n safe primes
  * Range:     u8 n <= 7, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   build_primes_upto, is_prime, seq_realloc
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
 
 #include "../utils/build_primes_upto.h"
 #include "../utils/is_prime.h"
-#include "../utils/seq_realloc.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Computes a(n) for n >= 1.  The function caches the cumulative sums
    of safe primes so that repeated calls are fast. */

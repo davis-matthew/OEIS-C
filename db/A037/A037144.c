@@ -12,7 +12,8 @@
  *            demand. The algorithm...
  * Range:     u8 n <= 197, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9866 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the required function signature */
 seq_t a(idx_t n);
@@ -48,7 +50,7 @@ build_cache(idx_t limit, size_t *out_len)
 
     /* Temporary array to collect qualifying numbers.
        The maximum possible size is limit+1 (including 1). */
-    seq_t *tmp = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, (size_t)(limit + 1));
     if (!tmp) { free(spf); *out_len = 0; return NULL; }
 
     size_t idx = 0;
@@ -91,13 +93,13 @@ seq_t a(idx_t n)
 
             if (new_len >= (size_t)n) {
                 /* Replace the old cache. */
-                free(cache);
+                mem_free(cache);
                 cache = new_cache;
                 cache_len = new_len;
                 break;
             }
             /* Not enough terms: discard and double the bound. */
-            free(new_cache);
+            mem_free(new_cache);
             bound *= 2;
         }
     }

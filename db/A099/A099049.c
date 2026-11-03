@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   isPrimeIdx
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
    or both composite.  Computation is done by a simple brute‑force search. */
 
 #include <stdbool.h>
-#include "../utils/isPrimeIdx.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
@@ -24,8 +25,8 @@ seq_t a(idx_t n) {
     while (1) {
         idx_t a_minus = x - 1;
         idx_t a_plus  = x + 1;
-        bool a_prime = isPrimeIdx(a_minus);
-        bool b_prime = isPrimeIdx(a_plus);
+        bool a_prime = is_prime(a_minus);
+        bool b_prime = is_prime(a_plus);
         if (a_prime == b_prime) {   /* both prime or both composite */
             count++;
             if (count == n) {

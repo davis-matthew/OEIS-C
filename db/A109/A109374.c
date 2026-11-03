@@ -7,9 +7,10 @@
  * Keywords:  nonn, tabf, look
  * Formula:   a(n) is the n-th term obtained by listing the simple continued
  *            fraction terms of prime(n+1)/prime(n) in row‑wise order
- * Range:     u8 n <= 346, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 346, u16 n <= 10003, u32 n <= 10003, u64 n <= 10003,
+ *            u128 n <= 10003, big any n
+ * Validated: standard, pass, 113 terms through n = 10000 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"   /* bool is_prime(uint64_t); */
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *terms      = NULL;
 static size_t terms_cap  = 0;
@@ -44,7 +47,7 @@ static void add_prime(uint64_t val)
 static void add_next_prime(void)
 {
     uint64_t cand = (primes_cnt) ? (primes[primes_cnt-1] + 1) : 2;
-    while (!is_prime(cand)) ++cand;
+    while (!is_prime_u64(cand)) ++cand;
     add_prime(cand);
 }
 
@@ -53,7 +56,7 @@ static void push_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = (terms_cap) ? (terms_cap * 2) : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();
         terms = tmp;
         terms_cap = new_cap;

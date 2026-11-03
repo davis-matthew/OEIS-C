@@ -7,15 +7,17 @@
  * Formula:   primes p such that sum_of_digits(p) + 9 is prime (OEIS A243588)
  * Range:     u8 n <= 24, u16 n <= 2272, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, is_prime_small
+ * Validated: standard, pass, 69 terms through n = 9081 (2026-11-03)
+ * Helpers:   digit_sum, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
 #include "../utils/digit_sum.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Return the nth term (1‑based) of the sequence.  The function is
    memoised, so multiple calls with arbitrary n are handled in O(n)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Ensure the cache array has capacity. */
     if (found_cap == 0) {
         found_cap = 16;
-        found = (seq_t *)realloc(found, found_cap * sizeof(seq_t));
+        found = mem_resize(seq_t, found, found_cap);
         if (!found)
             return 0; /* allocation failed – unlikely in contest environment */
     }
@@ -46,15 +48,14 @@ seq_t a(idx_t n)
     seq_t cand = last_candidate + 1;
     while (found_len < n) {
         /* Check if cand is prime. */
-        if (is_prime_small(cand)) {
+        if (is_prime_seq(cand)) {
             /* Check the digit‑sum condition. */
             seq_t s = digit_sum(cand) + (seq_t)9;
-            if (is_prime_small(s)) {
+            if (is_prime_seq(s)) {
                 /* Store the term in the cache. */
                 if (found_len == found_cap) {
                     found_cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(found,
-                                                  found_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, found, found_cap);
                     if (!tmp)
                         return 0; /* allocation failed */
                     found = tmp;

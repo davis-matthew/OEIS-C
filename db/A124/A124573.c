@@ -13,13 +13,15 @@
  *            > n, and j = n - r(r+1)/2. * * The impleme...
  * Range:     u8 n <= 16, u16 n <= 46, u32 n <= 174, u64 n <= 602,
  *            u128 n <= 2230, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 5000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     idx_t j = (idx_t)(n - start);
 
     /* allocate array for the first row of M^r */
-    seq_t *cur = (seq_t*)malloc((size_t)(r + 1) * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, (size_t)(r + 1));
     if (!cur) return 0;                /* should not happen for normal inputs */
 
     for (idx_t k = 1; k <= r; ++k) cur[k] = 0;  /* zero initialize */
@@ -53,6 +55,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = cur[j];
-    free(cur);
+    mem_free(cur);
     return result;
 }

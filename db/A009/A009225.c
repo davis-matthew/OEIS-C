@@ -7,12 +7,14 @@
  * Formula:   a(n) = coefficient of xⁿ in exp(sinh(x))/cos(x)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* binomial coefficient C(n,k) for unsigned integer n,k */
 static seq_t binom_u(idx_t n, idx_t k)
@@ -38,16 +40,16 @@ seq_t a(idx_t n)
     /* allocate grow functions using standard malloc/realloc */
     idx_t needed = n + 1;
     if (B == NULL) {
-        B = (seq_t *)malloc(sizeof(seq_t) * needed);
-        D = (seq_t *)malloc(sizeof(seq_t) * needed);
-        E = (seq_t *)malloc(sizeof(seq_t) * needed);
+        B = mem_new(seq_t, needed);
+        D = mem_new(seq_t, needed);
+        E = mem_new(seq_t, needed);
         if (B == NULL || D == NULL || E == NULL) return 0;
         B[0] = 1;  D[0] = 1;  E[0] = 1;
         max_cached = 0;
     } else if (needed > (max_cached + 1)) {
-        B = (seq_t *)realloc(B, sizeof(seq_t) * needed);
-        D = (seq_t *)realloc(D, sizeof(seq_t) * needed);
-        E = (seq_t *)realloc(E, sizeof(seq_t) * needed);
+        B = mem_resize(seq_t, B, needed);
+        D = mem_resize(seq_t, D, needed);
+        E = mem_resize(seq_t, E, needed);
         if (B == NULL || D == NULL || E == NULL) return 0;
     }
 

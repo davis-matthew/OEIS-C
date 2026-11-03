@@ -12,16 +12,19 @@
  *            binom(m+1, k) B_k = 0 (m ≥ 1) and then forms the required num...
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 8, i64 n <= 14, i128 n <= 18,
  *            big any n
- * Helpers:   big_pow, binomial, gcd
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, gcd, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Rational number in lowest terms */
 typedef struct {
@@ -84,7 +87,7 @@ static void ensure_B(idx_t n)
     if (B_size > n) return;
     /* Allocate or grow */
     size_t new_size = (size_t)n + 1;
-    rational_t *new_B = (rational_t *)realloc(B, new_size * sizeof(rational_t));
+    rational_t *new_B = mem_resize(rational_t, B, new_size);
     if (!new_B) return;  /* allocation failure – let the caller handle */
     B = new_B;
     /* Initialise new elements to 0/1 */
@@ -125,7 +128,7 @@ seq_t a(idx_t n)
     /* b_m = (2^{-m} - 1) * B_{m+1} / (m*(m+1)) */
     rational_t *Btwo = &B[m + 1];
     /* Compute 2^m */
-    seq_t two_pow_m = big_pow((seq_t)2, (seq_t)m);
+    seq_t two_pow_m = ipow((seq_t)2, (seq_t)m);
     seq_t num_factor = two_pow_m - (seq_t)1;   /* 2^m - 1 */
     /* Numerator: -num_factor * B_{2n}.num */
     seq_t numerator = - (num_factor * Btwo->num);

@@ -6,15 +6,18 @@
  * Keywords:  nonn
  * Formula:   a(n) = (1/(n+1)) * Sum_{k=0..floor(n/2)} binomial(3*n+k+2,k) *
  *            binomial(3*n-k+1,n-2*k)
- * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 21,
+ * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t  cache_cap = 0;
@@ -28,7 +31,7 @@ ensure_cache(idx_t n)
     idx_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap <= n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                     /* unrecoverable allocation failure */
     for (idx_t i = cache_cap; i < new_cap; ++i)
@@ -48,8 +51,8 @@ compute_term(idx_t n)
     idx_t max_k = n >> 1;              /* floor(n/2) */
     for (idx_t k = 0; k <= max_k; ++k)
     {
-        seq_t b1 = binom(3 * n + k + 2, k);
-        seq_t b2 = binom(3 * n - k + 1, n - 2 * k);
+        seq_t b1 = binomial(3 * n + k + 2, k);
+        seq_t b2 = binomial(3 * n - k + 1, n - 2 * k);
         sum += b1 * b2;
     }
     seq_t denom = (seq_t)(n + 1);       /* exact division by (n+1) */

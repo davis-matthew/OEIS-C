@@ -9,7 +9,8 @@
  *            divide n-1
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   build_primes_upto, seq_mul
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static uint64_t *prime_arr = NULL;      /* array of primes up to current limit */
 static size_t      prime_cnt = 0;       /* number of primes in prime_arr      */

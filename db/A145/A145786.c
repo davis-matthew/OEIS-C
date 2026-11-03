@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 25, i32 n <= 45, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,6 +42,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 /* eta exponents */
 static const idx_t  M_R[12] = { 1,  2,   3,  4,  5,   6, 10, 12, 15, 20, 30, 60 };
@@ -61,9 +63,9 @@ static void extend_to(idx_t new_n)
     /* need arrays for indices 0 .. new_n-1   (size new_n) */
     if (new_n > cap) {
         cap = new_n;
-        b     = (seq_t*)realloc(b,     cap * sizeof(seq_t));
-        gamma = (seq_t*)realloc(gamma, cap * sizeof(seq_t));
-        aH    = (seq_t*)realloc(aH,    cap * sizeof(seq_t));
+        b     = mem_resize(seq_t, b, cap);
+        gamma = mem_resize(seq_t, gamma, cap);
+        aH    = mem_resize(seq_t, aH, cap);
     }
 
     /* initialise b and gamma */

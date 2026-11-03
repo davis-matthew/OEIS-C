@@ -9,6 +9,7 @@
  * Formula:   a(n) = n + floor(sqrt((1/4)*n^3 - 1/8))
  * Range:     u8 n <= 5, u16 n <= 32, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

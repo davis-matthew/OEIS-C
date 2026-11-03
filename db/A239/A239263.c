@@ -8,7 +8,8 @@
  * Formula:   a(n) = \sum_{O=\lceil n/2\rceil}^{n} p_{odd}(O)\,p_{even}(n-O)
  * Range:     u8 n <= 18, u16 n <= 46, u32 n <= 133, u64 n <= 427,
  *            u128 n <= 1478, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9724 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,15 +17,16 @@
 /*          where p_{odd}(k) = #partitions of k into odd parts,   */
 /*                p_{even}(k) = #partitions of k into even parts. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate space for the two partition arrays */
-    seq_t *p_odd  = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *p_even = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *p_odd  = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *p_even = mem_new(seq_t, (size_t)(n + 1));
     if (!p_odd || !p_even) {
-        free(p_odd);
-        free(p_even);
+        mem_free(p_odd);
+        mem_free(p_even);
         return 0;
     }
 
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         result += oddCnt * evenCnt;
     }
 
-    free(p_odd);
-    free(p_even);
+    mem_free(p_odd);
+    mem_free(p_even);
     return result;
 }

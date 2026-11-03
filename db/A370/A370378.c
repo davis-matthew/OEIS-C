@@ -9,12 +9,14 @@
  *            generating function 1/(1-Σ_{k≥1}(2k)!x^k))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *seq_cache = NULL;   /* computed a[i], 0 ≤ i ≤ max */
@@ -30,7 +32,7 @@ static inline void ensure_fact(idx_t need)
 {
     if (need + 1 <= fact_cache_cap) return;
     size_t newcap = (size_t)(need + 1);
-    fact_cache = (seq_t *)realloc(fact_cache, newcap * sizeof(seq_t));
+    fact_cache = mem_resize(seq_t, fact_cache, newcap);
     if (!fact_cache) abort();           /* out of memory */
     fact_cache_cap = newcap;
 }
@@ -40,7 +42,7 @@ static inline void ensure_seq(idx_t need)
 {
     if (need + 1 <= seq_cache_cap) return;
     size_t newcap = (size_t)(need + 1);
-    seq_cache = (seq_t *)realloc(seq_cache, newcap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, newcap);
     if (!seq_cache) abort();           /* out of memory */
     seq_cache_cap = newcap;
 }

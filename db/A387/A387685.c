@@ -9,7 +9,8 @@
  *            such that a = c·q^(k‑1), r = p/q, and c·(p^k – q^k)/(p – q) = n
  * Range:     u8 n <= 1445, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_seqt
+ * Validated: standard, pass, 104 terms through n = 9925 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/gcd_seqt.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
             if (q_pow > limit) break;                /* further q give larger sums */
 
             for (idx_t p = q + 1; ; ++p) {
-                if (gcd_seqt(p, q) != 1) continue;    /* ratio must be reduced */
+                if (gcd(p, q) != 1) continue;    /* ratio must be reduced */
 
                 /* compute the base sum S = (p^k – q^k)/(p – q) via iterative terms */
                 unsigned long long sum = 0;

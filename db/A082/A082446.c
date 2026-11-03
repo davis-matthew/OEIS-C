@@ -8,13 +8,25 @@
  * Formula:   a(n) = (hammingweight(n/3) + (n % 3)) % 2
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   popcount_parity_uint64
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/popcount_parity_uint64.h"
+
+/* Parity of the popcount of a 64‑bit integer.
+   Returns 0 if the number of 1‑bits is even, 1 otherwise. */
+static unsigned popcount_parity_uint64(uint64_t v)
+{
+    unsigned p = 0;
+    while (v) {
+        p ^= (unsigned)(v & 1);   /* toggle parity with each set bit */
+        v >>= 1;
+    }
+    return p;
+}
 
 seq_t a(idx_t n)
 {

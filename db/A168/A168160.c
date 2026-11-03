@@ -9,6 +9,7 @@
  *            floor_log2(n)+1 and A000788(n) = sum_{k=1}^n popcount(k)
  * Range:     u8 n <= 64, u16 n <= 8665, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 78 terms through n = 9617 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

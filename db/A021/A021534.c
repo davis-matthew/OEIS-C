@@ -8,13 +8,30 @@
  *            values: a(0)=1, a(1)=22, a(2)=337, a(3)=4522
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   grow_seq
+ * Validated: standard, pass, 33 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/grow_seq.h"   /* provides grow_seq() */
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static seq_t *cache = NULL;    /* dynamic cache of computed values */
 static size_t  cache_cap = 0;  /* current capacity of cache array      */

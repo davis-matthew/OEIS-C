@@ -11,15 +11,33 @@
  *            negative terms are summed separately; fixed-width bu...
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 14, u64 n <= 21, u128 n <= 25,
  *            big any n
- * Helpers:   r1279_coef, r1279_is_fixed
+ * Validated: partial, pass, 20 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/r1279_coef.h"
-#include "../utils/r1279_is_fixed.h"
+#include "../utils/mem.h"
+
+static long long r1279_coef(long long i, int j) {
+    switch (j) {
+    case 1: return 3 * i * i - 23 * i + 67;
+    case 2: return 5 * i * i - 58 * i + 179;
+    case 3: return i * i - 51 * i + 128;
+    case 4: return -17 * i * i + 183 * i - 364;
+    case 5: return -4 * (i - 4) * (i - 11);
+    default: return 12 * (i - 4) * (i - 5);
+    }
+}
+
+static int r1279_is_fixed(void) {
+    seq_t x = (seq_t)1;
+    int k;
+    for (k = 0; k < 130; k++) x = (seq_t)(x * 2);
+    return x == 0;
+}
 
 #define R1279_L 16
 #define R1279_MAXN 90
@@ -98,17 +116,17 @@ static seq_t r1279_big(idx_t n) {
     int j;
     if (r1279_memo == NULL) {
         r1279_cap = 64;
-        r1279_memo = (seq_t *)malloc(r1279_cap * sizeof(seq_t));
+        r1279_memo = mem_new(seq_t, r1279_cap);
         for (i = 0; i < r1279_cap; i++) r1279_memo[i] = 0;
         for (j = 0; j < 6; j++) r1279_memo[6 + j] = (seq_t)r1279_init[j];
         r1279_done = 12;
     }
     if (n >= r1279_cap) {
         idx_t nc = n + 64;
-        seq_t *nm = (seq_t *)malloc(nc * sizeof(seq_t));
+        seq_t *nm = mem_new(seq_t, nc);
         for (i = 0; i < nc; i++) nm[i] = 0;
         for (i = 0; i < r1279_done; i++) nm[i] = r1279_memo[i];
-        free(r1279_memo);
+        mem_free(r1279_memo);
         r1279_memo = nm;
         r1279_cap = nc;
     }

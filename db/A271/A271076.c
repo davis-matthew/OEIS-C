@@ -11,13 +11,15 @@
  *            0. The function caches results up to the largest n requested
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9526 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Recursive structure: static cache */
 static seq_t *counts = NULL;
@@ -31,7 +33,7 @@ static inline __int128 pow3(idx_t x) { __int128 t = x; return t*t*t; }
 static void recompute_counts(idx_t max_n)
 {
     /* Allocate zeroed array of seq_t values. */
-    seq_t *new_counts = (seq_t *)calloc((size_t)max_n + 1, sizeof(seq_t));
+    seq_t *new_counts = mem_new(seq_t, (size_t)max_n + 1);
     if (!new_counts) abort();
 
     /* Pre‑compute maximum values for each variable. */
@@ -91,7 +93,7 @@ static void recompute_counts(idx_t max_n)
     }
 
     /* Replace old cache. */
-    if (counts) free(counts);
+    if (counts) mem_free(counts);
     counts = new_counts;
     max_computed = max_n;
 }

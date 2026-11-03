@@ -10,7 +10,8 @@
  *            gcd(n,s)} d · μ(n/d) (μ = Möbius function)
  * Range:     i8 n <= 55, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   _floor_isqrt_u64, mobius, seq_alloc_array, seq_free_array
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   isqrt, mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/isqrt.h"
 #include "../utils/mobius.h"
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Cache of the R table: R[n][s] for 1 ≤ s ≤ n. */
 static seq_t **R = NULL;
@@ -94,7 +105,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Find row r such that r*(r+1)/2 ≥ n. */
-    idx_t t = _floor_isqrt_u64(8 * n + 1);
+    idx_t t = isqrt(8 * n + 1);
     if (t * t < 8 * n + 1)
         ++t;                      /* ceil sqrt */
     idx_t r = (t - 1) / 2;

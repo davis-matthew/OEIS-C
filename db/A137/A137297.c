@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 29, i16 n <= 57, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static inline idx_t offset_row(idx_t r)
 {
@@ -58,7 +71,7 @@ static void ensure_rows_to(idx_t r)
     while (rows_len <= r)
     {
         idx_t cur = rows_len;
-        seq_t *row = (seq_t *)malloc((size_t)(cur + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(cur + 1));
         if (!row)
             abort(); /* memory exhausted */
 

@@ -9,13 +9,15 @@
  *            is finite, so all terms are generated once and cached
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The sequence values (the k’s themselves).  They all fit into
  * seq_t for the expected range. */
@@ -30,7 +32,7 @@ static void compute_terms(void)
     int digits[DIGITS_CAP];
 
     size_t cap = 32;
-    terms = (seq_t *)malloc(cap * sizeof(seq_t));
+    terms = mem_new(seq_t, cap);
     if (!terms) exit(1);
 
     for (idx_t k = 1; k <= LIMIT; ++k) {
@@ -62,7 +64,7 @@ static void compute_terms(void)
         if (zero_count == 1) {
             if (terms_len == cap) {
                 cap *= 2;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
                 if (!terms) exit(1);
             }
             terms[terms_len++] = (seq_t)k;

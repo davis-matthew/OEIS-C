@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 23, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_distinct_uint64
+ * Validated: standard, pass, 50 terms through n = 880 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_distinct_uint64.h"
+
+/* ---------- factorise n into distinct prime factors (array of up to 32) ---------- */
+static void factor_distinct_uint64(uint64_t n, uint64_t fac[32], size_t *cnt)
+{
+    *cnt = 0;
+    for (uint64_t d = 2; d * d <= n; ++d) {
+        if (n % d == 0) {
+            fac[(*cnt)++] = d;
+            while (n % d == 0) n /= d;
+        }
+    }
+    if (n > 1) fac[(*cnt)++] = n;
+}
 
 /* ---------- modular exponentiation (unsigned __int128 for safety) ---------- */
 static uint64_t mod_pow_uint64(uint64_t base, uint64_t exp, uint64_t mod)

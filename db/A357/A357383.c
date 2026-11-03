@@ -10,12 +10,14 @@
  *            a(i) h(n‑i) = δ_{n,0}
  * Range:     i8 n <= 60, i16 n <= 64, i32 n <= 64, i64 n <= 64, i128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* Allocate coefficient arrays */
-    seq_t *h = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *arr = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *h = mem_new(seq_t, N + 1);
+    seq_t *arr = mem_new(seq_t, N + 1);
     if (!h || !arr) return (seq_t)0; /* Allocation failure */
 
     h[0] = (seq_t)1;          /* h(0) = 1 */
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
 
     seq_t result = arr[N];
 
-    free(h);
-    free(arr);
+    mem_free(h);
+    mem_free(arr);
     return result;
 }

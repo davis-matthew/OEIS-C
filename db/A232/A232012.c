@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   build_primes
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t val;      /* candidate n = q - p^2   */
@@ -97,7 +99,7 @@ static void init(void) {
         ++p_limit_idx;
     }
 
-    heap = (Node*)malloc(p_limit_idx * sizeof(Node));
+    heap = mem_new(Node, p_limit_idx);
     heap_size = 0;
 
     for (size_t i = 0; i < p_limit_idx; ++i) {
@@ -115,7 +117,7 @@ static void init(void) {
     }
 
     seq_cap = 128;
-    seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq_size = 0;
     last_set = false;
 }
@@ -130,7 +132,7 @@ static void generate_until(idx_t need) {
         if (!last_set || cur.val != last_val) {
             if (seq_size == seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_size++] = cur.val;
             last_val = cur.val;

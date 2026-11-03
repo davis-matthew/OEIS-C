@@ -10,14 +10,18 @@
  *            binom(2r–1, r–1–k) The index n of a(n) is obtained by forming
  *            rows of lengths r+1 for r = 0,1,2,…; that is, the first
  *            (r+1)(...
- * Range:     u8 n <= 15, u16 n <= 45, u32 n <= 48, u64 n <= 48, u128 n <= 48,
+ * Range:     u8 n <= 22, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   binom, catalan
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
+ * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)
@@ -46,10 +50,10 @@ seq_t a(idx_t n)
         return catalan(r - 1);
     } else {
         /* T(r,k) = binom(2r-1, r-1) – binom(2r-1, r-1-k). */
-        seq_t base = binom(2 * r - 1, r - 1);
+        seq_t base = binomial(2 * r - 1, r - 1);
         seq_t sub  = 0;
         if (k < r)            /* otherwise r-1-k would underflow */
-            sub = binom(2 * r - 1, r - 1 - k);
+            sub = binomial(2 * r - 1, r - 1 - k);
         return base - sub;
     }
 }

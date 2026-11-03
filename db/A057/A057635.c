@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 97 terms through n = 9936 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* a(n) = maximum m with φ(m) = n (0 if none) */
 /* Implementation uses a linear sieve to pre‑compute φ for all
    m ≤ N = 5 000 000 and remembers the largest m for each φ‑value. */

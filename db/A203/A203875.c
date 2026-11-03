@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 26 terms through n = 129 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,6 +43,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define A203875_INIT_LEN 7
 
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold the requested index. */
     if ((size_t)n > a203875_cache_cap) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(a203875_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a203875_cache, new_cap);
         if (!tmp) { a203875_cache = NULL; return 0; } /* allocation failure */
         a203875_cache = tmp;
         a203875_cache_cap = new_cap;

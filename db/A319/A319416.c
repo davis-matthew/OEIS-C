@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 9151, u16 n <= 9151, u32 n <= 9151, u64 n <= 9151,
- *            u128 n <= 9151, big any n
- * Helpers:   floor_log2_uint64
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 103 terms through n = 9151 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
    is omitted.  The process stops when no runs remain. */
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 typedef struct { int bit; int len; } Run;
 
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)1;
 
     /* Determine number of bits needed to represent n */
-    idx_t bits = floor_log2_uint64(n) + 1;
+    idx_t bits = ilog2(n) + 1;
 
     /* Build initial run representation from most–significant bit */
     Run runs1[65], runs2[65];

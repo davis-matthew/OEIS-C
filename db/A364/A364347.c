@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- Sieve constants and globals ---------- */
 #define SIEVE_MAX 200000   /* enough for the first 10 000 terms */
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
     /* grow the terms array as needed */
     if (terms_cap == 0) {
         terms_cap = 4;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     while (terms_count < n) {
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
         if (is_valid(max_checked, prime_index, spf, prime_count)) {
             if (terms_count == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_count++] = (seq_t)max_checked;
         }

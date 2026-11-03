@@ -9,20 +9,21 @@
  *            prime power <= n (allowing 1)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   count_distinct_primes
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
 
 /* Check whether m is a prime power (p^k for k>=1).  1 is NOT a prime power. */
 static bool _is_prime_power(uint64_t m)
 {
     if (m <= 1) return false;          /* 1 and 0 are not prime powers */
-    return count_distinct_primes(m) == 1;
+    return omega(m) == 1;
 }
 
 /* Main sequence function */

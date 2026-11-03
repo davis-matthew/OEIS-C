@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----------  coefficients of Φ₍₂₄₇₎(x)  ---------- */
 static int8_t phi_coef[217];      /* φ₀ … φ₂₁₆  (φ₀ is 1) */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
     if (n == 0) return 1;
 
     /* allocate array for a[0…n] */
-    seq_t *vals = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *vals = mem_new(seq_t, (size_t)(n + 1));
     if (!vals) return 0;              /* out of memory – terminate gracefully */
 
     vals[0] = 1;                      /* a(0) */
@@ -95,6 +97,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = vals[n];
-    free(vals);
+    mem_free(vals);
     return result;
 }

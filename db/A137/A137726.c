@@ -14,12 +14,14 @@
  *            This recurrence reproduces all known terms
  * Range:     u8 n <= 14, u16 n <= 29, u32 n <= 58, u64 n <= 116,
  *            u128 n <= 232, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if (n >= cache_size) {
         idx_t new_size = n + 1; /* allocate indices 0 .. n */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return 0; /* allocation failed */
         cache = new_cache;
         /* initialize new entries up to new_size-1 */

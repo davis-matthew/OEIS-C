@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 6 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -51,6 +52,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_PRIME 2000000U  // enough for n ≤ 10 000
 
@@ -82,7 +84,7 @@ static void init_primes(void)
     for (uint32_t i = 2; i <= MAX_PRIME; ++i)
         if (is_prime[i]) ++cnt;
 
-    global_primes = (seq_t *)malloc(cnt * sizeof(seq_t));
+    global_primes = mem_new(seq_t, cnt);
     if (!global_primes) {
         free(is_prime);
         return;

@@ -9,7 +9,8 @@
  *            occurs for infinitely many integer pairs (x, y)
  * Range:     u8 none, u16 n <= 42, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   gcd, sqrt_uint64
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-01)
+ * Helpers:   gcd, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/sqrt_uint64.h"
+#include "../utils/isqrt_u64.h"
 
 /* Main function that computes the sequence term for index n. */
 seq_t a(idx_t n)
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Check the zero case: 12' * n' must be a perfect square. */
     uint64_t zero_val = twelve_over_g * n_over_g;
-    uint64_t root = sqrt_uint64(zero_val);
+    uint64_t root = isqrt_u64(zero_val);
     if (root * root == zero_val) {
         return 0;
     }
@@ -53,7 +54,7 @@ seq_t a(idx_t n)
     for (idx_t V = 1; V <= V_MAX; ++V) {
         uint64_t Vsq      = (uint64_t)V * (uint64_t)V;
         uint64_t U0       = D * Vsq;                     /* D * V^2   */
-        uint64_t sqrtU    = sqrt_uint64(U0);             /* floor(sqrt(D*V^2)) */
+        uint64_t sqrtU    = isqrt_u64(U0);             /* floor(sqrt(D*V^2)) */
 
         /* Find the smallest multiple of 12' that is ≥ sqrt(U0). */
         uint64_t t = sqrtU / twelve_over_g;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   alloc_seq_array, binom_n_k, seq_pow
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,9 +33,16 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom_n_k.h"
-#include "../utils/seq_pow.h"
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static idx_t   _max_n = 0;   /* largest n that has been computed */
 static seq_t * _a     = NULL;/* sequence a(n) */
@@ -57,8 +65,8 @@ seq_t a(idx_t n)
     if (n > _max_n) {
         size_t newsize = (size_t)n + 1;
         /* Reallocate the arrays to fit up to n */
-        _a = (seq_t*)realloc(_a, newsize * sizeof(seq_t));
-        _b = (seq_t*)realloc(_b, newsize * sizeof(seq_t));
+        _a = mem_resize(seq_t, _a, newsize);
+        _b = mem_resize(seq_t, _b, newsize);
 
         /* Compute A166899 for new indices */
         for (idx_t i = _max_n + 1; i <= n; ++i) {
@@ -66,8 +74,8 @@ seq_t a(idx_t n)
             idx_t maxk = i / 2;
             for (idx_t k = 0; k <= maxk; ++k) {
                 idx_t nmk = i - k;
-                seq_t bin = binom_n_k(nmk, k);                 /* C(i-k, k) */
-                seq_t bin4 = seq_pow(bin, (idx_t)4);           /* (C(i-k, k))^4 */
+                seq_t bin = binomial(nmk, k);                 /* C(i-k, k) */
+                seq_t bin4 = ipow_idx(bin, (idx_t)4);           /* (C(i-k, k))^4 */
                 seq_t mult = bin4 * (seq_t)i;                 /* multiply by i */
                 seq_t term = mult / (seq_t)nmk;               /* divide by (i-k) */
                 sum += term;

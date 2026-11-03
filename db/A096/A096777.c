@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 443, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9805 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    Implementation uses memoisation so calls can be in any order.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_arr = NULL;
 static idx_t seq_len = 0;     /* number of computed terms */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (seq_len == 0) {
         seq_cap = 1;
-        seq_arr = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         seq_arr[0] = (seq_t)1;            /* a(1) = 1 */
         seq_len = 1;
         odd_cnt = 1;                      /* a(1) is odd */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             if (seq_len >= seq_cap) {
                 idx_t newcap = seq_cap ? seq_cap << 1 : 1;
                 if (newcap < n) newcap = n;
-                seq_arr = (seq_t*)realloc(seq_arr, newcap * sizeof(seq_t));
+                seq_arr = mem_resize(seq_t, seq_arr, newcap);
                 seq_cap = newcap;
             }
 

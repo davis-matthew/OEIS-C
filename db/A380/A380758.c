@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 3535, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto
+ * Validated: standard, pass, 68 terms through n = 9046 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/_floor_isqrt_u64.h"   /* idx_t _floor_isqrt_u64(idx_t n); */
-#include "../utils/build_primes_upto.h" /* void build_primes_upto(idx_t limit,
-                                         uint64_t **primes_out, size_t *cnt_out); */
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* Grow a seq_t array to hold at least 'need' elements.
    Uses realloc and returns the new capacity in *cap.          */
@@ -37,7 +38,7 @@ static void ensure_cap(size_t need, size_t *cap, seq_t **p)
     size_t newcap = (*cap == 0) ? 16 : *cap * 2;
     while (newcap < need)
         newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(*p, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *p, newcap);
     if (tmp == NULL)
         exit(EXIT_FAILURE);       /* allocation failure – abort */
     *p = tmp;
@@ -105,7 +106,7 @@ seq_t a(idx_t n)
         uint64_t val = last_checked;
 
         /* Ensure we have primes up to sqrt(val) */
-        uint64_t needed = (uint64_t)_floor_isqrt_u64(val);
+        uint64_t needed = (uint64_t)isqrt(val);
         if (needed > prime_lim) {
             /* Allocate new prime list and free the old one */
             uint64_t *new_primes = NULL;

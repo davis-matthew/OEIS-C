@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   even_runs_at_least_odd
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,43 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/even_runs_at_least_odd.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a number has at least as many even‑length
+ * base‑7 runs as odd‑length runs. */
+static bool even_runs_at_least_odd(seq_t x)
+{
+    if (x == 0) return false;                     /* 0 is not positive   */
+
+    uint8_t digits[32];                           /* enough for 64‑bit      */
+    int dlen = 0;
+    seq_t tmp = x;
+    while (tmp > 0) {
+        digits[dlen++] = (uint8_t)(tmp % 7);
+        tmp /= 7;
+    }
+
+    size_t evens = 0, odds = 0;
+    int idx = dlen - 1;                           /* most significant digit */
+    int prev = digits[idx];
+    int runlen = 1;
+
+    for (idx = dlen - 2; idx >= 0; --idx) {
+        if (digits[idx] == prev)
+            ++runlen;
+        else {
+            if ((runlen & 1) == 0) ++evens;
+            else ++odds;
+            prev = digits[idx];
+            runlen = 1;
+        }
+    }
+    /* last run */
+    if ((runlen & 1) == 0) ++evens;
+    else ++odds;
+
+    return evens >= odds;
+}
 
 /* Cache for generated terms */
 static seq_t *cache = NULL;        /* dynamically allocated array */
@@ -39,7 +76,7 @@ static void ensure_terms(idx_t N)
     if (cache_cap < (size_t)N) {
         size_t new_cap = cache_cap ? cache_cap : 16;
         while (new_cap < (size_t)N) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                /* memory exhausted     */
         cache     = tmp;
         cache_cap = new_cap;

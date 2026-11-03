@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 114, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_mul
+ * Validated: standard, pass, 56 terms through n = 995 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* Deterministic Miller‑Rabin for 64‑bit unsigned integers.
    Uses the bases {2,3,5,7,11,13,17} which are sufficient for all n < 2^64. */
@@ -27,8 +29,8 @@ static inline uint64_t mod_pow(uint64_t a, uint64_t e, uint64_t mod)
     while (e)
     {
         if (e & 1ULL)
-            res = mod_mul(res, a, mod);
-        a = mod_mul(a, a, mod);
+            res = mulmod(res, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return res;
@@ -64,7 +66,7 @@ static bool is_prime_uint64(uint64_t n)
         bool cont = false;
         for (int r = 1; r < s; ++r)
         {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { cont = true; break; }
         }
         if (!cont) return false;
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
         {
             size_t new_cap = (needed > cache_cap * 2 + 16) ?
                               needed : cache_cap * 2 + 16;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) abort();      /* memory failure */
             cache = new_cache;
             cache_cap = new_cap;

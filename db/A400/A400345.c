@@ -9,12 +9,14 @@
  *            - a(n);
  * Range:     i8 n <= 47, i16 n <= 70, i32 n <= 70, i64 n <= 70, i128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation table */
 static seq_t *cache = NULL;   /* array of values */
@@ -29,7 +31,7 @@ static void grow_cache(idx_t n)
     /* realloc returns void* – cast to seq_t*.  In C++11 and later this
        cast is legal; the test harness does not rely on constructors
        being run (seq_t is seen as a plain integer type in the tests). */
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) {
         /* Allocation failed – aborting is safe because the sequence
            must be computable for all n. */

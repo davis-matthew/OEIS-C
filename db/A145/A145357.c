@@ -11,7 +11,8 @@
  *            of weights w(j) = (j+4)!/120 for each part j
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 36, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_from_str.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 static seq_t *dp = NULL;          /* dp[s * (maxR+1) + k] = S1hat(6)(s,k) */
 static seq_t *w  = NULL;          /* weights w[j] for part size j  */
@@ -40,14 +53,14 @@ static inline idx_t row_of_index(idx_t n)
 static void rebuild(idx_t newR)
 {
     /* free old arrays if any */
-    if (dp) free(dp);
-    if (w)  free(w);
-    if (fact) free(fact);
+    if (dp) mem_free(dp);
+    if (w)  mem_free(w);
+    if (fact) mem_free(fact);
 
     /* allocate new arrays */
-    dp   = (seq_t*)calloc((newR + 1) * (newR + 1), sizeof(seq_t));
-    w    = (seq_t*)calloc(newR + 1, sizeof(seq_t));
-    fact = (seq_t*)calloc(newR + 5, sizeof(seq_t));  /* need up to newR+4 */
+    dp   = mem_new(seq_t, (newR + 1) * (newR + 1));
+    w    = mem_new(seq_t, newR + 1);
+    fact = mem_new(seq_t, newR + 5);  /* need up to newR+4 */
 
     /* factorials */
     fact[0] = seq_from_str("1");

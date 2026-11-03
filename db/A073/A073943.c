@@ -7,15 +7,19 @@
  * Formula:   a(n) = smallest m such that the n-th prime divides m^m + 1
  * Range:     u8 n <= 31, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrime, mod_pow
+ * Validated: standard, pass, 83 terms through n = 886 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/isPrime.h"
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 static seq_t primes[200000];    /* store primes; ample for n up to ~200k */
 static size_t prime_count = 0;  /* number of primes stored */
@@ -28,7 +32,7 @@ static void generate_primes_up_to(size_t need)
 
     idx_t cand = last_candidate + 1;
     while (prime_count < need) {
-        if (isPrime(cand)) {
+        if (is_prime(cand)) {
             primes[prime_count++] = (seq_t)cand;
         }
         cand++;
@@ -61,7 +65,7 @@ seq_t a(idx_t n)
             ++m;
             continue; /* skips multiples of p */
         }
-        seq_t val = mod_pow(base, m, p);   /* base^m mod p */
+        seq_t val = powmod(base, m, p);   /* base^m mod p */
         if (((val + (seq_t)1) % p) == 0) { /* check if p divides m^m + 1 */
             return (seq_t)m;
         }

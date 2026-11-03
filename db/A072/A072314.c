@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 5, u128 n <= 7,
  *            big any n
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@
    store the value. */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
 
 #define MAX_N 20000   /* maximum n for which results are memoized */

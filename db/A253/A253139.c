@@ -8,6 +8,7 @@
  * Formula:   a(n) = lcm_{d|n} tau(d)
  * Range:     u8 n <= 63, u16 n <= 4095, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 94 terms through n = 9970 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 /* Compute the least common multiple of 1..k for k up to 64 */
 static seq_t lcm_table[66];

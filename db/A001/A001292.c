@@ -12,13 +12,22 @@
  *            builds the chosen one
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 45, u64 n <= 105, u128 n <= 293,
  *            big any n
- * Helpers:   rot_cmp
+ * Validated: standard, pass, 44 terms through n = 9942 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/rot_cmp.h"
+
+static int rot_cmp(const char *s, idx_t L, idx_t o1, idx_t o2) {
+    for (idx_t t = 0; t < L; t++) {
+        char c1 = s[(o1 + t) % L];
+        char c2 = s[(o2 + t) % L];
+        if (c1 != c2) return c1 < c2 ? -1 : 1;
+    }
+    return 0;
+}
 
 seq_t a(idx_t n) {
     idx_t k = 1;

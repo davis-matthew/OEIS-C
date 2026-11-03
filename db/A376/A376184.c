@@ -14,13 +14,15 @@
  *            S(n-1) reduced. P, Q are kept reduced
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* realloc */
 #include <stdint.h>   /* for uint64_t if needed */
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build environment. */
 
@@ -53,9 +55,9 @@ static void ensure_capacity(idx_t need)
     size_t new_cap = capacity ? capacity << 1 : 16;
     while (new_cap < (size_t)(need + 1)) new_cap <<= 1;
 
-    a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-    p_arr = (seq_t *)realloc(p_arr, new_cap * sizeof(seq_t));
-    q_arr = (seq_t *)realloc(q_arr, new_cap * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
+    p_arr = mem_resize(seq_t, p_arr, new_cap);
+    q_arr = mem_resize(seq_t, q_arr, new_cap);
 
     /* initialise new slots to zero (p_arr[0] and q_arr[0] are set separately) */
     for (size_t i = capacity; i < new_cap; ++i) {

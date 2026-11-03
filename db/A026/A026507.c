@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   bitset_size, u32_sqrt
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   isqrt_u32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/bitset_size.h"
-#include "../utils/u32_sqrt.h"
+#include "../utils/isqrt_u32.h"
+#include "../utils/mem.h"
+
+/* ---------- Bitset helpers ---------- */
+static inline size_t bitset_size(size_t n) { return (n >> 3) + 1; }
 
 /* ---------- Parameters ---------- */
 #define LIMIT 40000U          /* maximum value that must be tracked as “bad” */
@@ -50,7 +54,7 @@ static void grow_seq(void)
 {
     if (seq_len >= seq_cap) {
         seq_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
 }
 
@@ -58,7 +62,7 @@ static void init_storage(void)
 {
     if (seq == NULL) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 0;
     }
 
@@ -97,7 +101,7 @@ seq_t a(idx_t n)
         /* compute upper bound for sums that can produce a forbidden value ≤ LIMIT */
         uint32_t ak_u = (uint32_t)ak;
         uint32_t sq   = ak_u * ak_u + LIMIT;
-        uint32_t limX_u = u32_sqrt(sq);
+        uint32_t limX_u = isqrt_u32(sq);
         seq_t limX = (seq_t)limX_u;
 
         for (idx_t i = 0; i < idx - 1; ++i) {

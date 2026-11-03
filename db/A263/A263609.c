@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 25, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   base4_repr, is_palindrome
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,28 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_palindrome.h"
-#include "../utils/base4_repr.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
+
+/* Convert a seq_t value Y (the decimal integer corresponding to the
+   base‑4 number) to a decimal integer whose decimal digits are the base‑4
+   digits of Y, in the correct order (most significant first). */
+static seq_t base4_repr(seq_t Y)
+{
+    if (Y == 0) return 0;
+    /* Buffer sufficient for the maximum number of base‑4 digits. */
+    uint8_t buf[128];
+    size_t len = 0;
+    while (Y > 0) {
+        buf[len++] = (uint8_t)(Y % 4);
+        Y /= 4;
+    }
+    seq_t res = 0;
+    while (len > 0) {
+        res = res * 10 + buf[--len];
+    }
+    return res;
+}
 
 static seq_t *cache = NULL;          /* stored terms (decimal representation) */
 static size_t cache_len = 0;         /* number of terms already found      */
@@ -40,7 +61,7 @@ static void fill_cache(idx_t n)
     if (cache_len == 0) {
         /* initialise the cache with the first term a(1) = 0 */
         cache_cap = 32;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 0;
         cache_len = 1;
         next_candidate = 1;           /* start scanning from Y = 1 */
@@ -49,11 +70,11 @@ static void fill_cache(idx_t n)
     while (cache_len < (size_t)n) {
         seq_t Y = next_candidate;
         seq_t sq = Y * Y;
-        if (is_palindrome(sq, 4)) {
+        if (is_palindrome_base(sq, 4)) {
             seq_t val = base4_repr(Y);
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = val;
         }

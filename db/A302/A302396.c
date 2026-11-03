@@ -8,15 +8,27 @@
  * Formula:   a(n) = Sum_{k=0..n} (-1)^k * binomial(n,k) * 2^binomial(n-k,4)
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 6, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   binom4_idx, binomial, pow2
+ * Validated: standard, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/binom4_idx.h"
+
+/* helper: compute binomial(n,4) for n >= 0, result fits in idx_t */
+static idx_t binom4_idx(idx_t n) {
+    if (n < 4) return 0;
+    idx_t r = 1;
+    for (idx_t i = 0; i < 4; ++i) {
+        r = r * (n - i) / (i + 1);
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     /* handle the trivial case */

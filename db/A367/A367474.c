@@ -8,14 +8,16 @@
  *            unsigned Stirling numbers of the first kind. The recurrence for
  *            |S1| is |S1(0,0)| = 1, |S1(n,0)| = 0 (n>0) |S1(n,k)| =
  *            |S1(n-1,k-1)| + (n-1) * |S1(n-1,k)| (1 <= k <= n)
- * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 17,
+ * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------- helper arrays ------------------------------------------- */
 
@@ -37,8 +39,8 @@ static void ensure_stirling(idx_t n)
     if ((size_t)n + 1 > stir_cap) {
         size_t new_cap = stir_cap ? stir_cap * 2 : 16;
         while ((size_t)n + 1 > new_cap) new_cap <<= 1;
-        st_prev = (seq_t *)realloc(st_prev, new_cap * sizeof(seq_t));
-        st_cur  = (seq_t *)realloc(st_cur,  new_cap * sizeof(seq_t));
+        st_prev = mem_resize(seq_t, st_prev, new_cap);
+        st_cur  = mem_resize(seq_t, st_cur, new_cap);
         stir_cap = new_cap;
     }
 }
@@ -49,7 +51,7 @@ static void ensure_pow2(idx_t n)
     if ((size_t)n + 1 > pow2_cap) {
         size_t new_cap = pow2_cap ? pow2_cap * 2 : 16;
         while ((size_t)n + 1 > new_cap) new_cap <<= 1;
-        pow2 = (seq_t *)realloc(pow2, new_cap * sizeof(seq_t));
+        pow2 = mem_resize(seq_t, pow2, new_cap);
         pow2_cap = new_cap;
         /* fill new entries */
         for (size_t i = (pow2_cap >> 1); i < pow2_cap; ++i)
@@ -63,7 +65,7 @@ static void ensure_fact(idx_t n)
     if ((size_t)n + 2 > fact_cap) {
         size_t new_cap = fact_cap ? fact_cap * 2 : 16;
         while ((size_t)n + 2 > new_cap) new_cap <<= 1;
-        fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_cap);
         fact_cap = new_cap;
         /* fill new entries */
         for (size_t i = (fact_cap >> 1); i < fact_cap; ++i)
@@ -89,24 +91,24 @@ seq_t a(idx_t n)
     if (last_computed == (idx_t)-1) {
         /* Stirling arrays */
         stir_cap = 16;
-        st_prev = (seq_t *)malloc(stir_cap * sizeof(seq_t));
-        st_cur  = (seq_t *)malloc(stir_cap * sizeof(seq_t));
+        st_prev = mem_new(seq_t, stir_cap);
+        st_cur  = mem_new(seq_t, stir_cap);
         st_prev[0] = 1;   /* |S1(0,0)| = 1 */
         /* Power of 2 */
         pow2_cap = 16;
-        pow2    = (seq_t *)malloc(pow2_cap * sizeof(seq_t));
+        pow2    = mem_new(seq_t, pow2_cap);
         pow2[0] = (seq_t)1;
         for (size_t i = 1; i < pow2_cap; ++i) pow2[i] = pow2[i-1] * (seq_t)2;
         /* Factorials */
         fact_cap = 16;
-        fact    = (seq_t *)malloc(fact_cap * sizeof(seq_t));
+        fact    = mem_new(seq_t, fact_cap);
         fact[0] = (seq_t)1;
         fact[1] = (seq_t)1;   /* 1! */
         for (size_t i = 2; i < fact_cap; ++i) fact[i] = fact[i-1] * (seq_t)i;
 
         /* Cache for sequence values */
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 1;        /* we will store a(0) but will override it below */
         cache[0] = (seq_t)1;  /* a(0) */
         last_computed = 0;
@@ -116,7 +118,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while ((size_t)n >= new_cap) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

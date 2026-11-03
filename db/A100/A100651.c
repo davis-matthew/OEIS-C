@@ -2,24 +2,26 @@
  * A100651  Numerator of 1 - Sum_{i=1..n} |Bernoulli(i)|.
  * https://oeis.org/A100651
  *
- * Offset:    1    (a(1) is the first term)
+ * Offset:    0    (a(0) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 6, i16 n <= 14, i32 n <= 20, i64 n <= 30, i128 n <= 31,
+ * Range:     i8 n <= 5, i16 n <= 13, i32 n <= 19, i64 n <= 29, i128 n <= 49,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 47 terms through n = 542 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  OEIS A100651
-    Numerator of 1 – Sum_{i=1}^{n-1} |B_i|   (B_i is the i‑th Bernoulli number)
-    a(1)=1, a(2)=1, a(3)=1, a(4)=1, a(5)=3, a(6)=3, …  */
+    Numerator of 1 – Sum_{i=1}^{n} |B_i|   (B_i is the i‑th Bernoulli number)
+    a(0)=1, a(1)=1, a(2)=1, a(3)=1, a(4)=3, a(5)=3, …  */
 
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd_seq.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Simple rational type, sign stored only on the numerator. */
 typedef struct { seq_t num; seq_t den; } rational_t;
@@ -29,7 +31,7 @@ static rational_t ratio_reduce(seq_t n, seq_t d)
 {
     if (d < (seq_t)0) { n = -n; d = -d; }
     if (n == (seq_t)0) return (rational_t){(seq_t)0, (seq_t)1};
-    seq_t g = gcd_seq(n >= (seq_t)0 ? n : -n, d);
+    seq_t g = gcd(n >= (seq_t)0 ? n : -n, d);
     if (g > (seq_t)1) { n /= g; d /= g; }
     return (rational_t){n, d};
 }
@@ -37,7 +39,7 @@ static rational_t ratio_reduce(seq_t n, seq_t d)
 /* Addition of two rationals. */
 static rational_t ratio_add(rational_t a, rational_t b)
 {
-    seq_t g = gcd_seq(a.den, b.den);
+    seq_t g = gcd(a.den, b.den);
     seq_t l = (a.den / g) * b.den;
     seq_t n = a.num * (b.den / g) + b.num * (a.den / g);
     return ratio_reduce(n, l);
@@ -46,7 +48,7 @@ static rational_t ratio_add(rational_t a, rational_t b)
 /* Subtraction of two rationals. */
 static rational_t ratio_sub(rational_t a, rational_t b)
 {
-    seq_t g = gcd_seq(a.den, b.den);
+    seq_t g = gcd(a.den, b.den);
     seq_t l = (a.den / g) * b.den;
     seq_t n = a.num * (b.den / g) - b.num * (a.den / g);
     return ratio_reduce(n, l);
@@ -74,18 +76,18 @@ static rational_t ratio_abs(rational_t a)
 /* Main sequence function */
 seq_t a(idx_t n)
 {
-    /* For n=1 the sum is empty. */
-    if (n <= (idx_t)1) return (seq_t)1;
+    /* For n=0 the sum is empty. */
+    if (n < (idx_t)1) return (seq_t)1;
 
-    /* We need Bernoulli numbers B_0 … B_{n-1}. */
-    size_t len = (size_t)n;                 /* number of entries needed */
-    rational_t *B = (rational_t*)malloc(sizeof(rational_t) * len);
+    /* We need Bernoulli numbers B_0 … B_n. */
+    size_t len = (size_t)n + 1;             /* number of entries needed */
+    rational_t *B = mem_new(rational_t, len);
     if (!B) return (seq_t)0;                /* allocation failure */
 
     B[0] = (rational_t){(seq_t)1, (seq_t)1}; /* B_0 = 1 */
-    rational_t sum = (rational_t){(seq_t)0, (seq_t)1}; /* Σ |B_i|, i=1..n-1 */
+    rational_t sum = (rational_t){(seq_t)0, (seq_t)1}; /* Σ |B_i|, i=1..n */
 
-    /* n-1 may be 0 (already handled) so we start at m=1 up to n-1 inclusive. */
+    /* m runs from 1 to n inclusive. */
     for (size_t m = 1; m < len; ++m) {
         if (m == 1) {
             /* B_1 = -1/2 */
@@ -127,6 +129,6 @@ seq_t a(idx_t n)
     rational_t one = (rational_t){(seq_t)1, (seq_t)1};
     rational_t result = ratio_sub(one, sum);
 
-    free(B);
+    mem_free(B);
     return result.num; /* return numerator only */
 }

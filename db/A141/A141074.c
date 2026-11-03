@@ -7,18 +7,19 @@
  * Formula:   a(n) = n^(n+1)-(n+1)^n+1-(-1)^prime(n+1)-(-1)^(n+1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     /* high = n^(n+1) + 1 */
-    seq_t high = pow_uint((uint64_t)n, n + 1);
+    seq_t high = ipow_u64_idx((uint64_t)n, n + 1);
     high += 1;
 
     /* -(-1)^prime(n+1) */
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
     }
 
     /* low = (n+1)^n */
-    seq_t low = pow_uint((uint64_t)(n + 1), n);
+    seq_t low = ipow_u64_idx((uint64_t)(n + 1), n);
 
     return high - low;
 }

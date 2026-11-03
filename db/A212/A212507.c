@@ -8,6 +8,7 @@
  * Formula:   a(n) = (2*n*(9*n^3+6*n^2+1)-(2*n-1)*(-1)^n-1)/32
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

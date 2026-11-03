@@ -13,7 +13,8 @@
  *            are taken from the common prefix of the C...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 20, u64 n <= 34, u128 n <= 78,
  *            big any n
- * Helpers:   pc_bits
+ * Validated: standard, pass, 44 terms through n = 1731 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/pc_bits.h"
+
+static uint64_t pc_bits(const uint32_t *x, size_t len, size_t sh)
+{
+    size_t idx = sh / 32;
+    unsigned off = (unsigned)(sh % 32);
+    uint64_t l0 = idx < len ? x[idx] : 0;
+    uint64_t l1 = idx + 1 < len ? x[idx + 1] : 0;
+    uint64_t l2 = idx + 2 < len ? x[idx + 2] : 0;
+    uint64_t lo = l0 | (l1 << 32);
+    uint64_t r = lo >> off;
+    if (off) r |= l2 << (64 - off);
+    return r;
+}
 
 static uint64_t *pcf_terms = NULL;
 static size_t pcf_cnt = 0;

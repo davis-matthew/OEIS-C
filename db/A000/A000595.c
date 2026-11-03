@@ -8,7 +8,8 @@
  *            gcd(i,j)*s_i*s_j) / (1^s_1*s_1!*2^s_2*s_2!*...)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   r595_gcd, r595_inv, r595_mul
+ * Validated: standard, pass, 31 terms through n = 50 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/r595_gcd.h"
-#include "../utils/r595_inv.h"
-#include "../utils/r595_mul.h"
+#include "../utils/gcd_u64.h"
+
+static seq_t r595_mul(seq_t x, seq_t y) {
+    return (seq_t)(1u * x * y);
+}
+
+/* inverse of odd q modulo 2^w (wrapping arithmetic) */
+static seq_t r595_inv(seq_t q) {
+    seq_t x = q;
+    for (int i = 0; i < 7; i++)
+        x = r595_mul(x, (seq_t)(2 - r595_mul(q, x)));
+    return x;
+}
 
 static int r595_wcache = 0; /* 0 unknown, -1 arbitrary precision, else bit width */
 
@@ -54,7 +65,7 @@ static void r595_big(r595_ctx *c, idx_t rem, idx_t maxp, uint64_t e, seq_t C) {
     for (idx_t j = top; j >= 1; j--) {
         uint64_t g = 0;
         for (int d = 0; d < c->depth; d++)
-            g += r595_gcd(c->p[d], j) * c->s[d];
+            g += gcd_u64(c->p[d], j) * c->s[d];
         seq_t Cj = C;
         for (idx_t s = 1; s * j <= rem; s++) {
             Cj /= j;
@@ -84,7 +95,7 @@ static void r595_fix(r595_ctx *c, idx_t rem, idx_t maxp, uint64_t e,
     for (idx_t j = top; j >= 1; j--) {
         uint64_t g = 0;
         for (int d = 0; d < c->depth; d++)
-            g += r595_gcd(c->p[d], j) * c->s[d];
+            g += gcd_u64(c->p[d], j) * c->s[d];
         uint64_t jo = j, jt = 0;
         while ((jo & 1) == 0) { jo >>= 1; jt++; }
         seq_t mj = m;

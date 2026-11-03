@@ -10,7 +10,8 @@
  *            multiplicity). The empty factorization is counted for n = 1
  * Range:     u8 n <= 2519, u16 n <= 2519, u32 n <= 2519, u64 n <= 2519,
  *            u128 n <= 2519, big any n
- * Helpers:   odd_prime_factor_count
+ * Validated: standard, pass, 119 terms through n = 2286 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/odd_prime_factor_count.h"
+
+/* Return true if the total number of prime factors of x (with multiplicity)
+   is odd.  */
+static bool odd_prime_factor_count(uint64_t x) {
+    bool odd = false;
+    while (x % 2 == 0) { odd = !odd; x /= 2; }
+    for (uint64_t p = 3; p * p <= x; p += 2) {
+        while (x % p == 0) { odd = !odd; x /= p; }
+    }
+    if (x > 1) odd = !odd;          /* remaining prime */
+    return odd;
+}
 
 typedef uint64_t idx_t;   /* index type (the build supplies the real type) */
 

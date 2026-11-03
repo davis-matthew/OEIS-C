@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,14 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_alloc_new_array.h"
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /* Forward declarations of helper functions */
 static void gen_part(idx_t n_curr, idx_t min_factor, idx_t sum_so_far, idx_t N);

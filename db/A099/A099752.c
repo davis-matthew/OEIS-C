@@ -9,7 +9,8 @@
  *            ((1-t^4)^2*(1-t^8)^3*(1-t^12)^3*(1-t^20)^2)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static int64_t poly_mul(const int64_t *a, int degA,
                         const int64_t *b, int degB,
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
     /* Expand cache if needed */
     if (n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         for (size_t i = cache_size; i < new_size; ++i) {
             seq_t temp = (i < 24) ? Q[i] : 0;
             seq_t sum_neg = 0;

@@ -7,13 +7,16 @@
  * Formula:   a(n) = numerator of \sum_{i=1}^{n} i! / i^i
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   seq_gcd, seq_pow
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -30,10 +33,10 @@ seq_t a(idx_t n)
 
         /* term = i! / i^i  */
         seq_t term_num = fact;
-        seq_t term_den = seq_pow((seq_t)i, i);
+        seq_t term_den = ipow_idx((seq_t)i, i);
 
         /* Reduce the term */
-        seq_t g = seq_gcd(term_num, term_den);
+        seq_t g = gcd(term_num, term_den);
         term_num /= g;
         term_den /= g;
 
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
         seq_t new_den = sum_den * term_den;
 
         /* Reduce the new fraction */
-        g = seq_gcd(new_num, new_den);
+        g = gcd(new_num, new_den);
         sum_num = new_num / g;
         sum_den = new_den / g;
     }

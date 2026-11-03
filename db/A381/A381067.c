@@ -8,15 +8,39 @@
  *            |Stirling1(k+1,3)|
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* ensure_capacity: enlarges *ptr so that it can hold at least 'needed' elements of size 'elem_size' */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (*cap < needed)
+    {
+        size_t new_cap = (*cap == 0 ? 1 : *cap << 1);
+        while (new_cap < needed)
+            new_cap <<= 1;
+        *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (*cap < needed)
@@ -28,6 +52,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
         *cap = new_cap;
     }
 }
+#endif
 
 /* static storage for factorials, unsigned Stirling numbers of the first kind (k=2,3) and the sequence a(n) */
 static seq_t *fac_arr   = NULL;
@@ -52,21 +77,21 @@ static void precompute(idx_t n)
     /* ensure factorial array has enough capacity */
     if (fac_arr == NULL)
     {
-        ensure_capacity(2, &fac_cap, (void **)&fac_arr, sizeof(seq_t));
+        ensure_capacity(2, &fac_cap, OEISC_VPP(&fac_arr), sizeof(seq_t));
         fac_arr[0] = (seq_t)1;
         fac_arr[1] = (seq_t)1;
     }
 
     if (c2_arr == NULL)
     {
-        ensure_capacity(2, &c2_cap, (void **)&c2_arr, sizeof(seq_t));
+        ensure_capacity(2, &c2_cap, OEISC_VPP(&c2_arr), sizeof(seq_t));
         c2_arr[0] = (seq_t)0;
         c2_arr[1] = (seq_t)0;
     }
 
     if (c3_arr == NULL)
     {
-        ensure_capacity(3, &c3_cap, (void **)&c3_arr, sizeof(seq_t));
+        ensure_capacity(3, &c3_cap, OEISC_VPP(&c3_arr), sizeof(seq_t));
         c3_arr[0] = (seq_t)0;
         c3_arr[1] = (seq_t)0;
         c3_arr[2] = (seq_t)0;
@@ -76,9 +101,9 @@ static void precompute(idx_t n)
     if (n + 1 > fac_max)
     {
         size_t needed = (size_t)(n + 2);  /* need indices 0 .. n+1 inclusive */
-        ensure_capacity(needed, &fac_cap, (void **)&fac_arr, sizeof(seq_t));
-        ensure_capacity(needed, &c2_cap,  (void **)&c2_arr,  sizeof(seq_t));
-        ensure_capacity(needed, &c3_cap,  (void **)&c3_arr,  sizeof(seq_t));
+        ensure_capacity(needed, &fac_cap, OEISC_VPP(&fac_arr), sizeof(seq_t));
+        ensure_capacity(needed, &c2_cap,  OEISC_VPP(&c2_arr),  sizeof(seq_t));
+        ensure_capacity(needed, &c3_cap,  OEISC_VPP(&c3_arr),  sizeof(seq_t));
 
         for (idx_t i = fac_max + 1; i <= n + 1; ++i)
         {
@@ -101,7 +126,7 @@ static void precompute(idx_t n)
     /* allocate cache for a(n) if needed */
     if (a_cache == NULL)
     {
-        ensure_capacity(1, &a_cap, (void **)&a_cache, sizeof(seq_t));
+        ensure_capacity(1, &a_cap, OEISC_VPP(&a_cache), sizeof(seq_t));
         a_cache[0] = (seq_t)0;     /* a(0) = 0 */
         a_max = 0;
     }
@@ -109,7 +134,7 @@ static void precompute(idx_t n)
     /* compute missing a(i) values up to n */
     if (n > a_max)
     {
-        ensure_capacity((size_t)(n + 1), &a_cap, (void **)&a_cache, sizeof(seq_t));
+        ensure_capacity((size_t)(n + 1), &a_cap, OEISC_VPP(&a_cache), sizeof(seq_t));
         for (idx_t i = a_max + 1; i <= n; ++i)
         {
             seq_t pos = (seq_t)0;

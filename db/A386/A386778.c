@@ -7,13 +7,24 @@
  * Formula:   a(n) = n^2 * sigma_8(n) (sigma_8(n) = sum_{d|n} d^8)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 84, u128 n <= 7129,
  *            big any n
- * Helpers:   pow8_i
+ * Validated: standard, pass, 39 terms through n = 9888 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow8_i.h"
+#include "../utils/mem.h"
+
+/* Helper: compute i^8 using seq_t arithmetic */
+static inline seq_t pow8_i(idx_t i)
+{
+    seq_t a = (seq_t)i;
+    seq_t a2 = a * a;      /* a^2   */
+    seq_t a4 = a2 * a2;    /* a^4   */
+    seq_t a8 = a4 * a4;    /* a^8   */
+    return a8;
+}
 
 /* Cached sigma_8 values */
 static seq_t *sigma = NULL;   /* sigma[0] ... sigma[max] */
@@ -30,7 +41,7 @@ seq_t a(idx_t n)
         /* New maximum we need */
         idx_t new_max = n;
         size_t new_size = (size_t)new_max + 1;
-        seq_t *new_arr = (seq_t *)realloc(sigma, new_size * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, sigma, new_size);
         if (!new_arr) {
             /* Allocation failure – abort (program environment expected) */
             exit(1);

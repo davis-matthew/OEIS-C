@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 114, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf, lpf
+ * Validated: standard, pass, 92 terms through n = 8979 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <limits.h>
-#include "../utils/lpf.h"
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 /* Cached sequence values (index 1 → first term). */
 static seq_t *seq_cache = NULL;    /* array of values */
@@ -38,7 +48,7 @@ static void grow_cache(size_t need)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 1024;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) exit(1);   /* fallback on allocation failure */
     seq_cache = tmp;
     cache_cap  = new_cap;
@@ -49,7 +59,7 @@ static inline bool qualifies(uint64_t m)
 {
     if (m <= 1) return false;
     uint64_t l = lpf((idx_t)m);   /* least prime factor */
-    uint64_t g = gpf(m);          /* greatest prime factor */
+    uint64_t g = largest_prime_factor(m);          /* greatest prime factor */
 
     /* Avoid overflow: if l*l would overflow 64‑bit, the inequality
        is automatically true because g <= m <= 2^64-1. */

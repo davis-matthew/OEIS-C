@@ -11,7 +11,8 @@
  *            a(1)=1, a(2)=2, a(3)=191, ... as in OEIS A085937
  * Range:     u8 n <= 2, u16 n <= 21, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached sequence values */
 static size_t cache_len = 0;         /* current number of cached values */
@@ -31,7 +33,7 @@ static void ensure_capacity(void)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         if (!new_arr) abort();
         cache = new_arr;
         cache_cap = new_cap;
@@ -42,7 +44,7 @@ static void ensure_capacity(void)
 static bool satisfies(seq_t n)
 {
     /* First, n must itself be a palindrome. */
-    if (!is_palindrome(n, (idx_t)10))
+    if (!is_palindrome_base(n, (idx_t)10))
         return false;
 
     /* Extract digits of n, count them, and compute the sum of their squares. */
@@ -66,7 +68,7 @@ static bool satisfies(seq_t n)
 
     /* Compute s + sumsq and check whether it is a palindrome. */
     seq_t t = s + sumsq;
-    return is_palindrome(t, (idx_t)10);
+    return is_palindrome_base(t, (idx_t)10);
 }
 
 /* Return the nth term of the sequence (1‑based index). */

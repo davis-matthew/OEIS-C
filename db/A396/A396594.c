@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 9046, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega, rad
+ * Validated: standard, pass, 76 terms through n = 9704 (2026-11-03)
+ * Helpers:   bigomega, mem, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 
 /* Utilities that provide the required arithmetic functions. */
-#include "../utils/rad.h"
 #include "../utils/bigomega.h"
+#include "../utils/radical.h"
+#include "../utils/mem.h"
 
 /* Dirichlet divisor function (bigomega) and rad are assumed to be
    declared in the corresponding headers. They accept and return values
@@ -35,13 +37,13 @@ seq_t a(idx_t n)
     /* Helper to grow the terms array. */
     if (terms == NULL) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* Generate terms until we have at least n of them. */
     while (terms_cnt < (size_t)n) {
         ++last_tested;                     /* candidate m               */
-        seq_t rad_val    = rad(last_tested);            /* rad(m)            */
+        seq_t rad_val    = radical(last_tested);            /* rad(m)            */
         seq_t omega_val  = bigomega(last_tested);      /* bigomega(m)      */
 
         /* Compute rad(m) * bigomega(m) in 128‑bit to avoid overflow. */
@@ -52,8 +54,8 @@ seq_t a(idx_t n)
             /* Store the term.  Expand the array if needed. */
             if (terms_cnt == terms_cap) {
                 size_t new_cap = terms_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
-                if (!tmp) { free(terms); return 0; } /* safe abort on OOM */
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
+                if (!tmp) { mem_free(terms); return 0; } /* safe abort on OOM */
                 terms = tmp;
                 terms_cap = new_cap;
             }

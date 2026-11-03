@@ -9,7 +9,8 @@
  *            prime} (1 - x^p), * then a(n) = c(n) - c(n-1) (with c(-1) = 0)
  * Range:     i8 n <= 166, i16 n <= 442, i32 n <= 1331, i64 n <= 4561,
  *            i128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 99 terms through n = 9903 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
  * and the number into an odd number of distinct prime parts.  */
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     /* Initial allocation */
     if (dp == NULL) {
         dp_cap = 1;
-        dp = (seq_t *)malloc(dp_cap * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_cap);
         if (dp == NULL) abort();
         dp[0] = 1;
         max_n  = 0;
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
     if (n > max_n) {
         idx_t new_cap = n + 1;
         if (new_cap > dp_cap) {
-            seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, dp, new_cap);
             if (tmp == NULL) abort();
             dp = tmp;
             dp_cap = new_cap;

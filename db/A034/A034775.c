@@ -8,15 +8,24 @@
  *            divisors of k and B(m) is the m‑th Bell number (B(0)=1)
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom, seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *Bell      = NULL;    /* Bell numbers B[0..N] */
 static seq_t *divcnt    = NULL;    /* divisor counts d[0..N] */
@@ -51,7 +60,7 @@ static void ensure_precomputed(idx_t n)
     for (size_t m = 0; m < (size_t)n; ++m) {
         seq_t sum = 0;
         for (size_t k = 0; k <= m; ++k) {
-            seq_t c = binom((idx_t)m, (idx_t)k);
+            seq_t c = binomial((idx_t)m, (idx_t)k);
             sum += c * Bell[k];
         }
         Bell[m + 1] = sum;

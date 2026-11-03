@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,9 @@
    The sequence value a(n) is exactly T(r,k) for the indices found above. */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,11 +53,11 @@ seq_t a(idx_t n)
     idx_t k = n - (idx_t)prev_sum;
 
     /* Allocate temporary rows and X array */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t) * (r + 1));
-    seq_t *cur  = (seq_t *)malloc(sizeof(seq_t) * (r + 1));
-    seq_t *X    = (seq_t *)malloc(sizeof(seq_t) * r);
+    seq_t *prev = mem_new(seq_t, (r + 1));
+    seq_t *cur  = mem_new(seq_t, (r + 1));
+    seq_t *X    = mem_new(seq_t, r);
     if (!prev || !cur || !X) {
-        free(prev); free(cur); free(X);
+        mem_free(prev); mem_free(cur); mem_free(X);
         return 0;
     }
 
@@ -77,8 +80,8 @@ seq_t a(idx_t n)
     }
 
     seq_t result = prev[k];
-    free(prev);
-    free(cur);
-    free(X);
+    mem_free(prev);
+    mem_free(cur);
+    mem_free(X);
     return result;
 }

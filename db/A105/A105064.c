@@ -7,8 +7,9 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = 1 + n!⋅k⋅(k+3)/2, where r = ⌊(√(8n+1)-1)/2⌋ (row index,
  *            0‑based), k = n - r(r+1)/2 (column index within that row)
- * Range:     u8 n <= 13, u16 n <= 31, u32 n <= 44, u64 n <= 44, u128 n <= 44,
- *            big any n
+ * Range:     u8 n <= 13, u16 n <= 31, u32 n <= 80, u64 n <= 205,
+ *            u128 n <= 568, big any n
+ * Validated: standard, pass, 61 terms through n = 1189 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

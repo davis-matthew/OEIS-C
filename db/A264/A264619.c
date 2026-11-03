@@ -9,8 +9,9 @@
  *            with a single 1, then append the binary reversal of n (including
  *            leading zeros to length of n). Interpret the resulting binary
  *            string as a base‑10 integer
- * Range:     u8 n <= 7, u16 n <= 127, u32 n <= 8419, u64 n <= 8419,
- *            u128 n <= 8419, big any n
+ * Range:     u8 n <= 7, u16 n <= 127, u32 n <= 32767, u64 n <= 32767,
+ *            u128 n <= 32767, big any n
+ * Validated: standard, pass, 73 terms through n = 8419 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

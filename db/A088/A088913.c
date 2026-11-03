@@ -11,12 +11,18 @@
  *            Fibonacci and an O(log n) computation of each Lucas number
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 16,
  *            big any n
- * Helpers:   mulseq
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mulseq.h"
+/* Helper: multiply two seq_t numbers using 128‑bit intermediate
+   to avoid overflow on 64‑bit builds. */
+static inline seq_t mulseq(seq_t x, seq_t y)
+{
+    return (seq_t)((unsigned __int128)x * y);
+}
 
 /* Fast doubling: compute F(n) and F(n+1).
    The invariant maintains (*fn  = F(n), *fn1 = F(n+1)). */

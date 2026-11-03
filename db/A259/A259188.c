@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   big_pow, digit_frequencies, is_prime
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   digit_frequencies, ipow, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/ipow.h"
 #include "../utils/is_prime.h"
-#include "../utils/big_pow.h"
+#include "../utils/mem.h"
 
 /* Return true if x has all digits distinct (no repeats). */
 static bool has_distinct_digits(seq_t x)
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
         {
             seq_t p = (seq_t)candidate;
             /* compute p² and p³ using big_pow to avoid overflow */
-            seq_t sq  = big_pow(p, (seq_t)2);
-            seq_t cub = big_pow(p, (seq_t)3);
+            seq_t sq  = ipow(p, (seq_t)2);
+            seq_t cub = ipow(p, (seq_t)3);
 
             if (has_distinct_digits(p) &&
                 has_distinct_digits(sq) &&
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
                 if (size == cap)
                 {
                     cap = (cap == 0) ? 16 : cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(buf, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, buf, cap);
                     if (!tmp) { /* allocation failed, exit gracefully */
                         exit(1);
                     }

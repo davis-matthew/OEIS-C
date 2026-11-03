@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Miller‑Rabin primality test for 64‑bit integers ---------- */
 static inline uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t m) {
@@ -125,7 +127,7 @@ struct TermList {
 static void add_term(seq_t val) {
     if (seq.len == seq.cap) {
         seq.cap = seq.cap ? seq.cap << 1 : 16;
-        seq.t   = (seq_t*)realloc(seq.t, seq.cap * sizeof(seq_t));
+        seq.t   = mem_resize(seq_t, seq.t, seq.cap);
     }
     seq.t[seq.len++] = val;
 }
@@ -135,7 +137,7 @@ seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0; /* unspecified for n < 1 */
 
     if (!seq.t) { /* first call */
-        seq.t   = (seq_t*)malloc(16 * sizeof(seq_t));
+        seq.t   = mem_new(seq_t, 16);
         seq.cap = 16;
         seq.len = 0;
         ensure_prime_list();

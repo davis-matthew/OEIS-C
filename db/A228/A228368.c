@@ -8,8 +8,9 @@
  * Formula:   a(n) = (v2(n)+1) - 2^(v2(n)) where v2(n) is the exponent of the
  *            largest power of 2 dividing n. This reproduces the OEIS sequence
  *            A228368
- * Range:     i8 n <= 255, i16 n <= 8873, i32 n <= 8873, i64 n <= 8873,
- *            i128 n <= 8873, big any n
+ * Range:     i8 n <= 255, i16 n <= 65535, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 112 terms through n = 8873 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

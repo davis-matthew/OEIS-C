@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3000, i16 n <= 3000, i32 n <= 3000, i64 n <= 3000,
  *            i128 n <= 3000, big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 97 terms through n = 2954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,8 +32,19 @@
 #include <stdbool.h>
 
 /* Helper allocators supplied by the build environment */
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Forward declaration of Polynomial type */
 typedef struct {

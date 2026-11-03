@@ -10,12 +10,14 @@
  *            multiplicity of the part 5)
  * Range:     u8 n <= 22, u16 n <= 49, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Pre‑computed partition counts:  
  *     P[m] – unrestricted partitions of m
@@ -29,11 +31,11 @@ static void ensure_partitions(idx_t n)
 {
     if (n <= pre_max) return;
 
-    if (P) free(P);
-    if (Q) free(Q);
+    if (P) mem_free(P);
+    if (Q) mem_free(Q);
 
-    P = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    Q = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    P = mem_new(seq_t, (n + 1));
+    Q = mem_new(seq_t, (n + 1));
     if (!P || !Q) { /* memory error – abort */ abort(); }
 
     /* initialise to zero */

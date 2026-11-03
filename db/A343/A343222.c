@@ -8,8 +8,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = min{k ≥ 0 | A003415( A003961^k(n) ) ≤ A003961^k(n)}
- * Range:     u8 n <= 31, u16 n <= 8178, u32 n <= 8178, u64 n <= 8178,
- *            u128 n <= 8178, big any n
+ * Range:     u8 n <= 31, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8178 (2026-11-01)
  * Helpers:   factor_u64, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/next_prime.h"
 

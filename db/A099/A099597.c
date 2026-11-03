@@ -9,12 +9,14 @@
  *            n*k*T(n-1,k-1)+1. The array is read by antidiagonals
  * Range:     u8 n <= 38, u16 n <= 70, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache of computed a(n) values */
 static seq_t *seq = NULL;      /* array of sequence values */
@@ -35,7 +37,7 @@ static void grow_seq(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 
@@ -60,7 +62,7 @@ static void compute_next_diagonal(void)
     ensure_diag_cap(d);
 
     size_t len = d + 1;                  /* number of elements on this diagonal */
-    seq_t *curr = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *curr = mem_new(seq_t, len);
 
     for (size_t i = 0; i <= d; ++i) {
         if (i == 0 || d - i == 0) {
@@ -98,7 +100,7 @@ static void init(void)
     /* diagonal tables */
     diag_cap = 1;
     diags = (seq_t **)malloc(sizeof(seq_t *));
-    diags[0] = (seq_t *)malloc(sizeof(seq_t));  /* diagonal 0 */
+    diags[0] = mem_new(seq_t, 1);  /* diagonal 0 */
     diags[0][0] = 1;
     current_max_d = 0;
 }

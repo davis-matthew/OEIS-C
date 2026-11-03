@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 9949, u16 n <= 9949, u32 n <= 9949, u64 n <= 9949,
- *            u128 n <= 9949, big any n
- * Helpers:   none
+ * Range:     u8 n <= 41159, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 99 terms through n = 9949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  static state  */
 static seq_t *a_cache   = NULL;   /* cache of a(n) values          */
@@ -42,7 +44,7 @@ static idx_t    spf_cap   = 0;    /* current size of spf array       */
 static void enlarge_cache(idx_t min_cap)
 {
     if (min_cap <= a_cache_cap) return;
-    a_cache = (seq_t *)realloc(a_cache, min_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, min_cap);
     a_cache_cap = min_cap;
 }
 

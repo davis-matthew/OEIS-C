@@ -5,16 +5,17 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Number of even divisors d of n such that d-1 is prime
- * Range:     u8 n <= 617, u16 n <= 9828, u32 n <= 9828, u64 n <= 9828,
- *            u128 n <= 9828, big any n
- * Helpers:   is_prime_small
+ * Range:     u8 n <= 617, u16 n <= 15120, u32 n <= 15120, u64 n <= 15120,
+ *            u128 n <= 15120, big any n
+ * Validated: standard, pass, 121 terms through n = 9828 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -36,10 +37,10 @@ seq_t a(idx_t n)
             idx_t d2 = n / i;
 
             if (d1 > 1 && (d1 & 1U) == 0) {
-                if (is_prime_small((seq_t)(d1 - 1))) ++count;
+                if (is_prime_seq((seq_t)(d1 - 1))) ++count;
             }
             if (d2 != d1 && d2 > 1 && (d2 & 1U) == 0) {
-                if (is_prime_small((seq_t)(d2 - 1))) ++count;
+                if (is_prime_seq((seq_t)(d2 - 1))) ++count;
             }
         }
     }

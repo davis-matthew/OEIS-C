@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 41, u64 n <= 90, u128 n <= 177,
  *            big any n
- * Helpers:   bitlen_seq_t, bits_to_seq, consider_candidate, fib
+ * Validated: standard, pass, 52 terms through n = 854 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,40 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../utils/fib.h"
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/bits_to_seq.h"
-#include "../utils/consider_candidate.h"
+#include "../utils/bit_length.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
+
+/* Convert bit array to seq_t. */
+static seq_t bits_to_seq(const uint8_t *bits, size_t len)
+{
+    seq_t val = 0;
+    for (size_t i = 0; i < len; ++i) {
+        val = (val << 1) | bits[i];
+    }
+    return val;
+}
+
+/* Update best_bits/best_len with candidate if it is shorter or lexicographically smaller. */
+static void consider_candidate(const uint8_t *cand, size_t cand_len,
+                               uint8_t *best, size_t *best_len)
+{
+    if (*best_len == SIZE_MAX ||
+        cand_len < *best_len ||
+        (cand_len == *best_len && memcmp(cand, best, cand_len) < 0)) {
+        *best_len = cand_len;
+        memcpy(best, cand, cand_len);
+    }
+}
 
 #define MAX_BITS 12000   /* enough for the largest n (≈10000) */
 
@@ -61,7 +92,7 @@ static bool contains(const uint8_t *a, size_t la,
 /* Build most‑significant‑first bit array of v. */
 static void build_bits(seq_t v, size_t *len, uint8_t *buf)
 {
-    *len = bitlen_seq_t(v);
+    *len = bit_length(v);
     for (size_t i = 0; i < *len; ++i) {
         size_t shift = *len - 1 - i;
         buf[i] = (uint8_t)((v >> shift) & 1U);

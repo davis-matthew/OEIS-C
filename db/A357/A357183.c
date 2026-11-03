@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 22, u32 n <= 41, u64 n <= 78, u128 n <= 150,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 56 terms through n = 2747 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -47,7 +48,7 @@
 */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -70,11 +71,11 @@ seq_t a(idx_t n)
             {
                 seq_t ways_odd =
                     (p == 0) ? ((A == 0) ? 1 : 0) :
-                    (A >= p ? binom(A - 1, p - 1) : 0);
+                    (A >= p ? binomial(A - 1, p - 1) : 0);
 
                 seq_t ways_even =
                     (q == 0) ? ((B == 0) ? 1 : 0) :
-                    (B >= q ? binom(B - 1, q - 1) : 0);
+                    (B >= q ? binomial(B - 1, q - 1) : 0);
 
                 res += ways_odd * ways_even;
             }
@@ -90,11 +91,11 @@ seq_t a(idx_t n)
             {
                 seq_t ways_odd =
                     (p == 0) ? ((A == 0) ? 1 : 0) :
-                    (A >= p ? binom(A - 1, p - 1) : 0);
+                    (A >= p ? binomial(A - 1, p - 1) : 0);
 
                 seq_t ways_even =
                     (q == 0) ? ((B == 0) ? 1 : 0) :
-                    (B >= q ? binom(B - 1, q - 1) : 0);
+                    (B >= q ? binomial(B - 1, q - 1) : 0);
 
                 res += ways_odd * ways_even;
             }

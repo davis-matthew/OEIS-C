@@ -11,21 +11,23 @@
  *            arbitrary‑precision
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 64, u64 n <= 999, u128 n <= 999,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 44 terms through n = 904 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   /* provides binom(idx_t, idx_t) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n < 3) return 0;   /* values below the offset are undefined,
                               but this keeps the function safe. */
     /* Compute binomial coefficients.  All indices are idx_t;
        the binom function returns seq_t. */
-    seq_t c1 = binom(n + 3, 6);   /* C(n+3,6) */
-    seq_t c2 = binom(n + 2, 6);   /* C(n+2,6) */
-    seq_t c3 = binom(n + 1, 6);   /* C(n+1,6) */
+    seq_t c1 = binomial(n + 3, 6);   /* C(n+3,6) */
+    seq_t c2 = binomial(n + 2, 6);   /* C(n+2,6) */
+    seq_t c3 = binomial(n + 1, 6);   /* C(n+1,6) */
 
     /* Combine with the constant factors.  The intermediate results
        fit in seq_t: the sequence increases polynomially (degree 6),

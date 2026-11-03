@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 119, u32 n <= 350, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_cache = NULL;   /* cached DP array: a[0..size-1] */
 static size_t dp_cache_size = 0; /* number of elements in dp_cache */
@@ -30,8 +32,8 @@ static void compute_dp_up_to(idx_t limit)
 {
     size_t sz = (size_t)(limit + 1);
     seq_t *buf[2];
-    buf[0] = (seq_t *)calloc(sz, sizeof(seq_t));
-    buf[1] = (seq_t *)calloc(sz, sizeof(seq_t));
+    buf[0] = mem_new(seq_t, sz);
+    buf[1] = mem_new(seq_t, sz);
     buf[0][0] = (seq_t)1;            /* a(0) = 1 for the empty partition */
 
     int cur = 0, nxt = 1;
@@ -65,7 +67,7 @@ static void compute_dp_up_to(idx_t limit)
     }
 
     /* buf[cur] now holds the final values */
-    if (dp_cache) free(dp_cache);
+    if (dp_cache) mem_free(dp_cache);
     dp_cache = buf[cur];
     dp_cache_size = sz;
 

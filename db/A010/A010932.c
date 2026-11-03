@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(16, n) for 0 <= n <= 16, otherwise 0
  * Range:     u8 n <= 2, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
+ * Validated: full, pass, 17 terms through n = 16 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

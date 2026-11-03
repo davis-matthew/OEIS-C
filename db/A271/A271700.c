@@ -11,7 +11,8 @@
  *            numbers
  * Range:     u8 n <= 19, u16 n <= 34, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find row r such that r(r+1)/2 <= n < (r+1)(r+2)/2 */
@@ -46,8 +48,8 @@ seq_t a(idx_t n) {
     idx_t c = n - cum;       /* column within row */
 
     /* Compute Stirling numbers of the first kind S1(c,j) for 0 <= j <= c */
-    seq_t *prev = (seq_t *)malloc((c + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((c + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (c + 1));
+    seq_t *curr = mem_new(seq_t, (c + 1));
     for (idx_t j = 0; j <= c; ++j)
         prev[j] = 0;
     prev[0] = 1;            /* S1(0,0) = 1 */
@@ -76,7 +78,7 @@ seq_t a(idx_t n) {
         sum += binom * prev[j];
     }
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return sum;
 }

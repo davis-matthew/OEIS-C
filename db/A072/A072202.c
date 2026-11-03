@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9571 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- Static storage for memoisation ---------- */
 static seq_t *terms      = NULL;  /* sequence values, 1‑based index   */
@@ -72,7 +74,7 @@ static void ensure_terms_capacity(size_t needed) {
     if (needed <= terms_cap) return;
     size_t new_cap = (terms_cap ? terms_cap * 2 : 32);
     while (new_cap < needed) new_cap <<= 1;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 
@@ -80,7 +82,7 @@ static void ensure_terms_capacity(size_t needed) {
 static void init_static(void) {
     if (terms) return;
     terms_cap = 32;
-    terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     terms[0] = 0;                  /* unused in 1‑based indexing */
     terms[1] = (seq_t)1;           /* first term of the sequence */
     terms_len = 1;

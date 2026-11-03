@@ -9,8 +9,9 @@
  *            where f is the Boolean function whose truth‑table is the 16‑bit
  *            integer n, and a_{u,b}(x) = u·x ⊕ b is an affine Boolean
  *            function
- * Range:     u8 n <= 9388, u16 n <= 9388, u32 n <= 9388, u64 n <= 9388,
- *            u128 n <= 9388, big any n
+ * Range:     u8 n <= 65535, u16 n <= 65535, u32 n <= 65535, u64 n <= 65535,
+ *            u128 n <= 65535, big any n
+ * Validated: standard, pass, 103 terms through n = 9388 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 119, u16 n <= 119, u32 n <= 119, u64 n <= 119,
  *            u128 n <= 119, big any n
- * Helpers:   none
+ * Validated: partial, pass, 120 terms through n = 119 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequence */
 static seq_t *seq  = NULL;   /* array of terms */
@@ -45,7 +47,7 @@ static void grow_capacity(size_t need)
     size_t new_cap = cap ? cap << 1 : 8;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp)
         abort();            /* allocation failure */
     seq = tmp;

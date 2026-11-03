@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has56
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,50 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has56.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static bool has56(seq_t x)
+{
+    if (x == 0)
+        return false;
+
+    /* initial capacity sufficient for most numbers; grows as needed */
+    size_t      cap = 64;
+    unsigned char *digits = (unsigned char *)malloc(cap);
+    if (!digits)
+        return false;                      /* allocation failure → false */
+
+    size_t len = 0;
+    seq_t   temp = x;
+
+    /* extract decimal digits (least significant first) */
+    while (temp != 0) {
+        unsigned digit = (unsigned)(temp % 10);
+        if (len == cap) {
+            cap <<= 1;
+            unsigned char *newdigits = (unsigned char *)realloc(digits, cap);
+            if (!newdigits) {
+                free(digits);
+                return false;               /* allocation failure */
+            }
+            digits = newdigits;
+        }
+        digits[len++] = (unsigned char)digit;
+        temp /= 10;
+    }
+
+    /* scan from most significant to least – reverse the order */
+    for (size_t i = len; i > 1; --i) {
+        if (digits[i - 1] == 5 && digits[i - 2] == 6) {
+            free(digits);
+            return true;
+        }
+    }
+
+    free(digits);
+    return false;
+}
 
 /* --------------------------------------------------------------------- */
 /*  Helper to test whether a decimal representation of x contains     */
@@ -50,7 +94,7 @@ static void ensure_terms(idx_t n)
     /* initial allocation if necessary */
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             exit(EXIT_FAILURE);
     }
@@ -65,7 +109,7 @@ static void ensure_terms(idx_t n)
         if (has56(cur) && !has56(cur + 1)) {
             if (cache_len == cache_cap) {            /* grow cache */
                 cache_cap <<= 1;
-                seq_t *newcache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *newcache = mem_resize(seq_t, cache, cache_cap);
                 if (!newcache)
                     exit(EXIT_FAILURE);
                 cache = newcache;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{d|n} d*d!
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 429 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* factorial cache: fact_cache[i] = i! */
 static seq_t *fact_cache = NULL;   /* cached factorials */
@@ -30,8 +32,7 @@ static void ensure_factorials(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;                 /* double until big enough */
 
-    void *tmp = realloc(fact_cache,
-                        new_cap * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, fact_cache, new_cap);
     if (!tmp)
         abort();                       /* out of memory */
     fact_cache = (seq_t *)tmp;

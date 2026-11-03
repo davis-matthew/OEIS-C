@@ -9,6 +9,7 @@
  *            scanning primes and testing the period using fast doubling
  * Range:     u8 n <= 5, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
 
 /* ----------  Fibonacci fast doubling – O(log n)  ---------- */

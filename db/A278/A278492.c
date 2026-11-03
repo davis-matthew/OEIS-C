@@ -11,8 +11,9 @@
  *            by the recurrence idx = c; for (k = r; k >= 1; --k) idx += idx /
  *            k ; finally a(n) = idx + 1. This follows the definition of the
  *            Flavius sieve
- * Range:     u8 n <= 640, u16 n <= 9935, u32 n <= 9935, u64 n <= 9935,
- *            u128 n <= 9935, big any n
+ * Range:     u8 n <= 640, u16 n <= 10439, u32 n <= 10439, u64 n <= 10439,
+ *            u128 n <= 10439, big any n
+ * Validated: standard, pass, 107 terms through n = 9935 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

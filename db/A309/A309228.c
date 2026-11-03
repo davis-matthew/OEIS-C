@@ -13,7 +13,8 @@
  *            v^2 = n^2 with u > v > 0
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_int_small
+ * Validated: standard, pass, 103 terms through n = 9360 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd_int_small.h"
+#include "../utils/gcd_i32.h"
 
 /* Basic integer square root (floor).  Uses binary search and 128‑bit product
  * to avoid overflow for values up to 2^64‑1. */
@@ -86,7 +87,7 @@ static void recompute(idx_t new_limit)
         for (idx_t k = 1; k < m; ++k) {
             if (((m - k) & 1) == 0)          /* skip same parity */
                 continue;
-            if (gcd_int_small((int)m, (int)k) != 1)
+            if (gcd_i32((int)m, (int)k) != 1)
                 continue;
             idx_t a = m * m - k * k;
             idx_t b = 2 * m * k;
@@ -120,7 +121,7 @@ static void recompute(idx_t new_limit)
         for (idx_t k = 1; k < m; ++k) {
             if (((m - k) & 1) == 0)
                 continue;
-            if (gcd_int_small((int)m, (int)k) != 1)
+            if (gcd_i32((int)m, (int)k) != 1)
                 continue;
             idx_t a = m * m - k * k;
             idx_t b = 2 * m * k;

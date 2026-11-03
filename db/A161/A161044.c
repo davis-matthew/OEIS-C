@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 124, u16 n <= 301, u32 n <= 853, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 108 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    This is implemented by building the inner sum incrementally in
    'temp', achieving O(n²/2) time and O(n) space. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
 
     /* Allocate three temporary arrays of seq_t.  Cast the void* from
        calloc/malloc because seq_t may be a user‑defined type in C++. */
-    seq_t *old    = (seq_t*)calloc(N, sizeof(seq_t));
-    seq_t *newdp  = (seq_t*)calloc(N, sizeof(seq_t));
-    seq_t *temp   = (seq_t*)calloc(N, sizeof(seq_t));
+    seq_t *old    = mem_new(seq_t, N);
+    seq_t *newdp  = mem_new(seq_t, N);
+    seq_t *temp   = mem_new(seq_t, N);
 
     old[0] = (seq_t)1;          /* empty partition */
 
@@ -62,9 +64,9 @@ seq_t a(idx_t n)
 
     seq_t result = old[n];
 
-    free(old);
-    free(newdp);
-    free(temp);
+    mem_free(old);
+    mem_free(newdp);
+    mem_free(temp);
 
     return result;
 }

@@ -11,14 +11,26 @@
  *            a(n)=C(n-1,5)+Σ_{d=2..n} μ(d)·C(floor(n/d),5)
  * Range:     u8 n <= 11, u16 n <= 27, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   choose5
+ * Validated: partial, pass, 38 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/choose5.h"
+
+/* compute binomial coefficient C(k,5) using a multiplicative formula
+ * that keeps intermediate results within the seq_t range.               */
+static seq_t choose5(idx_t k)
+{
+    if (k < 5) return 0;
+    seq_t res = 1;
+    for (int i = 0; i < 5; ++i) {
+        res = res * (seq_t)(k - i) / (seq_t)(i + 1);
+    }
+    return res;
+}
 
 /* static buffers for Möbius values, smallest prime factor and primes list */
 static int   *mu_buf   = NULL; /* Möbius values */

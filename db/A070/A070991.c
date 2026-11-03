@@ -11,7 +11,8 @@
  *            those that satisfy the property, and return the n‑th one
  * Range:     u8 n <= 9, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   reaches_mminus1
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/reaches_mminus1.h"
+#include "../utils/mem.h"
+
+/* test whether m's Collatz trajectory reaches m−1 */
+static int reaches_mminus1(seq_t m)
+{
+    seq_t target = m - 1;
+    seq_t x = m;
+    while (x != target && x != 1) {
+        if (x & 1)
+            x = x * 3 + 1;
+        else
+            x >>= 1;
+    }
+    return x == target;
+}
 
 static int initialized = 0;
 static seq_t *terms = NULL;
@@ -32,7 +47,7 @@ seq_t a(idx_t n)
     /* lazy initialization of the dynamic array */
     if (!initialized) {
         term_capacity = 128;
-        terms = (seq_t *)malloc(term_capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, term_capacity);
         term_count = 0;
         next_candidate = 2;
         initialized = 1;
@@ -44,8 +59,7 @@ seq_t a(idx_t n)
             /* grow array if necessary */
             if (term_count == term_capacity) {
                 term_capacity *= 2;
-                terms = (seq_t *)realloc(terms,
-                                         term_capacity * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, term_capacity);
             }
             terms[term_count++] = (seq_t)next_candidate;
         }

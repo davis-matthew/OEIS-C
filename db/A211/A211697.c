@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 51, u64 n <= 92, u128 n <= 166,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -47,6 +48,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -60,12 +62,12 @@ seq_t a(idx_t n)
      * each with 6 columns (indices 0..5, we use 1..5)   */
     size_t elems = (size_t)(k_max + 2) * 6;
 
-    seq_t *dp_cur  = (seq_t *)calloc(elems, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(elems, sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, elems);
+    seq_t *dp_next = mem_new(seq_t, elems);
     if (!dp_cur || !dp_next) {
         /* allocation failed – terminate with zero result for safety */
-        free(dp_cur);
-        free(dp_next);
+        mem_free(dp_cur);
+        mem_free(dp_next);
         return 0;
     }
 
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         if (max_k > k_max) max_k = k_max;
 
         /* clear next DP row */
-        memset(dp_next, 0, elems * sizeof(seq_t));
+        mem_set(dp_next, 0, elems * sizeof(seq_t));
 
         for (idx_t k = 1; k <= max_k; ++k) {
             for (int len = 1; len <= 5; ++len) {
@@ -116,7 +118,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= k_max; ++k)
         result += dp_cur[k * 6 + 5];
 
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return result;
 }

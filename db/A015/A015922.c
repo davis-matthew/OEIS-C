@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = the nth positive integer k such that 2^k == 8 (mod k)
- * Range:     u8 n <= 30, u16 n <= 2554, u32 n <= 9830, u64 n <= 9830,
- *            u128 n <= 9830, big any n
- * Helpers:   mod_pow, seq_alloc, seq_realloc
+ * Range:     u8 n <= 30, u16 n <= 2554, u32 n <= 29055, u64 n <= 29055,
+ *            u128 n <= 29055, big any n
+ * Validated: standard, pass, 72 terms through n = 9830 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,29 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include <string.h>
+#include "../utils/powmod.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +53,7 @@ seq_t a(idx_t n)
     /* Grow cache until we have at least n terms */
     while (clen < (size_t)n) {
         seq_t kst = (seq_t)next_k;          /* k as seq_t for calculations */
-        seq_t rem = mod_pow((seq_t)2, next_k, kst); /* 2^k mod k */
+        seq_t rem = powmod((seq_t)2, next_k, kst); /* 2^k mod k */
         seq_t tgt = (seq_t)8 % kst;         /* 8 mod k */
 
         if (rem == tgt) {

@@ -12,14 +12,26 @@
  *            are computed exactly by a dynamic programming ov...
  * Range:     u8 n <= 14, u16 n <= 52, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   ext_gcd_uint64
+ * Validated: standard, pass, 63 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/ext_gcd_uint64.h"
+#include "../utils/mem.h"
+
+/* Extended GCD for uint64_t */
+static uint64_t ext_gcd_uint64(uint64_t a, uint64_t b, int64_t *x, int64_t *y)
+{
+    if (b == 0) { *x = 1; *y = 0; return a; }
+    int64_t x1, y1;
+    uint64_t g = ext_gcd_uint64(b, a % b, &x1, &y1);
+    *x = y1;
+    *y = x1 - (int64_t)(a / b) * y1;
+    return g;
+}
 
 static const int WEIGHTS[7] = { -27, -8, -1, 0, 1, 8, 27 };
 
@@ -111,7 +123,7 @@ static void compute_first_terms(size_t N, seq_t *terms)
     const int SIZE = 2 * OFFSET + 1;
     const size_t TOTAL = (N + 1) * SIZE;
 
-    seq_t *dp = (seq_t*)calloc(TOTAL, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, TOTAL);
     size_t offset = OFFSET;
     size_t stride = SIZE;
 
@@ -138,7 +150,7 @@ static void compute_first_terms(size_t N, seq_t *terms)
     for (size_t i = 1; i <= N; ++i)
         terms[i] = dp[i * stride + offset];
 
-    free(dp);
+    mem_free(dp);
 }
 
 /* ============================================================= */
@@ -156,7 +168,7 @@ seq_t a(idx_t n)
     if (!initialized)
     {
         const size_t PRE_N = 200;          /* enough for BM and recurrence */
-        seq_t *pre_terms = (seq_t*)malloc((PRE_N + 1) * sizeof(seq_t));
+        seq_t *pre_terms = mem_new(seq_t, (PRE_N + 1));
 
         compute_first_terms(PRE_N, pre_terms);
 
@@ -171,10 +183,10 @@ seq_t a(idx_t n)
 
         /* Allocate cache and store first PRE_N terms */
         cache_size = PRE_N;
-        cache = (seq_t*)malloc((cache_size + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_size + 1));
         for (size_t i = 1; i <= cache_size; ++i) cache[i] = pre_terms[i];
 
-        free(pre_terms);
+        mem_free(pre_terms);
         free(BM_seq);
         initialized = true;
     }
@@ -185,7 +197,7 @@ seq_t a(idx_t n)
 
     /* Extend cache up to n */
     size_t new_size = (size_t)n;
-    cache = (seq_t*)realloc(cache, (new_size + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (new_size + 1));
 
     for (size_t i = cache_size + 1; i <= new_size; ++i)
     {

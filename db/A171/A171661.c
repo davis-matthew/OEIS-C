@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 50, u64 n <= 50, u128 n <= 50,
+ * Range:     u8 n <= 20, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
    a(n) is the entry with index n in the flattened triangle. */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,11 +45,11 @@ seq_t a(idx_t n)
     seq_t *curr = NULL;
 
     for (idx_t i = 0; i <= r; ++i) {
-        curr = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        curr = mem_new(seq_t, (i + 1));
         for (idx_t j = 0; j <= i; ++j) {
             if (j == 0 || j == 1) {
                 /* Central binomial coefficient C(2i,i). */
-                curr[j] = binom(2 * i, i);
+                curr[j] = binomial(2 * i, i);
             } else {
                 /* Recurrence: T(i,j) = T(i,j-1) - T(i-1,j-2). */
                 curr[j] = curr[j - 1] - prev[j - 2];
@@ -54,11 +57,11 @@ seq_t a(idx_t n)
         }
         if (i == r) {
             seq_t result = curr[k];
-            free(prev);
-            free(curr);
+            mem_free(prev);
+            mem_free(curr);
             return result;
         }
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 

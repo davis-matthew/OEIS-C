@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparison function for qsort over seq_t values. */
 static int cmp_seq_t(const void *p, const void *q)
@@ -114,7 +116,7 @@ seq_t a(idx_t target)
         }
 
         /* sort and deduplicate numbers for this k */
-        qsort(numbers, len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(numbers, len, sizeof(seq_t), cmp_seq_t);
         size_t uniq = 0;
         for (size_t i = 0; i < len; ++i) {
             if (uniq == 0 || numbers[i] != numbers[uniq - 1]) {

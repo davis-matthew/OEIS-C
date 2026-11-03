@@ -8,14 +8,23 @@
  *            <= 6 the values are obtained by brute‑force search
  * Range:     u8 none, u16 n <= 1, u32 n <= 24, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   my_pow10
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/my_pow10.h"
+
+/* Local helper: compute 10^e as a seq_t. */
+static inline seq_t my_pow10(idx_t e)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < e; ++i)
+        r *= 10;
+    return r;
+}
 
 /* Count the number of zero digits in v. */
 static inline int count_zeros(seq_t v)

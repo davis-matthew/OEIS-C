@@ -12,12 +12,14 @@
  *            and for n≥5: b(n)=b(n-1)+b(n-2)-b(n-3)+b(n-5)
  * Range:     u8 n <= 174, u16 n <= 564, u32 n <= 2020, u64 n <= 7380,
  *            u128 n <= 7380, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 6982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the sequence b */
 static seq_t *b_cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_b(idx_t n)
     /* Initial allocation and seed values */
     if (b_cache == NULL) {
         b_cap = (n < 8 ? 8 : n + 1);
-        b_cache = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_cache = mem_new(seq_t, b_cap);
         if (!b_cache) return;        /* allocation failed – nothing to do */
         b_cache[0] = (seq_t)0;
         b_cache[1] = (seq_t)1;
@@ -45,7 +47,7 @@ static void ensure_b(idx_t n)
     if (n >= b_cap) {
         idx_t new_cap = b_cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b_cache, new_cap);
         if (!tmp) return;          /* allocation failed */
         b_cache = tmp;
         b_cap = new_cap;

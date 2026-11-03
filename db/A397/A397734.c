@@ -9,14 +9,18 @@
  *            C(k,j)·2^j·(j^(k-j+1)+(j+1)^(k-j))
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 22, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binomial, pow2, seq_pow
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   binomial, ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 #include "../utils/pow2.h"
-#include "../utils/seq_pow.h"
 
 seq_t a(idx_t n)
 {
@@ -34,12 +38,12 @@ seq_t a(idx_t n)
         seq_t inner;
         if ((n & 1ULL) == 0)        /* even n -> 2k  */
         {
-            inner = seq_pow((seq_t)j, k - j);   /* j^(k-j)  */
+            inner = ipow_idx((seq_t)j, k - j);   /* j^(k-j)  */
         }
         else                        /* odd n  -> 2k+1 */
         {
-            seq_t part1 = seq_pow((seq_t)j,     k - j + 1); /* j^(k-j+1) */
-            seq_t part2 = seq_pow((seq_t)(j + 1), k - j);   /* (j+1)^(k-j) */
+            seq_t part1 = ipow_idx((seq_t)j,     k - j + 1); /* j^(k-j+1) */
+            seq_t part2 = ipow_idx((seq_t)(j + 1), k - j);   /* (j+1)^(k-j) */
             inner = part1 + part2;
         }
 

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 3119, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 7712 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
  * after dividing numerator and denominator by their gcd.
  * This yields the OEIS A374580 sequence.
  */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   isprime_big, mod_mul_uint64
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,54 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isprime_big.h"
-#include "../utils/mod_mul_uint64.h"
+
+/* Miller–Rabin primality test for arbitrary-precision values. */
+static bool isprime_big(seq_t n)
+{
+    if (n < 2) return false;
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    seq_t d = n - 1;
+    idx_t r = 0;
+    while ((d & 1) == 0) {
+        d = d / 2;
+        r = r + 1;
+    }
+
+    /* Bases sufficient for a probabilistic test. */
+    const uint64_t bases[] = {2,3,5,7,11,13,17,19,23,29};
+    for (idx_t i = 0; i < sizeof(bases)/sizeof(bases[0]); ++i) {
+        seq_t a = (seq_t)bases[i];
+        if (a >= n) break;
+
+        /* modular exponentiation x = a^d mod n */
+        seq_t x = 1;
+        seq_t base = a % n;
+        seq_t exp  = d;
+        while (exp > 0) {
+            if ((exp & 1) != 0) x = (x * base) % n;
+            base = (base * base) % n;
+            exp  = exp >> 1;
+        }
+
+        if (x == 1 || x == n - 1) continue;
+
+        bool cont = false;
+        for (idx_t j = 1; j < r; ++j) {
+            x = (x * x) % n;
+            if (x == n - 1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
+
+/* modular multiplication (a * b) % mod, avoiding overflow for 64‑bit values */
+static uint64_t mod_mul_uint64(uint64_t a, uint64_t b, uint64_t mod)
+{
+    return (uint64_t)((__uint128_t)a * b % mod);
+}
 
 /* deterministic Miller–Rabin for 64‑bit integers.
    Bases 2,3,5,7,11,13,17 are sufficient for all n < 2⁶⁴. */

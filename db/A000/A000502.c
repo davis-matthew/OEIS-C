@@ -13,14 +13,24 @@
  *            304*T(m-2) - 189*B(m)...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 24, u128 n <= 52,
  *            big any n
- * Helpers:   b502_inv, b502_mul
+ * Validated: standard, pass, 36 terms through n = 390 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/b502_inv.h"
-#include "../utils/b502_mul.h"
+
+static seq_t b502_mul(seq_t x, seq_t y) {
+    return (seq_t)((x + 0u) * y);
+}
+
+static seq_t b502_inv(seq_t q) {
+    seq_t v = q;
+    int i;
+    for (i = 0; i < 8; i++) v = b502_mul(v, (seq_t)(2u - b502_mul(q, v)));
+    return v;
+}
 
 static int b502_mode = -1; /* 1 = arbitrary precision, 0 = fixed width */
 

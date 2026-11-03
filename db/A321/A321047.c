@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{1<=i<j<=n} floor(n*(1/i - 1/j)) (OEIS A321047)
  * Range:     u8 n <= 14, u16 n <= 140, u32 n <= 1500, u64 n <= 1500,
  *            u128 n <= 1500, big any n
+ * Validated: standard, pass, 70 terms through n = 1423 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

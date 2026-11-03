@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   _row_from_index, binomial, pow3
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,33 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow3.h"
-#include "../utils/_row_from_index.h"
+
+/* Return the row index r (0‑based) that contains position n. */
+static inline idx_t _row_from_index(idx_t n)
+{
+    if (n == 0)
+        return 0;
+
+    idx_t low = 0;
+    idx_t high = 1;
+
+    /* Find an upper bound where (high+1)*(high+2)/2 > n */
+    while (( (__int128)(high + 1) * (high + 2) / 2 ) <= n)
+        high <<= 1;
+
+    /* Binary search for the minimal r with f(r) > n */
+    while (low + 1 < high) {
+        idx_t mid = low + (high - low) / 2;
+        if (( (__int128)(mid + 1) * (mid + 2) / 2 ) <= n)
+            low = mid;
+        else
+            high = mid;
+    }
+    return high;
+}
 
 seq_t a(idx_t n)
 {

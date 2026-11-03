@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 7671, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 8931 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Choose a maximum index for k and m that comfortably covers the first
    ten thousand terms.  1024 is more than enough for the required range. */
@@ -53,7 +55,7 @@ static void heap_push(seq_t sum, idx_t i, idx_t j)
 {
     if (heap_len == heap_cap) {            /* grow the heap */
         size_t new_cap = heap_cap ? heap_cap * 2 : 64;
-        node_t *new_heap = (node_t*)realloc(heap, new_cap * sizeof(node_t));
+        node_t *new_heap = mem_resize(node_t, heap, new_cap);
         if (!new_heap) abort();
         heap = new_heap;
         heap_cap = new_cap;
@@ -106,7 +108,7 @@ static void ensure_cache(idx_t N)
     if (seq_cap < (size_t)N) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
         while (new_cap < (size_t)N) new_cap <<= 1;
-        seq_t *new_cache = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_cache) abort();
         seq_cache = new_cache;
         seq_cap   = new_cap;
@@ -117,7 +119,7 @@ static void ensure_cache(idx_t N)
     if (first) {
         first = false;
         heap_cap = 64;
-        heap = (node_t*)malloc(heap_cap * sizeof(node_t));
+        heap = mem_new(node_t, heap_cap);
         if (!heap) abort();
 
         /* start with k=1, m=0 → (2)^2 + 1^2 = 5 */

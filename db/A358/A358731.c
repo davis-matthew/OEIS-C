@@ -9,7 +9,8 @@
  *            node‑count = node‑height + 1
  * Range:     u8 n <= 15, u16 n <= 34, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* limits for the sieve */
 #define SIEVE_LIMIT 20000000
@@ -116,7 +118,7 @@ static void ensure_terms(idx_t target)
         uint32_t sz, ht;
         computeSizeHeight(next_candidate, &sz, &ht);
         if (sz == ht + 1) {                     /* valid term */
-            seq_cache = (seq_t *)realloc(seq_cache, (seq_cache_len + 1) * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, (seq_cache_len + 1));
             seq_cache[seq_cache_len++] = (seq_t)next_candidate;
         }
         ++next_candidate;

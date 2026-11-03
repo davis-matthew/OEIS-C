@@ -9,7 +9,8 @@
  *            a number is kept if 2×n is not pandigital
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   is_pandigital10, next_permutation
+ * Validated: standard, pass, 34 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,51 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_pandigital10.h"
-#include "../utils/next_permutation.h"
+#include "../utils/mem.h"
+
+/* Auxiliary: check whether a 10‑digit unsigned integer is a pandigital
+   number containing each digit 0‑9 exactly once. */
+static bool is_pandigital10(uint64_t v)
+{
+    unsigned mask = 0;
+    unsigned cnt = 0;
+    while (v > 0) {
+        unsigned d = v % 10;
+        v /= 10;
+        if (mask & (1U << d))
+            return false;                /* duplicate digit */
+        mask |= 1U << d;
+        ++cnt;
+    }
+    return (cnt == 10) && (mask == 0x3FFU); /* all digits present */
+}
+
+/* Helper: generate next lexicographic permutation of an array of
+   length n.  Returns true if a next permutation exists, false otherwise.*/
+static bool next_permutation(unsigned *a, int n)
+{
+    int i = n - 2;
+    while (i >= 0 && a[i] >= a[i + 1]) --i;
+    if (i < 0) return false;
+
+    int j = n - 1;
+    while (a[j] <= a[i]) --j;
+
+    /* swap a[i] and a[j] */
+    unsigned tmp = a[i];
+    a[i] = a[j];
+    a[j] = tmp;
+
+    /* reverse a[i+1 .. n-1] */
+    int l = i + 1, r = n - 1;
+    while (l < r) {
+        tmp = a[l];
+        a[l] = a[r];
+        a[r] = tmp;
+        ++l; --r;
+    }
+    return true;
+}
 
 /* ------------------------------------------------------------------ */
 
@@ -35,7 +79,7 @@ static void add_term(seq_t v)
 {
     if (terms_count == terms_capacity) {
         size_t new_cap = terms_capacity ? terms_capacity << 1U : 1024;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();
         terms = tmp;
         terms_capacity = new_cap;

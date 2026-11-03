@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 1470, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd
+ * Validated: standard, pass, 61 terms through n = 9257 (2026-11-03)
+ * Helpers:   factor_u64, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 /* Include helper functions from the utils library. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/factor_u64.h"   /* factor_u64 */
-#include "../utils/gcd.h"          /* gcd */
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -66,7 +69,7 @@ seq_t a(idx_t n)
             if (seq_len == seq_cap)
             {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 8;
-                seq_terms = (seq_t *)realloc(seq_terms, new_cap * sizeof(seq_t));
+                seq_terms = mem_resize(seq_t, seq_terms, new_cap);
                 seq_cap = new_cap;
             }
             seq_terms[seq_len++] = (seq_t)k;

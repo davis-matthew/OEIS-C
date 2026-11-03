@@ -12,13 +12,15 @@
  *            f...
  * Range:     u8 n <= 143, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9588 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Cache of computed coefficients up to the largest requested n. */
@@ -28,14 +30,14 @@ seq_t a(idx_t n) {
     /* Allocate/extend cache as needed. */
     if (n + 1 > cache_size) {
         /* Free previous cache. */
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
 
         /* New cache size. */
         cache_size = n + 1;
 
         /* Allocate and initialise: start with P(q)=1. */
-        seq_t *cur = (seq_t*)malloc(sizeof(seq_t) * cache_size);
-        memset(cur, 0, sizeof(seq_t) * cache_size);
+        seq_t *cur = mem_new(seq_t, cache_size);
+        mem_set(cur, 0, sizeof(seq_t) * cache_size);
         cur[0] = (seq_t)1;
 
         /* Divisors of 15. */
@@ -47,8 +49,8 @@ seq_t a(idx_t n) {
             idx_t d = divisors[di];
 
             /* Temporary array for the new polynomial. */
-            seq_t *tmp = (seq_t*)malloc(sizeof(seq_t) * cache_size);
-            memset(tmp, 0, sizeof(seq_t) * cache_size);
+            seq_t *tmp = mem_new(seq_t, cache_size);
+            mem_set(tmp, 0, sizeof(seq_t) * cache_size);
 
             /* Convolution. */
             for (idx_t i = 0; i < cache_size; ++i) {
@@ -65,7 +67,7 @@ seq_t a(idx_t n) {
 
             /* Prepare for next divisor.  The previous polynomial
                'cur' is no longer needed. */
-            free(cur);
+            mem_free(cur);
             cur = tmp;
         }
 

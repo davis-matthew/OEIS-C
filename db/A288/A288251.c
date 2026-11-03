@@ -8,15 +8,28 @@
  * Formula:   a(n) = C^{[k]}(i) where (i,k) are obtained from n by reading *
  *            the square array A(n,k) on antidiagonals (OEIS A288251). * C is
  *            the Collatz map: 3*x+1 if x odd, x/2 if x even
- * Range:     u8 n <= 696, u16 n <= 9985, u32 n <= 9985, u64 n <= 9985,
- *            u128 n <= 9985, big any n
- * Helpers:   collatz_k
+ * Range:     u8 n <= 696, u16 n <= 20100, u32 n <= 20100, u64 n <= 20100,
+ *            u128 n <= 20100, big any n
+ * Validated: standard, pass, 107 terms through n = 9985 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>    /* for size_t (unused but harmless) */
-#include "../utils/collatz_k.h"
+
+static inline seq_t collatz_k(seq_t val, idx_t k)
+{
+    while (k--)
+    {
+        /* test oddness */
+        if ((val & ((seq_t)1)) != 0)
+            val = val * 3 + 1;
+        else
+            val = val >> 1;
+    }
+    return val;
+}
 
 seq_t a(idx_t n)
 {

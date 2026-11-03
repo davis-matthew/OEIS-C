@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Transition counts: trans[s][t] = number of row patterns that
  * transform state s into state t.  States are 0..15 (4‑bit parity patterns). */
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
 
     if (n > cache_size) {
         /* Allocate sufficient space for the cache up to n. */
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) return (seq_t)0;  /* allocation failure */
         cache = new_cache;
         cache[0] = (seq_t)0;              /* unused but initialise for safety */

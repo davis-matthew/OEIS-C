@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Returns the nth term of A074056 (1‑based index).  The function
    memoises already computed values so calls may arrive in any order. */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Start with a modest capacity; it will grow on demand. */
         arr_alloc = 8;
-        arr = (seq_t *)realloc(NULL, arr_alloc * sizeof(seq_t));
+        arr = mem_resize(seq_t, NULL, arr_alloc);
         if (!arr) return (seq_t)0; /* allocation failure: give up */
 
         /* Zero the whole array to keep the unused entry at index 0 clear. */
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         while ((size_t)(n + 1) > new_alloc)
             new_alloc <<= 1; /* double until sufficient */
 
-        seq_t *tmp = (seq_t *)realloc(arr, new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, arr, new_alloc);
         if (!tmp) return (seq_t)0; /* allocation failure */
 
         /* Initialise the newly added region to zero. */

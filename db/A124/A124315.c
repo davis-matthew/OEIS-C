@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} tau(gcd(d,n/d))
  * Range:     u8 n <= 3484, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, gcd
+ * Validated: standard, pass, 114 terms through n = 9801 (2026-11-01)
+ * Helpers:   gcd, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
         {
             idx_t nd = n / d;
             seq_t g  = gcd((seq_t)d, (seq_t)nd);
-            seq_t t  = divisor_count_u64((uint64_t)g);
+            seq_t t  = num_divisors((uint64_t)g);
             sum += t;                         /* for divisor d */
 
             if (d != nd)                     /* for divisor n/d */

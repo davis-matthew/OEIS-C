@@ -9,15 +9,36 @@
  *            truncating) with enough guard bits
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 45, u128 n <= 89,
  *            big any n
- * Helpers:   a501_div, a501_mul
+ * Validated: standard, pass, 46 terms through n = 223 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a501_div.h"
-#include "../utils/a501_mul.h"
+
+static void a501_div(uint32_t *x, size_t L, uint64_t d)
+{
+    uint64_t r = 0;
+    size_t i = L;
+    while (i-- > 0) {
+        uint64_t t = (r << 32) | x[i];
+        x[i] = (uint32_t)(t / d);
+        r = t % d;
+    }
+}
+
+static void a501_mul(uint32_t *x, size_t L, uint64_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
 
 seq_t a(idx_t n)
 {

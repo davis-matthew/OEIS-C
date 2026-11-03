@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 260, u16 n <= 9262, u32 n <= 9262, u64 n <= 9262,
- *            u128 n <= 9262, big any n
- * Helpers:   none
+ * Range:     u8 n <= 260, u16 n <= 10006, u32 n <= 10006, u64 n <= 10006,
+ *            u128 n <= 10006, big any n
+ * Validated: standard, pass, 91 terms through n = 9262 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Global cache for memoisation. */
 static seq_t *cache = NULL;   /* 1‑based index, cache[0] unused */
@@ -34,13 +36,13 @@ static void ensure_cache(idx_t n)
     while (new_size < n)
         new_size <<= 1;
 
-    seq_t *new_cache = (seq_t *)calloc((size_t)new_size + 1, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)new_size + 1);
     if (!new_cache)
         return;  /* allocation failed – caller will work with 0 values */
 
     if (cache != NULL) {
-        memcpy(new_cache, cache, (size_t)(cache_size + 1) * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, (size_t)(cache_size + 1) * sizeof(seq_t));
+        mem_free(cache);
     }
 
     cache = new_cache;

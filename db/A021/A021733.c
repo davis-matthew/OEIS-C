@@ -9,13 +9,28 @@
  *            integer arithmetic; no floating‑point or large numbers
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   pow10mod_7290
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10mod_7290.h"
+
+/* Compute 10^exp mod 7290 using binary exponentiation.
+   exp is unsigned 64‑bit to allow large n (n can be up to uint64_t). */
+static unsigned pow10mod_7290(uint64_t exp)
+{
+    unsigned long long res   = 1;
+    unsigned long long base  = 10 % 7290;
+    while (exp) {
+        if (exp & 1ULL)
+            res = (res * base) % 7290ULL;
+        base = (base * base) % 7290ULL;
+        exp >>= 1ULL;
+    }
+    return (unsigned)res;
+}
 
 seq_t a(idx_t n)
 {

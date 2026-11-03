@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 142, u16 n <= 9917, u32 n <= 9917, u64 n <= 9917,
- *            u128 n <= 9917, big any n
- * Helpers:   gcd_uint64, has_odd_prime_with_gcd, is_power_of_three
+ * Range:     u8 n <= 142, u16 n <= 17948, u32 n <= 17948, u64 n <= 17948,
+ *            u128 n <= 17948, big any n
+ * Validated: standard, pass, 81 terms through n = 9917 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,43 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
-#include "../utils/has_odd_prime_with_gcd.h"
-#include "../utils/is_power_of_three.h"
+#include "../utils/gcd_u64.h"
+
+/* For even n, return true if some odd prime factor p of n satisfies
+   gcd(n‑1, p‑1) > 1. */
+static bool has_odd_prime_with_gcd(uint64_t n) {
+    /* Strip all factors of 2 to obtain the odd part. */
+    uint64_t odd = n;
+    while ((odd & 1) == 0)
+        odd >>= 1;
+
+    if (odd <= 1)
+        return false;   /* no odd prime factors */
+
+    uint64_t m = odd;
+    /* Trial division of the odd part. */
+    for (uint64_t p = 3; p * p <= m; p += 2) {
+        if (m % p == 0) {
+            if (gcd_u64(n - 1, p - 1) > 1)
+                return true;
+            while (m % p == 0)
+                m /= p;
+        }
+    }
+    /* Remaining prime factor larger than sqrt(odd). */
+    if (m > 1 && gcd_u64(n - 1, m - 1) > 1)
+        return true;
+
+    return false;
+}
+
+/* Return true if n is a power of 3 (3^k, k ≥ 1). */
+static bool is_power_of_three(uint64_t n) {
+    if (n < 3) return false;
+    while (n % 3 == 0)
+        n /= 3;
+    return n == 1;
+}
 
 /* Euclidean gcd for 64‑bit unsigned integers. */
 

@@ -8,15 +8,26 @@
  * Formula:   a(n) = 1 + the nth nonsquare if the row of n is even, otherwise
  *            a square ((row+1)/2)^2. Number of nonsquares used before row r
  *            (even) equals f*(f+1), where f = floor((r-1)/2)
- * Range:     u8 n <= 465, u16 n <= 7948, u32 n <= 7948, u64 n <= 7948,
- *            u128 n <= 7948, big any n
- * Helpers:   int_u64_isqrt, nth_nonsquare
+ * Range:     u8 n <= 465, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 84 terms through n = 7948 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/int_u64_isqrt.h"
-#include "../utils/nth_nonsquare.h"
+#include "../utils/isqrt.h"
+
+/* Return the m‑th nonsquare integer (m >= 1). */
+static seq_t nth_nonsquare(idx_t m)
+{
+    /* Find s such that s^2 - s <= m <= s^2 + s. */
+    idx_t s = isqrt(m);
+    while ((unsigned __int128)s * s - s > m) s--;
+    while (m > (unsigned __int128)s * s + s) s++;
+
+    return (seq_t)(m + s);
+}
 
 seq_t a(idx_t n)
 {

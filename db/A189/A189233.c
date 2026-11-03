@@ -11,6 +11,7 @@
  *            A(n,1)=Bell(n)
  * Range:     u8 n <= 29, u16 n <= 56, u32 n <= 122, u64 n <= 302,
  *            u128 n <= 784, big any n
+ * Validated: standard, pass, 82 terms through n = 4929 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

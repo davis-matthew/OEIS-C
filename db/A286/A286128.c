@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9842, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9354 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         /* allocate enough space: we need indices 0 .. MAX_N-2,
            but allocate one extra for safety */
         coeff_size = MAX_N + 1;
-        coeff = (seq_t *)malloc(coeff_size * sizeof(seq_t));
+        coeff = mem_new(seq_t, coeff_size);
         if (!coeff)
             return 0;   /* out of memory – return safe value */
 

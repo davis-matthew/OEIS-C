@@ -12,12 +12,14 @@
  *            denominator expands to 1 - (1+3t)u + 2t^2u^2 + (t^2+...
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 14, u64 n <= 21, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *rows[5];
 static long long cap = 0;
@@ -38,8 +40,8 @@ seq_t a(idx_t n) {
         if (nc < N + 1) nc = N + 1;
         nc += 8;
         for (r = 0; r < 5; r++) {
-            if (rows[r]) free(rows[r]);
-            rows[r] = (seq_t *)calloc((size_t)nc, sizeof(seq_t));
+            if (rows[r]) mem_free(rows[r]);
+            rows[r] = mem_new(seq_t, (size_t)nc);
         }
         cap = nc;
         last = -1;
@@ -70,7 +72,7 @@ seq_t a(idx_t n) {
     seq_t *S = rows[N % 5];
 
     /* factorials 0! .. (N-7)! */
-    seq_t *f = (seq_t *)calloc((size_t)(N - 6), sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (size_t)(N - 6));
     f[0] = 1;
     for (i = 1; i <= N - 7; i++) f[i] = f[i - 1] * (seq_t)i;
 
@@ -88,6 +90,6 @@ seq_t a(idx_t n) {
         else result += term;
         for (i = 7; i >= 1; i--) bc[i] += bc[i - 1];
     }
-    free(f);
+    mem_free(f);
     return result;
 }

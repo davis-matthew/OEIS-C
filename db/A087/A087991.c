@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of non-palindromic divisors of n
  * Range:     u8 n <= 1556, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_palindrome
+ * Validated: standard, pass, 121 terms through n = 9608 (2026-11-01)
+ * Helpers:   factor_u64, is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 /* Recursively generate divisors from prime factors, counting the
  * non‑palindromic ones.  The base is fixed to decimal (10). */
@@ -25,7 +27,7 @@ static void gen_nonpal(int idx, int total,
                        seq_t cur, seq_t *cnt)
 {
     if (idx == total) {
-        if (!is_palindrome(cur, 10))
+        if (!is_palindrome_base(cur, 10))
             (*cnt)++;
         return;
     }

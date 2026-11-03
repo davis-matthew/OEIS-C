@@ -11,13 +11,15 @@
  *            a(8)=40, a(9)=46, a(10)=52, a(11)=56, a(12)=60
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached sequence values */
 static size_t cache_size = 0;        /* allocated cache size in elements */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache so that it contains [0 .. idx]. */
     if (idx >= cache_size) {
         size_t new_size = idx + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) { /* allocation failure – return 0 as a fallback */
             return 0;
         }

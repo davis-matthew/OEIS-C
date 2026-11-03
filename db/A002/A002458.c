@@ -9,13 +9,14 @@
  *            gcd cancellation so intermediates never exceed the final value
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   a002458_gcd64
+ * Validated: standard, pass, 35 terms through n = 90 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002458_gcd64.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     idx_t k = 2 * n;
@@ -25,7 +26,7 @@ seq_t a(idx_t n) {
     for (i = 1; i <= k; i++) {
         uint64_t num = (uint64_t)(base + i);
         uint64_t r = (uint64_t)(result % (seq_t)i);
-        uint64_t g = a002458_gcd64((uint64_t)i, r);
+        uint64_t g = gcd_u64((uint64_t)i, r);
         uint64_t d = (uint64_t)i / g;
         result = (result / (seq_t)g) * (seq_t)(num / d);
     }

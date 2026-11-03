@@ -12,7 +12,8 @@
  *            terminates
  * Range:     u8 n <= 28, u16 n <= 28, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   seq_to_str
+ * Validated: full, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_to_str.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* Helper to grow a dynamically allocated array. */
 static void grow_cache(seq_t **ptr, size_t *cap, size_t needed)
@@ -29,7 +50,7 @@ static void grow_cache(seq_t **ptr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t newcap = (*cap == 0) ? 1 : *cap;
         while (newcap < needed) newcap <<= 1;
-        seq_t *newp = (seq_t *)realloc(*ptr, newcap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, *ptr, newcap);
         if (!newp) exit(1);            /* out of memory */
         *ptr = newp;
         *cap = newcap;

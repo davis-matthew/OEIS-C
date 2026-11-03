@@ -11,13 +11,15 @@
  *            b(k) * 2^{n-2k}
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of values and helper arrays */
 static seq_t *b_arr = NULL;          /* b(n) values, index 0..N */
@@ -35,9 +37,9 @@ static void ensure_arrays(idx_t n)
 
     size_t new_size = (size_t)(n + 1);
 
-    b_arr     = (seq_t*)realloc(b_arr,     new_size * sizeof(seq_t));
-    a_arr     = (seq_t*)realloc(a_arr,     new_size * sizeof(seq_t));
-    pow2_arr  = (seq_t*)realloc(pow2_arr,  new_size * sizeof(seq_t));
+    b_arr     = mem_resize(seq_t, b_arr, new_size);
+    a_arr     = mem_resize(seq_t, a_arr, new_size);
+    pow2_arr  = mem_resize(seq_t, pow2_arr, new_size);
     if (!b_arr || !a_arr || !pow2_arr)
         abort();                      /* allocation failure */
 

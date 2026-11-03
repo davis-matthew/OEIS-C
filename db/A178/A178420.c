@@ -8,13 +8,14 @@
  *            a(n) = a(n-2) + 2^(n-1) - 1 for n>2
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   pow2, pow2_u64_small
+ * Validated: standard, pass, 50 terms through n = 850 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"   /* for pow2(idx_t) – arbitrary-precision 2^n */
-#include "../utils/pow2_u64_small.h"
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

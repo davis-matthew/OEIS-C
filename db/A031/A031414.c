@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 69 terms through n = 934 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,14 +24,15 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"   /* _floor_isqrt_u64(idx_t) */
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* Test whether k satisfies the A031414 property.  The calculation is
    performed with 128‑bit arithmetic to avoid overflow on 64‑bit k. */
 static bool good_k(idx_t k)
 {
     /* Skip perfect squares. */
-    idx_t a0 = _floor_isqrt_u64(k);
+    idx_t a0 = isqrt(k);
     if (a0 * a0 == k) {
         return false;
     }
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc((size_t)cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
             if (good_k(current_k)) {
                 if (cache_cnt == cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, (size_t)cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, (size_t)cache_cap);
                 }
                 cache[cache_cnt++] = (seq_t)current_k;
                 ++current_k;          /* advance to the next candidate */

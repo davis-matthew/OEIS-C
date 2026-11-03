@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 23, u64 n <= 39, u128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <limits.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64 */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)
 {

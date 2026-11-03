@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 5299, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   allowed_prime
+ * Validated: standard, pass, 71 terms through n = 9859 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,14 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/allowed_prime.h"
+#include "../utils/mem.h"
+
+/* ----------  helpers  ----------------------------------------------------- */
+static inline bool allowed_prime(idx_t p)
+{
+    idx_t r = p % 12;
+    return r == 1 || r == 11;
+}
 
 /* ----------  global state  ----------------------------------------------- */
 static idx_t spf_limit = 0;        /* highest number for which SPF is built   */
@@ -78,7 +86,7 @@ static void ensure_seq_cap(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     if (!seq) exit(1);
     seq_cap = new_cap;
 }
@@ -91,7 +99,7 @@ seq_t a(idx_t n)
     /* lazy initialization of sieve and first term */
     if (!seq) {
         ensure_spf(16384);
-        seq = (seq_t *)malloc(16 * sizeof(seq_t));
+        seq = mem_new(seq_t, 16);
         if (!seq) exit(1);
         seq[0] = (seq_t)1;      /* a(1) = 1 */
         seq_len = 1;

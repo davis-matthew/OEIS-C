@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 9823 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of borrowed utilities (unused here, only shown for
    compatibility with the build system). */
@@ -106,12 +108,11 @@ seq_t a(idx_t n)
                 if (new_len == new_cap)
                 {
                     new_cap = new_cap ? new_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(new_terms,
-                                                  new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, new_terms, new_cap);
                     if (!tmp) { /* clean up before exiting */
                         for (int k = 0; k <= 9; ++k) free(dp[k]);
                         free(dp);
-                        free(new_terms);
+                        mem_free(new_terms);
                         exit(EXIT_FAILURE);
                     }
                     new_terms = tmp;
@@ -127,14 +128,14 @@ seq_t a(idx_t n)
         if (new_len >= (size_t)n)
         {
             /* Replace old cache with the new one. */
-            free(seq_cache);
+            mem_free(seq_cache);
             seq_cache = new_terms;
             seq_cache_len = new_len;
             seq_cache_bound = bound;
             break;
         }
         /* Not enough terms: double the bound and try again. */
-        free(new_terms);
+        mem_free(new_terms);
         bound <<= 1;
     }
 

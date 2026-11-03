@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 224, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 78 terms through n = 8618 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t, uint64_t*, uint64_t*, size_t*) */
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;           /* values of the sequence */
 static size_t seq_cap = 0, seq_len = 0;
@@ -59,7 +61,7 @@ static void grow_seq(size_t target_len)
         size_t new_cap = seq_cap ? seq_cap : 16;
         while (new_cap < target_len + 1)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (tmp == NULL)
             abort();
         seq = tmp;

@@ -10,12 +10,14 @@
  *            * a(n)=2*a(n-9)-a(n-18) for n>18
  * Range:     u8 n <= 41, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* initial capacity: at least 32 entries */
         cap = 32;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;
         for (size_t i = 0; i < 19; ++i) cache[i] = init_vals[i];
         curmax = 18;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t new_cap = cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;
         cache = tmp;
         cap = new_cap;

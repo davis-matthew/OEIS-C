@@ -12,7 +12,8 @@
  *            with a small constant
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 14, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   pow_seq_p, simple_sieve
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow_u32_idx, simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/ipow_u32_idx.h"
 #include "../utils/simple_sieve.h"
-#include "../utils/pow_seq_p.h"
 
 static uint32_t *prime_list = NULL;  /* array of primes */
 static size_t prime_count = 0;       /* number of primes */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         /* exponent remaining in denominator after reducing the fraction */
         idx_t diff = (exp_den > exp_num) ? (exp_den - exp_num) : 0;
         if (diff > 0) {
-            seq_t p_pow = pow_seq_p(p, diff);
+            seq_t p_pow = ipow_u32_idx(p, diff);
             result *= p_pow;
         }
     }

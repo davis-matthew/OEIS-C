@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    element of row 2, etc. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_arr = NULL;   /* cumulative sequence built so far      */
 static idx_t   seq_len = 0;     /* number of stored elements              */
@@ -33,7 +35,7 @@ ensure_capacity(size_t needed)
     size_t new_cap = seq_cap ? (seq_cap << 1) : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
     seq_arr = tmp;
     seq_cap = new_cap;
 }

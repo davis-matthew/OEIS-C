@@ -15,13 +15,25 @@
  *            0‑based indices returned by * antidiagonal_coords to 1‑b...
  * Range:     u8 n <= 40, u16 n <= 161, u32 n <= 577, u64 n <= 2177,
  *            u128 n <= 8449, big any n
- * Helpers:   antidiagonal_coords, pow_int
+ * Validated: standard, pass, 88 terms through n = 8911 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/antidiagonal_coords.h"
-#include "../utils/pow_int.h"
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
+
+/* mapping from linear index n to pair (i,j) on the antidiagonals of T */
+static inline void antidiagonal_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    /* find s such that (s+1)(s+2)/2 <= n < (s+2)(s+3)/2 */
+    idx_t s = 0;
+    while (((s + 1) * (s + 2)) / 2 <= n) ++s;
+    idx_t pos = n - (s * (s + 1)) / 2;  /* 0 <= pos <= s */
+    *i = pos;
+    *j = s - pos;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +50,7 @@ seq_t a(idx_t n)
         idx_t t = r; r = c; c = t;
     }
 
-    seq_t pow4_val = pow_int((seq_t)4, r - 1); /* 4^(r-1) */
+    seq_t pow4_val = ipow_idx((seq_t)4, r - 1); /* 4^(r-1) */
     seq_t diff      = (seq_t)(c - r);         /* non‑negative difference */
 
     seq_t term1 = diff * pow4_val;

@@ -9,6 +9,7 @@
  *            triangular(r-1). The triangle entries are computed by
  * Range:     u8 n <= 15, u16 n <= 47, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
  * Helpers:   binomial, catalan, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,9 +19,12 @@
       T(r,k) = 3^(r-k)   * binom(r-1,k-1) * cat(k/2)        if k is even
    (catalan = c(i) = binom(2i,i)/(i+1) ) */
 
-#include "../utils/pow3.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
+#include "../utils/pow3.h"
 
 /* Compute the n-th triangular number as an idx_t (safe for n up to ~10⁵) */
 static inline idx_t triangular_idx(idx_t r)

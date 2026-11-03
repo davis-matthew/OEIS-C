@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 769, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9821 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Dynamic cache storing computed terms.
    cache[i] corresponds to a(i+1). */
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t need)
         else
             new_cap <<= 1;
     }
-    seq_t *newp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, (size_t)new_cap);
     if (!newp)
         abort();  /* allocation failure */
     cache     = newp;

@@ -10,7 +10,8 @@
  *            the sequence eventually generates N
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   is_balanced_ternary_keith, seq_alloc_array, seq_free_array
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,88 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/is_balanced_ternary_keith.h"
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+/* Helper: test whether N is a balanced‑ternary Keith number.  */
+static bool is_balanced_ternary_keith(seq_t N)
+{
+    /* 1. Compute balanced ternary digits, least significant first.  */
+    int8_t digits[64];                /* up to ~64 digits for 64‑bit values.  */
+    size_t dlen = 0;
+    seq_t x = N;
+
+    if (x == 0) {
+        digits[dlen++] = 0;
+    } else {
+        while (x > (seq_t)0 && dlen < sizeof(digits)) {
+            seq_t rem = x % (seq_t)3;
+            seq_t q   = x / (seq_t)3;
+            if (rem == (seq_t)2) {
+                rem = (seq_t)-1;
+                q += (seq_t)1;
+            }
+            digits[dlen++] = (int8_t)rem;
+            x = q;
+        }
+    }
+    if (dlen == 0)
+        return false;    /* should not happen */
+
+    /* 2. Quick reject if digit sum ≤ 0.  */
+    int sum_digits = 0;
+    for (size_t i = 0; i < dlen; ++i)
+        sum_digits += digits[i];
+    if (sum_digits <= 0)
+        return false;
+
+    /* 3. Copy digits to a buffer in most‑significant‑first order.  */
+    int64_t buf[64];
+    int64_t sum = 0;
+    int neg_count = 0;
+    for (size_t i = 0; i < dlen; ++i) {
+        int64_t val = digits[dlen - 1 - i];   /* reverse order */
+        buf[i] = val;
+        sum += val;
+        if (val < 0)
+            ++neg_count;
+    }
+
+    /* 4. Run the recurrence.  */
+    size_t pos = 0;  /* index of the oldest term in the circular buffer.  */
+    while (true) {
+        int64_t next = sum;   /* next term is the sum of last dlen terms.  */
+
+        if (next >= 0) {
+            seq_t next_seq = (seq_t)next;
+            if (next_seq == N)
+                return true;
+            if (next_seq > N && neg_count == 0)
+                return false;
+        }
+
+        /* Slide the window: replace oldest term.  */
+        int64_t old = buf[pos];
+        buf[pos] = next;
+        sum = sum - old + next;
+        if (old < 0)
+            --neg_count;
+        if (next < 0)
+            ++neg_count;
+
+        pos = (pos + 1) % dlen;
+    }
+}
 
 /* Forward declaration.  */
 static bool is_balanced_ternary_keith(seq_t);

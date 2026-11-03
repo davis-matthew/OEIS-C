@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 119, u32 n <= 9798, u64 n <= 9798,
- *            u128 n <= 9798, big any n
- * Helpers:   none
+ * Range:     u8 none, u16 n <= 119, u32 n <= 10046, u64 n <= 10046,
+ *            u128 n <= 10046, big any n
+ * Validated: standard, pass, 54 terms through n = 9798 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
             if (cnt[v] == 9) {
                 if (terms_len >= terms_cap) {
                     terms_cap = terms_cap ? terms_cap * 2 : 128;
-                    seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                     if (!tmp) {
                         free(sigma);
                         free(cnt);

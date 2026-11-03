@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5259, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes
+ * Validated: standard, pass, 75 terms through n = 9727 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 /* use the provided helper for generating primes up to a limit            */
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------------- */
 /*  Global data                                                           */
@@ -47,7 +49,7 @@ static void grow_seq(size_t new_cap)
 {
     if (new_cap <= seq_cap)
         return;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
     if (!init) {                         /* one‑time init                 */
         /* allocate sequence buffer                                  */
         seq_cap = INIT_CAP;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
 
         /* allocate mark bitmap                                       */
         marked = (uint8_t *)calloc(MARK_LIMIT + 1U, 1U);

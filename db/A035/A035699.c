@@ -12,6 +12,7 @@
  *            p_X(n) counts partitions of n using parts from set X
  * Range:     u8 n <= 96, u16 n <= 217, u32 n <= 584, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 99 terms through n = 968 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            consecutive primes
  * Range:     u8 n <= 3, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
+#include <stdint.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ---------- global static state ---------- */
 static seq_t *result_cache = NULL;          /* result_cache[n] = a(n) */
@@ -42,7 +45,7 @@ static void ensure_primes_upto(idx_t limit)
         prime_list = NULL;
     }
     if (prefix_sums) {
-        free(prefix_sums);
+        mem_free(prefix_sums);
         prefix_sums = NULL;
     }
 
@@ -56,7 +59,7 @@ static void ensure_primes_upto(idx_t limit)
     prime_limit = limit;
 
     /* build prefix sums */
-    prefix_sums = (seq_t *)malloc((prime_count + 1) * sizeof(seq_t));
+    prefix_sums = mem_new(seq_t, (prime_count + 1));
     prefix_sums[0] = (seq_t)0;
     for (size_t i = 0; i < prime_count; ++i) {
         prefix_sums[i + 1] = prefix_sums[i] + (seq_t)prime_list[i];
@@ -71,8 +74,8 @@ static void recompute_results_up_to(idx_t nmax)
     /* ensure cache large enough */
     size_t new_len = (size_t)(nmax + 1);
     if (new_len > result_cache_len) {
-        seq_t *tmp = (seq_t *)realloc(result_cache, new_len * sizeof(seq_t));
-        if (!tmp) { free(result_cache); result_cache = NULL; result_cache_len = 0; return; }
+        seq_t *tmp = mem_resize(seq_t, result_cache, new_len);
+        if (!tmp) { mem_free(result_cache); result_cache = NULL; result_cache_len = 0; return; }
         for (size_t i = result_cache_len; i < new_len; ++i) tmp[i] = (seq_t)0;
         result_cache = tmp;
         result_cache_len = new_len;

@@ -9,15 +9,34 @@
  *            (1/theta^2); a(n) = Sum_{i=0..n} c(i)*c(n-i) (1/theta^4)
  * Range:     i8 n <= 2, i16 n <= 7, i32 n <= 23, i64 n <= 76, i128 n <= 259,
  *            big any n
- * Helpers:   alloc_zero, grow_zero
+ * Validated: standard, pass, 41 terms through n = 9907 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_zero.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static seq_t *Bv = NULL, *Cv = NULL, *Av = NULL;
 static idx_t cap = 0, len = 0;

@@ -11,12 +11,14 @@
  *            + (x+1)·v(n-1,x) v(n,x) = 2x·u(n-1,x) + x·v(n-1,x) + 1
  * Range:     u8 n <= 25, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
 
     /* start with the first row (r = 1) */
     size_t cur_size = 1;
-    seq_t *u = (seq_t *)malloc(sizeof(seq_t) * cur_size);
-    seq_t *v = (seq_t *)malloc(sizeof(seq_t) * cur_size);
-    if (!u || !v) { free(u); free(v); return (seq_t)0; }
+    seq_t *u = mem_new(seq_t, cur_size);
+    seq_t *v = mem_new(seq_t, cur_size);
+    if (!u || !v) { mem_free(u); mem_free(v); return (seq_t)0; }
 
     u[0] = (seq_t)1;
     v[0] = (seq_t)1;
@@ -41,11 +43,11 @@ seq_t a(idx_t n)
     for (idx_t step = 2; step <= r; ++step) {
         size_t new_size = cur_size + 1;
 
-        seq_t *u_new = (seq_t *)malloc(sizeof(seq_t) * new_size);
-        seq_t *v_new = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        seq_t *u_new = mem_new(seq_t, new_size);
+        seq_t *v_new = mem_new(seq_t, new_size);
         if (!u_new || !v_new) {
-            free(u); free(v);
-            free(u_new); free(v_new);
+            mem_free(u); mem_free(v);
+            mem_free(u_new); mem_free(v_new);
             return (seq_t)0;
         }
 
@@ -67,8 +69,8 @@ seq_t a(idx_t n)
         }
 
         /* free old arrays and update pointers */
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = u_new;
         v = v_new;
         cur_size = new_size;
@@ -77,8 +79,8 @@ seq_t a(idx_t n)
     /* the desired coefficient is now stored in u[pos] */
     seq_t result = u[pos];
 
-    free(u);
-    free(v);
+    mem_free(u);
+    mem_free(v);
 
     return result;
 }

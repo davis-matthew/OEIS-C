@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 263, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_no_shorter_rep
+ * Validated: standard, pass, 59 terms through n = 9781 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
    filtered by a simple check for shorter representations. */
 
 #include <stdlib.h>
-#include "../utils/has_no_shorter_rep.h"
+#include "../utils/mem.h"
+
+static int has_no_shorter_rep(seq_t m)
+{
+    /* check lengths 2 to 12 */
+    for (int k = 2; k <= 12; ++k) {
+        seq_t offset = ((seq_t)k * (k - 1)) / 2;   /* k*(k-1)/2 */
+        if (m < offset) continue;
+        seq_t diff = m - offset;
+        if (diff % k == 0) return 0;  /* found a shorter representation */
+    }
+    return 1;                         /* no shorter representation */
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +52,7 @@ seq_t a(idx_t n)
         if (cache_cap < n) {
             size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
             while (new_cap < n) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();            /* out of memory */
             cache = tmp;
             cache_cap = new_cap;

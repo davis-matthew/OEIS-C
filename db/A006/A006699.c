@@ -15,17 +15,49 @@
  *            C(s,t) H(i,t) (j-i)^(s-t), with H(1,t) = 1 and a(0)...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   advance_row, alloc_zero, compute_H, powi_seq, release
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/advance_row.h"
-#include "../utils/compute_H.h"
-#include "../utils/powi_seq.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static void advance_row(seq_t *row, idx_t *cur, idx_t s) {
+    while (*cur < s) {
+        idx_t c = *cur + 1;
+        for (idx_t x = c; x >= 1; x--) row[x] += row[x - 1];
+        *cur = c;
+    }
+}
+
+static seq_t compute_H(idx_t j, idx_t s, idx_t K, seq_t *row, idx_t *cur, seq_t *H) {
+    advance_row(row, cur, s);
+    seq_t val = ipow_idx((seq_t)j, s);
+    for (idx_t i = 1; i < j; i++) {
+        seq_t base = (seq_t)(j - i);
+        for (idx_t r = 0; r < K; r++) {
+            idx_t t = K * (i - 1) + r;
+            seq_t term = row[t] * H[(i - 1) * K + r];
+            term *= ipow_idx(base, s - t);
+            val -= term;
+        }
+    }
+    return val;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;

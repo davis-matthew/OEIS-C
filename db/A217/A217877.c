@@ -12,14 +12,26 @@
  *            evaluates T
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 57, u64 n <= 138,
  *            u128 n <= 380, big any n
- * Helpers:   big_pow, factorial
+ * Validated: standard, pass, 61 terms through n = 1230 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factorial.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Return the n‑th term of A217877 (n ≥ 2).  The return type seq_t and
    the index type idx_t are defined by the build system. */
@@ -46,7 +58,7 @@ seq_t a(idx_t n) {
     } else {
         /* T(i,j) = j! * (i-j-1) * i^(i-j-2)   for 1 ≤ j ≤ i-2  */
         seq_t fact_j   = factorial(j);
-        seq_t pow_val  = big_pow((seq_t)i, (seq_t)(i - j - 2));
+        seq_t pow_val  = ipow((seq_t)i, (seq_t)(i - j - 2));
         seq_t res      = fact_j * (seq_t)(i - j - 1);
         res            = res * pow_val;
         return res;

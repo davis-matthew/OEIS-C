@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   is_square_sum
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/is_square_sum.h"
+#include "../utils/mem.h"
+
+/* test whether a sum (2..18) is a perfect square 4, 9 or 16 */
+static bool is_square_sum(int sum) {
+    return sum == 4 || sum == 9 || sum == 16;
+}
 
 #define SIEVE_LIMIT 10000000UL
 
@@ -50,7 +56,7 @@ seq_t a(idx_t n) {
         }
         /* ---- collect qualifying primes ---- */
         size_t capacity = SIEVE_LIMIT / 100;           /* rough estimate */
-        qual_primes = (seq_t*)malloc(capacity * sizeof(seq_t));
+        qual_primes = mem_new(seq_t, capacity);
         if (!qual_primes) { free(isprime); return (seq_t)0; }
         for (uint32_t p = 2; p <= SIEVE_LIMIT; ++p) {
             if (!isprime[p]) continue;
@@ -60,8 +66,7 @@ seq_t a(idx_t n) {
             if (is_square_sum((int)first + (int)last)) {
                 if (qual_count >= capacity) {          /* grow array */
                     capacity <<= 1;
-                    seq_t *tmp = (seq_t*)realloc(qual_primes,
-                                                 capacity * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, qual_primes, capacity);
                     if (!tmp) { free(isprime); return (seq_t)0; }
                     qual_primes = tmp;
                 }
@@ -92,8 +97,7 @@ seq_t a(idx_t n) {
             if (is_square_sum((int)first + (int)last)) {
                 if (qual_count >= (size_t)qual_primes) { /* unlikely */
                     qual_count <<= 1;
-                    seq_t *tmp = (seq_t*)realloc(qual_primes,
-                                                 qual_count * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, qual_primes, qual_count);
                     if (!tmp) return (seq_t)0;
                     qual_primes = tmp;
                 }

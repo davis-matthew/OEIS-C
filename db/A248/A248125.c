@@ -9,7 +9,8 @@
  *            C(2m,m)+C(2n,n)
  * Range:     u8 n <= 55, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, exponent_factorial, mod_pow
+ * Validated: standard, pass, 76 terms through n = 8407 (2026-11-01)
+ * Helpers:   build_primes, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,22 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes.h"   /* void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
-#include "../utils/mod_pow.h"       /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/exponent_factorial.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/build_primes.h"
+#include "../utils/powmod.h"
+
+/* Exponent of prime 'p' in n! (Legendre's formula). */
+static idx_t exponent_factorial(idx_t n, idx_t p)
+{
+    idx_t e = 0;
+    while (n)
+    {
+        n /= p;
+        e += n;
+    }
+    return e;
+}
 
 static idx_t *primes_tbl = NULL;
 static size_t primes_c = 0;
@@ -49,7 +63,7 @@ static seq_t binomial_mod(idx_t n, idx_t k, seq_t mod)
         e -= exponent_factorial(k, p);
         e -= exponent_factorial(n - k, p);
         if (e == 0) continue;
-        seq_t pow_mod = mod_pow((seq_t)p, e, mod);
+        seq_t pow_mod = powmod((seq_t)p, e, mod);
         res = (res * pow_mod) % mod;
     }
     return res;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator of n * Prod_{j=1..n-1} (3*j+1)/(3*j+2)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 23, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Prime sieve and factorisation helpers ------------------------------------- */
 static int  *primes      = NULL;          /* list of primes up to current limit */
@@ -125,7 +127,7 @@ static void ensure_cache(idx_t n)
 
     /* Expand denominator cache */
     size_t new_size = (size_t)n;
-    den_cache = (seq_t *)realloc(den_cache, new_size * sizeof(seq_t));
+    den_cache = mem_resize(seq_t, den_cache, new_size);
 
     /* Compute missing terms */
     for (idx_t k = cache_size + 1; k <= n; ++k) {

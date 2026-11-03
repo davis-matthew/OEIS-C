@@ -7,13 +7,17 @@
  * Formula:   a(n) = a(n-1)^2 - n^(n+1); a(0) = 0
  * Range:     i8 n <= 4, i16 n <= 5, i32 n <= 6, i64 n <= 7, i128 n <= 8,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +28,7 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if (n >= cache_size) {
         size_t new_len = (size_t)(n + 1);          /* ensure space for 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) { /* memory error: return 0 */
             return (seq_t)0;
         }
@@ -39,7 +43,7 @@ seq_t a(idx_t n)
                 seq_t sq   = prev * prev;          /* a(i-1)^2 */
                 seq_t base = (seq_t)i;
                 seq_t exp  = (seq_t)(i + 1);
-                seq_t pw   = big_pow(base, exp);   /* i^(i+1) */
+                seq_t pw   = ipow(base, exp);   /* i^(i+1) */
                 cache[i] = sq - pw;                /* recurrence */
             }
         }

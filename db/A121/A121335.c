@@ -8,16 +8,17 @@
  * Formula:   a(n) = T(r,k) where T(r,k) = binom(r*(r+1)/2 + r - k + 1, r -
  *            k), r >= k >= 0, r is the largest integer with r*(r+1)/2 <= n, k
  *            = n - r*(r+1)/2
- * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 44, u64 n <= 45, u128 n <= 45,
+ * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 44, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -55,5 +56,5 @@ seq_t a(idx_t n)
     unsigned __int128 a_binom = offset_r + (unsigned __int128)(r - k) + 1;
     idx_t b_binom = r - k;
 
-    return binom((idx_t)a_binom, b_binom);
+    return binomial((idx_t)a_binom, b_binom);
 }

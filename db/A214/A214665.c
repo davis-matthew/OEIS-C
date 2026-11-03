@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, easy
  * Formula:   not stated
- * Range:     i8 n <= 6521, i16 n <= 9359, i32 n <= 9359, i64 n <= 9359,
- *            i128 n <= 9359, big any n
- * Helpers:   is_prime
+ * Range:     i8 n <= 6521, i16 n <= 10077, i32 n <= 10077, i64 n <= 10077,
+ *            i128 n <= 10077, big any n
+ * Validated: standard, pass, 92 terms through n = 9359 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* initialise cache if necessary */
     if (cache == NULL) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0; /* allocation failure, return 0 as sentinel */
     }
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         if (is_prime(cur_num)) {
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0;   /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

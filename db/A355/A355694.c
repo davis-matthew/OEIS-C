@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 12, i16 n <= 1753, i32 n <= 9967, i64 n <= 9967,
- *            i128 n <= 9967, big any n
- * Helpers:   ensure_cached, factor_u64, gcd, pow_uint
+ * Range:     i8 n <= 12, i16 n <= 1753, i32 n <= 12000, i64 n <= 12000,
+ *            i128 n <= 12000, big any n
+ * Validated: standard, pass, 91 terms through n = 9967 (2026-11-03)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,33 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/factor_u64.h"    /* factor_u64 */
-#include "../utils/pow_uint.h"     /* pow_uint */
-#include "../utils/gcd.h"          /* gcd */
-#include "../utils/ensure_cached.h"
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
+
+/* ----------  ensure arrays can store index n  ---------- */
+static void
+ensure_cached(size_t n, seq_t **arr, bool **done, size_t *cap)
+{
+    if (n < *cap)
+        return;
+    size_t newcap = (*cap == 0) ? 1 : *cap * 2;
+    while (newcap <= n)
+        newcap <<= 1;                      /* grow to cover n */
+    seq_t *new_arr = mem_resize(seq_t, *arr, newcap);
+    if (!new_arr)
+        exit(1);
+    bool *new_done = (bool *)realloc(*done, newcap * sizeof(bool));
+    if (!new_done)
+        exit(1);
+    /* initialise new slots */
+    for (size_t i = *cap; i < newcap; ++i)
+        new_done[i] = false;
+    *arr = new_arr;
+    *done = new_done;
+    *cap = newcap;
+}
 
 /* ----------  cache for a(n) ---------- */
 static seq_t *a_cache = NULL;
@@ -48,7 +72,7 @@ sigma_uint(idx_t n)
     for (size_t i = 0; i < pcnt; ++i) {
         uint64_t p   = primes[i];
         uint64_t e   = exps[i];
-        seq_t   term = pow_uint(p, e + 1u) - (seq_t)1;  /* p^{e+1} - 1 */
+        seq_t   term = ipow_u64_idx(p, e + 1u) - (seq_t)1;  /* p^{e+1} - 1 */
         seq_t   denom = (seq_t)p - (seq_t)1;            /* p - 1 */
         result = (result * term) / denom;              /* exact division */
     }

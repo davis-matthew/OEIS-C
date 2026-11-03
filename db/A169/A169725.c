@@ -7,6 +7,7 @@
  * Formula:   a(n) = 3^(n-1) * (6 * 3^(n-1) + 5) + 1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 949 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Based on the explicit expression given in the OEIS entry for A169725. */
 
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)

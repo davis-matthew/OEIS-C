@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    a(8)=1993, a(9)=5798, a(10)=16193.
    Offset is 3.                                     */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache  = NULL;  /* array of computed values   */
 static idx_t   start  = 3;    /* first index stored in cache*/
@@ -32,8 +34,7 @@ ensure_capacity(void)
 {
     if (len == cap) {
         size_t new_cap = (cap == 0) ? 16 : cap << 1;
-        seq_t *new_cache = (seq_t *)realloc(cache,
-                                            new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) exit(EXIT_FAILURE);
         cache = new_cache;
         cap   = new_cap;
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
             1993ULL, 5798ULL, 16193ULL
         };
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(EXIT_FAILURE);
         for (size_t i = 0; i < 8; ++i) cache[i] = init[i];
         len = 8;          /* cache[0] = a(3), ..., cache[7] = a(10) */

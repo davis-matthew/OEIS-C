@@ -7,14 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..⌊2n/3⌋} C(n+k-⌊k/2⌋, k) *
  *            (n-k-⌊k/2⌋)/(n+k-⌊k/2⌋)
- * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 30, u128 n <= 30,
+ * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         idx_t half_k = k / 2;           /* floor(k/2) */
         idx_t N = n + k - half_k;       /* n + k - floor(k/2) */
 
-        seq_t bin = binom(N, k);        /* C(N, k) */
+        seq_t bin = binomial(N, k);        /* C(N, k) */
 
         seq_t num = (seq_t)(n - k - half_k);     /* n - k - floor(k/2) */
         seq_t den = (seq_t)(n + k - half_k);     /* n + k - floor(k/2) */

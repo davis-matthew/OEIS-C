@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((n!)^2 + (-1)^n*(2*n + 1)!/(n + 1))/2
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 6, i64 n <= 10, i128 n <= 15,
  *            big any n
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

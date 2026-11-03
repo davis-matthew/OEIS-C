@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 14, u64 n <= 33, u128 n <= 73,
  *            big any n
- * Helpers:   good_row, good_vertical
+ * Validated: standard, pass, 37 terms through n = 201 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,8 +40,30 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/good_row.h"
-#include "../utils/good_vertical.h"
+
+/* Utility: check if a 6‑bit pattern contains 000 or 010 horizontally */
+static int good_row(uint8_t p)
+{
+    for (int i = 0; i < 4; ++i) {
+        uint8_t sub = (p >> i) & 0x07;
+        if (sub == 0x00 || sub == 0x02)
+            return 0;
+    }
+    return 1;
+}
+
+/* Utility: check vertical constraints for three rows */
+static int good_vertical(uint8_t r0, uint8_t r1, uint8_t r2)
+{
+    for (int col = 0; col < 6; ++col) {
+        uint8_t a = (r0 >> col) & 1;
+        uint8_t b = (r1 >> col) & 1;
+        uint8_t c = (r2 >> col) & 1;
+        if ((a == 0 && b == 0 && c == 0) || (a == 0 && b == 1 && c == 1))
+            return 0;
+    }
+    return 1;
+}
 
 /* seq_t and idx_t are provided by the build environment. */
 

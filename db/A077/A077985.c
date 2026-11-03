@@ -7,12 +7,14 @@
  * Formula:   a(0) = 1, a(1) = -2, a(n) = -2*a(n-1) + a(n-2) for n > 1
  * Range:     i8 n <= 5, i16 n <= 11, i32 n <= 24, i64 n <= 49, i128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for OEIS A077985: Expansion of 1/(1 + 2*x - x^2). */
 seq_t a(idx_t n)
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         /* allocate space for at least two terms */
-        cache = (seq_t *)malloc(sizeof(seq_t) * 2);
+        cache = mem_new(seq_t, 2);
         cache[0] = (seq_t)1;            /* a(0) */
         cache[1] = (seq_t)-2;           /* a(1) */
         cache_len = 2;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (new_len > cache_len)
     {
         /* realloc with the larger size */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL)
         {
             /* allocation failed; return 0 (caller will treat as invalid) */

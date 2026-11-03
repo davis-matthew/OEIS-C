@@ -11,12 +11,14 @@
  *            OEIS A035612
  * Range:     u8 n <= 357, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 9662 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t * _fib_cache = NULL;   /* 1‑based array of Fibonacci numbers */
 static idx_t  _fib_cap   = 0;        /* capacity of _fib_cache */
@@ -31,7 +33,7 @@ static void _ensure_fibs_upto(idx_t n)
     /* Initialise cache if necessary */
     if (_fib_cache == NULL) {
         _fib_cap   = 16;
-        _fib_cache = (seq_t *)malloc(_fib_cap * sizeof(seq_t));
+        _fib_cache = mem_new(seq_t, _fib_cap);
         if (_fib_cache == NULL) return;               /* allocation failed, caller will handle */
         _fib_cache[1] = (seq_t)1;  /* f(1) = 1 */
         _fib_cache[2] = (seq_t)2;  /* f(2) = 2 */
@@ -41,7 +43,7 @@ static void _ensure_fibs_upto(idx_t n)
     /* Grow capacity if we need to store more Fibonacci numbers */
     if (_fib_n + 1 >= _fib_cap) {
         size_t newcap = _fib_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(_fib_cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _fib_cache, newcap);
         if (tmp == NULL) return;                       /* realloc failed */
         _fib_cache = tmp;
         _fib_cap   = newcap;
@@ -56,7 +58,7 @@ static void _ensure_fibs_upto(idx_t n)
         /* Ensure we still have enough capacity */
         if (_fib_n + 1 >= _fib_cap) {
             size_t newcap = _fib_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(_fib_cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, _fib_cache, newcap);
             if (tmp == NULL) return;                     /* realloc failed */
             _fib_cache = tmp;
             _fib_cap   = newcap;

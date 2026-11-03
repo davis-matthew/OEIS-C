@@ -12,12 +12,14 @@
  *            sequence is read by antidiagonals, i.e. a(0)=T(0,0), a(1)=T(...
  * Range:     u8 n <= 19, u16 n <= 34, u32 n <= 64, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- Global caches for factorials and Stirling numbers of the second kind --- */
 
@@ -31,7 +33,7 @@ static idx_t stir_n = 0;            /* highest Stirling n computed */
 static void ensure_fact(idx_t n)
 {
     if (fact_n >= n) return;
-    seq_t *p = (seq_t *)realloc(fact, sizeof(seq_t) * (n + 1));
+    seq_t *p = mem_resize(seq_t, fact, (n + 1));
     if (!p) exit(1);          /* abort on allocation failure */
     fact = p;
     if (fact_n == 0) fact[0] = 1;   /* factorial[0] = 1 */
@@ -48,7 +50,7 @@ static void ensure_stirling(idx_t n)
     if (!p) exit(1);
     S = p;
     for (idx_t i = stir_n + 1; i <= n; ++i) {
-        S[i] = (seq_t *)calloc((size_t)(i + 1), sizeof(seq_t));
+        S[i] = mem_new(seq_t, (size_t)(i + 1));
         if (!S[i]) exit(1);
         S[i][0] = 0;
         if (i > 0) S[i][i] = 1;

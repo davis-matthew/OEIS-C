@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1 - Fib(n) + Fib(n+1) - Fib(2n) + Fib(2n+1)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
  * Helpers:   fib_pair
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,6 +11,7 @@
  *            remainder
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 71, u64 n <= 791, u128 n <= 9998,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 9397 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

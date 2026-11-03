@@ -13,7 +13,8 @@
  *            triangle
  * Range:     u8 n <= 23, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  * implicit conversion errors. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -67,8 +69,8 @@ seq_t a(idx_t n)
     {
         /* Allocate buffers for the new row. */
         size_t row_len = ++n_rows_done;               /* length of this row (1‑based) */
-        seq_t *u_row = (seq_t *)malloc(row_len * sizeof(seq_t));
-        seq_t *v_row = (seq_t *)malloc(row_len * sizeof(seq_t));
+        seq_t *u_row = mem_new(seq_t, row_len);
+        seq_t *v_row = mem_new(seq_t, row_len);
         if (!u_row || !v_row) exit(1);                /* allocation failure */
 
         if (n_rows_done == 1)      /* base case: u(1,x)=v(1,x)=1 */
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
         triangle[n_rows_done - 1] = u_row;
 
         /* Free the previous v buffer (no longer needed). */
-        free(prev_v);
+        mem_free(prev_v);
         /* Update the pointers for the next iteration. */
         prev_u = u_row;
         prev_v = v_row;

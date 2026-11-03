@@ -9,14 +9,30 @@
  *            substring "18" but n+1 does not
  * Range:     u8 n <= 4, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_18
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_18.h"
+#include "../utils/mem.h"
+
+/* Helper: return true if x contains the consecutive digits 1 followed by 8. */
+static bool has_18(seq_t x)
+{
+    if (x < (seq_t)10) return false;           /* need at least two digits */
+    seq_t prev = x % (seq_t)10;                /* least significant digit */
+    x /= (seq_t)10;
+    while (x > (seq_t)0) {
+        seq_t d = x % (seq_t)10;               /* next digit */
+        if (d == (seq_t)1 && prev == (seq_t)8) return true;
+        prev = d;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +47,7 @@ seq_t a(idx_t n)
     /* Initialise storage on first call */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     size_t target = (size_t)n;
@@ -40,7 +56,7 @@ seq_t a(idx_t n)
         if (target > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 64;
             while (new_cap < target) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }

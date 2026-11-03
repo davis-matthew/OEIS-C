@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 117, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   alloc_seq_array, calc_phi, free_seq_array, sigma_of
+ * Validated: standard, pass, 70 terms through n = 1809 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,10 +16,35 @@
 /* Sequence A015825: Numbers k such that φ(k + 8) divides σ(k) */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/calc_phi.h"     /* seq_t calc_phi(seq_t m); */
-#include "../utils/sigma_of.h"    /* seq_t sigma_of(idx_t n); */
-#include "../utils/alloc_seq_array.h" /* seq_t *alloc_seq_array(size_t n); */
-#include "../utils/free_seq_array.h"  /* void free_seq_array(seq_t *p); */
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +63,7 @@ seq_t a(idx_t n)
         ++last_k;
 
         /* compute φ(k + 8) and σ(k) using the provided helpers */
-        seq_t phi   = calc_phi((seq_t)(last_k + 8));
+        seq_t phi   = totient_seq((seq_t)(last_k + 8));
         seq_t sigma = sigma_of((idx_t)last_k);
 
         /* if σ(k) is divisible by φ(k + 8), keep this k */

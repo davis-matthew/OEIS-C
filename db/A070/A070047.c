@@ -12,7 +12,8 @@
  *            m_{i+1} = 0. The DP below computes the number of ways...
  * Range:     u8 n <= 27, u16 n <= 76, u32 n <= 235, u64 n <= 787,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Assumes seq_t and idx_t are defined by the build. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,13 +33,13 @@ seq_t a(idx_t n)
        dp_no   – ways to reach a sum with the previous part unused
        dp_used – ways to reach a sum with the previous part used
        next_no, next_used – buffers for the next iteration   */
-    seq_t *dp_no   = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *dp_used = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *next_no = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *next_used = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *dp_no   = mem_new(seq_t, N);
+    seq_t *dp_used = mem_new(seq_t, N);
+    seq_t *next_no = mem_new(seq_t, N);
+    seq_t *next_used = mem_new(seq_t, N);
     if (!dp_no || !dp_used || !next_no || !next_used) {
         /* Memory allocation failed – return 0 as a safe sentinel. */
-        free(dp_no); free(dp_used); free(next_no); free(next_used);
+        mem_free(dp_no); mem_free(dp_used); mem_free(next_no); mem_free(next_used);
         return (seq_t)0;
     }
 
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     seq_t result = dp_no[n] + dp_used[n];
 
     /* Clean up. */
-    free(dp_no); free(dp_used); free(next_no); free(next_used);
+    mem_free(dp_no); mem_free(dp_used); mem_free(next_no); mem_free(next_used);
 
     return result;
 }

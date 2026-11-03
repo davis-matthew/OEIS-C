@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime p such that p mod 51 == 50
  * Range:     u8 n <= 1, u16 n <= 204, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence entry function: returns the n-th prime congruent to 50 modulo 51 */
 /* idx_t is the index type (uint64_t), seq_t is the value type (unsigned integer
@@ -66,12 +68,12 @@ seq_t a(idx_t n)
             if (local_count >= (size_t)n) {
                 /* Resize the values array if needed. */
                 if (capacity < local_count) {
-                    seq_t *new_vals = (seq_t *)calloc(local_count, sizeof(seq_t));
+                    seq_t *new_vals = mem_new(seq_t, local_count);
                     if (!new_vals) {
                         free(comp);
                         return 0;            /* allocation failure */
                     }
-                    free(values);
+                    mem_free(values);
                     values   = new_vals;
                     capacity = local_count;
                 }

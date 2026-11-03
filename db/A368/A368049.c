@@ -10,16 +10,61 @@
  *            p·10^(2*j) with p∈{1,4,9} and j≥3
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 26, u64 n <= 41, u128 n <= 69,
  *            big any n
- * Helpers:   is_good_square, pow10
+ * Validated: standard, pass, 49 terms through n = 936 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The util pow10 calculates 10^e as a seq_t value. */
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdbool.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Test whether an integer n has exactly two distinct decimal digits,
+   one of which occurs once. */
+static bool is_good_square(uint32_t n)
+{
+    if (n < 10)                /* at least two digits required */
+        return false;
+    int counts[10] = {0};
+    int len = 0;
+    uint32_t m = n;
+    while (m > 0) {
+        int d = m % 10;
+        counts[d]++;
+        m /= 10;
+        len++;
+    }
+
+    int c1 = -1, c2 = -1;
+    for (int d = 0; d < 10; ++d) {
+        if (counts[d] > 0) {
+            if (c1 == -1)
+                c1 = counts[d];
+            else if (c2 == -1)
+                c2 = counts[d];
+            else
+                return false;      /* more than two distinct digits */
+        }
+    }
+    if (c2 == -1)  /* only one distinct digit */
+        return false;
+
+    return ((c1 == 1 && c2 == len - 1) ||
+            (c2 == 1 && c1 == len - 1));
+}
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_good_square.h"
 
 /* Temporary storage for the small terms (≤ 90 000).  */
 static seq_t   small[300];

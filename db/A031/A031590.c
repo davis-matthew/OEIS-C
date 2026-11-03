@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 /* Grow a dynamic array of uint64_t */
 static void grow_uint64(uint64_t **arr, size_t *cap, size_t *len, size_t need)
@@ -42,7 +43,7 @@ static void grow_uint64(uint64_t **arr, size_t *cap, size_t *len, size_t need)
 /* Test whether a given k satisfies the property */
 static bool holds_property(uint64_t k)
 {
-    uint64_t a0 = int_sqrt(k);
+    uint64_t a0 = isqrt(k);
     if (a0 * a0 == k) return false;          /* perfect square */
 
     static uint64_t *terms = NULL;

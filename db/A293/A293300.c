@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! * coefficient of x^n in ∏_{m>0} 1/(1 + x^m)
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 19, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 427 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  Computes a(n) for n >= 0  */
 seq_t a(idx_t n)
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     /* initialise if first call */
     if (coeff == NULL) {
         /* allocate minimal size (1) */
-        coeff  = (seq_t*)realloc(coeff, 1 * sizeof(seq_t));
-        fact   = (seq_t*)realloc(fact, 1 * sizeof(seq_t));
+        coeff  = mem_resize(seq_t, coeff, 1);
+        fact   = mem_resize(seq_t, fact, 1);
         phi    = (int8_t*)realloc(phi, 1 * sizeof(int8_t));
         qVal   = (int8_t*)realloc(qVal, 1 * sizeof(int8_t));
         pent   = (idx_t*)realloc(pent, 1 * sizeof(idx_t));
@@ -49,8 +51,8 @@ seq_t a(idx_t n)
     if (n > max_n) {
         size_t new_max = n;
 
-        coeff = (seq_t*)realloc(coeff, (new_max+1)*sizeof(seq_t));
-        fact  = (seq_t*)realloc(fact,  (new_max+1)*sizeof(seq_t));
+        coeff = mem_resize(seq_t, coeff, (new_max+1));
+        fact  = mem_resize(seq_t, fact, (new_max+1));
         phi   = (int8_t*)realloc(phi,  (new_max+1)*sizeof(int8_t));
         qVal  = (int8_t*)realloc(qVal, (new_max+1)*sizeof(int8_t));
 

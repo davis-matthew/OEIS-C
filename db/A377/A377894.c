@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Σ_{k=0..n} (2*k+1)^(k-1) * binomial(2*k+1, n-k) / k!
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,11 @@
 /*        (where 1^(-1) is defined as 1 for k=0) */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* memoised transient caches */
 static seq_t *pow_cache  = NULL;    /* pow_cache[k] = (2*k+1)^(k-1) */
@@ -31,14 +35,14 @@ static void ensure_pow_cache(idx_t n)
 {
     if ((idx_t)pow_cap <= n) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(pow_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow_cache, new_cap);
         if (!tmp) exit(1);
         pow_cache = tmp;
         for (size_t k = pow_cap; k <= n; ++k) {
             if (k == 0) {
                 pow_cache[0] = (seq_t)1;   /* 1^(-1) == 1 */
             } else {
-                pow_cache[k] = big_pow((seq_t)(2 * k + 1),
+                pow_cache[k] = ipow((seq_t)(2 * k + 1),
                                        (seq_t)(k - 1));
             }
         }
@@ -50,7 +54,7 @@ static void ensure_fact_cache(idx_t n)
 {
     if ((idx_t)fact_cap <= n) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(fact_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_cache, new_cap);
         if (!tmp) exit(1);
         fact_cache = tmp;
         if (fact_cap == 0) {
@@ -68,7 +72,7 @@ static void ensure_a_cache(idx_t n)
 {
     if ((idx_t)a_cap <= n) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) exit(1);
         a_cache = tmp;
         for (size_t m = a_cap; m <= n; ++m) {

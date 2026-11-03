@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(A003415(n), A347130(n)) / A003557(n)
- * Range:     u8 n <= 317, u16 n <= 9851, u32 n <= 9851, u64 n <= 9851,
- *            u128 n <= 9851, big any n
+ * Range:     u8 n <= 317, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 106 terms through n = 9851 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

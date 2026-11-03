@@ -11,13 +11,14 @@
  *            (2^k‑1)
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   is_power_of_two
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -27,9 +28,9 @@ seq_t a(idx_t n)
     for (;; ++num) {
         bool ok = false;
 
-        if (!is_power_of_two(num)) {
+        if (!is_pow2(num)) {
             if (num & 1) {                /* odd number */
-                if (is_power_of_two(num + 1))
+                if (is_pow2(num + 1))
                     ok = true;            /* only odd Mersenne numbers */
             } else {                     /* even number */
                 ok = true;                /* all evens except powers of two */

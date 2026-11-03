@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{i=0..n} binomial(n,i) * A000108(n+i)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   catalan
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 static seq_t *cat_cache = NULL;     /* cache of Catalan numbers C[0..k]   */
 static idx_t   cat_size  = 0;       /* number of stored entries           */
@@ -28,10 +31,10 @@ ensure_catalan(idx_t idx)
     idx_t new_size = idx + 1;
 
     if (cat_cache == NULL) {
-        cat_cache = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        cat_cache = mem_new(seq_t, new_size);
         if (!cat_cache) abort();
     } else {
-        cat_cache = (seq_t *)realloc(cat_cache, sizeof(seq_t) * new_size);
+        cat_cache = mem_resize(seq_t, cat_cache, new_size);
         if (!cat_cache) abort();
     }
 

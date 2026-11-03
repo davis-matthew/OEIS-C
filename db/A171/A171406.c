@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 898, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *solutions = NULL;     /* array of found solutions          */
 static size_t sol_count   = 0;       /* number of solutions stored        */
@@ -62,14 +64,14 @@ static void build_solutions(idx_t limit)
     /* accumulate Mertens function and collect solutions */
     seq_t M = 0;
     size_t cap = limit / 10 + 10;          /* initial capacity estimate */
-    seq_t *newsol = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *newsol = mem_new(seq_t, cap);
     size_t cnt = 0;
     for (idx_t i = 1; i <= limit; ++i) {
         M += mu[i];
         if (M == 4) {
             if (cnt == cap) {
                 cap *= 2;
-                newsol = (seq_t *)realloc(newsol, cap * sizeof(seq_t));
+                newsol = mem_resize(seq_t, newsol, cap);
             }
             newsol[cnt++] = (seq_t)i;
         }
@@ -78,7 +80,7 @@ static void build_solutions(idx_t limit)
     /* clean up and store results */
     free(mu);
     free(comp);
-    free(solutions);
+    mem_free(solutions);
     solutions = newsol;
     sol_count = cnt;
     sol_cap   = cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 75, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _is_prime
+ * Validated: standard, pass, 51 terms through n = 967 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,10 @@
    window of the last nine primes.  */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/_is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +44,7 @@ seq_t a(idx_t n)
     /* initialise storage for balanced primes on first use     */
     if (balanced == NULL) {
         bal_cap   = 16;
-        balanced  = (seq_t *)malloc(bal_cap * sizeof(seq_t));
+        balanced  = mem_new(seq_t, bal_cap);
     }
 
     /* fast return if we already have enough terms            */
@@ -50,7 +54,7 @@ seq_t a(idx_t n)
     /* generate primes until we have at least the n‑th balanced one */
     while (bal_cnt < n) {
         /* find the next prime                                        */
-        while (!_is_prime(candidate))
+        while (!is_prime_u64(candidate))
             candidate += (candidate == 2) ? 1 : 2;   /* 2,3,5,7,… */
 
         seq_t prime = candidate;
@@ -69,8 +73,7 @@ seq_t a(idx_t n)
                 if (rhs == win_sum) {
                     if (bal_cnt == bal_cap) {          /* grow array */
                         bal_cap <<= 1;
-                        balanced = (seq_t *)realloc(balanced,
-                                                    bal_cap * sizeof(seq_t));
+                        balanced = mem_resize(seq_t, balanced, bal_cap);
                     }
                     balanced[bal_cnt++] = center;
                 }
@@ -88,8 +91,7 @@ seq_t a(idx_t n)
             if (rhs == win_sum) {
                 if (bal_cnt == bal_cap) {              /* grow array */
                     bal_cap <<= 1;
-                    balanced = (seq_t *)realloc(balanced,
-                                                bal_cap * sizeof(seq_t));
+                    balanced = mem_resize(seq_t, balanced, bal_cap);
                 }
                 balanced[bal_cnt++] = center;
             }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   ensure_arr_capacity
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/ensure_arr_capacity.h"
+#include "../utils/mem.h"
+
+/* ensure array can hold element with index n */
+static void ensure_arr_capacity(seq_t **arr, size_t *cap, idx_t n)
+{
+    size_t req = (size_t)n + 1;
+    if (req <= *cap) return;
+    size_t new_cap = *cap ? (*cap << 1) : 64;
+    while (new_cap < req) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 static size_t used_cap = 0;
 static uint8_t *used_tab = NULL;

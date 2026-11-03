@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 239, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9420 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,20 +26,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Grow an array of seq_t elements, copying them with the assignment
    operator (appropriate for both POD and arbitrary‑precision types). */
 static void *grow_array(void *old, size_t old_len, size_t new_cap)
 {
     size_t elem_size = sizeof(seq_t);
-    seq_t *new_arr = (seq_t *)malloc(new_cap * elem_size);
+    seq_t *new_arr = mem_new(seq_t, (new_cap * elem_size) / sizeof(seq_t));
     if (!new_arr) abort();
     if (old && old_len > 0) {
         seq_t *src = (seq_t *)old;
         seq_t *dst = new_arr;
         for (size_t i = 0; i < old_len; ++i)
             dst[i] = src[i];
-        free(old);
+        mem_free((seq_t *)old);       /* (a void * would be freed as plain memory) */
     }
     return new_arr;
 }

@@ -10,7 +10,8 @@
  *            then T(j) = (j-k)*T(j-1) + (j-k+2)*T(j) for 2<=k<=j
  * Range:     i8 n <= 10, i16 n <= 13, i32 n <= 16, i64 n <= 22, i128 n <= 32,
  *            big any n
- * Helpers:   t3457_add, t3457_allones, t3457_bitlen, t3457_mask, t3457_shr
+ * Validated: standard, pass, 41 terms through n = 96 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,67 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/t3457_add.h"
-#include "../utils/t3457_allones.h"
-#include "../utils/t3457_bitlen.h"
-#include "../utils/t3457_mask.h"
-#include "../utils/t3457_shr.h"
+
+static void t3457_add(uint32_t *x, const uint32_t *y, size_t W) {
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < W; i++) {
+        uint64_t v = (uint64_t)x[i] + y[i] + carry;
+        x[i] = (uint32_t)v;
+        carry = v >> 32;
+    }
+}
+
+static int t3457_allones(const uint32_t *x, size_t W, uint64_t m) {
+    size_t full = (size_t)(m / 32), i;
+    unsigned bit = (unsigned)(m % 32);
+    for (i = 0; i < W; i++) {
+        uint32_t want;
+        if (i < full) want = 0xFFFFFFFFu;
+        else if (i == full && bit) want = (1u << bit) - 1;
+        else want = 0;
+        if (x[i] != want) return 0;
+    }
+    return 1;
+}
+
+static uint64_t t3457_bitlen(const uint32_t *x, size_t W) {
+    size_t i = W;
+    while (i > 0 && x[i - 1] == 0) i--;
+    if (i == 0) return 0;
+    {
+        uint32_t t = x[i - 1];
+        uint64_t b = (uint64_t)(i - 1) * 32;
+        while (t) { b++; t >>= 1; }
+        return b;
+    }
+}
+
+static void t3457_mask(uint32_t *x, size_t W, uint64_t m) {
+    size_t full = (size_t)(m / 32), i;
+    unsigned bit = (unsigned)(m % 32);
+    for (i = full; i < W; i++) {
+        if (i == full && bit) x[i] &= (1u << bit) - 1;
+        else x[i] = 0;
+    }
+}
+
+/* dst = src >> s (W words); returns nonzero if any discarded bit was set */
+static int t3457_shr(uint32_t *dst, const uint32_t *src, size_t W, uint64_t s) {
+    size_t word = (size_t)(s / 32), i;
+    unsigned bit = (unsigned)(s % 32);
+    int lost = 0;
+    for (i = 0; i < word && i < W; i++)
+        if (src[i]) lost = 1;
+    if (bit && word < W && (src[word] & ((1u << bit) - 1))) lost = 1;
+    for (i = 0; i < W; i++) {
+        size_t idx = i + word;
+        uint32_t lo = idx < W ? src[idx] : 0;
+        uint32_t hi = idx + 1 < W ? src[idx + 1] : 0;
+        dst[i] = bit ? ((lo >> bit) | (hi << (32 - bit))) : lo;
+    }
+    return lost;
+}
 
 static uint32_t *t3457_T = NULL;
 static size_t *t3457_len = NULL;

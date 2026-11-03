@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------  dynamic arrays for the sequence  -------- */
 static seq_t *store     = NULL;   /* a[i]   */
@@ -42,7 +44,7 @@ static void ensure_store_size(size_t minSize) {
     if (storeSize >= minSize) return;
     size_t newSize = storeSize ? storeSize << 1 : 8;
     while (newSize < minSize) newSize <<= 1;
-    seq_t *tmp = (seq_t *)realloc(store, newSize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, store, newSize);
     if (!tmp) abort();
     store = tmp;
     storeSize = newSize;
@@ -52,10 +54,10 @@ static void ensure_need_size(size_t minSize) {
     if (needSize >= minSize) return;
     size_t newSize = needSize ? needSize << 1 : 8;
     while (newSize < minSize) newSize <<= 1;
-    seq_t *tmp = (seq_t *)realloc(needIdx, newSize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, needIdx, newSize);
     if (!tmp) abort();
     /* zero the newly allocated part */
-    memset(tmp + needSize, 0, (newSize - needSize) * sizeof(seq_t));
+    mem_set(tmp + needSize, 0, (newSize - needSize) * sizeof(seq_t));
     needIdx = tmp;
     needSize = newSize;
 }
@@ -64,7 +66,7 @@ static void ensure_used_size(size_t minSize) {
     if (usedCap >= minSize) return;
     size_t newCap = usedCap ? usedCap << 1 : 8;
     if (newCap < minSize) newCap = minSize;
-    seq_t *tmp = (seq_t *)realloc(usedVals, newCap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, usedVals, newCap);
     if (!tmp) abort();
     usedVals = tmp;
     usedCap = newCap;
@@ -92,7 +94,7 @@ static void add_used_val(seq_t val) {
     }
     if (lo < usedSize && usedVals[lo] == val) return;   /* already present */
     ensure_used_size(usedSize + 1);
-    memmove(usedVals + lo + 1, usedVals + lo, (usedSize - lo) * sizeof(seq_t));
+    mem_move(usedVals + lo + 1, usedVals + lo, (usedSize - lo) * sizeof(seq_t));
     usedVals[lo] = val;
     usedSize++;
 }

@@ -6,16 +6,27 @@
  * Keywords:  sign
  * Formula:   a(n) = F_n - p_n where F_1=1, F_2=1 (standard Fibonacci) and
  *            p_1=2 is the first prime
- * Range:     i8 n <= 12, i16 n <= 23, i32 n <= 39, i64 n <= 39, i128 n <= 39,
+ * Range:     i8 n <= 12, i16 n <= 23, i32 n <= 46, i64 n <= 92, i128 n <= 184,
  *            big any n
- * Helpers:   estimate_prime_upper_bound
+ * Validated: standard, pass, 55 terms through n = 992 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/estimate_prime_upper_bound.h"
+#include <stdbool.h>
+#include <math.h>
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* Cached list of primes */
 static uint64_t *prime_list = NULL;

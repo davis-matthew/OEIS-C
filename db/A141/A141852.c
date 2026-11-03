@@ -8,12 +8,15 @@
  *            linear search
  * Range:     u8 n <= 4, u16 n <= 650, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 62 terms through n = 975 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
 
 seq_t a(idx_t n)

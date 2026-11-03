@@ -8,12 +8,18 @@
  *            binomial(n,k)*(n-k)/(k+1)
  * Range:     u8 n <= 8, u16 n <= 24, u32 n <= 220, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_div_exact
+ * Validated: standard, pass, 58 terms through n = 9498 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mul_div_exact.h"
+static seq_t mul_div_exact(seq_t c, seq_t m, seq_t d) {
+    /* computes c*m/d exactly (c*m divisible by d) without forming c*m */
+    seq_t q = c / d;
+    seq_t r = c % d;
+    return q * m + (r * m) / d;
+}
 
 seq_t a(idx_t n) {
     seq_t result = (seq_t)1;

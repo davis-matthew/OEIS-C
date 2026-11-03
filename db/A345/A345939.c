@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = (n-1) / gcd(n-1, uphi(n)), where uphi(n) is the unitary
  *            totient function A047994
- * Range:     u8 n <= 257, u16 n <= 9687, u32 n <= 9687, u64 n <= 9687,
- *            u128 n <= 9687, big any n
+ * Range:     u8 n <= 257, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 108 terms through n = 9687 (2026-11-01)
  * Helpers:   build_primes, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,9 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
 #include "../utils/build_primes.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

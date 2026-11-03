@@ -9,8 +9,8 @@
  *            a semiprime (product of two primes)
  * Range:     u8 n <= 10, u16 n <= 465, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, build_primes_upto, digits_of,
- *            floor_sqrt, is_prime_big, is_prime_small, next_prime, pow10
+ * Validated: standard, pass, 61 terms through n = 9816 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_i32, is_prime_seq, is_prime_u64, mem, next_prime, num_digits_idx, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,14 +25,97 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/pow10.h"           /* seq_t pow10(idx_t e); */
-#include "../utils/digits_of.h"       /* int digits_of(idx_t x); */
-#include "../utils/is_prime_big.h"    /* bool is_prime_big(seq_t n); */
-#include "../utils/is_prime_small.h"  /* bool is_prime_small(uint64_t n); */
-#include "../utils/_smallest_prime_factor.h" /* uint64_t _smallest_prime_factor(uint64_t n); */
-#include "../utils/floor_sqrt.h"      /* seq_t floor_sqrt(seq_t x); */
-#include "../utils/next_prime.h"      /* uint64_t next_prime(uint64_t start); */
-#include "../utils/build_primes_upto.h" /* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/next_prime.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
+#include "../utils/is_prime_u64.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Miller–Rabin primality test for seq_t (supports 8/16/32/64/128/ arbitrary-precision) */
+/* n fits in uint64_t (n >= 0 here) */
+static bool is_prime_big_fits_u64(seq_t v)
+{
+    if (sizeof(seq_t) <= 8) return true;
+    return !((seq_t)UINT64_MAX < v);
+}
+
+static bool is_prime_big(seq_t n) {
+    if (n < 2) return false;
+    /* exact in 64 bits when n fits: the seq_t products below overflow at
+       u64/i64 once n passes 2^32, and are slow under big */
+    if (is_prime_big_fits_u64(n)) return is_prime_u64((uint64_t)n);
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    /* write n-1 as d * 2^s with d odd */
+    seq_t d = n - 1;
+    unsigned s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    /* deterministic bases covering 128‑bit values */
+    static const int base_list[] = {2,3,5,7,11,13,17,19,23,29,31,37};
+    const int num_bases = sizeof(base_list)/sizeof(base_list[0]);
+
+    for (int i = 0; i < num_bases; i++) {
+        seq_t a = (seq_t)base_list[i];
+        if (a >= n) continue;
+
+        /* compute a^d mod n */
+        seq_t x = 1;
+        seq_t pow = a % n;
+        seq_t exp = d;
+        while (exp > 0) {
+            if (exp & 1) x = (x * pow) % n;
+            pow = (pow * pow) % n;
+            exp >>= 1;
+        }
+
+        if (x == 1 || x == n-1) continue;
+
+        bool cont = false;
+        for (unsigned r = 1; r < s; r++) {
+            x = (x * x) % n;
+            if (x == n-1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static bool is_semiprime(seq_t N)
 {
@@ -43,11 +126,11 @@ static bool is_semiprime(seq_t N)
     /* If N fits in uint64_t, use fast trial division */
     if ((seq_t)UINT64_MAX >= N) {
         uint64_t n64 = (uint64_t)N;
-        uint64_t d = _smallest_prime_factor(n64);
+        uint64_t d = smallest_prime_factor(n64);
         if (d == n64)     /* in principle unreachable because N is composite */
             return false;
         uint64_t other = n64 / d;
-        return is_prime_small(other);
+        return is_prime_seq(other);
     }
 
     /* In general: trial division with small primes up to sqrt(N) */
@@ -92,7 +175,7 @@ seq_t a(idx_t n)
         static uint64_t current_p = 1;
         current_p = next_prime(current_p + 1);
 
-        int k = digits_of((idx_t)current_p);
+        int k = num_digits_idx((idx_t)current_p);
         seq_t pow10k = pow10(k);
         seq_t candidate = pow10k + (seq_t)current_p;
 
@@ -100,7 +183,7 @@ seq_t a(idx_t n)
             /* Expand cache if necessary */
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = candidate;
         }

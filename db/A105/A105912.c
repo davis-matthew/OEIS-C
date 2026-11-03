@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime p for which -40 is a primitive root mod p
  * Range:     u8 n <= 21, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   add_prime, is_prime, pow_mod
+ * Validated: standard, pass, 73 terms through n = 969 (2026-11-03)
+ * Helpers:   is_prime_u64, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/add_prime.h"
-#include "../utils/is_prime.h"
-#include "../utils/pow_mod.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/powmod_u64.h"
+
+/* Dynamically grow the array of found primes */
+static void add_prime(uint64_t **arr, size_t *cap, size_t *cnt, uint64_t val)
+{
+    if (*cnt >= *cap) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(**arr));
+        if (!tmp) return;           /* allocation failed – caller will free on exit */
+        *arr = tmp;
+        *cap = new_cap;
+    }
+    (*arr)[(*cnt)++] = val;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +54,7 @@ seq_t a(idx_t n)
     /* Generate missing primes until we have enough */
     while (prime_cnt < (size_t)n) {
         /* Find the next prime candidate */
-        while (!is_prime(next_candidate))
+        while (!is_prime_u64(next_candidate))
             next_candidate += 2;           /* skip even numbers */
 
         /* Compute (-40 mod p) safely */
@@ -58,7 +73,7 @@ seq_t a(idx_t n)
         for (uint64_t d = 2; d * d <= tmp; ++d) {
             if (tmp % d == 0) {
                 /* d is a prime factor */
-                if (pow_mod(base, m / d, next_candidate) == 1) {
+                if (powmod_u64(base, m / d, next_candidate) == 1) {
                     ok = false;
                     break;
                 }
@@ -67,7 +82,7 @@ seq_t a(idx_t n)
             }
         }
         if (ok && tmp > 1) {               /* remaining prime factor */
-            if (pow_mod(base, m / tmp, next_candidate) == 1)
+            if (powmod_u64(base, m / tmp, next_candidate) == 1)
                 ok = false;
         }
 

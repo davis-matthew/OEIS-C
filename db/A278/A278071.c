@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 14, i32 n <= 35, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Integer square root for unsigned 64‑bit values. */
 static inline uint64_t isqrt_u64(uint64_t x)
@@ -80,7 +82,7 @@ static void ensure_rows(uint64_t r)
 
     for (uint64_t i = rows_used; i <= r; ++i) {
         size_t len = i + 1;
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) return;         /* Out‑of‑memory: silently bail */
 
         if (i == 0) {
@@ -103,8 +105,8 @@ static void ensure_rows(uint64_t r)
             seq_t *prev1 = rows[i - 1];   /* length i   (degree i-1) */
             seq_t *prev2 = rows[i - 2];   /* length i-1 (degree i-2) */
 
-            seq_t *tmp = (seq_t*)malloc(len * sizeof(seq_t));
-            if (!tmp) { free(row); return; }
+            seq_t *tmp = mem_new(seq_t, len);
+            if (!tmp) { mem_free(row); return; }
 
             /* ((A*(2n-3))*x + B) * P_{i-1} */
             tmp[0] = A * prev1[0];
@@ -120,7 +122,7 @@ static void ensure_rows(uint64_t r)
             for (uint64_t j = 0; j < len; ++j)
                 row[j] = tmp[j] / D;
 
-            free(tmp);
+            mem_free(tmp);
         }
 
         rows[i] = row;

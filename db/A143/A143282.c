@@ -9,13 +9,15 @@
  *            minus (# binary strings of length n avoiding 11, 101 and 1001)
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 57, u64 n <= 115,
  *            u128 n <= 231, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* transition tables
  * state indices: 0 = "", 1 = "1", 2 = "10", 3 = "100"
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (cnt_part == NULL) {
         cap = 1;
-        cnt_part = (seq_t *)malloc(cap * sizeof(seq_t));
-        cnt_full = (seq_t *)malloc(cap * sizeof(seq_t));
+        cnt_part = mem_new(seq_t, cap);
+        cnt_full = mem_new(seq_t, cap);
         if (!cnt_part || !cnt_full) abort();
 
         /* start with length 0 */
@@ -77,8 +79,8 @@ seq_t a(idx_t n)
         ++cur_len;
         if (cur_len >= cap) {
             cap <<= 1;
-            cnt_part = (seq_t *)realloc(cnt_part, cap * sizeof(seq_t));
-            cnt_full = (seq_t *)realloc(cnt_full, cap * sizeof(seq_t));
+            cnt_part = mem_resize(seq_t, cnt_part, cap);
+            cnt_full = mem_resize(seq_t, cnt_full, cap);
             if (!cnt_part || !cnt_full) abort();
         }
         cnt_part[cur_len] = sum_p;

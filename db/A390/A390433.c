@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 37, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external types are supplied by the build system:
  *   - seq_t : unsigned integer type (uint8_t … uint128 or big integer)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* Ensure rows up to r are computed */
     while (rows <= r) {
         idx_t idx = rows;               /* index of new row          */
-        seq_t *row = (seq_t *)malloc((idx + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (idx + 1));
         if (!row) abort();              /* memory failure            */
 
         if (idx == 0) {                 /* first row T(0,0) = 1       */

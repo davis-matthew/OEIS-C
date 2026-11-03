@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = max(0, |d(n+1)-d(n)| - 1) where d(k) = number of divisors
  *            of k. This implements the OEIS sequence A130632
- * Range:     u8 n <= 9992, u16 n <= 9992, u32 n <= 9992, u64 n <= 9992,
- *            u128 n <= 9992, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static cache of divisor counts */
 static seq_t *div_counts = NULL;
@@ -31,7 +33,7 @@ ensure_div_counts(idx_t needed)
 
     /* extend array */
     size_t new_cap = needed + 1;
-    div_counts = (seq_t *)realloc(div_counts, new_cap * sizeof(seq_t));
+    div_counts = mem_resize(seq_t, div_counts, new_cap);
     if (!div_counts) {
         /* allocation failure – abort */
         exit(1);

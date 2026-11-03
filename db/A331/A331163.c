@@ -11,7 +11,8 @@
  *            … a(n‑1), with a(0)=0, a(1)=0
  * Range:     u8 n <= 785, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 104 terms through n = 9210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state: memoised sequence and counters */
 static seq_t *a_cache     = NULL;   /* array of sequence values */
@@ -37,7 +39,7 @@ static void ensure_cache_cap(size_t needed)
     if (a_cap < needed) {
         size_t new_cap = a_cap * 2 + 1;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         a_cache = tmp;
         a_cap   = new_cap;
     }

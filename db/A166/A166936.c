@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 77 terms through n = 933 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Test whether the given number satisfies the property for A166936. */
 static bool is_valid_seq_t(seq_t x)
@@ -30,7 +32,7 @@ static bool is_valid_seq_t(seq_t x)
     }
 
     /* Length of the binary representation. */
-    unsigned len = bitlen_seq_t(x);
+    unsigned len = bit_length(x);
 
     /* Extract the bits into an array (most significant bit first). */
     unsigned char *bits = (unsigned char *)malloc(len);

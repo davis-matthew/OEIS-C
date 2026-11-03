@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define COLS 6
 #define ROWS (1 << COLS)      /* 2^6 = 64 possible rows */
@@ -79,14 +81,14 @@ seq_t a(idx_t n)
     static seq_t nxt[STATES];
 
     /* Initial state: previous row all zeros, current row arbitrary. */
-    memset(cur, 0, sizeof(cur));
+    mem_set(cur, 0, sizeof(cur));
     for (int curr = 0; curr < ROWS; ++curr) {
         cur[ curr ] = (seq_t)1;      /* state (0,curr) */
     }
 
     /* Perform n-1 transitions. */
     for (idx_t step = 1; step < n; ++step) {
-        memset(nxt, 0, sizeof(nxt));
+        mem_set(nxt, 0, sizeof(nxt));
         for (int s = 0; s < STATES; ++s) {
             seq_t val = cur[s];
             if (val == 0) continue;
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
                 nxt[next_state] += val;
             }
         }
-        memcpy(cur, nxt, sizeof(cur));
+        mem_copy(cur, nxt, sizeof(cur));
     }
 
     /* Sum counts of valid final states (next row zero). */

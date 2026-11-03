@@ -9,13 +9,30 @@
  * Formula:   a(n) = n^2 + 11*n - 32 for n > 5, else computed by brute force
  * Range:     u8 n <= 12, u16 n <= 200, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   is_allowed_value
+ * Validated: standard, pass, 65 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_allowed_value.h"
+
+/* return true if value 'val' can appear at position 'pos' in the sequence,
+   given the preceding elements in 'seq' (0‑based index). */
+static bool is_allowed_value(const seq_t *seq, idx_t pos, seq_t val)
+{
+    idx_t start = (pos > 4) ? pos - 4 : 0;
+    for (idx_t i = start; i < pos; ++i)
+    {
+        if (seq[i] == val) return true;
+        for (idx_t j = i + 1; j < pos; ++j)
+        {
+            seq_t sum = seq[i] + seq[j];
+            if (sum == val) return true;
+        }
+    }
+    return false;
+}
 
 /* depth‑first search counting all admissible sequences of length L.
    'seq' holds the current sequence, 'count' accumulates the results. */

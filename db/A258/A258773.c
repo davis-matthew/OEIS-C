@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 24, i32 n <= 59, i64 n <= 144,
  *            i128 n <= 367, big any n
- * Helpers:   big_pow, binom
+ * Validated: standard, pass, 61 terms through n = 1299 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
    ...
 */
 #include <stdbool.h>
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b)      */
-#include "../utils/big_pow.h" /* big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Compute T(row,col) = (-1)^(row-col) * C(row,col) * col^row  */
-    seq_t bin  = binom(row, col);                     /* C(row,col)   */
-    seq_t powv = big_pow((seq_t)col, (seq_t)row);     /* col^row      */
+    seq_t bin  = binomial(row, col);                     /* C(row,col)   */
+    seq_t powv = ipow((seq_t)col, (seq_t)row);     /* col^row      */
     seq_t prod = bin * powv;                          /* product      */
 
     if (((row - col) & 1u) != 0u)   /* apply the sign */

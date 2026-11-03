@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum_uint64, is_prime
+ * Validated: standard, pass, 49 terms through n = 975 (2026-11-03)
+ * Helpers:   digit_sum_u64, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,11 @@
 /* Search: a(n) = nth prime with digit sum 40 */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
-#include "../utils/digit_sum_uint64.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/digit_sum_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static idx_t count = 0;            /* primes found so far */
@@ -27,17 +31,17 @@ seq_t a(idx_t n) {
     /* Initialize the array on first call */
     if (!primes) {
         cap = 16;
-        primes = (seq_t *)malloc(cap * sizeof(seq_t));
+        primes = mem_new(seq_t, cap);
     }
 
     /* Generate primes until we have enough */
     while (count < n) {
         uint64_t cand = next_candidate;
 
-        if (is_prime(cand) && digit_sum_uint64(cand) == 40) {
+        if (is_prime_u64(cand) && digit_sum_u64(cand) == 40) {
             if (count >= cap) {
                 size_t newcap = cap * 2;
-                seq_t *tmp = (seq_t *)realloc(primes, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, newcap);
                 if (!tmp) return 0; /* allocation failure, unlikely */
                 primes = tmp;
                 cap = newcap;

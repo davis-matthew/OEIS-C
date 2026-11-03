@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..n} 3^(n-k) * binomial(n,k) * binomial(3*n+1,k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 34,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 802 (2026-11-01)
  * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,8 +15,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow3.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow3.h"
 
 /* Computes the nth term of sequence A388134 */
 seq_t a(idx_t n)

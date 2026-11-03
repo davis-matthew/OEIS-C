@@ -9,15 +9,35 @@
  *            ≤ n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   combine_mod10, small_binom_mod5
+ * Validated: standard, pass, 102 terms through n = 9053 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/combine_mod10.h"
-#include "../utils/small_binom_mod5.h"
+
+/* Combine residues mod 2 and mod 5 to residue mod 10 via simple CRT */
+static uint8_t combine_mod10(uint8_t r2, uint8_t r5)
+{
+    uint8_t r = r5;
+    while ((r & 1U) != r2) r += 5U;
+    return r;
+}
+
+/* return C(a,b) mod 5 for 0 ≤ a,b ≤ 4; invalid b>a returns 0 */
+static inline uint8_t small_binom_mod5(uint8_t a, uint8_t b)
+{
+    static const uint8_t tab[5][5] = {
+        {1,0,0,0,0},
+        {1,1,0,0,0},
+        {1,2,1,0,0},
+        {1,3,3,1,0},
+        {1,4,1,4,1}
+    };
+    return (b > a) ? 0U : tab[a][b];
+}
 
 /* binomial coefficient modulo 2: 1 iff (k & (n-k)) == 0, otherwise 0 */
 static inline uint8_t binom_mod2(idx_t n, idx_t k)

@@ -7,14 +7,26 @@
  * Formula:   a(1)=1; for n≥2, a(n)=a(n-1)*10^(n!-(n-1)!)+1
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   pow10, seq_one
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow10.h"
-#include "../utils/seq_one.h"
+#include <stdint.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {

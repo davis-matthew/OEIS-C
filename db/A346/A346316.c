@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------------
    Basic integer utilities (64‑bit arithmetic)
@@ -166,7 +168,7 @@ static void heap_push(seq_t val, uint64_t prime, uint32_t exp)
     if (g_heap_size + 1 > g_heap_cap)
     {
         size_t new_cap = g_heap_cap ? g_heap_cap * 2 : 64;
-        node_t *tmp = (node_t *)realloc(g_heap, new_cap * sizeof(node_t));
+        node_t *tmp = mem_resize(node_t, g_heap, new_cap);
         if (!tmp) exit(1);
         g_heap = tmp;
         g_heap_cap = new_cap;
@@ -269,7 +271,7 @@ static void generate_terms(idx_t target)
         if (g_terms_size + 1 > g_terms_cap)
         {
             size_t new_cap = g_terms_cap ? g_terms_cap * 2 : 128;
-            seq_t *tmp = (seq_t *)realloc(g_terms, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, g_terms, new_cap);
             if (!tmp) exit(1);
             g_terms = tmp;
             g_terms_cap = new_cap;

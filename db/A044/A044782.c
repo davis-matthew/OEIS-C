@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_69
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,36 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/has_69.h"
+#include "../utils/mem.h"
+
+/* Helper: does x contain the substring "69" in its decimal representation? */
+static bool has_69(seq_t x)
+{
+    if (x < 10) return false;      /* fewer than two digits → impossible */
+
+    seq_t n = x;
+    seq_t pow = 1;
+
+    /* Find the highest power of 10 <= n */
+    while (pow <= n)
+    {
+        pow *= 10;
+    }
+    pow /= 10;   /* now pow is 10^(digits-1) */
+
+    int prev = -1;
+
+    /* Scan digits from most significant to least significant */
+    while (pow > 0)
+    {
+        int digit = (int)(n / pow);
+        n %= pow;
+        if (prev == 6 && digit == 9) return true;
+        prev = digit;
+        pow /= 10;
+    }
+    return false;
+}
 
 /* Cached sequence values and generation state */
 static seq_t *cache      = NULL;
@@ -39,13 +69,13 @@ seq_t a(idx_t n)
         if (cache_cap == 0)       /* first allocation */
         {
             cache_cap = 64;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
             if (!cache) return 0; /* allocation failure, unlikely */
         }
         else if (cache_size == cache_cap)
         {
             cache_cap <<= 1;          /* double capacity */
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
             if (!cache) return 0;     /* allocation failure */
         }
 

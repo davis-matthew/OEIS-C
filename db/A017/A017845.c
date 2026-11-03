@@ -12,6 +12,7 @@
  *            represe...
  * Range:     u8 n <= 27, u16 n <= 48, u32 n <= 88, u64 n <= 169,
  *            u128 n <= 332, big any n
+ * Validated: standard, pass, 63 terms through n = 982 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

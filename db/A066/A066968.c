@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 10, u128 n <= 24,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 30 terms through n = 795 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 /* Denominator of the Machin‐style term
    b(n) = (1/16)^n * (4/(8*n+1) - 2/(8*n+4) - 1/(8*n+5) - 1/(8*n+6)) */
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Greatest common divisor for seq_t */
 static inline seq_t seq_gcd(seq_t a, seq_t b) {
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
             - L / D4;
 
     /* 16^n = 2^(4n) */
-    seq_t pow2 = seq_pow((seq_t)2, 4 * n);
+    seq_t pow2 = ipow_idx((seq_t)2, 4 * n);
     seq_t denom_total = L * pow2;
 
     /* Reduce the fraction */

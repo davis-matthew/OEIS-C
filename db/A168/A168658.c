@@ -7,13 +7,15 @@
  * Formula:   a(n) = ceiling(n^n/2)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 297 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* For arbitrary‑precision or smaller types use the generic power routine.
        Correctness for out‑of‑range values is not required. */
-    seq_t v = big_pow((seq_t)n, (seq_t)n);   /* compute n^n */
+    seq_t v = ipow((seq_t)n, (seq_t)n);   /* compute n^n */
     seq_t r = v / 2;
     if (v % 2) /* odd remainder */
         ++r;

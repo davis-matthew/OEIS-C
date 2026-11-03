@@ -11,7 +11,8 @@
  *            a(14)=3, a(15)=3, a(16)=5, a(17)=6
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #else
 #define PTR_CAST(type, ptr) ((type)(ptr))
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Per-call static cache of computed terms; cache[0] = a(1) */
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
         /* Ensure the cache can at least hold the first 17 terms */
         size_t new_len = req_len > 17 ? req_len : 17;
 
-        seq_t *tmp = PTR_CAST(seq_t *, realloc(cache, new_len * sizeof(seq_t)));
+        seq_t *tmp = PTR_CAST(seq_t *, mem_resize(seq_t, cache, new_len));
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
 

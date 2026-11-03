@@ -8,7 +8,8 @@
  *            returns the n-th such k (1‑based)
  * Range:     u8 n <= 46, u16 n <= 3762, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9573 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: modular multiplication (a*b)%mod using 128‑bit arithmetic */
 static uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod) {
@@ -92,7 +94,7 @@ seq_t a(idx_t n) {
             /* Store the term */
             if (cache_size == cache_cap) {
                 cache_cap = cache_cap ? (cache_cap << 1) : 128;
-                seq_cache = (seq_t *)realloc(seq_cache, cache_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
             }
             seq_cache[cache_size++] = (seq_t)next_k;
         }

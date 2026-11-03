@@ -8,7 +8,8 @@
  *            It is computed by the classic coin‑change DP:
  * Range:     u8 n <= 59, u16 n <= 425, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
     a(n) = Σ_{c∈{1,5,6,7}} a(n–c)  for n≥1, with a(d)=0 for d<0. */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t new_size = n + 1;                     /* array length */
         /* Allocate a new table.  Use size_t for the allocation size. */
-        seq_t *new_dp = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (size_t)new_size);
         if (!new_dp) return (seq_t)0;               /* out of memory */
 
         /* Initialize.  a(0)=1, the rest start at 0. */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old table. */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp = new_dp;
         cache_size = new_size;
     }

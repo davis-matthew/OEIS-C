@@ -9,13 +9,15 @@
  *            than peaks
  * Range:     u8 n <= 36, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9735 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* return true iff base‑3 representation of num has #pits < #peaks */
 static bool is_good(seq_t num) {
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
         if (is_good(next_candidate)) {
             if (len + 1 > cap) {
                 size_t newcap = cap ? cap << 1 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) abort();
                 cache = tmp;
                 cap = newcap;

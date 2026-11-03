@@ -11,7 +11,8 @@
  *            fixed bound and all cyclotomic polynomials k=3..12
  * Range:     u8 none, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 none,
  *            big any n
- * Helpers:   sieve_primes
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stdbool.h>
 
 /* Utility to generate primes */
+#include <string.h>
 #include "../utils/sieve_primes.h"
+#include "../utils/mem.h"
 
 /* Helper comparison for qsort */
 static int cmp_seq(const void *p1, const void *p2) {
@@ -37,7 +40,7 @@ static int cmp_seq(const void *p1, const void *p2) {
 static void add_value(seq_t **arr, size_t *size, size_t *cap, seq_t val) {
     if (*size == *cap) {
         *cap = (*cap == 0) ? 1024 : (*cap << 1);
-        *arr = (seq_t *)realloc(*arr, (*cap) * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (*cap));
     }
     (*arr)[*size] = val;
     (*size)++;
@@ -144,7 +147,7 @@ static void init_sequence(void) {
     free(primes);
 
     /* Sort the collected values */
-    qsort(tmp, tmp_sz, sizeof(seq_t), cmp_seq);
+    mem_qsort(tmp, tmp_sz, sizeof(seq_t), cmp_seq);
 
     /* Remove duplicates in‑place */
     size_t uniq = 0;
@@ -154,7 +157,7 @@ static void init_sequence(void) {
         }
     }
     /* Reallocate to actual size */
-    tmp = (seq_t *)realloc(tmp, uniq * sizeof(seq_t));
+    tmp = mem_resize(seq_t, tmp, uniq);
 
     seq_vals = tmp;
     seq_len  = uniq;

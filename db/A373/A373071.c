@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 7090, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_prime_minus_one
+ * Validated: standard, pass, 81 terms through n = 9036 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,27 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sum_prime_minus_one.h"
+#include "../utils/mem.h"
+
+/* Compute sum of (p-1) for distinct prime factors of n (n >= 2). */
+static uint64_t sum_prime_minus_one(uint64_t n)
+{
+    uint64_t sum = 0;
+    uint64_t temp = n;
+
+    for (uint64_t p = 2; p * p <= temp; ++p) {
+        if (temp % p == 0) {
+            sum += (p - 1);
+            while (temp % p == 0) {
+                temp /= p;
+            }
+        }
+    }
+    if (temp > 1) {
+        sum += (temp - 1);
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -49,8 +70,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary */
             if (cache_len == cache_cap) {
                 cache_cap = (cache_cap == 0 ? 64 : cache_cap * 2);
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                               cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) {
                     /* Allocation failure – abort */
                     exit(EXIT_FAILURE);

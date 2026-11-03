@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 16, u64 n <= 32, u128 n <= 60,
  *            big any n
- * Helpers:   build_value
+ * Validated: standard, pass, 36 terms through n = 964 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,19 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/build_value.h"
+
+/* construct the value with m+1 digits: one digit 2 at position pos
+ * (pos counted from the left, 0 ≤ pos ≤ m).  The result is built by
+ * repeated multiplication by 10 and addition, which works for all
+ * supported seq_t types. */
+static seq_t build_value(idx_t m, idx_t pos) {
+    seq_t val = 0;
+    for (idx_t i = 0; i <= m; ++i) {
+        seq_t digit = (i == pos) ? (seq_t)2 : (seq_t)1;
+        val = val * 10 + digit;
+    }
+    return val;
+}
 
 /* test whether x is prime – only values up to a few thousand are needed */
 static bool is_prime(idx_t x) {

@@ -12,7 +12,8 @@
  *            valuations of this fraction prime by prime
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   a002677_pm
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a002677_pm.h"
+#include "../utils/powmod_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -42,12 +43,12 @@ seq_t a(idx_t n)
         } else {
             uint64_t m = n, s = 0;
             while (m % p == 0) { m /= p; s++; }
-            if (a002677_pm(4, m, p) == 1) {
+            if (powmod_u64(4, m, p) == 1) {
                 uint64_t pk = p;
                 v = 1;
                 while (v < vf && pk <= UINT64_MAX / p) {
                     uint64_t pk2 = pk * p;
-                    if (a002677_pm(4, m, pk2) == 1) { v++; pk = pk2; }
+                    if (powmod_u64(4, m, pk2) == 1) { v++; pk = pk2; }
                     else break;
                 }
                 v += s;

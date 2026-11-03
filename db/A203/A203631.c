@@ -13,13 +13,15 @@
  *            counts, and for each assignment counts the strings b...
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 40, u64 n <= 76, u128 n <= 146,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 52 terms through n = 546 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static seq_t count_strings(idx_t s0, idx_t s1, idx_t s2)
 {
@@ -36,13 +38,13 @@ static seq_t count_strings(idx_t s0, idx_t s1, idx_t s2)
         if (k0 == 0) {
             if ((s0 + k0) != 0) ways = 0;   /* invalid if zeros exist */
         } else {
-            ways *= binom(s0 + k0 - 1, k0 - 1);
+            ways *= binomial(s0 + k0 - 1, k0 - 1);
         }
         if (ways != 0) {
             if (k1 == 0) {
                 if ((s2 + k1) != 0) ways = 0;
             } else {
-                ways *= binom(s2 + k1 - 1, k1 - 1);
+                ways *= binomial(s2 + k1 - 1, k1 - 1);
             }
         }
         total += ways;
@@ -57,13 +59,13 @@ static seq_t count_strings(idx_t s0, idx_t s1, idx_t s2)
         if (k0 == 0) {
             if ((s0 + k0) != 0) ways = 0;
         } else {
-            ways *= binom(s0 + k0 - 1, k0 - 1);
+            ways *= binomial(s0 + k0 - 1, k0 - 1);
         }
         if (ways != 0) {
             if (k1 == 0) {
                 if ((s2 + k1) != 0) ways = 0;
             } else {
-                ways *= binom(s2 + k1 - 1, k1 - 1);
+                ways *= binomial(s2 + k1 - 1, k1 - 1);
             }
         }
         total += ways;

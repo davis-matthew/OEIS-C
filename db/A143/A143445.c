@@ -11,14 +11,29 @@
  *            if n is even: (3*m*m - 5*m + 2)/2 with m = n/2 + 1
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   A001318
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdint.h>
-#include "../utils/A001318.h"
+
+static seq_t A001318(idx_t k)
+{
+    /* A001318: 1,2,5,7,12,15,22,26,35,40,... */
+    if (k & 1U) /* odd */
+    {
+        seq_t m = (seq_t)(k + 1) / 2;     /* m = (k+1)/2 */
+        return m * ((seq_t)3 * m - 1) / 2;
+    }
+    else       /* even */
+    {
+        seq_t m = (seq_t)(k / 2) + 1; /* m = k/2 + 1 */
+        return ((seq_t)3 * m * m - (seq_t)5 * m + 2) / 2;
+    }
+}
 
 seq_t a(idx_t n)
 {

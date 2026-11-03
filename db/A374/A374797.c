@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 133, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 82 terms through n = 9351 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    The function keeps a static cache so that calls can be made in any order. */
 
 #include <stdlib.h>
-#include "../utils/gcd.h"      /* provides: seq_t gcd(seq_t a, seq_t b); */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Ensure that an array can hold at least 'need' elements. */
 static void ensure_cap(seq_t **arr, size_t *cap, size_t need)
@@ -26,7 +29,7 @@ static void ensure_cap(seq_t **arr, size_t *cap, size_t need)
     if (need > *cap) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
         if (new_cap < need) new_cap = need;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

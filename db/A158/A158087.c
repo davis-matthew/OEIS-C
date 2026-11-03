@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
  * Helpers:   digit_counts, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,8 +25,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"      /* bool is_prime(idx_t) */
-#include "../utils/digit_counts.h"  /* void digit_counts(seq_t, unsigned char[10]) */
+#include <stddef.h>
+#include "../utils/digit_counts.h"
+#include "../utils/is_prime.h"
 
 static inline bool test_digit_condition(seq_t p)
 {

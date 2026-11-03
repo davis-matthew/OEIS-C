@@ -9,6 +9,7 @@
  *            Product_{p|x} gcd(p-1, x-1) and μ is the Möbius function
  * Range:     i8 n <= 129, i16 n <= 8191, i32 n <= 8191, i64 n <= 8191,
  *            i128 n <= 8191, big any n
+ * Validated: standard, pass, 103 terms through n = 6273 (2026-11-01)
  * Helpers:   build_spf, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"
 #include "../utils/build_spf.h"
+#include "../utils/gcd.h"
 
 /* Smallest prime factor table (spf[0..limit]) */
 static idx_t *spf = NULL;       /* spf array */

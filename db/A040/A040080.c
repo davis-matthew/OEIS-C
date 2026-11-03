@@ -6,8 +6,9 @@
  * Keywords:  nonn, cofr, easy
  * Formula:   Continued fraction for sqrt(90): a(0) = 9 For n > 0: a(n) = 2 if
  *            n is odd, otherwise 18
- * Range:     u8 n <= 9430, u16 n <= 9430, u32 n <= 9430, u64 n <= 9430,
- *            u128 n <= 9430, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 82 terms through n = 9430 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

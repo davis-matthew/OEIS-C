@@ -7,19 +7,20 @@
  * Formula:   a(n) = 3^n - n^7
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 19, i64 n <= 39, i128 n <= 80,
  *            big any n
- * Helpers:   pow3, pow_seq
+ * Validated: standard, pass, 37 terms through n = 191 (2026-11-01)
+ * Helpers:   ipow_i32, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include "../utils/ipow_i32.h"
 #include "../utils/pow3.h"
-#include "../utils/pow_seq.h"
 
 seq_t a(idx_t n)
 {
     seq_t nseq = (seq_t)n;
     seq_t pow3_val = pow3(n);
-    seq_t pow7_val = pow_seq(nseq, 7);
+    seq_t pow7_val = ipow_i32(nseq, 7);
     return pow3_val - pow7_val;
 }

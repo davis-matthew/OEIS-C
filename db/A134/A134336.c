@@ -9,7 +9,8 @@
  *            decimal digits form a consecutive set
  * Range:     u8 n <= 60, u16 n <= 3191, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_consecutive
+ * Validated: standard, pass, 80 terms through n = 9707 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_consecutive.h"
+#include "../utils/mem.h"
+
+/* Helper: test if an integer has a consecutive digit set. */
+static bool is_consecutive(seq_t x)
+{
+    if (x == 0)
+        return true;                      /* {0} is a consecutive set */
+
+    bool seen[10] = { false };
+    int min_d = 9, max_d = 0, distinct = 0;
+
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (!seen[d]) {
+            seen[d] = true;
+            ++distinct;
+            if (d < min_d) min_d = d;
+            if (d > max_d) max_d = d;
+        }
+        x /= 10;
+    }
+    return (max_d - min_d + 1) == distinct;
+}
 
 /*
  * Sequence generator.
@@ -39,7 +62,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap) {
                 /* grow cache */
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) {
                     /* Allocation failed – terminate. */
                     exit(EXIT_FAILURE);

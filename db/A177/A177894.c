@@ -9,13 +9,44 @@
  *            cyclic permutations of the digits of n
  * Range:     i8 n <= 105, i16 n <= 9999, i32 n <= 9999, i64 n <= 9999,
  *            i128 n <= 9999, big any n
- * Helpers:   det_matrix
+ * Validated: standard, pass, 114 terms through n = 8925 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/det_matrix.h"
+
+static seq_t det_matrix(const seq_t *mat, int n)
+{
+    if (n == 1)
+        return mat[0];
+
+    seq_t result = 0;
+    seq_t minor[25];        /* buffer for minors (enough for at most 5×5). */
+
+    for (int j = 0; j < n; ++j) {
+        /* Build the minor excluding row 0 and column j. */
+        int mi = 0;
+        for (int i = 1; i < n; ++i) {
+            int mj = 0;
+            for (int k = 0; k < n; ++k) {
+                if (k == j)
+                    continue;
+                minor[mi * (n - 1) + mj] = mat[i * n + k];
+                ++mj;
+            }
+            ++mi;
+        }
+
+        seq_t subdet = det_matrix(minor, n - 1);
+        seq_t term = mat[0 * n + j] * subdet;
+        if (j & 1) term = -term;   /* alternating sign. */
+        result += term;
+    }
+
+    return result;
+}
 
 static seq_t det_matrix(const seq_t *mat, int n);
 

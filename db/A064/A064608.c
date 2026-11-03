@@ -12,13 +12,15 @@
  *            values within the native integer range
  * Range:     u8 n <= 74, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9626 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static state to allow memoisation across calls */
 static idx_t _max_n = 0;          /* highest n that has been computed so far     */
@@ -32,12 +34,12 @@ static void _ensure_up_to(idx_t n)
 
     /* allocate new arrays */
     uint8_t * omega_new = (uint8_t*)malloc((n + 1) * sizeof(uint8_t));
-    seq_t  * cum_new   = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t  * cum_new   = mem_new(seq_t, (n + 1));
     if (!omega_new || !cum_new) return; /* let the caller handle the failure */
 
     /* initialise 0 */
     memset(omega_new, 0, (n + 1) * sizeof(uint8_t));
-    memset(cum_new,   0, (n + 1) * sizeof(seq_t));
+    mem_set(cum_new, 0, (n + 1) * sizeof(seq_t));
 
     /* compute ω(k) via a simple prime‑sieve style loop */
     for (idx_t i = 2; i <= n; ++i) {
@@ -56,7 +58,7 @@ static void _ensure_up_to(idx_t n)
 
     /* discard old tables */
     free(_omega);
-    free(_cum);
+    mem_free(_cum);
 
     /* install the new tables */
     _omega = omega_new;

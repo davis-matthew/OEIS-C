@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 824, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 8145 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --- residues that a prime of the form 3*x^2+59*y^2 may have modulo 708 --- */
 static const uint16_t residues_list[] = {
@@ -95,7 +97,7 @@ static void fill_cache_until(size_t target)
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < target)
             new_cap = target;
-        seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, new_cap);
         if (!newp)
             abort();
         cache = newp;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(2*n-4,5) for n >= 5, a(n) = 0 for n < 5
  * Range:     u8 none, u16 n <= 7, u32 n <= 46, u64 n <= 200, u128 n <= 200,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 197 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

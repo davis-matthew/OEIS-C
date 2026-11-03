@@ -8,7 +8,8 @@
  *            prime (offset 1, a(1)=0)
  * Range:     u8 n <= 44, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   isPrime
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
             idx_t new_cap = terms_cap > 0 ? terms_cap * 2 : 16;
             if (new_cap < n) new_cap = n;
             /* realloc casted to seq_t* to satisfy C++ */
-            seq_t *tmp = (seq_t *)realloc(terms, (size_t)new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, (size_t)new_cap);
             if (!tmp) {
                 /* Allocation failure – return a null‑term */
                 return (seq_t)0;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
                    to avoid overflow for reasonably large cand.       */
                 idx_t val = (idx_t)(((__uint128_t)cand * cand) - 2 * cand + 5);
 
-                if (isPrime(val)) {
+                if (is_prime(val)) {
                     /* Store the term and break to generate next one. */
                     terms[terms_len++] = (seq_t)cand;
                     break;

@@ -11,13 +11,15 @@
  *            the triangle: * * T(0,0) = 1 * T(n,0) = 1 * T(n,...
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 23, u64 n <= 47, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 1280 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Static state: array of pointers to already computed rows.
  * rows[i] points to an array of length i+1 containing T(i,0)…T(i,i). */
@@ -50,7 +52,7 @@ ensure_rows(idx_t required_row)
 
         /* Compute new row i = rows_count. */
         idx_t i = rows_count;
-        seq_t *row = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (!row)
             return;                     /* out of memory */
         row[0] = (seq_t)1;               /* first element is always 1 */

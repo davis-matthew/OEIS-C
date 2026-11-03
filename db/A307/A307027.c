@@ -11,13 +11,60 @@
  *            flattened sequence
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 35, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   count_paths_internal
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/count_paths_internal.h"
+
+/* ---------- count undirected paths for given m <= n in K_{m,n} ---------- */
+static inline seq_t count_paths_internal(seq_t m, seq_t n)
+{
+    seq_t total = 0;
+
+    if (m == 0 || n == 0) return 0;
+
+    /* --- start on the m side ------------------------------------------------ */
+    seq_t prod = m * n;            /* length 1 (one edge) */
+    total += prod;
+    idx_t usedM = 1, usedN = 1;    /* vertices already used */
+
+    for (idx_t e = 2; ; ++e) {     /* ex = number of edges (e) */
+        if (e & 1) {               /* odd edge → vertex from n side */
+            if (usedN >= n) break;
+            prod *= (n - (seq_t)usedN);
+            ++usedN;
+        } else {                   /* even edge → vertex from m side */
+            if (usedM >= m) break;
+            prod *= (m - (seq_t)usedM);
+            ++usedM;
+        }
+        total += prod;
+    }
+
+    /* --- start on the n side ---------------------------------------------- */
+    prod = m * n;
+    total += prod;
+    usedM = 1;
+    usedN = 1;
+
+    for (idx_t e = 2; ; ++e) {
+        if (e & 1) {               /* odd edge → vertex from m side */
+            if (usedM >= m) break;
+            prod *= (m - (seq_t)usedM);
+            ++usedM;
+        } else {                   /* even edge → vertex from n side */
+            if (usedN >= n) break;
+            prod *= (n - (seq_t)usedN);
+            ++usedN;
+        }
+        total += prod;
+    }
+
+    return total >> 1;             /* each undirected path counted twice */
+}
 
 /* ---------- helper: integer square root (floor) for 64‑bit values ---------- */
 static inline idx_t isqrt_u64(idx_t v)

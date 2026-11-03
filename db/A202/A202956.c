@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 38, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Configuration ---------- */
 #define MAX_N 10000                          /* maximum index supported   */
@@ -64,8 +66,8 @@ static void init(void)
 
     /* allocate DP arrays */
     for (int t = 0; t < 3; ++t) {
-        cur[t] = (seq_t *)malloc(sizeof(seq_t) * ARRAY_SZ);
-        nxt[t] = (seq_t *)malloc(sizeof(seq_t) * ARRAY_SZ);
+        cur[t] = mem_new(seq_t, ARRAY_SZ);
+        nxt[t] = mem_new(seq_t, ARRAY_SZ);
         clear_arr(cur[t]);
         clear_arr(nxt[t]);
 

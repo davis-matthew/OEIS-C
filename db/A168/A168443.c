@@ -10,7 +10,8 @@
  *            T(n,k) counts compositions of n into k parts a(1)…a(k) with
  *            a(i+1) ≤ a(i)+1
  * Range:     u8 n <= 97, u16 n <= 289, u32 n <= 1014, u64 n <= 3703,
- *            u128 n <= 8702, big any n
+ *            u128 n <= 13956, big any n
+ * Validated: standard, pass, 107 terms through n = 8702 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

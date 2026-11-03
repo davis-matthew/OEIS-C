@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     i8 n <= 17, i16 n <= 51, i32 n <= 182, i64 n <= 689,
  *            i128 n <= 1274, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1232 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence of coefficients of Fermat‑Lucas polynomials.
    Let c[n][k] be the coefficient of y^k in F(n).  The polynomials are
@@ -44,7 +46,7 @@ static void ensure_rows(idx_t r)
 
     for (idx_t n = max_row; n <= r; ++n)
     {
-        poly[n] = (seq_t*)calloc(n+1, sizeof(seq_t));
+        poly[n] = mem_new(seq_t, n+1);
         if (!poly[n]) abort();
 
         if (n == 0)                 /* original definition */

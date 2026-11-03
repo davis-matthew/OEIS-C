@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------------
  * Sieve of Eratosthenes – generate all primes ≤ limit
@@ -110,7 +112,7 @@ static void recompute_twin_pack(idx_t limit)
             for (size_t k = block_start; k <= block_end; ++k) {
                 if (tmp_cnt == tmp_cap) {
                     size_t new_cap = (tmp_cap == 0) ? 16 : (tmp_cap << 1);
-                    seq_t *new_pl = (seq_t *)realloc(tmp, new_cap * sizeof(seq_t));
+                    seq_t *new_pl = mem_resize(seq_t, tmp, new_cap);
                     if (!new_pl) abort();
                     tmp = new_pl;
                     tmp_cap = new_cap;
@@ -127,7 +129,7 @@ static void recompute_twin_pack(idx_t limit)
     free(start);
 
     /* Replace the old global list */
-    free(twin_list);
+    mem_free(twin_list);
     twin_list  = tmp;
     twin_count = tmp_cnt;
     twin_cap   = tmp_cap;

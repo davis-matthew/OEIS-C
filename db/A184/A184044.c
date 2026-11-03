@@ -9,27 +9,29 @@
  *            2^((n+3)/2) + 73 for n odd
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 62, u128 n <= 126,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 49 terms through n = 195 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     const seq_t two = 2;
     const seq_t const73 = 73;
-    seq_t pow2_nplus1 = big_pow(two, (seq_t)(n + 1));
+    seq_t pow2_nplus1 = ipow(two, (seq_t)(n + 1));
 
     if ((n & 1) == 0) {                /* n is even */
         seq_t half      = n / 2;
-        seq_t pow2_half = big_pow(two, (seq_t)half);
+        seq_t pow2_half = ipow(two, (seq_t)half);
         return pow2_nplus1 + (seq_t)3 * pow2_half + const73;
     } else {                            /* n is odd */
         seq_t halfplus      = (n + 3) / 2;
-        seq_t pow2_halfplus = big_pow(two, (seq_t)halfplus);
+        seq_t pow2_halfplus = ipow(two, (seq_t)halfplus);
         return pow2_nplus1 + pow2_halfplus + const73;
     }
 }

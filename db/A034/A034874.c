@@ -7,14 +7,16 @@
  * Formula:   a(1) = 1; for n ≥ 2, a(n) = n * reverse_decimal(a(n‑1))
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 14, u64 n <= 22, u128 n <= 33,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: standard, pass, 39 terms through n = 244 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/reverse_decimal.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache    = NULL;   /* 1‑based: cache[i‑1] = a(i) */
@@ -26,11 +28,11 @@ seq_t a(idx_t n) {
     /* Ensure enough capacity */
     if (n > cache_cap) {
         idx_t new_cap = n;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { /* allocation failed */ return (seq_t)0; }
         /* Zero the newly allocated part */
         if (new_cap > cache_cap) {
-            memset(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+            mem_set(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         }
         cache     = tmp;
         cache_cap = new_cap;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
         if (i == 1) {
             cache[0] = (seq_t)1;
         } else {
-            seq_t rev = reverse_decimal(cache[i - 2]);
+            seq_t rev = reverse_digits(cache[i - 2]);
             cache[i - 1] = (seq_t)i * rev;
         }
     }

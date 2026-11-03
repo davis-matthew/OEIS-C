@@ -9,7 +9,8 @@
  *            contains a prime number of 0-bits and a prime number of 1-bits
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cache of found terms                     */
 static size_t cache_size = 0;     /* number of terms stored                   */
@@ -54,7 +56,7 @@ static void ensure_cache_capacity(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < need) new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     cache_cap = new_cap;
 }
 

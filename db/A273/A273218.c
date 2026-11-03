@@ -9,13 +9,15 @@
  *            the binomial coefficient)
  * Range:     i8 n <= 16, i16 n <= 31, i32 n <= 60, i64 n <= 115,
  *            i128 n <= 225, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;          /* array of coefficients, 1‑based */
 static idx_t A_len = 0;          /* highest index currently computed */
@@ -24,8 +26,8 @@ static idx_t A_len = 0;          /* highest index currently computed */
 static void compute_up_to(idx_t limit)
 {
     if (limit == 0) return;
-    if (A) free(A);
-    A = (seq_t *)calloc((size_t)(limit + 1), sizeof(seq_t));
+    if (A) mem_free(A);
+    A = mem_new(seq_t, (size_t)(limit + 1));
     if (!A) return;          /* allocation failure → undefined behaviour */
 
     A[1] = (seq_t)1;          /* a(1) = 1 */

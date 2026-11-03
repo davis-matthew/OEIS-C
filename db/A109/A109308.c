@@ -8,14 +8,17 @@
  *            is also prime
  * Range:     u8 n <= 11, u16 n <= 666, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 62 terms through n = 964 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_uint64.h"   /* bool is_prime_uint64(uint64_t) */
+#include <stdint.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *lesser    = NULL;   /* array of found terms */
 static idx_t  less_cap  = 0;      /* allocated capacity of the array */
@@ -38,11 +41,11 @@ static void add_term(seq_t val)
 {
     if (less_cnt == less_cap) {
         idx_t new_cap = (less_cap == 0) ? 128 : less_cap * 2;
-        seq_t *new_ptr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_new(seq_t, new_cap);
         if (lesser) {
             for (idx_t i = 0; i < less_cnt; ++i)
                 new_ptr[i] = lesser[i];
-            free(lesser);
+            mem_free(lesser);
         }
         lesser = new_ptr;
         less_cap = new_cap;
@@ -57,9 +60,9 @@ seq_t a(idx_t n)
 
     while (less_cnt < n) {
         /* test next_candidate */
-        if (is_prime_uint64(next_candidate)) {
+        if (is_prime_u64(next_candidate)) {
             uint64_t rev = rev_uint64(next_candidate);
-            if (rev > next_candidate && is_prime_uint64(rev)) {
+            if (rev > next_candidate && is_prime_u64(rev)) {
                 add_term((seq_t)next_candidate);
             }
         }

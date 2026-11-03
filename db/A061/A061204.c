@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=1..n} τ₅(k) * ⌊n/k⌋
  * Range:     u8 n <= 11, u16 n <= 251, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom, build_spf
+ * Validated: standard, pass, 63 terms through n = 9895 (2026-11-03)
+ * Helpers:   binomial, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
     τ₅(k) = Π_{p^e‖k} C(e+4,4). */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/build_spf.h"
-#include "../utils/binom.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +39,8 @@ seq_t a(idx_t n)
         build_spf(n, &spf);
 
         /* Allocate a new τ₅ array of the required size. */
-        if (tau5) free(tau5);
-        tau5 = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        if (tau5) mem_free(tau5);
+        tau5 = mem_new(seq_t, (n + 1));
         if (!tau5) return 0;          /* allocation failure – unlikely for n ≤ 10000 */
 
         tau5[0] = 0;                  /* unused entry */
@@ -55,7 +58,7 @@ seq_t a(idx_t n)
                     ++e;
                 }
                 /* Multiply by the binomial coefficient C(e+4,4). */
-                tau *= binom(e + 4, 4);
+                tau *= binomial(e + 4, 4);
             }
             tau5[k] = tau;
         }

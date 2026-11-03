@@ -11,7 +11,8 @@
  *            possible (t, s) states modulo 6
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t dp[6][6];
 static seq_t dp_next[6][6];
@@ -37,7 +39,7 @@ static void init(void)
     if (!cache)
     {
         cache_capacity = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_capacity);
+        cache = mem_new(seq_t, cache_capacity);
         cache[0] = 0;                  /* unused; a(0) not defined */
     }
     computed_n = 0;                    /* length 0 computed */
@@ -50,7 +52,7 @@ static void ensure_cache_capacity(idx_t n)
         return;
 
     size_t new_capacity = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_capacity);
+    seq_t *new_cache = mem_resize(seq_t, cache, new_capacity);
     if (!new_cache)
         abort();                       /* allocation failed */
     /* initialise newly allocated entries to zero */

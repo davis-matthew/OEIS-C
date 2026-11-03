@@ -6,16 +6,18 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 4*k^3-5 where k is the n-th positive integer such that
  *            4*k^3-5 is prime
- * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 30, u64 n <= 30, u128 n <= 30,
- *            big any n
- * Helpers:   is_prime_uint64
+ * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 157, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 46 terms through n = 1000 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         __int128 val128 = cube * 4 - 5;
         uint64_t val = (uint64_t)val128;   /* fits for n up to ~10000 */
 
-        if (is_prime_uint64(val)) {
+        if (is_prime_u64(val)) {
             ++count;
             if (count == n)
                 return (seq_t)val;

@@ -7,12 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} k^n
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 31,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 38 terms through n = 425 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
             /* 0^0 is treated as 1; otherwise 0^n = 0 */
             term = (n == 0) ? (seq_t)1 : (seq_t)0;
         } else {
-            term = big_pow((seq_t)k, (seq_t)n);
+            term = ipow((seq_t)k, (seq_t)n);
         }
         sum += term;
     }

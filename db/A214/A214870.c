@@ -14,15 +14,57 @@
  *            entry. All arithmetic is performed in the seq_t ty...
  * Range:     u8 n <= 136, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   _T_table, isqrt_u64
+ * Validated: standard, pass, 82 terms through n = 8312 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isqrt_u64.h"   /* provides isqrt_u64() */
-#include "../utils/_T_table.h"
+#include <stdlib.h>
+#include "../utils/isqrt_u64.h"
+
+static inline seq_t _T_table(idx_t n, idx_t k)
+{
+    seq_t N = n;
+    seq_t K = k;
+
+    /* Helper constants in seq_t */
+    const seq_t two = (seq_t)2;
+    const seq_t one = (seq_t)1;
+
+    if (n <= k) {
+        seq_t term = K * K;
+
+        seq_t n_parity = (seq_t)(n % 2);
+        seq_t nk1_parity = (seq_t)((n + 1) % 2);
+
+        /* term -= 2 * (n mod 2) * K */
+        term -= two * n_parity * K;
+
+        /* term += (n mod 2) * ((n+1)/2 + 1) */
+        term += n_parity * (((N + one) / two) + one);
+
+        /* term += ((n+1) mod 2) * ( - (n/2) + 1 ) */
+        term += nk1_parity * ( - (N / two) + one );
+
+        return term;
+    } else {
+        seq_t term = N * N - N;
+
+        seq_t k_parity = (seq_t)(k % 2);
+        seq_t kp1_parity = (seq_t)((k + 1) % 2);
+
+        /* term += (k mod 2) * (2 - (k+1)/2) */
+        term += k_parity * (two - ((K + one) / two));
+
+        /* term += ((k+1) mod 2) * (k/2 + 1) */
+        term += kp1_parity * ((K / two) + one);
+
+        return term;
+    }
+}
 
 seq_t a(idx_t n)
 {

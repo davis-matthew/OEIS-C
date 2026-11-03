@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  External types supplied by the build; do NOT redefine them.  */
  /*  seq_t : the sequence value type                               */
@@ -98,7 +100,7 @@ static void append_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         terms_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_terms = (seq_t*)realloc(seq_terms, terms_cap * sizeof(seq_t));
+        seq_terms = mem_resize(seq_t, seq_terms, terms_cap);
         if (!seq_terms) exit(1);
     }
     seq_terms[terms_len++] = val;

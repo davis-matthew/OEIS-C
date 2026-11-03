@@ -11,12 +11,14 @@
  *            for n up to at least 10 000 within the time limits
  * Range:     u8 n <= 33, u16 n <= 73, u32 n <= 188, u64 n <= 543,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for partition numbers */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* Grow the cache to hold p[0..n] */
     if (n + 1 > psize) {
         size_t newsize = (size_t)(n + 1);
-        seq_t *newp = (seq_t *)realloc(p, newsize * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, p, newsize);
         if (!newp) abort();              /* fatal: out of memory */
         p = newp;
         /* compute new partition values */

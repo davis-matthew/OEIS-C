@@ -7,6 +7,7 @@
  * Formula:   a(n) = 0 for even n, 9 for odd n (i.e., a(n) = (n mod 2) * 9)
  * Range:     i8 n <= 26, i16 n <= 26, i32 n <= 26, i64 n <= 26, i128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

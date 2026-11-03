@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         size_t stride = new_dim + 1;               /* 1‑based indices */
         size_t new_size = stride * stride;        /* number of elements */
 
-        seq_t *new_mat = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_mat = mem_new(seq_t, new_size);
         if (!new_mat)
             return 0; /* out of memory – caller will not expect this case */
 
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
 
         /* Replace old table. */
         if (matrix)
-            free(matrix);
+            mem_free(matrix);
         matrix = new_mat;
         current_dim = new_dim;
     }

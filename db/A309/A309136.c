@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 1268, u64 n <= 1268,
  *            u128 n <= 1268, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 1022 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* comparator for qsort on seq_t values */
 static int cmp_seq_t(const void *a, const void *b)
@@ -44,7 +46,7 @@ static void init_sequence(void)
     const idx_t XMAX = 500;
     /* initial capacity for candidate values */
     const size_t INIT_CAP = 2000000;
-    seq_t *vec = (seq_t *)malloc(INIT_CAP * sizeof(seq_t));
+    seq_t *vec = mem_new(seq_t, INIT_CAP);
     size_t veclen = 0;
     size_t veccap = INIT_CAP;
 
@@ -65,14 +67,14 @@ static void init_sequence(void)
                 if (veclen == veccap)
                 {
                     veccap *= 2;
-                    vec = (seq_t *)realloc(vec, veccap * sizeof(seq_t));
+                    vec = mem_resize(seq_t, vec, veccap);
                 }
                 vec[veclen++] = (seq_t)tmp;
             }
         }
     }
 
-    qsort(vec, veclen, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(vec, veclen, sizeof(seq_t), cmp_seq_t);
 
     /* collect the first 10 000 unique values */
     size_t needed = 10000;
@@ -91,7 +93,7 @@ static void init_sequence(void)
         }
     }
 
-    free(vec);
+    mem_free(vec);
     seq_inited = true;
 }
 

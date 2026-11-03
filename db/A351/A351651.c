@@ -9,7 +9,8 @@
  * Formula:   a(n) = A004159(A351650(n)) / A007953(A351650(n))
  * Range:     u8 n <= 8, u16 n <= 82, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
             if (size == cap)
             {
                 size_t newcap = cap ? cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(quotients, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, quotients, newcap);
                 if (!tmp) return 0; /* allocation failure; caller may handle */
                 quotients = tmp;
                 cap = newcap;

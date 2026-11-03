@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 56, u32 n <= 136, u64 n <= 349,
  *            u128 n <= 952, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 7853 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *data   = NULL;   /* flattened sequence values      */
 static size_t capacity = 0;    /* allocated capacity in seq_t    */
@@ -44,7 +46,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= capacity) return;
     size_t newcap = capacity ? capacity << 1 : 64;
     while (newcap < needed) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(data, newcap * sizeof *data);
+    seq_t *tmp = mem_resize(seq_t, data, (newcap * sizeof *data) / sizeof(seq_t));
     data = tmp;
     capacity = newcap;
 }

@@ -9,13 +9,24 @@
  *            does not
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_67
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/contains_67.h"
+
+/* Helper: returns true if x contains substring "67" in its decimal representation. */
+static bool contains_67(seq_t x)
+{
+    while (x >= 10) {
+        if ((x % 100) == 67)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

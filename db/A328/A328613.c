@@ -9,14 +9,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = product of the final m and p values after the iterative
  *            valuation process described for OEIS sequence A328613
- * Range:     u8 n <= 29, u16 n <= 863, u32 n <= 8502, u64 n <= 8502,
- *            u128 n <= 8502, big any n
- * Helpers:   next_prime, pow_uint
+ * Range:     u8 n <= 29, u16 n <= 863, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 98 terms through n = 8502 (2026-11-01)
+ * Helpers:   ipow_u64_idx, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_u64_idx.h"
 #include "../utils/next_prime.h"
 
 seq_t a(idx_t n)
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
 
         if (val > 0)
         {
-            m *= pow_uint(p, val);   /* multiply by p^val */
+            m *= ipow_u64_idx(p, val);   /* multiply by p^val */
         }
 
         x /= p;           /* floor division by p */

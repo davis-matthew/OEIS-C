@@ -11,6 +11,7 @@
  *            The triangle is flattened row by row
  * Range:     i8 n <= 192, i16 n <= 1325, i32 n <= 1325, i64 n <= 1325,
  *            i128 n <= 1325, big any n
+ * Validated: standard, pass, 107 terms through n = 1288 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,16 +8,18 @@
  *            coin-change DP with parts 1,1,2,3,4,5
  * Range:     u8 n <= 13, u16 n <= 54, u32 n <= 565, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 8929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
 	static const int parts[6] = { 1, 1, 2, 3, 4, 5 };
-	seq_t *f = (seq_t *)malloc(((size_t)n + 1) * sizeof(seq_t));
+	seq_t *f = mem_new(seq_t, ((size_t)n + 1));
 	seq_t r;
 	idx_t i;
 	int k;
@@ -30,6 +32,6 @@ seq_t a(idx_t n) {
 			f[i] += f[i - p];
 	}
 	r = f[n];
-	free(f);
+	mem_free(f);
 	return r;
 }

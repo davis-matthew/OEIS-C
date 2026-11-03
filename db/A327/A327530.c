@@ -12,15 +12,18 @@
  *            checks the gcd condition
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi, factor_u64
+ * Validated: standard, pass, 102 terms through n = 8966 (2026-11-01)
+ * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
 
 /* Euclidean algorithm on idx_t */
 static inline idx_t gcd_idx(idx_t a, idx_t b)
@@ -71,7 +74,7 @@ seq_t a(idx_t n)
     /* Compute prime indices for the prime factors. */
     idx_t prime_idx[64];
     for (size_t i = 0; i < cnt; ++i) {
-        seq_t pi_val = compute_pi(primes[i]);   /* returns seq_t, fits in idx_t */
+        seq_t pi_val = prime_pi(primes[i]);   /* returns seq_t, fits in idx_t */
         prime_idx[i] = (idx_t)pi_val;
     }
 

@@ -13,7 +13,8 @@
  *            a(11)=13318, a(12)=21860, a(13)...
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* ensure we have space for indices 0..14 */
         cache_cap = (n + 1 > 15) ? (n + 1) : 15;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0; /* allocation failed */
 
         static const seq_t init[15] = {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     else if (n > cached_max) {
         size_t new_cap = n + 1;
         if (new_cap > cache_cap) {
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp) cache = tmp;
             cache_cap = new_cap;
         }

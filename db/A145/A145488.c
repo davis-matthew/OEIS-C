@@ -8,7 +8,8 @@
  *            6k+13 and 12k+13 are prime. Values are generated on demand
  * Range:     u8 n <= 46, u16 n <= 3849, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 71 terms through n = 8427 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static size_t _capacity = 0;
 static size_t _count   = 0;
@@ -29,7 +31,7 @@ static void _ensure_capacity(size_t needed)
     if (needed <= _capacity) return;
     size_t new_cap = _capacity ? _capacity << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *newptr = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, _cache, new_cap);
     _cache   = newptr;
     _capacity = new_cap;
 }
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;                    /* offset starts at 1 */
     if (!_cache) {                           /* first call */
         _capacity = 16;
-        _cache    = (seq_t *)calloc(_capacity, sizeof(seq_t));
+        _cache    = mem_new(seq_t, _capacity);
     }
     while (_count < n) {                     /* generate until we have enough */
         idx_t k = _next_k;

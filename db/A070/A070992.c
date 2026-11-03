@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
      a(2n+1) = 2*a(n-1) + a(n)   + 2
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoised terms */
 static idx_t max_cached = 0;     /* highest index cached so far */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
 
     if (max_cached == 0) {
         /* first time: allocate space for indices 0..2 */
-        cache = (seq_t *)malloc(sizeof(seq_t) * 3);
+        cache = mem_new(seq_t, 3);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)3;
         cache[2] = (seq_t)4;
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t n)
         return;                 /* already have enough */
 
     /* grow cache to size n+1 */
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) return;     /* allocation failure, but caller will handle */
     cache = new_cache;
 

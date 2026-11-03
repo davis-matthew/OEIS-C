@@ -7,13 +7,15 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = number of unordered triples of primes (p≤q≤r) with p+q+r
  *            = n
- * Range:     u8 n <= 376, u16 n <= 8445, u32 n <= 8445, u64 n <= 8445,
- *            u128 n <= 8445, big any n
+ * Range:     u8 n <= 376, u16 n <= 13036, u32 n <= 36000, u64 n <= 36000,
+ *            u128 n <= 36000, big any n
+ * Validated: standard, pass, 96 terms through n = 8445 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /* Computed by a simple sieve + enumeration. */
 
 #include <stdlib.h>

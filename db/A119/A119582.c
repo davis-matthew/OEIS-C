@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n^2 + n^3) * (binomial(2*n, n)) / 2
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 23, u128 n <= 23,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Uses the provided binomial helper from the utils library. */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

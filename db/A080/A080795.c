@@ -9,12 +9,14 @@
  *            affects only a(1).)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>      /* malloc, free */
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /*  a[0] .. a[cache_len-1]  */
 static idx_t  cache_len = 0;    /*  number of computed terms    */
@@ -28,11 +30,11 @@ static void ensure_cache(idx_t n)
     /* initialise on first use */
     if (cache_len == 0) {
         cache_len = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)1;                 /* a(0) = 1 */
 
         binom_len = 1;
-        binom = (seq_t*)malloc(sizeof(seq_t));
+        binom = mem_new(seq_t, 1);
         binom[0] = (seq_t)1;                 /* binom(0,0) = 1 */
     }
 
@@ -49,10 +51,10 @@ static void ensure_cache(idx_t n)
         if (row == 0) sum -= (seq_t)1;       /* subtract 0^0 for a(1) */
 
         /* grow cache to contain new_n */
-        seq_t *tmp = (seq_t*)realloc(cache, (new_n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_n + 1));
         if (!tmp) { /* malloc failure – terminate */
-            free(cache);
-            free(binom);
+            mem_free(cache);
+            mem_free(binom);
             exit(EXIT_FAILURE);
         }
         cache = tmp;
@@ -60,10 +62,10 @@ static void ensure_cache(idx_t n)
         ++cache_len;
 
         /* build next binomial row (length new_n+1 = row+2) */
-        seq_t *new_binom = (seq_t*)malloc((new_n + 1) * sizeof(seq_t));
+        seq_t *new_binom = mem_new(seq_t, (new_n + 1));
         if (!new_binom) {
-            free(cache);
-            free(binom);
+            mem_free(cache);
+            mem_free(binom);
             exit(EXIT_FAILURE);
         }
         new_binom[0] = (seq_t)1;
@@ -72,7 +74,7 @@ static void ensure_cache(idx_t n)
         }
         new_binom[new_n] = (seq_t)1;
 
-        free(binom);
+        mem_free(binom);
         binom = new_binom;
         binom_len = new_n + 1;
     }

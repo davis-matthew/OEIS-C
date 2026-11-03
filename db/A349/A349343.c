@@ -8,8 +8,9 @@
  * Formula:   a(n) = 0 if n is even; for odd n, a(n) = (-1)^k * n where k is
  *            the number of distinct odd prime factors of n, provided n is
  *            squarefree. Otherwise a(n)=0
- * Range:     i8 n <= 128, i16 n <= 9953, i32 n <= 9953, i64 n <= 9953,
- *            i128 n <= 9953, big any n
+ * Range:     i8 n <= 128, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 105 terms through n = 9953 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

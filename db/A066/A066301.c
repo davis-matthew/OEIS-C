@@ -9,15 +9,17 @@
  *            = A007947 (squarefree kernel)
  * Range:     u8 n <= 7784, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree, rad
+ * Validated: standard, pass, 106 terms through n = 9741 (2026-11-01)
+ * Helpers:   is_squarefree, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/rad.h"
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/radical.h"
 
 #define MAX_CACHE 10000   /* pre‑cache values for n <= 10 000 */
 
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     while (!is_squarefree((seq_t)cur)) {
         steps++;
         /* rad(cur) divides cur, and rad(cur) >= 2 */
-        seq_t rad_cur = rad(cur);
+        seq_t rad_cur = radical(cur);
         cur = cur / (idx_t)rad_cur;
     }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 23, u64 n <= 46, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 2156 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed coefficients p[n] for 0 ≤ n ≤ 10 of the numerator P(x).  */
 static const int P[11] = {
@@ -49,14 +51,14 @@ static void ensure_capacity(idx_t n)
 {
     if (seq_cache_size <= n) {
         idx_t new_size = n + 1;            /* indices 0 … n inclusive      */
-        seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) {                  /* allocation failed              */
             exit(1);
         }
         /* Copy any existing data to the new buffer. */
         if (seq_cache) {
-            memcpy(new_cache, seq_cache, seq_cache_size * sizeof(seq_t));
-            free(seq_cache);
+            mem_copy(new_cache, seq_cache, seq_cache_size * sizeof(seq_t));
+            mem_free(seq_cache);
         }
         seq_cache      = new_cache;
         seq_cache_size = new_size;

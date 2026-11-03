@@ -9,13 +9,15 @@
  *            squarefree] (a(0) = 1)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
         /* enlarge buffers */
         sqfree = (uint8_t*)realloc(sqfree, newCap * sizeof(uint8_t));
-        cache  = (seq_t *)realloc(cache,  newCap * sizeof(seq_t));
+        cache  = mem_resize(seq_t, cache, newCap);
 
         /* initialise all entries as square‑free */
         for (size_t i = 0; i < newCap; ++i)

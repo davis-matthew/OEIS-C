@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 934, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_cube
+ * Validated: standard, pass, 101 terms through n = 9746 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_cube.h"
+
+static inline idx_t mod_cube(idx_t x, idx_t n)
+{
+    /* Use 128‑bit arithmetic to avoid overflow for the product x*x*x */
+    unsigned __int128 t = (unsigned __int128)x * x % n;
+    return (idx_t)(t * x % n);
+}
 
 seq_t a(idx_t n)
 {

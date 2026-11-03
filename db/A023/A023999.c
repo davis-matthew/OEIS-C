@@ -8,6 +8,7 @@
  * Formula:   a(n) = (3n-1) * (2n-3)!/(n-2)! for n >= 2, a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 24,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 186 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

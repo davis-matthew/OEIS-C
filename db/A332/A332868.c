@@ -10,13 +10,15 @@
  *            A332757(m-1)^2 + 2^{2^{m-1}-1}
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 46, u128 n <= 93,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 47 terms through n = 2187 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static seq_t A332757[65];
 static int precomp_bits = 0;
@@ -42,7 +44,7 @@ static void ensure_precomp(idx_t n)
         seq_t prev  = A332757[m - 1];
         seq_t prev2 = prev * prev;
         uint64_t shiftexp = ((uint64_t)1 << (m - 1)) - 1;
-        seq_t pow2 = big_pow((seq_t)2, (seq_t)shiftexp);
+        seq_t pow2 = ipow((seq_t)2, (seq_t)shiftexp);
         A332757[m] = prev2 + pow2;
     }
     precomp_bits = need;

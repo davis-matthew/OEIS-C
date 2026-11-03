@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compile‑time constants */
 #define ROWS   81      /* 3^4 possible rows */
@@ -132,8 +134,8 @@ static size_t active_cap = 0;
 static void init_once(void) {
     precompute_rows();
     precompute_transitions();
-    dp = (seq_t*)malloc(STATE * sizeof(seq_t));
-    dp2 = (seq_t*)malloc(STATE * sizeof(seq_t));
+    dp = mem_new(seq_t, STATE);
+    dp2 = mem_new(seq_t, STATE);
     active_cap = STATE;
     active = (int*)malloc(active_cap * sizeof(int));
     next_active = (int*)malloc(active_cap * sizeof(int));
@@ -150,7 +152,7 @@ static void compute_up_to(idx_t target) {
     if (cache_cap < (size_t)target) {
         size_t new_cap = (cache_cap < 1024) ? 1024 : cache_cap * 2;
         if (new_cap < (size_t)target) new_cap = (size_t)target;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

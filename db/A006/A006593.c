@@ -11,14 +11,27 @@
  *            with each prescribed prod(2e+1) (exponents noni...
  * Range:     u8 n <= 14, u16 n <= 14, u32 n <= 35, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   seq_is_fixed_width
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
+#include <stdint.h>
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static long long pr1[24], pr3[24];
 static int primes_ready = 0;

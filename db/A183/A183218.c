@@ -7,19 +7,20 @@
  * Formula:   a(n) = n + Floor[1/2 + sqrt(n/2)]
  * Range:     u8 n <= 244, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   uint64_isqrt_u64
+ * Validated: standard, pass, 116 terms through n = 951 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/uint64_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* n is 1-based index, n >= 1 */
     idx_t n2 = n / 2;                     /* floor(n/2) */
-    idx_t k  = uint64_isqrt_u64(n2);      /* floor(sqrt(n/2)) */
+    idx_t k  = isqrt(n2);      /* floor(sqrt(n/2)) */
 
     /* Determine whether to add 1 to k.  Condition:
        (k + 0.5)^2 <= n/2   <=> 4*k^2 + 4*k + 1 <= 2*n   */

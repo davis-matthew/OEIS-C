@@ -8,7 +8,8 @@
  *            the n-th prime power > 1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   a3807_is_prime_power
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a3807_is_prime_power.h"
+
+static bool a3807_is_prime_power(uint64_t n) {
+    uint64_t p, m;
+    if (n < 2) return false;
+    p = 0;
+    if (n % 2 == 0) p = 2;
+    else {
+        uint64_t d;
+        for (d = 3; d * d <= n; d += 2) {
+            if (n % d == 0) { p = d; break; }
+        }
+        if (p == 0) return true; /* n is prime */
+    }
+    m = n;
+    while (m % p == 0) m /= p;
+    return m == 1;
+}
 
 seq_t a(idx_t n) {
     static uint64_t *pp = NULL;

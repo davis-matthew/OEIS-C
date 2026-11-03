@@ -10,15 +10,17 @@
  *            (-(-p^2)^(e+1)+1)/(p^2+1) if p ≡ 3,5,6 (mod 7)
  * Range:     i8 n <= 3, i16 n <= 16, i32 n <= 2845, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, pow_seq
+ * Validated: standard, pass, 61 terms through n = 9325 (2026-11-01)
+ * Helpers:   ipow_i32, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/pow_seq.h"
+#include <stddef.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     seq_t prod = (seq_t)1;
 
     while (nn > 1) {
-        uint64_t p = _smallest_prime_factor(nn);
+        uint64_t p = smallest_prime_factor(nn);
         uint64_t exp = 0;
         while (nn % p == 0) {
             nn /= p;
@@ -48,13 +50,13 @@ seq_t a(idx_t n)
         uint64_t pm = p % 7;
         if (pm == 1 || pm == 2 || pm == 4) {
             /* ((p^2)^(e+1)-1)/(p^2-1) */
-            seq_t num = pow_seq(p2, (int)(exp + 1)) - 1;
+            seq_t num = ipow_i32(p2, (int)(exp + 1)) - 1;
             seq_t den = p2 - 1;
             contrib = num / den;
         } else { /* pm == 3,5,6 */
             /* (-(-p^2)^(e+1)+1)/(p^2+1) */
             seq_t base = -(seq_t)p2;
-            seq_t num = -pow_seq(base, (int)(exp + 1)) + 1;
+            seq_t num = -ipow_i32(base, (int)(exp + 1)) + 1;
             seq_t den = p2 + 1;
             contrib = num / den;
         }

@@ -7,12 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 30, u64 n <= 61, u128 n <= 124,
  *            big any n
- * Helpers:   pow2_shift
+ * Validated: standard, pass, 48 terms through n = 178 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2_shift.h"
+#include "../utils/pow2.h"
 /*
  * Formula: a(3) = 1, otherwise a(n) = n*2^(n-3) - 2^(n-2) - 2   (n ≥ 4)
  * This implementation computes 2^(n-3) by repeated left shifts.
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
         return 1;
 
     /* For n ≥ 4 compute the formula */
-    seq_t two_n_minus3 = pow2_shift(n - 3);       /* 2^(n-3) */
+    seq_t two_n_minus3 = pow2(n - 3);       /* 2^(n-3) */
     seq_t two_n_minus2 = two_n_minus3 << 1;       /* 2^(n-2) */
 
     /* Evaluate: n*2^(n-3) - 2^(n-2) - 2 */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 5, u32 n <= 12, u64 n <= 29, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * returns the numerator of the n‑th convergent. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* First‑time allocation of the cache. */
     if (!cache) {
         cache_cap = 16;                          /* initial capacity */
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Initialise the first element if we haven't yet. */
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
             /* Grow the cache if necessary. */
             if (cache_len >= cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = next_p;
 

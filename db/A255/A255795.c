@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 19, u32 n <= 49, u64 n <= 107, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[25] = {
     0ULL,          /* unused, index 0 */
@@ -55,7 +57,7 @@ static void grow_cache(idx_t len)
     size_t new_cap = (cache_cap < 32) ? 32 : cache_cap;
     while (new_cap <= (size_t)len)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp && new_cap > 0)
         abort();                 /* unrecoverable allocation failure */
     cache = tmp;

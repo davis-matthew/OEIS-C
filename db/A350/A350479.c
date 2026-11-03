@@ -11,7 +11,8 @@
  *            over m in increasing order and accumulating cont...
  * Range:     i8 n <= 13, i16 n <= 32, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static data and helpers */
 static seq_t *seq = NULL;          /* sequence array, 1-based */
@@ -31,7 +33,7 @@ static void ensure_seq(idx_t need)
     if (need < seq_cap) return;
     idx_t cap = seq_cap ? seq_cap : 16;
     while (cap <= need) cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, cap);
     if (!tmp) abort();
     seq = tmp;
     if (cap > seq_cap) {

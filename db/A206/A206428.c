@@ -12,7 +12,8 @@
  *            correctly handles any n ≥ 0 using only integer...
  * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   _diagonal_index, _prefix_before_diagonal, pow2, pow3
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   pow2, pow3, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +22,25 @@
 #include <stdbool.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
-#include "../utils/_diagonal_index.h"
-#include "../utils/_prefix_before_diagonal.h"
+#include "../utils/triangular.h"
+
+static inline idx_t _diagonal_index(idx_t n)
+{
+    idx_t k = 0;
+    idx_t t = 0;
+    /* use 128‑bit arithmetic to avoid overflow when n is large */
+    while ((unsigned __int128)(t + (k + 1)) <= n) {
+        t += k + 1;
+        ++k;
+    }
+    return k;
+}
 
 seq_t a(idx_t n)
 {
     /* find diagonal index k such that sum_{i=0}^{k-1} (i+1) <= n < sum_{i=0}^{k} (i+1) */
     idx_t k = _diagonal_index(n);
-    idx_t before = _prefix_before_diagonal(k);
+    idx_t before = triangular(k);
     idx_t d = n - before;          /* position inside diagonal k   */
     idx_t i = d;                   /* row index                    */
     idx_t j = k - d;               /* column index                 */

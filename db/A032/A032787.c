@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 549, u32 n <= 2539, u64 n <= 2827,
  *            u128 n <= 2827, big any n
- * Helpers:   none
+ * Validated: full, pass, 2827 terms through n = 2827 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Comparison function for uint64_t values used by qsort. */
 static int cmp_uint64(const void *a, const void *b) {
@@ -116,7 +118,7 @@ seq_t a(idx_t n)
 
         /* ----------------------------------------------------
            5. Convert to seq_t array for public access. */
-        terms = (seq_t *)malloc(k_len * sizeof(seq_t));
+        terms = mem_new(seq_t, k_len);
         for (size_t i = 0; i < k_len; ++i) {
             terms[i] = (seq_t)ks_u[i];
         }

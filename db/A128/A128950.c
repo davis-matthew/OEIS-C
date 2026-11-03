@@ -9,12 +9,14 @@
  * Formula:   a(n) = 10^n - floor(10^n/7) - floor(10^n/30) + floor(10^n/210)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cached powers of 10: cache[i] = 10^i  (i >= 0) */
 static seq_t *cache = NULL;
@@ -26,7 +28,7 @@ static void grow_cache(idx_t needed)
     if (needed <= cache_cap) return;
     idx_t new_cap = cache_cap? cache_cap << 1 : 1;
     while (new_cap <= needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                /* allocation failed */
     cache = tmp;
     cache_cap = new_cap;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,10 @@
       a(n) = a(1)+⋯+a(n‑1) – a(m)
  */
 #include <stdlib.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,8 +41,8 @@ seq_t a(idx_t n)
     if (n > cached) {
         /* allocate or grow the arrays */
 #if defined(__cplusplus)
-        a_arr = reinterpret_cast<seq_t*>(realloc(a_arr, n * sizeof(seq_t)));
-        s_arr = reinterpret_cast<seq_t*>(realloc(s_arr, n * sizeof(seq_t)));
+        a_arr = reinterpret_cast<seq_t*>(mem_resize(seq_t, a_arr, n));
+        s_arr = reinterpret_cast<seq_t*>(mem_resize(seq_t, s_arr, n));
 #else
         a_arr = (seq_t*)realloc(a_arr, n * sizeof(seq_t));
         s_arr = (seq_t*)realloc(s_arr, n * sizeof(seq_t));
@@ -53,7 +57,7 @@ seq_t a(idx_t n)
             } else if (i == 3) {
                 val = (seq_t)3;
             } else {
-                idx_t p      = floor_log2_uint64(i - 2);
+                idx_t p      = ilog2(i - 2);
                 idx_t pow2   = ((idx_t)1) << (p + 1);
                 idx_t m      = 2 * i - 2 - pow2;      /* m < i by definition */
                 seq_t a_m    = a_arr[m - 1];

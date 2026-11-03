@@ -8,7 +8,8 @@
  *            p_k is the k-th prime
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 92, u64 n <= 8047,
  *            u128 n <= 10000, big any n
- * Helpers:   count_setbits
+ * Validated: standard, pass, 46 terms through n = 9886 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_setbits.h"
+#include "../utils/mem.h"
+
+/* compute a single element of the sequence */
+static inline uint64_t count_setbits(uint64_t x) {
+    uint64_t c = 0;
+    while (x) { x &= x - 1; c++; }
+    return c;
+}
 
 static seq_t *partial_sums = NULL;   /* sums[0] = 0, sums[i] = a(i) */
 static size_t sum_cap = 0;
@@ -50,7 +58,7 @@ static void init_sequence(void) {
 
     /* compute partial sums */
     sum_cap = primes_cnt + 1;
-    partial_sums = (seq_t*)malloc(sum_cap * sizeof(seq_t));
+    partial_sums = mem_new(seq_t, sum_cap);
     partial_sums[0] = 0;
 
     for (size_t k = 1; k <= primes_cnt; ++k) {
@@ -100,7 +108,7 @@ seq_t a(idx_t n) {
         primes = new_primes;
         size_t total_cnt = primes_cnt + new_cnt;
 
-        seq_t *new_sums = (seq_t*)realloc(partial_sums, (total_cnt + 1) * sizeof(seq_t));
+        seq_t *new_sums = mem_resize(seq_t, partial_sums, (total_cnt + 1));
         for (size_t k = primes_cnt + 1; k <= total_cnt; ++k) {
             uint64_t p = primes[k-1];
             unsigned __int128 val = 0;

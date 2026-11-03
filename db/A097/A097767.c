@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 371 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Sequence A097767: a(n) = 486*a(n-1) - a(n-2), with a(0)=1, a(1)=485.
    Uses memoization to support arbitrary order of calls. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
             while (newcap < needed) {
                 newcap <<= 1;
             }
-            cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, newcap);
             /* On a real judge we might handle realloc failure, but it is
                not required for the exercise. */
             cap = newcap;

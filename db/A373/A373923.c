@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^pi(d)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 104 terms through n = 9862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- helper: integer square root (floor) */
 static idx_t int_sqrt(idx_t n)
@@ -103,7 +105,7 @@ static void ensure_pi_cache(idx_t n)
     /* ensure primes list is large enough for pi computation */
     ensure_primes_up_to(n);
 
-    seq_t *new_pi = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_pi = mem_new(seq_t, (n + 1));
     if (!new_pi)
         return;                  /* allocation failed – should not happen */
 
@@ -121,7 +123,7 @@ static void ensure_pi_cache(idx_t n)
         new_pi[i] = last_val;
     }
 
-    free(pi_cache);
+    mem_free(pi_cache);
     pi_cache = new_pi;
     pi_cap   = n;
 }

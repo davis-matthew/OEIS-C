@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* ensure t_k up to index p is available */
     if (t_len == 0) {                        /* first call */
         size_t init_len = (size_t)p + 1;      /* at least 2 */
-        t_arr = (seq_t *)malloc(init_len * sizeof(seq_t));
+        t_arr = mem_new(seq_t, init_len);
         t_arr[0] = 2;
         t_arr[1] = 6;
         for (size_t i = 2; i < init_len; ++i)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         t_len = init_len;
     } else if (t_len <= (size_t)p) {         /* extend */
         size_t new_len = (size_t)p + 1;
-        t_arr = (seq_t *)realloc(t_arr, new_len * sizeof(seq_t));
+        t_arr = mem_resize(seq_t, t_arr, new_len);
         for (size_t i = t_len; i < new_len; ++i)
             t_arr[i] = 6 * t_arr[i - 1] - t_arr[i - 2];
         t_len = new_len;

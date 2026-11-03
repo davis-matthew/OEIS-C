@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{d|n, d<n} phi(n/d) * Sum_{c|d} mu(d/c) * 2^(c-1)
  * Range:     u8 n <= 17, u16 n <= 33, u32 n <= 65, u64 n <= 129,
  *            u128 n <= 257, big any n
- * Helpers:   pw2
+ * Validated: standard, pass, 66 terms through n = 902 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pw2.h"
+#include <stdlib.h>
+#include "../utils/pow2.h"
 
 static int moebius(uint64_t n) {
     int sign = 1;
@@ -53,8 +55,8 @@ seq_t a(idx_t n) {
         for (uint64_t c = 1; c <= d; c++) {
             if (d % c != 0) continue;
             int mu_val = moebius(d / c);
-            if (mu_val > 0) pos += pw2((idx_t)(c - 1));
-            else if (mu_val < 0) neg += pw2((idx_t)(c - 1));
+            if (mu_val > 0) pos += pow2((idx_t)(c - 1));
+            else if (mu_val < 0) neg += pow2((idx_t)(c - 1));
         }
         seq_t inner = pos - neg;
         total += (seq_t)phi(n64 / d) * inner;

@@ -8,7 +8,8 @@
  * Formula:   a(n) = a(n-1)+a(n-2)+3*a(n-3)+a(n-4)-a(n-5)-a(n-6) (n>11)
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 27, u64 n <= 56, u128 n <= 114,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /*                 a(8)=1568,a(9)=3362,a(10)=7200,a(11)=15488              */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* First 11 terms of the sequence */
 static const seq_t init_values[11] = {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache if first call */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((11 + 1) * sizeof(seq_t));  /* indices 0..11 */
+        cache = mem_new(seq_t, (11 + 1));  /* indices 0..11 */
         if (!cache) return (seq_t)0;  /* allocation failed – unlikely */
         for (idx_t i = 1; i <= 11; ++i)
             cache[i] = init_values[i - 1];
@@ -50,11 +52,11 @@ seq_t a(idx_t n)
 
     /* Extend the cache array to accommodate up to n */
     if (cache != NULL) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return (seq_t)0;  /* allocation failed – unlikely */
         cache = tmp;
     } else {
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         if (!cache) return (seq_t)0;
     }
 

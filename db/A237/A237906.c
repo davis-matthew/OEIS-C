@@ -13,14 +13,19 @@
  *            uses an automaton with 384 states (64 rows × 6 block‑diff pairs)
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 33,
  *            big any n
- * Helpers:   abs_int
+ * Validated: standard, pass, 31 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/abs_int.h"
+#include <stdlib.h>
+#include <string.h>
+
+/* simple absolute value for int */
+static inline int abs_int(int x) { return x < 0 ? -x : x; }
 
 /* Map from difference pairs to indices 0..5 */
 static int  val_idx_map[4][4];

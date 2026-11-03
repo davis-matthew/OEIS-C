@@ -8,7 +8,8 @@
  * Formula:   a(n) is the least unused composite k such that gcd(n,k) > 1
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <string.h>
 #include <stddef.h>
 #include "../utils/build_primes_upto.h"
-
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* stored values of a(1), a(2), … */
 static idx_t  cache_size = 0;        /* number of terms in cache */
@@ -99,7 +100,7 @@ seq_t a(idx_t n)
 
     /* Expand the cache if required */
     if (cache_size < n) {
-        seq_t *new_cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, n);
         if (!new_cache) abort();
         cache = new_cache;
         /* zero the new cache entries */

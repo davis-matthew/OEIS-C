@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 3761, u16 n <= 9154, u32 n <= 9154, u64 n <= 9154,
- *            u128 n <= 9154, big any n
- * Helpers:   none
+ * Range:     u8 n <= 3761, u16 n <= 10032, u32 n <= 10032, u64 n <= 10032,
+ *            u128 n <= 10032, big any n
+ * Validated: standard, pass, 95 terms through n = 9154 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * counts of sums consistent with the definition. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static tables for the sequence and its pair‑count array. */
 static seq_t *seq      = NULL;           /* a(n) values */
@@ -35,7 +37,7 @@ static void ensure_seq_cap(idx_t new_cap)
     if (new_cap <= seq_cap) return;
     idx_t old_cap = seq_cap;
     seq_cap = (new_cap > old_cap * 2) ? new_cap : old_cap * 2;
-    seq_t *new_ptr = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, seq, seq_cap);
     if (!new_ptr) abort();
     for (idx_t i = old_cap; i < seq_cap; ++i) new_ptr[i] = 0;
     seq = new_ptr;
@@ -46,7 +48,7 @@ static void ensure_cnt_cap(idx_t new_cap)
     if (new_cap <= cnt_cap) return;
     idx_t old_cap = cnt_cap;
     cnt_cap = (new_cap > old_cap * 2) ? new_cap : old_cap * 2;
-    seq_t *new_ptr = (seq_t*)realloc(cnt, cnt_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cnt, cnt_cap);
     if (!new_ptr) abort();
     for (idx_t i = old_cap; i < cnt_cap; ++i) new_ptr[i] = 0;
     cnt = new_ptr;
@@ -57,13 +59,13 @@ static void init_tables(void)
 {
     if (seq != NULL) return;
     seq_cap = 2;
-    seq = (seq_t*)calloc(seq_cap, sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     if (!seq) abort();
     seq[0] = 0;
     seq_last = 0;
 
     cnt_cap = 2;
-    cnt = (seq_t*)calloc(cnt_cap, sizeof(seq_t));
+    cnt = mem_new(seq_t, cnt_cap);
     if (!cnt) abort();
 }
 

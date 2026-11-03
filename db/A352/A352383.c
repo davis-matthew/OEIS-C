@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    where coeff(A^k, m) is the coefficient of x^m in A(x)^k. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of previously computed values and intermediate
@@ -32,11 +34,11 @@ seq_t a(idx_t n) {
     if (n >= cache_len) {
         idx_t new_cap = n + 1;
 
-        a_vals   = (seq_t*)realloc(a_vals,   new_cap * sizeof(seq_t));
-        p2_vals  = (seq_t*)realloc(p2_vals,  new_cap * sizeof(seq_t));
-        p3_vals  = (seq_t*)realloc(p3_vals,  new_cap * sizeof(seq_t));
-        p4_vals  = (seq_t*)realloc(p4_vals,  new_cap * sizeof(seq_t));
-        p6_vals  = (seq_t*)realloc(p6_vals,  new_cap * sizeof(seq_t));
+        a_vals   = mem_resize(seq_t, a_vals, new_cap);
+        p2_vals  = mem_resize(seq_t, p2_vals, new_cap);
+        p3_vals  = mem_resize(seq_t, p3_vals, new_cap);
+        p4_vals  = mem_resize(seq_t, p4_vals, new_cap);
+        p6_vals  = mem_resize(seq_t, p6_vals, new_cap);
 
         if (cache_len == 0) {            /* first-time initialisation */
             a_vals[0]   = 1;

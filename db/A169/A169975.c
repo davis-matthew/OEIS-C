@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 132, u16 n <= 347, u32 n <= 1012, u64 n <= 3278,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 9731 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    n/4, the total cost for a maximum n of 10000 is about 12.5 million
    elementary operations, well below the time limit. */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* initialise on first use */
     if (dp == NULL) {
-        dp = (seq_t *)realloc(NULL, sizeof(seq_t));
+        dp = mem_resize(seq_t, NULL, 1);
         if (!dp) abort();
         dp[0] = 1;    /* empty partition */
     }
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* Grow the array to accommodate the new maximum index. */
     size_t new_len = (size_t)(n + 1);
-    dp = (seq_t *)realloc(dp, new_len * sizeof(seq_t));
+    dp = mem_resize(seq_t, dp, new_len);
     if (!dp) abort();
 
     /* Initialise new positions and reset the table. */

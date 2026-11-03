@@ -8,6 +8,7 @@
  * Formula:   a(0) = 1; a(n) = 24 * A000593(n) for n > 0
  * Range:     u8 n <= 8, u16 n <= 1484, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 8650 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

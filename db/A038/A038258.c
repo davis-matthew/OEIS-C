@@ -8,14 +8,17 @@
  *            row‑major order of the triangle with offset 0
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Find the row index i such that i*(i+1)/2 <= n < (i+1)*(i+2)/2 */
 static idx_t
@@ -46,8 +49,8 @@ a(idx_t n)
 
     /* Compute the value binomial(i,j)*6^(i-j)*4^j. */
     seq_t binom = binomial(i, j);
-    seq_t pow6  = big_pow((seq_t)6, (seq_t)exp6);
-    seq_t pow4  = big_pow((seq_t)4, (seq_t)exp4);
+    seq_t pow6  = ipow((seq_t)6, (seq_t)exp6);
+    seq_t pow4  = ipow((seq_t)4, (seq_t)exp4);
 
     seq_t result = binom;
     result *= pow6;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} Sum_{k=1..d, gcd(k,d)=1} n^(k-1)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;          /* cached values of a(n) */
 static idx_t memo_cap = 0;          /* size of memo array */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Expand the memo array if necessary */
     if (n >= memo_cap) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (!tmp) abort();           /* allocation failed */
         /* initialise newly allocated slots to 0 */
         for (idx_t i = memo_cap; i < new_cap; ++i) tmp[i] = (seq_t)0;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (memo[n] != (seq_t)0) return memo[n];
 
     /* pre‑compute n^e for e = 0 .. n   (pow[0] = 1) */
-    seq_t *pow = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *pow = mem_new(seq_t, (n + 1));
     if (!pow) abort();
     pow[0] = (seq_t)1;
     seq_t base = (seq_t)n;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(pow);
+    mem_free(pow);
     memo[n] = sum;                 /* cache result */
     return sum;
 }

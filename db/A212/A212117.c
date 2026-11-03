@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 85, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   min_possible_sum
+ * Validated: partial, pass, 41 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/min_possible_sum.h"
+#include "../utils/mem.h"
+
+/* Minimal possible sum of the remaining r pairs.
+   First pair size starts greater than s_start.  Multiplicities are assigned
+   in decreasing order to the increasing sizes to achieve the minimum. */
+static inline idx_t min_possible_sum(idx_t r, idx_t s_start)
+{
+    idx_t sum = 0;
+    for (idx_t i = 0; i < r; ++i)
+    {
+        idx_t size = s_start + i + 1;   /* next available size, strictly increasing */
+        idx_t mult = r - i;             /* largest remaining multiplicity on smallest size */
+        sum += size * mult;
+    }
+    return sum;
+}
 
 /* seq_t and idx_t are defined by the build system. */
 static seq_t *counts = NULL;   /* counts[sum] = number of partitions of sum */
@@ -68,11 +84,11 @@ static void dfs(idx_t depth, idx_t last_size, idx_t sum_so_far)
 /* Build counts array up to n = up (inclusive). */
 static void build_counts(idx_t up)
 {
-    free(counts);   counts = NULL;
+    mem_free(counts);   counts = NULL;
     free(used_m);   used_m = NULL;
 
     max_n = up;
-    counts = (seq_t *)calloc((size_t)(max_n + 1), sizeof(seq_t));
+    counts = mem_new(seq_t, (size_t)(max_n + 1));
     used_m = (bool *)calloc((size_t)(max_n + 1), sizeof(bool));
 
     dfs(0, 0, 0);

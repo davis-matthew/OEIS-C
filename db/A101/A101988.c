@@ -12,7 +12,8 @@
  *            counted even if they produce the same prime)
  * Range:     u8 n <= 102, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 102 terms through n = 102 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 /* ------------------------------------------------------------------ */
 /*  Dynamically generate the list of primes up to a required count   */
@@ -42,7 +44,7 @@ static void build_primes_up_to(size_t need)
     uint64_t candidate = (prime_n == 0) ? 2 : prime_list[prime_n - 1] + 1;
     for (;;) {
         if (candidate == 2 || candidate % 2) {          /* odd numbers only */
-            if (is_prime(candidate)) {
+            if (is_prime_u64(candidate)) {
                 if (prime_n == prime_cap) {            /* grow array */
                     prime_cap <<= 1;
                     prime_list = (uint64_t *)realloc(
@@ -63,7 +65,7 @@ static void build_primes_up_to(size_t need)
 static void enumerate_permutations(int *cnt, int len, uint64_t cur, seq_t *out)
 {
     if (len == 0) {
-        if (cur >= 2 && is_prime(cur))
+        if (cur >= 2 && is_prime_u64(cur))
             (*out)++;
         return;
     }

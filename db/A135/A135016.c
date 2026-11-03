@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 29, u32 n <= 300, u64 n <= 300, u128 n <= 300,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 285 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build system */
 typedef idx_t idx_t;
@@ -134,7 +136,7 @@ generate_until(idx_t n_needed)
             /* Grow the cache if needed. */
             if (cache_size >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) {
                     /* In the unlikely event of allocation failure, abort. */
                     abort();

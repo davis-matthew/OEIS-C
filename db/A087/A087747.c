@@ -9,7 +9,8 @@
  *            in exactly n ways
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------ NTT parameters and helpers ------------ */
 #define MOD 998244353U
@@ -80,7 +82,7 @@ static void recompute_limit(idx_t new_limit)
 {
     /* free previous data */
     free(primes);
-    free(min_for_count);
+    mem_free(min_for_count);
 
     /* 1. Sieve of Eratosthenes */
     size_t N = (size_t)new_limit + 1;
@@ -133,7 +135,7 @@ static void recompute_limit(idx_t new_limit)
         if (unordered > max_count) max_count = unordered;
     }
 
-    min_for_count = (seq_t*)calloc(max_count + 1, sizeof(seq_t));
+    min_for_count = mem_new(seq_t, max_count + 1);
     for (idx_t s = 2; s <= new_limit; ++s) {
         size_t c = counts[s];
         if (c > 0 && min_for_count[c] == (seq_t)0)

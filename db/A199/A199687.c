@@ -7,7 +7,8 @@
  * Formula:   a(n) = 7*10^n + 1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence used for efficient computation: a(0) = 8, a(n) = 10*a(n-1)-9 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with a(0) */
     if (cache == NULL) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL) abort();            /* unlikely but safe */
         cache[0] = (seq_t)8;                   /* a(0) = 8 */
         cache_size = 1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* extend cache to accommodate a(n) */
     size_t old_size = cache_size;
     if (cache_size <= n) {
-        seq_t *tmp = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (tmp == NULL) abort();             /* unlikely but safe */
         cache = tmp;
         cache_size = n + 1;

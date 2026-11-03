@@ -7,6 +7,7 @@
  * Formula:   a(n) = Delete all 0's from ternary expansion of n
  * Range:     u8 n <= 363, u16 n <= 6561, u32 n <= 6561, u64 n <= 6561,
  *            u128 n <= 6561, big any n
+ * Validated: standard, pass, 89 terms through n = 6510 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

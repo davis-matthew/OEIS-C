@@ -7,9 +7,10 @@
  * Keywords:  nonn, base, fini, full
  * Formula:   a(n) is the n‑th prime < 1,000,000 sorted lexicographically in
  *            decimal representation
- * Range:     u8 none, u16 none, u32 n <= 9111, u64 n <= 9111, u128 n <= 9111,
- *            big any n
- * Helpers:   build_primes_upto
+ * Range:     u8 none, u16 none, u32 n <= 78498, u64 n <= 78498,
+ *            u128 n <= 78498, big any n
+ * Validated: full, pass, 78498 terms through n = 78498 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t *lex_primes = NULL;   /* sorted primes */
 static size_t   lex_count  = 0;
@@ -49,14 +52,14 @@ seq_t a(idx_t n)
         size_t    cnt  = 0;
         build_primes_upto(999999, &temp, &cnt);
 
-        lex_primes = (seq_t *)malloc(cnt * sizeof(seq_t));
+        lex_primes = mem_new(seq_t, cnt);
         for (size_t i = 0; i < cnt; ++i)
             lex_primes[i] = (seq_t)temp[i];
 
         free(temp);
         lex_count = cnt;
 
-        qsort(lex_primes, lex_count, sizeof(seq_t), cmp_lex);
+        mem_qsort(lex_primes, lex_count, sizeof(seq_t), cmp_lex);
         init_done = true;
     }
 

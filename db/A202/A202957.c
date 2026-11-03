@@ -9,13 +9,15 @@
  *            and adjacent elements differing in absolute value
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 26, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
        current and next states.                                 */
     seq_t *dp[4], *next[4];
     for (int a = 0; a < 4; ++a) {
-        dp[a]   = (seq_t *)calloc(range, sizeof(seq_t));
-        next[a] = (seq_t *)calloc(range, sizeof(seq_t));
+        dp[a]   = mem_new(seq_t, range);
+        next[a] = mem_new(seq_t, range);
     }
 
     /* ----- initialisation for length 1 --------------------------------- */
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
         /* zero only the part of the new buffer that will be written */
         for (int a = 0; a < 4; ++a) {
-            memset(next[a] + new_min, 0, new_len * sizeof(seq_t));
+            mem_set(next[a] + new_min, 0, new_len * sizeof(seq_t));
         }
 
         /* iterate over all currently reachable sums */
@@ -108,8 +110,8 @@ seq_t a(idx_t n)
 
     /* free temporary storage */
     for (int a = 0; a < 4; ++a) {
-        free(dp[a]);
-        free(next[a]);
+        mem_free(dp[a]);
+        mem_free(next[a]);
     }
 
     return result;

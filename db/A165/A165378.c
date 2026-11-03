@@ -11,6 +11,7 @@
  * Formula:   a(2) = 33, a(3) = 94, and for n ≥ 4: a(n) = 9*n^2 + 4*n – 2
  * Range:     u8 n <= 5, u16 n <= 85, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
+ * Validated: standard, pass, 58 terms through n = 97 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

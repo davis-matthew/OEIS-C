@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   cmp64, determinant
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,22 @@
 /* Standard headers required by the build environment. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/cmp64.h"
-#include "../utils/determinant.h"
+
+/* Comparator for qsort on int64_t values. */
+static int cmp64(const void *p, const void *q)
+{
+    int64_t a = *(const int64_t *)p;
+    int64_t b = *(const int64_t *)q;
+    return (a < b) ? -1 : (a > b) ? 1 : 0;
+}
+
+/* Determinant of a 3×3 matrix stored in a 9-element array. */
+static inline int64_t determinant(const int *a)
+{
+    return (int64_t)a[0] * ((int64_t)a[4] * a[8] - (int64_t)a[5] * a[7])
+         - (int64_t)a[1] * ((int64_t)a[3] * a[8] - (int64_t)a[5] * a[6])
+         + (int64_t)a[2] * ((int64_t)a[3] * a[7] - (int64_t)a[4] * a[6]);
+}
 
 /* Generate next lexicographic permutation of an array of 9 ints.
    Return 1 if a next permutation exists, 0 otherwise.                     */

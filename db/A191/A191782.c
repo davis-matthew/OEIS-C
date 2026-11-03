@@ -8,11 +8,13 @@
  * Formula:   a(n) = binomial(n+2, ⌊n/2⌋+1) - binomial(n, ⌊n/2⌋) - 1
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 65, u128 n <= 130,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 984 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t binom(idx_t n, idx_t k)

@@ -8,12 +8,14 @@
  *            values a(0)=1, a(1)=2, a(2)=2, a(3)=-1
  * Range:     i8 n <= 10, i16 n <= 23, i32 n <= 49, i64 n <= 98, i128 n <= 194,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 489 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* cache holds computed values from 0 up to the largest n seen */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     if (new_size < 4) new_size = 4;
 
     /* Grow the cache array */
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();          /* allocation failure */
     cache = tmp;
 

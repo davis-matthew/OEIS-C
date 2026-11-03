@@ -7,12 +7,14 @@
  * Formula:   a(n) = n*(n+1)*a(n-1) + 1 with a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 234 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;      /* array of computed terms */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* Allocate or grow the cache to hold indices up to n */
     if (first_call || n + 1 > cache_size) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);          /* allocation failed */
         cache = tmp;
         cache_size = new_cap;

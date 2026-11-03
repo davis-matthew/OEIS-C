@@ -10,7 +10,8 @@
  *            a(5)=324, a(6)=576, a(7)=1024, a(8)=1764)
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 34, u64 n <= 73, u128 n <= 152,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #if defined(__cplusplus)
 #   include <new>
 #endif
+#include "../utils/mem.h"
 
 static const seq_t base_vals[9] =
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* Ensure enough space in the cache to store up to index n */
     if ((size_t)n + 1 > capacity) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* In a real system we might abort or handle the error,
                but for this sequence calculation we assume allocation succeeds. */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         /* Construct any new elements if seq_t has a non‑trivial constructor */
 #if defined(__cplusplus)
         for (size_t i = capacity; i < new_cap; ++i) {
-            new(&tmp[i]) seq_t();
+            *(&tmp[i]) = (seq_t)0;
         }
 #endif
         cache = tmp;

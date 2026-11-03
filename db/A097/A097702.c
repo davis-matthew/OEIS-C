@@ -7,7 +7,8 @@
  * Formula:   a(n) = (A063880(n) - 108) / 216
  * Range:     u8 n <= 157, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree_odd
+ * Validated: standard, pass, 84 terms through n = 9335 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_squarefree_odd.h"
+#include "../utils/mem.h"
+
+/* test whether an odd integer m is squarefree */
+static bool is_squarefree_odd(uint64_t m)
+{
+    for (uint64_t p = 3; p * p <= m; p += 2)
+        if (m % (p * p) == 0) return false;
+    return true;
+}
 
 /* static cache for computed k values */
 static seq_t *cache      = NULL;
@@ -32,10 +41,10 @@ static void ensure_cache_cap(size_t min_cap)
     if (min_cap <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 128;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (cache) {
         for (size_t i = 0; i < cache_sz; ++i) new_arr[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache      = new_arr;
     cache_cap  = new_cap;

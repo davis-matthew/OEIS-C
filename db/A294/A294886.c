@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sum_{d|n, d<n, deficient(d)} d
- * Range:     u8 n <= 219, u16 n <= 9595, u32 n <= 9595, u64 n <= 9595,
- *            u128 n <= 9595, big any n
- * Helpers:   factor_u64, pow_seq
+ * Range:     u8 n <= 219, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 107 terms through n = 9595 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 /* local helper: compute the sum of all divisors of m */
 static seq_t sigma_of(uint64_t m) {
@@ -30,7 +32,7 @@ static seq_t sigma_of(uint64_t m) {
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p = (seq_t)primes[i];
         /* term = (p^(e+1) - 1) / (p - 1) */
-        seq_t numerator = pow_seq(p, (int)(exps[i] + 1)) - 1;
+        seq_t numerator = ipow_i32(p, (int)(exps[i] + 1)) - 1;
         seq_t denom     = p - 1;
         seq_t term      = numerator / denom;
         result *= term;

@@ -11,7 +11,8 @@
  *            a(n) is the antidiagonal reading of this square array
  * Range:     i8 n <= 25, i16 n <= 42, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 #ifdef __cplusplus
 #include <vector>
@@ -53,7 +54,7 @@ seq_t a(idx_t n)
                 seq_t sum = 0;
                 for (idx_t j = 1; j <= row; ++j) {
                     seq_t base = (seq_t)(row - j + col);
-                    seq_t powv  = big_pow(base, (seq_t)(j - 1));
+                    seq_t powv  = ipow(base, (seq_t)(j - 1));
                     seq_t bin   = binomial(row, j);
                     seq_t term  = powv * bin;
                     term        = term * A[row - j][j];
@@ -86,7 +87,7 @@ seq_t a(idx_t n)
                 seq_t sum = 0;
                 for (idx_t j = 1; j <= row; ++j) {
                     seq_t base = (seq_t)(row - j + col);
-                    seq_t powv  = big_pow(base, (seq_t)(j - 1));
+                    seq_t powv  = ipow(base, (seq_t)(j - 1));
                     seq_t bin   = binomial(row, j);
                     seq_t term  = powv * bin;
                     term        = term * A[row - j][j];

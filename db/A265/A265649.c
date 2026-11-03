@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 27, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **T_rows = NULL;   /* array of pointers to each row of T */
 static idx_t  T_max_row = (idx_t)-1;  /* highest row that has been built */
@@ -40,7 +42,7 @@ static void build_next_row(idx_t new_row) {
     idx_t i   = new_row;
     size_t len  = (size_t)(i + 1);
     seq_t *prev = T_rows[i-1];
-    seq_t *row  = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *row  = mem_new(seq_t, len);
     if (!row) abort();  /* out of memory */
 
     /* T(i,0) = (2*i-1)*T(i-1,0) */
@@ -70,7 +72,7 @@ seq_t a(idx_t n) {
         T_rows = (seq_t**)malloc(sizeof(seq_t*));
         if (!T_rows) abort();
         /* row 0 */
-        T_rows[0] = (seq_t*)malloc(sizeof(seq_t));
+        T_rows[0] = mem_new(seq_t, 1);
         if (!T_rows[0]) abort();
         T_rows[0][0] = 1;
         T_max_row = 0;

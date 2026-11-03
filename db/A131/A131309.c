@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 9747, u16 n <= 9747, u32 n <= 9747, u64 n <= 9747,
- *            u128 n <= 9747, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10944, u16 n <= 10944, u32 n <= 10944, u64 n <= 10944,
+ *            u128 n <= 10944, big any n
+ * Validated: standard, pass, 104 terms through n = 9747 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,12 +39,12 @@ seq_t a(idx_t n)
     if (seq == NULL) {
         /* start with axiom row: "1" */
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) return (seq_t)0;
 
         row_cap = 64;
-        row = (seq_t *)malloc(row_cap * sizeof(seq_t));
-        if (!row) { free(seq); return (seq_t)0; }
+        row = mem_new(seq_t, row_cap);
+        if (!row) { mem_free(seq); return (seq_t)0; }
 
         row[0] = (seq_t)1;
         row_len = 1;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate buffer for the new row. */
-        seq_t *new_row = (seq_t *)malloc(new_row_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_row_len);
         if (!new_row) return (seq_t)0;
 
         /* Expand current row according to the morphism. */
@@ -79,8 +81,8 @@ seq_t a(idx_t n)
         if (seq_cap < seq_len + new_row_len) {
             size_t new_cap = seq_cap * 2;
             if (new_cap < seq_len + new_row_len) new_cap = seq_len + new_row_len;
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
-            if (!tmp) { free(new_row); return (seq_t)0; }
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
+            if (!tmp) { mem_free(new_row); return (seq_t)0; }
             seq = tmp;
             seq_cap = new_cap;
         }
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
         seq_len += new_row_len;
 
         /* Replace the old row with the new one. */
-        free(row);
+        mem_free(row);
         row = new_row;
         row_len = new_row_len;
         row_cap = new_row_len;   /* not used further; kept for symmetry */

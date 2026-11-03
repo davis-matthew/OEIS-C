@@ -10,12 +10,24 @@
  *            sequence begins with a(1)=1, a(2)=4, a(3)=16, a(4)=17, …
  * Range:     u8 n <= 7, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   count_pal
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_pal.h"
+/* Computes the number of base‑5 palindromes of length L that start
+   with the digit 3.  For length L the free digits are
+   floor((L-1)/2) positions, each of which can be 0…4. */
+static idx_t count_pal(idx_t L)
+{
+    /* floor((L-1)/2) free digits */
+    idx_t m = (L - 1) / 2;
+    idx_t p = 1;
+    for (idx_t i = 0; i < m; ++i)
+        p *= 5;                 /* 5^m */
+    return p;
+}
 
 seq_t a(idx_t n)
 {

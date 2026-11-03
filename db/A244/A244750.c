@@ -9,12 +9,15 @@
  * Formula:   a(1)=0, a(2)=2, a(3)=3, a(4)=4; for n>4 a(n)=2*a(n-1)=2^(n-2)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,5 +32,5 @@ seq_t a(idx_t n)
     }
     seq_t two = (seq_t)2;
     seq_t exp = (seq_t)(n - 2);
-    return big_pow(two, exp);
+    return ipow(two, exp);
 }

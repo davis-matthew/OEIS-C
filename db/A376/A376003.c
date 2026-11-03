@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Sequence A376003: a(n) is the n-th positive integer k such that
  * every decimal digit of k^2 is a factor of k.  The sequence is generated
  * by a simple search: test successive k and keep those that satisfy the
@@ -19,8 +21,31 @@
  * cache so that arbitrary calls to a(idx_t n) are efficient. */
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Utility: grow array capacity if needed. */
+#ifdef __cplusplus
+template <class T>
+static void ensure_array_capacity(size_t needed, size_t *cap, T **buf,
+                                  size_t elem_size)
+{
+    if (needed <= *cap)
+        return;
+    size_t new_cap = (*cap == 0 ? 8 : *cap * 2);
+    if (new_cap < needed)
+        new_cap = needed;
+    *buf = mem_resize(T, *buf, (new_cap * elem_size) / sizeof(T));
+    *cap = new_cap;
+}
+#else
 static void ensure_array_capacity(size_t needed, size_t *cap, void **buf,
                                   size_t elem_size)
 {
@@ -32,6 +57,7 @@ static void ensure_array_capacity(size_t needed, size_t *cap, void **buf,
     *buf = realloc(*buf, new_cap * elem_size);
     *cap = new_cap;
 }
+#endif
 
 /* Test whether k satisfies the digit condition. */
 static bool is_valid_k(seq_t k)
@@ -69,7 +95,7 @@ seq_t a(idx_t n)
         {
             /* add k to cache */
             ensure_array_capacity(terms_len + 1, &terms_cap,
-                                  (void **)&terms, sizeof(seq_t));
+                                  OEISC_VPP(&terms), sizeof(seq_t));
             terms[terms_len++] = k;
         }
     }

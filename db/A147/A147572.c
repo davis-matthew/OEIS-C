@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2310 * A051038(n) (A147572)
  * Range:     u8 none, u16 n <= 23, u32 n <= 2896, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 9924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* primes that may appear in the smooth numbers */
 static const seq_t primes[5] = { (seq_t)2, (seq_t)3, (seq_t)5,
@@ -31,7 +33,7 @@ static void grow_smooth(void)
 {
     if (smooth_len >= smooth_cap) {
         size_t new_cap = (smooth_cap == 0) ? 16 : smooth_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(smooth, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, smooth, new_cap);
         if (!tmp) abort();                /* allocation failed */
         smooth = tmp;
         smooth_cap = new_cap;
@@ -43,7 +45,7 @@ static void init(void)
 {
     if (smooth) return;                      /* already initialized */
     smooth_cap = 16;
-    smooth = (seq_t *)malloc(smooth_cap * sizeof(seq_t));
+    smooth = mem_new(seq_t, smooth_cap);
     if (!smooth) abort();
     smooth[0] = (seq_t)1;                    /* A051038(1) = 1 */
     smooth_len = 1;

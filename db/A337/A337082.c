@@ -13,7 +13,8 @@
  *            required pre‑data for each * call, with a cost O(n). It w...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 8619 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* integer square root for 64‑bit values (C++ and C compatible) */
 static inline uint64_t isqrt_u64(uint64_t n)
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
 
     /* ----- Step 1: count z^2 + w^2 pairs ----- */
     const size_t N = (size_t)n;
-    memset(rep_cache, 0, (N + 1) * sizeof(seq_t));
+    mem_set(rep_cache, 0, (N + 1) * sizeof(seq_t));
 
     const uint64_t limit = isqrt_u64(N);
     for (uint64_t z = 0; z <= limit; ++z) {

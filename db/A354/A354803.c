@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   gcd, prod_used
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,18 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/prod_used.h"
+#include "../utils/mem.h"
+
+/* Linear search for a value in the product array. */
+static bool prod_used(seq_t value, size_t count, seq_t *array)
+{
+    for (size_t i = 0; i < count; ++i) {
+        if (array[i] == value) return true;
+    }
+    return false;
+}
 
 /* static cache of computed terms and products (1‑based terms indexed
    from 0 in the array). */
@@ -39,12 +50,12 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t needed, size_t elem_size)
 {
     if (*cap == 0) {
         *cap = 4;
-        *arr = (seq_t*)malloc(*cap * elem_size);
+        *arr = mem_new(seq_t, (*cap * elem_size) / sizeof(seq_t));
     } else {
         while (*cap < needed) {
             *cap <<= 1;
         }
-        *arr = (seq_t*)realloc(*arr, *cap * elem_size);
+        *arr = mem_resize(seq_t, *arr, (*cap * elem_size) / sizeof(seq_t));
     }
 }
 

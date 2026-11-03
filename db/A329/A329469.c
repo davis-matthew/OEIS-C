@@ -10,6 +10,7 @@
  *            2, sorted ascending (offset 1)
  * Range:     u8 n <= 7, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
+ * Validated: full, pass, 36 terms through n = 36 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

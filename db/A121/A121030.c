@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 874, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains10
+ * Validated: standard, pass, 60 terms through n = 9783 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
    (by brute‑force search). */
 
 #include <stdbool.h>
-#include "../utils/contains10.h"
+
+static bool contains10(seq_t x)
+{
+    seq_t tmp = x;
+    seq_t prev = tmp % 10;   /* least significant digit */
+    tmp = tmp / 10;
+
+    while (tmp > 0) {
+        seq_t cur = tmp % 10;
+        if ((long long)cur == 1 && (long long)prev == 0)
+            return true;
+        prev = cur;
+        tmp = tmp / 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

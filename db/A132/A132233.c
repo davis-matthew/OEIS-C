@@ -7,13 +7,16 @@
  * Formula:   a(n) = the nth prime congruent to 13 (mod 30)
  * Range:     u8 n <= 7, u16 n <= 820, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 62 terms through n = 970 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
         /* first allocation */
         if (cache == NULL) {
             cap = 16;
-            cache = (seq_t *)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
             if (cache == NULL) return (seq_t)0;  /* allocation failure */
         }
 
@@ -49,7 +52,7 @@ seq_t a(idx_t n)
             /* grow cache if needed */
             if (len == cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cap);
                 if (tmp == NULL) break;  /* keep current cache */
                 cache = tmp;
             }

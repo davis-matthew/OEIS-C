@@ -12,12 +12,14 @@
  *            here the sums run over 1 ≤ k ≤ 40 and the t...
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (n >= memo_size) {
         /* grow cache to hold entries up to n */
         size_t new_size = n + 1;
-        seq_t *tmp_mem = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+        seq_t *tmp_mem = mem_resize(seq_t, memo, new_size);
         if (!tmp_mem) { /* allocation failed – caller will likely abort */
             return 0;
         }

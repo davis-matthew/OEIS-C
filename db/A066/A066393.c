@@ -9,6 +9,7 @@
  *            2*n, otherwise to 3*n. a(0) = 1
  * Range:     u8 n <= 85, u16 n <= 300, u32 n <= 300, u64 n <= 300,
  *            u128 n <= 300, big any n
+ * Validated: standard, pass, 77 terms through n = 272 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

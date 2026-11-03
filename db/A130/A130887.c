@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{d|n} (2^d - 1) (OEIS A130887)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 499 (2026-11-01)
  * Helpers:   factor_u64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow2.h"       /* seq_t pow2(idx_t exp) */
-#include "../utils/factor_u64.h" /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/pow2.h"
 
 /* Recursive helper: visit all divisors of n. */
 static void dfs_div(idx_t pos,

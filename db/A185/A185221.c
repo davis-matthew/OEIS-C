@@ -8,7 +8,8 @@
  *            signed Stirling number of the first kind)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 19, i128 n <= 32,
  *            big any n
- * Helpers:   alloc_seq_array_custom
+ * Validated: standard, pass, 37 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_seq_array_custom.h"
+
+/* Allocators that work for both plain integral seq_t and for big‑integer classes
+ * (which have proper constructors in C++). */
+static inline seq_t* alloc_seq_array_custom(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 #ifdef __cplusplus
 namespace { }

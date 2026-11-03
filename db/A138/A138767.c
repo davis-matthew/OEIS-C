@@ -8,13 +8,15 @@
  * Formula:   a(n) is the linearized triangle T(r,k) where T(r,k) =
  *            binomial(r,k) * binomial(2*r-2*k, r-1). For n = 1,2,3,4,... the
  *            sequence starts : 1,1,4,4,15,18,3,
- * Range:     u8 n <= 10, u16 n <= 23, u32 n <= 40, u64 n <= 40, u128 n <= 40,
+ * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

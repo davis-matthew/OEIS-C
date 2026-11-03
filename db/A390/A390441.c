@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 174, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9020 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,32 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Grow a dynamic array iff more space is needed. */
+#ifdef __cplusplus
+template <class T>
+static void ensure_cap(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (*cap < needed) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        while (new_cap < needed)
+            new_cap <<= 1;
+        T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        if (!tmp) abort();          /* out of memory – terminate */
+        *ptr   = tmp;
+        *cap   = new_cap;
+    }
+}
+#else
 static void ensure_cap(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (*cap < needed) {
@@ -34,6 +59,7 @@ static void ensure_cap(size_t needed, size_t *cap, void **ptr, size_t elem_size)
         *cap   = new_cap;
     }
 }
+#endif
 
 /* Does the integer n satisfy the “no exponent 2 or 3” condition? */
 static bool valid_candidate(uint64_t n)
@@ -68,7 +94,7 @@ seq_t a(idx_t n)
     /* Ensure we have at least n terms in the cache. */
     while (cache_len < (size_t)n) {
         if (valid_candidate(next_candidate)) {
-            ensure_cap(cache_len + 1, &cache_cap, (void **)&cache, sizeof(seq_t));
+            ensure_cap(cache_len + 1, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
             cache[cache_len++] = (seq_t)next_candidate;
         }
         ++next_candidate;

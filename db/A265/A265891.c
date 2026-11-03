@@ -7,8 +7,9 @@
  * Keywords:  nonn, base, look
  * Formula:   a(n) = A099563(A000407(n)) (most significant factorial‑base
  *            digit of (2 n+1)! / n!)
- * Range:     u8 n <= 249, u16 n <= 9166, u32 n <= 9166, u64 n <= 9166,
- *            u128 n <= 9166, big any n
+ * Range:     u8 n <= 249, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 109 terms through n = 9166 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,30 +17,34 @@
 
 #include <math.h>
 #include <stdint.h>
+#include <stdlib.h>
 
-static double logfact[20003];
-static int logfact_size = 20002; /* covers 0 .. 20002 */
+/* log10(i!) for i < logfact_len; grows as needed (the original had a fixed
+   20003 entries and read past them from n = 10001 on) */
+static long double *logfact = NULL;
+static idx_t logfact_len = 0;
 
-/* Initialise the pre‑computed log10 factorial table.
-   logfact[i] = log10(i!)  (logfact[0] = logfact[1] = 0). */
-static void init_logfact(void) {
-    static int done = 0;
-    if (done) return;
-    logfact[0] = 0.0;
-    for (int i = 1; i <= logfact_size; ++i)
-        logfact[i] = logfact[i - 1] + log10((double)i);
-    done = 1;
+/* make logfact[0..need] available */
+static void init_logfact(idx_t need) {
+    if (need < logfact_len) return;
+    idx_t len = logfact_len ? logfact_len : 1024;
+    while (len <= need) len *= 2;
+    long double *t = (long double *)realloc(logfact, (size_t)len * sizeof *t);
+    if (!t) abort();
+    logfact = t;
+    if (logfact_len == 0) logfact[logfact_len++] = 0.0L;
+    for (idx_t i = logfact_len; i < len; ++i) logfact[i] = logfact[i - 1] + log10l((long double)i);
+    logfact_len = len;
 }
 
 /* Return the OEIS sequence A265891 value for index n (0‑based). */
 seq_t a(idx_t n) {
-    /* initialise log table once */
-    init_logfact();
+    init_logfact(2 * n + 2);
 
     /* 1.  Compute log10 of the product P = \prod_{k=n+1}^{2n+1} k
          Using logfact: log(P) = logfact[2n+1] - logfact[n] */
     idx_t up = 2 * n + 1;
-    double logP = logfact[up] - logfact[n];
+    long double logP = logfact[up] - logfact[n];
 
     /* 2.  Find m = floor largest i with logfact[i] <= logP */
     idx_t low = 0, high = up;
@@ -55,24 +60,24 @@ seq_t a(idx_t n) {
     /* 3.  Compute d = floor(P / m!) without large integers.
            The logarithm of the quotient is logP - logfact[m].
            Compute 10^(logP - logfact[m]) and floor it. */
-    double L = logP - logfact[m];            /* 0 <= L < log10(m+1) <= 5 */
-    double d_guess = pow(10.0, L);
+    long double L = logP - logfact[m];       /* 0 <= L < log10(m+1) <= 5 */
+    long double d_guess = powl(10.0L, L);
     /* Small epsilon to guard against rounding down by 1 */
-    uint64_t d = (uint64_t)(d_guess + 1e-12);
+    uint64_t d = (uint64_t)(d_guess + 1e-12L);
     if (d == 0) d = 1;    /* safety, though not needed */
 
     /* 4.  Refine d using log comparison to avoid rounding errors */
-    double logd = log10((double)d);
-    double logdp1 = log10((double)(d + 1));
+    long double logd = log10l((long double)d);
+    long double logdp1 = log10l((long double)(d + 1));
 
     /* If (d+1)*m! <= P, increase d */
-    while (logfact[m] + logdp1 <= logP + 1e-12)
-        ++d, logdp1 = log10((double)(d + 1));
+    while (logfact[m] + logdp1 <= logP + 1e-12L)
+        ++d, logdp1 = log10l((long double)(d + 1));
 
     /* If d*m! > P, decrease d */
-    while (d > 1 && (logfact[m] + logd > logP + 1e-12)) {
+    while (d > 1 && (logfact[m] + logd > logP + 1e-12L)) {
         --d;
-        logd = log10((double)d);
+        logd = log10l((long double)d);
     }
 
     return (seq_t)d;

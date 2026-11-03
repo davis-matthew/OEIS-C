@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   jacobi_symbol
+ * Validated: standard, pass, 71 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
-#include "../utils/jacobi_symbol.h"
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* ---------- cache for the sequence -------------------- */
 static seq_t *cache = NULL;
@@ -40,11 +64,11 @@ static void add_term(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap == 0 ? 128 : cache_cap * 2;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) exit(1);            /* allocation failure */
         if (cache) {
-            memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = new_cap;

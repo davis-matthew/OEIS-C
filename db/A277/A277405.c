@@ -11,7 +11,8 @@
  *            f_k(x)=1+kx
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,14 +21,15 @@
     seq_t   – unsigned integer type of sufficient size
     idx_t   – unsigned integer (usually uint64_t) used for indices   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate arrays for factorials (size n+1) and elementary
        symmetric sums e[0..n].  Using calloc ensures zero-initialised
        storage even when seq_t is an arbitrary‑precision class.   */
-    seq_t *fact = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *e    = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *e    = mem_new(seq_t, (size_t)(n + 1));
     if (!fact || !e)
         return (seq_t)0;  /* allocation failure – return zero            */
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k < n; ++k)
         sum += fact[k] * fact[n - k] * e[k];
 
-    free(fact);
-    free(e);
+    mem_free(fact);
+    mem_free(e);
     return sum;
 }

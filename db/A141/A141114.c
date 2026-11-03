@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 139, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, gcd
+ * Validated: standard, pass, 83 terms through n = 9883 (2026-11-03)
+ * Helpers:   gcd, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,14 +38,14 @@ seq_t a(idx_t n)
         /* Expand storage if necessary */
         if (cache_len == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 8 : (cache_cap << 1);
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }
         /* Compute divisor counts at 64‑bit precision */
         uint64_t k_val = (uint64_t)next_k;
-        uint64_t d1 = divisor_count_u64(k_val);
-        uint64_t d2 = divisor_count_u64(d1);
+        uint64_t d1 = num_divisors(k_val);
+        uint64_t d2 = num_divisors(d1);
 
         /* gcd(d2, k) == 1  =>  term found */
         if (gcd((seq_t)d2, (seq_t)next_k) == 1) {

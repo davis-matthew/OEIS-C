@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- helper: convert a seq_t number to its decimal digits
               (most‑significant first) ---------- */
@@ -71,10 +73,10 @@ static void cache_append(seq_t **cache, size_t *len, size_t *cap, seq_t val)
 {
     if (*cap == 0) {
         *cap = 8;
-        *cache = (seq_t *)malloc(*cap * sizeof(seq_t));
+        *cache = mem_new(seq_t, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     } else if (*len >= *cap) {
         *cap = (*cap << 1) + 1;
-        *cache = (seq_t *)realloc(*cache, *cap * sizeof(seq_t));
+        *cache = mem_resize(seq_t, *cache, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     }
     (*cache)[*len] = val;
     (*len)++;

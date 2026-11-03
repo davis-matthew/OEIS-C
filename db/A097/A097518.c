@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 141, u32 n <= 1217, u64 n <= 3531,
  *            u128 n <= 3603, big any n
- * Helpers:   none
+ * Validated: full, pass, 3603 terms through n = 3603 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* comparison for qsort */
 static int cmp_seq(const void *a, const void *b)
@@ -90,7 +92,7 @@ static void init_sequence(void)
     }
 
     /* sort ascending */
-    qsort(seq, seq_cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(seq, seq_cnt, sizeof(seq_t), cmp_seq);
     initialized = true;
 }
 

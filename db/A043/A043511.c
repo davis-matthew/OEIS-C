@@ -7,12 +7,14 @@
  * Formula:   a(n) = nth integer having exactly three digit '5's in decimal
  * Range:     u8 none, u16 n <= 680, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 9146 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (terms_len == 0)
     {
         cap = 64;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         if (!terms)
             return 0; /* allocation failed */
     }
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             if (terms_len == cap)
             {
                 cap <<= 1;
-                seq_t *new_terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                seq_t *new_terms = mem_resize(seq_t, terms, cap);
                 if (!new_terms)
                     return 0; /* allocation failed */
                 terms = new_terms;

@@ -10,11 +10,13 @@
  *            where C(r, m) is the binomial coefficient
  * Range:     u8 n <= 58, u16 n <= 178, u32 n <= 610, u64 n <= 2307,
  *            u128 n <= 8708, big any n
+ * Validated: standard, pass, 94 terms through n = 9259 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute binomial coefficient C(n, k) using gcd-based reduction

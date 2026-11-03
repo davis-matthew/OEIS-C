@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 1807, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9468 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Sequence A366330: minimal numbers (with respect to division) with no coprime divisor shift
  *
@@ -100,7 +102,7 @@ static void ensure_sequence(idx_t n)
 
     if (seq_cap == 0) {                 /* initial allocation */
         seq_cap = 64;
-        seq_list = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_list = mem_new(seq_t, seq_cap);
     }
 
     while (seq_len < (size_t)n) {
@@ -181,7 +183,7 @@ static void ensure_sequence(idx_t n)
         /* Add cand to the sequence */
         if (seq_len == seq_cap) {
             seq_cap *= 2;
-            seq_list = (seq_t *)realloc(seq_list, seq_cap * sizeof(seq_t));
+            seq_list = mem_resize(seq_t, seq_list, seq_cap);
         }
         seq_list[seq_len++] = (seq_t)cand;
         in_seq[cand] = true;

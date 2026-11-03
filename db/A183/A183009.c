@@ -7,13 +7,22 @@
  * Formula:   a(n) = 24*n*A000041(n)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"   /* seq_t* alloc_seq_array(size_t n); */
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t compute_partition(idx_t n)
 {
@@ -53,7 +62,7 @@ static seq_t compute_partition(idx_t n)
     }
 
     seq_t result = part[(size_t)n];
-    free(part);   /* clean up allocated array */
+    mem_free(part);   /* clean up allocated array */
     return result;
 }
 

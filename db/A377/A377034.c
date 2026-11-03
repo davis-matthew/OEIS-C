@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{k=0}^{n-1} Δ^k composite(n−k)
  * Range:     i8 n <= 15, i16 n <= 20, i32 n <= 37, i64 n <= 37, i128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Simple primality test for small integers: used to generate composites */
 static bool is_prime_small(uint64_t n)
@@ -42,7 +44,7 @@ static void ensure_composites(size_t n)
 
         /* Grow the array by one element. */
         size_t new_len = comp_len + 1;
-        seq_t *tmp = (seq_t *)realloc(comp, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, comp, new_len);
         comp = tmp;
         comp[comp_len] = (seq_t)next_candidate;
         ++comp_len;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     ensure_composites(N);
 
     /* Work array for successive differences.  */
-    seq_t *dif = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *dif = mem_new(seq_t, N);
     if (!dif) return (seq_t)0;  /* simple error handling */
 
     for (size_t i = 0; i < N; ++i)
@@ -79,6 +81,6 @@ seq_t a(idx_t n)
             dif[i] = dif[i + 1] - dif[i];
     }
 
-    free(dif);
+    mem_free(dif);
     return sum;
 }

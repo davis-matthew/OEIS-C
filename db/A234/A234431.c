@@ -7,13 +7,24 @@
  * Formula:   a(n) = A001969(n) + A001969(n + 1) (offset 1)
  * Range:     u8 n <= 64, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _evil_parity_even
+ * Validated: standard, pass, 79 terms through n = 8224 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_evil_parity_even.h"
+
+/* Return true if the integer x has even popcount (i.e., is an evil number). */
+static inline int _evil_parity_even(seq_t x)
+{
+    int parity = 0;        /* 0 for even, 1 for odd */
+    while (x > 0) {
+        parity ^= (int)(x & 1);
+        x >>= 1;
+    }
+    return parity == 0;
+}
 
 seq_t a(idx_t n)
 {

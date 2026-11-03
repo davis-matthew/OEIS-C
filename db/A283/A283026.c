@@ -8,11 +8,13 @@
  * Formula:   a(n) = n^4*(n^4 + 1)*(n^4 + 2)*(n^4 + 3)/24 = binom(n^4 + 3, 4)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 17, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

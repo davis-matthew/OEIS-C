@@ -11,8 +11,9 @@
  *            with first argument a). * The reading order is (0,0), (0,1),
  *            (1,0), (0,2), (1,1), (2,0), ... * Function returns the nth term,
  *            n >= 0
- * Range:     u8 n <= 126, u16 n <= 9400, u32 n <= 9400, u64 n <= 9400,
- *            u128 n <= 9400, big any n
+ * Range:     u8 n <= 126, u16 n <= 10584, u32 n <= 10584, u64 n <= 10584,
+ *            u128 n <= 10584, big any n
+ * Validated: standard, pass, 107 terms through n = 9400 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

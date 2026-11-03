@@ -8,12 +8,14 @@
  *            (sin(k+1))^2. Equivalent condition: cos(2k+2) < (1+cos(2))/2
  * Range:     u8 n <= 152, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define COS_DELTA  -0.4161468365471424L   /* cos(2)   */
 #define SIN_DELTA   0.9092974268256817L   /* sin(2)   */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         seq_cap  = 128;
-        seq      = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq      = mem_new(seq_t, seq_cap);
         seq_sz   = 0;
         next_k   = 0;
         cur_cos  = COS_DELTA;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         if (cur_cos < THRESH) {
             if (seq_sz >= seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_sz++] = (seq_t)next_k;
         }

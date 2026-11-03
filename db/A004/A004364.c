@@ -7,13 +7,14 @@
  * Formula:   a(n) = C(6n, n-9) = Product_{i=1..n-9} (5n+9+i)/i
  * Range:     u8 n <= 10, u16 n <= 12, u32 n <= 15, u64 n <= 23, u128 n <= 26,
  *            big any n
- * Helpers:   a004364_gcd
+ * Validated: partial, pass, 18 terms through n = 26 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a004364_gcd.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n) {
     idx_t m = 6 * n;
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
     for (idx_t i = 0; i < k; i++) {
         idx_t num = m - i;
         idx_t den = i + 1;
-        idx_t g = a004364_gcd(num, den);
+        idx_t g = gcd_idx(num, den);
         num /= g;
         den /= g;
         /* result * num is divisible by den and gcd(num, den) = 1,

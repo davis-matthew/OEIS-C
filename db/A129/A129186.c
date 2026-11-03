@@ -9,12 +9,13 @@
  *            = 1 iff s is a perfect square and (sqrt(s)-3) is even
  * Range:     u8 n <= 29, u16 n <= 5049, u32 n <= 5049, u64 n <= 5049,
  *            u128 n <= 5049, big any n
- * Helpers:   sqrt_floor_seq_t
+ * Validated: standard, pass, 92 terms through n = 4899 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sqrt_floor_seq_t.h"
+#include "../utils/isqrt_seq.h"
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
     seq_t s = ((seq_t)8 * n) + 17;
 
     /* compute integer sqrt of s */
-    seq_t r = sqrt_floor_seq_t(s);
+    seq_t r = isqrt_seq(s);
 
     /* check perfect square and parity condition */
     if (r * r == s && ((r - 3) & 1) == 0)

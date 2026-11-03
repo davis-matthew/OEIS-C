@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 556, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow13
+ * Validated: standard, pass, 72 terms through n = 9844 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,16 @@
 /* Palindromes in base 13, enumerated in ascending order. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow13.h"
+
+static inline idx_t pow13(int e)
+{
+    idx_t r = 1;
+    while (e > 0) {
+        r *= 13;
+        --e;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1773, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome_digits
+ * Validated: standard, pass, 63 terms through n = 8575 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_palindrome_digits.h"
+#include "../utils/mem.h"
+
+/* check whether the digit vector of given length is a palindrome */
+static bool is_palindrome_digits(const int *d, size_t len)
+{
+    for (size_t i = 0; i < len / 2; ++i)
+        if (d[i] != d[len - 1 - i])
+            return false;
+    return true;
+}
 
 /* cache for the sequence values */
 static seq_t *cache   = NULL;
@@ -40,7 +50,7 @@ static void push_cache(seq_t val)
     if (cache_len == cache_cap)
     {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
     cache[cache_len++] = val;

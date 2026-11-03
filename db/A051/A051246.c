@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 5630, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Test whether a number of length len has exactly four equal indices. */
 static bool is_valid(uint64_t num, uint64_t len)
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         if (count == 0) continue;          /* nothing to add for this j */
 
         /* Allocate a temporary array large enough to hold all of them. */
-        seq_t* tmp = (seq_t*)malloc(count * sizeof(seq_t));
+        seq_t* tmp = mem_new(seq_t, count);
         if (!tmp) return 0;                /* allocation failed */
 
         /* Second pass: store the numbers in ascending order
@@ -78,9 +80,9 @@ seq_t a(idx_t n)
         if (seq_len + count > seq_cap) {
             size_t new_cap = seq_cap ? seq_cap * 2 : count * 2;
             if (new_cap < seq_len + count) new_cap = seq_len + count;
-            seq_t* new_seq = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t* new_seq = mem_resize(seq_t, seq, new_cap);
             if (!new_seq) {
-                free(tmp);
+                mem_free(tmp);
                 return 0;                   /* allocation failed */
             }
             seq = new_seq;
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
             seq[seq_len++] = tmp[i];
         }
 
-        free(tmp);
+        mem_free(tmp);
     }
 
     return seq[n - 1]; /* zero‑based index */

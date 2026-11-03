@@ -9,6 +9,7 @@
  *            -101 + 84*n + 99*n^2 - 61*n^3 + 31*n^4 + 6*n^5 for n odd
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 58, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 204 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,12 +8,14 @@
  * Formula:   a(n) = (n+4)*a(n-1) + (n-2)*a(n-2), a(1)=6, a(2)=36
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 442 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*
  * Returns the n-th term (n >= 1) of OEIS sequence A090015.
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (cap < (size_t)n) {
         size_t newcap = cap ? cap << 1U : 2;
         while (newcap < (size_t)n) newcap <<= 1U;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         if (!cache)   /* memory allocation failed – abort with zero */
             return (seq_t)0;
         cap = newcap;

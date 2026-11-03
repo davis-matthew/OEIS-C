@@ -7,7 +7,8 @@
  * Formula:   a(n) = (n+1)*(n+1)! - A000166(n+2) (derangements)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 420 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computation uses only unsigned arithmetic.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Internal caches ----------------------------------------------------- */
 static seq_t *fact_arr = NULL;   /* fact_arr[i] = i!                 */
@@ -50,7 +52,7 @@ static void ensure_up_to(idx_t N)
             if ((cap) < (need)) {                                \
                 size_t new_cap = (cap) ? (cap) << 1 : 8;         \
                 while (new_cap < (need)) new_cap <<= 1;          \
-                ptr = (seq_t*)realloc(ptr, new_cap * sizeof(seq_t)); \
+                ptr = mem_resize(seq_t, ptr, new_cap); \
                 cap = new_cap;                                   \
             }                                                    \
         } while (0)

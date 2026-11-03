@@ -6,16 +6,41 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = length of the longest palindromic subword of the binary
  *            representation of n
- * Range:     u8 n <= 9206, u16 n <= 9206, u32 n <= 9206, u64 n <= 9206,
- *            u128 n <= 9206, big any n
- * Helpers:   longest_pal_binary
+ * Range:     u8 n <= 16385, u16 n <= 16385, u32 n <= 16385, u64 n <= 16385,
+ *            u128 n <= 16385, big any n
+ * Validated: standard, pass, 121 terms through n = 9206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/longest_pal_binary.h"
+
+/* Find longest palindrome length in a binary string represented by an array of bits. */
+static seq_t longest_pal_binary(const uint8_t *bits, idx_t len)
+{
+    seq_t max_len = 1;           /* at least one bit exists for n>=1 */
+    for (idx_t center = 0; center < len; ++center) {
+        /* odd length palindromes */
+        idx_t l = center, r = center;
+        while (l < len && r < len && bits[l] == bits[r]) {
+            seq_t cur = r - l + 1;
+            if (cur > max_len) max_len = cur;
+            if (l == 0) break;
+            --l; ++r;
+        }
+        /* even length palindromes */
+        l = center; r = center + 1;
+        while (l < len && r < len && bits[l] == bits[r]) {
+            seq_t cur = r - l + 1;
+            if (cur > max_len) max_len = cur;
+            if (l == 0) break;
+            --l; ++r;
+        }
+    }
+    return max_len;
+}
 
 seq_t a(idx_t n)
 {

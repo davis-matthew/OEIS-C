@@ -12,12 +12,14 @@
  *            of the form n * k where k is a multiple...
  * Range:     u8 n <= 28, u16 n <= 121, u32 n <= 988, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 74 terms through n = 8733 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 
 /* External linkage as requested */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 26, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *alloc_seq_array(size_t n) {
 #ifdef __cplusplus
@@ -67,7 +69,7 @@ seq_t a(idx_t n) {
     }
 
     /* ----- 2. Compute A_k ----- */
-    memset(Ak, 0, size * sizeof(seq_t));
+    mem_set(Ak, 0, size * sizeof(seq_t));
     for (idx_t d = 1; d <= N; ++d) {
         seq_t md = mdist[d];
         if (md == 0) continue;
@@ -88,7 +90,7 @@ seq_t a(idx_t n) {
     }
 
     /* ----- 4. Compute H_k ----- */
-    memset(Hk, 0, size * sizeof(seq_t));
+    mem_set(Hk, 0, size * sizeof(seq_t));
     for (idx_t d = 1; d <= N; ++d) {
         seq_t sd = sb[d];
         if (sd == 0) continue;

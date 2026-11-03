@@ -8,6 +8,7 @@
  * Formula:   a(n) = n^6*(n^2-16)*(n^2-4)^4
  * Range:     i8 n <= 0, i16 n <= 2, i32 n <= 4, i64 n <= 15, i128 n <= 245,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 9827 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

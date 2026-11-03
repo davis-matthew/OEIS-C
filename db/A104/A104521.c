@@ -7,7 +7,8 @@
  * Formula:   a(n) = round((n+1)/sqrt(2)) - round(n/sqrt(2))
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *buf      = NULL;          /* current word          */
 static idx_t  cur_len  = 0;             /* length of buf          */
@@ -27,7 +29,7 @@ static const idx_t MAX_CAP = 20000;     /* safe upper bound for n ≤ 10000 */
 static void init(void)
 {
     if (init_done) return;
-    buf = (seq_t *)malloc(MAX_CAP * sizeof(seq_t));
+    buf = mem_new(seq_t, MAX_CAP);
     if (!buf) abort();                  /* allocation failed */
     buf[0] = 1;
     cur_len = 1;
@@ -51,7 +53,7 @@ static void grow_until(idx_t n)
         if (new_len > MAX_CAP)
             abort();                     /* should not happen for n ≤ 10000 */
 
-        seq_t *next = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, new_len);
         if (!next) abort();
 
         idx_t pos = 0;
@@ -67,7 +69,7 @@ static void grow_until(idx_t n)
                 next[pos++] = 1;
         }
 
-        free(buf);
+        mem_free(buf);
         buf = next;
         cur_len = new_len;
     }

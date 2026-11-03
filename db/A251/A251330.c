@@ -10,14 +10,55 @@
  *            matrix exponentiation (row patterns over {0,1,2})
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   init_adj_matrix, vec_mul_mat
+ * Validated: standard, pass, 31 terms through n = 201 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/init_adj_matrix.h"
-#include "../utils/vec_mul_mat.h"
+
+static void init_adj_matrix(seq_t *M)
+{
+    /* All 81 patterns of length 4 over {0,1,2}. */
+    int pat[81][4];
+    for (int idx = 0; idx < 81; ++idx) {
+        int v = idx;
+        for (int d = 0; d < 4; ++d) {
+            pat[idx][d] = v % 3;
+            v /= 3;
+        }
+    }
+
+    /* Build adjacency matrix M[i][j] = 1 if rows i and j can be adjacent,
+       otherwise 0. */
+    for (int i = 0; i < 81; ++i) {
+        for (int j = 0; j < 81; ++j) {
+            int ok = 1;
+            for (int c = 0; c < 3; ++c) {
+                int s = pat[i][c] + pat[i][c+1] +
+                        pat[j][c] + pat[j][c+1];
+                if (!(s == 2 || s == 4 || s == 6)) {
+                    ok = 0;
+                    break;
+                }
+            }
+            M[i * 81 + j] = ok ? (seq_t)1 : (seq_t)0;
+        }
+    }
+}
+
+/* vector * matrix (row–major).  Result stored in out. */
+static void vec_mul_mat(const seq_t *vec, const seq_t *mat, seq_t *out)
+{
+    for (int j = 0; j < 81; ++j) out[j] = 0;
+    for (int i = 0; i < 81; ++i) {
+        if (vec[i] == 0) continue;
+        for (int j = 0; j < 81; ++j) {
+            out[j] += vec[i] * mat[i * 81 + j];
+        }
+    }
+}
 
 /* matrix multiplication: C = A * B (row–major).  Result stored in C. */
 static void mat_mul(const seq_t *A, const seq_t *B, seq_t *C)

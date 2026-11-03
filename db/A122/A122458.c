@@ -9,6 +9,7 @@
  *            (3*x+1)/2^{v2(3*x+1)} and v2 is the 2‑adic valuation. a(0) := 0
  * Range:     u8 n <= 12, u16 n <= 5078, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 116 terms through n = 9602 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

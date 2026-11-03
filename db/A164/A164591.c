@@ -8,13 +8,15 @@
  * Formula:   a(n) = 8*a(n-1) - 8*a(n-2), with a(0)=1, a(1)=7
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 882 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;   /* number of elements currently stored (cache_len == last_index+1) */
@@ -32,7 +34,7 @@ static void grow_cache(idx_t n)
     while (cache_cap <= (size_t)n)
         cache_cap <<= 1;
 
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 
     /* Initialise the base cases if they are not yet stored */
     if (cache_len == 0) {

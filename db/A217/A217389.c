@@ -9,7 +9,8 @@
  *            numbers)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 404 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    arbitrary‑precision integer class used in the C++ build. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     if (t_cache == NULL) {
         t_cap = 1;
         a_cap = 1;
-        t_cache = (seq_t *)malloc(t_cap * sizeof(seq_t));
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        t_cache = mem_new(seq_t, t_cap);
+        a_cache = mem_new(seq_t, a_cap);
         /* base case t(0) = 1, so a(0) = 1 */
         t_cache[0] = (seq_t)1;
         a_cache[0] = (seq_t)1;
@@ -45,13 +47,13 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > t_cap) {
         size_t new_cap = t_cap ? t_cap : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        t_cache = (seq_t *)realloc(t_cache, new_cap * sizeof(seq_t));
+        t_cache = mem_resize(seq_t, t_cache, new_cap);
         t_cap = new_cap;
     }
     if ((size_t)n + 1 > a_cap) {
         size_t new_cap = a_cap ? a_cap : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cap = new_cap;
     }
 

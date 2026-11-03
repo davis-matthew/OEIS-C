@@ -12,14 +12,16 @@
  *            T(n,k) = Σ_{i=0..7} (-1)^(i+7) * C(7,i) * C(n-1, k-i), * where
  *            C(x,y)=0 when y<0 or y>x. * The sequence a is obtained by
  *            listing the rows of T * from left to right, top to bottom
- * Range:     i8 n <= 150, i16 n <= 419, i32 n <= 814, i64 n <= 1625,
+ * Range:     i8 n <= 150, i16 n <= 419, i32 n <= 1218, i64 n <= 1625,
  *            i128 n <= 1625, big any n
+ * Validated: standard, pass, 84 terms through n = 1619 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"  /* provides seq_t binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

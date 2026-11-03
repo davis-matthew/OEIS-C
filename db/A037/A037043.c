@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
     requested index exceeds the number of found terms,
     the function returns 0. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;    /* array holding all valid n */
 static size_t term_count = 0;  /* number of terms stored */
@@ -31,7 +33,7 @@ static void grow_terms(size_t need)
     if (need <= term_count * 2) return;
     size_t new_cap = term_count ? term_count * 2 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *p = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, terms, new_cap);
     if (!p) abort();            /* out‑of‑memory */
     terms = p;
     /* term_count remains unchanged */

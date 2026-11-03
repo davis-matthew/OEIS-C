@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   isqrt, rev
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   isqrt_seq, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
    Algorithm: iterate over increasing smaller member a, compute a², reverse it, test if the
    result is a perfect square b²; when a < b, output b. */
 
-#include "../utils/rev.h"
-#include "../utils/isqrt.h"
+#include <stdbool.h>
+#include "../utils/isqrt_seq.h"
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
             continue;
         }
 
-        seq_t rev_sq = rev(a_sq);
-        seq_t b = isqrt(rev_sq);
+        seq_t rev_sq = reverse_digits(a_sq);
+        seq_t b = isqrt_seq(rev_sq);
         if (b * b == rev_sq && b != (seq_t)0) {
             /* pair found */
             if ((seq_t)a_val < b) {

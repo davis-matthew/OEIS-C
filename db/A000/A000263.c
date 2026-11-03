@@ -9,14 +9,15 @@
  *            direct summation over x with an exact integer square root
  * Range:     u8 n <= 7, u16 n <= 29, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   a263_ceil_sqrt
+ * Validated: partial, pass, 36 terms through n = 38 (2026-11-01)
+ * Helpers:   isqrt_ceil_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/a263_ceil_sqrt.h"
+#include "../utils/isqrt_ceil_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     uint64_t x;
     for (x = 1;; x++) {
-        uint64_t c = a263_ceil_sqrt(four_nn * x);
+        uint64_t c = isqrt_ceil_u64(four_nn * x);
         if (c >= nn) break;
         sum += (seq_t)(nn - c);
     }

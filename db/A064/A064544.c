@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9445 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Constants that are large enough for the tested ranges.
    Adjust MAX_DIGITS if you need to handle numbers with more than
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Initialise the cache once. */
     if (cache_size == 0) {
         cache_cap   = 16;
-        cache       = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
         /* The first term of the sequence is 0. */
         cache[0]    = (seq_t)0;
         cache_size  = 1;
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
             /* Resize cache if needed. */
             if (cache_size == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = candidate;
         }

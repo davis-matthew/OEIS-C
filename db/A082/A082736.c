@@ -10,15 +10,22 @@
  *            description from OEIS A082736
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 8, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Build a list of all primes up to 10000.  This guarantees
    coverage of sqrt(max_value) for n ≤ 10000. */
@@ -104,7 +111,7 @@ seq_t a(idx_t n)
     seq_t result = (seq_t)1;
     for (size_t i = 0; i < used; ++i) {
         seq_t p = (seq_t)prime_used[i];
-        seq_t p_pow = seq_pow(p, (idx_t)exp_used[i]);
+        seq_t p_pow = ipow_idx(p, (idx_t)exp_used[i]);
         result = seq_mul(result, p_pow);
     }
     return result;

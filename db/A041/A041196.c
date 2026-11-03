@@ -11,6 +11,7 @@
  *            2,3,1,2,4,1,6,6,1,4,2,1,3,2,20 (period 15)
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 37, u128 n <= 78,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 194 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

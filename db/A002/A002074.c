@@ -13,7 +13,8 @@
  *            rationals...
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 7, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   z74_addfac
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/z74_addfac.h"
+
+static void z74_addfac(int *E, uint64_t q, const uint32_t *pr, const int *pidx) {
+    for (int i = 0; (uint64_t)pr[i] * pr[i] <= q; i++)
+        while (q % pr[i] == 0) { E[i]++; q /= pr[i]; }
+    if (q > 1) E[pidx[q]]++;
+}
 
 typedef struct { uint32_t *d; size_t len, cap; } z74_bn;
 

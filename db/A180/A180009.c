@@ -13,7 +13,8 @@
  *            a(4)=T(3,1), …
  * Range:     i8 n <= 5050, i16 n <= 5050, i32 n <= 5050, i64 n <= 5050,
  *            i128 n <= 5050, big any n
- * Helpers:   mobius_sieve
+ * Validated: standard, pass, 107 terms through n = 3641 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,38 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>   /* for calloc */
-#include "../utils/mobius_sieve.h"
+#include "../utils/mem.h"
+
+/* compute the Möbius function values up to r (inclusive) */
+static void mobius_sieve(idx_t r, int *mu, int *spf, int *primes, size_t *prime_cnt)
+{
+    /* mu[1] = 1 already zeroed; mu[0] stays 0 */
+    mu[1] = 1;
+    *prime_cnt = 0;
+    for (idx_t i = 2; i <= r; ++i)
+    {
+        if (!spf[i])
+        {
+            spf[i] = (int)i;
+            primes[(*prime_cnt)++] = (int)i;
+            mu[i] = -1;
+        }
+        for (size_t j = 0; j < *prime_cnt; ++j)
+        {
+            int p = primes[j];
+            if ((idx_t)p > spf[i]) break;
+            idx_t t = (idx_t)p * i;
+            if (t > r) break;
+            spf[t] = p;
+            if (i % p == 0) {
+                mu[t] = 0;
+                break;
+            } else {
+                mu[t] = -mu[i];
+            }
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -47,7 +79,7 @@ seq_t a(idx_t n)
 
     size_t width = r + 1;
     size_t len   = width * width;
-    seq_t *T = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *T = mem_new(seq_t, len);
 
     /* helper macro to access element (i,k)   (i,k >=1) */
 #define IDX(i, k) ((size_t)(i) * width + (size_t)(k))
@@ -81,6 +113,6 @@ seq_t a(idx_t n)
     free(mu);
     free(spf);
     free(primes);
-    free(T);
+    mem_free(T);
     return result;
 }

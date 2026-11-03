@@ -9,8 +9,9 @@
  * Formula:   a(n) = product of prime(p) for every position p (1‑based from
  *            the right) whose factorial‑base digit in n equals 1; a(n)=1 if
  *            no such digit exists
- * Range:     u8 n <= 128, u16 n <= 5888, u32 n <= 9614, u64 n <= 9614,
- *            u128 n <= 9614, big any n
+ * Range:     u8 n <= 128, u16 n <= 5888, u32 n <= 40320, u64 n <= 40320,
+ *            u128 n <= 40320, big any n
+ * Validated: standard, pass, 122 terms through n = 9614 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

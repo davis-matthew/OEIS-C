@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 274, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9639 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static inline seq_t triangular(idx_t r) {
     /* compute r*(r+1)/2 using seq_t to avoid overflow */
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     /* initialise on first call */
     if (cache == NULL) {
         cache_cap = 1024;                /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cur_run_index = 0;
         count_in_run  = 0;
         current_tri = triangular(1);    /* first triangular number */
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
         /* ensure enough space */
         if (cache_len + 1 > cache_cap) {
             cache_cap <<= 1;            /* double capacity */
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* output current value and update run counter */

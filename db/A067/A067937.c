@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* auxiliary: modular exponentiation with 128‑bit multiplication */
 static uint64_t modpow_uint64(uint64_t base, idx_t exp, uint64_t mod)
@@ -61,13 +63,13 @@ static void ensure_cache(size_t need)
     if (cache == NULL && cap == 0)
     {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
     while (cap < need)
     {
         size_t ncap = cap * 2;
         if (ncap == 0) ncap = 16;
-        seq_t *tmp = (seq_t *)realloc(cache, ncap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, ncap);
         cache = tmp;
         cap = ncap;
     }
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     /* lazily allocate cache */
     if (vals == NULL)
     {
-        vals = (seq_t *)malloc(16 * sizeof(seq_t));
+        vals = mem_new(seq_t, 16);
         sz   = 0;
         next = 1;
     }
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
             if (sz == 0 || sz % 16 == 0)   /* grow cache */
             {
                 size_t newcap = sz == 0 ? 16 : sz * 2;
-                seq_t *tmp = (seq_t *)realloc(vals, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, vals, newcap);
                 vals = tmp;
             }
             vals[sz++] = (seq_t)k;

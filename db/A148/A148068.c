@@ -13,6 +13,7 @@
  *            3‑D walks equals the ballot number B(u,v) multi...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 31, u128 n <= 31,
  *            big any n
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

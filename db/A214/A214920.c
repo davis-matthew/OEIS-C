@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   addmod, lucas_mod_mod
+ * Validated: standard, pass, 86 terms through n = 967 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,30 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/addmod.h"
-#include "../utils/lucas_mod_mod.h"
+
+/* Adds two numbers modulo mod, handling overflow on addition. */
+static inline seq_t addmod(seq_t a, seq_t b, seq_t mod)
+{
+    seq_t sum = a + b;
+    if (sum < a || sum >= mod) sum -= mod;
+    return sum;
+}
+
+/* Computes Lucas(k) modulo mod using only additions.  k is an
+   idx_t; mod must be non‑zero. */
+static seq_t lucas_mod_mod(seq_t mod, idx_t k)
+{
+    if (k == 0) return (seq_t)(2 % mod);
+    if (k == 1) return (seq_t)(1 % mod);
+    seq_t a = 2 % mod;
+    seq_t b = 1 % mod;
+    for (idx_t i = 2; i <= k; ++i) {
+        seq_t c = addmod(a, b, mod);
+        a = b;
+        b = c;
+    }
+    return b;
+}
 
 /* Precomputed Fibonacci numbers up to F(93), the largest that fits
    in a 64‑bit unsigned value.  They are used as moduli, so

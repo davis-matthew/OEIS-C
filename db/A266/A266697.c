@@ -8,15 +8,18 @@
  *            multiplicative order of 2 modulo (2n+1)
  * Range:     u8 n <= 194, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, mod_pow
+ * Validated: standard, pass, 95 terms through n = 9974 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Compute the multiplicative order of 2 modulo an odd integer m.
  * For m==1 it returns 1, matching the sequence value a(0).           */
@@ -45,7 +48,7 @@ static seq_t multiplicative_order_mod(uint64_t m)
     for (uint64_t p = 2; p * p <= factor; ++p) {
         if (factor % p == 0) {
             while ((order % p == 0) &&
-                   mod_pow((seq_t)2, (uint64_t)(order / p), (seq_t)m) == (seq_t)1)
+                   powmod((seq_t)2, (uint64_t)(order / p), (seq_t)m) == (seq_t)1)
                 order /= p;
             while (factor % p == 0)
                 factor /= p;
@@ -54,7 +57,7 @@ static seq_t multiplicative_order_mod(uint64_t m)
     if (factor > 1) {                /* remaining prime factor */
         uint64_t p = factor;
         while ((order % p == 0) &&
-               mod_pow((seq_t)2, (uint64_t)(order / p), (seq_t)m) == (seq_t)1)
+               powmod((seq_t)2, (uint64_t)(order / p), (seq_t)m) == (seq_t)1)
             order /= p;
     }
 

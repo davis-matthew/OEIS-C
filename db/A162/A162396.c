@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2*a(n-2) for n > 2, a(1) = 5, a(2) = 2. (Offset 1)
  * Range:     u8 n <= 12, u16 n <= 28, u32 n <= 60, u64 n <= 124,
  *            u128 n <= 252, big any n
+ * Validated: standard, pass, 57 terms through n = 987 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,8 +8,9 @@
  *            and 0 ≤ k ≤ s. The coordinates are * (m , k) with m = s – k.
  *            This yields the table read by * antidiagonals of (m+n)-(m XOR
  *            n). Complexity: O(log n)
- * Range:     u8 n <= 9614, u16 n <= 9614, u32 n <= 9614, u64 n <= 9614,
- *            u128 n <= 9614, big any n
+ * Range:     u8 n <= 11324, u16 n <= 11324, u32 n <= 11324, u64 n <= 11324,
+ *            u128 n <= 11324, big any n
+ * Validated: standard, pass, 107 terms through n = 9614 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

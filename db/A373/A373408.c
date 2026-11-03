@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the function required by the build */
 seq_t a(idx_t n);
@@ -61,7 +63,7 @@ static void ensure_terms(idx_t need)
     if (cached_len == 0)
     {
         cached_cap = 16;
-        cached = (seq_t *)realloc(cached, cached_cap * sizeof(seq_t));
+        cached = mem_resize(seq_t, cached, cached_cap);
         cached[0] = (seq_t)1;      /* a(1) = 1 */
         cached_len = 1;
         checked_to = 1;
@@ -77,7 +79,7 @@ static void ensure_terms(idx_t need)
             if (cached_len == cached_cap)
             {
                 cached_cap = cached_cap ? cached_cap * 2 : 16;
-                cached = (seq_t *)realloc(cached, cached_cap * sizeof(seq_t));
+                cached = mem_resize(seq_t, cached, cached_cap);
             }
             cached[cached_len++] = (seq_t)cur;
         }

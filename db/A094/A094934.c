@@ -10,7 +10,8 @@
  *            (n+1)‑th prime
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   get_len
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/get_len.h"
+
+/* ----------  helpers ---------- */
+static idx_t get_len(idx_t n)
+{
+    /* number of bits in the binary representation of n (n >= 1) */
+    return 64 - __builtin_clzll((unsigned long long)n);
+}
 
 /* ----------  static storage ---------- */
 static idx_t *prime_list   = NULL;  /* list of primes */

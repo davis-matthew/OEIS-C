@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl, easy
  * Formula:   not stated
- * Range:     u8 n <= 8315, u16 n <= 8315, u32 n <= 8315, u64 n <= 8315,
- *            u128 n <= 8315, big any n
- * Helpers:   binomial, powmod64
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 107 terms through n = 8315 (2026-11-01)
+ * Helpers:   binomial, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/powmod64.h"          /* powmod64(base,exp,mod)      */
-#include "../utils/binomial.h"          /* binomial(idx_t,idx_t)       */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/powmod_u64.h"
 
 /* integer square root of a 128‑bit unsigned integer */
 static uint64_t isqrt_u128(unsigned __int128 x)
@@ -74,7 +76,7 @@ static uint64_t multiplicative_order(uint64_t a, uint64_t k)
             while (ord % d == 0)
             {
                 uint64_t cand = ord / d;
-                if (powmod64(a, cand, k) == 1) ord = cand;
+                if (powmod_u64(a, cand, k) == 1) ord = cand;
                 else break;
             }
         }
@@ -85,7 +87,7 @@ static uint64_t multiplicative_order(uint64_t a, uint64_t k)
         while (ord % d == 0)
         {
             uint64_t cand = ord / d;
-            if (powmod64(a, cand, k) == 1) ord = cand;
+            if (powmod_u64(a, cand, k) == 1) ord = cand;
             else break;
         }
     }

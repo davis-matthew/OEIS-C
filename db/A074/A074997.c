@@ -11,7 +11,8 @@
  *            unordered * canonical form
  * Range:     u8 n <= 40, u16 n <= 7254, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 72 terms through n = 9936 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Test whether two integers have the same unordered canonical form
  * (i.e. the same multiset of exponents in their prime factorisations).*/
@@ -75,8 +77,7 @@ seq_t a(idx_t n)
         if (same_canonical_form(next - 1, next + 1)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? (cache_cap << 1) : 16;
-                seq_t *new_ptr = (seq_t *)realloc(cache,
-                                                   new_cap * sizeof(seq_t));
+                seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
                 if (!new_ptr)
                     return 0; /* out of memory – unlikely for n≈10000 */
                 cache = new_ptr;

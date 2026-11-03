@@ -11,14 +11,24 @@
  *            ≤4
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 31,
  *            big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 35 terms through n = 416 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h>
-#include "../utils/alloc_seq.h"   /* alloc_seq(size_t) -> seq_t* */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *f3 = NULL, *f4 = NULL;
 static idx_t  cap = 0;       /* allocated array size (≥1) */
@@ -43,8 +53,8 @@ static void ensure_up_to(idx_t n)
         while (new_cap <= n) new_cap <<= 1;
         seq_t *nf3 = alloc_seq(new_cap);
         seq_t *nf4 = alloc_seq(new_cap);
-        memcpy(nf3, f3, (size_t)cap * sizeof(seq_t));
-        memcpy(nf4, f4, (size_t)cap * sizeof(seq_t));
+        mem_copy(nf3, f3, (size_t)cap * sizeof(seq_t));
+        mem_copy(nf4, f4, (size_t)cap * sizeof(seq_t));
         f3 = nf3;
         f4 = nf4;
         cap = new_cap;

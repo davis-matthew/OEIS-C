@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   encode_time
+ * Validated: full, pass, 44 terms through n = 44 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,14 @@
 
 #include <stdbool.h>   /* bool, true, false */
 #include <stddef.h>    /* size_t */
-#include "../utils/encode_time.h"
+
+static inline seq_t encode_time(seq_t s)
+{
+    seq_t h = s / 3600;
+    seq_t m = (s % 3600) / 60;
+    seq_t sec = s % 60;
+    return h * 10000 + m * 100 + sec;    /* HHMMSS with no leading zeros */
+}
 
 seq_t a(idx_t n)
 {

@@ -7,12 +7,15 @@
  * Formula:   a(n) = Σ_{k=0}^{n} 2^{n(n−1)−k(k−1)} * C(n,k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
         idx_t exp = base - k * (k - 1);
 
         /* term = 2^exp * C(n,k) */
-        seq_t term = big_pow((seq_t)2, (seq_t)exp) * binom;
+        seq_t term = ipow((seq_t)2, (seq_t)exp) * binom;
         sum += term;
 
         /* prepare binomial coefficient for next k */

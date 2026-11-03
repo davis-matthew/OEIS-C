@@ -8,13 +8,15 @@
  *            values a(0)=1, a(1)=1, a(2)=1, a(3)=5
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache to enable fast repeated calls with arbitrary argument order */
 static seq_t *cache = NULL;          /* Cached sequence values */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         /* Grow by at least doubling strategy to keep amortized cost O(1) */
         size_t new_cap = needed * 2;
         if (new_cap < needed) new_cap = needed; /* protect against overflow */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Allocation failed; fallback to computing the value directly
                (should never happen for the given constraints) */

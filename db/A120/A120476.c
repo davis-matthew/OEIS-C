@@ -9,20 +9,21 @@
  *            rows (row index m, column index n)
  * Range:     i8 n <= 30, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   isqrt_u64_custom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/isqrt_u64_custom.h"
+#include "../utils/isqrt.h"
 
 /* Convert the linear index n into the triangular coordinates (col,row)
    and evaluate a(col,row).                                   */
 seq_t a(idx_t n)
 {
     /* Compute the row (column index m) that contains element n.   */
-    idx_t s = isqrt_u64_custom(8ULL * n + 1ULL);   /* floor(sqrt(8*n+1)) */
+    idx_t s = isqrt(8ULL * n + 1ULL);   /* floor(sqrt(8*n+1)) */
     idx_t m = (s + 1ULL) / 2ULL;                  /* column index, m >= 1 */
 
     /* Number of elements before the current row.             */

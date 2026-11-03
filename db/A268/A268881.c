@@ -10,13 +10,22 @@
  *            a(1)=2, a(2)=14, a(3)=84, a(4)=462
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 58,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 38 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"   /* alloc_seq_array(count) -> seq_t* */
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static const seq_t base_vals[5] = {
     0ULL,          /* unused index 0 */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 9053 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    prime factors (with multiplicity) of that 3‑smooth number. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed logarithms of 2 and 3 (double precision). */
 #define LOG2 0.6931471805599453094172321214581765680755
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         cap = 16;
         exp_i  = (idx_t *)realloc(exp_i,  cap * sizeof(idx_t));
         exp_j  = (idx_t *)realloc(exp_j,  cap * sizeof(idx_t));
-        omega  = (seq_t *)realloc(omega,  cap * sizeof(seq_t));
+        omega  = mem_resize(seq_t, omega, cap);
         exp_i[0] = 0;
         exp_j[0] = 0;
         omega[0] = 0;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         while (new_cap < (size_t)n) new_cap <<= 1;
         exp_i = (idx_t *)realloc(exp_i,  new_cap * sizeof(idx_t));
         exp_j = (idx_t *)realloc(exp_j,  new_cap * sizeof(idx_t));
-        omega = (seq_t *)realloc(omega,  new_cap * sizeof(seq_t));
+        omega = mem_resize(seq_t, omega, new_cap);
         cap = new_cap;
     }
 

@@ -10,14 +10,39 @@
  *            twice a square
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_square_or_twice_square
+ * Validated: standard, pass, 97 terms through n = 9127 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_square_or_twice_square.h"
+
+/* test if a non‑negative integer s is a square or twice a square */
+static inline bool is_square_or_twice_square(int s)
+{
+    if (s < 0)
+        return false;
+
+    /* square test */
+    int r = 0;
+    while ((uint64_t)(r + 1) * (r + 1) <= (uint64_t)s)
+        ++r;
+    if ((uint64_t)r * r == (uint64_t)s)
+        return true;
+
+    /* twice a square */
+    if ((s & 1) == 0) {
+        uint64_t half = (uint64_t)(s >> 1);
+        int k = 0;
+        while ((uint64_t)(k + 1) * (k + 1) <= half)
+            ++k;
+        if ((uint64_t)k * k == half)
+            return true;
+    }
+    return false;
+}
 
 /* integer square root for unsigned 64‑bit values (floor).  The values are tiny. */
 static inline uint64_t int_sqrt_u64(uint64_t n)

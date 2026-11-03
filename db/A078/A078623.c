@@ -10,13 +10,15 @@
  *            b(n) = b(n-1) + Σ_{i=0}^{n-2} b(n-2-i)*(a(i)+b(i))
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 40, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;          /* a values */
 static seq_t *B = NULL;          /* b values */
@@ -30,8 +32,8 @@ static void init(void)
         return;                /* already initialised */
 
     CAP = 1;
-    A = (seq_t*)malloc(CAP * sizeof(seq_t));
-    B = (seq_t*)malloc(CAP * sizeof(seq_t));
+    A = mem_new(seq_t, CAP);
+    B = mem_new(seq_t, CAP);
     if (!A || !B)
         abort();
 
@@ -51,8 +53,8 @@ static void ensure_capacity(idx_t n)
     while ((size_t)needed > new_cap)
         new_cap = new_cap ? new_cap << 1 : 1;
 
-    seq_t *a_new = (seq_t*)realloc(A, new_cap * sizeof(seq_t));
-    seq_t *b_new = (seq_t*)realloc(B, new_cap * sizeof(seq_t));
+    seq_t *a_new = mem_resize(seq_t, A, new_cap);
+    seq_t *b_new = mem_resize(seq_t, B, new_cap);
     if (!a_new || !b_new)
         abort();
 

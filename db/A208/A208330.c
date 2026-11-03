@@ -12,14 +12,30 @@
  *            produced by listing the triangle row‑wise
  * Range:     u8 n <= 32, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   binom_value, jacob
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom_value.h"
-#include "../utils/jacob.h"
+#include "../utils/binomial.h"
+
+/* Jacobsthal number J(m) for m ≥ 0. */
+static seq_t jacob(idx_t m) {
+    if (m == 0) return (seq_t)0;
+    if (m == 1) return (seq_t)1;
+    seq_t J0 = (seq_t)0;
+    seq_t J1 = (seq_t)1;
+    seq_t Ja = J0;
+    seq_t Jb = J1;
+    for (idx_t i = (idx_t)2; i <= m; ++i) {
+        seq_t tmp = Jb;
+        Jb = Jb + (seq_t)2 * Ja;
+        Ja = tmp;
+    }
+    return Jb;
+}
 
 /* Integer floor square root for idx_t (uint64_t). */
 static idx_t isqrt_u64(idx_t v) {
@@ -60,7 +76,7 @@ seq_t a(idx_t n) {
     seq_t J = jacob(k + (idx_t)1);
 
     /* Binomial coefficient C(r-1, k). */
-    seq_t bin = binom_value(r - (idx_t)1, k);
+    seq_t bin = binomial(r - (idx_t)1, k);
 
     /* Triangle value T(r,k). */
     return J * bin;

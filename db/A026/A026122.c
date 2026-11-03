@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 23, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *prev = NULL;          /* dp for step i-1 */
 static seq_t *cur  = NULL;          /* dp for step i   */
@@ -35,20 +37,20 @@ seq_t a(idx_t n)
     /* Allocate or enlarge DP arrays if necessary. */
     size_t needed = (size_t)n + 3;  /* heights 0 … n+1 inclusive */
     if (!prev || needed > max_alloc) {
-        free(prev);
-        free(cur);
-        prev = (seq_t *)calloc(needed, sizeof(seq_t));
-        cur  = (seq_t *)calloc(needed, sizeof(seq_t));
+        mem_free(prev);
+        mem_free(cur);
+        prev = mem_new(seq_t, needed);
+        cur  = mem_new(seq_t, needed);
         if (!prev || !cur) abort();
         max_alloc = needed;
     }
 
     /* Initialise: step 0, only height 1 is reachable. */
-    memset(prev, 0, max_alloc * sizeof(seq_t));
+    mem_set(prev, 0, max_alloc * sizeof(seq_t));
     prev[1] = (seq_t)1;
 
     /* Step 1: first step must be ±1 (cannot stay).  Reach heights 0 and 2. */
-    memset(cur, 0, max_alloc * sizeof(seq_t));
+    mem_set(cur, 0, max_alloc * sizeof(seq_t));
     cur[0] = (seq_t)1;
     cur[2] = (seq_t)1;
     /* swap prev and cur: now prev holds dp for step 1 */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* For steps i = 2 … n: allowed steps −1,0,+1. */
     for (idx_t i = 2; i <= n; ++i) {
         /* Clear current array. */
-        memset(cur, 0, max_alloc * sizeof(seq_t));
+        mem_set(cur, 0, max_alloc * sizeof(seq_t));
 
         /* Heights reachable after i steps are 0 … i+1. */
         size_t hmax = (size_t)i + 1;

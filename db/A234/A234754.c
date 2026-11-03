@@ -13,7 +13,8 @@
  *            transition * matrix
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 12, u128 n <= 26,
  *            big any n
- * Helpers:   encode_row, mat_mul, valid_block, vec_mat_mul
+ * Validated: standard, pass, 30 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,52 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/encode_row.h"
-#include "../utils/mat_mul.h"
-#include "../utils/valid_block.h"
-#include "../utils/vec_mat_mul.h"
+
+/* encode a row of three 0..3 digits into a value 0..63 */
+static inline uint8_t encode_row(int a, int b, int c) {
+    return ((uint8_t)(a & 3) << 4) | ((uint8_t)(b & 3) << 2) | (uint8_t)(c & 3);
+}
+
+/* multiply matrix A by matrix B -> R */
+static void mat_mul(const seq_t A[64][64], const seq_t B[64][64], seq_t R[64][64]) {
+    for (idx_t i = 0; i < 64; ++i) {
+        for (idx_t j = 0; j < 64; ++j) {
+            seq_t sum = 0;
+            for (idx_t k = 0; k < 64; ++k)
+                sum += A[i][k] * B[k][j];
+            R[i][j] = sum;
+        }
+    }
+}
+
+/* test if a single 2×2 block with values a,b,x,y is allowed */
+static inline bool valid_block(int a, int b, int x, int y) {
+    /* clockwise direction */
+    bool cw = true;
+    if (b - a > 1) cw = false;
+    if (y - b > 1) cw = false;
+    if (x - y > 1) cw = false;
+    if (a - x > 1) cw = false;
+
+    /* counter‑clockwise direction */
+    bool ccw = true;
+    if (x - a > 1) ccw = false;
+    if (y - x > 1) ccw = false;
+    if (b - y > 1) ccw = false;
+    if (a - b > 1) ccw = false;
+
+    return cw || ccw;
+}
+
+/* multiply vector v (size 64) by matrix M (64×64) -> w */
+static void vec_mat_mul(const seq_t *v, const seq_t M[64][64], seq_t *w) {
+    for (idx_t j = 0; j < 64; ++j) {
+        seq_t sum = 0;
+        for (idx_t i = 0; i < 64; ++i)
+            sum += v[i] * M[i][j];
+        w[j] = sum;
+    }
+}
 
 /* precomputed transition matrix for allowed row transitions */
 static seq_t T[64][64];

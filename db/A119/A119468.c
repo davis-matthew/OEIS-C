@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binomial, pow2, seq_mul, seq_one
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,18 @@
  * and c = n - r*(r+1)/2. 
  */
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_one.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {

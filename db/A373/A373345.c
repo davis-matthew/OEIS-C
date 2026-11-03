@@ -8,7 +8,8 @@
  * Formula:   a(n) = T(r,c) where T(r,k) = A373557(r,k) – 1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_desc_pos, is_schreier
+ * Validated: standard, pass, 107 terms through n = 8151 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,35 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/get_desc_pos.h"
-#include "../utils/is_schreier.h"
+
+/* Helper: return the (pos)-th element (0‑based) of the set described
+ * by the bit positions of k, listed in decreasing order of positions. */
+static inline unsigned get_desc_pos(uint64_t k, unsigned pos)
+{
+    /* Find the highest set bit of k. */
+    int maxbit = 63 - __builtin_clzll(k);
+    unsigned idx = 0;
+    for (int bit = maxbit; bit >= 0; --bit)
+    {
+        if (k & ((uint64_t)1 << bit))
+        {
+            if (idx == pos) return (unsigned)(bit + 1);  /* 1‑based position */
+            ++idx;
+        }
+    }
+    return 0;  /* unreachable for valid input */
+}
+
+/* Helper: test whether an integer k is a Schreier-encoded value.
+ * A value is Schreier iff popcount(k) <= (position of its least
+ * significant set bit).  The position is 1‑based. */
+static inline bool is_schreier(uint64_t k)
+{
+    if (k == 0) return false;
+    unsigned pop   = __builtin_popcountll(k);
+    unsigned minpos = __builtin_ctzll(k) + 1;   /* position of lowest 1-bit */
+    return pop <= minpos;
+}
 
 /* Cache for A371176 values and cumulative row lengths. */
 struct A371_cache_s

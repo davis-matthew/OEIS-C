@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{d|n} ( d*(d-1)/2 - (sigma(d)-d) )
  * Range:     u8 n <= 14, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 /*          where sigma(d) = sum of all divisors of d */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Sum of divisors of m (sigma(m)) */

@@ -9,12 +9,14 @@
  *            partitions of m into 9 distinct parts
  * Range:     u8 n <= 62, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper arrays stored in static state */
 static seq_t *dp = NULL;          /* dp[sum*10 + parts] */
@@ -29,7 +31,7 @@ static void update_dp(idx_t N)
     size_t new_elem = new_size * 10;     /* 10 columns (0..9 parts) */
 
     /* Allocate new array and compute it from scratch */
-    seq_t *new_dp = (seq_t *)malloc(new_elem * sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, new_elem);
     if (!new_dp) exit(1);
     for (idx_t i = 0; i < new_elem; ++i) new_dp[i] = 0;
     new_dp[0] = 1;                       /* dp[0*10+0] = 1 */
@@ -44,7 +46,7 @@ static void update_dp(idx_t N)
     }
 
     /* Free old array and replace */
-    free(dp);
+    mem_free(dp);
     dp = new_dp;
     dp_size = new_size;
 }

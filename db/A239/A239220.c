@@ -9,14 +9,28 @@
  *            searches for the required cubes directly
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 112, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cube_has_no_digit_divisor
+ * Validated: standard, pass, 47 terms through n = 9808 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/cube_has_no_digit_divisor.h"
+
+/* Test whether a cube has any non‑zero digit divisor. */
+static bool cube_has_no_digit_divisor(seq_t cube)
+{
+    seq_t temp = cube;
+    while (temp > 0) {
+        unsigned dig = (unsigned)(temp % (seq_t)10);
+        temp /= (seq_t)10;
+        if (dig != 0 && cube % (seq_t)dig == 0) {
+            return false;
+        }
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

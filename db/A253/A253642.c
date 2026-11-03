@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 110 terms through n = 8248 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -27,7 +28,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
 
 /* --- helpers ----------------------------------------------------------- */
 

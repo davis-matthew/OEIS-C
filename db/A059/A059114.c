@@ -11,12 +11,14 @@
  *            the definition directly
  * Range:     u8 n <= 14, u16 n <= 28, u32 n <= 67, u64 n <= 173,
  *            u128 n <= 445, big any n
+ * Validated: standard, pass, 61 terms through n = 5101 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t N)

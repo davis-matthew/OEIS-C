@@ -11,12 +11,14 @@
  *            implementation works for any unsigned integer...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Memoised cache for a(n)                                            */
@@ -32,7 +34,7 @@ static void extend_a(idx_t need)
     if (need + 1 <= a_cap)
         return;
 
-    seq_t *newv = (seq_t*)realloc(a_cache, (need + 1) * sizeof(seq_t));
+    seq_t *newv = mem_resize(seq_t, a_cache, (need + 1));
     a_cache = newv;
 
     for (idx_t n = a_cap; n <= need; ++n) {

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn, look
  * Formula:   a(n) = smallest m such that (2n-1)*m has only odd decimal digits
- * Range:     u8 n <= 10, u16 n <= 1947, u32 n <= 8247, u64 n <= 8247,
- *            u128 n <= 8247, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10, u16 n <= 1947, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 91 terms through n = 8247 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache for memoisation */
 static seq_t *cache = NULL;       /* sequence values */
@@ -48,9 +50,9 @@ static void grow_cache(idx_t needed)
         new_cap <<= 1;
 
     if (cache == NULL)
-        cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
     else
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
 
     cache_cap = new_cap;
 }

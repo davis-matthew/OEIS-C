@@ -9,6 +9,7 @@
  *            0,1,3,4,6,7,8,9,10,11,13,14,15,... A(1)=0, a(2)=1, …
  * Range:     i8 n <= 13, i16 n <= 13, i32 n <= 13, i64 n <= 13, i128 n <= 13,
  *            big any n
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

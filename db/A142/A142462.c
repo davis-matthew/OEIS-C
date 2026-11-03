@@ -12,12 +12,14 @@
  *            containing the n-th term and k the column within that row
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 40, u64 n <= 109,
  *            u128 n <= 285, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1231 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t M = (seq_t)7U;
 
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
     idx_t k = n - ((r - 1) * r) / 2;   /* k in [1, r] */
 
     /* Allocate two rows of the triangle. Use explicit cast for C++ safety. */
-    seq_t *prev = (seq_t*)malloc((r + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r + 1));
+    seq_t *curr = mem_new(seq_t, (r + 1));
     if (prev == NULL || curr == NULL) {
         /* Allocation failed – return zero (unlikely in tests). */
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
 
@@ -64,8 +66,8 @@ seq_t a(idx_t n)
 
         if (i == r) {
             seq_t result = curr[k - 1];
-            free(prev);
-            free(curr);
+            mem_free(prev);
+            mem_free(curr);
             return result;
         }
 
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     }
 
     /* Should never reach here. Clean up. */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return (seq_t)0;
 }

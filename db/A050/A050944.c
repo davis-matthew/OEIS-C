@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 528, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9731 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Minimum initial limit for the sieve (k up to this value will be examined). */
 #define INITIAL_MAX_K 1000
@@ -49,7 +51,7 @@ static void recompute_sigma(size_t max_k)
 {
     /* We need sigma values up to k+3, so allocate size max_k + 4 */
     size_t new_size = max_k + 4;
-    seq_t *new_sigma = (seq_t *)realloc(sigma, new_size * sizeof(seq_t));
+    seq_t *new_sigma = mem_resize(seq_t, sigma, new_size);
     sigma = new_sigma;
     /* Initialise to zero */
     for (size_t i = 0; i < new_size; ++i)
@@ -80,7 +82,7 @@ static void ensure_found(size_t target)
                 /* Store the qualifying k */
                 if (found_len == found_cap) {
                     found_cap = (found_cap == 0) ? 64u : found_cap * 2u;
-                    found = (seq_t *)realloc(found, found_cap * sizeof(seq_t));
+                    found = mem_resize(seq_t, found, found_cap);
                 }
                 found[found_len++] = (seq_t)k;
             }

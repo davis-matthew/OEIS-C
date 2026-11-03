@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   alt_sum
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,29 @@
 /* Numbers whose alternating digit sum (leftmost digit minus the next,
    plus the next, etc.) equals 7.  */
 #include <stdlib.h>
-#include "../utils/alt_sum.h"
+#include "../utils/mem.h"
+
+static inline int alt_sum(seq_t v)
+{
+    /* Return the alternating digit sum of v. */
+    if (v == 0)
+        return 0;
+    unsigned int dig[64];
+    size_t len = 0;
+    seq_t t = v;
+    while (t > 0) {
+        dig[len++] = (unsigned int)(t % 10);
+        t = t / 10;
+    }
+    int sum = 0;
+    int sign = 1;                      /* sign for most‑significant digit */
+    for (size_t i = 0; i < len; ++i) {
+        int d = dig[len - 1 - i];
+        sum += sign * d;
+        sign = -sign;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +54,7 @@ seq_t a(idx_t n)
         /* Allocate / grow storage for new terms if necessary. */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)
                 return 0;                     /* allocation failure, unlikely */
             cache = tmp;

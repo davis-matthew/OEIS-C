@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, mult
  * Formula:   not stated
- * Range:     i8 n <= 242, i16 n <= 8913, i32 n <= 8913, i64 n <= 8913,
- *            i128 n <= 8913, big any n
- * Helpers:   factor_u64, next_prime, seq_pow
+ * Range:     i8 n <= 242, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 8913 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,11 @@
 */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 #include "../utils/next_prime.h"
-#include "../utils/seq_pow.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
         uint64_t e   = exps[i];
 
         /* common factor p^(e-1) */
-        seq_t common = seq_pow((seq_t)p, e - 1);
+        seq_t common = ipow_idx((seq_t)p, e - 1);
 
         /* difference p - nextprime(p) */
         seq_t diff = (seq_t)p - (seq_t)next_prime(p);

@@ -10,13 +10,15 @@
  *            -6*a(n-14)-2*a(n-15)+a(n-16) Offset: 1 (a(1) is the first term)
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Initial terms (1‑based).  cache[0] is unused. */
 static const seq_t init_terms[17] = {
@@ -59,7 +61,7 @@ ensure_cache(idx_t n)
     if (cache == NULL) {
         /* Allocate initial capacity large enough for the first 16 terms. */
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (idx_t i = 1; i <= 16; ++i)
             cache[i] = init_terms[i];
         cache_size = 16;
@@ -69,7 +71,7 @@ ensure_cache(idx_t n)
         /* Grow capacity if necessary. */
         if (cache_size + 1 >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         idx_t i = cache_size + 1;   /* next index to compute   */

@@ -6,8 +6,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = sum_{i | digit_i(n)=2} 2*3^i (in base‑3 representation,
  *            replace all 1's by 0's and evaluate)
- * Range:     u8 n <= 485, u16 n <= 9856, u32 n <= 9856, u64 n <= 9856,
- *            u128 n <= 9856, big any n
+ * Range:     u8 n <= 485, u16 n <= 59048, u32 n <= 59048, u64 n <= 59048,
+ *            u128 n <= 59048, big any n
+ * Validated: standard, pass, 109 terms through n = 9856 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

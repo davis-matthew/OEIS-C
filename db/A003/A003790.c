@@ -7,12 +7,14 @@
  * Formula:   a(n) = 7^(n(n+1)/2) * ∏_{i=2}^{n+1} (7^i - 1)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 5,
  *            big any n
- * Helpers:   a000248_pow
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000248_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {
@@ -20,10 +22,10 @@ seq_t a(idx_t n) {
     }
     
     idx_t exp = n * (n + 1) / 2;
-    seq_t result = a000248_pow(7, exp);
+    seq_t result = ipow_idx(7, exp);
     
     for (idx_t i = 2; i <= n + 1; i++) {
-        seq_t power = a000248_pow(7, i);
+        seq_t power = ipow_idx(7, i);
         result = result * (power - 1);
     }
     

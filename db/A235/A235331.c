@@ -8,6 +8,7 @@
  *            in its binary representation (i.e., the n‑th odious square root)
  * Range:     u8 n <= 10, u16 n <= 386, u32 n <= 2600, u64 n <= 2600,
  *            u128 n <= 2600, big any n
+ * Validated: standard, pass, 83 terms through n = 2522 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

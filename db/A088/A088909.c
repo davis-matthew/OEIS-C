@@ -8,13 +8,15 @@
  *            as p²+q², where p and q are distinct primes
  * Range:     u8 none, u16 none, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: compare for qsort */
 static int cmp_seq_t(const void *a, const void *b)
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         /* rough maximum number of pairs: prime_cnt*(prime_cnt-1)/2 */
         size_t est_pairs = prime_cnt * (prime_cnt - 1) / 2;
         vals_cap = est_pairs;
-        vals = (seq_t*)malloc(vals_cap * sizeof(seq_t));
+        vals = mem_new(seq_t, vals_cap);
         vals_len = 0;
 
         /* generate all sums of squares of distinct primes */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         free(primes);
 
         /* sort and remove duplicates */
-        qsort(vals, vals_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(vals, vals_len, sizeof(seq_t), cmp_seq_t);
         size_t uniq = 0;
         for (size_t i = 0; i < vals_len; ++i) {
             if (i == 0 || vals[i] != vals[i - 1]) {

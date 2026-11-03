@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = smallest k such that k+(k+1)+...+(k+ℓ-1)=n for some ℓ ≥ 1
- * Range:     u8 n <= 88, u16 n <= 9907, u32 n <= 9907, u64 n <= 9907,
- *            u128 n <= 9907, big any n
+ * Range:     u8 n <= 88, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 108 terms through n = 9907 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

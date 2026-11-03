@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 12, i32 n <= 24, i64 n <= 49, i128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* the first nine exact values */
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
         idx_t oldsz = bufsz;
         idx_t newsz = n + 1;               /* total needed entries */
         /* realloc returns void* in C++; cast to seq_t* */
-        seq_t *tmp = (seq_t *)realloc(buf, (size_t)newsz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, (size_t)newsz);
         if (!tmp) { abort(); }             /* out of memory */
         buf = tmp;
         /* initialise new elements to zero (not strictly required) */

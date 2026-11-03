@@ -11,6 +11,7 @@
  *            sequence a(n) lists the triangle row‑wise starting at n=1
  * Range:     i8 n <= 6, i16 n <= 15, i32 n <= 36, i64 n <= 39, i128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

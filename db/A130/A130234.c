@@ -8,7 +8,8 @@
  * Formula:   a(n) = minimal k with Fibonacci(k) ≥ n (F_0 = 0, F_1 = 1)
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* One-time initialization */
     if (fib_cache == NULL) {
         fib_cap = 4;                               /* initial capacity */
-        fib_cache = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, fib_cap);
         if (!fib_cache) return (seq_t)0;           /* allocation failure fallback */
         fib_cache[0] = (seq_t)0;                   /* F_0 */
         fib_cache[1] = (seq_t)1;                   /* F_1 */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         /* Ensure capacity */
         if (fib_len >= fib_cap) {
             idx_t new_cap = fib_cap << 1;          /* double */
-            seq_t *tmp = (seq_t *)realloc(fib_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib_cache, new_cap);
             if (!tmp) return (seq_t)0;            /* allocation failure fallback */
             fib_cache = tmp;
             fib_cap = new_cap;

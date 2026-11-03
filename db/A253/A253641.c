@@ -9,13 +9,15 @@
  *            a(1) = 1 (defined by convention)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_gcd
+ * Validated: standard, pass, 107 terms through n = 9565 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/int_gcd.h"
+#include <stdbool.h>
+#include "../utils/gcd_i32.h"
 
 /* Euclidean algorithm for the greatest common divisor of two non‑negative
    integers.  The exponents are at most 64, so 32‑bit int is sufficient. */
@@ -47,13 +49,13 @@ seq_t a(idx_t n)
                 temp /= p;
                 ++e;
             }
-            g = (g == 0) ? e : int_gcd(g, e);
+            g = (g == 0) ? e : gcd_i32(g, e);
         }
     }
 
     /* If what remains is a prime > 2, its exponent is 1. */
     if (temp > 1) {
-        g = (g == 0) ? 1 : int_gcd(g, 1);
+        g = (g == 0) ? 1 : gcd_i32(g, 1);
     }
 
     return (seq_t)g;

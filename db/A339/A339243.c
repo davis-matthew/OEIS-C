@@ -9,14 +9,18 @@
  *            appearing at least twice
  * Range:     u8 n <= 35, u16 n <= 95, u32 n <= 335, u64 n <= 1259,
  *            u128 n <= 5039, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 86 terms through n = 9804 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == (idx_t)0) {
@@ -53,11 +57,11 @@ seq_t a(idx_t n) {
     /* ---------- dynamic programming ----------
        dp[s] = number of ways to form sum s using processed divisors so far   */
     size_t len = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
+    seq_t *next = mem_new(seq_t, len);
 
     /* initialize */
-    memset(dp, 0, len * sizeof(seq_t));
+    mem_set(dp, 0, len * sizeof(seq_t));
     dp[0] = (seq_t)1;
 
     /* process each divisor d */
@@ -66,7 +70,7 @@ seq_t a(idx_t n) {
         idx_t d = (idx_t)d_ll;   /* divisor as index type */
 
         /* reset next array to zero (will be overwritten anyway) */
-        memset(next, 0, len * sizeof(seq_t));
+        mem_set(next, 0, len * sizeof(seq_t));
 
         /* for each residue r modulo d */
         for (idx_t r = 0; r < d; ++r) {
@@ -92,7 +96,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

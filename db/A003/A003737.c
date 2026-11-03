@@ -11,15 +11,27 @@
  *            number of Hamiltonian cycles of W_5 = 4
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   a3737_decode, a3737_encode
+ * Validated: standard, pass, 35 terms through n = 811 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/a3737_decode.h"
-#include "../utils/a3737_encode.h"
+
+static void a3737_decode(int k, int *m)
+{
+    int v;
+    for (v = 0; v < 5; v++) { m[v] = k % 6 - 1; k /= 6; }
+}
+
+static int a3737_encode(const int *m)
+{
+    int k = 0, v;
+    for (v = 4; v >= 0; v--) k = k * 6 + (m[v] + 1);
+    return k;
+}
 
 #define A3737_MAXS 64
 

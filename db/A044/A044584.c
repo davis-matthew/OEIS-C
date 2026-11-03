@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has20_octal
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has20_octal.h"
+#include "../utils/mem.h"
+
+/* Return true iff the base‑8 representation of x contains the
+   substring 20 (digits “2” followed by “0” in clockwise order). */
+static bool has20_octal(seq_t x)
+{
+    if (x == 0)
+        return false;
+
+    seq_t t = x;
+    seq_t prev = t % 8;          /* least significant digit */
+    t = t / 8;
+
+    while (t > 0) {
+        seq_t cur = t % 8;       /* next higher digit */
+        /* Pattern 20: lower‑order digit is 0 and the higher is 2 */
+        if (prev == 0 && cur == 2)
+            return true;
+        prev = cur;
+        t = t / 8;
+    }
+    return false;
+}
 
 /* Return the n‑th term of the sequence (1‑based index). */
 seq_t a(idx_t n)
@@ -42,7 +65,7 @@ seq_t a(idx_t n)
             /* Grow array if needed. */
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     exit(1);          /* out of memory */
                 cache = tmp;

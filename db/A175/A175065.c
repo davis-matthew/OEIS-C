@@ -9,7 +9,8 @@
  *            number of divisors of s)
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 6, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,14 @@
 #include <stdbool.h>
 
 /* utilities provided by the build environment */
-#include "../utils/seq_pow.h"   /* seq_t seq_pow(seq_t base, idx_t exp) */
-#include "../utils/seq_mul.h"   /* seq_t seq_mul(seq_t a, seq_t b) */
+#include <string.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* first 15 primes – sufficient for n ≤ 10000
    (the number of prime factors needed for d(s)=n never exceeds 14) */
@@ -66,7 +73,7 @@ dfs_find(idx_t remaining, uint32_t last_exp,
             continue;
 
         /* prime^e */
-        seq_t p_pow = seq_pow((seq_t)primes[prime_idx], (idx_t)e);
+        seq_t p_pow = ipow_idx((seq_t)primes[prime_idx], (idx_t)e);
         /* new candidate s */
         seq_t new_s = seq_mul(cur_s, p_pow);
 
@@ -100,7 +107,7 @@ a(idx_t n)
     /* grow cache if necessary */
     if (n >= cache_len) {
         size_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache_s, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache_s, new_len);
         if (!tmp)
             abort();             /* allocation failure */
         cache_s = tmp;
@@ -113,5 +120,5 @@ a(idx_t n)
         cache_s[n] = minimal_s_for_d(n);
 
     /* the sequence value is 2^s */
-    return seq_pow((seq_t)2, (idx_t)cache_s[n]);
+    return ipow_idx((seq_t)2, (idx_t)cache_s[n]);
 }

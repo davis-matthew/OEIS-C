@@ -11,12 +11,14 @@
  *            1,1,1,1,5,5,1,14,49,49,1,…
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 42, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* integer square root of a 128‑bit unsigned value.

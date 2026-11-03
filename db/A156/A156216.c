@@ -8,13 +8,29 @@
  * Formula:   a(n) = (1/n) * sum_{k=1..n} A000204(k)^k * a(n-k), a(0)=1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Multiply-by-self exponentiation for big exponent (seq_t type) */
+static seq_t big_pow(seq_t base, seq_t exp) {
+    seq_t result = 1;
+    while (exp != 0) {
+        if ((exp % 2) != 0) {
+            result *= base;
+        }
+        base *= base;
+        exp /= 2;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,9 +46,9 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 1;
         if (new_cap < 2) new_cap = 2;
-        A    = (seq_t*)realloc(A,    new_cap * sizeof(seq_t));
-        L    = (seq_t*)realloc(L,    new_cap * sizeof(seq_t));
-        Lpow = (seq_t*)realloc(Lpow, new_cap * sizeof(seq_t));
+        A    = mem_resize(seq_t, A, new_cap);
+        L    = mem_resize(seq_t, L, new_cap);
+        Lpow = mem_resize(seq_t, Lpow, new_cap);
         cap = new_cap;
     }
 

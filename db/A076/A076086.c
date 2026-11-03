@@ -11,12 +11,14 @@
  *            of a(n‑1) that is > r and not divisible by 10
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 25, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t reverse_seq_t(seq_t x)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (n > last) {
         if (capacity == 0) capacity = 4;
         while (capacity <= (size_t)n) capacity <<= 1;
-        cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, capacity);
         if (cache == NULL) exit(EXIT_FAILURE);
 
         /* Compute new terms */

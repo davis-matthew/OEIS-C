@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool has04(seq_t v)
 {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         if (has04(cand) && !has04(cand + 1)) {
             if (sz == cap) {                /* expand the buffer */
                 size_t new_cap = (cap == 0) ? 16 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();          /* allocation failure */
                 cache = tmp;
                 cap   = new_cap;

@@ -9,6 +9,7 @@
  *            sqrt(585) (a(0)=24, then 5,2,1,4,1,2,5,48 repeating)
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 174 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

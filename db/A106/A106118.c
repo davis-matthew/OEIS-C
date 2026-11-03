@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   estimate_nth_prime, has_digit_gt1
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,29 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/estimate_nth_prime.h"   /* estimate_nth_prime(idx_t) */
-#include "../utils/has_digit_gt1.h"
+#include <math.h>
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static idx_t estimate_nth_prime(idx_t n)
+{
+    if (n < 6)
+        return 15;   /* first few primes are < 15 */
+    long double dn = (long double)n;
+    long double est = dn * (logl(dn) + logl(logl(dn))) + 3.0L;
+    return (idx_t)est;
+}
+
+/* Return true if any decimal digit of v is > 1. */
+static bool has_digit_gt1(uint64_t v)
+{
+    while (v) {
+        uint8_t d = v % 10;
+        if (d > 1) return true;
+        v /= 10;
+    }
+    return false;
+}
 
 static seq_t *good = NULL;          /* primes that satisfy the digit test */
 static idx_t good_count = 0;        /* number of primes stored */
@@ -53,7 +75,7 @@ static void recompute(idx_t limit)
     /* Allocate new array for good primes */
     seq_t *new_good = NULL;
     if (new_count > 0) {
-        new_good = (seq_t *)malloc((size_t)new_count * sizeof(seq_t));
+        new_good = mem_new(seq_t, (size_t)new_count);
         if (!new_good) {
             free(isComp);
             abort();              /* memory allocation failure */
@@ -69,7 +91,7 @@ static void recompute(idx_t limit)
 
     /* Replace old data */
     free(isComp);
-    free(good);
+    mem_free(good);
     good = new_good;
     good_count = new_count;
     sieve_limit = limit;

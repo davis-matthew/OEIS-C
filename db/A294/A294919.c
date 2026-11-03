@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,10 @@
 /* Sequence of numbers n such that
    n ≡ 1 (mod 4) and 2^(n‑1) ≡ 1 (mod n) and 2^((n‑1)/2) ≡ –1 (mod n). */
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* Check whether a candidate n satisfies the three congruences. */
 static bool good_candidate(idx_t cand)
@@ -26,11 +30,11 @@ static bool good_candidate(idx_t cand)
     seq_t two  = (seq_t)2;      /* base 2 as seq_t                     */
 
     /* 2^(cand‑1) ≡ 1 (mod cand)  */
-    if (mod_pow(two, cand-1, mod) != (seq_t)1)
+    if (powmod(two, cand-1, mod) != (seq_t)1)
         return false;
 
     /* 2^((cand‑1)/2) ≡ cand‑1 (≡ –1) (mod cand) */
-    if (mod_pow(two, (cand-1)/2, mod) != mod-1)
+    if (powmod(two, (cand-1)/2, mod) != mod-1)
         return false;
 
     return true;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = (1/2) * Sum_{k=1..n} (n+k)!/(k!)^2
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 31,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 344 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 87, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* static data for memoisation ------------------------------------------------- */
 static seq_t  *terms = NULL;      /* collected terms */
@@ -75,14 +77,14 @@ recompute_limit(idx_t limit)
             ++cnt;
 
     /* allocate terms array and store numbers */
-    seq_t *new_terms = (seq_t*)malloc(cnt * sizeof(seq_t));
+    seq_t *new_terms = mem_new(seq_t, cnt);
     size_t pos = 0;
     for (idx_t s = 1; s <= limit; ++s)
         if (c4[s] == 5)
             new_terms[pos++] = (seq_t)s;  /* cast to seq_t once */
 
     /* free old data */
-    free(terms);
+    mem_free(terms);
     free(c0); free(c1); free(c2); free(c3); free(c4);
 
     /* store new data */

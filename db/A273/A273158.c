@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 42, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   digit_len, factor_u64, pow10, seq_mul
+ * Validated: standard, pass, 66 terms through n = 93 (2026-11-01)
+ * Helpers:   factor_u64, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,14 +25,28 @@
 #include <stdbool.h>
 
 /* factorisation routine for the part of n coprime to 10      */
+#include <string.h>
 #include "../utils/factor_u64.h"
+#include "../utils/num_digits.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* basic integer operations on seq_t                         */
-#include "../utils/seq_mul.h"
 
 /* power of 10, digit length for seq_t, prime factor count   */
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
 
 seq_t a(idx_t n)
 {
@@ -91,7 +106,7 @@ seq_t a(idx_t n)
         seq_t pow2 = 1;                     /* 2^i */
         for (idx_t i = 0; ; ++i) {
             seq_t m = seq_mul((seq_t)t, pow2);
-            int d = digit_len(m);           /* digits(m) */
+            int d = num_digits(m);           /* digits(m) */
 
             /* divisibility condition on exponents of 2 */
             if (i > (idx_t)(e2 + d)) break;
@@ -107,7 +122,7 @@ seq_t a(idx_t n)
         for (idx_t j = 1; ; ++j) {
             pow5 = seq_mul(pow5, (seq_t)5);
             seq_t m = seq_mul((seq_t)t, pow5);
-            int d = digit_len(m);
+            int d = num_digits(m);
 
             /* divisibility condition on exponents of 5 */
             if (j > (idx_t)(e5 + d)) break;

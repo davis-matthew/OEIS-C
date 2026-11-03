@@ -7,7 +7,8 @@
  * Formula:   a(n) = smallest Fibonacci number not less than the n‑th prime
  * Range:     u8 n <= 51, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *fibs      = NULL;   /* Fibonacci numbers */
 static idx_t  fib_last  = 0;      /* highest index currently computed */
@@ -30,7 +32,7 @@ static void ensure_fib(idx_t up_to)
 {
     if (fibs == NULL) {
         fib_cap = 4;
-        fibs = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fibs = mem_new(seq_t, fib_cap);
         fibs[0] = 0;
         fibs[1] = 1;
         fib_last = 1;
@@ -39,7 +41,7 @@ static void ensure_fib(idx_t up_to)
         /* grow array if needed */
         if ((size_t)(fib_last + 1) >= fib_cap) {
             size_t new_cap = fib_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(fibs, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fibs, new_cap);
             fibs = tmp;
             fib_cap = new_cap;
         }
@@ -55,7 +57,7 @@ static seq_t fib_ge(seq_t val)
     /* initialize fibs if needed (used when n == 1). */
     if (fibs == NULL) {
         fib_cap = 4;
-        fibs = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fibs = mem_new(seq_t, fib_cap);
         fibs[0] = 0;
         fibs[1] = 1;
         fib_last = 1;
@@ -76,7 +78,7 @@ static void ensure_prime_upto_idx(idx_t n)
 {
     if (primes == NULL) {
         prime_cap = 2000;
-        primes = (seq_t *)malloc(prime_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, prime_cap);
         prime_cnt = 0;
     }
 
@@ -85,7 +87,7 @@ static void ensure_prime_upto_idx(idx_t n)
         if (is_prime(candidate)) {
             if ((size_t)prime_cnt >= prime_cap) {
                 size_t new_cap = prime_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, new_cap);
                 primes = tmp;
                 prime_cap = new_cap;
             }

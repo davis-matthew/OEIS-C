@@ -8,7 +8,8 @@
  * Formula:   a(n) = A276086(n) - n where A276086(n) is the primorial‑base
  *            exponential value of n
  * Range:     i8 n <= 14, i16 n <= 57, i32 n <= 412, i64 n <= 2306,
- *            i128 n <= 9943, big any n
+ *            i128 n <= 11550, big any n
+ * Validated: standard, pass, 80 terms through n = 9943 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

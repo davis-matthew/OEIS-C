@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9709, u16 n <= 9709, u32 n <= 9709, u64 n <= 9709,
- *            u128 n <= 9709, big any n
- * Helpers:   josephus
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 102 terms through n = 9709 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
    T(k,m) = ((T(k,m-1) + k - 1) mod m) + 1.                                               */
 #include <stdint.h>
 #include <math.h>
-#include "../utils/josephus.h"
+
+/* Compute the Josephus survivor for a given step size and population. */
+static seq_t josephus(idx_t step, idx_t m)
+{
+    if (m <= 1) return (seq_t)1;
+    if (step == 1) return (seq_t)m;          /* trivial case */
+
+    seq_t res = 1;
+    for (idx_t i = 2; i <= m; ++i)
+    {
+        res = ((res + (seq_t)step - 1) % (seq_t)i) + 1;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

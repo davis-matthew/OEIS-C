@@ -7,7 +7,8 @@
  * Formula:   a(n) = base‑n digit sum of A002034(n)! (Smarandache function)
  * Range:     u8 n <= 28, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   factor_u64, min_m_for_prime
+ * Validated: partial, pass, 74 terms through n = 75 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,27 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/min_m_for_prime.h"
+
+/* ------------------------------------------------------------------ */
+static uint64_t min_m_for_prime(uint64_t p, uint64_t e)
+{
+    uint64_t lo = 1, hi = p * e;           /* safe upper bound          */
+    while (lo < hi) {
+        uint64_t mid = (lo + hi) / 2;
+        uint64_t exp = 0, div = mid;
+        while (div) {
+            div /= p;
+            exp += div;
+        }
+        if (exp >= e)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo;
+}
 
 /* ------------------------------------------------------------------ */
 /* Smarandache function: minimal m such that n divides m!               */

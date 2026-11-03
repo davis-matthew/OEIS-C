@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the power‐series coefficients */
 static seq_t *z = NULL;      /* coefficients of Z(x) */
@@ -41,10 +43,10 @@ static void ensure_terms(idx_t n) {
 
     size_t new_cap = (size_t)n + 1;        /* need 0..n inclusive */
 
-    z      = (seq_t *)realloc(z,      new_cap * sizeof(seq_t));
-    s      = (seq_t *)realloc(s,      new_cap * sizeof(seq_t));
-    t      = (seq_t *)realloc(t,      new_cap * sizeof(seq_t));
-    a_arr  = (seq_t *)realloc(a_arr,  new_cap * sizeof(seq_t));
+    z      = mem_resize(seq_t, z, new_cap);
+    s      = mem_resize(seq_t, s, new_cap);
+    t      = mem_resize(seq_t, t, new_cap);
+    a_arr  = mem_resize(seq_t, a_arr, new_cap);
     if (!z || !s || !t || !a_arr) abort(); /* allocation failure */
 
     if (cap == 0) {                        /* first-time initialization */

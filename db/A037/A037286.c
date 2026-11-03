@@ -8,7 +8,8 @@
  *            order
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   digitlen, pow10
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
+ * Helpers:   num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,17 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/pow10.h"     /* seq_t pow10(idx_t e) – returns 10^e as seq_t */
-#include "../utils/digitlen.h"  /* static int digitlen(uint64_t x) – number of decimal digits */
+#include "../utils/num_digits_u64.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Compute the nth term of OEIS A037286. */
 seq_t a(idx_t n)
@@ -55,12 +65,12 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (size_t i = 0; i < sc; ++i) {
         seq_t d = (seq_t)small[i];
-        int dlen = digitlen((uint64_t)d);
+        int dlen = num_digits_u64((uint64_t)d);
         result = result * pow10(dlen) + d;
     }
     for (size_t i = 0; i < lc; ++i) {
         seq_t d = (seq_t)large[lc - 1 - i];
-        int dlen = digitlen((uint64_t)d);
+        int dlen = num_digits_u64((uint64_t)d);
         result = result * pow10(dlen) + d;
     }
 

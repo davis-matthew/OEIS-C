@@ -10,7 +10,8 @@
  *            divisors of k
  * Range:     u8 n <= 16, u16 n <= 1507, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9130 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* count divisors of m by trial division up to sqrt(m) */
 static seq_t _divisor_count(idx_t m)
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
             /* store accepted integer in cache */
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) exit(1);  /* simple failure handling */
                 cache = new_cache;
                 cache_cap = new_cap;

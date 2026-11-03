@@ -9,13 +9,15 @@
  *            a(0)=1,a(1)=0,a(2)=1,a(3)=0,a(4)=3,a(5)=0,a(6)=4,a(7)=1,a(8)=6
  * Range:     u8 n <= 75, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t capacity = 0;
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of the cache */
     if (cache == NULL) {
         capacity = 9;
-        cache = (seq_t*)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) return 0; /* allocation failure, fallback to 0 */
         for (size_t i = 0; i < 9; ++i) cache[i] = init_vals[i];
         max_computed = 8;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > capacity) {
         size_t new_cap = capacity;
         while ((size_t)n + 1 > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0; /* allocation failure */
         cache = tmp;
         capacity = new_cap;

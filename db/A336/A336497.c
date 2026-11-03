@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static data used by repeated calls */
 static seq_t *nonrep_cache = NULL;    /* array of nonrepresentable numbers   */
@@ -33,7 +35,7 @@ static void build_limit(idx_t limit)
 {
     /* free previous cache */
     if (nonrep_cache) {
-        free(nonrep_cache);
+        mem_free(nonrep_cache);
         nonrep_cache = NULL;
     }
 
@@ -92,14 +94,14 @@ static void build_limit(idx_t limit)
 
     /* ----- collect non‑representable numbers ----- */
     size_t cap = 1024;
-    seq_t *nr = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *nr = mem_new(seq_t, cap);
     if (!nr) exit(EXIT_FAILURE);
     size_t sz = 0;
     for (idx_t v = 2; v <= limit; ++v) {
         if (!vis[(size_t)v]) {
             if (sz == cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(nr, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, nr, cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 nr = tmp;
             }

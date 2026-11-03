@@ -9,7 +9,8 @@
  *            sum_{d=1}^{l-1} x^{l-d}/d
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 14, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   mod_inv_uint32
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_inv_uint32.h"
+
+static uint32_t mod_inv_uint32(uint32_t a, uint32_t mod)
+{
+    /* Extended Euclidean Algorithm for a and mod (coprime). */
+    int64_t b = mod, u = 1, v = 0, a0 = a;
+    while (b)
+    {
+        int64_t t = a0 / b;
+        a0 -= t * b;   u -= t * v;
+        int64_t tmp = a0; a0 = b; b = tmp;
+        tmp = u; u = v; v = tmp;
+    }
+    if (u < 0) u += mod;
+    return (uint32_t)u;
+}
 
 /* integer power (small exponent, result fits in uint64_t) */
 static uint64_t pow_uint64(uint64_t base, unsigned exp)

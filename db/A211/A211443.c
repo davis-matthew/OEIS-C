@@ -13,12 +13,14 @@
  *            a(8)=9855, a(9)=18759, a(10)=35741, a(11)=68...
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 27, u64 n <= 59, u128 n <= 123,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[14] = {
     91, 201, 397, 765, 1459, 2751,
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Initialise cache if this is the first call. */
     if (cache == NULL) {
         cache_cap = 16; /* enough to hold the first 14 terms and grow. */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (int i = 0; i < 14; ++i) cache[i] = init[i];
         cache_size = 14;
     }
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     while (cache_size < n) {
         if (cache_size >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* Retrieve the last 14 values needed for the recurrence. */

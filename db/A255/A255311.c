@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 143 terms through n = 962 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 
 /* Helper: test whether the sequence number is prime.  The function is
    supplied by the harness. */
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(seq_t n); */
+#include "../utils/is_prime_seq.h"
 
 static char *gap_digits = NULL;   /* concatenation of all gap digits seen so far */
 static size_t digits_len  = 0;    /* total number of digits in gap_digits     */
@@ -62,7 +63,7 @@ static void append_gap_digits(uint64_t gap)
 static uint64_t next_prime(uint64_t start)
 {
     uint64_t cand = start;
-    while (!is_prime_small((seq_t)cand)) ++cand;
+    while (!is_prime_seq((seq_t)cand)) ++cand;
     return cand;
 }
 

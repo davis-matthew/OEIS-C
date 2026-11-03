@@ -7,7 +7,8 @@
  * Formula:   a(n) = argmax_{s∈{-1,0,1}} gpf(n+s) subject to gpf(n+s) ≥ gpf(n)
  * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   _lpf_u64
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   largest_prime_factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,12 +16,12 @@
 /*  where gpf(x) is the largest prime factor of x (defined as 1 for x ≤ 1). */
 
 #include <stdint.h>
-#include "../utils/_lpf_u64.h"
+#include "../utils/largest_prime_factor_u64.h"
 
 seq_t a(idx_t n)
 {
     /* Largest prime factor of the current index. */
-    seq_t g_n = _lpf_u64((uint64_t)n);
+    seq_t g_n = largest_prime_factor_u64((uint64_t)n);
 
     seq_t bestShift = 0;
     uint64_t bestGpf   = 0;   /* will be set on first valid candidate */
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
             continue;   /* candidates must be ≥ 1 for A006530 */
 
         uint64_t cand = (uint64_t)cand_i;
-        seq_t g_cand  = _lpf_u64(cand);
+        seq_t g_cand  = largest_prime_factor_u64(cand);
         if (g_cand < g_n)
             continue;   /* does not satisfy the inequality */
 

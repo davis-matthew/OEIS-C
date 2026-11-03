@@ -10,13 +10,15 @@
  *            pentagonal‑number theorem
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* include the usual headers */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *part   = NULL;          /* partition numbers, part[0]==1 */
 static seq_t *aseq   = NULL;          /* sequence values a(n) */
@@ -29,8 +31,8 @@ static void ensure_capacity(size_t need)
     if (cap <= need) {
         size_t new_cap = cap? cap<<1 : 16;
         while (new_cap <= need) new_cap <<= 1;
-        part = (seq_t *)realloc(part,  new_cap * sizeof(seq_t));
-        aseq = (seq_t *)realloc(aseq, new_cap * sizeof(seq_t));
+        part = mem_resize(seq_t, part, new_cap);
+        aseq = mem_resize(seq_t, aseq, new_cap);
         /* initialise new slots to zero for safety */
         for (size_t i = cap; i < new_cap; ++i) part[i] = 0, aseq[i] = 0;
         cap = new_cap;

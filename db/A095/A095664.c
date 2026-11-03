@@ -7,14 +7,16 @@
  * Formula:   a(n) = binomial(n+7,7)*(n+24)/8
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 seq_t a(idx_t n) {
-    seq_t comb = binom(n + 7, 7);
+    seq_t comb = binomial(n + 7, 7);
     seq_t prod = comb * ((seq_t)n + 24);
     return prod / 8;
 }

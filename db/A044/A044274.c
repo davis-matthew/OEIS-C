@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 890, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has25_base9
+ * Validated: standard, pass, 64 terms through n = 9534 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,28 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has25_base9.h"
+#include "../utils/mem.h"
+
+/* Helper: does the base‑9 representation of x contain "25"? */
+static bool has25_base9(seq_t x) {
+    /* 9‑digit array; sufficient for seq_t up to 128 bits (max 41 digits) */
+    unsigned char digits[64];
+    size_t len = 0;
+    seq_t tmp = x;
+
+    while (tmp > 0) {
+        seq_t rem = tmp % 9;
+        digits[len++] = (unsigned char)rem;   /* 0 <= rem <= 8 */
+        tmp /= 9;
+    }
+    if (len < 2) return false;
+
+    /* scan forward from most significant digit */
+    for (size_t i = len; i > 1; --i) {
+        if (digits[i-1] == 2 && digits[i-2] == 5) return true;
+    }
+    return false;
+}
 
 /* Main sequence accessor */
 seq_t a(idx_t n) {
@@ -42,7 +64,7 @@ seq_t a(idx_t n) {
             /* need space in cache */
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) return 0;   /* allocation failure – return 0 */
                 cache = new_cache;
                 cache_cap = new_cap;

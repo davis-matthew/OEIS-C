@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 2173, u32 n <= 2173, u64 n <= 2173,
  *            u128 n <= 2173, big any n
- * Helpers:   fenwick_find_kth
+ * Validated: standard, pass, 72 terms through n = 1985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/fenwick_find_kth.h"
+#include "../utils/mem.h"
+
+static int fenwick_find_kth(const int *bit, size_t size, int k) {
+    int idx = 0;
+    int mask = 1;
+    while (mask <= (int)size) mask <<= 1;
+    mask >>= 1;
+    for (; mask; mask >>= 1) {
+        int next = idx + mask;
+        if (next <= (int)size && bit[next] < k) {
+            idx = next;
+            k -= bit[next];
+        }
+    }
+    return idx + 1;               /* 1‑based index in the Fenwick array */
+}
 
 /* Assume seq_t and idx_t are defined by the build environment. */
 
@@ -55,7 +71,7 @@ static void init(void) {
     }
     /* Count primes */
     for (size_t i = 2; i <= LIMIT; ++i) if (is_prime[i]) prime_count++;
-    primes = (seq_t *)malloc(prime_count * sizeof(seq_t));
+    primes = mem_new(seq_t, prime_count);
     if (!primes) exit(1);
     size_t j = 0;
     for (size_t i = 2; i <= LIMIT; ++i) if (is_prime[i]) primes[j++] = (seq_t)i;

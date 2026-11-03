@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 14, u16 n <= 1118, u32 n <= 9132, u64 n <= 9132,
- *            u128 n <= 9132, big any n
- * Helpers:   has_nine
+ * Range:     u8 n <= 14, u16 n <= 1118, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 92 terms through n = 9132 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/has_nine.h"
+#include "../utils/mem.h"
+
+/* helper: does x contain a digit 9? */
+static inline bool has_nine(seq_t x) {
+    const seq_t ten = (seq_t)10;
+    const seq_t nine = (seq_t)9;
+    if (x == 0) return false;
+    while (x > 0) {
+        seq_t d = x % ten;
+        if (d == nine) return true;
+        x /= ten;
+    }
+    return false;
+}
 
 /* static storage */
 static seq_t *seq_buf = NULL;
@@ -47,7 +61,7 @@ static void ensure_used_cap(size_t need) {
 /* ensure seq_buf has space for at least need terms */
 static void ensure_seq_cap(size_t need) {
     if (need > seq_len) {
-        seq_t *tmp = (seq_t *)realloc(seq_buf, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_buf, need);
         if (!tmp) abort();
         seq_buf = tmp;
         seq_len = need;

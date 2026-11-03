@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 1267, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   all_ones_ternary
+ * Validated: standard, pass, 71 terms through n = 9771 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/all_ones_ternary.h"
+#include "../utils/mem.h"
+
+/* Helper: true iff v>0 and its base‑3 representation consists only
+ * of the digit 1 (i.e. v = (3^k‑1)/2 for some k≥1).  1 itself is
+ * considered a repunit and is allowed; the caller must exclude it if desired. */
+static bool all_ones_ternary(seq_t v)
+{
+    if (v == 0)
+        return false;
+    while (v) {
+        if (v % 3 != 1)
+            return false;
+        v /= 3;
+    }
+    return true;
+}
 
 /* Cache for generated terms. */
 static seq_t *cache      = NULL;
@@ -49,7 +65,7 @@ static void grow_cache(size_t min_cap)
     size_t new_cap = cache_cap ? cache_cap * 2 : (min_cap < 8 ? 8 : min_cap);
     if (new_cap < min_cap)
         new_cap = min_cap;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();
     cache = tmp;

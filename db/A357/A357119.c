@@ -10,7 +10,8 @@
  *            Stirling1 = unsigned Stirling numbers of the first kind
  * Range:     u8 n <= 33, u16 n <= 63, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq_array.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static idx_t max_stirling_n = 0;      /* largest row index already computed   */
 static seq_t **stirling = NULL;       /* tabulated unsigned Stirling numbers */

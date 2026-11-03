@@ -12,7 +12,8 @@
  *            (1/4)*((2+sqrt(q))^m + (2-sqrt(q))^m - 2)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 17, u64 n <= 47, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 1174 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- cached pre‑computation of t(2*j,3) and auxiliary values ----- */
 static seq_t *t_arr   = NULL;   /* t_arr[j] = t(2*j,3)   (1‑based) */
@@ -42,12 +44,12 @@ static void ensure_precomp(idx_t new_row)
 
     /* allocate t_arr (1‑based) */
     size_t new_t_bytes = (size_t)(t_size + 1) * sizeof(seq_t);
-    t_arr = (seq_t *)realloc(t_arr, new_t_bytes);
+    t_arr = mem_resize(seq_t, t_arr, (new_t_bytes) / sizeof(seq_t));
 
     /* allocate a_arr: length = 2*t_size + 1 (allow even indices up to 2*t_size) */
     idx_t new_a_len = (idx_t)(2 * t_size + 1);
     size_t new_a_bytes = (size_t)new_a_len * sizeof(seq_t);
-    a_arr = (seq_t *)realloc(a_arr, new_a_bytes);
+    a_arr = mem_resize(seq_t, a_arr, (new_a_bytes) / sizeof(seq_t));
 
     /* initialise auxiliary recurrence only when we need at least one t value */
     if (old_t_size == 0 && t_size > 0) {

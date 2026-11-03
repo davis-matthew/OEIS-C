@@ -11,13 +11,15 @@
  *            319*a(n-8) + a(n-9) + c(n), where c(n) is the co...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_cap = 0;
@@ -29,10 +31,10 @@ static void ensure_cap(idx_t need) {
     if (need < cache_cap) return;
     newcap = cache_cap ? cache_cap : 16;
     while (newcap <= need) newcap *= 2;
-    nc = (seq_t *)malloc(newcap * sizeof(seq_t));
+    nc = mem_new(seq_t, newcap);
     for (i = 0; i < newcap; i++) nc[i] = 0;
     for (i = 0; i < cache_cap; i++) nc[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache = nc;
     cache_cap = newcap;
 }

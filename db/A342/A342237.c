@@ -12,6 +12,7 @@
  *            antidiagonals. No simpler closed form is known
  * Range:     u8 n <= 32, u16 n <= 72, u32 n <= 165, u64 n <= 425,
  *            u128 n <= 1160, big any n
+ * Validated: standard, pass, 82 terms through n = 5042 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

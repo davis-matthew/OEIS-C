@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Count the number of runs of identical bits in the binary
  * representation of x.  The function works for any unsigned
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         if (count_runs(cand) % 10 == 6) {    /* satisfies the condition ? */
             if (sz == cap) {                /* need more space */
                 size_t newcap = (cap == 0) ? 16 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, newcap);
                 if (!tmp) abort();          /* out of memory */
                 seq = tmp;
                 cap = newcap;

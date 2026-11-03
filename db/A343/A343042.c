@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, tabl
  * Formula:   not stated
- * Range:     u8 n <= 362, u16 n <= 9267, u32 n <= 9267, u64 n <= 9267,
- *            u128 n <= 9267, big any n
- * Helpers:   coords, factorial_base
+ * Range:     u8 n <= 362, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 94 terms through n = 9267 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,8 +34,36 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/coords.h"
-#include "../utils/factorial_base.h"
+
+/* Convert the antidiagonal index n into table coordinates (i,j). */
+static void coords(idx_t n, idx_t *i, idx_t *j)
+{
+    idx_t d = 0;
+    /* Find largest d such that d*(d+1)/2 <= n */
+    while ((d + 1) * (d + 2) / 2 <= n)
+        ++d;
+
+    idx_t before = d * (d + 1) / 2;
+    idx_t pos    = n - before;          /* 0‑based position within the diagonal */
+    *i = pos;
+    *j = d - pos;
+}
+
+/* factorial‑base representation of n; digits[i] holds the i‑th
+ * (0‑based) digit (least significant first). */
+static void factorial_base(idx_t n, uint8_t *digits, size_t *len)
+{
+    size_t pos = 0;
+    idx_t tmp  = n;
+    idx_t base = 2;
+
+    while (tmp > 0) {
+        digits[pos++] = (uint8_t)(tmp % base);
+        tmp /= base;
+        base++;
+    }
+    *len = pos;
+}
 
 /* Compute T(n,k) from the definition above. */
 static seq_t compute_T(idx_t n, idx_t k)

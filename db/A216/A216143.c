@@ -9,13 +9,17 @@
  *            where b(k) = (k+1)^(k-1) if k is odd, otherwise 0
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 198 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,12 +35,12 @@ seq_t a(idx_t n)
     /* first call initialisation */
     if (a_cache == NULL) {
         a_cap   = 1;
-        a_cache = (seq_t*)calloc(a_cap, sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)1;   /* a(0) = 1 */
         a_max   = 0;
 
         b_cap   = 1;
-        b_cache = (seq_t*)calloc(b_cap, sizeof(seq_t));
+        b_cache = mem_new(seq_t, b_cap);
         b_cache[0] = (seq_t)0;   /* unused except index 0 */
         b_max   = 0;
     }
@@ -45,7 +49,7 @@ seq_t a(idx_t n)
     if (n > a_cap - 1) {
         idx_t new_cap = a_cap * 2;
         if (new_cap <= n) new_cap = n + 1;
-        a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         for (idx_t i = a_cap; i < new_cap; ++i) a_cache[i] = (seq_t)0;
         a_cap = new_cap;
     }
@@ -54,7 +58,7 @@ seq_t a(idx_t n)
     if (n > b_cap - 1) {
         idx_t new_cap = b_cap * 2;
         if (new_cap <= n) new_cap = n + 1;
-        b_cache = (seq_t*)realloc(b_cache, new_cap * sizeof(seq_t));
+        b_cache = mem_resize(seq_t, b_cache, new_cap);
         for (idx_t i = b_cap; i < new_cap; ++i) b_cache[i] = (seq_t)0;
         b_cap = new_cap;
     }
@@ -63,7 +67,7 @@ seq_t a(idx_t n)
     if (b_max < n) {
         for (idx_t k = b_max + 1; k <= n; ++k) {
             if (k & 1U) /* odd */
-                b_cache[k] = big_pow((seq_t)(k + 1), (seq_t)(k - 1));
+                b_cache[k] = ipow((seq_t)(k + 1), (seq_t)(k - 1));
             else
                 b_cache[k] = (seq_t)0;
         }

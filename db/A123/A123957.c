@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 20, i32 n <= 36, i64 n <= 68, i128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(1)=0, a(2)=0, a(3)=0, a(4)=1 */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External types defined by the build system. */
 seq_t a(idx_t n)
@@ -27,14 +29,14 @@ seq_t a(idx_t n)
     /* Expand the cache if necessary. */
     if (cache == NULL || cache_size <= n) {
         size_t new_size = (size_t)n + 1;            /* need indices 0..n */
-        seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (new_cache == NULL) {
             /* Allocation failed – return zero as a safe fallback. */
             return (seq_t)0;
         }
         if (cache) {
-            memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cache_size = new_size;

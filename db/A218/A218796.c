@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 69, u32 n <= 223, u64 n <= 807,
  *            u128 n <= 2976, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9804 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    T(0,0)=1, others 0.  
    a(n) is obtained by listing T(n,k) row‑wise, i.e. a = T(0,0), T(1,0), T(2,0), T(3,0),T(3,1), ... */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         /* ensure sums array large enough */
         if (sums_cap < kmax + 1) {
             size_t new_cap = kmax + 1;
-            seq_t *tmp = (seq_t*)realloc(sums, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, sums, new_cap);
             sums = tmp;
             /* initialise new slots to zero */
             for (size_t i = sums_cap; i < new_cap; ++i) sums[i] = 0;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         }
 
         /* allocate row array */
-        seq_t *row = (seq_t*)calloc(kmax + 1, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, kmax + 1);
 
         if (r == 0) {
             /* special base case */
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         for (size_t k = 0; k <= kmax; ++k) {
             if (a_size == fcap) {
                 size_t new_fcap = (fcap == 0) ? 1 : fcap * 2;
-                seq_t *tmp_F = (seq_t*)realloc(flatten, new_fcap * sizeof(seq_t));
+                seq_t *tmp_F = mem_resize(seq_t, flatten, new_fcap);
                 flatten = tmp_F;
                 fcap = new_fcap;
             }

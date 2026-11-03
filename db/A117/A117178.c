@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 35, u16 n <= 170, u32 n <= 594, u64 n <= 1325,
+ * Range:     u8 n <= 54, u16 n <= 170, u32 n <= 594, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 94 terms through n = 1285 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -26,7 +27,8 @@
 */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* supplies seq_t binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 static idx_t _row_of(idx_t n)
 {

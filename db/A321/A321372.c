@@ -12,14 +12,15 @@
  *            approximation of √5. No floating point or m...
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   int128_sqrt128
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   isqrt_i128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/int128_sqrt128.h"
+#include "../utils/isqrt_i128.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* compute floor( sqrt(5) * 2^k ) using integer sqrt */
         __int128 target = (__int128)5 << (2 * k);   /* 5 * 2^(2k) */
-        sqrt5_scaled = int128_sqrt128(target);
+        sqrt5_scaled = isqrt_i128(target);
         powk = ((uint64_t)1) << k;                 /* 2^k */
         initialized = true;
     }

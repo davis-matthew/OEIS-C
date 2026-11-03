@@ -10,13 +10,15 @@
  *            the substring 1,2,1 equal to occurrences of 1,3,1
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 41, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed mapping from a pair (x,y) to state index 0..8. */
 static const int pair_to_index[4][4] = {
@@ -87,8 +89,8 @@ seq_t a(idx_t n) {
     seq_t *curr[9];
     seq_t *next[9];
     for (int s = 0; s < 9; ++s) {
-        curr[s] = (seq_t *)calloc(size, sizeof(seq_t));
-        next[s] = (seq_t *)calloc(size, sizeof(seq_t));
+        curr[s] = mem_new(seq_t, size);
+        next[s] = mem_new(seq_t, size);
     }
 
     /* Initialize DP for words of length 2 */
@@ -170,8 +172,8 @@ seq_t a(idx_t n) {
 
     /* Free allocated memory */
     for (int s = 0; s < 9; ++s) {
-        free(curr[s]);
-        free(next[s]);
+        mem_free(curr[s]);
+        mem_free(next[s]);
     }
 
     return ans;

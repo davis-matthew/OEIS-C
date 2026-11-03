@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- value → last index map ---------- */
 typedef struct { seq_t val; idx_t last; } ValEntry;
@@ -36,7 +38,7 @@ static void ensure_val_map_cap(size_t needed)
     if (needed <= val_map_cap) return;
     size_t new_cap = val_map_cap < 16 ? 16 : val_map_cap * 2;
     while (new_cap < needed) new_cap *= 2;
-    ValEntry *tmp = (ValEntry *)realloc(val_map, new_cap * sizeof(ValEntry));
+    ValEntry *tmp = mem_resize(ValEntry, val_map, new_cap);
     val_map = tmp;
     val_map_cap = new_cap;
 }
@@ -72,7 +74,7 @@ static void ensure_seq_cap(idx_t needed)
     if (needed < seq_cap) return;   /* already large enough */
     idx_t new_cap = seq_cap < 16 ? 16 : seq_cap * 2;
     while (new_cap <= needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     seq = tmp;
     seq_cap = new_cap;
 }

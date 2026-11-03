@@ -10,12 +10,14 @@
  *            a(2) = 3, a(3) = -7, a(4) = 11
  * Range:     i8 n <= 8, i16 n <= 18, i32 n <= 37, i64 n <= 75, i128 n <= 152,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 3923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _init[5] = {5, -1, 3, -7, 11};
 static seq_t * _cache = NULL;
@@ -29,7 +31,7 @@ static void _ensure_cache(idx_t n)
 
     idx_t need_size = n + 1;
     if (_cache_size < need_size) {                      /* grow the buffer */
-        seq_t *tmp = (seq_t *)realloc(_cache, need_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _cache, need_size);
         _cache = tmp;
         _cache_size = need_size;
     }

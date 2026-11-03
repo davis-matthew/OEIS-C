@@ -8,7 +8,8 @@
  *            1
  * Range:     u8 none, u16 n <= 1, u32 n <= 9, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <string.h>
 #include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,15 +46,15 @@ seq_t a(idx_t n)
         m = m + (seq_t)1;                /* +1 */
 
         /* check 2^p ≡ 1 (mod m) */
-        seq_t r = mod_pow((seq_t)2, curr, m);
+        seq_t r = powmod((seq_t)2, curr, m);
         if (r == (seq_t)1) {
             /* grow cache if necessary */
             if (count == cap) {
                 size_t newcap = (cap == 0) ? 16 : cap << 1;
-                seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, newcap);
                 if (tmp == NULL) {
                     /* allocation failed – clean up and return 0 */
-                    free(terms);
+                    mem_free(terms);
                     terms = NULL;
                     count = 0;
                     cap = 0;

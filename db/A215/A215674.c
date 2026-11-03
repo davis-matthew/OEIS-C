@@ -10,13 +10,15 @@
  *            a(3n+1)=a(3n+2)=a(n)+a(n+1)+1)
  * Range:     u8 n <= 3279, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 7814 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[n] stores a(n), 0 indicates unset */
 static idx_t cache_size = 0;  /* current allocated size */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
     idx_t new_size = cache_size ? cache_size : 16;
     while (new_size < n + 1) new_size <<= 1;          /* double until big enough */
 
-    seq_t *tmp = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_size + 1));
     if (!tmp) abort();                                 /* malloc failure */
     /* initialise new entries to 0 */
     for (idx_t i = cache_size + 1; i <= new_size; ++i) tmp[i] = 0;

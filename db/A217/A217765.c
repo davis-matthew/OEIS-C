@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- internal state for the T(n,k) table ----- */
 static seq_t *T_data   = NULL;   /* flattened 2‑D array of values   */
@@ -62,7 +64,7 @@ ensure_T_capacity(idx_t i, idx_t j)
     size_t new_size = (size_t)(new_i + 1) * (new_j + 1);
 
     /* Allocate new storage and zero it. */
-    seq_t *new_data = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_data = mem_new(seq_t, new_size);
     bool  *new_seen = (bool  *)calloc(new_size, sizeof(bool));
     if (!new_data || !new_seen)
         exit(EXIT_FAILURE);   /* allocation failure */
@@ -77,7 +79,7 @@ ensure_T_capacity(idx_t i, idx_t j)
                 new_seen[dst_off + c] = T_seen[src_off + c];
             }
         }
-        free(T_data);
+        mem_free(T_data);
         free(T_seen);
     }
 

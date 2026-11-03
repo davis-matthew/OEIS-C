@@ -9,13 +9,15 @@
  *            equation A(x) = exp( x * exp( x * A'(x)/A(x) ) )
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* global cached tables for the sequence */
 static seq_t *A_cache = NULL;  /* a(n) */
@@ -34,9 +36,9 @@ static void ensure_capacity(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    A_cache = (seq_t *)realloc(A_cache, new_cap * sizeof(seq_t));
-    B_cache = (seq_t *)realloc(B_cache, new_cap * sizeof(seq_t));
-    E_cache = (seq_t *)realloc(E_cache, new_cap * sizeof(seq_t));
+    A_cache = mem_resize(seq_t, A_cache, new_cap);
+    B_cache = mem_resize(seq_t, B_cache, new_cap);
+    E_cache = mem_resize(seq_t, E_cache, new_cap);
     cache_cap = new_cap;
 }
 

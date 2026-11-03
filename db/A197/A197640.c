@@ -9,6 +9,7 @@
  *            sum of two coprime, square‑free, composite positive integers
  * Range:     u8 n <= 84, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
  * Helpers:   gcd, is_prime, is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 /* Dependencies from the utils library */
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include "../utils/is_prime.h"
 #include "../utils/is_squarefree.h"

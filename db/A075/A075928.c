@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * positions from every previously accepted codeword. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* popcount for seq_t – works for any integer type supporting >> & 1
  * (seq_t may be 8, 16, 32, 64 or 128 bits, or an arbitrary‑precision
@@ -41,7 +43,7 @@ static void append_seq(seq_t **arr, size_t *len, size_t *cap, seq_t val)
 {
     if (*len == *cap) {
         size_t newcap = (*cap == 0) ? 4 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
         if (!tmp) abort(); /* abort on allocation failure */
         *arr = tmp;
         *cap = newcap;

@@ -9,7 +9,8 @@
  *            36*a(n-2) - 126*a(n-4) + 84*a(n-6) - 9*a(n-8)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Computes the OEIS sequence A212593. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache of computed terms               */
 static size_t cache_cap = 0;         /* allocated capacity of cache           */
@@ -42,12 +44,12 @@ seq_t a(idx_t n) {
     /* Ensure cache has space */
     if (cache == NULL) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return (seq_t)0; /* allocation failure */
     } else if (cache_cap < target) {
         size_t new_cap = cache_cap;
         while (new_cap < target) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return (seq_t)0; /* reallocation failure */
         cache = tmp;
         cache_cap = new_cap;

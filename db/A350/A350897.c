@@ -9,12 +9,14 @@
  *            t) is the number of partitions of m into at most t parts
  * Range:     u8 n <= 30, u16 n <= 72, u32 n <= 205, u64 n <= 658,
  *            u128 n <= 2293, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     size_t cols = (size_t)(kmax + 1);
     size_t total = rows * cols;
 
-    seq_t *dp = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp) return 0;                                 /* allocation failed */
 
     /* Base: partitions of 0 are 1 for any number of parts */
@@ -60,6 +62,6 @@ seq_t a(idx_t n)
         ans += dp[N * cols + k];
     }
 
-    free(dp);
+    mem_free(dp);
     return ans;
 }

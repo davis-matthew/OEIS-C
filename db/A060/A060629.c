@@ -10,12 +10,14 @@
  *            1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for the OEIS sequence A060629.
    Uses memoisation to avoid recomputation when called multiple times. */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     /* initialise allocation on first call or when small n is requested */
     if (cache == NULL) {
         cache_cap = n + 2;               /* at least up to n */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[1] = (seq_t)1;            /* a(1) */
         cache_max = 1;
     }
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     /* grow the array if n exceeds current capacity */
     if ((size_t)(n + 1) > cache_cap) {
         cache_cap = n + 2;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* compute any missing terms up to n */

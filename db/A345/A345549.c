@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 8922 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    cached. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *g_terms   = NULL;   /* cached term list            */
 static idx_t g_count   = 0;       /* number of cached terms      */
@@ -33,7 +35,7 @@ static void generate_terms(idx_t needed_n)
         return;                           /* already have enough */
 
     /* free previous cache if any */
-    free(g_terms);
+    mem_free(g_terms);
     g_terms = NULL;
     g_count = 0;
 
@@ -78,7 +80,7 @@ static void generate_terms(idx_t needed_n)
 
         if (count >= needed_n) {
             /* Allocate and fill the term list */
-            seq_t *terms = (seq_t *)malloc(count * sizeof(seq_t));
+            seq_t *terms = mem_new(seq_t, count);
             if (!terms)
                 exit(1);
             size_t idx = 0;

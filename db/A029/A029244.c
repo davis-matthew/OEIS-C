@@ -11,12 +11,14 @@
  *            the first computation up to a given n
  * Range:     u8 n <= 137, u16 n <= 989, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         /* Allocate a new array large enough for n */
         idx_t new_len = n + 1;
         /* calloc zero-initialises the array */
-        seq_t *new_cache = (seq_t *)calloc(new_len, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) abort();   /* out of memory */
 
         /* Base case: only one way to partition 0 */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old cache */
-        free(cache);
+        mem_free(cache);
         cache     = new_cache;
         cache_len = new_len;
     }

@@ -11,16 +11,60 @@
  *            + 12*Sum (sigma(k) - 11*sigma(k/11))*q^k. So a(n) = [q^...
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   A_grow, a3296_div, a3296_isfixed
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/A_grow.h"
-#include "../utils/a3296_div.h"
-#include "../utils/a3296_isfixed.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static void a3296_div(seq_t *ym, unsigned char *yn, idx_t L,
+                      const long long *ex, const long long *co, int cnt,
+                      long long scale, int fx)
+{
+    idx_t j;
+    for (j = 0; j < L; j++) {
+        seq_t P = 0, Q = 0;
+        int t;
+        if (yn[j]) Q = ym[j]; else P = ym[j];
+        for (t = 0; t < cnt; t++) {
+            idx_t e = (idx_t)(ex[t] * scale);
+            idx_t i;
+            long long c = co[t];
+            int cn = c < 0;
+            long long mag = cn ? -c : c;
+            seq_t v;
+            if (e > j) break;
+            i = j - e;
+            v = ym[i] * (seq_t)(unsigned long long)mag;
+            if (cn ^ (yn[i] != 0)) P += v; else Q += v;
+        }
+        if (fx) { ym[j] = P - Q; yn[j] = 0; }
+        else if (P >= Q) { ym[j] = P - Q; yn[j] = 0; }
+        else { ym[j] = Q - P; yn[j] = 1; }
+    }
+}
+
+static int a3296_isfixed(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return x == 0;
+}
 
 static seq_t *a3296_ym = NULL;
 static unsigned char *a3296_yn = NULL;

@@ -8,8 +8,9 @@
  * Formula:   a(n) = Σ a(d) (d runs over the decimal digits of n), with
  *            a(0)=19, a(1)=10, a(2)=14, a(3)=14, a(4)=14, a(5)=17, a(6)=15,
  *            a(7)=11, a(8)=17, a(9)=15 i.e. a(10*n+u) = a(n) + a(u)
- * Range:     u8 n <= 9640, u16 n <= 9640, u32 n <= 9640, u64 n <= 9640,
- *            u128 n <= 9640, big any n
+ * Range:     u8 n <= 50000, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 85 terms through n = 9640 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

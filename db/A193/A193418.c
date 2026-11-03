@@ -8,12 +8,14 @@
  *            ≥ 4, with a(0)=0, a(1)=1, a(2)=3, a(3)=8
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         /* allocate at least indices 0..3 */
         cap = (size_t)n + 1;
         if (cap < 4) cap = 4;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = 0;   /* a(0) = 0 – not part of the sequence but used in the recurrence */
         cache[1] = 1;   /* a(1) = 1 */
         cache[2] = 3;   /* a(2) = 3 */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     else if ((size_t)n + 1 > cap) {
         /* grow cache if needed */
         cap = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     /* if already computed return */

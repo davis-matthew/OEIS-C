@@ -12,15 +12,45 @@
  *            the three f(L_r)
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 10, u128 n <= 26,
  *            big any n
- * Helpers:   compute_cnt, f_of_len
+ * Validated: standard, pass, 29 terms through n = 197 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #pragma once
 #include <stdint.h>
-#include "../utils/compute_cnt.h"
-#include "../utils/f_of_len.h"
+
+/* Count of ways to fill a 3‑digit row with digit 0..3 such that the row sums to s.
+   Precomputed once. */
+static void compute_cnt(seq_t *cnt) {
+    for (int s = 0; s <= 9; ++s) cnt[s] = 0;
+    for (int a = 0; a <= 3; ++a)
+        for (int b = 0; b <= 3; ++b)
+            for (int c = 0; c <= 3; ++c)
+                ++cnt[a + b + c];
+}
+
+/* Computes f(L) as described above.  L >= 1. */
+static seq_t f_of_len(idx_t L, const seq_t *cnt) {
+    if (L == 0) return (seq_t)1;          /* empty sequence – one way */
+    /* dp_last[s] = number of ways for current length, last sum = s. */
+    seq_t dp_last[10];
+    for (int s = 0; s <= 9; ++s) dp_last[s] = cnt[s];
+    /* length 1 already computed. */
+    for (idx_t len = 2; len <= L; ++len) {
+        seq_t prefix[10];
+        prefix[0] = dp_last[0];
+        for (int s = 1; s <= 9; ++s) prefix[s] = prefix[s-1] + dp_last[s];
+        seq_t dp_next[10];
+        for (int t = 0; t <= 9; ++t)
+            dp_next[t] = prefix[t] * cnt[t];
+        for (int s = 0; s <= 9; ++s) dp_last[s] = dp_next[s];
+    }
+    seq_t total = 0;
+    for (int s = 0; s <= 9; ++s) total += dp_last[s];
+    return total;
+}
 
 /* Main sequence generator. */
 seq_t a(idx_t n) {

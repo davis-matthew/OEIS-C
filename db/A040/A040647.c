@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 static seq_t a0_val;            /* a(0) = ⌊√673⌋ */
 static seq_t period[256];       /* storage for periodic coefficients */
@@ -35,7 +36,7 @@ init_period(void)
         return;
 
     /* a0 as seq_t and as idx_t */
-    a0_val = (seq_t)_floor_isqrt_u64(673);
+    a0_val = (seq_t)isqrt(673);
     idx_t a0_small = (idx_t)a0_val;      /* 25 */
     idx_t twice_a0  = 2 * a0_small;      /* 50 */
 

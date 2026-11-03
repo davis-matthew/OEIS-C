@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9780 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_K 2000000ULL          /* upper bound for k */
 #define MAX_N (MAX_K/2)          /* maximal n we can answer */
@@ -49,7 +51,7 @@ static void init(void)
     }
 
     /* Allocate answer cache and initialise to 0. */
-    ans_cache = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
+    ans_cache = mem_new(seq_t, MAX_N + 1);
 
     /* Fill cache: store minimal k for each φ value. */
     for (uint32_t k = 3; k <= MAX_K; k++) {

@@ -8,7 +8,8 @@
  * Formula:   a(n) = n + sod(n, sod(n, 10))
  * Range:     u8 n <= 245, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, sum_digits_base
+ * Validated: standard, pass, 92 terms through n = 9953 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/sum_digits_base.h"
+
+/* Compute sum of digits of value in base `base`.
+   For base 1, the base‑1 representation is unary, so the sum is `value` itself. */
+static inline seq_t sum_digits_base(seq_t value, seq_t base) {
+    if (base <= 1) return value;
+    seq_t sum = 0;
+    while (value > 0) {
+        sum += value % base;
+        value /= base;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n) {
     /* Convert the index to the sequence type early to avoid mixed‑type arithmetic. */

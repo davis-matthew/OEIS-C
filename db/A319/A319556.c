@@ -9,6 +9,7 @@
  *            3*((n+1)/2) - 2 For even n: a(n) = -(n/2)
  * Range:     i8 n <= 86, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9956 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

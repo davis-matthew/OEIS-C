@@ -8,12 +8,14 @@
  * Formula:   a(n) = 5*a(n-1)+6*a(n-2)+4, a(0)=0, a(1)=1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (cache == NULL)                   /* first call */
     {
         cache_len = n + 1;               /* need indices 0..n */
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = 0;
         cache[1] = 1;
         for (idx_t i = 2; i <= n; ++i)
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     {
         idx_t old_len = cache_len;
         cache_len = n + 1;
-        cache = (seq_t*)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
         for (idx_t i = old_len; i <= n; ++i)
             cache[i] = 5 * cache[i-1] + 6 * cache[i-2] + 4;
     }

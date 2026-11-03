@@ -9,13 +9,15 @@
  *            · x^k
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External integer types (provided by the build). */
 extern seq_t  to_seq_t(idx_t v);
@@ -33,7 +35,7 @@ static idx_t  max_n   = 0;      /* largest n already computed */
 static void ensure_capacity(size_t new_cap, seq_t **ptr, size_t *cap)
 {
     if (*cap < new_cap) {
-        seq_t *tmp = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         *ptr = tmp;
         *cap = new_cap;
@@ -46,15 +48,15 @@ seq_t a(idx_t n)
     /* --- first‑time initialisation ------------------------------------- */
     if (a_cache == NULL) {
         a_cap   = 1;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         if (!a_cache) exit(EXIT_FAILURE);
         a_cache[0] = (seq_t)1;   /* a(0) = 1 */
         max_n = 0;
 
         /* allocate Stirling rows (short‑initial values). */
         S_cap   = 1;
-        S_prev  = (seq_t *)malloc(S_cap * sizeof(seq_t));
-        S_cur   = (seq_t *)malloc(S_cap * sizeof(seq_t));
+        S_prev  = mem_new(seq_t, S_cap);
+        S_cur   = mem_new(seq_t, S_cap);
         if (!S_prev || !S_cur) exit(EXIT_FAILURE);
         S_prev[0] = (seq_t)1;   /* S(0,0) = 1 */
     }

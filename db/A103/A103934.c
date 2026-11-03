@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Static state for the sequence */
 static seq_t *seq_cache = NULL;   /* 1‑based sequence values */
@@ -45,7 +47,7 @@ static void ensure_seq(idx_t n)
 {
     if ((size_t)n < seq_cap) return;
     size_t new_cap = (size_t)n + 32;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap   = new_cap;
 }
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
 
     /* first allocation */
     if (!seq_cache) {
-        seq_cache = (seq_t *)calloc(1, sizeof(seq_t));
+        seq_cache = mem_new(seq_t, 1);
         seq_cap   = 1;
     }
 
@@ -94,14 +96,14 @@ seq_t a(idx_t n)
 
             /* candidate must satisfy prime/composite requirement */
             if (need_prime) {
-                if (!is_prime((uint64_t)cand)) continue;
+                if (!is_prime_u64((uint64_t)cand)) continue;
             } else {
-                if (cand <= 1 || is_prime((uint64_t)cand)) continue; /* not composite */
+                if (cand <= 1 || is_prime_u64((uint64_t)cand)) continue; /* not composite */
             }
 
             /* check the partial sum property */
             seq_t sum = cumulative + (seq_t)cand;
-            bool sum_prime = is_prime((uint64_t)sum);
+            bool sum_prime = is_prime_u64((uint64_t)sum);
 
             if (need_prime) {        /* even index: sum must be composite */
                 if (sum_prime) continue;

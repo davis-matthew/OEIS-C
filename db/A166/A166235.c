@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 26, i16 n <= 60, i32 n <= 60, i64 n <= 60, i128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Sequence A166235: flattened triangle of [(x‑1)(x+2)(x+1)]^n coefficients */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t coeffs[4] = { (seq_t)-2, (seq_t)-1, (seq_t)2, (seq_t)1 };
 
@@ -39,13 +41,13 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* iterate rows until we reach row r */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     prev[0] = (seq_t)1;
     size_t prev_len = 1;
 
     for (idx_t i = 0; i < r; i++) {
         size_t new_len = 3 * (i + 1) + 1;
-        seq_t *next = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, new_len);
         for (size_t j = 0; j < new_len; j++)
             next[j] = (seq_t)0;
 
@@ -57,17 +59,17 @@ seq_t a(idx_t n)
 
         if (i + 1 == r) {
             seq_t result = next[m];
-            free(next);
-            free(prev);
+            mem_free(next);
+            mem_free(prev);
             return result;
         }
 
-        free(prev);
+        mem_free(prev);
         prev = next;
         prev_len = new_len;
     }
 
     /* should never reach here */
-    free(prev);
+    mem_free(prev);
     return (seq_t)0;
 }

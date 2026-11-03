@@ -10,12 +10,14 @@
  *            counts the number of cubes used
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 120 terms through n = 9395 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoisation table for a(n) values */
 static idx_t cache_size = 0;     /* current allocated size of cache */
@@ -48,10 +50,10 @@ static void ensure_cache(idx_t n)
     idx_t new_size = cache_size > 0 ? cache_size : 1;
     while (new_size <= n) new_size <<= 1;
 
-    seq_t *new_arr = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_size);
     if (cache) {
         for (idx_t i = 0; i < cache_size; ++i) new_arr[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_arr;
     cache_size = new_size;

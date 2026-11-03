@@ -8,8 +8,9 @@
  * Formula:   a(n) is the nth digit of the concatenated sequence S_k = "0"
  *            followed by the digits of k written in reverse order, for k = 0,
  *            1, 2, …
- * Range:     u8 n <= 9149, u16 n <= 9149, u32 n <= 9149, u64 n <= 9149,
- *            u128 n <= 9149, big any n
+ * Range:     u8 n <= 10004, u16 n <= 10004, u32 n <= 10004, u64 n <= 10004,
+ *            u128 n <= 10004, big any n
+ * Validated: standard, pass, 121 terms through n = 9149 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} |Stirling1(n - 2*k,k)|
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 15, u64 n <= 23, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The function a should have external linkage; seq_t and idx_t are
    provided by the build system. The implementation below uses
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (tri == NULL) {
         /* Need space for a single entry (n=0,k=0) */
         table_size = 1;
-        tri = (seq_t*)malloc(table_size * sizeof(seq_t));
+        tri = mem_new(seq_t, table_size);
         if (tri == NULL) return 0;   /* out of memory: return 0 */
         tri[0] = (seq_t)1;           /* |s(0,0)| = 1 */
         current_max_n = 0;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         /* New required size: (n+1)*(n+2)/2 entries */
         size_t new_table_size = (size_t)(n + 1) * (n + 2) / 2;
         if (new_table_size > table_size) {
-            seq_t *tmp = (seq_t*)realloc(tri, new_table_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, tri, new_table_size);
             if (tmp == NULL) return 0;   /* out of memory: return 0 */
             tri = tmp;
             table_size = new_table_size;

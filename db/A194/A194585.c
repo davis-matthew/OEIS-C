@@ -7,6 +7,7 @@
  * Formula:   a(n) = (-15031 + 10631*(-1)^n + 30030*n) / 2
  * Range:     u8 none, u16 n <= 3, u32 n <= 666, u64 n <= 666, u128 n <= 666,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 653 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -13,12 +13,14 @@
  *            - (r-1)*r/2, and T(r,c) = |s(r,r+1-c)|
  * Range:     u8 n <= 19, u16 n <= 41, u32 n <= 100, u64 n <= 246,
  *            u128 n <= 623, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1299 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find row r such that cumulative count >= n. */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     idx_t col = n - (cum - r);          /* 1 ≤ col ≤ r */
 
     /* Compute unsigned Stirling numbers up to row r in place. */
-    seq_t *c = (seq_t*)calloc(r + 1, sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, r + 1);
     if (!c) return 0;   /* allocation failure, unlikely for small r */
 
     c[0] = 1;   /* c(0,0) = 1 */
@@ -47,6 +49,6 @@ seq_t a(idx_t n) {
     idx_t x = r + 1 - col;      /* 1 ≤ x ≤ r */
     seq_t result = c[x];
 
-    free(c);
+    mem_free(c);
     return result;
 }

@@ -9,8 +9,9 @@
  *            antidiagonals of the array with i decreasing. For index n, let s
  *            = ⌊(√(8n+1)−1)/2⌋, offset = n − s(s+1)/2, i = s − offset, j =
  *            offset. Then a(n) = i*j*(i^2−j^2)/6
- * Range:     i8 n <= 56, i16 n <= 747, i32 n <= 9601, i64 n <= 9601,
- *            i128 n <= 9601, big any n
+ * Range:     i8 n <= 56, i16 n <= 747, i32 n <= 11475, i64 n <= 11475,
+ *            i128 n <= 11475, big any n
+ * Validated: standard, pass, 82 terms through n = 9601 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

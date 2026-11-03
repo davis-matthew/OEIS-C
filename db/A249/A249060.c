@@ -7,7 +7,8 @@
  * Formula:   a(n) = (n+3)*a(n-2), a(0) = 1, a(1) = 4
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 17, u64 n <= 30, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence of order 2; simple iterative computation. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Ensure cache has at least the first two terms. */
     if (cache_size == 0) {
         cache_size = 2;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
         if (!cache) return 0;          /* Out of memory */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)4;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Extend cache up to index n if necessary. */
     if ((idx_t)cache_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return 0;      /* Out of memory */
         cache = new_cache;
 

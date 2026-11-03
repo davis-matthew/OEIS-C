@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) + prime(n-1), a(1) = 2
  * Range:     u8 n <= 14, u16 n <= 157, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 813 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External utilities (not used directly) */
 #define _USE_MATH_DEFINES
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* Allocate initial storage for sequence values when first called */
     if (seq_vals == NULL) {
         seq_cap = 16;
-        seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
         if (!seq_vals) return 0;          /* allocation failed, return 0 */
         seq_vals[0] = 0;                 /* unused, keep 1-based indexing */
         seq_vals[1] = 2;                 /* a(1) = 2 */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > seq_cap) {
         size_t new_cap = seq_cap;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
         if (!tmp) return 0;              /* allocation failed */
         seq_vals = tmp;
         seq_cap  = new_cap;

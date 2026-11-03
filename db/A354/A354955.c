@@ -8,7 +8,8 @@
  * Formula:   a(n) = 4 * A354956(n)
  * Range:     u8 n <= 10, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   max_seq_t
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/max_seq_t.h"
+#include "../utils/mem.h"
+
+/* Helper: maximum representable value of seq_t */
+static inline seq_t max_seq_t(void) {
+    return (seq_t)-1;
+}
 
 /* Candidate value in the heap */
 struct Candidate {
@@ -73,7 +79,7 @@ static void sift_down(size_t idx) {
 static void heap_push(seq_t v, idx_t j, unsigned int k) {
     if (heap_size == heap_cap) {
         heap_cap = (heap_cap == 0) ? 16 : heap_cap * 2;
-        heap = (struct Candidate *)realloc(heap, heap_cap * sizeof(struct Candidate));
+        heap = mem_resize(struct Candidate, heap, heap_cap);
     }
     heap[heap_size].val = v;
     heap[heap_size].j   = j;
@@ -91,7 +97,7 @@ static struct Candidate heap_pop(void) {
 static void seq_append(seq_t v) {
     if (seq_len == seq_cap) {
         seq_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
     seq[seq_len++] = v;
 }

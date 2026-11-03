@@ -10,13 +10,15 @@
  *            a(n) = 6·∑_{i=n-47}^{n-1} a(i) – 21·a(n-48)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,8 +51,8 @@ seq_t a(idx_t n)
         {
             idx_t new_cap = (dyn_cap == 0 ? 64 : dyn_cap);
             while (new_cap <= n) new_cap <<= 1;
-            dyn_cache = (seq_t *)realloc(dyn_cache, sizeof(seq_t) * new_cap);
-            dyn_cum   = (seq_t *)realloc(dyn_cum,   sizeof(seq_t) * new_cap);
+            dyn_cache = mem_resize(seq_t, dyn_cache, new_cap);
+            dyn_cum   = mem_resize(seq_t, dyn_cum, new_cap);
             if (!dyn_cache || !dyn_cum) return 0;    /* allocation failure → undefined */
             dyn_cap = new_cap;
         }

@@ -7,12 +7,15 @@
  * Formula:   a(n) = 4^C(n,2)*(4^n-1)/3
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +30,8 @@ seq_t a(idx_t n)
 
     /* 4^C(n,2) and 4^n.  The function big_pow returns a seq_t value
        raised to the given seq_t exponent. */
-    seq_t pow4C = big_pow((seq_t)4, (seq_t)expC);
-    seq_t pow4n = big_pow((seq_t)4, (seq_t)n);
+    seq_t pow4C = ipow((seq_t)4, (seq_t)expC);
+    seq_t pow4n = ipow((seq_t)4, (seq_t)n);
 
     /* (4^n - 1) / 3, integral by construction. */
     seq_t temp = pow4n - 1;

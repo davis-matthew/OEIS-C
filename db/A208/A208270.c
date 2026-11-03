@@ -7,7 +7,8 @@
  * Formula:   a(n) is the n-th prime that contains the digit '1' (searched)
  * Range:     u8 n <= 32, u16 n <= 3559, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 70 terms through n = 9918 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* nth prime containing the digit '1' */
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 32;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         /* Store it in the cache. */
         if (cache_size == cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_size++] = (seq_t)last_candidate;
     }

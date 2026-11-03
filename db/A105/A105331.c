@@ -12,14 +12,16 @@
  *            and pow2() for computing 2^k. The implementation sto...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   is_prime, pow2
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   is_prime_u64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         }
 
         /* Test primality of p.  is_prime() works for 64‑bit inputs. */
-        if (is_prime((uint64_t)p)) {
+        if (is_prime_u64((uint64_t)p)) {
             ++count;
             if (count == n) {
                 /* Compute 2^k * p, using pow2() to get a(seq_t). */

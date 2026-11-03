@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 26, u16 n <= 659, u32 n <= 9659, u64 n <= 9659,
- *            u128 n <= 9659, big any n
- * Helpers:   factor_u64, next_prime, pow_int
+ * Range:     u8 n <= 26, u16 n <= 659, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 85 terms through n = 9659 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 #include "../utils/next_prime.h"
 
 /* Compute A003961: shift prime powers of n to next prime. */
@@ -40,7 +43,7 @@ static seq_t A003961(seq_t value)
     seq_t result = (seq_t)1;
     for (size_t i = 0; i < pcnt; ++i) {
         uint64_t next = next_prime(primes[i]);               /* prime after primes[i] */
-        seq_t term    = pow_int((seq_t)next, (idx_t)exps[i]); /* next^exponent */
+        seq_t term    = ipow_idx((seq_t)next, (idx_t)exps[i]); /* next^exponent */
         result *= term;
     }
     return result;

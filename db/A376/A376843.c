@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 7852, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega
+ * Validated: standard, pass, 78 terms through n = 9430 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,13 +22,36 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/bigomega.h"   /* bigomega(idx_t n) returns Omega(n) as seq_t */
+#include <stdlib.h>
+#include "../utils/bigomega.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 static seq_t *cache = NULL;          /* dynamically growing array of sequence terms */
 static size_t cached = 0;            /* number of terms stored in cache */
 static size_t cap = 0;               /* current capacity of the cache */
 static idx_t last_k = 0;             /* last integer examined */
 
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 16 : *cap * 2;
+    while (new_cap < needed) new_cap *= 2;
+    /* realloc is allowed in C++17 as a C function and C11 is fine */
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (needed <= *cap) return;
@@ -38,6 +62,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
     *ptr = tmp;
     *cap = new_cap;
 }
+#endif
 
 seq_t a(idx_t n)
 {
@@ -56,7 +81,7 @@ seq_t a(idx_t n)
         seq_t Omega_sum = bigomega(sum);    /* Omega(k + Omega(k)) */
 
         if (Omega_sum == Omega_k + Omega_Omega_k) {
-            ensure_capacity(cached + 1, &cap, (void **)&cache, sizeof(seq_t));
+            ensure_capacity(cached + 1, &cap, OEISC_VPP(&cache), sizeof(seq_t));
             cache[cached++] = last_k;
         }
     }

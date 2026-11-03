@@ -10,7 +10,8 @@
  *            sum of divisors of n (A000203)
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   ensure_capacity, sigma_of
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,57 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"          /* seq_t sigma_of(idx_t n); */
-#include "../utils/ensure_capacity.h"   /* void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size); */
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 /* static cache for Lucas numbers (1-indexed).  lucas_cache[0] is unused. */
 static seq_t *lucas_cache = NULL;      /* array of Lucas numbers */
@@ -38,7 +88,7 @@ static void ensure_lucas(idx_t n)
 
     /* ensure capacity: we need indices 0..n (size n+1) */
     size_t needed = (size_t)n + 1;
-    ensure_capacity(needed, &lucas_cap, (void **)&lucas_cache, sizeof(seq_t));
+    ensure_capacity(needed, &lucas_cap, OEISC_VPP(&lucas_cache), sizeof(seq_t));
 
     /* initialize on first use */
     if (lucas_nmax == 0) {

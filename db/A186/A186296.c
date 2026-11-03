@@ -7,7 +7,8 @@
  * Formula:   a(n) = (p + 1)/2 where p is the nth prime congruent to 3 mod 8
  * Range:     u8 n <= 15, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence A186296 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* dynamic array to store primes congruent to 3 (mod 8) */
 static seq_t *prime_arr = NULL;
@@ -26,7 +28,7 @@ static void add_prime(seq_t p)
 {
     if (prime_count >= prime_cap) {
         size_t new_cap = (prime_cap == 0U ? 1024U : prime_cap << 1);
-        seq_t *tmp = (seq_t *)realloc(prime_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_arr, new_cap);
         if (!tmp) { /* fatal error: cannot allocate more memory */
             exit(1);
         }

@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n‑2)^2 + a(n‑1)^3, with a(0) = 0, a(1) = 1
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,9 +28,9 @@ seq_t a(idx_t n)
     if (cap <= idx) {
         size_t new_cap = idx + 1;
         if (cap == 0) {
-            values = (seq_t *)malloc(new_cap * sizeof(*values));
+            values = mem_new(seq_t, new_cap);
         } else {
-            values = (seq_t *)realloc(values, new_cap * sizeof(*values));
+            values = mem_resize(seq_t, values, new_cap);
         }
         /* assume allocation succeeds; if not, the program will crash,
            which is acceptable for this context. */

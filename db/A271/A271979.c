@@ -11,13 +11,15 @@
  *            8th term is computed regardless of * the sequence l...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 14 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 /* Recursive helper: computes B_b(n) – the result of replacing every
  * occurrence of the base b by (b+1) in the hereditary base-b
@@ -37,7 +39,7 @@ static seq_t B_base(seq_t n, idx_t b)
         if (digit != (seq_t)0) {
             /* exponent for (b+1) is B_b(pos) */
             seq_t exp = B_base((seq_t)pos, b);
-            seq_t pow_term = big_pow(new_base_seq, exp);
+            seq_t pow_term = ipow(new_base_seq, exp);
             result += digit * pow_term;
         }
         temp /= base_seq;

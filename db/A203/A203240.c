@@ -8,6 +8,7 @@
  * Formula:   a(n) = (-1)^(n+1) * (2*n-1)! * Sum_{i=1}^{2*n-1} 1/i
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 6, i64 n <= 10, i128 n <= 14,
  *            big any n
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -13,14 +13,29 @@
  *            create a forbidden sum as defined above
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   prefix_has_value
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/prefix_has_value.h"
+#include "../utils/mem.h"
+
+/* Binary search: does 'val' appear in prefix[0..len] (inclusive)?
+   prefix array is sorted in increasing order. */
+static bool prefix_has_value(size_t len, seq_t val, const seq_t *pref) {
+    size_t l = 0, r = len;           /* search range 0 .. len inclusive */
+    while (l < r) {
+        size_t m = l + (r - l) / 2;
+        if (pref[m] < val)
+            l = m + 1;
+        else
+            r = m;
+    }
+    return (l <= len && pref[l] == val);
+}
 
 /* Dynamic storage for the sequence and its prefix sums. */
 static seq_t *seq      = NULL;   /* sequence values, indexed 0..len-1 */
@@ -34,7 +49,7 @@ static void ensure_seq_cap(size_t need) {
     if (need <= seq_cap) return;
     size_t nc = seq_cap ? seq_cap << 1 : 8;
     while (nc < need) nc <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, nc * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, nc);
     seq = tmp;
     seq_cap = nc;
 }
@@ -44,7 +59,7 @@ static void ensure_pref_cap(size_t need) {
     if (need <= pref_cap) return;
     size_t nc = pref_cap ? pref_cap << 1 : 8;
     while (nc < need) nc <<= 1;
-    seq_t *tmp = (seq_t *)realloc(prefix, nc * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prefix, nc);
     prefix = tmp;
     pref_cap = nc;
 }
@@ -71,10 +86,10 @@ seq_t a(idx_t n) {
     /* ---------- Initialization ---------- */
     if (!seq) {
         seq_cap  = 8;
-        seq = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
 
         pref_cap = 9;                  /* need space for prefix[0..1] at start */
-        prefix = (seq_t *)calloc(pref_cap, sizeof(seq_t));
+        prefix = mem_new(seq_t, pref_cap);
         prefix[0] = (seq_t)0;           /* sum of zero terms */
     }
 

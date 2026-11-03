@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9331 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;        /* sorted list of sums with >=10 reps */
 static size_t terms_len = 0;       /* number of stored terms */
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         }
 
         /* Gather all sums with at least 10 representations. */
-        seq_t *tmp = (seq_t *)malloc((size_t)(maxSum + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, (size_t)(maxSum + 1));
         if (!tmp) { free(cnt); free(squares); return (seq_t)0; }
 
         size_t pos = 0;
@@ -86,16 +88,16 @@ seq_t a(idx_t n)
         }
 
         /* Resize the array to the actual number of terms. */
-        seq_t *newTerms = (seq_t *)realloc(tmp, pos * sizeof(seq_t));
+        seq_t *newTerms = mem_resize(seq_t, tmp, pos);
         if (!newTerms) {
-            free(tmp);
+            mem_free(tmp);
             free(cnt);
             free(squares);
             return (seq_t)0;
         }
 
         /* Replace old terms array. */
-        free(terms);
+        mem_free(terms);
         terms = newTerms;
         terms_len = pos;
 

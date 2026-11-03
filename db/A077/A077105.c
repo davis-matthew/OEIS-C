@@ -11,7 +11,8 @@
  *            1 ≤ k ≤ ⌊(n‑1)/2⌋
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   find_parent, gcd, union_set
+ * Validated: partial, pass, 77 terms through n = 79 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/find_parent.h"
-#include "../utils/union_set.h"
+
+static idx_t find_parent(idx_t *p, idx_t x)
+{
+    return (p[x] == x) ? x : (p[x] = find_parent(p, p[x]));
+}
+
+static void union_set(idx_t *p, idx_t a, idx_t b)
+{
+    a = find_parent(p, a);
+    b = find_parent(p, b);
+    if (a != b) p[b] = a;
+}
 
 static idx_t modinv(idx_t a, idx_t mod)
 {

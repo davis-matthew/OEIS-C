@@ -7,14 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = a(n - 1 - a(n-1)) + a(n - 2 - a(n-2)) for n > 2 with a(0)
  *            = a(1) = a(2) = 1
- * Range:     u8 n <= 510, u16 n <= 9215, u32 n <= 9215, u64 n <= 9215,
- *            u128 n <= 9215, big any n
- * Helpers:   none
+ * Range:     u8 n <= 510, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 92 terms through n = 9215 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *memo = NULL;
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     
     if (memo == NULL) {
         memo_cap = 64;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         memo[0] = 1;
         memo[1] = 1;
         memo[2] = 1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     // Extend memo if needed
     while (n >= memo_cap) {
         memo_cap *= 2;
-        memo = (seq_t *)realloc(memo, memo_cap * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, memo_cap);
     }
     
     // Compute values from computed_up_to + 1 to n

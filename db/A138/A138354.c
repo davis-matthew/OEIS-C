@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{i=0..n} (-1)^i * binomial(n,i) * binom(i,⌊i/2⌋)^2
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    binom(i,⌊i/2⌋)^2. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *central = NULL;   /* central[i] = binom(i, floor(i/2)) */
 static size_t central_len = 0;
@@ -28,7 +30,7 @@ static void ensure_central(idx_t n)
 
     /* Allocate or grow the array. */
     size_t new_len = (size_t)n + 1;
-    central = (seq_t *)realloc(central, new_len * sizeof(seq_t));
+    central = mem_resize(seq_t, central, new_len);
 
     /* Compute central values that are missing. */
     idx_t start = (central_len == 0) ? 0 : (idx_t)central_len;

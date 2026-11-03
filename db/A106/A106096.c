@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 501, u32 n <= 9686, u64 n <= 9686,
- *            u128 n <= 9686, big any n
- * Helpers:   has_max_digit6, is_prime
+ * Range:     u8 n <= 2, u16 n <= 501, u32 n <= 30000, u64 n <= 30000,
+ *            u128 n <= 30000, big any n
+ * Validated: standard, pass, 61 terms through n = 9686 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* declares bool is_prime(uint64_t) */
-#include "../utils/has_max_digit6.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* true iff x has maximal decimal digit exactly 6 */
+static bool has_max_digit6(uint64_t x)
+{
+    int max_digit = 0;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d > max_digit) max_digit = d;
+        if (max_digit > 6) return false; /* a digit >6 */
+        x /= 10;
+    }
+    return max_digit == 6;
+}
 
 static seq_t *terms = NULL;        /* collected terms */
 static idx_t terms_count = 0;      /* # terms stored */
@@ -29,7 +44,7 @@ static uint64_t next_candidate = 2;/* next integer to test */
 static void grow_terms_array(void)
 {
     idx_t new_cap = (terms_cap == 0 ? 16 : terms_cap * 2);
-    seq_t *new_ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
     if (!new_ptr) abort();   /* allocation failed */
     terms = new_ptr;
     terms_cap = new_cap;
@@ -39,7 +54,7 @@ static void grow_terms_array(void)
 static void generate_terms(idx_t n)
 {
     while (terms_count < n) {
-        if (is_prime(next_candidate) && has_max_digit6(next_candidate)) {
+        if (is_prime_u64(next_candidate) && has_max_digit6(next_candidate)) {
             if (terms_count >= terms_cap) grow_terms_array();
             terms[terms_count++] = (seq_t)next_candidate;
         }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of q^n in ∏_{k≥1} (1 - q^{k^2})
  * Range:     i8 n <= 1937, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 8816 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computation: iterative DP over square sizes, memoized across calls. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
     if (N + 1 > buf_size) {
         buf_size = N + 1;
-        buf = (seq_t *)realloc(buf, buf_size * sizeof(seq_t));
+        buf = mem_resize(seq_t, buf, buf_size);
     }
 
     /* initialise */

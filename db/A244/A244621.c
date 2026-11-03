@@ -8,13 +8,15 @@
  *            n‑th primorial, modulo 12)
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The function is declared externally by the build system.  The 
  * definitions of seq_t and idx_t are provided by the compiler. */
@@ -92,7 +94,7 @@ static void ensure_cache_capacity(idx_t need)
 
     while (a_cache_cap < need) {
         size_t new_cap = (a_cache_cap == 0) ? 20000 : a_cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp)   /* allocation failed – give up silently */
             return;
         a_cache   = tmp;

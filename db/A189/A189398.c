@@ -10,13 +10,15 @@
  *            is the i‑th prime (2,3,5,7,11,13,…)
  * Range:     u8 n <= 7, u16 n <= 28, u32 n <= 178, u64 n <= 4998,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 66 terms through n = 8473 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
         if (exp > 0) {
             seq_t prime = (seq_t)primes[digit_index];
-            seq_t powed  = big_pow(prime, (seq_t)exp);
+            seq_t powed  = ipow(prime, (seq_t)exp);
             result *= powed;
         }
 

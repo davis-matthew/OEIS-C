@@ -7,12 +7,14 @@
  * Formula:   a(n) = \prod_{k=1}^{n} (-2k)^{k-1}
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 5, i64 n <= 6, i128 n <= 8,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 26 terms through n = 35 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +22,7 @@ seq_t a(idx_t n)
     seq_t result = 1;
     for (idx_t k = 1; k <= n; ++k) {
         seq_t base = - (seq_t)(2 * k);    /* (-2k) */
-        seq_t term = pow_seq(base, k - 1);
+        seq_t term = ipow_idx(base, k - 1);
         result *= term;
     }
     return result;

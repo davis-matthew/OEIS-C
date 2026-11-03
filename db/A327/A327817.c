@@ -10,7 +10,8 @@
  *            modulo s
  * Range:     u8 n <= 610, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, factor_u64, mod_pow
+ * Validated: standard, pass, 106 terms through n = 8944 (2026-11-01)
+ * Helpers:   factor_u64, powmod, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,11 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
-#include "../utils/calc_phi.h"
+#include "../utils/powmod.h"
+#include "../utils/totient_seq.h"
 
 /* Compute the multiplicative order of 9 modulo s.
    s is coprime to 3 (i.e. 3∤s).  phi_s is φ(s). */
@@ -44,7 +47,7 @@ static seq_t order_of_9(uint64_t s, seq_t phi_s)
         /* Reduce order by successive factors of p */
         while (order % p == 0) {
             uint64_t cand = order / p;
-            seq_t res = mod_pow((seq_t)9, cand, (seq_t)s);
+            seq_t res = powmod((seq_t)9, cand, (seq_t)s);
             if (res == (seq_t)1)
                 order = cand;
             else
@@ -75,7 +78,7 @@ seq_t a(idx_t n)
         phi_3e = pow3 * (seq_t)2;
     }
 
-    seq_t phi_s = calc_phi((seq_t)s);        /* φ(s) */
+    seq_t phi_s = totient_seq((seq_t)s);        /* φ(s) */
     seq_t phi_n = phi_3e * phi_s;            /* φ(n) = φ(3^e)·φ(s) */
 
     seq_t ord = order_of_9(s, phi_s);        /* ord_9(s) */

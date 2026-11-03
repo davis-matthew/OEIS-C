@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{0<d|n, n/d odd} d^5
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 84, u64 n <= 7127,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_pow_seq
+ * Validated: standard, pass, 45 terms through n = 9852 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
    For n = 2^e * m (m odd), a(n) = 2^(5e) * \prod_{p^k||m} (1 + p^5 + p^10 + … + p^{5k})  */
 
 #include <stdint.h>
-#include "../utils/seq_pow_seq.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* undefined for n=0, just safety */

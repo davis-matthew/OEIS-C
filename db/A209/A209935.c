@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The following static variables keep the cached sequence
    and auxiliary convolution data.  They are initially
@@ -39,10 +41,10 @@ static idx_t e_len          = 0;           /* largest r index in e[] currently s
 /* Initialise all static arrays and the first term a(0). */
 static void init_arrays(void)
 {
-    a_cache = (seq_t*)calloc(CAP, sizeof(seq_t));
-    pos     = (seq_t*)calloc(CAP, sizeof(seq_t));
-    neg     = (seq_t*)calloc(CAP, sizeof(seq_t));
-    e       = (seq_t*)calloc(CAP, sizeof(seq_t));
+    a_cache = mem_new(seq_t, CAP);
+    pos     = mem_new(seq_t, CAP);
+    neg     = mem_new(seq_t, CAP);
+    e       = mem_new(seq_t, CAP);
 
     /* e[0] = 1, e[1] = 1 corresponds to the product (1–1²x). */
     e[0] = (seq_t)1;

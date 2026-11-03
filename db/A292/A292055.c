@@ -7,14 +7,16 @@
  * Formula:   a(n) = (216 - 27*2^(n + 3) - 56*3^n + 81*4^n)/144 (n > 1)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* For n = 1 the sequence defines a(1) = 0. */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     /* The first term is explicitly defined. */
@@ -22,9 +24,9 @@ seq_t a(idx_t n) {
         return (seq_t)0;
 
     /* Compute the needed powers of 2, 3 and 4. */
-    seq_t pow2 = pow_uint(2, n + 3);   /* 2^(n+3) */
-    seq_t pow3 = pow_uint(3, n);       /* 3^n     */
-    seq_t pow4 = pow_uint(4, n);       /* 4^n     */
+    seq_t pow2 = ipow_u64_idx(2, n + 3);   /* 2^(n+3) */
+    seq_t pow3 = ipow_u64_idx(3, n);       /* 3^n     */
+    seq_t pow4 = ipow_u64_idx(4, n);       /* 4^n     */
 
     /* Evaluate the numerator of the closed‑form expression. */
     seq_t numerator = (seq_t)216

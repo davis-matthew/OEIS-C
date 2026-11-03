@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 141, u16 n <= 955, u32 n <= 8022, u64 n <= 9966,
- *            u128 n <= 9966, big any n
- * Helpers:   global_to_rc
+ * Range:     u8 n <= 141, u16 n <= 955, u32 n <= 8022, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 95 terms through n = 9966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,7 +38,18 @@
  */
 
 #include <stdlib.h>
-#include "../utils/global_to_rc.h"
+#include "../utils/mem.h"
+
+/* map global index n to (row, col) in the triangle */
+static void global_to_rc(idx_t n, idx_t *row, idx_t *col)
+{
+    idx_t r = 0;
+    while ((r * (r + 1)) / 2 < n)
+        ++r;
+    idx_t prev = (r * (r - 1)) / 2;
+    *row = r;
+    *col = n - prev;
+}
 
 static seq_t *part_table = NULL;     /* flat 2D array P[n][k] */
 static idx_t part_maxN = 0;          /* largest n already computed */
@@ -51,7 +63,7 @@ static void ensure_partitions(idx_t N)
     /* new size */
     idx_t dim = N + 1;                     /* rows and columns */
     size_t total = (size_t)dim * (size_t)dim;
-    seq_t *newp = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, total);
     if (!newp)
         return;    /* out of memory – caller will get 0 */
 
@@ -70,7 +82,7 @@ static void ensure_partitions(idx_t N)
     }
 
     /* replace old table */
-    free(part_table);
+    mem_free(part_table);
     part_table = newp;
     part_maxN   = N;
 }

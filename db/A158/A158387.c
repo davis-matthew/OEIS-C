@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, easy
  * Formula:   a(n) = -1 if n is a perfect square, 1 otherwise
- * Range:     i8 n <= 9012, i16 n <= 9012, i32 n <= 9012, i64 n <= 9012,
- *            i128 n <= 9012, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9012 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

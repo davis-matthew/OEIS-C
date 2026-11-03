@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 162, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 57 terms through n = 912 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_prime_small.h"   /* provides bool is_prime_small(uint64_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,11 +39,11 @@ seq_t a(idx_t n)
         if (cap < needed) {
             size_t new_cap = cap ? cap * 2 : 64;
             while (new_cap < needed) new_cap *= 2;
-            seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_new(seq_t, new_cap);
             if (!new_arr) abort();          /* unrecoverable – heap exhausted */
             if (primes) {
-                memcpy(new_arr, primes, cap * sizeof(seq_t));
-                free(primes);
+                mem_copy(new_arr, primes, cap * sizeof(seq_t));
+                mem_free(primes);
             }
             primes = new_arr;
             cap    = new_cap;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         /* Generate candidates until we have enough primes. */
         while (size < needed) {
             uint64_t cand = 55ULL * next_k + 16ULL;
-            if (is_prime_small(cand)) {
+            if (is_prime_seq(cand)) {
                 primes[size++] = (seq_t)cand;
             }
             next_k++;

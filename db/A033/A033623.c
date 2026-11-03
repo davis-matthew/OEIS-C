@@ -8,7 +8,8 @@
  *            a(k) for k < n
  * Range:     u8 n <= 17, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Sequence storage */
 static seq_t *seq = NULL;
@@ -87,7 +89,7 @@ seq_t a(idx_t n) {
         /* Grow storage if necessary */
         if (seq_len == seq_cap) {
             seq_cap = seq_cap ? seq_cap << 1 : 8;
-            seq_t *tmp = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, seq_cap);
             if (!tmp) exit(1);
             seq = tmp;
         }

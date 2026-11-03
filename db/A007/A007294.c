@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 145, u32 n <= 594, u64 n <= 2919,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9251 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,11 +17,12 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     // Allocate and initialize DP array
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    memset(dp, 0, (n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
+    mem_set(dp, 0, (n + 1) * sizeof(seq_t));
     dp[0] = 1;
     
     // For each triangular number
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     }
     
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     
     return result;
 }

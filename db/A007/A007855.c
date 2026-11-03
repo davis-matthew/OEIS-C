@@ -11,13 +11,26 @@
  *            (1/4)(1+sqrt(1-4x))(1-sqrt(3-2/sqrt(1-4x))) with x = w/(1+w)^2.)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   grow_zero
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/grow_zero.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static seq_t *T = NULL;
 static idx_t Tlen = 0;

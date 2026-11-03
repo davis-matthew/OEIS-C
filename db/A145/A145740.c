@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 41, i16 n <= 131, i32 n <= 441, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*---  static storage for the computed coefficients  -------------------*/
 static seq_t *coeff = NULL;      /* array of coefficients, coeff[idx] = coefficient of q^idx */
@@ -44,7 +46,7 @@ static idx_t max_computed = -1;  /* largest idx for which coeff has been compute
 static void recompute(idx_t upto)
 {
     size_t sz = (size_t)(upto + 1);
-    seq_t *new_coeff = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *new_coeff = mem_new(seq_t, sz);
     if (!new_coeff) exit(1);      /* abort on allocation failure */
 
     /* initialise */
@@ -66,7 +68,7 @@ static void recompute(idx_t upto)
     }
 
     /* replace old array */
-    if (coeff) free(coeff);
+    if (coeff) mem_free(coeff);
     coeff = new_coeff;
     max_computed = upto;
 }

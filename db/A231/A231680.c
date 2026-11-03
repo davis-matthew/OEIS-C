@@ -8,13 +8,25 @@
  *            base‑8 digits of i
  * Range:     u8 n <= 44, u16 n <= 4836, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_base8
+ * Validated: standard, pass, 96 terms through n = 9340 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digit_sum_base8.h"
+
+/* Compute the sum of the base‑8 digits of an unsigned integer. */
+static inline seq_t digit_sum_base8(idx_t x)
+{
+    seq_t sum = 0;
+    while (x)
+    {
+        sum += x & 7U;   /* x % 8 */
+        x >>= 3;         /* x /= 8 */
+    }
+    return sum;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

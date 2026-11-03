@@ -10,15 +10,32 @@
  *            Jacobi (E^3) recurrences in sign-magnitude form
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 28, u64 n <= 105, u128 n <= 392,
  *            big any n
- * Helpers:   addterm, alloc_zero, release
+ * Validated: standard, pass, 41 terms through n = 8418 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/addterm.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static void addterm(seq_t *pos, seq_t *neg, long long c, const seq_t *m, int s)
+{
+    long long ac = c < 0 ? -c : c;
+    if ((c < 0) == (s < 0)) *pos += (seq_t)ac * (*m);
+    else *neg += (seq_t)ac * (*m);
+}
 
 static seq_t *Pm = 0, *Rm = 0;
 static signed char *Ps = 0, *Rs = 0;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Σ_{i=1..n} (1/i) * Σ_{j=0..i-1} 1/j! (OEIS A093344)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 378 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cache for a(n) */
 static seq_t *c_cache = NULL;   /* cache for c(n) = n! * Σ_{j=0..n} 1/j! */
@@ -37,8 +39,8 @@ static void ensure_cache(idx_t n)
     if (cache_cap == 0) {
         /* First allocation: at least one slot for index 0 */
         cache_cap = 1;
-        a_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-        c_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, cache_cap);
+        c_cache = mem_new(seq_t, cache_cap);
         if (a_cache == NULL || c_cache == NULL) {
             /* minimal error handling – abort if allocation fails */
             abort();
@@ -49,15 +51,15 @@ static void ensure_cache(idx_t n)
 
     if (need > cache_cap) {
         /* Expand the cache to the required size */
-        seq_t *new_a = (seq_t *)malloc(need * sizeof(seq_t));
-        seq_t *new_c = (seq_t *)malloc(need * sizeof(seq_t));
+        seq_t *new_a = mem_new(seq_t, need);
+        seq_t *new_c = mem_new(seq_t, need);
         if (new_a == NULL || new_c == NULL) {
             abort();
         }
-        memcpy(new_a, a_cache, cache_cap * sizeof(seq_t));
-        memcpy(new_c, c_cache, cache_cap * sizeof(seq_t));
-        free(a_cache);
-        free(c_cache);
+        mem_copy(new_a, a_cache, cache_cap * sizeof(seq_t));
+        mem_copy(new_c, c_cache, cache_cap * sizeof(seq_t));
+        mem_free(a_cache);
+        mem_free(c_cache);
         a_cache = new_a;
         c_cache = new_c;
         cache_cap = need;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,6 +42,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *g1 = NULL;   /* coefficients of 1/(1-x²-x⁵)   */
 static seq_t *h  = NULL;   /* coefficients of 1/(1-x⁴-x¹⁰)  */
@@ -54,9 +56,9 @@ static void ensure_computed(idx_t n)
 
     if (g1 == NULL)            /* first call: allocate all arrays */
     {
-        g1 = (seq_t *)malloc(new_sz * sizeof(seq_t));
-        h  = (seq_t *)malloc(new_sz * sizeof(seq_t));
-        g2 = (seq_t *)malloc(new_sz * sizeof(seq_t));
+        g1 = mem_new(seq_t, new_sz);
+        h  = mem_new(seq_t, new_sz);
+        g2 = mem_new(seq_t, new_sz);
         if (g1 == NULL || h == NULL || g2 == NULL)
             return;           /* memory allocation failed – give up */
 
@@ -83,9 +85,9 @@ static void ensure_computed(idx_t n)
     }
     else if (n > max_n)        /* extend arrays to new size */
     {
-        g1 = (seq_t *)realloc(g1, new_sz * sizeof(seq_t));
-        h  = (seq_t *)realloc(h , new_sz * sizeof(seq_t));
-        g2 = (seq_t *)realloc(g2, new_sz * sizeof(seq_t));
+        g1 = mem_resize(seq_t, g1, new_sz);
+        h  = mem_resize(seq_t, h, new_sz);
+        g2 = mem_resize(seq_t, g2, new_sz);
         if (g1 == NULL || h == NULL || g2 == NULL)
             return;           /* reallocation failed – give up */
 

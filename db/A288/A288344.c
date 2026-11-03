@@ -11,12 +11,14 @@
  *            standard * coin‑change dynamic programming with two...
  * Range:     u8 n <= 11, u16 n <= 37, u32 n <= 179, u64 n <= 2354,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 7916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *table = NULL;      /* Cached values a(0)…a(current_max)   */
 static idx_t  table_size = 0;    /* Number of valid entries in table    */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Grow table if needed */
     if (n >= table_size) {
         idx_t new_size = n + 1;
-        seq_t *new_tbl = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_tbl = mem_new(seq_t, new_size);
         if (!new_tbl) return 0;  /* memory failure – unlikely in tests */
 
         /* Initialise all entries to zero (necessary for arbitrary types) */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old table and free memory */
-        free(table);
+        mem_free(table);
         table      = new_tbl;
         table_size = new_size;
     }

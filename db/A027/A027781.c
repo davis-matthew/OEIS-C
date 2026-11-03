@@ -7,12 +7,14 @@
  * Formula:   a(n) = 4 * (n+1) * binomial(n+2, 8)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 23 terms through n = 28 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n) = C(n+1, 7) * C(n+2, 2)  (identical, may be used as alternative) */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute binomial coefficient C(N, K) using multiplicative formula,

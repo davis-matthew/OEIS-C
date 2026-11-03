@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   all_even_digits
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/all_even_digits.h"
+#include "../utils/mem.h"
+
+/* Test whether all decimal digits of x are even. */
+static inline bool all_even_digits(seq_t x)
+{
+    if (x == 0)           /* 0 is considered to have only even digits */
+        return true;
+
+    while (x != 0) {
+        seq_t dig   = x % 10;     /* least significant decimal digit   */
+        if ((dig % 2) != 0)       /* odd digit found                    */
+            return false;
+        x /= 10;                  /* move to next digit                  */
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +57,7 @@ seq_t a(idx_t n)
         if (all_even_digits(H)) {
             if (length == capacity) {          /* need more room */
                 size_t newcap = (capacity == 0) ? 8 : capacity * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) exit(1);           /* fatal error */
                 cache = tmp;
                 capacity = newcap;

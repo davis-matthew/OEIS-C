@@ -7,12 +7,14 @@
  * Formula:   a(n) = (n+2)! * binomial(n+7,7) / 2
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 27,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 35 terms through n = 384 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     fact /= 2;
 
     /* binomial coefficient C(n+7, 7) */
-    seq_t bin = binom(n + 7, 7);
+    seq_t bin = binomial(n + 7, 7);
 
     /* final result */
     return fact * bin;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 45, u32 n <= 256, u64 n <= 256,
  *            u128 n <= 256, big any n
- * Helpers:   none
+ * Validated: full, pass, 256 terms through n = 256 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
     returns the requested term. */
 
 #include <stdlib.h>   /* for qsort */
+#include "../utils/mem.h"
 
 static const seq_t primes[8] = {2, 3, 5, 7, 11, 13, 17, 19};
 
@@ -46,7 +48,7 @@ static void init_divisors(void)
         }
         divisors[mask] = prod;
     }
-    qsort(divisors, 256, sizeof(seq_t), cmp_seq);
+    mem_qsort(divisors, 256, sizeof(seq_t), cmp_seq);
     initialized = 1;
 }
 

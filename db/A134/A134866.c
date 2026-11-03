@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9895, u16 n <= 9895, u32 n <= 9895, u64 n <= 9895,
- *            u128 n <= 9895, big any n
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 107 terms through n = 9895 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
    - Let offset = n - C(s-1); then i = offset, j = s - offset.
 */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute σ(m) = sum of positive divisors of m (m > 0). */

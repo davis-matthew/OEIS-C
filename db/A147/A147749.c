@@ -11,7 +11,8 @@
  *            every 1 ≤ k ≤ 8. The sequence contains exactly 921 elements
  * Range:     u8 none, u16 none, u32 n <= 921, u64 n <= 921, u128 n <= 921,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 921 terms through n = 921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t pow10[9];
 static seq_t *seq_arr = NULL;
@@ -64,7 +66,7 @@ static void generate_rec(int pos, seq_t num, bool used[10])
 /* Generate the full sequence once.  It is called lazily from a(). */
 static void generate_all(void)
 {
-    seq_arr = (seq_t *)malloc(sizeof(seq_t) * 921);
+    seq_arr = mem_new(seq_t, 921);
     pow10[0] = 1;
     for (int i = 1; i <= 8; ++i)
         pow10[i] = pow10[i - 1] * 10;

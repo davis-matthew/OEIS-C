@@ -6,15 +6,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = b(n-1)+2, b(0)=0 b(2n) = 2b(n)+1+3[n>1] b(2n+1) =
  *            2b(n)+1+5[n>0]
- * Range:     u8 n <= 81, u16 n <= 9975, u32 n <= 9975, u64 n <= 9975,
- *            u128 n <= 9975, big any n
- * Helpers:   none
+ * Range:     u8 n <= 81, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 72 terms through n = 9975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache for computed b(k) values */
 static seq_t *b_cache = NULL;
@@ -28,12 +30,12 @@ static void ensure_cache(idx_t n)
     idx_t new_size = cache_size ? cache_size << 1 : 1;
     while (new_size <= n)
         new_size <<= 1;
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache)
         return;               /* out of memory – caller will fail gracefully */
     if (b_cache) {
-        memcpy(new_cache, b_cache, cache_size * sizeof(seq_t));
-        free(b_cache);
+        mem_copy(new_cache, b_cache, cache_size * sizeof(seq_t));
+        mem_free(b_cache);
     }
     /* initialise new entries to 0 (0 is safe sentinel for uncomputed values) */
     for (idx_t i = cache_size; i < new_size; ++i)

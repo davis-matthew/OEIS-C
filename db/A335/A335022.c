@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = Sum_{d|n, 1<d<n} (-1)^(d+1) * d
- * Range:     i8 n <= 95, i16 n <= 9993, i32 n <= 9993, i64 n <= 9993,
- *            i128 n <= 9993, big any n
+ * Range:     i8 n <= 95, i16 n <= 13439, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 92 terms through n = 9993 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

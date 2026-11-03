@@ -8,7 +8,8 @@
  *            of their first appearance in successive Farey sequences
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*--------- Internal data structures -------------------------------------*/
 
@@ -82,7 +84,7 @@ static void init_hash_table(size_t min_size)
     size_t sz = 2;
     while (sz < min_size * 2) sz <<= 1;
     hash_size = sz;
-    hash_table = (HashEntry *)calloc(hash_size, sizeof(HashEntry));
+    hash_table = mem_new(HashEntry, hash_size);
     hash_count = 0;
 }
 
@@ -121,7 +123,7 @@ static void seq_push_back(seq_t val)
 {
     if (seq_length == seq_capacity) {
         size_t new_cap = (seq_capacity == 0) ? 16 : seq_capacity * 2;
-        seq_t *new_arr = (seq_t *)realloc(seq_array, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, seq_array, new_cap);
         seq_array = new_arr;
         seq_capacity = new_cap;
     }

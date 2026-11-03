@@ -9,13 +9,14 @@
  *            spiral of positive integers with 1 at the centre
  * Range:     u8 n <= 22, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/int_sqrt.h"
-
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 static inline void spiral_coord(idx_t k, int64_t *x, int64_t *y)
 {
@@ -25,7 +26,7 @@ static inline void spiral_coord(idx_t k, int64_t *x, int64_t *y)
     }
 
     /* layer r = floor(ceil(sqrt(k))/2)   */
-    idx_t t = int_sqrt(k);
+    idx_t t = isqrt(k);
     if ((unsigned __int128)t * t < k)
         t++;                        /* ceil(sqrt(k)) */
     idx_t r = t / 2;                /* layer number */

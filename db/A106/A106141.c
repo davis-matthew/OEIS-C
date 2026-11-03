@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Cached data ----------
  *  spf      – array of smallest prime factor for each integer
@@ -106,13 +108,13 @@ seq_t a(idx_t n)
                 /* Grow the result array if necessary. */
                 if (res_size == res_cap) {
                     size_t new_cap = res_cap ? res_cap * 2 : 64;
-                    seq_t *new_res = (seq_t*)calloc(new_cap, sizeof(seq_t));
+                    seq_t *new_res = mem_new(seq_t, new_cap);
                     if (!new_res)
                         return 0;          /* allocation failed */
                     if (res) {
                         for (idx_t i = 0; i < res_size; ++i)
                             new_res[i] = res[i];
-                        free(res);
+                        mem_free(res);
                     }
                     res     = new_res;
                     res_cap = new_cap;

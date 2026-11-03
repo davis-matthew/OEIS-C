@@ -7,6 +7,7 @@
  * Formula:   a(n) = (6^(n+1) + 20*n + 19) / 25
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 25, u128 n <= 50,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 988 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

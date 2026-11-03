@@ -11,13 +11,15 @@
  *            occur
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External type definitions are supplied by the build.  */
 seq_t a(idx_t n)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Grow the term cache if necessary.  */
     if (cache_size == 0) {
         cache_size = 1;
-        terms = (seq_t *)realloc(terms, cache_size * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, cache_size);
         terms[0] = (seq_t)1;
         max_cached = 0;
     }
@@ -52,13 +54,13 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         /* Extend the term cache to accommodate index n. */
         size_t new_cap = n + 1;
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         cache_size = new_cap;
 
         /*--- Ensure Catalan numbers are available up to n. ---*/
         if (cat_size <= n) {
             size_t new_cat = n + 1;
-            catalan = (seq_t *)realloc(catalan, new_cat * sizeof(seq_t));
+            catalan = mem_resize(seq_t, catalan, new_cat);
             if (cat_size == 0) {
                 catalan[0] = (seq_t)1;
                 cat_size = 1;
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         /*--- Ensure B(k) = binom(2k-2,k-1) up to n. ---*/
         if (B_size <= n) {
             size_t new_B = n + 1;
-            B = (seq_t *)realloc(B, new_B * sizeof(seq_t));
+            B = mem_resize(seq_t, B, new_B);
             if (B_size == 0) {
                 B[0] = (seq_t)0;          /* unused */
                 B[1] = catalan[0] * (seq_t)1;  /* B(1) */
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
         /*--- Ensure temporary bin array capacity. ---*/
         if (bin_cap <= n) {
             size_t new_bin = n + 1;
-            bin = (seq_t *)realloc(bin, new_bin * sizeof(seq_t));
+            bin = mem_resize(seq_t, bin, new_bin);
             bin_cap = new_bin;
         }
 

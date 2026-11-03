@@ -12,6 +12,7 @@
  *            matrix where A[i][j] = 1 iff the column j may...
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 27, u128 n <= 67,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 192 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper to compute even popcount for uint64_t values */
 static int popcount_even(uint64_t v)
@@ -51,7 +53,7 @@ static void build_evil_semiprimes(seq_t **evils, size_t *cnt, size_t *cap,
 
     /* Allocate array for evil semiprimes */
     size_t initial_cap = 131072;
-    *evils = (seq_t *)malloc(initial_cap * sizeof(seq_t));
+    *evils = mem_new(seq_t, initial_cap);
     *cap   = initial_cap;
     *cnt   = 0;
 
@@ -64,7 +66,7 @@ static void build_evil_semiprimes(seq_t **evils, size_t *cnt, size_t *cap,
             if (popcount_even(n)) {
                 if (*cnt == *cap) {
                     *cap *= 2;
-                    *evils = (seq_t *)realloc(*evils, *cap * sizeof(seq_t));
+                    *evils = mem_resize(seq_t, *evils, (*cap * sizeof(seq_t)) / sizeof(seq_t));
                 }
                 (*evils)[*cnt] = (seq_t)n;
                 ++(*cnt);

@@ -8,12 +8,16 @@
  * Formula:   a(n) = round(n*sqrt(2*n))
  * Range:     u8 n <= 5, u16 n <= 31, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   _isqrt_seq
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_isqrt_seq.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +28,7 @@ seq_t a(idx_t n)
     seq_t v = seq_n * seq_n * seq_n * (seq_t)2;
 
     /* r = floor(sqrt(v)) */
-    seq_t r = _isqrt_seq(v);
+    seq_t r = isqrt_seq(v);
 
     /* r_sq = r * r */
     seq_t r_sq = r * r;

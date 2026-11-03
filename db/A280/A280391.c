@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 124, u32 n <= 1600, u64 n <= 1600,
  *            u128 n <= 1600, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 1421 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -52,8 +54,8 @@ seq_t a(idx_t n)
     size_t size = (size_t)(maxS + 1);
 
     /* Allocate frequency arrays */
-    seq_t *freqk = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *freql = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *freqk = mem_new(seq_t, size);
+    seq_t *freql = mem_new(seq_t, size);
 
     if (!freqk || !freql) {
         /* allocation failed – return 0 (undefined behaviour acceptable here) */
@@ -93,8 +95,8 @@ seq_t a(idx_t n)
     }
 
     /* Clean up */
-    free(freqk);
-    free(freql);
+    mem_free(freqk);
+    mem_free(freql);
 
     return result;
 }

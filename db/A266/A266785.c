@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 96, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 890 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_DEG 70
 
@@ -113,7 +115,7 @@ seq_t a(idx_t n) {
     static seq_t *cache = NULL;
     if (n >= cache_size) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)
             return 0; /* allocation failure – unlikely for the judge */
         cache = new_cache;

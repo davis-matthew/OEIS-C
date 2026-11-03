@@ -9,7 +9,8 @@
  *            3⋅∑_{k=1}^{45} a(n-k) – 6·a(n-46)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>      /* malloc, realloc, free */
 #include <stdint.h>      /* for uint64_t if needed */
+#include "../utils/mem.h"
 
 /* static cache variables */
 static seq_t *cache      = NULL;   /* array of computed terms          */
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n)
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
             while (new_cap < needed)
                 new_cap <<= 1;
-            seq_t *new_mem = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_mem = mem_resize(seq_t, cache, new_cap);
             if (!new_mem) abort();            /* allocation failure */
             /* Zero‑initialize the new part for safety */
             for (size_t i = cache_cap; i < new_cap; ++i)

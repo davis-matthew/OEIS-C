@@ -9,20 +9,22 @@
  *            6·φ(n) if n mod 4 = 2
  * Range:     u8 n <= 93, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 85 terms through n = 9951 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (offset 1) */
 
-#include "../utils/phi.h"   /* provides seq_t phi(idx_t n) */
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* safety; sequence is offset 1 */
 
-    seq_t val = phi(n);            /* Euler's totient function */
+    seq_t val = totient(n);            /* Euler's totient function */
 
     if ((n & 1) == 0) {            /* n is even */
         if ((n & 3) == 0)          /* n mod 4 == 0 */

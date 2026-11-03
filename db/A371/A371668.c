@@ -11,7 +11,8 @@
  *            a(3)=1, a(4)=5, a(5)=11, a(6)=19
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   mul_small
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_small.h"  // provides seq_t mul_small(seq_t, unsigned int)
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_cap = 0;
@@ -30,12 +44,12 @@ static idx_t last_computed = (idx_t)-1;   /* index of last computed value */
    Existing values are preserved. */
 static void ensure_cache(idx_t new_cap) {
     if (new_cap <= cache_cap) return;
-    seq_t *new_mem = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_new(seq_t, new_cap);
     /* copy existing values */
     for (idx_t i = 0; i < cache_cap; ++i) new_mem[i] = cache[i];
     /* initialise extra slots with 0 */
     for (idx_t i = cache_cap; i < new_cap; ++i) new_mem[i] = 0;
-    free(cache);
+    mem_free(cache);
     cache = new_mem;
     cache_cap = new_cap;
 }

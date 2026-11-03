@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
         a[n] = Σ_{i=0}^{n-1} H[n-1-i] * a[i].
    The above recurrence reproduces A373510. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,9 +33,9 @@ seq_t a(idx_t n)
 
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        A = (seq_t*)realloc(A, new_size * sizeof(seq_t));
-        H = (seq_t*)realloc(H, new_size * sizeof(seq_t));
-        neg_g = (seq_t*)realloc(neg_g, new_size * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_size);
+        H = mem_resize(seq_t, H, new_size);
+        neg_g = mem_resize(seq_t, neg_g, new_size);
 
         /* initialise new elements */
         if (cache_size == 0) {   /* first time */

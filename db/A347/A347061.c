@@ -8,14 +8,17 @@
  * Formula:   a(n) = (2n)*(2n+1)^(2n-1)*((2n+1)!!)^2 for n >= 1, a(0) = 0
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 5, u128 n <= 8,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 27 terms through n = 93 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (2n+1)!! denotes the odd double factorial 1·3·5·…·(2n+1). */
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     /* (2n+1)^(2n-1) */
     seq_t base = (seq_t)(2 * n + 1);
     idx_t exp = 2 * n - 1;
-    seq_t pow_part = seq_pow(base, exp);
+    seq_t pow_part = ipow_idx(base, exp);
 
     /* (2n+1)!! = product of odd integers up to (2n+1) */
     seq_t odd_fact = (seq_t)1;

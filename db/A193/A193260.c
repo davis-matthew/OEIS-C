@@ -8,6 +8,7 @@
  * Formula:   a(n) = n + floor(log_3(n)) + \sum_{k>=1} floor(n/3^k)
  * Range:     u8 n <= 169, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 105 terms through n = 980 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

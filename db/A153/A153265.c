@@ -9,12 +9,14 @@
  *            terms: a(0)=4, a(1)=1, a(2)=-9, a(3)=-2
  * Range:     i8 n <= 7, i16 n <= 13, i32 n <= 31, i64 n <= 61, i128 n <= 127,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate initial space for indices 0..3 */
         size_t init_cap = 4;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) exit(1);
         for (size_t i = 0; i < init_cap; i++) {
             cache[i] = init[i];
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         while ((size_t)n >= newcap) {
             newcap = newcap > 0 ? newcap * 2 : 8;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) exit(1);
         cache = tmp;
         cap   = newcap;

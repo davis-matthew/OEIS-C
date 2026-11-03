@@ -8,11 +8,13 @@
  *            (k^3-1)/(k^3+1) == denominator of 2*(n^2+n+1)/(3*n*(n+1))
  * Range:     u8 n <= 8, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 49 terms through n = 50 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

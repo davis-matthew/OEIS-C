@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum_{k = 1..n} (-1)^(k+1) * gcd(k, n)
  * Range:     i8 n <= 47, i16 n <= 2879, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 73 terms through n = 9328 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
  * any seq_t that supports the basic arithmetic operators.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

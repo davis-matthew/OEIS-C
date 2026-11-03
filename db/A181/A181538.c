@@ -9,13 +9,14 @@
  *            row*(row-1)/2 + col and 1 ≤ col ≤ row
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 static inline uint64_t tri(uint64_t r) {
     /* Compute r*(r+1)/2 using 128‑bit intermediate to avoid overflow. */
@@ -49,7 +50,7 @@ seq_t a(idx_t n) {
     uint64_t row = low;
     uint64_t col = n - tri(row - 1);
 
-    uint64_t g = gcd_uint64(row, col);
+    uint64_t g = gcd_u64(row, col);
     uint64_t phi = phi_uint64(col);
     return (seq_t)g * (seq_t)phi;
 }

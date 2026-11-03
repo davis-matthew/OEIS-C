@@ -8,19 +8,21 @@
  *            (2*n - k + 1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     seq_t sum = 0;
     for (idx_t k = 0; k <= n; ++k) {
-        seq_t c1 = binom(2*n - k + 1, k);
-        seq_t c2 = binom(3*k, n - k);
+        seq_t c1 = binomial(2*n - k + 1, k);
+        seq_t c2 = binomial(3*k, n - k);
         seq_t over = (seq_t)(2*n - k + 1);
         seq_t term = (c1 * c2) / over;
         sum += term;

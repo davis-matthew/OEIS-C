@@ -7,12 +7,13 @@
  * Formula:   a(n) = 12^(n^2)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -22,5 +23,5 @@ seq_t a(idx_t n)
        fits comfortably in a 64‑bit unsigned integer. */
     seq_t exp_seq = (seq_t)n * (seq_t)n;
     idx_t exp = (idx_t)exp_seq;
-    return pow_int(12, exp);
+    return ipow_idx(12, exp);
 }

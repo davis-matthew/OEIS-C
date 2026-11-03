@@ -10,13 +10,16 @@
  *            col = n - row(row+1)/2
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 58, u64 n <= 142,
  *            u128 n <= 390, big any n
+ * Validated: standard, pass, 61 terms through n = 9630 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/gcd.h"          /* provides gcd(seq_t, seq_t) */
+#include "../utils/gcd.h"
 
 static idx_t row_of(idx_t n) {
     idx_t low = 0, high = n;

@@ -11,13 +11,23 @@
  *            build: a = (U^3 + 3*U*V + 2*W)/6 with U = m!*H(m,1), V = m!^2...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 14,
  *            big any n
- * Helpers:   a001236_fixed_width
+ * Validated: standard, pass, 29 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001236_fixed_width.h"
+
+static int a001236_fixed_width(void) {
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 300; i++) {
+        t *= 2;
+        if (t == 0) return 1;
+    }
+    return 0;
+}
 
 seq_t a(idx_t n) {
     idx_t m = n + 1, i;

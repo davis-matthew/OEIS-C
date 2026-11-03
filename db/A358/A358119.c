@@ -9,7 +9,8 @@
  *            + 2)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,11 +18,12 @@
 /* Implements the closed‑form definition using only integer arithmetic. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* ---------------  Catalan numbers up to n+2  --------------- */
     size_t size = (size_t)(n + 3);                 /* indices 0 … n+2 inclusive */
-    seq_t *cat = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *cat = mem_new(seq_t, size);
     if (!cat) return (seq_t)0;                     /* out of memory → zero */
 
     cat[0] = (seq_t)1;                            /* C0 = 1 */
@@ -59,6 +61,6 @@ seq_t a(idx_t n) {
 
     /* ---------------  Final result  --------------- */
     seq_t result = pos - neg;                      /* pos ≥ neg for all n */
-    free(cat);
+    mem_free(cat);
     return result;
 }

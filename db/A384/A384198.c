@@ -8,12 +8,14 @@
  *            a(2)=16
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 35, u128 n <= 73,
  *            big any n
- * Helpers:   binom, pow3
+ * Validated: standard, pass, 43 terms through n = 999 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
     if (n == 2) return (seq_t)16;
 
     /* Compute the polynomial part. */
-    seq_t term3 = binom(n, (idx_t)3);
-    seq_t term2 = binom(n, (idx_t)2);
+    seq_t term3 = binomial(n, (idx_t)3);
+    seq_t term2 = binomial(n, (idx_t)2);
     seq_t expr   = term3 + (seq_t)3 * term2 + (seq_t)9 * (seq_t)n + (seq_t)27;
 
     /* Raise 3 to the power n-3. */

@@ -11,15 +11,16 @@
  *            for all n >= 0
  * Range:     u8 n <= 22, u16 n <= 38, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom, seq_pow
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"      /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/seq_pow.h"    /* seq_t seq_pow(seq_t base, idx_t exp); */
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 static inline idx_t triangular(idx_t r)
 {
@@ -52,12 +53,12 @@ seq_t a(idx_t n)
     idx_t two_k = 2 * k;     /* exponent (non‑negative) */
 
     for (idx_t j = 0; j <= i; ++j) {
-        seq_t bj = binom(i, j);
+        seq_t bj = binomial(i, j);
         long long diff_ll = (long long)i - 2LL * (long long)j;
         seq_t base_abs = (seq_t)(diff_ll < 0 ? -diff_ll : diff_ll);
-        seq_t pw = seq_pow(base_abs, two_k);
+        seq_t pw = ipow_idx(base_abs, two_k);
         sum += bj * pw;
     }
-    seq_t denom = seq_pow((seq_t)2, i);
+    seq_t denom = ipow_idx((seq_t)2, i);
     return sum / denom;
 }

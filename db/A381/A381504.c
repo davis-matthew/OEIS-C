@@ -7,12 +7,14 @@
  * Formula:   a(0)=1, a(1)=0, for n>1: a(n) = (n-1) * (4*a(n-1) + a(n-2))
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;          /* array of computed a(i) */
@@ -23,7 +25,7 @@ static idx_t last_computed = 0;      /* highest index for which a(i) is set */
 static void extend_cache(size_t new_size)
 {
     if (cache_size < new_size) {
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();          /* fatal error: out of memory */
         cache = tmp;
         cache_size = new_size;

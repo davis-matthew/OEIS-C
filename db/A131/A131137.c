@@ -8,13 +8,17 @@
  *            where s_3(m) is the sum of the base‑3 digits of m
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 35, u64 n <= 74, u128 n <= 152,
  *            big any n
- * Helpers:   pow3, seq_one
+ * Validated: standard, pass, 49 terms through n = 199 (2026-11-01)
+ * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/pow3.h"
-#include "../utils/seq_one.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {

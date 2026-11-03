@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   compute_parts
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,40 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/compute_parts.h"
+#include "../utils/mem.h"
+
+/* Helper: convert integer k into its composition parts in reverse
+   order, as defined in A066099.  Positions of 1s in the reversed
+   binary expansion of k are taken, 0 prepended, first differences
+   taken, and the resulting list reversed again.                    */
+static void compute_parts(idx_t k, idx_t parts[], size_t *len)
+{
+    /* Collect positions of set bits in reversed binary expansion. */
+    idx_t pos[64];
+    size_t m = 0;
+    idx_t bit_pos = 0;
+    while (k != 0) {
+        if (k & 1) {
+            pos[m++] = bit_pos + 1;   /* 1‑based position */
+        }
+        k >>= 1;
+        bit_pos++;
+    }
+
+    /* Compute first differences starting from an initial 0. */
+    idx_t diff[64];
+    idx_t prev = 0;
+    for (size_t i = 0; i < m; ++i) {
+        diff[i] = pos[i] - prev;
+        prev = pos[i];
+    }
+
+    /* Reverse the differences to obtain the final composition. */
+    for (size_t i = 0; i < m; ++i) {
+        parts[i] = diff[m - 1 - i];
+    }
+    *len = m;
+}
 
 /* ------------------------------------------------------------------ */
 
@@ -81,7 +115,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
                 /* realloc returns void* in C; cast to seq_t* in both C and C++. */
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return (seq_t)0;   /* allocation failed */
                 cache      = tmp;
                 cache_cap  = new_cap;

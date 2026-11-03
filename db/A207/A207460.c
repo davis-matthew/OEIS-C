@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Generic popcount for seq_t, works for native and arbitrary‑precision types */
 static unsigned int popcnt_seq(seq_t x)
@@ -53,7 +55,7 @@ static void ensure_cache_cap(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 128;
     while (new_cap < need)
         new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

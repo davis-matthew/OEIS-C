@@ -9,13 +9,27 @@
  *            polynomial again encoded as an integer
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   poly_mul_seq_t
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/poly_mul_seq_t.h"
+
+/* multiply two polynomials over GF(2); polys are encoded as bitsets
+   in the integer type seq_t.  The algorithm is the standard
+   shift‑and‑XOR method. */
+static seq_t poly_mul_seq_t(seq_t a, seq_t b)
+{
+    seq_t res = 0;
+    while (b != 0) {
+        if (b & 1) res ^= a;
+        a <<= 1;
+        b >>= 1;
+    }
+    return res;
+}
 
 /* a(n) – self‑composition of the binary polynomial of n in GF(2). */
 seq_t a(idx_t n)

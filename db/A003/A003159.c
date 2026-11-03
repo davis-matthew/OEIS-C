@@ -10,13 +10,22 @@
  *            binary search
  * Range:     u8 n <= 170, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a003159_count
+ * Validated: standard, pass, 86 terms through n = 8288 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a003159_count.h"
+
+static uint64_t a003159_count(uint64_t m) {
+    uint64_t c = 0;
+    while (m > 0) {
+        c += (m + 1) / 2;
+        m >>= 2;
+    }
+    return c;
+}
 
 seq_t a(idx_t n) {
     uint64_t lo = n, hi = 2 * (uint64_t)n;

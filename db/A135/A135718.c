@@ -5,8 +5,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = smallest divisor of n^2 that is not a divisor of n
- * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 9661, u64 n <= 9661,
- *            u128 n <= 9661, big any n
+ * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 86 terms through n = 9661 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

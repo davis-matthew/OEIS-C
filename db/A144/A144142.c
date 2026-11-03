@@ -8,12 +8,14 @@
  *            - 2*(n-1)*a(n-2) for n≥2
  * Range:     i8 n <= 2, i16 n <= 6, i32 n <= 15, i64 n <= 26, i128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 653 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         size_t newcap = cap ? cap << 1 : 4;
         if ((size_t)(n + 1) > newcap)
             newcap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort(); /* memory failure */
         cache = tmp;
         cap = newcap;

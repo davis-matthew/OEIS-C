@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   representable_by_three_squares
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/representable_by_three_squares.h"
+#include "../utils/mem.h"
+
+/* Test whether n is representable as a^2+b^2+c^2.  Legendre's theorem.
+   n must not be of the form 4^a(8b+7).                               */
+static inline bool representable_by_three_squares(idx_t n) {
+    idx_t m = n;
+    while ((m & 3) == 0) m >>= 2;    /* divide out powers of 4 */
+    return (m & 7) != 7;             /* m % 8 != 7              */
+}
 
 /* ------------------------------------------------------------ */
 /* Smallest‑prime‑factor sieve (up to a fixed limit that covers all
@@ -78,7 +87,7 @@ static void ensure_sequence_length(idx_t need) {
     /* Allocate if necessary.                                            */
     if (seq_cap == 0) {
         seq_cap = 1024;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
     /* Scan integers until we have enough terms.                          */
     while (seq_len < need) {
@@ -90,7 +99,7 @@ static void ensure_sequence_length(idx_t need) {
         /* Store the term.                                                */
         if (seq_len == seq_cap) {
             seq_cap <<= 1;
-            seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = (seq_t)cur;
     }

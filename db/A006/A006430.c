@@ -12,14 +12,38 @@
  *            binomial(n-2, k), where d_k are the forward differe...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 14, u64 n <= 93, u128 n <= 1000,
  *            big any n
- * Helpers:   a006430_binom, a006430_small
+ * Validated: standard, pass, 40 terms through n = 816 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a006430_binom.h"
-#include "../utils/a006430_small.h"
+
+static seq_t a006430_binom(idx_t m, int k) {
+    seq_t r = 1;
+    int i;
+    if ((idx_t)k > m) return 0;
+    for (i = 0; i < k; i++) {
+        r = r * (seq_t)(m - (idx_t)i) / (seq_t)(i + 1);
+    }
+    return r;
+}
+
+static long long a006430_small(long long n) {
+    long long p = 23;
+    p = p * n + 963;
+    p = p * n + 17544;
+    p = p * n + 147952;
+    p = p * n + 481675;
+    p = p * n - 1052153;
+    p = p * n - 7850914;
+    p = p * n - 2900162;
+    p = p * n + 60869272;
+    p = p * n + 37067400;
+    p = p * n - 179920800;
+    return n * (n + 2) * (n + 3) * p / 79833600LL;
+}
 
 seq_t a(idx_t n) {
     long long d[14];

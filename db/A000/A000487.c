@@ -8,19 +8,20 @@
  *            (3^n + 2n^2 - 4n - 1 - (2n-2)*2^n)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 26, u128 n <= 51,
  *            big any n
- * Helpers:   a487_pw
+ * Validated: standard, pass, 36 terms through n = 185 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a487_pw.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     seq_t sn = (seq_t)n;
-    seq_t inner = a487_pw((seq_t)3, n);
+    seq_t inner = ipow_idx((seq_t)3, n);
     inner = inner + (seq_t)2 * sn * sn;
     inner = inner - (seq_t)4 * sn;
     inner = inner - (seq_t)1;
-    inner = inner - ((seq_t)2 * sn - (seq_t)2) * a487_pw((seq_t)2, n);
-    return inner * a487_pw((seq_t)2, n - 5);
+    inner = inner - ((seq_t)2 * sn - (seq_t)2) * ipow_idx((seq_t)2, n);
+    return inner * ipow_idx((seq_t)2, n - 5);
 }

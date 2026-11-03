@@ -7,7 +7,8 @@
  * Formula:   a(n) = max { k | prime(k+n)-prime(k) ≡ 0 (mod k) } (offset 1)
  * Range:     u8 n <= 27, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   issqrt
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/issqrt.h"
+
+/* Integer square root for small limits (no dependency on <math.h>). */
+static size_t issqrt(size_t n)
+{
+    size_t r = 1;
+    while ((r + 1) * (r + 1) <= n) ++r;
+    return r;
+}
 
 /* Prime sieve up to a fixed limit sufficient for all n ≤ 10000. */
 #define PRIME_LIMIT 5000000          /* 5·10^6 gives about 3.5·10^5 primes */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 14, u32 n <= 20, u64 n <= 20, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
    of calls and memoizes results. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /*---------- Helper arrays -------------------------------------------*/
 /* Smallest prime factor table */
@@ -74,7 +77,7 @@ static void ensure_cache_cap(idx_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap*2 : 128;
     while (new_cap < (size_t)needed) new_cap <<= 1;
-    seq_t *c = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *c = mem_resize(seq_t, cache, new_cap);
     if (!c) return;
     cache = c;
     cache_cap = (idx_t)new_cap;
@@ -108,7 +111,7 @@ seq_t a(idx_t n)
         while (fact_len - fact_ptr >= 2) {
             uint64_t base = fact[fact_ptr++];
             uint64_t exp  = fact[fact_ptr++];
-            seq_t val = big_pow((seq_t)base, (seq_t)exp);
+            seq_t val = ipow((seq_t)base, (seq_t)exp);
             ensure_cache_cap(cache_len + 1);
             cache[cache_len++] = val;
         }

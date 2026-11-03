@@ -13,14 +13,25 @@
  *            a(8)=103...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   realloc_cache
+ * Validated: standard, pass, 35 terms through n = 206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/realloc_cache.h"
+
+static seq_t *realloc_cache(seq_t *old, size_t oldcap, size_t newcap) {
+#ifdef __cplusplus
+    seq_t *tmp = new seq_t[newcap];
+    for (size_t i = 0; i < oldcap; ++i) tmp[i] = old[i];
+    delete[] old;
+    return tmp;
+#else
+    return (seq_t*)realloc(old, newcap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *alloc_cache(size_t cap) {
 #ifdef __cplusplus

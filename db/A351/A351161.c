@@ -8,7 +8,8 @@
  *            a(n-k-2) for n ≥ 2
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Includes and static storage for memoisation */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for computed a(n) values */
 static seq_t *a_cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_a_cache(idx_t idx)
     if (a_cache_cap <= (size_t)idx)
     {
         size_t newcap = idx + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, newcap);
         if (!tmp) exit(EXIT_FAILURE);
         a_cache = tmp;
         a_cache_cap = newcap;
@@ -45,7 +47,7 @@ static void ensure_pow6_cache(idx_t idx)
     if (pow6_cap <= (size_t)idx)
     {
         size_t newcap = idx + 1;
-        seq_t *tmp = (seq_t *)realloc(pow6_cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow6_cache, newcap);
         if (!tmp) exit(EXIT_FAILURE);
         pow6_cache = tmp;
         pow6_cap = newcap;

@@ -11,12 +11,14 @@
  *            using dynamic programming over partition parts. The im...
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 35, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 1535 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;         /* array of a(n) values   */
 static seq_t *dp = NULL;        /* DP array for weighted partitions */
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     /* Ensure the base case a(0)=1 and dp[0]=1 exists. */
     if (A == NULL) {
         capacity = 1;
-        A  = (seq_t *)malloc(capacity * sizeof(seq_t));
-        dp = (seq_t *)malloc(capacity * sizeof(seq_t));
+        A  = mem_new(seq_t, capacity);
+        dp = mem_new(seq_t, capacity);
         if (A == NULL || dp == NULL) return (seq_t)0;   /* allocation failure */
         A[0] = 1;
         dp[0] = 1;
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
     /* Allocate enough space for the new maximum. */
     if ((size_t)(n + 1) > capacity) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *newA  = (seq_t *)realloc(A,  new_cap * sizeof(seq_t));
-        seq_t *newdp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *newA  = mem_resize(seq_t, A, new_cap);
+        seq_t *newdp = mem_resize(seq_t, dp, new_cap);
         if (newA == NULL || newdp == NULL) return (seq_t)0; /* allocation failure */
         A  = newA;
         dp = newdp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Dynamic array of row pointers; tri_rows[i] points to row i (length i+1) */
 static seq_t **tri_rows = NULL;
@@ -42,7 +44,7 @@ static void ensure_rows(idx_t r_needed)
     while (tri_rows_used <= (size_t)r_needed) {
         size_t r = tri_rows_used;
         /* Allocate space for the new row */
-        seq_t *row = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (r + 1));
         if (!row) abort();             /* out of memory */
 
         if (r == 0) {                  /* first row */

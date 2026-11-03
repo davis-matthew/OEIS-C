@@ -7,15 +7,38 @@
  * Formula:   a(n) = coefficient n of the 429th cyclotomic polynomial Φ₄₂₉(x)
  * Range:     i8 n <= 240, i16 n <= 240, i32 n <= 240, i64 n <= 240,
  *            i128 n <= 240, big any n
- * Helpers:   poly_mul_out, poly_xk_minus1
+ * Validated: full, pass, 241 terms through n = 240 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/poly_mul_out.h"
-#include "../utils/poly_xk_minus1.h"
+
+/* Multiply a(x) (degree ad) by b(x) (degree bd) and store result in out.
+   The output length is ad + bd + 1. */
+static void poly_mul_out(const seq_t *a, size_t ad,
+                         const seq_t *b, size_t bd,
+                         seq_t *out, size_t *outdeg)
+{
+    for (size_t i = 0; i <= ad + bd; ++i) out[i] = 0;
+    for (size_t i = 0; i <= ad; ++i) {
+        for (size_t j = 0; j <= bd; ++j) {
+            out[i + j] += a[i] * b[j];
+        }
+    }
+    *outdeg = ad + bd;
+    while (*outdeg > 0 && out[*outdeg] == 0) (*outdeg)--;
+}
+
+static void poly_xk_minus1(int k, seq_t *arr, size_t *deg)
+{
+    *deg = (size_t)k;
+    for (size_t i = 0; i <= (size_t)k; ++i) arr[i] = 0;
+    arr[0] = -1;
+    arr[(size_t)k] = 1;
+}
 
 /* Divide dividend (degree N) by monic divisor (degree D).
    The quotient is stored in quotient (array size N-D+1).  */

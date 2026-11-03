@@ -11,15 +11,39 @@
  *            (n-k)(m-k)(m-k-1) / ((k+1) m (2m-1)), with T(0)...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   binom, ratio_sum, seq_is_big
+ * Validated: partial, pass, 18 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/ratio_sum.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t ratio_sum(idx_t n)
+{
+    idx_t kmax = (n - 2) / 2, k, i;
+    seq_t t = 1, s;
+    for (i = 1; i + 2 <= n; i++) t *= (seq_t)(2 * i - 1);
+    s = t;
+    for (k = 0; k < kmax; k++) {
+        uint64_t m = n - 2 - k;
+        uint64_t num = (uint64_t)(n - k) * (m - k) * (m - k - 1);
+        uint64_t den = (uint64_t)(k + 1) * m * (2 * m - 1);
+        t = t * (seq_t)num / (seq_t)den;
+        s += t;
+    }
+    return s;
+}
 
 static seq_t direct_sum(idx_t n)
 {
@@ -29,7 +53,7 @@ static seq_t direct_sum(idx_t n)
         idx_t m = n - 2 - k;
         seq_t t = 1;
         for (i = 0; i < k; i++) t *= (seq_t)(n - i);
-        t *= binom(m, k);
+        t *= binomial(m, k);
         for (i = 1; i <= m; i++) t *= (seq_t)(2 * i - 1);
         s += t;
     }

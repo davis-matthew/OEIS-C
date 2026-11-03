@@ -9,6 +9,7 @@
  *            (p^(3e)-1)/(p^3-1) ]
  * Range:     u8 n <= 5, u16 n <= 29, u32 n <= 1019, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 8849 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,9 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* provides void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 static seq_t pow_seq_uint(seq_t base, idx_t exp) {
     seq_t res = 1;

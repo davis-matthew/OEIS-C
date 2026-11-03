@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    m = t – 2^p; then a(n) = S(t) – a(m), where S(k)=a(1)+…+a(k). */
 
 #include <stdlib.h>     /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *a_vals = NULL;   /* a(n) values, 1‑based */
 static seq_t *a_sums = NULL;   /* cumulative sums S(n), 1‑based */
@@ -42,8 +44,8 @@ static void ensure_capacity(idx_t need)
     if (need <= a_cap) return;
     idx_t new_cap = a_cap ? a_cap << 1 : 8;
     while (new_cap < need) new_cap <<= 1;
-    a_vals = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
-    a_sums = (seq_t *)realloc(a_sums, new_cap * sizeof(seq_t));
+    a_vals = mem_resize(seq_t, a_vals, new_cap);
+    a_sums = mem_resize(seq_t, a_sums, new_cap);
     if (!a_vals || !a_sums) abort();  /* allocation failed */
     for (idx_t i = a_cap; i < new_cap; ++i) {
         a_vals[i] = (seq_t)0;

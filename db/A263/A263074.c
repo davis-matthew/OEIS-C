@@ -9,19 +9,21 @@
  *            x^(5k)) * (1 - x^k) / (1 + x^k)
  * Range:     i8 n <= 195, i16 n <= 625, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 909 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t N = n;
     if (N == (idx_t)0) return (seq_t)1;   /* a(0) = 1 */
 
-    seq_t *coeff = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (N + 1));
     if (!coeff) return (seq_t)0;          /* memory failure protection */
 
     /* initial series: 1 */
@@ -64,6 +66,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = coeff[N];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

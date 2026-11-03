@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, is_prime, jacobi_symbol
+ * Validated: standard, pass, 116 terms through n = 9985 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,33 @@
 #include <stdint.h>
 
 /* Helper utilities supplied by the build system. */
-#include "../utils/jacobi_symbol.h"
-#include "../utils/is_prime.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* External linkage as required. */
 seq_t a(idx_t n)

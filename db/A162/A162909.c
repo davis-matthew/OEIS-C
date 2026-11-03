@@ -8,13 +8,15 @@
  *            a(2^(m-1)+k), a(1) = 1
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoisation array */
 static idx_t cache_size = 0;  /* current capacity of cache */
@@ -49,7 +51,7 @@ static seq_t calc(idx_t n)
     if (n >= cache_size) {
         idx_t new_size = (cache_size == 0) ? 1 : cache_size;
         while (new_size <= n) new_size <<= 1;          /* double until big enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         for (idx_t i = cache_size; i < new_size; ++i)
             tmp[i] = 0;                                 /* initial value */
         cache = tmp;

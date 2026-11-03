@@ -9,15 +9,18 @@
  *            where A060594(n) is the number of solutions of x^2 ≡ 1 (mod n)
  * Range:     u8 n <= 329, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, phi
+ * Validated: standard, pass, 97 terms through n = 9704 (2026-11-01)
+ * Helpers:   factor_u64, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/phi.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute phi(n) */
-    seq_t phi_val = phi(n);
+    seq_t phi_val = totient(n);
 
     /* Factorise n */
     uint64_t primes[64];

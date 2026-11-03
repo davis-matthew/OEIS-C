@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   has_unique_digit_counts, seq_alloc, seq_free
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,45 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_alloc.h"   /* For seq_alloc */
-#include "../utils/seq_free.h"    /* For seq_free */
-#include "../utils/has_unique_digit_counts.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
+
+/* Test whether a value satisfies the unique‑digit‑count property. */
+static bool has_unique_digit_counts(seq_t v)
+{
+    /* Count occurrences of each base‑11 digit. */
+    unsigned char cnt[11] = {0};
+    seq_t tmp = v;
+    while (tmp > 0) {
+        int d = (int)(tmp % 11);
+        cnt[d]++;
+        tmp /= 11;
+    }
+
+    /* Check that the frequencies of appearing digits are all distinct. */
+    unsigned char seen[256] = {0};
+    for (int i = 0; i < 11; ++i) {
+        unsigned char c = cnt[i];
+        if (c > 0) {
+            if (seen[c])
+                return false;
+            seen[c] = 1;
+        }
+    }
+    return true;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

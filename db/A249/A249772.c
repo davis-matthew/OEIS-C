@@ -9,13 +9,17 @@
  *            if 1/n terminates
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {

@@ -9,14 +9,16 @@
  *            2. The function computes a(n) by searching for such k
  * Range:     u8 n <= 66, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 75 terms through n = 858 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -28,13 +30,13 @@ static void ensure_cache_cap(size_t needed) {
     if (needed <= cache_cap) return;
     size_t newcap = cache_cap ? cache_cap * 2 : 4;
     if (needed > newcap) newcap = needed;
-    cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newcap);
     cache_cap = newcap;
 }
 
 /* Test whether n (>1) is composite. */
 static inline bool isComposite(idx_t n) {
-    return n > 1 && !isPrime(n);
+    return n > 1 && !is_prime(n);
 }
 
 /* Main sequence function. */
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
         while (true) {
             /* Move to next candidate. */
             ++next_k;
-            if (isComposite(next_k) && isComposite(next_k + 1) && isPrime(2 * next_k + 1))
+            if (isComposite(next_k) && isComposite(next_k + 1) && is_prime(2 * next_k + 1))
                 break;
         }
         /* Store the resulting k. */

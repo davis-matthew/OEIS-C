@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 61, u16 n <= 9260, u32 n <= 9260, u64 n <= 9260,
- *            u128 n <= 9260, big any n
- * Helpers:   gpf, next_prime
+ * Range:     u8 n <= 61, u16 n <= 13098, u32 n <= 13098, u64 n <= 13098,
+ *            u128 n <= 13098, big any n
+ * Validated: standard, pass, 74 terms through n = 9260 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"          /* uint64_t gpf(uint64_t) */
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t) */
+#include "../utils/largest_prime_factor.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Returns the n‑th term (1‑based) of A356441. */
 seq_t a(idx_t n)
@@ -39,13 +41,13 @@ seq_t a(idx_t n)
     /* lazily initialise the cache */
     if (terms == NULL) {
         terms_cap = 32;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (terms == NULL) exit(1);                /* allocation failure */
     }
 
     /* generate terms until we have at least n of them */
     while (terms_len < n) {
-        uint64_t g = gpf(next_k);                 /* greatest prime factor */
+        uint64_t g = largest_prime_factor(next_k);                 /* greatest prime factor */
         seq_t   k_seq = (seq_t)next_k;             /* cast to seq_t */
         seq_t   g_seq = (seq_t)g;                 /* cast to seq_t */
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             /* enlarge storage if necessary */
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (tmp == NULL) exit(1);          /* reallocation failure */
                 terms = tmp;
                 terms_cap = new_cap;

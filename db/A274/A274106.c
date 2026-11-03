@@ -12,13 +12,15 @@
  *            k=0..n-1)
  * Range:     u8 n <= 24, u16 n <= 50, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,11 +37,11 @@ seq_t a(idx_t n)
     /* Initialise on first call */
     if (flat_cap == 0) {
         flat_cap   = 1024;
-        flattened  = (seq_t *)malloc(flat_cap * sizeof(seq_t));
+        flattened  = mem_new(seq_t, flat_cap);
     }
 
     if (flat_len == 0) {            /* row 0: T(0,0)=1 */
-        prev_row  = (seq_t *)malloc(sizeof(seq_t));
+        prev_row  = mem_new(seq_t, 1);
         prev_len  = 1;
         prev_row[0] = (seq_t)1;
         flattened[0] = prev_row[0];
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     while (flat_len <= (size_t)n) {
         idx_t   next_row   = current_row + 1;
         size_t  len_next   = (next_row == 0) ? 1 : (size_t)next_row;  /* length of row */
-        seq_t *curr_row = (seq_t *)malloc(len_next * sizeof(seq_t));
+        seq_t *curr_row = mem_new(seq_t, len_next);
 
         curr_row[0] = (seq_t)1;  /* T(n,0)=1 */
 
@@ -65,13 +67,13 @@ seq_t a(idx_t n)
         /* Append to flattened array – grow if needed */
         if (flat_len + len_next > flat_cap) {
             while (flat_len + len_next > flat_cap) flat_cap <<= 1;
-            flattened = (seq_t *)realloc(flattened, flat_cap * sizeof(seq_t));
+            flattened = mem_resize(seq_t, flattened, flat_cap);
         }
         for (size_t i = 0; i < len_next; ++i)
             flattened[flat_len++] = curr_row[i];
 
         /* Advance state */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row  = curr_row;
         prev_len  = len_next;
         current_row = next_row;

@@ -9,18 +9,20 @@
  *            max(n,R(n))
  * Range:     u8 n <= 1002, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime, rev
+ * Validated: standard, pass, 108 terms through n = 9732 (2026-11-01)
+ * Helpers:   is_prime, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Where R(n) is the digit reversal of n (no leading zeros) */
-#include "../utils/rev.h"
-#include "../utils/isPrime.h"
+#include <stdbool.h>
+#include "../utils/is_prime.h"
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n)
 {
-    idx_t r = rev(n);                 /* digit reversal of n */
+    idx_t r = reverse_digits_idx(n);                 /* digit reversal of n */
     idx_t low  = (n < r) ? n : r;     /* smaller endpoint */
     idx_t high = (n < r) ? r : n;     /* larger endpoint */
 
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     seq_t count = 0;
     for (idx_t x = low + 1; x < high; ++x)
     {
-        if (isPrime(x))
+        if (is_prime(x))
             ++count;
     }
     return count;

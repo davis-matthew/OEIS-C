@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    class) because it only uses +, =, and writes to array elements. */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 /* The function defined by the framework */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialisation on first call */
     if (dp_size == 0) {
         dp_size = 1;                    /* we at least need space for n = 0 */
-        dp = (seq_t*)malloc(dp_size * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_size);
         if (!dp) return (seq_t)0;        /* unlikely: abort on OOM */
         dp[0] = 1;                       /* only one way to obtain 0 */
     }
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* if  requesting a larger n than we have computed, rebuild the table   */
     if (n >= dp_size) {
         idx_t new_size = n + 1;          /* array must hold indices 0 … n   */
-        seq_t *new_dp = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_size);
         if (!new_dp) return (seq_t)0;    /* abort on OOM                     */
 
         /* zero initialise and set base case */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         }
 
         /* free the old table and point to the new one */
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
         dp_size = new_size;
     }

@@ -8,6 +8,7 @@
  * Formula:   a(n) = ( n*binomial(2*n-6, n-3) + 4^(n-3) ) / 2
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 28 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 /* for n >= 3 (offset 3).  For n < 3 the value is undefined; return 0. */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

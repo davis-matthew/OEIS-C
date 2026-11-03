@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 10, u128 n <= 23,
  *            big any n
- * Helpers:   adjacent_ok
+ * Validated: standard, pass, 29 terms through n = 183 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/adjacent_ok.h"
+
+/* Return true if two consecutive 7‑bit rows r1 (top) and r2 (bottom)
+   satisfy the forbidden 2×2 block condition. */
+static bool
+adjacent_ok (uint8_t r1, uint8_t r2)
+{
+    for (int j = 0; j < 6; ++j)
+    {
+        int tr = (r1 >> (j + 1)) & 1;        /* top‑right       */
+        int bl = (r2 >> j) & 1;              /* bottom‑left     */
+        if (tr && bl)                        /* both anti‑diag 1 */
+        {
+            int tl = (r1 >> j) & 1;          /* top‑left       */
+            int br = (r2 >> (j + 1)) & 1;    /* bottom‑right   */
+            if (!(tl && br))                 /* diag min 0 < 1 */
+                return false;
+        }
+    }
+    return true;
+}
 
 static uint8_t adj_next[128][128];
 static uint8_t adj_cnt[128];

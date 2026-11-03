@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline idx_t triangular_idx(idx_t r)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     while (triangular_idx((idx_t)rows_len) < n)
     {
         size_t new_len = rows_len + 1;         /* length of the new row (r = new_len) */
-        seq_t *row = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, new_len);
         if (!row) { abort(); }                /* Out of memory */
 
         if (rows_len == 0) {

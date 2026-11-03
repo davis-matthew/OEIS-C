@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 31, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   sqrt_root_floor
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sqrt_root_floor.h"
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
 
 /* Forward declaration of the index type – supplied by the build. */
 typedef uint64_t idx_t;
@@ -70,7 +72,7 @@ static bool qualifies(idx_t x)
     seq_t c   = cube_root_floor(A);          /* floor cube root of A   */
     seq_t diff = A - c * c * c;              /* A – floor(A^(1/3))³   */
 
-    seq_t s   = sqrt_root_floor((seq_t)x);    /* floor sqrt(x)         */
+    seq_t s   = isqrt_seq((seq_t)x);    /* floor sqrt(x)         */
     seq_t rhs = s * s * s;                   /* (floor √x)³           */
 
     return diff < rhs;
@@ -90,7 +92,7 @@ static void grow_val_array(void)
     while (new_cap < val_cnt + 1) {
         new_cap <<= 1;
     }
-    vals = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+    vals = mem_resize(seq_t, vals, new_cap);
     val_cap = new_cap;
 }
 

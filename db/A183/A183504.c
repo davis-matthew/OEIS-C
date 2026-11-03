@@ -12,12 +12,14 @@
  *            a(11)=31381355016, a(12)=282429536481, a(13)=2541867422652
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* first time: allocate cache, fill initial terms */
     if (cache_size == 0) {
         /* we need indices 0…13; index 0 is unused */
-        cache = (seq_t *)malloc(14 * sizeof(seq_t));
+        cache = mem_new(seq_t, 14);
         if (!cache) return 0;          /* unrecoverable allocation failure */
 
         cache[0] = 0;                  /* unused */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* extend cache up to requested n (if needed) */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;              /* unrecoverable allocation failure */
         cache = tmp;
 

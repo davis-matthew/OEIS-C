@@ -9,14 +9,16 @@
  * Keywords:  sign, easy, tabl
  * Formula:   a(n) = (-1)^(m-k)*C(m+k+1, 2k+1), where m is the row number (m ≥
  *            1) satisfying (m-1)m/2 < n ≤ m(m+1)/2 and k = n – (m-1)m/2 – 1
- * Range:     i8 n <= 12, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
+ * Range:     i8 n <= 23, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

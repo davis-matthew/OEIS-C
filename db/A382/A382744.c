@@ -8,12 +8,34 @@
  *            prime factorization is even
  * Range:     u8 n <= 211, u16 n <= 8333, u32 n <= 8333, u64 n <= 8333,
  *            u128 n <= 8333, big any n
- * Helpers:   count_even_5
+ * Validated: standard, pass, 87 terms through n = 7842 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_even_5.h"
+static inline seq_t count_even_5(seq_t x)
+{
+    seq_t res   = x;        /* numbers with even exponent start as all numbers */
+    seq_t power = 5;        /* current power of 5 */
+    int   sign  = 1;        /* 1 for subtract, -1 for add */
+
+    while (power <= x) {
+        seq_t div = x / power;
+        if (sign > 0)
+            res -= div;   /* subtract numbers with odd exponent at this level */
+        else
+            res += div;   /* add back numbers with even exponent at the next level */
+
+        sign = -sign;
+
+        /* avoid overflow of power *= 5 */
+        if (power > x / 5)
+            break;
+        power *= 5;
+    }
+    return res;   /* count of numbers <= x with even exponent of 5 */
+}
 
 seq_t a(idx_t n)
 {

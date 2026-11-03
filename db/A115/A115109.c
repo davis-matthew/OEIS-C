@@ -10,12 +10,14 @@
  *            a(7)=5828, a(8)=16852
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 495 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 9-term array of the known initial values */
 static const seq_t init_terms[9] = {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Allocate an array to hold all terms up to n.
        Memory usage is bounded by (n+1)*sizeof(seq_t), which is
        < about 160 KiB for n = 10000. */
-    seq_t *terms = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *terms = mem_new(seq_t, (size_t)(n + 1));
     if (!terms)
         return 0;     /* In practice this should never happen. */
 
@@ -55,6 +57,6 @@ seq_t a(idx_t n)
 
     /* Retrieve result and free the temporary storage. */
     seq_t result = terms[n];
-    free(terms);
+    mem_free(terms);
     return result;
 }

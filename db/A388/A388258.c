@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* OEIS A388258: Number of divisors d of n such that d^d == -(-d)^n (mod n) */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* Integer square root: floor(sqrt(n)) */
 static inline idx_t isqrt_u64(idx_t n)
@@ -35,11 +38,11 @@ static inline idx_t isqrt_u64(idx_t n)
 static bool check_condition(seq_t d, seq_t mod, idx_t n)
 {
     /* left side: d^d mod n */
-    seq_t left = mod_pow(d, (uint64_t)d, mod);
+    seq_t left = powmod(d, (uint64_t)d, mod);
 
     /* right side: -(-d)^n mod n */
     seq_t neg_base = (seq_t)((n - d) % n);          /* (-d) mod n */
-    seq_t t = mod_pow(neg_base, (uint64_t)n, mod);  /* (-d)^n mod n */
+    seq_t t = powmod(neg_base, (uint64_t)n, mod);  /* (-d)^n mod n */
     seq_t right_neg = (t == 0) ? 0 : mod - t;       /* -t mod n */
 
     return left == right_neg;

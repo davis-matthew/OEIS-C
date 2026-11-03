@@ -8,13 +8,15 @@
  *            (n+2)*(n+3)*(n+4)/8 if n even, * (n+1)*(n+3)*(n+5)/8 if n odd, *
  *            C = 2*((n/3)+1) if n divisible by 3, * 0 otherwise * This
  *            matches the OEIS entry A050531
- * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 189, u64 n <= 10000,
+ * Range:     u8 n <= 3, u16 n <= 20, u32 n <= 310, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 57 terms through n = 8989 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

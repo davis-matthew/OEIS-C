@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 113, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   pow10k, reverse_digits
+ * Validated: standard, pass, 59 terms through n = 1906 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,19 @@
 /* Palindromic numbers divisible by 7 (offset 1).  Sequence A045642. */
 
 #include <stdbool.h>
-#include "../utils/pow10k.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/reverse_digits.h"
+
+/* Compute 10^e for small e.  e is at most the half‑length of the needed
+   palindrome (≤ 6 for n ≤ 10 000, so a simple loop is fine). */
+static seq_t pow10k(idx_t e)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < e; ++i)
+        r *= 10;
+    return r;
+}
 
 /* Return the decimal reverse of x.  Handles 0 correctly. */
 

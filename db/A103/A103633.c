@@ -10,14 +10,25 @@
  *            r*(r+1)/2. The triangle T(r,k)=binomial( floor(r/2), r-k )
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   binomial, row_of_n
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/row_of_n.h"
+
+/* Compute the row r such that r*(r+1)/2 ≤ n < (r+1)*(r+2)/2.  */
+static inline idx_t
+row_of_n(idx_t n)
+{
+    idx_t r = 0;
+    while ((r * (r + 1)) / 2 <= n) {
+        ++r;
+    }
+    return r - 1;
+}
 
 /* OEIS A103633: flattened triangle T(r,k) = binomial(floor(r/2), r-k). */
 seq_t a(idx_t n)

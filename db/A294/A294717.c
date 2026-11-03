@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 552, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 63 terms through n = 9671 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 #define CACHE_CAP 32768   /* sufficient for n up to about 10 000 */
 
@@ -47,13 +50,13 @@ seq_t a(idx_t n)
 
         /* first congruence: 2^((k-1)/3) ≡ 1 (mod k) */
         uint64_t exp1 = (next_k - 1ULL) / 3ULL;
-        seq_t  term1 = mod_pow((seq_t)2, exp1, (seq_t)next_k);
+        seq_t  term1 = powmod((seq_t)2, exp1, (seq_t)next_k);
         if (term1 != (seq_t)1)
             continue;   /* not a member, try next k */
 
         /* second congruence reduces to 2^((k-1)/6) ≡ -1 (mod k) */
         uint64_t exp2 = (next_k - 1ULL) / 6ULL;
-        seq_t  term2 = mod_pow((seq_t)2, exp2, (seq_t)next_k);
+        seq_t  term2 = powmod((seq_t)2, exp2, (seq_t)next_k);
         if (term2 != ((seq_t)next_k - (seq_t)1))
             continue;   /* not a member */
 

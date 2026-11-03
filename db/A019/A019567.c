@@ -9,13 +9,17 @@
  * Formula:   a(n) = smallest m ≥ 1 such that 2^m ≡ ±1 (mod 4n+1)
  * Range:     u8 n <= 63, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 90 terms through n = 1922 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 /* factor n into distinct prime factors, results stored in pfs[0..cnt-1] */
 static void factor_distinct(uint64_t n, uint64_t *pfs, uint64_t *cnt)
@@ -73,7 +77,7 @@ seq_t a(idx_t n)
         uint64_t p = pf[i];
         while (ord % p == 0) {
             uint64_t cand = ord / p;
-            if (mod_pow((seq_t)2, cand, (seq_t)mod64) == (seq_t)1) {
+            if (powmod((seq_t)2, cand, (seq_t)mod64) == (seq_t)1) {
                 ord = cand;
             } else break;
         }
@@ -83,7 +87,7 @@ seq_t a(idx_t n)
     uint64_t ans = ord;
     if (ord % 2 == 0) {
         uint64_t half = ord / 2;
-        if (mod_pow((seq_t)2, half, (seq_t)mod64) == (seq_t)(mod64 - 1)
+        if (powmod((seq_t)2, half, (seq_t)mod64) == (seq_t)(mod64 - 1)
             && half < ans) {
             ans = half;
         }

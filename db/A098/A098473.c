@@ -8,15 +8,21 @@
  * Formula:   a(n) = binomial(2*k, k) * binomial(m, k), where (m, k) is the
  *            unique pair of integers with m*(m+1)/2 ≤ n < (m+1)*(m+2)/2 and k
  *            = n - m*(m+1)/2
- * Range:     u8 n <= 13, u16 n <= 43, u32 n <= 147, u64 n <= 488,
+ * Range:     u8 n <= 18, u16 n <= 50, u32 n <= 147, u64 n <= 488,
  *            u128 n <= 1756, big any n
- * Helpers:   binomial, tri_val
+ * Validated: standard, pass, 71 terms through n = 7643 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/tri_val.h"
+
+static inline unsigned __int128 tri_val(idx_t m)
+{
+    return ((unsigned __int128)m * (m + 1)) / 2;
+}
 
 seq_t a(idx_t n)
 {

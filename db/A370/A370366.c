@@ -9,16 +9,40 @@
  * Formula:   A(n,k) = sum_{j=0}^n (-1)^j * C(n,j) * P(n-j,k), where P(m,k) =
  *            (m*k)! / ((k!)^m * m!). * P(m,k) is the number of partitions of
  *            a set of size m*k * into m blocks of size k (unlabeled)
- * Range:     u8 n <= 22, u16 n <= 31, u32 n <= 48, u64 n <= 82, u128 n <= 126,
+ * Range:     u8 n <= 24, u16 n <= 31, u32 n <= 48, u64 n <= 82, u128 n <= 126,
  *            big any n
- * Helpers:   antidiagonal_coords, binomial, factorial
+ * Validated: standard, pass, 71 terms through n = 1444 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/antidiagonal_coords.h"
-#include "../utils/factorial.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+
+/* mapping from linear index n to pair (i,j) on the antidiagonals of T */
+static inline void antidiagonal_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    /* find s such that (s+1)(s+2)/2 <= n < (s+2)(s+3)/2 */
+    idx_t s = 0;
+    while (((s + 1) * (s + 2)) / 2 <= n) ++s;
+    idx_t pos = n - (s * (s + 1)) / 2;  /* 0 <= pos <= s */
+    *i = pos;
+    *j = s - pos;
+}
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Compute P(m,k) = (m*k)! / ((k!)^m * m!) */
 static seq_t partitions_of_size(idx_t m, idx_t k)

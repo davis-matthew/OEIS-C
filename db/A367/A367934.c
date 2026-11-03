@@ -9,7 +9,8 @@
  *            ≥ e with an even number of 1's in its binary expansion
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1625, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 62 terms through n = 9810 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 /* Include needed utilities */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static inline unsigned popcount_uint64(uint64_t x) {
     return __builtin_popcountll(x);
@@ -41,7 +42,7 @@ seq_t a(idx_t n) {
         uint64_t s = e;
         while (popcount_uint64(s) & 1) s++;         /* while popcount is odd */
         uint64_t mult = s - e;
-        seq_t mul = pow_uint(2, mult);
+        seq_t mul = ipow_u64_idx(2, mult);
         result = mul * result;
     }
 
@@ -56,7 +57,7 @@ seq_t a(idx_t n) {
             uint64_t s = e;
             while (popcount_uint64(s) & 1) s++;
             uint64_t mult = s - e;
-            seq_t mul = pow_uint(p, mult);
+            seq_t mul = ipow_u64_idx(p, mult);
             result = mul * result;
         }
     }
@@ -67,7 +68,7 @@ seq_t a(idx_t n) {
         uint64_t s = e;
         while (popcount_uint64(s) & 1) s++;
         uint64_t mult = s - e;
-        seq_t mul = pow_uint(temp, mult);
+        seq_t mul = ipow_u64_idx(temp, mult);
         result = mul * result;
     }
 

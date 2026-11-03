@@ -12,7 +12,8 @@
  *            2t^36 + t^37)/(1 - 48t - … - 48t^36 + 1176t^37)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>     /* for size_t */
 #include <stdlib.h>     /* for malloc/realloc, free */
 #include <string.h>     /* for memcpy, memset */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* array holding pre‑computed values */
 static idx_t cache_len = 0;         /* number of values stored (cache_len-1 is max index) */
@@ -47,11 +49,10 @@ static void ensure_cache(idx_t n)
 
     /* Copy old contents */
     if (cache_len > 0) {
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
     }
     /* Initialise new cells to zero */
-    memset(new_cache + cache_len, 0,
-           (new_cap - cache_len) * sizeof(seq_t));
+    mem_set(new_cache + cache_len, 0, (new_cap - cache_len) * sizeof(seq_t));
 
     /* Free old storage */
 #ifdef __cplusplus

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 239, u16 n <= 4319, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 8688 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation array --------------------------------------------------- */
 static seq_t *memo = NULL;      /* cache of a(n) values */
@@ -42,14 +44,14 @@ static void ensure_cache(idx_t n)
     idx_t new_size = (memo_size == 0) ? n + 1 : memo_size;
     while (new_size <= n) new_size <<= 1;
 
-    seq_t *new_mem = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_mem = mem_new(seq_t, new_size);
     if (!new_mem) return;            /* allocation failure – unlikely */
 
     /* copy old values */
     for (idx_t i = 0; i < memo_size; ++i) new_mem[i] = memo[i];
     for (idx_t i = memo_size; i < new_size; ++i) new_mem[i] = 0;
 
-    free(memo);
+    mem_free(memo);
     memo = new_mem;
     memo_size = new_size;
 }

@@ -9,13 +9,15 @@
  *            a(1)=4, a(2)=20, a(3)=76, a(4)=260
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static cache: 1‑based indexing, cache[0] is unused to avoid
    accessing a(n-4) when n <= 4. */
@@ -31,12 +33,12 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* Allocate enough space for the largest of n and 4. */
         size_t need = (size_t)(n > 4 ? n : 4) + 1;   /* +1 to make 1‑based simple */
-        cache = (seq_t*)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         if (cache == NULL) abort();
         cache_size = 0;
     } else if (n > cache_size) {
         size_t need = (size_t)(n + 1);
-        cache = (seq_t*)realloc(cache, need * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, need);
         if (cache == NULL) abort();
     }
 

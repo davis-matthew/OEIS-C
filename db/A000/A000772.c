@@ -11,13 +11,23 @@
  *            Seidel-Entringer triangle: T(0,0) = 1, T(m,0) = 0, T(m,k)...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 36,
  *            big any n
- * Helpers:   a306_alloc0
+ * Validated: standard, pass, 39 terms through n = 436 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a306_alloc0.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *a306_alloc0(idx_t len)
+{
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *memo_a = 0;
 static idx_t memo_top = 0; /* memo_a[0..memo_top] valid when memo_a != 0 */

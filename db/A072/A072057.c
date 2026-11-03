@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of divisors of 2*prime(n)+1
  * Range:     u8 n <= 24, u16 n <= 1871, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto
+ * Validated: standard, pass, 67 terms through n = 9266 (2026-11-02)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,17 @@
 #include <stdint.h>
 
 /* Utility functions provided by the build environment. */
-#include "../utils/_prime_limit_for_idx.h"   /* idx_t _prime_limit_for_idx(idx_t n); */
-#include "../utils/build_primes_upto.h"      /* void build_primes_upto(idx_t limit,
-                                                 uint64_t **primes_out,
-                                                 size_t *cnt_out); */
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 static uint64_t * _primes = NULL;      /* array of primes up to the current limit */
 static size_t    _primes_cnt = 0;      /* number of primes in _primes           */

@@ -8,6 +8,7 @@
  *            651*(n+1)^4 + 63*(n+1)^5 + 2835*(n+1)^3)) / 1680 (OEIS offset 0)
  * Range:     u8 none, u16 n <= 1, u32 n <= 16, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

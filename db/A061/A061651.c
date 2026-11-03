@@ -13,7 +13,8 @@
  *            length
  * Range:     u8 n <= 21, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   pow10_local
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,16 @@
 /* Minimal includes */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow10_local.h"
+#include "../utils/mem.h"
+
+/* Small pow10 implementation for seq_t */
+static seq_t pow10_local(idx_t e)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < e; ++i)
+        r = r * 10;
+    return r;
+}
 
 /* Cached terms */
 static seq_t *cache      = NULL; /* array of terms            */
@@ -34,7 +44,7 @@ static void push_term(seq_t val)
 {
     if (cache_len == cache_cap) {
         cache_cap = (cache_cap == 0) ? 8 : cache_cap << 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_len++] = val;
 }

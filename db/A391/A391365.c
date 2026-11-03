@@ -6,15 +6,18 @@
  * Keywords:  nonn, base, look, tabl
  * Formula:   a(n) = reverse( i * j ) where i+j = s and n = s*(s+1)/2 + i
  *            (Cantor diagonal enumeration)
- * Range:     u8 n <= 238, u16 n <= 9224, u32 n <= 9224, u64 n <= 9224,
- *            u128 n <= 9224, big any n
- * Helpers:   reverse
+ * Range:     u8 n <= 238, u16 n <= 11324, u32 n <= 11324, u64 n <= 11324,
+ *            u128 n <= 11324, big any n
+ * Validated: standard, pass, 107 terms through n = 9224 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/reverse.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 static idx_t tri(idx_t s) {
     /* triangular number s*(s+1)/2 computed in 128‑bit to avoid overflow */
@@ -37,5 +40,5 @@ seq_t a(idx_t n) {
     idx_t j = s - i;          /* column index */
 
     seq_t prod = (seq_t)i * (seq_t)j;
-    return reverse(prod);
+    return reverse_digits(prod);
 }

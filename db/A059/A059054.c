@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t  v;   /* value (b^k+1)/(b+1) */
@@ -79,7 +82,7 @@ static inline void heap_push(seq_t v, idx_t k, idx_t b)
 {
     if (heap_sz == heap_cap) {
         size_t new_cap = heap_cap ? heap_cap << 1 : 32;
-        Node *newp = (Node *)realloc(heap, new_cap * sizeof(Node));
+        Node *newp = mem_resize(Node, heap, new_cap);
         if (!newp) abort();
         heap = newp;
         heap_cap = new_cap;
@@ -108,7 +111,7 @@ static inline void cache_push(seq_t v)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 64;
-        seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, new_cap);
         if (!newp) abort();
         cache = newp;
         cache_cap = new_cap;
@@ -120,7 +123,7 @@ static inline void cache_push(seq_t v)
 
 static inline seq_t compute_value(idx_t b, idx_t k)
 {
-    seq_t pow = big_pow((seq_t)b, (seq_t)k);
+    seq_t pow = ipow((seq_t)b, (seq_t)k);
     return (pow + 1) / ((seq_t)(b + 1));
 }
 

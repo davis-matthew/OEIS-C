@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor((n+3)*(n+4)*(n+5)/60)
  * Range:     u8 n <= 20, u16 n <= 153, u32 n <= 1948, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 69 terms through n = 4745 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

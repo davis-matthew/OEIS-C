@@ -11,7 +11,8 @@
  *            to compute a good upper bound for the * nth pr...
  * Range:     u8 n <= 15, u16 n <= 911, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   estimate_prime_upper
+ * Validated: standard, pass, 83 terms through n = 912 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/estimate_prime_upper.h"
+#include <math.h>
+#include "../utils/mem.h"
+
+/* ---------- Upper bound for the k-th prime ----------
+ * Dusart's estimate: p_k < k (ln k + ln ln k) for k >= 6.
+ */
+static uint64_t estimate_prime_upper(uint64_t k)
+{
+    if (k < 6) return 15;
+    double dk = (double)k;
+    double bound = dk * (log(dk) + log(log(dk)));
+    return (uint64_t)(bound + 3.0);   /* safety margin */
+}
 
 static size_t  sieve_lim        = 0;      /* last used sieve limit (inclusive)      */
 static uint8_t *is_prime_sieve  = NULL;   /* stride 1 bit array                       */
@@ -83,8 +96,8 @@ ensure_cache(idx_t need_n)
          * prime(idx_limit+1)).  Allocate slightly more memory than the
          * expected number of primes to avoid reallocations. */
         if (prime_list)
-            free(prime_list);
-        prime_list = (seq_t *)malloc(sizeof(seq_t) * (idx_limit + 10));
+            mem_free(prime_list);
+        prime_list = mem_new(seq_t, (idx_limit + 10));
         if (!prime_list)
             return; /* allocation failed */
 
@@ -108,8 +121,8 @@ ensure_cache(idx_t need_n)
 
         /* Now find all qualifying indices up to idx_limit. */
         if (qual_indices)
-            free(qual_indices);
-        qual_indices = (seq_t *)malloc(sizeof(seq_t) * (idx_limit + 10));
+            mem_free(qual_indices);
+        qual_indices = mem_new(seq_t, (idx_limit + 10));
         if (!qual_indices)
             return;
         qual_count = 0;

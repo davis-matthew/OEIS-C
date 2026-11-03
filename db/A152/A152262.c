@@ -7,13 +7,15 @@
  * Formula:   a(n) = 14*a(n-1) - 43*a(n-2), a(0)=1, a(1)=7
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Simple multiplication by a small unsigned integer.
  * The promotion rules guarantee the intermediate result fits
@@ -37,12 +39,12 @@ static void grow_cache(size_t new_cap)
     size_t ncap = cache_cap ? cache_cap * 2 : 16;
     while (ncap < new_cap) ncap <<= 1;
 
-    seq_t *tmp = (seq_t *)malloc(ncap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, ncap);
     if (!tmp) exit(EXIT_FAILURE);
 
     if (cache) {
-        memcpy(tmp, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = ncap;

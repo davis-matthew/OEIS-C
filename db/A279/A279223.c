@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 96 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,14 @@
     pyramidal numbers  h(k) = k*(k+1)*(5*k-2)/6.  The value a(n) is
     obtained with the classic unbounded‑knapsack DP.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;
 
     /* Allocate and initialise DP table. */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp)                 /* unlikely, but keep code safe */
         return (seq_t)0;
     dp[0] = 1;
@@ -39,6 +41,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

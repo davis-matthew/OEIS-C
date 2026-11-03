@@ -9,6 +9,7 @@
  * Formula:   a(n) = 1 if n=0; a(n) = 2 if n>0 even; a(n) = 2*n if n odd
  * Range:     u8 n <= 128, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 87 terms through n = 843 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

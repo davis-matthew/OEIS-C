@@ -7,7 +7,8 @@
  * Formula:   a(n) is the nth integer k such that 210*k-17 is prime
  * Range:     u8 n <= 109, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Simple deterministic prime test for 64‑bit numbers. */
 static bool is_prime(uint64_t x)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         if (is_prime(val)) {
             if (size + 1 > cap) {
                 idx_t new_cap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(1);                /* allocation failed */
                 cache = tmp;
                 cap   = new_cap;

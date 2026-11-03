@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 2046, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9922 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * first computation of a given index. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* a : compute the A085062 sequence value */
 seq_t a(idx_t n)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         if (new_size < cache_size) /* overflow guard */
             return cache[n]; /* return existing if overflow; unlikely */
 
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) /* allocation failed: return current value if any */
             return cache[n];
         cache = new_cache;

@@ -12,13 +12,30 @@
  *            rowwise, computed by a DP over rows
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   row_diff
+ * Validated: standard, pass, 31 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/row_diff.h"
+
+/* Convert two 5‑bit rows to the 4‑bit difference pattern. */
+static unsigned char row_diff(unsigned char a, unsigned char b)
+{
+    unsigned char d = 0;
+    for (int j = 0; j < 4; ++j) {
+        int r0 = (a >> j) & 1;
+        int r1 = (a >> (j + 1)) & 1;
+        int r2 = (b >> j) & 1;
+        int r3 = (b >> (j + 1)) & 1;
+        int maxv = r0 | r1 | r2 | r3;
+        int minv = r0 & r1 & r2 & r3;
+        int bit  = maxv ^ minv;          /* 1 if block not uniform */
+        d |= (bit << (3 - j));           /* bit 3 is column 0 (most significant) */
+    }
+    return d;
+}
 
 static unsigned char diff_tbl[32][32];
 static signed char diff_index[16];

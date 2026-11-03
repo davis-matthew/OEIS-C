@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 135, u16 n <= 5343, u32 n <= 5343, u64 n <= 5343,
  *            u128 n <= 5343, big any n
- * Helpers:   is_zigzag
+ * Validated: standard, pass, 82 terms through n = 5242 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,28 @@
  * such number.
  */
 #include <stdbool.h>   /* for bool type */
-#include "../utils/is_zigzag.h"
+
+static bool is_zigzag(idx_t x)
+{
+    int prev = x % 10;          /* least significant digit */
+    x /= 10;
+    int dir = 0;                /* 0: next digit must be >= prev
+                                  1: next digit must be <= prev */
+
+    while (x)
+    {
+        int d = x % 10;
+        if (dir == 0) {
+            if (d < prev) return false;
+        } else {
+            if (d > prev) return false;
+        }
+        prev = d;
+        dir ^= 1;                /* toggle the relation */
+        x /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

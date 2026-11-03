@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 6545, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, is_palindrome
+ * Validated: standard, pass, 75 terms through n = 9775 (2026-11-01)
+ * Helpers:   build_primes_upto, is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_prime_limit_for_idx.h"
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 static uint64_t *g_primes = NULL;
 static size_t g_primesCnt = 0;
@@ -35,7 +44,7 @@ static size_t g_primesCnt = 0;
 static seq_t largest_pal_leq(seq_t x)
 {
     seq_t cur = x;
-    while (!is_palindrome(cur, 10)) {
+    while (!is_palindrome_base(cur, 10)) {
         if (cur == 0) break;   /* prevent wrap‑around of unsigned type */
         --cur;
     }

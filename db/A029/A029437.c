@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 205, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(n) equals the number of non‑negative integer solutions of
    7c1 + 8c2 + 11c3 + 12c4 = n. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;   /* dynamic array of a(0)…a(k) */
 static idx_t  dp_size = 0; /* current number of stored entries */
@@ -27,7 +29,7 @@ static void rebuild_to(idx_t limit)
     const idx_t coins[4] = {7, 8, 11, 12};
     idx_t new_cap = limit + 1;
 
-    seq_t *new_dp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, new_cap);
     if (!new_dp) abort();
     dp = new_dp;
 

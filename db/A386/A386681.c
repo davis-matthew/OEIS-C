@@ -13,15 +13,17 @@
  *            (r+1)*(r+2)/2 and k = n − r*(r+1)/2
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 20, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 44 terms through n = 346 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Compute the outer multiplicative factors */
     seq_t bin_rk = binomial(r, k);                           /* binomial(r,k) */
-    seq_t pow_k   = big_pow((seq_t)k, binomial(k + 1, 2));   /* k^C(k+1,2) */
+    seq_t pow_k   = ipow((seq_t)k, binomial(k + 1, 2));   /* k^C(k+1,2) */
 
     /* Compute the alternating sum */
     seq_t positive = 0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         idx_t exp2 = m * (r - j);                /* (r-k)*(r-j) */
         seq_t exp  = (seq_t)(exp1 + exp2);
 
-        seq_t pow_r = big_pow((seq_t)r, exp);
+        seq_t pow_r = ipow((seq_t)r, exp);
         seq_t term  = bin_mj * pow_r;
 
         if ((j & 1) == 0)

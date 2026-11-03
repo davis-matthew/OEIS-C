@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for memoisation */
 static idx_t          memo_size = 0;   /* number of terms already computed    */
@@ -59,7 +61,7 @@ seq_t a(idx_t n) {
         if (is_prime_small(sum)) {
             if (memo_size == memo_cap) {
                 memo_cap = memo_cap ? memo_cap * 2 : 16;
-                memo_terms = (seq_t*)realloc(memo_terms, memo_cap * sizeof(seq_t));
+                memo_terms = mem_resize(seq_t, memo_terms, memo_cap);
             }
             memo_terms[memo_size++] = k;
         }

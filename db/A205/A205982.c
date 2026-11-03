@@ -9,7 +9,8 @@
  *            programming
  * Range:     u8 none, u16 n <= 2, u32 n <= 10, u64 n <= 25, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* non‑n incidence matrix for rows of length 5, values 0–2 */
 #define ROWS 243                  /* 3^5 */
@@ -148,8 +150,8 @@ static void compute_base_values(void)
 
     build_adjacency();
 
-    seq_t *dp_cur = (seq_t*)malloc(STATES * sizeof(seq_t));
-    seq_t *dp_nxt = (seq_t*)malloc(STATES * sizeof(seq_t));
+    seq_t *dp_cur = mem_new(seq_t, STATES);
+    seq_t *dp_nxt = mem_new(seq_t, STATES);
 
     /* initialise for 2 rows (a(1)) */
     for (int a = 0; a < STATES; ++a)
@@ -197,8 +199,8 @@ static void compute_base_values(void)
         dp_nxt = tmp;
     }
 
-    free(dp_cur);
-    free(dp_nxt);
+    mem_free(dp_cur);
+    mem_free(dp_nxt);
     base_built = true;
 }
 

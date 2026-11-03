@@ -6,9 +6,10 @@
  * Keywords:  easy, nonn, tabl
  * Formula:   a(n) = binomial(2*r - k - 1, r - k) where r = floor(
  *            (sqrt(8*n+1)-1)/2 ), k = n - r*(r+1)/2. Special case: a(0) = 1
- * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 170, u64 n <= 629,
+ * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 170, u64 n <= 629,
  *            u128 n <= 2277, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 77 terms through n = 7889 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 /* Complexity: O(√n) per call, well below 2 s for n ≤ 10 000. */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* Special case for the first element */
@@ -42,5 +44,5 @@ seq_t a(idx_t n) {
     idx_t N = 2 * r - k - 1;  /* 2*r - k - 1 ≥ 0 for r ≥ 1 */
     idx_t K = r - k;          /* 0 ≤ K ≤ N */
 
-    return binom(N, K);
+    return binomial(N, K);
 }

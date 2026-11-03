@@ -9,12 +9,14 @@
  *            highest power of two dividing x
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 120 terms through n = 9379 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (trib == NULL) {
         /* start with indices 1..3 initialized */
         size_t sz = (size_t)(need + 1);
-        trib = (seq_t*)malloc(sz * sizeof(seq_t));
+        trib = mem_new(seq_t, sz);
         if (!trib) return 0;                 /* allocation failed – return 0 */
         trib[1] = (seq_t)0;
         trib[2] = (seq_t)0;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         max_comp = 3;
     } else if (need > max_comp) {
         size_t sz = (size_t)(need + 1);
-        trib = (seq_t*)realloc(trib, sz * sizeof(seq_t));
+        trib = mem_resize(seq_t, trib, sz);
         if (!trib) return 0;                 /* allocation failed – return 0 */
         /* compute new tribonacci terms */
         for (idx_t i = max_comp + 1; i <= need; ++i) {

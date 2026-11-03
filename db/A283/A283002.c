@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   sum_base100_digits
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/sum_base100_digits.h"
+
+/* Sum of base‑100 digits of m (break decimal digits into pairs from the right). */
+static inline seq_t sum_base100_digits(idx_t m)
+{
+    seq_t s = 0;
+    while (m)
+    {
+        s += (seq_t)(m % 100);
+        m /= 100;
+    }
+    return s;
+}
 
 /* Return the nth element of the sequence (a(1) = 1). */
 seq_t a(idx_t n)

@@ -10,12 +10,14 @@
  *            function A(x) = 1 + x / A(x²) and the coefficient comparison
  * Range:     i8 n <= 54, i16 n <= 98, i32 n <= 194, i64 n <= 380,
  *            i128 n <= 758, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         size_t new_size = cache_size ? cache_size << 1 : 8;
         while (new_size < needed)
             new_size <<= 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         cache_size = new_size;
     }
 

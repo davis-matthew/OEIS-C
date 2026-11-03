@@ -7,21 +7,23 @@
  * Keywords:  nonn
  * Formula:   a(n) = n - (least divisor of n ≥ sqrt(n)) + (greatest divisor of
  *            n ≤ sqrt(n))
- * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
- *            big any n
- * Helpers:   int_sqrt
+ * Range:     u8 n <= 255, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 107 terms through n = 9966 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     /* n ≥ 1 in normal use; for n = 0 return 0 as a guard */
     if (n == 0) return 0;
 
     /* floor of the integer square root of n */
-    idx_t r = int_sqrt(n);
+    idx_t r = isqrt(n);
 
     /* greatest divisor ≤ sqrt(n) – search downward from r */
     idx_t g = 1;

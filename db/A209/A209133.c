@@ -12,7 +12,8 @@
  *            has r coefficients)
  * Range:     u8 n <= 24, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* @generated 2026-10-21 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build. */
 extern seq_t a(idx_t n);
@@ -42,7 +44,7 @@ static void ensure_cache(size_t needed)
     if (cache_cap < needed) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         while (new_cap < needed) new_cap *= 2;
-        cache_seq = (seq_t *)realloc(cache_seq, new_cap * sizeof(seq_t));
+        cache_seq = mem_resize(seq_t, cache_seq, new_cap);
         cache_cap = new_cap;
     }
 }
@@ -59,8 +61,8 @@ seq_t a(idx_t n)
         idx_t r_len = r;                        /* length of the new row   */
 
         /* Allocate arrays for the new row. */
-        seq_t *u_curr = (seq_t *)malloc(r_len * sizeof(seq_t));
-        seq_t *v_curr = (seq_t *)malloc(r_len * sizeof(seq_t));
+        seq_t *u_curr = mem_new(seq_t, r_len);
+        seq_t *v_curr = mem_new(seq_t, r_len);
         if (!u_curr || !v_curr) {
             /* fatal error: allocation failure */
             exit(1);
@@ -95,8 +97,8 @@ seq_t a(idx_t n)
         cache_rows = r;
 
         /* Free previous row arrays and set up for next iteration. */
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_curr;
         v_prev = v_curr;
         prev_len = r_len;

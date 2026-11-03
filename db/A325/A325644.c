@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 251, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _digit_at_pos, _len4_u64
+ * Validated: standard, pass, 87 terms through n = 9982 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,28 @@
  */
 
 #include <stdbool.h>               /* provides 'bool' */
-#include "../utils/_digit_at_pos.h"
-#include "../utils/_len4_u64.h"
+
+static seq_t _digit_at_pos(idx_t n, idx_t pos) /* base‑4 digit of n at position pos (0 = units) */
+{
+    idx_t t = n;
+    while (pos > 0) {
+        t /= 4;
+        --pos;
+    }
+    return (seq_t)(t % 4);
+}
+
+static idx_t _len4_u64(idx_t n)    /* number of base‑4 digits of n */
+{
+    if (n == 0)
+        return 1;
+    idx_t len = 0;
+    while (n > 0) {
+        n /= 4;
+        ++len;
+    }
+    return len;
+}
 
 seq_t a(idx_t n)
 {

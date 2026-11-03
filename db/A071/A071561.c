@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 158, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt_seq
+ * Validated: standard, pass, 83 terms through n = 9769 (2026-11-03)
+ * Helpers:   isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/floor_sqrt_seq.h"   /* floor_sqrt_seq(seq_t v) */
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;          /* stored terms, 0‑based index   */
 static size_t terms_cnt = 0;         /* number of stored terms        */
@@ -36,7 +39,7 @@ static void ensure_terms_cap(size_t need)
     size_t new_cap = terms_cap ? terms_cap * 2 : 8;
     while (new_cap < terms_cnt + need)
         new_cap *= 2;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 
@@ -54,13 +57,13 @@ seq_t a(idx_t n)
         /* lower bound for a potential middle divisor:
          * d > floor(sqrt(k/2))   →  d >= floor_sqrt(k/2)+1         */
         seq_t half = k >> 1;                       /* k / 2   (integer) */
-        seq_t sqrt_half = floor_sqrt_seq(half);
+        seq_t sqrt_half = isqrt_seq(half);
         idx_t low  = (idx_t)sqrt_half + 1;
 
         /* upper bound for a potential middle divisor:
          * d <= floor(sqrt(2k))  →  d <= floor_sqrt(2k)          */
         seq_t two_k = k + k;                       /* 2 * k   (avoid overflow with shift) */
-        seq_t sqrt_two_k = floor_sqrt_seq(two_k);
+        seq_t sqrt_two_k = isqrt_seq(two_k);
         idx_t high = (idx_t)sqrt_two_k;
 
         bool ok = true;

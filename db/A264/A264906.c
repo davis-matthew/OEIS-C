@@ -8,11 +8,13 @@
  * Formula:   a(n) = n^2/gcd((n-4)/gcd(n-4,4), n) for n >= 5
  * Range:     u8 n <= 15, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 49 terms through n = 53 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

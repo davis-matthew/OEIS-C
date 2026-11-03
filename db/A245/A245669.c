@@ -8,12 +8,14 @@
  * Formula:   a(n) = coefficient of q^n in x*(Sum_{k in Z} q^(3*k^2+2*k))^3
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t current_max = 0;
 static seq_t *cache = NULL;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     size_t len_conv1 = 2 * size_s;              /* for sums of two indices */
 
     /* allocate helper arrays */
-    seq_t *s = (seq_t *)calloc(size_s, sizeof(seq_t));
+    seq_t *s = mem_new(seq_t, size_s);
     if (!s) return (seq_t)0;
 
     /* indices where s[i] == 1 */
@@ -69,8 +71,8 @@ seq_t a(idx_t n)
     }
 
     /* convolution s * s -> conv1 */
-    seq_t *conv1 = (seq_t *)calloc(len_conv1 + 1, sizeof(seq_t));
-    if (!conv1) { free(s); free(indices); return (seq_t)0; }
+    seq_t *conv1 = mem_new(seq_t, len_conv1 + 1);
+    if (!conv1) { mem_free(s); free(indices); return (seq_t)0; }
 
     for (size_t ii = 0; ii < idx_cnt; ++ii) {
         idx_t i = indices[ii];
@@ -82,8 +84,8 @@ seq_t a(idx_t n)
     }
 
     /* convolution conv1 * s -> a_noShift (coeffs for exponents 0 .. size_s-1) */
-    seq_t *a_noShift = (seq_t *)calloc(size_s, sizeof(seq_t));
-    if (!a_noShift) { free(s); free(indices); free(conv1); return (seq_t)0; }
+    seq_t *a_noShift = mem_new(seq_t, size_s);
+    if (!a_noShift) { mem_free(s); free(indices); mem_free(conv1); return (seq_t)0; }
 
     for (size_t kk = 0; kk < idx_cnt; ++kk) {
         idx_t k = indices[kk];
@@ -93,23 +95,23 @@ seq_t a(idx_t n)
     }
 
     /* build cache up to max_n */
-    seq_t *new_cache = (seq_t *)calloc((size_t)(max_n + 1), sizeof(seq_t));
-    if (!new_cache) { free(s); free(indices); free(conv1); free(a_noShift); return (seq_t)0; }
+    seq_t *new_cache = mem_new(seq_t, (size_t)(max_n + 1));
+    if (!new_cache) { mem_free(s); free(indices); mem_free(conv1); mem_free(a_noShift); return (seq_t)0; }
 
     for (idx_t i = 1; i <= max_n; ++i) {
         new_cache[(size_t)i] = a_noShift[(size_t)(i - 1)];
     }
 
     /* replace old cache */
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = new_cache;
     current_max = max_n;
 
     /* free temporary arrays */
-    free(s);
+    mem_free(s);
     free(indices);
-    free(conv1);
-    free(a_noShift);
+    mem_free(conv1);
+    mem_free(a_noShift);
 
     return cache[(size_t)n];
 }

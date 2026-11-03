@@ -7,12 +7,14 @@
  * Formula:   sum of 4 positive 6th powers, sorted in ascending order
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9520 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
         
         idx_t max_base = 50;
         idx_t capacity = 300000;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         
         cache_len = 0;
         for (idx_t a_val = 1; a_val <= max_base; a_val++) {
@@ -64,7 +66,7 @@ seq_t a(idx_t n) {
             }
         }
         
-        qsort(cache, cache_len, sizeof(seq_t), compare_seq_t);
+        mem_qsort(cache, cache_len, sizeof(seq_t), compare_seq_t);
         
         idx_t write_pos = 0;
         for (idx_t i = 0; i < cache_len; i++) {

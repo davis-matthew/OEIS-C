@@ -6,14 +6,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = the nth smallest positive integer of the form 4^i * 11^j
  *            (i,j ≥ 0)
- * Range:     u8 n <= 8, u16 n <= 25, u32 n <= 38, u64 n <= 38, u128 n <= 38,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 8, u16 n <= 25, u32 n <= 87, u64 n <= 321,
+ *            u128 n <= 1234, big any n
+ * Validated: standard, pass, 54 terms through n = 8865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initial allocation: the first term is 1 (4^0 * 11^0) */
     if (seq == NULL) {
         cap  = 128;                  /* start with a modest capacity   */
-        seq  = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq  = mem_new(seq_t, cap);
         seq[0] = 1;                  /* term a(1) = 1                  */
         size  = 1;
         ip4   = 0;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         /* Grow the storage if necessary */
         if (size >= cap) {
             cap *= 2;
-            seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, cap);
         }
 
         /* Candidate values generated from the two basic generators */

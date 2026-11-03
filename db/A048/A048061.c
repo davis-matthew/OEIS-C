@@ -11,12 +11,14 @@
  *            a(n) = Σ_{j} C(L,j)·C(n-L,2j)
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
 
     for (idx_t j = 1; j <= maxJ; ++j)
     {
-        seq_t low  = binom(L, j);            /* C(L, j)   */
-        seq_t high = binom(N, 2 * j);        /* C(N, 2j)  */
+        seq_t low  = binomial(L, j);            /* C(L, j)   */
+        seq_t high = binomial(N, 2 * j);        /* C(N, 2j)  */
         result += low * high;
     }
 

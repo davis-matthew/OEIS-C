@@ -7,12 +7,14 @@
  * Formula:   a(n) = 34*a(n-1) - a(n-2) + 4, a(1) = 1, a(2) = 37
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 610 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -25,11 +27,11 @@ seq_t a(idx_t n) {
         idx_t new_len = (cache_len == 0) ? 256 : cache_len;
         while (new_len <= n) new_len *= 2;
 
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         for (idx_t i = 0; i < new_len; i++) new_cache[i] = 0;
         if (cache != NULL) {
             for (idx_t i = 0; i < cache_len; i++) new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_len = new_len;

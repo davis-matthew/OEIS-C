@@ -10,7 +10,8 @@
  *            (n+1)-th such triangle
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*--- Helper: integer square root of a __int128 value -----------------*/
 static inline unsigned long long isqrt_uint128(__int128 x) {
@@ -61,11 +63,11 @@ static size_t cache_cap = 0;
 static void grow_cache(size_t needed) {
     if (cache == NULL) {
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     while (cache_cap < needed) {
         cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 

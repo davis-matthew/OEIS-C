@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_NODES 15
 #define MAX_STATES 3375   /* 15^3, upper bound for number of column states */
@@ -138,8 +140,8 @@ seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;
 
     /* allocate two temporary arrays of counts */
-    seq_t *cnt = (seq_t*)calloc(S, sizeof(seq_t));
-    seq_t *nxt = (seq_t*)calloc(S, sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, S);
+    seq_t *nxt = mem_new(seq_t, S);
 
     /* initial column can be any vertical‑valid state */
     for (int i = 0; i < S; ++i) cnt[i] = (seq_t)1;
@@ -147,7 +149,7 @@ seq_t a(idx_t n) {
     /* iterate over columns (n-1 transitions) */
     for (idx_t step = 1; step < n; ++step) {
         /* zero the next array */
-        memset(nxt, 0, S * sizeof(seq_t));
+        mem_set(nxt, 0, S * sizeof(seq_t));
 
         /* propagate counts */
         for (int i = 0; i < S; ++i) {
@@ -172,8 +174,8 @@ seq_t a(idx_t n) {
     }
 
     /* free temporaries */
-    free(cnt);
-    free(nxt);
+    mem_free(cnt);
+    mem_free(nxt);
 
     return result;
 }

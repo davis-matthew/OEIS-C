@@ -9,14 +9,16 @@
  *            M(i,j) = Σ_{k=1}^{min(i,j)} (3i-3k+1)(3j-3k+1)
  * Range:     u8 n <= 39, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   min_idx
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stddef.h>
-#include "../utils/min_idx.h"
+
+static inline idx_t min_idx(idx_t a, idx_t b){return a<b?a:b;}
 
 seq_t a(idx_t n){
     /* Find diagonal index d such that d(d+1)/2 >= n */

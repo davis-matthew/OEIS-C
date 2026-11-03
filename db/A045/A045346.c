@@ -7,6 +7,7 @@
  * Formula:   a(n) = n-th prime congruent to 0,1,2,4,5,6 (i.e. not ≡ 3) mod 7
  * Range:     u8 n <= 44, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 63 terms through n = 942 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

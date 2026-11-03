@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^C(n,2) * (2*(4^n - n*2^n) - 1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 14,
  *            big any n
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* C(n,2) is the binomial coefficient n choose 2 */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

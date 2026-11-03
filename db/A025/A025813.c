@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    type seq_t and idx_t provided by the build. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,10 +31,10 @@ seq_t a(idx_t n)
 
     /* Grow the cache if necessary */
     if (n + 1 > dp_size) {
-        seq_t *newdp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, (n + 1));
         if (!newdp)   /* allocation failed – return 0 as a safe fallback */
             return (seq_t)0;
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp = newdp;
         dp_size = n + 1;
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Computed by dynamic programming on the coin‑change recurrence.
    dp[n] = dp[n‑2] + dp[n‑4] + dp[n‑6] + dp[n‑9]   (with dp[0] = 1). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *dp  = NULL;        /* memoised values up to dp_size-1 */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     /* If the requested n is beyond the current memoised range, extend it. */
     if (n + 1 > dp_size) {
         idx_t new_size = n + 1;                     /* n is small (≤~10000) */
-        seq_t *tmp = (seq_t*)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_size);
         if (!tmp) return (seq_t)0;                  /* allocation failed */
         dp = tmp;
 

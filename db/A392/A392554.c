@@ -5,13 +5,15 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{k=0..floor(n/6)} (k+1) * binomial(n-4*k+3, n-6*k)
- * Range:     u8 n <= 6, u16 n <= 20, u32 n <= 47, u64 n <= 104, u128 n <= 218,
+ * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 47, u64 n <= 104, u128 n <= 218,
  *            big any n
+ * Validated: standard, pass, 56 terms through n = 985 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -9,13 +9,34 @@
  *            starting with 5 (OEIS A043084)
  * Range:     u8 n <= 2, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   pal_count, pow10_cap
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pal_count.h"
-#include "../utils/pow10_cap.h"
+/* Helper: compute 10^exp capped at limit+1 so we can test against a bound. */
+static idx_t pow10_cap(idx_t exp, idx_t limit)
+{
+    idx_t p = 1;
+    for (idx_t i = 0; i < exp; ++i) {
+        if (p > limit / 10)
+            return limit + 1;          /* exceed the bound */
+        p *= 10;
+    }
+    return p;
+}
+
+/* Number of palindromes of a given length that start with 5, capped at
+ * limit+1 for comparison with a remaining count. */
+static idx_t pal_count(idx_t length, idx_t limit)
+{
+    if (length == 1)
+        return 1;
+    int len = (int)length;
+    int exp = (len % 2 == 0) ? (len / 2 - 1) : (len / 2);
+    return pow10_cap(exp, limit);
+}
 
 /* Build the n-th palindrome of a given length (1‑based offset 'off'). */
 static seq_t build_pal(idx_t length, idx_t off)

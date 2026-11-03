@@ -7,12 +7,14 @@
  * Formula:   a(n) = 1060*a(n-1) - a(n-2) with a(1)=1, a(2)=530
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 4; /* minimal space for indices 0..3 */
-        cache = (seq_t*)malloc(cache_cap * sizeof(*cache));
+        cache = mem_new(seq_t, cache_cap);
         /* set known initial values */
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)530;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         if (n >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 4;
             while (new_cap <= n) new_cap *= 2;
-            cache = (seq_t*)realloc(cache, new_cap * sizeof(*cache));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 

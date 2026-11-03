@@ -8,13 +8,15 @@
  * Formula:   a(n) = 83*a(n-1) - a(n-2) (a(0)=1, a(1)=84)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 474 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Dynamically expanding cache for computed terms */
 static seq_t *cache = NULL;          /* cached values */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t up_to)
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
         while (new_cap <= (size_t)up_to + 1)
             new_cap *= 2;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         if (!new_ptr) {
             /* In a real program we would handle out‑of‑memory properly */
             abort();

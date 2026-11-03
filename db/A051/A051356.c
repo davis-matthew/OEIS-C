@@ -12,7 +12,8 @@
  *            (mod 6), and 0 for 2,3
  * Range:     i8 n <= 14, i16 n <= 706, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--- prime storage -----------------------------------------------------------*/
 static uint32_t *prime_list   = NULL;   /* zero–based: prime_list[0]=2, [1]=3, [2]=5,... */
@@ -71,7 +73,7 @@ static void ensure_cum_size(size_t idx)
     if (idx < cum_cap) return;
     size_t cap = cum_cap ? cum_cap : 8;
     while (cap <= idx) cap <<= 1;
-    seq_t *p = (seq_t *)realloc(cum_sum, cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cum_sum, cap);
     if (!p) abort();
     cum_sum = p;
     cum_cap = cap;

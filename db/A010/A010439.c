@@ -9,6 +9,7 @@
  *            0,1,3,4,9,10,12,13,16,22,25,27,30,36,39,40,42,43,48,49,51,52,55,61,64,66,69,75
  * Range:     u8 n <= 28, u16 n <= 28, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: full, pass, 28 terms through n = 28 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

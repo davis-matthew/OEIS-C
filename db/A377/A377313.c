@@ -9,13 +9,25 @@
  *            floor((120*n)^(1/5))
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   binom5_u128
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom5_u128.h"
+
+/* Compute binomial(n,5) as 128‑bit integer; return 0 if n<5. */
+static inline __int128 binom5_u128(idx_t n)
+{
+    if (n < 5) return 0;
+    __int128 r = n;
+    r *= (__int128)(n - 1);
+    r *= (__int128)(n - 2);
+    r *= (__int128)(n - 3);
+    r *= (__int128)(n - 4);
+    return r / 120;  /* 5! = 120 */
+}
 
 /* Compute x^5 as 128‑bit integer (x is <= ~5×10⁴). */
 static inline __int128 pow5_u128(idx_t x)

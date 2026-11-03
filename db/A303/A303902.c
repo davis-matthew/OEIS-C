@@ -11,12 +11,14 @@
  *            convolution
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,12 +27,12 @@ seq_t a(idx_t n)
     if (n == 1) return (seq_t)0;
 
     /* allocate two buffers of length n+1 (index 0..n) */
-    seq_t *cur = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *next = mem_new(seq_t, (size_t)(n + 1));
     if (!cur || !next) {
         /* out of memory – return 0, caller may check */
-        if (cur) free(cur);
-        if (next) free(next);
+        if (cur) mem_free(cur);
+        if (next) mem_free(next);
         return 0;
     }
 
@@ -73,8 +75,8 @@ seq_t a(idx_t n)
     seq_t result = cur[n] - cur[n - 2];
 
     /* free temporary buffers */
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
 
     return result;
 }

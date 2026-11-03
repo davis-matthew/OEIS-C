@@ -14,6 +14,7 @@
  *            A(3,1), a(5) = A(2,2), a(6) = A(1,3) ... etc
  * Range:     u8 n <= 25, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

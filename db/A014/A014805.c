@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 45, u64 n <= 1138,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 9533 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build system.  */
 
@@ -46,13 +48,13 @@ static void recompute_cache(idx_t max_n)
     size_t cap = (size_t)max_n + 1;
 
     /* free previous cache */
-    free(cache);
-    cache = (seq_t *)calloc(cap, sizeof(seq_t));
+    mem_free(cache);
+    cache = mem_new(seq_t, cap);
     if (!cache) return;          /* allocation failure */
 
     /* temporary array for the next convolution */
-    seq_t *next = (seq_t *)calloc(cap, sizeof(seq_t));
-    if (!next) { free(cache); cache = NULL; return; }
+    seq_t *next = mem_new(seq_t, cap);
+    if (!next) { mem_free(cache); cache = NULL; return; }
 
     /* initial sequence: only coefficient of q^0 is 1 */
     cache[0] = (seq_t)1;
@@ -69,7 +71,7 @@ static void recompute_cache(idx_t max_n)
     /* perform 16 convolutions */
     for (idx_t pass = 0; pass < 16; ++pass) {
         /* zero the next array */
-        memset(next, 0, cap * sizeof(seq_t));
+        mem_set(next, 0, cap * sizeof(seq_t));
 
         for (idx_t s = 0; s <= max_n; ++s) {
             seq_t cur = cache[s];
@@ -88,7 +90,7 @@ static void recompute_cache(idx_t max_n)
     }
 
     /* free the old temporary array that now holds the previous cache */
-    free(next);
+    mem_free(next);
     cache_cap = cap;
 }
 

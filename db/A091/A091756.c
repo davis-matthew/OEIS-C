@@ -8,12 +8,28 @@
  *            (80*3^(n-3)*(n-3)!) for n ≥ 4 (offset 4)
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 11, u128 n <= 17,
  *            big any n
- * Helpers:   reduce_factor
+ * Validated: partial, pass, 14 terms through n = 17 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reduce_factor.h"
+static void reduce_factor(seq_t *num, idx_t *exp3, idx_t *exp2, idx_t *exp5, seq_t factor)
+{
+    while (*exp3 > 0 && factor % 3 == 0) {
+        factor /= 3;
+        (*exp3)--;
+    }
+    while (*exp2 > 0 && factor % 2 == 0) {
+        factor /= 2;
+        (*exp2)--;
+    }
+    if (*exp5 > 0 && factor % 5 == 0) {
+        factor /= 5;
+        (*exp5)--;
+    }
+    *num *= factor;
+}
 
 seq_t a(idx_t n)
 {

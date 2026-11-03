@@ -7,13 +7,38 @@
  * Formula:   a(n) = K(n, n+1) where K is the Kronecker symbol (·/·)
  * Range:     i8 n <= 107, i16 n <= 107, i32 n <= 107, i64 n <= 107,
  *            i128 n <= 107, big any n
- * Helpers:   jacobi_symbol
+ * Validated: partial, pass, 107 terms through n = 107 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/jacobi_symbol.h"
+#include <stdbool.h>
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 seq_t a(idx_t n)
 {

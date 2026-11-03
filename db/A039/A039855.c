@@ -11,7 +11,8 @@
  *            ∏_{m≠2,3 (mod 5)} 1/(1−x^m)
  * Range:     u8 n <= 20, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_unrestricted = NULL;   /* partitions using only parts 0,1,4 (mod 5) */
 static seq_t *dp_after2      = NULL;   /* after adding part ≡2 (mod 5) */
@@ -33,9 +35,9 @@ static void ensure_size(idx_t need)
 {
     if (need <= stored_size) return;
 
-    seq_t *new1 = (seq_t *)realloc(dp_unrestricted, (need + 1) * sizeof(seq_t));
+    seq_t *new1 = mem_resize(seq_t, dp_unrestricted, (need + 1));
     if (!new1) return;          /* allocation failed – caller will see 0 */
-    seq_t *new2 = (seq_t *)realloc(dp_after2,      (need + 1) * sizeof(seq_t));
+    seq_t *new2 = mem_resize(seq_t, dp_after2, (need + 1));
     if (!new2) {
         dp_unrestricted = new1; /* rollback first array to keep consistency */
         return;

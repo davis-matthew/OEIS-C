@@ -10,11 +10,13 @@
  *            terms
  * Range:     u8 n <= 16, u16 n <= 1995, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 78 terms through n = 4863 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

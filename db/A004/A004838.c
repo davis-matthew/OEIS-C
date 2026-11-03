@@ -7,13 +7,15 @@
  * Formula:   Numbers that are the sum of at most 9 nonzero 4th powers
  * Range:     u8 n <= 122, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -67,7 +69,7 @@ seq_t a(idx_t n) {
         }
         
         // Store in cache
-        cache = (seq_t *)malloc(count * sizeof(seq_t));
+        cache = mem_new(seq_t, count);
         if (cache == NULL) {
             free(dp);
             return 0;

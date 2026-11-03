@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 59, u32 n <= 179, u64 n <= 595,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* period pattern of length 24 */
 static const unsigned char period[24] = {
@@ -43,14 +45,14 @@ seq_t a(idx_t n)
     /* Grow the buffer if necessary */
     if (buffer_cap <= n) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(buffer, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buffer, new_cap);
         if (!tmp) return (seq_t)0;        /* allocation failure */
         buffer = tmp;
         buffer_cap = new_cap;
     }
 
     /* Initialize to zero and set dp[0] = 1 */
-    memset(buffer, 0, (n + 1) * sizeof(seq_t));
+    mem_set(buffer, 0, (n + 1) * sizeof(seq_t));
     buffer[0] = (seq_t)1;
 
     /* Dynamic programming over allowed part sizes */

@@ -9,6 +9,7 @@
  *            (equivalently a(n) = a(n-1) * A080079(n))
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 17, u64 n <= 28, u128 n <= 44,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 553 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

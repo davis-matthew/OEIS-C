@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 39, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* auxiliary: integer square root of a 64‑bit unsigned integer */
 static inline idx_t isqrt_u64(idx_t n)
@@ -78,7 +80,7 @@ static idx_t max_s   = 0;
 static void rebuild_table(idx_t s)
 {
     size_t size = (size_t)(s + 1) * (s + 1);
-    seq_t *newA = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *newA = mem_new(seq_t, size);
     if (!newA) return;  /* silently abort if allocation fails */
 
     for (idx_t i = 0; i <= s; ++i) {
@@ -102,7 +104,7 @@ static void rebuild_table(idx_t s)
         }
     }
 
-    free(A_flat);
+    mem_free(A_flat);
     A_flat = newA;
     max_s   = s;
 }

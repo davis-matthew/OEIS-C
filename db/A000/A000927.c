@@ -12,7 +12,8 @@
  *            product is evaluated modulo many primes q == 1 (mod p-1) and...
  * Range:     u8 n <= 14, u16 n <= 17, u32 n <= 23, u64 n <= 31, u128 n <= 46,
  *            big any n
- * Helpers:   cos_sin, nth_prime_local
+ * Validated: standard, pass, 54 terms through n = 99 (2026-11-01)
+ * Helpers:   nth_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cos_sin.h"
-#include "../utils/nth_prime_local.h"
+#include "../utils/nth_prime.h"
+
+static void cos_sin(double t, double *c, double *s) {
+    double t2 = t * t, tc = 1.0, ts = t, sc = 0.0, ss = 0.0;
+    for (int k = 0; k < 30; k++) {
+        sc += tc;
+        ss += ts;
+        tc = -tc * t2 / (double)((2 * k + 1) * (2 * k + 2));
+        ts = -ts * t2 / (double)((2 * k + 2) * (2 * k + 3));
+    }
+    *c = sc;
+    *s = ss;
+}
 
 typedef unsigned __int128 u128_t;
 
@@ -83,7 +95,7 @@ static uint64_t mg_to(uint64_t a) { return (uint64_t)(((u128_t)a << 64) % mg_q);
 
 seq_t a(idx_t n) {
     if (n <= 1) return (seq_t)1;
-    uint64_t p = nth_prime_local(n);
+    uint64_t p = nth_prime(n);
     uint64_t N = p - 1, m = N / 2;
 
     /* prime factors of N */

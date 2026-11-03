@@ -11,7 +11,8 @@
  *            order (a(1)=6)
  * Range:     u8 n <= 39, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   valid_seq_t
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/valid_seq_t.h"
+#include "../utils/mem.h"
+
+/* check whether a given integer satisfies the sequence condition */
+static bool valid_seq_t(seq_t x) {
+    seq_t t = x;
+    int  prev = -1;   /* previous (less significant) digit: -1 = none */
+    bool found_two = false;
+
+    while (t > 0) {                /* iterate over base‑3 digits */
+        int d = (int)(t % (seq_t)3);   /* least significant digit */
+        if (d == 2) {
+            if (prev != 0)          /* 2 must be followed by 0 */
+                return false;
+            found_two = true;
+        }
+        prev = d;
+        t = t / (seq_t)3;
+    }
+    return found_two;              /* must contain at least one 2 */
+}
 
 /* static cache of generated terms */
 static seq_t *cache = NULL;       /* pointer to the cache array */
@@ -31,7 +51,7 @@ static idx_t   last_checked = 0;  /* last integer examined (uint64_t) */
 static void cache_append(seq_t val) {
     if (cache_size == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 64 : cache_cap << 1;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         if (!new_ptr) exit(EXIT_FAILURE);   /* allocation failed */
         cache = new_ptr;
         cache_cap = new_cap;

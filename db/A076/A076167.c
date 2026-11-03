@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 223, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   equal_digit_sums
+ * Validated: standard, pass, 58 terms through n = 9583 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/equal_digit_sums.h"
+#include "../utils/mem.h"
+
+/* helper to compute digit sums */
+static bool equal_digit_sums(uint64_t v)
+{
+    uint64_t sum_even = 0U;
+    uint64_t sum_odd  = 0U;
+    while (v > 0U) {
+        uint64_t d = v % 10U;
+        if ((d & 1U) == 0U) sum_even += d;
+        else                sum_odd  += d;
+        v /= 10U;
+    }
+    return sum_even == sum_odd;
+}
 
 /* modular multiplication using 128‑bit intermediate */
 static uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod)
@@ -104,7 +119,7 @@ seq_t a(idx_t n)
             /* allocate more space if necessary */
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap << 1U : 8U;  /* grow by factor 2, start with 8 */
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) {
                     /* allocation failure: abort by returning 0 */
                     return 0U;

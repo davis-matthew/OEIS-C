@@ -11,13 +11,15 @@
  *            previous block
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* cache of computed terms */
 static size_t cap = 0;             /* capacity of seq */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (seq == NULL) {
         /* allocate space for at least one term (a(0)) */
         cap = 1;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         if (seq == NULL) return 0;          /* allocation failed */
         seq[0] = 0;                         /* a(0) = 0 */
     }
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
             size_t newCap = cap > 0 ? cap * 2 : 1;
             while (newCap <= (size_t)(n + 1))
                 newCap *= 2;
-            seq_t *tmp = (seq_t *)realloc(seq, newCap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, newCap);
             if (tmp == NULL)
                 return 0;                   /* memory allocation failed */
             seq = tmp;

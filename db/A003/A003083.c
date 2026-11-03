@@ -11,7 +11,8 @@
  *            Sum_i floor(p_i/2))
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   A_grow, g3083_divs, g3083_gcd, g3083_trim
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   gcd_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/A_grow.h"
-#include "../utils/g3083_divs.h"
-#include "../utils/g3083_gcd.h"
-#include "../utils/g3083_trim.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static void g3083_divs(uint32_t *x, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    size_t i;
+    for (i = len; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static size_t g3083_trim(const uint32_t *x, size_t len) {
+    while (len > 1 && x[len - 1] == 0) len--;
+    return len;
+}
 
 static int g3083_n;
 static uint32_t *g3083_fact, *g3083_tmp, *g3083_acc;
@@ -69,7 +93,7 @@ static void g3083_rec(int rem, int maxk, int nd, uint64_t e) {
     if (rem == 0) { g3083_leaf(nd, e); return; }
     for (k = (rem < maxk ? rem : maxk); k >= 1; k--) {
         uint64_t cross = 0;
-        for (j = 0; j < nd; j++) cross += (uint64_t)g3083_mult[j] * (uint64_t)g3083_gcd(k, g3083_part[j]);
+        for (j = 0; j < nd; j++) cross += (uint64_t)g3083_mult[j] * (uint64_t)gcd_i32(k, g3083_part[j]);
         for (m = 1; m * k <= rem; m++) {
             uint64_t e2 = e + (uint64_t)m * (uint64_t)(k / 2)
                         + (uint64_t)k * (uint64_t)m * (uint64_t)(m - 1) / 2

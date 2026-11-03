@@ -9,6 +9,7 @@
  * Formula:   a(n) = Sum_{d1,d2,d3|2n, d1<=d2<=d3}[d1^2 + d2^2 = d3]
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   grow_seq_array, no_consecutive_equal_digits
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,36 @@
    a(n) is the nth integer m such that m = k^9 for some k (starting at k = 0)
    and the decimal representation of m has no two consecutive equal digits. */
 #include <stddef.h>
-#include "../utils/no_consecutive_equal_digits.h"
-#include "../utils/grow_seq_array.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Test whether a seq_t value has any pair of consecutive equal decimal digits. */
+static inline bool no_consecutive_equal_digits(seq_t val) {
+    if (val == (seq_t)0) return true;          /* 0 contains only one digit */
+    int prev = -1;                             /* previous digit, -1 means none yet */
+    seq_t tmp = val;
+    while (tmp > (seq_t)0) {
+        int d = (int)(tmp % (seq_t)10);        /* current least‑significant digit */
+        if (prev == d) return false;           /* found equal neighbours */
+        prev = d;
+        tmp /= (seq_t)10;                      /* shift right one decimal digit */
+    }
+    return true;                               /* all adjacent digits differ */
+}
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* Static state to cache computed terms and to continue computation
    when a later index is requested. */

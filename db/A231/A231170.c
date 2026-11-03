@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 811, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   equal_even_odd_digits
+ * Validated: standard, pass, 64 terms through n = 9390 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,26 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/equal_even_odd_digits.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static bool equal_even_odd_digits(seq_t x)
+{
+    int even = 0, odd = 0;
+    seq_t t = x;
+    if (t == 0)
+        return true;  /* digit 0 is even but counts as one even, zero odd */
+
+    while (t > 0) {
+        unsigned int d = (unsigned int)(t % 10u);
+        if ((d & 1u) == 0u)
+            ++even;
+        else
+            ++odd;
+        t /= 10u;
+    }
+    return even == odd;
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper: test for equal number of even and odd decimal digits.      */
@@ -50,7 +70,7 @@ static void ensure_cache_capacity(size_t need)
     while (new_cap < need)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_cache) abort();
     seq_cache = new_cache;
     cache_cap = new_cap;

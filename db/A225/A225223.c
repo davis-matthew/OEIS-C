@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 2181, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, is_prime
+ * Validated: standard, pass, 72 terms through n = 9924 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_prime.h"
 #include "../utils/build_primes_upto.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* ---------- dynamic storage for the terms ---------- */
 static seq_t *term_cache = NULL;  /* a(1), a(2), ... */
@@ -37,10 +39,10 @@ static void ensure_terms(size_t needed) {
     if (needed <= term_cap) return;
     size_t new_cap = term_cap ? term_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_mem = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_new(seq_t, new_cap);
     if (term_cache) {
-        memcpy(new_mem, term_cache, term_count * sizeof(seq_t));
-        free(term_cache);
+        mem_copy(new_mem, term_cache, term_count * sizeof(seq_t));
+        mem_free(term_cache);
     }
     term_cache = new_mem;
     term_cap = new_cap;
@@ -69,7 +71,7 @@ static bool is_practical(uint64_t n) {
     uint64_t temp = n;
     unsigned __int128 sum = 1;   /* sigma of already processed part */
 
-    ensure_primes(_floor_isqrt_u64(n) + 1U);
+    ensure_primes(isqrt(n) + 1U);
 
     for (size_t i = 0; i < prime_count; ++i) {
         uint64_t p = prime_list[i];

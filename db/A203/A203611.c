@@ -9,6 +9,7 @@
  *            with a(0) = 1. See OEIS A203611
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 25, u64 n <= 49, u128 n <= 95,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 2302 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

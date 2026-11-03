@@ -8,12 +8,14 @@
  *            5 Recurrence valid for n > 1
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 12, i64 n <= 24, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* First call: allocate space and initialize base cases */
     if (max_computed == (idx_t)-1) {
         capacity = (n < 1 ? 2 : n + 1);
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) abort();
         cache[0] = (seq_t)-1;
         cache[1] = (seq_t)5;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     else if (n > capacity - 1) {
         size_t new_cap = capacity;
         while (new_cap <= n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         capacity = new_cap;

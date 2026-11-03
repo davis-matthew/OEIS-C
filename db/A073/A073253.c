@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build. */
 static seq_t *CACHE = NULL;          /* cached sequence values */
@@ -51,8 +53,8 @@ static void ensure_cache(idx_t n)
     size_t dp_size = (size_t)dim * (size_t)dim;
 
     /* Allocate DP arrays */
-    seq_t *dp      = (seq_t *)calloc(dp_size, sizeof(seq_t));
-    seq_t *dp_snap = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, dp_size);
+    seq_t *dp_snap = mem_new(seq_t, dp_size);
     if (!dp || !dp_snap) {
         /* Allocation failed – abort silently (well‑behaved in most
            testing environments). */
@@ -89,12 +91,12 @@ static void ensure_cache(idx_t n)
             }
         }
     }
-    free(dp_snap);
+    mem_free(dp_snap);
 
     /* Allocate new cache */
-    seq_t *new_cache = (seq_t *)calloc(new_cache_size, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cache_size);
     if (!new_cache) {
-        free(dp);
+        mem_free(dp);
         return;
     }
 
@@ -108,10 +110,10 @@ static void ensure_cache(idx_t n)
         }
     }
 
-    free(dp);
+    mem_free(dp);
 
     /* Replace old cache */
-    if (CACHE) free(CACHE);
+    if (CACHE) mem_free(CACHE);
     CACHE       = new_cache;
     CACHE_SIZE  = new_cache_size;
 }

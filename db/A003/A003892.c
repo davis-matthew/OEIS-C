@@ -10,6 +10,7 @@
  *            n <= q/2+1; a(q/2+2) = q; a(n) = q+1 for q/2+3 <= n <= q+1
  * Range:     u8 n <= 33, u16 n <= 33, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
+ * Validated: full, pass, 33 terms through n = 33 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,8 +9,9 @@
  *            than one in the primorial base expansion of n, or 0 if no such
  *            digit * exists. Primorial base uses radices 2,3,5,7,11,… (the
  *            successive primes)
- * Range:     u8 n <= 9676, u16 n <= 9676, u32 n <= 9676, u64 n <= 9676,
- *            u128 n <= 9676, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 122 terms through n = 9676 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

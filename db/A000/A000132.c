@@ -9,14 +9,24 @@
  *            32*sigma(m/4) for m >= 1 (the second term only when 4 | m)
  * Range:     u8 n <= 6, u16 n <= 234, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   r4, sigma_u64
+ * Validated: standard, pass, 63 terms through n = 9587 (2026-11-01)
+ * Helpers:   sigma_u64_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/r4.h"
-#include "../utils/sigma_u64.h"
+#include "../utils/sigma_u64_to_u64.h"
+
+static seq_t r4(uint64_t m)
+{
+    seq_t r;
+    if (m == 0) return (seq_t)1;
+    r = (seq_t)8 * (seq_t)sigma_u64_to_u64(m);
+    if (m % 4 == 0)
+        r -= (seq_t)32 * (seq_t)sigma_u64_to_u64(m / 4);
+    return r;
+}
 
 seq_t a(idx_t n)
 {

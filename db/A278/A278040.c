@@ -10,15 +10,17 @@
  *            digits “0,1” to that representation, and evaluating the new *
  *            tribonacci‐encoded number. The result is * * a(n) = T3 + Σ
  *            T_{i+2} * * over all indices i where the represent...
- * Range:     u8 n <= 75, u16 n <= 9582, u32 n <= 9582, u64 n <= 9582,
- *            u128 n <= 9582, big any n
- * Helpers:   none
+ * Range:     u8 n <= 75, u16 n <= 19371, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 9582 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *tribo = NULL;           /* dynamic array of tribonacci numbers   */
 static size_t tribo_len = 0;          /* number of elements currently stored  */
@@ -28,7 +30,7 @@ static size_t tribo_cap = 0;          /* current capacity of the array        */
 static void tribo_grow(void)
 {
     size_t new_cap = tribo_cap ? tribo_cap * 2 : 8;
-    seq_t *tmp = (seq_t *)realloc(tribo, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, tribo, new_cap);
     if (!tmp) abort();                 /* not enough memory */
     tribo = tmp;
     tribo_cap = new_cap;
@@ -40,7 +42,7 @@ static void tribo_init(void)
     if (!tribo) {
         tribo_cap = 8;
         tribo_len = 3;
-        tribo = (seq_t *)calloc(tribo_cap, sizeof(seq_t));
+        tribo = mem_new(seq_t, tribo_cap);
         if (!tribo) abort();
         tribo[0] = 0;
         tribo[1] = 0;

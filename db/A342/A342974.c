@@ -9,7 +9,8 @@
  *            modulo p is NOT divisible by the largest odd divisor of p‑1
  * Range:     u8 n <= 10, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   factor_u64, next_prime, powmod64
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   factor_u64, next_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"
 #include "../utils/factor_u64.h"
-#include "../utils/powmod64.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod_u64.h"
 
 /* Static storage of primes that satisfy the property.  The array
    holds uint64_t values; the function returns them cast to seq_t. */
@@ -58,7 +59,7 @@ static bool good_prime(uint64_t p)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t q = primes[i];
         while (ord % q == 0 &&
-               powmod64(2, ord / q, p) == 1)
+               powmod_u64(2, ord / q, p) == 1)
             ord /= q;
     }
 

@@ -11,14 +11,22 @@
  *            d(j-1) - 2*d_m(j-1). a(1) = 1, and a(n) = d_n(0)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 22,
  *            big any n
- * Helpers:   a2105_zalloc
+ * Validated: standard, pass, 35 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2105_zalloc.h"
+#include "../utils/mem.h"
+
+static seq_t *a2105_zalloc(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    mem_set(p, 0, (size_t)len * sizeof(seq_t));
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *vals = NULL;
 static seq_t *rowA = NULL;
@@ -33,9 +41,9 @@ static void a2105_grow(idx_t newcap) {
     if (vals) {
         for (idx_t i = 0; i <= cur; i++) nv[i] = vals[i];
         for (idx_t i = 0; i < cur; i++) na[i] = rowA[i];
-        free(vals);
-        free(rowA);
-        free(rowB);
+        mem_free(vals);
+        mem_free(rowA);
+        mem_free(rowB);
     }
     vals = nv;
     rowA = na;

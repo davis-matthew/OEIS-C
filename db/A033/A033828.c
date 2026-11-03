@@ -12,6 +12,7 @@
  *            indexes it directly
  * Range:     u8 n <= 48, u16 n <= 2621, u32 n <= 2621, u64 n <= 2621,
  *            u128 n <= 2621, big any n
+ * Validated: full, pass, 2621 terms through n = 2621 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

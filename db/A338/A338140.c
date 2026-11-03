@@ -7,7 +7,8 @@
  * Formula:   a(n) is the smallest number with exactly n refactorable divisors
  * Range:     u8 n <= 10, u16 n <= 34, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Forward declaration */
 static int count_refactorable(uint64_t k);
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (cache_size <= n) {
         size_t new_size = cache_size ? cache_size << 1 : 128;
         if (new_size <= n) new_size = n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         for (idx_t i = cache_size; i < new_size; ++i) cache[i] = 0;
         cache_size = new_size;
     }

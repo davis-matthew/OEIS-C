@@ -10,14 +10,26 @@
  *            4*A045828(n)
  * Range:     u8 n <= 407, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a005877_isqrt, a005877_odd_pairs
+ * Validated: standard, pass, 68 terms through n = 969 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005877_isqrt.h"
-#include "../utils/a005877_odd_pairs.h"
+#include "../utils/isqrt_u64.h"
+
+/* number of ordered pairs (a,b) of positive odd integers with a^2 + b^2 = m */
+static uint64_t a005877_odd_pairs(uint64_t m) {
+    uint64_t cnt = 0;
+    uint64_t a;
+    for (a = 1; a * a < m; a += 2) {
+        uint64_t r = m - a * a;
+        uint64_t b = isqrt_u64(r);
+        if (b * b == r) cnt++;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n) {
     uint64_t N = 4 * (uint64_t)n + 2;

@@ -11,13 +11,15 @@
  *            l(n)+r(n), r(2n+1) = l(n+1)+r(n+1) a(n) is defined to be l(n)
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of the recursive helpers */
 static seq_t get_l(idx_t n);
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n, seq_t **cache, unsigned char **done,
     if (*size > n) return;
     idx_t newSize = (*size == 0) ? 2 : (*size);
     while (newSize <= n) newSize <<= 1;
-    *cache = (seq_t *)realloc(*cache, newSize * sizeof(seq_t));
+    *cache = mem_resize(seq_t, *cache, newSize);
     *done  = (unsigned char *)realloc(*done,  newSize * sizeof(unsigned char));
     for (idx_t i = *size; i < newSize; ++i) (*done)[i] = 0;
     *size = newSize;

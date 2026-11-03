@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 48, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *values      = NULL;   /* linearized triangle entries           */
 static size_t values_cap  = 0;
@@ -41,7 +43,7 @@ static void grow_seq_t_array(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
         while (new_cap < need) new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

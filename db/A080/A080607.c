@@ -7,9 +7,10 @@
  * Formula:   The sequence is generated block by block. The k‑th block (k≥1)
  *            consists of the value 3·k repeated a(k) times, where a(k) is the
  *            k‑th term of the sequence itself (a(1)=3)
- * Range:     u8 n <= 1980, u16 n <= 7368, u32 n <= 7368, u64 n <= 7368,
- *            u128 n <= 7368, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1980, u16 n <= 10062, u32 n <= 10062, u64 n <= 10062,
+ *            u128 n <= 10062, big any n
+ * Validated: standard, pass, 88 terms through n = 7368 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    No external helpers are used. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n‑th term of OEIS A080607 (1‑based). */
 seq_t a(idx_t n)
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
             size_t newcap = cap ? cap * 2 : 64;
             while (newcap < needed)
                 newcap *= 2;
-            seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, newcap);
             if (!seq) {  /* allocation failed */
                 return (seq_t)0;
             }

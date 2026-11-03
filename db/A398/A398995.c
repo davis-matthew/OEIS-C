@@ -12,7 +12,8 @@
  *            row (above diagonal) The array is read by ascending ant...
  * Range:     u8 n <= 14, u16 n <= 54, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 // Compile as C11 or C++17
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pell = NULL;          /* stored Pell numbers P(0), P(1), ... */
 static size_t pell_len = 0;         /* number of stored P(k) */
@@ -30,7 +32,7 @@ static void ensure_pell(idx_t idx)
 {
     if (pell == NULL) {
         pell_cap = 4;
-        pell = (seq_t *)malloc(pell_cap * sizeof(seq_t));   /* cast for C++ */
+        pell = mem_new(seq_t, pell_cap);   /* cast for C++ */
         if (!pell) exit(1);
         pell[0] = (seq_t)1;         /* P(0) = 1 */
         pell[1] = (seq_t)2;         /* P(1) = 2 */
@@ -44,7 +46,7 @@ static void ensure_pell(idx_t idx)
     if (needed > pell_cap) {
         size_t new_cap = pell_cap;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(pell, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pell, new_cap);
         if (!tmp) exit(1);
         pell = tmp;
         pell_cap = new_cap;

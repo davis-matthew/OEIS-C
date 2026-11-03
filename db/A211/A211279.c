@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,14 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Forward declaration of seq_t and idx_t provided by the build. */
 extern seq_t a(idx_t n);
@@ -116,12 +124,12 @@ seq_t a(idx_t n)
     seq_t result = dp1[offset] + dp2[offset] + dp3[offset];
 
     /* No need to free in case of arbitrary‑precision build. */
-    free(dp1);
-    free(dp2);
-    free(dp3);
-    free(ndp1);
-    free(ndp2);
-    free(ndp3);
+    mem_free(dp1);
+    mem_free(dp2);
+    mem_free(dp3);
+    mem_free(ndp1);
+    mem_free(ndp2);
+    mem_free(ndp3);
 
     return result;
 }

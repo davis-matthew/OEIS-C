@@ -7,8 +7,9 @@
  * Keywords:  tabl, sign
  * Formula:   not stated
  * Range:     i8 n <= 94, i16 n <= 333, i32 n <= 1242, i64 n <= 4600,
- *            i128 n <= 9020, big any n
- * Helpers:   none
+ *            i128 n <= 10010, big any n
+ * Validated: standard, pass, 82 terms through n = 9020 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,11 +44,11 @@ seq_t a(idx_t n)
 
     /* Allocate three working arrays of length r+1 (indices 0..r). */
     size_t sz = (size_t)(r + 1);
-    seq_t *prev_prev = (seq_t *)calloc(sz, sizeof(seq_t));  /* p(k-2) */
-    seq_t *prev      = (seq_t *)calloc(sz, sizeof(seq_t));  /* p(k-1) */
-    seq_t *curr      = (seq_t *)calloc(sz, sizeof(seq_t));  /* p(k)   */
+    seq_t *prev_prev = mem_new(seq_t, sz);  /* p(k-2) */
+    seq_t *prev      = mem_new(seq_t, sz);  /* p(k-1) */
+    seq_t *curr      = mem_new(seq_t, sz);  /* p(k)   */
     if (!prev_prev || !prev || !curr) { /* allocation failure */
-        free(prev_prev); free(prev); free(curr);
+        mem_free(prev_prev); mem_free(prev); mem_free(curr);
         return 0;
     }
 
@@ -73,8 +75,8 @@ seq_t a(idx_t n)
 
     seq_t result = prev[c];
 
-    free(prev_prev);
-    free(prev);
-    free(curr);
+    mem_free(prev_prev);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

@@ -9,7 +9,8 @@
  *            big-integer arithmetic
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   big_add_bit, big_cmp, big_shr1, big_sub
+ * Validated: standard, pass, 115 terms through n = 4000 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,49 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/big_add_bit.h"
-#include "../utils/big_cmp.h"
-#include "../utils/big_shr1.h"
-#include "../utils/big_sub.h"
+
+static void big_add_bit(uint32_t *x, size_t L, size_t b) {
+    size_t i = b / 32;
+    uint64_t carry = (uint64_t)1 << (b % 32);
+    while (carry && i < L) {
+        uint64_t s = (uint64_t)x[i] + carry;
+        x[i] = (uint32_t)s;
+        carry = s >> 32;
+        i++;
+    }
+}
+
+static int big_cmp(const uint32_t *x, const uint32_t *y, size_t L) {
+    size_t i = L;
+    while (i > 0) {
+        i--;
+        if (x[i] != y[i]) return x[i] > y[i] ? 1 : -1;
+    }
+    return 0;
+}
+
+static void big_shr1(uint32_t *x, size_t L) {
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint32_t hi = (i + 1 < L) ? x[i + 1] : 0;
+        x[i] = (x[i] >> 1) | (hi << 31);
+    }
+}
+
+static void big_sub(uint32_t *x, const uint32_t *y, size_t L) {
+    uint64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t yi = (uint64_t)y[i] + borrow;
+        if ((uint64_t)x[i] >= yi) {
+            x[i] = (uint32_t)((uint64_t)x[i] - yi);
+            borrow = 0;
+        } else {
+            x[i] = (uint32_t)(((uint64_t)1 << 32) + x[i] - yi);
+            borrow = 1;
+        }
+    }
+}
 
 static uint8_t *dig = NULL;
 static idx_t ndig = 0;

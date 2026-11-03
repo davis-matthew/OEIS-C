@@ -9,21 +9,23 @@
  *            A000642(x) = x*(B(x)^2 + B(x^2))/2
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *Bv = NULL, *S2 = NULL, *S3 = NULL, *Cv = NULL, *Dv = NULL, *Av = NULL;
 static idx_t done = 0, cap = 0;
 
 static seq_t *grow_one(seq_t *old, idx_t oldlen, idx_t newlen) {
-    seq_t *p = (seq_t *)calloc((size_t)newlen, sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
     idx_t i;
     for (i = 0; i < oldlen; i++) p[i] = old[i];
-    if (old) free(old);
+    if (old) mem_free(old);
     return p;
 }
 

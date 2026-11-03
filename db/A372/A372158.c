@@ -7,13 +7,15 @@
  * Formula:   a(n) = 2 * n! * Σ_{k=1..n} (k+2)^{k-1} * C(n-1, k-1) / k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Tiny helper: exponentiation by squaring for arbitrary-precision type seq_t. */
 static seq_t pow_seq(seq_t base, idx_t exp)
@@ -39,7 +41,7 @@ static void ensure_pow_cache(idx_t need)
         return;
 
     idx_t new_cap = need;
-    seq_t *new_cache = (seq_t *)realloc(pow_cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, pow_cache, (new_cap + 1));
     if (!new_cache)
         exit(1);        /* allocation failed */
     pow_cache = new_cache;

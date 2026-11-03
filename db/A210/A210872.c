@@ -13,12 +13,14 @@
  *            u iterativel...
  * Range:     u8 n <= 62, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of types supplied by the build */
 extern seq_t a(idx_t n);
@@ -78,10 +80,10 @@ static void ensure_rows(idx_t r)
     /* Generate new rows up to r */
     for (idx_t cur = max_row + 1; cur <= r; ++cur) {
         /* allocate arrays for current u and v */
-        seq_t *u_cur = (seq_t*)malloc(cur * sizeof(seq_t));
+        seq_t *u_cur = mem_new(seq_t, cur);
         if (!u_cur)
             abort();
-        seq_t *v_cur = (seq_t*)malloc(cur * sizeof(seq_t));
+        seq_t *v_cur = mem_new(seq_t, cur);
         if (!v_cur)
             abort();
 
@@ -113,7 +115,7 @@ static void ensure_rows(idx_t r)
 
         /* Free the old v array */
         if (prev_v)
-            free(prev_v);
+            mem_free(prev_v);
 
         /* Prepare for next iteration */
         prev_u = u_cur;

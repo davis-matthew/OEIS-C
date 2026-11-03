@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_45
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,30 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/contains_45.h"
+#include "../utils/mem.h"
+
+/* Return true iff the base‑9 representation of x contains the digits
+   '4' followed by '5' (most significant → least significant). */
+static bool contains_45(seq_t x)
+{
+    if (x == (seq_t)0)
+        return false;
+
+    /* 200 digits is more than enough for numbers encountered up to n≈10000. */
+    char buf[200];
+    size_t len = 0;
+    seq_t tmp = x;
+    while (tmp > (seq_t)0) {
+        seq_t r = tmp % (seq_t)9;
+        buf[len++] = (char)(((unsigned long)r) + '0'); /* LSD first */
+        tmp = tmp / (seq_t)9;
+    }
+    for (size_t i = len; i > 1; --i) {          /* MSD → LSD order */
+        if (buf[i - 1] == '4' && buf[i - 2] == '5')
+            return true;
+    }
+    return false;
+}
 
 /* The types seq_t and idx_t are supplied by the build. */
 
@@ -38,7 +62,7 @@ static void ensure_capacity(size_t needed)
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         while (new_cap < needed)
             new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }

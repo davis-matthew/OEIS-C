@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* constants */
 #define ROWS 64U                    /* 2⁶ possible rows */
@@ -110,10 +112,10 @@ seq_t a(idx_t n)
     }
 
     /* n >= 3 : DP over states (prev,row) */
-    seq_t *dp      = (seq_t *)calloc(STATE, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(STATE, sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, STATE);
+    seq_t *dp_next = mem_new(seq_t, STATE);
     if (!dp || !dp_next) {
-        free(dp); free(dp_next);
+        mem_free(dp); mem_free(dp_next);
         return (seq_t)0;
     }
 
@@ -153,7 +155,7 @@ seq_t a(idx_t n)
             if (final_valid[p][b])
                 result += dp[ROWS * p + b];
 
-    free(dp);
-    free(dp_next);
+    mem_free(dp);
+    mem_free(dp_next);
     return result;
 }

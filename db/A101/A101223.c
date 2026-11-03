@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 9, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   isprime_big, pow2
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
 #include "../utils/pow2.h"
-#include "../utils/isprime_big.h"
+#include "../utils/mem.h"
 
 static idx_t max_n_computed = 0;      /* number of terms already stored   */
 static seq_t *table = NULL;           /* cache of computed terms           */
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of cache with the first two known terms.   */
     if (table == NULL) {
         table_size = 16;
-        table = (seq_t *)malloc(sizeof(seq_t) * table_size);
+        table = mem_new(seq_t, table_size);
         table[0] = (seq_t)11;   /* a(1) */
         table[1] = (seq_t)21;   /* a(2) */
         max_n_computed = 2;
@@ -49,11 +52,11 @@ seq_t a(idx_t n)
         /* Find the next k such that 2^k + 9 is prime.                  */
         while (true) {
             seq_t p = pow2(next_k) + (seq_t)9;   /* 2^k + 9 */
-            if (isprime_big(p)) {
+            if (is_prime_seq(p)) {
                 seq_t m = pow2(next_k - 1) * p;   /* 2^(k-1)*(2^k+9) */
                 if (max_n_computed >= table_size) {
                     table_size *= 2;
-                    table = (seq_t *)realloc(table, sizeof(seq_t) * table_size);
+                    table = mem_resize(seq_t, table, table_size);
                 }
                 table[max_n_computed++] = m;
                 ++next_k;

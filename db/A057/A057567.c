@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{d|n} A001055(d)
  * Range:     u8 n <= 575, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_factorizations
+ * Validated: standard, pass, 104 terms through n = 9925 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,25 @@
 /* Computes the number of partitions of n whose product of parts divides n */
 
 #include <stdint.h>
-#include "../utils/count_factorizations.h"
+
+/* Count unordered multiplicative partitions of n using factors >= min_factor.
+   Returns the number of factorizations (including the trivial partition {n}). */
+static seq_t
+count_factorizations(idx_t n, idx_t min_factor)
+{
+    if (n == 1)            /* 1 has one multiplicative partition: the empty product */
+        return (seq_t)1;
+
+    seq_t result = (seq_t)1;   /* the trivial partition {n} */
+
+    /* Iterate over possible first factors.  Using f <= n/f avoids overflow. */
+    for (idx_t f = min_factor; f <= n / f; ++f) {
+        if (n % f == 0) {
+            result += count_factorizations(n / f, f);
+        }
+    }
+    return result;
+}
 
 /* Main sequence function */
 seq_t

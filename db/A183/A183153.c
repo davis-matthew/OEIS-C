@@ -9,14 +9,15 @@
  *            T(r,0)=1, T(r,k)=(2r−k+1)·C(r,k)/(k+1)
  * Range:     u8 n <= 29, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* -------------  Dependencies ------------- */
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* -------------  Integer square‑root ------------- */
 static inline idx_t isqrt(idx_t v)
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
         return (seq_t)1;          /* T(r,0) = 1 */
 
     /* compute T(r,c) = (2r−c+1)·C(r,c)/(c+1) */
-    seq_t bin = binom(r, c);                 /* C(r,c)   */
+    seq_t bin = binomial(r, c);                 /* C(r,c)   */
     bin *= (seq_t)(2 * r - c + 1);           /* numerator */
     bin /= (seq_t)(c + 1);                   /* denominator */
     return bin;

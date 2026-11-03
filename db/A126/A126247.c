@@ -9,6 +9,7 @@
  * Formula:   a(n) = #{ 1 ≤ k ≤ n : gcd(T(k), T(n)) = 1 }
  * Range:     u8 n <= 22, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* Where T(m) = m*(m+1)/2.  The function counts triangular numbers
    up to T(n) that are coprime with T(n). */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

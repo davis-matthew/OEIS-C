@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 39, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 1716 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    (derived from the rational generating function of A126948). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* stored values, starting at index 0   */
 static idx_t cache_size = 0;         /* allocated size of 'cache' (in terms) */
@@ -30,7 +32,7 @@ ensure_cache(idx_t n)
     if (cache_size >= needed)
         return;
     /* Allocate new larger buffer and copy old values. */
-    seq_t *new_cache = (seq_t *)malloc(needed * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, needed);
     if (new_cache == NULL)
         exit(1); /* out‑of‑memory */
     for (size_t i = 0; i < cache_size; ++i)
@@ -38,7 +40,7 @@ ensure_cache(idx_t n)
     /* Initialize new portion to zero (will be overwritten). */
     for (size_t i = cache_size; i < needed; ++i)
         new_cache[i] = 0;
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = (idx_t)needed;
 }

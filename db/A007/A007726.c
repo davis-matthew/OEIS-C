@@ -12,7 +12,8 @@
  *            (Jacobi-T...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   seq_is_fixed_width
+ * Validated: standard, pass, 30 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/seq_is_fixed_width.h"
+#include <stdbool.h>
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static uint64_t mulm(uint64_t a, uint64_t b, uint64_t p) {
     return (uint64_t)((unsigned __int128)a * b % p);

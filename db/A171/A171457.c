@@ -12,12 +12,14 @@
  *            row 2 = 1,1, row 3 = 1,1,1,1, …)
  * Range:     u8 n <= 70, u16 n <= 147, u32 n <= 505, u64 n <= 1350,
  *            u128 n <= 1350, big any n
- * Helpers:   none
+ * Validated: standard, pass, 108 terms through n = 1251 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequences and indices are defined by the build system. */
 seq_t a(idx_t n)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         row_len   = (size_t*)      malloc(rows_cap * sizeof(size_t));
         cum_len   = (size_t*)      malloc(rows_cap * sizeof(size_t));
 
-        rows[0]   = (seq_t*)      malloc(sizeof(seq_t));
+        rows[0]   = mem_new(seq_t, 1);
         rows[0][0] = (seq_t)1;
         row_len[0] = 1;
         cum_len[0] = 1;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         }
 
         seq_t *prev_row = rows[rows_size - 1];
-        seq_t *new_row  = (seq_t*) malloc(new_len * sizeof(seq_t));
+        seq_t *new_row  = mem_new(seq_t, new_len);
 
         /* convolution: multiply prev_row by a row of ones of length next_row_nr
            sliding window implementation */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 1666, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 1999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_N 10000U          /* maximum n we are prepared to answer */
 #define KMAX 300000U          /* upper bound for sums (sufficient for n≤10000) */
@@ -47,7 +49,7 @@ static void init(void)
             if (sq > (seq_t)KMAX) break;
             ++num_squares;
         }
-        squares = (seq_t *)malloc(num_squares * sizeof(seq_t));
+        squares = mem_new(seq_t, num_squares);
         idx_t idx = 0;
         for (idx_t i = 1;; ++i) {
             seq_t sq = (seq_t)i * (seq_t)i;
@@ -92,7 +94,7 @@ static void init(void)
     }
 
     free(dp);
-    free(squares);
+    mem_free(squares);
 }
 
 /* the exported function */

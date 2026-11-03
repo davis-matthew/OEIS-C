@@ -11,13 +11,33 @@
  *            exponent such that 3^t | x
  * Range:     u8 n <= 71, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   lpf3_uint64
+ * Validated: standard, pass, 74 terms through n = 9599 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/lpf3_uint64.h"
+
+static inline seq_t lpf3_uint64(uint64_t n)
+{
+    /* strip all factors of 3 */
+    while ((n % 3ULL) == 0)
+        n /= 3ULL;
+
+    if (n <= 1)   /* should not happen for valid n-1 or n-3 */
+        return (seq_t)1;
+
+    /* smallest prime factor of n */
+    if ((n % 2ULL) == 0)
+        return (seq_t)2;
+
+    for (uint64_t d = 3ULL; d <= n / d; d += 2ULL) {
+        if ((n % d) == 0)
+            return (seq_t)d;
+    }
+    return (seq_t)n;   /* n is prime */
+}
 
 seq_t a(idx_t n)
 {

@@ -12,6 +12,7 @@
  *            odd]*c((n+1)/2)^2/2. The code uses exact rationals: the num...
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 16, i64 n <= 22, i128 n <= 36,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 100 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

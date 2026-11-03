@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,9 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* Computes the number of divisors of n in ascending order. */
 static void divisors(uint64_t n, uint64_t **divs, size_t *cnt)
@@ -74,7 +77,7 @@ seq_t a(idx_t n)
         seq_t mod = (seq_t)N;
         for (uint64_t m = 0; m < N; ++m)
         {
-            seq_t powm = mod_pow((seq_t)m, k, mod);
+            seq_t powm = powmod((seq_t)m, k, mod);
             if (powm == (seq_t)m) cntA++;
             seq_t minus = (mod - (powm % mod)) % mod;
             if (minus == (seq_t)m) cntB++;

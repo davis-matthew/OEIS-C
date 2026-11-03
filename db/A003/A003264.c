@@ -11,12 +11,13 @@
  *            (B(2n) > 0) and a(n) = 0 for even n (B(2...
  * Range:     i8 n <= 1, i16 n <= 75, i32 n <= 75, i64 n <= 75, i128 n <= 75,
  *            big any n
- * Helpers:   a3264_gcd
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-01)
+ * Helpers:   gcd_i128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a3264_gcd.h"
+#include "../utils/gcd_i128.h"
 
 seq_t a(idx_t n) {
     __int128 N[128], D[128];
@@ -40,13 +41,13 @@ seq_t a(idx_t n) {
             if (N[k] == 0) continue;
             sn = sn * D[k] + (__int128)row[k] * N[k] * sd;
             sd = sd * D[k];
-            g = a3264_gcd(sn, sd);
+            g = gcd_i128(sn, sd);
             if (g > 1) { sn /= g; sd /= g; }
         }
         N[m] = -sn;
         D[m] = sd * (m + 1);
         if (D[m] < 0) { D[m] = -D[m]; N[m] = -N[m]; }
-        g = a3264_gcd(N[m], D[m]);
+        g = gcd_i128(N[m], D[m]);
         if (g > 1) { N[m] /= g; D[m] /= g; }
         if (N[m] == 0) D[m] = 1;
 

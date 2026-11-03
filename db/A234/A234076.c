@@ -11,12 +11,14 @@
  *            a(4)=12152, a(5)=63136, a(6)=335536
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;
 static idx_t seq_cap = 0;
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t n)
     idx_t new_cap = seq_cap ? seq_cap << 1 : 16;
     while (new_cap <= n)
         new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     /* Initialise any new elements to zero. */
     for (idx_t i = seq_cap; i < new_cap; ++i)
         seq[i] = 0;

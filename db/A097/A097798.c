@@ -7,7 +7,8 @@
  * Formula:   Number of partitions of n into abundant numbers
  * Range:     u8 n <= 131, u16 n <= 299, u32 n <= 757, u64 n <= 2187,
  *            u128 n <= 7013, big any n
- * Helpers:   free_seq_array, is_abundant, seq_alloc_new_array
+ * Validated: standard, pass, 116 terms through n = 9897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,38 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/is_abundant.h"
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Test whether k is an abundant number. */
+static inline bool is_abundant(idx_t k)
+{
+    if (k < 2)            /* 1 is not abundant */
+        return false;
+
+    seq_t sum = (seq_t)1; /* 1 is always a proper divisor of k > 1 */
+
+    for (idx_t i = 2; i * i <= k; ++i) {
+        if (k % i == 0) {
+            sum += (seq_t)i;
+            idx_t j = k / i;
+            if (j != i)
+                sum += (seq_t)j;
+        }
+    }
+    return sum > (seq_t)k;
+}
 
 /* Main function required by the test harness. */
 seq_t a(idx_t n)

@@ -9,7 +9,8 @@
  *            a(n) = least x > 0 with x^2 - p = 2*y^2 for some y
  * Range:     u8 n <= 1793, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a2334_isqrt
+ * Validated: standard, pass, 88 terms through n = 9871 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2334_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 static uint64_t *a2334_pr = NULL;
 static uint64_t a2334_cnt = 0;
@@ -51,11 +52,11 @@ seq_t a(idx_t n) {
     if (n < 1) return 0;
     if (a2334_cnt < (uint64_t)n) a2334_build((uint64_t)n);
     p = a2334_pr[n - 1];
-    for (x = a2334_isqrt(p) + 1;; x++) {
+    for (x = isqrt_u64(p) + 1;; x++) {
         uint64_t d = x * x - p, h, y;
         if (d & 1) continue;
         h = d / 2;
-        y = a2334_isqrt(h);
+        y = isqrt_u64(h);
         if (y * y == h) return (seq_t)x;
     }
 }

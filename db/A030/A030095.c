@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   _floor_isqrt_u64, is_palindrome
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   is_palindrome_base, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
 
     for (;;) {
         /* Check primality by trial division with previously found primes. */
-        uint64_t sq = _floor_isqrt_u64(candidate);
+        uint64_t sq = isqrt(candidate);
         bool is_prime = true;
         for (size_t i = 0; i < primes_cnt; ++i) {
             uint64_t p = primes[i];
@@ -57,7 +58,7 @@ seq_t a(idx_t n)
 
             /* Test 666 * candidate for being a palindrome. */
             seq_t product = (seq_t)666 * (seq_t)candidate;
-            if (is_palindrome(product, 10)) {
+            if (is_palindrome_base(product, 10)) {
                 ++found;
                 if (found == n) {
                     free(primes);

@@ -11,7 +11,8 @@
  *            otherwise 0
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gpf
+ * Validated: standard, pass, 136 terms through n = 9981 (2026-11-01)
+ * Helpers:   factor_u64, largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     factor_u64((uint64_t)n, primes, exps, &cnt);
 
     /* Greatest prime factor of n */
-    uint64_t gpf_n = gpf((uint64_t)n);
+    uint64_t gpf_n = largest_prime_factor((uint64_t)n);
 
     /* Arithmetic derivative of n:  n' = Σ e_i * n / p_i  */
     unsigned __int128 deriv = 0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     uint64_t deriv64 = (uint64_t)deriv;
 
     /* Greatest prime factor of the derivative */
-    uint64_t gpf_d = gpf(deriv64);
+    uint64_t gpf_d = largest_prime_factor(deriv64);
 
     /* Return 1 if the derivative has a larger prime factor, else 0 */
     return (seq_t)(gpf_d > gpf_n);

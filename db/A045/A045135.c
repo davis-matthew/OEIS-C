@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 1792, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow2_int
+ * Validated: standard, pass, 63 terms through n = 8990 (2026-11-01)
+ * Helpers:   pow2_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
    number lexicographically within its length. */
 
 #include <stdbool.h>
-#include "../utils/pow2_int.h"
+#include "../utils/pow2_i32.h"
 
 /* Number of admissible strings of length L (L >= 2) */
 static seq_t count_len(idx_t L)
@@ -29,12 +30,12 @@ static seq_t count_len(idx_t L)
     seq_t res = 0;
 
     /* leading digit is 3 */
-    res += (seq_t)(L - 1) * pow2_int((int)L - 2);
+    res += (seq_t)(L - 1) * pow2_i32((int)L - 2);
 
     /* leading digit is 1 */
     if (L >= 3) {
         seq_t comb = (seq_t)(L - 1) * (L - 2) / 2;
-        res += comb * pow2_int((int)L - 3);
+        res += comb * pow2_i32((int)L - 3);
     }
     return res;
 }

@@ -11,7 +11,8 @@
  *            The deck is computed by reversing the deal steps
  * Range:     u8 n <= 13, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   card_len
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,18 @@
       periodically. */
 
 #include <stdbool.h>
-#include "../utils/card_len.h"
+
+/* Length of English name for a card value 1‑13 (Ace‑King). */
+static int card_len(idx_t v) {
+    switch (v) {
+        case 1: case 2: case 6: case 10:  return 3;   /* Ace, Two, Six, Ten   */
+        case 4: case 5: case 9: case 11: case 13: return 4; /* Four, Five, Nine,
+                                                             Jack, King          */
+        case 3: case 7: case 8: case 12:          return 5; /* Three, Seven, Eight,
+                                                             Queen               */
+        default: return 0; /* should not happen */
+    }
+}
 
 seq_t a(idx_t n) {
     static seq_t deck[13];

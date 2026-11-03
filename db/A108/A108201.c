@@ -10,13 +10,15 @@
  *            the classic “smooth numbers” algorithm
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 73, u64 n <= 269,
  *            u128 n <= 1030, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 9923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* static state ----------------------------------------------------- */
 static seq_t *seq     = NULL;   /* array of generated terms          */
@@ -34,7 +36,7 @@ static void ensure_capacity(idx_t need)
     if (new_cap < need)
         new_cap = need;
     /* cast `realloc` return value for portable C++ compilers   */
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp)
         abort();               /* out of memory */
     seq = tmp;

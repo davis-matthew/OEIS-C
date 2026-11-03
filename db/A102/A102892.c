@@ -13,13 +13,42 @@
  *            (2^(k-1)/(r-k+1)) * binomial(3r-3k+1, r-k) * – (2^k/(r-k)) *...
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 119, u64 n <= 377,
  *            u128 n <= 1274, big any n
- * Helpers:   binomial, pow2
+ * Validated: standard, pass, 71 terms through n = 1261 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"
-#include "../utils/pow2.h"
+#include <stdint.h>
+
+/* Binomial coefficient binomial(N,K) for non‑negative integers,
+   computed multiplicatively.  It is exact for all values that
+   fit in seq_t; intermediate values are kept within seq_t by
+   dividing after each multiplication.  */
+static seq_t
+binomial(idx_t N, idx_t K)
+{
+    if (K > N)
+        return (seq_t)0;
+    if (K > N - K)
+        K = N - K;
+    seq_t res = (seq_t)1;
+    for (idx_t i = 1; i <= K; ++i) {
+        res = (res * (N - K + i)) / (idx_t)i;
+    }
+    return res;
+}
+
+/* power of two: 2^exp */
+static seq_t pow2(idx_t exp)
+{
+    seq_t r = (seq_t)1;
+    while (exp != 0) {
+        r *= (seq_t)2;
+        exp--;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {

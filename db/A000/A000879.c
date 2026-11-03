@@ -9,7 +9,8 @@
  *            algorithm
  * Range:     u8 n <= 12, u16 n <= 154, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   prime_pi_square
+ * Validated: standard, pass, 64 terms through n = 8762 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,33 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/prime_pi_square.h"
+
+/* pi(x) for x = r*r, Lucy_Hedgehog */
+static uint64_t prime_pi_square(uint64_t r) {
+    uint64_t x = r * r;
+    uint64_t *lo = (uint64_t *)malloc((r + 2) * sizeof(uint64_t));
+    uint64_t *hi = (uint64_t *)malloc((r + 2) * sizeof(uint64_t));
+    for (uint64_t v = 0; v <= r; v++) lo[v] = v ? v - 1 : 0;
+    for (uint64_t i = 1; i <= r; i++) hi[i] = x / i - 1;
+    for (uint64_t p = 2; p <= r; p++) {
+        if (lo[p] == lo[p - 1]) continue;
+        uint64_t sp = lo[p - 1];
+        uint64_t p2 = p * p;
+        uint64_t lim = x / p2;
+        if (lim > r) lim = r;
+        for (uint64_t i = 1; i <= lim; i++) {
+            uint64_t d = i * p;
+            uint64_t val = (d <= r) ? hi[d] : lo[x / d];
+            hi[i] -= val - sp;
+        }
+        for (uint64_t v = r; v >= p2; v--)
+            lo[v] -= lo[v / p] - sp;
+    }
+    uint64_t res = hi[1];
+    free(lo);
+    free(hi);
+    return res;
+}
 
 static uint64_t *primes = NULL;
 static uint64_t nprimes = 0;

@@ -8,7 +8,8 @@
  *            coefficient of 1/((1-x^7)(1-x^8)(1-x^10)(1-x^12))
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,18 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

@@ -8,6 +8,7 @@
  * Formula:   a(n) = ∏_{d|n} (d-1 if d even, d+1 if d odd)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 59, u64 n <= 179,
  *            u128 n <= 719, big any n
+ * Validated: standard, pass, 63 terms through n = 8718 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

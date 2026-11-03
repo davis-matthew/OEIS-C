@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 9902 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* OEIS sequence A385463: a(n) = (7141*a(n-1)+54773) mod 259200, a(1)=1 */
 /* This function memoises terms so that calls with arbitrary n (non‑monotonic) are fast. */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (len == 0) {
         if (cap == 0) {
             cap   = 1;
-            cache = (seq_t *)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
             if (!cache)
                 return (seq_t)0; /* allocation failure – return 0 as a sentinel */
         }
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         if (len == cap) {
             idx_t newcap = cap * 2;
             if (newcap == 0) newcap = 1;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp)
                 return (seq_t)0; /* reallocation failure */
             cache = tmp;

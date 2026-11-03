@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 231, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9450 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    themselves follow the sequence. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Resize *ptr to hold at least "need" elements (1‑based indexing). */
 static void ensure_capacity(size_t need, size_t *cap, seq_t **ptr)
@@ -26,7 +28,7 @@ static void ensure_capacity(size_t need, size_t *cap, seq_t **ptr)
     if (need > *cap) {
         size_t newcap = (*cap) * 2;
         if (newcap < need) newcap = need;
-        seq_t *tmp = (seq_t *)realloc(*ptr, (newcap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *ptr, (newcap + 1));
         if (!tmp) abort(); /* memory exhaustion */
         *ptr = tmp;
         *cap = newcap;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         seq_cap = 64;
-        seq = (seq_t *)malloc((seq_cap + 1) * sizeof(seq_t));
+        seq = mem_new(seq_t, (seq_cap + 1));
         if (!seq) abort();
 
         /* Run 1: length 2, decreasing 2, 1 */

@@ -7,12 +7,14 @@
  * Formula:   a(n) = d((7n^2-5n)/2) where d(x) is the divisor function
  * Range:     u8 n <= 6, u16 n <= 123, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 90 terms through n = 979 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n) {
     /* compute the n-th 9-gonal number P9(n) = n*(7n-5)/2 */
@@ -21,6 +23,6 @@ seq_t a(idx_t n) {
     prod /= 2;                    /* division is exact */
 
     /* number of divisors of prod */
-    seq_t result = (seq_t)divisor_count_u64((uint64_t)prod);
+    seq_t result = (seq_t)num_divisors((uint64_t)prod);
     return result;
 }

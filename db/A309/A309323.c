@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{d|n} phi(n/d) * d * (d + 1) * (d + 2)/6
  * Range:     u8 n <= 9, u16 n <= 69, u32 n <= 1887, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 63 terms through n = 8720 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/phi.h"   /* provides seq_t phi(idx_t m) */
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 /* Static cache for already computed terms.  Cache[n] == 0 indicates
  * that the value for index n has not yet been computed (the sequence
@@ -36,14 +38,14 @@ static seq_t compute_term(idx_t n)
             /* first divisor d */
             idx_t d1 = d;
             idx_t d2 = n / d;
-            seq_t phi1 = phi(n / d1);            /* phi(d2) */
+            seq_t phi1 = totient(n / d1);            /* phi(d2) */
             seq_t d1_t = (seq_t)d1;
             seq_t T1 = d1_t * (d1_t + 1) * (d1_t + 2) / 6;
             sum += phi1 * T1;
 
             if (d1 != d2) {
                 /* second divisor d2 */
-                seq_t phi2 = phi(n / d2);            /* phi(d1) */
+                seq_t phi2 = totient(n / d2);            /* phi(d1) */
                 seq_t d2_t = (seq_t)d2;
                 seq_t T2 = d2_t * (d2_t + 1) * (d2_t + 2) / 6;
                 sum += phi2 * T2;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary. */
     if (n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) {
             /* Allocation failed; return 0 as a sentinel error value. */
             return 0;

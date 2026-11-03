@@ -10,7 +10,8 @@
  * Formula:   a(n) = A276726(n) – A276725(n)
  * Range:     u8 none, u16 n <= 10, u32 n <= 17, u64 n <= 32, u128 n <= 63,
  *            big any n
- * Helpers:   count_partitions
+ * Validated: standard, pass, 35 terms through n = 499 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,57 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/count_partitions.h"
+
+static seq_t count_partitions(idx_t n, unsigned int k)
+{
+    /* The maximum number of states needed is 2^(k-1) ≤ 512.
+       Allocate the biggest array once and reuse it for k=9 and k=10.  */
+    enum { MAX_STATES = 512 };
+    static seq_t dp[MAX_STATES], dp_next[MAX_STATES];
+
+    idx_t maskSize = ((idx_t)1) << (k - 1);
+    idx_t maskMask = maskSize - 1;
+
+    /* Initialise dp for this k */
+    for (idx_t m = 0; m < maskSize; ++m) {
+        dp[m] = 0;
+    }
+    dp[0] = 1;
+
+    for (idx_t i = 0; i < n; ++i) {
+        /* Zero dp_next */
+        for (idx_t m = 0; m < maskSize; ++m) {
+            dp_next[m] = 0;
+        }
+
+        for (idx_t mask = 0; mask < maskSize; ++mask) {
+            seq_t val = dp[mask];
+            if (!val)
+                continue;
+
+            unsigned int open = __builtin_popcount((unsigned int)mask);
+            idx_t shiftMask = (mask << 1) & maskMask;
+
+            /* attach current element to any existing open block */
+            if (open)
+                dp_next[shiftMask] += val * (seq_t)open;
+            /* start a new block containing current element */
+            dp_next[shiftMask | 1] += val;
+        }
+
+        /* swap dp and dp_next for next iteration */
+        for (idx_t m = 0; m < maskSize; ++m) {
+            dp[m] = dp_next[m];
+        }
+    }
+
+    /* Sum all states: all blocks must be closed at the end. */
+    seq_t result = 0;
+    for (idx_t m = 0; m < maskSize; ++m) {
+        result += dp[m];
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

@@ -11,7 +11,8 @@
  *            prime in the factorisation of the n‑th composite number
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 42, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64, is_prime, pow10
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,20 @@
 #include <stdbool.h>
 
 /* OEIS supplied utilities */
-#include "../utils/is_prime.h"
-#include "../utils/pow10.h"
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* ----- Prime storage ----- */
 static uint64_t *primes = NULL;      /* list of primes in ascending order   */
@@ -71,7 +82,7 @@ static void ensure_cache_capacity(idx_t need)
     size_t new_cap = cache_cap ? cache_cap << 1 : 8;
     while ((size_t)need > new_cap)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr)
         exit(1);
     cache = new_arr;

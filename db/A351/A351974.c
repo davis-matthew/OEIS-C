@@ -11,18 +11,19 @@
  *            the OEIS identities for A351974
  * Range:     u8 n <= 15, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   countTrailingZeros
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   ctz_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/countTrailingZeros.h"
+#include "../utils/ctz_idx.h"
 
 seq_t a(idx_t n)
 {
     /* n must be >= 1 (offset 1). */
-    unsigned int tz = countTrailingZeros(n);
+    unsigned int tz = ctz_idx(n);
     unsigned int s  = tz + 1;                 /* s >= 1          */
 
     /* Compute 2^(s-1) safely.  For s==64, the shift amount is 63.  */

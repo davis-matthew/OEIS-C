@@ -8,15 +8,52 @@
  *            numbers, as defined in OEIS A075803
  * Range:     u8 n <= 26, u16 n <= 549, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_capacity, is_squarefree, seq_pow
+ * Validated: standard, pass, 86 terms through n = 966 (2026-11-03)
+ * Helpers:   ipow_idx, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/ensure_capacity.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 /* reverse a decimal number */
 static seq_t reverse_num(seq_t x)
@@ -35,11 +72,11 @@ static seq_t make_pal(seq_t pref, int len)
     int pref_len = (len + 1) / 2;             /* length of the left half      */
     if (len % 2 == 0) {                       /* even length */
         seq_t rev = reverse_num(pref);
-        seq_t mult = seq_pow((seq_t)10, (idx_t)pref_len);
+        seq_t mult = ipow_idx((seq_t)10, (idx_t)pref_len);
         return pref * mult + rev;
     } else {                                  /* odd length */
         seq_t rev = reverse_num(pref / ((seq_t)10));
-        seq_t mult = seq_pow((seq_t)10, (idx_t)(pref_len - 1));
+        seq_t mult = ipow_idx((seq_t)10, (idx_t)(pref_len - 1));
         return pref * mult + rev;
     }
 }
@@ -78,8 +115,8 @@ seq_t a(idx_t n)
             if (pref_len == 1)
                 pref_start = 1;
             else
-                pref_start = seq_pow((seq_t)10, (idx_t)(pref_len - 1));
-            pref_end = seq_pow((seq_t)10, (idx_t)pref_len) - ((seq_t)1);
+                pref_start = ipow_idx((seq_t)10, (idx_t)(pref_len - 1));
+            pref_end = ipow_idx((seq_t)10, (idx_t)pref_len) - ((seq_t)1);
             pref_cur = pref_start;
         }
 
@@ -98,7 +135,7 @@ seq_t a(idx_t n)
         } else {
             seq_t diff = curr_pal - prev_pal;
             /* Ensure capacity and store difference */
-            ensure_capacity(diffs_len + 1, &diffs_cap, (void **)&diffs, sizeof(seq_t));
+            ensure_capacity(diffs_len + 1, &diffs_cap, OEISC_VPP(&diffs), sizeof(seq_t));
             diffs[diffs_len++] = diff;
             prev_pal = curr_pal;
         }

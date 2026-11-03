@@ -9,6 +9,7 @@
  *            fraction of n^(1/n)
  * Range:     u8 n <= 53, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
+ * Validated: partial, pass, 69 terms through n = 70 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

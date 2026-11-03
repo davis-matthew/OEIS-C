@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 14, u16 n <= 106, u32 n <= 9252, u64 n <= 9252,
- *            u128 n <= 9252, big any n
- * Helpers:   init_prime_table
+ * Range:     u8 n <= 14, u16 n <= 106, u32 n <= 11167, u64 n <= 11167,
+ *            u128 n <= 11167, big any n
+ * Validated: standard, pass, 65 terms through n = 9252 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/init_prime_table.h"
+
+static void init_prime_table(bool *prime, size_t sz) {
+    for (size_t i = 0; i < sz; ++i) prime[i] = true;
+    if (sz > 0) prime[0] = false;
+    if (sz > 1) prime[1] = false;
+    for (size_t i = 2; i * i < sz; ++i) {
+        if (prime[i]) {
+            for (size_t j = i * i; j < sz; j += i)
+                prime[j] = false;
+        }
+    }
+}
 
 /* build a table of prime flags up to PRIME_TABLE_SIZE-1.
    The table is only needed for pop‑count values, which never exceed

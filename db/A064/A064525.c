@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   fib_digit_len
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,20 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>   /* long double, floor */
-#include "../utils/fib_digit_len.h"
+#include "../utils/mem.h"
+
+/* ---------- digit length of Fibonacci index -------------------------------- */
+static idx_t fib_digit_len(idx_t k)
+{
+    if (k == 0) return 1;  /* F_0 = 0 has 1 digit */
+
+    /* log10(phi) and log10(sqrt5) are constants */
+    static const long double LOG10_PHI   = log10((1.0L + sqrt((long double)5)) / 2.0L);
+    static const long double LOG10_SQRT5 = log10(sqrt((long double)5));
+
+    long double val = k * LOG10_PHI - LOG10_SQRT5;
+    return (idx_t)(floor(val)) + 1;
+}
 
 static const size_t PRIME_SIEVE_LIMIT = 200000;   /* enough for the first 10000 primes */
 
@@ -87,7 +101,7 @@ static void ensure_cache(size_t n)
     size_t new_size = (cache_size == 0) ? 16 : cache_size * 2;
     while (new_size <= n) new_size <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (new_cache) {
         cache   = new_cache;
         cache_size = new_size;

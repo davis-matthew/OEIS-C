@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 15, u64 n <= 23, u128 n <= 36,
  *            big any n
- * Helpers:   derange
+ * Validated: standard, pass, 34 terms through n = 195 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
  */
 
 #include <stdlib.h>
-#include "../utils/derange.h"
+
+/* compute D_k, the k‑th derangement (subfactorial) */
+static seq_t derange(idx_t k)
+{
+    if (k == 0) return (seq_t)1;
+    if (k == 1) return (seq_t)0;
+
+    seq_t d0 = (seq_t)1;   /* D_0 */
+    seq_t d1 = (seq_t)0;   /* D_1 */
+    for (idx_t i = 2; i <= k; ++i) {
+        seq_t di = ((seq_t)(i - 1)) * (d1 + d0);
+        d0 = d1;
+        d1 = di;
+    }
+    return d1;
+}
 
 /* sequence term a(n) for n >= 6 */
 seq_t a(idx_t n)

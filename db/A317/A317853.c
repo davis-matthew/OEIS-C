@@ -8,7 +8,8 @@
  * Formula:   a(1) = 1; a(n) = ∑_{0<k<n} (-1)^(n-k-1) a(n-k) * Σ_{d|k} a(d)
  * Range:     u8 n <= 17, u16 n <= 31, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return (seq_t)0;          /* undefined for n<1, return 0 */
@@ -29,8 +31,8 @@ seq_t a(idx_t n) {
     /* Grow cache if needed, initialising *only* the newly added entries */
     if (n > maxn) {
         size_t newsize = (size_t)n + 1; /* indices 0..n, we ignore 0 */
-        seq_t *tmp_a = (seq_t *)realloc(a_cache, newsize * sizeof(seq_t));
-        seq_t *tmp_S = (seq_t *)realloc(S_cache, newsize * sizeof(seq_t));
+        seq_t *tmp_a = mem_resize(seq_t, a_cache, newsize);
+        seq_t *tmp_S = mem_resize(seq_t, S_cache, newsize);
         if (!tmp_a || !tmp_S) return (seq_t)0;  /* allocation failure */
 
         /* initialise the new entries */

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 29*n^4/3 + 233*n^3/6 + 214*n^2/3 + 373*n/6 + 21
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 144, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 45 terms through n = 988 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

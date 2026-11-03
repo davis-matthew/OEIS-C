@@ -8,13 +8,17 @@
  * Formula:   a(n) = (1/8)*(n*(3*n+5)*4^n - 2*n*(n-1)*binomial(2*n, n))
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 12, u64 n <= 27, u128 n <= 57,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 39 terms through n = 905 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +50,7 @@ seq_t a(idx_t n)
     } else {
         /* seq_t is an arbitrary‑precision type; use its native multiplication. */
         seq_t n_seq = (seq_t)n;
-        seq_t pow4  = big_pow((seq_t)4, (seq_t)n);
+        seq_t pow4  = ipow((seq_t)4, (seq_t)n);
 
         seq_t term1 = n_seq * (3*n_seq + 5);
         term1       = term1 * pow4;

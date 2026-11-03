@@ -9,12 +9,14 @@
  *            T(n,n), with b(0) = 1 and b(k) = 2 for k >= 1
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 23, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 342 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *row = NULL;   /* last computed row, length done */
 static seq_t *nrow = NULL;  /* scratch row */
@@ -27,16 +29,16 @@ static void ensure_cap(idx_t need) {
     idx_t nc = cap * 2;
     if (nc < need) nc = need;
     if (nc < 64) nc = 64;
-    seq_t *r = (seq_t *)calloc((size_t)nc, sizeof(seq_t));
-    seq_t *s = (seq_t *)calloc((size_t)nc, sizeof(seq_t));
-    seq_t *v = (seq_t *)calloc((size_t)nc, sizeof(seq_t));
+    seq_t *r = mem_new(seq_t, (size_t)nc);
+    seq_t *s = mem_new(seq_t, (size_t)nc);
+    seq_t *v = mem_new(seq_t, (size_t)nc);
     for (idx_t i = 0; i < done; i++) {
         r[i] = row[i];
         v[i] = vals[i];
     }
-    free(row);
-    free(nrow);
-    free(vals);
+    mem_free(row);
+    mem_free(nrow);
+    mem_free(vals);
     row = r;
     nrow = s;
     vals = v;

@@ -8,7 +8,8 @@
  *            a(n+3) = (n+1)(n+2)(n+3) * a(n) follows from this definition
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,10 +32,10 @@ seq_t a(idx_t n)
     /* initialise cache for 0! */
     if (fact_len == 0) {
         fact_len = 1;                   /* will hold index 0 */
-        facts = (seq_t *)malloc(sizeof(seq_t));
+        facts = mem_new(seq_t, 1);
         if (!facts) abort();
 #if defined(__cplusplus)
-        new (facts) seq_t(1);           /* construct 0! = 1 */
+        *(facts) = (seq_t)(1);           /* construct 0! = 1 */
 #else
         facts[0] = (seq_t)1;
 #endif
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* extend cache up to n if necessary */
     if (n + 1 > fact_len) {
         idx_t new_len = n + 1;           /* total entries needed */
-        seq_t *tmp = (seq_t *)realloc(facts, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, facts, new_len);
         if (!tmp) abort();
         facts = tmp;
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             seq_t prev = facts[i - 1];
             seq_t mul = (seq_t)i;
 #if defined(__cplusplus)
-            new (facts + i) seq_t(prev * mul);  /* placement new for C++ */
+            *(facts + i) = (seq_t)(prev * mul);  /* placement new for C++ */
 #else
             facts[i] = prev * mul;
 #endif

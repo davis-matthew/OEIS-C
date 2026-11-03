@@ -9,6 +9,7 @@
  * Formula:   a(n) = 1 if n ≡ 2 (mod 3); a(n+3) = (n+2)(n+3)·a(n) otherwise
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 17, u64 n <= 27, u128 n <= 45,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 628 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

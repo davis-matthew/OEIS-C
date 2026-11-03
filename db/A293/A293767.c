@@ -10,14 +10,46 @@
  *            integer not occurring in the sequence a
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   kth_missing, upper_bound_seq
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/kth_missing.h"
-#include "../utils/upper_bound_seq.h"
+#include "../utils/mem.h"
+
+/* binary search: upper_bound_seq(arr[0..n-1], val) */
+static idx_t upper_bound_seq(const seq_t *arr, idx_t n, seq_t val) {
+    idx_t lo = 0, hi = n;
+    while (lo < hi) {
+        idx_t mid = (lo + hi) >> 1;
+        if (arr[mid] <= val)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo;
+}
+
+/* k-th missing positive integer (0‑based) from the sorted array arr[0..cnt-1] */
+static seq_t kth_missing(const seq_t *arr, idx_t cnt, idx_t k) {
+    seq_t low  = 1;
+    /* high must be sufficiently large; arr[cnt-1] + (k+1) is always enough */
+    seq_t high = arr[cnt-1] + (k + 1);
+
+    while (low < high) {
+        seq_t mid = (low + high) >> 1;
+        idx_t m   = upper_bound_seq(arr, cnt, mid); /* how many a's ≤ mid */
+        seq_t missing = mid - (seq_t)m;             /* numbers ≤ mid missing from a */
+
+        if (missing > (seq_t)k)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low; /* k-th missing number (0‑based) */
+}
 
 static seq_t *a_cache   = NULL;   /* memoised a[0..] values   */
 static size_t a_cap     = 0;       /* allocated array capacity */
@@ -28,7 +60,7 @@ static void ensure_cache(idx_t n) {
     /* initialise base values if cache empty */
     if (a_cache == NULL) {
         a_cap = 2;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         if (!a_cache) abort();
         a_cache[0] = (seq_t)1;
         a_cache[1] = (seq_t)3;
@@ -40,7 +72,7 @@ static void ensure_cache(idx_t n) {
     if ((size_t)n + 1 > a_cap) {
         size_t new_cap = a_cap ? a_cap * 2 : 16;
         while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();
         a_cache = tmp;
         a_cap   = new_cap;

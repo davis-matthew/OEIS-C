@@ -10,7 +10,8 @@
  *            x*A(x)^2)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   catalan
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 static seq_t *a_arr = NULL;
 static seq_t *b_arr = NULL;
@@ -27,15 +29,15 @@ static idx_t next_compute = 0;  /* first index not yet computed */
 static void ensure_capacity(idx_t n) {
     if (arr_cap > n) return;
     size_t new_cap = n + 1;
-    seq_t *new_a = (seq_t*)malloc(new_cap * sizeof(seq_t));
-    seq_t *new_b = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, new_cap);
+    seq_t *new_b = mem_new(seq_t, new_cap);
     if (a_arr) {
         for (idx_t i = 0; i < arr_cap; ++i) {
             new_a[i] = a_arr[i];
             new_b[i] = b_arr[i];
         }
-        free(a_arr);
-        free(b_arr);
+        mem_free(a_arr);
+        mem_free(b_arr);
     }
     a_arr = new_a;
     b_arr = new_b;

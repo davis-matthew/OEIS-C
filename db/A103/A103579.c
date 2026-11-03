@@ -10,13 +10,16 @@
  *            <../utils/is_prime.h>
  * Range:     u8 n <= 9, u16 n <= 419, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 70 terms through n = 1000 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     /* The first term is 2. */
@@ -28,9 +31,9 @@ seq_t a(idx_t n) {
 
     while (1) {
         /* p must be prime and not congruent to 3 modulo 4. */
-        if (is_prime(p) && (p & 3ULL) == 1ULL) {
+        if (is_prime_u64(p) && (p & 3ULL) == 1ULL) {
             uint64_t q = 2 * p + 1;      /* candidate 2p+1 */
-            if (is_prime(q)) {
+            if (is_prime_u64(q)) {
                 ++count;
                 if (count == n)
                     return (seq_t)p;

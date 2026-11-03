@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   mul10_uint32, thue_tmorse_bit
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,24 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mul10_uint32.h"
-#include "../utils/thue_tmorse_bit.h"
+
+/* multiply a little‑endian array of 32‑bit words by 10 */
+static void mul10_uint32(uint32_t *x, size_t len)
+{
+    uint64_t carry = 0;
+    for (size_t i = 0; i < len; ++i) {
+        uint64_t prod = (uint64_t)x[i] * 10ULL + carry;
+        x[i] = (uint32_t)prod;
+        carry = prod >> 32;
+    }
+    /* carry is dropped – the array is large enough to hold it */
+}
+
+/* popcount parity – 1 if popcount(k) is odd (i.e. Thue–Morse bit) */
+static inline int thue_tmorse_bit(uint64_t k)
+{
+    return __builtin_parityll(k);
+}
 
 seq_t a(idx_t n)
 {

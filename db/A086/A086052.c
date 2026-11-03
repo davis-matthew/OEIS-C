@@ -8,7 +8,8 @@
  *            (not‑necessarily‑distinct) prime factors Ω(m) equals 6
  * Range:     u8 n <= 2, u16 n <= 68, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 9883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------- global static state (shared across calls) --------- */
 
@@ -75,12 +77,12 @@ static void ensure_prefix(size_t target)
 
     /* enlarge prefix array if needed */
     if (!prefix) {
-        prefix = (seq_t*)malloc(prefix_capacity * sizeof(seq_t));
+        prefix = mem_new(seq_t, prefix_capacity);
     }
     while (prefix_len < target) {
         if (prefix_len >= prefix_capacity) {
             prefix_capacity *= 2;
-            prefix = (seq_t*)realloc(prefix, prefix_capacity * sizeof(seq_t));
+            prefix = mem_resize(seq_t, prefix, prefix_capacity);
         }
 
         /* test next_number for Ω = 6 */

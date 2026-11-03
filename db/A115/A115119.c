@@ -10,7 +10,8 @@
  *            bracelets, A001371(n) = primitive binary bracelets
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   calc_phi, mu_of, pow2
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem, pow2, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow2.h"          /* pow2(idx_t exp) → seq_t */
-#include "../utils/calc_phi.h"      /* calc_phi(seq_t m) → φ(m) */
-#include "../utils/mu_of.h"         /* mu_of(idx_t d) → Möbius value (-1,0,1) */
+#include <stddef.h>
+#include "../utils/pow2.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 /* Memoised values of A000029(n) (binary bracelets) */
 static seq_t *B_cache = NULL;
@@ -32,7 +55,7 @@ static void ensure_B_cache(idx_t limit)
     if (limit <= B_cache_cap)
         return;
     size_t new_cap = (size_t)limit + 1;
-    seq_t *new_buf = (seq_t *)realloc(B_cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, B_cache, new_cap);
     if (!new_buf)
         exit(1);  /* allocation failure */
     for (idx_t i = B_cache_cap; i <= limit; ++i)
@@ -59,14 +82,14 @@ static seq_t compute_B(idx_t n)
             continue;
 
         idx_t d1 = d;
-        seq_t phi1 = calc_phi((seq_t)d1);
+        seq_t phi1 = totient_seq((seq_t)d1);
         seq_t pow1 = pow2(n / d1);
         sum += pow1 * phi1;
 
         idx_t d2 = n / d;
         if (d2 == d1)
             continue;
-        seq_t phi2 = calc_phi((seq_t)d2);
+        seq_t phi2 = totient_seq((seq_t)d2);
         seq_t pow2_ = pow2(n / d2);
         sum += pow2_ * phi2;
     }

@@ -9,7 +9,8 @@
  *            horizontally, diagonally or antidiagonally
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 37,
  *            big any n
- * Helpers:   compat
+ * Validated: standard, pass, 33 terms through n = 202 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/compat.h"
+
+static inline bool compat(uint8_t a, uint8_t b) {
+    if (a & b) return false;       // horizontal adjacency
+    if ((a << 1) & b) return false; // diagonal adjacency (row i with row i-1)
+    if ((a >> 1) & b) return false; // antidiagonal adjacency (row i with row i+1)
+    return true;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* offset starts at 1, guard against n==0 */

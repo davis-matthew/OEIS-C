@@ -6,15 +6,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n, d<n} d * A001221(d) (omega(d) = number of
  *            distinct prime factors)
- * Range:     u8 n <= 83, u16 n <= 7139, u32 n <= 9394, u64 n <= 9394,
- *            u128 n <= 9394, big any n
- * Helpers:   none
+ * Range:     u8 n <= 83, u16 n <= 7139, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 107 terms through n = 9394 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Size of the precalculated arrays */
 static idx_t *spf = NULL;      /* smallest prime factor */
@@ -29,13 +31,13 @@ static void _ensure_spf_omega(idx_t n)
 
     /* free old arrays */
     if (spf)
-        free((void *)spf);
+        free(spf);
     if (omega)
-        free((void *)omega);
+        mem_free(omega);
 
     /* allocate new arrays of size n+1 (indices 0..n) */
     spf    = (idx_t *)malloc((n + 1) * sizeof(idx_t));
-    omega  = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    omega  = mem_new(seq_t, (n + 1));
     if (!spf || !omega)
         return; /* out of memory; caller will receive 0 */
 

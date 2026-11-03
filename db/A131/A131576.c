@@ -8,8 +8,9 @@
  * Formula:   a(n) = number of odd divisors d of n with d*d > 2*n That equals
  *            the number of ways to represent n as a sum of an even number of
  *            consecutive integers
- * Range:     u8 n <= 493, u16 n <= 9198, u32 n <= 9198, u64 n <= 9198,
- *            u128 n <= 9198, big any n
+ * Range:     u8 n <= 493, u16 n <= 65536, u32 n <= 65536, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9198 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

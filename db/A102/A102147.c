@@ -7,6 +7,7 @@
  * Formula:   a(n) = Prod_{i=3..n} (2*i-1) for n>=3, a(1) = 1, a(2) = 1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 10, u64 n <= 17, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

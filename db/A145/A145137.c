@@ -11,13 +11,15 @@
  *            a(3)=45, a(4)=165, a(5)=496, a(6)=1297, a(7)=3058, a(...
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 39, u64 n <= 108, u128 n <= 246,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;   /* cached values of a(n) */
 static size_t a_cap    = 0;       /* allocated capacity of a_cache */
@@ -30,7 +32,7 @@ static void ensure_a(idx_t n)
     if ((size_t)(n + 1) > a_cap) {
         size_t new_cap = a_cap ? (a_cap << 1) : 16;
         if (new_cap < (size_t)(n + 1)) new_cap = n + 1;
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();
         a_cache = tmp;
         a_cap   = new_cap;
@@ -40,7 +42,7 @@ static void ensure_a(idx_t n)
     if (a_len == 0) {
         /* Make sure capacity is at least 12 */
         if (a_cap < 12) {
-            seq_t *tmp = (seq_t*)realloc(a_cache, 12 * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_cache, 12);
             if (!tmp) abort();
             a_cache = tmp;
             a_cap   = 12;

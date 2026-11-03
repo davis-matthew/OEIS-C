@@ -11,15 +11,23 @@
  *            representation of n }, a(0)=1
  * Range:     u8 n <= 32, u16 n <= 851, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bitlen_seq_t, seq_alloc_array
+ * Validated: standard, pass, 73 terms through n = 962 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/seq_alloc_array.h"
+#include <stdlib.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* helper: number of bits needed to represent a 64‑bit unsigned integer */
 static unsigned bitlen_uint64(uint64_t x)
@@ -67,7 +75,7 @@ seq_t a(idx_t n)
         /* search previous terms from largest to smallest */
         for (size_t jj = ii; jj-- > 0; ) {
             seq_t val = cache[jj];
-            unsigned len_v = bitlen_seq_t(val);
+            unsigned len_v = bit_length(val);
             if (len_v > len_n) continue;  /* cannot be a substring */
 
             uint64_t v64 = (uint64_t)val;

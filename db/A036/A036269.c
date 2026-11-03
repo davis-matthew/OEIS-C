@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{k=0}^8 (-1)^{8-k} * C(8,k) * prime(n+k)
  * Range:     i8 n <= 5, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9967 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

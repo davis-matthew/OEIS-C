@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 256, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 48 terms through n = 9622 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
         c      = 2^(L-1) + offset - 1          // = A171757(n)/2
         b      = 2 * c                         // = A171757(n)
    a(n) is obtained by interpreting the binary digits of b as decimal digits. */
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
 
     /* General case */
     idx_t m = n - 1;                    /* n-1 >= 1 */
-    unsigned L = floor_log2_uint64(m) + 2;   /* L >= 2 */
+    unsigned L = ilog2(m) + 2;   /* L >= 2 */
 
     idx_t prev_total = ((idx_t)1) << (L - 2);   /* number of terms before length L */
     idx_t offset = n - prev_total;              /* 1 ≤ offset ≤ 2^(L-2) */
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Convert binary digits of b into decimal digits. */
     seq_t res = 0;
-    int high = (int)floor_log2_uint64((idx_t)b);
+    int high = (int)ilog2((idx_t)b);
     for (int i = high; i >= 0; --i) {
         seq_t bit = (b >> i) & 1;
         res = res * 10 + bit;

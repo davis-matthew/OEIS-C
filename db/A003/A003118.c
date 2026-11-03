@@ -8,8 +8,9 @@
  *            4^(1/5), computed exactly with Lagrange's method on P(x) = x^5 -
  *            4: a = floor(real root of P), then P(y) <- y^5 * P(a + 1/y),
  *            using big-integer coefficients and no floating point
- * Range:     u8 n <= 265, u16 n <= 7250, u32 n <= 8376, u64 n <= 8376,
- *            u128 n <= 8376, big any n
+ * Range:     u8 n <= 265, u16 n <= 7250, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 101 terms through n = 8376 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

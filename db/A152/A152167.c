@@ -7,12 +7,14 @@
  * Formula:   a(n) = -a(n-1) + 3*a(n-2); a(0) = 1, a(1) = -3
  * Range:     i8 n <= 5, i16 n <= 12, i32 n <= 25, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* dynamic array of computed values */
 static size_t cache_size = 0;     /* number of values that are computed */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t up_to)
     while (up_to >= new_cap)
         new_cap *= 2;
 
-    seq_t *new_arr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_arr)
         exit(1);                     /* simple fatal error handling */
     seq_cache = new_arr;

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 64, u32 n <= 188, u64 n <= 663,
  *            u128 n <= 2343, big any n
+ * Validated: standard, pass, 82 terms through n = 7955 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,7 @@
    For a given index n, determine the row r and column k such that
    n = r*(r+1)/2 + k (0 ≤ k ≤ r) and return C(r+k-1, k). */
 #include <stdint.h>
-#include "../utils/gcd.h"     /* gcd(seq_t, seq_t) -- needed for safe binomial */
+#include "../utils/gcd.h"
 
 /* Safe multiplicative binomial for all idx_t arguments and a seq_t result */
 static seq_t binom_seq(idx_t N, idx_t K)

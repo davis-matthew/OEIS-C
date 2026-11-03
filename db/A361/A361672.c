@@ -9,14 +9,17 @@
  *            a(n-2) + a(n-1) + n else a(n) = a(n-1) / gcd(a(n-1),n)
  * Range:     u8 n <= 20, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     /* ensure the cache is initialized */
     if (cache == NULL) {
         cache_cap = 4;          /* initial capacity, enough for indices 0..3 */
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return (seq_t)0;   /* out of memory – unlikely */
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)1;
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
     /* grow cache to accommodate index n */
     if ((size_t)(n + 1) > cache_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return (seq_t)0;   /* out of memory – unlikely */
         cache = tmp;
         cache_cap = new_cap;

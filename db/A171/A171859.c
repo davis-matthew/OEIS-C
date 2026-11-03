@@ -8,90 +8,35 @@
  * Formula:   a(n) = Bell(n) - Sum_{j=0..n-1} Bell(j)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include <stddef.h>
+/* A171859: a(n) = Bell(n) - Sum_{j<n} Bell(j). Bell numbers from Aitken's
+ * triangle (each row starts with the last entry of the one before, and each
+ * entry adds its left neighbour and the entry above it), ring operations only,
+ * so exact modulo the width. */
+
 #include <stdlib.h>
-#include <stdbool.h>
+#include "../utils/mem.h"
 
-/* Cached arrays and state */
-static seq_t *Bell    = NULL;
-static seq_t *sumBell = NULL;
-static seq_t *stir    = NULL;
-static size_t bellCap      = 0;
-static size_t sumBellCap   = 0;
-static size_t stirCap      = 0;
-static idx_t  maxComputed  = (idx_t)-1;   /* no values computed yet */
-
-/* Ensure all arrays are large enough for indices up to n */
-static void ensure_capacity(idx_t n)
-{
-    size_t needBell = (size_t)(n + 1);              /* Bell[0..n]   */
-    if (Bell == NULL || bellCap < needBell) {
-        Bell = (seq_t *)realloc(Bell, needBell * sizeof(seq_t));
-        bellCap = needBell;
-    }
-    size_t needStir = needBell;                    /* stir[0..n]   */
-    if (stir == NULL || stirCap < needStir) {
-        stir = (seq_t *)realloc(stir, needStir * sizeof(seq_t));
-        stirCap = needStir;
-    }
-    size_t needSumBell = (size_t)(n + 2);          /* sumBell[0..n+1] */
-    if (sumBell == NULL || sumBellCap < needSumBell) {
-        sumBell = (seq_t *)realloc(sumBell, needSumBell * sizeof(seq_t));
-        sumBellCap = needSumBell;
-    }
-}
-
-/* Compute all Bell and prefix‑sum values up to index n */
-static void compute_up_to(idx_t n)
-{
-    if (maxComputed != (idx_t)-1 && maxComputed >= n)
-        return;                     /* already computed */
-
-    ensure_capacity(n);
-
-    /* Initialisation for n = 0 (performed once) */
-    if (maxComputed == (idx_t)-1) {
-        Bell[0]   = (seq_t)1;
-        sumBell[0]= (seq_t)0;
-        sumBell[1]= Bell[0];         /* prefix sum after Bell[0] */
-        stir[0]   = (seq_t)1;         /* S(0,0)=1     */
-        for (idx_t i = 1; i <= n; ++i) 
-            stir[i] = (seq_t)0;       /* other entries start at 0 */
-        maxComputed = 0;
-    }
-
-    /* Iterate to compute further values */
-    for (idx_t cur = maxComputed + 1; cur <= n; ++cur) {
-        /* Stirling numbers of the second kind:
-           S(cur,k) = k * S(cur-1,k) + S(cur-1,k-1) */
-        for (idx_t k = cur; k >= 1; --k) {
-            stir[k] = stir[k] * (seq_t)k + stir[k-1];
-        }
-        stir[0] = (seq_t)0;
-
-        /* Bell(cur) = sum_{k=1..cur} S(cur,k) */
-        seq_t bellCur = (seq_t)0;
-        for (idx_t k = 1; k <= cur; ++k) {
-            bellCur += stir[k];
-        }
-        Bell[cur] = bellCur;
-
-        /* Prefix sum of Bell numbers:
-           sumBell[i] = sum_{j=0}^{i-1} Bell[j] */
-        sumBell[cur+1] = sumBell[cur] + bellCur;
-
-        maxComputed = cur;
-    }
-}
-
-/* Required external function */
 seq_t a(idx_t n)
 {
-    compute_up_to(n);
-    return Bell[n] - sumBell[n];
+    const size_t N = (size_t)n;
+    seq_t *row = mem_new(seq_t, N + 1), *nxt = mem_new(seq_t, N + 1);
+    if (!row || !nxt) abort();
+    seq_t sum = (seq_t)0, bell = (seq_t)1;        /* Bell(0) */
+    row[0] = (seq_t)1;
+    for (size_t m = 1; m <= N; ++m) {
+        sum += bell;                               /* Sum_{j<m} Bell(j) */
+        nxt[0] = row[m - 1];
+        for (size_t j = 1; j <= m; ++j) nxt[j] = nxt[j - 1] + row[j - 1];
+        seq_t *t = row; row = nxt; nxt = t;
+        bell = row[0];                             /* Bell(m) */
+    }
+    mem_free(row);
+    mem_free(nxt);
+    return bell - sum;
 }

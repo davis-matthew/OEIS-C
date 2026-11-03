@@ -11,7 +11,8 @@
  *            definitions are taken from the OEIS entry A122163)
  * Range:     i8 n <= 5, i16 n <= 61, i32 n <= 61, i64 n <= 61, i128 n <= 61,
  *            big any n
- * Helpers:   rep_x_y
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/rep_x_y.h"
+
+/* Find integers x,y with p = x^2 + 9*y^2, store y in out_y. */
+static bool rep_x_y(uint64_t p, uint64_t *out_y)
+{
+    /* Search y up to the integer part of sqrt(p/9). */
+    for (uint64_t y = 0; 9 * y * y <= p; ++y) {
+        uint64_t t = p - 9ULL * y * y;
+        uint64_t x = (uint64_t)sqrt((double)t);
+        /* Adjust for rounding errors */
+        while (x * x < t) ++x;
+        while (x * x > t) --x;
+        if (x * x == t) {
+            *out_y = y;
+            return true;
+        }
+    }
+    return false;
+}
 
 static seq_t seq_pow_uint64(uint64_t base, int exp)
 {

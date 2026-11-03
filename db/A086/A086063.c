@@ -9,7 +9,8 @@
  *            representation n is contained in n^k
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul_big_by_uint64
+ * Validated: standard, pass, 120 terms through n = 976 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mul_big_by_uint64.h"
+
+/* Multiply a big integer (array of 64‑bit limbs) by a 64‑bit unsigned integer.
+   The big integer is represented by 'limbs' of length 'len'.
+   The result is stored back in the same array, which may grow.   */
+static void mul_big_by_uint64(uint64_t *limbs, size_t *len, uint64_t mult) {
+    __uint128_t carry = 0;
+    for (size_t i = 0; i < *len; ++i) {
+        __uint128_t prod = (__uint128_t)limbs[i] * mult + carry;
+        limbs[i] = (uint64_t)prod;
+        carry    = prod >> 64;
+    }
+    if (carry) {
+        limbs[*len] = (uint64_t)carry;
+        ++(*len);
+    }
+}
 
 static inline int bitlen_uint64(uint64_t x) {
     if (x == 0) return 0;

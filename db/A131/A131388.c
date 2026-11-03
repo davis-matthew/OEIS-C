@@ -11,7 +11,8 @@
  *            small‑to‑great steps in O(n) time with dynamic tables
  * Range:     u8 n <= 186, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 905 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Grow a boolean array so that it can index at least `need`. */
 static void grow_bool_array(uint8_t **arr, size_t *size, idx_t need)
@@ -40,7 +42,7 @@ static void grow_seq_array(seq_t **arr, size_t *size, size_t need)
     if (*size <= need) {
         size_t newsize = (*size) ? (*size) : 1;
         while (newsize <= need) newsize <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newsize);
         *arr = tmp;
         *size = newsize;
     }
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
     /* Initialise on first entry. */
     if (!a_arr) {
         a_cap = 1;
-        a_arr = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_cap);
         a_arr[0] = (seq_t)1;
         max_generated = 1;
 

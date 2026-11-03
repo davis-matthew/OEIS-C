@@ -12,14 +12,23 @@
  *            are fast, and it works for any type seq_t
  * Range:     u8 n <= 41, u16 n <= 102, u32 n <= 321, u64 n <= 1032,
  *            u128 n <= 3737, big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 94 terms through n = 9895 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* static cache of all already computed coefficients */
 static seq_t *cache = NULL;

@@ -8,14 +8,16 @@
  * Formula:   a(n) = T(r,k,6) where r and k are obtained by reading the
  *            triangle by rows, and T(r,k,6) = round( ∏_{j=0..6}
  *            C(2(r+j),2(k+j)) / C(2(r-k+j),2j) )
- * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 22, u64 n <= 58, u128 n <= 141,
+ * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 58, u128 n <= 141,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: standard, pass, 52 terms through n = 479 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
 
 static inline seq_t
@@ -29,10 +31,10 @@ triangle_T(idx_t r, idx_t k)
 
     for (idx_t j = 0; j <= 6; ++j) {
         /* Numerator factor: C(2(r+j), 2(k+j)) */
-        seq_t cur_num = binom(2 * (r + j), 2 * (k + j));
+        seq_t cur_num = binomial(2 * (r + j), 2 * (k + j));
 
         /* Denominator factor: C(2(r-k+j), 2j) */
-        seq_t cur_den = binom(2 * (r - k + j), 2 * j);
+        seq_t cur_den = binomial(2 * (r - k + j), 2 * j);
 
         /* Cancel common factors between the current numerator and
          * denominator first. */

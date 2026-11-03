@@ -11,6 +11,7 @@
  *            implementation uses integer arithmetic only
  * Range:     i8 n <= 16, i16 n <= 3655, i32 n <= 4951, i64 n <= 4951,
  *            i128 n <= 4951, big any n
+ * Validated: standard, pass, 121 terms through n = 4101 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

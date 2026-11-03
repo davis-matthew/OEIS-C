@@ -11,7 +11,8 @@
  *            * a(n)=2*a(n-2)+a(n-4) for n≥5
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 48, u64 n <= 100,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  * of the whole array. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         size_t new_len = (size_t)(max_p + 1);    /* indices 0..max_p */
 
         /* realloc works for both C and C++ when cast */
-        seq_t *tmp = (seq_t *)realloc(pell, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pell, new_len);
         if (!tmp)
             return (seq_t)0;     /* allocation failure, return 0 */
 

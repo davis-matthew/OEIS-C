@@ -8,13 +8,15 @@
  *            Computation: dynamic programming (DP) with 4 loops for the parts
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;   /* array of partition counts up to current maximum */
 static idx_t dp_size = 0;  /* number of entries currently allocated (dp_size >= 1) */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         idx_t new_size = n + 1;
 
         /* Allocate and zero-initialize the new table. */
-        seq_t *new_dp = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_size);
         if (!new_dp) return 0;    /* allocation failed – give up (highly unlikely) */
 
         /* Base case: empty partition of size 0. */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old table. */
-        free(dp);
+        mem_free(dp);
         dp     = new_dp;
         dp_size = new_size;
     }

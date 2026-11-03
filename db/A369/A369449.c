@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A003415(gcd(A003415(n), A276086(n)))
- * Range:     u8 n <= 19, u16 n <= 85, u32 n <= 1589, u64 n <= 9952,
- *            u128 n <= 9952, big any n
- * Helpers:   gcd, pow_seq
+ * Range:     u8 n <= 19, u16 n <= 85, u32 n <= 1589, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 119 terms through n = 9952 (2026-11-01)
+ * Helpers:   gcd, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 /* ------------------------------------------------------------------ */
 /*  Prime table used by the arithmetic derivative and primorial base  */
@@ -123,7 +124,7 @@ static seq_t primorial_exponent(idx_t n)
     for (size_t i = 0; i < pcnt; ++i)
     {
         if (digits[i] == 0) continue;
-        result *= pow_seq((seq_t)prime_list[i], (idx_t)digits[i]);
+        result *= ipow_i32((seq_t)prime_list[i], (idx_t)digits[i]);
     }
     return result;
 }

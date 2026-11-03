@@ -9,14 +9,37 @@
  *            (digits counted with multiplicity)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_digits_uint128, count_digits_uint64
+ * Validated: standard, pass, 121 terms through n = 9895 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_digits_uint128.h"
-#include "../utils/count_digits_uint64.h"
+
+/* Count decimal digits of a 128‑bit integer */
+static void count_digits_uint128(unsigned __int128 v, unsigned char cnt[10]) {
+    if (v == 0) {
+        cnt[0] = 1;
+        return;
+    }
+    while (v) {
+        cnt[(int)(v % 10)] ++;
+        v /= 10;
+    }
+}
+
+/* Count decimal digits of a 64‑bit integer */
+static void count_digits_uint64(uint64_t v, unsigned char cnt[10]) {
+    if (v == 0) {
+        cnt[0] = 1;
+        return;
+    }
+    while (v) {
+        cnt[v % 10] ++;
+        v /= 10;
+    }
+}
 
 seq_t a(idx_t n) {
     unsigned char cnt_n[10] = {0};

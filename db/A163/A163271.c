@@ -9,12 +9,14 @@
  * Formula:   a(n) = 2*a(n-1) + a(n-2) (a(1)=0, a(2)=2)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 26, u64 n <= 51, u128 n <= 102,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 905 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on the first call */
     if (cache == NULL) {
         /* Allocate space for indices 0,1,2 */
-        cache = (seq_t*)malloc(3 * sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         if (!cache) return (seq_t)0;     /* allocation failed */
         cache[0] = (seq_t)0;             /* unused slot */
         cache[1] = (seq_t)0;             /* a(1) */
@@ -40,8 +42,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to accommodate the requested index */
     idx_t new_limit = n;
-    seq_t *tmp = (seq_t*)realloc(cache,
-                                 (size_t)(new_limit + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)(new_limit + 1));
     if (!tmp) return (seq_t)0;           /* allocation failed */
     cache = tmp;
 

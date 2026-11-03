@@ -9,12 +9,14 @@
  *            (sum_{d|k} (-1)^d * d * a(d)) * a(n-k+1)
  * Range:     i8 n <= 9, i16 n <= 17, i32 n <= 31, i64 n <= 37, i128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* array of a values */
 static seq_t *w_cache = NULL;   /* array of w values: w[k] = sum_{d|k} (-1)^d * d * a(d) */
@@ -29,7 +31,7 @@ ensure_capacity(idx_t n, seq_t **cache, size_t *cap)
         size_t new_cap = (*cap == 0) ? (n + 1 + 10) : (*cap * 2);
         if (new_cap < (size_t)(n + 1))
             new_cap = (size_t)(n + 1);
-        *cache = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+        *cache = mem_resize(seq_t, *cache, new_cap);
         *cap   = new_cap;
     }
 }
@@ -43,8 +45,8 @@ a(idx_t n)
     /* Lazy initialization */
     if (a_cache == NULL) {
         size_t init_cap = (n + 1 > 2) ? (n + 1) : 2;
-        a_cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
-        w_cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, init_cap);
+        w_cache = mem_new(seq_t, init_cap);
         a_cap   = w_cap = init_cap;
         a_len   = 2;            /* a[0] and a[1] are known */
         a_cache[0] = (seq_t)0;

@@ -9,7 +9,8 @@
  *            are efficient
  * Range:     u8 n <= 17, u16 n <= 2471, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 75 terms through n = 9967 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Return the n-th term of OEIS A139686. */
 seq_t a(idx_t n)
@@ -54,7 +57,7 @@ seq_t a(idx_t n)
 
                 /* reduce order while possible */
                 while (ord % (seq_t)f == 0 &&
-                       mod_pow((seq_t)2, (uint64_t)(ord / (seq_t)f), (seq_t)p) == (seq_t)1)
+                       powmod((seq_t)2, (uint64_t)(ord / (seq_t)f), (seq_t)p) == (seq_t)1)
                 {
                     ord /= (seq_t)f;
                 }
@@ -66,7 +69,7 @@ seq_t a(idx_t n)
         {
             uint64_t f = tmp;
             while (ord % (seq_t)f == 0 &&
-                   mod_pow((seq_t)2, (uint64_t)(ord / (seq_t)f), (seq_t)p) == (seq_t)1)
+                   powmod((seq_t)2, (uint64_t)(ord / (seq_t)f), (seq_t)p) == (seq_t)1)
             {
                 ord /= (seq_t)f;
             }
@@ -78,7 +81,7 @@ seq_t a(idx_t n)
             if (orders_len == orders_cap)
             {
                 size_t new_cap = orders_cap ? orders_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(orders, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, orders, new_cap);
                 if (!tmp) exit(1);  /* out of memory */
                 orders = tmp;
                 orders_cap = new_cap;

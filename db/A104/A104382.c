@@ -10,15 +10,17 @@
  *            into c distinct summands, where r = ceil((sqrt(8*n+1)-1)/2) (the
  *            row) and c = n - r*(r-1)/2 (the column). The value is returned
  *            as type seq_t
- * Range:     u8 n <= 39, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 39, u16 n <= 96, u32 n <= 263, u64 n <= 840,
+ *            u128 n <= 1540, big any n
+ * Validated: standard, pass, 85 terms through n = 1536 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* 2‑D table for partitions into k parts */
 static idx_t dpNmax = 0;          /* current maximum n value stored in dp   */
@@ -32,11 +34,11 @@ static void recompute_dp(idx_t needN, idx_t needK)
     idx_t newK = needK;
     size_t size = (size_t)(newN + 1) * (newK + 1);
 
-    seq_t *newdp = (seq_t *)realloc(dp, size * sizeof(seq_t));
+    seq_t *newdp = mem_resize(seq_t, dp, size);
     if (!newdp) return;   /* allocation failed – give up silently */
 
     /* zero the new table */
-    memset(newdp, 0, size * sizeof(seq_t));
+    mem_set(newdp, 0, size * sizeof(seq_t));
 
     /* base case: one way to partition 0 into 0 parts */
     newdp[0] = 1;

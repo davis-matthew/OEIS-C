@@ -8,7 +8,8 @@
  * Formula:   a(n) = (A065120(n)+1)^a(A053645(n)) for n >= 1, a(0) = 1
  * Range:     u8 n <= 12, u16 n <= 14, u32 n <= 26, u64 n <= 26, u128 n <= 28,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Cache for computed values of a(n).  cache[0] is never stored. */
 static seq_t *cache    = NULL;
@@ -86,18 +88,18 @@ static seq_t compute_a(idx_t n)
     /* Compute the value using the recursive definition. */
     seq_t base = (seq_t)(first_part + 1);
     seq_t exp  = compute_a(suffix_idx);
-    seq_t result = big_pow(base, exp);
+    seq_t result = ipow(base, exp);
 
     /* Store in cache. */
     if (n >= cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 1 : cache_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t*)calloc(new_cap, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (new_cache == NULL)
             exit(1);                /* allocation failure */
         if (cache) {
-            memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = new_cap;

@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = A010051(n) + 2*a(floor(n/2)), a(1)=0 where A010051(n) is
  *            1 iff n is prime, otherwise 0
- * Range:     u8 n <= 511, u16 n <= 9793, u32 n <= 9793, u64 n <= 9793,
- *            u128 n <= 9793, big any n
+ * Range:     u8 n <= 511, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 112 terms through n = 9793 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

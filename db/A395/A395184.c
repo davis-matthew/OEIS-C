@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(0) = 1, a(1) = 3, a(2) = 9;
    for n ≥ 3, a(n) = 3*a(n-1) + 8*a(n-2) - 8*a(n-3). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache for computed values */
 static seq_t *cache = NULL;
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* First allocation: ensure space for initially requested n */
     if (cache_len == 0) {
         cache_len = (n >= 3 ? n + 1 : 3);
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache)
             return (seq_t)0;
         /* Initialise the first three values */
@@ -42,10 +44,10 @@ seq_t a(idx_t n)
     /* Need to grow the cache to accommodate index n */
     idx_t old_len = cache_len;
     cache_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_len);
     if (!tmp) {
         /* Allocation failure: free old cache and return 0 */
-        free(cache);
+        mem_free(cache);
         cache = NULL;
         cache_len = 0;
         return (seq_t)0;

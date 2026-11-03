@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _is_good
+ * Validated: standard, pass, 69 terms through n = 804 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/_is_good.h"
+#include "../utils/mem.h"
+
+/* Check whether a number has disjoint digit sets in base 8 and base 9. */
+static bool _is_good(seq_t val)
+{
+    unsigned mask8 = 0, mask9 = 0;
+    seq_t x = val;
+    while (x) {
+        unsigned d = (unsigned)(x % 8);
+        mask8 |= 1u << d;
+        x /= 8;
+    }
+    seq_t y = val;
+    while (y) {
+        unsigned d = (unsigned)(y % 9);
+        mask9 |= 1u << d;
+        y /= 9;
+    }
+    return (mask8 & mask9) == 0;
+}
 
 static seq_t *_a_cache = NULL;    /* cache of computed terms (0‑based)   */
 static size_t _a_cache_len = 0;   /* length of cache                     */
@@ -36,7 +56,7 @@ static void _ensure_cache_capacity(size_t need)
     size_t new_cap = _a_cache_cap ? _a_cache_cap * 2 : 16;
     if (new_cap < need)
         new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(_a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _a_cache, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);
     _a_cache = tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 1041, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, is_power_of_two, is_prime
+ * Validated: standard, pass, 63 terms through n = 9731 (2026-11-03)
+ * Helpers:   is_pow2, is_prime, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,11 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include "../utils/is_pow2.h"
 #include "../utils/is_prime.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/is_power_of_two.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,18 +44,18 @@ seq_t a(idx_t n)
         next_candidate += 2; /* advance for next search */
 
         /* Count divisors of p-1 and p+1. */
-        uint64_t d1 = divisor_count_u64((uint64_t)(p - 1));
-        uint64_t d2 = divisor_count_u64((uint64_t)(p + 1));
+        uint64_t d1 = num_divisors((uint64_t)(p - 1));
+        uint64_t d2 = num_divisors((uint64_t)(p + 1));
 
         /* If either divisor count is a power of two, skip p. */
-        if (is_power_of_two((seq_t)d1) || is_power_of_two((seq_t)d2)) {
+        if (is_pow2((seq_t)d1) || is_pow2((seq_t)d2)) {
             continue;
         }
 
         /* Append p to the cache. */
         if (count == capacity) {
             size_t new_cap = capacity ? capacity * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, primes, new_cap);
             if (!tmp) {
                 /* Allocation failure – terminate program. */
                 abort();

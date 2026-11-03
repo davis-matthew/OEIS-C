@@ -13,11 +13,13 @@
  *            10^L−1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 23,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 350 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute 10^exp mod mod_val for seq_t.  exp fits in 64 bits. */

@@ -13,7 +13,8 @@
  *            (rad(n)=1 if n is prime)
  * Range:     u8 n <= 15, u16 n <= 26, u32 n <= 47, u64 n <= 80, u128 n <= 146,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- prime generation ------------------------------------------------ */
 static uint32_t *primes = NULL;     /* array of primes, 32‑bit sufficient for n ≤ 2³¹-1 */
@@ -93,7 +95,7 @@ static void ensure_a_vals(idx_t n)
     if (a_alloc < needed) {
         size_t new_cap = a_alloc > 0 ? a_alloc : 16;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
         if (!tmp) abort();
         a_vals = tmp;
         a_alloc = new_cap;

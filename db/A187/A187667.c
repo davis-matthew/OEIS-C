@@ -7,20 +7,22 @@
  * Formula:   a(n) = coefficient of x^n in (1 + n*x + n*x^2 + n*x^3)^n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate arrays for trinomial DP, size n+1 */
     size_t sz = (size_t)n + 1;
-    seq_t *prev = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *cur  = mem_new(seq_t, sz);
     if (!prev || !cur) return 0;              /* out of memory – unlikely */
 
     /* row k = 0 : (1 + x + x^2)^0 */
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         pow_n = pow_n * (seq_t)n;
     }
 
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return ans;
 }

@@ -12,7 +12,8 @@
  *            subsequence of such primes
  * Range:     u8 n <= 15, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global mutable cache for the sequence.  The data are retained
    between calls so that multiple invocations with arbitrary
@@ -95,7 +97,7 @@ static void extend_sum_array_for(idx_t need)
                     if (sums_cnt >= sums_cap)
                     {
                         size_t new_cap = sums_cap ? sums_cap * 2 : 64;
-                        seq_t *tmp = (seq_t *)realloc(sums, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, sums, new_cap);
                         if (!tmp) abort();
                         sums = tmp;
                         sums_cap = new_cap;

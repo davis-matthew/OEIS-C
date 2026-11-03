@@ -10,14 +10,27 @@
  *            for some r≥3, t(m)=1 otherwise
  * Range:     u8 n <= 22, u16 n <= 44, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   is_binomial_c3
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_binomial_c3.h"
+#include "../utils/mem.h"
+
+/* Test whether j equals a binomial coefficient C(r,3) for some r≥3. */
+static bool is_binomial_c3(idx_t j)
+{
+    if (j < 1) return false;   /* C(3,3)=1 is the first such number */
+    for (idx_t r = 3;; ++r) {
+        unsigned __int128 product =
+            (unsigned __int128)r * (r - 1) * (r - 2) / 6;
+        if (product == j) return true;
+        if (product > j) return false;
+    }
+}
 
 /* Fibonacci cache: fib_cache[k] = F(k)
    fib_cache[0] is unused (set 0 for safety) */
@@ -30,7 +43,7 @@ static void ensure_fib(idx_t k)
     if (k <= fib_cap) return;          /* already have enough */
 
     /* Allocate new storage for indices 0..k inclusive */
-    seq_t *new_fib = (seq_t *)realloc(fib_cache, (size_t)(k + 1) * sizeof(seq_t));
+    seq_t *new_fib = mem_resize(seq_t, fib_cache, (size_t)(k + 1));
     if (!new_fib) abort(); /* allocation failure */
 
     /* Initialise base cases if they were missing */

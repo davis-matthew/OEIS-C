@@ -8,12 +8,22 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   digit_sum_base6
+ * Validated: partial, pass, 83 terms through n = 82 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/digit_sum_base6.h"
+static seq_t digit_sum_base6(seq_t x)
+{
+    seq_t sum = 0;
+    while (x != 0)
+    {
+        sum += x % 6;
+        x /= 6;
+    }
+    return sum;
+}
 /* Recurrence: a(0)=0, a(1)=1,
  * a(n)= digit_sum_base6(a(n-1)) + digit_sum_base6(a(n-2))   (n≥2)   */
 /* Digit‑sum in base 6:  s(x)=∑_{k≥0} (x÷6ᵏ mod 6)            */

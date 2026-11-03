@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define COLS   6
 #define STATES (1 << COLS)      /* 64 */
@@ -107,8 +109,8 @@ seq_t a(idx_t n)
     /* DP arrays: dp[prev][curr] holds counts for the last two rows processed. */
     seq_t dp[STATES][STATES];
     seq_t ndp[STATES][STATES];
-    memset(dp, 0, sizeof(dp));
-    memset(ndp, 0, sizeof(ndp));
+    mem_set(dp, 0, sizeof(dp));
+    mem_set(ndp, 0, sizeof(ndp));
 
     /* Initialize with all possible first and second rows. */
     for (int first = 0; first < STATES; ++first) {
@@ -136,8 +138,8 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
-        memset(ndp, 0, sizeof(ndp));
+        mem_copy(dp, ndp, sizeof(dp));
+        mem_set(ndp, 0, sizeof(ndp));
     }
 
     /* Sum results for valid final rows. */

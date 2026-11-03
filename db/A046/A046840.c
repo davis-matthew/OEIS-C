@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 154, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 84 terms through n = 7609 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Multiply two 64‑bit numbers modulo mod, using 128‑bit intermediate */
 static inline uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod)
@@ -50,9 +52,9 @@ static void ensure_seq_cap(size_t n)
         new_cap <<= 1;
 
     if (seq == NULL) {
-        seq = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, new_cap);
     } else {
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
     }
     seq_cap = new_cap;
 }

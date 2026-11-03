@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 7663, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate
+ * Validated: standard, pass, 66 terms through n = 9473 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,25 @@
 /* Computation: brute‑force scanning of integers checking base‑9 digits
    for equal nonzero counts of 6s and 8s. */
 #include <stdbool.h>
-#include "../utils/append_candidate.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* Checks whether a number has the same non‑zero number of digits 6
    and 8 in its base‑9 representation. */

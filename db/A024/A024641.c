@@ -9,6 +9,7 @@
  *            ordinary decimal * digits. For n=0 the value is 0
  * Range:     u8 n <= 13, u16 n <= 90, u32 n <= 1336, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 67 terms through n = 8706 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

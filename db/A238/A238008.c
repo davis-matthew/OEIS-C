@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 none, i16 n <= 4, i32 n <= 8, i64 n <= 11, i128 n <= 11,
  *            big any n
- * Helpers:   floor_sqrt, seq_alloc_new_array, seq_free_array
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,34 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/floor_sqrt.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Cache for already found terms. */
 static seq_t *cache      = NULL;   /* array of terms */

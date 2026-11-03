@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 153, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   estimate_prime_upper_bound, seq_malloc
+ * Validated: standard, pass, 89 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,27 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/seq_malloc.h"
-#include "../utils/estimate_prime_upper_bound.h"
+#include <math.h>
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 static seq_t *a_vals = NULL;   /* a(1) stored at a_vals[0] */
 static idx_t  a_len  = 0;      /* number of computed a-values */
@@ -63,7 +83,7 @@ ensure_prime_up_to(idx_t k)
 
     /* Replace the old prime array (if any). */
     if (prime_vals)
-        free(prime_vals);
+        mem_free(prime_vals);
     prime_vals = new_primes;
     prime_len  = count;
 }
@@ -86,7 +106,7 @@ ensure_a_capacity(idx_t n)
     if (a_vals) {   /* copy existing values */
         for (idx_t i = 0; i < a_len; ++i)
             tmp[i] = a_vals[i];
-        free(a_vals);
+        mem_free(a_vals);
     }
     a_vals = tmp;
 

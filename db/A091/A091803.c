@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   powmod10
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>   /* for log() (allowed for standard builds) */
-#include "../utils/powmod10.h"
+
+/* return 10^exp (mod mod) ----------------------------------------------------------------
+ * exp can be as large as n-1 (idx_t).  All intermediate products fit
+ * into 64 bits because 0 <= base, mod <= 2^32-1. */
+static uint32_t powmod10(uint32_t mod, idx_t exp)
+{
+    if (mod == 1U) return 0U;
+    uint32_t result = 1U % mod;
+    uint32_t base   = 10U % mod;
+    while (exp) {
+        if (exp & 1ULL)
+            result = (uint32_t)((uint64_t)result * base % mod);
+        base = (uint32_t)((uint64_t)base * base % mod);
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* global prime cache ----------------------------------------------------- */
 static uint32_t *prime_cache = NULL;    /* array of primes, 0‑indexed */

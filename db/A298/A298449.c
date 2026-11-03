@@ -12,12 +12,14 @@
  *            – 7·a(n‑16) + 3·a(n‑17) for n > 18 with the first 18 te...
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 21, u64 n <= 41, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -48,12 +50,12 @@ static void ensure_cache(idx_t n)
     if (n <= cache_size) return;
 
     idx_t new_size = n + 1;                 /* allocate indices 0..n */
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) abort();
 
     /* copy previously computed values */
     for (idx_t i = 1; i <= cache_size; ++i) new_cache[i] = cache[i];
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
 
     /* fill missing entries up to n */
     for (idx_t i = cache_size + 1; i <= n; ++i) {

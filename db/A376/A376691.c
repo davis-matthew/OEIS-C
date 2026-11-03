@@ -9,13 +9,35 @@
  *            with 0 <= x <= y < n
  * Range:     u8 n <= 11, u16 n <= 54, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   count_solutions_for_sum
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_solutions_for_sum.h"
+
+static seq_t count_solutions_for_sum(idx_t n, idx_t s)
+{
+    seq_t cnt = 0;
+    seq_t mod = (seq_t)n;
+    for (idx_t x = 0; x < n; ++x)
+    {
+        if (s < x)          /* y would be negative */
+            continue;
+        idx_t y = s - x;    /* compute y */
+        if (y < x || y >= n)   /* ensure x <= y and y < n */
+            continue;
+
+        seq_t sum_mod = ((seq_t)x + y) % mod;
+        if (((seq_t)x * x + (seq_t)y * y) % mod != sum_mod)
+            continue;
+        if (((seq_t)x * x * x + (seq_t)y * y * y) % mod != sum_mod)
+            continue;
+        cnt++;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

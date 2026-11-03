@@ -9,6 +9,7 @@
  *            (10^d - 1) (r=0 case gives 10^d-1) Special case: a(0) = 0
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 42, u64 n <= 85, u128 n <= 172,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 951 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

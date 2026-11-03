@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 49 terms through n = 827 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
    Recurrence (for n > 5):  a(n) = a(n-6) + 7*2^(n-5) - 3.  
    Initial values:  a(0)=0, a(1)=0, a(2)=0, a(3)=0, a(4)=1, a(5)=4.  */
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
     if (cap == 0)
     {
         cap = 8;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = 0;
         cache[1] = 0;
         cache[2] = 0;
@@ -43,8 +46,8 @@ seq_t a(idx_t n)
     while (n >= cap)
     {
         size_t newcap = cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
-        if (!tmp) { free(cache); cache = NULL; return 0; } /* out of memory */
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
+        if (!tmp) { mem_free(cache); cache = NULL; return 0; } /* out of memory */
         cache = tmp;
         cap = newcap;
     }

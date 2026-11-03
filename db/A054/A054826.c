@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 169, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 9310 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *terms_cache     = NULL;   /* cache of the sequence values */
 static size_t terms_cache_len = 0;      /* number of cached values     */
@@ -61,7 +63,7 @@ static void ensure_precomputed(idx_t /*needed_n*/)
     for (idx_t i = 2; i <= LIMIT; ++i)
         if (is_prime[i]) ++prime_cnt;
 
-    seq_t *primes = (seq_t *)malloc(prime_cnt * sizeof(seq_t));
+    seq_t *primes = mem_new(seq_t, prime_cnt);
     size_t idx = 0;
     for (idx_t i = 2; i <= LIMIT; ++i)
         if (is_prime[i]) primes[idx++] = (seq_t)i;
@@ -70,7 +72,7 @@ static void ensure_precomputed(idx_t /*needed_n*/)
 
     /* ---- 2. find all “fourth” members of weak quintets -------------- */
     size_t cap = 20000;                     /* initial capacity */
-    seq_t *found = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *found = mem_new(seq_t, cap);
     size_t found_cnt = 0;
 
     for (size_t k = 3; k + 1 < prime_cnt; ++k) {
@@ -81,7 +83,7 @@ static void ensure_precomputed(idx_t /*needed_n*/)
         if (g1 < g2 && g2 < g3 && g3 < g4) {
             if (found_cnt >= cap) {          /* grow buffer if needed */
                 cap *= 2;
-                found = (seq_t *)realloc(found, cap * sizeof(seq_t));
+                found = mem_resize(seq_t, found, cap);
             }
             found[found_cnt++] = primes[k];
         }

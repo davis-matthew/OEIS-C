@@ -11,7 +11,8 @@
  *            result is correct for all n up to the known 131 terms
  * Range:     u8 n <= 5, u16 n <= 131, u32 n <= 131, u64 n <= 131,
  *            u128 n <= 131, big any n
- * Helpers:   class_number_fundamental
+ * Validated: standard, pass, 64 terms through n = 127 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,37 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/class_number_fundamental.h"
+#include "../utils/mem.h"
+
+/* Count reduced primitive binary quadratic forms for a given fundamental D < 0.
+   The count equals the class number. */
+static uint64_t class_number_fundamental(int64_t D)
+{
+    uint64_t absD = (uint64_t)(-D);
+    uint64_t a_limit = (uint64_t)sqrt((double)absD / 3.0);
+    uint64_t count = 0;
+
+    for (uint64_t a = 1; a <= a_limit; ++a)
+    {
+        int64_t b_start = -(int64_t)a;
+        int64_t b_end   =  (int64_t)a;
+        for (int64_t b = b_start; b <= b_end; ++b)
+        {
+            /* Parity condition: b ≡ D (mod 2) */
+            if (((b & 1LL) != (D & 1LL))) continue;
+
+            __int128 rhs  = (__int128)b * b - D;      /* b^2 - D, non‑negative for D < 0 */
+            int64_t mod   = (int64_t)(4 * a);
+            if ((rhs % mod) != 0) continue;
+            int64_t c = (int64_t)(rhs / mod);
+            if ((int64_t)a > c) continue;
+            if ((b < 0) && (llabs(b) == (int64_t)a)) continue;   /* |b| = a, negative b not reduced */
+            if ((b < 0) && ((int64_t)a == c)) continue;          /* a = c, negative b not reduced */
+            ++count;
+        }
+    }
+    return count;
+}
 
 /* Types provided by the build environment */
 typedef idx_t idx_t;
@@ -37,7 +68,7 @@ static void ensure_cache_capacity(idx_t need)
     if (cache_cap >= need) return;
     idx_t newcap = cache_cap ? cache_cap * 2 : 16;
     while (newcap < need) newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp) return;           /* allocation failed – let the request fail */
     cache = tmp;
     cache_cap = newcap;

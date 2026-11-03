@@ -11,12 +11,14 @@
  *            a(12)=38808, a(13)=56808, a(14)=81048, a(15)=112856, a(16)...
  * Range:     u8 none, u16 n <= 13, u32 n <= 127, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first 14 values. */
     if (cache == NULL) {
         capacity = 18; /* enough for n = 17; will grow as needed */
-        cache = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        cache = mem_new(seq_t, capacity);
         if (!cache) abort();
         static const seq_t init_vals[14] = {
             288, 708, 1580, 3144, 5804, 9996,
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         /* Ensure capacity. */
         if (stored == capacity) {
             capacity <<= 1;           /* double the capacity */
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * capacity);
+            seq_t *tmp = mem_resize(seq_t, cache, capacity);
             if (!tmp) abort();
             cache = tmp;
         }

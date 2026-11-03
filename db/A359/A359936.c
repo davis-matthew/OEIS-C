@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 627, i16 n <= 2905, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 9521 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,13 +31,14 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;          /* a(0) = 1 */
 
     /* Allocate a zero‑initialized array of seq_t of size n+1 */
-    seq_t *coef = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *coef = mem_new(seq_t, (size_t)n + 1);
     if (!coef) return (seq_t)0;           /* allocation failure → 0 */
 
     coef[0] = (seq_t)1;                    /* empty product contributes 1 */
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coef[n];
-    free(coef);
+    mem_free(coef);
     return result;
 }

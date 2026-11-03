@@ -7,13 +7,15 @@
  * Formula:   a(n) = ceil(3^(n-1) / 2^(n-2)) (n ≥ 1, a(1)=2)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *pow3 = NULL;           /* pow3[k] = 3^k , k ≥ 0   */
 static size_t len3 = 0;              /* current size of pow3 array   */
@@ -22,7 +24,7 @@ static size_t len2 = 0;              /* current size of pow2 array   */
 
 static void ensure_pow3(size_t k) {
     while (len3 <= k) {
-        pow3 = (seq_t*)realloc(pow3, (len3 + 1) * sizeof(seq_t));
+        pow3 = mem_resize(seq_t, pow3, (len3 + 1));
         if (!len3) {                 /* first element, 3^0 = 1      */
             pow3[0] = (seq_t)1;
         } else {
@@ -34,7 +36,7 @@ static void ensure_pow3(size_t k) {
 
 static void ensure_pow2(size_t k) {
     while (len2 <= k) {
-        pow2 = (seq_t*)realloc(pow2, (len2 + 1) * sizeof(seq_t));
+        pow2 = mem_resize(seq_t, pow2, (len2 + 1));
         if (!len2) {                 /* first element, 2^0 = 1      */
             pow2[0] = (seq_t)1;
         } else {

@@ -9,18 +9,36 @@
  *            Σ_{j=0..floor((row+1)/2)} binomial(row+1, 2*j+col+1) * 2^j * *
  *            T(row,0) equals the Pell number P_{row+1} (A000129). For k>0 the
  *            above sum is used
- * Range:     u8 n <= 27, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
- *            big any n
- * Helpers:   binom, get_pell, pow2
+ * Range:     u8 n <= 27, u16 n <= 90, u32 n <= 350, u64 n <= 1325,
+ *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1258 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/get_pell.h"
+
+/* Compute Pell number P(n) = A000129(n)
+ * n is an idx_t, but the recurrence uses arithmetic in seq_t.
+ */
+static seq_t get_pell(idx_t n) {
+    if (n == 0) return (seq_t)0;
+    if (n == 1) return (seq_t)1;
+    seq_t p0 = (seq_t)0;   /* P(0) */
+    seq_t p1 = (seq_t)1;   /* P(1) */
+    seq_t p2;
+    for (idx_t i = 2; i <= n; ++i) {
+        p2 = (seq_t)2 * p1 + p0;   /* P(i) = 2*P(i-1)+P(i-2) */
+        p0 = p1;
+        p1 = p2;
+    }
+    return p1;   /* P(n) */
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +64,7 @@ seq_t a(idx_t n)
         if (m > n_plus1)
             break;                 /* no further terms contribute */
 
-        seq_t term = binom(n_plus1, m) * pow2(j);
+        seq_t term = binomial(n_plus1, m) * pow2(j);
         sum += term;
     }
     return sum;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 4488, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 71 terms through n = 9962 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     /* initial allocation */
     if (kvals == NULL) {
         capacity = 1024;
-        kvals = (seq_t *)malloc(capacity * sizeof(seq_t));
+        kvals = mem_new(seq_t, capacity);
         if (kvals == NULL)
             return 0; /* allocation failure -> zero placeholder */
     }
@@ -45,11 +48,11 @@ seq_t a(idx_t n)
     while (count < n) {
         /* test candidate 101*k + 103 for primality */
         uint64_t candidate = (uint64_t)101 * (uint64_t)next_k + 103ULL;
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             /* ensure enough space */
             if (count == capacity) {
                 capacity <<= 1;
-                seq_t *tmp = (seq_t *)realloc(kvals, capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, kvals, capacity);
                 if (tmp == NULL)
                     break; /* allocation failure, return last value */
                 kvals = tmp;

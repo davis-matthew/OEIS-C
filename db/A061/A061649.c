@@ -10,20 +10,22 @@
  *            up). * If n == 0 return 0
  * Range:     u8 n <= 142, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   rev
+ * Validated: standard, pass, 110 terms through n = 995 (2026-11-01)
+ * Helpers:   reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/rev.h"
+#include <stdbool.h>
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n) {
     /* Handle trivial case n == 0 */
     if (n == 0) return (seq_t)0;
 
     /* Compute reverse of n */
-    idx_t rev_n = rev(n);
+    idx_t rev_n = reverse_digits_idx(n);
 
     /* If n and its reverse are equal, remainder is zero */
     if (rev_n == n) return (seq_t)0;

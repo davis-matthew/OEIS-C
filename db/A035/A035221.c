@@ -9,14 +9,49 @@
  * Formula:   a(n) = Sum_{d|n} Kronecker(39,d)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _jacobi
+ * Validated: standard, pass, 97 terms through n = 9992 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_jacobi.h"
+
+/*------------------------------------------------------------------
+   Compute the Jacobi symbol (a/n) for odd n > 0.
+   Returns 0 if n is even or not proper, otherwise -1, 0, or 1.
+------------------------------------------------------------------*/
+static int _jacobi(uint64_t a, uint64_t n)
+{
+    if (n == 0) return 0;               /* undefined, return 0 */
+    if ((n & 1) == 0) return 0;         /* even denominator not allowed */
+
+    a %= n;
+    int result = 1;
+
+    while (a != 0)
+    {
+        while ((a & 1) == 0)
+        {
+            a >>= 1;
+            uint64_t r = n & 7ULL;      /* n mod 8 */
+            if (r == 3 || r == 5)
+                result = -result;
+        }
+        /* Swap a and n */
+        uint64_t temp = a;
+        a = n;
+        n = temp;
+
+        if ((a & 3) == 3 && (n & 3) == 3)
+            result = -result;
+
+        a %= n;
+    }
+
+    return (n == 1) ? result : 0;
+}
 
 /*------------------------------------------------------------------
    Factor n into prime powers.

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 1 + a(n-1 - (n mod a(n-1))), a(1) = 1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9737 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoization of the sequence values. */
 static seq_t *cache    = NULL;   /* array with 1‑based indexing */
@@ -27,7 +29,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = cap == 0 ? 16 : cap;
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp == NULL && new_cap != 0)
         abort();                     /* out of memory */
     cache = tmp;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥0} (1 + x^(3^k))^(3^(k+1))
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute binomial coefficient C(n, k) in seq_t */
 static seq_t binom_seq_t(idx_t n, idx_t k) {
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     if (n == 0) return 1;
 
     /* dp array holds current partial product coefficients */
-    seq_t *dp = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     for (idx_t i = 0; i <= n; ++i) dp[i] = 0;
     dp[0] = 1;
 
@@ -46,14 +48,14 @@ seq_t a(idx_t n) {
         if (lim < t_max) t_max = lim;  /* t such that t*pk <= n */
 
         /* binomial coefficients for current factor */
-        seq_t *coeff = (seq_t*)malloc((t_max + 1) * sizeof(seq_t));
+        seq_t *coeff = mem_new(seq_t, (t_max + 1));
         coeff[0] = 1;                   /* C(m,0) */
         for (idx_t t = 1; t <= t_max; ++t) {
             coeff[t] = coeff[t - 1] * (m - t + 1) / t;
         }
 
         /* convolution with current factor */
-        seq_t *newdp = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, (n + 1));
         for (idx_t i = 0; i <= n; ++i) newdp[i] = 0;
 
         for (idx_t j = 0; j <= n; ++j) {
@@ -68,14 +70,14 @@ seq_t a(idx_t n) {
         }
 
         /* swap dp with newdp */
-        free(dp);
-        free(coeff);
+        mem_free(dp);
+        mem_free(coeff);
         dp = newdp;
 
         pow3 *= 3;   /* next power of 3 */
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

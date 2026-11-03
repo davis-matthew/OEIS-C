@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_capacity, int_sqrt, mod_pow
+ * Validated: standard, pass, 60 terms through n = 913 (2026-11-03)
+ * Helpers:   isqrt, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,45 @@
 #include <stdbool.h>
 
 /* Helpers from the utility library */
-#include "../utils/ensure_capacity.h"
-#include "../utils/mod_pow.h"
-#include "../utils/int_sqrt.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/isqrt.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 /* Static cache for primes and the sequence */
 static uint64_t *primes = NULL;
@@ -43,7 +80,7 @@ static void generate_more_good_primes(idx_t n_needed)
             prime_flag = true;
         } else {
             prime_flag = true;
-            idx_t sqrt_cand = int_sqrt((idx_t)cand);
+            idx_t sqrt_cand = isqrt((idx_t)cand);
             for (size_t i = 0; i < primes_cnt && primes[i] <= sqrt_cand; ++i) {
                 if (cand % primes[i] == 0) {
                     prime_flag = false;
@@ -54,14 +91,14 @@ static void generate_more_good_primes(idx_t n_needed)
 
         if (prime_flag) {
             /* store prime */
-            ensure_capacity(primes_cnt + 1, &primes_cap, (void **)&primes, sizeof(uint64_t));
+            ensure_capacity(primes_cnt + 1, &primes_cap, OEISC_VPP(&primes), sizeof(uint64_t));
             primes[primes_cnt++] = cand;
 
             /* test the cubic residue condition only for primes ≡ 1 (mod 3) */
             if (cand % 3 == 1) {
-                seq_t res = mod_pow((seq_t)6, (idx_t)((cand - 1) / 3), (seq_t)cand);
+                seq_t res = powmod((seq_t)6, (idx_t)((cand - 1) / 3), (seq_t)cand);
                 if (res != (seq_t)1) {
-                    ensure_capacity(good_cnt + 1, &good_cap, (void **)&good, sizeof(seq_t));
+                    ensure_capacity(good_cnt + 1, &good_cap, OEISC_VPP(&good), sizeof(seq_t));
                     good[good_cnt++] = (seq_t)cand;
                 }
             }

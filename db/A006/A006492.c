@@ -9,12 +9,14 @@
  *            a(5)=5, a(6)=6, a(7)=21, a(n)=0 for n<3
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 37, u64 n <= 79, u128 n <= 167,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static struct {
     seq_t *values;
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     
     if (memo.capacity == 0) {
         memo.capacity = (n > 1000) ? n + 1000 : 2000;
-        memo.values = (seq_t *)malloc(memo.capacity * sizeof(seq_t));
+        memo.values = mem_new(seq_t, memo.capacity);
         if (!memo.values) return 0;
         
         seq_t bases[8] = {0, 0, 0, 1, 0, 5, 6, 21};
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
         }
     } else if (n >= memo.capacity) {
         memo.capacity = n + 1000;
-        seq_t *new_values = (seq_t *)realloc(memo.values, memo.capacity * sizeof(seq_t));
+        seq_t *new_values = mem_resize(seq_t, memo.values, memo.capacity);
         if (!new_values) return 0;
         memo.values = new_values;
     }

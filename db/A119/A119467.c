@@ -6,14 +6,15 @@
  * Keywords:  easy, nonn, tabl, look
  * Formula:   a(n) = T(r,k) where r = ⌊(√(8n+1)-1)/2⌋, k = n - r(r+1)/2,
  *            T(r,k) = C(r,k) if (r-k) even, else 0
- * Range:     u8 n <= 39, u16 n <= 198, u32 n <= 646, u64 n <= 2377,
+ * Range:     u8 n <= 70, u16 n <= 198, u32 n <= 646, u64 n <= 2377,
  *            u128 n <= 8000, big any n
- * Helpers:   binomial_pos
+ * Validated: standard, pass, 101 terms through n = 7409 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial_pos.h"
+#include "../utils/binomial.h"
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
 
     /* Entry is non‑zero only when (r - k) is even */
     if (((r - k) & 1) == 0) {
-        return binomial_pos(r, k);
+        return binomial(r, k);
     } else {
         return (seq_t)0;
     }

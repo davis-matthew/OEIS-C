@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 /* Sequence A128561: a(n) = denominator of r(n) where
    r(n) = -16*(n-1)*(n-2)/((2n-1)*(2n-5)*r(n-1)),
    with r(1)=1, r(2)=1/3, r(3)=-24/5. */
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
         new_den = new_den * (seq_t)(2 * k - 5);
 
         /* Reduce the fraction to lowest terms. */
-        seq_t g = seq_gcd(new_num, new_den);
+        seq_t g = gcd(new_num, new_den);
         new_num /= g;
         new_den /= g;
 

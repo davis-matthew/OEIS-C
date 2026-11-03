@@ -12,15 +12,42 @@
  *            theta_4(q^2)^2, this becomes a(n) = [q^n] theta_...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 9, u64 n <= 61, u128 n <= 1000,
  *            big any n
- * Helpers:   t26_mul_T, t26_mul_theta, t26_zero
+ * Validated: standard, pass, 38 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/t26_mul_T.h"
-#include "../utils/t26_mul_theta.h"
-#include "../utils/t26_zero.h"
+#include "../utils/mem.h"
+
+/* multiply in place by T = Sum_{k>=0} x^(k(k+1)/2) */
+static void t26_mul_T(seq_t *a, idx_t len)
+{
+    idx_t m, k, t;
+    for (m = len; m-- > 1;) {
+        for (k = 1, t = 1; t <= m; k++, t += k) a[m] += a[m - t];
+    }
+}
+
+/* multiply in place by theta_3 = 1 + 2*Sum_{s>=1} x^(s^2) */
+static void t26_mul_theta(seq_t *a, idx_t len)
+{
+    idx_t m, s;
+    for (m = len; m-- > 1;) {
+        seq_t acc = 0;
+        for (s = 1; s * s <= m; s++) acc += a[m - s * s];
+        a[m] += acc + acc;
+    }
+}
+
+static seq_t *t26_zero(idx_t len)
+{
+    idx_t i;
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *t26_A13 = 0, *t26_A14 = 0, *t26_R2 = 0;
 static seq_t *t26_V1P = 0, *t26_V1N = 0, *t26_V2P = 0, *t26_V2N = 0;
@@ -33,8 +60,8 @@ static void t26_build(idx_t C)
     seq_t *s3, *r8, *tmp;
 
     if (t26_built) {
-        free(t26_A13); free(t26_A14); free(t26_R2);
-        free(t26_V1P); free(t26_V1N); free(t26_V2P); free(t26_V2N);
+        mem_free(t26_A13); mem_free(t26_A14); mem_free(t26_R2);
+        mem_free(t26_V1P); mem_free(t26_V1N); mem_free(t26_V2P); mem_free(t26_V2N);
     }
 
     s3 = t26_zero(L);
@@ -91,9 +118,9 @@ static void t26_build(idx_t C)
         t26_mul_T(t26_V2N, M);
     }
 
-    free(s3);
-    free(r8);
-    free(tmp);
+    mem_free(s3);
+    mem_free(r8);
+    mem_free(tmp);
     t26_cap = C;
     t26_built = 1;
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} (d + n/d)^n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Cache of previously computed values */
 static seq_t *cache = NULL;
@@ -34,7 +36,7 @@ static void cache_store(idx_t n, seq_t val)
 {
     if ((size_t)n >= cache_capacity) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             exit(EXIT_FAILURE);
         /* initialise new entries to 0 */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             continue;
         uint64_t e = n / d;          /* partner divisor */
         seq_t base = (seq_t)d + (seq_t)e;
-        seq_t term = big_pow(base, (seq_t)n);
+        seq_t term = ipow(base, (seq_t)n);
         sum += term;
         if (d != e)                  /* counterpart divisor gives same term */
             sum += term;

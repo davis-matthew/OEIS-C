@@ -8,13 +8,15 @@
  *            1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build */
 extern seq_t a(idx_t n);
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (seq_cap <= n) {
         idx_t new_cap = seq_cap ? seq_cap * 2 : 4;
         if (new_cap <= n) new_cap = n + 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (fact_cap <= n) {
         idx_t new_cap = fact_cap ? fact_cap * 2 : 4;
         if (new_cap <= n) new_cap = n + 1;
-        fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_cap);
         fact_cap = new_cap;
     }
 

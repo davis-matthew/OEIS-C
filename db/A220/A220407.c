@@ -14,7 +14,8 @@
  *            a(10)=3898, a(11)=7773
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 62, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
     It always stores all values up to the largest n requested so far,
     making subsequent calls constant‑time for already‑computed indices.   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial 11 terms of the sequence (index 0 is unused) */
 static const seq_t init[12] = {
@@ -58,14 +60,14 @@ seq_t a(idx_t n) {
     if (arr == NULL) {
         /* Start with capacity sufficient for the first 12 values (indices 0..11) */
         arr_capacity = 12;
-        arr = (seq_t*)malloc((size_t)arr_capacity * sizeof(seq_t));
+        arr = mem_new(seq_t, (size_t)arr_capacity);
         if (!arr) return 0;                 /* allocation failure */
         arr_index = 0;
     } else if (n >= arr_capacity) {
         /* Need space for indices 0..n */
         size_t new_cap = (size_t)n + 1;
         if (new_cap < arr_capacity) new_cap = arr_capacity * 2; /* guard against overflow */
-        seq_t *tmp = (seq_t*)realloc(arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, arr, new_cap);
         if (!tmp) return 0;                 /* allocation failure */
         arr = tmp;
         arr_capacity = (idx_t)new_cap;

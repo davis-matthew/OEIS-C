@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Static state */
 static idx_t       cur_k   = 3;                 /* next k to test               */
@@ -70,7 +72,7 @@ static void append_prime(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 128;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
         if (!seq) exit(1);
     }
     seq[seq_len++] = val;
@@ -88,7 +90,7 @@ static void ensure_n_terms(idx_t n)
 
         if (gap != 0 && cur_k % gap == 0) {   /* integer quotient */
             seq_t q = ((seq_t)cur_k) / ((seq_t)gap);
-            if (is_prime_small((uint64_t)q))
+            if (is_prime_seq((uint64_t)q))
                 append_prime(q);
         }
         cur_k++;

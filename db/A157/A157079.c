@@ -7,6 +7,7 @@
  * Formula:   a(n) = 32805000*n^2 - 10513800*n + 842401
  * Range:     u8 none, u16 none, u32 n <= 11, u64 n <= 10000, u128 n <= 10000,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 9865 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

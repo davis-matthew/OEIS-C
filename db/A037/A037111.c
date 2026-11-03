@@ -7,6 +7,7 @@
  * Formula:   a(0) = 3, a(n+1) = (a(n) % 2 == 0) ? a(n)/2 : 27*a(n)+1
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 24, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

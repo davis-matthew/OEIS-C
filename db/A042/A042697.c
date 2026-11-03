@@ -10,6 +10,7 @@
  *            q[-2] = 1, q[-1] = 0, q_i = a_i * q_{i-1} + q_{i-2} (i ≥ 0)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 23, u64 n <= 43, u128 n <= 87,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 157 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  *            n-1)*(3*n-1)/n (OEIS A372239)
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 /* Use utilities from the build. */
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,10 +32,10 @@ seq_t a(idx_t n)
         idx_t needed = n + 1;          /* indices 0..n */
 
         if (cache == NULL) {
-            cache = (seq_t*)malloc(needed * sizeof(seq_t));
+            cache = mem_new(seq_t, needed);
             if (!cache) return 0;     /* unlikely but safe */
         } else if (needed > cached) {
-            seq_t *tmp = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, needed);
             if (!tmp) return cache[0];
             cache = tmp;
         }

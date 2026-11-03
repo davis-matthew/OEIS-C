@@ -9,7 +9,8 @@
  *            (with multiplicity) has a median different from its maximum
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   build_spf, factor_u64, gcd
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   build_spf, factor_u64, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"      /* required by build_spf for example */
-#include "../utils/factor_u64.h"   /* ensure factor_u64 prototype */
-#include "../utils/build_spf.h"    /* build_spf function */
+#include "../utils/build_spf.h"
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* static cache for the sequence values */
 static seq_t *cache = NULL;          /* array of cached terms */
@@ -39,9 +41,9 @@ static void append_cache(seq_t val)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 128 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
-            free(cache);
+            mem_free(cache);
             abort();
         }
         cache = tmp;

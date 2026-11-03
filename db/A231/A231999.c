@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 17, u64 n <= 36, u128 n <= 74,
  *            big any n
- * Helpers:   column_valid
+ * Validated: standard, pass, 40 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
    The function a(n) returns the number of such arrays for index n
    (offset 1). */
 #include <stdbool.h>
-#include "../utils/column_valid.h"
+
+static inline bool column_valid(int prev, bool has_prev,
+                                int curr,
+                                int next, bool has_next)
+{
+    for (int r = 0; r < 3; ++r) {
+        int left = has_prev ? ((prev >> r) & 1) : 0;
+        int right = has_next ? ((next >> r) & 1) : 0;
+        int upper_right = (has_next && r > 0) ? ((next >> (r - 1)) & 1) : 0;
+        int lower_left = (has_prev && r < 2) ? ((prev >> (r + 1)) & 1) : 0;
+
+        int cnt = left + right + upper_right + lower_left;
+        int k = (has_prev ? 1 : 0) + (has_next ? 1 : 0) +
+                (has_next && r > 0 ? 1 : 0) +
+                (has_prev && r < 2 ? 1 : 0);
+        if (cnt * 2 > k)        /* strict majority forbidden */
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

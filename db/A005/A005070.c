@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sum of distinct prime divisors p of n where p ≡ 1 (mod 3)
- * Range:     u8 n <= 270, u16 n <= 9392, u32 n <= 9392, u64 n <= 9392,
- *            u128 n <= 9392, big any n
+ * Range:     u8 n <= 270, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 127 terms through n = 9392 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

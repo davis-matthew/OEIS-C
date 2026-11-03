@@ -9,14 +9,24 @@
  *            n‑th (0‑based) entry of T read in row‑major order
  * Range:     i8 n <= 5, i16 n <= 20, i32 n <= 54, i64 n <= 152, i128 n <= 495,
  *            big any n
- * Helpers:   locate_row
+ * Validated: standard, pass, 61 terms through n = 7738 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>          /* size_t */
-#include "../utils/locate_row.h"
+#include "../utils/mem.h"
+
+/* locate the row that contains position n (0‑based indexing) */
+static inline idx_t locate_row(idx_t n)
+{
+    idx_t r = 0;
+    /* r*(r+1)/2 ≤ n < (r+1)*(r+2)/2 */
+    while (((r + 1) * (r + 2)) / 2 <= n) ++r;
+    return r;
+}
 
 static seq_t **triangle = NULL;   /* triangle[row][col] */
 static size_t  max_rows = 0;      /* number of rows currently allocated */
@@ -33,7 +43,7 @@ static void ensure_rows(idx_t need)
 
     for (idx_t r = old; r <= need; ++r)
     {
-        triangle[r] = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+        triangle[r] = mem_new(seq_t, (r + 1));
         if (r == 0)
         {
             triangle[0][0] = (seq_t)1;

@@ -10,7 +10,8 @@
  *            for n>0, T(n,n)=1; a(n) is the flattened triangle
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 36, u64 n <= 66, u128 n <= 153,
  *            big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: standard, pass, 61 terms through n = 8885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/seq_alloc_new_array.h"   /* for seq_alloc_new_array */
+#include <string.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 seq_t a(idx_t n)
 {

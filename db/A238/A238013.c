@@ -7,14 +7,19 @@
  * Formula:   a(n) = A237452(n) + 1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_sq128
+ * Validated: standard, pass, 101 terms through n = 8858 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/sum_sq128.h"
+
+static inline unsigned __int128 sum_sq128(idx_t k)
+{
+    return (__int128)k * (k + 1) * (2 * k + 1) / 6;
+}
 
 seq_t a(idx_t n)
 {

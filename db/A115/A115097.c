@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 12, u32 n <= 28, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
 
         /* Ensure pow10_arr has value for this exponent */
         while (pow_size <= exp) {
-            pow10_arr = (seq_t *)realloc(pow10_arr, (pow_size + 1) * sizeof(seq_t));
+            pow10_arr = mem_resize(seq_t, pow10_arr, (pow_size + 1));
             if (pow_size == 0)
                 pow10_arr[0] = (seq_t)1;
             else

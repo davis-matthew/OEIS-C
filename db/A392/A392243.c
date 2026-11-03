@@ -8,20 +8,21 @@
  *            floor(sqrt(n))
  * Range:     i8 n <= 33, i16 n <= 1023, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 77 terms through n = 9792 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) {
         return 0;
     }
-    idx_t k = _floor_isqrt_u64(n);
+    idx_t k = isqrt(n);
     __int128 kk = k;
     __int128 prod = kk * (kk + 1);        /* k*(k+1) */
     __int128 sq = prod * prod;           /* (k*(k+1))^2 */

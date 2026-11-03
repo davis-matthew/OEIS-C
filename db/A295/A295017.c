@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 29, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_max_digit
+ * Validated: standard, pass, 58 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_max_digit.h"
+#include "../utils/mem.h"
+
+/* Check whether a number has maximum digit exactly 7 and no digit > 7. */
+static bool has_max_digit(seq_t x)
+{
+    int maxd = 0;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d > 7) return false;
+        if (d > maxd) maxd = d;
+        x /= 10;
+    }
+    return maxd == 7;
+}
 
 /* Expanding cache of computed squares. */
 static seq_t *cache = NULL;
@@ -32,7 +46,7 @@ static void grow_cache(idx_t needed)
     if (cache_cap >= needed) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 8;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

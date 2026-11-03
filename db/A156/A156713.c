@@ -11,13 +11,23 @@
  *            99413, 111475, 131957, 148015, 175273
  * Range:     u8 none, u16 n <= 15, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   mul6
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mul6.h"
+#include "../utils/mem.h"
+
+static inline seq_t mul6(seq_t v)
+{
+#if defined(__SIZEOF_INT128__)
+    return (seq_t)(((__uint128_t)v) * 6);
+#else
+    return v * 6;
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +42,7 @@ seq_t a(idx_t n)
     /* allocate and initialise first 22 terms once           */
     if (cache == NULL) {
         cache_size = 22;                      /* indices 0..22 */
-        cache = (seq_t *)malloc((cache_size + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_size + 1));
         if (!cache) exit(1);                  /* allocation failure */
         cache[0] = 0;                         /* unused */
 
@@ -52,7 +62,7 @@ seq_t a(idx_t n)
     /* enlarge cache if n exceeds current size            */
     if (n > cache_size) {
         idx_t new_size = n;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_size + 1));
         if (!tmp) exit(1);
         cache = tmp;
         cache_size = new_size;

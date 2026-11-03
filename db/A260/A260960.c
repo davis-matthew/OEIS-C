@@ -11,7 +11,8 @@
  *            prime(n), or 0 if no such k exists
  * Range:     u8 n <= 1288, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd_int, get_prime, mul_mod64
+ * Validated: standard, pass, 86 terms through n = 9352 (2026-11-01)
+ * Helpers:   factor_u64, gcd_i32, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,61 @@
 #include <stdlib.h>
 
 /* ---- Utility includes ---- */
-#include "../utils/get_prime.h"        /* get_prime(idx_t) */
-#include "../utils/factor_u64.h"      /* factor_u64(uint64_t, uint64_t *, uint64_t *, size_t *) */
-#include "../utils/gcd_int.h"         /* gcd_int(int,int) */
-#include "../utils/mul_mod64.h"       /* mul_mod64(uint64_t,uint64_t,uint64_t) */
+#include "../utils/factor_u64.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/mulmod.h"
+
+/* Return the k‑th prime (k ≥ 1).  On first call the prime list
+   is built incrementally using trial division.  The list is
+   stored in a static array which is expanded as necessary.   */
+static uint32_t get_prime(idx_t k)
+{
+    static uint32_t *pr = NULL;     /* array of primes */
+    static size_t sz   = 0;         /* number of primes stored */
+    static size_t cap  = 0;         /* allocated capacity */
+    static uint32_t cand = 3;       /* candidate after 2 */
+
+    /* initialise the prime table on first use */
+    if (sz == 0) {
+        cap = 8;
+        pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+        if (!pr) abort();
+        sz = 0;
+    }
+
+    /* grow the array until we have at least k primes */
+    while (sz < (size_t)k) {
+        if (sz == 0) {                /* add the first prime */
+            pr[sz++] = 2;
+            continue;
+        }
+
+        /* find the next prime candidate */
+        uint32_t p = cand;
+        bool ok = true;
+        for (size_t i = 0; i < sz; ++i) {
+            uint32_t prime = pr[i];
+            if ((uint64_t)prime * prime > (uint64_t)p) break;
+            if (p % prime == 0) { ok = false; break; }
+        }
+
+        if (!ok) {                    /* not prime – keep searching */
+            cand += 2;                /* only odd numbers remain */
+            continue;
+        }
+
+        /* prime found – store it, grow table if needed */
+        if (sz == cap) {
+            cap <<= 1;
+            pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+            if (!pr) abort();
+        }
+        pr[sz++] = p;
+        cand = p + 2;
+    }
+
+    return pr[(size_t)k - 1];
+}
 
 /* ---- Data structures for base Pythagorean triples ---- */
 typedef struct {
@@ -79,7 +131,7 @@ static void build_base_triples(uint64_t limit)
         if (m2 + 1 >= limit) break; /* smallest n=1 gives hyp=m²+1 */
         for (uint32_t n = 1; n < m; ++n) {
             if (((m - n) & 1) == 0) continue;          /* same parity → skip */
-            if (gcd_int((int)m, (int)n) != 1) continue; /* not coprime → skip */
+            if (gcd_i32((int)m, (int)n) != 1) continue; /* not coprime → skip */
 
             uint64_t hyp = m2 + (uint64_t)n * n;
             if (hyp >= limit) break;                   /* further n increase hyp */
@@ -103,8 +155,8 @@ static uint64_t powmod64(uint64_t a, uint64_t e, uint64_t mod)
 {
     uint64_t r = 1 % mod;
     while (e) {
-        if (e & 1) r = mul_mod64(r, a, mod);
-        a = mul_mod64(a, a, mod);
+        if (e & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;

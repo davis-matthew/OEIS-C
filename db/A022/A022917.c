@@ -9,13 +9,22 @@
  *            floor((n+3)/4)!)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 35, u128 n <= 68,
  *            big any n
- * Helpers:   binom, seq_mul
+ * Validated: standard, pass, 42 terms through n = 923 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,9 +35,9 @@ seq_t a(idx_t n)
     /* d0 = (n + 3)/4;  unused explicitly, it equals n - (a0 + b0 + c0) */
 
     /* Compute the multinomial coefficient as a product of binomials. */
-    seq_t res = binom(n, a0);                               /* C(n, a0) */
-    res = seq_mul(res, binom(n - a0, b0));                  /* * C(n-a0, b0) */
-    res = seq_mul(res, binom(n - a0 - b0, c0));             /* * C(n-a0-b0, c0) */
+    seq_t res = binomial(n, a0);                               /* C(n, a0) */
+    res = seq_mul(res, binomial(n - a0, b0));                  /* * C(n-a0, b0) */
+    res = seq_mul(res, binomial(n - a0 - b0, c0));             /* * C(n-a0-b0, c0) */
 
     return res;
 }

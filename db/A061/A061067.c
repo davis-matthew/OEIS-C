@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 663, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 66 terms through n = 991 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /*  A061067: a(n) = the n‑th prime p_k such that p_k + k is also prime
     (offset 0).  The implementation uses a static list of primes and
     accumulates qualifying primes until the requested index is available. */

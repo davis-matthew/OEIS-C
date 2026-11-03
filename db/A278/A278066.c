@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 203, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 9789 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cached values: cache[0] is kept 0 for the a(k)=0 convention. */
 static seq_t *cache      = NULL;   /* 0..cache_cap-1 allocated */
@@ -37,7 +39,7 @@ static void ensure_capacity(idx_t n)
     while (new_cap < needed)
         new_cap *= 2;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();  /* allocation failure */
 
@@ -47,12 +49,12 @@ static void ensure_capacity(idx_t n)
         /* Zero the newly added part only. */
         size_t offset = cache_cap;
         size_t new_part = new_cap - cache_cap;
-        memset(new_cache + offset, 0, new_part * sizeof(seq_t));
+        mem_set(new_cache + offset, 0, new_part * sizeof(seq_t));
     }
     else
     {
         /* First allocation; zero everything. */
-        memset(new_cache, 0, new_cap * sizeof(seq_t));
+        mem_set(new_cache, 0, new_cap * sizeof(seq_t));
     }
 
     cache      = new_cache;

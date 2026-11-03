@@ -11,12 +11,14 @@
  *            = 664
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 26, u64 n <= 51, u128 n <= 103,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate space for the initial 8 terms (index 0..8). */
         sz = 9;
-        cache = (seq_t *)malloc(sz * sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
         if (cache == NULL)
             return (seq_t)0;              /* allocation failed – give up */
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         size_t new_sz = sz;
         while ((size_t)n >= new_sz)
             new_sz *= 2;          /* double until big enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (tmp == NULL)
             return (seq_t)0;      /* allocation failed – give up */
         cache = tmp;

@@ -8,15 +8,17 @@
  *            and k = 2 + (n - (2 + (r-3)*(r-2)/2)) (i.e. r is the row index
  *            and k is the column index of the entry after removing the first
  *            two columns and the diagonal)
- * Range:     u8 n <= 18, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
+ * Range:     u8 n <= 39, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   _floor_isqrt_u64, binomial
+ * Validated: partial, pass, 62 terms through n = 63 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Compute t = floor( (-1 + sqrt(1+8*(n-2)) ) / 2 ).  We use the
        available integer square‑root routine. */
     idx_t diff = n - 2;                         /* n-2 >= 0 */
-    idx_t sqrt_term = _floor_isqrt_u64(1 + 8 * diff);
+    idx_t sqrt_term = isqrt(1 + 8 * diff);
     idx_t t = (sqrt_term - 1) / 2;
 
     /* r = t + 3 is the row index (starting at 3). */

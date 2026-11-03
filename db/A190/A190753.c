@@ -10,13 +10,20 @@
  *            r = sinh(π/2), s = cosh(π/2)
  * Range:     u8 n <= 31, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   floor_const
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_const.h"
+
+/* Helper: floor(n * c) for positive n using a tiny epsilon to avoid rounding errors. */
+static inline seq_t floor_const(idx_t n, long double c)
+{
+    unsigned long long val = (unsigned long long)(c * (long double)n + 1e-12L);
+    return (seq_t)val;
+}
 
 /* Constants computed from r = sinh(π/2) and s = cosh(π/2) */
 static const long double C1 = 2.509178478740660600L;   /* s */

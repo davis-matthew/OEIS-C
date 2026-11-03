@@ -8,12 +8,14 @@
  *            a(2)=1. (This follows from 1/(1 - x^2 - 6x^3).)
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *cache = NULL;          /* array of computed terms */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t idx)
         new_cap <<= 1;
 
     /* Reallocate (may grow).  Cast needed for C++. */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();
     cache = new_cache;

@@ -7,8 +7,9 @@
  * Keywords:  sign, mult
  * Formula:   a(n) = 1 if n is 2^(even exponent), -1 if n is 2^(odd exponent),
  *            0 otherwise (multiplicative, a(1)=1)
- * Range:     i8 n <= 9452, i16 n <= 9452, i32 n <= 9452, i64 n <= 9452,
- *            i128 n <= 9452, big any n
+ * Range:     i8 n <= 65536, i16 n <= 65536, i32 n <= 65536, i64 n <= 65536,
+ *            i128 n <= 65536, big any n
+ * Validated: standard, pass, 111 terms through n = 9452 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

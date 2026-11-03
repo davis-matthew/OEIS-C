@@ -8,18 +8,20 @@
  *            unordered partitions)
  * Range:     u8 n <= 104, u16 n <= 732, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* array for all values from 0 to n inclusive */
     size_t len = (size_t)n + 1;
-    seq_t *dp = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp)
         return (seq_t)0;                 /* allocation failed */
 
@@ -36,6 +38,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[len - 1];
-    free(dp);
+    mem_free(dp);
     return result;
 }

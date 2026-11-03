@@ -11,7 +11,8 @@
  *            identity Φ₁₅₁₇(x) = (x¹⁵¹⁸ – x¹⁵¹⁷ – x + 1)...
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 1936 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define PHI_DEG 1440            /* φ(1517) = 36·40 */
 
@@ -30,7 +32,7 @@ init_coeffs(void)
 {
     if (coeff_ok) return;
 
-    coeff = (seq_t*)malloc((PHI_DEG + 1) * sizeof(seq_t));
+    coeff = mem_new(seq_t, (PHI_DEG + 1));
     if (!coeff) abort();          /* allocation failure */
 
     for (size_t k = 0; k <= PHI_DEG; ++k) {
@@ -63,7 +65,7 @@ ensure_cache(size_t n)
     size_t new_cap = cache_cap ? cache_cap : 32;
     while (new_cap <= n) new_cap <<= 1;
 
-    seq_t *new_ptr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) abort();         /* allocation failure */
     cache = new_ptr;
     cache_cap = new_cap;

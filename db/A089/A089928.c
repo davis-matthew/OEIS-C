@@ -9,13 +9,15 @@
  *            a(3)=10
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 50, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise first four terms */
     if (size == 0) {
         size = 4;
-        memo = (seq_t *)malloc(size * sizeof(seq_t));
+        memo = mem_new(seq_t, size);
         if (!memo) return (seq_t)0;          /* out of memory – unlikely for the test harness */
         memo[0] = (seq_t)1;
         memo[1] = (seq_t)2;
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
     for (idx_t i = size; i <= n; ++i) {
         if (i == size) {
             /* enlarge buffer to hold up to term n */
-            seq_t *newmemo = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-            memcpy(newmemo, memo, size * sizeof(seq_t));
-            free(memo);
+            seq_t *newmemo = mem_new(seq_t, (n + 1));
+            mem_copy(newmemo, memo, size * sizeof(seq_t));
+            mem_free(memo);
             memo = newmemo;
             size = n + 1;
         }

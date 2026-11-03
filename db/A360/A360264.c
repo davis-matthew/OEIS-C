@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 1510, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 72 terms through n = 9628 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
  * where mass(k/n) is the sum of the quotients in the Euclidean
  * algorithm that computes gcd(k,n).
  */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

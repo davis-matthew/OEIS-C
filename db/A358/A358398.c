@@ -11,12 +11,32 @@
  *            inclusion–exclusion over the integer roots a of the cubic
  * Range:     u8 n <= 4, u16 n <= 67, u32 n <= 1250, u64 n <= 1250,
  *            u128 n <= 1250, big any n
- * Helpers:   count_root
+ * Validated: standard, pass, 61 terms through n = 1203 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_root.h"
+#include <stdlib.h>
+/* count polynomials with a given integer root a */
+static inline seq_t count_root(idx_t n, int64_t a) {
+    if (a == 0) {
+        int64_t m = 2 * (int64_t)n + 1;
+        return (seq_t)m * (seq_t)m;
+    }
+    int64_t abs_a = a > 0 ? a : -a;
+    int64_t k = (int64_t)n / abs_a;   /* floor(n / |a|) */
+    seq_t total = 0;
+    for (int64_t r = -(int64_t)n; r <= (int64_t)n; ++r) {
+        int64_t base = -a * r - a * a;   /* s + a r + a^2 */
+        int64_t low  = base - k;
+        int64_t high = base + k;
+        if (low  < -(int64_t)n) low  = -(int64_t)n;
+        if (high >  (int64_t)n) high =  (int64_t)n;
+        if (high >= low) total += (seq_t)(high - low + 1);
+    }
+    return total;
+}
 /* integer floor division, truncating toward -∞ */
 static inline int64_t floor_div(int64_t a, int64_t b) {
     int64_t q = a / b;

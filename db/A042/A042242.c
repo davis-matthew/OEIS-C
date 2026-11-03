@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 15, u64 n <= 34, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Sequence: numerators of convergents to sqrt(647)
    Recurrence: a(0)=25; a(1)=51; for n≥2,
@@ -39,7 +41,7 @@ static void ensure_capacity(idx_t needed)
     if (cache_len >= cache_cap)
     {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 32;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -52,7 +54,7 @@ static void init_cache(void)
     initialized = true;
 
     cache_cap = 32;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
 
     cache[0] = (seq_t)25;           /* a(0) */
     cache_len = 1;

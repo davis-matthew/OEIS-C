@@ -9,7 +9,8 @@
  *            primes up to prime(n+1) and evaluates the product directly
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   upper_bound_prime
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/upper_bound_prime.h"
+
+/* ---- Upper bound for the (n‑th) prime ----------------- */
+static inline idx_t upper_bound_prime(idx_t n)
+{
+    /* For n < 6 the 7th prime is 17, so 15 is a safe bound.
+       For larger n, p_n < n*15 is comfortably above the 10000‑th prime. */
+    if (n < 6) return 15;
+    return n * 15;
+}
 
 /* Sequencing types are provided by the build system.  Do not define them here. */
 /* idx_t   – unsigned 64‑bit index type

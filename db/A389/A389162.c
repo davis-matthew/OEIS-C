@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = sum of unitary divisors of n minus sum of squarefree
  *            divisors of n
- * Range:     u8 n <= 239, u16 n <= 9443, u32 n <= 9443, u64 n <= 9443,
- *            u128 n <= 9443, big any n
+ * Range:     u8 n <= 239, u16 n <= 28829, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 112 terms through n = 9443 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Sum of unitary divisors of n */

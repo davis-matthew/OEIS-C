@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 9872, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 8785 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Build the sequence once and keep it for later requests. */
 static bool  initialized = false;
@@ -67,7 +69,7 @@ static void build_sequence(void)
 
     /* Allocate initial capacity for sequence array. */
     seq_cap = 256;
-    seq     = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq     = mem_new(seq_t, seq_cap);
     if (!seq) { free(sigma); free(cnt); return; }
 
     /* Collect numbers with unique σ. */
@@ -75,7 +77,7 @@ static void build_sequence(void)
         if (cnt[sigma[i]] == 1) {
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)i;
         }

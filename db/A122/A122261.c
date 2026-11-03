@@ -8,16 +8,25 @@
  * Formula:   a(n) = 1 if all prime factors of n are Pierpont primes,
  *            otherwise 0. a(1) = 1. A Pierpont prime is a prime p such that
  *            p-1 has no prime factor larger than 3
- * Range:     u8 n <= 9370, u16 n <= 9370, u32 n <= 9370, u64 n <= 9370,
- *            u128 n <= 9370, big any n
- * Helpers:   isPierpontPrime
+ * Range:     u8 n <= 12289, u16 n <= 12289, u32 n <= 12289, u64 n <= 12289,
+ *            u128 n <= 12289, big any n
+ * Validated: standard, pass, 121 terms through n = 9370 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPierpontPrime.h"
+
+static inline bool isPierpontPrime(uint64_t p)
+{
+    if (p < 2) return false;
+    uint64_t rem = p - 1;
+    while (rem % 2 == 0) rem /= 2;
+    while (rem % 3 == 0) rem /= 3;
+    return rem == 1;
+}
 
 seq_t a(idx_t n)
 {

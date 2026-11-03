@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   subblock_value
+ * Validated: standard, pass, 31 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,27 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/subblock_value.h"
+#include "../utils/mem.h"
+
+/* Compute the value of a single 2×2 subblock:
+   v = sorted(a,b,c,d)
+   result = v3 + v2 + v0 – v1
+   (max + upper‑median + min – lower‑median) */
+static inline uint8_t subblock_value(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+{
+    uint8_t v[4] = { a, b, c, d };
+    /* simple insertion sort – guarantees correct order */
+    for (int i = 1; i < 4; ++i) {
+        int j = i;
+        while (j > 0 && v[j] < v[j - 1]) {
+            uint8_t t = v[j];
+            v[j] = v[j - 1];
+            v[j - 1] = t;
+            --j;
+        }
+    }
+    return v[3] + v[2] + v[0] - v[1];
+}
 
 /* Row digits (base‑4 representation) for each of the 256 rows */
 static uint8_t row_digits[256][4];
@@ -133,7 +154,7 @@ static void init_data(void)
 
     /* 6. Allocate cache and store a(1). */
     a_cache_size = 2;  /* indices 0..1 */
-    a_cache = (seq_t *)malloc(a_cache_size * sizeof(seq_t));
+    a_cache = mem_new(seq_t, a_cache_size);
     a_cache[0] = 0;      /* unused */
     a_cache[1] = sum1;
     a_cache_len = 1;
@@ -154,7 +175,7 @@ seq_t a(idx_t n)
     while (a_cache_len < n) {
         /* zero the next table */
         for (int s = 0; s < 7; ++s)
-            memset(nxt[s], 0, 256 * sizeof(seq_t));
+            mem_set(nxt[s], 0, 256 * sizeof(seq_t));
 
         /* propagate counts: from each row i to each neighbor j */
         for (int s = 0; s < 7; ++s) {
@@ -170,7 +191,7 @@ seq_t a(idx_t n)
 
         /* copy back to cur */
         for (int s = 0; s < 7; ++s)
-            memcpy(cur[s], nxt[s], 256 * sizeof(seq_t));
+            mem_copy(cur[s], nxt[s], 256 * sizeof(seq_t));
 
         ++current_n;   /* one more transition performed */
 
@@ -183,7 +204,7 @@ seq_t a(idx_t n)
         /* enlarge cache if necessary */
         if (a_cache_len + 1 >= a_cache_size) {
             size_t new_size = a_cache_size * 2;
-            seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
             a_cache = tmp;
             a_cache_size = new_size;
         }

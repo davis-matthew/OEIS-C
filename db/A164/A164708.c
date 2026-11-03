@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   has_two_different_runs
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,45 @@
    returns the nth such number (1‑based). */
 
 #include <stdbool.h>
-#include "../utils/has_two_different_runs.h"
+
+/* Test whether a number has at least two runs of 1's with different lengths. */
+static bool has_two_different_runs(seq_t x)
+{
+    int first_run_len = 0;   /* length of the first run of 1's (0 means not yet seen) */
+    int diff_found   = 0;    /* flag set when a run of a different length is found */
+    int one_runs     = 0;    /* number of runs of 1's seen */
+    int run_len      = 0;    /* current run length */
+    bool in_run      = false;/* true while inside a run of 1's */
+
+    while (x != (seq_t)0) {
+        if (x & (seq_t)1) {          /* current bit is 1 */
+            run_len++;
+            in_run = true;
+        } else {                     /* current bit is 0 */
+            if (in_run) {            /* end of a run of 1's */
+                one_runs++;
+                if (first_run_len == 0)
+                    first_run_len = run_len;
+                else if (run_len != first_run_len)
+                    diff_found = 1;
+                run_len = 0;
+                in_run = false;
+            }
+        }
+        x >>= 1;                       /* shift to next bit */
+    }
+
+    /* If the number ends with a run of 1's, handle it. */
+    if (in_run) {
+        one_runs++;
+        if (first_run_len == 0)
+            first_run_len = run_len;
+        else if (run_len != first_run_len)
+            diff_found = 1;
+    }
+
+    return (one_runs >= 2) && diff_found;
+}
 
 seq_t a(idx_t n)
 {

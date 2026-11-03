@@ -13,14 +13,16 @@
  *            difference d
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 /* Generate the first few primes on demand; we need only the first ~200. */
 static uint64_t primes[2048];
@@ -32,7 +34,7 @@ static void generate_primes_up_to(size_t needed)
         return;
     uint64_t cand = (prime_cnt == 0 ? 2 : primes[prime_cnt - 1] + 1);
     while (prime_cnt < needed) {
-        if (is_prime_small((seq_t)cand))
+        if (is_prime_seq((seq_t)cand))
             primes[prime_cnt++] = cand;
         cand++;
     }
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     /* Count how many consecutive terms of the progression are prime. */
     idx_t len = 0;
     uint64_t cand = start;
-    while (is_prime_small((seq_t)cand)) {
+    while (is_prime_seq((seq_t)cand)) {
         len++;
         cand += d;
     }

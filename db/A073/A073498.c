@@ -8,12 +8,14 @@
  *            a(0)=3, a(1)=4, a(2)=4
  * Range:     i8 n <= 5, i16 n <= 14, i32 n <= 28, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     {
         /* enlarge cache */
         idx_t old = cached;                    /* number of already stored values */
-        seq_t *new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         if (!new_cache)
         {
             abort();                          /* allocation failure */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         }
 
         /* free previous buffer */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cached = n + 1;                        /* new size */
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Reverse the bits of x, ignoring leading zeros. */
 static seq_t reverse_bits(seq_t x)
@@ -50,7 +52,7 @@ static void ensure_cap(seq_t **arr, size_t *cap, size_t needed)
     {
         size_t newcap = (*cap == 0) ? 4 : *cap * 2;
         while (newcap < needed) newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
         if (!tmp) abort();
         *arr = tmp;
         *cap = newcap;

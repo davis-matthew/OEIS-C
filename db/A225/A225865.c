@@ -10,13 +10,16 @@
  *            i)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,11 +40,11 @@ seq_t a(idx_t n)
 
         /* reallocate arrays (C++ requires explicit cast) */
         mu      = (int8_t*)realloc(mu,      sizeof(int8_t)  * (size_t)new_size);
-        pow2v   = (seq_t*)realloc(pow2v,   sizeof(seq_t)  * (size_t)new_size);
-        sumPos  = (seq_t*)realloc(sumPos,  sizeof(seq_t)  * (size_t)new_size);
-        sumNeg  = (seq_t*)realloc(sumNeg,  sizeof(seq_t)  * (size_t)new_size);
-        L       = (seq_t*)realloc(L,       sizeof(seq_t)  * (size_t)new_size);
-        A       = (seq_t*)realloc(A,       sizeof(seq_t)  * (size_t)new_size);
+        pow2v   = mem_resize(seq_t, pow2v, (size_t)new_size);
+        sumPos  = mem_resize(seq_t, sumPos, (size_t)new_size);
+        sumNeg  = mem_resize(seq_t, sumNeg, (size_t)new_size);
+        L       = mem_resize(seq_t, L, (size_t)new_size);
+        A       = mem_resize(seq_t, A, (size_t)new_size);
 
         /* 1. Möbius sieve (linear) up to 'need' */
         for (idx_t i = 0; i < new_size; ++i) mu[i] = 0;   /* clear previous data */

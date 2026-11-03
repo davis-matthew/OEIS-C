@@ -11,13 +11,40 @@
  *            neighbor's coordinates, converts them back...
  * Range:     u8 none, u16 none, u32 n <= 12, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   value_at
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/value_at.h"
+
+/* Convert Cartesian coordinates (x,y) back to the number located there
+   in the square spiral. */
+static inline seq_t value_at(int64_t x, int64_t y)
+{
+    if (x == 0 && y == 0) return 1;
+
+    int64_t absx = (x >= 0) ? x : -x;
+    int64_t absy = (y >= 0) ? y : -y;
+    idx_t L = (absx > absy) ? absx : absy;             /* ring number */
+
+    seq_t base = (seq_t)(2 * L - 1) * (2 * L - 1);  /* (2L-1)^2 */
+    seq_t val  = base + 1;                          /* first number of the ring */
+
+    seq_t d;  /* offset along this ring */
+    if (x == (int64_t)L && y != -(int64_t)L) {                     /* right side, exclude bottom corner */
+        d = (seq_t)(y + (L - 1));
+    } else if (y == (int64_t)L) {                                 /* top side */
+        d = (seq_t)(2 * L + (L - 1 - x));
+    } else if (x == -(int64_t)L) {                                /* left side */
+        d = (seq_t)(4 * L + (L - 1 - y));
+    } else {                                                       /* bottom side */
+        d = (seq_t)(6 * L + (x + (L - 1)));
+    }
+
+    return val + d;
+}
 
 static inline idx_t isqrt_idx_t(idx_t n)
 {

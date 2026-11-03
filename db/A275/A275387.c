@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{d1|n, d2|n, d1<d2} (1-[gcd(d1,d2)=1])
  * Range:     u8 n <= 436, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 98 terms through n = 9688 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

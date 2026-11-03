@@ -13,7 +13,8 @@
  *            = 1...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   a6573_small_prime, alloc_zero, gcd_seq, release, seq_is_big
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   gcd, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +22,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd_seq.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/a6573_small_prime.h"
+#include "../utils/gcd.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
 
 typedef unsigned __int128 u128;
 
@@ -72,7 +90,7 @@ static seq_t a6573_big(idx_t r)
     N = (P > Q) ? P - Q : Q - P;
     if (N == 0) res = 1;
     else {
-        g = gcd_seq(N, M);
+        g = gcd(N, M);
         res = M / g;
     }
     release(D, r + 1);
@@ -90,7 +108,7 @@ static seq_t a6573_fixed(idx_t r)
     for (p = 2; p <= (r - 1 > 2 ? r - 1 : 2); p++) {
         u128 mod, pk, P, Q, x;
         uint64_t t;
-        if (!a6573_small_prime(p)) continue;
+        if (!is_prime_u64(p)) continue;
         E = (p == 2) ? r - 1 : 0;
         for (t = p; t <= r - 1; t *= p) E += (r - 1) / t;
         if (E == 0) continue;

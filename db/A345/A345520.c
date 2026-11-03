@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9134 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache of found terms */
 static seq_t *cache          = NULL;   /* sorted list of sums with ≥2 representations */
@@ -70,7 +72,7 @@ static void ensure_cache(idx_t n)
 
         /* Collect sums that have at least two representations. */
         size_t vec_cap = rowsz / 100 + 10;
-        seq_t *vec = (seq_t *)malloc(vec_cap * sizeof(seq_t));
+        seq_t *vec = mem_new(seq_t, vec_cap);
         if (!vec) { free(dp); return; }
         size_t vec_len = 0;
 
@@ -79,8 +81,8 @@ static void ensure_cache(idx_t n)
             if (row7[s] >= 2) {
                 if (vec_len == vec_cap) {
                     vec_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(vec, vec_cap * sizeof(seq_t));
-                    if (!tmp) { free(vec); free(dp); return; }
+                    seq_t *tmp = mem_resize(seq_t, vec, vec_cap);
+                    if (!tmp) { mem_free(vec); free(dp); return; }
                     vec = tmp;
                 }
                 vec[vec_len++] = (seq_t)s;
@@ -91,12 +93,12 @@ static void ensure_cache(idx_t n)
 
         /* If we have enough terms, store the list in the cache. */
         if (vec_len >= (size_t)n) {
-            seq_t *new_cache = (seq_t *)malloc(vec_len * sizeof(seq_t));
-            if (!new_cache) { free(vec); return; }
+            seq_t *new_cache = mem_new(seq_t, vec_len);
+            if (!new_cache) { mem_free(vec); return; }
 
             for (size_t i = 0; i < vec_len; ++i) new_cache[i] = vec[i];
-            free(vec);
-            if (cache) free(cache);
+            mem_free(vec);
+            if (cache) mem_free(cache);
             cache = new_cache;
             cache_len = vec_len;
             cache_limit = limit;
@@ -104,7 +106,7 @@ static void ensure_cache(idx_t n)
         }
 
         /* Not enough terms yet: discard vector, enlarge limit, and retry. */
-        free(vec);
+        mem_free(vec);
         limit <<= 1;               /* double current bound */
     }
 }

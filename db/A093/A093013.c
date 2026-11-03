@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 3893, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 76 terms through n = 4964 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Return the n‑th term of A093013 (offset 1). */
 seq_t a(idx_t n)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             /* Ensure the array has enough capacity. */
             if (cache_cnt >= cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : (cache_cap * 2);
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* Allocation failure – give up gracefully. */
                     /* The caller will receive an incorrect value, but

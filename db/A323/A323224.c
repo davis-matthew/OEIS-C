@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
    and return T(s,k). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* allocate a (s+1)×(s+1) table for T */
     idx_t dim = s + 1;
     size_t size = (size_t)dim * (size_t)dim;
-    seq_t *T = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *T = mem_new(seq_t, size);
     if (!T)
         abort(); /* memory failure */
 
@@ -63,6 +65,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = T[(size_t)s * dim + k];
-    free(T);
+    mem_free(T);
     return result;
 }

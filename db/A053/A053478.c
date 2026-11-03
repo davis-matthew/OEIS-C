@@ -9,13 +9,17 @@
  *            totient until 1) * Implementation memoises the results
  * Range:     u8 n <= 96, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 82 terms through n = 9673 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"   /* provides static seq_t phi(idx_t m) */
+#include <stdint.h>
 #include <stdlib.h>
+#include "../utils/totient.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache[n] holds a(n) for n ≥ 1.  cache[0] unused. */
 static seq_t *cache   = NULL;
@@ -32,7 +36,7 @@ ensure_cache(idx_t n)
     if (new_size < n + 1)
         new_size = n + 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp)
         exit(EXIT_FAILURE);   /* allocation failed */
 
@@ -56,7 +60,7 @@ a(idx_t n)
         return cache[n];      /* already computed */
 
     /* compute phi(n) with the utility */
-    seq_t phi_val = phi(n);    /* phi returns seq_t; φ(n) ≤ n */
+    seq_t phi_val = totient(n);    /* phi returns seq_t; φ(n) ≤ n */
     idx_t phi_n   = (idx_t)phi_val;
 
     seq_t result = (seq_t)n + a(phi_n);

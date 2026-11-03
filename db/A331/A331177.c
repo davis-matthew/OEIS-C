@@ -10,15 +10,40 @@
  *            where A319677(n) = n / gcd(n, Uphi(n)) and Uphi is the unitary
  *            totient (A047994). The sequence is computed by a simple O(n·√n)
  *            algorithm
- * Range:     u8 n <= 358, u16 n <= 9475, u32 n <= 9475, u64 n <= 9475,
- *            u128 n <= 9475, big any n
- * Helpers:   gcd, unitary_totient
+ * Range:     u8 n <= 358, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9475 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/unitary_totient.h"
+
+/* Unitary totient: Uphi(p^e) = p^e – 1 and multiplicative. */
+static seq_t unitary_totient(idx_t n)
+{
+    if (n <= 1) return 1;
+    seq_t result = 1;
+    idx_t temp = n;
+    for (idx_t p = 2; p * p <= temp; ++p) {
+        if (temp % p == 0) {
+            idx_t power = 1;
+            while (temp % p == 0) {
+                temp /= p;
+                power *= p;           /* p^e */
+            }
+            seq_t term = (seq_t)power - (seq_t)1;
+            result *= term;
+        }
+    }
+    if (temp > 1) {
+        seq_t term = (seq_t)temp - (seq_t)1;
+        result *= term;
+    }
+    return result;
+}
 
 /* A319677(n) = n / gcd(n, Uphi(n)) */
 static seq_t a319677_value(idx_t n)

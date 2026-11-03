@@ -10,12 +10,14 @@
  *            295255, a(13) = 1388322
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 19, u64 n <= 35, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         while (newcap < need)
             newcap *= 2;
         /* C++ requires an explicit cast from void* to seq_t* */
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return 0;   /* allocation failure: return zero */
         cache = tmp;
         cap = newcap;

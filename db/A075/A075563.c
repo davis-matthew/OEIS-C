@@ -12,7 +12,8 @@
  *            satisfies the congruence. This reproduces A075563
  * Range:     u8 n <= 16, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>          /* for log() in prime estimation */
+#include "../utils/mem.h"
 
 /* Global state shared by multiple calls */
 static bool primes_inited = false;
@@ -91,9 +93,9 @@ static void ensure_cache_capacity(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();
-    memset(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+    mem_set(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
     cache = new_cache;
     cache_cap = new_cap;
 }

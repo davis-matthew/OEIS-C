@@ -11,14 +11,15 @@
  *            is the number of cycles induced on {0,1}^n (gcd(l,0) = l)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   sw_gcd, sw_pow
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sw_gcd.h"
-#include "../utils/sw_pow.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ipow_idx.h"
 
 static int sw_parts[256];
 static int sw_np;
@@ -30,14 +31,14 @@ static void sw_process(void) {
     int i;
     for (i = 0; i < sw_np; i++) {
         uint64_t l = (uint64_t)sw_parts[i];
-        m = m / sw_gcd(m, l) * l;
+        m = m / gcd_u64(m, l) * l;
     }
     unsigned __int128 s = 0;
     uint64_t j;
     for (j = 0; j < m; j++) {
         int e = 0;
         for (i = 0; i < sw_np; i++)
-            e += (int)sw_gcd((uint64_t)sw_parts[i], j);
+            e += (int)gcd_u64((uint64_t)sw_parts[i], j);
         s += ((unsigned __int128)1) << e;
     }
     idx_t c = (idx_t)(s / m);
@@ -55,7 +56,7 @@ static void sw_process(void) {
             i++;
         }
     }
-    sw_total += (sw_fact / z) * sw_pow((seq_t)8, c);
+    sw_total += (sw_fact / z) * ipow_idx((seq_t)8, c);
 }
 
 static void sw_rec(int rem, int maxp) {

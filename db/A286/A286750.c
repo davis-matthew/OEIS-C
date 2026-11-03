@@ -10,13 +10,15 @@
  *            digit is 4 if the letter is a and 3 if the letter is b
  * Range:     u8 n <= 110, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 8394 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     if (arr_len == 0) {
         /* store the first term a(1)=3 */
         arr_cap = 16;
-        arr = (seq_t*)malloc(arr_cap * sizeof(seq_t));
+        arr = mem_new(seq_t, arr_cap);
         arr[0] = (seq_t)3;
         arr_len = 1;
         last_val = (seq_t)3;
@@ -82,7 +84,7 @@ seq_t a(idx_t n) {
         seq_t new_val = last_val + diff_val;
         if (arr_len >= arr_cap) {
             size_t new_cap = arr_cap * 2;
-            seq_t *tmp = (seq_t*)realloc(arr, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, arr, new_cap);
             if (!tmp) { /* allocation failed – abort */
                 exit(1);
             }

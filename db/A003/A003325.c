@@ -6,16 +6,21 @@
  * Keywords:  nonn, easy, nice
  * Formula:   search -- list all a^3 + b^3 <= X with 1 <= a <= b, sort and
  *            dedupe, enlarging X until at least n distinct sums exist
- * Range:     u8 n <= 18, u16 n <= 706, u32 n <= 9957, u64 n <= 9957,
- *            u128 n <= 9957, big any n
- * Helpers:   a3325_cmp
+ * Range:     u8 n <= 18, u16 n <= 706, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 69 terms through n = 9957 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a3325_cmp.h"
+
+static int a3325_cmp(const void *p, const void *q) {
+	uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+	return (x > y) - (x < y);
+}
 
 static uint64_t *a3325_tab = NULL;
 static idx_t a3325_cnt = 0;

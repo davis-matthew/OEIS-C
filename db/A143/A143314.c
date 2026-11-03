@@ -9,7 +9,8 @@
  *            156x^2 + 215x^3 + 169x^4 + 65x^5 + 12x^6 + x^7) )^4 )
  * Range:     u8 n <= 3, u16 n <= 2, u32 n <= 7, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   binom
+ * Validated: full, pass, 52 terms through n = 52 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+
+/* Compute binomial coefficient C(a,b) using multiplicative formula. */
+static seq_t binom(idx_t a, idx_t b) {
+    if (b > a) return 0;
+    if (b > a - b) b = a - b;          /* use symmetry */
+    seq_t res = 1;
+    for (idx_t i = 1; i <= b; ++i) {
+        res *= (seq_t)(a - b + i);
+        res /= (seq_t)i;
+    }
+    return res;
+}
 
 static bool ready = false;
 static seq_t f4[53];

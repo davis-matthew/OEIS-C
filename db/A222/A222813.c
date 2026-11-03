@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 87, u32 n <= 4179, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   runs_ok
+ * Validated: standard, pass, 70 terms through n = 9796 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/runs_ok.h"
+#include "../utils/mem.h"
+
+/* Check that every run of 0's or 1's has length at least 2 */
+static bool runs_ok(seq_t val, int L)
+{
+    int lastBit = -1;
+    int runLen  = 0;
+    for (int pos = L - 1; pos >= 0; --pos) {
+        int bit = (int)((val >> pos) & 1);
+        if (bit == lastBit) {
+            runLen++;
+        } else {
+            if (lastBit != -1 && runLen < 2) return false;
+            lastBit = bit;
+            runLen = 1;
+        }
+    }
+    return runLen >= 2;
+}
 
 /* Helper: reverse the lowest 'n' bits of x */
 static uint64_t reverse_bits(uint64_t x, int n)
@@ -58,7 +77,7 @@ static void ensure_cache_space(size_t needed)
     if (needed <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap << 1 : 4;
     while (new_cap < needed) new_cap <<= 1;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 
@@ -76,7 +95,7 @@ seq_t a(idx_t n)
 
     /* Initialize cache on first call */
     if (terms == NULL) {
-        terms = (seq_t *)malloc(64 * sizeof(seq_t));
+        terms = mem_new(seq_t, 64);
         terms_cap = 64;
         terms_len = 0;
         last_length = 1;

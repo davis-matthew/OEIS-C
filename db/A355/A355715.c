@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 9568, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 85 terms through n = 9894 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,9 @@
 /* Include the utility that gives the bit length of a seq_t value. */
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Per‑bit zero/one counters and their dynamic capacity. */
 static idx_t *count0 = NULL;
@@ -52,7 +55,7 @@ static void ensure_count_capacity(idx_t bits)
 /* Update the per‑bit counters with all bits of the given value. */
 static void add_to_counts(seq_t v)
 {
-    idx_t bl = bitlen_seq_t(v);                     /* bit length of v */
+    idx_t bl = bit_length(v);                     /* bit length of v */
     if (bl == 0) bl = 1;                            /* treat 0 as one bit */
     ensure_count_capacity(bl);
 
@@ -76,7 +79,7 @@ seq_t a(idx_t n)
     /* First call: initialise cache and count arrays. */
     if (cache == NULL) {
         cache_cap   = 16;
-        cache       = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
         cache[0]    = (seq_t)0;                      /* a(0) = 0 */
         cache_size  = 1;
         add_to_counts(cache[0]);                    /* include a(0) in counts */
@@ -85,7 +88,7 @@ seq_t a(idx_t n)
     /* Compute terms up to n (inclusive). */
     while (cache_size <= n) {
         idx_t val = cache_size;                     /* the integer whose a() we need */
-        idx_t bl  = bitlen_seq_t((seq_t)val);
+        idx_t bl  = bit_length((seq_t)val);
         if (bl == 0) bl = 1;                        /* treat 0 as one bit */
 
         /* Ensure counts arrays are large enough for this bit length. */
@@ -104,7 +107,7 @@ seq_t a(idx_t n)
         /* Grow cache if necessary. */
         if (cache_size == cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         cache[cache_size++] = (seq_t)sum;           /* store a(n) */

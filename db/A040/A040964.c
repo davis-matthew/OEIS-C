@@ -9,13 +9,34 @@
  *            and for n>0 it yields the periodic continued fraction terms
  * Range:     u8 none, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +52,7 @@ seq_t a(idx_t n)
     if (period == NULL) {
         /* Estimate an initial capacity; the period for sqrt(996) is short. */
         idx_t cap = 64;
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         if (period == NULL) return 0; /* allocation failure */
 
         seq_t m = 0;
@@ -50,8 +71,8 @@ seq_t a(idx_t n)
             /* Grow the storage if needed */
             if (len == cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(period, cap * sizeof(seq_t));
-                if (tmp == NULL) { free(period); return 0; }
+                seq_t *tmp = mem_resize(seq_t, period, cap);
+                if (tmp == NULL) { mem_free(period); return 0; }
                 period = tmp;
             }
             period[len++] = a_cur;

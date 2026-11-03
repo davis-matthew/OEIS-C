@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1280, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reserve_cache
+ * Validated: standard, pass, 57 terms through n = 9695 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/reserve_cache.h"
+#include "../utils/mem.h"
+
+/* Ensure that the cache has room for at least 'needed' elements. */
+static void reserve_cache(size_t needed)
+{
+    static size_t cap = 0;
+    if (needed > cap) {
+        size_t newcap = cap ? cap * 2 : 16;
+        if (newcap < needed) newcap = needed;
+        static seq_t *cache = NULL;
+        seq_t *newptr = mem_resize(seq_t, cache, newcap);
+        if (!newptr) abort();          /* very unlikely for requested sizes */
+        cache = newptr;
+        cap   = newcap;
+    }
+}
 
 /* Test whether a number contains the adjacent digit pair 03 or 30. */
 static bool has_adjacent_03_30(seq_t x)
@@ -59,7 +75,7 @@ seq_t a(idx_t n)
                 if (count == cap) {                 /* grow cache */
                     size_t newcap = cap ? cap * 2 : 16;
                     if (newcap < count + 1) newcap = count + 1;
-                    seq_t *newp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                    seq_t *newp = mem_resize(seq_t, cache, newcap);
                     if (!newp) abort();
                     cache = newp;
                     cap   = newcap;

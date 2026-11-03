@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   ensure_b
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/ensure_b.h"
+#include "../utils/mem.h"
+
+/* Resize the permutation array so that indices 0…idx are available.  */
+static inline void ensure_b(seq_t **arr, idx_t *cap, idx_t idx)
+{
+    if (idx < *cap) return;
+    idx_t new_cap = idx + 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();                     /* allocation failure */
+    *arr = tmp;
+    for (idx_t i = *cap; i < new_cap; ++i) (*arr)[i] = (seq_t)i;
+    *cap = new_cap;
+}
 
 /* Return the n-th term of the sequence (1‑based).  */
 seq_t a(idx_t n)

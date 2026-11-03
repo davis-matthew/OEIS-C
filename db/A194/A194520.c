@@ -9,12 +9,14 @@
  *            a(9) = 3, a(10) = 4, a(11) = 1, a(12) = 4
  * Range:     i8 n <= 91, i16 n <= 91, i32 n <= 91, i64 n <= 91, i128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold up to n terms (n is 1‑based) */
     if (cache_cap < n) {
         size_t new_cap = (n > 16) ? (size_t)(n * 2) : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

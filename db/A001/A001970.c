@@ -12,17 +12,46 @@
  *            1/(1-x^k)^p(k) = Sum_j C(p(k)+j-1, j) x^(k*j), binom...
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 37, u64 n <= 86, u128 n <= 197,
  *            big any n
- * Helpers:   a1970_grow, a1970_inv, a1970_is_fixed, a1970_width
+ * Validated: standard, pass, 52 terms through n = 8910 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a1970_grow.h"
-#include "../utils/a1970_inv.h"
-#include "../utils/a1970_is_fixed.h"
-#include "../utils/a1970_width.h"
+#include "../utils/mem.h"
+
+static seq_t *a1970_grow(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *r = mem_new(seq_t, (size_t)newlen);
+    for (idx_t i = 0; i < oldlen; i++) r[i] = old[i];
+    if (old) mem_free(old);
+    return r;
+}
+
+static seq_t a1970_inv(seq_t t) {
+    seq_t x = t;
+    for (int i = 0; i < 8; i++) {
+        seq_t tx = t * x;
+        seq_t two = 2;
+        seq_t d = two - tx;
+        x = x * d;
+    }
+    return x;
+}
+
+static int a1970_is_fixed(void) {
+    seq_t m = 0;
+    m = m - 1;
+    return m > 0;
+}
+
+static int a1970_width(void) {
+    int w = 0;
+    seq_t x = 1;
+    while (x != 0) { x = x << 1; w++; }
+    return w;
+}
 
 #define A1970_FMAX 400
 

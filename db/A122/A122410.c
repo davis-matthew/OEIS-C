@@ -9,15 +9,16 @@
  *            v_p(n) is the exponent of prime p in n. This follows from the
  *            equivalent expression a(n) = Sum_{d|n, d prime power} v_d *
  *            φ(n/d), with v_d = exponent of the prime contained in d
- * Range:     u8 n <= 295, u16 n <= 7980, u32 n <= 7980, u64 n <= 7980,
- *            u128 n <= 7980, big any n
- * Helpers:   phi
+ * Range:     u8 n <= 295, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 97 terms through n = 7980 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi.h"   /* defines: static seq_t phi(idx_t m) */
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
             }
             /* ((p^v - 1)/(p - 1)) * φ(nn / p^v) */
             seq_t term1  = ((seq_t)pv - 1) / ((seq_t)p - 1);
-            seq_t phi_v  = phi((idx_t)(nn / pv));
+            seq_t phi_v  = totient((idx_t)(nn / pv));
             result += term1 * phi_v;
         }
     }
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
         uint64_t p  = temp;            /* remaining prime */
         uint64_t pv = p;               /* p^1 */
         seq_t term1 = ((seq_t)pv - 1) / ((seq_t)p - 1);   /* equals 1 */
-        seq_t phi_v = phi((idx_t)(nn / pv));
+        seq_t phi_v = totient((idx_t)(nn / pv));
         result += term1 * phi_v;
     }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 8737 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed terms (P‑1). */
 static seq_t *cached_terms = NULL;   /* array of terms */
@@ -36,7 +38,7 @@ static void _ensure_capacity(size_t needed)
     size_t new_cap = cached_cap ? cached_cap * 2 : needed;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *new_terms = (seq_t *)realloc(cached_terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, cached_terms, new_cap);
     if (!new_terms) {
         /* Allocation failed – aborting as the build will failure. */
         exit(EXIT_FAILURE);

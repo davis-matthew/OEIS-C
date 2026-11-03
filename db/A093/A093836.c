@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 145, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt_u64
+ * Validated: standard, pass, 62 terms through n = 9276 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <math.h>
-#include "../utils/floor_sqrt_u64.h"
+#include "../utils/isqrt_u64.h"
 
 /* Euclidean gcd for 64‑bit integers */
 static inline uint64_t gcd_u64(uint64_t a, uint64_t b)
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
     /* sum_{x=1}^{n} floor( sqrt(n^2 – x^2) ) */
     for (uint64_t x = 1; x <= n64; ++x) {
         uint64_t diff = n_sq - x * x;
-        sum += floor_sqrt_u64(diff);
+        sum += isqrt_u64(diff);
     }
 
     /* total lattice points: 4*sum + 4n + 1 */

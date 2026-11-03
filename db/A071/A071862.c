@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 1749, u16 n <= 8948, u32 n <= 8948, u64 n <= 8948,
- *            u128 n <= 8948, big any n
- * Helpers:   continued_fraction_length
+ * Range:     u8 n <= 1749, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8948 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
  * the Euclidean algorithm.
  */
 #include <stdbool.h>
-#include "../utils/continued_fraction_length.h"
+
+static seq_t continued_fraction_length(seq_t num, seq_t den)
+{
+    seq_t len = 0;
+    while (den != 0) {
+        ++len;
+        seq_t r = num % den;
+        num = den;
+        den = r;
+    }
+    return len;
+}
 
 seq_t a(idx_t n)
 {

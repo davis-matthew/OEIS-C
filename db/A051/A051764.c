@@ -6,13 +6,15 @@
  * Keywords:  nonn, nice
  * Formula:   a(n) = |{k: sqrt(n) < k <= n, k|n, gcd(k, 1 + n/k) = 1}|
  *            Computes the number of torus knots with n crossings
- * Range:     u8 n <= 613, u16 n <= 9584, u32 n <= 9584, u64 n <= 9584,
- *            u128 n <= 9584, big any n
+ * Range:     u8 n <= 613, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9584 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Integer square root: floor(sqrt(n)) for 0 <= n <= 2^64-1 */

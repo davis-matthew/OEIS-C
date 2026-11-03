@@ -12,7 +12,8 @@
  *            1/denominator: g_m = (1+3t)g_{m-1} - 2t^2 g_{m-2} - (t^2+...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define OFF 4
 
@@ -28,7 +30,7 @@ seq_t a(idx_t n_idx) {
     long long L = n + 1 + OFF;
     seq_t *g[5];
     long long r, m, k;
-    for (r = 0; r < 5; r++) g[r] = (seq_t *)calloc((size_t)L, sizeof(seq_t));
+    for (r = 0; r < 5; r++) g[r] = mem_new(seq_t, (size_t)L);
 
     /* g_0 = 1 stored in ring slot 0 */
     g[0][OFF] = 1;
@@ -73,6 +75,6 @@ seq_t a(idx_t n_idx) {
         fact *= (seq_t)(n - k + 1);
     }
 
-    for (r = 0; r < 5; r++) free(g[r]);
+    for (r = 0; r < 5; r++) mem_free(g[r]);
     return result;
 }

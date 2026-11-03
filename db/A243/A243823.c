@@ -8,6 +8,7 @@
  * Formula:   a(n) = #{ k < n | gcd(k,n) > 1 and rad(k) ∤ n }
  * Range:     u8 n <= 431, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 116 terms through n = 9889 (2026-11-01)
  * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/gcd_u64.h"
 
 static const idx_t PRIME_SIEVE_MAX = 10000;

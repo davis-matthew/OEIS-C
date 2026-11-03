@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   _gcd_idx, _lambda_value
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,59 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_gcd_idx.h"
-#include "../utils/_lambda_value.h"
+#include <stdlib.h>
+#include "../utils/gcd_idx.h"
+
+/* Compute Carmichael λ(m) for 1 ≤ m ≤ UINT64_MAX.  Return a 64‑bit
+   value; for the purposes of this sequence we need only the value
+   modulo n, so the caller may take the result modulo n if desired. */
+static idx_t _lambda_value(idx_t m)
+{
+    if (m == 1) return 1;          /* by convention λ(1)=1 */
+    idx_t res = 1;
+    idx_t x = m;
+
+    /* handle factor 2 */
+    if ((x & 1) == 0) {
+        int e = 0;
+        while ((x & 1) == 0) {
+            x >>= 1;
+            ++e;
+        }
+        idx_t l;
+        if (e == 1)        l = 1;
+        else if (e == 2)   l = 2;
+        else               l = ((idx_t)1) << (e - 2);   /* 2^(e-2) */
+        res = l;           /* lcm(1,l)=l */
+    }
+
+    /* factor odd primes */
+    for (idx_t p = 3; p * p <= x; p += 2) {
+        if (x % p == 0) {
+            int e = 0;
+            while (x % p == 0) {
+                x /= p;
+                ++e;
+            }
+            /* λ(p^e) = (p-1) * p^(e-1) for odd p */
+            idx_t pow = 1;
+            for (int i = 1; i < e; ++i) pow *= p; /* p^(e-1) */
+            idx_t l = (p - 1) * pow;
+            idx_t g = gcd_idx(res, l);
+            res = (res / g) * l;
+        }
+    }
+
+    /* remaining prime factor */
+    if (x > 1) {
+        /* x is prime */
+        idx_t l = (x - 1);
+        idx_t g = gcd_idx(res, l);
+        res = (res / g) * l;
+    }
+
+    return res;
+}
 
 /* ------------------------------------------------------------------ */
 /* Euclidean GCD for idx_t.                                          */

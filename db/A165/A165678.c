@@ -7,6 +7,7 @@
  * Formula:   a(n) = 6*n^5 + 75*n^4 + 340*n^3 + 675*n^2 + 548*n + 120
  * Range:     u8 none, u16 n <= 4, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

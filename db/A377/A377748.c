@@ -7,7 +7,8 @@
  * Formula:   a(n) = (A000217(n) - A005132(n)) / 2
  * Range:     u8 n <= 34, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --- Static memoisation tables ---------------------------------- */
 static seq_t *recam = NULL;        /* Recamán terms   : recam[i] = A005132(i) */
@@ -36,7 +38,7 @@ static void ensure_recam_capacity(size_t need) {
     if (recam_cap >= need) return;
     size_t cap = recam_cap ? recam_cap * 2 : 1;
     while (cap < need) cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(recam, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, recam, cap);
     if (!tmp) abort();
     for (size_t i = recam_cap; i < cap; ++i) tmp[i] = 0;
     recam = tmp; recam_cap = cap;
@@ -47,7 +49,7 @@ static void ensure_cum_capacity(size_t need) {
     if (cum_cap >= need) return;
     size_t cap = cum_cap ? cum_cap * 2 : 1;
     while (cap < need) cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cum, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cum, cap);
     if (!tmp) abort();
     for (size_t i = cum_cap; i < cap; ++i) tmp[i] = 0;
     cum = tmp; cum_cap = cap;
@@ -58,7 +60,7 @@ static void ensure_seen_capacity(size_t need) {
     if (seen_cap >= need) return;
     size_t cap = seen_cap ? seen_cap * 2 : 1;
     while (cap < need) cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seen, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seen, cap);
     if (!tmp) abort();
     seen = tmp; seen_cap = cap;
 }

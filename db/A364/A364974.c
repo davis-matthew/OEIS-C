@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   compute_v_checked
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/compute_v_checked.h"
+#include "../utils/mem.h"
+
+/* ---------- compute (3*x*y*y - x*x*x) in seq_t, with overflow guard ----------
+    Returns true and writes result into *out if value fits into seq_t,
+    otherwise returns false. All arithmetic is performed in __uint128_t
+    to detect overflow for seq_t sizes <= 64 bits. For seq_t that
+    occupies 128 bits or more, overflow never occurs. */
+static bool compute_v_checked(uint32_t x, uint32_t y, seq_t *out)
+{
+    __uint128_t vx = (__uint128_t)3 * (__uint128_t)x * (__uint128_t)y * (__uint128_t)y;
+    __uint128_t xx = (__uint128_t)x * (__uint128_t)x * (__uint128_t)x;
+    __uint128_t v  = vx - xx;
+
+    /* Bit width of seq_t */
+    const unsigned bits = sizeof(seq_t) * 8U;
+    if (bits < 128U) {
+        __uint128_t max_val = (( (__uint128_t)1 << bits) ) - 1;
+        if (v > max_val)
+            return false;          /* overflow */
+    }
+    *out = (seq_t)v;                /* cast is safe for non-overflowing case */
+    return true;
+}
 
 /* ---------- integer square root for uint64_t ---------- */
 static uint32_t isqrt_u64(uint64_t n)
@@ -104,7 +127,7 @@ static void heap_push(HeapNode node)
 {
     if (heap_size == heap_cap) {
         size_t new_cap = heap_cap * 2 + 1;
-        HeapNode *new_heap = (HeapNode*)realloc(heap_data, new_cap * sizeof(HeapNode));
+        HeapNode *new_heap = mem_resize(HeapNode, heap_data, new_cap);
         if (!new_heap) abort();
         heap_data = new_heap;
         heap_cap  = new_cap;
@@ -124,11 +147,11 @@ static HeapNode heap_pop(void)
 /* ---------- grow min_values ---------- */
 static void grow_min_values(size_t new_cap)
 {
-    seq_t *new_arr = (seq_t*)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort();
     if (min_values) {
-        memcpy(new_arr, min_values, min_cap * sizeof(seq_t));
-        free(min_values);
+        mem_copy(new_arr, min_values, min_cap * sizeof(seq_t));
+        mem_free(min_values);
     }
     min_values = new_arr;
     min_cap    = new_cap;
@@ -149,12 +172,12 @@ static void push_next_x(void)
 static void init_state(void)
 {
     min_cap   = 256;
-    min_values = (seq_t*)calloc(min_cap, sizeof(seq_t));
+    min_values = mem_new(seq_t, min_cap);
     if (!min_values) abort();
     min_values[0] = (seq_t)1;          /* a(0) = 1 */
 
     heap_cap   = 256;
-    heap_data  = (HeapNode*)malloc(heap_cap * sizeof(HeapNode));
+    heap_data  = mem_new(HeapNode, heap_cap);
     if (!heap_data) abort();
     heap_size = 0;
 

@@ -11,13 +11,16 @@
  *            transformation described in the OEIS entry for A225607
  * Range:     u8 n <= 32, u16 n <= 512, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: standard, pass, 79 terms through n = 9401 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     int first_run = 1;           /* true until the first run ends */
 
     /* Process bits from most significant to least */
-    int high = floor_log2_uint64(n);
+    int high = ilog2(n);
     for (int pos = high; pos >= 0; --pos) {
         int bit = (n >> pos) & 1;
         if (bit != cur_bit) {                      /* run ends */

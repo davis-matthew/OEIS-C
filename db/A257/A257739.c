@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 197, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9876 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static inline bool good(seq_t m) {
     /* Compute the length of the binary representation */
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
 
     if (seq == NULL) {
         cap = 16;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
     }
 
     while (len < n) {
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
         if (good((seq_t)last)) {
             if (len == cap) {
                 cap <<= 1;
-                seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
             }
             seq[len++] = (seq_t)last;
         }

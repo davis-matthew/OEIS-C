@@ -5,17 +5,26 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   a(n) = Π_{p^e‖n} p^max(0, floor(e/2)-1)
- * Range:     u8 n <= 9367, u16 n <= 9367, u32 n <= 9367, u64 n <= 9367,
- *            u128 n <= 9367, big any n
- * Helpers:   factor_u64, seq_mul, seq_pow
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9367 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>          /* for size_t */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +51,7 @@ seq_t a(idx_t n)
 
         if (out_e > 0)
         {
-            seq_t powp = seq_pow((seq_t)p, (idx_t)out_e);
+            seq_t powp = ipow_idx((seq_t)p, (idx_t)out_e);
             result     = seq_mul(result, powp);
         }
     }

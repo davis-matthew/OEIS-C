@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 952, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_counts, digits
+ * Validated: standard, pass, 74 terms through n = 9888 (2026-11-03)
+ * Helpers:   digit_counts, mem, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,14 +23,15 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../utils/digit_counts.h"
-#include "../utils/digits.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
 
 static bool candidate_valid(idx_t cand)
 {
     unsigned char cand_cnt[10] = {0};
     digit_counts((seq_t)cand, cand_cnt);
 
-    int len = digits(cand);
+    int len = num_digits_idx(cand);
     if (len <= 0) len = 1;  /* safety for 0 */
 
     for (int start = 0; start < 10; ++start) {
@@ -49,7 +51,7 @@ static void grow_array(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t newcap = (*cap ? (*cap << 1) : 16);
         while (newcap < need) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
         if (!tmp) exit(1);
         *arr = tmp;
         *cap = newcap;

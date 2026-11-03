@@ -10,12 +10,14 @@
  *            a(6)=131712
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* seq_t and idx_t are defined elsewhere by the build system */
 
 static const seq_t _base_vals[7] = {
@@ -36,7 +38,7 @@ static void _ensure_cache(idx_t n)
 {
     if (_cache_len > n) return;        /* already large enough */
     idx_t new_len = n + 1;              /* we need indices 0..n (0 unused) */
-    seq_t *new_cache = (seq_t*)realloc(_cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, _cache, new_len);
     if (!new_cache) return;            /* allocation failure propagates as zero */
 
     /* If expanding from zero, set base values */

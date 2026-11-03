@@ -8,7 +8,8 @@
  *            prime factor of m (intentionally spf(1) = 1)
  * Range:     u8 n <= 96, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9907 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Required headers */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of seq_t and idx_t types,
    which are defined by the build environment. */
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
     /* Allocate initial cache entry for n = 0 if not yet done. */
     if (cache_len == 0) {
         cache_cap = 16; /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) {
             /* In a real build, we might abort or handle this gracefully. */
             exit(EXIT_FAILURE);
@@ -79,7 +81,7 @@ seq_t a(idx_t n) {
         if (new_cap < n + 1) {
             new_cap = n + 1;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             exit(EXIT_FAILURE);
         }

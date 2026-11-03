@@ -6,8 +6,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = Sum_{d|n, d == 0, 1 or 3 mod 4} 1 (number of divisors of
  *            n not of the form 4k+2)
- * Range:     u8 n <= 9032, u16 n <= 9032, u32 n <= 9032, u64 n <= 9032,
- *            u128 n <= 9032, big any n
+ * Range:     u8 n <= 20160, u16 n <= 20160, u32 n <= 20160, u64 n <= 20160,
+ *            u128 n <= 20160, big any n
+ * Validated: standard, pass, 121 terms through n = 9032 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

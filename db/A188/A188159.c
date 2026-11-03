@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 7921, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 8964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -65,8 +67,7 @@ seq_t a(idx_t n) {
                 /* Store the found term. */
                 if (len == cap) {
                     size_t new_cap = cap ? cap * 2 : 8;
-                    seq_t *new_buf = (seq_t *)realloc(cache,
-                                                       new_cap * sizeof(seq_t));
+                    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
                     if (!new_buf) return 0;          /* allocation failed */
                     cache = new_buf;
                     cap = new_cap;

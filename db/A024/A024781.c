@@ -8,7 +8,8 @@
  *            that every suffix (in base‑6) is prime. a(1) is the first term
  * Range:     u8 none, u16 none, u32 n <= 212, u64 n <= 454, u128 n <= 454,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 454 terms through n = 454 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Deterministic Miller–Rabin primality test for 64‑bit integers.        */
@@ -134,7 +136,7 @@ static void build_sequence(void)
         dfs((seq_t)primes[i], (seq_t)primes[i], 1,
             (seq_t)10, (seq_t)6);
 
-    qsort(cache, cache_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(cache, cache_len, sizeof(seq_t), cmp_seq);
 }
 
 /* ------------------------------------------------------------------ */

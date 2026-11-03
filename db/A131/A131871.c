@@ -10,13 +10,15 @@
  *            a(7)=3,a(8)=4,a(9)=10,a(10)=21,a(11)=32
  * Range:     u8 n <= 14, u16 n <= 26, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* memoised values */
 static idx_t  cache_size = 0;      /* number of stored entries */
@@ -30,7 +32,7 @@ static const seq_t base_vals[12] = {
 static void init_cache(void)
 {
     cache_size = 12;
-    cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_size);
     assert(cache != NULL);
     for (idx_t i = 0; i < cache_size; ++i)
         cache[i] = base_vals[i];
@@ -47,7 +49,7 @@ static void ensure_cache(idx_t n)
 
     /* allocate larger array and recompute new entries */
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     assert(new_cache != NULL);
     cache = new_cache;
 

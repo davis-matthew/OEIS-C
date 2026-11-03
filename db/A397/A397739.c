@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_squarefree
+ * Validated: standard, pass, 72 terms through n = 9914 (2026-11-03)
+ * Helpers:   factor_u64, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,16 +20,40 @@
    numbers in an expanding cache. */
 
 /* Helper prototypes provided by the build framework */
-#include "../utils/is_squarefree.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/factor_u64.h"
+#include "../utils/is_squarefree.h"
 
 /* Standard headers */
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Helper: expand a dynamic array when needed */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t newcap = (*cap == 0) ? 8 : (*cap << 1);
+    while (newcap < needed) newcap <<= 1;
+    *ptr = mem_resize(T, *ptr, (newcap * elem_size) / sizeof(T));
+    *cap = newcap;
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (needed <= *cap) return;
@@ -37,6 +62,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
     *ptr = realloc(*ptr, newcap * elem_size);
     *cap = newcap;
 }
+#endif
 
 /* Cache of computed terms */
 static seq_t *cache = NULL;        /* array of terms */
@@ -81,7 +107,7 @@ static void generate_terms(idx_t n)
         /* Check the defining inequality:  slpf < lpf^2 */
         if (slpf < lpf * lpf)
         {
-            ensure_capacity(cache_len + 1, &cache_cap, (void **)&cache, sizeof(seq_t));
+            ensure_capacity(cache_len + 1, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
             cache[cache_len++] = (seq_t)next_candidate;
         }
 

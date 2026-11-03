@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 106, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum, is_prime_small
+ * Validated: standard, pass, 72 terms through n = 995 (2026-11-01)
+ * Helpers:   digit_sum, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 #define CACHE_MAX 200000   /* enough for all n requested in the tests */
 
@@ -49,7 +50,7 @@ seq_t a(idx_t n)
         seq_t sum = digit_sum(tri);
 
         /* test whether the sum is prime */
-        if (is_prime_small(sum)) {
+        if (is_prime_seq(sum)) {
             /* store the qualifying k */
             if (cache_len < CACHE_MAX) {
                 cache[cache_len++] = inspected_k;

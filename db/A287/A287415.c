@@ -8,7 +8,8 @@
  * Formula:   a(0)=0; a(1)=1; a(n)=n - a(phi(a(n-1)))
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   calc_phi
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoization array */
 static size_t cache_cap = 0;     /* current capacity of cache */
@@ -33,7 +35,7 @@ ensure_cache_capacity(size_t needed)
     while (new_cap < needed)
         new_cap *= 2;
 
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
             seq_t prev = cache[k - 1];
 
             /* phi(a(k-1)) */
-            seq_t phi_val = calc_phi(prev);
+            seq_t phi_val = totient_seq(prev);
 
             /* The index required is guaranteed to be < k. */
             idx_t phi_idx = (idx_t)phi_val;

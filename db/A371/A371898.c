@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 40, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   seq_alloc
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,15 @@
    static array of rows.  It works for any seq_t type supported by the build
    (uint8_t … uint64_t, unsigned __int128, or an arbitrary‑precision class). */
 #include <stdlib.h>            /* for realloc, abort */
-#include "../utils/seq_alloc.h" /* seq_alloc(size_t) */
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t **rows   = NULL;   /* rows[i] is a pointer to T(i,0..i) */
 static idx_t   rows_alloc = 0;   /* number of rows currently allocated */

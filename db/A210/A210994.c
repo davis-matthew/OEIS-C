@@ -8,7 +8,8 @@
  *            number of divisors of k is not equal to 4)
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for already computed terms */
 static seq_t *cached = NULL;
@@ -35,7 +37,7 @@ ensure_cache_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    cached = (seq_t *)realloc(cached, new_cap * sizeof(seq_t));
+    cached = mem_resize(seq_t, cached, new_cap);
     cache_cap = new_cap;
 }
 

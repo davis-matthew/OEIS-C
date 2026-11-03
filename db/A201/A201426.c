@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 150, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   add_multiple
+ * Validated: standard, pass, 53 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,15 @@
    3717, 1873, 7920, 11174, 5237, 21055, 28217,
    12573, 48685, 62818, 26965 */
 #include <stdlib.h>
-#include "../utils/add_multiple.h"
+#include "../utils/mem.h"
+
+/* Helper: add 'value' to 'sum' exactly 'times' times (unrolled, small constants). */
+static void add_multiple(seq_t *sum, seq_t value, int times)
+{
+    for (int i = 0; i < times; ++i) {
+        *sum += value;
+    }
+}
 
 static const seq_t BASE[21] = {
     3, 11, 13, 76, 160, 111, 560, 955, 539, 2447,
@@ -42,7 +51,7 @@ seq_t a(idx_t n)
     /* Allocate storage on first use and initialize base terms. */
     if (cache == NULL) {
         cache_size = 21;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;
         for (idx_t i = 0; i < 21; ++i) cache[i] = BASE[i];
         cache_max = 21;
@@ -51,7 +60,7 @@ seq_t a(idx_t n)
     /* Resize storage if needed. */
     if (n > cache_size) {
         idx_t new_size = n;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return 0;
         cache = new_cache;
         cache_size = new_size;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (8n)!/(8!^n)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 6,
  *            big any n
+ * Validated: standard, pass, 26 terms through n = 51 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

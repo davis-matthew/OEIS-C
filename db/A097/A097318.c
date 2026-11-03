@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 169, u16 n <= 9594, u32 n <= 9594, u64 n <= 9594,
- *            u128 n <= 9594, big any n
- * Helpers:   build_primes_upto, int_sqrt
+ * Range:     u8 n <= 169, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 82 terms through n = 9594 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,9 @@
 
 /* Helper to build a list of primes up to a given limit. */
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 /* Integer square root for idx_t types. */
-#include "../utils/int_sqrt.h"
 
 /* Ensure we have enough primes for factorisation. */
 static void ensure_primes(idx_t limit, uint64_t **primes, size_t *cnt)
@@ -116,7 +118,7 @@ seq_t a(idx_t n)
     /* Grow the cache until we have at least n terms. */
     while (cache_len < n) {
         /* Ensure we have primes up to sqrt(next_candidate). */
-        idx_t needed = int_sqrt(next_candidate) + 1;
+        idx_t needed = isqrt(next_candidate) + 1;
         ensure_primes(needed, &prime_list, &prime_cnt);
 
         /* Check the current candidate. */
@@ -124,12 +126,12 @@ seq_t a(idx_t n)
             /* Expand cache if necessary. */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_new(seq_t, new_cap);
                 if (!new_cache)               /* out of memory */
                     abort();
                 if (cache) {
-                    memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-                    free(cache);
+                    mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+                    mem_free(cache);
                 }
                 cache     = new_cache;
                 cache_cap = new_cap;

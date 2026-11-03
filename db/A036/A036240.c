@@ -9,12 +9,14 @@
  * Formula:   a(n) = (8^n-7^n-3*4^n+3*3^n+2*2^n-2)/6
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* The recurrence derived from the generating function:
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     /* initialise cache on first call */
     if (cache_size == 0) {
         cache_size = 7;                    /* indices 0 .. 6 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (idx_t i = 0; i < cache_size; ++i)
             cache[i] = 0;
 
@@ -51,9 +53,9 @@ seq_t a(idx_t n) {
     /* extend cache to store up to index n */
     idx_t old_size = cache_size;
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp)
-        tmp = (seq_t *)malloc(new_size * sizeof(seq_t));
+        tmp = mem_new(seq_t, new_size);
     cache = tmp;
     cache_size = new_size;
 

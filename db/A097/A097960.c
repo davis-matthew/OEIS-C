@@ -8,8 +8,9 @@
  * Formula:   Generate terms by sorting numbers in Spanish words
  *            alphabetically within each digit length (1‑digit numbers first,
  *            then 2‑digit numbers, etc.)
- * Range:     u8 n <= 200, u16 n <= 8848, u32 n <= 8848, u64 n <= 8848,
- *            u128 n <= 8848, big any n
+ * Range:     u8 n <= 200, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 89 terms through n = 8848 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

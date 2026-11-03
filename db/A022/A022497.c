@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 17, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Coefficients of Q(x) = (1-x)²(1-x²)³(1-x³)²(1-x⁶)(1-x⁹) */
 static const int d[30] = {
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
     /* Ensure cache can hold indices up to n */
     size_t need = (size_t)n + 1;
     if (need > cap) {
-        seq_t *new_cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, need);
         if (!new_cache) abort();          /* memory allocation failed */
         cache = new_cache;
         cap   = need;

@@ -8,12 +8,14 @@
  *            > 3 (OEIS A259593)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 32, u64 n <= 66, u128 n <= 133,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoisation array      */
 static size_t cache_cap = 0;         /* number of elements held */
@@ -26,7 +28,7 @@ static void ensure_cache(size_t n)
     if (n < cache_cap) return;          /* already available */
 
     size_t new_cap = n + 1;              /* one more for inclusive n */
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     if (!cache) abort();
 
     /* initialise the first four terms if the array is new or incomplete */

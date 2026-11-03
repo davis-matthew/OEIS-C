@@ -13,14 +13,22 @@
  *            of days and the same weekday for the first day of...
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   is_leap_year
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_leap_year.h"
+#include "../utils/mem.h"
+
+/* Helper to compute if a year is a Gregorian leap year */
+static bool is_leap_year(idx_t year) {
+    if (year % 4 != 0) return false;
+    if (year % 100 != 0) return true;
+    return (year % 400 == 0);
+}
 
 /* Period of the Gregorian calendar in months */
 #define PERIOD 4800
@@ -89,7 +97,7 @@ static void compute_distances(void) {
         if (seen[i]) ++cnt;
 
     /* Allocate and fill sorted list */
-    distances = (seq_t *)malloc(cnt * sizeof(seq_t));
+    distances = mem_new(seq_t, cnt);
     for (int i = 1, j = 0; i < PERIOD; ++i) {
         if (seen[i]) {
             distances[j++] = (seq_t)i;

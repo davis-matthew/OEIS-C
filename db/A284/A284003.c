@@ -9,15 +9,37 @@
  *            (2^{k+1} − 1) − m(n – 2^k), with k = ⌊log₂ n⌋
  * Range:     u8 n <= 15, u16 n <= 63, u32 n <= 511, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   hp_pow2, m_value
+ * Validated: standard, pass, 85 terms through n = 7995 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/hp_pow2.h"
-#include "../utils/m_value.h"
+
+/* Return the largest power of two ≤ n (works for n ≥ 1). */
+static idx_t hp_pow2(idx_t n)
+{
+    idx_t hp = 1;
+    while (1) {
+        idx_t next = hp << 1;
+        if (next == 0 || next > n) break;
+        hp = next;
+    }
+    return hp;
+}
+
+/* Recursive definition of m(n). */
+static idx_t m_value(idx_t n)
+{
+    if (n == 0) return 0;
+    idx_t hp = hp_pow2(n);
+    idx_t offset = n - hp;
+    idx_t sub = m_value(offset);
+    idx_t mask = (hp << 1) - 1;
+    return mask - sub;
+}
 
 /* Prime numbers: the first many primes are listed explicitly to
    enable multiplication by any required bit position. */

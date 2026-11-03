@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 12, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Global transition tables, built once. */
 static unsigned short *a_edges = NULL;
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
 
     for (idx_t step = 0; step < n; ++step) {
         /* Zero the next row buffer. */
-        memset(next, 0, 1024 * sizeof(seq_t));
+        mem_set(next, 0, 1024 * sizeof(seq_t));
         /* Transition counts. */
         for (int p = 0; p < 1024; ++p) {
             seq_t val = curr[p];

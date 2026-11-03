@@ -12,13 +12,15 @@
  *            25 derived from the characteristic polynomial of...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t coeff[26];
 static seq_t *cache = NULL;
@@ -58,7 +60,7 @@ static void init(void)
     }
 
     /* Compute a(1)…a(25) as traces of A^k. */
-    seq_t *first = (seq_t*)malloc((25 + 1) * sizeof(seq_t));
+    seq_t *first = mem_new(seq_t, (25 + 1));
     for (idx_t i = 1; i <= 25; ++i)
         first[i] = 0;
 
@@ -79,7 +81,7 @@ static void init(void)
 
     /* Allocate cache for 0…25 and store initial terms. */
     cache_cap = 26;
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = 1;
     for (idx_t i = 1; i <= 25; ++i)
         cache[i] = first[i];
@@ -92,7 +94,7 @@ static void init(void)
         coeff[m] = -num / (seq_t)m;
     }
 
-    free(first);
+    mem_free(first);
 }
 
 /* Grow cache up to index n, filling new entries by the recurrence. */
@@ -100,7 +102,7 @@ static void ensure_cache(idx_t n)
 {
     if (n < cache_cap) return;
     idx_t newcap = n + 1;
-    seq_t *newptr = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, cache, newcap);
     cache = newptr;
     for (idx_t i = cache_cap; i <= n; ++i) {
         if (i <= 25) continue;                /* already known */

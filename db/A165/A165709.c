@@ -9,13 +9,15 @@
  *            P(0)=1, P(1..8)=2, P(9)=1, and P(n)=0 for n>9
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* #include <stdbool.h> unnecessary for this function, but allowed if needed. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const unsigned char PNUM[10] = {1, 2, 2, 2, 2, 2, 2, 2, 2, 1};
 
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Extend the cache if needed */
     if (cache_size <= n) {
         /* realloc returns void*, cast explicitly for C++ */
-        void *tmp = realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!tmp) abort();                  /* allocation failure */
         cache      = (seq_t *)tmp;
         cache_size = n + 1;

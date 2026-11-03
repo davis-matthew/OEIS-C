@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σₖ₌₀⁶ c_k * binomial(n - k + 6, 6)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 33, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 39 terms through n = 954 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* where c = {1, 54, 447, 852, 447, 54, 1}                                            */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static const seq_t coeffs[7] = {1, 54, 447, 852, 447, 54, 1};

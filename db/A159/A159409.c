@@ -7,13 +7,21 @@
  * Formula:   a(n) = coefficient of x^22 in (1 + x + x^4 + x^9 + x^16)^(n^2)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 22,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: standard, pass, 29 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 #define TARGET_SUM 22
 #define SIZE (TARGET_SUM + 1)

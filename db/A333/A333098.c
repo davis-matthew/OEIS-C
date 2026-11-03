@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 39, u64 n <= 77, u128 n <= 153,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 1195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stddef.h>      /* size_t */
 #include <stdint.h>      /* uint64_t, etc. */
 #include <stdlib.h>      /* calloc, free */
+#include "../utils/mem.h"
 
 /* integer square root of a 64‑bit unsigned integer */
 static inline idx_t isqrt_u64(idx_t x) {
@@ -59,7 +61,7 @@ seq_t a(idx_t n) {
     size_t cols = (size_t)(h_max + 1);
     size_t total = rows * cols;
 
-    seq_t *dp = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp) return 0;  /* allocation failure */
 
     /* helper to convert (area, height) to linear index */
@@ -88,7 +90,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[IDX(n, 0)];
-    free(dp);
+    mem_free(dp);
     return result;
 
     #undef IDX

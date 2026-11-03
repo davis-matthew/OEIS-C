@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 120 terms through n = 9880 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache of multiplicities that are > 1 */
 static seq_t *a_values = NULL;     /* array of multiplicities   */
@@ -74,14 +76,14 @@ static void build_a_values(void)
 
     /* ---------- 4.  Collect all frequencies > 1 into a_values ----- */
     size_t cap = 1024;
-    a_values = (seq_t *)malloc(cap * sizeof(seq_t));
+    a_values = mem_new(seq_t, cap);
     if (!a_values) abort();
 
     for (uint64_t k = 1; k <= max_sigma; ++k) {
         if (freq[k] > 1) {
             if (a_len == cap) {
                 cap <<= 1;  /* double capacity */
-                seq_t *tmp = (seq_t *)realloc(a_values, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, a_values, cap);
                 if (!tmp) abort();
                 a_values = tmp;
             }

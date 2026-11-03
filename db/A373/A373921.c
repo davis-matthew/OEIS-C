@@ -6,16 +6,18 @@
  * Offset:    3    (a(3) is the first term)
  * Keywords:  easy, sign
  * Formula:   not stated
- * Range:     i8 n <= 127, i16 n <= 9655, i32 n <= 9655, i64 n <= 9655,
- *            i128 n <= 9655, big any n
- * Helpers:   isqrt128_unsigned
+ * Range:     i8 n <= 127, i16 n <= 32769, i32 n <= 150000, i64 n <= 150000,
+ *            i128 n <= 150000, big any n
+ * Validated: standard, pass, 89 terms through n = 9655 (2026-11-03)
+ * Helpers:   isqrt_u128_to_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/isqrt128_unsigned.h"
+#include "../utils/isqrt_u128_to_u64.h"
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t values. */
 static int cmp_seq_t(const void *a, const void *b) {
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
 
     /* Number of potential k values is at most n-2 (k=3..n). */
     size_t cap = (size_t)n - 2;
-    seq_t *arr = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, cap);
     if (!arr) return 0;     /* allocation failure */
 
     size_t count = 0;
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
 
         if (D < 0) continue;                  /* should not occur */
 
-        uint64_t s = isqrt128_unsigned((unsigned __int128)D);
+        uint64_t s = isqrt_u128_to_u64((unsigned __int128)D);
         if ((unsigned __int128)s * s != (unsigned __int128)D) continue;   /* not a square */
 
         /* m = (k-4 + s) / (2*(k-2)) */
@@ -62,12 +64,12 @@ seq_t a(idx_t n) {
     }
 
     if (count == 0) {                           /* should not happen for n ≥ 3 */
-        free(arr);
+        mem_free(arr);
         return 0;
     }
 
     /* Sort the terms increasingly. */
-    qsort(arr, count, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(arr, count, sizeof(seq_t), cmp_seq_t);
 
     /* Build the difference table until one element remains. */
     while (count > 1) {
@@ -77,6 +79,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = arr[0];
-    free(arr);
+    mem_free(arr);
     return result;
 }

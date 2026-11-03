@@ -10,11 +10,13 @@
  *            terms are read by antidiagonals of the array T(n,m)=1/β(n+1,m+1)
  * Range:     u8 n <= 17, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Integer square root for 64‑bit unsigned values. */

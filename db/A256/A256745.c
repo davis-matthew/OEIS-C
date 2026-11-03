@@ -13,13 +13,15 @@
  *            with the 18 given starting terms
  * Range:     u8 none, u16 n <= 6, u32 n <= 23, u64 n <= 56, u128 n <= 119,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Dependencies */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Coefficients of the 15‑term recurrence, in order a(n-1) … a(n-15). */
 static const int coeff[15] = {
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         /* Start with space for the 18 known terms or the requested size,
            whichever is larger. */
         size_t init_size = target > 18 ? target : 18;
-        cache = (seq_t*)malloc(init_size * sizeof(seq_t));
+        cache = mem_new(seq_t, init_size);
         if (!cache) abort();       /* cannot proceed without memory */
 
         for (size_t i = 0; i < 18; ++i) {
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     /* Grow the cache to at least 'target' terms.  Use realloc to avoid
        unnecessary fragmentation for small n. */
     if (target > cache_len) {
-        seq_t *tmp = (seq_t*)realloc(cache, target * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, target);
         if (!tmp) abort();
         cache = tmp;
     }

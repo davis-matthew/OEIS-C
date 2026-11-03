@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 25, u32 n <= 86, u64 n <= 319,
  *            u128 n <= 1225, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 9672 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    For types that fit in 64 bits an overflow is detected; for larger or
    arbitrary‑precision types no overflow occurs. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         return (seq_t)0;          /* offset is 1 */
 
     /* Allocate an array for the requested number of terms */
-    seq_t *seq = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (size_t)n);
     if (!seq)
         return (seq_t)0;          /* unlikely in tests */
 
@@ -81,6 +83,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[generated - 1];
-    free(seq);
+    mem_free(seq);
     return result;
 }

@@ -12,13 +12,14 @@
  *            Euler’s totient function, which is computed for t...
  * Range:     u8 n <= 511, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi_uint
+ * Validated: standard, pass, 96 terms through n = 8696 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi_uint.h"
+#include "../utils/totient.h"
 
 static seq_t pow_uint(idx_t base, idx_t exp)
 {
@@ -69,10 +70,10 @@ seq_t a(idx_t n)
             }
             seq_t part;
             if (e == 1) {
-                part = phi_uint(p - 1);
+                part = totient(p - 1);
             } else {
                 seq_t phi_p_pow = pow_uint(p, e - 1) - pow_uint(p, e - 2);
-                seq_t phi_p_minus1 = phi_uint(p - 1);
+                seq_t phi_p_minus1 = totient(p - 1);
                 part = phi_p_pow * phi_p_minus1;
             }
             result *= part;
@@ -81,7 +82,7 @@ seq_t a(idx_t n)
 
     /* Remaining prime factor, if any */
     if (m > 1) {
-        seq_t part = phi_uint(m - 1);
+        seq_t part = totient(m - 1);
         result *= part;
     }
 

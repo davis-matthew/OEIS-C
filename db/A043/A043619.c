@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -40,12 +42,12 @@ static void ensure_cap(size_t needed)
     size_t new_cap = num_cap ? num_cap * 2 : 128;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)
         exit(1);
     if (num_arr) {
-        memcpy(new_arr, num_arr, num_size * sizeof(seq_t));
-        free(num_arr);
+        mem_copy(new_arr, num_arr, num_size * sizeof(seq_t));
+        mem_free(num_arr);
     }
     num_arr = new_arr;
     num_cap = new_cap;
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
 
     /* sort the array if new terms were added */
     if (needs_sort) {
-        qsort(num_arr, num_size, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(num_arr, num_size, sizeof(seq_t), cmp_seq_t);
         needs_sort = false;
     }
 

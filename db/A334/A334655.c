@@ -9,13 +9,15 @@
  *            distinct prime factors of k
  * Range:     u8 n <= 481, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9895 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *freq_cache = NULL;          /* freq_cache[ω] = count of numbers ≤ current limit with ω distinct primes */
 static size_t freq_len   = 0;
@@ -69,12 +71,12 @@ static void ensure_precomputed(idx_t n)
         if (omega[i] > max_omega) max_omega = omega[i];
 
     /* ---------- build freq array ---------- */
-    seq_t *new_freq = (seq_t *)calloc(max_omega + 1, sizeof(seq_t));
+    seq_t *new_freq = mem_new(seq_t, max_omega + 1);
     for (idx_t i = 1; i <= limit; ++i)
         ++new_freq[omega[i]];
 
     /* ---------- release old caches and store new ones ---------- */
-    free(freq_cache);
+    mem_free(freq_cache);
     freq_cache = new_freq;
     freq_len   = max_omega + 1;
 

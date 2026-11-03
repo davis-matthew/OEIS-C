@@ -8,12 +8,14 @@
  *            a(0)=a(1)=a(2)=a(3)=a(4)=1
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 26, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *dp = NULL;    /* memoized sequence values */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* Initial allocation and first five terms */
     if (dp == NULL) {
         cap = 5;
-        dp = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        dp = mem_resize(seq_t, NULL, cap);
         if (dp == NULL) return (seq_t)0; /* allocation failure */
         dp[0] = dp[1] = dp[2] = dp[3] = dp[4] = (seq_t)1;
         len = 5;
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     if (n >= len) {
         while (cap <= n) {
             idx_t newcap = (cap == 0) ? 5 : cap * 2;
-            seq_t *tmp = (seq_t *)realloc(dp, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, dp, newcap);
             if (tmp == NULL) return (seq_t)0; /* allocation failure */
             dp = tmp;
             cap = newcap;

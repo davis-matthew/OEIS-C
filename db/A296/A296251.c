@@ -10,7 +10,8 @@
  *            b(0)=3, b(1)=4; sequences a and b are complementary increasing
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 39, u64 n <= 85, u128 n <= 177,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Ensure that dynamic arrays of seq_t keep the requested capacity. */
 static void ensure_seq_capacity(seq_t **arr, size_t *cap, size_t need)
@@ -27,7 +29,7 @@ static void ensure_seq_capacity(seq_t **arr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t new_cap = (*cap) ? (*cap) * 2 : 2;
     if (new_cap < need) new_cap = need;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 
@@ -60,14 +62,14 @@ seq_t a(idx_t n)
     if (!a_seq) {
         /* a sequence: a(0)=1, a(1)=2 */
         a_cap  = 2;
-        a_seq  = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_seq  = mem_new(seq_t, a_cap);
         a_seq[0] = (seq_t)1;
         a_seq[1] = (seq_t)2;
         computed_max = 1;
 
         /* b sequence: b(0)=3, b(1)=4 */
         b_cap = 2;
-        b_seq = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_seq = mem_new(seq_t, b_cap);
         b_seq[0] = (seq_t)3;
         b_seq[1] = (seq_t)4;
 

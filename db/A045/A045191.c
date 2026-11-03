@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * sequence lazily and memoises computed values. */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Test whether a number satisfies the base-5 condition.  */
 static bool valid(seq_t x) {
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
     /* Grow cache if necessary. */
     if (n + 1 > cache_cap) {
         idx_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return (seq_t)0;   /* out of memory; return 0 as a fallback */
         cache = new_cache;
         cache_cap = new_cap;

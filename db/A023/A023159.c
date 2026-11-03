@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of cycles of the function f(x) = x^8 mod n
  * Range:     u8 n <= 539, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 112 terms through n = 8750 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -61,7 +64,7 @@ seq_t a(idx_t n)
             path[path_len++] = cur;
 
             /* next = cur^8 mod n */
-            seq_t next = mod_pow((seq_t)cur, 8, (seq_t)n);
+            seq_t next = powmod((seq_t)cur, 8, (seq_t)n);
             cur = (idx_t)next; /* next is guaranteed < n */
         }
 

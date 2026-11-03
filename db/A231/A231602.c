@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 29, u32 n <= 58, u64 n <= 155,
  *            u128 n <= 410, big any n
- * Helpers:   big_pow, binom
+ * Validated: standard, pass, 61 terms through n = 9750 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
    read by rows. */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Integer square‑root: floor(sqrt(x)) for unsigned 64‑bit integers */
 static idx_t isqrt_u64(idx_t x)
@@ -57,9 +59,9 @@ static seq_t trees_with_k_1(idx_t n, idx_t k)
     {
         if (i <= n - k)
         {
-            seq_t bin1   = binom(n, i);
-            seq_t bin2   = binom(n - i, k);
-            seq_t pow_val = big_pow((seq_t)i, (seq_t)(i - 1));
+            seq_t bin1   = binomial(n, i);
+            seq_t bin2   = binomial(n - i, k);
+            seq_t pow_val = ipow((seq_t)i, (seq_t)(i - 1));
             seq_t term   = prod;
             term = term * bin1;
             term = term * bin2;

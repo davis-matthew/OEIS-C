@@ -8,14 +8,26 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 1933, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   smallest_with_k_bits
+ * Validated: standard, pass, 80 terms through n = 9318 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/smallest_with_k_bits.h"
+
+/* Smallest unsigned integer with exactly k bits set. */
+static seq_t smallest_with_k_bits(unsigned int k)
+{
+    const unsigned int width = sizeof(seq_t) * 8;
+    if (k == 0) return (seq_t)0;
+    if (k >= width) {
+        return ~((seq_t)0);                 /* all bits 1 */
+    } else {
+        return ((seq_t)1 << k) - 1;
+    }
+}
 
 /* Sequence A100290: a(n) is the nth positive integer k such that
    k is divisible by the smallest integer whose binary representation

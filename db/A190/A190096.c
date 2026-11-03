@@ -11,14 +11,73 @@
  *            a(14)=1960, a(15)=2198, a(16)=2448, a(17)=2698, a(18)=2964...
  * Range:     u8 n <= 2, u16 n <= 123, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   brute_compute
+ * Validated: standard, pass, 60 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/brute_compute.h"
+#include "../utils/mem.h"
+
+/* Brute force enumeration of rhombuses for n ≤ 51. */
+static seq_t brute_compute(idx_t n)
+{
+    const int W = 8;                  /* grid width */
+    const int H = (int)(n) + 1;       /* grid height */
+
+    /* Collect all non‑zero lattice vectors that fit in the grid. */
+    struct Vec { int dx, dy; } vec[2000];
+    size_t vc = 0;
+    for (int dx = -7; dx <= 7; ++dx) {
+        for (int dy = -(int)n; dy <= (int)n; ++dy) {
+            if (dx == 0 && dy == 0) continue;
+            vec[vc++] = (struct Vec){dx, dy};
+        }
+    }
+
+    seq_t sum = 0;
+    for (size_t i = 0; i < vc; ++i) {
+        const int dx1 = vec[i].dx;
+        const int dy1 = vec[i].dy;
+        const int len1 = dx1 * dx1 + dy1 * dy1;
+
+        for (size_t j = i + 1; j < vc; ++j) {
+            const int dx2 = vec[j].dx;
+            const int dy2 = vec[j].dy;
+
+            /* Vectors must have equal length and not be colinear. */
+            if (dx1 * dy2 - dy1 * dx2 == 0) continue;
+            const int len2 = dx2 * dx2 + dy2 * dy2;
+            if (len1 != len2) continue;
+
+            /* Determine bounding box of the four vertices. */
+            int minx = 0, maxx = 0, miny = 0, maxy = 0;
+            if (dx1     < minx) minx = dx1;
+            if (dx2     < minx) minx = dx2;
+            if (dx1+dx2 < minx) minx = dx1 + dx2;
+            if (dx1     > maxx) maxx = dx1;
+            if (dx2     > maxx) maxx = dx2;
+            if (dx1+dx2 > maxx) maxx = dx1 + dx2;
+
+            if (dy1     < miny) miny = dy1;
+            if (dy2     < miny) miny = dy2;
+            if (dy1+dy2 < miny) miny = dy1 + dy2;
+            if (dy1     > maxy) maxy = dy1;
+            if (dy2     > maxy) maxy = dy2;
+            if (dy1+dy2 > maxy) maxy = dy1 + dy2;
+
+            int extX = maxx - minx;
+            int extY = maxy - miny;
+            if (extX > 7 || extY > (int)n) continue;   /* does not fit */
+
+            seq_t positions = (seq_t)(8 - extX) * (seq_t)((n + 1) - extY);
+            sum += positions;
+        }
+    }
+    return sum / 4;   /* each rhombus counted 4 times */
+}
 
 /* Cache for computed values.
    cache[i] holds a(i+1) for i ≥ 0. */
@@ -31,7 +90,7 @@ static void ensure_cache(idx_t n)
 {
     if (n <= cache_cap) return;
     size_t new_cap = (size_t)n;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) return;            /* allocation failed – caller will return 0 */
     cache = new_ptr;
     cache_cap = new_cap;

@@ -8,13 +8,22 @@
  *            increasing order
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compare_seq_t_local
+ * Validated: standard, pass, 71 terms through n = 9994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/compare_seq_t_local.h"
+#include "../utils/mem.h"
+
+static int compare_seq_t_local(const void *a, const void *b) {
+    seq_t va = *(const seq_t *)a;
+    seq_t vb = *(const seq_t *)b;
+    if (va < vb) return -1;
+    if (va > vb) return 1;
+    return 0;
+}
 
 static seq_t *g_cache = NULL;
 static idx_t g_cache_len = 0;
@@ -36,7 +45,7 @@ static void generate_sums(seq_t *sums, idx_t *count, int depth, int last_base, s
 
 seq_t a(idx_t n) {
     if (g_cache == NULL) {
-        seq_t *sums = (seq_t *)malloc(1000000 * sizeof(seq_t));
+        seq_t *sums = mem_new(seq_t, 1000000);
         if (sums == NULL) return 0;
         
         idx_t count = 0;
@@ -44,7 +53,7 @@ seq_t a(idx_t n) {
         
         generate_sums(sums, &count, 0, 1, 0, max_base);
         
-        qsort(sums, count, sizeof(seq_t), compare_seq_t_local);
+        mem_qsort(sums, count, sizeof(seq_t), compare_seq_t_local);
         
         idx_t unique_count = 0;
         for (idx_t i = 0; i < count; i++) {

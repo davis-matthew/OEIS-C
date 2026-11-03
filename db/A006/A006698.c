@@ -15,7 +15,8 @@
  *            [C(2n-1,2i-2)*a(i-1)*(n-i)^(2n-2i+1) + C(2n-1,2i-1)...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   alloc_zero, grow_zero, pw_seq
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,26 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/grow_zero.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/pw_seq.h"
+#include <string.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *A_tab = 0, *B_tab = 0;
 static idx_t tab_len = 0, tab_cap = 0;
@@ -77,7 +95,7 @@ seq_t a(idx_t n) {
         seq_t *pows = alloc_zero(N);
         for (i = 1; i < N; i++) {
             idx_t d = N - i;
-            pows[i] = pw_seq((seq_t)d, 2 * d);
+            pows[i] = ipow_idx((seq_t)d, 2 * d);
         }
         /* B(N) uses row 2N-1 */
         advance_row(2 * N - 1);
@@ -89,7 +107,7 @@ seq_t a(idx_t n) {
                 s += row[2 * i - 2] * A_tab[i - 1] * (p * d);
                 s += row[2 * i - 1] * B_tab[i] * p;
             }
-            B_tab[N] = pw_seq((seq_t)N, 2 * N - 1) - s;
+            B_tab[N] = ipow_idx((seq_t)N, 2 * N - 1) - s;
         }
         /* a(N) uses row 2N */
         advance_row(2 * N);
@@ -101,9 +119,9 @@ seq_t a(idx_t n) {
                 s += row[2 * i - 2] * A_tab[i - 1] * (p * d * d);
                 s += row[2 * i - 1] * B_tab[i] * (p * d);
             }
-            A_tab[N] = pw_seq((seq_t)N, 2 * N) - s;
+            A_tab[N] = ipow_idx((seq_t)N, 2 * N) - s;
         }
-        free(pows);
+        mem_free(pows);
         tab_len = N + 1;
     }
     return A_tab[n];

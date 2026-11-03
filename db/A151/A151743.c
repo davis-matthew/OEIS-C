@@ -9,7 +9,8 @@
  *            window over the composites
  * Range:     u8 n <= 26, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Small trial‑division primality test for 64‑bit values. */
 static bool is_prime_small(uint64_t n)
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* if cache uninitialized, allocate small initial array */
     if (!cache) {
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
                 if (!is_prime_small(sum)) {    /* composite sum */
                     if (cache_len >= cache_cap) {
                         cache_cap *= 2;
-                        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                        cache = mem_resize(seq_t, cache, cache_cap);
                     }
                     cache[cache_len++] = (seq_t)sum;
                 }
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
             if (!is_prime_small(sum)) {
                 if (cache_len >= cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)sum;
             }

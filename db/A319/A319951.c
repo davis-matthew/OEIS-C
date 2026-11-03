@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 102, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   none
+ * Validated: partial, pass, 103 terms through n = 102 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    preceded by a leading zero).  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache     = NULL;   /* cached values of a(n)           */
 static size_t a_capacity  = 0;      /* allocated capacity of a_cache   */
@@ -37,14 +39,14 @@ ensure_a_upto(idx_t n)
     /*  Initialise caches on the first call  */
     if (a_cache == NULL) {
         a_capacity = 64;
-        a_cache = (seq_t *)malloc(a_capacity * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_capacity);
         a_cache[0] = 0;       /* a(0) */
         a_len = 1;
     }
 
     if (g_cache == NULL) {
         g_capacity = 64;
-        g_cache = (seq_t *)malloc(g_capacity * sizeof(seq_t));
+        g_cache = mem_new(seq_t, g_capacity);
         g_cache[0] = 0;
         g_cache[1] = 1;       /* first Golomb value g(1) */
     }
@@ -56,7 +58,7 @@ ensure_a_upto(idx_t n)
         /*  Grow Golomb array if necessary  */
         if ((size_t)k >= g_capacity) {
             size_t new_cap = g_capacity * 2;
-            seq_t *tmp = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, g_cache, new_cap);
             g_cache = tmp;
             g_capacity = new_cap;
         }
@@ -77,7 +79,7 @@ ensure_a_upto(idx_t n)
         /*  Grow value cache if needed  */
         while (a_len + run_len > a_capacity) {
             size_t new_cap = a_capacity * 2;
-            seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
             a_cache = tmp;
             a_capacity = new_cap;
         }

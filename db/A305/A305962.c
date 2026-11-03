@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 61, u32 n <= 129, u64 n <= 268,
  *            u128 n <= 620, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9736 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t idx) {
     /* Handle the trivial case n=0 */
@@ -55,13 +57,13 @@ seq_t a(idx_t idx) {
 
     /* Allocate arrays for previous and current DP layers */
     idx_t max_prev = 1;                     /* maximum value seen after first element */
-    seq_t *cnt_prev = (seq_t *)calloc(max_prev + 1, sizeof(seq_t));
+    seq_t *cnt_prev = mem_new(seq_t, max_prev + 1);
     seq_t *cnt_curr = NULL;
     cnt_prev[1] = (seq_t)1;                 /* only one string of length 1 with max 1 */
 
     for (idx_t i = 2; i <= n_len; ++i) {
         idx_t max_curr = max_prev + k_len;  /* maximum possible value after adding element i */
-        cnt_curr = (seq_t *)calloc(max_curr + 1, sizeof(seq_t));
+        cnt_curr = mem_new(seq_t, max_curr + 1);
 
         for (idx_t m = 1; m <= max_prev; ++m) {
             seq_t cnt = cnt_prev[m];
@@ -79,7 +81,7 @@ seq_t a(idx_t idx) {
         }
 
         /* Prepare for next iteration */
-        free(cnt_prev);
+        mem_free(cnt_prev);
         cnt_prev = cnt_curr;
         max_prev = max_curr;
     }
@@ -90,6 +92,6 @@ seq_t a(idx_t idx) {
         result += cnt_prev[m];
     }
 
-    free(cnt_prev);
+    mem_free(cnt_prev);
     return result;
 }

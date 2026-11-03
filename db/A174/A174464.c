@@ -7,14 +7,17 @@
  * Formula:   a(n) = Sum_{d|n} binomial(n,d)^(n/d)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 33 terms through n = 374 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -28,14 +31,14 @@ seq_t a(idx_t n)
             /* divisor d */
             seq_t bin = binomial(n, d);
             seq_t exp = (seq_t)(n / d);
-            sum += big_pow(bin, exp);
+            sum += ipow(bin, exp);
 
             /* paired divisor k = n/d, if distinct */
             idx_t k = n / d;
             if (k != d) {
                 seq_t bink = binomial(n, k);
                 seq_t expk = (seq_t)(n / k);   /* which is d */
-                sum += big_pow(bink, expk);
+                sum += ipow(bink, expk);
             }
         }
     }

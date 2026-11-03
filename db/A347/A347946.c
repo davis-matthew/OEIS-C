@@ -9,7 +9,8 @@
  *            or n has no primitive roots. (OEIS A347946)
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 17, u64 n <= 25, u128 n <= 30,
  *            big any n
- * Helpers:   factor_u64, gcd_u64, has_primitive_root, mod_pow
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   factor_u64, gcd_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,43 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd_u64.h"
-#include "../utils/has_primitive_root.h"
+#include "../utils/powmod.h"
+
+/* ---------- Test whether n has primitive roots ----------
+ *   n must be > 2.
+ *   Uses the classification:
+ *       n = 4
+ *       n = p^k   (p odd prime)
+ *       n = 2 * p^k (p odd prime)
+ *   Returns true if n admits primitive roots.          */
+static inline bool has_primitive_root(uint64_t n,
+                                      const uint64_t *pr,
+                                      const uint64_t *ex,
+                                      size_t cnt)
+{
+    /* n = 4 */
+    if (n == 4u) return true;
+
+    /* n = 2 * p^k with p odd prime */
+    if (cnt == 2) {
+        size_t idx2 = (pr[0] == 2u) ? 0 : ((pr[1] == 2u) ? 1 : SIZE_MAX);
+        if (idx2 != SIZE_MAX && ex[idx2] == 1u && (pr[idx2 ^ 1] & 1u)) {
+            return true;
+        }
+        return false;
+    }
+
+    /* n = p^k, p odd prime */
+    if (cnt == 1 && (pr[0] & 1u)) {
+        return true;
+    }
+
+    /* No other cases */
+    return false;
+}
 
 /* ---------- Utility: GCD for uint64_t ---------- */
 
@@ -68,7 +102,7 @@ seq_t a(idx_t n)
         /* Test if i is a primitive root */
         bool is_primitive = true;
         for (size_t j = 0; j < cnt_phi; ++j) {
-            if (mod_pow((seq_t)i, phi_n / primes_phi[j], (seq_t)nn) == (seq_t)1) {
+            if (powmod((seq_t)i, phi_n / primes_phi[j], (seq_t)nn) == (seq_t)1) {
                 is_primitive = false;
                 break;
             }

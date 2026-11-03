@@ -7,18 +7,50 @@
  * Formula:   a(n) is the decimal value of the n‑th prefix‑normal word over
  *            {1,2} enumerated lexicographically (first by length, then by
  *            value)
- * Range:     u8 n <= 10, u16 n <= 32, u32 n <= 509, u64 n <= 9742,
- *            u128 n <= 9742, big any n
- * Helpers:   alloc_seq_array, free_seq_array, is_prefix_normal
+ * Range:     u8 n <= 10, u16 n <= 32, u32 n <= 509, u64 n <= 16906,
+ *            u128 n <= 16906, big any n
+ * Validated: standard, pass, 57 terms through n = 9742 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/is_prefix_normal.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* ---------- check prefix‑normal property for a prefix of length len ---------- */
+static bool is_prefix_normal(const int *dig, int len)
+{
+    int prefOnes[64];
+    prefOnes[0] = 0;
+    for (int i = 0; i < len; ++i)
+        prefOnes[i + 1] = prefOnes[i] + (dig[i] == 1 ? 1 : 0);
+
+    for (int k = 1; k <= len; ++k) {
+        int maxOnes = 0;
+        for (int s = 0; s + k <= len; ++s) {
+            int subOnes = prefOnes[s + k] - prefOnes[s];
+            if (subOnes > maxOnes)
+                maxOnes = subOnes;
+            if (maxOnes > prefOnes[k])
+                return false;                     /* early rejection */
+        }
+    }
+    return true;
+}
 
 /* ---------- global storage for generated terms ---------- */
 static seq_t *table      = NULL;   /* array of computed values   */

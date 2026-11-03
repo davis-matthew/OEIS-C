@@ -9,13 +9,15 @@
  *            a(1)=1, a(2)=0, a(3)=0, a(4)=0, a(5)=1
  * Range:     u8 n <= 13, u16 n <= 21, u32 n <= 38, u64 n <= 70, u128 n <= 136,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *pent_cache = NULL;
 static size_t cache_used = 0;  /* number of values stored (>=5 after init) */
@@ -27,7 +29,7 @@ static void pent_ensure(idx_t n)
     if (pent_cache == NULL) {
         /* initial allocation for first five terms */
         cache_cap = (n > 5 ? n : 5);
-        pent_cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        pent_cache = mem_new(seq_t, cache_cap);
         if (!pent_cache) abort();  /* out of memory */
 
         /* fill base cases */
@@ -42,7 +44,7 @@ static void pent_ensure(idx_t n)
         size_t new_cap = cache_cap;
         while ((size_t)n > new_cap)
             new_cap = new_cap * 2 + 10; /* avoid too many reallocs */
-        seq_t *tmp = (seq_t *)realloc(pent_cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, pent_cache, new_cap);
         if (!tmp) abort();  /* out of memory */
         pent_cache = tmp;
         cache_cap = new_cap;

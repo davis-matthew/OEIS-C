@@ -11,12 +11,14 @@
  *            704*a(n-4) + 1024*a(n-5)
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 16, i64 n <= 33, i128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 486 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Ensure cache exists and has at least the first five terms */
     if (cached_n == 0) {
         cache_cap = 10;                  /* start with some spare room */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;     /* out-of-memory; unlikely in test harness */
 
         /* initial values a(1) .. a(5) */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         idx_t new_cap = cache_cap;
         while (new_cap < n) new_cap *= 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return (seq_t)0; /* realloc failed */
         cache = new_cache;
         cache_cap = new_cap;

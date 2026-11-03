@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   digits_of
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
    pair a,b is preferred to b,a if ab > ba.  */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/digits_of.h"
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
 
 /* Compare two indices a and b so that the concatenation a followed
    by b is larger than b followed by a.  If ab > ba, a should come
@@ -29,8 +31,8 @@ static int cmp_desc(const void *p, const void *q)
 {
     idx_t a = *(const idx_t *)p;
     idx_t b = *(const idx_t *)q;
-    int da = digits_of(a);
-    int db = digits_of(b);
+    int da = num_digits_idx(a);
+    int db = num_digits_idx(b);
 
     /* compute 10^da and 10^db using 64‑bit arithmetic */
     uint64_t pow_da = 1, pow_db = 1;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (idx_t i = 0; i < n; ++i) {
         idx_t val = arr[i];
-        int d = digits_of(val);
+        int d = num_digits_idx(val);
 
         /* 10^d as seq_t */
         seq_t mult = 1;

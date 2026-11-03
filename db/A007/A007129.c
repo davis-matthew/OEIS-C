@@ -12,18 +12,42 @@
  *            floor(L_i/2) + Sum_{i<j} gcd(L_i,L_j) is the number of...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   binom, gsmall, pw2, seq_is_fixed_width, u128_to_seq
+ * Validated: standard, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   binomial, gcd_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/pw2.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/gsmall.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/pow2.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 typedef unsigned __int128 u128_t;
 
@@ -48,7 +72,7 @@ static void eval_term(long long N, long long k, int odd, idx_t c1, idx_t c2,
     E = 2 * N - k + (odd ? 1 : 0);
     if (g_big) {
         seq_t t = w * (seq_t)f;
-        g_acc += t * pw2((idx_t)E);
+        g_acc += t * pow2((idx_t)E);
     } else {
         long long v = 0, s;
         idx_t fo = f;
@@ -68,7 +92,7 @@ static void rec(idx_t L, idx_t m, long long N, long long k, int odd,
     long long zvc = zv, vL = 0;
     idx_t Lo = L;
     if (m == 0) { eval_term(N, k, odd, 0, c2, w, zi, zv); return; }
-    for (d = 0; d < g_dep; d++) sumg += g_ct[d] * gsmall(L, g_sz[d]);
+    for (d = 0; d < g_dep; d++) sumg += g_ct[d] * gcd_idx(L, g_sz[d]);
     while ((Lo & 1) == 0) { Lo >>= 1; vL++; }
     invL = inv_odd((u128_t)Lo);
     cmax = m / L;
@@ -94,7 +118,7 @@ static void rec(idx_t L, idx_t m, long long N, long long k, int odd,
             idx_t c2n = (L == 2) ? c : c2;
             idx_t m2 = m - c * L;
             seq_t w2 = wp;
-            if (g_big) w2 = wp * binom(m, c * L);
+            if (g_big) w2 = wp * binomial(m, c * L);
             if (L == 1) {
                 eval_term(N2, k2, odd2, c, c2n, w2, zic, zvc);
                 continue;

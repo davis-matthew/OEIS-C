@@ -11,13 +11,15 @@
  *            elements with k cycles)
  * Range:     u8 n <= 22, u16 n <= 38, u32 n <= 82, u64 n <= 197,
  *            u128 n <= 510, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 1306 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Determine the row r that contains the n-th element. */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
 
     /* Allocate space for Stirling numbers s(n,k).  The array holds
        one row of the Stirling table. */
-    seq_t *s = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *s = mem_new(seq_t, (r + 1));
     if (!s) return 0;                                 /* allocation failure */
 
     /* Initial row s(0,0) = 1.  All other entries are 0. */
@@ -55,6 +57,6 @@ seq_t a(idx_t n) {
     /* Result is k! * s(r,offset). */
     seq_t result = kfact * s[offset];
 
-    free(s);
+    mem_free(s);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 17, i32 n <= 29, i64 n <= 58, i128 n <= 110,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  *  (a_n) equals the sequence (a_0,a_0,a_0,a_1,a_1,a_1,…) .
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Ensure the cache big enough (C++ compilers also accept this).
  *  A seq_t element is default‑constructible from 0, so we use (seq_t)0.
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t required, seq_t **arr, idx_t *size)
     if (required < *size)
         return;
     idx_t new_size = required < 4 ? 4 : required * 2;
-    seq_t *new_arr = (seq_t *)realloc(*arr, new_size * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, *arr, new_size);
     if (!new_arr)  /* Out of memory: abort */
         abort();
     /* Initialise new elements to 0 */

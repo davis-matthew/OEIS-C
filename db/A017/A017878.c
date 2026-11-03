@@ -8,13 +8,15 @@
  *            a(1)..a(8)=0; a(9)=a(10)=a(11)=1
  * Range:     u8 n <= 67, u16 n <= 118, u32 n <= 222, u64 n <= 423,
  *            u128 n <= 825, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>  /* size_t */
 #include <stdlib.h>  /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Compute the n-th term of OEIS A017878 */
 seq_t
@@ -33,7 +35,7 @@ a(idx_t n)
         while (cache_cap <= (size_t)n)
             cache_cap <<= 1;
         /* realloc the buffer */
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) return 0;          /* allocation failure: return 0 (undefined) */
         cache = tmp;
         /* initialize newly added slots to zero */

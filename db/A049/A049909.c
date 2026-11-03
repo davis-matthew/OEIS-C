@@ -10,7 +10,8 @@
  *            a(1)=1, a(2)=2, a(3)=3
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* This implementation memoizes computed values up to the maximum requested n. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_vals = NULL;   /* stored a(i) values, 1-indexed            */
 static seq_t *pref   = NULL;   /* pref[i] = sum_{j=1}^{i} a(j), pref[0]=0   */
@@ -31,8 +33,8 @@ static void ensure_capacity(idx_t n)
     if (cap >= n) return;
     idx_t newcap = (cap > 0) ? cap * 2 : 16;
     while (newcap < n) newcap <<= 1;
-    a_vals = (seq_t *)realloc(a_vals, sizeof(seq_t) * (newcap + 1));
-    pref   = (seq_t *)realloc(pref,   sizeof(seq_t) * (newcap + 1));
+    a_vals = mem_resize(seq_t, a_vals, (newcap + 1));
+    pref   = mem_resize(seq_t, pref, (newcap + 1));
     if (!initialized) {
         pref[0] = 0; /* pref[0] must be zero */
     }

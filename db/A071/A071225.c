@@ -7,7 +7,8 @@
  * Formula:   a(n) = (∏_{k=1}^{n} p_{T_{n-1}+k})^n, where T_m = m(m+1)/2
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   build_primes_upto, prime_limit_for_idx, seq_mul, seq_pow
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,10 +16,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/prime_limit_for_idx.h"
+#include <string.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+
+/* utility – estimate an upper bound for the n-th prime (Rosser–Schoenfeld) */
+static idx_t prime_limit_for_idx(idx_t n)
+{
+    if (n < 6)
+        return 12;                               /* prime(6)=13 */
+    double dn   = (double)n;
+    double lgn  = log(dn);
+    double lgln = log(lgn);
+    /* p_n < n(ln n + ln ln n) for n ≥ 6, add a safety margin */
+    double limit = dn * (lgn + lgln) + 3.0;
+    return (idx_t)limit;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static uint64_t *prime_cache = NULL;
 static size_t prime_cache_count = 0;
@@ -60,5 +79,5 @@ seq_t a(idx_t n)
     for (idx_t i = start_index; i < end_index; ++i)
         prod = seq_mul(prod, (seq_t)prime_cache[i]);
 
-    return seq_pow(prod, n);
+    return ipow_idx(prod, n);
 }

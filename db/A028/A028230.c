@@ -8,7 +8,8 @@
  * Formula:   a(n) = 14*a(n-1) - a(n-2) with a(1)=1, a(2)=15
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 877 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* The function maintains a static cache so repeated calls are O(1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     if (n > cache_size) {
         /* Allocate / resize cache to hold up to n elements */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp) {
             /* allocation failed */
             exit(1);

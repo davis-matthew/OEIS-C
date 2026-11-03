@@ -11,12 +11,14 @@
  *            a(5)=8, a(6)=12, a(7)=27, a(8)=52
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoisation cache */
 static idx_t cache_sz = 0;    /* number of elements stored (indices 0 … cache_sz-1) */
@@ -26,7 +28,7 @@ static void init_cache(void)
 {
     const uint8_t init_vals[9] = {1,0,1,2,3,8,12,27,52};
     cache_sz = 9;
-    cache = (seq_t*)malloc(sizeof(seq_t) * cache_sz);
+    cache = mem_new(seq_t, cache_sz);
     for (idx_t i = 0; i < cache_sz; ++i)
         cache[i] = (seq_t)init_vals[i];
 }
@@ -34,7 +36,7 @@ static void init_cache(void)
 static void expand_cache(idx_t up_to)
 {
     if (up_to + 1 > cache_sz) {
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * (up_to + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (up_to + 1));
         cache = tmp;
         for (idx_t i = cache_sz; i <= up_to; ++i)
             cache[i] = (seq_t)0;

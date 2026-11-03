@@ -8,6 +8,7 @@
  * Formula:   a(n) = (3*n^3 + 21*n^2 - 6*n + 14)/2
  * Range:     u8 n <= 2, u16 n <= 25, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
+ * Validated: partial, pass, 39 terms through n = 40 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

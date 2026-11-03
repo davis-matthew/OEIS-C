@@ -7,12 +7,25 @@
  * Formula:   a(n) = (n^2 concatenated with reverse(n^2))/11
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   pow10_of_digits
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10_of_digits.h"
+/* Computes 10^d where d is the number of decimal digits of x.
+   For x == 0 returns 10. */
+static seq_t pow10_of_digits(seq_t x)
+{
+    seq_t pow10 = 1;
+    if (x == 0)
+        return 10;
+    while (x) {
+        pow10 *= 10;
+        x /= 10;
+    }
+    return pow10;
+}
 /* Implementation using only integer arithmetic on seq_t and idx_t. */
 
 static seq_t reverse_decimal(seq_t x)

@@ -7,7 +7,8 @@
  * Keywords:  nonn, base
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 4, u128 n <= 62, big any n
- * Helpers:   digit_counts, seq_realloc
+ * Validated: standard, pass, 25 terms through n = 978 (2026-11-01)
+ * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include <stdint.h>
 #include "../utils/digit_counts.h"
-#include "../utils/seq_realloc.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Grow an array of seq_t elements using the provided sequence reallocation
  * helper.  This guarantees proper construction of arbitrary–precision

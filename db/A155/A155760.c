@@ -7,7 +7,8 @@
  * Formula:   Search for primes p such that p+30 and p+60 are also prime
  * Range:     u8 n <= 23, u16 n <= 805, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------------------- */
 /* Sieve parameters */
@@ -115,7 +117,7 @@ static void init_sieve(void)
 static void grow_seq(void)
 {
     size_t new_cap = seq_cap ? seq_cap << 1 : 256;
-    seq_terms = (seq_t *)realloc(seq_terms, new_cap * sizeof(seq_t));
+    seq_terms = mem_resize(seq_t, seq_terms, new_cap);
     seq_cap = new_cap;
 }
 

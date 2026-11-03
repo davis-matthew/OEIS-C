@@ -8,14 +8,31 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_39_93
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Search: numbers k containing "39" or "93", but not in k-1 */
 #include <stdbool.h>
-#include "../utils/has_39_93.h"
+
+/* Check whether a non‑negative integer x contains the adjacent
+   digits 3 and 9 in either order. */
+static bool has_39_93(idx_t x)
+{
+    if (x < 10) return false;          /* a single digit cannot contain a pair */
+    int prev = x % 10;
+    x /= 10;
+    while (x > 0) {
+        int cur = x % 10;
+        if ((cur == 3 && prev == 9) || (cur == 9 && prev == 3))
+            return true;
+        prev = cur;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

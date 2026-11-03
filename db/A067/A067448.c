@@ -8,7 +8,8 @@
  *            starts with 7
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 32 terms through n = 595 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -38,5 +39,5 @@ seq_t a(idx_t n)
     }
 
     /* Return the exact value base^n.  pow_uint handles arbitrary‑precision arithmetic. */
-    return pow_uint(base, n);
+    return ipow_u64_idx(base, n);
 }

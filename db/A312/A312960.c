@@ -10,7 +10,8 @@
  *            a(3)=13, a(4)=18, a(5)=24, a(6)=28, a(7)=32) for n > 7
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system.  The following
  * implementation uses lazy memoisation.  The cache holds all
@@ -39,15 +41,15 @@ static void ensure_capacity(idx_t needed)
     if (new_cap < needed)
         new_cap = needed;
 
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) {
         /* OOM – abort: the tests expect a valid result, so terminate. */
         abort();
     }
 
     if (cache) {
-        memcpy(new_cache, cache, sizeof(seq_t) * cache_end);
-        free(cache);
+        mem_copy(new_cache, cache, sizeof(seq_t) * cache_end);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

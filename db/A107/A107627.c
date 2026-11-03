@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 20, u64 n <= 100, u128 n <= 100,
  *            big any n
- * Helpers:   has_loop_digits_uint128, root_square
+ * Validated: standard, pass, 35 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,29 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_loop_digits_uint128.h"
-#include "../utils/root_square.h"
+#include "../utils/mem.h"
+
+/* ---------- Helper: test if every decimal digit is a loop digit ---------- */
+static bool has_loop_digits_uint128(unsigned __int128 v)
+{
+    if (v == 0) return true;          /* 0 is a valid loop digit */
+    while (v != 0) {
+        unsigned d = (unsigned)(v % 10);
+        if (d != 0 && d != 4 && d != 6 && d != 8 && d != 9)
+            return false;
+        v /= 10;
+    }
+    return true;
+}
+
+/* Compute root^2, safely handling possible overflows in seq_t.            */
+static seq_t root_square(seq_t root)
+{
+    unsigned __int128 sq = (unsigned __int128)(seq_t)root * (unsigned __int128)(seq_t)root;
+    seq_t max_val = (seq_t)-1;                    /* maximum value representable by seq_t */
+    if (sq > (unsigned __int128)max_val) return 0; /* overflow -> treat as 0 (invalid) */
+    return (seq_t)sq;
+}
 
 /* ---------- Dynamic storage for terms and the root queue ----------------- */
 static seq_t *term_arr = NULL;   /* array of found terms (squares)   */
@@ -40,7 +62,7 @@ static void ensure_term_cap(idx_t needed)
     if (needed <= term_cap) return;
     idx_t new_cap = term_cap ? term_cap << 1 : 128;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(term_arr, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, term_arr, new_cap);
     term_arr = new_arr;
     term_cap = new_cap;
 }
@@ -51,7 +73,7 @@ static void ensure_queue_cap(idx_t needed)
     if (needed <= queue_cap) return;
     idx_t new_cap = queue_cap ? queue_cap << 1 : 256;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(queue_arr, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, queue_arr, new_cap);
     queue_arr = new_arr;
     queue_cap = new_cap;
 }

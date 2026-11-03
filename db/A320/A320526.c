@@ -11,14 +11,17 @@
  *            values: a(1)=0, a(2)=0, a(3)=0
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,13 +30,13 @@ seq_t a(idx_t n)
 
     /* Allocate arrays for A0..A3 up to index n. */
     size_t len = (size_t)n + 1;
-    seq_t *A0 = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *A1 = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *A2 = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *A3 = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *A0 = mem_new(seq_t, len);
+    seq_t *A1 = mem_new(seq_t, len);
+    seq_t *A2 = mem_new(seq_t, len);
+    seq_t *A3 = mem_new(seq_t, len);
     if (!A0 || !A1 || !A2 || !A3)
     {
-        free(A0); free(A1); free(A2); free(A3);
+        mem_free(A0); mem_free(A1); mem_free(A2); mem_free(A3);
         return (seq_t)0;
     }
 
@@ -58,15 +61,15 @@ seq_t a(idx_t n)
     }
 
     /* Stirling number of the second kind S2(n,3) */
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n);
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)n);
     seq_t S2   = pow3 - (seq_t)3 * pow2 + (seq_t)3;
     S2 = S2 / (seq_t)6;
 
     seq_t result = (S2 - A3[n]) / (seq_t)2;
 
     /* Free temporary arrays */
-    free(A0); free(A1); free(A2); free(A3);
+    mem_free(A0); mem_free(A1); mem_free(A2); mem_free(A3);
 
     return result;
 }

@@ -7,8 +7,9 @@
  * Formula:   a(n) = n-th digit of 7^(1/3) = 1.9129311827..., found by
  *            digit-by-digit cube root extraction: r = 1000*r + group, choose
  *            the largest d with (300*y^2 + 30*y*d + d^2)*d <= r
- * Range:     u8 n <= 9066, u16 n <= 9066, u32 n <= 9066, u64 n <= 9066,
- *            u128 n <= 9066, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9066 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

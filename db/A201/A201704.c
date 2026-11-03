@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 989, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   is_prime_64, mul_mod, pow_mod
+ * Validated: standard, pass, 48 terms through n = 4785 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_64.h"
-#include "../utils/mul_mod.h"
-#include "../utils/pow_mod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 /* ---------- Main sequence function ---------- */
 seq_t a(idx_t n)
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
         __int128 t = (__int128)8 * k * k + 7;
         uint64_t cand = (uint64_t)t;   /* safe for n up to about 10 000 */
 
-        if (is_prime_64(cand))
+        if (is_prime_u64(cand))
         {
             ++count;
             if (count == n)

@@ -12,7 +12,8 @@
  *            the required row of the triangle on the fly. * No memoisati...
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #ifdef __cplusplus
 #include <new>   /* For placement new on arbitrary‑precision types */
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,18 +46,18 @@ seq_t a(idx_t n)
 
     /* Allocate three rows of maximum required length (m+1). */
     size_t maxrow = (size_t)(m + 1);
-    seq_t *row_prev  = (seq_t *)malloc(maxrow * sizeof(seq_t));
-    seq_t *row_prev2 = (seq_t *)malloc(maxrow * sizeof(seq_t));
-    seq_t *row_curr  = (seq_t *)malloc(maxrow * sizeof(seq_t));
+    seq_t *row_prev  = mem_new(seq_t, maxrow);
+    seq_t *row_prev2 = mem_new(seq_t, maxrow);
+    seq_t *row_curr  = mem_new(seq_t, maxrow);
     if (!row_prev || !row_prev2 || !row_curr)
         abort();   /* Out of memory */
 
 #ifdef __cplusplus
     /* Construct all elements for a class type. */
     for (size_t i = 0; i < maxrow; ++i) {
-        new (&row_prev[i])  seq_t();
-        new (&row_prev2[i]) seq_t();
-        new (&row_curr[i])  seq_t();
+        *(&row_prev[i]) = (seq_t)0;
+        *(&row_prev2[i]) = (seq_t)0;
+        *(&row_curr[i]) = (seq_t)0;
     }
 #endif
 
@@ -70,9 +72,9 @@ seq_t a(idx_t n)
 
     if (m == 0) {
         seq_t result = row_prev[0];
-        free(row_prev);
-        free(row_prev2);
-        free(row_curr);
+        mem_free(row_prev);
+        mem_free(row_prev2);
+        mem_free(row_curr);
         return result;
     }
 
@@ -99,9 +101,9 @@ seq_t a(idx_t n)
     seq_t result = row_prev[k];
 
     /* Clean up */
-    free(row_prev);
-    free(row_prev2);
-    free(row_curr);
+    mem_free(row_prev);
+    mem_free(row_prev2);
+    mem_free(row_curr);
 
     return result;
 }

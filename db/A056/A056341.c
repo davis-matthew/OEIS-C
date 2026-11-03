@@ -10,7 +10,8 @@
  *            even
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   calc_phi, factor_u64, pow_seq
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/calc_phi.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/totient_seq.h"
 
 /* Recursive divisor generation */
 static void rec_divs(const uint64_t *primes, const uint64_t *exps, size_t cnt,
@@ -28,8 +30,8 @@ static void rec_divs(const uint64_t *primes, const uint64_t *exps, size_t cnt,
 {
     if (idx == cnt) {
         idx_t exp = n / (idx_t)cur;
-        seq_t pow6 = pow_seq((seq_t)6, (int)exp);
-        seq_t term = calc_phi((seq_t)cur) * pow6;
+        seq_t pow6 = ipow_i32((seq_t)6, (int)exp);
+        seq_t term = totient_seq((seq_t)cur) * pow6;
         *sum += term;
         return;
     }
@@ -60,11 +62,11 @@ seq_t a(idx_t n)
     /* Reflection contribution */
     seq_t sum_ref = 0;
     if (n & 1ULL) { /* odd n */
-        seq_t pow_half = pow_seq((seq_t)6, (int)((n + 1) / 2));
+        seq_t pow_half = ipow_i32((seq_t)6, (int)((n + 1) / 2));
         sum_ref = (seq_t)n * pow_half;
     } else {        /* even n */
-        seq_t pow_half     = pow_seq((seq_t)6, (int)(n / 2));
-        seq_t pow_half_p1  = pow_seq((seq_t)6, (int)(n / 2 + 1));
+        seq_t pow_half     = ipow_i32((seq_t)6, (int)(n / 2));
+        seq_t pow_half_p1  = ipow_i32((seq_t)6, (int)(n / 2 + 1));
         seq_t factor       = (seq_t)(n / 2);
         sum_ref = factor * (pow_half + pow_half_p1);
     }

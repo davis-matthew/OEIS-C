@@ -7,8 +7,9 @@
  * Formula:   a(n) = T(k, m) where k is the column number (k*(k+1)/2 >= n), m
  *            = k - (n - (k-1)*k/2 - 1) and T is defined by T(1, k) = 2^(k-1),
  *            T(m+1, k) = (k-m) * floor((T(m, k)-1)/(k-m)) (1 ≤ m < k)
- * Range:     u8 n <= 36, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
- *            big any n
+ * Range:     u8 n <= 36, u16 n <= 151, u32 n <= 560, u64 n <= 1275,
+ *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 82 terms through n = 1214 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

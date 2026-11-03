@@ -9,13 +9,15 @@
  *            Lucas numbers (L_0 = 2, L_1 = 1, L_{k} = L_{k-1}+L_{k-2})
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute the n‑th term of A024469 */
 seq_t a(idx_t n)
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for Lucas numbers up to index n.  Size n+1 is needed. */
     size_t sz = (size_t)n + 1;
-    seq_t *lucas = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *lucas = mem_new(seq_t, sz);
     if (!lucas) abort();
 
     /* Base cases: L_0 = 2, L_1 = 1.  For n == 1 we only need L_0 and L_1. */
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
         sum += left * right;
     }
 
-    free(lucas);
+    mem_free(lucas);
     return sum;
 }

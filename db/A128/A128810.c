@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   alloc_seq
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq.h"     /* alloc_seq */
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {

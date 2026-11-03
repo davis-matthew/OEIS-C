@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor((2*prime(n+1)+2)/3)
  * Range:     u8 n <= 74, u16 n <= 9438, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9917 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* Global prime cache (0‑based, prime[0] = 2) */

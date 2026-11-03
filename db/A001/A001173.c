@@ -9,7 +9,8 @@
  *            z(lambda) = Prod_k k^m_k * m_k!
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   a1173_divsmall, a1173_gcd
+ * Validated: standard, pass, 30 terms through n = 59 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/a1173_divsmall.h"
-#include "../utils/a1173_gcd.h"
+#include "../utils/gcd_u64.h"
+
+static void a1173_divsmall(uint32_t *b, size_t *bl, uint64_t d) {
+    uint64_t r = 0;
+    size_t i;
+    for (i = *bl; i-- > 0;) {
+        uint64_t cur = (r << 32) | b[i];
+        b[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+    while (*bl > 0 && b[*bl - 1] == 0) (*bl)--;
+}
 
 static uint32_t *g_acc;
 static size_t g_accL;
@@ -56,7 +67,7 @@ static void a1173_rec(idx_t k, idx_t rem, const uint32_t *c, size_t clen,
     size_t bl = clen;
     uint64_t G = 0;
     idx_t d, m;
-    for (d = 0; d < depth; d++) G += (uint64_t)g_sm[d] * a1173_gcd(k, g_sp[d]);
+    for (d = 0; d < depth; d++) G += (uint64_t)g_sm[d] * gcd_u64(k, g_sp[d]);
     for (m = 0; m * k <= rem; m++) {
         if (m > 0) a1173_divsmall(b, &bl, (uint64_t)k * m);
         if (k == 1 && m < rem) continue;

@@ -6,14 +6,16 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = Σ_{m∈Fib, m≤n} binom(n−1, m−1) (distinct Fibonacci
  *            numbers)
- * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 34, u128 n <= 34,
+ * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -25,17 +27,17 @@ seq_t a(idx_t n)
     idx_t curr = 2;     /* second distinct Fibonacci number */
 
     /* Add contribution for m = 1 */
-    sum += binom(n - 1, prev - 1);
+    sum += binomial(n - 1, prev - 1);
 
     /* Add contribution for m = 2, if it does not exceed n */
     if (curr <= n)
-        sum += binom(n - 1, curr - 1);
+        sum += binomial(n - 1, curr - 1);
 
     /* Build further distinct Fibonacci numbers and add */
     while (1) {
         idx_t next = prev + curr;
         if (next > n) break;
-        sum += binom(n - 1, next - 1);
+        sum += binomial(n - 1, next - 1);
         prev = curr;
         curr = next;
     }

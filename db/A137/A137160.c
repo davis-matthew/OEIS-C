@@ -11,14 +11,17 @@
  *            contributions. The arrays a, 2^k, the magnitu...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,15 +36,15 @@ seq_t a(idx_t n)
     /* Extend storage if necessary */
     if (n + 1 > size) {
         idx_t new_size = n + 1;
-        seq_t *new_val  = (seq_t*)calloc(new_size, sizeof(seq_t));
-        seq_t *new_pow2 = (seq_t*)calloc(new_size, sizeof(seq_t));
-        seq_t *new_Bmag = (seq_t*)calloc(new_size, sizeof(seq_t));
+        seq_t *new_val  = mem_new(seq_t, new_size);
+        seq_t *new_pow2 = mem_new(seq_t, new_size);
+        seq_t *new_Bmag = mem_new(seq_t, new_size);
         idx_t *new_k_cur= (idx_t*)calloc(new_size, sizeof(idx_t));
 
         /* copy previous data */
-        if (val)   { memcpy(new_val,   val,   size * sizeof(seq_t)); free(val); }
-        if (pow2_tbl) { memcpy(new_pow2, pow2_tbl, size * sizeof(seq_t)); free(pow2_tbl); }
-        if (Bmag)  { memcpy(new_Bmag, Bmag,  size * sizeof(seq_t)); free(Bmag); }
+        if (val)   { mem_copy(new_val, val, size * sizeof(seq_t)); mem_free(val); }
+        if (pow2_tbl) { mem_copy(new_pow2, pow2_tbl, size * sizeof(seq_t)); mem_free(pow2_tbl); }
+        if (Bmag)  { mem_copy(new_Bmag, Bmag, size * sizeof(seq_t)); mem_free(Bmag); }
         if (k_cur) { memcpy(new_k_cur, k_cur, size * sizeof(idx_t)); free(k_cur); }
 
         /* initialise new entries (k = 0 → Bmag = 1) */

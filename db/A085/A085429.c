@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   rev
+ * Validated: standard, pass, 81 terms through n = 971 (2026-11-03)
+ * Helpers:   mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    Computed by scanning integers in order and selecting those whose binary
    popcount equals that of their decimal reversal. */
 #include <stdlib.h>
-#include "../utils/rev.h"
+#include <stdbool.h>
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 /* static cache of found terms */
 static seq_t *seq      = NULL;   /* array of terms */
@@ -32,7 +35,7 @@ static void grow(size_t needed)
     if (capacity < needed) {
         size_t new_cap = capacity ? capacity * 2 : 32;
         while (new_cap < needed) new_cap *= 2;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         capacity = new_cap;
     }
 }
@@ -55,7 +58,7 @@ seq_t a(idx_t n)
     while (count <= (size_t)n) {
         /* test current number cur (idx_t underlying type) */
         unsigned int pc_cur  = popcount_seq((seq_t)cur);
-        idx_t        rev_cur = rev(cur);            /* decimal reversal   */
+        idx_t        rev_cur = reverse_digits_idx(cur);            /* decimal reversal   */
         unsigned int pc_rev = popcount_seq((seq_t)rev_cur);
 
         if (pc_cur == pc_rev) {

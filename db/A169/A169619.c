@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
  */
 
 #include <stdlib.h>
-#include "../utils/seq_mul.h"   /* provides seq_mul(seq_t, seq_t) */
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +50,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return cur_a;         /* out of memory – unlikely */
         cache[0] = cur_a;                        /* a(0) = 1 */
         cache_max = 0;
@@ -56,7 +65,7 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > cache_cap) {
         size_t new_cap = cache_cap;
         while ((size_t)(n + 1) > new_cap) new_cap *= 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (new_cache == NULL) return cur_a;     /* realloc failed */
         cache = new_cache;
         cache_cap = new_cap;

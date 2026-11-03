@@ -10,7 +10,8 @@
  *            nontrivial permutation then fixes n)
  * Range:     u8 n <= 12, u16 n <= 34, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   digit_sig
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_sig.h"
+
+static uint64_t digit_sig(uint64_t x, int *len) {
+    uint64_t s = 0;
+    int l = 0;
+    do {
+        s += (uint64_t)1 << (5 * (int)(x % 10));
+        x /= 10;
+        l++;
+    } while (x > 0);
+    *len = l;
+    return s;
+}
 
 static uint64_t *cube_val = NULL, *cube_sig = NULL;
 static int *cube_len = NULL;

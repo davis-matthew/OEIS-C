@@ -13,12 +13,14 @@
  *            a(2)=18, a(3)=84, a(4)=468, a(5)=2856, a(6)=17800, a(7)...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Allocate a temporary array of size n+1.  The index 0 slot is unused. */
     size_t sz = (size_t)(n + 1);
-    seq_t *buf = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, sz);
     if (!buf) return (seq_t)0;  /* allocation failed – unlikely for n ≤ 10000 */
 
     /* Initialize the known first twelve terms. */
@@ -83,6 +85,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[n];
-    free(buf);
+    mem_free(buf);
     return result;
 }

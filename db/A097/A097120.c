@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* memoised values   */
 static size_t cache_cap = 0;   /* allocated capacity */
@@ -35,7 +37,7 @@ static void ensure_capacity(idx_t n)
     if (new_cap <= (size_t)n)
         new_cap = (size_t)n + 1;
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) {
         /* Allocation failed – abort because the sequence cannot be computed. */
         abort();
@@ -49,12 +51,12 @@ static void ensure_capacity(idx_t n)
     /* Initialise the newly allocated slots. */
 #ifdef __cplusplus
     for (size_t i = cache_cap; i < new_cap; ++i) {
-        new(&new_cache[i]) seq_t();
+        *(&new_cache[i]) = (seq_t)0;
     }
 #endif
 
     /* Free old buffer and update globals. */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }

@@ -13,6 +13,7 @@
  *            dynamic programming over 3‑ary column‑sum states
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 19, u64 n <= 89, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 196 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

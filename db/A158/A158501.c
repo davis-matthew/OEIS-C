@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n+1)*(2*(-1)^n*n^2 + 4*(-1)^n*n + 3*n + 3)/3
  * Range:     i8 n <= 5, i16 n <= 35, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 56 terms through n = 978 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

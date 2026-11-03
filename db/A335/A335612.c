@@ -10,12 +10,15 @@
  * Formula:   a(n) = 9*7^(n-2) - 11*3^(n-2) + 2
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 37 terms through n = 819 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +26,8 @@ seq_t a(idx_t n)
         return 0; /* offset is 3; values below are undefined */
 
     idx_t exp = n - 2;            /* exponent for the powers */
-    seq_t pow7 = big_pow((seq_t)7, (seq_t)exp);
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)exp);
+    seq_t pow7 = ipow((seq_t)7, (seq_t)exp);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)exp);
 
     seq_t result = ((seq_t)9) * pow7 - ((seq_t)11) * pow3 + (seq_t)2;
     return result;

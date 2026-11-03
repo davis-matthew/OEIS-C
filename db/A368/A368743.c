@@ -8,6 +8,7 @@
  *            p^(3k‑2)(p²+p+1) – p^(2k‑2)(p+1) (k≥1)
  * Range:     u8 n <= 5, u16 n <= 35, u32 n <= 1199, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 9930 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,20 +10,23 @@
  *            p^e - p^(e/2) if e even )
  * Range:     u8 n <= 16, u16 n <= 2216, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 84 terms through n = 8880 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static seq_t sigma_of_prime_power(uint64_t p, uint64_t e)
 {
     /* sigma(p^e) = (p^{e+1} - 1)/(p-1) */
-    seq_t pe1 = big_pow(p, e + 1);
+    seq_t pe1 = ipow(p, e + 1);
     seq_t num = pe1 - 1;
     seq_t den = (seq_t)(p - 1);
     return num / den;
@@ -35,8 +38,8 @@ static seq_t a_prime_power(uint64_t p, uint64_t e)
     if (e & 1ULL)                /* e is odd */
         return sigma;
     /* e even */
-    seq_t pe  = big_pow(p, e);
-    seq_t hin = big_pow(p, e / 2);
+    seq_t pe  = ipow(p, e);
+    seq_t hin = ipow(p, e / 2);
     return sigma + pe - hin;
 }
 

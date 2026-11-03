@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   diff_is_six
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,19 @@
 */
 
 #include <stdbool.h>
-#include "../utils/diff_is_six.h"
+
+static inline bool diff_is_six(idx_t i)
+{
+    /* Special cases for the first block (i <= 4) are handled automatically. */
+    if (i % 5 == 3) return true;            /* r == 3  */
+    idx_t q = i / 5;                        /* floor(i/5)  */
+    idx_t r = i % 5;
+    if ((q & 1u) == 0u) {                   /* q is even   */
+        if (r == 0u) return true;           /* r == 0      */
+        if (r == 1u && q > 0u) return true; /* r == 1 & q>=1 */
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

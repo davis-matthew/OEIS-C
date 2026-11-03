@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Prime list handling                                               */
@@ -164,10 +166,9 @@ seq_t a(idx_t n)
     /* generate additional terms until we have n of them */
     while (cache_cnt < n) {
         if (qualifies(next_k)) {
-            seq_t *tmp = (seq_t *)realloc(cache,
-                                         (cache_cnt + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (cache_cnt + 1));
             if (!tmp) {
-                free(cache);
+                mem_free(cache);
                 exit(1);   /* allocation failure */
             }
             cache = tmp;

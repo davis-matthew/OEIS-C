@@ -10,14 +10,37 @@
  *            (i,j) are the antidiagonal coordinates of n
  * Range:     u8 n <= 135, u16 n <= 2079, u32 n <= 2079, u64 n <= 2079,
  *            u128 n <= 2079, big any n
- * Helpers:   gray_from_index, interleave
+ * Validated: standard, pass, 85 terms through n = 1938 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gray_from_index.h"
-#include "../utils/interleave.h"
+
+/* Convert a binary number to the corresponding Gray code value.  */
+static inline seq_t gray_from_index(idx_t x)
+{
+    return (seq_t)x ^ ((seq_t)x >> 1);
+}
+
+/* Interleave the bits of a non‑negative integer.
+   The result is returned as the same seq_t type.  */
+static inline seq_t interleave(seq_t n)
+{
+    unsigned __int128 r   = 0;
+    unsigned long long pos = 0;
+    unsigned __int128 v   = (unsigned __int128)n;
+
+    while (v)
+    {
+        if (v & 1)
+            r |= ((unsigned __int128)1 << pos);
+        v  >>= 1;
+        pos += 2;
+    }
+    return (seq_t)r;
+}
 
 /* Find the antidiagonal indices (i,j) for the given enumeration index n.
    Uses a binary search for k such that k(k+1)/2 ≤ n < (k+1)(k+2)/2.  */

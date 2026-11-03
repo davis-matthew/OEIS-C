@@ -7,13 +7,16 @@
  * Formula:   a(n) = n! * denominator(H(n)) where H(n) = sum_{i=1}^n 1/i
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,9 +39,9 @@ seq_t a(idx_t n)
     /* ----- grow the cache if required ----- */
     if (target + 1 > cap) {              /* need indices 0..target */
         size_t new_cap = target + 1;     /* one more for index 0 */
-        seq_t *tmp_num  = (seq_t *)realloc(num,  new_cap * sizeof(seq_t));
-        seq_t *tmp_den  = (seq_t *)realloc(den,  new_cap * sizeof(seq_t));
-        seq_t *tmp_fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *tmp_num  = mem_resize(seq_t, num, new_cap);
+        seq_t *tmp_den  = mem_resize(seq_t, den, new_cap);
+        seq_t *tmp_fact = mem_resize(seq_t, fact, new_cap);
         if (!tmp_num || !tmp_den || !tmp_fact) {
             abort();   /* allocation failure */
         }

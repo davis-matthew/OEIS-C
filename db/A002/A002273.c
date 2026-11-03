@@ -11,14 +11,29 @@
  *            n/d odd} d^3) q^n. With H = F^2 = E4(2z) + 4...
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 4, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   a2273_u2s
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a2273_u2s.h"
+
+static seq_t a2273_u2s(unsigned __int128 v)
+{
+    uint64_t hi = (uint64_t)(v >> 64), lo = (uint64_t)v;
+    seq_t r = 0;
+    if (hi) {
+        r = (seq_t)hi;
+        r = r * (seq_t)65536;
+        r = r * (seq_t)65536;
+        r = r * (seq_t)65536;
+        r = r * (seq_t)65536;
+    }
+    r += (seq_t)lo;
+    return r;
+}
 
 static uint64_t *A2273_F = 0, *A2273_G = 0, *A2273_H = 0;
 static unsigned __int128 *A2273_FH = 0, *A2273_FG = 0, *A2273_H2 = 0, *A2273_G2 = 0;

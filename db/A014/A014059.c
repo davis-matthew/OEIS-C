@@ -9,7 +9,8 @@
  *            periodic sequence of period 50
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
     if (N >= cache_len) {
         size_t new_len = N + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) abort();
 
         if (cache_len == 0) {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
             }
         } else {
             /* extend existing cache */
-            memcpy(new_cache, cache, cache_len * sizeof(seq_t));
+            mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
             for (size_t i = cache_len; i <= N; ++i) {
                 seq_t val = (seq_t)0;
                 if (i >= 5)  val += new_cache[i-5];
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
     }

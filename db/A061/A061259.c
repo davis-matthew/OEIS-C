@@ -9,13 +9,15 @@
  *            (A000041)
  * Range:     u8 n <= 8, u16 n <= 26, u32 n <= 88, u64 n <= 326,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Partition numbers cache ---------- */
 static seq_t *p = NULL;          /* p[0..cap-1] */
@@ -30,14 +32,14 @@ static void ensure_partitions(idx_t limit) {
     size_t old_cap = p_cap;            /* old size before realloc */
     size_t new_cap = (size_t)limit + 1;/* required size */
 
-    seq_t *new_p = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_p = mem_new(seq_t, new_cap);
     if (!new_p) return;                /* allocation failure – silently abort */
 
     /* copy existing data */
     if (p) {
         for (size_t i = 0; i < old_cap; ++i)
             new_p[i] = p[i];
-        free(p);
+        mem_free(p);
     }
 
     /* base case */
@@ -77,14 +79,14 @@ static void ensure_a_cache(idx_t limit) {
     size_t old_cap = a_cap;
     size_t new_cap = (size_t)limit + 1;              /* indices 0..limit */
 
-    seq_t *new_a = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, new_cap);
     if (!new_a) return;
 
     /* copy existing data */
     if (a_cache) {
         for (size_t i = 0; i < old_cap; ++i)
             new_a[i] = a_cache[i];
-        free(a_cache);
+        mem_free(a_cache);
     }
 
     /* zero‑initialize new slots */

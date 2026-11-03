@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n‑th prime p such that sin(p) < 0 (p in radians)
  * Range:     u8 n <= 26, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --- small deterministic primality test -------------------------------- */
 // Works for all 64‑bit unsigned integers (fast enough for the required range).
@@ -44,7 +46,7 @@ static void append_cache(uint64_t v)
 {
     if (cache_cnt == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = (idx_t)new_cap;

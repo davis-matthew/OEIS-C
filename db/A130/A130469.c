@@ -9,6 +9,7 @@
  *            n – j(j–1)/2; a(n) = 1 if k == j else k·(j–k)!
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

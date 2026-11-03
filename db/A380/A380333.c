@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* --- helper to grow a dynamic array ---------------------------------- */
+#ifdef __cplusplus
+template <class T>
+static void grow_if_needed(T **ptr, size_t *cap, size_t need, size_t elem_size)
+{
+    if (need <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < need) new_cap <<= 1;
+    *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    *cap = new_cap;
+}
+#else
 static void grow_if_needed(void **ptr, size_t *cap, size_t need, size_t elem_size)
 {
     if (need <= *cap) return;
@@ -31,6 +52,7 @@ static void grow_if_needed(void **ptr, size_t *cap, size_t need, size_t elem_siz
     *ptr = realloc(*ptr, new_cap * elem_size);
     *cap = new_cap;
 }
+#endif
 
 /* --- primality test using a list of previously found primes ------------- */
 static bool is_prime(uint64_t n, const uint64_t *primes, size_t prime_cnt)
@@ -64,7 +86,7 @@ seq_t a(idx_t n)
         /* test if current is prime */
         if (is_prime(current, prime_list, prime_len)) {
             /* store new prime */
-            grow_if_needed((void**)&prime_list, &prime_cap,
+            grow_if_needed(OEISC_VPP(&prime_list), &prime_cap,
                            prime_len + 1, sizeof(uint64_t));
             prime_list[prime_len++] = current;
 
@@ -77,7 +99,7 @@ seq_t a(idx_t n)
 
             /* a tie occurs when the difference becomes zero */
             if (diff == 0) {
-                grow_if_needed((void**)&tie_cache, &tie_cap,
+                grow_if_needed(OEISC_VPP(&tie_cache), &tie_cap,
                                tie_len + 1, sizeof(seq_t));
                 tie_cache[tie_len++] = (seq_t)current;
             }

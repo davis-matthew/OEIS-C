@@ -13,6 +13,7 @@
  *            (-1)^(k-1) * C(r-3,k-1) + (-1)^(r+k) * C(r-3,k-...
  * Range:     i8 n <= 81, i16 n <= 217, i32 n <= 681, i64 n <= 1275,
  *            i128 n <= 1275, big any n
+ * Validated: standard, pass, 94 terms through n = 1226 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

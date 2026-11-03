@@ -7,14 +7,23 @@
  * Formula:   Divisors of 2^35 - 1 = 31 · 71 · 127 · 122921, sorted
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 15, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   div_cmp
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/div_cmp.h"
+#include "../utils/mem.h"
+
+static int div_cmp(const void *a, const void *b) {
+    seq_t x = *(const seq_t *)a;
+    seq_t y = *(const seq_t *)b;
+    if (x < y) return -1;
+    if (x > y) return 1;
+    return 0;
+}
 
 static seq_t div_cache[16];
 static bool initialized = false;
@@ -40,7 +49,7 @@ static void init_divisors(void) {
         }
     }
     
-    qsort(div_cache, 16, sizeof(seq_t), div_cmp);
+    mem_qsort(div_cache, 16, sizeof(seq_t), div_cmp);
     initialized = true;
 }
 

@@ -8,7 +8,8 @@
  *            binom(6*k,k)/(5*k+1)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 27, u128 n <= 51,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 41 terms through n = 992 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Cache for already computed a(n) values. */
 static seq_t  *cache      = NULL;   /* array of a(n) values */
@@ -39,7 +41,7 @@ static void ensure_cache_cap(idx_t need_n)
     if (need_n >= cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 1 : cache_cap;
         while (new_cap <= (size_t)need_n) new_cap *= 2;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        cache = mem_resize(seq_t, cache, new_cap);
         for (size_t i = cache_cap; i < new_cap; ++i) cache[i] = 0;
         cache_cap = new_cap;
     }
@@ -51,8 +53,8 @@ static void ensure_K_cap(idx_t k_max)
     if ((size_t)k_max + 1 > binom_cap) {
         size_t new_cap = (binom_cap == 0) ? 1 : binom_cap;
         while (new_cap <= (size_t)k_max) new_cap *= 2;
-        binom_val = (seq_t *)realloc(binom_val, sizeof(seq_t) * new_cap);
-        Ck        = (seq_t *)realloc(Ck,        sizeof(seq_t) * new_cap);
+        binom_val = mem_resize(seq_t, binom_val, new_cap);
+        Ck        = mem_resize(seq_t, Ck, new_cap);
         for (size_t i = binom_cap; i < new_cap; ++i) {
             binom_val[i] = 0;
             Ck[i]        = 0;
@@ -69,7 +71,7 @@ static void ensure_Ck(idx_t k)
         return;
     }
     if (Ck[(size_t)k] == 0) {
-        seq_t num = binom(6 * k, k);          /* binom(6k, k) */
+        seq_t num = binomial(6 * k, k);          /* binom(6k, k) */
         seq_t den = (seq_t)(5 * k + 1);
         Ck[(size_t)k] = num / den;
     }

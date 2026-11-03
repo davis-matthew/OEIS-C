@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 78, u32 n <= 300, u64 n <= 1225,
  *            u128 n <= 4753, big any n
- * Helpers:   apply_f, ceil_triangular_idx, get_T
+ * Validated: standard, pass, 74 terms through n = 4596 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,46 @@
    uses only integer arithmetic (seq_t can be arbitrary‑precision). */
 
 #include <stddef.h>  /* for size_t, though not needed here */
-#include "../utils/apply_f.h"
-#include "../utils/ceil_triangular_idx.h"
-#include "../utils/get_T.h"
+
+/*  Helper: applies the A047204 mapping once.
+    A047204[k] is the k‑th integer >1 that ≡ 3 or 4 (mod 5).       */
+static inline seq_t apply_f(seq_t k)
+{
+    seq_t block = (k - (seq_t)1) / (seq_t)2;    /* (k‑1)/2           */
+    seq_t pos   = (k - (seq_t)1) % (seq_t)2;    /* (k‑1) mod 2        */
+    return block * (seq_t)5 + (seq_t)3 + pos;   /* 5*block + 3 + pos */
+}
+
+/*  Helper: minimal integer d with d(d+1)/2 ≥ n                         */
+static inline idx_t ceil_triangular_idx(idx_t n)
+{
+    idx_t low = 1, high = n;
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        unsigned __int128 tri = (unsigned __int128)mid * (mid + 1) / 2;
+        if (tri >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
+
+/*  T' = {1,2,5,6,7,10,11,12,15,16,17,20,…}                        */
+static inline seq_t get_T(idx_t i)
+{
+    if (i == 1) return (seq_t)1;
+    if (i == 2) return (seq_t)2;
+
+    /* For i ≥ 3: pattern 5*c + pos where pos = (i-3) mod 3,
+       c = (i-3)/3 + 1                                                   */
+    idx_t pos = (i - 3) % 3;
+    idx_t c   = (i - 3) / 3 + 1;
+
+    /* Compute value using 128‑bit arithmetic to avoid overflow */
+    unsigned __int128 val128 = (unsigned __int128)5 * c + pos;
+    return (seq_t)val128;
+}
 
 /* Forward declarations of helper routines */
 static inline seq_t apply_f(seq_t k);

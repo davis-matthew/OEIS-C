@@ -10,8 +10,9 @@
  *            ∏ p^ (exp_i(p) OR exp_j(p)), read by antidiagonals. The
  *            coordinates (i,j) are obtained from the n-th index of the
  *            antidiagonal order
- * Range:     u8 n <= 508, u16 n <= 9995, u32 n <= 9995, u64 n <= 9995,
- *            u128 n <= 9995, big any n
+ * Range:     u8 n <= 508, u16 n <= 10440, u32 n <= 10440, u64 n <= 10440,
+ *            u128 n <= 10440, big any n
+ * Validated: standard, pass, 96 terms through n = 9995 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

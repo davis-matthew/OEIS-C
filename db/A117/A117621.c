@@ -7,8 +7,9 @@
  * Formula:   a(1) = 0 a(n) = 1 for 2 ≤ n ≤ 5 a(n) = Σ a(m) (2 ≤ m ≤ n-1,
  *            (m−1)|(n−1)) for n ≥ 6 where the sum is taken over all m with
  *            m−1 a divisor of n−1
- * Range:     u8 n <= 240, u16 n <= 8640, u32 n <= 9090, u64 n <= 9090,
- *            u128 n <= 9090, big any n
+ * Range:     u8 n <= 240, u16 n <= 8640, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 112 terms through n = 9090 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,6 +7,7 @@
  * Formula:   a(n) = numerator of sum_{p prime, p-1 | 2*n} 1/p
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 89, u64 n <= 269,
  *            u128 n <= 1889, big any n
+ * Validated: standard, pass, 64 terms through n = 9505 (2026-11-01)
  * Helpers:   build_primes_upto, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/gcd.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
 
 static idx_t _prime_cache_limit = 0;
 static uint64_t *_prime_cache = NULL;

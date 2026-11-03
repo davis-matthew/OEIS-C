@@ -14,15 +14,38 @@
  *            dividing n
  * Range:     u8 n <= 261, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small, largest_prime_divisor
+ * Validated: standard, pass, 100 terms through n = 9729 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/largest_prime_divisor.h"
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
+
+/* Return the largest prime divisor of m (m >= 2). */
+static uint64_t largest_prime_divisor(uint64_t m)
+{
+    uint64_t largest = 0;
+    /* factor 2 */
+    while ((m & 1ULL) == 0) {
+        largest = 2;
+        m >>= 1;
+    }
+    /* odd factors */
+    for (uint64_t f = 3; f <= m / f; f += 2) {
+        if (m % f == 0) {
+            largest = f;
+            while (m % f == 0)
+                m /= f;
+        }
+    }
+    if (m > 1)            /* remaining m is prime */
+        largest = m;
+    return largest;
+}
 
 static uint64_t prev_prime_of(uint64_t p)
 {
@@ -32,7 +55,7 @@ static uint64_t prev_prime_of(uint64_t p)
         cand--;
     while (cand >= 3)
     {
-        if (is_prime_small((seq_t)cand))
+        if (is_prime_seq((seq_t)cand))
             return cand;
         cand -= 2;
     }

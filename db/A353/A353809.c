@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n ≡ 1 (mod 4) and n is not expressible as a sum of
  *            two squares; otherwise 0
- * Range:     u8 n <= 7224, u16 n <= 7224, u32 n <= 7224, u64 n <= 7224,
- *            u128 n <= 7224, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 145 terms through n = 7224 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

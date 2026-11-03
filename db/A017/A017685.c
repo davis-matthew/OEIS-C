@@ -11,16 +11,18 @@
  *            powers, and finally divides. All arithmetic is p...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 7, u64 n <= 56, u128 n <= 3185,
  *            big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 37 terms through n = 9745 (2026-11-02)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow_uint.h"   /* pow_uint(uint64_t base, idx_t exp) -> seq_t */
-#include "../utils/factor_u64.h" /* factor_u64(uint64_t n, uint64_t *primes,
-                                  uint64_t *exps, size_t *cnt) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         uint64_t p = primes[i];
         uint64_t e = exps[i];
 
-        seq_t p_11 = pow_uint(p, 11);     /* p^11  */
+        seq_t p_11 = ipow_u64_idx(p, 11);     /* p^11  */
         seq_t sum = 0;
         seq_t term = 1;
         for (uint64_t j = 0; j <= e; ++j) {

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   gcd_uint64, pow_uint, seq_mul
+ * Validated: partial, pass, 45 terms through n = 46 (2026-11-01)
+ * Helpers:   gcd_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,9 +31,13 @@
 #include <string.h>  /* for memset */
 
 /* utilities available in the build */
-#include "../utils/pow_uint.h"   /* seq_t pow_uint(uint64_t base, idx_t exp); */
-#include "../utils/seq_mul.h"    /* seq_t seq_mul(seq_t a, seq_t b); */
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* --------------------------------------------------------------------- */
 /* small prime sieve for factorisation (max needed ~ 200) */
@@ -85,7 +90,7 @@ static size_t factorize(uint64_t n, uint64_t primes[], uint64_t exps[])
 static inline bool valid_pair(uint64_t s, uint64_t t)
 {
     if ((s + t) % 2 == 0) return false;
-    return gcd_uint64(s, t) == 1;
+    return gcd_u64(s, t) == 1;
 }
 
 /* generate j‑th element of row r (row index = r, 1‑based column = j) */
@@ -97,7 +102,7 @@ static seq_t row_k(idx_t r, idx_t j)
     size_t pcnt = factorize(base_r, primes, exps);
     /* compute d = gcd of the exponents */
     uint64_t d = exps[0];
-    for (size_t i = 1; i < pcnt; ++i) d = gcd_uint64(d, exps[i]);
+    for (size_t i = 1; i < pcnt; ++i) d = gcd_u64(d, exps[i]);
 
     /* divisors of d */
     uint64_t divs[32];
@@ -138,7 +143,7 @@ static seq_t row_k(idx_t r, idx_t j)
         for (size_t k = 0; k < pcnt; ++k) {
             /* exponent for prime k: a_i * s / t */
             uint64_t exp = exps[k] * s / t;  /* exact division guaranteed */
-            seq_t part = pow_uint(primes[k], exp);
+            seq_t part = ipow_u64_idx(primes[k], exp);
             val = seq_mul(val, part);
         }
         cur_val = val;  /* last value produced */

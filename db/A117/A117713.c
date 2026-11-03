@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 57, u128 n <= 115,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,14 @@
    return the correct term. */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static void ensure_capacity(size_t needed, size_t *cap, seq_t **p)
 {
     if (needed <= *cap) return;            /* already big enough */
     size_t new_cap = (*cap) ? (*cap << 1) : 1;
     while (new_cap < needed) new_cap <<= 1; /* grow geometrically */
-    seq_t *tmp = (seq_t *)realloc(*p, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *p, new_cap);
     if (!tmp) abort();                     /* terminate on allocation failure */
     *p   = tmp;
     *cap = new_cap;

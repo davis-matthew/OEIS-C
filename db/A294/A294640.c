@@ -9,12 +9,14 @@
  *            odd then a(n) = n * a((n-1)/2)
  * Range:     u8 n <= 14, u16 n <= 62, u32 n <= 254, u64 n <= 2046,
  *            u128 n <= 4100, big any n
- * Helpers:   none
+ * Validated: standard, pass, 145 terms through n = 3458 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ extern seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) {
             /* allocation failed – terminate (no proper error handling needed) */
             abort();

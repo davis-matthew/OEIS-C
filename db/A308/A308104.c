@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- helpers for decimal length and powers of 10 ---------- */
 
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
     idx_t e_limit = n * 20 + 100;
     size_t cap = (size_t)e_limit;
 
-    heap_node_t *heap = (heap_node_t *)malloc(cap * sizeof(heap_node_t));
+    heap_node_t *heap = mem_new(heap_node_t, cap);
     if (!heap) exit(1);
     size_t sz = 0;
 
@@ -162,6 +164,6 @@ seq_t a(idx_t n)
                       (heap_node_t){next_val, cur.e, cur.o + 1});
     }
 
-    free(heap);
+    mem_free(heap);
     return result;
 }

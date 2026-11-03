@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   rev_decimal
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,10 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/rev_decimal.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* Static cache for memoization.
  * cache[i] holds a(i+1) (zero‑based index). */
@@ -35,7 +39,7 @@ ensure_cache(idx_t needed)
     /* Reallocate to the requested size. The cast to size_t is safe
      * for the expected ranges of n (up to ~10,000) and for 64‑bit
      * indexes. */
-    seq_t *p = (seq_t *)realloc(cache, (size_t)needed * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, (size_t)needed);
     cache      = p;
     cache_size = needed;
 }
@@ -58,7 +62,7 @@ a(idx_t n)
 
     /* Compute any missing terms up to n. */
     for (idx_t i = cache_len; i < n; ++i) {
-        seq_t rev = rev_decimal(cache[i - 1]);   /* a(i) = rev(a(i-1)) + 73 */
+        seq_t rev = reverse_digits(cache[i - 1]);   /* a(i) = rev(a(i-1)) + 73 */
         cache[i]  = rev + (seq_t)73;
     }
     cache_len = n;   /* now all indices < n are valid */

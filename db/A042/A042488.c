@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 42, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 * are the convergents of the continued fraction of sqrt(772). */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* compute the first 60 numerators from the continued‑fraction of sqrt(772) */
 static void
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* first time: allocate and compute the first 60 terms */
     if (cache == NULL) {
         cache_len = 60;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0;           /* allocation failed */
         init_base(cache, 59);           /* compute a[0] … a[59] */
     }
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         idx_t new_len = cache_len ? cache_len * 2 : 60;
         while (new_len <= n) new_len *= 2;
 
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return 0;            /* allocation failed */
         cache = tmp;
 

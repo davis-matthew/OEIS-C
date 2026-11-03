@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 38, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* out-of-range guard */
@@ -41,8 +43,8 @@ seq_t a(idx_t n) {
     if (r > max_row) {
         size_t new_elems = (size_t)r * (r + 1) / 2;
         if (new_elems > max_elems) {
-            seq_t *new_num = (seq_t *)realloc(num_cache, new_elems * sizeof(seq_t));
-            seq_t *new_den = (seq_t *)realloc(den_cache, new_elems * sizeof(seq_t));
+            seq_t *new_num = mem_resize(seq_t, num_cache, new_elems);
+            seq_t *new_den = mem_resize(seq_t, den_cache, new_elems);
             if (!new_num || !new_den) exit(EXIT_FAILURE);
             num_cache = new_num;
             den_cache = new_den;

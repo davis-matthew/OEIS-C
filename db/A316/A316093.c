@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   antidiag_s
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,13 @@
  * H(N,M) = (N⁶M⁸ + 6N³M² + 3N⁴M⁴ + 8N²M⁴ + 6N³M⁴) / 24
  * a(n) = H(i,nj) where (i,j) are the antidiagonal (1‑based) coordinates of n. */
 #include <stdint.h>
-#include "../utils/antidiag_s.h"
+
+static inline idx_t antidiag_s(idx_t n)
+{
+    idx_t s = 2;
+    while ((s - 1) * s / 2 < n) ++s;
+    return s;
+}
 
 seq_t a(idx_t n)
 {

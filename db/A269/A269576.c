@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{i=1..n} (4^i - 3^i)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 27 terms through n = 51 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* Product form; no special cases are required. */
 
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,9 +32,9 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (n > cachedN) {
         if (!cache) {
-            cache = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+            cache = mem_new(seq_t, (n + 1));
         } else {
-            cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (n + 1));
         }
     }
 
@@ -42,8 +45,8 @@ seq_t a(idx_t n)
             cache[0] = (seq_t)1;   /* product for i = 0 (unused) */
         }
         for (idx_t i = cachedN + 1; i <= n; ++i) {
-            seq_t pow4 = seq_pow((seq_t)4, i);
-            seq_t pow3 = seq_pow((seq_t)3, i);
+            seq_t pow4 = ipow_idx((seq_t)4, i);
+            seq_t pow3 = ipow_idx((seq_t)3, i);
             seq_t term = pow4 - pow3;          /* 4^i - 3^i, i ≥ 1 */
             if (i == 1)
                 cache[i] = term;               /* a(1) = 1 */

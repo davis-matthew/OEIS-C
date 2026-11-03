@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 14, u16 n <= 42, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 18, u16 n <= 42, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,8 @@
     a(n) returns the nth term of the sequence with a(1)=1. */
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"       /* binomial(idx_t n, idx_t k) returns seq_t */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 /* Compute one entry of the triangle.  The result fits in seq_t. */
 static seq_t

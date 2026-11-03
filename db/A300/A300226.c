@@ -9,9 +9,10 @@
  *            P(A046523(n), A052126(n)) for n ≥ 1, where A046523(n) = number
  *            of distinct prime factors of n, A052126(n) = n / (largest prime
  *            dividing n)
- * Range:     u8 n <= 2020, u16 n <= 9846, u32 n <= 9846, u64 n <= 9846,
- *            u128 n <= 9846, big any n
- * Helpers:   cantor, count_distinct_primes, largest_prime_divisor
+ * Range:     u8 n <= 2020, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9846 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,39 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/count_distinct_primes.h"
-#include "../utils/largest_prime_divisor.h"
-#include "../utils/cantor.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
+
+/* Return the largest prime divisor of m (m >= 2). */
+static uint64_t largest_prime_divisor(uint64_t m)
+{
+    uint64_t largest = 0;
+    /* factor 2 */
+    while ((m & 1ULL) == 0) {
+        largest = 2;
+        m >>= 1;
+    }
+    /* odd factors */
+    for (uint64_t f = 3; f <= m / f; f += 2) {
+        if (m % f == 0) {
+            largest = f;
+            while (m % f == 0)
+                m /= f;
+        }
+    }
+    if (m > 1)            /* remaining m is prime */
+        largest = m;
+    return largest;
+}
+
+/* Cantor pairing for non‑negative seq_t values. */
+static inline seq_t cantor(seq_t a, seq_t b)
+{
+    seq_t s = a + b;
+    seq_t t = (s * (s + 1)) / 2 + b;
+    return t;
+}
 
 /* Memoised implementation of A300226. */
 seq_t a(idx_t n)
@@ -47,7 +78,7 @@ seq_t a(idx_t n)
         while (new_cap < n)
             new_cap *= 2;
 
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!new_cache)
             exit(EXIT_FAILURE);
         cache = new_cache;
@@ -63,7 +94,7 @@ seq_t a(idx_t n)
             quot = 1;
         } else {
             /* Use the provided helper functions (both return uint64_t). */
-            sig  = (seq_t)count_distinct_primes((uint64_t)i);
+            sig  = (seq_t)omega((uint64_t)i);
             quot = (seq_t)((uint64_t)i / largest_prime_divisor((uint64_t)i));
         }
 
@@ -84,8 +115,7 @@ seq_t a(idx_t n)
 
             if (keys_len == keys_cap) {
                 idx_t new_keys_cap = (keys_cap == 0) ? 16 : keys_cap * 2;
-                seq_t *new_keys = (seq_t *)realloc(pair_keys,
-                                                  (size_t)new_keys_cap * sizeof(seq_t));
+                seq_t *new_keys = mem_resize(seq_t, pair_keys, (size_t)new_keys_cap);
                 if (!new_keys)
                     exit(EXIT_FAILURE);
                 pair_keys = new_keys;

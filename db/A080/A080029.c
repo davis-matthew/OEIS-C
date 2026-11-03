@@ -9,6 +9,7 @@
  * Formula:   a(3m)=6m, a(3m+1)=3m+2, a(3m+2)=6m+3
  * Range:     u8 n <= 128, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
+ * Validated: standard, pass, 84 terms through n = 9893 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

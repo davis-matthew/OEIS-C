@@ -12,7 +12,8 @@
  *            n ≥ 0
  * Range:     u8 none, u16 none, u32 n <= 160, u64 n <= 160, u128 n <= 160,
  *            big any n
- * Helpers:   det4
+ * Validated: full, pass, 161 terms through n = 160 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,34 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/det4.h"
+
+/* Compute determinant of a 4×4 matrix in row major order, stored in m[16] */
+static int det4(const int *m)
+{
+    long long a00 = m[0],  a01 = m[1],  a02 = m[2],  a03 = m[3];
+    long long a10 = m[4],  a11 = m[5],  a12 = m[6],  a13 = m[7];
+    long long a20 = m[8],  a21 = m[9],  a22 = m[10], a23 = m[11];
+    long long a30 = m[12], a31 = m[13], a32 = m[14], a33 = m[15];
+
+    long long t0 = a11 * (a22 * a33 - a23 * a32)
+                - a12 * (a21 * a33 - a23 * a31)
+                + a13 * (a21 * a32 - a22 * a31);
+
+    long long t1 = a10 * (a22 * a33 - a23 * a32)
+                - a12 * (a20 * a33 - a23 * a30)
+                + a13 * (a20 * a32 - a22 * a30);
+
+    long long t2 = a10 * (a21 * a33 - a23 * a31)
+                - a11 * (a20 * a33 - a23 * a30)
+                + a13 * (a20 * a31 - a21 * a30);
+
+    long long t3 = a10 * (a21 * a32 - a22 * a31)
+                - a11 * (a20 * a32 - a22 * a30)
+                + a12 * (a20 * a31 - a21 * a30);
+
+    long long det = a00 * t0 - a01 * t1 + a02 * t2 - a03 * t3;
+    return (int)det;
+}
 
 #define MAXDET   8192                /* safe bound for determinant range [-8192,8192] */
 #define HIST_SZ  (2 * MAXDET + 1)

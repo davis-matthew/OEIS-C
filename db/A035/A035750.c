@@ -7,13 +7,14 @@
  * Formula:   a(n) = sum_{i=0}^{min(13,2n)} binom(13,i)*binom(12+2n-i, 2n-i)
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 7, u64 n <= 50, u128 n <= 2028,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 38 terms through n = 8298 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +24,8 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t i = 0; i <= limit; ++i)
     {
-        seq_t term1 = binom(13, i);
-        seq_t term2 = binom(12 + m - i, m - i);
+        seq_t term1 = binomial(13, i);
+        seq_t term2 = binomial(12 + m - i, m - i);
         sum += term1 * term2;
     }
     return sum;

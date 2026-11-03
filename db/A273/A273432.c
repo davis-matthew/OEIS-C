@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt, int_cube_root
+ * Validated: standard, pass, 97 terms through n = 9962 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,41 @@
    such that n = x^2 + y^2 + z^2 + w^2 and 2*x + y - z is a nonnegative cube. */
 
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/int_cube_root.h"
+#include <limits.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {

@@ -11,12 +11,14 @@
  *            where c(0)=c(9)=1, c(1…8)=2, and c(n)=0 for n>9
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     if (!cache) {
         cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(1);
         cache[0] = (seq_t)1;
         last = 0;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t newcap = cap ? cap : 1;
         while ((size_t)n >= newcap) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * newcap);
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) exit(1);
         cache = tmp;
         cap = newcap;

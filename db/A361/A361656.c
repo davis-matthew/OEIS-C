@@ -8,7 +8,8 @@
  *            partitions of n into exactly d parts. a(0) = 0
  * Range:     u8 n <= 26, u16 n <= 59, u32 n <= 160, u64 n <= 487,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Static state                                                     */
@@ -35,23 +37,23 @@ static void recompute(idx_t n)
     if (ready && Nmax >= n) return;          /* already computed up to n */
 
     /* free any previous allocation */
-    if (A)   free(A);
-    if (prev) free(prev);
-    if (cur)  free(cur);
+    if (A)   mem_free(A);
+    if (prev) mem_free(prev);
+    if (cur)  mem_free(cur);
 
     Nmax = n;
-    A    = (seq_t *)malloc((Nmax + 1) * sizeof(seq_t));
-    prev = (seq_t *)malloc((Nmax + 1) * sizeof(seq_t));
-    cur  = (seq_t *)malloc((Nmax + 1) * sizeof(seq_t));
+    A    = mem_new(seq_t, (Nmax + 1));
+    prev = mem_new(seq_t, (Nmax + 1));
+    cur  = mem_new(seq_t, (Nmax + 1));
 
     if (!A || !prev || !cur) {                 /* allocation failed */
         abort();                               /* terminate program */
     }
 
     /* initialise all entries to zero */
-    memset(A,   0, (Nmax + 1) * sizeof(seq_t));
-    memset(prev,0, (Nmax + 1) * sizeof(seq_t));
-    memset(cur,  0, (Nmax + 1) * sizeof(seq_t));
+    mem_set(A, 0, (Nmax + 1) * sizeof(seq_t));
+    mem_set(prev, 0, (Nmax + 1) * sizeof(seq_t));
+    mem_set(cur, 0, (Nmax + 1) * sizeof(seq_t));
 
     /* base case: one partition of 0 into 0 parts */
     prev[0] = (seq_t)1;

@@ -11,13 +11,14 @@
  *            ignored. a(0) = 1
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
             unsigned bit = (n >> (L - 1 - j)) & 1ULL;
             val = (val << 1) | bit;
 
-            if (val > (seq_t)1 && is_prime_small(val))
+            if (val > (seq_t)1 && is_prime_seq(val))
                 prod = prod * val;
         }
     }

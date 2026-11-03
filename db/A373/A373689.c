@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   is_squarefree
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,17 @@
    any order are answered in O(1) after the initial generation. */
 
 /* Include the square‑free test provided by the framework */
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include "../utils/is_squarefree.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------------------------------- heap of power nodes ---------------------------------- */
 typedef struct {
@@ -41,14 +47,14 @@ typedef struct {
 
 static void heap_init(PowerHeap *h, size_t cap)
 {
-    h->data = (PowerNode *)malloc(cap * sizeof(PowerNode));
+    h->data = mem_new(PowerNode, cap);
     h->sz   = 0;
     h->cap  = cap;
 }
 
 static void heap_free(PowerHeap *h)
 {
-    free(h->data);
+    mem_free(h->data);
     h->data = NULL;
     h->sz   = h->cap = 0;
 }
@@ -57,7 +63,7 @@ static void heap_push(PowerHeap *h, PowerNode n)
 {
     if (h->sz == h->cap) {
         h->cap = h->cap ? h->cap * 2 : 16;
-        h->data = (PowerNode *)realloc(h->data, h->cap * sizeof(PowerNode));
+        h->data = mem_resize(PowerNode, h->data, (h->cap * sizeof(PowerNode)) / sizeof(PowerNode));
     }
     size_t i = h->sz++;
     while (i > 0) {
@@ -119,12 +125,12 @@ static void ensure_cache(idx_t need)
     if (!cache_inited) {
         cache_inited = true;
         cache_cap   = 64;
-        seq_cache   = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        seq_cache   = mem_new(seq_t, cache_cap);
         cache_len   = 0;
     }
     while (cache_cap < need) {
         cache_cap <<= 1;
-        seq_cache = (seq_t *)realloc(seq_cache, cache_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
     }
 }
 

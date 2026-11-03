@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   geq_phi
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,29 @@
    1.  It works for any n≥1 and no tables are needed. */
 
 #include <stdint.h>
-#include "../utils/geq_phi.h"
+
+/* returns true if m*φ >= T  (φ = (1+√5)/2) */
+static int geq_phi(int64_t m, int64_t T)
+{
+    /* m*φ - T = (m - 2T) + m*√5 */
+    int64_t A = m - 2*T;
+    int64_t B = m;
+
+    if (B > 0) {
+        if (A >= 0) return 1;
+        __int128 lhs = (__int128)B * B * 5;
+        __int128 rhs = (__int128)A * A;
+        return lhs >= rhs;
+    } else if (B == 0) {
+        return A >= 0;
+    } else { /* B < 0 */
+        if (A <= 0) return 0;
+        int64_t Bp = -B;
+        __int128 lhs = (__int128)Bp * Bp * 5;
+        __int128 rhs = (__int128)A * A;
+        return lhs <= rhs; /* A^2 >= B'^2*5  */
+    }
+}
 
 seq_t a(idx_t n)
 {

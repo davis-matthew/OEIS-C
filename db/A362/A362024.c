@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 762, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 8427 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>     /* malloc, realloc, NULL */
 #include <stdint.h>     /* uint64_t */
 #include <stdbool.h>    /* bool */
+#include "../utils/mem.h"
 
 static seq_t *a_cache        = NULL;   /* cache of a(n) */
 static idx_t *phi_cache_int  = NULL;   /* cache of φ_inf(n), stored as idx_t */
@@ -61,7 +63,7 @@ static void ensure_cache(idx_t n)
     while (new_size < needed)
         new_size <<= 1;
 
-    a_cache = (seq_t*)realloc(a_cache, new_size * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_size);
     phi_cache_int = (idx_t*)realloc(phi_cache_int, new_size * sizeof(idx_t));
 
     for (size_t i = cache_size; i < new_size; ++i) {

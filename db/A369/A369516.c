@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 8031 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- sieve of smallest prime factors (spf) ---------- */
 static uint32_t *spf = NULL;   /* spf[i] = smallest prime divisor of i */
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
     /* initialise cache storage */
     if (!term_cache) {
         term_cap = 4;
-        term_cache = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        term_cache = mem_new(seq_t, term_cap);
         if (!term_cache) exit(1);
     }
 
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
         if (good) {
             if (term_count == term_cap) {
                 term_cap *= 2;
-                term_cache = (seq_t *)realloc(term_cache, term_cap * sizeof(seq_t));
+                term_cache = mem_resize(seq_t, term_cache, term_cap);
                 if (!term_cache) exit(1);
             }
             term_cache[term_count++] = (seq_t)k;

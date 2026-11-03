@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 16, u64 n <= 33, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- helper data ------------------------------------------- */
 /* 3‑bit rows 0–7.  The rows 001 (1) and 010 (2) are forbidden. */
@@ -41,7 +43,7 @@ static void ensure_up_to(idx_t n)
 
     /* allocate or grow the totals array (size in bytes) */
     size_t bytes = (size_t)(n + 1) * sizeof(seq_t);
-    seq_t *tmp = (seq_t *)realloc(totals, bytes);
+    seq_t *tmp = mem_resize(seq_t, totals, (bytes) / sizeof(seq_t));
     if (!tmp) abort();
     totals = tmp;
 
@@ -66,7 +68,7 @@ static void ensure_up_to(idx_t n)
     /* extend computation up to n */
     while (totals_size < n) {
         /* next = 0 */
-        memset(next, 0, sizeof(next));
+        mem_set(next, 0, sizeof(next));
 
         /* Transition: from previous two rows (p2, p1) to (p1, r) */
         for (int p2 = 0; p2 < 8; ++p2) {
@@ -95,7 +97,7 @@ static void ensure_up_to(idx_t n)
         }
 
         /* swap cur and next, and record the new total */
-        memcpy(cur, next, sizeof(cur));
+        mem_copy(cur, next, sizeof(cur));
         seq_t total = 0;
         for (int k = 0; k < 64; ++k) total += cur[k];
         totals[++totals_size] = total;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = (-2)^(n-1)*a(n-1) + a(n-2) with a(0)=0, a(1)=1
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 8, i64 n <= 11, i128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    idx_t is an unsigned integer type (e.g. uint64_t).            */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache storage for memoisation ------------------------------------- */
 static seq_t *cache      = NULL;   /* dynamically allocated array      */
@@ -28,7 +30,7 @@ static void ensure_capacity(size_t need)
 {
     if (need <= cache_cap) return;
     size_t new_cap = need;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();              /* out‑of‑memory */
     cache = tmp;
     cache_cap = new_cap;

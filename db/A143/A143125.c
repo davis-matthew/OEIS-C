@@ -9,19 +9,21 @@
  *            function recomputes the required values on each call in O(n)
  * Range:     u8 n <= 10, u16 n <= 92, u32 n <= 6435, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 8021 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n < (idx_t)1) return (seq_t)0;          // offset is 1
 
     /* allocate array for Golomb values; index 0 unused */
-    seq_t *g = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *g = mem_new(seq_t, (size_t)(n + 1));
     if (!g) return (seq_t)0;                    // allocation failed
 
     g[(idx_t)1] = (seq_t)1;
@@ -37,6 +39,6 @@ seq_t a(idx_t n)
         sum += (seq_t)i * g[(idx_t)i];
     }
 
-    free(g);
+    mem_free(g);
     return sum;
 }

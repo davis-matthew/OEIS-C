@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The types seq_t (value type) and idx_t (index type) are supplied
    by the build environment.  They are not defined here. */
@@ -65,7 +67,7 @@ ensure_cache(idx_t need)
     size_t new_cap = need * 2;
     if (new_cap < 16)
         new_cap = 16;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();  /* memory exhaustion is fatal */
     cache = new_cache;

@@ -9,7 +9,8 @@
  *            representations of n and n^2
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   extract_bits_uint128, extract_bits_uint64
+ * Validated: standard, pass, 95 terms through n = 9679 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,51 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/extract_bits_uint128.h"
-#include "../utils/extract_bits_uint64.h"
+
+/* helper that extracts bits from an unsigned __int128 value.
+ * Works only for values that fit in the 128 bit type. */
+static int extract_bits_uint128(__uint128_t v, unsigned char *bits)
+{
+    int len = 0;
+    if (v == 0) {
+        bits[0] = 0;
+        return 1;
+    }
+    while (v) {
+        bits[len++] = v & 1U;
+        v >>= 1U;
+    }
+    /* reverse to most significant first */
+    for (int i = 0; i < len / 2; ++i) {
+        unsigned char t = bits[i];
+        bits[i] = bits[len - 1 - i];
+        bits[len - 1 - i] = t;
+    }
+    return len;
+}
+
+/* helper that extracts the binary representation of a value into
+ * an array.  The bits are stored from most significant to least
+ * significant.  Returns the length of the representation.  */
+static int extract_bits_uint64(uint64_t v, unsigned char *bits)
+{
+    int len = 0;
+    if (v == 0) {
+        bits[0] = 0;
+        return 1;
+    }
+    while (v) {
+        bits[len++] = v & 1U;
+        v >>= 1U;
+    }
+    /* reverse to most significant first */
+    for (int i = 0; i < len / 2; ++i) {
+        unsigned char t = bits[i];
+        bits[i] = bits[len - 1 - i];
+        bits[len - 1 - i] = t;
+    }
+    return len;
+}
 
 seq_t a(idx_t n)
 {

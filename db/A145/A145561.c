@@ -11,13 +11,15 @@
  *            +(675 + 640 k + 160 k²)*y(k+3) +(-50 - 20...
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 14, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache for previously computed terms. */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_cached(idx_t need)
     if (cache_size > need) return;
     idx_t new_size = cache_size == 0 ? 8 : cache_size * 2;
     while (new_size <= need) new_size <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();          /* memory exhaustion – stop */
     cache = tmp;
     cache_size = new_size;

@@ -8,13 +8,26 @@
  *            contains exactly two digits equal to 1. (OEIS A043458)
  * Range:     u8 n <= 19, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_ones_base9
+ * Validated: standard, pass, 70 terms through n = 857 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/count_ones_base9.h"
+#include "../utils/mem.h"
+
+/* Count the occurrences of the digit '1' in the base‑9 representation of x. */
+static unsigned count_ones_base9(seq_t x)
+{
+    unsigned count = 0;
+    while (x != 0) {
+        if ((x % 9) == 1)
+            ++count;
+        x /= 9;
+    }
+    return count;
+}
 
 /* Ensure the cache has room for at least one more element. */
 static void grow_cache(size_t needed, seq_t **ptr, size_t *cap)
@@ -23,7 +36,7 @@ static void grow_cache(size_t needed, seq_t **ptr, size_t *cap)
         size_t new_cap = (*cap == 0) ? 16 : *cap * 2;
         while (new_cap < needed)
             new_cap <<= 1;
-        seq_t *new_ptr = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, *ptr, new_cap);
         if (new_ptr == NULL)
             abort();                      /* allocation failed */
         *ptr = new_ptr;

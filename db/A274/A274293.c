@@ -8,9 +8,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl, easy
  * Formula:   not stated
- * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 31, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   _floor_isqrt_u64, binom, pow2
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, isqrt, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,12 @@
 
    The sequence a(n) is the triangle read by rows. */
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/isqrt.h"
 #include "../utils/pow2.h"
-#include "../utils/binom.h"
+#include "../utils/mem.h"
 
 /* static cache of computed rows */
 static seq_t **_row_cache = NULL;   /* array of pointers to rows */
@@ -37,7 +41,7 @@ static idx_t   _cache_size = 0;     /* number of rows currently cached */
 static void _compute_row(idx_t r)
 {
     /* allocate the row */
-    seq_t *row = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)(r + 1));
     if (!row) abort();  /* safe guard */
 
     /* base entries */
@@ -60,7 +64,7 @@ static void _compute_row(idx_t r)
     /* boundary values (apply only for r >= 3 to avoid overriding
        the T(n,1) definition for n = 2). */
     if (r >= 3) {
-        seq_t last = binom((idx_t)(2 * r - 2), r - 1);
+        seq_t last = binomial((idx_t)(2 * r - 2), r - 1);
         row[r - 1] = last;
         row[r]     = last;
     }
@@ -73,7 +77,7 @@ static void _compute_row(idx_t r)
 seq_t a(idx_t n)
 {
     /* determine row r and position c of a(n) */
-    idx_t t = _floor_isqrt_u64(8 * n + 1);
+    idx_t t = isqrt(8 * n + 1);
     idx_t r = (t - 1) / 2;
     idx_t offset = r * (r + 1) / 2;
     idx_t c = n - offset;

@@ -7,13 +7,14 @@
  * Formula:   a(n) = numerator(2*(n+1)!/(n+2))
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   _small_gcd_idx
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_small_gcd_idx.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -22,14 +23,14 @@ seq_t a(idx_t n)
     seq_t result = 1;
 
     /* Handle the extra factor 2 in the numerator */
-    idx_t g = _small_gcd_idx(2, d);
+    idx_t g = gcd_idx(2, d);
     result *= (seq_t)(2 / g);
     d /= g;
 
     /* Multiply by each integer from 1 to m, cancelling common divisor
        with the remaining part of the denominator. */
     for (idx_t j = 1; j <= m; ++j) {
-        g = _small_gcd_idx(j, d);
+        g = gcd_idx(j, d);
         if (g > 1) {
             result *= (seq_t)(j / g);
             d /= g;

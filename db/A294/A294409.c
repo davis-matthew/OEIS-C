@@ -7,13 +7,16 @@
  * Formula:   a(n) = n^n · ∑_{k=0}^{⌊n/2⌋} C(n,2k) · C(2k,k)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 35 terms through n = 327 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*          = coefficient of x^n in (1 + n·x + n²·x²)^n          */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,6 +42,6 @@ seq_t a(idx_t n)
     }
 
     /* Multiply by n^n */
-    seq_t pow = big_pow((seq_t)n, (seq_t)n);   /* n^n */
+    seq_t pow = ipow((seq_t)n, (seq_t)n);   /* n^n */
     return sum * pow;
 }

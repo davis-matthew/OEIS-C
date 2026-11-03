@@ -8,6 +8,7 @@
  *            with period 6 (i.e. a(n) = seq[(n-4)%6] for n≥4)
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

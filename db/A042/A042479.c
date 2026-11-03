@@ -9,13 +9,15 @@
  *            a(n-1) * cf[(n-1) mod 12] + a(n-2)
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 25, u64 n <= 49, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Periodic part of the continued fraction for √767. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t cf[12] = {1, 2, 3, 1, 1, 1, 1, 1, 3, 2, 1, 54};
 
@@ -27,7 +29,7 @@ static void ensure_capacity(idx_t n) {
     if (cache_cap > n) return;
     idx_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap <= n) new_cap <<= 1;      /* exponential growth            */
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     if (!cache) exit(1);                     /* out‑of‑memory check           */
     cache_cap = new_cap;
 }
@@ -36,7 +38,7 @@ static void ensure_capacity(idx_t n) {
 seq_t a(idx_t n) {
     /* Initialise the cache on first use. */
     if (cache_cap == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) exit(1);
         cache_cap = 1;
         cache[0] = 1;                        /* a(0) */

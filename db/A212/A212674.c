@@ -9,13 +9,15 @@
  *            a(0)=0, a(1)=1, a(2)=8, a(3)=35, a(4)=104, a(5)=247
  * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* pre‑computed initial values */
 static const seq_t base_vals[6] = {0, 1, 8, 35, 104, 247};
@@ -33,7 +35,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap : 64;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -42,7 +44,7 @@ static void grow_cache(size_t needed)
 static void init_cache(size_t up_to)
 {
     grow_cache(up_to + 1);
-    memcpy(cache, base_vals, sizeof(base_vals));
+    mem_copy(cache, base_vals, sizeof(base_vals));
     cache_len = 6;
 }
 

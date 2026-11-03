@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy, base
  * Formula:   a(n) = max( number of 0's, number of 1's, number of 2's in
  *            base-3(n) )
- * Range:     u8 n <= 9724, u16 n <= 9724, u32 n <= 9724, u64 n <= 9724,
- *            u128 n <= 9724, big any n
+ * Range:     u8 n <= 29524, u16 n <= 29524, u32 n <= 29524, u64 n <= 29524,
+ *            u128 n <= 29524, big any n
+ * Validated: standard, pass, 103 terms through n = 9724 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

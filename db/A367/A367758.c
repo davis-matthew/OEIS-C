@@ -9,6 +9,7 @@
  *            7: a = 2*k + (c+5)/4 If c==4: a = k + 1 If c==5: a = k + 3
  * Range:     u8 n <= 1018, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9970 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

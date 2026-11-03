@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 22, u16 n <= 1395, u32 n <= 8441, u64 n <= 8441,
- *            u128 n <= 8441, big any n
- * Helpers:   digit_product, is_pow6
+ * Range:     u8 n <= 22, u16 n <= 1395, u32 n <= 11690, u64 n <= 11690,
+ *            u128 n <= 11690, big any n
+ * Validated: standard, pass, 69 terms through n = 8441 (2026-11-03)
+ * Helpers:   digit_product, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,10 +16,21 @@
 /* Search for numbers whose digit product is a power of 6 */
 
 /* Digit product helper provided by the test harness. */
-#include "../utils/digit_product.h"
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_pow6.h"
+#include "../utils/digit_product.h"
+#include "../utils/mem.h"
+
+/* Check whether x is a power of 6 (including 6^0 = 1). */
+static inline bool is_pow6(seq_t x)
+{
+    if (x == (seq_t)0) return false;
+    while (x > (seq_t)1 && x % (seq_t)6 == (seq_t)0)
+        x = x / (seq_t)6;
+    return x == (seq_t)1;
+}
+#include <stdlib.h>
+#include <stdbool.h>
 
 /* Cache of discovered terms. */
 static seq_t *cache = NULL;      /* array of found terms */
@@ -36,14 +48,14 @@ static void ensure_cache_cap(idx_t needed)
     while (new_cap < (size_t)needed)
         new_cap *= 2;
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (new_cache == NULL)
         return; /* allocation failed; caller will handle */
 
     if (cache != NULL) {
         for (size_t i = 0; i < cache_len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

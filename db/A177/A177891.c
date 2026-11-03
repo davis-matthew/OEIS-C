@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 5791, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>   /* malloc, realloc, calloc, abort */
 #include <stdbool.h>
 #include <stdint.h>   /* for uint32_t */
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------------- */
 /*  Static state:  sieve, primes, and the accumulated sequence                */
@@ -163,7 +165,7 @@ static void append_value(seq_t v)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 64 : seq_cap * 2;
-        seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) abort();
         seq = tmp;
         seq_cap = new_cap;

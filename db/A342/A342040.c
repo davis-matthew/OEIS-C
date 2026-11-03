@@ -9,12 +9,15 @@
  *            1)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +26,7 @@ seq_t a(idx_t n)
        For length L = 2k-1, there are 2^(k-1) palindromes.  Cumulative
        count up to k-1 is 2^(k-1)-1, so the first index of length k is
        2^(k-1).  We need k such that n >= 2^(k-1).  Thus k = floor_log2(n)+1. */
-    idx_t k = floor_log2_uint64(n) + 1U;
+    idx_t k = ilog2(n) + 1U;
 
     /* First index of length k */
     idx_t start = ((idx_t)1U << (k - 1U));

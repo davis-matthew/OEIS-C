@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 167, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains9decimal
+ * Validated: standard, pass, 78 terms through n = 9732 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains9decimal.h"
+#include "../utils/mem.h"
+
+/* Test whether 1/k has at least one digit '9' in its decimal expansion. */
+static bool contains9decimal(uint64_t k)
+{
+    uint64_t r = 1;                 /* remainder of 1 divided by k   */
+    uint64_t repeat_limit = k;      /* enough to see a full period   */
+
+    for (uint64_t i = 0; i < repeat_limit; ++i) {
+        unsigned __int128 tmp = (unsigned __int128)r * 10;
+        uint64_t digit = (uint64_t)(tmp / k);
+        if (digit == 9)
+            return true;
+        r = (uint64_t)(tmp % k);
+        if (r == 0)               /* terminates; no 9 found so far */
+            return false;
+    }
+    return false;                  /* period finished without 9 */
+}
 
 /* Global state for memoisation. */
 static seq_t *cache = NULL;
@@ -36,7 +55,7 @@ static void ensure_cache_cap(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 128;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();                   /* memory allocation failed     */
     cache = new_cache;

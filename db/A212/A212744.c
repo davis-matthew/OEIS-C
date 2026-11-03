@@ -10,6 +10,7 @@
  *            (15*n^3+21*n^2+21*n+7)/8 for n odd
  * Range:     u8 n <= 4, u16 n <= 32, u32 n <= 713, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 57 terms through n = 975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

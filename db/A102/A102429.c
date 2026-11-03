@@ -10,12 +10,14 @@
  *            generating function is (1+x^2-x^3)/((1-x)*(1-x-2x^2+x^4))
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;     /* memoization array */
 static idx_t memo_size = 0;    /* number of elements stored (0 .. memo_size-1) */
@@ -23,7 +25,7 @@ static idx_t memo_size = 0;    /* number of elements stored (0 .. memo_size-1) *
 seq_t a(idx_t n) {
     /* Extend memoization array to compute terms up to n */
     if (n >= memo_size) {
-        seq_t *newm = (seq_t *)realloc(memo, (n + 1) * sizeof(seq_t));
+        seq_t *newm = mem_resize(seq_t, memo, (n + 1));
         if (!newm) {
             /* Allocation failed; abort (no I/O allowed) */
             return (seq_t)0;

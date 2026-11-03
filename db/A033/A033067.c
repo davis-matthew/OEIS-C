@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   is_a033067
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,31 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_a033067.h"
+
+/* Helper: test whether a value satisfies the A033067 condition */
+static bool is_a033067(seq_t x)
+{
+    if (!x)  /* skip 0 – the sequence starts at 1 */
+        return false;
+
+    /* Store hex digits (least significant first) */
+    unsigned char d[256];
+    size_t len = 0;
+
+    seq_t t = x;
+    while (t) {
+        d[len++] = (unsigned char)(t % (seq_t)16);
+        t /= (seq_t)16;
+    }
+
+    /* For each position j from 0..len-1 (LSB index),
+     * if (len-1-j) is odd then digit d[j] must be odd. */
+    for (size_t j = 0; j < len; ++j) {
+        if (((len - 1 - j) & 1) && ((d[j] & 1) == 0))
+            return false;
+    }
+    return true;
+}
 
 /* Public sequence function */
 seq_t a(idx_t n)

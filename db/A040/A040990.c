@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime p such that x^5 ≡ 23 (mod p) has a solution
  * Range:     u8 n <= 44, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 64 terms through n = 844 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* dynamic array helpers                                                 */
@@ -37,7 +41,7 @@ static void grow_seq_t(seq_t **arr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t new_cap = (*cap == 0) ? 1 : (*cap << 1);
     while (new_cap < need) new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 
@@ -90,7 +94,7 @@ static void ensure_solved(size_t need)
             solvable = true;
         } else {
             uint64_t exp = (cur_candidate - 1) / 5;
-            seq_t res = mod_pow((seq_t)23, exp, (seq_t)cur_candidate);
+            seq_t res = powmod((seq_t)23, exp, (seq_t)cur_candidate);
             solvable = (res == (seq_t)1);
         }
 

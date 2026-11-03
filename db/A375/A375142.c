@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 94, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 77 terms through n = 8750 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"   /* for _floor_isqrt_u64 */
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Cache of computed terms                                            */
@@ -77,7 +79,7 @@ static bool is_candidate(seq_t x)
     int    common_exp = -1;        /* common exponent value              */
 
     /* Limit for trial division: floor(sqrt(x)).  The value fits in uint64_t. */
-    idx_t lim = (idx_t)_floor_isqrt_u64((idx_t)x);
+    idx_t lim = (idx_t)isqrt((idx_t)x);
     extend_primes_to(lim);
 
     /* Trial division using the prime table. */
@@ -110,7 +112,7 @@ static void ensure_terms_cap(size_t needed)
     if (terms_cap >= needed) return;
     size_t new_cap = terms_cap ? terms_cap << 1 : 256;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort();
     terms = tmp;
     terms_cap = new_cap;

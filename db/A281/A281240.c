@@ -9,12 +9,14 @@
  *            a(2)=144, a(3)=480, a(4)=816, a(5)=1344, a(6)=3024
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 30, u64 n <= 68, u128 n <= 143,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[7] = {0, 0, 144, 480, 816, 1344, 3024};
 
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
 
     /* Allocate space up to n inclusive */
     size_t new_size = (size_t)n + 1;
-    seq_t *new_cache = (seq_t*)realloc(cache, sizeof(seq_t) * new_size);
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* On allocation failure, abort (should not happen for expected sizes) */
         abort();

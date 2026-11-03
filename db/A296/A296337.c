@@ -9,13 +9,15 @@
  *            a(2)=2, a(3)=1, a(4)=4, a(5)=4
  * Range:     u8 n <= 256, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Dynamic cache of already-computed terms. The cache is indexed from 1
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
 {
     if (n >= seq_cache_len) {
         idx_t new_len = n + 1;                      /* indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_len);
         if (!tmp) abort();                          /* allocation failure */
         seq_cache = tmp;
 

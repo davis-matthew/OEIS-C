@@ -7,15 +7,18 @@
  * Formula:   a(n) = Sum_{d|n} d^tau(n/d)
  * Range:     u8 n <= 19, u16 n <= 71, u32 n <= 359, u64 n <= 1919,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 76 terms through n = 9773 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* Recursive helper: enumerate all divisors of n.
  * pos   : current prime index being processed.
@@ -28,7 +31,7 @@ static void dfs(size_t pos, seq_t cur, seq_t tau,
                 size_t cnt, seq_t *sum)
 {
     if (pos == cnt) {
-        *sum += big_pow(cur, tau);
+        *sum += ipow(cur, tau);
         return;
     }
 

@@ -9,13 +9,22 @@
  *            binomial(n-5*k,2*k)
  * Range:     u8 n <= 16, u16 n <= 28, u32 n <= 52, u64 n <= 99, u128 n <= 193,
  *            big any n
- * Helpers:   binom, seq_mul
+ * Validated: standard, pass, 61 terms through n = 976 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   /* provides static seq_t binom(idx_t a, idx_t b) */
-#include "../utils/seq_mul.h" /* provides seq_t seq_mul(seq_t a, seq_t b) */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -23,9 +32,9 @@ seq_t a(idx_t n)
     idx_t maxk = n / 7;                     /* floor(n/7) */
     for (idx_t k = 0; k <= maxk; ++k) {
         /* binomial(2*k, k) */
-        seq_t t1 = binom(2 * k, k);
+        seq_t t1 = binomial(2 * k, k);
         /* binomial(n-5*k, 2*k) */
-        seq_t t2 = binom(n - 5 * k, 2 * k);
+        seq_t t2 = binomial(n - 5 * k, 2 * k);
         /* product */
         seq_t prod = seq_mul(t1, t2);
         /* accumulate */

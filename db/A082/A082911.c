@@ -8,7 +8,8 @@
  * Formula:   a(n) = prime(n+pi(n)) - prime(n) (offset 1)
  * Range:     u8 n <= 153, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   estimate_limit_for_idx
+ * Validated: standard, pass, 83 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/estimate_limit_for_idx.h"
+#include "../utils/mem.h"
+
+/* Rough upper bound for the k‑th prime (k >= 1) */
+static size_t estimate_limit_for_idx(idx_t k)
+{
+    if (k < 6) return 15;
+    double dk = (double)k;
+    double lim = dk * (log(dk) + log(log(dk)));
+    return (size_t)lim + 3;      /* conservative safety margin */
+}
 
 /* Static cache for primes */
 static seq_t *prime_arr   = NULL;   /* array of primes (seq_t type) */
@@ -43,7 +53,7 @@ static void ensure_sieve_limit(size_t limit)
     /* Resize prime_arr if needed */
     if (prime_cap < limit * 2) {
         prime_cap = limit * 2;
-        prime_arr = (seq_t*)realloc(prime_arr, prime_cap * sizeof(seq_t));
+        prime_arr = mem_resize(seq_t, prime_arr, prime_cap);
     }
     prime_cnt = 0;
 
@@ -51,7 +61,7 @@ static void ensure_sieve_limit(size_t limit)
         if (!is_composite[i]) {
             if (prime_cnt >= prime_cap) {
                 prime_cap *= 2;
-                prime_arr = (seq_t*)realloc(prime_arr, prime_cap * sizeof(seq_t));
+                prime_arr = mem_resize(seq_t, prime_arr, prime_cap);
             }
             prime_arr[prime_cnt++] = (seq_t)i;
         }

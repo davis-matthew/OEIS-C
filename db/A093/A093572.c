@@ -7,7 +7,8 @@
  * Formula:   a(n) = maximum prime factor of Π_{k=1..n} (k + prime(k))
  * Range:     u8 n <= 47, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build */
 typedef idx_t idx_t;   /* e.g. uint64_t */
@@ -94,9 +96,9 @@ static void ensure_memo_capacity(idx_t n)
     if ((size_t)n < memo_cap) return;
     size_t new_cap = memo_cap ? memo_cap : 16;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *new_arr = (seq_t*)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, memo, new_cap);
     if (!new_arr) return;                 /* allocation failure – keep old */
-    memset(new_arr + memo_cap, 0, (new_cap - memo_cap) * sizeof(seq_t));
+    mem_set(new_arr + memo_cap, 0, (new_cap - memo_cap) * sizeof(seq_t));
     memo = new_arr;
     memo_cap = new_cap;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 117, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* helper functions ------------------------------------------------------ */
 
@@ -107,8 +109,7 @@ seq_t a(idx_t n)
                     /* store j */
                     if (terms_cap == terms_cnt) {
                         terms_cap = terms_cap ? terms_cap * 2 : 16;
-                        terms = (seq_t *)realloc(terms,
-                               terms_cap * sizeof(seq_t));
+                        terms = mem_resize(seq_t, terms, terms_cap);
                     }
                     terms[terms_cnt++] = (seq_t)(prime_cnt - 1); /* j 1‑based */
                 }

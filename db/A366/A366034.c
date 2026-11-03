@@ -6,15 +6,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..n} binomial(n+2*k+2, n-k) * binomial(3*k, k) /
  *            (2*k+1)
- * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 21,
+ * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses the multiplicative binomial helper from ../utils/binom.h. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -22,9 +24,9 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= n; ++k)
     {
         /* binomial(n + 2*k + 2, n - k) */
-        seq_t term = binom(n + 2 * k + 2, n - k);
+        seq_t term = binomial(n + 2 * k + 2, n - k);
         /* binomial(3*k, k) */
-        term = term * binom(3 * k, k);
+        term = term * binomial(3 * k, k);
         /* divide by (2*k + 1) – exact integer division */
         term = term / (seq_t)(2 * k + 1);
         result += term;

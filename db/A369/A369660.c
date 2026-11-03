@@ -11,16 +11,17 @@
  *            multiplicity); otherwise a(n) = 0. * * The function computes n'
  *            by factoring n: * n' = n * Σ(e/p) over all prime powers p^e | n.
  *            * It then tests the two congruence condit...
- * Range:     u8 n <= 4896, u16 n <= 9381, u32 n <= 9381, u64 n <= 9381,
- *            u128 n <= 9381, big any n
- * Helpers:   count_prime_factors
+ * Range:     u8 n <= 4896, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 146 terms through n = 9381 (2026-11-01)
+ * Helpers:   bigomega_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>          /* for uint64_t */
-#include "../utils/count_prime_factors.h"
+#include "../utils/bigomega_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
     bool cond1 = ((deriv & (seq_t)3) == (seq_t)2);
 
     /* Condition 2: n' has an even number of prime factors. */
-    bool cond2 = ((count_prime_factors(deriv) & (seq_t)1) == (seq_t)0);
+    bool cond2 = ((bigomega_seq(deriv) & (seq_t)1) == (seq_t)0);
 
     return (cond1 && cond2) ? (seq_t)1 : (seq_t)0;
 }

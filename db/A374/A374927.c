@@ -10,15 +10,47 @@
  *            The function caches B values so that repeated calls are O(1)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   pow4, seq_alloc, seq_realloc
+ * Validated: standard, pass, 51 terms through n = 915 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/pow4.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* cache for the auxiliary sequence B */
 static seq_t *B_cache = NULL;   /* array of computed B values */

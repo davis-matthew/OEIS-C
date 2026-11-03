@@ -8,13 +8,16 @@
  * Formula:   a(n) = 3*8^(n-1)*n^(3*n-2)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 27 terms through n = 50 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Compute the number of spanning trees of the complete tripartite graph K_{n,n,n}. */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,11 +25,11 @@ seq_t a(idx_t n)
     seq_t n_seq = (seq_t)n;
 
     /* Compute 8^(n-1).  n-1 fits in idx_t, cast to seq_t for the exponent. */
-    seq_t pow8 = big_pow((seq_t)8, (seq_t)(n - 1));
+    seq_t pow8 = ipow((seq_t)8, (seq_t)(n - 1));
 
     /* Compute n^(3*n-2).  Compute the exponent as 3*n-2, cast to seq_t. */
     seq_t exp_n = (seq_t)(3 * n_seq - 2);
-    seq_t pow_n = big_pow(n_seq, exp_n);
+    seq_t pow_n = ipow(n_seq, exp_n);
 
     /* Final result: 3 * 8^(n-1) * n^(3*n-2). */
     seq_t result = (seq_t)3 * pow8 * pow_n;

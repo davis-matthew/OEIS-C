@@ -7,13 +7,14 @@
  * Formula:   a(n) = binomial(n+6,6) * 9^n
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 15, u128 n <= 33,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 34 terms through n = 398 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute 9^n using the supplied arbitrary‑precision power routine. */
-    seq_t pow9 = pow_uint(9, n);
+    seq_t pow9 = ipow_u64_idx(9, n);
 
     /* Final result: binomial * 9^n */
     return binom * pow9;

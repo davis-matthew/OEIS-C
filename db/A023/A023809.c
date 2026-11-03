@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   distinct_block_size
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
  *  using a combinatorial rank/de‑rank approach.
  */
 #include <stdbool.h>
-#include "../utils/distinct_block_size.h"
+
+/* Number of length‑k distinct‑digit base‑15 numbers.
+ * For k=1  : 15 (0…14)
+ * For k>1 : 14 * P(14, k‑1) , first digit can be 1‑14, the rest
+ *          are permutations of the remaining 14 digits.  */
+static uint64_t distinct_block_size(int k)
+{
+    if (k == 1) return 15ULL;          /* 0…14 */
+    uint64_t prod = 14ULL;             /* first digit (1‑14) */
+    for (int i = 1; i < k; ++i)       /* remaining k‑1 digits */
+        prod *= (14ULL - (i - 1));
+    return prod;                       /* 14 * P(14, k‑1) */
+}
 
 seq_t a(idx_t n)
 {

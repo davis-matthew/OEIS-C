@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{j=1..⌊n/3⌋ , j odd} Σ_{k=j..⌊(n-j)/2⌋} (n-j-k)
  * Range:     u8 n <= 20, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

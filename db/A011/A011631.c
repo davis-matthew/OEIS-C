@@ -8,13 +8,17 @@
  *            1
  * Range:     i8 n <= 2, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 97 terms through n = 8381 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +29,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
     }
     /* Compute n^125 mod 251 */
-    seq_t res = mod_pow((seq_t)nmod, 125ULL, (seq_t)251);
+    seq_t res = powmod((seq_t)nmod, 125ULL, (seq_t)251);
     /* Map the result to -1, 0, or 1 */
     if (res == (seq_t)1) {
         return (seq_t)1;

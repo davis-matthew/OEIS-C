@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, sign
  * Formula:   not stated
- * Range:     i8 n <= 2659, i16 n <= 9292, i32 n <= 9292, i64 n <= 9292,
- *            i128 n <= 9292, big any n
- * Helpers:   none
+ * Range:     i8 n <= 2659, i16 n <= 10946, i32 n <= 10946, i64 n <= 10946,
+ *            i128 n <= 10946, big any n
+ * Validated: standard, pass, 121 terms through n = 9292 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    i.e. number of partitions of n into distinct Fibonacci parts with a
    sign (-1)^{#parts}.  Computed by dynamic programming. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (n + 1 > cur_max) {
         /* enlarge and recompute the table up to n */
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(dp, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_len);
         if (!tmp) {   /* allocation failed – return 0 */
             return (seq_t)0;
         }

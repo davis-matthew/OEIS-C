@@ -10,7 +10,8 @@
  *            subset‑sum on its proper divisors
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   has_subset_sum
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,49 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/has_subset_sum.h"
+#include "../utils/mem.h"
+
+/* Subset‑sum DP over a set of divisors, target = n.  Returns true
+   if a subset exactly equals target.  Uses bitset DP. */
+static bool has_subset_sum(seq_t *divs, size_t dcnt, idx_t target)
+{
+    size_t words = (target >> 6) + 1;
+    uint64_t *dp  = (uint64_t *)calloc(words, sizeof(uint64_t));
+    uint64_t *tmp = (uint64_t *)malloc(words * sizeof(uint64_t));
+    if (!dp || !tmp) return true; /* assume represented if weird */
+
+    dp[0] = 1ULL; /* bit 0 set */
+
+    for (size_t di = 0; di < dcnt; ++di) {
+        seq_t d = divs[di];
+        if (d > target) continue;
+        /* snapshot old DP */
+        memcpy(tmp, dp, words * sizeof(uint64_t));
+        size_t shift_words = (size_t)d >> 6;
+        uint64_t shift_bits = (size_t)d & 63;
+        for (size_t w = 0; w < words; ++w) {
+            uint64_t val = tmp[w];
+            if (!val) continue;
+            size_t dst = w + shift_words;
+            if (dst >= words) break;
+            if (shift_bits == 0) {
+                dp[dst] |= val;
+            } else {
+                dp[dst] |= val << shift_bits;
+                if (dst + 1 < words)
+                    dp[dst + 1] |= val >> (64 - shift_bits);
+            }
+        }
+    }
+
+    size_t word_idx = target >> 6;
+    uint64_t mask = 1ULL << (target & 63);
+    bool res = (dp[word_idx] & mask) != 0;
+
+    free(dp);
+    free(tmp);
+    return res;
+}
 
 /* Speedy SPF sieve (smallest‑prime‑factor table).  Only one size
    will ever be allocated. */
@@ -63,7 +106,7 @@ static void get_proper_divisors(idx_t n, seq_t **out, size_t *cnt)
        dynamic array to accommodate many divisors. */
     size_t cap = 64;
     size_t sz  = 1;
-    seq_t *divs = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, cap);
     divs[0] = 1;
 
     for (size_t i = 0; i < pfcnt; ++i) {
@@ -77,7 +120,7 @@ static void get_proper_divisors(idx_t n, seq_t **out, size_t *cnt)
                 /* Reserve space. */
                 if (sz >= cap) {
                     cap <<= 1;
-                    divs = (seq_t *)realloc(divs, cap * sizeof(seq_t));
+                    divs = mem_resize(seq_t, divs, cap);
                 }
                 divs[sz++] = val;
             }
@@ -110,7 +153,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         init_spf(300000);               /* plenty for the test range */
         seq_cap = 128;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 0;
         generated_up_to = 0;
         initialized = true;
@@ -130,13 +173,13 @@ seq_t a(idx_t n)
 
         /* Subset‑sum check */
         bool can = has_subset_sum(divs, dcnt, candidate);
-        free(divs);   /* clean up divisor list */
+        mem_free(divs);   /* clean up divisor list */
 
         if (!can) {
             /* store the number in the sequence */
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)candidate;
         }

@@ -9,6 +9,7 @@
  *            two such primes; the sequence ends with a(96)
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
+ * Validated: full, pass, 96 terms through n = 96 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 18, u128 n <= 39,
  *            big any n
- * Helpers:   absdiff
+ * Validated: standard, pass, 33 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,14 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/absdiff.h"
+#include <stdlib.h>
+#include <string.h>
+
+/* ---------------  Transfer function  --------------- */
+static inline int absdiff(int a, int b)
+{
+    return a > b ? a - b : b - a;
+}
 
 /* adjacency lists: for each row 's', neighbors[s] holds all rows 't'
    that are compatible with 's'.  The first neighbor_count[s] entries

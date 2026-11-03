@@ -7,16 +7,19 @@
  * Formula:   a(n) = (1/2) * C(r+k, k) * C(r, k) * where r is the row index
  *            such that r*(r+1)/2 >= n * (rows are numbered starting at 1) and
  *            k = n - r*(r-1)/2
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 48, u64 n <= 48, u128 n <= 48,
+ * Range:     u8 n <= 12, u16 n <= 40, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   binomial, floor_sqrt_uint64
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   binomial, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/floor_sqrt_uint64.h"
+#include "../utils/isqrt_u64.h"
 
 #ifdef __cplusplus
 #include <type_traits>
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
 {
     /* total terms of rows 1 .. r-1 is r*(r-1)/2 */
     uint64_t nn = (uint64_t)n;
-    uint64_t sq = floor_sqrt_uint64(1 + 8 * nn);
+    uint64_t sq = isqrt_u64(1 + 8 * nn);
     uint64_t r = (sq - 1) / 2;
     if (r * (r + 1) / 2 < nn)    /* smallest r with r*(r+1)/2 ≥ n */
         ++r;

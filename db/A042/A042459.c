@@ -11,12 +11,14 @@
  *            a(16)=602503477, a(17)=3113847289, a(18)=3716350766, a(19)=66...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 32, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* initial 22 values are needed to start the recurrence */
 static const seq_t initial[22] = {
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
     /* initialize cache the first time */
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* copy the initial 22 values */
         for (idx_t i = 0; i < 22; ++i) cache[i] = initial[i];
         cache_len = 22;
@@ -52,7 +54,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

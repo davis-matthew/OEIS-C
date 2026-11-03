@@ -9,12 +9,14 @@
  *            partitions of m into at most 7 parts)
  * Range:     u8 n <= 24, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     idx_t max_m = n - 8;
 
     /* Allocate DP array for P_7[0..max_m] */
-    seq_t *dp = (seq_t *)malloc((max_m + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (max_m + 1));
     if (!dp)
         return (seq_t)0;          /* Out‑of‑memory: safe‑return */
 
@@ -50,6 +52,6 @@ seq_t a(idx_t n)
         sum += (seq_t)p * dp[m];
     }
 
-    free(dp);
+    mem_free(dp);
     return sum;
 }

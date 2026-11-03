@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   digit_frequencies, seq_mul
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_mul.h"          /* seq_mul(seq_t a, seq_t b) */
-#include "../utils/digit_frequencies.h"/* digit_frequencies(seq_t x, unsigned int freq[10]) */
+#include <string.h>
+#include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Ensure a dynamic array has capacity for at least 'needed' elements.  */
 static void _ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
@@ -29,7 +36,7 @@ static void _ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
         while (newcap < needed) newcap <<= 1;
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }

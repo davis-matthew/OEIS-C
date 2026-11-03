@@ -6,15 +6,18 @@
  * Keywords:  nonn
  * Formula:   a(n) = coefficient of x^n in (1-x^44)∏_{i=1}^{43}(1-x^{2i}) /
  *            (1-x)^44
- * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 18, u128 n <= 18,
+ * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,9 +27,9 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t new_size = n + 1;
 
-        seq_t *new_cache = (seq_t*)calloc(new_size, sizeof(seq_t));
-        seq_t *num_coeff  = (seq_t*)calloc(new_size, sizeof(seq_t));
-        seq_t *binom_series = (seq_t*)calloc(new_size, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
+        seq_t *num_coeff  = mem_new(seq_t, new_size);
+        seq_t *binom_series = mem_new(seq_t, new_size);
 
         /* numerator polynomial: (1 - x^44) * ∏_{i=1}^{43} (1 - x^{2i})   */
         num_coeff[0] = 1;                     /* starts as 1 */
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
 
         /* binomial series: coefficient of x^t in (1-x)^(-44) is binom(43+t, t) */
         for (idx_t t = 0; t < new_size; ++t) {
-            binom_series[t] = binom(43 + t, t);
+            binom_series[t] = binomial(43 + t, t);
         }
 
         /* convolution: a(n) = Σ_{k=0}^{n} num_coeff[k] * binom_series[n-k] */
@@ -63,9 +66,9 @@ seq_t a(idx_t n)
         }
 
         /* free temporaries and replace cache */
-        free(num_coeff);
-        free(binom_series);
-        free(cache);
+        mem_free(num_coeff);
+        mem_free(binom_series);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

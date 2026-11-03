@@ -7,12 +7,14 @@
  * Formula:   a(n) = binom(20*n,10*n)*binom(10*n,2*n)/binom(3*n,n)
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 1, u64 n <= 2, u128 n <= 5,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)
@@ -23,9 +25,9 @@ seq_t a(idx_t n)
     idx_t two_n  = 2 * n;
     idx_t three_n = 3 * n;
 
-    seq_t t1    = binom(twon,  ten_n);   /* binom(20n,10n)   */
-    seq_t t2    = binom(ten_n, two_n);   /* binom(10n,2n)    */
-    seq_t denom = binom(three_n, n);     /* binom(3n, n)     */
+    seq_t t1    = binomial(twon,  ten_n);   /* binom(20n,10n)   */
+    seq_t t2    = binomial(ten_n, two_n);   /* binom(10n,2n)    */
+    seq_t denom = binomial(three_n, n);     /* binom(3n, n)     */
 
     /* cancel common factors to keep intermediate values small */
     seq_t g = gcd(t1, denom);

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   gcd, index_to_ij
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -44,7 +45,21 @@
 #include <string.h>          /* for memset */
 
 #include "../utils/gcd.h"
-#include "../utils/index_to_ij.h"
+
+/* Convert a linear index n (1‑based) to matrix co‑ordinates (i,j). */
+static void index_to_ij(idx_t n, idx_t *pi, idx_t *pj)
+{
+    /* Find diagonal k such that k(k+1)/2 ≥ n */
+    idx_t k = 1;
+    while ((k * (k + 1ULL) / 2ULL) < n) ++k;
+
+    /* Terms before this diagonal */
+    idx_t prev_terms = (k - 1) * k / 2;
+    idx_t offset = n - prev_terms;           /* 1‑based position */
+
+    *pi = offset;                 /* row index */
+    *pj = k - offset + 1;         /* column index */
+}
 
 #define MAX_DIM 200   /* sufficient for n ≤ 10 000 */
 

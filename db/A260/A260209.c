@@ -11,7 +11,8 @@
  *            = 1 … p-1, then a(n) = ((N·D⁻¹ mod p⁴) – 1) / p
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 268, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   modinv128
+ * Validated: standard, pass, 53 terms through n = 9742 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/modinv128.h"
+
+static inline unsigned __int128 modinv128(unsigned __int128 a,
+                                          unsigned __int128 mod)
+{
+    __int128 t0 = 0, t1 = 1;
+    __int128 r0 = mod, r1 = a;
+    while (r1 != 0)
+    {
+        __int128 q = r0 / r1;
+        __int128 r2 = r0 - q * r1;
+        r0 = r1; r1 = r2;
+        __int128 t2 = t0 - q * t1;
+        t0 = t1; t1 = t2;
+    }
+    if (t0 < 0) t0 += mod;
+    return (unsigned __int128)t0;
+}
 
 /* ---------- modular arithmetic for 128‑bit values ---------- */
 static inline unsigned __int128 modmul128(unsigned __int128 a,

@@ -14,15 +14,26 @@
  *            the utils library)
  * Range:     u8 n <= 44, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   fib, pow2
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/fib.h"  /* provides seq_t fib(idx_t n); */
-#include "../utils/pow2.h" /* provides seq_t pow2(idx_t exp); */
+#include "../utils/pow2.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {

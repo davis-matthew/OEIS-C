@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n} C(2*n-2*k,n-k)^2 * C(2*n,k)^2
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external linkage required */
 seq_t a(idx_t n)
@@ -23,11 +25,11 @@ seq_t a(idx_t n)
 
     /* allocate temporary arrays */
     size_t len = (size_t)n + 1;
-    seq_t *c_sqr = (seq_t *)malloc(len * sizeof(seq_t));      /* (C(2*j,j))^2 */
-    seq_t *b     = (seq_t *)malloc(len * sizeof(seq_t));      /* C(2*n,k)      */
+    seq_t *c_sqr = mem_new(seq_t, len);      /* (C(2*j,j))^2 */
+    seq_t *b     = mem_new(seq_t, len);      /* C(2*n,k)      */
     if (!c_sqr || !b) {
-        free(c_sqr);
-        free(b);
+        mem_free(c_sqr);
+        mem_free(b);
         return (seq_t)0;   /* failed allocation – caller will guard against this */
     }
 
@@ -62,8 +64,8 @@ seq_t a(idx_t n)
     }
 
     /* free temporary storage */
-    free(c_sqr);
-    free(b);
+    mem_free(c_sqr);
+    mem_free(b);
 
     return sum;
 }

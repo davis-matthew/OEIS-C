@@ -11,7 +11,8 @@
  *            mod 10
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   gpf
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "stdbool.h"
-#include "../utils/gpf.h"        /* uint64_t gpf(uint64_t) */
+#include "../utils/largest_prime_factor.h"
 
 /* ------------------------------------------------------------------ */
 /* Small big‑integer routines (base 2^32) – only what we need.        */
@@ -110,8 +111,8 @@ seq_t a(idx_t n)
     bi_t N;
     bi_init(&N, WORDS);
     for (size_t k = 1; k <= K; ++k) {
-        uint64_t gk  = gpf(k);
-        uint64_t gk1 = gpf(k + 1);
+        uint64_t gk  = largest_prime_factor(k);
+        uint64_t gk1 = largest_prime_factor(k + 1);
         uint32_t e  = (gk1 > gk) ? 1U : 0U;
         bi_shift_left_one_and_add(&N, e);
     }

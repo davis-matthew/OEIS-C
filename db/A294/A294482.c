@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    2 s for n up to ~10 000.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* forward declarations */
 static void ensure_a_upto(idx_t upto);
@@ -51,9 +53,9 @@ static void ensure_b_upto(idx_t target_index)
         {
             /* current integer is missing – store it as the next b term */
             if (missing_count == 0)
-                b_cache = (seq_t *)malloc(sizeof(seq_t));
+                b_cache = mem_new(seq_t, 1);
             else
-                b_cache = (seq_t *)realloc(b_cache, (missing_count + 1) * sizeof(seq_t));
+                b_cache = mem_resize(seq_t, b_cache, (missing_count + 1));
             b_cache[missing_count] = (seq_t)missing_current;
             ++missing_count;
             ++missing_current;
@@ -68,9 +70,9 @@ static void ensure_a_upto(idx_t upto)
 
     /* grow a_cache to hold values up to 'upto' */
     if (a_cache == NULL)
-        a_cache = (seq_t *)malloc((upto + 1) * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (upto + 1));
     else
-        a_cache = (seq_t *)realloc(a_cache, (upto + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (upto + 1));
 
     /* compute new a terms */
     for (idx_t i = a_cache_size; i <= upto; ++i)

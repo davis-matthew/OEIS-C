@@ -8,6 +8,7 @@
  *            where p_k is the k‑th prime (p_1 = 2)
  * Range:     u8 n <= 1, u16 n <= 27, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <math.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static uint64_t *prime_arr = NULL;   /* array of primes (p_1 ... p_m) */

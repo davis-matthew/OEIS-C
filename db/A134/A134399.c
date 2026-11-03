@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
    then the column k = n - r(r+1)/2. Finally a(n) = C(r,k) * d_k where
    d_k = 1 if k<=1 else k. */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static idx_t row_of(idx_t n)
 {
@@ -55,6 +57,6 @@ seq_t a(idx_t n)
     seq_t d = (k <= 1) ? (seq_t)1 : (seq_t)k;
 
     /* Binomial coefficient C(r,k) multiplied by the diagonal factor. */
-    seq_t bin = binom(r, k);
+    seq_t bin = binomial(r, k);
     return bin * d;
 }

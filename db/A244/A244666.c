@@ -10,7 +10,8 @@
  *            of all positive divisors of n
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 17, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Local routine to generate primes up to 1,000,000. */
 static uint32_t primes[80000];
@@ -76,7 +78,7 @@ static idx_t max_checked = 0;
 static void append_term(seq_t val) {
     if (len == cap) {
         size_t new_cap = cap ? cap * 2 : 4;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();
         terms = tmp;
         cap   = new_cap;

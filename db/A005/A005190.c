@@ -10,13 +10,14 @@
  *            maximal coefficient is that of x^k
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   bin_mul
+ * Validated: standard, pass, 41 terms through n = 189 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bin_mul.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -26,9 +27,9 @@ seq_t a(idx_t n) {
     idx_t jmax = k / 2;
     if (jmax > n) jmax = n;
 
-    seq_t cj = bin_mul(n, jmin);
+    seq_t cj = binomial(n, jmin);
     idx_t m = k - 2 * jmin;
-    seq_t cm = bin_mul(n, m);
+    seq_t cm = binomial(n, m);
     seq_t sum = 0;
 
     for (idx_t j = jmin;; j++) {

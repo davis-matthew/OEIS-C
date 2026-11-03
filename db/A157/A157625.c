@@ -8,7 +8,8 @@
  * Formula:   a(n) = product of composite integers m with n+1 ≤ m ≤ 2n
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   is_prime, seq_mul
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,15 @@
 
 /* Include required headers. */
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Compute the value of sequence A157625 at index n. */
 seq_t a(idx_t n)

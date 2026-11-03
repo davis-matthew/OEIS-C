@@ -11,6 +11,7 @@
  *            condition is (f > ½) xor (p == 1). The code impl...
  * Range:     u8 n <= 129, u16 n <= 4000, u32 n <= 4000, u64 n <= 4000,
  *            u128 n <= 4000, big any n
+ * Validated: standard, pass, 79 terms through n = 3928 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

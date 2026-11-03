@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 46, u16 n <= 6493, u32 n <= 9591, u64 n <= 9591,
- *            u128 n <= 9591, big any n
- * Helpers:   none
+ * Range:     u8 n <= 46, u16 n <= 6493, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 85 terms through n = 9591 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Types supplied by the build system */
 extern seq_t _dummy;   /* just to avoid warnings when seq_t is empty */
@@ -60,9 +62,9 @@ static void build_cache(void)
     }
 
     /* Allocate prime arrays.  Casts are required for C++. */
-    primes     = (seq_t*)malloc((size_t)(LIMIT + 1) * sizeof(seq_t));
-    primes4k1  = (seq_t*)malloc((size_t)(LIMIT + 1) * sizeof(seq_t));
-    primes4k3  = (seq_t*)malloc((size_t)(LIMIT + 1) * sizeof(seq_t));
+    primes     = mem_new(seq_t, (size_t)(LIMIT + 1));
+    primes4k1  = mem_new(seq_t, (size_t)(LIMIT + 1));
+    primes4k3  = mem_new(seq_t, (size_t)(LIMIT + 1));
     if (!primes || !primes4k1 || !primes4k3) exit(EXIT_FAILURE);
 
     primes_count = 0;
@@ -83,7 +85,7 @@ static void build_cache(void)
     }
 
     /* Build the sequence a(n). */
-    a_seq = (seq_t*)malloc(primes_count * sizeof(seq_t));
+    a_seq = mem_new(seq_t, primes_count);
     if (!a_seq) exit(EXIT_FAILURE);
     a_seq[0] = (seq_t)2;    /* a(1) = 2 */
     a_count = 1;

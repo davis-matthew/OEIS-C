@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 1202, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_uint64, is_prime
+ * Validated: standard, pass, 66 terms through n = 9645 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/bitlen_uint64.h"
+#include "../utils/mem.h"
+
+static inline uint64_t bitlen_uint64(uint64_t n) {
+    /* n > 0 */
+    return 64 - __builtin_clzll(n);
+}
 
 seq_t a(idx_t n)
 {
@@ -54,7 +60,7 @@ seq_t a(idx_t n)
             if (tbl_len >= tbl_cap)
             {
                 size_t new_cap = tbl_cap ? tbl_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(tbl, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, tbl, new_cap);
                 tbl = tmp;
                 tbl_cap = new_cap;
             }

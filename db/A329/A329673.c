@@ -10,13 +10,15 @@
  *            a(3)=10 Recurrence holds for n >= 4
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 20, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         if (newcap <= n) {
             newcap = (n + 1) * 2;
         }
-        seq_t *tmp = (seq_t *)realloc(dp, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, newcap);
         dp = tmp;
         capacity = newcap;
     }

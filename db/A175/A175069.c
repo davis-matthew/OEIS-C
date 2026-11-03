@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = (product of perfect divisors of n) / n
- * Range:     u8 n <= 48, u16 n <= 4095, u32 n <= 7668, u64 n <= 7668,
- *            u128 n <= 7668, big any n
+ * Range:     u8 n <= 48, u16 n <= 4095, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 116 terms through n = 7668 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Euclidean algorithm for uint64_t, used only inside this file. */

@@ -10,15 +10,16 @@
  *            , n-k) * (2k+1)/(2n+1) (0 ≤ k ≤ n) The triangle is read by rows:
  *            first row n=0 has 1 element, second row n=1 has 2 elements,
  *            etc., with OEIS offset 1
- * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
     /* Compute T(r,k) = binom(3r-k , r-k) * (2k+1) / (2r+1) */
     idx_t num1 = 3 * r - k;              /* upper argument of binomial   */
     idx_t den1 = r - k;                  /* lower argument of binomial   */
-    seq_t bin  = binom(num1, den1);      /* binomial coefficient        */
+    seq_t bin  = binomial(num1, den1);      /* binomial coefficient        */
 
     seq_t num = bin * ((seq_t)(2 * k + 1));
     seq_t den = (seq_t)(2 * r + 1);

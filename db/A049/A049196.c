@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 3805, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, mobius
+ * Validated: standard, pass, 74 terms through n = 9665 (2026-11-03)
+ * Helpers:   mem, mobius, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mobius.h"     /* mobius(idx_t) -> seq_t */
-#include "../utils/calc_phi.h"   /* calc_phi(seq_t) -> seq_t */
+#include <stdint.h>
+#include "../utils/mobius.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 /* Cached terms of the sequence. */
 static seq_t *terms   = NULL;
@@ -34,7 +37,7 @@ static void ensure_terms_capacity(size_t need)
     {
         size_t new_cap = terms_cap ? terms_cap * 2 : 4;
         while (new_cap < need) new_cap <<= 1;
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         terms_cap = new_cap;
     }
 }
@@ -47,7 +50,7 @@ static bool is_valid_a049196(idx_t k)
     if (mu_k == 0) return false;
 
     /* phi(k) must also be squarefree */
-    seq_t phi_k = calc_phi((seq_t)k);
+    seq_t phi_k = totient_seq((seq_t)k);
     int mu_phi = (int)mobius((idx_t)phi_k);
     return mu_phi != 0;
 }

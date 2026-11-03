@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   has_adjacent_03_or_30
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_adjacent_03_or_30.h"
+
+static bool has_adjacent_03_or_30(idx_t v)
+{
+    /* Return true iff the base‑4 representation of v contains
+       a 0 and a 3 in consecutive positions (00:0-3 or 3-0). */
+    if (v < 4) return false;
+    idx_t prev = v % 4;
+    v /= 4;
+    while (v > 0) {
+        idx_t cur = v % 4;
+        if ((prev == 0 && cur == 3) || (prev == 3 && cur == 0))
+            return true;
+        prev = cur;
+        v /= 4;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,7 +9,8 @@
  *            partitions of n into distinct primes
  * Range:     u8 n <= 30, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The build provides the integer types seq_t and idx_t.  */
 seq_t a(idx_t n)
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* DP array indexed by n (size_t is fine because n is small).  */
     size_t N = (size_t)n;
-    seq_t *dp = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (N + 1));
     if (!dp) return 0;
     for (size_t i = 0; i <= N; ++i) dp[i] = 0;
     dp[0] = (seq_t)1;                 /* empty partition */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Simple sieve to enumerate primes up to n.  */
     size_t limit = N;
     uint8_t *is_comp = (uint8_t *)calloc(limit + 1, sizeof(uint8_t));
-    if (!is_comp) { free(dp); return 0; }
+    if (!is_comp) { mem_free(dp); return 0; }
 
     for (size_t p = 2; p <= limit; ++p) {
         if (is_comp[p]) continue;     /* composite, skip */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[N] * (seq_t)n;
 
-    free(dp);
+    mem_free(dp);
     free(is_comp);
     return result;
 }

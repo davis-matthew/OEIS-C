@@ -8,7 +8,8 @@
  *            successive Fibonacci numbers (of any length ≥ 1)
  * Range:     u8 n <= 8, u16 n <= 31, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   add_checked
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/add_checked.h"
+#include "../utils/mem.h"
+
+/* Checked addition for Fibonacci generation */
+static bool add_checked(seq_t a, seq_t b, seq_t *res) {
+    if (sizeof(seq_t) == 8) {
+        unsigned __int128 tmp = (unsigned __int128)a + (unsigned __int128)b;
+        if (tmp > (unsigned __int128)UINT64_MAX) return false;
+        *res = (seq_t)tmp;
+        return true;
+    }
+    *res = a + b;
+    return true;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Internal helpers                                                      */
@@ -54,7 +67,7 @@ static void grow_seq(idx_t new_len) {
     if (seq_cap >= new_len) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < (size_t)new_len) new_cap <<= 1;
-    seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, new_cap);
     seq_cap = (idx_t)new_cap;
 }
 
@@ -62,7 +75,7 @@ static void grow_seq(idx_t new_len) {
 static void heap_push(State s) {
     if (heap_size + 1 > heap_cap) {
         size_t new_cap = heap_cap ? heap_cap * 2 : 4;
-        heap_arr = (State *)realloc(heap_arr, new_cap * sizeof(State));
+        heap_arr = mem_resize(State, heap_arr, new_cap);
         heap_cap = new_cap;
     }
     size_t i = heap_size++;
@@ -126,7 +139,7 @@ static bool ensure_fib(idx_t fib_index) {
         }
         if (fib_len + 1 >= fib_cap) {
             size_t new_cap = fib_cap ? fib_cap * 2 : 8;
-            fib_arr = (seq_t *)realloc(fib_arr, new_cap * sizeof(seq_t));
+            fib_arr = mem_resize(seq_t, fib_arr, new_cap);
             fib_cap = new_cap;
         }
         fib_arr[++fib_len] = c;
@@ -151,7 +164,7 @@ static void init(void) {
 
     /* Fibonacci cache: start with F1 = F2 = 1 */
     fib_cap  = 8;
-    fib_arr  = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+    fib_arr  = mem_new(seq_t, fib_cap);
     fib_arr[1] = (seq_t)1;
     fib_arr[2] = (seq_t)1;
     fib_len   = 2;
@@ -159,11 +172,11 @@ static void init(void) {
 
     /* Heap cache */
     heap_cap  = 64;
-    heap_arr  = (State *)malloc(heap_cap * sizeof(State));
+    heap_arr  = mem_new(State, heap_cap);
 
     /* Sequence cache */
     seq_cap   = 16;
-    seq_arr   = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_arr   = mem_new(seq_t, seq_cap);
 
     /* Seed starting indices 1 and 2 */
     while (next_start_seed <= fib_len) {

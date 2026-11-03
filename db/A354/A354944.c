@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n,k)^3 * k! * (-n)^(n-k)
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 8, i64 n <= 13, i128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

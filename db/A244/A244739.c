@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper: test if a uint64_t is prime using stored primes */
 static bool is_prime_candidate(uint64_t n, const uint64_t *primes, size_t primes_cnt) {
@@ -59,8 +61,7 @@ seq_t a(idx_t n) {
         if (last_prime % 5 == 0 || last_prime % 5 == 3) {
             if (qual_cnt == qual_cap) {
                 qual_cap = qual_cap ? qual_cap * 2 : 8;
-                qual_indices = (seq_t*)realloc(qual_indices,
-                                              qual_cap * sizeof(seq_t));
+                qual_indices = mem_resize(seq_t, qual_indices, qual_cap);
             }
             qual_indices[qual_cnt++] = (seq_t)last_k;
         }

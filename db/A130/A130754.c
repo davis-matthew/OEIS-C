@@ -11,13 +11,15 @@
  *            let L(r) = floor(r/2)+1 be the number of elements kept. For r>0
  *            the elements are: a(r,0) = 2 a(r,i) = binomial(r,i) if r is even
  *            a(r,i) = 2 * binomial(r,i) if r is odd The ove...
- * Range:     u8 n <= 24, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
+ * Range:     u8 n <= 39, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -11,14 +11,25 @@
  *            implements OEIS A154436
  * Range:     u8 n <= 255, u16 n <= 2047, u32 n <= 2047, u64 n <= 2047,
  *            u128 n <= 2047, big any n
- * Helpers:   highest_pow2_leq
+ * Validated: standard, pass, 86 terms through n = 2012 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/highest_pow2_leq.h"
+
+/* Compute largest power of two ≤ n (n > 0). */
+static inline idx_t highest_pow2_leq(idx_t n)
+{
+    idx_t p = 1;
+    /* Use division to avoid overflow on the shift. */
+    while (p <= n / 2) {
+        p <<= 1;
+    }
+    return p;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   grow_seq, is_prime_small
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"   /* is_prime_small(uint64_t) -> bool */
-#include "../utils/grow_seq.h"        /* void grow_seq(seq_t **, size_t *, size_t) */
+#include <stddef.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Ensure that a uint32_t array has enough capacity for at least 'need' elements */
 static void ensure_prime_cap(size_t need, uint32_t **arr, size_t *cap)
@@ -43,7 +58,7 @@ static void ensure_prime_cap(size_t need, uint32_t **arr, size_t *cap)
 static uint32_t next_prime(uint32_t *last)
 {
     uint64_t cand = (uint64_t)(*last) + 1;
-    while (!is_prime_small(cand))
+    while (!is_prime_seq(cand))
         ++cand;
     *last = (uint32_t)cand;
     return (uint32_t)cand;

@@ -9,7 +9,8 @@
  *            r(r+1)/2, and T(r,k) = (k+1)*(r+1)!*(r+k)!/((k+1)!²*(r-k)!)
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   prime_pow_factorial, prime_pow_number
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,30 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/prime_pow_factorial.h"
-#include "../utils/prime_pow_number.h"
+
+/* Helper: exponent of prime p in n! */
+static unsigned int prime_pow_factorial(idx_t n, uint32_t p)
+{
+    unsigned int e = 0;
+    while (n)
+    {
+        n /= p;
+        e += n;
+    }
+    return e;
+}
+
+/* Helper: exponent of prime p in a single number a */
+static unsigned int prime_pow_number(idx_t a, uint32_t p)
+{
+    unsigned int e = 0;
+    while (a % p == 0)
+    {
+        ++e;
+        a /= p;
+    }
+    return e;
+}
 
 /* Generate list of primes up to 2000 (sufficient for our limits) */
 static uint32_t primes[300];

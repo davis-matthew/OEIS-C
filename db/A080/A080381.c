@@ -8,8 +8,9 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = gcd( binomial(r, floor(r/2)), binomial(r, i) ), where r =
  *            floor((sqrt(8*n+1)-1)/2) and i = n - r*(r+1)/2
- * Range:     u8 n <= 37, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
+ * Range:     u8 n <= 66, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 /* Determine the row (r) and column (i) from the flattened index n,
    then return the gcd of C(r, floor(r/2)) and C(r, i). */

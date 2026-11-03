@@ -9,13 +9,15 @@
  *            a(d-1) ) * a(n-k) for n>0
  * Range:     i8 n <= 9, i16 n <= 18, i32 n <= 38, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,12 +27,12 @@ seq_t a(idx_t n)
     }
 
     size_t size = (size_t)n + 1;   /* allocate arrays up to n */
-    seq_t *A = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *S = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, size);
+    seq_t *S = mem_new(seq_t, size);
     if (!A || !S) {        /* allocation failure */
         return 0;
     }
-    memset(S, 0, size * sizeof(seq_t));
+    mem_set(S, 0, size * sizeof(seq_t));
 
     /* a[0] = 1 */
     A[0] = 1;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = A[n];
-    free(A);
-    free(S);
+    mem_free(A);
+    mem_free(S);
     return result;
 }

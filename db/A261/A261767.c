@@ -14,7 +14,8 @@
  *            (f...
  * Range:     u8 n <= 16, u16 n <= 27, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 static seq_t *fact = NULL;          /* factorial array, fact[i] = i!   */
@@ -35,7 +37,7 @@ static void ensure_fact(idx_t n)
 {
     if (n + 1 <= fact_cap) return;
     size_t new_cap = (size_t)(n + 1);
-    seq_t *new_f = (seq_t*)realloc(fact, new_cap * sizeof(seq_t));
+    seq_t *new_f = mem_resize(seq_t, fact, new_cap);
     if (!new_f) exit(EXIT_FAILURE);
     fact = new_f;
     /* compute new factorial entries */
@@ -53,7 +55,7 @@ static seq_t compute_U(idx_t n, idx_t k)
     if (k == 0)            return (seq_t)1;   /* U(n,0)=1 for all n  */
 
     if (n + 1 > dp_cap) {                     /* grow DP array         */
-        seq_t *new_dp = (seq_t*)realloc(dp, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, (size_t)(n + 1));
         if (!new_dp) exit(EXIT_FAILURE);
         dp = new_dp;
         dp_cap = (size_t)(n + 1);

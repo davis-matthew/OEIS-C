@@ -13,12 +13,14 @@
  *            7716983, 12433160,...
  * Range:     u8 none, u16 none, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[22] = {
     3764191ULL, 137138ULL, 172192ULL, 439891ULL, 1630171ULL,
@@ -40,13 +42,13 @@ seq_t a(idx_t n)
     /* ----- allocate / grow cache as needed ----- */
     if (!cache) {
         cap   = 64;                         /* initial capacity (index 0 unused) */
-        cache = (seq_t *)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;
     }
     if ((size_t)n + 1 > cap) {               /* need room for index n */
         size_t new_cap = cap;
         while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;
         cache = tmp;
         cap   = new_cap;

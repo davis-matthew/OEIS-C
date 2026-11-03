@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Dynamically allocated cache of rows.  triangle[i] points to an array
  * of length (i+1) containing T(i,0)…T(i,i). */
@@ -57,7 +59,7 @@ static void ensure_triangle(idx_t r)
     for (size_t i = triangle_rows; i < new_rows; ++i)
     {
         /* Allocate the current row.  */
-        seq_t *row = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (!row)   /* allocation failure – leave cache unchanged */
             return;
 

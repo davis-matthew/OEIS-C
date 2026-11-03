@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 9141, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 8734 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static data used for memoization */
 static seq_t *divcnt = NULL;       /* divisor counts, index 0 unused */
@@ -40,11 +42,11 @@ static void ensure_divcnt(idx_t need)
     idx_t new_limit = (max_limit == 0) ? 128 : max_limit;
     while (new_limit < need) new_limit <<= 1;   /* double until sufficient */
 
-    seq_t *tmp = (seq_t *)realloc(divcnt, (new_limit + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, divcnt, (new_limit + 1));
     if (!tmp) abort();                          /* out of memory */
     divcnt = tmp;
     /* Zero all entries (including those already present, simpler and safe). */
-    memset(divcnt, 0, (new_limit + 1) * sizeof(seq_t));
+    mem_set(divcnt, 0, (new_limit + 1) * sizeof(seq_t));
 
     /* Simple divisor sieve: for each i increase all multiples. */
     for (idx_t i = 1; i <= new_limit; ++i) {
@@ -80,11 +82,11 @@ seq_t a(idx_t n)
             /* Grow the terms array if necessary. */
             if (terms_capacity == 0) {
                 terms_capacity = 128;
-                terms = (seq_t *)malloc(sizeof(seq_t) * terms_capacity);
+                terms = mem_new(seq_t, terms_capacity);
                 if (!terms) abort();
             } else if (terms_count == terms_capacity) {
                 terms_capacity <<= 1;
-                seq_t *tmp = (seq_t *)realloc(terms, sizeof(seq_t) * terms_capacity);
+                seq_t *tmp = mem_resize(seq_t, terms, terms_capacity);
                 if (!tmp) abort();
                 terms = tmp;
             }

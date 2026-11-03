@@ -10,7 +10,8 @@
  *            The sequence is read row‑major from that product triangle
  * Range:     u8 n <= 45, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binomial.h"               /* provides seq_t binomial(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Compute the nth term of A124816. */
 seq_t a(idx_t n)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* ----------  Powers of the compositional inverse  ---------- */
     /* s(x) = f_inv(x) where f(x) = x(1‑x²).  Only odd coefficients
        occur:  s[2m+1] = C(3m,m) / (2m+1).  Build array of size r+1. */
-    seq_t *s = (seq_t *)calloc(r + 1, sizeof(seq_t));
+    seq_t *s = mem_new(seq_t, r + 1);
     for (idx_t m = 0; 2 * m + 1 <= r; ++m) {
         seq_t v = binomial(3 * m, m);
         v /= (2 * m + 1);           /* exact division */
@@ -49,14 +51,14 @@ seq_t a(idx_t n)
     }
 
     /* Lcoeff[j] = coefficient of x^r in s(x)^j for 0 <= j <= r. */
-    seq_t *Lcoeff = (seq_t *)calloc(r + 1, sizeof(seq_t));
+    seq_t *Lcoeff = mem_new(seq_t, r + 1);
     Lcoeff[0] = (r == 0 ? 1 : 0);   /* s^0 = 1 */
 
-    seq_t *prev = (seq_t *)calloc(r + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, r + 1);
     prev[0] = 1;                     /* s^0 */
     for (idx_t pow = 1; pow <= r; ++pow) {
         /* Convolve prev with s to obtain coeffs of s^pow. */
-        seq_t *curr = (seq_t *)calloc(r + 1, sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, r + 1);
         for (idx_t i = 0; i <= r; ++i) {
             if (!prev[i]) continue;
             for (idx_t j = 0; i + j <= r; ++j) {
@@ -65,11 +67,11 @@ seq_t a(idx_t n)
             }
         }
         Lcoeff[pow] = curr[r];   /* coefficient of x^r in s^pow */
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
-    free(prev);
-    free(s);
+    mem_free(prev);
+    mem_free(s);
 
     /* ----------  Triangle T(n,k) = C(floor(k/2), n‑k)  ---------- */
     /* Compute a(n) = sum_{j=c}^{r} Lcoeff[j] * C(floor(c/2), j‑c). */
@@ -81,6 +83,6 @@ seq_t a(idx_t n)
         result += Lcoeff[j] * t;
     }
 
-    free(Lcoeff);
+    mem_free(Lcoeff);
     return result;
 }

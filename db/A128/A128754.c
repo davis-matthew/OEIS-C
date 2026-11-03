@@ -12,7 +12,8 @@
  *            the first term of the sequence
  * Range:     u8 n <= 239, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 8707 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Helper to generate the first 'need' primes.
  * 'primes' must be a pointer to a uint32_t* that will receive a
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     if (!primes) return 0; /* in case of memory failure */
 
     /* Allocate array for the permutation (1‑based). */
-    seq_t *perm = (seq_t *)calloc((size_t)(M + 1), sizeof(seq_t));
+    seq_t *perm = mem_new(seq_t, (size_t)(M + 1));
     if (!perm) {
         free(primes);
         return 0;
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = perm[(size_t)n];
-    free(perm);
+    mem_free(perm);
     free(primes);
     return result;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   count_violations
+ * Validated: standard, pass, 36 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,36 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_violations.h"
+
+/* Count how many 1‑cells in column `prev1` would violate the rule
+ * when the neighbouring columns are `prev2` (left) and `cur` (right).
+ * Neighbours considered: horizontal (left/right) and diagonals
+ * (up‑left/right, down‑left/right). The up/down same‑column neighbours
+ * are NOT counted. Column bits are 3‑bit integers (row 0 = LSB). */
+static int count_violations(unsigned int prev2, unsigned int prev1, unsigned int cur)
+{
+    int viol = 0;
+    for (int r = 0; r < 3; ++r) {
+        if (!((prev1 >> r) & 1))
+            continue;                           /* cell is 0 */
+
+        int neigh = 0;
+
+        /* left neighbours */
+        if ((prev2 >> r) & 1)            neigh++;   /* left same row */
+        if (r > 0 && ((prev2 >> (r - 1)) & 1)) neigh++; /* left up‑diag */
+        if (r < 2 && ((prev2 >> (r + 1)) & 1)) neigh++; /* left down‑diag */
+
+        /* right neighbours */
+        if ((cur >> r) & 1)             neigh++;   /* right same row */
+        if (r > 0 && ((cur >> (r - 1)) & 1)) neigh++; /* right up‑diag */
+        if (r < 2 && ((cur >> (r + 1)) & 1)) neigh++; /* right down‑diag */
+
+        if (neigh > 2)
+            ++viol;
+    }
+    return viol;
+}
 
 seq_t a(idx_t n)
 {

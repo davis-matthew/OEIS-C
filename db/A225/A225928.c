@@ -8,13 +8,15 @@
  *            2^(2n+3) + 17
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 481 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +25,8 @@ seq_t a(idx_t n)
     /* exponent for 4^n term:   2n + 3  (since 8*4^n = 2^(2n+3)) */
     seq_t exp2 = ((seq_t)n << 1) + 3;
 
-    seq_t term1 = big_pow((seq_t)2, exp1);
-    seq_t term2 = big_pow((seq_t)2, exp2);
+    seq_t term1 = ipow((seq_t)2, exp1);
+    seq_t term2 = ipow((seq_t)2, exp2);
 
     return term1 + term2 + 17;
 }

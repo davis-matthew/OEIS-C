@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,9 @@
    corresponds to n.                                 */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Symbolic constants for the core types are provided by the build. */
 seq_t a(idx_t n)
@@ -49,11 +52,11 @@ seq_t a(idx_t n)
     /* ------------------------------------------------------------------ */
     if (dim > cache_dim) {
         /* Free old memory if it exists */
-        if (cache_tbl) free(cache_tbl);
+        if (cache_tbl) mem_free(cache_tbl);
 
         /* Allocate new table */
         size_t size = (size_t)(dim + 1) * (dim + 1);   /* indices 0..dim inclusive */
-        cache_tbl = (seq_t *)malloc(size * sizeof(seq_t));
+        cache_tbl = mem_new(seq_t, size);
         if (!cache_tbl) { /* abort on allocation failure */
             return (seq_t)0;
         }

@@ -6,15 +6,25 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = A006530(n)! mod n
- * Range:     u8 n <= 288, u16 n <= 9978, u32 n <= 9978, u64 n <= 9978,
- *            u128 n <= 9978, big any n
- * Helpers:   factorial_mod_u64
+ * Range:     u8 n <= 288, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9978 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factorial_mod_u64.h"
+
+/* Compute p! modulo mod using 128-bit arithmetic to avoid overflow.
+   The result always fits in uint64_t because mod <= p! % mod < mod. */
+static seq_t factorial_mod_u64(uint64_t p, uint64_t mod) {
+    uint64_t res = 1 % mod;
+    for (uint64_t i = 2; i <= p; ++i) {
+        res = ((unsigned __int128)res * i) % mod;
+    }
+    return (seq_t)res;
+}
 
 /* Largest prime factor of n (works for n up to 64-bit).
    For n <= 1, returns 1. */

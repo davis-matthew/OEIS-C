@@ -7,7 +7,8 @@
  * Formula:   a(n) = n^2 + Σ_{i=2..n} (n+1-i)*(2*n+2-i)*φ(i)
  * Range:     u8 n <= 5, u16 n <= 24, u32 n <= 409, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;
 static seq_t *phi = NULL;
@@ -23,7 +25,7 @@ static seq_t *phi = NULL;
    is needed, the old one is freed.  The computation is O(n log log n). */
 static void build_phi(idx_t n)
 {
-    seq_t *new_phi = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_phi = mem_new(seq_t, (n + 1));
     if (!new_phi) return;                    /* allocation failure */
 
     /* initialise phi[i] = i */
@@ -32,7 +34,7 @@ static void build_phi(idx_t n)
 
     uint8_t *is_prime = (uint8_t*)calloc((size_t)(n + 1), sizeof(uint8_t));
     if (!is_prime) {
-        free(new_phi);
+        mem_free(new_phi);
         return;
     }
 
@@ -51,7 +53,7 @@ static void build_phi(idx_t n)
 
     free(is_prime);
 
-    if (phi) free(phi);
+    if (phi) mem_free(phi);
     phi = new_phi;
     max_n = n;
 }

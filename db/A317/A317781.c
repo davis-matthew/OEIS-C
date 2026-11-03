@@ -12,6 +12,7 @@
  *            automaton state (0…4)
  * Range:     u8 n <= 13, u16 n <= 19, u32 n <= 34, u64 n <= 65, u128 n <= 130,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 1963 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

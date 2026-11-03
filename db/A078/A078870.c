@@ -14,7 +14,8 @@
  *            of such tuples, a(n) = 0
  * Range:     u8 none, u16 none, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   cmp_seqt
+ * Validated: full, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/cmp_seqt.h"
+#include "../utils/mem.h"
+
+/* comparison routine for qsort  (needed only for C compatibility) */
+static int cmp_seqt(const void *p, const void *q)
+{
+    seq_t a = *(const seq_t *)p;
+    seq_t b = *(const seq_t *)q;
+    if (a < b) return -1;
+    if (a > b) return  1;
+    return 0;
+}
 
 /* maximum number of candidate patterns that can occur (3^5 = 243) */
 #define MAX_PATTERNS 243
@@ -93,7 +104,7 @@ static void init_patterns(void)
     free(is_prime);
 
     /* sort the unique patterns so that indexing is correct */
-    qsort(patterns, patterns_cnt, sizeof(seq_t), cmp_seqt);
+    mem_qsort(patterns, patterns_cnt, sizeof(seq_t), cmp_seqt);
 
     patterns_inited = true;
 }

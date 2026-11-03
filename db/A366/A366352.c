@@ -9,7 +9,8 @@
  *            consecutive numbers p+1, p+2, p+3 * are all nonsquarefree
  * Range:     u8 n <= 1, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   is_prime, is_squarefree, next_prime
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   is_prime, is_squarefree, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,10 @@
 #include <stdlib.h>
 
 /* Convenient utilities supplied by the build system */
-#include "../utils/is_squarefree.h"   /* bool is_squarefree(seq_t x); */
-#include "../utils/is_prime.h"        /* bool is_prime(idx_t x); */
-#include "../utils/next_prime.h"      /* uint64_t next_prime(uint64_t start); */
+#include "../utils/is_prime.h"
+#include "../utils/is_squarefree.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* ---------- Static state for memoisation ---------- */
 static seq_t *cache = NULL;          /* array of computed terms   */
@@ -36,7 +38,7 @@ static void ensure_cache_capacity(size_t need)
     if (need <= cache_cap) return;
     size_t newcap = cache_cap ? cache_cap * 2U : 16U;
     while (newcap < need) newcap <<= 1;
-    cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newcap);
     cache_cap = newcap;
 }
 

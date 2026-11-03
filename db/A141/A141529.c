@@ -11,14 +11,15 @@
  *            mod 11)], where p = {2,3,5,7,11,13,17,19,23,29,31}
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
         idx_t count = 0;
         idx_t candidate = 2;
         while (count < 11) {
-            if (is_prime_small((seq_t)candidate)) {
+            if (is_prime_seq((seq_t)candidate)) {
                 asc[count++] = (seq_t)candidate;
             }
             candidate++;

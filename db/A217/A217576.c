@@ -7,14 +7,27 @@
  * Formula:   a(n) = Sum_{d divides n} (d!)^(n/d)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   factorial, seq_pow
+ * Validated: standard, pass, 38 terms through n = 441 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/factorial.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Recursive helper to generate all divisors of n from its factorization. */
 static void
@@ -76,7 +89,7 @@ a(idx_t n)
         idx_t d = divs[i];
         seq_t fact_d = factorial(d);
         idx_t exp = n / d;
-        seq_t term = seq_pow(fact_d, exp);
+        seq_t term = ipow_idx(fact_d, exp);
         result += term;
     }
     return result;

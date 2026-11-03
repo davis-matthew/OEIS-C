@@ -10,13 +10,14 @@
  *            1-bits in its binary representation
  * Range:     u8 n <= 30, u16 n <= 510, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_local
+ * Validated: standard, pass, 76 terms through n = 9577 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>   /* for bool, allowed but not required */
-#include "../utils/bitlen_local.h"
+#include "../utils/bit_length.h"
 
 /* Count the number of set bits (ones) in a seq_t value. */
 static inline unsigned popcount_seq_t(seq_t x)
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
     {
         seq_t x = num * k;              /* candidate multiple */
 
-        unsigned bitlen = bitlen_local(x);
+        unsigned bitlen = bit_length(x);
         unsigned ones   = popcount_seq_t(x);
 
         if (2 * ones == bitlen)         /* equal zeros and ones */

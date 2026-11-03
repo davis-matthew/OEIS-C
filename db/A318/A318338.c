@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 27, u64 n <= 56, u128 n <= 113,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    Numbers are stored in seq_t, indexed by idx_t (1‑based).
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for computed values (1‑based index) */
 static seq_t *cache = NULL;   /* array of seq_t, cache[0] unused */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* allocate enough space for at least 7 elements (index 0..6) */
         cache_cap = 7;
-        cache = (seq_t *)malloc((cache_cap + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_cap + 1));
         if (!cache) abort();                /* allocation failure */
         cache[0] = 0;                       /* unused slot */
         /* copy base values into cache */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
     if (N > cache_cap) {
         size_t new_cap = N;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) abort();                 /* reallocation failure */
         cache = tmp;
         /* initialize newly allocated entries to 0 */

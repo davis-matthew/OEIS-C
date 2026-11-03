@@ -13,12 +13,14 @@
  *            arithmetic
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *catalan = NULL;          /* array C[0..max_n] of Catalan numbers */
 static idx_t  catalan_size = 0;        /* number of elements currently stored */
@@ -34,9 +36,9 @@ ensure_catalan(idx_t n)
 
     size_t newcap = (size_t)(n + 1);
     if (catalan == NULL) {
-        catalan = (seq_t *)malloc(newcap * sizeof(seq_t));
+        catalan = mem_new(seq_t, newcap);
     } else {
-        catalan = (seq_t *)realloc(catalan, newcap * sizeof(seq_t));
+        catalan = mem_resize(seq_t, catalan, newcap);
     }
 
     if (catalan == NULL) {

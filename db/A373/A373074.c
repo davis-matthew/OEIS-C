@@ -11,13 +11,15 @@
  *            is counted once, giving a(0)=1
  * Range:     u8 n <= 69, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* No type definitions; seq_t and idx_t are supplied by the build system. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: compute the floor of the square root of a 64‑bit integer
    using only integer arithmetic.  This function is not strictly
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
        table[m][k] is stored at table[(m)*(k_max+1) + k]. */
     idx_t rows = n + 1;          /* m ranges from 0 … n */
     idx_t cols = k_max + 1;      /* k ranges from 0 … k_max */
-    seq_t *table = (seq_t *)calloc(rows * cols, sizeof(seq_t));
+    seq_t *table = mem_new(seq_t, rows * cols);
     if (!table) return 0;        /* fallback on allocation failure */
 
     /* Base case: P(0, ≤k) = 1 for all k.  calloc already zeroed
@@ -87,6 +89,6 @@ seq_t a(idx_t n)
         total += table[rem * cols + k];     /* P(rem, ≤k) */
     }
 
-    free(table);
+    mem_free(table);
     return total;
 }

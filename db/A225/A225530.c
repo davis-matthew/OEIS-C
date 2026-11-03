@@ -8,6 +8,7 @@
  * Formula:   a(n) = φ(n) for n ≥ 2; a(0) = 1, a(1) = 2
  * Range:     u8 n <= 255, u16 n <= 400, u32 n <= 400, u64 n <= 400,
  *            u128 n <= 400, big any n
+ * Validated: standard, pass, 84 terms through n = 336 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

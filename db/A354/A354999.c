@@ -9,8 +9,9 @@
  * Formula:   a(n) = n divided by the smallest divisor d of n for which
  *            A344005(d) = A344005(n), where A344005(k) is the smallest
  *            positive m such that k divides m*(m+1)
- * Range:     u8 n <= 1710, u16 n <= 8905, u32 n <= 8905, u64 n <= 8905,
- *            u128 n <= 8905, big any n
+ * Range:     u8 n <= 1710, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8905 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

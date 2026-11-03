@@ -9,8 +9,9 @@
  *            permutations. L(i) equals the smallest ℓ with i ≤ Σ_{m=1}^ℓ m!.
  *            Equivalently, let Tℓ = Σ_{m=1}^ℓ m·m! (cumulative number of
  *            terms up to length ℓ) Sℓ = Σ_{m=1}^ℓ m! (cumulative...
- * Range:     u8 n <= 1331, u16 n <= 9675, u32 n <= 9675, u64 n <= 9675,
- *            u128 n <= 9675, big any n
+ * Range:     u8 n <= 1331, u16 n <= 40327, u32 n <= 40327, u64 n <= 40327,
+ *            u128 n <= 40327, big any n
+ * Validated: standard, pass, 93 terms through n = 9675 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

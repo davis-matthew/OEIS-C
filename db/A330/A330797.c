@@ -8,13 +8,15 @@
  * Formula:   a(n) = (3-2*n)*a(n-1) with a(0)=1
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 11, i64 n <= 18, i128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 390 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,12 +27,12 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         /* allocate space for new entries  */
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return 0;   /* allocation failure */
 
         /* copy previously cached values */
         if (cache)
-            memcpy(new_cache, cache, cache_size * sizeof(seq_t));
+            mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
 
         /* compute memo values from cache_size up to n */
         for (idx_t i = (cache_size == 0 ? 0 : cache_size); i < new_size; ++i) {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         }
 
         /* free old cache and install new one */
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

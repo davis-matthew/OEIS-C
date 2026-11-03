@@ -11,12 +11,14 @@
  *            a(16)=16, a(17)=17, a(18)=19, a(19)=20, a(20)=23,...
  * Range:     u8 n <= 57, u16 n <= 430, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 8516 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static const seq_t base_vals[24] = {
     1, 1, 2, 2, 3, 3, 4, 4, 5, 5,
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (idx + 1 > cache_cap) {
         size_t new_cap = cache_cap > 0 ? cache_cap : 24;
         while (new_cap <= idx) new_cap <<= 1; /* double until large enough */
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

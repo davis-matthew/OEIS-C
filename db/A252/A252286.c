@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 19, u64 n <= 43, u128 n <= 91,
  *            big any n
- * Helpers:   free_seq_array_custom
+ * Validated: standard, pass, 40 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/free_seq_array_custom.h"
+#include "../utils/mem.h"
+
+/* Free an array obtained from alloc_seq_array. */
+static void free_seq_array_custom(seq_t *p)
+{
+#ifdef free_seq_array
+    free_seq_array(p);
+#else
+    mem_free(p);
+#endif
+}
 
 /* Precomputed data: all possible single rows of length 3 (base‑3
    encodings) and the transition masks between state pairs.  A state
@@ -101,8 +112,8 @@ static seq_t *alloc_seq_array(size_t cap)
 #ifdef seq_alloc
     seq_t *p = seq_alloc(cap);
 #else
-    seq_t *p = (seq_t *)malloc(cap * sizeof(seq_t));
-    if (p) memset(p, 0, cap * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, cap);
+    if (p) mem_set(p, 0, cap * sizeof(seq_t));
 #endif
     return p;
 }
@@ -129,7 +140,7 @@ seq_t a(idx_t n)
     for (idx_t step = 0; step < n; ++step) {
         /* Clear nxt.  If the allocation helper does not zero the
            memory, do it explicitly. */
-        memset(nxt, 0, 729 * sizeof(seq_t));
+        mem_set(nxt, 0, 729 * sizeof(seq_t));
 
         for (int s = 0; s < 729; ++s) {
             seq_t val = cur[s];

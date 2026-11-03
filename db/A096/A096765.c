@@ -9,12 +9,14 @@
  *            parts all ≥ 2)
  * Range:     u8 n <= 34, u16 n <= 86, u32 n <= 250, u64 n <= 814,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Allocate temporary array for subset–sum counts up to n-1 */
     idx_t target = n - 1;                    /* largest sum needed */
     size_t dp_size = (size_t)target + 1;     /* indices 0..target */
-    seq_t *dp = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) return (seq_t)0;                /* silently handle allocation failure */
 
     dp[0] = (seq_t)1;                        /* one way to sum to 0 (empty set) */
@@ -47,19 +49,19 @@ seq_t a(idx_t n)
 
     /* Build cache array of length n+1 (indices 0..n) */
     size_t cache_size = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, cache_size);
     if (!new_cache) {
-        free(dp);
+        mem_free(dp);
         return (seq_t)0;   /* allocation failure */
     }
     new_cache[0] = (seq_t)0;          /* a(0) = 0 */
     for (idx_t i = 1; i <= n; ++i)
         new_cache[i] = dp[i - 1];     /* a(i) = dp[i-1] */
 
-    free(dp);                          /* dp no longer needed */
+    mem_free(dp);                          /* dp no longer needed */
 
     /* Replace old cache, freeing it */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cached_max = n;
 

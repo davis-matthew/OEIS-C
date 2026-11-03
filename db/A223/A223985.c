@@ -9,14 +9,41 @@
  *            and columns nondecreasing. The sequence begins 610, 52591, …
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 28, u128 n <= 210,
  *            big any n
- * Helpers:   init_unimodal_mask, is_unimodal_code
+ * Validated: standard, pass, 32 terms through n = 202 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/init_unimodal_mask.h"
-#include "../utils/is_unimodal_code.h"
+
+/* Define a helper that computes if a 6‑tuple encoded as a base‑4 number
+   (0 … 4095) is unimodal (weakly increasing then weakly decreasing). */
+static inline bool is_unimodal_code(unsigned int code) {
+    int prev = code & 3;          /* digit 0 */
+    bool increasing = true;
+    for (int pos = 1; pos < 6; ++pos) {
+        int cur = (code >> (2 * pos)) & 3;
+        if (increasing) {
+            if (cur < prev) increasing = false;
+        } else {
+            if (cur > prev) return false;
+        }
+        prev = cur;
+    }
+    return true;
+}
+
+/* One‑time initialisation of the unimodal mask.  The mask stays the
+   same across calls. */
+static void init_unimodal_mask(bool *mask) {
+    static bool done = false;
+    if (!done) {
+        for (unsigned int code = 0; code < 4096; ++code)
+            mask[code] = is_unimodal_code(code);
+        done = true;
+    }
+}
 
 seq_t a(idx_t n)
 {

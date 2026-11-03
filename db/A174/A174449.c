@@ -11,6 +11,7 @@
  *            r(r+1)/2. r is chosen so that r(r+1)/2 ≤ n < (r+1)(r+2)/2
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 70, u64 n <= 179,
  *            u128 n <= 479, big any n
+ * Validated: standard, pass, 71 terms through n = 1266 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

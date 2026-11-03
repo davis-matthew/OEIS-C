@@ -7,13 +7,27 @@
  * Formula:   a(n) = Product_{ p | n } (1 + Legendre(-5,p) )
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow_mod_uint64
+ * Validated: standard, pass, 121 terms through n = 978 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_mod_uint64.h"
+
+static uint64_t pow_mod_uint64(uint64_t base, uint64_t exp, uint64_t mod)
+{
+    uint64_t result = 1 % mod;
+    uint64_t b = base % mod;
+    while (exp)
+    {
+        if (exp & 1ULL)
+            result = (result * b) % mod;
+        b = (b * b) % mod;
+        exp >>= 1ULL;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = largest divisor of n such that every prime factor of the
  *            divisor is strictly less than (smallest prime factor of n)^2
- * Range:     u8 n <= 255, u16 n <= 9766, u32 n <= 9766, u64 n <= 9766,
- *            u128 n <= 9766, big any n
+ * Range:     u8 n <= 255, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 118 terms through n = 9766 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

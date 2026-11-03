@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 324, u32 n <= 1600, u64 n <= 1600,
  *            u128 n <= 1600, big any n
- * Helpers:   cmp_seq_desc, floor_cube_root
+ * Validated: standard, pass, 61 terms through n = 1499 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,37 @@
 #include <string.h>                    /* for qsort */
 
 /* utility supplied by the build */
-#include "../utils/floor_cube_root.h"  /* seq_t floor_cube_root(seq_t) */
-#include "../utils/cmp_seq_desc.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* comparator for descending order */
+static int cmp_seq_desc(const void *a, const void *b)
+{
+    seq_t aa = *(const seq_t *)a;
+    seq_t bb = *(const seq_t *)b;
+    if (aa < bb) return 1;
+    if (aa > bb) return -1;
+    return 0;
+}
 
 /* --- prime sieve (up to 2 000 000) ------------------------------------ */
 #define PRIME_LIST_MAX 148933           /* number of primes ≤ 2 000 000 */
@@ -142,7 +172,7 @@ static bool satisfies(uint64_t n)
     if (cubes_cnt == 0) return false;          /* shouldn't happen */
 
     /* sort cubes descending for pruning */
-    qsort(cubes_arr, cubes_cnt, sizeof(seq_t), cmp_seq_desc);
+    mem_qsort(cubes_arr, cubes_cnt, sizeof(seq_t), cmp_seq_desc);
 
     /* compute suffix sums */
     suffix_arr[cubes_cnt - 1] = cubes_arr[cubes_cnt - 1];
@@ -163,7 +193,7 @@ static void ensure_cache_space(void)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-        term_cache = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+        term_cache = mem_resize(seq_t, term_cache, new_cap);
         cache_cap = new_cap;
     }
 }
@@ -178,7 +208,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!term_cache) {
         cache_cap = 64;
-        term_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        term_cache = mem_new(seq_t, cache_cap);
     }
 
     /* generate terms until we have at least n of them */

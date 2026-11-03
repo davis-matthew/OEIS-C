@@ -12,8 +12,8 @@
  *            is the centralizer size in S_{2^n}. N(t)...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   x1038_add, x1038_divsmall, x1038_gcd, x1038_mul, x1038_mulsmall,
- *            x1038_order, x1038_pmod, x1038_pmulmod, x1038_xpow
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,15 +21,111 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/x1038_add.h"
-#include "../utils/x1038_divsmall.h"
-#include "../utils/x1038_gcd.h"
-#include "../utils/x1038_mul.h"
-#include "../utils/x1038_mulsmall.h"
-#include "../utils/x1038_order.h"
-#include "../utils/x1038_pmod.h"
-#include "../utils/x1038_pmulmod.h"
-#include "../utils/x1038_xpow.h"
+#include "../utils/gcd_u64.h"
+
+static void x1038_add(uint32_t *a, int *alen, const uint32_t *b, int blen)
+{
+    int L = *alen > blen ? *alen : blen, i;
+    uint64_t carry = 0;
+    for (i = *alen; i < L; i++) a[i] = 0;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)a[i] + (i < blen ? b[i] : 0) + carry;
+        a[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    if (carry) a[L++] = (uint32_t)carry;
+    *alen = L;
+}
+
+static void x1038_divsmall(uint32_t *x, int *len, uint32_t d)
+{
+    uint64_t r = 0;
+    int i;
+    for (i = *len - 1; i >= 0; i--) {
+        uint64_t t = (r << 32) | x[i];
+        x[i] = (uint32_t)(t / d);
+        r = t % d;
+    }
+    while (*len > 1 && x[*len - 1] == 0) (*len)--;
+}
+
+static int x1038_mul(const uint32_t *a, int al, const uint32_t *b, int bl, uint32_t *out)
+{
+    int i, j, len = al + bl;
+    memset(out, 0, sizeof(uint32_t) * (size_t)len);
+    for (i = 0; i < al; i++) {
+        uint64_t carry = 0;
+        for (j = 0; j < bl; j++) {
+            uint64_t t = (uint64_t)a[i] * b[j] + out[i + j] + carry;
+            out[i + j] = (uint32_t)t;
+            carry = t >> 32;
+        }
+        out[i + bl] = (uint32_t)carry;
+    }
+    while (len > 1 && out[len - 1] == 0) len--;
+    return len;
+}
+
+static void x1038_mulsmall(uint32_t *x, int *len, uint32_t m)
+{
+    uint64_t carry = 0;
+    int i;
+    for (i = 0; i < *len; i++) {
+        uint64_t t = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    if (carry) x[(*len)++] = (uint32_t)carry;
+}
+
+static uint64_t x1038_pmulmod(uint64_t a, uint64_t b, uint64_t f, int d)
+{
+    uint64_t r = 0;
+    int i;
+    for (i = d - 1; i >= 0; i--) {
+        r <<= 1;
+        if ((r >> d) & 1) r ^= f;
+        if ((b >> i) & 1) r ^= a;
+    }
+    return r;
+}
+
+static uint64_t x1038_xpow(uint64_t e, uint64_t f, int d)
+{
+    uint64_t res = 1, base = (d > 1) ? 2 : 1;
+    while (e) {
+        if (e & 1) res = x1038_pmulmod(res, base, f, d);
+        base = x1038_pmulmod(base, base, f, d);
+        e >>= 1;
+    }
+    return res;
+}
+
+static uint64_t x1038_order(uint64_t f, int d)
+{
+    uint64_t M, m, ord, p;
+    if (d == 1) return 1;
+    M = (1ULL << d) - 1;
+    m = M;
+    ord = M;
+    for (p = 2; p * p <= m; p++) {
+        if (m % p == 0) {
+            while (m % p == 0) m /= p;
+            while (ord % p == 0 && x1038_xpow(ord / p, f, d) == 1) ord /= p;
+        }
+    }
+    if (m > 1)
+        while (ord % m == 0 && x1038_xpow(ord / m, f, d) == 1) ord /= m;
+    return ord;
+}
+
+static uint64_t x1038_pmod(uint64_t a, uint64_t h, int dh)
+{
+    int i;
+    for (i = 63; i >= dh; i--)
+        if ((a >> i) & 1) a ^= h << (i - dh);
+    return a;
+}
 
 static int g_n;
 static int g_ni, g_icap;
@@ -98,7 +194,7 @@ static void x1038_leaf(void)
         }
         for (a = 0; a < dn; a++) {
             for (e = 0; e <= l1; e++) {
-                uint64_t L = dL[a] / x1038_gcd(dL[a], oo[e]) * oo[e];
+                uint64_t L = dL[a] / gcd_u64(dL[a], oo[e]) * oo[e];
                 uint64_t c = dC[a] * cnt[e];
                 int b;
                 for (b = 0; b < nn; b++) if (nL[b] == L) break;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9644 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* tables for smallest prime factor, divisor count τ, and σ */
 static uint32_t *g_spf   = NULL; /* smallest prime factor */
@@ -29,10 +31,10 @@ static size_t   g_limit  = 0;    /* largest k for which tables are valid */
 static void build_tables(size_t limit)
 {
     size_t i, j;
-    free(g_spf); free(g_tau); free(g_sigma);
+    free(g_spf); free(g_tau); mem_free(g_sigma);
     g_spf   = (uint32_t*)malloc((limit + 1) * sizeof(uint32_t));
     g_tau   = (uint32_t*)malloc((limit + 1) * sizeof(uint32_t));
-    g_sigma = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+    g_sigma = mem_new(seq_t, (limit + 1));
     if (!g_spf || !g_tau || !g_sigma) abort();
 
     for (i = 0; i <= limit; ++i) g_spf[i] = 0;
@@ -127,7 +129,7 @@ seq_t a(idx_t n)
         if (has_special_divisor(k, tau_k)) {
             if (g_terms_len == g_terms_cap) {
                 size_t new_cap = g_terms_cap ? g_terms_cap * 2 : 16;
-                seq_t *tmp = (seq_t*)realloc(g_terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, g_terms, new_cap);
                 if (!tmp) abort();
                 g_terms = tmp;
                 g_terms_cap = new_cap;

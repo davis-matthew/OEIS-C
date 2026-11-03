@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, base
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 9, u32 n <= 36, u64 n <= 36, u128 n <= 36,
- *            big any n
+ * Range:     u8 none, u16 n <= 9, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 52 terms through n = 885 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -46,31 +47,30 @@ static void init_prime_sieve(void) {
 /* ------------------------------------------------------------------ */
 /* Helper: test whether a positive integer is a Rhonda number to base 9 */
 /* ------------------------------------------------------------------ */
-static bool is_rhonda(seq_t n) {
-    seq_t prod = 1;
-    seq_t tmp = n;
-    bool has_zero = false;
+/* in 64 bits (in seq_t this was too slow under big); the digit product
+   must be 9 times the sum, so a multiple of 9 */
+static bool is_rhonda(uint64_t n) {
+    uint64_t prod = 1;
+    uint64_t tmp = n;
     while (tmp > 0) {
-        seq_t d = tmp % 9;
-        if (d == 0) { has_zero = true; break; }
+        uint64_t d = tmp % 9;
+        if (d == 0) return false;
         prod = prod * d;
         tmp = tmp / 9;
     }
-    if (has_zero) return false;
-
-    seq_t sum = 0;
-    seq_t m = n;
+    if (prod % 9) return false;
+    uint64_t sum = 0;
+    uint64_t m = n;
     for (uint32_t i = 0; i < prime_count; ++i) {
-        uint32_t p = primes[i];
-        seq_t ps = p;
-        if (ps * ps > m) break;
-        while (m % ps == 0) {
-            sum += ps;
-            m = m / ps;
+        uint64_t p = primes[i];
+        if (p * p > m) break;
+        while (m % p == 0) {
+            sum += p;
+            m = m / p;
         }
     }
     if (m > 1) sum += m;                /* remaining prime factor */
-    return prod == (seq_t)9 * sum;
+    return prod == 9 * sum;
 }
 
 /* ------------------------------------------------------------------ */
@@ -98,14 +98,14 @@ seq_t a(idx_t n) {
 #ifdef __cplusplus
     while ((idx_t)cache.size() < n) {
         ++current;
-        if (is_rhonda((seq_t)current))
+        if (is_rhonda((uint64_t)current))
             cache.push_back((seq_t)current);
     }
     return cache[n - 1];
 #else
     while (cache_size < n) {
         ++current;
-        if (is_rhonda((seq_t)current)) {
+        if (is_rhonda((uint64_t)current)) {
             if (cache_size == cache_capacity) {
                 idx_t new_cap = cache_capacity ? cache_capacity * 2 : 64;
                 seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));

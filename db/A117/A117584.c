@@ -11,14 +11,29 @@
  *            are listed row‑by‑row
  * Range:     u8 n <= 35, u16 n <= 104, u32 n <= 376, u64 n <= 1377,
  *            u128 n <= 5050, big any n
- * Helpers:   pell_k
+ * Validated: standard, pass, 71 terms through n = 4769 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/pell_k.h"
+
+/* Return the k-th Pell number P(k) with
+ * P(0)=0, P(1)=1,  P(k)=2*P(k-1)+P(k-2). */
+static seq_t pell_k(idx_t k)
+{
+    if (k == 0) return 0;
+    seq_t a0 = 0;   /* P(0) */
+    seq_t a1 = 1;   /* P(1) */
+    for (idx_t i = 2; i <= k; ++i) {
+        seq_t next = (a1 << 1) + a0; /* 2*P(i-1)+P(i-2) */
+        a0 = a1;
+        a1 = next;
+    }
+    return a1;
+}
 
 /* Compute integer floor(sqrt(x)) for 0 <= x <= 2^67
    using long double arithmetic.  The result fits in uint64_t. */

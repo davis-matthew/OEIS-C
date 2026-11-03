@@ -9,6 +9,7 @@
  *            ⌊C(n,n/2)/(n/2)⌋ : 0)
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 30, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 35 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

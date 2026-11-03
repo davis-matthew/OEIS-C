@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 174, u32 n <= 1438, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9349 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Euclidean algorithm for unsigned 64‑bit integers (used for the coprimality test). */
 static inline idx_t gcd_uint64(idx_t a, idx_t b)
@@ -44,7 +46,7 @@ static void ensure_cache_size(idx_t n)
     while (new_cap < n)
         new_cap *= 2;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
     {
         /* In the unlikely event of a memory allocation failure, abort. */

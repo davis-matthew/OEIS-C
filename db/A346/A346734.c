@@ -8,13 +8,15 @@
  *            Initial values: a(0)=a(1)=a(2)=a(3)=1
  * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 36, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         if (lenA >= capA) {
             idx_t newCap = capA ? capA << 1 : 1;
             if (newCap <= lenA) newCap = lenA + 1;
-            seq_t *tmp = (seq_t *)realloc(A, sizeof(seq_t) * newCap);
+            seq_t *tmp = mem_resize(seq_t, A, newCap);
             if (!tmp) return 0; /* unlikely failure */
             A = tmp;
             capA = newCap;
@@ -58,10 +60,10 @@ seq_t a(idx_t n)
         if (reqT > capT) {
             idx_t newCapT = capT ? capT << 1 : 1;
             while (newCapT < reqT) newCapT <<= 1;
-            seq_t *tmpT = (seq_t *)realloc(T, sizeof(seq_t) * newCapT);
+            seq_t *tmpT = mem_resize(seq_t, T, newCapT);
             if (!tmpT) return 0;
             if (newCapT > capT)
-                memset(tmpT + capT, 0, sizeof(seq_t) * (newCapT - capT));
+                mem_set(tmpT + capT, 0, sizeof(seq_t) * (newCapT - capT));
             T = tmpT;
             capT = newCapT;
         }

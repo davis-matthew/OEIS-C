@@ -12,13 +12,15 @@
  *            are answered in amortised O(1) time
  * Range:     u8 n <= 41, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache of all found terms */
 static seq_t *cache = NULL;
@@ -31,9 +33,9 @@ static idx_t last_checked = 0;  /* largest k that has been tested */
 static void add_term(idx_t k)
 {
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
     } else {
-        cache = (seq_t *)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (cache_len + 1));
     }
     cache[cache_len++] = (seq_t)k;
 }

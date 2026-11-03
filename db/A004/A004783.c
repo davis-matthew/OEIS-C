@@ -8,13 +8,25 @@
  *            prime factorization
  * Range:     u8 n <= 37, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   v_p_factorial
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/v_p_factorial.h"
+
+// Compute the power of prime p in n! using Legendre's formula
+static idx_t v_p_factorial(idx_t n, idx_t p) {
+    idx_t result = 0;
+    idx_t power = p;
+    while (power <= n) {
+        result += n / power;
+        if (power > n / p) break; // Prevent overflow
+        power *= p;
+    }
+    return result;
+}
 
 // Check if p is prime via trial division
 static bool is_prime_simple(idx_t p) {

@@ -7,13 +7,14 @@
  * Formula:   a(n) = A000040(n) - ((-1)^A000040(n)+1)/2
  * Range:     u8 n <= 54, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 1) {
@@ -24,7 +25,7 @@ seq_t a(idx_t n) {
     idx_t candidate = 3;
     
     while (true) {
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             count++;
             if (count == n) {
                 return (seq_t)candidate;

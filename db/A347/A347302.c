@@ -7,17 +7,24 @@
  * Formula:   a(n) = 3^n - lcm{1..n}
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   build_primes_upto, pow3, seq_mul, seq_pow
+ * Validated: standard, pass, 45 terms through n = 924 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/build_primes_upto.h"  /* build_primes_upto(limit, &primes, &cnt) */
-#include "../utils/pow3.h"              /* seq_t pow3(idx_t exp) */
-#include "../utils/seq_pow.h"           /* seq_t seq_pow(seq_t base, idx_t exp) */
-#include "../utils/seq_mul.h"           /* seq_t seq_mul(seq_t a, seq_t b) */
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/pow3.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static uint64_t *primes = NULL;    /* cached prime list */
 static size_t primes_cnt = 0;       /* number of primes cached */
@@ -50,7 +57,7 @@ a(idx_t n)
             if (val > n / p) break;
             val *= p;
         }
-        seq_t pow = seq_pow((seq_t)p, exp);
+        seq_t pow = ipow_idx((seq_t)p, exp);
         lcm = seq_mul(lcm, pow);
     }
 

@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth integer k such that 10^8*k + 12341237 is prime
  * Range:     u8 n <= 24, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   isPrime64
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrime64.h"   /* bool isPrime64(uint64_t n); */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         uint64_t num = (uint64_t)prod;   /* fits in 64 bits for n up to ~1e10 */
 
         /* test primality */
-        if (isPrime64(num)) {
+        if (is_prime_u64(num)) {
             /* grow table if necessary */
             if (size == cap) {
                 idx_t newcap = cap ? cap * 2 : 8;

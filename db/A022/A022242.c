@@ -7,14 +7,17 @@
  * Formula:   a(n) = ((8^n - 1)*(8^(n-1) - 1))/441
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 30 terms through n = 194 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (Gaussian binomial coefficient [n,2] for q = 8) */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static inline seq_t pow8(idx_t n)
 {
@@ -26,7 +29,7 @@ static inline seq_t pow8(idx_t n)
             r *= 8;
         return (seq_t)r;
     } else {
-        return big_pow((seq_t)8, (seq_t)n);
+        return ipow((seq_t)8, (seq_t)n);
     }
 }
 

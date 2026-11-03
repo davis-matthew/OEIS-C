@@ -10,14 +10,16 @@
  *            T(2m-1, k-1) * T(2m+1, k) = T(2m, k-1) * The sequence a(n) is
  *            the triangle read row‑wise, i.e. a(n) is the element * T(r, c)
  *            where r and c satisfy * r*(r+1)/2 <= n < (r...
- * Range:     u8 n <= 5279, u16 n <= 9736, u32 n <= 9736, u64 n <= 9736,
- *            u128 n <= 9736, big any n
- * Helpers:   none
+ * Range:     u8 n <= 5279, u16 n <= 20300, u32 n <= 20300, u64 n <= 20300,
+ *            u128 n <= 20300, big any n
+ * Validated: standard, pass, 121 terms through n = 9736 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the triangle rows */
 static seq_t **triangle = NULL;      /* array of pointers to rows */
@@ -38,7 +40,7 @@ static void ensure_triangle_rows(idx_t r)
     /* compute new rows */
     for (idx_t i = triangle_rows; i <= r; ++i) {
         /* allocate row i with i+1 entries */
-        triangle[i] = (seq_t*)calloc(i + 1, sizeof(seq_t));   /* zeroed */
+        triangle[i] = mem_new(seq_t, i + 1);   /* zeroed */
 
         if (i == 0) {                     /* T(0,0) = 1 */
             triangle[0][0] = (seq_t)1;

@@ -11,12 +11,14 @@
  *            a(13) = 1034
  * Range:     i8 n <= 3, i16 n <= 43, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle indices below the offset; behavior is irrelevant. */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     if (n + 1 > cache_size) {
         idx_t new_size = n + 1;
         /* Grow allocation. */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0; /* allocation failure – give up */
         cache = tmp;
         cache_size = new_size;

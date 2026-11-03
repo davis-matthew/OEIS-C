@@ -8,6 +8,7 @@
  *            T(r,k) = 8 * binomial(r,k) - 7
  * Range:     u8 n <= 30, u16 n <= 142, u32 n <= 542, u64 n <= 2173,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 4956 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

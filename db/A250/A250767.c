@@ -9,11 +9,13 @@
  * Formula:   a(n) = 64*2^(n-1) + 84*n + 114; (n>=1)
  * Range:     u8 none, u16 n <= 10, u32 n <= 26, u64 n <= 58, u128 n <= 122,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 210 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

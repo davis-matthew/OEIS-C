@@ -8,7 +8,8 @@
  *            the k‑th composite number (4, 6, 8, 9, 10, …)
  * Range:     u8 n <= 16, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*--- global data ------------------------------------------------------*/
 static bool *prime_flags = NULL;          /* sieve of Eratosthenes */
@@ -61,7 +63,7 @@ static void ensure_seq_cap(seq_t **arr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t new_cap = (*cap == 0) ? 256 : (*cap * 2);
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     *arr = tmp;
     *cap = new_cap;

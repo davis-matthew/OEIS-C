@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(10 * ((10^n) mod 341) / 341)
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   powmod10_mod341
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,22 @@
 /* a(n) is the n‑th digit after the decimal point in the expansion of 1/341 */
 
 #include <stdint.h>
-#include "../utils/powmod10_mod341.h"
+
+/* fast modular exponentiation: 10^exp mod 341 */
+static inline unsigned int powmod10_mod341(idx_t exp)
+{
+    unsigned int base   = 10 % 341;
+    unsigned int result = 1 % 341;
+
+    while (exp)
+    {
+        if (exp & 1U) result = (result * base) % 341;
+        base = (base * base) % 341;
+        exp >>= 1U;
+    }
+
+    return result;
+}
 
 seq_t a(idx_t n)
 {

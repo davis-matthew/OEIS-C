@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 120, i16 n <= 120, i32 n <= 120, i64 n <= 120,
  *            i128 n <= 120, big any n
- * Helpers:   flr_log2
+ * Validated: partial, pass, 121 terms through n = 120 (2026-11-03)
+ * Helpers:   ilog2_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
    For all n >= 0 and 0 <= m < 2^n:  a(m + 2^n) = a(m) - a(n) */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/flr_log2.h"
+#include "../utils/ilog2_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoisation */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* enlarge cache if necessary */
     if (n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();      /* allocation failed */
         cache = tmp;
         if (cache_size == 0) {   /* initialise a(0) */
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
         }
         /* fill in new entries */
         for (idx_t i = cache_size; i <= n; ++i) {
-            idx_t p = flr_log2(i);          /* highest power of two <= i */
+            idx_t p = ilog2_idx(i);          /* highest power of two <= i */
             idx_t base = ((idx_t)1) << p;   /* 2^p */
             idx_t m = i - base;             /* 0 <= m < base */
             cache[i] = cache[m] - cache[p];

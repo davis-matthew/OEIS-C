@@ -11,7 +11,8 @@
  *            totient and prime(m) is the m‑th prime
  * Range:     u8 n <= 35, u16 n <= 1741, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_N          20000          /* pre‑compute φ up to this */
 #define PRIME_LIMIT    3000000        /* sieve up to this to get all needed primes */
@@ -42,7 +44,7 @@ static void init(void)
     init_done = true;
 
     /* 1. Compute totients φ(1..MAX_N) using the standard sieve */
-    phi_arr = (seq_t*)calloc(MAX_N + 1, sizeof(seq_t));
+    phi_arr = mem_new(seq_t, MAX_N + 1);
     if (!phi_arr) return; /* allocation failure, nothing we can do */
     phi_arr[1] = 1;
     for (idx_t i = 2; i <= MAX_N; ++i) phi_arr[i] = i;

@@ -10,7 +10,8 @@
  *            result is 0
  * Range:     u8 none, u16 none, u32 none, u64 n <= 120, u128 n <= 832,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 34 terms through n = 983 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
        size k that have total sum s.  We store it in a flat array
        of size (K+1) * (n+1).  Indexing: pos = k * rowsize + s. */
     size_t rowsize = (size_t)n + 1;
-    seq_t *dp = (seq_t *)calloc((size_t)(K + 1) * rowsize, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(K + 1) * rowsize);
     if (!dp) {
         free(primes);
         return (seq_t)0;
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[(size_t)K * rowsize + (size_t)n];
 
-    free(dp);
+    mem_free(dp);
     free(primes);
     return result;
 }

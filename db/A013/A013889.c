@@ -8,13 +8,15 @@
  *            a(n–1) (n ≥ 1)
  * Range:     u8 none, u16 none, u32 n <= 0, u64 n <= 2, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 25 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Base term a(0) and the fixed multiplier 18^5 = 1889568 */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* Initialise cache with a(0) on first call */
     if (!cache) {
         cache_cap = 1;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return base; /* fallback – unlikely to happen */
         cache[0] = base;
         cache_len = 1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
         size_t new_cap = (size_t)n + 1;
         if (new_cap > cache_cap) {
             cache_cap = new_cap;
-            seq_t *new_cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, cache_cap);
             if (!new_cache) return base; /* fallback */
             cache = new_cache;
         }

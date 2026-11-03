@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 20,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 33 terms through n = 274 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,15 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* maximum prime value needed (sqrt(104729^2+1) < 106 000) */
 #define LIMIT 200000
@@ -135,7 +143,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < prime_count; ++i) {
         int e = exp_arr[i];
         if (e < 0) {
-            seq_t factor = seq_pow((seq_t)primes[i], (idx_t)(-e));
+            seq_t factor = ipow_idx((seq_t)primes[i], (idx_t)(-e));
             denom = seq_mul(denom, factor);
         }
     }

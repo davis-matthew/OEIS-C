@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   factor_u64, is_prime_small
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   factor_u64, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdlib.h>
 /* helper functions from the utils library */
 #include "../utils/factor_u64.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* compute τ(n) for a 64‑bit integer n */
 static uint64_t tau_uint64(uint64_t n)
@@ -57,7 +58,7 @@ static uint64_t derivative_uint64(uint64_t n)
 static bool good_k(uint64_t k)
 {
     /* skip primes */
-    if (is_prime_small(k)) return false;
+    if (is_prime_seq(k)) return false;
 
     uint64_t tau_k = tau_uint64(k);
     uint64_t tau_k_der = derivative_uint64(tau_k);

@@ -8,7 +8,8 @@
  *            = (1 - x^m)/(1 - x)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 13, u64 n <= 53, u128 n <= 600,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 601 terms through n = 600 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* maximum degree of the numerator polynomial ∏(1 - x^m) */
 #define MAX_DEG 624          /* 25 + sum_{i=1}^{24} 2*i = 625, index 0..624 */
@@ -80,14 +82,14 @@ static void init_Ncoeff(void)
 static void ensure_ACache(idx_t n)
 {
     if (acache == NULL) {
-        acache = (seq_t *)malloc(sizeof(seq_t) * (size_t)(n + 1));
+        acache = mem_new(seq_t, (size_t)(n + 1));
         if (!acache) return;              /* out of memory – unlikely */
         acache[0] = (seq_t)1;              /* a(0) = 1 */
         Amax = 0;
     }
     if (n <= Amax) return;                 /* already computed */
 
-    acache = (seq_t *)realloc(acache, sizeof(seq_t) * (size_t)(n + 1));
+    acache = mem_resize(seq_t, acache, (size_t)(n + 1));
     for (idx_t i = Amax + 1; i <= n; ++i) {
         s128_t sum = 0;
         idx_t up = (i < 25) ? i : 25;

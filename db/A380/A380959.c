@@ -10,13 +10,28 @@
  *            A(n,k) along antidiagonals downward with offset 0
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   _build_exact
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_build_exact.h"
+#include "../utils/mem.h"
+
+/* Recursive enumeration of unordered factorizations of prod into factors ≥ minf.
+   For each factorization, increment exact[sum_of_factors]. */
+static void _build_exact(idx_t prod, idx_t minf, idx_t sum, seq_t *exact)
+{
+    for (idx_t f = minf; f <= prod / f; ++f) {
+        if (prod % f == 0) {
+            _build_exact(prod / f, f, sum + f, exact);
+        }
+    }
+    if (prod >= minf) {          /* factorization ending with the remaining prod */
+        exact[sum + prod] += 1;
+    }
+}
 
 static seq_t **_cum_cache = NULL;     /* _cum_cache[p] points to array of size p+1 */
 static size_t _cum_len   = 0;         /* number of entries stored (max product+1) */
@@ -53,17 +68,17 @@ seq_t a(idx_t n)
 
     /* Build exact and cumulative arrays for this product on first use */
     if (!_cum_cache[product]) {
-        seq_t *exact = (seq_t*)calloc(product + 1, sizeof(seq_t));
+        seq_t *exact = mem_new(seq_t, product + 1);
         if (!exact) return 0;
         _build_exact(product, 2, 0, exact);
 
-        seq_t *cum = (seq_t*)malloc((product + 1) * sizeof(seq_t));
-        if (!cum) { free(exact); return 0; }
+        seq_t *cum = mem_new(seq_t, (product + 1));
+        if (!cum) { mem_free(exact); return 0; }
         cum[0] = exact[0];
         for (idx_t i = 1; i <= product; ++i) {
             cum[i] = cum[i-1] + exact[i];
         }
-        free(exact);
+        mem_free(exact);
         _cum_cache[product] = cum;
     }
 

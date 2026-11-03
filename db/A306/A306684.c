@@ -11,14 +11,26 @@
  *            binomial(i-t,t)/(t+1) (OEIS A306684)
  * Range:     u8 n <= 50, u16 n <= 100, u32 n <= 245, u64 n <= 621,
  *            u128 n <= 1755, big any n
- * Helpers:   antidiagonal_coords, binomial
+ * Validated: standard, pass, 94 terms through n = 8857 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/antidiagonal_coords.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+
+/* mapping from linear index n to pair (i,j) on the antidiagonals of T */
+static inline void antidiagonal_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    /* find s such that (s+1)(s+2)/2 <= n < (s+2)(s+3)/2 */
+    idx_t s = 0;
+    while (((s + 1) * (s + 2)) / 2 <= n) ++s;
+    idx_t pos = n - (s * (s + 1)) / 2;  /* 0 <= pos <= s */
+    *i = pos;
+    *j = s - pos;
+}
 
 static seq_t compute_A(idx_t n, idx_t k)
 {

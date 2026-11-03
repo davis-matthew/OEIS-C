@@ -10,15 +10,26 @@
  *            representation of k with m: T(m,k) = k*10^digits(m) + m
  * Range:     u8 n <= 47, u16 n <= 5015, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   digit_count, pow10
+ * Validated: standard, pass, 82 terms through n = 4907 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"        /* seq_t pow10(idx_t e);            */
-#include "../utils/digit_count.h" /* unsigned digit_count(uint64_t n); */
+#include <math.h>
+#include "../utils/num_digits0.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -47,7 +58,7 @@ seq_t a(idx_t n)
     idx_t k = n - start;
 
     /* Compute the concatenated decimal number */
-    unsigned d = digit_count(m);
+    unsigned d = num_digits0(m);
     seq_t term = (seq_t)k * pow10((idx_t)d) + (seq_t)m;
     return term;
 }

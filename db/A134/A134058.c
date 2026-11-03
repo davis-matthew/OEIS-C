@@ -6,14 +6,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   a(n) = flatten(T(n,k)) where T(n,k)=2*binomial(n,k) (T(0,0)=1)
- * Range:     u8 n <= 39, u16 n <= 177, u32 n <= 609, u64 n <= 1325,
+ * Range:     u8 n <= 58, u16 n <= 178, u32 n <= 610, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 71 terms through n = 1222 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

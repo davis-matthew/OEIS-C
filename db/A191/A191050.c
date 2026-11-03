@@ -11,7 +11,8 @@
  *            trial division using the list of all primes found so far,...
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   jacobi_symbol
+ * Validated: standard, pass, 70 terms through n = 898 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,31 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/jacobi_symbol.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* Static cache of qualifying primes (values of the sequence). */
 static seq_t   *qual_primes   = NULL;
@@ -42,7 +67,7 @@ static inline void append_qual(seq_t val)
 {
     if (qual_sz == qual_cap) {
         size_t new_cap = qual_cap ? qual_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(qual_primes, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, qual_primes, new_cap);
         if (!tmp) exit(1);
         qual_primes = tmp;
         qual_cap = new_cap;

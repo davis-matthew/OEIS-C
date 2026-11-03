@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   mod_mul64
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_mul64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* 64‑bit deterministic Miller–Rabin primality test (works for all */
@@ -25,8 +27,8 @@ static inline uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)
 {
     uint64_t result = 1;
     while (exp) {
-        if (exp & 1ULL) result = mod_mul64(result, base, mod);
-        base = mod_mul64(base, base, mod);
+        if (exp & 1ULL) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1ULL;
     }
     return result;
@@ -66,7 +68,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n-1) continue;
         bool composite = true;
         for (unsigned r = 1; r < s; ++r) {
-            x = mod_mul64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) {
                 composite = false;
                 break;
@@ -94,7 +96,7 @@ static void ensure_terms(idx_t needed)
 
     if (!terms) {
         terms_alloc = 64;
-        terms = (seq_t *)malloc((size_t)terms_alloc * sizeof(seq_t));
+        terms = mem_new(seq_t, (size_t)terms_alloc);
         if (!terms) exit(EXIT_FAILURE);
     }
 
@@ -111,8 +113,7 @@ static void ensure_terms(idx_t needed)
         /* store the qualifying prime */
         if (terms_size >= terms_alloc) {
             terms_alloc *= 2U;
-            seq_t *tmp = (seq_t *)realloc(terms,
-                                          (size_t)terms_alloc * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, (size_t)terms_alloc);
             if (!tmp) exit(EXIT_FAILURE);
             terms = tmp;
         }

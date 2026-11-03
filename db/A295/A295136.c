@@ -11,13 +11,15 @@
  *            recurrence except for b(n-1))
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Binary search to test if val occurs in the sorted array arr[0..len-1]. */
 static bool contains(const seq_t *arr, size_t len, seq_t val)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (n == 1u) return (seq_t)2;
 
     /* Allocate array for a[0..n] */
-    seq_t *A = (seq_t*)malloc(((size_t)n + 1u) * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, ((size_t)n + 1u));
     if (!A) return (seq_t)0;  /* allocation failure (should not happen) */
 
     A[0] = (seq_t)1;
@@ -63,6 +65,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = A[n];
-    free(A);
+    mem_free(A);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 293, u32 n <= 414, u64 n <= 414,
  *            u128 n <= 414, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 414 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* maximum number to pre‑compute practical numbers for */
 #define LIMIT 5000000U
@@ -119,7 +121,7 @@ static void ensure_seq_cap(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_vals = (seq_t*)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, new_cap);
     if (!seq_vals) exit(EXIT_FAILURE);
     seq_cap = new_cap;
 }

@@ -8,8 +8,9 @@
  *            that C(k) = Σ_{i=0}^{k} (i^3 - i^2 + 1) > n. This implements the
  *            triangle read by rows where the n-th row contains the integers m
  *            with n^2 <= m <= n^3
- * Range:     u8 n <= 562, u16 n <= 9747, u32 n <= 9747, u64 n <= 9747,
- *            u128 n <= 9747, big any n
+ * Range:     u8 n <= 562, u16 n <= 13175, u32 n <= 13175, u64 n <= 13175,
+ *            u128 n <= 13175, big any n
+ * Validated: standard, pass, 83 terms through n = 9747 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

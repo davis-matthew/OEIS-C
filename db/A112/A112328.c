@@ -5,13 +5,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = (n+1)*binomial(2*n+2,n+1) - 3*4^n + binomial(2*n,n)
- * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 30, u128 n <= 61,
+ * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 1476 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

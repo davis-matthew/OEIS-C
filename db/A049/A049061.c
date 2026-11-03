@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 40, i16 n <= 110, i32 n <= 262, i64 n <= 683,
  *            i128 n <= 1977, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 6779 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for the triangle; triangle[r][k] stores D(r,k+1) for 1‑based r,k */
 static seq_t **triangle = NULL;
@@ -39,7 +41,7 @@ static void ensure_rows(idx_t row)
     if (!triangle) return; /* allocation failure; caller will fault */
 
     for (idx_t r = max_row + 1; r <= row; ++r) {
-        seq_t *cur = (seq_t*)malloc(r * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, r);
         triangle[r] = cur;
         if (r == 1) {
             cur[0] = 1;                     /* D(1,1) */

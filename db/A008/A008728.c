@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n/10+1) * (5*(n/10+1) + (n%10) - 4)
  * Range:     u8 n <= 65, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 80 terms through n = 995 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,7 +11,8 @@
  *            and C++17
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
-#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 /* Forward declaration of binomial; assumed available as a helper.
    If not provided, a simple multiplicative implementation is used below. */
@@ -46,7 +63,7 @@ static void ensure_a(size_t n)
 {
     if (n < a_cap) return;
     size_t new_cap = n + 1;
-    seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     a_cache = tmp;
     a_cap = new_cap;
@@ -57,7 +74,7 @@ static void ensure_fact(size_t n)
 {
     if (n < fact_cap) return;
     size_t new_cap = n + 1;
-    seq_t *tmp = (seq_t*)realloc(fact_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     fact_cache = tmp;
     fact_cap = new_cap;

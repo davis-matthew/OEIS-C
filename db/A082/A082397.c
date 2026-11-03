@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(n) = ((3n + 2) * a(n-1) + n * a(n-2) - 3n * a(n-3)) / (n + 2)
    Initial values: a(1) = 1, a(2) = 2, a(3) = 5 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialisation of the first three terms */
     if (cache_len == 0) {
         cache_len = 3;
-        cache = (seq_t *)malloc((cache_len + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_len + 1));
         cache[1] = (seq_t)1;  /* a(1) */
         cache[2] = (seq_t)2;  /* a(2) */
         cache[3] = (seq_t)5;  /* a(3) */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* extend cache to accommodate up to n */
     size_t new_size = (size_t)(n + 1);   /* +1 because index 0 unused */
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
 
     /* compute new terms using the recurrence */
     for (idx_t k = cache_len + 1; k <= n; ++k) {

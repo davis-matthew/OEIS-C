@@ -9,16 +9,25 @@
  *            is the m-th Fibonacci number)
  * Range:     u8 n <= 164, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, mod_add, mod_sub
+ * Validated: standard, pass, 82 terms through n = 9838 (2026-11-01)
+ * Helpers:   addmod, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/addmod.h"
 #include "../utils/gcd.h"
-#include "../utils/mod_add.h"
-#include "../utils/mod_sub.h"
+
+static inline seq_t mod_sub(seq_t a, seq_t b, seq_t mod)
+{
+    uint64_t au = (uint64_t)a;
+    uint64_t bu = (uint64_t)b;
+    uint64_t mu = (uint64_t)mod;
+    uint64_t diff = (au >= bu) ? (au - bu) : (au + mu - bu);
+    return (seq_t)diff;
+}
 
 static inline seq_t mul_mod_small(seq_t a, seq_t b, seq_t mod)
 {
@@ -42,11 +51,11 @@ static void fib_mod_pair(idx_t n, seq_t mod, seq_t *fn, seq_t *fn1)
     seq_t a2b   = mod_sub(two_b, a, mod);      /* (2*b - a) mod mod */
 
     seq_t c = mul_mod_small(a, a2b, mod);                                 /* F(2k)   */
-    seq_t d = mod_add(mul_mod_small(a, a, mod), mul_mod_small(b, b, mod), mod); /* F(2k+1) */
+    seq_t d = addmod(mul_mod_small(a, a, mod), mul_mod_small(b, b, mod), mod); /* F(2k+1) */
 
     if (n & 1) {
         *fn  = d;
-        *fn1 = mod_add(c, d, mod);
+        *fn1 = addmod(c, d, mod);
     } else {
         *fn  = c;
         *fn1 = d;

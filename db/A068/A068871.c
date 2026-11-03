@@ -8,7 +8,8 @@
  *            a prime, or the square of a prime. (The first term is a(1)=1.)
  * Range:     i8 n <= 8, i16 n <= 19, i32 n <= 19, i64 n <= 19, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static storage for the generated sequence and the prime sieve */
 static seq_t *seq_vals = NULL;   /* array of a(k) values */
@@ -63,7 +65,7 @@ static void build_sequence(idx_t limit)
 
     /* --- 3.  Form the list of required numbers ----------------------------------- */
     size_t est_cnt = limit / 10 + 10;            /* rough estimation */
-    seq_t *new_vals = (seq_t *)malloc(est_cnt * sizeof(seq_t));
+    seq_t *new_vals = mem_new(seq_t, est_cnt);
     size_t count = 0;
 
     for (idx_t x = 1; x <= limit; ++x) {
@@ -77,7 +79,7 @@ static void build_sequence(idx_t limit)
 
     /* --- 4.  Update global sequence ------------------------------------------------*/
     free(is_sq_of_prime);
-    free(seq_vals);
+    mem_free(seq_vals);
     seq_vals = new_vals;
     seq_len  = count;
 }

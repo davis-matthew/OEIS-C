@@ -9,7 +9,8 @@
  *            positive number of solutions
  * Range:     u8 none, u16 none, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for the generated sequence. */
 static seq_t *seq_cache = NULL;   /* Array of results */
@@ -37,10 +39,10 @@ static void ensure_sequence(idx_t need)
     while (true) {
 
         /* Allocate arrays for φ(x) and counters. */
-        seq_t *phi = (seq_t *)malloc(sizeof(seq_t) * (limit + 1));
+        seq_t *phi = mem_new(seq_t, (limit + 1));
         if (!phi) return;                 /* Out of memory */
         size_t *cnt = (size_t *)calloc(limit + 1, sizeof(size_t));
-        if (!cnt) { free(phi); return; }
+        if (!cnt) { mem_free(phi); return; }
 
         /* Initialise φ[i] = i */
         for (idx_t i = 0; i <= limit; ++i) {
@@ -64,10 +66,10 @@ static void ensure_sequence(idx_t need)
         }
 
         /* Free φ array now that counting is done. */
-        free(phi);
+        mem_free(phi);
 
         /* Build the new sequence cache. */
-        free(seq_cache);
+        mem_free(seq_cache);
         seq_cache = NULL;
         seq_len = 0;
         seq_cap = 0;
@@ -77,7 +79,7 @@ static void ensure_sequence(idx_t need)
                 /* Append k to seq_cache, growing if necessary. */
                 if (seq_len == seq_cap) {
                     seq_cap = seq_cap ? seq_cap * 2 : 128;
-                    seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                    seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
                 }
                 seq_cache[seq_len++] = (seq_t)k;
             }

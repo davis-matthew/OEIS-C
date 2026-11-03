@@ -11,7 +11,8 @@
  *            u the value B = 2u(u‑1) is appended to the sequence
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper for 64‑bit modular multiplication, using 128‑bit arithmetic. */
 static uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod)
@@ -90,7 +92,7 @@ static void ensure_cache_cap(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();          /* out of memory */
     cache = tmp;
     cache_cap = new_cap;

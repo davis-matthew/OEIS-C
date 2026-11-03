@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   same5and7
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/same5and7.h"
+#include "../utils/mem.h"
+
+/* local helper – true when the base‑11 representation of v
+   contains an equal number of digit 5 and digit 7 */
+static bool same5and7(seq_t v) {
+    int cnt5 = 0;
+    int cnt7 = 0;
+    seq_t tmp = v;
+    do {
+        seq_t d = tmp % (seq_t)11;   /* 11 fits in any seq_t */
+        if (d == (seq_t)5) cnt5++;
+        else if (d == (seq_t)7) cnt7++;
+        tmp /= (seq_t)11;
+    } while (tmp > (seq_t)0);
+    return cnt5 == cnt7;
+}
 
 /* memoised sequence storage */
 static seq_t *seq = NULL;
@@ -34,7 +50,7 @@ seq_t a(idx_t n) {
         /* initialise storage if not yet done */
         if (seq_cap == 0) {
             seq_cap = 32;
-            seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+            seq = mem_new(seq_t, seq_cap);
             seq_len = 0;
             next_val = 0;
         }
@@ -42,7 +58,7 @@ seq_t a(idx_t n) {
         /* grow storage if needed */
         if (seq_cap < n) {
             seq_cap = n * 2;
-            seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
 
         /* generate terms until we have n of them */

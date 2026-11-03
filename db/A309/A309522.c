@@ -12,15 +12,18 @@
  *            with the rule: * d(d+1)/2 ≤ n < (d+1)(d+2)/2 * offse...
  * Range:     u8 n <= 23, u16 n <= 38, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial, catalan
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 static seq_t **rows      = NULL;   /* rows[row][k] = A(row,k)   */
 static size_t *row_cap   = NULL;   /* capacity of each row */
@@ -52,7 +55,7 @@ static void ensure_row(idx_t row, idx_t col)
         /* grow memory block to new capacity */
         size_t new_cap = (size_t)(col + 1);
         size_t old_cap = row_cap[row];
-        seq_t *tmp = (seq_t *)realloc(rows[row], new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, rows[row], new_cap);
         /* Initialise newly allocated slots to 0 */
         for (size_t i = old_cap; i < new_cap; ++i) tmp[i] = 0;
         rows[row] = tmp;

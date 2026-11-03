@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* partition_cache holds p(0) … p(max_cached). */
 static seq_t *partition_cache = NULL;
@@ -54,7 +56,7 @@ static void ensure_partition_cache(idx_t r) {
     if (r < cache_size)
         return;
     /* Allocate / enlarge cache. */
-    partition_cache = (seq_t *)realloc(partition_cache, (r + 1) * sizeof(seq_t));
+    partition_cache = mem_resize(seq_t, partition_cache, (r + 1));
     if (cache_size == 0)
         partition_cache[0] = (seq_t)1, cache_size = 1;
     /* Compute missing partitions using the pentagonal theorem. */

@@ -13,13 +13,27 @@
  *            a(9)=918878, a(10)=2525262, a(11)=7049658
  * Range:     u8 none, u16 n <= 6, u32 n <= 17, u64 n <= 36, u128 n <= 74,
  *            big any n
- * Helpers:   mul_abs_by_uint
+ * Validated: standard, pass, 39 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mul_abs_by_uint.h"
+#include "../utils/mem.h"
+
+static inline seq_t mul_abs_by_uint(seq_t x, unsigned int m)
+{
+    seq_t res = 0;
+    seq_t cur = x;
+    while (m) {
+        if (m & 1)
+            res += cur;
+        cur += cur;
+        m >>= 1;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -43,7 +57,7 @@ seq_t a(idx_t n)
 
     if (computed_upto == 0) {         /* first call: initialise cache */
         cache_size = 12;              /* indices 0..11 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;         /* allocation failure */
 
         for (idx_t i = 0; i <= 11; ++i)
@@ -58,7 +72,7 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)(n + 1) * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;
         cache = tmp;
         cache_size = new_size;

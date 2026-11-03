@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 50, u16 n <= 2102, u32 n <= 9556, u64 n <= 9556,
- *            u128 n <= 9556, big any n
- * Helpers:   factorial_exponent
+ * Range:     u8 n <= 50, u16 n <= 2102, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 74 terms through n = 9556 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factorial_exponent.h"
+#include "../utils/mem.h"
+
+/* Legendre: exponent of prime p in factorial of n */
+static seq_t factorial_exponent(idx_t n, idx_t p)
+{
+    seq_t exp = 0;
+    for (idx_t t = n; t; t /= p)
+        exp += t / p;
+    return exp;
+}
 
 /* Types supplied by the build system */
 extern seq_t a(idx_t n);          /* declaration only; real definition follows */
@@ -49,7 +59,7 @@ static void cache_append(seq_t val)
     if (seq_len == seq_cap)
     {
         seq_cap = seq_cap ? seq_cap << 1 : 64;
-        seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
     }
     seq_cache[seq_len++] = val;
 }

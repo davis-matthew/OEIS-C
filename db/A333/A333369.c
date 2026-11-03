@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 4003, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_frequencies
+ * Validated: standard, pass, 78 terms through n = 9223 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
 
 static bool is_simber(seq_t x)
 {
@@ -46,14 +48,14 @@ seq_t a(idx_t n)
 
     if (!cache) {
         cap = 32;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     while (len < (size_t)n) {
         if (is_simber(next)) {
             if (len >= cap) {
                 cap <<= 1;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = next;
         }

@@ -11,12 +11,14 @@
  *            term)
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 28, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Expand cache if necessary */
     if (n > cached_max) {
         size_t new_size = (size_t)(n + 1);          /* indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) /* allocation failed: terminate */
             abort();
         cache = tmp;

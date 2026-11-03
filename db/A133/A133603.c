@@ -6,13 +6,16 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = C(n) for odd n; a(n) = C(n) + C(n-1) for even n, where
  *            C(k) is the Catalan number. a(0) = 1
- * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 25, u128 n <= 25,
+ * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)

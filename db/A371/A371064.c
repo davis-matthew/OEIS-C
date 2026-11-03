@@ -10,14 +10,17 @@
  *            where T(n,k) = Σ_{i=1..n} (-1)^(n-i) * binomial(n,i) * 2^i * i^k
  * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binomial, pow2, pow_int
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial, ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 #include "../utils/pow2.h"
-#include "../utils/pow_int.h"
 
 /* Compute T(n,k) for n,k ≥ 1 */
 static seq_t compute_T(idx_t n, idx_t k) {
@@ -26,7 +29,7 @@ static seq_t compute_T(idx_t n, idx_t k) {
     for (idx_t i = 1; i <= n; ++i) {
         seq_t term = binomial(n, i);
         term *= pow2(i);
-        term *= pow_int((seq_t)i, k);
+        term *= ipow_idx((seq_t)i, k);
         if (((n - i) & 1U) == 0U)
             sum_pos += term;
         else

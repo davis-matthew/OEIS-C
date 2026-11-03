@@ -8,16 +8,38 @@
  * Formula:   a(n) = Bell(ω(n)) where ω(n) is the number of distinct prime
  *            factors of n. The Bell numbers are computed once up to a safe
  *            maximum number of distinct prime factors (here 32)
- * Range:     u8 n <= 9814, u16 n <= 9814, u32 n <= 9814, u64 n <= 9814,
- *            u128 n <= 9814, big any n
- * Helpers:   distinct_prime_factor_count
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9814 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* We need the common <stdbool.h> header for the bool type. */
 #include <stdbool.h>
-#include "../utils/distinct_prime_factor_count.h"
+
+/* ---------- Count distinct prime factors of a 64‑bit integer ---------- */
+static idx_t
+distinct_prime_factor_count(uint64_t n)
+{
+    idx_t cnt = 0;
+    if ((n & 1ULL) == 0ULL) {
+        ++cnt;
+        while ((n & 1ULL) == 0ULL)
+            n >>= 1;
+    }
+    for (uint64_t p = 3ULL; p <= n / p; p += 2ULL) {
+        if (n % p == 0ULL) {
+            ++cnt;
+            while (n % p == 0ULL)
+                n /= p;
+        }
+    }
+    if (n > 1ULL)
+        ++cnt;   /* remaining prime factor larger than sqrt(original n) */
+    return cnt;
+}
 
 /* ---------- Binomial coefficient (n choose k) implemented in seq_t ---------- */
 static seq_t

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 3290, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow2mod
+ * Validated: standard, pass, 61 terms through n = 8418 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow2mod.h"
+
+/* Compute 2^exp (mod 100) using unsigned arithmetic. */
+static unsigned int pow2mod(unsigned long long exp)
+{
+    unsigned int result = 1;
+    unsigned int base   = 2;
+    while (exp) {
+        if (exp & 1U)
+            result = (unsigned int)((result * base) % 100);
+        base = (unsigned int)((base * base) % 100);
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

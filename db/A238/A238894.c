@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1070, u16 n <= 4982, u32 n <= 9025, u64 n <= 9025,
  *            u128 n <= 9025, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 7701 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,6 +42,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Prime list up to index 45 (prime(45)=229). */
 static const uint32_t primes[] = {
@@ -62,7 +64,7 @@ static seq_t *build_row(int row_no, size_t *out_len)
     for (int i = 0; i < num_primes; ++i) d += p_start[i];
 
     size_t len = (size_t)d + 1;           /* number of even sums, 0 … d */
-    seq_t *dp = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp) return NULL;
     dp[0] = 1;
 
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         initialized = true;
         all_cap = 1024;
-        all_vals = (seq_t *)malloc(all_cap * sizeof(seq_t));
+        all_vals = mem_new(seq_t, all_cap);
 
         rows_cap = 64;
         row_start = (size_t *)malloc(rows_cap * sizeof(size_t));
@@ -127,11 +129,11 @@ seq_t a(idx_t n)
         /* Make room for new values if necessary. */
         if (all_len + len > all_cap) {
             all_cap = (all_cap + len) * 2;
-            all_vals = (seq_t *)realloc(all_vals, all_cap * sizeof(seq_t));
+            all_vals = mem_resize(seq_t, all_vals, all_cap);
         }
 
-        memcpy(all_vals + all_len, row, len * sizeof(seq_t));
-        free(row);
+        mem_copy(all_vals + all_len, row, len * sizeof(seq_t));
+        mem_free(row);
         all_len += len;
     }
 

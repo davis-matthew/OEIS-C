@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n!/(k!^2)) * ((k-1)/(k+1)), where k = floor(n/2)
  * Range:     i8 n <= 5, i16 n <= 11, i32 n <= 25, i64 n <= 34, i128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

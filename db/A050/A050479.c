@@ -10,12 +10,14 @@
  *            >= 1 and then evaluates a(n) = C(n) * (9*n + 1)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for realloc */
+#include "../utils/mem.h"
 
 static seq_t *catalan_cache = NULL;   /* dynamic array of Catalan numbers */
 static idx_t  catalan_cache_len = 0;  /* number of stored elements */
@@ -27,7 +29,7 @@ ensure_catalan(idx_t n)
     if (catalan_cache_len <= n) {
         /* Grow the cache to hold indices 0 .. n */
         size_t new_len = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(catalan_cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, catalan_cache, new_len);
         if (!new_cache) {
             /* Insufficient memory – abort. In the real test harness
                any such failure would be considered an error.          */

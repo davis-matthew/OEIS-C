@@ -12,13 +12,15 @@
  *            any unsigned integer type seq_t and idx_t
  * Range:     u8 n <= 243, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9288 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ----- static state ---------------------------------------------------- */
 static seq_t *a_seq   = NULL;  /* 1‑based cache: a_seq[0] unused */
@@ -50,7 +52,7 @@ static void ensure_a_capacity(idx_t needed)
     if ((size_t)needed >= a_cap) {
         size_t new_cap = a_cap ? a_cap * 2 : 1;
         while (new_cap <= (size_t)needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_seq, new_cap);
         if (!tmp) exit(1);
         a_seq = tmp;
         a_cap = new_cap;
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (!a_seq) {
         a_cap = 1; a_len = 1;          /* a_seq[0] dummy sentinel */
-        a_seq = (seq_t *)realloc(NULL, a_cap * sizeof(seq_t));
+        a_seq = mem_resize(seq_t, NULL, a_cap);
         a_seq[0] = 0;
 
         used_cap = 2;                 /* indices 0 and 1 (value 1 will be used) */

@@ -10,12 +10,14 @@
  *            removes all factors of 2
  * Range:     u8 n <= 11, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise first two terms when needed */
     if (size < 2) {
         capacity = (capacity < 2) ? 2 : capacity;
-        if (seq == NULL) seq = (seq_t *)malloc(capacity * sizeof(seq_t));
+        if (seq == NULL) seq = mem_new(seq_t, capacity);
         seq[0] = 1;  /* a(1) */
         seq[1] = 1;  /* a(2) */
         size = 2;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if ((idx_t)n > size) {
         idx_t new_cap = capacity;
         while ((idx_t)n > new_cap) new_cap *= 2;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         capacity = new_cap;
 
         for (idx_t i = size; i < (idx_t)n; ++i) {

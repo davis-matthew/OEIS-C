@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   max_overlap, unpack_bits
+ * Validated: standard, pass, 68 terms through n = 9108 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,27 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/max_overlap.h"
-#include "../utils/unpack_bits.h"
+
+/* Largest k such that suffix of a (length k) equals prefix of b (length k). */
+static size_t max_overlap(const unsigned char *a, size_t la,
+                          const unsigned char *b, size_t lb) {
+    size_t maxk = la < lb ? la : lb;
+    for (size_t k = maxk; k > 0; --k) {
+        bool ok = true;
+        for (size_t i = 0; i < k; ++i) {
+            if (a[la - k + i] != b[i]) { ok = false; break; }
+        }
+        if (ok) return k;
+    }
+    return 0;
+}
+
+/* Unpack the binary representation of v into buffer b.
+   Bits are stored most‑significant first: b[0] is the MSB. */
+static void unpack_bits(seq_t v, unsigned char *b, size_t len) {
+    for (size_t i = 0; i < len; ++i)
+        b[i] = (unsigned char)((v >> (len - 1 - i)) & 1);
+}
 
 /* Return bit length of a non‑negative value (0 → 0). */
 static size_t bitlen_seq_t(seq_t x) {

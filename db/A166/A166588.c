@@ -9,6 +9,7 @@
  *            4*(-n+2)*a(n-3) = 0 Initial values: a(0)=1, a(1)=2, a(2)=2
  * Range:     u8 n <= 14, u16 n <= 22, u32 n <= 40, u64 n <= 74, u128 n <= 137,
  *            big any n
+ * Validated: standard, pass, 54 terms through n = 961 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

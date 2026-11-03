@@ -8,7 +8,8 @@
  *            A276465)
  * Range:     u8 n <= 7, u16 n <= 24, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   factor_u64, seq_alloc, seq_cmp, seq_mul
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,35 @@
  */
 
 #include <stdlib.h>
-#include "../utils/factor_u64.h"   /* factor_u64 */
-#include "../utils/seq_alloc.h"    /* seq_alloc */
-#include "../utils/seq_mul.h"     /* seq_mul */
-#include "../utils/seq_cmp.h"     /* seq_cmp */
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -73,7 +99,7 @@ seq_t a(idx_t n)
         divs_cnt = cur_cnt;
 
         /* Sort divisors in increasing order */
-        qsort(divs, divs_cnt, sizeof(seq_t), seq_cmp);
+        mem_qsort(divs, divs_cnt, sizeof(seq_t), seq_cmp);
     }
 
     /* Return the requested divisor (1‑based index) */

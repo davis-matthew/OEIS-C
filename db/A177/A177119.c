@@ -9,7 +9,8 @@
  *            are a permutation of some consecutive block of "0123456789"
  * Range:     u8 n <= 8, u16 n <= 58, u32 n <= 6744, u64 n <= 6744,
  *            u128 n <= 6744, big any n
- * Helpers:   sieve_clear, sieve_get, sieve_set
+ * Validated: full, pass, 6744 terms through n = 6744 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,22 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sieve_clear.h"
-#include "../utils/sieve_get.h"
-#include "../utils/sieve_set.h"
+#include "../utils/mem.h"
+
+static inline void sieve_clear(uint8_t *arr, size_t i) {
+    arr[i >> 3] &= ~(1 << (i & 7));
+}
+
+static inline bool sieve_get(const uint8_t *arr, size_t i) {
+    return (arr[i >> 3] >> (i & 7)) & 1;
+}
+
+/* --------------------------------------------------------------------------
+   Helper: set/clear/get bit in a bit‑array representing sieve
+   -------------------------------------------------------------------------- */
+static inline void sieve_set(uint8_t *arr, size_t i) {
+    arr[i >> 3] |= 1 << (i & 7);
+}
 
 static seq_t *seq = NULL;      /* cached sequence values */
 static size_t seq_len = 0;     /* number of values generated */
@@ -34,7 +48,7 @@ static void grow_seq(size_t needed) {
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) exit(EXIT_FAILURE);  /* allocation failed */
     seq = tmp;
     seq_cap = new_cap;

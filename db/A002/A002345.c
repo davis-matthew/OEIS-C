@@ -9,7 +9,8 @@
  *            searching y = 1, 2, ... until p - 7*y^2 is a perfect square
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isqrt_u
+ * Validated: standard, pass, 86 terms through n = 999 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/isqrt_u.h"
+#include "../utils/isqrt_u64.h"
 
 static uint32_t *ys = NULL;
 static idx_t ys_len = 0;
@@ -36,7 +37,7 @@ static void build(uint64_t limit) {
         if (comp[i]) continue;
         for (y = 1; 7 * y * y <= i; y++) {
             uint64_t rem = i - 7 * y * y;
-            uint64_t x = isqrt_u(rem);
+            uint64_t x = isqrt_u64(rem);
             if (x * x == rem) {
                 buf[cnt++] = (uint32_t)y;
                 break;

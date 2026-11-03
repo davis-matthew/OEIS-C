@@ -9,7 +9,8 @@
  *            a(n+1) = a(n) * (prime_n + 1))
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 36 terms through n = 173 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ---------- prime generation state ----------------------------------- */
 static uint64_t *g_primes   = NULL;   /* array of prime numbers */
@@ -53,7 +55,7 @@ static void ensure_a_cache(idx_t n)
     if (needed > a_cache_cap) {
         size_t new_cap = a_cache_cap == 0 ? 1 : a_cache_cap * 2;
         while (new_cap < needed) new_cap *= 2;
-        a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cache_cap = new_cap;
     }
 

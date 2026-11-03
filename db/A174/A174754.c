@@ -7,12 +7,14 @@
  * Formula:   a(n) = 48670*a(n-1)-a(n-2) with a(1)=1, a(2)=24335
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 24 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         size_t new_cap = (cache_cap == 0) ? 2 : cache_cap;
         while (new_cap < n)
             new_cap <<= 1;                       /* grow by factor 2 */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                      /* unrecoverable allocation failure */
         cache = tmp;
         cache_cap = (idx_t)new_cap;

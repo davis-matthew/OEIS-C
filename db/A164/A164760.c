@@ -13,13 +13,15 @@
  *            a(5)=3096, a(6)=11786, a(7)=39564, a(8)=121678
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 19, u64 n <= 48, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached values of a(n) */
 static idx_t  cached_max = 0;        /* largest n computed so far */
@@ -33,7 +35,7 @@ static void init_cache(void)
 
     /* Ensure space at least up to index 8 (a(8)). */
     size_t init_size = 9;                         /* indices 0..8 */
-    cache = (seq_t *)calloc(init_size, sizeof(seq_t));
+    cache = mem_new(seq_t, init_size);
     if (!cache)
         return;                                  /* allocation failure – caller will fail */
 
@@ -58,14 +60,14 @@ static void ensure_cache_size(idx_t n)
     if (new_size < 9)
         new_size = 9;
 
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache)
         return;           /* allocation failure – caller will fail */
 
-    memcpy(new_cache, cache, cache_size * sizeof(seq_t));
+    mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
     /* initialise added slots to zero */
-    memset(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
-    free(cache);
+    mem_set(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
+    mem_free(cache);
     cache     = new_cache;
     cache_size = new_size;
 }

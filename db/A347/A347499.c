@@ -11,7 +11,8 @@
  *            distinct pairwise products for i ≤ j
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--------------------------------------------------------------*/
 /* Bitset helpers for products 0 .. M*M  (idx_t is uint64_t)   */
@@ -156,7 +158,7 @@ static seq_t *get_row(size_t r)
     }
 
     /* Convert to seq_t for caching */
-    seq_t *subset_seq = (seq_t*)malloc(r * sizeof(seq_t));
+    seq_t *subset_seq = mem_new(seq_t, r);
     if (!subset_seq) { free(subset_idx); return NULL; }
     for (size_t i = 0; i < r; ++i)
         subset_seq[i] = (seq_t)subset_idx[i];

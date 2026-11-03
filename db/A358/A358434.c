@@ -11,6 +11,7 @@
  *            <= 2n-1
  * Range:     u8 n <= 16, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Recursive helper that builds all divisors from the factorisation

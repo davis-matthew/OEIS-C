@@ -9,14 +9,16 @@
  *            binary representation of n to leave a palindrome
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Length of the binary representation (most significant bit
        inclusive). */
-    const idx_t msb = floor_log2_uint64(n);   /* highest set bit index (0‑based) */
+    const idx_t msb = ilog2(n);   /* highest set bit index (0‑based) */
     const idx_t L = msb + 1;                  /* number of bits */
 
     seq_t removed = 0;

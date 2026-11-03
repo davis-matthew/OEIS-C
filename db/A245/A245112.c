@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 16, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
    builds.  It uses only the functions provided by the framework
    (gcd).  For arbitrary‑precision seq_t the same operations work
    because the big‑integer type overloads the usual operators.  */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static inline seq_t compute_next(idx_t k, seq_t prev)

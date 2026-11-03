@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 165, u16 n <= 9537, u32 n <= 9537, u64 n <= 9537,
- *            u128 n <= 9537, big any n
- * Helpers:   build_primes
+ * Range:     u8 n <= 165, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 9537 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_primes.h"   /* provides build_primes */
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 /* Global prime table used for primorial‑base digits */
 static idx_t   *prime_list = NULL;
@@ -78,7 +81,7 @@ seq_t a(idx_t n)
             /* Ensure capacity */
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, new_cap);
                 terms_cap = new_cap;
             }
             terms[terms_len++] = curr_k;

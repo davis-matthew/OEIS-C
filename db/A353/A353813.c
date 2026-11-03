@@ -9,8 +9,9 @@
  * Formula:   a(n) = 1 if n has exactly one prime factor ≡ 1 (mod 4) counting
  *            multiplicity and all prime factors ≡ 3 (mod 4) occur with even
  *            multiplicity; otherwise 0
- * Range:     u8 n <= 9758, u16 n <= 9758, u32 n <= 9758, u64 n <= 9758,
- *            u128 n <= 9758, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 141 terms through n = 9758 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static const size_t MAX_FACTORS = 64;

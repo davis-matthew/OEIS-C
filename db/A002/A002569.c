@@ -9,12 +9,14 @@
  *            f_k(m-k)
  * Range:     u8 n <= 25, u16 n <= 59, u32 n <= 158, u64 n <= 479,
  *            u128 n <= 1593, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 2982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
 	if (N == 0) return 1;
 
-	f = (seq_t *)malloc((size_t)(N + 1) * sizeof(seq_t));
+	f = mem_new(seq_t, (size_t)(N + 1));
 	if (!f) return 0;
 	for (m = 0; m <= N; m++) f[m] = 0;
 	f[0] = 1;
@@ -38,6 +40,6 @@ seq_t a(idx_t n)
 		if (f[N - k] > best) best = f[N - k];
 	}
 
-	free(f);
+	mem_free(f);
 	return best;
 }

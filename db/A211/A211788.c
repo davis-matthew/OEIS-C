@@ -10,7 +10,8 @@
  *            integer with m*(m+1)/2 >= n k = n - (m*(m-1)/2 + 1)
  * Range:     u8 n <= 18, u16 n <= 42, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         /* compute new rows of the triangle */
         for (size_t i = max_m + 1; i <= m; ++i) {
             /* allocate space for row i: indices 0..i (0 unused) */
-            T[i] = (seq_t *)malloc((i + 2) * sizeof(seq_t));
+            T[i] = mem_new(seq_t, (i + 2));
             if (T[i] == NULL) return (seq_t)0; /* allocation failure */
 
             if (i == 1) {            /* base case */

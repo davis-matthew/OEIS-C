@@ -8,12 +8,15 @@
  *            count of 4^n into n-th powers minus 1)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 /* floor_sum: compute Σ_{i=0}^{n-1} ⌊(a*i+b)/m⌋  for arbitrary-precision integers */
 static seq_t floor_sum(seq_t n, seq_t m, seq_t a, seq_t b)
@@ -54,8 +57,8 @@ static seq_t floor_sum(seq_t n, seq_t m, seq_t a, seq_t b)
 seq_t a(idx_t n)
 {
     /* compute 2^n and 3^n */
-    seq_t two_n = seq_pow(2, n);
-    seq_t three_n = seq_pow(3, n);
+    seq_t two_n = ipow_idx(2, n);
+    seq_t three_n = ipow_idx(3, n);
 
     /* t = 2^n */
     seq_t t = two_n;

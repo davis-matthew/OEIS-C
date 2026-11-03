@@ -9,14 +9,15 @@
  *            (n-1)/d : gcd(k,n)=1}
  * Range:     u8 n <= 30, u16 n <= 466, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_int
+ * Validated: standard, pass, 81 terms through n = 8849 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd_int.h"
+#include "../utils/gcd_i32.h"
 
 /* Adjust this limit if the input domain may exceed it.
    Current value comfortably handles n up to 2×10⁶.        */
@@ -88,7 +89,7 @@ seq_t a(idx_t n)
         int mu_d = mu[d];
         if (mu_d == 0)
             continue;
-        if (gcd_int(d, n_int) != 1)
+        if (gcd_i32(d, n_int) != 1)
             continue;
 
         uint64_t m = (n_int - 1) / d;

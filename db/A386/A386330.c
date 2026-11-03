@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1763, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_capacity, has_forbidden_digits_idx, is_prime
+ * Validated: standard, pass, 72 terms through n = 8847 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,32 @@
    calls. */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/ensure_capacity.h"
+#include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/has_forbidden_digits_idx.h"
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+
+static bool has_forbidden_digits_idx(idx_t x)
+{
+    while (x)
+    {
+        int d = (int)(x % 10);
+        if (d == 1 || d == 4)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 static seq_t *cached = NULL;
 static size_t cached_len = 0;

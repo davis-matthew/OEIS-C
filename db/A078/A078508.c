@@ -8,7 +8,8 @@
  *            floor(sqrt((n+1)^3))
  * Range:     u8 n <= 2, u16 n <= 24, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   build_primes_upto, floor_sqrt, upper_bound_strict
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,39 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/floor_sqrt.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/upper_bound_strict.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Find first index i such that primes[i] > val (strictly greater) */
+static size_t upper_bound_strict(const uint64_t *arr, size_t n, uint64_t val)
+{
+    size_t l = 0, r = n;
+    while (l < r) {
+        size_t m = (l + r) >> 1;
+        if (arr[m] <= val) l = m + 1;
+        else r = m;
+    }
+    return l;          /* first index with arr[i] > val */
+}
 
 static uint64_t *primes = NULL;
 static size_t prime_cnt = 0;

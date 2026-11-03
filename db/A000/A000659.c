@@ -7,12 +7,13 @@
  * Formula:   a(n) = 2^a(n-1) + a(n-2), a(0) = 0, a(1) = 0
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   pow2_by_doubling
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-01)
+ * Helpers:   pow2_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2_by_doubling.h"
+#include "../utils/pow2_seq.h"
 
 seq_t a(idx_t n) {
     seq_t prev2 = (seq_t)0; /* a(0) */
@@ -20,7 +21,7 @@ seq_t a(idx_t n) {
     idx_t k;
     if (n == 0) return prev2;
     for (k = 2; k <= n; k++) {
-        seq_t cur = pow2_by_doubling(prev1) + prev2;
+        seq_t cur = pow2_seq(prev1) + prev2;
         prev2 = prev1;
         prev1 = cur;
     }

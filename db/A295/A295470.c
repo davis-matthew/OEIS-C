@@ -7,7 +7,8 @@
  * Formula:   a(n) = (20*n)!*(6*n)!*n! / ((12*n)!*(10*n)!*(3*n)!*(2*n)!)
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 1, u64 n <= 3, u128 n <= 6,
  *            big any n
- * Helpers:   build_primes, seq_mul, seq_pow
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   build_primes, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,16 @@
 /* Dependencies from the utils library */
 #include <stdlib.h>            /* for free() */
 #include <stddef.h>            /* for size_t */
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Static state for prime caching */
 static idx_t *primes = NULL;   /* array of primes up to current limit */
@@ -78,7 +86,7 @@ seq_t a(idx_t n)
 
         if (e > 0)
         {
-            seq_t part = seq_pow((seq_t)p, e);  /* p^e */
+            seq_t part = ipow_idx((seq_t)p, e);  /* p^e */
             res = seq_mul(res, part);           /* multiply into result */
         }
     }

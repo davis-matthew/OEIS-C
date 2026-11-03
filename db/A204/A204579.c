@@ -12,7 +12,8 @@
  *            the term for any index n>=1 (a(0) is returned as 0)
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 37, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for triangular rows (index 1 .. _maxRow). */
 static seq_t **_table = NULL;   /* _table[r] -> array of length r+1, indices 0 .. r */
@@ -40,7 +42,7 @@ static void ensure_rows(size_t need)
     /* Build all new rows. */
     for (size_t r = _maxRow + 1; r <= need; ++r) {
         /* allocate space for indices 0..r (index 0 unused). */
-        seq_t *row = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (r + 1));
         if (!row) abort();
 
         if (r == 1) {

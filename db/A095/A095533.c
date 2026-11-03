@@ -9,13 +9,26 @@
  *            representation is 70 ones
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: full, pass, 11 terms through n = 10 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* 22 is enough to hold the largest string we generate (70 ones). */
-#include "../utils/seq_from_str.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 seq_t a(idx_t n)
 {

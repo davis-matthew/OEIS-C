@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 5680, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   create_prime_mask
+ * Validated: standard, pass, 71 terms through n = 9236 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
  * and seq_t types. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/create_prime_mask.h"
+
+/* Helper: simple sieve that marks all primes up to limit.  Returns a
+ * pointer to a bool array of length limit+1.  The caller must free() the
+ * returned array. */
+static bool *create_prime_mask(idx_t limit)
+{
+    /* allocate array of bools */
+    bool *mask = (bool *)malloc((size_t)(limit + 1) * sizeof(bool));
+    if (!mask) return NULL;
+
+    for (idx_t i = 0; i <= limit; ++i) mask[i] = true;
+    if (limit >= 0) mask[0] = false;
+    if (limit >= 1) mask[1] = false;
+
+    for (idx_t i = 2; i <= limit / i; ++i) {
+        if (mask[i]) {
+            for (idx_t j = i * i; j <= limit; j += i) mask[j] = false;
+        }
+    }
+    return mask;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   a(n) = 3 * Sum_{k=0..n} (4k+2)!/(3k+3)! * Stirling2(n,k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,14 @@
 /* where f(k) = (4k+2)!/(3k+3)!  and S(n,k) are Stirling numbers of the 2nd kind */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute A377453 */
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
 
     /* Allocate array for Stirling numbers of the second kind S(n,k) */
-    seq_t *S = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (size_t)(n + 1));
     if (!S) return (seq_t)0;          /* allocation failure, return 0 */
     S[0] = (seq_t)1;                  /* S(0,0)=1 */
 
@@ -59,6 +61,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = sum * (seq_t)3;
-    free(S);
+    mem_free(S);
     return result;
 }

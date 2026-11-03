@@ -11,6 +11,7 @@
  *            per call
  * Range:     i8 n <= 65, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
-
 
 seq_t a(idx_t n) {
     if (n == (idx_t)0) return (seq_t)0;           /* undefined for offset 0, safe guard */

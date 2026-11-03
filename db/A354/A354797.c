@@ -12,15 +12,30 @@
  *            T(2,2)=7, …
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 41, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   ensure_pointer_capacity, find_col
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/ensure_pointer_capacity.h"
-#include "../utils/find_col.h"
+#include "../utils/mem.h"
+
+/* enlarge pointer array if needed */
+static void ensure_pointer_capacity(size_t *cap, seq_t ***arr, size_t needed)
+{
+    if (*cap >= needed) return;
+    size_t new_cap = (*cap == 0) ? 1 : *cap;
+    while (new_cap < needed) new_cap <<= 1;
+    *arr = (seq_t **)realloc(*arr, new_cap * sizeof(seq_t *));
+    *cap = new_cap;
+}
+
+static inline idx_t find_col(idx_t idx, idx_t row)
+{
+    return idx - row * (row + 1) / 2;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Stirling numbers (unsigned)                                       */
@@ -42,7 +57,7 @@ static void ensure_stirling1(idx_t upto)
     if (st1_len > upto) return;
     ensure_pointer_capacity(&st1_cap, &st1_rows, upto + 1);
     for (idx_t n = st1_len; n <= upto; ++n) {
-        seq_t *row = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (n + 1));
         if (n == 0) {                 /* S1(0,0) = 1 */
             row[0] = (seq_t)1;
         } else {
@@ -64,7 +79,7 @@ static void ensure_stirling2(idx_t upto)
     if (st2_len > upto) return;
     ensure_pointer_capacity(&st2_cap, &st2_rows, upto + 1);
     for (idx_t n = st2_len; n <= upto; ++n) {
-        seq_t *row = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (n + 1));
         if (n == 0) {                 /* S2(0,0) = 1 */
             row[0] = (seq_t)1;
         } else {

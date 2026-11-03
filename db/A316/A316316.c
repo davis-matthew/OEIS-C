@@ -10,12 +10,14 @@
  *            a(6)=20
  * Range:     u8 n <= 76, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 4654 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;      /* Cached sequence values. */
 static idx_t  seq_len   = 0;         /* Number of values currently stored. */
@@ -25,7 +27,7 @@ static idx_t  seq_cap   = 0;         /* Capacity of the cache array. */
 static void ensure_initialized(void) {
     if (seq_cache != NULL) return;          /* Already initialized. */
     seq_cap = 64;                            /* Initial capacity. */
-    seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_cap);
     if (seq_cache == NULL) return;           /* Allocation failed – nothing to do. */
     seq_cache[0] = 1;
     seq_cache[1] = 4;
@@ -42,7 +44,7 @@ static void grow_cache(idx_t needed) {
     if (seq_cap >= needed) return;
     if (seq_cap < 16) seq_cap = 16;
     while (seq_cap <= needed) seq_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
 }
 
 /* Public function computing a(n). */

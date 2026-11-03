@@ -10,13 +10,32 @@
  *            bits
  * Range:     u8 n <= 120, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_isolated_11
+ * Validated: standard, pass, 77 terms through n = 8033 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_isolated_11.h"
+
+/* Return true if x has an isolated run of exactly two 1's in its binary representation.
+   An isolated run is a pattern 11 that is surrounded on both sides by 0 or by a
+   bit boundary. */
+static bool has_isolated_11(seq_t x)
+{
+    unsigned run = 0;
+    while (x) {
+        if (x & (seq_t)1) {
+            run++;
+        } else {
+            if (run == 2)
+                return true;          /* isolated 11 found */
+            run = 0;                  /* reset after a 0 */
+        }
+        x >>= 1;
+    }
+    return run == 2;                    /* isolated 11 at the most‑significant side? */
+}
 
 seq_t a(idx_t n)
 {

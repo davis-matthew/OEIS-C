@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 43 terms through n = 959 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,9 @@
  *  specification only requires exactness when the result fits.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -45,18 +48,18 @@ seq_t a(idx_t n)
     /* Even indices (n ≥ 4) */
     if ((n & 1) == 0) {
         idx_t k = n / 2;                /* n/2 is an integer ≥ 2 */
-        seq_t p = big_pow((seq_t)8, (seq_t)k); /* 8^k */
+        seq_t p = ipow((seq_t)8, (seq_t)k); /* 8^k */
         seq_t r = (p / (seq_t)16) * (seq_t)23; /* 23 * (8^k / 16) */
         return r;
     }
 
     /* Odd indices (n ≥ 5) */
     {
-        seq_t p4 = big_pow((seq_t)4, (seq_t)n);    /* 4^n */
+        seq_t p4 = ipow((seq_t)4, (seq_t)n);    /* 4^n */
         seq_t term1 = p4 * (seq_t)2;              /* 2 * 4^n */
 
         idx_t k = n / 2;                           /* floor(n/2) ≥ 2 for n ≥ 5 */
-        seq_t p8 = big_pow((seq_t)8, (seq_t)k);    /* 8^k */
+        seq_t p8 = ipow((seq_t)8, (seq_t)k);    /* 8^k */
         seq_t term2 = (p8 / (seq_t)16) * (seq_t)61;/* 61 * (8^k / 16) */
 
         return term1 - term2 - (seq_t)1;

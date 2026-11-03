@@ -8,7 +8,8 @@
  *            a(0) = 1, a(1) = 1, a(2) = 4, a(3) = 16, a(4) = 42, a(5) = 137
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 39, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache   = NULL;  /* array of computed terms */
@@ -30,7 +32,7 @@ static void grow_cache(size_t need)
     size_t new_cap = cap ? cap * 2 : 16;
     if (new_cap < need)
         new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* Allocation failure – abort, as we cannot continue safely. */
         abort();

@@ -11,20 +11,22 @@
  *            from the generating function
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 1;
 
     size_t sz = (size_t)n + 1;
-    seq_t *arr = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, sz);
     if (!arr) return 0;         /* out of memory – graceful fail */
 
     arr[0] = 1;
@@ -49,6 +51,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

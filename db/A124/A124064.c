@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Upper bound for the sieve – sufficient for all requested values up to n ≈ 10000
    (empirically checked to cover all needed primes). */
@@ -120,7 +122,7 @@ static void ensure_cache_size(idx_t n)
             /* First term of the row is always 2 */
             if (cache_len + 1 > cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 64;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) { exit(1); }
             }
             cache[cache_len++] = 2U;
@@ -135,7 +137,7 @@ static void ensure_cache_size(idx_t n)
             }
             if (cache_len + 1 > cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 64;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) { exit(1); }
             }
             cache[cache_len++] = p;

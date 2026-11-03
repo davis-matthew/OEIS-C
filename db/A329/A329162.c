@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k<n} (2^(n mod k) - 1)
  * Range:     u8 n <= 14, u16 n <= 30, u32 n <= 62, u64 n <= 126,
  *            u128 n <= 254, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 5634 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached powers of two: pow2_cache[i] = 2^i, i >= 0. */
 static seq_t *pow2_cache = NULL;   /* array of seq_t */
@@ -26,8 +28,7 @@ ensure_pow2_cache(idx_t exp)
         return;
 
     /* Grow the array to hold indices 0..exp. */
-    seq_t *new_cache = (seq_t *)realloc(pow2_cache,
-                                        (exp + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, pow2_cache, (exp + 1));
     if (!new_cache)                         /* allocation failure */
         exit(1);
 

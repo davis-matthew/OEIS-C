@@ -7,13 +7,14 @@
  * Formula:   a(n) = denominator( Σ_{k=0..n} 1 / C(2n, 2k) )
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 40 terms through n = 940 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/gcd_seq.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
     {
         /* add 1/binom to num/den */
         /* Reduce fraction before multiplying to keep values small */
-        seq_t g = gcd_seq(den, binom);
+        seq_t g = gcd(den, binom);
         seq_t den1 = den / g;
         seq_t bin1 = binom / g;
 
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
         den = den1 * binom;   /* binom = g * bin1 */
 
         /* reduce the fraction */
-        seq_t g2 = gcd_seq(num, den);
+        seq_t g2 = gcd(num, den);
         if (g2 > 1)
         {
             num /= g2;

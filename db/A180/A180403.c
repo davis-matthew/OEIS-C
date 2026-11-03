@@ -8,6 +8,7 @@
  *            2(n/d) + v2(B(n/d)) - v2(B(n)) }
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 15, i64 n <= 27, i128 n <= 27,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

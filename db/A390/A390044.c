@@ -8,13 +8,15 @@
  *            values: a(0)=1, a(1)=4, a(2)=10, a(3)=20, a(4)=35
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 34, u64 n <= 70, u128 n <= 142,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  Memoised sequence storage  */
 static seq_t *cache   = NULL;   /* points to an array of seq_t */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         const seq_t init[5] = { (seq_t)1, (seq_t)4, (seq_t)10, (seq_t)20, (seq_t)35 };
         cache_cap = 5;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) { /* fatal error – leave caller to handle */
             return (seq_t)0;
         }
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         while (new_cap <= (size_t)n + 1) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { /* fatal error – leave caller to handle */
             return (seq_t)0;
         }

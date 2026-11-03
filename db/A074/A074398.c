@@ -7,17 +7,19 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = number of primes p with min(n,φ(n)) < p < max(n,φ(n)),
  *            excluding n and φ(n) themselves
- * Range:     u8 n <= 1603, u16 n <= 8652, u32 n <= 8652, u64 n <= 8652,
- *            u128 n <= 8652, big any n
- * Helpers:   build_primes, phi
+ * Range:     u8 n <= 1603, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 113 terms through n = 8652 (2026-11-01)
+ * Helpers:   build_primes, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/phi.h"
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/totient.h"
 
 /* binary search: first index with arr[idx] >= val */
 static size_t lower_bound(const idx_t *arr, size_t n, idx_t val)
@@ -35,7 +37,7 @@ static size_t lower_bound(const idx_t *arr, size_t n, idx_t val)
 
 seq_t a(idx_t n)
 {
-    seq_t phi_seq = phi(n);
+    seq_t phi_seq = totient(n);
     idx_t phi_n = (idx_t)phi_seq;           /* φ(n) ≤ n for n ≥ 1 */
 
     idx_t low  = (n < phi_n) ? n : phi_n;

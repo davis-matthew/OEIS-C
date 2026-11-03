@@ -8,8 +8,9 @@
  * Formula:   a(n) = (1/2)·μ(n)·(μ(n)−1) if n is odd, * a(n) =
  *            (1/2)·μ(n)·(μ(n)−1) − μ(n/2) if n is even * where μ is the
  *            Möbius function
- * Range:     i8 n <= 9639, i16 n <= 9639, i32 n <= 9639, i64 n <= 9639,
- *            i128 n <= 9639, big any n
+ * Range:     i8 n <= 65539, i16 n <= 65539, i32 n <= 65539, i64 n <= 65539,
+ *            i128 n <= 65539, big any n
+ * Validated: standard, pass, 121 terms through n = 9639 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

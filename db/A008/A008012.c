@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 177, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 64 terms through n = 833 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,16 @@
 
 #include <stddef.h>
 #include <string.h>
-#include "../utils/alloc_seq.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static const seq_t init_vals[21] = {
     1,   4,  10,  20,  34,  53,  76, 103, 135, 170,
@@ -53,7 +63,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         cache_len = 21;
         cache     = alloc_seq(cache_len);
-        memcpy(cache, init_vals, cache_len * sizeof(seq_t));
+        mem_copy(cache, init_vals, cache_len * sizeof(seq_t));
     }
 
     if ((size_t)n < cache_len)
@@ -63,8 +73,8 @@ seq_t a(idx_t n)
     size_t old_len = cache_len;
     size_t new_len = (size_t)n + 1;
     seq_t *new_cache = alloc_seq(new_len);
-    memcpy(new_cache, cache, old_len * sizeof(seq_t));
-    free(cache);
+    mem_copy(new_cache, cache, old_len * sizeof(seq_t));
+    mem_free(cache);
     cache = new_cache;
     cache_len = new_len;
 

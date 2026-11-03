@@ -9,12 +9,14 @@
  *            coeff(n) = 1 if n==0 or n==23, = 2 if 1≤n≤22, = 0 otherwise
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* extend cache if required */
     if (n >= cache_sz) {
         idx_t new_sz = n + 1;
-        cache = (seq_t*)realloc(cache, new_sz * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_sz);
         /* compute new terms in increasing order */
         for (idx_t i = cache_sz; i < new_sz; ++i) {
             seq_t term;

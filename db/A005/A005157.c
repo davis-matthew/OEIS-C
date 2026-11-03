@@ -12,13 +12,14 @@
  *            prime exponents
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 16, u128 n <= 24,
  *            big any n
- * Helpers:   a005157_powmul
+ * Validated: standard, pass, 37 terms through n = 122 (2026-11-01)
+ * Helpers:   ipow_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a005157_powmul.h"
+#include "../utils/ipow_i64.h"
 
 seq_t a(idx_t n) {
   if (n == 0) return (seq_t)1;
@@ -62,7 +63,7 @@ seq_t a(idx_t n) {
 
   seq_t result = 1;
   for (m = 2; m <= M; m++) {
-    if (ex[m] > 0) result *= a005157_powmul((seq_t)m, ex[m]);
+    if (ex[m] > 0) result *= ipow_i64((seq_t)m, ex[m]);
   }
 
   free(c);

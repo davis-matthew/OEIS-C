@@ -10,14 +10,15 @@
  *            (offset 1)
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 63, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
  /* Compute the entry T(r,k) = floor(2*r^k/k^k). */
 static seq_t triangle_value(idx_t r, idx_t k)
@@ -26,8 +27,8 @@ static seq_t triangle_value(idx_t r, idx_t k)
     seq_t sk = (seq_t)k;
 
     /* r^k and k^k (big integer arithmetic). */
-    seq_t pow_r_k = big_pow(sr, sk);
-    seq_t pow_k_k = big_pow(sk, sk);
+    seq_t pow_r_k = ipow(sr, sk);
+    seq_t pow_k_k = ipow(sk, sk);
 
     /* Numerator 2 * r^k. */
     seq_t numerator = ((seq_t)2) * pow_r_k;

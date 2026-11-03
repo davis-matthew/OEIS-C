@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 4000, u32 n <= 4000, u64 n <= 4000,
  *            u128 n <= 4000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 71 terms through n = 3257 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
    until the nth such integer is found.  This method works for any
    seq_t type (fixed‑size or arbitrary precision). */
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +29,8 @@ seq_t a(idx_t n)
     uint64_t m = 1;
 
     while (found < n) {
-        uint64_t tau_m  = divisor_count_u64(m);
-        uint64_t tau_m1 = divisor_count_u64(m + 1);
+        uint64_t tau_m  = num_divisors(m);
+        uint64_t tau_m1 = num_divisors(m + 1);
         int diff = (int)(tau_m1 - tau_m);
 
         if (diff == 4) {

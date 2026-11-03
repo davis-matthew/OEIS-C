@@ -9,6 +9,7 @@
  *            of pairs of the first n odd primes
  * Range:     u8 n <= 33, u16 n <= 3534, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 74 terms through n = 9612 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* compare two seq_t values */
 static int cmp_seq(const void *a, const void *b)
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
 
         /* count all unordered triples i≤j≤k */
         size_t total = lucky_cnt * (lucky_cnt + 1) * (lucky_cnt + 2) / 6;
-        seq_t *all = (seq_t *)malloc(total * sizeof(seq_t));
+        seq_t *all = mem_new(seq_t, total);
 
         size_t pos = 0;
         for (size_t i = 0; i < lucky_cnt; ++i)
@@ -109,10 +111,10 @@ seq_t a(idx_t n)
                 }
 
         /* sort all products */
-        qsort(all, total, sizeof(seq_t), cmp_seq);
+        mem_qsort(all, total, sizeof(seq_t), cmp_seq);
 
         /* compress unique values */
-        uniq_vals = (seq_t *)malloc(total * sizeof(seq_t));
+        uniq_vals = mem_new(seq_t, total);
         uniq_cnt  = 0;
         for (size_t i = 0; i < total; ++i)
         {
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
                 uniq_vals[uniq_cnt++] = all[i];
         }
 
-        free(all);
+        mem_free(all);
         initialized = true;
     }
 

@@ -12,12 +12,14 @@
  *            computes a(n) by iterating the recurrence for the require...
  * Range:     u8 n <= 32, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 static idx_t
 find_row(idx_t n) {
@@ -56,8 +58,8 @@ a(idx_t n) {
     }
 
     /* allocate arrays for the previous row */
-    seq_t *u_prev = (seq_t *)malloc(1 * sizeof(seq_t));
-    seq_t *v_prev = (seq_t *)malloc(1 * sizeof(seq_t));
+    seq_t *u_prev = mem_new(seq_t, 1);
+    seq_t *v_prev = mem_new(seq_t, 1);
     u_prev[0] = (seq_t)1;
     v_prev[0] = (seq_t)1;
 
@@ -66,8 +68,8 @@ a(idx_t n) {
         idx_t len_prev = row - 1;
         idx_t len_cur  = row;
 
-        seq_t *u_cur = (seq_t *)malloc(len_cur * sizeof(seq_t));
-        seq_t *v_cur = (seq_t *)malloc(len_cur * sizeof(seq_t));
+        seq_t *u_cur = mem_new(seq_t, len_cur);
+        seq_t *v_cur = mem_new(seq_t, len_cur);
 
         /* constant term */
         u_cur[0] = v_prev[0] + (seq_t)1;
@@ -86,15 +88,15 @@ a(idx_t n) {
         }
 
         /* free previous row and advance */
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_cur;
         v_prev = v_cur;
     }
 
     /* u_prev now contains row r */
     seq_t result = u_prev[offset];
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
     return result;
 }

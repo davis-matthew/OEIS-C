@@ -8,16 +8,17 @@
  * Formula:   a(n) = T(r,c) where r and c are the row/column of the (n+1)-st
  *            entry of the triangle read by rows, and T(n,k) = binom( C(n+2,3)
  *            - C(k+2,3) + 2 , n-k ). C(m,3) = m*(m-1)*(m-2)/6
- * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 27, u64 n <= 39, u128 n <= 39,
+ * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 27, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   binom, triangular_pref
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
+ * Helpers:   binomial, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/triangular_pref.h"
+#include "../utils/binomial.h"
+#include "../utils/triangular.h"
 
 static inline idx_t C3(idx_t x) {
     /* compute x*(x+1)*(x+2)/6 using 128‑bit arithmetic to avoid overflow */
@@ -41,7 +42,7 @@ seq_t a(idx_t n) {
     idx_t r = high;
 
     /* Column position within the row */
-    idx_t prev_total = triangular_pref(r);
+    idx_t prev_total = triangular(r);
     idx_t c = n - prev_total;
 
     idx_t nC3 = C3(r);
@@ -49,5 +50,5 @@ seq_t a(idx_t n) {
     idx_t bin_arg = nC3 - kC3 + 2;
 
     /* Return the binomial coefficient */
-    return binom(bin_arg, r - c);
+    return binomial(bin_arg, r - c);
 }

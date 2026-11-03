@@ -11,14 +11,21 @@
  *            the largest n requested and then evaluates the rank directly
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   highest_power
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/highest_power.h"
+#include "../utils/mem.h"
+
+/* internal helper: highest power of two ≤ n (n ≥ 1) */
+static inline idx_t highest_power(idx_t n)
+{
+    return 1ULL << (63 - __builtin_clzll(n));
+}
 
 /* triangular table storage for P(s, m).  For each s, we store values
    for m = 0 … s  (inclusive).  The offset of P(s, m) is
@@ -32,12 +39,12 @@ static seq_t *dp_table = NULL;   /* flat array holding the triangular table */
 static void rebuild_dp(idx_t N)
 {
     if (dp_table != NULL) {
-        free(dp_table);
+        mem_free(dp_table);
         dp_table = NULL;
     }
     /* total number of entries: (N+1)(N+2)/2 */
     size_t total = (size_t)(N + 1) * (N + 2) / 2;
-    dp_table = (seq_t *)malloc(total * sizeof(seq_t));
+    dp_table = mem_new(seq_t, total);
     if (dp_table == NULL) {
         /* allocation failed – terminate */
         abort();

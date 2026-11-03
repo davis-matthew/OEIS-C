@@ -9,12 +9,14 @@
  *            p(0)=p(50)=1, p(1..49)=2, p(n)=0 otherwise
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* small‑integer multiplication; works for built‑in integers
    and for the arbitrary‑precision type used by seq_t */
@@ -34,7 +36,7 @@ static void ensure_capacity(size_t idx)
     {
         size_t new_cap = (a_cap == 0) ? 64 : a_cap * 2;
         while (new_cap <= idx) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         a_cache = tmp;
         a_cap = new_cap;
     }

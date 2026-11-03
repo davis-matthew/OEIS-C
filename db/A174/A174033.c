@@ -9,7 +9,8 @@
  *            The sequence is the triangle T(n,m) flattened row by row
  * Range:     u8 none, u16 n <= 38, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* -------------  Global state for memoisation  ----------------- */
 
@@ -46,7 +48,7 @@ static void ensure_rows(idx_t row_needed)
     while (last_eulerian_n < target_n) {
         /* compute next Eulerian row of length n = last_n+1          */
         const idx_t n = last_eulerian_n + 1;
-        seq_t *cur = (seq_t *)malloc(n * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, n);
         if (!cur) abort();  /* out of memory */
 
         if (n == 1) {                  /* Eulerian(1,0) = 1 */
@@ -62,7 +64,7 @@ static void ensure_rows(idx_t row_needed)
         }
 
         /* append the row to the flattened triangle */
-        seq_t *new_tri = (seq_t *)realloc(tri, (tri_len + n) * sizeof(seq_t));
+        seq_t *new_tri = mem_resize(seq_t, tri, (tri_len + n));
         if (!new_tri) abort();
         tri = new_tri;
         for (idx_t k = 0; k < n; ++k) {
@@ -78,7 +80,7 @@ static void ensure_rows(idx_t row_needed)
         tri_len += n;
 
         /* prepare for next iteration */
-        free(e_prev);
+        mem_free(e_prev);
         e_prev = cur;
         e_prev_len = n;
         ++last_eulerian_n;            /* now last_eulerian_n == n */

@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of sexy prime quadruples (p, p+6, p+12, p+18) with
  *            p ≤ n
- * Range:     u8 n <= 9683, u16 n <= 9683, u32 n <= 9683, u64 n <= 9683,
- *            u128 n <= 9683, big any n
- * Helpers:   none
+ * Range:     u8 n <= 99982, u16 n <= 99982, u32 n <= 99982, u64 n <= 99982,
+ *            u128 n <= 99982, big any n
+ * Validated: standard, pass, 121 terms through n = 9683 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cum_counts = NULL;   /* cumulative counts, cum_counts[i] = a(i) */
 static idx_t   cum_cap    = 0;      /* maximum index for which cum_counts is valid */
@@ -44,7 +46,7 @@ static void compute_upto(idx_t limit)
     }
 
     /* Allocate new cumulative array */
-    seq_t *new_cum = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *new_cum = mem_new(seq_t, sz);
     if (!new_cum) { free(is_prime); exit(1); }
     new_cum[0] = (seq_t)0;
 
@@ -59,7 +61,7 @@ static void compute_upto(idx_t limit)
     }
 
     /* Replace old data */
-    free(cum_counts);
+    mem_free(cum_counts);
     free(is_prime);
     cum_counts = new_cum;
     cum_cap    = limit;

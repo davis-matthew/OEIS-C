@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 124, u16 n <= 9804, u32 n <= 9804, u64 n <= 9804,
- *            u128 n <= 9804, big any n
- * Helpers:   none
+ * Range:     u8 n <= 124, u16 n <= 24735, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 83 terms through n = 9804 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_K     5000000ULL          /* upper bound for the sieve */
 #define EPS       1e-12
@@ -106,7 +108,7 @@ static void ensure_terms_capacity(size_t needed)
     if (terms_cap >= needed) return;
     size_t new_cap = terms_cap ? terms_cap << 1 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort();
     terms = tmp;
     terms_cap = new_cap;

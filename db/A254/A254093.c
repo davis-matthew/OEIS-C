@@ -9,14 +9,30 @@
  * Formula:   computed by dynamic programming (no simple closed‑form)
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 33,
  *            big any n
- * Helpers:   compute_d
+ * Validated: standard, pass, 31 terms through n = 208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/compute_d.h"
+
+/* Compute D value for a 3×3 block given three column masks and a starting row */
+static int8_t compute_d(int a, int b, int c, int r)
+{
+    int ba = (a >> r) & 1;
+    int bb = (b >> (r + 1)) & 1;
+    int bc = (c >> (r + 2)) & 1;
+    int diag = ba | bb | bc;                          /* OR of three bits */
+
+    int ca = (a >> (r + 2)) & 1;
+    int cb = (b >> (r + 1)) & 1;
+    int cc = (c >> r) & 1;
+    int anti = ca | cb | cc;
+
+    return (int8_t)(diag - anti);                     /* -1,0,1 */
+}
 
 /*------------------------------------------------------------*/
 /*  Transition data for 3×3 blocks                           */

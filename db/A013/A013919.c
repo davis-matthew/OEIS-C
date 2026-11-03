@@ -11,7 +11,8 @@
  *            implementation keeps a cache of generated terms s...
  * Range:     u8 n <= 14, u16 n <= 306, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 90 terms through n = 995 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <assert.h>
-#include "../utils/isPrimeTrial.h"   /* isPrimeTrial(seq_t n) returns bool */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* sequence values a(k) */
 static size_t seq_cap = 0;         /* allocated capacity of seq */
@@ -38,7 +40,7 @@ static void ensure_seq_cap(size_t need)
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
         if (new_cap < need)
             new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         assert(tmp != NULL);
         seq = tmp;
         seq_cap = new_cap;
@@ -56,13 +58,13 @@ seq_t a(idx_t n)
     while (seq_len < (size_t)n) {
         /* Find next composite number. */
         while (true) {
-            if (!isPrimeTrial((seq_t)cur_num)) {  /* cur_num is composite */
+            if (!is_prime_seq((seq_t)cur_num)) {  /* cur_num is composite */
                 /* Update cumulative data for this composite. */
                 composite_cnt++;
                 sum_comp += (seq_t)cur_num;
 
                 /* Check if the cumulative sum is composite. */
-                if (!isPrimeTrial(sum_comp)) {  /* sum is composite */
+                if (!is_prime_seq(sum_comp)) {  /* sum is composite */
                     ensure_seq_cap(seq_len + 1);
                     seq[seq_len++] = (seq_t)composite_cnt;
                 }

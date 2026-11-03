@@ -7,15 +7,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of prime factors of n that are ≡ 1 (mod 3),
  *            counted with multiplicity
- * Range:     u8 n <= 9787, u16 n <= 9787, u32 n <= 9787, u64 n <= 9787,
- *            u128 n <= 9787, big any n
- * Helpers:   _smallest_prime_factor
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9787 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     seq_t count = 0;
 
     while (x > 1) {
-        uint64_t p = _smallest_prime_factor(x);
+        uint64_t p = smallest_prime_factor(x);
         if (p == 0 || p == x)   /* x itself is prime */
             p = x;
 

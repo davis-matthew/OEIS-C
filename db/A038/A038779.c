@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64, phi, pow2
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem, pow2, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,10 +27,12 @@
 #include <stddef.h>
 
 /* Helper function headers -------------------------------------------------*/
-#include "../utils/phi.h"                 /* seq_t phi(idx_t m); */
-#include "../utils/pow2.h"                /* seq_t pow2(idx_t exp); */
-#include "../utils/factor_u64.h"          /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/build_primes_upto.h"   /* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/pow2.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 /*  Cached data -----------------------------------------------------------*/
 static idx_t    *prime_list = NULL;  /* primes[0] = 2, primes[1] = 3, ...   */
@@ -90,7 +93,7 @@ seq_t a(idx_t n)
     /* Expand cache if necessary */
     if (n >= cache_size) {
         size_t new_sz = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(value_cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, value_cache, new_sz);
         if (!tmp)   /* allocation failure */
             return (seq_t)0;
 
@@ -127,7 +130,7 @@ seq_t a(idx_t n)
     seq_t sum = (seq_t)0;
     for (size_t i = 0; i < div_cnt; ++i) {
         uint64_t r   = divisors[i];
-        seq_t    phi_r   = phi((idx_t)r);
+        seq_t    phi_r   = totient((idx_t)r);
         idx_t    exp     = (idx_t)((2ULL * p_minus1) / r);
         seq_t    pow2_exp= pow2(exp);
         sum += phi_r * pow2_exp;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   map_idx
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,16 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/map_idx.h"
+#include "../utils/mem.h"
+
+/* ---------- mapping from sequence index to (i,j) ------------------ */
+static void map_idx(idx_t n, idx_t *i, idx_t *j)
+{
+    idx_t s = 0;                          /* sum index */
+    while (((s + 1) * (s + 2)) / 2 <= n) ++s;
+    *i = n - (s * (s + 1)) / 2;
+    *j = s - *i;
+}
 
 /* ---------- local binomial -------------------------------------- */
 static seq_t binom_local(idx_t n, idx_t k)
@@ -53,7 +63,7 @@ static idx_t          n_dim = 0,           /* current max i used in table */
 static bool rebuild_table(idx_t max_n, idx_t max_k)
 {
     size_t new_size = (size_t)(max_n + 1) * (size_t)(max_k + 1);
-    seq_t *new_tbl = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_tbl = mem_new(seq_t, new_size);
     if (!new_tbl) return false;            /* malloc failed */
 
     /* Initialize column k=0 */
@@ -82,7 +92,7 @@ static bool rebuild_table(idx_t max_n, idx_t max_k)
         }
     }
 
-    free(table);
+    mem_free(table);
     table = new_tbl;
     n_dim = max_n + 1;
     k_dim = max_k + 1;

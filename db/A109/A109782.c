@@ -10,12 +10,14 @@
  *            1, a(2) = -2, a(3) = 8, a(4) = -21, a(5) = 54, a(6) = -134
  * Range:     i8 n <= 5, i16 n <= 12, i32 n <= 24, i64 n <= 49, i128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* dynamic array of computed terms   */
 static size_t cap = 0;            /* current allocated capacity       */
@@ -27,7 +29,7 @@ static void ensure_dp(idx_t n)
     /* Initialize on first use. */
     if (dp == NULL) {
         cap = 8;                     /* enough for indices 0..7          */
-        dp = (seq_t *)malloc(cap * sizeof(seq_t));
+        dp = mem_new(seq_t, cap);
         if (dp == NULL) abort();
 
         const seq_t init[7] = {
@@ -49,7 +51,7 @@ static void ensure_dp(idx_t n)
         while (new_cap <= (size_t)n) {
             new_cap <<= 1;
         }
-        seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_cap);
         if (tmp == NULL) abort();
         dp = tmp;
         cap = new_cap;

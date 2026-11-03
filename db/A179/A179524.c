@@ -8,6 +8,7 @@
  *            binomial(2k,k)^2
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 10, i64 n <= 20, i128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

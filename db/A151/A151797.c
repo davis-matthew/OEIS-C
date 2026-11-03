@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   build_primes
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -68,7 +71,7 @@ static void ensure_s4(size_t needed)
     size_t combos = primes_cnt * (primes_cnt - 1) *
                     (primes_cnt - 2) * (primes_cnt - 3) / 24;
 
-    seq_t *tmp = (seq_t *)malloc(combos * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, combos);
     if (!tmp) { free(primes); return; }
 
     size_t pos = 0;
@@ -86,10 +89,10 @@ static void ensure_s4(size_t needed)
         }
     }
 
-    qsort(tmp, combos, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(tmp, combos, sizeof(seq_t), cmp_seq_t);
 
     /* Replace old cache with new sorted array */
-    free(s4_seq);
+    mem_free(s4_seq);
     s4_seq = tmp;
     s4_len = combos;
 

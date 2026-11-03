@@ -10,6 +10,7 @@
  *            binomial coefficient C(n,⌊n/2⌋)
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 38, u64 n <= 70, u128 n <= 150,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 3197 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/build_primes.h"   /* provides:  void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
+#include <stddef.h>
+#include "../utils/build_primes.h"
 
 static idx_t *primes = NULL;          /* array of primes up to max_prime_limit */
 static size_t prime_count = 0;        /* number of primes in the array */

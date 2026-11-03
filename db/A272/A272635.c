@@ -9,7 +9,8 @@
  *            or difference of two Fibonacci numbers (with F(1)=1, F(2)=1)
  * Range:     u8 n <= 62, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9810 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system.
    We rely on seq_t supporting the usual arithmetic and comparison operators.
@@ -34,7 +36,7 @@ static void ensure_fib_limit(seq_t limit)
     /* Allocate initially */
     if (fib_size == 0) {
         fib_cap = 4;
-        fib = (seq_t*)malloc(fib_cap * sizeof(seq_t));
+        fib = mem_new(seq_t, fib_cap);
         if (!fib) return;               /* allocation failed – ignore here */
         fib[0] = (seq_t)1;
         fib[1] = (seq_t)1;
@@ -45,7 +47,7 @@ static void ensure_fib_limit(seq_t limit)
     while (fib[fib_size - 1] <= limit) {
         if (fib_size == fib_cap) {
             fib_cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(fib, fib_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib, fib_cap);
             if (!tmp) return;           /* allocation failed – ignore */
             fib = tmp;
         }

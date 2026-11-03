@@ -7,8 +7,9 @@
  * Formula:   a(0) = 0 a(1) = 9 a(n) = 1 for n >= 2 and even a(n) = 10*n - 2
  *            for n >= 3 and odd (derived from a(n) = -1/2 + (3*(-1)^n)/2 +
  *            5*n - 5*(-1)^n*n for n>1)
- * Range:     u8 n <= 26, u16 n <= 6554, u32 n <= 9354, u64 n <= 9354,
- *            u128 n <= 9354, big any n
+ * Range:     u8 n <= 26, u16 n <= 6554, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 90 terms through n = 9354 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

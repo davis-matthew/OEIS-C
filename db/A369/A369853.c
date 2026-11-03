@@ -10,17 +10,29 @@
  *            * Σ_{c=0}^{min(p,NP(n))} C(NP(n),c)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   alloc_seq_array, build_primes_upto, free_seq_array, pow2
+ * Validated: standard, pass, 51 terms through n = 1964 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/pow2.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

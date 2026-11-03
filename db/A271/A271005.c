@@ -10,12 +10,15 @@
  *            a(2) = 44
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +27,8 @@ seq_t a(idx_t n)
     if (n == 2u) return (seq_t)44;
 
     /* Compute 4^n and 2^n using the provided big integer power routine. */
-    seq_t pow4n = big_pow((seq_t)4, (seq_t)n);  /* 4^n */
-    seq_t pow2n = big_pow((seq_t)2, (seq_t)n);  /* 2^n */
+    seq_t pow4n = ipow((seq_t)4, (seq_t)n);  /* 4^n */
+    seq_t pow2n = ipow((seq_t)2, (seq_t)n);  /* 2^n */
 
     /* Apply the closed‑form: 4*4^n - 6*2^n */
     seq_t term1 = pow4n * (seq_t)4;          /* 4*4^n */

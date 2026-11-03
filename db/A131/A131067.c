@@ -9,6 +9,7 @@
  *            r*(r+1)/2 <= n < (r+1)*(r+2)/2 and k = n - r*(r+1)/2
  * Range:     u8 n <= 38, u16 n <= 142, u32 n <= 574, u64 n <= 2174,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 5140 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

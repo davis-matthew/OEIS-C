@@ -8,7 +8,8 @@
  *            lie entirely within the n‑th century
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------- */
 /* static storage                                                           */
@@ -80,7 +82,7 @@ static void recompute_sieve(idx_t limit)
 /* ------------------------------------------------------------------------- */
 static void recompute_century_counts(idx_t centuries)
 {
-    seq_t *tmp = (seq_t*)calloc(centuries + 1, sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, centuries + 1);
     if (!tmp) exit(EXIT_FAILURE);
 
     for (size_t i = 0; i + 1 < primeCount; ++i) {
@@ -94,7 +96,7 @@ static void recompute_century_counts(idx_t centuries)
         }
     }
 
-    free(centuryCount);
+    mem_free(centuryCount);
     centuryCount = tmp;
     maxCentury   = centuries;
 }

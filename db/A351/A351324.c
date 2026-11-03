@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,19 @@
 */
 
 #include <stdlib.h>                 /* for llabs, malloc, realloc */
-#include "../utils/seq_from_str.h"   /* for seq_from_str */
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 static const long long coeff[16] = {
     22LL,          2351LL,      40670LL,
@@ -71,7 +84,7 @@ static void ensure_cache(idx_t n)
     /* allocate minimal cache if not yet done */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (uint64_t i = 0; i < 16; ++i)
             cache[i] = init_vals[i];
         cache_len = 16;
@@ -81,7 +94,7 @@ static void ensure_cache(idx_t n)
     if (n + 1 > cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap < (size_t)(n + 1)) new_cap *= 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Check whether a decimal number contains the substring 75.
    The number is processed from least‑significant digit to most
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on the first call. */
     if (!cache) {
         cap = 4;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Generate more terms until we have at least n of them. */
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
             /* Grow the cache if necessary. */
             if (cached == cap) {
                 size_t new_cap = cap * 2;
-                seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 cache = new_cache;
                 cap = new_cap;
             }

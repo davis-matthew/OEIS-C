@@ -8,6 +8,7 @@
  * Formula:   a(n) = 4*prime(n)^3 - 27*prime(n)^2, n >= 4
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 172, u64 n <= 6320,
  *            u128 n <= 6320, big any n
+ * Validated: standard, pass, 50 terms through n = 6168 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 /* A static cache of the first primes that we have already computed.

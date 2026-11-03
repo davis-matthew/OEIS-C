@@ -7,6 +7,7 @@
  * Formula:   a(n) = A246839(5*(n-1)), where A246839(m) = Σ_{k=1}^{m} k·v_5(k)
  * Range:     u8 n <= 10, u16 n <= 145, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 63 terms through n = 987 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

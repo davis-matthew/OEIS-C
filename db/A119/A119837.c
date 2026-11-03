@@ -7,13 +7,15 @@
  * Formula:   a(n) = (2n)!/n! - (2n)!/(n-1)! = -(n-1) * (2n)!/n!
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 7, i64 n <= 13, i128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* allocate space for n+1 entries (n could be 0) */
         size_t sz = (size_t)(n + 1);
-        cache = (seq_t *)malloc(sz * sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
         if (cache == NULL) {
             /* In case of allocation failure, terminate the program */
             abort();
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold up to n */
     if (cache && (size_t)(n + 1) > (size_t)(curr_n + 1)) {
         size_t new_sz = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (tmp == NULL) {
             abort();
         }

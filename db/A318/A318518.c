@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   a(n) = A032742(n) AND (n-A032742(n))
- * Range:     u8 n <= 511, u16 n <= 9885, u32 n <= 9885, u64 n <= 9885,
- *            u128 n <= 9885, big any n
+ * Range:     u8 n <= 511, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 119 terms through n = 9885 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

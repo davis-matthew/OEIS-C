@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 11, u16 n <= 30, u32 n <= 40, u64 n <= 40, u128 n <= 40,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 11, u16 n <= 30, u32 n <= 92, u64 n <= 307,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 57 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,13 +24,14 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* 2n is the maximum weight we need.  */
     idx_t limit = 2 * n;
     /* Allocate array dp[0..limit], initialized to zero.  */
-    seq_t *dp = (seq_t *)calloc((size_t)limit + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)limit + 1);
     if (!dp) return 0;  /* out of memory, but allowed for this judge.  */
 
     dp[0] = 1;          /* empty partition */
@@ -45,6 +47,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = dp[limit];
-    free(dp);
+    mem_free(dp);
     return res;
 }

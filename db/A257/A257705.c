@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 186, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 908 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- helper: ensure a boolean array has room for indices < needed ---------- */
 static void ensure_bool_cap(bool **arr, size_t *cap, size_t needed)
@@ -50,7 +52,7 @@ static void ensure_seq_cap(seq_t **arr, size_t *cap, size_t needed)
     size_t newcap = *cap;
     while (newcap <= needed)
         newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, newcap);
     if (!tmp)
         exit(1);
     *arr = tmp;
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
     if (global_a_seq == NULL) {
         /* initial a(1)=0 */
         global_a_cap   = 64;
-        global_a_seq   = (seq_t *)malloc(global_a_cap * sizeof(seq_t));
+        global_a_seq   = mem_new(seq_t, global_a_cap);
         if (!global_a_seq)
             exit(1);
         global_a_seq[0] = (seq_t)0;

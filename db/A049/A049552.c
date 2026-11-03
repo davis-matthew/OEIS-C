@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_u64, mod_pow
+ * Validated: standard, pass, 68 terms through n = 997 (2026-11-03)
+ * Helpers:   gcd_u64, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <math.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/gcd_u64.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Euclidean gcd for 64‑bit unsigned integers */
 
@@ -35,7 +38,7 @@ static inline bool ok_prime(uint64_t p) {
     if (p == 2) return true;               /* 0^20 ≡ 2 (mod 2) */
     uint64_t g = gcd_u64(20ULL, p - 1ULL);
     uint64_t e = (p - 1ULL) / g;
-    return mod_pow((seq_t)2, e, (seq_t)p) == (seq_t)1;
+    return powmod((seq_t)2, e, (seq_t)p) == (seq_t)1;
 }
 
 /* Main sequence function */
@@ -86,7 +89,7 @@ seq_t a(idx_t n) {
                 if (ok_prime(candidate)) {
                     if (cache_size == cache_cap) {
                         cache_cap = cache_cap ? cache_cap << 1 : 8;
-                        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                        cache = mem_resize(seq_t, cache, cache_cap);
                     }
                     cache[cache_size++] = (seq_t) candidate;
                 }

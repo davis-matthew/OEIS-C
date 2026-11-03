@@ -8,17 +8,38 @@
  *            (A059337)
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   append_candidate, gcd, is_prime, mod_pow
+ * Validated: standard, pass, 69 terms through n = 860 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
-#include "../utils/append_candidate.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 static seq_t *found = NULL;       /* array of collected primes */
 static size_t found_len = 0;      /* number of primes stored */
@@ -34,7 +55,7 @@ static void expand_to(idx_t n) {
 
             seq_t g   = gcd((seq_t)35, (seq_t)(cand - 1));
             seq_t exp = ((seq_t)(cand - 1)) / g;
-            seq_t res = mod_pow((seq_t)2, (uint64_t)exp, (seq_t)cand);
+            seq_t res = powmod((seq_t)2, (uint64_t)exp, (seq_t)cand);
 
             if (res != 1) {                       /* no 35th‑root of 2 */
                 append_candidate(&found, &found_len, &found_cap, (seq_t)cand);

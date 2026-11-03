@@ -8,7 +8,8 @@
  * Formula:   a(n) = (1/2) * Σ_{k=1}^{n-1} C(n,k) * c(k) * c(n-k)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* Cache for c(m) = number of labeled cycle graphs of size m */
 static seq_t *c_cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_c_cache(idx_t n)
         return;
 
     size_t new_sz = (size_t)n + 1;   /* indices 0 .. n */
-    seq_t *tmp = (seq_t *)realloc(c_cache, new_sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, c_cache, new_sz);
     if (!tmp) abort();
     c_cache = tmp;
 

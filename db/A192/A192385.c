@@ -8,12 +8,14 @@
  *            a(2) = 1, a(3) = 2, a(4) = 12. Offset: 1
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 35, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 874 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;  /* memoisation table (index starts at 1) */
 static idx_t max_cached = 0; /* largest index already computed */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache at first call */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(5 * sizeof(seq_t));  /* indices 0..4 */
+        cache = mem_new(seq_t, 5);  /* indices 0..4 */
         if (!cache) return (seq_t)0;                 /* allocation failure */
         cache[1] = (seq_t)0;
         cache[2] = (seq_t)1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* Grow cache to cover index n */
     size_t new_size = (size_t)(n + 1);  /* +1 to make index n accessible */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)                       /* allocation failure */
         return (seq_t)0;
     cache = new_cache;

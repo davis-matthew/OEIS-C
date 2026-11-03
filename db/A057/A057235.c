@@ -8,7 +8,8 @@
  *            4^k
  * Range:     u8 n <= 14, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* found terms, in order */
 static size_t cache_len = 0;         /* number of terms stored */
@@ -29,9 +32,9 @@ static idx_t next_candidate = 1;     /* number to test next (>=1) */
 static bool good(idx_t x)
 {
     seq_t mod = (seq_t)x;
-    seq_t r6 = mod_pow(6, x, mod);
-    seq_t r5 = mod_pow(5, x, mod);
-    seq_t r4 = mod_pow(4, x, mod);
+    seq_t r6 = powmod(6, x, mod);
+    seq_t r5 = powmod(5, x, mod);
+    seq_t r4 = powmod(4, x, mod);
     seq_t sum = r6;
     sum += r5;
     sum %= mod;
@@ -48,7 +51,7 @@ static void ensure_cache_size(size_t required)
     size_t newcap = cache_cap ? cache_cap * 2 : 16;
     while (newcap < required)
         newcap *= 2;
-    seq_t *newptr = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, cache, newcap);
     cache = newptr;
     cache_cap = newcap;
 }

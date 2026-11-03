@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 24, u64 n <= 49, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    expansion of sqrt(763).  The code caches computed terms so that calls
    in any order are fast. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached denominators */
 static seq_t *den = NULL;
@@ -30,7 +32,7 @@ static const seq_t K = (seq_t)1439449202;
 static void init_denominators(void)
 {
     /* There are 44 terms (indices 0 … 43) before the recurrence starts. */
-    den = (seq_t *)calloc(44, sizeof(seq_t));
+    den = mem_new(seq_t, 44);
     if (!den) return;         /* allocation failed – unlikely in tests */
 
     /* Continued‑fraction parameters */
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         seq_t val = K * den[i - 22] - den[i - 44];
 
         /* Reallocate one more element */
-        den = (seq_t *)realloc(den, (i + 1) * sizeof(seq_t));
+        den = mem_resize(seq_t, den, (i + 1));
         den[i] = val;
     }
     den_len = n + 1;

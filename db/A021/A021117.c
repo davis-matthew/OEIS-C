@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(10^(n+1)/113) mod 10
  * Range:     u8 n <= 111, u16 n <= 111, u32 n <= 111, u64 n <= 111,
  *            u128 n <= 111, big any n
+ * Validated: partial, pass, 112 terms through n = 111 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

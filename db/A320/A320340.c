@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = n‑th integer satisfying: if prime(m) | a(n) then
  *            prime(2m) ∤ a(n)
- * Range:     u8 n <= 203, u16 n <= 9914, u32 n <= 9914, u64 n <= 9914,
- *            u128 n <= 9914, big any n
- * Helpers:   none
+ * Range:     u8 n <= 203, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 83 terms through n = 9914 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --- Global state ---------------------------------------------- */
 
@@ -136,7 +138,7 @@ static void ensure_cache(idx_t up_to)
     if (cache_cap < (size_t)up_to) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
         while (new_cap < (size_t)up_to) new_cap <<= 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) exit(1);               /* allocation failure */
         cache = new_cache;
         cache_cap = new_cap;

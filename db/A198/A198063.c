@@ -10,6 +10,7 @@
  *            triangle A198063 read by rows
  * Range:     u8 n <= 27, u16 n <= 860, u32 n <= 5150, u64 n <= 5150,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 71 terms through n = 4673 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

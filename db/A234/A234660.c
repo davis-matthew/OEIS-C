@@ -12,7 +12,8 @@
  *            dynamic programming over the 343 possible 3‑digit rows
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 22, u128 n <= 46,
  *            big any n
- * Helpers:   ensure_cache
+ * Validated: standard, pass, 34 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,35 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/ensure_cache.h"   // use ensure_cache from the utils library
+#include "../utils/mem.h"
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
 
 static const idx_t STATES = 343;   /* 7^3 possible rows */
 
@@ -114,8 +143,8 @@ static void build_adj(void) {
 /* initialise DP buffers once */
 static void init_dp(void) {
     if (dp0 != NULL) return;
-    dp0 = (seq_t *)malloc(dp_size * sizeof(seq_t));
-    dp1 = (seq_t *)malloc(dp_size * sizeof(seq_t));
+    dp0 = mem_new(seq_t, dp_size);
+    dp1 = mem_new(seq_t, dp_size);
     /* start with all states count 1 (zero transitions) */
     for (idx_t i = 0; i < dp_size; ++i) dp0[i] = 1;
 }
@@ -132,7 +161,7 @@ seq_t a(idx_t n) {
         /* compute up to n and store values */
         for (idx_t step = max_n_cached + 1; step <= n; ++step) {
             /* zero next dp array */
-            memset(dp1, 0, dp_size * sizeof(seq_t));
+            mem_set(dp1, 0, dp_size * sizeof(seq_t));
 
             /* propagate transitions */
             for (idx_t s = 0; s < dp_size; ++s) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _is_prime_idx
+ * Validated: standard, pass, 81 terms through n = 998 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /* Sequence A228121: Numbers n such that 3*n - 4 is prime. */
 
 #include <stdbool.h>
-#include "../utils/_is_prime_idx.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {
     idx_t m = 2;
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
 
     while (1) {
         idx_t p = (idx_t)3 * m - 4;   /* check if 3*m - 4 is prime */
-        if (_is_prime_idx(p)) {
+        if (is_prime(p)) {
             found++;
             if (found == n) return (seq_t)m;
         }

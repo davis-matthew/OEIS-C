@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{ d | n } (n/d)^(2d)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 62, u128 n <= 122,
  *            big any n
+ * Validated: standard, pass, 54 terms through n = 2619 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

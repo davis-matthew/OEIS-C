@@ -12,15 +12,29 @@
  *            (branches of height exactly h-1), Q = B_{h-2}. a(...
  * Range:     u8 n <= 13, u16 n <= 21, u32 n <= 34, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   a675_ch2, a675_ch3, a675_zeros
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a675_ch2.h"
-#include "../utils/a675_ch3.h"
-#include "../utils/a675_zeros.h"
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
+
+static seq_t a675_ch3(seq_t c) {
+    seq_t x = c, y = c + 1, z = c + 2;
+    if (x % 3 == 0) x /= 3;
+    else if (y % 3 == 0) y /= 3;
+    else z /= 3;
+    if (x % 2 == 0) x /= 2;
+    else y /= 2;
+    return x * y * z;
+}
+
+static seq_t *a675_zeros(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
 
 static seq_t *a675_tab = NULL;
 static idx_t a675_N = 0;
@@ -51,7 +65,7 @@ static void a675_compute(idx_t N) {
                 seq_t c = E[i];
                 seq_t C2 = 0, C3 = 0;
                 if (c == 0) continue;
-                if (2 * i <= K) C2 = a675_ch2(c);
+                if (2 * i <= K) C2 = triangular_seq(c);
                 if (3 * i <= K) C3 = a675_ch3(c);
                 for (k = i + 2 * h; k <= K; k++) {
                     seq_t t = d2[k - i] * c;
@@ -80,16 +94,16 @@ static void a675_compute(idx_t N) {
                     idx_t m = k - 1;
                     seq_t s = cur[m];
                     for (i = 1; 2 * i < m; i++) s += cur[i] * cur[m - i];
-                    if (m % 2 == 0) s += a675_ch2(cur[m / 2]);
+                    if (m % 2 == 0) s += triangular_seq(cur[m / 2]);
                     nxt[k] = s;
                 }
                 tmp = prev; prev = cur; cur = nxt; nxt = tmp;
             }
         }
-        free(prev); free(cur); free(nxt); free(E);
-        free(d1); free(d2); free(d3);
+        mem_free(prev); mem_free(cur); mem_free(nxt); mem_free(E);
+        mem_free(d1); mem_free(d2); mem_free(d3);
     }
-    if (a675_tab != NULL) free(a675_tab);
+    if (a675_tab != NULL) mem_free(a675_tab);
     a675_tab = res;
     a675_N = N;
 }

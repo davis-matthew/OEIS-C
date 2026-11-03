@@ -12,16 +12,35 @@
  *            {0,1}^3 fixed by h^L. Summed over signed cycle...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   a677_from_u128, a860_fixlog, a860_gcd
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a677_from_u128.h"
-#include "../utils/a860_fixlog.h"
-#include "../utils/a860_gcd.h"
+#include "../utils/gcd_u64.h"
+
+static seq_t a677_from_u128(unsigned __int128 v)
+{
+    int i;
+    seq_t r = (seq_t)(uint64_t)(v >> 64);
+    for (i = 0; i < 8; i++) r = r * 256;
+    r += (seq_t)(uint64_t)v;
+    return r;
+}
+
+/* log2 of the number of points of {0,1}^m fixed by g^L, for g of signed cycle type (ks,ps); -1 if none */
+static long long a860_fixlog(const int *ks, const int *ps, int nc, uint64_t L) {
+    long long e = 0;
+    for (int i = 0; i < nc; i++) {
+        uint64_t d = gcd_u64(L, (uint64_t)ks[i]);
+        if (ps[i] && ((L / d) & 1)) return -1;
+        e += (long long)d;
+    }
+    return e;
+}
 
 static int h_cnt;
 static int h_k[16][3], h_p[16][3], h_nc[16];
@@ -52,7 +71,7 @@ static void a860_process_g(void) {
     uint64_t order = 1;
     for (int i = 0; i < cur_nc; i++) {
         uint64_t c = (uint64_t)(cur_p[i] ? 2 * cur_k[i] : cur_k[i]);
-        order = order / a860_gcd(order, c) * c;
+        order = order / gcd_u64(order, c) * c;
     }
     int nd = 0, cap = 64;
     uint64_t *D = (uint64_t *)malloc((size_t)cap * sizeof(uint64_t));

@@ -9,13 +9,15 @@
  *            substring "22" and base‑4(m+1) does NOT contain "22"
  * Range:     u8 n <= 16, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* return true iff the base‑4 representation of x contains "22" */
 static bool has22(seq_t x)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         if (has22(cand) && !has22(cand + 1)) {
             if (size == cap) {    /* grow the array */
                 cap = cap ? cap * 2 : 32;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[size++] = cand;
         }

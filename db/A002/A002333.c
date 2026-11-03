@@ -9,7 +9,8 @@
  *            Found by sieving primes and then searching over y
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a2333_isqrt
+ * Validated: standard, pass, 99 terms through n = 922 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2333_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 static uint64_t *a2333_ps = 0;
 static size_t a2333_cnt = 0;
@@ -58,7 +59,7 @@ seq_t a(idx_t n) {
     p = a2333_ps[n - 1];
     for (y = 1; 2 * y * y <= p; y++) {
         uint64_t rest = p - 2 * y * y;
-        r = a2333_isqrt(rest);
+        r = isqrt_u64(rest);
         if (r * r == rest) return (seq_t)y;
     }
     return 0;

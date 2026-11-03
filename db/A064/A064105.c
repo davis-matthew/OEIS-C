@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 41, u16 n <= 9632, u32 n <= 9632, u64 n <= 9632,
- *            u128 n <= 9632, big any n
- * Helpers:   seq_realloc
+ * Range:     u8 n <= 41, u16 n <= 9632, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 71 terms through n = 9632 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,19 @@
 #include <stdbool.h>
 
 /* Helpers provided by the build. */
-#include "../utils/seq_realloc.h"  /* seq_realloc(seq_t*,size_t,size_t) */
+#include <stdlib.h>
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Internal state: the cached Zeckendorf term list and the
    generated a‑sequence. */

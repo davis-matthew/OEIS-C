@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(6)=30, a(7)=36, a(8)=42, a(9)=46, a(10)=50,
    a(n)=a(n-1)+a(n-9)-a(n-10) for n>10 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         size_t new_cap = (size_t)n + 1;
         if (new_cap < 16) new_cap = 16;
         else if (new_cap < capacity * 2) new_cap = capacity * 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         capacity = new_cap;
     }
 

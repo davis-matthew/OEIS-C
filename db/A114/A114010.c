@@ -9,14 +9,16 @@
  * Formula:   a(n) = nearest prime to n (or n if there is a tie)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     /* Special cases for small n */
@@ -25,19 +27,19 @@ seq_t a(idx_t n) {
     }
 
     /* If n is prime, it is its own nearest prime */
-    if (is_prime((uint64_t)n)) {
+    if (is_prime_u64((uint64_t)n)) {
         return (seq_t)n;
     }
 
     /* Find the nearest lower prime */
     uint64_t lower = n - 1;
-    while (lower >= 2 && !is_prime(lower)) {
+    while (lower >= 2 && !is_prime_u64(lower)) {
         lower--;
     }
 
     /* Find the nearest higher prime */
     uint64_t higher = n + 1;
-    while (!is_prime(higher)) {
+    while (!is_prime_u64(higher)) {
         higher++;
     }
 

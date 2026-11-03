@@ -10,7 +10,8 @@
  *            a(7)=22, a(8)=23, a(9)=45
  * Range:     u8 n <= 14, u16 n <= 30, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* start with room for at least 10 entries (index 0..9) */
         size_t init_cap = 16;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         assert(cache);                     /* abort if allocation fails */
         cap = init_cap;
         /* initialise constant values */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? cap << 1 : 16;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         assert(tmp);                       /* abort if allocation fails */
         cache = tmp;
         cap = new_cap;

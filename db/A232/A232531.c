@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 169, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, has_odd_bad_prime
+ * Validated: standard, pass, 82 terms through n = 8300 (2026-11-01)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,34 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/build_primes.h"
-#include "../utils/has_odd_bad_prime.h"
+
+/* Return true if m has a prime divisor p ≡ 3 or 5 (mod 8) occurring
+   an odd number of times in the prime factorization of m. */
+static bool has_odd_bad_prime(uint64_t m, const idx_t *primes, size_t cnt)
+{
+    while (m > 1) {
+        uint64_t p = 0;
+        /* find the smallest prime factor of m */
+        for (size_t i = 0; i < cnt; ++i) {
+            uint64_t pr = primes[i];
+            if (pr * pr > m) break;
+            if (m % pr == 0) { p = pr; break; }
+        }
+        if (p == 0) p = m;          /* m itself is prime */
+
+        int exp = 0;
+        while (m % p == 0) {
+            m /= p;
+            ++exp;
+        }
+
+        uint64_t mod8 = p & 7ULL;    /* p % 8 */
+        if ( (mod8 == 3ULL || mod8 == 5ULL) && (exp & 1) ) return true;
+    }
+    return false;
+}
 
 static idx_t *prime_list = NULL;
 static size_t prime_cnt  = 0;

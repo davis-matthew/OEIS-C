@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 509, u16 n <= 509, u32 n <= 509, u64 n <= 509,
  *            u128 n <= 509, big any n
- * Helpers:   digits_distinct
+ * Validated: full, pass, 509 terms through n = 509 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/digits_distinct.h"
+
+/* Return true if a four‑digit integer has all distinct decimal digits. */
+static bool digits_distinct(idx_t n)
+{
+    unsigned used = 0;                /* bitmask for digits 0‑9 */
+    while (n > 0) {
+        unsigned d = (unsigned)(n % 10);
+        if (used & (1u << d)) return false;
+        used |= (1u << d);
+        n /= 10;
+    }
+    return true;
+}
 
 #define NUM_DIGPRIMES 510
 #define NUM_DIFFS (NUM_DIGPRIMES - 1)

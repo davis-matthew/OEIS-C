@@ -13,14 +13,31 @@
  *            the two sequences and returns any requested term a...
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 42, u64 n <= 88, u128 n <= 180,
  *            big any n
- * Helpers:   binary_search_seq
+ * Validated: standard, pass, 53 terms through n = 1835 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/binary_search_seq.h"
+#include "../utils/mem.h"
+
+/* binary search: returns 1 if val is found in arr[0..len-1] */
+static int binary_search_seq(const seq_t *arr, size_t len, seq_t val)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = lo + (hi - lo) / 2;
+        if (arr[mid] < val)
+            lo = mid + 1;
+        else if (val < arr[mid])
+            hi = mid;
+        else
+            return 1;
+    }
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,8 +53,8 @@ seq_t a(idx_t n)
         while (new_cap <= (size_t)n) {
             new_cap <<= 1;
         }
-        seq_t *tmpA = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-        seq_t *tmpB = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+        seq_t *tmpA = mem_resize(seq_t, A, new_cap);
+        seq_t *tmpB = mem_resize(seq_t, B, new_cap);
         if (!tmpA || !tmpB) {   /* allocation failed – return 0 as failure mode */
             return (seq_t)0;
         }

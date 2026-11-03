@@ -7,16 +7,19 @@
  * Formula:   a(n) = 4^(2*n)*(4^(2*n)-1)*Bernoulli(2*n)/(2*n)
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 4, i64 n <= 8, i128 n <= 13,
  *            big any n
- * Helpers:   big_pow, binomial, seq_gcd
+ * Validated: standard, pass, 29 terms through n = 100 (2026-11-03)
+ * Helpers:   binomial, gcd, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_gcd.h"
+#include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t num;   /* numerator (may be negative) */
@@ -34,7 +37,7 @@ static void rat_reduce(rat_t *r)
         r->den = -r->den;
         r->num = -r->num;
     }
-    seq_t g = seq_gcd((r->num >= 0 ? r->num : -r->num), r->den);
+    seq_t g = gcd((r->num >= 0 ? r->num : -r->num), r->den);
     if (g > 1) {
         r->num /= g;
         r->den /= g;
@@ -50,7 +53,7 @@ static void ensure_bernoulli(size_t n)
     if (bern_cap <= n) {
         size_t new_cap = bern_cap ? bern_cap : 1;
         while (new_cap <= n) new_cap <<= 1;
-        rat_t *tmp = (rat_t*)realloc(bernoulli, new_cap * sizeof(rat_t));
+        rat_t *tmp = mem_resize(rat_t, bernoulli, new_cap);
         if (!tmp) abort();
         bernoulli = tmp;
         bern_cap = new_cap;
@@ -105,7 +108,7 @@ seq_t a(idx_t n)
     ensure_bernoulli(idx);
 
     /* 4^(2n) */
-    seq_t power = big_pow((seq_t)4, (seq_t)(2 * n));
+    seq_t power = ipow((seq_t)4, (seq_t)(2 * n));
     seq_t power_minus1 = power - 1;
 
     /* Denominator part: B_den * (2n) */
@@ -114,17 +117,17 @@ seq_t a(idx_t n)
     /* Multiply numerators, cancelling with denom when possible. */
     seq_t prod = 1;
     /* Phase 1: multiply by 4^(2n) */
-    seq_t g = seq_gcd(power >= 0 ? power : -power, denom);
+    seq_t g = gcd(power >= 0 ? power : -power, denom);
     if (g > 1) { power /= g; denom /= g; }
     prod *= power;
 
     /* Phase 2: multiply by (4^(2n)-1) */
-    g = seq_gcd(power_minus1 >= 0 ? power_minus1 : -power_minus1, denom);
+    g = gcd(power_minus1 >= 0 ? power_minus1 : -power_minus1, denom);
     if (g > 1) { power_minus1 /= g; denom /= g; }
     prod *= power_minus1;
 
     /* Phase 3: multiply by Bernoulli numerator */
-    g = seq_gcd(bernoulli[idx].num >= 0 ? bernoulli[idx].num : -bernoulli[idx].num, denom);
+    g = gcd(bernoulli[idx].num >= 0 ? bernoulli[idx].num : -bernoulli[idx].num, denom);
     seq_t bnum = bernoulli[idx].num;   /* keep sign */
     if (g > 1) { bnum /= g; denom /= g; }
     prod *= bnum;

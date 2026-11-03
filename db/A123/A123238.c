@@ -10,14 +10,17 @@
  *            + n^116 + n^117 + n^124 + n^125 + n^130
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 1, u128 n <= 1,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     seq_t tn = (seq_t)n;
@@ -31,7 +34,7 @@ seq_t a(idx_t n) {
     const size_t cnt = sizeof(exponents) / sizeof(exponents[0]);
 
     for (size_t i = 0; i < cnt; ++i) {
-        res += seq_pow(tn, exponents[i]);
+        res += ipow_idx(tn, exponents[i]);
     }
     return res;
 }

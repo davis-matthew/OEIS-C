@@ -8,14 +8,16 @@
  *            n-5i)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 35, u128 n <= 64,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 43 terms through n = 198 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the coefficient of x^n in (1+x+x^2+x^3+x^4)^n */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         seq_t sum = (seq_t)0;
         idx_t max_i = n / 5u;
         for (idx_t i = 0u; i <= max_i; ++i) {
-            seq_t term = binom(n, i);
+            seq_t term = binomial(n, i);
 
             idx_t k = n - 5u * i;
             idx_t N = 2u * n - 5u * i - 1u;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         __int128 sum = 0;
         idx_t max_i = n / 5u;
         for (idx_t i = 0u; i <= max_i; ++i) {
-            __int128 term = (__int128)binom(n, i);
+            __int128 term = (__int128)binomial(n, i);
 
             idx_t k = n - 5u * i;
             idx_t N = 2u * n - 5u * i - 1u;

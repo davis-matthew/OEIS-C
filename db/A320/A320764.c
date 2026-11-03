@@ -11,14 +11,17 @@
  *            1. This recursive relation is used for all n ≥ 0
  * Range:     u8 n <= 9, u16 n <= 11, u32 n <= 15, u64 n <= 21, u128 n <= 33,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 34 terms through n = 411 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binom.h"   /* declares seq_t binom(idx_t a, idx_t b); */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,24 +34,24 @@ seq_t a(idx_t n)
     if (n > cache_size) {
         /* Allocate new arrays of size n+1 */
         idx_t new_size = n + 1;
-        seq_t *new_f7 = (seq_t *)malloc(new_size * sizeof(seq_t));
-        seq_t *new_f8 = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_f7 = mem_new(seq_t, new_size);
+        seq_t *new_f8 = mem_new(seq_t, new_size);
         if (!new_f7 || !new_f8) {
             abort(); /* allocations failed */
         }
 
         /* Copy existing data or initialize base case */
         if (cache_size > 0) {
-            memcpy(new_f7, F7, (cache_size + 1) * sizeof(seq_t));
-            memcpy(new_f8, F8, (cache_size + 1) * sizeof(seq_t));
+            mem_copy(new_f7, F7, (cache_size + 1) * sizeof(seq_t));
+            mem_copy(new_f8, F8, (cache_size + 1) * sizeof(seq_t));
         } else {
             new_f7[0] = (seq_t)1;
             new_f8[0] = (seq_t)1;
         }
 
         /* Free old arrays */
-        free(F7);
-        free(F8);
+        mem_free(F7);
+        mem_free(F8);
 
         F7 = new_f7;
         F8 = new_f8;
@@ -63,10 +66,10 @@ seq_t a(idx_t n)
             idx_t limit8 = (i < 8) ? i : 8;
 
             for (idx_t j = 1; j <= limit7; ++j) {
-                sum7 += binom(i, j) * F7[i - j];
+                sum7 += binomial(i, j) * F7[i - j];
             }
             for (idx_t j = 1; j <= limit8; ++j) {
-                sum8 += binom(i, j) * F8[i - j];
+                sum8 += binomial(i, j) * F8[i - j];
             }
 
             F7[i] = sum7;

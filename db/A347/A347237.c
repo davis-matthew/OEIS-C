@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   not stated
- * Range:     u8 n <= 63, u16 n <= 2047, u32 n <= 9235, u64 n <= 9235,
- *            u128 n <= 9235, big any n
- * Helpers:   big_pow
+ * Range:     u8 n <= 63, u16 n <= 2047, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 115 terms through n = 9235 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stddef.h>
 
 /* include utilities for exact integer operations */
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* ---------- prime sieve ---------- */
 #define PRIME_SIEVE_LIMIT 200000        /* sufficient for all n up to 10 000 */
@@ -101,7 +102,7 @@ static seq_t _a_prime_power(uint32_t p, unsigned e)
 
     /* T2 = (mp-1)*(mp^e - term1)/(mp+p)  (mp = next_prime(p)) */
     uint32_t mp = _next_prime(p);
-    seq_t mp_pow = big_pow((seq_t)mp, (seq_t)e);
+    seq_t mp_pow = ipow((seq_t)mp, (seq_t)e);
     __int128 num = (__int128)(mp - 1) * ( ( __int128)mp_pow - term1 );
     __int128 denom = (__int128)(mp + p);
     __int128 term2 = num / denom;   /* division is exact */

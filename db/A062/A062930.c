@@ -11,7 +11,8 @@
  *            0,1,2,3,4,129,130,259,260,…
  * Range:     u8 n <= 5, u16 n <= 27, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* realloc */
 #include <stdbool.h>  /* bool */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* array of found terms */
 static size_t cache_len = 0;        /* number of terms in cache      */
@@ -29,7 +31,7 @@ static idx_t next_candidate = 0;    /* next integer to test (0,1,2,…) */
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     cache = new_ptr;
     cache_cap = new_cap;
 }

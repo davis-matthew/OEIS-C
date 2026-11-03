@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 27, i16 n <= 48, i32 n <= 57, i64 n <= 57, i128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
       a(n)=a(n-2)-2*a(n-4)+a(n-5)   for n≥6. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (target >= cap)
     {
         size_t new_cap = target + 1;          /* one extra slot for 0‑index */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             return (seq_t)0;                  /* allocation failure */
         cache = tmp;

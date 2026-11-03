@@ -11,13 +11,15 @@
  *            with b(1)=1 and b(k) = (b(k−1) OR 2*b(k−1)) + b(k−2)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_vals = NULL;           /* a(n) values              */
 static uint64_t **bitsets = NULL;      /* per‑n predecessor bitsets*/
@@ -29,7 +31,7 @@ static size_t words_per = 0;           /* number of 64‑bit words per bitset */
 static void compute_upto(idx_t limit)
 {
     /* free previous data if necessary */
-    if (a_vals) free(a_vals);
+    if (a_vals) mem_free(a_vals);
     if (bitsets) {
         for (idx_t i = 0; i <= max_generated; ++i)
             free(bitsets[i]);
@@ -37,7 +39,7 @@ static void compute_upto(idx_t limit)
     }
 
     max_generated = limit;
-    a_vals = (seq_t *)calloc((size_t)(max_generated + 1), sizeof(seq_t));
+    a_vals = mem_new(seq_t, (size_t)(max_generated + 1));
     bitsets = (uint64_t **)calloc((size_t)(max_generated + 1), sizeof(uint64_t *));
     words_per = ((size_t)max_generated + 63) / 64 + 1;   /* safety padding */
 

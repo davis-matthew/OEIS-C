@@ -9,6 +9,7 @@
  *            of n has a 1 at position i (cf. A278038)
  * Range:     u8 n <= 41, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            are rounded down
  * Range:     u8 n <= 13, u16 n <= 858, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 8462 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state ----------------------------------------------------------- */
 static idx_t *prime_list = NULL;   /* primes themselves, indices 0..prime_count-1   */
@@ -32,7 +34,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = prime_cap ? (prime_cap << 1) : 128;
     while (new_cap < needed) new_cap <<= 1;
     prime_list   = (idx_t*)realloc(prime_list  , new_cap * sizeof(idx_t));
-    prefix_sums  = (seq_t*)realloc(prefix_sums, new_cap * sizeof(seq_t));
+    prefix_sums  = mem_resize(seq_t, prefix_sums, new_cap);
     prime_cap    = new_cap;
 }
 

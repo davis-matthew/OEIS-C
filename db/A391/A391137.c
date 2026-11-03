@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Small prime sieve (up to a fixed limit sufficient for k up to ~1e5). */
@@ -147,7 +149,7 @@ ensure_capacity(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t newcap = (*cap == 0U) ? 16U : (*cap << 1U);
         while (newcap < need) newcap <<= 1U;
-        seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
         *arr = tmp ? tmp : *arr;            /* retain old on fail */
         *cap = newcap;
     }

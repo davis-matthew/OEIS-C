@@ -8,12 +8,14 @@
  * Formula:   a(0)=4, a(1)=17, a(n+1) = ceil(a(n)^2/a(n-1)) – 1 for n>0
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t seq_cache_sz = 0;
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     {
         idx_t capacity = (n > 1 ? n + 1 : 2);
         seq_cache_cap = capacity;
-        seq_cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, capacity);
         seq_cache[0] = (seq_t)4;
         seq_cache[1] = (seq_t)17;
         seq_cache_sz = 2; /* first two terms are ready */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         if (n + 1 > seq_cache_cap)
         {
             seq_cache_cap = (seq_cache_cap * 2 > n + 1) ? seq_cache_cap * 2 : n + 1;
-            seq_cache = (seq_t *)realloc(seq_cache, seq_cache_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, seq_cache_cap);
         }
         /* compute missing terms using recurrence */
         for (idx_t i = seq_cache_sz; i <= n; ++i)

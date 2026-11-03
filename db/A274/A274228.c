@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   binom, floor_sqrt
+ * Validated: partial, pass, 78 terms through n = 80 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,8 +34,26 @@
 */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -70,9 +89,9 @@ seq_t a(idx_t n)
     idx_t A = (r + k - 2) >> 1;                /* ⌊(n+k-2)/2⌋          */
     idx_t B = (r + k - 3) >> 1;                /* ⌊(n+k-3)/2⌋          */
 
-    seq_t term1 = binom(A, k + 1);
-    seq_t term2 = binom(B, k + 1);
-    seq_t term3 = binom(B, k);
+    seq_t term1 = binomial(A, k + 1);
+    seq_t term2 = binomial(B, k + 1);
+    seq_t term3 = binomial(B, k);
 
     seq_t result = ((seq_t)(k + 1)) * (term1 + term2) + ((seq_t)2) * term3;
     return result;

@@ -10,12 +10,15 @@
  *            triangle read by rows of OEIS A176794
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 91, u64 n <= 325,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 61 terms through n = 1313 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
 

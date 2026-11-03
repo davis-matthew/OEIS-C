@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4922, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   sopf
+ * Validated: standard, pass, 107 terms through n = 4621 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,21 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/sopf.h"
+#include "../utils/mem.h"
+
+/* local implementation of sopf for 64‑bit values */
+static seq_t sopf(uint64_t x)
+{
+    seq_t sum = 0;
+    for (uint64_t p = 2; p * p <= x; ++p) {
+        if (x % p == 0) {
+            sum += (seq_t)p;
+            while (x % p == 0) x /= p;
+        }
+    }
+    if (x > 1) sum += (seq_t)x;
+    return sum;
+}
 
 /* dynamic cache */
 static seq_t *cache = NULL;
@@ -36,7 +51,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_cap) return;
     size_t newcap = cache_cap ? cache_cap : 4;
     while (newcap <= n) newcap <<= 1;
-    cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newcap);
     computed = (bool *)realloc(computed, newcap * sizeof(bool));
     for (idx_t i = cache_cap; i < newcap; ++i) computed[i] = false;
     cache_cap = newcap;
@@ -47,7 +62,7 @@ seq_t a(idx_t n)
 {
     if (!cache) {
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         computed = (bool *)malloc(cache_cap * sizeof(bool));
         for (idx_t i = 0; i < cache_cap; ++i) computed[i] = false;
         cache[0] = 0; cache[1] = 2;

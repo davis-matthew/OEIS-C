@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *p_cache = NULL;        /* partition numbers modulo 256 */
 static size_t p_cap   = 0;            /* capacity of p_cache */
@@ -39,7 +41,7 @@ static void ensure_p_capacity(size_t size)
     size_t new_cap = (p_cap == 0) ? 128 : p_cap;
     while (new_cap <= size)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(p_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, p_cache, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);
     p_cache = tmp;
@@ -54,7 +56,7 @@ static void ensure_found_capacity(size_t size)
     size_t new_cap = (found_cap == 0) ? 256 : found_cap;
     while (new_cap <= size)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(found, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, found, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);
     found = tmp;

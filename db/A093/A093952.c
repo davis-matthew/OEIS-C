@@ -9,12 +9,14 @@
  *            is performed modulo n
  * Range:     u8 n <= 270, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 4846 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     /* Allocate array to hold partition values modulo n */
     idx_t limit = n;
-    seq_t *p = (seq_t *)malloc(sizeof(seq_t) * (limit + 1));
+    seq_t *p = mem_new(seq_t, (limit + 1));
     if (!p) return (seq_t)0;                     /* allocation failure */
 
     /* Base case: p(0) = 1 (mod n) */
@@ -64,6 +66,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = p[limit];
-    free(p);
+    mem_free(p);
     return result;
 }

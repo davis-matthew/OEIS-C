@@ -9,7 +9,8 @@
  *            triangle read by rows. a(0) = 1, a(1) = 0, a(2) = 0, a(3) = 1, …
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 56, u64 n <= 132,
  *            u128 n <= 342, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 930 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* linear store of all a(n) values */
 static size_t cache_cap = 0;         /* allocated capacity of cache */
@@ -37,7 +39,7 @@ static void ensure_cache_cap(idx_t n)
     size_t new_cap = cache_cap ? cache_cap : 4;
     while ((size_t)n + 1 > new_cap)
         new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     cache     = new_cache;
     cache_cap = new_cap;
 }
@@ -52,7 +54,7 @@ static void build_to_index(idx_t n)
         cache_size = 1;
 
         /* allocate storage for row 0 */
-        row_prev    = (seq_t *)malloc(1 * sizeof(seq_t));
+        row_prev    = mem_new(seq_t, 1);
         row_prevprev = NULL;
         row_prev[0] = (seq_t)1;
         prev_len    = 1;
@@ -66,7 +68,7 @@ static void build_to_index(idx_t n)
         ++current_row;
         size_t cur_len = current_row / 2 + 1;
 
-        seq_t *new_row = (seq_t *)malloc(cur_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, cur_len);
 
         for (size_t k = 0; k < cur_len; ++k) {
             seq_t val;
@@ -90,7 +92,7 @@ static void build_to_index(idx_t n)
         }
 
         /* advance the row pointers */
-        free(row_prevprev);
+        mem_free(row_prevprev);
         row_prevprev = row_prev;
         prevprev_len = prev_len;
         row_prev    = new_row;

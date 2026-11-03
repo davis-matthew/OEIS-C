@@ -13,13 +13,64 @@
  *            elements). The number of accepted words of length n is th...
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 22, u64 n <= 46, u128 n <= 94,
  *            big any n
- * Helpers:   build_automaton
+ * Validated: standard, pass, 43 terms through n = 202 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/build_automaton.h"
+
+static void build_automaton(uint16_t trans[12][4],
+                            uint16_t nextMask[4096][4],
+                            uint16_t state_id[4][4])
+{
+    /* Build mapping from ordered pairs (x,y), x!=y, to state indices (0..11) */
+    int state_cnt = 0;
+    for (int i = 0; i < 4; ++i)
+        for (int j = 0; j < 4; ++j)
+            state_id[i][j] = -1;
+
+    struct {int x, y;} states[12];
+    for (int x = 0; x < 4; ++x)
+        for (int y = 0; y < 4; ++y) {
+            if (x == y) continue;
+            state_id[x][y] = state_cnt;
+            states[state_cnt].x = x;
+            states[state_cnt].y = y;
+            ++state_cnt;          /* state_cnt will be 12 */
+        }
+
+    /* Transition table for each state and input symbol */
+    for (int s = 0; s < 12; ++s) {
+        int x = states[s].x;
+        int y = states[s].y;
+        for (int a = 0; a < 4; ++a)
+            trans[s][a] = 0;
+        for (int z = 0; z < 4; ++z) {
+            if (z == y) continue;
+            /* Compute median of (x, y, z) */
+            int minxy = x < y ? x : y;
+            int maxxy = x > y ? x : y;
+            int minxyz = minxy < z ? minxy : z;
+            int maxxyz = maxxy > z ? maxxy : z;
+            int median = x + y + z - minxyz - maxxyz;
+            int t = state_id[y][z];
+            trans[s][median] |= (1u << t);
+        }
+    }
+
+    /* Subset (DFA) transition table */
+    for (uint32_t mask = 0; mask < (1u << 12); ++mask) {
+        for (int a = 0; a < 4; ++a) {
+            uint16_t accum = 0;
+            for (int k = 0; k < 12; ++k)
+                if (mask & (1u << k))
+                    accum |= trans[k][a];
+            nextMask[mask][a] = accum;
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

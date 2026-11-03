@@ -7,13 +7,15 @@
  * Formula:   a(1) = a(2) = 1; a(n) = sum_{d|n-2} φ(d) * a((n-2)/d) (n≥3)
  * Range:     u8 n <= 25, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Simple integer square‑root for idx_t (≤ 64‑bit)                     */
@@ -32,13 +34,13 @@ static inline idx_t int_isqrt(idx_t n)
 static seq_t *realloc_seq(seq_t *old, size_t old_cap, size_t new_cap)
 {
     /* new_cap is the maximum valid index we want to support   */
-    seq_t *newp = (seq_t *)malloc((new_cap + 1) * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, (new_cap + 1));
     if (!newp) exit(1);
     if (old)
     {
         for (size_t i = 0; i <= old_cap; ++i)
             newp[i] = old[i];
-        free(old);
+        mem_free(old);
     }
     return newp;
 }
@@ -51,7 +53,7 @@ static size_t phi_cap   = 0;   /* maximum index computed (inclusive) */
 
 static void recompute_phi(size_t new_cap)
 {
-    seq_t *new_phi = (seq_t *)malloc((new_cap + 1) * sizeof(seq_t));
+    seq_t *new_phi = mem_new(seq_t, (new_cap + 1));
     if (!new_phi) exit(1);
 
     for (size_t i = 0; i <= new_cap; ++i)
@@ -66,7 +68,7 @@ static void recompute_phi(size_t new_cap)
         }
     }
 
-    free(phi_cache);
+    mem_free(phi_cache);
     phi_cache = new_phi;
     phi_cap   = new_cap;
 }

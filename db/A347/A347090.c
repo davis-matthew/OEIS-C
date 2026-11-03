@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, mult, look
  * Formula:   not stated
- * Range:     i8 n <= 48, i16 n <= 9885, i32 n <= 9885, i64 n <= 9885,
- *            i128 n <= 9885, big any n
+ * Range:     i8 n <= 48, i16 n <= 12209, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 90 terms through n = 9885 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 176, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   include_k
+ * Validated: standard, pass, 94 terms through n = 9857 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,35 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/include_k.h"
+
+/* Test whether k should be in the sequence */
+static bool include_k(idx_t k)
+{
+    /* Count exponent of 2 */
+    unsigned a = 0;
+    idx_t temp = k;
+    while ((temp & 1ULL) == 0) {
+        a++;
+        temp >>= 1;
+    }
+
+    /* Compute parity of the sum of exponents of odd primes (E) */
+    bool E_parity = false;                 /* false => even, true => odd */
+    idx_t odd = temp;                       /* remaining odd part */
+    for (idx_t p = 3; p * p <= odd; p += 2) {
+        while (odd % p == 0) {
+            odd /= p;
+            E_parity = !E_parity;
+        }
+    }
+    if (odd > 1) {
+        /* Remaining prime factor has exponent 1 */
+        E_parity = !E_parity;
+    }
+
+    /* Seal: keep if a == 1 OR E_parity == true */
+    return (a == 1) || E_parity;
+}
 
 /* Static cache of sequence values (stored as idx_t) */
 static idx_t  *seq_vals      = NULL;

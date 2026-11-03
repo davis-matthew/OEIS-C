@@ -10,15 +10,27 @@
  *            where L = Σ_{k=1..n} digit_count(k) and U = concat(1,2,…,n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 13, u128 n <= 23,
  *            big any n
- * Helpers:   digit_count, gcd, pow10
+ * Validated: standard, pass, 33 terms through n = 366 (2026-11-01)
+ * Helpers:   gcd, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <math.h>
 #include "../utils/gcd.h"
-#include "../utils/digit_count.h"
+#include "../utils/num_digits0.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +46,7 @@ seq_t a(idx_t n)
     seq_t U = (seq_t)0;
     idx_t L = 0;
     for (idx_t k = 1; k <= n; ++k) {
-        uint64_t d = digit_count(k);
+        uint64_t d = num_digits0(k);
         L += d;
         seq_t mult = pow10_digit[d];
         seq_t kseq = (seq_t)k;

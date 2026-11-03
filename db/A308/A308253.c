@@ -12,7 +12,8 @@
  *            for non‑primality using a dynamic sieve of Erato...
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Dynamic prime table ------------------------------------------------ */
@@ -83,15 +85,14 @@ seq_t a(idx_t n)
 {
     /* Expand caches if necessary */
     if (n + 1 > cache_cap) {
-        seq_t *newc = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *newc = mem_resize(seq_t, cache, (n + 1));
         uint8_t *newp = (uint8_t *)realloc(cached, (n + 1) * sizeof(uint8_t));
         if (!newc || !newp)
             abort();
 
         /* Zero any newly added entries */
         if (cache_cap > 0) {
-            memset(newc + cache_cap, 0,
-                   (n + 1 - cache_cap) * sizeof(seq_t));
+            mem_set(newc + cache_cap, 0, (n + 1 - cache_cap) * sizeof(seq_t));
             memset(newp + cache_cap, 0,
                    (n + 1 - cache_cap) * sizeof(uint8_t));
         }

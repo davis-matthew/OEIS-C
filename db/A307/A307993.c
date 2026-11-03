@@ -8,7 +8,8 @@
  * Formula:   a(1)=a(2)=a(3)=1; for n >= 1, a(n+3) = Σ_{d|n} a(d)
  * Range:     u8 n <= 53, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array holding a[1 .. n]  */
 static idx_t cache_cap = 0;      /* current capacity of 'cache' */
@@ -26,7 +28,7 @@ static void compute_to(idx_t n)
 {
     /* Allocate or enlarge the cache if necessary.  The array is 1‑indexed. */
     if (cache_cap < n + 1) {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         if (!cache) abort();
         cache_cap = n + 1;
     }

@@ -13,7 +13,8 @@
  *            −21 a(n‑19) −27 a(n‑20) − 6 a(n‑21) for n >...
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 49, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* 1‑indexed cache of computed terms   */
 static size_t cache_cap = 0;       /* current allocated size (>=n+1)      */
@@ -33,7 +35,7 @@ static void ensure_cache(size_t need)
     {
         size_t new_cap = cache_cap ? cache_cap * 2 : 32;
         if (new_cap < need) new_cap = need;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         if (!seq) exit(EXIT_FAILURE); /* allocation failed */
         /* zero the new part – not strictly needed but harmless */
         for (size_t i = cache_cap; i < new_cap; ++i) seq[i] = 0;

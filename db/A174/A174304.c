@@ -8,12 +8,15 @@
  * Formula:   a(n) = (-1)^(n*(n-1)*(n-2)/2) * n^(n^2) - 1
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 3, i64 n <= 5, i128 n <= 6,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +24,7 @@ seq_t a(idx_t n)
         return 0;               /* 1^1 - 1 = 0 */
 
     idx_t exp64 = n * n;         /* n^2 */
-    seq_t result = big_pow((seq_t)n, (seq_t)exp64); /* n^(n^2) */
+    seq_t result = ipow((seq_t)n, (seq_t)exp64); /* n^(n^2) */
 
     /* Compute the sign factor (-1)^(n*(n-1)*(n-2)/2) */
     idx_t t = n;

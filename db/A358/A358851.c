@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 729, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_frequencies
+ * Validated: standard, pass, 96 terms through n = 9389 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stdlib.h>   /* realloc */
 
 /* The utilities provide a way to count the decimal digits of a value. */
+#include <stdbool.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
 
 /* Global state for memoisation. */
 static seq_t *cache = NULL;           /* computed a(n) values */
@@ -60,7 +63,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         /* Compute the new size for the cache. */
         idx_t new_len = n + 1;
-        cache = (seq_t *)realloc(cache, (size_t)new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)new_len);
 
         /* Initialise the first term on the very first expansion. */
         if (cache_len == 0) {

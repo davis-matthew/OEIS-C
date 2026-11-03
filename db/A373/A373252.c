@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if the exponent of 2 in n equals the maximal exponent
  *            among all prime factors of n; otherwise 0
- * Range:     u8 n <= 9769, u16 n <= 9769, u32 n <= 9769, u64 n <= 9769,
- *            u128 n <= 9769, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 141 terms through n = 9769 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@
 
 /* Helper to factor a 64‑bit integer into primes and exponents.
    The header and function signature are provided by the build. */
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Maximum number of distinct prime factors expected for 64‑bit values. */

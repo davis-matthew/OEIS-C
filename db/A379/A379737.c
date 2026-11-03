@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cache for precomputed rows: row_cache[r] -> array of size r+1
  * where counts[k] = T(r,k).  Index 0 is unused. */
@@ -72,7 +74,7 @@ static seq_t *get_row_counts(uint64_t r)
         return row_cache[r];
 
     /* Allocate and zero-initialize the counts array. */
-    seq_t *counts = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *counts = mem_new(seq_t, (r + 1));
     if (!counts)
         return NULL;
     for (uint64_t i = 0; i <= r; ++i)

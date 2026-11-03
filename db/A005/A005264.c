@@ -10,13 +10,23 @@
  *            C(m,k)*a(k)*a(m-k+1), e(m+1) = Sum_{k=0..m} C(m,k)*a(k+1)*e(m-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   grow_vals
+ * Validated: standard, pass, 35 terms through n = 341 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/grow_vals.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_vals(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *av = NULL;   /* av[k] = a(k) */
 static seq_t *ev = NULL;   /* ev[k] = e(k) */

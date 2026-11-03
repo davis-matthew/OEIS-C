@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   pow2, powmod2
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,18 @@
 
 /* Helper: pow2 is provided in utils */
 #include "../utils/pow2.h"
-#include "../utils/powmod2.h"
+
+/* Modular exponentiation (base=2) with 64‑bit exponent and 32‑bit mod. */
+static uint32_t powmod2(uint64_t exp, uint32_t mod) {
+    uint64_t res = 1;
+    uint64_t base = 2 % mod;
+    while (exp) {
+        if (exp & 1) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return (uint32_t)res;
+}
 
 /* Sieve primes up to MAX_PRIME.  Used for factorisations. */
 #define MAX_PRIME 20000

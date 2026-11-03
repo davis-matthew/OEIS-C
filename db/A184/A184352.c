@@ -12,13 +12,15 @@
  *            remainder r = 1296·n – S – 1296·x(6) in the interv...
  * Range:     u8 n <= 11, u16 n <= 37, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* DP range: maximum possible sum of x(2..5) */
     idx_t L = 978 * n;                     /* 16+81+256+625 = 978 */
-    seq_t *dp   = (seq_t*)calloc((size_t)(L + 1), sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (size_t)(L + 1));
     if (!dp)
         return (seq_t)0;
 
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
 
     for (int var = 0; var < 4; ++var) {
         idx_t c = coeffs[var];
-        seq_t *newdp = (seq_t*)calloc((size_t)(L + 1), sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, (size_t)(L + 1));
         if (!newdp) {
-            free(dp);
+            mem_free(dp);
             return (seq_t)0;
         }
 
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(dp);
+        mem_free(dp);
         dp = newdp;
     }
 
@@ -84,6 +86,6 @@ seq_t a(idx_t n)
         total += ways;
     }
 
-    free(dp);
+    mem_free(dp);
     return total;
 }

@@ -9,6 +9,7 @@
  *            k = n - (m-1)*m/2
  * Range:     u8 n <= 75, u16 n <= 296, u32 n <= 1124, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 94 terms through n = 1156 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

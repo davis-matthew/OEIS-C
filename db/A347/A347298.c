@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9127 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Sequence A347298: Numbers that contain an even digit d immediately followed by a digit <= d. */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Check whether x satisfies the property.  x may be larger than the range of seq_t. */
 static bool satisfies(uint64_t x)
@@ -48,9 +50,9 @@ seq_t a(idx_t n)
             new_cap = n;
 
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, new_cap);
         } else {
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL) {
                 /* Allocation failed; abort with some safe value. */
                 abort();

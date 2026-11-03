@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 8929, u16 n <= 8929, u32 n <= 8929, u64 n <= 8929,
- *            u128 n <= 8929, big any n
- * Helpers:   _floor_isqrt_u64
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 121 terms through n = 8929 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,13 +16,13 @@
 /* Computation: a(n) = 1 if (row % col == 0) where (row, col) is the position of
    n in the anti‑diagonal scan of the infinite matrix T(i,j)=1 if j|i else 0;
    otherwise 0. */
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* undefined for n = 0, return 0 */
 
     /* Find the antidiagonal index d such that d(d+1)/2 >= n */
-    idx_t d = (_floor_isqrt_u64(8*n - 7) - 1) / 2;
+    idx_t d = (isqrt(8*n - 7) - 1) / 2;
     while ((unsigned __int128)d * (d + 1) / 2 < n) ++d;
 
     /* Sum of elements in all previous diagonals */

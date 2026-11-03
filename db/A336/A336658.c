@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 19, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 9802 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve (once, up to a fixed limit) ---------- */
 static uint64_t *prime_list   = NULL;   /* array of primes */
@@ -78,7 +80,7 @@ static void ensure_cache_capacity(size_t need)
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
     if (new_cap < need)
         new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;          /* allocation failure – ignore in contest */
     cache = tmp;
     cache_cap = new_cap;

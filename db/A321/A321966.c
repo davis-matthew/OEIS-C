@@ -10,12 +10,14 @@
  *            by rows gives the seq
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find row r and column k: row r has r+1 entries,
@@ -45,10 +47,10 @@ seq_t a(idx_t n) {
 
     /* Allocate workspace: four rows of length r+1. */
     size_t len = (size_t)(r + 1);
-    seq_t *p0 = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *p1 = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *p2 = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *p3 = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *p0 = mem_new(seq_t, len);
+    seq_t *p1 = mem_new(seq_t, len);
+    seq_t *p2 = mem_new(seq_t, len);
+    seq_t *p3 = mem_new(seq_t, len);
     if (!p0 || !p1 || !p2 || !p3) return (seq_t)0;  /* safety */
 
     /* Initialize all entries to 0 */
@@ -92,10 +94,10 @@ seq_t a(idx_t n) {
     seq_t result = p2[k];   /* row r now stored in p2 */
 
     /* Free allocated memory */
-    free(p0);
-    free(p1);
-    free(p2);
-    free(p3);
+    mem_free(p0);
+    mem_free(p1);
+    mem_free(p2);
+    mem_free(p3);
 
     return result;
 }

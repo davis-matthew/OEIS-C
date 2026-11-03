@@ -11,13 +11,15 @@
  *            with no consecutive zero, G(L) = number of length‑...
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ----------  cached tables ---------------- */
 static uint64_t *phi_arr = NULL;   /* Euler totient   */
@@ -32,8 +34,8 @@ static void init_up_to(idx_t n)
 
     size_t N = (size_t)n;
     phi_arr = (uint64_t*)realloc(phi_arr, (N + 1) * sizeof(uint64_t));
-    T_arr   = (seq_t*)   realloc(T_arr,   (N + 1) * sizeof(seq_t));
-    G_arr   = (seq_t*)   realloc(G_arr,   (N + 1) * sizeof(seq_t));
+    T_arr   = mem_resize(seq_t, T_arr, (N + 1));
+    G_arr   = mem_resize(seq_t, G_arr, (N + 1));
 
     /* --- Euler totient ------------------------------------- */
     for (size_t i = 0; i <= N; ++i) phi_arr[i] = i;

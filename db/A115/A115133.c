@@ -7,11 +7,13 @@
  * Formula:   a(n) = Σ_{i=0}^6 coeff[i] * binomial(n+8-i, 8)
  * Range:     u8 none, u16 n <= 5, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

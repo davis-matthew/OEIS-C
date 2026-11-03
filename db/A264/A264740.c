@@ -8,6 +8,7 @@
  *            (p^(k+1)-1)/(p-1) for odd p
  * Range:     u8 n <= 16, u16 n <= 1464, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 80 terms through n = 8665 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Computes the sum of odd parts of all divisors of n (OEIS A264740). */

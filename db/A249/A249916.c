@@ -7,12 +7,14 @@
  * Formula:   a(n) = 4*(n - 1) - a(n-3), with a(0)=1, a(1)=1, a(2)=5
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
             newCap = n + 1 + ((n + 1) / 10) + 10;
 
         /* Reallocate the underlying array */
-        seq_t *tmp = (seq_t *)realloc(seq, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, newCap);
         if (!tmp) abort();
         seq = tmp;
 

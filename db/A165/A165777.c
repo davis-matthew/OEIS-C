@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   p_n
+ * Validated: standard, pass, 40 terms through n = 496 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,15 @@
 */
 
 #include <stdlib.h>
-#include "../utils/p_n.h"
+#include "../utils/mem.h"
+
+static inline seq_t p_n(idx_t i)
+{
+    if (i == (idx_t)0) return (seq_t)1;
+    if (i >= (idx_t)1 && i <= (idx_t)9) return (seq_t)2;
+    if (i == (idx_t)10) return (seq_t)1;
+    return (seq_t)0;
+}
 
 /* allocate or grow the memoisation table up to index n */
 static seq_t *seq = NULL;          /* array of computed terms */
@@ -44,7 +53,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= seq_len)
     {
         size_t new_len = (size_t)n + 1;
-        seq = (seq_t *)realloc(seq, new_len * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_len);
         for (size_t i = seq_len; i < new_len; ++i)
         {
             seq_t sum = (seq_t)0;

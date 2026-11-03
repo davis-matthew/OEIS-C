@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Find the row (m) that contains the flattened index n.
  * Row m has length m and the total number of elements up to row m is
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         /* generate rows incrementally up to row m */
         for (size_t i = rows_used + 1; i <= m; ++i) {
             size_t len = i;                       /* row length */
-            seq_t *cur = (seq_t *)malloc(len * sizeof(seq_t));
+            seq_t *cur = mem_new(seq_t, len);
             cur[0] = 1;                            /* A(i,0) = 1 */
             if (len > 1)
                 cur[len - 1] = 1;                  /* A(i,i‑1) = 1 */

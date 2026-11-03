@@ -9,8 +9,9 @@
  *            2^(k + ceil(k/2)) e odd (e = 2k-1) : a(p^e) = p^(3k-2) * (p^k +
  *            p^(k-1) - 1) e even (e = 2k) : a(p^e) = p^(3k-1) * (p^(k+1) +
  *            p^k - 1)
- * Range:     u8 n <= 16, u16 n <= 224, u32 n <= 9533, u64 n <= 9533,
- *            u128 n <= 9533, big any n
+ * Range:     u8 n <= 16, u16 n <= 224, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 67 terms through n = 9533 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

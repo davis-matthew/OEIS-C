@@ -8,12 +8,14 @@
  * Formula:   a(n) = coefficient of x^(3*n-1) in (1+x+x^2+x^3)^(2*n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     seq_t result = 0;
@@ -38,9 +40,9 @@ seq_t a(idx_t n) {
                 /* Multinomial coefficient computed as chained binomials:
                  * (2*n)! / (a!*b!*c!*d!) = C(2*n,a) * C(2*n-a,b) * C(2*n-a-b,c)
                  */
-                seq_t coeff = binom(two_n, a_val);
-                coeff *= binom(two_n - a_val, b);
-                coeff *= binom(two_n - a_val - b, c);
+                seq_t coeff = binomial(two_n, a_val);
+                coeff *= binomial(two_n - a_val, b);
+                coeff *= binomial(two_n - a_val - b, c);
                 result += coeff;
             }
         }

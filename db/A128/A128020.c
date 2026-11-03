@@ -8,12 +8,14 @@
  * Formula:   a(n) = n * (1 + floor((sum_{k=1}^{n-1} a(k)) / n))
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,11 +36,11 @@ seq_t a(idx_t n)
             new_cap = n;
 
         /* realloc returns void*; cast to seq_t* */
-        seq_t *tmp_a   = (seq_t *)realloc(a_seq,   (new_cap + 1) * sizeof(seq_t));
-        seq_t *tmp_sum = (seq_t *)realloc(sum_seq, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp_a   = mem_resize(seq_t, a_seq, (new_cap + 1));
+        seq_t *tmp_sum = mem_resize(seq_t, sum_seq, (new_cap + 1));
         if (!tmp_a || !tmp_sum) { /* allocation failure – abort */
-            if (tmp_a) free(tmp_a);
-            if (tmp_sum) free(tmp_sum);
+            if (tmp_a) mem_free(tmp_a);
+            if (tmp_sum) mem_free(tmp_sum);
             return (seq_t)0;
         }
         a_seq   = tmp_a;

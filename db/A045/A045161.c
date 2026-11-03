@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 4774, u32 n <= 7798, u64 n <= 7798,
  *            u128 n <= 7798, big any n
- * Helpers:   valid_base5_onezero_noone
+ * Validated: standard, pass, 66 terms through n = 7651 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
-#include "../utils/valid_base5_onezero_noone.h"
+#include "../utils/mem.h"
+
+/* Test whether a value has exactly one 0 in base‑5 and no digit 1. */
+static bool valid_base5_onezero_noone(seq_t v)
+{
+    if (v == 0)          /* representation "0" has one zero, no 1's */
+        return true;
+
+    seq_t cnt = 0;
+    seq_t tmp = v;
+    while (tmp > 0) {
+        seq_t d = tmp % 5;          /* base‑5 digit */
+        if (d == 1)                 /* forbidden digit 1 */
+            return false;
+        if (d == 0)                 /* count zero digits */
+            cnt++;
+        tmp /= 5;
+    }
+    return cnt == 1;                 /* exactly one zero required */
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -32,7 +52,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 8;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         assert(cache);
         cache_len = 0;
         next_start = 0;
@@ -47,11 +67,11 @@ seq_t a(idx_t n)
             /* Grow cache if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_new(seq_t, new_cap);
                 assert(new_cache);
                 for (size_t i = 0; i < cache_len; ++i)
                     new_cache[i] = cache[i];
-                free(cache);
+                mem_free(cache);
                 cache = new_cache;
                 cache_cap = new_cap;
             }

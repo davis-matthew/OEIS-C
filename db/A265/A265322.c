@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 179, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 4712 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Rule 110 rule table: index = (left<<2)|(mid<<1)|right   (0≤idx≤7)  */
 static const uint8_t rule110_table[8] = {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /*----- initialise for first call (n = 0) ----------------------------------*/
     if (a_cache_len == 0) {
         a_cache_len = 1;
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         a_cache[0] = 0;                 /* a(0) = 0 */
 
         row_len = 1;                    /* width = 1 (2*0+1)             */
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
             seq_t a_val = (seq_t)new_len - ones;
 
             /* enlarge cache and store value */
-            a_cache = (seq_t *)realloc(a_cache, (step + 1) * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, (step + 1));
             a_cache[step] = a_val;
             a_cache_len = step + 1;
 

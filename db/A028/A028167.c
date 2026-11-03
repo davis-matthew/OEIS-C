@@ -8,7 +8,8 @@
  *            4 with a(0)=1, a(1)=28, a(2)=497, a(3)=7160
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* storage for memoised values */
 static size_t cache_cap = 0;      /* allocated capacity (in seq_t elements) */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call with the first four values */
     if (cache == NULL) {
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) {
             /* Allocation failure – return zero as a fallback */
             return 0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         /* Grow capacity if needed (doubling strategy) */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL) {
                 /* Allocation failure – return zero for the missing term */
                 return 0;

@@ -9,7 +9,8 @@
  *            contains the substring "76" but whose successor n+1 does not
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   has76_base8
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 
 #include <stdbool.h>   /* bool */
 #include <stdlib.h>    /* realloc, NULL */
-#include "../utils/has76_base8.h"
+#include "../utils/mem.h"
+
+static bool has76_base8(seq_t x)
+{
+    int prev = -1;                     /* previous (more significant) digit */
+    while (x != 0) {
+        int d = (int)(x % 8);          /* current less significant digit */
+        if (prev == 6 && d == 7)       /* pattern 7 (more) followed by 6 (less) */
+            return true;
+        prev = d;
+        x /= 8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +51,7 @@ seq_t a(idx_t n)
         /* Allocate more space if needed. */
         if (sz == cap) {
             size_t newcap = (cap ? cap * 2 : 4);
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) exit(EXIT_FAILURE);   /* allocation failure */
             cache = tmp;
             cap   = newcap;

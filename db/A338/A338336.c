@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>   /* malloc, realloc, free, memset */
 #include <string.h>   /* memset */
+#include "../utils/mem.h"
 
 static seq_t *cnt = NULL;       /* count for each perimeter (index = n) */
 static size_t cnt_len = 0;      /* allocated length of cnt */
@@ -60,13 +62,13 @@ seq_t a(idx_t n)
     if (cnt_len <= n) {
         size_t old_len = cnt_len;
         size_t new_len = (size_t)(n + 1);
-        seq_t *new_cnt = (seq_t *)realloc(cnt, new_len * sizeof(seq_t));
+        seq_t *new_cnt = mem_resize(seq_t, cnt, new_len);
         if (!new_cnt)                 /* allocation failure – return 0 */
             return 0;
         cnt = new_cnt;
         cnt_len = new_len;
         /* Zero the newly allocated part of the array */
-        memset(cnt + old_len, 0, (new_len - old_len) * sizeof(seq_t));
+        mem_set(cnt + old_len, 0, (new_len - old_len) * sizeof(seq_t));
 
         /* Old maximum perimeter already processed */
         idx_t old_max = old_len > 0 ? (old_len - 1) : 0;

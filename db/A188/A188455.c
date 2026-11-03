@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   binomial, pow2
+ * Validated: standard, pass, 30 terms through n = 74 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k) */
-#include "../utils/pow2.h"       /* seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;     /* array of computed a(n) */
 static size_t a_cap = 0;          /* allocated capacity */
@@ -33,7 +36,7 @@ seq_t a(idx_t n) {
     /* First call: initialise cache[0] to 1. */
     if (a_max == (idx_t)-1) {
         a_cap = 1;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)1;
         a_max = 0;
     }
@@ -46,10 +49,10 @@ seq_t a(idx_t n) {
     if (needed > a_cap) {
         size_t new_cap = a_cap;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        memcpy(new_cache, a_cache, a_cap * sizeof(seq_t));
-        memset(new_cache + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
-        free(a_cache);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
+        mem_copy(new_cache, a_cache, a_cap * sizeof(seq_t));
+        mem_set(new_cache + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
+        mem_free(a_cache);
         a_cache = new_cache;
         a_cap   = new_cap;
     }

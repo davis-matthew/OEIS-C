@@ -9,14 +9,16 @@
  *            6‑tuples (a1,…,a6) with ai∈{1,…,6} and a1+…+a6 = n. Computed by
  *            inclusion–exclusion: a(n) = Σ_{k=0}^{⌊(n-6)/6⌋} (-1)^k * C(6,k)
  *            * C(n-6-6k+5,5) for n≥6, a(n)=0 for n<6 or n>36
- * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 78, u64 n <= 78, u128 n <= 78,
+ * Range:     u8 n <= 11, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= 6; ++k) {
         idx_t sub = k * 6;
         if (sub > s) break;
-        seq_t term = binom(6, k);                     /* C(6,k) */
-        seq_t ways = binom(s - sub + 5, 5);           /* C(s-6k+5,5) */
+        seq_t term = binomial(6, k);                     /* C(6,k) */
+        seq_t ways = binomial(s - sub + 5, 5);           /* C(s-6k+5,5) */
         if (k & 1)
             count -= term * ways;
         else

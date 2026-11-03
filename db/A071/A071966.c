@@ -11,7 +11,8 @@
  *            are all sums of two squares
  * Range:     u8 n <= 23, u16 n <= 5979, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_of_two_squares
+ * Validated: standard, pass, 70 terms through n = 8106 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sum_of_two_squares.h"
+#include "../utils/mem.h"
+
+/* Helper to test if a number is a sum of two squares.
+   Uses the pre‑computed spf array. */
+static bool sum_of_two_squares(uint64_t x, const uint64_t *spf)
+{
+    while (x > 1) {
+        uint64_t p = spf[x];
+        unsigned e = 0;
+        do {
+            x /= p;
+            ++e;
+        } while (x % p == 0);
+        if ((p & 3) == 3 && (e & 1))  /* p ≡ 3 (mod 4) with odd exponent */
+            return false;
+    }
+    return true;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -45,7 +63,7 @@ seq_t a(idx_t n)
                             spf[j] = i;
             }
         }
-        sopfr = (seq_t *)calloc(LIMIT + 1, sizeof(seq_t));
+        sopfr = mem_new(seq_t, LIMIT + 1);
         if (!sopfr) return 0;
         sopfr[0] = sopfr[1] = 0;
         for (size_t i = 2; i <= LIMIT; ++i) {

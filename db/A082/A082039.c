@@ -12,13 +12,25 @@
  *            index k = d - t. The term is then * a(n) = k^2*i^2...
  * Range:     u8 n <= 39, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   diag_from_index
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/diag_from_index.h"
+
+/* Compute the diagonal number d for a given index n.
+ * d is the largest integer with d*(d+1)/2 <= n. */
+static inline idx_t
+diag_from_index(idx_t n)
+{
+    idx_t d = 0;
+    /* Use 128‑bit arithmetic to avoid overflow for very large n. */
+    while (( (__uint128_t)(d + 1) * (d + 2) ) / 2 <= n)
+        d++;
+    return d;
+}
 
 /* Main sequence function. */
 seq_t

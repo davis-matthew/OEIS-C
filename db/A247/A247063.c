@@ -8,7 +8,8 @@
  *            for 1 ≤ n ≤ 13 are: 1,2,3,4,5,6,8,9,10,11,12,13,16
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* seq_t and idx_t are provided by the build environment. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (cache_size == 0)
     {
         cache_size = 14;           /* indices 0..13 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)2;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_size)
     {
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (new_cache == NULL) /* allocation failure: fall back to 0 */
             return (seq_t)0;
         cache = new_cache;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 144, u16 n <= 3681, u32 n <= 9000, u64 n <= 9000,
  *            u128 n <= 9000, big any n
- * Helpers:   is_nondecreasing_base13
+ * Validated: standard, pass, 86 terms through n = 8758 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_nondecreasing_base13.h"
+#include "../utils/mem.h"
+
+/* Check whether the digits of x in base 13 are nondecreasing
+   from most significant to least (i.e. nonincreasing when read
+   from least significant to most).                 */
+static bool is_nondecreasing_base13(seq_t x)
+{
+    if (x == (seq_t)0) return true;
+    int prev = 13;                    /* greater than any digit */
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)13); /* current least sign. digit */
+        if (d > prev) return false;  /* would decrease in MSB→LSB order */
+        prev = d;
+        x /= (seq_t)13;
+    }
+    return true;
+}
 
 /* ---------- internal state ---------- */
 static seq_t *cache          = NULL;  /* array of computed terms   */
@@ -34,7 +51,7 @@ seq_t a(idx_t n)
 {
     if (cache == NULL) {                 /* first call: allocate cache */
         cache_cap = 32;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;     /* allocation failure */
         cache[0] = (seq_t)0;             /* a(1) = 0 */
         cached_n = 1;
@@ -49,7 +66,7 @@ seq_t a(idx_t n)
         /* Grow cache when full. */
         if (cached_n >= cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return (seq_t)0;   /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

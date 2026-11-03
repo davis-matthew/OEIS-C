@@ -10,12 +10,14 @@
  *            a(k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,10 +37,10 @@ seq_t a(idx_t n)
         a_alloc = 1;                 /* enough for index 0 */
         h_alloc = 2;                 /* h[0] needed */
 
-        A = (seq_t *)malloc(a_alloc * sizeof(seq_t));
-        V = (seq_t *)malloc(a_alloc * sizeof(seq_t));
-        P2 = (seq_t *)malloc(a_alloc * sizeof(seq_t));
-        H = (seq_t *)malloc(h_alloc * sizeof(seq_t));
+        A = mem_new(seq_t, a_alloc);
+        V = mem_new(seq_t, a_alloc);
+        P2 = mem_new(seq_t, a_alloc);
+        H = mem_new(seq_t, h_alloc);
 
         if (!A || !V || !P2 || !H) {
             /* allocation failed; return 0 as a safety value */
@@ -60,9 +62,9 @@ seq_t a(idx_t n)
         size_t new_a = a_alloc ? a_alloc << 1 : 1;
         while (new_a <= (size_t)n) new_a <<= 1;
 
-        A = (seq_t *)realloc(A, new_a * sizeof(seq_t));
-        V = (seq_t *)realloc(V, new_a * sizeof(seq_t));
-        P2 = (seq_t *)realloc(P2, new_a * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_a);
+        V = mem_resize(seq_t, V, new_a);
+        P2 = mem_resize(seq_t, P2, new_a);
         if (A && V && P2) {
             /* initialise new slots to zero */
             for (size_t i = a_alloc; i < new_a; ++i) A[i] = V[i] = P2[i] = 0;
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         /* enlarge H if required */
         size_t new_h = new_a * 2;
         if (new_h > h_alloc) {
-            H = (seq_t *)realloc(H, new_h * sizeof(seq_t));
+            H = mem_resize(seq_t, H, new_h);
             for (size_t i = h_alloc; i < new_h; ++i) H[i] = 0;
             h_alloc = new_h;
         }

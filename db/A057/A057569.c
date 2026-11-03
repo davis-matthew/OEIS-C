@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(5*n-2)/8 if n even, a(n) = (5*n-3)*(n-1)/8 if n odd
  * Range:     u8 n <= 21, u16 n <= 324, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 66 terms through n = 4886 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

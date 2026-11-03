@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{1≤i<j≤n} (i^2 + i*j + j^2)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 7,
  *            big any n
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

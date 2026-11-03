@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>   /* uint32_t */
 #include <stdbool.h>  /* bool, true, false */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 /* ---- static memoisation data ------------------------------------------ */
 static seq_t *isolated = NULL;   /* stored isolated totients */
@@ -78,7 +80,7 @@ static void compute_until(idx_t n)
 
         /* ---- collect isolated even totients --------------------------- */
         size_t cap = 16;
-        seq_t *arr = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *arr = mem_new(seq_t, cap);
         if (!arr) {
             free(is_tot);
             abort();
@@ -92,10 +94,10 @@ static void compute_until(idx_t n)
             if (!left && !right) {
                 if (cnt >= cap) {
                     cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(arr, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, arr, cap);
                     if (!tmp) {
                         free(is_tot);
-                        free(arr);
+                        mem_free(arr);
                         abort();
                     }
                     arr = tmp;
@@ -109,7 +111,7 @@ static void compute_until(idx_t n)
         /* Did we collect enough terms? */
         if (cnt >= (size_t)n) {
             /* Replace old cache with the new one */
-            free(isolated);
+            mem_free(isolated);
             isolated      = arr;
             isolated_len  = cnt;
             current_limit = (idx_t)limit;
@@ -117,7 +119,7 @@ static void compute_until(idx_t n)
         }
 
         /* Not enough terms – enlarge limit and retry */
-        free(arr);
+        mem_free(arr);
         limit <<= 1;  /* double the limit */
     }
 }

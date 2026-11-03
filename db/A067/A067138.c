@@ -9,8 +9,9 @@
  *            bitwise OR of all shifts of n by the set bit positions of m:
  *            T(n,m) = OR_{k: (m>>k)&1} (n << k) This satisfies the
  *            properties: T(n,0)=0, T(n,1)=n, and T(n,2^k)=n*2^k. a(n)...
- * Range:     u8 n <= 543, u16 n <= 9963, u32 n <= 9963, u64 n <= 9963,
- *            u128 n <= 9963, big any n
+ * Range:     u8 n <= 543, u16 n <= 10439, u32 n <= 10439, u64 n <= 10439,
+ *            u128 n <= 10439, big any n
+ * Validated: standard, pass, 101 terms through n = 9963 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

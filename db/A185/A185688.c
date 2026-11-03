@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 13, i16 n <= 187, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    This recurrence is valid for all n ≥ 13.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache: cache[0] is unused so that cache[n] holds a(n). */
 static seq_t *cache = NULL;      /* cache array */
@@ -52,7 +54,7 @@ static void ensure_cache(idx_t n)
     /* New size (index 0 unused) */
     size_t new_size = (size_t)n + 1;
     /* Reallocate memory */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* Allocation failed – leave cache unchanged. */
         return;

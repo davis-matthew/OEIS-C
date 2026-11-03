@@ -7,13 +7,28 @@
  * Formula:   a(1) = 0, a(n) = n - (product of nonzero digits of n) - a(n-1)
  * Range:     i8 n <= 79, i16 n <= 2959, i32 n <= 5000, i64 n <= 5000,
  *            i128 n <= 5000, big any n
- * Helpers:   nonzero_digit_product
+ * Validated: standard, pass, 86 terms through n = 4518 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/nonzero_digit_product.h"
+#include "../utils/mem.h"
+
+/* Compute the product of the non‑zero decimal digits of x */
+static seq_t nonzero_digit_product(idx_t x)
+{
+    seq_t prod = 1;
+    while (x > 0)
+    {
+        int d = x % 10;
+        x /= 10;
+        if (d != 0)
+            prod *= d;          /* multiplication in seq_t */
+    }
+    return prod;
+}
 
 static seq_t *cache = NULL;          /* cached values    */
 static idx_t cache_capacity = 0;     /* number of cached elements */
@@ -27,7 +42,7 @@ seq_t a(idx_t n)
     if (n > cache_capacity)
     {
         /* Allocate a larger buffer, keeping existing values. */
-        seq_t *new_cache = (seq_t *)malloc(n * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, n);
         if (new_cache == NULL)
         {
             /* Allocation failed – fall back to direct computation. */
@@ -40,7 +55,7 @@ seq_t a(idx_t n)
         for (idx_t i = 0; i < cache_capacity; ++i)
             new_cache[i] = cache[i];
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
 
         /* Compute the sequence from the first missing index up to n. */

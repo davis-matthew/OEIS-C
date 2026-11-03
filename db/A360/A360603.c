@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 33, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binomial, pow2
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,8 +36,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/pow2.h"       /* seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* cached values of A001187(k) */
 static seq_t *conn = NULL;          /* allocated as an array of seq_t */
@@ -54,12 +57,12 @@ ensure_conn(size_t needed)
         size_t new_cap = (conn_cap == 0) ? 64 : conn_cap * 2;
         while (new_cap < needed)
             new_cap <<= 1;
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (conn) {
-            memcpy(new_arr, conn, conn_len * sizeof(seq_t));
+            mem_copy(new_arr, conn, conn_len * sizeof(seq_t));
         }
-        memset(new_arr + conn_len, 0, (new_cap - conn_len) * sizeof(seq_t));
-        free(conn);
+        mem_set(new_arr + conn_len, 0, (new_cap - conn_len) * sizeof(seq_t));
+        mem_free(conn);
         conn = new_arr;
         conn_cap = new_cap;
     }

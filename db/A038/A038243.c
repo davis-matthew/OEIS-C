@@ -9,6 +9,7 @@
  *            flattened triangle of (5+x)^i
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 104, u64 n <= 352,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 71 terms through n = 1322 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,8 +10,9 @@
  *            A072918. The implementation precomputes a sieve up to a fixed
  *            limit (200000) which easily covers all n up to about 10000.
  *            sigma(n) is computed from the smallest prime factor...
- * Range:     u8 n <= 386, u16 n <= 9636, u32 n <= 9636, u64 n <= 9636,
- *            u128 n <= 9636, big any n
+ * Range:     u8 n <= 386, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 116 terms through n = 9636 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

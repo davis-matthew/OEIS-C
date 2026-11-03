@@ -7,8 +7,9 @@
  * Formula:   a(n) = T(floor((sqrt(8*n+1)-1)/2), n -
  *            floor((sqrt(8*n+1)-1)/2)*(floor((sqrt(8*n+1)-1)/2)+1)/2) where
  *            T(n,k) = |C(n+2,k) - C(n+2,k+2)| (0 ≤ k ≤ n)
- * Range:     u8 n <= 22, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 46, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Find smallest r such that (r+1)(r+2)/2 > n, i.e. row index of n in the

@@ -7,17 +7,18 @@
  * Formula:   a(n) = n^floor(n/2)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 27, u128 n <= 47,
  *            big any n
- * Helpers:   _pow_seq_t
+ * Validated: standard, pass, 42 terms through n = 472 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_pow_seq_t.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 1;        /* 0^0 is defined as 1 for this sequence */
     idx_t k = n / 2;              /* floor(n/2) */
     seq_t base = (seq_t)n;        /* convert index to seq_t */
-    return _pow_seq_t(base, k);   /* efficient exponentiation */
+    return ipow_idx(base, k);   /* efficient exponentiation */
 }

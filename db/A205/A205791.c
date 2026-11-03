@@ -9,19 +9,21 @@
  *            for some j in [1, k-1]
  * Range:     u8 n <= 254, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 2929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* not used, but safe */
     seq_t N = (seq_t)n;             /* modulus */
     /* Allocate array for j^5 mod n, indices 0..n+1 (0 unused) */
-    seq_t *pow = (seq_t *)malloc((n + 2) * sizeof(seq_t));
+    seq_t *pow = mem_new(seq_t, (n + 2));
     if (!pow) return 0;             /* allocation failed */
 
     pow[0] = 0;
@@ -38,12 +40,12 @@ seq_t a(idx_t n)
         seq_t target = pow[k];
         for (idx_t j = 1; j < k; ++j) {
             if (pow[j] == target) {
-                free(pow);
+                mem_free(pow);
                 return (seq_t)k;
             }
         }
     }
     /* Should never reach here, but fall back to n+1 as per bound */
-    free(pow);
+    mem_free(pow);
     return (seq_t)(n + 1);
 }

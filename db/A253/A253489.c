@@ -10,12 +10,15 @@
  *            for n = 1..5: 414, 1377, 2640, 4720, 9654
  * Range:     u8 none, u16 n <= 7, u32 n <= 17, u64 n <= 37, u128 n <= 78,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 39 terms through n = 209 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     static const seq_t init[5] = {
@@ -30,8 +33,8 @@ seq_t a(idx_t n) {
 
     /* Compute 49*3^(n-1) + 291*2^(n-1) + 1017 */
     seq_t exp = (seq_t)(n - 1);
-    seq_t p3 = big_pow((seq_t)3, exp);
-    seq_t p2 = big_pow((seq_t)2, exp);
+    seq_t p3 = ipow((seq_t)3, exp);
+    seq_t p2 = ipow((seq_t)2, exp);
 
     seq_t res = p3 * (seq_t)49;
     res += p2 * (seq_t)291;

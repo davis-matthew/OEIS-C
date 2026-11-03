@@ -12,7 +12,8 @@
  *            sequence is read row‑by‑row, starting with n = 2
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --- Prime data ----------------------------------------------- */
 
@@ -104,9 +106,9 @@ seq_t a(idx_t n)
             idx_t new_cap = cache_cap ? cache_cap * 2 : 128;
             while (next_index > new_cap)
                 new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
             if (!tmp) { /* Allocation failure – release resources */
-                free(cache);
+                mem_free(cache);
                 free(spf);
                 free(prime_index_of);
                 cache = NULL;

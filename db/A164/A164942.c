@@ -8,13 +8,14 @@
  *            floor((sqrt(8*n+1)-1)/2) and k = n - r*(r+1)/2
  * Range:     i8 n <= 14, i16 n <= 45, i32 n <= 155, i64 n <= 567,
  *            i128 n <= 2221, big any n
- * Helpers:   binom, pow3
+ * Validated: standard, pass, 71 terms through n = 5019 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
     __int128 offset128 = (__int128)r * (r + 1) / 2;
     idx_t k = n - (idx_t)offset128;
 
-    seq_t val = binom(r, k);            /* binomial coefficient */
+    seq_t val = binomial(r, k);            /* binomial coefficient */
     seq_t p   = pow3(r - k);            /* 3^(r-k) */
     val = val * p;                      /* product */
 

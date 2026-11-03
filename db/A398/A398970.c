@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of found numbers          */
 static size_t cache_cap = 0;         /* allocated capacity              */
@@ -35,7 +37,7 @@ static void grow_cache(size_t needed)
     if (cache_cap < needed) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
         if (new_cap < needed) new_cap = needed;
-        seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
         cache = new_buf;
         cache_cap = new_cap;
     }

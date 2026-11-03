@@ -9,13 +9,15 @@
  *            of consecutive trailing 1-bits of n
  * Range:     i8 n <= 254, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 95 terms through n = 9889 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2.h"   /* returns 2^exp as seq_t */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

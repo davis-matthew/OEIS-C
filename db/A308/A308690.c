@@ -10,13 +10,15 @@
  *            antidiagonals. The d‑sum runs over all divisors d of r
  * Range:     u8 n <= 50, u16 n <= 85, u32 n <= 162, u64 n <= 311,
  *            u128 n <= 578, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 94 terms through n = 9811 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Find the diagonal t (1‑based) such that t(t+1)/2 ≥ n. */
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     for (idx_t d = 1; d <= r; ++d) {
         if (r % d == 0) {
             seq_t exp = (seq_t)k * (seq_t)(r / d) - (seq_t)k + 1;
-            sum += big_pow((seq_t)d, exp);
+            sum += ipow((seq_t)d, exp);
         }
     }
     return sum;

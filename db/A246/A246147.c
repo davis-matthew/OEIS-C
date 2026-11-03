@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   thue
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/thue.h"
+
+static inline unsigned char thue(idx_t k)
+{
+#if defined(__GNUC__) || defined(__clang__)
+    return (__builtin_parityll((unsigned long long)k)) ? 1 : 0;
+#else
+    unsigned long long x = (unsigned long long)k;
+    x ^= x >> 32;
+    x ^= x >> 16;
+    x ^= x >> 8;
+    x ^= x >> 4;
+    x ^= x >> 2;
+    x ^= x >> 1;
+    return (unsigned char)(x & 1);
+#endif
+}
 
 seq_t a(idx_t n)
 {

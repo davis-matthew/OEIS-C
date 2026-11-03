@@ -6,17 +6,20 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, changed
  * Formula:   a(n) = A001221(A156061(n))
- * Range:     u8 n <= 8067, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
- * Helpers:   compute_pi, factor_u64
+ * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
+ *            big any n
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
         uint64_t p = primes[i];
 
         /* index of prime p: pi(p) */
-        seq_t pi_seq = compute_pi(p);
+        seq_t pi_seq = prime_pi(p);
         uint64_t idx = (uint64_t)pi_seq;          /* idx fits in uint64_t for required bounds */
 
         if (idx <= 1) continue;   /* index 1 contributes nothing to the product */

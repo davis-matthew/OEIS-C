@@ -11,8 +11,9 @@
  *            a(n) = A340945(n) iff n∈A002939, * a(n) = -A340945(n) iff n =
  *            4*x^2 - 6*x + 2, * a(n) = 0 iff n is an even square, * a(n) = Re
  *            z where z = (r - s*i)*i^s with s = round(sqr...
- * Range:     i8 n <= 9494, i16 n <= 9494, i32 n <= 9494, i64 n <= 9494,
- *            i128 n <= 9494, big any n
+ * Range:     i8 n <= 10101, i16 n <= 10101, i32 n <= 10101, i64 n <= 10101,
+ *            i128 n <= 10101, big any n
+ * Validated: standard, pass, 90 terms through n = 9494 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

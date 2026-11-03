@@ -11,13 +11,15 @@
  *            a(n/2+1) + n/2
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_len)
     {
         size_t new_len = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         seen  = (bool  *)realloc(seen,  new_len * sizeof(bool));
         for (size_t i = cache_len; i < new_len; ++i)
         {

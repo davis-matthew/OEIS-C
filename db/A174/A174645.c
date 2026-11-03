@@ -12,15 +12,79 @@
  *            board and all ways to assign * the 6 rows to...
  * Range:     u8 n <= 10, u16 n <= 14, u32 n <= 50, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   brute_small, recurse_perm
+ * Validated: standard, pass, 52 terms through n = 949 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/brute_small.h"
-#include "../utils/recurse_perm.h"
+
+/* Helper: recursive enumeration of row permutations for a fixed column set.
+ * cols[] contains the 6 selected column indices (sorted ascending).
+ * pos  = current depth (0..6).
+ * used = bit mask of rows already used.
+ * perm = array storing the current assignment of rows to columns.
+ *
+ * Returns the number of valid full permutations that extend the current prefix.
+ */
+static seq_t recurse_perm(const idx_t cols[6], int pos, int used, int perm[])
+{
+    if (pos == 6) {
+        /* All six pieces placed without conflict. */
+        return 1;
+    }
+
+    seq_t count = 0;
+    for (int r = 0; r < 6; ++r) {
+        if (!(used & (1 << r))) {
+            int ok = 1;
+            /* Check conflicts with already placed pieces. */
+            for (int k = 0; k < pos; ++k) {
+                int dr = (r > perm[k]) ? (r - perm[k]) : (perm[k] - r);
+                idx_t dc = (cols[pos] > cols[k]) ? (cols[pos] - cols[k]) : (cols[k] - cols[pos]);
+
+                if (dr == dc) {          /* same diagonal */
+                    ok = 0; break;
+                }
+                if ((dc == 1 && dr == 2) || (dc == 2 && dr == 1)) { /* knight move */
+                    ok = 0; break;
+                }
+            }
+            if (ok) {
+                perm[pos] = r;
+                count += recurse_perm(cols, pos + 1, used | (1 << r), perm);
+            }
+        }
+    }
+    return count;
+}
+
+/* Exhaustive enumeration for n < 17. */
+static seq_t brute_small(idx_t n)
+{
+    if (n < 6) {
+        return 0;  /* cannot place 6 non‑attacking amazons */
+    }
+
+    seq_t total = 0;
+    int perm[6];
+
+    /* Enumerate all 6‑column selections in increasing order. */
+    for (idx_t a = 0; a + 5 < n; ++a)
+    for (idx_t b = a + 1; b + 4 < n; ++b)
+    for (idx_t c = b + 1; c + 3 < n; ++c)
+    for (idx_t d = c + 1; d + 2 < n; ++d)
+    for (idx_t e = d + 1; e + 1 < n; ++e)
+    for (idx_t f = e + 1; f < n; ++f)
+    {
+        idx_t cols[6] = {a, b, c, d, e, f};
+        total += recurse_perm(cols, 0, 0, perm);
+    }
+
+    return total;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

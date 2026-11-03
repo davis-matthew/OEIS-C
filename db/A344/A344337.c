@@ -10,18 +10,21 @@
  *            provided by the build environment
  * Range:     u8 n <= 29, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 92 terms through n = 9491 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_distinct_primes.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/omega.h"
 #include <stdint.h>
 
 seq_t a(idx_t n)
 {
     /* Count distinct prime divisors of n. */
-    int distinct = count_distinct_primes((uint64_t)n);
+    int distinct = omega((uint64_t)n);
 
     /* Compute 9^distinct. */
     seq_t result = 1;

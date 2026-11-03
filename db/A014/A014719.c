@@ -8,6 +8,7 @@
  *            Pascal’s triangle)
  * Range:     u8 n <= 13, u16 n <= 49, u32 n <= 161, u64 n <= 578,
  *            u128 n <= 2242, big any n
+ * Validated: standard, pass, 63 terms through n = 5441 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

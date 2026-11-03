@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 84, u32 n <= 313, u64 n <= 1201,
  *            u128 n <= 4518, big any n
- * Helpers:   binom, fib, rowcol
+ * Validated: standard, pass, 82 terms through n = 4542 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,31 @@
    in the triangular array T(r,k) = fib(k+4) * C(r,k).  The array is
    flattened in row‑major order (first row  r=0, then r=1, …). */
 #include <stdbool.h>
-#include "../utils/fib.h"     /* provides seq_t fib(idx_t n)          */
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t n,idx_t k) */
-#include "../utils/rowcol.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
+
+static void rowcol(idx_t n, idx_t *r, idx_t *k)
+{
+    idx_t tri = 0;   /* total number of terms before the current row */
+    idx_t row = 0;   /* current row index                              */
+    while (n >= tri + row + 1) {
+        tri += row + 1;  /* add the number of terms in the previous row   */
+        ++row;           /* move to the next row                          */
+    }
+    *r = row;
+    *k = n - tri;        /* column index within the row                   */
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +50,7 @@ seq_t a(idx_t n)
     rowcol(n, &r, &k);
 
     seq_t f = fib(k + 4);      /* Fibonacci number F_{k+4} */
-    seq_t c = binom(r, k);     /* binomial coefficient C(r,k) */
+    seq_t c = binomial(r, k);     /* binomial coefficient C(r,k) */
 
     return f * c;
 }

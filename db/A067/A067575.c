@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   bigomega, phi
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   bigomega, mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/phi.h"
 #include "../utils/bigomega.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached terms of the sequence */
 static size_t cache_cap = 0;  /* allocation size of 'cache' */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Ensure cache can hold at least 'idx' terms. */
     if (idx > cache_cap) {
         size_t new_cap = idx > 128 ? idx : 128;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp && new_cap > 0) abort();
         cache = tmp;
         cache_cap = new_cap;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Compute new qualifying k until we have enough terms. */
     uint64_t k = last_k + 1;
     while (cache_len < idx) {
-        seq_t phi_val = phi(k);          /* φ(k)   */
+        seq_t phi_val = totient(k);          /* φ(k)   */
         seq_t omega_val = bigomega(k);   /* Ω(k)   */
 
         /* Convert k to the generic integer type. */

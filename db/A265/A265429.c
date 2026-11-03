@@ -10,6 +10,7 @@
  *            (cos(n*pi/2) = 1 if n≡0 mod 4, –1 if n≡2 mod 4, 0 otherwise)
  * Range:     u8 n <= 4, u16 n <= 139, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
+ * Validated: standard, pass, 70 terms through n = 867 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

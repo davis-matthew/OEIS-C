@@ -8,6 +8,7 @@
  *            is the k‑th prime ≡ 1 (mod 3)
  * Range:     u8 n <= 3, u16 n <= 26, u32 n <= 3260, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 9488 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

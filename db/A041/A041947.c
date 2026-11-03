@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 14, u32 n <= 23, u64 n <= 47, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th denominator of the continued fraction convergents to sqrt(496).  */
 seq_t a(idx_t n)
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     if (den == NULL) {
         capacity = (size_t)(n + 1);
         if (capacity < 16) capacity = 16;   /* initial chunk */
-        den = (seq_t *)malloc(capacity * sizeof(seq_t));
+        den = mem_new(seq_t, capacity);
     }
 
     /* Generate terms until the requested index is available */
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         if (size >= capacity) {
             capacity *= 2;
             if (capacity == 0) capacity = 16;
-            den = (seq_t *)realloc(den, capacity * sizeof(seq_t));
+            den = mem_resize(seq_t, den, capacity);
         }
 
         /* Compute next convergent numerator/denominator */

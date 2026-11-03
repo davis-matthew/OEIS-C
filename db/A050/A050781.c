@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   sopfr_u64
+ * Validated: standard, pass, 53 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,31 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sopfr_u64.h"
+#include "../utils/mem.h"
+
+/* ----- Sum of Prime Factors with multiplicity (sopfr) ----------------- */
+static inline seq_t sopfr_u64(uint64_t n)
+{
+    if (n <= 1) return 0;
+    seq_t sum = 0;
+
+    /* factor 2 */
+    while ((n & 1U) == 0) {
+        sum += (seq_t)2;
+        n >>= 1;
+    }
+
+    /* odd factors */
+    for (uint64_t p = 3; p * p <= n; p += 2) {
+        while (n % p == 0) {
+            sum += (seq_t)p;
+            n /= p;
+        }
+    }
+
+    if (n > 1) sum += (seq_t)n;
+    return sum;
+}
 
 /* ----- Dynamic array of found terms ---------------------------------- */
 static seq_t *terms   = NULL;   /* stored terms  */
@@ -31,10 +56,10 @@ static void push_term(seq_t v)
 {
     if (term_cap == 0) {
         term_cap = 64;
-        terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, term_cap);
     } else if (term_cnt >= term_cap) {
         term_cap <<= 1;
-        terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, term_cap);
     }
     terms[term_cnt++] = v;
 }

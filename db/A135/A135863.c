@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 20, i32 n <= 36, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    O(1) after an initial O(k) build. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         size_t new_cap = cat_cap ? cat_cap : 1;
         while (new_cap < need) new_cap <<= 1;
 
-        seq_t *tmp = (seq_t *)realloc(cat, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cat, new_cap);
         if (!tmp && new_cap > 0) abort();  /* allocation failure */
         cat = tmp;
         cat_cap = new_cap;

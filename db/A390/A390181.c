@@ -10,8 +10,9 @@
  *            scans natural numbers and tests each one for representability.
  *            It uses a precomputed prime list up to 1 000 000, which is
  *            sufficient for the required range (n ≤ 10 000)....
- * Range:     u8 n <= 59, u16 n <= 6928, u32 n <= 9831, u64 n <= 9831,
- *            u128 n <= 9831, big any n
+ * Range:     u8 n <= 59, u16 n <= 6928, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 80 terms through n = 9831 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

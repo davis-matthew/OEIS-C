@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..⌊(n-1)/2⌋} (-4)^k * Stirling2(n, 2*k+1)
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 14, i64 n <= 23, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,12 +17,13 @@
 
 /* Helper macros to satisfy both C and C++ compilers */
 #ifdef __cplusplus
-# define ALLOC_SEQ_T(sz) reinterpret_cast<seq_t*>(malloc(sz))
-# define REALLOC_SEQ_T(ptr, sz) reinterpret_cast<seq_t*>(realloc(ptr, sz))
+# define ALLOC_SEQ_T(sz) mem_new(seq_t, (sz) / sizeof(seq_t))
+# define REALLOC_SEQ_T(ptr, sz) mem_resize(seq_t, ptr, (sz) / sizeof(seq_t))
 #else
-# define ALLOC_SEQ_T(sz) ((seq_t*)malloc(sz))
-# define REALLOC_SEQ_T(ptr, sz) ((seq_t*)realloc(ptr, sz))
+# define ALLOC_SEQ_T(sz) (mem_new(seq_t, (sz) / sizeof(seq_t)))
+# define REALLOC_SEQ_T(ptr, sz) (mem_resize(seq_t, ptr, (sz) / sizeof(seq_t)))
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {

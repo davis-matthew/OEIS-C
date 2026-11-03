@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,27 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/floor_sqrt.h"   /* provides seq_t floor_sqrt(seq_t); */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +55,7 @@ seq_t a(idx_t n)
 
         /* allocate buffer for the period (do not know how many terms yet) */
         size_t cap = 64;                           /* ample for D = 637 */
-        coeff = (seq_t *)calloc(cap, sizeof(seq_t));
+        coeff = mem_new(seq_t, cap);
         if (!coeff) return 0;                      /* very unlikely */
         coeff[0] = a0;
 
@@ -58,8 +79,8 @@ seq_t a(idx_t n)
             /* store the term a_k */
             if (idx >= cap - 1) {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(coeff, cap * sizeof(seq_t));
-                if (!tmp) { free(coeff); coeff = NULL; return 0; }
+                seq_t *tmp = mem_resize(seq_t, coeff, cap);
+                if (!tmp) { mem_free(coeff); coeff = NULL; return 0; }
                 coeff = tmp;
             }
             coeff[idx] = a_term;
@@ -69,7 +90,7 @@ seq_t a(idx_t n)
             if (a_term == 2 * a0) {
                 period = idx - 1;                /* number of terms after a0 */
                 /* shrink buffer to exactly period+1 terms */
-                seq_t *tmp = (seq_t *)realloc(coeff, (period + 1) * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, coeff, (period + 1));
                 if (tmp) coeff = tmp;
                 break;
             }

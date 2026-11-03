@@ -9,13 +9,15 @@
  *            | (n!! + m)
  * Range:     u8 n <= 268, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 2) return 0;                  /* sequence starts at offset 2 */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* Allocate an array prod[d] for d = 1..n-1.
        prod[d] will hold n!! mod d. */
     size_t len = (size_t)n;               /* we need indices 0..n-1, but 0 unused */
-    seq_t *prod = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *prod = mem_new(seq_t, len);
     if (!prod) return 0;                  /* allocation failure */
 
     for (uint64_t d = 1; d < (uint64_t)n; ++d) prod[d] = 1;
@@ -50,12 +52,12 @@ seq_t a(idx_t n) {
         uint64_t val = ((uint64_t)prod[d] + (uint64_t)n) % d;
         if (val == 0) {
             seq_t m = (seq_t)(n - d);
-            free(prod);
+            mem_free(prod);
             return m;
         }
         if (d == 1) break;                 /* avoid unsigned underflow */
     }
 
-    free(prod);
+    mem_free(prod);
     return 0;                              /* should never reach here */
 }

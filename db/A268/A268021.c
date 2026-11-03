@@ -9,7 +9,8 @@
  *            a(n-2)
  * Range:     i8 n <= 8, i16 n <= 9, i32 n <= 11, i64 n <= 12, i128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    order of n ≥ 1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of computed terms */
 static size_t cache_size = 0; /* current allocated size */
@@ -36,14 +38,14 @@ seq_t a(idx_t n)
 
     if (cache_size < need) {
         /* Grow the cache to hold at least 'need' terms. */
-        seq_t *new_cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, need);
         if (!new_cache) {
             /* Allocation failure – abort is acceptable because the
                function would otherwise produce garbage. */
             abort();
         }
 
-        /* Compute all new terms.  For index i: cache[i] == a(i+1). */
+        /* Compute all new terms.  For index i: new_cache[i] == a(i+1). */
         for (size_t i = cache_size; i < need; ++i) {
             if (i < 2) {
                 new_cache[i] = (seq_t)1;                /* a(1), a(2) */

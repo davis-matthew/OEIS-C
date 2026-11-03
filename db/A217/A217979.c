@@ -13,12 +13,14 @@
  *            +a(n-21); a(1) = 10, a(2) = 10, a(3) = 100, a(4) = 362, a(5)...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int _coeff[21] = {
     3, 10, 1, -28, -58, 41, 39, -50, -9, 100,
@@ -41,7 +43,7 @@ static void _ensure_cache(size_t n)
 {
     if (_cache_len >= n) return;
     size_t new_len = (size_t)n;
-    seq_t *tmp = (seq_t*)realloc(_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _cache, new_len);
     if (!tmp) return; /* allocation failure: caller will return 0 */
     _cache = tmp;
     /* fill missing entries for the first 21 terms */

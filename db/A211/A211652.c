@@ -9,12 +9,14 @@
  *            w^4 < x^4 + y^4
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Precompute fourth powers p[i] = i^4 for 1 ≤ i ≤ n */
-    seq_t *p = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (n + 1));
     if (!p) return 0; /* allocation failure, return 0 as fallback */
 
     for (idx_t i = 1; i <= n; ++i) {
@@ -67,6 +69,6 @@ seq_t a(idx_t n)
         result += over_win;
     }
 
-    free(p);
+    mem_free(p);
     return result;
 }

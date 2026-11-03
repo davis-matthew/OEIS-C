@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{prime p} A025426(n-p)
  * Range:     u8 n <= 2540, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9287 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(n)) for 0 <= n <= UINT64_MAX. */
 static inline idx_t int_sqrt_idx(idx_t n)
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
 
         /* Allocate and compute the ways array */
         ways_size = (size_t)(n + 1);
-        ways = (seq_t *)realloc(ways, ways_size * sizeof(seq_t));
+        ways = mem_resize(seq_t, ways, ways_size);
         if (ways == NULL) return 0;
         for (size_t i = 0; i < ways_size; i++)
             ways[i] = 0;

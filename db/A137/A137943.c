@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 28, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   mul_small
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,20 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t **rows   = NULL;  /* pointers to each polynomial row (ascending coeffs) */
 static size_t rows_count = 0;  /* number of rows currently stored */
@@ -38,7 +52,7 @@ static size_t rows_alloc = 0;  /* allocated capacity for rows array */
    The row contains k+1 coefficients in ascending powers of x. */
 static void generate_row(size_t k)
 {
-    seq_t *row = (seq_t *)malloc((k + 1) * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (k + 1));
     if (!row) return;              /* allocation failed – caller will handle */
     for (size_t i = 0; i <= k; ++i)
         row[i] = (seq_t)0;

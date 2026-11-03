@@ -10,7 +10,8 @@
  *            1 or 2
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   odd_binom
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,12 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/odd_binom.h"
+
+/* Return true iff C(n,k) is odd.  This holds iff (k & (n-k)) == 0. */
+static bool odd_binom(idx_t n, idx_t k)
+{
+    return ((k & (n - k)) == 0);
+}
 
 seq_t a(idx_t n)
 {

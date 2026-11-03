@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   alternate_parity
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
    numbers on demand and keeps those that satisfy the digit test.  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alternate_parity.h"
+
+static bool alternate_parity(seq_t x)
+{
+    int prev = -1;
+    while (x > 0) {
+        int cur = (int)((x % 10) & 1);
+        if (prev != -1 && cur == prev)
+            return false;
+        prev = cur;
+        x /= 10;
+    }
+    return true;
+}
 
 /* Ensure array 'arr' has capacity at least 'need' */
 static void ensure_cap(seq_t **arr, size_t *cap, size_t need)

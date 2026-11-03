@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 15, u64 n <= 32, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    a(n) = a(n-1) + 7*a(n-2) + 6*a(n-3) - a(n-4) - 2*a(n-5) + a(n-6)   (n ≥ 7) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* index 0 unused; cache[n] holds a(n) */
 static idx_t  cache_sz = 0;     /* highest n whose value is cached */
@@ -35,7 +37,7 @@ static void compute_up_to(idx_t n)
 
     /* Reallocate to new size */
     idx_t new_sz = n;
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_sz + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_sz + 1));
     if (!new_cache)
         abort();              /* out of memory */
     cache = new_cache;

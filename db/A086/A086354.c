@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul2
+ * Validated: standard, pass, 103 terms through n = 9425 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,26 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul2.h"
+
+/* ------------------------------------------------------------------ */
+static void mul2(uint8_t **arr, size_t *len, size_t *cap)
+{
+    uint32_t carry = 0U;
+    for (size_t i = 0; i < *len; ++i) {
+        uint32_t v = (*arr)[i] * 2U + carry;
+        (*arr)[i] = (uint8_t)(v % 10U);
+        carry      = v / 10U;
+    }
+    while (carry) {
+        if (*len == *cap) {
+            *cap = (*cap ? *cap * 2 : 1);
+            *arr = (uint8_t *)realloc(*arr, *cap);
+        }
+        (*arr)[*len] = (uint8_t)(carry % 10U);
+        carry        /= 10U;
+        ++(*len);
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /* multiply a little‑endian decimal big integer (digits in *arr) by 2 */

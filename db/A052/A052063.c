@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 28, u32 n <= 1394, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cube_has_pal_subseq
+ * Validated: standard, pass, 81 terms through n = 9954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,58 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cube_has_pal_subseq.h"
+#include "../utils/mem.h"
+
+/* Return true if the decimal representation of a cube has a
+   palindromic substring of length at least two.
+   The cube is supplied as a seq_t; we extract its decimal digits
+   by repeated division by 10.  */
+static bool cube_has_pal_subseq(seq_t cube)
+{
+    /* maximum number of decimal digits for a cube that fits in
+       seq_t is modest; 200 suffices for any reasonable test set   */
+    unsigned char digits[200];
+    size_t len = 0;
+    seq_t ten = 10;
+    seq_t tmp = cube;
+
+    if (tmp == 0) {
+        digits[0] = 0;
+        len = 1;
+    } else {
+        while (tmp != 0) {
+            digits[len++] = (unsigned)(tmp % ten);
+            tmp = tmp / ten;
+        }
+    }
+
+    if (len <= 1) return false;          /* only single digits */
+
+    /* quick test for a palindrome of length 2: any two
+       consecutive equal digits  ->  palindrome of length 2 */
+    for (size_t i = 0; i + 1 < len; ++i) {
+        if (digits[i] == digits[i + 1]) return true;
+    }
+
+    /* exhaustive test for longer substrings */
+    for (size_t start = 0; start + 1 < len; ++start) {
+        for (size_t end = start + 1; end < len; ++end) {
+            if (end - start + 1 < 2) continue;   /* at least two digits */
+            size_t l = start, r = end;
+            bool pal = true;
+            while (l < r) {
+                if (digits[l] != digits[r]) {
+                    pal = false;
+                    break;
+                }
+                ++l;
+                --r;
+            }
+            if (pal) return true;
+        }
+    }
+    return false;
+}
 
 /* --------- dynamic cache for previously found terms --------- */
 static seq_t *cache = NULL;
@@ -36,10 +88,10 @@ static void grow_cache(size_t new_cap)
 {
     if (new_cap <= cache_cap) return;
     size_t newsize = new_cap * sizeof(seq_t);
-    seq_t *newbuf = (seq_t*)malloc(newsize);
+    seq_t *newbuf = mem_new(seq_t, (newsize) / sizeof(seq_t));
     if (newbuf == NULL) exit(EXIT_FAILURE);
     for (size_t i = 0; i < cache_len; ++i) newbuf[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache     = newbuf;
     cache_cap = new_cap;
 }

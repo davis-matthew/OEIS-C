@@ -7,6 +7,7 @@
  * Formula:   a(n) = (4*n)^4
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 63, u64 n <= 600, u128 n <= 600,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 525 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

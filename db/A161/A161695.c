@@ -9,7 +9,8 @@
  *            a(1)=50, a(2)=1274, …
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int M = 50;
 static const int MAX_DEG = M*(M+3)/2;   /* 1325 */
@@ -49,7 +51,7 @@ static void init_sequence(void)
     }
 
     /* Compute binomial coefficients C(t,49) for t = 49 .. MAX_DEG+49 */
-    comb = (seq_t*)malloc((max_comb + 1) * sizeof(seq_t));
+    comb = mem_new(seq_t, (max_comb + 1));
     if (!comb) exit(EXIT_FAILURE);
     comb[49] = (seq_t)1;
     for (i = 50; i <= max_comb; ++i) {
@@ -58,7 +60,7 @@ static void init_sequence(void)
     }
 
     /* Allocate array for the final sequence values */
-    A = (seq_t*)malloc((MAX_DEG + 1) * sizeof(seq_t));
+    A = mem_new(seq_t, (MAX_DEG + 1));
     if (!A) exit(EXIT_FAILURE);
 
     /* Compute a(n) = Σ_{j=0..n} q_sign[j] * C(n-j+49,49) */
@@ -77,7 +79,7 @@ static void init_sequence(void)
 
     /* Clean up temporary arrays */
     free(q_sign);
-    free(comb);
+    mem_free(comb);
     init_done = 1;
 }
 

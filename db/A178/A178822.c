@@ -7,16 +7,24 @@
  * Formula:   a(n) = C(r+5,5) * C(r,k) where r = smallest row index with
  *            (r+1)(r+2)/2 > n k = n - r(r+1)/2 <= r (the triangle read by
  *            rows of T(n,k)=C(n+5,5)*C(n,k))
- * Range:     u8 n <= 9, u16 n <= 38, u32 n <= 217, u64 n <= 1102,
+ * Range:     u8 n <= 10, u16 n <= 38, u32 n <= 217, u64 n <= 1102,
  *            u128 n <= 1274, big any n
- * Helpers:   binomial, seq_mul
+ * Validated: standard, pass, 61 terms through n = 1254 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Compute the n-th term of A178822. */
 seq_t a(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 21, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>   /* for NULL */
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *F = NULL;      /* F[i] = hexanacci number F_6(i)      */
 static seq_t *S = NULL;      /* S[i] = a(i) = sum_{k=0..i} F_6(k)^2 */
@@ -34,8 +36,8 @@ static void ensure_capacity(idx_t new_cap)
     while (capacity < new_cap)
         capacity <<= 1;                /* grow multiplicatively */
 
-    F = (seq_t *)realloc(F, capacity * sizeof(seq_t));
-    S = (seq_t *)realloc(S, capacity * sizeof(seq_t));
+    F = mem_resize(seq_t, F, capacity);
+    S = mem_resize(seq_t, S, capacity);
 }
 
 /* compute F[i] and S[i] for all i from size up to and including n */

@@ -9,12 +9,14 @@
  *            = n – r(r+1)/2. T(n,k) = Σ_{j=0}^{n-k} C(k-1,j) * C(n-j-1,n-k-j)
  * Range:     i8 n <= 39, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t j = 0; j <= r - k; ++j)
     {
-        seq_t c1 = binom(k - 1, j);
-        seq_t c2 = binom(r - j - 1, r - k - j);
+        seq_t c1 = binomial(k - 1, j);
+        seq_t c2 = binomial(r - j - 1, r - k - j);
         sum += c1 * c2;
     }
     return sum;

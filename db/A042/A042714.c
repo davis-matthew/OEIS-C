@@ -8,6 +8,7 @@
  *            continued‑fraction expansion of sqrt(887)
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 17, u64 n <= 35, u128 n <= 76,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 192 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

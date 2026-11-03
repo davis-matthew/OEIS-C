@@ -8,14 +8,16 @@
  * Formula:   a(n) = 1 if n>1 and v₂(φ(n)) ≤ v₂(n−1), otherwise 0; a(1)=0
  *            where φ is Euler’s totient function and v₂(x) is the exponent of
  *            2 in x
- * Range:     u8 n <= 737, u16 n <= 8743, u32 n <= 8743, u64 n <= 8743,
- *            u128 n <= 8743, big any n
- * Helpers:   phi
+ * Range:     u8 n <= 737, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 137 terms through n = 8743 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* φ(n) as seq_t */
-    seq_t phi_val = phi(n);
+    seq_t phi_val = totient(n);
 
     /* compute exponent of 2 in φ(n) */
     unsigned int v2phi = 0;

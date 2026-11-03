@@ -11,6 +11,7 @@
  *            denominator of the fraction n / ((n-k)*(n-k+1)+n^2)
  * Range:     u8 n <= 66, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
+ * Validated: standard, pass, 94 terms through n = 120 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor( 2^( n / floor( n*log(2)/log(prime(n)) ) ) )
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"        /* seq_t big_pow(seq_t base, seq_t exp); */
+#include "../utils/ipow.h"
 
 /* --------------------------------------------------------------------- */
 /* Prime generation: sieve up to a fixed limit (200000 covers the 10000th prime) */
@@ -84,13 +85,13 @@ seq_t a(idx_t n)
     seq_t p = (seq_t)prime_n;
 
     /* Compute 2^n once */
-    seq_t pow2_n = big_pow((seq_t)2, (seq_t)n);
+    seq_t pow2_n = ipow((seq_t)2, (seq_t)n);
 
     /* Find b = floor(log_p (2^n))  (largest integer with p^b <= 2^n) */
     idx_t low_b = 1, high_b = n, best_b = 1;
     while (low_b <= high_b) {
         idx_t mid_b = low_b + (high_b - low_b) / 2;
-        seq_t p_mid = big_pow(p, (seq_t)mid_b);
+        seq_t p_mid = ipow(p, (seq_t)mid_b);
         if (p_mid <= pow2_n) {
             best_b = mid_b;
             low_b = mid_b + 1;
@@ -103,14 +104,14 @@ seq_t a(idx_t n)
 
     /* Compute largest integer m such that m^b <= 2^n (i.e. floor_root_b(2^n)) */
     idx_t exp_high = (n + b - 1) / b;                    /* ceil(n/b) */
-    seq_t high_m = big_pow((seq_t)2, (seq_t)exp_high);
+    seq_t high_m = ipow((seq_t)2, (seq_t)exp_high);
 
     seq_t low_m  = (seq_t)1;
     seq_t best_m = low_m;
 
     while (low_m <= high_m) {
         seq_t mid = (low_m + high_m) >> 1;
-        seq_t mid_pow = big_pow(mid, (seq_t)b);
+        seq_t mid_pow = ipow(mid, (seq_t)b);
         if (mid_pow <= pow2_n) {
             best_m = mid;
             low_m = mid + 1;

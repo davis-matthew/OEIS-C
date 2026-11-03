@@ -7,6 +7,7 @@
  * Formula:   a(n) = Prime[Abs[n-Prime[n-1]]] + PrimePi[n-PrimePi[n-2]]
  * Range:     u8 n <= 22, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 52 terms through n = 55 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

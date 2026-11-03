@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 6606, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 83 terms through n = 9573 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     idx_t k = 3;              /* start testing with the first odd integer >1 */
 
     while (count < n) {
-        if (is_prime(k) || mod_pow((seq_t)2, k-1, (seq_t)k) == (seq_t)1) {
+        if (is_prime(k) || powmod((seq_t)2, k-1, (seq_t)k) == (seq_t)1) {
             count++;
             if (count == n)
                 return (seq_t)k;

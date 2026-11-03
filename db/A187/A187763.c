@@ -11,13 +11,15 @@
  *            precision) and for idx_t = uint64_t
  * Range:     u8 n <= 25, u16 n <= 5658, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9444 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort – compares two seq_t values.  No conflict with
    externally defined names. */
@@ -67,8 +69,8 @@ seq_t a(idx_t n)
     }
 
     /* Sort both trajectories to allow linear‑time intersection. */
-    qsort(traj_n,  (size_t)len_n,  sizeof(seq_t), cmp_seq_t_local);
-    qsort(traj_np1, (size_t)len_np1, sizeof(seq_t), cmp_seq_t_local);
+    mem_qsort(traj_n, (size_t)len_n, sizeof(seq_t), cmp_seq_t_local);
+    mem_qsort(traj_np1, (size_t)len_np1, sizeof(seq_t), cmp_seq_t_local);
 
     /* Count common elements. */
     idx_t i = 0, j = 0;

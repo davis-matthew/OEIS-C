@@ -8,13 +8,15 @@
  *            sum_{m_1+...+m_k=n-k} ∏_{i=1}^k a(m_i) (k-fold convolution)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The following helper types are supplied by the build system. */
 extern seq_t seq_zero(void);   /* not used but denotes zero type */
@@ -41,17 +43,17 @@ static void ensure_capacity(idx_t n) {
 
     /* Reallocate /allocate A_vals */
     if (!A_vals) {
-        A_vals = (seq_t *)malloc(cap * sizeof(seq_t));
+        A_vals = mem_new(seq_t, cap);
     } else if (cap > A_cap) {
-        A_vals = (seq_t *)realloc(A_vals, cap * sizeof(seq_t));
+        A_vals = mem_resize(seq_t, A_vals, cap);
     }
     A_cap = cap;
 
     /* Reallocate /allocate pow2_vals */
     if (!pow2_vals) {
-        pow2_vals = (seq_t *)malloc(cap * sizeof(seq_t));
+        pow2_vals = mem_new(seq_t, cap);
     } else if (cap > pow2_cap) {
-        pow2_vals = (seq_t *)realloc(pow2_vals, cap * sizeof(seq_t));
+        pow2_vals = mem_resize(seq_t, pow2_vals, cap);
     }
     /* Compute missing powers of two */
     if (pow2_cap == 0) {
@@ -67,9 +69,9 @@ static void ensure_capacity(idx_t n) {
     /* Reallocate /allocate D[k] arrays for k = 1..8 */
     for (int k = 1; k <= 8; ++k) {
         if (!D[k]) {
-            D[k] = (seq_t *)malloc(cap * sizeof(seq_t));
+            D[k] = mem_new(seq_t, cap);
         } else if (cap > D_cap) {
-            D[k] = (seq_t *)realloc(D[k], cap * sizeof(seq_t));
+            D[k] = mem_resize(seq_t, D[k], cap);
         }
     }
     D_cap = cap;

@@ -8,13 +8,28 @@
  *            2^C(n,2) - Sum_{k=1..n-1} C(n-1,k-1)*A001187(k)*2^C(n-k,2)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   a001028_grow
+ * Validated: standard, pass, 31 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a001028_grow.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *a001028_z(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a001028_grow(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = a001028_z(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 seq_t a(idx_t n) {
     static seq_t *c = 0, *P = 0, *row = 0;

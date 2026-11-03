@@ -9,6 +9,7 @@
  *            shown that a(n)=1 for all n>6
  * Range:     u8 n <= 102, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
+ * Validated: partial, pass, 102 terms through n = 102 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 74, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   distinct_odd_digits, is_prime_small
+ * Validated: full, pass, 88 terms through n = 88 (2026-11-02)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,23 @@
  * The first `count` such primes are cached; subsequent calls reuse
  * the cache. */
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/distinct_odd_digits.h"
+#include "../utils/is_prime_seq.h"
+
+/* Return true if v has only odd digits and all those digits are unique. */
+static bool distinct_odd_digits(uint64_t v)
+{
+    uint8_t used[10] = {0};
+    while (v != 0) {
+        uint8_t d = (uint8_t)(v % 10);
+        if ((d & 1) == 0)           /* even digit */
+            return false;
+        if (used[d])
+            return false;           /* repeated digit */
+        used[d] = 1;
+        v /= 10;
+    }
+    return true;
+}
 
 /* External linkage as required by the build. */
 seq_t a(idx_t n)
@@ -36,7 +52,7 @@ seq_t a(idx_t n)
         /* Scan all integers up to 99999 – no larger integer can have
          * all odd digits. */
         for (uint64_t val = 3; val <= 99999 && count < 500; ++val) {
-            if (distinct_odd_digits(val) && is_prime_small(val)) {
+            if (distinct_odd_digits(val) && is_prime_seq(val)) {
                 cache[count++] = (seq_t)val;
             }
         }

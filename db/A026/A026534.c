@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{i=0..2*n} Sum_{j=0..n-1} A026519(j, i)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 49, u128 n <= 99,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 1000 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

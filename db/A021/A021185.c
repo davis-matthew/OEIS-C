@@ -7,13 +7,15 @@
  * Formula:   decimal digit of 1/181 at position n (0‑indexed)
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,14 +32,14 @@ seq_t a(idx_t n)
     /* Allocate or grow the digit array if necessary */
     if (digits == NULL) {
         cap = 64;
-        digits = (seq_t *)malloc(cap * sizeof(seq_t));
+        digits = mem_new(seq_t, cap);
     }
 
     /* Generate digits up to index n */
     for (; len <= n; ++len) {
         if (len >= cap) {
             cap <<= 1;                    /* double the capacity */
-            digits = (seq_t *)realloc(digits, cap * sizeof(seq_t));
+            digits = mem_resize(seq_t, digits, cap);
         }
         idx_t prod  = rem * 10;           /* multiply remainder by 10 */
         seq_t digit = (seq_t)(prod / 181);/* digit at this position   */

@@ -9,8 +9,9 @@
  *            s_k(L-1), ..., s_k(1)] with L = |s_k| = 2^k (the folding lemma
  *            applied to adding 1/4^(2^(k+1))). Because s_k(L) = 3, this
  *            gives: for 1 <= i <= 4, a(i) = 3,6,4,3; otherwise take...
- * Range:     u8 n <= 9007, u16 n <= 9007, u32 n <= 9007, u64 n <= 9007,
- *            u128 n <= 9007, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9007 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

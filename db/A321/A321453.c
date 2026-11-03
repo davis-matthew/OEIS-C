@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   dfs_partition, has_equal_sum_partition
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,63 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/dfs_partition.h"
-#include "../utils/has_equal_sum_partition.h"
+#include "../utils/mem.h"
+
+/* --- backtracking to test equal‑sum partition ----------------------------- */
+static bool dfs_partition(int idx, int M, int k, int target,
+                          const int *sorted, int *sums)
+{
+    if (idx == M) {
+        /* all elements placed – all groups must reach target */
+        for (int i = 0; i < k; ++i)
+            if (sums[i] != target) return false;
+        return true;
+    }
+    int val = sorted[idx];
+    for (int i = 0; i < k; ++i) {
+        if (sums[i] + val > target) continue;
+        if (i > 0 && sums[i] == sums[i - 1]) continue; /* avoid symmetry */
+        sums[i] += val;
+        if (dfs_partition(idx + 1, M, k, target, sorted, sums))
+            return true;
+        sums[i] -= val;
+    }
+    return false;
+}
+
+/* --- check whether multiset of indices can be partitioned ----------- */
+static bool has_equal_sum_partition(const int *indices, int M)
+{
+    if (M <= 1) return false;          /* cannot form ≥2 non‑empty groups */
+
+    int total = 0;
+    for (int i = 0; i < M; ++i) total += indices[i];
+
+    int sorted[64];
+    for (int i = 0; i < M; ++i) sorted[i] = indices[i];
+
+    /* simple bubble sort descending */
+    for (int i = 0; i < M - 1; ++i)
+        for (int j = i + 1; j < M; ++j)
+            if (sorted[i] < sorted[j]) {
+                int t = sorted[i];
+                sorted[i] = sorted[j];
+                sorted[j] = t;
+            }
+
+    for (int k = 2; k <= M; ++k) {
+        if (total % k != 0) continue;
+        int target = total / k;
+        if (sorted[0] > target) continue;       /* largest element too big */
+
+        int sums[64];
+        memset(sums, 0, k * sizeof(int));
+
+        if (dfs_partition(0, M, k, target, sorted, sums))
+            return true;
+    }
+    return false;
+}
 
 static const size_t PRIME_LIMIT = 2000000;          /* sieve limit   */
 static uint32_t *prime_list = NULL;                /* primes         */
@@ -112,7 +168,7 @@ seq_t a(idx_t n)
     while (seq_len < (size_t)n) {
         ++last_num;
         if (is_good((uint64_t)last_num)) {
-            seq_cache = (seq_t *)realloc(seq_cache, (seq_len + 1) * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, (seq_len + 1));
             seq_cache[seq_len] = (seq_t)last_num;
             seq_len++;
         }

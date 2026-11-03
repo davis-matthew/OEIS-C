@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 */
 
 #include <stddef.h>  /* for NULL */
+#include "../utils/mem.h"
 
 static seq_t seq[20001];          /* array big enough for n up to 20000 */
 static idx_t  computed = 18;      /* largest index that has been computed
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         static idx_t dyn_computed = 18;
 
         if (dyn == NULL) {
-            dyn = (seq_t *)malloc((size_t)(20001) * sizeof(seq_t));
+            dyn = mem_new(seq_t, (size_t)(20001));
             if (!dyn) return 0;  /* allocation failed */
             /* copy the already computed base terms */
             for (size_t i = 0; i <= 18; ++i) dyn[i] = seq[i];
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         /* Resize if necessary */
         if (n + 1 > dyn_size) {
             size_t new_size = (size_t)(n + 1);
-            seq_t *tmp = (seq_t *)realloc(dyn, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, dyn, new_size);
             if (!tmp) return 0;   /* allocation failed */
             dyn = tmp;
             dyn_size = new_size;

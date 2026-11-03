@@ -9,13 +9,15 @@
  *            1974*a(n-2) + 12916*a(n-3) - 11025*a(n-4)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* array of computed terms       */
 static idx_t  cache_len  = 0;      /* number of computed entries    */
@@ -41,7 +43,7 @@ static void extend_to(idx_t n)
     if ((size_t)(n + 1) > cache_cap)
     {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             return;          /* allocation failed – caller will get garbage */
         cache      = tmp;

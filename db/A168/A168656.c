@@ -10,13 +10,15 @@
  *            (equivalently, with parts ≤ k-1)
  * Range:     u8 n <= 43, u16 n <= 110, u32 n <= 319, u64 n <= 1030,
  *            u128 n <= 3602, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9422 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Number of partitions of m with parts only from 1..k-1.
    The algorithm builds the table incrementally: for each k we add
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Allocate DP array: dp[m] = partitions of m using parts ≤ current_k */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp  = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, sz);
     if (!dp) return 0;               /* allocation failure → 0 */
     dp[0] = 1;                       /* empty partition */
 
@@ -45,6 +47,6 @@ seq_t a(idx_t n)
             dp[m] += dp[m - k];
         }
     }
-    free(dp);
+    mem_free(dp);
     return result;
 }

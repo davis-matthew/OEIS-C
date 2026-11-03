@@ -11,6 +11,7 @@
  *            f(0)=f(1)=f(2)=1, f(k)= (n+1)³ · (f(k-2)+f(k-3)) for k≥3
  * Range:     u8 n <= 28, u16 n <= 56, u32 n <= 109, u64 n <= 259,
  *            u128 n <= 673, big any n
+ * Validated: standard, pass, 71 terms through n = 1319 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

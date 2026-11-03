@@ -8,16 +8,29 @@
  * Keywords:  nonn, base, easy, look, tabl
  * Formula:   a(n) = flattening of the triangle T(n,k) where T(n,k) = n/k if k
  *            | n, otherwise the concatenation of floor(n/k) and n mod k
- * Range:     u8 n <= 913, u16 n <= 8543, u32 n <= 8543, u64 n <= 8543,
- *            u128 n <= 8543, big any n
- * Helpers:   digit_len, pow10
+ * Range:     u8 n <= 913, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 8543 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required utility functions from the provided library */
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -51,7 +64,7 @@ seq_t a(idx_t n)
 
     /* Otherwise concatenate q and rem:
        T = q * 10^(digits(rem)) + rem. */
-    idx_t digits_rem = digit_len((seq_t)rem); /* number of decimal digits of rem */
+    idx_t digits_rem = num_digits((seq_t)rem); /* number of decimal digits of rem */
     seq_t pow = pow10(digits_rem);            /* 10^digits_rem as seq_t */
     seq_t result = (seq_t)q * pow + (seq_t)rem;
 

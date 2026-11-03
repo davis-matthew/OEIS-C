@@ -11,12 +11,14 @@
  *            odd parts)
  * Range:     u8 n <= 67, u16 n <= 175, u32 n <= 511, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static arrays holding partitions up to the current maximum */
 static seq_t *p_arr = NULL;   /* standard partitions */
@@ -29,8 +31,8 @@ static void ensure_arrays(idx_t m)
     if (m <= arr_max) return;          /* already available */
 
     /* Create new arrays large enough to hold values 0..m */
-    seq_t *new_p = (seq_t*)calloc((size_t)(m + 1), sizeof(seq_t));
-    seq_t *new_d = (seq_t*)calloc((size_t)(m + 1), sizeof(seq_t));
+    seq_t *new_p = mem_new(seq_t, (size_t)(m + 1));
+    seq_t *new_d = mem_new(seq_t, (size_t)(m + 1));
 
     /* Base values */
     new_p[0] = 1;
@@ -51,8 +53,8 @@ static void ensure_arrays(idx_t m)
     }
 
     /* Replace old arrays */
-    free(p_arr);
-    free(d_arr);
+    mem_free(p_arr);
+    mem_free(d_arr);
     p_arr = new_p;
     d_arr = new_d;
     arr_max = m;

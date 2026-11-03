@@ -9,14 +9,17 @@
  *            b(n) in lowest terms
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 15, u64 n <= 21, u128 n <= 26,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 38 terms through n = 66 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* compute a(n) – numerator of b(n) */
 seq_t a(idx_t n)
@@ -33,8 +36,8 @@ seq_t a(idx_t n)
     /* ---------- initialise storage on first call ---------- */
     if (cap == 0) {
         cap = 2;                  /* at least index 1 must be available */
-        num = (seq_t *)malloc(cap * sizeof(seq_t));
-        den = (seq_t *)malloc(cap * sizeof(seq_t));
+        num = mem_new(seq_t, cap);
+        den = mem_new(seq_t, cap);
         if (!num || !den) return 0;   /* allocation failed */
         num[1] = (seq_t)1;          /* b(1) = 1/1 */
         den[1] = (seq_t)1;
@@ -45,8 +48,8 @@ seq_t a(idx_t n)
     if ((idx_t)cap <= n) {
         size_t new_cap = cap;
         while ((idx_t)new_cap <= n) new_cap <<= 1;  /* double until enough */
-        seq_t *tmp_num = (seq_t *)realloc(num, new_cap * sizeof(seq_t));
-        seq_t *tmp_den = (seq_t *)realloc(den, new_cap * sizeof(seq_t));
+        seq_t *tmp_num = mem_resize(seq_t, num, new_cap);
+        seq_t *tmp_den = mem_resize(seq_t, den, new_cap);
         if (!tmp_num || !tmp_den) return 0;         /* allocation failed */
         num = tmp_num;
         den = tmp_den;

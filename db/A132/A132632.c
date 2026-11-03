@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   compute_rank_prime, gcd
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,21 @@
  * beyond the provided helpers.  */
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/compute_rank_prime.h"
+
+/* --- Compute rank(p) : minimal k>0 with Fib(k) ≡ 0 (mod p) (p prime) -------- */
+static seq_t compute_rank_prime(uint32_t p)
+{
+    idx_t mod = (idx_t)p;
+    idx_t a = 0, b = 1;          /* b holds Fib(k) mod p */
+    for (idx_t k = 1;; ++k) {
+        if (b == 0) return (seq_t)k;
+        idx_t c = (a + b) % mod;  /* next Fibonacci modulo p */
+        a = b;
+        b = c;
+    }
+}
 
 static bool primes_inited = false;
 static uint32_t primes[1229];

@@ -8,13 +8,15 @@
  *            (1-x^{m_i})), where k = 9 and m_i = 1,3,5,7,9,11,13,15,17
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 47, u64 n <= 780, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Coefficients of the denominator D(x) = (1-x)^9 * Π_i (1-x^{m_i})   */
 /* Length 91 → coefficients for degrees 0 … 90 */
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if ((idx_t)cache_size <= n) {
         size_t newsize = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (!tmp) {                 /* memory failure – safe default */
             return 0;
         }

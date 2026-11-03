@@ -8,12 +8,19 @@
  *            9*d^2 = n
  * Range:     u8 n <= 147, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   coeff_square
+ * Validated: standard, pass, 85 terms through n = 9637 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/coeff_square.h"
+/* Helper: compute coeff*val^2 without 64‑bit overflow */
+static inline idx_t coeff_square(idx_t val, idx_t coeff)
+{
+    /* val^2*coeff fits in 64 bits because coeff*val^2 <= n */
+    __uint128_t prod = (__uint128_t)val * val * coeff;
+    return (idx_t)prod;
+}
 /* Integer floor square root for a 64‑bit unsigned integer */
 static inline idx_t isqrt_u64(idx_t x)
 {

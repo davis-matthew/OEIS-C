@@ -9,7 +9,8 @@
  *            integer k such that k+1 is also nonsquarefree
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 104 terms through n = 9827 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 /* Utility for prime factorisation of uint64_t numbers.
  * The implementation is supplied externally; include its header. */
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Helper: check if n is nonsquarefree (has a squared prime factor). */
 static bool is_nonsquarefree(uint64_t n)
@@ -82,12 +84,12 @@ seq_t a(idx_t n)
         if (cache_size == 0)
         {
             cache_size = 16;
-            cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_size);
         }
         else if (found_terms >= cache_size)
         {
             cache_size <<= 1;
-            cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_size);
         }
 
         cache[found_terms++] = val;

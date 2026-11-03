@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 7823, u16 n <= 7823, u32 n <= 7823, u64 n <= 7823,
- *            u128 n <= 7823, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 136 terms through n = 7823 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for previously computed terms */
 static seq_t *seq_cache = NULL;   /* array of computed values */
@@ -42,9 +44,9 @@ static void ensure_upto(idx_t n)
     }
 
     if (!seq_cache) {
-        seq_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, new_cap);
     } else {
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) {
             /* out‑of‑memory: abort program */
             abort();

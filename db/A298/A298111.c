@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Ensure the dynamic array pointed to by *arr has at least 'needed'
  * elements, reallocating and optionally doubling the capacity. */
@@ -34,7 +36,7 @@ ensure_seq_cap(seq_t **arr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t new_cap = *cap ? *cap * 2 : 16;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();
         *arr = tmp;
         *cap = new_cap;
@@ -94,8 +96,8 @@ init_sequences(void)
 
     a_cap = 16;
     b_cap = 16;
-    a_vals = (seq_t *)malloc(a_cap * sizeof(seq_t));
-    b_vals = (seq_t *)malloc(b_cap * sizeof(seq_t));
+    a_vals = mem_new(seq_t, a_cap);
+    b_vals = mem_new(seq_t, b_cap);
     if (!a_vals || !b_vals) abort();
 
     /* a(0)=1, a(1)=2 */

@@ -8,12 +8,14 @@
  *            16*binomial(n-5,1)) for n>5, a(n)=0 for 1≤n≤5
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached factorials: fact_cache[i] = i! for 0 <= i < fact_cache_len */
 static seq_t *fact_cache = NULL;
@@ -24,7 +26,7 @@ static void ensure_factorial_cache(idx_t up_to)
 {
     /* Allocate the cache on first use. */
     if (fact_cache == NULL) {
-        fact_cache = (seq_t*)malloc(sizeof(seq_t));
+        fact_cache = mem_new(seq_t, 1);
         if (!fact_cache) return;               /* allocation failure: leave cache empty */
         fact_cache[0] = (seq_t)1;              /* 0! = 1 */
         fact_cache_len = 1;
@@ -34,7 +36,7 @@ static void ensure_factorial_cache(idx_t up_to)
     if ((idx_t)fact_cache_len > up_to) return;
 
     size_t new_len = (size_t)up_to + 1;
-    seq_t *tmp = (seq_t*)realloc(fact_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact_cache, new_len);
     if (!tmp) return;                         /* allocation failure: keep old cache */
 
     for (idx_t i = (idx_t)fact_cache_len; i <= up_to; ++i) {

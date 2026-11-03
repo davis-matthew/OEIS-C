@@ -8,14 +8,27 @@
  *            (i.e. a(1)=0, a(2)=0, a(5)=2, etc.)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_ones
+ * Validated: standard, pass, 121 terms through n = 9718 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/count_ones.h"
+
+/* Count the decimal digit '1' in a non‑negative integer x. */
+static seq_t count_ones(idx_t x)
+{
+    seq_t ones = 0;
+    while (x > 0) {
+        if ((x % (idx_t)10) == (idx_t)1) {
+            ++ones;
+        }
+        x /= (idx_t)10;
+    }
+    return ones;
+}
 
 /* ---------- internal state ----------------------------------------- */
 static idx_t *prime_list = NULL;   /* array of found primes */

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 27, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
- *            big any n
- * Helpers:   distinct_prime_factors, is_prime, mod_pow2
+ * Range:     u8 n <= 27, u16 n <= 4081, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 68 terms through n = 9886 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,9 +31,47 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/is_prime.h"
-#include "../utils/distinct_prime_factors.h"
-#include "../utils/mod_pow2.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Return the distinct prime factors of the positive integer m
+   (stored in fac[], length up to cap).  The number of factors
+   is written to *len.  The caller supplies a small array
+   (cap ≥ 4 is sufficient for the ranges we need). */
+static void distinct_prime_factors(idx_t m, idx_t fac[], size_t cap, size_t *len)
+{
+    *len = 0;
+    if (m <= 1) return;
+
+    /* Factor out 2 first. */
+    if ((m & 1) == 0) {
+        if (*len < cap) fac[(*len)++] = 2;
+        while ((m & 1) == 0) m >>= 1;
+    }
+
+    /* Odd factors. */
+    for (idx_t d = 3; d * d <= m; d += 2) {
+        if ((m % d) == 0) {
+            if (*len < cap) fac[(*len)++] = d;
+            while (m % d == 0) m /= d;
+        }
+    }
+    if (m > 1 && *len < cap) fac[(*len)++] = m;
+}
+
+/* Compute 2^exp mod mod (all 64‑bit).  Uses 128‑bit multiplication. */
+static uint64_t mod_pow2(uint64_t exp, uint64_t mod)
+{
+    uint64_t base = 2 % mod;
+    uint64_t res  = 1 % mod;
+    while (exp > 0) {
+        if (exp & 1)
+            res = (unsigned __int128)res * base % mod;
+        base = (unsigned __int128)base * base % mod;
+        exp >>= 1;
+    }
+    return res;
+}
 
 /* Euclidean gcd for idx_t (unsigned 64‑bit). */
 static inline idx_t gcd_idx(idx_t a, idx_t b)
@@ -57,7 +96,7 @@ seq_t a(idx_t n)
     /* Allocate or enlarge cache as needed. */
     if (cache == NULL) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) exit(EXIT_FAILURE);
     }
 
@@ -66,7 +105,7 @@ seq_t a(idx_t n)
         /* Test candidate n = next_n. */
         uint64_t p = 8ULL * next_n + 1ULL;
 
-        if (is_prime(p)) {
+        if (is_prime_u64(p)) {
             /* Compute ord₂(p).  It divides p‑1 = 8·next_n.
                Start with the full exponent and reduce by prime factors. */
             uint64_t ord = p - 1;
@@ -88,7 +127,7 @@ seq_t a(idx_t n)
                 /* Store this qualifying n. */
                 if (cache_cnt >= cache_cap) {
                     cache_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                     if (tmp == NULL) exit(EXIT_FAILURE);
                     cache = tmp;
                 }

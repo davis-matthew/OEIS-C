@@ -12,7 +12,8 @@
  *            summed over cycle types (partitions of n), weight n!...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   a871_addsh, a871_divs, a871_muls
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,44 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a871_addsh.h"
-#include "../utils/a871_divs.h"
-#include "../utils/a871_muls.h"
+
+static void a871_addsh(uint32_t *acc, int L, const uint32_t *s, int SL, uint64_t e) {
+    int w = (int)(e / 32), bit = (int)(e % 32), i;
+    uint64_t pending = 0, carry = 0;
+    for (i = 0; i <= SL && w + i < L; i++) {
+        uint64_t x;
+        if (i < SL) pending += (uint64_t)s[i] << bit;
+        x = (uint64_t)acc[w + i] + (pending & 0xffffffffULL) + carry;
+        acc[w + i] = (uint32_t)x;
+        carry = x >> 32;
+        pending >>= 32;
+    }
+    for (; carry && w + i < L; i++) {
+        uint64_t x = (uint64_t)acc[w + i] + carry;
+        acc[w + i] = (uint32_t)x;
+        carry = x >> 32;
+    }
+}
+
+static void a871_divs(uint32_t *x, int L, uint32_t d) {
+    uint64_t r = 0;
+    int i;
+    for (i = L - 1; i >= 0; i--) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static void a871_muls(uint32_t *x, int L, uint32_t m) {
+    uint64_t c = 0;
+    int i;
+    for (i = 0; i < L; i++) {
+        uint64_t cur = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)cur;
+        c = cur >> 32;
+    }
+}
 
 typedef struct {
     int n;

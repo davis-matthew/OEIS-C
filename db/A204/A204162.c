@@ -8,8 +8,9 @@
  * Formula:   a(n) = 1 except when the n‑th element in the antidiagonal
  *            traversal of the infinite symmetric matrix M(i,j) is on the main
  *            diagonal; then a(n)=floor((i+1)/2)
- * Range:     u8 n <= 9131, u16 n <= 9131, u32 n <= 9131, u64 n <= 9131,
- *            u128 n <= 9131, big any n
+ * Range:     u8 n <= 65703, u16 n <= 65703, u32 n <= 65703, u64 n <= 65703,
+ *            u128 n <= 65703, big any n
+ * Validated: standard, pass, 115 terms through n = 9131 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

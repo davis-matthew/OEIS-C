@@ -9,6 +9,7 @@
  *            M_k = 2^{p_k} - 1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 29,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 442 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

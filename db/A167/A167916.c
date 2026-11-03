@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   free_old_cache
+ * Validated: standard, pass, 34 terms through n = 470 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,11 @@
 /* Standard headers for dynamic memory and integer types */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/free_old_cache.h"
+
+static void free_old_cache(void *p)
+{
+    free(p);
+}
 
 /* ------------------------------------------------------------
    Internal allocation helpers (similar to the ones in the

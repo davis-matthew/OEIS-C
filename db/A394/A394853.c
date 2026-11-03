@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{k=0..n} 5^k * binomial(k+2,2) * binomial(6*n+6, n-k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache of powers of 5 */
 static seq_t *pow5 = NULL;
@@ -23,14 +25,14 @@ static idx_t pow5_size = 0;
 static void ensure_pow5_up_to(idx_t n) {
     if (pow5 == NULL) {
         pow5_cap = 128;
-        pow5 = (seq_t*)malloc(pow5_cap * sizeof(seq_t));
+        pow5 = mem_new(seq_t, pow5_cap);
         pow5_size = 0;
     }
     if (pow5_size <= n) {
         if (pow5_cap <= (size_t)n) {
             size_t new_cap = pow5_cap;
             while (new_cap <= (size_t)n) new_cap <<= 1;
-            pow5 = (seq_t*)realloc(pow5, new_cap * sizeof(seq_t));
+            pow5 = mem_resize(seq_t, pow5, new_cap);
             pow5_cap = new_cap;
         }
         for (idx_t i = pow5_size; i <= n; ++i) {
@@ -51,7 +53,7 @@ static idx_t cache_size = 0;
 static void ensure_cache_up_to(idx_t n) {
     if (cache == NULL) {
         cache_cap = 128;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_size = 0;
     }
 
@@ -84,7 +86,7 @@ static void ensure_cache_up_to(idx_t n) {
 
         if (cache_size == cache_cap) {
             size_t new_cap = cache_cap << 1;
-            cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
         cache[cache_size] = sum;

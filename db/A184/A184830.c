@@ -9,7 +9,8 @@
  *            (A000961(n) mod k), or 0 when no such k exists
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 9790, u64 n <= 9790,
  *            u128 n <= 9790, big any n
- * Helpers:   compare_seq_t
+ * Validated: standard, pass, 76 terms through n = 9019 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/compare_seq_t.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 static seq_t *prime_powers = NULL;   /* 0‑indexed array of A000961 values   */
 static size_t pp_size  = 0;          /* number of elements stored            */
@@ -36,7 +47,7 @@ static void ensure_capacity_pp(size_t need)
     if (pp_cap >= need) return;
     size_t new_cap = pp_cap ? pp_cap * 2 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(prime_powers, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_powers, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     prime_powers = tmp;
     pp_cap = new_cap;
@@ -54,7 +65,7 @@ static void init_sequence(void)
 
     /* Allocate initial space for prime powers. */
     pp_cap   = 8192;
-    prime_powers = (seq_t *)malloc(pp_cap * sizeof(seq_t));
+    prime_powers = mem_new(seq_t, pp_cap);
     if (!prime_powers) exit(EXIT_FAILURE);
 
     /* Insert the first element of A000961 (value 1). */
@@ -89,7 +100,7 @@ static void init_sequence(void)
     free(prime_flag);
 
     /* Sort the collected prime powers to obtain A000961 in ascending order. */
-    qsort(prime_powers, pp_size, sizeof(seq_t), compare_seq_t);
+    mem_qsort(prime_powers, pp_size, sizeof(seq_t), compare_seq_t);
 }
 
 /* Main OEIS function as required. */

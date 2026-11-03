@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{i=1..n} (2*n - i) * c(i) (c(i)=1 iff i is prime)
  * Range:     u8 n <= 20, u16 n <= 467, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h> /* for bool if needed */
+#include "../utils/mem.h"
 
 static idx_t sieve_max = 0;
 static uint8_t *prime_flag      = NULL;   /* 0/1 flag for primality */
@@ -30,12 +32,12 @@ static void ensure_sieve(idx_t n)
     /* free old arrays */
     free(prime_flag);
     free(prime_pi);
-    free(prime_sum);
+    mem_free(prime_sum);
 
     sieve_max = n;
     prime_flag = (uint8_t *)malloc((n + 1) * sizeof(uint8_t));
     prime_pi   = (idx_t  *)malloc((n + 1) * sizeof(idx_t));
-    prime_sum  = (seq_t  *)malloc((n + 1) * sizeof(seq_t));
+    prime_sum  = mem_new(seq_t, (n + 1));
 
     if (!prime_flag || !prime_pi || !prime_sum) return; /* out of memory */
 

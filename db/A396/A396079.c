@@ -10,12 +10,29 @@
  *            (including the trivial 1‑term factorization [m])
  * Range:     u8 n <= 35, u16 n <= 71, u32 n <= 143, u64 n <= 287,
  *            u128 n <= 719, big any n
- * Helpers:   _count_factorizations
+ * Validated: standard, pass, 91 terms through n = 982 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_count_factorizations.h"
+/* Compute the number of factorizations of m with factors ≥ f. */
+static uint64_t _count_factorizations(uint64_t m, uint64_t f)
+{
+    if (m < f)
+        return 0;            /* impossible to factor */
+    uint64_t cnt = 1;        /* the trivial factorization [m] */
+    for (uint64_t d = f; d * d <= m; ++d) {
+        if (m % d == 0) {
+            uint64_t q = m / d;
+            /* In a sorted, nondecreasing factorization the first factor
+               is d, so the rest must be factored with smallest factor ≥ d. */
+            if (q >= d)
+                cnt += _count_factorizations(q, d);
+        }
+    }
+    return cnt;
+}
 
 /* Fast exponentiation for seq_t. */
 static seq_t _pow_seq_t(seq_t base, uint64_t exp)

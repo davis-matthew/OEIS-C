@@ -11,7 +11,8 @@
  *            and returns the n‑th element (1‑based)
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 72 terms through n = 9255 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(..., uint64_t **, size_t *) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t *sum_cache = NULL;   /* array of unique sums */
 static size_t cache_len  = 0;     /* number of sums stored */
@@ -54,14 +56,14 @@ static void build_cache(void)
                           (prime_cnt - 2) * (prime_cnt - 3) / 24;
 
     /* Allocate space for all sums */
-    sum_cache = (seq_t *)malloc(total_combos * sizeof(seq_t));
+    sum_cache = mem_new(seq_t, total_combos);
     if (!sum_cache) {                /* allocation failed – leave cache empty */
         free(primes);
         return;
     }
 
     /* Pre‑compute squares of each prime */
-    seq_t *psq = (seq_t *)malloc(prime_cnt * sizeof(seq_t));
+    seq_t *psq = mem_new(seq_t, prime_cnt);
     for (size_t i = 0; i < prime_cnt; ++i) {
         seq_t p = (seq_t)primes[i];
         psq[i] = p * p;
@@ -82,11 +84,11 @@ static void build_cache(void)
         }
     }
 
-    free(psq);
+    mem_free(psq);
     free(primes);
 
     if (idx == 0) {             /* nothing generated – should not happen */
-        free(sum_cache);
+        mem_free(sum_cache);
         sum_cache = NULL;
         cache_len = 0;
         cache_ready = true;
@@ -94,7 +96,7 @@ static void build_cache(void)
     }
 
     /* Sort all sums */
-    qsort(sum_cache, idx, sizeof(seq_t), seq_cmp);
+    mem_qsort(sum_cache, idx, sizeof(seq_t), seq_cmp);
 
     /* Deduplicate in place – keep first unique value at position 0 */
     size_t uniq = 0;
@@ -106,7 +108,7 @@ static void build_cache(void)
     cache_len = uniq;
 
     /* Resize buffer to the exact needed size */
-    seq_t *tmp = (seq_t *)realloc(sum_cache, cache_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, sum_cache, cache_len);
     if (tmp)
         sum_cache = tmp;
 

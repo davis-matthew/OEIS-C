@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   d2xy, rot
+ * Validated: standard, pass, 74 terms through n = 7869 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,34 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/d2xy.h"
-#include "../utils/rot.h"
+#include "../utils/mem.h"
+
+static void rot(uint32_t n, uint32_t *x, uint32_t *y, uint32_t rx, uint32_t ry)
+{
+    if (ry == 0) {
+        if (rx == 1) {
+            *x = n - 1 - *x;
+            *y = n - 1 - *y;
+        }
+        /* swap x and y */
+        uint32_t t = *x;
+        *x = *y;
+        *y = t;
+    }
+}
+
+static void d2xy(uint32_t n, uint32_t d, uint32_t *x, uint32_t *y)
+{
+    *x = *y = 0;
+    for (uint32_t s = 1; s < n; s <<= 1) {
+        uint32_t rx = 1 & (d >> 1);
+        uint32_t ry = 1 & (d ^ rx);
+        rot(s, x, y, rx, ry);
+        *x += s * rx;
+        *y += s * ry;
+        d >>= 2;
+    }
+}
 
 /* ---- Hilbert curve helpers -------------------------------------------------- */
 
@@ -57,7 +84,7 @@ seq_t a(idx_t n)
 
     /* Initialise global state on first call */
     if (king_pos == NULL) {
-        king_pos = (seq_t *)malloc(TOTAL_SQUARES * sizeof(seq_t));
+        king_pos = mem_new(seq_t, TOTAL_SQUARES);
         if (king_pos == NULL) abort();
 
         occupied = (uint8_t *)calloc(TOTAL_SQUARES, 1);

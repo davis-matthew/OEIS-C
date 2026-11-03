@@ -8,7 +8,8 @@
  *            x^n
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for memoisation */
 static seq_t *pow3_arr = NULL;
@@ -39,14 +41,14 @@ static void ensure_precomp(idx_t N)
         return;
 
     /* free old buffers if they exist */
-    if (pow3_arr) free(pow3_arr);
-    if (b_arr)    free(b_arr);
-    if (a_arr)    free(a_arr);
+    if (pow3_arr) mem_free(pow3_arr);
+    if (b_arr)    mem_free(b_arr);
+    if (a_arr)    mem_free(a_arr);
 
     /* allocate new buffers of size N+1 (indices 0..N) */
-    pow3_arr = (seq_t *)malloc((size_t)(N + 1u) * sizeof(seq_t));
-    b_arr    = (seq_t *)malloc((size_t)(N + 1u) * sizeof(seq_t));
-    a_arr    = (seq_t *)malloc((size_t)(N + 1u) * sizeof(seq_t));
+    pow3_arr = mem_new(seq_t, (size_t)(N + 1u));
+    b_arr    = mem_new(seq_t, (size_t)(N + 1u));
+    a_arr    = mem_new(seq_t, (size_t)(N + 1u));
 
     if (!pow3_arr || !b_arr || !a_arr) {   /* allocation failed */
         /* nothing more we can do – leave uninitialised */
@@ -69,15 +71,15 @@ static void ensure_precomp(idx_t N)
     }
 
     /* temporary arrays for positive and negative parts of b_k   */
-    seq_t *pos_arr = (seq_t *)malloc((size_t)(N + 1u) * sizeof(seq_t));
-    seq_t *neg_arr = (seq_t *)malloc((size_t)(N + 1u) * sizeof(seq_t));
+    seq_t *pos_arr = mem_new(seq_t, (size_t)(N + 1u));
+    seq_t *neg_arr = mem_new(seq_t, (size_t)(N + 1u));
     if (!pos_arr || !neg_arr) {
-        free(pow3_arr);
-        free(b_arr);
-        free(a_arr);
+        mem_free(pow3_arr);
+        mem_free(b_arr);
+        mem_free(a_arr);
         pow3_arr = b_arr = a_arr = NULL;
-        if (pos_arr) free(pos_arr);
-        if (neg_arr) free(neg_arr);
+        if (pos_arr) mem_free(pos_arr);
+        if (neg_arr) mem_free(neg_arr);
         cap = 0;
         return;
     }
@@ -108,8 +110,8 @@ static void ensure_precomp(idx_t N)
         b_arr[k] -= neg_arr[k];
     }
 
-    free(pos_arr);
-    free(neg_arr);
+    mem_free(pos_arr);
+    mem_free(neg_arr);
 
     /* recurrence for a(n) */
     a_arr[0] = (seq_t)1;

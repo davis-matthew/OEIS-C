@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 142, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   good_condition
+ * Validated: standard, pass, 81 terms through n = 9385 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,39 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/good_condition.h"
+#include "../utils/mem.h"
+
+/* Return true if integer k satisfies the OEIS condition. */
+static bool good_condition(idx_t k)
+{
+    idx_t x = k;
+    unsigned exp2 = 0;
+
+    /* handle factor 2 */
+    while ((x & 1ULL) == 0) {
+        exp2++;
+        x >>= 1;
+    }
+    if ((exp2 & 1U) != 0)          /* 2-adic exponent must be even */
+        return false;
+
+    /* factor odd primes up to sqrt(x) */
+    for (idx_t p = 3; p <= x / p; p += 2) {
+        if (x % p == 0) {
+            unsigned exp = 0;
+            while (x % p == 0) {
+                exp++;
+                x /= p;
+            }
+            /* odd prime exponent must be 0 or 1 mod 4 */
+            if (exp % 4 > 1)
+                return false;
+        }
+    }
+
+    /* any remaining x > 1 is an odd prime with exponent 1 – acceptable */
+    return true;
+}
 
 static seq_t *seq = NULL;          /* cached terms */
 static idx_t seq_size = 0;         /* number of cached terms */
@@ -35,7 +68,7 @@ static void ensure_seq_cap(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     while (new_cap < need)
         new_cap *= 2;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 

@@ -7,13 +7,17 @@
  * Formula:   a(n) = Σ_{k=0}^{n-1} binom(n,k) * (-n)^k * (n-k)^{n-k-1}
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 9, i64 n <= 15, i128 n <= 26,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 35 terms through n = 380 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +34,7 @@ seq_t a(idx_t n)
     {
         seq_t binom = binomial(n, k);                 /* C(n,k) */
         seq_t n_k   = (seq_t)(n - k);                 /* n - k   */
-        seq_t pow_nk = big_pow(n_k,
+        seq_t pow_nk = ipow(n_k,
                                (seq_t)(n - k - 1));     /* (n-k)^{n-k-1} */
         seq_t term = binom * powNeg_n * pow_nk;
         result += term;                               /* accumulate */

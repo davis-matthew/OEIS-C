@@ -10,7 +10,8 @@
  *            and can be called with indices in any order
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 363 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------- static workspace --------------------------------- */
 static seq_t *a_cache   = NULL;   /* memoised a(n) values                */
@@ -33,7 +35,7 @@ static void ensure_workspace(idx_t n)
 
     idx_t new_size = (n + 1) * 2;                   /* grow by 2×       */
 
-    seq_t *new_a = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_cache, new_size);
     uint32_t *new_d = (uint32_t *)realloc(divcnt, new_size * sizeof(uint32_t));
     if (!new_a || !new_d)
         abort();                                   /* allocation failed */

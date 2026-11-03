@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2 * Σ_{k=1..n} k * |Stirling1(n,k)| * a(k-1), a(0)=1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n) {
@@ -30,12 +32,12 @@ seq_t a(idx_t n) {
     /* ---------- allocation / resizing ---------- */
     if (a_len == 0) {        /* first call: initialize for n=0 */
         a_len = 1;
-        a_arr = (seq_t*)malloc(sizeof(seq_t) * 1);
+        a_arr = mem_new(seq_t, 1);
         a_arr[0] = 1;         /* a(0) = 1 */
         /* allocate Stirling arrays of size 1 */
         s_len = 1;
-        s_prev = (seq_t*)malloc(sizeof(seq_t) * 1);
-        s_cur  = (seq_t*)malloc(sizeof(seq_t) * 1);
+        s_prev = mem_new(seq_t, 1);
+        s_cur  = mem_new(seq_t, 1);
         s_prev[0] = 1;        /* s[0][0] = 1 */
     }
 
@@ -43,11 +45,11 @@ seq_t a(idx_t n) {
     if ((idx_t)n >= a_len) {
         idx_t new_len = (idx_t)n + 1;
         /* resize a_arr */
-        a_arr = (seq_t*)realloc(a_arr, sizeof(seq_t) * new_len);
+        a_arr = mem_resize(seq_t, a_arr, new_len);
         /* resize Stirling arrays */
         if (new_len > s_len) {
-            s_prev = (seq_t*)realloc(s_prev, sizeof(seq_t) * new_len);
-            s_cur  = (seq_t*)realloc(s_cur,  sizeof(seq_t) * new_len);
+            s_prev = mem_resize(seq_t, s_prev, new_len);
+            s_cur  = mem_resize(seq_t, s_cur, new_len);
             /* zero new entries */
             for (idx_t i = s_len; i < new_len; ++i) {
                 s_prev[i] = 0;

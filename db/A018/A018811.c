@@ -11,13 +11,15 @@
  *            contributions for |x|=0 or |y|=0
  * Range:     u8 n <= 11, u16 n <= 44, u32 n <= 737, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_int
+ * Validated: standard, pass, 63 terms through n = 965 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_int.h"
+#include <stddef.h>
+#include "../utils/gcd_i32.h"
 
 /* Euclidean algorithm for non‑negative integers. */
 
@@ -47,7 +49,7 @@ static seq_t f_val(idx_t n, int k) {
         for (int x = 1; x <= max_abs; ++x) {
             int px = prod[x];
             for (int y = 1; y <= max_abs; ++y) {
-                if (gcd_int(x, y) != 1) continue;
+                if (gcd_i32(x, y) != 1) continue;
                 int py = prod[y];
                 sum += (seq_t)4 * (seq_t)px * (seq_t)py;
             }

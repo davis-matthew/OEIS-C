@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_DESC 32           /* maximum outgoing edges per state */
 #define MAX_NODES 2048        /* sufficient for this automaton */
@@ -127,8 +129,8 @@ seq_t a(idx_t n)
 
     /* dynamic arrays for DP */
     size_t sz = (size_t)nodeCount;
-    seq_t *cur = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, sz);
+    seq_t *nxt = mem_new(seq_t, sz);
     if (!cur || !nxt) return (seq_t)0;    /* allocation failure */
 
     cur[0] = (seq_t)1;                    /* start node has id 0 */
@@ -136,7 +138,7 @@ seq_t a(idx_t n)
     size_t step;
     for (step = 0; step < (size_t)n; ++step) {
         /* zero next vector */
-        memset(nxt, 0, sz * sizeof(seq_t));
+        mem_set(nxt, 0, sz * sizeof(seq_t));
 
         for (size_t i = 0; i < sz; ++i) {
             if (!cur[i]) continue;
@@ -161,7 +163,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < sz; ++i)
         result += cur[i];
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return result;
 }

@@ -9,6 +9,7 @@
  *            T(m,k)=C(2*m+1,k)
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 169, u64 n <= 623,
  *            u128 n <= 2270, big any n
+ * Validated: standard, pass, 73 terms through n = 6876 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

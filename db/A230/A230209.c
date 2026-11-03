@@ -11,13 +11,16 @@
  * Formula:   a(n) enumerates the trapezoid T(r,c) where T(r,c) = Σ_{i=0}^6
  *            (-1)^i·C(6,i)·C(r-1,c-i), with 0 ≤ c ≤ r+5, r ≥ 1. a(n) is the
  *            row‑major traversal of T starting from r=1, c=0
- * Range:     i8 n <= 93, i16 n <= 221, i32 n <= 786, i64 n <= 1575,
+ * Range:     i8 n <= 156, i16 n <= 398, i32 n <= 1039, i64 n <= 1575,
  *            i128 n <= 1575, big any n
+ * Validated: standard, pass, 89 terms through n = 1523 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stddef.h>
 #include "../utils/binomial.h"
 #include <stddef.h>
 

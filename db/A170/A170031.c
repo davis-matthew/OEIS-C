@@ -8,12 +8,14 @@
  * Formula:   a(0)=1, a(n)=22*21^(n-1) for n>=1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
        it safely fits into an int for the exponent of 21. */
     int exp = (int)(n - 1);
 
-    seq_t pow21 = pow_seq((seq_t)21, exp);
+    seq_t pow21 = ipow_i32((seq_t)21, exp);
 
     return pow21 * (seq_t)22;
 }

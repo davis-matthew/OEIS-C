@@ -10,19 +10,21 @@
  *            closed form for OEIS A272762) a(0) = 1, a(1) = 5, a(2) = 25,
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"   /* provides seq_t pow_seq(seq_t base, int exp) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
     /* 2^n, 2^(2n), 3^n */
-    seq_t pow2_n   = pow_seq((seq_t)2, (int)n);
-    seq_t pow2_2n  = pow_seq((seq_t)2, (int)(2 * n));
-    seq_t pow3_n   = pow_seq((seq_t)3, (int)n);
+    seq_t pow2_n   = ipow_i32((seq_t)2, (int)n);
+    seq_t pow2_2n  = ipow_i32((seq_t)2, (int)(2 * n));
+    seq_t pow3_n   = ipow_i32((seq_t)3, (int)n);
 
     /* compute the expression safely with unsigned arithmetic */
     seq_t result = (seq_t)5;                          /* +5 */

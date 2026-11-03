@@ -10,7 +10,8 @@
  *            the integers until the desired index is reached
  * Range:     u8 n <= 54, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static unsigned int *spf = NULL;      /* smallest prime factor array */
 static size_t spf_size = 0;           /* current sieve limit + 1 */
@@ -107,7 +109,7 @@ static void ensure_sequence(idx_t target)
         if (num_digits(cur) > num_digits((uint64_t)phi)) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
                 if (!seq_arr) abort();
             }
             seq_arr[seq_len++] = (seq_t)cur;

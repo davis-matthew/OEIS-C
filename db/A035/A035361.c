@@ -8,13 +8,15 @@
  *            mod 3
  * Range:     u8 n <= 29, u16 n <= 72, u32 n <= 205, u64 n <= 650,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoized DP table */
 static seq_t *part_tbl = NULL;
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     /* Allocate and compute DP up to n if not done yet */
     if (part_tbl == NULL || n > max_n) {
         idx_t new_size = n + 1;
-        seq_t *new_tbl = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_tbl = mem_new(seq_t, new_size);
         if (new_tbl == NULL)
             return 0; /* error: out of memory */
         /* zero initialise */
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
 
         /* replace old table */
         if (part_tbl != NULL)
-            free(part_tbl);
+            mem_free(part_tbl);
         part_tbl = new_tbl;
         max_n   = n;
     }

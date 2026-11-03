@@ -13,7 +13,8 @@
  *            a(6)=4507, a(7)=22684, a(8)=116651, a(9)=605...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for computed terms */
 static seq_t *cache = NULL;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* initialise cache for first 16 values */
     if (!cache_initialized) {
         cache_size = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         for (size_t i = 0; i < 16; ++i) cache[i] = init_vals[i];
         cache_initialized = true;
     }
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* extend cache up to n */
     idx_t old_size = cache_size;
     cache_size = n;
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_size);
+    cache = mem_resize(seq_t, cache, cache_size);
 
     for (idx_t i = old_size; i < n; ++i) {
         /* i corresponds to term a(i+1) */

@@ -12,7 +12,8 @@
  *            A086469
  * Range:     u8 n <= 119, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sort_ints
+ * Validated: standard, pass, 87 terms through n = 8585 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/sort_ints.h"
+
+/* Helper to sort a small array of ints (exponents).  Quick insertion
+   sort is sufficient for the tiny sizes involved. */
+static void sort_ints(int *a, int len)
+{
+    for (int i = 1; i < len; ++i) {
+        int key = a[i];
+        int j = i - 1;
+        while (j >= 0 && a[j] > key) {
+            a[j + 1] = a[j];
+            --j;
+        }
+        a[j + 1] = key;
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /* factorise n into distinct primes and their exponents.  The arrays

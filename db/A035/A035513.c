@@ -10,6 +10,7 @@
  *            T(n,0) = floor(n*τ), T(n,k) = T(n,k-1)+T(n,k-2) (k≥1)
  * Range:     u8 n <= 56, u16 n <= 254, u32 n <= 1036, u64 n <= 4187,
  *            u128 n <= 5151, big any n
+ * Validated: standard, pass, 84 terms through n = 4598 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

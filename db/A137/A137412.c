@@ -10,7 +10,8 @@
  *            a(2^(m-1)+k)=a(k)+1 (k=1..2^(m-1))
  * Range:     i8 n <= 114, i16 n <= 114, i32 n <= 114, i64 n <= 114,
  *            i128 n <= 114, big any n
- * Helpers:   block_info
+ * Validated: partial, pass, 114 terms through n = 114 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/block_info.h"
+#include "../utils/mem.h"
+
+/* Helper: compute the start of the block (2^(m-1)) and the block index m
+   for a given n > 1.  start is a power of two < n, m is the index satisfying
+   2^(m-1)=start. */
+static inline void block_info(idx_t n, idx_t *start, idx_t *m)
+{
+    idx_t pw = 1;
+    while (pw < n)
+        pw <<= 1;           /* pw = 2^ceil(log2(n))   */
+    *start = pw >> 1;        /* start = 2^(m-1)        */
+    /* compute m from start (which is a power of two) */
+    idx_t tmp = *start;
+    idx_t exp = 0;
+    while (tmp > 1) {
+        tmp >>= 1;
+        ++exp;
+    }
+    *m = exp + 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,9 +53,9 @@ seq_t a(idx_t n)
     if (n + 1 > cache_size) {
         idx_t old_size = cache_size;
         cache_size = n + 1;                    /* +1 so index n is valid */
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
         if (old_size < cache_size)
-            memset(cache + old_size, 0, (cache_size - old_size) * sizeof(seq_t));
+            mem_set(cache + old_size, 0, (cache_size - old_size) * sizeof(seq_t));
     }
 
     /* Initialize base case */

@@ -12,7 +12,8 @@
  *            seq_t is an arbitrary‑precision class
  * Range:     u8 n <= 4690, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 127 terms through n = 7933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t **poly_cache   = NULL;  /* pointers to coefficient arrays */
 static size_t *poly_len     = NULL;  /* lengths of the arrays            */
@@ -33,13 +35,13 @@ static void ensure_cache(idx_t n)
         poly_cap   = (size_t)n + 1;
         poly_cache = (seq_t **)malloc(poly_cap * sizeof(seq_t *));
         poly_len   = (size_t *)malloc(poly_cap * sizeof(size_t));
-        sum_cache  = (seq_t  *)malloc(poly_cap * sizeof(seq_t));
+        sum_cache  = mem_new(seq_t, poly_cap);
         for (size_t i = 0; i < poly_cap; ++i) poly_cache[i] = NULL;
     } else if ((size_t)n >= poly_cap) {
         size_t new_cap = (size_t)n + 1;
         poly_cache = (seq_t **)realloc(poly_cache, new_cap * sizeof(seq_t *));
         poly_len   = (size_t *)realloc(poly_len,   new_cap * sizeof(size_t));
-        sum_cache  = (seq_t  *)realloc(sum_cache,  new_cap * sizeof(seq_t));
+        sum_cache  = mem_resize(seq_t, sum_cache, new_cap);
         for (size_t i = poly_cap; i < new_cap; ++i) poly_cache[i] = NULL;
         poly_cap = new_cap;
     }

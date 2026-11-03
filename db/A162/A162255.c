@@ -7,12 +7,13 @@
  * Formula:   a(n) = 2*a(n-2) with a(1)=3, a(2)=2
  * Range:     u8 n <= 14, u16 n <= 30, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +21,7 @@ seq_t a(idx_t n)
     idx_t k = n >> 1;
 
     /* compute 2^k */
-    seq_t pow2 = pow_int((seq_t)2, k);
+    seq_t pow2 = ipow_idx((seq_t)2, k);
 
     /* even n -> a(n) = 2^k
        odd  n -> a(n) = 3 * 2^k */

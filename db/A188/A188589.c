@@ -7,11 +7,13 @@
  * Formula:   a(0)=1; for n>0, a(n)=5*2^(n-1)-n-3
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {

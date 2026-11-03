@@ -8,16 +8,33 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n can be written as a product of factorials
  *            (Jordan‑Polya number), 0 otherwise
- * Range:     u8 n <= 8630, u16 n <= 8630, u32 n <= 8630, u64 n <= 8630,
- *            u128 n <= 8630, big any n
- * Helpers:   is_jp_rec
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 136 terms through n = 8630 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_jp_rec.h"
+
+static bool is_jp_rec(idx_t n, const idx_t *facts, size_t count, size_t start)
+{
+    if (n == 1)
+        return true;
+    for (size_t i = start; ; --i)
+    {
+        if (facts[i] <= n && n % facts[i] == 0)
+        {
+            if (is_jp_rec(n / facts[i], facts, count, i))
+                return true;
+        }
+        if (i == 0)
+            break;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

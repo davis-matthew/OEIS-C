@@ -11,6 +11,7 @@
  *            of the i‑th prime
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 130, u64 n <= 310,
  *            u128 n <= 718, big any n
+ * Validated: standard, pass, 91 terms through n = 9812 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

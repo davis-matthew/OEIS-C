@@ -9,15 +9,24 @@
  * Formula:   a(n) = parity of the k-th iterate of the 3x+1 function, where
  *            (n,k) is obtained by unfolding the square array T(n,k) along its
  *            ascending antidiagonals
- * Range:     u8 n <= 5747, u16 n <= 9879, u32 n <= 9879, u64 n <= 9879,
- *            u128 n <= 9879, big any n
- * Helpers:   cum
+ * Range:     u8 n <= 5747, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 107 terms through n = 9879 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/cum.h"
+
+static inline idx_t cum(idx_t d)
+{
+    /* cumulative number of elements up to diagonal d:
+       sum_{i=0}^{d} (i+1) = (d+1)(d+2)/2 */
+    __int128 v = (__int128)(d + 1) * (d + 2);
+    v /= 2;
+    return (idx_t)v;
+}
 
 seq_t a(idx_t n)
 {

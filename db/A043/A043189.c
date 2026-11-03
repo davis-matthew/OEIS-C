@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: test whether any adjacent pair of digits in base‑9
    representation of x is (1,3) or (3,1) */
@@ -46,10 +48,10 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
     if (needed <= *cap) return;
     size_t new_cap = (*cap > 0) ? (*cap << 1) : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (*arr != NULL) {
-        memcpy(new_arr, *arr, (*cap) * sizeof(seq_t));
-        free(*arr);
+        mem_copy(new_arr, *arr, (*cap) * sizeof(seq_t));
+        mem_free(*arr);
     }
     *arr = new_arr;
     *cap = new_cap;

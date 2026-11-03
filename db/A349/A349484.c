@@ -9,7 +9,8 @@
  *            number and its arithmetic derivative m' is also a Niven number
  * Range:     u8 n <= 27, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* --- local helpers ----------------------------------------------------- */
 
@@ -71,7 +73,7 @@ static void grow_terms(size_t min_cap) {
     if (term_cap >= min_cap) return;
     if (term_cap == 0) term_cap = 64;
     while (term_cap < min_cap) term_cap <<= 1;
-    term_cache = (seq_t *)realloc(term_cache, term_cap * sizeof(seq_t));
+    term_cache = mem_resize(seq_t, term_cache, term_cap);
     assert(term_cache != NULL);
 }
 

@@ -11,7 +11,8 @@
  *            together with the initial values a(0)=1, a(1)=3
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   gcd_uint128
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   gcd_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint128.h"
+#include "../utils/gcd_u128.h"
 
 /* seq_t and idx_t are provided by the build environment. */
 seq_t a(idx_t n)
@@ -62,7 +63,7 @@ seq_t a(idx_t n)
                                      * (unsigned __int128)(i - 1);
 
         /* Reduce the fraction rhs_num / D. */
-        unsigned __int128 g = gcd_uint128(rhs_num, D);
+        unsigned __int128 g = gcd_u128(rhs_num, D);
         unsigned __int128 num_cur_u128 = rhs_num / g;
         unsigned __int128 D2_u128      = D / g;   /* power of two */
 

@@ -9,6 +9,7 @@
  * Formula:   a(n) = ∏_{p^e‖n} ( 2·p^e – p^(e‑1) ) (OEIS A176345)
  * Range:     u8 n <= 59, u16 n <= 4289, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 79 terms through n = 9156 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* prototype: void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)
 {

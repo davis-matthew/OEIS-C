@@ -10,13 +10,15 @@
  *            r, column j, 1 ≤ j ≤ r)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: compute the smallest integer r such that r*(r+1)/2 >= n */
 static idx_t row_of_n(idx_t n) {
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
     idx_t c = n - offset;               /* column inside the row (1‑based) */
 
     /* Allocate φ up to row r (since we also need φ(r/c) ≤ φ(r)) */
-    seq_t *phi = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, (r + 1));
     compute_phi(r, phi);
 
     /* Compute the value according to the rule described above */
@@ -70,6 +72,6 @@ seq_t a(idx_t n) {
         val = phi[c] * phi[q];
     }
 
-    free(phi);
+    mem_free(phi);
     return val;
 }

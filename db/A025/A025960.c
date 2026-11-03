@@ -7,7 +7,8 @@
  * Formula:   a(n) = (8^(n+3)-8*5^(n+3)+9*4^(n+3)-2^(n+4))/72
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 37 terms through n = 977 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* Recurrence used: a(0)=1, a(1)=19, a(2)=235,
    a(n) = (4^(n+1)-2^(n+1))/2 + 13*a(n-1) - 40*a(n-2)  for n>=2 */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     seq_t prev1 = (seq_t)19; /* a(1) */
 
     /* Powers needed for k=2: 4^(k+1)=4^3, 2^(k+1)=2^3 */
-    seq_t pow2 = pow_uint(2u, (idx_t)3); /* 2^3 = 8   */
-    seq_t pow4 = pow_uint(4u, (idx_t)3); /* 4^3 = 64  */
+    seq_t pow2 = ipow_u64_idx(2u, (idx_t)3); /* 2^3 = 8   */
+    seq_t pow4 = ipow_u64_idx(4u, (idx_t)3); /* 4^3 = 64  */
 
     /* Compute terms up to n */
     for (idx_t k = 2; k <= n; ++k) {

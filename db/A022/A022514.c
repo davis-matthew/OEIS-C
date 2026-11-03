@@ -9,15 +9,40 @@
  *            digit then frequency. a(0) = 3
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   digit_len, grow_seq_array, pow10
+ * Validated: standard, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
-#include "../utils/grow_seq_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* Compute next term from the current one. */
 static seq_t next_term(seq_t term)
@@ -36,7 +61,7 @@ static seq_t next_term(seq_t term)
         }
 
         /* length of the count in decimal digits */
-        int lencnt = digit_len(cnt);
+        int lencnt = num_digits(cnt);
         seq_t pow10len   = pow10((idx_t)lencnt);
         seq_t piece      = digit * pow10len + cnt;          /* digit followed by count */
         int  piece_len   = 1 + lencnt;                      /* decimal digits in piece */

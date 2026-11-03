@@ -9,8 +9,9 @@
  *            distance from n to the nearest p‑smooth number. For a given n
  *            the summands for primes p > A006530(n) (the largest prime factor
  *            of n) are zero, so the sum is finite
- * Range:     u8 n <= 612, u16 n <= 9675, u32 n <= 9675, u64 n <= 9675,
- *            u128 n <= 9675, big any n
+ * Range:     u8 n <= 612, u16 n <= 32768, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 90 terms through n = 9675 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

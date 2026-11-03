@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    seq_t.  It compiles under C11 and C++17. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation storage */
 static seq_t *cache = NULL;          /* pointer to cached terms          */
@@ -39,8 +41,7 @@ static void ensure_cache(idx_t n)
     while (cache_cap <= (size_t)n)
         cache_cap <<= 1;                  /* double until just big enough */
 
-    cache = (seq_t *)realloc(cache,
-                             sizeof(seq_t) * cache_cap);
+    cache = mem_resize(seq_t, cache, cache_cap);
     if (!cache) return;                   /* allocation failure handled
                                             by caller (should not happen) */
 

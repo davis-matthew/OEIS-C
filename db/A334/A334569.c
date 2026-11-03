@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 10, i32 n <= 16, i64 n <= 27, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 470 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static memoisation storage */
 static seq_t *cache = NULL;   /* pointers to a(0),a(1),… */
@@ -40,7 +42,7 @@ static void ensure_up_to(idx_t n)
     size_t new_size_t = (size_t)new_size;
     seq_t *tmp;
 #if defined(__cplusplus)
-    tmp = reinterpret_cast<seq_t*>(realloc(cache, new_size_t * sizeof(seq_t)));
+    tmp = reinterpret_cast<seq_t*>(mem_resize(seq_t, cache, new_size_t));
 #else
     tmp = (seq_t*)realloc(cache, new_size_t * sizeof(seq_t));
 #endif

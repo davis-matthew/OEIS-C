@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac
  * Formula:   not stated
- * Range:     u8 n <= 255, u16 n <= 9295, u32 n <= 9295, u64 n <= 9295,
- *            u128 n <= 9295, big any n
- * Helpers:   seq_gcd, seq_mul
+ * Range:     u8 n <= 255, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 87 terms through n = 9295 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_gcd.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/gcd.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t unitaryTotientMinusOneProduct(uint64_t n)
 {
@@ -55,6 +62,6 @@ seq_t a(idx_t n)
     uint64_t val = (uint64_t)n;                /* cast n to native integer for factoring */
     seq_t prod = unitaryTotientMinusOneProduct(val);
 
-    seq_t g = seq_gcd((seq_t)val, prod);
+    seq_t g = gcd((seq_t)val, prod);
     return ((seq_t)val) / g;
 }

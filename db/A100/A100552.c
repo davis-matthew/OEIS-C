@@ -12,7 +12,8 @@
  *            finite
  * Range:     u8 n <= 8, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   digits, is_prime_uint64, pow10
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   is_prime_u64, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_uint64.h"
-#include "../utils/digits.h"
-#include "../utils/pow10.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits_idx.h"
+
+static seq_t pow10(idx_t exp) {
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) res *= (seq_t)10;
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -56,11 +62,11 @@ seq_t a(idx_t n)
                         continue;                    /* distinct only */
 
                     /* cast curr[j] to idx_t for digits and pow10 */
-                    idx_t dj = digits((idx_t)(uint64_t)curr[j]);
+                    idx_t dj = num_digits_idx((idx_t)(uint64_t)curr[j]);
                     seq_t val = curr[i] * pow10(dj) + curr[j];
 
                     /* test primality (all values fit in uint64_t) */
-                    if (is_prime_uint64((uint64_t)val)) {
+                    if (is_prime_u64((uint64_t)val)) {
                         next[next_len++] = val;
                     }
                 }

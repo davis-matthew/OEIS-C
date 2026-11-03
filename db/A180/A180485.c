@@ -9,12 +9,13 @@
  *            r*(r+1)/2 ≥ n, and k = n - r*(r-1)/2 (the column index, 1‑based)
  * Range:     u8 n <= 20, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   lucas_u64
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   lucas
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/lucas_u64.h"
+#include "../utils/lucas.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +32,8 @@ seq_t a(idx_t n)
     idx_t k = n - prev_tri;  /* because prev_tri < n <= prev_tri + r */
 
     /* Compute Lucas numbers for row and column */
-    seq_t L_r = lucas_u64(r);
-    seq_t L_k = lucas_u64(k);
+    seq_t L_r = lucas(r);
+    seq_t L_k = lucas(k);
 
     return L_r * L_k;
 }

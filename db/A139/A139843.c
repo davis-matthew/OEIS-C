@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 831, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _allowed_residue
+ * Validated: standard, pass, 62 terms through n = 9162 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/_allowed_residue.h"
+#include "../utils/mem.h"
+
+static bool _allowed_residue(uint64_t r)
+{
+    switch (r % 408) {
+        case 17: case 23: case 41: case 65: case 71: case 95:
+        case 113: case 143: case 167: case 209: case 215:
+        case 233: case 311: case 329: case 335: case 377:
+        case 401: return true;
+        default: return false;
+    }
+}
 
 /* ---------- local helpers ------------------------------------- */
 
@@ -87,8 +99,8 @@ static uint64_t last_checked_prime = 2;  // start after the first prime
 static void _grow_seq_cache(void)
 {
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
-    if (seq_cache) { memcpy(new_cache, seq_cache, seq_len * sizeof(seq_t)); free(seq_cache); }
+    seq_t *new_cache = mem_new(seq_t, new_cap);
+    if (seq_cache) { mem_copy(new_cache, seq_cache, seq_len * sizeof(seq_t)); mem_free(seq_cache); }
     seq_cache = new_cache;
     seq_cap   = new_cap;
 }

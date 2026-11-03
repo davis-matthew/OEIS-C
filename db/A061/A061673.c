@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 69 terms through n = 969 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mul_mod64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* Multiply two 64‑bit values modulo mod, using 128‑bit arithmetic. */
 
@@ -34,8 +36,8 @@ static inline uint64_t pow_mod64(uint64_t base, uint64_t exp, uint64_t mod)
     base %= mod;
     while (exp) {
         if (exp & 1U)
-            result = mul_mod64(result, base, mod);
-        base = mul_mod64(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1U;
     }
     return result;
@@ -51,7 +53,7 @@ static bool witness(uint64_t n, uint64_t a)
     uint64_t x = pow_mod64(a, d, n);
     if (x == 1 || x == n - 1) return true;
     for (uint64_t r = 1; r < s; ++r) {
-        x = mul_mod64(x, x, n);
+        x = mulmod(x, x, n);
         if (x == n - 1) return true;
     }
     return false;
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
         /* Grow the cache if needed */
         if (cache_len + 1 > cache_cap) {
             cache_cap = cache_cap ? cache_cap << 1 : 16;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = (seq_t)k;   /* store the term */
         next_even = k + 2U;              /* next candidate starts after k */

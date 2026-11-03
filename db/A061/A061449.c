@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,19 @@
    recursion level is used, so any n >= 1 can be computed in O(n) time. */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +58,7 @@ seq_t a(idx_t n)
             if ((val % (seq_t)10) == (seq_t)0) /* cannot end with 0 */
                 continue;
 
-            int d  = digit_len(val);                 /* number of decimal digits */
+            int d  = num_digits(val);                 /* number of decimal digits */
             seq_t pow10d = pow10((idx_t)d - 1);      /* 10^(d-1) */
             seq_t lead = val / pow10d;                /* leading digit */
 

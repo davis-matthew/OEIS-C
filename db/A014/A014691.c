@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   multiply_by_term
+ * Validated: standard, pass, 97 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
    periodic with period 682. */
 
 #include <stdlib.h>
-#include "../utils/multiply_by_term.h"
+#include "../utils/mem.h"
+
+/* Multiply a polynomial *poly (degree *deg) by (x^d – 1).  The result
+   has degree *deg + d. */
+static void multiply_by_term(seq_t **poly, idx_t *deg, idx_t d)
+{
+    idx_t newdeg = *deg + d;
+    seq_t *newpoly = mem_new(seq_t, newdeg + 1);
+    for (idx_t i = 0; i <= *deg; ++i) {
+        newpoly[i] -= (*poly)[i];              // ×(–1)
+        newpoly[i + d] += (*poly)[i];          // ×x^d
+    }
+    mem_free(*poly);
+    *poly = newpoly;
+    *deg = newdeg;
+}
 
 /* ------------------------------------------------------------------ */
 
@@ -39,10 +55,10 @@ seq_t a(idx_t n)
         const int   mu  [8] = {-1, 1, 1, 1, -1, -1, -1, 1};
 
         /* start with polynomial 1 */
-        seq_t *num = (seq_t*)calloc(1, sizeof(seq_t));
+        seq_t *num = mem_new(seq_t, 1);
         num[0] = 1;
         idx_t deg_num = 0;
-        seq_t *den = (seq_t*)calloc(1, sizeof(seq_t));
+        seq_t *den = mem_new(seq_t, 1);
         den[0] = 1;
         idx_t deg_den = 0;
 
@@ -56,10 +72,10 @@ seq_t a(idx_t n)
         /* ----- divide numerator by denominator to get Φ₆₈₂(x) ----- */
         idx_t deg_res = deg_num - deg_den;    /* should be 300 */
 
-        seq_t *tmp = (seq_t*)calloc(deg_num + 1, sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, deg_num + 1);
         for (idx_t i = 0; i <= deg_num; ++i) tmp[i] = num[i];
 
-        seq_t *phi = (seq_t*)calloc(deg_res + 1, sizeof(seq_t));
+        seq_t *phi = mem_new(seq_t, deg_res + 1);
 
         for (idx_t i = deg_num; i >= deg_den; --i) {
             seq_t coeff = tmp[i];
@@ -75,7 +91,7 @@ seq_t a(idx_t n)
         }
 
         /* ----- compute one full period of the sequence ----- */
-        period = (seq_t*)calloc(PERIOD, sizeof(seq_t));
+        period = mem_new(seq_t, PERIOD);
         period[0] = 1;   /* a(0) = 1 */
         for (idx_t k = 1; k < PERIOD; ++k) {
             seq_t val = 0;
@@ -88,10 +104,10 @@ seq_t a(idx_t n)
         }
 
         /* ----- clean up temporary storage ----- */
-        free(num);
-        free(den);
-        free(tmp);
-        free(phi);
+        mem_free(num);
+        mem_free(den);
+        mem_free(tmp);
+        mem_free(phi);
 
         initialized = 1;
     }

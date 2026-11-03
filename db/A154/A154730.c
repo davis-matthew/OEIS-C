@@ -8,14 +8,66 @@
  *            (the concatenation of primes: 2,3,5,7,11,13,17,19,23,29,31,…)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   _prime_gen_next
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_prime_gen_next.h"
+
+/* ---------- Prime generator ------------------------------------------ */
+static uint32_t _prime_gen_next(void)
+{
+    /* static state */
+    static uint32_t curr_cand = 3;          /* next candidate (odd) */
+    static uint32_t last_prime = 2;         /* last found prime */
+    static uint32_t *primes = NULL;         /* list of primes found */
+    static size_t primes_cnt = 0;           /* number of primes stored */
+    static size_t primes_cap = 0;           /* capacity of primes array */
+    static int initialized = 0;             /* init flag */
+
+    if (!initialized) {
+        /* first prime is 2 */
+        primes_cap = 8;
+        primes = (uint32_t *)malloc(primes_cap * sizeof(uint32_t));
+        primes[0] = 2;
+        primes_cnt = 1;
+        last_prime = 2;
+        initialized = 1;
+        return 2;
+    }
+
+    for (;;) {
+        /* Test curr_cand for primality */
+        uint32_t limit = 1;
+        /* compute integer sqrt of curr_cand */
+        while ((uint64_t)(limit + 1) * (limit + 1) <= curr_cand)
+            ++limit;
+
+        int is_prime = 1;
+        for (size_t i = 0; i < primes_cnt && primes[i] <= limit; ++i) {
+            if (curr_cand % primes[i] == 0) {
+                is_prime = 0;
+                break;
+            }
+        }
+
+        if (is_prime) {
+            /* store the new prime */
+            if (primes_cnt >= primes_cap) {
+                primes_cap <<= 1;
+                primes = (uint32_t *)realloc(primes, primes_cap * sizeof(uint32_t));
+            }
+            primes[primes_cnt++] = curr_cand;
+            last_prime = curr_cand;
+            curr_cand += 2; /* next odd candidate */
+            return last_prime;
+        }
+        curr_cand += 2; /* skip even numbers */
+    }
+}
 
 /* Forward declaration of the sequence function */
 seq_t a(idx_t n);

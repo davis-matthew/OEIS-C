@@ -8,14 +8,17 @@
  *            Euler’s totient function
  * Range:     i8 n <= 7, i16 n <= 10, i32 n <= 16, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? cap : 1;
         while (new_cap < needed)
             new_cap <<= 1;                 /* exponential growth */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         /* If realloc fails the program aborts – the judge guarantees sufficient memory. */
         cache = tmp;
         cap   = new_cap;
@@ -48,8 +51,8 @@ seq_t a(idx_t n)
 
     /* Compute any missing terms up to n. */
     for (size_t i = len + 1; i <= (size_t)n; ++i) {
-        seq_t phi_i      = phi((idx_t)i);      /* phi(i)   */
-        seq_t phi_prev   = phi((idx_t)(i - 1));/* phi(i-1) */
+        seq_t phi_i      = totient((idx_t)i);      /* phi(i)   */
+        seq_t phi_prev   = totient((idx_t)(i - 1));/* phi(i-1) */
         cache[i] = phi_i - phi_prev * cache[i - 1];
     }
     len = (size_t)n;

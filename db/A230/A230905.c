@@ -13,13 +13,15 @@
  *            a(8)=47954 a(9)=203122 a(10)=860468 a(11)=3645314
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 31, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types defined by the build system */
 extern seq_t *alloc_seq_array(size_t n);
@@ -41,7 +43,7 @@ static void ensure_capacity(idx_t need)
         new_cap = need + 1U;
 
     /* realloc works with void* in both C and C++; cast explicitly */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     /* In the very unlikely event realloc fails, leave cache unchanged.
        For the contest environment memory limits are generous so we can
        ignore this case. */

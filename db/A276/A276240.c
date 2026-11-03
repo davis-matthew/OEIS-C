@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 14, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: standard, pass, 36 terms through n = 658 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/big_pow.h"   /* big_pow(seq_t base, seq_t exp) */
-#include "../utils/seq_mul.h"   /* seq_mul(seq_t a, seq_t b) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* static workspace for spf, primes and exponents */
 static uint32_t *spf          = NULL;     /* smallest prime factor for each i ≤ limit */
@@ -128,7 +134,7 @@ seq_t a(idx_t n)
         if (d > 0)
         {
             idx_t exp = (idx_t)(2 * d);
-            seq_t pow_val = big_pow((seq_t)primes[i], (seq_t)exp);
+            seq_t pow_val = ipow((seq_t)primes[i], (seq_t)exp);
             result = seq_mul(result, pow_val);
         }
     }

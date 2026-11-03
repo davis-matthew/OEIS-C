@@ -8,6 +8,7 @@
  * Formula:   a(n) = n+5 for 4 <= n <= 7; a(n) = floor(3*n/2)+1 for n >= 8
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 63 terms through n = 66 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

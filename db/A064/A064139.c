@@ -9,7 +9,8 @@
  *            binomial coefficient
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   big_pow, build_primes
+ * Validated: standard, pass, 48 terms through n = 168 (2026-11-01)
+ * Helpers:   build_primes, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* exponent of prime p in n! */
 static idx_t factorial_exponent(idx_t n, idx_t p)
@@ -60,7 +63,7 @@ seq_t a(idx_t n)
         if (e == 0) continue;        /* prime does not divide the coefficient */
 
         seq_t exp_seq = (seq_t)(e + 1);                /* for p^(e+1) */
-        seq_t pow_val = big_pow((seq_t)p, exp_seq);   /* p^(e+1) */
+        seq_t pow_val = ipow((seq_t)p, exp_seq);   /* p^(e+1) */
         seq_t term    = (pow_val - 1) / ((seq_t)p - 1); /* (p^(e+1)-1)/(p-1) */
         result *= term;
     }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   seq_to_str
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,35 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_to_str.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* Levenshtein distance between the decimal digit strings of two numbers.
    The digits are taken most‑significant first, as produced by seq_to_str. */
@@ -64,6 +93,19 @@ static int levenshtein_seq(seq_t a, seq_t b)
 }
 
 /* Ensure a dynamic array has at least 'need' elements. */
+#ifdef __cplusplus
+template <class T>
+static void grow_array(T **arr, size_t *cap, size_t need, size_t elem_size)
+{
+    if (need <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 8 : *cap << 1;
+    while (new_cap < need) new_cap <<= 1;
+    T *tmp = mem_resize(T, *arr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) exit(1);
+    *arr = tmp;
+    *cap = new_cap;
+}
+#else
 static void grow_array(void **arr, size_t *cap, size_t need, size_t elem_size)
 {
     if (need <= *cap) return;
@@ -74,6 +116,7 @@ static void grow_array(void **arr, size_t *cap, size_t need, size_t elem_size)
     *arr = tmp;
     *cap = new_cap;
 }
+#endif
 
 seq_t a(idx_t n)
 {
@@ -86,13 +129,13 @@ seq_t a(idx_t n)
     static size_t used_len = 0, used_cap = 0;
 
     /* at least capacity for index n */
-    grow_array((void **)&seq, &seq_cap, n, sizeof(seq_t));
+    grow_array(OEISC_VPP(&seq), &seq_cap, n, sizeof(seq_t));
 
     /* initialise the first element if the table is empty */
     if (seq_len == 0) {
         seq[0] = (seq_t)1;
         seq_len = 1;
-        grow_array((void **)&used, &used_cap, 1, sizeof(seq_t));
+        grow_array(OEISC_VPP(&used), &used_cap, 1, sizeof(seq_t));
         used[0] = seq[0];
         used_len = 1;
     }
@@ -122,7 +165,7 @@ seq_t a(idx_t n)
 
         seq[seq_len++] = candidate;
 
-        grow_array((void **)&used, &used_cap, used_len + 1, sizeof(seq_t));
+        grow_array(OEISC_VPP(&used), &used_cap, used_len + 1, sizeof(seq_t));
         used[used_len++] = candidate;
     }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 63 terms through n = 825 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,14 +17,15 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static void grow_seq_t_array(seq_t **arr, size_t *cap, size_t need)
 {
     if (*cap < need) {
         size_t new_cap = (*cap > 0) ? *cap : 64;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) return;          /* allocation failure: caller will return 0 */
         *arr = tmp;
         *cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
     elements of S equals max(S).  Uses memoised dynamic programming.  O(n) time. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         /* first call: allocate space up to max(7, n+1) */
         idx_t alloc = n + 1;
         if (alloc < 7) alloc = 7;
-        tab = (seq_t *)malloc(alloc * sizeof(seq_t));
+        tab = mem_new(seq_t, alloc);
         if (tab == NULL) exit(1);           /* allocation failure */
         for (idx_t i = 0; i < 7; ++i)      /* copy known base values   */
             tab[i] = base[i];
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     if (sz <= n) {
         idx_t old_sz = sz;
         sz = n + 1;
-        seq_t *new_tab = (seq_t *)realloc(tab, sz * sizeof(seq_t));
+        seq_t *new_tab = mem_resize(seq_t, tab, sz);
         if (new_tab == NULL) exit(1);      /* allocation failure */
         tab = new_tab;
         /* Fill any missing base entries (only possible if old_sz < 7) */

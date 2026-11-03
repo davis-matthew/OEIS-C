@@ -5,78 +5,79 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 22, u32 n <= 41, u64 n <= 41, u128 n <= 41,
- *            big any n
- * Helpers:   isPrime64, isqrt
+ * Range:     u8 n <= 4, u16 n <= 295, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 57 terms through n = 9172 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* Sequence A106971: Prime numbers of the form 5·x² + 4·x·y + 5·y² for
- * non‑negative integers x, y.  The function checks successive primes
- * and tests each one for representability by the given quadratic form. */
+/* A106971: primes of the form 5x^2 + 4xy + 5y^2 with x, y >= 0. All values of the
+ * (positive definite) form up to a bound L are enumerated in 64 bits, the
+ * primes kept, sorted and deduplicated; L doubles until there are n terms.
+ * For fixed y the form is smallest at x = max(0, -B y/(2A)), and at least
+ * (4AC - B^2) y^2 / (4A) (C y^2 if B >= 0), which bounds y. (The original
+ * worked in seq_t, too slow for big.) */
 
-#include <stdbool.h>
 #include <stdint.h>
-#include "../utils/isPrime64.h"
-#include "../utils/isqrt.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
-/* Return true if a prime p can be written as 5x²+4xy+5y² with x,y ≥ 0.  */
-static bool is_representable(seq_t p)
+#define QA (5)
+#define QB (4)
+#define QC (5)
+
+static uint64_t *terms = NULL;
+static size_t term_len = 0;
+
+static int cmp_u64(const void *x, const void *y)
 {
-    /* We only need to try x until 5x² > p.  */
-    for (idx_t x = 0; ; ++x) {
-        seq_t x_seq = (seq_t)x;
-        seq_t x2 = x_seq * x_seq;
-
-        seq_t term5x2 = 5 * x2;
-        if (term5x2 > p)          /* no further representations possible */
-            break;
-
-        /* Compute 20p - 84x² safely.  */
-        seq_t lhs = 84 * x2;          /* 84x²  */
-        seq_t rhs = 20 * p;           /* 20p   */
-        if (rhs < lhs)                /* would underflow, skip this x */
-            continue;
-
-        seq_t delta = rhs - lhs;      /* discriminant 20p - 84x² */
-        seq_t s = isqrt(delta);       /* integer square root */
-        if (s * s != delta)           /* not a perfect square */
-            continue;
-
-        /* s must be at least 4x to make y non‑negative.  */
-        seq_t four_x = 4 * x_seq;
-        if (s < four_x)
-            continue;
-
-        seq_t diff = s - four_x;      /* 10y = s - 4x */
-        if ((diff % (seq_t)10) != 0)   /* y not integral */
-            continue;
-
-        /* y = diff / 10 is automatically non‑negative.  Representation found. */
-        return true;
-    }
-    return false; /* no representation found */
+    uint64_t a = *(const uint64_t *)x, b = *(const uint64_t *)y;
+    return (a > b) - (a < b);
 }
 
-/* Return the nth prime (n≥1) that can be expressed as 5x²+4xy+5y².  */
+static void build(int64_t L)
+{
+    size_t cnt = 0, cap = 1024;
+    uint64_t *t = (uint64_t *)malloc(cap * sizeof *t);
+    if (!t) abort();
+    for (int64_t y = 0;; ++y) {
+        /* the least value of the form at this y, over real x >= 0 */
+        double lo = QB >= 0 ? (double)QC * y * y : (4.0 * QA * QC - (double)QB * QB) * y * y / (4.0 * QA);
+        if (lo > (double)L) break;
+        int64_t x0 = QB >= 0 ? 0 : (int64_t)((double)(-QB) * y / (2.0 * QA));
+        /* walk down from x0 and up from x0 + 1 while the value is <= L */
+        for (int dir = -1; dir <= 1; dir += 2)
+            for (int64_t x = dir < 0 ? x0 : x0 + 1; x >= 0; x += dir) {
+                int64_t v = QA * x * x + QB * x * y + QC * y * y;
+                if (v > L) break;
+                if (v >= 2 && is_prime_u64((uint64_t)v)) {
+                    if (cnt == cap) {
+                        uint64_t *u = (uint64_t *)realloc(t, (cap *= 2) * sizeof *t);
+                        if (!u) abort();
+                        t = u;
+                    }
+                    t[cnt++] = (uint64_t)v;
+                }
+            }
+    }
+    qsort(t, cnt, sizeof *t, cmp_u64);
+    size_t u = 0;
+    for (size_t i = 0; i < cnt; ++i)
+        if (!u || t[i] != t[u - 1]) t[u++] = t[i];
+    free(terms);
+    terms = t;
+    term_len = u;
+}
+
 seq_t a(idx_t n)
 {
-    if (n == 0) return 0;          /* undefined for n = 0 */
-
-    idx_t count = 0;
-    uint64_t p = 2;                /* start from the smallest prime */
-
-    while (true) {
-        if (isPrime64(p) && is_representable((seq_t)p)) {
-            ++count;
-            if (count == n)
-                return (seq_t)p;
-        }
-        /* Advance to the next candidate prime. */
-        if (p == 2)
-            p = 3;
-        else
-            p += 2;
+    static int64_t L = 0;
+    if (n < 1) return (seq_t)0;
+    while (term_len < (size_t)n) {
+        L = L ? 2 * L : 1 << 16;
+        build(L);
     }
+    return (seq_t)terms[n - 1];
 }

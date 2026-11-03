@@ -10,8 +10,9 @@
  *            antidiagonals “up” (diagonal d contains entries (d,1),(d‑1,2),…,
  *            (1,d)). This implementation converts the index n to the
  *            corresponding (i,j) and returns the appropriate value
- * Range:     i8 n <= 9865, i16 n <= 9865, i32 n <= 9865, i64 n <= 9865,
- *            i128 n <= 9865, big any n
+ * Range:     i8 n <= 33540, i16 n <= 65703, i32 n <= 65703, i64 n <= 65703,
+ *            i128 n <= 65703, big any n
+ * Validated: standard, pass, 115 terms through n = 9865 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

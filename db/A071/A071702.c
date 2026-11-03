@@ -7,6 +7,7 @@
  * Formula:   a(n) = #{k | 0≤k≤n, (4*k+3) and (4*(k+1)+1) are prime}
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 112 terms through n = 902 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

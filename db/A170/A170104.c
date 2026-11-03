@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
     used, so calls in any order produce the same result. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External symbol declarations – provided by the build system
  *
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate array for terms 0..n. */
-    seq_t *const vals = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *const vals = mem_new(seq_t, (size_t)(n + 1));
     if (!vals) /* allocation failure: return 0 – unlikely in the test harness */
         return (seq_t)0;
 
@@ -63,6 +65,6 @@ seq_t a(idx_t n)
     }
 
     const seq_t result = vals[n];
-    free(vals);
+    mem_free(vals);
     return result;
 }

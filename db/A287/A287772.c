@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2953, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_symbol
+ * Validated: standard, pass, 102 terms through n = 9743 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
  * n by using the decomposition of the Fibonacci word. */
 
 #include <stdlib.h>
-#include "../utils/get_symbol.h"
+#include "../utils/mem.h"
+
+/* Recursive helper: returns the symbol at position pos
+ * (1‑based) in the transformed w_[idx] word. 
+ * pos is a seq_t; idx ≥ 1; T is the array of lengths. */
+static seq_t get_symbol(seq_t pos, int idx, const seq_t *T)
+{
+    if (idx == 1)
+        return (seq_t)1;                     /* w1 → "1" */
+    if (idx == 2) {
+        if (pos == (seq_t)1)
+            return (seq_t)1;                 /* w2 → "1 0 0" */
+        else
+            return (seq_t)0;
+    }
+    if (pos <= T[idx - 1])
+        return get_symbol(pos, idx - 1, T);   /* in the first part */
+    else
+        return get_symbol(pos - T[idx - 1], idx - 2, T); /* second part */
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -33,7 +53,7 @@ seq_t a(idx_t n)
 
     /* Initialise T on first call */
     if (T == NULL) {
-        T = (seq_t *)malloc(3 * sizeof(seq_t)); /* indices 0,1,2 */
+        T = mem_new(seq_t, 3); /* indices 0,1,2 */
         T[0] = (seq_t)0;          /* unused */
         T[1] = (seq_t)1;          /* length of transform w1 */
         T[2] = (seq_t)3;          /* length of transform w2 */
@@ -43,7 +63,7 @@ seq_t a(idx_t n)
     /* Grow T until it covers position N */
     while (N > T[Tlen]) {
         seq_t next = T[Tlen] + T[Tlen - 1];
-        T = (seq_t *)realloc(T, (Tlen + 2) * sizeof(seq_t));
+        T = mem_resize(seq_t, T, (Tlen + 2));
         T[Tlen + 1] = next;
         Tlen++;
     }

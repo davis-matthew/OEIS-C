@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of computed terms */
 static size_t cache_len = 0;         /* number of terms stored */
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = ((size_t)1 << 6);          /* start with 64 cells */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) /* allocation failed – undefined behaviour */
             return (seq_t)0;
         cache[0] = init_vals[0];
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
         size_t new_cap = cache_cap;
         while ((size_t)n >= new_cap)
             new_cap <<= 1;      /* double */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) /* realloc failed – undefined behaviour */
             return (seq_t)0;
         cache = tmp;

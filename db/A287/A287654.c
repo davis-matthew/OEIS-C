@@ -9,7 +9,8 @@
  *            a(n-a(n-1)) + a(n-a(n-2)) );
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static size_t   a_cap   = 0;
@@ -26,9 +28,9 @@ static void ensure_cap(idx_t n) {
     size_t old_cap = a_cap;
     size_t new_cap = old_cap ? old_cap << 1 : 16;
     while (new_cap < (size_t)n) new_cap <<= 1;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     /* initialise newly allocated part to zero (0 signals “not computed”) */
-    memset(a_cache + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
+    mem_set(a_cache + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
     a_cap = new_cap;
 }
 

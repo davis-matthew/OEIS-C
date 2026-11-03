@@ -8,14 +8,16 @@
  * Formula:   a(n) = ∑_{k=0}^{n} binom(n+k,2k) * binom(n+k+1,2k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The sum is the finite 4F3 hypergeometric value stated in A370234. */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
     for (k = 0; k <= n; ++k) {
         idx_t nk = n + k;
         idx_t twok = k << 1;                /* twok = 2*k */
-        seq_t term1 = binom(nk, twok);       /* C(n+k, 2k) */
-        seq_t term2 = binom(nk + 1, twok);   /* C(n+k+1, 2k) */
+        seq_t term1 = binomial(nk, twok);       /* C(n+k, 2k) */
+        seq_t term2 = binomial(nk + 1, twok);   /* C(n+k+1, 2k) */
         sum += term1 * term2;
     }
     return sum;

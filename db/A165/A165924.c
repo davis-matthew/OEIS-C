@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _is_squareful_u64
+ * Validated: standard, pass, 102 terms through n = 909 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,27 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_is_squareful_u64.h"
+
+/* Return true if x ≥ 4 and has a prime factor with exponent ≥ 2. */
+static bool _is_squareful_u64(idx_t x)
+{
+    if (x < 4) return false;          /* 1,2,3 are not squareful by the OEIS definition */
+    idx_t d = x;
+    for (idx_t p = 2; p * p <= d; ++p) {
+        if (d % p == 0) {
+            int exp = 0;
+            while (d % p == 0) {
+                d /= p;
+                ++exp;
+            }
+            if (exp >= 2) return true; /* found a squared prime factor */
+        }
+    }
+    /* After removing all squared prime factors, d may be 0 (x was 1) or a prime
+       factor with exponent 1.  Neither makes the number squareful in this
+       sense. */
+    return false;
+}
 
 static idx_t *squareful_arr = NULL;   /* list of squareful numbers found so far */
 static size_t sf_count = 0;            /* number of elements in squareful_arr  */

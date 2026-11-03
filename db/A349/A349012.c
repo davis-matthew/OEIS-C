@@ -8,15 +8,28 @@
  *            a(n-k-1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array, pow2
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Memoisation cache for sequence values */
 static seq_t *seq_cache = NULL;

@@ -9,7 +9,8 @@
  *            power of 2
  * Range:     u8 n <= 17, u16 n <= 76, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, floor_log2_uint64
+ * Validated: standard, pass, 72 terms through n = 980 (2026-11-01)
+ * Helpers:   build_primes_upto, ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/floor_log2_uint64.h"
+#include "../utils/ilog2.h"
 
 static uint64_t *prime_list   = NULL;   /* stored as uint64_t for full precision */
 static size_t   prime_count   = 0;      /* number of primes in prime_list   */
@@ -41,7 +43,7 @@ ensure_primes_up_to_index(idx_t idx_needed)
         limit = 15u;
     else
         limit = (uint64_t)idx_needed *
-                (((uint64_t)floor_log2_uint64(idx_needed)) + 1u) + 100u;
+                (((uint64_t)ilog2(idx_needed)) + 1u) + 100u;
 
     if (!prime_list || limit > prime_limit) {
         free(prime_list);                      /* free old sieve */

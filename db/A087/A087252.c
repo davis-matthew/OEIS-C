@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   exceeds_self
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,18 @@
 */
 
 #include <stdbool.h>
-#include "../utils/exceeds_self.h"
+
+static bool exceeds_self(seq_t m)
+{
+    seq_t curr = m;
+    while (curr != (seq_t)1 && curr <= m) {
+        if ((curr & (seq_t)1) == 0)           // even
+            curr >>= 1ULL;
+        else                                 // odd
+            curr = curr * (seq_t)3 + (seq_t)1;
+    }
+    return curr > m;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n+5)!/(n-5)! - 1
  * Range:     u8 none, u16 none, u32 n <= 9, u64 n <= 83, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 942 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

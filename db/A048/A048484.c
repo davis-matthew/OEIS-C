@@ -7,7 +7,8 @@
  * Formula:   a(n) = | floor(n/2) - A048299(n) |
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   build_primes, fact_exponent
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/build_primes.h"   /* provides: void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
-#include "../utils/fact_exponent.h"
+#include "../utils/build_primes.h"
+
+/* Legendre exponent of prime p in n! */
+static idx_t fact_exponent(idx_t n, idx_t p)
+{
+    idx_t e = 0;
+    while (n) {
+        n /= p;
+        e += n;
+    }
+    return e;
+}
 
 /* local cache for primes */
 static bool primes_prepared = false;

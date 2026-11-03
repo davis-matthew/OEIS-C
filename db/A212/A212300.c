@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1052, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 105 terms through n = 9720 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[1..current_max] */
 static idx_t cache_size = 0;  /* number of allocated entries (current_max+1) */
@@ -49,12 +51,12 @@ static void extend_to(idx_t n)
         if (lpf[i] == i) primes[primes_cnt++] = (uint64_t)i;
 
     /* 3. Allocate new cache and frequency array. */
-    seq_t *new_cache = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)(n + 1));
     if (!new_cache) { free(lpf); free(primes); return; }
 
     /* freq[lp] holds how many numbers ≤ current i have largest prime factor = lp. */
     size_t *freq = (size_t *)calloc((size_t)(n + 1), sizeof(size_t));
-    if (!freq) { free(lpf); free(primes); free(new_cache); return; }
+    if (!freq) { free(lpf); free(primes); mem_free(new_cache); return; }
 
     /* 4. Compute cache values incrementally. */
     for (idx_t i = 1; i <= n; ++i) {
@@ -78,7 +80,7 @@ static void extend_to(idx_t n)
     }
 
     /* 5. Replace old cache and deallocate temporary arrays. */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = n + 1;  /* we ignore cache[0] */
 

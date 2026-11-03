@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   _gcd_idx
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /* Compute A338333: number of relatively prime strict 3-part partitions of n with no 1's,
    by brute‑force enumeration of all triples a<b<c, a+b+c=n, a>=2. */
 #include <stdint.h>
-#include "../utils/_gcd_idx.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/gcd_idx.h"
 
 /* helper: Euclidean algorithm for idx_t */
 
@@ -30,8 +33,8 @@ seq_t a(idx_t n) {
             idx_t c_val = n - a_val - b_val;
             /* c_val > b_val by construction of max_b, but guard anyway */
             if (c_val <= b_val) continue;
-            idx_t g = _gcd_idx(a_val, b_val);
-            g = _gcd_idx(g, c_val);
+            idx_t g = gcd_idx(a_val, b_val);
+            g = gcd_idx(g, c_val);
             if (g == 1) ++count;
         }
     }

@@ -10,6 +10,7 @@
  *            the complement sequence t (with t(1)=1) along antidiagonals
  * Range:     u8 n <= 80, u16 n <= 408, u32 n <= 1832, u64 n <= 5050,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 94 terms through n = 4514 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

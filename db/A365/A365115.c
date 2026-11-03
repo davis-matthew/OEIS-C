@@ -8,12 +8,14 @@
  *            n-k) / (n-k+1) derived from A(x) = 1 + x/(1 - x*A(x))^5
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     idx_t maxk = (n + 1) / 2;              /* beyond this B1=0 */
     for (idx_t k = 0; k <= maxk; ++k)
     {
-        seq_t b1 = binom(n - k + 1, k);    /* C(n-k+1, k) */
+        seq_t b1 = binomial(n - k + 1, k);    /* C(n-k+1, k) */
         if (!b1)
             continue;                     /* term is zero */
 
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
            for k==0 top=n-1 < bottom=n => b2=0. */
         idx_t top    = n + 4 * k - 1;
         idx_t bottom = n - k;
-        seq_t b2 = (top < bottom) ? 0 : binom(top, bottom);
+        seq_t b2 = (top < bottom) ? 0 : binomial(top, bottom);
         if (!b2)
             continue;
 

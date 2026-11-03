@@ -7,8 +7,9 @@
  * Formula:   a(1)=1. For a prime power p^e: a(p)=0, and if e≥2 a(p^e) = -1
  *            when e ≡ 2 or 3 (mod 4), otherwise a(p^e) = 1. The sequence is
  *            multiplicative: a(m n)=a(m)·a(n) for gcd(m,n)=1
- * Range:     i8 n <= 8133, i16 n <= 8133, i32 n <= 8133, i64 n <= 8133,
- *            i128 n <= 8133, big any n
+ * Range:     i8 n <= 100000, i16 n <= 100000, i32 n <= 100000,
+ *            i64 n <= 100000, i128 n <= 100000, big any n
+ * Validated: standard, pass, 124 terms through n = 8133 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

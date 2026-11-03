@@ -9,17 +9,30 @@
  *            an even number of digits and an odd number of distinct digits
  * Range:     u8 n <= 9, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   digit_counts, digit_len, seq_alloc, seq_free
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   digit_counts, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/digit_counts.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_free.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 seq_t a(idx_t n)
 {
@@ -50,7 +63,7 @@ seq_t a(idx_t n)
     /* Generate terms until we have the n-th term */
     while (cache_size < n) {
         /* Test the current candidate */
-        int len = digit_len(next_candidate);
+        int len = num_digits(next_candidate);
         if ((len & 1) == 0) { /* even length? */
             unsigned char cnt[10] = {0};
             digit_counts(next_candidate, cnt);

@@ -9,15 +9,25 @@
  *            2*Sum_{k>=1} g(m-k^2)
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 15, i64 n <= 48, i128 n <= 160,
  *            big any n
- * Helpers:   release, zalloc_arr
+ * Validated: standard, pass, 38 terms through n = 8948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/zalloc_arr.h"
-#include "../utils/release.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;

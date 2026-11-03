@@ -8,15 +8,26 @@
  *            2 exchanged
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   pow2, seq_from_str
+ * Validated: standard, pass, 49 terms through n = 3164 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/seq_from_str.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 seq_t a(idx_t n)
 {

@@ -10,13 +10,15 @@
  *            a(4)=167089, a(5)=4213133, a(6)=106912793
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 657 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t init[7] = { (seq_t)1, (seq_t)13, (seq_t)281,
                                (seq_t)6728, (seq_t)167089,
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Allocate cache if first call */
     if (cache == NULL) {
         cache_cap = 64;
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         for (size_t i = 0; i < 7; ++i) cache[i] = init[i];
         cache_last = 6;
     }
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap;
         while ((size_t)n + 1 > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { /* allocation failure – keep old cache */
             /* In a contest setting we could exit but here we simply return 0. */
             return (seq_t)0;

@@ -7,12 +7,13 @@
  * Formula:   a(n) = (25*n + 41)*n*(n+1)*(n+2)*(n+3)*(n+4) / 720
  * Range:     u8 n <= 0, u16 n <= 9, u32 n <= 68, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 49 terms through n = 877 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
         seq_t factor = (seq_t)(n + i);
 
         /* Reduce the factor with the current denominator. */
-        seq_t g = seq_gcd(factor, den);
+        seq_t g = gcd(factor, den);
         if (g != 1)
         {
             factor /= g;
@@ -39,7 +40,7 @@ seq_t a(idx_t n)
 
         /* Reduce the running product with the (possibly reduced)
            remaining part of the denominator.                     */
-        g = seq_gcd(prod, den);
+        g = gcd(prod, den);
         if (g != 1)
         {
             prod /= g;

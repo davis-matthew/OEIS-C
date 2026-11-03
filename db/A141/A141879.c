@@ -7,29 +7,57 @@
  * Formula:   a(n) is the n‑th prime congruent to 14 (mod 19)
  * Range:     u8 n <= 3, u16 n <= 353, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeGeneric, realloc_arr
+ * Validated: standard, pass, 60 terms through n = 952 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The implementation searches primes in increasing order,
    caching the values so that subsequent calls are fast.
-   It uses a minimal reallocation routine that works for
-   both C (with malloc/realloc) and C++ (with operator new/​delete). */
+   Its cache grows with mem_resize, valid in C and C++. */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/realloc_arr.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
-/* Allocate an array of seq_t.  Works in C and C++. */
-static void* alloc_arr(size_t bytes)
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
 {
-#ifdef __cplusplus
-    return operator new[](bytes);
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
 #else
-    return malloc(bytes);
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
 #endif
+}
+
+/* Reallocate an array of seq_t. */
+static seq_t *realloc_arr(seq_t *oldptr, size_t oldbytes, size_t newbytes)
+{
+    (void)oldbytes;
+    return mem_resize(seq_t, oldptr, newbytes / sizeof(seq_t));
+}
+
+/* Allocate an array of seq_t. */
+static seq_t *alloc_arr(size_t bytes)
+{
+    return mem_new(seq_t, bytes / sizeof(seq_t));
 }
 
 /* Return the n-th prime ≡ 14 (mod 19).  n ≥ 1. */

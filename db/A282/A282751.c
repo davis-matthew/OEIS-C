@@ -9,6 +9,7 @@
  *            of n; multiplicative, a(0)=0
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 23, u64 n <= 563, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 912 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

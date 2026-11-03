@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 102, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   init_sequence
+ * Validated: partial, pass, 99 terms through n = 102 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,48 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/init_sequence.h"
+
+static void init_sequence(unsigned char *int_digits, size_t *int_len,
+                          unsigned char *cycle, size_t *cycle_len)
+{
+    /* Constants for the fraction 9999999/9801. */
+    const uint64_t NUM = 9999999ULL;
+    const uint64_t DEN = 9801ULL;
+
+    /* Compute integer part and its digits. */
+    uint64_t q  = NUM / DEN;           /* Integer part (1020).      */
+    uint64_t r  = NUM % DEN;           /* Initial remainder.        */
+
+    /* Extract integer digits (most significant first). */
+    unsigned char tmp[32];
+    size_t tlen = 0;
+    uint64_t tmpq = q;
+    if (tmpq == 0) {
+        tmp[tlen++] = 0;
+    } else {
+        while (tmpq > 0) {
+            tmp[tlen++] = (unsigned char)(tmpq % 10);
+            tmpq /= 10;
+        }
+    }
+    /* Reverse to MSB first */
+    for (size_t i = 0; i < tlen; ++i) {
+        int_digits[i] = tmp[tlen - 1 - i];
+    }
+    *int_len = tlen;
+
+    /* Compute repeating fractional cycle. */
+    uint64_t r0 = r;
+    size_t clen = 0;
+    do {
+        r *= 10ULL;
+        unsigned char digit = (unsigned char)(r / DEN);
+        cycle[clen++] = digit;
+        r = r % DEN;
+    } while (r != r0 && clen < 660);   /* period ≤ 660 for this denominator */
+
+    *cycle_len = clen;
+}
 
 seq_t a(idx_t n)
 {

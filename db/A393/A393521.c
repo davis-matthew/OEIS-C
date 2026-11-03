@@ -8,6 +8,7 @@
  *            (2*k+1)*(61*k+34)*4^k; a(4*k+3) = 10*(4*k+3)*4^k;
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 41, u64 n <= 97, u128 n <= 221,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 915 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

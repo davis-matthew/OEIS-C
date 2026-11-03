@@ -9,13 +9,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(0)=0, a(1)=1; for i≥1, append a(k)+a(i) for k=0..i‑1 to produce i new terms. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise on first call. */
     if (seq == NULL) {
         capacity = 4;
-        seq = (seq_t *)malloc(capacity * sizeof(seq_t));
+        seq = mem_new(seq_t, capacity);
         if (seq == NULL) abort();
         seq[0] = (seq_t)0;
         seq[1] = (seq_t)1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         if (size + step_idx > capacity) {
             size_t new_cap = capacity * 2;
             if (new_cap < size + step_idx) new_cap = size + step_idx;
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (tmp == NULL) abort();
             seq = tmp;
             capacity = new_cap;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{d|n} d*2^(n/d) (OEIS A054598)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* global array of powers of two: pow2[i] = 2^i  */
 static seq_t *pow2 = NULL;
@@ -31,10 +33,10 @@ static void ensure_pow2(idx_t n)
 
     /* reallocate if necessary */
     if (pow2 == NULL) {
-        pow2 = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        pow2 = mem_new(seq_t, new_cap);
         if (!pow2) exit(1);
     } else if (new_cap > pow2_cap) {
-        seq_t *tmp = (seq_t *)realloc(pow2, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow2, new_cap);
         if (!tmp) exit(1);
         pow2 = tmp;
     }

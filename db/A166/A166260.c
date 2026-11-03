@@ -7,16 +7,17 @@
  * Formula:   a(n) = n-1 if n is prime, otherwise 0
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   _is_prime_lj
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/_is_prime_lj.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {
-    if (_is_prime_lj(n))
+    if (is_prime(n))
         return (seq_t)(n - 1);
     else
         return (seq_t)0;

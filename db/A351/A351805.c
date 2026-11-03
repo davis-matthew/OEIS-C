@@ -8,6 +8,7 @@
  *            99*n^5 + 912*n^4 - 11*n^3 - 672*n^2 + 120)/3168
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 7, u64 n <= 21, u128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

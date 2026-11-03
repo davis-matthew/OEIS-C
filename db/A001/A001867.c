@@ -7,13 +7,14 @@
  * Formula:   a(n) = (1/n)*Sum_{d|n} phi(d)*3^(n/d), n>0; a(0) = 1
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 43, u128 n <= 84,
  *            big any n
- * Helpers:   a1867_phi
+ * Validated: standard, pass, 46 terms through n = 198 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a1867_phi.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -33,7 +34,7 @@ seq_t a(idx_t n) {
             q = q * 3 + (seq_t)(t / n);
             r = t % n;
         }
-        uint64_t ph = a1867_phi(d);
+        uint64_t ph = totient_u64(d);
         Q += q * (seq_t)ph;
         R += ph * r;
         Q += (seq_t)(R / n);

@@ -9,6 +9,7 @@
  *            (1678*n^3+3117*n^2+88*n-345*Mod[n,2]-320*Mod[n,3]-90*Mod[n,4]-288*Mod[n^3-n^2+n,5])/240
  * Range:     u8 none, u16 n <= 2, u32 n <= 848, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 53 terms through n = 9982 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

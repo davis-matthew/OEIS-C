@@ -7,13 +7,15 @@
  * Formula:   a(0) = 1; a(n) = Sum_{k=0..n-1} (4*k+1) * a(k) * a(n-k-1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* cached a(n) values */
 static size_t cap    = 0;       /* allocated capacity of cache   */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
         size_t newcap = (cap > 0) ? cap * 2 : 32;
         while (newcap < need)
             newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) {
             /* Allocation failed – abort (no error handling per spec) */
             abort();

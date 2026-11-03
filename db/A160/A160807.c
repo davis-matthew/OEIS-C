@@ -8,12 +8,14 @@
  *            3x^(3·2^i)) where a(1) = 0
  * Range:     u8 n <= 10, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Coefficients of the 4‑term polynomial p(x) = 1 + 5x + 7x² + 3x³. */
 static const seq_t coeffs[4] = {(seq_t)1, (seq_t)5, (seq_t)7, (seq_t)3};
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
     idx_t deg = n - 2;
 
     /* Allocate two working arrays of length deg+1. */
-    seq_t *prod   = (seq_t *)calloc((size_t)(deg + 1), sizeof(seq_t));
-    seq_t *next   = (seq_t *)calloc((size_t)(deg + 1), sizeof(seq_t));
+    seq_t *prod   = mem_new(seq_t, (size_t)(deg + 1));
+    seq_t *next   = mem_new(seq_t, (size_t)(deg + 1));
     if (!prod || !next) {
-        free(prod);
-        free(next);
+        mem_free(prod);
+        mem_free(next);
         return 0;   /* graceful fallback on allocation failure */
     }
 
@@ -75,8 +77,8 @@ seq_t a(idx_t n)
 
     seq_t result = prod[deg];
 
-    free(prod);
-    free(next);
+    mem_free(prod);
+    mem_free(next);
 
     return result;
 }

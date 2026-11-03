@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*---  Static data used for all calls -------------------------------------*/
 static size_t allowed_cnt   = 0;           /* number of admissible columns    */
@@ -114,8 +116,8 @@ static void init_tables(void)
     }
 
     /* 6. allocate DP tables (no initialisation needed here) */
-    dp_cur  = (seq_t*)malloc(states_cnt * sizeof(seq_t));
-    dp_next = (seq_t*)malloc(states_cnt * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, states_cnt);
+    dp_next = mem_new(seq_t, states_cnt);
 
     initialized = true;
 }

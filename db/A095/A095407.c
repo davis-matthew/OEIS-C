@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{p|n, p distinct} (decimal digit length of p)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count, factor_u64
+ * Validated: standard, pass, 121 terms through n = 9771 (2026-11-01)
+ * Helpers:   factor_u64, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,11 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/factor_u64.h"   /* for factor_u64 */
-#include "../utils/digit_count.h" /* for digit_count */
+#include <math.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/num_digits0.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +43,7 @@ seq_t a(idx_t n)
 
     seq_t total = 0;
     for (size_t i = 0; i < cnt; ++i)
-        total += (seq_t)digit_count(primes[i]);
+        total += (seq_t)num_digits0(primes[i]);
 
     return total;
 }

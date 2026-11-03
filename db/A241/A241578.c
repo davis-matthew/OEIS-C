@@ -12,23 +12,25 @@
  *            = offset + 1 and a(n) = T(n_val , k_val)
  * Range:     u8 n <= 24, u16 n <= 51, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* compute T(n,k) = Σ_{j=1..k} n^(k-j) * Stirling2(k,j) */
 static seq_t compute_T(idx_t n_val, idx_t k_val)
 {
     /* allocate array for Stirling numbers of the second kind */
     size_t K = (size_t)k_val;
-    seq_t *S = (seq_t *)malloc((K + 1) * sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (K + 1));
     if (!S) return 0;                 /* out of memory, return 0 */
 
-    memset(S, 0, (K + 1) * sizeof(seq_t));
+    mem_set(S, 0, (K + 1) * sizeof(seq_t));
     S[1] = 1;                          /* S(1,1) = 1 */
 
     for (size_t m = 2; m <= K; ++m) {
@@ -50,7 +52,7 @@ static seq_t compute_T(idx_t n_val, idx_t k_val)
             pow *= (seq_t)n_val;      /* multiply by n for next lower j */
     }
 
-    free(S);
+    mem_free(S);
     return sum;
 }
 

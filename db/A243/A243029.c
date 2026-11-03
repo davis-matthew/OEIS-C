@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,6 +43,7 @@ state_index (int l1, int l2, int l3, int mx)
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external linkage as required */
 seq_t a ( idx_t n )
@@ -63,9 +65,9 @@ seq_t a ( idx_t n )
     if ( totals == NULL )
     {
         totals_cap = 64;                  /* initial capacity                 */
-        totals = (seq_t *)calloc ( totals_cap, sizeof ( seq_t ) );
+        totals = mem_new(seq_t, totals_cap);
         if ( totals == NULL ) return 0;   /* out of memory – unlikely */
-        memset ( dp_cur, 0, sizeof ( dp_cur ) );
+        mem_set(dp_cur, 0, sizeof ( dp_cur ));
         dp_cur[state_index (5,5,5,0)] = 1; /* empty array                    */
         totals[0] = 1;                    /* length 0: 1 empty array          */
         totals_len = 1;
@@ -77,18 +79,18 @@ seq_t a ( idx_t n )
     {
         size_t new_cap = totals_cap;
         while ( new_cap <= (size_t)L ) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc ( totals, new_cap * sizeof ( seq_t ) );
+        seq_t *tmp = mem_resize(seq_t, totals, new_cap);
         if ( tmp == NULL ) return 0;       /* out of memory – unlikely */
         totals = tmp;
         totals_cap = new_cap;
         /* initialise new entries to zero */
-        memset ( &totals[totals_len], 0, (new_cap - totals_len) * sizeof ( seq_t ) );
+        mem_set(&totals[totals_len], 0, (new_cap - totals_len) * sizeof ( seq_t ));
     }
 
     /* extend the DP until we reach length L */
     for ( idx_t pos = current_len + 1; pos <= L; ++pos )
     {
-        memset ( dp_next, 0, sizeof ( dp_next ) );
+        mem_set(dp_next, 0, sizeof ( dp_next ));
 
         for ( int l1 = 0; l1 < LAST_VAL; ++l1 )
         {
@@ -132,7 +134,7 @@ seq_t a ( idx_t n )
         }
 
         /* copy dp_next to dp_cur for next iteration */
-        memcpy ( dp_cur, dp_next, sizeof ( dp_cur ) );
+        mem_copy(dp_cur, dp_next, sizeof ( dp_cur ));
 
         /* compute total for this length */
         seq_t total = 0;

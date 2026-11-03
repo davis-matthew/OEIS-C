@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 106, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 75 terms through n = 930 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
  *  where R(n) is the decimal digit reversal of n.
  */
 #include <stdint.h>
-#include "../utils/gcd_seq.h"
+#include "../utils/gcd.h"
 
 /* Compute the decimal digit reversal of a non‑negative number. */
 static seq_t rev(seq_t n)
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
     /* sequence offset is 1; n >= 1 */
     seq_t nSeq = (seq_t)n;
     seq_t r = rev(nSeq);
-    seq_t g = gcd_seq(nSeq, r);
+    seq_t g = gcd(nSeq, r);
     seq_t lcm = (nSeq / g) * r;      /* lcm(n, r) = n/g * r */
     return lcm / g;                  /* a(n) = lcm / gcd */
 }

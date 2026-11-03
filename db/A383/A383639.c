@@ -8,7 +8,8 @@
  * Formula:   a(n) = the nth left‑truncatable happy number with no zero digits
  * Range:     u8 n <= 3, u16 n <= 20, u32 n <= 88, u64 n <= 170, u128 n <= 170,
  *            big any n
- * Helpers:   digit_len, get_digits, pow10
+ * Validated: full, pass, 170 terms through n = 170 (2026-11-02)
+ * Helpers:   get_digits, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,19 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/get_digits.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 #if defined(__cplusplus)
 # include <vector>
@@ -196,7 +207,7 @@ static void compute_all(void)
 #endif
 
         /* generate children: prepend each digit 1..9 */
-        size_t len = digit_len(cur);
+        size_t len = num_digits(cur);
         seq_t pow10len = pow10(len);
         for (int d = 1; d <= 9; ++d) {
             seq_t child = (seq_t)d * pow10len + cur;

@@ -8,13 +8,14 @@
  *            Catalan(k+1) = Catalan(k)*(4k+2)/(k+2)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 35, u128 n <= 67,
  *            big any n
- * Helpers:   a778_gcd
+ * Validated: standard, pass, 43 terms through n = 187 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a778_gcd.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n) {
     seq_t c = 1;      /* Catalan(k) */
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
     for (k = 0; k <= n; k++) {
         idx_t num = 4 * k + 2;
         idx_t den = k + 2;
-        idx_t g = a778_gcd(num, den);
+        idx_t g = gcd_idx(num, den);
         num /= g;
         den /= g;
         if (k == n) cn = c;

@@ -11,13 +11,16 @@
  *            the convolution c(n) = ∑_{i=0}^{n} binom(n,i)...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,10 +39,10 @@ seq_t a(idx_t n)
         idx_t new_len  = n + 1;
         cache_len = new_len;
 
-        S = (seq_t *)realloc(S, new_len * sizeof(seq_t));
-        B = (seq_t *)realloc(B, new_len * sizeof(seq_t));
-        C = (seq_t *)realloc(C, new_len * sizeof(seq_t));
-        D = (seq_t *)realloc(D, new_len * sizeof(seq_t));
+        S = mem_resize(seq_t, S, new_len);
+        B = mem_resize(seq_t, B, new_len);
+        C = mem_resize(seq_t, C, new_len);
+        D = mem_resize(seq_t, D, new_len);
 
         for (idx_t i = old_len; i < new_len; ++i) {
             S[i] = 0;
@@ -65,7 +68,7 @@ seq_t a(idx_t n)
             for (idx_t k = 0; k <= m-1; ++k) {
                 if (((m - k) & 1) == 0) {           /* m‑k even → cos term appears */
                     idx_t exp = (m - k) >> 1;        /* (m-k)/2  */
-                    seq_t term = binom(m, k) * S[k];
+                    seq_t term = binomial(m, k) * S[k];
                     if (exp & 1)                    /* odd exponent → negative sign */
                         sum += term;
                     else                            /* even exponent → positive sign */
@@ -93,7 +96,7 @@ seq_t a(idx_t n)
             seq_t sum = 0;
             for (idx_t k = 0; k <= i; ++k) {
                 if (S[k] == 0 || B[i - k] == 0) continue;
-                seq_t term = binom(i, k);
+                seq_t term = binomial(i, k);
                 term = term * S[k];
                 term = term * B[i - k];
                 sum += term;
@@ -110,7 +113,7 @@ seq_t a(idx_t n)
         for (idx_t m = 1; m < new_len; ++m) {
             seq_t sum = 0;
             for (idx_t k = 0; k <= m-1; ++k) {
-                seq_t term = binom(m - 1, k);
+                seq_t term = binomial(m - 1, k);
                 term = term * D[k];
                 term = term * C[m - k];
                 sum += term;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  * type. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static state variables for memoization */
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     /* initialise cache for a(0) */
     if (cache_size == 0) {
         cache_size = 1;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) exit(1);
         cache[0] = (seq_t)1;            /* a(0) = 1 (empty sequence) */
     }
@@ -56,7 +58,7 @@ seq_t a(idx_t n) {
             size_t new_size = cache_size * 2;
             if ((size_t)(cached_n + 1) + 1 > new_size)
                 new_size = (size_t)(cached_n + 1) + 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_size);
             if (!tmp) exit(1);
             cache = tmp;
             cache_size = new_size;
@@ -91,7 +93,7 @@ seq_t a(idx_t n) {
             size_t new_size = cache_size * 2;
             if ((size_t)len + 1 > new_size)
                 new_size = (size_t)len + 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_size);
             if (!tmp) exit(1);
             cache = tmp;
             cache_size = new_size;

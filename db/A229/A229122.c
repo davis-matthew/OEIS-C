@@ -13,13 +13,24 @@
  *            iteration exists, the function returns 0
  * Range:     u8 n <= 27, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   is_odious
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_odious.h"
+
+/* Return true if x has an odd number of 1‑bits (odious). */
+static inline bool is_odious(seq_t x)
+{
+    int parity = 0;
+    while (x) {
+        parity ^= (int)(x & 1);
+        x >>= 1;
+    }
+    return parity != 0;
+}
 
 /* Odd part of 3*m+1 for an odd m.  Works for built‑in integers
    and for arbitrary‑precision seq_t objects that support the

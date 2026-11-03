@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 12, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   mat_trace
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,14 @@
  */
 
 #include <stddef.h>
-#include "../utils/mat_trace.h"
+
+/* return trace of a 10×10 matrix */
+static seq_t mat_trace(const seq_t m[10][10])
+{
+    seq_t tr = 0;
+    for (idx_t i = 0; i < 10; ++i) tr += m[i][i];
+    return tr;
+}
 
 /* multiply two 10×10 matrices: res = a · b */
 static void mat_mult(seq_t res[10][10],

@@ -10,6 +10,7 @@
  * Formula:   a(n) = (3n^2 + 13n + 12 + 2*(n mod 3))/3
  * Range:     u8 n <= 7, u16 n <= 252, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9367 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 860, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 8244 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute (a*b) mod m using 128‑bit arithmetic */
 static inline uint64_t mul_mod64(uint64_t a, uint64_t b, uint64_t m)
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
             if (cand <= (uint64_t)seq_t_max) {
                 if (terms_len == terms_cap) {
                     size_t new_cap = (terms_cap == 0) ? 4 : terms_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                     if (!tmp) abort();          /* out of memory */
                     terms = tmp;
                     terms_cap = new_cap;

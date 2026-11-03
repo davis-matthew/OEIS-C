@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_ROWS 729          /* 3^6 possible rows of 6 entries in {0,1,2} */
 #define MAX_C    7            /* constants 0..6 */
@@ -131,8 +133,8 @@ static void build_adjacency(void)
 seq_t a(idx_t n)
 {
     if (dp_cur == NULL) {           /* lazy allocation of DP arrays */
-        dp_cur  = (seq_t *)calloc(MAX_ROWS, sizeof(seq_t));
-        dp_next = (seq_t *)calloc(MAX_ROWS, sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, MAX_ROWS);
+        dp_next = mem_new(seq_t, MAX_ROWS);
         if (dp_cur == NULL || dp_next == NULL)
             return (seq_t)0;        /* out of memory – unlikely in tests */
     }

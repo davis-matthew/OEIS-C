@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 6768, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, floor_sqrt
+ * Validated: standard, pass, 87 terms through n = 9767 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,16 +23,34 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/floor_sqrt.h"          /* seq_t floor_sqrt(seq_t x); */
-#include "../utils/build_primes_upto.h"   /* void build_primes_upto(idx_t limit,
-                                           uint64_t **primes_out, size_t *cnt_out); */
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static void ensure_cache_capacity(size_t need, seq_t **ptr, size_t *cap)
 {
     if (need > *cap) {
         size_t newcap = (*cap == 0) ? 1 : (*cap * 2);
         if (newcap < need) newcap = need;
-        *ptr = (seq_t *)realloc(*ptr, newcap * sizeof(seq_t));
+        *ptr = mem_resize(seq_t, *ptr, newcap);
         *cap = newcap;
     }
 }

@@ -8,14 +8,16 @@
  * Formula:   a(n) = Sum_{d|n} sigma_[d](n) where sigma_[k](n) = sum_{e|n} e^k
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Helper: recursively generate all divisors from prime factorization */
 static void gen_divs_rec(const uint64_t *primes, const size_t *exps,
@@ -85,7 +87,7 @@ seq_t a(idx_t n) {
         seq_t e = (seq_t)divs[i];
         seq_t inner = 0;
         for (size_t j = 0; j < div_cnt; ++j) {
-            inner = inner + big_pow(e, (seq_t)divs[j]);
+            inner = inner + ipow(e, (seq_t)divs[j]);
         }
         result = result + inner;
     }

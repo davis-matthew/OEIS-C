@@ -7,14 +7,16 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} k*binomial(n,k)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 29, u64 n <= 60, u128 n <= 123,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 960 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow2.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

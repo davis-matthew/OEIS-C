@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 20, u32 n <= 60, u64 n <= 200, u128 n <= 710,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    Complexity: O(n²) per call, fast enough for n ≤ 10000. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Coefficients of the polynomial (1+x^k)^2 * (1+x^(2k))^4 for each k
    | t*k | coefficient
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 {
     /* Ensure dp has room for indices 0..n */
     if (dp_cap < (size_t)(n + 1)) {
-        seq_t *tmp = (seq_t *)realloc(dp, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (size_t)(n + 1));
         if (tmp == NULL) return 0;          /* Allocation failed */
         dp = tmp;
         dp_cap = (size_t)(n + 1);

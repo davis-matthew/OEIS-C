@@ -11,13 +11,16 @@
  *            numerator of A^2[i,j] is num(i,j) = (lcm(1..i) / lcm...
  * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Helper: lcm of two seq_t values */
 static seq_t _lcm_seq_t(seq_t a, seq_t b)
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
     idx_t j = n - (k - 1) * k / 2;   /* 1‑based column within row k */
 
     /* Allocate space for Lrange[1..k] */
-    seq_t *Lrange = (seq_t *)calloc((size_t)(k + 1), sizeof(seq_t));
+    seq_t *Lrange = mem_new(seq_t, (size_t)(k + 1));
     if (!Lrange)
         return 0;          /* allocation failure – should never occur */
 
@@ -69,6 +72,6 @@ seq_t a(idx_t n)
     seq_t factor = L_i / L_j;
     seq_t result = factor * sum;
 
-    free(Lrange);
+    mem_free(Lrange);
     return result;
 }

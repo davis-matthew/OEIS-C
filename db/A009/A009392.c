@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n/n! in log(1+tanh(x))/cosh(x)
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 14, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,11 +33,11 @@ seq_t a(idx_t n)
     const size_t N = (size_t)n;
     /* Allocate arrays for the needed EGFs: T (tanh), U (1+tanh), S (sech),
        L (log(1+tanh)) and the final A. */
-    seq_t *T = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *U = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *S = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *L = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *A = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *T = mem_new(seq_t, N + 1);
+    seq_t *U = mem_new(seq_t, N + 1);
+    seq_t *S = mem_new(seq_t, N + 1);
+    seq_t *L = mem_new(seq_t, N + 1);
+    seq_t *A = mem_new(seq_t, N + 1);
 
     /* ------------------------------------------------------------------
        1. tanh series T:  (n+1) * T[n+1] = delta_{n,0} - sum_{k=0}^n binom(n,k) T[k] * T[n-k]
@@ -114,11 +116,11 @@ seq_t a(idx_t n)
     seq_t result = A[N];
 
     /* Free the temporary storage. */
-    free(T);
-    free(U);
-    free(S);
-    free(L);
-    free(A);
+    mem_free(T);
+    mem_free(U);
+    mem_free(S);
+    mem_free(L);
+    mem_free(A);
 
     return result;
 }

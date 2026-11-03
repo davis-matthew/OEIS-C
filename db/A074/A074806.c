@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   seq_alloc_new_array, sieve_primes
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/sieve_primes.h"
-#include "../utils/seq_alloc_new_array.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /* ------------------------------------------------------------ */
 /*  Helper: dynamic array of the first primes                    */
@@ -75,10 +82,10 @@ static void ensure_cache(idx_t n)
         size_t old_cap = cache_cap;
         cache_cap <<= 1;
         seq_t *tmp = seq_alloc_new_array(cache_cap);
-        memcpy(tmp, cache, old_cap * sizeof(seq_t));
+        mem_copy(tmp, cache, old_cap * sizeof(seq_t));
         /* zero the newly added slots */
-        memset(tmp + old_cap, 0, (cache_cap - old_cap) * sizeof(seq_t));
-        free(cache);
+        mem_set(tmp + old_cap, 0, (cache_cap - old_cap) * sizeof(seq_t));
+        mem_free(cache);
         cache = tmp;
     }
 }

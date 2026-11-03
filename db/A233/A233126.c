@@ -15,11 +15,15 @@
  *            function memoises computed terms and works for any call order
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 15,
  *            big any n
+ * Validated: standard, pass, 27 terms through n = 209 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#ifdef __cplusplus
+#include <vector>
+#endif
 #include <stdbool.h>
 #include <stdlib.h>
 

@@ -7,9 +7,10 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} binomial(3*k,k) *
  *            binomial(n-k-1,k-1) / (2*k+1). (binomial(n,k) is 0 for k<0 or
  *            k>n)
- * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 22, u64 n <= 30, u128 n <= 30,
+ * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached values */
 static idx_t cache_size = 0;     /* allocated size of cache */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 {
     /* initialise cache if necessary */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));   /* allocate one element */
+        cache = mem_new(seq_t, 1);   /* allocate one element */
         if (!cache) abort();
         cache_size = 1;
         cache[0] = (seq_t)1;                     /* a(0) = 1 */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* grow cache if we need to reach index n */
     if ((idx_t)n >= cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         cache = tmp;
         cache_size = new_size;

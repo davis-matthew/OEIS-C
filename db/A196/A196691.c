@@ -13,7 +13,8 @@
  *            target value for the current cell. * * Trans...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 27, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define NUM_ROWS 125          /* 5^3 possible rows (3 columns, values 0..4) */
 #define NUM_MASKS 8           /* 3‑bit mask for up‑neighbour matches */
@@ -131,7 +133,7 @@ seq_t a(idx_t n)
     /* Dynamic programming arrays */
     static seq_t dp[NUM_ROWS * NUM_MASKS];
     static seq_t dp_next[NUM_ROWS * NUM_MASKS];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initial state: first row with no up neighbors */
     for (int r = 0; r < NUM_ROWS; ++r) {
@@ -140,7 +142,7 @@ seq_t a(idx_t n)
 
     /* Process each subsequent row */
     for (idx_t step = 1; step < n; ++step) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int prev = 0; prev < NUM_ROWS; ++prev) {
             for (int up_mask = 0; up_mask < NUM_MASKS; ++up_mask) {
                 seq_t ways = dp[ prev * NUM_MASKS + up_mask ];
@@ -153,7 +155,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, dp_next, sizeof(dp));
+        mem_copy(dp, dp_next, sizeof(dp));
     }
 
     /* Sum over final states */

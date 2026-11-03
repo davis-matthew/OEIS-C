@@ -9,15 +9,37 @@
  *            surviving value (leading zeros dropped, e.g. 17 -> 1, 70 -> 0)
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   all_sevens, strip_sevens
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/all_sevens.h"
-#include "../utils/strip_sevens.h"
+
+static bool all_sevens(uint64_t k) {
+    if (k == 0) return false;
+    while (k > 0) {
+        if (k % 10 != 7) return false;
+        k /= 10;
+    }
+    return true;
+}
+
+static seq_t strip_sevens(uint64_t k) {
+    seq_t result = 0;
+    seq_t power = 1;
+    while (k > 0) {
+        unsigned d = (unsigned)(k % 10);
+        if (d != 7) {
+            result += power * d;
+            power *= 10;
+        }
+        k /= 10;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     uint64_t k = 0;

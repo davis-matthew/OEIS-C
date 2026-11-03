@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,10 +48,10 @@ seq_t a(idx_t n)
     }
 
     /* Allocate working arrays of maximal needed size (row+1 elements). */
-    seq_t *uPrev = (seq_t *)malloc((row + 1) * sizeof(seq_t));
-    seq_t *vPrev = (seq_t *)malloc((row + 1) * sizeof(seq_t));
-    seq_t *uCur  = (seq_t *)malloc((row + 1) * sizeof(seq_t));
-    seq_t *vCur  = (seq_t *)malloc((row + 1) * sizeof(seq_t));
+    seq_t *uPrev = mem_new(seq_t, (row + 1));
+    seq_t *vPrev = mem_new(seq_t, (row + 1));
+    seq_t *uCur  = mem_new(seq_t, (row + 1));
+    seq_t *vCur  = mem_new(seq_t, (row + 1));
 
     /* Initialize for n = 1 */
     uPrev[0] = (seq_t)1;
@@ -94,11 +96,11 @@ seq_t a(idx_t n)
     seq_t result = vPrev[idx];
 
     /* Clean up */
-    free(uPrev);
-    free(vPrev);
-    free(uCur);   /* uCur and vCur are currently swapped copies, but freeing them
+    mem_free(uPrev);
+    mem_free(vPrev);
+    mem_free(uCur);   /* uCur and vCur are currently swapped copies, but freeing them
                     * is safe as they are dummy placeholders. */
-    free(vCur);
+    mem_free(vCur);
 
     return result;
 }

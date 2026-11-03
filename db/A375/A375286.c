@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, look
  * Formula:   a(n) = Σ_{k=1..n} (-2)^{Ω(k)}
- * Range:     i8 n <= 127, i16 n <= 9993, i32 n <= 9993, i64 n <= 9993,
- *            i128 n <= 9993, big any n
+ * Range:     i8 n <= 127, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 80 terms through n = 9993 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

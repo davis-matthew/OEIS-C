@@ -13,13 +13,15 @@
  *            sequence. The index n is mapped to a row r a...
  * Range:     u8 n <= 28, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline idx_t floor_sqrt_u64(idx_t n)
 {
@@ -47,7 +49,7 @@ static void ensure_S(idx_t n)
         /* allocate array of pointers for 0..n */
         S = (seq_t**)malloc((n + 1) * sizeof(seq_t*));
         /* base case S[0][0] = 1 */
-        S[0] = (seq_t*)malloc(sizeof(seq_t));
+        S[0] = mem_new(seq_t, 1);
         S[0][0] = (seq_t)1;
         S_max = 0;
         if (n == 0) return;
@@ -60,7 +62,7 @@ static void ensure_S(idx_t n)
 
     /* Compute Stirling numbers for rows S_max+1 .. n */
     for (idx_t row = S_max + 1; row <= n; ++row) {
-        S[row] = (seq_t*)malloc((row + 1) * sizeof(seq_t));
+        S[row] = mem_new(seq_t, (row + 1));
         S[row][0] = (seq_t)0;           /* Stirling2(row, 0) = 0 for row > 0 */
         for (idx_t k = 1; k <= row; ++k) {
             seq_t val = S[row - 1][k - 1];

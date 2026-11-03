@@ -8,14 +8,16 @@
  *            binomial(n,k), * r = the unique integer with r(r+1)/2 ≤ n <
  *            (r+1)(r+2)/2, * k = n - r(r+1)/2. This enumerates the 5‑Pascal
  *            triangle rows * row‑by‑row
- * Range:     u8 n <= 23, u16 n <= 141, u32 n <= 573, u64 n <= 1325,
+ * Range:     u8 n <= 38, u16 n <= 142, u32 n <= 574, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1270 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

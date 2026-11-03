@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 17, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Prime table (generated once).  Size is chosen large enough for the
@@ -115,7 +117,7 @@ static void ensure_cached_cap(size_t needed)
     if (cached_cap >= needed) return;
     size_t new_cap = cached_cap ? cached_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(cached_values, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cached_values, new_cap);
     cached_values = new_arr;
     cached_cap = new_cap;
 }

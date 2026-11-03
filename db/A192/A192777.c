@@ -10,12 +10,14 @@
  *            Recurrence derived from OEIS entry A192777
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 25, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     /* Allocate cache for the first call. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(6 * sizeof(seq_t));
+        cache = mem_new(seq_t, 6);
         for (idx_t i = 0; i < 6; ++i)
             cache[i] = init[i];
         cached_count = 6;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Extend cache if needed. */
     if (n > cached_count) {
         /* Reallocate to hold n terms. */
-        cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)n);
         /* Compute missing terms using the recurrence. */
         for (idx_t k = cached_count + 1; k <= n; ++k) {
             /* k is 1‑based; cache indices are 0‑based. */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = smallest k such that usigma(n+k) = usigma(k)
  * Range:     u8 n <= 22, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9254 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve (up to 1 000 000) ---------- */
 static unsigned *primes = NULL;
@@ -67,18 +69,16 @@ static void ensure_cache(idx_t n)
     idx_t new_size = sigma_cache_size ? sigma_cache_size * 2 : 1024;
     while (new_size <= n)
         new_size <<= 1;
-    seq_t *tmp = (seq_t*)realloc(sigma_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, sigma_cache, new_size);
     if (!tmp) {
         /* allocation failure – nothing we can do */
         return;
     }
     if (tmp != sigma_cache) {
-        memset(tmp + sigma_cache_size, 0,
-               (new_size - sigma_cache_size) * sizeof(seq_t));
+        mem_set(tmp + sigma_cache_size, 0, (new_size - sigma_cache_size) * sizeof(seq_t));
         sigma_cache = tmp;
     } else {
-        memset(tmp + sigma_cache_size, 0,
-               (new_size - sigma_cache_size) * sizeof(seq_t));
+        mem_set(tmp + sigma_cache_size, 0, (new_size - sigma_cache_size) * sizeof(seq_t));
     }
     sigma_cache_size = new_size;
 }

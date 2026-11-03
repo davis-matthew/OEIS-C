@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 5, i32 n <= 9, i64 n <= 14, i128 n <= 24,
  *            big any n
- * Helpers:   big_pow, binomial, factorial
+ * Validated: standard, pass, 34 terms through n = 359 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,22 @@
    Formula: a(n) = n! * Sum_{k=1..n} (-2*k+1)^(k-1) * binomial(n-1, k-1) / k! */
 /* (The term for n = 0 is defined to be 1.) */
 
-#include "../utils/factorial.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Computes the n-th term of A361068 */
 seq_t a(idx_t n)
@@ -35,7 +49,7 @@ seq_t a(idx_t n)
         seq_t base = (seq_t)(-(2 * (seq_t)k) + 1);
 
         /* (base)^(k-1) */
-        seq_t powv = big_pow(base, k - 1);
+        seq_t powv = ipow(base, k - 1);
 
         /* binomial(n-1, k-1) */
         seq_t bin = binomial(n - 1, k - 1);

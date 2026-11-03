@@ -8,12 +8,14 @@
  *            contains an odd number of 1‑bits (odious)
  * Range:     u8 n <= 8, u16 n <= 4368, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9771 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         size_t new_size = (size_t)n;
 
         /* realloc is C-compatible; cast to seq_t* for C++ */
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         cache = tmp;
 

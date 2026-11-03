@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global cache of factorials: fac[i] = i! */
 static seq_t *fac = NULL;   /* factorial cache */
@@ -30,7 +32,7 @@ static idx_t fac_max = 0;   /* highest index computed */
 static void ensure_factorial(idx_t up_to)
 {
     if (fac == NULL) {
-        fac = (seq_t *)malloc(sizeof(seq_t));
+        fac = mem_new(seq_t, 1);
         if (!fac) abort();
         fac[0] = (seq_t)1;
         fac_max = 0;
@@ -38,7 +40,7 @@ static void ensure_factorial(idx_t up_to)
     if (fac_max >= up_to) return;
 
     size_t new_cap = (size_t)(up_to + 1);
-    seq_t *tmp = (seq_t *)realloc(fac, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fac, new_cap);
     if (!tmp) abort();
     fac = tmp;
 

@@ -7,16 +7,19 @@
  * Keywords:  nonn
  * Formula:   a(n) = (n+1) / gcd(n+1, ψ(n)) where ψ(n) = n * Π_{p|n} (1 + 1/p)
  *            = n * Π_{p|n} (p+1)/p (Dedekind psi function)
- * Range:     u8 n <= 254, u16 n <= 9707, u32 n <= 9707, u64 n <= 9707,
- *            u128 n <= 9707, big any n
+ * Range:     u8 n <= 254, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 108 terms through n = 9707 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

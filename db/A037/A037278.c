@@ -7,14 +7,26 @@
  * Formula:   a(n) = concat_{d|n} d
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 29, u64 n <= 119, u128 n <= 359,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 53 terms through n = 8852 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +46,7 @@ seq_t a(idx_t n)
             idx_t d_high = n / i;
 
             /* append the low divisor immediately */
-            int l = digit_len((seq_t)d_low);
+            int l = num_digits((seq_t)d_low);
             res = res * pow10(l) + (seq_t)d_low;
 
             if (d_low != d_high) {
@@ -57,7 +69,7 @@ seq_t a(idx_t n)
     /* append the stored larger divisors in ascending order */
     for (size_t k = len; k > 0; --k) {
         idx_t d = big[k - 1];
-        int l = digit_len((seq_t)d);
+        int l = num_digits((seq_t)d);
         res = res * pow10(l) + (seq_t)d;
     }
 

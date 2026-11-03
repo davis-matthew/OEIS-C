@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 5049, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a061486, isPrimeGeneric, seq_realloc
+ * Validated: standard, pass, 86 terms through n = 9891 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,71 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/a061486.h"
+#include <stdlib.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* compute A061486(n) (sum of products of all non‑empty contiguous
+ * subsequences of decimal digits). Returns the value as `seq_t`
+ * if it fits; otherwise returns a value greater than UINT64_MAX
+ * to indicate overflow (treated as non‑prime). */
+static seq_t a061486(uint64_t n)
+{
+    /* gather digits in reverse order (least significant first) */
+    unsigned char digits[32];
+    size_t len = 0;
+    uint64_t t = n;
+    while (t > 0) {
+        digits[len++] = t % 10;
+        t /= 10;
+    }
+    /* compute sum of products of all contiguous substrings */
+    unsigned __int128 sum128 = 0;
+    for (size_t i = 0; i < len; ++i) {
+        unsigned __int128 prod = 1;
+        for (size_t j = i; j < len; ++j) {
+            prod *= digits[j];
+            sum128 += prod;
+        }
+    }
+    /* check overflow relative to maximum value representable in seq_t */
+    unsigned __int128 max_seq = (unsigned __int128)(seq_t)-1;
+    if (sum128 > max_seq) return (seq_t)0; /* treat as overflow */
+    return (seq_t)sum128;
+}
 
 /* cache of found terms */
 static seq_t *cache   = NULL;   /* array of seq_t */

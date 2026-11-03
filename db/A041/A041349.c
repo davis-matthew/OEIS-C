@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 39, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  */
 #include <stdlib.h>
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 /* Pre‑computed initial 16 terms */
 static const seq_t base_terms[16] = {
@@ -39,20 +41,18 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough for indices 0..n */
     if (cache == NULL) {
         /* First allocation: use calloc to zero the memory */
-        cache = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)n + 1);
         if (cache == NULL) return 0;          /* allocation failed */
         cache_cap = (size_t)n + 1;
     } else if ((size_t)(n + 1) > cache_cap) {
         /* Grow the cache to accommodate up to index n */
         size_t old_cap = cache_cap;
-        seq_t *tmp = (seq_t *)realloc(cache, ((size_t)n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, ((size_t)n + 1));
         if (tmp == NULL) return 0; /* allocation failed */
         cache = tmp;
         /* Zero the newly added part of the array */
         if (cache_cap < (size_t)(n + 1)) {
-            memset(cache + old_cap,
-                   0,
-                   ((size_t)n + 1 - old_cap) * sizeof(seq_t));
+            mem_set(cache + old_cap, 0, ((size_t)n + 1 - old_cap) * sizeof(seq_t));
         }
         cache_cap = (size_t)n + 1;
     }

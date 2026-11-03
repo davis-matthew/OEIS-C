@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   allowed_index, build_prime_index
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,37 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/allowed_index.h"
-#include "../utils/build_prime_index.h"
+#include "../utils/mem.h"
+
+/* Helper: decide whether a number (index) has Ω(n) ≤ 2 (i.e. 1, prime,
+   or semiprime) using its smallest prime factor array. */
+static bool allowed_index(uint32_t *spf, idx_t val)
+{
+    if (val == 1) return true;
+    int cnt = 0;
+    while (val > 1 && cnt <= 2) {
+        uint32_t p = spf[val];
+        while (val % p == 0) {
+            val /= p;
+            ++cnt;
+            if (cnt > 2) return false;
+        }
+    }
+    return cnt <= 2;
+}
+
+/* Helper: build prime list and index mapping.
+   prime_index[p] gives the 1‑based index of prime p (0 if p not prime). */
+static void build_prime_index(uint32_t *spf, uint32_t *prime_index,
+                              idx_t limit, size_t *prime_cnt)
+{
+    *prime_cnt = 0;
+    for (idx_t i = 2; i <= limit; ++i)
+        if (spf[i] == (uint32_t)i) {
+            ++(*prime_cnt);
+            prime_index[i] = (uint32_t)(*prime_cnt);
+        }
+}
 
 static const idx_t MAX_LIMIT = 2000000;          /* sieve upper bound */
 
@@ -80,7 +110,7 @@ static void init_sequence(void)
 
     /* Allocate cache with an initial capacity */
     cache_cap = 1024;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) exit(1);
 
     /* Main loop: fill num_allowed and cache */
@@ -97,7 +127,7 @@ static void init_sequence(void)
         if (num_allowed[i]) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) exit(1);
                 cache = tmp;
             }

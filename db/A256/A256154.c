@@ -13,16 +13,27 @@
  *            appe...
  * Range:     u8 n <= 4, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   digit_len, factor_u64, pow10
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   factor_u64, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static const int digit_map[4] = {3, 5, 7, 9};
 
@@ -76,7 +87,7 @@ seq_t a(idx_t n) {
     seq_t result = 0;
     for (size_t i = 0; i < fac_total; ++i) {
         seq_t f = (seq_t)factors[i];
-        int fib_len = digit_len(f);
+        int fib_len = num_digits(f);
         seq_t pow = pow10((idx_t)fib_len);
         result = result * pow + f;
     }

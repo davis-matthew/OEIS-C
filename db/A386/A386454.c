@@ -9,7 +9,8 @@
  *            a(n-1-k), a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   binom_k3_4
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binom_k3_4.h"
+#include "../utils/mem.h"
+
+/* Binomial coefficient (k+3 choose 4) implemented directly to avoid external dependency. */
+static seq_t binom_k3_4(idx_t k)
+{
+    seq_t num = (seq_t)(k + 3) * (k + 2) * (k + 1) * k;
+    return num / 24;
+}
 
 /* Cache for computed terms.  cache_len indicates the first unused index. */
 static seq_t *cache      = NULL;
@@ -31,17 +39,17 @@ seq_t a(idx_t n)
     /* Initial allocation for base case a(0). */
     if (cache_size == 0) {
         cache_size = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;              /* allocation failure */
-        memset(cache, 0, sizeof(seq_t) * cache_size);
+        mem_set(cache, 0, sizeof(seq_t) * cache_size);
     }
 
     /* Expand cache if necessary to accommodate n. */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;                /* allocation failure */
-        memset(tmp + cache_size, 0, sizeof(seq_t) * (new_size - cache_size));
+        mem_set(tmp + cache_size, 0, sizeof(seq_t) * (new_size - cache_size));
         cache = tmp;
         cache_size = new_size;
     }

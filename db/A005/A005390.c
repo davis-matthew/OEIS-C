@@ -10,13 +10,15 @@
  *            96*a(n-13) - 4*a(n-14) for n >= 15
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 633 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 
 static seq_t *memo = NULL;
@@ -30,13 +32,13 @@ static const int recur[] = {53, -802, 4463, -10928, 13708, -12157, 7032, -11272,
 seq_t a(idx_t n) {
     if (memo == NULL) {
         idx_t init_size = (n > 1000) ? n + 1 : 1001;
-        memo = (seq_t *)calloc(init_size, sizeof(seq_t));
+        memo = mem_new(seq_t, init_size);
         memo_size = init_size;
     } else if (n >= memo_size) {
         idx_t new_size = n + 1 + (n >> 2);
-        seq_t *new_memo = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+        seq_t *new_memo = mem_resize(seq_t, memo, new_size);
         if (!new_memo) exit(1);
-        memset(new_memo + memo_size, 0, (new_size - memo_size) * sizeof(seq_t));
+        mem_set(new_memo + memo_size, 0, (new_size - memo_size) * sizeof(seq_t));
         memo = new_memo;
         memo_size = new_size;
     }

@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = the length of the Collatz sequence starting from prime(n)
  *            * (including both endpoints)
- * Range:     u8 n <= 10, u16 n <= 2646, u32 n <= 8922, u64 n <= 8922,
- *            u128 n <= 8922, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10, u16 n <= 2646, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 91 terms through n = 8922 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Helper to build at least the first `need` primes (0‑based count).
    The primes are stored in a static array of type seq_t. */
@@ -50,8 +52,7 @@ ensure_primes(idx_t need)
                 if (count > prime_cnt) { /* store new prime */
                     if (count > prime_cap) {
                         prime_cap = count * 2;
-                        prime_cache = (seq_t *)realloc(prime_cache,
-                                                       prime_cap * sizeof(seq_t));
+                        prime_cache = mem_resize(seq_t, prime_cache, prime_cap);
                         if (!prime_cache) {
                             free(is_comp);
                             return;

@@ -11,7 +11,8 @@
  *            Goldbach partitions of 2n divides the sum of the larger primes
  * Range:     u8 n <= 10, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   extend_primes_to, is_prime
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,30 @@
 #include <stdint.h>
 #include <math.h>
 
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t x) */
-#include "../utils/extend_primes_to.h"
+#include "../utils/is_prime.h"
+
+static void extend_primes_to(idx_t limit, idx_t **dat, size_t *cnt, size_t *cap, idx_t *upp)
+{
+    while (*upp < limit) {
+        ++(*upp);
+        if (*upp < 2) continue;
+        bool prime = true;
+        idx_t sqrt_lim = (idx_t)sqrt((double)*upp) + 1;
+        for (size_t i = 0; i < *cnt && (*dat)[i] <= sqrt_lim; ++i) {
+            if ((*upp) % (*dat)[i] == 0) { prime = false; break; }
+        }
+        if (prime) {
+            if (*cnt == *cap) {
+                size_t new_cap = (*cap) ? (*cap) * 2 : 16;
+                idx_t *tmp = (idx_t *)realloc(*dat, new_cap * sizeof(idx_t));
+                if (!tmp) { free(*dat); abort(); }
+                *dat = tmp;
+                *cap = new_cap;
+            }
+            (*dat)[(*cnt)++] = *upp;
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

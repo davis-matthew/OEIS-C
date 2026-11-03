@@ -7,14 +7,17 @@
  * Formula:   not stated
  * Range:     u8 n <= 192, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 87 terms through n = 975 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* A217128: Numbers n such that (2n)^4 + 1 is composite.  Computed by testing primality. */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;
 static size_t a_cache_cap = 0;
@@ -23,7 +26,7 @@ static idx_t   a_tested_n  = 0;
 
 static void a_grow_cache(void) {
     size_t new_cap = a_cache_cap == 0 ? 4 : a_cache_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) abort();
     a_cache      = tmp;
     a_cache_cap  = new_cap;

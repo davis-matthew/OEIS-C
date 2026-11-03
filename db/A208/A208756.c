@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   row_start
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,13 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/row_start.h"
+#include "../utils/mem.h"
+
+/* start index (0‑based) of row r (1‑based row numbering) */
+static inline size_t row_start(size_t r)
+{
+    return (r - 1) * r / 2;
+}
 
 /* cached triangle */
 static seq_t *tri_cache = NULL;   /* flattened triangle storage */
@@ -41,7 +48,7 @@ static void ensure_rows(size_t target)
     size_t required = target * (target + 1) / 2;
     if (required > cache_cap) {
         cache_cap = required;
-        tri_cache = (seq_t *)realloc(tri_cache, cache_cap * sizeof(seq_t));
+        tri_cache = mem_resize(seq_t, tri_cache, cache_cap);
     }
 
     /* compute new rows */

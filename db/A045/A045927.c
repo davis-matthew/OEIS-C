@@ -7,12 +7,24 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   comb_repeat
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/comb_repeat.h"
+/* Count the number of weakly increasing sequences of length len
+   that use digits from a given set of `types` available digits.
+   This is the binomial coefficient C(len+types-1, types-1). */
+static inline idx_t comb_repeat(idx_t len, idx_t types)
+{
+    if (types <= 1U) return 1U;          /* only one way with one type */
+    idx_t res = 1U;
+    for (idx_t i = 1U; i < types; ++i) {
+        res = res * (len + types - i) / i;
+    }
+    return res;
+}
 /* Non‑prime even non‑zero non‑decreasing digit numbers.
    Sorted by increasing numeric value.
    The nth term is obtained by counting weakly increasing sequences

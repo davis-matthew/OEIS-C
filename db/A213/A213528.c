@@ -9,7 +9,8 @@
  *            where Pell(0)=0, Pell(1)=1, Pell(k)=2*Pell(k-1)+Pell(k-2)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   ensure_array
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
 /*  sequence implementation for OEIS A213528 */
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/ensure_array.h"
+#include "../utils/mem.h"
+
+/* ensure array has at least 'needed' elements */
+static void ensure_array(seq_t **arr, size_t *cap, size_t needed)
+{
+    if (*cap >= needed) return;
+    size_t new_cap = (*cap ? *cap * 2 : 16);
+    while (new_cap < needed) new_cap <<= 1;
+    seq_t *tmp = mem_new(seq_t, new_cap);
+    if (!tmp) abort();
+    if (*arr) {
+        mem_copy(tmp, *arr, *cap * sizeof(seq_t));
+        mem_free(*arr);
+    }
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* static caches */
 static seq_t *a_cache    = NULL;   /* sequence values */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 899, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   omega_of_uint64
+ * Validated: standard, pass, 65 terms through n = 9491 (2026-11-01)
+ * Helpers:   bigomega_u64_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
  * big‑omega function (count of prime factors with multiplicity). */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/omega_of_uint64.h"
+#include "../utils/bigomega_u64_to_i32.h"
 
 /* Primality test for 64‑bit integers (deterministic trial division). */
 static bool is_prime_u64(uint64_t x)
@@ -42,8 +43,8 @@ seq_t a(idx_t n)
     idx_t found = 0;
     for (idx_t p = 2; ; ++p) {
         if (is_prime_u64((uint64_t)p)) {
-            int o1 = omega_of_uint64((uint64_t)(p - 1));
-            int o2 = omega_of_uint64((uint64_t)(p + 1));
+            int o1 = bigomega_u64_to_i32((uint64_t)(p - 1));
+            int o2 = bigomega_u64_to_i32((uint64_t)(p + 1));
             if (o1 == o2) {
                 ++found;
                 if (found == n)

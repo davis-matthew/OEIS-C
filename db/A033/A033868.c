@@ -7,14 +7,16 @@
  * Formula:   Numbers n such that 7*n-11 is prime (OEIS A033868)
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 74 terms through n = 893 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Cache for computed terms */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate terms until we have at least n of them */
@@ -39,11 +41,11 @@ seq_t a(idx_t n)
         uint64_t test = 7ull * (uint64_t)last_candidate - 11ull;  /* 7*m-11 */
 
         /* Test primality of test (fits in 64‑bit) */
-        if (is_prime_small(test)) {
+        if (is_prime_seq(test)) {
             /* Grow cache if necessary */
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap << 1;
-                seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

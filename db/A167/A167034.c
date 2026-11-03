@@ -10,13 +10,15 @@
  *            symmetry t(r,m)=t(r,r-m) for m>r/2)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   binomial, pow_seq_large
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq_large.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute (m+1)^r and binomial(r,m). */
-    seq_t power = pow_seq_large((seq_t)(m + 1), (seq_t)r);
+    seq_t power = ipow((seq_t)(m + 1), (seq_t)r);
     seq_t bin = binomial(r, m);
 
     return power * bin;

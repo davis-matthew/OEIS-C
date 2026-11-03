@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   row_of_position
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
-#include "../utils/row_of_position.h"
+#include "../utils/mem.h"
+
+/* find the row r such that r*(r+1)/2 >= pos   (1‑based positions) */
+static idx_t row_of_position(idx_t pos) {
+    idx_t low = 1, high = 1;
+    /* grow high until it is large enough – use 128‑bit for safety */
+    while ((unsigned __int128)high * (high + 1) / 2 < pos) {
+        if (high > ((~(idx_t)0) >> 1)) { high = (~(idx_t)0); break; }
+        high <<= 1;
+    }
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        unsigned __int128 tri = (unsigned __int128)mid * (mid + 1) / 2;
+        if (tri >= pos)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 /* static storage for the triangle values (1‑based rows, 1‑based columns) */
 static seq_t *tri = NULL;
@@ -32,7 +52,7 @@ static void ensure_tri_capacity(idx_t needed) {
     if (tri_size >= needed) return;
     idx_t new_size = tri_size ? tri_size * 2 : 16;
     if (new_size < needed) new_size = needed;
-    seq_t *tmp = (seq_t*)realloc(tri, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, tri, new_size);
     if (!tmp) abort();          /* allocation failed */
     tri = tmp;
     tri_size = new_size;

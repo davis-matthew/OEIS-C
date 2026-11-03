@@ -9,13 +9,15 @@
  *            of the a.c.c. lattice
  * Range:     u8 n <= 397, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 4884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *ac_cache = NULL;
 static idx_t ac_cache_size = 0;
@@ -24,7 +26,7 @@ static idx_t ac_cache_size = 0;
    and then incremented for each lattice vector whose quadratic form equals 2*n. */
 static void ac_recompute_cache(idx_t limit_n) {
     size_t sz = (size_t)(limit_n + 1);
-    seq_t *new_cache = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, sz);
     if (!new_cache) return;          /* out of memory – abort silently */
 
     /* Integer bound for |x|, |y|, |z|.  For |x|>sqrt(2*limit_n) we have
@@ -46,7 +48,7 @@ static void ac_recompute_cache(idx_t limit_n) {
         }
     }
 
-    if (ac_cache) free(ac_cache);
+    if (ac_cache) mem_free(ac_cache);
     ac_cache = new_cache;
     ac_cache_size = limit_n + 1;
 }

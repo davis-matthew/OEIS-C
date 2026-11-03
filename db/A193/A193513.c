@@ -11,7 +11,8 @@
  *            inclusion–exclusion over the ten decimal digits
  * Range:     u8 n <= 43, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 typedef struct {
     int *data;
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     }
 
     /* DP buffer for a single subset */
-    seq_t *dp = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (N + 1));
     if (!dp) {
         free(digitmask);
         return (seq_t)0;
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
     for (int S = 1; S < 1024; ++S)
         free(plist[S].data);
     free(digitmask);
-    free(dp);
+    mem_free(dp);
 
     /* Since sum_odd ≥ sum_even, the subtraction is safe. */
     seq_t result = sum_odd;

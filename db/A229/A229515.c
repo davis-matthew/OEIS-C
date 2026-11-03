@@ -13,7 +13,8 @@
  *            equal elements in the latter
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 33, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* number of valid 3‑color rows with horizontal adjacency constraint   */
 #define ROWS          12
@@ -109,7 +111,7 @@ seq_t a(idx_t n) {
         }
 
         /* initial DP state: word of length 0 */
-        memset(dp_cur, 0, sizeof(dp_cur));
+        mem_set(dp_cur, 0, sizeof(dp_cur));
         dp_cur[ALL_ROWS] = 1;   /* start mask with all 12 rows set */
 
         /* cache for results */
@@ -123,7 +125,7 @@ seq_t a(idx_t n) {
     /* extend cache if necessary ---------------------------------- */
     if (cache == NULL || cache_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0; /* allocation failure */
         cache = tmp;
         cache_size = new_size;
@@ -131,7 +133,7 @@ seq_t a(idx_t n) {
 
     /* compute missing terms -------------------------------------- */
     for ( ; computed_up_to < n; ++computed_up_to) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int mask = 1; mask <= ALL_ROWS; ++mask) {
             seq_t val = dp_cur[mask];
             if (val == 0) continue;
@@ -146,7 +148,7 @@ seq_t a(idx_t n) {
         for (int mask = 1; mask <= ALL_ROWS; ++mask)
             total += dp_next[mask];
         cache[computed_up_to + 1] = total;
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     return cache[n];

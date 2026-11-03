@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look, changed
  * Formula:   a(n) = Sum_{d | n , 1 <= Omega(d) <= 3} d
- * Range:     u8 n <= 137, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
+ * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
+ *            big any n
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

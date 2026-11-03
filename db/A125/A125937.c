@@ -10,13 +10,15 @@
  *            into two heaps)
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *sg = NULL;         /* cache of Grundy values */
 static size_t sg_len = 0;        /* number of values currently stored (>=1) */
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         /* grow cache if necessary */
         size_t new_cap = sg_len > 0 ? sg_len << 1 : 1;
         while (new_cap <= idx) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(sg, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sg, new_cap);
         if (!tmp) abort();            /* out of memory */
         sg = tmp;
         if (sg_len == 0) {

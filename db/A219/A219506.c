@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stddef.h> /* size_t */
 #include <stdlib.h> /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static storage for even (a(0), a(2), a(4), ...) and odd (a(1), a(3), ...) values. */
@@ -37,13 +39,13 @@ seq_t a(idx_t n) {
     /* Initialise the two arrays if this is the first call. */
     if (even_arr == NULL) {
         even_cap = 1;
-        even_arr = (seq_t *)realloc(even_arr, even_cap * sizeof(seq_t));
+        even_arr = mem_resize(seq_t, even_arr, even_cap);
         even_arr[0] = 3;          /* a(0) */
         even_len = 1;
     }
     if (odd_arr == NULL) {
         odd_cap = 1;
-        odd_arr = (seq_t *)realloc(odd_arr, odd_cap * sizeof(seq_t));
+        odd_arr = mem_resize(seq_t, odd_arr, odd_cap);
         odd_arr[0] = 5;           /* a(1) */
         odd_len = 1;
     }
@@ -56,7 +58,7 @@ seq_t a(idx_t n) {
                 if (i >= even_cap) {
                     size_t new_cap = (even_cap == 0) ? 1 : (even_cap << 1);
                     while (new_cap <= i) new_cap <<= 1;
-                    even_arr = (seq_t *)realloc(even_arr, new_cap * sizeof(seq_t));
+                    even_arr = mem_resize(seq_t, even_arr, new_cap);
                     even_cap = new_cap;
                 }
                 if (i == 0) continue; /* first element already set */
@@ -75,7 +77,7 @@ seq_t a(idx_t n) {
                 if (i >= odd_cap) {
                     size_t new_cap = (odd_cap == 0) ? 1 : (odd_cap << 1);
                     while (new_cap <= i) new_cap <<= 1;
-                    odd_arr = (seq_t *)realloc(odd_arr, new_cap * sizeof(seq_t));
+                    odd_arr = mem_resize(seq_t, odd_arr, new_cap);
                     odd_cap = new_cap;
                 }
                 if (i == 0) continue; /* first element already set */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   digit_count, factor_u64
+ * Validated: full, pass, 10 terms through n = 9 (2026-11-03)
+ * Helpers:   factor_u64, mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/digit_count.h"
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
 
 /* Precomputed powers of 10 up to 10^20 (fits in 64-bit). */
 static const uint64_t pow10_arr[21] = {
@@ -45,7 +49,7 @@ static void cache_ensure(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -92,7 +96,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < cnt; ++i) {
             for (uint64_t e = 0; e < exps[i]; ++e) {
                 uint64_t p    = primes[i];
-                size_t  digs  = (size_t)digit_count(p);
+                size_t  digs  = (size_t)num_digits0(p);
                 new_cur = new_cur * pow10_arr[digs] + p;
             }
         }

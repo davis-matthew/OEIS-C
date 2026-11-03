@@ -11,7 +11,8 @@
  *            binary representation of n (including the number itself)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declaration required for comparison function */
 static int cmp_seq_t(const void *a, const void *b);
@@ -53,7 +55,7 @@ static void ensure_cache_size(idx_t need)
     if (need <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     a_cache = tmp;
     cache_cap = new_cap;
 }
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         }
 
         /* sort and deduplicate the substring values */
-        qsort(sub_vals, (size_t)sub_cnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(sub_vals, (size_t)sub_cnt, sizeof(seq_t), cmp_seq_t);
         idx_t uniq_cnt = 0;
         for (idx_t i = 0; i < sub_cnt; ++i) {
             if (uniq_cnt == 0 || sub_vals[i] != sub_vals[uniq_cnt - 1]) {

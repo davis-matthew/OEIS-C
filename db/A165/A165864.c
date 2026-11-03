@@ -8,7 +8,8 @@
  *            of n with multiplicity
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 63, u64 n <= 4095,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega_idx
+ * Validated: standard, pass, 59 terms through n = 10000 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,34 @@
 /* Implementation: factorize n using trial division, compute Ω(n), then return 43 raised to that power. */
 
 #include <stdint.h>
-#include "../utils/bigomega_idx.h"
+
+/* Compute the total number of prime factors of n with multiplicity (big-omega function). */
+static inline idx_t bigomega_idx(idx_t n)
+{
+    idx_t w = 0;          /* total exponent count */
+    idx_t d = n;
+
+    /* Count factors of 2 */
+    while ((d & 1ULL) == 0) {
+        w++;
+        d >>= 1;
+    }
+
+    /* Count odd prime factors */
+    for (idx_t i = 3; i <= d / i; i += 2) {
+        while (d % i == 0) {
+            w++;
+            d /= i;
+        }
+    }
+
+    /* If d > 1, it's a remaining prime factor */
+    if (d > 1) {
+        w++;
+    }
+
+    return w;
+}
 
 /* Compute base^exp where base fits in uint64_t and exp is an idx_t. */
 static inline seq_t pow_uint(uint64_t base, idx_t exp)

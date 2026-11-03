@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   isPrime64
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
-#include "../utils/isPrime64.h"   /* provides: bool isPrime64(uint64_t n) */
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache      = NULL;   /* memoised terms, 0‑based */
 static idx_t  a_cache_len  = 0;       /* number of terms stored   */
@@ -35,7 +37,7 @@ static void a_cache_init(void)
     if (a_cache != NULL) return;
 
     a_cache_cap = 8;                     /* initial capacity > 3 */
-    a_cache = (seq_t *)malloc(a_cache_cap * sizeof(seq_t));
+    a_cache = mem_new(seq_t, a_cache_cap);
     assert(a_cache != NULL);
     a_cache[0] = 1;   /* a(1) */
     a_cache[1] = 2;   /* a(2) */
@@ -55,7 +57,7 @@ static void a_cache_extend(idx_t target)
             size_t newcap = a_cache_cap * 2;
             if (newcap < (size_t)(a_cache_len + 1))
                 newcap = a_cache_len + 1;
-            void *tmp = realloc(a_cache, newcap * sizeof(seq_t));
+            void *tmp = mem_resize(seq_t, a_cache, newcap);
             assert(tmp != NULL);
             a_cache = (seq_t *)tmp;
             a_cache_cap = newcap;
@@ -72,7 +74,7 @@ static void a_cache_extend(idx_t target)
             /* sum fits into uint64_t for all tested ranges;
                cast to force the right extension when seq_t is larger. */
             uint64_t sum = (uint64_t)s1 + (uint64_t)s2 + (uint64_t)s3 + (uint64_t)candidate;
-            if (isPrime64(sum))
+            if (is_prime_u64(sum))
                 break;
             ++candidate;
         }

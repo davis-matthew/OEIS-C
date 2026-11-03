@@ -9,12 +9,14 @@
  *            This implementation evaluates that product directly
  * Range:     u8 n <= 19, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute binomial(n, k) for small arguments (k <= 14).  */
 static seq_t binom_small(idx_t n, idx_t k)
@@ -50,10 +52,10 @@ seq_t a(idx_t n)
     if (n == 0) return 0;             /* defined only for n ≥ 1 */
 
     /* Allocate two working arrays of size n+1 (index 0 unused).  */
-    seq_t *curr = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *curr = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *next = mem_new(seq_t, (size_t)(n + 1));
     if (!curr || !next) {
-        free(curr); free(next);
+        mem_free(curr); mem_free(next);
         return 0;
     }
 
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
 
     seq_t result = curr[n];
 
-    free(curr);
-    free(next);
+    mem_free(curr);
+    mem_free(next);
     return result;
 }

@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 66, u32 n <= 211, u64 n <= 780,
  *            u128 n <= 3003, big any n
- * Helpers:   _floor_isqrt_u64, seq_alloc, seq_alloc_array, seq_free,
- *            seq_free_array
+ * Validated: standard, pass, 71 terms through n = 6984 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +21,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_free.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 seq_t a(idx_t n)
 {
@@ -33,7 +52,7 @@ seq_t a(idx_t n)
     idx_t r;
     {
         /* Compute floor(sqrt(8*n+1)) */
-        idx_t root = _floor_isqrt_u64((idx_t)8 * n + 1);
+        idx_t root = isqrt((idx_t)8 * n + 1);
         r = (root - 1) / 2;
         /* correct for rounding errors */
         while ((r + 1) * (r + 2) / 2 <= n) r++;

@@ -12,7 +12,8 @@
  *            small integers and caches them, so it works for * arbitrary...
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_cap_uint8
+ * Validated: standard, pass, 116 terms through n = 1000 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,15 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/ensure_cap_uint8.h"
+
+static void ensure_cap_uint8(uint8_t **arr, size_t *cap, size_t needed)
+{
+    if (needed <= *cap) return;
+    size_t newcap = (*cap == 0) ? 8 : (*cap << 1);
+    while (newcap < needed) newcap <<= 1;
+    *arr = (uint8_t *)realloc(*arr, newcap * sizeof(uint8_t));
+    *cap = newcap;
+}
 
 /* --- helpers for dynamic arrays of small integers ---------------------------------- */
 

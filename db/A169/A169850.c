@@ -10,7 +10,8 @@
  *            previous term
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Global arrays (lazy‑initialized) */
 static idx_t    limit = 0;         /* current maximum index handled */
@@ -37,7 +39,7 @@ static void grow_limit_to(idx_t new_limit)
 
     /* realloc with explicit casts for C++ */
     used        = (uint8_t *)realloc(used,        (size_t)(limit + 1) * sizeof(uint8_t));
-    pos         = (seq_t  *)realloc(pos,         (size_t)(limit + 1) * sizeof(seq_t));
+    pos         = mem_resize(seq_t, pos, (size_t)(limit + 1));
     spf         = (int    *)realloc(spf,         (size_t)(limit + 1) * sizeof(int));
     next_multi  = (int    *)realloc(next_multi,  (size_t)(limit + 1) * sizeof(int));
 
@@ -46,8 +48,7 @@ static void grow_limit_to(idx_t new_limit)
         memset(used   + old_limit + 1, 0,
                (size_t)(limit - old_limit) * sizeof(uint8_t));
     if (pos)
-        memset(pos    + old_limit + 1, 0,
-               (size_t)(limit - old_limit) * sizeof(seq_t));
+        mem_set(pos    + old_limit + 1, 0, (size_t)(limit - old_limit) * sizeof(seq_t));
 
     /* initialise spf array for 2..limit */
     for (idx_t i = 2; i <= limit; ++i)
@@ -141,7 +142,7 @@ seq_t a(idx_t n) /* a(n) = position of n in the permutation */
         /* initialise arrays with a modest initial size */
         limit = 200000;
         used      = (uint8_t*)malloc((size_t)(limit + 1) * sizeof(uint8_t));
-        pos       = (seq_t*)malloc((size_t)(limit + 1) * sizeof(seq_t));
+        pos       = mem_new(seq_t, (size_t)(limit + 1));
         spf       = (int*)malloc((size_t)(limit + 1) * sizeof(int));
         next_multi= (int*)malloc((size_t)(limit + 1) * sizeof(int));
 
@@ -149,7 +150,7 @@ seq_t a(idx_t n) /* a(n) = position of n in the permutation */
             return 0;        /* allocation failure */
 
         memset(used, 0, (size_t)(limit + 1) * sizeof(uint8_t));
-        memset(pos,  0, (size_t)(limit + 1) * sizeof(seq_t));
+        mem_set(pos, 0, (size_t)(limit + 1) * sizeof(seq_t));
 
         /* first sieve for spf */
         for (idx_t i = 2; i <= limit; ++i)

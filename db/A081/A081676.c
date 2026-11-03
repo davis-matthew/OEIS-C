@@ -7,7 +7,8 @@
  * Formula:   a(n) = largest perfect power ≤ n
  * Range:     u8 n <= 27, u16 n <= 3156, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 90 terms through n = 8971 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Find the integer r such that r^exp ≤ limit < (r+1)^exp. */
 static seq_t integer_nthroot(seq_t limit, idx_t exp)
@@ -27,7 +28,7 @@ static seq_t integer_nthroot(seq_t limit, idx_t exp)
     while (lo < hi)
     {
         seq_t mid = lo + (hi - lo + 1) / 2;
-        seq_t p = big_pow(mid, (seq_t)exp);
+        seq_t p = ipow(mid, (seq_t)exp);
         if (p <= limit)
             lo = mid;
         else
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
     for (int k = 2; k <= max_k; ++k)
     {
         seq_t base  = integer_nthroot(limit, (idx_t)k);
-        seq_t cand  = big_pow(base, (seq_t)k);
+        seq_t cand  = ipow(base, (seq_t)k);
         if (cand > best)
             best = cand;
         if (cand == limit)            /* n itself is a perfect power */

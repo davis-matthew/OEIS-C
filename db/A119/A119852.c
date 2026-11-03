@@ -8,7 +8,8 @@
  *            a(n)=6*a(n-1)-9*a(n-2)-2*a(n-3)+6*a(n-4)-a(n-6) for n≥6
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* Cached sequence values         */
 static size_t cache_cap = 0;          /* Current capacity of cache      */
@@ -34,7 +36,7 @@ ensure_cache(idx_t n)
         while (new_cap < need)
             new_cap <<= 1;                     /* double until sufficient   */
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Allocation failed – abort the program.  */
             abort();

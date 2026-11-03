@@ -9,7 +9,8 @@
  *            nondecreasing block sizes and maximal block size equal to seven
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 15, u64 n <= 23, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 446 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t fact[8];                 /* factorials 0!…7! */
 static bool facts_initialized = false;
@@ -44,7 +46,7 @@ static void ensure_dp(idx_t n)
     /* Allocate or enlarge the table. */
     size_t new_cells = (size_t)(n + 1) * 8;
     size_t old_cells = (size_t)(max_n + 1) * 8;
-    dp = (seq_t *)realloc(dp, new_cells * sizeof(seq_t));
+    dp = mem_resize(seq_t, dp, new_cells);
     if (!dp) exit(1);          /* out of memory */
 
     /* Initialize newly allocated part to zero. */

@@ -7,7 +7,8 @@
  * Formula:   a(2)=1, a(3)=2; a(n) = (n-2)*a(n-1) + (n-3)*a(n-2) for n ≥ 4
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 448 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    is adequate and avoids the pitfalls of reallocating non‑POD types. */
 
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if (n >= CACHE_MAX) {
         /* Grow the cache dynamically by allocating a larger array. */
         idx_t new_max = n + 1;
-        seq_t *new_cache = (seq_t *)calloc(new_max, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_max);
         if (!new_cache) {
             /* Allocation failure: return 0 (undefined behaviour
                outside the required range). */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         for (idx_t i = 0; i < CACHE_MAX; ++i) {
             cache[i] = new_cache[i];
         }
-        free(new_cache);
+        mem_free(new_cache);
     }
 
     /* Compute all missing terms up to n.  Only indices ≥4 need calculation

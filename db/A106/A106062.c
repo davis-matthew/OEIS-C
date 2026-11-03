@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 12, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 12, u16 n <= 379, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 64 terms through n = 910 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 /* ---- a small base‑prime generator (up to sqrt(MAX)) ---- */
 static uint64_t *base_primes = NULL;
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
             if (segment[offset]) continue;        /* composite */
 
             /* p is prime – check the two additional conditions */
-            if (is_prime(p + 12) && is_prime(12 * p + 1))
+            if (is_prime_u64(p + 12) && is_prime_u64(12 * p + 1))
             {
                 ++count;
                 if (count == n)

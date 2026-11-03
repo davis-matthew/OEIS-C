@@ -8,13 +8,14 @@
  *            70*5^n - 945*4^n - 525*3^n + 2450*2^n - 1470) / 5040
  * Range:     u8 none, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   pow128_uint128
+ * Validated: standard, pass, 30 terms through n = 195 (2026-11-01)
+ * Helpers:   ipow_u128_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow128_uint128.h"
+#include "../utils/ipow_u128_idx.h"
 
 /* Fast power for arbitrary‑precision seq_t. Uses only + - * /. */
 static inline seq_t pow_seq(seq_t base, idx_t exp) {
@@ -40,18 +41,18 @@ seq_t a(idx_t n) {
         unsigned __int128 neg = 0;
 
         /* Positive contributions */
-        pos += pow128_uint128(35, n);
-        pos += pow128_uint128(10, n) * 42;
-        pos += pow128_uint128(8, n)  * 105;
-        pos += pow128_uint128(7, n)  * 105;
-        pos += pow128_uint128(5, n)  * 70;
-        pos += pow128_uint128(2, n)  * 2450;
+        pos += ipow_u128_idx(35, n);
+        pos += ipow_u128_idx(10, n) * 42;
+        pos += ipow_u128_idx(8, n)  * 105;
+        pos += ipow_u128_idx(7, n)  * 105;
+        pos += ipow_u128_idx(5, n)  * 70;
+        pos += ipow_u128_idx(2, n)  * 2450;
 
         /* Negative contributions */
-        neg += pow128_uint128(20, n) * 7;
-        neg += pow128_uint128(15, n) * 21;
-        neg += pow128_uint128(4, n)  * 945;
-        neg += pow128_uint128(3, n)  * 525;
+        neg += ipow_u128_idx(20, n) * 7;
+        neg += ipow_u128_idx(15, n) * 21;
+        neg += ipow_u128_idx(4, n)  * 945;
+        neg += ipow_u128_idx(3, n)  * 525;
         neg += 1470;
 
         unsigned __int128 num = pos - neg;

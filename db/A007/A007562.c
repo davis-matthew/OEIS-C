@@ -12,18 +12,48 @@
  *            factor by factor without division, using b...
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 34, u64 n <= 62, u128 n <= 118,
  *            big any n
- * Helpers:   alloc_zero, gcd_seq, grow_zero, release, seq_is_big
+ * Validated: standard, pass, 52 terms through n = 999 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd_seq.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_zero.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_big.h"
+#include <string.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
 
 static seq_t *EA = NULL, *EB = NULL, *EC = NULL;
 static idx_t ecap = 0;   /* arrays have ecap+3 slots */
@@ -74,7 +104,7 @@ static seq_t fixed_width(idx_t N) {
         idx_t T = N / k;
         Ct[0] = 1;
         for (idx_t t = 1; t <= T; t++) {
-            seq_t g = gcd_seq(Ct[t - 1], (seq_t)t);
+            seq_t g = gcd(Ct[t - 1], (seq_t)t);
             if (g == 0) g = 1;
             seq_t tg = (seq_t)t / g;
             Ct[t] = (Ct[t - 1] / g) * ((ak + (seq_t)(t - 1)) / tg);

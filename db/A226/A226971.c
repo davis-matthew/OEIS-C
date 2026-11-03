@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   big_pow, digit_sum
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   digit_sum, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
 #include "../utils/digit_sum.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* maximum k to test – chosen so that k > 9*digits(k^7) can never hold
    for any reasonable seq_t (above 2000 the gap is far larger) */
@@ -41,15 +44,14 @@ seq_t a(idx_t n)
             break;                /* no further candidates to check */
 
         seq_t k = (seq_t)next_k;              /* candidate number */
-        seq_t p = big_pow(k, (seq_t)7);      /* compute k^7  */
+        seq_t p = ipow(k, (seq_t)7);      /* compute k^7  */
         seq_t ds = digit_sum(p);             /* sum of its digits */
 
         if (ds == k) {                       /* property holds */
             /* ensure capacity of cache */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 4 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                        new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* allocation failure – return 0 as sentinel */
                     return 0;

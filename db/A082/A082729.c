@@ -9,8 +9,9 @@
  *            of n * a + 1 or − 1 and summing. It equals 2·s_min − σ(n), where
  *            σ(n) is the sum * of all divisors of n and s_min is the smallest
  *            reachable subset sum that * is strictly larger than σ(n)/2
- * Range:     u8 n <= 256, u16 n <= 9344, u32 n <= 9344, u64 n <= 9344,
- *            u128 n <= 9344, big any n
+ * Range:     u8 n <= 256, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 99 terms through n = 9344 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9361 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- Helper: GCD for unsigned 64‑bit integers -------------------------------- */
 static unsigned long long ugcd(unsigned long long a, unsigned long long b)
@@ -72,7 +74,7 @@ static void ensure_cache(void)
        and then about half survive the a<=b test.  For M_LIMIT=3000 this is
        well below 700 000, so we start with a moderate size.            */
     kcap = 700000ULL;             /* initial capacity                */
-    klist = (seq_t *)malloc(kcap * sizeof(seq_t));
+    klist = mem_new(seq_t, kcap);
     if (klist == NULL) exit(EXIT_FAILURE);
     ksize = 0;
 
@@ -100,7 +102,7 @@ static void ensure_cache(void)
             /* Ensure capacity */
             if (ksize >= kcap) {
                 kcap *= 2;
-                seq_t *tmp = (seq_t *)realloc(klist, kcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, klist, kcap);
                 if (tmp == NULL) exit(EXIT_FAILURE);
                 klist = tmp;
             }
@@ -109,7 +111,7 @@ static void ensure_cache(void)
     }
 
     /* Sort and deduplicate */
-    qsort(klist, ksize, sizeof(seq_t), cmp_seq);
+    mem_qsort(klist, ksize, sizeof(seq_t), cmp_seq);
 
     size_t uniq = 0;
     for (size_t i = 0; i < ksize; ++i) {

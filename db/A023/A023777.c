@@ -8,13 +8,15 @@
  *            strictly increasing
  * Range:     u8 n <= 27, u16 n <= 120, u32 n <= 128, u64 n <= 128,
  *            u128 n <= 128, big any n
- * Helpers:   none
+ * Validated: full, pass, 128 terms through n = 128 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper comparator for qsort */
 static int seq_cmp(const void *p1, const void *p2) {
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
         cache_len = idx;                   /* should be 128 */
 
         /* Sort the array in ascending order of decimal value */
-        qsort(cache, cache_len, sizeof(seq_t), seq_cmp);
+        mem_qsort(cache, cache_len, sizeof(seq_t), seq_cmp);
     }
 
     /* Handle out-of-range indices (behaviour below offset is irrelevant) */

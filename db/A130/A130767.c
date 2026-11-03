@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏_{k=1..n} (k-th positive integer coprime to (n+1-k))
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   _coprime_count
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/_coprime_count.h"
+
+/* ------------------------------------------------------------ */
+static uint64_t _coprime_count(uint64_t x, const uint32_t *pf, size_t d)
+{
+    uint64_t total = 0;
+    if (d == 0) return x;                     /* coprime to 1 -> all numbers */
+
+    uint64_t subsets = (uint64_t)1 << d;      /* 2^d */
+
+    for (uint64_t mask = 1; mask < subsets; ++mask) {
+        uint64_t prod = 1;
+        size_t bits = 0;
+        for (size_t i = 0; i < d; ++i) {
+            if (mask & ((uint64_t)1 << i)) {
+                ++bits;
+                prod *= pf[i];
+            }
+        }
+        uint64_t quot = x / prod;
+        if (bits & 1) total += quot;
+        else          total -= quot;
+    }
+    return x - total; /* numbers coprime to N */
+}
 
 /* ------------------------------------------------------------ */
 /*  Sieve data (built up to the largest N needed for any call) */

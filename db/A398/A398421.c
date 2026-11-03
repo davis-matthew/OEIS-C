@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1454, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9245 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------- */
 /* Prime generation (odd primes up to a fixed limit)             */
@@ -143,7 +145,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t need)
     size_t new_cap = (*cap) ? (*cap) << 1 : 4;
     while (new_cap < need)
         new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 
@@ -162,7 +164,7 @@ static void init_heap(void)
     init_primes();
 
     g_heap_cap = g_prime_cnt;
-    g_heap = (heap_node_t *)malloc(g_heap_cap * sizeof(heap_node_t));
+    g_heap = mem_new(heap_node_t, g_heap_cap);
     if (!g_heap)
         return;                       /* out of memory */
     g_heap_sz = 0;

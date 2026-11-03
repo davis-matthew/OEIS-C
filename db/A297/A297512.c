@@ -9,7 +9,8 @@
  *            2 neighbours horizontally, diagonally, or antidiagonally
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -140,8 +142,8 @@ seq_t a(idx_t n)
     }
 
     /* ---------- DP arrays ---------- */
-    seq_t *dp      = (seq_t *)calloc(STATES, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(STATES, sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, STATES);
+    seq_t *dp_next = mem_new(seq_t, STATES);
 
     /* ---------- base states (first column) ---------- */
     for (int mask = 0; mask < 128; ++mask) {
@@ -158,13 +160,13 @@ seq_t a(idx_t n)
         for (int s = 0; s < STATES; ++s)
             if (validEnd[s])
                 ans += dp[s];
-        free(dp); free(dp_next);
+        mem_free(dp); mem_free(dp_next);
         return ans;
     }
 
     /* ---------- perform n-1 transitions ---------- */
     for (idx_t step = 2; step <= n; ++step) {
-        memset(dp_next, 0, STATES * sizeof(seq_t));
+        mem_set(dp_next, 0, STATES * sizeof(seq_t));
         for (int s = 0; s < STATES; ++s) {
             if (!dp[s]) continue;
             size_t start = offsetST[s];
@@ -183,6 +185,6 @@ seq_t a(idx_t n)
         if (validEnd[s])
             ans += dp[s];
 
-    free(dp); free(dp_next);
+    mem_free(dp); mem_free(dp_next);
     return ans;
 }

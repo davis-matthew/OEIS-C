@@ -10,6 +10,7 @@
  *            sum_of_digits_base_p(n+1) ≥ p }
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 179, u64 n <= 419,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 78 terms through n = 936 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(...) */
+#include <stdint.h>
+#include "../utils/build_primes_upto.h"
 
 static uint64_t *prime_cache   = NULL;   /* array of primes */
 static size_t    prime_cnt     = 0;      /* number of primes */

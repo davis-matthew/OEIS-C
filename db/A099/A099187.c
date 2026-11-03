@@ -9,14 +9,25 @@
  *            D(a(k)) for k >= 2
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   D
+ * Validated: standard, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/D.h"
+#include "../utils/mem.h"
+
+/* Compute D(k) = k*(9*k^2-9*k+2)/2 with overflow‐safe division by 2. */
+static seq_t D(seq_t k)
+{
+    seq_t t = 9 * k * k - 9 * k + 2;        /* 9*k^2 - 9*k + 2  */
+    if ((k & 1) == 0)                      /* k even → divide k */
+        return (k / 2) * t;
+    else                                   /* t even when k odd   */
+        return k * (t / 2);
+}
 
 /* Return the nth term of the sequence, with external linkage. */
 seq_t a(idx_t n)
@@ -31,12 +42,12 @@ seq_t a(idx_t n)
     /* allocate or grow the cache to hold n+1 elements (index 0 unused) */
     if (cache == NULL) {
         cache_cap = (size_t)n + 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;              /* allocation failure */
-        memset(cache, 0, cache_cap * sizeof(seq_t));
+        mem_set(cache, 0, cache_cap * sizeof(seq_t));
     } else if ((size_t)n + 1 > cache_cap) {
         cache_cap = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         if (!cache) return 0;              /* allocation failure */
     }
 

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   gcd, is_power_of_two
+ * Validated: partial, pass, 75 terms through n = 76 (2026-11-01)
+ * Helpers:   gcd, is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,15 +19,16 @@
  * smallest odd integer k with gcd(k,n)=1 such that for every integer t ≥ 0
  * the value 2^t mod k is different from n mod k. */
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
 
 seq_t a(idx_t n)
 {
     if (n < 2) return 0;
     seq_t nseq = (seq_t)n;
 
-    if (is_power_of_two(nseq)) return 0;
+    if (is_pow2(nseq)) return 0;
 
     for (seq_t k = 3; ; k += 2) {          /* only odd k */
         if (gcd(k, nseq) != 1) continue;   /* require coprime */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Cache of previously computed values */
@@ -38,13 +40,13 @@ seq_t a(idx_t n) {
         idx_t new_cap = n + (idx_t)1;              /* compute up to n */
 
         /* allocate the new cache */
-        seq_t *new_cache = (seq_t *)calloc((size_t)new_cap, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)new_cap);
         if (!new_cache) return (seq_t)0;           /* out of memory */
 
         /* 1. Compute partition numbers p[0..new_cap-1] */
-        seq_t *p = (seq_t *)calloc((size_t)new_cap, sizeof(seq_t));
+        seq_t *p = mem_new(seq_t, (size_t)new_cap);
         if (!p) {
-            free(new_cache);
+            mem_free(new_cache);
             return (seq_t)0;
         }
         p[0] = (seq_t)1;
@@ -64,10 +66,10 @@ seq_t a(idx_t n) {
         }
 
         /* 2. DP for the bounded-partition sequence */
-        seq_t *dp = (seq_t *)calloc((size_t)new_cap, sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, (size_t)new_cap);
         if (!dp) {
-            free(p);
-            free(new_cache);
+            mem_free(p);
+            mem_free(new_cache);
             return (seq_t)0;
         }
         dp[0] = (seq_t)1; /* only one way to partition 0 */
@@ -79,11 +81,11 @@ seq_t a(idx_t n) {
                     dp[s] += dp[s - k];
             } else {                                      /* bounded */
                 size_t cap = (size_t)p[k];                  /* cap <= new_cap */
-                seq_t *next = (seq_t *)calloc((size_t)new_cap, sizeof(seq_t));
+                seq_t *next = mem_new(seq_t, (size_t)new_cap);
                 if (!next) {
-                    free(dp);
-                    free(p);
-                    free(new_cache);
+                    mem_free(dp);
+                    mem_free(p);
+                    mem_free(new_cache);
                     return (seq_t)0;
                 }
                 for (idx_t r = 0; r < k; ++r) {
@@ -99,7 +101,7 @@ seq_t a(idx_t n) {
                         pos += k;
                     }
                 }
-                free(dp);
+                mem_free(dp);
                 dp = next;
             }
         }
@@ -107,11 +109,11 @@ seq_t a(idx_t n) {
         /* copy DP results into the new cache and free temp arrays */
         for (idx_t i = 0; i < new_cap; ++i)
             new_cache[i] = dp[i];
-        free(dp);
-        free(p);
+        mem_free(dp);
+        mem_free(p);
 
         /* replace the old cache with the new one */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

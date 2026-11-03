@@ -8,6 +8,7 @@
  * Formula:   a(n) = (4/3)*n*(12*n^3 + 44*n^2 + 36*n - 11)
  * Range:     u8 none, u16 n <= 5, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

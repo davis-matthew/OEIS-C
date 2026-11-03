@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 19, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 299 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* A158884: a(0)=1; a(n)=a(n-1)-((n+2)/2)*∑_{k=1}^{n-1} a(k)*a(n-k) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* memoised values */
 static idx_t  computed = 0;    /* number of terms currently stored (0..computed-1) */
@@ -24,8 +26,7 @@ seq_t a(idx_t n)
     if (n + 1 > computed)
     {
 #if defined(__cplusplus)
-        seq_t *new_cache = reinterpret_cast<seq_t*>(realloc(cache,
-                               (n + 1) * sizeof(seq_t)));
+        seq_t *new_cache = reinterpret_cast<seq_t*>(mem_resize(seq_t, cache, (n + 1)));
 #else
         seq_t *new_cache = (seq_t*)realloc(cache,
                                (n + 1) * sizeof(seq_t));

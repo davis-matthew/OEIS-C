@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Computes gcd( sum of odd terms , sum of even terms ) for the Collatz

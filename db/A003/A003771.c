@@ -8,12 +8,14 @@
  *            198
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     // Initialize cache if needed
     if (cache == NULL) {
         cache_len = 4;
-        cache = (seq_t *)calloc(cache_len, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[1] = (seq_t)3;
         cache[2] = (seq_t)30;
         cache[3] = (seq_t)198;
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     // Resize cache if needed
     while (n >= cache_len) {
         idx_t new_len = cache_len * 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         cache = new_cache;
         for (idx_t i = cache_len; i < new_len; i++) {
             cache[i] = 0;

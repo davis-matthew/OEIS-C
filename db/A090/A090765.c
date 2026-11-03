@@ -11,13 +11,15 @@
  *            a(0)=1, a(1)=1, a(2)=1,
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 12, u64 n <= 22, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Fraction representation: sign (+1 or -1), numerator, denominator */
 typedef struct {
@@ -101,10 +103,10 @@ static void ensure_cache(idx_t n)
     if ((size_t)(n + 1) <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 32;
     while ((size_t)(n + 1) > new_cap) new_cap <<= 1;
-    Frac *tmp = (Frac *)realloc(f_cache, new_cap * sizeof(Frac));
+    Frac *tmp = mem_resize(Frac, f_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     f_cache = tmp;
-    tmp = (Frac *)realloc(T_cache, new_cap * sizeof(Frac));
+    tmp = mem_resize(Frac, T_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     T_cache = tmp;
     cache_cap = new_cap;

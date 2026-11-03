@@ -7,12 +7,14 @@
  * Formula:   a(n) = sum_{i=0}^{17} binom(17,i) * binom(16+2n-i,16)
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 5, u64 n <= 25, u128 n <= 416,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 9452 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Pre‑computed binomial coefficients C(17,i) */

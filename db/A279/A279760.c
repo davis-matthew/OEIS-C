@@ -11,7 +11,8 @@
  *            and works for any allowed seq_t/idx_t types
  * Range:     u8 n <= 2055, u16 n <= 2055, u32 n <= 2055, u64 n <= 2055,
  *            u128 n <= 2055, big any n
- * Helpers:   primes_up_to
+ * Validated: standard, pass, 137 terms through n = 1788 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,31 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/primes_up_to.h"
+#include "../utils/mem.h"
+
+/* generate all primes <= limit using a simple sieve on the fly.
+   The number of primes for limit up to 1,000 is small (≤ 168). */
+static void primes_up_to(idx_t limit, idx_t primes[], size_t *cnt)
+{
+    *cnt = 0;
+    if (limit < 2) return;
+    for (idx_t p = 2; p <= limit; ++p) {
+        bool prime = true;
+        /* test divisibility by previously found primes */
+        for (size_t i = 0; i < *cnt; ++i) {
+            idx_t q = primes[i];
+            if (q * q > p) break;
+            if (p % q == 0) {
+                prime = false;
+                break;
+            }
+        }
+        if (prime) {
+            primes[*cnt] = p;
+            ++(*cnt);
+        }
+    }
+}
 
 /* static DP array reused between calls */
 static seq_t *dp = NULL;   /* dp[i] holds a(i) for 0 <= i < dp_len */
@@ -45,7 +70,7 @@ seq_t a(idx_t n)
     /* Ensure DP table covers 0..n */
     size_t needed = (size_t)n + 1;
     if (dp_len < needed) {
-        seq_t *tmp = (seq_t *)realloc(dp, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, needed);
         dp   = tmp;
         dp_len = needed;
     }

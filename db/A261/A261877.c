@@ -8,6 +8,7 @@
  * Formula:   Expansion of psi(x^4)/phi(-x^3) in powers of x (OEIS A261877)
  * Range:     u8 n <= 29, u16 n <= 80, u32 n <= 239, u64 n <= 797,
  *            u128 n <= 2500, big any n
+ * Validated: standard, pass, 79 terms through n = 2191 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

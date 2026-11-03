@@ -12,6 +12,7 @@
  *            subsequent calls. sigma(a) is the sum of all posit...
  * Range:     u8 n <= 27, u16 n <= 981, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 8724 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

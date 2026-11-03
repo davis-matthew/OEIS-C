@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = (n == 1) ? 5 : n + 5
- * Range:     u8 n <= 250, u16 n <= 7816, u32 n <= 7816, u64 n <= 7816,
- *            u128 n <= 7816, big any n
+ * Range:     u8 n <= 250, u16 n <= 14995, u32 n <= 14995, u64 n <= 14995,
+ *            u128 n <= 14995, big any n
+ * Validated: standard, pass, 82 terms through n = 7816 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

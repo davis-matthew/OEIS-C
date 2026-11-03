@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 405, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 105 terms through n = 9483 (2026-11-01)
  * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/get_digits.h"
 
 static int v2(seq_t x)

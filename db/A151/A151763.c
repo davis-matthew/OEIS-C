@@ -9,11 +9,13 @@
  *            n ≡ 3 (mod 4); * 0 otherwise
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 9934 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {

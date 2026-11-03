@@ -9,7 +9,8 @@
  *            divides Π_{j=1}^k σ(j)
  * Range:     u8 n <= 13, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, px_hash, sigma_of
+ * Validated: standard, pass, 71 terms through n = 996 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"
 #include "../utils/factor_u64.h"
-#include "../utils/px_hash.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* 64-bit multiplicative hash. */
+static inline uint64_t px_hash(uint64_t x) {
+    return x * 11400714819323198485ULL;
+}
 
 /* Hash map entry for prime exponents of the product Π σ(j). */
 typedef struct {
@@ -87,7 +107,7 @@ static size_t term_cap   = 0;
 
 static void terms_expand(void) {
     size_t new_cap = term_cap ? term_cap * 2 : 64;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     if (!terms) exit(EXIT_FAILURE);
     term_cap = new_cap;
 }

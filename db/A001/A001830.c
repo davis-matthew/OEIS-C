@@ -10,21 +10,30 @@
  *            = Sum_j g_7(n,j)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 12, u128 n <= 19,
  *            big any n
- * Helpers:   a001830_clear, a001830_ix
+ * Validated: standard, pass, 33 terms through n = 111 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a001830_clear.h"
-#include "../utils/a001830_ix.h"
+#include "../utils/mem.h"
+
+static void a001830_clear(seq_t *v, size_t len) {
+    size_t i;
+    for (i = 0; i < len; i++) v[i] = 0;
+}
+
+static size_t a001830_ix(idx_t m, idx_t j) {
+    return (size_t)(m * (m + 1) / 2 + j);
+}
 
 seq_t a(idx_t n) {
     size_t T = (size_t)((n + 1) * (n + 2) / 2);
-    seq_t *C = (seq_t *)calloc(T, sizeof(seq_t));
-    seq_t *g = (seq_t *)calloc(T, sizeof(seq_t));
-    seq_t *h = (seq_t *)calloc(T, sizeof(seq_t));
-    seq_t *P = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *C = mem_new(seq_t, T);
+    seq_t *g = mem_new(seq_t, T);
+    seq_t *h = mem_new(seq_t, T);
+    seq_t *P = mem_new(seq_t, (size_t)(n + 1));
     idx_t m, j, k;
 
     P[0] = 1;
@@ -66,9 +75,9 @@ seq_t a(idx_t n) {
     a001830_clear(g, T);
     a001830_clear(h, T);
     a001830_clear(P, (size_t)(n + 1));
-    free(C);
-    free(g);
-    free(h);
-    free(P);
+    mem_free(C);
+    mem_free(g);
+    mem_free(h);
+    mem_free(P);
     return sum;
 }

@@ -11,7 +11,8 @@
  *            all a,b,c∈ℤ/p^e
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   zero_det_prime_power
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,46 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <math.h>
-#include "../utils/zero_det_prime_power.h"
+
+static seq_t zero_det_prime_power(uint64_t p, int e)
+{
+    /* Precompute powers of p: pow_p[i] = p^i. */
+    seq_t pow_p[25] = {0};
+    pow_p[0] = (seq_t)1;
+    for (int i = 1; i <= e; ++i)
+        pow_p[i] = pow_p[i-1] * (seq_t)p;
+
+    seq_t total = (seq_t)0;
+
+    for (int k = 0; k <= e; ++k) {
+        /* Count of a with valuation exactly k. */
+        seq_t count_a;
+        if (k == e) {
+            count_a = (seq_t)1;                      /* a = 0 */
+        } else {
+            count_a = ((seq_t)(p - 1)) * pow_p[e - k - 1];
+        }
+
+        /* Minimal valuation of b to satisfy a·c ≡ b² mod p^e. */
+        int s = (k + 1) / 2;  /* ceil(k/2) */
+
+        /* Sum over admissible valuations of b. */
+        seq_t sum_b = (seq_t)0;
+        for (int t = s; t <= e; ++t) {
+            seq_t count_b;
+            if (t == e) {
+                count_b = (seq_t)1;                   /* b = 0 */
+            } else {
+                count_b = ((seq_t)(p - 1)) * pow_p[e - t - 1];
+            }
+            sum_b += count_b;
+        }
+
+        /* Add contribution for this k. */
+        total += count_a * sum_b * pow_p[k];
+    }
+    return total;
+}
 
 seq_t a(idx_t n)
 {

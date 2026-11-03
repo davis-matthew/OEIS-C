@@ -9,12 +9,14 @@
  * Formula:   not stated
  * Range:     i8 n <= 17, i16 n <= 40, i32 n <= 57, i64 n <= 57, i128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence:
  *  T(n,0) = 1 - C(n,2)          (C(n,2)=n*(n-1)/2 for n ≥ 2)
@@ -53,7 +55,7 @@ static void ensure_rows_upto(idx_t target)
         size_t start = cum_terms;    /* start index of this row in flatten  */
         row_start[n] = start;
 
-        seq_t *row = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (n + 1));
         /* Coefficient T(n,0) */
         if (n < 2) {
             row[0] = 1;

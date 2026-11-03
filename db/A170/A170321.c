@@ -10,13 +10,15 @@
  *            c_0 = 1, and c_n = 0 for n ≥ 42
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Expand or shrink the cache so that it can hold at least n+1 elements. */
 static void
@@ -28,7 +30,7 @@ ensure_capacity(idx_t n, seq_t **cache, size_t *cap)
         while (new_cap < needed)
             new_cap <<= 1;
         /* realloc returns void*; cast to the element type. */
-        seq_t *ptr = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, *cache, new_cap);
         *cache = ptr;
         *cap   = new_cap;
     }

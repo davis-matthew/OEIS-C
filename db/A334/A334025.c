@@ -8,15 +8,28 @@
  * Formula:   a(0)=0, a(1)=1, a(n)=concat(2*a(n-2),2*a(n-1)) for n ≥ 2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t *cache      = NULL;   /* stored values */
 static size_t cache_size = 0;      /* how many values stored */
@@ -29,7 +42,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 4;
         while (new_cap <= (size_t)n + 1) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache     = tmp;
         cache_cap = new_cap;
@@ -49,7 +62,7 @@ static void ensure_cache(idx_t n)
             seq_t y = cache[i - 1];          /* a(i-1) */
             seq_t two_x = (seq_t)2 * x;      /* 2*a(i-2) */
             seq_t two_y = (seq_t)2 * y;      /* 2*a(i-1) */
-            seq_t pow10_val = pow10((idx_t)digit_len(two_y));
+            seq_t pow10_val = pow10((idx_t)num_digits(two_y));
             val = two_x * pow10_val + two_y; /* concat(2x, 2y) */
         }
 

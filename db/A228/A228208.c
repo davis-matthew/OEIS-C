@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 45, u64 n <= 92, u128 n <= 184,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 822 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence: a(n) = 3*a(n-2) – a(n-4),
    initial values a(1)=1, a(2)=2, a(3)=5, a(4)=7.  */
@@ -40,9 +42,9 @@ seq_t a(idx_t n) {
             new_len = n;
         }
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+            cache = mem_new(seq_t, new_len);
         } else {
-            cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_len);
         }
         /* Zero‑initialize the new area.  For built‑in unsigned types this
            is not strictly required but keeps the logic simple. */

@@ -9,12 +9,30 @@
  *            f(k)=⌊log_3(2k–1)⌋+1). This is A134021(k)
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   A134021
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/A134021.h"
+static seq_t A134021(idx_t n)
+{
+    if (n == 0)
+        return (seq_t)1;
+
+    idx_t m = 2 * n - 1;          /* 2n-1 fits in idx_t (≤ 2^64-1)   */
+    seq_t pow = (seq_t)3;         /* 3^1   */
+    seq_t mm = (seq_t)m;          /* truncate to seq_t for comparison */
+    idx_t k = 1;                  /* current exponent    */
+
+    /* Find smallest k such that 3^k > 2n-1 */
+    while (pow <= mm)
+    {
+        pow *= (seq_t)3;
+        ++k;
+    }
+    return (seq_t)k;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 5468, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9021 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    terms for fast subsequent calls. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true iff every digit that appears in the base‑6 representation
    of k also appears in its base‑7 representation. */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     /* Allocate initial capacity if needed */
     if (cache == NULL) {
         cap = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Generate terms until at least n are found */
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
                 /* Grow cache if necessary */
                 if (cnt >= cap) {
                     cap *= 2;
-                    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                 }
                 cache[cnt++] = k;
                 break;

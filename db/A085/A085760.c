@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort on seq_t values */
 static int cmp_seq_t(const void *a, const void *b)
@@ -127,7 +129,7 @@ static void ensure_seq(idx_t n)
         }
 
         /* second pass: generate the values */
-        seq_t *arr = (seq_t *)malloc(count * sizeof(seq_t));
+        seq_t *arr = mem_new(seq_t, count);
         if (!arr) {
             free(primes);
             break; /* memory failure */
@@ -146,10 +148,10 @@ static void ensure_seq(idx_t n)
         }
 
         /* sort the array */
-        qsort(arr, count, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(arr, count, sizeof(seq_t), cmp_seq_t);
 
         /* free old data and replace with new */
-        free(powers);
+        mem_free(powers);
         free(primes);
         powers = arr;
         powers_cnt = count;

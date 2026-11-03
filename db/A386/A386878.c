@@ -9,13 +9,14 @@
  *            a(2) = 3, a(3) = 8, a(4) = 19
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 60, u128 n <= 123,
  *            big any n
- * Helpers:   pow2_ex
+ * Validated: standard, pass, 49 terms through n = 928 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint64_t if needed */
-#include "../utils/pow2_ex.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     /* first five terms, exact */
@@ -26,6 +27,6 @@ seq_t a(idx_t n) {
 
     /* n >= 5: use formula */
     seq_t coeff = (seq_t)3 + (seq_t)7 * ((seq_t)n + 1);
-    seq_t p = pow2_ex(n - 5);
+    seq_t p = pow2(n - 5);
     return coeff * p;
 }

@@ -7,12 +7,15 @@
  * Formula:   a(n) = n^A000120(n) (n raised to the number of 1-bits in n)
  * Range:     u8 n <= 6, u16 n <= 22, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,5 +30,5 @@ seq_t a(idx_t n)
        supported seq_t sizes, including arbitrary-precision). */
     seq_t base = (seq_t)n;
     seq_t exp  = (seq_t)ones;
-    return big_pow(base, exp);
+    return ipow(base, exp);
 }

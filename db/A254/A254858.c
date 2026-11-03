@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 160, u32 n <= 609, u64 n <= 2241,
  *            u128 n <= 7259, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 6686 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper to generate primes up to a required index */
 #define MAX_PRIMES 200000
@@ -72,12 +74,12 @@ seq_t a(idx_t n)
 
     /* Allocate small arrays for row computation; j is tiny (~sqrt(2n)) */
     size_t len = (size_t)(j + 1);
-    seq_t *prev = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, len);
+    seq_t *curr = mem_new(seq_t, len);
     if (!prev || !curr) {
         /* Allocation failed; return 0 (should not happen in tests) */
-        if (prev) free(prev);
-        if (curr) free(curr);
+        if (prev) mem_free(prev);
+        if (curr) mem_free(curr);
         return (seq_t)0;
     }
 
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
 
     seq_t result = (len == 0) ? (seq_t)0 : prev[j];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

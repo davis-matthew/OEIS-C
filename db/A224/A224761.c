@@ -12,13 +12,15 @@
  *            the leading digit of m = 9*a(n-1)+d is in...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: leading digit of a seq_t number (assumes seq_t supports division). */
 static int leading_digit(seq_t x)
@@ -43,7 +45,7 @@ static void ensure_cache_capacity(idx_t needed)
     size_t new_cap = capacity ? capacity * 2 : 16;
     while (new_cap < (size_t)needed)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) {
         /* Allocation failed; terminate program. */
         abort();

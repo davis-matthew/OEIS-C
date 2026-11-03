@@ -7,9 +7,10 @@
  * Keywords:  nonn, easy, base
  * Formula:   a(n) = nth prime whose binary expansion contains more 1’s than
  *            0’s
- * Range:     u8 n <= 40, u16 n <= 4235, u32 n <= 8887, u64 n <= 8887,
- *            u128 n <= 8887, big any n
- * Helpers:   none
+ * Range:     u8 n <= 40, u16 n <= 4235, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 70 terms through n = 8887 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Count the number of set bits in a 64‑bit integer. */
 static unsigned int popcount_uint64(uint64_t x)
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
         /* Initialise the dominant prime list (empty initially). */
         dom_cap = 16;
-        dom = (seq_t *)malloc(dom_cap * sizeof(seq_t));
+        dom = mem_new(seq_t, dom_cap);
         dom_size = 0;
 
         initialized = true;
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
             if (ones > bits - ones) {
                 if (dom_size == dom_cap) {
                     dom_cap <<= 1;
-                    dom = (seq_t *)realloc(dom, dom_cap * sizeof(seq_t));
+                    dom = mem_resize(seq_t, dom, dom_cap);
                 }
                 dom[dom_size++] = (seq_t)cand;
             }

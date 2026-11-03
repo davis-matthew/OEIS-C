@@ -9,7 +9,8 @@
  *            nontrivial palindrome
  * Range:     u8 n <= 7, u16 n <= 1025, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome_u64
+ * Validated: standard, pass, 68 terms through n = 9990 (2026-11-03)
+ * Helpers:   is_palindrome_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_palindrome_u64.h"
+#include "../utils/mem.h"
 
 /* Return the smallest prime factor of n. If n is prime, return n. */
 static uint64_t smallest_prime_factor(uint64_t n) {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Ensure cache is allocated on the first call */
     if (cache == NULL) {
         cache_cap = 512;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
 
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
             /* Term found – store it in the cache */
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = cand;
             break;  /* go back to generate next term if needed */

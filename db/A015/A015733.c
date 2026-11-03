@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 69, u16 n <= 9793, u32 n <= 9793, u64 n <= 9793,
- *            u128 n <= 9793, big any n
- * Helpers:   phi_tau
+ * Range:     u8 n <= 69, u16 n <= 12155, u32 n <= 18157, u64 n <= 18157,
+ *            u128 n <= 18157, big any n
+ * Validated: standard, pass, 73 terms through n = 9793 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,35 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/phi_tau.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static void phi_tau(seq_t k, seq_t *phi, seq_t *tau)
+{
+    seq_t n = k;
+    *phi = k;          /* φ(k) starts as k */
+    *tau = 1;          /* τ(k) starts at 1 */
+
+    for (seq_t p = 2; (unsigned __int128)p * p <= n; ++p)
+    {
+        if (n % p == 0)
+        {
+            seq_t exp = 0;
+            while (n % p == 0)
+            {
+                n /= p;
+                ++exp;
+            }
+            *tau *= (exp + 1);
+            *phi = (*phi / p) * (p - 1);
+        }
+    }
+    if (n > 1)          /* remaining prime factor */
+    {
+        *tau *= 2;
+        *phi = (*phi / n) * (n - 1);
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /* --- Helper: compute phi(k) and tau(k) (number of divisors) -------- */
@@ -38,7 +67,7 @@ static void ensure_cache_capacity(void)
     if (cache_len == cache_cap)
     {
         size_t new_cap = (cache_cap == 0) ? 16 : (cache_cap << 1);
-        seq_t *tmp = (seq_t *)realloc(cache_seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache_seq, new_cap);
         if (!tmp) abort();
         cache_seq = tmp;
         cache_cap = new_cap;

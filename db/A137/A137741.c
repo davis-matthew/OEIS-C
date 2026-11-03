@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1/24*(n+3)*(n^3+15*n^2+50*n-96) for n>2; a(1)=1; a(2)=16
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

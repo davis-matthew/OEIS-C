@@ -8,6 +8,7 @@
  *            rooted trees with n nodes and height ≤ h
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 121, u64 n <= 121,
  *            u128 n <= 121, big any n
+ * Validated: full, pass, 122 terms through n = 121 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

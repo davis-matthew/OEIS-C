@@ -13,14 +13,30 @@
  *            a_{n,0},…,a_{n,n-1}. This function comput...
  * Range:     u8 n <= 29, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   nth_to_row_col
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/nth_to_row_col.h"
+#include "../utils/mem.h"
+
+/* Return the row r and column k (0‑based) of the nth term.  */
+static void nth_to_row_col(idx_t n, idx_t *row, idx_t *col) {
+    idx_t low = 1, high = n;
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        /* mid*(mid+1)/2 can overflow only for very large n; n is small enough in tests. */
+        if (mid * (mid + 1) / 2 >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    *row = low;
+    *col = n - (low - 1) * low / 2 - 1;
+}
 
 /* --------- static helper ---------- */
 static idx_t current_max_row = 0;   /* highest row that has been generated    */
@@ -36,7 +52,7 @@ static void ensure_store_cap(size_t needed) {
     if (store_len + needed > store_cap) {
         size_t new_cap = store_cap ? store_cap * 2 : 64;
         while (store_len + needed > new_cap) new_cap *= 2;
-        a_store = (seq_t*)realloc(a_store, new_cap * sizeof(seq_t));
+        a_store = mem_resize(seq_t, a_store, new_cap);
         store_cap = new_cap;
     }
 }
@@ -46,8 +62,8 @@ static void generate_rows(idx_t r) {
     if (current_max_row == 0) {
         /* initialise row 1 */
         idx_t len = 1;
-        a_prev = (seq_t*)malloc(sizeof(seq_t) * len);
-        b_prev = (seq_t*)malloc(sizeof(seq_t) * len);
+        a_prev = mem_new(seq_t, len);
+        b_prev = mem_new(seq_t, len);
         a_prev[0] = (seq_t)1;
         b_prev[0] = (seq_t)1;
         ensure_store_cap(len);
@@ -57,8 +73,8 @@ static void generate_rows(idx_t r) {
     }
     for (idx_t ncur = current_max_row + 1; ncur <= r; ++ncur) {
         idx_t len = ncur;
-        seq_t *a_curr = (seq_t*)malloc(sizeof(seq_t) * len);
-        seq_t *b_curr = (seq_t*)malloc(sizeof(seq_t) * len);
+        seq_t *a_curr = mem_new(seq_t, len);
+        seq_t *b_curr = mem_new(seq_t, len);
         for (idx_t k = 0; k < len; ++k) {
             /* compute b_curr[k] = b_{prev}[k-1] + a_{prev}[k-1] + a_{prev}[k]  */
             seq_t term1 = (k >= 1) ? b_prev[k-1] : (seq_t)0;
@@ -79,8 +95,8 @@ static void generate_rows(idx_t r) {
             a_store[store_len++] = a_curr[k];
 
         /* free previous row arrays and move to new ones */
-        free(a_prev);
-        free(b_prev);
+        mem_free(a_prev);
+        mem_free(b_prev);
         a_prev = a_curr;
         b_prev = b_curr;
         prev_len = len;

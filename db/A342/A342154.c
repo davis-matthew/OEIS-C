@@ -10,7 +10,8 @@
  *            sum of two squares
  * Range:     u8 n <= 3049, u16 n <= 3050, u32 n <= 3050, u64 n <= 3050,
  *            u128 n <= 3050, big any n
- * Helpers:   uint64_sqrt_floor
+ * Validated: standard, pass, 122 terms through n = 3025 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/uint64_sqrt_floor.h"
+#include "../utils/isqrt_u64.h"
 
 static bool is_square_uint64(uint64_t x)
 {
-    uint64_t r = uint64_sqrt_floor(x);
+    uint64_t r = isqrt_u64(x);
     return r * r == x;
 }
 

@@ -8,13 +8,15 @@
  *            k = n - r*(r+1)/2
  * Range:     u8 n <= 13, u16 n <= 32, u32 n <= 64, u64 n <= 151,
  *            u128 n <= 404, big any n
- * Helpers:   binomial, pow_int
+ * Validated: standard, pass, 71 terms through n = 9685 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -31,6 +33,6 @@ seq_t a(idx_t n)
     idx_t k = n - start;      /* column within the found row */
 
     seq_t bin = binomial(r, k);
-    seq_t pw  = pow_int((seq_t)k, k);
+    seq_t pw  = ipow_idx((seq_t)k, k);
     return bin * pw;
 }

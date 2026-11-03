@@ -8,7 +8,8 @@
  *            n>=2, with base values a(0)=1, a(1)=1
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
     binomial transform equals the original sequence shifted one place to
     the right. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* (re)allocate cache if needed */
     size_t needed = (size_t)(n + 1);
     if (needed > cache_cap) {
-        seq_t *newptr = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, needed);
         if (!newptr) return 0;        /* out‑of‑memory, return 0 */
         cache = newptr;
         cache_cap = needed;

@@ -7,7 +7,8 @@
  * Formula:   a(1) = 1; a(n) = a(n-1) + Sum_{k=2..n} a(floor(n/k))
  * Range:     u8 n <= 13, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[1..] */
 static idx_t  cache_capacity = 0;    /* allocated size (>=1) */
@@ -30,11 +32,11 @@ seq_t a(idx_t n)
 
     /* allocate or expand cache if needed */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
         if (!cache) abort();            /* cannot allocate */
         cache_capacity = n + 1;
     } else if (cache_capacity <= n) {
-        cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!cache) abort();            /* cannot reallocate */
         cache_capacity = n + 1;
     }

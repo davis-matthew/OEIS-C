@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq, free_seq, is_prime, mod_pow
+ * Validated: standard, pass, 74 terms through n = 908 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,24 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 static void ensure_cap_seq(seq_t **arr, size_t *cap, size_t needed)
 {
@@ -73,7 +88,7 @@ seq_t a(idx_t n)
             } else {
                 uint64_t exp = (p - 1) / 11ULL;
                 seq_t mod = (seq_t)p;
-                seq_t res = mod_pow((seq_t)2, exp, mod);
+                seq_t res = powmod((seq_t)2, exp, mod);
                 include = (res == (seq_t)1);
             }
         }

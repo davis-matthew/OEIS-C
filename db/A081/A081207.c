@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{k=0..n} (binomial(floor((n+k)/2), k))^2
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 48, u128 n <= 94,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 927 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* a(n) – Main diagonal of number square A081206 (OEIS A081207) */

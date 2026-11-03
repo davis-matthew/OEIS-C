@@ -13,7 +13,8 @@
  *            computation is deterministic and works for any order of c...
  * Range:     u8 n <= 12, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/is_prime.h"     /* bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static uint64_t *prime_arr = NULL;   /* array of primes found          */
 static size_t prime_cnt  = 0;         /* number of primes stored        */
@@ -53,7 +55,7 @@ static void term_ensure_cap(size_t min_cap) {
     if (term_cap < min_cap) {
         size_t new_cap = term_cap ? term_cap << 1 : 64;
         while (new_cap < min_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(term_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, term_arr, new_cap);
         term_arr = tmp;
         term_cap = new_cap;
     }

@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = floor(log_2(3*n+1)) - floor(log_2(3*n-2)), a(0) = 1
- * Range:     u8 n <= 84, u16 n <= 8865, u32 n <= 8865, u64 n <= 8865,
- *            u128 n <= 8865, big any n
+ * Range:     u8 n <= 84, u16 n <= 87380, u32 n <= 87381, u64 n <= 87381,
+ *            u128 n <= 87381, big any n
+ * Validated: standard, pass, 106 terms through n = 8865 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

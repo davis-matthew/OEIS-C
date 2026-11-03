@@ -10,8 +10,9 @@
  *            prime indices of n. For each prime factor p^e of n we include
  *            the index of p exactly e times. Since n ≤ 10000 the multisets
  *            are very small and a simple DP suffices
- * Range:     u8 n <= 9765, u16 n <= 9765, u32 n <= 9765, u64 n <= 9765,
- *            u128 n <= 9765, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9765 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,6 +9,7 @@
  *            / (4*n+2*k+1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Preprocessor guard for __int128 availability */

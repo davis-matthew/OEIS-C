@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   power3, suffix_count
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,17 @@
 /* Computes A045218: numbers whose base‑5 representation contains no 1's
    and exactly one 2. */
 #include <stdbool.h>
-#include "../utils/power3.h"
-#include "../utils/suffix_count.h"
+#include "../utils/pow3.h"
+
+static inline seq_t suffix_count(idx_t rem, bool placed2)
+{
+    if (rem == 0)
+        return placed2 ? 1 : 0;
+    if (placed2)
+        return pow3(rem);
+    else
+        return (seq_t)rem * pow3(rem - 1);
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +41,7 @@ seq_t a(idx_t n)
         if (L == 1) {
             countL = 1;
         } else {
-            countL = (seq_t)(2 * L + 1) * power3(L - 2);
+            countL = (seq_t)(2 * L + 1) * pow3(L - 2);
         }
         cumulative += countL;
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 288, u64 n <= 288, u128 n <= 288,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 288 terms through n = 288 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Local helper: lexicographic next permutation (C standard algorithm). */
 static bool next_permutation(int *a, int n)
@@ -68,7 +70,7 @@ static void build_sequence(void)
     const size_t temp_capacity = 2 * max_perms;
 
     /* Allocate temporary storage for all candidate 7‑digit numbers. */
-    seq_t *temp = (seq_t*)malloc(temp_capacity * sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, temp_capacity);
     if (!temp) return;          /* Allocation failed – will leave cache empty */
     size_t temp_cnt = 0;
 
@@ -92,8 +94,8 @@ static void build_sequence(void)
     } while (next_permutation(perm, 7));
 
     /* Temporary array for valid terms. */
-    seq_t *valid = (seq_t*)malloc(temp_cnt * sizeof(seq_t));
-    if (!valid) { free(temp); return; }
+    seq_t *valid = mem_new(seq_t, temp_cnt);
+    if (!valid) { mem_free(temp); return; }
     size_t valid_cnt = 0;
 
     /* Test each candidate. */
@@ -125,10 +127,10 @@ static void build_sequence(void)
         if (mask_n == mask_m) valid[valid_cnt++] = n;
     }
 
-    free(temp);
+    mem_free(temp);
 
     /* Sort the result. */
-    qsort(valid, valid_cnt, sizeof(seq_t), compare_seq);
+    mem_qsort(valid, valid_cnt, sizeof(seq_t), compare_seq);
 
     /* Store in static cache. */
     seq_cache = valid;

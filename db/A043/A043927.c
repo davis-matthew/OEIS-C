@@ -12,7 +12,8 @@
  *            works
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has35_or53_base7
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has35_or53_base7.h"
+#include "../utils/mem.h"
+
+/* Return true if x (in base 7) has two consecutive digits that are
+   3 and 5 in either order. */
+static bool has35_or53_base7(seq_t x)
+{
+    if (x == (seq_t)0) return false;
+    int prev = -1;                /* previous digit (lowest‑order first) */
+    while (x != (seq_t)0) {
+        int d = (int)(x % (seq_t)7);
+        x = x / (seq_t)7;
+        if ((prev == 5 && d == 3) || (prev == 3 && d == 5))
+            return true;
+        prev = d;
+    }
+    return false;
+}
 
 /* Return the n‑th term of sequence A043927 (1‑based indexing). */
 seq_t a(idx_t n)
@@ -38,7 +55,7 @@ seq_t a(idx_t n)
         if (ok) {
             if (cache_len == cache_cap) {   /* grow cache */
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return (seq_t)0;   /* allocation failed */
                 cache = tmp;
                 cache_cap = new_cap;

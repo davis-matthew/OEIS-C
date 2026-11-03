@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
         /* first selected prime is 3 */
         selected_cap = 4;
-        selected = (seq_t*)malloc(selected_cap * sizeof(seq_t));
+        selected = mem_new(seq_t, selected_cap);
         selected[0] = (seq_t)3;
         selected_cnt = 1;
     }
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
 #define RESIZE_ARRAY(ptr, cap, new_cap, type)          \
     do {                                              \
         cap = new_cap;                                \
-        ptr = (type*)realloc(ptr, cap * sizeof(type));\
+        ptr = mem_resize(type, ptr, cap);\
     } while (0)
 
     /* ---- find enough selected primes ---- */

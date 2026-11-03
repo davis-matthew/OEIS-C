@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   factor_trial
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,31 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/factor_trial.h"
+#include "../utils/mem.h"
+
+/* --- small factorisation helper ------------------------------------- */
+static void factor_trial(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt)
+{
+    *cnt = 0;
+    uint64_t tmp = n;
+    for (uint64_t p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            uint64_t e = 0;
+            while (tmp % p == 0) {
+                tmp /= p;
+                ++e;
+            }
+            pr[(*cnt)]   = p;
+            ex[(*cnt)]   = e;
+            (*cnt)++;
+        }
+    }
+    if (tmp > 1) {
+        pr[(*cnt)] = tmp;
+        ex[(*cnt)] = 1;
+        (*cnt)++;
+    }
+}
 
 /* --- main sequence function ---------------------------------------- */
 seq_t a(idx_t n)
@@ -84,7 +109,7 @@ seq_t a(idx_t n)
             if (cache_size == cache_cap)
             {
                 size_t new_cap = cache_cap ? cache_cap * 2U : 1U;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();          /* out of memory */
                 cache = tmp;
                 cache_cap = new_cap;

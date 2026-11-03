@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 23, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t processed_limit = 0;      /* largest k processed so far            */
 static size_t terms_len = 0;          /* number of terms stored                */
@@ -73,7 +75,7 @@ static void append_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap << 1 : 1024;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         terms = tmp;
         terms_cap = new_cap;

@@ -7,13 +7,16 @@
  * Formula:   a(n) = Product_{i=1..8} ((-7)^(n-i+1)-1)/((-7)^i-1)
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 9, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 24 terms through n = 99 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +26,7 @@ seq_t a(idx_t n)
     static bool init = false;
     static seq_t den_const[9];
     if (!init) {
-        seq_t p = big_pow((seq_t)7, (seq_t)1);   /* 7^1 */
+        seq_t p = ipow((seq_t)7, (seq_t)1);   /* 7^1 */
         for (idx_t i = 1; i <= 8; ++i) {
             if (i & 1)          /* i odd: (-7)^i = -7^i, so abs = 7^i + 1 */
                 den_const[i] = p + 1;
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute numerators: abs((-7)^(n-i+1)-1) for i = 1..8 */
-    seq_t pow = big_pow((seq_t)7, (seq_t)(n - 7));  /* 7^(n-7) */
+    seq_t pow = ipow((seq_t)7, (seq_t)(n - 7));  /* 7^(n-7) */
     seq_t num[8];
     for (idx_t j = 8; j >= 1; --j) {
         idx_t exp = n - j + 1;   /* exponent for this factor */

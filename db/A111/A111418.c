@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 152, u64 n <= 594,
+ * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 152, u64 n <= 594,
  *            u128 n <= 2210, big any n
- * Helpers:   binom, row_of_index
+ * Validated: standard, pass, 64 terms through n = 7192 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,8 +33,23 @@
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/row_of_index.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
+
+static inline idx_t row_of_index(idx_t n)
+{
+    /* Binary search for the largest r with r*(r+1)/2 <= n. */
+    idx_t low = 0, high = n, mid, tri;
+    idx_t r = 0;
+    while (low <= high)
+    {
+        mid = low + (high - low) / 2;
+        tri = mid * (mid + 1) / 2;
+        if (tri <= n) { r = mid; low = mid + 1; }
+        else           high = mid - 1;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {
@@ -47,5 +63,5 @@ seq_t a(idx_t n)
     idx_t k = r - offset;
 
     /* Compute the binomial coefficient  C(2r+1, r-k) */
-    return binom(2 * r + 1, k);
+    return binomial(2 * r + 1, k);
 }

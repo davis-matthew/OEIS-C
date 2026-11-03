@@ -10,7 +10,8 @@
  *            a(2) = 1
  * Range:     u8 n <= 33, u16 n <= 50, u32 n <= 85, u64 n <= 174,
  *            u128 n <= 323, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 4812 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the required integer types.  They are defined
  * by the build system: idx_t is an unsigned 64‑bit integer,
@@ -43,7 +45,7 @@ static void ensure_capacity(idx_t needed)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 4;
     if (new_cap <= needed)
         new_cap = needed + 1;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) {
         /* In a production environment you would handle out‑of‑memory
          * conditions appropriately.  For this challenge we simply exit. */

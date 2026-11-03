@@ -12,7 +12,8 @@
  *            C++17, using only integer arithmetic
  * Range:     u8 n <= 228, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   u16_min
+ * Validated: standard, pass, 103 terms through n = 8412 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/u16_min.h"
+
+/* Helper: minimum of two uint16_t */
+static inline uint16_t u16_min(uint16_t a, uint16_t b) {
+    return a < b ? a : b;
+}
 
 static idx_t   built_limit   = 0;    /* highest value for which tables exist */
 

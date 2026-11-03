@@ -10,7 +10,8 @@
  *            1)
  * Range:     i8 n <= 56, i16 n <= 59, i32 n <= 59, i64 n <= 59, i128 n <= 59,
  *            big any n
- * Helpers:   ext_gcd_ll, sieve_first_n_primes
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,24 @@
 #include <stdbool.h>
 
 /* Utility to obtain the first N primes. */
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
-#include "../utils/ext_gcd_ll.h"
+
+/* Extended Euclidean algorithm for long long (gcd should be 1). */
+static void ext_gcd_ll(long long a, long long b, long long *x, long long *y, long long *g)
+{
+    if (b == 0) {
+        *g = a;
+        *x = 1;
+        *y = 0;
+        return;
+    }
+    long long x1, y1;
+    ext_gcd_ll(b, a % b, &x1, &y1, g);
+    *x = y1;
+    *y = x1 - (a / b) * y1;
+}
 
 static bool primes_ready = false;
 static uint32_t *prime_list = NULL;

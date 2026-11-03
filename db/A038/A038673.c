@@ -10,7 +10,8 @@
  *            collecting the missing numbers
  * Range:     u8 n <= 6, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*  Floor cubic root for an unsigned integer (works for values up to 2⁶⁴)  */
 static idx_t int_cuberoot(idx_t x)
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
             if (!repr[(size_t)i]) {
                 if (nonrep_len >= nonrep_cap) {
                     size_t newCap = (nonrep_cap == 0) ? 64 : nonrep_cap * 2;
-                    seq_t* tmp = (seq_t*)realloc(nonrep, newCap * sizeof(seq_t));
+                    seq_t* tmp = mem_resize(seq_t, nonrep, newCap);
                     if (!tmp) exit(1);
                     nonrep     = tmp;
                     nonrep_cap = newCap;

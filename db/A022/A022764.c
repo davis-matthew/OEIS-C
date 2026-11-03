@@ -8,12 +8,14 @@
  *            (mod 8) and p5(n) is the n-th prime ≡ 5 (mod 8)
  * Range:     u8 n <= 8, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

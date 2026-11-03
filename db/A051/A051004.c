@@ -9,12 +9,14 @@
  *            digits and by the sum of its digits
  * Range:     u8 n <= 23, u16 n <= 617, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9784 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         if (ok && val % sum == 0) {                           /* satisfies both conditions */
             if (size == capacity) {                           /* grow cache if needed */
                 size_t new_cap = capacity ? capacity * 2 : 4 ;
-                seq_t *tmp_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp_ptr = mem_resize(seq_t, cache, new_cap);
                 if (!tmp_ptr) return 0;                       /* allocation failure → 0 */
                 cache    = tmp_ptr;
                 capacity = new_cap;

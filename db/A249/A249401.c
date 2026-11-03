@@ -8,11 +8,13 @@
  * Formula:   a(n) = OP( sum_{i=0}^n OP( binomial(n,i) ) )
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 30, u64 n <= 36, u128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
  * Helpers:   odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/odd_part.h"
 
 static inline idx_t trailing_zeros(idx_t x)

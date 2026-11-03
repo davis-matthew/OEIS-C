@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 409 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence.  Dynamic allocation is used so
  * the cache can grow independently of the amount of memory the
@@ -54,7 +56,7 @@ static void cache_grow(size_t need)
     if (need <= cache_capacity) return;
     size_t cap = cache_capacity ? cache_capacity : 16;
     while (cap < need) cap <<= 1;          /* double until large enough */
-    seq_t *newp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, cap);
     if (!newp) abort();                     /* simple error handling */
     cache = newp;
     cache_capacity = cap;

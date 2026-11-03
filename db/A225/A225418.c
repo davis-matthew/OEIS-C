@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 500, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _smallest_prime_factor, is_prime, seq_to_string
+ * Validated: standard, pass, 67 terms through n = 788 (2026-11-03)
+ * Helpers:   is_prime, mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,33 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/is_prime.h"
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/seq_to_string.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
+
+/* Convert a seq_t value to decimal string (no sign).  Assumes out
+   large enough (256 bytes is sufficient for all generated terms).   */
+static void seq_to_string(seq_t n, char *out)
+{
+    if (n == 0) {
+        out[0] = '0';
+        out[1] = '\0';
+        return;
+    }
+    char tmp[256];
+    int pos = 0;
+    seq_t val = n;
+    while (val > 0) {
+        uint64_t digit = (uint64_t)(val % 10);
+        tmp[pos++] = (char)('0' + digit);
+        val = val / 10;
+    }
+    for (int i = 0; i < pos; ++i)
+        out[i] = tmp[pos - 1 - i];
+    out[pos] = '\0';
+}
 
 /* ----------------------------------------------------------------------
    Auxiliary routines
@@ -46,7 +71,7 @@ static uint64_t sum_distinct_primes_u64(uint64_t m)
     uint64_t sum = 0;
     uint64_t x    = m;
     while (x > 1) {
-        uint64_t p = _smallest_prime_factor(x);
+        uint64_t p = smallest_prime_factor(x);
         sum += p;
         while (x % p == 0) x /= p;
     }
@@ -70,7 +95,7 @@ static void grow_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 4;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     if (!newp) exit(EXIT_FAILURE); /* allocation failure */
     cache     = newp;
     cache_cap = new_cap;

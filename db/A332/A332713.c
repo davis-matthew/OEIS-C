@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{d|n} phi(d/gcd(d, n/d))
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, phi
+ * Validated: standard, pass, 86 terms through n = 9931 (2026-11-01)
+ * Helpers:   gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 /* compute phi(d / gcd(d, n/d)) */
 static inline seq_t phi_of_divisor(idx_t d, idx_t n)
@@ -22,7 +24,7 @@ static inline seq_t phi_of_divisor(idx_t d, idx_t n)
     seq_t g = gcd((seq_t)d, (seq_t)nd);        /* gcd(d, n/d) */
     idx_t gidx = (idx_t)g;                     /* safe back to idx_t */
     idx_t div = d / gidx;                      /* d/g */
-    return phi(div);                           /* phi(div) */
+    return totient(div);                           /* phi(div) */
 }
 
 /* main sequence function */

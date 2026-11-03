@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   odd_half_odd_part
+ * Validated: partial, pass, 79 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,13 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/odd_half_odd_part.h"
+
+static inline idx_t odd_half_odd_part(idx_t v)
+{
+    v >>= 1;                     /* divide by 2 */
+    while ((v & 1) == 0) v >>= 1;/* remove powers of 2 */
+    return v;
+}
 
 seq_t a(idx_t n)
 {

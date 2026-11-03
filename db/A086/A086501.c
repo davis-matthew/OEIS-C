@@ -10,13 +10,15 @@
  *            partitions of n (OEIS A000041)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
 #include <stdint.h>   /* for uint8_t etc, idx_t and seq_t are provided by the build */
+#include "../utils/mem.h"
 
 /* Static caches for factorials and partitions. */
 static seq_t *fact_cache = NULL;   /* fact_cache[i] = i!   */
@@ -27,8 +29,8 @@ static idx_t   cache_size = 0;     /* maximum n that has been cached */
 static void recompute_up_to(idx_t n)
 {
     /* Allocate new arrays. */
-    seq_t *new_fact  = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
-    seq_t *new_part = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+    seq_t *new_fact  = mem_new(seq_t, (n + 1));
+    seq_t *new_part = mem_new(seq_t, (n + 1));
     if (!new_fact || !new_part) {
         /* Allocation failed – abort (this should not happen in normal use). */
         exit(1);
@@ -67,8 +69,8 @@ static void recompute_up_to(idx_t n)
     }
 
     /* Replace old caches with the new ones. */
-    if (fact_cache) free(fact_cache);
-    if (part_cache) free(part_cache);
+    if (fact_cache) mem_free(fact_cache);
+    if (part_cache) mem_free(part_cache);
     fact_cache = new_fact;
     part_cache = new_part;
     cache_size = n;

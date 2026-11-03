@@ -10,7 +10,8 @@
  *            2(p‑1) has exactly the three solutions (3p,4p,6p)
  * Range:     u8 n <= 20, u16 n <= 3300, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9732 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- Utilities ---------- */
 static const idx_t PRIME_LIMIT = 10000000;  /* upper bound for prime sieve */
@@ -97,7 +99,7 @@ static size_t prime_pos = 0;   /* next prime index to test */
 static void cache_append(seq_t val) {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? 2 * cache_cap : 16;
-        seq_t *new_arr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         cache = new_arr;
         cache_cap = new_cap;
     }

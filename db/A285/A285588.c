@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 773, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9435 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache for already computed values.  cache[0] is unused to keep indices
  * 1‑based.  The array is lazily allocated and expanded. */
@@ -43,9 +45,9 @@ static void ensure_cache_cap(idx_t n)
     if (!cache) {
         /* Allocate new cache.  All slots are uninitialized but will be
          * filled before first use. */
-        cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
     } else {
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
     }
     cache_cap = new_cap;
 }

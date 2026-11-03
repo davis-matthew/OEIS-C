@@ -11,20 +11,25 @@
  *            sqrt(n). Since p_k^2 - n*q_k^2 = (-1)^(k+1)*...
  * Range:     u8 n <= 30, u16 n <= 93, u32 n <= 198, u64 n <= 525,
  *            u128 n <= 1725, big any n
- * Helpers:   is_sq_u64, isqrt_u64_loc, pell_ok
+ * Validated: standard, pass, 90 terms through n = 9746 (2026-11-01)
+ * Helpers:   is_square_u64, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_sq_u64.h"
-#include "../utils/isqrt_u64_loc.h"
-#include "../utils/pell_ok.h"
+#include "../utils/is_square_u64.h"
+#include "../utils/isqrt_u64.h"
+
+static bool pell_ok(uint64_t t, uint64_t n) {
+    if (t == 0 || t % n != 0) return false;
+    return is_square_u64(t / n);
+}
 
 seq_t a(idx_t n) {
     uint64_t nn = (uint64_t)n;
-    uint64_t a0 = isqrt_u64_loc(nn);
+    uint64_t a0 = isqrt_u64(nn);
     if (a0 * a0 == nn) return (seq_t)1;
 
     if (nn <= 16) {

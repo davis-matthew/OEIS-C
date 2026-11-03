@@ -7,14 +7,16 @@
  * Formula:   a(n) = number of ordered decompositions of n into 16 fourth
  *            powers. Computed by 16-fold convolution of the indicator
  *            sequence of fourth powers
- * Range:     u8 n <= 2, u16 n <= 21, u32 n <= 1846, u64 n <= 9915,
- *            u128 n <= 9915, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2, u16 n <= 21, u32 n <= 1846, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 64 terms through n = 9915 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* Dynamic programming arrays. */
-    seq_t *dp_prev = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *dp_cur  = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, N + 1);
+    seq_t *dp_cur  = mem_new(seq_t, N + 1);
     if (!dp_prev || !dp_cur) {
         free(powers);
-        free(dp_prev);
-        free(dp_cur);
+        mem_free(dp_prev);
+        mem_free(dp_cur);
         return 0;
     }
     dp_prev[0] = 1;  /* one way to reach sum 0 with 0 summands */
@@ -73,8 +75,8 @@ seq_t a(idx_t n)
     seq_t result = dp_prev[N];
 
     /* Clean up */
-    free(dp_cur);
-    free(dp_prev);
+    mem_free(dp_cur);
+    mem_free(dp_prev);
     free(powers);
 
     return result;

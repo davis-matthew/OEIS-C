@@ -11,8 +11,9 @@
  *            T(n,0)=1. For each x=1..⌊n/2⌋: inner = n-2*x delta = (x==1)?2:0
  *            // two outer 1's add two ones For each k0=0..inner:...
  * Range:     u8 n <= 254, u16 n <= 746, u32 n <= 2639, u64 n <= 9343,
- *            u128 n <= 9480, big any n
- * Helpers:   none
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 121 terms through n = 9480 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static memoisation table */
 static seq_t **T = NULL;
@@ -39,7 +41,7 @@ static void ensure_T(idx_t limit)
     /* Compute new rows sequentially. */
     for (idx_t n = max_T + 1; n <= limit; ++n) {
         /* Allocate each row with zeroed entries. */
-        T[n] = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        T[n] = mem_new(seq_t, (size_t)(n + 1));
 
         /* Base cases. */
         if (n == 1) {
@@ -63,7 +65,7 @@ static void ensure_T(idx_t limit)
 
     /* Initialise row 0 if it has not been created yet. */
     if (max_T == 0 && T[0] == NULL) {
-        T[0] = (seq_t *)calloc(1, sizeof(seq_t));
+        T[0] = mem_new(seq_t, 1);
         T[0][0] = (seq_t)1;
     }
 

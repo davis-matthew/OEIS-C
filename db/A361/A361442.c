@@ -15,7 +15,8 @@
  *            rest of the row is determined by the relation...
  * Range:     i8 n <= 26, i16 n <= 103, i32 n <= 523, i64 n <= 1828,
  *            i128 n <= 7501, big any n
- * Helpers:   seq_to_str
+ * Validated: standard, pass, 71 terms through n = 9847 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_to_str.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* Simple hash for seq_t values using decimal representation. */
 static size_t seq_hash(seq_t v)
@@ -50,7 +72,7 @@ static void ensure_tri_cap(idx_t n)
     if (tri_cap < n) {
         size_t new_cap = tri_cap ? tri_cap : 8;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        tri = (seq_t *)realloc(tri, new_cap * sizeof(seq_t));
+        tri = mem_resize(seq_t, tri, new_cap);
         tri_cap = new_cap;
     }
 }

@@ -9,13 +9,15 @@
  *            expansion of n
  * Range:     u8 n <= 46, u16 n <= 382, u32 n <= 8190, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 7847 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build. */
 seq_t a(idx_t n)
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     idx_t maskAll = (k == 64) ? ~0ULL : ((1ULL << k) - 1);
     idx_t rmask = n & maskAll;              /* first row mask, column 0 is the most significant bit */
 
-    seq_t *dp   = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *next = (seq_t*)calloc(size, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, size);
+    seq_t *next = mem_new(seq_t, size);
     if (!dp || !next) return 0;             /* memory failure, give up safely */
 
     dp[0] = 1;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[size - 1];
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

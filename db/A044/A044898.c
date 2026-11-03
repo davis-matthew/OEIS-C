@@ -10,13 +10,50 @@
  *            begins * a(1)=13, a(2)=26, a(3)=39, … (OEIS A044898)
  * Range:     u8 n <= 22, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   base12_good
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/base12_good.h"
+
+static bool base12_good(seq_t value)
+{
+    /* Extract base‑12 digits (least significant first) */
+    seq_t tmp = value;
+    /* 4096 digits is ample for the values needed in the tests */
+    unsigned char digits[4096];
+    unsigned int len = 0;
+
+    while (tmp != (seq_t)0) {
+        digits[len++] = (unsigned char)(tmp % (seq_t)12);
+        tmp /= (seq_t)12;
+    }
+    if (len == 0) {
+        return false;          /* 0 is not a positive integer */
+    }
+
+    /* The first run must be even */
+    bool even_expected = true;
+    unsigned int run_len = 1;
+
+    for (int i = (int)len - 1; i > 0; --i) {
+        if (digits[i] == digits[i - 1]) {
+            ++run_len;
+        } else {
+            if ((run_len & 1) != (even_expected ? 0 : 1))
+                return false;
+            even_expected = !even_expected;
+            run_len = 1;
+        }
+    }
+    /* Check the final run */
+    if ((run_len & 1) != (even_expected ? 0 : 1))
+        return false;
+
+    return true;
+}
 
 seq_t a(idx_t n)
 {

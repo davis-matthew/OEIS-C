@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_alloc_new_array, seq_free_array
+ * Validated: standard, pass, 85 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,15 @@
    f(2k+1)=f(2k)+2^popcount(k) */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *f_cache = NULL;
 static size_t f_cache_size = 0;

@@ -9,12 +9,14 @@
  *            the first term)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 27, u64 n <= 53, u128 n <= 107,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define MAX_N 10000          /* sufficient for all tests up to about 10000 */
 
@@ -36,8 +38,7 @@ seq_t a(idx_t n)
         static size_t dyn_size = 0;
 
         if ((size_t)n > dyn_size) {
-            seq_t *tmp = (seq_t *)realloc(dyn_cache,
-                                          (size_t)n + 1 * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, dyn_cache, ((size_t)n + 1 * sizeof(seq_t)) / sizeof(seq_t));
             if (!tmp) return 0;           /* allocation failed */
             dyn_cache = tmp;
             dyn_size = (size_t)n;

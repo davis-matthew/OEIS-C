@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 40, u32 n <= 97, u64 n <= 242,
  *            u128 n <= 617, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 8814 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
  *  `seq_t` type supplied by the build system, and with `idx_t = uint64_t`.
  */
 #include <stdlib.h>          /* size_t, malloc, realloc, free */
+#include "../utils/mem.h"
 
 static inline idx_t triangular(idx_t r)
 {
@@ -62,11 +64,11 @@ static void grow_triangle(idx_t target_row)
 
     if (triangle_table == NULL) {
         /* First allocation */
-        tmp = (seq_t *)realloc(NULL, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, NULL, new_cap);
         if (tmp == NULL) exit(1);  /* allocation failed */
     } else {
         /* Reallocate to the larger size */
-        tmp = (seq_t *)realloc(triangle_table, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, triangle_table, new_cap);
         if (tmp == NULL) exit(1);  /* allocation failed */
     }
     triangle_table = tmp;

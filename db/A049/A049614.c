@@ -8,6 +8,7 @@
  *            primorial of n (product of primes ≤ n)
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 17, u64 n <= 26, u128 n <= 44,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 522 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

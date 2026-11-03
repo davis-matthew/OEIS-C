@@ -9,12 +9,23 @@
  *            A010060(k) = popcount(k) mod 2)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   parity64
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/parity64.h"
+/* Compute parity of a 64‑bit integer using only bitwise ops. */
+static inline int parity64(uint64_t x)
+{
+    x ^= x >> 32;
+    x ^= x >> 16;
+    x ^= x >> 8;
+    x ^= x >> 4;
+    x ^= x >> 2;
+    x ^= x >> 1;
+    return x & 1;      /* 0 = even parity, 1 = odd */
+}
 
 seq_t a(idx_t n)
 {

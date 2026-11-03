@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 325, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    In other words the digit proportions of k and k² are equal. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void digit_counts(seq_t x, unsigned cnt[4], unsigned *len)
 {
@@ -36,7 +38,7 @@ static void ensure_capacity(size_t needed, size_t *cap, seq_t **ptr)
     if (*cap >= needed) return;
     size_t new_cap = (*cap == 0) ? 4 : (*cap * 2);
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
     *ptr = tmp;
     *cap = new_cap;
 }

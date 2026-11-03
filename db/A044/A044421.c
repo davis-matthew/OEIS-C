@@ -9,14 +9,18 @@
  *            contains * the substring "89" but the integer n-1 does not
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   get_digits
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include "../utils/get_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;      /* cached terms of the sequence */
 static size_t seq_cache_len = 0;     /* number of cached terms */
@@ -43,7 +47,7 @@ static void ensure_seq_cache_cap(size_t need)
 {
     while (seq_cache_cap < need) {
         size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         seq_cache = tmp;
         seq_cache_cap = new_cap;
     }

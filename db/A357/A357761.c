@@ -8,13 +8,19 @@
  *            odious over evil divisors)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   pop_parity_u64
+ * Validated: standard, pass, 99 terms through n = 9904 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pop_parity_u64.h"
+
+/* parity of popcount of a 64‑bit integer: 1 if odd, 0 if even */
+static inline int pop_parity_u64(uint64_t x)
+{
+    return __builtin_popcountll(x) & 1;
+}
 
 /* integer square root: floor(sqrt(n)) for 0 <= n < 2^64 */
 static inline idx_t isqrt_u64(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Σ_{k=ceil(n/2)}^n binomial(k,n-k)*(n+1)^(k-1)/k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 348 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* This implementation computes the sum efficiently using only
  * integer arithmetic and avoids large factorial divisions on each step. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact = NULL;      /* factorials 0! ... n! */
 static idx_t fact_len = 0;      /* number of computed factorials */
@@ -25,7 +27,7 @@ static void ensure_fact(idx_t n)
     if (fact_len <= n) {
         /* extend factorial array */
         idx_t new_len = n + 1;
-        fact = (seq_t *)realloc(fact, (size_t)new_len * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, (size_t)new_len);
         if (fact_len == 0) {
             fact[0] = (seq_t)1;
             for (idx_t i = 1; i <= n; ++i)

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9928, u16 n <= 9928, u32 n <= 9928, u64 n <= 9928,
- *            u128 n <= 9928, big any n
- * Helpers:   none
+ * Range:     u8 n <= 12288, u16 n <= 12288, u32 n <= 12288, u64 n <= 12288,
+ *            u128 n <= 12288, big any n
+ * Validated: standard, pass, 121 terms through n = 9928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* one‑time initialization with the base sequence S(1) */
     if (seq == NULL) {
-        seq = (seq_t *)malloc(3 * sizeof(seq_t));
+        seq = mem_new(seq_t, 3);
         if (seq == NULL) return (seq_t)0;   /* allocation failure – unlikely */
         seq[0] = 1; seq[1] = 2; seq[2] = 3;
         len = 3;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     while (len < (size_t)n) {
         size_t old_len   = len;
         size_t new_len   = old_len * 2;
-        seq_t *new_seq   = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_seq   = mem_new(seq_t, new_len);
         if (new_seq == NULL) return (seq_t)0; /* allocation failure */
 
         /* copy old sequence twice */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         new_seq[new_len - 1] = (seq[old_len - 1] % 3) + 1;
 
         /* replace old array */
-        free(seq);
+        mem_free(seq);
         seq = new_seq;
         len = new_len;
     }

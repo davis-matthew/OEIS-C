@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *data = NULL;      /* flattened triangle data */
 static size_t dataCap  = 0;     /* capacity of data array */
@@ -35,7 +37,7 @@ static void ensure_capacity(size_t needed)
     size_t newCap = dataCap ? dataCap * 2 : 8;
     while (newCap < needed)
         newCap *= 2;
-    seq_t *newData = (seq_t *)realloc(data, newCap * sizeof(seq_t));
+    seq_t *newData = mem_resize(seq_t, data, newCap);
     if (!newData) exit(1);
     data    = newData;
     dataCap = newCap;

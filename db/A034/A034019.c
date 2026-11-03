@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 5865, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes
+ * Validated: standard, pass, 69 terms through n = 8201 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static idx_t *prime_list = NULL;
@@ -93,7 +96,7 @@ seq_t a(idx_t n)
         if (has_imprimitive_rep(candidate)) {
             if (count >= capacity) {
                 capacity = capacity ? capacity * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(seq, capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, capacity);
                 if (!tmp) exit(1);
                 seq = tmp;
             }

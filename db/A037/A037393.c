@@ -11,14 +11,30 @@
  *            fixed at 200 000 entries, ample for n up to at least 10 000
  * Range:     u8 n <= 30, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mask_of_digits
+ * Validated: standard, pass, 68 terms through n = 9361 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mask_of_digits.h"
+
+/* Return a bit mask of the digits that appear in x when written in the
+   given base (2 ≤ base ≤ 10). Each bit d in the mask corresponds to
+   digit d. */
+static uint16_t mask_of_digits(seq_t x, int base) {
+    uint16_t mask = 0;
+    seq_t cur = x;
+    if (cur == (seq_t)0) return mask;
+    const seq_t sb = (seq_t)base;
+    while (cur != (seq_t)0) {
+        int d = (int)(cur % sb);
+        mask |= (uint16_t)(1u << d);
+        cur /= sb;
+    }
+    return mask;
+}
 
 /* Maximum number of terms that can be stored in the static cache. */
 #define MAX_TERMS 200000

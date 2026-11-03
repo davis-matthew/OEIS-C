@@ -12,15 +12,22 @@
  *            that has exactly 8 n − 4 lattice points on its circumference
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 29, u128 n <= 56,
  *            big any n
- * Helpers:   pow_seq, seq_mul
+ * Validated: standard, pass, 41 terms through n = 1354 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"   /* seq_t pow_seq(seq_t base, idx_t exp); */
-#include "../utils/seq_mul.h"   /* seq_t seq_mul(seq_t a, seq_t b); */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/ipow_i32.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* 1‑mod‑4 primes – enough for the required factorizations */
 static const idx_t primes1mod4[20] = {
@@ -47,7 +54,7 @@ static void dfs(idx_t rem, idx_t start_f, int depth,
 
         seq_t prod = 1;
         for (int i = 0; i < depth; ++i) {
-            seq_t term = pow_seq((seq_t)primes1mod4[i], (idx_t)exps[i]);
+            seq_t term = ipow_i32((seq_t)primes1mod4[i], (idx_t)exps[i]);
             prod = seq_mul(prod, term);
         }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 19, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Internal static data */
 static seq_t *f_vals = NULL;      /* f[0 .. ]            */
@@ -35,8 +37,8 @@ static void ensure_capacity(idx_t needed)
     size_t newcap = cap ? cap << 1 : 16;
     while (newcap <= (size_t)needed) newcap <<= 1;
 
-    seq_t *newf = (seq_t *)malloc(newcap * sizeof(seq_t));
-    seq_t *news = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newf = mem_new(seq_t, newcap);
+    seq_t *news = mem_new(seq_t, newcap);
     if (!newf || !news) abort();
 
     for (size_t i = 0; i < cap; ++i) {
@@ -48,8 +50,8 @@ static void ensure_capacity(idx_t needed)
         news[i]  = 0;
     }
 
-    free(f_vals);
-    free(s_vals);
+    mem_free(f_vals);
+    mem_free(s_vals);
     f_vals = newf;
     s_vals = news;
     cap = newcap;

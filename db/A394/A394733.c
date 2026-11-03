@@ -14,7 +14,8 @@
  *            occurrences of k in the already generated prefix and p...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 104 terms through n = 9736 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define K_LIMIT 300          /* maximum k considered (sufficient for n≤10000) */
 #define FACT_SIZE (K_LIMIT + 10)
@@ -63,7 +65,7 @@ static void init_once(void) {
 
     /* initial allocation for the sequence buffer */
     seq_cap = 16;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
 }
 
 /* Greedy generation of a(n) up to the requested index */
@@ -91,7 +93,7 @@ seq_t a(idx_t n) {
         /* append best_k to the sequence */
         if (seq_len >= seq_cap) {
             seq_cap *= 2;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len] = (seq_t)best_k;
         seq_len++;

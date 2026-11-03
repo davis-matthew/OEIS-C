@@ -8,12 +8,14 @@
  * Formula:   a(0) = 1; a(n) = 29 * 28^(n-1) for n >= 1 (OEIS A170038)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* compute 28^(n-1) */
-    seq_t pow28 = pow_seq((seq_t)28, (int)(n - 1));
+    seq_t pow28 = ipow_i32((seq_t)28, (int)(n - 1));
 
     /* multiply by 29 */
     return (seq_t)29 * pow28;

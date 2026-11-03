@@ -9,7 +9,8 @@
  *            form
  * Range:     u8 n <= 4, u16 n <= 82, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, floor_sqrt
+ * Validated: standard, pass, 59 terms through n = 9591 (2026-11-03)
+ * Helpers:   digit_sum, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,27 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digit_sum.h"   /* digit_sum(seq_t) */
-#include "../utils/floor_sqrt.h" /* floor_sqrt(seq_t) */
+#include "../utils/digit_sum.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Test whether x = k^2 - k - 1 has a digit sum that can be written as m^2 - m - 1. */
 static bool good_candidate(seq_t x)
@@ -56,7 +76,7 @@ seq_t a(idx_t n)
             if (len == cap)
             {
                 size_t newcap = (cap == 0) ? 8 : cap * 2;
-                seq_t *newarr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *newarr = mem_resize(seq_t, cache, newcap);
                 if (!newarr) /* allocation failed – abort gracefully */
                     abort();
                 cache = newarr;

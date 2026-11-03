@@ -7,12 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   binomial_integer
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial_integer.h"
+#include "../utils/binomial.h"
 /* OEIS A386938 */
 /* a(n) = Sum_{k=0..n} binomial(4*n+1,k) * binomial(2*n-k-1,n-k)   */
 
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
 
     seq_t sum = (seq_t)0;
     seq_t a_k = (seq_t)1;                                   /* C(4*n+1,0) */
-    seq_t b_k = binomial_integer(2*n - 1, n);               /* C(2*n-1,n) */
+    seq_t b_k = binomial(2*n - 1, n);               /* C(2*n-1,n) */
 
     for (idx_t k = 0; k <= n; ++k) {
         sum += a_k * b_k;

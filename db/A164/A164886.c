@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 769, u16 n <= 1024, u32 n <= 1024, u64 n <= 1024,
  *            u128 n <= 1024, big any n
- * Helpers:   kaprekar_base2
+ * Validated: standard, pass, 121 terms through n = 972 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,33 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/kaprekar_base2.h"
+
+/* Compute one step of the base‑2 Kaprekar map. */
+static inline seq_t kaprekar_base2(seq_t n)
+{
+    if (n == 0)
+        return 0;
+
+    /* `n` fits into idx_t (uint64_t), so we may safely cast it. */
+    uint64_t u = (uint64_t)n;
+
+    /* number of 1‑bits */
+    uint64_t k = __builtin_popcountll(u);
+
+    /* bit-length of n */
+    uint64_t L = 64 - __builtin_clzll(u);
+
+    /* All bits are 1 → fixed point (maps to 0). */
+    if (k == L)
+        return 0;
+
+    /* (2^k – 1) and (2^(L‑k) – 1) are safe to compute because
+       k, L‑k ∈ [0,63] (shift by 64 is avoided by the previous test). */
+    seq_t term1 = (k == 0) ? 0 : ((((seq_t)1) << k) - 1);
+    seq_t term2 = (L - k == 0) ? 0 : ((((seq_t)1) << (L - k)) - 1);
+
+    return term1 * term2;
+}
 
 /* Returns the required sequence value for index `n`. */
 seq_t a(idx_t n)

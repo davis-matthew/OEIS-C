@@ -8,8 +8,9 @@
  * Keywords:  sign, look
  * Formula:   a(n) = (A003961(n)+1)/2 - n, where A003961 shifts each * prime
  *            factor of n to the next prime
- * Range:     i8 n <= 23, i16 n <= 1535, i32 n <= 9655, i64 n <= 9655,
- *            i128 n <= 9655, big any n
+ * Range:     i8 n <= 23, i16 n <= 1535, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 95 terms through n = 9655 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
 
 static uint64_t *prime_list = NULL;

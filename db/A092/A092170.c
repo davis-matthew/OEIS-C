@@ -8,13 +8,15 @@
  * Formula:   a(n) = n!^2 - a(n-1), a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 252 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External types: seq_t, idx_t are defined by the build. */
 static seq_t *a_cache = NULL;          /* a_cache[i-1] = a(i) */
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     if (n > cache_size) {
         idx_t new_size = n;
         /* realloc handles NULL pointers as well */
-        a_cache     = (seq_t *)realloc(a_cache,     new_size * sizeof(seq_t));
-        fact2_cache = (seq_t *)realloc(fact2_cache, new_size * sizeof(seq_t));
+        a_cache     = mem_resize(seq_t, a_cache, new_size);
+        fact2_cache = mem_resize(seq_t, fact2_cache, new_size);
 
         /* Compute values from cache_size+1 up to n */
         for (idx_t i = cache_size + 1; i <= n; ++i) {

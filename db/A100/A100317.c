@@ -8,14 +8,16 @@
  *            and k+1 is prime
  * Range:     u8 n <= 74, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 78 terms through n = 8900 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* undefined for n = 0, return 0 as safe fallback */
@@ -29,11 +31,11 @@ seq_t a(idx_t n) {
 
         /* Check if k-1 is prime (k>1) */
         if (k > 1) {
-            prime_minus = is_prime_uint64((uint64_t)(k - 1));
+            prime_minus = is_prime_u64((uint64_t)(k - 1));
         }
 
         /* Check if k+1 is prime */
-        prime_plus = is_prime_uint64((uint64_t)(k + 1));
+        prime_plus = is_prime_u64((uint64_t)(k + 1));
 
         /* Exactly one of them prime? */
         if (prime_minus ^ prime_plus) {

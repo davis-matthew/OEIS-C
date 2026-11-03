@@ -8,15 +8,18 @@
  * Formula:   a(n) = Σ_{d|n} φ(d)^3
  * Range:     u8 n <= 10, u16 n <= 42, u32 n <= 1626, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, phi
+ * Validated: standard, pass, 66 terms through n = 9105 (2026-11-01)
+ * Helpers:   factor_u64, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 /* ------------------------------------------------------------------ */
 /* Recursive helper that runs through all divisors of n                */
@@ -29,7 +32,7 @@ static void _divisor_sum(const uint64_t *pr,
 {
     if (idx == pc) {
         /* cur is a divisor of n */
-        seq_t phi_cur = phi((idx_t)cur);          /* φ(cur) */
+        seq_t phi_cur = totient((idx_t)cur);          /* φ(cur) */
         seq_t phi3 = phi_cur * phi_cur * phi_cur;
         *sum += phi3;
         return;

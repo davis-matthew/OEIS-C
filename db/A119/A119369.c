@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 130, u32 n <= 378, u64 n <= 1256,
  *            u128 n <= 2600, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 2566 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Integer square root: floor(sqrt(n)) for 0 ≤ n ≤ UINT64_MAX.  */
 static idx_t isqrt_u64(idx_t n)
@@ -69,12 +71,14 @@ static void ensure_rows(idx_t needed)
         Tvals = (seq_t**)malloc((needed + 1) * sizeof(seq_t*));
         Tcomp = (bool**)malloc((needed + 1) * sizeof(bool*));
         if (!Tvals || !Tcomp) abort();
+        for (idx_t r = 0; r <= needed; ++r) { Tvals[r] = NULL; Tcomp[r] = NULL; }   /* (malloc leaves them unset) */
         max_row_allocated = needed;
     }
     else if (needed > max_row_allocated) {
         Tvals = (seq_t**)realloc(Tvals, (needed + 1) * sizeof(seq_t*));
         Tcomp = (bool**)realloc(Tcomp, (needed + 1) * sizeof(bool*));
         if (!Tvals || !Tcomp) abort();
+        for (idx_t r = max_row_allocated + 1; r <= needed; ++r) { Tvals[r] = NULL; Tcomp[r] = NULL; }
         max_row_allocated = needed;
     }
 
@@ -82,7 +86,7 @@ static void ensure_rows(idx_t needed)
     for (idx_t r = (max_row_allocated == 0 ? 0 : 1); r <= needed; ++r) {
         if (Tvals[r] == NULL) {
             size_t len = (size_t)(2 * r + 1);
-            Tvals[r] = (seq_t*)calloc(len, sizeof(seq_t));
+            Tvals[r] = mem_new(seq_t, len);
             if (!Tvals[r]) abort();
             Tcomp[r] = (bool*)calloc(len, sizeof(bool));
             if (!Tcomp[r]) abort();

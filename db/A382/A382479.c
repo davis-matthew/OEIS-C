@@ -11,13 +11,15 @@
  *            trailing run of 1’s is at most 2
  * Range:     u8 n <= 16, u16 n <= 32, u32 n <= 64, u64 n <= 128,
  *            u128 n <= 258, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 1885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         array_sz = 1;
-        global_f = (seq_t *)malloc(array_sz * sizeof(seq_t));
-        even_f   = (seq_t *)malloc(array_sz * sizeof(seq_t));
+        global_f = mem_new(seq_t, array_sz);
+        even_f   = mem_new(seq_t, array_sz);
         if (!global_f || !even_f) return (seq_t)0;   /* allocation failed */
         global_f[0] = even_f[0] = (seq_t)1;
         dp_cur[0] = (seq_t)1;
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
     /* extend DP arrays up to required length */
     if (array_sz <= (size_t)m) {
         size_t new_sz = (size_t)m + 1;
-        seq_t *new_global = (seq_t *)realloc(global_f, new_sz * sizeof(seq_t));
-        seq_t *new_even   = (seq_t *)realloc(even_f,   new_sz * sizeof(seq_t));
+        seq_t *new_global = mem_resize(seq_t, global_f, new_sz);
+        seq_t *new_even   = mem_resize(seq_t, even_f, new_sz);
         if (!new_global || !new_even) return (seq_t)0;   /* realloc failed */
         global_f = new_global;
         even_f   = new_even;

@@ -8,7 +8,8 @@
  *            ... (see OEIS A029183)
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,11 +17,12 @@
 /*  a(0)=1, a(1)=0, a(2)=1, a(3)=0, a(4)=2, a(5)=0, a(6)=2, a(7)=1, ... */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate DP array of size n+1 */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (dp == NULL) {
         /* In a real program you might handle allocation failure; for this
            exercise we simply return 0 on failure. */
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

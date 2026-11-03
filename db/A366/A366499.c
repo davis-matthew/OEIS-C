@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 11, i64 n <= 21, i128 n <= 21,
+ * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 11, i64 n <= 21, i128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    with a(0) = 1
    (Binomial arguments are taken as 0 when top < bottom, which yields 0 anyway.) */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

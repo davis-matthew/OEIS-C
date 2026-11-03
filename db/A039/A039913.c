@@ -10,12 +10,14 @@
  *            each k = r + n)
  * Range:     u8 n <= 91, u16 n <= 300, u32 n <= 1128, u64 n <= 4371,
  *            u128 n <= 7380, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 7370 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fib_cache  = NULL;   /* Fibonacci numbers Fib(0)...Fib(last) */
 static size_t fib_len     = 0;     /* size of fib_cache   */
@@ -33,7 +35,7 @@ ensure_cap(idx_t k)
     /* Build Fibonacci numbers up to index new_cap + 2 (needed for base row 1). */
     size_t need_fib = new_cap + 3;           /* Fib(0) … Fib(new_cap+2) */
     if (!fib_cache || need_fib > fib_len) {
-        fib_cache = (seq_t *)realloc(fib_cache, need_fib * sizeof(seq_t));
+        fib_cache = mem_resize(seq_t, fib_cache, need_fib);
         if (fib_len < 2) {                 /* initialise first two Fibonacci values */
             fib_cache[0] = (seq_t)0;
             fib_cache[1] = (seq_t)1;
@@ -45,7 +47,7 @@ ensure_cap(idx_t k)
     }
 
     /* Allocate and fill the new triangular array. */
-    seq_t *new_tbl = (seq_t *)malloc(new_cap * new_cap * sizeof(seq_t));
+    seq_t *new_tbl = mem_new(seq_t, new_cap * new_cap);
     for (size_t r = 0; r < new_cap; ++r) {
         for (size_t n = 0; n < new_cap; ++n) {
             if (r == 0)
@@ -57,7 +59,7 @@ ensure_cap(idx_t k)
                     new_tbl[(r-1) * new_cap + n] + new_tbl[(r-2) * new_cap + n];
         }
     }
-    free(table_cache);
+    mem_free(table_cache);
     table_cache = new_tbl;
     table_cap   = new_cap;
 }

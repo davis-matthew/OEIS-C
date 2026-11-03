@@ -10,6 +10,7 @@
  *            +62145*n^4 +892140*n^3 -2198566*n^2 -5725008*n +18190440)/120
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 16, u64 n <= 100, u128 n <= 100,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 100 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

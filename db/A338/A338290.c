@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 182, u16 n <= 3760, u32 n <= 3760, u64 n <= 3760,
  *            u128 n <= 3760, big any n
- * Helpers:   spiral_number_from_coord
+ * Validated: full, pass, 3760 terms through n = 3760 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,32 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/spiral_number_from_coord.h"
+
+/* --------- spiral mapping (x,y) -> board number --------------------- */
+static idx_t
+spiral_number_from_coord(int32_t x, int32_t y)
+{
+    if (x == 0 && y == 0)
+        return (idx_t)1;
+
+    int64_t rx = (x >= 0) ? (int64_t)x : -(int64_t)x;
+    int64_t ry = (y >= 0) ? (int64_t)y : -(int64_t)y;
+    int64_t r  = (rx > ry) ? rx : ry;                /* ring index      */
+    int64_t side  = 2 * r;                           /* side length     */
+    int64_t maxnum = (2 * r + 1) * (2 * r + 1);     /* max number in ring */
+    int64_t offset;
+
+    if (y == -r)                                   /* bottom side */
+        offset = r - x;
+    else if (x == -r)                              /* left side  */
+        offset = side + (y + r);
+    else if (y == r)                               /* top side   */
+        offset = side + 2 * r + (x + r);
+    else                                            /* right side */
+        offset = side + 4 * r + (r - y);
+
+    return (idx_t)(maxnum - offset);
+}
 
 /* --------- main sequence function ------------------------------------ */
 seq_t a(idx_t n)

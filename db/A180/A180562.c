@@ -7,8 +7,9 @@
  * Keywords:  nonn, tabl
  * Formula:   not stated
  * Range:     u8 n <= 96, u16 n <= 287, u32 n <= 970, u64 n <= 3533,
- *            u128 n <= 9995, big any n
- * Helpers:   none
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 93 terms through n = 9995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* allocate a small 2‑D array of size (r+1) × (r+1)   */
     size_t rows  = (size_t)(r + 1);
     size_t total = rows * rows;
-    seq_t *dp = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp) return (seq_t)0;  /* fallback, should not happen */
 
     /* macro for indexing dp[n][k] */
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
 
     seq_t result = DP(r, c);
 
-    free(dp);
+    mem_free(dp);
     #undef DP
     return result;
 }

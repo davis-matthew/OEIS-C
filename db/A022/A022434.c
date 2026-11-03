@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*= static storage =*/
 static seq_t *a_seq  = NULL;      /* a sequence   */
@@ -55,7 +57,7 @@ static void ensure_a_cap(size_t needed)
     if (needed <= a_cap) return;
     size_t new_cap = a_cap ? a_cap : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_seq, new_cap);
     a_seq = new_arr;
     a_cap = new_cap;
 }
@@ -66,7 +68,7 @@ static void ensure_c_cap(size_t needed)
     if (needed <= c_cap) return;
     size_t new_cap = c_cap ? c_cap : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(c_seq, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, c_seq, new_cap);
     c_seq = new_arr;
     c_cap = new_cap;
 }
@@ -76,11 +78,11 @@ static void init_sequence(void)
 {
     if (a_seq == NULL) {
         a_cap = 8;
-        a_seq = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
     }
     if (c_seq == NULL) {
         c_cap = 8;
-        c_seq = (seq_t *)malloc(c_cap * sizeof(seq_t));
+        c_seq = mem_new(seq_t, c_cap);
     }
 
     /* first three terms of a */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 13, i64 n <= 23, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(0) = 1, a(1) = -4; for n ≥ 2, a(n) = -9*a(n-1) - 25*a(n-2) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoised values of a(n) */
 static idx_t cache_cap = 0;      /* allocated capacity of cache */
@@ -24,7 +26,7 @@ static idx_t cache_len = 0;      /* number of valid entries in cache */
 static void ensure_cache_cap(idx_t cap) {
     if (cap <= cache_cap)
         return;
-    seq_t *newp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, cap);
     if (!newp)
         abort();                 /* memory allocation failed */
     cache = newp;

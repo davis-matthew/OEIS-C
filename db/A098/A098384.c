@@ -11,12 +11,14 @@
  *            (k+2)*T(n‑1,k+1) (with out‑of‑range indices treated as 0)
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for computed rows of the triangle */
 static seq_t **rows = NULL;      /* array of pointers to row arrays   */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (rows_count == 0) {
         rows = (seq_t**)malloc(sizeof(seq_t*));
         row_lengths = (size_t*)malloc(sizeof(size_t));
-        rows[0] = (seq_t*)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = (seq_t)1;     /* T(0,0) */
         row_lengths[0] = 1;        /* row 0 has 1 element */
         rows_count = 1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         size_t prev_len = row_lengths[rows_count - 1];
         seq_t *prev_row = rows[rows_count - 1];
         size_t new_len = prev_len + 1;                     /* row has one more element */
-        seq_t *new_row = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
 
         for (size_t k = 0; k < new_len; k++) {
             seq_t val = 0;

@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=1..n} binomial(n,k) * (3*k-2) * a(n-k), a(0)=1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* array of computed a(n) values          */
 static idx_t  cache_cap = 0;   /* capacity of the array (in seq_t elems)*/
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     if (n + 1 > cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 1;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();          /* allocation failure */
         cache = new_cache;
         cache_cap = new_cap;

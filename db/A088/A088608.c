@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    calls. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *primes      = NULL;   /* list of primes, size primes_cnt    */
 static size_t primes_cnt   = 0;
@@ -38,12 +40,12 @@ static void ensure_primes(idx_t n)
 
     if (primes_cap == 0) {
         primes_cap = 64;
-        primes = (seq_t *)malloc(primes_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, primes_cap);
     } else if (primes_cap < (size_t)n) {
         size_t new_cap = primes_cap * 2;
         while (new_cap < (size_t)n)
             new_cap *= 2;
-        primes = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+        primes = mem_resize(seq_t, primes, new_cap);
         primes_cap = new_cap;
     }
 
@@ -69,12 +71,12 @@ static void ensure_composites(idx_t n)
 
     if (composites_cap == 0) {
         composites_cap = 64;
-        composites = (seq_t *)malloc(composites_cap * sizeof(seq_t));
+        composites = mem_new(seq_t, composites_cap);
     } else if (composites_cap < (size_t)n) {
         size_t new_cap = composites_cap * 2;
         while (new_cap < (size_t)n)
             new_cap *= 2;
-        composites = (seq_t *)realloc(composites, new_cap * sizeof(seq_t));
+        composites = mem_resize(seq_t, composites, new_cap);
         composites_cap = new_cap;
     }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 30, i16 n <= 110, i32 n <= 269, i64 n <= 691,
  *            i128 n <= 2027, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * where p(m) is the integer partition function (p(m)=0 for m<0)     */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of partition numbers p(0) … p(max_n)  */
 static seq_t *part_cache   = NULL;
@@ -31,9 +33,9 @@ static void ensure_partitions(idx_t max_n)
     /* Grow or allocate the cache */
     size_t new_cap = (size_t)max_n + 1;
     if (part_cache == NULL) {
-        part_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        part_cache = mem_new(seq_t, new_cap);
     } else {
-        part_cache = (seq_t *)realloc(part_cache, new_cap * sizeof(seq_t));
+        part_cache = mem_resize(seq_t, part_cache, new_cap);
     }
     if (part_cache == NULL) {
         /* allocation failed – not expected for the test harness */

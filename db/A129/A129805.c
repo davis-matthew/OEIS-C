@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime p such that p ≡ ±1 (mod 9)
  * Range:     u8 n <= 17, u16 n <= 2172, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 72 terms through n = 9836 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(uint64_t n) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of qualifying primes */
 static size_t cache_size = 0;        /* number of stored terms          */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
             uint64_t cand = last_checked + 1;
 
             /* Find the next prime after last_checked. */
-            while (!is_prime_small(cand))
+            while (!is_prime_seq(cand))
                 ++cand;
 
             /* Store primes congruent to ±1 mod 9. */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
             if (r == 1 || r == 8) {
                 if (cache_size == cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 8;
-                    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                     if (!tmp) abort();          /* allocation failure */
                     cache = tmp;
                 }

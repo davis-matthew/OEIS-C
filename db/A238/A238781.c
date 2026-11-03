@@ -10,7 +10,8 @@
  *            greater than c (in the OEIS sense of palindromic partitions)
  * Range:     u8 n <= 46, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (n > max_n) {
         /* Allocate a new array big enough for the extended range. */
         size_t new_size = (size_t)(n + 1);        /* indices 0..n, 0 unused */
-        seq_t *new_a = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *new_a = mem_new(seq_t, new_size);
         if (!new_a) return 0;                  /* allocation failed */
 
         /* Initialise all positions with the trivial partition of length 1. */
@@ -50,9 +52,9 @@ seq_t a(idx_t n)
         /* p[s] will hold the number of partitions of s into parts
            >= current threshold.  Initially all parts are forbidden
            (threshold Smax+1) so only the empty partition exists. */
-        seq_t *p = (seq_t*)calloc(Smax + 1, sizeof(seq_t));
+        seq_t *p = mem_new(seq_t, Smax + 1);
         if (!p) {
-            free(new_a);
+            mem_free(new_a);
             return 0;
         }
         p[0] = 1;                               /* partitions of 0 */
@@ -74,10 +76,10 @@ seq_t a(idx_t n)
                 new_a[nn] += p[s_val];
             }
         }
-        free(p);
+        mem_free(p);
 
         /* Replace the old memoised array (if any). */
-        if (a_arr) free(a_arr);
+        if (a_arr) mem_free(a_arr);
         a_arr = new_a;
         max_n = n;
     }

@@ -14,7 +14,8 @@
  *            searching candidates in increasing absolute value
  * Range:     i8 n <= 22, i16 n <= 64, i32 n <= 64, i64 n <= 64, i128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <string.h>      /* memset */
 #include <stdint.h>      /* uint64_t */
 #include <stdbool.h>     /* bool */
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* array of terms */
 static size_t seq_len = 0;         /* number of terms stored */
@@ -41,7 +43,7 @@ static void ensure_seq(size_t new_len)
     size_t new_cap = (seq_cap ? seq_cap * 2 : 64);
     while (new_cap < new_len)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp)               /* allocation failed */
         abort();
     seq = tmp;

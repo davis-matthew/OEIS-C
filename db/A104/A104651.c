@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(6)=19602*a(3)+a(1), and for n≥7,
    a(n)=19602*a(n-3)-a(n-6). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;               /* offset is 1 */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     if (n >= cap) {
         idx_t newcap = (cap == 0) ? 16 : cap * 2;
         while (newcap <= n) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(data, sizeof(seq_t) * newcap);
+        seq_t *tmp = mem_resize(seq_t, data, newcap);
         data = tmp;
         for (idx_t i = cap; i < newcap; ++i) data[i] = 0;
         cap = newcap;

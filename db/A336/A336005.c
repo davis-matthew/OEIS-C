@@ -10,14 +10,30 @@
  *            3^j, 2·3^k | i,j,k ≥ 0, 1}
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   largest_pow2, largest_pow3, largest_two_times_pow3
+ * Validated: standard, pass, 102 terms through n = 9606 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/largest_pow2.h"
-#include "../utils/largest_pow3.h"
-#include "../utils/largest_two_times_pow3.h"
+static inline idx_t largest_pow2(idx_t n) {
+    idx_t v = 1;
+    while (v <= n / 2) v <<= 1;
+    return v;
+}
+
+static inline idx_t largest_pow3(idx_t n) {
+    idx_t v = 1;
+    while (v <= n / 3) v *= 3;
+    return v;
+}
+
+static inline idx_t largest_two_times_pow3(idx_t n) {
+    if (n < 2) return 0;
+    idx_t v = largest_pow3(n / 2);
+    /* 2·v ≤ n by construction, so no overflow. */
+    return (idx_t)(v * 2);
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

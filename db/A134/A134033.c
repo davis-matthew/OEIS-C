@@ -12,7 +12,8 @@
  *            for each sum s = i+j * we list (i,j) with increasing i
  * Range:     u8 n <= 28, u16 n <= 28, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   get_sqrt2_scaled
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,29 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/get_sqrt2_scaled.h"
+
+/* Auxiliary: compute floor(√2 * 2^63) once, using 128‑bit integer arithmetic. */
+static unsigned __int128 get_sqrt2_scaled(void)
+{
+    static bool init = false;
+    static unsigned __int128 SCALE;
+    if (!init) {
+        /* Compute floor(√(2^127)) = floor(√2 * 2^63). */
+        unsigned __int128 N   = ((unsigned __int128)1 << 127);
+        unsigned __int128 lo  = 0;
+        unsigned __int128 hi  = ((unsigned __int128)1 << 64); /* hi^2 > N */
+        while (lo < hi) {
+            unsigned __int128 mid = (lo + hi) >> 1;
+            if (mid * mid <= N)
+                lo = mid + 1;
+            else
+                hi = mid;
+        }
+        SCALE = lo - 1;
+        init = true;
+    }
+    return SCALE;
+}
 
 /* Test whether {k*√2} < i/k  using fixed‑point arithmetic. */
 static bool cond(idx_t k, idx_t i)

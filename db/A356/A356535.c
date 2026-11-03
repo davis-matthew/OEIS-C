@@ -7,12 +7,14 @@
  * Formula:   a(n) = sum_{k=1..n} sigma_2(k)^2
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 107, u64 n <= 9105,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 8667 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n).  This routine recomputes all sigma_2 values up
  * to n from scratch.  For n ≤ 10 000 the total work is
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
         return 0;  /* undefined for n < 1, return 0 */
 
     /* Allocate an array for sigma_2 values (index 0 unused). */
-    seq_t *sigma = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (n + 1));
     if (!sigma)
         abort();
 
@@ -45,6 +47,6 @@ seq_t a(idx_t n)
         result += sq;
     }
 
-    free(sigma);
+    mem_free(sigma);
     return result;
 }

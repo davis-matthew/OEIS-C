@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   ensure_capacity, is_squarefree
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,43 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_squarefree.h" /* provides bool is_squarefree(seq_t x) */
-#include "../utils/ensure_capacity.h" /* provides void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size) */
+#include <stdlib.h>
+#include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 seq_t a(idx_t n) {
     /* static state for incremental computation */
@@ -40,7 +76,7 @@ seq_t a(idx_t n) {
     /* Ensure the array can hold at least one more element if needed */
     if (curv_cap == 0) {
         size_t init_cap = 16;
-        ensure_capacity(init_cap, &curv_cap, (void**)&curvature_indices, sizeof(seq_t));
+        ensure_capacity(init_cap, &curv_cap, OEISC_VPP(&curvature_indices), sizeof(seq_t));
         curv_len = 0;
     }
 
@@ -71,7 +107,7 @@ seq_t a(idx_t n) {
                     /* Ensure array capacity */
                     if (curv_len == curv_cap) {
                         size_t new_cap = curv_cap * 2;
-                        ensure_capacity(new_cap, &curv_cap, (void**)&curvature_indices,
+                        ensure_capacity(new_cap, &curv_cap, OEISC_VPP(&curvature_indices),
                                         sizeof(seq_t));
                     }
                     curvature_indices[curv_len++] = idx_val;

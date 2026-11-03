@@ -11,7 +11,8 @@
  *            a(1)=0, a(2)=1, …
  * Range:     u8 n <= 66, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   mod_pow, pow10
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,21 @@
     locally, avoiding any missing utility.  */
 
 #include <stdlib.h>        /* malloc, realloc */
-#include "../utils/mod_pow.h"  /* mod_pow */
-#include "../utils/pow10.h"    /* pow10 */
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Compute the number of decimal digits of an unsigned 64‑bit integer.
    The function works for all idx_t values that fit in 64 bits and
@@ -57,7 +71,7 @@ seq_t a(idx_t n)
         seq_t cand = (seq_t)next_candidate;
         idx_t  d   = digit_count(next_candidate);
         seq_t  mod = pow10(d);             /* 10^d, safe for 64‑bit seq_t up to d ≈ 19 */
-        seq_t  power = mod_pow(cand, 21, mod);
+        seq_t  power = powmod(cand, 21, mod);
 
         if (power == cand)
         {
@@ -65,7 +79,7 @@ seq_t a(idx_t n)
             if (cache_len >= cache_cap)
             {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)    /* allocation failure – return 0 (no further info) */
                     return (seq_t)0;
                 cache = tmp;

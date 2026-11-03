@@ -12,7 +12,8 @@
  *            Σ_{d|k} d·a(d) ) · a(n−k)
  * Range:     u8 n <= 9, u16 n <= 30, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* -------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* period‑32 binary sequence, indexes 0..31 */
 static const seq_t PERIOD32[32] = {
@@ -45,7 +47,7 @@ static void ensure_size(seq_t **arr, size_t *size, size_t sz)
     if (*size >= sz) return;
     size_t newsize = (*size == 0) ? sz : (*size * 2);
     if (newsize < sz) newsize = sz;
-    seq_t *tmp = (seq_t *)realloc(*arr, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, newsize);
     if (!tmp) exit(1);             /* allocation failure */
     *arr   = tmp;
     *size  = newsize;

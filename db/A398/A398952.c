@@ -12,7 +12,8 @@
  *            squarefree. a(1)=1 (pair {1,5}). Implementation keeps a st...
  * Range:     u8 n <= 16, u16 n <= 3812, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt, next_5rough
+ * Validated: standard, pass, 75 terms through n = 9309 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,35 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"   /* floor_sqrt(seq_t) */
-#include "../utils/next_5rough.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* find the smallest 5‑rough integer > cur  (not divisible by 2 or 3) */
+static uint64_t next_5rough(uint64_t cur)
+{
+    for (;;) {
+        ++cur;
+        if ((cur & 1) && (cur % 3)) return cur;
+    }
+}
 
 static seq_t *seq_cache = NULL;     /* sequence values */
 static size_t seq_len  = 0;          /* number of terms stored   */
@@ -51,7 +79,7 @@ static void ensure_capacity(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap  = new_cap;
 }
 

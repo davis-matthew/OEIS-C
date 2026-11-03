@@ -7,12 +7,14 @@
  * Formula:   a(0) = 1; a(n) = Sum_{k=0..n-1} (k+1)^4 * a(k) * a(n-k-1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initialize cache if first call */
     if (cache == NULL) {
         cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) return (seq_t)0;      /* out of memory; caller should handle */
         cache[0] = (seq_t)1;                    /* a(0) = 1 */
         last = 0;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         while (new_cap <= n) {
             new_cap <<= 1;
         }
-        seq_t *p = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *p = mem_resize(seq_t, cache, new_cap);
         if (p == NULL) return (seq_t)0;         /* realloc failed */
         cache = p;
         cap = new_cap;

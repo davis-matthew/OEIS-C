@@ -7,8 +7,9 @@
  * Keywords:  sign
  * Formula:   a(n) = least prime p (or 0) such that n = p + T, where T is a
  *            triangular number (A000217). If no such prime exists, return -1
- * Range:     i8 n <= 138, i16 n <= 8268, i32 n <= 8268, i64 n <= 8268,
- *            i128 n <= 8268, big any n
+ * Range:     i8 n <= 138, i16 n <= 10001, i32 n <= 10001, i64 n <= 10001,
+ *            i128 n <= 10001, big any n
+ * Validated: standard, pass, 104 terms through n = 8268 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

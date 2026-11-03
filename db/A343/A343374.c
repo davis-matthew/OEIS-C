@@ -12,21 +12,24 @@
  *            3, with offset 4 (a(4) is the first term)
  * Range:     u8 none, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 31 terms through n = 603 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n < 4) return 0;          /* behavior below the offset is arbitrary */
 
     idx_t e = n - 2;              /* exponent for the first three powers */
-    seq_t p31 = big_pow((seq_t)31, (seq_t)e);
-    seq_t p15 = big_pow((seq_t)15, (seq_t)e);
-    seq_t p07 = big_pow((seq_t)7,  (seq_t)e);
-    seq_t p03 = big_pow((seq_t)3,  (seq_t)(n - 1));
+    seq_t p31 = ipow((seq_t)31, (seq_t)e);
+    seq_t p15 = ipow((seq_t)15, (seq_t)e);
+    seq_t p07 = ipow((seq_t)7,  (seq_t)e);
+    seq_t p03 = ipow((seq_t)3,  (seq_t)(n - 1));
 
     seq_t term1 = p31 * (seq_t)105;
     seq_t term2 = p15 * (seq_t)217;

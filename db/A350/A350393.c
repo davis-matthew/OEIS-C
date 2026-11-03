@@ -9,6 +9,7 @@
  *            are precomputed as shown in OEIS
  * Range:     u8 n <= 15, u16 n <= 270, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
+ * Validated: standard, pass, 79 terms through n = 462 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

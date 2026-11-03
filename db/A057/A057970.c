@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 11, u64 n <= 23, u128 n <= 23,
+ * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,8 @@
    constant factor.  It works for any seq_t that can hold the result
    (the large‑precision build uses arbitrary‑precision seq_t). */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -44,13 +46,13 @@ seq_t a(idx_t n)
 
     /* Term 1: 5 * C(b+26, 26) */
     total += (unsigned __int128)5 *
-             (unsigned __int128)binom(b + 26, 26);
+             (unsigned __int128)binomial(b + 26, 26);
 
     /* Term 2: 30 * Σ_{l=0}^{⌊b/2⌋} C(12 + (b-2l), 12) * C(6 + l, 6) */
     for (idx_t l = 0; l <= b / 2; ++l) {
         idx_t k = b - 2 * l;
-        seq_t t1 = binom(12 + k, 12);
-        seq_t t2 = binom(6 + l, 6);
+        seq_t t1 = binomial(12 + k, 12);
+        seq_t t2 = binomial(6 + l, 6);
         total += (unsigned __int128)30 *
                  (unsigned __int128)t1 *
                  (unsigned __int128)t2;
@@ -59,8 +61,8 @@ seq_t a(idx_t n)
     /* Term 3: 15 * Σ_{l=0}^{⌊b/2⌋} C(6 + (b-2l), 6) * C(9 + l, 9) */
     for (idx_t l = 0; l <= b / 2; ++l) {
         idx_t k = b - 2 * l;
-        seq_t t1 = binom(6 + k, 6);
-        seq_t t2 = binom(9 + l, 9);
+        seq_t t1 = binomial(6 + k, 6);
+        seq_t t2 = binomial(9 + l, 9);
         total += (unsigned __int128)15 *
                  (unsigned __int128)t1 *
                  (unsigned __int128)t2;
@@ -69,8 +71,8 @@ seq_t a(idx_t n)
     /* Term 4: 40 * Σ_{l=0}^{⌊b/3⌋} C(5 + (b-3l), 5) * C(6 + l, 6) */
     for (idx_t l = 0; l <= b / 3; ++l) {
         idx_t k = b - 3 * l;
-        seq_t t1 = binom(5 + k, 5);
-        seq_t t2 = binom(6 + l, 6);
+        seq_t t1 = binomial(5 + k, 5);
+        seq_t t2 = binomial(6 + l, 6);
         total += (unsigned __int128)40 *
                  (unsigned __int128)t1 *
                  (unsigned __int128)t2;
@@ -80,11 +82,11 @@ seq_t a(idx_t n)
                 C(2 + (b-2l-4m), 2) * C(1 + l, 1) * C(4 + m, 4) */
     for (idx_t l = 0; l <= b / 2; ++l) {
         idx_t k = b - 2 * l;
-        seq_t t_l = binom(1 + l, 1);          /* = 1 + l */
+        seq_t t_l = binomial(1 + l, 1);          /* = 1 + l */
         for (idx_t m = 0; m <= k / 4; ++m) {
             idx_t j = k - 4 * m;
-            seq_t t_j = binom(2 + j, 2);
-            seq_t t_m = binom(4 + m, 4);
+            seq_t t_j = binomial(2 + j, 2);
+            seq_t t_m = binomial(4 + m, 4);
             total += (unsigned __int128)30 *
                      (unsigned __int128)t_j *
                      (unsigned __int128)t_l *

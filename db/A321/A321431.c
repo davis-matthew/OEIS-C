@@ -7,13 +7,15 @@
  * Formula:   a(n) = coefficient of ∏_{i>0,j>0} 1/(1-x^(i^2+j^2))
  * Range:     u8 n <= 34, u16 n <= 84, u32 n <= 229, u64 n <= 696,
  *            u128 n <= 2297, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes A321431: number of partitions of n into parts each equal to a sum of two positive squares, with each ordered pair counted as a distinct part type. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of computed coefficients. */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     /* If out of range, recompute from scratch. */
     if (dp == NULL || N > max_n) {
         /* Allocate fresh DP array. */
-        seq_t *newdp = (seq_t*)calloc(N + 1, sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, N + 1);
         if (!newdp) return (seq_t)0; /* Out of memory: return 0 as fallback. */
         newdp[0] = (seq_t)1;          /* a(0) = 1 */
 
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
         }
 
         /* Replace old DP array. */
-        free(dp);
+        mem_free(dp);
         dp = newdp;
         max_n = N;
     }

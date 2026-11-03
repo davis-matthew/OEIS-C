@@ -10,7 +10,8 @@
  *            result rounds exactly
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   a2818_add, a2818_divsmall, a2818_mul
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,57 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2818_add.h"
-#include "../utils/a2818_divsmall.h"
-#include "../utils/a2818_mul.h"
+
+static void a2818_add(uint32_t *x, const uint32_t *y, size_t L)
+{
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t cur = (uint64_t)x[i] + y[i] + carry;
+        x[i] = (uint32_t)cur;
+        carry = cur >> 32;
+    }
+}
+
+static int a2818_divsmall(uint32_t *x, size_t L, uint32_t d)
+{
+    uint64_t rem = 0;
+    int nz = 0;
+    size_t i = L;
+    while (i-- > 0) {
+        uint64_t cur = (rem << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+        if (x[i]) nz = 1;
+    }
+    return nz;
+}
+
+static void a2818_mul(const uint32_t *x, const uint32_t *y, uint32_t *out,
+                      uint32_t *tmp, size_t L, size_t F)
+{
+    size_t lx = L, ly = L, i, j, q, r;
+    while (lx > 0 && x[lx - 1] == 0) lx--;
+    while (ly > 0 && y[ly - 1] == 0) ly--;
+    memset(tmp, 0, sizeof(uint32_t) * 2 * L);
+    for (i = 0; i < lx; i++) {
+        uint64_t carry = 0;
+        if (x[i] == 0) continue;
+        for (j = 0; j < ly; j++) {
+            uint64_t cur = (uint64_t)x[i] * y[j] + tmp[i + j] + carry;
+            tmp[i + j] = (uint32_t)cur;
+            carry = cur >> 32;
+        }
+        tmp[i + ly] = (uint32_t)carry;
+    }
+    q = F / 32;
+    r = F % 32;
+    for (i = 0; i < L; i++) {
+        uint32_t lo = (i + q < 2 * L) ? tmp[i + q] : 0;
+        uint32_t hi = (i + q + 1 < 2 * L) ? tmp[i + q + 1] : 0;
+        out[i] = r ? ((lo >> r) | (hi << (32 - r))) : lo;
+    }
+}
 
 seq_t a(idx_t n)
 {

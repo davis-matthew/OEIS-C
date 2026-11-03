@@ -7,13 +7,15 @@
  * Formula:   a(n) = 13*a(n-1) - 42*a(n-2) + 30 (a(0)=1, a(1)=2)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This recurrence is equivalent to a(n) = 7^n - 6^n + 1.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* array of previously computed terms   */
 static size_t cache_alloc = 0;  /* allocated size of cache             */
@@ -24,7 +26,7 @@ ensure_alloc(idx_t n)
 {
     size_t need = (size_t)n + 1;
     if (need > cache_alloc) {
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) exit(1);             /* abort on allocation failure */
         cache        = tmp;
         cache_alloc  = need;

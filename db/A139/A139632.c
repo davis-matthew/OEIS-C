@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 107, u16 n <= 279, u32 n <= 823, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_alloc_new_array, seq_free
+ * Validated: standard, pass, 91 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,8 +34,16 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 /* static cache for computed coefficients */
 static seq_t *coeff      = NULL;

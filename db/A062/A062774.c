@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} pi(d) , pi(d) = number of primes <= d
  * Range:     u8 n <= 335, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t max_limit = 0;
 static uint8_t *is_prime   = NULL; /* 0 = composite, 1 = prime */
@@ -33,14 +35,14 @@ static void ensure_tables(idx_t limit) {
     /* Free any previous tables */
     free(is_prime);
     free(prime_cnt);
-    free(a_cache);
+    mem_free(a_cache);
 
     size_t size = (size_t)limit + 1;
 
     /* Allocate new tables */
     is_prime  = (uint8_t *)malloc(size);
     prime_cnt = (idx_t   *)malloc(size * sizeof(idx_t));
-    a_cache   = (seq_t   *)malloc(size * sizeof(seq_t));
+    a_cache   = mem_new(seq_t, size);
     if (!is_prime || !prime_cnt || !a_cache) return; /* no memory */
 
     size_t i, j;

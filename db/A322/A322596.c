@@ -11,13 +11,15 @@
  *            unique integer such that s(s+1)/2 <= i < (s+1)(s+2)/2
  *            (triangular numbers). Then let p = i - s(s+1)/2. The pair (n,k)
  *            is n = p, k = s - p . a(i) = ( binomial(s,k) + n ) /...
- * Range:     u8 n <= 39, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
+ * Range:     u8 n <= 69, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t idx)

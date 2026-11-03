@@ -8,13 +8,16 @@
  *            binomial(n-1, k-1) * (OEIS A358738)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {
@@ -24,7 +27,7 @@ seq_t a(idx_t n) {
     seq_t fact = 1;          /* factorial of k, updated iteratively */
     for (idx_t k = 1; k <= n; ++k) {
         fact *= (seq_t)k;                      /* k!  */
-        seq_t pw   = pow_uint(k, n - k);       /* k^(n-k) */
+        seq_t pw   = ipow_u64_idx(k, n - k);       /* k^(n-k) */
         seq_t binom = binomial(n - 1, k - 1);  /* C(n-1,k-1) */
         seq_t term = fact * pw * binom;        /* k! * k^(n-k) * C(n-1,k-1) */
         sum += term;                           /* accumulate to a(n) */

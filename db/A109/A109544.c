@@ -8,12 +8,14 @@
  *            a(1)=1, a(2)=1, a(3)=1, a(4)=1
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (dp == NULL) {
         /* start with room for at least 16 terms */
         dp_cap = 16;
-        dp = (seq_t *)realloc(dp, dp_cap * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, dp_cap);
         /* set the first five values */
         dp[0] = 1;
         dp[1] = 1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
             new_cap = new_cap * 2;
         }
         if (new_cap > dp_cap) {
-            dp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+            dp = mem_resize(seq_t, dp, new_cap);
             dp_cap = new_cap;
         }
 

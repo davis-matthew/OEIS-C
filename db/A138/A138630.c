@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 533, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrimeGeneric
+ * Validated: standard, pass, 75 terms through n = 8727 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,33 @@
    a(n) returns the n-th such k (1‑based). */
 
 #include <stdbool.h>
-#include "../utils/isPrimeGeneric.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 static seq_t *cache = NULL;        /* array holding found k values */
 static idx_t cache_len = 0;        /* number of values currently stored */
@@ -30,11 +57,11 @@ static void ensure_capacity(idx_t need)
         return;
     if (cache_cap == 0) {
         cache_cap = 8;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     } else {
         while (cache_cap < need)
             cache_cap <<= 1;
-        cache = (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     /* now fill until we have `need` values */
     while (cache_len < need) {

@@ -6,8 +6,9 @@
  * Keywords:  sign, easy, mult
  * Formula:   a(1) = 1; for prime powers a(p^e) = 2*p^(e/2) if e is even,
  *            -(p+1)*p^((e-1)/2) if e is odd. The sequence is multiplicative
- * Range:     i8 n <= 65, i16 n <= 9976, i32 n <= 9976, i64 n <= 9976,
- *            i128 n <= 9976, big any n
+ * Range:     i8 n <= 65, i16 n <= 12209, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 9976 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alternating_base4
+ * Validated: standard, pass, 71 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,38 @@
 
 #include <stdlib.h>   /* malloc, realloc, free, exit */
 #include <stdbool.h>  /* bool */
-#include "../utils/alternating_base4.h"
+#include "../utils/mem.h"
+
+/*------------------------------------------------------------*/
+static bool alternating_base4(seq_t x)
+{
+    unsigned char digits[128]; /* enough for all practical seq_t sizes */
+    size_t len = 0;
+
+    if (x == (seq_t)0) {
+        digits[0] = 0;
+        len = 1;
+    } else {
+        while (x) {
+            digits[len++] = (unsigned char)(x & (seq_t)3); /* x % 4 */
+            x >>= 2;                                     /* x / 4 */
+        }
+    }
+
+    /* Pattern: d(m) > d(m-1) < d(m-2) > … */
+    for (size_t k = len - 1; k > 0; --k) {
+        unsigned char a = digits[k];
+        unsigned char b = digits[k - 1];
+        if (((len - 1 - k) & 1) == 0) {          /* expect '>' */
+            if (!(a > b))
+                return false;
+        } else {                                 /* expect '<' */
+            if (!(a < b))
+                return false;
+        }
+    }
+    return true;
+}
 
 /*------------------------------------------------------------*/
 /* Static state for memoisation                               */
@@ -41,7 +73,7 @@ static void grow_cache(size_t need)
     size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) {
         /* allocation failure: terminate */
         exit(EXIT_FAILURE);

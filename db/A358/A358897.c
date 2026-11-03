@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static uint64_t *primes = NULL;          /* primes[i] = p(i+1) */
 static long double *prime_logs = NULL;   /* log of primes */
@@ -80,7 +82,7 @@ static void init(void) {
         if (lhs < rhs) {
             if (terms_cnt == terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 64;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
                 if (!terms) exit(1);
             }
             terms[terms_cnt++] = (seq_t)k;

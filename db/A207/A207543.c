@@ -11,13 +11,15 @@
  *            and k = n - r(r+1)/2
  * Range:     u8 n <= 51, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>           /* malloc, realloc, calloc */
 #include <math.h>             /* sqrt */
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;   /* rows of the triangle */
 static size_t triangle_rows = 0;   /* number of rows already computed */
@@ -38,7 +40,7 @@ static void ensure_rows(idx_t upto)
 
     /* Compute any new rows that are missing */
     for (size_t i = triangle_rows; i <= (size_t)upto; ++i) {
-        triangle[i] = (seq_t *)calloc((i + 1), sizeof(seq_t));
+        triangle[i] = mem_new(seq_t, (i + 1));
         if (!triangle[i]) return;
 
         if (i == 0) {

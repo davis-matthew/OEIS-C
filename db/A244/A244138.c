@@ -10,12 +10,15 @@
  *            (1-k)^(k-2) * k^(n-k) for k > 1, and T(n,0)=T(n,1)=0
  * Range:     i8 n <= 18, i16 n <= 34, i32 n <= 75, i64 n <= 169,
  *            i128 n <= 432, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 71 terms through n = 5059 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* seq_t and idx_t are supplied by the build configuration.  */
 seq_t a(idx_t n)
@@ -42,8 +45,8 @@ seq_t a(idx_t n)
     seq_t i_ts = (seq_t)i;
 
     /* Compute the two power terms. */
-    seq_t part1 = big_pow((seq_t)1 - k_ts, (seq_t)(j - 2u));
-    seq_t part2 = big_pow(k_ts, (seq_t)(i - j));
+    seq_t part1 = ipow((seq_t)1 - k_ts, (seq_t)(j - 2u));
+    seq_t part2 = ipow(k_ts, (seq_t)(i - j));
 
     /* Multiply everything together. */
     return k_ts * part1 * part2;

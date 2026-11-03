@@ -9,12 +9,14 @@
  *            a(0)=1, a(1)=3, a(2)=44, a(3)=369, a(4)=3633
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         size_t need = 5;
         if (cap < need)
         {
-            seq_t *tmp = (seq_t*)realloc(cache, need * sizeof(*cache));
+            seq_t *tmp = mem_resize(seq_t, cache, need);
             cache = tmp;
             cap   = need;
         }
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             size_t new_cap = (cap > 0 ? cap : 1);
             while (new_cap < target)
                 new_cap = new_cap * 2 + 2;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(*cache));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cap   = new_cap;
         }

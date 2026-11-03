@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 3994, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, sigma_of
+ * Validated: standard, pass, 76 terms through n = 9910 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/calc_phi.h"
-#include "../utils/sigma_of.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Sequence state                                               */
@@ -37,7 +53,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = terms_cap == 0 ? 256 : terms_cap;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_tbl = (seq_t *)realloc(terms_tbl, new_cap * sizeof(seq_t));
+    seq_t *new_tbl = mem_resize(seq_t, terms_tbl, new_cap);
     if (!new_tbl) {
         /* Allocation failure – abort (should not happen in tests) */
         abort();
@@ -57,7 +73,7 @@ static void ensure_terms_up_to(idx_t n)
     while ((idx_t)terms_len < n) {
         ++upper_limit;                            /* next k to test   */
         seq_t k_seq = (seq_t)upper_limit;          /* k as seq_t       */
-        seq_t phi_k = calc_phi(k_seq);            /* φ(k)             */
+        seq_t phi_k = totient_seq(k_seq);            /* φ(k)             */
         seq_t sigma_phi = sigma_of((idx_t)phi_k); /* σ(φ(k))          */
         if (sigma_phi < k_seq)                    /* condition?       */
             terms_tbl[terms_len++] = k_seq;        /* store the term   */

@@ -8,14 +8,17 @@
  * Formula:   a(n) = |{ i | 1 ≤ i < n and gcd(a(i), n) = 1 }| , a(1) = 2
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   gcd64
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gcd64.h"
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* Helper: Euclidean gcd for uint64_t */
 
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     /* First call: allocate cache and set a(1)=2. */
     if (cache == NULL) {
         cache_cap = 64;                /* initial capacity */
-        cache = (seq_t *)malloc((cache_cap + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_cap + 1));
         if (cache == NULL) return (seq_t)0;   /* allocation failure */
 
         cache[1] = (seq_t)2;           /* a(1) = 2 */
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         idx_t new_cap = cache_cap;
         while (new_cap < n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (tmp == NULL) return (seq_t)0;   /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;
@@ -60,7 +63,7 @@ seq_t a(idx_t n)
         uint64_t uk = (uint64_t)k;
         for (idx_t i = 1; i < k; ++i) {
             uint64_t ai = (uint64_t)cache[i];
-            if (gcd64(ai, uk) == 1)
+            if (gcd_u64(ai, uk) == 1)
                 ++cnt;
         }
         cache[k] = (seq_t)cnt;

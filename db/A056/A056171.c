@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = pi(n) - pi(floor(n/2)) where pi is the prime-counting
  *            function
- * Range:     u8 n <= 4098, u16 n <= 9456, u32 n <= 9456, u64 n <= 9456,
- *            u128 n <= 9456, big any n
+ * Range:     u8 n <= 4098, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 114 terms through n = 9456 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

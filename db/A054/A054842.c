@@ -9,7 +9,8 @@
  *            significant decimal digit)
  * Range:     u8 n <= 7, u16 n <= 58, u32 n <= 498, u64 n <= 8898,
  *            u128 n <= 9999, big any n
- * Helpers:   _pow_digit
+ * Validated: standard, pass, 70 terms through n = 9997 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 /*  - The implementation does a simple digit‑by‑digit scan of n in base 10.  */
 
 #include <stdint.h>
-#include "../utils/_pow_digit.h"
+#include "../utils/ipow_i32.h"
 
 static const unsigned int _primes20[20] = {
     2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
 
         seq_t prime = (seq_t)_primes20[pos];
         if (digit != 0)
-            result *= _pow_digit(prime, digit);
+            result *= ipow_i32(prime, digit);
 
         n /= 10;
         ++pos;

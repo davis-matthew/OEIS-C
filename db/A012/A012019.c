@@ -9,12 +9,14 @@
  *            -(n-6)*(n-5)*(n-4)^2*(n-3)*(n-2)*a(n-6) for n≥6
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 13, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[0..current] */
 static size_t cache_size = 0;
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     size_t new_size = cache_size == 0 ? 8 : cache_size << 1;
     while (new_size <= n)
         new_size <<= 1;
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     cache_size = new_size;
 }
 

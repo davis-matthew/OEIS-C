@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static idx_t used_cap = 0;          /* highest index allocated in used[] (inclusive) */
 static uint8_t *used = NULL;        /* bitmap: used[i] == 1 iff i already used */
@@ -57,7 +59,7 @@ static inline void ensure_vals(size_t need)
     if (need <= vals_cap) return;
     size_t new_cap = vals_cap ? vals_cap << 1 : 64;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, vals, new_cap);
     if (!tmp) abort();
     vals = tmp;
     vals_cap = new_cap;

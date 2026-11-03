@@ -11,13 +11,15 @@
  *            the * requested term. This works for any buil...
  * Range:     u8 n <= 16, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Configuration – enough space for all terms (the sequence is
@@ -103,7 +105,7 @@ static void build_cache(void)
     }
 
     /* Sort the cache.  The size is at most MAX_TERMS. */
-    qsort(cache, cache_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(cache, cache_len, sizeof(seq_t), seq_cmp);
     built = true;
 }
 

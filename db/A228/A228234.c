@@ -8,17 +8,24 @@
  * Formula:   a(n) = number of primes p ≤ n² such that p = 2 or p ≡ 1 (mod 4)
  * Range:     u8 n <= 60, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_bit
+ * Validated: standard, pass, 77 terms through n = 913 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /* This counts strict Gaussian primes (a+bi, a>0,b>0,b≤a) of norm ≤ n. */
 /* The function uses an incremental sieve up to n². */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_bit.h"
+
+/* Test if an odd number is marked composite */
+static inline int is_bit(const uint8_t *bits, size_t idx)
+{
+    return (bits[idx >> 3] >> (idx & 7)) & 1U;
+}
 
 /* Static state for incremental sieve and prime lists */
 static uint8_t *sieve = NULL;          /* bitset for odd composites */

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 4^n - b(n) where b(0)=1, b(1)=4, b(n)=3*b(n-1)+3*b(n-2)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *b_cache = NULL;
 static size_t b_cap = 0;
@@ -27,7 +29,7 @@ static void ensure_b(idx_t n)
     if (b_cap <= n) {
         size_t new_cap = b_cap ? b_cap << 1 : 8;
         while (new_cap <= n) new_cap <<= 1;
-        b_cache = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+        b_cache = mem_resize(seq_t, b_cache, new_cap);
         b_cap = new_cap;
     }
     if (b_len == 0) {
@@ -48,7 +50,7 @@ static void ensure_pow4(idx_t n)
     if (pow4_cap <= n) {
         size_t new_cap = pow4_cap ? pow4_cap << 1 : 8;
         while (new_cap <= n) new_cap <<= 1;
-        pow4_cache = (seq_t *)realloc(pow4_cache, new_cap * sizeof(seq_t));
+        pow4_cache = mem_resize(seq_t, pow4_cache, new_cap);
         pow4_cap = new_cap;
     }
     if (pow4_len == 0) {

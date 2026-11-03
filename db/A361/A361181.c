@@ -9,7 +9,8 @@
  *            palindromic sum and a palindromic product (in base 10)
  * Range:     u8 n <= 38, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   _floor_isqrt_u64, is_palindrome, is_prime
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   is_palindrome_base, is_prime, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,13 +25,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Utility functions from the OEIS utilities.  The serial order of these
    includes does not matter, but the names must match those provided by
    the build system. */
+#include "../utils/is_palindrome_base.h"
 #include "../utils/is_prime.h"
-#include "../utils/is_palindrome.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 /* ----- Static data ---- */
 static seq_t    *terms   = NULL;   /* cache of accepted terms          */
@@ -49,7 +51,7 @@ static void grow_terms(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
     /* Cast is valid in both C and C++ */
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort();                 /* allocation failed */
     terms = tmp;
     terms_cap = new_cap;
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
         seq_t  prod     = 1;
 
         /* Ensure prime list covers sqrt(next_num) */
-        generate_primes_up_to(_floor_isqrt_u64((idx_t)next_num));
+        generate_primes_up_to(isqrt((idx_t)next_num));
 
         /* Factorize using the prime list */
         for (size_t i = 0; i < primes_len; ++i) {
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
         }
 
         /* Check the palindrome condition */
-        if (is_palindrome(sum, 10) && is_palindrome(prod, 10)) {
+        if (is_palindrome_base(sum, 10) && is_palindrome_base(prod, 10)) {
             grow_terms(terms_len + 1);
             terms[terms_len++] = (seq_t)next_num;
         }

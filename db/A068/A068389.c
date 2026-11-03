@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 none, i16 none, i32 none, i64 n <= 64, i128 n <= 64,
  *            big any n
- * Helpers:   build_primes_upto, seq_mul, seq_pow
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Node holding a current prime power and its generating prime. */
 struct Node
@@ -45,7 +52,7 @@ static void heap_push(struct Heap *h, seq_t val, uint64_t prime)
     if (h->size == h->cap)
     {
         h->cap = h->cap ? h->cap << 1 : 8;
-        h->data = (struct Node *)realloc(h->data, h->cap * sizeof(struct Node));
+        h->data = mem_resize(struct Node, h->data, (h->cap * sizeof(struct Node)) / sizeof(struct Node));
     }
     size_t i = h->size++;
     h->data[i] = (struct Node){val, prime};
@@ -108,7 +115,7 @@ static void init_state(void)
 
     state.heap.size = 0;
     state.heap.cap   = state.pcnt;
-    state.heap.data  = (struct Node *)malloc(state.heap.cap * sizeof(struct Node));
+    state.heap.data  = mem_new(struct Node, state.heap.cap);
 
     /* Initialise heap with p² for every prime p. */
     for (size_t i = 0; i < state.pcnt; ++i)
@@ -144,8 +151,7 @@ seq_t a(idx_t n)
             if (state.len == state.cap)
             {
                 state.cap = state.cap ? state.cap << 1 : 128;
-                state.diffs = (seq_t *)realloc(state.diffs,
-                                               state.cap * sizeof(seq_t));
+                state.diffs = mem_resize(seq_t, state.diffs, state.cap);
             }
             state.diffs[state.len++] = diff;
             state.prev_prime = curr;

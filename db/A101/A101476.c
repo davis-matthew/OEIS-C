@@ -8,20 +8,23 @@
  *            ]]
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Pre‑compute the row binomial coefficients C(2n, k) for k=0..2n */
     idx_t two_n = n + n;
     size_t len = (size_t)(two_n + 1);
-    seq_t *comb = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *comb = mem_new(seq_t, len);
     if (!comb) return 0;        /* allocation failure → return 0 */
 
     comb[0] = 1;
@@ -45,6 +48,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(comb);
+    mem_free(comb);
     return sum1 - sum2;
 }

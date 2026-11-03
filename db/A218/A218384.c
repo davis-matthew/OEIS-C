@@ -9,14 +9,18 @@
  *            (Π_{j=1..i} (2^(n-j+1)-1)/(2^j-1)) * 2^binomial(n-i,2)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow, binomial, pow_seq
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-01)
+ * Helpers:   binomial, ipow, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/pow_seq.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -31,14 +35,14 @@ seq_t a(idx_t n)
         int sign = (((n - i - 1) & 1) ? -1 : 1);
 
         /* 2^i and then 2^(2^i-1) */
-        seq_t two_pow_i = pow_seq((seq_t)2, (int)i);    /* 2^i */
+        seq_t two_pow_i = ipow_i32((seq_t)2, (int)i);    /* 2^i */
         seq_t exp       = two_pow_i - (seq_t)1;         /* 2^i - 1 */
-        seq_t pow2_exp  = big_pow((seq_t)2, exp);      /* 2^(2^i-1) */
+        seq_t pow2_exp  = ipow((seq_t)2, exp);      /* 2^(2^i-1) */
         seq_t part      = pow2_exp - (seq_t)1;          /* (2^(2^i-1)-1) */
 
         /* binary exponent binomial(n-i,2) */
         seq_t bin = binomial((idx_t)(n - i), (idx_t)2);
-        seq_t pow2_bin = big_pow((seq_t)2, bin);       /* 2^bin */
+        seq_t pow2_bin = ipow((seq_t)2, bin);       /* 2^bin */
 
         /* combine the factors */
         seq_t mult = part * prod;
@@ -53,8 +57,8 @@ seq_t a(idx_t n)
         /* update prod for next i (if any) */
         if (i < n - 1)
         {
-            seq_t numerator   = pow_seq((seq_t)2, (int)(n - i)) - (seq_t)1;
-            seq_t denominator = pow_seq((seq_t)2, (int)(i + 1)) - (seq_t)1;
+            seq_t numerator   = ipow_i32((seq_t)2, (int)(n - i)) - (seq_t)1;
+            seq_t denominator = ipow_i32((seq_t)2, (int)(i + 1)) - (seq_t)1;
             prod = (prod * numerator) / denominator;   /* exact division */
         }
     }

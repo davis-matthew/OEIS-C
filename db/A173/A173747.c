@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 107, u64 n <= 280,
  *            u128 n <= 786, big any n
- * Helpers:   seq_one
+ * Validated: standard, pass, 71 terms through n = 1282 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,10 @@
  *    then  a(n) = f(col, row+1)
  */
 #include <math.h>   /* sqrtl */
-#include "../utils/seq_one.h"   /* seq_one() */
+#include <stdint.h>
+#include <stdlib.h>
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 static seq_t compute_f(idx_t n_arg, seq_t q)
 {

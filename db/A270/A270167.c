@@ -9,7 +9,8 @@
  * Formula:   a(n) = -a(n-1)+2*a(n-2)+2*a(n-3)-a(n-4)-a(n-5) (n>12)
  * Range:     i8 n <= 5, i16 n <= 103, i32 n <= 127, i64 n <= 127,
  *            i128 n <= 127, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 126 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /*                 a(11)=-385, a(12)=561 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Cache of previously computed values */
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         cap = 13;                 /* capacity for indices 0..12 */
         len = 13;                 /* length of initialized data */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) return 0;      /* out of memory; abort gracefully */
         for (size_t i = 0; i < 13; ++i) cache[i] = base[i];
     }
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
         while (new_cap <= idx) {
             new_cap = (new_cap == 0) ? 1 : new_cap * 2;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return 0;          /* memory failure */
         cache = tmp;
         cap = new_cap;

@@ -7,13 +7,15 @@
  * Formula:   a(n) = 3*a(n-2) - a(n-3) with a(0)=0, a(1)=a(2)=-3
  * Range:     i8 n <= 8, i16 n <= 18, i32 n <= 34, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the function to be implemented */
 seq_t a(idx_t n);
@@ -28,7 +30,7 @@ static void ensure_computed(idx_t n) {
         /* Allocate an initial buffer large enough for the requested index */
         size_t init_cap = n + 1;
         if (init_cap < 8) init_cap = 8;               /* protect small n */
-        seq_cache = (seq_t*)malloc(init_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, init_cap);
         seq_cache[0] = (seq_t)0;
         seq_cache[1] = (seq_t)-3;
         seq_cache[2] = (seq_t)-3;
@@ -41,7 +43,7 @@ static void ensure_computed(idx_t n) {
     if (n + 1 > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 8;
         while (new_cap <= n) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         seq_cache = tmp;              /* realloc never fails in our use case      */
         seq_cap   = new_cap;
     }

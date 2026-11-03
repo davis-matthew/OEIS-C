@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 869, u64 n <= 869, u128 n <= 869,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 795 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparison function for qsort */
 static int cmp_seq(const void *p, const void *q)
@@ -54,7 +56,7 @@ static void ensure_cap(idx_t need)
 {
     while (terms_cap < need) {
         idx_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();
         terms = tmp;
         terms_cap = new_cap;
@@ -90,7 +92,7 @@ static void generate_to(idx_t r_limit)
 static void uniq_sort(void)
 {
     if (terms_len == 0) return;
-    qsort(terms, terms_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(terms, terms_len, sizeof(seq_t), cmp_seq);
 
     idx_t new_len = 0;
     for (idx_t i = 0; i < terms_len; ++i) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,13 +35,14 @@
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     size_t N = (size_t)n;
     /* Allocate array of length N+1.  seq_t may be a primitive type or an
        arbitrary‑precision integer class defined by the build system. */
-    seq_t *A = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (N + 1));
     if (A == NULL) return (seq_t)0;   /* out of memory; return 0 as safe default */
 
     seq_t cum = 0;          /* cumulative sum of a[0..i-1] */
@@ -81,6 +83,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = A[N];
-    free(A);
+    mem_free(A);
     return result;
 }

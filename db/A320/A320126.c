@@ -8,13 +8,15 @@
  *            = n
  * Range:     u8 n <= 56, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9733 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer floor square root for idx_t (unsigned) */
 static idx_t int_sqrt(idx_t n)
@@ -33,7 +35,7 @@ static idx_t int_sqrt(idx_t n)
 /* Allocate a zero‑initialized array of seq_t */
 static seq_t *alloc_seq_array(size_t sz)
 {
-    return (seq_t *)calloc(sz, sizeof(seq_t));
+    return mem_new(seq_t, sz);
 }
 
 /* Cached tables of representations of a^2 + b^2 and 2*c^2 + 5*d^2 */
@@ -83,8 +85,8 @@ static void rebuild_cache(idx_t n)
         }
     }
 
-    free(fAB);
-    free(fCD);
+    mem_free(fAB);
+    mem_free(fCD);
     fAB = newAB;
     fCD = newCD;
     cachedN = n;

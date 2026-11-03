@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    The function `a(n)` returns the nth such number (offset 1). */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Check whether the base‑8 representation of x contains the substring 11 */
 static bool has11(seq_t x)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             return 0; /* allocation failed; return 0 as a safe default */
     }
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         /* Store y in cache, expanding if necessary. */
         if (cache_count >= cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp != NULL) {
                 cache = tmp;
                 cache_cap = new_cap;

@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = ∏_{p^k||n} n / p^k (equivalently n^(ω(n)-1) for n>1,
  *            a(1)=1)
- * Range:     u8 n <= 29, u16 n <= 209, u32 n <= 1637, u64 n <= 8738,
- *            u128 n <= 8738, big any n
+ * Range:     u8 n <= 29, u16 n <= 209, u32 n <= 1637, u64 n <= 30029,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 91 terms through n = 8738 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

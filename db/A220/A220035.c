@@ -14,13 +14,28 @@
  *            132 (i.e. 578/24 = 289/12)
  * Range:     u8 n <= 6, u16 n <= 35, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   term_small
+ * Validated: standard, pass, 56 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/term_small.h"
+#include "../utils/mem.h"
+
+/* First 6 terms are fixed */
+static inline seq_t term_small(idx_t n)
+{
+    switch (n) {
+        case 1: return 6;
+        case 2: return 10;
+        case 3: return 21;
+        case 4: return 55;
+        case 5: return 111;
+        case 6: return 192;
+        default: return 0; /* never reached */
+    }
+}
 
 /* Compute the polynomial value for n ≥ 7 */
 static inline seq_t poly_term(idx_t n)
@@ -49,8 +64,7 @@ seq_t a(idx_t n)
 
     if (cache_len < need) {
         /* enlarge the cache */
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp)
             return 0; /* allocation failed */
         cache = tmp;

@@ -13,7 +13,8 @@
  *            base * d^2 for each primitive triple base = 2*a...
  * Range:     u8 none, u16 none, u32 n <= 1639, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9802 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------- helpers --------- */
 
@@ -44,7 +46,7 @@ static void generate_bases(void)
 
     const size_t m_max = 2000;       /* upper bound for Euclid's parameters; covers >10000 terms */
     size_t   cap = (m_max * m_max) / 4 + 16;   /* rough upper bound */
-    bases = (seq_t*)calloc(cap, sizeof(seq_t));
+    bases = mem_new(seq_t, cap);
     if (!bases) abort();
 
     for (size_t m = 2; m <= m_max; ++m) {
@@ -56,7 +58,7 @@ static void generate_bases(void)
             seq_t base = (seq_t)2 * (seq_t)a * (seq_t)b;  /* k for d = 1   */
             if (base_cnt >= cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t*)realloc(bases, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, bases, cap);
                 if (!tmp) abort();
                 bases = tmp;
             }
@@ -139,7 +141,7 @@ seq_t a(idx_t n)
         generate_bases();
 
         /* allocate the heap */
-        heap = (Node*)malloc((base_cnt + 1) * sizeof(Node));
+        heap = mem_new(Node, (base_cnt + 1));
         if (!heap) abort();
         heap_len = 0;
         for (size_t i = 0; i < base_cnt; ++i)
@@ -159,7 +161,7 @@ seq_t a(idx_t n)
         if (cache_len == 0 || cur.val != cache[cache_len - 1]) {
             if (cache_len >= cache_cap) {
                 cache_cap = cache_cap ? cache_cap << 1 : 64;
-                seq_t *tmp = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) abort();
                 cache = tmp;
             }

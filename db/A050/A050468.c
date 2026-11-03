@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 255, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 49 terms through n = 9273 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,10 @@
 #include <stdint.h>
 #include <stddef.h>
 /* Helper functions provided by the build environment */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/pow_uint.h"    /* seq_t pow_uint(uint64_t base, idx_t exp); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -48,10 +51,10 @@ seq_t a(idx_t n)
 
         if (p == 2U) {
             /* a(2^e) = 16^e */
-            contrib = pow_uint(16ULL, (idx_t)e);
+            contrib = ipow_u64_idx(16ULL, (idx_t)e);
         } else {
             /* Compute p^4 as a seq_t */
-            seq_t x = pow_uint(p, 4ULL);   /* x = p^4 */
+            seq_t x = ipow_u64_idx(p, 4ULL);   /* x = p^4 */
 
             if (p % 4ULL == 1ULL) {
                 /* a(p^e) = 1 + x + x^2 + … + x^e  (geometric series) */

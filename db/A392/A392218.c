@@ -8,16 +8,19 @@
  *            τ(m) is the number of divisors of m
  * Range:     u8 n <= 12, u16 n <= 30, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   factor_u64, pow_uint, sqrt_floor
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx, isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
-#include "../utils/sqrt_floor.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -53,10 +56,10 @@ seq_t a(idx_t n)
     /*--- 3. product of divisors --------------------- */
     seq_t result;
     if (tau % 2 == 0) {
-        result = pow_uint(phi64, tau / 2);
+        result = ipow_u64_idx(phi64, tau / 2);
     } else {
-        seq_t sqrtphi = sqrt_floor((seq_t)phi64);
-        result = sqrtphi * pow_uint(phi64, (tau - 1) / 2);
+        seq_t sqrtphi = isqrt_seq((seq_t)phi64);
+        result = sqrtphi * ipow_u64_idx(phi64, (tau - 1) / 2);
     }
 
     return result;

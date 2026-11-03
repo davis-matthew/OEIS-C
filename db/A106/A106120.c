@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   has_digit_gt3
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/has_digit_gt3.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static bool has_digit_gt3(uint64_t x) {
+    do {
+        uint64_t d = x % 10;
+        if (d > 3) return true;
+        x /= 10;
+    } while (x);
+    return false;
+}
 
 /* ------------------------------------------------------------------ */
 /*          static state (different from the old one)                  */
@@ -56,7 +67,7 @@ static void ensure_terms_cap(size_t min_cap) {
     if (terms_cap < min_cap) {
         size_t new_cap = terms_cap ? terms_cap << 1 : 64;
         if (new_cap < min_cap) new_cap = min_cap;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         terms      = tmp;
         terms_cap  = new_cap;
     }

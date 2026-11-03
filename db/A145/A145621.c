@@ -8,6 +8,7 @@
  * Formula:   a(n) = numerator of sum_{d=1}^{2n} 7^{2n+1-d}/d
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 15,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 372 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* The implementation uses a simple rational sum, reducing after
    each term.  It works for any seq_t that supports the usual
    arithmetic operators and the gcd() routine from   */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -9,13 +9,27 @@
  *            n*(n+1)*(n+2)*(n+3)*(405*n^4+4590*n^3+18495*n^2+30534*n+16376)/1920
  * Range:     u8 none, u16 n <= 2, u32 n <= 17, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   to_seq128
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/to_seq128.h"
+
+static inline seq_t to_seq128(__uint128_t v)
+{
+    /* Convert a 128‑bit integer to seq_t.
+     * If seq_t fits in 64 bits we truncate the lower 64 bits.
+     * Otherwise we rebuild the value using a 64‐bit shift and addition. */
+    if (sizeof(seq_t) <= 8) {
+        return (seq_t)((unsigned long long)v);
+    } else {
+        seq_t low  = (seq_t)((unsigned long long)v);
+        seq_t high = (seq_t)((unsigned long long)(v >> 64));
+        return (high << 64) + low;
+    }
+}
 
 seq_t a(idx_t n)
 {

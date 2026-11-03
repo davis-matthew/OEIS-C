@@ -12,7 +12,8 @@
  *            t...
  * Range:     u8 n <= 28, u16 n <= 504, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static state ----------------------------------------------------- */
 static seq_t *a_vals   = NULL;     /* memoised a(n) values      */
@@ -35,7 +37,7 @@ static void ensure_a_vals(size_t needed)
     if (a_len >= needed) return;
     size_t new_len = a_len ? a_len * 2 : 1;
     if (new_len < needed) new_len = needed;
-    seq_t *tmp = (seq_t *)realloc(a_vals, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_vals, new_len);
     if (!tmp) abort();
     a_vals = tmp;
     a_len = new_len;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper structure to keep state between calls */
 struct _pow6_state {
@@ -51,7 +53,7 @@ ensure_cnt_cap(size_t min_cap)
     if (_power6.cnt_cap >= min_cap) return;
     size_t new_cap = _power6.cnt_cap ? _power6.cnt_cap << 1 : 16;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(_power6.cnt, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _power6.cnt, new_cap);
     if (!tmp) abort();
     _power6.cnt   = tmp;
     _power6.cnt_cap = new_cap;

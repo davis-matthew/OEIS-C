@@ -11,12 +11,14 @@
  *            one
  * Range:     u8 none, u16 none, u32 n <= 511, u64 n <= 511, u128 n <= 511,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 490 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static size_t _gr_cache_len = 0;
 static seq_t *_gr_cache = NULL;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         const int kmax = 16;                 /* 2^kmax terms */
         const int L = 2 * kmax;              /* maximum bit length */
         _gr_cache_len = (size_t)((1 << kmax) - 1);
-        _gr_cache = (seq_t *)malloc(sizeof(seq_t) * _gr_cache_len);
+        _gr_cache = mem_new(seq_t, _gr_cache_len);
 
         size_t pos = 0;                      /* current number of stored values */
 
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         }
 
         /* sort the list of numbers (ascending) */
-        qsort(_gr_cache, pos, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(_gr_cache, pos, sizeof(seq_t), cmp_seq_t);
     }
 
     /* sanity check for out-of-range requests */

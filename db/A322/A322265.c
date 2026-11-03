@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 31, u32 n <= 50, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   seq_gcd, seq_pow
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
    when the 2‑dimensional array A(n,k)=numerator of Σ_{j=1}^n 1/j^k
    is read by antidiagonals (n ≥ 1, k ≥ 0).  */
 
-#include "../utils/seq_gcd.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 
 static seq_t sum_numer(idx_t n, idx_t k)
 {
@@ -29,14 +32,14 @@ static seq_t sum_numer(idx_t n, idx_t k)
     for (idx_t j = 1; j <= n; ++j)
     {
         /* denominator of the term 1/j^k */
-        seq_t term_den = seq_pow((seq_t)j, k);
+        seq_t term_den = ipow_idx((seq_t)j, k);
 
         /* add 1/term_den to num/den  */
         seq_t new_num = num * term_den + den;
         seq_t new_den = den * term_den;
 
         /* reduce by gcd to keep intermediates small */
-        seq_t g = seq_gcd(new_num, new_den);
+        seq_t g = gcd(new_num, new_den);
         new_num /= g;
         new_den /= g;
 

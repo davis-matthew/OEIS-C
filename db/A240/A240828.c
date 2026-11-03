@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look, hear, easy
  * Formula:   a(2h) = 2*floor(h/2), a(2h+1) = 2h (h≥0)
- * Range:     u8 n <= 255, u16 n <= 9629, u32 n <= 9629, u64 n <= 9629,
- *            u128 n <= 9629, big any n
+ * Range:     u8 n <= 255, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 98 terms through n = 9629 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,13 +11,15 @@
  *            a(6)=25
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 25, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[7] = {1, 1, 1, 1, 1, 5, 25};
 
@@ -31,7 +33,7 @@ static void ensure_capacity(idx_t n)
         idx_t new_cap = (capacity == 0) ? 8 : capacity;
         while (new_cap <= n) new_cap <<= 1;      /* double until large enough */
 
-        seq_t *new_ptr = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, memo, new_cap);
         memo = new_ptr;
         capacity = new_cap;
 

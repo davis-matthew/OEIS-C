@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 168, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   satisfies_prime
+ * Validated: standard, pass, 82 terms through n = 9640 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>   /* for sqrt() */
-#include "../utils/satisfies_prime.h"
+#include "../utils/mem.h"
+
+/* Compute v_p(k!) via Legendre's formula. */
+static bool satisfies_prime(idx_t k, idx_t p, int exp)
+{
+    idx_t power = p;
+    idx_t count = 0;
+    while (power <= k) {
+        count += k / power;
+        if (power > k / p) break;     /* avoid overflow of power * p */
+        power *= p;
+    }
+    return count >= (idx_t)(2 * exp);
+}
 
 /* static storage for the sequence and auxiliary data */
 static seq_t *seq_terms    = NULL;   /* array of found terms */
@@ -98,7 +112,7 @@ static void ensure_terms_capacity(idx_t min_cap)
     if (seq_cap >= min_cap) return;
     idx_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < min_cap) new_cap *= 2;
-    seq_terms = (seq_t*)realloc(seq_terms, new_cap * sizeof(seq_t));
+    seq_terms = mem_resize(seq_t, seq_terms, new_cap);
     seq_cap   = new_cap;
 }
 

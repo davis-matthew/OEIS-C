@@ -11,17 +11,19 @@
  *            = 0
  * Range:     u8 n <= 15, u16 n <= 1147, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 87 terms through n = 7660 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;               /* special case */
     seq_t sn = (seq_t)n;                 /* convert n to seq_t */
-    unsigned len = bitlen_seq_t(sn);     /* number of significant bits */
+    unsigned len = bit_length(sn);     /* number of significant bits */
 
     /* Initially consider the split where y = 0, x = n. */
     seq_t best = sn * sn;

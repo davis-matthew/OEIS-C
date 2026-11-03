@@ -5,14 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{m≥1, 2^m−2 ≤ n} binomial(n, 2^m−2) * 2^{m−1}
- * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 29, u64 n <= 29, u128 n <= 29,
+ * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

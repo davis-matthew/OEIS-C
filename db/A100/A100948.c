@@ -9,6 +9,7 @@
  *            T(r,1) = ceil(r! / 3), T(r,2) = r! / 2, T(r,3) = r!
  * Range:     u8 n <= 13, u16 n <= 22, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 28 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

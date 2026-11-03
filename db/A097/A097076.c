@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + 3*a(n-2) + a(n-3), a(0)=0, a(1)=1, a(2)=1
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 26, u64 n <= 51, u128 n <= 102,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------- */
 /*  Helper: grow the cached array of values up to size 'needed' (indices 0..needed-1).   */
@@ -28,11 +30,11 @@ static void ensure_cache(idx_t needed)
 
     if (capacity == 0) {
         capacity = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        cache = mem_new(seq_t, capacity);
     }
     while (capacity <= needed) {
         idx_t new_cap = capacity * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;  /* allocation failed; leave as is (caller will handle zero value) */
         cache = tmp;
         capacity = new_cap;
@@ -67,11 +69,11 @@ static void ensure_cache2(idx_t needed)
 
     if (global_capacity == 0) {
         global_capacity = 16;
-        global_cache = (seq_t *)malloc(sizeof(seq_t) * global_capacity);
+        global_cache = mem_new(seq_t, global_capacity);
     }
     while (global_capacity <= needed) {
         idx_t new_cap = global_capacity * 2;
-        seq_t *tmp = (seq_t *)realloc(global_cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, global_cache, new_cap);
         if (!tmp) return;  /* allocation failed */
         global_cache = tmp;
         global_capacity = new_cap;

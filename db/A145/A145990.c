@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 867, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 63 terms through n = 992 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_start_cache = NULL;   /* memoised run starters */
 static idx_t  cache_len  = 0;             /* number of stored starters */
@@ -34,7 +36,7 @@ static void expand_cache(void)
 {
     if (cache_len >= cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 1024;
-        seq_t *tmp = (seq_t *)realloc(prime_start_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_start_cache, new_cap);
         if (!tmp) { /* allocation failure – abort */
             abort();
         }

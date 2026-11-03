@@ -12,7 +12,8 @@
  *            requested * index is available. No hard‑cod...
  * Range:     u8 n <= 23, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   linear_sieve
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/linear_sieve.h"
+#include "../utils/mem.h"
+
+/* ---  Linear sieve : fill primes[0..prime_cnt-1] and spf[]  --- */
+static void linear_sieve(uint32_t *primes, size_t *prime_cnt,
+                         uint32_t *spf, uint32_t limit)
+{
+    *prime_cnt = 0;
+    for (uint32_t i = 2; i <= limit; ++i) {
+        if (spf[i] == 0) {
+            spf[i] = i;
+            primes[(*prime_cnt)++] = i;
+        }
+        for (size_t j = 0; j < *prime_cnt && primes[j] <= spf[i];
+             ++j) {
+            uint32_t v = i * primes[j];
+            if (v > limit)
+                break;
+            if (spf[v] == 0)
+                spf[v] = primes[j];
+        }
+    }
+}
 
 /* ---  Helper: modular exponentiation (uint64_t, uses __int128)  --- */
 static uint64_t powmod_uint64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -98,8 +120,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate or reallocate terms array */
-        seq_t *new_terms = (seq_t *)malloc(sizeof(seq_t) *
-                                           (new_terms_used + 5));
+        seq_t *new_terms = mem_new(seq_t, (new_terms_used + 5));
         if (!new_terms) {
             free(primes);
             free(spf);
@@ -117,7 +138,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache */
-        free(terms);
+        mem_free(terms);
         terms = new_terms;
         terms_used = idx;
 

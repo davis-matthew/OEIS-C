@@ -12,7 +12,8 @@
  *            edge multiplicity <= 3 using Burnside's lemm...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   big_div_small, gcd_u64
+ * Validated: standard, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/big_div_small.h"
 #include "../utils/gcd_u64.h"
+
+static void big_div_small(uint32_t *b, size_t *len, uint32_t d)
+{
+    uint64_t rem = 0;
+    size_t i = *len;
+    while (i > 0) {
+        i--;
+        uint64_t cur = (rem << 32) | b[i];
+        b[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+    while (*len > 1 && b[*len - 1] == 0) (*len)--;
+}
 
 static uint32_t *g_acc;
 static size_t g_L;

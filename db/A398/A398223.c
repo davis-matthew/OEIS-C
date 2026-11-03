@@ -12,14 +12,27 @@
  *            for any finite trajectory
  * Range:     u8 n <= 15, u16 n <= 3408, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   f_step
+ * Validated: standard, pass, 87 terms through n = 8809 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/f_step.h"
+
+static inline seq_t
+f_step(seq_t x)
+{
+    /* Compute x mod 3 and choose the branch. */
+    idx_t r = (idx_t)(x % (seq_t)3);
+    if (r == 0)
+        return x / (seq_t)3;
+    else if (r == 1)
+        return x * (seq_t)4 + (seq_t)1;
+    else
+        return x * (seq_t)2 - (seq_t)1;
+}
 
 seq_t a(idx_t n)
 {

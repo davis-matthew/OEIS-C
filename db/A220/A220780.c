@@ -12,13 +12,14 @@
  *            and m is the corresponding n value that yiel...
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   trailing_zeros_uint64
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   ctz_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/trailing_zeros_uint64.h"
+#include "../utils/ctz_u64_to_u32.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;          /* undefined; return 0 for safety */
@@ -31,11 +32,11 @@ seq_t a(idx_t n) {
     /* Compute the desired exponent. */
     unsigned val;
     if ((m & 3) == 0) {                  /* m ≡ 0 (mod 4) */
-        val = trailing_zeros_uint64(m) - 1;
+        val = ctz_u64_to_u32(m) - 1;
     } else {                              /* m ≡ 3 (mod 4) */
         uint64_t mp1 = m + 1;             /* divisible by 4 */
-        val = trailing_zeros_uint64(mp1) +
-              trailing_zeros_uint64(mp1 >> 2);
+        val = ctz_u64_to_u32(mp1) +
+              ctz_u64_to_u32(mp1 >> 2);
     }
 
     return (seq_t)val;

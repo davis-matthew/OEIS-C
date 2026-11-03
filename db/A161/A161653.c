@@ -9,12 +9,14 @@
  *            polynomial of degree 820; a(n)=0 for n>820
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         /* Allocate and zero the cache array. */
-        cache = (seq_t *)malloc((MAX_N + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (MAX_N + 1));
         for (size_t i = 0; i <= MAX_N; ++i)
             cache[i] = 0;
         cache[0] = 1;      /* start with the constant polynomial 1 */

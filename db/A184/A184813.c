@@ -8,6 +8,7 @@
  * Formula:   a(n) = n + floor(n*sqrt(2)/sqrt(3)) + floor(n*sqrt(5)/sqrt(3))
  * Range:     u8 n <= 12, u16 n <= 345, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 80 terms through n = 9681 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

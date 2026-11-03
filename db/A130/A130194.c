@@ -13,13 +13,24 @@
  *            The value is a(n) = Σ_{k=0}^{r} s_k · s_{r-k}, where s_k =...
  * Range:     i8 n <= 78, i16 n <= 78, i32 n <= 78, i64 n <= 78, i128 n <= 78,
  *            big any n
- * Helpers:   conv_val
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/conv_val.h"
+
+static inline seq_t conv_val(idx_t r) {
+    static const int p[4] = {1, 1, -1, -1};
+    seq_t sum = 0;
+    for (idx_t k = 0; k <= r; ++k) {
+        int s1 = p[(int)(k % 4)];
+        int s2 = p[(int)((r - k) % 4)];
+        sum += (seq_t)s1 * (seq_t)s2;
+    }
+    return sum;
+}
 
 static inline unsigned long long u128_sqrt(unsigned __int128 v) {
     unsigned long long low = 0;

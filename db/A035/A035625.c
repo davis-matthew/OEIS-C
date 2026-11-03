@@ -11,6 +11,7 @@
  *            parts ≡1 (mod 4), and p_3 into parts ≡3 (mod 4)
  * Range:     u8 n <= 30, u16 n <= 78, u32 n <= 237, u64 n <= 791,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 70 terms through n = 941 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

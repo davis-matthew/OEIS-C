@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   alloc_seq_n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,15 @@
 #endif
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_seq_n.h"
+#include <stddef.h>
+
+static seq_t *alloc_seq_n(size_t n) {
+#ifdef __cplusplus
+    return new seq_t[n];
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
 
 /* Helper: allocate an array of seq_t of length n. */
 

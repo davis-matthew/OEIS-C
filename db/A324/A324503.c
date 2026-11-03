@@ -9,7 +9,8 @@
  *            number of divisors of k
  * Range:     u8 n <= 23, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   factor_u64, pow_seq, seq_gcd
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,10 @@
 /* required utilities */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/pow_seq.h"     /* seq_t pow_seq(seq_t a, int k); */
-#include "../utils/seq_gcd.h"     /* seq_t seq_gcd(seq_t a, seq_t b); */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_i32.h"
 
 /* helper: add a rational d/t to the current fraction num/den,
    storing the reduced result back into num/den */
@@ -27,7 +29,7 @@ static inline void add_frac(seq_t *num, seq_t *den, seq_t d, seq_t t)
 {
     seq_t new_num = (*num) * t + d * (*den);
     seq_t new_den = (*den) * t;
-    seq_t g = seq_gcd(new_num, new_den);
+    seq_t g = gcd(new_num, new_den);
     *num = new_num / g;
     *den = new_den / g;
 }

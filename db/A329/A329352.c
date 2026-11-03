@@ -8,6 +8,7 @@
  *            A019565(n/p), p distinct primes dividing n)
  * Range:     u8 n <= 27, u16 n <= 29, u32 n <= 209, u64 n <= 1019,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 93 terms through n = 8013 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* first 64 primes – used for A019565 */

@@ -13,13 +13,15 @@
  *            a(8)=175, a(9)=238, a(10)=317
  * Range:     u8 n <= 9, u16 n <= 64, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[n-1] holds a(n) */
 static size_t cache_len = 0;         /* number of entries in cache */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         /* grow the cache to hold at least target elements */
     #if defined(__cplusplus)
         seq_t *tmp = reinterpret_cast<seq_t*>(
-            realloc(cache, target * sizeof(seq_t)));
+            mem_resize(seq_t, cache, target));
     #else
         seq_t *tmp = (seq_t*)realloc(cache,
             target * sizeof(seq_t));

@@ -8,8 +8,9 @@
  * Formula:   a(n) is the flattened triangle T(n,k) where * T(n,k) =
  *            Σ_{i=n-k..n} C(k-1,n-i) * C(i,n-k) * C(2i,i)/(i+1) * (k = 0..n)
  *            with offset 0
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 46, u64 n <= 46, u128 n <= 46,
+ * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static inline seq_t catalan(idx_t m)

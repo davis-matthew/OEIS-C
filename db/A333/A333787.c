@@ -7,8 +7,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = 2^{v2(n)} * ∏_{p odd | n} (p-1)^{v_p(n)} (fully
  *            multiplicative)
- * Range:     u8 n <= 255, u16 n <= 8322, u32 n <= 8322, u64 n <= 8322,
- *            u128 n <= 8322, big any n
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 101 terms through n = 8322 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime congruent to 2, 3, 4 or 5 modulo 19
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 67 terms through n = 953 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* initialise cache with first term (prime 2) */
         cache_cap = 64;                               /* arbitrary small initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             return 0;                                 /* allocation failed */
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
                 /* grow cache if required */
                 if (cache_size == cache_cap) {
                     cache_cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                     if (!tmp)
                         return 0;                     /* allocation failed */
                     cache = tmp;

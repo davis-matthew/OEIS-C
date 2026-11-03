@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    such that a(n) >= a(n-1) + n. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* comparison for qsort and binary search */
 static int compare_seq_t(const void *p1, const void *p2)
@@ -42,7 +44,7 @@ static void init_powers(void)
     const uint64_t seq_max = (uint64_t)~(seq_t)0;
 
     p_cap = 1024;
-    powers = (seq_t *)malloc(p_cap * sizeof(seq_t));
+    powers = mem_new(seq_t, p_cap);
     /* generate all powers k^j >= 2, j>=2, base >= 2 */
     for (uint64_t base = 2; base * base <= LIMIT; ++base) {
         uint64_t val = base * base;             /* base^2 */
@@ -50,7 +52,7 @@ static void init_powers(void)
             if (val <= seq_max) {
                 if (p_size == p_cap) {
                     p_cap <<= 1;
-                    powers = (seq_t *)realloc(powers, p_cap * sizeof(seq_t));
+                    powers = mem_resize(seq_t, powers, p_cap);
                 }
                 powers[p_size++] = (seq_t)val;
             }
@@ -62,13 +64,13 @@ static void init_powers(void)
     if (seq_max >= 1) {
         if (p_size == p_cap) {
             p_cap <<= 1;
-            powers = (seq_t *)realloc(powers, p_cap * sizeof(seq_t));
+            powers = mem_resize(seq_t, powers, p_cap);
         }
         powers[p_size++] = (seq_t)1;
     }
 
     /* sort and remove duplicates */
-    qsort(powers, p_size, sizeof(seq_t), compare_seq_t);
+    mem_qsort(powers, p_size, sizeof(seq_t), compare_seq_t);
     size_t new_len = 0;
     for (size_t i = 0; i < p_size; ++i) {
         if (new_len == 0 || powers[i] != powers[new_len - 1]) {
@@ -87,7 +89,7 @@ extern seq_t a(idx_t n)
     init_powers();
     if (cache == NULL) {
         c_cap = 16;
-        cache = (seq_t *)malloc(c_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, c_cap);
         cache[0] = (seq_t)0;
         c_size = 1;
     }
@@ -112,7 +114,7 @@ extern seq_t a(idx_t n)
 
         if (c_size == c_cap) {
             c_cap <<= 1;
-            cache = (seq_t *)realloc(cache, c_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, c_cap);
         }
         cache[c_size++] = next;
     }

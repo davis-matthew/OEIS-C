@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient C(a,b) using multiplicative formula. */
+static seq_t binom(idx_t a, idx_t b) {
+    if (b > a) return 0;
+    if (b > a - b) b = a - b;          /* use symmetry */
+    seq_t res = 1;
+    for (idx_t i = 1; i <= b; ++i) {
+        res *= (seq_t)(a - b + i);
+        res /= (seq_t)i;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,15 +59,15 @@ seq_t a(idx_t n)
     if (max_n < target) {
         idx_t new_size = target + 1;          /* include index 0 for G */
         if (!b) {
-            b = (seq_t*)malloc(new_size * sizeof(seq_t));
-            P = (seq_t*)malloc(new_size * sizeof(seq_t));
-            G = (seq_t*)malloc(new_size * sizeof(seq_t));
-            C = (seq_t*)malloc(new_size * sizeof(seq_t));
+            b = mem_new(seq_t, new_size);
+            P = mem_new(seq_t, new_size);
+            G = mem_new(seq_t, new_size);
+            C = mem_new(seq_t, new_size);
         } else {
-            b = (seq_t*)realloc(b, new_size * sizeof(seq_t));
-            P = (seq_t*)realloc(P, new_size * sizeof(seq_t));
-            G = (seq_t*)realloc(G, new_size * sizeof(seq_t));
-            C = (seq_t*)realloc(C, new_size * sizeof(seq_t));
+            b = mem_resize(seq_t, b, new_size);
+            P = mem_resize(seq_t, P, new_size);
+            G = mem_resize(seq_t, G, new_size);
+            C = mem_resize(seq_t, C, new_size);
         }
         /* Initialize new entries to zero. */
         for (idx_t i = max_n + 1; i <= target; ++i) {

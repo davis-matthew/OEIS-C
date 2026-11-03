@@ -9,12 +9,14 @@
  *            c(k) are Catalan numbers (A000108)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,13 +28,13 @@ seq_t a(idx_t n)
 
     /* Ensure we have enough space */
     if (cat == NULL) {
-        cat = (seq_t*)malloc(sizeof(seq_t) * 1);
+        cat = mem_new(seq_t, 1);
         if (!cat) exit(EXIT_FAILURE);
         cat[0] = (seq_t)1;          /* c(0) */
         last_cat = 0;
     } else if (last_cat < n) {
         size_t needed = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(cat, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cat, needed);
         if (!tmp) exit(EXIT_FAILURE);
         cat = tmp;
         for (idx_t k = last_cat; k < n; ++k) {
@@ -44,13 +46,13 @@ seq_t a(idx_t n)
     }
 
     if (pow2 == NULL) {
-        pow2 = (seq_t*)malloc(sizeof(seq_t) * (n + 1));
+        pow2 = mem_new(seq_t, (n + 1));
         if (!pow2) exit(EXIT_FAILURE);
         pow2[0] = (seq_t)1;          /* 2^0 */
         last_pow2 = 0;
     } else if (last_pow2 < n) {
         size_t needed = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(pow2, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow2, needed);
         if (!tmp) exit(EXIT_FAILURE);
         pow2 = tmp;
         for (idx_t i = last_pow2 + 1; i <= n; ++i) {

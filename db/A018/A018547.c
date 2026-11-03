@@ -7,12 +7,14 @@
  * Formula:   a(n) = the n-th divisor of 608 in ascending order
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t s_divisors[20];   /* enough space for all 12 divisors */
 static size_t s_divcnt = 0;    /* number of divisors stored */
@@ -43,7 +45,7 @@ static void init_divisors(void)
             }
         }
     }
-    qsort(s_divisors, s_divcnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(s_divisors, s_divcnt, sizeof(seq_t), cmp_seq);
 }
 
 /* Return the n‑th divisor of 608 */

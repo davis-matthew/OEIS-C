@@ -11,6 +11,7 @@
  *            read by rows of the triangle
  * Range:     u8 n <= 810, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 103 terms through n = 4420 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 /* Helper header for gcd */
 #ifndef _GCD_H_INCLUDED
+#include <stdint.h>
 #include "../utils/gcd.h"
 #endif
 

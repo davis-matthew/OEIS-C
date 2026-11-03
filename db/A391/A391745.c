@@ -9,7 +9,8 @@
  *            is interpreted as a carryless binary (GF(2)) multiplication
  * Range:     u8 n <= 7, u16 n <= 822, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 84 terms through n = 9485 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Helper: test if P is divisible by K in the polynomial ring GF(2)[x].
  * It performs a standard bitwise long division, XORing the divisor
@@ -28,8 +31,8 @@
 static inline bool divisible_by_k(seq_t P, seq_t K)
 {
     while (P != 0) {
-        size_t p_len = bitlen_seq_t(P);
-        size_t k_len = bitlen_seq_t(K);
+        size_t p_len = bit_length(P);
+        size_t k_len = bit_length(K);
         if (p_len < k_len)
             break;
         size_t shift = p_len - k_len;
@@ -53,14 +56,14 @@ seq_t a(idx_t n)
     /* Lazy initialisation of cache */
     if (cache == NULL) {
         cache_cap = 1024;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Extend cache until it contains the requested term */
     while (cache_len < (size_t)n) {
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         seq_t k = next_candidate;

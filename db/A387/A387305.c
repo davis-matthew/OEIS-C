@@ -7,12 +7,15 @@
  * Formula:   a(n) = min{k ≥ 1 : popcount(n * k) is prime}
  * Range:     u8 n <= 14, u16 n <= 3854, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 102 terms through n = 9355 (2026-11-01)
  * Helpers:   popcount_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/popcount_seq.h"
 
 /* Count the Hamming weight of a value of type seq_t. */

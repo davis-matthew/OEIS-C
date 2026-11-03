@@ -7,6 +7,7 @@
  * Formula:   a(n) = 6*n + 3 + 90*floor((6*n+3)/10)
  * Range:     u8 n <= 4, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

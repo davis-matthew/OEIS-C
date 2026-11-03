@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 117, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 80 terms through n = 879 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"        /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache of sequence terms (0‑based) */
 static size_t cache_size = 0;    /* number of terms currently cached */
@@ -33,7 +35,7 @@ static void ensure_cache(size_t need)
     size_t newcap = cache_cap ? cache_cap * 2 : 16;
     while (newcap < need)
         newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp)
         abort();                 /* insufficient memory */
     cache = tmp;

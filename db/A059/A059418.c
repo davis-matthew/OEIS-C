@@ -11,12 +11,14 @@
  *            starting with the first element of the first row
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         idx_t r = cur_row;
 
         /* Allocate array for the new row. */
-        seq_t *row = (seq_t *)malloc(r * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, r);
         if (!row) abort();            /* allocation failure */
 
         /* Compute the first element: T(r,1) = r! / 2.  For r==1,
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         if (flat_len + r > flat_cap) {
             idx_t new_cap = flat_cap ? flat_cap * 2 : 64;
             while (flat_len + r > new_cap) new_cap <<= 1;
-            flat = (seq_t *)realloc(flat, new_cap * sizeof(seq_t));
+            flat = mem_resize(seq_t, flat, new_cap);
             if (!flat) abort();
             flat_cap = new_cap;
         }
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
             flat[flat_len++] = row[i];
 
         /* Prepare for next iteration: current row becomes previous row. */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = row;
         prev_len = r;
     }

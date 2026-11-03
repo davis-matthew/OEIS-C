@@ -9,12 +9,14 @@
  *            triangular numbers
  * Range:     u8 n <= 144, u16 n <= 1173, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types are provided by the build system */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* Allocate DP table: (n+1) possible sums × 9 possible counts (0..8).  */
     size_t dp_len = (size_t)(n + 1) * 9;
-    seq_t *dp = (seq_t *)calloc(dp_len, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_len);
     if (!dp) return 0;                 /* out of memory – silently fail */
 
     /* Macro for accessing dp[sum][k] as a flat array.  */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = DP(n, 8);
-    free(dp);
+    mem_free(dp);
     #undef DP
     return result;
 }

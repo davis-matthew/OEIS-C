@@ -7,14 +7,17 @@
  * Formula:   a(n) = lcm(min prime‑power factor, max prime‑power factor)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   factor_u64, pow_prime
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/pow_prime.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_to_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
 
     for (size_t i = 0; i < cnt; ++i)
     {
-        seq_t pwr = pow_prime(pr[i], ex[i]);
+        seq_t pwr = ipow_u64_to_seq(pr[i], ex[i]);
 
         if (min_pow == 0 || pwr < min_pow) min_pow = pwr;
         if (max_pow == 0 || pwr > max_pow) max_pow = pwr;

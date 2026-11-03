@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = \sum_{x \le n : x \text{ odd and }\omega(x)=2} x (sum of
  *            all odd numbers \le n having exactly two distinct prime factors)
- * Range:     u8 n <= 54, u16 n <= 698, u32 n <= 9691, u64 n <= 9691,
- *            u128 n <= 9691, big any n
+ * Range:     u8 n <= 54, u16 n <= 698, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 84 terms through n = 9691 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

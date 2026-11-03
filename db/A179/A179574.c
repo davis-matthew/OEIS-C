@@ -8,7 +8,8 @@
  * Formula:   a(n) = A062866(n+7,n)
  * Range:     u8 none, u16 n <= 2, u32 n <= 11, u64 n <= 31, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
         -4888a(n-10)+1248a(n-11)-144a(n-12)
    Initial values (n=1..12) are computed from the definition.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         size_t newcap = cache_cap ? cache_cap * 2 : 12;
         if ((size_t)n > newcap)
             newcap = (size_t)n;
-        seq_t *newptr = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *newptr = mem_new(seq_t, newcap);
         if (!newptr)
             return 0;                  /* memory allocation failed, fail silently */
         /* Copy existing terms.  */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             newptr[i] = cache[i];
         /* Free old buffer if present.  */
         if (cache)
-            free(cache);
+            mem_free(cache);
         cache   = newptr;
         cache_cap = newcap;
     }

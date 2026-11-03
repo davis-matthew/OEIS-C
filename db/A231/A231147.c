@@ -9,6 +9,7 @@
  *            pos = n – (r‑1)² (1‑based index in row r), d = |pos – r|
  * Range:     u8 n <= 108, u16 n <= 342, u32 n <= 1255, u64 n <= 4555,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 95 terms through n = 9769 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

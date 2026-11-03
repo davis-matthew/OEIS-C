@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static inline bool check_row(uint8_t cur, uint8_t up, uint8_t down,
                              bool has_up, bool has_down)
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     static seq_t dp_next[32][32];
 
     /* Initialize dp with rows 1 and 2 */
-    memset(dp, 0, sizeof dp);
+    mem_set(dp, 0, sizeof dp);
     for (int p1 = 0; p1 < 32; ++p1) {
         if (p1 & 1) continue;                   /* upper‑left is 0 */
         for (int p2 = 0; p2 < 32; ++p2) {
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
 
     /* Process rows 3 … n */
     for (idx_t row = 3; row <= n; ++row) {
-        memset(dp_next, 0, sizeof dp_next);
+        mem_set(dp_next, 0, sizeof dp_next);
         for (int p1 = 0; p1 < 32; ++p1) {
             for (int p2 = 0; p2 < 32; ++p2) {
                 seq_t ways = dp[p1][p2];
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, dp_next, sizeof dp);
+        mem_copy(dp, dp_next, sizeof dp);
     }
 
     /* Count valid completions for the final row */

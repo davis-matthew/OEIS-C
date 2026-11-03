@@ -12,6 +12,7 @@
  *            consecutively (offset 1)
  * Range:     u8 n <= 113, u16 n <= 113, u32 n <= 113, u64 n <= 113,
  *            u128 n <= 113, big any n
+ * Validated: partial, pass, 113 terms through n = 113 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

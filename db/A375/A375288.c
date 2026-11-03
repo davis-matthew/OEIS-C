@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 16, i32 n <= 34, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Initial values (n=0..5): 1, 2, 3, 2, -5, -22 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoization */
 static seq_t *cache = NULL;
@@ -27,9 +29,9 @@ static size_t cache_size = 0;
 static void ensure_cache(idx_t n) {
     size_t required = (size_t)n + 1;
     if (required > cache_size) {
-        seq_t *new_cache = (seq_t *)malloc(required * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, required);
         unsigned char *new_comp = (unsigned char *)calloc(required, sizeof(unsigned char));
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         if (computed) free(computed);
         cache = new_cache;
         computed = new_comp;

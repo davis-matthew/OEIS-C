@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   pandigital5, seq_alloc_array
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,44 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/pandigital5.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Test whether a given 5‑digit k satisfies the pandigital property. */
+static bool pandigital5(idx_t k)
+{
+    seq_t kk = (seq_t)k;
+    seq_t m  = kk * (seq_t)3;
+
+    bool seen[10] = {false};
+
+    seq_t t = kk;
+    while (t > 0) {
+        int d = (int)(t % (seq_t)10);
+        if (seen[d]) return false;
+        seen[d] = true;
+        t /= (seq_t)10;
+    }
+
+    t = m;
+    while (t > 0) {
+        int d = (int)(t % (seq_t)10);
+        if (seen[d]) return false;
+        seen[d] = true;
+        t /= (seq_t)10;
+    }
+
+    /* all digits must have appeared exactly once */
+    for (int d = 0; d < 10; ++d)
+        if (!seen[d]) return false;
+    return true;
+}
 
 static seq_t *cache = NULL;          /* array of found numbers */
 static size_t cache_len = 0;          /* number of elements stored   */

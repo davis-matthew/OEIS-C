@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * G(x) = 1 + Σ_{k≥1} x^{3k-2} / Π_{j=1..k} (1 – x^j).
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* allocate array for dynamic programming of partitions */
     size_t size = (size_t)n + 1;
-    seq_t *ways = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *ways = mem_new(seq_t, size);
     if (!ways) return 0;          /* memory allocation failure */
 
     /* initialize partitions with 0 parts:
@@ -53,6 +55,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(ways);
+    mem_free(ways);
     return sum;
 }

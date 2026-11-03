@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 30, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   ways_sum
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
  * enumeration is used. */
 
 #include <stdint.h>
-#include "../utils/ways_sum.h"
+
+/* helper: number of m‑digit (0‑2) sequences with digit sum k
+ * (k is guaranteed to be 0, 1 or 2). */
+static inline idx_t ways_sum(idx_t m, idx_t k)
+{
+    if (m == 0)
+        return (k == 0) ? 1 : 0;
+    if (k == 0)
+        return 1;
+    if (k == 1)
+        return m;               /* choose one position for the single 1 */
+    if (k == 2)
+        return m + m * (m - 1) / 2; /* one 2 or two 1's */
+    return 0; /* not reached for this sequence */
+}
 
 /* a(idx_t n) returns the n-th element (n >= 1).  The sequence is
  * indexed exactly as OEIS: a(1)=12, a(2)=21, a(3)=102, ... */

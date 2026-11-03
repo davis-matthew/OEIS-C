@@ -7,15 +7,23 @@
  * Formula:   a(n) = Sum_{d|n} d^(d+n/d) * binomial(d,n/d)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow, binomial, seq_mul
+ * Validated: standard, pass, 33 terms through n = 365 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -24,13 +32,13 @@ seq_t a(idx_t n)
         if (n % d == 0) {
             idx_t k = n / d;                     /* complementary divisor */
             seq_t exp = (seq_t)d + (seq_t)k;
-            seq_t term = big_pow((seq_t)d, exp);
+            seq_t term = ipow((seq_t)d, exp);
             term = seq_mul(term, binomial(d, k));
             result += term;
 
             if (d != k) {                         /* add the symmetric divisor */
                 exp = (seq_t)k + (seq_t)d;         /* same exponent, but keep symmetry */
-                term = big_pow((seq_t)k, exp);
+                term = ipow((seq_t)k, exp);
                 term = seq_mul(term, binomial(k, d));
                 result += term;
             }

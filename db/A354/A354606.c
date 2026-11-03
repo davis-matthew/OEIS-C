@@ -10,20 +10,22 @@
  *            τ(m) is the number of divisors of m
  * Range:     u8 n <= 841, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 102 terms through n = 9920 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* ---------- Helper: divisor count for seq_t values ---------- */
 static inline unsigned divisor_count_seq(seq_t x)
 {
     /* The sequence values are small; we cast to 64‑bit for divisor counting. */
-    return divisor_count_u64((uint64_t)x);
+    return num_divisors((uint64_t)x);
 }
 
 /* ---------- Static storage for memoization ---------- */
@@ -40,7 +42,7 @@ static void ensure_a_cap(size_t need)
     if (need <= a_cap) return;
     size_t new_cap = a_cap ? a_cap * 2 : 64;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     a_vals = tmp;
     a_cap = new_cap;

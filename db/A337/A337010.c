@@ -7,7 +7,8 @@
  * Formula:   a(n) = exp(-1/2) * Sum_{k>=0} (2*k + 3)^n / (2^k * k!)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  *   a(n) = 4 * a(n-1) + Sum_{j=0}^{n-2} binomial(n-1, j) * 2^{n-1-j} * a(j)   (n ≥ 2)  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build system.
    idx_t is an unsigned integer type (e.g. uint64_t).  seq_t may be
@@ -42,11 +44,11 @@ ensure_pow2(idx_t max_e)
     size_t new_len = (size_t)max_e + 1;    /* index 0 .. max_e inclusive */
 
     if (pow2_cache == NULL) {
-        pow2_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        pow2_cache = mem_new(seq_t, new_len);
         pow2_cache[0] = (seq_t)1;
         pow2_len = 1;
     } else if (new_len > pow2_len) {
-        pow2_cache = (seq_t *)realloc(pow2_cache, new_len * sizeof(seq_t));
+        pow2_cache = mem_resize(seq_t, pow2_cache, new_len);
     }
 
     for (size_t i = pow2_len; i < new_len; ++i) {
@@ -64,7 +66,7 @@ ensure_cache(idx_t new_n)
         return;                      /* already sufficient */
 
     size_t new_len = (size_t)new_n + 1;
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     cache_len = new_len;
 
     /* Initialise base values if they are required.  */

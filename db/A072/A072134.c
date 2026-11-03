@@ -12,6 +12,7 @@
  *            a(0)=3, a(1)=5, a(2)=6, a(3)=7, a(4)=17, a(5)=19
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

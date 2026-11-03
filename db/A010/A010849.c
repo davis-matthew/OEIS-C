@@ -11,7 +11,8 @@
  *            (n-3)*(n+1)*a[n-3]
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 26, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 173 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise cache with base terms */
     if (cache_len == 0) {
         cache_len = 3;
-        cache = (seq_t *)realloc(NULL, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_len);
         cache[0] = (seq_t)1U;
         cache[1] = (seq_t)4U;
         cache[2] = (seq_t)18U;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* enlarge cache to hold all terms up to n */
-    cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (size_t)(n + 1));
 
     /* compute missing terms */
 #ifdef __cplusplus

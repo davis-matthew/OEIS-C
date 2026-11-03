@@ -7,16 +7,19 @@
  * Keywords:  nonn, tabf
  * Formula:   a(n) = element of row n of the triangle defined as A027748(n) ∪
  *            A038566(n), with n written as 0 when n is prime
- * Range:     u8 n <= 7728, u16 n <= 7728, u32 n <= 7728, u64 n <= 7728,
- *            u128 n <= 7728, big any n
+ * Range:     u8 n <= 10209, u16 n <= 10209, u32 n <= 10209, u64 n <= 10209,
+ *            u128 n <= 10209, big any n
+ * Validated: standard, pass, 115 terms through n = 7728 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 static void ensure_primes(idx_t limit, uint64_t **primes, size_t *cnt)
 {

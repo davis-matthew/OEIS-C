@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 950, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 922 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* record of numbers with exactly 5 distinct prime factors */
 static seq_t *num5 = NULL;
@@ -74,7 +76,7 @@ static void build_omega(void)
             if (count5 == cap)
             {
                 cap = cap ? cap * 2 : 64;
-                tmp = (seq_t *)realloc(tmp, cap * sizeof(seq_t));
+                tmp = mem_resize(seq_t, tmp, cap);
             }
             tmp[count5++] = (seq_t)i;
         }

@@ -10,13 +10,15 @@
  *            *C(j,k+2*j-3*i) / (i! * 3^(i-j) * 2^(k+j-2*i) )
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     seq_t *dp[4];
     for (int t = 0; t < 4; ++t)
     {
-        dp[t] = (seq_t *)calloc(sz, sizeof(seq_t));
+        dp[t] = mem_new(seq_t, sz);
         if (!dp[t])  /* out of memory – fall back */
             return (seq_t)0;
     }
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
 
     /* free temporary arrays */
     for (int t = 0; t < 4; ++t)
-        free(dp[t]);
+        mem_free(dp[t]);
 
     return total;
 }

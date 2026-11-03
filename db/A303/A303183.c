@@ -11,7 +11,8 @@
  *            a(6)=382, a(7)=873, a(8)=2013, a(9)=4618
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 25, u64 n <= 52, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>     /* size_t */
 #endif
 #include <stdlib.h>     /* malloc, free, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑based cache of computed terms */
 static idx_t cache_size = 0;  /* largest n for which cache has a value */
@@ -35,7 +37,7 @@ ensure_cache(idx_t n)
 
     /* Allocate a larger buffer */
     size_t new_alloc = (size_t)n + 1; /* indices 1..n are needed */
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_alloc);
+    seq_t *new_cache = mem_new(seq_t, new_alloc);
     if (!new_cache)
         return;                     /* allocation failure – leave cache unchanged */
 
@@ -46,7 +48,7 @@ ensure_cache(idx_t n)
 
     /* Release old storage */
     if (cache)
-        free(cache);
+        mem_free(cache);
 
     cache = new_cache;
     cache_size = n;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000203(n) - A049417(n)
  * Range:     u8 n <= 16, u16 n <= 682, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 97 terms through n = 8894 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -35,14 +38,14 @@ seq_t a(idx_t n)
         uint64_t e = exps[i];
 
         /* σ(p^e) = (p^{e+1} - 1) / (p - 1) */
-        seq_t sigma_pe = (seq_pow(p, (idx_t)(e + 1)) - (seq_t)1) /
+        seq_t sigma_pe = (ipow_idx(p, (idx_t)(e + 1)) - (seq_t)1) /
                          ((seq_t)p - (seq_t)1);
 
         /* σ_inf(p^e) = ∏_{bits j of e} (1 + p^{2^j}) */
         seq_t sigma_inf_pe = (seq_t)1;
         for (uint64_t j = 0; e; ++j, e >>= 1) {
             if (e & 1ULL) {
-                seq_t term = (seq_t)1 + seq_pow(p, (idx_t)(1ULL << j));
+                seq_t term = (seq_t)1 + ipow_idx(p, (idx_t)(1ULL << j));
                 sigma_inf_pe *= term;
             }
         }

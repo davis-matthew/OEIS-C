@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 153, u16 n <= 333, u32 n <= 866, u64 n <= 2603,
  *            u128 n <= 8701, big any n
- * Helpers:   none
+ * Validated: standard, pass, 125 terms through n = 9824 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
         dp_s[n] = dp_prev[n - 20*s] + dp_s[n - s]   (n ≥ 20*s)
    and then merge dp_s into dp_prev. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     size_t N = (size_t)n;
-    seq_t *dp_prev = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *dp_s    = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, N + 1);
+    seq_t *dp_s    = mem_new(seq_t, N + 1);
     if (dp_prev == NULL || dp_s == NULL) {
-        free(dp_prev);
-        free(dp_s);
+        mem_free(dp_prev);
+        mem_free(dp_s);
         return (seq_t)0;                     /* allocation failure */
     }
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp_prev[(size_t)n];
-    free(dp_prev);
-    free(dp_s);
+    mem_free(dp_prev);
+    mem_free(dp_s);
     return result;
 }

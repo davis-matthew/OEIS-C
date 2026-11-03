@@ -8,7 +8,8 @@
  * Formula:   a(n) = Product_{k=1..n} k^(4*k - 2*n - 1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   build_primes_upto, pow_uint
+ * Validated: standard, pass, 29 terms through n = 47 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out) */
-#include "../utils/pow_uint.h"           /* seq_t pow_uint(uint64_t base, idx_t exp) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Cached list of primes up to the last requested limit. */
 static uint64_t *prime_cache = NULL;
@@ -74,7 +75,7 @@ seq_t a(idx_t n)
         uint64_t expo = (diff > 0) ? (uint64_t)diff : 0;
 
         if (expo > 0) {
-            seq_t term = pow_uint(p, expo);
+            seq_t term = ipow_u64_idx(p, expo);
             result *= term;           /* multiplication is allowed on seq_t */
         }
     }

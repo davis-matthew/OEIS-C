@@ -11,12 +11,14 @@
  *            otherwise. The first 17 terms agree with OEIS
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h> /* malloc, free, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* allocate initial cache if necessary */
     if (!cache) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = 0;                 /* uninitialized flag */
     }
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) abort();
         /* copy existing data */
         for (size_t i = 0; i < cache_cap; ++i)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         /* initialize newly allocated slots to zero */
         for (size_t i = cache_cap; i < new_cap; ++i)
             new_cache[i] = (seq_t)0;
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

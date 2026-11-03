@@ -9,6 +9,7 @@
  *            that sum to 2n
  * Range:     u8 n <= 226, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 117 terms through n = 9869 (2026-11-01)
  * Helpers:   gcd, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
 #include "../utils/gcd.h"
+#include "../utils/is_prime.h"
 
 /* Count unordered coprime nonprime pairs that sum to 2n.
  * n >= 1.  For every a with 1 <= a <= n, let b = 2n - a.

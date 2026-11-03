@@ -11,7 +11,8 @@
  *            a(3)=T(1,1), …)
  * Range:     i8 n <= 15, i16 n <= 25, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/big_pow.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* integer square root of a 64‑bit unsigned integer */
 static inline idx_t isqrt_u64(idx_t n)
@@ -45,7 +47,7 @@ static inline seq_t triangle_T(idx_t n, idx_t k)
 
     for (idx_t j = low; j <= high; ++j) {
         /* (2j+1)^n */
-        seq_t power = big_pow((seq_t)(2 * j + 1), (seq_t)n);
+        seq_t power = ipow((seq_t)(2 * j + 1), (seq_t)n);
 
         /* sign (-1)^(k-j) */
         seq_t sign = ((k - j) & 1) ? (seq_t)-1 : (seq_t)1;

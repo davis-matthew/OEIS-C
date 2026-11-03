@@ -10,13 +10,15 @@
  *            half. The terms are returned in increasing order
  * Range:     u8 none, u16 n <= 1, u32 n <= 1752, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 8234 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: test whether a square satisfies the property. */
 static bool good_square(seq_t sq)
@@ -43,10 +45,10 @@ static bool good_square(seq_t sq)
 /* Dynamically grow the cache of terms. */
 static void grow_terms(size_t *len, size_t *cap, seq_t **arr)
 {
-    if (*cap == 0) { *cap = 64; *arr = (seq_t*)malloc(*cap * sizeof(seq_t)); }
+    if (*cap == 0) { *cap = 64; *arr = mem_new(seq_t, (*cap * sizeof(seq_t)) / sizeof(seq_t)); }
     else if (*len == *cap) {
         *cap <<= 1;
-        *arr = (seq_t*)realloc(*arr, *cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     }
 }
 

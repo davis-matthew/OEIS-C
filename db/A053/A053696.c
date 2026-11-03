@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 328, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Auxiliary comparator for qsort on seq_t. */
 static int seq_cmp(const void *p1, const void *p2)
@@ -47,7 +49,7 @@ static void regenerate_cache(idx_t target_n)
 
     /* Temporary array for candidates. */
     size_t cap = 20000;
-    seq_t *cand = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *cand = mem_new(seq_t, cap);
     if (!cand) return;  /* allocation failure – just exit, leaving cache unchanged */
     size_t cand_len = 0;
 
@@ -74,8 +76,8 @@ static void regenerate_cache(idx_t target_n)
             /* Add to the list, resizing if necessary. */
             if (cand_len == cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cand, cap * sizeof(seq_t));
-                if (!tmp) { free(cand); return; } /* allocation failure */
+                seq_t *tmp = mem_resize(seq_t, cand, cap);
+                if (!tmp) { mem_free(cand); return; } /* allocation failure */
                 cand = tmp;
             }
             cand[cand_len++] = r;
@@ -83,7 +85,7 @@ static void regenerate_cache(idx_t target_n)
     }
 
     /* Sort candidates. */
-    qsort(cand, cand_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(cand, cand_len, sizeof(seq_t), seq_cmp);
 
     /* Remove duplicates in place. */
     size_t uniq = 0;
@@ -99,7 +101,7 @@ static void regenerate_cache(idx_t target_n)
     }
 
     /* Replace old cache. */
-    free(seq_arr);
+    mem_free(seq_arr);
     seq_arr = cand;
     seq_len = uniq;
 }

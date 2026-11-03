@@ -7,6 +7,7 @@
  * Formula:   a(n) = 8*Fibonacci(n+2) + Fibonacci(n)
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 41, u64 n <= 87, u128 n <= 179,
  *            big any n
+ * Validated: standard, pass, 59 terms through n = 985 (2026-11-01)
  * Helpers:   fib_pair
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2 ^ ( r - min(j, 2*r - j) ) where r = ⌊√n⌋ and j = n -
  *            r^2 (offset inside the r‑th row of the pyramid)
  * Range:     u8 n <= 63, u16 n <= 255, u32 n <= 1023, u64 n <= 4095,
- *            u128 n <= 9995, big any n
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 100 terms through n = 9995 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

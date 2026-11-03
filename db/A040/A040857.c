@@ -8,7 +8,8 @@
  *            ⌊√887⌋, and for n ≥ 1 the terms repeat with period 12
  * Range:     u8 none, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   isqrt_seq
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/isqrt_seq.h"
+#include <stdbool.h>
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
 
 seq_t a(idx_t n)
 {

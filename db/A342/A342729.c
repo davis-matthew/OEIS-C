@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 9832, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sumdigits_neg4
+ * Validated: standard, pass, 74 terms through n = 9600 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/sumdigits_neg4.h"
+#include "../utils/mem.h"
+
+/* Digit sum of x in base -4.  x fits in a 64‑bit unsigned integer. */
+static seq_t sumdigits_neg4(idx_t x)
+{
+    int64_t n = (int64_t)x;
+    seq_t sum = 0;
+    while (n != 0) {
+        int r = n % -4;      /* remainder in {0,1,2,3} for positive n */
+        n = n / -4;
+        if (r < 0) {         /* adjust negative remainder to 0..3 */
+            r += 4;
+            n += 1;
+        }
+        sum += (seq_t)r;
+    }
+    return sum;
+}
 
 /* Static cache of self numbers and parameters for incremental growth. */
 static seq_t *self_nums = NULL;   /* array of self numbers (0‑based index) */
@@ -42,7 +60,7 @@ static void rebuild(idx_t limit)
     }
 
     size_t est = limit / 2 + 10;            /* rough density estimate */
-    seq_t *buf = (seq_t *)malloc(est * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, est);
     if (!buf)
         abort();
 
@@ -51,7 +69,7 @@ static void rebuild(idx_t limit)
         if (!marked[(size_t)x]) {
             if (pos >= est) {               /* grow buffer if needed */
                 est <<= 1;
-                buf = (seq_t *)realloc(buf, est * sizeof(seq_t));
+                buf = mem_resize(seq_t, buf, est);
                 if (!buf)
                     abort();
             }
@@ -60,7 +78,7 @@ static void rebuild(idx_t limit)
     }
 
     free(marked);
-    free(self_nums);
+    mem_free(self_nums);
     self_nums = buf;
     self_count = pos;
     current_limit = limit;

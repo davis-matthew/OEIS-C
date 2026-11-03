@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = max{ k | sigma(k) divides n } (sigma = sum of divisors)
- * Range:     u8 n <= 21, u16 n <= 2230, u32 n <= 9620, u64 n <= 9620,
- *            u128 n <= 9620, big any n
- * Helpers:   none
+ * Range:     u8 n <= 21, u16 n <= 2230, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 96 terms through n = 9620 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint32_t *spf = NULL;          /* smallest prime factor for each number */
 static size_t spf_cap = 0;            /* current allocated size for spf */
@@ -51,7 +53,7 @@ static void ensure_sigma_cache(idx_t limit)
 {
     if (limit < sigma_cap) return;
 
-    seq_t *new_cache = (seq_t *)realloc(sigma_cache, (limit + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, sigma_cache, (limit + 1));
     if (!new_cache) exit(1);
     sigma_cache = new_cache;
     /* initialise new slots to zero */

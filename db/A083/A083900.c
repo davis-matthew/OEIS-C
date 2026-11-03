@@ -8,14 +8,27 @@
  *            (base 10)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   digits_leq5
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/digits_leq5.h"
+
+/* Check whether all decimal digits of x are <= 5. */
+static bool digits_leq5(seq_t x)
+{
+    if (x == 0) return true;           /* 0 never occurs as a divisor, but keep safe */
+
+    while (x > 0) {
+        seq_t d = x % (seq_t)10;
+        if (d > (seq_t)5) return false;
+        x /= (seq_t)10;
+    }
+    return true;
+}
 
 /* Factorize n (uint64_t) into prime factors.
    primes[]   : array to store prime factors (max 64)

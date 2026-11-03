@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Check whether base‑7 representation of x contains the substring "02". */
 static bool has02(seq_t x)
@@ -48,12 +50,12 @@ seq_t a(idx_t n)
     if (built < n) {
         if (buf == NULL) {
             cap = 64;
-            buf = (seq_t *)malloc(cap * sizeof(seq_t));
+            buf = mem_new(seq_t, cap);
         }
         while (built < n) {
             if (built == cap) {
                 cap <<= 1;
-                buf = (seq_t *)realloc(buf, cap * sizeof(seq_t));
+                buf = mem_resize(seq_t, buf, cap);
             }
             ++cur_k;
             if (has02(cur_k) && !has02(cur_k - 1)) {

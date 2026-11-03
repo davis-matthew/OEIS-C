@@ -8,12 +8,14 @@
  * Formula:   a(n) = numerator(1/18 - 1/(3*(n+1)*(n+2)*(n+3)))
  * Range:     u8 n <= 0, u16 n <= 13, u32 n <= 732, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 62 terms through n = 934 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*          = (P-6)/gcd(P-6,18*P) where P = (n+1)(n+2)(n+3) */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

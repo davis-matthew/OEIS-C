@@ -11,6 +11,7 @@
  *            T(i)=3*2^(i-2)
  * Range:     u8 n <= 42, u16 n <= 150, u32 n <= 558, u64 n <= 2142,
  *            u128 n <= 8382, big any n
+ * Validated: standard, pass, 94 terms through n = 9900 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

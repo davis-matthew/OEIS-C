@@ -8,7 +8,8 @@
  *            a(4) = a(5) = 1
  * Range:     u8 n <= 34, u16 n <= 65, u32 n <= 128, u64 n <= 253,
  *            u128 n <= 504, big any n
- * Helpers:   alloc_cache
+ * Validated: standard, pass, 74 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
    It uses a static cache to memoise computed terms.
    The cache is grown only when a larger index is requested,
    so repeated calls are handled efficiently. */
-#include "../utils/alloc_cache.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {

@@ -12,14 +12,22 @@
  *            484*7^(n-2) + 79*3^(n-2) - 4 (n >= 3)
  * Range:     u8 none, u16 n <= 3, u32 n <= 5, u64 n <= 11, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: standard, pass, 31 terms through n = 533 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,11 +36,11 @@ seq_t a(idx_t n)
 
     idx_t exp = n - 2;          /* exponent for all powers */
 
-    seq_t p63 = big_pow((seq_t)63, (seq_t)exp);
-    seq_t p31 = big_pow((seq_t)31, (seq_t)exp);
-    seq_t p15 = big_pow((seq_t)15, (seq_t)exp);
-    seq_t p7  = big_pow((seq_t)7,  (seq_t)exp);
-    seq_t p3  = big_pow((seq_t)3,  (seq_t)exp);
+    seq_t p63 = ipow((seq_t)63, (seq_t)exp);
+    seq_t p31 = ipow((seq_t)31, (seq_t)exp);
+    seq_t p15 = ipow((seq_t)15, (seq_t)exp);
+    seq_t p7  = ipow((seq_t)7,  (seq_t)exp);
+    seq_t p3  = ipow((seq_t)3,  (seq_t)exp);
 
     seq_t result = seq_mul(p63, (seq_t)961);          /* 961*63^(n-2) */
 

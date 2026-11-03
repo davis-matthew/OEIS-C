@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 7346, u16 n <= 7346, u32 n <= 7346, u64 n <= 7346,
- *            u128 n <= 7346, big any n
- * Helpers:   none
+ * Range:     u8 n <= 14517, u16 n <= 14517, u32 n <= 14517, u64 n <= 14517,
+ *            u128 n <= 14517, big any n
+ * Validated: standard, pass, 106 terms through n = 7346 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
     The implementation uses subset‑sum dynamic programming.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     size_t len = (size_t)n + 1;
 
     /* allocate the DP array of seq_t elements */
-    seq_t *dp = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp) {
         /* allocation failed – return zero as a safe fallback */
         return (seq_t)0;
@@ -71,6 +73,6 @@ seq_t a(idx_t n)
     /* the desired count is at dp[n] */
     seq_t result = dp[(size_t)n];
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

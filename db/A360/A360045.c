@@ -8,14 +8,16 @@
  *            A360045, offset 0)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 26, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b) -> seq_t */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;   /* array of computed values */
@@ -32,7 +34,7 @@ static void ensure_capacity(idx_t needed)
     while (new_cap <= (size_t)needed)
         new_cap <<= 1;
     /* realloc returns void* in C, void* in C++. Cast explicitly. */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();      /* allocation failure */
     cache = tmp;
     cap   = (idx_t)new_cap;

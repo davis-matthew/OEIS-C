@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 185, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   free_seq_array, seq_alloc_new_array
+ * Validated: standard, pass, 82 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,16 @@
 #include <math.h>
 #include <stddef.h>
 
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq_array.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Very small primality test for 64‑bit values */
 static bool is_prime_uint64(uint64_t v)

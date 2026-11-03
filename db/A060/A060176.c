@@ -10,8 +10,9 @@
  *            A(r,k)=p_k^{v_{p_k}(r)} by falling antidiagonals. Equivalent
  *            mapping: let s satisfy s*(s+1)/2 ≥ n, let offset = n -
  *            (s-1)*s/2, then row = offset, col = s-offset+1
- * Range:     u8 n <= 9259, u16 n <= 9259, u32 n <= 9259, u64 n <= 9259,
- *            u128 n <= 9259, big any n
+ * Range:     u8 n <= 22155, u16 n <= 22155, u32 n <= 22155, u64 n <= 22155,
+ *            u128 n <= 22155, big any n
+ * Validated: standard, pass, 121 terms through n = 9259 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

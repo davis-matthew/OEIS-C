@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* Includes common utilities available in the build environment. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The function computes the sequence value for any non‑negative index n.
  * It uses a static cache that grows on demand.  The cache entries are
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         size_t new_sz = idx + 1;
         /* realloc returns void* in both C and C++; a cast keeps strict
          * compliance with C++ rules. */
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (!tmp) abort();            /* Out of memory – terminate. */
         cache = tmp;
 

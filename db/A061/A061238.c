@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 1095, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 65 terms through n = 8300 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
    (i.e. prime numbers that are 2 modulo 9).  a(1)=2, a(2)=11, …   */
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 static seq_t *list = NULL;      /* array of found primes */

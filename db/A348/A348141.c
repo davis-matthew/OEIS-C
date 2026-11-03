@@ -7,6 +7,7 @@
  * Formula:   a(n) = denominator of tan(n * arctan(1/n))
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 9, u64 n <= 17, u128 n <= 27,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 386 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
  * if tan(kθ) = A/B (in lowest terms) and tanθ = 1/n,
  * then tan((k+1)θ) = (A·n + B) / (B·n - A); reduce each step. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

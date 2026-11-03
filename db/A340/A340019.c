@@ -10,7 +10,8 @@
  *            square‑free semiprime. The number 1 is considered valid
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const idx_t MAX_SIEVE = 2000000;          /* sieve limit sufficient for n ≤ 10000 */
 
@@ -145,7 +147,7 @@ seq_t a(idx_t n)
         if (is_valid(val)) {
             if (cache_len >= cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) exit(1);
             }
             cache[cache_len++] = (seq_t)val;

@@ -8,13 +8,16 @@
  * Formula:   a(n) = n! * C(n-7, 3) / 2^{n-8} (for n >= 9, a(9)=0)
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 11, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 7 terms through n = 15 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     if (n > fact_len) {
         idx_t new_len = n + 1;                      /* include n itself   */
         /* allocate / reallocate the array */
-        fact = (seq_t*)realloc(fact, new_len * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_len);
         /* initialise from previous state */
         if (fact_len == 0) {
             fact[0] = (seq_t)1;                    /* 0! = 1 */

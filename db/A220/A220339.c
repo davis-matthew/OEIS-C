@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 148 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #ifdef __cplusplus
 // C++ build: use the operators provided by the big integer class
@@ -63,14 +65,14 @@ seq_t a(idx_t n)
 
     if (cache_len == 0) {
         cache_len = 22;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         for (idx_t i = 0; i < 22; ++i) {
             cache[i] = init[i];
         }
     }
 
     if (n > cache_len) {
-        seq_t *newptr = (seq_t*)realloc(cache, n * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, n);
         if (!newptr) {
             // allocation failed; return 0 or handle error as needed
             return 0;

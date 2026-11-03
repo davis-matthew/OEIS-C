@@ -8,7 +8,8 @@
  *            semiprime
  * Range:     u8 n <= 5, u16 n <= 28, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   is_prime, is_prime_small, reverse_decimal
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   is_prime, is_prime_seq, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/reverse_decimal.h"
-#include "../utils/is_prime_small.h"
 #include "../utils/is_prime.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static bool is_semiprime_uint64(uint64_t n)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     if (cache_cap == 0)
     {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
     }
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         seq_t root = (seq_t)next_root;        /* cast to seq_t          */
         seq_t sq   = root * root;             /* candidate square       */
 
-        seq_t rev = reverse_decimal(sq);      /* decimal reversal       */
+        seq_t rev = reverse_digits(sq);      /* decimal reversal       */
 
         /* Only test if the reversal fits in 64‑bit; otherwise skip       */
         if (rev <= (seq_t)UINT64_MAX)
@@ -74,8 +76,7 @@ seq_t a(idx_t n)
                 if (cache_size >= cache_cap)
                 {
                     cache_cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(cache,
-                                                  cache_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                     if (!tmp) abort();
                     cache = tmp;
                 }

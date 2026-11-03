@@ -10,14 +10,30 @@
  *            binomial(r–1,k) for k > 0
  * Range:     u8 n <= 24, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   _row_of, binomial, pow2
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/_row_of.h"
+
+static inline idx_t _row_of(idx_t n)
+{
+    idx_t lo = 0, hi = 1;
+    while ((unsigned __int128)hi * (hi + 1) / 2 < n) hi <<= 1;
+    while (lo + 1 < hi) {
+        idx_t mid = lo + ((hi - lo) >> 1);
+        if ((unsigned __int128)mid * (mid + 1) / 2 >= n)
+            hi = mid;
+        else
+            lo = mid;
+    }
+    return hi;
+}
 
 seq_t a(idx_t n)
 {

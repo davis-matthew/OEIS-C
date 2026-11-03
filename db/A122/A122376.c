@@ -9,7 +9,8 @@
  *            smallest number having exactly n divisors
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 8285 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <float.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* maximum divisor count we will pre‑compute */
 #define MAX_LIMIT 20000
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;
     if (!initialized) {
         /* allocate tables */
-        best_omega = (seq_t *)malloc((MAX_LIMIT + 1) * sizeof(seq_t));
+        best_omega = mem_new(seq_t, (MAX_LIMIT + 1));
         best_log   = (double *)malloc((MAX_LIMIT + 1) * sizeof(double));
         prime_log  = (double *)malloc(NUM_PRIMES * sizeof(double));
         if (!best_omega || !best_log || !prime_log) {

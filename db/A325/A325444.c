@@ -11,7 +11,8 @@
  *            computes a(n) on demand, caching all previously needed terms...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9323 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static state used for memoisation. */
 static seq_t *A = NULL;          /* array of A values */
@@ -53,7 +55,7 @@ static void ensure_A_capacity(idx_t n)
     if (n <= (idx_t)capA) return;
     size_t newCap = capA ? capA * 2 : 16;
     while (newCap < (size_t)n) newCap <<= 1;
-    A = (seq_t *)realloc(A, newCap * sizeof(seq_t));
+    A = mem_resize(seq_t, A, newCap);
     capA = newCap;
 }
 

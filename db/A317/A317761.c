@@ -10,13 +10,27 @@
  *            a(4)=72, a(5)=109, a(6)=177 (OEIS A317761)
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 34, u64 n <= 70, u128 n <= 143,
  *            big any n
- * Helpers:   init_val
+ * Validated: standard, pass, 48 terms through n = 170 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/init_val.h"
+#include "../utils/mem.h"
+
+static seq_t init_val(size_t i) {
+    /* i is zero based index (0 => a(1)) */
+    switch (i) {
+        case 0: return (seq_t)16;
+        case 1: return (seq_t)42;
+        case 2: return (seq_t)52;
+        case 3: return (seq_t)72;
+        case 4: return (seq_t)109;
+        case 5: return (seq_t)177;
+        default: return (seq_t)0; /* should never happen */
+    }
+}
 
 static seq_t *cache = NULL;          /* 1‑based sequence stored 0‑based */
 static size_t cache_size = 0;        /* number of terms currently stored */
@@ -27,8 +41,7 @@ seq_t a(idx_t n) {
     size_t need = (size_t)n;
     if (cache == NULL || cache_size < need) {
         size_t new_cap = need;
-        seq_t *new_cache = (seq_t *)realloc(cache,
-                                            new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {
             /* abort on allocation failure */
             abort();

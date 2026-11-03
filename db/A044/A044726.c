@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Test whether the decimal representation of x contains the substring "13". */
 static bool has13(seq_t x)
@@ -48,10 +50,10 @@ seq_t a(idx_t n)
     /* Grow the cache array to accommodate more terms. */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_size >= cache_cap) {
         cache_cap *= 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Generate terms until we have enough. */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             cache[cache_size++] = next_candidate;
             if (cache_size >= cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
         }
         next_candidate++;

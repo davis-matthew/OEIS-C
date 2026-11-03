@@ -10,14 +10,24 @@
  *            row(row+1)/2, T(row,k) = binomial(row,k) * A089041(row-k)
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 44, u64 n <= 90, u128 n <= 230,
  *            big any n
- * Helpers:   binomial, factorial_int
+ * Validated: standard, pass, 61 terms through n = 4720 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/factorial_int.h"
+
+/* small factorial, works for all m the result fits in seq_t (big‑int or 128‑bit). */
+static seq_t factorial_int(idx_t m) {
+    seq_t res = (seq_t)1;
+    for (idx_t i = 1; i <= m; ++i) {
+        res *= (seq_t)i;
+    }
+    return res;
+}
 
 /* A089041(m) = Σ_{s=0..m} (-1)^s * binomial(m,s) * factorial(m-s)^2. */
 static seq_t A089041(idx_t m) {

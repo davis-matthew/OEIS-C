@@ -10,7 +10,8 @@
  *            lazy expansion of the result array
  * Range:     u8 n <= 39, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod) {
     return (uint64_t)((unsigned __int128)a * b % mod);
@@ -94,7 +96,7 @@ seq_t a(idx_t n) {
         if (is_prime_uint64(v1) && is_prime_uint64(v2)) {
             if (len == cap) {
                 cap = (cap == 0) ? 16 : cap * 2;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[len++] = (seq_t)next_trial;
         }

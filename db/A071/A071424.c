@@ -8,7 +8,8 @@
  * Formula:   a(1) = 1, a(n) = a(n‑1) + number_of_digits(n!) (n ≥ 2)
  * Range:     u8 n <= 24, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   digit_count_of_factorial
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,18 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
-#include "../utils/digit_count_of_factorial.h"
+#include "../utils/mem.h"
+
+/* Helper: compute the number of decimal digits of a factorial by accumulating logs */
+static int digit_count_of_factorial(idx_t n, long double *logsum)
+{
+    /* log10(n!) = Σ_{k=1}^n log10(k)  */
+    /* floor(log10(n!)) + 1 gives the digit count.  Use a small epsilon to avoid
+       floor inaccuracies at integer boundaries. */
+    if (n == 0) return 0;          /* not used for the sequence but keeps the function generic */
+    long double value = logsum[n];
+    return (int)floor(value + 1e-12L) + 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +41,7 @@ seq_t a(idx_t n)
     /* Allocate (or resize) storage if needed */
     if (n > max_n) {
         size_t new_len = (size_t)(n + 1); /* indices 0 … n */
-        pref    = (seq_t *)realloc(pref,    new_len * sizeof(seq_t));
+        pref    = mem_resize(seq_t, pref, new_len);
         logsum  = (long double *)realloc(logsum, new_len * sizeof(long double));
 
         /* First call: initialise everything */

@@ -8,7 +8,8 @@
  *            consecutive primes each ≡ 1 (mod 4)
  * Range:     u8 n <= 5, u16 n <= 342, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 68 terms through n = 9941 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -71,8 +73,7 @@ seq_t a(idx_t n)
             if (term_cnt >= term_cap)
             {
                 term_cap = term_cap ? term_cap << 1 : 4;
-                term_list = (seq_t *)realloc(term_list,
-                                             term_cap * sizeof(seq_t));
+                term_list = mem_resize(seq_t, term_list, term_cap);
             }
             term_list[term_cnt++] = val;
         }

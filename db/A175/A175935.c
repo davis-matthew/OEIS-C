@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,14 +29,15 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 1;
 
     /* Allocate temporary rows, cast to seq_t* so that code compiles in C++ */
-    seq_t *prev      = (seq_t *)calloc(1, sizeof(seq_t));
-    seq_t *prevprev  = (seq_t *)calloc(1, sizeof(seq_t));
+    seq_t *prev      = mem_new(seq_t, 1);
+    seq_t *prevprev  = mem_new(seq_t, 1);
     prev[0] = 1;          /* f(0,0) = 1 */
     prevprev[0] = 0;      /* dummy for missing row when i=1 */
 
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
     for (i = 1; i <= n; ++i) {
         size_t sz = (size_t)i + 1;   /* row length: j = 0 .. i */
-        curr = (seq_t *)calloc(sz, sizeof(seq_t));
+        curr = mem_new(seq_t, sz);
 
         for (j = 0; j <= i; ++j) {
             seq_t val = 0;
@@ -74,11 +76,11 @@ seq_t a(idx_t n)
         seq_t *tmp = prevprev;
         prevprev = prev;
         prev    = curr;
-        free(tmp);
+        mem_free(tmp);
     }
 
     seq_t result = prev[n];
-    free(prevprev);
-    free(prev);
+    mem_free(prevprev);
+    mem_free(prev);
     return result;
 }

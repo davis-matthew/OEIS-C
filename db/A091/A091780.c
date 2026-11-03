@@ -10,7 +10,8 @@
  *            common factor with a(n-1)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    and memoises previously generated terms. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Euclidean algorithm for seq_t (works for all built‑in and
    arbitrary‑precision unsigned types). */
@@ -46,12 +48,12 @@ seq_t a(idx_t n)
     if (!seq)
     {
         seq_cap = 256;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
     if (!used)
     {
         used_cap = 256;
-        used = (seq_t *)calloc(used_cap, sizeof(seq_t));
+        used = mem_new(seq_t, used_cap);
     }
 
     /* extend the sequence until we have at least n terms */
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
                     size_t new_cap = used_cap * 2;
                     if (new_cap < idx + 1)
                         new_cap = idx + 1;
-                    used = (seq_t *)realloc(used, new_cap * sizeof(seq_t));
+                    used = mem_resize(seq_t, used, new_cap);
                     /* new memory is uninitialised: zero it */
                     for (size_t i = used_cap; i < new_cap; ++i)
                         used[i] = 0;
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
         if (seq_len >= seq_cap)
         {
             seq_cap *= 2;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = cand;
 
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
             size_t new_cap = used_cap * 2;
             if (new_cap < idx + 1)
                 new_cap = idx + 1;
-            used = (seq_t *)realloc(used, new_cap * sizeof(seq_t));
+            used = mem_resize(seq_t, used, new_cap);
             for (size_t i = used_cap; i < new_cap; ++i)
                 used[i] = 0;
             used_cap = new_cap;

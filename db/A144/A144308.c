@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- prime sieve (once) ---------- */
 
@@ -115,13 +117,13 @@ seq_t a(idx_t n)
     idx_t k = (idx_t)(n - prev_tri);
 
     /* allocate the first row */
-    seq_t *prev = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     prev[0] = (seq_t)prime_list[0];   /* row 1: 2 */
 
     /* build rows sequentially up to row r */
     for (idx_t cur = 2; cur <= r; ++cur)
     {
-        seq_t *curr = (seq_t*)malloc(cur * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, cur);
         curr[0]           = (seq_t)prime_list[cur - 1];      /* left edge */
         curr[cur - 1]     = (seq_t)prime_list[cur - 2];      /* right edge */
 
@@ -131,12 +133,12 @@ seq_t a(idx_t n)
             curr[j] = core_func(sum);
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
     seq_t ans = prev[k - 1];
 
-    free(prev);
+    mem_free(prev);
     return ans;
 }

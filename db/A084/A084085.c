@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 45, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 820 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* first invocation: allocate cache big enough for at least the first 4 terms */
     if (cache == NULL) {
         cache_cap = (n + 1) > 4 ? (n + 1) : 4;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         /* initialise the first four base values */
         cache[0] = 1;
         cache[1] = 2;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_cap) {
         idx_t new_cap = cache_cap;
         while (new_cap <= n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

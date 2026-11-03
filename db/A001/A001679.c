@@ -11,20 +11,49 @@
  *            c(k)*E(n-k), c(k) = Sum_{d|k} d*L(d) (arbitrary precision...
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 36, u64 n <= 65, u128 n <= 123,
  *            big any n
- * Helpers:   a1679_bits, a1679_final, a1679_gcd, a1679_mul, a1679_tri,
- *            alloc_array
+ * Validated: standard, pass, 53 terms through n = 991 (2026-11-03)
+ * Helpers:   gcd, mem, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_array.h"
-#include "../utils/a1679_bits.h"
-#include "../utils/a1679_final.h"
-#include "../utils/a1679_gcd.h"
-#include "../utils/a1679_mul.h"
-#include "../utils/a1679_tri.h"
+#include "../utils/gcd.h"
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_array(idx_t n) {
+    seq_t *p = mem_new(seq_t, (n + 1));
+    for (idx_t i = 0; i <= n; i++) {
+        p[i] = 0;
+    }
+    return p;
+}
+
+static int a1679_bits(void) {
+    seq_t x = 1;
+    int b;
+    for (b = 1; b <= 300; b++) {
+        x = x * 2;
+        if (x == 0) return b;
+    }
+    return 0;
+}
+
+static seq_t a1679_mul(seq_t x, seq_t y) {
+    return (seq_t)(1u * x * y);
+}
+
+/* L[i] = number of lone-child-avoiding rooted trees with i nodes; f_i = L[i-1] */
+static seq_t a1679_final(const seq_t *L, idx_t n) {
+    idx_t m = n + 1;
+    seq_t s = 0;
+    idx_t i;
+    for (i = 1; 2 * i < m; i++) s += a1679_mul(L[i - 1], L[m - i - 1]);
+    if (m % 2 == 0) s += triangular_seq(L[m / 2 - 1]);
+    return (seq_t)(L[n] + L[n - 1] - s);
+}
 
 static seq_t *bL = NULL, *bE = NULL, *bC = NULL;
 static idx_t bcap = 0;
@@ -39,8 +68,8 @@ seq_t a(idx_t n) {
         if (n > (idx_t)(2 * bits + 20)) return 0;
         N = n + 1;
         W = N + 1;
-        L = (seq_t *)malloc((size_t)W * sizeof(seq_t));
-        F = (seq_t *)malloc((size_t)W * (size_t)W * sizeof(seq_t));
+        L = mem_new(seq_t, (size_t)W);
+        F = mem_new(seq_t, (size_t)W * (size_t)W);
         for (k = 0; k <= N; k++) { L[k] = 0; F[k] = 1; }
         L[1] = 1;
         for (m = 1; m + 1 <= n; m++) {
@@ -51,7 +80,7 @@ seq_t a(idx_t n) {
                 for (j = 1; j * k <= m; j++) {
                     seq_t num = L[k] + (seq_t)(j - 1);
                     seq_t js = (seq_t)j;
-                    seq_t g = a1679_gcd(r, js);
+                    seq_t g = gcd(r, js);
                     idx_t rem = m - j * k;
                     idx_t kk = (k - 1 < rem) ? k - 1 : rem;
                     r = a1679_mul(r / g, num / (js / g));
@@ -62,8 +91,8 @@ seq_t a(idx_t n) {
             L[m + 1] = (seq_t)(F[m * W + m] - L[m]);
         }
         res = a1679_final(L, n);
-        free(L);
-        free(F);
+        mem_free(L);
+        mem_free(F);
         return res;
     }
     if (n + 1 > bcap) {

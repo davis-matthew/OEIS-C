@@ -11,12 +11,14 @@
  *            4) nor to (sum of elements above it + 2 mod 4)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 /* Edge structure used for the adjacency list of the column transition graph. */
 typedef struct {
@@ -111,12 +113,12 @@ seq_t a(idx_t n) {
        DP over columns.  dp_cur holds the number of ways to reach each
        left‑sum state after processing a certain number of columns.
        -------------------------------------------------------------------- */
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
     dp_cur[0] = 1;        /* all left sums start at zero */
 
     for (idx_t col = 0; col < n; ++col) {
         /* Reset the next column's DP array. */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         /* For each current state, jump to all reachable next states. */
         for (int cur = 0; cur < 256; ++cur) {
@@ -130,7 +132,7 @@ seq_t a(idx_t n) {
             }
         }
         /* Copy dp_next back into dp_cur for the next column. */
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     /* The answer is the sum over all final left‑sum states. */

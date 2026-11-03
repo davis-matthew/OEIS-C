@@ -7,18 +7,20 @@
  * Formula:   a(n) = (1 + 8*64^n + 9*(-27)^n)/18, a(0)=1
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 4, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 519 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* compute 64^n and 27^n */
-    seq_t pow64 = big_pow((seq_t)64, (seq_t)n);
-    seq_t pow27 = big_pow((seq_t)27, (seq_t)n);
+    seq_t pow64 = ipow((seq_t)64, (seq_t)n);
+    seq_t pow27 = ipow((seq_t)27, (seq_t)n);
     
     /* 8*64^n and 9*27^n */
     seq_t term1 = pow64 * 8;

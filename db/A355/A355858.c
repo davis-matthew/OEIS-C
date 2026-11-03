@@ -7,12 +7,17 @@
  * Formula:   a(n) = n^(2*n-1) mod (2*n-1)
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     /* 2*n-1 fits in idx_t for the intended ranges */
@@ -24,5 +29,5 @@ seq_t a(idx_t n) {
     if (mod == 1) return 0;
 
     uint64_t exp = 2 * n - 1;
-    return mod_pow(base, exp, mod);
+    return powmod(base, exp, mod);
 }

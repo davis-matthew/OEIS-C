@@ -8,7 +8,8 @@
  * Formula:   a(n) = LCM_{d|n} reverse_decimal(d)
  * Range:     u8 n <= 13, u16 n <= 55, u32 n <= 209, u64 n <= 713,
  *            u128 n <= 5095, big any n
- * Helpers:   gcd, reverse_decimal
+ * Validated: standard, pass, 93 terms through n = 8796 (2026-11-01)
+ * Helpers:   gcd, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/reverse_decimal.h"
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -31,12 +33,12 @@ seq_t a(idx_t n)
 
     for (d = 1; d <= n / d; ++d) {
         if (n % d == 0) {
-            seq_t rev_d = reverse_decimal((seq_t)d);
+            seq_t rev_d = reverse_digits((seq_t)d);
             seq_t g = gcd(lcm, rev_d);
             lcm = (lcm / g) * rev_d;
 
             if (d != n / d) {
-                seq_t rev_q = reverse_decimal((seq_t)(n / d));
+                seq_t rev_q = reverse_digits((seq_t)(n / d));
                 g = gcd(lcm, rev_q);
                 lcm = (lcm / g) * rev_q;
             }

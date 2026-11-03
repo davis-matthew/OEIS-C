@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache for computed terms */
 static idx_t cache_len = 0;      /* number of cached entries (indices 0 … cache_len-1) */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         size_t new_size = (size_t)(n + 1) * sizeof(seq_t);
 
         /* realloc with explicit cast for C++ compatibility */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, (new_size) / sizeof(seq_t));
         if (!tmp) {
             /* allocation failed – return 0 as a sentinel value */
             return (seq_t)0;

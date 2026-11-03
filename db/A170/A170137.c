@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
              p(n) = 2 for 1 ≤ n ≤ 37,
              p(n) = 0 otherwise.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for computed values */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     /* Resize cache */
     idx_t old_len = cache_len;
     cache_len = n + 1;
-    cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_len);
 
     for (idx_t i = old_len; i <= n; ++i) {
         seq_t sum = 0;

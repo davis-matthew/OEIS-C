@@ -12,6 +12,7 @@
  *            a(n) is the n‑th element of this triangle (OEIS offset 1)
  * Range:     u8 n <= 1843, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 86 terms through n = 8513 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

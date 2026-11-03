@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9336 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* NOTE:  idx_t and seq_t are defined by the build.  idx_t is unsigned 64‑bit. */
 
 static inline bool has_property(idx_t k)
@@ -62,7 +64,7 @@ static void ensure_capacity(size_t needed)
     if (cache_len + needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (cache_len + needed > new_cap) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();            /* memory exhausted */
     cache = new_cache;
     cache_cap = new_cap;

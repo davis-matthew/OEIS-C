@@ -8,13 +8,17 @@
  *            a(n-1)^a(n-2) (OEIS A263048)
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,21 +34,21 @@ seq_t a(idx_t n)
     /* Ensure cache is large enough */
     if (cache == NULL) {
         cache_cap = (size_t)n + 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0; /* allocation failure, return 0 as sentinel */
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
     } else if ((size_t)n + 1 > cache_cap) {
         cache_cap = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         if (!cache) return (seq_t)0;
     }
 
     /* Compute missing entries up to n */
     if (computed_max < n) {
         for (idx_t i = computed_max + 1; i <= n; ++i) {
-            seq_t x = big_pow(cache[i-2], cache[i-1]); /* a(i-2)^a(i-1) */
-            seq_t y = big_pow(cache[i-1], cache[i-2]); /* a(i-1)^a(i-2) */
+            seq_t x = ipow(cache[i-2], cache[i-1]); /* a(i-2)^a(i-1) */
+            seq_t y = ipow(cache[i-1], cache[i-2]); /* a(i-1)^a(i-2) */
             cache[i] = x + y;
         }
         computed_max = n;

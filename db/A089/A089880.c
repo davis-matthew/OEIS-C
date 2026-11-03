@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = (A000108(n)+A089849(n))/2
- * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 26, u128 n <= 26,
+ * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binom_helper, cat_helper
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,15 @@
    arbitrary‑precision integer).  The index type is idx_t (unsigned 64‑bit). */
 
 #include <stdint.h>
-#include "../utils/binom_helper.h"
-#include "../utils/cat_helper.h"
+#include "../utils/binomial.h"
+
+/* ------------------------------------------------------------------ */
+static seq_t cat_helper(idx_t n)
+{
+    seq_t c = binomial(2 * n, n);
+    c = c / (seq_t)(n + 1);
+    return c;
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper: binomial coefficient C(n,k) = n!/(k!(n−k)!)                 */
@@ -40,7 +48,7 @@ seq_t a(idx_t n)
           if n is odd  -> Catalan((n-1)/2)  */
     seq_t a089849_val;
     if ((n & 1ULL) == 0) {               /* n is even */
-        a089849_val = binom_helper(n, n / 2);
+        a089849_val = binomial(n, n / 2);
     } else {                             /* n is odd */
         a089849_val = cat_helper((n - 1) / 2);
     }

@@ -11,14 +11,15 @@
  *            n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   power_of_two_seq
+ * Validated: standard, pass, 109 terms through n = 9612 (2026-11-01)
+ * Helpers:   pow2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/power_of_two_seq.h"
+#include "../utils/pow2_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -52,5 +53,5 @@ seq_t a(idx_t n)
     }
 
     /* a(n) = 2^k - 2^t */
-    return power_of_two_seq(k) - power_of_two_seq(t);
+    return pow2_u64(k) - pow2_u64(t);
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 69, u32 n <= 6918, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime64
+ * Validated: standard, pass, 58 terms through n = 9883 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/isPrime64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Pre‑computed powers of 3 up to 3^20 (enough for all 64‑bit candidates). */
 static const uint64_t POW3[21] = {
@@ -59,10 +61,10 @@ seq_t a(idx_t n) {
     /* Generate primes until we have the n‑th one. */
     while ((size_t)n > size) {
         uint64_t cand = nextCandidate();
-        if (isPrime64(cand)) {
+        if (is_prime_u64(cand)) {
             if (size == capacity) {
                 size_t new_cap = capacity ? capacity * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, new_cap);
                 if (!tmp) exit(1);   /* Out of memory */
                 primes = tmp;
                 capacity = new_cap;

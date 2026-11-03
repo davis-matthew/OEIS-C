@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /*--- static data used by the function ------------------------------------*/
 
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
         if (denom > current_max) {
             if (rec_len == rec_cap) {
                 size_t new_cap = rec_cap ? rec_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(record, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, record, new_cap);
                 if (!tmp) abort();
                 record = tmp;
                 rec_cap = new_cap;

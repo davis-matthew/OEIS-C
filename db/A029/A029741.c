@@ -8,7 +8,8 @@
  *            digits are all distinct (OEIS A029741)
  * Range:     u8 n <= 102, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9125 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Helper to grow a dynamic array of seq_t values                        */
@@ -25,7 +27,7 @@ static void append_seq(seq_t **array, size_t *cap, size_t *len, seq_t val)
 {
     if (*len >= *cap) {
         size_t new_cap = (*cap == 0) ? 128 : (*cap * 2);
-        seq_t *tmp = (seq_t *)realloc(*array, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *array, new_cap);
         if (!tmp) abort();
         *array = tmp;
         *cap   = new_cap;
@@ -71,7 +73,7 @@ static void init_cache(void)
     if (cache != NULL) return;   /* already built */
 
     cache_cap = 128;                     /* initial capacity */
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) abort();
 
     bool used[10] = {0};

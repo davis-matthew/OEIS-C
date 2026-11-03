@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} d^d * binomial(d + n/d - 2, d - 1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 34 terms through n = 384 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,10 @@
 /* Computes the OEIS sequence A343573. */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
         idx_t d1 = i;
         idx_t k1 = n / d1;               /* n/d1 */
 
-        seq_t pow1 = big_pow((seq_t)d1, (seq_t)d1);
+        seq_t pow1 = ipow((seq_t)d1, (seq_t)d1);
         seq_t bin1 = binomial(d1 + k1 - 2, d1 - 1);
         sum += pow1 * bin1;
 
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
         {
             idx_t k2 = n / d2;           /* equals i */
 
-            seq_t pow2 = big_pow((seq_t)d2, (seq_t)d2);
+            seq_t pow2 = ipow((seq_t)d2, (seq_t)d2);
             seq_t bin2 = binomial(d2 + k2 - 2, d2 - 1);
             sum += pow2 * bin2;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 60, u32 n <= 114, u64 n <= 219,
  *            u128 n <= 431, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9753 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 /* ------------------------------------------------------------------ */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 
@@ -41,7 +43,7 @@ static void ensure_dp(idx_t n)
     if (dp_cap > n) return;
     idx_t new_cap = dp_cap ? dp_cap : 1;
     while (new_cap <= n) new_cap <<= 1;   /* double until sufficient */
-    seq_t *new_dp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, new_cap);
     if (!new_dp) abort();                 /* out‑of‑memory */
     /* initialise the new entries to 0 */
     for (idx_t i = dp_cap; i < new_cap; ++i) new_dp[i] = 0;

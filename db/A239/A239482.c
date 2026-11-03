@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const idx_t MAX_N = 10000;          /* maximum n to pre‑compute   */
 static seq_t *dp_all_prev = NULL, *dp_all_cur = NULL;
@@ -52,11 +54,11 @@ static void init(void)
     if (initialized) return;
 
     /* allocate arrays */
-    dp_all_prev = (seq_t*)calloc(MAX_N + 1, sizeof(seq_t));
-    dp_all_cur  = (seq_t*)calloc(MAX_N + 1, sizeof(seq_t));
-    dp_no2_prev = (seq_t*)calloc(MAX_N + 1, sizeof(seq_t));
-    dp_no2_cur  = (seq_t*)calloc(MAX_N + 1, sizeof(seq_t));
-    a_arr       = (seq_t*)calloc(MAX_N + 1, sizeof(seq_t));
+    dp_all_prev = mem_new(seq_t, MAX_N + 1);
+    dp_all_cur  = mem_new(seq_t, MAX_N + 1);
+    dp_no2_prev = mem_new(seq_t, MAX_N + 1);
+    dp_no2_cur  = mem_new(seq_t, MAX_N + 1);
+    a_arr       = mem_new(seq_t, MAX_N + 1);
 
     /* initial conditions for unrestricted partitions (k = 0) */
     dp_all_prev[0] = 1;

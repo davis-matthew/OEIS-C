@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(1) = 1; for n>1, a(n) = -∑_{d|n, d<n} A119347(n/d) * a(d)
- * Range:     i8 n <= 59, i16 n <= 4919, i32 n <= 9078, i64 n <= 9078,
- *            i128 n <= 9078, big any n
- * Helpers:   none
+ * Range:     i8 n <= 59, i16 n <= 4919, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9078 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* helpers for the cache structures                                  */
@@ -34,9 +36,9 @@ static void ensure_arrays(idx_t n)
     if (n < seq_cap) return;
     idx_t newcap = seq_cap ? seq_cap << 1 : 16;
     while (newcap <= n) newcap <<= 1;
-    seq_vals   = (seq_t *)realloc(seq_vals,   newcap * sizeof(seq_t));
+    seq_vals   = mem_resize(seq_t, seq_vals, newcap);
     seq_done   = (unsigned char *)realloc(seq_done,   newcap);
-    A119_vals  = (seq_t *)realloc(A119_vals,  newcap * sizeof(seq_t));
+    A119_vals  = mem_resize(seq_t, A119_vals, newcap);
     A119_done  = (unsigned char *)realloc(A119_done,  newcap);
     if (seq_cap == 0) {
         memset(seq_done,   0, newcap);

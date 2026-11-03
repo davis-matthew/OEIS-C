@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   sum_base7
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/sum_base7.h"
+#include "../utils/mem.h"
+
+/* helper: sum of digits of x in base 7 */
+static uint64_t sum_base7(uint64_t x) {
+    uint64_t s = 0;
+    while (x) {
+        s += x % 7;
+        x /= 7;
+    }
+    return s;
+}
 
 /* helper: sum of distinct prime divisors of n */
 static uint64_t sum_distinct_prime_factors(uint64_t n) {
@@ -49,7 +60,7 @@ static void ensure_seq_cap(size_t needed) {
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 

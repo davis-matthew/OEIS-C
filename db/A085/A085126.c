@@ -6,14 +6,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = 3 * A002473(n) (the nth 7‑smooth number times 3)
- * Range:     u8 n <= 42, u16 n <= 438, u32 n <= 5524, u64 n <= 8759,
- *            u128 n <= 8759, big any n
- * Helpers:   none
+ * Range:     u8 n <= 42, u16 n <= 438, u32 n <= 5524, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 74 terms through n = 8759 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialisation on first call */
     if (len == 0) {
         cap   = 64;                     /* start with a reasonable size   */
-        smooth = (seq_t *)malloc(cap * sizeof(seq_t));
+        smooth = mem_new(seq_t, cap);
         if (!smooth) return 0;          /* memory error – return 0          */
         smooth[0] = 1;                  /* first 7‑smooth number          */
         len = 1;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* make sure there is space for at least n values */
     if (n > cap) {
         while (n > cap) cap <<= 1;      /* double until enough capacity */
-        seq_t *tmp = (seq_t *)realloc(smooth, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, smooth, cap);
         if (tmp) smooth = tmp;          /* ignore failure – return 0 later */
     }
 

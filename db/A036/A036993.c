@@ -11,13 +11,32 @@
  *            Explicitly, a(1)=0, a(2)=4, a(3)=8, …
  * Range:     u8 n <= 35, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   good_u64
+ * Validated: standard, pass, 72 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/good_u64.h"
+#include "../utils/mem.h"
+
+/* test the property for a 64‑bit unsigned integer.
+   The function is fast; seq_t may be wider but we only test
+   64‑bit values. */
+static int good_u64(uint64_t v)
+{
+    uint64_t zeros = 0, ones = 0;
+    while (v) {
+        if (v & 1ULL)
+            ++ones;
+        else
+            ++zeros;
+        if (zeros <= ones)
+            return 0;
+        v >>= 1;
+    }
+    return 1;
+}
 
 static seq_t *cache = NULL;          /* stored sequence values      */
 static size_t cache_len = 0;         /* number of values stored    */
@@ -33,7 +52,7 @@ static void ensure_cache(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_cap);
     cache = p;
     cache_cap = new_cap;
 }

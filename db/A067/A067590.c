@@ -8,7 +8,8 @@
  *            integers with an odd number of 1‑bits in binary)
  * Range:     u8 n <= 25, u16 n <= 70, u32 n <= 222, u64 n <= 760,
  *            u128 n <= 2753, big any n
- * Helpers:   popcnt64
+ * Validated: standard, pass, 70 terms through n = 9996 (2026-11-03)
+ * Helpers:   mem, popcount_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/popcnt64.h"
+#include "../utils/popcount_u64.h"
+#include "../utils/mem.h"
 
 /* Static array for n up to 10000.  The size is a compile‑time constant
    so it works in both C and C++. */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         dp_static[0] = (seq_t)1;
 
         for (idx_t coin = 1; coin <= n; ++coin) {
-            if ((popcnt64((uint64_t)coin) & 1) == 0)  /* not odious */
+            if ((popcount_u64((uint64_t)coin) & 1) == 0)  /* not odious */
                 continue;
             for (size_t i = (size_t)coin; i < len; ++i)
                 dp_static[i] += dp_static[i - (size_t)coin];
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* For n > 10000, allocate a dynamic array.  This path may be
        slower but covers the full requirement. */
     size_t len = (size_t)n + 1;
-    seq_t *dp_dyn = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *dp_dyn = mem_new(seq_t, len);
     if (!dp_dyn) return (seq_t)0;  /* allocation failed */
 
     for (size_t i = 0; i < len; ++i)
@@ -60,13 +62,13 @@ seq_t a(idx_t n)
     dp_dyn[0] = (seq_t)1;
 
     for (idx_t coin = 1; coin <= n; ++coin) {
-        if ((popcnt64((uint64_t)coin) & 1) == 0)
+        if ((popcount_u64((uint64_t)coin) & 1) == 0)
             continue;
         for (size_t i = (size_t)coin; i < len; ++i)
             dp_dyn[i] += dp_dyn[i - (size_t)coin];
     }
 
     seq_t result = dp_dyn[(size_t)n];
-    free(dp_dyn);
+    mem_free(dp_dyn);
     return result;
 }

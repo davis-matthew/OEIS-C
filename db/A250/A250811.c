@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 13, u64 n <= 33, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Cached sequence data */
 static seq_t *a_cache   = NULL;
@@ -40,7 +42,7 @@ static void a_ensure_capacity(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp)          /* out of memory – abort in a safe way */
         exit(1);
     a_cache = tmp;

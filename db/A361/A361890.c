@@ -9,17 +9,19 @@
  *            )^7
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 465 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t half = n / 2;
     /* Allocate array for binomial coefficients up to half */
-    seq_t *bin = (seq_t *)malloc((half + 1) * sizeof(seq_t));
+    seq_t *bin = mem_new(seq_t, (half + 1));
     if (!bin) return 0;                 /* allocation failure */
 
     bin[0] = 1;
@@ -48,6 +50,6 @@ seq_t a(idx_t n) {
         sum += d7;
     }
 
-    free(bin);
+    mem_free(bin);
     return sum;
 }

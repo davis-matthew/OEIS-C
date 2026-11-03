@@ -10,13 +10,15 @@
  *            m‑digit numbers with digit sum k (first digit non‑zero)
  * Range:     u8 n <= 64, u16 n <= 205, u32 n <= 495, u64 n <= 495,
  *            u128 n <= 495, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 443 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 
@@ -46,7 +48,7 @@ static void ensure_tables(idx_t m_needed)
         C_cap = 1;
         C_arrays = (seq_t**)calloc(C_cap, sizeof(seq_t*));
         C_sizes  = (size_t*)calloc(C_cap, sizeof(size_t));
-        C_arrays[0] = (seq_t*)calloc(1, sizeof(seq_t));
+        C_arrays[0] = mem_new(seq_t, 1);
         C_arrays[0][0] = 1;
         C_sizes[0] = 1;
         C_max = 0;
@@ -67,7 +69,7 @@ static void ensure_tables(idx_t m_needed)
         }
 
         size_t len = 9ULL * (size_t)t + 1;      /* sums 0 … 9*t */
-        C_arrays[t] = (seq_t*)calloc(len, sizeof(seq_t));
+        C_arrays[t] = mem_new(seq_t, len);
         if (!C_arrays[t]) abort();
 
         seq_t *prev = C_arrays[t - 1];
@@ -112,7 +114,7 @@ static void ensure_tables(idx_t m_needed)
         }
 
         size_t len = 9ULL * (size_t)m + 1;      /* columns 0 … 9*m */
-        T_rows[m] = (seq_t*)calloc(len, sizeof(seq_t));
+        T_rows[m] = mem_new(seq_t, len);
         if (!T_rows[m]) abort();
 
         seq_t *prevC = C_arrays[m - 1];

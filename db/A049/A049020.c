@@ -13,13 +13,15 @@
  *            indices are treated as 0
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 107, u64 n <= 302,
  *            u128 n <= 824, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 8445 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Essential headers */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global static storage for the triangle */
 static seq_t **triangle = NULL;   /* array of rows; triangle[i] points to row i */
@@ -44,7 +46,7 @@ static void ensure_rows(idx_t rows_needed)
         idx_t new_row = rows_allocated;
 
         /* Allocate space for this row: new_row + 1 elements */
-        seq_t *row = (seq_t *)malloc(sizeof(seq_t) * (new_row + 1));
+        seq_t *row = mem_new(seq_t, (new_row + 1));
 
         if (new_row == 0) {
             /* Base case: a(0,0) = 1 */

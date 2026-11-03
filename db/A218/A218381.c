@@ -8,7 +8,8 @@
  *            i*j and i + j is a perfect square
  * Range:     u8 n <= 51, u16 n <= 4216, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- integer square root for 64‑bit values ---------- */
 static idx_t isqrt_u64(idx_t n)
@@ -65,7 +67,7 @@ static void ensure_cache_capacity(size_t need)
 {
     if (need <= cache_cap) return;
     while (cache_cap < need) cache_cap = cache_cap * 2 + 1;
-    seq_cache = (seq_t *)realloc(seq_cache, cache_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
 }
 
 /* ---------- public function required by the harness ---------- */
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     /* lazy cache initialisation */
     if (seq_cache == NULL) {
         cache_cap = 256;
-        seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
 

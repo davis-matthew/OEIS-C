@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 149, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega, pow10, reverse
+ * Validated: standard, pass, 59 terms through n = 8318 (2026-11-01)
+ * Helpers:   bigomega, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,20 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/reverse.h"
-#include "../utils/pow10.h"
+#include <stdlib.h>
+#include <stddef.h>
 #include "../utils/bigomega.h"
+#include "../utils/reverse_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Helper to compute 10^k as idx_t (k >= 0) */
 static idx_t pow10_idx(int k)
@@ -54,7 +66,7 @@ seq_t a(idx_t n)
 
             for (idx_t left = start; left <= end; ++left) {
                 seq_t left_seq = (seq_t)left;
-                seq_t rev = reverse(left_seq);
+                seq_t rev = reverse_digits(left_seq);
                 seq_t p = left_seq * pow_half + rev;
                 if (bigomega((idx_t)p) == 4) {
                     ++found;
@@ -70,7 +82,7 @@ seq_t a(idx_t n)
 
             for (idx_t left = start; left <= end; ++left) {
                 seq_t left_seq = (seq_t)left;
-                seq_t rev = reverse(left_seq);
+                seq_t rev = reverse_digits(left_seq);
                 for (int mid = 0; mid <= 9; ++mid) {
                     seq_t p = left_seq * pow_half_plus1
                                + (seq_t)mid * pow_half

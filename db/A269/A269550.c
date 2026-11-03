@@ -8,12 +8,14 @@
  *            c(1) = 228, c(2) = -5, c(n)=0 for n ≥ 3
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 450 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (cache_size <= n) {
         idx_t new_size = n + 1;
         /* realloc is returned as void* in C++: cast explicitly */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)
             return (seq_t)0;          /* allocation failed: fallback to 0 */
         cache = tmp;

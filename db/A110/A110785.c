@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 201, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   assemble_palindrome, binom_small
+ * Validated: standard, pass, 74 terms through n = 996 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,31 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom_small.h"
-#include "../utils/assemble_palindrome.h"
+#include "../utils/binomial.h"
+
+/*  Assemble the full palindrome from its left half in `buf`.  */
+static seq_t assemble_palindrome(const uint8_t *buf, idx_t k, bool odd_length)
+{
+    seq_t val = 0;
+
+    /* left half */
+    for (idx_t i = 0; i < k; ++i)
+        val = val * (seq_t)10 + buf[i];
+
+    /* mirrored part */
+    if (odd_length)
+    {
+        for (idx_t i = k - 2; (idx_t)i < k; --i)
+            val = val * (seq_t)10 + buf[i];
+    }
+    else
+    {
+        for (idx_t i = k - 1; (idx_t)i < k; --i)
+            val = val * (seq_t)10 + buf[i];
+    }
+
+    return val;
+}
 
 /*  Count of nonincreasing sequences of length `len` whose maximum
     digit does not exceed `max_val`.  The count equals
@@ -35,7 +59,7 @@
     where C is the binomial coefficient.  */
 static idx_t count_seq_remaining(idx_t len, uint8_t max_val)
 {
-    return (idx_t)binom_small(max_val + len, len);
+    return (idx_t)binomial(max_val + len, len);
 }
 
 /*  Build the left half of a palindrome of left‑half length `k`.
@@ -78,7 +102,7 @@ seq_t a(idx_t n)
         idx_t S_k = 0;
         for (int d = 1; d <= 9; ++d)
         {
-            seq_t c = binom_small(d + k - 1, k - 1);
+            seq_t c = binomial(d + k - 1, k - 1);
             S_k += (idx_t)c;
         }
 

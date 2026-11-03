@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 27, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for OEIS A233811. */
 seq_t a(idx_t n)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Allocate or grow cache if necessary. */
     idx_t needed = n + 1;                /* keep cache[0] unused */
     if (needed > cache_size) {
-        cache = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, needed);
         cache_size = needed;
 
         /* Initialise the known initial terms. */

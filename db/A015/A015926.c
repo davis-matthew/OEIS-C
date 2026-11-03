@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth positive integer m such that 2^m ≡ 2^6 (mod m)
  * Range:     u8 n <= 38, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 74 terms through n = 995 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mod_pow.h"
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* stored sequence values */
 static size_t cache_size = 0;        /* number of values stored */
@@ -25,11 +28,11 @@ static uint64_t last_checked = 0;    /* largest integer examined so far */
 static void grow_cache_once(void)
 {
     size_t new_cap = (cache_cap == 0 ? 8 : cache_cap * 2);
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) return;         /* silently fail – caller will abort */
     if (cache)
-        memcpy(new_arr, cache, cache_size * sizeof(seq_t));
-    free(cache);
+        mem_copy(new_arr, cache, cache_size * sizeof(seq_t));
+    mem_free(cache);
     cache = new_arr;
     cache_cap = new_cap;
 }
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
         uint64_t cand = last_checked + 1;
         last_checked = cand;
 
-        seq_t val = mod_pow((seq_t)2, cand, (seq_t)cand);
+        seq_t val = powmod((seq_t)2, cand, (seq_t)cand);
         seq_t rhs = ((seq_t)64) % (seq_t)cand;
 
         if (val == rhs) {

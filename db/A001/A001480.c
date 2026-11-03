@@ -10,7 +10,8 @@
  *            by a search over y with 3*y^2 <= p
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a001480_isqrt
+ * Validated: standard, pass, 95 terms through n = 943 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a001480_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 static uint64_t *a001480_cp = NULL;
 static idx_t a001480_ncp = 0;
@@ -58,7 +59,7 @@ seq_t a(idx_t n) {
     p = a001480_cp[n - 1];
     for (y = 0; 3 * y * y <= p; y++) {
         uint64_t r = p - 3 * y * y;
-        uint64_t x = a001480_isqrt(r);
+        uint64_t x = isqrt_u64(r);
         if (x * x == r) return (seq_t)y;
     }
     return 0;

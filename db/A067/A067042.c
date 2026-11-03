@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 3160, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9273 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true if the decimal representation of x satisfies
  * the condition: product of digits in even positions = product of digits
@@ -87,7 +89,7 @@ static void ensure_cache_cap(size_t cap)
 {
     if (cache_cap < cap) {
         size_t new_cap = (cap > cache_cap) ? cap * 2 : cap * 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) exit(EXIT_FAILURE);   /* allocation failure */
         cache     = new_cache;
         cache_cap = new_cap;

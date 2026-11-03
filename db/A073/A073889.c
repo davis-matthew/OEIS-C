@@ -9,6 +9,7 @@
  *            a(n)=a(n-1)^(n-1)/a(n-2) for n≥3)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

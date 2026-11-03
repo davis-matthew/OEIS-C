@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 484, u32 n <= 808, u64 n <= 808,
  *            u128 n <= 808, big any n
- * Helpers:   decimal_to_base7
+ * Validated: standard, pass, 74 terms through n = 804 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,27 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/decimal_to_base7.h"
+#include "../utils/mem.h"
+
+/* helper to convert a decimal number to its base‑7 digit array.
+   digits[0] will contain the most significant digit. */
+static void decimal_to_base7(uint64_t n, uint8_t *digits, int *len)
+{
+    uint8_t rev[20];
+    int revlen = 0;
+    while (n > 0) {
+        rev[revlen++] = (uint8_t)(n % 7U);
+        n /= 7U;
+    }
+    if (revlen == 0) {            /* n == 0 */
+        digits[0] = 0;
+        *len = 1;
+        return;
+    }
+    *len = revlen;
+    for (int i = 0; i < revlen; ++i)
+        digits[i] = rev[revlen - 1 - i];
+}
 
 #define LIMIT 20000000UL   /* upper bound that comfortably contains the first 10000 terms */
 
@@ -99,7 +120,7 @@ static void append_seq(uint64_t val)
             seq_cap = 8U;
         else
             seq_cap <<= 1;
-        seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
         if (!seq) {
             /* Allocation failure; abort execution as the sequence cannot be computed. */
             exit(1);

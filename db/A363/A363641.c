@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n} (n/d)^(d-2) * (d-1)
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

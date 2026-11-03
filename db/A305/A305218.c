@@ -13,12 +13,14 @@
  *            a(9)=2378,a(10)=7342,a(11)=22596,a(12)...
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_terms[18] = {
     (seq_t)0,  (seq_t)4,  (seq_t)8,  (seq_t)15, (seq_t)31,
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* initialise cache on first non-trivial call */
     if (cache_len == 0) {
         cache_len = 18;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return (seq_t)0; /* out of memory; the caller should handle */
         for (size_t i = 0; i < cache_len; ++i)
             cache[i] = init_terms[i];
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
 
         /* extend array to hold the new term */
         size_t new_len = cache_len + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return (seq_t)0; /* memory failure */
         cache = tmp;
         cache[cache_len] = next;

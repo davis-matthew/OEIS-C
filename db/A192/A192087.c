@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /*--- static state ----------------------------------------------*/
 static idx_t current_limit = 3000000;      /* sieve size used for primes */
@@ -40,11 +42,11 @@ static bool cache_initialized = false;    /* true after first call to a() */
 static void rebuild_primes(idx_t new_limit)
 {
     free(prime_list);
-    free(prime_prefix);
+    mem_free(prime_prefix);
 
     build_primes_upto(new_limit, &prime_list, &prime_count);
 
-    prime_prefix = (seq_t *)malloc((prime_count + 1) * sizeof(seq_t));
+    prime_prefix = mem_new(seq_t, (prime_count + 1));
     if (!prime_prefix) abort();
     prime_prefix[0] = (seq_t)0;
     for (size_t i = 1; i <= prime_count; ++i) {
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
 
             if (term_len == term_cap) {     /* grow cache if needed */
                 size_t new_cap = term_cap ? term_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
                 if (!tmp) abort();
                 term_cache = tmp;
                 term_cap = new_cap;

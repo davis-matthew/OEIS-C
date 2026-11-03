@@ -10,12 +10,26 @@
  *            a(1) = a(2) = a(3) = 1
  * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 18, u64 n <= 27, u128 n <= 42,
  *            big any n
- * Helpers:   grow_zero
+ * Validated: standard, pass, 43 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/grow_zero.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static seq_t *A7548_vals = NULL;
 static seq_t *A7548_row = NULL;

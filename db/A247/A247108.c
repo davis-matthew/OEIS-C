@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 41, i16 n <= 88, i32 n <= 187, i64 n <= 457,
  *            i128 n <= 1183, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1301 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Find the row r and column k for the flattened index n.
  * Return r, written to *k_out. */
@@ -53,11 +55,11 @@ seq_t a(idx_t n)
     idx_t k, r = find_row(n, &k);
 
     /* Allocate space for two consecutive rows of length r+1. */
-    seq_t *prev = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(r + 1));
+    seq_t *curr = mem_new(seq_t, (size_t)(r + 1));
     if (!prev || !curr) {
-        if (prev) free(prev);
-        if (curr) free(curr);
+        if (prev) mem_free(prev);
+        if (curr) mem_free(curr);
         return (seq_t)0;
     }
 
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = prev[k];
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

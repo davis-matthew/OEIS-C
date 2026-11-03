@@ -7,11 +7,13 @@
  * Formula:   a(n) = binomial(n+8,8)*(2*n+9)*(8*n^2+72*n+55)/(11*5*9)
  * Range:     u8 none, u16 none, u32 n <= 21, u64 n <= 197, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 922 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

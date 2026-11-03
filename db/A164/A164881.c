@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,7 +39,9 @@
  * runs in O(√n) time and uses O(√n) space.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -64,7 +67,7 @@ seq_t a(idx_t n)
 
     for (idx_t bid = 1; bid <= k; ++bid) {
         idx_t cur_len = bid + 1;
-        cur[0] = seq_pow((seq_t)10, bid);   /* first element 10^k */
+        cur[0] = ipow_idx((seq_t)10, bid);   /* first element 10^k */
 
         if (bid == 1) {
             cur[1] = (seq_t)1;               /* B_1[1] = 1 */

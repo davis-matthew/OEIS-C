@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n} (d+1) = sigma(n) + tau(n)
  * Range:     u8 n <= 95, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 80 terms through n = 922 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

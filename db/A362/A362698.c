@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 24, u64 n <= 40, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 1964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* dynamic storage for the sequence   */
 static seq_t *seq          = NULL; /* 1‑based: seq[0] unused */
@@ -44,13 +46,13 @@ static void ensure_seq_capacity(idx_t needed)
 {
     if (seq == NULL) {
         seq_cap = 1;
-        seq = (seq_t *)malloc(sizeof(seq_t) * seq_cap);
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) abort();
     }
     while (seq_cap <= needed) {
         seq_cap <<= 1;
         if (seq_cap == 0) seq_cap = 1;
-        seq = (seq_t *)realloc(seq, sizeof(seq_t) * seq_cap);
+        seq = mem_resize(seq_t, seq, seq_cap);
         if (!seq) abort();
     }
 }

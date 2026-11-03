@@ -11,11 +11,13 @@
  *            2^(r+1)+2^k-1 that enumerates the sequence
  * Range:     u8 n <= 28, u16 n <= 120, u32 n <= 496, u64 n <= 2016,
  *            u128 n <= 8128, big any n
+ * Validated: standard, pass, 72 terms through n = 9216 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static idx_t floor_sqrt_idx(idx_t x)

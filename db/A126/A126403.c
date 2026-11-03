@@ -12,13 +12,15 @@
  *            memoises previous results for fast repeated calls
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise a(0) on first call */
     if (seq_len == 0) {
         seq_cap = 1;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = 1;
         seq_len = 1;          /* now a(0) is stored */
         counts_valid = 0;     /* counts not yet initialised */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         if (seq_len + 1 > seq_cap) {
             size_t new_cap = seq_cap * 2;
             if (new_cap == 0) new_cap = 1;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             seq_cap = new_cap;
         }
         seq[seq_len] = term; /* store a(1) */
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         if (seq_len + 1 > seq_cap) {
             size_t new_cap = seq_cap * 2;
             if (new_cap == 0) new_cap = 1;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             seq_cap = new_cap;
         }
         seq[seq_len] = term;

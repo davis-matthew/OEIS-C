@@ -9,17 +9,23 @@
  *            values: a(0)=1, a(1)=46, a(2)=2070, a(3)=93150, a(4)=4190715
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   dealloc_array
+ * Validated: standard, pass, 31 terms through n = 541 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/dealloc_array.h"
+#include "../utils/mem.h"
+
+static void dealloc_array(seq_t* p)
+{
+    mem_free(p);
+}
 
 static seq_t* alloc_array(idx_t sz)
 {
-    return (seq_t*)malloc(sz * sizeof(seq_t));
+    return mem_new(seq_t, sz);
 }
 
 seq_t a(idx_t n)

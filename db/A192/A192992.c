@@ -8,14 +8,35 @@
  *            times a power of two. Computed via incremental search
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   is_semiprime_ull
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_semiprime_ull.h"
+
+/* Test whether x is a semiprime (product of exactly two prime factors,
+   counting multiplicity).  x must be >= 4. */
+static bool is_semiprime_ull(uint64_t x)
+{
+    if (x < 4ULL) return false;          /* smallest semiprime is 4 = 2*2 */
+
+    uint64_t cnt = 0;
+    uint64_t t = x;
+
+    for (uint64_t p = 2ULL; p * p <= t; ++p) {
+        while (t % p == 0ULL) {
+            ++cnt;
+            t /= p;
+            if (cnt > 2ULL) return false;
+        }
+    }
+    if (t > 1ULL) ++cnt;                 /* remaining prime factor */
+
+    return cnt == 2ULL;                  /* exactly two prime factors */
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

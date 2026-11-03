@@ -8,14 +8,17 @@
  *            * (n-3k)!)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 10, i64 n <= 17, i128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Cache of factorials up to the maximum n requested so far */
 static seq_t *fac_cache = NULL;
@@ -32,7 +35,7 @@ static void ensure_factorial(idx_t n)
         new_cap <<= 1;
 
     /* Allocate or grow the cache */
-    fac_cache = (seq_t *)realloc(fac_cache, new_cap * sizeof(seq_t));
+    fac_cache = mem_resize(seq_t, fac_cache, new_cap);
     if (!fac_cache)
         exit(EXIT_FAILURE);           /* Out of memory */
 
@@ -71,13 +74,13 @@ seq_t a(idx_t n)
         seq_t term = fact_n / denom;  /* Exact division */
 
         /* (n-3k)^k */
-        seq_t pow1 = big_pow((seq_t)m, (seq_t)k);
+        seq_t pow1 = ipow((seq_t)m, (seq_t)k);
         term *= pow1;
 
         /* (-n+3k+1)^(n-3k-1) = (1 - m)^(m-1) */
         seq_t base = (seq_t)(-(seq_t)m + 1);
         seq_t expb = (seq_t)(m - 1);  /* m >= 1 here */
-        seq_t pow2 = big_pow(base, expb);
+        seq_t pow2 = ipow(base, expb);
         term *= pow2;
 
         result += term;

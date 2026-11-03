@@ -11,14 +11,17 @@
  *            Σ_{m=k}^{deg_prev} coeff[i-1][m] * binom(m, k) - (k≥4 ? c...
  * Range:     u8 n <= 8, u16 n <= 22, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;     /* triangle[i] holds row i (1‑indexed)   */
 static idx_t *row_len   = NULL;     /* number of coefficients in each row   */
@@ -36,7 +39,7 @@ static void ensure_rows(idx_t up_to)
 
     for (idx_t i = rows_allocated + 1; i <= up_to; ++i) {
         idx_t L = 3 * i - 2;                /* length of row i   */
-        seq_t *row = (seq_t *)calloc(L, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, L);
         if (!row) return;                  /* allocation failure – abort */
 
         if (i == 1) {                      /* B(X,1)=X^4 => one coeff 1   */
@@ -53,7 +56,7 @@ static void ensure_rows(idx_t up_to)
                 if (m_start < 4) m_start = 4;
                 for (idx_t m = m_start; m <= deg_prev; ++m) {
                     seq_t coeff = prev_row[m - 4];
-                    sum += coeff * binom(m, k);
+                    sum += coeff * binomial(m, k);
                 }
                 if (k >= 4)      /* subtract coeff of X^k in previous row */
                     sum -= prev_row[k - 4];

@@ -8,7 +8,8 @@
  * Formula:   R(m,n) = prime(n)^(prime(m)-2) mod m (triangle read by rows)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
 
 static inline __int128 triangular(idx_t x)
 {
@@ -88,7 +90,7 @@ seq_t a(idx_t t)
 
     seq_t base  = (seq_t)prime_k;
     seq_t mod   = (seq_t)r;
-    seq_t res   = mod_pow(base, exponent, mod);   /* prime_k^exponent mod r */
+    seq_t res   = powmod(base, exponent, mod);   /* prime_k^exponent mod r */
 
     return res;
 }

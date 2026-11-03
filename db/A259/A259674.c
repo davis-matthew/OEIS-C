@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- local helpers ---------- */
 static seq_t digit_sum_uint64(uint64_t n) {
@@ -95,7 +97,7 @@ static size_t  sol_len   = 0;
 static void add_solution(seq_t val) {
     if (sol_len == sol_cap) {
         size_t new_cap = sol_cap ? sol_cap << 1 : 8;
-        seq_t *tmp = (seq_t *)realloc(solutions, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, solutions, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         solutions = tmp;
         sol_cap = new_cap;

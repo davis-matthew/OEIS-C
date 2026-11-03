@@ -8,15 +8,26 @@
  * Formula:   a(n) = prime(n) mod π(n) (n ≥ 2)
  * Range:     u8 n <= 58, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, free_memory
+ * Validated: standard, pass, 107 terms through n = 946 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required utilities from the framework */
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/free_memory.h"
+
+static void free_memory(void *p) {
+#ifdef __cplusplus
+    ::operator delete(p);
+#else
+    free(p);
+#endif
+}
 
 /* External linkage function required by the solver framework */
 seq_t a(idx_t n)

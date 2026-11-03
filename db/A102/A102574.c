@@ -9,13 +9,34 @@
  *            below implements this multiplicatively
  * Range:     u8 n <= 11, u16 n <= 169, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_all_powers, sum_even_powers
+ * Validated: standard, pass, 65 terms through n = 9098 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sum_all_powers.h"
-#include "../utils/sum_even_powers.h"
+/* Helper: sum of 0..2e powers of prime p (used for p ≡ 1 (mod 4) and p = 2). */
+static seq_t sum_all_powers(uint64_t p, uint32_t e)
+{
+    seq_t term = 1, curr = 1;
+    for (uint32_t i = 0; i < 2 * e; ++i) {
+        curr *= (seq_t)p;
+        term += curr;
+    }
+    return term;
+}
+
+/* Helper: sum of even powers of prime p (used for p ≡ 3 (mod 4)). */
+static seq_t sum_even_powers(uint64_t p, uint32_t e)
+{
+    seq_t term = 1, curr = 1;
+    for (uint32_t i = 0; i < e; ++i) {
+        curr *= (seq_t)p;
+        curr *= (seq_t)p;   /* curr *= p²  */
+        term += curr;
+    }
+    return term;
+}
 
 seq_t a(idx_t n)
 {

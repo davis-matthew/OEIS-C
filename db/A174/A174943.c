@@ -13,7 +13,8 @@
  *            Div...
  * Range:     i8 n <= 13, i16 n <= 29, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* fast exponentiation in seq_t: base^exp  (exp>=0)                          */
 static inline seq_t pow_seq_uint(uint32_t base, idx_t exp)
@@ -48,12 +50,12 @@ static void recompute_up_to(idx_t n)
     if (n <= computed_max) return;           /* nothing to do */
 
     /* free previous tables if they exist */
-    free(a_cache);
+    mem_free(a_cache);
     free(mu_cache);
     free(spf_cache);
 
     /* allocate new tables */
-    a_cache  = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    a_cache  = mem_new(seq_t, (n + 1));
     mu_cache = (int8_t*)malloc((n + 1) * sizeof(int8_t));
     spf_cache= (int*)   malloc((n + 1) * sizeof(int));
 

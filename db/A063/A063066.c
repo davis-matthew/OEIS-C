@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Numbers expressible as (a^2-1)(b^2-1) */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* maximum value of a and b considered. 200 keeps the product below
    2^32, so the code works even when seq_t is uint32_t. */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         const idx_t a_end = MAX_A;
         const size_t pair_count = (size_t)(a_end - a_start + 1) *
                                   (size_t)(a_end - a_start + 1);
-        seq_t *buf = (seq_t *)malloc(pair_count * sizeof(seq_t));
+        seq_t *buf = mem_new(seq_t, pair_count);
         if (!buf) return 0; /* allocation failure – unlikely in test cases */
 
         size_t idx = 0;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         }
 
         /* sort and deduplicate */
-        qsort(buf, pair_count, sizeof(seq_t), cmp_seqt);
+        mem_qsort(buf, pair_count, sizeof(seq_t), cmp_seqt);
 
         size_t uniq = 0;
         for (size_t i = 0; i < pair_count; ++i) {

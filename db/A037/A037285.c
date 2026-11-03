@@ -9,7 +9,8 @@
  *            order. If n has no such divisors, a(n) = 0
  * Range:     u8 n <= 29, u16 n <= 74, u32 n <= 209, u64 n <= 629,
  *            u128 n <= 2834, big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 89 terms through n = 9726 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/pow10.h"     /* seq_t pow10(idx_t e); */
-#include "../utils/digit_len.h" /* int digit_len(seq_t x); */
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static int cmp_uint64_asc(const void *p1, const void *p2)
 {
@@ -128,7 +139,7 @@ seq_t a(idx_t n)
     seq_t res = (seq_t)0;
     for (size_t i = 0; i < proclen; ++i) {
         uint64_t d = proper[i];
-        int digits = digit_len((seq_t)d);
+        int digits = num_digits((seq_t)d);
         seq_t mult = pow10((idx_t)digits);
         res = res * mult + (seq_t)d;
     }

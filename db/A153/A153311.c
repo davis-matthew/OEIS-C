@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, uned, tabl
  * Formula:   not stated
- * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 26, u64 n <= 58, u128 n <= 58,
+ * Range:     u8 n <= 13, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   unpack_index
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,17 @@
    the build environment. */
 
 #include <stdlib.h>
-#include "../utils/unpack_index.h"
+
+/* Unpack a flat index n to (row, column). */
+static void unpack_index(idx_t n, idx_t *row, idx_t *col)
+{
+    idx_t r = 0;
+    /* Find largest r with r*(r+1)/2 <= n. */
+    while ((r + 1) * (r + 2) / 2 <= n)
+        ++r;
+    *row = r;
+    *col = n - r * (r + 1) / 2;
+}
 
 #if defined(__cplusplus)
 /* In C++ use operator new/delete for arrays. */

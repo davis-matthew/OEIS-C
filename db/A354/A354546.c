@@ -8,13 +8,15 @@
  *            · a(n‑k)
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 14, i64 n <= 23, i128 n <= 23,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* initialise cache for a(0) */
     if (cache == NULL) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;          /* out‑of‑memory: fail silently */
         cache[0] = 1;                  /* a(0) */
         cached = 0U;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* grow cache up to n and compute missing entries */
     if (n > cached) {
         size_t newSize = (size_t)(n + 1U);
-        seq_t *tmp = (seq_t*)realloc(cache, newSize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newSize);
         if (!tmp) return 0;            /* out‑of‑memory: fail silently */
         cache = tmp;
 

@@ -11,14 +11,30 @@
  *            Here r is the unique integer with * ∑_{i=1}^{r-1} popcount(i) ≤
  *            n < ∑_{i=1}^{r} popcount(i), * and k = n - ∑_{i=1}^{r-1}
  *            popcount(i)
- * Range:     u8 n <= 87, u16 n <= 9766, u32 n <= 9766, u64 n <= 9766,
- *            u128 n <= 9766, big any n
- * Helpers:   popcount_sum_upto
+ * Range:     u8 n <= 87, u16 n <= 11263, u32 n <= 11263, u64 n <= 11263,
+ *            u128 n <= 11263, big any n
+ * Validated: standard, pass, 104 terms through n = 9766 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/popcount_sum_upto.h"
+/* Sum of popcounts of all numbers 0..n (inclusive). */
+static inline seq_t popcount_sum_upto(idx_t n)
+{
+    seq_t sum = 0;
+    for (int bit = 0; bit < 64; ++bit) {
+        idx_t bit_mask = ((idx_t)1) << bit;
+        if (bit_mask > n) break;
+        idx_t block = bit_mask << 1;            /* 2^(bit+1) */
+        idx_t full_cycles = (n + 1) / block;
+        idx_t ones_in_full = full_cycles * bit_mask;
+        sum += (seq_t)ones_in_full;
+        idx_t rem = (n + 1) % block;
+        if (rem > bit_mask) sum += (seq_t)(rem - bit_mask);
+    }
+    return sum;
+}
 /* Helper to compute popcount of a 64‑bit integer */
 static inline uint64_t popcount_u64(idx_t x)
 {

@@ -9,16 +9,20 @@
  *            modular powers and gcd
  * Range:     u8 n <= 848, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, gcd_u64, mod_pow
+ * Validated: standard, pass, 116 terms through n = 9815 (2026-11-01)
+ * Helpers:   gcd, gcd_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
 #include "../utils/gcd_u64.h"
+#include "../utils/powmod.h"
 
 /* Euclidean gcd for 64‑bit unsigned integers. */
 
@@ -88,7 +92,7 @@ seq_t a(idx_t n)
         uint64_t q = pr[i];
         while (ord % q == 0) {
             uint64_t candidate = ord / q;
-            if ((mod_pow((seq_t)3, candidate, m) == (seq_t)1))
+            if ((powmod((seq_t)3, candidate, m) == (seq_t)1))
                 ord = candidate;
             else
                 break;

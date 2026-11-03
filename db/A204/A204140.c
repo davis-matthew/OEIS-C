@@ -9,6 +9,7 @@
  *            numbers. The sequence contains exactly 24 terms
  * Range:     u8 none, u16 none, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

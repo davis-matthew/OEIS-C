@@ -10,7 +10,8 @@
  *            six elements
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 40, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static int init_done = 0;
 
@@ -112,16 +114,16 @@ seq_t a(idx_t n)
     /* DP buffers */
     static seq_t *cur = NULL, *next = NULL;
     if (!cur) {
-        cur  = (seq_t *)calloc(N_STATES, sizeof(seq_t));
-        next = (seq_t *)calloc(N_STATES, sizeof(seq_t));
+        cur  = mem_new(seq_t, N_STATES);
+        next = mem_new(seq_t, N_STATES);
     }
 
     /* initialise: empty state (all counts zero) */
-    memset(cur, 0, N_STATES * sizeof(seq_t));
+    mem_set(cur, 0, N_STATES * sizeof(seq_t));
     cur[0] = (seq_t)1;   /* state id 0 corresponds to all zeros */
 
     for (idx_t step = 1; step <= n; ++step) {
-        memset(next, 0, N_STATES * sizeof(seq_t));
+        mem_set(next, 0, N_STATES * sizeof(seq_t));
 
         for (size_t sid = 0; sid < N_STATES; ++sid) {
             seq_t val = cur[sid];

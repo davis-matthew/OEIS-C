@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_mask, ensure_seq_capacity, ensure_used_capacity
+ * Validated: standard, pass, 88 terms through n = 9872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,49 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/digit_mask.h"
-#include "../utils/ensure_seq_capacity.h"
-#include "../utils/ensure_used_capacity.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static inline uint16_t digit_mask(seq_t x)
+{
+    uint16_t m = 0;
+    while (x != 0)
+    {
+        uint8_t d = (uint8_t)(x % 10);
+        m |= 1u << d;
+        x /= 10;
+    }
+    return m;
+}
+
+/* Grow seq_t array to hold at least 'min_cap' elements. */
+static void ensure_seq_capacity(idx_t min_cap, seq_t **seq, size_t *cap)
+{
+    if (*cap >= (size_t)min_cap) return;
+    size_t new_cap = *cap ? (*cap << 1) : 1024;
+    while (new_cap < (size_t)min_cap) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *seq, new_cap);
+    if (!tmp) abort();
+    *seq = tmp;
+    *cap = new_cap;
+}
+
+/* Grow bool array to hold indices up to at least 'min_cap'-1. */
+static void ensure_used_capacity(idx_t min_cap, bool **used, size_t *cap)
+{
+    if (*cap >= (size_t)min_cap) return;
+    size_t new_cap = *cap ? (*cap << 1) : 1024;
+    while (new_cap < (size_t)min_cap) new_cap <<= 1;
+    bool *tmp = (bool *)realloc(*used, new_cap * sizeof(bool));
+    if (!tmp) abort();
+    if (*cap == 0) {
+        memset(tmp, 0, new_cap * sizeof(bool));
+    } else {
+        memset(tmp + *cap, 0, (new_cap - *cap) * sizeof(bool));
+    }
+    *used = tmp;
+    *cap = new_cap;
+}
 
 static inline uint16_t digit_mask_seq_t(seq_t x)
 {

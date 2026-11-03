@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   _smallest_prime_factor, append_candidate
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,27 @@
    repeated calls with arbitrary indices are efficient. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/append_candidate.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* Return true if the integer m has floor(mean of prime factors) == 2. */
 static bool _is_good (uint64_t m)
@@ -31,7 +51,7 @@ static bool _is_good (uint64_t m)
     uint64_t x = m;
 
     while (x > 1U) {
-        uint64_t p = _smallest_prime_factor (x);
+        uint64_t p = smallest_prime_factor (x);
         sum += p;
         ++total;
         x /= p;

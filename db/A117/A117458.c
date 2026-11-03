@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   digit_sum, is_prime_small
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   digit_sum, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Small helper: next prime after a given small integer n. */
 static int next_prime_int(int n)
@@ -35,7 +37,7 @@ static int next_prime_int(int n)
     int cand = n + 1;
     while (1)
     {
-        if (is_prime_small((seq_t)cand))
+        if (is_prime_seq((seq_t)cand))
             return cand;
         cand++;
     }
@@ -56,7 +58,7 @@ static void build_sequence(idx_t need)
     while (seq_len < (size_t)need)
     {
         /* Test whether candidate_value is a prime. */
-        if (is_prime_small((seq_t)candidate_value))
+        if (is_prime_seq((seq_t)candidate_value))
         {
             prime_counter++;  /* its index (1‑based) */
 
@@ -65,16 +67,15 @@ static void build_sequence(idx_t need)
             int sdi = (int)digit_sum((seq_t)prime_counter);
 
             /* Check the prime‑sum conditions. */
-            if (is_prime_small((seq_t)dsp) &&
-                is_prime_small((seq_t)sdi) &&
+            if (is_prime_seq((seq_t)dsp) &&
+                is_prime_seq((seq_t)sdi) &&
                 sdi == next_prime_int(dsp))
             {
                 /* Append to memoised array. */
                 if (seq_len == seq_cap)
                 {
                     seq_cap = seq_cap ? seq_cap * 2 : 64;
-                    seq_vals = (seq_t *)realloc(seq_vals,
-                                                seq_cap * sizeof(seq_t));
+                    seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
                 }
                 seq_vals[seq_len++] = (seq_t)candidate_value;
             }

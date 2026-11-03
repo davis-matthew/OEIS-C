@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 34, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n)
 {
@@ -32,8 +34,8 @@ extern seq_t a(idx_t n)
 
     if (pSize == 0) {
         pSize = 1;                      /* store p(0) and pSum[0] only  */
-        pVal = (seq_t *)malloc(sizeof(seq_t));
-        pSum = (seq_t *)malloc(sizeof(seq_t));
+        pVal = mem_new(seq_t, 1);
+        pSum = mem_new(seq_t, 1);
         pVal[0] = (seq_t)1;             /* p(0)=1 for recurrence      */
         pSum[0] = (seq_t)0;             /* sum for zero elements       */
     }
@@ -41,8 +43,8 @@ extern seq_t a(idx_t n)
     if (pSize <= (size_t)n) {
         size_t oldSize = pSize;
         pSize = (size_t)n + 1;
-        pVal = (seq_t *)realloc(pVal, pSize * sizeof(seq_t));
-        pSum = (seq_t *)realloc(pSum, pSize * sizeof(seq_t));
+        pVal = mem_resize(seq_t, pVal, pSize);
+        pSum = mem_resize(seq_t, pSum, pSize);
         for (size_t i = oldSize; i <= (size_t)n; ++i) {
             seq_t val = (seq_t)0;
             for (int k = 1;; ++k) {
@@ -72,7 +74,7 @@ extern seq_t a(idx_t n)
 
     if (primeSumSize == 0) {
         primeSumSize = 2;                /* indices 0 and 1 exist    */
-        primeSum = (seq_t *)malloc(primeSumSize * sizeof(seq_t));
+        primeSum = mem_new(seq_t, primeSumSize);
         primeSum[0] = (seq_t)0;           /* Σ for zero elements      */
         primeSum[1] = (seq_t)1;           /* q(1) = 1                 */
     }
@@ -95,7 +97,7 @@ extern seq_t a(idx_t n)
 
             /* extend primeSum */
             seq_t newSum = primeSum[primeSumSize - 1] + (seq_t)nextCandidate;
-            primeSum = (seq_t *)realloc(primeSum, (primeSumSize + 1) * sizeof(seq_t));
+            primeSum = mem_resize(seq_t, primeSum, (primeSumSize + 1));
             primeSum[primeSumSize] = newSum;
             ++primeSumSize;
         }

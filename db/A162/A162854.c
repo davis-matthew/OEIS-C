@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   add_run
+ * Validated: standard, pass, 75 terms through n = 963 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,17 @@
  */
 
 #include <stdint.h>          /* for uint64_t */
-#include "../utils/add_run.h"
+
+/* Add a transformed run of bits to the running result.
+ *  `res`  : pointer to the current result.
+ *  `len`  : original length of the run in the input.
+ *  `bit`  : value of the run (0 or 1). */
+static inline void add_run(seq_t *res, int len, int bit)
+{
+    int target = (len & 1) ? (len << 1) : (len >> 1);   /* double if odd, halve if even */
+    for (int i = 0; i < target; ++i)
+        *res = (*res << 1) | (seq_t)bit;
+}
 
 /* Returns the 1‑based index of the least significant set bit of x
  *  (i.e. bit length of x).  For x = 0 the result is 0. */

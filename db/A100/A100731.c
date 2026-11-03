@@ -7,18 +7,20 @@
  * Formula:   a(n) = a(n-1)^n, with a(0) = 3
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 7 terms through n = 6 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The helper function pow_seq is available for use in the build. */
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     seq_t result = (seq_t)3;
     for (idx_t i = 1; i <= n; ++i)
-        result = pow_seq(result, i);
+        result = ipow_idx(result, i);
     return result;
 }

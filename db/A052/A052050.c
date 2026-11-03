@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   square_has_minimal_two
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,34 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/square_has_minimal_two.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a square number satisfies the sequence condition. */
+static bool square_has_minimal_two(seq_t sq)
+{
+    int cnt[10];
+    memset(cnt, 0, sizeof(cnt));
+
+    /* Count decimal digits of sq. */
+    seq_t v = sq;
+    while (v > 0) {
+        int d = (int)(v % 10);
+        cnt[d]++;
+        v /= 10;
+    }
+
+    /* Find min>0 and max counts among digits that appear. */
+    int min_pos = -1;
+    int max_pos = -1;
+    for (int d = 0; d < 10; ++d) {
+        if (cnt[d] > 0) {
+            if (min_pos == -1 || cnt[d] < min_pos) min_pos = cnt[d];
+            if (max_pos == -1 || cnt[d] > max_pos) max_pos = cnt[d];
+        }
+    }
+    /* Accept if every non‑zero count equals 2. */
+    return (min_pos == max_pos && min_pos == 2);
+}
 
 /* Main sequence routine. */
 seq_t a(idx_t n)
@@ -31,7 +59,7 @@ seq_t a(idx_t n)
     /* Grow the terms array when needed. */
     if (capacity == 0) {
         capacity = 1024;
-        terms = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        terms = mem_new(seq_t, capacity);
     }
 
     /* Generate squares until we have at least n terms. */
@@ -42,7 +70,7 @@ seq_t a(idx_t n)
             /* Append to the array. */
             if (length == capacity) {
                 capacity *= 2;
-                terms = (seq_t *)realloc(terms, sizeof(seq_t) * capacity);
+                terms = mem_resize(seq_t, terms, capacity);
             }
             terms[length++] = sq;
         }

@@ -8,12 +8,14 @@
  *            a(4)=25
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 50, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build system */
 /* seq_t : unsigned integer (fixed or arbitrary‑precision) */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     if (n <= cache_len) return;
 
     /* Grow cache to hold n elements (1‑based indices) */
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (size_t)n);
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
     if (tmp == NULL) abort();
     cache = tmp;
 

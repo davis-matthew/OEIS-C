@@ -11,7 +11,8 @@
  *            to the largest possible, * which is 9876543210, and...
  * Range:     u8 none, u16 none, u32 none, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   is_unique_pandigital
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_unique_pandigital.h"
+#include "../utils/mem.h"
+
+/* Test whether a seq_t value is a 10‑digit pandigital with no repeated digits. */
+static bool is_unique_pandigital(seq_t x)
+{
+    unsigned mask = 0;
+    for (seq_t t = x; t > (seq_t)0; t /= (seq_t)10) {
+        seq_t d = t % (seq_t)10;
+        unsigned digit = (unsigned)d;          /* digit is 0–9, safe to cast */
+        unsigned bit = 1u << digit;
+        if (mask & bit)                         /* repeated digit */
+            return false;
+        mask |= bit;
+    }
+    return mask == 0x3FFu;                      /* all 10 digits present */
+}
 
 /* Static storage for the computed sequence values. */
 static seq_t     *terms   = NULL;
@@ -34,7 +50,7 @@ static void init_terms(void)
     initialized = true;
 
     terms_cap = 64;
-    terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     if (!terms) exit(EXIT_FAILURE);
     terms_size = 0;
 
@@ -48,9 +64,9 @@ static void init_terms(void)
         if (is_unique_pandigital(hk)) {
             if (terms_size == terms_cap) {
                 terms_cap <<= 1;
-                seq_t *tmp = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                 if (!tmp) {
-                    free(terms);
+                    mem_free(terms);
                     exit(EXIT_FAILURE);
                 }
                 terms = tmp;

@@ -8,6 +8,7 @@
  *            definition: a(n) = Sum_{k=1..n} Sum_{d | k} (-3)^(d-1)
  * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 20, i64 n <= 41, i128 n <= 81,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 991 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

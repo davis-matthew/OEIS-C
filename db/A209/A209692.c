@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,13 +49,13 @@ seq_t a(idx_t n)
 
     /* Allocate arrays to hold coefficients of size up to r   */
     size_t max_len = (size_t)r;
-    seq_t *u_cur  = (seq_t*)malloc(sizeof(seq_t) * max_len);
-    seq_t *u_next = (seq_t*)malloc(sizeof(seq_t) * max_len);
-    seq_t *v_cur  = (seq_t*)malloc(sizeof(seq_t) * max_len);
-    seq_t *v_next = (seq_t*)malloc(sizeof(seq_t) * max_len);
+    seq_t *u_cur  = mem_new(seq_t, max_len);
+    seq_t *u_next = mem_new(seq_t, max_len);
+    seq_t *v_cur  = mem_new(seq_t, max_len);
+    seq_t *v_next = mem_new(seq_t, max_len);
     if (!u_cur || !u_next || !v_cur || !v_next) {
         /* Allocation failed – return 0 as a safe fallback. */
-        free(u_cur); free(u_next); free(v_cur); free(v_next);
+        mem_free(u_cur); mem_free(u_next); mem_free(v_cur); mem_free(v_next);
         return (seq_t)0;
     }
 
@@ -96,8 +98,8 @@ seq_t a(idx_t n)
     seq_t result = v_cur[(size_t)pos];
 
     /* Clean up */
-    free(u_cur);  free(u_next);
-    free(v_cur);  free(v_next);
+    mem_free(u_cur);  mem_free(u_next);
+    mem_free(v_cur);  mem_free(v_next);
 
     return result;
 }

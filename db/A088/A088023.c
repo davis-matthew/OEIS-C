@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 506, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   highest_power_of_two_le
+ * Validated: standard, pass, 86 terms through n = 9761 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/highest_power_of_two_le.h"
+
+/* Compute the greatest power of two ≤ n (n ≥ 1). */
+static inline idx_t highest_power_of_two_le(idx_t n) {
+#if defined(__GNUC__) || defined(__clang__)
+    unsigned long long x = n;
+    return (idx_t)1 << (63 - __builtin_clzll(x));
+#else
+    idx_t p = 1;
+    while ((p << 1) <= n) p <<= 1;
+    return p;
+#endif
+}
 
 static seq_t *cache = NULL;      /* cached a(n) values */
 static size_t cache_cap = 0;     /* allocated elements (indices 0 .. cache_cap-1) */

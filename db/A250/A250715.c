@@ -8,7 +8,8 @@
  *            ascending and duplicates removed
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 /* ---------- binary min‑heap of (value,x,y) ---------- */
 static struct Node {
@@ -32,7 +34,7 @@ static void heap_grow(size_t needed) {
     if (heap_cap >= needed) return;
     size_t n = heap_cap ? heap_cap * 2 : 16;
     if (n < needed) n = needed;
-    heap = (struct Node *)realloc(heap, n * sizeof(struct Node));
+    heap = mem_resize(struct Node, heap, n);
     heap_cap = n;
 }
 
@@ -73,7 +75,7 @@ static void cache_grow(size_t needed) {
     if (cache_cap >= needed) return;
     size_t n = cache_cap ? cache_cap * 2 : 16;
     if (n < needed) n = needed;
-    cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, n);
     cache_cap = n;
 }
 
@@ -87,7 +89,7 @@ static void pow7_grow(size_t needed) {
     if (pow7_cap >= needed) return;
     size_t n = pow7_cap ? pow7_cap * 2 : 8;
     while (n < needed) n <<= 1;
-    pow7_arr = (seq_t *)realloc(pow7_arr, n * sizeof(seq_t));
+    pow7_arr = mem_resize(seq_t, pow7_arr, n);
     pow7_cap = n;
 }
 
@@ -124,7 +126,7 @@ static void pow7th_grow(size_t needed) {
     if (pow7th_cap >= needed) return;
     size_t n = pow7th_cap ? pow7th_cap * 2 : 8;
     while (n < needed) n <<= 1;
-    pow7th_arr = (seq_t *)realloc(pow7th_arr, n * sizeof(seq_t));
+    pow7th_arr = mem_resize(seq_t, pow7th_arr, n);
     pow7th_cap = n;
 }
 
@@ -140,7 +142,7 @@ static void pow7th_extend(idx_t y) {
     size_t i;
     for (i = pow7th_len; i <= (size_t)y; ++i) {
         if (pow7th_over) break;
-        seq_t v = pow_uint((uint64_t)i, (idx_t)7);
+        seq_t v = ipow_u64_idx((uint64_t)i, (idx_t)7);
         if (i > 0 && v == (seq_t)0) {      /* unsigned overflow detected */
             pow7th_over = true;
             break;

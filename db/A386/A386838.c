@@ -11,7 +11,8 @@
  * Formula:   a(n) = min_{x^2 + y^2 = A001481(n)} (x + y - gcd(x, y))
  * Range:     u8 n <= 8425, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, gcd
+ * Validated: standard, pass, 95 terms through n = 9441 (2026-11-03)
+ * Helpers:   gcd, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* local helper: find minimal x + y - gcd(x, y) for a given m = x² + y² */
@@ -31,11 +33,11 @@ static seq_t min_f_for_m(uint64_t m, bool *found)
     seq_t best = (seq_t)-1;
     *found = false;
 
-    uint64_t d = _floor_isqrt_u64(m);
+    uint64_t d = isqrt(m);
     for (uint64_t x = 0; x <= d; ++x) {
         uint64_t x2 = x * x;
         uint64_t y2 = m - x2;
-        uint64_t y  = _floor_isqrt_u64(y2);
+        uint64_t y  = isqrt(y2);
         if (y * y != y2) continue;                          /* not a square */
 
         seq_t xf = (seq_t)x;
@@ -61,7 +63,7 @@ static void grow_cache(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();           /* out of memory */
     cache     = tmp;
     cache_cap = new_cap;

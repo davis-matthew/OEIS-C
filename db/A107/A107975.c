@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   append_value_digits, ensure_char_cap
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,47 @@
    unused digit to the previous term. */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/append_value_digits.h"
-#include "../utils/ensure_char_cap.h"
+#include "../utils/mem.h"
+
+/* enlarge an array of unsigned char elements if the minimum capacity is not met */
+static void ensure_char_cap(unsigned char **arr, size_t *cap, size_t min_cap)
+{
+    if (*cap < min_cap) {
+        size_t new_cap = (*cap == 0) ? 64 : *cap;
+        while (new_cap < min_cap) new_cap <<= 1;
+        *arr = (unsigned char *)realloc(*arr, new_cap);
+        *cap = new_cap;
+    }
+}
+
+/* append the decimal digits of a seq_t value to the digit stream.  The
+   digits are stored as the integer 0–9.  The most significant digit is
+   appended first. */
+static void append_value_digits(seq_t val,
+                                 unsigned char **digits,
+                                 size_t *cap,
+                                 size_t *len)
+{
+    unsigned char tmp[40];                /* maximum digits for 128‑bit value */
+    int pos = 0;
+    seq_t tmp_val = val;
+
+    if (tmp_val == (seq_t)0) {
+        tmp[pos++] = 0;
+    } else {
+        while (tmp_val != (seq_t)0) {
+            tmp[pos++] = (unsigned char)(tmp_val % (seq_t)10);
+            tmp_val /= (seq_t)10;
+        }
+    }
+
+    /* append the digits in correct order (most significant first) */
+    for (int i = pos - 1; i >= 0; --i) {
+        if (*len >= *cap)
+            ensure_char_cap(digits, cap, *len + 1);
+        (*digits)[(*len)++] = tmp[i];
+    }
+}
 
 /* enlarge an array of seq_t elements if the minimum capacity is not met */
 static void ensure_seq_cap(seq_t **arr, size_t *cap, size_t min_cap)
@@ -28,7 +68,7 @@ static void ensure_seq_cap(seq_t **arr, size_t *cap, size_t min_cap)
     if (*cap < min_cap) {
         size_t new_cap = (*cap == 0) ? 16 : *cap;
         while (new_cap < min_cap) new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

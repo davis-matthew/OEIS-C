@@ -8,6 +8,7 @@
  * Formula:   a(n) = ceil((n+2)^2/3)-1 for n≠1, special case a(1)=3
  * Range:     u8 n <= 13, u16 n <= 440, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 72 terms through n = 9317 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 4588, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   has_allowed_digit
+ * Validated: standard, pass, 76 terms through n = 4016 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_allowed_digit.h"
+#include "../utils/mem.h"
+
+/* ---------- utility functions ---------- */
+static bool has_allowed_digit(uint32_t n)
+{
+    while (n) {
+        uint32_t d = n % 10;
+        if (d == 0 || d == 4 || d == 8 || d == 9)
+            return false;               /* not a square‑free digit          */
+        n /= 10;
+    }
+    return true;
+}
 
 /* ---------- static state ----------
  *  terms      : array of computed terms
@@ -94,10 +107,10 @@ static void ensure_terms(idx_t need)
 
         /* store the valid term */
         if (!terms) {
-            terms = (seq_t *)malloc(64 * sizeof(seq_t));
+            terms = mem_new(seq_t, 64);
             terms_len = 0;
         } else if (terms_len % 64 == 0) {
-            terms = (seq_t *)realloc(terms, (terms_len + 64) * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, (terms_len + 64));
         }
         terms[terms_len++] = cur;
         ++cur;

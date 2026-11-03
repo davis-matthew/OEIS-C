@@ -10,12 +10,14 @@
  *            using a simple sieve
  * Range:     u8 n <= 11, u16 n <= 88, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9432 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
     /* Allocate arrays for divisor counts and their prefix sums.
        Size n is enough because indices used run from 1 .. n-1. */
     size_t sz = (size_t)n;
-    seq_t *d   = (seq_t *)calloc(sz, sizeof(seq_t)); /* divisor counts */
-    seq_t *dsum = (seq_t *)malloc(sz * sizeof(seq_t)); /* prefix sums of d */
+    seq_t *d   = mem_new(seq_t, sz); /* divisor counts */
+    seq_t *dsum = mem_new(seq_t, sz); /* prefix sums of d */
 
     /* Simple divisor sieve: for each i add 1 to every multiple of i. */
     for (idx_t i = 1; i < n; ++i) {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         result += d[k] * dsum[rem];
     }
 
-    free(d);
-    free(dsum);
+    mem_free(d);
+    mem_free(dsum);
     return result;
 }

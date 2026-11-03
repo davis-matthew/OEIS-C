@@ -10,7 +10,8 @@
  *            at least n
  * Range:     u8 n <= 1, u16 n <= 21, u32 n <= 2358, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   hq_cmp, hq_isprime, hq_mulmod, hq_powmod
+ * Validated: standard, pass, 51 terms through n = 9930 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/hq_cmp.h"
-#include "../utils/hq_isprime.h"
-#include "../utils/hq_mulmod.h"
-#include "../utils/hq_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+static int hq_cmp(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
 
 static uint64_t *hq_list = NULL;
 static size_t hq_cnt = 0;
@@ -38,7 +43,7 @@ static void hq_build(uint64_t B) {
             uint64_t y4 = y * y * y * y;
             uint64_t p = (x4 + y4) / 2;
             if (p > B) break;
-            if (hq_isprime(p)) {
+            if (is_prime_u64(p)) {
                 if (cnt == cap) {
                     cap *= 2;
                     v = (uint64_t *)realloc(v, cap * sizeof(uint64_t));

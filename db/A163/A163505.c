@@ -7,13 +7,15 @@
  * Formula:   a(n) = (n-th odd nonprime) mod (n-th odd number)
  * Range:     u8 n <= 104, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*
  * The function computes A163505.  It keeps a static cache of the
@@ -44,11 +46,11 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* initialise caches */
         np_cap = 8;
-        nonprimes = (seq_t *)malloc(np_cap * sizeof(seq_t));
+        nonprimes = mem_new(seq_t, np_cap);
         if (!nonprimes) abort();
 
         pr_cap = 8;
-        primes = (seq_t *)malloc(pr_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, pr_cap);
         if (!primes) abort();
 
         initialized = true;
@@ -79,8 +81,7 @@ seq_t a(idx_t n)
             /* store the odd non‑prime */
             if (np_len == np_cap) {
                 np_cap = np_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(nonprimes,
-                                              np_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, nonprimes, np_cap);
                 if (!tmp) abort();
                 nonprimes = tmp;
             }
@@ -91,8 +92,7 @@ seq_t a(idx_t n)
             /* store the prime for future checks */
             if (pr_len == pr_cap) {
                 pr_cap = pr_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(primes,
-                                              pr_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, pr_cap);
                 if (!tmp) abort();
                 primes = tmp;
             }

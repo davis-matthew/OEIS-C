@@ -9,6 +9,7 @@
  *            0‑based) * if k==0 or k==r then a(n)=1 * else a(n)=22^[k*(r-k)]
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 38, u128 n <= 70,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 1230 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

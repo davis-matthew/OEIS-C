@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   power_string_uint32
+ * Validated: partial, pass, 86 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,41 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../utils/power_string_uint32.h"
+
+/* Computes base^exp and writes its decimal representation into buf.
+   exp is treated as uint64_t, base ≤ 5000, exp ≤ 59.  */
+static void power_string_uint32(uint32_t base, uint64_t exp,
+                                char *buf, size_t bufsize)
+{
+    /* Digits are stored in base 1e9 for efficiency. */
+    const uint32_t BASE = 1000000000u;
+    /* 50 limbs are more than enough for 3701^59 (~211 decimal digits). */
+    uint32_t limbs[50] = {0};
+    size_t len = 1;
+    limbs[0] = 1;          /* initialise to 1 */
+
+    for (uint64_t e = 0; e < exp; ++e) {
+        uint64_t carry = 0;
+        for (size_t i = 0; i < len; ++i) {
+            uint64_t prod = (uint64_t)limbs[i] * base + carry;
+            limbs[i] = (uint32_t)(prod % BASE);
+            carry    = prod / BASE;
+        }
+        while (carry > 0) {
+            if (len >= 50) break;            /* safety */
+            limbs[len++] = (uint32_t)(carry % BASE);
+            carry /= BASE;
+        }
+    }
+
+    /* Convert to decimal string. */
+    int pos = 0;
+    pos += snprintf(buf + pos, bufsize - pos, "%u", limbs[len - 1]);   /* most significant limb */
+    for (int i = (int)len - 2; i >= 0; --i) {
+        pos += snprintf(buf + pos, bufsize - pos, "%09u", limbs[i]);
+    }
+    buf[pos] = '\0';
+}
 
 /* Precomputes primes up to 5000 (enough for all needed cases). */
 static void init_primes(uint32_t *primes, size_t *cnt)

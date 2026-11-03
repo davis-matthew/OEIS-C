@@ -10,6 +10,7 @@
  *            a(2)=6, a(3)=7 * (Recurrence derived from the OEIS definition.)
  * Range:     u8 n <= 11, u16 n <= 27, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

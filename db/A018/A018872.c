@@ -10,7 +10,8 @@
  *            leading digits of m^5 match n
  * Range:     u8 n <= 53, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   leading_five_power_digits
+ * Validated: standard, pass, 86 terms through n = 8965 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,48 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "../utils/leading_five_power_digits.h"
+
+/* ------------------------------------------------------------------ */
+static seq_t leading_five_power_digits(uint64_t m, unsigned need)
+{
+    /* Multiply m five times; result stored in base 1e9 array.        */
+    /* Maximum size: 5 * log10(10^9) = 45 decimal digits -> 5 words. */
+    const uint32_t BASE = 1000000000U;          /* 1e9            */
+    uint32_t d[10];
+    size_t len = 1;
+    d[0] = 1;                                  /* start from 1    */
+
+    for (int i = 0; i < 5; ++i) {
+        uint64_t carry = 0;
+        for (size_t j = 0; j < len; ++j) {
+            uint64_t prod = (uint64_t)d[j] * m + carry;
+            d[j] = (uint32_t)(prod % BASE);
+            carry = prod / BASE;
+        }
+        while (carry) {
+            d[len++] = (uint32_t)(carry % BASE);
+            carry /= BASE;
+        }
+    }
+
+    /* Convert to decimal string.      */
+    char buf[200] = {0};
+    int pos = 0;
+    /* Write most significant word without leading zeros. */
+    pos += sprintf(buf + pos, "%u", d[len - 1]);
+    /* Remaining words with exactly 9 digits. */
+    for (int j = (int)len - 2; j >= 0; --j) {
+        pos += sprintf(buf + pos, "%09u", d[j]);
+    }
+
+    /* Extract the first `need` digits. */
+    if (need > (size_t)pos) need = (size_t)pos;
+    char sub[32];
+    memcpy(sub, buf, need);
+    sub[need] = '\0';
+
+    return (seq_t)strtoull(sub, NULL, 10);
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper: return the leading `need` decimal digits of m^5.             */

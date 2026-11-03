@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 519, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 106 terms through n = 9806 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
    the corresponding Hamming weight k, and finally the k‑sized binary
    number at that rank using combinatorial unranking.  All operations
    are performed with the generic integer type `seq_t`.  */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     idx_t weight = 0;
     idx_t remaining = pos;
     for (weight = 0; weight <= r; ++weight) {
-        seq_t cnt = binom((idx_t)r, (idx_t)weight);
+        seq_t cnt = binomial((idx_t)r, (idx_t)weight);
         if (remaining < (idx_t)cnt) {
             break;
         }
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     idx_t bits_to_set = k;
     seq_t g = rank_in_weight;
     for (int i = (int)r - 1; i >= 0; --i) {
-        seq_t cnt0 = binom((idx_t)i, (idx_t)bits_to_set); /* numbers starting with 0 at this bit */
+        seq_t cnt0 = binomial((idx_t)i, (idx_t)bits_to_set); /* numbers starting with 0 at this bit */
         if (g < cnt0) {
             /* keep bit i = 0 */
             continue;

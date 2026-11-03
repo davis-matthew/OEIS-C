@@ -10,12 +10,15 @@
  *            with period 9. Thus for n≥17: a(n)=2+((n-17) mod 9)
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   reverse
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reverse.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +26,7 @@ seq_t a(idx_t n)
     if (n <= (idx_t)16) {
         seq_t cur = (seq_t)22;
         for (idx_t i = (idx_t)1; i < n; ++i) {
-            cur = reverse(cur) + (seq_t)1;
+            cur = reverse_digits(cur) + (seq_t)1;
         }
         return cur;
     }

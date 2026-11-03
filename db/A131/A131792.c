@@ -9,7 +9,8 @@
  *            ≤ t_j ≤ 2^j
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* -------------------------------------------------------------- */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,12 +27,12 @@ seq_t a(idx_t n)
 
     size_t N = (size_t)n;            /* array up to N */
     /* allocate arrays */
-    seq_t *prev = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *pref = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (N + 1));
+    seq_t *cur  = mem_new(seq_t, (N + 1));
+    seq_t *pref = mem_new(seq_t, (N + 1));
     if (!prev || !cur || !pref) {
         /* Allocation failed – return 0 as a safe fallback (unlikely). */
-        free(prev); free(cur); free(pref);
+        mem_free(prev); mem_free(cur); mem_free(pref);
         return 0;
     }
 
@@ -74,9 +76,9 @@ seq_t a(idx_t n)
 
     seq_t result = prev[n];
 
-    free(prev);
-    free(cur);
-    free(pref);
+    mem_free(prev);
+    mem_free(cur);
+    mem_free(pref);
 
     return result;
 }

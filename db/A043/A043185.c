@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_adjacent_6_0
+ * Validated: standard, pass, 58 terms through n = 803 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,25 @@
    representation of k but not of k-1. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_6_0.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑9 digits of x contain the adjacent pair 6‑0
+   or 0‑6. */
+static bool has_adjacent_6_0(seq_t x)
+{
+    if (x == (seq_t)0)
+        return false;
+    seq_t prev = (seq_t)-1;          /* sentinel value for “no previous digit” */
+    while (x != (seq_t)0) {
+        seq_t d = x % (seq_t)9;
+        if ((prev == (seq_t)6 && d == (seq_t)0) ||
+            (prev == (seq_t)0 && d == (seq_t)6))
+            return true;
+        prev = d;
+        x /= (seq_t)9;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +51,7 @@ seq_t a(idx_t n)
         /* Grow the cache if necessary before accessing it */
         if (len + 1 > cap) {
             size_t new_cap = (cap == 0) ? 64 : cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();       /* allocation failure: terminate */
             cache = tmp;
             cap   = new_cap;

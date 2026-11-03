@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,10 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +39,7 @@ seq_t a(idx_t n)
         primes = tmp_p;
         primes_cnt = tmp_c;
 
-        cum = (seq_t *)malloc(primes_cnt * sizeof(seq_t));
+        cum = mem_new(seq_t, primes_cnt);
         if (!cum) return (seq_t)0; /* OOM guard */
         for (size_t i = 0; i < primes_cnt; ++i) {
             cum[i] = (i == 0) ? (seq_t)primes[i] :
@@ -51,10 +55,10 @@ seq_t a(idx_t n)
         size_t tmp_c = 0;
         build_primes_upto(limit, &tmp_p, &tmp_c);
         free(primes);
-        free(cum);
+        mem_free(cum);
         primes = tmp_p;
         primes_cnt = tmp_c;
-        cum = (seq_t *)malloc(primes_cnt * sizeof(seq_t));
+        cum = mem_new(seq_t, primes_cnt);
         if (!cum) return (seq_t)0; /* OOM guard */
         for (size_t i = 0; i < primes_cnt; ++i) {
             cum[i] = (i == 0) ? (seq_t)primes[i] :

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 26, u32 n <= 70, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   mod_pow, pow10
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,20 @@
  *  where k = number of digits of 13^n minus n.
  */
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,7 +57,7 @@ seq_t a(idx_t n)
     seq_t pow10k  = pow10(k);      /* 10^k */
 
     /* 13^n modulo 10^(k+1) */
-    seq_t r = mod_pow((seq_t)13, n, mod);
+    seq_t r = powmod((seq_t)13, n, mod);
 
     /* Extract the desired digit */
     seq_t q = r / pow10k;      /* floor(13^n / 10^k)  */

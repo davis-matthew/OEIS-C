@@ -7,12 +7,14 @@
  * Formula:   a(n) = n*a(n-1) - (n-2), with a(1) = 3, defined for n ≥ 1
  * Range:     i8 n <= 4, i16 n <= 5, i32 n <= 5, i64 n <= 5, i128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Grow cache if necessary */
     if (cache_cap < n + 1) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) { /* allocation failure – abort */
             abort();
         }

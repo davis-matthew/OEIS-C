@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 294, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static caches for computed values */
 static idx_t _max_n = 0;
@@ -89,7 +91,7 @@ static void _compute_up_to(idx_t N)
 {
     if (N <= _max_n) return;
     /* Reallocate prefix array */
-    seq_t *new_prefix = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *new_prefix = mem_new(seq_t, (size_t)(N + 1));
     if (!new_prefix) return;   /* allocation failure */
     _sieve_spf(N);
     new_prefix[0] = 0;
@@ -98,7 +100,7 @@ static void _compute_up_to(idx_t N)
         seq_t bs = _bsigma_n(i);
         new_prefix[i] = new_prefix[i - 1] + bs;
     }
-    free(_prefix);
+    mem_free(_prefix);
     _prefix = new_prefix;
     _max_n = N;
 }

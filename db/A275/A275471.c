@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9570 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* integer square root: floor(sqrt(n)) for 0 ≤ n < 2⁶⁴ */
 static uint64_t u64_isqrt(uint64_t n)
@@ -51,7 +53,7 @@ static void init_rep(size_t max_t)
     if (rep_size > max_t) return;
 
     size_t new_size = max_t + 1;
-    seq_t *tmp = (seq_t *)realloc(rep_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, rep_cache, new_size);
     if (!tmp) abort();                /* allocation failure */
     rep_cache = tmp;
 

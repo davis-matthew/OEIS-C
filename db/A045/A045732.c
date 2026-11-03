@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 6, u128 n <= 11,
  *            big any n
- * Helpers:   digit_len, grow_seq, pow10
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,34 @@
 /* Computes the nth Fibonacci number whose initial decimal digit is 8. */
 
 #include <stddef.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
-#include "../utils/grow_seq.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +64,7 @@ seq_t a(idx_t n)
     while (terms_cnt < n)
     {
         /* Check if the current Fibonacci number starts with digit '8'. */
-        int len   = digit_len(f_curr);                      /* number of decimal digits */
+        int len   = num_digits(f_curr);                      /* number of decimal digits */
         seq_t pow = pow10((idx_t)len - 1);                  /* 10^(len-1) */
         seq_t lead = f_curr / pow;                          /* leading decimal digit */
 

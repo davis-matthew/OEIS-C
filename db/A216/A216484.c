@@ -8,7 +8,8 @@
  *            solution
  * Range:     u8 n <= 41, u16 n <= 4981, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 4939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- helper: 128‑bit modular multiplication (works for 64‑bit mods) ---------- */
 static inline uint64_t mul_mod_uint64(uint64_t a, uint64_t b, uint64_t mod)
@@ -135,7 +137,7 @@ static void ensure_term_cap(size_t need)
     {
         size_t new_cap = term_cap ? term_cap * 2 : 16;
         while (new_cap < need) new_cap <<= 1;
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         term_cap = new_cap;
     }
 }

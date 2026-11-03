@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 38, i16 n <= 80, i32 n <= 80, i64 n <= 80, i128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- Helpers for dynamic caching ---------- */
 static seq_t **rows = NULL;          /* rows[i] holds T(i,0..2*i) */
@@ -37,7 +39,7 @@ static void ensure_row(size_t n)
     /* Allocate base row 0 if needed */
     if (row_count == 0) {
         rows = (seq_t**)malloc(sizeof(seq_t*));
-        rows[0] = (seq_t*)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = (seq_t)1;        /* T(0,0) = 1 */
         row_count = 1;
     }
@@ -48,7 +50,7 @@ static void ensure_row(size_t n)
         /* Grow the array of row pointers */
         rows = (seq_t**)realloc(rows, (i+1) * sizeof(seq_t*));
         /* Allocate and zero initialize the new row */
-        rows[i] = (seq_t*)calloc(len, sizeof(seq_t));
+        rows[i] = mem_new(seq_t, len);
         /* Get previous row data */
         seq_t *prev   = rows[i-1];
         size_t prelen = 2*(i-1) + 1;

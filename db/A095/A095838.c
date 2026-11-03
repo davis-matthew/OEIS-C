@@ -9,12 +9,15 @@
  *            T(n,k) = n^((n-k+1)^2)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 6, u64 n <= 15, u128 n <= 21,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 /* Find the row r containing the n-th term, using binary search on triangular
  * numbers.  This avoids floating‑point arithmetic. */
@@ -48,5 +51,5 @@ seq_t a(idx_t n)
     idx_t exp = p * p;
 
     /* Compute r^exp using the generic seq_pow helper. */
-    return seq_pow((seq_t)r, exp);
+    return ipow_idx((seq_t)r, exp);
 }

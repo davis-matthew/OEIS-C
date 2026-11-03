@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 9, i64 n <= 16, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 382 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #ifdef __cplusplus
 # include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,10 +42,10 @@ seq_t a(idx_t n)
     /* Init a_cache ------------------------------------------------------- */
     if (a_cache == NULL) {
         a_cap = 1;
-        a_cache = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         if (!a_cache) return 0;
 #ifdef __cplusplus
-        new(&a_cache[0]) seq_t();
+        *(&a_cache[0]) = (seq_t)0;
 #endif
         a_cache[0] = (seq_t)1;       /* a(0) = 1 */
         a_max = 0;
@@ -52,11 +54,11 @@ seq_t a(idx_t n)
     /* Init b_cache ------------------------------------------------------- */
     if (b_cache == NULL) {
         b_cap = 2;                   /* indices 0 and 1 allocated */
-        b_cache = (seq_t*)malloc(b_cap * sizeof(seq_t));
+        b_cache = mem_new(seq_t, b_cap);
         if (!b_cache) return 0;
 #ifdef __cplusplus
-        new(&b_cache[0]) seq_t();
-        new(&b_cache[1]) seq_t();
+        *(&b_cache[0]) = (seq_t)0;
+        *(&b_cache[1]) = (seq_t)0;
 #endif
         b_cache[0] = (seq_t)1;       /* unused, but set to 1 */
         b_cache[1] = (seq_t)1;       /* B(1) = 1 */
@@ -66,11 +68,11 @@ seq_t a(idx_t n)
     /* Grow a_cache if necessary ------------------------------------------ */
     if ((size_t)(n + 1) > a_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) return 0;
         for (size_t i = a_cap; i < new_cap; ++i) {
 #ifdef __cplusplus
-            new(&tmp[i]) seq_t();
+            *(&tmp[i]) = (seq_t)0;
 #endif
         }
         a_cache = tmp;
@@ -80,11 +82,11 @@ seq_t a(idx_t n)
     /* Grow b_cache if necessary ------------------------------------------ */
     if ((size_t)(n + 1) > b_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(b_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b_cache, new_cap);
         if (!tmp) return 0;
         for (size_t i = b_cap; i < new_cap; ++i) {
 #ifdef __cplusplus
-            new(&tmp[i]) seq_t();
+            *(&tmp[i]) = (seq_t)0;
 #endif
         }
         b_cache = tmp;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   isComposite, isPrimeTrial
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,10 @@
 /*======================================================================*/
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isComposite.h"
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+static inline bool isComposite(seq_t n) { return n > 1 && !is_prime_seq(n); }
 
 /*--------------------------------------------------------------------*/
 /*  Static storage for the sequence and for the set of used differences */
@@ -44,7 +47,7 @@ static inline void grow_terms(size_t minCap)
     if (termsCap >= minCap) return;
     size_t newCap = (termsCap == 0) ? 4 : termsCap * 2;
     while (newCap < minCap) newCap <<= 1;
-    terms = (seq_t*)realloc(terms, newCap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, newCap);
     if (!terms) abort();               /* Omitted: real code would handle error */
     termsCap = newCap;
 }

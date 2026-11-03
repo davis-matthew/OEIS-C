@@ -9,7 +9,8 @@
  *            digits of a(n) as base‑5 digits)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Convert a binary number into a base‑5 number using the same bit pattern */
 static inline seq_t to_base5(seq_t x)
@@ -67,11 +69,11 @@ seq_t a(idx_t n)
 
     /* initialise first term if it hasn't been stored yet */
     if (size == 0) {
-        seq_t *ptr = (seq_t*)malloc(sizeof(seq_t));
+        seq_t *ptr = mem_new(seq_t, 1);
         if (!ptr)
             abort();
 #ifdef __cplusplus
-        new (ptr) seq_t(2);
+        *(ptr) = (seq_t)(2);
 #else
         *ptr = 2;
 #endif
@@ -84,11 +86,11 @@ seq_t a(idx_t n)
         for (idx_t i = size; i < n; ++i) {
             seq_t prev = *cache_ptr[i - 1];
             seq_t val = to_base5(prev);
-            seq_t *ptr = (seq_t*)malloc(sizeof(seq_t));
+            seq_t *ptr = mem_new(seq_t, 1);
             if (!ptr)
                 abort();
 #ifdef __cplusplus
-            new (ptr) seq_t(val);
+            *(ptr) = (seq_t)(val);
 #else
             *ptr = val;
 #endif

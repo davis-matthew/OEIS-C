@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 54, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sigma_square_mod4
+ * Validated: standard, pass, 67 terms through n = 9880 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,54 @@
 /*  Computes the sequence by iterating over odd s, factoring s, and checking sigma(s^2) mod 4. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sigma_square_mod4.h"
+#include "../utils/mem.h"
+
+/* Helper: compute sigma(s^2) modulo 4.  s is odd. */
+static unsigned char sigma_square_mod4(unsigned long long s)
+{
+    unsigned char result = 1;                     /* multiplicative identity modulo 4 */
+
+    unsigned long long temp = s;
+    for (unsigned long long p = 3; p * p <= temp; p += 2)
+    {
+        if (temp % p == 0)
+        {
+            int e = 0;
+            while (temp % p == 0)
+            {
+                temp /= p;
+                ++e;
+            }
+
+            /* compute sigma(p^(2e)) mod 4 */
+            unsigned char sum = 1;      /* term for exponent 0 */
+            unsigned char pow = 1;      /* p^j mod 4 */
+            unsigned char p_mod = p & 3;/* p mod 4  (since p is odd) */
+            for (int j = 1; j <= 2 * e; ++j)
+            {
+                pow = (pow * p_mod) & 3;
+                sum = (sum + pow) & 3;
+            }
+            result = (result * sum) & 3;
+        }
+    }
+
+    if (temp > 1)   /* remaining prime factor > sqrt(s) */
+    {
+        /* exponent e = 1  (the remaining prime appears once in s) */
+        unsigned char sum = 1;
+        unsigned char pow = 1;
+        unsigned char p_mod = temp & 3;
+        for (int j = 1; j <= 2; ++j)      /* 2*e = 2 */
+        {
+            pow = (pow * p_mod) & 3;
+            sum = (sum + pow) & 3;
+        }
+        result = (result * sum) & 3;
+    }
+
+    return result;
+}
 
 /*  a(n) function returning the n-th square for which sigma(k) ≡ 3 (mod 4).  */
 seq_t a(idx_t n)
@@ -30,7 +78,7 @@ seq_t a(idx_t n)
     if (cache_cap == 0)
     {
         cache_cap = 256;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_sz < n)
@@ -39,7 +87,7 @@ seq_t a(idx_t n)
         if (cache_sz >= cache_cap)
         {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* Test current odd s */

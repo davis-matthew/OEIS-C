@@ -11,14 +11,25 @@
  *            All coefficients nonnegative
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 56, u64 n <= 4673,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_zero, release
+ * Validated: standard, pass, 40 terms through n = 8284 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 /* [q^m] f^12, where f = 1 + w * Sum_{k>=1} q^(e(k)),
    e(k) = k^2, w = 2 (theta3) if tri == 0; e(k) = k(k+1), w = 1 if tri != 0 */

@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) + a(n-2), a(0) = 2, a(1) = 32
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Ensure the array has space for indices up to n */
     if (cap < (size_t)n + 1) {
-        seq_t *tmp = (seq_t *)realloc(cache, ((size_t)n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, ((size_t)n + 1));
         if (!tmp) {             /* allocation failed – aborting */
             abort();
         }

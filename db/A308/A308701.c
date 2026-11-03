@@ -10,13 +10,16 @@
  *            antidiagonals with n ascending on each diagonal
  * Range:     u8 n <= 17, u16 n <= 24, u32 n <= 40, u64 n <= 60, u128 n <= 111,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 61 terms through n = 1050 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
         {
             seq_t base     = (seq_t)d;
             seq_t exponent = (seq_t)k * (seq_t)(d - 1);
-            result += big_pow(base, exponent);
+            result += ipow(base, exponent);
         }
     }
     return result;

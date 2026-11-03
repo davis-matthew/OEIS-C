@@ -10,6 +10,7 @@
  *            a(3) = 2, a(4) = 4, a(5) = 4. This matches the OEIS A051754
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
+ * Validated: partial, pass, 67 terms through n = 68 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

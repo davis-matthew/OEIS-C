@@ -10,12 +10,16 @@
  *            primes with themselves)
  * Range:     u8 n <= 5, u16 n <= 26, u32 n <= 667, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 55 terms through n = 1978 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 seq_t a(idx_t n) {

@@ -9,7 +9,8 @@
  *            T(0,0)=1, T(n,k)=0 for k>n. a(n) is the triangle read by rows
  * Range:     u8 n <= 17, u16 n <= 41, u32 n <= 102, u64 n <= 298,
  *            u128 n <= 1032, big any n
- * Helpers:   tri_index
+ * Validated: standard, pass, 66 terms through n = 9422 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/tri_index.h"
+#include "../utils/mem.h"
+
+/* convert triangle coordinates to flat array index */
+static inline size_t tri_index(idx_t n, idx_t k)
+{
+    return (size_t)(((__int128)n * (n + 1)) / 2 + k);
+}
 
 static seq_t *tri = NULL;          /* flat storage for T values */
 static seq_t *colCum = NULL;       /* cumulative sums for each column */
@@ -36,7 +43,7 @@ static void ensure_rows(idx_t need)
     /* allocate/resize triangle array if necessary */
     size_t new_tri_cap = (size_t)(((__int128)need + 1) * (need + 2) / 2);
     if (new_tri_cap > tri_cap) {
-        seq_t *tmp = (seq_t*)realloc(tri, new_tri_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tri, new_tri_cap);
         if (!tmp) abort();
         tri = tmp;
         tri_cap = new_tri_cap;
@@ -44,7 +51,7 @@ static void ensure_rows(idx_t need)
 
     /* allocate/resize column cumulative array if necessary */
     if ((size_t)need + 1 > col_cap) {
-        seq_t *tmp = (seq_t*)realloc(colCum, (size_t)(need + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, colCum, (size_t)(need + 1));
         if (!tmp) abort();
         for (size_t i = col_cap; i <= (size_t)need; ++i)
             tmp[i] = 0;

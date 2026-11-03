@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4^(composite(n) - 4) mod composite(n+4) (OEIS A176101)
  * Range:     u8 n <= 197, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 96 terms through n = 943 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,7 +15,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
 
 /* storage for the list of composite numbers (1‑based indexing) */
 static idx_t *composites = NULL;      /* array of composite values     */

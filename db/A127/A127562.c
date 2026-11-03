@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 349, u32 n <= 379, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- global data ---------- */
 static seq_t *cache           = NULL;  /* stored terms   */
@@ -46,7 +48,7 @@ static void ensure_cache_capacity(size_t req)
     if (cache_cap >= req) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < req) new_cap = req;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

@@ -8,6 +8,7 @@
  * Formula:   c(n) = n + floor(n*sec(pi/5)) + floor(n*tan(pi/5))
  * Range:     u8 n <= 86, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 77 terms through n = 9341 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

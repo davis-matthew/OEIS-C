@@ -11,13 +11,35 @@
  *            follows this * convention
  * Range:     u8 n <= 16, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   collatz_steps
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/collatz_steps.h"
+
+/* Compute the total (stopping) time of n in the Collatz 3n+1 process.
+   The function works for any unsigned integer type provided the
+   arithmetic stays within the bounds of seq_t. */
+static seq_t collatz_steps(idx_t n)
+{
+    seq_t steps = 0;
+    seq_t x     = (seq_t)n;          /* start value */
+
+    if (x == 0)                      /* treat n=0 as halting immediately */
+        return 0;
+
+    while (x != 1)                    /* iterate until 1 is reached */
+    {
+        if (x & 1U)                   /* odd: 3*x + 1 */
+            x = 3 * x + 1;
+        else                          /* even: x / 2 */
+            x >>= 1;
+        ++steps;
+    }
+    return steps;
+}
 
 /* The requested OEIS a(n) function. */
 seq_t a(idx_t n)

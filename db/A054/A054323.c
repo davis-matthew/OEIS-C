@@ -7,7 +7,8 @@
  * Formula:   a(n) = 4^n * binomial(2*n+5, 4)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 23, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 903 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* with initial values a(0)=5, a(1)=140, a(2)=2016, a(3)=21120, a(4)=183040 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache: 0..cache_size-1 already computed */
@@ -27,9 +29,9 @@ seq_t a(idx_t n) {
         idx_t new_size = n + 1;
         seq_t *new_cache = NULL;
         if (cache == NULL) {
-            new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+            new_cache = mem_new(seq_t, new_size);
         } else {
-            new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            new_cache = mem_resize(seq_t, cache, new_size);
         }
         if (new_cache == NULL) {
             /* allocation failed; abort */

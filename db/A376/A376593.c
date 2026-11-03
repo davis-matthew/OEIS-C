@@ -9,7 +9,8 @@
  *            nonsquarefree number (A013929)
  * Range:     i8 n <= 77, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state for the list of nonsquarefree numbers */
 static seq_t *nsq          = NULL;   /* array of nonsquarefree numbers */
@@ -32,7 +34,7 @@ static void ensure_nsq_capacity(size_t needed)
     size_t new_cap = nsq_cap ? nsq_cap << 1 : 64;
     while (new_cap < needed)
         new_cap <<= 1;
-    nsq = (seq_t *)realloc(nsq, new_cap * sizeof(seq_t));
+    nsq = mem_resize(seq_t, nsq, new_cap);
     nsq_cap = new_cap;
 }
 

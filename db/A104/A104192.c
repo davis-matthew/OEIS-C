@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n) - phi(n)
  * Range:     u8 n <= 59, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   compute_phi, is_prime
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   is_prime_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"      /* bool is_prime(uint64_t n); */
-#include "../utils/compute_phi.h"  /* uint64_t compute_phi(uint64_t n); */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/totient_u64.h"
 
 /* --------------------------------------------------------------------- */
 /*  Storage for known primes                                               */
@@ -39,7 +41,7 @@ static void ensure_primes(idx_t n)
         }
 
         /* Simple trial division using the primes we already know.   */
-        while (!is_prime(candidate)) {
+        while (!is_prime_u64(candidate)) {
             candidate++;
         }
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     ensure_primes(n);
 
     uint64_t p  = prime_list[n - 1];     /* n-th prime */
-    uint64_t ph = compute_phi(n);        /* φ(n)   */
+    uint64_t ph = totient_u64(n);        /* φ(n)   */
 
     return (seq_t)(p - ph);
 }

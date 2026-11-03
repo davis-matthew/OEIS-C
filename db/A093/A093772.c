@@ -8,7 +8,8 @@
  * Formula:   a(n) = smallest m such that ∑_{k=1..m, k not prime} μ(k) = n
  * Range:     u8 n <= 54, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define LIMIT_M 1000000U   /* upper bound for m (safe for n≤10000) */
 
@@ -36,7 +38,7 @@ static void init_sequence(void) {
     is_composite = (bool*)malloc((limit + 1) * sizeof(bool));
     mu = (signed char*)malloc((limit + 1) * sizeof(signed char));
     primes = (idx_t*)malloc((limit + 1) * sizeof(idx_t));
-    first_occ = (seq_t*)calloc(limit + 1, sizeof(seq_t));
+    first_occ = mem_new(seq_t, limit + 1);
     first_occ_cap = limit + 1;
 
     if (!is_composite || !mu || !primes || !first_occ) return; /* out of memory */

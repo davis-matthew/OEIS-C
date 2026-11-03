@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 10, i64 n <= 17, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    All arithmetic is performed with the arbitrary / fixed size seq_t type
    supplied by the build, and no floating point operations are used. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------- Local binomial helper ------------------------------------- */
 /* Computes combinatorial coefficient C(n,k) for idx_t arguments.
@@ -54,9 +56,9 @@ static void ensure_a_cache(idx_t n)
 
     /* Allocate or grow the array to hold up to index n */
     if (a_cache == NULL) {
-        a_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (n + 1));
     } else {
-        a_cache = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (n + 1));
     }
 
     /* Compute missing values */

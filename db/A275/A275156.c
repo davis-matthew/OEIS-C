@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 105, u32 n <= 108, u64 n <= 108,
  *            u128 n <= 108, big any n
- * Helpers:   smooth17
+ * Validated: full, pass, 108 terms through n = 108 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
    17‑smoothness, and stores the first 108 solutions. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/smooth17.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a number contains only prime factors
+   from the set {2,3,5,7,11,13,17}. */
+static bool smooth17(seq_t num)
+{
+    static const seq_t primes[7] = {2, 3, 5, 7, 11, 13, 17};
+    for (int i = 0; i < 7; ++i) {
+        if (num == 0) return false;
+        while (num % primes[i] == 0)
+            num /= primes[i];
+    }
+    return num == 1;
+}
 
 /* OEIS A275156 */
 seq_t a(idx_t n)
@@ -30,7 +44,7 @@ seq_t a(idx_t n)
     const size_t TARGET = 108;
 
     if (list == NULL) {
-        list = (seq_t *)malloc(sizeof(seq_t) * TARGET);
+        list = mem_new(seq_t, TARGET);
         if (!list) return 0; /* not enough memory, unlikely */
 
         size_t found = 0;

@@ -10,12 +10,14 @@
  *            = ⌊n/2⌋
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *divcnt = NULL;      /* divisor counts up to current maximum m */
 static idx_t  max_precalc = 0;    /* largest m for which divcnt is computed */
@@ -23,8 +25,8 @@ static idx_t  max_precalc = 0;    /* largest m for which divcnt is computed */
 /* Recompute divisor counts for all m ≤ limit.  Complexity O(limit log limit). */
 static void recompute_divcounts(idx_t limit)
 {
-    free(divcnt);
-    divcnt = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    mem_free(divcnt);
+    divcnt = mem_new(seq_t, (limit + 1));
     if (!divcnt) return;           /* in practice we ignore allocation failure */
 
     for (idx_t i = 0; i <= limit; ++i) divcnt[i] = 0;

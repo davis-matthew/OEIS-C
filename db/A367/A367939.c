@@ -8,12 +8,14 @@
  *            A367939: Expansion of e.g.f. exp(exp(4*x) - 1 - 2*x)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static idx_t cache_len = 0;
@@ -22,7 +24,7 @@ seq_t a(idx_t n) {
     if (n < cache_len) return a_cache[n];
 
     size_t new_len = (size_t)(n + 1);
-    a_cache = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_len);
 
     for (idx_t i = cache_len; i <= n; ++i) {
         if (i == 0) {

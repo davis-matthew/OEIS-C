@@ -10,12 +10,14 @@
  *            indices k such that * (3k^2+9k+8)/2 is a perfect square.)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 39, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -29,10 +31,10 @@ seq_t a(idx_t n) {
     if (n > cache_len) {
         idx_t new_len = n;
         if (!cache) {
-            cache = (seq_t*)malloc((new_len + 1) * sizeof(seq_t));
+            cache = mem_new(seq_t, (new_len + 1));
             cache_len = 0;
         } else if (new_len + 1 > cache_len + 1) {
-            cache = (seq_t*)realloc(cache, (new_len + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (new_len + 1));
         }
 
         /* Compute missing terms */

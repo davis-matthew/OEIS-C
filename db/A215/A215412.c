@@ -10,7 +10,8 @@
  *            -2, -2, 2, 0, 2, -2, -2, -2, 2, 2, 2, -2, 0]
  * Range:     i8 n <= 15, i16 n <= 48, i32 n <= 160, i64 n <= 562,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helpers provided by the build – use only their signatures */
-#define seq_alloc_new_array(size) ((seq_t *)calloc((size_t)(size), sizeof(seq_t)))
+#define seq_alloc_new_array(size) (mem_new(seq_t, (size_t)(size)))
 
 seq_t a(idx_t n) {
     /* Periodic exponents */
@@ -48,8 +50,8 @@ seq_t a(idx_t n) {
     seq_t *tmp_arr = seq_alloc_new_array(newsize);
 
     if (!new_arr || !tmp_arr) { /* allocation failure – return 0 (undefined) */
-        free(new_arr);
-        free(tmp_arr);
+        mem_free(new_arr);
+        mem_free(tmp_arr);
         return 0;
     }
 
@@ -100,8 +102,8 @@ seq_t a(idx_t n) {
     cache_max = target;
 
     /* Free previous cache and temporary buffer */
-    free(old_cache);
-    free(tmp_arr);
+    mem_free(old_cache);
+    mem_free(tmp_arr);
 
     return cache[target];
 }

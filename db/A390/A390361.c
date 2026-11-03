@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 183, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9124 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global state for the sieve and cache */
 static uint32_t *spf = NULL;          /* smallest prime factor table   */
@@ -48,7 +50,7 @@ static size_t seq_len = 0;            /* number of stored terms        */
 
 static void build_sieve(idx_t limit)
 {
-    if (spf) free((void *)spf);
+    if (spf) free(spf);
     spf = (uint32_t *)calloc(limit + 1U, sizeof(uint32_t));
 
     for (idx_t i = 2; i <= limit; ++i) {
@@ -69,7 +71,7 @@ static void ensure_globals(void)
         sieve_limit = 100;                 /* initial small limit */
         build_sieve(sieve_limit);
         seq_cap = 16;
-        seq_cache = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
     }
 }
 
@@ -99,7 +101,7 @@ static void append_seq(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cap = new_cap;
     }
     seq_cache[seq_len++] = val;

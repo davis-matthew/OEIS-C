@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   free_cache, seq_alloc_new_array
+ * Validated: standard, pass, 34 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,19 @@
    with initial values a(0)=1, a(1)=23, a(2)=506 */
 
 #include <stddef.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_cache.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Compute just‑in‑time with memoisation.
    The cache is grown only when a larger index is requested. */

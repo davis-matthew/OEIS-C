@@ -8,12 +8,14 @@
  *            a(2)=1, a(3)=2, a(4)=1, a(5)=2, a(6)=4, a(7)=3, a(8)=4, a(9)=8
  * Range:     u8 n <= 21, u16 n <= 41, u32 n <= 81, u64 n <= 160,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (n >= capacity) {
         idx_t new_cap = capacity ? capacity : 16;
         while (new_cap <= n) new_cap <<= 1;      /* grow geometrically */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                      /* allocation failure */
         cache = tmp;
         capacity = new_cap;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 903, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 4883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- recursive counting ------------------------------------------------ */
 
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
     /* enlarge cache if needed */
     if (n > cache_cap) {
         size_t new_cap = n * 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)
             return 0;          /* allocation failure; unlikely */
         cache = new_cache;

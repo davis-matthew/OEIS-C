@@ -11,7 +11,8 @@
  *            arbitrary * order of calls is handled efficiently
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   is_prime_generic
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_generic.h"
+#include "../utils/is_prime.h"
 
 #define MAX_TERMS 100000  /* enough for n up to ~100 000; far beyond 10 000 */
 
@@ -35,14 +36,14 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n)
     {
         /* Skip even numbers automatically by keeping next_candidate odd. */
-        if (is_prime_generic(next_candidate) &&
-            is_prime_generic(next_candidate + 2))
+        if (is_prime(next_candidate) &&
+            is_prime(next_candidate + 2))
         {
             seq_t p  = (seq_t)next_candidate;
             seq_t val = p * p + (seq_t)3 * p + (seq_t)1;
 
             /* val fits in idx_t for all values we need (see analysis).  */
-            if (is_prime_generic((idx_t)val))
+            if (is_prime((idx_t)val))
             {
                 cache[cache_len++] = p;
             }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has_adj_56
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,25 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_adj_56.h"
+#include "../utils/mem.h"
+
+/* Test whether x (in base 7) contains the adjacent digit pair 5 6 or 6 5. */
+static bool has_adj_56(seq_t x)
+{
+    if (x == 0) return false;
+    int prev = -1;
+    seq_t t = x;
+    while (t > 0) {
+        int d = (int)(t % 7);
+        t /= 7;
+        if (prev >= 0) {
+            if ((prev == 5 && d == 6) || (prev == 6 && d == 5))
+                return true;
+        }
+        prev = d;
+    }
+    return false;
+}
 
 /* Ensure capacity in a dynamic array of seq_t */
 static void ensure_capacity(size_t needed, seq_t **arr, size_t *cap)
@@ -31,7 +50,7 @@ static void ensure_capacity(size_t needed, seq_t **arr, size_t *cap)
     if (*cap < needed) {
         size_t newcap = (*cap == 0) ? 16 : *cap << 1;
         while (newcap < needed) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
         *arr = tmp;
         *cap = newcap;
     }

@@ -12,12 +12,14 @@
  *            left element zero
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 27, u64 n <= 54, u128 n <= 108,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>      /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* 1‑based cache, cache[0] unused   */
 static idx_t cache_size = 0;     /* size of allocated array           */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t upto)
         return;                       /* already large enough */
 
     size_t newsize = (size_t)(upto + 1);   /* indices 0..upto           */
-    seq_t *newptr = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, cache, newsize);
     if (!newptr)
         abort();                     /* allocation failure          */
     cache = newptr;

@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{1≤i<j≤n} (i*j) if i or j is even, otherwise –(i*j)
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 383, u64 n <= 500,
  *            u128 n <= 500, big any n
+ * Validated: standard, pass, 56 terms through n = 494 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

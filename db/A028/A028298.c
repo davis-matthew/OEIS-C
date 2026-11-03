@@ -12,15 +12,30 @@
  *            1,…,⌈r/2⌉)
  * Range:     i8 n <= 7, i16 n <= 28, i32 n <= 59, i64 n <= 59, i128 n <= 59,
  *            big any n
- * Helpers:   binomial, idx_to_rc, pow2
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/idx_to_rc.h"
+
+/* Map the overall index n to row r and column k (1‑based).  */
+static void idx_to_rc(idx_t n, idx_t *r_out, idx_t *k_out)
+{
+    idx_t r = 1;
+    idx_t cum = 0;               /* terms before the current row   */
+    while (cum + (r + 1) / 2 < n) {
+        cum += (r + 1) / 2;
+        r++;
+    }
+    *r_out = r;
+    *k_out = n - cum;           /* 1‑based column within row r   */
+}
 
 seq_t a(idx_t n)
 {

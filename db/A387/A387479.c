@@ -8,11 +8,15 @@
  * Formula:   a(n) = Σ_{k=0..⌊n/3⌋} 2^k * 3^(n-3k) * binomial(k, n-3k)^2
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 33, u64 n <= 63, u128 n <= 122,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 1995 (2026-11-01)
  * Helpers:   binomial, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"

@@ -12,14 +12,24 @@
  *            The result is the first (smallest) x that meets...
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 1106, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 101 terms through n = 8125 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"   /* provides seq_t pow10(idx_t e) */
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static int digits_of_seq_t(seq_t x) {
     int d = 0;

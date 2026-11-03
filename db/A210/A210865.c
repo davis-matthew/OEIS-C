@@ -12,7 +12,8 @@
  *            in a(n) in reading order by rows
  * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static state */
 static seq_t *u_prev = NULL;     /* coefficients of u(n-1,x) */
@@ -38,13 +40,13 @@ static void append_to_cache(seq_t val)
 {
     if (a_cache_len == a_cache_cap) {
         size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 16;
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (!new_arr) { /* allocation failed */
             exit(EXIT_FAILURE);
         }
         if (a_cache) {
-            memcpy(new_arr, a_cache, a_cache_len * sizeof(seq_t));
-            free(a_cache);
+            mem_copy(new_arr, a_cache, a_cache_len * sizeof(seq_t));
+            mem_free(a_cache);
         }
         a_cache = new_arr;
         a_cache_cap = new_cap;
@@ -61,8 +63,8 @@ static void compute_up_to(idx_t n)
     /* if starting fresh, initialize row 1 */
     if (prev_len == 0) {
         prev_len = 1;
-        u_prev = (seq_t *)malloc(sizeof(seq_t));
-        v_prev = (seq_t *)malloc(sizeof(seq_t));
+        u_prev = mem_new(seq_t, 1);
+        v_prev = mem_new(seq_t, 1);
         u_prev[0] = 1;
         v_prev[0] = 1;
         append_to_cache(v_prev[0]);                 /* a(1)=1 */
@@ -71,8 +73,8 @@ static void compute_up_to(idx_t n)
     /* iterate rows from prev_len+1 up to n (inclusive) */
     for (idx_t r = prev_len + 1; r <= n; ++r) {
         idx_t new_len = r;
-        seq_t *u_new = (seq_t *)malloc(new_len * sizeof(seq_t));
-        seq_t *v_new = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *u_new = mem_new(seq_t, new_len);
+        seq_t *v_new = mem_new(seq_t, new_len);
         if (!u_new || !v_new) exit(EXIT_FAILURE);
 
         for (idx_t k = 0; k < new_len; ++k) {
@@ -93,8 +95,8 @@ static void compute_up_to(idx_t n)
         }
 
         /* free old arrays and advance pointers */
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_new;
         v_prev = v_new;
         prev_len = new_len;

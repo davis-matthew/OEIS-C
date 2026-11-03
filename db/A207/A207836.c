@@ -9,12 +9,14 @@
  *            a(3)=3, a(4)=16, a(5)=75
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     idx_t size = n + 1;
     seq_t *buf;
 #ifdef __cplusplus
-    buf = reinterpret_cast<seq_t*>(malloc(size * sizeof(seq_t)));
+    buf = mem_new(seq_t, size);
 #else
     buf = (seq_t*)malloc(size * sizeof(seq_t));
 #endif
@@ -50,6 +52,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[n];
-    free(buf);
+    mem_free(buf);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2 * n! * Σ_{k=0..n} (n‑k+2)^(k‑1) * binom(n‑1, n‑k) / k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /* This implementation directly evaluates the sum using only integer         */
 /* arithmetic.  It uses the provided seq_pow utility for exponentiation.      */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
         if (k == 1)
             pow_term = (seq_t)1;
         else
-            pow_term = seq_pow(base, k - 1);
+            pow_term = ipow_idx(base, k - 1);
 
         /* Update binomial coefficient C(n-1, k-1) from previous step */
         if (k > 1) {

@@ -9,15 +9,26 @@
  *            0. popcount(m) is the number of 1-bits in m
  * Range:     u8 n <= 37, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   _bitlen, _popcount
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-01)
+ * Helpers:   popcount_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_bitlen.h"
-#include "../utils/_popcount.h"
+#include "../utils/popcount_idx.h"
+
+/* Counts the number of bits required to represent x; for x==0 the result is 1. */
+static idx_t _bitlen(idx_t x)
+{
+    idx_t len = 0;
+    while (x) {
+        ++len;
+        x >>= 1;
+    }
+    return len ? len : 1;
+}
 
 /* Computes the binomial coefficient C(n, k).  n and k are small (<= 64 for n <= 10000). */
 static seq_t _choose(idx_t n, idx_t k)
@@ -39,7 +50,7 @@ seq_t a(idx_t n)
     seq_t sum = (seq_t)0;
     for (idx_t m = 0; m < n; ++m) {
         idx_t len  = _bitlen(m);
-        idx_t ones = _popcount(m);
+        idx_t ones = popcount_idx(m);
         sum += _choose(len, ones);
     }
     return sum;

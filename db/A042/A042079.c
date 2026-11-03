@@ -8,14 +8,30 @@
  *            fraction for sqrt(563)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 75,
  *            big any n
- * Helpers:   isqrt_int
+ * Validated: standard, pass, 44 terms through n = 174 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/isqrt_int.h"
+
+/* Integer square‑root: floor(sqrt(n)) for positive n */
+static int isqrt_int(int n)
+{
+    int low = 0, high = n;
+    while (low <= high)
+    {
+        int mid = low + ((high - low) >> 1);
+        int64_t sq = (int64_t)mid * mid;
+        if (sq <= n)
+            low = mid + 1;
+        else
+            high = mid - 1;
+    }
+    return high;
+}
 
 /* a(idx_t n) – denominator of the nth convergent to sqrt(563) */
 seq_t a(idx_t n)

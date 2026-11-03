@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has65_octal
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
  * arithmetic and comparison operators. */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/has65_octal.h"
+
+static bool has65_octal(seq_t x)
+{
+    /* Scan the octal digits from least‑significant to most‑significant.
+     * A match is found if a 5 is followed by a 6 in the next higher digit. */
+    seq_t prev = x % 8;          /* least significant digit */
+    x = x / 8;
+    while (x > 0) {
+        seq_t cur = x % 8;       /* next digit */
+        if (cur == 6 && prev == 5) {
+            return true;
+        }
+        prev = cur;
+        x = x / 8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

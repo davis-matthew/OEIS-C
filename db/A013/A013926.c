@@ -9,12 +9,15 @@
  *            k-1) * (n-k)^(2n+1) )
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* sequence offset starts at 1 */
@@ -23,14 +26,14 @@ seq_t a(idx_t n) {
     seq_t sum_odd  = 0;
 
     /* k = 0 term (always even) */
-    sum_even += big_pow((seq_t)n, (seq_t)(2*n));
+    sum_even += ipow((seq_t)n, (seq_t)(2*n));
 
     /* iterative binomial C(2n-1, k-1), starting with k = 1 → binom = 1 */
     seq_t binom = 1;
 
     for (idx_t k = 1; k < n; ++k) {
         /* (n-k)^(2n+1) */
-        seq_t power = big_pow((seq_t)(n - k), (seq_t)(2*n + 1));
+        seq_t power = ipow((seq_t)(n - k), (seq_t)(2*n + 1));
 
         /* term = 2/k * binom * power  (division is exact) */
         seq_t term = binom * power * 2;

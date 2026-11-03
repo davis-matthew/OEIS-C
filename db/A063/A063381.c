@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   C2, C3, C4
+ * Validated: partial, pass, 54 terms through n = 57 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/C2.h"
-#include "../utils/C3.h"
-#include "../utils/C4.h"
+
+/* ---------- combinatorics for small k ---------- */
+static inline uint64_t C2(uint64_t n) { return n * (n - 1) / 2; }
+
+static inline uint64_t C3(uint64_t n) { return n * (n - 1) * (n - 2) / 6; }
+
+static inline uint64_t C4(uint64_t n) { return n * (n - 1) * (n - 2) * (n - 3) / 24; }
 
 /* ---------- basic utilities ---------- */
 static inline uint64_t mygcd(uint64_t a, uint64_t b) {

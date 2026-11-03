@@ -7,6 +7,7 @@
  * Formula:   a(n) = 74*a(n-1) - a(n-2), a(1)=0, a(2)=6
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 22,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 197 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

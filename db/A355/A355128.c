@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
+ * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         size_t needed = (size_t)(n + 1);      /* n+1 elements needed */
 
         if (needed > cache_cap) {
-            seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, needed);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = needed;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 
         if (S_row == NULL) {
             S_cap = 1;
-            S_row = (seq_t *)malloc(S_cap * sizeof(seq_t));
+            S_row = mem_new(seq_t, S_cap);
             if (!S_row) abort();
             S_row[0] = (seq_t)1;   /* S(0,0) = 1 */
             S_m = 0;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
                 while (S_cap <= (size_t)target_m) {
                     size_t new_cap = S_cap * 2;
                     if (new_cap == 0) new_cap = 1;
-                    seq_t *tmp = (seq_t *)realloc(S_row, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, S_row, new_cap);
                     if (!tmp) abort();
                     S_row = tmp;
                     S_cap = new_cap;

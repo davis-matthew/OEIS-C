@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = n-th odd integer that has no two consecutive prime
  *            factors (odd numbers not divisible by two consecutive primes)
- * Range:     u8 n <= 112, u16 n <= 9445, u32 n <= 9445, u64 n <= 9445,
- *            u128 n <= 9445, big any n
+ * Range:     u8 n <= 112, u16 n <= 28905, u32 n <= 28906, u64 n <= 28906,
+ *            u128 n <= 28906, big any n
+ * Validated: standard, pass, 90 terms through n = 9445 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
 
 /* Prime table, created once on the first call. */

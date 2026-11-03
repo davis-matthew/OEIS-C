@@ -7,12 +7,14 @@
  * Formula:   a(n) = (2*n^2 + 18*n + 35)*binomial(n+6, 6)/7
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 38, u64 n <= 500, u128 n <= 500,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 401 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Multiply and divide by 7 carefully to avoid overflow on small seq_t */

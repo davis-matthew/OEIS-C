@@ -11,14 +11,16 @@
  *            T(r,k). The offset is 0
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   gcd_seq, integer_sqrt
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_seq.h"
-#include "../utils/integer_sqrt.h"
+#include <stdbool.h>
+#include "../utils/gcd.h"
+#include "../utils/isqrt.h"
 
 static seq_t binom(idx_t N, idx_t K)
 {
@@ -27,10 +29,10 @@ static seq_t binom(idx_t N, idx_t K)
     for (idx_t i = 1; i <= K; ++i) {
         seq_t num = (seq_t)(N - K + i);
         seq_t den = (seq_t)i;
-        seq_t g = gcd_seq(num, den);
+        seq_t g = gcd(num, den);
         num /= g;
         den /= g;
-        g = gcd_seq(res, den);
+        g = gcd(res, den);
         res /= g;
         den /= g;
         res = res * num;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;   /* T(0,0) = 1 */
 
-    idx_t r = integer_sqrt(n);
+    idx_t r = isqrt(n);
     idx_t k = n - (idx_t)((unsigned __int128)r * r);
 
     idx_t s = k / 2;                          /* floor(k/2) */

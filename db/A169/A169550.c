@@ -10,12 +10,14 @@
  *            36, a(n) = 7 * Σ_{k=1}^{34} a(n-k) - 28 * a(n-35)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0)
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
 
     /* allocate array for up to n terms */
     size_t len = (size_t)n + 1;
-    seq_t *arr = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, len);
     if (!arr) return (seq_t)0;   /* out‑of‑memory, return 0 as fallback */
 
     arr[0] = (seq_t)1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     }
     if (n <= 34) {
         seq_t res = arr[n];
-        free(arr);
+        mem_free(arr);
         return res;
     }
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
 
     if (n == 35) {
         seq_t res = arr[35];
-        free(arr);
+        mem_free(arr);
         return res;
     }
 
@@ -62,6 +64,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t res = arr[n];
-    free(arr);
+    mem_free(arr);
     return res;
 }

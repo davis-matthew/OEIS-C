@@ -8,13 +8,15 @@
  *            Σ_{i=1}^{n-1} a(i)·a(n−i)
  * Range:     i8 n <= 7, i16 n <= 12, i32 n <= 22, i64 n <= 41, i128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The implementation uses memoization to answer queries in any order. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (n > top) {
         if ((size_t)n > capacity) {
             size_t new_cap = (size_t)n;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) {              /* allocation failed – return 0      */
                 return (seq_t)0;
             }

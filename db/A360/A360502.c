@@ -8,7 +8,8 @@
  *            interpreted as a decimal integer
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   pow10, seq_alloc_new_array, seq_free_array
+ * Validated: standard, pass, 31 terms through n = 217 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* caches already computed values; thread‑local static to keep independent state */
 static seq_t *cache      = NULL;   /* array of a(k), 1 ≤ k ≤ computed_up_to          */

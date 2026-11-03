@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 177, i16 n <= 721, i32 n <= 3111, i64 n <= 5050,
  *            i128 n <= 5050, big any n
- * Helpers:   mobius
+ * Validated: standard, pass, 117 terms through n = 4433 (2026-11-03)
+ * Helpers:   mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/mobius.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
         size_t rSize = r;                 /* number of elements in row r */
 
         /* Allocate / grow the buffer for the current row. */
-        seq_t *tmpCurr = (seq_t *)realloc(currRow, rSize * sizeof(seq_t));
+        seq_t *tmpCurr = mem_resize(seq_t, currRow, rSize);
         if (!tmpCurr) return 0;           /* allocation failure */
         currRow = tmpCurr;
 
@@ -63,7 +66,7 @@ seq_t a(idx_t n)
         if (flattenedSize + rSize > flattenedCap) {
             size_t newCap = flattenedCap ? flattenedCap * 2 : rSize * 2;
             while (newCap < flattenedSize + rSize) newCap *= 2;
-            seq_t *tmpFlat = (seq_t *)realloc(flattened, newCap * sizeof(seq_t));
+            seq_t *tmpFlat = mem_resize(seq_t, flattened, newCap);
             if (!tmpFlat) return 0;          /* allocation failure */
             flattened = tmpFlat;
             flattenedCap = newCap;

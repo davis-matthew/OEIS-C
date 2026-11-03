@@ -10,15 +10,34 @@
  *            Fibonacci(i)
  * Range:     u8 n <= 16, u16 n <= 29, u32 n <= 55, u64 n <= 105,
  *            u128 n <= 192, big any n
- * Helpers:   binomial, fib, seq_mul
+ * Validated: standard, pass, 61 terms through n = 4825 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t *f = NULL;
 static size_t f_cap = 0;
@@ -28,7 +47,7 @@ static void ensure_f_cap(idx_t n) {
     if (f_cap <= (size_t)n) {
         size_t new_cap = f_cap ? f_cap << 1 : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        f = (seq_t *)realloc(f, new_cap * sizeof(seq_t));
+        f = mem_resize(seq_t, f, new_cap);
         for (size_t i = f_cap; i < new_cap; ++i) f[i] = 0;
         f_cap = new_cap;
     }

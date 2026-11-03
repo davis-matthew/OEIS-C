@@ -10,14 +10,16 @@
  *            read by rows with offset 0)
  * Range:     i8 n <= 6, i16 n <= 15, i32 n <= 38, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 static inline idx_t
 row_of(idx_t n)
@@ -41,7 +43,7 @@ eulerian_row_k(idx_t N, idx_t k)
     seq_t sum = 0;
     for (idx_t i = 0; i <= k; ++i) {
         seq_t bin = binomial(N + 1, i);
-        seq_t powv = pow_seq((seq_t)(k + 1 - i), (int)N);
+        seq_t powv = ipow_i32((seq_t)(k + 1 - i), (int)N);
         seq_t term = bin * powv;
         if (i & 1)
             sum -= term;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     idx_t k = n - start;
 
     seq_t eul = eulerian_row_k(r + 1, k);
-    seq_t pow4 = pow_seq((seq_t)4, (int)r);
+    seq_t pow4 = ipow_i32((seq_t)4, (int)r);
     seq_t tmp = (seq_t)1 - pow4;
     tmp *= eul;
     tmp += pow4;

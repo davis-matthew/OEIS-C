@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 8, u64 n <= 20, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Number of states: 8⁴ = 4096. */
 #define STATES 4096
@@ -77,8 +79,8 @@ static void init_tables(void) {
         valid_mask[s] = mask;
     }
     /* Allocate DP arrays once. */
-    dp_cur  = (seq_t*)calloc(STATES, sizeof(seq_t));
-    dp_next = (seq_t*)calloc(STATES, sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, STATES);
+    dp_next = mem_new(seq_t, STATES);
     for (idx_t s = 0; s < STATES; ++s)
         dp_cur[s] = (seq_t)1;           /* length‑4 prefixes */
 }
@@ -88,10 +90,10 @@ static void ensure_cache_cap(idx_t n) {
     if ((size_t)(n + 1) <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while ((size_t)(n + 1) > new_cap) new_cap <<= 1;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(EXIT_FAILURE);
     if (new_cache != cache) cache = new_cache;
-    memset(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+    mem_set(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
     cache_cap = new_cap;
 }
 
@@ -103,7 +105,7 @@ seq_t a(idx_t n) {
         ensure_cache_cap(n);
         for (idx_t step = cached_up_to + 1; step <= n; ++step) {
             /* Zero dp_next. */
-            memset(dp_next, 0, STATES * sizeof(seq_t));
+            mem_set(dp_next, 0, STATES * sizeof(seq_t));
 
             /* Transition from each state. */
             for (idx_t s = 0; s < STATES; ++s) {

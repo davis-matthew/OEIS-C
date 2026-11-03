@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Σ_{k=0..n} binomial(n+1,k)/(n+1) * k^{n-k}/(n-k)!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 328 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* Computes OEIS sequence A161633. */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
         }
         else
         {
-            powk = big_pow((seq_t)k, (seq_t)(n - k));
+            powk = ipow((seq_t)k, (seq_t)(n - k));
         }
 
         /* term = falling * binom * powk / denom */

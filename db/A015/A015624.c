@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 97 terms through n = 1664 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Allocate an array of seq_t elements, all initialized to zero. */
 

@@ -9,15 +9,18 @@
  *            d¹¹ = ∏_{p^e‖n} (1 + p¹¹ + p²¹¹ + … + p^{e·11})
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 20, u128 n <= 1161,
  *            big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 33 terms through n = 8536 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* Computes a(n) for the OEIS sequence A037164. */
 seq_t a(idx_t n)
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
         uint64_t e  = exps[i];
 
         /* Compute p^k once; it fits in 64 bits for all p ≤ 10⁴. */
-        seq_t pk = seq_pow((seq_t)p, (idx_t)k);
+        seq_t pk = ipow_idx((seq_t)p, (idx_t)k);
 
         /* Compute the factor (1 + p^k + p^{2k} + … + p^{e·k}) */
         seq_t factor = (seq_t)1;

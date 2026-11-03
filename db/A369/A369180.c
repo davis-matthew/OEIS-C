@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = Sum_{k=2..n} (-1)^k * valuation(n,k)
- * Range:     i8 n <= 9513, i16 n <= 9513, i32 n <= 9513, i64 n <= 9513,
- *            i128 n <= 9513, big any n
+ * Range:     i8 n <= 20000, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 9513 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 18, u64 n <= 37, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 720 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,6 +43,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  seq_t, idx_t are defined by the build environment.
  *
@@ -90,7 +92,7 @@ static void ensure_capacity(idx_t need)
     if (init_cap < 64)
         init_cap = 64;      /* small buffer for speed */
 
-    seq = (seq_t*)malloc(init_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, init_cap);
     if (seq == NULL) {
         /* in an extreme unlikely case malloc fails – the build will fail anyway */
         abort();
@@ -112,7 +114,7 @@ static void grow_if_needed(idx_t need)
     if (new_cap < (seq_used + 1) * 2)
         new_cap = (seq_used + 1) * 2;
 
-    seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (tmp == NULL) {
         abort();
     }

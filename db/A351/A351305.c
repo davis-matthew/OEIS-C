@@ -7,14 +7,15 @@
  * Formula:   a(n) = n^10 * Product_{p|n, p prime} (1 + 1/p^10)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 84, u128 n <= 7131,
  *            big any n
- * Helpers:   seq_pow_i
+ * Validated: standard, pass, 38 terms through n = 8777 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_pow_i.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +31,8 @@ seq_t a(idx_t n)
                 ++e;
             }
             seq_t p_big = (seq_t)p;
-            seq_t term1 = seq_pow_i(p_big, 10 * e);          /* p^(10e)   */
-            seq_t term2 = seq_pow_i(p_big, 10 * (e - 1));     /* p^(10(e‑1)) */
+            seq_t term1 = ipow_idx(p_big, 10 * e);          /* p^(10e)   */
+            seq_t term2 = ipow_idx(p_big, 10 * (e - 1));     /* p^(10(e‑1)) */
             result *= (term1 + term2);
         }
     }
@@ -39,8 +40,8 @@ seq_t a(idx_t n)
     /* Handle a remaining prime factor > sqrt(original n). */
     if (temp > 1) {
         seq_t p_big = (seq_t)temp;
-        seq_t term1 = seq_pow_i(p_big, 10);   /* p^10       */
-        seq_t term2 = seq_pow_i(p_big, 0);    /* 1          */
+        seq_t term1 = ipow_idx(p_big, 10);   /* p^10       */
+        seq_t term2 = ipow_idx(p_big, 0);    /* 1          */
         result *= (term1 + term2);
     }
 

@@ -11,6 +11,7 @@
  *            even a(n) = (27*n^4 + 18*n^2 + 8*n + 3)/8 for n odd
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 112, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 50 terms through n = 931 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

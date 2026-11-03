@@ -10,15 +10,33 @@
  *            A092255 mod 3
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   has_only_01_base3, is_power_of_3
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_only_01_base3.h"
-#include "../utils/is_power_of_3.h"
+
+/* Test whether n has only digits 0 or 1 in base‑3. */
+static bool has_only_01_base3(idx_t n) {
+    if (n == 0) return true;          /* 0 is represented as a single 0 */
+    while (n > 0) {
+        if (n % 3 == 2)
+            return false;
+        n /= 3;
+    }
+    return true;
+}
+
+/* Test whether n is a power of 3 (n > 0). */
+static bool is_power_of_3(idx_t n) {
+    if (n == 0) return false;
+    while (n % 3 == 0)
+        n /= 3;
+    return n == 1;
+}
 
 /* Main sequence function.  External linkage as required. */
 seq_t a(idx_t n) {

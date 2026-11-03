@@ -13,7 +13,8 @@
  *            recognises all valid (n+1)×3 arrays
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 168 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are provided by the build system.  They
    may be 8‑, 16‑, 32‑, 64‑ or 128‑bit unsigned integers, or an
@@ -165,13 +167,13 @@ static void build_automaton(void)
         if (states[i].mask == 0ULL) { autoG->idx_empty = i; break; }
 
     /* 5. Allocate DP tables. */
-    autoG->dp_cur  = (seq_t *)calloc(state_cnt, sizeof(seq_t));
-    autoG->dp_next = (seq_t *)calloc(state_cnt, sizeof(seq_t));
+    autoG->dp_cur  = mem_new(seq_t, state_cnt);
+    autoG->dp_next = mem_new(seq_t, state_cnt);
     autoG->dp_cur[autoG->idx_start] = (seq_t)1;   /* start distribution */
 
     /* 6. Allocate cache for sequence values. */
     cache_cap = 1;
-    seq_cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));  /* index 0 unused */
+    seq_cache = mem_new(seq_t, cache_cap);  /* index 0 unused */
     cache_n   = 0;
 }
 
@@ -187,14 +189,14 @@ static void ensure_cache(idx_t n)
     /* grow the cache if necessary */
     while (cache_cap <= n) {
         cache_cap <<= 1;
-        seq_cache = (seq_t *)realloc(seq_cache, cache_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
     }
 
     /* iterate from the current maximum to the new n */
     for (idx_t step = cache_n; step < n; ++step)
     {
         /* dp_next = 0 */
-        memset(autoP->dp_next, 0, autoP->S * sizeof(seq_t));
+        mem_set(autoP->dp_next, 0, autoP->S * sizeof(seq_t));
 
         /* propagate one step */
         for (int u = 0; u < autoP->S; ++u) {

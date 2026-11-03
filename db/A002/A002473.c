@@ -9,13 +9,15 @@
  *            ordered
  * Range:     u8 n <= 75, u16 n <= 612, u32 n <= 6623, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 8417 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *smooth = NULL;
 static idx_t smooth_cap = 0;
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     
     if (smooth == NULL) {
         smooth_cap = 1000;
-        smooth = (seq_t *)malloc(smooth_cap * sizeof(seq_t));
+        smooth = mem_new(seq_t, smooth_cap);
         smooth[0] = 1;
         smooth_len = 1;
     }
@@ -45,9 +47,9 @@ seq_t a(idx_t n) {
         
         if (smooth_len >= smooth_cap) {
             smooth_cap *= 2;
-            seq_t *new_smooth = (seq_t *)malloc(smooth_cap * sizeof(seq_t));
-            memcpy(new_smooth, smooth, smooth_len * sizeof(seq_t));
-            free(smooth);
+            seq_t *new_smooth = mem_new(seq_t, smooth_cap);
+            mem_copy(new_smooth, smooth, smooth_len * sizeof(seq_t));
+            mem_free(smooth);
             smooth = new_smooth;
         }
         

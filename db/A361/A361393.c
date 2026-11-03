@@ -7,7 +7,8 @@
  * Formula:   2*omega(k) > bigomega(k) (positive integers k)
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Linear‑time sieve that builds the smallest prime factor array
    up to at least 'bound'.  The array is grown as needed.  */
@@ -102,10 +104,9 @@ seq_t a(idx_t n)
             if (satisfies(m, spf)) {
                 /* enlarge cache if necessary */
                 if (cache_len == 0) {
-                    cache = (seq_t*)malloc(32 * sizeof(seq_t));
+                    cache = mem_new(seq_t, 32);
                 } else if (cache_len % 32 == 0) {
-                    cache = (seq_t*)realloc(cache,
-                                            (cache_len + 32) * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, (cache_len + 32));
                 }
                 cache[cache_len] = (seq_t)m;
                 ++cache_len;

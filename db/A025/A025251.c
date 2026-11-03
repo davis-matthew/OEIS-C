@@ -10,7 +10,8 @@
  *            the order of calls
  * Range:     u8 n <= 13, u16 n <= 20, u32 n <= 34, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache – 1‑based indexing; cache[0] is unused. */
 static seq_t *cache = NULL;
@@ -34,12 +36,12 @@ ensure_cache(idx_t n)
     size_t new_cap = cap ? cap << 1 : 1;     /* grow exponentially   */
     while (new_cap < needed) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) return;                       /* allocation failure – caller will see stale values */
 
     if (cache) {
         for (size_t i = 0; i < cap; ++i) tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     cache = tmp;

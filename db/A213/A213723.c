@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 254, u16 n <= 1024, u32 n <= 1024, u64 n <= 1024,
  *            u128 n <= 1024, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 91 terms through n = 833 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 /* Helper: compute popcount for a seq_t value */
 static inline seq_t popcount_seq(seq_t v)
@@ -61,7 +62,7 @@ seq_t a(idx_t n)
 
         /* No solution can exist once k exceeds the bit‑length of x.
            bitlen_seq_t returns the required number of bits. */
-        if (k > (seq_t)bitlen_seq_t(x))
+        if (k > (seq_t)bit_length(x))
             break;
     }
 

@@ -10,15 +10,18 @@
  *            b(d,n) = (∑_{t|d} μ(d/t) t^n)/φ(d) with b multiplicativity
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow, build_spf
+ * Validated: standard, pass, 35 terms through n = 383 (2026-11-01)
+ * Helpers:   build_spf, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_spf.h"
+#include "../utils/ipow.h"
 
 static idx_t *g_spf = NULL;       /* smallest prime factor array */
 static idx_t  g_spf_size = 0;     /* current size of spf array */
@@ -66,16 +69,16 @@ seq_t a(idx_t n)
         idx_t e = exps[i];
 
         /* (p^n - 1) / (p - 1) */
-        seq_t p_pow_n = big_pow((seq_t)p, (seq_t)n);
+        seq_t p_pow_n = ipow((seq_t)p, (seq_t)n);
         seq_t num1 = p_pow_n - 1;
         seq_t denom1 = (seq_t)(p - 1);
         seq_t factor1 = num1 / denom1;      /* integer division */
 
         /* (p^{(n-1)e} - 1) / (p^{n-1} - 1) */
         idx_t exp_mul = (n - 1) * e;        /* <= 140k for n ≤ 10000 */
-        seq_t p_pow_r = big_pow((seq_t)p, (seq_t)exp_mul);
+        seq_t p_pow_r = ipow((seq_t)p, (seq_t)exp_mul);
         seq_t num2 = p_pow_r - 1;
-        seq_t r_minus1 = big_pow((seq_t)p, (seq_t)(n - 1)) - 1;
+        seq_t r_minus1 = ipow((seq_t)p, (seq_t)(n - 1)) - 1;
         seq_t geom = num2 / r_minus1;     /* integer division */
 
         /* S_p = 1 + factor1 * geom */

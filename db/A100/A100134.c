@@ -8,12 +8,14 @@
  *            a(n)=3*a(n-1)-3*a(n-2)+a(n-3)+a(n-6), a(0..5)=1
  * Range:     u8 n <= 14, u16 n <= 26, u32 n <= 49, u64 n <= 95, u128 n <= 187,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 902 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,12 +25,12 @@ seq_t a(idx_t n)
 
     if (!cache) {
         /* first call: allocate space for n+1 values */
-        cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
         if (!cache) return (seq_t)0;  /* Allocation failed; return 0 */
         cacheSize = n + 1;
     } else if (n + 1 > cacheSize) {
         /* need more space */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!tmp) return (seq_t)0;  /* Allocation failed; return 0 */
         cache = tmp;
         cacheSize = n + 1;

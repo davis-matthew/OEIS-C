@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9795 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- static state -------------------------------------------------- */
 static idx_t cur_bound = 0;          /* current maximum N processed           */
@@ -48,8 +50,8 @@ static void recompute(idx_t limit)
     size_t rows = 11;                           /* 0 .. 10 summands       */
     size_t total = rows * sz;                   /* total table entries    */
 
-    seq_t *dp   = (seq_t*)calloc(total, sizeof(seq_t));
-    seq_t *next = (seq_t*)calloc(total, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, total);
+    seq_t *next = mem_new(seq_t, total);
 
     dp[0] = 1;    /* one way to reach sum 0 with 0 terms */
 
@@ -91,8 +93,8 @@ static void recompute(idx_t limit)
     }
 
     /* 4. allocate array and store the terms */
-    free(cur_vals);
-    cur_vals = (seq_t*)malloc(count_terms * sizeof(seq_t));
+    mem_free(cur_vals);
+    cur_vals = mem_new(seq_t, count_terms);
     cur_vals_len = 0;
     for (size_t s = 1; s <= (size_t)limit; ++s) {
         seq_t ways = dp[10 * sz + s];
@@ -102,8 +104,8 @@ static void recompute(idx_t limit)
     }
 
     /* cleanup */
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     free(pow4);
     cur_bound = limit;
 }

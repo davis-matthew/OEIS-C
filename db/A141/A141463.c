@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Global state used to cache results between calls                       */
@@ -117,7 +119,7 @@ seq_t a(idx_t n) {
         }
 
         if (!is_rep) {
-            cache = (seq_t*)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (cache_len + 1));
             if (!cache)
                 abort();
             cache[cache_len++] = (seq_t)m;

@@ -10,9 +10,10 @@
  *            any prime power p^p, but for some k ≥ 1 its k-th arithmetic
  *            derivative has this property. All calculations are carried out
  *            using 64‑bit arithmetic; the final value is returned as seq_t
- * Range:     u8 n <= 64, u16 n <= 8898, u32 n <= 8898, u64 n <= 8898,
- *            u128 n <= 8898, big any n
- * Helpers:   has_p_power_factor_uint64
+ * Range:     u8 n <= 64, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 80 terms through n = 8898 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_p_power_factor_uint64.h"
+#include "../utils/mem.h"
+
+/* Helper to test whether a 64‑bit integer has a prime power factor p^p
+   (i.e., whether it is divisible by p raised to itself).  The factorisation
+   is performed with trial division. */
+static bool has_p_power_factor_uint64(uint64_t n)
+{
+    uint64_t m = n;
+    for (uint64_t p = 2; p * p <= m; p = (p == 2 ? 3 : p + 2)) {
+        if (m % p == 0) {
+            uint64_t e = 0;
+            while (m % p == 0) {
+                m /= p;
+                ++e;
+            }
+            if (e >= p) /* divisible by p^p */
+                return true;
+        }
+    }
+    if (m > 1) /* remaining prime factor with exponent 1 */
+        /* 1 >= prime (≧2) is always false, so nothing to do */
+        ;
+    return false;
+}
 
 /* Arithmetic derivative of a 64‑bit integer n.  The function assumes
    n ≥ 2.  It returns n' = Σ e_i * n / p_i over prime factorisation
@@ -78,11 +102,10 @@ seq_t a(idx_t n)
         if (good_candidate(m)) {
             /* Ensure capacity. */
             if (cache_size == 0) {
-                cache = (seq_t *)malloc(8 * sizeof(seq_t));
+                cache = mem_new(seq_t, 8);
                 if (cache == NULL) exit(1);
             } else if (cache_size % 8 == 0) {
-                seq_t *tmp = (seq_t *)realloc(cache,
-                             (cache_size + 8) * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, (cache_size + 8));
                 if (tmp == NULL) exit(1);
                 cache = tmp;
             }

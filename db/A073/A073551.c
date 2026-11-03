@@ -8,13 +8,15 @@
  *            10*a(n-2) for n>=4, initial values: a(1)=2, a(2)=12, a(3)=132
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* Allocate / extend cache to hold up to n */
     size_t new_size = (size_t)n + 1;
-    seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) {
         /* Handle allocation failure if needed */
         exit(1);
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         for (size_t i = 1; i <= cache_max; ++i) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
     }
 
     cache = new_cache;

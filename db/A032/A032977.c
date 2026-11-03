@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Dynamic‑programming table.
  * dp[rem * 6 + prev] is the number of sequences of length 'rem'
@@ -43,9 +45,9 @@ static void ensure_dp_size(size_t rem_needed)
         size_t new_total = (rem_needed + 1) * 6;
         seq_t *new_dp;
         if (!dp) {
-            new_dp = (seq_t *)malloc(new_total * sizeof(seq_t));
+            new_dp = mem_new(seq_t, new_total);
         } else {
-            new_dp = (seq_t *)realloc(dp, new_total * sizeof(seq_t));
+            new_dp = mem_resize(seq_t, dp, new_total);
         }
         if (!new_dp) abort();  /* allocation failed */
         dp = new_dp;

@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = A003415(sigma(n)) mod 2 Computed by factoring sigma(n)
  *            and evaluating parity of its arithmetic derivative
- * Range:     u8 n <= 9545, u16 n <= 9545, u32 n <= 9545, u64 n <= 9545,
- *            u128 n <= 9545, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9545 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

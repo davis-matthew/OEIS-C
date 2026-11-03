@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_int, is_prime, mod_pow
+ * Validated: standard, pass, 66 terms through n = 996 (2026-11-03)
+ * Helpers:   gcd_i32, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,11 @@
 #include <stdbool.h>
 
 /* Utility functions provided by the build system */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
-#include "../utils/gcd_int.h"    /* int gcd_int(int a, int b); */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include "../utils/gcd_i32.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* array of computed terms */
 static size_t seq_len  = 0;       /* number of terms currently stored */
@@ -41,7 +44,7 @@ static void ensure_seq_capacity(size_t needed)
     if (seq_cap < needed) {
         size_t new_cap = (seq_cap == 0) ? 64 : seq_cap * 2;
         if (new_cap < needed) new_cap = needed;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -75,10 +78,10 @@ seq_t a(idx_t n)
         } else {
             uint64_t m = p - 1;            /* size of multiplicative group mod p */
             int r = m % 48;                /* r ∈ [0,47] */
-            int g = gcd_int(48, r);        /* g = gcd(48, p-1) */
+            int g = gcd_i32(48, r);        /* g = gcd(48, p-1) */
             uint64_t e = m / (uint64_t)g;  /* exponent to check */
 
-            if (mod_pow((seq_t)2, e, (seq_t)p) == (seq_t)1)
+            if (powmod((seq_t)2, e, (seq_t)p) == (seq_t)1)
                 ok = true;
         }
 

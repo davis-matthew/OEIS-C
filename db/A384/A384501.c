@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} abs(Stirling1(n,k)) * Stirling2(n,n-k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,13 +30,13 @@ seq_t a(idx_t n)
     /* --- initialisation for the first call --------------------------------- */
     if (c_prev == NULL) {
         /* Base case: n = 0 */
-        c_prev = (seq_t *)malloc(sizeof(seq_t) * 1);
+        c_prev = mem_new(seq_t, 1);
         c_prev[0] = (seq_t)1;                 /* |Stirling1(0,0)| = 1 */
 
-        s_prev = (seq_t *)malloc(sizeof(seq_t) * 1);
+        s_prev = mem_new(seq_t, 1);
         s_prev[0] = (seq_t)1;                 /* Stirling2(0,0) = 1 */
 
-        cache  = (seq_t *)malloc(sizeof(seq_t) * 1);
+        cache  = mem_new(seq_t, 1);
         cache[0] = (seq_t)1;                  /* a(0) = 1 */
 
         cache_size = 1;
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
             size_t size = (size_t)(i + 1);          /* new row length */
 
             /* Allocate current row buffers */
-            c_curr = (seq_t *)realloc(c_curr, sizeof(seq_t) * size);
-            s_curr = (seq_t *)realloc(s_curr, sizeof(seq_t) * size);
+            c_curr = mem_resize(seq_t, c_curr, size);
+            s_curr = mem_resize(seq_t, s_curr, size);
 
             /* Compute absolute Stirling numbers of the first kind:
                |Stirling1(i,k)| = |Stirling1(i-1,k-1)| + (i-1)*|Stirling1(i-1,k)|  */
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
 
             /* Store the result in the cache */
             if (i >= cache_size) {
-                cache  = (seq_t *)realloc(cache, sizeof(seq_t) * (i + 1));
+                cache  = mem_resize(seq_t, cache, (i + 1));
                 cache_size = i + 1;
             }
             cache[i] = sum;

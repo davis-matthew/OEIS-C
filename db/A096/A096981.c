@@ -9,7 +9,8 @@
  *            {0,1,3,5} mod 6
  * Range:     u8 n <= 25, u16 n <= 65, u32 n <= 192, u64 n <= 626,
  *            u128 n <= 2190, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9847 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    memory, easily fast enough for n up to about 10 000. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* first allocation (for n == 0 or first call) */
     if (dp == NULL) {
-        dp = (seq_t*)malloc(sizeof(seq_t));
+        dp = mem_new(seq_t, 1);
         dp[0] = (seq_t)1;   /* a(0) = 1 */
         max_n = 0;
     }
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* enlarge and recompute table if n exceeds current size */
     if (n > max_n) {
         idx_t new_n = n;
-        dp = (seq_t*)realloc(dp, (new_n + 1) * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, (new_n + 1));
 
         /* initialise the table up to new_n */
         dp[0] = (seq_t)1;

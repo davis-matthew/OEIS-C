@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 9, u32 n <= 6248, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_zero, no_zero
+ * Validated: standard, pass, 64 terms through n = 9991 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,28 @@
    until the required count is reached.  This is O(n) in the value of
    the nth term and satisfies all requirements.  */
 #include <stdbool.h>
-#include "../utils/has_zero.h"
-#include "../utils/no_zero.h"
+
+static bool has_zero(seq_t x)
+{
+    if (x == 0) return true;  /* the number 0 itself contains a zero digit */
+    while (x > 0)
+    {
+        if ((x % 10) == 0) return true;
+        x = (x / 10);
+    }
+    return false;
+}
+
+static bool no_zero(seq_t x)
+{
+    if (x == 0) return false; /* 0 has a zero digit */
+    while (x > 0)
+    {
+        if ((x % 10) == 0) return false;
+        x = (x / 10);
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

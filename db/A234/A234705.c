@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 10, u64 n <= 23, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
                                        6664130ULL};
 
     if (!cache) {
-        cache = (seq_t *)malloc(7 * sizeof(seq_t));
+        cache = mem_new(seq_t, 7);
         assert(cache);
         for (size_t i = 0; i < 7; ++i) cache[i] = base_vals[i];
         cached_len = 7;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
 
     /* extend cache to required size */
     size_t old_len = cached_len;
-    cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, n);
     assert(cache);
     cached_len = (size_t)n;
 

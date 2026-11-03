@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   alloc_bool
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,13 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_bool.h"
+#include "../utils/mem.h"
+
+/* allocate a boolean array of given size */
+static bool *alloc_bool(idx_t sz)
+{
+    return (bool *)malloc((size_t)sz * sizeof(bool));
+}
 
 /* forward declaration required by the build system */
 seq_t a(idx_t n);
@@ -50,13 +57,13 @@ static void compute_terms(void)
     size_t noncnt = 0;
     /* first reserve space */
     size_t noncap = limit > 1000 ? limit : 1000;
-    seq_t *nonprimes = (seq_t *)malloc(noncap * sizeof(seq_t));
+    seq_t *nonprimes = mem_new(seq_t, noncap);
     if (!nonprimes) exit(EXIT_FAILURE);
     for (idx_t x = 1; x <= limit; ++x) {
         if (!prime[x]) {
             if (noncnt == noncap) {
                 noncap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(nonprimes, noncap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, nonprimes, noncap);
                 if (!tmp) exit(EXIT_FAILURE);
                 nonprimes = tmp;
             }
@@ -68,7 +75,7 @@ static void compute_terms(void)
     /* 3. mark representable sums */
     bool *rep = alloc_bool(limit + 1);
     if (!rep) {
-        free(nonprimes);
+        mem_free(nonprimes);
         exit(EXIT_FAILURE);
     }
     for (idx_t i = 0; i <= limit; ++i) rep[i] = false;
@@ -85,9 +92,9 @@ static void compute_terms(void)
 
     /* 4. collect non‑representable numbers */
     size_t cap = 1024;
-    seq_t *tmp = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, cap);
     if (!tmp) {
-        free(nonprimes);
+        mem_free(nonprimes);
         free(rep);
         exit(EXIT_FAILURE);
     }
@@ -96,10 +103,10 @@ static void compute_terms(void)
         if (!rep[x]) {
             if (sz == cap) {
                 cap <<= 1;
-                seq_t *newp = (seq_t *)realloc(tmp, cap * sizeof(seq_t));
+                seq_t *newp = mem_resize(seq_t, tmp, cap);
                 if (!newp) {
-                    free(tmp);
-                    free(nonprimes);
+                    mem_free(tmp);
+                    mem_free(nonprimes);
                     free(rep);
                     exit(EXIT_FAILURE);
                 }
@@ -110,11 +117,11 @@ static void compute_terms(void)
     }
 
     /* 5. store the list */
-    if (terms) free(terms);
+    if (terms) mem_free(terms);
     terms   = tmp;
     termsCnt = sz;
 
-    free(nonprimes);
+    mem_free(nonprimes);
     free(rep);
 }
 

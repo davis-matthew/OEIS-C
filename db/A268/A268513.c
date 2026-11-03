@@ -6,15 +6,17 @@
  * Keywords:  nonn
  * Formula:   Sequence A268513 – numbers n such that bigomega(n) =
  *            bigomega(n*(n+1) + 41)
- * Range:     u8 n <= 6, u16 n <= 516, u32 n <= 9795, u64 n <= 9795,
- *            u128 n <= 9795, big any n
- * Helpers:   bigomega
+ * Range:     u8 n <= 6, u16 n <= 516, u32 n <= 19999, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 71 terms through n = 9795 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,10 +38,9 @@ seq_t a(idx_t n)
         if (omega_t == omega_eu) {                         /* a valid term */
             if (cache_len == cache_cap) {                  /* grow cache */
                 size_t new_cap = cache_cap ? cache_cap * 2 : 32;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                 new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
-                    free(cache);
+                    mem_free(cache);
                     exit(EXIT_FAILURE);
                 }
                 cache = tmp;

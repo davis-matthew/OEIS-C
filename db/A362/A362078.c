@@ -10,13 +10,15 @@
  *            * binomial(k*j, i-j), with T(0,k) = 1 for all k. For a given n,
  *            let d be the smallest integer with (d+1)(d+2)/2 > n. Then offset
  *            = n - d(d+1)/2, and a(n) = T(offset, d-offset)
- * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 25, u16 n <= 61, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t N)

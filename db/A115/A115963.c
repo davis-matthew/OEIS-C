@@ -7,7 +7,8 @@
  * Formula:   a(n) = numerator of Sum_{i=1..n} 1 / prime(i)^3 (offset 1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   _first_n_primes, gcd
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,58 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/_first_n_primes.h"
+
+/*
+ * Helper: generate the first n prime numbers using a simple sieve.
+ * It returns the primes in the array pointed to by primes_out, and
+ * the number of primes generated in len_out.  The caller owns
+ * the memory returned by primes_out and must free it.
+ */
+static void _first_n_primes(idx_t n, uint32_t **primes_out, size_t *len_out)
+{
+    /* Rough upper bound for the n-th prime:
+     * for n >= 6, p_n < n (log n + log log n)
+     * we use a simple overestimate with base 20 to be safe for n <= 10000 */
+    idx_t limit = n * 20 + 100;
+    size_t lim = (size_t)limit;
+
+    /* Note: we use a byte per flag to keep the code straightforward. */
+    char *composite = (char *)calloc(lim + 1, 1);
+    if (!composite) {
+        *primes_out = NULL;
+        *len_out = 0;
+        return;
+    }
+
+    uint32_t *primes = (uint32_t *)malloc(n * sizeof(uint32_t));
+    if (!primes) {
+        free(composite);
+        *primes_out = NULL;
+        *len_out = 0;
+        return;
+    }
+    size_t count = 0;
+
+    /* sieve */
+    for (size_t i = 2; i <= lim; ++i) {
+        if (!composite[i]) {
+            if (count < (size_t)n) {
+                primes[count++] = (uint32_t)i;
+                if (count == (size_t)n)
+                    break;
+            }
+            /* mark multiples */
+            if (i * i <= lim) {
+                for (size_t j = i * i; j <= lim; j += i)
+                    composite[j] = 1;
+            }
+        }
+    }
+
+    free(composite);
+    *primes_out = primes;
+    *len_out = count;
+}
 
 seq_t a(idx_t n)
 {

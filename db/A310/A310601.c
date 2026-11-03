@@ -12,12 +12,14 @@
  *            a(14)=50, a(15)=62, a(16)=58, a(17)=70
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[18] = {
     (seq_t)1,  (seq_t)4,  (seq_t)6,  (seq_t)14, (seq_t)14,
@@ -45,7 +47,7 @@ static void ensure_cache(idx_t n)
         return;
     }
 
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) {
         /* Allocation failed – aborting by triggering a crash,
            as beyond this point the data is crucial. */

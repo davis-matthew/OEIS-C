@@ -9,13 +9,14 @@
  *            terms of Hypergeometric8F7([-7-n,...,-n],[2,...,8],1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   a005366_gcd
+ * Validated: standard, pass, 34 terms through n = 427 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005366_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t t = 1;
@@ -33,13 +34,13 @@ seq_t a(idx_t n) {
         for (j = 0; j < 8; j++) {
             uint64_t d = den[j];
             for (i = 0; i < 8 && d > 1; i++) {
-                uint64_t g = a005366_gcd(d, num[i]);
+                uint64_t g = gcd_u64(d, num[i]);
                 num[i] /= g;
                 d /= g;
             }
             if (d > 1) {
                 uint64_t r = (uint64_t)(t % d);
-                uint64_t g = (r == 0) ? d : a005366_gcd(d, r);
+                uint64_t g = (r == 0) ? d : gcd_u64(d, r);
                 t /= g;
                 d /= g;
             }

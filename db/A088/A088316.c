@@ -8,12 +8,14 @@
  *            Recurrence with memoization, O(n) per new maximum n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 873 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,13 +29,13 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if (cache_len == 0) {
         cache_len = 2;
-        terms = (seq_t*)malloc(sizeof(seq_t) * cache_len);
+        terms = mem_new(seq_t, cache_len);
         terms[0] = (seq_t)2;
         terms[1] = (seq_t)13;
     }
     if (cache_len <= n) {
         idx_t new_len = n + 1;
-        terms = (seq_t*)realloc(terms, sizeof(seq_t) * new_len);
+        terms = mem_resize(seq_t, terms, new_len);
         for (idx_t i = cache_len; i <= n; ++i) {
             terms[i] = (13 * terms[i-1]) + terms[i-2];
         }

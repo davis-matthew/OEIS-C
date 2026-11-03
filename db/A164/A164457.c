@@ -10,12 +10,14 @@
  *            already computed values
  * Range:     u8 n <= 10, u16 n <= 23, u32 n <= 48, u64 n <= 97, u128 n <= 197,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 1934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *sums = NULL;        /* cache of a(0..cur_len) */
 static idx_t  cur_len  = 0;       /* highest computed index in sums */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 {
     /* Initialise cache and DP on first use */
     if (!sums) {
-        sums = (seq_t *)malloc(sizeof(seq_t) * 1);
+        sums = mem_new(seq_t, 1);
         if (!sums) return (seq_t)0;          /* allocation failed */
         sums[0] = (seq_t)1;                  /* a(0) = 1 (empty string) */
         cap   = 1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* Grow cache if required */
     if (n + 1 > cap) {
-        seq_t *new_sums = (seq_t *)realloc(sums, sizeof(seq_t) * (n + 1));
+        seq_t *new_sums = mem_resize(seq_t, sums, (n + 1));
         if (!new_sums) return (seq_t)0;      /* allocation failed */
         sums = new_sums;
         cap   = n + 1;

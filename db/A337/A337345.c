@@ -7,8 +7,9 @@
  * Keywords:  nonn, changed
  * Formula:   a(n) = number of divisors d of n for which A003961(d) > 2*d
  *            where A003961 is fully multiplicative with a(p) = nextprime(p)
- * Range:     u8 n <= 55, u16 n <= 7008, u32 n <= 7008, u64 n <= 7008,
- *            u128 n <= 7008, big any n
+ * Range:     u8 n <= 55, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 7008 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,9 +24,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
 
 /* Return the smallest prime larger than p.  */
 static seq_t _next_prime(uint64_t p)

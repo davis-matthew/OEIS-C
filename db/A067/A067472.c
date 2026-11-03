@@ -7,13 +7,24 @@
  * Formula:   a(n) = ceil(sqrt(2*10^(n-1)))^2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   bitlen_seq_t, pow10
+ * Validated: partial, pass, 17 terms through n = 18 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Compute the integer ceil(sqrt(v)) by binary search.
    Uses bit length to obtain an upper bound that surely exceeds the root. */
@@ -23,7 +34,7 @@ static seq_t ceil_sqrt_seq_custom(seq_t v)
         return v;
 
     /* high is 1 << ceil(bitlen(v)/2)  – guarantees high*high >= v */
-    unsigned int bits = bitlen_seq_t(v);
+    unsigned int bits = bit_length(v);
     seq_t high = ((seq_t)1) << ((bits + 1) / 2);
     seq_t low  = 0;
 

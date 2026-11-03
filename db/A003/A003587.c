@@ -11,12 +11,22 @@
  *            letters (M)
  * Range:     u8 n <= 5, u16 n <= 3999, u32 n <= 3999, u64 n <= 3999,
  *            u128 n <= 3999, big any n
- * Helpers:   a003587_len
+ * Validated: full, pass, 3999 terms through n = 3999 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a003587_len.h"
+static int a003587_len(int v) {
+    static const int lens[10] = {0, 1, 2, 3, 2, 1, 2, 3, 4, 2};
+    int len = v / 1000;
+    v %= 1000;
+    len += lens[v / 100];
+    v %= 100;
+    len += lens[v / 10];
+    len += lens[v % 10];
+    return len;
+}
 
 seq_t a(idx_t n) {
     static int order[3999];

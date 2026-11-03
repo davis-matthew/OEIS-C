@@ -11,14 +11,16 @@
  *            composite (or when the index is 1). The implementat...
  * Range:     u8 n <= 9, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   isPrimeTrial
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* --------------- static state ---------------- */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     /* --------------- initialization ---------------- */
     if (!initialized) {
         res_cap = 16;
-        results = (seq_t*)malloc(res_cap * sizeof(seq_t));
+        results = mem_new(seq_t, res_cap);
         pr_cap  = 16;
         primes  = (uint64_t*)malloc(pr_cap * sizeof(uint64_t));
         initialized = true;
@@ -73,12 +75,12 @@ seq_t a(idx_t n) {
         if (current_m == 1)
             include = true;   /* m = 1 is always included */
         else
-            include = !isPrimeTrial(sum);
+            include = !is_prime_seq(sum);
 
         if (include) {
             if (res_len == res_cap) {
                 res_cap = res_cap * 2;
-                results = (seq_t*)realloc(results, res_cap * sizeof(seq_t));
+                results = mem_resize(seq_t, results, res_cap);
             }
             results[res_len++] = (seq_t)current_m;
         }

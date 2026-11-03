@@ -12,14 +12,37 @@
  *            This matches the definition of A284367
  * Range:     u8 n <= 23, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   T_prime
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/T_prime.h"
+
+/* T for a prime p and exponent k (degree limit).  k≥1. */
+static seq_t T_prime(uint64_t p, idx_t k)
+{
+    seq_t total = 0;
+    seq_t pseq = (seq_t)p;
+    seq_t p1   = pseq - 1;          /* p-1 */
+
+    /* degree 0: non‑zero constants */
+    total += p1;
+
+    /* degree 1 */
+    total += p1 * pseq;
+
+    /* degrees ≥2 */
+    seq_t pow_p = 1;  /* p^(d-1) for current d */
+    for (idx_t d = 2; d <= k; ++d) {
+        pow_p *= pseq;                 /* p^(d-1) */
+        seq_t term = p1 * p1 * pow_p;  /* (p-1)^2 * p^(d-1) */
+        total += term;
+    }
+    return total;
+}
 
 /* ------------------------------------------------------------------ */
 /* Multiply a base of type seq_t by itself exp times (exp is idx_t). */

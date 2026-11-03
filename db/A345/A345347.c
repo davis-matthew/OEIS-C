@@ -9,7 +9,8 @@
  *            (F(k) is the k‑th Fibonacci number, F(0)=0, F(1)=1)
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *fib_cache = NULL;   /* cache of Fibonacci numbers */
 static size_t fib_cache_size = 0; /* number of cached values */
@@ -34,7 +36,7 @@ ensure_fib_up_to(idx_t k)
     /* initialisation of the first two Fibonacci numbers */
     if (fib_cache_size == 0) {
         size_t init_cap = 2;
-        fib_cache = (seq_t *)realloc(NULL, init_cap * sizeof(seq_t));
+        fib_cache = mem_resize(seq_t, NULL, init_cap);
         if (!fib_cache) return; /* allocation failed – silence */
         fib_cache_cap = init_cap;
         fib_cache[0] = 0;
@@ -47,7 +49,7 @@ ensure_fib_up_to(idx_t k)
         size_t new_cap = fib_cache_cap ? fib_cache_cap * 2 : 8;
         while (new_cap < (size_t)(k + 1))
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(fib_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib_cache, new_cap);
         if (!tmp) return; /* allocation failed – silence */
         fib_cache = tmp;
         fib_cache_cap = new_cap;

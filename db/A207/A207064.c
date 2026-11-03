@@ -9,6 +9,7 @@
  *            a(n) = (3*n^4 + 30*n^3 + 15*n^2 - 12*n) / 4 for n ≥ 1
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 198, u64 n <= 210,
  *            u128 n <= 210, big any n
+ * Validated: standard, pass, 49 terms through n = 199 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

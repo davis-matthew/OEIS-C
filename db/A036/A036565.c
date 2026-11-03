@@ -9,13 +9,16 @@
  *            i*(i+1)/2 <= n, and j = n - i*(i+1)/2 (0 <= j <= i)
  * Range:     u8 n <= 8, u16 n <= 26, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   pow2, pow_uint
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   ipow_u64_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 #include "../utils/pow2.h"
-#include "../utils/pow_uint.h"
 
 seq_t a(idx_t n)
 {
@@ -41,6 +44,6 @@ seq_t a(idx_t n)
 
     /* Compute the term as 2^(i-j) * 7^j. */
     seq_t part1 = pow2(i - j);          /* 2^(i-j)   */
-    seq_t part2 = pow_uint(7, j);       /* 7^j       */
+    seq_t part2 = ipow_u64_idx(7, j);       /* 7^j       */
     return part1 * part2;
 }

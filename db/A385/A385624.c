@@ -9,12 +9,22 @@
  *            digits(x) = number of decimal digits of x (digits(0)=1)
  * Range:     u8 n <= 6, u16 n <= 44, u32 n <= 1794, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 1903 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Helper: number of decimal digits of a non‑negative integer. */
 static unsigned digits_u64(uint64_t v)
@@ -60,6 +70,22 @@ static seq_t *sumj10 = NULL;     /* sum_{j=0..i} j*10^{digits(j)}  */
 static size_t max_computed = 0;   /* next index requiring computation */
 
 /* Helper to grow a dynamic array to at least needed elements. */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t el_size)
+{
+    if (*cap >= needed) return;
+    size_t new_cap = *cap ? *cap << 1 : 8;
+    if (new_cap < needed) new_cap = needed;
+    T *tmp = mem_resize(T, *ptr, (new_cap * el_size) / sizeof(T));
+    if (!tmp) {
+        /* Allocation failure: abort to avoid undefined behaviour. */
+        abort();
+    }
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t el_size)
 {
     if (*cap >= needed) return;
@@ -73,14 +99,15 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t el_si
     *ptr = tmp;
     *cap = new_cap;
 }
+#endif
 
 seq_t a(idx_t n)
 {
     /* Expand cache if necessary. */
     size_t need = (size_t)n + 1;          /* we need indices 0..n */
     static size_t cap10 = 0, capj10 = 0;
-    ensure_capacity(need, &cap10, (void **)&sum10,  sizeof(seq_t));
-    ensure_capacity(need, &capj10, (void **)&sumj10, sizeof(seq_t));
+    ensure_capacity(need, &cap10, OEISC_VPP(&sum10),  sizeof(seq_t));
+    ensure_capacity(need, &capj10, OEISC_VPP(&sumj10), sizeof(seq_t));
 
     /* Compute prefix sums up to n. */
     for (size_t j = max_computed; j <= (size_t)n; ++j) {

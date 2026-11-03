@@ -10,7 +10,8 @@
  *            smallest integer such that r(r+1)/2 >= n
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,14 +20,14 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 /* Compute bitwise NOR of a and b using the minimal number of bits
    required to represent either operand. */
 static inline seq_t nor_bits(seq_t a, seq_t b)
 {
-    size_t wa = bitlen_seq_t(a);
-    size_t wb = bitlen_seq_t(b);
+    size_t wa = bit_length(a);
+    size_t wb = bit_length(b);
     size_t width = wa > wb ? wa : wb;
     seq_t mask;
 

@@ -8,7 +8,8 @@
  * Formula:   a(n) = least k>1 with Σ_{i=1}^k i^k ≡ n (mod k)
  * Range:     u8 n <= 127, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 116 terms through n = 8111 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /* sequence evaluator for A259111 */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 static inline bool is_power_of_two(idx_t n)
 {
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
             seq_t mod = (seq_t)k;
             for (idx_t i = 1; i <= k; ++i)
             {
-                seq_t pw = mod_pow((seq_t)i, k, mod);
+                seq_t pw = powmod((seq_t)i, k, mod);
                 sum += pw;
                 sum %= mod;
             }

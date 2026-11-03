@@ -9,14 +9,16 @@
  *            starting from n
  * Range:     u8 n <= 2, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   digit_len
+ * Validated: partial, pass, 100 terms through n = 99 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include "../utils/num_digits.h"
 
 static inline seq_t sum_cubes(seq_t x)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Maximum possible sum of cubes of digits for 64‑bit n:
        at most 729 per decimal digit; 20 digits ⇒ 729*20.  Store a small
        buffer that can index up to that bound. */
-    idx_t D = (idx_t)digit_len(n);
+    idx_t D = (idx_t)num_digits(n);
     idx_t maxval = D * 730 + 1;          /* allow indices 0 .. D*729 */
 
     /* Visited array: 0 → not yet visited; else store first step+1. */

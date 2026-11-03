@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 30,
  *            big any n
- * Helpers:   h_coeff, seq_alloc_new_array, seq_free_array
+ * Validated: standard, pass, 36 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,26 @@
    Formula: a(n) = n! * Sum_{k=3..n+2} (C(k,3)+3*C(k,4))/(n+2-k)! */
 
 #include <stdint.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/h_coeff.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+static inline seq_t h_coeff(idx_t k)
+{
+    /* h(k) = C(k,3) + 3*C(k,4), computed with 128‑bit intermediates */
+    unsigned __int128 kk = k;
+    unsigned __int128 c3 = kk * (kk - 1) * (kk - 2) / 6;
+    unsigned __int128 c4 = kk * (kk - 1) * (kk - 2) * (kk - 3) / 24;
+    unsigned __int128 h  = c3 + 3 * c4;
+    return (seq_t)h;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,7 +9,8 @@
  *            theorem, C(n,i) is odd iff (i & (n-i)) == 0)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 22, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached Fibonacci numbers up to the highest index requested. */
 static seq_t *fib_cache = NULL;     /* array of Fibonacci numbers [0..k] */
@@ -28,7 +30,7 @@ static void ensure_fib_cache(idx_t k)
     /* If the cache is empty, allocate it and compute up to k. */
     if (fib_cache == NULL) {
         size_t new_len = (size_t)(k + 1);
-        fib_cache = (seq_t *)malloc(sizeof(seq_t) * new_len);
+        fib_cache = mem_new(seq_t, new_len);
         if (!fib_cache) return;          /* silently fail on bad alloc */
         fib_cache[0] = 0;
         fib_cache[1] = 1;
@@ -43,7 +45,7 @@ static void ensure_fib_cache(idx_t k)
     /* If the cache is too small, enlarge it and compute the missing entries. */
     else if (k > fib_cache_size) {
         size_t new_len = (size_t)(k + 1);
-        seq_t *tmp = (seq_t *)realloc(fib_cache, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, fib_cache, new_len);
         if (!tmp) return;
         fib_cache = tmp;
         for (idx_t i = fib_cache_size + 1; i <= k; ++i)

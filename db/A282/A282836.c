@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -145,7 +147,7 @@ seq_t a(idx_t n)
     int cur = 0, next = 1;
 
     /* clear dp arrays */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* active state lists */
     static int active_cur[NS];

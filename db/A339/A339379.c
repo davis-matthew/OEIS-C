@@ -11,9 +11,10 @@
  *            0: [1]. If a row has digits [d0,…,dk], the next row is the
  *            digits of [d0, d0+d1, d1+d2, …, d_{k-1}+d_k, dk]. The sequence
  *            a(n) gives the n‑th such digit in this flattened triangle
- * Range:     u8 n <= 9660, u16 n <= 9660, u32 n <= 9660, u64 n <= 9660,
- *            u128 n <= 9660, big any n
- * Helpers:   append_sum_digits
+ * Range:     u8 n <= 19982, u16 n <= 19982, u32 n <= 19982, u64 n <= 19982,
+ *            u128 n <= 19982, big any n
+ * Validated: standard, pass, 96 terms through n = 9660 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,31 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/append_sum_digits.h"
+
+/* Convert a sum (0..18) into its decimal digits and append to dest. */
+static void append_sum_digits(uint8_t sum, uint8_t **dest, size_t *dlen, size_t *dcap)
+{
+    if (sum < 10) {
+        if (*dlen >= *dcap) {
+            size_t new_cap = *dcap ? *dcap * 2 : 1;
+            uint8_t *tmp = (uint8_t *)realloc(*dest, new_cap * sizeof(uint8_t));
+            *dest = tmp;
+            *dcap = new_cap;
+        }
+        (*dest)[(*dlen)++] = sum;
+    } else {
+        /* sum is 10..18: two digits 1 and sum-10 */
+        if (*dlen + 2 > *dcap) {
+            size_t new_cap = *dcap ? *dcap * 2 : 1;
+            while (new_cap < *dlen + 2) new_cap *= 2;
+            uint8_t *tmp = (uint8_t *)realloc(*dest, new_cap * sizeof(uint8_t));
+            *dest = tmp;
+            *dcap = new_cap;
+        }
+        (*dest)[(*dlen)++] = 1;
+        (*dest)[(*dlen)++] = (uint8_t)(sum - 10);
+    }
+}
 
 /* Representation of a row: array of decimal digits (0‑9). */
 typedef struct {

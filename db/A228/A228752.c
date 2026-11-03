@@ -12,13 +12,15 @@
  *            O(1) after the first cache fill
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,14 +46,14 @@ seq_t a(idx_t n)
     /* Expand cache if needed. */
     if ((size_t)n >= cache_sz) {
         size_t new_sz = (size_t)n + 1;                     /* indices 0..n */
-        seq_t *new_cache = (seq_t *)malloc(new_sz * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_sz);
         if (!new_cache) return 0; /* allocation failed */
 
         /* Copy old cached values (if any). */
         if (cache) {
             for (size_t i = 0; i < cache_sz; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
 
         /* Ensure base values 1..6 are set. */

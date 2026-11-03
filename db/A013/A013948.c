@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *kola = NULL;      /* Kolakoski values (1 or 2) */
 static size_t kola_len = 0, kola_cap = 0;
@@ -37,7 +39,7 @@ static void ensure_pos_cap(size_t need)
     if (pos_cap < need) {
         size_t new_cap = pos_cap ? pos_cap * 2 : 128;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(pos, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pos, new_cap);
         if (!tmp) abort();
         pos = tmp;
         pos_cap = new_cap;
@@ -50,7 +52,7 @@ static void ensure_kola_cap(size_t need)
     if (kola_cap < need) {
         size_t new_cap = kola_cap ? kola_cap * 2 : 128;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(kola, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, kola, new_cap);
         if (!tmp) abort();
         kola = tmp;
         kola_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- utility: integer square root for 64‑bit values ---------- */
 static inline uint64_t isqrt_uint64(uint64_t v)
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
             /* Store the term */
             if (len == cap) {
                 cap = cap ? cap * 2 : 16;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = p;
         }

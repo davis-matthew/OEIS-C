@@ -11,18 +11,44 @@
  *            2) + 2*Sum_{i<j} gcd(L_i, L_j), z(L) = Prod_k k...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 6, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   mulw, oddi, pw2, seq_is_fixed_width, v2i
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pw2.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/mulw.h"
-#include "../utils/oddi.h"
-#include "../utils/v2i.h"
+#include <stdint.h>
+#include "../utils/pow2.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t mulw(seq_t x, seq_t y)
+{
+    return (seq_t)((x * 1u) * y);
+}
+
+static int oddi(int k) {
+    while (k > 0 && (k & 1) == 0) k >>= 1;
+    return k;
+}
+
+static int v2i(int k) {
+    int r = 0;
+    while (k > 0 && (k & 1) == 0) { k >>= 1; r++; }
+    return r;
+}
 
 static int g_N;
 static int *g_gcd;
@@ -59,7 +85,7 @@ static void rec(int rem, int maxp, long long e, long long t, seq_t o,
                 g_S = (seq_t)(g_S + mulw(p, inv_odd(o)));
             }
         } else {
-            g_S += pw2((idx_t)s) * (g_O / o);
+            g_S += pow2((idx_t)s) * (g_O / o);
         }
         return;
     }

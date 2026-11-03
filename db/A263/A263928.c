@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 34, u64 n <= 100, u128 n <= 100,
  *            big any n
- * Helpers:   factor_u64, pow_seq
+ * Validated: standard, pass, 60 terms through n = 99 (2026-11-03)
+ * Helpers:   factor_u64, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,12 +23,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/factor_u64.h"   /* factor_u64, uint64_t utilities */
-#include "../utils/pow_seq.h"      /* pow_seq(seq_t, int) */
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_i32.h"
 
 #ifndef MAX_PRIMES_IN_FACTOR
 #define MAX_PRIMES_IN_FACTOR 32   /* sufficient for uint64_t factorisation */
 #endif
+#include "../utils/mem.h"
 
 /* Compute σ(m) for a 64‑bit integer m.  The result is held in a seq_t. */
 static inline seq_t sigma_of_uint64(uint64_t m)
@@ -44,7 +47,7 @@ static inline seq_t sigma_of_uint64(uint64_t m)
     seq_t result = (seq_t)1;
     for (size_t i = 0; i < count; ++i) {
         seq_t p = (seq_t)primes[i];
-        seq_t pe1 = pow_seq(p, (int)(exp[i] + 1));   /* p^(e+1) */
+        seq_t pe1 = ipow_i32(p, (int)(exp[i] + 1));   /* p^(e+1) */
         seq_t term = (pe1 - (seq_t)1) / (p - (seq_t)1); /* (p^(e+1)-1)/(p-1) */
         result *= term;
     }
@@ -68,7 +71,7 @@ seq_t a(idx_t n)
             /* Grow array if necessary.  Double capacity to keep amortised O(1). */
             if (len + 1 > cap) {
                 size_t newcap = cap ? 2 * cap : 8;
-                seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, newcap);
                 if (!tmp)
                     abort();           /* allocation failure */
                 terms = tmp;

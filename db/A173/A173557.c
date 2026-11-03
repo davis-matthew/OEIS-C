@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, mult
  * Formula:   a(n) = Product_{p|n, p prime} (p-1) (distinct primes only)
- * Range:     u8 n <= 256, u16 n <= 9616, u32 n <= 9616, u64 n <= 9616,
- *            u128 n <= 9616, big any n
+ * Range:     u8 n <= 256, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 90 terms through n = 9616 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

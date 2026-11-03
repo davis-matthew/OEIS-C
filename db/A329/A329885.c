@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = A051903(n) mod A002322(n) (maximal prime exponent mod
  *            Carmichael's λ)
- * Range:     u8 n <= 9379, u16 n <= 9379, u32 n <= 9379, u64 n <= 9379,
- *            u128 n <= 9379, big any n
+ * Range:     u8 n <= 9379, u16 n <= 9379, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9379 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

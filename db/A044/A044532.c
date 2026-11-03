@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_16
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,25 @@
 */
 
 #include <stdbool.h>
-#include "../utils/has_16.h"
+
+static bool has_16(seq_t x)
+{
+    seq_t prev   = 0;          /* previous digit (least significant first)   */
+    bool hadPrev = false;      /* true once at least one digit has been seen */
+
+    while (x > 0)               /* extract digits from least significant */
+    {
+        seq_t d = x % (seq_t)7; /* current digit in base‑7               */
+
+        if (hadPrev && prev == (seq_t)6 && d == (seq_t)1)
+            return true;       /* found the pattern 1,6                 */
+
+        prev    = d;
+        hadPrev = true;
+        x = x / (seq_t)7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

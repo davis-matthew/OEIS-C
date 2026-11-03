@@ -9,14 +9,18 @@
  *            a(2)=1, a(3)=1, a(4)=1
  * Range:     u8 n <= 9, u16 n <= 11, u32 n <= 11, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Persistent cache for computed terms */
 static seq_t *cache = NULL;
@@ -35,7 +39,7 @@ static void ensure_cache(idx_t n)
     while (new_cap < need) new_cap <<= 1;
 
     seq_t *old_cache = cache;
-    seq_t *new_cache = (seq_t*)realloc(old_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, old_cache, new_cap);
     if (!new_cache) abort();            /* out of memory */
     cache = new_cache;
     cache_cap = new_cap;
@@ -64,7 +68,7 @@ seq_t a(idx_t n)
         for (idx_t i = max_computed + 1; i <= n; ++i) {
             seq_t term1 = cache[i - 1];
             seq_t term2 = cache[i - 2] * cache[i - 3];
-            seq_t term3 = big_pow(cache[i - 4], cache[i - 5]); /* 0^0 handled */
+            seq_t term3 = ipow(cache[i - 4], cache[i - 5]); /* 0^0 handled */
             cache[i] = term1 + term2 + term3;
         }
         max_computed = n;

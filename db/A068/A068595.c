@@ -9,12 +9,24 @@
  *            the sum of the function values ≡ 0 (mod 3)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   mat_mul3x3
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mat_mul3x3.h"
+static void mat_mul3x3(const seq_t a[3][3], const seq_t b[3][3], seq_t res[3][3])
+{
+    for (idx_t i = 0; i < 3; ++i) {
+        for (idx_t j = 0; j < 3; ++j) {
+            seq_t sum = 0;
+            for (idx_t k = 0; k < 3; ++k) {
+                sum = sum + a[i][k] * b[k][j];
+            }
+            res[i][j] = sum;
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

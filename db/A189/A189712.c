@@ -14,7 +14,8 @@
  *            condit...
  * Range:     u8 n <= 13, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   factor_u64, factorial_condition
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/factorial_condition.h"
+#include "../utils/mem.h"
+
+static bool factorial_condition(uint64_t d, uint64_t m,
+                                const uint64_t *pr, const uint64_t *exps,
+                                size_t pcnt)
+{
+    for (size_t i = 0; i < pcnt; ++i) {
+        uint64_t p = pr[i];
+        uint64_t required = exps[i] + (p == 2 ? 1 : 0);
+        uint64_t v = 0, t = d;
+        while (t) {
+            t /= p;
+            v += t;
+        }
+        if (v < required)
+            return false;
+    }
+    return true;
+}
 
 static seq_t *cache = NULL;          /* cached terms */
 static size_t cache_len = 0;         /* number of cached terms */
@@ -86,7 +105,7 @@ static void ensure_cache(idx_t n)
     /* grow cache */
     size_t new_cap = cache_len > 0 ? cache_len * 2 : 1;
     while (new_cap < n) new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     /* fill cache */
     while (cache_len < n) {
         ++last_checked;

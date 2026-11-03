@@ -9,7 +9,8 @@
  *            and returns the requested term
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 8756 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static size_t                  primes_cap   = 0;   /* capacity of the array   */
 static seq_t *                 primes       = NULL;  /* store the primes        */
@@ -58,8 +60,8 @@ static void build_primes(void)
        give a generous capacity. */
     size_t estimated = (size_t)(sieve_limit / 100);  /* crude estimate */
     if (estimated > primes_cap) {
-        if (primes) free(primes);
-        primes = (seq_t *)malloc(estimated * sizeof(seq_t));
+        if (primes) mem_free(primes);
+        primes = mem_new(seq_t, estimated);
         primes_cap = estimated;
     }
     primes_cnt = 0;
@@ -87,7 +89,7 @@ static void build_primes(void)
                 if (primes_cnt == primes_cap) {
                     /* Resize if necessary. */
                     size_t new_cap = primes_cap * 2 + 16;
-                    seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, primes, new_cap);
                     if (!tmp) break;  /* allocation failure */
                     primes = tmp;
                     primes_cap = new_cap;
@@ -98,7 +100,7 @@ static void build_primes(void)
     }
 
     /* Sort the list of primes so that a(1) is the smallest. */
-    qsort(primes, primes_cnt, sizeof(seq_t), compare_seq);
+    mem_qsort(primes, primes_cnt, sizeof(seq_t), compare_seq);
 
     /* Clean up. */
     free(is_prime);

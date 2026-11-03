@@ -9,6 +9,7 @@
  *            = a(5*n+4) = a(n) for all n ≥ 0 (Indices are zero‑based.)
  * Range:     i8 n <= 105, i16 n <= 105, i32 n <= 105, i64 n <= 105,
  *            i128 n <= 105, big any n
+ * Validated: partial, pass, 106 terms through n = 105 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

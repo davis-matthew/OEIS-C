@@ -9,18 +9,41 @@
  *            where r = (3 + sqrt(13)) / 2
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   floor_sqrt, sqrt128_uint128
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   ipow_i32, isqrt_u128, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Forward declaration of the provided big‑integer square‑root helper. */
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/isqrt_u128.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/sqrt128_uint128.h"
 
 /* Compute floor(r * x) with r = (3 + sqrt(13)) / 2. */
 static seq_t floor_r_next(seq_t x) {
@@ -29,7 +52,7 @@ static seq_t floor_r_next(seq_t x) {
         unsigned __int128 xx = (unsigned __int128)x;
         unsigned __int128 prod = xx * xx;
         prod *= (unsigned __int128)13;          /* 13 * x*x  */
-        unsigned __int128 s = sqrt128_uint128(prod);  /* floor(x*sqrt13) */
+        unsigned __int128 s = isqrt_u128(prod);  /* floor(x*sqrt13) */
         unsigned __int128 res = (xx * 3 + s) / 2;      /* floor(r*x)  */
         return (seq_t)res;
     }
@@ -58,11 +81,11 @@ static void ensure_cache(idx_t n) {
 
     /* Allocate new array if needed. */
     if (cache_cap > (size_t)cache_sz && (cache == NULL || cache_cap > cache_sz)) {
-        seq_t *new_arr = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, cache_cap);
         if (!new_arr) return; /* allocation failure – caller should not hit this */
         if (cache) {
-            memcpy(new_arr, cache, cache_sz * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_arr, cache, cache_sz * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_arr;
     }

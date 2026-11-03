@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 22, i32 n <= 35, i64 n <= 35, i128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
    The function is self‑contained and uses only integral types.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     /* Compute the polynomial N_k using the recurrence (*).
        We start from N₀(x) = x   →  [0, 1] (degree 1).  */
     idx_t prevSize = 2;                      /* length of N₀ */
-    seq_t *prev = (seq_t *)malloc(prevSize * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, prevSize);
     if (!prev) return (seq_t)0;              /* out of memory */
 
     prev[0] = (seq_t)0;
@@ -71,13 +73,13 @@ seq_t a(idx_t n)
     for (idx_t cur = 1; cur <= k; ++cur) {
         /* Derivative of current polynomial: N' */
         idx_t derivSize = prevSize - 1;
-        seq_t *deriv = (seq_t *)malloc(derivSize * sizeof(seq_t));
+        seq_t *deriv = mem_new(seq_t, derivSize);
         for (idx_t i = 0; i < derivSize; ++i)
             deriv[i] = (seq_t)(i + 1) * prev[i + 1];   /* (i+1) * coeff(i+1) */
 
         /* New polynomial size: current size + 1 */
         idx_t newSize = prevSize + 1;
-        seq_t *newN = (seq_t *)calloc(newSize, sizeof(seq_t));
+        seq_t *newN = mem_new(seq_t, newSize);
         seq_t factor = (seq_t)cur;                    /* k in the recurrence */
 
         for (idx_t e = 0; e < newSize; ++e) {
@@ -95,8 +97,8 @@ seq_t a(idx_t n)
             newN[e] = val;
         }
 
-        free(prev);
-        free(deriv);
+        mem_free(prev);
+        mem_free(deriv);
         prev = newN;
         prevSize = newSize;
     }
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
         }
         ++seen;
     }
-    free(prev);
+    mem_free(prev);
 
     /* Apply the sign factor (-1)^{k+1} for k ≥ 1.  For k = 0 the factor
        is irrelevant (we already handled n = 0 above). */

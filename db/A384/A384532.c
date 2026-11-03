@@ -8,13 +8,15 @@
  * Formula:   a(n) = 663608941 * a(n‑1) mod 2^32; a(1) = 1
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 9337 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* initialise the cache on first call */
     if (cache == NULL) {
         cache_cap = 2;                /* indices 0..1, 0 unused */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(1);
         cache[0] = (seq_t)0;          /* unused */
         cache[1] = (seq_t)1;          /* a(1) */
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     if (required > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (required > new_cap) new_cap = required;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = new_cap;

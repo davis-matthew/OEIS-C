@@ -9,14 +9,19 @@
  *            take the n-th
  * Range:     u8 n <= 1, u16 n <= 30, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3397_cmp
+ * Validated: standard, pass, 56 terms through n = 9632 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a3397_cmp.h"
+
+static int a3397_cmp(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
 
 static uint64_t a3397_p9[200];
 static int a3397_np = 0;

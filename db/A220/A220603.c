@@ -9,14 +9,20 @@
  *            - n + 1}, where t = floor[sqrt(n-1)] + 1
  * Range:     u8 n <= 9870, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   min_seq_t
+ * Validated: standard, pass, 116 terms through n = 9867 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/min_seq_t.h"
+
+/* minimum of two seq_t values */
+static inline seq_t min_seq_t(seq_t a, seq_t b)
+{
+    return a <= b ? a : b;
+}
 
 /* integer sqrt for uint64_t, returns floor(sqrt(n)) */
 static inline idx_t isqrt_u64(idx_t n)

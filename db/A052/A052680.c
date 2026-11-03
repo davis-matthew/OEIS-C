@@ -11,12 +11,14 @@
  *            that supports +, -, *, / and for * a 64‑bit unsigned idx_t
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 322 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* stored values */
 static size_t cache_cap  = 0;       /* allocated size */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
             newcap <<= 1;
 #ifdef __cplusplus
         seq_t *tmp = reinterpret_cast<seq_t *>(
-                         realloc(cache, newcap * sizeof(seq_t)));
+                         mem_resize(seq_t, cache, newcap));
 #else
         seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
 #endif

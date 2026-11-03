@@ -9,8 +9,9 @@
  * Formula:   a(n) = n - gcd(n, A003961(A356164(n))); where A356164(n) is the
  *            smallest k>0 such that n | k*A003961(k). A003961 is
  *            multiplicative with a(p)=nextprime(p)
- * Range:     u8 n <= 279, u16 n <= 9708, u32 n <= 9708, u64 n <= 9708,
- *            u128 n <= 9708, big any n
+ * Range:     u8 n <= 279, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 108 terms through n = 9708 (2026-11-01)
  * Helpers:   factor_u64, gcd, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,9 +22,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/factor_u64.h"   /* factor_u64(n, primes, exps, &cnt) */
-#include "../utils/gcd.h"         /* seq_t gcd(seq_t a, seq_t b) */
-#include "../utils/next_prime.h"  /* uint64_t next_prime(uint64_t) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/next_prime.h"
 
 /* Compute A003961(k) exactly (as seq_t), using prime factorisation of k. */
 static seq_t A003961_exact(uint64_t k)

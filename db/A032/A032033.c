@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,13 +43,13 @@ seq_t a(idx_t n)
     /* Initialise caches on first call */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t*)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 1;          /* a(0) = 1 */
         cache_len = 1;
 
         /* initial Stirling vector for n = 0: S(0,0)=1 */
         val_cap[0] = 1;
-        val[0] = (seq_t*)calloc(val_cap[0], sizeof(seq_t));
+        val[0] = mem_new(seq_t, val_cap[0]);
         val[0][0] = 1;
         val_size = 1;
         cur = 0;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         if (val_cap[next] < need) {
             size_t newc = val_cap[next] ? val_cap[next] * 2 : 1;
             while (newc < need) newc <<= 1;
-            val[next] = (seq_t*)realloc(val[next], newc * sizeof(seq_t));
+            val[next] = mem_resize(seq_t, val[next], newc);
             val_cap[next] = newc;
         }
 
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         if (cache_cap <= i) {
             size_t newc = cache_cap ? cache_cap * 2 : 1;
             while (newc <= i) newc <<= 1;
-            cache = (seq_t*)realloc(cache, newc * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, newc);
             cache_cap = newc;
         }
         cache[i] = sum;

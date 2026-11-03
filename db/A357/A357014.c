@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 106, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_sqrt_u32, is_square_u32, pass_cond
+ * Validated: standard, pass, 78 terms through n = 9753 (2026-11-03)
+ * Helpers:   is_square_u32, isqrt_u32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,30 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/int_sqrt_u32.h"
 #include "../utils/is_square_u32.h"
-#include "../utils/pass_cond.h"
+#include "../utils/isqrt_u32.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether an odd integer m satisfies the sequence condition. */
+static bool pass_cond(uint64_t m)
+{
+    if (m == 1) return true;          /* 1 is a term */
+    uint64_t tmp = m/3;                /* skip factor 3? no use */
+    uint64_t n = m;
+    for (uint64_t p = 3; p * p <= n; p += 2) {
+        if (n % p == 0) {
+            uint32_t e = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++e;
+            }
+            /* p is odd; exponent e must be a perfect square  */
+            if (!is_square_u32(e)) return false;
+        }
+    }
+    /* Remaining prime factor, if any, has exponent 1 (perfect square). */
+    return true;
+}
 
 /* ----- Cached storage of previously computed terms ----- */
 static seq_t *cache = NULL;      /* array of sequence values      */
@@ -41,7 +63,7 @@ static void grow_cache(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap == 0 ? 16 : cache_cap << 1;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();          /* out of memory */
     cache = tmp;
     cache_cap = new_cap;

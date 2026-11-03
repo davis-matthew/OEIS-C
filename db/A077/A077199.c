@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   is_sf_trial
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   is_squarefree_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/is_sf_trial.h"
+#include "../utils/is_squarefree_u64.h"
 
 #define MAXL 2000000      /* maximum number for the pre‑computed table */
 
@@ -99,7 +100,7 @@ seq_t a(idx_t n)
     /* fall back to trial division if table insufficient */
     size_t k = 2;
     for (;;) {
-        if (is_sf_trial(k) && is_sf_trial(k + nn))
+        if (is_squarefree_u64(k) && is_squarefree_u64(k + nn))
             return (seq_t)k;
         ++k;
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   sieve_uint32
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,47 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/sieve_uint32.h"
+#include "../utils/mem.h"
+
+/* Simple sieve of Eratosthenes */
+static void sieve_uint32(idx_t limit, uint32_t **primes_out, size_t *cnt_out)
+{
+    /* allocate boolean array */
+    size_t n = (size_t)limit + 1;
+    uint8_t *is_prime = (uint8_t *)malloc(n);
+    if (!is_prime) return;
+    memset(is_prime, 1, n);
+    if (n > 0) is_prime[0] = 0;
+    if (n > 1) is_prime[1] = 0;
+
+    for (size_t i = 2; i * i <= limit; ++i) {
+        if (is_prime[i]) {
+            for (size_t j = i * i; j <= limit; j += i) {
+                is_prime[j] = 0;
+            }
+        }
+    }
+    /* count primes */
+    size_t cnt = 0;
+    for (size_t i = 2; i <= limit; ++i) {
+        if (is_prime[i]) ++cnt;
+    }
+    /* allocate primes array */
+    uint32_t *primes = (uint32_t *)malloc(cnt * sizeof(uint32_t));
+    if (!primes) {
+        free(is_prime);
+        return;
+    }
+    size_t idx = 0;
+    for (size_t i = 2; i <= limit; ++i) {
+        if (is_prime[i]) {
+            primes[idx++] = (uint32_t)i;
+        }
+    }
+    free(is_prime);
+    *primes_out = primes;
+    *cnt_out = cnt;
+}
 
 /* static storage */
 static seq_t *terms = NULL;
@@ -63,7 +104,7 @@ static void ensure_terms(idx_t n)
 
     /* estimate capacity for product array */
     size_t capacity = prime_cnt * (prime_cnt + 1) / 2;
-    seq_t *prod_arr = (seq_t *)malloc(capacity * sizeof(seq_t));
+    seq_t *prod_arr = mem_new(seq_t, capacity);
     if (!prod_arr) return;
 
     size_t prod_len = 0;
@@ -80,7 +121,7 @@ static void ensure_terms(idx_t n)
     }
 
     /* sort and deduplicate */
-    qsort(prod_arr, prod_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(prod_arr, prod_len, sizeof(seq_t), seq_cmp);
     size_t uniq_len = 0;
     for (size_t i = 0; i < prod_len; ++i) {
         if (i == 0 || prod_arr[i] != prod_arr[i - 1]) {
@@ -88,13 +129,13 @@ static void ensure_terms(idx_t n)
         }
     }
 
-    if (terms) free(terms);
+    if (terms) mem_free(terms);
     terms = prod_arr;
     terms_len = uniq_len;
 
     /* if still not enough, recurse with larger prime limit */
     if (terms_len < (size_t)n) {
-        free(terms);
+        mem_free(terms);
         terms = NULL;
         terms_len = 0;
         ensure_terms(n);

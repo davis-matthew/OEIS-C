@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   gpf, next_prime
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* ----------  memoisation status for primes  ---------- */
 static uint8_t *status = NULL;   /* 0 = unknown, 1 = leads to 19, 2 = leads to 3, 3 = on stack */
@@ -57,7 +59,7 @@ static bool leads_to_19(uint64_t p)
         return false;
     }
     status[p] = 3;         /* temporarily mark */
-    uint64_t next = gpf(2 * p - 1);
+    uint64_t next = largest_prime_factor(2 * p - 1);
     bool res = leads_to_19(next);
     status[p] = res ? 1 : 2;
     return res;
@@ -74,7 +76,7 @@ static void grow_seq_array(seq_t **arr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t new_cap = *cap ? *cap << 1 : 4;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) abort();
     *arr = tmp;
     *cap = new_cap;

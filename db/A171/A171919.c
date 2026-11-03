@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of ordered triples (x,y,z ≥ 1) with n = x*y*z and
  *            x + y – z = 1
- * Range:     u8 n <= 15, u16 n <= 9598, u32 n <= 9598, u64 n <= 9598,
- *            u128 n <= 9598, big any n
+ * Range:     u8 n <= 15, u16 n <= 28223, u32 n <= 28224, u64 n <= 28224,
+ *            u128 n <= 28224, big any n
+ * Validated: standard, pass, 121 terms through n = 9598 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

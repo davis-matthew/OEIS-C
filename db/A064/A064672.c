@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 9806 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------
  *  integer square root for a 64‑bit unsigned integer.
@@ -49,7 +51,7 @@ static void ensure_cache_idx(idx_t n) {
         /* capacity at least n+1, else some power of two */
         size_t capa = 16;
         while (capa <= (size_t)n) capa <<= 1;
-        cache = (seq_t*)calloc(capa, sizeof(seq_t));
+        cache = mem_new(seq_t, capa);
         if (cache == NULL) abort();   /* out of memory */
         cache_cap = capa;
         cache[0] = 0;
@@ -60,7 +62,7 @@ static void ensure_cache_idx(idx_t n) {
 
     size_t new_cap = cache_cap;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (new_cache == NULL) abort();  /* out of memory */
     /* Zero the newly allocated part */
     for (size_t i = cache_cap; i < new_cap; ++i) new_cache[i] = 0;

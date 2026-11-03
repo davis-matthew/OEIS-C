@@ -11,7 +11,8 @@
  *            numeric order, starting at a(1)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 10000,
  *            big any n
- * Helpers:   add_sat
+ * Validated: standard, pass, 27 terms through n = 9562 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/add_sat.h"
+
+/* Helper: saturated addition for uint64_t */
+static uint64_t add_sat(uint64_t a, uint64_t b)
+{
+    if (a > UINT64_MAX - b) return UINT64_MAX;
+    return a + b;
+}
 
 /* Maximum possible digit sum in this sequence */
 #define SUM 199

@@ -10,12 +10,14 @@
  *            a(5)=846
  * Range:     u8 n <= 3, u16 n <= 18, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Initialize cache on first call with the first five terms */
     if (seq == NULL) {
         /* allocate space for at least 5 terms */
-        seq = (seq_t *)malloc(5 * sizeof(seq_t));
+        seq = mem_new(seq_t, 5);
         seq[0] = (seq_t)16;
         seq[1] = (seq_t)69;
         seq[2] = (seq_t)194;
@@ -43,11 +45,11 @@ seq_t a(idx_t n)
         return seq[n - 1];
 
     /* Resize the cache to hold up to n terms */
-    seq_t *new_seq = (seq_t *)realloc(seq, (size_t)n * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, seq, (size_t)n);
     if (new_seq == NULL) { /* allocation failed – fallback to recompute? */
         /* For robustness, free existing cache and recompute from scratch */
-        free(seq);
-        seq = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+        mem_free(seq);
+        seq = mem_new(seq_t, (size_t)n);
         seq[0] = (seq_t)16;
         seq[1] = (seq_t)69;
         seq[2] = (seq_t)194;

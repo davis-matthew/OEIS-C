@@ -8,8 +8,9 @@
  * Formula:   a(n) = count of solutions (m,k) with m≥2, k odd>0 such that n =
  *            m * (k + m - 1) (sum of at least two consecutive odd positive
  *            integers)
- * Range:     u8 n <= 9283, u16 n <= 9283, u32 n <= 9283, u64 n <= 9283,
- *            u128 n <= 9283, big any n
+ * Range:     u8 n <= 11111, u16 n <= 11111, u32 n <= 11111, u64 n <= 11111,
+ *            u128 n <= 11111, big any n
+ * Validated: standard, pass, 122 terms through n = 9283 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

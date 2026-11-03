@@ -8,13 +8,15 @@
  *            A384027)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* binomial coefficients for (1 + kx)^4 */
 static const unsigned int C4[5] = {1, 4, 6, 4, 1};
@@ -33,15 +35,15 @@ static void ensure_dp_capacity(size_t needed)
 {
     if (dp_cap >= needed) return;
 
-    seq_t *new_dp  = (seq_t*)malloc(sizeof(seq_t) * needed);
-    seq_t *new_dpn = (seq_t*)malloc(sizeof(seq_t) * needed);
+    seq_t *new_dp  = mem_new(seq_t, needed);
+    seq_t *new_dpn = mem_new(seq_t, needed);
     if (!new_dp || !new_dpn) return; /* assume memory is available */
 
     /* copy existing data */
     for (size_t i = 0; i < dp_cap; ++i) new_dp[i] = dp[i];
 
-    free(dp);
-    free(dp_next);
+    mem_free(dp);
+    mem_free(dp_next);
     dp      = new_dp;
     dp_next = new_dpn;
     dp_cap  = needed;
@@ -52,7 +54,7 @@ static void ensure_a_size(size_t new_size)
 {
     if (a_size >= new_size) return;
 
-    seq_t *new_a = (seq_t*)realloc(a_cache, sizeof(seq_t) * new_size);
+    seq_t *new_a = mem_resize(seq_t, a_cache, new_size);
     if (!new_a) return; /* assume memory is available */
 
     /* initialize newly allocated part to zero */
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 {
     /* first call: initialise data structures for n = 0 */
     if (!a_cache) {
-        a_cache = (seq_t*)calloc(1, sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache) return 0;            /* out of memory – return 0 */
         a_cache[0] = 1;                     /* a(0) = 1 */
         a_size = 1;

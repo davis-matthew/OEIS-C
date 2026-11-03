@@ -8,12 +8,14 @@
  *            binomial(6*n - k + 4, n-k) (OEIS A365753)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 20,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Helper for small seq_t (≤ 64 bits) using 128‑bit intermediate */
 static inline unsigned __int128 _binom128(idx_t N, idx_t K)
@@ -52,9 +54,9 @@ seq_t a(idx_t n)
     seq_t pos = (seq_t)0, neg = (seq_t)0;
     for (idx_t k = 0; k <= n; ++k)
     {
-        seq_t t1 = binom(n + k, k);
+        seq_t t1 = binomial(n + k, k);
         idx_t m = 6 * n - k + 4;
-        seq_t t2 = binom(m, n - k);
+        seq_t t2 = binomial(m, n - k);
         seq_t prod = t1 * t2;
         if ((k & 1) == 0) pos += prod; else neg += prod;
     }

@@ -8,6 +8,7 @@
  *            the k‑th prime (OEIS A000040)
  * Range:     u8 n <= 2, u16 n <= 30, u32 n <= 3511, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 53 terms through n = 9345 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/sieve_first_n_primes.h"   /* provides sieve_first_n_primes */
+#include <string.h>
+#include <math.h>
+#include "../utils/sieve_first_n_primes.h"
 
 /* ------------------------------------------------------------------ */
 /* Cached list of the first N primes.  The cache grows only when an

@@ -10,7 +10,8 @@
  *            The sequence is enumerated in increasing numeric order
  * Range:     u8 n <= 6, u16 n <= 65, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compare_digits, seq_from_str
+ * Validated: standard, pass, 57 terms through n = 9624 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,27 @@
    decimal string into a `seq_t`. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/compare_digits.h"
+#include <string.h>
+#include <stdbool.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* ---------- Helper for lexicographic comparison of two digit arrays ---------- */
+static int compare_digits(const uint8_t *a, const uint8_t *b, int len)
+{
+    for (int i = 0; i < len; ++i) {
+        if (a[i] != b[i]) return a[i] < b[i] ? -1 : 1;
+    }
+    return 0;                         /* identical arrays */
+}
 
 /* ---------- Struct holding a multiset permutation for a given length ---------- */
 typedef struct {

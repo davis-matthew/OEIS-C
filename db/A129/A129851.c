@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Return a bit mask of the decimal digits present in x. */
 static inline unsigned digit_mask(seq_t x)
@@ -46,12 +48,12 @@ static void ensure_cache(idx_t n)
     idx_t new_size = (cache_size == 0) ? 16 : cache_size + 1;
     while (new_size < n + 1) new_size <<= 1;   /* ensure space for indices <= n */
 
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (new_cache == NULL) exit(EXIT_FAILURE);
 
     if (cache) {
-        memcpy(new_cache, cache, (cache_cap + 1) * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, (cache_cap + 1) * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_size = new_size - 1;

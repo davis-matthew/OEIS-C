@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = min{m : sopf^m(n) is prime} * where sopf(n) is the sum of
  *            the distinct prime factors of n
- * Range:     u8 n <= 2366, u16 n <= 9544, u32 n <= 9544, u64 n <= 9544,
- *            u128 n <= 9544, big any n
+ * Range:     u8 n <= 2366, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9544 (2026-11-01)
  * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,10 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/is_prime.h"     /* is_prime(idx_t n) */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
 
 static seq_t sopf_uint64(uint64_t n)
 {

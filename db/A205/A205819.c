@@ -13,13 +13,15 @@
  *            a(18)=2568038752491042)
  * Range:     u8 none, u16 n <= 3, u32 n <= 10, u64 n <= 23, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Initialise the buffer with the known first 18 terms. */
     if (!buf) {
         buf_len = init_len + 1;
-        buf = (seq_t *)malloc(buf_len * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_len);
         if (!buf) return 0ULL; /* allocation failure */
         for (size_t i = 0; i <= init_len; ++i)
             buf[i] = init[i];
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* Extend the buffer if necessary. */
     if ((size_t)n + 1 > buf_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(buf, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_len);
         if (!tmp) return 0ULL; /* allocation failure */
         buf = tmp;
         /* Coefficients of the recurrence. */

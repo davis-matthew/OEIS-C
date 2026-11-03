@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
    integer class supplied by the build). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state keeps the current DP cache */
 static seq_t *dp = NULL;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     if (n > max_n) {
         /* Allocate new DP array of size n+1 */
-        seq_t *newdp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, (size_t)(n + 1));
         if (!newdp) return 0;          /* out of memory – unlikely in tests */
 
         /* Initialize to zero */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old table */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp = newdp;
         max_n = n;
     }

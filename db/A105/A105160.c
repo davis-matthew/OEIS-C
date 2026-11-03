@@ -10,7 +10,8 @@
  *            otherwise b(r)=prime(r+1)
  * Range:     u8 n <= 27, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- prime generation utilities ---------- */
 static size_t prime_count = 0;      /* number of primes stored   */
@@ -30,7 +32,7 @@ static void ensure_prime_index(idx_t idx)
 {
     if (!primes) {
         /* initial allocation: store first prime 2 */
-        primes = (seq_t*)malloc(2 * sizeof(seq_t));
+        primes = mem_new(seq_t, 2);
         if (!primes) return;                     /* allocation failure ignored */
         primes[0] = (seq_t)2;
         prime_count = 1;
@@ -52,7 +54,7 @@ static void ensure_prime_index(idx_t idx)
             /* grow array if necessary */
             if (prime_count + 1 >= prime_count) {
                 size_t new_cap = prime_count ? prime_count * 2 : 16;
-                seq_t *newpr = (seq_t*)realloc(primes, new_cap * sizeof(seq_t));
+                seq_t *newpr = mem_resize(seq_t, primes, new_cap);
                 if (!newpr) return;        /* allocation failure ignored */
                 primes = newpr;
             }

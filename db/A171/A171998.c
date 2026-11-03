@@ -15,7 +15,8 @@
  *            A(n,k,3)=A(n-1,k-1,3)+k*A(n-1,k,3)-k(k+1)(k+2)*A(n,k+3,3)
  * Range:     i8 n <= 15, i16 n <= 28, i32 n <= 28, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;            /* array of pointers to each row          */
 static idx_t   rows_used = 0;          /* number of rows currently allocated    */
@@ -37,7 +39,7 @@ static void ensure_rows(idx_t r)
         rows = (seq_t **)calloc(rows_cap, sizeof(seq_t *));
         if (rows == NULL) exit(1);      /* out of memory */
         /* row 0: A(0,0)=1 */
-        rows[0] = (seq_t *)calloc(1, sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         if (rows[0] == NULL) exit(1);
         rows[0][0] = 1;
         rows_used = 1;
@@ -57,7 +59,7 @@ static void ensure_rows(idx_t r)
         /* compute row 'rows_used' (which is n) */
         idx_t n = rows_used;
         seq_t *row_prev = rows[n - 1];
-        seq_t *row = (seq_t *)calloc(n + 1, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, n + 1);
         if (row == NULL) exit(1);            /* row[0] stays 0 */
 
         for (idx_t k = n; k >= 1; --k) {

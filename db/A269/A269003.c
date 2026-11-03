@@ -12,7 +12,8 @@
  *            calls can be in any order
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   parity_bin, parity_neg2
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,34 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/parity_bin.h"
-#include "../utils/parity_neg2.h"
+#include "../utils/mem.h"
+
+/* parity of number of 1s in binary representation of x (true = odd, false = even) */
+static bool parity_bin(seq_t x)
+{
+    bool p = false;
+    while (x != 0) {
+        x = x & (x - 1);   /* drop the lowest set bit */
+        p = !p;
+    }
+    return p;
+}
+
+/* parity of number of 1s in base‑(-2) representation of x */
+static bool parity_neg2(seq_t x)
+{
+    /* For the algorithm we need a signed integer that can hold intermediate
+       negative values.  The values of a(n) for all requested n are far less
+       than 2^63, so it is safe to cast to int64_t. */
+    int64_t n = (int64_t)x;
+    bool p = false;
+    while (n != 0) {
+        int r = n & 1;           /* remainder 0 or 1 */
+        if (r) p = !p;
+        n = (n - r) / -2;        /* next co‑efficient in base -2 */
+    }
+    return p;
+}
 
 /* static cache for previously computed terms */
 static seq_t *cache = NULL;      /* array of already found terms */
@@ -34,7 +61,7 @@ static void ensure_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap <= need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);          /* abort on allocation failure */
     cache = tmp;
     cache_cap = new_cap;

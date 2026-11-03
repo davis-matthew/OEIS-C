@@ -6,8 +6,9 @@
  * Keywords:  sign, easy, nice, mult
  * Formula:   a(n) = Product_{p|n} (1-p) (Dirichlet inverse of Euler's
  *            totient)
- * Range:     i8 n <= 130, i16 n <= 9387, i32 n <= 9387, i64 n <= 9387,
- *            i128 n <= 9387, big any n
+ * Range:     i8 n <= 130, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 97 terms through n = 9387 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

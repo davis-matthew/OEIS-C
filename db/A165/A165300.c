@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- dynamic array of seq_t used to store all terms ---------- */
 static seq_t *terms = NULL;
@@ -38,7 +40,7 @@ static void terms_init(void)
 {
     if (!terms) {
         terms_cap = 16;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 }
 
@@ -50,7 +52,7 @@ static void terms_append(seq_t v)
     }
     if (terms_len == terms_cap) {
         terms_cap <<= 1;
-        terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_len++] = v;
 }

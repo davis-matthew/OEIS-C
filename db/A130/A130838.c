@@ -10,13 +10,14 @@
  *            the binary expansion of (n-2) with 1 for bit 0 and 2 for bit 1
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   _floor_log2
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   ilog2_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_floor_log2.h"
+#include "../utils/ilog2_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
        Then length L = k + 2, and the offset inside this block is:
           offset = n - 2^k            (0‑based)
     */
-    idx_t k = _floor_log2(n);
+    idx_t k = ilog2_idx(n);
     idx_t start = ((idx_t)1) << k;
     idx_t offset = n - start;        /* 0 ≤ offset < 2^k */
 

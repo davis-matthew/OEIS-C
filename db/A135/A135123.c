@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 273, u32 n <= 1200, u64 n <= 1200,
  *            u128 n <= 1200, big any n
- * Helpers:   digital_sum
+ * Validated: standard, pass, 61 terms through n = 1150 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,19 @@
 /* A135123: numbers n such that ds_2(n) = ds_3(n) = ds_6(n). Search implementation. */
 
 #include <stdlib.h>
-#include "../utils/digital_sum.h"
+#include "../utils/mem.h"
+
+/* Compute the digital sum of x in the given base (2, 3, or 6) */
+static int digital_sum(seq_t x, int base)
+{
+    int sum = 0;
+    seq_t b = (seq_t)base;
+    while (x != 0) {
+        sum += (int)(x % b);
+        x /= b;
+    }
+    return sum;
+}
 
 /* Static storage for computed terms */
 static seq_t *seq  = NULL;     /* array of found terms */
@@ -29,7 +42,7 @@ static void add_term(seq_t val)
 {
     if (seq_cnt >= seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) abort();          /* allocation failed */
         seq = tmp;
         seq_cap = new_cap;

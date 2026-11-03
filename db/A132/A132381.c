@@ -9,7 +9,8 @@
  *            are 1 or composite (i.e., not prime)
  * Range:     u8 n <= 20, u16 n <= 55, u32 n <= 171, u64 n <= 565,
  *            u128 n <= 1970, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 4726 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Function prototype required by the build system */
 seq_t a(idx_t n);
@@ -33,13 +35,13 @@ static void recompute(idx_t n)
 {
     /* Allocate new dp array */
     size_t N = (size_t)n;
-    seq_t *dp_new = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp_new = mem_new(seq_t, N + 1);
     if (!dp_new) return;        /* allocation failed – nothing to do */
     dp_new[0] = 1;               /* empty partition */
 
     /* ---------- Sieve of Eratosthenes -------------------------------- */
     bool *prime_new = (bool*)malloc((N + 1) * sizeof(bool));
-    if (!prime_new) { free(dp_new); return; }
+    if (!prime_new) { mem_free(dp_new); return; }
     for (size_t i = 0; i <= N; ++i) prime_new[i] = true;
     if (N >= 0) prime_new[0] = false;
     if (N >= 1) prime_new[1] = false;
@@ -50,14 +52,14 @@ static void recompute(idx_t n)
 
     /* ---------- Collect primes ---------------------------------------- */
     idx_t *primes_new = (idx_t*)malloc((N + 1) * sizeof(idx_t));
-    if (!primes_new) { free(dp_new); free(prime_new); return; }
+    if (!primes_new) { mem_free(dp_new); free(prime_new); return; }
     size_t pc = 0;
     for (size_t i = 2; i <= N; ++i)
         if (prime_new[i])
             primes_new[pc++] = (idx_t)i;
 
     /* ---------- Free old tables --------------------------------------- */
-    if (dp)          free(dp);
+    if (dp)          mem_free(dp);
     if (is_prime_arr) free(is_prime_arr);
     if (primes_arr)  free(primes_arr);
 

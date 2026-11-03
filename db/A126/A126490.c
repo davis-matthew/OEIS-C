@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence: A126490 – Number of base 22 n‑digit numbers with adjacent digits
    differing by at most 3.
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* Initialise cache if this is the first call. */
     if (cache_size == 0) {
         cache_cap  = 8;                     /* start with small capacity */
-        cache      = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache      = mem_new(seq_t, cache_cap);
         cache[0]   = (seq_t)1;              /* a(0) = 1                  */
         cache_size = 1;
     }
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     if (cache_size <= (size_t)n) {
         while (cache_cap <= (size_t)n)
             cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* If the requested value is already cached, return it. */
@@ -62,8 +64,8 @@ seq_t a(idx_t n)
     /* First time we need to compute lengths > 0.  Allocate DP arrays
        and initialise the counts for length 1 (each digit appears once). */
     if (cur_n == 0) {
-        dp_prev = (seq_t *)malloc(sizeof(seq_t) * 22);
-        dp_curr = (seq_t *)malloc(sizeof(seq_t) * 22);
+        dp_prev = mem_new(seq_t, 22);
+        dp_curr = mem_new(seq_t, 22);
         for (int d = 0; d < 22; ++d)
             dp_prev[d] = (seq_t)1;          /* length‑1 strings */
         cache[1] = (seq_t)22;              /* a(1) = 22           */

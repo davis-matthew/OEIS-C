@@ -9,6 +9,7 @@
  *            a(3)=11 a(n) = a(n-1) + 4*a(n-2) - 2*a(n-3) - 2*a(n-4) for n ≥ 4
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 27, u64 n <= 55, u128 n <= 111,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 876 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

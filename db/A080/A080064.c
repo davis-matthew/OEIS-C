@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* forward declarations for helper functions */
 static uint64_t least_prime_factor(uint64_t n);
@@ -74,8 +76,7 @@ static void grow_seq_cache(void)
 {
     if (seq_len == seq_capacity) {
         size_t new_cap = seq_capacity ? seq_capacity * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(seq_cache,
-                                      new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         seq_cache = tmp;
         seq_capacity = new_cap;

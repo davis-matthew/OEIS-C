@@ -12,13 +12,15 @@
  *            yields the small values e_k ∈ {1,2,5,9}. * * The...
  * Range:     i8 n <= 20, i16 n <= 696, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static state for the pre‑computed table   */
 static seq_t *dp = NULL;              /* coefficients a(0)…a(N)   */
@@ -30,11 +32,11 @@ static idx_t max_computed = (idx_t)-1;/* largest n for which dp is valid */
 static void compute_all(idx_t N)
 {
     size_t sz = (size_t)N + 1;
-    seq_t *new_dp = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, sz);
     new_dp[0] = 1;                    /* a(0) = 1 */
 
     /* temporary array for the contributions of the current factor */
-    seq_t *delta = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *delta = mem_new(seq_t, sz);
 
     for (idx_t k = 1; k <= N; ++k) {
         /* exponent e_k for the factor (1 - q^k)^{e_k} */
@@ -44,7 +46,7 @@ static void compute_all(idx_t N)
         if (k % 8 == 0) e -= 4;       /* e ∈ {1,2,5,9} */
 
         /* zero the temporary array */
-        memset(delta, 0, sz * sizeof(seq_t));
+        mem_set(delta, 0, sz * sizeof(seq_t));
 
         /* compute binomial coefficients C(e,t) for t = 1..e   */
         seq_t binom = 1;               /* C(e,0) = 1 */
@@ -67,10 +69,10 @@ static void compute_all(idx_t N)
     }
 
     /* replace the old table and free resources */
-    free(dp);
+    mem_free(dp);
     dp = new_dp;
     max_computed = N;
-    free(delta);
+    mem_free(delta);
 }
 
 /* ------------------------------------------------------------------ */

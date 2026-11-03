@@ -15,13 +15,15 @@
  *            recurrence comes from the conjectured relation given...
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* External, predeclared types.  Do NOT define them here.
  *   typedef ... idx_t;
@@ -41,7 +43,7 @@ static void init_cache(void)
 
     /* Allocate space for eight terms. */
     cache_cap = 8;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     assert(cache != NULL);
 
     /* Base values. */
@@ -67,7 +69,7 @@ static void ensure_capacity(idx_t need)
     while (new_cap <= (size_t)need)
         new_cap <<= 1;           /* double until sufficient */
 
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     assert(new_ptr != NULL);
     cache = new_ptr;
     cache_cap = new_cap;

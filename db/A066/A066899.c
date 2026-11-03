@@ -7,7 +7,8 @@
  * Formula:   a(n) = card({k : phi(k) == n (mod k)}), k > 1
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 8617 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* size of the pre‑computed range for n (offset = 1) */
 #define MAX_N 500000
@@ -36,7 +38,7 @@ static void init_sequence(void)
         return;
 
     /* allocate totient array */
-    phi_array = (seq_t *)malloc((KMAX + 1) * sizeof(seq_t));
+    phi_array = mem_new(seq_t, (KMAX + 1));
     if (!phi_array) exit(1);
 
     for (i = 0; i <= (size_t)KMAX; ++i)
@@ -52,7 +54,7 @@ static void init_sequence(void)
     }
 
     /* allocate and zero the count array */
-    count_arr = (seq_t *)malloc((MAX_N + 1) * sizeof(seq_t));
+    count_arr = mem_new(seq_t, (MAX_N + 1));
     if (!count_arr) exit(1);
     for (i = 0; i <= (size_t)MAX_N; ++i)
         count_arr[i] = 0;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   map_T
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,27 @@
     orbit of b(n) = floor((5*n-1)/4). */
 
 #include <stdbool.h>
-#include "../utils/map_T.h"
+
+static seq_t map_T(seq_t k)
+{
+    /* k is never a multiple of 5 */
+    seq_t r = k % 5;
+    seq_t m;
+    if (r == 1)
+        m = 6 * k - 1;
+    else if (r == 2)
+        m = 6 * k - 2;
+    else if (r == 3)
+        m = 6 * k + 2;
+    else if (r == 4)
+        m = 6 * k + 1;
+    else          /* should never happen */
+        m = k;
+    /* strip factors of 5 */
+    while (m % 5 == 0)
+        m /= 5;
+    return m;
+}
 
 seq_t a(idx_t n)
 {

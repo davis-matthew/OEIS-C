@@ -11,7 +11,8 @@
  *            directly from the cache
  * Range:     u8 n <= 3, u16 n <= 405, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9047 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static bool        cache_initialized = false;
 static seq_t      *prime_cache        = NULL;
@@ -37,10 +39,10 @@ grow_cache(void)
 {
     if (cache_cap == 0) {
         cache_cap = 16384U;                     /* initial capacity */
-        prime_cache = (seq_t *)realloc(prime_cache, cache_cap * sizeof(seq_t));
+        prime_cache = mem_resize(seq_t, prime_cache, cache_cap);
     } else {
         cache_cap <<= 1;                         /* double capacity */
-        prime_cache = (seq_t *)realloc(prime_cache, cache_cap * sizeof(seq_t));
+        prime_cache = mem_resize(seq_t, prime_cache, cache_cap);
     }
 }
 

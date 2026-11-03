@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth prime congruent to 33 mod 43 (OEIS A142282)
  * Range:     u8 none, u16 n <= 159, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 57 terms through n = 880 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,9 +39,9 @@ seq_t a(idx_t n)
             if (is_prime((idx_t)cand)) {  /* prime found */
                 if (len == cap) {         /* enlarge cache if needed */
                     size_t new_cap = cap ? cap * 2 : 32;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) {           /* allocation failed: clean up */
-                        free(cache);
+                        mem_free(cache);
                         cache = NULL;
                         len = cap = 0;
                         return 0;

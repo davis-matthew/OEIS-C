@@ -10,7 +10,8 @@
  *            a(1..18) are given below
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 22, i64 n <= 338, i128 n <= 1450,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 1305 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed initial values a(1)..a(18). Index 0 is unused. */
 static const seq_t init_vals[19] = {
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     /* Initialisation: allocate space for a(1)..a(18) and fill them. */
     if (memo == NULL) {
         memo_cap = 19;                 /* capacity for indices 0..18 */
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (memo == NULL) return 0;    /* allocation failure */
         for (idx_t i = 0; i < memo_cap; ++i)
             memo[i] = init_vals[i];
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
 
     /* Extend the cache up to n.  The new size is n+1 (indices 0..n). */
     idx_t new_cap = n + 1;
-    seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, memo, new_cap);
     if (tmp == NULL) return 0;          /* allocation failure */
     memo = tmp;
     /* Compute missing terms using the recurrence. */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 28, u64 n <= 52, u128 n <= 102,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 1618 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached primes and primorials up to the largest n requested */
 static uint32_t *primes = NULL;
@@ -40,7 +42,7 @@ static void ensure_limit(idx_t max_n)
 
     /* free old tables if they exist */
     if (primes) free(primes);
-    if (primorial_of_prime) free(primorial_of_prime);
+    if (primorial_of_prime) mem_free(primorial_of_prime);
     primes = NULL;
     primorial_of_prime = NULL;
     primes_cnt = 0;
@@ -55,7 +57,7 @@ static void ensure_limit(idx_t max_n)
     primes = (uint32_t*)malloc(primes_cap * sizeof(uint32_t));
 
     primorial_cap = limit + 1;
-    primorial_of_prime = (seq_t*)calloc(primorial_cap, sizeof(seq_t));
+    primorial_of_prime = mem_new(seq_t, primorial_cap);
 
     /* Sieve of Eratosthenes to list primes ≤ limit */
     bool *is_prime = (bool*)malloc((limit + 1) * sizeof(bool));

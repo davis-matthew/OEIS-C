@@ -6,7 +6,9 @@
  * Keywords:  nonn, cons, fini, full
  * Formula:   a(n) is the decimal digit at position n of 2^110503 − 1 (most
  *            significant digit has index 33265)
- * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Range:     u8 n <= 66529, u16 n <= 66529, u32 n <= 66529, u64 n <= 66529,
+ *            u128 n <= 66529, big any n
+ * Validated: full, pass, 33265 terms through n = 66529 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

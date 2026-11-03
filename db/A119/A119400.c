@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (n!/k!)^2 * binomial(n,k)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached factorials up to the maximum n requested so far. */
 static seq_t* fact_cache = NULL;
@@ -32,11 +34,11 @@ static void ensure_factorials(idx_t n)
     if (fact_cache_len <= n)
     {
         size_t new_len = (size_t)n + 1;
-        seq_t* tmp = (seq_t*)realloc(fact_cache, new_len * sizeof(seq_t));
+        seq_t* tmp = mem_resize(seq_t, fact_cache, new_len);
         if (!tmp)
             return;                /* allocation failed: leave cache unchanged */
 
-        /* If this is the first allocation, initialise fact_cache[0] */
+        /* If this is the first allocation, initialise tmp[0] */
         if (fact_cache_len == 0)
         {
             tmp[0] = (seq_t)1;

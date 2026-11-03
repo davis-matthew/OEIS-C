@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  *  row by row (row 1: 1; row 2: 2,1; row 3: 3,5,3; …).  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,14 +42,14 @@ seq_t a(idx_t n)
 
     /* Allocate temporary arrays big enough for the largest row (size r)   */
     idx_t max_size = r;                     /* largest needed length */
-    seq_t *u_prev = (seq_t *)malloc((max_size + 1) * sizeof(seq_t));
-    seq_t *v_prev = (seq_t *)malloc((max_size + 1) * sizeof(seq_t));
-    seq_t *u_cur  = (seq_t *)malloc((max_size + 1) * sizeof(seq_t));
-    seq_t *v_cur  = (seq_t *)malloc((max_size + 1) * sizeof(seq_t));
+    seq_t *u_prev = mem_new(seq_t, (max_size + 1));
+    seq_t *v_prev = mem_new(seq_t, (max_size + 1));
+    seq_t *u_cur  = mem_new(seq_t, (max_size + 1));
+    seq_t *v_cur  = mem_new(seq_t, (max_size + 1));
 
     if (!u_prev || !v_prev || !u_cur || !v_cur) {
         /* Allocation failure – no value can be computed */
-        free(u_prev); free(v_prev); free(u_cur); free(v_cur);
+        mem_free(u_prev); mem_free(v_prev); mem_free(u_cur); mem_free(v_cur);
         return 0;
     }
 
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
             seq_t result = u_cur[j];
 
             /* Clean up and return the answer */
-            free(u_prev); free(v_prev); free(u_cur); free(v_cur);
+            mem_free(u_prev); mem_free(v_prev); mem_free(u_cur); mem_free(v_cur);
             return result;
         }
 
@@ -94,6 +96,6 @@ seq_t a(idx_t n)
     }
 
     /* Should never reach here – guard against bugs */
-    free(u_prev); free(v_prev); free(u_cur); free(v_cur);
+    mem_free(u_prev); mem_free(v_prev); mem_free(u_cur); mem_free(v_cur);
     return 0;
 }

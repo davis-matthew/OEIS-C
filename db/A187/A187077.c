@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Initial values: a(1)=1, a(2)=4, a(3)=18, a(4)=83
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of computed terms, 1‑indexed */
 static idx_t   cache_max = 0;        /* largest n for which cache[n] is valid */
@@ -30,8 +32,7 @@ seq_t a(idx_t n)
     /* Expand cache if necessary */
     if (cache == NULL || cache_max < n) {
         size_t new_cap = (size_t)n + 1;          /* include index 0 */
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                       new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) {                       /* out of memory */
             /* In a contest environment we could exit or abort,
                but return 0 here for safety. */

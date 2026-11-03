@@ -9,14 +9,16 @@
  * Formula:   a(n) = Π_{i=0}^{3} ( binomial(n+9, n+i) * i! / (n+9-i)^(3-i) )
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   binom, my_gcd
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses the provided binomial utility and a light‑weight gcd implementation. */
-#include "../utils/binom.h"
-#include "../utils/my_gcd.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 0; i < 4; ++i) {
         /* binomial part */
-        seq_t bin = binom(s, n + i);
+        seq_t bin = binomial(s, n + i);
 
         /* Numerator: bin * i! */
         seq_t term_num = bin;
@@ -45,16 +47,16 @@ seq_t a(idx_t n)
             term_den *= base;
 
         /* Reduce the individual fraction first */
-        seq_t g = my_gcd(term_num, term_den);
+        seq_t g = gcd(term_num, term_den);
         term_num /= g;
         term_den /= g;
 
         /* Cross‑reduce with the current running product */
-        seq_t g1 = my_gcd(num, term_den);
+        seq_t g1 = gcd(num, term_den);
         num /= g1;
         term_den /= g1;
 
-        seq_t g2 = my_gcd(term_num, den);
+        seq_t g2 = gcd(term_num, den);
         term_num /= g2;
         den /= g2;
 

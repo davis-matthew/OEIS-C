@@ -8,12 +8,14 @@
  *            a(1) = 1, a(2) = -4, a(3) = 0
  * Range:     i8 n <= 6, i16 n <= 13, i32 n <= 27, i64 n <= 54, i128 n <= 108,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 749 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *cache        = NULL;   /* dynamic array of sequence values */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
         while (newcap <= (size_t)n) {
             newcap <<= 1;          /* double until big enough */
         }
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         cache = tmp;
         cache_cap = newcap;
     }
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
     if (last_computed == (idx_t)-1) {
         if (cache_cap < 4) {
             /* Resize to hold the first four values if necessary. */
-            seq_t *tmp = (seq_t *)realloc(cache, 4 * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, 4);
             cache = tmp;
             cache_cap = 4;
         }

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 18*a(n-1) - 78*a(n-2); a(0) = 3, a(1) = 30
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 831 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,13 +28,13 @@ seq_t a(idx_t n)
     if (n >= cache_size)
     {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return 0;                 /* allocation failure fallback */
         for (idx_t i = 0; i < cache_size; ++i)
             new_cache[i] = cache[i];
         for (idx_t i = cache_size; i < new_size; ++i)
             new_cache[i] = 0;                     /* initialize new slots */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

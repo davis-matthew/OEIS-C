@@ -10,19 +10,21 @@
  *            order of calls and caches results.)
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* Cache of computed values */
 static size_t cache_size = 0;        /* Number of stored entries in cache */
 
 /* Extend the cache to at least new_cap entries. */
 static void extend_cache(size_t new_cap) {
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1); /* allocation failed */
     /* Initialize new slots to 0 (not strictly necessary for 0 case) */
     if (new_cap > cache_size) {

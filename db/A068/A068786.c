@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   seq_alloc, seq_realloc
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,29 @@
  *                      S(n‑1; t+2, s+2t) + S(n‑1; t+1, s+t+1) (mod 4).  */
 /* The required values are a(n) = S(n; 1, 0).  Indexing starts at n = 1. */
 
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <stddef.h>
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 #include <stddef.h>   /* for size_t */
 
 static struct {

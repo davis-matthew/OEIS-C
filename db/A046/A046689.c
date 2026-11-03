@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-02)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
         size_t cnt = 0;
         for (size_t i = 0; i < 8; ++i) {
             seq_t p = (seq_t)divisors[i] - (seq_t)1;
-            if (p >= (seq_t)2 && is_prime_small(p)) {
+            if (p >= (seq_t)2 && is_prime_seq(p)) {
                 primes[cnt++] = p;
             }
         }

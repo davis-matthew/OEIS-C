@@ -12,7 +12,8 @@
  *            only those with first/last digit d and exactly d digits, and...
  * Range:     u8 n <= 2, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Deterministic Miller–Rabin for all n < 2^32.
    Uses bases 2, 7, 61 which are sufficient for 32‑bit integers. */
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
         /* ensure enough space */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap == 0 ? 64 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0;            /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 47,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free
+ * Validated: standard, pass, 35 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,17 @@
 */
 
 #include <stdlib.h>
-#include "../utils/seq_alloc_new_array.h"   /* seq_alloc_new_array, seq_free */
-#include "../utils/seq_free.h"             /* seq_free */
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 static seq_t *cache = NULL;      /* 1-based array of computed terms */
 static idx_t max_computed = 0;   /* highest n computed so far */

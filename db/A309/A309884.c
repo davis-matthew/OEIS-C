@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   big_pow, get_digits
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   get_digits, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/get_digits.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Helper: sum of squares of the decimal digits of x.  */
 static seq_t sum_square_digits(seq_t x)
@@ -52,14 +55,14 @@ seq_t a(idx_t n)
         seq_t s1  = sum_square_digits(k);
 
         /* Compute k^3 using big_pow (seq_t base, seq_t exp). */
-        seq_t k3  = big_pow(k, (seq_t)3);
+        seq_t k3  = ipow(k, (seq_t)3);
         seq_t s2  = sum_square_digits(k3);
 
         if (s1 == s2) {
             /* Grow the array if necessary. */
             if (count >= cap) {
                 size_t new_cap = (cap == 0) ? 16 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(table, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, table, new_cap);
                 if (!tmp) abort();          /* out of memory */
                 table = tmp;
                 cap   = new_cap;

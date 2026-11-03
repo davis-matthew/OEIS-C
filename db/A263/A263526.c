@@ -10,7 +10,8 @@
  *            -5, 3, 0 ]
  * Range:     i8 n <= 42, i16 n <= 132, i32 n <= 462, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    pattern is implemented below.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* Allocate array of N+1 coefficients, initialized to 0 */
-    seq_t *cur = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, N + 1);
     if (!cur)
         return (seq_t)0; /* memory allocation failure */
 
@@ -75,6 +77,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = cur[N];
-    free(cur);
+    mem_free(cur);
     return result;
 }

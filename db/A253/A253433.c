@@ -10,12 +10,14 @@
  *            a(3) = 336. (Equivalently, a(n) = 9*2^(n-1) + 300 for n > 1.)
  * Range:     u8 none, u16 n <= 13, u32 n <= 29, u64 n <= 61, u128 n <= 125,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 167 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of already computed terms; indices 1..max_computed */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
         size_t cap = max_computed == 0 ? 4 : max_computed * 2;
         while (cap < n + 1) cap <<= 1;
 
-        seq_t *new_cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, cap);
         if (!new_cache) {              /* allocation failure – abort safely */
             return 0;
         }

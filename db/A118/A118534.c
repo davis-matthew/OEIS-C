@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 6544, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 76 terms through n = 9981 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* dynamic array of primes */
 static uint64_t *primes = NULL;
@@ -49,7 +50,7 @@ static void ensure_primes(size_t needed_index)
 {
     while (primes_cnt <= needed_index) {
         /* find next prime */
-        while (!is_prime_small(next_prime_candidate))
+        while (!is_prime_seq(next_prime_candidate))
             ++next_prime_candidate;
 
         /* resize array if necessary */

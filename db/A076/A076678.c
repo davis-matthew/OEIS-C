@@ -7,12 +7,14 @@
  * Formula:   a(n) = floor(sqrt(a(n-1))) + a(n-2), a(0)=a(1)=1
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   floor_sqrt_seq
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_sqrt_seq.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     seq_t ai;
 
     for (idx_t i = 2; i <= n; ++i) {
-        ai = floor_sqrt_seq(a1) + a0;
+        ai = isqrt_seq(a1) + a0;
         a0 = a1;
         a1 = ai;
     }

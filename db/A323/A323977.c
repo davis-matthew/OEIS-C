@@ -8,6 +8,7 @@
  * Formula:   a(n) = coefficient of q^n in (1-q^2)^3 * (1-q^3)^4
  * Range:     i8 n <= 18, i16 n <= 18, i32 n <= 18, i64 n <= 18, i128 n <= 18,
  *            big any n
+ * Validated: full, pass, 19 terms through n = 18 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

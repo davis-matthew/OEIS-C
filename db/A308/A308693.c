@@ -7,14 +7,17 @@
  * Formula:   a(n) = Sum_{d|n} d^(3*(n/d - 1))
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 23, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Cache for already computed values */
 static seq_t *cache = NULL;
@@ -27,8 +30,8 @@ static void ensure_cache(idx_t n)
         return;
 
     /* Reset the cache */
-    free(cache);
-    cache = (seq_t*)calloc((size_t)n, sizeof(seq_t));
+    mem_free(cache);
+    cache = mem_new(seq_t, (size_t)n);
     if (!cache) {
         cache_size = 0;          /* keep size 0 so future calls try again */
         return;
@@ -41,7 +44,7 @@ static void ensure_cache(idx_t n)
         idx_t max_m = n / k;
         for (idx_t m = 1; m <= max_m; ++m) {
             idx_t pos = k * m;           /* 1‑based index of n = k*m */
-            seq_t term = big_pow((seq_t)m, exp);
+            seq_t term = ipow((seq_t)m, exp);
             cache[pos - 1] += term;
         }
     }

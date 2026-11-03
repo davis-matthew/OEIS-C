@@ -10,7 +10,8 @@
  *            (equivalently: a(n+1)=∑_{p=0}^{n}a(p)a(n-p)-n)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 
@@ -36,7 +38,7 @@ static void ensure_capacity(idx_t n)
         new_cap = 2;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* In a contest environment we simply abort on OOM. */
         abort();

@@ -7,6 +7,7 @@
  * Formula:   a(n) = C(76, n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 7, u64 n <= 23, u128 n <= 76,
  *            big any n
+ * Validated: full, pass, 77 terms through n = 76 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  *            (n-k+1)·x^k)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 27, u64 n <= 64, u128 n <= 160,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 437 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * O(n) memory.  It works for any seq_t and idx_t supplied by the
  * surrounding build system. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Allocate an array to hold the intermediate polynomial coefficients.
      * dp[j] will contain the coefficient of x^j after the first k
      * factors have been processed.  We only need indices up to n. */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp)
         return (seq_t)0;            /* allocation failed – return 0 as sentinel */
 
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

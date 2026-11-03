@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 54, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   triangular
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/triangular.h"
+#include "../utils/mem.h"
 
 /* Integer square root for unsigned 128‑bit values */
 static inline idx_t isqrt_u128(__int128 x)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     static idx_t cached_rows = 0;              /* number of rows already computed */
 
     if (cache == NULL) {                       /* first call – initialise */
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;
         cache[0] = (seq_t)1;                   /* T(0,0) */
         cached_rows = 1;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     if (row + 1 > cached_rows) {
         /* New total number of elements needed */
         size_t new_total = (size_t)triangular(row + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_total * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_total);
         if (!tmp) return (seq_t)0;
         cache = tmp;
 

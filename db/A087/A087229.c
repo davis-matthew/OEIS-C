@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 2 + v2(3*n + 1) (exponent of 2 in 12n+4)
- * Range:     u8 n <= 84, u16 n <= 9541, u32 n <= 9541, u64 n <= 9541,
- *            u128 n <= 9541, big any n
+ * Range:     u8 n <= 84, u16 n <= 9541, u32 n <= 21845, u64 n <= 21845,
+ *            u128 n <= 21845, big any n
+ * Validated: standard, pass, 122 terms through n = 9541 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,7 +11,8 @@
  *            * to the minimum of the remaining three terms
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 24, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* cache of a(m) for length m = n+4 */
 static idx_t cache_len = 0;            /* allocated length of a_cache       */
@@ -86,8 +88,8 @@ static void init_static(void)
     }
 
     /* Allocate DP buffers. */
-    dp_prev = (seq_t*)malloc(STATE_COUNT * sizeof(seq_t));
-    dp_curr = (seq_t*)malloc(STATE_COUNT * sizeof(seq_t));
+    dp_prev = mem_new(seq_t, STATE_COUNT);
+    dp_curr = mem_new(seq_t, STATE_COUNT);
     if (!dp_prev || !dp_curr) exit(1);
 
     /* Start from length 4: all 1296 4‑tuples are allowed. */
@@ -96,9 +98,9 @@ static void init_static(void)
 
     /* Ensure cache at least of size 5 (index 4). */
     idx_t needed = 5;
-    a_cache = (seq_t*)malloc(needed * sizeof(seq_t));
+    a_cache = mem_new(seq_t, needed);
     if (!a_cache) exit(1);
-    memset(a_cache, 0, needed * sizeof(seq_t));
+    mem_set(a_cache, 0, needed * sizeof(seq_t));
     a_cache[4] = (seq_t)STATE_COUNT;   /* count for length 4 */
     cache_len = needed;
 }
@@ -114,16 +116,16 @@ seq_t a(idx_t n)
     /* Extend the cache and DP if needed. */
     if (m >= cache_len) {
         idx_t new_len = m + 1;
-        a_cache = (seq_t*)realloc(a_cache, new_len * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_len);
         if (!a_cache) exit(1);
-        memset(a_cache + cache_len, 0, (new_len - cache_len) * sizeof(seq_t));
+        mem_set(a_cache + cache_len, 0, (new_len - cache_len) * sizeof(seq_t));
         cache_len = new_len;
     }
 
     /* DP from current dp_len up to m. */
     while (dp_len < m) {
         /* Zero dp_curr for new length. */
-        memset(dp_curr, 0, STATE_COUNT * sizeof(seq_t));
+        mem_set(dp_curr, 0, STATE_COUNT * sizeof(seq_t));
 
         /* Transition from all states of previous length. */
         for (size_t s = 0; s < STATE_COUNT; ++s) {

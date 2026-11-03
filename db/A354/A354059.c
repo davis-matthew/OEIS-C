@@ -12,17 +12,40 @@
  *            |{x∈(Z/nZ)× : xᵈ≡1 (mod n)}|
  * Range:     u8 n <= 5050, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   factor_u64, gcd, mu_of, pow_uint
+ * Validated: standard, pass, 107 terms through n = 4829 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mu_of.h"
-#include "../utils/pow_uint.h"
 #include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 /* Count the number of solutions of x^d = 1 in (Z/rZ)×. */
 static seq_t tn_dividing(idx_t r, idx_t d)
@@ -50,7 +73,7 @@ static seq_t tn_dividing(idx_t r, idx_t d)
                 comp = c1 * c2;
             }
         } else {
-            seq_t phi = pow_uint(p, e - 1) * (seq_t)(p - 1); /* φ(p^e) */
+            seq_t phi = ipow_u64_idx(p, e - 1) * (seq_t)(p - 1); /* φ(p^e) */
             comp = gcd((seq_t)d, phi);
         }
         total *= comp;

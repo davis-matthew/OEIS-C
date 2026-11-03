@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 9257 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    are filled. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         return (seq_t)0;          /* not used, but harmless */
 
     /* Allocate array for positions 1..n (index 0 unused). */
-    seq_t *val = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *val = mem_new(seq_t, (n + 1));
     if (!val)
         return (seq_t)0;          /* allocation failure → zero */
 
@@ -71,6 +73,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = val[n];
-    free(val);
+    mem_free(val);
     return result;
 }

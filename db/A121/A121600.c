@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   largest_prime_divisor
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,29 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
-#include "../utils/largest_prime_divisor.h"  /* gives uint64_t largest_prime_divisor(uint64_t) */
+/* Return the largest prime divisor of m (m >= 2). */
+static uint64_t largest_prime_divisor(uint64_t m)
+{
+    uint64_t largest = 0;
+    /* factor 2 */
+    while ((m & 1ULL) == 0) {
+        largest = 2;
+        m >>= 1;
+    }
+    /* odd factors */
+    for (uint64_t f = 3; f <= m / f; f += 2) {
+        if (m % f == 0) {
+            largest = f;
+            while (m % f == 0)
+                m /= f;
+        }
+    }
+    if (m > 1)            /* remaining m is prime */
+        largest = m;
+    return largest;
+}
 
 /* --- Global tables --- */
 static seq_t *cache                = NULL;   /* cache[n] = a(n), 1‑based */
@@ -44,9 +66,9 @@ static void ensure_cache_size(size_t need)
     if (cache_size >= need) return;
     size_t newsize = cache_size ? cache_size * 2 : 8;
     while (newsize < need) newsize <<= 1;
-    cache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newsize);
     if (!cache) abort();
-    memset(cache + cache_size, 0, (newsize - cache_size) * sizeof(seq_t));
+    mem_set(cache + cache_size, 0, (newsize - cache_size) * sizeof(seq_t));
     cache_size = newsize;
 }
 
@@ -56,10 +78,9 @@ static void ensure_prime_divcnt_size(size_t need)
     if (prime_divcnt_size > need) return;   /* > rather than >= to avoid realloc on exact size */
     size_t newsize = prime_divcnt_size ? prime_divcnt_size * 2 : 16;
     while (newsize < need) newsize <<= 1;
-    prime_divcnt = (seq_t *)realloc(prime_divcnt, newsize * sizeof(seq_t));
+    prime_divcnt = mem_resize(seq_t, prime_divcnt, newsize);
     if (!prime_divcnt) abort();
-    memset(prime_divcnt + prime_divcnt_size, 0,
-           (newsize - prime_divcnt_size) * sizeof(seq_t));
+    mem_set(prime_divcnt + prime_divcnt_size, 0, (newsize - prime_divcnt_size) * sizeof(seq_t));
     prime_divcnt_size = newsize;
 }
 

@@ -8,12 +8,19 @@
  * Formula:   a(n) = Product_{j where bit j of n is 1} (2^(2^j) + 1)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   pow2pow2
+ * Validated: standard, pass, 58 terms through n = 3063 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2pow2.h"
+static seq_t pow2pow2(idx_t e) {
+    seq_t result = 2;
+    for (idx_t i = 1; i <= e; i++) {
+        result = result * result;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     seq_t result = 1;

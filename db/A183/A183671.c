@@ -9,12 +9,15 @@
  *            893160*4^n + 4345560*3^n + 12867180*2^n + 22151340 for n ≥ 1
  * Range:     u8 none, u16 none, u32 n <= 5, u64 n <= 19, u128 n <= 44,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 34 terms through n = 979 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -22,27 +25,27 @@ seq_t a(idx_t n)
     seq_t term;
 
     /* 7 * 7^n */
-    term = seq_pow((seq_t)7, n);
+    term = ipow_idx((seq_t)7, n);
     result += term * (seq_t)7;
 
     /* 3060 * 6^n */
-    term = seq_pow((seq_t)6, n);
+    term = ipow_idx((seq_t)6, n);
     result += term * (seq_t)3060;
 
     /* 93300 * 5^n */
-    term = seq_pow((seq_t)5, n);
+    term = ipow_idx((seq_t)5, n);
     result += term * (seq_t)93300;
 
     /* 893160 * 4^n */
-    term = seq_pow((seq_t)4, n);
+    term = ipow_idx((seq_t)4, n);
     result += term * (seq_t)893160;
 
     /* 4345560 * 3^n */
-    term = seq_pow((seq_t)3, n);
+    term = ipow_idx((seq_t)3, n);
     result += term * (seq_t)4345560;
 
     /* 12867180 * 2^n */
-    term = seq_pow((seq_t)2, n);
+    term = ipow_idx((seq_t)2, n);
     result += term * (seq_t)12867180;
 
     /* constant term */

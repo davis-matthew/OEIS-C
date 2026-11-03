@@ -9,7 +9,8 @@
  * Formula:   a(n) = 15*a(n-1) - 6*a(n-2), with a(1)=9, a(2)=129
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Expand the cache array so it can hold indices 0..n (a_cache[0] is unused). */
 static void ensure_capacity(idx_t n, seq_t **cache, size_t *cap)
@@ -25,7 +27,7 @@ static void ensure_capacity(idx_t n, seq_t **cache, size_t *cap)
     size_t needed = (size_t)(n + 1);
     if (needed <= *cap)
         return;
-    seq_t *p = (seq_t *)realloc(*cache, needed * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, *cache, needed);
     if (!p)
         abort();            /* allocation failure */
     *cache = p;

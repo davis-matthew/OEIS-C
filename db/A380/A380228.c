@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} 2^(n-k) * Stirling2(n,k) * Bell(k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* a(n) values              */
 static seq_t *bell_cache = NULL;   /* Bell numbers B_n         */
@@ -28,22 +30,22 @@ static void ensure_capacity(idx_t n) {
         return;
 
     /* allocate or grow a_cache */
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) abort();
     a_cache = tmp;
 
     /* allocate or grow bell_cache */
-    tmp = (seq_t *)realloc(bell_cache, new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, bell_cache, new_cap);
     if (!tmp) abort();
     bell_cache = tmp;
 
     /* allocate or grow pow2_cache */
-    tmp = (seq_t *)realloc(pow2_cache, new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, pow2_cache, new_cap);
     if (!tmp) abort();
     pow2_cache = tmp;
 
     /* allocate or grow s_cache */
-    tmp = (seq_t *)realloc(s_cache, new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, s_cache, new_cap);
     if (!tmp) abort();
     s_cache = tmp;
 

@@ -13,7 +13,8 @@
  *            patterns. a(1)=104, a(2)=150, …
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 29, u64 n <= 65, u128 n <= 137,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool  pair_ok[16][16];
 static unsigned short s_code[16][16];
@@ -69,7 +71,7 @@ seq_t a(idx_t n) {
     seq_t *dp_cur  = dp0;
     seq_t *dp_next = dp1;
 
-    memset(dp_cur, 0, sizeof(dp0));
+    mem_set(dp_cur, 0, sizeof(dp0));
 
     /* first pair of rows (rows 0 and 1) */
     for (int r0 = 0; r0 < 16; ++r0) {
@@ -91,7 +93,7 @@ seq_t a(idx_t n) {
 
     /* append rows 2 … n */
     for (idx_t step = 2; step <= n; ++step) {
-        memset(dp_next, 0, sizeof(dp1));
+        mem_set(dp_next, 0, sizeof(dp1));
 
         for (int prev_r = 0; prev_r < 16; ++prev_r) {
             for (int prev_s = 0; prev_s < 27; ++prev_s) {

@@ -14,7 +14,8 @@
  *            containing n, then generates the * pos‑th partition...
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static void gen_partitions(int remaining, int max_part, int depth,
                            idx_t target, idx_t *counter, seq_t *res,
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     if (ps == NULL) {
         /* initial capacity; ps[0] is needed for recurrence */
         cap = 2;
-        ps = (seq_t *)malloc(cap * sizeof(seq_t));
+        ps = mem_new(seq_t, cap);
         ps[0] = 1;                /* p(0) = 1 for recurrence */
     }
 
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
             size_t new_cap = cap * 2;
             while (new_cap <= r)
                 new_cap *= 2;
-            ps = (seq_t *)realloc(ps, new_cap * sizeof(seq_t));
+            ps = mem_resize(seq_t, ps, new_cap);
             cap = new_cap;
         }
 

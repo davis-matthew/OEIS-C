@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool primes_inited = false;
 static uint32_t *prime_list = NULL;
@@ -70,7 +72,7 @@ static void seq_append(seq_t v)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap == 0 ? 64 : seq_cap << 1;
-        seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+        seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
         if (!seq_vals) abort();
     }
     seq_vals[seq_len++] = v;

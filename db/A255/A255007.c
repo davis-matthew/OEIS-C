@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator of polygamma(2n+1,1)/π^(2n+2)
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   int_log2_uint64, odd_part_uint64
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
+ * Helpers:   odd_part_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,8 +31,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/int_log2_uint64.h"
-#include "../utils/odd_part_uint64.h"
+#include "../utils/odd_part_u64.h"
+
+/* helper: integer logarithm base 2 for 64‑bit numbers */
+static uint8_t int_log2_uint64(uint64_t v)
+{
+    uint8_t r = 0;
+    while (v >>= 1) ++r;
+    return r;
+}
 
 static uint64_t *primes = NULL;   /* array of primes */
 static size_t  prime_cnt = 0;     /* number of primes stored */
@@ -84,7 +92,7 @@ seq_t a(idx_t n)
 
     /* odd part of n+1 */
     uint64_t n1 = (uint64_t)n + 1ULL;
-    uint64_t odd = odd_part_uint64(n1);
+    uint64_t odd = odd_part_u64(n1);
 
     /* candidate value before removing unnecessary odd factors */
     seq_t candidate = D_odd * (seq_t)odd;

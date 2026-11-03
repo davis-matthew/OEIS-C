@@ -9,7 +9,8 @@
  *            representation of n, minus 1
  * Range:     u8 n <= 994, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9608 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a(n) = smallest_index - 1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of Pell numbers: pell[0] is unused, pell[1] = 1, pell[2] = 2 */
 static seq_t *pell = NULL;
@@ -33,7 +35,7 @@ ensure_pell(seq_t limit)
     /* initialise the array on first use */
     if (pell == NULL) {
         pell_cap   = 4;              /* initial capacity */
-        pell       = (seq_t *)malloc(pell_cap * sizeof(seq_t));
+        pell       = mem_new(seq_t, pell_cap);
         pell[0]    = 0;              /* dummy */
         pell[1]    = 1;
         pell[2]    = 2;
@@ -45,7 +47,7 @@ ensure_pell(seq_t limit)
         /* grow capacity if needed */
         if (pell_count == pell_cap - 1) {
             pell_cap *= 2;
-            pell = (seq_t *)realloc(pell, pell_cap * sizeof(seq_t));
+            pell = mem_resize(seq_t, pell, pell_cap);
         }
         /* next Pell number: P_n = 2*P_{n-1} + P_{n-2} */
         seq_t next = (seq_t)(2 * pell[pell_count] + pell[pell_count - 1]);

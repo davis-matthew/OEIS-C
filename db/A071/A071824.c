@@ -9,7 +9,8 @@
  *            factor is congruent to 1 modulo 4
  * Range:     u8 n <= 578, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 9960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static uint32_t   *lpf   = NULL;   /* largest prime factor of each integer */
 static seq_t     *pref  = NULL;   /* prefix counts up to each n */
@@ -35,12 +37,12 @@ ensure_filled(idx_t n)
 
     /* Free previous allocations if any.  It is safe to free(NULL). */
     free(lpf);
-    free(pref);
+    mem_free(pref);
 
     /* Allocate new tables with indices 0 … n inclusive. */
     size_t sz = (size_t)(n + 1);
     lpf  = (uint32_t *)calloc(sz, sizeof(uint32_t));
-    pref = (seq_t   *)calloc(sz, sizeof(seq_t));
+    pref = mem_new(seq_t, sz);
     if ((lpf == NULL) || (pref == NULL))
         abort();                       /* out of memory */
 

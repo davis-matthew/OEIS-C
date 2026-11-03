@@ -10,13 +10,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* OEIS A180189: a(n) = n*(n-1)*d(n-2) where d(k) is the derangement number of k */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         while (new_cap <= m) {
             new_cap <<= 1;
         }
-        seq_t *tmp = (seq_t *)realloc(der, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, der, new_cap);
         if (!tmp) {
             /* allocation failed – abort (no graceful error recovery) */
             abort();

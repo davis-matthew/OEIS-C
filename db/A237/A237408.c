@@ -12,7 +12,8 @@
  *            by dynamic programming on the graph of 5‑digit rows (base‑3)
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define ROWS     243             /* 3^5 rows */
 #define COLS     5
@@ -153,8 +155,8 @@ build_graph(void)
 
     /* Allocate DP buffers. */
     dp_cap = ecnt;
-    dp_buf = (seq_t*)malloc(sizeof(seq_t) * dp_cap);
-    ndp_buf = (seq_t*)malloc(sizeof(seq_t) * dp_cap);
+    dp_buf = mem_new(seq_t, dp_cap);
+    ndp_buf = mem_new(seq_t, dp_cap);
 }
 
 /*  Main sequence function. */

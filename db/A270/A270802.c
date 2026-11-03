@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 142, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow, seq_realloc
+ * Validated: standard, pass, 62 terms through n = 9653 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,24 @@
 /* Find primes p ≡ 1 (mod 14) for which 2 is a 7‑th power residue modulo p.
    The function returns the n‑th such prime (a(1) = 631). */
 
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/powmod.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +50,7 @@ seq_t a(idx_t n)
             continue;                     /* skip composites */
 
         uint64_t exp = (p - 1) / 7;
-        seq_t  val   = mod_pow((seq_t)2, exp, (seq_t)p);
+        seq_t  val   = powmod((seq_t)2, exp, (seq_t)p);
 
         if (val == (seq_t)1) {            /* 2 is a 7‑th power residue */
             if (cache_len == cache_cap) {

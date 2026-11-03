@@ -8,8 +8,9 @@
  * Formula:   a(n) = A167489(n) / A284559(n) A167489(n) = product of run
  *            lengths in the binary expansion of n A284559(n) = lcm of those
  *            run lengths
- * Range:     u8 n <= 9705, u16 n <= 9705, u32 n <= 9705, u64 n <= 9705,
- *            u128 n <= 9705, big any n
+ * Range:     u8 n <= 10922, u16 n <= 10922, u32 n <= 10922, u64 n <= 10922,
+ *            u128 n <= 10922, big any n
+ * Validated: standard, pass, 137 terms through n = 9705 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-
 
 seq_t a(idx_t n)
 {

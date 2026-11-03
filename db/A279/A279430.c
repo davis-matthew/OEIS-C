@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 191, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 77 terms through n = 9516 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,8 @@
 #endif
 
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h" /* bitlen_seq_t(seq_t) */
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
             seq_t k = (seq_t)next_k;
             seq_t sq = k * k;    /* compute k^2 */
 
-            unsigned int len = bitlen_seq_t(sq);
+            unsigned int len = bit_length(sq);
             if (len > 0)          /* len is number of bits in sq */
             {
                 unsigned int bitlen_minus_one = len - 1; /* floor(log₂(sq)) */
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
             seq_t k = (seq_t)next_k;
             seq_t sq = k * k;
 
-            unsigned int len = bitlen_seq_t(sq);
+            unsigned int len = bit_length(sq);
             if (len > 0)
             {
                 unsigned int bitlen_minus_one = len - 1;

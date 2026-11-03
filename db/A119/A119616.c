@@ -7,7 +7,8 @@
  * Formula:   a(n) = (σ₁(n)² - σ₂(n)) / 2, where σ_k(n) = sum_{d|n} d^k
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 3155, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_int
+ * Validated: standard, pass, 71 terms through n = 8346 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
    the required function signature.   */
 
 #include <stdint.h>
-#include "../utils/factor_u64.h"       /* factor_u64(uint64_t, uint64_t*, uint64_t*, size_t*) */
-#include "../utils/pow_int.h"         /* pow_int(seq_t, idx_t) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -46,12 +49,12 @@ seq_t a(idx_t n)
         idx_t e = (idx_t)(exps[i]);
 
         /* σ₁ contribution: (p^(e+1) - 1)/(p - 1) */
-        seq_t p_pow1 = pow_int(p, e + 1);
+        seq_t p_pow1 = ipow_idx(p, e + 1);
         seq_t term1  = (p_pow1 - (seq_t)1) / (p - (seq_t)1);
         sigma1 *= term1;
 
         /* σ₂ contribution: (p^(2(e+1)) - 1)/(p² - 1) */
-        seq_t p_pow2 = pow_int(p, 2 * (e + 1));
+        seq_t p_pow2 = ipow_idx(p, 2 * (e + 1));
         seq_t denom2 = p * p - (seq_t)1;
         seq_t term2  = (p_pow2 - (seq_t)1) / denom2;
         sigma2 *= term2;

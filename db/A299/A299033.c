@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * [x^n] Product_{k>=1} (1 - x^k)^(n/k)
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* forward declarations of the integer types */
 typedef idx_t     idx_t;   /* provided by the build */
@@ -57,7 +59,7 @@ seq_t a(idx_t N)
     }
 
     /* allocate array for a[0..N] */
-    seq_t *a_vals = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *a_vals = mem_new(seq_t, (N + 1));
     if (!a_vals) {
         exit(EXIT_FAILURE);
     }
@@ -81,6 +83,6 @@ seq_t a(idx_t N)
     }
 
     seq_t result = a_vals[N];
-    free(a_vals);
+    mem_free(a_vals);
     return result;
 }

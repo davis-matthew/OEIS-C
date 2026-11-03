@@ -12,7 +12,8 @@
  *            n-th term (a(0) = 1)
  * Range:     u8 n <= 17, u16 n <= 38, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    because up to the 10 000th flattening index only about 200 rows are
    required.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Fenwick factorial (falling factorial) */
 static seq_t falling_factorial(idx_t m, idx_t k)
@@ -45,7 +47,7 @@ static seq_t stirling2(idx_t m, idx_t k)
 
     if ((size_t)(k + 1) > stirling_cap) {
         size_t new_cap = (size_t)(k + 1);
-        seq_t *tmp = (seq_t *)realloc(stirling_dp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, stirling_dp, new_cap);
         stirling_dp = tmp;
         stirling_cap = new_cap;
     }
@@ -79,7 +81,7 @@ static void ensure_cache_cap(size_t new_cap)
     if (new_cap > cache_cap) {
         size_t cap = (cache_cap == 0) ? 8 : cache_cap * 2;
         if (cap < new_cap) cap = new_cap;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, cap);
         seq_cache = tmp;
         cache_cap = cap;
     }

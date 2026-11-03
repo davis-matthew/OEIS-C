@@ -7,16 +7,19 @@
  * Formula:   a(n) = 12*5^(2n) - 2*5^n
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 675 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
-    seq_t p = big_pow((seq_t)5, (seq_t)n);  /* p = 5^n */
+    seq_t p = ipow((seq_t)5, (seq_t)n);  /* p = 5^n */
     seq_t p2 = p * p;                       /* p^2 = 5^(2n) */
     seq_t res = 12 * p2 - 2 * p;            /* 12*5^(2n) - 2*5^n */
     return res;

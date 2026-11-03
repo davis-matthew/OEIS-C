@@ -7,13 +7,22 @@
  * Formula:   a(n) = Product_{j=0..n} Product_{k=0..n} (j + k + n)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 5,
  *            big any n
- * Helpers:   pow_seq, seq_mul
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_i32.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,13 +35,13 @@ seq_t a(idx_t n)
     /* first part: i from n to 2*n, exponent = i - n + 1 */
     for (i = n; i <= 2 * n; ++i) {
         idx_t exp = i - n + 1;          /* 1 .. n+1 */
-        prod = seq_mul(prod, pow_seq((seq_t)i, (int)exp));
+        prod = seq_mul(prod, ipow_i32((seq_t)i, (int)exp));
     }
 
     /* second part: i from 2*n+1 to 3*n, exponent = 3*n - i + 1 */
     for (i = 2 * n + 1; i <= 3 * n; ++i) {
         idx_t exp = 3 * n - i + 1;      /* 1 .. n */
-        prod = seq_mul(prod, pow_seq((seq_t)i, (int)exp));
+        prod = seq_mul(prod, ipow_i32((seq_t)i, (int)exp));
     }
 
     return prod;

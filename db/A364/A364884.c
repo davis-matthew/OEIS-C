@@ -9,9 +9,10 @@
  * Formula:   a(n) = first in the row of the triangle A364884 (triangle
  *            T(n,k), k=1..n, where T(n,k) is the least unseen multiple of the
  *            k‑th term of the flattened sequence)
- * Range:     u8 n <= 169, u16 n <= 9076, u32 n <= 9076, u64 n <= 9076,
- *            u128 n <= 9076, big any n
- * Helpers:   none
+ * Range:     u8 n <= 169, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 82 terms through n = 9076 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Grow a seq_t array to at least 'needed' capacity. */
 static void ensure_seq_cap(idx_t *cap, seq_t **arr, idx_t needed)
@@ -26,7 +28,7 @@ static void ensure_seq_cap(idx_t *cap, seq_t **arr, idx_t needed)
     if (*cap < needed) {
         idx_t new_cap = (*cap) ? (*cap << 1) : 4;
         while (new_cap < needed) new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, (new_cap + 1) * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (new_cap + 1));
         *cap = new_cap;
     }
 }
@@ -64,8 +66,8 @@ seq_t a(idx_t n)
     if (!inited) {
         /* initial allocation */
         cap_seq = cap_cand = 4;
-        a_vals  = (seq_t *)malloc((cap_seq + 1) * sizeof(seq_t));
-        cand    = (seq_t *)malloc((cap_cand + 1) * sizeof(seq_t));
+        a_vals  = mem_new(seq_t, (cap_seq + 1));
+        cand    = mem_new(seq_t, (cap_cand + 1));
 
         a_vals[1] = (seq_t)1;            /* T(1,1) = 1 */
         cand[1]   = (seq_t)2;            /* next multiple of 1 */

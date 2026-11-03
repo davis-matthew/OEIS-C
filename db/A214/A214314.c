@@ -11,7 +11,8 @@
  *            of T(n,m) in row‑major order (offset 1)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Find the row r such that (r-1)*r/2 < n ≤ r*(r+1)/2. */
 static idx_t
@@ -55,7 +57,7 @@ a(idx_t n)
     if (!p) abort();
 
     for (idx_t i = 0; i <= r; ++i) {
-        p[i] = (seq_t*)calloc((size_t)(i + 1), sizeof(seq_t));
+        p[i] = mem_new(seq_t, (size_t)(i + 1));
         if (!p[i]) { free(p); abort(); }
     }
 
@@ -82,7 +84,7 @@ a(idx_t n)
 
     /* Free allocated memory. */
     for (idx_t i = 0; i <= r; ++i)
-        free(p[i]);
+        mem_free(p[i]);
     free(p);
 
     return result;

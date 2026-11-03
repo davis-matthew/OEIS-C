@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 626, u16 n <= 1309, u32 n <= 8362, u64 n <= 8363,
- *            u128 n <= 8363, big any n
- * Helpers:   alloc_seq_array, free_seq_array, seq_gcd, tri_row
+ * Range:     u8 n <= 626, u16 n <= 1309, u32 n <= 8362, u64 n <= 11175,
+ *            u128 n <= 11175, big any n
+ * Validated: standard, pass, 116 terms through n = 8363 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,45 @@
  * running time grows roughly quadratically in the row number. */
 
 #include <stdint.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/seq_gcd.h"
-#include "../utils/tri_row.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Find the row r such that triangular number T(r-1) < n ≤ T(r).
+ * Uses binary search with 128‑bit arithmetic to avoid overflow. */
+static idx_t tri_row(idx_t n)
+{
+    uint64_t low = 0;
+    uint64_t high = 1;
+
+    /* Exponentially increase high until T(high) ≥ n. */
+    while ((__uint128_t)high * (high + 1) / 2 < n) {
+        high <<= 1;
+    }
+
+    /* Binary search between low and high. */
+    while (low + 1 < high) {
+        uint64_t mid = low + (high - low) / 2;
+        __uint128_t tri = (__uint128_t)mid * (mid + 1) / 2;
+        if (tri < n)
+            low = mid;
+        else
+            high = mid;
+    }
+    return (idx_t)high;
+}
 
 seq_t a(idx_t n)
 {
@@ -51,7 +87,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute gcd(P(r), P(k)). */
-    seq_t result = seq_gcd(p[(size_t)r], p[(size_t)k]);
+    seq_t result = gcd(p[(size_t)r], p[(size_t)k]);
 
     free_seq_array(p);
     return result;

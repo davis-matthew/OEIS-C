@@ -7,6 +7,7 @@
  * Formula:   a(n) = \sum_{p^e || n} (-p)^e, a(1) = 0
  * Range:     i8 n <= 130, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 74 terms through n = 9987 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 /* The function is additive: for coprime m,n, a(mn) = a(m)+a(n). */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Computes the sequence entry a(n) for the OEIS sequence A340901. */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 32, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 867 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Periodic sequence b(d) for d ≥ 1; index 0 → d = 1 */
 static const int period[12] = {0, -2, 2, -1, 0, -4, 0, -1, 2, -2, 0, -2};
@@ -37,8 +39,8 @@ static void recompute_a(idx_t limit)
     size_t sz = (size_t)limit + 1;
 
     /* Allocate new arrays */
-    seq_t *new_cache = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *g         = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, sz);
+    seq_t *g         = mem_new(seq_t, sz);
 
     /* Initialise g[] to 0 */
     for (size_t i = 0; i < sz; ++i) {
@@ -69,8 +71,8 @@ static void recompute_a(idx_t limit)
     }
 
     /* Replace old cache */
-    free(a_cache);
-    free(g);
+    mem_free(a_cache);
+    mem_free(g);
     a_cache = new_cache;
     a_cache_limit = limit;
 }

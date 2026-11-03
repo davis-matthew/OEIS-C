@@ -14,12 +14,14 @@
  *            -28*a(n-6)+7*a(n-7)-a(n-8)
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 15, u64 n <= 33, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* the cached sequence values */
 static idx_t cache_size = 0;     /* number of valid entries in cache */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
     /* initial allocation, at least 12 for the known terms */
     if (!cache) {
         cache_cap = 16 > n ? 16 : n * 2;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* initial 12 values (index 0 corresponds to a(1)) */
         seq_t init[12] = {
             41,          1296,        2000, 5248, 9744,
@@ -46,12 +48,12 @@ static void ensure_cache(idx_t n)
         cache_size = 12;
         if (cache_size > cache_cap) {
             cache_cap = cache_size * 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
     } else if (n > cache_cap) {            /* grow array to fit n */
         while (cache_cap < n)
             cache_cap *= 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* compute missing terms up to n-1 */

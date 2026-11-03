@@ -11,14 +11,27 @@
  *            (n-2)(n-3)...(n-i), and C(n-i+1,i+1) = 0 for 2i...
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 11, i64 n <= 17, i128 n <= 28,
  *            big any n
- * Helpers:   binom, grow_zero
+ * Validated: standard, pass, 35 terms through n = 197 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
-#include "../utils/grow_zero.h"
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static seq_t *memo = NULL;
 static idx_t memo_cap = 0;
@@ -41,7 +54,7 @@ seq_t a(idx_t n) {
         seq_t p = 1;
         for (idx_t i = 1; 2 * i <= m; i++) {
             if (i >= 2) p *= (seq_t)(m - i);
-            seq_t term = binom(m - i + 1, i + 1) * p * memo[m - i];
+            seq_t term = binomial(m - i + 1, i + 1) * p * memo[m - i];
             if (i & 1) sum += term;
             else sum -= term;
         }

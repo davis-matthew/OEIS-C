@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   clz64
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/clz64.h"
+
+/* clz of a 64‑bit integer (assumes x != 0) */
+static inline int clz64(uint64_t x)
+{
+    return __builtin_clzll(x);
+}
 
 /* popcount of a 64‑bit integer */
 static inline int popcnt64(uint64_t x)

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* store the first 14 terms */
 static const seq_t init[14] = {
@@ -52,11 +54,11 @@ static void ensure_cache(idx_t n)
     if (need < 14) need = 14;              /* we always store the first 14 */
 
     if (!cache) {
-        cache = (seq_t *)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         if (!cache) return;                /* allocation failure – caller will crash */
         cache_cap = need;
     } else if (need > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) return;                  /* allocation failure */
         cache = tmp;
         cache_cap = need;
@@ -64,7 +66,7 @@ static void ensure_cache(idx_t n)
 
     /* copy the initial 14 terms if they haven't been copied yet */
     if (cache_size < 14) {
-        memcpy(cache, init, 14 * sizeof(seq_t));
+        mem_copy(cache, init, 14 * sizeof(seq_t));
         if (cache_size < 14) cache_size = 14;
     }
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = ceil(n/2) - primepi(n) = floor((n+1)/2) - pi(n)
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
  * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Uses the utility function prime_pi from ../utils/prime_pi.h */
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)

@@ -7,14 +7,16 @@
  * Formula:   a(n) = (-1)^C(n+1,2) * 2^(C(2*(n+1),3)/4)
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 4, i64 n <= 5, i128 n <= 6,
  *            big any n
- * Helpers:   binomial, pow_seq_large
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq_large.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -28,6 +30,6 @@ seq_t a(idx_t n)
     idx_t exponent = (idx_t)(comb / (seq_t)4);         /* integer division, fits in idx_t */
 
     /* Compute 2^exponent and apply the sign */
-    seq_t pow2 = pow_seq_large((seq_t)2, (seq_t)exponent);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)exponent);
     return sign * pow2;
 }

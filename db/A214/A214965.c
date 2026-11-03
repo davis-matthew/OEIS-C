@@ -11,7 +11,8 @@
  *            k/m < s. (OEIS A214965)
  * Range:     u8 n <= 142, u16 n <= 300, u32 n <= 300, u64 n <= 300,
  *            u128 n <= 300, big any n
- * Helpers:   cmp_long_double
+ * Validated: standard, pass, 84 terms through n = 294 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>          /* for long double operations */
-#include "../utils/cmp_long_double.h"
+
+/* Comparison function for qsort of long double values. */
+static int cmp_long_double(const void *p1, const void *p2) {
+    long double a = *(const long double *)p1;
+    long double b = *(const long double *)p2;
+    if (a < b) return -1;
+    if (a > b) return  1;
+    return 0;
+}
 
 /* Compute the nth term of the sequence.  The function is valid for
    all n >= 2; for n < 2 it returns (seq_t)1 as a placeholder. */

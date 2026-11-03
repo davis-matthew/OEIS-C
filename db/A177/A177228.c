@@ -8,16 +8,17 @@
  * Formula:   a(n) = T(r,k) * where r is the row with offset r*(r+1)/2 <= n <
  *            (r+1)*(r+2)/2, * k = n - r*(r+1)/2, * and T(r,0) = T(r,r) = 3,
  *            otherwise T(r,k) = -C(r,k)
- * Range:     i8 n <= 38, i16 n <= 177, i32 n <= 572, i64 n <= 1325,
+ * Range:     i8 n <= 58, i16 n <= 178, i32 n <= 610, i64 n <= 1325,
  *            i128 n <= 1325, big any n
- * Helpers:   binom_row
+ * Validated: standard, pass, 81 terms through n = 1324 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom_row.h"
+#include "../utils/binomial.h"
 
 /* --- helper: integer square root of a 128‑bit number ---------------- */
 static uint64_t isqrt128(__int128 x)
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
     if (k == 0 || k == r) {
         return (seq_t)3;
     } else {
-        seq_t val = binom_row(r, k);
+        seq_t val = binomial(r, k);
         return -val;
     }
 }

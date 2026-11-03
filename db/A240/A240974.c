@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 98, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, pow_minus_xy
+ * Validated: standard, pass, 74 terms through n = 8873 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,40 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/append_candidate.h"
-#include "../utils/pow_minus_xy.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+/* Helper: compute x^y - x*y, but stop and return >limit if the value would
+   exceed the given limit (the function is only used for values <= limit). */
+static seq_t pow_minus_xy(uint64_t x, uint64_t y, seq_t limit)
+{
+    unsigned __int128 pow = 1;
+    unsigned __int128 max = (unsigned __int128)limit + (unsigned __int128)x * y;
+    for (uint64_t i = 0; i < y; ++i)
+    {
+        pow *= x;
+        if (pow > max)        /* value would exceed limit */
+            return limit + 1;
+    }
+    seq_t prod = (seq_t)x * (seq_t)y;
+    return (seq_t)pow - prod;
+}
 
 /* Comparator for qsort */
 static int seq_cmp(const void *a, const void *b)
@@ -62,7 +95,7 @@ static void build_sequence(void)
     }
 
     /* Sort and remove duplicates */
-    qsort(SEQ_VALUES, SEQ_LEN, sizeof(seq_t), seq_cmp);
+    mem_qsort(SEQ_VALUES, SEQ_LEN, sizeof(seq_t), seq_cmp);
 
     size_t uniq = 0;
     for (size_t i = 0; i < SEQ_LEN; ++i)

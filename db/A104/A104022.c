@@ -12,7 +12,8 @@
  *            index is requested
  * Range:     u8 none, u16 none, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   compare_seq_t
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compare_seq_t.h"
+#include "../utils/mem.h"
+
+/* Comparison function for qsort.  Works for both integral and arbitrary‑precision seq_t. */
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* Global data used to cache computed terms. */
 static seq_t *terms = NULL;      /* sorted qualifying numbers */
@@ -41,7 +52,7 @@ static void build_terms(idx_t need)
         size_t pair_cnt = (size_t)K * (K + 1) / 2;
 
         /* Allocate buffer for all products. */
-        seq_t *all = (seq_t *)malloc(pair_cnt * sizeof(seq_t));
+        seq_t *all = mem_new(seq_t, pair_cnt);
         if (!all) exit(EXIT_FAILURE);               /* out of memory */
 
         /* Generate all k^2 * j values. */
@@ -54,12 +65,12 @@ static void build_terms(idx_t need)
         }
 
         /* Sort the generated values. */
-        qsort(all, pair_cnt, sizeof(seq_t), compare_seq_t);
+        mem_qsort(all, pair_cnt, sizeof(seq_t), compare_seq_t);
 
         /* Count repetitions and keep values occurring at least twice. */
         size_t qual_est = pair_cnt / 2; /* rough upper bound */
         if (qual_est == 0) qual_est = 1;
-        seq_t *qual = (seq_t *)malloc(qual_est * sizeof(seq_t));
+        seq_t *qual = mem_new(seq_t, qual_est);
         if (!qual) exit(EXIT_FAILURE);
 
         size_t qlen = 0;
@@ -71,7 +82,7 @@ static void build_terms(idx_t need)
             if (j - i >= 2) {                  /* at least two representations */
                 if (qlen == qual_est) {        /* grow buffer if needed */
                     qual_est *= 2;
-                    qual = (seq_t *)realloc(qual, qual_est * sizeof(seq_t));
+                    qual = mem_resize(seq_t, qual, qual_est);
                     if (!qual) exit(EXIT_FAILURE);
                 }
                 qual[qlen++] = val;
@@ -79,10 +90,10 @@ static void build_terms(idx_t need)
             i = j;
         }
 
-        free(all);  /* free product buffer */
+        mem_free(all);  /* free product buffer */
 
         if (qlen >= need) {                     /* we have enough terms */
-            free(terms);                        /* discard old list */
+            mem_free(terms);                        /* discard old list */
             terms = qual;
             terms_len = qlen;
             current_K = K;
@@ -90,7 +101,7 @@ static void build_terms(idx_t need)
         }
 
         /* Not enough: discard and try again with larger K. */
-        free(qual);
+        mem_free(qual);
         K *= 2;                                 /* increase bound */
     }
 }

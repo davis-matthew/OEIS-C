@@ -11,13 +11,15 @@
  *            of a with itself). This recurrence follows from the defini...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 29, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 117 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,12 +36,12 @@ seq_t a(idx_t n)
         if (needed > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
             while (new_cap < needed) new_cap <<= 1;
-            a_cache   = (seq_t*)realloc(a_cache,   new_cap * sizeof(seq_t));
-            b2_cache  = (seq_t*)realloc(b2_cache,  new_cap * sizeof(seq_t));
-            b3_cache  = (seq_t*)realloc(b3_cache,  new_cap * sizeof(seq_t));
-            b4_cache  = (seq_t*)realloc(b4_cache,  new_cap * sizeof(seq_t));
-            b5_cache  = (seq_t*)realloc(b5_cache,  new_cap * sizeof(seq_t));
-            b6_cache  = (seq_t*)realloc(b6_cache,  new_cap * sizeof(seq_t));
+            a_cache   = mem_resize(seq_t, a_cache, new_cap);
+            b2_cache  = mem_resize(seq_t, b2_cache, new_cap);
+            b3_cache  = mem_resize(seq_t, b3_cache, new_cap);
+            b4_cache  = mem_resize(seq_t, b4_cache, new_cap);
+            b5_cache  = mem_resize(seq_t, b5_cache, new_cap);
+            b6_cache  = mem_resize(seq_t, b6_cache, new_cap);
             cache_cap = new_cap;
             /* Initialize newly allocated slots to zero. */
             for (size_t i = cache_len + 1; i < needed; ++i) {

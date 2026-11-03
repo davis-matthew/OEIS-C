@@ -13,13 +13,17 @@
  *            n>=3 the length is n-1
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 49, u64 n <= 98, u128 n <= 201,
  *            big any n
- * Helpers:   big_pow, binomial, pow2
+ * Validated: standard, pass, 63 terms through n = 4845 (2026-11-01)
+ * Helpers:   binomial, ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 #include "../utils/pow2.h"
 #include <stdbool.h>
 
@@ -97,7 +101,7 @@ seq_t a(idx_t n)
         if (k == 0) {
             powExp = (seq_t)1;       /* any number^0 = 1 */
         } else {
-            powExp = big_pow(baseMinus, (seq_t)k);
+            powExp = ipow(baseMinus, (seq_t)k);
         }
 
         seq_t term = stir * powExp;

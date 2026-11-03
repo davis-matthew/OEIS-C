@@ -12,14 +12,26 @@
  *            a(4)=T(3,1),
  * Range:     u8 n <= 11, u16 n <= 30, u32 n <= 68, u64 n <= 175,
  *            u128 n <= 325, big any n
- * Helpers:   seq_realloc
+ * Validated: standard, pass, 65 terms through n = 278 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_realloc.h"   /* seq_realloc(seq_t*, size_t, size_t) */
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static idx_t max_row = 0;          /* highest row already computed */
 static seq_t *tri = NULL;          /* packed triangle values */

@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is a prime power congruent to 1 (mod 3), otherwise
  *            0
- * Range:     u8 n <= 9884, u16 n <= 9884, u32 n <= 9884, u64 n <= 9884,
- *            u128 n <= 9884, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9884 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

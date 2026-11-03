@@ -10,13 +10,15 @@
  *            for the n-th entry are derived from the antidiagonal order
  * Range:     u8 n <= 31, u16 n <= 69, u32 n <= 175, u64 n <= 441,
  *            u128 n <= 1139, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 94 terms through n = 1229 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -54,13 +56,13 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t d0 = 1; d0 * d0 <= m0; ++d0) {
         if (m0 % d0 == 0) {
-            sum += big_pow((seq_t)d0, (seq_t)k);
+            sum += ipow((seq_t)d0, (seq_t)k);
             idx_t d1 = m0 / d0;
             if (d1 != d0) {
-                sum += big_pow((seq_t)d1, (seq_t)k);
+                sum += ipow((seq_t)d1, (seq_t)k);
             }
         }
     }
-    seq_t scale = big_pow((seq_t)2, (seq_t)(e * k));
+    seq_t scale = ipow((seq_t)2, (seq_t)(e * k));
     return sum * scale;
 }

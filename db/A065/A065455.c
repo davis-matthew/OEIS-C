@@ -8,12 +8,14 @@
  * Formula:   a(n) = 3*a(n-2) + a(n-3) (a(0)=1, a(1)=2, a(2)=4)
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 35, u64 n <= 70, u128 n <= 140,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for memoizing computed terms */
 static seq_t *cache = NULL;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         seq_t *new_cache;
 
         if (!cache) {
-            new_cache = (seq_t*)malloc(sizeof(seq_t) * new_size);
+            new_cache = mem_new(seq_t, new_size);
             if (!new_cache) return (seq_t)0; /* allocation failed (unlikely) */
 
             new_cache[0] = (seq_t)1;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
             cache = new_cache;
             cached_upto = n;
         } else {
-            new_cache = (seq_t*)realloc(cache, sizeof(seq_t) * new_size);
+            new_cache = mem_resize(seq_t, cache, new_size);
             if (!new_cache) return (seq_t)0; /* allocation failed */
 
             /* Compute missing terms */

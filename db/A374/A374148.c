@@ -7,15 +7,41 @@
  * Formula:   a(n) = floor( sqrt(3)*(2^(n-1)-1) + 1 )
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   floor_sqrt, seq_mul, seq_pow
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
+ * Helpers:   ipow_i32, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_idx.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Compute floor(sqrt(x)) for a 128‑bit unsigned integer in a portable way */
 static inline uint64_t floor_sqrt_u128(unsigned __int128 v)
@@ -49,7 +75,7 @@ static seq_t a_small(idx_t n)
 static seq_t a_big(idx_t n)
 {
     if (n == 0) return 0;
-    seq_t power = seq_pow((seq_t)2, n - 1);      /* 2^(n-1)   */
+    seq_t power = ipow_idx((seq_t)2, n - 1);      /* 2^(n-1)   */
     seq_t x = power - 1;                        /* 2^(n-1)-1 */
     seq_t y = seq_mul(x, x);                    /* x^2       */
     y = seq_mul(y, (seq_t)3);                   /* 3*x^2     */

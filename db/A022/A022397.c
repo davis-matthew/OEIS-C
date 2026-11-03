@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + a(n-2), a(0) = 1, a(1) = 27
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 40, u64 n <= 86, u128 n <= 179,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* First call: allocate space for at least the first two terms */
     if (cache == NULL) {
         cache_cap = (n >= 1 ? n + 1 : 2);      /* ensure indices 0 and 1 exist */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)27;
         computed = 1;                            /* we now know a(0) and a(1) */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Grow the cache if needed */
     else if (n >= cache_cap) {
         idx_t new_cap = (n + 1 > cache_cap * 2) ? (n + 1) : (cache_cap * 2);
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

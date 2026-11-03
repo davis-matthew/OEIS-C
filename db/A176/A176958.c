@@ -11,12 +11,14 @@
  *            a(p)*a(n-p) – (n+1) – 1 * = ∑_{p=0..n} a(p)*a(n-p) – n – 2
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* This function may be called in arbitrary order; it memoises
  * computed terms in a static dynamic array. */
@@ -32,9 +34,9 @@ seq_t a(idx_t n)
         size_t new_cap = (cap ? cap * 2 : 16);
         while (new_cap <= (size_t)n) new_cap <<= 1;
         if (terms == NULL) {
-            terms = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            terms = mem_new(seq_t, new_cap);
         } else {
-            void *tmp = realloc(terms, new_cap * sizeof(seq_t));
+            void *tmp = mem_resize(seq_t, terms, new_cap);
             terms = (seq_t*)tmp;
         }
         cap = new_cap;

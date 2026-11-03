@@ -11,23 +11,25 @@
  *            d<n}a(d) if n is odd
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n < 1) return (seq_t)0;          /* off‑sets are irrelevant */
 
     /* Allocate temporary arrays */
-    seq_t *F = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-    seq_t *L = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-    seq_t *A = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *F = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *L = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *A = mem_new(seq_t, (size_t)(n + 1));
     if (!F || !L || !A) {                 /* allocation failed */
-        if (F) free(F); if (L) free(L); if (A) free(A);
+        if (F) mem_free(F); if (L) mem_free(L); if (A) mem_free(A);
         return (seq_t)0;
     }
 
@@ -68,9 +70,9 @@ seq_t a(idx_t n)
     seq_t result = A[n];
 
     /* Free temporary arrays */
-    free(F);
-    free(L);
-    free(A);
+    mem_free(F);
+    mem_free(L);
+    mem_free(A);
 
     return result;
 }

@@ -8,14 +8,25 @@
  *            d are ≤ 6
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   good_divisor
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/good_divisor.h"
+
+/* Helper: check if a divisor has all digits ≤ 6 */
+static int good_divisor(uint64_t d)
+{
+    while (d) {
+        uint8_t digit = d % 10;
+        if (digit > 6) return 0;
+        d /= 10;
+    }
+    return 1;
+}
 
 /* ----- Prime sieve ----- */
 static int *primes = NULL;          /* array of primes */

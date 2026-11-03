@@ -8,7 +8,8 @@
  *            quasiperiodic (no proper binary substring covers all positions)
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
    bits. */
 
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Test whether x has a proper quasiperiod.
    Returns true if some proper binary substring q of x covers the whole
@@ -27,7 +29,7 @@
 static bool _is_quasiperiodic(seq_t x)
 {
     /* Get bit length and fill an array of bits (msb first). */
-    unsigned len = bitlen_seq_t(x);
+    unsigned len = bit_length(x);
     if (len <= 1)            /* no proper substring possible */
         return false;
 

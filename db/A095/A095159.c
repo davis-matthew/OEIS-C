@@ -11,14 +11,17 @@
  *            function returns the numerators of the reduced fractions b(n)
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 17, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   gcd, pow_small
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   gcd, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/pow_small.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 static seq_t *dblfact = NULL;          /* array of double factorials */
 static size_t dblfact_max = 0;         /* current maximum index computed */
@@ -29,7 +32,7 @@ static void ensure_dblfact(idx_t n)
     if ((idx_t)dblfact_max >= n) return;
 
     size_t new_cap = (size_t)(n + 1);
-    seq_t *new_arr = (seq_t *)realloc(dblfact, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, dblfact, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);          /* memory failure */
     dblfact = new_arr;
 
@@ -83,7 +86,7 @@ seq_t a(idx_t n)
                 if (2 * exp_b1 >= exp_c) break;
             }
             int exp_gcd = (2 * exp_b1 >= exp_c) ? exp_c : (2 * exp_b1);
-            g2 *= pow_small((seq_t)p, exp_gcd);
+            g2 *= ipow_i32((seq_t)p, exp_gcd);
         }
     }
     if (rem > 1) {               /* residual prime factor */

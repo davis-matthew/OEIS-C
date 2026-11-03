@@ -9,12 +9,14 @@
  *            A000070(n)=∑_{k=0..n} p(k). a(1)=1
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p_arr = NULL;      /* p[n] = partition number p(n), p[0] = 1 */
 static seq_t *q_arr = NULL;      /* q[n] = A000070(n), q[0] = 1 */
@@ -26,8 +28,8 @@ static void compute_up_to(idx_t N)
     if (N <= max_n) return;             /* already computed */
 
     /* Allocate or resize the arrays to hold indices up to N. */
-    seq_t *new_p = (seq_t *)realloc(p_arr, (N + 1) * sizeof(seq_t));
-    seq_t *new_q = (seq_t *)realloc(q_arr, (N + 1) * sizeof(seq_t));
+    seq_t *new_p = mem_resize(seq_t, p_arr, (N + 1));
+    seq_t *new_q = mem_resize(seq_t, q_arr, (N + 1));
     if (!new_p || !new_q) {
         abort();                         /* memory allocation failed */
     }

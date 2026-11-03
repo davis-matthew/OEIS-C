@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{p^e‖n} (p==2 ? p^e : (p^e + 1))
  * Range:     u8 n <= 164, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 87 terms through n = 9471 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /* Multiplicative: a(2^e)=2^e, a(p^e)=p^e+1 for odd prime p. */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
             v >>= 1;
             ++e2;
         }
-        res *= pow_uint(2ULL, e2);     /* term: 2^e2 */
+        res *= ipow_u64_idx(2ULL, e2);     /* term: 2^e2 */
     }
 
     /* Factor the remaining odd part by trial division. */
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
                 v /= d;
                 ++exp;
             }
-            seq_t pe = pow_uint(d, exp); /* p^e */
+            seq_t pe = ipow_u64_idx(d, exp); /* p^e */
             seq_t term = pe + (seq_t)1;   /* p^e + 1 for odd prime */
             res *= term;
         }

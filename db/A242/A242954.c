@@ -7,7 +7,8 @@
  * Formula:   a(n) = 4^(Σ_{k≥1} ⌊n / 4^k⌋)
  * Range:     u8 n <= 15, u16 n <= 27, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
    A234957(i) = 4^{floor(v₂(i)/2)}, v₂(i) being the exponent of 2 in i. */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     /* Compute S(n) = Σ_{k≥1} ⌊n / 4^k⌋, the total exponent of 4 in
@@ -30,5 +33,5 @@ seq_t a(idx_t n) {
         d *= 4;
     }
     /* a(n) = 4^S.  seq_pow handles arbitrary‑precision types. */
-    return seq_pow((seq_t)4, S);
+    return ipow_idx((seq_t)4, S);
 }

@@ -12,16 +12,19 @@
  *            right, top to bottom. * The function finds the row r and column
  *            k corresponding to the * global index n and evaluates the
  *            formula using the provided * binomial and pow2 h...
- * Range:     u8 n <= 22, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
+ * Range:     u8 n <= 32, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/pow2.h"       /* seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 /* Compute the nth term of A213658 (offset 1). */
 seq_t a(idx_t n)

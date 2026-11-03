@@ -12,12 +12,14 @@
  *            a(8)=4133, a(9)=12075, a(10)=34521, a(11)=100047
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 41, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* first call: allocate space for at least min(11,n) terms */
     if (seq == NULL) {
         computed = (n > 11) ? n : 11;
-        seq = (seq_t *)malloc((size_t)computed * sizeof(seq_t));
+        seq = mem_new(seq_t, (size_t)computed);
         if (!seq) return 0; /* allocation failed */
         for (idx_t i = 0; i < 11; ++i)
             seq[i] = init[i];
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     if (n > computed) {
         idx_t old = computed;
         computed = n;
-        seq = (seq_t *)realloc(seq, (size_t)computed * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (size_t)computed);
         if (!seq) return 0; /* reallocation failed */
 
         for (idx_t i = old; i < n; ++i) {

@@ -9,14 +9,15 @@
  *            3^(n+1)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 79,
  *            big any n
- * Helpers:   pow3_exp
+ * Validated: standard, pass, 41 terms through n = 990 (2026-11-01)
+ * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow3_exp.h"
+#include "../utils/pow3.h"
 
 /* Sequence A107660 */
 seq_t a(idx_t n)
@@ -24,15 +25,15 @@ seq_t a(idx_t n)
     if ((n & (idx_t)1) == 0)          /* even n = 2*m */
     {
         idx_t m      = n / 2;
-        seq_t pow_n  = pow3_exp(m);
-        seq_t pow_2n1 = pow3_exp((idx_t)(2 * m + 1));
+        seq_t pow_n  = pow3(m);
+        seq_t pow_2n1 = pow3((idx_t)(2 * m + 1));
         return pow_2n1 - ((seq_t)2 * pow_n);
     }
     else                            /* odd n = 2*m+1 */
     {
         idx_t m      = (n - 1) / 2;
-        seq_t pow_2m2 = pow3_exp((idx_t)(2 * (m + 1)));
-        seq_t pow_m1  = pow3_exp(m + 1);
+        seq_t pow_2m2 = pow3((idx_t)(2 * (m + 1)));
+        seq_t pow_m1  = pow3(m + 1);
         return pow_2m2 - pow_m1;
     }
 }

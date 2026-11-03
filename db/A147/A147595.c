@@ -8,12 +8,15 @@
  *            a(n+4) = 3*(2^(n+2)+1) for n >= 0 (equivalent)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 48 terms through n = 881 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +27,7 @@ seq_t a(idx_t n)
     }
 
     /* For n >= 4: a(n) = 3 * (2^(n-2) + 1). */
-    seq_t power = big_pow((seq_t)2, (seq_t)(n - 2));
+    seq_t power = ipow((seq_t)2, (seq_t)(n - 2));
     seq_t result = (seq_t)3 * (power + (seq_t)1);
     return result;
 }

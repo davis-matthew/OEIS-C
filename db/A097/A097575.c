@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc, calloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array holding computed terms */
 static idx_t cache_size = 0;         /* allocated size of cache array */
@@ -40,10 +42,10 @@ static void ensure_capacity(idx_t n)
 
     if (cache == NULL) {
         /* first allocation: zero-filled so values can be overwritten */
-        seq_t *tmp = (seq_t *)calloc(newsize, sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, newsize);
         cache = tmp;
     } else {
-        seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         cache = tmp;
     }
     cache_size = newsize;

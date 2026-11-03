@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 268, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;        /* current maximum index for which we have data */
 static seq_t *pref = NULL;     /* prefix sums: pref[k] = sum_{i=1}^k i*sf(i) */
@@ -92,7 +94,7 @@ static void ensure_prefix(idx_t N)
     max_n = new_max;
 
     /* Reallocate prefix and squarefree arrays */
-    pref = (seq_t *)realloc(pref, (size_t)(new_max + 1) * sizeof(seq_t));
+    pref = mem_resize(seq_t, pref, (size_t)(new_max + 1));
     is_sqfree = (bool *)realloc(is_sqfree,
                                 (size_t)(new_max + 1) * sizeof(bool));
 

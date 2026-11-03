@@ -12,13 +12,15 @@
  *            that satisfy the pairwise-sum constraint
  * Range:     u8 none, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *p1, const void *p2)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             }
         }
         /* pos should be 48 after the loops. */
-        qsort(table, pos, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(table, pos, sizeof(seq_t), cmp_seq_t);
         ready = true;
     }
 

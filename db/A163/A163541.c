@@ -8,12 +8,45 @@
  * Formula:   a(n) = A010873(A163538(n) + A163539(n) + abs(A163538(n)) + 3)
  * Range:     u8 n <= 4096, u16 n <= 4096, u32 n <= 4096, u64 n <= 4096,
  *            u128 n <= 4096, big any n
- * Helpers:   hilbert_xy
+ * Validated: standard, pass, 118 terms through n = 4011 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/hilbert_xy.h"
+static void hilbert_xy(idx_t d, idx_t *x, idx_t *y)
+{
+    idx_t t = d;
+    idx_t rx, ry;
+    idx_t s = 1;
+
+    *x = *y = 0;
+
+    /* Process 32 levels (handles up to 64‑bit indices). */
+    for (s = 1; s < (1ULL << 32); s <<= 1) {
+        /* Extract two bits from t */
+        rx = (t >> 1) & 1;
+        ry = (t ^ rx) & 1;
+
+        /* Rotation (s is the side length of the current sub‑square) */
+        if (ry == 0) {
+            if (rx == 1) {
+                *x = s - 1 - *x;
+                *y = s - 1 - *y;
+            }
+            /* swap x and y */
+            idx_t tmp = *x;
+            *x = *y;
+            *y = tmp;
+        }
+
+        /* Move to the next sub‑square */
+        *x += s * rx;
+        *y += s * ry;
+
+        t >>= 2;  /* Move to the next pair of bits */
+    }
+}
 
 seq_t a(idx_t n)
 {

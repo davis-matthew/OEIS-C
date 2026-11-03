@@ -14,16 +14,49 @@
  *            when the value belongs to the set * S = {1,5...
  * Range:     u8 n <= 1, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   T_idx, is_stop, push_value
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/T_idx.h"
-#include "../utils/is_stop.h"
-#include "../utils/push_value.h"
+#include "../utils/mem.h"
+
+/* Helper: compute T(k) = sum of cubes of decimal digits of k.
+ * k is passed as idx_t (unsigned 64‑bit).
+ */
+static inline seq_t T_idx(idx_t k)
+{
+    seq_t sum = 0;
+    for (idx_t x = k; x > 0; x /= 10) {
+        int d = x % 10;
+        sum += (seq_t)d*d*d;
+    }
+    return sum;
+}
+
+/* Helper: test whether x is one of the terminating numbers. */
+static inline bool is_stop(seq_t x)
+{
+    static const seq_t stops[] = {1,55,136,153,160,370,371,407,919};
+    for (size_t i = 0; i < sizeof(stops)/sizeof(stops[0]); ++i)
+        if (x == stops[i]) return true;
+    return false;
+}
+
+/* Append value v to a dynamic array arr, increasing capacity as needed. */
+static void push_value(seq_t **arr, size_t *len, size_t *cap, seq_t v)
+{
+    if (*len >= *cap) {
+        size_t newcap = (*cap > 0) ? (*cap << 1) : 4;
+        if (newcap < *len + 1) newcap = *len + 1;
+        *arr = mem_resize(seq_t, *arr, newcap);
+        *cap = newcap;
+    }
+    (*arr)[(*len)++] = v;
+}
 
 /* The cumulative concatenated list of all chain values. */
 static seq_t *concatenated = NULL;

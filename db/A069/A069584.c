@@ -8,7 +8,8 @@
  *            with k>=2)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_root, pow_leq_uint64, pow_uint64
+ * Validated: standard, pass, 111 terms through n = 8826 (2026-11-01)
+ * Helpers:   ipow_u64_i32_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,33 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>   /* for long double pow */
-#include "../utils/int_root.h"
-#include "../utils/pow_leq_uint64.h"
-#include "../utils/pow_uint64.h"
+#include "../utils/ipow_u64_i32_to_u64.h"
+
+static inline bool pow_leq_uint64(uint64_t base, int exp, uint64_t limit)
+{
+    __uint128_t prod = 1;
+    for (int i = 0; i < exp; ++i) {
+        prod *= base;
+        if (prod > limit) return false;
+    }
+    return true;
+}
+
+/* integer e‑th root: floor(n^(1/e)) */
+static inline uint64_t int_root(uint64_t n, int e)
+{
+    if (e == 1) return n;
+    long double approx = pow((long double)n, 1.0L / e);
+    uint64_t high = (uint64_t)approx + 2;
+    if (high > n) high = n;
+    uint64_t low = 1;
+    while (low < high) {
+        uint64_t mid = (low + high + 1) >> 1;
+        if (pow_leq_uint64(mid, e, n)) low = mid;
+        else high = mid - 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +60,7 @@ seq_t a(idx_t n)
     for (int e = max_exp; e >= 2; --e) {
         uint64_t root = int_root(N, e);
         if (root <= 1) continue;  /* root 1 gives power 1 already handled */
-        uint64_t pwr = pow_uint64(root, e);
+        uint64_t pwr = ipow_u64_i32_to_u64(root, e);
         if (pwr > best && pwr <= N) best = pwr;
     }
     return (seq_t)(N - best);

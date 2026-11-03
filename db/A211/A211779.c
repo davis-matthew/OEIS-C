@@ -6,16 +6,41 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n, d<n} sigma(d)
- * Range:     u8 n <= 71, u16 n <= 7559, u32 n <= 7915, u64 n <= 7915,
- *            u128 n <= 7915, big any n
- * Helpers:   sigma_power, sum_sigma_power
+ * Range:     u8 n <= 71, u16 n <= 7559, u32 n <= 27144, u64 n <= 27144,
+ *            u128 n <= 27144, big any n
+ * Validated: standard, pass, 85 terms through n = 7915 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sigma_power.h"
-#include "../utils/sum_sigma_power.h"
+
+/* Compute sigma(p^exp) = 1 + p + p^2 + ... + p^exp */
+static seq_t sigma_power(uint64_t p, idx_t exp)
+{
+    seq_t sum = 1;
+    seq_t term = 1;
+    for (idx_t i = 1; i <= exp; ++i) {
+        term *= (seq_t)p;
+        sum += term;
+    }
+    return sum;
+}
+
+/* Compute Sum_{i=0..exp} sigma(p^i) */
+static seq_t sum_sigma_power(uint64_t p, idx_t exp)
+{
+    seq_t term = 1;          /* p^0 */
+    seq_t sigma = 1;         /* sigma(p^0) */
+    seq_t sum = 1;           /* sum_{i=0..0} sigma(p^i) */
+    for (idx_t i = 1; i <= exp; ++i) {
+        term *= (seq_t)p;         /* p^i */
+        sigma += term;            /* sigma(p^i) */
+        sum += sigma;             /* add to cumulative sum */
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Computes the number of partitions of n such that the least part
    is greater than or equal to its multiplicity (OEIS A240177). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,14 +29,14 @@ seq_t a(idx_t n)
     /* dp_next holds P(s, min+1), the number of partitions of s
        using parts all at least min+1.  Initially only the empty
        partition exists for sum 0. */
-    seq_t *dp_next = (seq_t*)calloc(len, sizeof(seq_t));
+    seq_t *dp_next = mem_new(seq_t, len);
     if (!dp_next) return (seq_t)0;          /* out of memory */
     dp_next[0] = (seq_t)1;
 
     /* dp_cur will hold P(s, min).  It will be filled on each
        iteration; no need to initialise it beforehand. */
-    seq_t *dp_cur  = (seq_t*)malloc(len * sizeof(seq_t));
-    if (!dp_cur) { free(dp_next); return (seq_t)0; }
+    seq_t *dp_cur  = mem_new(seq_t, len);
+    if (!dp_cur) { mem_free(dp_next); return (seq_t)0; }
 
     seq_t ans = (seq_t)0;
 
@@ -74,8 +76,8 @@ seq_t a(idx_t n)
         dp_cur    = tmp;
     }
 
-    free(dp_next);
-    free(dp_cur);
+    mem_free(dp_next);
+    mem_free(dp_cur);
 
     return ans;
 }

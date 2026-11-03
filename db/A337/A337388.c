@@ -8,13 +8,15 @@
  *            binomial(2*n,2*k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Compute the initial power n^n (define 0^0 = 1) */
     seq_t pow_val = 1;
     if (n > 0) {
-        pow_val = big_pow(n_seq, n_seq);
+        pow_val = ipow(n_seq, n_seq);
     }
 
     seq_t binom_2k_k = 1;   /* binomial(2*k, k) */

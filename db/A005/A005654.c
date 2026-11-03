@@ -14,21 +14,22 @@
  *            intermediate is <= a(n); a(1) = 1
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   a005654_binom, a005654_gcd
+ * Validated: standard, pass, 43 terms through n = 995 (2026-11-01)
+ * Helpers:   binomial, gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005654_binom.h"
-#include "../utils/a005654_gcd.h"
+#include "../utils/binomial.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
     seq_t x, y, z;
     if (n <= 1) return 1;
-    x = a005654_binom(2 * n - 3, n - 2);
-    y = a005654_binom(2 * n - 2, n - 2);
-    z = a005654_binom(n - 1, n / 2);
+    x = binomial(2 * n - 3, n - 2);
+    y = binomial(2 * n - 2, n - 2);
+    z = binomial(n - 1, n / 2);
     return x + y / 2 + z / 2 + ((y & 1) + (z & 1)) / 2;
 }

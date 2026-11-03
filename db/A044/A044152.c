@@ -11,14 +11,34 @@
  *            calls of any order are fast
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has20_base7
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has20_base7.h"
+#include "../utils/mem.h"
+
+/* Return true if x (in base 7) contains the adjacent digit pair 2,0
+   (i.e. a digit 2 immediately followed by a digit 0 in the base‑7
+   representation). */
+static bool has20_base7(seq_t x)
+{
+    if (x == 0)
+        return false;
+    seq_t prev = x % 7;        /* least significant digit */
+    x /= 7;
+    while (x > 0) {
+        seq_t curr = x % 7;    /* next digit to the left */
+        if (curr == 2 && prev == 0)
+            return true;
+        prev = curr;
+        x /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +61,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary */
             if (len == cap) {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(list, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, list, new_cap);
                 if (!tmp)
                     abort();                      /* out of memory */
                 list = tmp;

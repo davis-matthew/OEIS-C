@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} d * [popcount(d) = popcount(n)]
  * Range:     u8 n <= 139, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, popcount_u64
+ * Validated: standard, pass, 82 terms through n = 9600 (2026-11-01)
+ * Helpers:   factor_u64, popcount
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/popcount_u64.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/popcount.h"
 
 static void _add_divisors(const uint64_t *primes,
                           const uint64_t *exps,
@@ -28,7 +31,7 @@ static void _add_divisors(const uint64_t *primes,
                           seq_t *sum)
 {
     if (depth == total) {
-        if (popcount_u64(cur) == target_pc) {
+        if (popcount(cur) == target_pc) {
             *sum += (seq_t)cur;
         }
         return;
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
         return 0;                 /* offset starts at 1, but return 0 for safety */
 
     uint64_t nn = n;
-    uint64_t pc = popcount_u64(nn);
+    uint64_t pc = popcount(nn);
 
     /* Prime factorization of n */
     uint64_t primes[64];

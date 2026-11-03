@@ -9,7 +9,8 @@
  *            x*y = k
  * Range:     u8 n <= 5, u16 n <= 30, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         if (valid) {
             if (terms_size == terms_cap) {
                 size_t newcap = terms_cap ? terms_cap * 2 : 64;
-                seq_t *newptr = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                seq_t *newptr = mem_resize(seq_t, terms, newcap);
                 if (!newptr) abort();          /* allocation failure */
                 terms = newptr;
                 terms_cap = newcap;

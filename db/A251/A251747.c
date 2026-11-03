@@ -11,12 +11,14 @@
  *            Compute memoized on demand
  * Range:     u8 n <= 17, u16 n <= 25, u32 n <= 41, u64 n <= 73, u128 n <= 137,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if ((idx_t)(n + 1) > cache_cap) {
         size_t new_cap = cache_cap > 0 ? cache_cap : 9;
         while ((idx_t)new_cap <= n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = (idx_t)new_cap;
     }
 

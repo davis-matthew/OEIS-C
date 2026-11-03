@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 206, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sigma_trial
+ * Validated: standard, pass, 64 terms through n = 9116 (2026-11-03)
+ * Helpers:   mem, sigma_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sigma_trial.h"
+#include "../utils/sigma_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;           /* behavior below offset not required */
@@ -37,10 +39,10 @@ seq_t a(idx_t n) {
     if (cap < n) {
         idx_t new_cap = cap ? cap * 2 : 16;
         while (new_cap < n) new_cap *= 2;
-        seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (terms) {
             for (idx_t i = 0; i < count; ++i) tmp[i] = terms[i];
-            free(terms);
+            mem_free(terms);
         }
         terms = tmp;
         cap = new_cap;
@@ -52,8 +54,8 @@ seq_t a(idx_t n) {
         if (last_k < 3) continue;    /* skip k=0,1,2 */
 
         seq_t val = (seq_t)last_k * ((seq_t)last_k + 1);
-        seq_t sigma_k   = sigma_trial((uint64_t)last_k);
-        seq_t sigma_k1  = sigma_trial((uint64_t)(last_k + 1));
+        seq_t sigma_k   = sigma_u64((uint64_t)last_k);
+        seq_t sigma_k1  = sigma_u64((uint64_t)(last_k + 1));
         seq_t sigma_val = sigma_k * sigma_k1;
 
         if (sigma_val > val * 2) {    /* abundant test */

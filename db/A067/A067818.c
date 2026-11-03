@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 2, u128 n <= 12,
  *            big any n
- * Helpers:   dup_str, seq_from_str
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/dup_str.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+static char *dup_str(const char *s)
+{
+    size_t len = strlen(s);
+    char *p = (char *)malloc(len + 1);
+    memcpy(p, s, len + 1);
+    return p;
+}
 
 static seq_t *cache      = NULL;   /* cache[1] .. cache[lastComputed]  */
 static size_t cache_cap  = 0;       /* allocated size of cache          */
@@ -37,7 +56,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {                    /* first call: initialise a(1)=1 */
         cache_cap = 2;                      /* capacity for indices 1 and 2 at least */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[1] = seq_from_str("1");
         last_str   = dup_str("1");
         lastComputed = 1;
@@ -79,7 +98,7 @@ static void ensure_cache(idx_t n)
         if ((size_t)(lastComputed + 1) >= cache_cap) {   /* grow cache */
             size_t new_cap = cache_cap * 2;
             if (new_cap == 0) new_cap = 2;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
         cache[lastComputed + 1] = next_val;

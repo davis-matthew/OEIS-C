@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(-104 + 89*2^n - 52*n - 8*n^2) / 4
  * Range:     u8 none, u16 n <= 8, u32 n <= 23, u64 n <= 53, u128 n <= 116,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 932 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

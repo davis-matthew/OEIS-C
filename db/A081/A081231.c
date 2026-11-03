@@ -10,7 +10,8 @@
  *            - p·y² = 1 where p is the n‑th prime congruent to 3 (mod 4)
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 23, u64 n <= 54, u128 n <= 144,
  *            big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 48 terms through n = 970 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 /* ---------- Cache of primes ≡ 3 (mod 4) ---------- */
 static bool primes_ready = false;
@@ -81,7 +82,7 @@ static void ensure_primes3(idx_t n)
 /* ---------- Fundamental solution for x^2 - D y^2 = 1 ---------- */
 static seq_t fundamental_x_for_prime(idx_t D)
 {
-    idx_t a0 = _floor_isqrt_u64(D);          /* integer part of sqrt(D) */
+    idx_t a0 = isqrt(D);          /* integer part of sqrt(D) */
 
     /* Build the periodic part of the continued fraction. */
     idx_t m = 0, d = 1, a = a0;

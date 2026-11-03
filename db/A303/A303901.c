@@ -12,6 +12,7 @@
  *            coefficients of (3‑2x)^r, row‑major order. Initial value...
  * Range:     i8 n <= 10, i16 n <= 36, i32 n <= 123, i64 n <= 442,
  *            i128 n <= 1669, big any n
+ * Validated: standard, pass, 71 terms through n = 9436 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

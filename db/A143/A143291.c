@@ -10,14 +10,16 @@
  *            flattened triangle entry. T(n,k) = G(n,k+1) – G(n,k+2) G(n,d) =
  *            Σ_{m=0}^{⌊(n+d-1)/d⌋} binom(n - m·(d-1) + d - 1 , m) (binom is
  *            binomial coefficient)
- * Range:     u8 n <= 22, u16 n <= 121, u32 n <= 497, u64 n <= 2017,
+ * Range:     u8 n <= 29, u16 n <= 121, u32 n <= 497, u64 n <= 2017,
  *            u128 n <= 8129, big any n
- * Helpers:   binom_n_k
+ * Validated: standard, pass, 107 terms through n = 9644 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_n_k.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 
 /* number of binary words of length n whose consecutive '1's are
    separated by at least d zeros (G(n,d)) */
@@ -28,7 +30,7 @@ static seq_t compute_G(idx_t n, idx_t d)
     for (idx_t m = 0; m <= m_max; ++m)
     {
         idx_t arg = n - m * (d - 1) + d - 1;
-        total += binom_n_k(arg, m);
+        total += binomial(arg, m);
     }
     return total;
 }

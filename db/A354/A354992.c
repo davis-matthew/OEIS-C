@@ -8,9 +8,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} [ A344005(d) < A344005(n) ] where A344005(m) =
  *            smallest k>0 such that m | k*(k+1)
- * Range:     u8 n <= 16, u16 n <= 3008, u32 n <= 9897, u64 n <= 9897,
- *            u128 n <= 9897, big any n
- * Helpers:   none
+ * Range:     u8 n <= 16, u16 n <= 3008, u32 n <= 65536, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *f_cache = NULL;   /* cache for A344005 values   */
 static size_t  f_cap   = 0;     /* current capacity of f_cache */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
     size_t needed = (size_t)n + 1;
     if (needed > f_cap) {
         size_t new_cap = needed * 2 + 16;
-        seq_t *new_cache = (seq_t *)realloc(f_cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, f_cache, new_cap);
         if (!new_cache) abort();           /* allocation failed */
         f_cache = new_cache;
         f_cap   = new_cap;

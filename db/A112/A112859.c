@@ -9,7 +9,8 @@
  *            0 mod 29
  * Range:     u8 n <= 1, u16 n <= 242, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   simple_sieve
+ * Validated: standard, pass, 58 terms through n = 9024 (2026-11-03)
+ * Helpers:   mem, simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/simple_sieve.h"
+#include "../utils/mem.h"
 
 /* static data for the sequence */
 static uint32_t *prime_arr = NULL;
@@ -39,7 +41,7 @@ static void build_sequence(void)
 
     /* reserve space for the result array */
     size_t alloc_cap = 65536;          /* initial capacity */
-    seq_vals = (seq_t *)malloc(alloc_cap * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, alloc_cap);
     seq_cnt = 0;
 
     /* scan primes and collect those satisfying the condition */
@@ -49,7 +51,7 @@ static void build_sequence(void)
         if (((a + b) % 29) == 0) {
             if (seq_cnt == alloc_cap) {
                 alloc_cap *= 2;
-                seq_vals = (seq_t *)realloc(seq_vals, alloc_cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, alloc_cap);
             }
             seq_vals[seq_cnt++] = (seq_t)prime_arr[j];
         }

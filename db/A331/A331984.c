@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 }*/
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* DP array: dp[s*(m+1)+c] = number of subsets of size c summing to s. */
     size_t len   = (size_t)(n + 1) * (m + 1);
-    seq_t *dp    = (seq_t *)malloc(sizeof(seq_t) * len);
+    seq_t *dp    = mem_new(seq_t, len);
     if (!dp) return 0; /* memory failure – return 0 as fallback */
     for (size_t i = 0; i < len; ++i) dp[i] = 0;
     dp[0] = 1;                                /* dp[0][0] = 1 */
@@ -61,6 +63,6 @@ seq_t a(idx_t n)
         result += dp[n * (m + 1) + c] * fact[c];
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

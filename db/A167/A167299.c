@@ -8,13 +8,15 @@
  *            (7·(p−2))^e
  * Range:     u8 n <= 24, u16 n <= 524, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 83 terms through n = 898 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
                 ++e;
             }
             seq_t base = (seq_t)7 * (seq_t)(p - 2);
-            seq_t pw   = seq_pow(base, (idx_t)e);
+            seq_t pw   = ipow_idx(base, (idx_t)e);
             result *= pw;
         }
     }
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* remaining prime factor, if any */
     if (m > 1) {
         seq_t base = (seq_t)7 * (seq_t)(m - 2);
-        seq_t pw   = seq_pow(base, (idx_t)1);
+        seq_t pw   = ipow_idx(base, (idx_t)1);
         result *= pw;
     }
 

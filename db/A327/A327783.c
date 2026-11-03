@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   swap_size_t
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/swap_size_t.h"
+#include "../utils/mem.h"
+
+/* Utility: swap two size_t values. */
+static inline void swap_size_t(size_t *a, size_t *b)
+{
+    size_t t = *a; *a = *b; *b = t;
+}
 
 /* --- Parameters ----------------------------------------------------- */
 #define MAX_B            200000          /* maximum value to search up to */
@@ -152,7 +159,7 @@ static void build_sequence(void)
     for (int v = 2; v <= MAX_B; v++) {
         if (present[v]) seq_len++;
     }
-    seq_cache = (seq_t*)malloc(seq_len * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_len);
     size_t idx = 0;
     for (int v = 2; v <= MAX_B; v++) {
         if (present[v]) seq_cache[idx++] = (seq_t)v;

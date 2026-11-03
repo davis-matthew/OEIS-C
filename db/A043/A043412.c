@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   has_four_fours
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_four_fours.h"
+#include "../utils/mem.h"
+
+/* Return true iff v written in base 7 contains exactly four digits equal to 4 */
+static bool has_four_fours(seq_t v)
+{
+    unsigned count = 0;
+    while (v > 0) {
+        if ((v % 7) == 4) {
+            ++count;
+            if (count > 4)
+                return false;
+        }
+        v /= 7;
+    }
+    return count == 4;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,11 +54,11 @@ seq_t a(idx_t n)
         /* Grow the cache if necessary */
         if (cache_cap == 0) {
             cache_cap = 128;
-            cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+            cache = mem_new(seq_t, cache_cap);
             if (!cache) return 0; /* Allocation failure – unlikely */
         } else if (cache_sz == cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0;
             cache = tmp;
             cache_cap = new_cap;

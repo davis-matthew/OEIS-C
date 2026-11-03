@@ -8,13 +8,15 @@
  * Formula:   a(n) = 17*a(n-1) - a(n-2) + 2, a(0)=0, a(1)=1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 812 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The sequence array grows on demand and is memoized across calls. */
 static seq_t *seq_arr = NULL;   /* array holding computed terms */
@@ -28,11 +30,11 @@ static void seq_ensure(idx_t needed)
     /* Grow capacity: double until reaching needed+1 */
     idx_t new_cap = seq_cap ? seq_cap << 1 : 2;
     while (new_cap < needed + 1) new_cap <<= 1;
-    seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) return; /* Out of memory: caller may handle */
     if (seq_arr) {
-        memcpy(new_arr, seq_arr, seq_len * sizeof(seq_t));
-        free(seq_arr);
+        mem_copy(new_arr, seq_arr, seq_len * sizeof(seq_t));
+        mem_free(seq_arr);
     }
     seq_arr = new_arr;
     seq_cap = new_cap;

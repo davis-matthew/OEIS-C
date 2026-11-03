@@ -11,13 +11,15 @@
  *            a(7)=38, a(8)=42, a(9)=46, a(10)=54, a(11)=56
  * Range:     u8 n <= 47, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Return the nth term of OEIS A310516. */
 seq_t a(idx_t n)
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* initialise cache on first use */
     if (cache == NULL) {
         cache_len = 12;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL)
             return 0; /* out of memory – sequence not needed if this happens */
         for (size_t i = 0; i < 12; ++i)
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         size_t new_len = cache_len * 2;
         if (new_len <= (size_t)n)
             new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL)
             return 0; /* out of memory */
         cache = tmp;

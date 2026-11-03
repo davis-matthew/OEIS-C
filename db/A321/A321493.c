@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 53 terms through n = 4959 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,15 +39,15 @@ seq_t a(idx_t n)
     /* Initialise the cache on first call */
     if (cache == NULL) {
         cap  = 8;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;          /* out–of‑memory */
     }
 
     /* Generate terms until we have at least n of them. */
     while (sz < (size_t)n) {
         uint64_t m   = cand;
-        int      om  = count_distinct_primes(m);
-        int      om1 = count_distinct_primes(m + 1);
+        int      om  = omega(m);
+        int      om1 = omega(m + 1);
 
         if (om >= 3 && om1 >= 3 && (om >= 4 || om1 >= 4)) {
             /* Ensure enough space. NOTE: realloc() is safe in C++ when
@@ -55,9 +57,9 @@ seq_t a(idx_t n)
                assignment). */
             if (sz == cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cap);
                 if (!tmp) {            /* out–of‑memory */
-                    free(cache);
+                    mem_free(cache);
                     cache = NULL;
                     sz = 0;
                     return (seq_t)0;

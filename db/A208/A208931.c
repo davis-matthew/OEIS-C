@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  * The flattened sequence a(n) is read row‑by‑row from the coefficients of u(n,x). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,16 +52,16 @@ seq_t a(idx_t n)
     if (max_row_computed < r) {
         /* Base case: row 1 */
         if (max_row_computed == 0) {
-            u[1] = (seq_t*)malloc(1 * sizeof(seq_t));
-            v[1] = (seq_t*)malloc(1 * sizeof(seq_t));
+            u[1] = mem_new(seq_t, 1);
+            v[1] = mem_new(seq_t, 1);
             u[1][0] = (seq_t)1;
             v[1][0] = (seq_t)1;
             max_row_computed = 1;
         }
         /* Compute subsequent rows */
         for (idx_t cur = max_row_computed + 1; cur <= r; ++cur) {
-            u[cur] = (seq_t*)malloc(cur * sizeof(seq_t));
-            v[cur] = (seq_t*)malloc(cur * sizeof(seq_t));
+            u[cur] = mem_new(seq_t, cur);
+            v[cur] = mem_new(seq_t, cur);
             for (idx_t k = 0; k < cur; ++k) {
                 /* u(cur,k) = u(cur-1,k) + 2 * v(cur-1,k-1) */
                 seq_t val_u = 0;

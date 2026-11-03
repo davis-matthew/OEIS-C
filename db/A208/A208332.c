@@ -12,13 +12,15 @@
  *            terms are: 1,1,1,1,1,4,
  * Range:     u8 n <= 33, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *precomp = NULL;       /* array holding sequence values */
 static idx_t  precomp_cap = 0;      /* allocated capacity */
@@ -39,7 +41,7 @@ static void grow_precomp(idx_t need)
     idx_t new_cap = precomp_cap ? precomp_cap : 8;
     while (new_cap < precomp_len + need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(precomp, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, precomp, new_cap);
     if (!tmp) abort();            /* memory exhausted */
     precomp = tmp;
     precomp_cap = new_cap;
@@ -51,7 +53,7 @@ static void ensure_to(idx_t desired)
     while (precomp_len < desired) {
         idx_t r = next_row;       /* current row index (>=1) */
         idx_t len = r + 1;        /* full length of T(r,k) for k=0..r */
-        seq_t *curr = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, len);
         if (!curr) abort();
 
         if (r == 1) {                     /* base row 1 */
@@ -84,7 +86,7 @@ static void ensure_to(idx_t desired)
         prev1 = curr;
         prev1_len = len;
 
-        free(old_prev2);          /* free row that is no longer needed */
+        mem_free(old_prev2);          /* free row that is no longer needed */
         ++next_row;
     }
 }

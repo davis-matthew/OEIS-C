@@ -8,8 +8,9 @@
  * Formula:   a(n) = exponent of the second smallest prime factor of n, or 0
  *            if n has at most one distinct prime factor (i.e., n is a prime
  *            power)
- * Range:     u8 n <= 9452, u16 n <= 9452, u32 n <= 9452, u64 n <= 9452,
- *            u128 n <= 9452, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 124 terms through n = 9452 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

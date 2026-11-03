@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
     for every stored divisor.  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Storage for computed sequence terms.  seq[0] corresponds to a(1). */
 static seq_t *seq      = NULL;   /* array of terms */
@@ -38,7 +40,7 @@ ensure_seq_cap(idx_t need)
     idx_t new_cap = seq_cap ? seq_cap << 1 : 64;
     while (new_cap < need)
         new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 
@@ -51,7 +53,7 @@ ensure_rema_cap(idx_t need)
     idx_t new_cap = rema_cap ? rema_cap << 1 : 64;
     while (new_cap < need)
         new_cap <<= 1;
-    rema = (seq_t *)realloc(rema, new_cap * sizeof(seq_t));
+    rema = mem_resize(seq_t, rema, new_cap);
     rema_cap = new_cap;
 }
 

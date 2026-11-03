@@ -9,7 +9,8 @@
  *            prime p ≡ 3 (mod 4)
  * Range:     u8 n <= 36, u16 n <= 3330, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 78 terms through n = 8765 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 typedef uint64_t idx_t;   /* provided by the build */
 typedef seq_t seq_t;      /* provided by the build */
@@ -37,7 +39,7 @@ static void heap_push(uint64_t p, seq_t v) {
     if (heap_size == heap_cap) {
         /* should not happen if heap_cap >= number of primes */
         size_t new_cap = heap_cap ? heap_cap << 1 : 16;
-        heap = (struct heap_node *)realloc(heap, new_cap * sizeof(struct heap_node));
+        heap = mem_resize(struct heap_node, heap, new_cap);
         heap_cap = (idx_t)new_cap;
     }
     size_t i = heap_size++;
@@ -81,7 +83,7 @@ static void ensure_seq_cap(idx_t need) {
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 16;
     if (new_cap < (size_t)need) new_cap = (size_t)need;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = (idx_t)new_cap;
 }
 
@@ -123,7 +125,7 @@ static void init(void) {
 
     /* heap capacity: one entry per prime (powers may replace themselves) */
     heap_cap = primes3_cnt;
-    heap = (struct heap_node *)malloc(heap_cap * sizeof(struct heap_node));
+    heap = mem_new(struct heap_node, heap_cap);
     heap_size = 0;
     for (size_t i = 0; i < (size_t)primes3_cnt; ++i) {
         heap_push(primes3[i], (seq_t)primes3[i]); /* first power */
@@ -131,7 +133,7 @@ static void init(void) {
 
     /* start sequence with 1 */
     seq_cap = 16;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq_len = 1;
     seq[0] = (seq_t)1;
 }

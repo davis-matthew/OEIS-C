@@ -9,13 +9,15 @@
  *            on longest path to a leaf inclusive)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Allocate an array of heights; we can safely use malloc because
        we assign to every element before reading it. */
-    seq_t *h = (seq_t *)malloc(sizeof(seq_t) * (size_t)n);
+    seq_t *h = mem_new(seq_t, (size_t)n);
     if (!h)
         return 0;                          /* allocation failure */
 
@@ -50,6 +52,6 @@ seq_t a(idx_t n)
         sum += h[i];
     }
 
-    free(h);
+    mem_free(h);
     return sum;
 }

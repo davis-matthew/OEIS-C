@@ -9,11 +9,14 @@
  *            trajectory started at n
  * Range:     u8 n <= 26, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
+ * Validated: partial, pass, 79 terms through n = 80 (2026-11-01)
  * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)

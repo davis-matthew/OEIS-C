@@ -7,14 +7,16 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = read by rows of triangle T(r,k) where T(r,0)=T(r,r)=1 and
  *            T(r,k)=binom(r,k)-2 for 0<k<r
- * Range:     u8 n <= 39, u16 n <= 196, u32 n <= 616, u64 n <= 1325,
+ * Range:     u8 n <= 69, u16 n <= 197, u32 n <= 646, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 94 terms through n = 1320 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -49,6 +51,6 @@ seq_t a(idx_t n)
     if (k == 0 || k == r)        /* edges of the triangle */
         return (seq_t)1;
 
-    seq_t val = binom(r, k);     /* interior value */
+    seq_t val = binomial(r, k);     /* interior value */
     return val - (seq_t)2;
 }

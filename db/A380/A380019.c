@@ -8,7 +8,8 @@
  *            (4*i+1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,10 @@
    and powers of 4, leaving only positive integers. */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *prod = NULL;     /* prod[k] = ∏_{i=0}^{k-1} (4*i+1) , prod[0] = 1 */
 static size_t prod_cap = 0;
@@ -31,7 +35,7 @@ ensure_prod(idx_t n)
 
     size_t old_cap = prod_cap;
     size_t new_cap = n + 1;
-    seq_t *tmp = (seq_t *)realloc(prod, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prod, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);
     prod = tmp;
@@ -68,7 +72,7 @@ a(idx_t n)
         if (k == 0) {
             powk = (n == 0) ? (seq_t)1 : (seq_t)0;
         } else {
-            powk = big_pow((seq_t)k, (seq_t)(n - k));
+            powk = ipow((seq_t)k, (seq_t)(n - k));
         }
 
         /* Retrieve prod_k from the pre‑computed table. */

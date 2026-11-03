@@ -7,6 +7,7 @@
  * Formula:   a(n) = A007090(n^3)
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 101, u64 n <= 8191,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 46 terms through n = 9912 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

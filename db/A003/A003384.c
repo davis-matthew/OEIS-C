@@ -7,13 +7,21 @@
  * Formula:   ascending enumeration of sums of 6 nonzero 8th powers
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   pow8
+ * Validated: standard, pass, 56 terms through n = 9148 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow8.h"
+#include "../utils/mem.h"
+
+static seq_t pow8(seq_t x) {
+    seq_t x2 = x * x;
+    seq_t x4 = x2 * x2;
+    seq_t x8 = x4 * x4;
+    return x8;
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -28,7 +36,7 @@ static int cmp_seq(const void *a, const void *b) {
 
 seq_t a(idx_t n) {
     if (cache == NULL) {
-        seq_t *temp = (seq_t *)malloc(1000000 * sizeof(seq_t));
+        seq_t *temp = mem_new(seq_t, 1000000);
         idx_t count = 0;
         
         for (int a = 1; a <= 25; a++) {
@@ -51,7 +59,7 @@ seq_t a(idx_t n) {
             }
         }
         
-        qsort(temp, count, sizeof(seq_t), cmp_seq);
+        mem_qsort(temp, count, sizeof(seq_t), cmp_seq);
         
         idx_t unique = 0;
         for (idx_t i = 0; i < count; i++) {

@@ -8,13 +8,15 @@
  *            * Offset: 0
  * Range:     u8 n <= 55, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,11 +26,11 @@ seq_t a(idx_t n)
 
     /* Allocate coefficient arrays.  dp holds the current polynomial,
        temp holds a copy of dp before processing the next factor. */
-    seq_t *dp   = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *temp = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, N + 1);
+    seq_t *temp = mem_new(seq_t, N + 1);
     if (!dp || !temp) { /* allocation failure – abort execution */
-        free(dp);
-        free(temp);
+        mem_free(dp);
+        mem_free(temp);
         abort();
     }
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[N];
-    free(dp);
-    free(temp);
+    mem_free(dp);
+    mem_free(temp);
     return result;
 }

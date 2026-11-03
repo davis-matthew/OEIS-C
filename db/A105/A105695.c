@@ -8,17 +8,29 @@
  * Formula:   a(0) = 1, a(1) = 0, a(2) = 0, a(3) = 1. For n ≥ 4: a(n) = [
  *            (n-2)(2n-3)a(n-1) + 3(n-2)(n-3)a(n-2) ] / [ (n+1)(n-3) ]. The
  *            division is exact for all n
- * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 20, u64 n <= 28, u128 n <= 28,
+ * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 25, u64 n <= 46, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+/* the code below runs in wide_t: 128 bits at the fixed widths (never narrower
+   than seq_t), seq_t itself for big, so values that pass 2^64 on the way to a
+   term that fits stay exact; a() returns the term in seq_t */
+#ifdef __cplusplus
+typedef seq_t wide_t;
+#else
+typedef __typeof__((seq_t)0 + (__int128)0) wide_t;
+#endif
+#define seq_t wide_t
 
 /* External integer types are defined by the build system. */
-seq_t a(idx_t n)
+seq_t a_wide(idx_t n)
 {
     static seq_t *dp = NULL;    /* Cached values */
     static idx_t computed = 0;  /* Number of computed entries; dp[0..computed-1] valid */
@@ -27,7 +39,7 @@ seq_t a(idx_t n)
     /* First time: allocate minimal space and set the initial terms. */
     if (dp == NULL) {
         cap = 4;                          /* indices 0..3 */
-        dp = (seq_t *)malloc(cap * sizeof(seq_t));
+        dp = mem_new(seq_t, cap);
         if (!dp) return 0;                /* silently abort on OOM */
 
         dp[0] = 1;
@@ -45,7 +57,7 @@ seq_t a(idx_t n)
     if (cap <= n) {
         idx_t new_cap = cap * 2;
         if (new_cap <= n) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_cap);
         if (!tmp) return 0;              /* silently abort on OOM */
         dp = tmp;
         cap = new_cap;
@@ -57,7 +69,7 @@ seq_t a(idx_t n)
             continue;
         }
 
-        /* Compute the numerator: (i-2)(2i-3)a(i-1) + 3(i-2)(i-3)a(i-2) */
+        /* Compute the numerator: (i-2)(2i-3)a_wide(i-1) + 3(i-2)(i-3)a_wide(i-2) */
         seq_t term1 = ((seq_t)(i - 2)) * ((seq_t)(2 * i - 3)) * dp[i - 1];
         seq_t term2 = ((seq_t)3) * ((seq_t)(i - 2)) * ((seq_t)(i - 3)) * dp[i - 2];
         seq_t numerator = term1 + term2;
@@ -70,4 +82,10 @@ seq_t a(idx_t n)
 
     computed = n + 1;          /* All indices up to n are now cached */
     return dp[n];
+}
+
+#undef seq_t
+seq_t a(idx_t n)
+{
+    return (seq_t)a_wide(n);
 }

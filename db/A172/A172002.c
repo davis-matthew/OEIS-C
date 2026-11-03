@@ -10,8 +10,9 @@
  *            two halves of length k^2. The numbers in each half are read
  *            alternating from the reversed first half and the natural second
  *            half. The sequence is obtained by concatenatin...
- * Range:     u8 n <= 220, u16 n <= 9798, u32 n <= 9798, u64 n <= 9798,
- *            u128 n <= 9798, big any n
+ * Range:     u8 n <= 220, u16 n <= 10680, u32 n <= 10680, u64 n <= 10680,
+ *            u128 n <= 10680, big any n
+ * Validated: standard, pass, 88 terms through n = 9798 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

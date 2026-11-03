@@ -9,11 +9,13 @@
  *            r*(r+1)/2, * and T(r,k) = (r - k + 2) * binomial(2*r, r + k - 2)
  * Range:     u8 n <= 10, u16 n <= 35, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Compute the row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2

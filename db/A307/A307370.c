@@ -10,13 +10,15 @@
  *            a(8)=7
  * Range:     u8 n <= 207, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure the cache is large enough and initialized (for C++ cast). */
 static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *size_ptr)
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *size_ptr)
     if (*size_ptr < needed) {
         size_t new_size = (*size_ptr == 0) ? 64 : *size_ptr * 2;
         if (new_size < needed) new_size = needed;
-        seq_t *newp = (seq_t*)realloc(*cache_ptr, new_size * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, *cache_ptr, new_size);
         if (!newp) abort();
         *cache_ptr = newp;
         *size_ptr = new_size;

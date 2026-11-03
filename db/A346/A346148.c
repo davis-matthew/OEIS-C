@@ -13,6 +13,7 @@
  *            (-1)^mⱼ
  * Range:     i8 n <= 147, i16 n <= 1011, i32 n <= 9870, i64 n <= 9870,
  *            i128 n <= 9870, big any n
+ * Validated: standard, pass, 88 terms through n = 9740 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

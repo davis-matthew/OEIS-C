@@ -13,18 +13,20 @@
  *            blocks; a group of m cycles has 3^(m-1) choices)....
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     size_t N = (size_t)n + 1;
-    seq_t *U = (seq_t *)calloc(N * N, sizeof(seq_t));
+    seq_t *U = mem_new(seq_t, N * N);
     seq_t best, s;
     long long t, i, j, k;
     U[0] = 1;
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
             s += U[(size_t)i * N + (size_t)(k - i)];
         if (s > best) best = s;
     }
-    free(U);
+    mem_free(U);
     return best;
 }

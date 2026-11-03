@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   dfs_backtrack
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,39 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/dfs_backtrack.h"
+
+/* Recursive helper: tries to build the number in lexicographic order.
+   digits   – sorted list of the n consecutive digits to use
+   used[i]  – whether digit i has been placed already
+   pos      – current length of the prefix built so far
+   prefix   – numeric value of the current prefix
+   result   – pointer to store the final number when a full solution is found
+*/
+static bool dfs_backtrack(const uint8_t *digits, bool *used,
+                          idx_t n, idx_t pos, seq_t prefix, seq_t *result)
+{
+    if (pos == n) {
+        *result = prefix;
+        return true;
+    }
+    idx_t len = pos + 1;
+    seq_t mod_len = (seq_t)len;
+    for (idx_t i = 0; i < n; ++i) {
+        if (!used[i]) {
+            uint8_t d = digits[i];
+            if (pos == 0 && n > 1 && d == 0)
+                continue;          /* leading zero is forbidden for n>1 */
+            seq_t newp = prefix * (seq_t)10 + (seq_t)d;
+            if (newp % mod_len != 0)
+                continue;
+            used[i] = true;
+            if (dfs_backtrack(digits, used, n, pos + 1, newp, result))
+                return true;
+            used[i] = false;
+        }
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,13 +7,15 @@
  * Formula:   a(1) = 567, a(n+1) = a(n) + digitSum(a(n)^2) (n ≥ 1)
  * Range:     u8 none, u16 n <= 1, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum_internal
+ * Validated: standard, pass, 61 terms through n = 834 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, NULL */
-#include "../utils/digit_sum_internal.h"
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Sequence a(n) defined by OEIS A051372 */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* Ensure a non‑zero capacity */
         cache_cap  = 1;
-        cache      = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache      = mem_new(seq_t, cache_cap);
         if (!cache)
             return (seq_t)0;
         cache[0]   = (seq_t)567;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary */
     if (n > cache_cap) {
         idx_t new_cap = n;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)
             return (seq_t)0;          /* allocation failure: return safe value */
         cache      = new_cache;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         for (idx_t i = cache_len; i < n; ++i) {
             seq_t prev = cache[i - 1];        /* a(i) is cache[i-1] */
             seq_t sq   = prev * prev;
-            seq_t ds   = digit_sum_internal(sq);
+            seq_t ds   = digit_sum(sq);
             cache[i]   = prev + ds;           /* a(i+1) */
         }
         cache_len = n;

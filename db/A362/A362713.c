@@ -10,7 +10,8 @@
  *            * Initial value: a(0)=1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 14,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binomial.h"          /* provides seq_t binomial(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;        /* a[0..a_len-1]   */
 static idx_t   a_len   = 0;          /* number of stored terms   */
@@ -37,8 +39,8 @@ static void ensure_prod(idx_t n)
     size_t new_cap = (size_t)(n + 1);
 
     /* Allocate new arrays or grow existing ones */
-    seq_t *new1 = (seq_t *)realloc(prod1_cache, new_cap * sizeof(seq_t));
-    seq_t *new2 = (seq_t *)realloc(prod2_cache, new_cap * sizeof(seq_t));
+    seq_t *new1 = mem_resize(seq_t, prod1_cache, new_cap);
+    seq_t *new2 = mem_resize(seq_t, prod2_cache, new_cap);
     if (!new1 || !new2)
         exit(1);
 
@@ -71,7 +73,7 @@ static void ensure_a(idx_t n)
     idx_t old_len = a_len;
     size_t new_cap = (size_t)(n + 1);
 
-    seq_t *newa = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *newa = mem_resize(seq_t, a_cache, new_cap);
     if (!newa)
         exit(1);
     a_cache = newa;

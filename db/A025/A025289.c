@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 91, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --- Parameters ----------------------------------------- */
 #define LIMIT ((idx_t)20000000ULL)   /* maximum integer to sieve */
@@ -63,7 +65,7 @@ static void init_spf(void)
 
     /* initialise cache with some space */
     seq_cap = 1024;
-    seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_cap);
     if (!seq_cache) exit(1);
 }
 
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
         if (count_representation(cand) == 6) {
             if (seq_len == seq_cap) {        /* grow cache if needed */
                 seq_cap *= 2;
-                seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
                 if (!seq_cache) exit(1);
             }
             seq_cache[seq_len++] = (seq_t)cand;

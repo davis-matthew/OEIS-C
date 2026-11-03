@@ -11,7 +11,8 @@
  *            each class, and returning the terms sorted asce...
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   is_barker, pack_key, seq_cmp
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,47 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_cmp.h"   /* comparator for seq_t values */
-#include "../utils/is_barker.h"
-#include "../utils/pack_key.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
+
+/* Pack autocorrelation array into a 32‑bit key.
+   Each value is in {-1,0,1}. Encode as two bits: 00->-1, 01->0, 10->1. */
+static inline uint32_t pack_key(const int *ac, int n)
+{
+    uint32_t k = 0;
+    for (int i = 0; i < n; ++i) {
+        k = (k << 2) | (ac[i] + 1);   /* ac[i]+1 in {0,1,2} */
+    }
+    return k;
+}
+
+/* Test if a binary word of length N is a Barker sequence.
+   If yes, return the packed key via *key_out. */
+static bool is_barker(uint64_t seq, uint8_t N, uint32_t *key_out)
+{
+    int bits[13];  /* N <= 13 */
+    for (int i = 0; i < N; ++i)
+        bits[i] = ((seq >> (N - 1 - i)) & 1ULL) ? 1 : -1;
+
+    int ac[12]; /* N-1 <= 12 */
+    for (int k = 1; k < N; ++k) {
+        int sum = 0;
+        for (int i = 0; i < N - k; ++i)
+            sum += bits[i] * bits[i + k];
+        if (sum > 1 || sum < -1) return false;
+        ac[k - 1] = sum;
+    }
+    *key_out = pack_key(ac, N - 1);
+    return true;
+}
 
 #define MAX_N 13            /* largest known binary Barker length */
 #define MAX_BITS (1U << MAX_N)
@@ -82,7 +121,7 @@ static void init_sequence(void)
     for (size_t i = 0; i < seq_len; ++i)
         seq_terms[i] = classes[i].max;
 
-    qsort(seq_terms, seq_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(seq_terms, seq_len, sizeof(seq_t), seq_cmp);
 }
 
 /* Public function required by the test harness */

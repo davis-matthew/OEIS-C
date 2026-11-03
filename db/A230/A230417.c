@@ -14,13 +14,31 @@
  *            are different
  * Range:     u8 n <= 7380, u16 n <= 7380, u32 n <= 7380, u64 n <= 7380,
  *            u128 n <= 7380, big any n
- * Helpers:   fact_digit_diff
+ * Validated: standard, pass, 136 terms through n = 7044 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fact_digit_diff.h"
+
+static inline seq_t fact_digit_diff(idx_t i, idx_t j)
+{
+    seq_t ii = i;
+    seq_t jj = j;
+    idx_t k = 1;
+    seq_t diff = 0;
+
+    while (ii > 0 || jj > 0) {
+        seq_t di = ii % (k + 1);
+        seq_t dj = jj % (k + 1);
+        if (di != dj) diff++;
+        ii /= (k + 1);
+        jj /= (k + 1);
+        k++;
+    }
+    return diff;
+}
 
 static inline idx_t triangular_row(idx_t n)
 {

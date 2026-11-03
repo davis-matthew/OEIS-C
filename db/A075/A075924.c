@@ -7,12 +7,14 @@
  * Formula:   a(n) = 7^n * S2(n+5,5) (Stirling second‑kind)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /*--- Ensure a_cache is large enough ---*/
     if (a_size <= n) {
         size_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
         if (!tmp) exit(1);
         if (a_size < new_size) {                 /* initialise new entries */
             for (size_t i = a_size; i < new_size; ++i)
@@ -49,14 +51,14 @@ seq_t a(idx_t n)
 
     /*--- Compute powers of 7 up to 7^n ---*/
     if (pow_size == 0) {                          /* first allocation   */
-        pow_cache = (seq_t *)calloc(1, sizeof(seq_t));
+        pow_cache = mem_new(seq_t, 1);
         if (!pow_cache) exit(1);
         pow_cache[0] = (seq_t)1;
         pow_size   = 1;
     }
     if (pow_size <= n) {
         size_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(pow_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow_cache, new_size);
         if (!tmp) exit(1);
         for (size_t i = pow_size; i <= n; ++i)
             tmp[i] = tmp[i-1] * (seq_t)7;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     idx_t target_m = n + 5;
     if (s5_size <= target_m) {
         size_t new_size = target_m + 1;
-        seq_t *tmp = (seq_t *)realloc(s5_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, s5_cache, new_size);
         if (!tmp) exit(1);
         if (s5_size < new_size)
             for (size_t i = s5_size; i < new_size; ++i)

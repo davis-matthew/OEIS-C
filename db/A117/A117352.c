@@ -10,13 +10,14 @@
  *            (-1)^β C(β-α-1, β)
  * Range:     i8 n <= 27, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -42,11 +43,11 @@ seq_t a(idx_t n)
         int64_t diff = (int64_t)j - (int64_t)k;
         seq_t bin1;
         if (diff >= 0) {
-            bin1 = binom((idx_t)diff, j);
+            bin1 = binomial((idx_t)diff, j);
         } else {
             int64_t mneg = -diff;                      /* -diff = k-j > 0 */
             idx_t top = (idx_t)(j + mneg - 1);          /* j + (k-j) - 1 = k-1 */
-            seq_t tmp = binom(top, j);
+            seq_t tmp = binomial(top, j);
             if (j & 1)
                 bin1 = -tmp;
             else
@@ -54,7 +55,7 @@ seq_t a(idx_t n)
         }
 
         /* compute ordinary binomial C(r-k, j) */
-        seq_t bin2 = binom(m, j);
+        seq_t bin2 = binomial(m, j);
 
         sum += bin1 * bin2;
     }

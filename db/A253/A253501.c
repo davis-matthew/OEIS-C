@@ -11,12 +11,15 @@
  *            a(5)=133284, a(6)=224747
  * Range:     u8 none, u16 n <= 2, u32 n <= 17, u64 n <= 37, u128 n <= 78,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 38 terms through n = 197 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +37,8 @@ seq_t a(idx_t n)
         return init[n - 1];
 
     /* compute the two powers */
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)(n - 3));
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)(n - 1));
+    seq_t pow3 = ipow((seq_t)3, (seq_t)(n - 3));
+    seq_t pow2 = ipow((seq_t)2, (seq_t)(n - 1));
 
     /* evaluate formula */
     seq_t result = (seq_t)400 * pow3 + (seq_t)5274 * pow2 + (seq_t)45170;

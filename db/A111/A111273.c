@@ -9,7 +9,8 @@
  *            appeared before
  * Range:     u8 n <= 36, u16 n <= 396, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequence and a bit set of seen numbers */
 static seq_t *seq = NULL;        /* sequence values, 1‑based index  -> seq[i-1] = a(i)   */
@@ -33,7 +35,7 @@ static void ensure_seq_cap(size_t n)
     if (seq_cap < n) {
         size_t new_cap = seq_cap? seq_cap * 2 : 4;
         while (new_cap < n) new_cap <<= 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }

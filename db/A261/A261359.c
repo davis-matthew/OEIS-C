@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 96, u16 n <= 125, u32 n <= 125, u64 n <= 125,
  *            u128 n <= 125, big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 126 terms through n = 125 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,8 +31,9 @@
 #include <stdbool.h>
 
 /* utilities */
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/pow2.h"    /* seq_t pow2(idx_t exp); */
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *cache        = NULL;   /* array of generated terms   */
 static idx_t  cache_cap    = 0;      /* capacity of cache         */
@@ -47,7 +49,7 @@ ensure_capacity(idx_t needed)
     size_t new_cap = cache_cap > 0 ? cache_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     if (!new_buf) {
         /* out of memory – terminate the program safely */
         abort();
@@ -69,12 +71,12 @@ static void
 generate_slice(idx_t n)
 {
     for (idx_t i = 0; i <= n; ++i) {
-        seq_t binom_n_i = binom(n, i);
+        seq_t binom_n_i = binomial(n, i);
         for (idx_t j = 0; j <= i; ++j) {
-            seq_t binom_i_j   = binom(i, j);
+            seq_t binom_i_j   = binomial(i, j);
             seq_t pow2_j      = pow2(j);
             for (idx_t k = 0; k <= j; ++k) {
-                seq_t binom_j_k = binom(j, k);
+                seq_t binom_j_k = binomial(j, k);
                 /* T(n,i,j,k) = 2^j * C(n,i) * C(i,j) * C(j,k) */
                 seq_t val = pow2_j * binom_n_i * binom_i_j * binom_j_k;
                 cache_append(val);

@@ -11,8 +11,9 @@
  *            increasing number of parts. Each partition is written in
  *            decreasing * order and the parts of all partitions are
  *            concatenated row by row. * * This implementation follows t...
- * Range:     u8 n <= 3763, u16 n <= 9987, u32 n <= 9987, u64 n <= 9987,
- *            u128 n <= 9987, big any n
+ * Range:     u8 n <= 3763, u16 n <= 10350, u32 n <= 10350, u64 n <= 10350,
+ *            u128 n <= 10350, big any n
+ * Validated: standard, pass, 111 terms through n = 9987 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

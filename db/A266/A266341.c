@@ -11,13 +11,17 @@
  *            a(0)=0
  * Range:     u8 n <= 511, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: standard, pass, 99 terms through n = 7332 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
-#include "../utils/floor_log2_uint64.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +29,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Position of the most significant 1‑bit */
-    idx_t msb_pos = floor_log2_uint64(n);
+    idx_t msb_pos = ilog2(n);
     seq_t msb_val = pow2(msb_pos);              /* 1 << msb_pos */
 
     /* Mask for bits below the MSB */
@@ -39,7 +43,7 @@ seq_t a(idx_t n)
         return (seq_t)n - msb_val;
 
     /* Position of the most significant zero bit */
-    idx_t pos = floor_log2_uint64((idx_t)zeros);
+    idx_t pos = ilog2((idx_t)zeros);
 
     return (seq_t)n - msb_val + pow2(pos);
 }

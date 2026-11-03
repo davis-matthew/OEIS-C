@@ -10,12 +10,14 @@
  *            k≥0 * A(n,0)=0 for n>0 * A(n+1,k)=k*(A(n,k)+4*A(n,k-1)) for k≥1
  * Range:     u8 n <= 22, u16 n <= 47, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,12 +35,12 @@ seq_t a(idx_t n)
     if (k_pair == (idx_t)-1)  /* sanity check, should not happen */
         return 0;
 
-    seq_t *prev = (seq_t *)malloc((k_pair + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((k_pair + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (k_pair + 1));
+    seq_t *curr = mem_new(seq_t, (k_pair + 1));
     if (!prev || !curr) {
         /* allocation failed – return 0 as a fallback */
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return 0;
     }
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
     seq_t result = prev[k_pair];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

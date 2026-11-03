@@ -9,9 +9,10 @@
  *            boxes with maximum balls in any box equal to n-4. Computation:
  *            a(n) = f(n, n-4) - f(n, n-5) where f(n, m) = Σ_{j=0}^{⌊n/(m+1)⌋}
  *            (-1)^j * C(n, j) * C(n - j*(m+1) + n - 1, n - 1)
- * Range:     u8 none, u16 n <= 16, u32 n <= 59, u64 n <= 59, u128 n <= 59,
+ * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 49 terms through n = 59 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 /* Helper: binomial function from "../utils/binom.h" provides C(a,b) for
    0 ≤ b ≤ a. */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static seq_t _f_leq(idx_t n, idx_t m)
 {
@@ -29,14 +31,14 @@ static seq_t _f_leq(idx_t n, idx_t m)
 
     for (idx_t j = 0; j <= max_j; ++j) {
         /* Binomial(n, j) */
-        seq_t comb_n_j = binom(n, j);
+        seq_t comb_n_j = binomial(n, j);
 
         /* Top of the second binomial: n - j*(m+1) + n - 1 */
         idx_t top = n - j * (m + 1) + n - 1;
         if (top < n - 1)             /* binom(top, n-1) = 0 for top < n-1   */
             break;
 
-        seq_t comb_top = binom(top, n - 1);
+        seq_t comb_top = binomial(top, n - 1);
 
         seq_t term = comb_n_j * comb_top;
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 30, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   mul_small
+ * Validated: partial, pass, 46 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
 */
 
 #include <stdlib.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -57,13 +71,13 @@ seq_t a(idx_t n)
     if (prevRow == 0) {
         prevRow = 3;
         prevSize = 1;
-        prev = (seq_t *)malloc(prevSize * sizeof(seq_t));
+        prev = mem_new(seq_t, prevSize);
         prev[0] = (seq_t)1;        /* T(3,3) */
     }
 
     /* if we need a lower row than we have cached, rebuild from scratch */
     if (r < prevRow) {
-        free(prev);
+        mem_free(prev);
         prev = NULL;
         prevRow = 0;
         prevSize = 0;
@@ -73,7 +87,7 @@ seq_t a(idx_t n)
     while (prevRow < r) {
         idx_t newRow   = prevRow + 1;
         idx_t newSize  = newRow - 2;          /* length of this row   */
-        seq_t *curr = (seq_t *)malloc(newSize * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, newSize);
         for (idx_t j = 0; j < newSize; ++j) {
             seq_t val2 = 0;   /* T(prevRow, k-1) */
             if (j > 0 && j - 1 < prevSize) val2 = prev[j - 1];
@@ -81,7 +95,7 @@ seq_t a(idx_t n)
             if (j < prevSize) val1 = prev[j];
             curr[j] = val2 + mul_small(val1, (unsigned int)(newRow - 1));
         }
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prevSize = newSize;
         prevRow = newRow;

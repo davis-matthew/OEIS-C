@@ -12,6 +12,7 @@
  *            counts * the admissible pairs (a,b) and the number of...
  * Range:     u8 n <= 9, u16 n <= 52, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
+ * Validated: standard, pass, 59 terms through n = 199 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

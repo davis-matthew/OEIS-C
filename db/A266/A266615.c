@@ -10,12 +10,14 @@
  *            values: a(0)=1, a(1)=1, a(2)=3, a(3)=6, a(4)=7, a(5)=15, a(6)=17
  * Range:     u8 n <= 22, u16 n <= 362, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* small indices handled by a static table */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
 
     /* initialise cache if this is the first large call */
     if (cached == 0) {
-        cache = (seq_t *)malloc(7 * sizeof(seq_t));
+        cache = mem_new(seq_t, 7);
         if (!cache) return 0;      /* out of memory – unlikely in tests */
         cache[0] = 1;
         cache[1] = 1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
 
     /* extend the cache if necessary */
     if (n + 1 > cached) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return 0;        /* out of memory – unlikely in tests */
         cache = tmp;
 

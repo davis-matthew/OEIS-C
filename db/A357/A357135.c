@@ -12,13 +12,15 @@
  *            the resulting compositions
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---- internal state ---------------------------------------------------- */
 
@@ -39,7 +41,7 @@ static void ensure_cache_cap(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -68,7 +70,7 @@ static void ensure_comps_upto(idx_t k)
         }
 
         seq_t *parts = NULL;
-        if (cnt > 0) parts = (seq_t *)malloc(cnt * sizeof(seq_t));
+        if (cnt > 0) parts = mem_new(seq_t, cnt);
 
         /* collect differences between successive positions of 1's */
         tmp   = i;

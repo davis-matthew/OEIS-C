@@ -12,13 +12,15 @@
  *            parts all at least k. The algorithm builds the part...
  * Range:     u8 n <= 22, u16 n <= 50, u32 n <= 137, u64 n <= 430,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 860 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t floor_isqrt_u64(idx_t x)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     const idx_t N = n;
     /* dp[i] will contain the number of partitions of i with all parts >= current_min. */
-    seq_t *dp = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(N + 1));
     if (!dp) return 0;                       /* allocation failure */
 
     dp[0] = 1;
@@ -75,6 +77,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

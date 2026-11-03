@@ -7,6 +7,7 @@
  * Formula:   a(n) = Stirling1st(11,n) (sign‑sensitive)
  * Range:     i8 none, i16 none, i32 n <= 11, i64 n <= 11, i128 n <= 11,
  *            big any n
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

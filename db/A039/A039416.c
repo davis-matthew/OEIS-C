@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,14 @@
 #include <stdbool.h>
 
 /* Make sure we have access to the utility allocator for seq_t arrays */
-#include "../utils/seq_alloc_new_array.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /* Forward declaration of the cache reallocation helper */
 static void ensure_cache_capacity(size_t needed);
@@ -52,7 +60,7 @@ static void ensure_cache_capacity(size_t needed)
 
     /* release old array */
     if (cache != NULL)
-        free(cache);  /* sequence elements have trivial destructors in C,
+        mem_free(cache);  /* sequence elements have trivial destructors in C,
                         * for C++ arbitrary‐precision types the allocator
                         * ensures proper destruction. */
     cache = new_arr;

@@ -9,12 +9,14 @@
  *            a(7)=5051, a(8)=15003, a(9)=245099, a(10)=505201, a(11)=750300
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 17, u64 n <= 32, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached values 0 .. cache_size-1   */
 static idx_t  cache_size = 0;        /* number of valid entries          */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap < n + 1) {
         size_t new_cap = cache_cap ? cache_cap : 16;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {
             /* Allocation failed – abort program (discarded in OEIS test harness) */
             abort();

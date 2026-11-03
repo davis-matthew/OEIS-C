@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 38, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 38, u16 n <= 3497, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 73 terms through n = 9459 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    has maximum part equal to its length. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of found terms   */
 static idx_t  cached = 0;            /* number of terms cached*/
@@ -50,7 +52,7 @@ static void extend_cache(idx_t n)
     /* initial allocation */
     if (capacity == 0) {
         capacity = 128;
-        cache = (seq_t*)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
     }
 
     while (cached < n) {
@@ -61,7 +63,7 @@ static void extend_cache(idx_t n)
         /* store it */
         if (cached >= capacity) {
             capacity *= 2;
-            seq_t *tmp = (seq_t*)realloc(cache, capacity * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, capacity);
             if (!tmp) abort();          /* memory allocation failed */
             cache = tmp;
         }

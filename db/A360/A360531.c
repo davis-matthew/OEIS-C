@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------  Fibonacci cache  ------------------------------------- */
 static seq_t *fib = NULL;     /* fib[0] ... fib[fib_len-1] */
@@ -36,7 +38,7 @@ static void ensure_fib_upto(idx_t n)
     size_t new_len = (size_t)(fib_len ? fib_len << 1 : 16);
     while (new_len <= (size_t)n) new_len <<= 1;
 
-    seq_t *new_fib = (seq_t *)realloc(fib, new_len * sizeof(seq_t));
+    seq_t *new_fib = mem_resize(seq_t, fib, new_len);
     if (!new_fib) exit(1);   /* allocation failure */
     fib = new_fib;
     for (size_t i = fib_len; i < new_len; ++i)
@@ -63,7 +65,7 @@ static void ensure_heap_cap(size_t needed)
     size_t new_cap = heap_cap ? heap_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
 
-    node_t *new_heap = (node_t *)realloc(heap, new_cap * sizeof(node_t));
+    node_t *new_heap = mem_resize(node_t, heap, new_cap);
     if (!new_heap) exit(1);
     heap = new_heap;
     heap_cap = new_cap;
@@ -130,7 +132,7 @@ static void cache_append(seq_t v)
 {
     if (cache_len == cache_cap) {
         cache_cap = cache_cap ? cache_cap << 1 : 16;
-        seq_t *new_cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, cache_cap);
         if (!new_cache) exit(1);
         cache = new_cache;
     }
@@ -143,7 +145,7 @@ static void init_globals(void)
     if (fib) return;  /* already initialized */
 
     /* Fibonacci array initialised with F(0)=0, F(1)=1. */
-    fib = (seq_t *)malloc(16 * sizeof(seq_t));
+    fib = mem_new(seq_t, 16);
     if (!fib) exit(1);
     fib[0] = 0;
     fib[1] = 1;

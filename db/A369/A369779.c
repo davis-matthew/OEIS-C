@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{p | n, p prime} (n/p) * phi(n/p) Equivalently: a(n)
  *            = n * Sum_{p | n, p prime} phi(n/p) / p
- * Range:     u8 n <= 33, u16 n <= 513, u32 n <= 9708, u64 n <= 9708,
- *            u128 n <= 9708, big any n
+ * Range:     u8 n <= 33, u16 n <= 513, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 81 terms through n = 9708 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

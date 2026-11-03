@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 535, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_pal_dec
+ * Validated: standard, pass, 88 terms through n = 9802 (2026-11-01)
+ * Helpers:   is_palindrome_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_pal_dec.h"
+#include "../utils/is_palindrome_idx.h"
 
 /* Maximum number of palindromes we keep in the cache.
    For n up to ~1e6 this plenty, and far more than needed for n≈1e4. */
@@ -45,7 +46,7 @@ static void extend_palins(idx_t new_max)
 {
     if (new_max <= palin_max_generated) return;
     for (idx_t i = palin_max_generated + 1; i <= new_max; ++i) {
-        if (is_pal_dec(i)) {
+        if (is_palindrome_idx(i)) {
             if (palin_cnt < MAX_PALIN_COUNT)
                 palins[palin_cnt++] = i;
         }
@@ -75,7 +76,7 @@ seq_t a(idx_t n)
 
             idx_t r = rest - q;
             if (r > q) continue;              /* enforce q >= r */
-            if (is_pal_dec(r))                /* found a valid decomposition */
+            if (is_palindrome_idx(r))                /* found a valid decomposition */
                 return (seq_t)p;
         }
     }

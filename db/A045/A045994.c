@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     /* initialise arrays once */
     if (!init) {
         size_t init_size = 1;
-        M = (seq_t*)malloc(init_size * sizeof(seq_t));
-        A = (seq_t*)malloc(init_size * sizeof(seq_t));
+        M = mem_new(seq_t, init_size);
+        A = mem_new(seq_t, init_size);
         if (!M || !A) abort();
         M[0] = (seq_t)1;
         A[0] = (seq_t)1;
@@ -48,10 +50,10 @@ seq_t a(idx_t n)
     /* grow arrays to accommodate up to n */
     size_t new_size = (size_t)(n + 1);
     seq_t *tmp;
-    tmp = (seq_t*)realloc(M, new_size * sizeof(seq_t));
+    tmp = mem_resize(seq_t, M, new_size);
     if (!tmp) abort();
     M = tmp;
-    tmp = (seq_t*)realloc(A, new_size * sizeof(seq_t));
+    tmp = mem_resize(seq_t, A, new_size);
     if (!tmp) abort();
     A = tmp;
 

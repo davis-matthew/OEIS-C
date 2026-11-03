@@ -8,7 +8,8 @@
  *            n!/(k+1)!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 426 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,14 @@
 /* Computes the n‑th term of OEIS sequence A317276. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;
 
     /* binomial(2k,k) for k = 0..n */
-    seq_t *b2k = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *b2k = mem_new(seq_t, (n + 1));
     if (!b2k) return (seq_t)0;
     b2k[0] = (seq_t)1;
     for (idx_t k = 1; k <= n; ++k) {
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
     /* binomial(n-1,k-1) for k = 1..n-1 */
     seq_t *bn1 = NULL;
     if (n > 1) {
-        bn1 = (seq_t*)malloc((n) * sizeof(seq_t));          /* indices 1..n‑1 used */
-        if (!bn1) { free(b2k); return (seq_t)0; }
+        bn1 = mem_new(seq_t, (n));          /* indices 1..n‑1 used */
+        if (!bn1) { mem_free(b2k); return (seq_t)0; }
         bn1[1] = (seq_t)1;
         for (idx_t k = 2; k <= n-1; ++k) {
             bn1[k] = bn1[k-1] * (seq_t)(n - k + 1) / (seq_t)(k - 1);
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     seq_t term_n = b2k[n] / (seq_t)(n + 1);
     sum += term_n;
 
-    free(b2k);
-    if (bn1) free(bn1);
+    mem_free(b2k);
+    if (bn1) mem_free(bn1);
     return sum;
 }

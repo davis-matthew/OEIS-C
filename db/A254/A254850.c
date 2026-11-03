@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 15, u64 n <= 37, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static uint64_t allow_mask[4096];
 static bool mask_inited = false;
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i < 4096; ++i) cur[i] = (seq_t)1;
 
     for (idx_t r = 3; r <= rows; ++r) {
-        memset(nxt, 0, sizeof(nxt));
+        mem_set(nxt, 0, sizeof(nxt));
         for (idx_t s = 0; s < 4096; ++s) {
             if ((seq_t)0 == cur[s]) continue;
             uint64_t mask = allow_mask[s];
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
             return total;
         }
         /* prepare for next iteration */
-        memcpy(cur, nxt, sizeof(cur));
+        mem_copy(cur, nxt, sizeof(cur));
     }
     return (seq_t)0;  /* should never reach here */
 }

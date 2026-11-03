@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
+ * Validated: standard, pass, 31 terms through n = 203 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Method: Count n×7 binary arrays avoiding the forbidden patterns  
    horizontally: 000 and 010;  
    vertically: 001 and 100.  

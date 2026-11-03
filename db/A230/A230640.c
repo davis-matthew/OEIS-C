@@ -9,14 +9,18 @@
  *            M(⌊n/2⌋) + 1 This implements OEIS sequence A230640
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -26,11 +30,10 @@ static idx_t cache_size = 0;
 static void ensure_cache(idx_t n) {
     if (n >= cache_size) {
         size_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) exit(EXIT_FAILURE);
         /* Zero the newly allocated portion */
-        memset(new_cache + cache_size, 0,
-               (new_size - cache_size) * sizeof(seq_t));
+        mem_set(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
         cache = new_cache;
         cache_size = new_size;
     }
@@ -54,7 +57,7 @@ static seq_t rec_M(idx_t n) {
     /* B = (Mc + Mk + 2) / 2 */
     seq_t B = (Mc + Mk + 2) >> 1;
 
-    seq_t pow3B = big_pow((seq_t)3, B);
+    seq_t pow3B = ipow((seq_t)3, B);
     seq_t Mn = pow3B + Mk + 1;
 
     cache[n] = Mn;

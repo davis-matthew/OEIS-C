@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   getA
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
    for n=1,2,3,…  (row n contains 2^(n-1)+1 terms indexed 0 … 2^(n-1)). */
 
 #include <stdint.h>
-#include "../utils/getA.h"
+
+static seq_t getA(idx_t r, idx_t m)
+{
+    if (r == 1)  /* base row */
+        return (m == 0) ? (seq_t)2 : (seq_t)1;
+
+    if ((m & (idx_t)1) == 0)   /* even m */
+        return getA(r - 1, m >> 1);
+    else /* odd m */
+        return getA(r - 1, (m - 1) >> 1) + getA(r - 1, (m + 1) >> 1);
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 977, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime64
+ * Validated: standard, pass, 50 terms through n = 9944 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,61 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/isPrime64.h"
+#include <stddef.h>
+
+/* modular multiplication for 64‑bit integers using a 128‑bit intermediate */
+static inline uint64_t mul64(uint64_t a, uint64_t b, uint64_t mod)
+{
+    return (uint64_t)((__uint128_t)a * b % mod);
+}
+
+/* modular exponentiation */
+static inline uint64_t powmod64(uint64_t a, uint64_t d, uint64_t mod)
+{
+    uint64_t result = 1;
+    a %= mod;
+    while (d)
+    {
+        if (d & 1ULL) result = mul64(result, a, mod);
+        a = mul64(a, a, mod);
+        d >>= 1ULL;
+    }
+    return result;
+}
+
+/* deterministic Miller–Rabin for 64‑bit integers */
+static bool isPrime64(uint64_t n)
+{
+    if (n < 2ULL) return false;
+    static const uint64_t small_primes[] = {2ULL,3ULL,5ULL,7ULL,11ULL,13ULL,17ULL,19ULL,
+                                             23ULL,29ULL,31ULL,37ULL};
+    for (size_t i = 0; i < sizeof(small_primes) / sizeof(small_primes[0]); ++i)
+    {
+        uint64_t p = small_primes[i];
+        if (n == p) return true;
+        if (n % p == 0ULL) return false;
+    }
+    /* factor n-1 = d * 2^s with d odd */
+    uint64_t d = n - 1ULL;
+    uint64_t s = 0;
+    while ((d & 1ULL) == 0ULL) { d >>= 1ULL; ++s; }
+    static const uint64_t bases[] = {2ULL,3ULL,5ULL,7ULL,11ULL,13ULL,17ULL};
+    for (size_t i = 0; i < sizeof(bases) / sizeof(bases[0]); ++i)
+    {
+        uint64_t a = bases[i] % n;
+        if (a == 0ULL) continue;
+        uint64_t x = powmod64(a, d, n);
+        if (x == 1ULL || x == n - 1ULL) continue;
+        bool composite = true;
+        for (uint64_t r = 1ULL; r < s; ++r)
+        {
+            x = mul64(x, x, n);
+            if (x == n - 1ULL) { composite = false; break; }
+        }
+        if (composite) return false;
+    }
+    return true;
+}
 
 /* Helper: raise a 64‑bit integer to a small power (5 or 4) in 128‑bit. */
 static inline unsigned __int128 pow5(uint32_t x)

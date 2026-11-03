@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 7144, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_palindromic_permutation
+ * Validated: standard, pass, 82 terms through n = 8784 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,37 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_palindromic_permutation.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a number satisfies the condition. */
+static bool has_palindromic_permutation(seq_t x)
+{
+    if (x == 0)
+        return false;
+
+    int cnt[10] = {0};
+    seq_t t = x;
+    while (t != 0) {
+        int d = (int)(t % 10);
+        cnt[d]++;
+        t /= 10;
+    }
+
+    int odd = 0;
+    int nonzero = 0;               /* total occurrences of digits 1–9 */
+    for (int i = 0; i < 10; ++i) {
+        if (cnt[i] & 1)
+            odd++;
+        if (i != 0)
+            nonzero += cnt[i];
+    }
+
+    if (odd > 1)
+        return false;
+    if (x >= 10 && nonzero < 2)
+        return false;
+    return true;
+}
 
 /* Main function requested by the build. */
 seq_t a(idx_t n)
@@ -37,7 +68,7 @@ seq_t a(idx_t n)
     /* First‑time initialisation */
     if (seq == NULL) {
         size_cap = 16;
-        seq = (seq_t *)malloc(size_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, size_cap);
         if (seq == NULL)
             return 0; /* allocation failure: unlikely in test environment */
     }
@@ -50,7 +81,7 @@ seq_t a(idx_t n)
         /* ensure capacity */
         if (size_len >= size_cap) {
             size_cap <<= 1;
-            seq = (seq_t *)realloc(seq, size_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, size_cap);
             if (seq == NULL)
                 return 0; /* allocation failure */
         }

@@ -8,14 +8,17 @@
  *            + … + nⁿ)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Compute the n‑th term of OEIS A384282. */
 seq_t a(idx_t n)
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     seq_t result = 1;                 /* running product                */
     seq_t denom_pow = 1;               /* n^i for the denominator part   */
     /* n^(2n) is needed for the first numerator; compute it once */
-    seq_t num_pow = big_pow(q, (seq_t)(2 * n));  /* n^(2n)   */
+    seq_t num_pow = ipow(q, (seq_t)(2 * n));  /* n^(2n)   */
 
     for (idx_t i = 1; i <= n; ++i) {
         /* Update denominator power: n^i */

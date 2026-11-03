@@ -7,6 +7,7 @@
  * Formula:   a(n) = -2^n/24 + 27*6^n/4 - 64*8^n/3 + 125*10^n/8
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 7, u64 n <= 16, u128 n <= 16,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

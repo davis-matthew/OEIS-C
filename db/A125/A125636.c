@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 196, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, mod_pow
+ * Validated: standard, pass, 70 terms through n = 945 (2026-11-01)
+ * Helpers:   build_primes_upto, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 /* Smallest odd prime q such that p^2 divides q^(p-1) – 1, where p is the nth prime. */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
     for (size_t i = 1; i < prime_count; ++i) {   /* prime_list[0] = 2, start at 3 */
         uint64_t q = prime_list[i];
         if ((q & 1ULL) == 0) continue;          /* skip even 2 */
-        if (mod_pow((seq_t)q, (uint64_t)(p - 1), mod) == 1)
+        if (powmod((seq_t)q, (uint64_t)(p - 1), mod) == 1)
             return (seq_t)q;
     }
 

@@ -12,7 +12,8 @@
  *            first 10 000 terms), counts representations usin...
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   comb_nk
+ * Validated: standard, pass, 53 terms through n = 8719 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/comb_nk.h"
+#include "../utils/mem.h"
+
+/* combinatorial count C(n,k) (k small) */
+static uint64_t comb_nk(uint64_t n, int k)
+{
+    uint64_t r = 1;
+    for (int i = 1; i <= k; ++i)
+        r = r * (n - k + i) / i;
+    return r;
+}
 
 /* table entry helper */
 static int cmp_uint64(const void *a, const void *b)
@@ -97,7 +107,7 @@ seq_t a(idx_t n)
             if (keys[i] && cnts[i] == 3)
                 ++count3;
 
-        terms = (seq_t *)malloc(count3 * sizeof(seq_t));
+        terms = mem_new(seq_t, count3);
         if (!terms) {
             free(keys); free(cnts);
             return 0;
@@ -110,7 +120,7 @@ seq_t a(idx_t n)
                 terms[pos++] = (seq_t)keys[i];
 
         /* sort the terms */
-        qsort(terms, pos, sizeof(seq_t), cmp_uint64);
+        mem_qsort(terms, pos, sizeof(seq_t), cmp_uint64);
         terms_len = pos;
 
         free(keys);

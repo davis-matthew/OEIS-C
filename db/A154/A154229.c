@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 39, u64 n <= 96, u128 n <= 262,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1251 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root for idx_t (unsigned 64‑bit).  */
 static inline idx_t idx_sqrt(idx_t x)
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     while (tri_rows <= (size_t)r) {
         idx_t row = (idx_t)tri_rows;
         size_t len = (size_t)row + 1;
-        seq_t *row_arr = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row_arr = mem_new(seq_t, len);
         if (!row_arr) return 0;                     /* allocation failed */
 
         if (row == 0) {
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
         if (tri_rows == tri_cap) {
             size_t new_cap = (tri_cap == 0) ? 4 : tri_cap * 2;
             seq_t **tmp = (seq_t **)realloc(tri, new_cap * sizeof(seq_t *));
-            if (!tmp) { free(row_arr); return 0; }
+            if (!tmp) { mem_free(row_arr); return 0; }
             tri = tmp;
             tri_cap = new_cap;
         }

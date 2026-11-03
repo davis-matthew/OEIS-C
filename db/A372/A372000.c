@@ -7,6 +7,7 @@
  * Formula:   a(n) = product of all primes p such that floor(n/p) is odd
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 36, u64 n <= 68, u128 n <= 142,
  *            big any n
+ * Validated: standard, pass, 56 terms through n = 3275 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

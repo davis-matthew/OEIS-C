@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1)^3 + 3*a(n-1)^2 - 3, a(0) = 1, a(1) = 2
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 9 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 
 static seq_t *memo = NULL;
@@ -23,18 +25,18 @@ static idx_t memo_len = 0;
 seq_t a(idx_t n) {
 	if (memo == NULL) {
 		memo_len = (n < 64) ? 128 : ((n + 1) * 2);
-		memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+		memo = mem_new(seq_t, memo_len);
 		computed = (unsigned char *)malloc(memo_len);
 		memset(computed, 0, memo_len);
 	} else if (n >= memo_len) {
 		idx_t new_len = memo_len * 2;
 		while (new_len <= n) new_len *= 2;
-		seq_t *new_memo = (seq_t *)malloc(new_len * sizeof(seq_t));
+		seq_t *new_memo = mem_new(seq_t, new_len);
 		unsigned char *new_computed = (unsigned char *)malloc(new_len);
-		memcpy(new_memo, memo, memo_len * sizeof(seq_t));
+		mem_copy(new_memo, memo, memo_len * sizeof(seq_t));
 		memcpy(new_computed, computed, memo_len);
 		memset(new_computed + memo_len, 0, new_len - memo_len);
-		free(memo);
+		mem_free(memo);
 		free(computed);
 		memo = new_memo;
 		computed = new_computed;

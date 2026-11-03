@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   grow_idx
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/grow_idx.h"
+
+static idx_t *grow_idx(idx_t *p, idx_t oldc, idx_t newc) {
+    p = (idx_t *)realloc(p, (newc + 1) * sizeof(idx_t));
+    memset(p + oldc + 1, 0, (newc - oldc) * sizeof(idx_t));
+    return p;
+}
 
 static idx_t M = 0, cap = 0, matched = 0, stamp = 0, lim = 0;
 static idx_t *mL = NULL, *mR = NULL, *visL = NULL, *visR = NULL;

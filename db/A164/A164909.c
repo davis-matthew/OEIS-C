@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Initial values: a(0)=1, a(1)=19, a(2)=342, a(3)=6156, a(4)=110808,
    a(5)=1994544, a(6)=35901792, a(7)=646232256, a(8)=11632180437 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (need > cache_len) {
         /* Grow the cache.  realloc returns void*, cast to seq_t* for C++ */
         size_t old_len = cache_len;
-        cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, need);
         cache_len = need;
 
         /* Initialise new entries. */

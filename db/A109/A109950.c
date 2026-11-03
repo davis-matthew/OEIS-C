@@ -12,7 +12,8 @@
  *            one part from that group can be used) and updates the DP in...
  * Range:     u8 n <= 45, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   digit_mask_uint32, seq_malloc
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,27 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_malloc.h"
-#include "../utils/digit_mask_uint32.h"
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+/* compute the 10‑bit digit mask of a positive integer */
+static inline uint32_t digit_mask_uint32(uint32_t x) {
+    uint32_t m = 0;
+    while (x) {
+        m |= 1u << (x % 10);
+        x /= 10;
+    }
+    return m;
+}
 
 typedef struct {
     uint32_t *data;
@@ -114,7 +134,7 @@ seq_t a(idx_t n)
 
     /* free temporary structures */
     for (int m = 0; m < MASKS; ++m) part_list_free(&lists[m]);
-    free(dp);
+    mem_free(dp);
 
     return result;
 }

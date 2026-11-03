@@ -9,8 +9,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum phi(k) over all non‑isolated divisors k of 2n.
  *            Non‑isolated divisor k satisfies k-1 | 2n or k+1 | 2n
- * Range:     u8 n <= 7139, u16 n <= 9937, u32 n <= 9937, u64 n <= 9937,
- *            u128 n <= 9937, big any n
+ * Range:     u8 n <= 7139, u16 n <= 32768, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 113 terms through n = 9937 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

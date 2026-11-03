@@ -11,14 +11,16 @@
  *            24*3^n) (see A084877)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 9, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 29 terms through n = 351 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"   /* Provides seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static const unsigned long long bases[] = {
     243ULL, 162ULL, 126ULL, 108ULL, 98ULL,
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     seq_t neg = 0;   /* sum of negative terms */
     idx_t i;
     for (i = 0; i < NUM_TERMS; ++i) {
-        seq_t term = big_pow((seq_t)bases[i], (seq_t)n);
+        seq_t term = ipow((seq_t)bases[i], (seq_t)n);
         int coef = coeffs[i];
         if (coef >= 0) {
             pos += (seq_t)coef * term;

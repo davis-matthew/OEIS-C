@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏_{p^e‖n} (p^⌈e/3⌉ – 1) (multiplicative)
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 93 terms through n = 9406 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Return the unitary totient of the smallest number whose cube is divisible by n */
 seq_t a(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < count; ++i) {
         int e = (int)exps[i];
         int ceil_exp = (e + 2) / 3;          /* ceil(e/3)  */
-        seq_t p_pow = big_pow((seq_t)primes[i], (seq_t)ceil_exp);
+        seq_t p_pow = ipow((seq_t)primes[i], (seq_t)ceil_exp);
         seq_t term = p_pow - (seq_t)1;
         result *= term;
     }

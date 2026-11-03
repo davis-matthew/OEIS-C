@@ -8,12 +8,17 @@
  *            of 1/458)
  * Range:     u8 none, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -25,8 +30,8 @@ seq_t a(idx_t n)
     idx_t exp = n + 1;
 
     /* 10^(n+1) mod 458  and  mod 4580 */
-    seq_t r  = mod_pow((seq_t)10, exp, MOD);   /* remainder modulo 458 */
-    seq_t s  = mod_pow((seq_t)10, exp, MOD1);  /* remainder modulo 4580 */
+    seq_t r  = powmod((seq_t)10, exp, MOD);   /* remainder modulo 458 */
+    seq_t s  = powmod((seq_t)10, exp, MOD1);  /* remainder modulo 4580 */
 
     /* (s - r) is a multiple of 458.  Use (s + MOD1 - r) to avoid underflow. */
     seq_t diff = s + MOD1 - r;

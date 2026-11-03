@@ -12,14 +12,36 @@
  *            · 2^(k-1) otherwise where C(n,k)=binomial coefficient
  * Range:     u8 n <= 23, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   binom_small, pow2, row_of
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/row_of.h"
-#include "../utils/binom_small.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
+
+static inline idx_t
+row_of(idx_t n)                 /* return r with r(r+1)/2 ≤ n < (r+1)(r+2)/2 */
+{
+    idx_t low  = 0;
+    idx_t high = 1;
+    /* exponential search to find an upper bound */
+    while ((unsigned __int128)high * (high + 1) / 2 <= n) {
+        low  = high;
+        high <<= 1;              /* double high */
+    }
+    /* binary search between low (inclusive) and high (inclusive) */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1) + 1; /* upper mid to avoid infinite loop */
+        if ((unsigned __int128)mid * (mid + 1) / 2 <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,8 +66,8 @@ seq_t a(idx_t n)
     /* Use k and r to avoid large intermediate exponents */
     idx_t c1_k = r - k - 1;                   /* choose index for first binomial */
     idx_t c2_k = r - k;                       /* choose index for second binomial */
-    seq_t comb1  = binom_small(r - 1, c1_k);  /* C(r-1, r-k-1) */
-    seq_t comb2  = binom_small(r - 1, c2_k);  /* C(r-1, r-k)   */
+    seq_t comb1  = binomial(r - 1, c1_k);  /* C(r-1, r-k-1) */
+    seq_t comb2  = binomial(r - 1, c2_k);  /* C(r-1, r-k)   */
 
     seq_t val    = comb1 * ((seq_t)2) + comb2 * ((seq_t)(r + 2));
     seq_t shift  = pow2(k - 1);               /* 2^(k-1) */

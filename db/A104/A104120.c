@@ -10,7 +10,8 @@
  *            upper bound for the (n+1)-th prime
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   estimate_prime_upper_bound
+ * Validated: partial, pass, 99 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/estimate_prime_upper_bound.h"
+#include <stdbool.h>
+#include <math.h>
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 static uint64_t *prime_table = NULL;   /* 0‑based prime list */
 static size_t   prime_count = 0;       /* number of primes stored */

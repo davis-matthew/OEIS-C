@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 38, u32 n <= 53, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -59,7 +60,7 @@ seq_t a(idx_t n)
             }
             break;
         case 4:                     /* H_4(r,2) = r^^2 = r^r */
-            value = big_pow((seq_t)r, (seq_t)r);
+            value = ipow((seq_t)r, (seq_t)r);
             break;
     }
 

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 26, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 
 #include <stdlib.h>   /* for calloc/ free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for elementary symmetric sums up to order p */
     size_t const sz = (size_t)p + 1;
-    seq_t *e = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *e = mem_new(seq_t, sz);
     if (!e) return 0;            /* allocation failure – unlikely for small n */
     e[0] = 1;                    /* e₀ = 1 */
 
@@ -82,6 +84,6 @@ seq_t a(idx_t n)
 
     seq_t result = e[p];
     if (p % 2 == 1) result = -result;   /* sign alternates with position p */
-    free(e);
+    mem_free(e);
     return result;
 }

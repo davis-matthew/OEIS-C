@@ -9,12 +9,14 @@
  *            a(7)=9219, a(8)=91970, a(9)=193159, a(10)=1830401, a(11)=2023560
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 15, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* ensure at least 12 slots */
         capacity = 12;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL) exit(EXIT_FAILURE);
 
         /* first 12 terms */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         size_t newcap = capacity;
         while ((size_t)n + 1 > newcap)
             newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) exit(EXIT_FAILURE);
         cache = tmp;
         capacity = newcap;

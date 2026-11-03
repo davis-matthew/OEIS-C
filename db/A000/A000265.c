@@ -7,8 +7,9 @@
  * Keywords:  mult, nonn, easy, nice
  * Formula:   a(n) = if n is odd then n, otherwise a(n/2); i.e. a(n) =
  *            n/A006519(n)
- * Range:     u8 n <= 256, u16 n <= 8274, u32 n <= 8274, u64 n <= 8274,
- *            u128 n <= 8274, big any n
+ * Range:     u8 n <= 256, u16 n <= 65536, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 93 terms through n = 8274 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 3306, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, powmod64
+ * Validated: standard, pass, 71 terms through n = 9922 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
-#include "../utils/powmod64.h"   /* uint64_t powmod64(uint64_t, uint64_t, uint64_t); */
+#include "../utils/is_prime.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* Static storage for the inert primes */
 static seq_t *inert_primes = NULL;   /* array of inert primes */
@@ -42,7 +44,7 @@ static void ensure_inert(idx_t need)
         size_t new_cap = inert_cap ? inert_cap * 2 : 64;
         if (new_cap < (size_t)need)
             new_cap = (size_t)need;
-        seq_t *tmp = (seq_t *)realloc(inert_primes, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, inert_primes, new_cap);
         if (!tmp) abort();          /* out of memory */
         inert_primes = tmp;
         inert_cap = new_cap;
@@ -55,7 +57,7 @@ static void ensure_inert(idx_t need)
             if (next_candidate != 11) {
                 /* Legendre symbol (11 / next_candidate) via Euler's criterion */
                 uint64_t p   = (uint64_t)next_candidate;
-                uint64_t leg = powmod64(11, (p - 1) / 2, p);
+                uint64_t leg = powmod_u64(11, (p - 1) / 2, p);
                 if (leg == p - 1) { /* Legendre = -1 => inert prime */
                     inert_primes[inert_cnt++] = (seq_t)next_candidate;
                 }

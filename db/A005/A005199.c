@@ -13,7 +13,8 @@
  *            d*p(d)) E(n-m)); this is d/dy at y=1 of Pro...
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 26, u64 n <= 47, u128 n <= 88,
  *            big any n
- * Helpers:   grow_u128, grow_zero, seq_is_fixed_width, u128_to_seq
+ * Validated: standard, pass, 49 terms through n = 118 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,52 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/grow_zero.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/grow_u128.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static unsigned __int128 *grow_u128(unsigned __int128 *old, idx_t oldlen, idx_t newlen) {
+    unsigned __int128 *v = (unsigned __int128 *)calloc((size_t)newlen, sizeof(unsigned __int128));
+    if (old) {
+        memcpy(v, old, (size_t)oldlen * sizeof(unsigned __int128));
+        free(old);
+    }
+    return v;
+}
 
 #define DEFINE_IMPL(S, T, GROW)                                              \
 static T *r_##S, *cr_##S, *p_##S, *ce_##S, *D_##S, *E_##S;                   \

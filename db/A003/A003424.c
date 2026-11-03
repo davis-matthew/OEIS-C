@@ -11,8 +11,8 @@
  *            there are at least n terms
  * Range:     u8 n <= 8, u16 n <= 24, u32 n <= 538, u64 n <= 4738,
  *            u128 n <= 4738, big any n
- * Helpers:   A3424_cmp, A3424_isprime, A3424_isqrt, A3424_mulmod,
- *            A3424_powmod
+ * Validated: standard, pass, 57 terms through n = 4358 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +21,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/A3424_cmp.h"
-#include "../utils/A3424_isprime.h"
-#include "../utils/A3424_isqrt.h"
-#include "../utils/A3424_mulmod.h"
-#include "../utils/A3424_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+static int A3424_cmp(const void *p, const void *q) {
+  uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+  return (x > y) - (x < y);
+}
 
 static uint64_t *A3424_terms = NULL;
 static size_t A3424_cnt = 0, A3424_cap = 0;
@@ -41,14 +45,14 @@ static void A3424_push(uint64_t v) {
 }
 
 static void A3424_build(uint64_t L) {
-  uint64_t S = A3424_isqrt(L), i, j;
+  uint64_t S = isqrt_u64(L), i, j;
   int m;
   A3424_cnt = 0;
   /* k = 2: q+1 prime forces q = 2^m */
   for (m = 1; m < 63; m++) {
     uint64_t v = ((uint64_t)1 << m) + 1;
     if (v > L) break;
-    if (A3424_isprime(v)) A3424_push(v);
+    if (is_prime_u64(v)) A3424_push(v);
   }
   /* k >= 3: q^2 < L, so q <= sqrt(L) */
   char *comp = (char *)calloc((size_t)S + 1, 1);
@@ -60,7 +64,7 @@ static void A3424_build(uint64_t L) {
       for (;;) {
         V = V * q + 1;
         if (V > (unsigned __int128)L) break;
-        if (A3424_isprime((uint64_t)V)) A3424_push((uint64_t)V);
+        if (is_prime_u64((uint64_t)V)) A3424_push((uint64_t)V);
       }
       if (q > S / i) break;
     }

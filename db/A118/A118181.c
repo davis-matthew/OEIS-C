@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{k=0..n} (3^k)^(n-k) = Sum_{k=0..n} 3^{k*(n-k)}
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cache for powers of 3 up to the largest n requested so far */
 static seq_t *pow3 = NULL;
@@ -28,9 +30,9 @@ static void ensure_pow3(idx_t n)
     if (pow3_len >= new_len)
         return;
 
-    seq_t *new_arr = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_len);
     if (pow3_len > 0)
-        memcpy(new_arr, pow3, pow3_len * sizeof(seq_t));
+        mem_copy(new_arr, pow3, pow3_len * sizeof(seq_t));
 
     /* Compute new entries */
     for (idx_t i = pow3_len; i < new_len; ++i)
@@ -41,7 +43,7 @@ static void ensure_pow3(idx_t n)
             new_arr[i] = new_arr[i - 1] * (seq_t)3;
     }
 
-    free(pow3);
+    mem_free(pow3);
     pow3 = new_arr;
     pow3_len = new_len;
 }

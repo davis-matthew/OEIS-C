@@ -12,13 +12,15 @@
  *            requested n and then applies the recurrence...
  * Range:     u8 n <= 230, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 2384 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed a(n) values and precomputed divisor sums s(k). */
 static seq_t *A_cache   = NULL;          /* a values */
@@ -37,9 +39,9 @@ static void ensure_cache(idx_t n)
     signed long long *tmpS = NULL;
 
     if (A_cache)
-        tmpA = (seq_t*)realloc(A_cache, new_size * sizeof(seq_t));
+        tmpA = mem_resize(seq_t, A_cache, new_size);
     else
-        tmpA = (seq_t*)malloc(new_size * sizeof(seq_t));
+        tmpA = mem_new(seq_t, new_size);
 
     if (!tmpA) exit(1);
     A_cache = tmpA;
@@ -50,7 +52,7 @@ static void ensure_cache(idx_t n)
         tmpS = (signed long long*)malloc(new_size * sizeof(signed long long));
 
     if (!tmpS) {
-        free(A_cache);
+        mem_free(A_cache);
         exit(1);
     }
     S_cache = tmpS;

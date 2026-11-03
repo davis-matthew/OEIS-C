@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   non_increasing_digits
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,33 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/non_increasing_digits.h"
+#include "../utils/mem.h"
+
+/* Test whether the decimal representation of x has non‑increasing digits
+ * (left‑to‑right). */
+static bool non_increasing_digits(seq_t x)
+{
+    /* 2^128 has 39 decimal digits; a uint8_t array of length 80 is ample */
+    uint8_t digs[80];
+    size_t dlen = 0;
+
+    if (x == 0)
+        return true;
+
+    seq_t t = x;
+    while (t > 0) {
+        digs[dlen++] = (uint8_t)(t % 10);
+        t /= 10;
+    }
+
+    /* digits[0] is least significant, digits[dlen‑1] most significant.
+       Check that each more significant digit is >= the next one. */
+    for (size_t i = dlen - 1; i > 0; --i) {
+        if (digs[i] < digs[i - 1])
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +63,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* generate terms until we have at least n */
@@ -47,7 +74,7 @@ seq_t a(idx_t n)
             /* grow cache if needed */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 1;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

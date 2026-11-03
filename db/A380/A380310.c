@@ -9,13 +9,15 @@
  *            (5*(k‑1)+1) (k ≥ 2)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 14, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 355 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  Ensure that the array *ptr has capacity at least 'needed'.
  *  'cap' stores the current capacity. */
@@ -23,7 +25,7 @@ static void ensure_capacity(size_t needed, size_t *cap, seq_t **ptr) {
     if (needed > *cap) {
         size_t new_cap = (*cap == 0) ? needed : (*cap);
         while (new_cap < needed) new_cap *= 2;
-        *ptr = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+        *ptr = mem_resize(seq_t, *ptr, new_cap);
         *cap = new_cap;
     }
 }

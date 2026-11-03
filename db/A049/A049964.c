@@ -10,12 +10,14 @@
  *            a(2*n-3-2^ceil(log2(n-1))) for n >= 4 Sequence A049964
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 32, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised array of values and prefix sums */
 static seq_t *a_val = NULL;
@@ -28,8 +30,8 @@ static void ensure(idx_t n)
     if ((idx_t)alloc_size > n) return;            /* already computed */
 
     size_t new_size = (size_t)n + 1;              /* need indices 0..n */
-    seq_t *new_a  = (seq_t *)realloc(a_val, new_size * sizeof(seq_t));
-    seq_t *new_p  = (seq_t *)realloc(pref_sum, new_size * sizeof(seq_t));
+    seq_t *new_a  = mem_resize(seq_t, a_val, new_size);
+    seq_t *new_p  = mem_resize(seq_t, pref_sum, new_size);
     if (!new_a || !new_p) abort();               /* allocation failure */
 
     a_val = new_a;

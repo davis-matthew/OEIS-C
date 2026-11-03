@@ -13,7 +13,8 @@
  *            64‑bit idx_t
  * Range:     u8 n <= 7, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* Internal storage for sequences and used marks */
 static seq_t *a_arr   = NULL;      /* a values */
@@ -48,7 +50,7 @@ static void ensure_a_capacity(size_t need)
     if (a_cap < need) {
         size_t new_cap = a_cap ? a_cap << 1 : 8;
         while (new_cap < need) new_cap <<= 1;
-        a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
         a_cap = new_cap;
     }
 }
@@ -58,7 +60,7 @@ static void ensure_b_capacity(size_t need)
     if (b_cap < need) {
         size_t new_cap = b_cap ? b_cap << 1 : 8;
         while (new_cap < need) new_cap <<= 1;
-        b_arr = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
+        b_arr = mem_resize(seq_t, b_arr, new_cap);
         b_cap = new_cap;
     }
 }

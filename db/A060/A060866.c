@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = sigma(n) + sqrt(n) if n is a perfect square (otherwise
  *            sigma(n))
- * Range:     u8 n <= 107, u16 n <= 9604, u32 n <= 9604, u64 n <= 9604,
- *            u128 n <= 9604, big any n
+ * Range:     u8 n <= 107, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 85 terms through n = 9604 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

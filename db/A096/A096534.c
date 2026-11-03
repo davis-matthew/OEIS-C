@@ -7,7 +7,8 @@
  * Formula:   a(1)=0; a(2)=1; a(n) = (a(n-1)+a(n-2)) mod n (n ≥ 3)
  * Range:     u8 n <= 266, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9313 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of cached values, indexed from 1 */
 static idx_t cache_size = 0;         /* current allocated size (>= 1 + max index used) */
@@ -33,12 +35,12 @@ static void ensure_cache(idx_t n)
     if (cache_size >= needed)
         return;
 
-    seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (!tmp)                                  /* fatal error (out of memory) */
         exit(EXIT_FAILURE);
 
     /* zero the newly allocated part (safe default) */
-    memset(tmp + cache_size, 0, (needed - cache_size) * sizeof(seq_t));
+    mem_set(tmp + cache_size, 0, (needed - cache_size) * sizeof(seq_t));
 
     cache = tmp;
     cache_size = needed;

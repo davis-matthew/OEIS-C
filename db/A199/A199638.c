@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    calls is O(n) overall. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_size = (n > 11) ? n : 11;      /* at least up to index 11 */
-        cache = (seq_t *)malloc((cache_size + 1) * sizeof(seq_t));
-        memset(cache, 0, (cache_size + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_size + 1));
+        mem_set(cache, 0, (cache_size + 1) * sizeof(seq_t));
 
         /* set the known base values */
         cache[4] = 5;
@@ -55,12 +57,12 @@ seq_t a(idx_t n)
     /* grow the cache if a requested index is larger than we have */
     if (n > cache_size)
     {
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache)             /* abort on malloc failure */
             abort();
         cache = new_cache;
         /* initialise new cells to zero (they will be set by the recurrence) */
-        memset(cache + cache_size + 1, 0, (n - cache_size) * sizeof(seq_t));
+        mem_set(cache + cache_size + 1, 0, (n - cache_size) * sizeof(seq_t));
         cache_size = n;
     }
 

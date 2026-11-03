@@ -7,14 +7,24 @@
  * Formula:   A036667 – the nth number of the form 2^i · 3^j with i+j even
  * Range:     u8 n <= 13, u16 n <= 47, u32 n <= 175, u64 n <= 672,
  *            u128 n <= 2636, big any n
- * Helpers:   parity_even
+ * Validated: standard, pass, 60 terms through n = 9607 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/parity_even.h"
+#include "../utils/mem.h"
+
+/* ---------- helper: parity of i+j for a 2^i*3^j number ----------- */
+static int parity_even(seq_t v)
+{
+    int c2 = 0, c3 = 0;
+    while ((v % (seq_t)2) == 0) { v /= 2; ++c2; }
+    while ((v % (seq_t)3) == 0) { v /= 3; ++c3; }
+    return ((c2 + c3) & 1) == 0;
+}
 
 /* ---------- static cache data ------------------------------------- */
 static seq_t *humble = NULL;     /* all 2^i*3^j numbers, ascending */
@@ -30,7 +40,7 @@ static void grow_array(seq_t **ptr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t new_cap = (*cap == 0) ? 32 : (*cap * 2);
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
     *ptr = tmp;
     *cap = new_cap;
 }

@@ -10,6 +10,7 @@
  *            otherwise
  * Range:     i8 n <= 465, i16 n <= 465, i32 n <= 465, i64 n <= 465,
  *            i128 n <= 465, big any n
+ * Validated: standard, pass, 107 terms through n = 462 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

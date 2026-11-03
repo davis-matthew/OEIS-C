@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Concatenate cubes: a(n) = concat_{k=1..n}k^3 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[i-1] holds a(i) */
 static size_t cache_len = 0;  /* number of terms currently cached */
@@ -33,8 +35,7 @@ seq_t a(idx_t n)
     /* if we don't have enough terms cached, extend the cache */
     if ((size_t)n > cache_len) {
         /* allocate or grow the cache to at least n elements */
-        seq_t *c = (seq_t *)realloc(cache,
-                                    (size_t)n * sizeof(seq_t));
+        seq_t *c = mem_resize(seq_t, cache, (size_t)n);
         if (!c) return 0;          /* allocation failed, return 0 silently */
         cache = c;
 

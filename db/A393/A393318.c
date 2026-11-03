@@ -9,8 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   spiral_coords_from_num, spiral_num_from_coords, spiral_num_to_x,
- *            spiral_num_to_y
+ * Validated: standard, pass, 62 terms through n = 9121 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +23,73 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/spiral_coords_from_num.h"
-#include "../utils/spiral_num_from_coords.h"
-#include "../utils/spiral_num_to_x.h"
-#include "../utils/spiral_num_to_y.h"
+
+static int64_t spiral_num_to_x(int64_t k, int64_t offset)
+{
+    /* helper to compute x coordinate on the layer k */
+    if (offset < 2 * k)       /* right side (excluding corner) */
+        return k;
+    if (offset < 4 * k)       /* top side */
+        return k - 1 - (offset - 2 * k);
+    if (offset < 6 * k)       /* left side */
+        return -k;
+    /* bottom side (including corner) */
+    return -k + 1 + (offset - 6 * k);
+}
+
+static int64_t spiral_num_to_y(int64_t k, int64_t offset)
+{
+    if (offset < 2 * k)       /* right side (excluding corner) */
+        return -k + 1 + offset;
+    if (offset < 4 * k)       /* top side */
+        return k;
+    if (offset < 6 * k)       /* left side */
+        return k - 1 - (offset - 4 * k);
+    /* bottom side (including corner) */
+    return -k;
+}
+
+/* Convert board number to (x,y) coordinates on the square spiral */
+static void spiral_coords_from_num(uint64_t num, int64_t *x, int64_t *y)
+{
+    if (num == 1) {
+        *x = 0;
+        *y = 0;
+        return;
+    }
+    uint64_t k = 0;
+    while ((2 * k + 1) * (2 * k + 1) < num) ++k;   /* layer of num */
+    uint64_t side  = 2 * k + 1;
+    uint64_t prev  = (side - 2) * (side - 2);
+    uint64_t offset = num - prev - 1;              /* 0‑based offset on the ring */
+    *x = spiral_num_to_x(k, offset);
+    *y = spiral_num_to_y(k, offset);
+}
+
+/* Convert (x,y) coordinates back to board number */
+static uint64_t spiral_num_from_coords(int64_t x, int64_t y)
+{
+    int64_t ax = x >= 0 ? x : -x;
+    int64_t ay = y >= 0 ? y : -y;
+    int64_t k  = ax > ay ? ax : ay;                 /* layer */
+    if (k == 0) return 1;
+
+    uint64_t kk   = (uint64_t)k;
+    uint64_t side = 2 * kk + 1;
+    uint64_t prev = (side - 2) * (side - 2);        /* last number of inner layer */
+
+    uint64_t offset;
+    if (x ==   k && y != -k)                    /* right side, not corner */
+        offset = (uint64_t)(y + k - 1);
+    else if (y ==   k)                          /* top side */
+        offset = 2 * kk + ((kk - 1) - (uint64_t)x);
+    else if (x == -k)                           /* left side */
+        offset = 4 * kk + ((kk - 1) - (uint64_t)y);
+    else                                        /* bottom side, includes corner (k,-k) */
+        offset = 6 * kk + ((uint64_t)x + k - 1);
+
+    return prev + 1 + offset;
+}
 
 /*---------- square–spiral conversion ------------------*/
 

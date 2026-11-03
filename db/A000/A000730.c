@@ -11,14 +11,30 @@
  *            identity Product (1-x^n)^3 = Sum_{i>=0} (-1)^i (2...
  * Range:     i8 n <= 8, i16 n <= 608, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   eta6_coef, tri_u
+ * Validated: standard, pass, 62 terms through n = 9964 (2026-11-01)
+ * Helpers:   triangular_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/eta6_coef.h"
-#include "../utils/tri_u.h"
+#include "../utils/triangular_u64.h"
+
+/* coefficient of x^m in Product (1-x^n)^6 */
+static long long eta6_coef(uint64_t m) {
+    long long s = 0;
+    uint64_t j = 0, i;
+    while (triangular_u64(j + 1) <= m) j++;
+    for (i = 0; triangular_u64(i) <= m; i++) {
+        uint64_t r = m - triangular_u64(i);
+        while (triangular_u64(j) > r) j--;
+        if (triangular_u64(j) == r) {
+            long long t = (long long)(2 * i + 1) * (long long)(2 * j + 1);
+            s += ((i + j) & 1) ? -t : t;
+        }
+    }
+    return s;
+}
 
 seq_t a(idx_t n) {
     long long s = eta6_coef(n);

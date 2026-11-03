@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, changed
  * Formula:   not stated
- * Range:     u8 n <= 113, u16 n <= 9522, u32 n <= 9522, u64 n <= 9522,
- *            u128 n <= 9522, big any n
- * Helpers:   none
+ * Range:     u8 n <= 113, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 78 terms through n = 9522 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*----- Static state -----------------------------------------------------*/
 static idx_t current_k = 2;           /* next candidate k to test       */
@@ -74,7 +76,7 @@ static void ensure_terms(idx_t needed)
         if (d_k % d_next == 0) {            /* k satisfies the condition */
             if (seq_size == seq_alloc) {    /* grow result array */
                 seq_alloc = seq_alloc ? seq_alloc * 2 : 8;
-                seq = (seq_t *)realloc(seq, seq_alloc * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_alloc);
                 if (!seq)
                     abort();
             }

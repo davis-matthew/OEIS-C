@@ -7,13 +7,15 @@
  * Formula:   a(n) = nth divisor of 556 in increasing order
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for seq_t values. */
 static int cmp_seq_t_func(const void *p, const void *q) {
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
                     divs[divcnt++] = (seq_t)(m / i);
             }
         }
-        qsort(divs, divcnt, sizeof(seq_t), cmp_seq_t_func);
+        mem_qsort(divs, divcnt, sizeof(seq_t), cmp_seq_t_func);
     }
 
     if (n == 0) return 0;                       /* invalid offset, safe guard */

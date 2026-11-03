@@ -9,6 +9,7 @@
  *            of 1/Φ_161(x), * where Φ_161 is the 161‑st cyclotomic polynomial
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 97 terms through n = 831 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

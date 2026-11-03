@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   simple_sieve
+ * Validated: standard, pass, 71 terms through n = 9995 (2026-11-03)
+ * Helpers:   mem, simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/simple_sieve.h"
+#include "../utils/mem.h"
 
 static const uint32_t PRIME_SIEVE_LIMIT = 5000000;   /* ~348k primes */
 
@@ -43,7 +45,7 @@ static void init_terms(void)
 
     /* We will write at most pcnt entries */
     kcap  = pcnt;
-    klist = (seq_t *)malloc(kcap * sizeof(seq_t));
+    klist = mem_new(seq_t, kcap);
     if (!klist) {
         /* out of memory – aborting is safest for the judge */
         exit(EXIT_FAILURE);

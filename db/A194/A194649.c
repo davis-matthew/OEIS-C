@@ -12,12 +12,14 @@
  *            n=1 : 1 n=2 : 3 4 n=3 : 13 36 24 … The sequence a(n)...
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build */
 extern seq_t a(idx_t n);
@@ -37,7 +39,7 @@ static idx_t last_row = 0;             /* last row number processed      */
 static void ensure_cache_capacity(size_t len)
 {
     if (cache_len < len) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * len);
+        seq_t *tmp = mem_resize(seq_t, cache, len);
         if (!tmp) abort();
         cache = tmp;
         cache_len = len;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* start with room for at least two values */
         cache_len = 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();
 
         /* row 0 */
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
 
         /* Initialise previous row to row 1 for recurrence */
         prev_len = 1;
-        prev_row = (seq_t *)malloc(sizeof(seq_t));
+        prev_row = mem_new(seq_t, 1);
         if (!prev_row) abort();
         prev_row[0] = (seq_t)1;
 
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
         size_t len = (next_row >= 2) ? (size_t)next_row : 1;
 
         /* Allocate array for the next row */
-        seq_t *next = (seq_t *)malloc(sizeof(seq_t) * len);
+        seq_t *next = mem_new(seq_t, len);
         if (!next) abort();
 
         /* Compute coefficients of the next row via the recurrence */
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
         }
 
         /* Prepare for next iteration */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = next;
         prev_len = len;
         last_row = next_row;

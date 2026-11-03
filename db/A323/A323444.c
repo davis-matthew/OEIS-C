@@ -8,7 +8,8 @@
  * Formula:   a(n) = (n+1) * Ω(n!) – 2 * Σ_{k=0..n} Ω(k!)
  * Range:     u8 n <= 31, u16 n <= 809, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega
+ * Validated: standard, pass, 74 terms through n = 9440 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 /* caches for Ω(k!) and its prefix sums; index 0 holds Ω(0!) = 0. */
 static seq_t *omega_fact = NULL;  /* Ω(k!)  for 0 ≤ k ≤ current_max_n   */
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
             new_cap <<= 1;
 
         /* Reallocate arrays to the new capacity. */
-        omega_fact = (seq_t*)realloc(omega_fact, new_cap * sizeof(seq_t));
-        cum_omega  = (seq_t*)realloc(cum_omega,  new_cap * sizeof(seq_t));
+        omega_fact = mem_resize(seq_t, omega_fact, new_cap);
+        cum_omega  = mem_resize(seq_t, cum_omega, new_cap);
 
         /* Initialise index 0 if this is the first allocation. */
         if (max_n == 0) {

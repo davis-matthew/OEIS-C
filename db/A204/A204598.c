@@ -8,14 +8,23 @@
  *            least once
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   all_digits
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/all_digits.h"
+
+/* digits: least‑significant digit first, len = number of digits */
+static bool all_digits(const uint8_t *digits, int len)
+{
+    unsigned seen = 0;          /* bit i set iff digit i has been seen */
+    for (int i = 0; i < len; ++i)
+        seen |= 1U << digits[i];
+    return seen == 0x3FFU;      /* 10 bits all set */
+}
 
 /* Check whether every decimal digit appears at least once */
 

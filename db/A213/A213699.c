@@ -13,12 +13,14 @@
  *            84059234, 342943680, 1169405354...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 9, u64 n <= 89, u128 n <= 144,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 143 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -31,7 +33,7 @@ static void init_cache(void)
         cache_capacity = 19;
     }
     if (!cache) {
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) return;  /* allocation failure – graceful exit */
         cache[0]  = 70;
         cache[1]  = 7827;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         /* Grow the buffer if necessary. */
         if (cache_size == cache_capacity) {
             size_t new_capacity = cache_capacity * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
             if (!tmp) return 0;  /* allocation failure */
             cache = tmp;
             cache_capacity = new_capacity;

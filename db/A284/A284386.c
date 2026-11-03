@@ -8,13 +8,15 @@
  *            a(n) is the n‑th symbol (1‑based) of this infinite word
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 8903 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state shared by all calls of a() */
 static seq_t *cache      = NULL; /* current word */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     /* initialise on first call */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(EXIT_FAILURE);
         cache[0] = (seq_t)1;    /* start from the fixed point symbol ‘1’ */
         cache_len = 1;
@@ -45,7 +47,7 @@ static void ensure_cache(idx_t n)
         }
         size_t new_len = zeros + 4 * ones;   /* 0→1 (len 1), 1→1101 (len 4) */
 
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) exit(EXIT_FAILURE);
 
         size_t pos = 0;
@@ -60,7 +62,7 @@ static void ensure_cache(idx_t n)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache      = new_cache;
         cache_len  = new_len;
         cache_cap  = new_len;

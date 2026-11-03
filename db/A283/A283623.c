@@ -7,6 +7,7 @@
  * Formula:   a(n) = prime(n) + (1 + prime(n+1))/2
  * Range:     u8 n <= 39, u16 n <= 4551, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9315 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,9 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 /* Cached primes: primes[0] = prime(1), primes[1] = prime(2), ... */

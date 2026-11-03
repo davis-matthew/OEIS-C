@@ -9,7 +9,8 @@
  *            contains exactly one 0 and no 2's
  * Range:     u8 n <= 49, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   _valid
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_valid.h"
+#include "../utils/mem.h"
+
+static inline bool _valid(seq_t v) {
+    if (v == 0) return true;          /* '0' has exactly one zero digit */
+    seq_t t = v;
+    int zero_cnt = 0;
+    while (t > 0) {
+        uint64_t d = (uint64_t)(t % 5);
+        if (d == 2) return false;
+        if (d == 0) zero_cnt++;
+        t /= 5;
+    }
+    return zero_cnt == 1;
+}
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -29,7 +43,7 @@ seq_t a(idx_t n) {
         if (_valid(cur)) {
             if (size == cap) {
                 size_t newcap = cap ? cap * 2 : 16;
-                seq_t *p = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *p = mem_resize(seq_t, cache, newcap);
                 cache = p;
                 cap = newcap;
             }

@@ -7,7 +7,8 @@
  * Formula:   Numbers k such that φ(k + 4) | σ(k)
  * Range:     u8 n <= 27, u16 n <= 764, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* a(n) – nth such integer (a(1)=5) */
 seq_t a(idx_t n) {
@@ -69,8 +71,7 @@ seq_t a(idx_t n) {
             /* store the term */
             if (count >= cap) {
                 size_t new_cap = (cap == 0 ? 16 : cap * 2);
-                seq_t *new_terms = (seq_t *)realloc(terms,
-                                        new_cap * sizeof(seq_t));
+                seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
                 if (!new_terms) exit(1);
                 terms = new_terms;
                 cap = new_cap;

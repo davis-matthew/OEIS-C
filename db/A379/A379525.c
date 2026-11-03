@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 138, u16 n <= 1569, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_sq_dec
+ * Validated: standard, pass, 81 terms through n = 9196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,20 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/sum_sq_dec.h"
+#include "../utils/mem.h"
+
+/* Sum of squares of decimal digits of x. Works for built‑in ints and
+ * arbitrary‑precision classes that support %10, /10 and >0. */
+static seq_t sum_sq_dec(seq_t x)
+{
+    seq_t sum = 0;
+    while (x > 0) {
+        seq_t d = x % 10;
+        sum += d * d;
+        x /= 10;
+    }
+    return sum;
+}
 
 /* Helper struct to record how many times a value has appeared. */
 struct val_count {
@@ -59,7 +73,7 @@ static void ensure_terms(size_t need)
     if (terms_cap < need) {
         size_t newcap = terms_cap ? terms_cap * 2 : 8;
         while (newcap < need) newcap *= 2;
-        terms = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, newcap);
         terms_cap = newcap;
     }
 }
@@ -70,8 +84,7 @@ static void ensure_val_counts(size_t need)
     if (vc_cap < need) {
         size_t newcap = vc_cap ? vc_cap * 2 : 8;
         while (newcap < need) newcap *= 2;
-        vc_arr = (struct val_count *)realloc(vc_arr,
-                                              newcap * sizeof(struct val_count));
+        vc_arr = mem_resize(struct val_count, vc_arr, newcap);
         vc_cap = newcap;
     }
 }

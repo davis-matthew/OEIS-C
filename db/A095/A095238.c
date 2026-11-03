@@ -7,7 +7,8 @@
  * Formula:   a(n) = n * (sum_{k=1}^{n-1} a(k) mod n), a(1) = 1
  * Range:     u8 n <= 12, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    thread‑safe only on a single thread (as required by the judge). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (n == 1) {
         if (cached < 1) {
             /* Allocate space for a[1] */
-            cache = (seq_t *)malloc(sizeof(seq_t) * 1);
+            cache = mem_new(seq_t, 1);
             cache[0] = (seq_t)1;
             sum_cum = cache[0];
             cached = 1;
@@ -44,9 +46,9 @@ seq_t a(idx_t n)
         /* Grow the cache to hold values up to n */
         idx_t new_size = n;
         if (cached == 0) {
-            cache = (seq_t *)malloc(sizeof(seq_t) * new_size);
+            cache = mem_new(seq_t, new_size);
         } else {
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+            cache = mem_resize(seq_t, cache, new_size);
         }
 
         /* Compute missing values sequentially from cached+1 to n */

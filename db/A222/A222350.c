@@ -12,7 +12,8 @@
  *            a(n) = Σ_{s=0}^{n+5} Σ_{t=0}^{n+5} Lleft[s]...
  * Range:     u8 none, u16 n <= 3, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   binom, dfs_brute
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,40 @@
 #include <stdlib.h>
 #include <stdint.h>
 /* Utility for binomial coefficients */
-#include "../utils/binom.h"
-#include "../utils/dfs_brute.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------------ */
+static void dfs_brute(idx_t pos, idx_t rem, seq_t pref, idx_t *arr,
+                      idx_t n, idx_t L, seq_t *cnt)
+{
+    if (pos == L) {
+        if (rem == 0) {
+            /* Check suffix constraints.
+             * For the last five positions, the cumulative number of element
+             * placements must not exceed n + (length of suffix) .           */
+            seq_t suff = 0;
+            for (idx_t j = L; j-- > 0; ) {
+                suff += arr[j];
+                idx_t suffix_len = L - 1 - j;          /* 0 … 4   */
+                if (suffix_len <= 4 && suff > (seq_t)(n + suffix_len + 1))
+                    return;
+            }
+            *cnt += 1;
+        }
+        return;
+    }
+
+    /* Upper bound for the prefix sum (only the first five positions).   */
+    seq_t max_pref = (pos <= 4) ? (seq_t)(n + pos + 1) : (seq_t)(-1);
+    for (idx_t val = 0; val <= rem; ++val) {
+        seq_t new_pref = pref + (seq_t)val;
+        if (pos <= 4 && new_pref > max_pref)
+            break;          /* larger val would only increase the sum.    */
+        arr[pos] = (idx_t)val;
+        dfs_brute(pos + 1, rem - val, new_pref, arr, n, L, cnt);
+    }
+}
 
 /* ------------------------------------------------------------------------ */
 /* Helper for n ≤ 4: brute‑force enumeration of all admissible occupancy   */
@@ -49,11 +82,11 @@ seq_t a(idx_t n)
 
     /* Allocate arrays for DP over the first five positions (prefix side). */
     size_t size = maxSum + 2;              /* allow index up to n+5         */
-    seq_t *dp  = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *next= (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, size);
+    seq_t *next= mem_new(seq_t, size);
     if (!dp || !next) {                   /* In case of allocation failure */
-        if (dp) free(dp);
-        if (next) free(next);
+        if (dp) mem_free(dp);
+        if (next) mem_free(next);
         return 0;
     }
 
@@ -79,11 +112,11 @@ seq_t a(idx_t n)
      * with a total of s elements, subject to the prefix constraints. */
     /* Pre‑compute binomial coefficients C(L - k + M - 1 , M - 1).          */
     size_t combSize = (size_t)L + 1;
-    seq_t *comb = (seq_t *)calloc(combSize, sizeof(seq_t));
+    seq_t *comb = mem_new(seq_t, combSize);
     for (size_t k = 0; k <= L; ++k) {
         idx_t R = L - k;                   /* elements left for the middle etc. */
         if (R >= 0)
-            comb[k] = binom((idx_t)(R + M - 1), (idx_t)(M - 1));
+            comb[k] = binomial((idx_t)(R + M - 1), (idx_t)(M - 1));
         else
             comb[k] = 0;
     }
@@ -106,9 +139,9 @@ seq_t a(idx_t n)
     }
 
     /* Free allocated memory.                                                      */
-    free(dp);
-    free(next);
-    free(comb);
+    mem_free(dp);
+    mem_free(next);
+    mem_free(comb);
 
     return result;
 }

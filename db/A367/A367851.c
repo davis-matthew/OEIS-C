@@ -8,7 +8,8 @@
  *            2^(k-1)*(k-1)!*binomial(n,k)*a(n-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are defined by the build system. */
 
@@ -35,12 +37,12 @@ ensure_factorials(idx_t n)
     if (fact_cap <= n) {
         size_t new_cap = n + 1;
         if (fact_tbl == NULL) {
-            fact_tbl = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            fact_tbl = mem_new(seq_t, new_cap);
             if (fact_tbl == NULL) abort();
             fact_tbl[0] = 1;   /* 0! = 1 */
             fact_cap = 1;
         } else {
-            fact_tbl = (seq_t *)realloc(fact_tbl, new_cap * sizeof(seq_t));
+            fact_tbl = mem_resize(seq_t, fact_tbl, new_cap);
             if (fact_tbl == NULL) abort();
             /* fact_tbl now has previous entries */
         }
@@ -53,12 +55,12 @@ ensure_factorials(idx_t n)
     if (pow2_cap <= n) {
         size_t new_cap = n + 1;
         if (pow2_tbl == NULL) {
-            pow2_tbl = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            pow2_tbl = mem_new(seq_t, new_cap);
             if (pow2_tbl == NULL) abort();
             pow2_tbl[0] = 1;   /* 2^0 = 1 */
             pow2_cap = 1;
         } else {
-            pow2_tbl = (seq_t *)realloc(pow2_tbl, new_cap * sizeof(seq_t));
+            pow2_tbl = mem_resize(seq_t, pow2_tbl, new_cap);
             if (pow2_tbl == NULL) abort();
         }
         for (size_t i = pow2_cap; i <= n; ++i) {
@@ -73,13 +75,13 @@ ensure_a_cache(idx_t n)
 {
     /* ensure a_cache can hold values up to n */
     if (a_cache == NULL) {
-        a_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (n + 1));
         if (a_cache == NULL) abort();
         a_cache[0] = 1;   /* a(0) = 1 */
         a_len   = 1;
         a_cap   = n + 1;
     } else if (a_cap <= n) {
-        a_cache = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (n + 1));
         if (a_cache == NULL) abort();
         a_cap = n + 1;
     }

@@ -9,13 +9,15 @@
  * Formula:   a(n) = T(r,k) with r = max{m | m(m+1)/2 <= n}, k = n - r(r+1)/2,
  *            T(r,k) = binomial( floor((r+k-1)/2), k ) (where binomial(n,k) is
  *            the standard binomial coefficient)
- * Range:     u8 n <= 141, u16 n <= 392, u32 n <= 1080, u64 n <= 1080,
+ * Range:     u8 n <= 142, u16 n <= 416, u32 n <= 1080, u64 n <= 1080,
  *            u128 n <= 1080, big any n
+ * Validated: standard, pass, 107 terms through n = 966 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

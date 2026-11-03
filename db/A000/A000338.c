@@ -8,12 +8,19 @@
  *            C(k,2) = k*(k-1)/2
  * Range:     u8 n <= 9, u16 n <= 122, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom2
+ * Validated: standard, pass, 67 terms through n = 973 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom2.h"
+static seq_t binom2(seq_t k)
+{
+    if (k % 2 == 0)
+        return (k / 2) * (k - 1);
+    else
+        return k * ((k - 1) / 2);
+}
 
 seq_t a(idx_t n)
 {

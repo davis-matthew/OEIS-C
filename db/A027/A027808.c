@@ -7,12 +7,24 @@
  * Formula:   a(n) = 55*(n+1)*binomial(n+4,12)
  * Range:     u8 none, u16 n <= 10, u32 n <= 20, u64 n <= 105, u128 n <= 1000,
  *            big any n
- * Helpers:   binom_12
+ * Validated: standard, pass, 39 terms through n = 994 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_12.h"
+static seq_t binom_12(idx_t n)
+{
+    /* Compute C(n+4,12) multiplicatively.
+       n>=8 so n-8 >=0 */
+    seq_t result = 1;
+    for (idx_t i = 1; i <= 12; ++i) {
+        seq_t numerator = (seq_t)(n - 8 + i);
+        result *= numerator;
+        result /= (seq_t)i;   /* division is exact */
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

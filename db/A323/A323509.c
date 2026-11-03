@@ -9,8 +9,9 @@
  * Formula:   a(n) = 1 if n uses the first k primes as its prime factors, with
  *            exponents e1 ≥ e2 ≥ … ≥ ek, each exponent ei + 1 is prime;
  *            otherwise 0
- * Range:     u8 n <= 9762, u16 n <= 9762, u32 n <= 9762, u64 n <= 9762,
- *            u128 n <= 9762, big any n
+ * Range:     u8 n <= 107520, u16 n <= 107520, u32 n <= 107520,
+ *            u64 n <= 107520, u128 n <= 107520, big any n
+ * Validated: standard, pass, 121 terms through n = 9762 (2026-11-01)
  * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/is_prime.h"
 

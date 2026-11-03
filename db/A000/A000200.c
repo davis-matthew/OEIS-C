@@ -11,15 +11,31 @@
  *            cycle indices; R_h counts these rooted trees of h...
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 30, u64 n <= 53, u128 n <= 60,
  *            big any n
- * Helpers:   a200_ch2, a200_ch3, a200_zalloc
+ * Validated: standard, pass, 50 terms through n = 56 (2026-11-03)
+ * Helpers:   mem, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a200_ch2.h"
-#include "../utils/a200_ch3.h"
-#include "../utils/a200_zalloc.h"
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
+
+static seq_t a200_ch3(seq_t r)
+{
+    seq_t u = r, v = r + 1, w = r + 2;
+    if (u % 3 == 0) u /= 3; else if (v % 3 == 0) v /= 3; else w /= 3;
+    if (u % 2 == 0) u /= 2; else v /= 2;
+    return u * v * w;
+}
+
+static seq_t *a200_zalloc(long long n)
+{
+    seq_t *p = mem_new(seq_t, (size_t)n);
+    long long i;
+    for (i = 0; i < n; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *a200_memo = 0;
 static long long a200_N = -1;
@@ -50,7 +66,7 @@ static void a200_build(long long N)
             seq_t r = E[i], c2r, c3r;
             long long hi;
             if (r == 0) continue;
-            c2r = a200_ch2(r);
+            c2r = triangular_seq(r);
             c3r = a200_ch3(r);
             for (d = i + 2 * h + 2; d <= L; d++)
                 M3[d] += M2[d - i] * r;
@@ -84,10 +100,10 @@ static void a200_build(long long N)
         for (d = h + 1; d <= L; d++) R[d] += E[d];
     }
 
-    if (a200_memo) free(a200_memo);
+    if (a200_memo) mem_free(a200_memo);
     a200_memo = A;
     a200_N = N;
-    free(R); free(Z2); free(Z3); free(E); free(M2); free(M3);
+    mem_free(R); mem_free(Z2); mem_free(Z3); mem_free(E); mem_free(M2); mem_free(M3);
 }
 
 seq_t a(idx_t n)

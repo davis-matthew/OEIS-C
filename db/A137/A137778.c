@@ -12,15 +12,27 @@
  *            column). The first row is a(1) = -1
  * Range:     i8 n <= 11, i16 n <= 29, i32 n <= 42, i64 n <= 42, i128 n <= 42,
  *            big any n
- * Helpers:   binomial, factorial
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/factorial.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Return the row r such that (r-1)*r/2 < n ≤ r*(r+1)/2 */
 static idx_t

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 45, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;          /* pointers to rows of T        */
 static seq_t **conv2_rows = NULL;    /* convolution squares          */
@@ -53,15 +55,15 @@ static void ensure_rows_capacity(size_t need) {
 
 /* Initialise row 0 and its convolution tables */
 static void init_row_0(void) {
-    rows[0] = (seq_t*)malloc(sizeof(seq_t));
+    rows[0] = mem_new(seq_t, 1);
     if (!rows[0]) abort();
     rows[0][0] = (seq_t)1;
 
-    conv2_rows[0] = (seq_t*)malloc(sizeof(seq_t));
+    conv2_rows[0] = mem_new(seq_t, 1);
     if (!conv2_rows[0]) abort();
     conv2_rows[0][0] = rows[0][0] * rows[0][0];   /* [T²](0,0) */
 
-    conv3_rows[0] = (seq_t*)malloc(sizeof(seq_t));
+    conv3_rows[0] = mem_new(seq_t, 1);
     if (!conv3_rows[0]) abort();
     conv3_rows[0][0] = rows[0][0] * conv2_rows[0][0]; /* [T³](0,0) */
 
@@ -72,7 +74,7 @@ static void init_row_0(void) {
 static void build_row(size_t r) {
     ensure_rows_capacity(r + 1);
 
-    seq_t *row = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (r + 1));
     if (!row) abort();
     row[0] = (seq_t)1;  /* T(r,0) = 1 */
 
@@ -85,7 +87,7 @@ static void build_row(size_t r) {
     rows[r] = row;
 
     /* Compute [T²](r,k) for all k */
-    seq_t *conv2 = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *conv2 = mem_new(seq_t, (r + 1));
     if (!conv2) abort();
     for (size_t k = 0; k <= r; ++k) {
         seq_t sum = (seq_t)0;
@@ -96,7 +98,7 @@ static void build_row(size_t r) {
     conv2_rows[r] = conv2;
 
     /* Compute [T³](r,k) for all k */
-    seq_t *conv3 = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *conv3 = mem_new(seq_t, (r + 1));
     if (!conv3) abort();
     for (size_t k = 0; k <= r; ++k) {
         seq_t sum = (seq_t)0;

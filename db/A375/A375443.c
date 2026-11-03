@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 31, u128 n <= 60,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 44 terms through n = 501 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binomial.h"  /* provides seq_t binomial(idx_t n, idx_t k) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *A      = NULL;      /* a(n) values */
 static seq_t *conv   = NULL;      /* convolution sums */
@@ -51,9 +53,9 @@ static void ensure_cache(idx_t n)
     if (!A)
     {
         cap = 16;
-        A   = (seq_t*)malloc(cap * sizeof(seq_t));
-        conv = (seq_t*)malloc(cap * sizeof(seq_t));
-        P2  = (seq_t*)malloc(cap * sizeof(seq_t));
+        A   = mem_new(seq_t, cap);
+        conv = mem_new(seq_t, cap);
+        P2  = mem_new(seq_t, cap);
         if (!A || !conv || !P2) exit(1);
 
         /* Initial value a(0) = 1.  conv[0] = a0*a0 = 1,  P2[0] = 2^0 = 1. */
@@ -69,9 +71,9 @@ static void ensure_cache(idx_t n)
         size_t newcap = cap;
         while ((size_t)n >= newcap) newcap <<= 1;
 
-        seq_t *newA   = (seq_t*)malloc(newcap * sizeof(seq_t));
-        seq_t *newC   = (seq_t*)malloc(newcap * sizeof(seq_t));
-        seq_t *newP   = (seq_t*)malloc(newcap * sizeof(seq_t));
+        seq_t *newA   = mem_new(seq_t, newcap);
+        seq_t *newC   = mem_new(seq_t, newcap);
+        seq_t *newP   = mem_new(seq_t, newcap);
         if (!newA || !newC || !newP) exit(1);
 
         /* Copy already computed entries. */
@@ -82,7 +84,7 @@ static void ensure_cache(idx_t n)
             newP[i]   = P2[i];
         }
 
-        free(A);  free(conv);  free(P2);
+        mem_free(A);  mem_free(conv);  mem_free(P2);
         A   = newA;
         conv = newC;
         P2  = newP;

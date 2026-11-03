@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------- */
 /*  Precomputation of row states and compatibility                 */
@@ -119,8 +121,8 @@ seq_t a(idx_t n)
     if (!initialized) precompute();
 
     /* Dynamic programming arrays */
-    seq_t *curr = (seq_t *)calloc(stateCnt, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(stateCnt, sizeof(seq_t));
+    seq_t *curr = mem_new(seq_t, stateCnt);
+    seq_t *next = mem_new(seq_t, stateCnt);
 
     /* First row – must start with 0 */
     for (size_t i = 0; i < stateCnt; ++i) {
@@ -152,7 +154,7 @@ seq_t a(idx_t n)
     seq_t result = (seq_t)0;
     for (size_t i = 0; i < stateCnt; ++i) result += curr[i];
 
-    free(curr);
-    free(next);
+    mem_free(curr);
+    mem_free(next);
     return result;
 }

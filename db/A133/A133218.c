@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  *  fast, and it never writes past the allocated buffer.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     size_t need = (size_t)n + 1;
     if (need < 6) need = 6;               /* we need space for indices 1..5 */
     if (sz < need) {
-        seq_t *tmp = (seq_t *)realloc(buf, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, need);
         if (!tmp) return 0;              /* allocation failure */
         buf = tmp;
         sz  = need;

@@ -14,12 +14,14 @@
  *            (triang...
  * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t narayana(idx_t n, idx_t k)

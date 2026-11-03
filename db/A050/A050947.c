@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 /* Required includes for memory allocation and size types. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Irregular starting terms of the sequence. */
 static const seq_t irregular[15] =
@@ -41,14 +43,14 @@ static size_t pow_cache_len = 0;     /* number of cached values (pow_cache_len =
 static void ensure_pow_cache(idx_t max_exponent)
 {
     if (pow_cache_len == 0) {
-        pow_cache = (seq_t*)malloc(sizeof(seq_t));
+        pow_cache = mem_new(seq_t, 1);
         if (!pow_cache) return;           /* allocation failure – will be handled by caller */
         pow_cache[0] = (seq_t)1;
         pow_cache_len = 1;
     }
     if (pow_cache_len <= (size_t)max_exponent) {
         size_t new_len = (size_t)max_exponent + 1;
-        seq_t *tmp = (seq_t*)realloc(pow_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow_cache, new_len);
         if (!tmp) return;                  /* allocation failure – will be handled by caller */
         pow_cache = tmp;
         for (size_t i = pow_cache_len; i < new_len; ++i) {

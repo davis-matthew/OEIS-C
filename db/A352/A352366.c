@@ -10,17 +10,20 @@
  *            CatalanNumber(i − 1) - T(s)(0,0) = 1, T(s)(n,0) = 0 for n > 0 -
  *            For n ≥ 1 and k ≥ 1: T(s)(n,k) = Σ_{i=1}^{n} binom(n−1,i−1) ·
  *            s(i) · T(s)(n−i,k−1) The triangle read by rows lists T(s)...
- * Range:     u8 n <= 28, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 29, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   _floor_isqrt_u64, binomial, catalan
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, catalan, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* Dynamic cache of the triangle values T(s)(n,k). */
 static seq_t **dp = NULL;            /* dp[n][k] */
@@ -48,7 +51,7 @@ static void ensure_rows(idx_t need)
 
     /* Allocate new rows if needed. */
     for (; i < new_cap; ++i)
-        new_dp[i] = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        new_dp[i] = mem_new(seq_t, (i + 1));
 
     /* Keep a copy of the old pointer array and free it. */
     free(dp);
@@ -59,7 +62,7 @@ static void ensure_rows(idx_t need)
 
     /* Grow the s(i) cache if required. */
     if (s_cap < dp_rows) {
-        seq_t *new_s = (seq_t*)realloc(s_arr, dp_rows * sizeof(seq_t));
+        seq_t *new_s = mem_resize(seq_t, s_arr, dp_rows);
         for (i = s_cap; i < dp_rows; ++i) {
             if (i == 0)
                 new_s[i] = (seq_t)1;           /* value for s(0), not used elsewhere */
@@ -99,7 +102,7 @@ seq_t a(idx_t n)
     /* Determine which row and column of the triangle correspond to the
        flattened index n.  The n-th flattened index lies in row m with
        column k. */
-    idx_t t = _floor_isqrt_u64((idx_t)8 * n + 1);
+    idx_t t = isqrt((idx_t)8 * n + 1);
     idx_t m = (t - 1) / 2;
 
     idx_t offset = (idx_t)m * (m + 1) / 2;

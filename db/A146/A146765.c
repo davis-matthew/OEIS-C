@@ -12,12 +12,15 @@
  *            otherwise
  * Range:     u8 n <= 16, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
     }
 
-    seq_t bin = binom(r, c);      /* C(r, c) as seq_t */
+    seq_t bin = binomial(r, c);      /* C(r, c) as seq_t */
     seq_t two = pow2(r);          /* 2^r as seq_t */
     return bin * (two + (seq_t)1);/* C(r, c) * (1 + 2^r) */
 }

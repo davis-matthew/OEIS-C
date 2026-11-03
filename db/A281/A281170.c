@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
  * Helpers:   digit_frequencies, digit_sum, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -31,9 +32,9 @@
 #include <stdbool.h>
 
 /* Function prototypes from the supplied utilities */
-#include "../utils/next_prime.h"          /* uint64_t next_prime(uint64_t) */
-#include "../utils/digit_sum.h"          /* seq_t digit_sum(seq_t) */
-#include "../utils/digit_frequencies.h"  /* void digit_frequencies(seq_t, unsigned int[10]) */
+#include "../utils/digit_frequencies.h"
+#include "../utils/digit_sum.h"
+#include "../utils/next_prime.h"
 
 /* Cache for qualifying primes, stored as uint64_t */
 static uint64_t *prime_cache      = NULL;

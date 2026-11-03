@@ -12,6 +12,7 @@
  *            the values are returned from a table
  * Range:     u8 n <= 4, u16 n <= 18, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 52 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   a(n) = A058183(A000217(n)) - A058183(A000217(n-1))
  * Range:     u8 n <= 21, u16 n <= 610, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 74 terms through n = 8380 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,19 @@
    and therefore very fast for n up to at least 10 000. */
 
 #include <stdint.h>
-#include "../utils/digit_len.h"   /* int digit_len(seq_t x);          */
-#include "../utils/pow10.h"      /* seq_t pow10(idx_t e);           */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,8 +50,8 @@ seq_t a(idx_t n)
     seq_t start = low + 1;                         /* first number in the row */
 
     seq_t ans = 0;
-    int d_start = digit_len(start);
-    int d_end   = digit_len(high);
+    int d_start = num_digits(start);
+    int d_end   = num_digits(high);
 
     for (int d = d_start; d <= d_end; ++d)
     {

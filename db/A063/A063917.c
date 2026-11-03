@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   exp_in_triple_fact, factor_u64
+ * Validated: standard, pass, 85 terms through n = 1999 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,26 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* for factor_u64 */
-#include "../utils/exp_in_triple_fact.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+
+/* Helper: compute exponent of prime p in k!!! */
+static inline uint64_t exp_in_triple_fact(uint64_t k, uint64_t p, uint64_t need)
+{
+    uint64_t cnt = 0;
+    for (uint64_t t = k; t > 0; ) {
+        uint64_t x = t;
+        while (x % p == 0) {
+            x /= p;
+            ++cnt;
+            if (cnt >= need) return cnt;
+        }
+        if (t <= 3) break;     /* next term would be ≤0; stop */
+        t -= 3;
+    }
+    return cnt;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

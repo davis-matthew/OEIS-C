@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_74
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/contains_74.h"
+#include "../utils/mem.h"
+
+static bool contains_74(seq_t x)
+{
+    int prev = -1;               /* previous (less‑significant) digit */
+    while (x > 0) {
+        int d = (int)(x % 10);   /* current digit */
+        if (d == 7 && prev == 4) /* we found "7" followed by "4" in the original order */
+            return true;
+        prev = d;
+        x = x / 10;
+    }
+    return false;
+}
 
 static seq_t *cache    = NULL;
 static size_t  cache_size = 0;
@@ -46,8 +60,8 @@ seq_t a(idx_t n)
                 if (cache_size >= cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
                     seq_t *tmp = (cache == NULL)
-                                 ? (seq_t *)malloc(sizeof(seq_t) * new_cap)
-                                 : (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+                                 ? mem_new(seq_t, new_cap)
+                                 : mem_resize(seq_t, cache, new_cap);
                     cache = tmp;
                     cache_cap = new_cap;
                 }

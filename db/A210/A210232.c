@@ -13,13 +13,15 @@
  *            lowest degree (left to right). T...
  * Range:     u8 n <= 32, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,13 +37,13 @@ seq_t a(idx_t n)
 
     /* Allocate two arrays of length r for the previous and the current
        row coefficients of u and v. */
-    seq_t *prevA = (seq_t *)calloc(r, sizeof(seq_t));
-    seq_t *prevB = (seq_t *)calloc(r, sizeof(seq_t));
-    seq_t *currA = (seq_t *)calloc(r, sizeof(seq_t));
-    seq_t *currB = (seq_t *)calloc(r, sizeof(seq_t));
+    seq_t *prevA = mem_new(seq_t, r);
+    seq_t *prevB = mem_new(seq_t, r);
+    seq_t *currA = mem_new(seq_t, r);
+    seq_t *currB = mem_new(seq_t, r);
     if (!prevA || !prevB || !currA || !currB) {
         /* allocation failure – return 0 */
-        free(prevA); free(prevB); free(currA); free(currB);
+        mem_free(prevA); mem_free(prevB); mem_free(currA); mem_free(currB);
         return (seq_t)0;
     }
 
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     seq_t result = prevB[index_in_row];
 
     /* Free temporary arrays */
-    free(prevA); free(prevB); free(currA); free(currB);
+    mem_free(prevA); mem_free(prevB); mem_free(currA); mem_free(currB);
 
     return result;
 }

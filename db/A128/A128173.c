@@ -9,15 +9,37 @@
  *            b (0 ≤ k ≤ 2) and r = n % b. * Then * a(n) = k*b + a(r) if k is
  *            even * a(n) = k*b + a(b-1-r) if k is odd * Base case: a(0)=0,
  *            a(1)=1, a(2)=2
- * Range:     u8 n <= 242, u16 n <= 9925, u32 n <= 9925, u64 n <= 9925,
- *            u128 n <= 9925, big any n
- * Helpers:   _ternary_gray
+ * Range:     u8 n <= 242, u16 n <= 19682, u32 n <= 19682, u64 n <= 19682,
+ *            u128 n <= 19682, big any n
+ * Validated: standard, pass, 89 terms through n = 9925 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_ternary_gray.h"
+
+static seq_t _ternary_gray(idx_t n)
+{
+    if (n < 3)
+        return (seq_t)n;
+
+    /* find largest power of 3 ≤ n */
+    idx_t b = 1;
+    while (b <= n / 3U)
+        b *= 3U;
+
+    idx_t k = n / b;                /* 0, 1, or 2 */
+    idx_t r = n % b;
+
+    seq_t sub;
+    if ((k & 1U) == 0)
+        sub = _ternary_gray(r);
+    else
+        sub = _ternary_gray(b - 1U - r);
+
+    return (seq_t)k * (seq_t)b + sub;
+}
 
 seq_t a(idx_t n)
 {

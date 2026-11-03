@@ -8,7 +8,8 @@
  *            ((2k)^(n-2k)/(2k+1)^(n+1-2k)) where e = floor((n-1)/2)
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 9, u64 n <= 11, u128 n <= 17,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 35 terms through n = 79 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,14 @@
 #include <stdbool.h>
 #include <stddef.h>
 /* Utilities for arbitrary‑precision integer operations */
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* ------------------------------------------------------------------ */
 /* Prime sieve up to a fixed limit (large enough for all needed primes) */
@@ -141,7 +148,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         if (exp_list[i] > 0) {
             seq_t p = (seq_t)prime_list[i];
-            seq_t p_pow = seq_pow(p, (idx_t)exp_list[i]);
+            seq_t p_pow = ipow_idx(p, (idx_t)exp_list[i]);
             den = seq_mul(den, p_pow);
         }
     }

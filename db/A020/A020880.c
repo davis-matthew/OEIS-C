@@ -10,13 +10,22 @@
  *            a(9)=1614, a(10)=3281
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 25 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"   /* only if needed; plain malloc works as well */
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Static cache for memoised values */
 static seq_t *cache = NULL;   /* allocated with size >= last_n+1  */
@@ -29,7 +38,7 @@ static void ensure_cache(idx_t n)
     if (n + 1 > last_n)
     {
         /* Resize */
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) abort();  /* out of memory */
         cache = new_cache;
         /* If newly allocated, initialise base terms when first time */

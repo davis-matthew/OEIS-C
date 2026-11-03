@@ -11,12 +11,14 @@
  *            required
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* a[0] … a[max] */
 static size_t a_cache_size = 0;        /* allocated size of a_cache */
@@ -27,11 +29,11 @@ static void ensure_sequence(idx_t n)
     /* Resize cache if necessary */
     if (a_cache == NULL || a_cache_size <= (size_t)n) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_a = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_a = mem_new(seq_t, new_size);
         if (a_cache) {
             for (size_t i = 0; i < a_cache_size; ++i)
                 new_a[i] = a_cache[i];
-            free(a_cache);
+            mem_free(a_cache);
         }
         a_cache = new_a;
         a_cache_size = new_size;

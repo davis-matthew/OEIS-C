@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   multiplicative_digital_root, prime_single_digit
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,32 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/multiplicative_digital_root.h"
-#include "../utils/prime_single_digit.h"
+#include "../utils/mem.h"
+
+/* Compute the multiplicative digital root of x.
+   If at any point a 0 digit is encountered the result is 0,
+   which is not prime. */
+static seq_t multiplicative_digital_root(seq_t x)
+{
+    while (x >= 10) {
+        seq_t prod = 1;
+        seq_t t = x;
+        while (t > 0) {
+            seq_t d = t % 10;
+            if (d == 0) return 0;
+            prod *= d;
+            t /= 10;
+        }
+        x = prod;
+    }
+    return x;
+}
+
+/* Return true if v is 2,3,5 or 7.  v is already a single digit. */
+static bool prime_single_digit(seq_t v)
+{
+    return v == 2 || v == 3 || v == 5 || v == 7;
+}
 
 /* Helper to build a palindrome from a prefix.
    If odd==true, the middle digit of the palindrome is the last
@@ -54,7 +79,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of the cache. */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort(); /* Out of memory */
     }
 
@@ -96,7 +121,7 @@ seq_t a(idx_t n)
             /* Store it in the cache. */
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) abort(); /* Out of memory */
                 cache = tmp;
             }

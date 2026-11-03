@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ======== helpers ======== */
 static seq_t gcd_seq_t(seq_t a, seq_t b)
@@ -54,7 +56,7 @@ static void ensure_cache_cap(size_t min_cap)
     if (cache_cap < min_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < min_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(value_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, value_cache, new_cap);
         value_cache = tmp;
         cache_cap = new_cap;
     }
@@ -65,7 +67,7 @@ static void ensure_frac_cap(size_t min_cap)
     if (frac_cap < min_cap) {
         size_t new_cap = frac_cap ? frac_cap * 2 : 16;
         while (new_cap < min_cap) new_cap *= 2;
-        struct Fraction *tmp = (struct Fraction *)realloc(frac_cache, new_cap * sizeof(struct Fraction));
+        struct Fraction *tmp = mem_resize(struct Fraction, frac_cache, new_cap);
         frac_cache = tmp;
         frac_cap = new_cap;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   is_palindrome, reverse_decimal
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   is_palindrome_base, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
  *   is_palindrome from the utils directory. */
 
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -40,11 +42,11 @@ seq_t a(idx_t n)
         seq_t k = stride * m;
 
         /* Skip palindromic numbers. */
-        if (is_palindrome(k, 10))
+        if (is_palindrome_base(k, 10))
             continue;
 
         /* Reverse the decimal digits of k. */
-        seq_t rev_k = reverse_decimal(k);
+        seq_t rev_k = reverse_digits(k);
 
         /* Check divisibility of the reversed number by n. */
         if ((rev_k % stride) == 0)

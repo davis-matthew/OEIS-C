@@ -9,11 +9,13 @@
  *            the numerator P satisfies P(0)=1, P(m)=m*P(m-1)+1
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 typedef unsigned __int128 big_t;       /* for intermediate big‑int arithmetic */

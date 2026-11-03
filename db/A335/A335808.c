@@ -11,13 +11,28 @@
  *            persistence)
  * Range:     u8 n <= 2094, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   mul_nonzero_digits
+ * Validated: standard, pass, 116 terms through n = 8981 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mul_nonzero_digits.h"
+
+static seq_t mul_nonzero_digits(seq_t x)
+{
+    seq_t p = 1;
+    while (x > 0)
+    {
+        seq_t d = x % 10;
+        if (d != 0)
+        {
+            p *= d;
+        }
+        x /= 10;
+    }
+    return p;
+}
 
 seq_t a(idx_t n)
 {

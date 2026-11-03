@@ -14,7 +14,8 @@
  *            recording those positions where a change occurs
  * Range:     u8 n <= 17, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   has_square
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,22 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_square.h"
+#include "../utils/mem.h"
+
+static inline bool has_square(const uint8_t *w, idx_t pos)
+{
+    idx_t len = pos + 1;                /* prefix length */
+    for (idx_t k = 1; 2 * k <= len; ++k) {
+        idx_t start1 = len - 2 * k;     /* first half start */
+        idx_t start2 = len - k;         /* second half start (equals start1 + k) */
+        bool equal = true;
+        for (idx_t t = 0; t < k; ++t) {
+            if (w[start1 + t] != w[start2 + t]) { equal = false; break; }
+        }
+        if (equal) return false;  /* square found */
+    }
+    return true; /* no square ending at pos */
+}
 
 seq_t a(idx_t n)
 {
@@ -128,7 +144,7 @@ seq_t a(idx_t n)
             if (terms_len >= terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 8;
                 if (new_cap < terms_len + 1) new_cap = terms_len + 1;
-                terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, new_cap);
                 terms_cap = new_cap;
             }
             terms[terms_len++] = (seq_t)curLen;

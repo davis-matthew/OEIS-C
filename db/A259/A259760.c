@@ -12,14 +12,16 @@
  *            assumed to be provided by the evaluation framework
  * Range:     u8 n <= 24, u16 n <= 50, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial, pow_int
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *S = NULL;          /* memoised Σ_{m=0..k} … values   */
 static idx_t S_size = 0;         /* current allocated capacity      */
@@ -31,7 +33,7 @@ static void ensure_S(idx_t upto)
 {
     /* allocate / grow the array */
     if (!S || upto + 1 > S_size) {
-        seq_t *tmp = (seq_t *)realloc(S, (upto + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, S, (upto + 1));
         if (!tmp)
             return;                     /* catastrophic: caller will abort   */
         S = tmp;
@@ -43,7 +45,7 @@ static void ensure_S(idx_t upto)
         seq_t sum = 0;
         for (idx_t m = 0; m <= k; ++m) {
             seq_t bin = binomial(k, m);
-            seq_t p   = pow_int((seq_t)m, k - m);
+            seq_t p   = ipow_idx((seq_t)m, k - m);
             sum += bin * p;
         }
         S[k] = sum;

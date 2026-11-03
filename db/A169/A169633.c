@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------- hash table for seen Recamán values ------- */
 #define HASH_CAP_INIT (1U << 20)   /* 1,048,576 entries */
@@ -44,7 +46,7 @@ static void hash_init(void)
 {
     if (hash_cap != 0) return;
     hash_cap = HASH_CAP_INIT;
-    hash_keys = (seq_t *)malloc(hash_cap * sizeof(seq_t));
+    hash_keys = mem_new(seq_t, hash_cap);
     hash_used = (unsigned char *)calloc(hash_cap, sizeof(unsigned char));
     /* insert the initial value 0 */
     hash_keys[0] = 0;
@@ -84,7 +86,7 @@ static void odd_append(seq_t val)
 {
     if (odd_len == odd_cap) {
         size_t new_cap = odd_cap ? odd_cap * 2 : 4;
-        odd_arr = (seq_t *)realloc(odd_arr, new_cap * sizeof(seq_t));
+        odd_arr = mem_resize(seq_t, odd_arr, new_cap);
         odd_cap = new_cap;
     }
     odd_arr[odd_len++] = val;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5500, u16 n <= 5500, u32 n <= 5500, u64 n <= 5500,
  *            u128 n <= 5500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 5393 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* cached digits of the concatenation (most significant first) */
 static seq_t *digit_cache = NULL;
@@ -43,7 +45,7 @@ static void ensure_cache_capacity(size_t need)
         size_t new_cap = cache_cap ? cache_cap * 2 : 128;
         while (new_cap < cache_len + need)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(digit_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, digit_cache, new_cap);
         if (!tmp) abort();
         digit_cache = tmp;
         cache_cap   = new_cap;

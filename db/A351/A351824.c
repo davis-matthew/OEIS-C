@@ -10,8 +10,9 @@
  * Formula:   a(n) = 1 if the element at position n in the irregular triangle
  *            read by rows satisfies that the row number is divisible by the
  *            odd divisor (2·col−1), otherwise 0
- * Range:     u8 n <= 8168, u16 n <= 8168, u32 n <= 8168, u64 n <= 8168,
- *            u128 n <= 8168, big any n
+ * Range:     u8 n <= 10490, u16 n <= 10490, u32 n <= 10490, u64 n <= 10490,
+ *            u128 n <= 10490, big any n
+ * Validated: standard, pass, 122 terms through n = 8168 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

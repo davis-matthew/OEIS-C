@@ -9,13 +9,15 @@
  *            a(7) = 8204
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *cache = NULL;
@@ -29,7 +31,7 @@ static void cache_init(void)
         return;
     /* Allocate enough space for the first 8 terms */
     cache_cap = 8;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache)
         return;  /* out of memory – unlikely for n <= 10000 */
 
@@ -56,12 +58,12 @@ static void cache_expand(size_t needed)
     while (new_cap < needed)
         new_cap *= 2;
 
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)
         return;  /* out of memory – unlikely */
 
-    memcpy(new_arr, cache, cache_size * sizeof(seq_t));
-    free(cache);
+    mem_copy(new_arr, cache, cache_size * sizeof(seq_t));
+    mem_free(cache);
     cache = new_arr;
     cache_cap = new_cap;
 }

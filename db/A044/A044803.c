@@ -10,13 +10,29 @@
  *            not
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_90
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_90.h"
+
+/* Helper: return true if x (in decimal) contains the substring "90" */
+static bool has_90(seq_t x)
+{
+    /* Quick check for numbers < 90 */
+    if (x < 90) return false;
+
+    seq_t prev_digit = x % 10;   /* least significant digit */
+    x /= 10;
+    while (x > 0) {
+        if (prev_digit == 0 && (x % 10) == 9) return true;
+        prev_digit = x % 10;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

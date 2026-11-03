@@ -12,6 +12,7 @@
  *            possible distance of n*phi to an integer for n ≤ 10000
  * Range:     u8 n <= 136, u16 n <= 136, u32 n <= 136, u64 n <= 136,
  *            u128 n <= 136, big any n
+ * Validated: partial, pass, 136 terms through n = 136 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

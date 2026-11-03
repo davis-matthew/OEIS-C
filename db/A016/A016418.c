@@ -7,6 +7,7 @@
  * Formula:   Φ_473(x) = (x^473 - 1)(x - 1) / ((x^43 - 1)(x^11 - 1))
  * Range:     i8 n <= 420, i16 n <= 420, i32 n <= 420, i64 n <= 420,
  *            i128 n <= 420, big any n
+ * Validated: full, pass, 421 terms through n = 420 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

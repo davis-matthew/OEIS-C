@@ -12,14 +12,15 @@
  *            computes that value directly
  * Range:     u8 n <= 31, u16 n <= 59, u32 n <= 110, u64 n <= 180,
  *            u128 n <= 336, big any n
- * Helpers:   power_small
+ * Validated: standard, pass, 82 terms through n = 4787 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/power_small.h"
+#include "../utils/ipow_idx.h"
 
 /* Find the diagonal s such that C(s-1) <= n < C(s), where C(t) = (t+1)(t+2)/2.
    This uses a binary search on 128‑bit integers to avoid overflow. */
@@ -60,7 +61,7 @@ seq_t a(idx_t n) {
         if (k == 0) {
             sum += 1;                 /* binomial^0 = 1 */
         } else {
-            seq_t pow_val = power_small(cur_binom, k);
+            seq_t pow_val = ipow_idx(cur_binom, k);
             sum += pow_val;
         }
 

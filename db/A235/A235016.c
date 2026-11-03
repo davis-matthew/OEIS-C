@@ -14,12 +14,14 @@
  *            12*a(n‑9) – 48*a(n‑10), for n ≥ 11
  * Range:     u8 none, u16 n <= 5, u32 n <= 20, u64 n <= 44, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     /* ensure cache is large enough */
     if (cache_cap < n + 1) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return 0;        /* allocation failure – return 0 as sentinel */
         cache = tmp;
         cache_cap = n + 1;

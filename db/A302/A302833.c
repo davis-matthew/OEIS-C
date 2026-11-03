@@ -8,18 +8,20 @@
  *            partitions of k into squares. Equivalently, a(n) is the partial
  *            sums of A001156
  * Range:     u8 n <= 28, u16 n <= 122, u32 n <= 629, u64 n <= 3760,
- *            u128 n <= 9678, big any n
- * Helpers:   none
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 75 terms through n = 9678 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate DP array for partitions into squares. */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return 0;  /* fallback in case of allocation failure */
 
     idx_t i, j;
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
         sum = sum + dp[i];
     }
 
-    free(dp);
+    mem_free(dp);
     return sum;
 }

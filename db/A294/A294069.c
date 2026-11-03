@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 253, u16 n <= 8720, u32 n <= 8720, u64 n <= 8720,
- *            u128 n <= 8720, big any n
- * Helpers:   digit_frequencies, smallest_digit_idx
+ * Range:     u8 n <= 253, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 82 terms through n = 8720 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/digit_frequencies.h"
-#include "../utils/smallest_digit_idx.h"
+#include "../utils/mem.h"
+
+/* Smallest decimal digit of a non‑negative integer (idx_t). */
+static int smallest_digit_idx(idx_t x)
+{
+    int min = 9;
+    if (x == 0)
+        return 0;                /* not used for positive numbers, but safe */
+    while (x > 0) {
+        int d = x % 10;
+        if (d < min)
+            min = d;
+        x /= 10;
+    }
+    return min;
+}
 
 static seq_t   *seq_arr = NULL;     /* stored values a(1)..a(current) */
 static size_t   seq_cap = 0;
@@ -83,7 +99,7 @@ static void ensure_seq_cap(size_t n)
     size_t new_cap = seq_cap > 0 ? seq_cap << 1 : 16;
     while (new_cap <= n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
     if (!tmp)
         abort();
     seq_arr = tmp;

@@ -8,12 +8,14 @@
  *            the 1‑based index in the triangle and 1 ≤ k ≤ n
  * Range:     u8 n <= 4, u16 n <= 53, u32 n <= 3240, u64 n <= 3240,
  *            u128 n <= 3240, big any n
+ * Validated: standard, pass, 65 terms through n = 2862 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* gcd routine is provided by the build. */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute the nth term (1‑based) of OEIS A393016. */

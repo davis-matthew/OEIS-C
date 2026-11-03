@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = n mod 8
- * Range:     u8 n <= 9917, u16 n <= 9917, u32 n <= 9917, u64 n <= 9917,
- *            u128 n <= 9917, big any n
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 97 terms through n = 9917 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

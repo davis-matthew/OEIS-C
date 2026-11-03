@@ -9,7 +9,8 @@
  *            even} p^{v_p(C(n,floor(n/2)) / 2})
  * Range:     u8 n <= 129, u16 n <= 362, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, seq_pow
+ * Validated: standard, pass, 97 terms through n = 987 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
 
 /* cached list of primes up to the greatest n seen so far */
 static uint64_t *cached_primes = NULL;
@@ -52,7 +53,7 @@ seq_t a(idx_t n) {
         idx_t p = cached_primes[i];
         idx_t e = exp_in_fact(n, p) - exp_in_fact(k, p) - exp_in_fact(n - k, p);
         if (e > 0 && !(e & 1u)) {          /* e even and positive */
-            seq_t mul = seq_pow((seq_t)p, e >> 1);  /* p^(e/2) */
+            seq_t mul = ipow_idx((seq_t)p, e >> 1);  /* p^(e/2) */
             result *= mul;
         }
     }

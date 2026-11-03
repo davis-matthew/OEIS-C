@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{i=1..n} (n mod i)
  * Range:     u8 n <= 38, u16 n <= 608, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 78 terms through n = 1936 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

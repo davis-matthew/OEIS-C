@@ -10,7 +10,8 @@
  *            and a(0) = 1
  * Range:     u8 n <= 16, u16 n <= 1086, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   b_of_prime_power, ipow_seq
+ * Validated: standard, pass, 77 terms through n = 9248 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/b_of_prime_power.h"
-#include "../utils/ipow_seq.h"
+#include "../utils/ipow_idx.h"
+
+/* value of b(p^e) for a given prime p and exponent e */
+static seq_t b_of_prime_power(uint64_t p, int exp)
+{
+    if (p == 2) {
+        return (seq_t)3;            /* e > 0 always for an actual factor 2 */
+    } else if (p == 3) {
+        seq_t pw = ipow_idx((seq_t)3, (idx_t)exp + 1);
+        return pw - 2;
+    } else {
+        seq_t pw = ipow_idx((seq_t)p, (idx_t)exp + 1);
+        return (pw - 1) / (p - 1);
+    }
+}
 
 /* simple integer square root for uint64_t   */
 static inline uint64_t isqrt_u64(uint64_t v)

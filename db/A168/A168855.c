@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   p_coef
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,15 @@
  *********************************************************************/
 
 #include <stdlib.h>
-#include "../utils/p_coef.h"
+#include "../utils/mem.h"
+
+/* Piece‑wise numerator coefficient of P(t) */
+static inline seq_t p_coef(idx_t n)
+{
+    if (n == 0 || n == 20)              return (seq_t)1;
+    if (n <= 19)                        return (seq_t)2;
+    return (seq_t)0;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +49,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)1;
 
     /* Allocate array for a[0..n] */
-    seq_t *a = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, (size_t)(n + 1));
     if (!a) return (seq_t)0;          /* graceful failure */
 
     a[0] = (seq_t)1;
@@ -54,7 +63,7 @@ seq_t a(idx_t n)
             sum_prev += val;
         }
         seq_t result = a[n];
-        free(a);
+        mem_free(a);
         return result;
     }
 
@@ -78,6 +87,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a[n];
-    free(a);
+    mem_free(a);
     return result;
 }

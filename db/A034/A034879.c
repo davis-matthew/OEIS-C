@@ -7,16 +7,25 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 7, u64 n <= 10, u128 n <= 12,
  *            big any n
- * Helpers:   digit_counts, seq_mul, seq_pow
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   digit_counts, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(1)=3; a(n+1) = product of factorials of each decimal digit of a(n) */
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/digit_counts.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Pre‑computed factorials of digits 0–9 */
 static const seq_t fact_digit[10] =
@@ -47,7 +56,7 @@ static void ensure_cache(idx_t n)
         seq_t prod = 1;
         for (int d = 0; d < 10; ++d) {
             if (cnt[d]) {
-                seq_t val = seq_pow(fact_digit[d], (idx_t)cnt[d]);
+                seq_t val = ipow_idx(fact_digit[d], (idx_t)cnt[d]);
                 prod = seq_mul(prod, val);
             }
         }
@@ -73,7 +82,7 @@ seq_t a(idx_t n)
             seq_t prod = 1;
             for (int d = 0; d < 10; ++d) {
                 if (cnt[d]) {
-                    seq_t val = seq_pow(fact_digit[d], (idx_t)cnt[d]);
+                    seq_t val = ipow_idx(fact_digit[d], (idx_t)cnt[d]);
                     prod = seq_mul(prod, val);
                 }
             }

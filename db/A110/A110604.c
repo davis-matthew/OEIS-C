@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   base6_as_decimal
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/base6_as_decimal.h"
+
+/* Convert n to base‑6 digits, then interpret those digits as a decimal
+   integer. Returns the decimal value. */
+static uint32_t base6_as_decimal(uint64_t n) {
+    int digits[32];
+    int len = 0;
+    do {
+        digits[len++] = n % 6;
+        n /= 6;
+    } while (n > 0);
+    uint32_t dec = 0;
+    for (int k = len - 1; k >= 0; --k)
+        dec = dec * 10 + (uint32_t)digits[k];
+    return dec;
+}
 
 static bool *is_prime_array = NULL;
 static uint32_t *prime_list = NULL;

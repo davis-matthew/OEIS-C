@@ -11,7 +11,8 @@
  *            value for all n ≥ 79
  * Range:     u8 n <= 106, u16 n <= 130, u32 n <= 130, u64 n <= 130,
  *            u128 n <= 130, big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 52 terms through n = 130 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,15 +20,16 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate DP tables */
     seq_t *dp[10];
     for (int k = 0; k <= 9; ++k) {
-        dp[k] = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+        dp[k] = mem_new(seq_t, (size_t)(n + 1));
         if (!dp[k]) {
-            for (int j = 0; j < k; ++j) free(dp[j]);
+            for (int j = 0; j < k; ++j) mem_free(dp[j]);
             return 0;
         }
     }
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     seq_t result = dp[9][n];
 
     /* free memory */
-    for (int k = 0; k <= 9; ++k) free(dp[k]);
+    for (int k = 0; k <= 9; ++k) mem_free(dp[k]);
 
     return result;
 }

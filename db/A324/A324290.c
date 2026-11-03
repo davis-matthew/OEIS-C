@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if for every prime divisor p of n, p-1 divides n-1, 0
  *            otherwise
- * Range:     u8 n <= 9462, u16 n <= 9462, u32 n <= 9462, u64 n <= 9462,
- *            u128 n <= 9462, big any n
+ * Range:     u8 n <= 101101, u16 n <= 101101, u32 n <= 101101,
+ *            u64 n <= 101101, u128 n <= 101101, big any n
+ * Validated: standard, pass, 137 terms through n = 9462 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

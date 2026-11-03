@@ -11,14 +11,16 @@
  *            sequence * A115322
  * Range:     u8 n <= 42, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/pow2.h"    /* seq_t pow2(idx_t exp); */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 /* Find the row r such that (r-1)*r/2 < n ≤ r*(r+1)/2. */
 static idx_t find_row(idx_t n)
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 
     /* Compute binomial part: C((r + k - 1)/2, k). */
     idx_t m = (r + k - 1) / 2;
-    seq_t bin = binom(m, k);
+    seq_t bin = binomial(m, k);
 
     /* Compute 2^k. */
     seq_t pow = pow2(k);

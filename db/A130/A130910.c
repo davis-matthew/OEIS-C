@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-1) + a(n-16) - a(n-17)
  * Range:     u8 n <= 37, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoisation array */
 static idx_t  cache_size = 0;        /* number of initialised entries */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* Initial capacity can be arbitrary; 128 gives low fragmentation. */
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return;  /* out of memory; caller will get garbage */
 
         /* Known first 16 values (indices 0..15). */
@@ -47,7 +49,7 @@ static void ensure_cache(idx_t n)
     while (cache_size <= n) {
         if (cache_size >= cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return;  /* out of memory; computation stops early */
             cache = tmp;
             cache_cap = new_cap;

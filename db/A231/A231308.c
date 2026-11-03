@@ -8,13 +8,22 @@
  * Formula:   a(n) = Sum{k=0..floor(n/2)}(n-2k)^9 (OEIS A231308)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 11, u64 n <= 112, u128 n <= 9621,
  *            big any n
- * Helpers:   pow_i9
+ * Validated: standard, pass, 39 terms through n = 9566 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow_i9.h"
+#include "../utils/mem.h"
+
+/* Compute i^9 in a generic way that works for C and C++ builds. */
+static inline seq_t pow_i9(seq_t base) {
+    seq_t result = base;
+    for (int i = 1; i < 9; ++i)
+        result *= base;
+    return result;
+}
 
 /*
  * Memoised recurrence:
@@ -35,7 +44,7 @@ seq_t a(idx_t n) {
         size_t new_cap = n + 1;
         if (new_cap < 16)
             new_cap = 16;               /* grow with a minimum size */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {                     /* allocation failure */
             exit(EXIT_FAILURE);
         }

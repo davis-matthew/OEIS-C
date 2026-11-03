@@ -11,13 +11,15 @@
  *            a(5)=8830686982464, a(6)=609539583118581, a(7)=42073567268258250
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 8, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array holding a(1),a(2),… */
 static size_t cache_len = 0;     /* number of values actually stored */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
         size_t newcap = cache_cap ? cache_cap << 1 : 16;
         while (newcap < (size_t)n)
             newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         cache = tmp;
         cache_cap = newcap;
     }

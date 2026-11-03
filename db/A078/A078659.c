@@ -9,12 +9,14 @@
  *            m≠2^k−1} (1 + x^m)
  * Range:     i8 n <= 177, i16 n <= 409, i32 n <= 961, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of the computed coefficients */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
         idx_t new_limit = n;
 
         /* Allocate a new array big enough for all indices up to n */
-        seq_t *new_cache = (seq_t*)malloc((new_limit + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (new_limit + 1));
         if (!new_cache) return 0;     /* allocation failure – return 0 */
 
         /* initialise coefficients: a(0)=1, others 0 */
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
         }
 
         /* Replace the old cache by the new one */
-        free(cached);
+        mem_free(cached);
         cached       = new_cache;
         cached_limit = new_limit;
     }

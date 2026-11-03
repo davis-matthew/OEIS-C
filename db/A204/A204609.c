@@ -9,13 +9,15 @@
  *            a(2)=47, a(3)=125, a(4)=335, a(5)=907, a(6)=2470
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 20, u64 n <= 42, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* Enough room for a few terms beyond the seed */
         cache_cap = 16;
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0; /* allocation failure – unlikely */
 
         /* Seed with the first six values */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         /* Grow the storage if necessary */
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
             if (!cache) return (seq_t)0; /* allocation failure – unlikely */
         }
         /* Compute next term using the recurrence:

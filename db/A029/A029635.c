@@ -8,6 +8,7 @@
  *            T(0,0)=2, T(n,0)=1 for n>0, and T(n,k)=C(n,k)+C(n-1,k-1)
  * Range:     u8 n <= 58, u16 n <= 179, u32 n <= 644, u64 n <= 2309,
  *            u128 n <= 5252, big any n
+ * Validated: standard, pass, 94 terms through n = 4971 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,8 +10,9 @@
  *            function uses a simple trial‑division factorisation and then *
  *            accumulates the sums of squarefree divisors with odd cardinality
  *            * of distinct prime factors
- * Range:     u8 n <= 209, u16 n <= 9908, u32 n <= 9908, u64 n <= 9908,
- *            u128 n <= 9908, big any n
+ * Range:     u8 n <= 209, u16 n <= 44309, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 112 terms through n = 9908 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

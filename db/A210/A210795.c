@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   grow_rows
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,17 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_rows.h"
+#include "../utils/mem.h"
+
+/* Helper: grow an array of pointers to rows when needed. */
+static void grow_rows(size_t *cap, seq_t ***rows_ptr)
+{
+    size_t new_cap = (*cap) ? (*cap) * 2 : 4;
+    seq_t **tmp = (seq_t **)realloc(*rows_ptr, new_cap * sizeof(seq_t *));
+    if (!tmp) abort();
+    *rows_ptr = tmp;
+    *cap = new_cap;
+}
 
 /* The sequence entry a(idx_t n). */
 seq_t a(idx_t n)
@@ -59,7 +70,7 @@ seq_t a(idx_t n)
         grow_rows(&rows_cap, &rows);
 
         /* Row 1 */
-        seq_t *row1 = (seq_t *)malloc(sizeof(seq_t));
+        seq_t *row1 = mem_new(seq_t, 1);
         if (!row1) abort();
         row1[0] = (seq_t)1;
         rows[0] = row1;
@@ -67,7 +78,7 @@ seq_t a(idx_t n)
         prev_len = 1;
         u_prev = row1;
 
-        v_prev = (seq_t *)malloc(sizeof(seq_t));
+        v_prev = mem_new(seq_t, 1);
         if (!v_prev) abort();
         v_prev[0] = (seq_t)1;
     }
@@ -79,8 +90,8 @@ seq_t a(idx_t n)
     /* Extend precomputation up to r_needed */
     for (idx_t r = current_rows + 1; r <= r_needed; ++r) {
         /* Allocate new rows of length r */
-        seq_t *u_new = (seq_t *)malloc(r * sizeof(seq_t));
-        seq_t *v_new = (seq_t *)malloc(r * sizeof(seq_t));
+        seq_t *u_new = mem_new(seq_t, r);
+        seq_t *v_new = mem_new(seq_t, r);
         if (!u_new || !v_new) abort();
 
         /* Compute coefficients of the new row */
@@ -104,7 +115,7 @@ seq_t a(idx_t n)
         rows[current_rows] = u_new;
 
         /* Free old v row and update pointers */
-        free(v_prev);
+        mem_free(v_prev);
         v_prev = v_new;
 
         /* Update state for next iteration */

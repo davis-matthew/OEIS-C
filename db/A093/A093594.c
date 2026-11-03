@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   factorial, gcd_int
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   gcd_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_int.h"
-#include "../utils/factorial.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Structure to hold a reduced fraction for sorting */
 typedef struct {
@@ -72,7 +84,7 @@ seq_t a(idx_t n) {
         size_t cnt = 0;
         for (unsigned int q = 1; q <= curr_row; ++q) {
             for (unsigned int p = 1; p <= q; ++p) {
-                if (gcd_int(p, q) == 1) {
+                if (gcd_i32(p, q) == 1) {
                     row[cnt].p = p;
                     row[cnt].q = q;
                     ++cnt;
@@ -88,7 +100,7 @@ seq_t a(idx_t n) {
             seq_t val = (curr_fact * (seq_t)row[i].p) / (seq_t)row[i].q;
             if (seq_len == seq_cap) {
                 seq_cap = (seq_cap == 0) ? 128 : seq_cap * 2;
-                seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
             }
             seq_vals[seq_len++] = val;
         }

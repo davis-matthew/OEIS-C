@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy, mult
  * Formula:   a(n) = 1 if n is odd; otherwise a(2n) = 4*a(n) – 1. Base case:
  *            a(1) = 1. No other precomputation is needed
- * Range:     u8 n <= 31, u16 n <= 511, u32 n <= 9447, u64 n <= 9447,
- *            u128 n <= 9447, big any n
+ * Range:     u8 n <= 31, u16 n <= 511, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 118 terms through n = 9447 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

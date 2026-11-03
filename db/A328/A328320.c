@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 102, u16 n <= 8127, u32 n <= 8127, u64 n <= 8127,
- *            u128 n <= 8127, big any n
- * Helpers:   property_n
+ * Range:     u8 n <= 102, u16 n <= 18133, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 90 terms through n = 8127 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,51 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/property_n.h"
+#include "../utils/mem.h"
+
+/* Check whether m satisfies the property.  m is assumed > 1. */
+static bool property_n(uint64_t m)
+{
+    uint64_t max_e = 0;
+    uint64_t derivative = 0;
+    uint64_t t = m;
+
+    /* Factor m and accumulate derivative contributions. */
+    for (uint64_t p = 2; p <= t / p; ++p) {
+        if (t % p == 0) {
+            uint8_t e = 0;
+            while (t % p == 0) {
+                t /= p;
+                ++e;
+            }
+            if (e > max_e) max_e = e;
+            derivative += (uint64_t)e * (m / p);
+        }
+    }
+    if (t > 1) {          /* remaining prime factor */
+        uint64_t p = t;
+        uint8_t  e = 1;
+        if (e > max_e) max_e = e;
+        derivative += (uint64_t)e * (m / p);
+    }
+
+    /* Compute the maximum exponent in the factorization of the derivative. */
+    uint64_t dmax_e = 0;
+    uint64_t d = derivative;
+    for (uint64_t p = 2; p <= d / p; ++p) {
+        if (d % p == 0) {
+            uint8_t e = 0;
+            while (d % p == 0) {
+                d /= p;
+                ++e;
+            }
+            if (e > dmax_e) dmax_e = e;
+        }
+    }
+    if (d > 1 && 1 > dmax_e) dmax_e = 1;
+
+    return 1 + dmax_e == max_e;
+}
 
 /* Cached sequence of values. */
 static seq_t *seq      = NULL;
@@ -33,7 +78,7 @@ static void ensure_terms(idx_t n)
 
     if (seq_len == 0) {
         seq_cap = 16;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;          /* 1 is always in the sequence */
         seq_len = 1;
         next_test = 2;              /* start testing from 2 */
@@ -44,7 +89,7 @@ static void ensure_terms(idx_t n)
         if (m == 1 || property_n(m)) {
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)m;
         }

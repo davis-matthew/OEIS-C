@@ -15,13 +15,15 @@
  *            the word, add the * number of Dyck completions obtainable...
  * Range:     i8 n <= 60, i16 n <= 60, i32 n <= 60, i64 n <= 60, i128 n <= 60,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Count the number of Dyck completions of length rem starting from
  * balance 'b' (ones minus zeros).  The path must never go below zero
@@ -35,10 +37,10 @@ count_completions(idx_t b, idx_t rem)
     if (((rem - b) & 1ULL) != 0) return (seq_t)0;
 
     idx_t u = (rem - b) >> 1;          /* number of up steps (+1) */
-    seq_t total   = binom(rem, u);      /* all paths of that shape    */
+    seq_t total   = binomial(rem, u);      /* all paths of that shape    */
     seq_t reflected = 0;
     if (u > 0)                         /* paths that touch -1 level */
-        reflected = binom(rem, u - 1);
+        reflected = binomial(rem, u - 1);
     return total - reflected;
 }
 

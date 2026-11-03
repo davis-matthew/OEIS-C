@@ -13,16 +13,24 @@
  *            28. This implementation...
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   mul_seq_t
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
-
-#include "../utils/mul_seq_t.h"  /* for mul_seq_t */
+static inline seq_t mul_seq_t(seq_t a, seq_t b)
+{
+#if defined(__SIZEOF_INT128__)
+    return (seq_t)((__int128)a * b);
+#else
+    return a * b;      /* may overflow for large values – fine for 64‑bit build */
+#endif
+}
 
 static seq_t *A = NULL;      /* cached sequence values */
 static size_t A_len = 0;      /* number of allocated slots  */
@@ -45,7 +53,7 @@ static void ensure_A(idx_t n)
 
     /* grow array to n+1 elements (index 0..n) */
     size_t new_len = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(A, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A, new_len);
     if (!tmp) return;   /* allocation failure – caller will fail */
     A = tmp;
     /* initialise new slots to zero */

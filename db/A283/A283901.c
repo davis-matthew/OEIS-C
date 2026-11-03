@@ -11,6 +11,7 @@
  *            alternates 4,311 (a(-310)=4, a(-309)=311, …, a(0)=4)
  * Range:     u8 none, u16 n <= 658, u32 n <= 658, u64 n <= 658, u128 n <= 658,
  *            big any n
+ * Validated: full, pass, 658 terms through n = 658 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

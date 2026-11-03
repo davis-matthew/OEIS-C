@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} (d-1) * sigma(n/d)
  * Range:     u8 n <= 35, u16 n <= 1079, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9010 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for sigma values up to sigma_max */
 static seq_t *sigma_cache = NULL;
@@ -27,7 +29,7 @@ static void ensure_sigma(idx_t n)
     if (n <= sigma_max) return;                /* already computed */
 
     /* allocate a new array of size (n+1) */
-    seq_t *new_cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)(n + 1));
     if (!new_cache) return;                    /* out‑of‑memory guard */
 
     /* initialise all entries to zero (works for builtin and big‑int types) */
@@ -41,7 +43,7 @@ static void ensure_sigma(idx_t n)
 
     /* discard old cache if it exists */
     if (sigma_cache)
-        free(sigma_cache);
+        mem_free(sigma_cache);
 
     sigma_cache = new_cache;
     sigma_max   = n;

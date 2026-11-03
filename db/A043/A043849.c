@@ -10,7 +10,8 @@
  *            terms on demand by brute‑force search
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true if the number of runs in the base‑4 representation of x
    is congruent to 6 modulo 7. */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
     if (sz == cap) {
         size_t new_cap = cap ? cap << 1 : 64;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cap = new_cap;

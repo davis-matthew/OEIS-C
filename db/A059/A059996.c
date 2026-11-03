@@ -7,7 +7,8 @@
  * Formula:   a(n) = concat(C_0 , C_1 , … , C_n) where C_k are Catalan numbers
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper: number of decimal digits of a non‑zero seq_t value. */
 static int digits(seq_t x)
@@ -53,8 +55,8 @@ static void ensure_cache(idx_t n)
 
     /* Resize arrays to hold indices 0 … n */
     size_t new_sz = (size_t)(n + 1);
-    a_cache   = (seq_t *)realloc(a_cache,   new_sz * sizeof(seq_t));
-    cat_cache = (seq_t *)realloc(cat_cache, new_sz * sizeof(seq_t));
+    a_cache   = mem_resize(seq_t, a_cache, new_sz);
+    cat_cache = mem_resize(seq_t, cat_cache, new_sz);
     if (!a_cache || !cat_cache) abort();        /* out of memory */
 
     /* Initialise from cache_sz up to n */

@@ -10,15 +10,16 @@
  *            gcd(r,c) ω(x) is the big–Omega function (number of prime factors
  *            of x, counted with multiplicity). This implements the OEIS
  *            sequence A127185
- * Range:     u8 n <= 9460, u16 n <= 9460, u32 n <= 9460, u64 n <= 9460,
- *            u128 n <= 9460, big any n
- * Helpers:   gcd_uint64
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 121 terms through n = 9460 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* Count prime factors of x (with multiplicity) – big–Omega. */
 static inline uint64_t bigomega_uint64(uint64_t x)
@@ -64,7 +65,7 @@ seq_t a(idx_t n)
     uint64_t prev_tri = (uint64_t)prev_tri_val;
     uint64_t c = n - prev_tri;          /* column index, 1‑based */
 
-    uint64_t g = gcd_uint64(r, c);
+    uint64_t g = gcd_u64(r, c);
 
     uint64_t part_r = r / g;
     uint64_t part_c = c / g;

@@ -12,12 +12,14 @@
  *            (0‑based degree) is the coefficient of x^...
  * Range:     u8 n <= 47, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,9 +50,9 @@ seq_t a(idx_t n)
     idx_t prev_len = 1;      /* length of u_prev */
     idx_t prev_v_len = 1;    /* length of v_prev */
 
-    u_prev = (seq_t *)malloc(sizeof(seq_t));
+    u_prev = mem_new(seq_t, 1);
     *u_prev = (seq_t)1;
-    v_prev = (seq_t *)malloc(sizeof(seq_t));
+    v_prev = mem_new(seq_t, 1);
     *v_prev = (seq_t)1;
 
     /* Generate rows 2 .. r */
@@ -62,8 +64,8 @@ seq_t a(idx_t n)
         idx_t len_u = prev_v_len;
         idx_t len_v = prev_v_len + 1;
 
-        seq_t *u_next = (seq_t *)malloc(len_u * sizeof(seq_t));
-        seq_t *v_next = (seq_t *)malloc(len_v * sizeof(seq_t));
+        seq_t *u_next = mem_new(seq_t, len_u);
+        seq_t *v_next = mem_new(seq_t, len_v);
 
         /* Compute u_next = u_prev + v_prev (degree‑wise) */
         for (idx_t i = 0; i < len_u; ++i)
@@ -83,8 +85,8 @@ seq_t a(idx_t n)
         }
 
         /* Free old arrays and update pointers */
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_next;
         v_prev = v_next;
         prev_len = len_u;
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
     seq_t result = u_prev[k];
 
     /* Clean up */
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
     return result;
 }

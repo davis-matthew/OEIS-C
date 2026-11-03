@@ -13,6 +13,7 @@
  *            For integral seq_t types 128‑bit intermediates are...
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 26, u64 n <= 48, u128 n <= 95,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 480 (2026-11-01)
  * Helpers:   fib_pair
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

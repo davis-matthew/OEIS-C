@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 652, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 62 terms through n = 978 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Computes the n-th prime congruent to 4 (mod 11) by incremental search
    using the supplied is_prime function. */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 #include <stdbool.h>
 

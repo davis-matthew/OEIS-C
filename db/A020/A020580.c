@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper to check whether a value is already in the array. */
 static inline bool contains(const seq_t *arr, size_t sz, seq_t val)
@@ -44,7 +46,7 @@ static inline void add_prime(seq_t **arr, size_t *sz, size_t *cap, seq_t val)
         return;
     if (*sz == *cap) {
         size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         *arr = tmp;
         *cap = new_cap;
     }
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the resulting set for ordered access. */
-        qsort(S, sz, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(S, sz, sizeof(seq_t), cmp_seq_t);
         initialized = true;
     }
 

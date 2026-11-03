@@ -11,13 +11,15 @@
  *            only O(n·sqrt(n)) arithmetic with * 16‑bit in...
  * Range:     u8 n <= 712, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 8328 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (n >= max_n) {
         idx_t newsize = (n + 1);
         pid = (uint8_t *)realloc(pid, newsize * sizeof(uint8_t));
-        cnt = (seq_t *)realloc(cnt, newsize * sizeof(seq_t));
+        cnt = mem_resize(seq_t, cnt, newsize);
 
         /* initialize partition number p(0)=1 */
         if (max_n == 0) {

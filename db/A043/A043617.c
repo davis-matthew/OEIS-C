@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    such number is 7 (base‑7 "10") and the sequence continues in ascending order. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Checks whether a base‑7 representation of x has exactly two runs.
    The representation has no leading zeros.  */
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
                 /* Ensure capacity. */
                 if (cache_len == cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                     if (!new_cache) abort(); /* memory exhaustion */
                     cache = new_cache;
                     cache_cap = new_cap;

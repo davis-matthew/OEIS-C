@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9765 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --------------------------- integer square root --------------------------- */
 static inline idx_t isqrt_u64(idx_t n)
@@ -49,7 +51,7 @@ static void ensure_rep_ab(idx_t n)
         return;                       /* already have required range */
 
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(rep_ab_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, rep_ab_cache, new_size);
     if (!new_cache) {
         abort();                      /* out of memory */
     }

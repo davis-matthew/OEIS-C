@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    The sequence is memoised; each value once computed stays available.
    This implementation is O(n) time and O(n) memory.                                           */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
     idx_t needed = n + 1;
     if (cap == 0) {
         cap = 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
     while (cap < needed) {
         cap <<= 1;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     /* ---------- initialise first term if cache is empty ---------- */

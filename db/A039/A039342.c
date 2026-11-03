@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   is_a_candidate
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
    them, so it works correctly for any order of calls. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_a_candidate.h"
+#include "../utils/mem.h"
+
+/* Check whether x satisfies the definition of the sequence */
+static bool is_a_candidate(seq_t x)
+{
+    size_t c2 = 0, c3 = 0;
+    seq_t y = x;
+    while (y > 0) {
+        seq_t d = y % (seq_t)8;
+        if (d == (seq_t)2) ++c2;
+        else if (d == (seq_t)3) ++c3;
+        y = y / (seq_t)8;
+    }
+    return (c2 > 0 && c2 == c3);
+}
 
 static seq_t *cache = NULL;          /* array of found terms */
 static size_t cache_len = 0;         /* number of terms stored */
@@ -31,7 +46,7 @@ static void append_cache(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

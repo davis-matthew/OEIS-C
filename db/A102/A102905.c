@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = A113655(Fibonacci(n+1)), where A113655(m) = m-2 if m mod
  *            3 = 0, m+2 if m mod 3 = 1, m otherwise (m mod 3 = 2)
- * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 37, u64 n <= 37, u128 n <= 37,
+ * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 46, u64 n <= 92, u128 n <= 185,
  *            big any n
+ * Validated: standard, pass, 54 terms through n = 899 (2026-11-01)
  * Helpers:   fib_fast
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

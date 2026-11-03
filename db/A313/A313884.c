@@ -13,12 +13,14 @@
  *            a(9)=46, a(10)=52, a(11)=57, a(12)=62
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialize cache with base terms if not already done */
     if (cache == NULL) {
         size_t init = 13; /* indices 0..12 inclusive */
-        cache = (seq_t*)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (!cache) return (seq_t)0; /* allocation failure – unlikely */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)5;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* Extend cache up to n */
     size_t new_size = (size_t)n + 1;
     if (new_size > cache_size) {
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0; /* allocation failure – unlikely */
         cache = tmp;
         for (idx_t i = cache_size; i <= n; ++i) {

@@ -7,12 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} (n-2*k)^n * binomial(n,2*k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 35 terms through n = 94 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +23,7 @@ seq_t a(idx_t n)
     seq_t bin = 1; /* binomial(n,0) */
 
     for (idx_t j = 0; j <= n; j += 2) {
-        seq_t pow_val = big_pow((seq_t)(n - j), (seq_t)n);
+        seq_t pow_val = ipow((seq_t)(n - j), (seq_t)n);
         sum += bin * pow_val;
 
         /* update to binomial(n, j+2) */

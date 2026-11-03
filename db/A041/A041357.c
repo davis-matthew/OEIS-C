@@ -8,13 +8,15 @@
  *            a(2)=6, a(3)=7, a(4)=188, a(5)=195, a(6)=1163, a(7)=1358
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 35, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Base terms for n = 0..7 */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     /* Allocate cache if necessary and fill base terms */
     if (cache == NULL) {
         cache_size = 8;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (size_t i = 0; i < 8; ++i) {
             cache[i] = base[i];
         }
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     if (n >= cache_size) {
         size_t old_size = (size_t)cache_size;
         cache_size = (idx_t)(n + 1);
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
         for (size_t i = old_size; i <= (size_t)n; ++i) {
             /* Sequence recurrence: a(n) = 194*a(n-4) - a(n-8) */
             cache[i] = ((seq_t)194 * cache[i - 4]) - cache[i - 8];

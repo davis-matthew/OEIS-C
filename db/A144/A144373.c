@@ -7,7 +7,8 @@
  * Formula:   a(1..9)=1; for n>=10, a(n)=∑_{d|(n-9)} a(d)*a((n-9)/d)
  * Range:     u8 n <= 59, u16 n <= 128, u32 n <= 272, u64 n <= 560,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    G(x) = x + ... + x^9 + x^9*(1+∑_{i≥1}∑_{j≥1} a(i)a(j)x^{i*j})   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of a(1..max_n), index 0 unused */
 static size_t cache_max = 0;         /* largest n that has been computed */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     if (cache_max >= n) return;
     size_t new_max = cache_max ? cache_max * 2 : 256;
     while (new_max < (size_t)n) new_max <<= 1;
-    seq_t *new_seq = (seq_t *)realloc(cache, (new_max + 1) * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, cache, (new_max + 1));
     /* initialize the new part to zero (all a(i) will be set before use) */
     for (size_t i = cache_max + 1; i <= new_max; ++i) new_seq[i] = 0;
     cache = new_seq;

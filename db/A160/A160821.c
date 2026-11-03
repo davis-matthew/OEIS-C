@@ -9,7 +9,8 @@
  *            ω(∑_{k=1}^n a(k)), with ω = A001221 (number of distinct primes)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 117 terms through n = 9286 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Global static storage: a(n) in 'a_seq' (seq_t type) and cumulative sums in
  * 'sum_seq' (uint64_t).  The arrays are 1‑based, index 0 unused. */
@@ -33,7 +36,7 @@ static void _ensure_capacity(size_t n)
     size_t new_cap = _cap ? _cap * 2 : 64;
     while (new_cap < n) new_cap <<= 1;
 
-    seq_t *new_a = (seq_t *)realloc(a_seq, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_seq, (new_cap + 1));
     uint64_t *new_s = (uint64_t *)realloc(sum_seq, (new_cap + 1) * sizeof(uint64_t));
     if (!new_a || !new_s) abort();   /* allocation failure */
 
@@ -62,8 +65,8 @@ static void _build_upto(idx_t n)
             uint64_t candidate = cand;          /* candidate value as uint64_t */
 
             /* Count distinct prime factors of candidate and of the new sum. */
-            int omega_candidate = count_distinct_primes((uint64_t)candidate);
-            int omega_sum = count_distinct_primes(prev_sum + candidate);
+            int omega_candidate = omega((uint64_t)candidate);
+            int omega_sum = omega(prev_sum + candidate);
 
             if (omega_candidate == omega_sum) {
                 a_seq[(size_t)cur]   = (seq_t)candidate;     /* store a(cur) */

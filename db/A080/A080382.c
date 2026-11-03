@@ -11,17 +11,19 @@
  * Formula:   a(n) = C(r, ⌊r/2⌋) / gcd(C(r, ⌊r/2⌋), C(r, c)) where r and c are
  *            the row and column indices of the n‑th term in the triangle read
  *            by rows (starting with row 0)
- * Range:     u8 n <= 36, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
+ * Range:     u8 n <= 66, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   binomial, gcd, int_sqrt
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
+ * Helpers:   binomial, gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/int_sqrt.h"   /* idx_t int_sqrt(idx_t n); */
-#include "../utils/gcd.h"        /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
        r'(r'+1)/2 < n is false for r'-1.  Compute r' with a
        integer square root and adjust upward if necessary. */
     idx_t t = 8 * n + 1;                      /* 8*n+1 fits in 128‑bit */
-    idx_t s = int_sqrt(t);
+    idx_t s = isqrt(t);
     idx_t r_prime = (s - 1) / 2;              /* initial guess for r' */
 
     /* Correct r' upward while the cumulative count is still < n. */

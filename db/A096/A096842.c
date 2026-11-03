@@ -9,7 +9,8 @@
  *            repdigit
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   seq_to_str, sigma_of
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,43 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/sigma_of.h"
-#include "../utils/seq_to_str.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 seq_t a(idx_t n) {
     /* Static tables holding the discovered terms and the current candidate. */
@@ -33,7 +69,7 @@ seq_t a(idx_t n) {
     if (!initialized) {
         initialized = true;
         terms_cap = 1024;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         /* Since n starts at 1 and the first qualifying n is 1, we
            immediately add sigma(1)=1 as the first term. */
         seq_t first_sigma = sigma_of(1);
@@ -69,7 +105,7 @@ seq_t a(idx_t n) {
             /* Grow the array if necessary. */
             if (terms_len == terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = sigma_val;
         }

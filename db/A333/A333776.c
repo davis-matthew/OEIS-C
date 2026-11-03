@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   reverse_lower_bits
+ * Validated: standard, pass, 83 terms through n = 8042 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
  * right to left; whenever a '1' is encountered the bits to its right
  * are reversed.  This function implements that definition directly. */
 #include <stdint.h>
-#include "../utils/reverse_lower_bits.h"
+
+static seq_t reverse_lower_bits(seq_t x, unsigned int low_bits)
+{
+    if (low_bits == 0)
+        return x;
+    /* mask for the lowest low_bits bits */
+    seq_t mask = ((seq_t)1 << low_bits) - 1;
+    seq_t lower = x & mask;
+    seq_t rev = 0;
+    unsigned int j;
+    for (j = 0; j < low_bits; ++j) {
+        rev = (rev << 1) | (lower & 1);
+        lower >>= 1;
+    }
+    return (x & ~mask) | rev;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,8 +7,9 @@
  * Keywords:  sign, easy, mult
  * Formula:   multiplicative with a(2^e)=1, a(3^e)=(-1)^e, a(p^e)=
  *            (1+(-1)^e)/2 for p>3. Thus a(n) ∈ {−1,0,1}
- * Range:     i8 n <= 9731, i16 n <= 9731, i32 n <= 9731, i64 n <= 9731,
- *            i128 n <= 9731, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9731 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

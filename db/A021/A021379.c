@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* OEIS A021379:  a(0)=1, a(1)=17, a(2)=198, a(3)=2002;
  * for n>3  a(n) = 17*a(n-1) - 91*a(n-2) + 183*a(n-3) - 108*a(n-4)   */
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache of computed terms   */
 static idx_t  cached_len = 0;    /* largest n cached (0‑based) */
@@ -28,9 +30,9 @@ static void ensure_capacity(idx_t n)
     if (required < 4)
         required = 4;
     if (required > cached_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, required);
         if (!tmp) {
-            free(cache);
+            mem_free(cache);
             exit(1);          /* allocation failure */
         }
         cache = tmp;

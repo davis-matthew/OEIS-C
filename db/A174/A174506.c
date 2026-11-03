@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Memoized table of A014448(m) values */
 static seq_t * _a014448_cache = NULL;
@@ -44,7 +46,7 @@ static seq_t _a014448_compute(idx_t n)
     /* Initialise cache with first two terms if it does not exist */
     if (_a014448_cache_size == 0) {
         size_t init_sz = 2;
-        _a014448_cache      = (seq_t*)malloc(init_sz * sizeof(seq_t));
+        _a014448_cache      = mem_new(seq_t, init_sz);
         _a014448_cache_size = init_sz;
         _a014448_cache[0]   = (seq_t)2;
         _a014448_cache[1]   = (seq_t)4;
@@ -53,7 +55,7 @@ static seq_t _a014448_compute(idx_t n)
     /* Extend the cache if necessary */
     if ((size_t)n >= _a014448_cache_size) {
         size_t new_sz = (size_t)n + 1;
-        seq_t *new_arr = (seq_t*)realloc(_a014448_cache, new_sz * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, _a014448_cache, new_sz);
         _a014448_cache = new_arr;
         for (size_t i = _a014448_cache_size; i <= (size_t)n; ++i) {
             _a014448_cache[i] = _a014448_cache[i-1] * (seq_t)4 + _a014448_cache[i-2];

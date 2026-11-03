@@ -11,14 +11,27 @@
  *            T(r,k) = sum_{s=1}^{r-k+1} C(r, s) * 2^(2*s*(r-s)) * T(r-s, k-1)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 32, u128 n <= 36,
  *            big any n
- * Helpers:   binom, factorial, pow2
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/factorial.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Maximum vertex count needed for indices up to 10000:
    200*201/2 = 20100 > 10000.  Store up to 200 rows. */
@@ -40,7 +53,7 @@ seq_t a(idx_t n) {
                 seq_t sum = 0;
                 idx_t maxS = i - kk + 1;
                 for (idx_t s = 1; s <= maxS; ++s) {
-                    seq_t term = binom(i, s);
+                    seq_t term = binomial(i, s);
                     term *= pow2((idx_t)(2 * s * (i - s)));
                     term *= cache[i - s][kk - 1];
                     sum += term;

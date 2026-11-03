@@ -8,8 +8,9 @@
  * Keywords:  nonn, tabl
  * Formula:   not stated
  * Range:     u8 n <= 216, u16 n <= 677, u32 n <= 2232, u64 n <= 8168,
- *            u128 n <= 9031, big any n
- * Helpers:   antidiag_to_coordinates, idx_offset, is_power_of_two
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 121 terms through n = 9031 (2026-11-03)
+ * Helpers:   is_pow2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
-#include "../utils/antidiag_to_coordinates.h"
-#include "../utils/idx_offset.h"
+#include "../utils/is_pow2.h"
+#include "../utils/mem.h"
+
+/* convert antidiagonal index to (row,col) -- 1‑based indexing */
+static void antidiag_to_coordinates(idx_t index, idx_t *row, idx_t *col)
+{
+    /* find smallest s such that s*(s-1)/2 >= index */
+    idx_t s = 2;
+    while (((unsigned __int128)(s - 1) * s) / 2 < index)
+        ++s;
+    idx_t prev = (s - 1) * (s - 2) / 2;   /* terms before current diagonal */
+    idx_t offset = prev + 1;
+    idx_t pos = index - offset;           /* 0‑based within diagonal */
+    *row = s - 1 - pos;
+    *col = s - (*row);
+}
+
+/* compute the linear offset for indices (n,k) with 0 ≤ k ≤ n */
+static inline idx_t idx_offset(idx_t n, idx_t k)
+{
+    return n * (n + 1) / 2 + k;
+}
 
 static seq_t *T_table = NULL;        /* triangular storage for T(n,k) with 0≤k≤n */
 static idx_t max_allocated = 0;      /* largest n for which table is filled */
@@ -40,15 +60,15 @@ static void ensure_table(idx_t n_needed)
     size_t old_size = (size_t)(max_allocated + 1) * (max_allocated + 2) / 2;
     size_t new_size = (size_t)(n_needed + 1) * (n_needed + 2) / 2;
 
-    seq_t *new_table = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, new_size);
     if (!new_table)
         abort();                      /* out of memory */
 
     if (T_table) {
-        memcpy(new_table, T_table, old_size * sizeof(seq_t));
-        free(T_table);
+        mem_copy(new_table, T_table, old_size * sizeof(seq_t));
+        mem_free(T_table);
     }
-    memset(new_table + old_size, 0, (new_size - old_size) * sizeof(seq_t));
+    mem_set(new_table + old_size, 0, (new_size - old_size) * sizeof(seq_t));
     T_table = new_table;
 
     /* build new rows */
@@ -56,7 +76,7 @@ static void ensure_table(idx_t n_needed)
         for (idx_t k = 1; k <= i; ++k) {
             seq_t val = 0;
             if (k == 1) {
-                val = is_power_of_two((seq_t)i) ? 1 : 0;
+                val = is_pow2((seq_t)i) ? 1 : 0;
             } else {
                 /* sum over powers of two ≤ i-1 */
                 seq_t power = 1;

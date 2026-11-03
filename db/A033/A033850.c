@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 22, u32 n <= 100, u64 n <= 429,
  *            u128 n <= 1778, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 9935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* OEIS A033850: a(n) = minimal integer >0 with only prime factors 3 and 7, sorted ascending (a(1)=21). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache of generated terms */
 static size_t cache_cap = 0;  /* allocated capacity of cache */
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t need)
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < (size_t)need)
             new_cap = (size_t)need;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();                 /* allocation failed – terminate program */
         cache = tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   has_equal_ones_and_sixes
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has_equal_ones_and_sixes.h"
+
+/* Test whether a value has the same number of 1’s and 6’s
+   in its base‑12 representation. */
+static bool has_equal_ones_and_sixes(seq_t val)
+{
+    int cnt1 = 0, cnt6 = 0;
+    while (val > 0) {
+        seq_t d = val % (seq_t)12;
+        if (d == (seq_t)1)
+            ++cnt1;
+        else if (d == (seq_t)6)
+            ++cnt6;
+        val = val / (seq_t)12;
+    }
+    return cnt1 == cnt6;
+}
 
 /* Static cache for previously computed terms. */
 #define MAX_CACHE 20000          /* sufficient for n ≈ 10000 */

@@ -7,13 +7,14 @@
  * Formula:   a(n) = 5*binomial(n, 6) = 5*n*(n-1)*(n-2)*(n-3)*(n-4)*(n-5)/720
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 94, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a910_gcd
+ * Validated: standard, pass, 55 terms through n = 992 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a910_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t f[6];
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
     if (n < 6) return 0;
     for (i = 0; i < 6; i++) f[i] = (uint64_t)(n - (idx_t)i);
     for (i = 0; i < 6; i++) {
-        uint64_t g = a910_gcd(f[i], d);
+        uint64_t g = gcd_u64(f[i], d);
         f[i] /= g;
         d /= g;
     }

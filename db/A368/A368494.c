@@ -10,8 +10,9 @@
  *            where row k lists the 1‑based positions (counting from the
  *            right) of zeros in the binary representation of k, 0 if k has
  *            only ones; row 0 is treated as [1]
- * Range:     u8 n <= 9375, u16 n <= 9375, u32 n <= 9375, u64 n <= 9375,
- *            u128 n <= 9375, big any n
+ * Range:     u8 n <= 10384, u16 n <= 10384, u32 n <= 10384, u64 n <= 10384,
+ *            u128 n <= 10384, big any n
+ * Validated: standard, pass, 106 terms through n = 9375 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

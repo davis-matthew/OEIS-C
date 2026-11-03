@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 48, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    3, 9, 16, 33, 73, 160, 361, 835
    Offset: 1   (so a(1) is the first term listed above) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static buffer for memoization */
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     /* ----- Ensure the buffer can hold the first eight values ----- */
     if (cap < 9) {
         size_t newcap = 9;
-        seq_t *tmp = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, newcap);
         if (!tmp) return (seq_t)0;  /* allocation failed */
         buf = tmp;
         cap = newcap;
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
     /* ----- Expand buffer if needed for the requested n ----- */
     if (cap <= (size_t)n) {
         size_t newcap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, newcap);
         if (!tmp) return (seq_t)0;  /* allocation failed */
         buf = tmp;
         cap = newcap;

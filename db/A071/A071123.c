@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) + sum of decimal digits of n! (a(1) = 1)
  * Range:     u8 n <= 14, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build system. */
 static uint8_t *fact_digits = NULL;   /* digits of current n! (LSB first)          */
@@ -44,7 +46,7 @@ static void ensure_a_cap(size_t cap)
     size_t new_cap = a_cap ? a_cap * 2 : 32;
     while (new_cap < cap)
         new_cap <<= 1;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_cap = new_cap;
 }
 

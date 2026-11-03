@@ -10,8 +10,9 @@
  *            entry of the triangle defined by T(r,0) = T(r,r) = r, T(r,k) =
  *            k*(r-k) for 0 < k < r. This yields the sequence
  *            0,1,1,2,1,2,3,2,2,3,4,3,4,3,4,5,4,6,6,4,5,6,5,8,
- * Range:     u8 n <= 543, u16 n <= 9716, u32 n <= 9716, u64 n <= 9716,
- *            u128 n <= 9716, big any n
+ * Range:     u8 n <= 543, u16 n <= 11475, u32 n <= 11475, u64 n <= 11475,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 94 terms through n = 9716 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

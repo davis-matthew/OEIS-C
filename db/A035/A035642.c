@@ -12,13 +12,15 @@
  *            This follows from the product of generatin...
  * Range:     u8 n <= 34, u16 n <= 98, u32 n <= 316, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 
@@ -42,9 +44,9 @@ seq_t a(idx_t n)
 static void compute_cache(idx_t upto)
 {
     /* Allocate space for dp arrays and the new cache */
-    seq_t *dp_all = (seq_t*)calloc(upto + 1, sizeof(seq_t));
-    seq_t *dp_1   = (seq_t*)calloc(upto + 1, sizeof(seq_t));
-    seq_t *dp_2   = (seq_t*)calloc(upto + 1, sizeof(seq_t));
+    seq_t *dp_all = mem_new(seq_t, upto + 1);
+    seq_t *dp_1   = mem_new(seq_t, upto + 1);
+    seq_t *dp_2   = mem_new(seq_t, upto + 1);
     if (!dp_all || !dp_1 || !dp_2) {
         /* Out of memory: abort correctly */
         abort();
@@ -70,7 +72,7 @@ static void compute_cache(idx_t upto)
     }
 
     /* Allocate or grow the cache */
-    cache = (seq_t*)realloc(cache, upto * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, upto);
     if (!cache) abort();
 
     for (idx_t i = 1; i <= upto; ++i) {
@@ -84,7 +86,7 @@ static void compute_cache(idx_t upto)
     cached_n = upto;
 
     /* Free temporary arrays */
-    free(dp_all);
-    free(dp_1);
-    free(dp_2);
+    mem_free(dp_all);
+    mem_free(dp_1);
+    mem_free(dp_2);
 }

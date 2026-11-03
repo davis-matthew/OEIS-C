@@ -7,11 +7,13 @@
  * Formula:   a(n) = binom(n,90) (i.e., C(n,90))
  * Range:     u8 n <= 91, u16 n <= 92, u32 n <= 96, u64 n <= 106,
  *            u128 n <= 140, big any n
+ * Validated: standard, pass, 32 terms through n = 9575 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

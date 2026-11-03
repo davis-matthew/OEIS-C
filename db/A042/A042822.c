@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* a(14)=15590088666, a(15)=22528427377. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Periodic part of the continued fraction expansion of sqrt(942)
    after the leading integer part a0 = 30. */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
             idx_t new_cap = cache_cap ? cache_cap << 1 : 16;
             while (new_cap < needed) new_cap <<= 1;
 
-            seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
             if (!tmp) return (seq_t)0;        /* allocation failed */
             cache = tmp;
             cache_cap = new_cap;

@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = ((4^n - 1)/3) mod n
- * Range:     u8 n <= 263, u16 n <= 9991, u32 n <= 9991, u64 n <= 9991,
- *            u128 n <= 9991, big any n
+ * Range:     u8 n <= 263, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 106 terms through n = 9991 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,12 +9,14 @@
  *            floor(v2(k!)/2))
  * Range:     u8 n <= 62, u16 n <= 2227, u32 n <= 2227, u64 n <= 2227,
  *            u128 n <= 2227, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 2191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *terms   = NULL;   /* cached list of terms          */
 static size_t terms_len = 0;    /* number of terms cached       */
@@ -45,7 +47,7 @@ static void ensure_terms(idx_t n)
                 terms_cap = terms_cap ? terms_cap * 2 : 64;
 #ifdef __cplusplus
                 terms = reinterpret_cast<seq_t *>(
-                    realloc(terms, terms_cap * sizeof(seq_t)));
+                    mem_resize(seq_t, terms, terms_cap));
 #else
                 terms = (seq_t *)realloc(terms,
                     terms_cap * sizeof(seq_t));

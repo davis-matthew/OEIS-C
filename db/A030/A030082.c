@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   get_digits, is_prime
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   get_digits, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
 #include "../utils/get_digits.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Test whether the prime p satisfies the digit‑in‑cube condition */
 static bool prime_satisfies(uint64_t p)
@@ -75,7 +78,7 @@ seq_t a(idx_t n)
     /* grow the terms array when needed */
     if (terms_len == terms_cap) {
         size_t newcap = terms_cap ? terms_cap * 2 : 32;
-        terms = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, newcap);
         terms_cap = newcap;
     }
 
@@ -96,7 +99,7 @@ seq_t a(idx_t n)
             /* ensure capacity for the new term */
             if (terms_len == terms_cap) {
                 size_t newcap = terms_cap ? terms_cap * 2 : 32;
-                terms = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, newcap);
                 terms_cap = newcap;
             }
 

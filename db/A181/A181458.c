@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 262, u128 n <= 262,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 262 terms through n = 262 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* the primes up to 41 */
 static const uint64_t primes_u64[13] = {
@@ -53,11 +55,11 @@ static void build_k_list(void);
 static void gen_smooth(void)
 {
     smooth_cap = 1 << 20;                     /* start with ~1M slots */
-    smooth = (seq_t*)malloc(smooth_cap * sizeof(seq_t));
+    smooth = mem_new(seq_t, smooth_cap);
     smooth_len = 0;
     gen_smooth_recursive(0, 1ULL);
     /* sort the vector to allow binary search later */
-    qsort(smooth, smooth_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(smooth, smooth_len, sizeof(seq_t), cmp_seq);
 }
 
 /* recursive enumeration of prime exponents */
@@ -66,8 +68,7 @@ static void gen_smooth_recursive(size_t idx, uint64_t prod)
     if (idx == 13) {
         if (smooth_len >= smooth_cap) {
             smooth_cap <<= 1;                /* double capacity */
-            smooth = (seq_t*)realloc(smooth,
-                                     smooth_cap * sizeof(seq_t));
+            smooth = mem_resize(seq_t, smooth, smooth_cap);
         }
         smooth[smooth_len++] = (seq_t)prod;
         return;
@@ -111,7 +112,7 @@ static size_t binary_search(const seq_t *arr, size_t n, seq_t val)
 static void build_k_list(void)
 {
     k_cap = 1 << 15;                           /* ~32k entries */
-    k_list = (seq_t*)malloc(k_cap * sizeof(seq_t));
+    k_list = mem_new(seq_t, k_cap);
     k_len = 0;
 
     for (size_t i = 0; i < smooth_len; ++i) {
@@ -129,8 +130,7 @@ static void build_k_list(void)
         seq_t k = a + (seq_t)1;
         if (k_len >= k_cap) {
             k_cap <<= 1;
-            k_list = (seq_t*)realloc(k_list,
-                                     k_cap * sizeof(seq_t));
+            k_list = mem_resize(seq_t, k_list, k_cap);
         }
         k_list[k_len++] = k;
     }

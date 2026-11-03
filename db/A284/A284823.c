@@ -12,14 +12,15 @@
  *            starts at 1
  * Range:     u8 n <= 59, u16 n <= 146, u32 n <= 394, u64 n <= 1067,
  *            u128 n <= 1275, big any n
- * Helpers:   my_mu
+ * Validated: standard, pass, 93 terms through n = 1227 (2026-11-01)
+ * Helpers:   mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Standard types:  idx_t (uint64_t), seq_t (user defined integer type).  */
 #include <stdint.h>
-#include "../utils/my_mu.h"
+#include "../utils/mobius_idx.h"
 
 /*  Helper:  compute k^e for seq_t types.  */
 static seq_t pow_seq(seq_t base, idx_t exp)
@@ -43,14 +44,14 @@ static seq_t compute_T(idx_t i, idx_t j)
         if (i % d == 0) {
             idx_t d1 = d;
             seq_t term1 = pow_seq((seq_t)j, (d1 + 1) / 2);
-            int mu1 = my_mu(i / d1);
+            int mu1 = mobius_idx(i / d1);
             if (mu1 == 1) pos += term1;
             else if (mu1 == -1) neg += term1;
 
             idx_t d2 = i / d1;
             if (d2 != d1) {
                 seq_t term2 = pow_seq((seq_t)j, (d2 + 1) / 2);
-                int mu2 = my_mu(i / d2);   /* equivalent to μ(d1) */
+                int mu2 = mobius_idx(i / d2);   /* equivalent to μ(d1) */
                 if (mu2 == 1) pos += term2;
                 else if (mu2 == -1) neg += term2;
             }

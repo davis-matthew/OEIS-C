@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 78, u32 n <= 215, u64 n <= 711,
  *            u128 n <= 2500, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 82 terms through n = 9387 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 
 #include <stddef.h>   /* size_t */
 #include <math.h>     /* sqrtl, etc. */
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *motzkin = NULL;      /* cache of Motzkin numbers M[0..] */
 static size_t motzkin_cap = 0;     /* cache capacity */
@@ -37,7 +40,7 @@ ensure_motzkin(size_t needed)
     if (new_cap <= needed) {
         new_cap = needed + 4;
     }
-    motzkin = (seq_t *)realloc(motzkin, new_cap * sizeof(seq_t));
+    motzkin = mem_resize(seq_t, motzkin, new_cap);
     /* initialize new entries to 0 before computing */
     for (size_t i = motzkin_cap; i < new_cap; ++i) {
         motzkin[i] = (seq_t)0;

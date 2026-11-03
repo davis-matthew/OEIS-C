@@ -10,27 +10,29 @@
  *            triangle of v(n,x), read row by row
  * Range:     u8 n <= 33, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;                 /* Off‑by‑one safety. */
 
     /* Base row: n = 1. */
-    seq_t *Uprev = (seq_t*)malloc(sizeof(seq_t));
-    seq_t *Vprev = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *Uprev = mem_new(seq_t, 1);
+    seq_t *Vprev = mem_new(seq_t, 1);
     if (!Uprev || !Vprev) return 0;       /* Allocation failure. */
     Uprev[0] = 1;
     Vprev[0] = 1;
 
     if (n == 1) {
         seq_t r = Vprev[0];
-        free(Uprev); free(Vprev);
+        mem_free(Uprev); mem_free(Vprev);
         return r;
     }
 
@@ -45,10 +47,10 @@ seq_t a(idx_t n)
         /* Does the desired term lie in this row? */
         if ((size_t)n <= end_idx) {
             /* Allocate the current row.  We only need it when returning. */
-            seq_t *Ucur = (seq_t*)malloc(cur_len * sizeof(seq_t));
-            seq_t *Vcur = (seq_t*)malloc(cur_len * sizeof(seq_t));
+            seq_t *Ucur = mem_new(seq_t, cur_len);
+            seq_t *Vcur = mem_new(seq_t, cur_len);
             if (!Ucur || !Vcur) {
-                free(Ucur); free(Vcur); free(Uprev); free(Vprev);
+                mem_free(Ucur); mem_free(Vcur); mem_free(Uprev); mem_free(Vprev);
                 return 0;
             }
 
@@ -69,15 +71,15 @@ seq_t a(idx_t n)
 
             /* Return the requested coefficient. */
             seq_t result = Vcur[(size_t)n - start];
-            free(Ucur); free(Vcur); free(Uprev); free(Vprev);
+            mem_free(Ucur); mem_free(Vcur); mem_free(Uprev); mem_free(Vprev);
             return result;
         }
 
         /* Desired term not in this row: compute the row to continue. */
-        seq_t *Ucur = (seq_t*)malloc(cur_len * sizeof(seq_t));
-        seq_t *Vcur = (seq_t*)malloc(cur_len * sizeof(seq_t));
+        seq_t *Ucur = mem_new(seq_t, cur_len);
+        seq_t *Vcur = mem_new(seq_t, cur_len);
         if (!Ucur || !Vcur) {
-            free(Ucur); free(Vcur); free(Uprev); free(Vprev);
+            mem_free(Ucur); mem_free(Vcur); mem_free(Uprev); mem_free(Vprev);
             return 0;
         }
 
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
         }
 
         /* Prepare for the next iteration. */
-        free(Uprev); free(Vprev);
+        mem_free(Uprev); mem_free(Vprev);
         Uprev = Ucur;
         Vprev = Vcur;
         start += cur_len;   /* Start index of the next row. */

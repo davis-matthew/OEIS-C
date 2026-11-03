@@ -9,7 +9,8 @@
  *            points are omitted
  * Range:     u8 none, u16 none, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static bool init = false;
@@ -27,8 +29,8 @@ seq_t a(idx_t n) {
     if (!init) {
         /* allocate initial storage for score counts */
         capacity = 64;
-        counts = (seq_t*)malloc(sizeof(seq_t) * capacity);
-        memset(counts, 0, sizeof(seq_t) * capacity);
+        counts = mem_new(seq_t, capacity);
+        mem_set(counts, 0, sizeof(seq_t) * capacity);
 
         /* precompute all combinations of 4 distinct hand cards */
         for (idx_t c0 = 0; c0 < 52 - 3; ++c0) {
@@ -126,8 +128,8 @@ seq_t a(idx_t n) {
                             if (score >= capacity) {
                                 idx_t new_cap = capacity;
                                 while (score >= new_cap) new_cap *= 2;
-                                counts = (seq_t*)realloc(counts, sizeof(seq_t) * new_cap);
-                                memset(counts + capacity, 0, sizeof(seq_t) * (new_cap - capacity));
+                                counts = mem_resize(seq_t, counts, new_cap);
+                                mem_set(counts + capacity, 0, sizeof(seq_t) * (new_cap - capacity));
                                 capacity = new_cap;
                             }
                             counts[score] += 1;

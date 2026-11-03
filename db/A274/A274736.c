@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 288 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #ifdef __cplusplus
 #include <type_traits>
@@ -54,8 +56,8 @@ static void expand_cache(idx_t needed) {
     size_t new_cap = capacity ? capacity * 2 : 4;
     while (new_cap + 2 < (size_t)(needed + 2))
         new_cap *= 2;
-    seq_t *new_a = (seq_t *)calloc(new_cap + 1, sizeof(seq_t));
-    seq_t *new_t = (seq_t *)calloc(new_cap + 1, sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, new_cap + 1);
+    seq_t *new_t = mem_new(seq_t, new_cap + 1);
     if (!new_a || !new_t) abort();
     if (cache_size > 0) {
         for (idx_t i = 1; i <= cache_size; ++i)
@@ -63,8 +65,8 @@ static void expand_cache(idx_t needed) {
         for (idx_t i = 2; i <= cache_size + 1; ++i)
             new_t[i] = t_cache[i];
     }
-    free(a_cache);
-    free(t_cache);
+    mem_free(a_cache);
+    mem_free(t_cache);
     a_cache = new_a;
     t_cache = new_t;
     capacity = new_cap;

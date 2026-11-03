@@ -9,12 +9,14 @@
  *            all exponents odd
  * Range:     u8 n <= 361, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9802 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* smallest‑prime‑factor sieve */
 static idx_t *spf = NULL;
@@ -47,7 +49,7 @@ static void ensure_arr(idx_t limit)
 {
     if ((size_t)limit < arr_capacity) return;
     size_t new_cap = (size_t)(limit + 1);
-    seq_t *tmp = (seq_t *)realloc(arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, arr, new_cap);
     if (!tmp) exit(1);
     arr = tmp;
     for (size_t i = arr_capacity; i < new_cap; ++i) arr[i] = (seq_t)0;

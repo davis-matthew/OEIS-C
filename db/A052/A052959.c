@@ -9,13 +9,15 @@
  *            a(2)=3; for n ≥ 3: a(n) = 2*a(n-2) + a(n-3) - 1
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 46, u64 n <= 92, u128 n <= 185,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 // Adapted to any seq_t/idx_t types that support +, -, and + with integer constants.
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    // store computed values
 static idx_t cache_cap = 0;    // allocated capacity
@@ -28,10 +30,10 @@ static void ensure_cache(idx_t n)
     while (cache_len <= n) {
         if (cache_len == 0) {
             cache_cap = 4;
-            cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         } else if (cache_len == cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         seq_t val;

@@ -7,15 +7,51 @@
  * Formula:   a(n) = #{ d | d divides n, d odd, d ≤ √n }
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _factor_u64, _floor_isqrt_u64
+ * Validated: standard, pass, 106 terms through n = 9595 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Compute the floor integer square root of an idx_t value. */
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/isqrt.h"
+
+/* ---------- Trial division factorisation ----------------------------------- */
+static void _factor_u64(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    *cnt = 0;
+    if (n < 2) return;
+    /* factor 2 separately */
+    if ((n & 1ULL) == 0) {
+        pr[*cnt] = 2ULL;
+        exp[*cnt] = 0;
+        while ((n & 1ULL) == 0) {
+            n >>= 1;
+            exp[*cnt] += 1;
+        }
+        (*cnt)++;
+    }
+    /* odd primes */
+    for (uint64_t d = 3ULL; d * d <= n; d += 2ULL) {
+        if (n % d == 0) {
+            pr[*cnt] = d;
+            exp[*cnt] = 0;
+            while (n % d == 0) {
+                n /= d;
+                exp[*cnt] += 1;
+            }
+            (*cnt)++;
+        }
+    }
+    if (n > 1) {
+        pr[*cnt] = n;
+        exp[*cnt] = 1;
+        (*cnt)++;
+    }
+}
 /* Factor a uint64_t into prime factors and exponents. */
-#include "../utils/_factor_u64.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -51,7 +87,7 @@ seq_t a(idx_t n)
     while ((odd & 1) == 0) odd >>= 1;
 
     /* Limit for divisors: floor(sqrt(n)). */
-    idx_t limit = _floor_isqrt_u64(n);
+    idx_t limit = isqrt(n);
 
     /* Factor the odd part.  Using temporary arrays of sufficient size. */
     uint64_t pr[64];

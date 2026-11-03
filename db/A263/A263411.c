@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   gcd, is_prime_small
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   gcd, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,10 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* cached sequence values */
 static idx_t cache_len   = 0;      /* number of values cached */
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
 
     /* Ensure cache has enough space */
     if (n > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp && n > (idx_t)0)
             abort();
         cache      = tmp;
@@ -76,7 +79,7 @@ seq_t a(idx_t n)
         /* Previous term is odd -------------------------------------------- */
         else {
             /* Next odd after the previous odd term */
-            if (!is_prime_small(nextOdd)) {       /* next odd is composite */
+            if (!is_prime_seq(nextOdd)) {       /* next odd is composite */
                 seq_t evenCand = (seq_t)nextEven; /* try even */
                 if (gcd(evenCand, lastTerm) == (seq_t)1) {
                     term = evenCand;             /* use even */

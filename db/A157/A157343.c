@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;          /* array of pointers to rows */
 static size_t  rows_allocated = 0;        /* capacity of triangle array   */
@@ -40,7 +42,7 @@ static void ensure_triangle_rows(idx_t up_to)
 {
     while (rows_count <= up_to) {
         idx_t r = (idx_t)rows_count;                    /* new row index   */
-        seq_t *row = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (r + 1));
         if (!row) abort(); /* OOM protection */
 
         /* first and last elements are always 1 */

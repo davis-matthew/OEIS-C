@@ -9,13 +9,14 @@
  *            a small cache of the 8‑term cycle that starts with a(2)=3
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 92 terms through n = 989 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
         {
             /* compute next term: greatest prime factor of (2*cur + 1) */
             uint64_t temp = 2ULL * (uint64_t)cur + 1ULL;
-            uint64_t gpf_val = gpf(temp);
+            uint64_t gpf_val = largest_prime_factor(temp);
             cur = (seq_t)gpf_val;
             cycle[i] = cur;     /* cycle[i] = a(2+i) */
         }

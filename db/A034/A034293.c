@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 23, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,13 +41,13 @@ seq_t a(idx_t n)
     if (capacity == 0) {
         digits[0] = 1;
         capacity = 16;
-        terms = (seq_t *)malloc(capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, capacity);
     }
 
     /* Grow the terms array if necessary */
     if (n > capacity) {
         while (capacity < n) capacity <<= 1;
-        terms = (seq_t *)realloc(terms, capacity * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, capacity);
     }
 
     /* Generate terms until we have at least n of them */

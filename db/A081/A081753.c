@@ -8,6 +8,7 @@
  * Formula:   a(n) = floor(n/12) if n == 2 (mod 12); otherwise floor(n/12) + 1
  * Range:     u8 n <= 661, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 9551 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

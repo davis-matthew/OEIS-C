@@ -9,7 +9,8 @@
  *            the n-th squarefree number (A005117(n))
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   count_distinct_primes, is_squarefree
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-01)
+ * Helpers:   is_squarefree, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_squarefree.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
 
 /* Cache for the generated squarefree numbers (uint64_t is enough for the limits considered) */
 static uint64_t *squarefrees = NULL;   /* array of nth squarefree numbers (0‑based) */
@@ -59,7 +60,7 @@ seq_t a(idx_t n)
     generate_squarefrees(idx);
 
     uint64_t m = squarefrees[idx];
-    size_t c = (size_t)count_distinct_primes(m);   /* m is squarefree, exponents are 1 */
+    size_t c = (size_t)omega(m);   /* m is squarefree, exponents are 1 */
 
     seq_t cc = (seq_t)c;
     return cc * (cc - 1) / 2;

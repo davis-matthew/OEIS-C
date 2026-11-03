@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 14, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: modular inverse of a modulo m (m is prime, a≠0 mod m).        */
 static uint64_t modinv_uint64(uint64_t a, uint64_t m)
@@ -74,7 +76,7 @@ static void ensure_cache(idx_t n)
     if ((idx_t)cache_cap > n) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 1;
     while ((idx_t)new_cap <= n) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

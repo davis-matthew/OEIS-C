@@ -10,14 +10,16 @@
  *            sum (2 and s-2) or the difference (2 and s+2) of two primes
  * Range:     u8 n <= 1, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         uint64_t s_minus_2 = (uint64_t)(s - 2);
         uint64_t s_plus_2  = (uint64_t)(s + 2);
 
-        if (!is_prime(s_minus_2) && !is_prime(s_plus_2)) {
+        if (!is_prime_u64(s_minus_2) && !is_prime_u64(s_plus_2)) {
             ++count;
             if (count == n)
                 return s;

@@ -8,13 +8,14 @@
  * Formula:   a(n) = floor((7/18)*4^n)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
        by the build system.  If seq_t is a small integer type the value will
        naturally overflow, but such values do not fit in the target type and
        are not required to be correct. */
-    seq_t pow4 = pow_uint((uint64_t)4, n);
+    seq_t pow4 = ipow_u64_idx((uint64_t)4, n);
     seq_t num  = pow4 * (seq_t)7;
     seq_t res  = num / (seq_t)18;
     return res;

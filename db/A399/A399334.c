@@ -12,12 +12,14 @@
  *            i, otherwise s = -1. Example: a(0)=1, a(1)=2, a(2)=0, a(3)=5,
  * Range:     i8 n <= 20, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     /* Compute the matrix entry A(i,j) */
     if (i == j)
-        return binom(i, i / 2);
+        return binomial(i, i / 2);
 
     idx_t d_ref = (i > j) ? (i - j) : (j - i);
     idx_t p      = (i < j) ? i : j;
@@ -48,14 +50,14 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t m = 0; m <= d_ref; ++m)
     {
-        seq_t term = binom(d_ref, m);
+        seq_t term = binomial(d_ref, m);
 
         /* Multiply by s^(d_ref-m).  When s == -1 this is just a sign. */
         if (s == -1 && ((d_ref - m) & 1))
             term = -term;
 
         /* Multiply by the middle binomial coefficient M(p+m). */
-        term *= binom(p + m, (p + m) / 2);
+        term *= binomial(p + m, (p + m) / 2);
 
         sum += term;
     }

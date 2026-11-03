@@ -9,7 +9,8 @@
  * Formula:   a(a(n)) = 3*n + 4, a(0) = 1
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   ensure_bool_cap
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/ensure_bool_cap.h"
+#include "../utils/mem.h"
+
+static void ensure_bool_cap(bool **arr, size_t *cap, size_t needed) {
+    if (needed <= *cap) return;
+    size_t old_cap = *cap;
+    size_t new_cap = old_cap ? old_cap : 16;
+    while (new_cap <= needed) new_cap <<= 1;
+    bool *tmp = (bool *)realloc(*arr, new_cap * sizeof(bool));
+    if (!tmp) abort();
+    *arr = tmp;
+    if (new_cap > old_cap)
+        memset((*arr) + old_cap, 0, (new_cap - old_cap) * sizeof(bool));
+    *cap = new_cap;
+}
 
 /* -------------- Dynamic array helpers -------------- */
 static void ensure_seq_cap(seq_t **arr, size_t *cap, size_t needed) {
@@ -28,11 +42,11 @@ static void ensure_seq_cap(seq_t **arr, size_t *cap, size_t needed) {
     size_t old_cap = *cap;
     size_t new_cap = old_cap ? old_cap : 16;
     while (new_cap <= needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) abort();
     *arr = tmp;
     if (new_cap > old_cap)
-        memset((*arr) + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
+        mem_set((*arr) + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
     *cap = new_cap;
 }
 

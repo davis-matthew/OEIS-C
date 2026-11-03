@@ -7,9 +7,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 765, u16 n <= 9942, u32 n <= 9942, u64 n <= 9942,
- *            u128 n <= 9942, big any n
- * Helpers:   row_vals
+ * Range:     u8 n <= 765, u16 n <= 10326, u32 n <= 10326, u64 n <= 10326,
+ *            u128 n <= 10326, big any n
+ * Validated: standard, pass, 101 terms through n = 9942 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,52 @@
  */
 
 #include <stddef.h> /* size_t */
-#include "../utils/row_vals.h"
+
+/* Populate the array "vals" with the sorted distinct set of bases
+ * and exponents of m.  The caller must supply an array of at
+ * least row_len(m)+1 elements.  The actual number of elements
+ * written to *len is returned. */
+static void row_vals(idx_t m, seq_t *vals, size_t *len)
+{
+    size_t cnt = 0;
+    idx_t num = m;
+
+    for (idx_t p = 2; p <= num / p; ++p) {
+        if (num % p == 0) {
+            idx_t exp = 0;
+            while (num % p == 0) {
+                num /= p;
+                ++exp;
+            }
+            vals[cnt++] = (seq_t)p;
+            vals[cnt++] = (seq_t)exp;
+        }
+    }
+    if (num > 1) {
+        vals[cnt++] = (seq_t)num;
+        vals[cnt++] = (seq_t)1;
+    }
+
+    /* insertion sort */
+    for (size_t i = 0; i < cnt; ++i) {
+        for (size_t j = i + 1; j < cnt; ++j) {
+            if (vals[j] < vals[i]) {
+                seq_t t = vals[i];
+                vals[i] = vals[j];
+                vals[j] = t;
+            }
+        }
+    }
+
+    /* unique elements */
+    size_t uniq = 0;
+    for (size_t i = 0; i < cnt; ++i) {
+        if (uniq == 0 || vals[i] != vals[uniq - 1]) {
+            vals[uniq++] = vals[i];
+        }
+    }
+    *len = uniq;
+}
 
 /* Return the number of distinct values in the set of bases and
  * exponents of m (the row length).  The values are collected in a

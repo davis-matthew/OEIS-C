@@ -7,8 +7,9 @@
  * Formula:   a(n) = number of gaps between successive distinct prime factors
  *            of n, where a gap occurs if the next prime after a prime factor
  *            is not the following factor
- * Range:     u8 n <= 9785, u16 n <= 9785, u32 n <= 9785, u64 n <= 9785,
- *            u128 n <= 9785, big any n
+ * Range:     u8 n <= 50000, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 136 terms through n = 9785 (2026-11-01)
  * Helpers:   factor_u64, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/next_prime.h"
 

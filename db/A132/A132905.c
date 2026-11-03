@@ -8,7 +8,8 @@
  *            primes[n+4])
  * Range:     u8 none, u16 none, u32 n <= 13, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   build_primes_upto, digit_count, pow10
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   build_primes_upto, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,19 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_count.h"
+#include "../utils/num_digits0.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static uint64_t *prime_tbl = NULL;
 static size_t prime_cnt   = 0;
@@ -51,7 +62,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 0; i < 5; ++i) {
         uint64_t p = prime_tbl[start + (size_t)i];
-        idx_t  digs = digit_count(p);
+        idx_t  digs = num_digits0(p);
         seq_t  p10  = pow10(digs);
         res = res * p10 + (seq_t)p;
     }

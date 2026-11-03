@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   next_pow2
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/next_pow2.h"
+#include "../utils/mem.h"
+
+/* power of two >= n */
+static size_t next_pow2(size_t n) {
+    size_t p = 1;
+    while (p < n) p <<= 1;
+    return p;
+}
 
 /* ---------- Basic complex type for FFT ---------- */
 typedef struct { double re; double im; } Complex;
@@ -141,9 +149,9 @@ seq_t a(idx_t n) {
             if (unordered == 1) {
                 if (new_len == new_cap) {
                     new_cap = new_cap ? new_cap << 1 : 64;
-                    seq_t *tmp = (seq_t*)realloc(new_terms, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, new_terms, new_cap);
                     if (!tmp) { /* memory failure: clean up */
-                        free(new_terms);
+                        mem_free(new_terms);
                         free(fa);
                         free(abundant);
                         free(sigma);
@@ -162,7 +170,7 @@ seq_t a(idx_t n) {
 
         /* If enough terms collected, store them and return. */
         if (new_len >= needed) {
-            if (cached_terms) free(cached_terms);
+            if (cached_terms) mem_free(cached_terms);
             cached_terms = new_terms;
             cached_len   = new_len;
             cached_lim   = limit;
@@ -170,7 +178,7 @@ seq_t a(idx_t n) {
         }
 
         /* Not enough terms: discard and try a larger limit. */
-        free(new_terms);
+        mem_free(new_terms);
         limit <<= 1;          /* double the limit for next attempt */
     }
 }

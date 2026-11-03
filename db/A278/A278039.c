@@ -10,15 +10,17 @@
  *            2, w_2 = 4, * w_k = w_{k‑1} + w_{k‑2} + w_{k‑3} (k ≥ 3), * and
  *            each d_i is 0 or 1. Then * * a(n) = Σ d_i * w_{i+1} * * i.e.
  *            a(n) is obtained by appending a 0 to the tribonacci repres...
- * Range:     u8 n <= 138, u16 n <= 9986, u32 n <= 9986, u64 n <= 9986,
- *            u128 n <= 9986, big any n
- * Helpers:   none
+ * Range:     u8 n <= 138, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 9986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*----------------------------------------------------------------------*/
 #include <stdlib.h>  /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     if (w == NULL) {
         wcap = 4;
-        w = (seq_t *)malloc(wcap * sizeof(seq_t));
+        w = mem_new(seq_t, wcap);
         w[0] = 1;   /* w_0 */
         w[1] = 2;   /* w_1 */
         w[2] = 4;   /* w_2 */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     while (wlen > 0 && w[wlen-1] <= (seq_t)n) {
         if (wlen + 1 > wcap) {
             wcap = wcap * 2 + 2;
-            w = (seq_t *)realloc(w, wcap * sizeof(seq_t));
+            w = mem_resize(seq_t, w, wcap);
         }
         w[wlen] = w[wlen-1] + w[wlen-2] + w[wlen-3];
         ++wlen;

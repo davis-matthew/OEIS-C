@@ -9,7 +9,8 @@
  *            p_i^{e_i} is the prime factorization of n
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   build_prime_list
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,39 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/build_prime_list.h"
+
+/* Generate the prime list up to max_limit.
+   The list is returned in *out (array of idx_t) and its
+   length in *cnt.  The caller is responsible for freeing *out. */
+static void build_prime_list(idx_t **out, size_t *cnt, idx_t max_limit)
+{
+    bool *is_prime = (bool *)malloc((max_limit + 1) * sizeof(bool));
+    for (idx_t i = 0; i <= max_limit; ++i)
+        is_prime[i] = true;
+    is_prime[0] = is_prime[1] = false;
+
+    for (idx_t i = 2; i * i <= max_limit; ++i)
+        if (is_prime[i])
+            for (idx_t j = i * i; j <= max_limit; j += i)
+                is_prime[j] = false;
+
+    /* count primes */
+    size_t prime_cnt = 0;
+    for (idx_t i = 2; i <= max_limit; ++i)
+        if (is_prime[i])
+            ++prime_cnt;
+
+    idx_t *primes = (idx_t *)malloc(prime_cnt * sizeof(idx_t));
+    size_t pos = 0;
+    for (idx_t i = 2; i <= max_limit; ++i)
+        if (is_prime[i])
+            primes[pos++] = i;
+
+    free(is_prime);
+
+    *out  = primes;
+    *cnt  = prime_cnt;
+}
 
 /* Find the index of prime p inside the sorted prime list.
    Assumes p is prime and present in the list. */

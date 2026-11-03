@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 3535, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   estimate_upper_bound_for_nth_prime
+ * Validated: standard, pass, 72 terms through n = 9093 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <math.h>
-#include "../utils/estimate_upper_bound_for_nth_prime.h"
+
+/* Estimate an upper bound for the n-th prime using Rosser's theorem */
+static unsigned estimate_upper_bound_for_nth_prime(unsigned n)
+{
+    if (n < 6) {
+        static const unsigned small[] = {0, 2, 3, 5, 7, 11, 13};
+        return small[n] + 10; /* safe margin */
+    }
+    double dn = (double)n;
+    double bound = dn * (log(dn) + log(log(dn)));
+    return (unsigned)bound + 3;
+}
 
 #ifndef MAX_SIEVE_LIMIT
 #define MAX_SIEVE_LIMIT 500000   /* enough for n up to ~40000 */

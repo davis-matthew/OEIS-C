@@ -8,12 +8,14 @@
  *            r=ceil(sqrt(n)) and k = n - (r-1)^2 - 1
  * Range:     u8 n <= 41, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
     idx_t l = j / 2;          /* floor(j/2)   */
     idx_t m = j - l;          /* ceil(j/2)    */
 
-    seq_t a1 = binom(r - 1, l);
-    seq_t a2 = binom(r - 1, m);
+    seq_t a1 = binomial(r - 1, l);
+    seq_t a2 = binomial(r - 1, m);
 
     return a1 * a2;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 178, u32 n <= 610, u64 n <= 2307,
  *            u128 n <= 5150, big any n
- * Helpers:   binom_n_k
+ * Validated: standard, pass, 94 terms through n = 5035 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
    an exact value is returned. */
 
 #include <stdint.h>
-#include "../utils/binom_n_k.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 
 /* Find the row number r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2 */
 static idx_t row_of_index(idx_t n)
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
     /* For arbitrary‑precision seq_t, use the utility binom_n_k
        and rely on the type’s arithmetic operators */
-    seq_t bin = binom_n_k(r, k);
+    seq_t bin = binomial(r, k);
     seq_t res = bin * 2;
     res = res - (seq_t)3;
     return res;

@@ -10,7 +10,8 @@
  *            is obtained by reading the triangle row‐wise
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined externally by the build. */
 seq_t a(idx_t n)
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         rows = (seq_t **)malloc(((size_t)r + 1) * sizeof(seq_t *));
         for (idx_t i = 0; i <= r; ++i) {
             size_t len = (size_t)(i + 1);
-            rows[i] = (seq_t *)malloc(len * sizeof(seq_t));
+            rows[i] = mem_new(seq_t, len);
             if (i == 0) {                     /* row 0 : 1 */
                 rows[0][0] = (seq_t)1;
             } else if (i == 1) {               /* row 1 : 1,0 */
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         rows = (seq_t **)realloc(rows, ((size_t)r + 1) * sizeof(seq_t *));
         for (idx_t i = max_row + 1; i <= r; ++i) {
             size_t len = (size_t)(i + 1);
-            rows[i] = (seq_t *)malloc(len * sizeof(seq_t));
+            rows[i] = mem_new(seq_t, len);
             if (i == 0) {
                 rows[0][0] = (seq_t)1;
             } else if (i == 1) {

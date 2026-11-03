@@ -7,6 +7,7 @@
  * Formula:   a(4n) = -n^2, a(4n+1) = n^2, a(4n+2) = 1-n^2, a(4n+3) = n*(n+1)
  * Range:     i8 n <= 46, i16 n <= 726, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 71 terms through n = 961 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,6 +9,7 @@
  *            = 1}
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

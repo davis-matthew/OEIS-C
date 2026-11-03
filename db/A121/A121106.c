@@ -7,11 +7,14 @@
  * Formula:   a(1) = 6788, a(n) = digit_product(a(n-1)) for n > 1
  * Range:     u8 none, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-02)
  * Helpers:   digit_product
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_product.h"
 
 seq_t a(idx_t n) {

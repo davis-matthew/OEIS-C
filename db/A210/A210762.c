@@ -13,7 +13,8 @@
  *            sequence is flattened row-wise
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Persistent storage for computed values */
 static seq_t *out = NULL;          /* flattened sequence, out[n] = a(n) for n>=2 */
@@ -54,7 +56,7 @@ static void ensure_presence_capacity(idx_t min_cap) {
 static void out_append(seq_t val) {
     if (out_len + 1 > out_cap) {
         size_t new_cap = out_cap ? out_cap << 1 : 64;
-        seq_t *new_out = (seq_t *)realloc(out, new_cap * sizeof(seq_t));
+        seq_t *new_out = mem_resize(seq_t, out, new_cap);
         if (!new_out) abort();
         out = new_out;
         out_cap = new_cap;
@@ -94,7 +96,7 @@ static void recam_next(idx_t idx) {
 static void init_once(void) {
     /* Allocate output storage */
     out_cap = 64;
-    out = (seq_t *)malloc(out_cap * sizeof(seq_t));
+    out = mem_new(seq_t, out_cap);
     out[0] = 0;       /* placeholder for indices 0,1 which are unused */
     out[1] = 0;
     out_len = 2;       /* next free index is 2 */

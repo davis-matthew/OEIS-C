@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 64 terms through n = 946 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: greatest common divisor for 64‑bit unsigned integers. */
 static uint64_t gcd_u64(uint64_t a, uint64_t b)
@@ -31,10 +33,11 @@ static uint64_t gcd_u64(uint64_t a, uint64_t b)
 }
 
 /* Prime test function (provided by the framework). */
+#include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 /* Modular exponentiation function (provided by the framework). */
-#include "../utils/mod_pow.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
     /* Initialise the cache with the first term (p = 2). */
     if (cache_len == 0) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;           /* handle allocation failure */
         cache[0] = (seq_t)2;            /* p = 2 satisfies 0^60 ≡ 2 (mod 2) */
         cache_len = 1;
@@ -60,13 +63,13 @@ seq_t a(idx_t n)
             uint64_t p = next_candidate;
             uint64_t d = gcd_u64(p - 1, 60ULL);
             uint64_t exp = (p - 1) / d;
-            seq_t res = mod_pow((seq_t)2, exp, (seq_t)p);
+            seq_t res = powmod((seq_t)2, exp, (seq_t)p);
 
             if (res == (seq_t)1) { /* condition satisfied */
                 /* Grow cache if necessary. */
                 if (cache_len == cache_cap) {
                     cache_cap = (cache_cap == 0 ? 8 : cache_cap * 2);
-                    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                     if (!tmp) return 0; /* handle allocation failure */
                     cache = tmp;
                 }

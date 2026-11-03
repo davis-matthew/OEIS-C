@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 170, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Search for numbers whose Collatz trajectory contains exactly 12 odd integers. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Computes a(n): the n‑th integer whose Collatz trajectory has exactly
  * 12 odd values.  The implementation repeatedly tests successive
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         if (terms_len + 1 > terms_cap)
         {
             size_t new_cap = terms_cap ? (terms_cap << 1) : 4;
-            seq_t *tmp = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, new_cap);
             if (!tmp) exit(1);
             terms = tmp;
             terms_cap = new_cap;

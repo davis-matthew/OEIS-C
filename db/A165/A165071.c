@@ -8,8 +8,9 @@
  * Keywords:  base, nonn
  * Formula:   a(n) = (digits of n in base‑7 sorted descending) - * (digits of
  *            n in base‑7 sorted ascending)
- * Range:     u8 n <= 54, u16 n <= 9766, u32 n <= 9766, u64 n <= 9766,
- *            u128 n <= 9766, big any n
+ * Range:     u8 n <= 54, u16 n <= 16807, u32 n <= 16807, u64 n <= 16807,
+ *            u128 n <= 16807, big any n
+ * Validated: standard, pass, 90 terms through n = 9766 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

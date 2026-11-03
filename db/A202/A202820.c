@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 21, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for already computed values */
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
         size_t row_index = (size_t)(rows_computed + 1);
         size_t row_len   = row_index;
 
-        seq_t *row = (seq_t *)malloc(row_len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, row_len);
         if (!row) {
             /* Allocation failed – return 0 as a safe fallback. */
             return (seq_t)0;
@@ -87,19 +89,19 @@ seq_t a(idx_t n) {
         /* Append the new row into the global cache */
         if (cache_size + row_len > cache_cap) {
             size_t new_cap = (cache_cap == 0) ? row_len * 2 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) {
-                free(row);
+                mem_free(row);
                 return (seq_t)0; /* allocation failure */
             }
             cache = tmp;
             cache_cap = new_cap;
         }
-        memcpy(cache + cache_size, row, row_len * sizeof(seq_t));
+        mem_copy(cache + cache_size, row, row_len * sizeof(seq_t));
         cache_size += row_len;
 
         /* prepare for next iteration */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = row;
         prev_len = row_len;
         rows_computed++;

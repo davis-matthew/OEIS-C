@@ -9,18 +9,20 @@
  *            n = Σ 2^e[i] with decreasing exponents e[0] > … > e[k] (A272011)
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 83 terms through n = 82 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;
     /* Find the position of the most significant 1-bit. */
-    idx_t msb_pos = floor_log2_uint64(n);
+    idx_t msb_pos = ilog2(n);
     seq_t sum = 0;
     /* i counts the index of the current set bit in the
        descending order (e[0] has i = 0). */

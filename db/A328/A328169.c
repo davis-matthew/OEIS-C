@@ -8,6 +8,7 @@
  *            n; a(1) = 0
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-01)
  * Helpers:   build_primes, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/gcd.h"          /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/build_primes.h" /* void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
+#include <stdlib.h>
+#include "../utils/build_primes.h"
+#include "../utils/gcd.h"
 
 /* Pre-sieve limit: enough for n up to at least 10000 and comfortably beyond. */
 #define PRE_SIEVE_LIMIT 2000000ULL

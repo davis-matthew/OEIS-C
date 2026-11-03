@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_cube_root
+ * Validated: standard, pass, 69 terms through n = 8973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/int_cube_root.h"
+#include <limits.h>
+#include "../utils/mem.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* popcount for seq_t, works for all integer widths up to 128‑bit */
 static inline int popcount_seq(seq_t x)
@@ -54,7 +71,7 @@ static void ensure_cache_size(size_t needed)
         cache_cap = 8;
     while (cache_cap < needed)
         cache_cap <<= 1;
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 /* main function */

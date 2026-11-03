@@ -11,13 +11,15 @@
  *            14532, 22664
  * Range:     u8 none, u16 n <= 14, u32 n <= 38, u64 n <= 86, u128 n <= 182,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t base_vals[13] = {
     0ULL,        /* a(0) unused */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* first call: allocate space for the basis values (indices 0..12) */
     if (cache == NULL) {
         size_t cap = (n > 12) ? (size_t)n + 1 : 13;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL)
             exit(1);
         for (idx_t i = 0; i <= 12; ++i)
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     if (n > cache_len) {
         size_t new_cap = (size_t)n + 1;
         if (new_cap > (size_t)cache_len + 1) {
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL)
                 exit(1);
             cache = tmp;

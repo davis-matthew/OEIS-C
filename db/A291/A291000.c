@@ -8,13 +8,15 @@
  *            values a(0)=1, a(1)=3, a(2)=9, a(3)=26 This is sequence A291000
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 42, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoization */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* initialise cache on first call */
     if (!initialized) {
         cache_cap = 4;               /* we need indices 0..3 */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0; /* out of memory, but not expected for this test */
 
         cache[0] = (seq_t)1;
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
         while ((size_t)(n + 1) > new_cap) {
             new_cap <<= 1;
         }
-        seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return (seq_t)0; /* out of memory, not expected */
         cache = new_cache;
         cache_cap = new_cap;

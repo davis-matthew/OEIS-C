@@ -11,14 +11,37 @@
  *            263524, 344683, 449230, 588930
  * Range:     u8 none, u16 n <= 9, u32 n <= 49, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   seq_from_str, seq_realloc
+ * Validated: standard, pass, 45 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/seq_realloc.h"
+#include <string.h>
+#include <stdbool.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static const char *init_str[18] = {
     "20465", "15354", "19596", "22081", "23453",

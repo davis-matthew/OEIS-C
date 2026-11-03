@@ -9,12 +9,15 @@
  *            23)/12
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 27, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 32 terms through n = 33 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n < 2)
@@ -26,7 +29,7 @@ seq_t a(idx_t n) {
     /* (-1)^(n + 1) = -r */
     seq_t term1 = -r;
     /* 2^(n + 1) */
-    seq_t pow2 = seq_pow((seq_t)2, n + 1);
+    seq_t pow2 = ipow_idx((seq_t)2, n + 1);
     /* 2^(n + 1)*(17 + (-1)^n) */
     seq_t term2 = pow2 * ((seq_t)17 + r);
     /* 6*n*(n + 4) */

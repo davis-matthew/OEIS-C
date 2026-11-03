@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 19, u64 n <= 42, u128 n <= 89,
  *            big any n
- * Helpers:   calc_recurrence
+ * Validated: standard, pass, 40 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,47 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/calc_recurrence.h"
+#include "../utils/mem.h"
+
+static inline seq_t calc_recurrence(idx_t i, const seq_t *buf)
+{
+#if defined(__SIZEOF_INT128__) && !defined(NO_128)
+    /* Use 128‑bit arithmetic for built‑in seq_t types up to 64 bits. */
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 t = (unsigned __int128)buf[i-1];
+        t += (unsigned __int128)buf[i-2] * 16;
+        t -= (unsigned __int128)buf[i-3] * 13;
+        t -= (unsigned __int128)buf[i-4] * 98;
+        t += (unsigned __int128)buf[i-5] * 63;
+        t += (unsigned __int128)buf[i-6] * 280;
+        t -= (unsigned __int128)buf[i-7] * 128;
+        t -= (unsigned __int128)buf[i-8] * 352;
+        t += (unsigned __int128)buf[i-9] * 52;
+        t += (unsigned __int128)buf[i-10] * 150;
+        t += (unsigned __int128)buf[i-11] * 104;
+        t -= (unsigned __int128)buf[i-12] * 72;
+        t += (unsigned __int128)buf[i-13] * 16;
+        t -= (unsigned __int128)buf[i-14] * 8;
+        return (seq_t)t;
+    }
+#endif
+    /* Fallback for non‑built‑in seq_t types. */
+    seq_t t = buf[i-1];
+    t += 16 * buf[i-2];
+    t -= 13 * buf[i-3];
+    t -= 98 * buf[i-4];
+    t += 63 * buf[i-5];
+    t += 280 * buf[i-6];
+    t -= 128 * buf[i-7];
+    t -= 352 * buf[i-8];
+    t += 52 * buf[i-9];
+    t += 150 * buf[i-10];
+    t += 104 * buf[i-11];
+    t -= 72 * buf[i-12];
+    t += 16 * buf[i-13];
+    t -= 8 * buf[i-14];
+    return t;
+}
 
 static const seq_t init_vals[16] = {
     132, 340, 824, 2144, 5424, 14072, 35928, 92736,
@@ -50,7 +91,7 @@ seq_t a(idx_t n)
             new_size = n + 1;               /* first allocation */
         else if (new_size < cache_size * 2)
             new_size = cache_size * 2;     /* growth factor 2 */
-        seq_t *rc = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *rc = mem_resize(seq_t, cache, new_size);
         if (!rc) abort();                  /* allocation failure */
         cache = rc;
         cache_size = new_size;

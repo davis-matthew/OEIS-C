@@ -8,14 +8,23 @@
  *            factors
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   cmp_func
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_func.h"
+#include "../utils/mem.h"
+
+/* compare function for qsort over seq_t */
+static int cmp_func(const void *p1, const void *p2)
+{
+    seq_t a = *(const seq_t *)p1;
+    seq_t b = *(const seq_t *)p2;
+    return (a < b) ? -1 : (a > b);
+}
 
 /* sequence a(n): divisors of 651, sorted ascending */
 seq_t a(idx_t n)
@@ -38,7 +47,7 @@ seq_t a(idx_t n)
                     temp[pos++] = val;
                 }
 
-        qsort(temp, 8, sizeof(seq_t), cmp_func);
+        mem_qsort(temp, 8, sizeof(seq_t), cmp_func);
         for (size_t i = 0; i < 8; ++i) divs[i] = temp[i];
         init = true;
     }

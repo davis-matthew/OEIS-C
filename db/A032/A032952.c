@@ -9,13 +9,15 @@
  *            2*(2*n-1)*(37*n+36)*a(n-2); initial values: a(0)=1, a(1)=3
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 33, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache of computed values          */
 static size_t cache_cap = 0;     /* allocated capacity in elements     */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold indices 0..n.  */
     idx_t needed = n + 1;
     if (cache_cap < (size_t)needed) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = needed;

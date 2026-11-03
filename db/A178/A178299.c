@@ -8,20 +8,23 @@
  * Formula:   a(n) = 3*8^n + (3*10^n + 12^n)/2 - 5*6^n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* compute powers using the helper big_pow */
-    seq_t p8   = big_pow((seq_t)8,   (seq_t)n);
-    seq_t p10  = big_pow((seq_t)10,  (seq_t)n);
-    seq_t p6   = big_pow((seq_t)6,   (seq_t)n);
-    seq_t p12  = big_pow((seq_t)12,  (seq_t)n);
+    seq_t p8   = ipow((seq_t)8,   (seq_t)n);
+    seq_t p10  = ipow((seq_t)10,  (seq_t)n);
+    seq_t p6   = ipow((seq_t)6,   (seq_t)n);
+    seq_t p12  = ipow((seq_t)12,  (seq_t)n);
 
     seq_t term1 = p8 * (seq_t)3;
     seq_t term2 = (p10 * (seq_t)3 + p12) / (seq_t)2;

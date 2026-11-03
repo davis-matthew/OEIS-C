@@ -14,7 +14,8 @@
  *            the largest remaining and the * smallest rema...
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 struct Fraction {
     seq_t num;
@@ -42,7 +44,7 @@ static int cmp_frac(const struct Fraction *a, const struct Fraction *b)
 /* reduce a fraction by dividing by gcd of numerator and denominator */
 static struct Fraction reduce_frac(struct Fraction f)
 {
-    seq_t g = seq_gcd(f.num, f.den);
+    seq_t g = gcd(f.num, f.den);
     if (g != 0) {
         f.num /= g;
         f.den /= g;
@@ -82,7 +84,7 @@ static void ensure_cap(size_t n)
     if (fracs_cap < n + 1) {
         size_t new_cap = (fracs_cap == 0) ? 16 : fracs_cap * 2;
         while (new_cap < n + 1) new_cap <<= 1;
-        struct Fraction *tmp = (struct Fraction *)realloc(fracs, new_cap * sizeof(struct Fraction));
+        struct Fraction *tmp = mem_resize(struct Fraction, fracs, new_cap);
         if (!tmp) abort();
         fracs = tmp;
         fracs_cap = new_cap;

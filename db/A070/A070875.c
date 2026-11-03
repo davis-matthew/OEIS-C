@@ -7,6 +7,7 @@
  * Formula:   a(n) = 5*2^(n/2) for even n, 7*2^(n/2) for odd n
  * Range:     u8 n <= 11, u16 n <= 27, u32 n <= 59, u64 n <= 123,
  *            u128 n <= 251, big any n
+ * Validated: standard, pass, 58 terms through n = 805 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

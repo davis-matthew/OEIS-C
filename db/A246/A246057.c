@@ -7,6 +7,7 @@
  * Formula:   a(n) = 11*a(n-1) - 10*a(n-2), a(0)=1, a(1)=16
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 98 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

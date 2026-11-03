@@ -11,13 +11,15 @@
  *            enumeration. a(n) is the n‑th item of this prefix array
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state shared between calls */
 static idx_t *spf = NULL;   /* smallest prime factor for each index */
@@ -35,7 +37,7 @@ static void ensure_upto(idx_t n)
     /* reallocate arrays */
     spf = (idx_t *)realloc(spf, N * sizeof(idx_t));
     bigomega = (int *)realloc(bigomega, N * sizeof(int));
-    pref = (seq_t *)realloc(pref, N * sizeof(seq_t));
+    pref = mem_resize(seq_t, pref, N);
 
     /* initialise spf: for i>=2 set spf[i] = i initially */
     for (size_t i = 0; i < N; ++i)

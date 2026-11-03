@@ -9,7 +9,8 @@
  *            * non‑negative integers in base 16 one after another
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow16_u64
+ * Validated: standard, pass, 121 terms through n = 8927 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow16_u64.h"
+
+/* Helper: compute 16^exp for exp <= 15; result fits in uint64_t. */
+static uint64_t pow16_u64(int exp)
+{
+    uint64_t r = 1;
+    for (int i = 0; i < exp; ++i)
+        r *= 16ULL;
+    return r;
+}
 
 /* Main function */
 seq_t a(idx_t n)

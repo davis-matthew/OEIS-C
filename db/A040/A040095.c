@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   append_candidate, is_prime, mod_pow
+ * Validated: standard, pass, 63 terms through n = 906 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/mod_pow.h"      /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/append_candidate.h"   /* void append_candidate(seq_t **, size_t *, size_t *, seq_t); */
-#include "../utils/is_prime.h"     /* bool is_prime(idx_t); */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 seq_t a(idx_t n)
 {
@@ -58,7 +77,7 @@ seq_t a(idx_t n)
         } else if ((p % 3) == 2) {
             ok = true;
         } else { /* p % 3 == 1 */
-            seq_t r = mod_pow((seq_t)23, (p - 1) / 3, (seq_t)p);
+            seq_t r = powmod((seq_t)23, (p - 1) / 3, (seq_t)p);
             ok = (r == (seq_t)1);
         }
 

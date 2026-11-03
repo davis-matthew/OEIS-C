@@ -12,13 +12,15 @@
  *            satisfies |d| ≤ len–2, so the DP table for a given len has...
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 34, u64 n <= 66, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 485 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cache of a(n) values */
 static size_t a_cap = 0;        /* capacity of a_cache */
@@ -33,8 +35,8 @@ static void ensure_a_cache(idx_t n)
     if ((idx_t)a_cap > n) return;
     size_t new_cap = a_cap == 0 ? 8 : a_cap;
     while ((idx_t)new_cap <= n) new_cap <<= 1;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-    memset(a_cache + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
+    mem_set(a_cache + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
     a_cap = new_cap;
 }
 
@@ -50,8 +52,8 @@ static void ensure_dp_cap(size_t need)
         nxt = (seq_t **)malloc(4 * sizeof(seq_t *));
     }
     for (int s = 0; s < 4; ++s) {
-        cur[s] = (seq_t *)realloc(cur[s], cur_cap * sizeof(seq_t));
-        nxt[s] = (seq_t *)realloc(nxt[s], cur_cap * sizeof(seq_t));
+        cur[s] = mem_resize(seq_t, cur[s], cur_cap);
+        nxt[s] = mem_resize(seq_t, nxt[s], cur_cap);
     }
 }
 
@@ -68,7 +70,7 @@ static void grow_to(idx_t n)
         if (init_cap < 4) init_cap = 4;
         ensure_dp_cap(init_cap);
         for (int s = 0; s < 4; ++s)
-            memset(cur[s], 0, cur_cap * sizeof(seq_t));
+            mem_set(cur[s], 0, cur_cap * sizeof(seq_t));
         /* All 4 length‑2 strings have diff 0 -> index 0 */
         cur[0][0] = (seq_t)1;
         cur[1][0] = (seq_t)1;
@@ -88,7 +90,7 @@ static void grow_to(idx_t n)
 
         ensure_dp_cap(size_next);
         for (int s = 0; s < 4; ++s)
-            memset(nxt[s], 0, size_next * sizeof(seq_t));
+            mem_set(nxt[s], 0, size_next * sizeof(seq_t));
 
         /* Transition from length len to len+1 */
         for (int s = 0; s < 4; ++s) {

@@ -11,13 +11,19 @@
  *            0 contains the single entry 9
  * Range:     u8 n <= 30, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   binom_a
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_a.h"
+
+static seq_t binom_a(idx_t k)
+{
+    seq_t kk = (seq_t)k;
+    return ((kk + 2) * (kk + 1)) / 2;
+}
 
 seq_t a(idx_t n)
 {

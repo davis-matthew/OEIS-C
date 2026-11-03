@@ -10,15 +10,22 @@
  *            rotations only)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static void factor(idx_t n, idx_t *primes, idx_t *exps, int *cnt)
 {
@@ -90,7 +97,7 @@ seq_t a(idx_t n)
         idx_t phi = phi_of(d);
         idx_t m   = n / d;
 
-        seq_t pow6 = seq_pow((seq_t)6, m);
+        seq_t pow6 = ipow_idx((seq_t)6, m);
         seq_t F = pow6;
         if ((m & 1) == 0) {   /* even m */
             F += (seq_t)6;

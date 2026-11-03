@@ -7,11 +7,14 @@
  * Formula:   Gaussian binomial coefficient [n,6] for q = -2
  * Range:     u8 none, u16 n <= 8, u32 n <= 11, u64 n <= 16, u128 n <= 27,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 200 (2026-11-01)
  * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include "../utils/pow2.h"
 

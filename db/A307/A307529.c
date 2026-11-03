@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 19, u32 n <= 33, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   alloc_seq_array_local, free_seq_array_local
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,26 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array_local.h"
-#include "../utils/free_seq_array_local.h"
+
+/* Helper to allocate an array of seq_t objects with proper construction */
+static seq_t *alloc_seq_array_local(size_t n)
+{
+#ifdef __cplusplus
+    return new seq_t[n];
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+/* Helper to free an array allocated by alloc_seq_array_local */
+static void free_seq_array_local(seq_t *p)
+{
+#ifdef __cplusplus
+    delete [] p;
+#else
+    free(p);
+#endif
+}
 
 static seq_t *a_cache   = NULL;
 static seq_t *c2_cache  = NULL;

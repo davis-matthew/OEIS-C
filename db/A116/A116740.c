@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   _max_sz, _min_sz
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,11 @@
           (n ≥ 10) */
 
 #include <stdlib.h>
-#include "../utils/_max_sz.h"
-#include "../utils/_min_sz.h"
+#include "../utils/mem.h"
+
+static size_t _max_sz(size_t a, size_t b) { return a > b ? a : b; }
+
+static size_t _min_sz(size_t a, size_t b) { return a < b ? a : b; }
 
 seq_t a(idx_t n)
 {
@@ -37,7 +41,7 @@ seq_t a(idx_t n)
     if (n > cap) {
         size_t new_cap = cap == 0 ? 16 : cap << 1;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) abort();               /* memory failure */
         cache = tmp;
         cap = new_cap;

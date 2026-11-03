@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   base3_balanced
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,38 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/base3_balanced.h"
+
+/* Return true if x has equal sums of even and odd run lengths in base 3. */
+static bool base3_balanced(seq_t x)
+{
+    if (x == (seq_t)0) return false;
+
+    seq_t sum_even = (seq_t)0;
+    seq_t sum_odd  = (seq_t)0;
+    seq_t t = x;
+
+    while (t > (seq_t)0) {
+        seq_t digit = t % (seq_t)3;
+        t /= (seq_t)3;
+        seq_t run = (seq_t)1;
+
+        /* Count the length of this run of identical digits. */
+        while (t > (seq_t)0) {
+            seq_t next = t % (seq_t)3;
+            if (next != digit) break;
+            t /= (seq_t)3;
+            run++;
+        }
+
+        /* Add the run length to the appropriate sum. */
+        if ((run & (seq_t)1) == (seq_t)0)      /* even run length */
+            sum_even += run;
+        else
+            sum_odd += run;
+    }
+
+    return sum_even == sum_odd;
+}
 /* seq_t and idx_t are defined by the build system. */
 
 /* Return the n‑th term of OEIS sequence A044874 (1‑based indexing). */

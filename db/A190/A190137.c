@@ -8,6 +8,7 @@
  * Formula:   a(n) = least k in {1..9} such that all digits of k*n are <= k
  * Range:     u8 n <= 51, u16 n <= 8712, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 116 terms through n = 9323 (2026-11-01)
  * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/get_digits.h"  // assumed to provide: void get_digits(seq_t, uint8_t*, size_t*)
+#include "../utils/get_digits.h"
 
 static const size_t MAX_DIGITS = 256;  // sufficient for typical n, can be increased if needed
 

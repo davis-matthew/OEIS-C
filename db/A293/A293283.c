@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   factor_b_power5
+ * Validated: standard, pass, 69 terms through n = 9714 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,40 @@
    provided by the build environment. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/factor_b_power5.h"
+#include "../utils/mem.h"
+
+/* Factorise a positive integer b.  primes[] holds its primes,
+   exps[] holds the exponent of each prime multiplied by 5
+   (i.e. the exponent in b⁵).  num_factors is set to the factor count. */
+static void factor_b_power5(uint32_t b,
+                            uint32_t *primes,
+                            uint8_t *exps,
+                            int *num_factors)
+{
+    *num_factors = 0;
+    uint32_t n = b;
+    for (uint32_t p = 2; (uint64_t)p * p <= n; ++p)
+    {
+        if (n % p == 0)
+        {
+            uint8_t e = 0;
+            while (n % p == 0)
+            {
+                n /= p;
+                ++e;
+            }
+            primes[(*num_factors)]   = p;
+            exps[(*num_factors)]    = e * 5;       /* exponent in b⁵ */
+            ++(*num_factors);
+        }
+    }
+    if (n > 1)
+    {
+        primes[(*num_factors)]   = n;
+        exps[(*num_factors)]     = 5;             /* exponent 1*5 */
+        ++(*num_factors);
+    }
+}
 
 /* ------------------------------------------------------------ */
 /* Portable comparison routine for seq_t values                  */
@@ -47,7 +81,7 @@ static void grow_cache(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     seq_cache = tmp;
     seq_cap   = new_cap;
@@ -103,7 +137,7 @@ static void compute_sequence(uint32_t limit)
     /* Allocate a generous candidate buffer.  Rough estimate:
        each b produces ≤ 512 candidates; guess 512 per b. */
     size_t cand_cap = (size_t)limit * 512;
-    seq_t *cand = (seq_t *)malloc(cand_cap * sizeof(seq_t));
+    seq_t *cand = mem_new(seq_t, cand_cap);
     if (!cand) exit(EXIT_FAILURE);
     size_t cand_len = 0;
 
@@ -127,7 +161,7 @@ static void compute_sequence(uint32_t limit)
     }
 
     /* Sort the candidate values */
-    qsort(cand, cand_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(cand, cand_len, sizeof(seq_t), cmp_seq);
 
     /* Deduplicate and store in global cache */
     grow_cache(cand_len);
@@ -138,7 +172,7 @@ static void compute_sequence(uint32_t limit)
             seq_cache[seq_len++] = cand[i];
     }
 
-    free(cand);
+    mem_free(cand);
     current_bmax = limit;
 }
 

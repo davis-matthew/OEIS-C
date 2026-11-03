@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5692, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 9940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build (e.g. uint8_t, uint64_t, …). */
 
@@ -34,16 +36,16 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough. */
     if (n >= cache_size) {
         idx_t new_size = n + 1;                /* indices 0..n */
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache)
             abort();                           /* allocation failure */
         /* Copy old values if any. */
         if (cache) {
-            memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+            mem_free(cache);
         }
         /* Zero‑initalize new entries. */
-        memset(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
+        mem_set(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
         cache = new_cache;
         cache_size = new_size;
     }

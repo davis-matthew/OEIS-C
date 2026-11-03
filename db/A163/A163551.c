@@ -8,7 +8,8 @@
  * Formula:   a(n) = a(n-1)+...+a(n-13), a(1)=...=a(13)=1
  * Range:     u8 n <= 18, u16 n <= 26, u32 n <= 42, u64 n <= 74, u128 n <= 138,
  *            big any n
- * Helpers:   alloc_seq_buf, free_seq_buf
+ * Validated: standard, pass, 56 terms through n = 913 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,26 @@
 /* OEIS offset: 1 */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq_buf.h"
-#include "../utils/free_seq_buf.h"
+#include <stdbool.h>
+
+/* Helper to allocate a buffer of seq_t usable from both C and C++ */
+static seq_t* alloc_seq_buf(size_t n) {
+#ifdef __cplusplus
+    return new seq_t[n];
+#else
+    return (seq_t*)malloc(n * sizeof(seq_t));
+#endif
+}
+
+/* Allocate / deallocate a seq_t array, usable with both C and C++. */
+static void free_seq_buf(seq_t *p)
+{
+#ifdef __cplusplus
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 static seq_t *cache = NULL;          /* static memoisation buffer */
 static size_t cache_cap = 0;         /* current buffer capacity (in terms) */

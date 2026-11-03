@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{j=1..floor((n+1)/2)} j * A023533(n-j+1)
  * Range:     u8 n <= 307, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   is_tetra
+ * Validated: standard, pass, 101 terms through n = 4273 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,33 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_tetra.h"
+
+/* Check whether v is a tetrahedral number: v = m(m+1)(m+2)/6  */
+static bool is_tetra(idx_t v)
+{
+    if (v < 1) return false;
+    idx_t lo = 1, hi = 1;
+    /* grow hi until tetrahedral(hi) > v to bound the search */
+    while (((__uint128_t)hi * (hi + 1) * (hi + 2)) / 6 <= v) {
+        hi <<= 1;
+        if (hi == 0) {   /* overflow guard – should not happen for practical n */
+            hi = v;
+            break;
+        }
+    }
+
+    /* binary search on m */
+    while (lo <= hi) {
+        idx_t mid = lo + ((hi - lo) >> 1);
+        __uint128_t val = (__uint128_t)mid * (mid + 1) * (mid + 2) / 6;
+        if (val == v) return true;
+        if (val < v)
+            lo = mid + 1;
+        else
+            hi = mid - 1;
+    }
+    return false;
+}
 
 static uint8_t *tbool = NULL;   /* 1 if i is tetrahedral, 0 otherwise */
 static idx_t tcap = 0;

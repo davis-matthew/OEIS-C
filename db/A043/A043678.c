@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   runs_in_hex
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
 /* Roughly a linear scan for increasing n; works well for n <= 10^4. */
 
 #include <stdlib.h>
-#include "../utils/runs_in_hex.h"
+#include "../utils/mem.h"
+
+static int runs_in_hex(seq_t v) {
+    int runs = 0;
+    int prev = -1;
+    seq_t zero = 0;
+    seq_t sixteen = (seq_t)16;
+    while (v != zero) {
+        seq_t d = v % sixteen;
+        int di = (int)d;
+        if (di != prev) {
+            runs++;
+            prev = di;
+        }
+        v /= sixteen;
+    }
+    return runs;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0; /* offset is 1, a(1) is first value */
@@ -33,7 +51,7 @@ seq_t a(idx_t n) {
     if (!initialized) {
         initialized = 1;
         capacity = 64;
-        seq = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        seq = mem_new(seq_t, capacity);
     }
 
     /* Generate until we have at least n terms */
@@ -41,7 +59,7 @@ seq_t a(idx_t n) {
         if (runs_in_hex(candidate) == 5) {
             if (size == capacity) {
                 capacity *= 2;
-                seq = (seq_t *)realloc(seq, sizeof(seq_t) * capacity);
+                seq = mem_resize(seq_t, seq, capacity);
             }
             seq[size++] = candidate;
         }

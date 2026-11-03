@@ -14,12 +14,14 @@
  *            ‑7*a(n‑8)+6*a(n‑9)‑5*a(n‑10)+4*a(n‑11)‑3*a...
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[19] = {
     1, 4, 8, 13, 17, 21, 27, 31, 35, 39,
@@ -34,13 +36,13 @@ static void ensure_capacity(size_t need)
 {
     if (!cache) {
         cap = need > 32 ? need * 2 : 32;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(1);
         for (size_t i = 0; i < 19; ++i) cache[i] = init[i];
     } else if (need > cap) {
         size_t newcap = cap * 2;
         if (newcap < need) newcap = need;
-        seq_t *p = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, newcap);
         if (!p) exit(1);
         cache = p;
         cap = newcap;

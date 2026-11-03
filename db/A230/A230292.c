@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{i=1..n} d(24*i+9) - Sum_{i=1..n} d(6*i+3)
  * Range:     u8 n <= 218, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9608 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* where d(m) is the number of divisors of m (A000005). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     idx_t valmax = 24 * n + 9;
 
     /* Allocate an array of divisor counts (0‑initialised). */
-    seq_t *divcnt = (seq_t *)malloc((size_t)(valmax + 1) * sizeof(seq_t));
+    seq_t *divcnt = mem_new(seq_t, (size_t)(valmax + 1));
     if (!divcnt)               /* allocation failure – unlikely for all test cases */
         return 0;
 
@@ -49,6 +51,6 @@ seq_t a(idx_t n)
         sum += hi - lo;
     }
 
-    free(divcnt);
+    mem_free(divcnt);
     return sum;
 }

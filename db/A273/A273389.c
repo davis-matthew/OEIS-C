@@ -10,12 +10,13 @@
  *            a(2)=21, a(3)=81, a(4)=297, a(5)=1201
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +28,8 @@ seq_t a(idx_t n)
         case 4: return (seq_t)297;
         case 5: return (seq_t)1201;
         default:
-            seq_t pow4 = pow_int((seq_t)4, n - 1);
-            seq_t pow2 = pow_int((seq_t)2, n - 1);
+            seq_t pow4 = ipow_idx((seq_t)4, n - 1);
+            seq_t pow2 = ipow_idx((seq_t)2, n - 1);
             return (seq_t)5 * pow4 - pow2 - (seq_t)51;
     }
 }

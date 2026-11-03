@@ -10,20 +10,24 @@
  *            runs over its prime factorization
  * Range:     u8 n <= 163, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64, seq_gcd
+ * Validated: standard, pass, 98 terms through n = 9575 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 /* compute lcm of two seq_t values */
 static seq_t lcm_seq(seq_t a, seq_t b)
 {
-    seq_t g = seq_gcd(a, b);
+    seq_t g = gcd(a, b);
     return (a / g) * b;
 }
 
@@ -42,7 +46,7 @@ seq_t a(idx_t n)
         uint64_t e = exps[i];
         /* exponent increased by one if prime is 2 */
         seq_t exp = (seq_t)(e + (p == 2));
-        seq_t val = big_pow((seq_t)p, exp) - (seq_t)1;
+        seq_t val = ipow((seq_t)p, exp) - (seq_t)1;
         ans = lcm_seq(ans, val);
     }
     return ans;

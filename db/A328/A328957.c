@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 109, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes, count_prime_factors, divisor_count_u64
+ * Validated: standard, pass, 78 terms through n = 9241 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,16 +20,87 @@
    static cache until it has found the requested n‑th element. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/count_distinct_primes.h"
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Count divisors of a 64‑bit integer */
+static uint64_t divisor_count_u64(uint64_t n)
+{
+    uint64_t tau = 1;
+    uint64_t exp;
+
+    /* factor 2 */
+    exp = 0;
+    while ((n & 1ULL) == 0) {
+        n >>= 1;
+        ++exp;
+    }
+    if (exp) tau *= (exp + 1);
+
+    /* factor odd primes */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            exp = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++exp;
+            }
+            tau *= (exp + 1);
+        }
+    }
+
+    /* remaining prime factor */
+    if (n > 1) tau *= 2;
+
+    return tau;
+}
+
+/* Count distinct prime factors of an unsigned 64-bit integer n.
+   The result fits in a signed int for all n that may be passed. */
+static int count_distinct_primes(uint64_t n)
+{
+    if (n <= 1)
+        return 0;
+
+    int cnt = 0;
+    /* Handle factor 2 separately. */
+    if (n % 2 == 0) {
+        cnt++;
+        while (n % 2 == 0)
+            n /= 2;
+    }
+    /* Test odd divisors up to sqrt(n). */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            cnt++;
+            while (n % p == 0)
+                n /= p;
+        }
+    }
+    if (n > 1)   /* Remaining prime factor. */
+        cnt++;
+    return cnt;
+}
+
+/* Count prime factors of m (with multiplicity) */
+static seq_t count_prime_factors(seq_t m) {
+    seq_t cnt = 0;
+    for (idx_t p = 2; (idx_t)p * (idx_t)p <= m; ++p) {
+        while (m % p == 0) {
+            ++cnt;
+            m /= p;
+        }
+    }
+    if (m > 1) ++cnt;
+    return cnt;
+}
 
 /* Append a value to the dynamic cache.  The cast is needed for C++ */
 static void append_cache(seq_t **cache, size_t *len, size_t *cap, seq_t val)
 {
     if (*len == *cap) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
-        seq_t *new_cache = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, *cache, new_cap);
         *cache = new_cache;
         *cap   = new_cap;
     }

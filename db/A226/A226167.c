@@ -14,14 +14,33 @@
  *            for any build * of seq_t (uint8_t ... uint64...
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 78, u64 n <= 190,
  *            u128 n <= 561, big any n
- * Helpers:   find_diag_sum
+ * Validated: standard, pass, 71 terms through n = 9462 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/find_diag_sum.h"
+
+/* Find the smallest integer s such that s*(s-1)/2 >= n.
+ * Uses 128‑bit arithmetic to avoid intermediate overflow
+ * even for large n. */
+static inline idx_t find_diag_sum(idx_t n)
+{
+    idx_t low = 1, high = 2;
+    while ((unsigned __int128)high * (high - 1) / 2 < n)
+        high <<= 1;
+
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        if ((unsigned __int128)mid * (mid - 1) / 2 >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {

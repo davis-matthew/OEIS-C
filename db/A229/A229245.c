@@ -10,12 +10,14 @@
  *            C(n−1,j−1)·Bk[n−j] (Bk[0] = 1)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 27, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 493 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *B2 = NULL;          /* Bk ≤2  */
 static seq_t *B3 = NULL;          /* Bk ≤3  */
@@ -26,8 +28,8 @@ static void init_arrays(void)
 {
     if (Bsize > 0)
         return;
-    B2 = (seq_t*)malloc(sizeof(seq_t));
-    B3 = (seq_t*)malloc(sizeof(seq_t));
+    B2 = mem_new(seq_t, 1);
+    B3 = mem_new(seq_t, 1);
     if (!B2 || !B3) abort();
     B2[0] = 1;
     B3[0] = 1;
@@ -40,8 +42,8 @@ static void compute_up_to(idx_t n)
     if (n + 1 <= Bsize)
         return;
 
-    B2 = (seq_t*)realloc(B2, (n + 1) * sizeof(seq_t));
-    B3 = (seq_t*)realloc(B3, (n + 1) * sizeof(seq_t));
+    B2 = mem_resize(seq_t, B2, (n + 1));
+    B3 = mem_resize(seq_t, B3, (n + 1));
     if (!B2 || !B3) abort();
 
     for (idx_t i = Bsize; i <= n; ++i) {

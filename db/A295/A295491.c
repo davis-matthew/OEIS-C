@@ -9,7 +9,8 @@
  *            eight representations as a sum of six nonnegative squares
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 3 terms through n = 3 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 #define LIMIT 5408
 
 seq_t a(idx_t n) {
@@ -49,13 +51,13 @@ seq_t a(idx_t n) {
 
         /* Collect all n with exactly eight representations. */
         size_t cap = 64;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         terms_len = 0;
         for (idx_t val = 0; val <= LIMIT; ++val) {
             if (dp[6][val] == 8) {
                 if (terms_len == cap) {
                     cap <<= 1;
-                    terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, cap);
                 }
                 terms[terms_len++] = (seq_t)val;
             }

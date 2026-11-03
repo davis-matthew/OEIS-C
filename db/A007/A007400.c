@@ -8,8 +8,9 @@
  * Formula:   a(0)=0, a(1)=1, a(2)=4; for n>2: a(8k)=a(8k+3)=2;
  *            a(8k+4)=a(8k+7)=a(16k+5)=a(16k+14)=4; a(16k+6)=a(16k+13)=6;
  *            a(8k+1)=a(4k+1); a(8k+2)=a(4k+2)
- * Range:     u8 n <= 9194, u16 n <= 9194, u32 n <= 9194, u64 n <= 9194,
- *            u128 n <= 9194, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9194 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

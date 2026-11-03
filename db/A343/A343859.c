@@ -8,7 +8,8 @@
  *            a(n)=A007504(n+1)-3
  * Range:     u8 n <= 12, u16 n <= 156, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 7957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static idx_t sieve_limit = 2000000;   /* initial sieve bound (large enough for many n) */
@@ -49,7 +51,7 @@ static void compute_prefix(idx_t limit, seq_t **out_prefix, idx_t *out_count) {
         if (!comp[i] && i != 3) ++cnt;
 
     /* Allocate prefix sums array */
-    seq_t *pref = (seq_t *)malloc((size_t)cnt * sizeof(seq_t));
+    seq_t *pref = mem_new(seq_t, (size_t)cnt);
     if (!pref) {
         free(comp);
         return;
@@ -67,7 +69,7 @@ static void compute_prefix(idx_t limit, seq_t **out_prefix, idx_t *out_count) {
 
     /* Free old structures */
     free(is_composite);
-    free(prefix);
+    mem_free(prefix);
 
     /* Update globals */
     is_composite = comp;

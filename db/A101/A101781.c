@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 10, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
- *            big any n
- * Helpers:   is_prime_uint64, reverse_uint64
+ * Range:     u8 n <= 10, u16 n <= 154, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 62 terms through n = 985 (2026-11-03)
+ * Helpers:   is_prime_u64, reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_uint64.h"
-#include "../utils/reverse_uint64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/reverse_digits_u64.h"
 
 /* store small primes up to LIMIT for sieving */
 static uint64_t *BASE_PRIMES   = NULL;
@@ -100,8 +101,8 @@ seq_t a(idx_t n)
 
             /* num is prime */
             if (prev_prime > 0 && num - prev_prime == 2) {
-                uint64_t rev = reverse_uint64(prev_prime);
-                if (is_prime_uint64(rev)) {
+                uint64_t rev = reverse_digits_u64(prev_prime);
+                if (is_prime_u64(rev)) {
                     count++;
                     if ((idx_t)count == n) {
                         free(segment);

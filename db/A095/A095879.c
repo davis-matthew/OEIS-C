@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9169 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  * type seq_t, as defined by the build, is used. */
 #include <stdlib.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* terms of the sequence */
 static size_t cache_len = 0;   /* number of stored terms */
@@ -38,7 +40,7 @@ static idx_t limit = 0;        /* maximum sum that has been processed */
 static void recompute(idx_t new_limit)
 {
     /* Construct Fibonacci numbers ≤ new_limit (starting 1,2) */
-    seq_t *fib = (seq_t *)malloc(sizeof(seq_t) * 32);
+    seq_t *fib = mem_new(seq_t, 32);
     int fib_cnt = 0;
     fib[fib_cnt++] = (seq_t)1;
     if (new_limit >= 2) fib[fib_cnt++] = (seq_t)2;
@@ -83,7 +85,7 @@ static void recompute(idx_t new_limit)
     }
 
     /* Build cache of numbers with odd count of summands */
-    seq_t *new_cache = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, sz);
     size_t new_len = 0;
     for (size_t s = 1; s < sz; ++s) {
         if (best_cnt[s] & 1) {
@@ -92,7 +94,7 @@ static void recompute(idx_t new_limit)
     }
 
     /* Replace old cache */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = new_len;
     limit = new_limit;
@@ -100,7 +102,7 @@ static void recompute(idx_t new_limit)
     /* Free temporary arrays */
     free(best_max);
     free(best_cnt);
-    free(fib);
+    mem_free(fib);
 }
 
 /* --------------------------------------------------------------------

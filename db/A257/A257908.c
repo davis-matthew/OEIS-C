@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 168, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   contains_int64
+ * Validated: standard, pass, 83 terms through n = 859 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,18 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains_int64.h"
+#include "../utils/mem.h"
+
+/* Helper to test membership in the first k elements of an array of signed
+ * 64‑bit integers (holds the d values).  d values are assumed to fit in
+ * a signed 64‑bit range, which is true for all values that occur
+ * for n ≤ 10 000. */
+static inline bool contains_int64(const long long *arr, idx_t k, long long val)
+{
+    for (idx_t i = 1; i <= k; ++i)
+        if (arr[i] == val) return true;
+    return false;
+}
 
 /* Helper to test membership in the first k elements of an array of seq_t */
 static inline bool contains_seq(const seq_t *arr, idx_t k, seq_t val)
@@ -46,9 +58,9 @@ seq_t a(idx_t n)
     if (n == 0) return 0;           /* just in case; offset is 1 */
 
     /* Allocate tables for sequence values and step numbers */
-    seq_t *a_vals = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a_vals = mem_new(seq_t, (n + 1));
     long long *d_vals = (long long *)malloc((n + 1) * sizeof(long long));
-    if (!a_vals || !d_vals) { free(a_vals); free(d_vals); return 0; }
+    if (!a_vals || !d_vals) { mem_free(a_vals); free(d_vals); return 0; }
 
     /* Seed initial values */
     a_vals[1] = 0;
@@ -104,7 +116,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_vals[n];
-    free(a_vals);
+    mem_free(a_vals);
     free(d_vals);
     return result;
 }

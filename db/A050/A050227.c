@@ -12,6 +12,7 @@
  *            one run of r or more heads
  * Range:     u8 n <= 36, u16 n <= 136, u32 n <= 528, u64 n <= 2080,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 82 terms through n = 4988 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

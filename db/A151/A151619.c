@@ -12,6 +12,7 @@
  *            a(18) = 37361920 a(20) = 359856 a(32) = 1 For any...
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
+ * Validated: full, pass, 33 terms through n = 32 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,14 +9,15 @@
  *            once)
  * Range:     u8 none, u16 none, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"   /* seq_t pow_uint(uint64_t base, idx_t exp); */
+#include "../utils/ipow_u64_idx.h"
 
 /* Pre‑computed binomial coefficients C(n,k) for 0 ≤ n,k ≤ 9.  All fit in 64‑bit. */
 static const seq_t binom[10][10] = {
@@ -42,12 +43,12 @@ static seq_t count_suffix(unsigned len, uint16_t mask)
         return (missing == 0) ? 1 : 0;
 
     if (missing == 0)             /* all digits already present */
-        return pow_uint(9, (idx_t)len);
+        return ipow_u64_idx(9, (idx_t)len);
 
     /* Inclusion–exclusion over the missing digits. */
     seq_t total = 0;
     for (unsigned i = 0; i <= missing; ++i) {
-        seq_t term = binom[missing][i] * pow_uint(9 - i, (idx_t)len);
+        seq_t term = binom[missing][i] * ipow_u64_idx(9 - i, (idx_t)len);
         if (i & 1)
             total -= term;
         else

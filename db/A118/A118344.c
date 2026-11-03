@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 238, u32 n <= 755, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 1224 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t **_row_vals      = NULL;   /* pointers to each row's values */
 static bool **_row_computed   = NULL;   /* flags indicating computed entries */
@@ -40,7 +42,7 @@ static void _ensure_rows_to(idx_t r)
         idx_t cur = _rows_count;
         size_t len = cur + 1;
 
-        seq_t *row_vals = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row_vals = mem_new(seq_t, len);
         bool  *row_comp = (bool *)malloc(len * sizeof(bool));
         if (!row_vals || !row_comp) return;          /* allocation failed – ignore */
 

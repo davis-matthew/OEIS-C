@@ -9,7 +9,8 @@
  *            is rebuilt when a larger number of primes is required
  * Range:     u8 n <= 16, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   _idx_gcd
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_idx_gcd.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -85,7 +86,7 @@ seq_t a(idx_t n)
     /* Sum over k */
     seq_t sum = 0;
     for (idx_t k = 1; k <= n; ++k) {
-        idx_t g = _idx_gcd(n, k);          /* gcd(n,k) */
+        idx_t g = gcd_idx(n, k);          /* gcd(n,k) */
         idx_t h = k / g;                    /* argument for prime() */
         /* h is in [1..n]; prime_list is 0‑based, so access [h-1] */
         sum += (seq_t)prime_list[(size_t)(h - 1)];

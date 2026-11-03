@@ -8,13 +8,15 @@
  *            +95*5^n -31*4^n -33*3^n +28*2^n -6)/24
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 17, u128 n <= 32,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 37 terms through n = 788 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -45,17 +47,17 @@ seq_t a(idx_t n)
         return (seq_t)res;
     }
     /* Arbitrary‑precision seq_t – use big_pow */
-    seq_t p16 = big_pow((seq_t)16, (seq_t)n);
-    seq_t p12 = big_pow((seq_t)12, (seq_t)n);
-    seq_t p10 = big_pow((seq_t)10, (seq_t)n);
-    seq_t p9  = big_pow((seq_t)9,  (seq_t)n);
-    seq_t p8  = big_pow((seq_t)8,  (seq_t)n);
-    seq_t p7  = big_pow((seq_t)7,  (seq_t)n);
-    seq_t p6  = big_pow((seq_t)6,  (seq_t)n);
-    seq_t p5  = big_pow((seq_t)5,  (seq_t)n);
-    seq_t p4  = big_pow((seq_t)4,  (seq_t)n);
-    seq_t p3  = big_pow((seq_t)3,  (seq_t)n);
-    seq_t p2  = big_pow((seq_t)2,  (seq_t)n);
+    seq_t p16 = ipow((seq_t)16, (seq_t)n);
+    seq_t p12 = ipow((seq_t)12, (seq_t)n);
+    seq_t p10 = ipow((seq_t)10, (seq_t)n);
+    seq_t p9  = ipow((seq_t)9,  (seq_t)n);
+    seq_t p8  = ipow((seq_t)8,  (seq_t)n);
+    seq_t p7  = ipow((seq_t)7,  (seq_t)n);
+    seq_t p6  = ipow((seq_t)6,  (seq_t)n);
+    seq_t p5  = ipow((seq_t)5,  (seq_t)n);
+    seq_t p4  = ipow((seq_t)4,  (seq_t)n);
+    seq_t p3  = ipow((seq_t)3,  (seq_t)n);
+    seq_t p2  = ipow((seq_t)2,  (seq_t)n);
 
     seq_t pos = 0;
     pos += p16;

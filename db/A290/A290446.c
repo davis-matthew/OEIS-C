@@ -7,7 +7,8 @@
  * Formula:   a(n) = Bell(n) * Motzkin(n-1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   motzkin_upto
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,29 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/motzkin_upto.h"
+
+/* compute the Motzkin number M(k) for k = n-1 using the recurrence */
+static seq_t motzkin_upto(idx_t k)
+{
+    if (k == 0) return (seq_t)1;          /* M(0) = 1 */
+    if (k == 1) return (seq_t)1;          /* M(1) = 1 */
+
+    seq_t M_n   = (seq_t)1;   /* M(1) */
+    seq_t M_n1  = (seq_t)1;   /* M(0) */
+    seq_t M_nm2 = (seq_t)0;   /* unused initially */
+
+    for (idx_t i = 2; i <= k; ++i) {
+        seq_t num  = (seq_t)(2 * i + 1) * M_n
+                  + (seq_t)(3 * (i - 1)) * M_n1;
+        seq_t den  = (seq_t)(i + 2);
+        seq_t M   = num / den;
+
+        M_nm2 = M_n1;
+        M_n1  = M_n;
+        M_n   = M;
+    }
+    return M_n;
+}
 
 /* maximum n that is expected to be queried (>= 10000) */
 #define MAX_N 20000

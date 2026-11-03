@@ -8,14 +8,27 @@
  *            binomial(n-1,k-1)/k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   seq_pow, seq_realloc
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_realloc.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *fact_cache = NULL;   /* n!     , fact_cache[i] = i! */
 static seq_t *pow3_cache = NULL;   /* 3^i    , pow3_cache[i] = 3^i */
@@ -71,7 +84,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= n; ++k) {
 
         seq_t term = pow3_cache[n - k];                                  /* 3^(n-k)   */
-        seq_t powk = seq_pow((seq_t)k, k - 1);                           /* k^(k-1)   */
+        seq_t powk = ipow_idx((seq_t)k, k - 1);                           /* k^(k-1)   */
         term = term * powk;                                              /* 3^(n-k) * k^(k-1) */
         term = term * binom;                                             /* multiply by binomial */
 

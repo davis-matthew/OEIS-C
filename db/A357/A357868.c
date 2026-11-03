@@ -12,13 +12,16 @@
  *            a(n) is obtained by reading the array on a...
  * Range:     u8 n <= 25, u16 n <= 52, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Static tables, filled on first call.  MAXN guarantees all needed
    values for n up to 10000 (max s ≈ 140). */
@@ -37,7 +40,7 @@ static void init_tables(void)
 {
     if (tables_initialized) return;
     /* Allocate factorial array. */
-    fac = (seq_t *)malloc((MAXN + 1) * sizeof(seq_t));
+    fac = mem_new(seq_t, (MAXN + 1));
     fac[0] = (seq_t)1;
     for (idx_t i = 1; i <= MAXN; ++i)
         fac[i] = fac[i - 1] * (seq_t)i;
@@ -45,7 +48,7 @@ static void init_tables(void)
     /* Allocate 2‑D arrays for Stirling numbers (rectangular for simplicity). */
     S = (seq_t **)malloc((MAXN + 1) * sizeof(seq_t *));
     for (idx_t i = 0; i <= MAXN; ++i)
-        S[i] = (seq_t *)calloc((MAXN + 1), sizeof(seq_t));
+        S[i] = mem_new(seq_t, (MAXN + 1));
 
     /* Stirling recurrence: S(0,0)=1, S(n,0)=0 for n>0. */
     S[0][0] = (seq_t)1;
@@ -62,7 +65,7 @@ static void init_tables(void)
     /* Allocate 2‑D array for T. Again rectangular. */
     T = (seq_t **)malloc((MAXN + 1) * sizeof(seq_t *));
     for (idx_t n = 0; n <= MAXN; ++n)
-        T[n] = (seq_t *)calloc((MAXN + 1), sizeof(seq_t));
+        T[n] = mem_new(seq_t, (MAXN + 1));
 
     /* Base row: T[0][k] = 1 for all k. */
     for (idx_t k = 0; k <= MAXN; ++k)
@@ -78,7 +81,7 @@ static void init_tables(void)
             for (idx_t j = k; j <= n; ++j)
             {
                 /* term = C(n,j) * Stirling2(j,k) * T[n-j][k] */
-                seq_t term = binom((idx_t)n, (idx_t)j) * S[j][k] * T[n - j][k];
+                seq_t term = binomial((idx_t)n, (idx_t)j) * S[j][k] * T[n - j][k];
                 sum += term;
             }
             T[n][k] = fac[k] * sum;

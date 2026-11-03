@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pits_gt_peaks
+ * Validated: standard, pass, 68 terms through n = 7701 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,33 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pits_gt_peaks.h"
+
+/* Count pits and peaks in the base‑11 representation of x.
+   The digits are filled into the supplied buffer.
+   Returns true if pits > peaks. */
+static bool pits_gt_peaks(seq_t x, uint8_t *digits, size_t *dlen)
+{
+    size_t len = 0;
+    seq_t t = x;
+
+    /* extract base‑11 digits from least to most significant */
+    do {
+        digits[len++] = (uint8_t)(t % (seq_t)11);
+        t = t / (seq_t)11;
+    } while (t != (seq_t)0);
+
+    *dlen = len;
+
+    if (len < 3) return false;  /* cannot have a pit or a peak */
+
+    int pits = 0, peaks = 0;
+    for (size_t i = 1; i + 1 < len; ++i) {
+        uint8_t a = digits[i - 1], b = digits[i], c = digits[i + 1];
+        if (a > b && b < c) ++pits;
+        else if (a < b && b > c) ++peaks;
+    }
+    return pits > peaks;
+}
 
 /* maximum number of elements we expect to need in the tests */
 #define MAX_CACHE_SIZE 20000

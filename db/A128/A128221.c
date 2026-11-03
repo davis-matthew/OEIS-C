@@ -8,6 +8,7 @@
  *            integer with L(L+1)/2 >= n, i = n - (L-1)L/2. (same as A128221)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 107 terms through n = 934 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

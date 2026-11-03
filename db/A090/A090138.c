@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 23, u128 n <= 35,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 383 (2026-11-01)
  * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,8 +25,8 @@
  */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow2.h"   /* pow2(x) returns 2^x as seq_t */
-#include "../utils/gcd.h"    /* gcd(a,b) returns greatest common divisor */
+#include "../utils/gcd.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

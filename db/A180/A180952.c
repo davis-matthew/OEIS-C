@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* integer square root for idx_t (uint64_t) */
 static idx_t isqrt_idx(idx_t n)
@@ -51,7 +53,7 @@ static void grow_array(seq_t **arr, size_t *len, size_t *cap)
 {
     if (*len >= *cap) {
         size_t new_cap = (*cap) ? (*cap) * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp)
             exit(1);                       /* out of memory */
         *arr = tmp;

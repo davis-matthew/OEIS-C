@@ -8,7 +8,8 @@
  *            digits in strictly increasing order
  * Range:     u8 n <= 10, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache of all terms (there are only 64 of them) */
 static seq_t seq_tbl[64];
@@ -48,7 +50,7 @@ static void init_seq(void)
         seq_tbl[idx++] = val;
     }
     /* numeric order is required by OEIS; sort the list */
-    qsort(seq_tbl, idx, sizeof(seq_t), cmp_seq);
+    mem_qsort(seq_tbl, idx, sizeof(seq_t), cmp_seq);
     seq_inited = true;
 }
 

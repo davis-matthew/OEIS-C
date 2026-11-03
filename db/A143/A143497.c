@@ -7,6 +7,7 @@
  * Formula:   T(n,k) = ((n - 2)!/(k - 2)!)*C(n+1, k+1) for n,k ≥ 2, T(2,2)=1
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 67, u64 n <= 173,
  *            u128 n <= 498, big any n
+ * Validated: standard, pass, 61 terms through n = 4815 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
  *   The sequence starts a(0)=0, a(1)=1, a(2)=6, …
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
         seq_t binom = binomial(n - 1, k - 1);
 
         /* power term (2*k)^(k‑1)   */
-        seq_t power = seq_pow((seq_t)(2 * k), k - 1);
+        seq_t power = ipow_idx((seq_t)(2 * k), k - 1);
 
         /* term = binom * power * prod   (prod = n! / k!)   */
         seq_t term = binom;

@@ -7,15 +7,18 @@
  * Formula:   a(n) = Sum_{d|n} (n/d)^d * binomial(d + n/d - 1, d)
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 47, u64 n <= 104, u128 n <= 221,
  *            big any n
- * Helpers:   big_pow, binomial, factor_u64
+ * Validated: standard, pass, 57 terms through n = 4786 (2026-11-01)
+ * Helpers:   binomial, factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* Helper: recursively generate all divisors of n and accumulate the sum. */
 static void dfs_divisors(uint64_t n, const uint64_t *primes, const uint64_t *exps,
@@ -25,7 +28,7 @@ static void dfs_divisors(uint64_t n, const uint64_t *primes, const uint64_t *exp
         /* cur is a divisor d of n */
         uint64_t d = cur;
         uint64_t m = n / d;                    /* n/d */
-        seq_t pow_term = big_pow((seq_t)m, (seq_t)d);
+        seq_t pow_term = ipow((seq_t)m, (seq_t)d);
         seq_t bin_term = binomial(d + m - 1, d);
         *sum += pow_term * bin_term;
         return;

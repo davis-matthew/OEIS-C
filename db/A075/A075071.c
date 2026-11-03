@@ -8,7 +8,8 @@
  * Formula:   a(n) = n! / ∏_{d|n, d!=n} d! (return 0 if not an integer)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 12, u64 n <= 22, u128 n <= 23,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* ---------- static data --------------------------------------------- */
 #define MAX_PRIME_CAP 20000
@@ -125,7 +131,7 @@ seq_t a(idx_t n)
     for (size_t pi = 0; pi < prime_count; ++pi) {
         int e = exp_arr[pi];
         if (e > 0) {
-            seq_t p_pow = seq_pow((seq_t)primes[pi], (idx_t)e);
+            seq_t p_pow = ipow_idx((seq_t)primes[pi], (idx_t)e);
             result = seq_mul(result, p_pow);
         }
     }

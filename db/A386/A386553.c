@@ -9,6 +9,7 @@
  *            (1+z^3)^8 + 9 (1+z)^3 (1+z^2)^12 + 6 (1+z)^3 (1+z^4)^6 ]
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: full, pass, 28 terms through n = 27 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

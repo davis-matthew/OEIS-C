@@ -11,7 +11,8 @@
  *            U j U a(k) U j, where 1 ≤ k < n and j ∈ {0,1}
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"          /* provided by the harness */
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /*-------------------------------------------*/
 /*  Cached implementation of a(n)            */
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     /* Initialise cache lazily                     */
     if (cache == NULL) {
         cap  = 64;                       /* initial capacity (in seq_t's) */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) return (seq_t)0;
         cache[0] = 0;                    /* unused slot 0  */
         cache[1] = (seq_t)1;            /* a(1) = 1      */
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t newcap = cap ? cap << 1 : 1;
         while ((size_t)n + 1 > newcap) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) return (seq_t)0;
         cache = tmp;
         cap   = newcap;
@@ -69,7 +72,7 @@ seq_t a(idx_t n)
         /* Iterate over all smaller indices k   */
         for (idx_t k = 1; k < i; ++k) {
             seq_t ak  = cache[k];
-            unsigned len = bitlen_seq_t(ak);        /* bit length of a(k) */
+            unsigned len = bit_length(ak);        /* bit length of a(k) */
 
             /* Two possible values of j (0 or 1) */
             for (idx_t jj = 0; jj <= 1; ++jj) {

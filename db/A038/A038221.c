@@ -9,13 +9,15 @@
  *            flattens the triangle T(i,j) = binomial(i,j)*3^i row‑by‑row
  * Range:     u8 n <= 10, u16 n <= 30, u32 n <= 108, u64 n <= 361,
  *            u128 n <= 1348, big any n
+ * Validated: standard, pass, 61 terms through n = 4043 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>                      /* sqrt()  */
-#include "../utils/pow3.h"             /* seq_t pow3(idx_t exp); */
+#include <stdint.h>
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {

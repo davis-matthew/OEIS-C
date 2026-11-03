@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9748 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Big‑integer type:  base 2^32, little‑endian limbs.  The arrays are
    statically large enough for about 10 000 decimal digits (≈1100 limbs). */
@@ -100,7 +102,7 @@ seq_t a(idx_t n) {
     if (!initialized) {
         /* initial token: integer part 1 (odd) */
         parity_cap = 16;
-        parity = (seq_t *)malloc(sizeof(seq_t) * parity_cap);
+        parity = mem_new(seq_t, parity_cap);
         if (parity == NULL) exit(1);
         parity[0] = 1;
         parity_len = 1;
@@ -114,7 +116,7 @@ seq_t a(idx_t n) {
     while (parity_len <= (size_t)n) {
         if (parity_len >= parity_cap) {
             size_t new_cap = parity_cap << 1;
-            seq_t *tmpp = (seq_t *)realloc(parity, new_cap * sizeof(seq_t));
+            seq_t *tmpp = mem_resize(seq_t, parity, new_cap);
             if (tmpp == NULL) exit(1);
             parity = tmpp;
             parity_cap = new_cap;

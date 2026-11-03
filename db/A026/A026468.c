@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the sequence and the squares of its terms. */
 static seq_t *a_seq   = NULL;   /* a(i) 0‑based indices */
@@ -34,8 +36,8 @@ static void grow(size_t min_cap)
     size_t new_cap = seq_cap ? seq_cap << 1 : 8;
     while (new_cap < min_cap)
         new_cap <<= 1;
-    a_seq  = (seq_t *)realloc(a_seq,  new_cap * sizeof(seq_t));
-    sq_seq = (seq_t *)realloc(sq_seq, new_cap * sizeof(seq_t));
+    a_seq  = mem_resize(seq_t, a_seq, new_cap);
+    sq_seq = mem_resize(seq_t, sq_seq, new_cap);
     seq_cap = new_cap;
 }
 

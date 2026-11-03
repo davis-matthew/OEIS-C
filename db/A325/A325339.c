@@ -7,13 +7,36 @@
  * Formula:   a(n) = number of divisors of n^3 that are <= n
  * Range:     u8 n <= 789, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dfs_div_count
+ * Validated: standard, pass, 97 terms through n = 9626 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/dfs_div_count.h"
+
+/* Recursive helper that counts divisors d of n^3 with d <= nmax.
+   primes[] and exps[] give n = ∏ primes[i]^exps[i]  */
+static void dfs_div_count(int idx, seq_t cur, const uint64_t primes[], const int exps[],
+                           int pc, unsigned long long *cnt, seq_t nmax)
+{
+    if (idx == pc) {
+        (*cnt)++;
+        return;
+    }
+
+    seq_t prod = cur;
+    int maxexp = 3 * exps[idx];
+    for (int e = 0; e <= maxexp; ++e) {
+        if (prod > nmax) break;          /* no need to continue further */
+        dfs_div_count(idx + 1, prod, primes, exps, pc, cnt, nmax);
+
+        if (e == maxexp) break;          /* reached the maximum exponent for this prime */
+        /* if next multiplication would exceed nmax, stop growing this branch */
+        if (prod > nmax / primes[idx]) break;
+        prod *= primes[idx];
+    }
+}
 
 seq_t a(idx_t n)
 {

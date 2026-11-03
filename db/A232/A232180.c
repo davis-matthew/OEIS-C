@@ -8,7 +8,8 @@
  *            + 1/2 + ... + 1/m, expressed in lowest terms
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    reducing each intermediate fraction by gcd, and store
    the numerator only when m is odd. */
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *numerators = NULL;   /* array of numerators for odd m */
 static size_t numerators_cap = 0;  /* allocated capacity of numerators array */
@@ -32,7 +35,7 @@ static void ensure_numerators(size_t need)
     if (need <= numerators_cap) return;
     size_t new_cap = numerators_cap ? numerators_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    numerators = (seq_t*)realloc(numerators, new_cap * sizeof(seq_t));
+    numerators = mem_resize(seq_t, numerators, new_cap);
     numerators_cap = new_cap;
 }
 

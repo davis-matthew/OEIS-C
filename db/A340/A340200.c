@@ -11,22 +11,24 @@
  * Formula:   a(n) = 49*15^(n-2) - 60*7^(n-2) + 22*3^(n-2) - 2; a(3) = 379
  * Range:     u8 none, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 821 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     if (n < 3) return 0;          /* offset: no defined values for n < 3 */
     seq_t exp = (seq_t)(n - 2);
 
-    seq_t p15 = big_pow((seq_t)15, exp);   /* 15^(n-2) */
-    seq_t p07 = big_pow((seq_t)7,  exp);   /* 7^(n-2)  */
-    seq_t p03 = big_pow((seq_t)3,  exp);   /* 3^(n-2)  */
+    seq_t p15 = ipow((seq_t)15, exp);   /* 15^(n-2) */
+    seq_t p07 = ipow((seq_t)7,  exp);   /* 7^(n-2)  */
+    seq_t p03 = ipow((seq_t)3,  exp);   /* 3^(n-2)  */
 
     seq_t term1 = (seq_t)49 * p15;
     seq_t term2 = (seq_t)60 * p07;

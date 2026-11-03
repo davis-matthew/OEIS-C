@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   compute_quotient
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,42 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_quotient.h"
+#include "../utils/mem.h"
+
+/* compute a(n) for any n >= 1.
+ * The function keeps a static array of already computed terms
+ * and fills it as needed; therefore calls may arrive in any
+ * order. */
+static seq_t compute_quotient(idx_t s, int r)
+{
+    seq_t quotient = 0;
+    unsigned rem = 0;            /* remainder of the division by 7 */
+
+    /* process the 7 numbers s, s-1, …, s-6 in that order */
+    for (int k = 0; k < 7; ++k) {
+        idx_t n = s - k;
+
+        /* convert n to its r decimal digits (most significant first) */
+        unsigned char digits[20];     /* r will never exceed 20 for n  ≤ 10000 */
+        idx_t tmp = n;
+        for (int i = r - 1; i >= 0; --i) {
+            digits[i] = (unsigned char)(tmp % 10);
+            tmp /= 10;
+        }
+
+        /* perform the division of the current concatenation
+           by 7 digit by digit (long division) */
+        for (int i = 0; i < r; ++i) {
+            unsigned d = digits[i];
+            rem = rem * 10 + d;
+            unsigned qd = rem / 7;
+            rem %= 7;
+            quotient = quotient * 10 + qd;
+        }
+    }
+
+    return quotient;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +74,7 @@ seq_t a(idx_t n)
     /* ensure we have room for at least n terms */
     if (n > terms_cap) {
         idx_t new_cap = (n > 16) ? n : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();
         terms = tmp;
         terms_cap = new_cap;

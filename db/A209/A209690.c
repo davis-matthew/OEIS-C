@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *u = NULL;          /* coefficients of u(n-1,x)   */
 static seq_t *v = NULL;          /* coefficients of v(n-1,x)   */
@@ -42,7 +44,7 @@ static void ensure_flat_capacity(size_t need)
     size_t new_cap = (flat_cap ? flat_cap : 8);
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(flat, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, flat, new_cap);
     /* If realloc fails, memory is left untouched; the program will
        terminate on a subsequent access – acceptable for contest use. */
     flat = tmp;
@@ -54,14 +56,14 @@ static void generate_next_row(void)
 {
     /* new u has length u_len + 1 */
     size_t new_u_len = u_len + 1;
-    seq_t *new_u = (seq_t*)malloc(new_u_len * sizeof(seq_t));
+    seq_t *new_u = mem_new(seq_t, new_u_len);
     new_u[0] = 0;
     for (size_t i = 1; i < new_u_len; ++i)
         new_u[i] = u[i-1] + v[i-1];
 
     /* new v has length v_len + 1 */
     size_t new_v_len = v_len + 1;
-    seq_t *new_v = (seq_t*)malloc(new_v_len * sizeof(seq_t));
+    seq_t *new_v = mem_new(seq_t, new_v_len);
     new_v[0] = u[0] + 1;
     for (size_t i = 1; i < new_v_len; ++i) {
         seq_t uv = (i < u_len) ? u[i] : 0;
@@ -75,8 +77,8 @@ static void generate_next_row(void)
     flat_len += new_v_len;
 
     /* Replace old arrays with the new ones */
-    free(u);
-    free(v);
+    mem_free(u);
+    mem_free(v);
     u = new_u;
     v = new_v;
     u_len = new_u_len;
@@ -88,8 +90,8 @@ static void init_first_row(void)
 {
     if (v != NULL)
         return;                   /* already initialised */
-    u = (seq_t*)malloc(sizeof(seq_t));
-    v = (seq_t*)malloc(sizeof(seq_t));
+    u = mem_new(seq_t, 1);
+    v = mem_new(seq_t, 1);
     u[0] = 1;
     v[0] = 1;
     u_len = v_len = 1;

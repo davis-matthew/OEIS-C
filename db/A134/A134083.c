@@ -8,13 +8,14 @@
  *            r*(r+1)/2 ≤ n < (r+1)*(r+2)/2 and k = n - r*(r+1)/2
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom_choose
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binom_choose.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
     idx_t k = n - start;          /* column index */
 
     /* Compute the value */
-    seq_t binom = binom_choose(r, k);
+    seq_t binom = binomial(r, k);
     seq_t odd   = (seq_t)(2 * (seq_t)(r - k) + 1);
     return binom * odd;
 }

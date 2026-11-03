@@ -7,9 +7,10 @@
  * Keywords:  nonn, hear
  * Formula:   a(n) = 1 for n <= 4 * a(n) = Σ_{i=0..3} a(n - i - a(n-i-1)) (n >
  *            4)
- * Range:     u8 n <= 337, u16 n <= 9154, u32 n <= 9154, u64 n <= 9154,
- *            u128 n <= 9154, big any n
- * Helpers:   none
+ * Range:     u8 n <= 337, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 98 terms through n = 9154 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,12 +32,12 @@ seq_t a(idx_t n)
     if (cap <= (size_t)n) {
         size_t newcap = (cap ? cap << 1 : 16);
         if (newcap < (size_t)n + 1) newcap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)calloc(newcap, sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, newcap);
         if (!tmp) return 0;                     /* allocation failure (unlikely) */
         if (cache) {
             /* copy already cached values */
             for (size_t i = 0; i < cap; ++i) tmp[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = tmp;
         cap   = newcap;

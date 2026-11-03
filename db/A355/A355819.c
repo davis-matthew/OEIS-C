@@ -8,9 +8,10 @@
  * Keywords:  sign, mult
  * Formula:   a(n) is the Dirichlet inverse of A270419(n) (multiplicative).
  *            a(1) = 1; for n > 1: a(n) = - Σ_{d|n, d<n} A270419(n/d) · a(d)
- * Range:     i8 n <= 511, i16 n <= 9619, i32 n <= 9619, i64 n <= 9619,
- *            i128 n <= 9619, big any n
- * Helpers:   pow_seq
+ * Range:     i8 n <= 511, i16 n <= 16383, i32 n <= 16383, i64 n <= 16383,
+ *            i128 n <= 16383, big any n
+ * Validated: standard, pass, 112 terms through n = 9619 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow_seq.h"          /* pow_seq(seq_t a, int k) */
+#include "../utils/ipow_i32.h"
 
 /* Small prime list sufficient for factorisation up to 10 000
    (sqrt(10000)=100). */
@@ -51,7 +52,7 @@ a270419_prime_power(uint64_t p, size_t e)
         exp = (int)e - 4;
         if (exp < 0) exp = 0;
     }
-    return pow_seq((seq_t)p, exp);
+    return ipow_i32((seq_t)p, exp);
 }
 
 /* Compute a(p^k) for a prime p and exponent k >= 0.

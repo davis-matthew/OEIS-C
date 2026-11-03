@@ -10,8 +10,9 @@
  *            = 1 + a(p-1), for odd prime power p^e: a(p^e) = e * a(p), and a
  *            is totally additive: a(m*n)=a(m)+a(n) for coprime m, n. Here
  *            phi(n) is Euler's totient function
- * Range:     u8 n <= 821, u16 n <= 8907, u32 n <= 8907, u64 n <= 8907,
- *            u128 n <= 8907, big any n
+ * Range:     u8 n <= 821, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8907 (2026-11-01)
  * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/is_prime.h"
 

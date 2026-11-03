@@ -7,7 +7,8 @@
  * Formula:   a(0) = 1; for n > 0: a(n) = – Σ_{k≥1, k^5 ≤ n} a(n – k^5)
  * Range:     i8 n <= 81, i16 n <= 163, i32 n <= 308, i64 n <= 627,
  *            i128 n <= 1231, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 7740 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    arbitrary‑precision build as well as for the 64‑bit integer build. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (n >= (idx_t)cap) {
         size_t new_cap = cap ? cap : 64;
         while ((idx_t)new_cap <= n) new_cap <<= 1;
-        coeff = (seq_t*)realloc(coeff, new_cap * sizeof(seq_t));
+        coeff = mem_resize(seq_t, coeff, new_cap);
         /* initialise new entries to zero */
         for (size_t i = cap; i < new_cap; ++i) coeff[i] = 0;
         cap = new_cap;

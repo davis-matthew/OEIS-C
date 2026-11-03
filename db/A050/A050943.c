@@ -8,13 +8,15 @@
  *            triangular numbers
  * Range:     u8 n <= 39, u16 n <= 2977, u32 n <= 7350, u64 n <= 7350,
  *            u128 n <= 7350, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 7141 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const unsigned DEFAULT_CAP = 8;
 
@@ -48,7 +50,7 @@ static void heap_push(idx_t i, idx_t m, seq_t sum)
 {
     if (heap_size == heap_cap) {
         heap_cap = heap_cap ? heap_cap * 2 : DEFAULT_CAP;
-        heap = (struct seq_node *)realloc(heap, heap_cap * sizeof *heap);
+        heap = mem_resize(struct seq_node, heap, (heap_cap * sizeof *heap) / sizeof(struct seq_node));
     }
     size_t pos = heap_size++;
     heap[pos] = (struct seq_node){i, m, sum};
@@ -111,7 +113,7 @@ static void ensure_terms_upto(idx_t n)
         if (terms_len == 0 || cur.sum != terms[terms_len - 1]) {
             if (terms_len == terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : DEFAULT_CAP;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof *terms);
+                terms = mem_resize(seq_t, terms, (terms_cap * sizeof *terms) / sizeof(seq_t));
             }
             terms[terms_len++] = cur.sum;
         }

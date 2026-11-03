@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n+4)*(8*n^2+64*n+45)*binomial(n+7,7)/(4*45)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 25, u64 n <= 266, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 950 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

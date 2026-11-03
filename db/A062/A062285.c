@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 2200, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9776 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* dynamic array holding the sequence          */
 static size_t cache_len = 0;      /* number of terms currently stored            */
@@ -77,7 +79,7 @@ static void fill_cache(size_t n)
     if (!initialized) {
         /* initialise cache with the first term 0 */
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)0;
         cache_len = 1;
         next_num = 0;
@@ -90,7 +92,7 @@ static void fill_cache(size_t n)
             /* store term */
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len] = (seq_t)next_num;
             cache_len++;

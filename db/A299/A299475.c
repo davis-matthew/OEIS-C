@@ -8,12 +8,14 @@
  * Formula:   a(n) = 1 + 3*A000041(n), a(0) = 1
  * Range:     u8 n <= 12, u16 n <= 37, u32 n <= 117, u64 n <= 398,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for partition numbers p[0..n]. */
     size_t sz = (size_t)n + 1U;
-    seq_t *p = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, sz);
     if (p == NULL)
         return (seq_t)0;            /* allocation failure (should not happen) */
 
@@ -56,6 +58,6 @@ seq_t a(idx_t n)
     /* a(n) = 1 + 3 * p(n). */
     seq_t result = (seq_t)1 + (seq_t)3 * p[(size_t)n];
 
-    free(p);
+    mem_free(p);
     return result;
 }

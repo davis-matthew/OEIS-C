@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = largest prime divisor of gcd(n, φ(n)); 1 if gcd = 1
- * Range:     u8 n <= 548, u16 n <= 9730, u32 n <= 9730, u64 n <= 9730,
- *            u128 n <= 9730, big any n
- * Helpers:   largest_prime_factor_uint64, phi_calc
+ * Range:     u8 n <= 548, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9730 (2026-11-01)
+ * Helpers:   largest_prime_factor_u64, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/largest_prime_factor_uint64.h"
-#include "../utils/phi_calc.h"
+#include "../utils/largest_prime_factor_u64.h"
+#include "../utils/totient.h"
 
 /* Euclidean algorithm for 64‑bit unsigned integers. */
 static inline uint64_t gcd_uint64(uint64_t a, uint64_t b)
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
     if (n < 1)          /* offset starts at 1; return 1 for non‑positive indices. */
         return 1;
 
-    seq_t phi_val = phi_calc(n);
+    seq_t phi_val = totient(n);
     uint64_t g = gcd_uint64((uint64_t)n, (uint64_t)phi_val);
-    return largest_prime_factor_uint64(g);
+    return largest_prime_factor_u64(g);
 }

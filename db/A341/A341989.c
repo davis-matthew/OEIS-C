@@ -9,7 +9,8 @@
  *            is the first term, indices below 10 are not defined)
  * Range:     u8 n <= 13, u16 n <= 21, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   build_primes, zero_seq_vec
+ * Validated: partial, pass, 36 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,67 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External helpers */
-#include "../utils/build_primes.h"
-#include "../utils/zero_seq_vec.h"
+
+/* Build all primes up to `limit` (inclusive) using a simple sieve.  */
+static void build_primes(idx_t limit, idx_t **out, size_t *cnt)
+{
+    if (limit < 2) {                       /* no primes */
+        *out = NULL;
+        *cnt = 0;
+        return;
+    }
+
+    unsigned char *mark = (unsigned char *)calloc((size_t)(limit + 1), 1);
+    if (!mark) {                           /* allocation failure */
+        *out = NULL;
+        *cnt = 0;
+        return;
+    }
+
+    size_t cap = limit / 10 + 1;            /* initial capacity guess  */
+    idx_t *pr  = (idx_t *)malloc(cap * sizeof(idx_t));
+    size_t pc  = 0;
+
+    for (idx_t i = 2; i <= limit; ++i) {
+        if (!mark[i]) {
+            /* grow array if necessary */
+            if (pc == cap) {
+                cap <<= 1;
+                idx_t *tmp = (idx_t *)realloc(pr, cap * sizeof(idx_t));
+                if (!tmp) {               /* allocation failure */
+                    free(mark);
+                    free(pr);
+                    *out = NULL;
+                    *cnt = 0;
+                    return;
+                }
+                pr = tmp;
+            }
+            pr[pc++] = i;
+
+            /* mark multiples of i */
+            if (i <= limit / i) {
+                for (idx_t j = i * i; j <= limit; j += i)
+                    mark[j] = 1;
+            }
+        }
+    }
+    free(mark);
+
+    *out = pr;
+    *cnt = pc;
+}
+
+/* ------------------------------------------------------------------ */
+static void zero_seq_vec(seq_t *vec, size_t len)
+{
+    for (size_t i = 0; i < len; ++i) {
+        vec[i] = 0;
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /*  State: cache of computed values and primes                         */
@@ -63,8 +121,8 @@ seq_t a(idx_t n)
     build_primes((idx_t)(new_cap - 1), (idx_t **)&prime_list, &prime_cnt);
 
     /* -------------------- DP arrays -------------------------------- */
-    seq_t *prev = (seq_t *)malloc(new_cap * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, new_cap);
+    seq_t *curr = mem_new(seq_t, new_cap);
 
     /* Initial condition: k=0 (no primes used) */
     zero_seq_vec(prev, new_cap);
@@ -101,16 +159,16 @@ seq_t a(idx_t n)
     /* 'prev' now contains a(k) for k = 0 .. target */
     /* Allocate/reallocate cache and copy results */
     if (dp_cache) {
-        free(dp_cache);
+        mem_free(dp_cache);
     }
-    dp_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    dp_cache = mem_new(seq_t, new_cap);
     for (size_t i = 0; i < new_cap; ++i) {
         dp_cache[i] = prev[i];
     }
 
     /* Clean up temporary arrays */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
 
     /* Update cache size */
     dp_cap = new_cap;

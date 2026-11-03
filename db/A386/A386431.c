@@ -9,8 +9,9 @@
  * Formula:   a(n) = T(r,k) where r is the smallest integer with 1²+2²+…+r² ≥
  *            n, k = n – (1²+2²+…+(r–1)²); T(r,k) = 1 + r·k – r –
  *            (r²–1)·⌊(k–1)/r⌋
- * Range:     u8 n <= 1495, u16 n <= 9862, u32 n <= 9862, u64 n <= 9862,
- *            u128 n <= 9862, big any n
+ * Range:     u8 n <= 1495, u16 n <= 10416, u32 n <= 10416, u64 n <= 10416,
+ *            u128 n <= 10416, big any n
+ * Validated: standard, pass, 107 terms through n = 9862 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

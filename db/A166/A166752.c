@@ -8,7 +8,8 @@
  *            n odd
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *even_cache = NULL;  /* Cache for a(2k), k ≥ 0 */
 static idx_t cached_max_k = 0;    /* Highest k computed so far */
@@ -32,7 +34,7 @@ static void ensure_even_cache(idx_t k)
     if (even_cache == NULL) {
         /* Allocate space for k=0 and 1 */
         allocated_cap = 4;
-        even_cache = (seq_t *)malloc(allocated_cap * sizeof(seq_t));
+        even_cache = mem_new(seq_t, allocated_cap);
         if (even_cache == NULL) abort();
         even_cache[0] = (seq_t)1;   /* a(0) */
         even_cache[1] = (seq_t)3;   /* a(2) */
@@ -45,7 +47,7 @@ static void ensure_even_cache(idx_t k)
     if ((size_t)(k + 1) > allocated_cap) {
         size_t newcap = allocated_cap;
         while (newcap <= (size_t)(k + 1)) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(even_cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, even_cache, newcap);
         if (tmp == NULL) abort();
         even_cache = tmp;
         allocated_cap = newcap;

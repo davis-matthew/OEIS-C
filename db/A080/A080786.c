@@ -7,7 +7,8 @@
  * Formula:   a(n) = count { m : 1 ≤ m ≤ r , largest‑prime‑factor(m) ≤ k }
  * Range:     u8 n <= 7260, u16 n <= 7260, u32 n <= 7260, u64 n <= 7260,
  *            u128 n <= 7260, big any n
- * Helpers:   row_col_for_index
+ * Validated: standard, pass, 109 terms through n = 6960 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/row_col_for_index.h"
+
+/* Determine the row (r) and column (k) of the n‑th entry in the triangle. */
+static void row_col_for_index(idx_t n, idx_t *r, idx_t *k)
+{
+    idx_t rr = 0;
+    while (rr * (rr + 1) / 2 < n)
+        ++rr;
+    *r = rr;
+    idx_t prev = rr * (rr - 1) / 2;
+    *k = n - prev;
+}
 
 static uint32_t *lpf = NULL;          /* largest prime factor for each number */
 static idx_t lpfSize = 0;             /* highest number for which lpf is filled */

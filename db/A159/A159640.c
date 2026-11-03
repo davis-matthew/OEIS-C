@@ -9,13 +9,15 @@
  *            numbers: P(1)=1, P(2)=2, P(k)=2*P(k-1)+P(k-2))
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build for the required integer types */
 seq_t a(idx_t n) {
@@ -30,9 +32,9 @@ seq_t a(idx_t n) {
     if (a_len == 0) {
         /* Start with space for indices 0..2 (we ignore position 0) */
         size_t init_cap = 2;
-        a_cache = (seq_t *)malloc((init_cap + 1) * sizeof(seq_t));
-        p_cache = (seq_t *)malloc((init_cap + 1) * sizeof(seq_t));
-        s_cache = (seq_t *)malloc((init_cap + 1) * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (init_cap + 1));
+        p_cache = mem_new(seq_t, (init_cap + 1));
+        s_cache = mem_new(seq_t, (init_cap + 1));
         if (!a_cache || !p_cache || !s_cache) {
             /* Failure is fatal for this helper */
             exit(1);
@@ -67,9 +69,9 @@ seq_t a(idx_t n) {
         while (new_cap < (size_t)n) {
             new_cap <<= 1;
         }
-        seq_t *new_a = (seq_t *)realloc(a_cache, (new_cap + 1) * sizeof(seq_t));
-        seq_t *new_p = (seq_t *)realloc(p_cache, (new_cap + 1) * sizeof(seq_t));
-        seq_t *new_s = (seq_t *)realloc(s_cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, (new_cap + 1));
+        seq_t *new_p = mem_resize(seq_t, p_cache, (new_cap + 1));
+        seq_t *new_s = mem_resize(seq_t, s_cache, (new_cap + 1));
         if (!new_a || !new_p || !new_s) {
             exit(1);
         }

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 73 terms through n = 965 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,6 +25,7 @@
 #include <stddef.h>
 
 /* helper from the utils library that builds a prime list up to a limit */
+#include <string.h>
 #include "../utils/sieve_primes.h"
 
 /* ------------------------------------------------------------------------- */

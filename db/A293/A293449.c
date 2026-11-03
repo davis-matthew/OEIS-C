@@ -9,16 +9,19 @@
  * Formula:   a(n) = 1 if every exponent in the prime factorization of n is a
  *            prime, otherwise a(n) = 0. a(1) = 1. This implements the
  *            characteristic function for A056166
- * Range:     u8 n <= 9603, u16 n <= 9603, u32 n <= 9603, u64 n <= 9603,
- *            u128 n <= 9603, big any n
- * Helpers:   _smallest_prime_factor, is_prime_small
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9603 (2026-11-01)
+ * Helpers:   is_prime_seq, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/is_prime_small.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -29,13 +32,13 @@ seq_t a(idx_t n)
     uint64_t m = (uint64_t)n;
 
     while (m > 1) {
-        uint64_t p = _smallest_prime_factor(m);
+        uint64_t p = smallest_prime_factor(m);
         int exp = 0;
         while (m % p == 0) {
             m /= p;
             exp++;
         }
-        if (!is_prime_small((seq_t)exp))
+        if (!is_prime_seq((seq_t)exp))
             return (seq_t)0;
     }
     return (seq_t)1;

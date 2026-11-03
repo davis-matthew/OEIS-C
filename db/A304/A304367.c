@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
  * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/get_digits.h"
 
 /* sum of decimal digits of x */

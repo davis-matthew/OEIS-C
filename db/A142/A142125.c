@@ -5,16 +5,37 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   sequence of primes congruent to 16 modulo 37 (OEIS A142125)
- * Range:     u8 n <= 1, u16 n <= 43, u32 n <= 1000, u64 n <= 1000,
+ * Range:     u8 n <= 1, u16 n <= 44, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 60 terms through n = 934 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static const seq_t TARGET_MOD = 37;
 static const seq_t TARGET_REMAINDER = 16;
@@ -49,7 +70,7 @@ static void extend_primes_to(seq_t limit)
         if (prime) {
             if (primes_len == primes_cap) {
                 primes_cap = primes_cap ? primes_cap * 2 : 16;
-                primes = (seq_t *)realloc(primes, primes_cap * sizeof(seq_t));
+                primes = mem_resize(seq_t, primes, primes_cap);
             }
             primes[primes_len++] = next_candidate_prime;
             last_generated_prime = next_candidate_prime;
@@ -80,13 +101,13 @@ static void init_structures(void)
 {
     if (primes == NULL) {
         primes_cap = 16;
-        primes = (seq_t *)malloc(primes_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, primes_cap);
         primes[0] = 2;
         primes_len = 1;
     }
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 }
 
@@ -104,7 +125,7 @@ seq_t a(idx_t n)
         if (is_prime(candidate)) {
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = candidate;
         }

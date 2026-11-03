@@ -9,13 +9,16 @@
  *            definition)
  * Range:     u8 n <= 5, u16 n <= 37, u32 n <= 1229, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 62 terms through n = 9731 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
                 nn /= p;
             }
             idx_t e_needed = (exp < 3 ? 3 : exp);
-            seq_t pow_p = seq_pow((seq_t)p, e_needed - 1);
+            seq_t pow_p = ipow_idx((seq_t)p, e_needed - 1);
             seq_t term  = (seq_t)(p + 1) * pow_p;
             result *= term;
         }
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
     if (nn > 1) {
         idx_t exp = 1;
         idx_t e_needed = 3; /* since exp < 3 */
-        seq_t pow_p = seq_pow((seq_t)nn, e_needed - 1);  /* exponent 2 */
+        seq_t pow_p = ipow_idx((seq_t)nn, e_needed - 1);  /* exponent 2 */
         seq_t term  = (seq_t)(nn + 1) * pow_p;
         result *= term;
     }

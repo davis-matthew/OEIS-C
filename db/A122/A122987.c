@@ -10,6 +10,7 @@
  *            set of cubic residues modulo 1000, sorted in ascending order
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 505, u64 n <= 505, u128 n <= 505,
  *            big any n
+ * Validated: full, pass, 505 terms through n = 505 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

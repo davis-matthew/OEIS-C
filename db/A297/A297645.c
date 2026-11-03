@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 19, u32 n <= 201, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   parity_alternate
+ * Validated: standard, pass, 54 terms through n = 864 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
     values are generated on demand and cached for future calls.  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/parity_alternate.h"
+#include "../utils/mem.h"
+
+static bool parity_alternate(seq_t x)
+{
+    int prev = -1;              /* parity of previous digit, -1 means none yet */
+    while (x > 0) {
+        seq_t d   = x % 10;     /* current least significant digit        */
+        int parity = (int)(d & 1);   /* 0 for even, 1 for odd              */
+        if (prev != -1 && parity == prev)
+            return false;       /* two adjacent digits have same parity  */
+        prev = parity;
+        x /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +55,7 @@ seq_t a(idx_t n)
         if (parity_alternate(h)) {                      /* property satisfied? */
             if (count == cap) {                         /* expand if full   */
                 size_t new_cap = (cap == 0) ? 8 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                 if (!tmp) { /* malloc failure: abort (undefined in build) */
                     exit(1);
                 }

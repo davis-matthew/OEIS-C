@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   alloc_seq, free_seq, has_two_more_zeroes_than_twos
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,35 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
-#include "../utils/has_two_more_zeroes_than_twos.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Test whether an integer has two more 0's than 2's in its base‑3 representation */
+static inline bool has_two_more_zeroes_than_twos(seq_t x)
+{
+    size_t c0 = 0, c2 = 0;
+    while (x > (seq_t)0) {
+        seq_t r = x % (seq_t)3;
+        int d = (int)r;                 /* r is guaranteed to be 0,1, or 2 */
+        if (d == 0) ++c0;
+        else if (d == 2) ++c2;
+        x = x / (seq_t)3;
+    }
+    return (c0 - c2) == (size_t)2;
+}
 
 /* Global cache of found terms */
 static seq_t *cache       = NULL; /* array of qualifying numbers */

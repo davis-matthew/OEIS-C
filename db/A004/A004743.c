@@ -7,13 +7,23 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 4180, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains_110
+ * Validated: standard, pass, 81 terms through n = 9735 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/contains_110.h"
+
+static bool contains_110(seq_t num) {
+    while (num > 5) {
+        if ((num & 7) == 6) {
+            return true;
+        }
+        num >>= 1;
+    }
+    return false;
+}
 
 /* Search for the n-th non-negative integer whose binary expansion does not contain 110 */
 

@@ -7,9 +7,10 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = A074206(A000265(n)) – number of ordered factorizations of
  *            the odd part of n into factors > 1, with a(1) = 1
- * Range:     u8 n <= 2834, u16 n <= 9873, u32 n <= 9873, u64 n <= 9873,
- *            u128 n <= 9873, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2834, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9873 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *g_cache = NULL;
 static size_t g_cap    = 0;
@@ -27,7 +29,7 @@ static void ensure_g_cache(idx_t n)
     if (g_cap <= n) {
         size_t new_cap = g_cap ? g_cap << 1 : 256;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, g_cache, new_cap);
         if (!tmp) exit(1);
         for (size_t i = g_cap; i < new_cap; ++i) tmp[i] = 0;
         g_cache = tmp;

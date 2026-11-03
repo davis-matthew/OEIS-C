@@ -11,7 +11,8 @@
  *            dynamic‑programming search over rows)
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 16, u64 n <= 33, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 /* obj definition */ 
 /*  (seq_t and idx_t are supplied by the build; no definitions here) */
 
@@ -137,7 +139,7 @@ static void init_sequence(void)
     }
 
     /* 3. Compute first 22 terms by DP over rows. */
-    seq_cache = (seq_t *)malloc(MAX_INIT * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, MAX_INIT);
     seq_cache_len = MAX_INIT;
 
     /* a(1): single row with no neighbors. */
@@ -149,7 +151,7 @@ static void init_sequence(void)
     seq_cache[0] = a1;
 
     /* Initialize dp_cur for n = 2 (first pair). */
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
     for (int prev = 0; prev < ROWS; ++prev) {
         for (int cur = 0; cur < ROWS; ++cur) {
             if (ok_row(row_digits[prev], NULL,
@@ -173,7 +175,7 @@ static void init_sequence(void)
     /* DP for n = 3 .. 22. */
     for (size_t n = 3; n <= MAX_INIT; ++n) {
         /* Zero dp_next. */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         /* Transition step. */
         for (int prev = 0; prev < ROWS; ++prev) {
@@ -203,7 +205,7 @@ static void init_sequence(void)
         seq_cache[n-1] = an;
 
         /* Prepare for next iteration. */
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 }
 
@@ -232,7 +234,7 @@ seq_t a(idx_t n)
         seq_t next_term = pos - neg;   /* sequence is non‑negative */
 
         seq_cache_len++;
-        seq_cache = (seq_t *)realloc(seq_cache, seq_cache_len * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cache_len);
         seq_cache[seq_cache_len - 1] = next_term;
     }
 

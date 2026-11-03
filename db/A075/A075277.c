@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 248, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 62 terms through n = 9367 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* ---------- Static state for memoisation ---------- */
 static idx_t seq_cnt   = 0;      /* number of terms found */
@@ -39,7 +41,7 @@ static void grow_seq_arr(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
     if (!tmp) exit(1);
     seq_arr = tmp;
     seq_cap = new_cap;

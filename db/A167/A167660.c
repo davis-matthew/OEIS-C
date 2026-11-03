@@ -10,12 +10,14 @@
  *            + Sum_{k=0..ceil(n/2)} k*binomial(n+k-1,k-1)*binomial(n,n-2*k+1)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 40 terms through n = 467 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
     idx_t max1 = n / 2;          /* floor(n/2) */
     for (idx_t k = 1; k <= max1; ++k) {
         seq_t term = (seq_t)k;
-        term *= binom(n + k, k);
-        term *= binom(n, n - 2 * k);
+        term *= binomial(n + k, k);
+        term *= binomial(n, n - 2 * k);
         sum += term;
     }
 
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
     idx_t max2 = (n + 1) / 2;    /* ceil(n/2) */
     for (idx_t k = 1; k <= max2; ++k) {
         seq_t term = (seq_t)k;
-        term *= binom(n + k - 1, k - 1);
-        term *= binom(n, n - 2 * k + 1);
+        term *= binomial(n + k - 1, k - 1);
+        term *= binomial(n, n - 2 * k + 1);
         sum += term;
     }
 

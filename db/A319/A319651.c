@@ -10,6 +10,7 @@
  *            '2', then c1 times '1', then c0 times '0'
  * Range:     u8 n <= 243, u16 n <= 6560, u32 n <= 6560, u64 n <= 6560,
  *            u128 n <= 6560, big any n
+ * Validated: standard, pass, 87 terms through n = 5471 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

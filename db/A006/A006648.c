@@ -11,7 +11,8 @@
  *            evaluated modulo several large primes and reco...
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   a6648_gcd
+ * Validated: partial, pass, 29 terms through n = 30 (2026-11-01)
+ * Helpers:   gcd_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a6648_gcd.h"
+#include "../utils/gcd_i64.h"
 
 typedef unsigned __int128 a6648_u128;
 
@@ -120,7 +121,7 @@ static void a6648_step(int depth, long r, long k, int nd)
     memcpy(Q, P, SZ * sizeof(uint64_t));
     for (i = 0; i < nd; i++) {
         long j = PV[i], c = PC[i];
-        long g = a6648_gcd(j, k);
+        long g = gcd_i64(j, k);
         a6648_mul_orbits(Q, &deg, j / g * k, g * c);
     }
     if (k % 2)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 93, i16 n <= 93, i32 n <= 93, i64 n <= 93, i128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 94 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,11 +21,12 @@
  * The result is dp[n]. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate and zero‑initialize the coefficient array */
-    seq_t *dp = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp) return 0;   /* allocation failure */
     dp[0] = 1;           /* base case: empty subset */
 
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = dp[n];
-    free(dp);
+    mem_free(dp);
     return res;
 }

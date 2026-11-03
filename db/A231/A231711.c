@@ -10,13 +10,15 @@
  *            order * and keeping the ones that satisfy the condition
  * Range:     u8 n <= 97, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------- */
 /*  Sum of divisors of a number (sigma function) for idx_t n.  */
@@ -62,7 +64,7 @@ static void ensure_seq(size_t need)
             /* Grow the array if necessary. */
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-                seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_new(seq_t, new_cap);
                 if (!new_arr) {
                     /* In a real program you might handle the error. */
                     exit(1);
@@ -70,7 +72,7 @@ static void ensure_seq(size_t need)
                 if (seq_vals) {
                     for (size_t i = 0; i < seq_len; ++i)
                         new_arr[i] = seq_vals[i];
-                    free(seq_vals);
+                    mem_free(seq_vals);
                 }
                 seq_vals = new_arr;
                 seq_cap  = new_cap;

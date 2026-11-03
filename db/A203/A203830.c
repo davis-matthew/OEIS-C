@@ -10,12 +10,14 @@
  *            memoization
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (n == 3) return 270333;
 
     /* Allocate space for terms up to n */
-    seq_t *term = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *term = mem_new(seq_t, (n + 1));
     if (!term) abort();           /* allocation failure */
 
     /* Initialise first three terms */
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = term[n];
-    free(term);
+    mem_free(term);
     return result;
 }

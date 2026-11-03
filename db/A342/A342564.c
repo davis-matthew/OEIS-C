@@ -7,9 +7,10 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = k, where k = (p*q+2-1)/6, p and q are consecutive primes,
  *            p*q+2 is prime, and p*q+2 ≡ 1 (mod 6)
- * Range:     u8 n <= 4, u16 n <= 21, u32 n <= 38, u64 n <= 38, u128 n <= 38,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 4, u16 n <= 21, u32 n <= 972, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 54 terms through n = 9940 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *k_cache = NULL;   /* cache of found k values           */
 static size_t k_cnt   = 0;       /* number of values stored so far   */
@@ -41,7 +43,7 @@ ensure_cache(idx_t n)
     if (!init_done) {
         init_done = true;
         k_cap   = 64;
-        k_cache = (seq_t *)malloc(k_cap * sizeof(seq_t));
+        k_cache = mem_new(seq_t, k_cap);
     }
 
     while (k_cnt < (size_t)n) {
@@ -61,7 +63,7 @@ ensure_cache(idx_t n)
 
             if (k_cnt == k_cap) {      /* grow cache if necessary */
                 k_cap *= 2;
-                k_cache = (seq_t *)realloc(k_cache, k_cap * sizeof(seq_t));
+                k_cache = mem_resize(seq_t, k_cache, k_cap);
             }
             k_cache[k_cnt++] = k;
         }

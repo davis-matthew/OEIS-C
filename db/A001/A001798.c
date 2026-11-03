@@ -9,13 +9,20 @@
  *            with e found from Legendre/Kummer exponent counts
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   a001798_vp
+ * Validated: standard, pass, 34 terms through n = 774 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a001798_vp.h"
+
+static long long a001798_vp(idx_t x, idx_t p) {
+    long long e = 0;
+    if (x == 0) return 0;
+    while (x % p == 0) { x /= p; e++; }
+    return e;
+}
 
 seq_t a(idx_t n) {
     idx_t N = 4 * n + 5;

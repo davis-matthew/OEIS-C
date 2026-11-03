@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 35, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   factor_u64, gcd, pow_uint
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
-#include "../utils/pow_uint.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 
 static void dfs_divisors(
     int idx,
@@ -42,10 +44,10 @@ static void dfs_divisors(
             /* exp_total = e * tau_cur / 2  (safe: tau_cur small) */
             unsigned long long tau_ll = (unsigned long long)tau_cur;
             unsigned long long exp_total = e * tau_ll / 2;
-            seq_t part_pod = pow_uint(primes[i], exp_total);
+            seq_t part_pod = ipow_u64_idx(primes[i], exp_total);
             pod *= part_pod;
 
-            seq_t numerator = pow_uint(primes[i], e + 1) - 1;
+            seq_t numerator = ipow_u64_idx(primes[i], e + 1) - 1;
             seq_t denom = primes[i] - 1;
             seq_t part_sigma = numerator / denom;
             sigma *= part_sigma;

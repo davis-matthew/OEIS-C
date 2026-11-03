@@ -12,7 +12,8 @@
  *            maximum row
  * Range:     u8 n <= 780, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 1018 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    seq_t and idx_t supplied by the build system. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static arrays holding the counts of partitions of each integer m
    into an even or an odd number of distinct parts.  */
@@ -34,8 +36,8 @@ static void ensure_dp(idx_t N)
     if (N <= dp_max) return;              /* already computed */
 
     size_t sz = (size_t)N + 1;
-    seq_t *new_even = (seq_t *)realloc(dp_even, sz * sizeof(seq_t));
-    seq_t *new_odd  = (seq_t *)realloc(dp_odd,  sz * sizeof(seq_t));
+    seq_t *new_even = mem_resize(seq_t, dp_even, sz);
+    seq_t *new_odd  = mem_resize(seq_t, dp_odd, sz);
     dp_even = new_even;
     dp_odd  = new_odd;
 

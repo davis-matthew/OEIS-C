@@ -12,6 +12,7 @@
  *            exceeds the sum of the remaining parts
  * Range:     u8 n <= 6765, u16 n <= 6765, u32 n <= 6765, u64 n <= 6765,
  *            u128 n <= 6765, big any n
+ * Validated: standard, pass, 121 terms through n = 6172 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

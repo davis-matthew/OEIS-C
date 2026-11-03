@@ -9,9 +9,10 @@
  *            primes (semiprime). Primes up to sqrt(P) are generated on
  *            demand; semiprimality check uses trial division by those primes.
  *            The sequence values are cached so calls for any...
- * Range:     u8 n <= 3, u16 n <= 17, u32 n <= 690, u64 n <= 9258,
- *            u128 n <= 9258, big any n
- * Helpers:   floor_sqrt
+ * Range:     u8 n <= 3, u16 n <= 17, u32 n <= 690, u64 n <= 10400,
+ *            u128 n <= 10400, big any n
+ * Validated: standard, pass, 55 terms through n = 9258 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Global prime list (dynamic array) */
 static uint64_t *primes = NULL;
@@ -92,7 +112,7 @@ static void ensure_cache_size(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
     while (new_cap < needed) new_cap *= 2;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 

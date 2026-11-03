@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime p such that Dedekind ψ(p+1) = ψ(p+2)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 26, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   append_candidate, factor_u64, next_prime
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   factor_u64, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,26 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/factor_u64.h"        /* factor_u64 */
-#include "../utils/next_prime.h"       /* next_prime */
-#include "../utils/append_candidate.h" /* append_candidate */
+#include "../utils/factor_u64.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* Dedekind psi function for a 64‑bit integer:  ψ(n) = n * ∏_{q|n}(1 + 1/q) */
 static seq_t psi_uint64(uint64_t n)

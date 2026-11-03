@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 8976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External linkage for the required function */
 extern seq_t a(idx_t n);
@@ -57,13 +59,13 @@ static void ensure_capacity(idx_t max_idx)
     size_t new_cap = cap ? (cap << 1) : 16;
     while (new_cap <= (size_t)(max_idx + 1)) new_cap <<= 1;
 
-    seq_t *new_b = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_b = mem_new(seq_t, new_cap);
     if (!new_b) exit(1);                /* fatal error */
-    memset(new_b, 0, new_cap * sizeof(seq_t));
+    mem_set(new_b, 0, new_cap * sizeof(seq_t));
 
     if (b_arr) {
-        memcpy(new_b, b_arr, cap * sizeof(seq_t));
-        free(b_arr);
+        mem_copy(new_b, b_arr, cap * sizeof(seq_t));
+        mem_free(b_arr);
     }
     b_arr = new_b;
     cap   = new_cap;

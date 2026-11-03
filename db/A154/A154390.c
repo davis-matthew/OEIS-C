@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 74 terms through n = 999 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /* Sequence:
    a(n) = the nth composite integer such that its largest decimal digit is a prime (2, 3, 5 or 7). */
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* offset is 1, but guard against 0 */
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
     idx_t count = 0;
     for (;;) {
         /* Composite test: composite iff not prime and greater than 1 (true for all candidates) */
-        if (!is_prime_small(candidate)) {
+        if (!is_prime_seq(candidate)) {
             seq_t t = candidate;
             seq_t max_digit = 0;
             while (t > 0) {

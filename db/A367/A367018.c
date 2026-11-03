@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 8949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
         /* Allocate a dynamic array for the sequence values. */
         list_cap = 1024;
-        list = (seq_t *)malloc(list_cap * sizeof(seq_t));
+        list = mem_new(seq_t, list_cap);
         list_len = 0;
 
         /* Generate the sequence up to sieve_limit. */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
             /* Store the value; grow the array if necessary. */
             if (list_len == list_cap) {
                 list_cap <<= 1;             /* double the capacity */
-                list = (seq_t *)realloc(list, list_cap * sizeof(seq_t));
+                list = mem_resize(seq_t, list, list_cap);
             }
             list[list_len++] = (seq_t)val;
         }

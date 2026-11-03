@@ -8,7 +8,8 @@
  *            that there is no prime q with p = q + 2^k for any k > 0
  * Range:     u8 n <= 2, u16 n <= 162, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9845 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the called function */
 seq_t a(idx_t n);
@@ -40,7 +42,7 @@ static void rebuild_cache(idx_t new_limit, idx_t need)
 
     /* Temporary dynamic array for results */
     size_t cap = need > 100 ? need : 100;
-    seq_t *tmp = (seq_t *)calloc(cap, sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, cap);
     if (!tmp) { free(is_prime); return; }   /* safety */
 
     size_t cnt = 0;
@@ -58,14 +60,14 @@ static void rebuild_cache(idx_t new_limit, idx_t need)
         if (ok) {
             if (cnt == cap) {            /* grow temporary array */
                 cap <<= 1;
-                tmp = (seq_t *)realloc(tmp, cap * sizeof(seq_t));
+                tmp = mem_resize(seq_t, tmp, cap);
             }
             tmp[cnt++] = (seq_t)p;
         }
     }
 
     /* Replace old cache */
-    free(cache);
+    mem_free(cache);
     cache    = tmp;
     cache_cnt = cnt;
     cache_cap = cap;

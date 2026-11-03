@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 94, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 80 terms through n = 978 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     while (true) {
         uint64_t cand = 2ULL * (uint64_t)k + 11ULL;    /* 2*k + 11 */
 
-        if (is_prime(cand)) {
+        if (is_prime_u64(cand)) {
             ++count;
             if (count == n)
                 return (seq_t)k;                     /* found the n‑th element */

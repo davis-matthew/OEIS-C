@@ -12,12 +12,14 @@
  *            a(10)=758560, a(11)=1296408. The sequence is d...
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 44, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static const seq_t init_values[11] = {
     13, 192, 1320, 5470, 17499, 45892, 105856, 219564, 421825, 758560, 1296408
@@ -31,9 +33,9 @@ static size_t cache_size = 0; /* number of terms currently stored */
 /* grow the cache to at least 'new_cap' capacity */
 static void grow_cache(size_t new_cap) {
     if (cache == NULL) {
-        cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
     } else if (new_cap > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
     }
     /* no need to initialize new slots; they will be filled in a() */

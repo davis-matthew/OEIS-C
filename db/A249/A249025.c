@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 156, u16 n <= 407, u32 n <= 407, u64 n <= 407,
  *            u128 n <= 407, big any n
- * Helpers:   mul_mod_uint
+ * Validated: standard, pass, 81 terms through n = 388 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/mul_mod_uint.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 static inline uint64_t powmod_uint(uint64_t base, uint64_t exp,
                                    uint64_t mod)
@@ -30,8 +32,8 @@ static inline uint64_t powmod_uint(uint64_t base, uint64_t exp,
     base %= mod;
     while (exp) {
         if (exp & 1ULL)
-            res = mul_mod_uint(res, base, mod);
-        base = mul_mod_uint(base, base, mod);
+            res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1ULL;
     }
     return res;
@@ -49,7 +51,7 @@ static size_t cache_len = 0;     /* how many values are stored           */
 static void build_cache(idx_t need_limit)
 {
     /* free any previous data */
-    free(cache);
+    mem_free(cache);
     cache = NULL;
     cache_len = 0;
 
@@ -117,7 +119,7 @@ static void build_cache(idx_t need_limit)
     for (idx_t k = 1; k <= need_limit; ++k)
         if (bad[(size_t)k]) ++cnt;
 
-    cache = (seq_t*)malloc(cnt * sizeof(seq_t));
+    cache = mem_new(seq_t, cnt);
     size_t pos = 0;
     for (idx_t k = 1; k <= need_limit; ++k)
         if (bad[(size_t)k]) cache[pos++] = (seq_t)k;

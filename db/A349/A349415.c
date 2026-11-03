@@ -9,6 +9,7 @@
  * Formula:   a(n) = binomial(n,3) * (2^(n-4) - 1)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 24, u64 n <= 32, u128 n <= 32,
  *            big any n
+ * Validated: partial, pass, 28 terms through n = 32 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 /* Returned only for n >= 5; for smaller n the value is undefined.
    The function is O(1) per call. */
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

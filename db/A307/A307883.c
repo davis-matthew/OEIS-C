@@ -10,12 +10,14 @@
  *            (binomial(r,j))^2
  * Range:     u8 n <= 24, u16 n <= 60, u32 n <= 130, u64 n <= 342,
  *            u128 n <= 934, big any n
+ * Validated: standard, pass, 82 terms through n = 9770 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Integer square root floor of a 64‑bit unsigned value. */

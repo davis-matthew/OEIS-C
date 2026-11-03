@@ -10,14 +10,17 @@
  *            patterns
  * Range:     u8 n <= 114, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 81 terms through n = 994 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Static storage for memoized terms. */
 static seq_t *cache = NULL;        /* array of found m values */
@@ -31,7 +34,7 @@ static void grow_cache(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_cap);
     if (!p) abort();              /* fatal in the unlikely event of OOM */
     cache     = p;
     cache_cap = new_cap;

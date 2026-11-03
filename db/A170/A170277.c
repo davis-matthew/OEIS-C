@@ -12,13 +12,15 @@
  *            O(n) space, memoizing all computed terms for arbi...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The following types are supplied by the build system:
    typedef <unsigned integer type> seq_t;   // e.g. uint32_t, uint64_t, unsigned __int128
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (n >= bufsize) {             /* need to grow buffer */
         idx_t oldsize = bufsize;
         bufsize = n + 1;
-        seq_t *tmp = (seq_t *)realloc(buf, (size_t)bufsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, (size_t)bufsize);
         if (!tmp) abort();          /* unlikely but safe */
         buf = tmp;
 

@@ -9,13 +9,15 @@
  *            k-1) * a(n-k) * (The egf is exp(x + x^2/2 + x^5/5! + x^10/10!) )
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 28, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 559 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes binomial coefficient for k ≤ 9 (i.e. nCk) */
 static seq_t binom_small(idx_t n, idx_t k)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* initialise on first call */
     if (dp == NULL) {
-        dp = (seq_t *)malloc(sizeof(seq_t) * 1);
+        dp = mem_new(seq_t, 1);
         if (dp == NULL) return 0;     /* allocation failure propagates a zero value */
         dp[0] = 1;                    /* a(0) = 1 */
         dp_cap = 1;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* grow the array if needed */
     if (n >= dp_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_cap);
         if (tmp == NULL) return 0;    /* allocation failure */
         dp = tmp;
         dp_cap = (idx_t)new_cap;

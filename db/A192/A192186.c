@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(2*n, floor(n*sqrt(2)))
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 38, u128 n <= 75,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 984 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* Offset: 0  (a(0) is the first term listed) */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute binomial( n , k ) with k <= n/2, using gcd reduction

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 26, u64 n <= 383, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* holds a(0) … a(max) */
 static size_t cached_size = 0;       /* number of elements currently stored  */
@@ -40,7 +42,7 @@ static void init_cache(void) {
         (seq_t)45704724ULL, (seq_t)80999104ULL
     };
     size_t i;
-    cache = (seq_t *)malloc(18 * sizeof(seq_t));
+    cache = mem_new(seq_t, 18);
     if (!cache) exit(1);               /* allocation failure – abort */
     for (i = 0; i < 18; ++i) cache[i] = init[i];
     cached_size = 18;
@@ -51,7 +53,7 @@ static void grow_cache(idx_t idx) {
     size_t required = (size_t)idx + 1;
     if (required <= cached_size) return;
 
-    seq_t *tmp = (seq_t *)realloc(cache, required * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, required);
     if (!tmp) exit(1);                  /* allocation failure – abort */
     cache = tmp;
 

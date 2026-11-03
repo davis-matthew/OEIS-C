@@ -9,13 +9,31 @@
  *            multiplicative order of 2 modulo 2n-1
  * Range:     u8 n <= 20, u16 n <= 260, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   is_prime_power
+ * Validated: standard, pass, 69 terms through n = 4965 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/is_prime_power.h"
+
+static int is_prime_power(uint64_t n, uint64_t *p_out, uint64_t *k_out) {
+    for (uint64_t d = 2; d * d <= n; d++) {
+        if (n % d == 0) {
+            *p_out = d;
+            uint64_t temp = n;
+            *k_out = 0;
+            while (temp % d == 0) {
+                temp /= d;
+                (*k_out)++;
+            }
+            return temp == 1;
+        }
+    }
+    *p_out = n;
+    *k_out = 1;
+    return 1;
+}
 
 static uint64_t mult_order(uint64_t a, uint64_t m) {
     if (m == 1) return 0;

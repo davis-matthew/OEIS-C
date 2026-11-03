@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n‑th prime whose digital root is 1, 2, 4, or 8
  * Range:     u8 n <= 36, u16 n <= 4360, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 8805 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Grow an array of seq_t elements. */
 static void grow_seq(seq_t **arr, size_t *cap, size_t need)
@@ -23,7 +25,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
     while (new_cap < need) new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

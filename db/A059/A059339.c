@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 2474, u16 n <= 9503, u32 n <= 9503, u64 n <= 9503,
- *            u128 n <= 9503, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2474, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 117 terms through n = 9503 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* smallest prime factor array (spf[0]=0, spf[1]=1) */
 static uint32_t *spf = NULL;
@@ -94,7 +96,7 @@ static void extend_precomp(uint32_t limit)
     omega_size = new_size;
 
     /* --- cache arrays --- */
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     computed = (bool *)realloc(computed, new_size * sizeof(bool));
     if (!cache || !computed)
         exit(EXIT_FAILURE);

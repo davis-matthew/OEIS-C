@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 400, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_generic
+ * Validated: standard, pass, 63 terms through n = 927 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_generic.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         /* find the next prime p */
         uint64_t p;
         for (;;) {
-            if (is_prime_generic(cand)) {
+            if (is_prime(cand)) {
                 p = cand;
                 cand += 2;          /* next odd number */
                 break;
@@ -45,11 +47,11 @@ seq_t a(idx_t n)
         }
 
         /* check the two required offsets */
-        if (is_prime_generic(p + 18) && is_prime_generic(p + 72)) {
+        if (is_prime(p + 18) && is_prime(p + 72)) {
             /* grow table if needed */
             if (table_len == table_cap) {
                 size_t new_cap = (table_cap == 0) ? 64 : table_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(table, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, table, new_cap);
                 if (!tmp) return 0;  /* memory allocation failed */
                 table = tmp;
                 table_cap = new_cap;

@@ -10,12 +10,14 @@
  *            memoized recurrence
  * Range:     i8 n <= 381, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t a_init[6] = {1,-1,-1,-1,2,1};
 static seq_t *a_cache = NULL;
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* first time we need the cache, allocate up to 6 */
     if (!a_cache) {
         cache_size = 6;
-        a_cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        a_cache = mem_new(seq_t, cache_size);
         if (!a_cache) return 0;
         for (size_t i = 0; i < 6; ++i) a_cache[i] = a_init[i];
     }
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     /* extend cache to accommodate n */
     size_t new_size = idx + 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
     if (!tmp) return 0;             /* out of memory, return 0 as safe fallback */
     a_cache = tmp;
     for (size_t i = cache_size; i <= idx; ++i) {

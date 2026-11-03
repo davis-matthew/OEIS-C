@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} φ(d) * n^(n/d) (OEIS A228640)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 36 terms through n = 195 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static void rec(const uint64_t *primes, const uint8_t *exps, size_t fcnt, size_t idx,
                 idx_t cur, idx_t orig, seq_t *sum)
@@ -32,7 +33,7 @@ static void rec(const uint64_t *primes, const uint8_t *exps, size_t fcnt, size_t
         }
         if (tmp > 1) phi -= phi / tmp;
 
-        seq_t pow = pow_uint((uint64_t)orig, orig / cur);
+        seq_t pow = ipow_u64_idx((uint64_t)orig, orig / cur);
         seq_t term = (seq_t)phi * pow;
         *sum += term;
         return;

@@ -7,9 +7,10 @@
  * Formula:   a(n) = sum of all divisors d of n such that d is a perfect power
  *            i^j, i ≥ 1, j ≥ 2. The sum uses each divisor exactly once (e.g.
  *            64 contributes 64 once, even though 64 = 2^6 = 4^3 = 8^2)
- * Range:     u8 n <= 32, u16 n <= 8940, u32 n <= 8940, u64 n <= 8940,
- *            u128 n <= 8940, big any n
- * Helpers:   big_pow, bitlen_seq_t
+ * Range:     u8 n <= 32, u16 n <= 16384, u32 n <= 16385, u64 n <= 16385,
+ *            u128 n <= 16385, big any n
+ * Validated: standard, pass, 106 terms through n = 8940 (2026-11-03)
+ * Helpers:   bit_length, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Return true if x is a perfect power (x = i^j, j ≥ 2).  The test uses
    generic arithmetic on seq_t, no overflow assumptions. */
@@ -29,14 +31,14 @@ static bool is_perfect_power(seq_t x)
 
     /* Maximum exponent is the bit length of x minus 1
        (since 2^(bitlen-1) ≤ x < 2^bitlen). */
-    unsigned int max_exp = bitlen_seq_t(x);
+    unsigned int max_exp = bit_length(x);
     for (unsigned int exp = 2; exp <= max_exp; ++exp) {
         /* Binary search for integer r such that r^exp = x. */
         seq_t low = (seq_t)2;
         seq_t high = x;
         while (low <= high) {
             seq_t mid = (low + high) >> 1;
-            seq_t p = big_pow(mid, (seq_t)exp);
+            seq_t p = ipow(mid, (seq_t)exp);
             if (p == x) return true;
             if (p < x) low = mid + (seq_t)1;
             else high = mid - (seq_t)1;
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < pc; ++i) tot *= (exps[i] + 1);
 
     /* Allocate array for divisors.  Cast void* to seq_t* for C++. */
-    seq_t *divs = (seq_t *)malloc(tot * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, tot);
     if (!divs) return (seq_t)0;   /* allocation failure → 0 */
 
     size_t div_cnt = 1;
@@ -108,6 +110,6 @@ seq_t a(idx_t n)
             sum += divs[i];
     }
 
-    free(divs);
+    mem_free(divs);
     return sum;
 }

@@ -10,12 +10,14 @@
  *            (1-x^k)
  * Range:     u8 n <= 26, u16 n <= 60, u32 n <= 244, u64 n <= 3053,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9375 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* dynamic programming cache for partitions with parts ≤10 */
 static seq_t *dp = NULL;   /* dp[i] = #partitions of i with parts ≤10 */
@@ -24,7 +26,7 @@ static idx_t  dp_size = 0; /* maximum index that dp currently covers */
 /* recompute dp[0..new_size] from scratch */
 static void recompute_dp(idx_t new_size) {
     /* resize array */
-    seq_t *tmp = (seq_t *)realloc(dp, (new_size + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, (new_size + 1));
     if (!tmp) { /* allocation failed – leave dp as NULL to avoid reuse */
         dp = NULL;
         dp_size = 0;

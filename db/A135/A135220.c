@@ -10,6 +10,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 91, i16 n <= 91, i32 n <= 91, i64 n <= 91, i128 n <= 91,
  *            big any n
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,7 +22,8 @@
    has size (d+1)×(d+1) and contributes (d+1)^2 terms. */
 
 #include <stddef.h>
-#include "../utils/binomial.h"  // provides seq_t binomial(idx_t a, idx_t b);
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* n is 1‑based index into the sequence */

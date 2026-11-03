@@ -9,13 +9,15 @@
  *            a(0)=1, a(1)=8, a(2)=62, a(3)=470
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Internal cache for memoization */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_capacity(size_t n_idx)
     if (needed <= alloc_cap)
         return;
     size_t new_cap = needed > 8 ? needed * 2 : 8;
-    seq_t *temp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *temp = mem_resize(seq_t, cache, new_cap);
     if (!temp && new_cap > 0) /* allocation failed */
         exit(1);
     cache = temp;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     if (cached == 0) {
         size_t init_cap = 4 > 8 ? 4 : 8;
         if (init_cap < 4) init_cap = 8;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) exit(1);
         alloc_cap = init_cap;
         cache[0] = (seq_t)1;

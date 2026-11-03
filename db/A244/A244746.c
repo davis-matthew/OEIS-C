@@ -7,9 +7,10 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = A048385(A000108(n)) // Catalan(n) → concat of squared
  *            digits
- * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 22,
+ * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   catalan, digit_len
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   catalan, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/catalan.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
 
 static const unsigned int digit_sq[10] = {
     0, 1, 4, 9, 16, 25, 36, 49, 64, 81
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     seq_t cat = catalan(n);
 
     /* Number of decimal digits in cat */
-    size_t len = digit_len(cat);
+    size_t len = num_digits(cat);
     if (len == 0) len = 1;                     /* cat == 0 */
 
     /* Allocate buffer for digits (least‑significant first) */

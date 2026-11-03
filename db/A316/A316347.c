@@ -8,13 +8,15 @@
  * Formula:   a(n) = n*n mod 10^digit_count(n)
  * Range:     u8 n <= 101, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count
+ * Validated: standard, pass, 90 terms through n = 9592 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
 
 /* Helper: compute 10^m as an unsigned __int128 */
 static inline unsigned __int128 pow10_u128(idx_t m)
@@ -27,7 +29,7 @@ static inline unsigned __int128 pow10_u128(idx_t m)
 seq_t a(idx_t n)
 {
     /* number of decimal digits of n */
-    idx_t m = digit_count((uint64_t)n);
+    idx_t m = num_digits0((uint64_t)n);
 
     /* modulus 10^m as a 128‑bit integer -- always fits */
     unsigned __int128 mod   = pow10_u128(m);

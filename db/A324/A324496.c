@@ -13,13 +13,24 @@
  *            (1 ≤ i < L), T(L)=1 + T(L‑1). Writing D(i)=T(...
  * Range:     u8 n <= 31, u16 n <= 708, u32 n <= 4096, u64 n <= 4096,
  *            u128 n <= 4096, big any n
- * Helpers:   bit_length
+ * Validated: standard, pass, 101 terms through n = 3756 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bit_length.h"
+
+/* number of bits needed to represent n (n ≥ 1) */
+static inline int bit_length(idx_t n)
+{
+    int L = 0;
+    while (n) {
+        ++L;
+        n >>= 1;
+    }
+    return L ? L : 1;
+}
 
 static inline seq_t gcd_seq(seq_t a, seq_t b)
 {

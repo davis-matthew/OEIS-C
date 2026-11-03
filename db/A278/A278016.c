@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   col_ok
+ * Validated: standard, pass, 33 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,27 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/col_ok.h"
+#include "../utils/mem.h"
+
+/* Test whether a column satisfies the rule given optional
+   neighbouring columns.  */
+static bool col_ok(const int col[3], const int left[3], const int right[3],
+                   int has_left, int has_right)
+{
+    for (int r = 0; r < 3; ++r) {
+        int val = col[r];
+        int target = (val + 1) % 3;
+        bool sat = false;
+        if (has_left && r > 0 && left[r-1] == target) sat = true;
+        if (r > 0 && col[r-1] == target) sat = true;
+        if (has_right && r > 0 && right[r-1] == target) sat = true;
+        if (has_left && left[r] == target) sat = true;
+        if (has_right && right[r] == target) sat = true;
+        if (r < 2 && col[r+1] == target) sat = true;
+        if (!sat) return false;
+    }
+    return true;
+}
 
 #define COLS 27    /* 3³ possible column types */
 
@@ -82,10 +103,10 @@ seq_t a(idx_t n)
 
     /* dynamic programming arrays */
     size_t states = (size_t)COLS * (size_t)COLS;
-    seq_t *dp = (seq_t *)calloc(states, sizeof(seq_t));
-    seq_t *newdp = (seq_t *)calloc(states, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, states);
+    seq_t *newdp = mem_new(seq_t, states);
     if (!dp || !newdp) {
-        free(dp); free(newdp);
+        mem_free(dp); mem_free(newdp);
         return (seq_t)0;
     }
 
@@ -104,13 +125,13 @@ seq_t a(idx_t n)
             for (int b = 0; b < COLS; ++b)
                 if (dp[(size_t)a * COLS + b] && last_ok[a][b])
                     ans += dp[(size_t)a * COLS + b];
-        free(dp); free(newdp);
+        mem_free(dp); mem_free(newdp);
         return ans;
     }
 
     /* iterate columns 3..n */
     for (idx_t step = 3; step <= n; ++step) {
-        memset(newdp, 0, states * sizeof(seq_t));
+        mem_set(newdp, 0, states * sizeof(seq_t));
         for (int a = 0; a < COLS; ++a) {
             for (int b = 0; b < COLS; ++b) {
                 seq_t cnt = dp[(size_t)a * COLS + b];
@@ -132,6 +153,6 @@ seq_t a(idx_t n)
             if (dp[(size_t)a * COLS + b] && last_ok[a][b])
                 ans += dp[(size_t)a * COLS + b];
 
-    free(dp); free(newdp);
+    mem_free(dp); mem_free(newdp);
     return ans;
 }

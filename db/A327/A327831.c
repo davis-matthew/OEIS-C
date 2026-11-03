@@ -9,7 +9,8 @@
  *            but σ(m)/τ(m) is not an integer
  * Range:     u8 none, u16 n <= 1, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   isqrt_seq
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
-#include "../utils/isqrt_seq.h"   /* provides  isqrt_seq(seq_t)  */
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
 
 /* ------------------------------------------------------------ */
 /*  Prime sieve up to a fixed limit (enough for the target      */
@@ -92,7 +109,7 @@ static void append_term(seq_t value)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = (terms_cap == 0) ? 16 : terms_cap << 1;
-        seq_t *tmp = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         terms = tmp;
         terms_cap = new_cap;

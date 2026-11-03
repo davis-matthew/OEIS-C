@@ -11,12 +11,19 @@
  *            exceed a(n)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   is_odd_prime_small
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_odd_prime_small.h"
+static int is_odd_prime_small(idx_t p) {
+    idx_t d;
+    if (p < 3 || p % 2 == 0) return 0;
+    for (d = 3; d * d <= p; d += 2)
+        if (p % d == 0) return 0;
+    return 1;
+}
 
 seq_t a(idx_t n) {
     seq_t r = 1;

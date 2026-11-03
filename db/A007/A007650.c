@@ -11,15 +11,27 @@
  *            Euler-transform DP that builds the product one factor at a time
  * Range:     u8 n <= 23, u16 n <= 49, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   alloc_zero, gcd_seq, release
+ * Validated: standard, pass, 84 terms through n = 100 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/gcd_seq.h"
+#include <stdlib.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *A_tab = 0;
 static idx_t A_cap = 0; /* A_tab holds a(0..A_cap-1) */
@@ -48,7 +60,7 @@ static void build(idx_t N)
         c = alloc_zero(J + 1);
         c[0] = 1;
         for (j = 1; j <= J; j++) {
-            seq_t g = gcd_seq(c[j - 1], (seq_t)j);
+            seq_t g = gcd(c[j - 1], (seq_t)j);
             seq_t jj;
             if (g == 0)
                 g = 1;

@@ -14,13 +14,14 @@
  *            case: a(3) = 1. The algorithm iteratively applies t...
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   least_prime_factor
+ * Validated: partial, pass, 82 terms through n = 84 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/least_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
     seq_t steps = 0;
     while (n > 2) {
         uint64_t k = (uint64_t)n - 1;          /* n >= 3, so k >= 2 */
-        uint64_t p = least_prime_factor(k);   /* least prime factor of k */
+        uint64_t p = smallest_prime_factor(k);   /* least prime factor of k */
         steps += (seq_t)(p - 1);               /* add the p‑1 intermediate steps */
         n = (uint64_t)(k / p) + 1;             /* move to the next reduced fraction */
     }

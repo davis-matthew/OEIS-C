@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has_31
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,29 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/has_31.h"
+#include "../utils/mem.h"
+
+/* Check whether the base‑5 representation of x contains the substring 31. */
+static bool has_31(seq_t x)
+{
+    /* At most 55 digits for 128‑bit values; 64 is ample for all builds. */
+    int digits[64];
+    size_t len = 0;
+
+    /* Extract digits from least significant to most significant. */
+    while (x != 0) {
+        digits[len++] = (int)(x % (seq_t)5);
+        x /= (seq_t)5;
+    }
+
+    if (len < 2) return false;
+
+    /* Scan from most significant to least significant. */
+    for (size_t i = len - 1; i > 0; --i) {
+        if (digits[i] == 3 && digits[i - 1] == 1) return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,7 +67,7 @@ seq_t a(idx_t n)
                 /* Ensure there is room in the cache. */
                 if (cache_size == cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 32;
-                    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                     if (!new_cache) return 0;  /* allocation failure */
                     cache = new_cache;
                     cache_cap = new_cap;

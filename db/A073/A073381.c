@@ -9,13 +9,15 @@
  *            binomial(n-k, k)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 16, u64 n <= 37, u128 n <= 84,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 38 terms through n = 989 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* cache of powers of two: pow2[e] = 2^e   */
 static seq_t *pow2 = NULL;   /* the array itself   */
@@ -28,7 +30,7 @@ static void ensure_pow2(idx_t n)
         return;
 
     idx_t new_sz = n + 1;            /* need indices 0..n   */
-    seq_t *tmp = (seq_t *)realloc(pow2, (size_t)new_sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pow2, (size_t)new_sz);
     if (!tmp)                        /* allocation failed  */
         return;
     pow2 = tmp;

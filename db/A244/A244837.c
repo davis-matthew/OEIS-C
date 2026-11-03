@@ -12,7 +12,8 @@
  *            becomes: * 3·(2·Sk – k·n)² ≤ 4·k·n·(n+2). * * The function...
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 40, u64 n <= 207, u128 n <= 207,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: check whether a partial sum s at position k satisfies the
    two‑standard‑deviation bound for a given n. */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* dp_prev holds the number of ways to reach each partial sum
        after k-1 elements.  Initially for k=0 we have only sum 0. */
     size_t prevSize = 1;
-    seq_t *dp_prev = (seq_t*)calloc(prevSize, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, prevSize);
     if (!dp_prev) return (seq_t)0;           /* allocation failed – return 0 */
     dp_prev[0] = (seq_t)1;
 
@@ -49,12 +51,12 @@ seq_t a(idx_t n)
     {
         size_t currSize = (size_t)k * (size_t)n + 1;
 
-        seq_t *dp_curr = (seq_t*)calloc(currSize, sizeof(seq_t));
-        if (!dp_curr) { free(dp_prev); return (seq_t)0; }
+        seq_t *dp_curr = mem_new(seq_t, currSize);
+        if (!dp_curr) { mem_free(dp_prev); return (seq_t)0; }
 
         /* Prefix sums of dp_prev to enable O(1) range queries. */
-        seq_t *prefix = (seq_t*)calloc(prevSize, sizeof(seq_t));
-        if (!prefix) { free(dp_prev); free(dp_curr); return (seq_t)0; }
+        seq_t *prefix = mem_new(seq_t, prevSize);
+        if (!prefix) { mem_free(dp_prev); mem_free(dp_curr); return (seq_t)0; }
 
         if (prevSize > 0) {
             prefix[0] = dp_prev[0];
@@ -79,8 +81,8 @@ seq_t a(idx_t n)
         }
 
         /* Free the old arrays and move on. */
-        free(dp_prev);
-        free(prefix);
+        mem_free(dp_prev);
+        mem_free(prefix);
         dp_prev   = dp_curr;
         prevSize  = currSize;
     }
@@ -90,6 +92,6 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < prevSize; ++i)
         ans += dp_prev[i];
 
-    free(dp_prev);
+    mem_free(dp_prev);
     return ans;
 }

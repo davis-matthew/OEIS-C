@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 55, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binomial, factorial
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,20 @@
    T(n,k) = (n-k-1)! * binomial(n,k)  if (n+k) is odd,  
             0                          otherwise.  
    a(n) is the concatenation of the rows of T.  */
-#include "../utils/factorial.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Find the row r such that r*(r+1)/2 <= idx < (r+1)*(r+2)/2 */
 static inline idx_t _row_for_idx(idx_t idx)

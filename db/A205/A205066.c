@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 39, u64 n <= 85, u128 n <= 177,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(6)=386, a(7)=638, a(8)=1018, a(9)=1666, a(10)=2676,
    a(11)=4360, a(12)=7024, a(13)=11418, a(14)=18420 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function implements the recurrence above and memoises results
    up to the largest n seen. It is safe for any call order, n ≥ 1. */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate at least space for the first 14 terms */
         cache_cap = 14;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (size_t i = 0; i < 14; ++i) cache[i] = base[i];
         cache_len = 14;
     }
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     /* Extend cache if needed */
     if ((size_t)n > cache_len) {
         if ((size_t)n > cache_cap) {
-            seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
             if (tmp == NULL) { /* allocation failed; return 0 as a safe fallback */
                 return (seq_t)0;
             }

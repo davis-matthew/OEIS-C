@@ -12,15 +12,17 @@
  *            rows; a(0) = first element (0)
  * Range:     i8 n <= 23, i16 n <= 48, i32 n <= 53, i64 n <= 53, i128 n <= 53,
  *            big any n
- * Helpers:   gcd, seq_pow
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Dependencies required by the build system */
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     seq_t G = (seq_t)0;
     seq_t bin = (seq_t)1;                             /* C(r,0) = 1 */
     for (idx_t j = 0; j <= r; ++j) {
-        seq_t powj = seq_pow((seq_t)j, row);           /* j^n */
+        seq_t powj = ipow_idx((seq_t)j, row);           /* j^n */
         seq_t term = bin * powj;
         if ( ((r - j) & 1) == 1 ) G -= term;          /* (-1)^{r-j} */
         else                       G += term;

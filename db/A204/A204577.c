@@ -9,14 +9,15 @@
  *            P(1)=1, P(k)=2*P(k-1)+P(k-2)). a(1)=a(2)=0
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 17,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 29 terms through n = 98 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"   /* unsigned bitlen_seq_t(seq_t x); */
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
      * number whose digits are 0/1 only.
      */
     seq_t result = 0;
-    unsigned bits = bitlen_seq_t(pell_val);
+    unsigned bits = bit_length(pell_val);
     for (int i = (int)bits - 1; i >= 0; --i) {
         seq_t bit = (pell_val >> i) & 1;
         result = result * 10 + bit;

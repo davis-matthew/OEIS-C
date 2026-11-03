@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 28, u16 n <= 9847, u32 n <= 9847, u64 n <= 9847,
- *            u128 n <= 9847, big any n
- * Helpers:   floor_sqrt
+ * Range:     u8 n <= 28, u16 n <= 20301, u32 n <= 20301, u64 n <= 20301,
+ *            u128 n <= 20301, big any n
+ * Validated: standard, pass, 94 terms through n = 9847 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,26 @@
    and T(t)=t·(t+1)/2. */
 
 /* Basic integer types are supplied by the build */
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Find the row r such that r(r−1)/2 < n ≤ r(r+1)/2 */
 static inline idx_t find_row(idx_t n)

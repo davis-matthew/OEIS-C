@@ -10,15 +10,22 @@
  *            numbers of the form (2*m-1)*4^k with m>=1, k>=1
  * Range:     u8 n <= 42, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   good_term, v2
+ * Validated: standard, pass, 72 terms through n = 9788 (2026-11-01)
+ * Helpers:   ctz_seq_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/good_term.h"
-#include "../utils/v2.h"
+#include "../utils/ctz_seq_to_i32.h"
+
+/* Return true if x has an even positive exponent of 2. */
+static inline bool good_term(seq_t x)
+{
+    int e = ctz_seq_to_i32(x);
+    return e >= 2 && (e & 1) == 0;
+}
 
 /* Return the n-th term of sequence A108269 (n >= 1). */
 seq_t a(idx_t n)

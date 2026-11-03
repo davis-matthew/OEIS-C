@@ -7,6 +7,7 @@
  * Formula:   a(n) = 11 * A043314(n) (= 11*n for n<10)
  * Range:     u8 n <= 9, u16 n <= 90, u32 n <= 800, u64 n <= 800,
  *            u128 n <= 800, big any n
+ * Validated: standard, pass, 56 terms through n = 773 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

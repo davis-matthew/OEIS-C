@@ -11,14 +11,44 @@
  *            A000523(0)=1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 31, u64 n <= 1023,
  *            u128 n <= 10000, big any n
- * Helpers:   bin_as_decimal, pow10
+ * Validated: standard, pass, 45 terms through n = 9667 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/bin_as_decimal.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static seq_t bin_as_decimal(idx_t x)
+{
+    /* Convert x to its binary representation and write it as a decimal
+       integer whose digits are the binary bits. */
+    if (x == 0)
+        return (seq_t)0;
+
+    seq_t res = 0;
+    /* Find most significant bit */
+    idx_t t = x;
+    unsigned msb = 0;
+    while (t >> 1) { t >>= 1; ++msb; }
+
+    for (int i = msb; i >= 0; --i)
+    {
+        seq_t bit = (seq_t)((x >> i) & 1ULL);
+        res = res * (seq_t)10 + bit;
+    }
+    return res;
+}
 
 static unsigned bitlen(idx_t x)
 {

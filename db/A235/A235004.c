@@ -14,7 +14,8 @@
  *            propagates the number of ways to extend arrays...
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 14, u128 n <= 32,
  *            big any n
- * Helpers:   alloc_seq_t_array, reallocate_seq_t_array
+ * Validated: standard, pass, 30 terms through n = 202 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,33 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_t_array.h"
-#include "../utils/reallocate_seq_t_array.h"
+
+/* ------------------------------------------------------------------ */
+static seq_t* alloc_seq_t_array(size_t n) {
+    seq_t *arr;
+#if defined(__cplusplus)
+    arr = new seq_t[n];
+#else
+    arr = (seq_t*)malloc(n * sizeof(seq_t));
+#endif
+    if (!arr) abort();
+    for (size_t i = 0; i < n; ++i) arr[i] = (seq_t)0;
+    return arr;
+}
+
+static seq_t* reallocate_seq_t_array(seq_t *old, size_t old_n, size_t new_n) {
+    seq_t *new_arr;
+#if defined(__cplusplus)
+    new_arr = new seq_t[new_n];
+    for (size_t i = 0; i < old_n && i < new_n; ++i) new_arr[i] = old[i];
+    delete [] old;
+#else
+    new_arr = (seq_t*)realloc(old, new_n * sizeof(seq_t));
+#endif
+    if (!new_arr) abort();
+    for (size_t i = old_n; i < new_n; ++i) new_arr[i] = (seq_t)0;
+    return new_arr;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Helper routines for allocating seq_t arrays that work for both   */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   runs_in_base5
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,23 @@
 /* Numbers whose base‑5 representation has exactly 3 runs (OEIS A043603) */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/runs_in_base5.h"
+#include "../utils/mem.h"
+
+/* Count the number of runs in the base‑5 representation of x */
+static int runs_in_base5(seq_t x)
+{
+    int runs = 0;
+    int prev = -1;                /* sentinel for “no previous digit” */
+    while (x > 0) {
+        int digit = (int)(x % 5);
+        if (digit != prev) {
+            runs++;
+            prev = digit;
+        }
+        x /= 5;
+    }
+    return runs;
+}
 
 /* External integer types supplied by the build */
 extern seq_t a(idx_t n);
@@ -36,7 +53,7 @@ static void ensure_capacity(size_t needed)
     while (new_cap < seq_len + needed)
         new_cap *= 2;
 
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 
@@ -45,7 +62,7 @@ static void generate_up_to(idx_t n)
 {
     if (seq == NULL) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
 
     while (seq_len < n) {

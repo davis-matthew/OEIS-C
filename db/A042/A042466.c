@@ -8,12 +8,14 @@
  *            fraction of sqrt(761) (with a(0)=27)
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 20, u64 n <= 41, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* If this is the first call, initialise the cache and state. */
     if (cache_cap == 0) {
-        cache = (seq_t *)realloc(cache, sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, 1);
         if (!cache) return 0;                /* allocation failure */
         cache[0] = a0;                       /* p_0 = a0 */
         cache_cap = 1;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         seq_t p_curr = last_a * prev1 + prev2;
 
         /* Store the new numerator. */
-        seq_t *tmp = (seq_t *)realloc(cache, (cache_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (cache_cap + 1));
         if (!tmp) return 0;                 /* allocation failure */
         cache = tmp;
         cache[cache_cap] = p_curr;

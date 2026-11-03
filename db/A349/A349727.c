@@ -8,14 +8,16 @@
  * Formula:   a(n) = binomial(2r - k - 2, r - k) where r = ⌊(√(8n+1)-1)/2⌋ and
  *            k = n - r(r+1)/2. This equals the coefficient of x^(r-k) in
  *            (1-x)^(r-1)
- * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 27, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

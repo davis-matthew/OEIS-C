@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   free_seq_array, push_seq, seq_malloc, seq_to_dec_string
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,72 @@
    node (1‑based indexing).  The algorithm uses a dynamic queue handled
    with the utility functions provided in the build. */
 #include <stdbool.h>
-#include "../utils/seq_malloc.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/seq_to_dec_string.h"
-#include "../utils/push_seq.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+/* Free an array of seq_t, compatible with C and C++ */
+static inline void free_seq_array(seq_t *ptr)
+{
+#ifdef __cplusplus
+    delete [] ptr;
+#else
+    free(ptr);
+#endif
+}
+
+/* Convert a seq_t value to a decimal string.  The buffer must be
+   large enough to hold the result.  */
+static void seq_to_dec_string(seq_t val, char *buf, size_t buflen)
+{
+    seq_t v = val;
+    if (v == 0) {
+        if (buflen >= 2) {
+            buf[0] = '0';
+            buf[1] = '\0';
+        }
+        return;
+    }
+    size_t pos = 0;
+    /* Extract digits in reverse order. */
+    while (v != 0 && pos + 1 < buflen) {
+        seq_t d = v % 10;
+        v = v / 10;
+        buf[pos++] = (char)('0' + (int)d);
+    }
+    /* Null‑terminate and reverse the string. */
+    if (pos >= buflen) pos = buflen - 1;
+    buf[pos] = '\0';
+    for (size_t i = 0; i < pos / 2; ++i) {
+        char tmp = buf[i];
+        buf[i] = buf[pos - 1 - i];
+        buf[pos - 1 - i] = tmp;
+    }
+}
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 seq_t a(idx_t n)
 {

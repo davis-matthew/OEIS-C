@@ -9,7 +9,8 @@
  *            primes (q,r) with 2*q + r = p and r < 2*q
  * Range:     u8 n <= 6, u16 n <= 238, u32 n <= 808, u64 n <= 808,
  *            u128 n <= 808, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 772 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Forward declaration from the build. */
 extern seq_t a(idx_t n);
@@ -109,11 +111,11 @@ static void rebuild(idx_t qlim)
     /* Allocate or enlarge answer array. */
     size_t new_cap = maxcnt + 1;
     if (ans_cap < new_cap) {
-        answer_arr = (seq_t*)realloc(answer_arr, new_cap * sizeof(seq_t));
-        memset(answer_arr, 0, new_cap * sizeof(seq_t));
+        answer_arr = mem_resize(seq_t, answer_arr, new_cap);
+        mem_set(answer_arr, 0, new_cap * sizeof(seq_t));
         ans_cap = new_cap;
     } else {
-        memset(answer_arr, 0, ans_cap * sizeof(seq_t));
+        mem_set(answer_arr, 0, ans_cap * sizeof(seq_t));
     }
 
     /* Fill answer array with the smallest prime for each count. */
@@ -132,7 +134,7 @@ static void ensure_answer(idx_t n)
 {
     if (n == 0) {
         if (answer_arr == NULL || ans_cap == 0) {
-            answer_arr = (seq_t*)malloc(sizeof(seq_t));
+            answer_arr = mem_new(seq_t, 1);
             answer_arr[0] = (seq_t)2;
             ans_cap = 1;
         }

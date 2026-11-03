@@ -7,8 +7,9 @@
  * Keywords:  nonn, look, base, easy
  * Formula:   a(n) = A138957(n) mod n (concatenation of reversed digits of
  *            1..n, modulo n)
- * Range:     u8 n <= 277, u16 n <= 9815, u32 n <= 9815, u64 n <= 9815,
- *            u128 n <= 9815, big any n
+ * Range:     u8 n <= 277, u16 n <= 20007, u32 n <= 20008, u64 n <= 20008,
+ *            u128 n <= 20008, big any n
+ * Validated: standard, pass, 109 terms through n = 9815 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

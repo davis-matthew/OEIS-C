@@ -10,15 +10,37 @@
  *            ≥ 0
  * Range:     u8 n <= 5, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   egcd_int, v_gcd
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/egcd_int.h"
-#include "../utils/v_gcd.h"
+#include "../utils/gcd_idx.h"
+
+/* Extended Euclidean algorithm (integers).  Returns integers x,y such that
+ * a*x + b*y = gcd(a,b).  a and b must be positive and fit in signed int. */
+static void egcd_int(int a, int b, int *x, int *y)
+{
+    int x0 = 1, y0 = 0;   /* coefficients for a */
+    int x1 = 0, y1 = 1;   /* coefficients for b */
+    while (b != 0) {
+        int q   = a / b;
+        int a2  = a - q * b;
+        a = b;
+        b = a2;
+        int x2 = x0 - q * x1;
+        x0 = x1;
+        x1 = x2;
+        int y2 = y0 - q * y1;
+        y0 = y1;
+        y1 = y2;
+    }
+    *x = x0;
+    *y = y0;
+}
 
 seq_t a(idx_t n)
 {
@@ -67,7 +89,7 @@ seq_t a(idx_t n)
     /* a > 1, b > 0, gcd(a,b) = 1 */
     for (idx_t a = 2; a <= n; ++a) {
         for (idx_t b = 1; b <= n; ++b) {
-            if (v_gcd(a, b) != 1) continue;
+            if (gcd_idx(a, b) != 1) continue;
 
             /* Compute modular inverse of b modulo a (1 ≤ a ≤ 10^4). */
             int inv_b;

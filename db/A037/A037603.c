@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         return cache[n - 1];
 
     /* Resize the cache to hold up to n terms. */
-    cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (size_t)n);
     if (!cache) return (seq_t)0;  /* allocation failed – return 0 (sequence undefined) */
 
     /* Compute any new terms that are not yet in the cache. */

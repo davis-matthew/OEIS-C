@@ -7,12 +7,14 @@
  * Formula:   a(n) = 17*a(n-1) + 242*(1-n)*a(n-2), a(0)=1, a(1)=17
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 7, i64 n <= 12, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 384 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* initialise cache with first two terms */
     if (cache_size == 0) {
         cache_size = 2;
-        cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;          /* allocation failure */
         cache[0] = (seq_t)1;           /* a(0) */
         cache[1] = (seq_t)17;          /* a(1) */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     idx_t old_size = cache_size;
 
     /* grow cache to accommodate a(n) */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) return 0;  /* allocation failure */
     cache = new_cache;
     cache_size = n + 1;

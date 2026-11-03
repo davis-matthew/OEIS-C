@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 4744, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mdr_zero, next_prime
+ * Validated: standard, pass, 67 terms through n = 8662 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,35 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/next_prime.h"
-#include "../utils/mdr_zero.h"
+#include "../utils/mem.h"
+
+/*
+ * Return true if the repeated multiplication of digits of `x`
+ * eventually yields 0.  The function loops multiplying digits
+ * until the current value is a single digit; it returns true
+ * as soon as any intermediate product contains a zero digit.
+ */
+static bool mdr_zero(uint64_t x)
+{
+    while (x >= 10) {
+        uint64_t prod = 1;
+        bool zero_encountered = false;
+        uint64_t t = x;
+        while (t > 0) {
+            int d = t % 10;
+            if (d == 0) {
+                zero_encountered = true;
+                break;
+            }
+            prod *= (uint64_t)d;
+            t /= 10;
+        }
+        if (zero_encountered) return true;
+        if (prod < 10) break;        /* single non‑zero digit reached */
+        x = prod;
+    }
+    return false;   /* reached a single non‑zero digit */
+}
 
 /* External types supplied by the build system */
 extern seq_t a(idx_t n);
@@ -42,7 +71,7 @@ static void cache_ensure(size_t n)
     if (cache_len + n > cache_cap) {
         size_t new_cap = cache_cap ? (cache_cap << 1) : 8;
         while (new_cap < cache_len + n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }

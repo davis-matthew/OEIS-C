@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 2945, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_nine, mulmod64
+ * Validated: standard, pass, 69 terms through n = 9406 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>   /* for size_t */
-#include "../utils/has_nine.h"
-#include "../utils/mulmod64.h"
+#include "../utils/mulmod.h"
+
+/* ----------------------------------------------------------------------
+   Digits ---------------------------------------------------------------
+   ---------------------------------------------------------------------- */
+static bool has_nine(uint64_t x) {
+    while (x > 0) {
+        if (x % 10 == 9) return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /* ----------------------------------------------------------------------
    Primality test --------------------------------------------------------
@@ -30,8 +41,8 @@ static inline uint64_t modpow64(uint64_t base, uint64_t exp, uint64_t mod) {
     uint64_t result = 1;
     uint64_t b = base % mod;
     while (exp) {
-        if (exp & 1) result = mulmod64(result, b, mod);
-        b = mulmod64(b, b, mod);
+        if (exp & 1) result = mulmod(result, b, mod);
+        b = mulmod(b, b, mod);
         exp >>= 1;
     }
     return result;
@@ -67,7 +78,7 @@ static bool is_prime_uint64(uint64_t n) {
         if (x == 1 || x == n - 1) continue;
         bool cont = false;
         for (unsigned int r = 1; r < s; ++r) {
-            x = mulmod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { cont = true; break; }
         }
         if (!cont) return false;

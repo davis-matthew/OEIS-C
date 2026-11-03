@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* row‑major order: indices 0..8 correspond to (1,1)…(3,3) */
 typedef struct {
@@ -44,7 +46,7 @@ static void ensure_size(size_t limit)
     /* Grow the allocation to at least (limit+1). */
     size_t new_cap = mat_cap ? mat_cap << 1 : 2;
     while (new_cap <= limit) new_cap <<= 1;
-    Matrix *tmp = (Matrix *)realloc(mat_arr, new_cap * sizeof(Matrix));
+    Matrix *tmp = mem_resize(Matrix, mat_arr, new_cap);
     mat_arr = tmp;
     mat_cap = new_cap;
 

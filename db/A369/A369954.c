@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 1856, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 63 terms through n = 9651 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------
  * Helper that tests the “quality Q” property for a 64‑bit number.
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
                     /* Found a term */
                     if (cache_sz == cache_cap) {
                         cache_cap = cache_cap ? cache_cap * 2 : 32;
-                        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                        cache = mem_resize(seq_t, cache, cache_cap);
                     }
                     cache[cache_sz++] = (seq_t)k;
                     last_candidate = k + 1;

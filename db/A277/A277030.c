@@ -10,12 +10,14 @@
  *            p_i and 1, 2, 2^(e-2) for p_i=2, e_i>2 )
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 93 terms through n = 8392 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

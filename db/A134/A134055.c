@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{k=1..n} C(n-1,k-1) * S2(n,k) (Stirling 2nd kind)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 35,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 496 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

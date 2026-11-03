@@ -7,12 +7,15 @@
  * Formula:   a(n) = (n^(2n) - (n-1)^(2n))/(2n-1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 31 terms through n = 210 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -42,8 +45,8 @@ seq_t a(idx_t n)
     } else {
         /* For 128‑bit or arbitrary‑precision seq_t, use seq_pow which
            operates on the proper type. */
-        seq_t pow1 = seq_pow((seq_t)n,     2 * n);
-        seq_t pow2 = seq_pow((seq_t)(n-1), 2 * n);
+        seq_t pow1 = ipow_idx((seq_t)n,     2 * n);
+        seq_t pow2 = ipow_idx((seq_t)(n-1), 2 * n);
         seq_t num  = pow1 - pow2;
         seq_t denom = (seq_t)(2 * n - 1);
         return num / denom;

@@ -7,13 +7,15 @@
  * Formula:   a(n) = reverse_digits(a(n-1)) * a(n-1), with a(1) = 2
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   reverse_digits
+ * Validated: standard, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     }
     
     if (cache == NULL) {
-        cache = (seq_t *)malloc(n * sizeof(seq_t));
+        cache = mem_new(seq_t, n);
         cache[0] = 2;
         
         for (idx_t i = 2; i <= n; i++) {
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
         
         cache_len = n;
     } else {
-        cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, n);
         
         for (idx_t i = cache_len + 1; i <= n; i++) {
             seq_t reversed = reverse_digits(cache[i - 2]);

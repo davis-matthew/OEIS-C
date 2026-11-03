@@ -11,13 +11,15 @@
  *            computes a(n)=b(n)^3 using this recurrence
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 20, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *b = NULL;        /* b[n]  – the cube root of a(n)            */
 static seq_t *cube = NULL;     /* cube[n] = b[n]^3                         */
@@ -29,13 +31,13 @@ seq_t a(idx_t n)
     /* Ensure the arrays are big enough */
     if ((size_t)n >= cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *b_new = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        seq_t *cube_new = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *b_new = mem_new(seq_t, new_cap);
+        seq_t *cube_new = mem_new(seq_t, new_cap);
         if (b && cap > 0) {
-            memcpy(b_new, b, cap * sizeof(seq_t));
-            memcpy(cube_new, cube, cap * sizeof(seq_t));
-            free(b);
-            free(cube);
+            mem_copy(b_new, b, cap * sizeof(seq_t));
+            mem_copy(cube_new, cube, cap * sizeof(seq_t));
+            mem_free(b);
+            mem_free(cube);
         }
         b = b_new;
         cube = cube_new;

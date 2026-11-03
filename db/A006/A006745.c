@@ -12,7 +12,8 @@
  *            which is skipped when a local argument shows the head ca...
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   hx, u128_to_seq, vy
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,24 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/hx.h"
-#include "../utils/vy.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+/* Manhattan lattice: even rows go east, odd rows go west;
+   even columns go north, odd columns go south */
+static int hx(int x, int y) { return (y & 1) ? x - 1 : x + 1; }
+
+static int vy(int x, int y) { return (x & 1) ? y - 1 : y + 1; }
 
 static uint64_t *cnt_cache = NULL;
 static idx_t cache_max = 0;

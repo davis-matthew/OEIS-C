@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Allocate arrays for the current row */
-    seq_t *u = (seq_t *)malloc(sizeof(seq_t));
-    seq_t *v = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *u = mem_new(seq_t, 1);
+    seq_t *v = mem_new(seq_t, 1);
     if (!u || !v)
         return (seq_t)0;             /* allocation failed */
 
@@ -51,20 +53,20 @@ seq_t a(idx_t n)
             if (cum == n)
             {
                 seq_t ans = v[j];
-                free(u);
-                free(v);
+                mem_free(u);
+                mem_free(v);
                 return ans;
             }
         }
 
         /* Compute the next row */
         size_t new_len = len + 1;
-        seq_t *u_next = (seq_t *)malloc(new_len * sizeof(seq_t));
-        seq_t *v_next = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *u_next = mem_new(seq_t, new_len);
+        seq_t *v_next = mem_new(seq_t, new_len);
         if (!u_next || !v_next)
         {
-            free(u);
-            free(v);
+            mem_free(u);
+            mem_free(v);
             return (seq_t)0;          /* allocation failed */
         }
 
@@ -77,8 +79,8 @@ seq_t a(idx_t n)
             v_next[k] = u_next[k] + ((k == 0) ? (seq_t)1 : (seq_t)0);
         }
 
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = u_next;
         v = v_next;
         len = new_len;

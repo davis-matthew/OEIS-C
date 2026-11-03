@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 591, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_alloc_array, seq_free_array
+ * Validated: standard, pass, 73 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,19 @@
  */
 
 #include <stddef.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Base values for 1 ≤ n ≤ 10 (index 0 unused). */
 static const seq_t base[11] = {

@@ -7,13 +7,15 @@
  * Formula:   a(n) = 7*a(n-1) - 6*a(n-3) (n >= 3); a(0)=1, a(1)=6, a(2)=41
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* allocate space for indices 0 … n  */
     size_t newsize = (size_t)n + 1;
-    seq_t *newcache = (seq_t*)malloc(newsize * sizeof(seq_t));
+    seq_t *newcache = mem_new(seq_t, newsize);
     if (!newcache)
         return 0;                      /* out‑of‑memory: give up */
 
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (cache) {
         for (size_t i = 0; i < cachesize; ++i)
             newcache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     /* commit the new buffer */

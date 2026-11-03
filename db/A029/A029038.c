@@ -7,19 +7,21 @@
  * Formula:   a(n) = number of partitions of n into parts 1, 3, 4, and 12
  * Range:     u8 n <= 50, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 static const idx_t coins[4] = {1, 3, 4, 12};
 
 seq_t a(idx_t n)
 {
     /* allocate DP array of length n+1, zero‑initialized */
     size_t len = (size_t)n + 1;
-    seq_t *dp = (seq_t*)calloc(len, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp) return (seq_t)0;          /* out of memory – return zero */
 
     dp[0] = (seq_t)1;                  /* base case: one way to partition 0 */
@@ -32,6 +34,6 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     return ans;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 60, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 53 terms through n = 9732 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Allocate a dynamic array of seq_t. */
 static seq_t *gap_primes = NULL;   /* array of found primes */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Allocate the result array on first use. */
     if (gap_primes == NULL) {
         gap_cap   = 64;
-        gap_primes = (seq_t *)malloc(gap_cap * sizeof(seq_t));
+        gap_primes = mem_new(seq_t, gap_cap);
     }
 
     /* Generate new terms until we have at least n. */
@@ -54,8 +56,7 @@ seq_t a(idx_t n)
         if ((cur - last_prime) == 28) {                  /* found a qualifying prime */
             if (gap_count == gap_cap) {                  /* grow the array if needed */
                 gap_cap <<= 1;
-                gap_primes = (seq_t *)realloc(gap_primes,
-                                               gap_cap * sizeof(seq_t));
+                gap_primes = mem_resize(seq_t, gap_primes, gap_cap);
             }
             gap_primes[gap_count++] = (seq_t)last_prime;
         }

@@ -12,12 +12,30 @@
  *            * q(i-1) + 1); else q(i) = q(i-1) + q(i-2);
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 12, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   compute_q
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_q.h"
+static seq_t compute_q(idx_t m)
+{
+    if (m == 0) return (seq_t)1;
+    if (m == 1) return (seq_t)1;
+    seq_t prev2 = (seq_t)1;   /* q(0) */
+    seq_t prev1 = (seq_t)1;   /* q(1) */
+    seq_t curr = 0;
+    for (idx_t i = 2; i <= m; ++i) {
+        if ((i % 3 == 1) && i >= 4) {
+            curr = prev2 * (prev2 * prev1 + (seq_t)1);
+        } else {
+            curr = prev1 + prev2;
+        }
+        prev2 = prev1;
+        prev1 = curr;
+    }
+    return curr;
+}
 
 seq_t a(idx_t n)
 {

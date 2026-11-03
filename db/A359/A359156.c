@@ -8,16 +8,20 @@
  * Formula:   a(n) = 1 if the odd part of n is squarefree and the total number
  *            of prime factors of n (counted with multiplicity) is even,
  *            otherwise 0
- * Range:     u8 n <= 3421, u16 n <= 9406, u32 n <= 9406, u64 n <= 9406,
- *            u128 n <= 9406, big any n
- * Helpers:   count_prime_factors, is_squarefree, odd_part
+ * Range:     u8 n <= 3421, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 141 terms through n = 9406 (2026-11-01)
+ * Helpers:   bigomega_seq, is_squarefree, odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/bigomega_seq.h"
 #include "../utils/is_squarefree.h"
 #include "../utils/odd_part.h"
-#include "../utils/count_prime_factors.h"
 
 seq_t a(idx_t n)
 {
@@ -27,6 +31,6 @@ seq_t a(idx_t n)
     if (!is_squarefree(odd))
         return (seq_t)0;
 
-    seq_t pf = count_prime_factors((seq_t)n);
+    seq_t pf = bigomega_seq((seq_t)n);
     return (pf & (seq_t)1) == 0 ? (seq_t)1 : (seq_t)0;
 }

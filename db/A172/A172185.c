@@ -7,14 +7,16 @@
  * Formula:   a(n) = 1 if n = 0 * 9*binom(r,k) + 2*binom(r-1,k-1) otherwise, *
  *            where r = floor((sqrt(1+8n)-1)/2) and k = n - r*(r+1)/2. *
  *            Initial values: a(0)=1, a(1)=9, a(2)=11
- * Range:     u8 n <= 30, u16 n <= 141, u32 n <= 540, u64 n <= 1325,
+ * Range:     u8 n <= 30, u16 n <= 141, u32 n <= 541, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 1325 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     idx_t start = r * (r + 1) / 2;
     idx_t k = n - start;
 
-    seq_t bin1 = binom(r, k);
-    seq_t bin2 = (k == 0) ? 0 : binom(r - 1, k - 1);
+    seq_t bin1 = binomial(r, k);
+    seq_t bin2 = (k == 0) ? 0 : binomial(r - 1, k - 1);
 
     return 9 * bin1 + 2 * bin2;
 }

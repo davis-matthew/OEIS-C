@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Simple trial division primality test – sufficient for numbers ≤ 6e9 */
 static bool is_prime_uint64(uint64_t n)
@@ -47,7 +49,7 @@ static void dfs(const uint64_t *primes, size_t prime_cnt, size_t pos,
         /* Record solution */
         if (*sol_cnt == *sol_cap) {
             *sol_cap = (*sol_cap == 0) ? 16 : *sol_cap * 2;
-            *solutions = (seq_t *)realloc(*solutions, *sol_cap * sizeof(seq_t));
+            *solutions = mem_resize(seq_t, *solutions, (*sol_cap * sizeof(seq_t)) / sizeof(seq_t));
         }
         (*solutions)[*sol_cnt] = k;
         ++(*sol_cnt);
@@ -111,13 +113,13 @@ static void generate_all(seq_t **solutions, size_t *sol_cnt, size_t *sol_cap)
     /* Allocate array for solutions */
     *sol_cap   = 16;
     *sol_cnt   = 0;
-    *solutions = (seq_t *)malloc(*sol_cap * sizeof(seq_t));
+    *solutions = mem_new(seq_t, (*sol_cap * sizeof(seq_t)) / sizeof(seq_t));
 
     /* Enumerate all solutions */
     dfs(primes, primes_cnt, 0, M, (seq_t)1, solutions, sol_cnt, sol_cap);
 
     /* Sort the results */
-    qsort(*solutions, *sol_cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(*solutions, *sol_cnt, sizeof(seq_t), cmp_seq);
 
     /* Remove duplicates (should not happen, but keep safe) */
     size_t uniq = 0;

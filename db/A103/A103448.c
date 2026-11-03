@@ -8,14 +8,25 @@
  *            coefficient)
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   legendre_exp
+ * Validated: standard, pass, 121 terms through n = 795 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/legendre_exp.h"
+
+/* Legendre formula: exponent of prime p in n! */
+static int legendre_exp(idx_t n, int p)
+{
+    int exp = 0;
+    while (n) {
+        n /= p;
+        exp += (int)n;
+    }
+    return exp;
+}
 
 /* Function prototype expected by the build */
 seq_t a(idx_t n);

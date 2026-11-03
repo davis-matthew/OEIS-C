@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 219, u16 n <= 9391, u32 n <= 9391, u64 n <= 9391,
- *            u128 n <= 9391, big any n
- * Helpers:   prime_contrib
+ * Range:     u8 n <= 219, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 84 terms through n = 9391 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,24 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/prime_contrib.h"
+
+/* ---------- Contribution of a single prime to T(n,k) ---------- */
+static seq_t prime_contrib(uint32_t p, idx_t exp_n, idx_t exp_k)
+{
+    idx_t small  = exp_n < exp_k ? exp_n : exp_k;
+    idx_t large  = exp_n > exp_k ? exp_n : exp_k;
+    seq_t sum = 0;
+    seq_t pow = 1;                                 /* p^0 */
+
+    for (idx_t t = 0; t <= large; ++t) {
+        idx_t cnt = 0;
+        if (t <= small) cnt = 2 * t + 1;
+        else            cnt = small + 1;
+        sum += pow * (seq_t)cnt;
+        pow *= (seq_t)p;
+    }
+    return sum;
+}
 
 /* ---------- Integer square root (floor) ---------- */
 static idx_t isqrt_u64(idx_t x)

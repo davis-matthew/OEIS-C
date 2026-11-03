@@ -11,18 +11,102 @@
  *            the prime)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, count_distinct_primes,
- *            prime_pi
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/build_primes_upto.h"
-#include "../utils/prime_pi.h"
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+
+/* Binary search avoiding overflow */
+static inline idx_t _floor_isqrt_u64(idx_t n)
+{
+    if (n < 2) return n;
+    idx_t lo = 1, hi = n >> 1;            /* hi < sqrt(max) */
+    while (lo < hi) {
+        idx_t mid = (lo + hi + 1) >> 1;   /* upper mid to avoid infinite loop */
+        if (mid > n / mid)                /* mid*mid > n   -> overflow or too big */
+            hi = mid - 1;
+        else
+            lo = mid;
+    }
+    return lo;
+}
+
+/* The build supplies seq_t and idx_t; we rely on their definitions. */
+static void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out) {
+    /* Simple Eratosthenes sieve.  limit >= 2. */
+    size_t i, j;
+    bool *sieve = (bool *)calloc(limit + 1, sizeof(bool));
+    if (!sieve) return;             /* out of memory; return without primes */
+    for (i = 2; i <= limit; ++i) sieve[i] = true;
+    for (i = 2; i * i <= limit; ++i) if (sieve[i]) {
+        for (j = i * i; j <= limit; j += i) sieve[j] = false;
+    }
+
+    /* Count primes. */
+    *cnt_out = 0;
+    for (i = 2; i <= limit; ++i) if (sieve[i]) ++(*cnt_out);
+
+    *primes_out = (uint64_t *)malloc(*cnt_out * sizeof(uint64_t));
+    if (!*primes_out) {
+        free(sieve);
+        *cnt_out = 0;
+        return;
+    }
+    size_t pos = 0;
+    for (i = 2; i <= limit; ++i) if (sieve[i]) (*primes_out)[pos++] = (uint64_t)i;
+
+    free(sieve);
+}
+
+/* prime counting function pi(x) using a simple sieve */
+static seq_t prime_pi(idx_t limit) {
+    if (limit < 2) return 0;
+    uint8_t *is_prime = (uint8_t *)malloc((limit + 1) * sizeof(uint8_t));
+    if (!is_prime) return 0;          /* out of memory → 0 as a safe fallback */
+    for (idx_t i = 0; i <= limit; ++i) is_prime[i] = 1;
+    is_prime[0] = is_prime[1] = 0;
+    for (idx_t p = 2; p * p <= limit; ++p) {
+        if (is_prime[p]) {
+            for (idx_t q = p * p; q <= limit; q += p) is_prime[q] = 0;
+        }
+    }
+    seq_t count = 0;
+    for (idx_t i = 2; i <= limit; ++i) if (is_prime[i]) ++count;
+    free(is_prime);
+    return count;
+}
+
+/* Count distinct prime factors of an unsigned 64-bit integer n.
+   The result fits in a signed int for all n that may be passed. */
+static int count_distinct_primes(uint64_t n)
+{
+    if (n <= 1)
+        return 0;
+
+    int cnt = 0;
+    /* Handle factor 2 separately. */
+    if (n % 2 == 0) {
+        cnt++;
+        while (n % 2 == 0)
+            n /= 2;
+    }
+    /* Test odd divisors up to sqrt(n). */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            cnt++;
+            while (n % p == 0)
+                n /= p;
+        }
+    }
+    if (n > 1)   /* Remaining prime factor. */
+        cnt++;
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

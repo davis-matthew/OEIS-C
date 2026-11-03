@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 92, u32 n <= 603, u64 n <= 8265,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9474 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state -------------------------------------------------------- */
 static seq_t *cache = NULL;           /* a[0] unused; a[1].. */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Ensure we have storage for indices 1..n */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache   = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache   = mem_resize(seq_t, cache, new_cap);
         uint32_t *new_even = (uint32_t *)realloc(even_counts,
                                                  new_cap * sizeof(uint32_t));
         if (!new_cache || !new_even) abort();   /* memory failure */

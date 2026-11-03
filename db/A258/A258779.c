@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 667, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 2453 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_a = NULL;   /* stored values a(0..max) */
 static seq_t *seq_r = NULL;   /* auxiliary r_k values */
@@ -37,7 +39,7 @@ static void ensure_size(idx_t n)
     if (seq_max >= new_size) return;             /* already sufficient */
 
     /*--- 1. compute r_k up to new_size ---------------------------------*/
-    seq_t *r = (seq_t*)calloc(new_size, sizeof(seq_t));
+    seq_t *r = mem_new(seq_t, new_size);
     for (size_t d = 1; d < new_size; ++d) {
         int mod = d % 4;
         int c   = (mod == 1 || mod == 3) ?  2
@@ -49,7 +51,7 @@ static void ensure_size(idx_t n)
     }
 
     /*--- 2. compute a(n) up to new_size -------------------------------*/
-    seq_t *a = (seq_t*)calloc(new_size, sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, new_size);
     a[0] = 1;
     for (size_t i = 1; i < new_size; ++i) {
         seq_t sum = 0;
@@ -59,8 +61,8 @@ static void ensure_size(idx_t n)
     }
 
     /*--- 3. replace old buffers ---------------------------------------*/
-    free(seq_a);
-    free(seq_r);
+    mem_free(seq_a);
+    mem_free(seq_r);
     seq_a   = a;
     seq_r   = r;
     seq_max = new_size;

@@ -11,7 +11,8 @@
  *            indices k where A013929(k+1) – A013929(k) = 4
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  global state                                                      */
@@ -143,7 +145,7 @@ seq_t a(idx_t n)
                 /* Store the index of the previous nonsquarefree number. */
                 if (ks_len + 1 > ks_cap) {
                     ks_cap = (ks_cap == 0) ? 16 : ks_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(ks, ks_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, ks, ks_cap);
                     if (!tmp) { /* out of memory; aborting is acceptable */
                         abort();
                     }

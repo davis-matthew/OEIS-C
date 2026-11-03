@@ -11,7 +11,8 @@
  *            recurrence, * then evaluates the recurrence for a(n). A...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
     idx_t N = n;
 
     /* Allocate space for a[0..N], A[0..N], D[0..N-1] */
-    seq_t *a_arr   = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *A_arr   = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *D_arr   = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *a_arr   = mem_new(seq_t, (N + 1));
+    seq_t *A_arr   = mem_new(seq_t, (N + 1));
+    seq_t *D_arr   = mem_new(seq_t, N);
 
     if (!a_arr || !A_arr || !D_arr) {
         /* In the unlikely event of allocation failure, abort
@@ -79,9 +81,9 @@ seq_t a(idx_t n)
     seq_t result = a_arr[N];
 
     /* Free allocated memory */
-    free(a_arr);
-    free(A_arr);
-    free(D_arr);
+    mem_free(a_arr);
+    mem_free(A_arr);
+    mem_free(D_arr);
 
     return result;
 }

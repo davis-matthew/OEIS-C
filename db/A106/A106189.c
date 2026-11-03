@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum_{k=0..floor(n/2)} binomial(2(n-2k), n-2k) * 2^k
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 24, u128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Binomial coefficients and powers of two are provided by the
    utils library, so we include the appropriate headers. */
+#include <stdint.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

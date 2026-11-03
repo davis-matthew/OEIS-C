@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* static storage for all primes found */
 static uint64_t *prime_nums = NULL;
@@ -45,7 +47,7 @@ static void grow_qual_array(void)
 {
     if (qual_len >= qual_cap) {
         size_t new_cap = qual_cap ? qual_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(qual_primes, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, qual_primes, new_cap);
         qual_primes = tmp;
         qual_cap    = new_cap;
     }

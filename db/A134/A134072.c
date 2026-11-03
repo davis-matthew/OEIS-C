@@ -8,7 +8,8 @@
  * Formula:   a(n) = concatenation of L_n, L_{n-1}, … , L_1 in decimal;
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* ---------- Lucas‑number cache ---------- */
 static seq_t *lucas_cache = NULL;  /* lucas_cache[i] = L_i */
@@ -35,15 +47,14 @@ static void ensure_lucas(idx_t n)
         /* Initialise with L_0 = 2, L_1 = 1. */
         lucas_cap = 4;
         lucas_len = 2;
-        lucas_cache = (seq_t *)malloc(lucas_cap * sizeof(seq_t));
+        lucas_cache = mem_new(seq_t, lucas_cap);
         lucas_cache[0] = (seq_t)2;
         lucas_cache[1] = (seq_t)1;
     }
     while (lucas_len <= n) {
         if (lucas_len >= lucas_cap) {
             lucas_cap <<= 1;
-            lucas_cache = (seq_t *)realloc(lucas_cache,
-                                           lucas_cap * sizeof(seq_t));
+            lucas_cache = mem_resize(seq_t, lucas_cache, lucas_cap);
         }
         lucas_cache[lucas_len] = lucas_cache[lucas_len - 1] +
                                  lucas_cache[lucas_len - 2];
@@ -60,7 +71,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (idx_t i = n; i > 0; --i) {
         seq_t l   = lucas_cache[i];          /* current Lucas number */
-        int    d  = digit_len(l);            /* decimal digits of l   */
+        int    d  = num_digits(l);            /* decimal digits of l   */
         seq_t pow = pow10((idx_t)d);          /* 10^d                  */
         result = result * pow + l;           /* append l to result    */
     }

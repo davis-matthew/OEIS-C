@@ -10,14 +10,15 @@
  *            provided by the utils library
  * Range:     i8 n <= 6, i16 n <= 21, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Compute base^exp for integer exp using repeated squaring */
 static seq_t seq_pow_int(seq_t base, idx_t exp)
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
     idx_t n_minus_2k = r - 2 * k;         /* >= 0 */
     idx_t n_minus_3k = r - 3 * k;         /* >= 0 */
 
-    seq_t val = binom(n_minus_2k, k);    /* binom(r-2k, k) */
+    seq_t val = binomial(n_minus_2k, k);    /* binom(r-2k, k) */
     val *= seq_pow_int((seq_t)3,     n_minus_3k);   /* 3^(r-3k)   */
     val *= seq_pow_int((seq_t)(-2), k);           /* (-2)^k      */
 

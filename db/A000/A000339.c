@@ -9,14 +9,15 @@
  *            admissible x_2 is n^2 + k - ceiling(2*n*sqrt(k))
  * Range:     u8 n <= 7, u16 n <= 29, u32 n <= 476, u64 n <= 7032,
  *            u128 n <= 7032, big any n
- * Helpers:   a339_ceil_sqrt
+ * Validated: standard, pass, 54 terms through n = 6789 (2026-11-01)
+ * Helpers:   isqrt_ceil_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/a339_ceil_sqrt.h"
+#include "../utils/isqrt_ceil_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
     uint64_t part = 0;
     uint64_t k;
     for (k = 1; k <= kmax; k++) {
-        uint64_t c = a339_ceil_sqrt(four_nn * k);
+        uint64_t c = isqrt_ceil_u64(four_nn * k);
         part += nn + 1 - c;
         if (part >= ((uint64_t)1 << 62)) {
             total += (seq_t)part;

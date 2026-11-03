@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n} floor(n/k)^3
  * Range:     u8 n <= 6, u16 n <= 38, u32 n <= 1529, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 8469 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

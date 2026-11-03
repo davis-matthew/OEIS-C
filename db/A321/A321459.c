@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Types seq_t and idx_t are supplied by the build.  They are
  * integer types; seq_t may be an unsigned integer or an
@@ -37,7 +39,7 @@ static void recompute_up_to(idx_t limit)
 {
     /* Allocate / reallocate coefficient array */
     size_t new_dp_size = (size_t)(limit + 1);
-    seq_t *new_dp = (seq_t*)realloc(dp, new_dp_size * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, new_dp_size);
     if (!new_dp) return;                       /* out of memory – ignore */
     dp = new_dp;
     dp_size = new_dp_size;

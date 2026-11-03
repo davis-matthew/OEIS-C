@@ -9,14 +9,15 @@
  *            having integral area
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   is_perfect_square
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   is_square_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/is_perfect_square.h"
+#include "../utils/is_square_u64.h"
 
 seq_t a(idx_t n) {
     seq_t count = 0;
@@ -32,7 +33,7 @@ seq_t a(idx_t n) {
                        - aa*aa*aa*aa - bb*bb*bb*bb - cc*cc*cc*cc;
             if (T % 16 != 0) continue;
             __int128 area_sq = T / 16;               /* area^2 */
-            if (!is_perfect_square((unsigned long long)area_sq)) continue;
+            if (!is_square_u64((unsigned long long)area_sq)) continue;
 
             ++count;
         }

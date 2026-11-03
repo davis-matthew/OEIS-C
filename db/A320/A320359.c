@@ -13,7 +13,8 @@
  *            … 20 are listed below. The function works for...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 32, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #if defined(__cplusplus)
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* Base values for n = 1 … 20 */
 static const seq_t init_vals[20] = {
@@ -91,13 +93,13 @@ seq_t a(idx_t n)
     /* Ensure cache capacity and initialise with base values */
     if (cache_len == 0) {
         cache_cap = n > 20 ? n : 20;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;        /* out of memory */
-        memcpy(cache, init_vals, sizeof(init_vals));
+        mem_copy(cache, init_vals, sizeof(init_vals));
         cache_len = 20;
     } else if (n > cache_cap) {     /* grow if needed */
         cache_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) return 0;
         cache = tmp;
     }

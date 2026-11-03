@@ -9,13 +9,15 @@
  *            Catalan(k) = Catalan(k-1) * (4*k-2)/(k+1) (k≥1)
  * Range:     i8 n <= 26, i16 n <= 46, i32 n <= 82, i64 n <= 146,
  *            i128 n <= 278, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 859 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------- Catalan numbers cache ------------------------------- */
 static seq_t *catalan = NULL;
@@ -31,7 +33,7 @@ static void ensure_catalan_capacity(size_t need)
     if (new_cap < need)
         new_cap = need;
 
-    seq_t *tmp = (seq_t *)realloc(catalan, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, catalan, new_cap);
     if (!tmp)
         exit(1);                 /* allocation failed */
     catalan = tmp;

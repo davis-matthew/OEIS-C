@@ -8,6 +8,7 @@
  * Formula:   a(n) = prime(prime(prime(n)-1)-1) - 1
  * Range:     u8 n <= 7, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,9 @@
 // Includes required by the utilities and the standard library
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
 
 /* Cache of computed primes.

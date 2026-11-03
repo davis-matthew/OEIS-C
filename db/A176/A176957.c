@@ -12,12 +12,14 @@
  *            i - 1
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;          /* cache of a(0)..a(current) */
 static size_t cap = 0;           /* allocated size of A */
@@ -26,7 +28,7 @@ static idx_t max_computed = 0;   /* highest index filled in A */
 static void ensure_capacity(idx_t need) {
     if ((size_t)need + 1 > cap) {
         size_t new_cap = (size_t)need + 1;
-        seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, new_cap);
         if (tmp == NULL) {
             /* In an extension package this would handle out‑of‑memory,
                but for simplicity we abort. */

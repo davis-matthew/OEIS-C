@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   _is_prime
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_is_prime.h"   /* provides: bool _is_prime(uint64_t) */
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     for (;;)
     {
         /* Skip non‑primes. */
-        if (!_is_prime(p)) {
+        if (!is_prime_u64(p)) {
             ++p;
             continue;
         }
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
         uint64_t d = p - N;
 
         /* d must be > 1 and composite. */
-        if (d > 1 && !_is_prime(d))
+        if (d > 1 && !is_prime_u64(d))
             return (seq_t)p;
 
         ++p;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n*a(n-1) + ((-1)^(n+1)+1)/2*(n-1)! (a(0)=0)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
         while (new_cap <= (size_t)n) new_cap <<= 1;
 
         if (fact == NULL) {                       /* first allocation */
-            fact  = (seq_t*)calloc(new_cap, sizeof(seq_t));
-            a_arr = (seq_t*)calloc(new_cap, sizeof(seq_t));
+            fact  = mem_new(seq_t, new_cap);
+            a_arr = mem_new(seq_t, new_cap);
             /* compute from 0 up to new_cap-1 */
             for (size_t i = 0; i < new_cap; ++i) {
                 if (i == 0) {
@@ -50,8 +52,8 @@ seq_t a(idx_t n)
             last = new_cap - 1;
             cap  = new_cap;
         } else {                                   /* enlarge existing arrays */
-            fact  = (seq_t*)realloc(fact,  new_cap * sizeof(seq_t));
-            a_arr = (seq_t*)realloc(a_arr,  new_cap * sizeof(seq_t));
+            fact  = mem_resize(seq_t, fact, new_cap);
+            a_arr = mem_resize(seq_t, a_arr, new_cap);
             /* compute only the newly required entries */
             for (size_t i = last + 1; i < new_cap; ++i) {
                 fact[i] = fact[i-1] * (seq_t)i;

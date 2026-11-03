@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,27 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +60,7 @@ seq_t a(idx_t n)
         /* Generate the period [1,1,3,2,1,2,1,2,3,1,1,26] for sqrt(184) */
         seq_t m = 0, d = 1, a_prev = a0;
         size_t cap = 16;
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         if (!period) return 0; /* unlikely, but defensive */
         size_t idx = 0;
         while (1) {
@@ -49,7 +70,7 @@ seq_t a(idx_t n)
 
             if (idx >= cap) {
                 cap <<= 1; /* double capacity */
-                period = (seq_t *)realloc(period, cap * sizeof(seq_t));
+                period = mem_resize(seq_t, period, cap);
                 if (!period) return 0;
             }
             period[idx++] = a_next;

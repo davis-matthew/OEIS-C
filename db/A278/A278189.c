@@ -12,13 +12,15 @@
  *            a(7)=43478
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 24, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h> /* for memcpy */
+#include "../utils/mem.h"
 
 /* static cache for memoization */
 static seq_t *cache = NULL;      /* cache[0] unused, cache[1] = a(1) */
@@ -29,12 +31,12 @@ static size_t cache_cap  = 0;    /* allocated size (>= cache_used+1) */
 static void ensure_capacity(size_t needed)
 {
     if (!cache) {
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (!cache) abort();
         cache_cap = needed;
         cache_used = 0;   /* nothing computed yet */
     } else if (needed > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = needed;

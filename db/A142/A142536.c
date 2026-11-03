@@ -7,7 +7,8 @@
  * Formula:   primes congruent to 6 modulo 53
  * Range:     u8 n <= 1, u16 n <= 124, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 56 terms through n = 864 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     while (cache_size < n) {
         if (is_prime(next_candidate)) {
             /* grow cache by one element */
-            seq_t *tmp = (seq_t *)realloc(cache, (cache_size + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (cache_size + 1));
             if (!tmp) {
                 /* Allocation failure – terminate gracefully */
                 exit(EXIT_FAILURE);

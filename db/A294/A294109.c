@@ -9,12 +9,14 @@
  *            ⌊n/2⌋, p prime} p where c(i)=1 iff i is prime
  * Range:     u8 n <= 41, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static data for a prime sieve and cumulative tables */
 static unsigned char *is_prime   = NULL;   /* 0/1 flags */
@@ -31,10 +33,8 @@ static void ensure_sieve(idx_t limit)
     /* Reallocate arrays */
     unsigned char *new_is   = (unsigned char *)realloc(is_prime,
                                (size_t)(limit + 1) * sizeof(unsigned char));
-    seq_t        *new_cnt   = (seq_t *)realloc(pref_count,
-                               (size_t)(limit + 1) * sizeof(seq_t));
-    seq_t        *new_sum   = (seq_t *)realloc(pref_sum,
-                               (size_t)(limit + 1) * sizeof(seq_t));
+    seq_t        *new_cnt   = mem_resize(seq_t, pref_count, (size_t)(limit + 1));
+    seq_t        *new_sum   = mem_resize(seq_t, pref_sum, (size_t)(limit + 1));
 
     /* In an unlikely event of realloc failure keep old data,
        but the build environment guarantees enough memory. */

@@ -10,13 +10,15 @@
  *            Only distinct prime factors are counted
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 98 terms through n = 9741 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     uint64_t last_p = 0;          /* last prime factor seen (for distinctness) */
 
     while (x > 1) {
-        uint64_t p = _smallest_prime_factor(x);  /* smallest prime factor of current x */
+        uint64_t p = smallest_prime_factor(x);  /* smallest prime factor of current x */
 
         /* If this is a new prime factor, update the result based on p mod 3. */
         if (p != last_p) {

@@ -9,7 +9,8 @@
  *            included, p = 3 excluded)
  * Range:     u8 n <= 32, u16 n <= 3771, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a001915_pw
+ * Validated: standard, pass, 75 terms through n = 9859 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a001915_pw.h"
+
+static uint64_t a001915_pw(uint64_t b, uint64_t e, uint64_t m) {
+    uint64_t r = 1 % m;
+    b %= m;
+    while (e) {
+        if (e & 1) r = r * b % m;
+        b = b * b % m;
+        e >>= 1;
+    }
+    return r;
+}
 
 static uint64_t *a001915_terms = NULL;
 static idx_t a001915_cnt = 0;

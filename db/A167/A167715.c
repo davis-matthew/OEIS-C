@@ -11,12 +11,14 @@
  *            rational generating function in OEIS
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 494 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* enlarge cache if needed */
     if (n >= capacity) {
         size_t new_cap = (n + 1) * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         capacity = new_cap;
     }

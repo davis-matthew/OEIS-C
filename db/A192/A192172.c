@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    sort them increasingly, and return the n‑th value (1‑based). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *a, const void *b)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (!init) {
         /* initial capacity generous enough for all expected terms */
         cap = 1024;
-        diff = (seq_t *)malloc(cap * sizeof(seq_t));
+        diff = mem_new(seq_t, cap);
         if (!diff) return (seq_t)0;          /* allocation failed */
 
         size_t used = 0;
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
                 /* store difference, guaranteed non‑negative */
                 if (used == cap) {
                     cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(diff, cap * sizeof(seq_t));
-                    if (!tmp) { free(diff); return (seq_t)0; }
+                    seq_t *tmp = mem_resize(seq_t, diff, cap);
+                    if (!tmp) { mem_free(diff); return (seq_t)0; }
                     diff = tmp;
                 }
                 diff[used++] = pow10 - pow4;
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         }
 
         /* sort ascending */
-        qsort(diff, used, sizeof(seq_t), cmp_seq);
+        mem_qsort(diff, used, sizeof(seq_t), cmp_seq);
 
         /* remove duplicates */
         size_t uniq = 0;

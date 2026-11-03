@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   diagonal_of
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,25 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/diagonal_of.h"
+#include "../utils/mem.h"
+
+static idx_t diagonal_of(idx_t n)
+{
+    /* Find s such that  s*(s+1)/2 <= n < (s+1)*(s+2)/2  */
+    idx_t lo = 0;
+    idx_t hi = (idx_t)(sqrt((long double)n * 2.0L + 1.0L)) + 2; /* rough upper bound */
+    while (((unsigned __int128)hi * (hi + 1) / 2) <= n)
+        hi <<= 1;
+    while (lo < hi) {
+        idx_t mid = lo + ((hi - lo + 1) >> 1);
+        unsigned __int128 val = (unsigned __int128)mid * (mid + 1) / 2;
+        if (val <= n)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,11 +61,11 @@ seq_t a(idx_t n)
     idx_t width = s + 1;
 
     /* 3. Allocate two rows for dynamic programming  */
-    seq_t *prev = (seq_t *)malloc(width * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(width * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, width);
+    seq_t *curr = mem_new(seq_t, width);
     if (!prev || !curr) {
-        if (prev) free(prev);
-        if (curr) free(curr);
+        if (prev) mem_free(prev);
+        if (curr) mem_free(curr);
         return (seq_t)0; /* out of memory – unlikely in test bounds */
     }
 
@@ -58,8 +77,8 @@ seq_t a(idx_t n)
     /* 5. If the target is in row 0, return directly  */
     if (i == 0) {
         seq_t res = prev[j];
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return res;
     }
 
@@ -78,7 +97,7 @@ seq_t a(idx_t n)
     seq_t result = prev[j];
 
     /* 8. Clean up and return  */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

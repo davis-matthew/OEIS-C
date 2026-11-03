@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=3..n} k * StirlingS2(n+1, k+1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
 
     /* we need the (n+1)-th row: indices 0..n+1.  Allocate two rows. */
     size_t len = (size_t)(n + 2);          /* max index + 1 */
-    seq_t *prev = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *cur  = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, len);
+    seq_t *cur  = mem_new(seq_t, len);
     if (!prev || !cur) {
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return 0;   /* allocation failure – return 0 as safe fallback */
     }
 
@@ -59,8 +61,8 @@ seq_t a(idx_t n)
     }
 
     /* Clean up */
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
 
     return result;
 }

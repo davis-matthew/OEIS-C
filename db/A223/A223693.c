@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 11, u64 n <= 24, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* Static cache for memoised terms.
    a_cache[0] is unused; indices 1..a_cache_size-1 store terms. */
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
 
     /* Allocate or resize the array */
     idx_t new_size = n + 1; /* include index 0 which is unused */
-    seq_t *new_cache = (seq_t *)realloc(a_cache, (size_t)new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, (size_t)new_size);
     if (!new_cache) abort();            /* Out of memory */
     a_cache        = new_cache;
     a_cache_size   = new_size;

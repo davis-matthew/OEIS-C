@@ -11,12 +11,14 @@
  *            * C(m-k+7, j) * and satisfies * A_j(m) = A_...
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build system */
 extern seq_t _dummy;   /* silence unused variable warnings */
@@ -43,13 +45,13 @@ static idx_t m_cur   = 0;       /* current m = a_max - 4            */
 static void ensure_b_cache(idx_t m)
 {
     if (b_cache == NULL) {           /* first allocation */
-        b_cache = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+        b_cache = mem_new(seq_t, (m + 1));
         b_cache[0] = (seq_t)1;       /* b0 = 1 */
         if (m >= 1)
             b_cache[1] = (seq_t)3;   /* b1 = 3 */
         b_max = (m >= 1) ? 1 : 0;
     } else if (b_max < m) {          /* grow and fill the rest */
-        b_cache = (seq_t *)realloc(b_cache, (m + 1) * sizeof(seq_t));
+        b_cache = mem_resize(seq_t, b_cache, (m + 1));
         for (idx_t k = b_max + 1; k <= m; ++k) {
             if (k == 1) {
                 b_cache[k] = (seq_t)3;
@@ -68,11 +70,11 @@ static void ensure_b_cache(idx_t m)
 static void ensure_a_cache(idx_t n)
 {
     if (a_cache == NULL) {                  /* first allocation */
-        a_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (n + 1));
         for (idx_t i = 0; i <= n; ++i)
             a_cache[i] = (seq_t)0;
     } else if (a_max < n) {                 /* grow and zero new part */
-        a_cache = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (n + 1));
         for (idx_t i = a_max + 1; i <= n; ++i)
             a_cache[i] = (seq_t)0;
     }

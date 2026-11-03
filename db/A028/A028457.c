@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 491 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define V 10
 #define STATE_MASK ((1 << V) - 1)
@@ -121,7 +123,7 @@ static void init_transitions(void)
         total_entries += cnt;
     }
 
-    struct trans_entry *block = (struct trans_entry*)malloc(total_entries * sizeof(struct trans_entry));
+    struct trans_entry *block = mem_new(struct trans_entry, total_entries);
     size_t offset = 0;
     for (int s = 0; s <= STATE_MASK; ++s) {
         trans_lists[s] = block + offset;
@@ -154,7 +156,7 @@ static void initialize(void)
     init_transitions();
 
     /* initial DP state for n = 0 */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     dp[0] = 1;
     active_states[0] = 0;
     active_count = 1;
@@ -174,7 +176,7 @@ seq_t a(idx_t n)
     if (n < cur_n) return a_cache[n];
 
     for (idx_t step = cur_n + 1; step <= n; ++step) {
-        memset(nextdp, 0, sizeof(nextdp));
+        mem_set(nextdp, 0, sizeof(nextdp));
         int next_count = 0;
 
         for (int si = 0; si < active_count; ++si) {
@@ -192,7 +194,7 @@ seq_t a(idx_t n)
             }
         }
 
-        memcpy(dp, nextdp, sizeof(dp));
+        mem_copy(dp, nextdp, sizeof(dp));
         memcpy(active_states, next_active_states,
                sizeof(int) * next_count);
         active_count = next_count;

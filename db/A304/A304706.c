@@ -11,7 +11,8 @@
  *            partitions
  * Range:     u8 n <= 53, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     idx_t rem;   /* remaining sum to partition */
@@ -58,7 +60,7 @@ static inline size_t key_hash(const StateKey *k)
 static void ht_resize(void)
 {
     size_t new_cap = ht_cap ? ht_cap << 1 : 1 << 12;
-    HTEntry *new_tbl = (HTEntry *)calloc(new_cap, sizeof(HTEntry));
+    HTEntry *new_tbl = mem_new(HTEntry, new_cap);
     if (!new_tbl) abort();                /* allocation failure */
 
     for (size_t i = 0; i < ht_cap; ++i) {
@@ -68,7 +70,7 @@ static void ht_resize(void)
             new_tbl[h] = ht[i];
         }
     }
-    free(ht);
+    mem_free(ht);
     ht     = new_tbl;
     ht_cap = new_cap;
 }

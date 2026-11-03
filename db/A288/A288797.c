@@ -9,19 +9,21 @@
  *            traversal of the square array a(p,q)=p²+q²-2p-2q+2*gcd(p,q)
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   gcd, int_sqrt
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* Find the diagonal d containing the n‑th term.
        The cumulative size up to diagonal d is d(d-1)/2. */
-    idx_t d = (1 + int_sqrt(1 + 8*n)) / 2;
+    idx_t d = (1 + isqrt(1 + 8*n)) / 2;
     if (d*(d-1)/2 < n) ++d;            /* carry single correction step */
 
     /* Count of terms before diagonal d */

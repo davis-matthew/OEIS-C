@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, powmod64
+ * Validated: standard, pass, 77 terms through n = 938 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
-#include "../utils/powmod64.h"   /* uint64_t powmod64(uint64_t base, uint64_t exp, uint64_t mod); */
+#include "../utils/is_prime.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
             {
                 uint64_t base = 20 % cand;
                 uint64_t exp  = ( cand - 1 ) / 5U;
-                uint64_t r    = powmod64( base, exp, cand );
+                uint64_t r    = powmod_u64( base, exp, cand );
                 good = ( r == 1U );
             }
 
@@ -75,12 +77,12 @@ seq_t a(idx_t n)
                 if ( good_cap == 0 )
                 {
                     good_cap = 8;
-                    good_list = (seq_t *)malloc( good_cap * sizeof( seq_t ) );
+                    good_list = mem_new(seq_t, good_cap);
                 }
                 else if ( good_cnt == good_cap )
                 {
                     good_cap <<= 1;
-                    good_list = (seq_t *)realloc( good_list, good_cap * sizeof( seq_t ) );
+                    good_list = mem_resize(seq_t, good_list, good_cap);
                 }
                 good_list[ good_cnt++ ] = (seq_t)cand;
             }

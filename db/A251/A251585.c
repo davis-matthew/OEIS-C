@@ -7,12 +7,15 @@
  * Formula:   a(n) = 5^(n-3) * (n+1)^(n-5) * (16*n^3 + 87*n^2 + 172*n + 125)
  * Range:     u8 n <= 0, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 306 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,16 +30,16 @@ seq_t a(idx_t n)
 
     /* 5^(n-3) part: handle positive/negative exponents separately */
     if (n >= 3) {
-        pow5_pos = big_pow((seq_t)5, (seq_t)(n - 3));
+        pow5_pos = ipow((seq_t)5, (seq_t)(n - 3));
     } else {
-        pow5_neg = big_pow((seq_t)5, (seq_t)(3 - n));
+        pow5_neg = ipow((seq_t)5, (seq_t)(3 - n));
     }
 
     /* (n+1)^(n-5) part */
     if (n >= 5) {
-        powN1_pos = big_pow((seq_t)(n + 1), (seq_t)(n - 5));
+        powN1_pos = ipow((seq_t)(n + 1), (seq_t)(n - 5));
     } else {
-        powN1_neg = big_pow((seq_t)(n + 1), (seq_t)(5 - n));
+        powN1_neg = ipow((seq_t)(n + 1), (seq_t)(5 - n));
     }
 
     /* Multiply positive power factors */

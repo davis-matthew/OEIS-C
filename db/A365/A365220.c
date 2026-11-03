@@ -10,7 +10,8 @@
  *            such that a(n‑1)+b is a Go up integer
  * Range:     u8 n <= 19, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   is_gfi
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_gfi.h"
+#include "../utils/mem.h"
+
+/* helper: true if x is a GFI (first digit == last digit) */
+static bool is_gfi(seq_t x)
+{
+    seq_t last = x % 10;
+    seq_t tmp = x;
+    while (tmp >= 10) tmp /= 10;
+    return tmp == last;
+}
 
 /* BST node for keeping track of used GFI numbers */
 struct Node {
@@ -30,7 +40,7 @@ struct Node {
 /* allocate a new node */
 static struct Node *node_alloc(seq_t key)
 {
-    struct Node *p = (struct Node *)malloc(sizeof(*p));
+    struct Node *p = mem_new(struct Node, 1);
     if (!p) abort();
     p->key = key;
     p->left = p->right = NULL;
@@ -89,7 +99,7 @@ static void seq_init(void)
 {
     if (seq_arr) return;                       /* already initialized */
     seq_cap = 16;
-    seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_arr = mem_new(seq_t, seq_cap);
     if (!seq_arr) abort();
     seq_arr[0] = (seq_t)1;
     seq_len = 1;
@@ -114,7 +124,7 @@ seq_t a(idx_t n)
         /* append cand to sequence */
         if (seq_len == seq_cap) {
             seq_cap *= 2;
-            seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+            seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
             if (!seq_arr) abort();
         }
         seq_arr[seq_len++] = cand;

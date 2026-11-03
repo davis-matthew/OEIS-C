@@ -13,7 +13,8 @@
  *            DP of size 64×64. This implementation memoise...
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   a_one
+ * Validated: standard, pass, 36 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,28 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a_one.h"
+#include "../utils/mem.h"
+
+/* Brute force for n = 1 (only 64 possibilities). */
+static seq_t a_one(void) {
+    seq_t res = 0;
+    unsigned char arr[3];
+    for (int v = 0; v < 64; ++v) {
+        int x = v;
+        for (int k = 0; k < 3; ++k) { arr[k] = x & 3; x >>= 2; }
+        int ok = 1;
+        for (int k = 0; k < 3 && ok; ++k) {
+            int horiz_ok = 0;
+            if (k == 0) horiz_ok = (arr[1] == arr[0]);
+            else if (k == 2) horiz_ok = (arr[1] == arr[2]);
+            else horiz_ok = ((arr[0] + arr[2]) & 3) == arr[1];
+            int vert_ok = (arr[k] == 0);   /* no vertical neighbours */
+            if (!(horiz_ok || vert_ok)) ok = 0;
+        }
+        if (ok) res += 1;
+    }
+    return res;
+}
 
 static inline int popcnt(uint64_t x) { return (int)__builtin_popcountll(x); }
 
@@ -86,8 +108,8 @@ seq_t a(idx_t n) {
                 bottom_ok[r1][r2] = row_ok(r1, r2, -1, 0, 1, row_vals, hsum);
             }
         /* Allocate DP buffers */
-        dp_cur = (seq_t*)calloc(64 * 64, sizeof(seq_t));
-        dp_next = (seq_t*)calloc(64 * 64, sizeof(seq_t));
+        dp_cur = mem_new(seq_t, 64 * 64);
+        dp_next = mem_new(seq_t, 64 * 64);
         dp_rows = 0;
         init = 1;
     }
@@ -99,7 +121,7 @@ seq_t a(idx_t n) {
     if (n >= cache_cap) {
         size_t newcap = cache_cap ? cache_cap : 16;
         while (newcap <= n) newcap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         for (size_t i = cache_cap; i < newcap; ++i) tmp[i] = 0;
         cache = tmp;
         cache_cap = newcap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   gen_len_rec
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,38 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gen_len_rec.h"
+
+/* Recursive helper that generates all d‑digit numbers with digit sum 6
+   in ascending order.  When the global counter 'cnt' reaches the target
+   'n', the value 'cur/3' is stored into '*answer' and the function
+   returns true to stop further recursion. */
+static bool gen_len_rec(uint32_t pos, uint32_t rem_sum, seq_t cur,
+                        uint32_t dlen, idx_t *cnt, idx_t n, seq_t *answer)
+{
+    /* If remaining sum cannot be achieved with the remaining places,
+       prune the search. */
+    if (rem_sum > 9u * (dlen - pos))
+        return false;
+
+    if (pos == dlen) {                /* full number constructed */
+        if (rem_sum == 0) {
+            (*cnt)++;                  /* one more qualifying n found   */
+            if (*cnt == n) {            /* reached the requested n       */
+                *answer = cur / (seq_t)3;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    uint32_t start = (pos == 0) ? 1u : 0u;   /* no leading zeros       */
+    for (uint32_t d = start; d <= 9u && rem_sum >= d; ++d) {
+        seq_t next = cur * (seq_t)10 + (seq_t)d;
+        if (gen_len_rec(pos + 1, rem_sum - d, next, dlen, cnt, n, answer))
+            return true;       /* propagate success upwards */
+    }
+    return false;
+}
 
 /* Main function required by the build.  It returns the n‑th term of A279773. */
 seq_t a(idx_t n)

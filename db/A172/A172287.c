@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 2220, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9587 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------------------------- */
 /* Static storage for the sequence and the list of known primes.           */
@@ -51,7 +53,7 @@ static void ensurePrimeCap(void) {
 static void ensureTermCap(void) {
     if (termCount >= termCap) {
         size_t newCap = termCap ? termCap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(termList, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, termList, newCap);
         termList = tmp;
         termCap = newCap;
     }

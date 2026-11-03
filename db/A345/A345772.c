@@ -8,7 +8,8 @@
  *            of six positive cubes in exactly ten unordered ways
  * Range:     u8 none, u16 n <= 1453, u32 n <= 1454, u64 n <= 1454,
  *            u128 n <= 1454, big any n
- * Helpers:   int_cube_root
+ * Validated: standard, pass, 59 terms through n = 1126 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/int_cube_root.h"
+#include <limits.h>
+#include "../utils/mem.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 static seq_t *global_terms = NULL;   /* sorted list of terms found so far   */
 static size_t global_terms_sz = 0;    /* number of stored terms               */
@@ -68,7 +85,7 @@ compute_terms(idx_t limit, size_t *out_cnt)
     for (size_t s = 0; s <= max_limit; ++s)
         if (dp[6][s] == 10) ++cnt;
 
-    seq_t *res = (seq_t *)malloc(cnt * sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, cnt);
     if (res) {
         size_t idx = 0;
         for (size_t s = 0; s <= max_limit; ++s)
@@ -99,14 +116,14 @@ ensure_terms(size_t need)
         if (!new_terms) break;   /* allocation failed – abort */
 
         if (cnt >= need) {
-            free(global_terms);
+            mem_free(global_terms);
             global_terms = new_terms;
             global_terms_sz = cnt;
             global_limit   = limit;
             return;
         }
 
-        free(new_terms);   /* not enough – increase the range */
+        mem_free(new_terms);   /* not enough – increase the range */
         limit *= 2;
     }
 }

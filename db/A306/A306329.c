@@ -7,18 +7,22 @@
  * Formula:   a(n) = rad(n)^bigomega(n)
  * Range:     u8 n <= 19, u16 n <= 41, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   big_pow, bigomega, rad
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   bigomega, ipow, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/rad.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/radical.h"
 
 seq_t a(idx_t n)
 {
-    seq_t r = rad(n);
+    seq_t r = radical(n);
     seq_t w = bigomega(n);
-    return big_pow(r, w);
+    return ipow(r, w);
 }

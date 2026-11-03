@@ -9,13 +9,16 @@
  *            for efficiency
  * Range:     u8 n <= 17, u16 n <= 1069, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 64 terms through n = 9083 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,10 +41,10 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap)
         {
             size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-            seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
             if (!new_arr) /* allocation failed – abort */
             {
-                free(cache);
+                mem_free(cache);
                 cache = NULL;
                 cache_len = cache_cap = 0;
                 return (seq_t)0; /* undefined behaviour on failure */

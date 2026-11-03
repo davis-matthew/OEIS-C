@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 948, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   p_of
+ * Validated: standard, pass, 102 terms through n = 9864 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,14 @@
 #include <stdint.h>
 #include <math.h>
 #include <float.h>
-#include "../utils/p_of.h"
+#include "../utils/mem.h"
+
+/* probability p(k) as defined in the entry */
+static inline long double p_of(idx_t k) {
+    long double l1 = log2l((long double)k + 1.0L);
+    long double l2 = log2l((long double)k + 2.0L);
+    return 1.0L / l1 - 1.0L / l2;
+}
 
 struct Node {
     idx_t k;
@@ -92,7 +100,7 @@ static size_t cache_cap = 0, cache_len = 0;
 static void cache_expand(size_t needed) {
     if (needed <= cache_cap) return;
     size_t new_cap = needed > 16 ? needed << 1 : 16;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -102,7 +110,7 @@ static size_t counts_cap = 0;
 static void counts_expand(size_t needed) {
     if (needed <= counts_cap) return;
     size_t new_cap = needed > 16 ? needed << 1 : 16;
-    counts = (seq_t *)realloc(counts, new_cap * sizeof(seq_t));
+    counts = mem_resize(seq_t, counts, new_cap);
     counts_cap = new_cap;
 }
 

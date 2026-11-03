@@ -8,12 +8,14 @@
  * Formula:   a(n) = smallest k such that n divides 3^k - k
  * Range:     u8 n <= 121, u16 n <= 9931, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9533 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* memoisation array, index 0 unused */
 static idx_t  a_cache_len = 0;
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t max_index) {
         return;
     idx_t newlen = a_cache_len == 0 ? 1 : a_cache_len;
     while (newlen <= max_index) newlen <<= 1;   /* grow exponentially */
-    a_cache = (seq_t *)realloc(a_cache, newlen * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, newlen);
     for (idx_t i = a_cache_len; i < newlen; ++i)
         a_cache[i] = 0;
     a_cache_len = newlen;

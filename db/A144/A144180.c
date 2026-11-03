@@ -8,12 +8,14 @@
  * Formula:   a(n) = 5 * Σ_{k=0}^{n-1} C(n-1,k) * a(k); a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,14 +25,14 @@ seq_t a(idx_t n)
 
     /* first call – allocate space for a(0) */
     if (A == NULL) {
-        A = (seq_t *)malloc(sizeof(seq_t));
+        A = mem_new(seq_t, 1);
         if (!A) return (seq_t)0;   /* out of memory – unlikely in tests */
         A[0] = (seq_t)1;           /* a(0) = 1 */
     }
 
     /* if the requested n is larger than what we have, extend the table */
     if (n > max_n) {
-        seq_t *tmp = (seq_t *)realloc(A, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, (n + 1));
         if (!tmp) return (seq_t)0; /* realloc failed – unlikely */
 
         A = tmp;

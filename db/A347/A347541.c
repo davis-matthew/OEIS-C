@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 22,
  *            big any n
- * Helpers:   cmp_seq_t_asc
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,16 @@
    output sequence, which therefore appears in increasing order.  */
 
 #include <stdlib.h>
-#include "../utils/cmp_seq_t_asc.h"
+#include "../utils/mem.h"
+
+static int cmp_seq_t_asc(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -47,7 +57,7 @@ seq_t a(idx_t n)
     /* allocate initial cache if needed */
     if (!vals) {
         vals_cap = 32;
-        vals = (seq_t *)malloc(vals_cap * sizeof(seq_t));
+        vals = mem_new(seq_t, vals_cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -99,13 +109,13 @@ seq_t a(idx_t n)
 
         /* sort solutions for this m before appending */
         if (temp_len > 1)
-            qsort(temp, temp_len, sizeof(seq_t), cmp_seq_t_asc);
+            mem_qsort(temp, temp_len, sizeof(seq_t), cmp_seq_t_asc);
 
         /* append sorted values to the global cache */
         for (size_t i = 0; i < temp_len; ++i) {
             if (vals_len >= vals_cap) {
                 vals_cap *= 2;
-                vals = (seq_t *)realloc(vals, vals_cap * sizeof(seq_t));
+                vals = mem_resize(seq_t, vals, vals_cap);
             }
             vals[vals_len++] = temp[i];
         }

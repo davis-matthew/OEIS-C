@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 178, u64 n <= 256, u128 n <= 256,
  *            big any n
- * Helpers:   _cmp_seq
+ * Validated: full, pass, 256 terms through n = 256 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,15 @@
 /* Divisors of 10^12 − 1, sorted in ascending order. */
 
 #include <stdlib.h>
-#include "../utils/_cmp_seq.h"
+#include "../utils/mem.h"
+
+/* Comparator for qsort.  Works for both C and C++ implementations of seq_t. */
+static int _cmp_seq(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    return (*x < *y) ? -1 : (*x > *y) ? 1 : 0;
+}
 
 /* Prime factors of 10^12 − 1:
    3^3 · 7 · 11 · 13 · 37 · 101 · 9901
@@ -46,7 +55,7 @@ seq_t a(idx_t n)
     if (!_init) {
         int cnt = 0;
         _gen_divisors(0, 1, _div, &cnt);        /* cnt should be 256 */
-        qsort(_div, cnt, sizeof(seq_t), _cmp_seq);
+        mem_qsort(_div, cnt, sizeof(seq_t), _cmp_seq);
         _init = 1;
     }
 

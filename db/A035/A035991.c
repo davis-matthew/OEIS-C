@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 /* The sequence is indexed starting at 1; for n<1 the function returns 0. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for partition counts up to the largest n seen so far. */
 static seq_t *dp = NULL;      /* dp[i] = a(i) for 0 <= i <= max_n */
@@ -31,14 +33,14 @@ static void compute_upto(idx_t n)
 {
     if (dp == NULL)
     {
-        dp = (seq_t*)realloc(NULL, (size_t)(n + 1) * sizeof(seq_t));
+        dp = mem_resize(seq_t, NULL, (size_t)(n + 1));
     }
     else
     {
-        seq_t *new_dp = (seq_t*)realloc(dp, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, (size_t)(n + 1));
         if (!new_dp)   /* allocation failure – give up */
         {
-            free(dp);
+            mem_free(dp);
             dp = NULL;
             max_n = 0;
             return;

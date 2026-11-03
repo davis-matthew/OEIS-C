@@ -10,14 +10,28 @@
  *            F(0)=0, F(1)=1, … and L(0)=2, L(1)=1
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   grow_array_to
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/grow_array_to.h"
+#include "../utils/mem.h"
+
+/* Grow a table to at least 'min_cap' capacity. */
+static void grow_array_to(seq_t **tab, size_t *cap, size_t min_cap)
+{
+    if (*cap < min_cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        while (new_cap < min_cap)
+            new_cap <<= 1;
+        *tab = mem_resize(seq_t, *tab, new_cap);
+        if (*tab == NULL) abort();       /* allocation failed */
+        *cap = new_cap;
+    }
+}
 
 /*--- dynamic Fibonacci table --------------------------------------------*/
 static seq_t *fib_tab = NULL;   /* Fibonacci numbers F(0),F(1),…      */

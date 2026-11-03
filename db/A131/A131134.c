@@ -7,14 +7,17 @@
  * Formula:   a(1)=1; for n>1, a(n) = (n + a(n-1)) / gcd(n, a(n-1))
  * Range:     u8 n <= 71, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 85 terms through n = 968 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
     /* Allocate or enlarge cache on first call or when needed */
     if (cache == NULL) {
         cache_size = n + 1;                     /* index 1..n */
-        cache = (seq_t *)calloc((size_t)cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_size);
         if (cache == NULL)                      /* allocation failure */
             return (seq_t)0;
         cache[1] = (seq_t)1;
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     }
     if (n >= cache_size) {                      /* grow the cache */
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_size);
         if (tmp != NULL) {
             /* zero the newly allocated part */
             size_t add = (size_t)(new_size - cache_size);

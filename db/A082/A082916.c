@@ -9,7 +9,8 @@
  *            divisor p of k, every base‑p digit of k is < ceil(p/2)
  * Range:     u8 n <= 73, u16 n <= 9199, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9834 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- prime sieve ----------
  * Use a fixed limit (500 000) sufficient for the required range.
@@ -87,7 +89,7 @@ static void ensure_seq_cache(void)
 {
     if (!seq_cache) {
         seq_cache_cap = 64;
-        seq_cache = (seq_t *)malloc(seq_cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cache_cap);
         if (!seq_cache) exit(1);
     }
 }
@@ -96,7 +98,7 @@ static void seq_push_back(seq_t val)
 {
     if (seq_cache_size == seq_cache_cap) {
         seq_cache_cap = seq_cache_cap * 2 + 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, seq_cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, seq_cache_cap);
         if (!tmp) exit(1);
         seq_cache = tmp;
     }

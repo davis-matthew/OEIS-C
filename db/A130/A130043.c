@@ -9,13 +9,16 @@
  *            odd divisor of n
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *values = NULL;   /* a(1), a(2), … stored sequentially */
 static idx_t values_cap = 0;   /* current allocated capacity */
@@ -31,7 +34,7 @@ static void grow_if_needed(idx_t need)
         new_cap <<= 1; /* double until sufficient */
 
     /* realloc returns void*, cast to seq_t* */
-    seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, values, new_cap);
     values = tmp;
     values_cap = new_cap;
 }

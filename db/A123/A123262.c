@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for the triangle rows (row_ptrs[i] points to row i)   */
 static seq_t **row_ptrs   = NULL;   /* ptr to array of pointers to rows   */
@@ -58,15 +60,14 @@ static void
 ensure_fib_up_to(idx_t r)
 {
     if (fib_len == 0) {                /* first time: initialise 0, 1       */
-        fib_arr = (seq_t *)malloc(2 * sizeof(seq_t));
+        fib_arr = mem_new(seq_t, 2);
         fib_arr[0] = (seq_t)0;
         fib_arr[1] = (seq_t)1;
         fib_len   = 2;
     }
     while (fib_len <= r) {
         seq_t next = fib_arr[fib_len - 1] + fib_arr[fib_len - 2];
-        seq_t *tmp = (seq_t *)realloc(fib_arr,
-                                      (size_t)(fib_len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib_arr, (size_t)(fib_len + 1));
         fib_arr   = tmp;
         fib_arr[fib_len] = next;
         ++fib_len;
@@ -83,7 +84,7 @@ ensure_rows_up_to(idx_t r)
     ensure_rows_capacity(r);
 
     for (idx_t i = rows_current; i <= r; ++i) {
-        seq_t *row = (seq_t *)malloc((size_t)(i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(i + 1));
 
         for (idx_t k = 0; k <= i; ++k) {
             if (k == 0) {

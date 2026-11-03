@@ -9,7 +9,8 @@
  *            lcm_{j=0..m} binomial(m,j) ) / binomial(m,k)
  * Range:     u8 n <= 35, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   gt_half_prod
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gt_half_prod.h"
+
+/* ---------- helper: compare (a*b)/2 > n   ---------- */
+static bool gt_half_prod(idx_t a, idx_t b, idx_t n)
+{
+    return (__uint128_t)a * (__uint128_t)b / 2 > n;
+}
 
 /* ---------- prime table ---------- */
 #define PRIMES_LIMIT 200000          /* covers all needed rows for n≈10⁴   */

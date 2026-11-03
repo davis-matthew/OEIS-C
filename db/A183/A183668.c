@@ -9,23 +9,26 @@
  *            39004*2^n + 39962
  * Range:     u8 none, u16 none, u32 n <= 8, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 36 terms through n = 995 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 /* Compute a(n) for OEIS A183668: Number of (n+1)×6 0..6 arrays with every 2×2 subblock summing to 12. */
 seq_t a(idx_t n)
 {
     /* n is 1-based index.  The formula is valid for all n ≥ 1. */
-    seq_t p7 = seq_pow((seq_t)7, n);
-    seq_t p6 = seq_pow((seq_t)6, n);
-    seq_t p5 = seq_pow((seq_t)5, n);
-    seq_t p4 = seq_pow((seq_t)4, n);
-    seq_t p3 = seq_pow((seq_t)3, n);
-    seq_t p2 = seq_pow((seq_t)2, n);
+    seq_t p7 = ipow_idx((seq_t)7, n);
+    seq_t p6 = ipow_idx((seq_t)6, n);
+    seq_t p5 = ipow_idx((seq_t)5, n);
+    seq_t p4 = ipow_idx((seq_t)4, n);
+    seq_t p3 = ipow_idx((seq_t)3, n);
+    seq_t p2 = ipow_idx((seq_t)2, n);
 
     return ((seq_t)7)      * p7
          + ((seq_t)372)    * p6

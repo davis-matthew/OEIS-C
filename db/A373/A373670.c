@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   grow_to_cap, int_sqrt
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,46 @@
 #include <math.h>                     /* only for size_t, not arithmetic on seq_t */
 
 /* Integer square root helper (provided by the framework). */
-#include "../utils/int_sqrt.h"
-#include "../utils/grow_to_cap.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* --------------------------------------------------------------------- */
+#ifdef __cplusplus
+template <class T>
+static T *grow_to_cap(T *data, size_t *cap, size_t need, size_t elem_size)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 16 : *cap;
+        while (new_cap < need) new_cap <<= 1;
+        T *tmp = mem_resize(T, data, (new_cap * elem_size) / sizeof(T));
+        if (!tmp) abort();
+        data = tmp;
+        *cap = new_cap;
+    }
+    return data;
+}
+#else
+static void *grow_to_cap(void *data, size_t *cap, size_t need, size_t elem_size)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 16 : *cap;
+        while (new_cap < need) new_cap <<= 1;
+        void *tmp = realloc(data, new_cap * elem_size);
+        if (!tmp) abort();
+        data = tmp;
+        *cap = new_cap;
+    }
+    return data;
+}
+#endif
 
 /* --------------------------------------------------------------------- */
 /* Prime generation helpers                                            */
@@ -75,7 +114,7 @@ static bool is_prime_power(uint64_t n)
     uint64_t first_factor = 0;
 
     /* Ensure we have all primes up to √n. */
-    uint64_t lim = int_sqrt(n);
+    uint64_t lim = isqrt(n);
     generate_primes_up_to(lim);
 
     for (size_t i = 0; i < prime_cnt; ++i) {

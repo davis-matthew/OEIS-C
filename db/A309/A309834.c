@@ -13,7 +13,8 @@
  *            -2*a(n-25)+a(n-28)+a(n-29)-a...
  * Range:     u8 n <= 28, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   brute
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +22,34 @@
 /* Initial values (n = 0..29) are computed via brute force. */
 
 #include <stdlib.h>
-#include "../utils/brute.h"
+#include "../utils/mem.h"
+
+static seq_t brute(idx_t n)
+{
+    seq_t sum = 0;
+    for (idx_t l = 1; l <= n / 5; ++l) {
+        idx_t rem1 = n - l;
+        idx_t maxk = rem1 / 4;
+        for (idx_t k = l; k <= maxk; ++k) {
+            idx_t rem2 = rem1 - k;
+            idx_t maxj = rem2 / 3;
+            for (idx_t j = k; j <= maxj; ++j) {
+                idx_t rem3 = rem2 - j;
+                idx_t maxi = rem3 / 2;
+                for (idx_t i = j; i <= maxi; ++i) {
+                    /* last part = n - l - k - j - i  (always >= i) */
+                    if ((l & 1) == 0)   /* l even */
+                        sum += l;
+                }
+            }
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
-    seq_t *arr = (seq_t *)malloc(((size_t)n + 1) * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, ((size_t)n + 1));
     if (!arr) return 0;   /* memory allocation failed */
 
     for (idx_t i = 0; i <= n; ++i) {
@@ -67,6 +91,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

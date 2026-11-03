@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{i=1..n} gcd(i,2n-i)*mu(i)^2*mu(2n-i)^2
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
  * Helpers:   gcd, is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 /* (mu(m)^2 is 1 iff m is squarefree, 0 otherwise.) */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
 #include "../utils/is_squarefree.h"
 

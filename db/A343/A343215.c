@@ -12,13 +12,15 @@
  *            minimal set of numbers required for the requested n, wi...
  * Range:     u8 n <= 70, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* global cache of sorted A125289 values */
 static seq_t *cached_a125289 = NULL;
@@ -47,7 +49,7 @@ static void ensure_cache_a125289(idx_t n)
     }
 
     /* Allocate new cache and free the old one if it existed */
-    seq_t *new_cache = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, total);
     if (!new_cache)                  /* allocation failed – nothing to do */
         return;
 
@@ -85,7 +87,7 @@ static void ensure_cache_a125289(idx_t n)
     }
 
     /* Replace old cache */
-    free(cached_a125289);
+    mem_free(cached_a125289);
     cached_a125289 = new_cache;
     cached_len     = total;
 }

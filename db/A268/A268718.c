@@ -9,12 +9,15 @@
  * Formula:   a(0) = 0; for n ≥ 1, a(n) = 1 + A003188(A006068(n) - 1)
  * Range:     u8 n <= 253, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   binary_to_gray
+ * Validated: standard, pass, 98 terms through n = 7902 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binary_to_gray.h"
+static seq_t binary_to_gray(seq_t b) {
+    return b ^ (b >> 1);
+}
 /* Where A003188 is the binary reflected Gray code: g(b) = b ^ (b >> 1) */
 /* and A006068 is its inverse (Gray to binary). */
 

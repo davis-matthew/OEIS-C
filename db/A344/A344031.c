@@ -13,6 +13,7 @@
  *            2; T(n+1,k) = (k+1)*T(n,k+1) + 2*T(n,k) - 3*n*T(n,...
  * Range:     i8 n <= 11, i16 n <= 30, i32 n <= 75, i64 n <= 210,
  *            i128 n <= 604, big any n
+ * Validated: standard, pass, 65 terms through n = 9585 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

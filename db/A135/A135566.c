@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 27, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   digit_len, next_prime, pow10, sieve_first_n_primes
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem, next_prime, num_digits, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,12 +23,21 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "../utils/pow10.h"                /* seq_t pow10(idx_t e) */
-#include "../utils/digit_len.h"            /* int digit_len(seq_t x) */
-#include "../utils/next_prime.h"           /* uint64_t next_prime(uint64_t start) */
-#include "../utils/sieve_first_n_primes.h" /* sieve_first_n_primes(idx_t n,
-                                              uint32_t **primes_out,
-                                              size_t *cnt_out) */
+#include <math.h>
+#include "../utils/next_prime.h"
+#include "../utils/num_digits.h"
+#include "../utils/sieve_first_n_primes.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* ---------- static state to memoize the sequence ---------- */
 static seq_t *seq              = NULL;   /* computed sequence values */
@@ -49,7 +59,7 @@ static void grow_seq(size_t min_cap)
     {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
         if (new_cap < min_cap) new_cap = min_cap;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -98,7 +108,7 @@ static void compute_a_part(idx_t k)
     seq_t cur = 0;
     for (size_t i = 0; i < (size_t)(k - 1); ++i)
     {
-        int len = digit_len(seq[i]);
+        int len = num_digits(seq[i]);
         seq_t pow = pow10((idx_t)len) % pk;
         cur = (cur * pow + seq[i]) % pk;
     }
@@ -122,7 +132,7 @@ static void compute_a_part(idx_t k)
         if (q >= used_cap) grow_used(q + 1);
         if (used[q]) continue;       /* already chosen elsewhere */
 
-        int lenq = digit_len((seq_t)q);
+        int lenq = num_digits((seq_t)q);
         seq_t powq = pow10((idx_t)lenq) % pk;
         seq_t rem  = (cur * powq + q) % pk;
 

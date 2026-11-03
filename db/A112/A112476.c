@@ -8,14 +8,21 @@
  *            a(1)=-1, a(2)=2, a(3)=0
  * Range:     i8 n <= 10, i16 n <= 19, i32 n <= 38, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   array_resize
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>  /* size_t for C */
 #include <stdlib.h>  /* malloc, realloc, free */
-#include "../utils/array_resize.h"
+#include "../utils/mem.h"
+
+static seq_t *array_resize(seq_t *old, idx_t old_size, idx_t new_size)
+{
+    (void)old_size; /* unused in C */
+    return mem_resize(seq_t, old, new_size);
+}
 
 /* Helper to resize an array of seq_t in a way that works for both
    C (trivial types) and C++ (arbitrary‑precision types).

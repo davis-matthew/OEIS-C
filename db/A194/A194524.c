@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2*n - 7*floor((3*n + 4)/11)
  * Range:     i8 n <= 95, i16 n <= 95, i32 n <= 95, i64 n <= 95, i128 n <= 95,
  *            big any n
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

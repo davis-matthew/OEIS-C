@@ -9,7 +9,8 @@
  *            reverse(k)
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   rev_number
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-01)
+ * Helpers:   reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/rev_number.h"
+#include "../utils/reverse_digits_idx.h"
 
 /* Upper bound for pre‑computation of k + reverse(k) sums.
    20 000 000 comfortably covers the first 10 000 palindromes. */
@@ -35,7 +36,7 @@ static bool init_done = false;
 /* ---------- helper: test for palindrome ---------- */
 static bool is_palindrome(idx_t x)
 {
-    return rev_number(x) == x;
+    return reverse_digits_idx(x) == x;
 }
 
 /* ---------- helper: ensure capacity for pal array ---------- */
@@ -60,7 +61,7 @@ static void init(void)
 
     /* Count representations for every possible sum k + rev(k) */
     for (idx_t k = 0; k <= MAXP; ++k) {
-        idx_t revk = rev_number(k);
+        idx_t revk = reverse_digits_idx(k);
         idx_t s = k + revk;
         if ((idx_t)s <= MAXP) {
             ++cnt[(size_t)s];

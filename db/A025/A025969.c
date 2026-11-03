@@ -8,13 +8,15 @@
  *            = 23, a(2) = 353, a(3) = 4603 Recurrence is valid for all n ≥ 4
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 769 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation.  It is thread‑unsafe but adequate
    for the intended use. */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     if (cache_size <= n) {
         /* Allocate or grow the cache. */
         idx_t newsize = n + 1;
-        seq_t *newcache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *newcache = mem_resize(seq_t, cache, newsize);
         if (!newcache) {
             /* On allocation failure terminate the program. */
             exit(1);

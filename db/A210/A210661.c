@@ -10,7 +10,8 @@
  *            is the number of connected functional digraphs on k nodes
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 20,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_uint.h"   /* pow_uint(uint64_t base, idx_t exp) */
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* ---------- static storage for memoisation ---------- */
@@ -39,10 +41,10 @@ seq_t a(idx_t n) {
 
     /* ---------- initialise base case ---------- */
     if (max_n == 0 && fact == NULL) {
-        fact   = (seq_t *)malloc(sizeof(seq_t));
-        pow_n  = (seq_t *)malloc(sizeof(seq_t));
-        conn   = (seq_t *)malloc(sizeof(seq_t));
-        ans    = (seq_t *)malloc(sizeof(seq_t));
+        fact   = mem_new(seq_t, 1);
+        pow_n  = mem_new(seq_t, 1);
+        conn   = mem_new(seq_t, 1);
+        ans    = mem_new(seq_t, 1);
 
         fact[0] = (seq_t)1;
         pow_n[0] = (seq_t)1;   /* 0^0 defined as 1 for combinatorial purposes */
@@ -54,15 +56,15 @@ seq_t a(idx_t n) {
     /* ---------- extend tables up to n ---------- */
     if (n > max_n) {
         idx_t new_max = n;
-        fact   = (seq_t *)realloc(fact,   sizeof(seq_t) * (new_max + 1));
-        pow_n  = (seq_t *)realloc(pow_n,  sizeof(seq_t) * (new_max + 1));
-        conn   = (seq_t *)realloc(conn,   sizeof(seq_t) * (new_max + 1));
-        ans    = (seq_t *)realloc(ans,    sizeof(seq_t) * (new_max + 1));
+        fact   = mem_resize(seq_t, fact, (new_max + 1));
+        pow_n  = mem_resize(seq_t, pow_n, (new_max + 1));
+        conn   = mem_resize(seq_t, conn, (new_max + 1));
+        ans    = mem_resize(seq_t, ans, (new_max + 1));
 
         /* compute factorials and i^i for new indices */
         for (idx_t i = max_n + 1; i <= new_max; ++i) {
             fact[i]  = fact[i-1] * (seq_t)i;
-            pow_n[i] = pow_uint((uint64_t)i, i);
+            pow_n[i] = ipow_u64_idx((uint64_t)i, i);
         }
 
         /* compute conn[i] and ans[i] for i = max_n+1 .. new_max */

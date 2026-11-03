@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    O(1) after the required rows have been produced. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache of the concatenated sequence.  (seq_t is the build's
    integer type; idx_t is unsigned 64‑bit.) */
@@ -39,7 +41,7 @@ static void ensure_prefix_capacity(size_t need)
     if (need <= prefix_cap) return;
     size_t new_cap = prefix_cap ? prefix_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(prefix, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prefix, new_cap);
     if (!tmp) abort();          /* allocation failure */
     prefix = tmp;
     prefix_cap = new_cap;
@@ -50,17 +52,17 @@ static void ensure_prefix_capacity(size_t need)
    the first two values. */
 static void generate_first_row(void)
 {
-    seq_t *base = (seq_t *)malloc(2 * sizeof(seq_t));
+    seq_t *base = mem_new(seq_t, 2);
     base[0] = (seq_t)1;
     base[1] = (seq_t)2;
 
-    seq_t *shuffled = (seq_t *)malloc(2 * sizeof(seq_t));
+    seq_t *shuffled = mem_new(seq_t, 2);
     shuffled[0] = base[1];
     shuffled[1] = base[0];
-    free(base);
+    mem_free(base);
 
     ensure_prefix_capacity(2);
-    memcpy(prefix, shuffled, 2 * sizeof(seq_t));
+    mem_copy(prefix, shuffled, 2 * sizeof(seq_t));
     prefix_len = 2;
 
     curr_deck = shuffled;
@@ -78,13 +80,13 @@ static void generate_next_row(void)
 
     /* Build the deck before shuffle: copy the previous deck and append
        the two new cards (2r‑1, 2r). */
-    seq_t *base = (seq_t *)malloc(new_size * sizeof(seq_t));
-    memcpy(base, curr_deck, curr_size * sizeof(seq_t));
+    seq_t *base = mem_new(seq_t, new_size);
+    mem_copy(base, curr_deck, curr_size * sizeof(seq_t));
     base[curr_size]     = (seq_t)(2 * r - 1);
     base[curr_size + 1] = (seq_t)(2 * r);
 
     /* In‑shuffle: bottom half starts at index r. */
-    seq_t *shuffled = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *shuffled = mem_new(seq_t, new_size);
     for (size_t k = 0; k < (size_t)r; ++k) {
         shuffled[2 * k]     = base[r + k];
         shuffled[2 * k + 1] = base[k];
@@ -92,16 +94,16 @@ static void generate_next_row(void)
 
     /* Append the new row to the global sequence. */
     ensure_prefix_capacity(prefix_len + new_size);
-    memcpy(prefix + prefix_len, shuffled, new_size * sizeof(seq_t));
+    mem_copy(prefix + prefix_len, shuffled, new_size * sizeof(seq_t));
     prefix_len += new_size;
 
     /* Free the old deck and set up for the next iteration. */
-    free(curr_deck);
+    mem_free(curr_deck);
     curr_deck = shuffled;
     curr_size = new_size;
     last_r    = r;
 
-    free(base);
+    mem_free(base);
 }
 
 /* Main sequence accessor.  For n >= 1, returns the nth term of A035491. */

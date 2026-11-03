@@ -8,7 +8,8 @@
  *            counts primes in the interval [210x, 210x+209]
  * Range:     u8 none, u16 none, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   is_comp_unsigned, set_comp_unsigned
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,22 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/is_comp_unsigned.h"
-#include "../utils/set_comp_unsigned.h"
+#include "../utils/mem.h"
+
+/* Helper inline functions for the odd‑only sieve bitset */
+static inline bool is_comp_unsigned(idx_t num, unsigned char *bits)
+{
+    if (num == 2) return false;
+    if ((num & 1) == 0) return true;           /* even >2 are composite */
+    idx_t pos = (num - 3) >> 1;                /* position of odd number */
+    return bits[pos >> 3] & (1 << (pos & 7));
+}
+
+static inline void set_comp_unsigned(idx_t num, unsigned char *bits)
+{
+    idx_t pos = (num - 3) >> 1;
+    bits[pos >> 3] |= (1 << (pos & 7));
+}
 
 /* Global cache for a(n) */
 static seq_t *a_cache = NULL;
@@ -73,7 +88,7 @@ static void init_seq(void)
         if (cnt[i] > max_n) max_n = cnt[i];
     }
     a_cache_len = max_n + 1;
-    a_cache = (seq_t *)calloc(a_cache_len, sizeof(seq_t));
+    a_cache = mem_new(seq_t, a_cache_len);
     if (!a_cache) abort();
 
     /* record minimal x for each n */

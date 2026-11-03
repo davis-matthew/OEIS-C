@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime that can be written as 10*x^2 + 21*y^2
  * Range:     u8 n <= 5, u16 n <= 415, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- 64‑bit integer square root ---------- */
 static uint64_t isqrt_uint64(uint64_t n)
@@ -101,7 +103,7 @@ static uint64_t cand = 3;          /* next odd number to test */
 static void grow_cache(size_t new_cap)
 {
     if (new_cap <= cache_cap) return;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

@@ -11,13 +11,41 @@
  *            y and gcd(x, y) = 1”
  * Range:     u8 n <= 211, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_bad_factor
+ * Validated: standard, pass, 82 terms through n = 9158 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_bad_factor.h"
+
+static bool has_bad_factor(idx_t v)
+{
+    /* Divisible by 9 → not representable. */
+    if (v % 9u == 0u)
+        return true;
+
+    idx_t t = v;
+    /* Trial division to find a prime factor p ≡ 2 (mod 3). */
+    for (idx_t p = 2; p * p <= t; ++p)
+    {
+        if (t % p == 0u)
+        {
+            if (p % 3u == 2u)
+                return true;          /* bad prime factor found */
+
+            /* Remove all occurrences of p. */
+            while (t % p == 0u)
+                t /= p;
+        }
+    }
+
+    /* Remaining factor > 1, check it. */
+    if (t > 1u && t % 3u == 2u)
+        return true;
+
+    return false;                     /* representable */
+}
 
 seq_t a(idx_t n)
 {

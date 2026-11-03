@@ -5,15 +5,33 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, less
  * Formula:   a(n) = smallest digit among all digits of all divisors of n
- * Range:     u8 n <= 9018, u16 n <= 9018, u32 n <= 9018, u64 n <= 9018,
- *            u128 n <= 9018, big any n
- * Helpers:   _smallest_digit
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 136 terms through n = 9018 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_digit.h"
+
+/* Returns the smallest decimal digit of a positive integer d (1 ≤ d). */
+static seq_t _smallest_digit(uint64_t d)
+{
+    seq_t min = 9;
+    while (d > 0)
+    {
+        seq_t digit = d % 10;
+        if (digit < min)
+        {
+            min = digit;
+            if (min == 0)   /* cannot get smaller than 0 */
+                break;
+        }
+        d /= 10;
+    }
+    return min;
+}
 
 seq_t a(idx_t n)
 {

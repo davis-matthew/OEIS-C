@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 692, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 7563 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--------------------- prime sieve -----------------------------------*/
 #define PRIME_LIMIT 2000000               /* enough for all factors up to 18m+1 (m moderately large) */
@@ -149,14 +151,14 @@ seq_t a(idx_t n)
     /* enlarge cache as needed */
     if (cache_cap == 0) {
         cache_cap = 256;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
     while (cache_len < n) {
         ++last_checked_m;
         if (good_m(last_checked_m)) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)last_checked_m;
         }

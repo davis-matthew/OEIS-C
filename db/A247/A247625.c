@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   digit_len
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache of found terms   */
 static size_t cache_size = 0;        /* number of terms cached*/
@@ -46,11 +49,11 @@ static void ensure_cache(size_t n)
 {
     if (cache_cap == 0) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     if (n > cache_cap) {
         while (cache_cap < n) cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 
@@ -62,7 +65,7 @@ seq_t a(idx_t n)
 
     while (cache_size < target) {
         seq_t x = next_candidate++;
-        int d = digit_len(x);
+        int d = num_digits(x);
         bool ok = false;
         for (int k = 1; k < d; ++k) {
             seq_t p = pow10[k];

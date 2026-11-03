@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   next_prime
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    the nth such sum exists.  Results are cached between function calls. */
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
     /* grow sums array if needed */
     if (sum_cap == 0) {
         sum_cap = 16;
-        sums = (seq_t *)malloc(sum_cap * sizeof(seq_t));
+        sums = mem_new(seq_t, sum_cap);
     }
 
     /* keep generating primes until we have at least n sums */
@@ -65,7 +68,7 @@ seq_t a(idx_t n)
             /* store the sum if it is a multiple of 10 */
             if (sum_cnt >= sum_cap) {
                 size_t new_cap = sum_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(sums, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, sums, new_cap);
                 sums = tmp;
                 sum_cap = new_cap;
             }

@@ -10,7 +10,8 @@
  *            p‑a , p , p + a , p + b prime
  * Range:     u8 n <= 46, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   build_primes_upto, is_prime
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* static storage for the pre‑computed sequence */
 static bool            _initialized = false;
@@ -36,7 +38,7 @@ static void _ensure_qual_capacity(size_t needed)
     size_t new_cap = (_qual_cap == 0) ? 16 : _qual_cap << 1;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(_qualifiers, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _qualifiers, new_cap);
     if (!tmp && new_cap) {
         /* out of memory – abort in a portable way */
         abort();

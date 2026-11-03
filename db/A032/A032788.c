@@ -8,9 +8,10 @@
  * Formula:   a(n) = (d-19)/2 where d >= 19 and d | 85734032330071125. The
  *            sequence consists of all k obtained from the divisors d of that
  *            constant
- * Range:     u8 n <= 1, u16 n <= 30, u32 n <= 2589, u64 n <= 8739,
+ * Range:     u8 n <= 1, u16 n <= 30, u32 n <= 1878, u64 n <= 8739,
  *            u128 n <= 8739, big any n
- * Helpers:   factor_u64
+ * Validated: full, pass, 8739 terms through n = 8739 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *a, const void *b)
 {
@@ -75,7 +78,7 @@ seq_t a(idx_t n)
             if (divs[i] >= 19) ++count;
         }
         cache_len = count;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         if (!cache) {
             free(divs);
             return 0;            /* allocation failure */
@@ -89,7 +92,7 @@ seq_t a(idx_t n)
         free(divs);
 
         /* Sort the cache in ascending order. */
-        qsort(cache, cache_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(cache, cache_len, sizeof(seq_t), cmp_seq);
     }
 
     if (n == 0) return 0;                            /* guard */

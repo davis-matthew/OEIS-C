@@ -9,7 +9,8 @@
  *            positive divisors of m
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   tau_of_idx_t
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-01)
+ * Helpers:   num_divisors_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/tau_of_idx_t.h"
+#include "../utils/num_divisors_idx.h"
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
             break;
         idx_t t = n - x_sq;    /* t = y·z */
         if (x_sq < t) {        /* enforce x² < y·z */
-            result += tau_of_idx_t(t);
+            result += num_divisors_idx(t);
         }
     }
     return result;

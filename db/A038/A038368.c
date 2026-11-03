@@ -8,7 +8,8 @@
  *            |(product of digits of k) - (sum of digits of k)|
  * Range:     u8 n <= 74, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_product, digit_sum
+ * Validated: standard, pass, 65 terms through n = 882 (2026-11-03)
+ * Helpers:   digit_product, digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include "../utils/digit_product.h"
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Static cache of sequence values. */
 static seq_t *buf        = NULL;     /* array of found terms      */
@@ -34,7 +36,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = buf_cap ? buf_cap << 1 : 16;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, buf, new_cap);
     buf = tmp;
     buf_cap = new_cap;
 }

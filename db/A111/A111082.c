@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_uint64, poly_val
+ * Validated: standard, pass, 75 terms through n = 988 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"   /* bool is_prime_uint64(uint64_t) */
-#include "../utils/poly_val.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Helper: 3*c^2 + 49 as uint64_t (fits for all requested n). */
+static inline uint64_t poly_val(uint64_t c)
+{
+    unsigned __int128 v = (unsigned __int128)3 * c * c + 49;
+    return (uint64_t)v;
+}
 
 /* Cache of discovered terms. */
 static seq_t *terms   = NULL;   /* array of found n's */
@@ -33,10 +41,10 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough. */
     if (terms == NULL) {
         term_cap = 1024;
-        terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, term_cap);
     } else if (term_cnt >= term_cap) {
         term_cap <<= 1;
-        terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, term_cap);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -49,7 +57,7 @@ seq_t a(idx_t n)
 
     while (term_cnt < n) {
         uint64_t v = poly_val(candidate);
-        if (is_prime_uint64(v)) {
+        if (is_prime_u64(v)) {
             terms[term_cnt++] = (seq_t)candidate;
         }
         candidate += 2;   /* only even candidates need testing */

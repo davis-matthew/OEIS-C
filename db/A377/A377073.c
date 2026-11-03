@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 29, u64 n <= 59, u128 n <= 119,
  *            big any n
- * Helpers:   big_pow, bigomega, binomial, count_distinct_primes, rad
+ * Validated: standard, pass, 60 terms through n = 6054 (2026-11-01)
+ * Helpers:   bigomega, binomial, ipow, omega, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,13 @@
  * with a(1) = 1 (special case, since the binomial would be undefined).
  */
 #include <stdint.h>
-#include "../utils/rad.h"
-#include "../utils/big_pow.h"
-#include "../utils/binomial.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/omega.h"
+#include "../utils/radical.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     idx_t bigomega_val = (idx_t)bigomega(n);
 
     /* number of distinct prime factors (omega) */
-    idx_t omega_val = (idx_t)count_distinct_primes((uint64_t)n);
+    idx_t omega_val = (idx_t)omega((uint64_t)n);
 
     /* k = bigomega + omega - 1 */
     idx_t k = bigomega_val + omega_val - 1;
@@ -44,8 +47,8 @@ seq_t a(idx_t n)
     seq_t bin = binomial(k, omega_val);
 
     /* product of distinct prime factors */
-    seq_t rad_val = rad(n);
+    seq_t rad_val = radical(n);
 
     /* rad(n) ^ bin */
-    return big_pow(rad_val, bin);
+    return ipow(rad_val, bin);
 }

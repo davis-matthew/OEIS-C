@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000217(A119048(n))
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 19, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   only_019_digits
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,28 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/only_019_digits.h"
+#include "../utils/mem.h"
+
+/* Return true if *x* is a positive integer and its decimal digits
+ * are all in {0, 1, 9}.  The argument type seq_t may be an arbitrary
+ * precision integer class; the only operations used are
+ * addition, subtraction, multiplication, division, and comparison
+ * with integer constants. */
+static bool only_019_digits(seq_t x)
+{
+    if (x == (seq_t)0)       /* triangular number 0 is not included */
+        return false;
+
+    /* Loop over decimal digits from least significant to most. */
+    seq_t ten = (seq_t)10;
+    while (x != (seq_t)0) {
+        seq_t d = x % ten;
+        if (d != (seq_t)0 && d != (seq_t)1 && d != (seq_t)9)
+            return false;
+        x /= ten;
+    }
+    return true;
+}
 
 /* Grow a dynamic array of seq_t values.  The array grows by a factor
  * of two until the desired capacity is reached; this keeps the
@@ -30,7 +52,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t needed)
     size_t new_cap = (*cap == 0) ? 4 : *cap;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     *arr = tmp;
     *cap = new_cap;
 }

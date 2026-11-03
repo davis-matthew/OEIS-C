@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 19, i16 n <= 39, i32 n <= 42, i64 n <= 42, i128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence: a(n) = -a(n-1) + 2*a(n-5),  a(0)=1,  a(n)=0 for n<0.
    Computes the nth term using memoised recurrence. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t   *cache = NULL;   /* array of computed terms */
 static size_t   cap   = 0;      /* current capacity of `cache` */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initialise cache if it does not exist yet. */
     if (cache == NULL) {
         cap   = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         cache[0] = 1;  /* a(0) = 1 */
         last   = 0;
     }
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Grow cache if the requested index is beyond current capacity. */
     if ((size_t)n >= cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cap   = new_cap;
     }

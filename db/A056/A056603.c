@@ -11,7 +11,8 @@
  *            and recording that product whenever m is a pri...
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   build_spf
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_spf.h"   /* build_spf */
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 static bool     initialized = false;   /* first call? */
 static idx_t   current_m      = 1;     /* current integer m  */
@@ -61,9 +63,9 @@ static void grow_cache(size_t new_cap)
 {
     if (new_cap <= cache_cap) return;
     size_t new_cap2 = new_cap * 2;
-    seq_t* new_buf = (seq_t*)malloc(new_cap2 * sizeof(seq_t));
+    seq_t* new_buf = mem_new(seq_t, new_cap2);
     for (size_t i = 0; i < cache_size; ++i) new_buf[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache    = new_buf;
     cache_cap = new_cap2;
 }
@@ -76,7 +78,7 @@ static void generate_up_to(idx_t target)
     /* lazy initialization */
     if (!initialized) {
         cache_cap = 32;
-        cache     = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         /* a(1) = 1 */
         cache[0] = (seq_t)1;
         cache_size = 1;

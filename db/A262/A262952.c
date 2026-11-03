@@ -8,12 +8,14 @@
  *            x^(3*k-1))
  * Range:     u8 n <= 34, u16 n <= 93, u32 n <= 284, u64 n <= 948,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     }
 
     idx_t N = n;
-    seq_t *dp = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (N + 1));
     if (!dp) return 0; /* allocation failure: return 0 (unlikely) */
 
     /* initialize */
@@ -53,6 +55,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[N];
-    free(dp);
+    mem_free(dp);
     return result;
 }

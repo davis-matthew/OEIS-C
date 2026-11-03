@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 294 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  a(idx_t n)  – compute the n-th term of A072343, offset 1   */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Grow the cache if needed */
     if ((idx_t)(n + 1) > cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, fact_cache, new_size);
         if (!new_cache) abort();      /* allocation failed */
         fact_cache = new_cache;
 

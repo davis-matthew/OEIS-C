@@ -8,12 +8,14 @@
  *            a(n‑3) with initial values a(1)=1, a(2)=7, a(3)=85
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 239 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (max_n == 0)
     {
         max_n = 3;                                   /* we need indices 1..3 */
-        A = (seq_t *)malloc((max_n + 1) * sizeof(seq_t));
+        A = mem_new(seq_t, (max_n + 1));
         if (!A) return (seq_t)0; /* allocation failure */
 
         A[0] = (seq_t)0;      /* unused, keep zero */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (n > max_n)
     {
         /* reallocate the array */
-        seq_t *tmp = (seq_t *)realloc(A, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, (n + 1));
         if (!tmp) return (seq_t)0; /* allocation failure */
         A = tmp;
 

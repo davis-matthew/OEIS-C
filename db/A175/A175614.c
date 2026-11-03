@@ -9,7 +9,8 @@
  *            even n (prime(1)=2)
  * Range:     u8 n <= 27, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *prime_list = NULL;
 static size_t prime_list_size = 0;
@@ -48,7 +50,7 @@ static void init_prime_list(void)
         if (is_prime[i])
             ++prime_list_size;
 
-    prime_list = (seq_t *)malloc(prime_list_size * sizeof(seq_t));
+    prime_list = mem_new(seq_t, prime_list_size);
     if (!prime_list) {
         free(is_prime);
         return;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --- static state --- */
 static seq_t *a_arr   = NULL;   /* array of a-values */
@@ -61,7 +63,7 @@ static void ensure_a_cap(size_t needed)
     if (needed <= a_cap) return;
     size_t new_cap = a_cap ? a_cap << 1 : 16;
     while (new_cap <= needed) new_cap <<= 1;
-    seq_t *newp = (seq_t*)realloc(a_arr, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, a_arr, new_cap);
     if (newp == NULL) exit(EXIT_FAILURE);
     a_arr = newp;
     a_cap = new_cap;
@@ -73,7 +75,7 @@ static void ensure_c_cap(size_t needed)
     if (needed <= c_cap) return;
     size_t new_cap = c_cap ? c_cap << 1 : 16;
     while (new_cap <= needed) new_cap <<= 1;
-    seq_t *newp = (seq_t*)realloc(c_arr, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, c_arr, new_cap);
     if (newp == NULL) exit(EXIT_FAILURE);
     c_arr = newp;
     c_cap = new_cap;
@@ -84,7 +86,7 @@ static void init(void)
 {
     /* allocate a_arr and insert the first three values */
     a_cap = 16;
-    a_arr = (seq_t*)malloc(a_cap * sizeof(seq_t));
+    a_arr = mem_new(seq_t, a_cap);
     a_len = 0;
     a_arr[a_len++] = (seq_t)1;
     a_arr[a_len++] = (seq_t)3;

@@ -9,12 +9,17 @@
  *            binom(n,k)^2 * binom(n+k,k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   mul_small_uint
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mul_small_uint.h"
+/* multiplication of a seq_t by a small idx_t value */
+static inline seq_t mul_small_uint(seq_t v, idx_t u)
+{
+    return v * (seq_t)u;
+}
 
 seq_t a(idx_t n)
 {

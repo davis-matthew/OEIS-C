@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 79, u32 n <= 258, u64 n <= 956,
  *            u128 n <= 3511, big any n
+ * Validated: standard, pass, 82 terms through n = 5102 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 /* A038207: flatten the upper-triangular array T(n,k)=C(n,k)*2^(n-k).
    For index n, find row r so that r(r+1)/2 ≤ n < (r+1)(r+2)/2.
    Let k = n - r(r+1)/2. Then a(n) = C(r,k) * 2^(r-k). */
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

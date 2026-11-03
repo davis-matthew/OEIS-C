@@ -8,13 +8,15 @@
  *            to n
  * Range:     u8 n <= 74, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
     }
 
     /* Dynamic programming arrays */
-    seq_t *dp_prev = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *dp_curr = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, (size_t)n + 1);
+    seq_t *dp_curr = mem_new(seq_t, (size_t)n + 1);
 
     dp_prev[0] = 1;
 
@@ -54,13 +56,13 @@ seq_t a(idx_t n)
         seq_t *tmp = dp_prev;
         dp_prev = dp_curr;
         dp_curr = tmp;
-        memset(dp_curr, 0, ((size_t)n + 1) * sizeof(seq_t));
+        mem_set(dp_curr, 0, ((size_t)n + 1) * sizeof(seq_t));
     }
 
     seq_t result = dp_prev[n];
 
-    free(dp_prev);
-    free(dp_curr);
+    mem_free(dp_prev);
+    mem_free(dp_curr);
     free(pent);
 
     return result;

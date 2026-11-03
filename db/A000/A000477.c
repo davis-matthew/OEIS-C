@@ -8,13 +8,33 @@
  *            - n^3/6)*sigma_1(n) + (n^2/8)*sigma_3(n)
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 125, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a000477_sigmas
+ * Validated: standard, pass, 51 terms through n = 9837 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a000477_sigmas.h"
+
+static void a000477_sigmas(idx_t n, seq_t *s1, seq_t *s3) {
+    seq_t r1 = 0, r3 = 0;
+    idx_t d;
+    for (d = 1; d * d <= n; d++) {
+        if (n % d == 0) {
+            idx_t e = n / d;
+            seq_t sd = (seq_t)d;
+            r1 += sd;
+            r3 += sd * sd * sd;
+            if (e != d) {
+                seq_t se = (seq_t)e;
+                r1 += se;
+                r3 += se * se * se;
+            }
+        }
+    }
+    *s1 = r1;
+    *s3 = r3;
+}
 
 seq_t a(idx_t n) {
     seq_t s1, s3, t;

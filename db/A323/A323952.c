@@ -11,6 +11,7 @@
  *            k = n - r(r-1)/2, * T(r,1) = r, * T(r,k) = 1 + r*(r-k+1) for k>1
  * Range:     u8 n <= 137, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 85 terms through n = 1043 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

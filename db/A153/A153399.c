@@ -10,7 +10,8 @@
  *            3k/(4n–k) ] for n>0
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* helper: grow a dynamic array to capacity >= need+1 */
 static void grow_to(seq_t **arr, size_t *cap, size_t need)
@@ -26,7 +28,7 @@ static void grow_to(seq_t **arr, size_t *cap, size_t need)
     if (*cap > need) return;
     size_t new_cap = (*cap > 0) ? *cap : 1;
     while (new_cap <= need) new_cap <<= 1;
-    *arr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 
@@ -77,7 +79,7 @@ static void ensure_a(size_t max_n)
         idx_t n = (idx_t)i;
         seq_t sum = 0;
         /* B = C(4n,n) */
-        seq_t B = binom(4*n, n);
+        seq_t B = binomial(4*n, n);
         for (idx_t k = 1; k <= n; ++k) {
             /* update B to C(4n-k, n-k) */
             seq_t num = B * (n - (k-1));

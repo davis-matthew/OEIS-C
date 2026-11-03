@@ -9,12 +9,14 @@
  *            a(2)=2 a(3)=1 a(4)=4 a(5)=3 a(6)=4
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     if (memo_size == 0) {                     /* first call: initialise */
         memo_size = 7;
-        memo = (seq_t *)malloc(memo_size * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_size);
         if (!memo) return 0;                  /* out‑of‑memory – unlikely */
 
         memo[0] = 0;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     /* extend the cached array to cover up to n */
     size_t new_cap = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, memo, new_cap);
     if (!tmp) return memo[memo_size - 1];      /* fallback on failure */
     memo = tmp;
 

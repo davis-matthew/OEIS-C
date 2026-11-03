@@ -9,7 +9,8 @@
  *            of 2's and 3's
  * Range:     u8 n <= 26, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   has_equal_nonzero23
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_equal_nonzero23.h"
+#include "../utils/mem.h"
+
+/* Check whether a number has the same non‑zero count of digits 2 and 3 in base‑6 */
+static bool has_equal_nonzero23(seq_t x)
+{
+    int count2 = 0;
+    int count3 = 0;
+    seq_t t = x;
+    const seq_t six = (seq_t)6;
+    while (t > 0) {
+        int d = (int)(t % six);
+        if (d == 2)                 count2++;
+        else if (d == 3)            count3++;
+        t /= six;
+    }
+    return count2 > 0 && count2 == count3;
+}
 
 /* The sequence cache ----------------------------------------------------- */
 static seq_t *terms      = NULL;       /* array of found terms      */
@@ -33,7 +50,7 @@ static void ensure_capacity(idx_t need)
     idx_t new_cap = terms_cap == 0 ? 128 : terms_cap * 2;
     if (new_cap < need)
         new_cap = need;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 

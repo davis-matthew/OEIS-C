@@ -8,12 +8,14 @@
  *            a(1)=5, a(2)=7, a(3)=-26
  * Range:     i8 n <= 3, i16 n <= 8, i32 n <= 16, i64 n <= 33, i128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *memo = NULL;
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     
     if (memo == NULL) {
         memo_len = (n + 1 > 100) ? n + 1 : 100;
-        memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_len);
         memo[0] = 2;
         memo[1] = 5;
         memo[2] = 7;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     } else if (n >= memo_len) {
         idx_t old_len = memo_len;
         memo_len = n + 1;
-        memo = (seq_t *)realloc(memo, memo_len * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, memo_len);
         for (idx_t i = old_len; i < memo_len; i++) {
             memo[i] = 6 * memo[i-1] - 11 * memo[i-2] - 6 * memo[i-3] - memo[i-4];
         }

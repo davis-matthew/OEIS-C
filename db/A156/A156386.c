@@ -10,7 +10,8 @@
  *            summing to n
  * Range:     u8 n <= 35, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* defined types: seq_t, idx_t */
 seq_t a(idx_t n) {
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
 
     /* precompute counts of ordered pairs of squares with a given sum */
     size_t max_sum = 2 * n;
-    seq_t *ways = (seq_t*)calloc(max_sum + 1, sizeof(seq_t));
+    seq_t *ways = mem_new(seq_t, max_sum + 1);
     if (!ways) { free(sqs); free(is_sq); return (seq_t)0; }
     for (size_t i = 0; i < sq_cnt; ++i) {
         for (size_t j = 0; j < sq_cnt; ++j) {
@@ -82,6 +84,6 @@ seq_t a(idx_t n) {
 
     free(sqs);
     free(is_sq);
-    free(ways);
+    mem_free(ways);
     return ans;
 }

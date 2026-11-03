@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   run_count_u64
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,23 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/run_count_u64.h"
+#include "../utils/mem.h"
+
+/* Count runs in binary representation of x (LSB‑first). */
+static int run_count_u64(unsigned long long x)
+{
+    int count = 0;
+    int prev = -1;
+    while (x != 0ULL) {
+        int bit = (int)(x & 1ULL);
+        if (bit != prev) {
+            ++count;
+            prev = bit;
+        }
+        x >>= 1;
+    }
+    return count;
+}
 
 static seq_t *cache = NULL;      /* cached values */
 static size_t cache_cap = 0;     /* allocated capacity */
@@ -36,7 +53,7 @@ static void grow_cache(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? (cache_cap << 1) : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     cache = new_ptr;
     cache_cap = new_cap;
 }

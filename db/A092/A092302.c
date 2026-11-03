@@ -11,7 +11,8 @@
  *            value (U counts as V)
  * Range:     u8 n <= 34, u16 n <= 34, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   add_str, roman_value
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,37 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/add_str.h"
-#include "../utils/roman_value.h"
+
+static void add_str(char *p, const char *s, size_t *len)
+{
+    while (*s) p[(*len)++] = *s++;
+}
+
+static seq_t roman_value(const char *s)
+{
+    seq_t result = 0;
+    seq_t prev = 0;
+    for (const char *p = s; *p; ++p) {
+        seq_t cur = 0;
+        switch (*p) {
+            case 'i': cur = 1; break;
+            case 'v': case 'u': cur = 5; break;
+            case 'x': cur = 10; break;
+            case 'l': cur = 50; break;
+            case 'c': cur = 100; break;
+            case 'd': cur = 500; break;
+            case 'm': cur = 1000; break;
+            default:  cur = 0; break;
+        }
+        if (cur == 0) continue;
+        if (prev < cur) result -= prev;
+        else result += prev;
+        prev = cur;
+    }
+    if (prev == 0) return 0;
+    result += prev;
+    return result;
+}
 
 static const char *const units_word[] =
     {"","one","two","three","four","five","six","seven","eight","nine"};

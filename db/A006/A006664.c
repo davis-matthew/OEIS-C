@@ -11,18 +11,50 @@
  *            a(0..n-1)), a(0) = 1. Fixed-width build: S(z) = A(z*...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 21, u128 n <= 24,
  *            big any n
- * Helpers:   alloc_zero, fin, regrow_c, release, u128_to_seq
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/fin.h"
-#include "../utils/regrow_c.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static void fin(seq_t pos, seq_t neg, seq_t *m, char *s) {
+    if (pos >= neg) { *m = pos - neg; *s = 0; }
+    else { *m = neg - pos; *s = 1; }
+}
+
+static char *regrow_c(char *old, idx_t newcap, idx_t used) {
+    char *p = (char *)calloc(newcap, 1);
+    if (old) { memcpy(p, old, used); free(old); }
+    return p;
+}
 
 typedef unsigned __int128 u128t;
 

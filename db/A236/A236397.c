@@ -7,11 +7,13 @@
  * Formula:   a(n) = 1, 2, 4, 8, 20 for n = 0…4; a(n) = n * 2^(n-2) for n >= 5
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

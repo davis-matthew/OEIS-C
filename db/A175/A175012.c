@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -64,8 +66,8 @@ seq_t a(idx_t n)
        We keep only the coefficients up to index j.
     */
     size_t m = (size_t)(j + 1);          /* number of coefficients needed */
-    seq_t *arr  = (seq_t *)calloc(m, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(m, sizeof(seq_t));
+    seq_t *arr  = mem_new(seq_t, m);
+    seq_t *next = mem_new(seq_t, m);
 
     /* Initialize R_1 = S_1(x) : coefficients are n+1 */
     for (size_t i = 0; i < m; ++i) {
@@ -89,8 +91,8 @@ seq_t a(idx_t n)
         /* If this is the final step we need, compute the requested value */
         if (k == r + 1) {
             seq_t result = next[(size_t)j] - arr[(size_t)j];
-            free(arr);
-            free(next);
+            mem_free(arr);
+            mem_free(next);
             return result;
         }
 
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
     }
 
     /* In theory we should never reach here */
-    free(arr);
-    free(next);
+    mem_free(arr);
+    mem_free(next);
     return 0;
 }

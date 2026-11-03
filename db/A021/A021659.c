@@ -8,17 +8,21 @@
  *            1/655)
  * Range:     u8 n <= 1, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
     /* Compute 10^(n+1) modulo 6550 and take the integer division by 655. */
-    seq_t v = mod_pow((seq_t)10, (uint64_t)(n + 1), (seq_t)6550);
+    seq_t v = powmod((seq_t)10, (uint64_t)(n + 1), (seq_t)6550);
     return v / 655;
 }

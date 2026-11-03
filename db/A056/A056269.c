@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{d|n} μ(d) * (4^(n/d) – 4·3^(n/d) + 6·2^(n/d) – 4)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 16, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Standard headers for C11 and C++17 */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static tables that grow on demand */
 static idx_t   current_limit = 0;   /* largest n for which tables are valid */
@@ -45,9 +47,9 @@ static void grow_tables(idx_t n)
 
     /* Allocate new arrays with space [0..n] */
     int   *new_mu  = (int*)  malloc((n + 1) * sizeof(int ));
-    seq_t *new_p2  = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *new_p3  = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *new_p4  = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_p2  = mem_new(seq_t, (n + 1));
+    seq_t *new_p3  = mem_new(seq_t, (n + 1));
+    seq_t *new_p4  = mem_new(seq_t, (n + 1));
 
     /* Linear sieve for Möbius function up to n */
     {
@@ -98,9 +100,9 @@ static void grow_tables(idx_t n)
 
     /* Release old tables */
     free(mu);
-    free(pow2);
-    free(pow3);
-    free(pow4);
+    mem_free(pow2);
+    mem_free(pow3);
+    mem_free(pow4);
 
     /* Adopt new tables */
     mu   = new_mu;

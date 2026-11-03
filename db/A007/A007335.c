@@ -8,12 +8,14 @@
  *            both v,w odd
  * Range:     u8 n <= 12, u16 n <= 33, u32 n <= 107, u64 n <= 375,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *hamming = NULL;
@@ -23,9 +25,9 @@ seq_t a(idx_t n) {
     
     while (1) {
         if (hamming_len < n * target_factor) {
-            if (hamming != NULL) free(hamming);
+            if (hamming != NULL) mem_free(hamming);
             hamming_len = n * target_factor + 100;
-            hamming = (seq_t *)malloc((hamming_len + 1) * sizeof(seq_t));
+            hamming = mem_new(seq_t, (hamming_len + 1));
             hamming[0] = 1;
             
             idx_t i2 = 0, i3 = 0;

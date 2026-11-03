@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 65, u32 n <= 2904, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 8845 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true if val occurs in arr[0 .. len-1] (arr is sorted). */
 static inline bool member(const seq_t *arr, size_t len, seq_t val)
@@ -86,9 +88,9 @@ seq_t a(idx_t n)
 
     if (!init) {                      /* one‑time initialisation */
         /* Allocate initial capacities. */
-        capA   = 8;  A   = (seq_t *)malloc(capA * sizeof(seq_t));
-        capD1  = 8;  D1  = (seq_t *)malloc(capD1 * sizeof(seq_t));
-        capDD  = 8;  DD  = (seq_t *)malloc(capDD * sizeof(seq_t));
+        capA   = 8;  A   = mem_new(seq_t, capA);
+        capD1  = 8;  D1  = mem_new(seq_t, capD1);
+        capDD  = 8;  DD  = mem_new(seq_t, capDD);
 
         /* Set the first two terms a(0)=1, a(1)=3. */
         A[0] = 1;  A[1] = 3;  lenA = 2;
@@ -118,19 +120,19 @@ seq_t a(idx_t n)
         /* Grow arrays if necessary. */
         if (lenD1 == capD1) {
             capD1 = capD1 ? capD1 * 2 : 8;
-            D1 = (seq_t *)realloc(D1, capD1 * sizeof(seq_t));
+            D1 = mem_resize(seq_t, D1, capD1);
         }
         D1[lenD1++] = new_d;
 
         if (lenA == capA) {
             capA = capA ? capA * 2 : 8;
-            A = (seq_t *)realloc(A, capA * sizeof(seq_t));
+            A = mem_resize(seq_t, A, capA);
         }
         A[lenA++] = new_a;
 
         if (lenDD == capDD) {
             capDD = capDD ? capDD * 2 : 8;
-            DD = (seq_t *)realloc(DD, capDD * sizeof(seq_t));
+            DD = mem_resize(seq_t, DD, capDD);
         }
         DD[lenDD++] = delta;
 

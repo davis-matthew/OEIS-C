@@ -12,12 +12,14 @@
  *            the type seq_t. The function returns a(i...
  * Range:     u8 n <= 67, u16 n <= 161, u32 n <= 457, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_STATIC_N 10000          /* up to which we keep static tables */
 
@@ -78,9 +80,9 @@ seq_t a(idx_t n)
 
     /* For n larger than the static limit allocate arrays */
     size_t sz = (size_t)n + 1;
-    seq_t *dp3   = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *dp5   = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *dpAll = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp3   = mem_new(seq_t, sz);
+    seq_t *dp5   = mem_new(seq_t, sz);
+    seq_t *dpAll = mem_new(seq_t, sz);
 
     if (!dp3 || !dp5 || !dpAll) {
         /* memory allocation failed – abort */
@@ -96,9 +98,9 @@ seq_t a(idx_t n)
 
     seq_t result = dpAll[n] - dp3[n] - dp5[n];
 
-    free(dp3);
-    free(dp5);
-    free(dpAll);
+    mem_free(dp3);
+    mem_free(dp5);
+    mem_free(dpAll);
 
     return result;
 }

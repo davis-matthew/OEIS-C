@@ -13,6 +13,7 @@
  *            is the triple * (s0,d1,d4): * s0 = column 0...
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 17, u64 n <= 37, u128 n <= 77,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 188 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

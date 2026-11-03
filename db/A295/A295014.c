@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 2601, u64 n <= 2601, u128 n <= 2601,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 2601 terms through n = 2601 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t values */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
         /* total number of combinations */
         cache_size = hour_cnt * mins_cnt * mins_cnt;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
 
         size_t idx = 0;
         for (size_t h = 0; h < hour_cnt; ++h)
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the sequence */
-        qsort(cache, cache_size, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(cache, cache_size, sizeof(seq_t), cmp_seq_t);
 
         inited = true;
     }

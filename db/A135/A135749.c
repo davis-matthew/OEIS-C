@@ -7,14 +7,18 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n,k) * (n-k)^k * k^k
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 33 terms through n = 250 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* provides binomial(idx_t,idx_t) -> seq_t */
-#include "../utils/big_pow.h"    /* provides big_pow(seq_t, seq_t) -> seq_t */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +29,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold index n, enlarging if needed. */
     if (n >= cache_cap) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                     /* allocation failure */
         /* initialise new slots to zero */
         for (idx_t i = cache_cap; i < new_cap; ++i)
@@ -46,8 +50,8 @@ seq_t a(idx_t n)
         /* Compute (n-k)^k and k^k.  big_pow handles any exponent (=k) that
            fits in seq_t, which is fine for the required small seq_t values
            and exact for the arbitrary‑precision build. */
-        seq_t term1 = big_pow((seq_t)(n - k), (seq_t)k);
-        seq_t term2 = big_pow((seq_t)k, (seq_t)k);
+        seq_t term1 = ipow((seq_t)(n - k), (seq_t)k);
+        seq_t term2 = ipow((seq_t)k, (seq_t)k);
 
         /* term = bin * term1 * term2 */
         seq_t term = bin * term1 * term2;

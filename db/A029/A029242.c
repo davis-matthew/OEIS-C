@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 129, u16 n <= 927, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,19 +21,20 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate an array large enough to hold 0…n */
     size_t len = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp)
         return 0; /* allocation failure */
 
 #ifdef __cplusplus
     /* Construct each element (required for arbitrary‑precision types) */
     for (size_t i = 0; i < len; ++i)
-        new (&dp[i]) seq_t();
+        *(&dp[i]) = (seq_t)0;
 #endif
 
     /* Initialise terms: dp[0] = 1, dp[1…n] = 0 */
@@ -57,9 +59,9 @@ seq_t a(idx_t n)
 #ifdef __cplusplus
     /* Destruct elements */
     for (size_t i = 0; i < len; ++i)
-        dp[i].~seq_t();
+(void)0;  /* mem_free destroys the elements */
 #endif
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

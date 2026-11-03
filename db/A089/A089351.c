@@ -9,12 +9,14 @@
  *            divided by ((1-q)^2(1-q^2)^2(1-q^3)^2(1-q^4)^2)
  * Range:     u8 n <= 11, u16 n <= 25, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,12 +36,12 @@ seq_t a(idx_t n)
     size_t len = (size_t)max_n + 1;
 
     /* allocate array for the coefficients of B(q) = 1/((1-q)^2... (1-q^4)^2) */
-    seq_t *b = (seq_t*)calloc(len, sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, len);
     b[0] = 1;
 
     /* convolution for each factor (1-q^k)^(-2)  , k=1..4 */
     for (int k = 1; k <= 4; ++k) {
-        seq_t *next = (seq_t*)calloc(len, sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, len);
         for (size_t j = 0; j <= max_n; ++j) {
             seq_t bj = b[j];
             if (bj == 0) continue;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
                 ++coeff;
             }
         }
-        free(b);
+        mem_free(b);
         b = next;
     }
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     static const int coefQ[11] = {1,   1,   2,   4,   2,   4,  2, 4, 2, 1, 1};
 
     /* allocate array for a[n] and compute */
-    seq_t *a_new = (seq_t*)calloc(len, sizeof(seq_t));
+    seq_t *a_new = mem_new(seq_t, len);
     for (size_t i = 0; i <= max_n; ++i) {
         seq_t sum = 0;
         for (int t = 0; t < 11; ++t) {
@@ -72,11 +74,11 @@ seq_t a(idx_t n)
     }
 
     /* free temporary arrays */
-    free(b);
+    mem_free(b);
 
     /* release previous memoised result if any */
     if (a_arr)
-        free(a_arr);
+        mem_free(a_arr);
 
     /* store new memoised result */
     a_arr = a_new;

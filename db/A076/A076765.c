@@ -8,12 +8,14 @@
  *            * (equivalently a(n+3) = 9*a(n+2) - 9*a(n+1) + a(n))
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 852 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initialise cache for first three values */
     if (cache_size == 0) {
         cache_capacity = 4;                        /* small initial capacity */
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) return (seq_t)0;                /* out of memory → 0 */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)9;
@@ -38,8 +40,7 @@ seq_t a(idx_t n)
         /* Grow capacity if needed */
         if (cache_size >= cache_capacity) {
             idx_t new_cap = cache_capacity << 1;   /* double */
-            seq_t *new_ptr = (seq_t *)realloc(cache,
-                                               new_cap * sizeof(seq_t));
+            seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
             if (!new_ptr) return (seq_t)0;         /* out of memory */
             cache = new_ptr;
             cache_capacity = new_cap;

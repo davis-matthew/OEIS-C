@@ -13,7 +13,8 @@
  *            previously computed values
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 9, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   digit_count, is_prime, pow10
+ * Validated: standard, pass, 43 terms through n = 9109 (2026-11-03)
+ * Helpers:   is_prime, mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,20 @@
 #include <stdbool.h>
 
 /* ----- Utility includes ----- */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t n); */
-#include "../utils/digit_count.h" /* uint64_t digit_count(uint64_t n); */
-#include "../utils/pow10.h"       /* seq_t pow10(idx_t e); */
+#include <math.h>
+#include "../utils/is_prime.h"
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* ----- Cached term array ----- */
 static seq_t *term_cache   = NULL; /* array of computed terms */
@@ -43,7 +55,7 @@ static void ensure_terms_capacity(size_t need)
     size_t new_cap = term_cap ? term_cap : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);      /* out of memory */
     term_cache = tmp;
@@ -73,7 +85,7 @@ seq_t a(idx_t n)
             seq_t val = 0;
             for (idx_t num = start; num <= end; ++num) {
                 /* number of decimal digits of num */
-                uint64_t d = digit_count((uint64_t)num);
+                uint64_t d = num_digits0((uint64_t)num);
                 seq_t pow = pow10((idx_t)d);
                 val = val * pow + (seq_t)num;
             }

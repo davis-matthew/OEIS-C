@@ -9,13 +9,25 @@
  *            floor(m/2))*binom(m – floor(m/2), floor(m/2)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 17, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   seq_malloc
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_malloc.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cent = NULL;          /* cache of central trinomial coefficients */
 static idx_t cent_size = 0;         /* number of cached values */
@@ -50,7 +62,7 @@ static seq_t compute_center(idx_t m)
         }
 
         cent_size = newsize;
-        if (cent) free(cent);
+        if (cent) mem_free(cent);
         cent = newptr;
     }
     return cent[m];

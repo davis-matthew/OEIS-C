@@ -12,13 +12,15 @@
  *            sequence 6,13,10,27,21,18,55,43,37,34,11...
  * Range:     u8 n <= 21, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* grow cache to hold at least one term on first call */
     if (size == 0) {
         cap    = 16;
-        cache  = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache  = mem_new(seq_t, cap);
         cache[0] = (seq_t)6;
         size = 1;
     }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         /* Ensure there is room for the new term(s) */
         if (size == cap) {
             cap *= 2;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
 
         /* previous value in 128‑bit for full precision */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
                 /* ensure capacity for each produced term */
                 if (size == cap) {
                     cap *= 2;
-                    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                 }
                 val = prev - ( (__uint128_t)3 * pow2 );
                 cache[size++] = (seq_t)val;

@@ -13,13 +13,15 @@
  *            the corresponding a values, sorts them, * and r...
  * Range:     u8 none, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of unique a values, sorted ascending */
 static size_t cache_len = 0;    /* number of terms stored */
@@ -58,7 +60,7 @@ static void init_sequence(void)
         return;
 
     const int MAX_PERM = 362880; /* 9! permutations */
-    cache = (seq_t *)malloc(MAX_PERM * sizeof(seq_t));
+    cache = mem_new(seq_t, MAX_PERM);
     if (!cache)   /* allocation failed, return without setting cache_len */
         return;
 

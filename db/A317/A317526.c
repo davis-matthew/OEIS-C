@@ -12,6 +12,7 @@
  *            exists for the given n, the function returns 0. The algorit...
  * Range:     u8 none, u16 n <= 1, u32 n <= 1, u64 n <= 1, u128 n <= 1,
  *            big any n
+ * Validated: standard, pass, 10 terms through n = 10 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

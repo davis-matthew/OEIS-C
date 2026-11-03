@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9382 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Maximum k that will be considered.  300 is far larger than needed for n≈10000 */
 #define MAX_K 300
@@ -84,7 +86,7 @@ static void init_probabilities(void)
     memset(count_k, 0, sizeof(count_k));
 
     cache_cap = 128;
-    seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, cache_cap);
     cache_len = 0;
 }
 
@@ -96,7 +98,7 @@ static void ensure_cache_capacity(size_t needed)
     /* double capacity until we have enough */
     while (cache_cap < needed) {
         size_t newcap = cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, newcap);
         if (!tmp) {
             /* allocation failure; abort */
             abort();

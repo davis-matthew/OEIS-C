@@ -11,13 +11,16 @@
  *            is the coefficient of x^t in (1 + x + 4x^2)^k
  * Range:     u8 n <= 21, u16 n <= 72, u32 n <= 213, u64 n <= 762,
  *            u128 n <= 2600, big any n
- * Helpers:   binomial, floor_isqrt_u64
+ * Validated: standard, pass, 75 terms through n = 2291 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_isqrt_u64.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/isqrt.h"
 
 static seq_t coeff(idx_t k, idx_t e)
 {
@@ -44,7 +47,7 @@ static seq_t coeff(idx_t k, idx_t e)
 
 seq_t a(idx_t n)
 {
-    idx_t k = floor_isqrt_u64(n);
+    idx_t k = isqrt(n);
     idx_t t = n - k * k;
     return coeff(k, t);
 }

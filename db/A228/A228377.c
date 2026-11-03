@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 5, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   digit_sum, isPrimeGeneric, pow10
+ * Validated: standard, pass, 36 terms through n = 906 (2026-11-03)
+ * Helpers:   digit_sum, is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,42 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/pow10.h"          /* seq_t pow10(idx_t) */
-#include "../utils/digit_sum.h"      /* seq_t digit_sum(seq_t) */
-#include "../utils/isPrimeGeneric.h" /* bool isPrimeGeneric(seq_t) */
+#include <stddef.h>
+#include <limits.h>
+#include "../utils/digit_sum.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* Powers of ten up to 10^19 for 64‑bit integer limits */
 static const idx_t POW10_INT[20] = {
@@ -59,7 +93,7 @@ static void ensure_prime_cap(size_t need)
     if (prime_cap >= need) return;
     size_t new_cap = prime_cap ? prime_cap : 64;
     while (new_cap < need) new_cap <<= 1;
-    prime_cache = (seq_t*)realloc(prime_cache, new_cap * sizeof(seq_t));
+    prime_cache = mem_resize(seq_t, prime_cache, new_cap);
     prime_cap = new_cap;
 }
 
@@ -117,7 +151,7 @@ seq_t a(idx_t n)
         pow10_k_cache = pow10(gen_k);                     /* 10^1    */
         term_base_cache = pow10_7_cache * pow10_k_cache + 1; /* 10^(k+7)+1 */
 
-        prime_cache = (seq_t*)malloc(sizeof(seq_t) * 64);
+        prime_cache = mem_new(seq_t, 64);
         prime_cap   = 64;
         prime_len   = 0;
         initialized = true;

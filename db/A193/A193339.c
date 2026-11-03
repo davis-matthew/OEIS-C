@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 6544, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, prime_limit_for_idx
+ * Validated: standard, pass, 71 terms through n = 9312 (2026-11-01)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/prime_limit_for_idx.h"
+#include <stdbool.h>
+#include <math.h>
 #include "../utils/build_primes.h"
+
+/* utility – estimate an upper bound for the n-th prime (Rosser–Schoenfeld) */
+static idx_t prime_limit_for_idx(idx_t n)
+{
+    if (n < 6)
+        return 12;                               /* prime(6)=13 */
+    double dn   = (double)n;
+    double lgn  = log(dn);
+    double lgln = log(lgn);
+    /* p_n < n(ln n + ln ln n) for n ≥ 6, add a safety margin */
+    double limit = dn * (lgn + lgln) + 3.0;
+    return (idx_t)limit;
+}
 
 /* External linkage as required. */
 seq_t a(idx_t n)

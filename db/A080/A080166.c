@@ -6,9 +6,10 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = the n‑th prime whose binary representation starts with
  *            "11"
- * Range:     u8 n <= 26, u16 n <= 3212, u32 n <= 9146, u64 n <= 9146,
- *            u128 n <= 9146, big any n
- * Helpers:   has_initial_11
+ * Range:     u8 n <= 26, u16 n <= 3212, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 70 terms through n = 9146 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,15 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/has_initial_11.h"
+
+/* Test whether the two most significant bits of a 64‑bit integer are 1. */
+static inline bool has_initial_11(uint64_t p)
+{
+    /* p is guaranteed to be ≥ 3 when this function is called. */
+    int msb = 63 - __builtin_clzll(p);          /* position of the highest set bit (0‑based) */
+    /* The next significant bit is at position msb-1.  It must be set. */
+    return ((p >> (msb - 1)) & 1ULL) != 0ULL;
+}
 
 /* Simple deterministic primality test for 64‑bit values. */
 static inline bool is_prime_u64(uint64_t n)

@@ -9,14 +9,28 @@
  *            not in n+1
  * Range:     u8 n <= 2, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   contains05
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains05.h"
+#include "../utils/mem.h"
+
+static inline bool contains05(seq_t x) {
+    if (x < 10) return false;          /* need at least two digits */
+    int prev = (int)(x % 10);
+    x /= 10;
+    while (x > 0) {
+        int curr = (int)(x % 10);
+        if (curr == 0 && prev == 5) return true;
+        prev = curr;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;               /* undefined for offset 1, guard anyway */
@@ -27,7 +41,7 @@ seq_t a(idx_t n) {
 
     if (!buf) {                         /* initialise cache */
         cap = 128;
-        buf = (seq_t *)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
     }
 
     while (count < n) {
@@ -38,7 +52,7 @@ seq_t a(idx_t n) {
                 /* store it */
                 if (count == cap) {          /* grow cache */
                     cap *= 2;
-                    buf = (seq_t *)realloc(buf, cap * sizeof(seq_t));
+                    buf = mem_resize(seq_t, buf, cap);
                 }
                 buf[count++] = cand;
                 search = cand + 1;           /* start after this candidate */

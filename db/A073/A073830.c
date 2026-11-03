@@ -7,14 +7,15 @@
  * Formula:   a(n) = (4 * ((n-1)! + 1) + n) mod (n * (n + 2))
  * Range:     u8 n <= 12, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_mul_si
+ * Validated: standard, pass, 82 terms through n = 9965 (2026-11-01)
+ * Helpers:   mulmod_idx_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_mul_si.h"
+#include "../utils/mulmod_idx_to_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
     /* compute (n-1)! modulo mod */
     seq_t fact = 1;
     for (idx_t i = 2; i < n; ++i)
-        fact = mod_mul_si(fact, i, mod);
+        fact = mulmod_idx_to_seq(fact, i, mod);
 
     /* a(n) = 4*((n-1)! + 1) + n (mod mod) */
     seq_t value = 4 * ((seq_t)fact + 1) + n;

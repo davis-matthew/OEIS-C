@@ -9,30 +9,33 @@
  *            (p^2-1) * p^(2e-2) if p ≡ 2 (mod 3) * for any n ≥ 1
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 69 terms through n = 9731 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static inline seq_t local_contribution(uint64_t p, uint64_t e)
 {
     if (p == 3u) {
         /* a(3^e) = 2 * 3^(2e-1) */
-        seq_t pow3 = pow_uint(3u, (idx_t)(2*e - 1));
+        seq_t pow3 = ipow_u64_idx(3u, (idx_t)(2*e - 1));
         return pow3 * ((seq_t)2);
     } else if (p % 3u == 1u) {
         /* a(p^e) = (p-1)^2 * p^(2e-2)  for p ≡ 1 (mod 3) */
-        seq_t powp = pow_uint(p, (idx_t)(2*e - 2));
+        seq_t powp = ipow_u64_idx(p, (idx_t)(2*e - 2));
         seq_t t = (seq_t)(p - 1u);
         return powp * t * t;
     } else { /* p % 3 == 2 */
         /* a(p^e) = (p^2-1) * p^(2e-2)  for p ≡ 2 (mod 3) */
-        seq_t powp = pow_uint(p, (idx_t)(2*e - 2));
+        seq_t powp = ipow_u64_idx(p, (idx_t)(2*e - 2));
         seq_t pp = (seq_t)p * (seq_t)p;
         return powp * (pp - (seq_t)1);
     }

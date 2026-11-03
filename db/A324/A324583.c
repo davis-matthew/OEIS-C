@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 166, u16 n <= 9954, u32 n <= 9954, u64 n <= 9954,
- *            u128 n <= 9954, big any n
- * Helpers:   is_prime_small
+ * Range:     u8 n <= 166, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 96 terms through n = 9954 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(seq_t num) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* test whether a given k satisfies the coprimality condition */
 static bool coprime_k(seq_t k)
@@ -43,7 +45,7 @@ static bool coprime_k(seq_t k)
     {
         ++next_candidate;
         /* simple primality test for the small number next_candidate */
-        while (!is_prime_small((seq_t)next_candidate))
+        while (!is_prime_seq((seq_t)next_candidate))
             ++next_candidate;
         primes[primes_cnt++] = next_candidate;
     }
@@ -66,7 +68,7 @@ static bool coprime_k(seq_t k)
         while (primes_cnt <= i)
         {
             ++next_candidate;
-            while (!is_prime_small((seq_t)next_candidate))
+            while (!is_prime_seq((seq_t)next_candidate))
                 ++next_candidate;
             primes[primes_cnt++] = next_candidate;
         }
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
             if (len == cap)          /* grow table */
             {
                 size_t new_cap = (cap == 0) ? 16 : cap << 1;
-                seq_t *tmp = (seq_t *)realloc(table, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, table, new_cap);
                 if (!tmp) abort();   /* allocation failure */
                 table = tmp;
                 cap   = new_cap;

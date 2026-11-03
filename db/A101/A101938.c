@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 6233, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 8999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Get the n-th term of A101938 */
 seq_t a(idx_t n);
@@ -58,7 +60,7 @@ static void seq_init(void)
 
     /* Allocate space for the sequence.  Start with 200 000 slots. */
     idx_t cap = 200000;
-    seq_vals = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, cap);
     seq_len = 0;
 
     /* Scan all n >= 3; the condition uses neighbors at distance 1 and 2. */
@@ -69,7 +71,7 @@ static void seq_init(void)
             omega[n] < omega[n+2]) {
             if (seq_len == cap) {          /* grow the array if needed */
                 cap *= 2;
-                seq_vals = (seq_t*)realloc(seq_vals, cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, cap);
             }
             seq_vals[seq_len++] = (seq_t)n;
         }

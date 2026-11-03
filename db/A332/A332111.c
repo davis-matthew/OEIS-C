@@ -11,6 +11,7 @@
  *            queries from that list
  * Range:     u8 n <= 91, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
+ * Validated: full, pass, 92 terms through n = 92 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

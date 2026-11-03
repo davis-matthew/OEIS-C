@@ -10,15 +10,22 @@
  *            S mod p^e computed in native modular arithmetic
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 24, u64 n <= 46, u128 n <= 88,
  *            big any n
- * Helpers:   a001008_fixed, a001008_inv
+ * Validated: standard, pass, 45 terms through n = 2031 (2026-11-01)
+ * Helpers:   modinv
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a001008_fixed.h"
-#include "../utils/a001008_inv.h"
+#include "../utils/modinv.h"
+
+static int a001008_fixed(void) {
+    seq_t x = 1;
+    int k;
+    for (k = 0; k < 256; k++) x <<= 1;
+    return x == 0;
+}
 
 seq_t a(idx_t n) {
     long long N, i, j, np = 0;
@@ -78,7 +85,7 @@ seq_t a(idx_t n) {
             uint64_t x = (uint64_t)i, pv = 1, term;
             while (x % p == 0) { x /= p; pv *= p; }
             term = ((m / pv) % m) * Lp % m;
-            term = term * a001008_inv(x % m, m) % m;
+            term = term * modinv(x % m, m) % m;
             r = (r + term) % m;
         }
         if (r == 0) v = ex[j];

@@ -10,16 +10,51 @@
  *            T(k) is prime (OEIS A158864)
  * Range:     u8 none, u16 n <= 3, u32 n <= 464, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   digit_len, isPrimeGeneric, pow10
+ * Validated: standard, pass, 62 terms through n = 925 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
-#include "../utils/isPrimeGeneric.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -44,7 +79,7 @@ seq_t a(idx_t n)
         seq_t t  = kv * (kv + 1) / 2;   /* triangular number T(k)              */
 
         /* Determine number of decimal digits of t           */
-        int d_int = digit_len(t);
+        int d_int = num_digits(t);
         idx_t d = (idx_t)d_int;
 
         /* Build concatenated number: 6 * 10^d + t        */
@@ -58,7 +93,7 @@ seq_t a(idx_t n)
             if (terms_size == terms_cap)
             {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) /* allocation failed – abort */
                     return 0;
                 terms = tmp;

@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   not stated
- * Range:     u8 n <= 63, u16 n <= 2047, u32 n <= 9881, u64 n <= 9881,
- *            u128 n <= 9881, big any n
+ * Range:     u8 n <= 63, u16 n <= 2047, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 104 terms through n = 9881 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -26,7 +27,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/pow3.h"   /* seq_t pow3(idx_t exp) */
+#include "../utils/pow3.h"
 
 #define PRIME_LIMIT 20000   /* sufficient for all n in typical tests */
 

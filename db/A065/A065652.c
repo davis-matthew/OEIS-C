@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 122, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9247 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- static storage for memoisation ----------------------------------- */
 static seq_t *seq = NULL;      /* array of already computed values      */
@@ -38,7 +40,7 @@ static void init_static_state(void)
 {
     if (seq == NULL) {
         seq_capacity = 16;
-        seq = (seq_t *)malloc(seq_capacity * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_capacity);
         seq_size = 1;                  /* we already have a(0)            */
         seq[0] = (seq_t)0;             /* a(0) = 0                          */
     }
@@ -49,7 +51,7 @@ static void ensure_seq_cap(size_t need)
 {
     while (seq_capacity <= need) {
         size_t new_cap = seq_capacity * 2;
-        seq_t *new_seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *new_seq = mem_resize(seq_t, seq, new_cap);
         seq = new_seq;
         seq_capacity = new_cap;
     }

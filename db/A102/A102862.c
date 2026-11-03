@@ -8,7 +8,8 @@
  *            of the first n primes, counted with multiplicity)
  * Range:     u8 n <= 13, u16 n <= 202, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 8093 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static arrays for primes ------------------------------------------------- */
 static uint32_t primes[200000];
@@ -54,7 +56,7 @@ static void ensure_a_size(idx_t n)
     size_t new_cap = (a_cap > 0) ? a_cap * 2 : (size_t)n + 10;
     if (new_cap < (size_t)n) new_cap = (size_t)n + 10;
 
-    seq_t *tmp = (seq_t*)realloc(a_vals, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_vals, (new_cap + 1));
     if (!tmp) return;                       /* ignore allocation failure */
     a_vals = tmp;
 

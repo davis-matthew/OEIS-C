@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9526 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External linkage required */
 seq_t a(idx_t n);
@@ -58,7 +60,7 @@ static void ensure_a_cap(idx_t n) {
     if ((size_t)n >= a_cap) {
         size_t new_cap = a_cap ? a_cap << 1 : 4;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, new_cap);
         if (!tmp) abort();
         a_arr = tmp;
         a_cap = new_cap;
@@ -69,7 +71,7 @@ static void ensure_b_cap(idx_t n) {
     if ((size_t)n >= b_cap) {
         size_t new_cap = b_cap ? b_cap << 1 : 4;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b_arr, new_cap);
         if (!tmp) abort();
         b_arr = tmp;
         b_cap = new_cap;
@@ -79,9 +81,9 @@ static void ensure_b_cap(idx_t n) {
 /* ----------   initial setup   ---------- */
 static void init_sequence(void) {
     a_cap = 4;
-    a_arr = (seq_t *)calloc(a_cap, sizeof(seq_t));
+    a_arr = mem_new(seq_t, a_cap);
     b_cap = 4;
-    b_arr = (seq_t *)calloc(b_cap, sizeof(seq_t));
+    b_arr = mem_new(seq_t, b_cap);
     used_cap = 128;
     used  = (uint8_t *)calloc(used_cap, sizeof(uint8_t));
 

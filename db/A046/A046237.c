@@ -10,13 +10,16 @@
  *            order) and m=2,3,4,
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 35, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     static const seq_t pre[6] = {0ULL, 1ULL, 2ULL, 4ULL, 8ULL, 16ULL};
@@ -28,6 +31,6 @@ seq_t a(idx_t n) {
     idx_t r = k % 3;          /* 0→1, 1→2, 2→4 */
     seq_t d = (seq_t)1 << r;  /* 1,2,4 */
 
-    seq_t pow7 = big_pow((seq_t)7, (seq_t)m);
+    seq_t pow7 = ipow((seq_t)7, (seq_t)m);
     return d * (pow7 + 1);
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_product_base
+ * Validated: standard, pass, 97 terms through n = 973 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
  */
 
 #include <stdbool.h>   /* required for C11/C++17 compatibility */
-#include "../utils/digit_product_base.h"
+
+static seq_t digit_product_base(idx_t n, idx_t base)
+{
+    idx_t temp = n;
+    seq_t prod = 1;
+    while (temp > 0) {
+        idx_t digit = temp % base;
+        if (digit == 0)
+            return 0;                 /* product is zero, no need to continue */
+        prod *= (seq_t)digit;
+        temp /= base;
+    }
+    return prod;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 3^(4*n + 1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 19,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 197 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

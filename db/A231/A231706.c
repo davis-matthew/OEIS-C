@@ -11,14 +11,40 @@
  *            DP over rows
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   row_is_valid
+ * Validated: standard, pass, 31 terms through n = 183 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/row_is_valid.h"
+
+/* Validity check for a single row, given the patterns of the rows above and below.
+   `above` and `below` contain the 5-bit patterns of the neighboring rows; the
+   corresponding flags indicate whether those neighbours exist. */
+static bool row_is_valid(uint8_t above, bool have_above,
+                        uint8_t row, uint8_t below, bool have_below)
+{
+    for (int j = 0; j < 5; ++j) {
+        unsigned int neigh = 0, ones = 0;
+
+        /* horizontal neighbours */
+        if (j > 0) { ++neigh; ones += (row >> (j - 1)) & 1; }
+        if (j < 4) { ++neigh; ones += (row >> (j + 1)) & 1; }
+
+        /* vertical neighbours */
+        if (have_above) { ++neigh; ones += (above >> j) & 1; }
+        if (have_below) { ++neigh; ones += (below >> j) & 1; }
+
+        /* anti‑diagonal neighbours (above‑right, below‑left) */
+        if (have_above && j < 4) { ++neigh; ones += (above >> (j + 1)) & 1; }
+        if (have_below && j > 0) { ++neigh; ones += (below >> (j - 1)) & 1; }
+
+        if (ones * 2 > neigh) return false;   /* strict majority */
+    }
+    return true;
+}
 
 /* Pre‑computed validity tables.  They are built only once. */
 static bool precomp_done = false;

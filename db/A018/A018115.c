@@ -7,7 +7,8 @@
  * Formula:   a(n) = round(24^(n/4))
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   floor_sqrt, seq_pow
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   ipow_i32, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,28 @@
  * No floating point arithmetic is used on the final integer value.
  */
 #include <math.h>       /* for powl, llrintl */
-#include "../utils/seq_pow.h"
-#include "../utils/floor_sqrt.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_idx.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +60,7 @@ seq_t a(idx_t n)
 
     /* ---- arbitrary‑precision types --------------------------------------------- */
     /* Pre‑compute 24^n */
-    seq_t pow24 = seq_pow((seq_t)24, n);
+    seq_t pow24 = ipow_idx((seq_t)24, n);
 
     /* Four‑th root by successive integer square roots */
     seq_t sqrt1 = floor_sqrt(pow24);
@@ -47,12 +68,12 @@ seq_t a(idx_t n)
     seq_t low   = sqrt2;             /* floor(24^(n/4)) */
 
     /* Compute low^4 and (low+1)^4 for comparison */
-    seq_t lowSq    = seq_pow(low,    2);
-    seq_t low4     = seq_pow(lowSq,  2);
+    seq_t lowSq    = ipow_idx(low,    2);
+    seq_t low4     = ipow_idx(lowSq,  2);
 
     seq_t high   = low + 1;          /* ceil(24^(n/4)) */
-    seq_t highSq  = seq_pow(high,   2);
-    seq_t high4   = seq_pow(highSq, 2);
+    seq_t highSq  = ipow_idx(high,   2);
+    seq_t high4   = ipow_idx(highSq, 2);
 
     /* Choose the nearer integer */
     seq_t diffLow  = pow24 - low4;

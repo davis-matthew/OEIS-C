@@ -10,14 +10,28 @@
  *            number
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   seq_is_fixed_width
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     if (seq_is_fixed_width()) {
@@ -26,7 +40,7 @@ seq_t a(idx_t n) {
         seq_t *row, B, cat, res;
         if (n > 300) n = 300; /* no such term fits in 128 bits */
         len = n + 2;
-        row = (seq_t *)malloc(sizeof(seq_t) * (size_t)len);
+        row = mem_new(seq_t, (size_t)len);
         for (j = 0; j < len; j++) row[j] = 0;
         row[0] = 1;
         for (r = 1; r <= 2 * n - 1; r++) {
@@ -36,7 +50,7 @@ seq_t a(idx_t n) {
         B = row[n - 1];
         cat = row[n - 1] - row[n + 1];
         res = B + cat - 1;
-        free(row);
+        mem_free(row);
         return res;
     } else {
         /* B = binomial(2n-1, n-1), computed multiplicatively */

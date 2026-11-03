@@ -11,12 +11,14 @@
  *            the sign of the signed Stirling numbers of the first...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *c_cache = NULL;   /* c_m values          */
 static seq_t *b_cache = NULL;   /* risingfac(8,k)      */
@@ -30,10 +32,10 @@ static void ensure_capacity(idx_t n)
 
     idx_t new_cap = n + 1;
     /* reallocate arrays */
-    c_cache   = (seq_t*)realloc(c_cache,   new_cap * sizeof(seq_t));
-    b_cache   = (seq_t*)realloc(b_cache,   new_cap * sizeof(seq_t));
-    fact_cache= (seq_t*)realloc(fact_cache, new_cap * sizeof(seq_t));
-    a_cache   = (seq_t*)realloc(a_cache,   new_cap * sizeof(seq_t));
+    c_cache   = mem_resize(seq_t, c_cache, new_cap);
+    b_cache   = mem_resize(seq_t, b_cache, new_cap);
+    fact_cache= mem_resize(seq_t, fact_cache, new_cap);
+    a_cache   = mem_resize(seq_t, a_cache, new_cap);
 
     /* initialize new entries */
     for (idx_t i = n_cap; i < new_cap; ++i) {

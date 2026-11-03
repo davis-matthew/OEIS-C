@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   pow4
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow4.h"
+#include "../utils/mem.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 static seq_t *a_vals = NULL;   /* a[n] */
 static seq_t *c_vals = NULL;   /* c[n] = 4^n * a[n] */
@@ -33,9 +46,9 @@ static void ensure_capacity(idx_t n)
     if (cap <= (size_t)n) {
         size_t new_cap = cap ? cap << 1 : 16;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        a_vals = (seq_t *)realloc(a_vals, (new_cap + 1) * sizeof(seq_t));
-        c_vals = (seq_t *)realloc(c_vals, (new_cap + 1) * sizeof(seq_t));
-        z_vals = (seq_t *)realloc(z_vals, (new_cap + 1) * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, (new_cap + 1));
+        c_vals = mem_resize(seq_t, c_vals, (new_cap + 1));
+        z_vals = mem_resize(seq_t, z_vals, (new_cap + 1));
         /* initialise new elements to 0 */
         for (size_t i = cap; i <= new_cap; ++i) {
             a_vals[i] = 0;

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 129, u16 n <= 9506, u32 n <= 9506, u64 n <= 9506,
- *            u128 n <= 9506, big any n
- * Helpers:   ensure_col, ensure_used_value
+ * Range:     u8 n <= 129, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 82 terms through n = 9506 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,40 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/ensure_col.h"
-#include "../utils/ensure_used_value.h"
+#include "../utils/mem.h"
+
+static void ensure_col(idx_t *cap_p, seq_t **base_p, idx_t **mult_p, idx_t col)
+{
+    size_t cap = (size_t)*cap_p;
+    if ((size_t)col <= cap) return;
+    size_t new_cap = cap ? cap << 1 : 64;
+    while (new_cap < (size_t)col) new_cap <<= 1;
+    seq_t *new_base = mem_resize(seq_t, *base_p, (new_cap + 1));
+    if (!new_base) abort();
+    idx_t *new_mult = (idx_t *)realloc(*mult_p, (new_cap + 1) * sizeof(idx_t));
+    if (!new_mult) abort();
+    for (idx_t i = cap + 1; i <= (idx_t)new_cap; ++i) {
+        new_base[i] = 0;
+        new_mult[i] = 0;
+    }
+    *cap_p   = new_cap;
+    *base_p  = new_base;
+    *mult_p  = new_mult;
+}
+
+static void ensure_used_value(idx_t *cap_p, bool **arr_p, idx_t idx)
+{
+    size_t cap = (size_t)*cap_p;
+    size_t needed = (size_t)(idx + 1);
+    if (needed <= cap) return;
+    size_t new_cap = cap ? cap << 1 : 64;
+    while (new_cap < needed) new_cap <<= 1;
+    bool *new_arr = (bool *)realloc(*arr_p, (new_cap + 1) * sizeof(bool));
+    if (!new_arr) abort();
+    for (idx_t i = cap + 1; i <= (idx_t)new_cap; ++i) new_arr[i] = false;
+    *cap_p = new_cap;
+    *arr_p = new_arr;
+}
 
 /*--- helpers to grow dynamic arrays --------------------------------*/
 
@@ -34,7 +67,7 @@ static void ensure_cache(idx_t *cap_p, seq_t **arr_p, idx_t idx)
     if (needed <= cap) return;
     size_t new_cap = cap ? cap << 1 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(*arr_p, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, *arr_p, (new_cap + 1));
     if (!new_arr) abort();
     *cap_p = new_cap;
     *arr_p = new_arr;

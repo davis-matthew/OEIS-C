@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   digit_len, get_digits, is_prime
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   get_digits, is_prime, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,12 @@
 
 #include <stdbool.h>
 #include <stdint.h>          /* for uint64_t, size_t */
-#include "../utils/is_prime.h"
-#include "../utils/digit_len.h"
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/get_digits.h"
+#include "../utils/is_prime.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of found terms */
 static size_t cache_cap = 0;
@@ -38,11 +42,11 @@ static void ensure_cache_cap(size_t need)
     size_t new_cap = (cache_cap == 0) ? 8 : cache_cap << 1;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i)
             new_arr[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_arr;
     cache_cap = new_cap;
@@ -52,7 +56,7 @@ static void ensure_cache_cap(size_t need)
 static bool good_prime(uint64_t v)
 {
     /* Extract decimal digits.  The utility stores most significant digit first. */
-    int dlen = digit_len((seq_t)v);
+    int dlen = num_digits((seq_t)v);
     if (dlen <= 1)
         return true;                 /* 2,3,5,7 are single–digit primes */
     size_t len = (size_t)dlen;

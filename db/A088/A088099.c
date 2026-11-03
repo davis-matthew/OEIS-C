@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state shared between calls: */
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     if (n >= cache_size) {
         size_t new_capacity = cache_size == 0 ? 16 : cache_size * 2;
         while (new_capacity <= n) new_capacity *= 2;
-        seq_t *tmp = (seq_t*)realloc(sums, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sums, new_capacity);
         if (!tmp) return 0; /* fallback – OOM */
         sums = tmp;
         cache_size = new_capacity;

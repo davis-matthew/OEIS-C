@@ -12,13 +12,16 @@
  *            x^(m-2j)
  * Range:     i8 n <= 6, i16 n <= 25, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>          /* malloc, free */
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static inline idx_t cumulative_terms(idx_t r) {
     /* S(r) = r*(3r-1)/2 */
@@ -53,13 +56,13 @@ seq_t a(idx_t n) {
     idx_t lenP2 = 4 * r + 1;                     /* degrees 0..4r */
     idx_t lenP3 = 6 * r + 1;                     /* degrees 0..6r */
 
-    seq_t *p  = (seq_t *)malloc(lenP  * sizeof(seq_t));
-    seq_t *p2 = (seq_t *)malloc(lenP2 * sizeof(seq_t));
-    seq_t *p3 = (seq_t *)malloc(lenP3 * sizeof(seq_t));
+    seq_t *p  = mem_new(seq_t, lenP);
+    seq_t *p2 = mem_new(seq_t, lenP2);
+    seq_t *p3 = mem_new(seq_t, lenP3);
 
     if (!p || !p2 || !p3) {
         /* Allocation failure – return 0 as safe fallback */
-        free(p); free(p2); free(p3);
+        mem_free(p); mem_free(p2); mem_free(p3);
         return 0;
     }
 
@@ -71,7 +74,7 @@ seq_t a(idx_t n) {
     /* Build P(x) = S(2r+1,x)/x */
     for (idx_t s = 0; s <= r; ++s) {
         idx_t idx = 2 * s;                    /* even exponent */
-        seq_t coeff = binom(r + 1 + s, r - s);/* binomial part   */
+        seq_t coeff = binomial(r + 1 + s, r - s);/* binomial part   */
         if ((r - s) & 1)                     /* sign adjustment  */
             coeff = -coeff;
         p[idx] = coeff;
@@ -99,9 +102,9 @@ seq_t a(idx_t n) {
     seq_t result = p3[exp];
 
     /* Clean up */
-    free(p);
-    free(p2);
-    free(p3);
+    mem_free(p);
+    mem_free(p2);
+    mem_free(p3);
 
     return result;
 }

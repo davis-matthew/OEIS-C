@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 653, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9460 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -----------------------------------------------------------------------
  * Helper: compute the Collatz stopping time for a given idx_t.
@@ -62,7 +64,7 @@ static void ensure_step_capacity(idx_t req)
     size_t new_cap = step_vals_cap ? step_vals_cap * 2 : 1024;
     while (new_cap <= (size_t)req)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(step_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, step_vals, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     /* initialise newly allocated slots to 0 */
     for (size_t i = step_vals_cap; i < new_cap; ++i)
@@ -81,7 +83,7 @@ static void ensure_first_k_capacity(idx_t step)
     size_t new_cap = first_k_cap ? first_k_cap * 2 : 128;
     while (new_cap <= (size_t)step)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(first_k_by_step, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, first_k_by_step, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     for (size_t i = first_k_cap; i < new_cap; ++i)
         tmp[i] = 0;
@@ -115,12 +117,12 @@ seq_t a(idx_t n)
     /* Lazy allocation of static tables */
     if (!step_vals) {
         step_vals_cap = 1024;
-        step_vals = (seq_t *)calloc(step_vals_cap, sizeof(seq_t));
+        step_vals = mem_new(seq_t, step_vals_cap);
         if (!step_vals) exit(EXIT_FAILURE);
     }
     if (!first_k_by_step) {
         first_k_cap = 128;
-        first_k_by_step = (seq_t *)calloc(first_k_cap, sizeof(seq_t));
+        first_k_by_step = mem_new(seq_t, first_k_cap);
         if (!first_k_by_step) exit(EXIT_FAILURE);
     }
 

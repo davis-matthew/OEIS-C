@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    so each a(n) is found in O(n) time overall. */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* prime values for digits 1..6 in base 7 */
 static const uint64_t primes[6] = {2ULL,3ULL,5ULL,7ULL,11ULL,13ULL};
@@ -37,7 +39,7 @@ static void ensure_cache_cap(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 128;
     if (new_cap < need) new_cap = need;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();          /* allocation failure */
     cache      = new_cache;
     cache_cap  = new_cap;

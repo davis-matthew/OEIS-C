@@ -8,6 +8,7 @@
  *            Φ_319(x)
  * Range:     i8 n <= 280, i16 n <= 280, i32 n <= 280, i64 n <= 280,
  *            i128 n <= 280, big any n
+ * Validated: full, pass, 281 terms through n = 280 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

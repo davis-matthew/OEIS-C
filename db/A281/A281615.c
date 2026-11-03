@@ -10,7 +10,8 @@
  *            triangular} \frac{x^t}{1-x^t} / \prod_{t triangular} (1-x^t)
  * Range:     u8 n <= 20, u16 n <= 78, u32 n <= 377, u64 n <= 2134,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 8621 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,11 +29,12 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Allocate arrays of size n+1.  Index 0 is used as the empty partition. */
-    seq_t *p = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *f = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *f = mem_new(seq_t, (size_t)(n + 1));
     if (!p || !f) return 0;          /* memory failure – return 0 */
 
     p[0] = 1;                         /* there is one way to partition 0  */
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t ans = f[n];
-    free(p);
-    free(f);
+    mem_free(p);
+    mem_free(f);
     return ans;
 }

@@ -9,7 +9,8 @@
  *            function of the 10th‑order mock theta function X(q))
  * Range:     i8 n <= 69, i16 n <= 210, i32 n <= 689, i64 n <= 2422,
  *            i128 n <= 8936, big any n
- * Helpers:   _floor_isqrt_u64, alloc_seq_array
+ * Validated: standard, pass, 90 terms through n = 9993 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/alloc_seq_array.h"
+#include <stddef.h>
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +36,7 @@ seq_t a(idx_t n)
         dp[i] = (seq_t)0;
 
     seq_t result = (seq_t)0;
-    idx_t kmax = _floor_isqrt_u64(n);
+    idx_t kmax = isqrt(n);
 
     for (idx_t k = 0; k <= kmax; ++k) {
         if (k > 0) {
@@ -46,6 +53,6 @@ seq_t a(idx_t n)
             result += sign * dp[tmax];
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

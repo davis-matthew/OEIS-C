@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 40, u32 n <= 74, u64 n <= 143,
  *            u128 n <= 281, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Ensure the first four terms are always present. */
     if (cap < 4) {
-        cache = (seq_t *)realloc(cache, 4 * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, 4);
         cap   = 4;
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* If we have not yet computed up to n, extend the cache and fill. */
     if ((size_t)n >= cap) {
         /* Grow the array to hold indices 0..n. */
-        cache = (seq_t *)realloc(cache, ((size_t)n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, ((size_t)n + 1));
         /* Compute the new terms, starting from the first index
          * that is currently undefined.  The loop variable uses
          * size_t to avoid signed/unsigned mismatches. */

@@ -8,11 +8,14 @@
  *            - r*(r+1)/2 (binomial(r,k) is taken over integers)
  * Range:     u8 n <= 10, u16 n <= 23, u32 n <= 69, u64 n <= 197,
  *            u128 n <= 230, big any n
+ * Validated: standard, pass, 71 terms through n = 222 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <math.h>
 #include "../utils/binomial.h"
 #include <math.h>           /* sqrtl */
 

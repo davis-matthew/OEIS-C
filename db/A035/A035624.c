@@ -9,12 +9,14 @@
  *            at least one part of each type
  * Range:     u8 n <= 26, u16 n <= 72, u32 n <= 224, u64 n <= 763,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a( n ) as defined by OEIS sequence A035624. */
 seq_t a(idx_t n)
@@ -23,12 +25,12 @@ seq_t a(idx_t n)
 
     /* Temporary DP arrays.  size_t is safe for indices up to n (≤ 10000). */
     size_t N = (size_t)n + 1;
-    seq_t *f  = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *g1 = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *g2 = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *f  = mem_new(seq_t, N);
+    seq_t *g1 = mem_new(seq_t, N);
+    seq_t *g2 = mem_new(seq_t, N);
     if (!f || !g1 || !g2) {
         /* memory exhausted – return 0 (sequence not needed in this case). */
-        free(f); free(g1); free(g2);
+        mem_free(f); mem_free(g1); mem_free(g2);
         return 0;
     }
 
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
     ans = ans - g1[n];
     ans = ans - g2[n];
 
-    free(f); free(g1); free(g2);
+    mem_free(f); mem_free(g1); mem_free(g2);
     return ans;
 }

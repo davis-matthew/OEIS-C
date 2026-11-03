@@ -9,14 +9,15 @@
  *            common multiple of 1,2,…,k)
  * Range:     u8 n <= 419, u16 n <= 5040, u32 n <= 5040, u64 n <= 5040,
  *            u128 n <= 5040, big any n
- * Helpers:   _seq_gcd
+ * Validated: standard, pass, 100 terms through n = 4999 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/_seq_gcd.h"
+#include "../utils/gcd.h"
 
 /* Euclidean algorithm for seq_t. */
 
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
 
     for (size_t k = 2; ; ++k) {
         seq_t kcoef = (seq_t)k;
-        seq_t g = _seq_gcd(cur, kcoef);
+        seq_t g = gcd(cur, kcoef);
 
         /* next = cur / g * k */
         seq_t t = cur / g;

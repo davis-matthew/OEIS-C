@@ -12,15 +12,32 @@
  *            returned beyond it
  * Range:     u8 n <= 50, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   a926_gcd, a926_idoneal
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a926_gcd.h"
-#include "../utils/a926_idoneal.h"
+#include "../utils/gcd_u64.h"
+
+static bool a926_idoneal(uint64_t n)
+{
+    uint64_t k;
+    for (k = 1; 3 * k * k <= n; k++) {
+        uint64_t m = n + k * k;
+        uint64_t a;
+        for (a = 2 * k + 1; a * a < m; a++) {
+            if (m % a) continue;
+            {
+                uint64_t c = m / a;
+                if (gcd_u64(gcd_u64(a, 2 * k), c) == 1) return false;
+            }
+        }
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

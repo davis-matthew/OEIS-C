@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         /* allocate DP tables: dp[k][val] = number of ways to write val as sum of k squares */
         seq_t **dp = (seq_t **)malloc(6 * sizeof(seq_t *));
         for (int k = 0; k <= 5; ++k)
-            dp[k] = (seq_t *)calloc((size_t)LIMIT + 1, sizeof(seq_t));
+            dp[k] = mem_new(seq_t, (size_t)LIMIT + 1);
 
         dp[0][0] = (seq_t)1;
 
@@ -50,12 +52,12 @@ seq_t a(idx_t n)
 
         /* collect all values that have exactly four representations as a sum of five squares */
         size_t cap = 64;
-        list = (seq_t *)malloc(cap * sizeof(seq_t));
+        list = mem_new(seq_t, cap);
         for (idx_t val = 1; val <= LIMIT; ++val) {
             if (dp[5][val] == (seq_t)4) {
                 if (list_len == cap) {
                     cap <<= 1;
-                    list = (seq_t *)realloc(list, cap * sizeof(seq_t));
+                    list = mem_resize(seq_t, list, cap);
                 }
                 list[list_len++] = (seq_t)val;
             }
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
         /* free DP tables */
         for (int k = 0; k <= 5; ++k)
-            free(dp[k]);
+            mem_free(dp[k]);
         free(dp);
 
         ready = true;

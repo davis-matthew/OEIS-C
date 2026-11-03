@@ -11,13 +11,39 @@
  *            32 possible row masks
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   valid_mask
+ * Validated: standard, pass, 36 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/valid_mask.h"
+
+/* Test whether a 1 in a row 'row' has at most one 1‑neighbour among
+ * horizontal (left/right) and diagonal (up-left/up-right/down-left/down-right)
+ * positions specified by the masks. */
+static bool valid_mask(int row, int up, int down)
+{
+    for (int j = 0; j < 5; ++j) {
+        if (!((row >> j) & 1))
+            continue;                 /* no 1 at this position */
+
+        int cnt = 0;
+        /* horizontal neighbors */
+        if (j > 0 && ((row >> (j-1)) & 1)) ++cnt;
+        if (j < 4 && ((row >> (j+1)) & 1)) ++cnt;
+        /* diagonal neighbors (up) */
+        if (j > 0 && ((up >> (j-1)) & 1)) ++cnt;
+        if (j < 4 && ((up >> (j+1)) & 1)) ++cnt;
+        /* diagonal neighbors (down) */
+        if (j > 0 && ((down >> (j-1)) & 1)) ++cnt;
+        if (j < 4 && ((down >> (j+1)) & 1)) ++cnt;
+
+        if (cnt > 1)
+            return false;
+    }
+    return true;
+}
 
 /* Pre‑computed table: next_valid[up][mid][next] == true if the 1's in
  * 'mid' satisfy the rule when the row above is 'up' and the row below

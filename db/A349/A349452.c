@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 8, i16 n <= 16, i32 n <= 32, i64 n <= 64, i128 n <= 128,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 52 terms through n = 919 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (!cache) {
         cap = 2;                  /* at least able to store a[1]        */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(EXIT_FAILURE);
         cache[1] = (seq_t)1;    /* a(1) = 1                           */
         computed_max = 1;
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
     if ((idx_t)n >= cap) {
         size_t new_cap = cap;
         while ((size_t)n >= new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cap   = new_cap;

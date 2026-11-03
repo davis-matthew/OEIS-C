@@ -11,15 +11,32 @@
  *            ... are nonempty plane partitions with P_{t+1} <= max(P_...
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   A_grow, hkey
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/A_grow.h"
-#include "../utils/hkey.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static unsigned long long hkey(const unsigned short *k, int len) {
+    unsigned long long h = 1469598103934665603ULL;
+    int i;
+    for (i = 0; i < len; i++) { h ^= (unsigned long long)k[i]; h *= 1099511628211ULL; }
+    return h;
+}
 
 static unsigned short **mk_keys = NULL;
 static int *mk_lens = NULL;

@@ -9,6 +9,7 @@
  *            2*a(j) - a(i) for any i < j < n, so no 3-term AP forms
  * Range:     u8 n <= 37, u16 n <= 1010, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 73 terms through n = 9094 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            terms
  * Range:     u8 n <= 1, u16 n <= 45, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   A3386_cmpu
+ * Validated: standard, pass, 56 terms through n = 9097 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/A3386_cmpu.h"
+
+static int A3386_cmpu(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
 
 static uint64_t *A3386_buf = NULL;
 static size_t A3386_cnt = 0, A3386_cap = 0;

@@ -8,7 +8,8 @@
  *            representation consists solely of the digits 2 and 3
  * Range:     u8 n <= 6, u16 n <= 30, u32 n <= 510, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    The array is grown only as much as needed to satisfy the requested index. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialize first two sequence elements */
     if (seq_len == 0) {
         seq_cap = 4;                     /* initial capacity */
-        seq = (seq_t *)malloc(sizeof(seq_t) * seq_cap);
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) return 0;              /* allocation failure (unlikely for tests) */
         seq[0] = 2;
         seq[1] = 3;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         /* Ensure enough space for two new elements */
         if (seq_len + 2 > seq_cap) {
             seq_cap = seq_cap * 2 + 4;   /* exponential growth */
-            seq = (seq_t *)realloc(seq, sizeof(seq_t) * seq_cap);
+            seq = mem_resize(seq_t, seq, seq_cap);
             if (!seq) return 0;         /* allocation failure (unlikely) */
         }
 

@@ -8,7 +8,8 @@
  * Formula:   a(n) = a(n-5)+a(n-6) with a(1)=a(2)=…=a(6)=1
  * Range:     u8 n <= 47, u16 n <= 91, u32 n <= 179, u64 n <= 354,
  *            u128 n <= 705, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    are O(1) after the required terms have been computed once.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     static idx_t cached = 0;      /* number of elements cached */
 
     if (cached < n) {                         /* grow the cache if needed */
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         cache = tmp;
 
         for (idx_t i = cached; i < n; ++i) {

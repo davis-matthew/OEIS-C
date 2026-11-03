@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define PRIME_SIEVE_LIMIT ((idx_t)1000000ULL)     /* sieve up to 1 000 000 */
 
@@ -82,7 +84,7 @@ static void append_term(seq_t val)
 {
     if (terms_n == terms_cap) {
         terms_cap = terms_cap ? (terms_cap << 1) : 16;
-        terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
         if (!terms) exit(EXIT_FAILURE);
     }
     terms[terms_n++] = val;

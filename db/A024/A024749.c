@@ -8,15 +8,17 @@
  *            ≤ n-5, sorted in non‑decreasing order. This function generates
  *            all such coefficients for n ≥ 10, keeps them in a dynamically
  *            resizing sorted array, and returns the n-th entry
- * Range:     u8 none, u16 n <= 17, u32 n <= 41, u64 n <= 41, u128 n <= 41,
+ * Range:     u8 none, u16 n <= 31, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Compare two seq_t values for qsort. */
 static int cmp_seq_t(const void *p, const void *q)
@@ -40,7 +42,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap << 1 : 64;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();
     cache      = tmp;
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
                 cache[cache_cnt++] = binomial(last_n_done, k);
             }
             /* Keep the cache sorted after adding the new block. */
-            qsort(cache, cache_cnt, sizeof(seq_t), cmp_seq_t);
+            mem_qsort(cache, cache_cnt, sizeof(seq_t), cmp_seq_t);
         }
     }
 

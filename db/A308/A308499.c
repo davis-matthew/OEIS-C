@@ -9,12 +9,14 @@
  *            arbitrary‑precision seq_t
  * Range:     i8 n <= 3, i16 n <= 8, i32 n <= 12, i64 n <= 20, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for a(n) values */
 static seq_t *a_cache      = NULL;
@@ -30,10 +32,10 @@ static void ensure_a_cache(idx_t n)
     /* Allocate or grow the a(n) cache */
     const idx_t new_a_size = n + 1;
     if (a_cache == NULL) {
-        a_cache      = (seq_t *)malloc(sizeof(seq_t) * new_a_size);
+        a_cache      = mem_new(seq_t, new_a_size);
         a_cache_size = 0;
     } else if (new_a_size > a_cache_size) {
-        a_cache = (seq_t *)realloc(a_cache, sizeof(seq_t) * new_a_size);
+        a_cache = mem_resize(seq_t, a_cache, new_a_size);
     }
     idx_t old_a_size = a_cache_size;
     a_cache_size = new_a_size;
@@ -41,10 +43,10 @@ static void ensure_a_cache(idx_t n)
     /* Allocate or grow the factorial cache: we need up to (n+2)! */
     const idx_t new_fac_size = n + 3;      /* factorial indices 0 .. n+2 */
     if (fac_cache == NULL) {
-        fac_cache      = (seq_t *)malloc(sizeof(seq_t) * new_fac_size);
+        fac_cache      = mem_new(seq_t, new_fac_size);
         fac_cache_size = 0;
     } else if (new_fac_size > fac_cache_size) {
-        fac_cache = (seq_t *)realloc(fac_cache, sizeof(seq_t) * new_fac_size);
+        fac_cache = mem_resize(seq_t, fac_cache, new_fac_size);
     }
     idx_t old_fac_size = fac_cache_size;
     fac_cache_size = new_fac_size;

@@ -13,14 +13,17 @@
  *            bits of the binary representation of x
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 9, u128 n <= 10,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Local bit‐length routine: works for any unsigned seq_t type, including
    built‑in integers and the arbitrary‑precision class.  The loop runs at
@@ -54,7 +57,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
         if (new_cap < (size_t)n + 1)
             new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)          /* allocation failure – return 0 (unlikely) */
             return 0;
         cache = tmp;

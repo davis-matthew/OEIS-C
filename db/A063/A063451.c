@@ -8,7 +8,8 @@
  *            (where sigma(k) is the sum of all positive divisors of k)
  * Range:     u8 n <= 94, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Primality test for 64‑bit values, deterministic Miller–Rabin */
 static uint64_t mul_mod_uint64(uint64_t a, uint64_t b, uint64_t mod)
@@ -142,7 +144,7 @@ static void grow_terms_to(size_t target)
         if (is_prime_uint64(candidate)) {
             if (terms_count >= terms_cap) {
                 terms_cap = terms_cap ? terms_cap << 1 : 16;
-                terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_count++] = (seq_t)k;
         }

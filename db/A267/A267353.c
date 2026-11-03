@@ -9,6 +9,7 @@
  * Formula:   a(n) = (n + 1)*(n + 2)/2 if n is even, n*(n + 5)/2 if n is odd
  * Range:     u8 n <= 20, u16 n <= 360, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 69 terms through n = 993 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

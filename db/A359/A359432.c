@@ -9,24 +9,27 @@
  *            prime power p^e: a(p^e) = (1 - p)^(e/p) if p divides e, a(p^e) =
  *            -(1 - p)^((e-1)/p) if e ≡ 1 (mod p), a(p^e) = 0 otherwise. (Each
  *            factor is a power of the integer (1-p).)
- * Range:     i8 n <= 9968, i16 n <= 9968, i32 n <= 9968, i64 n <= 9968,
- *            i128 n <= 9968, big any n
- * Helpers:   big_pow
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 124 terms through n = 9968 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static inline seq_t factor_from_pe(uint64_t p, uint64_t e)
 {
     seq_t base = (seq_t)1 - (seq_t)p;          /* 1 - p */
     if (e % p == 0) {
         seq_t exp = (seq_t)(e / p);
-        return big_pow(base, exp);
+        return ipow(base, exp);
     } else if (e % p == 1) {
         seq_t exp = (seq_t)((e - 1) / p);
-        seq_t r = big_pow(base, exp);
+        seq_t r = ipow(base, exp);
         return -r;    /* unary minus works for seq_t */
     }
     return (seq_t)0;

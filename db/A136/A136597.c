@@ -8,26 +8,44 @@
  *            (-1)^i*(3+i)!*Stirling2(n,3+i)*Catalan(3,i)/3!
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 10, i64 n <= 16, i128 n <= 19,
  *            big any n
- * Helpers:   binomial, factorial, seq_mul
+ * Validated: partial, pass, 17 terms through n = 19 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/factorial.h"   /* factorial(idx_t) -> seq_t */
-#include "../utils/binomial.h"   /* binomial(idx_t,idx_t) -> seq_t */
-#include "../utils/seq_mul.h"    /* seq_mul(seq_t,seq_t) -> seq_t */
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
     if (n < 3) return (seq_t)0;
 
     const size_t len = (size_t)n + 3;          /* indices 0 .. n+2 */
-    seq_t *prev = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, len);
+    seq_t *curr = mem_new(seq_t, len);
     if (!prev || !curr) { /* allocation failure */
-        free(prev); free(curr);
+        mem_free(prev); mem_free(curr);
         return (seq_t)0;
     }
 
@@ -56,8 +74,8 @@ seq_t a(idx_t n)
     }
 
     /* pre‑compute factorials and Catalan(3,i) for i = 0 .. n-1 */
-    seq_t *fac = (seq_t *)malloc((size_t)n * sizeof(seq_t)); /* (i+3)! / 6 */
-    seq_t *cat = (seq_t *)malloc((size_t)n * sizeof(seq_t)); /* Catalan(3,i) */
+    seq_t *fac = mem_new(seq_t, (size_t)n); /* (i+3)! / 6 */
+    seq_t *cat = mem_new(seq_t, (size_t)n); /* Catalan(3,i) */
     for (idx_t i = 0; i < n; ++i) {
         seq_t f = factorial(i + 3);          /* (i+3)! */
         fac[i] = f / (seq_t)6;               /* divide by 3! */
@@ -78,6 +96,6 @@ seq_t a(idx_t n)
             sum = sum + term;
     }
 
-    free(prev); free(curr); free(fac); free(cat);
+    mem_free(prev); mem_free(curr); mem_free(fac); mem_free(cat);
     return sum;
 }

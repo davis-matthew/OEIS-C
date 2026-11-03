@@ -8,7 +8,8 @@
  *            solutions
  * Range:     u8 n <= 43, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static uint32_t *phi   = NULL;
 static uint32_t *freq  = NULL;
@@ -32,7 +34,7 @@ static void recompute(idx_t limit)
 {
     phi   = (uint32_t *)realloc(phi,   (limit + 1) * sizeof(uint32_t));
     freq  = (uint32_t *)realloc(freq,  (limit + 1) * sizeof(uint32_t));
-    terms = (seq_t   *)realloc(terms,  (limit + 1) * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, (limit + 1));
     if (!phi || !freq || !terms)
         exit(1);        /* allocation failed */
 

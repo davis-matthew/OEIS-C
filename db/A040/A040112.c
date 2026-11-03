@@ -7,7 +7,8 @@
  * Formula:   list of primes p such that x^4 ≡ 7 (mod p) has a solution
  * Range:     u8 n <= 21, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow, seq_realloc
+ * Validated: standard, pass, 61 terms through n = 990 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/powmod.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Test whether a prime p satisfies that 7 is a fourth‑power residue modulo p. */
 static bool good_prime_condition(uint64_t p)
@@ -39,7 +52,7 @@ static bool good_prime_condition(uint64_t p)
         e = p1 >> 1;          /* (p-1)/2 */
     }
 
-    seq_t r = mod_pow((seq_t)7, e, (seq_t)p);
+    seq_t r = powmod((seq_t)7, e, (seq_t)p);
     return r == (seq_t)1;
 }
 

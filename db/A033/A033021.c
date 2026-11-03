@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 246, u32 n <= 1100, u64 n <= 1100,
  *            u128 n <= 1100, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 1100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached sequence values          */
 static size_t cache_len = 0;     /* number of cached terms          */
@@ -29,7 +31,7 @@ static void ensure_capacity(size_t min_cap) {
     if (min_cap <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);              /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
     /* One‑time initialization of the cache. */
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(1);              /* allocation failure       */
         cache_len = 0;
         last_checked = 0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   grow_seq
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/grow_seq.h"   /* provides grow_seq(seq_t **, size_t *, size_t) */
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static uint8_t *rep_bits = NULL;          /* bit array of representable numbers */
 static uint8_t *prime_flags = NULL;       /* array of composite flags 0=prime,1=composite */
@@ -53,7 +67,7 @@ static void build_cache(idx_t req_len)
     for (;;) {
         free(rep_bits);
         free(prime_flags);
-        free(primes);
+        mem_free(primes);
 
         rep_bits    = (uint8_t*)calloc((cache_limit >> 3) + 1, 1);
         prime_flags = (uint8_t*)calloc(cache_limit + 1, 1);

@@ -11,13 +11,37 @@
  *            by the ceil exponent)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   mu_of, pow_uint
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mu_of.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ipow_u64_idx.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,8 +59,8 @@ seq_t a(idx_t n)
         if (mu != 0)
         {
             idx_t t = n / d;
-            seq_t val = (pow_uint(2ULL, t) +
-                         pow_uint(2ULL, (t + 1) / 2)) / 2;
+            seq_t val = (ipow_u64_idx(2ULL, t) +
+                         ipow_u64_idx(2ULL, (t + 1) / 2)) / 2;
             if (mu > 0)
                 sum += val;
             else
@@ -50,8 +74,8 @@ seq_t a(idx_t n)
             if (mu != 0)
             {
                 idx_t t = n / d2; /* t = d */
-                seq_t val = (pow_uint(2ULL, t) +
-                             pow_uint(2ULL, (t + 1) / 2)) / 2;
+                seq_t val = (ipow_u64_idx(2ULL, t) +
+                             ipow_u64_idx(2ULL, (t + 1) / 2)) / 2;
                 if (mu > 0)
                     sum += val;
                 else

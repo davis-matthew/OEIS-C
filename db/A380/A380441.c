@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     seq_t omega = 0;          /* Number of distinct prime factors */
 
     while (tmp > 1) {
-        uint64_t p = _smallest_prime_factor(tmp);
+        uint64_t p = smallest_prime_factor(tmp);
         int exp = 0;
         while (tmp % p == 0) {
             tmp /= p;

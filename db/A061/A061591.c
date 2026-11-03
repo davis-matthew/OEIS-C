@@ -7,15 +7,18 @@
  * Formula:   a(n) = 2^(p*(p-1)/2) where p is the n‑th prime
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow, build_primes
+ * Validated: standard, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   build_primes, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes.h"
+#include "../utils/ipow.h"
 
 /* static cache for primes */
 static idx_t *prime_list = NULL;   /* array of primes */
@@ -60,5 +63,5 @@ a(idx_t n)
     /* exponent x = p*(p-1)/2 in seq_t to avoid overflow */
     seq_t exp = (p * (p - (seq_t)1)) / 2;
 
-    return big_pow((seq_t)2, exp);
+    return ipow((seq_t)2, exp);
 }

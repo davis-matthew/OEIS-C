@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 22, u64 n <= 33, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 392 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* helper: make sure the working array is large enough */
 static void ensure_capacity(idx_t n, idx_t *cap, seq_t **dp)
@@ -38,7 +40,7 @@ static void ensure_capacity(idx_t n, idx_t *cap, seq_t **dp)
         if ((size_t)required > (size_t)new_cap)
             new_cap = required;
         /* realloc works for built‑in types; for C++ a cast is needed. */
-        seq_t *tmp = (seq_t *)realloc(*dp, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *dp, (size_t)new_cap);
         if (!tmp) abort();                /* allocation failed */
         *dp = tmp;
         *cap = new_cap;

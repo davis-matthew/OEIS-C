@@ -9,17 +9,23 @@
  *            transforming the * matrix with main diagonal 1's, subdiagonal
  *            pattern (2,1,2,1,…), * and subsubdiagonal pattern (1,0,1,0,…).
  *            This matrix is exactly * the product A007318 * A0978...
- * Range:     u8 n <= 38, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 47, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom, tri_geq
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/tri_geq.h"
+#include "../utils/binomial.h"
+
+static inline bool tri_geq(idx_t mid, idx_t n)
+{
+    /* return true if mid*(mid+1)/2 >= n  */
+    return (__int128)mid * (mid + 1) / 2 >= n;
+}
 
 seq_t a(idx_t n)
 {
@@ -56,7 +62,7 @@ seq_t a(idx_t n)
         if (val == 0)
             continue;
 
-        seq_t bin = binom(r - 1, k - 1);
+        seq_t bin = binomial(r - 1, k - 1);
         sum += (seq_t)val * bin;
     }
 

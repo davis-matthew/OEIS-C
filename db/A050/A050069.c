@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 70, u32 n <= 514, u64 n <= 4271,
  *            u128 n <= 8193, big any n
- * Helpers:   p_floor
+ * Validated: standard, pass, 63 terms through n = 8088 (2026-11-01)
+ * Helpers:   ilog2_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
    and p is the unique integer with 2^p < n‑1 ≤ 2^(p+1). */
 
 #include <stdint.h>
-#include "../utils/p_floor.h"
+#include "../utils/ilog2_u64_to_u32.h"
 
 #define MAX_CACHE 20001   /* enough for all tests up to ~10000 */
 
@@ -44,7 +45,7 @@ seq_t a(idx_t n) {
     /* extend the cache up to the requested n */
     while (cache_filled < n) {
         idx_t i = cache_filled + 1;          /* current n (1‑based) */
-        unsigned p = p_floor(i - 2);          /* p for this n */
+        unsigned p = ilog2_u64_to_u32(i - 2);          /* p for this n */
 
         seq_t pow2 = (seq_t)1;
         pow2 <<= (p + 1);                     /* 2^(p+1) */

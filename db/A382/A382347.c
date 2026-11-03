@@ -12,7 +12,8 @@
  *            = coefficient of x^row in ∏_{j=0..row} (1 + (col*r...
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>   /* for sqrt used only on the index */
+#include "../utils/mem.h"
 
 /* Find the diagonal d such that d*(d+1)/2 <= idx < (d+1)*(d+2)/2.
    The result fits easily into size_t for all idx that appear in
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* Allocate coefficient array for the polynomial.
        We need indices 0 .. row+1 to allow updates up to degree row+1. */
     size_t len = row + 2;
-    seq_t *coeff = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, len);
     if (!coeff) {
         /* out of memory – return 0 as a safe sentinel. */
         return (seq_t)0;
@@ -72,6 +74,6 @@ seq_t a(idx_t n)
 
     seq_t result = coeff[row];   /* coefficient of x^row */
 
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

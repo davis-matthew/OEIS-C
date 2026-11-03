@@ -13,13 +13,15 @@
  *            ≤ p <...
  * Range:     u8 n <= 39, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t termIndex)
 {
@@ -44,15 +46,15 @@ seq_t a(idx_t termIndex)
         return 1;
 
     /* Allocate arrays for u(n−1,x) and v(n−1,x).  Initially n=1. */
-    seq_t *u_prev = (seq_t *)malloc(sizeof(seq_t));
-    seq_t *v_prev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *u_prev = mem_new(seq_t, 1);
+    seq_t *v_prev = mem_new(seq_t, 1);
     u_prev[0] = 1;
     v_prev[0] = 1;
 
     /* Build polynomials up to row m.  Each iteration increases degree by 1. */
     for (idx_t n = 2; n <= m; ++n) {
-        seq_t *u_new = (seq_t *)calloc((size_t)n, sizeof(seq_t));
-        seq_t *v_new = (seq_t *)calloc((size_t)n, sizeof(seq_t));
+        seq_t *u_new = mem_new(seq_t, (size_t)n);
+        seq_t *v_new = mem_new(seq_t, (size_t)n);
 
         /* k = 0 */
         u_new[0] = v_prev[0];
@@ -75,15 +77,15 @@ seq_t a(idx_t termIndex)
         }
 
         /* Free previous arrays and advance pointers */
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_new;
         v_prev = v_new;
     }
 
     /* v_prev now holds v(m,x); extract the requested coefficient. */
     seq_t result = v_prev[p];
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
     return result;
 }

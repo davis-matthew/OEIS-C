@@ -9,7 +9,8 @@
  *            to n
  * Range:     u8 n <= 90, u16 n <= 313, u32 n <= 3483, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9565 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* DP table: dp[j*stride + t] = ways to use j parts for sum t */
 static size_t dp_cap = 0;          /* allocated size of dp array (elements) */
@@ -36,8 +38,8 @@ static void recompute(idx_t new_n)
     /* ---- allocate/resize dp ------------------------------------------------ */
     size_t dp_size = (size_t)(new_n + 1) * 7;
     if (dp_cap < dp_size) {
-        free(dp);
-        dp = (seq_t*)malloc(dp_size * sizeof(seq_t));
+        mem_free(dp);
+        dp = mem_new(seq_t, dp_size);
         dp_cap = dp_size;
     }
 

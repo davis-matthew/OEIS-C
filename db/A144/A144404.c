@@ -9,12 +9,14 @@
  *            with t*(t+1)/2 <= n, k = n - r*(r+1)/2
  * Range:     u8 n <= 16, u16 n <= 58, u32 n <= 178, u64 n <= 644,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1279 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

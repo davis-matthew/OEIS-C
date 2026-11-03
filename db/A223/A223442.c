@@ -11,12 +11,14 @@
  * Formula:   a(n) = 6*a(n-2) - 4*a(n-4), a(1)=15, a(2)=28, a(3)=66, a(4)=144
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 24, u64 n <= 51, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;          /* memoization array, index starts at 1 */
 static size_t memo_cap = 0;         /* allocated capacity of memo */
@@ -29,7 +31,7 @@ static void init_memo(void)
         return;
 
     memo_cap = 16;
-    memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+    memo = mem_new(seq_t, memo_cap);
     memo[1] = (seq_t)15;
     memo[2] = (seq_t)28;
     memo[3] = (seq_t)66;
@@ -51,7 +53,7 @@ static void ensure_n(idx_t n)
         size_t new_cap = memo_cap;
         while (nn + 1 > new_cap)
             new_cap *= 2;
-        memo = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, new_cap);
         memo_cap = new_cap;
     }
 

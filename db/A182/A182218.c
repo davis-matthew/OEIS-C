@@ -11,7 +11,8 @@
  *            i.e. 3,4,7,8,10,…
  * Range:     u8 n <= 60, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 1742 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached survivors of the sequence */
 static seq_t *cache = NULL;
@@ -37,7 +39,7 @@ static void build_cache(idx_t n)
 
     while (1) {
         size_t len = (size_t)bound;
-        seq_t *arr = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *arr = mem_new(seq_t, len);
         if (!arr) abort();          /* allocation failure                    */
 
         /* initialise the array with 1,2,…,bound */
@@ -63,13 +65,13 @@ static void build_cache(idx_t n)
         }
 
         /* copy the survivors to the permanent cache */
-        seq_t *new_cache = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, len);
         if (!new_cache) abort();
-        memcpy(new_cache, arr, len * sizeof(seq_t));
-        free(arr);
+        mem_copy(new_cache, arr, len * sizeof(seq_t));
+        mem_free(arr);
 
         /* replace the old cache, if any */
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = new_cache;
         cache_len = len;
 

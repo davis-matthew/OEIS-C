@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  *   a(n)=a(n-1)+a(n-2)-2*a(n-4)+a(n-6)+a(n-7)-a(n-8)   for n>8
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (capacity == 0) {
         capacity  = 9;
         computed  = 9;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) return 0;           /* allocation failed – return 0 as sentinel */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)4;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary */
     if (n + 1 > capacity) {
         idx_t new_capacity = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (!tmp) return 0;           /* allocation failed – return 0 as sentinel */
         cache = tmp;
         capacity = new_capacity;

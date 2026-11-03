@@ -9,13 +9,20 @@
  *            a(0)=2, a(1)=172, a(2)=14258
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   alloc_cache
+ * Validated: standard, pass, 31 terms through n = 486 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_cache.h"   /* provides seq_t *alloc_cache(idx_t n) */
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {

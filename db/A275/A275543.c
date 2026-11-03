@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = 2*n^2 + (-1)^n
- * Range:     u8 n <= 11, u16 n <= 181, u32 n <= 9762, u64 n <= 9762,
- *            u128 n <= 9762, big any n
+ * Range:     u8 n <= 11, u16 n <= 181, u32 n <= 46340, u64 n <= 500000,
+ *            u128 n <= 500000, big any n
+ * Validated: standard, pass, 65 terms through n = 9762 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

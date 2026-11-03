@@ -7,12 +7,14 @@
  * Formula:   a(n) = the n-th divisor of 800 in increasing order
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t divs[18];
 static int init_done = 0;
@@ -43,7 +45,7 @@ static void init_divisors(void)
             divs[k++] = pw2[i] * pw5[j];
         }
     }
-    qsort(divs, 18, sizeof(seq_t), cmp_seq);
+    mem_qsort(divs, 18, sizeof(seq_t), cmp_seq);
     init_done = 1;
 }
 

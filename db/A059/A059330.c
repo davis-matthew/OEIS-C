@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 96, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime, powmod64
+ * Validated: standard, pass, 53 terms through n = 878 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/powmod64.h"
 #include "../utils/next_prime.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 static uint64_t last_prime = 1;          /* last prime examined (≥2) */
 static seq_t *vals = NULL;               /* sequence values */
@@ -41,12 +43,12 @@ static void compute_more(size_t need)
         if (p % 67U != 1U) continue;      /* we only need p ≡ 1 (mod 67) */
 
         uint64_t exp = (p - 1ULL) / 67ULL;
-        if (powmod64(2ULL, exp, p) != 1ULL)   /* 2 is not a 67th power mod p */
+        if (powmod_u64(2ULL, exp, p) != 1ULL)   /* 2 is not a 67th power mod p */
         {
             if (vals_cnt == vals_cap)        /* grow array if needed */
             {
                 vals_cap = vals_cap ? vals_cap * 2U : 64U;
-                seq_t *tmp = (seq_t *)realloc(vals, vals_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, vals, vals_cap);
                 if (!tmp) {                  /* allocation failed – abort */
                     exit(EXIT_FAILURE);
                 }

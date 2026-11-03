@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) - 64*a(n-2), a(0) = 1, a(1) = 8
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 10, i64 n <= 19, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache      = NULL;
@@ -28,7 +30,7 @@ ensure_cache(idx_t n)
         if (new_cap < (size_t)(n + 1))
             new_cap = (size_t)(n + 1);
         /* Cast the returned pointer to satisfy C++ compilation. */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = (idx_t)new_cap;
     }

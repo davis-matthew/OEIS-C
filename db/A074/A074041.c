@@ -8,7 +8,8 @@
  *            (non‑twin) prime
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   is_prime, seq_alloc
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/seq_alloc.h"   /* provides seq_alloc(size_t) */
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;    /* 1‑based cumulative products */
 static size_t cache_cap = 0;   /* allocated array size (in seq_t’s) */
@@ -50,7 +60,7 @@ extern seq_t a(idx_t n)
             for (size_t i = 0; i <= (size_t)cached_n; ++i) {
                 new_cache[i] = cache[i];
             }
-            free((void *)cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = new_cap;

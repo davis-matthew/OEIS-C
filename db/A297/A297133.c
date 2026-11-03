@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   has_adjacent
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
    or consists of a single digit (m = 0). */
 
 #include <stdbool.h>
-#include "../utils/has_adjacent.h"
+
+static bool has_adjacent(seq_t v)
+{
+    /* Single‑digit numbers are always accepted. */
+    if (v < 5) return true;
+
+    seq_t last = v % 5;
+    v /= 5;
+    while (v > 0) {
+        seq_t cur = v % 5;
+        if (cur == last) return true;
+        last = cur;
+        v /= 5;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

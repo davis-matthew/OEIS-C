@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   msb_position
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/msb_position.h"
+
+/* returns position of most significant set bit (0‑based) in a non‑zero 32‑bit word */
+static int msb_position(uint32_t w)
+{
+    int pos = 0;
+    for (int i = 31; i >= 0; --i) {
+        if (w & (1U << i)) { pos = i; break; }
+    }
+    return pos;
+}
 
 static const unsigned int PATTERN = 0b1111000;   /* 5! = 120 in binary */
 static const unsigned int PATLEN   = 7;

@@ -8,13 +8,15 @@
  * Formula:   a(1)=1; for n≥1, a(n+1)=a(n)+[ n==∑_{d=1..a(n)} a(d)*⌊a(n)/d⌋ ]
  * Range:     u8 n <= 9723, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9763 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,14 +33,14 @@ seq_t a(idx_t n)
         if ((size_t)n + 1 > newCap) newCap = (size_t)n + 1;
 
         /* Allocate new storage */
-        seq_t *newArr = (seq_t *)malloc(newCap * sizeof(seq_t));
+        seq_t *newArr = mem_new(seq_t, newCap);
         if (!newArr) return (seq_t)0;    /* allocation failure */
 
         /* Copy existing values */
         for (size_t i = 0; i < capacity; ++i) newArr[i] = seq[i];
 
         /* Free old storage */
-        if (seq) free(seq);
+        if (seq) mem_free(seq);
 
         seq = newArr;
         capacity = newCap;

@@ -8,6 +8,7 @@
  *            1, a(p^e) = (e+1)*(e+2)/2 for p > 2
  * Range:     u8 n <= 287, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 105 terms through n = 9421 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

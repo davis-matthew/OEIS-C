@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   equal_conf
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/equal_conf.h"
+
+/* Compare two configurations. */
+static int equal_conf(const uint8_t *a, const uint8_t *b, size_t n)
+{
+    return memcmp(a, b, n) == 0;
+}
 
 /* Rule‑62 transition table: index is the 3‑bit neighbourhood (LMS),
    value is the new cell state (0 or 1). */

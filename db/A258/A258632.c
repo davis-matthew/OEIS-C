@@ -8,6 +8,7 @@
  * Formula:   a(n) = |{ k ∈ [1, n+1] : k divisible by 2 or 3 or 5 or 7 }|
  * Range:     u8 n <= 210, u16 n <= 210, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
+ * Validated: standard, pass, 91 terms through n = 190 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

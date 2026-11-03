@@ -8,14 +8,43 @@
  *            are at least √n)
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 119, u64 n <= 359,
  *            u128 n <= 1000, big any n
- * Helpers:   prime_factorization
+ * Validated: standard, pass, 69 terms through n = 823 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/prime_factorization.h"
+
+/* factorisation of n (trial division, fast for n ≤ 10000) */
+static void prime_factorization(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt)
+{
+    size_t c = 0;
+    uint64_t m = n;
+    for (uint64_t p = 2; p * p <= m; ++p) {
+        if (m % p == 0) {
+            uint64_t e = 0;
+            while (m % p == 0) {
+                m /= p;
+                ++e;
+            }
+            if (c < 64) {            /* safety guard */
+                pr[c] = p;
+                ex[c] = e;
+                ++c;
+            }
+        }
+    }
+    if (m > 1) {
+        if (c < 64) {
+            pr[c] = m;
+            ex[c] = 1;
+            ++c;
+        }
+    }
+    *cnt = c;
+}
 
 /* floor integer square root of a 64‑bit unsigned integer */
 static uint64_t int_sqrt_uint64(uint64_t v)

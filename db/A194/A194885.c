@@ -12,13 +12,18 @@
  *            unique quadruple corresponding to m
  * Range:     u8 n <= 120, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
- * Helpers:   comb1
+ * Validated: partial, pass, 121 terms through n = 120 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/comb1.h"
+
+static inline seq_t comb1(idx_t x)
+{
+    return (seq_t)x;
+}
 
 static inline seq_t comb4(idx_t x)
 {

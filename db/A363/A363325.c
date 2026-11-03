@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   gcd_u64
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* Euclidean algorithm for 64‑bit integers.  Works in C and C++. */
 
@@ -38,11 +40,11 @@ seq_t a(idx_t n)
     size_t stride = N + 1;                /* one row per possible sum */
 
     /* Allocate DP tables for counts and weighted sums of coprime parts. */
-    seq_t *cnt = (seq_t *)calloc((7 + 1) * stride, sizeof(seq_t));
-    seq_t *sum = (seq_t *)calloc((7 + 1) * stride, sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, (7 + 1) * stride);
+    seq_t *sum = mem_new(seq_t, (7 + 1) * stride);
     if (!cnt || !sum) {
-        free(cnt);
-        free(sum);
+        mem_free(cnt);
+        mem_free(sum);
         return (seq_t)0;                  /* allocation failure – unlikely */
     }
 
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
     /* Pre‑compute coprimality flags for each part value 1..n. */
     uint8_t *coprime = (uint8_t *)malloc((N + 1) * sizeof(uint8_t));
     if (!coprime) {
-        free(cnt);
-        free(sum);
+        mem_free(cnt);
+        mem_free(sum);
         return (seq_t)0;
     }
     for (size_t v = 1; v <= N; ++v)
@@ -88,8 +90,8 @@ seq_t a(idx_t n)
     seq_t result = sum[7 * stride + N];
 
     /* Free temporary storage. */
-    free(cnt);
-    free(sum);
+    mem_free(cnt);
+    mem_free(sum);
     free(coprime);
 
     return result;

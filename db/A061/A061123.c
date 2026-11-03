@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 9, u32 n <= 14, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   alloc_seq_array, binom, free_seq_array
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,21 @@
  * with S = {1,3,9} for T9 and S = {1,3} for T3.
  */
 #include <stddef.h>
-#include "../utils/binom.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -52,21 +65,21 @@ seq_t a(idx_t n)
         seq_t sum3 = 0;
 
         /* k = 1 */
-        seq_t term1 = binom(i - 1, 0) * fact_small[0] * t9[i - 1];
+        seq_t term1 = binomial(i - 1, 0) * fact_small[0] * t9[i - 1];
         sum9 += term1;
-        sum3 += binom(i - 1, 0) * fact_small[0] * t3[i - 1]; /* use t3 here */
+        sum3 += binomial(i - 1, 0) * fact_small[0] * t3[i - 1]; /* use t3 here */
 
         /* k = 3 */
         if (i >= 3) {
-            seq_t term3 = binom(i - 1, 2) * fact_small[2] * t9[i - 3];
+            seq_t term3 = binomial(i - 1, 2) * fact_small[2] * t9[i - 3];
             sum9 += term3;
-            seq_t term3b = binom(i - 1, 2) * fact_small[2] * t3[i - 3];
+            seq_t term3b = binomial(i - 1, 2) * fact_small[2] * t3[i - 3];
             sum3 += term3b;
         }
 
         /* k = 9 */
         if (i >= 9) {
-            seq_t term9 = binom(i - 1, 8) * fact_small[8] * t9[i - 9];
+            seq_t term9 = binomial(i - 1, 8) * fact_small[8] * t9[i - 9];
             sum9 += term9;
         }
 

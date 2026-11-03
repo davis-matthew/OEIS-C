@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   mix64, seq_to_str
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,39 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/seq_to_str.h"
-#include "../utils/mix64.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* --- small 64‑bit mixing function --------------------------------- */
+static inline uint64_t mix64(uint64_t h)
+{
+    h ^= h >> 33;
+    h *= 0xff51afd7ed558ccdULL;
+    h ^= h >> 33;
+    h *= 0xc4ceb9fe1a85ec53ULL;
+    h ^= h >> 33;
+    return h;
+}
 
 /* ---------- Memoised sequence ------------------------------------- */
 static seq_t *seq = NULL;       /* sequence values */
@@ -63,7 +95,7 @@ static uint64_t hash_seq_t(seq_t x)
 static void hash_init(size_t cap)
 {
     hash_cap = cap;
-    hash_tbl = (struct HashEntry*)calloc(cap, sizeof(struct HashEntry));
+    hash_tbl = mem_new(struct HashEntry, cap);
 }
 
 /* --- hash index (mask because cap is power of two) ---------------- */
@@ -116,7 +148,7 @@ static void seq_grow(idx_t need)
     if (seq_cap >= need) return;
     size_t cap = seq_cap ? seq_cap : 16;
     while (cap < need) cap <<= 1;
-    seq = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, cap);
     seq_cap = cap;
 }
 

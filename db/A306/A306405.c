@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 36, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
+ * Range:     u8 n <= 39, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,9 @@
 */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
-extern seq_t binom(idx_t a, idx_t b);
+extern seq_t binomial(idx_t a, idx_t b);
 
 seq_t a(idx_t n)
 {
@@ -50,10 +51,10 @@ seq_t a(idx_t n)
         long long m2 = (long long)k + 2LL * (long long)i - 1;
         /* m2 is always >= 0 when k >= 1 and i >= 0 */
 
-        seq_t c1 = binom(k, (idx_t)m1);
+        seq_t c1 = binomial(k, (idx_t)m1);
         if (c1 == 0) continue;
 
-        seq_t c2 = binom(k + 2 * i - 1, i);
+        seq_t c2 = binomial(k + 2 * i - 1, i);
         if (c2 == 0) continue;
 
         seq_t term = c1 * c2;           /* C(k,m1) * C(k+2i-1,i) */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of digits of all positive integers k ≤ 2^n
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 26, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   digits_in_seq, pow2, seq_mul
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem, num_digits_seq, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,17 @@
    
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/pow2.h"    /* pow2(idx_t n) -> seq_t  */
-#include "../utils/seq_mul.h"/* seq_mul(seq_t a, seq_t b) -> seq_t */
-#include "../utils/digits_in_seq.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+#include "../utils/num_digits_seq.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Main sequence generator.  External linkage as required. */
 seq_t a(idx_t n) {
@@ -27,17 +36,17 @@ seq_t a(idx_t n) {
     seq_t N = pow2(n);
 
     /* 2. Determine maximum number of decimal digits of N. */
-    idx_t dmax = digits_in_seq(N);
+    idx_t dmax = num_digits_seq(N);
 
     /* 3. Allocate and pre‑compute powers of 10 and sum10[d] for d=0..dmax. */
     /*    pow10[d]   = 10^d
         sum10[d]   = sum of the digits of all numbers from 0 to 10^d - 1
                      = 45 * d * 10^(d-1)  (for d>0, sum10[0]=0). */
-    seq_t *pow10  = (seq_t *)malloc((dmax + 1) * sizeof(seq_t));
-    seq_t *sum10  = (seq_t *)malloc((dmax + 1) * sizeof(seq_t));
+    seq_t *pow10  = mem_new(seq_t, (dmax + 1));
+    seq_t *sum10  = mem_new(seq_t, (dmax + 1));
     if (!pow10 || !sum10) { /* minimal error handling: return 0 on allocation fail */
-        free(pow10);
-        free(sum10);
+        mem_free(pow10);
+        mem_free(sum10);
         return (seq_t)0;
     }
     pow10[0] = (seq_t)1;
@@ -52,7 +61,7 @@ seq_t a(idx_t n) {
     seq_t total = (seq_t)0;
     seq_t cur   = N;
     while (cur > (seq_t)9) {
-        idx_t  digs = digits_in_seq(cur);
+        idx_t  digs = num_digits_seq(cur);
         idx_t  d    = digs - 1;
         seq_t  p    = pow10[d];
         seq_t  msd  = cur / p;
@@ -81,7 +90,7 @@ seq_t a(idx_t n) {
     /* 5. Base case for the last (single‑digit) block: numbers 0..cur. */
     total += cur * (cur + (seq_t)1) / (seq_t)2;
 
-    free(pow10);
-    free(sum10);
+    mem_free(pow10);
+    mem_free(sum10);
     return total;
 }

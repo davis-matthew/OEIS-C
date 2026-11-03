@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   modinv, mul_mod_u64, pow_mod_u64
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/modinv.h"
-#include "../utils/mul_mod_u64.h"
-#include "../utils/pow_mod_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+/* modular inverse by extended Euclid (p and m are coprime) */
+static unsigned modinv(unsigned a, unsigned m)
+{
+    int64_t b = m, u = 1, v = 0;
+    while (b) {
+        int64_t t = a / b;
+        int64_t tmp = a - t * b; a = b; b = tmp;
+        tmp = u - t * v; u = v; v = tmp;
+    }
+    if (u < 0) u += m;
+    return (unsigned)u;
+}
 
 /* ----- constants ---------------------------------------------------------- */
 #define PRIME_LIMIT 1000          /* primes used for quick filtering      */
@@ -76,11 +89,11 @@ static bool is_prime_u64(uint64_t n)
     for (size_t i = 0; i < sizeof(bases)/sizeof(*bases); ++i) {
         uint64_t a = bases[i] % n;
         if (a == 0) continue;
-        uint64_t x = pow_mod_u64(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n - 1) continue;
         bool comp = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul_mod_u64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { comp = false; break; }
         }
         if (comp) return false;

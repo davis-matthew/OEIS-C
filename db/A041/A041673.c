@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 19, u64 n <= 37, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * the standard continued‑fraction expansion of sqrt(355). */
 #include <stdlib.h>
 #include <stdint.h>   /* for uint64_t */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* sequence values a(0), a(1), ... */
 static size_t  cache_len  = 0;  /* number of terms already computed   */
@@ -31,7 +33,7 @@ static void init_sequence(void)
 
     /* Allocate buffer for the first 24 elements */
     cache_cap = 24;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     /* Continued‑fraction generation for sqrt(D) */
     uint64_t m = 0;
     uint64_t d = 1;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         size_t needed = (size_t)n + 1;
         if (needed > cache_cap) {
             size_t new_cap = needed * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();          /* memory allocation failed */
             cache   = tmp;
             cache_cap = new_cap;

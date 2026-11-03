@@ -9,12 +9,14 @@
  *            the denominators of the Bi(x) series as listed in OEIS A014403
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *f_cache = NULL;
 static size_t f_caps = 0;
@@ -28,7 +30,7 @@ static size_t g_len = 0;   /* number of g elements computed (last index+1) */
 static void f_ensure(idx_t target)
 {
     if (f_len == 0) {
-        f_cache = (seq_t *)malloc(sizeof(seq_t));
+        f_cache = mem_new(seq_t, 1);
         f_caps = 1;
         f_cache[0] = (seq_t)1;  /* f(0) */
         f_len = 1;
@@ -39,7 +41,7 @@ static void f_ensure(idx_t target)
         mult *= (seq_t)(3 * curr - 1);      /* 3k-1 */
         if (f_len >= f_caps) {
             size_t new_cap = f_caps * 2;
-            seq_t *tmp = (seq_t *)realloc(f_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, f_cache, new_cap);
             f_cache = tmp;
             f_caps = new_cap;
         }
@@ -52,7 +54,7 @@ static void f_ensure(idx_t target)
 static void g_ensure(idx_t target)
 {
     if (g_len == 0) {
-        g_cache = (seq_t *)malloc(sizeof(seq_t));
+        g_cache = mem_new(seq_t, 1);
         g_caps = 1;
         g_cache[0] = (seq_t)1;  /* g(0) */
         g_len = 1;
@@ -69,7 +71,7 @@ static void g_ensure(idx_t target)
         }
         if (g_len >= g_caps) {
             size_t new_cap = g_caps * 2;
-            seq_t *tmp = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, g_cache, new_cap);
             g_cache = tmp;
             g_caps = new_cap;
         }

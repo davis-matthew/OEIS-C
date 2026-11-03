@@ -12,13 +12,15 @@
  *            r(r+1)/2 and k = n - r(r-1)/2 - 1
  * Range:     u8 n <= 25, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return (seq_t)0;  /* undefined for n<1 */
@@ -32,14 +34,14 @@ seq_t a(idx_t n) {
 
     /* allocate arrays for two successive rows */
     size_t len = (size_t)r;
-    seq_t *prev_u = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *prev_v = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *tmp_u  = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *tmp_v  = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *prev_u = mem_new(seq_t, len);
+    seq_t *prev_v = mem_new(seq_t, len);
+    seq_t *tmp_u  = mem_new(seq_t, len);
+    seq_t *tmp_v  = mem_new(seq_t, len);
 
     if (!prev_u || !prev_v || !tmp_u || !tmp_v) {
         /* allocation failed, return 0 as fallback */
-        free(prev_u); free(prev_v); free(tmp_u); free(tmp_v);
+        mem_free(prev_u); mem_free(prev_v); mem_free(tmp_u); mem_free(tmp_v);
         return (seq_t)0;
     }
 
@@ -72,10 +74,10 @@ seq_t a(idx_t n) {
     /* result is coefficient k of the final row */
     seq_t result = prev_u[k];
 
-    free(prev_u);
-    free(prev_v);
-    free(tmp_u);
-    free(tmp_v);
+    mem_free(prev_u);
+    mem_free(prev_v);
+    mem_free(tmp_u);
+    mem_free(tmp_v);
 
     return result;
 }

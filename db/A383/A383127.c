@@ -9,13 +9,15 @@
  * Formula:   a(n) = (205*a(n-1) + 29573) mod 139968, a(1) = 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 7554 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Linear congruential generator with period 139968 */
 seq_t a(idx_t n)
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     static seq_t *cache = NULL;
     const idx_t P = 139968ULL;          /* period length */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(P * sizeof(seq_t));
+        cache = mem_new(seq_t, P);
         if (!cache) return (seq_t)0;    /* out‑of‑memory fallback */
         cache[0] = (seq_t)1;            /* a(1) = 1 */
         for (idx_t i = 1; i < P; ++i) {

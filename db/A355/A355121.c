@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Memoised cache for a(n) and auxiliary tables                */
@@ -39,7 +41,7 @@ static void ensure_cap(idx_t *cap, seq_t **arr, idx_t need)
     if (need <= *cap) return;
     idx_t new_cap = (*cap) ? (*cap) : 1;
     while (new_cap < need) new_cap <<= 1;
-    *arr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     /* zero new entries */
     for (idx_t i = *cap; i < new_cap; ++i) (*arr)[i] = (seq_t)0;
     *cap = new_cap;
@@ -54,16 +56,16 @@ seq_t a(idx_t n)
     if (a_cache == NULL) {
         /* a(0) = 1 */
         a_cap = 1;
-        a_cache = (seq_t*)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         a_cache[0] = (seq_t)1;
         last_n = 0;
 
         st_cap = 1;
-        st_tbl = (seq_t*)malloc(sizeof(seq_t));
+        st_tbl = mem_new(seq_t, 1);
         st_tbl[0] = (seq_t)1;     /* |s(0,0)| = 1 */
 
         pow2_cap = 1;
-        pow2_tbl = (seq_t*)malloc(sizeof(seq_t));
+        pow2_tbl = mem_new(seq_t, 1);
         pow2_tbl[0] = (seq_t)1;   /* 2^0 = 1 */
     }
 

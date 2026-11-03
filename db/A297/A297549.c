@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Assumes seq_t and idx_t are typedefed by the build system. */
 seq_t a(idx_t n)
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
 
     /* Initialise DP for the first column.  The virtual left
        neighbour for column 1 is mask 0. */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     for (int mask1 = 0; mask1 < 64; ++mask1) {
         dp[mask1] = (seq_t)1;   /* state index: prev=0, curr=mask1 */
     }
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
        by the state (prev,curr).  All columns up to j-1
        already satisfy constraints. */
     for (idx_t col = 2; col <= n; ++col) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int state = 0; state < STATES; ++state) {
             seq_t val = dp[state];
             if (!val) continue;
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
             }
         }
         /* Move to the next step. */
-        memcpy(dp, dp_next, sizeof(dp));
+        mem_copy(dp, dp_next, sizeof(dp));
     }
 
     /* Final column: its right neighbour is mask 0. */

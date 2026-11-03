@@ -8,13 +8,25 @@
  * Formula:   a(n) = Catalan(n) * Sum_{k=0..n} binomial(2k, k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   seq_realloc
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_realloc.h"  // for seq_realloc
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cat   = NULL;   /* Catalan numbers */
 static seq_t *binom = NULL;   /* binomial(2k, k)   */

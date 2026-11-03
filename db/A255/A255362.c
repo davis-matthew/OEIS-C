@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Check whether k is representable as x*y + x + y with x ≥ y > 1.
  * The test is equivalent to checking whether k+1 has a divisor d
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
                 /* grow array if necessary */
                 if (seq_len == seq_cap) {
                     size_t newcap = seq_cap ? seq_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)malloc(newcap * sizeof(seq_t));
+                    seq_t *tmp = mem_new(seq_t, newcap);
                     if (!tmp)
                         return (seq_t)0;   /* allocation failure */
 
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
                         tmp[i] = seq[i];
 
                     /* free old block and adopt new one */
-                    free(seq);
+                    mem_free(seq);
                     seq = tmp;
                     seq_cap = newcap;
                 }

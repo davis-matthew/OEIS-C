@@ -9,6 +9,7 @@
  *            5*(2*n+1)*(10*n+3) a(4n+3) = 5*(4*n+3)*(20*n+11)
  * Range:     u8 n <= 4, u16 n <= 52, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 57 terms through n = 1979 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

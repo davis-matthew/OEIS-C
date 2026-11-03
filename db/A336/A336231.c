@@ -9,13 +9,15 @@
  *            runs of zeros between 1s (computed by simple enumeration)
  * Range:     u8 n <= 88, u16 n <= 4180, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9859 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Check whether a number satisfies the property. */
 static bool is_valid(seq_t x)
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 2;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
         current_scan = 0;
     }
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         if (is_valid(current_scan)) {
             if (cache_len >= cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = current_scan;
         }

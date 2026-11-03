@@ -10,12 +10,14 @@
  *            recurrence is derived from the generating function of A393344
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 41, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamic array of computed terms */
 static size_t cache_size = 0;        /* allocated capacity of the array      */
@@ -25,7 +27,7 @@ static idx_t last_computed = 0;      /* highest index that has been filled   */
 static void init_cache(void)
 {
     size_t sz = 8; /* at least enough for indices 0..7                         */
-    cache = (seq_t *)malloc(sz * sizeof(seq_t));
+    cache = mem_new(seq_t, sz);
     if (!cache) abort();
     cache_size = sz;
     cache[0] = (seq_t)1;
@@ -49,7 +51,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n >= cache_size) {
         size_t new_size = cache_size ? cache_size * 2 : 8;
         while (new_size <= (size_t)n) new_size *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         cache = tmp;
         cache_size = new_size;

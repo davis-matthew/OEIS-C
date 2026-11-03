@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑based cache: cache[i] = a(i)  */
 static idx_t  cache_max = 0;  /* highest index currently cached   */
@@ -59,10 +61,10 @@ seq_t a(idx_t n)
 
     /* Allocate or enlarge the cache to hold up to index n */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
         cache_max = 0;
     } else if (n > cache_max) {
-        cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
     }
 
     /* Compute any missing terms up to n */

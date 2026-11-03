@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{k=1..n} Π_{i=1..k} φ(i) (φ is Euler's totient)
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 24, u128 n <= 40,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 100 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

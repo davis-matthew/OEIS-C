@@ -7,12 +7,14 @@
  * Formula:   a(n) = 322*a(n-1) - a(n-2) + 2 with a(0)=0, a(1)=1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 261 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Static memoization cache ------------------------------------- */
 static seq_t *seq_cache = NULL;   /* array holding computed terms */
@@ -25,7 +27,7 @@ static void ensure_capacity(idx_t n)
     if (required <= cache_len)
         return;                           /* already large enough */
 
-    seq_t *tmp = (seq_t *)realloc(seq_cache, required * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, required);
     if (!tmp)
         abort();                          /* allocation failed */
 

@@ -9,6 +9,7 @@
  *            divisible by n; if no such number exists, a(n) = 0
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

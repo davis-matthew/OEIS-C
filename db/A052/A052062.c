@@ -9,9 +9,10 @@
  *            (leading zeros inside substrings * are allowed). * * The
  *            sequence is generated on demand; subsequent calls reuse *
  *            previously computed terms. The implementation checks ea...
- * Range:     u8 n <= 12, u16 n <= 130, u32 n <= 9998, u64 n <= 9998,
- *            u128 n <= 9998, big any n
- * Helpers:   digit_len, seq_to_str
+ * Range:     u8 n <= 12, u16 n <= 130, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 65 terms through n = 9998 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,33 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/seq_to_str.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* Helper: returns true if x contains a palindrome substring of length ≥ 2 */
 static bool has_palindromic_substring(seq_t x)
 {
-    int d = digit_len(x);
+    int d = num_digits(x);
     if (d < 2)                         /* only singles cannot fail */
         return false;
 
@@ -82,7 +103,7 @@ seq_t a(idx_t n)
         /* Ensure capacity for the square */
         if (array_len + 1 > array_cap) {
             idx_t new_cap = array_cap ? array_cap * 2 : 16;
-            seq_t *tmp = (seq_t*)realloc(array, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, array, new_cap);
             if (!tmp)
                 abort();                /* out of memory */
             array = tmp;

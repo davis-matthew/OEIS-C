@@ -11,12 +11,14 @@
  *            a(7)=6068, a(8)=14096, a(9)=33044, a(10)=76925
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 22, u64 n <= 49, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_terms[10] = {
     48ull, 85ull, 206ull, 472ull, 1116ull,
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Initialise table with the first 10 terms if not yet done */
     if (seq_len == 0) {
         size_t alloc = (size_t)((n < 10) ? 10 : n);
-        seq_tab = (seq_t *)malloc(alloc * sizeof(seq_t));
+        seq_tab = mem_new(seq_t, alloc);
         if (!seq_tab) return 0; /* allocation failure */
         for (idx_t i = 0; i < 10; ++i) seq_tab[i] = init_terms[i];
         seq_len = 10;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Grow and compute missing terms if necessary */
     if (n > seq_len) {
         size_t newsize = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(seq_tab, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_tab, newsize);
         if (!tmp) return 0;      /* allocation failure, keep old table */
         seq_tab = tmp;
 

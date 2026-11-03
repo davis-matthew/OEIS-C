@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  utility:  sieve of Eratosthenes –  is_prime[i] = 1 if i is prime   */
 static void sieve_primes(idx_t limit, uint8_t *is_prime)
@@ -69,9 +71,9 @@ seq_t a(idx_t n)
 
         /*  array to hold SG flag and degree per prime value   */
         uint8_t *is_sg  = (uint8_t*)calloc((size_t)new_limit + 1, 1);
-        seq_t  *degree = (seq_t*)calloc((size_t)new_limit + 1, sizeof(seq_t));
+        seq_t  *degree = mem_new(seq_t, (size_t)new_limit + 1);
         if (!is_sg || !degree) {
-            free(is_prime);  free(is_sg);  free(degree);
+            free(is_prime);  free(is_sg);  mem_free(degree);
             return 0;
         }
 
@@ -101,9 +103,9 @@ seq_t a(idx_t n)
         }
 
         /*  allocate the degree list according to new_count   */
-        new_deg_list = (seq_t*)calloc((size_t)new_count, sizeof(seq_t));
+        new_deg_list = mem_new(seq_t, (size_t)new_count);
         if (!new_deg_list) {
-            free(is_prime); free(is_sg); free(degree);
+            free(is_prime); free(is_sg); mem_free(degree);
             return 0;
         }
 
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
         }
 
         /*  free old data  */
-        free(is_prime); free(is_sg); free(degree); free(sg_degrees);
+        free(is_prime); free(is_sg); mem_free(degree); mem_free(sg_degrees);
 
         /*  store new data   */
         sg_degrees = new_deg_list;

@@ -10,8 +10,9 @@
  *            (m,k) is obtained from the antidiagonal traversal of difference
  *            sequences: let d be the smallest integer with (d+1)(d+2)/2 > n,
  *            and offset = n - d(d+1)/2. Then m = d - offse...
- * Range:     i8 n <= 43, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
+ * Range:     i8 n <= 76, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 
 /* Dependencies provided by the build environment. */
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Pre–compute strict partition numbers up to a safe limit. */

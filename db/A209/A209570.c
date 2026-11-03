@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a(n) is the flattened list of v coefficients (row‑major). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Flattened v‑coefficients, indices 0…(n‑1) for a(n). */
 static seq_t *flat  = NULL;
@@ -36,8 +38,8 @@ static void ensure_n(idx_t n) {
     size_t needed = (size_t)n;
     while (flat_len < needed) {
         size_t len = prev_len + 1;               /* new row length */
-        seq_t *cur_u = (seq_t *)malloc(len * sizeof(seq_t));
-        seq_t *cur_v = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *cur_u = mem_new(seq_t, len);
+        seq_t *cur_v = mem_new(seq_t, len);
         if (!cur_u || !cur_v) abort();
 
         if (len == 1) {                           /* n = 1 */
@@ -56,7 +58,7 @@ static void ensure_n(idx_t n) {
         if (flat_len + len > flat_cap) {
             size_t newcap = flat_cap ? flat_cap * 2 : 64;
             while (flat_len + len > newcap) newcap *= 2;
-            seq_t *tmp = (seq_t *)realloc(flat, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, flat, newcap);
             if (!tmp) abort();
             flat = tmp;
             flat_cap = newcap;
@@ -66,8 +68,8 @@ static void ensure_n(idx_t n) {
             flat[flat_len + i] = cur_v[i];
         flat_len += len;
 
-        free(prev_u);
-        free(prev_v);
+        mem_free(prev_u);
+        mem_free(prev_v);
         prev_u = cur_u;
         prev_v = cur_v;
         prev_len = len;

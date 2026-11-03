@@ -10,15 +10,18 @@
  *            7 (mod 12): a(p^e) = (p^(e+1) + (–1)^e) / (p + 1) a(1) = 1
  * Range:     u8 n <= 16, u16 n <= 2850, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   factor_u64, pow_seq
+ * Validated: standard, pass, 88 terms through n = 4761 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow_seq.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -34,13 +37,13 @@ seq_t a(idx_t n)
         uint64_t e = exps[i];
         seq_t term;
         if (p < 5) {
-            term = pow_seq((seq_t)p, (int)e);          /* p^e */
+            term = ipow_i32((seq_t)p, (int)e);          /* p^e */
         } else if ((p % 12) == 1 || (p % 12) == 11) {
-            seq_t numer = pow_seq((seq_t)p, (int)(e + 1));
+            seq_t numer = ipow_i32((seq_t)p, (int)(e + 1));
             numer -= 1;
             term = numer / (seq_t)(p - 1);
         } else {   /* p ≡ 5 or 7 (mod 12) */
-            seq_t numer = pow_seq((seq_t)p, (int)(e + 1));
+            seq_t numer = ipow_i32((seq_t)p, (int)(e + 1));
             if (e % 2 == 0) numer += 1;
             else            numer -= 1;
             term = numer / (seq_t)(p + 1);

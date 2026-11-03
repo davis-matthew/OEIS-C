@@ -10,7 +10,8 @@
  *            at least one 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define COLS 5
 #define COL_MASK  (1u << COLS) - 1
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
     static seq_t ndp[COL_MASK + 1][STATE_MASK + 1];
 
     /* initialise to zero */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* initial row (row 1) */
     for (int m = 0; m <= COL_MASK; ++m) {
@@ -139,7 +141,7 @@ seq_t a(idx_t n)
     /* Process rows 2 .. n */
     for (idx_t r = 2; r <= n; ++r) {
         /* clear ndp */
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
 
         for (int pm = 0; pm <= COL_MASK; ++pm) {
             for (int s = 0; s <= STATE_MASK; ++s) {
@@ -157,7 +159,7 @@ seq_t a(idx_t n)
         }
 
         /* copy ndp to dp for next iteration */
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* Sum over final states where no pending needs */

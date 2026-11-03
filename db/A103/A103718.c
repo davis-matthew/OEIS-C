@@ -12,12 +12,14 @@
  *            (k≥0, 0<m≤k)
  * Range:     i8 n <= 14, i16 n <= 35, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* locate the row k containing the index n */
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
 
     for (idx_t cur_k = 0; cur_k <= k; ++cur_k) {
         idx_t len = cur_k + 1;
-        seq_t *cur = (seq_t*)malloc(len * sizeof(*cur));
+        seq_t *cur = mem_new(seq_t, len);
 
         if (cur_k == 0) {
             cur[0] = 1;  /* a(0,0) */
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
         }
 
         /* free previous row and advance */
-        if (prev) free(prev);
+        if (prev) mem_free(prev);
         prev = cur;
         prev_len = len;
 
@@ -66,6 +68,6 @@ seq_t a(idx_t n) {
     }
 
     /* free the final row */
-    if (prev) free(prev);
+    if (prev) mem_free(prev);
     return ans;
 }

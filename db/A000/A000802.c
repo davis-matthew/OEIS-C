@@ -9,12 +9,19 @@
  * Formula:   a(n) = Sum_{k=0..n} min(2^k, 2^(2^(n-k))-1)
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 35, u64 n <= 68, u128 n <= 133,
  *            big any n
- * Helpers:   a000802_pow2pow2
+ * Validated: standard, pass, 53 terms through n = 3037 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000802_pow2pow2.h"
+static seq_t a000802_pow2pow2(idx_t e) {
+    /* 2^(2^e), by squaring 2 e times */
+    seq_t r = 2;
+    idx_t i;
+    for (i = 0; i < e; i++) r = r * r;
+    return r;
+}
 
 seq_t a(idx_t n) {
     seq_t result = 0;

@@ -10,7 +10,8 @@
  *            d>1 of N, else 2^(Sum_{d|N,d>1} phi(d)/(2*ord_d(u)))
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 37, u64 n <= 70, u128 n <= 135,
  *            big any n
- * Helpers:   a2086_factor, a2086_gcd, a2086_pm
+ * Validated: standard, pass, 53 terms through n = 184 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,30 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/a2086_factor.h"
-#include "../utils/a2086_gcd.h"
-#include "../utils/a2086_pm.h"
+#include "../utils/gcd_u64.h"
+
+static int a2086_factor(uint64_t x, uint64_t *pr) {
+    int k = 0;
+    for (uint64_t p = 2; p * p <= x; p++) {
+        if (x % p == 0) {
+            pr[k++] = p;
+            while (x % p == 0) x /= p;
+        }
+    }
+    if (x > 1) pr[k++] = x;
+    return k;
+}
+
+static uint64_t a2086_pm(uint64_t b, uint64_t e, uint64_t m) {
+    uint64_t r = 1 % m;
+    b %= m;
+    while (e) {
+        if (e & 1) r = r * b % m;
+        b = b * b % m;
+        e >>= 1;
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     uint64_t N = 2 * (uint64_t)n + 1;
@@ -61,7 +83,7 @@ seq_t a(idx_t n) {
     uint64_t phiN = 0;
 
     for (uint64_t u = 1; u < N; u++) {
-        if (a2086_gcd(u, N) != 1) continue;
+        if (gcd_u64(u, N) != 1) continue;
         phiN++;
         uint64_t e = 0;
         bool ok = true;

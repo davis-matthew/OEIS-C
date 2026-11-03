@@ -8,7 +8,8 @@
  *            as p + q where p is prime and q is a 4‑almost prime (Ω(q)=4)
  * Range:     u8 n <= 65, u16 n <= 196, u32 n <= 196, u64 n <= 196,
  *            u128 n <= 196, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* maximum number to sieve – large enough for all known terms */
 #define SIEVE_LIMIT 200000U
@@ -56,7 +58,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t needed)
 {
     while (*cap < needed) {
         *cap = (*cap == 0) ? 128 : (*cap + (*cap >> 1));
-        seq_t *tmp = (seq_t *)realloc(*arr, *cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
         if (!tmp) exit(1);
         *arr = tmp;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   prefix_count
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/prefix_count.h"
+#include "../utils/triangular.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +55,7 @@ seq_t a(idx_t n)
             high = mid - 1;
     }
     idx_t s = low;
-    idx_t cum_before = prefix_count(s);
+    idx_t cum_before = triangular(s);
     idx_t offset = n - cum_before;
     idx_t n_row = s - offset;
     idx_t k = offset;

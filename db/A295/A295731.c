@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 8, i16 n <= 19, i32 n <= 42, i64 n <= 88, i128 n <= 180,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 1923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(n) = a(n-1)+3*a(n-2)-2*a(n-3)-2*a(n-4),
    a(0)=-1, a(1)=-1, a(2)=0, a(3)=1 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache of computed terms */
 static size_t cache_cap = 0;     /* current capacity of the cache */
@@ -28,7 +30,7 @@ static void ensure_capacity(idx_t needed)
         idx_t new_cap = cache_cap ? cache_cap * 2 : 4;
         if (new_cap < needed + 1)
             new_cap = needed + 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!new_cache)
             exit(1); /* allocation failure */
         cache = new_cache;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of the cache with the first four values */
     if (!cache) {
         cache_cap = 4;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             exit(1);
         cache[0] = (seq_t)-1;

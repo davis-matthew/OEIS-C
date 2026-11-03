@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 19, u64 n <= 24, u128 n <= 28,
  *            big any n
- * Helpers:   base7_to_decimal
+ * Validated: standard, pass, 41 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,29 @@
    a(n+1) = the decimal number whose digits are the base‑7 digits of a(n). */
 
 #include <stdlib.h>
-#include "../utils/base7_to_decimal.h"
+#include "../utils/mem.h"
+
+/* Convert a number written in base 10 to the number obtained by reading
+   its base‑7 representation as a decimal string.  This is the core
+   operation of the sequence. */
+static seq_t base7_to_decimal(seq_t x)
+{
+    seq_t result = 0;
+    seq_t power = 1;
+
+    /* Find the highest power of 7 <= x. */
+    while (x / power >= (seq_t)7)
+        power *= (seq_t)7;
+
+    /* Process digits from most significant to least. */
+    while (power > (seq_t)0) {
+        seq_t digit = x / power;          /* digit in base 7 (0..6) */
+        result = result * (seq_t)10 + digit;
+        x = x % power;
+        power /= (seq_t)7;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,10 +55,10 @@ seq_t a(idx_t n)
         size_t new_len = (size_t)n;
 
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+            cache = mem_new(seq_t, new_len);
             if (!cache) return (seq_t)0;   /* allocation failure */
         } else {
-            cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_len);
             if (!cache) return (seq_t)0;   /* allocation failure */
         }
 

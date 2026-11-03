@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    For n>7: a(n) = a(n-1) + a(n-4) - a(n-5) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial values for n = 0 … 7 */
 static const seq_t init_vals[8] = {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (cache_cap < (size_t)(n + 1)) {
         size_t new_cap = ((size_t)(n + 1)) * 2;
         if (new_cap == 0) new_cap = 1;   /* handle n == ~0ULL (unlikely) */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)            /* allocation failed – signal error */
             return 0;
         cache = tmp;

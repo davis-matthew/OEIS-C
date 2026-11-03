@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 41, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The types are supplied by the build system. */
 extern seq_t a(idx_t n);
@@ -43,7 +45,7 @@ static void build_sequence(void)
 
     /* Pre‑compute powers of 7 up to 7^40. */
     const size_t MAX_I = 41;            /* indices 0 … 40 inclusive */
-    seq_t *pow7 = (seq_t *)malloc(MAX_I * sizeof(seq_t));
+    seq_t *pow7 = mem_new(seq_t, MAX_I);
     pow7[0] = 1;
     for (size_t i = 1; i < MAX_I; ++i)
         pow7[i] = pow7[i - 1] * (seq_t)7;
@@ -51,13 +53,13 @@ static void build_sequence(void)
     /* Pre‑compute powers of 3 until the first one exceeds 7^40. */
     seq_t target = pow7[40];
     size_t j_max = 0;
-    seq_t *pow3 = (seq_t *)malloc(sizeof(seq_t));   /* pow3[0] = 1 */
+    seq_t *pow3 = mem_new(seq_t, 1);   /* pow3[0] = 1 */
     pow3[0] = 1;
     for (size_t j = 1; ; ++j) {
         seq_t val = pow3[j - 1] * (seq_t)3;
         size_t new_size = j + 1;
-        seq_t *tmp = (seq_t *)realloc(pow3, new_size * sizeof(seq_t));
-        if (tmp == NULL) { free(pow7); free(pow3); exit(1); }
+        seq_t *tmp = mem_resize(seq_t, pow3, new_size);
+        if (tmp == NULL) { mem_free(pow7); mem_free(pow3); exit(1); }
         pow3 = tmp;
         pow3[j] = val;
         if (val > target) { j_max = j - 1; break; }
@@ -73,7 +75,7 @@ static void build_sequence(void)
     }
 
     /* Collect all differences. */
-    seq_t *all = (seq_t *)malloc(total_terms * sizeof(seq_t));
+    seq_t *all = mem_new(seq_t, total_terms);
     size_t pos = 0;
     for (size_t i = 0; i < MAX_I; ++i) {
         for (size_t j = 0; j <= j_max; ++j) {
@@ -83,10 +85,10 @@ static void build_sequence(void)
     }
 
     /* Sort the array. */
-    qsort(all, pos, sizeof(seq_t), seq_compare);
+    mem_qsort(all, pos, sizeof(seq_t), seq_compare);
 
     /* Keep only distinct values. */
-    seq_t *uniq = (seq_t *)malloc(pos * sizeof(seq_t));
+    seq_t *uniq = mem_new(seq_t, pos);
     idx_t uniq_cnt = 0;
     if (pos > 0) {
         uniq[uniq_cnt++] = all[0];
@@ -101,9 +103,9 @@ static void build_sequence(void)
     seq_len  = uniq_cnt;
 
     /* Free temporaries. */
-    free(all);
-    free(pow3);
-    free(pow7);
+    mem_free(all);
+    mem_free(pow3);
+    mem_free(pow7);
 }
 
 /* ---- public function required by the exercise ---- */

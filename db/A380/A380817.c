@@ -8,13 +8,19 @@
  *            defined in the OEIS entry
  * Range:     u8 n <= 255, u16 n <= 9730, u32 n <= 9730, u64 n <= 9730,
  *            u128 n <= 9730, big any n
- * Helpers:   base_from_row
+ * Validated: standard, pass, 82 terms through n = 9420 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/base_from_row.h"
+
+/* base(r) = total number of terms up to row r  (let r≥0) */
+static inline idx_t base_from_row(idx_t r)
+{
+    return r * ((idx_t)2 * r - 1);
+}
 
 /* Find the row r such that base(r-1) < n ≤ base(r)  */
 static idx_t find_row(idx_t n)

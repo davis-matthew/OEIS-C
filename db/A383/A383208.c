@@ -11,12 +11,14 @@
  *            3)/6
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are provided by the build environment. */
 
@@ -37,17 +39,17 @@ static void ensure_capacity(idx_t n)
 
     idx_t new_cap = (n > allocated * 2 ? n + 1 : allocated * 2 + 1);
     if (S == NULL) {
-        S = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        pow2 = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        pow3 = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        carr = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        a_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        S = mem_new(seq_t, new_cap);
+        pow2 = mem_new(seq_t, new_cap);
+        pow3 = mem_new(seq_t, new_cap);
+        carr = mem_new(seq_t, new_cap);
+        a_arr = mem_new(seq_t, new_cap);
     } else {
-        S = (seq_t*)realloc(S, new_cap * sizeof(seq_t));
-        pow2 = (seq_t*)realloc(pow2, new_cap * sizeof(seq_t));
-        pow3 = (seq_t*)realloc(pow3, new_cap * sizeof(seq_t));
-        carr = (seq_t*)realloc(carr, new_cap * sizeof(seq_t));
-        a_arr = (seq_t*)realloc(a_arr, new_cap * sizeof(seq_t));
+        S = mem_resize(seq_t, S, new_cap);
+        pow2 = mem_resize(seq_t, pow2, new_cap);
+        pow3 = mem_resize(seq_t, pow3, new_cap);
+        carr = mem_resize(seq_t, carr, new_cap);
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
     }
 
     /* Initialize the newly allocated slots to zero.  */

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 114 terms through n = 9917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* auxiliary structure for dynamic predecessor lists */
 typedef struct {
@@ -56,7 +58,7 @@ ensure_capacity(idx_t n)
     idx_t new_cap = cap ? cap << 1 : 4;
     while (new_cap <= n) new_cap <<= 1;
 
-    A       = (seq_t*)realloc(A,       sizeof(seq_t)       * new_cap);
+    A       = mem_resize(seq_t, A, new_cap);
     preds   = (pred_list_t*)realloc(preds, sizeof(pred_list_t) * new_cap);
     vis_time = (uint32_t*)realloc(vis_time, sizeof(uint32_t) * new_cap);
 

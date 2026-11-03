@@ -13,12 +13,14 @@
  *            obtained by unfolding the index n into the...
  * Range:     u8 n <= 58, u16 n <= 179, u32 n <= 644, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 1191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
         for (idx_t i = rows_cnt; i < new_cnt; ++i) {
             /* allocate storage for row i (i+1 elements) */
-            rows[i] = (seq_t*)malloc((size_t)(i + 1) * sizeof(seq_t));
+            rows[i] = mem_new(seq_t, (size_t)(i + 1));
             if (!rows[i]) return 0;   /* out of memory; safe fallback */
 
             /* set the first and last element to 1 */

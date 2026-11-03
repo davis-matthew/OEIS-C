@@ -12,7 +12,8 @@
  *            search, not a closed formula
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   powmod64
+ * Validated: standard, pass, 106 terms through n = 9921 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/powmod64.h"   /* powmod64(uint64_t base, uint64_t exp, uint64_t mod) */
+#include "../utils/powmod_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -33,11 +34,11 @@ seq_t a(idx_t n)
     if (!used) return (seq_t)0;           /* allocation failure → 0 */
 
     for (size_t k = 1; k < N; ++k) {
-        uint64_t r  = powmod64((uint64_t)k, n + 1u, N);
+        uint64_t r  = powmod_u64((uint64_t)k, n + 1u, N);
         if (r == 0) continue;              /* would give m = n, which is invalid */
 
         size_t k2 = N - k;
-        uint64_t r2 = powmod64((uint64_t)k2, n + 1u, N);
+        uint64_t r2 = powmod_u64((uint64_t)k2, n + 1u, N);
         if (r != r2) continue;             /* residues differ → no suitable m */
 
         /* m = n - r (1 ≤ m < n) */

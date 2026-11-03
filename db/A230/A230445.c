@@ -9,12 +9,14 @@
  *            m = n – r*(r+1)/2
  * Range:     u8 n <= 24, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
 

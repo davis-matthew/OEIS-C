@@ -9,13 +9,15 @@
  *            36, a(3) = 216 (offset 1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Internal cache */
 static seq_t *cache       = NULL;   /* points to array of seq_t, index 0 unused */
@@ -36,12 +38,12 @@ static void ensure_cache(idx_t n)
 
     seq_t *new_buf = NULL;
     if (cache == NULL) {                   /* first allocation */
-        new_buf = (seq_t *)calloc(new_size, sizeof(seq_t));
+        new_buf = mem_new(seq_t, new_size);
     } else {
-        new_buf = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        new_buf = mem_resize(seq_t, cache, new_size);
         if (new_buf) {                     /* zero newly allocated part */
             size_t new_part = new_size - cache_size;
-            memset((void *)(new_buf + cache_size), 0, new_part * sizeof(seq_t));
+            mem_set((new_buf + cache_size), 0, new_part * sizeof(seq_t));
         }
     }
     if (!new_buf) abort();

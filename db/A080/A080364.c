@@ -12,13 +12,15 @@
  *            fast random access
  * Range:     u8 n <= 117, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9734 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 /* Least prime factor of a 64‑bit integer.  For a prime the function
    returns the integer itself.  For small candidates a simple trial
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         if (size + 1 > capacity)
         {
             capacity = capacity ? capacity * 2 : 16;
-            seq_t *new_cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, capacity);
             if (!new_cache) { /* abort on allocation failure */
                 exit(1);
             }

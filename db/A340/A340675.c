@@ -8,8 +8,9 @@
  * Formula:   a(n) = 1 if n=1; a(n)=2 if n squarefree>1; a(n)=1 if n not
  *            square and not squarefree; a(n)=a(sqrt(n))^2 if n is a perfect
  *            square
- * Range:     u8 n <= 255, u16 n <= 9611, u32 n <= 9611, u64 n <= 9611,
- *            u128 n <= 9611, big any n
+ * Range:     u8 n <= 255, u16 n <= 65535, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9611 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

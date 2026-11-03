@@ -13,7 +13,8 @@
  *            binomial(2n,2d)*12^d*(2d-1)!!*Z(2n-2d), Z(M) = Sum_{A=0...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   grow_zero, sadd, seq_is_big, u128_to_seq
+ * Validated: standard, pass, 31 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,47 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_is_big.h"
-#include "../utils/grow_zero.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/sadd.h"
+#include "../utils/mem.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static void sadd(seq_t *m, int *s, seq_t x, int xs)
+{
+    if (x == 0) return;
+    if (*m == 0) { *m = x; *s = xs; return; }
+    if (*s == xs) *m += x;
+    else if (*m >= x) { *m -= x; if (*m == 0) *s = 0; }
+    else { *m = x - *m; *s = xs; }
+}
 
 /* ---------- arbitrary precision path (sign-magnitude over seq_t) ---------- */
 

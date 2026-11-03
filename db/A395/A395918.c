@@ -9,7 +9,8 @@
  *            a(0) = 0
  * Range:     u8 n <= 176, u16 n <= 2817, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 8891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;            /* sequence array */
 static size_t seq_cap = 0;           /* allocated capacity of seq */
@@ -37,7 +39,7 @@ static void ensure_seq_cap(size_t need)
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap ? seq_cap << 1U : 16;
     while (new_cap < need) new_cap <<= 1U;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) abort();          /* out of memory */
     seq = tmp;
     seq_cap = new_cap;
@@ -49,8 +51,7 @@ static void ensure_cnt_cap(size_t need)
     if (cnt_cap >= need) return;
     size_t new_cap = cnt_cap ? cnt_cap << 1U : 8;
     while (new_cap < need) new_cap <<= 1U;
-    struct count_rec *tmp = (struct count_rec *)realloc(cnt,
-                                 new_cap * sizeof(struct count_rec));
+    struct count_rec *tmp = mem_resize(struct count_rec, cnt, new_cap);
     if (!tmp) abort();
     cnt = tmp;
     cnt_cap = new_cap;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^(n-1) mod prime(n)
  * Range:     u8 n <= 54, u16 n <= 121, u32 n <= 121, u64 n <= 121,
  *            u128 n <= 121, big any n
+ * Validated: partial, pass, 121 terms through n = 121 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

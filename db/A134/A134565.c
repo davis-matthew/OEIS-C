@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = -(-1)^n * binomial(n + ⌊n/2⌋, n - ⌊n/2⌋) / (2*⌊n/2⌋ + 1)
- * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 22, i64 n <= 32, i128 n <= 32,
+ * Range:     i8 n <= 6, i16 n <= 12, i32 n <= 24, i64 n <= 32, i128 n <= 32,
  *            big any n
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* (uses the identity a(2k) = -binom(3k,k)/(2k+1), a(2k+1) =  binom(3k+1,k+1)/(2k+1) */
 
 /* Include the binomial utility */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t

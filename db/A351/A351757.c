@@ -9,13 +9,15 @@
  *            * Recurrence is implemented using memoisation
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,10 +30,10 @@ seq_t a(idx_t n)
     /* initial allocation */
     if (a_cache == NULL) {
         a_cap = 8;
-        a_cache = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         if (!a_cache) exit(EXIT_FAILURE);
         pow_cap = 8;
-        pow3   = (seq_t*)malloc(pow_cap * sizeof(seq_t));
+        pow3   = mem_new(seq_t, pow_cap);
         if (!pow3) exit(EXIT_FAILURE);
         a_cache[0] = 1;
         pow3[0]    = 1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         if (a_cap < need) {
             size_t new_cap = a_cap * 2;
             if (new_cap < need) new_cap = need + 8;
-            seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             a_cache = tmp;
             a_cap = new_cap;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         if (pow_cap < need) {
             size_t new_cap = pow_cap * 2;
             if (new_cap < need) new_cap = need + 8;
-            seq_t *tmp = (seq_t*)realloc(pow3, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, pow3, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             pow3 = tmp;
             pow_cap = new_cap;

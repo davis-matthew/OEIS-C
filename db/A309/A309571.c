@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, base
  * Formula:   not stated
- * Range:     i8 n <= 361, i16 n <= 9929, i32 n <= 9929, i64 n <= 9929,
- *            i128 n <= 9929, big any n
- * Helpers:   none
+ * Range:     i8 n <= 361, i16 n <= 42917, i32 n <= 42917, i64 n <= 42917,
+ *            i128 n <= 42917, big any n
+ * Validated: standard, pass, 93 terms through n = 9929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of the required integer types */
 typedef uint64_t idx_t;   /* provided by the build system */
@@ -44,7 +46,7 @@ static void ensure_seq_capacity(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap   = new_cap;
 }
 

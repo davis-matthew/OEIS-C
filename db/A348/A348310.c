@@ -10,12 +10,14 @@
  *            each call
  * Range:     i8 n <= 14, i16 n <= 28, i32 n <= 49, i64 n <= 100,
  *            i128 n <= 193, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle small indices directly */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
 
     /* Allocate an array large enough to hold all needed values */
     size_t len = (size_t)n + 1;
-    seq_t *arr = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, len);
     if (!arr)
         return 0;          /* allocation failure – unlikely for n≤10000 */
 
@@ -47,6 +49,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = arr[(size_t)n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

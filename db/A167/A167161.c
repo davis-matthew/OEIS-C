@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 186, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 1984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    call order is supported. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *order_arr    = NULL;   /* current permutation */
 static size_t  order_cap   = 0;      /* allocated capacity */
@@ -33,7 +35,7 @@ static void ensure_capacity(idx_t max_index)
     size_t new_cap = needed * 2;
     if (new_cap <= needed) new_cap = needed;   /* avoid overflow */
 
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) return;  /* out of memory; caller will fail */
 
     /* Copy existing elements. */
@@ -41,7 +43,7 @@ static void ensure_capacity(idx_t max_index)
     /* Initialise new positions to their natural numeric values. */
     for (size_t i = order_cap; i < new_cap; ++i) new_arr[i] = (seq_t)i;
 
-    free(order_arr);
+    mem_free(order_arr);
     order_arr = new_arr;
     order_cap = new_cap;
 }

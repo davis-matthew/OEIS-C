@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 9, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* dynamic array for small base‑3 digits (0,1,2) */
 typedef struct {
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
 
     if (n == 1) {
         if (cache_size < 1) {
-            cache = (seq_t *)realloc(cache, sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, 1);
             cache[0] = (seq_t)1;
             cache_size = 1;
         }
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
 
     /* extend cache up to n */
     if (cache_size < n) {
-        cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, n);
         for (idx_t k = cache_size; k < n; ++k) {
             seq_t cur = cache[k - 1];
 

@@ -7,15 +7,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = #{ m ≤ n : L(m) = L(n) }, where L(m) is the largest
  *            prime‑power dividing m (A034699)
- * Range:     u8 n <= 943, u16 n <= 9182, u32 n <= 9182, u64 n <= 9182,
- *            u128 n <= 9182, big any n
- * Helpers:   none
+ * Range:     u8 n <= 943, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static data structures used for memoisation. */
 static seq_t *largest_arr = NULL;          /* largest_arr[m] = L(m)          */
@@ -70,8 +72,7 @@ seq_t a(idx_t n)
         idx_t new_max = n;
 
         /* Expand largest_arr. */
-        seq_t *new_largest_arr = (seq_t*)realloc(largest_arr,
-                                (new_max + 1) * sizeof(seq_t));
+        seq_t *new_largest_arr = mem_resize(seq_t, largest_arr, (new_max + 1));
         if (!new_largest_arr) exit(1);
         largest_arr = new_largest_arr;
 

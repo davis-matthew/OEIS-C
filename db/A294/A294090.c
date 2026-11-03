@@ -10,12 +10,15 @@
  *            a(1) = 5, a(2) = 18, a(3) = 35, a(4) = 50
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 35, u64 n <= 73, u128 n <= 150,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 49 terms through n = 934 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -34,6 +37,6 @@ seq_t a(idx_t n)
         (seq_t)315   /* rem = 3 → a(6) */
     };
 
-    seq_t pow10 = seq_pow((seq_t)10, shift);    /* 10^shift */
+    seq_t pow10 = ipow_idx((seq_t)10, shift);    /* 10^shift */
     return base[rem] * pow10;
 }

@@ -10,7 +10,8 @@
  *            a(1)=a(2)=a(3)=0
  * Range:     u8 n <= 12, u16 n <= 44, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #ifdef __cplusplus
 # include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Recursive helper with memoisation */
 static seq_t _a_recursive(idx_t n)
@@ -40,12 +42,12 @@ static seq_t _a_recursive(idx_t n)
         bool *tmp_comp;
 
         /* Realloc cache array (cast for C++) */
-        tmp_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        tmp_cache = mem_resize(seq_t, cache, new_cap);
         cache = tmp_cache;
         /* If the type has a constructor, initialise new elements */
 #ifdef __cplusplus
         for (size_t i = cache_cap; i < new_cap; ++i)
-            new (&cache[i]) seq_t();
+            *(&cache[i]) = (seq_t)0;
 #endif
 
         /* Realloc computed flag array */

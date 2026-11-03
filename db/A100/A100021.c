@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, less
  * Formula:   a(n) = 3*prime(n) - prime(n+1) - 3
- * Range:     u8 n <= 32, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 32, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 75 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *primes = NULL;          /* Dynamic array of primes (1-indexed). */
 static idx_t   primes_count = 0;      /* Number of primes stored. */
@@ -30,11 +32,11 @@ ensure_primes_up_to(idx_t k)
     /* Allocate or grow the prime array. */
     if (primes_capacity == 0) {
         primes_capacity = 128;
-        primes = (seq_t *)malloc(primes_capacity * sizeof(seq_t));
+        primes = mem_new(seq_t, primes_capacity);
     }
     while (primes_capacity < k) {
         primes_capacity <<= 1;
-        primes = (seq_t *)realloc(primes, primes_capacity * sizeof(seq_t));
+        primes = mem_resize(seq_t, primes, primes_capacity);
     }
 
     /* Seed the first prime if necessary. */

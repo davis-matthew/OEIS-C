@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} 2^(n-k) * (k+1)^(k-1) * Stirling1(n,k)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 18, i128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <string.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Cached data for successive calls. */
 static seq_t *cache_a    = NULL;   /* a values                */
@@ -37,22 +40,22 @@ static void ensure_capacity(size_t new_n)
         return;
 
     /* Allocate new, zero‑initialized blocks */
-    seq_t *new_a    = (seq_t *)calloc(new_n + 1, sizeof(seq_t));
-    seq_t *new_s    = (seq_t *)calloc(new_n + 1, sizeof(seq_t));
-    seq_t *new_p2   = (seq_t *)calloc(new_n + 1, sizeof(seq_t));
-    seq_t *new_pk   = (seq_t *)calloc(new_n + 1, sizeof(seq_t));
+    seq_t *new_a    = mem_new(seq_t, new_n + 1);
+    seq_t *new_s    = mem_new(seq_t, new_n + 1);
+    seq_t *new_p2   = mem_new(seq_t, new_n + 1);
+    seq_t *new_pk   = mem_new(seq_t, new_n + 1);
 
     /* Copy old contents */
-    if (cache_a)   memcpy(new_a,    cache_a,    allocated * sizeof(seq_t));
-    if (stirling)  memcpy(new_s,   stirling,  allocated * sizeof(seq_t));
-    if (pow2)      memcpy(new_p2,   pow2,      allocated * sizeof(seq_t));
-    if (pow_k)     memcpy(new_pk,   pow_k,     allocated * sizeof(seq_t));
+    if (cache_a)   mem_copy(new_a, cache_a, allocated * sizeof(seq_t));
+    if (stirling)  mem_copy(new_s, stirling, allocated * sizeof(seq_t));
+    if (pow2)      mem_copy(new_p2, pow2, allocated * sizeof(seq_t));
+    if (pow_k)     mem_copy(new_pk, pow_k, allocated * sizeof(seq_t));
 
     /* Free old blocks */
-    free(cache_a);
-    free(stirling);
-    free(pow2);
-    free(pow_k);
+    mem_free(cache_a);
+    mem_free(stirling);
+    mem_free(pow2);
+    mem_free(pow_k);
 
     /* Install new arrays */
     cache_a    = new_a;
@@ -93,7 +96,7 @@ seq_t a(idx_t n)
 
         /* (cur+1)^(cur-1)  for cur > 0 */
         if (cur > 0)
-            pow_k[cur] = big_pow((seq_t)(cur + 1), (seq_t)(cur - 1));
+            pow_k[cur] = ipow((seq_t)(cur + 1), (seq_t)(cur - 1));
         else
             pow_k[cur] = 1;              /* cur == 0 handled already */
 

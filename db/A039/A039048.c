@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   qualify
+ * Validated: standard, pass, 83 terms through n = 9854 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/qualify.h"
+#include "../utils/mem.h"
+
+/* test whether a value has the same number of 4's and 6's in base‑7 */
+static bool qualify(seq_t v)
+{
+    int c4 = 0, c6 = 0;
+    seq_t t = v;
+    while (t != (seq_t)0) {
+        seq_t d = t % (seq_t)7;
+        if (d == (seq_t)4)  ++c4;
+        else if (d == (seq_t)6)  ++c6;
+        t = t / (seq_t)7;
+    }
+    return c4 == c6;   /* including the case v == 0 */
+}
 
 /* static storage for the memoised sequence */
 static seq_t *cache = NULL;
@@ -39,7 +54,7 @@ seq_t a(idx_t n)
     /* initialise on the first call */
     if (cache == NULL) {
         cache_cap = 16;                     /* initial capacity */
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         cache[0]  = (seq_t)0;               /* a(1) = 0 */
         cache_len = 1;
         last_value = 1;                     /* start testing from 1 */
@@ -55,8 +70,7 @@ seq_t a(idx_t n)
         if (qualify(last_value)) {
             if (cache_len == cache_cap) {   /* grow the cache if needed */
                 cache_cap += cache_cap;    /* double */
-                cache = (seq_t *)realloc(cache,
-                                         cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = last_value;
         }

@@ -11,12 +11,25 @@
  *            the first differences of that sequence are exactl...
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _arshon
+ * Validated: standard, pass, 90 terms through n = 9462 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_arshon.h"
+static seq_t _arshon(idx_t n)
+{
+    if (n == 0)
+        return 0;
+    idx_t k = n / 3;
+    int d = (int)(n % 3);
+    seq_t fk = _arshon(k);                    /* value of A(k)   */
+    seq_t add = (k & 1ULL) ? (2 - d) : d;     /* contribution of the last trit */
+    seq_t sum = fk + add;                     /* sum is in 0..4   */
+    if (sum >= 3)                             /* bring into 0..2   */
+        sum -= 3;
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

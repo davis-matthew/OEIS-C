@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy, changed
  * Formula:   a(n) = sum_{p^e||n} ( 2*e - popcount(e) if p = 2 e - popcount(e)
  *            otherwise )
- * Range:     u8 n <= 9710, u16 n <= 9710, u32 n <= 9710, u64 n <= 9710,
- *            u128 n <= 9710, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9710 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,9 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64() */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)
 {

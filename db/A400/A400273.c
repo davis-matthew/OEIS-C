@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 18, u16 n <= 26, u32 n <= 46, u64 n <= 46, u128 n <= 46,
+ * Range:     u8 n <= 18, u16 n <= 27, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array holding already computed a(n) */
 static size_t cache_cap = 0;    /* allocated capacity of cache */
@@ -42,7 +44,7 @@ static void grow_cache(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();     /* unrecoverable memory error */
     cache = tmp;
     cache_cap = new_cap;

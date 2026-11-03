@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 128, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 79 terms through n = 4339 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,10 @@
 /* By the OEIS comment, this k is always ≤ 2 n, so a linear search over (n, 2n] is sufficient. */
 
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +31,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = start; k <= end; ++k) {
         /* Check if k^4 ≡ 0 (mod n).  mod_pow handles modular multiplication safely. */
-        if (mod_pow((seq_t)k, 4, mod) == 0)
+        if (powmod((seq_t)k, 4, mod) == 0)
             return (seq_t)k;        /* found the least such k */
     }
 

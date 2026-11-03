@@ -10,12 +10,15 @@
  *            from the rational generating function of A170675.)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +26,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     if (n < 49) {
-        seq_t pow = big_pow((seq_t)41, (seq_t)(n - 1));
+        seq_t pow = ipow((seq_t)41, (seq_t)(n - 1));
         return ((seq_t)42) * pow;
     }
 
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     seq_t buf[49];
     buf[0] = (seq_t)1;
     for (idx_t i = 1; i < 49; ++i) {
-        buf[i] = ((seq_t)42) * big_pow((seq_t)41, (seq_t)(i - 1));
+        buf[i] = ((seq_t)42) * ipow((seq_t)41, (seq_t)(i - 1));
     }
 
     /* sum of the last 48 terms a(1)…a(48) */

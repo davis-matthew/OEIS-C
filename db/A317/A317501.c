@@ -11,7 +11,8 @@
  *            T(4,1), T(5,0), T(5,1), T(6,0), T(6,1), …
  * Range:     u8 n <= 11, u16 n <= 39, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial, cumulative_entries, pow2
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,23 @@
 /* The sequence is not defined by a simple recurrence for a(n); it is
    derived from the triangle reading order. */
 #include <stdint.h>
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/cumulative_entries.h"
+#include "../utils/pow2.h"
+
+/* cumulative number of terms in the triangle up to and including row r */
+static inline idx_t cumulative_entries(idx_t r)
+{
+    idx_t q   = r / 4;          /* floor(r/4)  */
+    idx_t rem = r % 4;          /* r mod 4     */
+    idx_t sum_floor;
+    if (q == 0)
+        sum_floor = 0;
+    else
+        sum_floor = q * ((idx_t)2 * q + rem - 1);   /* 2*q*(q-1) + (rem+1)*q */
+    return r + 1 + sum_floor;
+}
 
 /* return the n-th term of A317501 */
 extern seq_t a(idx_t n)

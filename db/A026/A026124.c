@@ -12,12 +12,14 @@
  *            a(2)=1, a(3)=2, a(4)=7, a(5)=20, a(6)=59
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 20, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n == 6) return (seq_t)59;
 
     /* Allocate array for values up to n (index 0..n) */
-    seq_t *val = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *val = mem_new(seq_t, (size_t)(n + 1));
     if (!val) return (seq_t)0; /* allocation failure – unlikely */
 
     /* Initialize stored values */
@@ -66,6 +68,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = val[n];
-    free(val);
+    mem_free(val);
     return result;
 }

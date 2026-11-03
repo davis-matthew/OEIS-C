@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4439, u16 n <= 4439, u32 n <= 4439, u64 n <= 4439,
  *            u128 n <= 4439, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 4434 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
     in O(n) time and O(n) memory (n ≤ 10000 satisfies the limits).  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Initialise cache with first term a(1) = 0   */
     if (data == NULL) {
         data_cap = 128;
-        data     = (seq_t *)malloc(data_cap * sizeof(seq_t));
+        data     = mem_new(seq_t, data_cap);
         if (!data) return 0;  /* out of memory – return 0 as a safe default */
         data[0] = 0;
         data_size = 1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         if (next_row == 1) {    /* Special case for the very first row (n=1)          */
             if (data_size == data_cap) {
                 data_cap *= 2;
-                data = (seq_t *)realloc(data, data_cap * sizeof(seq_t));
+                data = mem_resize(seq_t, data, data_cap);
             }
             data[data_size++] = 0;  /* a(1) = 0 already stored, just for completeness */
             next_row++;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         seq_t val = 1;
         if (data_size == data_cap) {
             data_cap *= 2;
-            data = (seq_t *)realloc(data, data_cap * sizeof(seq_t));
+            data = mem_resize(seq_t, data, data_cap);
         }
         data[data_size++] = val;              /* first element of the cycle = 1 */
 
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
             if (val == 1) break;              /* cycle closed                      */
             if (data_size == data_cap) {
                 data_cap *= 2;
-                data = (seq_t *)realloc(data, data_cap * sizeof(seq_t));
+                data = mem_resize(seq_t, data, data_cap);
             }
             data[data_size++] = val;
         }

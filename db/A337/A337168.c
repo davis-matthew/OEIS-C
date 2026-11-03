@@ -7,13 +7,15 @@
  * Formula:   a(n) = (-1)^n + 2 * Sum_{k=0..n-1} a(k) * a(n-k-1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Initial values: a(0) = 1 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
     /* Initialise on first call. */
     if (a_arr == NULL) {
         cap = 1;                     /* space for index 0 */
-        a_arr = (seq_t *)malloc(cap * sizeof(seq_t));
-        conv  = (seq_t *)malloc(cap * sizeof(seq_t));
+        a_arr = mem_new(seq_t, cap);
+        conv  = mem_new(seq_t, cap);
         a_arr[0] = (seq_t)1;         /* a(0) = 1 */
         conv[0]  = a_arr[0] * a_arr[0];   /* conv[0] = a0*a0 = 1 */
         last = 0;
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
         idx_t new_cap = cap;
         while (new_cap < n + 1)
             new_cap <<= 1;
-        a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-        conv  = (seq_t *)realloc(conv,  new_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
+        conv  = mem_resize(seq_t, conv, new_cap);
         cap = new_cap;
     }
 

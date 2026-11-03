@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_unimodal
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_unimodal.h"
+#include "../utils/mem.h"
+
+/* Test whether a sequence of integers is unimodal
+ * (weakly increasing then weakly decreasing). */
+static bool is_unimodal(const int *parts, int len)
+{
+    if (len <= 1)
+        return true;
+
+    int i = 0;
+    while (i + 1 < len && parts[i + 1] >= parts[i])
+        ++i;
+    while (i + 1 < len && parts[i + 1] <= parts[i])
+        ++i;
+    return i == len - 1;
+}
 
 /* Static storage for memoisation of the sequence values. */
 static seq_t *cache = NULL;
@@ -43,7 +59,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = cache_cap ? cache_cap << 1 : 8;
         if (new_cap < (size_t)n)
             new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

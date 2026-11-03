@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   seq_free
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,11 @@
    The sequence a(n) lists these sums in increasing order, starting with a(1)=0. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_free.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 /* Utility compare function for qsort. */
 static int compare_seq_t(const void *p1, const void *p2)
@@ -32,7 +37,7 @@ static int compare_seq_t(const void *p1, const void *p2)
 /* Allocate an array of seq_t and return a pointer. */
 static seq_t *seq_alloc(size_t cap)
 {
-    return (seq_t *)malloc(sizeof(seq_t) * cap);
+    return mem_new(seq_t, cap);
 }
 
 /* Compute all distinct sums of consecutive pentagonal pyramidal numbers
@@ -62,7 +67,7 @@ static void compute_terms(idx_t m, seq_t **out, size_t *out_len)
     seq_free(pref);
 
     /* Sort and deduplicate to get the final sequence (plus the zero term). */
-    qsort(raw, raw_len, sizeof(seq_t), compare_seq_t);
+    mem_qsort(raw, raw_len, sizeof(seq_t), compare_seq_t);
 
     seq_t *terms = seq_alloc(raw_len + 1); /* +1 for the zero term */
     size_t tpos = 0;

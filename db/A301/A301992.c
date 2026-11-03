@@ -12,13 +12,15 @@
  *            an unsigned integer of various sizes or...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache   = NULL;   /* table of computed a(n) values   */
 static size_t cache_cap   = 0;      /* allocated capacity of seq_cache  */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call.  */
     if (seq_cache == NULL) {
         size_t init_cap = 2;
-        seq_cache = (seq_t*)malloc(init_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, init_cap);
         if (!seq_cache) abort();          /* terminate if allocation fails */
 
         seq_cache[0] = 0;                /* a(1) = 0   */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Resize cache if necessary.  */
     if ((size_t)n > cache_cap) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();
         seq_cache = tmp;
         cache_cap = new_cap;

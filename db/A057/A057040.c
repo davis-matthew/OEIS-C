@@ -10,15 +10,17 @@
  *            F(2)=1), and i(k) is the row index of k in the antidiagonal
  *            enumeration 1; 2,3; 4,5,6; … For k the diagonal index t =
  *            ceil((sqrt(8k+1)-1)/2). Then i(k) = k - (t-1)*t/2
- * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 40, u64 n <= 44, u128 n <= 44,
+ * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 43, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   fib_pair, floor_sqrt_seq
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   fib_pair, isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/fib_pair.h"
-#include "../utils/floor_sqrt_seq.h"
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     seq_t tmp = k * (seq_t)8 + (seq_t)1;
 
     /* sq = floor(sqrt(tmp)) */
-    seq_t sq = floor_sqrt_seq(tmp);
+    seq_t sq = isqrt_seq(tmp);
 
     /* t = floor((sq - 1) / 2)  (initial estimate) */
     seq_t t = (sq - (seq_t)1) / (seq_t)2;

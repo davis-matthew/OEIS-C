@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 106, u16 n <= 4622, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9710 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- small helpers --------------------------------------------------    */
 /* return the number of bits required to represent x (x > 0).               */
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
     /* initialise cache on first entry */
     if (cache == NULL) {
         cache_capacity = 16;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (cache == NULL) abort();            /* out of memory (shouldn't happen) */
         cache[0] = 0;                           /* unused placeholder             */
         cache_size = 1;                         /* currently only the 0th entry   */
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
     if (cache_size <= n) {
         size_t new_capacity = cache_capacity;
         while (new_capacity <= n) new_capacity <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (tmp == NULL) abort();
         cache = tmp;
         cache_capacity = new_capacity;

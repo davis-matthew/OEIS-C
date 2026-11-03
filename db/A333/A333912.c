@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 8118, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 70 terms through n = 9024 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/calc_phi.h"  /* declares seq_t calc_phi(seq_t m); */
+#include "../utils/totient_seq.h"
 
 #ifdef __cplusplus
 #include <vector>
@@ -66,7 +67,7 @@ seq_t a(idx_t n)
     /* C++ build: use std::vector to manage storage. */
     while (terms_vec.size() < (size_t)n) {
         ++last_k;
-        seq_t phi_val = calc_phi((seq_t)last_k);
+        seq_t phi_val = totient_seq((seq_t)last_k);
         if (!is_sum_of_three_squares(phi_val)) {
             terms_vec.push_back((seq_t)last_k);
         }
@@ -76,7 +77,7 @@ seq_t a(idx_t n)
     /* C build: use a manually managed dynamic array. */
     while (terms_len < (size_t)n) {
         ++last_k;
-        seq_t phi_val = calc_phi((seq_t)last_k);
+        seq_t phi_val = totient_seq((seq_t)last_k);
         if (!is_sum_of_three_squares(phi_val)) {
             ensure_capacity_c(terms_len + 1);
             terms_arr[terms_len++] = (seq_t)last_k;

@@ -12,11 +12,13 @@
  *            a(5)=111010
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 125 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>   /* for size_t */
 
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 31, u32 n <= 112, u64 n <= 419,
  *            u128 n <= 1615, big any n
- * Helpers:   seq_t_max
+ * Validated: standard, pass, 57 terms through n = 9918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <stdbool.h>
-#include "../utils/seq_t_max.h"
+#include "../utils/mem.h"
+
+/* Maximum value representable by the concrete seq_t type.  For an
+   arbitrary‑precision type this function is never consulted. */
+static inline seq_t seq_t_max(void) {
+    if (sizeof(seq_t) == sizeof(unsigned char))
+        return (seq_t)UCHAR_MAX;
+    if (sizeof(seq_t) == sizeof(unsigned short))
+        return (seq_t)USHRT_MAX;
+    if (sizeof(seq_t) == sizeof(unsigned int))
+        return (seq_t)UINT_MAX;
+    if (sizeof(seq_t) == sizeof(unsigned long))
+        return (seq_t)ULONG_MAX;
+    if (sizeof(seq_t) == sizeof(unsigned long long))
+        return (seq_t)ULLONG_MAX;
+    return (seq_t)0;   /* arbitrary‑precision – value not used */
+}
 
 /* Safe multiplication for bounded integral types.  For larger types
    (e.g. arbitrary‑precision) we perform the multiplication directly. */
@@ -88,8 +105,7 @@ static void heapify_down(size_t idx) {
 static void heap_push(seq_t val, unsigned int i, unsigned int j) {
     if (heap_len == heap_cap) {
         size_t new_cap = heap_cap ? heap_cap << 1 : 16;
-        struct node *np = (struct node *)realloc(heap,
-                          new_cap * sizeof(struct node));
+        struct node *np = mem_resize(struct node, heap, new_cap);
         if (!np) abort();
         heap = np;
         heap_cap = new_cap;
@@ -117,7 +133,7 @@ seq_t a(idx_t n) {
         heap_push((seq_t)1, 0, 0);          /* 3^0 * 10^0 = 1 */
         visited[0][0] = true;
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         initialized = true;
     }
@@ -128,8 +144,7 @@ seq_t a(idx_t n) {
         /* Store extracted value in cache. */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap << 1;
-            seq_t *np = (seq_t *)realloc(cache,
-                          new_cap * sizeof(seq_t));
+            seq_t *np = mem_resize(seq_t, cache, new_cap);
             if (!np) abort();
             cache = np;
             cache_cap = new_cap;

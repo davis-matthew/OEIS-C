@@ -7,8 +7,9 @@
  * Keywords:  base, nonn
  * Formula:   a(n) = number of times the ceiling of the arithmetic mean of the
  *            decimal digits of n occurs in n
- * Range:     u8 n <= 9557, u16 n <= 9557, u32 n <= 9557, u64 n <= 9557,
- *            u128 n <= 9557, big any n
+ * Range:     u8 n <= 25000, u16 n <= 25000, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 121 terms through n = 9557 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

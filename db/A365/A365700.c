@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 41, u64 n <= 42, u128 n <= 42,
+ * Range:     u8 n <= 17, u16 n <= 27, u32 n <= 41, u64 n <= 42, u128 n <= 42,
  *            big any n
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
    Formula: a(n) = Σ_{k=0..⌊n/5⌋} C(n-4k-1, n-5k) * C(n-2k+1, k) / (n-2k+1)
    (C(a,b) denotes binomial coefficient) */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Return the n-th term of A365700 (zero‑based indexing). */

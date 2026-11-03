@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 25, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- Prime generation (trial division) ---------------------------------*/
 static uint64_t *pr = NULL;          /* primes array (first prime at index 0) */
@@ -70,7 +72,7 @@ static idx_t  cnt2k_sz = 0;          /* current size of cnt2k           */
 static void ensure_cnt2k_size(idx_t need) {
     if (need + 1 > cnt2k_sz) {
         idx_t new_sz = (need + 1) * 2 + 10;
-        seq_t *new_arr = (seq_t*)realloc(cnt2k, new_sz * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cnt2k, new_sz);
         if (!new_arr) return;           /* out of memory – caller will fail */
         /* initialise new elements to 0 */
         for (idx_t i = cnt2k_sz; i < new_sz; ++i) new_arr[i] = 0;
@@ -89,7 +91,7 @@ seq_t a(idx_t n) {
     /* lazy allocation of cnt2k array */
     if (cnt2k == NULL) {
         cnt2k_sz = 128;
-        cnt2k = (seq_t*)calloc(cnt2k_sz, sizeof(seq_t)); /* zeros */
+        cnt2k = mem_new(seq_t, cnt2k_sz); /* zeros */
     }
 
     /* Return cached result if present */

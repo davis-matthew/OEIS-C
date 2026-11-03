@@ -12,7 +12,8 @@
  *            using an * array of smallest prime factors
  * Range:     u8 n <= 38, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 69 terms through n = 9079 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache    = NULL;   /* stored a(1), a(2), …   */
 static size_t seq_capacity = 0;      /* size of seq_cache      */
@@ -80,7 +82,7 @@ static void generate_terms(idx_t target)
         if (qualifies(candidate)) {
             if (seq_size >= seq_capacity) {
                 size_t new_cap = seq_capacity ? seq_capacity * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
                 if (!tmp) /* allocation failure – abort silently */
                     return;
                 seq_cache    = tmp;

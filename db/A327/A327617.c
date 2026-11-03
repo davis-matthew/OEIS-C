@@ -9,6 +9,7 @@
  *            digit_sum(A007494(n)+k), where A007494(n) = ceil(3*n/2)
  * Range:     u8 n <= 80, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 97 terms through n = 9710 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

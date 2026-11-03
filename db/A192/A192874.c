@@ -9,12 +9,14 @@
  *            a(0)=1, a(1)=0, a(2)=4, a(3)=6, a(4)=26
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 20, u64 n <= 39, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 892 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Initial values for n = 0..4 */
 static const seq_t init_vals[5] = {1, 0, 4, 6, 26};
@@ -37,7 +39,7 @@ static void ensure_cache_size(idx_t n)
         new_cap <<= 1;
 
     /* Reallocate */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) {
         /* Allocation failed; abort (no error handling as per requirements) */
         abort();

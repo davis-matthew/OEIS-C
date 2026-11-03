@@ -12,13 +12,15 @@
  *            by dynamic programming on rows
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 13, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
     }
 
     /* DP initialization: first pair of rows (row0, row1) */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     for (int r0 = 0; r0 < 64; ++r0) {
         for (int r1 = 0; r1 < 64; ++r1) {
             int8_t id = pair_idx[r0][r1];
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
     /* number of remaining transitions: pairs beyond the first one */
     int steps = (int)(n - 1);
     for (int step = 0; step < steps; ++step) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int prev = 0; prev < 64; ++prev) {
             for (int s_prev = 0; s_prev < 20; ++s_prev) {
                 seq_t val = dp[prev][s_prev];
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* sum all final states */

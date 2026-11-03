@@ -11,6 +11,7 @@
  *            supports the usual arithmetic operators (+, *...
  * Range:     u8 n <= 46, u16 n <= 168, u32 n <= 698, u64 n <= 9998,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 86 terms through n = 8264 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,14 +10,30 @@
  *            (arbitrary-precision build)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 31, u128 n <= 59,
  *            big any n
- * Helpers:   a2212_fixed, a2212_grow
+ * Validated: standard, pass, 42 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a2212_fixed.h"
-#include "../utils/a2212_grow.h"
+#include "../utils/mem.h"
+
+static int a2212_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x = x * 2;
+    return x == 0;
+}
+
+static seq_t *a2212_grow(seq_t *old, idx_t oldlen, idx_t newcap) {
+    seq_t *p = mem_new(seq_t, (size_t)newcap);
+    idx_t i;
+    for (i = 0; i < newcap; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *a2212_A = NULL;   /* a(i) */
 static seq_t *a2212_C = NULL;   /* c(i) = [x^i] A(x)^2, fixed-width only */

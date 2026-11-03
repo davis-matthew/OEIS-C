@@ -7,14 +7,16 @@
  * Keywords:  easy, nice, nonn, tabl
  * Formula:   a(n) = m mod (m - k) where m = ceil((sqrt(8n+1)-1)/2), k = n -
  *            m(m-1)/2 - 1 (0‑based offset in row)
- * Range:     u8 n <= 9727, u16 n <= 9727, u32 n <= 9727, u64 n <= 9727,
- *            u128 n <= 9727, big any n
- * Helpers:   sqrt_uint128
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 121 terms through n = 9727 (2026-11-01)
+ * Helpers:   isqrt_u128_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sqrt_uint128.h"
+#include <stdint.h>
+#include "../utils/isqrt_u128_to_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* Find the row number m such that m*(m+1)/2 >= n. */
     __uint128_t temp   = (__uint128_t)n * 8 + 1;          /* 8n + 1 */
-    idx_t      sqrt_val = sqrt_uint128(temp);             /* floor(sqrt(8n+1)) */
+    idx_t      sqrt_val = isqrt_u128_to_idx(temp);             /* floor(sqrt(8n+1)) */
     idx_t      m        = (sqrt_val - 1) / 2;              /* floor((sqrt-1)/2) */
 
     /* Adjust upward if necessary */

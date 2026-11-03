@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 179, u16 n <= 8632, u32 n <= 8632, u64 n <= 8632,
- *            u128 n <= 8632, big any n
- * Helpers:   divisor_count_u64
+ * Range:     u8 n <= 179, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 8632 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 static inline bool is_refactorable(uint64_t d) {
-    uint64_t tau = divisor_count_u64(d);
+    uint64_t tau = num_divisors(d);
     return d % tau == 0;
 }
 

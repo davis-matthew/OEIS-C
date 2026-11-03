@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 692, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9638 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Helper to convert idx_t to seq_t for multiplication without overflow */
 static inline seq_t to_seq(idx_t x) { return (seq_t)x; }
@@ -34,25 +36,25 @@ static idx_t cache_size = 0;         /* number of valid indices (cache_size-1 = 
 static void compute_up_to(idx_t limit)
 {
     /* Allocate new array of size limit+1 */
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * (size_t)(limit + 1));
+    seq_t *new_cache = mem_new(seq_t, (size_t)(limit + 1));
     if (!new_cache) { /* fallback to zero-return if allocation fails */
         return;
     }
-    memset(new_cache, 0, sizeof(seq_t) * (size_t)(limit + 1));
+    mem_set(new_cache, 0, sizeof(seq_t) * (size_t)(limit + 1));
     new_cache[0] = 1;                      /* start with empty product */
 
     /* Divisors of 45: 1,3,5,9,15,45 */
     const idx_t divisors[6] = {1, 3, 5, 9, 15, 45};
 
     /* Temporary array for convolution */
-    seq_t *temp = (seq_t *)malloc(sizeof(seq_t) * (size_t)(limit + 1));
-    if (!temp) { free(new_cache); return; }
-    memset(temp, 0, sizeof(seq_t) * (size_t)(limit + 1));
+    seq_t *temp = mem_new(seq_t, (size_t)(limit + 1));
+    if (!temp) { mem_free(new_cache); return; }
+    mem_set(temp, 0, sizeof(seq_t) * (size_t)(limit + 1));
 
     for (int di = 0; di < 6; ++di) {
         idx_t d = divisors[di];
         /* reset temp to zero */
-        memset(temp, 0, sizeof(seq_t) * (size_t)(limit + 1));
+        mem_set(temp, 0, sizeof(seq_t) * (size_t)(limit + 1));
 
         /* For each possible m such that d*m^2 <= limit */
         for (idx_t m = 0; m * m <= limit / d; ++m) {
@@ -72,11 +74,11 @@ static void compute_up_to(idx_t limit)
 
     /* new_cache now holds final coefficients up to limit */
     /* Free old cache if present */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = limit + 1;  /* valid indices are 0..limit */
 
-    free(temp);
+    mem_free(temp);
 }
 
 seq_t a(idx_t n)

@@ -8,7 +8,8 @@
  *            pi(n) is the prime counting function A000720
  * Range:     u8 n <= 11, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   upper_bound_nth_prime
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,16 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
-#include "../utils/upper_bound_nth_prime.h"
+
+/* Estimate an upper bound for the nth prime using Rosser's theorem.
+   For n < 6 the bound is 15. */
+static idx_t upper_bound_nth_prime(idx_t n)
+{
+    if (n < 6) return 15;
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));  /* natural logs */
+    return (idx_t)(bound + 10); /* small margin */
+}
 
 /* Allocate memory for an array of uint32_t with dynamic resizing */
 static uint32_t *prime_list = NULL;

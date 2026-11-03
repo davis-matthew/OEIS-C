@@ -8,12 +8,14 @@
  * Formula:   a(n) = 7*a(n-2) - 3*a(n-4) + a(n-6) for n >= 6
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 26, u64 n <= 50, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 778 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     // Initialize cache on first call
     if (cache == NULL) {
         cache_size = (n < 100) ? 100 : (n + 10);
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = 1;
         cache[1] = 0;
         cache[2] = 0;
@@ -39,11 +41,11 @@ seq_t a(idx_t n) {
     
     // Expand cache if needed
     if (n >= cache_size) {
-        seq_t *new_cache = (seq_t *)malloc((n + 10) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (n + 10));
         for (idx_t i = 0; i < cache_size; i++) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = n + 10;
     }

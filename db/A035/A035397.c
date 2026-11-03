@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Count partitions of n into parts congruent to 1 or 3 modulo 7 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;   /* dp[i] = a(i) for 0 ≤ i ≤ max_n */
 static idx_t dp_size = 0;  /* allocated size of dp (indices 0..dp_size-1) */
@@ -26,7 +28,7 @@ static void ensure_capacity(idx_t n)
     if (dp_size > n) return;
 
     idx_t new_size = n + 1;
-    seq_t *new_dp = (seq_t *)malloc(sizeof(seq_t) * new_size);
+    seq_t *new_dp = mem_new(seq_t, new_size);
     if (!new_dp) exit(EXIT_FAILURE);
 
     /* initialize new slots to zero */
@@ -35,7 +37,7 @@ static void ensure_capacity(idx_t n)
     /* copy old values */
     if (dp) {
         for (idx_t i = 0; i < dp_size; ++i) new_dp[i] = dp[i];
-        free(dp);
+        mem_free(dp);
     }
 
     dp = new_dp;

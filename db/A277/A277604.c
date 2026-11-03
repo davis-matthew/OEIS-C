@@ -13,14 +13,17 @@
  *            * pair (k,ncol) is obtained by placing all...
  * Range:     u8 n <= 41, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   _floor_isqrt_u64, catalan, pow_int
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   catalan, ipow_idx, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
-#include "../utils/pow_int.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/isqrt.h"
 
 static seq_t compute_T(unsigned k, unsigned ncol)
 {
@@ -30,7 +33,7 @@ static seq_t compute_T(unsigned k, unsigned ncol)
     /* odd ncol: (4k+1)^(ncol/2) */
     if (ncol & 1) {
         seq_t base = (seq_t)4 * k + 1;
-        return pow_int(base, ncol >> 1);
+        return ipow_idx(base, ncol >> 1);
     }
 
     /* even ncol: iterate the recurrence */
@@ -64,7 +67,7 @@ seq_t a(idx_t n)
 
     /* compute d using integer sqrt: d = floor((sqrt(1+8n)-1)/2) */
     idx_t work = 8 * n + 1;
-    idx_t s = _floor_isqrt_u64(work);
+    idx_t s = isqrt(work);
     idx_t d = (s - 1) / 2;
 
     /* triangular number up to previous diagonal */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   has_digit_three
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_digit_three.h"
+#include "../utils/mem.h"
+
+/* Return true if decimal representation of x contains the digit 3. */
+static bool has_digit_three(seq_t x)
+{
+    while (x != (seq_t)0) {
+        if (x % (seq_t)10 == (seq_t)3)
+            return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* Dynamic arrays for the sequence and the set of used numbers. */
 static seq_t *cache      = NULL; /* computed terms */
@@ -36,7 +48,7 @@ static void grow_cache(size_t new_cap)
     if (new_cap <= cache_cap) return;
     if (cache_cap == 0) cache_cap = 16;
     while (cache_cap < new_cap) cache_cap *= 2;
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 /* Grow the used array to at least new_cap elements. */
@@ -45,7 +57,7 @@ static void grow_used(size_t new_cap)
     if (new_cap <= used_cap) return;
     if (used_cap == 0) used_cap = 16;
     while (used_cap < new_cap) used_cap *= 2;
-    used = (seq_t *)realloc(used, used_cap * sizeof(seq_t));
+    used = mem_resize(seq_t, used, used_cap);
 }
 
 /* Binary search for val in the sorted used array.

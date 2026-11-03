@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 97, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod
+ * Validated: standard, pass, 80 terms through n = 9894 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mul_mod.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---------- Prime test for 64‑bit integers (deterministic) ---------- */
 
@@ -27,8 +30,8 @@ static uint64_t mod_pow(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t result = 1;
     while (exp)
     {
-        if (exp & 1ULL) result = mul_mod(result, base, mod);
-        base = mul_mod(base, base, mod);
+        if (exp & 1ULL) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1ULL;
     }
     return result;
@@ -66,7 +69,7 @@ static bool is_prime_uint64(uint64_t n)
         bool composite = true;
         for (unsigned r = 1; r < s; ++r)
         {
-            x = mul_mod(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1)
             {
                 composite = false;
@@ -91,7 +94,7 @@ seq_t a(idx_t n)
     if (cache_cap == 0)
     {
         cache_cap = 128;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* extend cache until it contains at least n terms */
@@ -103,7 +106,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 /* if realloc fails we simply abort (undefined for contest) */
                 cache = tmp;
                 cache_cap = new_cap;

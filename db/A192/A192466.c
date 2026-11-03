@@ -8,7 +8,8 @@
  * Formula:   a(n) = (-1 - (-1)^n + 2^n + 4^n) / 3
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,12 +18,13 @@
 /* For n even: a(n) = (2^n + 4^n - 2) / 3 */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)n);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)n);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)n);
     seq_t sum = pow2 + pow4;
 
     if ((n & 1) == 0) { /* n is even */

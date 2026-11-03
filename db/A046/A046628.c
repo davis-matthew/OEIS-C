@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 46, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Helper struct to hold a fraction with numerator (seq_t) and
@@ -84,14 +86,14 @@ static void generate_next_row(void)
     /* Handle the first two transitions specially. */
     if (cur_len == 1) {           /* 1 → 1 1 */
         new_len = 2;
-        new_row = (Fraction *)malloc(new_len * sizeof(Fraction));
+        new_row = mem_new(Fraction, new_len);
         new_row[0].num = (seq_t)1;
         new_row[0].den = 1;
         new_row[1].num = (seq_t)1;
         new_row[1].den = 1;
     } else if (cur_len == 2) {    /* 1 1 → 1 1/5 1 */
         new_len = 3;
-        new_row = (Fraction *)malloc(new_len * sizeof(Fraction));
+        new_row = mem_new(Fraction, new_len);
         new_row[0].num = (seq_t)1;
         new_row[0].den = 1;
         new_row[1].num = (seq_t)1;
@@ -100,7 +102,7 @@ static void generate_next_row(void)
         new_row[2].den = 1;
     } else {                      /* general recurrence */
         new_len = cur_len + 1;
-        new_row = (Fraction *)malloc(new_len * sizeof(Fraction));
+        new_row = mem_new(Fraction, new_len);
 
         /* boundaries are 1/1 */
         new_row[0].num = (seq_t)1;
@@ -146,7 +148,7 @@ static void generate_next_row(void)
     }
 
     /* Advance to the new row. */
-    free(row);
+    mem_free(row);
     row = new_row;
     cur_len = new_len;
 }
@@ -161,8 +163,8 @@ seq_t a(idx_t n)
         initialized = true;
 
         /* Allocate fixed-size buffers for a reliable implementation. */
-        seq_vals = (seq_t *)malloc(MAX_CACHE * sizeof(seq_t));
-        seen     = (seq_t *)malloc(MAX_CACHE * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, MAX_CACHE);
+        seen     = mem_new(seq_t, MAX_CACHE);
 
         /* Start sequence with a(1) = 1. */
         seq_vals[0] = (seq_t)1;
@@ -174,7 +176,7 @@ seq_t a(idx_t n)
 
         /* Initialise first row of the triangle: 1. */
         cur_len = 1;
-        row = (Fraction *)malloc(sizeof(Fraction));
+        row = mem_new(Fraction, 1);
         row[0].num = (seq_t)1;
         row[0].den = 1;
     }

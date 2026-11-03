@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 23, u128 n <= 26,
  *            big any n
- * Helpers:   _exp_fact
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,16 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_exp_fact.h"
+
+/* Exponent of prime p in n! using Legendre's formula. */
+static long long _exp_fact(idx_t n, int p) {
+    long long e = 0;
+    while (n) {
+        n /= p;
+        e += n;
+    }
+    return e;
+}
 
 /* ------------------------------------------------------------------ */
 /* Prime sieve cached for the maximum n requested so far.             */

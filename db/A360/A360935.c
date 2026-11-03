@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∑_{k=0..n} (k^k – 1)^{n‑k} * binomial(n,k) (OEIS A360935)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,10 @@
 #include <stdlib.h>  /* malloc, realloc, abort */
 
 /* Utility: big_pow(base,exp) is provided in the utils directory. */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Cache and helper data                                              */
@@ -42,7 +46,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
     size_t new_cap = (*cap) ? (*cap) : 1;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp)
         abort();
     *arr   = tmp;
@@ -63,7 +67,7 @@ static void ensure_u_values(idx_t max_k)
             /* 0^0 is defined as 1; minus 1 gives 0. */
             u_vals[i] = (seq_t)0;
         } else {
-            seq_t pow = big_pow((seq_t)i, (seq_t)i);
+            seq_t pow = ipow((seq_t)i, (seq_t)i);
             pow -= (seq_t)1;
             u_vals[i] = pow;
         }

@@ -10,8 +10,9 @@
  *            first ten terms a(0)=1, a(1)=4, a(2)=6, a(3)=7, a(4)=10,
  *            a(5)=14, a(6)=20, a(7)=24, a(8)=24, a(9)=23. The recurrence is
  *            applied using only additions and subtractions tha...
- * Range:     u8 n <= 71, u16 n <= 9146, u32 n <= 9146, u64 n <= 9146,
- *            u128 n <= 9146, big any n
+ * Range:     u8 n <= 71, u16 n <= 17873, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 77 terms through n = 9146 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

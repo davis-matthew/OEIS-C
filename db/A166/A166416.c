@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 468 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Grow a dynamic array to hold at least `needed` elements.  The
  * array is stored in the pointer `array` and its current capacity is
@@ -38,7 +40,7 @@ static void ensure_capacity(size_t *cap, seq_t **array, size_t needed)
     {
         size_t new_cap = (*cap > 0) ? (*cap << 1) : 16;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*array, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *array, new_cap);
         if (!tmp) abort();        /* allocation failed */
         *array = tmp;
         *cap   = new_cap;

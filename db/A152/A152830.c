@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 266, u16 n <= 766, u32 n <= 2257, u64 n <= 5099,
+ * Range:     u8 n <= 267, u16 n <= 767, u32 n <= 2536, u64 n <= 5099,
  *            u128 n <= 5099, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 115 terms through n = 3672 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
    for k=0..r, and this whole row is repeated four times.
    The sequence starts with offset 0. */
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -39,5 +40,5 @@ seq_t a(idx_t n)
     idx_t pos   = n - start;        /* 0 <= pos < 4*len */
     idx_t k     = pos % len;        /* column index within the row */
 
-    return binom(r, k);
+    return binomial(r, k);
 }

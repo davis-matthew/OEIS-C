@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 28, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 /* The function builds an internal cache of the terms; any order of calls is handled. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,11 +39,11 @@ seq_t a(idx_t n)
         seq_t f = k * k + (seq_t)3 * k + (seq_t)1;
 
         /* Check if the result is a decimal palindrome. */
-        if (is_palindrome(f, (idx_t)10)) {
+        if (is_palindrome_base(f, (idx_t)10)) {
             /* Resize the cache if necessary. */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)   /* allocation failed – return 0 as sentinel */
                     return (seq_t)0;
                 cache = tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state */
 static idx_t   *spf          = NULL;    /* smallest prime factor */
@@ -120,7 +122,7 @@ static void ensure_limit(idx_t n)
 
     spf  = (idx_t *)realloc(spf,  (new_limit + 1) * sizeof(idx_t));
     is_S = (bool  *)realloc(is_S, (new_limit + 1) * sizeof(bool));
-    dp   = (seq_t *)realloc(dp,   (new_limit + 1) * sizeof(seq_t));
+    dp   = mem_resize(seq_t, dp, (new_limit + 1));
     if (!spf || !is_S || !dp) abort();
 
     calc_spf(new_limit);

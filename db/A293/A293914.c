@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 36 terms through n = 402 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    Formula (inclusion–exclusion):
         a(n) = Σ_{t=1..n} (-1)^{t+1} * C(2n - t, t) * (2n - 2t - 1)!!   */
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
         idx_t odd = 2 * n - 2 * t + 1;  /* odd ≥ 1 for all t ≤ n      */
         df_current /= (seq_t)odd;
 
-        seq_t bin = binom(2 * n - t, t);
+        seq_t bin = binomial(2 * n - t, t);
         seq_t term = bin * df_current;
         if ((t & 1U) != 0)
             sumOdd += term;

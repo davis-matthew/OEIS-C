@@ -9,14 +9,17 @@
  *            of n that is a sum of two squares
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 91 terms through n = 9599 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
         uint64_t p = primes[i];
         uint64_t e = exps[i];
         uint64_t exp = (p % 4 == 3) ? (e - (e & 1ULL)) : e;
-        result *= pow_uint(p, exp);
+        result *= ipow_u64_idx(p, exp);
     }
 
     return result;

@@ -11,7 +11,8 @@
  *            φ and a in static arrays, so that calls...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 39,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 40 terms through n = 198 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;
 static seq_t *phi_arr = NULL;   /* φ(0) unused, φ[1..max_n] stored */
@@ -31,7 +33,7 @@ static void init_tables(idx_t limit)
     if (limit <= max_n) return;
 
     /* Allocate new φ array */
-    seq_t *new_phi = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *new_phi = mem_new(seq_t, (limit + 1));
     if (!new_phi) exit(1);
 
     /* Start with φ[i] = i */
@@ -54,11 +56,11 @@ static void init_tables(idx_t limit)
     free(primes);
 
     /* Replace old φ array */
-    free(phi_arr);
+    mem_free(phi_arr);
     phi_arr = new_phi;
 
     /* Allocate or grow a array */
-    seq_t *new_a = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, (limit + 1));
     if (!new_a) exit(1);
 
     if (limit >= 1) new_a[1] = (seq_t)1;
@@ -68,7 +70,7 @@ static void init_tables(idx_t limit)
         new_a[i] = phi_arr[i] * new_a[i - 1] + new_a[i - 2];
     }
 
-    free(a_arr);
+    mem_free(a_arr);
     a_arr = new_a;
 
     max_n = limit;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 858, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9531 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes A055393: numbers that can be written as a square plus a non‑negative cube in at least two distinct ways. */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Members defined elsewhere in the build:
    - idx_t  : unsigned integer type for indices (uint64_t)
@@ -67,7 +69,7 @@ static void build_sequence(uint64_t limit)
             ++seq_count;
 
     /* Allocate array for sequence values */
-    seq_vals = (seq_t *)malloc((size_t)seq_count * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, (size_t)seq_count);
     if (!seq_vals) {
         free(freq);
         seq_count = 0;
@@ -97,7 +99,7 @@ static void ensure_terms(idx_t needed)
             else
                 LOGIN_ERR:;
 
-            free(seq_vals);
+            mem_free(seq_vals);
             seq_vals = NULL;
             seq_count = 0;
             build_sequence(LIMIT);

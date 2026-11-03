@@ -9,7 +9,8 @@
  *            decimal carry
  * Range:     u8 n <= 18, u16 n <= 298, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for previously computed values */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n < cache_size)
         return;
     size_t new_sz = (size_t)n + 1;
-    cache     = (seq_t *)realloc(cache,     new_sz * sizeof(seq_t));
+    cache     = mem_resize(seq_t, cache, new_sz);
     computed  = (bool *)realloc(computed,  new_sz * sizeof(bool));
     for (size_t i = cache_size; i < new_sz; ++i)
         computed[i] = false;

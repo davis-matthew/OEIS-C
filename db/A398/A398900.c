@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   floor_sqrt, sieve_small_primes
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,51 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/sieve_small_primes.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+static void sieve_small_primes(idx_t max, uint64_t **primes, size_t *cnt)
+{
+    /* Simple sieve for small limits (max <= 2000). */
+    bool *is_prime = (bool*)calloc((size_t)max + 1, sizeof(bool));
+    if (!is_prime) return;
+    for (idx_t i = 2; i <= max; ++i) is_prime[i] = true;
+    for (idx_t p = 2; (idx_t)(p * p) <= max; ++p) {
+        if (is_prime[p]) {
+            for (idx_t j = p * p; j <= max; j += p)
+                is_prime[j] = false;
+        }
+    }
+    /* Count primes. */
+    size_t num = 0;
+    for (idx_t i = 2; i <= max; ++i)
+        if (is_prime[i]) ++num;
+    *primes = (uint64_t*)malloc(num * sizeof(uint64_t));
+    *cnt = num;
+    size_t idx = 0;
+    for (idx_t i = 2; i <= max; ++i)
+        if (is_prime[i]) (*primes)[idx++] = (uint64_t)i;
+    free(is_prime);
+}
 
 static seq_t *terms = NULL;
 static size_t terms_len = 0;
@@ -36,7 +80,7 @@ static void grow_terms(size_t needed)
     if (needed <= terms_cap) return;
     size_t new_cap = (terms_cap > 0) ? (terms_cap << 1) : 4;
     while (needed > new_cap) new_cap <<= 1;
-    terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 

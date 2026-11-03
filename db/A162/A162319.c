@@ -10,8 +10,9 @@
  *            determined by index n via reading the array a(b,m) (number of
  *            digits of m in base b) by antidiagonals with (b,m) ordered as:
  *            for each d≥2, n runs from d-1 down to 1 and m = d - n
- * Range:     u8 n <= 9123, u16 n <= 9123, u32 n <= 9123, u64 n <= 9123,
- *            u128 n <= 9123, big any n
+ * Range:     u8 n <= 10440, u16 n <= 10440, u32 n <= 10440, u64 n <= 10440,
+ *            u128 n <= 10440, big any n
+ * Validated: standard, pass, 102 terms through n = 9123 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

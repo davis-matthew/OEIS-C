@@ -12,7 +12,8 @@
  *            1/GK(k) within all values m/GK(k), m,k ≥ 1
  * Range:     u8 n <= 19, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #ifndef MAXN
 #define MAXN 20000   /* sufficiently large for all expected queries (≤10 000) */
 #endif
+#include "../utils/mem.h"
 
 static seq_t  cache[MAXN + 1] = {0};    /* cache[n] = a(n) */
 static double gk[MAXN + 1]   = {0.0};   /* GK values */
@@ -36,7 +38,7 @@ static void ensure_computed(idx_t n) {
            maximum, we extend the static arrays (unlikely for test data). */
         idx_t new_max = n > MAXN ? n : MAXN;
         /* Allocate new arrays */
-        seq_t  *new_cache = (seq_t *)malloc((new_max + 1) * sizeof(seq_t));
+        seq_t  *new_cache = mem_new(seq_t, (new_max + 1));
         double *new_gk    = (double  *)malloc((new_max + 1) * sizeof(double));
         if (!new_cache || !new_gk) {
             /* Allocation failed – abort with a zero return value. */
@@ -53,7 +55,7 @@ static void ensure_computed(idx_t n) {
             new_gk[i]    = 0.0;
         }
         /* Free old arrays and point to the new ones */
-        free(cache);   /* the array was allocated with malloc */
+        mem_free(cache);   /* the array was allocated with malloc */
         free(gk);
         /* update pointers */
         /* Note: this branch will rarely be taken; the compiler will

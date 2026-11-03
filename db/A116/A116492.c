@@ -8,7 +8,8 @@
  *            (odious numbers = integers with an odd number of 1‑bits)
  * Range:     u8 n <= 60, u16 n <= 160, u32 n <= 481, u64 n <= 1594,
  *            u128 n <= 5663, big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: standard, pass, 85 terms through n = 9919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,13 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/seq_alloc_new_array.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /* Return the n-th term of OEIS sequence A116492.  */
 seq_t a(idx_t n)
@@ -38,6 +45,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

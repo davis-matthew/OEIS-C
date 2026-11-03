@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 /*  Memoised DP: once computed up to a maximum index, results are reused.
     The cache is recomputed only when a larger n is requested.  */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Recompute cache if needed. */
     if (coeff == NULL || n > max_n) {
         /* Free existing cache. */
-        if (coeff != NULL) free(coeff);
+        if (coeff != NULL) mem_free(coeff);
 
         /* 1.  Generate the list of distinct exponents e_k = (k(k+1)/2)^2
             up to n.  For n≈10 000 fewer than 20 values exist.   */
@@ -51,25 +53,25 @@ seq_t a(idx_t n)
         /* 2.  Dynamic programming convolution: 12‑fold self‑convolution
             of the base sequence f where f[0]=1 and f[e_k]=1.  */
         /* Allocate two working arrays. */
-        seq_t *dp    = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-        seq_t *newdp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *dp    = mem_new(seq_t, (size_t)(n + 1));
+        seq_t *newdp = mem_new(seq_t, (size_t)(n + 1));
         if (!dp || !newdp) {   /* allocation failed – return 0 */
-            if (dp) free(dp);
-            if (newdp) free(newdp);
+            if (dp) mem_free(dp);
+            if (newdp) mem_free(newdp);
             coeff = NULL;
             max_n = 0;
             return 0;
         }
 
         /* Initialise dp: only the empty sum. */
-        memset(dp,   0, (size_t)(n + 1) * sizeof(seq_t));
-        memset(newdp, 0, (size_t)(n + 1) * sizeof(seq_t));
+        mem_set(dp, 0, (size_t)(n + 1) * sizeof(seq_t));
+        mem_set(newdp, 0, (size_t)(n + 1) * sizeof(seq_t));
         dp[0] = 1;
 
         /* Perform 12 convolutions. */
         for (idx_t iter = 0; iter < 12; ++iter) {
             /* Zero the temporary array before each iteration. */
-            memset(newdp, 0, (size_t)(n + 1) * sizeof(seq_t));
+            mem_set(newdp, 0, (size_t)(n + 1) * sizeof(seq_t));
 
             /* Convolve with each exponent e_k. */
             for (idx_t ei = 0; ei < ecount; ++ei) {
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
             newdp = tmp;
         }
 
-        free(newdp);          /* newdp holds the old dp array after final swap */
+        mem_free(newdp);          /* newdp holds the old dp array after final swap */
 
         /* 3.  Store the freshly computed result in the static cache. */
         coeff  = dp;

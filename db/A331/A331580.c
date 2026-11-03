@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,15 @@
    of the argument n.  For n = 1 it returns 1. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static const uint64_t FIRST_PRIMES[16] = {
     2ULL, 3ULL, 5ULL, 7ULL, 11ULL, 13ULL,
@@ -58,7 +66,7 @@ seq_t a(idx_t n)
     seq_t result = 1;
     for (size_t i = 0; i < k; ++i) {
         uint8_t exp = exps[k - 1 - i];          /* reverse order */
-        seq_t pwr = big_pow((seq_t)FIRST_PRIMES[i], (seq_t)exp);
+        seq_t pwr = ipow((seq_t)FIRST_PRIMES[i], (seq_t)exp);
         result = seq_mul(result, pwr);
     }
     return result;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 2457, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9584 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *qualifying = NULL;   /* array of qualifying primes */
 static size_t qual_len   = 0;       /* number of selected primes */
@@ -72,7 +74,7 @@ static void init_all(void)
 
     /* --- Filter qualifying primes --- */
     qual_cap = pcnt / 3 + 16;                 /* initial capacity estimate */
-    qualifying = (seq_t*)malloc(qual_cap * sizeof(seq_t));
+    qualifying = mem_new(seq_t, qual_cap);
     if (!qualifying) {
         free(is_prime);
         free(pr);
@@ -88,8 +90,7 @@ static void init_all(void)
         if (mx < 2 * mn) {          /* quotient < 2 */
             if (qual_len == qual_cap) {
                 qual_cap <<= 1;
-                qualifying = (seq_t*)realloc(qualifying,
-                                      qual_cap * sizeof(seq_t));
+                qualifying = mem_resize(seq_t, qualifying, qual_cap);
                 if (!qualifying) break;
             }
             qualifying[qual_len++] = (seq_t)pr[k];

@@ -8,10 +8,13 @@
  * Formula:   not stated
  * Range:     i8 n <= 24, i16 n <= 49, i32 n <= 57, i64 n <= 57, i128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 /*-----------------------------------------------------------------------
  *  OEIS A225678 – Triangle read by rows
@@ -48,8 +51,8 @@ static seq_t binom_int(idx_t n, idx_t k)
 /*-----  compute the Eulerian row A(r,0..r)  --------------------------*/
 static seq_t *eulerian_row(idx_t r)
 {
-    seq_t *prev = (seq_t*)malloc((r + 1) * sizeof(seq_t));
-    seq_t *cur  = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r + 1));
+    seq_t *cur  = mem_new(seq_t, (r + 1));
     if (!prev || !cur) return NULL;          /* allocation failed */
 
     prev[0] = 1;                              /* A(0,0) = 1 */
@@ -67,7 +70,7 @@ static seq_t *eulerian_row(idx_t r)
         cur  = tmp;
     }
 
-    free(cur);                               /* free the old buffer */
+    mem_free(cur);                               /* free the old buffer */
     return prev;                             /* (prev) holds the row r */
 }
 
@@ -88,7 +91,7 @@ static seq_t triangle_T(idx_t r, idx_t k)
         total += term;
     }
 
-    free(row);
+    mem_free(row);
     return total;
 }
 

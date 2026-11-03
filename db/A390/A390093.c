@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 101, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 77 terms through n = 9113 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static seq_t *sequence = NULL;
@@ -76,8 +78,7 @@ static void init_sieve(void)
         if ( (min_idx & 1U) && (max_idx & 1U) ) {   /* both odd */
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                sequence = (seq_t *)realloc(sequence,
-                                              seq_cap * sizeof(seq_t));
+                sequence = mem_resize(seq_t, sequence, seq_cap);
             }
             sequence[seq_len++] = (seq_t)k;
         }

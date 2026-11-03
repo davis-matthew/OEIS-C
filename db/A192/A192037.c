@@ -8,15 +8,24 @@
  *            m = n / 5^{v₅(n)} (largest power of 5 dividing n)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   seq_mul, seq_one, seq_pow
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_one.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* ---------- small helper functions ---------------------------------- */
 
@@ -81,9 +90,9 @@ static void apply_divisor(uint64_t d, seq_t *res)
     }
     uint64_t power = phi / ord;
 
-    seq_t pow_ord = seq_pow((seq_t)5ULL, (idx_t)ord);
+    seq_t pow_ord = ipow_idx((seq_t)5ULL, (idx_t)ord);
     seq_t base_minus = pow_ord - (seq_t)1ULL;
-    seq_t term = seq_pow(base_minus, (idx_t)power);
+    seq_t term = ipow_idx(base_minus, (idx_t)power);
     *res = seq_mul(*res, term);
 }
 
@@ -104,7 +113,7 @@ seq_t a(idx_t n)
     }
 
     /* start with 5^{n-m} */
-    seq_t result = seq_pow((seq_t)5ULL, (idx_t)(nn - m));
+    seq_t result = ipow_idx((seq_t)5ULL, (idx_t)(nn - m));
 
     /* iterate over all divisors of m.
        For each divisor d we multiply its contribution.         */

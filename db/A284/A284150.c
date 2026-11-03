@@ -7,13 +7,30 @@
  * Formula:   a(n) = Sum_{d|n, d ≡ 1 or 4 (mod 5)} d
  * Range:     u8 n <= 195, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_divs
+ * Validated: standard, pass, 89 terms through n = 9915 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/sum_divs.h"
+
+/* Recursive helper to accumulate valid divisors */
+static seq_t sum_divs(const seq_t cur, size_t idx,
+                      const idx_t *pr, const idx_t *ex, size_t c)
+{
+    if (idx == c) {
+        /* leaf: cur is a divisor */
+        return ((cur % 5 == 1) || (cur % 5 == 4)) ? cur : (seq_t)0;
+    }
+    seq_t total = (seq_t)0;
+    seq_t val = cur;
+    for (idx_t exp = 0; exp <= ex[idx]; ++exp) {
+        total += sum_divs(val, idx + 1, pr, ex, c);
+        val *= (seq_t)pr[idx];
+    }
+    return total;
+}
 
 seq_t a(idx_t n)
 {

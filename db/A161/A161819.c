@@ -10,14 +10,26 @@
  *            lengths in binary representation of a(n) equals that of n
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   same_sorted_runs
+ * Validated: standard, pass, 85 terms through n = 9457 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/same_sorted_runs.h"
+
+/* Compare two sorted run arrays.  Return true if they are identical. */
+static bool
+same_sorted_runs(const int a[], int ac,
+                 const int b[], int bc)
+{
+    if (ac != bc) return false;
+    for (int i = 0; i < ac; i++) {
+        if (a[i] != b[i]) return false;
+    }
+    return true;
+}
 
 /* maximum number of 1‑runs we will handle (enough for the required range). */
 #define MAX_RUNS 2048

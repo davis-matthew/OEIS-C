@@ -8,7 +8,8 @@
  * Formula:   a(n) = A000041(n) - (n%2==0?2:1) for n>0, a(0)=0
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    arithmetic and standard C headers. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *partition_cache = NULL;   /* cache of partition numbers   */
 static size_t cache_size = 0;           /* number of elements in cache  */
@@ -29,7 +31,7 @@ static void ensure_partitions(idx_t nmax)
         return;                         /* already computed up to nmax */
 
     size_t newsize = (size_t)nmax + 1;
-    seq_t *newp = (seq_t *)calloc(newsize, sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, newsize);
     if (!newp)
         return;                         /* allocation failure – unlikely */
 
@@ -42,7 +44,7 @@ static void ensure_partitions(idx_t nmax)
         }
     }
 
-    free(partition_cache);
+    mem_free(partition_cache);
     partition_cache = newp;
     cache_size = newsize;
 }

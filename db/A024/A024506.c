@@ -7,11 +7,13 @@
  * Formula:   a(n) = ⌊ binomial(2n,n) / 2^(n+3) ⌋
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 15, u64 n <= 30, u128 n <= 30,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Computes a(n) from OEIS A024506: a(n) = floor( C(2n,n)/2^(n+3) ). */

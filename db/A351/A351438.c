@@ -9,7 +9,8 @@
  *            1
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 17, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoised values */
 static seq_t *cache   = NULL;          /* computed values a(0) .. a(cache_last) */
@@ -32,7 +34,7 @@ ensure_cache(idx_t need)
     /* Resize the array if it is too small */
     if (need + 1 > cache_size) {
         idx_t new_size = need + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp && new_size > 0) exit(1);   /* allocation failure */
         cache = tmp;
         cache_size = new_size;

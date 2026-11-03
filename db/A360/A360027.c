@@ -8,7 +8,8 @@
  * Formula:   a(n) = 1 - Σ_{k=0}^{n-5} a(k) * a(n-5-k)
  * Range:     i8 n <= 19, i16 n <= 37, i32 n <= 64, i64 n <= 121,
  *            i128 n <= 233, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* with initial values a(0)=a(1)=a(2)=a(3)=a(4)=1          */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     if (n >= cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return 0;               /* allocation failure – undefined but safe */
         cache = new_cache;
 

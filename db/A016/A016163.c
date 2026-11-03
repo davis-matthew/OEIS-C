@@ -7,12 +7,14 @@
  * Formula:   a(n) = 14*a(n-1) - 45*a(n-2) Initial values: a(0) = 1, a(1) = 14
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_len = 2;                      /* at least two slots for a(0) and a(1) */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         if (!cache)
             return 0;                      /* fallback – should never happen       */
         cache[0] = (seq_t)1;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (cache_len <= n)
     {
         cache_len = n + 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_len);
+        cache = mem_resize(seq_t, cache, cache_len);
         if (!cache)
             return 0;                      /* fallback – should never happen       */
     }

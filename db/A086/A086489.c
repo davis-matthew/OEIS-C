@@ -7,9 +7,10 @@
  * Formula:   a(n) = smallest k such that k and k+n have the same prime
  *            signature, i.e. the multiset of exponents in the prime
  *            factorisations of k and k+n are identical
- * Range:     u8 n <= 9597, u16 n <= 9597, u32 n <= 9597, u64 n <= 9597,
- *            u128 n <= 9597, big any n
- * Helpers:   cmp_u8
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 113 terms through n = 9597 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cmp_u8.h"
+
+static int cmp_u8(const void *p1, const void *p2)
+{
+    return (*(const unsigned char *)p1 - *(const unsigned char *)p2);
+}
 
 static void factor_exponents(uint64_t m, unsigned char exps[], int *len)
 {

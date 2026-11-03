@@ -9,15 +9,35 @@
  *            k·S(n,k)+S(n,k‑1), S(0,0)=1, S(n,0)=0 for n>0
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 14, i64 n <= 23, i128 n <= 23,
  *            big any n
- * Helpers:   mul_small, seq_mul
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_mul.h"
-#include "../utils/mul_small.h"
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t *a_cache = NULL;   /* cached sequence values */
 static size_t a_cap   = 0;
@@ -32,13 +52,13 @@ ensure_a_cache(idx_t n)
     size_t need = (size_t)n + 1;
     if (a_cache == NULL) {
         a_cap = need;
-        a_cache = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         if (a_cache == NULL) abort();
         a_cache[0] = (seq_t)0; /* a(0) = 0 */
     } else if (a_cap <= need) {
         size_t grow = a_cap * 2;
         if (grow < need) grow = need * 2;
-        a_cache = (seq_t*)realloc(a_cache, grow * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, grow);
         if (a_cache == NULL) abort();
         for (size_t i = a_cap; i < grow; ++i) a_cache[i] = (seq_t)0;
         a_cap = grow;
@@ -52,13 +72,13 @@ ensure_S(idx_t n)
     size_t need = (size_t)n + 1;
     if (S == NULL) {
         s_cap = need;
-        S = (seq_t*)malloc(s_cap * sizeof(seq_t));
+        S = mem_new(seq_t, s_cap);
         if (S == NULL) abort();
         S[0] = (seq_t)1; /* S(0,0) = 1 */
     } else if (s_cap <= need) {
         size_t grow = s_cap * 2;
         if (grow < need) grow = need * 2;
-        S = (seq_t*)realloc(S, grow * sizeof(seq_t));
+        S = mem_resize(seq_t, S, grow);
         if (S == NULL) abort();
         for (size_t i = s_cap; i < grow; ++i) S[i] = (seq_t)0;
         s_cap = grow;

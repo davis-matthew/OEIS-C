@@ -8,11 +8,13 @@
  * Formula:   a(n) = 12+2^n*(15+45*n+15*n^2) + 4^n*(132+18*n+36*n^2)
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 10, u64 n <= 24, u128 n <= 55,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 955 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

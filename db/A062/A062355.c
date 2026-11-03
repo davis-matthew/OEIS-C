@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, mult, changed
  * Formula:   a(n) = d(n) * φ(n) (number of divisors times Euler's totient)
- * Range:     u8 n <= 71, u16 n <= 5039, u32 n <= 9785, u64 n <= 9785,
- *            u128 n <= 9785, big any n
+ * Range:     u8 n <= 71, u16 n <= 5039, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 80 terms through n = 9785 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

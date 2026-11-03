@@ -9,19 +9,21 @@
  *            a(1)=1, a(2)=2. (OEIS A022864)
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 48, u64 n <= 93, u128 n <= 185,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure the cache has room for indices up to 'need' (inclusive). */
 static void ensure_cache_size(idx_t need, seq_t **cache, size_t *len)
 {
     if (*len <= need) {
         size_t new_len = need + 1;            /* indices 0..need */
-        seq_t *tmp = (seq_t *)realloc(*cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *cache, new_len);
         *cache = tmp;
         *len   = new_len;
     }

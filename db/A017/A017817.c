@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-3) + a(n-4); a(0)=1, a(1)=0, a(2)=0, a(3)=1
  * Range:     u8 n <= 33, u16 n <= 61, u32 n <= 117, u64 n <= 228,
  *            u128 n <= 451, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9709 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The following function returns the nth term of A017817.
    It uses only the operations allowed for seq_t in the build and
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Allocate an array large enough for indices 0..n.  */
     size_t len = (size_t)(n + 1);
-    seq_t *buf = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, len);
     if (buf == NULL) {
         /* In case of allocation failure, return 0 (sequence value
            is not defined).  The build is expected to provide a
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
         buf[i] = buf[i - 3] + buf[i - 4];
 
     seq_t result = buf[n];
-    free(buf);
+    mem_free(buf);
     return result;
 }

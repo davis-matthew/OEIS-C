@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_0_2
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,25 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_0_2.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static bool has_0_2(seq_t x)
+{
+    /* look at digits from least to most significant.
+     * The pattern 0,2 from most to least significant corresponds
+     * to 2,0 when scanned from least to most. */
+    seq_t t = x;
+    int prev = -1;                     /* previous digit (less significant) */
+    while (t > (seq_t)0) {
+        int cur = (int)(t % (seq_t)6);  /* current least significant digit */
+        if (prev == 2 && cur == 0)
+            return true;               /* found 2,0 in reverse order */
+        prev = cur;
+        t /= (seq_t)6;
+    }
+    return false;
+}
 
 /* forward declarations */
 static bool has_0_2(seq_t x);
@@ -51,7 +70,7 @@ static void ensure_cache(idx_t needed)
     /* Allocate an initial capacity if the cache is empty.          */
     if (cache_cap == 0) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_len < (size_t)needed) {
@@ -60,7 +79,7 @@ static void ensure_cache(idx_t needed)
             /* Grow the array if required.                         */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

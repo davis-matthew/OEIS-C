@@ -11,17 +11,59 @@
  *            psi(x) = Sum_{k>=0} x^(k(k+1)/2). Then a(n) = [q^n] Sum...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 9, u64 n <= 55, u128 n <= 1000,
  *            big any n
- * Helpers:   a2434_alloc, a2434_fixed, a2434_miller, a2434_mul
+ * Validated: standard, pass, 34 terms through n = 939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a2434_alloc.h"
-#include "../utils/a2434_fixed.h"
-#include "../utils/a2434_miller.h"
-#include "../utils/a2434_mul.h"
+#include "../utils/mem.h"
+
+static seq_t *a2434_alloc(idx_t N)
+{
+    seq_t *g = mem_new(seq_t, (size_t)(N + 1));
+    idx_t t;
+    for (t = 0; t <= N; t++) g[t] = 0;
+    return g;
+}
+
+static int a2434_fixed(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x = x * 2;
+    return x == 0;
+}
+
+/* g = f^k, f = 1 + c * Sum_j q^pos[j], via J.C.P. Miller's recurrence (exact division) */
+static void a2434_miller(seq_t *g, idx_t N, const idx_t *pos, idx_t cnt, idx_t c, idx_t k)
+{
+    idx_t n, j;
+    g[0] = 1;
+    for (n = 1; n <= N; n++) {
+        seq_t P = 0, M = 0;
+        for (j = 0; j < cnt && pos[j] <= n; j++) {
+            idx_t i = pos[j];
+            idx_t u = (k + 1) * i;
+            if (u >= n) P += g[n - i] * (c * (u - n));
+            else M += g[n - i] * (c * (n - u));
+        }
+        g[n] = (P - M) / n;
+    }
+}
+
+/* in-place multiply g (length N+1) by 1 + c * Sum_j q^pos[j] */
+static void a2434_mul(seq_t *g, idx_t N, const idx_t *pos, idx_t cnt, unsigned c)
+{
+    idx_t t, j;
+    for (t = N + 1; t-- > 1;) {
+        seq_t s = g[t];
+        for (j = 0; j < cnt && pos[j] <= t; j++) s += g[t - pos[j]] * c;
+        g[t] = s;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -40,8 +82,8 @@ seq_t a(idx_t n)
         if (N < 64) N = 64;
         if (have) {
             for (i = 0; i < 7; i++) {
-                free(A[i]);
-                if (i > 0) free(B[i]);
+                mem_free(A[i]);
+                if (i > 0) mem_free(B[i]);
             }
         }
         sq = (idx_t *)malloc((size_t)(N + 1) * sizeof(idx_t));

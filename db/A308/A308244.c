@@ -12,13 +12,15 @@
  *            triangle row‑wise: let r be the unique integer with r(...
  * Range:     i8 n <= 22, i16 n <= 68, i32 n <= 236, i64 n <= 832,
  *            i128 n <= 3108, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* dynamic storage for the triangle */
 static seq_t **triangle = NULL;
@@ -46,7 +48,7 @@ static void compute_row(idx_t r)
     for (idx_t i = rows_allocated; i <= r; ++i) {
         /* allocate storage for row i (length i+1) */
         size_t len = (size_t)i + 1;
-        seq_t *row = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row)
             abort(); /* out of memory */
 

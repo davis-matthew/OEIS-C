@@ -7,16 +7,18 @@
  * Formula:   a(n) = Sum_{k=0..n} Stirling2(n,k)*binomial(binomial(k,2),2)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 22, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 550 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
-    seq_t *row = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)(n + 1));
     idx_t i, k;
     seq_t result = 0;
     if (!row) return 0;
@@ -38,6 +40,6 @@ seq_t a(idx_t n) {
         result += row[k] * (seq_t)bc;
     }
 
-    free(row);
+    mem_free(row);
     return result;
 }

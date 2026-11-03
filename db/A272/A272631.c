@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (seq == NULL) {
         /* --- Build Fibonacci numbers that fit in seq_t --- */
         const idx_t MAX_FIB_IDX = 250;          /* generous upper bound  */
-        seq_t *fib = (seq_t *)malloc((MAX_FIB_IDX + 3) * sizeof(seq_t));
+        seq_t *fib = mem_new(seq_t, (MAX_FIB_IDX + 3));
         if (!fib) return 0;
 
         fib[1] = (seq_t)1;
@@ -56,10 +58,10 @@ seq_t a(idx_t n)
 
         /* --- Generate all sums of at least three consecutive Fibonacci numbers --- */
         size_t max_pairs = (last > 3) ? ((last - 2) * (last - 3) / 2) : 0;
-        seq_t *candidates = (seq_t *)malloc(max_pairs * sizeof(seq_t));
+        seq_t *candidates = mem_new(seq_t, max_pairs);
         size_t cand_len = 0;
         if (!candidates) {
-            free(fib);
+            mem_free(fib);
             return 0;
         }
 
@@ -70,10 +72,10 @@ seq_t a(idx_t n)
                 /* simple guard; should not happen with given size estimates */
                 if (cand_len >= max_pairs) {
                     size_t new_cap = max_pairs * 2;
-                    seq_t *tmp = (seq_t *)realloc(candidates, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, candidates, new_cap);
                     if (!tmp) {
-                        free(candidates);
-                        free(fib);
+                        mem_free(candidates);
+                        mem_free(fib);
                         return 0;
                     }
                     candidates = tmp;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         }
 
         /* --- Sort and deduplicate candidate sums --- */
-        qsort(candidates, cand_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(candidates, cand_len, sizeof(seq_t), cmp_seq_t);
 
         /* Count unique values */
         size_t unique_len = 0;
@@ -95,10 +97,10 @@ seq_t a(idx_t n)
         }
 
         /* Allocate final sequence array: add 1 for the initial 2 */
-        seq = (seq_t *)malloc((unique_len + 1) * sizeof(seq_t));
+        seq = mem_new(seq_t, (unique_len + 1));
         if (!seq) {
-            free(candidates);
-            free(fib);
+            mem_free(candidates);
+            mem_free(fib);
             return 0;
         }
 
@@ -111,8 +113,8 @@ seq_t a(idx_t n)
             }
         }
 
-        free(candidates);
-        free(fib);
+        mem_free(candidates);
+        mem_free(fib);
     }
 
     /* Return requested term if within bounds */

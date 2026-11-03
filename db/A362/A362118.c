@@ -7,12 +7,15 @@
  * Formula:   a(n) = (10^(n*(n+1)/2)-1)/9
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 27 terms through n = 44 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Computes the n-th term of OEIS sequence A362118.  */
 seq_t a(idx_t n)
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     seq_t t = (seq_t)n * ((seq_t)n + 1) / 2;
 
     /* Compute 10^t.  */
-    seq_t pow10t = big_pow((seq_t)10, t);
+    seq_t pow10t = ipow((seq_t)10, t);
 
     /* Compute (10^t - 1) / 9, which is the repunit of t ones. */
     seq_t result = (pow10t - 1) / 9;

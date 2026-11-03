@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(n+5,5) * binomial(n+8,5)
  * Range:     u8 none, u16 n <= 3, u32 n <= 19, u64 n <= 215, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 906 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

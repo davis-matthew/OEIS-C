@@ -11,7 +11,8 @@
  *            generation. The algorithm works for any seq_t that can...
  * Range:     u8 n <= 16, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- 64‑bit deterministic Miller–Rabin ---------- */
 static bool isPrime64(uint64_t n)
@@ -84,7 +86,7 @@ static void add_term(uint64_t p)
 {
     if (stored_count == stored_cap) {
         size_t new_cap = (stored_cap == 0) ? 64 : stored_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(stored_terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, stored_terms, new_cap);
         if (!tmp) exit(EXIT_FAILURE); /* allocation failed */
         stored_terms = tmp;
         stored_cap = new_cap;

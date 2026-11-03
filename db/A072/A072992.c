@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 5420, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exponent_in_binom, factor_u64, sigma_of
+ * Validated: standard, pass, 75 terms through n = 9589 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,36 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/sigma_of.h"
 #include "../utils/factor_u64.h"
-#include "../utils/exponent_in_binom.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Utility to compute exponent of prime p in C(2n,n) using Legendre's formula. */
+static unsigned exponent_in_binom(uint64_t n, uint64_t p)
+{
+    unsigned e = 0;
+    uint64_t power = p;
+    while (power <= 2 * n) {
+        e += (2 * n) / power - 2 * (n / power);
+        if (power > (2 * n) / p) break;  /* avoid overflow */
+        power *= p;
+    }
+    return e;
+}
 
 /* Simple dynamic array to hold the sequence values. */
 static seq_t *seq_cache = NULL;
@@ -33,7 +61,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();          /* fatal, the caller cannot recover */
     seq_cache = tmp;
     seq_cap  = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 23, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   free_seq_array, seq_alloc_new_array
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,20 @@
    Initial values: a(0)=0,a(1)=0,a(2)=0,a(3)=0,a(4)=0,a(5)=0,a(6)=1,a(7)=6. */
 
 #include <stddef.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Static cache for computed values */
 static seq_t *cache = NULL;    /* array of a(k) for k <= computed */

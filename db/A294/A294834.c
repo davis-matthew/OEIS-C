@@ -8,7 +8,8 @@
  * Formula:   a(n) = numerator of \sum_{k=0}^{n} 1/((k+1)*(6*k+1))
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 11, u128 n <= 24,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 34 terms through n = 596 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    routine and consumes no floating point. */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* cached terms: numerators and denominators of V(6,1;k) for k = 0 .. n */
 static seq_t *num_cache = NULL;      /* numerators   */
@@ -38,8 +41,8 @@ static void grow_cache(idx_t need)
     while (new_cap <= need)
         new_cap *= 2;
 
-    num_cache = (seq_t *)realloc(num_cache, new_cap * sizeof(seq_t));
-    den_cache = (seq_t *)realloc(den_cache, new_cap * sizeof(seq_t));
+    num_cache = mem_resize(seq_t, num_cache, new_cap);
+    den_cache = mem_resize(seq_t, den_cache, new_cap);
     cache_cap = new_cap;
 }
 

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Simple hash map from seq_t (value in the sequence) to a dynamic    */
@@ -59,7 +61,7 @@ static void hashmap_init(HashMap *hm, size_t init_cap)
 {
     hm->cap = init_cap;
     hm->sz = 0;
-    hm->table = (Entry *)calloc(hm->cap, sizeof(Entry));
+    hm->table = mem_new(Entry, hm->cap);
     for (size_t i = 0; i < hm->cap; ++i)
         hm->table[i].key = EMPTY_KEY;
 }
@@ -67,7 +69,7 @@ static void hashmap_init(HashMap *hm, size_t init_cap)
 static void hashmap_grow(HashMap *hm)
 {
     size_t new_cap = hm->cap << 1;
-    Entry *new_tbl = (Entry *)calloc(new_cap, sizeof(Entry));
+    Entry *new_tbl = mem_new(Entry, new_cap);
     for (size_t i = 0; i < new_cap; ++i)
         new_tbl[i].key = EMPTY_KEY;
 
@@ -78,7 +80,7 @@ static void hashmap_grow(HashMap *hm)
             new_tbl[h] = hm->table[i];
         }
     }
-    free(hm->table);
+    mem_free(hm->table);
     hm->table = new_tbl;
     hm->cap = new_cap;
 }
@@ -133,7 +135,7 @@ static void seq_ensure(size_t needed)
     if (needed <= SEQ_CAP) return;
     size_t new_cap = SEQ_CAP ? SEQ_CAP << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    SEQ = (seq_t *)realloc(SEQ, new_cap * sizeof(seq_t));
+    SEQ = mem_resize(seq_t, SEQ, new_cap);
     SEQ_CAP = new_cap;
 }
 
@@ -215,13 +217,13 @@ seq_t a(idx_t n)
 
         /* collect all numbers from the two previous rows */
         size_t uniq_size = len_prevprev + len_prev;
-        seq_t *temp = (seq_t *)malloc(uniq_size * sizeof(seq_t));
+        seq_t *temp = mem_new(seq_t, uniq_size);
         size_t ui = 0;
         for (idx_t i = 0; i < len_prevprev; ++i) temp[ui++] = SEQ[start_prevprev + i];
         for (idx_t i = 0; i < len_prev;     ++i) temp[ui++] = SEQ[start_prev + i];
 
         /* sort and deduplicate */
-        qsort(temp, uniq_size, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(temp, uniq_size, sizeof(seq_t), cmp_seq_t);
         size_t uniq_cnt = 0;
         for (size_t i = 0; i < uniq_size; ++i) {
             if (i == 0 || temp[i] != temp[i-1]) temp[uniq_cnt++] = temp[i];
@@ -280,7 +282,7 @@ seq_t a(idx_t n)
         ROW_LEN[ROW_CNT]   = (idx_t)new_row_len;
         ROW_CNT++;
 
-        free(temp);
+        mem_free(temp);
     }
 
     return SEQ[(size_t)n];

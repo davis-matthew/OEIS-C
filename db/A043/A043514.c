@@ -8,6 +8,7 @@
  *            base 10 * (sorted in increasing order, offset a(1)=66)
  * Range:     u8 n <= 2, u16 n <= 4224, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 59 terms through n = 9815 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 static seq_t pow9(idx_t e)
 {

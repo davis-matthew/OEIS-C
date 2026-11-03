@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 13, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 13, u16 n <= 395, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 6988, big any n
+ * Validated: standard, pass, 66 terms through n = 9850 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Return the n-th prime p with 5p+2 and 2p+5 also prime. */
 seq_t a(idx_t n)
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
     /* enlarge the cache when necessary */
     if (cache_sz == cache_cap) {
         size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) {
             /* the environment guarantees enough memory; abort on failure */
             abort();
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < cache_sz; ++i) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
         uint64_t p = next_odd;
         /* search for the next prime satisfying the conditions */
         for (;;) {
-            if (!is_prime(p)) {
+            if (!is_prime_u64(p)) {
                 p += 2;
                 continue;
             }
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
                but for the expected range they fit inside 64 bits.  */
             uint64_t q1 = (uint64_t)((unsigned __int128)5 * p + 2);
             uint64_t q2 = (uint64_t)((unsigned __int128)2 * p + 5);
-            if (is_prime(q1) && is_prime(q2)) {
+            if (is_prime_u64(q1) && is_prime_u64(q2)) {
                 break;       /* p is the next term */
             }
             p += 2;

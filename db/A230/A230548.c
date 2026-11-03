@@ -11,12 +11,14 @@
  *            given in the OEIS entry. It holds for all n ≥ 12
  * Range:     u8 n <= 39, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* array holding computed a(n) values      */
 static idx_t  cache_size = 0;     /* number of entries stored (max index+1)  */
@@ -28,9 +30,9 @@ static void ensure_cache(idx_t n)
 
     idx_t new_size = n + 1;
     if (cache_size == 0) {
-        seq_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, new_size);
     } else {
-        seq_cache = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_size);
     }
 
     /* initialise new entries */

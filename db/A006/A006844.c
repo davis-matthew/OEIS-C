@@ -11,13 +11,15 @@
  *            a(n+32) = a(n) + 192
  * Range:     u8 n <= 49, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 901 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         cache_len = 100;
-        cache = (seq_t *)calloc(cache_len, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[1] = 4;
         cache[2] = 5;
         cache_computed = 2;
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
     
     if (n >= cache_len) {
         idx_t new_len = cache_len * 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         cache = new_cache;
         cache_len = new_len;
     }

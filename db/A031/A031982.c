@@ -7,13 +7,15 @@
  * Formula:   a(0)=101, a(1)=1010101, a(n)=10001*a(n-1)-10000*a(n-2) for n≥2
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 1, u64 n <= 4, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache       = NULL;   /* array of computed terms */
 static size_t cap          = 0;     /* allocated capacity (in terms of indices +1) */
@@ -27,12 +29,12 @@ static void ensure_capacity(idx_t required)
     size_t new_cap = cap ? cap << 1 : 2;
     while (new_cap <= required)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)
         abort();                      /* allocation failure */
     if (cache) {
-        memcpy(new_arr, cache, cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_arr, cache, cap * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_arr;
     cap   = new_cap;

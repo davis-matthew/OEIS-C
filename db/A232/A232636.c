@@ -10,13 +10,16 @@
  *            == 2 (see OEIS A232636)
  * Range:     u8 none, u16 none, u32 n <= 37, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 17 terms through n = 46 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses the arbitrary‑precision power routine from the utils package. */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -26,21 +29,21 @@ seq_t a(idx_t n)
     if (mod == 0) {
         /* n = 3 * e , e ≥ 10 */
         idx_t e = n / 3;
-        seq_t pow6 = big_pow((seq_t)6, (seq_t)e);
+        seq_t pow6 = ipow((seq_t)6, (seq_t)e);
         pow6 /= (seq_t)16;                 /* exact division, 6^e is divisible by 16 for e ≥ 3 */
         pow6 *= (seq_t)9;                  /* multiply by the numerator */
         return pow6;
     } else if (mod == 1) {
         /* n = 3 * e + 1 , e ≥ 10 */
         idx_t e = (n - 1) / 3;
-        seq_t pow6 = big_pow((seq_t)6, (seq_t)e);
+        seq_t pow6 = ipow((seq_t)6, (seq_t)e);
         pow6 /= (seq_t)9;                  /* exact division, 6^e is divisible by 9 for e ≥ 2 */
         pow6 *= (seq_t)8;                  /* multiply by the numerator */
         return pow6;
     } else { /* mod == 2 */
         /* n = 3 * e + 2 , e ≥ 10 */
         idx_t e = (n - 2) / 3;
-        seq_t pow6 = big_pow((seq_t)6, (seq_t)e);
+        seq_t pow6 = ipow((seq_t)6, (seq_t)e);
         pow6 /= (seq_t)6;                  /* exact division, 6^e is divisible by 6 for e ≥ 1 */
         pow6 *= (seq_t)13;                 /* multiply by the numerator */
         return pow6;

@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 18,
+ * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 18,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,9 @@
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <string.h>   /* memset */
 
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) -> seq_t */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *a_arr   = NULL;   /* a[n] , n ≥ 0   */
 static size_t a_cap   = 0;
@@ -50,23 +53,23 @@ static void ensure_c(idx_t n)
     if (c_arr == NULL) {
         /* Allocate space for indices 0..n (index 0 unused).  */
         c_cap = n + 1;
-        c_arr = (seq_t *)malloc(c_cap * sizeof(seq_t));
+        c_arr = mem_new(seq_t, c_cap);
         if (c_arr == NULL) exit(EXIT_FAILURE);
-        memset(c_arr, 0, c_cap * sizeof(seq_t));
+        mem_set(c_arr, 0, c_cap * sizeof(seq_t));
         c_max = 0;              /* no valid entries yet */
     } else if ((size_t)(n + 1) > c_cap) {
         /* Grow the array.  */
         size_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(c_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, c_arr, new_cap);
         if (tmp == NULL) exit(EXIT_FAILURE);
         c_arr = tmp;
-        memset(c_arr + c_cap, 0, (new_cap - c_cap) * sizeof(seq_t));
+        mem_set(c_arr + c_cap, 0, (new_cap - c_cap) * sizeof(seq_t));
         c_cap = new_cap;
     }
 
     /* Compute missing c[k] values.  */
     for (idx_t k = c_max + 1; k <= n; ++k) {
-        seq_t num = binom(5 * k - 2, k);
+        seq_t num = binomial(5 * k - 2, k);
         seq_t den = (seq_t)(4 * k - 1);           /* division is exact */
         c_arr[k] = num / den;
     }
@@ -79,17 +82,17 @@ static void ensure_a(idx_t n)
     if (a_arr == NULL) {
         /* Start with a[0] = 1.  */
         a_cap = n + 1;
-        a_arr = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_cap);
         if (a_arr == NULL) exit(EXIT_FAILURE);
-        memset(a_arr, 0, a_cap * sizeof(seq_t));
+        mem_set(a_arr, 0, a_cap * sizeof(seq_t));
         a_arr[0] = (seq_t)1;
         a_max = 0;
     } else if ((size_t)(n + 1) > a_cap) {
         size_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, new_cap);
         if (tmp == NULL) exit(EXIT_FAILURE);
         a_arr = tmp;
-        memset(a_arr + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
+        mem_set(a_arr + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
         a_cap = new_cap;
     }
 

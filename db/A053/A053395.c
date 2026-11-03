@@ -8,13 +8,21 @@
  *            (n^2 / 10000) == n
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   is_4kaprekar
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/is_4kaprekar.h"
+#include "../utils/mem.h"
+
+static int is_4kaprekar(seq_t n) {
+    seq_t sq = n * n;                     /* n^2  (no overflow for our limits) */
+    seq_t r = sq % (seq_t)10000;          /* lower 4 digits            */
+    seq_t q = sq / (seq_t)10000;          /* upper part                */
+    return (q + r) == n;
+}
 
 static seq_t *terms = NULL;          /* stored sequence values   */
 static size_t terms_len = 0;          /* number of values cached  */
@@ -25,7 +33,7 @@ static void ensure_capacity(size_t needed) {
     if (terms_cap >= needed) return;
     size_t newcap = terms_cap ? terms_cap * 2 : 16;
     if (newcap < needed) newcap = needed;
-    seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, newcap);
     if (!tmp) abort();      /* allocation failure; terminate */
     terms = tmp;
     terms_cap = newcap;

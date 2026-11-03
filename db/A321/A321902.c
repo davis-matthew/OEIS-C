@@ -12,15 +12,42 @@
  *            2k+1 is odd. For row 1,2 we return 2k+1 dire...
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   inv_mod_pow2, mod_pow_big
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/inv_mod_pow2.h"
-#include "../utils/mod_pow_big.h"
+
+/* Compute the inverse of an odd integer e modulo 2^m (1 <= m <= 64). */
+static seq_t inv_mod_pow2(seq_t e, unsigned m)
+{
+    seq_t inv = 1;          /* inverse modulo 2 */
+    seq_t mask = 1;         /* mask for modulus 2 */
+    for (unsigned i = 0; i < m; ++i) {
+        /* Current modulus is 2^(i+1) -> mask = 2^(i+1)-1 */
+        seq_t t = (e * inv) & mask;               /* e*inv mod 2^(i+1) */
+        inv = (inv * (2 - t)) & mask;             /* update inverse */
+        mask = (mask << 1) | 1;                   /* next modulus */
+    }
+    return inv;
+}
+
+/* Compute modular exponentiation with a seq_t exponent. */
+static seq_t mod_pow_big(seq_t base, seq_t exp, seq_t mod)
+{
+    seq_t result = 1;
+    base %= mod;
+    while (exp > 0) {
+        if (exp & 1)
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* Main sequence function for A321902. */
 seq_t a(idx_t n)

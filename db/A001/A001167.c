@@ -12,15 +12,36 @@
  *            words
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 19, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   a001167_count, a001167_group, a001167_w2
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001167_count.h"
-#include "../utils/a001167_group.h"
-#include "../utils/a001167_w2.h"
+
+static int a001167_w2(unsigned r) {
+    if (r == 0) return 0;
+    if (r < 20 || r % 10 == 0) return 1;
+    return 2;
+}
+
+static int a001167_group(unsigned x) {
+    unsigned h = x / 100, r = x % 100;
+    int c = 0;
+    if (h) c += 2;
+    if (h && r) c += 1;
+    return c + a001167_w2(r);
+}
+
+static int a001167_count(unsigned n) {
+    unsigned T = n / 1000, U = n % 1000;
+    int c = 0;
+    if (T) c += a001167_group(T) + 1;
+    c += a001167_group(U);
+    if (T && U > 0 && U < 100) c += 1;
+    return c;
+}
 
 seq_t a(idx_t n) {
     static unsigned base[12];

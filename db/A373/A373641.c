@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 31, u32 n <= 95, u64 n <= 767,
  *            u128 n <= 8191, big any n
+ * Validated: standard, pass, 72 terms through n = 9920 (2026-11-02)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /* Sequence A373641: Number of positive n‑digit integers whose digit product is n */
 
 /* Authors: This implementation uses only integer arithmetic and

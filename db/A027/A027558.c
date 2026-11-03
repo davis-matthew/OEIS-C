@@ -7,13 +7,15 @@
  * Formula:   a(n) = 2 * A005674(n)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free, abort */
 #include <string.h>   /* memcpy */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,14 +26,14 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary. */
     if (n >= size) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache)
             abort();            /* allocation failure */
 
         /* Copy old entries if any. */
         if (size > 0) {
-            memcpy(new_cache, cache, size * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, size * sizeof(seq_t));
+            mem_free(cache);
         }
 
         /* If starting from scratch, initialise the first five terms. */

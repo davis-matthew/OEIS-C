@@ -9,12 +9,14 @@
  *            recurrence then gives a(n)= -34*a(n-4) - a(n-8) for n ≥ 8
  * Range:     i8 n <= 4, i16 n <= 11, i32 n <= 24, i64 n <= 48, i128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* first-time initialisation: store the first 8 terms */
     if (cap == 0) {
         cap = 8;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(EXIT_FAILURE);
         static const seq_t init[8] = {
             1,      /* a(0) */
@@ -47,11 +49,11 @@ seq_t a(idx_t n)
     if (cap <= n) {
         size_t new_cap = cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) exit(EXIT_FAILURE);
         /* copy existing computed values */
         for (idx_t i = 0; i < computed; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cap   = new_cap;
     }

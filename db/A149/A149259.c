@@ -13,12 +13,14 @@
  *            the auxiliary one‑dimensional walk (corresponding to...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -31,10 +33,10 @@ seq_t a(idx_t n)
         idx_t k = u / 2;                 /* floor(u/2) for the z‑assignment */
 
         /* term1 = binom(u, floor(u/2)) */
-        seq_t term1 = binom(u, k);
+        seq_t term1 = binomial(u, k);
 
         /* term2 = binom(n, d) */
-        seq_t term2 = binom(n, d);
+        seq_t term2 = binomial(n, d);
 
         /* term3 = ((n - 2d + 1) / (n - d + 1)) * binom(n, d) */
         seq_t num = term2 * (seq_t)(n - 2 * d + 1);

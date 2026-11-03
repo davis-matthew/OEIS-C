@@ -8,13 +8,15 @@
  *            = 2∑_{k≥0} q^{(k+½)²} and θ₃(q) = 1 + 2∑_{k>0} q^{k²}
  * Range:     u8 n <= 8, u16 n <= 40, u32 n <= 864, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 2778 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 typedef struct {
     size_t exp;
@@ -25,11 +27,11 @@ typedef struct {
 static void convolution_pow(seq_t *res, size_t maxn, const Term *terms,
                             size_t termcnt, int repeats)
 {
-    seq_t *cur = (seq_t*)calloc(maxn + 1, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, maxn + 1);
     cur[0] = 1;                           /* start with the constant term */
 
     for (int r = 0; r < repeats; ++r) {
-        seq_t *next = (seq_t*)calloc(maxn + 1, sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, maxn + 1);
         for (size_t i = 0; i <= maxn; ++i) {
             seq_t curv = cur[i];
             if (!curv) continue;          /* skip zero entries */
@@ -40,12 +42,12 @@ static void convolution_pow(seq_t *res, size_t maxn, const Term *terms,
                 next[ni] += curv * terms[t].weight;
             }
         }
-        free(cur);
+        mem_free(cur);
         cur = next;
     }
 
-    memcpy(res, cur, (maxn + 1) * sizeof(seq_t));
-    free(cur);
+    mem_copy(res, cur, (maxn + 1) * sizeof(seq_t));
+    mem_free(cur);
 }
 
 seq_t a(idx_t n)
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
     size_t maxN = (size_t)n;
 
     /* Arrays to hold the two generating functions up to maxN. */
-    seq_t *A = (seq_t*)calloc(maxN + 1, sizeof(seq_t));
-    seq_t *B = (seq_t*)calloc(maxN + 1, sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, maxN + 1);
+    seq_t *B = mem_new(seq_t, maxN + 1);
 
     /* Build terms for (θ₃(q⁴))⁹ : exponents 4·m², weight 1 for m=0, 2 otherwise. */
     Term terms3[128];
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
 
     seq_t result = A[n] + B[n];
 
-    free(A);
-    free(B);
+    mem_free(A);
+    mem_free(B);
     return result;
 }

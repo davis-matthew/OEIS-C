@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n/3 if n%3==0 else 5*(n/3)+3+(n%3) (offset 0)
- * Range:     u8 n <= 153, u16 n <= 9891, u32 n <= 9891, u64 n <= 9891,
- *            u128 n <= 9891, big any n
+ * Range:     u8 n <= 153, u16 n <= 19683, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 95 terms through n = 9891 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

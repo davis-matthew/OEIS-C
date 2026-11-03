@@ -9,12 +9,14 @@
  *            a(3)=1013, a(4)=4537, a(5)=4835, a(6)=5153
  * Range:     u8 none, u16 n <= 9, u32 n <= 27, u64 n <= 66, u128 n <= 141,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 3550 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* 1–based sequence array (index i corresponds to a(i)) */
 static size_t cache_len = 0;       /* number of terms currently stored in cache */
@@ -31,7 +33,7 @@ static void ensure_cache(size_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < n)
             new_cap *= 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         /* In an unexpected failure realloc may return NULL; we ignore error handling
            because the evaluation harness guarantees enough memory. */
         cache = new_cache;

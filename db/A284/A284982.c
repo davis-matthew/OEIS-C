@@ -12,7 +12,8 @@
  *            P_1(x) = -x and P_2(x) = -4x + x^2. The sequence a...
  * Range:     i8 n <= 29, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --------------  internal state  ---------------- */
 
@@ -53,7 +55,7 @@ static void push_to_cache(const seq_t *row, size_t len)
     if (new_len > cache_cap) {
         size_t new_cap = (cache_cap > 0) ? cache_cap << 1 : 16;
         while (new_cap < new_len) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -68,16 +70,16 @@ static void ensure_rows(size_t target)
         ++max_row;
         if (max_row == 1) {
             /* Row 1: 0, -1 */
-            seq_t *cur = (seq_t*)malloc(2 * sizeof(seq_t));
+            seq_t *cur = mem_new(seq_t, 2);
             cur[0] = 0;
             cur[1] = -1;
-            if (prev1) free(prev1);
+            if (prev1) mem_free(prev1);
             prev1 = cur;
             prev2 = NULL;
             push_to_cache(cur, 2);
         } else if (max_row == 2) {
             /* Row 2: 0, -4, 1 */
-            seq_t *cur = (seq_t*)malloc(3 * sizeof(seq_t));
+            seq_t *cur = mem_new(seq_t, 3);
             cur[0] = 0;
             cur[1] = -4;
             cur[2] = 1;
@@ -88,7 +90,7 @@ static void ensure_rows(size_t target)
         } else {
             /* Row m (m ≥ 3) from recurrence:
                P_m(x) = (2 - x) P_{m-1}(x) - P_{m-2}(x) - 2x            */
-            seq_t *cur = (seq_t*)malloc((max_row + 1) * sizeof(seq_t));
+            seq_t *cur = mem_new(seq_t, (max_row + 1));
             cur[0] = 0;                                  /* constant term */
             for (size_t k = 1; k <= max_row; ++k) {
                 seq_t term = 0;
@@ -101,7 +103,7 @@ static void ensure_rows(size_t target)
             seq_t *tmp = prev2;
             prev2 = prev1;
             prev1 = cur;
-            free(tmp);
+            mem_free(tmp);
             push_to_cache(cur, max_row + 1);
         }
     }

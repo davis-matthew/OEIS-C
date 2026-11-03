@@ -13,7 +13,8 @@
  *            to exceed n. The last number of the row must bri...
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*--------------------------------------------------------------------------*
  *  Global state (static)                                                   *
@@ -195,7 +197,7 @@ seq_t a(idx_t n) {
         /* Cache the result */
         if (cache_size == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap << 1 : 256;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) abort();
             cache = new_cache;
             cache_cap = new_cap;

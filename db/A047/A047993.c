@@ -9,12 +9,14 @@
  *            ) where p(i) is the partition number (p(0)=1, p(i)=0 for i<0)
  * Range:     u8 n <= 28, u16 n <= 63, u32 n <= 164, u64 n <= 489,
  *            u128 n <= 1608, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 8819 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached partition numbers  p[0..p_max]  (p(0)=1) */
 static seq_t *p_array = NULL;
@@ -27,7 +29,7 @@ static void ensure_partitions(idx_t N)
         return;
 
     /* Allocate / resize the array */
-    seq_t *new_arr = (seq_t *)realloc(p_array, (N + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, p_array, (N + 1));
     if (!new_arr)
         exit(EXIT_FAILURE);          /* out of memory – abort */
     p_array = new_arr;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   phi_idx_u64, pow_uint
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   ipow_u64_idx, totient_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,8 +32,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
-#include "../utils/phi_idx_u64.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/totient_idx.h"
 
 /* Main function for the OEIS sequence.               */
 seq_t a(idx_t n) {
@@ -45,12 +46,12 @@ seq_t a(idx_t n) {
 
     /* Compute Mod[k,n] and Mod[k,φ(n)].                 */
     seq_t mod_kn  = (seq_t)(k % r);
-    idx_t phi_r   = phi_idx_u64(r);
+    idx_t phi_r   = totient_idx(r);
     seq_t mod_kphi = (seq_t)(k % phi_r);
 
     /* Apply the defining rule of t(n,k).              */
     if (mod_kn == 0 && mod_kphi == 0) return (seq_t)1;
 
     /* Power computation: base^(exp).                   */
-    return pow_uint((uint64_t)mod_kn, (idx_t)mod_kphi);
+    return ipow_u64_idx((uint64_t)mod_kn, (idx_t)mod_kphi);
 }

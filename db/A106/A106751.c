@@ -10,25 +10,27 @@
  *            = 1 * starting from the single symbol 1
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     size_t cur_len = 1, cur_cap = 1;
-    seq_t *cur = (seq_t*)malloc(cur_cap * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, cur_cap);
     if (!cur) return (seq_t)0;      /* OOM – return a neutral value */
     cur[0] = (seq_t)1;              /* start with the symbol 1 */
 
     /* Expand the word until we have at least n+1 symbols. */
     while (cur_len <= (size_t)n) {
         size_t next_cap = cur_len * 6 + 1;
-        seq_t *next = (seq_t*)malloc(next_cap * sizeof(seq_t));
-        if (!next) { free(cur); return (seq_t)0; }
+        seq_t *next = mem_new(seq_t, next_cap);
+        if (!next) { mem_free(cur); return (seq_t)0; }
 
         size_t next_len = 0;
         for (size_t i = 0; i < cur_len; ++i) {
@@ -51,12 +53,12 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cur);
+        mem_free(cur);
         cur = next;
         cur_len = next_len;
     }
 
     seq_t result = cur[(size_t)n];
-    free(cur);
+    mem_free(cur);
     return result;
 }

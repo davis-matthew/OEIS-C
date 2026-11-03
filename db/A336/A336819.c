@@ -10,13 +10,14 @@
  *            Mersenne numbers 2^(k)-1, with the extra value D=23)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 51 terms through n = 939 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>                     /* for uint64_t */
-#include "../utils/pow_uint.h"           /* seq_t pow_uint(uint64_t base, idx_t exp); */
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,5 +27,5 @@ seq_t a(idx_t n)
     if (n == 3) return (seq_t)23;
 
     /* For n >= 4: a(n) = 2^(n+1) - 1. */
-    return pow_uint(2, (idx_t)(n + 1)) - (seq_t)1;
+    return ipow_u64_idx(2, (idx_t)(n + 1)) - (seq_t)1;
 }

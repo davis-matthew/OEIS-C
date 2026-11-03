@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 179 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
     /* initialise storage on first call */
     if (aval == NULL) {
         aval_cap = 2;                    /* at least space for a0 */
-        aval = (seq_t*)malloc(aval_cap * sizeof(seq_t));
+        aval = mem_new(seq_t, aval_cap);
         aval[0] = (seq_t)1;
     }
     if (term == NULL) {
         term_cap = 4;                    /* small array for term[1..] */
-        term = (seq_t*)malloc(term_cap * sizeof(seq_t));
+        term = mem_new(seq_t, term_cap);
     }
 
     if (n == 0) return aval[0];
@@ -52,14 +54,14 @@ seq_t a(idx_t n)
     /* grow a-values array if necessary */
     if (aval_cap <= (size_t)n) {
         size_t new_cap = (aval_cap + 1) * (size_t)2;
-        aval = (seq_t*)realloc(aval, new_cap * sizeof(seq_t));
+        aval = mem_resize(seq_t, aval, new_cap);
         aval_cap = new_cap;
     }
 
     /* grow terms array if necessary */
     if (term_cap <= (size_t)(n + 1)) {
         size_t new_cap = (term_cap + n + 1) * (size_t)2;
-        term = (seq_t*)realloc(term, new_cap * sizeof(seq_t));
+        term = mem_resize(seq_t, term, new_cap);
         term_cap = new_cap;
     }
 

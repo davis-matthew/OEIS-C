@@ -10,12 +10,14 @@
  *            starting from the word "0"
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t map0[4] = {0, 1, 2, 1};
 static const seq_t map1[7] = {0, 1, 2, 1, 1, 2, 1};
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 {
     /* initialise cache if first call */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(4 * sizeof(seq_t)); /* initial capacity 4 is enough */
+        cache = mem_new(seq_t, 4); /* initial capacity 4 is enough */
         cache[0] = 0;          /* start word "0" */
         cache_len = 1;
     }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         }
 
         /* allocate new buffer */
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) return 0; /* fallback (should not happen) */
 
         /* fill new buffer */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 23, u32 n <= 53, u64 n <= 113, u128 n <= 233,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t BASE[12] = {
     1, 4, 9, 17, 29, 47, 74, 113, 170, 253, 374, 550
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for all needed terms */
     size_t len = (size_t)n + 1;
-    seq_t *arr = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, len);
     if (!arr)
         return 0;  /* allocation failure – unlikely */
 
@@ -60,6 +62,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[(size_t)n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

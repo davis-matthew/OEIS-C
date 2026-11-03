@@ -9,6 +9,7 @@
  *            coefficients of sqrt(127)
  * Range:     u8 n <= 600, u16 n <= 600, u32 n <= 600, u64 n <= 600,
  *            u128 n <= 600, big any n
+ * Validated: standard, pass, 91 terms through n = 561 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

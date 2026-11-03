@@ -11,7 +11,8 @@
  *            position 3k
  * Range:     i8 n <= 63, i16 n <= 63, i32 n <= 63, i64 n <= 63, i128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *pos_of_value = NULL;      /* pos_of_value[v] = position of value v   */
 static size_t pos_of_value_cap = 0;     /* allocated capacity of pos_of_value      */
@@ -33,10 +35,9 @@ static void ensure_pos_of_value(size_t n)
     if (pos_of_value_cap <= n) {
         size_t new_cap = pos_of_value_cap ? pos_of_value_cap : 128;
         while (new_cap <= n) new_cap <<= 1;
-        pos_of_value = (seq_t *)realloc(pos_of_value, new_cap * sizeof(seq_t));
+        pos_of_value = mem_resize(seq_t, pos_of_value, new_cap);
         /* initialise new slots to 0 */
-        memset(pos_of_value + pos_of_value_cap, 0,
-               (new_cap - pos_of_value_cap) * sizeof(seq_t));
+        mem_set(pos_of_value + pos_of_value_cap, 0, (new_cap - pos_of_value_cap) * sizeof(seq_t));
         pos_of_value_cap = new_cap;
     }
 }

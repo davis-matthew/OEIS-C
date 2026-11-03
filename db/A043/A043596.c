@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   comb4
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/comb4.h"
+#include "../utils/mem.h"
+
+/* Compute C(n,4) where n>=4.  Use size_t for intermediate results. */
+static size_t comb4(idx_t n)
+{
+    /* (n*(n-1)*(n-2)*(n-3))/24 */
+    return ((size_t)(n) * (n - 1) * (n - 2) * (n - 3)) / 24;
+}
 
 /* Comparator for qsort. */
 static int cmp_seq(const void *a, const void *b)
@@ -47,8 +55,7 @@ static void ensure_room(void)
 {
     if (global_len >= global_cap) {
         global_cap = (global_cap == 0) ? 64 : global_cap * 2;
-        global_seq = (seq_t *)realloc(global_seq,
-                                      global_cap * sizeof(seq_t));
+        global_seq = mem_resize(seq_t, global_seq, global_cap);
     }
 }
 
@@ -109,7 +116,7 @@ static void extend_to_n(idx_t n)
     /* Sort the array once after the final extension.  Subsequent
      * extensions preserve the sorted order because we append already
      * sorted blocks to the end; the final sort is enough. */
-    qsort(global_seq, global_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(global_seq, global_len, sizeof(seq_t), cmp_seq);
 }
 
 /* Public function required by the build system. */

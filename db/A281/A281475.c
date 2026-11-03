@@ -12,13 +12,15 @@
  *            that calls may arrive in any order
  * Range:     u8 n <= 1, u16 n <= 17, u32 n <= 43, u64 n <= 97, u128 n <= 203,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const int coeffs[16] = {
     64,       2657,   -4872,   2350,   -2775,   2258,
@@ -67,7 +69,7 @@ static void ensure_seq_cache(idx_t n)
     if (seq_len == 0)
     {
         seq_cap = 16;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         seq_len  = 16;
 
         /* compute a(1)..a(16) */
@@ -94,7 +96,7 @@ static void ensure_seq_cache(idx_t n)
         if (seq_len == seq_cap)
         {
             size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             seq_cache = tmp;
             seq_cap = new_cap;
         }

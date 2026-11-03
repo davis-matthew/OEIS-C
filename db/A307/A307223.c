@@ -12,7 +12,8 @@
  *            ≤ k ≤ σ(r))
  * Range:     u8 n <= 8299, u16 n <= 8299, u32 n <= 8299, u64 n <= 8299,
  *            u128 n <= 8299, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 7750 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* global state for memoisation */
 static idx_t *cum_sigma = NULL;   /* prefix sums of σ(i) */
@@ -96,7 +98,7 @@ static void ensure_rows_up_to_target(idx_t target)
 
         /* allocate DP table for this row */
         size_t dp_capacity = sigma + 1;
-        seq_t *dp = (seq_t *)calloc(dp_capacity, sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, dp_capacity);
         dp[0] = 1;
         for (size_t di = 0; di < div_cnt; ++di) {
             uint64_t d = divs[di];

@@ -7,14 +7,15 @@
  * Formula:   a(n) = Σ_{d|n} φ(n/d) * (-n)^(d-1)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 19,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>                     /* uint64_t, etc. */
 #include <stdbool.h>
-#include "../utils/phi.h"                /* seq_t phi(idx_t m); */
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
 
     for (idx_t d = 1; d <= n; ++d) {
         if (n % d == 0) {                     /* d is a divisor */
-            seq_t ph = phi(n / d);           /* φ(n/d) */
+            seq_t ph = totient(n / d);           /* φ(n/d) */
             sum += ph * pow_curr;            /* contribution */
         }
         /* advance to (-n)^d for next d */

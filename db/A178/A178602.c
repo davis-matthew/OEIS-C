@@ -8,6 +8,7 @@
  *            (1+x^3)*(1+x^11)*(1+x^15)*(1+x^23)
  * Range:     u8 n <= 52, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
+ * Validated: full, pass, 53 terms through n = 52 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

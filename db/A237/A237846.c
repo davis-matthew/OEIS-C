@@ -11,7 +11,8 @@
  *            count all arrays by dynamic programming over the rows
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 10, u128 n <= 22,
  *            big any n
- * Helpers:   block_has_d, lower_median_of_block, max_of_block
+ * Validated: standard, pass, 29 terms through n = 182 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,51 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/block_has_d.h"
-#include "../utils/lower_median_of_block.h"
-#include "../utils/max_of_block.h"
+
+/* Lower median (second smallest) of four values from {0,1,2} */
+static inline int lower_median_of_block(int v0, int v1, int v2, int v3)
+{
+    int c0 = 0, c1 = 0, c2 = 0;
+    if (v0 == 0) ++c0; else if (v0 == 1) ++c1; else ++c2;
+    if (v1 == 0) ++c0; else if (v1 == 1) ++c1; else ++c2;
+    if (v2 == 0) ++c0; else if (v2 == 1) ++c1; else ++c2;
+    if (v3 == 0) ++c0; else if (v3 == 1) ++c1; else ++c2;
+
+    if (c0 >= 2) return 0;          /* at least two 0's */
+    if (c0 == 1)                    /* exactly one 0 */
+    {
+        if (c1 > 0) return 1;
+        return 2;
+    }
+    /* c0 == 0, no 0's */
+    if (c1 >= 2) return 1;
+    return 2;
+}
+
+/* Maximum of four values */
+static inline int max_of_block(int v0, int v1, int v2, int v3)
+{
+    int m = v0;
+    if (v1 > m) m = v1;
+    if (v2 > m) m = v2;
+    if (v3 > m) m = v3;
+    return m;
+}
+
+/* Check whether all 2×2 subblocks formed by two rows have difference d */
+static inline bool block_has_d(int d, const uint8_t *r1, const uint8_t *r2)
+{
+    for (int c = 0; c < 4; ++c) {
+        int v0 = r1[c];
+        int v1 = r1[c + 1];
+        int v2 = r2[c];
+        int v3 = r2[c + 1];
+        int diff = max_of_block(v0, v1, v2, v3) -
+                   lower_median_of_block(v0, v1, v2, v3);
+        if (diff != d) return false;
+    }
+    return true;
+}
 
 /* Pre‑computed data */
 static uint8_t rows[243][5];

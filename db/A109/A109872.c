@@ -10,7 +10,8 @@
  *            a(n)-a(n‑1) is also a palindrome
  * Range:     u8 n <= 20, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   push_seq, rev
+ * Validated: full, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,22 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/rev.h"
-#include "../utils/push_seq.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,9 +59,9 @@ seq_t a(idx_t n)
         seq_t cand = (seq_t)last;
 
         /* Is cand a palindrome? */
-        if (cand == rev(cand)) {
+        if (cand == reverse_digits(cand)) {
             /* First term or difference palindrome? */
-            if (size == 0 || (cand - seq[size - 1]) == rev(cand - seq[size - 1])) {
+            if (size == 0 || (cand - seq[size - 1]) == reverse_digits(cand - seq[size - 1])) {
                 push_seq(&seq, &cap, &size, cand);
 
                 /* Detect the final term (a(36)=9119).  */

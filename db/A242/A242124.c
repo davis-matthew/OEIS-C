@@ -7,7 +7,8 @@
  * Formula:   a(n) = n-th prime modulo 26
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 88 terms through n = 818 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
 
 static uint64_t *primes   = NULL;     /* prime list (0‑based)            */
 static size_t   primes_cnt = 0;       /* current number of stored primes */
@@ -48,7 +49,7 @@ static void ensure_primes_at_least(size_t needed)
     grow_primes_cap(needed);
     while (primes_cnt < needed) {
         /* Find the next prime starting from 'candidate'. */
-        while (!isPrimeTrial((seq_t)candidate))
+        while (!is_prime_seq((seq_t)candidate))
             ++candidate;
         primes[primes_cnt++] = candidate;
         ++candidate; /* advance to next integer for subsequent searches */

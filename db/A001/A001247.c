@@ -9,14 +9,28 @@
  *            Bell(i) = T(i,0)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   a001028_grow, a001028_z
+ * Validated: standard, pass, 35 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a001028_z.h"
-#include "../utils/a001028_grow.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *a001028_z(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a001028_grow(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = a001028_z(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *a001247_row = 0;   /* current Bell-triangle row */
 static seq_t *a001247_bell = 0;  /* cached Bell numbers */

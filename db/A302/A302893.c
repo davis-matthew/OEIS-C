@@ -12,7 +12,8 @@
  *            The array has its upper-left element fixed to 0
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define NUM_ROWS    6
 #define MASKS       (1 << NUM_ROWS)           /* 64  */
@@ -113,13 +115,12 @@ seq_t a(idx_t n)
     /* Allocate or resize cache as needed */
     if (cache == NULL) {
         cache_cap = n + 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-        memset(cache, 0, cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
+        mem_set(cache, 0, cache_cap * sizeof(seq_t));
     } else if (cache_cap <= (size_t)n) {
         cache_cap = n + 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
-        memset(cache + max_cached + 1, 0,
-               (cache_cap - (max_cached + 1)) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
+        mem_set(cache + max_cached + 1, 0, (cache_cap - (max_cached + 1)) * sizeof(seq_t));
     }
 
     /* Return already computed value */
@@ -127,9 +128,9 @@ seq_t a(idx_t n)
 
     /* Initialise DP for column 1 (prev = NONE) */
     if (dp_cur == NULL) {
-        dp_cur  = (seq_t *)malloc(STATE_CNT * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(STATE_CNT * sizeof(seq_t));
-        memset(dp_cur, 0, STATE_CNT * sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, STATE_CNT);
+        dp_next = mem_new(seq_t, STATE_CNT);
+        mem_set(dp_cur, 0, STATE_CNT * sizeof(seq_t));
 
         /* First column: only masks with upper-left bit 0 are allowed */
         for (int cur = 0; cur < MASKS; ++cur) {
@@ -151,7 +152,7 @@ seq_t a(idx_t n)
     /* Incrementally compute further values until n is reached */
     for (idx_t col = max_cached + 1; col <= n; ++col) {
         /* Transition from state (prev,cur) to (cur,next) */
-        memset(dp_next, 0, STATE_CNT * sizeof(seq_t));
+        mem_set(dp_next, 0, STATE_CNT * sizeof(seq_t));
 
         for (int prev = 0; prev < PREV_CNT; ++prev) {
             for (int cur = 0; cur < MASKS; ++cur) {

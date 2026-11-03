@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * where Catalan(k) = binomial(2k,k)/(k+1) and the sum is taken modulo 3.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *catalan = NULL;   /* Catalan numbers modulo 3 */
 static seq_t *partial = NULL;   /* cumulative sums modulo 3 */
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
 {
     /* initialise on first call */
     if (catalan == NULL) {
-        catalan = (seq_t*)malloc(sizeof(seq_t));
-        partial = (seq_t*)malloc(sizeof(seq_t));
+        catalan = mem_new(seq_t, 1);
+        partial = mem_new(seq_t, 1);
         if (!catalan || !partial) abort();      /* allocation failure */
         catalan[0] = 1 % 3;                      /* C(0) = 1 */
         partial[0] = 1 % 3;                      /* a(0) = 1 */
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
     /* extend tables only if needed */
     if (n > max_computed) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(catalan, new_len * sizeof(seq_t));
-        seq_t *tmp2 = (seq_t*)realloc(partial, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, catalan, new_len);
+        seq_t *tmp2 = mem_resize(seq_t, partial, new_len);
         if (!tmp || !tmp2) abort();
         catalan = tmp;
         partial = tmp2;

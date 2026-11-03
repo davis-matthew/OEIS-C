@@ -11,7 +11,8 @@
  *            prime(j)·T(r-j,k-1) (k>0)
  * Range:     u8 n <= 23, u16 n <= 70, u32 n <= 219, u64 n <= 759,
  *            u128 n <= 2739, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------- */
 /*  Pre‑compute a small list of primes.  The sieve limit is   */
@@ -71,7 +73,7 @@ static void compute_triangle_up_to(size_t rows_needed)
 
     for (size_t r = triangle_rows_done; r < rows_needed; ++r) {
         /* allocate the current row */
-        seq_t *row = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (r + 1));
         triangle[r] = row;
 
         for (size_t k = 0; k <= r; ++k) {

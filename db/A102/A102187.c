@@ -11,7 +11,8 @@
  *            with integer average of divisors)
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9850 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* Computes the nth term of A102187. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: power of an unsigned integer base to a small exponent,
    all in seq_t domain. */
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
 
         /* Allocate array for averages */
         a_cap = 1024;
-        a_vals = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
 
         /* --------------------------------------------------------------------
            Compute sigma and tau for every integer up to LIMIT.
@@ -84,7 +86,7 @@ seq_t a(idx_t n) {
                 seq_t avg = sigma_val / tau_val;
                 if (a_cnt == a_cap) {
                     a_cap *= 2;
-                    a_vals = (seq_t *)realloc(a_vals, a_cap * sizeof(seq_t));
+                    a_vals = mem_resize(seq_t, a_vals, a_cap);
                 }
                 a_vals[a_cnt++] = avg;
             }

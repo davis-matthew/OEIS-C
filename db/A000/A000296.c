@@ -10,14 +10,23 @@
  *            Bell numbers via the Bell (Aitken) triangle
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 26, u128 n <= 43,
  *            big any n
- * Helpers:   zalloc_s
+ * Validated: standard, pass, 43 terms through n = 535 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/zalloc_s.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_s(idx_t n)
+{
+    seq_t *p = mem_new(seq_t, (size_t)n);
+    idx_t i;
+    for (i = 0; i < n; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *bt_row = 0;   /* current row R of the Bell triangle; row[0] = Bell(R) */
 static seq_t *a_vals = 0;   /* a(0..na-1) */

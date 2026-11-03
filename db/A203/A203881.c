@@ -8,6 +8,7 @@
  * Formula:   a(n) = 25*a(n-1) + 138*a(n-2), a(1)=8281, a(2)=254359
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 11, u128 n <= 24,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 198 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

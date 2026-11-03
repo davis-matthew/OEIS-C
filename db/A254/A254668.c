@@ -10,14 +10,38 @@
  *            number + a hexagonal number
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   free_counts, new_counts
+ * Validated: standard, pass, 117 terms through n = 9610 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/free_counts.h"
-#include "../utils/new_counts.h"
+
+/* Free a previously allocated counts array. */
+static void free_counts(seq_t *ptr)
+{
+#ifdef __cplusplus
+    delete [] ptr;
+#else
+    free(ptr);
+#endif
+}
+
+/* Allocate a new array of seq_t of given size.
+   New elements are zero‑initialised. */
+static seq_t *new_counts(idx_t size)
+{
+    seq_t *ptr;
+#ifdef __cplusplus
+    ptr = new seq_t[size];
+    for (idx_t i = 0; i < size; ++i)
+        ptr[i] = 0;
+#else
+    ptr = (seq_t *)calloc((size_t)size, sizeof(seq_t));
+#endif
+    return ptr;
+}
 
 static seq_t *counts = NULL;       /* memoised counts array        */
 static idx_t  max_n   = (idx_t)-1; /* last index computed           */

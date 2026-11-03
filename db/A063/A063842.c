@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n^6 + 6*n^5 + 24*n^4 + 56*n^3 + 83*n^2 + 70*n + 24) / 24
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 67, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 48 terms through n = 973 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 375 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    both C11 and C++17. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequence and the convolution of order two */
 static seq_t *a_seq          = NULL; /* a[0..]                          */
@@ -41,7 +43,7 @@ static void ensure_capacity(idx_t n)
     if (a_len <= (size_t)n) {
         size_t newcap = a_cap ? a_cap : 1;
         while (newcap <= (size_t)n) newcap <<= 1;
-        seq_t *newa = (seq_t*)realloc(a_seq, newcap * sizeof(seq_t));
+        seq_t *newa = mem_resize(seq_t, a_seq, newcap);
         if (!newa) exit(EXIT_FAILURE);
         /* initialise new cells to zero */
         for (size_t i = a_cap; i < newcap; ++i) newa[i] = 0;
@@ -54,7 +56,7 @@ static void ensure_capacity(idx_t n)
     if (conv2_cap < need) {
         size_t newcap = conv2_cap ? conv2_cap : 1;
         while (newcap < need) newcap <<= 1;
-        seq_t *newc = (seq_t*)realloc(conv2_seq, newcap * sizeof(seq_t));
+        seq_t *newc = mem_resize(seq_t, conv2_seq, newcap);
         if (!newc) exit(EXIT_FAILURE);
         for (size_t i = conv2_cap; i < newcap; ++i) newc[i] = 0;
         conv2_seq = newc;
@@ -67,12 +69,12 @@ static void init_tables(void)
 {
     if (a_seq) return;          /* already initialised */
 
-    a_seq   = (seq_t*)malloc(sizeof(seq_t));
+    a_seq   = mem_new(seq_t, 1);
     a_cap   = 1;
     a_len   = 1;
     a_seq[0] = 1;
 
-    conv2_seq = (seq_t*)malloc(sizeof(seq_t));
+    conv2_seq = mem_new(seq_t, 1);
     conv2_cap = 1;
     conv2_seq[0] = 1;           /* conv2[0] = a(0)*a(0) = 1 */
 }

@@ -10,13 +10,19 @@
  *            T(n,k)
  * Range:     i8 n <= 47, i16 n <= 96, i32 n <= 219, i64 n <= 484,
  *            i128 n <= 1256, big any n
- * Helpers:   sub
+ * Validated: standard, pass, 94 terms through n = 9730 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sub.h"
+
+/* Subtract two seq_t values. */
+static inline seq_t sub(seq_t a, seq_t b)
+{
+    return a - b;
+}
 
 /* Multiply a seq_t by a small unsigned integer. Works for both fixed‑size
    and arbitrary‑precision seq_t types. */

@@ -8,7 +8,8 @@
  *            (so a(1) is the smallest such prime)
  * Range:     u8 none, u16 none, u32 n <= 1800, u64 n <= 1800, u128 n <= 1800,
  *            big any n
- * Helpers:   digit_sum_uint64, is_prime
+ * Validated: standard, pass, 47 terms through n = 1668 (2026-11-03)
+ * Helpers:   digit_sum_u64, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stddef.h>
 
 /* Helper functions supplied by the build. */
-#include "../utils/is_prime.h"
-#include "../utils/digit_sum_uint64.h"
+#include "../utils/digit_sum_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* The function required by the framework. */
 seq_t a(idx_t n)
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
         while (true)
         {
-            if (is_prime(cand) && digit_sum_uint64(cand) == 52)
+            if (is_prime_u64(cand) && digit_sum_u64(cand) == 52)
                 break;
             ++cand;
         }
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         if (count == cap)
         {
             size_t new_cap = (cap == 0) ? 64 : cap * 2;
-            seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, primes, new_cap);
             if (tmp == NULL) /* allocation failed: abort (shouldn't happen). */
                 abort();
             primes = tmp;

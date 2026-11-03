@@ -7,12 +7,14 @@
  * Formula:   a(n) from EGF exp(-x^2/2 * exp(x))
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 14, i64 n <= 24, i128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 536 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the OEIS sequence A292953 */
 seq_t a(idx_t n)
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* enlarge storage if necessary */
     if (n >= (idx_t)cache_len) {
-        cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         cache_len = (size_t)(n + 1);
         /* initialise the first value */
         if (cache_len > 0) {

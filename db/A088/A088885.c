@@ -13,13 +13,14 @@
  *            concatenation exists.)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   digits_idx_t
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   num_digits_idx_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digits_idx_t.h"
+#include "../utils/num_digits_idx_to_u32.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
 
     /* iterate adding one more previous term at a time */
     for (idx_t i = n - 2; ; --i) {
-        unsigned d = digits_idx_t(i);
+        unsigned d = num_digits_idx_to_u32(i);
 
         /* compute 10^d mod n */
         uint64_t pow10 = 1;

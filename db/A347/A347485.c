@@ -13,6 +13,7 @@
  *            L\{e}), e a part of L
  * Range:     u8 n <= 10, u16 n <= 26, u32 n <= 64, u64 n <= 193,
  *            u128 n <= 908, big any n
+ * Validated: standard, pass, 60 terms through n = 2704 (2026-11-01)
  * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,8 +24,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/pow2.h"
 
 typedef struct {
     idx_t *parts;   /* parts of the partition (non‑increasing) */

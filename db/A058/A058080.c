@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 115, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9876 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global state (kept between calls) */
 static idx_t   sieve_limit = 0;      /* highest value for which data are known */
@@ -82,7 +84,7 @@ static void recompute(idx_t new_limit)
     for (idx_t i = 1; i <= new_limit; ++i)
         if (new_divcnt[i] >= 5) ++term_cnt;
 
-    seq_t *new_seq = (seq_t *)malloc(term_cnt * sizeof(seq_t));
+    seq_t *new_seq = mem_new(seq_t, term_cnt);
     if (new_seq == NULL) abort();
 
     size_t pos = 0;
@@ -91,7 +93,7 @@ static void recompute(idx_t new_limit)
             new_seq[pos++] = (seq_t)i;
 
     /* Replace old tables with the new ones */
-    free(spf);     free(divcnt);   free(primes);   free(seq);
+    free(spf);     free(divcnt);   free(primes);   mem_free(seq);
     spf     = new_spf;
     divcnt  = new_divcnt;
     primes  = new_primes;

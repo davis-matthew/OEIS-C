@@ -9,7 +9,8 @@
  *            number of 00000 and 11111 substrings
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 66, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 485 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const int NUM_MASKS = 16;        /* 4-bit window */
 static const int MAX_MASK = NUM_MASKS - 1;
@@ -51,12 +53,12 @@ static void init_buffers(idx_t max_n)
     diff_size = 2 * (size_t)max_n + 1;   /* indices 0 .. 2*n */
 
     size_t total = (size_t)NUM_MASKS * diff_size;
-    curr_buf = (seq_t *)calloc(total, sizeof(seq_t));
-    next_buf = (seq_t *)calloc(total, sizeof(seq_t));
+    curr_buf = mem_new(seq_t, total);
+    next_buf = mem_new(seq_t, total);
     if (!curr_buf || !next_buf)
         exit(EXIT_FAILURE);
 
-    table = (seq_t *)calloc(1, sizeof(seq_t));
+    table = mem_new(seq_t, 1);
     if (!table)
         exit(EXIT_FAILURE);
     table_cap = 1;
@@ -80,8 +82,8 @@ static void resize_buffers(idx_t new_max_n)
     size_t new_shift = (size_t)new_max_n;
     size_t new_total  = (size_t)NUM_MASKS * new_diff_size;
 
-    seq_t *new_curr = (seq_t *)calloc(new_total, sizeof(seq_t));
-    seq_t *new_next = (seq_t *)calloc(new_total, sizeof(seq_t));
+    seq_t *new_curr = mem_new(seq_t, new_total);
+    seq_t *new_next = mem_new(seq_t, new_total);
     if (!new_curr || !new_next)
         exit(EXIT_FAILURE);
 
@@ -98,8 +100,8 @@ static void resize_buffers(idx_t new_max_n)
         }
     }
 
-    free(curr_buf);
-    free(next_buf);
+    mem_free(curr_buf);
+    mem_free(next_buf);
     curr_buf = new_curr;
     next_buf = new_next;
     diff_size = new_diff_size;
@@ -111,10 +113,10 @@ static void ensure_table_cap(idx_t n)
 {
     if ((size_t)n + 1 > table_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_tbl = (seq_t *)realloc(table, new_cap * sizeof(seq_t));
+        seq_t *new_tbl = mem_resize(seq_t, table, new_cap);
         if (!new_tbl)
             exit(EXIT_FAILURE);
-        memset(&new_tbl[table_cap], 0, (new_cap - table_cap) * sizeof(seq_t));
+        mem_set(&new_tbl[table_cap], 0, (new_cap - table_cap) * sizeof(seq_t));
         table = new_tbl;
         table_cap = new_cap;
     }
@@ -141,7 +143,7 @@ static void compute_up_to(idx_t n)
         size_t next_len   = (size_t)(2 * next_dmax + 1);
         for (int m = 0; m < NUM_MASKS; ++m) {
             size_t base = (size_t)m * diff_size;
-            memset(&next_buf[base + next_start], 0, next_len * sizeof(seq_t));
+            mem_set(&next_buf[base + next_start], 0, next_len * sizeof(seq_t));
         }
 
         /* transition */

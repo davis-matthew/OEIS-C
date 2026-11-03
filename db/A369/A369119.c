@@ -7,11 +7,13 @@
  * Formula:   a(n) = n! * (n+1)^[is_prime(n+1)]
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 11, u64 n <= 20, u128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

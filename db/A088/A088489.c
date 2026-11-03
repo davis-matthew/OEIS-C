@@ -10,7 +10,8 @@
  *            prime p
  * Range:     u8 n <= 9, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   grow_primes, grow_seq_cache, rev
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,27 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/rev.h"
-#include "../utils/grow_primes.h"
-#include "../utils/grow_seq_cache.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
+
+static void grow_primes(uint64_t **arr, size_t *cap, size_t needed) {
+    size_t new_cap = *cap ? (*cap << 1) : 16;
+    while (new_cap < needed) new_cap <<= 1;
+    uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(uint64_t));
+    if (!tmp) abort();
+    *arr = tmp;
+    *cap = new_cap;
+}
+
+/* Dynamic array helpers */
+static void grow_seq_cache(seq_t **arr, size_t *cap, size_t needed) {
+    size_t new_cap = *cap ? (*cap << 1) : 8;
+    while (new_cap < needed) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* Simple trial‑division primality test using the list of primes discovered so far. */
 static bool is_prime_u64(uint64_t n, uint64_t *primes, size_t primes_len) {
@@ -52,7 +71,7 @@ seq_t a(idx_t n) {
     /* initialise on first call ---------------------------------------- */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
     }
     if (!primes) {
@@ -73,7 +92,7 @@ seq_t a(idx_t n) {
 
             /* check for a twin pair with current + 2 */
             if (is_prime_u64(current + 2, primes, primes_len)) {
-                seq_t rev_p = rev(current);                 /* rev returns seq_t */
+                seq_t rev_p = reverse_digits_idx(current);                 /* rev returns seq_t */
                 seq_t cur_seq = (seq_t)current;
                 seq_t diff = (cur_seq > rev_p) ? (cur_seq - rev_p)
                                                : (rev_p - cur_seq);

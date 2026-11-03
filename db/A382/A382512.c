@@ -5,13 +5,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{p|n, p prime} binomial(n/p+p-2, p-1)
- * Range:     u8 n <= 24, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 34, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

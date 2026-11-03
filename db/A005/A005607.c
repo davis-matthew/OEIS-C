@@ -7,12 +7,14 @@
  * Formula:   a(n) = (a(n-1) + a(n-2))!, a(0) = 1, a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 5 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t factorial(seq_t n) {
     seq_t result = 1;
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     
     if (cache_size <= n) {
         idx_t new_size = n + 100;
-        seq_t *new_cache = (seq_t *)malloc((new_size) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (new_size));
         
         if (cache == NULL) {
             new_cache[0] = 1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
             for (idx_t i = cache_size; i < new_size; i++) {
                 new_cache[i] = 0;
             }
-            free(cache);
+            mem_free(cache);
         }
         
         cache = new_cache;

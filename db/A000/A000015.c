@@ -8,14 +8,27 @@
  *            (p^k, k >= 1)
  * Range:     u8 n <= 251, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_power_ull
+ * Validated: standard, pass, 88 terms through n = 9587 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_power_ull.h"
+
+static bool is_prime_power_ull(unsigned long long m)
+{
+    unsigned long long p;
+    if (m <= 1) return m == 1;
+    for (p = 2; p * p <= m; p++) {
+        if (m % p == 0) {
+            while (m % p == 0) m /= p;
+            return m == 1;
+        }
+    }
+    return true; /* m is prime */
+}
 
 seq_t a(idx_t n)
 {

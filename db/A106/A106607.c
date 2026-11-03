@@ -7,6 +7,7 @@
  * Formula:   a(n) = (4*n^3 + 18*n^2 + 56*n + {96,18,72,42}[n % 4]) / 96
  * Range:     u8 n <= 2, u16 n <= 23, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 68 terms through n = 983 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

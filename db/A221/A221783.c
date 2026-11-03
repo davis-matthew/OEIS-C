@@ -10,7 +10,8 @@
  *            a(2)=3, a(3)=5, a(4)=16, a(5)=41
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) for the OEIS sequence A221783.
  * Supports any order of calls.  Results are memoised.
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     /* If cache not yet initialised, create space for first 5 values */
     if (cache == NULL) {
         /* Allocate space for the 5 base terms */
-        cache = (seq_t *)malloc(5 * sizeof(seq_t));
+        cache = mem_new(seq_t, 5);
         if (!cache) return (seq_t)0;  /* allocation failed – unlikely for small n */
 
         /* Store the five known initial terms */
@@ -55,11 +57,11 @@ seq_t a(idx_t n) {
     /* Extend the cache to accommodate value up to n */
     idx_t old_max = cached_max;
     idx_t new_max = n;
-    seq_t *new_cache = (seq_t *)malloc(new_max * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_max);
     if (!new_cache) return (seq_t)0;  /* allocation failed – unlikely for n up to 10⁴ */
 
     /* Copy existing values */
-    memcpy(new_cache, cache, old_max * sizeof(seq_t));
+    mem_copy(new_cache, cache, old_max * sizeof(seq_t));
 
     /* Compute missing terms using the recurrence
      * a(k) = 5*a(k-2) + 5*a(k-3) + a(k-5)
@@ -86,7 +88,7 @@ seq_t a(idx_t n) {
     }
 
     /* Replace old cache with the new, larger one */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cached_max = new_max;
 

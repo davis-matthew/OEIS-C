@@ -10,7 +10,8 @@
  *            numbers are discarded
  * Range:     u8 none, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 2000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define BASE 1000000000U        /* 10^9 for limb base */
 #define BIGINT_MAX_LIMBS 30000  /* enough for ~270k decimal digits */
@@ -150,7 +152,7 @@ seq_t a(idx_t n) {
     if (n > seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 64 : seq_cap * 2;
         while (new_cap < n) new_cap *= 2;
-        seq_t *newptr = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, seq_cache, new_cap);
         if (!newptr) exit(EXIT_FAILURE);
         seq_cache = newptr;
         seq_cap = new_cap;
@@ -215,7 +217,7 @@ seq_t a(idx_t n) {
                     seq_cache[seq_len++] = (seq_t)val;
                     if (seq_len >= seq_cap) {   /* safe guard */
                         size_t new_cap = seq_cap * 2;
-                        seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
                         if (!tmp) exit(EXIT_FAILURE);
                         seq_cache = tmp;
                         seq_cap = new_cap;

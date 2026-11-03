@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 816, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrime64
+ * Validated: standard, pass, 64 terms through n = 980 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/isPrime64.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     uint64_t p = 3ULL;          /* first candidate (20*0 + 3) */
 
     while (true) {
-        if (isPrime64(p)) {
+        if (is_prime_u64(p)) {
             ++count;
             if (count == n)
                 return (seq_t)p;

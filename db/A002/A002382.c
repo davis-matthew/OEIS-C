@@ -10,14 +10,15 @@
  *            found by search
  * Range:     u8 n <= 21, u16 n <= 208, u32 n <= 3706, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a002382_isprime
+ * Validated: standard, pass, 68 terms through n = 9676 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/a002382_isprime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     static const uint64_t residues[16] = {7, 13, 17, 23, 37, 43, 47, 53,
@@ -27,7 +28,7 @@ seq_t a(idx_t n) {
     for (;;) {
         for (int i = 0; i < 16; i++) {
             uint64_t p = k * 120 + residues[i];
-            if (a002382_isprime(p)) {
+            if (is_prime_u64(p)) {
                 count++;
                 if (count == n) {
                     seq_t sp = (seq_t)p;

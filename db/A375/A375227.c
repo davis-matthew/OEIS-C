@@ -7,14 +7,27 @@
  * Formula:   a(n) = n!*Sum_{k=0..floor(n/3)} binomial(n+2,n-3k)/k!
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   binomial, factorial
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binomial.h"    /* seq_t binomial(idx_t a, idx_t b) */
-#include "../utils/factorial.h"   /* seq_t factorial(idx_t n) */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* sjseq: sequence for OEIS A375227 */
 seq_t a(idx_t n)

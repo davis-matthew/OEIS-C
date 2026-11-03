@@ -8,16 +8,18 @@
  *            ((1+q^2)^2 (1+q^4)^2 ... (1+q^(2k))^2)
  * Range:     i8 n <= 42, i16 n <= 144, i32 n <= 508, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t len = n + 1;
-    seq_t *p = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, len);
     seq_t ans = 0;
     idx_t k, i;
     p[0] = 1;
@@ -39,6 +41,6 @@ seq_t a(idx_t n) {
         if (k % 2 == 0) ans += p[m];
         else ans -= p[m];
     }
-    free(p);
+    mem_free(p);
     return ans;
 }

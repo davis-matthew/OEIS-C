@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3000, i16 n <= 3000, i32 n <= 3000, i64 n <= 3000,
  *            i128 n <= 3000, big any n
- * Helpers:   divide_by_monic
+ * Validated: standard, pass, 97 terms through n = 2987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/divide_by_monic.h"
+#include "../utils/mem.h"
+
+/* Divide monic polynomial num by monic polynomial den (both represented
+ * by coefficient arrays).  The quotient is returned; the caller owns it.
+ * No memory is freed here. */
+static seq_t *divide_by_monic(const seq_t *num, int deg_num,
+                              const seq_t *den, int deg_den)
+{
+    int deg_q = deg_num - deg_den;
+    seq_t *rem = mem_new(seq_t, (size_t)(deg_num + 1));
+    mem_copy(rem, num, (size_t)(deg_num + 1) * sizeof(seq_t));
+    seq_t *quot = mem_new(seq_t, (size_t)(deg_q + 1));
+
+    for (int i = deg_num; i >= deg_den; --i) {
+        seq_t coef = rem[i];
+        quot[i - deg_den] = coef;
+        for (int j = 0; j <= deg_den; ++j)
+            rem[i - deg_den + j] -= coef * den[j];
+    }
+    mem_free(rem);
+    return quot;
+}
 
 /* The types seq_t and idx_t are provided by the build environment; do not
  * define them here.  The function declared in the prelude must match this
@@ -41,7 +63,7 @@ static seq_t inv_arr[2044];
 static seq_t *poly_mul(const seq_t *A, int da, const seq_t *B, int db)
 {
     int deg = da + db;
-    seq_t *res = (seq_t *)calloc((size_t)(deg + 1), sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, (size_t)(deg + 1));
     for (int i = 0; i <= da; ++i)
         for (int j = 0; j <= db; ++j)
             res[i + j] += A[i] * B[j];
@@ -59,7 +81,7 @@ static void init_sequence(void)
     const size_t ndiv = sizeof(divs) / sizeof(divs[0]);
 
     /* Φ_1(x) = x – 1. */
-    seq_t *phi1 = (seq_t *)malloc(2 * sizeof(seq_t));
+    seq_t *phi1 = mem_new(seq_t, 2);
     phi1[0] = -1;
     phi1[1] = 1;
     phi_arr[1] = phi1;
@@ -72,7 +94,7 @@ static void init_sequence(void)
 
         /* x^d – 1. */
         int deg_num = (int)d;
-        seq_t *num = (seq_t *)calloc((size_t)(deg_num + 1), sizeof(seq_t));
+        seq_t *num = mem_new(seq_t, (size_t)(deg_num + 1));
         num[0] = -1;
         num[deg_num] = 1;
 
@@ -82,7 +104,7 @@ static void init_sequence(void)
             if (d % e == 0) {
                 int deg_e = deg_phi_arr[e];
                 seq_t *q = divide_by_monic(num, deg_num, phi_arr[e], deg_e);
-                free(num);
+                mem_free(num);
                 num = q;
                 deg_num -= deg_e;
             }

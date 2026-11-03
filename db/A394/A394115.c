@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 27, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 288 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;       /* a[n] */
 static seq_t *c2_cache = NULL;     /* c2[n] */
@@ -41,15 +43,15 @@ static void ensure_capacity(idx_t n)
     idx_t newcap = cap * 2;
     if (newcap < 16) newcap = 16;
     if (newcap <= n) newcap = n + 1;
-    seq_t *newa = (seq_t*)malloc(newcap * sizeof(seq_t));
-    seq_t *newc2 = (seq_t*)malloc(newcap * sizeof(seq_t));
+    seq_t *newa = mem_new(seq_t, newcap);
+    seq_t *newc2 = mem_new(seq_t, newcap);
     if (a_cache) {
         for (idx_t i = 0; i < cap; ++i) {
             newa[i] = a_cache[i];
             newc2[i] = c2_cache[i];
         }
-        free(a_cache);
-        free(c2_cache);
+        mem_free(a_cache);
+        mem_free(c2_cache);
     }
     /* zero initialise the new part */
     for (idx_t i = cap; i < newcap; ++i) {

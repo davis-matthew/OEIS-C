@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 41, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* ---------- extend cache if needed ---------- */
     if (cache_len <= n) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return (seq_t)0;   /* allocation failed */
         cache = tmp;
         for (size_t i = cache_len; i <= n; ++i) cache[i] = (seq_t)0;
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
         int new_offset = (int)n;
         size_t new_size = 2 * new_offset + 1;            /* sum indices 0..new_size-1 */
 
-        seq_t *new_prev = (seq_t *)calloc(3 * new_size, sizeof(seq_t));
-        seq_t *new_curr = (seq_t *)calloc(3 * new_size, sizeof(seq_t));
+        seq_t *new_prev = mem_new(seq_t, 3 * new_size);
+        seq_t *new_curr = mem_new(seq_t, 3 * new_size);
         if (!new_prev || !new_curr) return (seq_t)0;
 
         if (dp_prev) {
@@ -73,8 +75,8 @@ seq_t a(idx_t n)
                 new_prev[st * new_size + new_offset] = (seq_t)1;
         }
 
-        free(dp_prev);
-        free(dp_curr);
+        mem_free(dp_prev);
+        mem_free(dp_curr);
         dp_prev = new_prev;
         dp_curr = new_curr;
         dp_size = new_size;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     /* ---------- process edges up to n ---------- */
     for (idx_t step = processed + 1; step <= n; ++step) {
         /* clear current DP */
-        memset(dp_curr, 0, 3 * dp_size * sizeof(seq_t));
+        mem_set(dp_curr, 0, 3 * dp_size * sizeof(seq_t));
 
         /* current attainable sum indices range */
         int lower = offset - (int)(step - 1);

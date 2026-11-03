@@ -8,14 +8,35 @@
  * Formula:   a(n) = Sum_{k=0}^{⌊row/3⌋} 2^(3*k) * (row-3*k)! read by rows
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 34, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   factorial, pow2, terms_upto
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/factorial.h"
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
-#include "../utils/terms_upto.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* total number of terms in all rows from row 0 up to and including row r */
+static inline idx_t terms_upto(idx_t r)
+{
+    idx_t q   = r / 3;
+    idx_t rem = r % 3;
+    idx_t sum = (3 * q * (q - 1)) / 2 + (rem + 1) * q;
+    return sum + r + 1;
+}
 
 seq_t a(idx_t n)
 {

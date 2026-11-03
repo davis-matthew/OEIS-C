@@ -9,13 +9,15 @@
  *            a(5) = 241, a(6) = 2399, a(7) = 2640
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static void extend_cache(idx_t n, seq_t **p_cache, size_t *cap)
 {
@@ -23,7 +25,7 @@ static void extend_cache(idx_t n, seq_t **p_cache, size_t *cap)
         size_t new_cap = (size_t)n + 1;
 #ifdef __cplusplus
         seq_t *new_cache = reinterpret_cast<seq_t*>(
-            realloc(*p_cache, new_cap * sizeof(seq_t)));
+            mem_resize(seq_t, *p_cache, new_cap));
 #else
         seq_t *new_cache = (seq_t*)realloc(*p_cache, new_cap * sizeof(seq_t));
 #endif

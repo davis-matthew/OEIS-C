@@ -12,12 +12,14 @@
  *            2^(k-j-1))
  * Range:     u8 n <= 28, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Integer square‑root for a 128‑bit value, returning the floor. */

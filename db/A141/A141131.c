@@ -8,12 +8,14 @@
  *            == 7 (i.e. primes for which 2 is a quadratic residue modulo p)
  * Range:     i8 n <= 15, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t* primes_all   = NULL;
 static size_t primes_all_len  = 0;
@@ -31,7 +33,7 @@ static void ensure_primes_cap(size_t need)
     if (need <= primes_all_cap) return;
     size_t newcap = primes_all_cap ? primes_all_cap * 2 : 32;
     while (newcap < need) newcap <<= 1;
-    seq_t *newp = (seq_t *)realloc(primes_all, newcap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, primes_all, newcap);
     primes_all   = newp;
     primes_all_cap = newcap;
 }
@@ -42,7 +44,7 @@ static void ensure_cache_cap(size_t need)
     if (need <= cache_cap) return;
     size_t newcap = cache_cap ? cache_cap * 2 : 32;
     while (newcap < need) newcap <<= 1;
-    seq_t *newc = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newc = mem_resize(seq_t, cache, newcap);
     cache  = newc;
     cache_cap = newcap;
 }

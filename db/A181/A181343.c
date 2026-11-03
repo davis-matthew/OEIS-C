@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 164, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 /* -------------------------- dependencies -------------------------- */
 #include <stdlib.h>   /* malloc, free, abort */
+#include "../utils/mem.h"
 
 /* -------------------------- internal state -------------------------- */
 static seq_t *cache = NULL;   /* cache[0] unused, cache[i] = a(i) */
@@ -36,7 +38,7 @@ static void grow_cache(idx_t needed)
     if (new_limit < needed) new_limit = needed;
 
     /* Allocate a fresh array of seq_t. */
-    seq_t *new_cache = (seq_t*)malloc((new_limit + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (new_limit + 1));
     if (!new_cache) abort();
 
     /* Initialise new slots to zero. */
@@ -52,7 +54,7 @@ static void grow_cache(idx_t needed)
     if (!new_cache[4]) new_cache[4] = (seq_t)1251;
 
     /* Replace old cache. */
-    free(cache);
+    mem_free(cache);
     cache      = new_cache;
     cache_limit = new_limit;
 }

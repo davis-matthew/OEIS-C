@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   seq_to_str
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,28 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../utils/seq_to_str.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 static bool seq_contains_substr(seq_t value, const char *target)
 {
@@ -53,7 +75,7 @@ seq_t a(idx_t n)
     /* Grow the cache as needed. */
     if (cacheSize < n && cache == NULL) {
         capacity   = 64;
-        cache      = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache      = mem_new(seq_t, capacity);
     }
 
     while (cacheSize < n) {
@@ -72,7 +94,7 @@ seq_t a(idx_t n)
         /* Append the found candidate. */
         if (cacheSize == capacity) {
             capacity = capacity * 2;
-            cache    = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+            cache    = mem_resize(seq_t, cache, capacity);
         }
         cache[cacheSize++] = cand;
         lastNumber = cand;

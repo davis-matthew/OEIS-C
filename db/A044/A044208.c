@@ -8,13 +8,29 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has25oct
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has25oct.h"
+
+/* Helper: return true if x's base–8 representation contains the substring 25 */
+static inline bool has25oct(seq_t x)
+{
+    seq_t y = x;
+    int prev = -1;                 /* digit seen in the previous, less significant position */
+    while (y > 0)
+    {
+        int d = (int)(y % 8);      /* current least–significant digit (0–7) */
+        if (prev == 5 && d == 2)   /* pattern 5 then 2 when scanned LSB→MSB */
+            return true;
+        prev = d;
+        y /= 8;
+    }
+    return false;
+}
 
 /* 
  * OEIS A044208:

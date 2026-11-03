@@ -10,14 +10,22 @@
  *            For all other n the formula is used
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 33 terms through n = 208 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +42,7 @@ seq_t a(idx_t n)
     result = seq_mul(result, factor);
 
     idx_t exp = 2 * n - (idx_t)5;
-    seq_t power = seq_pow((seq_t)3, exp);
+    seq_t power = ipow_idx((seq_t)3, exp);
     result = seq_mul(result, power);
 
     return result;

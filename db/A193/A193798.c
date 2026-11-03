@@ -10,17 +10,33 @@
  *            and k = n - r(r+1)/2
  * Range:     u8 n <= 19, u16 n <= 43, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   _floor_isqrt_u64, binom, pow2, pow3, power5
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   binomial, isqrt, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Includes required helper functions. */
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/isqrt.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
-#include "../utils/power5.h"
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* External linkage as required. */
 seq_t a(idx_t n)
@@ -31,7 +47,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute r = floor((sqrt(8n+1)-1)/2). */
-    idx_t r = (_floor_isqrt_u64(8 * n + 1) - 1) >> 1;
+    idx_t r = (isqrt(8 * n + 1) - 1) >> 1;
 
     /* k = offset within the r‑th row. */
     idx_t T_r = r * (r + 1) / 2;
@@ -44,7 +60,7 @@ seq_t a(idx_t n)
         /* Coefficient of (3x+2)^m at x^k:
          * C(m,k) * 2^{m-k} * 3^k
          */
-        seq_t bin   = binom(m, k);
+        seq_t bin   = binomial(m, k);
         seq_t two   = pow2(m - k);
         seq_t three = pow3(k);
 

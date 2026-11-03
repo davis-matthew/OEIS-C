@@ -10,16 +10,40 @@
  *            (A000108), terms omitted if subscripts are not integers
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 24, u64 n <= 41, u128 n <= 74,
  *            big any n
- * Helpers:   a1683_cat_qr, a1683_leg, a1683_mulp
+ * Validated: standard, pass, 46 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a1683_cat_qr.h"
-#include "../utils/a1683_leg.h"
-#include "../utils/a1683_mulp.h"
+
+static idx_t a1683_leg(idx_t m, idx_t p) {
+    idx_t e = 0;
+    while (m) { m /= p; e += m; }
+    return e;
+}
+
+/* multiply X = Q*d + R by p, keeping R < d */
+static void a1683_mulp(seq_t *Q, idx_t *R, idx_t p, idx_t d) {
+    idx_t t = *R * p;
+    *Q = *Q * p + (seq_t)(t / d);
+    *R = t % d;
+}
+
+/* Catalan(m) = Q*d + R, 0 <= R < d, using prime factorization */
+static void a1683_cat_qr(idx_t m, idx_t d, const unsigned char *comp, seq_t *Q, idx_t *R) {
+    idx_t p, e, i;
+    *Q = 0;
+    *R = 1 % d;
+    if (d == 1) *Q = 1;
+    for (p = 2; p <= 2 * m; p++) {
+        if (comp[p]) continue;
+        e = a1683_leg(2 * m, p) - a1683_leg(m, p) - a1683_leg(m + 1, p);
+        for (i = 0; i < e; i++) a1683_mulp(Q, R, p, d);
+    }
+}
 
 seq_t a(idx_t n) {
     idx_t N = 2 * n + 2, i, j;

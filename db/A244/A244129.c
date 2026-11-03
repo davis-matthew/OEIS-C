@@ -11,13 +11,15 @@
  *            decomposition triangle * defined in OEIS A244129
  * Range:     i8 n <= 16, i16 n <= 31, i32 n <= 61, i64 n <= 146,
  *            i128 n <= 393, big any n
- * Helpers:   binomial, pow_seq_large
+ * Validated: standard, pass, 60 terms through n = 4760 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq_large.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     seq_t bin = binomial(r, k);
 
     /* Compute k^(r-1) */
-    seq_t pow = pow_seq_large((seq_t)k, (seq_t)(r - 1));
+    seq_t pow = ipow((seq_t)k, (seq_t)(r - 1));
 
     /* Combine to get T(r,k) */
     seq_t term = bin * pow;

@@ -8,7 +8,8 @@
  *            a(n)=a(n‑1)*(n+1)*(n+2)*(n+3)/n )
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 static inline seq_t compute_next(seq_t prev, idx_t i)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
     if (memo == NULL) {                /* initialiser: a(0) = 1 */
         memo_cap = 1;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (!memo) return (seq_t)0;
         memo[0] = (seq_t)1;
         memo_size = 1;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         if (new_cap == 0) new_cap = 1;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (!tmp) return (seq_t)0;
         memo = tmp;
         memo_cap = new_cap;

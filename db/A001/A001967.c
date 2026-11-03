@@ -8,18 +8,19 @@
  *            - (4n+3)) / 4 )
  * Range:     u8 n <= 206, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a001967_isqrt128
+ * Validated: standard, pass, 84 terms through n = 8803 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001967_isqrt128.h"
+#include "../utils/isqrt_u128.h"
 
 seq_t a(idx_t n)
 {
 	unsigned __int128 m = (unsigned __int128)4 * n + 3;
-	unsigned __int128 s = a001967_isqrt128(5 * m * m);
+	unsigned __int128 s = isqrt_u128(5 * m * m);
 	unsigned __int128 v = (s - m) / 4;
 	seq_t hi = (seq_t)(uint64_t)(v >> 64);
 	seq_t lo = (seq_t)(uint64_t)v;

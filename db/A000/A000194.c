@@ -9,18 +9,19 @@
  *            a(n) = floor((1 + sqrt(4*n - 3))/2) for n >= 1, a(0) = 0
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a194_isqrt
+ * Validated: standard, pass, 115 terms through n = 930 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a194_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {
     uint64_t N = (uint64_t)n;
-    unsigned __int128 k = a194_isqrt(N);
+    unsigned __int128 k = isqrt_u64(N);
     /* smallest k with k*(k+1) >= N */
     while (k * (k + 1) < (unsigned __int128)N) k++;
     while (k > 0 && (k - 1) * k >= (unsigned __int128)N) k--;

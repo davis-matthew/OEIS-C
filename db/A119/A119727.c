@@ -12,13 +12,15 @@
  *            cache of the array values and generates new rows...
  * Range:     u8 n <= 17, u16 n <= 40, u32 n <= 112, u64 n <= 340,
  *            u128 n <= 1206, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 4660 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* triangular array stored as a 1‑D vector */
 static idx_t cache_rows = 0;         /* number of rows currently stored (≥0) */
@@ -36,9 +38,9 @@ static void ensure_rows(idx_t max_rows) {
     /* reallocate memory */
     seq_t *new_cache = cache;
     if (new_cache == NULL) {
-        new_cache = (seq_t*)malloc(sizeof(seq_t) * new_elements);
+        new_cache = mem_new(seq_t, new_elements);
     } else {
-        new_cache = (seq_t*)realloc(new_cache, sizeof(seq_t) * new_elements);
+        new_cache = mem_resize(seq_t, new_cache, new_elements);
     }
     if (new_cache == NULL) abort();  /* allocation failed: terminate */
     cache = new_cache;

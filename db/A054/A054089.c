@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Sequence A054089: 
    p(k) = least unused positive integer, q(k) = p(k)+k, 
@@ -35,7 +37,7 @@ static void ensure_cache_capacity(idx_t needed)
     if (needed > (idx_t)seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
         while (new_cap < (size_t)needed) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)realloc(seq_cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, (new_cap + 1));
         seq_cache = new_cache;
         seq_cap   = new_cap;
     }
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     /* First‑time initialisation */
     if (seq_len == 0) {
         seq_cap  = 16;
-        seq_cache = (seq_t *)calloc(seq_cap + 1, sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap + 1);
         seq_cache[1] = 1;
         seq_len = 1;
 

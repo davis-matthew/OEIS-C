@@ -8,13 +8,16 @@
  *            gcd(sigma_3(n), n^3)
  * Range:     u8 n <= 6, u16 n <= 39, u32 n <= 1567, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 61 terms through n = 9477 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *sigma = NULL;          /* array of sigma_3 values */
 static idx_t  sigma_limit = 0;       /* maximum n for which sigma is computed */
@@ -25,7 +28,7 @@ static void compute_sigma_upto(idx_t n)
         return;                     /* already computed */
 
     /* Allocate new array big enough and zero it */
-    seq_t *new_arr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, (n + 1));
     if (!new_arr)
         return;                     /* allocation failure: caller will crash */
     for (idx_t i = 0; i <= n; ++i)
@@ -40,7 +43,7 @@ static void compute_sigma_upto(idx_t n)
 
     /* Replace old array if any */
     if (sigma)
-        free(sigma);
+        mem_free(sigma);
     sigma = new_arr;
     sigma_limit = n;
 }

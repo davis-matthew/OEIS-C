@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1298*a(n-1) - a(n-2), a(1)=0, a(2)=180
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 13,
  *            big any n
+ * Validated: standard, pass, 28 terms through n = 322 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

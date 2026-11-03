@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 41, u64 n <= 87, u128 n <= 179,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,13 +50,13 @@ seq_t a(idx_t n)
     if (!a_arr) {
         /* a(0) = 1, a(1) = 2 */
         a_cap = 4;
-        a_arr = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_cap);
         a_arr[0] = (seq_t)1;
         a_arr[1] = (seq_t)2;
 
         /* b(0) = 3, b(1) = 4, b(2) = 5 */
         b_cap = 4;
-        b_arr = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_arr = mem_new(seq_t, b_cap);
         b_arr[0] = (seq_t)3;
         b_arr[1] = (seq_t)4;
         b_arr[2] = (seq_t)5;      /* b(2) is known from the outset */
@@ -73,8 +75,8 @@ seq_t a(idx_t n)
         if ((size_t)i >= a_cap) {
             size_t new_cap = a_cap * 2;
             if (new_cap <= (size_t)i) new_cap = i + 1;
-            seq_t *tmp = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-            if (!tmp) { free(a_arr); free(b_arr); return 0; }
+            seq_t *tmp = mem_resize(seq_t, a_arr, new_cap);
+            if (!tmp) { mem_free(a_arr); mem_free(b_arr); return 0; }
             a_arr = tmp;
             a_cap = new_cap;
         }
@@ -83,8 +85,8 @@ seq_t a(idx_t n)
         if (i + 1 >= (idx_t)b_cap) {
             size_t new_cap = b_cap * 2;
             if (new_cap <= (size_t)(i + 1)) new_cap = i + 2;
-            seq_t *tmp = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
-            if (!tmp) { free(a_arr); free(b_arr); return 0; }
+            seq_t *tmp = mem_resize(seq_t, b_arr, new_cap);
+            if (!tmp) { mem_free(a_arr); mem_free(b_arr); return 0; }
             b_arr = tmp;
             b_cap = new_cap;
         }

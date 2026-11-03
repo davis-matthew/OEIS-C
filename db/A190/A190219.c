@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 72, u32 n <= 104, u64 n <= 104, u128 n <= 104,
  *            big any n
- * Helpers:   factor_u64, has_decreasing_digits
+ * Validated: full, pass, 104 terms through n = 104 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/has_decreasing_digits.h"
+#include "../utils/mem.h"
+
+/* Test whether a uint64_t number has strictly decreasing decimal digits */
+static inline bool has_decreasing_digits(uint64_t x)
+{
+    if (x < 10) return true;
+    uint8_t digs[20];
+    int len = 0;
+    while (x > 0) {
+        digs[len++] = (uint8_t)(x % 10);
+        x /= 10;
+    }
+    for (int i = len - 1; i > 0; --i) {
+        if (digs[i] <= digs[i - 1]) return false;
+    }
+    return true;
+}
 
 static seq_t *s_seq = NULL;
 static size_t s_count = 0;
@@ -74,7 +91,7 @@ static void compute_sequence(void)
     if (s_seq) return;           /* already computed */
 
     /* Temporary array large enough for all candidates */
-    seq_t *tmp = (seq_t *)malloc(2048 * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, 2048);
     size_t tmp_len = 0;
 
     /* Enumerate all strictly decreasing-digit numbers (except 0) */
@@ -94,7 +111,7 @@ static void compute_sequence(void)
     }
 
     /* Sort ascending */
-    qsort(tmp, tmp_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(tmp, tmp_len, sizeof(seq_t), cmp_seq);
 
     /* Store as static sequence */
     s_seq = tmp;

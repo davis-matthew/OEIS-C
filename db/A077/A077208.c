@@ -10,7 +10,8 @@
  *            a(n‑1)
  * Range:     u8 n <= 38, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration used by the build system */
 seq_t a(idx_t n);
@@ -73,12 +75,12 @@ static void extend_sf(size_t need)
 
     /* allocate or grow storage if necessary */
     if (sf_size == 0) {
-        sf = (seq_t *)malloc(sf_cap * sizeof(seq_t));
+        sf = mem_new(seq_t, sf_cap);
         used = (bool *)malloc(sf_cap * sizeof(bool));
         first_digit_vec = (unsigned *)malloc(sf_cap * sizeof(unsigned));
     } else if (sf_size + (need - sf_size) > sf_cap) {
         size_t new_cap = (sf_cap * 3) / 2 + (need - sf_size) + 1024;
-        sf = (seq_t *)realloc(sf, new_cap * sizeof(seq_t));
+        sf = mem_resize(seq_t, sf, new_cap);
         used = (bool *)realloc(used, new_cap * sizeof(bool));
         first_digit_vec = (unsigned *)realloc(first_digit_vec,
                                               new_cap * sizeof(unsigned));
@@ -107,14 +109,14 @@ static void extend_sf(size_t need)
 /* --------------------------------------------------------------------- */
 static void init(void)
 {
-    sf = (seq_t *)malloc(sf_cap * sizeof(seq_t));
+    sf = mem_new(seq_t, sf_cap);
     used = (bool *)malloc(sf_cap * sizeof(bool));
     first_digit_vec = (unsigned *)malloc(sf_cap * sizeof(unsigned));
     ptr_next = (size_t *)malloc(10 * sizeof(size_t));
     for (int d = 0; d < 10; ++d)
         ptr_next[d] = 0;
 
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     init_done = true;
 }
 

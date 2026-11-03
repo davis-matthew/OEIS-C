@@ -10,14 +10,15 @@
  *            starting with a(1,1)=0
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Compute the n-th term of OEIS A159459. */
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"   /* divisor_count_u64(uint64_t) -> seq_t */
+#include "../utils/num_divisors.h"
 
 /* Compute gcd of two idx_t numbers. */
 static idx_t gcd_idx(const idx_t a, const idx_t b)
@@ -46,9 +47,9 @@ seq_t a(idx_t n)
     idx_t j     = r;                         /* column number */
 
     /* Compute d(j) and d(gcd(i,j)) using the provided divisor-count routine. */
-    seq_t dj = divisor_count_u64((uint64_t)j);
+    seq_t dj = num_divisors((uint64_t)j);
     idx_t g  = gcd_idx(i, j);
-    seq_t dg = divisor_count_u64((uint64_t)g);
+    seq_t dg = num_divisors((uint64_t)g);
 
     return dj - dg;
 }

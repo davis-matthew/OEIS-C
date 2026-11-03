@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,13 +49,13 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (data == NULL) {
         data_cap = 32;
-        data = (seq_t *)malloc(data_cap * sizeof(seq_t));
+        data = mem_new(seq_t, data_cap);
         if (!data) return (seq_t)0;   /* out of memory – term is undefined */
 
         /* row 0 */
         prev_len = 1;
-        prev_row = (seq_t *)malloc(prev_len * sizeof(seq_t));
-        if (!prev_row) { free(data); return (seq_t)0; }
+        prev_row = mem_new(seq_t, prev_len);
+        if (!prev_row) { mem_free(data); return (seq_t)0; }
         prev_row[0] = (seq_t)1;
 
         data[0] = (seq_t)1;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     while (data_len <= (size_t)n) {
         size_t r = prev_len;          /* current row index (prev_len = r)   */
         size_t new_len = r + 1;       /* next row length                     */
-        seq_t *new_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
         if (!new_row) return (seq_t)0;/* out of memory                       */
 
         /* first element: 2 * prev_row[0] */
@@ -87,15 +89,15 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < new_len; ++i) {
             if (data_len == data_cap) {
                 data_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(data, data_cap * sizeof(seq_t));
-                if (!tmp) { free(new_row); return (seq_t)0; }
+                seq_t *tmp = mem_resize(seq_t, data, data_cap);
+                if (!tmp) { mem_free(new_row); return (seq_t)0; }
                 data = tmp;
             }
             data[data_len++] = new_row[i];
         }
 
         /* free the old row and keep the new one for the next step */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = new_row;
         prev_len = new_len;
     }

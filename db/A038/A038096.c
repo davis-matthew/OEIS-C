@@ -8,13 +8,17 @@
  * Formula:   a(n) = n * binomial(n-1,3) * 2^binomial(n-1,2)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 28 terms through n = 48 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +34,7 @@ seq_t a(idx_t n)
     res *= c3;
 
     /* Compute 2^c2 using arbitrary‑precision exponentiation */
-    seq_t pow2c2 = big_pow((seq_t)2, c2);
+    seq_t pow2c2 = ipow((seq_t)2, c2);
 
     /* Final result */
     res *= pow2c2;

@@ -12,17 +12,35 @@
  *            T(m, n - m^2)
  * Range:     i8 n <= 31, i16 n <= 59, i32 n <= 135, i64 n <= 280,
  *            i128 n <= 665, big any n
- * Helpers:   alloc_zero, gcd_ll, release, vfact
+ * Validated: standard, pass, 85 terms through n = 2392 (2026-11-03)
+ * Helpers:   gcd_i64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/gcd_ll.h"
-#include "../utils/vfact.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/gcd_i64.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static long long vfact(long long n, long long p) {
+    long long s = 0;
+    while (n) { n /= p; s += n; }
+    return s;
+}
 
 /* |G(2i)| for i >= 1 via Seidel's triangle (all entries bounded by the result) */
 static seq_t genocchi_abs(idx_t i) {
@@ -54,7 +72,7 @@ seq_t a(idx_t n) {
     if (j % 2 == 0) return 0;
     i = (j + 1) / 2;
     g = genocchi_abs(i);
-    d = gcd_ll((long long)(g % (seq_t)(2 * i)), (long long)(2 * i));
+    d = gcd_i64((long long)(g % (seq_t)(2 * i)), (long long)(2 * i));
     q = (long long)(2 * i) / d;
     N = (long long)(2 * m);
     J = (long long)j;

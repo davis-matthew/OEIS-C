@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 64, u32 n <= 6674, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   modinv_uint32
+ * Validated: standard, pass, 60 terms through n = 9024 (2026-11-01)
+ * Helpers:   modinv_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/modinv_uint32.h"
+#include "../utils/modinv_u32.h"
 
 /* ------------ prime list generation --------------------------------- */
 
@@ -90,7 +91,7 @@ seq_t a(idx_t n)
     uint32_t p = prime_list[n-1];        /* prime(n)  (1‑based index) */
     uint32_t q = prime_list[n];          /* prime(n+1)                 */
 
-    uint32_t inv = modinv_uint32(p, q);  /* inverse of p modulo q      */
+    uint32_t inv = modinv_u32(p, q);  /* inverse of p modulo q      */
     uint64_t k   = ((uint64_t)(q-1) * inv) % q;   /* smallest positive k  */
     return (seq_t)(k * p);               /* a(n) = k * prime(n)      */
 }

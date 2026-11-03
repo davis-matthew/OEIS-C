@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 465, u32 n <= 1512, u64 n <= 1512,
  *            u128 n <= 1512, big any n
- * Helpers:   build_adjacency, compute_bases
+ * Validated: standard, pass, 94 terms through n = 1276 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,85 @@
 #include <stddef.h>   /* size_t */
 #include <stdbool.h>
 #include <stdlib.h>   /* malloc, realloc */
-#include "../utils/build_adjacency.h"
-#include "../utils/compute_bases.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static void build_adjacency(unsigned int rows, bool allow[81][81],
+                            int state[81][4])
+{
+    unsigned int S = 1;
+    for (unsigned int r = 0; r < rows; ++r) S *= 3U;
+
+    /* Decode column states */
+    for (unsigned int i = 0; i < S; ++i) {
+        unsigned int x = i;
+        for (int r = rows - 1; r >= 0; --r) {
+            state[i][r] = x % 3U;
+            x /= 3U;
+        }
+    }
+
+    /* Two columns are compatible iff the 2×2 block has four distinct
+       clockwise edge differences. */
+    for (unsigned int i = 0; i < S; ++i) {
+        for (unsigned int j = 0; j < S; ++j) {
+            bool good = true;
+            for (int r = 0; r < (int)rows - 1 && good; ++r) {
+                int d1 = state[j][r]      - state[i][r];
+                int d2 = state[j][r + 1]  - state[j][r];
+                int d3 = state[i][r + 1]  - state[j][r + 1];
+                int d4 = state[i][r]      - state[i][r + 1];
+                if (d1 == d2 || d1 == d3 || d1 == d4 ||
+                    d2 == d3 || d2 == d4 || d3 == d4)
+                    good = false;
+            }
+            allow[i][j] = good;
+        }
+    }
+}
+
+/* --------------------------------------------------------------------- */
+static void compute_bases(unsigned int rows, unsigned int maxK,
+                          seq_t *baseArray)
+{
+    unsigned int S = 1;
+    for (unsigned int r = 0; r < rows; ++r) S *= 3U;
+
+    bool allow[81][81];
+    int   state[81][4];
+    build_adjacency(rows, allow, state);
+
+    /* DP arrays for counting column‑wise. */
+    seq_t dp[81];
+    seq_t nxt[81];
+    for (unsigned int i = 0; i < S; ++i) dp[i] = (seq_t)1;   /* one column */
+
+    /* Transition to the first adjacency (k = 1). */
+    for (unsigned int i = 0; i < S; ++i) nxt[i] = (seq_t)0;
+    for (unsigned int i = 0; i < S; ++i) {
+        if (dp[i] == (seq_t)0) continue;
+        for (unsigned int j = 0; j < S; ++j) if (allow[i][j])
+            nxt[j] += dp[i];
+    }
+    seq_t total = (seq_t)0;
+    for (unsigned int j = 0; j < S; ++j) total += nxt[j];
+    baseArray[0] = total / (seq_t)4;   /* T(?,1) */
+    for (unsigned int i = 0; i < S; ++i) dp[i] = nxt[i];
+
+    /* Subsequent columns */
+    for (unsigned int step = 2; step <= maxK; ++step) {
+        for (unsigned int i = 0; i < S; ++i) nxt[i] = (seq_t)0;
+        for (unsigned int i = 0; i < S; ++i) {
+            if (dp[i] == (seq_t)0) continue;
+            for (unsigned int j = 0; j < S; ++j) if (allow[i][j])
+                nxt[j] += dp[i];
+        }
+        total = (seq_t)0;
+        for (unsigned int j = 0; j < S; ++j) total += nxt[j];
+        baseArray[step - 1] = total / (seq_t)4;   /* T(?,step)   */
+        for (unsigned int i = 0; i < S; ++i) dp[i] = nxt[i];
+    }
+}
 
 /* Maximum number of columns we pre‑compute.  For n <= 10 000 the
    largest column needed is about 141; 200 is safely above. */
@@ -108,7 +186,7 @@ static idx_t   row_in_diag = 1;       /* current row within diagonal */
 static void extend_cache(idx_t target)
 {
     if (cache_a == NULL) {
-        cache_a = (seq_t *)malloc(sizeof(seq_t));
+        cache_a = mem_new(seq_t, 1);
         if (cache_a == NULL) abort();              /* allocation failure */
         cache_a[0] = (seq_t)0;                     /* dummy */
         cache_size = 1;
@@ -119,7 +197,7 @@ static void extend_cache(idx_t target)
         idx_t c = diag - row_in_diag;
         seq_t val = get_T(r, c);
 
-        seq_t *tmp = (seq_t *)realloc(cache_a, (cache_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache_a, (cache_size + 1));
         if (tmp == NULL) abort();                  /* allocation failure */
         cache_a = tmp;
         cache_a[cache_size] = val;

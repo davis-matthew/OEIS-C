@@ -10,16 +10,32 @@
  *            end-swap and reflection)
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 21, u64 n <= 38, u128 n <= 71,
  *            big any n
- * Helpers:   s_binom, s_cat, seq_is_fixed_width
+ * Validated: standard, pass, 44 terms through n = 997 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/s_binom.h"
-#include "../utils/s_cat.h"
+#include "../utils/binomial.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t s_cat(idx_t m)
+{
+    return binomial(2 * m, m) / (seq_t)(m + 1);
+}
 
 #define WL 8
 typedef struct { uint32_t d[WL]; } wnum;
@@ -121,7 +137,7 @@ seq_t a(idx_t n)
         idx_t i;
         for (i = 0; i + 1 < n; i++) p *= 2;
         r = s_cat(n - 1) + p;
-        r -= s_binom(n - 1, (n - 1) / 2);
+        r -= binomial(n - 1, (n - 1) / 2);
         if (n % 2 == 0) r += 2 * s_cat(n / 2 - 1);
         return r / 4;
     }

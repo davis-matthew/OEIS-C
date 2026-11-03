@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 5720, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 8773 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Generates numbers having exactly two 2's in base 10 (by brute‑force search) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* cache of computed terms */
 static idx_t cache_cap = 0;        /* allocated capacity of the cache */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         {
             idx_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
             if (new_cap < n) new_cap = n;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             /* In strict C we cast the result of realloc. In C++ it is
                implicitly converted. */
             cache = tmp;

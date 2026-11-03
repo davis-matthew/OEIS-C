@@ -7,14 +7,38 @@
  * Formula:   a(n) = number of digit '9' in n! (decimal representation)
  * Range:     u8 n <= 977, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_nines
+ * Validated: standard, pass, 114 terms through n = 7530 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/count_nines.h"
+
+static seq_t count_nines(const uint32_t *a, size_t len)
+{
+    seq_t count = 0;
+
+    /* count in most significant limb */
+    uint32_t ms = a[len - 1];
+    while (ms > 0) {
+        if (ms % 10 == 9)
+            ++count;
+        ms /= 10;
+    }
+
+    /* count in the remaining limbs – each limb has exactly 9 decimal digits */
+    for (size_t i = 0; i + 1 < len; ++i) {
+        uint32_t v = a[i];
+        for (int d = 0; d < 9; ++d) {
+            if (v % 10 == 9)
+                ++count;
+            v /= 10;
+        }
+    }
+    return count;
+}
 
 static const uint32_t BASE = 1000000000u;   /* 1e9, fits in uint32_t */
 

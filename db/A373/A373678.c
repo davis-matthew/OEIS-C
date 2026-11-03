@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Check whether m (>1) is a prime‑power (i.e., m = p^k, p prime, k≥1). */
 static bool is_prime_power_uint64(uint64_t m)
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     /* Initial allocation */
     if (run_sums == NULL) {
         run_cap   = 128;
-        run_sums  = (seq_t *)malloc(run_cap * sizeof(seq_t));
+        run_sums  = mem_new(seq_t, run_cap);
     }
 
     /* Expand run array if needed */
@@ -91,8 +93,7 @@ seq_t a(idx_t n)
                 if (run_cnt == run_cap) {
                     /* grow capacity */
                     size_t new_cap = run_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(run_sums,
-                                                  new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, run_sums, new_cap);
                     if (tmp == NULL) exit(EXIT_FAILURE); /* memory failure */
                     run_sums = tmp;
                     run_cap  = new_cap;

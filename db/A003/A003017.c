@@ -11,14 +11,25 @@
  *            m*(m-1)*(m-2)*3^(m-3) and f(m) = m*(m-1)*2^(m-2)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   A_grow, a000272_ipow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/A_grow.h"
-#include "../utils/a000272_ipow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *A_ = NULL, *R_ = NULL, *DP_ = NULL, *DN_ = NULL;
 static idx_t len_ = 0, cap_ = 0;
@@ -49,9 +60,9 @@ seq_t a(idx_t n) {
 		for (k = m - 1; k >= 1; k--) R_[k] += R_[k - 1];
 		/* coefficients of -D at index m, split into positive and negative parts */
 		DP_[m] = M;
-		if (m >= 3) DP_[m] += M * (M - 1) * (M - 2) * a000272_ipow((seq_t)3, m - 3);
+		if (m >= 3) DP_[m] += M * (M - 1) * (M - 2) * ipow_idx((seq_t)3, m - 3);
 		DN_[m] = 0;
-		if (m >= 2) DN_[m] = M * (M - 1) * a000272_ipow((seq_t)2, m - 2);
+		if (m >= 2) DN_[m] = M * (M - 1) * ipow_idx((seq_t)2, m - 2);
 		for (k = 0; k < m; k++) {
 			seq_t t = R_[k] * A_[k];
 			idx_t j = m - k;

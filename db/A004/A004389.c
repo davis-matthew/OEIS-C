@@ -7,12 +7,13 @@
  * Formula:   a(n) = binomial(8*n, n-8)
  * Range:     u8 n <= 9, u16 n <= 10, u32 n <= 14, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   a004389_gcd
+ * Validated: standard, pass, 34 terms through n = 767 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a004389_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     idx_t m = 8 * n;
@@ -24,7 +25,7 @@ seq_t a(idx_t n) {
     for (i = 1; i <= k; i++) {
         seq_t num = (seq_t)(m - k + i);
         seq_t d = (seq_t)i;
-        seq_t g = a004389_gcd(r, d);
+        seq_t g = gcd(r, d);
         r /= g;
         d /= g;
         num /= d;

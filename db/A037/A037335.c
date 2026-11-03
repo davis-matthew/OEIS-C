@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 /* The function returns the n-th such number, with a(1)=1. */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached sequence values */
 static idx_t cache_size = 0;     /* number of values currently cached */
@@ -32,7 +35,7 @@ static void ensure_cache(idx_t n)
     /* Allocate initial cache if not yet done */
     if (cache == NULL) {
         cache_cap = (n > 100 ? n : 100);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     seq_t val = last_val + 1;             /* value to test next */
@@ -52,7 +55,7 @@ static void ensure_cache(idx_t n)
             /* Store candidate into the cache, expanding if needed */
             if (count >= cache_cap) {
                 cache_cap *= 2;
-                seq_t *new_cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, cache_cap);
                 cache = new_cache;
             }
             cache[count] = val;

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 822, u16 n <= 9650, u32 n <= 9650, u64 n <= 9650,
- *            u128 n <= 9650, big any n
- * Helpers:   none
+ * Range:     u8 n <= 822, u16 n <= 10845, u32 n <= 10845, u64 n <= 10845,
+ *            u128 n <= 10845, big any n
+ * Validated: standard, pass, 96 terms through n = 9650 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t values */
 static int cmp_seq_t(const void *a, const void *b)
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the divisors for this row.  */
-        qsort(tmp, tmpcnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(tmp, tmpcnt, sizeof(seq_t), cmp_seq_t);
 
         /* Walk through the sorted divisors, keeping a global counter. */
         for (size_t i = 0; i < tmpcnt; ++i) {

@@ -8,13 +8,18 @@
  * Formula:   a(n) = 3934873077 * a(n-1) mod 2^32, a(1) = 1
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_mul_32
+ * Validated: standard, pass, 39 terms through n = 9710 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_mul_32.h"
+
+static inline uint32_t mod_mul_32(uint32_t a, uint32_t b)
+{
+    return (uint32_t)((uint64_t)a * b);
+}
 
 seq_t a(idx_t n)
 {

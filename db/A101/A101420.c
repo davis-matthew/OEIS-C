@@ -9,7 +9,8 @@
  *            cubes and not divisible by 13
  * Range:     u8 n <= 12, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   cube
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>   /* for size_t */
-#include "../utils/cube.h"
+#include "../utils/mem.h"
+
+/* Compute x^3 using seq_t arithmetic. */
+static seq_t cube(seq_t x)
+{
+    return x * x * x;
+}
 
 /* ------------------------------------------------------------ */
 /* Helper: compute the cube of a seq_t value. */
@@ -36,7 +43,7 @@ static void array_push(struct array *a, seq_t v)
 {
     if (a->size == a->capacity) {
         size_t newcap = a->capacity ? a->capacity * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(a->data, (newcap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a->data, (newcap + 1));
         if (!tmp) exit(1); /* memory exhausted */
         a->data = tmp;
         a->capacity = newcap;
@@ -60,7 +67,7 @@ static void extend_cubes(void)
     seq_t val = cube((seq_t)a);
 
     size_t newcap = cache.maxA ? cache.maxA * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(cache.cubes, (newcap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache.cubes, (newcap + 1));
     if (!tmp) exit(1);
     cache.cubes = tmp;
 

@@ -9,7 +9,8 @@
  *            substring "67" but the decimal representation of n+1 does not
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has67
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/has67.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a decimal number x contains the substring 67. */
+static bool has67(seq_t x)
+{
+    while (x >= 10) {
+        if ((x % 10) == 7 && ((x / 10) % 10) == 6)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /* The sequence function. */
 seq_t a(idx_t n)
@@ -49,10 +61,10 @@ seq_t a(idx_t n)
         /* Store the found value. */
         if (cache_sz == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 4 : cache_cap * 2;
-            seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_new(seq_t, new_cap);
             if (cache && new_arr) {
-                memcpy(new_arr, cache, cache_sz * sizeof(seq_t));
-                free(cache);
+                mem_copy(new_arr, cache, cache_sz * sizeof(seq_t));
+                mem_free(cache);
             }
             cache = new_arr;
             cache_cap = new_cap;

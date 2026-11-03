@@ -12,12 +12,14 @@
  *            previously computed values in a static...
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 16, u64 n <= 33, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache to hold indices 0..8 on first call */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((9 + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (9 + 1));
         if (!cache) return 0;  /* out‑of‑memory; unlikely in tests */
         cache[0] = 0;
         for (idx_t i = 1; i <= 8; ++i) cache[i] = init[i];
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Extend cache to cover requested n */
     if (n > cap) {
         size_t new_cap = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) return 0;  /* out‑of‑memory */
 
         for (idx_t i = cap + 1; i <= n; ++i) {

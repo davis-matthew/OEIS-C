@@ -5,16 +5,18 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Product_{d|n; gcd(d,n/d) is prime} gcd(d,n/d)
- * Range:     u8 n <= 107, u16 n <= 539, u32 n <= 3779, u64 n <= 9916,
- *            u128 n <= 9916, big any n
- * Helpers:   gcd, is_prime_small
+ * Range:     u8 n <= 107, u16 n <= 539, u32 n <= 3779, u64 n <= 41579,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9916 (2026-11-01)
+ * Helpers:   gcd, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         idx_t d2 = n / d1;        /* complementary divisor */
         seq_t g = gcd((seq_t)d1, (seq_t)d2);
 
-        if (is_prime_small(g))    /* g > 1 and prime */
+        if (is_prime_seq(g))    /* g > 1 and prime */
         {
             result *= g;          /* for divisor d1 */
             if (d1 != d2)         /* multiplier for d2 if distinct */

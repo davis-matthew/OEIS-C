@@ -8,14 +8,26 @@
  *            cyclotomic polynomial
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   all_divisors
+ * Validated: standard, pass, 97 terms through n = 1969 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/all_divisors.h"
+
+/* Get all divisors of n (unordered) ------------------------------------ */
+static void all_divisors(uint64_t n, uint64_t arr[32], int *cnt) {
+    int p = 0;
+    for (uint64_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            arr[p++] = d;
+            if (d * d != n) arr[p++] = n / d;
+        }
+    }
+    *cnt = p;
+}
 
 /* Constants -------------------------------------------------------------- */
 #define MAX_DEG 1498     /* accommodates degrees up to 1496 + 1 */

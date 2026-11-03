@@ -9,7 +9,8 @@
  *            A000330(k) (sum of squares up to k)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 47,
  *            big any n
- * Helpers:   calc_b
+ * Validated: standard, pass, 36 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/calc_b.h"
+#include "../utils/mem.h"
+
+/* Compute b(k) = k(k+1)(2k+1)/6 as seq_t.  All intermediate
+ * multiplications are done in seq_t; for the limits considered here
+ * the product fits in seq_t for the 64‑bit build. */
+static inline seq_t calc_b(idx_t k)
+{
+    seq_t s = (seq_t)k;
+    seq_t t = (seq_t)(k + 1u);
+    seq_t u = (seq_t)(2u * k + 1u);
+
+    seq_t v = s * t;     /* k(k+1) */
+    v = v * u;           /* k(k+1)(2k+1) */
+    return v / (seq_t)6; /* division is exact */
+}
 
 /* Euclidean GCD for the type seq_t (an unsigned integer type). */
 static inline seq_t seq_gcd(seq_t a, seq_t b)
@@ -47,10 +62,10 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold n elements. */
     if (cache == NULL) {
         cache_size = (size_t)n;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
     } else if (cache_size < (size_t)n) {
         cache_size = (size_t)n;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
     }
 
     /* Compute terms up to n if needed. */

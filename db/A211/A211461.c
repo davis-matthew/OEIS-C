@@ -13,12 +13,14 @@
  *            Initial values (a(1) .. a(11)): * 24, 56, 128, 2...
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 29, u64 n <= 61, u128 n <= 125,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_values[11] = {
     /* a(1) .. a(11) */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* initialise cache if first call */
     if (cache == NULL) {
         cache_size = 11;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (idx_t i = 0; i < cache_size; ++i)
             cache[i] = init_values[i];
     }
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         return cache[n - 1];
 
     /* Expand cache to contain terms up to n */
-    cache = (seq_t*)realloc(cache, n * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, n);
 
     /* Compute missing terms progressively */
     for (idx_t i = cache_size; i < n; ++i) {

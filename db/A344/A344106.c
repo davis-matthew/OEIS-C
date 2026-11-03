@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=0..n} C(n,k)^2 * (n-k)! * (n-1)^k
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,14 +19,15 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage as required. */
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
 
     /* Allocate factorial and power arrays. */
-    seq_t *fact = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *pow_n1 = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (n + 1));
+    seq_t *pow_n1 = mem_new(seq_t, (n + 1));
     if (!fact || !pow_n1) {
         /* Allocation failed – return 0 (undefined behaviour for the
            sequence is acceptable in this edge case). */
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(fact);
-    free(pow_n1);
+    mem_free(fact);
+    mem_free(pow_n1);
     return sum;
 }

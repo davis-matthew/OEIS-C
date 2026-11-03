@@ -9,14 +9,23 @@
  *            with multiplicity)
  * Range:     u8 n <= 23, u16 n <= 479, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_prime_pi
+ * Validated: standard, pass, 70 terms through n = 9927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/build_prime_pi.h"
+#include "../utils/mem.h"
+
+/* Helper to build the prefix prime count array π(x) */
+static void build_prime_pi(uint64_t limit, uint32_t *spf, seq_t *pi)
+{
+    pi[0] = pi[1] = 0;
+    for (uint64_t i = 2; i <= limit; ++i)
+        pi[i] = pi[i - 1] + (spf[i] == i ? 1 : 0);
+}
 
 /* Helper to build the smallest prime factor array */
 static void build_spf(uint64_t limit, uint32_t *spf)
@@ -50,7 +59,7 @@ seq_t a(idx_t n)
         build_spf(limit, spf);
 
         /* Allocate and build π(x) */
-        seq_t *pi = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+        seq_t *pi = mem_new(seq_t, (limit + 1));
         if (!pi) { free(spf); return (seq_t)0; }
         build_prime_pi(limit, spf, pi);
 
@@ -73,7 +82,7 @@ seq_t a(idx_t n)
                 if (++seen == n) {
                     /* Clean up before returning */
                     free(spf);
-                    free(pi);
+                    mem_free(pi);
                     return cumulative;
                 }
             }
@@ -81,7 +90,7 @@ seq_t a(idx_t n)
 
         /* Not enough semiprimes – increase limit and retry */
         free(spf);
-        free(pi);
+        mem_free(pi);
         limit <<= 1; /* double the limit for the next iteration */
     }
 }

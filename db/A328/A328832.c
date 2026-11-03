@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 3, u32 n <= 351, u64 n <= 9718, u128 n <= 9718,
- *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Range:     u8 none, u16 n <= 3, u32 n <= 351, u64 n <= 23330,
+ *            u128 n <= 23330, big any n
+ * Validated: standard, pass, 75 terms through n = 9718 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdlib.h>
 
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static void init_sequence(void);
 
@@ -74,7 +76,7 @@ static void init_sequence(void)
 
     /* step 3: generate all subset sums of these primorials (2^prim_cnt) */
     size_t total = (size_t)1 << prim_cnt;
-    seq_t *sums = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *sums = mem_new(seq_t, total);
     if (!sums) return;
     sums[0] = 0;
     size_t cur_size = 1;
@@ -89,17 +91,17 @@ static void init_sequence(void)
     seq_t *bad_powers = NULL;
     size_t bad_cnt = 0;
     if (prim_cnt > 1) { /* primes start at index 1 (2) */
-        bad_powers = (seq_t *)malloc(prim_cnt * sizeof(seq_t));
+        bad_powers = mem_new(seq_t, prim_cnt);
         if (bad_powers) {
             for (size_t k = 1; k < prim_cnt; ++k) { /* primes from prime_list[0] */
                 seq_t p = (seq_t)prime_list[k-1];
-                bad_powers[bad_cnt++] = big_pow(p, p);   /* compute p^p */
+                bad_powers[bad_cnt++] = ipow(p, p);   /* compute p^p */
             }
         }
     }
 
     /* step 5: filter sums (exclude 0) and exclude those divisible by any p^p */
-    seq_t *valid = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *valid = mem_new(seq_t, total);
     size_t valid_cnt = 0;
     for (size_t j = 1; j < cur_size; ++j) { /* skip 0 */
         seq_t val = sums[j];
@@ -111,12 +113,12 @@ static void init_sequence(void)
         }
         if (!bad) valid[valid_cnt++] = val;
     }
-    free(sums);
-    free(bad_powers);
+    mem_free(sums);
+    mem_free(bad_powers);
     free(prime_list);
 
     /* step 6: sort and deduplicate */
-    qsort(valid, valid_cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(valid, valid_cnt, sizeof(seq_t), cmp_seq);
     size_t uniq = 0;
     for (size_t j = 0; j < valid_cnt; ++j) {
         if (j == 0 || valid[j] != valid[j-1]) {
@@ -125,10 +127,10 @@ static void init_sequence(void)
     }
 
     /* allocate final array */
-    seq_array = (seq_t *)malloc(uniq * sizeof(seq_t));
-    if (!seq_array) { free(valid); return; }
+    seq_array = mem_new(seq_t, uniq);
+    if (!seq_array) { mem_free(valid); return; }
     for (size_t j = 0; j < uniq; ++j) seq_array[j] = valid[j];
     seq_len = uniq;
 
-    free(valid);
+    mem_free(valid);
 }

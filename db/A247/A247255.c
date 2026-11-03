@@ -10,8 +10,9 @@
  *            coefficient of x^s in ∏_{i=1}^{g-1} (1-x^i)^{-2}. T[n][k] is
  *            pre‑computed for 1 ≤ n,k ≤ 200 (sufficient for n ≤ 10000) and
  *            a(n) is retrieved by row‑major indexing
- * Range:     u8 n <= 55, u16 n <= 325, u32 n <= 2556, u64 n <= 8751,
- *            u128 n <= 8751, big any n
+ * Range:     u8 n <= 55, u16 n <= 325, u32 n <= 2556, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 121 terms through n = 8751 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

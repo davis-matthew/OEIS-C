@@ -10,27 +10,29 @@
  *            (1+2^k+2^{2k})^{n-k}
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* not used for offset 1 */
     /* exponent of the power of 2 */
     idx_t E = n * (n - 1) * (n - 2) / 3;
-    seq_t res = seq_pow(2, E);
+    seq_t res = ipow_idx(2, E);
 
     seq_t two_k = 2;                /* 2^1 */
     for (idx_t k = 1; k <= n - 1; ++k)
     {
         seq_t f_val = 1 + two_k + two_k * two_k;  /* 1 + 2^k + 2^{2k} */
         idx_t exp = n - k;
-        seq_t pow_f = seq_pow(f_val, exp);
+        seq_t pow_f = ipow_idx(f_val, exp);
         res = res * pow_f;
         two_k = two_k * 2;          /* prepare 2^(k+1) for next loop */
     }

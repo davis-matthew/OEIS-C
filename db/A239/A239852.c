@@ -12,13 +12,15 @@
  *            a(3)=5, a(4)=4, a(5)=5, a(6)=5, a(7)=6, a(8)=10, a(9)=11
  * Range:     u8 n <= 23, u16 n <= 49, u32 n <= 102, u64 n <= 206,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
 #include <stdint.h>   /* for size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Ensure space for the first 10 entries (indices 0..9). */
         cache_cap = (n > 9 ? n + 1 : 10);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             return 0;   /* out of memory – unlikely */
         /* Initialise the first 10 entries (index 0 unused). */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         max_computed = 9;
     } else if (cache_cap <= n) {
         cache_cap = n + 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         if (!cache)
             return 0;   /* out of memory – unlikely */
         /* The above realloc preserves all previous entries. */

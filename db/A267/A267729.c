@@ -11,13 +11,15 @@
  *            a(6)=2601, a(7)=8464, * a(8)=26896, a(9)=84100
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 40, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation.
  * cache[i] stores a(i+1), i.e. a(1) is stored at cache[0].   */
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp && new_cap > 0) {
         abort();  /* allocation failed – caller cannot recover safely */
     }

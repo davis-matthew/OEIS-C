@@ -8,15 +8,28 @@
  *            divisor_count(x)
  * Range:     u8 n <= 14, u16 n <= 1163, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, seq_realloc
+ * Validated: standard, pass, 65 terms through n = 9633 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include "../utils/num_divisors.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Local helper to compute sum of decimal digits of a 64‑bit integer */
 static unsigned int digit_sum_uint64(uint64_t v)
@@ -47,7 +60,7 @@ seq_t a(idx_t n)
         unsigned int ds = digit_sum_uint64(cand);
 
         /* Compute number of divisors (tau) */
-        seq_t tau = divisor_count_u64(cand);
+        seq_t tau = num_divisors(cand);
 
         if (ds == (unsigned int)tau) {
             if (cache_size == cache_cap) {

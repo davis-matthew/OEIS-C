@@ -10,13 +10,16 @@
  *            directly
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The function big_pow is provided in the utilities, so we include its header. */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Helper to compute the formula for small n (1 .. 5). */
 static seq_t _a_small(idx_t n)
@@ -47,9 +50,9 @@ static seq_t _a_small(idx_t n)
     }
 
     seq_t val = (seq_t)5;
-    val = val * big_pow((seq_t)2, exp2);
-    val = val * big_pow((seq_t)3, exp3);
-    val = val * big_pow((seq_t)1925, exp1925);
+    val = val * ipow((seq_t)2, exp2);
+    val = val * ipow((seq_t)3, exp3);
+    val = val * ipow((seq_t)1925, exp1925);
     return val;
 }
 
@@ -73,10 +76,10 @@ seq_t a(idx_t n)
     else                     cur_val = _a_small(5);  /* a(5) */
 
     /* Current power 369600^(2*idx-6), starting from idx = start. */
-    seq_t pow_cur = big_pow((seq_t)369600, (seq_t)(2 * start - 6));
+    seq_t pow_cur = ipow((seq_t)369600, (seq_t)(2 * start - 6));
 
     /* One big power that we multiply each step: 369600^6. */
-    seq_t pow6 = big_pow((seq_t)369600, (seq_t)6);
+    seq_t pow6 = ipow((seq_t)369600, (seq_t)6);
 
     /* Iterate over the indices from start to n stepping by 3. */
     for (idx_t idx = start; idx <= n; idx += 3) {

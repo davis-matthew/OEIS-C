@@ -8,13 +8,15 @@
  *            a(n-k) (n ≥ 1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cache of computed a(i) values */
 static size_t    cache_cap = 0;    /* allocated capacity in seq_cache */
@@ -26,7 +28,7 @@ static void ensure_capacity(idx_t n)
     if (cache_cap > (size_t)n) return;          /* already enough */
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);               /* memory exhaustion */
     seq_cache = tmp;
     cache_cap = new_cap;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 {
     /* initialise cache on first call */
     if (!seq_cache) {
-        seq_cache = (seq_t *)malloc(sizeof(seq_t));
+        seq_cache = mem_new(seq_t, 1);
         if (!seq_cache) exit(EXIT_FAILURE);
         seq_cache[0] = (seq_t)1;      /* a(0) = 1 */
         cache_cap    = 1;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (2^((2*n-1)^2) + 1) / (2^(2*n-1) + 1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 6,
  *            big any n
+ * Validated: standard, pass, 25 terms through n = 29 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,8 @@
 /* The sequence is defined for n >= 1.  The implementation uses
    the provided pow2 function to build the powers of two in arbitrary
    precision. */
-#include "../utils/pow2.h"   /* pow2(idx_t exp) -> seq_t */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

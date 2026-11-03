@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 822, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 93 terms through n = 923 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* Computation: for k from 11 down to 1 return the first k with
    gcd(k, n) == 1.  This yields the largest integer < 12
    that is coprime to n. */
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include <stdint.h>
 

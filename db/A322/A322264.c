@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 69, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,8 +34,10 @@
  */
 
 #include <math.h>
-#include "../utils/big_pow.h"   /* big_pow(seq_t, seq_t) */
-#include "../utils/gcd.h"       /* gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 /* Helper: triangular number s*(s+1)/2, computed in 128 bit to avoid overflow */
 static inline __int128 triangular(idx_t s)
@@ -72,7 +75,7 @@ seq_t a(idx_t n)          /* external linkage as required */
                 tmp /= p;
             }
             /* p_pow = p^k */
-            seq_t p_pow   = big_pow((seq_t)p, (seq_t)k);
+            seq_t p_pow   = ipow((seq_t)p, (seq_t)k);
             seq_t term    = (seq_t)1;          /* term = p^(j*k) */
             seq_t sum_term= (seq_t)1;          /* sum j=0..e of p^(j*k) */
             for (idx_t j = 1; j <= e; ++j)
@@ -85,12 +88,12 @@ seq_t a(idx_t n)          /* external linkage as required */
     }
     if (tmp > 1)                  /* remaining prime factor */
     {
-        seq_t p_pow   = big_pow((seq_t)tmp, (seq_t)k);
+        seq_t p_pow   = ipow((seq_t)tmp, (seq_t)k);
         seq_t sum_term= (seq_t)1 + p_pow;          /* j=0..1 */
         sigma *= sum_term;
     }
 
-    seq_t r_pow = big_pow((seq_t)r, (seq_t)k);
+    seq_t r_pow = ipow((seq_t)r, (seq_t)k);
     seq_t g     = gcd(sigma, r_pow);
     seq_t ans   = r_pow / g;
     return ans;

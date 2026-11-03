@@ -10,7 +10,8 @@
  *            K. Computed by dynamic programming on row states
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   compute_block_value
+ * Validated: standard, pass, 34 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_block_value.h"
+
+/* Auxiliary function: evaluate the quantity for a 2×2 block.
+   The block consists of elements [a,b] on the first row,
+   [c,d] on the second row. */
+static int compute_block_value(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+{
+    /* sort the four values (0,1,2 only, so a trivial sort is enough) */
+    uint8_t v[4] = {a, b, c, d};
+    for (int i = 1; i < 4; ++i) {
+        uint8_t key = v[i];
+        int j = i - 1;
+        while (j >= 0 && v[j] > key) {
+            v[j + 1] = v[j];
+            --j;
+        }
+        v[j + 1] = key;
+    }
+    /* v[0] ≤ v[1] ≤ v[2] ≤ v[3] */
+    return (int)(v[3] + v[1] - v[2]);   /* max + lower_median – upper_median */
+}
 
 /* Constants for the DP */
 #define ROWS 27          /* 3³ possible rows */

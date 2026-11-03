@@ -10,12 +10,14 @@
  *            (n>=7) Source: rational generating function of A391680
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 859 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* memoization array, 1‑based index */
 static size_t cache_len = 0;    /* number of computed entries (index of last) */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cache_cap = (size_t)n > 6 ? (size_t)n : 6;
         cache_cap++; /* allocate one extra for 1‑based array */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (size_t i = 1; i <= 6; ++i)        /* cache[1]..cache[6] */
             cache[i] = init_values[i - 1];
         cache_len = 6;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary. */
     if (ni >= cache_cap) {
         cache_cap = ni + 1;            /* 1‑based array */
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Compute new values up to n. */

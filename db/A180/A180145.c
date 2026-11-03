@@ -8,12 +8,14 @@
  * Formula:   a(n) = 4*a(n-1) + 3*a(n-2) - 6*a(n-3); a(0)=1, a(1)=4, a(2)=16
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array holding computed terms   */
 static idx_t  cache_size = 0;    /* actual allocated size in elements */
@@ -23,7 +25,7 @@ static idx_t  computed_until = 0;/* highest index that has been filled */
 static void init_cache(void)
 {
     cache_size = 3;
-    cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_size);
     cache[0] = 1;
     cache[1] = 4;
     cache[2] = 16;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             new_size = 3;
         while (new_size <= n)
             new_size <<= 1;               /* new_size *= 2; */
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         cache_size = new_size;
     }
 

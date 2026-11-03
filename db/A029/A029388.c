@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
                   +a(n‑22)+a(n‑25)+a(n‑26)–a(n‑31)
    (Terms with negative indices are treated as 0; a(0)=1, a(n)=0 for 1≤n<5.) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamic storage of a(0)…a(n)          */
 static idx_t cache_size = 0;         /* number of entries currently stored    */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     /* grow the cache if necessary */
     if (n >= cache_size) {
         idx_t new_size = n + 1;                 /* we need indices 0…n inclusive */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) abort();              /* allocation failure */
         cache = tmp;
 

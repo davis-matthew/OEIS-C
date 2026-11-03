@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *dp      = NULL;   /* flattened DP table [sum*stride + k]   */
 static seq_t *ans_arr = NULL;   /* answer for each n  */
@@ -40,9 +42,9 @@ static size_t stride = 0;               /* number of k values stored per sum */
 /* Free any previously allocated tables. */
 static void free_tables(void)
 {
-    free(dp);
-    free(ans_arr);
-    free(fact_arr);
+    mem_free(dp);
+    mem_free(ans_arr);
+    mem_free(fact_arr);
     dp = NULL;
     ans_arr = NULL;
     fact_arr = NULL;
@@ -69,7 +71,7 @@ static void compute_up_to(size_t max_n)
     stride = maxK + 1;                     /* indices k = 0 .. maxK */
 
     /* Allocate DP table: (max_n+1) sums each with 'stride' entries. */
-    dp = (seq_t *)calloc((max_n + 1) * stride, sizeof(seq_t));
+    dp = mem_new(seq_t, (max_n + 1) * stride);
     if (!dp) exit(EXIT_FAILURE);
     /* Base case: empty subset of size 0 sums to 0. */
     dp[0] = (seq_t)1;
@@ -88,14 +90,14 @@ static void compute_up_to(size_t max_n)
     }
 
     /* Pre‑compute factorials up to maxK. */
-    fact_arr = (seq_t *)calloc(stride, sizeof(seq_t));
+    fact_arr = mem_new(seq_t, stride);
     if (!fact_arr) exit(EXIT_FAILURE);
     fact_arr[0] = (seq_t)1;
     for (size_t i = 1; i <= maxK; ++i)
         fact_arr[i] = fact_arr[i - 1] * (seq_t)i;
 
     /* Compute answers for all n up to max_n. */
-    ans_arr = (seq_t *)calloc(max_n + 1, sizeof(seq_t));
+    ans_arr = mem_new(seq_t, max_n + 1);
     if (!ans_arr) exit(EXIT_FAILURE);
 
     for (size_t n = 0; n <= max_n; ++n) {

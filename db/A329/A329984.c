@@ -9,14 +9,17 @@
  *            n terms )
  * Range:     u8 n <= 80, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   odd_part
+ * Validated: standard, pass, 96 terms through n = 9950 (2026-11-03)
+ * Helpers:   mem, odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/odd_part.h"
+#include "../utils/mem.h"
 
 /* Compute the odd part of a positive integer (remove all factors of 2). */
 
@@ -30,7 +33,7 @@ static void ensure_seq_capacity(idx_t *cap, seq_t **arr, idx_t min_cap)
     idx_t new_cap = (old_cap == 0) ? 1 : old_cap;
     while (new_cap < min_cap)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp)
         abort();
     *arr = tmp;

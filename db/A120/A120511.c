@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(ceil(n/2)) + n, a(1) = 1. This computes OEIS A120511
  * Range:     u8 n <= 128, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9245 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         /* Need to grow cache to hold indices up to n */
         idx_t new_size = n;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_size + 1));
         if (!tmp)
             return (seq_t)0;      /* allocation failed – unlikely for tests */
 

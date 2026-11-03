@@ -10,7 +10,8 @@
  *            a(0)=1,a(1)=1,a(2)=1,a(3)=1,a(4)=1,a(5)=1,a(6)=1,a(7)=1,a(8)=0
  * Range:     i8 n <= 13, i16 n <= 25, i32 n <= 52, i64 n <= 98, i128 n <= 197,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache */
 static seq_t *cache = NULL;
@@ -29,7 +31,7 @@ static void init_cache(void)
 {
     if (initialized) return;
     cap = 16;                     /* start with some capacity */
-    cache = (seq_t *)malloc(cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cap);
     if (!cache) abort();          /* out of memory */
 
     /* initialise first 9 terms */
@@ -45,7 +47,7 @@ static void grow_cache(idx_t needed)
     if (needed < cap) return;
     size_t new_cap = cap ? cap << 1 : 16;
     while (new_cap <= needed) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();
     cache = new_cache;
     cap = new_cap;

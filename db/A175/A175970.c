@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   ensure_cap_bool, is_prime
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,24 @@
 #include <stdbool.h>
 
 #include "../utils/is_prime.h"
-#include "../utils/ensure_cap_bool.h"
+#include "../utils/mem.h"
+
+/* Grow a boolean array to contain at least indices up to 'need'.  */
+static void ensure_cap_bool(bool **arr, size_t *cap, idx_t need)
+{
+    if (need < (idx_t)(*cap))
+        return;
+    size_t new_cap = *cap ? *cap : 16;
+    while ((idx_t)new_cap <= need)
+        new_cap <<= 1;
+    bool *tmp = (bool *)realloc(*arr, new_cap * sizeof(bool));
+    if (!tmp)
+        abort();
+    for (size_t i = *cap; i < new_cap; ++i)
+        tmp[i] = false;
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* Grow a seq_t array to contain at least 'need' elements. */
 static void ensure_cap_seq(seq_t **arr, size_t *cap, size_t need)
@@ -35,7 +53,7 @@ static void ensure_cap_seq(seq_t **arr, size_t *cap, size_t need)
     size_t new_cap = *cap ? *cap : 64;
     while (new_cap <= need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp)
         abort();
     *arr = tmp;
@@ -67,7 +85,7 @@ seq_t a(idx_t n)
     }
     if (!comp) {
         comp_cap = 64;
-        comp = (seq_t *)malloc(comp_cap * sizeof(seq_t));
+        comp = mem_new(seq_t, comp_cap);
         if (!comp)
             abort();
     }

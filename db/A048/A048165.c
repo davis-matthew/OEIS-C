@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{p prime} 1/(1 + x^p)
  * Range:     i8 n <= 56, i16 n <= 144, i32 n <= 439, i64 n <= 1541,
  *            i128 n <= 5993, big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 84 terms through n = 9225 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 /* This produces the required sequence for any n >= 0.    */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -61,6 +70,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coeff[n];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

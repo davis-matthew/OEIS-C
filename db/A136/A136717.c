@@ -14,12 +14,14 @@
  *            T(n-1,k-1) * n = 3t+2 : T(n,k) = (k-1-2t) T(n-1...
  * Range:     u8 n <= 19, u16 n <= 42, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for rows of the triangle */
 static seq_t **T = NULL;
@@ -38,7 +40,7 @@ static void ensure_rows(idx_t upto)
 
     /* allocate new rows and zero‑initialize them */
     for (idx_t n = max_rows + 1; n <= upto; ++n) {
-        seq_t *row = (seq_t *)calloc(n + 1, sizeof(seq_t)); /* indices 0..n, index 0 unused */
+        seq_t *row = mem_new(seq_t, n + 1); /* indices 0..n, index 0 unused */
         if (!row) return;          /* allocation failure */
         T[n] = row;
     }

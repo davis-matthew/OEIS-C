@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 61, u64 n <= 62, u128 n <= 62,
  *            big any n
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
  * Helpers:   digit_frequencies
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

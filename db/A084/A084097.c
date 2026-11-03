@@ -10,15 +10,17 @@
  *            ascending antidiagonals. Equivalently, a(n) is the flattened
  *            triangle T(n, k) = A(n-k, k) where A(m, k) = sum_{j=0..⌊k/2⌋}
  *            binomial(k, 2j) * m^j. The function below compute...
- * Range:     u8 n <= 52, u16 n <= 130, u32 n <= 342, u64 n <= 933,
+ * Range:     u8 n <= 60, u16 n <= 130, u32 n <= 342, u64 n <= 933,
  *            u128 n <= 1325, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 94 terms through n = 1314 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* We use the helper function 'binom' from utils/binom.h. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static inline seq_t pow_seq_local(seq_t base, idx_t exp)
 {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     seq_t power   = 1;                  /* m^j, starts with m^0 = 1 */
     for (idx_t j = 0; j <= c / 2; ++j) {
-        seq_t bino = binom(c, 2 * j);   /* C(c, 2j) */
+        seq_t bino = binomial(c, 2 * j);   /* C(c, 2j) */
         result += bino * power;
         power *= (seq_t)m;              /* next power of m */
     }

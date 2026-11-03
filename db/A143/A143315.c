@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   _row_of_n
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,21 @@
  * external helpers. */
 
 #include <stddef.h>
-#include "../utils/_row_of_n.h"
+
+/* Return the smallest r such that r*(r+1)/2 >= n. */
+static idx_t _row_of_n(idx_t n) {
+    idx_t low = 1, high = n;
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        seq_t tri = (seq_t)mid * ((seq_t)mid + 1) / 2;
+        if (tri >= n) {
+            high = mid;
+        } else {
+            low = mid + 1;
+        }
+    }
+    return low;
+}
 
 seq_t a(idx_t n) {
     /* Find row r and column k for the flattened index n */

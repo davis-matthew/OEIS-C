@@ -8,18 +8,19 @@
  * Formula:   a(n) = floor((2^(n + 2) + 3 - (-1)^n)^2/72)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 39 terms through n = 989 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     /* 2^(n+2) */
-    seq_t two_pow = pow_uint((uint64_t)2, n + 2);
+    seq_t two_pow = ipow_u64_idx((uint64_t)2, n + 2);
 
     /* add 2, and +2 again if n is odd (because -(-1)^n is +1 when n is odd) */
     seq_t inc = (n & 1) ? (seq_t)2 : (seq_t)0;

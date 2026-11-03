@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 20, i16 n <= 60, i32 n <= 210, i64 n <= 755,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 832 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
     seq_t types (signed integers or arbitrary‑precision classes).   */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     static const int periodic[10] = { -4, -2, -4, -2, 0, -2, -4, -2, -4, 0 };
 
     /* Allocate array for the series up to degree n */
-    seq_t *coeffs = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *coeffs = mem_new(seq_t, (size_t)n + 1);
     if (!coeffs) return 0;                      /* allocation failure – return 0 */
 
     coeffs[0] = 1;                              /* A(0) = 1 */
@@ -75,6 +77,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coeffs[n];
-    free(coeffs);
+    mem_free(coeffs);
     return result;
 }

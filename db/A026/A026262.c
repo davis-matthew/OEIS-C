@@ -11,7 +11,8 @@
  *            each occupied index; it grows lazily as more terms are requested
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   max3_idx, max_idx
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/max3_idx.h"
-#include "../utils/max_idx.h"
+#include "../utils/mem.h"
+
+/* Utility: maximum of two idx_t values */
+static inline idx_t max_idx(idx_t a, idx_t b) { return a > b ? a : b; }
+
+static inline idx_t max3_idx(idx_t a, idx_t b, idx_t c) {
+    return max_idx(max_idx(a, b), c);
+}
 
 /* integer square root of a 128‑bit value (floor sqrt). */
 static inline idx_t isqrt_u128(__int128 x) {
@@ -55,7 +62,7 @@ static idx_t last_k = 0;        /* last processed k */
 static void enlarge_to(size_t idx) {
     if (idx < perm_cap) return;
     size_t new_cap = idx + 1;
-    perm = (seq_t *)realloc(perm, new_cap * sizeof(seq_t));
+    perm = mem_resize(seq_t, perm, new_cap);
     for (size_t i = perm_cap; i < new_cap; ++i) perm[i] = 0;
     perm_cap = new_cap;
 }

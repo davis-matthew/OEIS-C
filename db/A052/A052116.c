@@ -9,12 +9,14 @@
  *            C(i+3,3)+C(j+3,3) <= C(n+3,3) (with r=3)
  * Range:     u8 n <= 9, u16 n <= 271, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 8953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     seq_t fn = ((seq_t)(n+3)) * (n+2) * (n+1) / 6;
 
     /* pre‑compute f[k] = C(k+3,3) for 0 <= k <= n */
-    seq_t *f = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (n + 1));
     if (!f) return (seq_t)0;  /* out of memory – return 0 */
 
     for (idx_t k = 0; k <= n; ++k)
@@ -40,6 +42,6 @@ seq_t a(idx_t n)
         ans += (seq_t)(jmax + 1);   /* j = 0 .. jmax inclusive */
     }
 
-    free(f);
+    mem_free(f);
     return ans;
 }

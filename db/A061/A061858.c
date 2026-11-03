@@ -14,18 +14,33 @@
  *            because each pair up to (3,3) yields no carry
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   _floor_isqrt_u64, carryless_mul
+ * Validated: partial, pass, 102 terms through n = 101 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/carryless_mul.h"
+#include "../utils/isqrt.h"
+
+static seq_t carryless_mul(seq_t a, seq_t b)
+{
+    seq_t res = 0;
+    idx_t shift = 0;
+    seq_t temp = b;
+    while (temp)
+    {
+        if (temp & 1)
+            res ^= a << shift;
+        temp >>= 1;
+        ++shift;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
     /* Find the anti‑diagonal d such that d*(d+1)/2 <= n < (d+1)*(d+2)/2 */
-    idx_t d = ( _floor_isqrt_u64(8 * n + 1) - 1 ) / 2;
+    idx_t d = ( isqrt(8 * n + 1) - 1 ) / 2;
 
     /* Position within that diagonal */
     idx_t prev = d * (d + 1) / 2;    /* elements before diagonal d */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = unsigned Stirling number of the first kind s(2n-1, n)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 21,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 33 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,15 @@
 /* s(0,0)=1; s(n,0)=0 for n>0; recurrence: s(n,k)=s(n-1,k-1)+(n-1)*s(n-1,k) */
 
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"   /* provides seq_t *alloc_seq_array(size_t) */
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* below offset, value irrelevant */
@@ -38,7 +47,7 @@ seq_t a(idx_t n) {
     }
     seq_t result = s[n];
     /* free buffers */
-    free(s);
-    free(t);
+    mem_free(s);
+    mem_free(t);
     return result;
 }

@@ -11,13 +11,15 @@
  *            arithmetic type seq_t
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,10 +33,10 @@ seq_t a(idx_t n)
         fac *= (seq_t)i;
 
     /* U[i] = fac * H(i).  C[i] = fac * H2(i) = sum_{k=1}^{i} U[k] */
-    seq_t *U = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *C = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *U = mem_new(seq_t, (n + 1));
+    seq_t *C = mem_new(seq_t, (n + 1));
     if (!U || !C) {
-        free(U); free(C);
+        mem_free(U); mem_free(C);
         return (seq_t)0;
     }
 
@@ -48,10 +50,10 @@ seq_t a(idx_t n)
 
     /* Stirling numbers of the second kind, row n.
        cur holds S(n-1, k); after the loop cur holds S(n, k). */
-    seq_t *cur  = (seq_t *)calloc((n + 1), sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc((n + 1), sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, (n + 1));
+    seq_t *next = mem_new(seq_t, (n + 1));
     if (!cur || !next) {
-        free(U); free(C); free(cur); free(next);
+        mem_free(U); mem_free(C); mem_free(cur); mem_free(next);
         return (seq_t)0;
     }
 
@@ -74,6 +76,6 @@ seq_t a(idx_t n)
     for (idx_t k = (idx_t)0; k <= n; ++k)
         result += cur[k] * C[k];
 
-    free(U); free(C); free(cur); free(next);
+    mem_free(U); mem_free(C); mem_free(cur); mem_free(next);
     return result;
 }

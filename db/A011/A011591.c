@@ -7,7 +7,8 @@
  * Formula:   a(n) = Legendre symbol (n,43)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 97 terms through n = 9990 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,11 @@
 /*   a(n) = 0 if n % 43 == 0, otherwise 1 if n is a quadratic residue mod 43,
    -1 if it is a non‑residue (Euler's criterion). */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +31,7 @@ seq_t a(idx_t n)
 
     /* apply Euler's criterion: n^21 ≡ 1 (mod 43) ⇔ n is a quadratic residue */
     seq_t mod = 43;
-    seq_t pow = mod_pow((seq_t)r, 21, mod);
+    seq_t pow = powmod((seq_t)r, 21, mod);
 
     return pow == 1 ? 1 : -1;
 }

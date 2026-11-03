@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 22, u64 n <= 46, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Internal memoisation cache */
 static seq_t *cache = NULL;          /* array of cached terms */
@@ -35,7 +37,7 @@ static idx_t cache_size = 0;         /* highest index computed so far */
 static void init_cache(void)
 {
     const size_t init_size = 13;
-    cache = (seq_t *)calloc(init_size + 1, sizeof(seq_t));
+    cache = mem_new(seq_t, init_size + 1);
     if (!cache) return;           /* allocation failed – stays NULL */
 
     cache[1]  = (seq_t)8;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     /* Extend cache if needed */
     if ((size_t)n >= cache_size + 1) {
         size_t new_cap = (size_t)n + 1;    /* indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;        /* allocation failure */
         /* Initialise new slots to 0 */
         for (size_t i = cache_size + 1; i < new_cap; ++i) tmp[i] = (seq_t)0;

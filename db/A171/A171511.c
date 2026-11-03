@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 145, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 8503 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Small helper: test whether n is composite (n > 1). */
 static bool is_composite_uint64(uint64_t n)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Initialize once */
     if (cache == NULL) {
         cacheCap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cacheCap);
+        cache = mem_new(seq_t, cacheCap);
         cacheSize = 0;
 
         /* First composite is 4, with k=1 */
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         /* Accept the candidate as a sequence term */
         if (cacheSize == cacheCap) {
             cacheCap *= 2;
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * cacheCap);
+            cache = mem_resize(seq_t, cache, cacheCap);
         }
         cache[cacheSize++] = nextCandidate;
         nextCandidate++; /* prepare for next integer */

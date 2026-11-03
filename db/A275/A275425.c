@@ -9,13 +9,15 @@
  *            a(0)=a(1)=a(2)=a(3)=a(4)=a(5)=a(6)=1, a(7)=2
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 22, u64 n <= 33, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 600 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return binomial(n-1,6) for any n>=7.
    It is calculated as (n-1)(n-2)...(n-6)/720. */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Initialise the table on the first call. */
     if (dp == NULL) {
         dp_cap = 8;                 /* initial capacity (fits up to n=7) */
-        dp = (seq_t *)malloc(dp_cap * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_cap);
         for (idx_t i = 0; i <= 6; ++i) {
             dp[i] = (seq_t)1;       /* a(0) .. a(6) = 1 */
         }
@@ -61,11 +63,11 @@ seq_t a(idx_t n)
     /* Grow the array if required. */
     if (n >= dp_cap) {
         idx_t new_cap = (n + 1) * 2;
-        seq_t *new_dp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_cap);
         for (idx_t i = 0; i <= last; ++i) {
             new_dp[i] = dp[i];
         }
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
         dp_cap = new_cap;
     }

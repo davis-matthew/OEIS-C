@@ -9,7 +9,8 @@
  *            of unordered triples of odd‑popcount numbers summing to n)
  * Range:     u8 n <= 150, u16 n <= 2478, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_odious_uint64
+ * Validated: standard, pass, 92 terms through n = 9584 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_odious_uint64.h"
+
+/*  Helper: return true if 64‑bit unsigned integer has odd popcount. */
+static inline bool is_odious_uint64(uint64_t x)
+{
+    return (__builtin_popcountll(x) & 1U);
+}
 
 /* ------------------------------------------------------------------ */
 /*  Cached data about odious (odd popcount) numbers up to a growing    */

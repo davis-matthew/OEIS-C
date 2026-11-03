@@ -8,7 +8,8 @@
  *            irreducible polynomial over GF(2) (binary representation)
  * Range:     u8 n <= 7, u16 n <= 70, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   seq_bitlen
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_bitlen.h"
+#include "../utils/mem.h"
+
+/* bit length of an integer stored in seq_t */
+static inline idx_t seq_bitlen(seq_t x)
+{
+    idx_t len = 0;
+    while (x) {
+        x >>= 1;
+        len++;
+    }
+    return len;
+}
 
 /* ----- Basic helpers --------------------------------------------------- */
 
@@ -129,7 +141,7 @@ static void ensure_irreducibles(size_t needed)
     if (irreducibles_cap < needed) {
         size_t new_cap = irreducibles_cap ? irreducibles_cap << 1 : 64;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(irreducibles, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, irreducibles, new_cap);
         irreducibles     = tmp;
         irreducibles_cap = new_cap;
     }

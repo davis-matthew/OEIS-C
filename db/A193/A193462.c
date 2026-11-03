@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 73 terms through n = 977 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
     Uses the provided factor_u64 routine to factor n^2+1 efficiently. */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

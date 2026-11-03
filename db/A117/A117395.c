@@ -10,13 +10,15 @@
  *            not all non‑squarefree
  * Range:     u8 n <= 18, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *partitions   = NULL;
 static seq_t *psqfree      = NULL;   /* partitions with all parts squarefree   */
@@ -30,9 +32,9 @@ static void compute_up_to(idx_t n)
     if (n <= premax) return;
 
     /* reallocate arrays to size n+1 */
-    partitions = (seq_t*)realloc(partitions,   (n + 1) * sizeof(seq_t));
-    psqfree    = (seq_t*)realloc(psqfree,    (n + 1) * sizeof(seq_t));
-    pnonsqfree = (seq_t*)realloc(pnonsqfree, (n + 1) * sizeof(seq_t));
+    partitions = mem_resize(seq_t, partitions, (n + 1));
+    psqfree    = mem_resize(seq_t, psqfree, (n + 1));
+    pnonsqfree = mem_resize(seq_t, pnonsqfree, (n + 1));
     non_sf     = (unsigned char*)realloc(non_sf, (n + 1) * sizeof(unsigned char));
 
     /* clear arrays */

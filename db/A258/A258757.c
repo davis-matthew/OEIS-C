@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_palindrome_uint128
+ * Validated: standard, pass, 145 terms through n = 980 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,28 @@
    attaining that maximal m.  (Offset 2) */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome_uint128.h"
+
+/* Return true iff val expressed in base 'base' is a palindrome.
+   Works for arbitrary 128‑bit unsigned values. */
+static bool is_palindrome_uint128(idx_t base, unsigned __int128 val)
+{
+    if (val == 0) return true;
+    unsigned digits[128];
+    unsigned cnt = 0;
+    unsigned __int128 b = (unsigned __int128)base;
+    while (val) {
+        unsigned __int128 q = val / b;
+        unsigned r = (unsigned)(val - q * b);
+        digits[cnt++] = r;
+        val = q;
+    }
+    unsigned i = 0, j = cnt;
+    while (i < j / 2) {
+        if (digits[i] != digits[j - 1 - i]) return false;
+        ++i;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

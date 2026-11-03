@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 35, u64 n <= 72, u128 n <= 147,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a(6) = 108 a(7) = 190  a(8) = 348  a(9) = 636
    All other terms are obtained by the recurrence. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[10] = {
     0,          /* dummy for index 0 */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
     /* Ensure cache exists and is initialized up to index 9. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * 10);
+        cache = mem_new(seq_t, 10);
         if (cache == NULL) return (seq_t)0;   /* allocation failed */
         for (size_t i = 0; i < 10; ++i) cache[i] = init_vals[i];
         cache_sz = 10;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* Grow the cache to accommodate index n. */
     size_t new_sz = (size_t)n + 1;  /* indices 0..n inclusive */
     if (new_sz > cache_sz) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_sz);
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (tmp == NULL) return (seq_t)0;   /* allocation failed */
         cache = tmp;
         /* Compute missing terms using the recurrence. */

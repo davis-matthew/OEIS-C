@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 17, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(0) = 1;
    a(n) = Σ_{k=0}^{n-1} (-1)^k * (2*k+1) * a(k) * a(n-k-1)  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* a cache storing computed values of the sequence.
    cache_valid_len records how many elements are valid (guaranteed
@@ -31,8 +33,8 @@ static void ensure_capacity(size_t cap)
     if (cap > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap < cap) new_cap <<= 1;
-        seq_t *tmp = cache ? (seq_t*)realloc(cache, new_cap * sizeof(seq_t))
-                           : (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = cache ? mem_resize(seq_t, cache, new_cap)
+                           : mem_new(seq_t, new_cap);
         if (!tmp) return;  /* malloc/realloc failed: leave cache unchanged */
         cache = tmp;
         cache_cap = new_cap;

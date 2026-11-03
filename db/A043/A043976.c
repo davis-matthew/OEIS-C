@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_adjacent_24
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
    limit for n up to about 1e4. */
 #include <stddef.h>   /* for size_t */
 #include <stdbool.h>  /* for bool, true, false */
-#include "../utils/has_adjacent_24.h"
+
+/* test whether the base‑9 representation of x contains 24 or 42 */
+static bool has_adjacent_24(seq_t x)
+{
+    if (x == 0) return false;
+    seq_t prev = x % 9;
+    x /= 9;
+    while (x > 0) {
+        seq_t curr = x % 9;
+        if ((prev == 2 && curr == 4) || (prev == 4 && curr == 2))
+            return true;
+        prev = curr;
+        x /= 9;
+    }
+    return false;
+}
 
 /* static cache large enough for the required range (n≤≈1e4) */
 #define MAX_CACHE 200000

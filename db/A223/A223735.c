@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq_array, gcd, grow_seq_array, isqrt_seq
+ * Validated: standard, pass, 80 terms through n = 875 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,44 @@
    The function returns the n‑th term (1‑based). */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"         /* seq_t gcd(seq_t a, seq_t b) */
-#include "../utils/isqrt_seq.h"    /* seq_t isqrt_seq(seq_t x) */
-#include "../utils/alloc_seq_array.h" /* seq_t *alloc_seq_array(size_t n) */
-#include "../utils/grow_seq_array.h"   /* void grow_seq_array(seq_t **arr, size_t *size, size_t new_len) */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* Test whether a positive integer n can be written as a^2 + b^2 + c^2
    with 0 < a <= b <= c and gcd(a,b,c) = 1.  Return true if such a

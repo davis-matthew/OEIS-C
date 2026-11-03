@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 7, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
- *            big any n
- * Helpers:   fib_pair_fast, gen_divisors, is_square
+ * Range:     u8 n <= 7, u16 n <= 188, u32 n <= 4116, u64 n <= 5173,
+ *            u128 n <= 5173, big any n
+ * Validated: standard, pass, 70 terms through n = 4770 (2026-11-01)
+ * Helpers:   is_square
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,37 @@
 #include <stddef.h>
 #include <math.h>
 #include "../utils/is_square.h"
-#include "../utils/fib_pair_fast.h"
-#include "../utils/gen_divisors.h"
+
+/* fast doubling to compute (F_n, F_{n+1}) mod mod */
+static void fib_pair_fast(uint64_t n, uint64_t mod, uint64_t *fn, uint64_t *fn1) {
+    if (n == 0) { *fn = 0; *fn1 = 1; return; }
+    uint64_t a, b;
+    fib_pair_fast(n >> 1, mod, &a, &b);           /* a=F_k , b=F_{k+1} */
+    uint64_t c = (a * ((2 * b % mod + mod - a) % mod)) % mod; /* F_{2k}   */
+    uint64_t d = (a * a % mod + b * b % mod) % mod;            /* F_{2k+1} */
+    if (n & 1) {
+        *fn  = d;
+        *fn1 = (c + d) % mod;
+    } else {
+        *fn  = c;
+        *fn1 = d;
+    }
+}
+
+/* recursive generation of all divisors of a number given its prime factorisation */
+static void gen_divisors(size_t idx, uint64_t cur, uint64_t pf[], uint64_t cnt[],
+                         size_t pf_cnt, uint64_t divs[], size_t *div_cnt) {
+    if (idx == pf_cnt) {
+        divs[(*div_cnt)++] = cur;
+        return;
+    }
+    uint64_t p = pf[idx];
+    uint64_t accum = 1;
+    for (uint64_t c = 0; c <= cnt[idx]; ++c) {
+        gen_divisors(idx + 1, cur * accum, pf, cnt, pf_cnt, divs, div_cnt);
+        accum *= p;
+    }
+}
 
 /* fast gcd for 64‑bit values */
 static uint64_t gcd64(uint64_t a, uint64_t b) {

@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A000720(2*A002808(n)) - A002808(n) + n + 1
- * Range:     u8 n <= 1739, u16 n <= 9362, u32 n <= 9362, u64 n <= 9362,
- *            u128 n <= 9362, big any n
+ * Range:     u8 n <= 1739, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 88 terms through n = 9362 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

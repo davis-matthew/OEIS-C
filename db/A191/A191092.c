@@ -8,12 +8,15 @@
  *            679*n^2 + 1122*n - 1560)/3
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 100 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -44,22 +47,22 @@ seq_t a(idx_t n)
        positive power, otherwise we multiply. */
     if (n >= 6)
     {
-        num *= big_pow((seq_t)2, (seq_t)(n - 6));
+        num *= ipow((seq_t)2, (seq_t)(n - 6));
     }
     else
     {
-        num /= big_pow((seq_t)2, (seq_t)(6 - n));
+        num /= ipow((seq_t)2, (seq_t)(6 - n));
     }
 
     /* Handle the n‑power factor.  For n < 7 we divide by the corresponding
        positive power, otherwise we multiply. */
     if (n >= 7)
     {
-        num *= big_pow((seq_t)n, (seq_t)(n - 7));
+        num *= ipow((seq_t)n, (seq_t)(n - 7));
     }
     else
     {
-        num /= big_pow((seq_t)n, (seq_t)(7 - n));
+        num /= ipow((seq_t)n, (seq_t)(7 - n));
     }
 
     /* Final division by 3, which is guaranteed to be exact. */

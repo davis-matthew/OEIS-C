@@ -13,12 +13,14 @@
  *            defined for n>=1
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 23, u64 n <= 49, u128 n <= 102,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     if (n > cache_size) {
         /* Determine new allocation size */
         idx_t new_size = n + 1;   /* 0..n inclusive */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) { /* allocation failure – bail with 0 */
             return (seq_t)0;
         }

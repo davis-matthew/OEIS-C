@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 44, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -43,6 +44,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* ------ Constants and static data ---------------------------- */
@@ -115,7 +117,7 @@ static void ensure_counts(size_t need)
         return;
 
     /* Reallocate result cache */
-    seq_t *new_res = (seq_t *)realloc(res, (need + 1) * sizeof(seq_t));
+    seq_t *new_res = mem_resize(seq_t, res, (need + 1));
     if (!new_res) {
         /* Out of memory – abort the program */
         exit(EXIT_FAILURE);

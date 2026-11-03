@@ -7,7 +7,8 @@
  * Formula:   a(n) = digit_sum(n!)/9 for n ≥ 6 (n! is the usual factorial)
  * Range:     u8 n <= 276, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_big
+ * Validated: standard, pass, 86 terms through n = 9589 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_sum_big.h"
+
+/* Compute the digit sum of a big integer stored in base BASE. */
+static uint64_t digit_sum_big(const uint32_t *a, size_t len)
+{
+    uint64_t sum = 0;
+    for (size_t i = 0; i < len; ++i) {
+        uint32_t x = a[i];
+        /* Special case for the most significant block: it may have fewer digits,
+           but the normal loop works fine because leading zeros do not affect sum. */
+        while (x) {
+            sum += x % 10;
+            x   /= 10;
+        }
+    }
+    return sum;
+}
 
 /* Base 10^9 representation.  Each element holds up to 9 decimal digits. */
 #define BASE     1000000000U

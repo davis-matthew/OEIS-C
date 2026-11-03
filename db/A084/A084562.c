@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Computes A084562: even numbers with at most two representations as sum of two odd primes. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static uint8_t *is_prime = NULL;          /* bitset of primality (0/1) */
 static uint64_t *primes = NULL;           /* array of odd primes */
@@ -95,7 +97,7 @@ static int goldbach_pairs_count(uint64_t n) {
 static void cache_term(uint64_t value) {
     if (cache_size == cache_capacity) {
         cache_capacity = cache_capacity ? cache_capacity << 1 : 8;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_capacity);
         if (!tmp) return;            /* allocation failure */
         cache = tmp;
     }
@@ -110,7 +112,7 @@ seq_t a(idx_t n) {
 
     if (!cache) {
         cache_capacity = 8;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         cache_size = 0;
     }
 

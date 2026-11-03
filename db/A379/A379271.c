@@ -13,7 +13,8 @@
  *            factor 1e9; all * arithmetic is performed with...
  * Range:     u8 n <= 154, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9423 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* static global data ----------------------------------------------------- */
 static uint32_t *spf            = NULL;  /* smallest prime factor (up to limit) */
@@ -38,14 +40,14 @@ static void recompute_up_to(uint32_t new_limit)
 {
     free(spf);
     free(loglog_scaled);
-    free(qualifiers);
+    mem_free(qualifiers);
 
     cur_limit = new_limit;
 
     spf            = (uint32_t*)malloc((new_limit + 1) * sizeof(uint32_t));
     loglog_scaled  = (int64_t*)malloc((new_limit + 1) * sizeof(int64_t));
     qual_cap       = (new_limit / 2 + 1024);
-    qualifiers     = (seq_t*)malloc(qual_cap * sizeof(seq_t));
+    qualifiers     = mem_new(seq_t, qual_cap);
     qual_size      = 0;
 
     /* smallest prime factor sieve ---------------------------------------- */
@@ -103,7 +105,7 @@ static void recompute_up_to(uint32_t new_limit)
         if (left < right) {
             if (qual_size == qual_cap) {
                 qual_cap *= 2;
-                qualifiers = (seq_t*)realloc(qualifiers, qual_cap * sizeof(seq_t));
+                qualifiers = mem_resize(seq_t, qualifiers, qual_cap);
             }
             qualifiers[qual_size++] = (seq_t)n;
         }

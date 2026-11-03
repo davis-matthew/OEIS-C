@@ -8,6 +8,7 @@
  *            increasing decimal order)
  * Range:     u8 n <= 9, u16 n <= 114, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
+ * Validated: standard, pass, 58 terms through n = 2920 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

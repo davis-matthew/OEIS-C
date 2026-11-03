@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 8, u16 n <= 24, u32 n <= 37, u64 n <= 37, u128 n <= 37,
- *            big any n
- * Helpers:   push_value
+ * Range:     u8 n <= 8, u16 n <= 24, u32 n <= 82, u64 n <= 302,
+ *            u128 n <= 1156, big any n
+ * Validated: standard, pass, 53 terms through n = 8568 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,21 @@
    Generated in increasing order by a two‑pointer merge algorithm. */
 
 #include <stdlib.h>
-#include "../utils/push_value.h"
+#include "../utils/mem.h"
+
+/* Append a value to the global sequence, expanding the array if needed. */
+static void push_value(seq_t **ptr, size_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
+        if (!tmp) abort();          /* out of memory */
+        *ptr = tmp;
+        *cap = new_cap;
+    }
+    (*ptr)[*size] = val;
+    (*size)++;
+}
 
 /* Global state used by the two‑pointer algorithm. */
 static seq_t *g_seq = NULL;      /* array holding the sequence */

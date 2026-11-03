@@ -11,7 +11,8 @@
  *            consecutive columns and row * direction flags
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 13, u64 n <= 97, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 enum {
     COLS = 27,                     /* 3^3 possible columns */
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
     static seq_t dp_next[STATE_COUNT];
 
     /* Reset dp array */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initial states after first two columns */
     for (int col0 = 0; col0 < COLS; ++col0) {
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
 
     /* Process remaining columns */
     for (idx_t step = 0; step < n - 2; ++step) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (int state = 0; state < STATE_COUNT; ++state) {
             seq_t cur = dp[state];
@@ -131,7 +133,7 @@ seq_t a(idx_t n)
             }
         }
         /* copy next to dp */
-        memcpy(dp, dp_next, sizeof(dp));
+        mem_copy(dp, dp_next, sizeof(dp));
     }
 
     /* Sum all possible final states */

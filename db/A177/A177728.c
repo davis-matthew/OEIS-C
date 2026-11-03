@@ -8,7 +8,8 @@
  * Formula:   a(n) = (1/21)*((-1 + 2^(1+n))^2*(1-3*2^(2+n) + 2^(5+2*n)))
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 665 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence for n ≥ 5:
    a(n) = 31*a(n-1) - 310*a(n-2) + 1240*a(n-3) - 1984*a(n-4) + 1024*a(n-5) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached sequence values          */
 static idx_t cache_len = 0;          /* current length of cache         */
@@ -29,7 +31,7 @@ static void ensure_cache_capacity(idx_t needed)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap <= needed)
         new_cap *= 2U;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

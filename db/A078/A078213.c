@@ -9,15 +9,24 @@
  *            decimal digits of n and whose digit sum is divisible by n
  * Range:     u8 n <= 9, u16 n <= 10, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   num_digits_uint64, pow10_seq
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   num_digits_u64_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/num_digits_uint64.h"
-#include "../utils/pow10_seq.h"
+#include "../utils/num_digits_u64_to_u64.h"
+
+/* 10^e as seq_t (e fits in idx_t, small for n ≤ 10 000) */
+static inline seq_t pow10_seq(idx_t e)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < e; ++i)
+        r *= 10;
+    return r;
+}
 
 /* gcd for unsigned 64‑bit integers */
 static inline uint64_t gcd_uint64(uint64_t a, uint64_t b)
@@ -54,7 +63,7 @@ seq_t a(idx_t n)
         return (seq_t)n;
 
     /* number of digits of n */
-    uint64_t d = num_digits_uint64((uint64_t)n);
+    uint64_t d = num_digits_u64_to_u64((uint64_t)n);
 
     /* compute g = gcd(n, 10^d)  – all use 64‑bit unsigned math */
     uint64_t pow10_d_uint64 = 1;

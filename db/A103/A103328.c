@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 38, u32 n <= 57, u64 n <= 57, u128 n <= 57,
+ * Range:     u8 n <= 22, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
     then evaluate binomial(2r,2k+1) using the provided binom() helper
     (which is defined for arbitrary indices).  Complexity is O(√n).  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -34,5 +36,5 @@ seq_t a(idx_t n)
 
     idx_t k = n - offset;            /* column within the row (0‑based) */
     /* Compute binomial(2*r, 2*k+1).  binom() returns seq_t.  */
-    return binom((idx_t)(2 * r), (idx_t)(2 * k + 1));
+    return binomial((idx_t)(2 * r), (idx_t)(2 * k + 1));
 }

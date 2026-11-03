@@ -9,9 +9,10 @@
  *            binary * representation of x). The implementation does not use
  *            any external * libraries; it works for any integer type seq_t
  *            and idx_t supplied by * the harness. The function m...
- * Range:     u8 n <= 9734, u16 n <= 9734, u32 n <= 9734, u64 n <= 9734,
- *            u128 n <= 9734, big any n
- * Helpers:   runs_in_binary
+ * Range:     u8 n <= 16143, u16 n <= 16143, u32 n <= 16143, u64 n <= 16143,
+ *            u128 n <= 16143, big any n
+ * Validated: standard, pass, 145 terms through n = 9734 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/runs_in_binary.h"
+
+/* ------------------------------------------------------------------ */
+static inline idx_t runs_in_binary(idx_t k) {
+    if (k == 0) return 0;          /* not used for k==0 in main loop */
+    int runs = 1;                   /* start with the first run */
+    int prev_bit = k & 1;
+    k >>= 1;
+    while (k) {
+        int cur_bit = k & 1;
+        if (cur_bit != prev_bit) runs++;
+        prev_bit = cur_bit;
+        k >>= 1;
+    }
+    return (idx_t)runs;
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper: compute number of runs in the binary representation of k */

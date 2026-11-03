@@ -11,7 +11,8 @@
  *            the ones with total prime-exponent sum >2
  * Range:     u8 none, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 63 terms through n = 4303 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         if (omega > 2) {                            /* record qualifying m */
             if (len >= cap) {
                 size_t new_cap = cap ? cap * 2 : 64;
-                seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
                 if (!new_arr) abort();            /* allocation failure */
                 terms = new_arr;
                 cap = new_cap;

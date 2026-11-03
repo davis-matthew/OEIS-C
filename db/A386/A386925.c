@@ -11,14 +11,17 @@
  *            larger n is requested. Complexity: O(n log n) per new maximum n
  * Range:     u8 n <= 8, u16 n <= 37, u32 n <= 1331, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 64 terms through n = 9242 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *div_cnt = NULL;   /* divisor counts: d(0)=0, d(1)=1 … */
 static idx_t  limit  = 0;       /* highest m for which div_cnt is valid */
@@ -33,7 +36,7 @@ ensure_divisor_counts(idx_t m_max)
         return;                         /* already up to date */
 
     /* Allocate or grow the array */
-    seq_t *new_tbl = (seq_t *)realloc(div_cnt, (m_max + 1) * sizeof(seq_t));
+    seq_t *new_tbl = mem_resize(seq_t, div_cnt, (m_max + 1));
     if (!new_tbl) {
         /* Allocation failed – abort the program.  */
         exit(EXIT_FAILURE);

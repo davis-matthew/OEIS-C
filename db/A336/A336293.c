@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n,k)^2 * binomial(2*k,k) * (n-k)!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 3,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t seq_cache_cap = 0;
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = seq_cache_cap ? seq_cache_cap : 1;
     while (new_cap <= n + 1)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();          /* allocation failure */
     seq_cache = tmp;
     seq_cache_cap = new_cap;

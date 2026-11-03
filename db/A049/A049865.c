@@ -9,14 +9,17 @@
  *            U(n) = ∏_{p^k‖n} (p^k – 1). a(1)=0; for n>1, a(n)=1+a(U(n))
  * Range:     u8 n <= 1030, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 127 terms through n = 9314 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Helper: compute the unitary totient of a 64‑bit integer.
  * For n > 1  U(n) = ∏(p^k – 1).  The result is strictly < n. */
@@ -29,7 +32,7 @@ static uint64_t _unitary_totient_uint64(uint64_t n) {
 
     uint64_t result = 1;
     for (size_t i = 0; i < cnt; ++i) {
-        seq_t part_seq = pow_uint(primes[i], exps[i]) - 1;   /* p^k – 1 as seq_t */
+        seq_t part_seq = ipow_u64_idx(primes[i], exps[i]) - 1;   /* p^k – 1 as seq_t */
         uint64_t part = (uint64_t)part_seq;                  /* fits in uint64_t */
         result *= part;
     }

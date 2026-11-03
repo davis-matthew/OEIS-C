@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>   /* for NULL */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* 1‑based array of previously computed terms */
 static idx_t cache_size = 0;        /* largest index currently stored (≥ 2 after init) */
@@ -27,7 +29,7 @@ static void cache_ensure(idx_t min_cap) {
     if (cache_cap >= min_cap) return;
     idx_t new_cap = cache_cap ? cache_cap : 8;
     while (new_cap < min_cap) new_cap <<= 1;          /* double until sufficient */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                               /* out‑of‑memory */
     cache = tmp;
     cache_cap = new_cap;

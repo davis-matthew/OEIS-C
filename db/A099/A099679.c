@@ -12,7 +12,8 @@
  *            modulo * 9·p (since R_m ≡ 0 (mod p) ⇔ 10^m ≡ 1 (m...
  * Range:     u8 n <= 11, u16 n <= 3235, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow, odd_non5
+ * Validated: standard, pass, 88 terms through n = 9279 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
-#include "../utils/odd_non5.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
+
+/* Compute the n-th odd integer that is not divisible by 5. */
+static inline seq_t
+odd_non5(idx_t n)
+{
+    seq_t p = 1;        /* the first term */
+    idx_t count = 1;    /* how many terms found so far */
+
+    while (count < n) {
+        p += 2;                 /* only odd numbers */
+        if (p % 5 != 0)         /* skip odd multiples of 5 */
+            ++count;
+    }
+    return p;
+}
 
 /* Return the multiplicative order of 10 modulo mod. */
 static inline seq_t
@@ -61,7 +78,7 @@ order_of_10(seq_t mod)
         seq_t prime = prime_factors[i];
         while (order % prime == 0) {
             seq_t cand = order / prime;
-            if (mod_pow(10, (idx_t)cand, mod) == (seq_t)1)
+            if (powmod(10, (idx_t)cand, mod) == (seq_t)1)
                 order = cand;
             else
                 break;

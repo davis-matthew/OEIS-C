@@ -12,6 +12,7 @@
  *            a·k + b b_new = a + b·(k+1) The required term is...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 32,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 98 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

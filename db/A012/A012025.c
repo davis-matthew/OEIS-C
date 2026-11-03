@@ -11,7 +11,8 @@
  *            ) computed with memoisation and factorial caching
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 6, i64 n <= 10, i128 n <= 13,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *fact_arr   = NULL;   /* factorial array: fact_arr[i] = i!   */
 static size_t fact_cap  = 0;       /* current allocated size for factorials */
@@ -33,7 +35,7 @@ static void ensure_factorial(idx_t upto)
 {
     if ((size_t)upto + 1 <= fact_cap) return;
     size_t new_cap = (size_t)upto + 1;
-    seq_t *tmp = (seq_t *)realloc(fact_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact_arr, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     fact_arr = tmp;
     if (fact_cap == 0) {
@@ -52,7 +54,7 @@ static void ensure_sequence(idx_t n)
     if ((size_t)n + 1 <= seq_cap) return;
     size_t old_cap = seq_cap;
     seq_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_arr, seq_cap);
     if (!tmp) exit(EXIT_FAILURE);
     seq_arr = tmp;
     /* compute values from old_cap to n */

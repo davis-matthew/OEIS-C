@@ -8,17 +8,18 @@
  *            long division)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 36, u128 n <= 68,
  *            big any n
- * Helpers:   a001226_phi
+ * Validated: standard, pass, 46 terms through n = 200 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001226_phi.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t t = 2 * (uint64_t)n - 1;
-    uint64_t e = a001226_phi(t);
+    uint64_t e = totient_u64(t);
     uint64_t r = 0, i;
     seq_t q = 0;
     /* long division of the all-ones number 2^e - 1 by t, one bit at a time */

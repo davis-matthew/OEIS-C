@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _first_digit
+ * Validated: standard, pass, 70 terms through n = 941 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
    not rely on any pre‑computed tables. */
 
 #include <stdint.h>
-#include "../utils/_first_digit.h"
+
+/* Return the most significant decimal digit of x (x > 0). */
+static unsigned _first_digit(uint64_t x)
+{
+    while (x >= 10ULL)
+        x /= 10ULL;
+    return (unsigned)x;
+}
 
 /* Integer square root for 64‑bit values (C++ and C). */
 static uint64_t _isqrt_u64(uint64_t n)

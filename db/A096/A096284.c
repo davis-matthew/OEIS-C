@@ -9,6 +9,7 @@
  *            numerators is periodic with period 6: 2,1,1,1,1,2 for n ≥ 3
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
+ * Validated: partial, pass, 91 terms through n = 93 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

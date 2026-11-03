@@ -7,15 +7,18 @@
  * Formula:   a(n) = Sum_{k=1..n} (2*k)^(n-1) * binomial(n,k) (OEIS A360548)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   binomial, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t n, idx_t k) */
-#include "../utils/pow_seq.h"    /* provides seq_t pow_seq(seq_t base, int exp) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +35,8 @@ seq_t a(idx_t n)
     if (n > current_n) {
         /* Allocate new larger arrays */
         size_t new_cap   = (size_t)(n + 1);   /* indices 0 .. n   */
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        seq_t *new_pow   = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
+        seq_t *new_pow   = mem_new(seq_t, new_cap);
 
         /* Copy old cached values */
         if (current_n > 0) {
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
         /* Compute powers for new k > current_n (i.e., k = current_n+1 .. n) */
         for (idx_t k = current_n + 1; k <= n; ++k) {
             /* (2*k)^(n-1)  (exponent grows with n) */
-            new_pow[k] = pow_seq((seq_t)(2 * k), (int)(n - 1));
+            new_pow[k] = ipow_i32((seq_t)(2 * k), (int)(n - 1));
         }
 
         /* Unused entry for k=0 */
@@ -64,8 +67,8 @@ seq_t a(idx_t n)
         new_cache[n] = sum;
 
         /* Free old arrays */
-        if (cache)   free(cache);
-        if (pow_arr) free(pow_arr);
+        if (cache)   mem_free(cache);
+        if (pow_arr) mem_free(pow_arr);
 
         /* Adopt new arrays */
         cache   = new_cache;

@@ -10,13 +10,15 @@
  *            recurrence yields a(n) = (A006046(n+1)-1)/2, as noted in OEIS
  * Range:     u8 n <= 54, u16 n <= 1865, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache to store previously computed values.
  * cache_len always equals the number of elements stored (i.e. max index + 1). */
@@ -34,7 +36,7 @@ ensure_cache_size(idx_t n)
     idx_t old_len = cache_len;          /* first index not in the cache */
     idx_t new_len = n + 1;              /* total entries after growth */
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     /* If realloc fails, leave the old cache unchanged – the
      * function will not be able to compute further values, but
      * this is unlikely to happen within the expected input range. */

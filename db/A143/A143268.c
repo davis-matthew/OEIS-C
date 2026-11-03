@@ -9,18 +9,20 @@
  * Formula:   a(n) = n*(n+1)*phi(n)/2
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n) {
     /* Compute the n-th triangular number T(n) = n*(n+1)/2. */
     seq_t triangular = (seq_t)n * ((seq_t)n + 1) / 2;
     /* Compute Euler's totient phi(n). */
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
     /* Return a(n) = phi(n) * T(n). */
     return phi_n * triangular;
 }

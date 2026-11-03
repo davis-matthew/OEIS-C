@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 307, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 119 terms through n = 992 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 /* GCD algorithm that works for any seq_t.                          */
 
 #include <stdint.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 /* Inline Euclidean algorithm for seq_t values.                     */
 static seq_t gcd_seq_t(seq_t a, seq_t b)
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
     /* φ(n) is defined for all n ≥ 1.  The public geminator phi()   */
     /* returns the totient as a value that fits in seq_t for the    */
     /* test range.                                                 */
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
 
     /* Compute (n^2 + 1) modulo φ(n).  n is at most 10 000 in our      */
     /* tests, so n^2+1 fits in a 64‑bit unsigned integer.            */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 15, u64 n <= 35, u128 n <= 74,
  *            big any n
- * Helpers:   has_forbidden_horizontal
+ * Validated: standard, pass, 38 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/has_forbidden_horizontal.h"
+#include "../utils/mem.h"
+
+/* Helper to test a 3‑bit pattern in a 6‑bit row. */
+static inline bool has_forbidden_horizontal(int row) {
+    for (int pos = 0; pos <= 3; ++pos) {
+        int triple = (row >> pos) & 0x7;  /* 3 bits */
+        if (triple == 0 || triple == 5)   /* 000 or 101 */
+            return true;
+    }
+    return false;
+}
 
 /* Precomputed data shared among calls */
 static int  valid_rows[64];
@@ -92,13 +103,13 @@ seq_t a(idx_t n) {
     }
 
     /* Dynamic programming arrays. */
-    seq_t *cur  = (seq_t*)calloc(M, sizeof(seq_t));
-    seq_t *next = (seq_t*)calloc(M, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, M);
+    seq_t *next = mem_new(seq_t, M);
     for (int i = 0; i < M; ++i)
         cur[i] = (seq_t)1;                 /* all sequences of length 2 */
 
     for (idx_t step = 3; step <= n; ++step) {
-        memset(next, 0, M * sizeof(seq_t));
+        mem_set(next, 0, M * sizeof(seq_t));
 
         for (int i = 0; i < M; ++i) {
             seq_t val = cur[i];
@@ -122,7 +133,7 @@ seq_t a(idx_t n) {
     for (int i = 0; i < M; ++i)
         total += cur[i];
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return total;
 }

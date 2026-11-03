@@ -9,12 +9,14 @@
  *            generating function
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 20, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *B = NULL;      /* coefficients of f(x)=log(1+x)-sin(x) in EGF order */
 static seq_t *E = NULL;      /* coefficients of C(x)=1-f(x)^2 */
@@ -34,9 +36,9 @@ static void ensure_size(idx_t n)
     size_t new_cap = need;
 
     /* Reallocate B, E, and fact */
-    B = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
-    E = (seq_t *)realloc(E, new_cap * sizeof(seq_t));
-    fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+    B = mem_resize(seq_t, B, new_cap);
+    E = mem_resize(seq_t, E, new_cap);
+    fact = mem_resize(seq_t, fact, new_cap);
     cap = new_cap;
 
     /* Compute new factorials and B coefficients */
@@ -76,7 +78,7 @@ static void ensure_size(idx_t n)
     /* Reallocate H array (size cap-1) */
     size_t old_h_cap = h_cap;
     h_cap = cap - 1;
-    H = (seq_t *)realloc(H, h_cap * sizeof(seq_t));
+    H = mem_resize(seq_t, H, h_cap);
 
     /* Compute H coefficients: h' = f' / (1 - f^2) */
     /* H[0] = D[0] = B[1] / E[0] (E[0]==1) */

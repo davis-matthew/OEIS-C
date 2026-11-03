@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
            - a(n-20) - a(n-21) - a(n-23) + a(n-32)    (n ≥ 0)          */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) for the OEIS sequence A025925.
    The implementation memoises values up to the
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (size <= n) {
         idx_t new_size = n + 1;
         /* cast the void* from realloc to seq_t* so the code compiles in C++ */
-        seq_t *tmp = (seq_t *)realloc(tab, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tab, new_size);
         if (!tmp) return 0;                   /* allocation failure */
         tab = tmp;
         /* initialise new slots to 0 */

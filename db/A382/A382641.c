@@ -9,13 +9,15 @@
  *            n >= 9)
  * Range:     u8 n <= 14, u16 n <= 29, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoized sequence values */
 static idx_t  cache_len = 0;  /* number of values stored in cache */
@@ -31,14 +33,14 @@ static void ensure_cache(idx_t n)
     if (new_len <= n)      /* grow enough to hold index n */
         new_len = n + 1;
 
-    seq_t *tmp = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_len);
     if (tmp == NULL) { /* Allocation failure – abort sequence generation */
         abort();
     }
 
     /* Copy existing cached values (if any) */
     if (cache_len > 0)
-        memcpy(tmp, cache, cache_len * sizeof(seq_t));
+        mem_copy(tmp, cache, cache_len * sizeof(seq_t));
 
     /* Initialize the first 9 terms if this is the first allocation */
     if (cache_len == 0) {
@@ -55,7 +57,7 @@ static void ensure_cache(idx_t n)
 
     /* Free old cache and update pointers */
     if (cache)
-        free(cache);
+        mem_free(cache);
     cache = tmp;
     cache_len = new_len;
 }

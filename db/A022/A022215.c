@@ -7,13 +7,15 @@
  * Formula:   a(n) = Product_{i=1..8} (5^(n-i+1)-1)/(5^i-1) (n ≥ 8)
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 9, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 25 terms through n = 187 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Implements the recurrence: G(n,k) = G(n-1,k) + 5^(n-k)·G(n-1,k-1), with k=8 */
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
                 continue;
             }
 
-            seq_t power = pow_uint(5, i - k);      /* 5^(i-k) */
+            seq_t power = ipow_u64_idx(5, i - k);      /* 5^(i-k) */
             curr[k] = prev[k] + power * prev[k - 1];
         }
 

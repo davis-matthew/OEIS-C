@@ -11,13 +11,14 @@
  *            enumerated in Gray-code order
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   a001381_pop
+ * Validated: full, pass, 13 terms through n = 12 (2026-11-02)
+ * Helpers:   popcount
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001381_pop.h"
+#include "../utils/popcount.h"
 
 static int a001381_done = 0;
 static uint64_t a001381_cnt[49];
@@ -47,7 +48,7 @@ static void a001381_build(void) {
     for (b = 0; b < p; b++) {
         if (piv[b]) {
             uint64_t v = piv[b];
-            if (a001381_pop(v) & 1) v |= (uint64_t)1 << p; /* parity bit */
+            if (popcount(v) & 1) v |= (uint64_t)1 << p; /* parity bit */
             basis[nb++] = v;
         }
     }
@@ -60,7 +61,7 @@ static void a001381_build(void) {
         uint64_t x = g;
         while (!(x & 1)) { x >>= 1; t++; }
         cur ^= basis[t];
-        a001381_cnt[a001381_pop(cur)]++;
+        a001381_cnt[popcount(cur)]++;
     }
     a001381_done = 1;
 }

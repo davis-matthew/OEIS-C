@@ -11,13 +11,15 @@
  *            multiplicative partitions of n
  * Range:     u8 n <= 47, u16 n <= 383, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   int_floor_sqrt_u64
+ * Validated: standard, pass, 92 terms through n = 9785 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/int_floor_sqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* Cached values of a(n).  The array is expanded as needed. */
 static seq_t *a_cache   = NULL;   /* array of a(n) values */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_sz > n) return;
     idx_t new_sz = n + 1;
-    a_cache = (seq_t*)realloc(a_cache, new_sz * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_sz);
     if (!a_cache) exit(EXIT_FAILURE);
     for (idx_t i = cache_sz; i < new_sz; ++i) a_cache[i] = 0;
     if (cache_sz == 0) a_cache[1] = 0;   /* a(1) = 0 */
@@ -56,7 +58,7 @@ static void dfs_factor(idx_t remain, seq_t prod, idx_t depth,
                        seq_t *sum, seq_t *values)
 {
     /* Enumerate proper divisors of `remain` (d < remain). */
-    idx_t limit = int_floor_sqrt_u64(remain);
+    idx_t limit = isqrt(remain);
     for (idx_t d = 2; d <= limit; ++d) {
         if (remain % d == 0) {
             idx_t d1 = d;

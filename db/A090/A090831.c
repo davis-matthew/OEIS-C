@@ -8,14 +8,15 @@
  * Formula:   a(n) = prime(n)^1 + prime(n-1)^2 + … + prime(1)^n
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 36 terms through n = 421 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* internal prime array, 1‑based sequence is stored 0‑indexed */
 static int *prime_list = NULL;
@@ -55,7 +56,7 @@ seq_t a(idx_t n) {
     for (idx_t i = 1; i <= n; ++i) {
         seq_t p = (seq_t)prime_list[i - 1];   /* prime(i) */
         idx_t exp = n - i + 1;
-        sum += seq_pow(p, exp);
+        sum += ipow_idx(p, exp);
     }
     return sum;
 }

@@ -9,12 +9,14 @@
  *            computed with calc_phi from the utilities)
  * Range:     u8 n <= 53, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 80 terms through n = 9934 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
 
     for (k = 1; ; ++k)
     {
-        seq_t phi_k  = calc_phi(k);
-        seq_t phi_nk = calc_phi((seq_t)(n + k));
+        seq_t phi_k  = totient_seq(k);
+        seq_t phi_nk = totient_seq((seq_t)(n + k));
 
         if (phi_k == phi_nk)
         {

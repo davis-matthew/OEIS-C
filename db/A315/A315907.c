@@ -10,13 +10,15 @@
  *            a(n)=a(n-1)+a(n-3)-a(n-4) for n>4
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Memoized implementation – works for any order of calls. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;   /* cache of previously computed values */
 static size_t memo_len = 0;  /* length of memo (index+1 of last filled element) */
@@ -31,7 +33,7 @@ ensure_cache(idx_t n)
     /* grow the table: double size or to required size, whichever is larger */
     size_t new_cap = memo_len > 0 ? memo_len << 1 : 1;
     if (new_cap < need) new_cap = need;
-    seq_t *new_mem = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_cap);
     if (!new_mem) { /* allocation failed – abort program */
         abort();
     }
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Initial table for indices 0..4. */
     if (!memo) {
         memo_len = 5;
-        memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_len);
         if (!memo) abort();
         memo[0] = (seq_t)1;
         memo[1] = (seq_t)6;

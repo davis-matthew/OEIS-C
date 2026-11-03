@@ -9,12 +9,14 @@
  *            tau(k) = number of positive divisors of k (A000005)
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *tau_cache = NULL;
 static idx_t tau_size = 0;      /* allocated size (number of elements) */
@@ -26,7 +28,7 @@ static void ensure_tau_cache(idx_t m) {
     if (m <= max_cached)
         return;
     /* create new array of size m+1 (index 0 unused) */
-    seq_t *new_cache = (seq_t *)calloc(m + 1, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, m + 1);
     if (!new_cache) {
         /* fallback: abort, as we cannot recover */
         exit(EXIT_FAILURE);
@@ -38,7 +40,7 @@ static void ensure_tau_cache(idx_t m) {
         }
     }
     /* free old cache */
-    free(tau_cache);
+    mem_free(tau_cache);
     tau_cache = new_cache;
     tau_size = m + 1;
     max_cached = m;

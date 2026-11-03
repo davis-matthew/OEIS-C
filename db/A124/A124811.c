@@ -8,13 +8,16 @@
  *            C(n/3-1,(n-3)/3)*3^((n-3)/3-1) if n mod 3 = 0
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 38, u128 n <= 77,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 943 (2026-11-01)
  * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow3.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {

@@ -11,12 +11,14 @@
  *            a(7)=1925
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 94, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached sequence values  */
 static idx_t cached = 0;             /* number of terms stored   */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initial allocation and seeding with first seven terms. */
     if (cached == 0) {
         size_t sz = 7;
-        cache = (seq_t *)malloc(sz * sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
         for (size_t i = 0; i < 7; ++i) cache[i] = init[i];
         cached = 7;
     }
@@ -41,13 +43,12 @@ seq_t a(idx_t n)
     /* Expand cache to hold up to n terms. */
     size_t old = cached;
     size_t new_sz = (size_t)n;
-    seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_sz);
     if (!tmp) {
         /* allocation failed; try a fresh allocation (unlikely). */
-        tmp = (seq_t *)malloc(new_sz * sizeof(seq_t));
+        tmp = mem_new(seq_t, new_sz);
         if (!tmp) return 0;  /* out of memory – return 0 as sentinel */
-        for (size_t i = 0; i < old; ++i) tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = tmp;
 

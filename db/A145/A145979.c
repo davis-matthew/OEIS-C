@@ -7,6 +7,7 @@
  * Formula:   a(n) = (2*n + 4)/gcd(n,4)
  * Range:     u8 n <= 125, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 76 terms through n = 4552 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

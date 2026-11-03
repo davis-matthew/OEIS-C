@@ -11,14 +11,16 @@
  *            columns k=3,…,n
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 101 terms through n = 103 (2026-11-02)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Precompute small primes up to a limit sufficient for all rows involved
    (up to n ≈ 10000 corresponds to row < 200). */
@@ -57,8 +59,8 @@ static seq_t triangle_entry(idx_t row, idx_t k)
         idx_t a = two_k - p;
         idx_t b = two_r - p;
         if (a >= 2 && b >= 2 &&
-            is_prime_small((seq_t)a) &&
-            is_prime_small((seq_t)b))
+            is_prime_seq((seq_t)a) &&
+            is_prime_seq((seq_t)b))
             return (seq_t)p;
     }
     return 0;

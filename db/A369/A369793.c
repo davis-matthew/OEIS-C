@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of occurrences of n in A063655
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for precomputed values */
 static idx_t  cache_N          = 0;      /* last maximum n that was precomputed */
@@ -34,10 +36,10 @@ static void recompute(idx_t N)
     idx_t area_lim = half * other;
 
     /* reallocate counts array */
-    seq_t *temp_counts = (seq_t *)realloc(cache_counts, (N + 1) * sizeof(seq_t));
+    seq_t *temp_counts = mem_resize(seq_t, cache_counts, (N + 1));
     if (!temp_counts) abort();          /* allocation failure */
     cache_counts = temp_counts;
-    memset(cache_counts, 0, (N + 1) * sizeof(seq_t));
+    mem_set(cache_counts, 0, (N + 1) * sizeof(seq_t));
 
     /* reallocate min_s array */
     uint16_t *temp_min_s = (uint16_t *)realloc(cache_min_s, (area_lim + 1) * sizeof(uint16_t));

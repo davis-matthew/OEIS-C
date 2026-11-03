@@ -9,14 +9,25 @@
  *            1‑bits)
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   odd_bitcount
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/odd_bitcount.h"
+
+/* Helper: return true if x has an odd number of 1‑bits. */
+static bool odd_bitcount(seq_t x)
+{
+    bool parity = false;
+    while (x != 0) {
+        parity ^= (bool)(x & 1);
+        x >>= 1;
+    }
+    return parity;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

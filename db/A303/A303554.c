@@ -10,7 +10,8 @@
  *            considered part of the sequence
  * Range:     u8 n <= 172, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 8984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: test whether x (uint64_t) satisfies the property */
 static bool is_valid(uint64_t x)
@@ -68,9 +70,9 @@ seq_t a(idx_t n)
         /* Store it */
         if (cache_len >= cache_cap) {
             size_t newcap = cache_cap == 0 ? 4 : cache_cap << 1;
-            seq_t *newptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *newptr = mem_resize(seq_t, cache, newcap);
             if (!newptr) { /* allocation failure – return 0 (unlikely) */
-                free(cache);
+                mem_free(cache);
                 cache = NULL;
                 cache_len = cache_cap = 0;
                 return 0;

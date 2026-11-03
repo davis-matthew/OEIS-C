@@ -8,13 +8,15 @@
  *            binomial(3*k,n-k) / (4*k-1)
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 11, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_arr    = NULL;
 static seq_t *b2_arr   = NULL;
@@ -26,9 +28,9 @@ seq_t a(idx_t n)
     /* Allocate or grow cache to at least n+1 elements */
     if (cache_sz <= n) {
         size_t new_sz = (size_t)n + 1;
-        seq_t *new_a  = (seq_t*)realloc(a_arr, new_sz * sizeof(seq_t));
-        seq_t *new_b2 = (seq_t*)realloc(b2_arr, new_sz * sizeof(seq_t));
-        seq_t *new_b3 = (seq_t*)realloc(b3_arr, new_sz * sizeof(seq_t));
+        seq_t *new_a  = mem_resize(seq_t, a_arr, new_sz);
+        seq_t *new_b2 = mem_resize(seq_t, b2_arr, new_sz);
+        seq_t *new_b3 = mem_resize(seq_t, b3_arr, new_sz);
         if (!new_a || !new_b2 || !new_b3) {
             /* Allocation failed – in this environment we simply abort. */
             abort();

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd64, is_prime_u64, modpow64
+ * Validated: standard, pass, 85 terms through n = 970 (2026-11-03)
+ * Helpers:   gcd_u64, is_prime_u64, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/gcd64.h"
-#include "../utils/modpow64.h"
+#include "../utils/gcd_u64.h"
 #include "../utils/is_prime_u64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* Dynamic storage for the sequence.  The array is grown on demand. */
 static seq_t *seq = NULL;            /* array of sequence elements        */
@@ -37,10 +39,10 @@ static bool has_solution(uint64_t p)
 {
     if (p == 2)                 /* 0^10 ≡ 0 ≡ -2 (mod 2) is a solution */
         return true;
-    uint64_t g = gcd64(10, p - 1);
+    uint64_t g = gcd_u64(10, p - 1);
     uint64_t exp = (p - 1) / g;            /* (p‑1)/gcd(10, p‑1)            */
     uint64_t base = p - 2;                 /* -2 modulo p, 0 < base < p     */
-    return modpow64(base, exp, p) == 1;
+    return powmod_u64(base, exp, p) == 1;
 }
 
 /* Expand the sequence storage when needed.  The array is allocated
@@ -51,10 +53,10 @@ static void ensure_capacity(void)
 {
     if (seq_cap == 0) {
         seq_cap = 10000;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     } else if (seq_len >= seq_cap) {
         seq_cap *= 2;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
 }
 

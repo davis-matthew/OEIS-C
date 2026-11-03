@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    a(n+1) = 0.  The sequence is 1‑based. */
 
 #include <stdlib.h>   /* malloc, realloc, exit */
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;   /* 1‑based array of terms            */
 static size_t sz  = 0;      /* highest index that has been computed */
@@ -36,7 +38,7 @@ static void ensure_capacity(idx_t needed)
     while ((idx_t)newcap < needed) newcap <<= 1;
 
     size_t oldcap = cap;
-    seq_t *newptr = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, seq, newcap);
     if (!newptr) exit(1);                      /* fatal if allocation fails */
 
     /* Zero newly allocated slots only. */

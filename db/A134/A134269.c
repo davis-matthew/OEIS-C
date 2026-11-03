@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of solutions to p^k - p^(k-1) = n (= number of
  *            primes p such that p-1 divides n and n/(p-1) is a power of p)
- * Range:     u8 n <= 7185, u16 n <= 9860, u32 n <= 9860, u64 n <= 9860,
- *            u128 n <= 9860, big any n
+ * Range:     u8 n <= 7185, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9860 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

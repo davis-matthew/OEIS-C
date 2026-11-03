@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 2208, u32 n <= 8828, u64 n <= 8828,
- *            u128 n <= 8828, big any n
- * Helpers:   has_digit_8
+ * Range:     u8 n <= 15, u16 n <= 2208, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 91 terms through n = 8828 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/has_digit_8.h"
+#include "../utils/mem.h"
+
+/* Return true if the decimal representation of x contains the digit 8. */
+static bool has_digit_8(seq_t x)
+{
+    if (x == 0) return false;
+    while (x > 0) {
+        if (x % 10 == 8) return true;
+        x /= 10;
+    }
+    return false;
+}
 
 static size_t seq_len = 0;      /* number of terms currently stored    */
 static size_t seq_cap = 0;      /* capacity of seq array                */
@@ -39,7 +51,7 @@ static void ensure_seq_capacity(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) abort();
     seq = tmp;
     seq_cap = new_cap;

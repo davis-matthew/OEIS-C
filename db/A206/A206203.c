@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 18, u64 n <= 47, u128 n <= 105,
  *            big any n
- * Helpers:   clockwise_inc_2x3, clockwise_inc_3x2, pow10, seq_mul
+ * Validated: standard, pass, 39 terms through n = 181 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,65 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/pow10.h"   /* seq_t pow10(idx_t e); */
-#include "../utils/seq_mul.h" /* seq_t seq_mul(seq_t a, seq_t b); */
-#include "../utils/clockwise_inc_2x3.h"
-#include "../utils/clockwise_inc_3x2.h"
+#include <string.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* compute the number of clockwise edge increases in a 2×3 block */
+static inline int clockwise_inc_2x3(const uint8_t *r0,
+                                   const uint8_t *r1,
+                                   int col)
+{
+    int a = r0[col];
+    int b = r0[col + 1];
+    int c = r0[col + 2];
+    int d = r1[col];
+    int e = r1[col + 1];
+    int f = r1[col + 2];
+    int inc = 0;
+    inc += (b > a);
+    inc += (c > b);
+    inc += (f > c);
+    inc += (e > f);
+    inc += (d > e);
+    inc += (a > d);
+    return inc;
+}
+
+/* compute the number of clockwise edge increases in a 3×2 block */
+static inline int clockwise_inc_3x2(const uint8_t *r0,
+                                   const uint8_t *r1,
+                                   const uint8_t *r2,
+                                   int j)
+{
+    int a = r0[j];
+    int b = r0[j + 1];
+    int c = r1[j + 1];
+    int d = r2[j + 1];
+    int e = r2[j];
+    int f = r1[j];
+    int inc = 0;
+    inc += (b > a);
+    inc += (c > b);
+    inc += (d > c);
+    inc += (e > d);
+    inc += (f > e);
+    inc += (a > f);
+    return inc;
+}
 
 #define ROWS 4096              /* 4^6 possible rows of length 6 */
 #define COLS 6

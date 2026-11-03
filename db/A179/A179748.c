@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   idx_table
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,14 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/idx_table.h"
+#include "../utils/mem.h"
+
+/* Return the linear index in the flat 'triangle' array for entry (row,col).
+   Both row and col are 1‑based. */
+static inline size_t idx_table(idx_t row, idx_t col) {
+    /* (row‑1)*row/2 + (col‑1) */
+    return (size_t)((row - 1ULL) * (row) / 2 + (col - 1ULL));
+}
 
 /* Flat storage of all triangle values. */
 static seq_t *triangle = NULL;
@@ -38,7 +46,7 @@ static void ensure_rows(idx_t rows) {
     size_t old_cap = capacity;
 
     if (new_cap > capacity) {
-        seq_t *tmp = (seq_t *)realloc(triangle, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, triangle, new_cap);
         triangle = tmp;
         capacity = new_cap;
     }

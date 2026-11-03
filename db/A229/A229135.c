@@ -7,13 +7,15 @@
  * Formula:   a(n) = n*(2 + 2^(2*n-1))
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 41 terms through n = 995 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     idx_t two_n_minus_one_idx = 2 * n - 1;          /* idx_t is unsigned 64‑bit */
     seq_t two_n_minus_one = (seq_t)two_n_minus_one_idx;
 
-    seq_t pow2 = big_pow((seq_t)2, two_n_minus_one);
+    seq_t pow2 = ipow((seq_t)2, two_n_minus_one);
 
     /* a(n) = n * (2 + pow2) */
     seq_t sum = (seq_t)2 + pow2;

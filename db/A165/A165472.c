@@ -8,8 +8,9 @@
  *            quadratic residue modulo 65537, * -1 otherwise ), a(0) = 0. *
  *            The sequence of residues repeats every 65537 terms, and the sum
  *            of * one full period is 1, hence the linear term floor(n/65537)
- * Range:     i8 n <= 8163, i16 n <= 9486, i32 n <= 9486, i64 n <= 9486,
- *            i128 n <= 9486, big any n
+ * Range:     i8 n <= 8163, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 103 terms through n = 9486 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -42,17 +43,14 @@ seq_t a(idx_t n)
         for (idx_t i = 1; i <= PERIOD; ++i)
         {
             idx_t mod = i % PERIOD;          /* 0..PERIOD-1, with 0 for i==PERIOD */
-            seq_t val = is_residue[mod] ? 1 : -1;
+            /* the Legendre symbol: 0 at multiples of 65537 */
+            seq_t val = mod == 0 ? 0 : is_residue[mod] ? 1 : -1;
             cum[i] = cum[i - 1] + val;
         }
 
         initialized = true;
     }
 
-    /*  Reduce the index into the stored period and add the
-     *  offset contributed by full periods (each contributes +1).  */
-    idx_t full_cycles = n / PERIOD;
-    idx_t remainder   = n % PERIOD;
-
-    return ((seq_t)full_cycles) + cum[remainder];
+    /*  A full period of the symbol sums to 0, so only the remainder counts.  */
+    return cum[n % PERIOD];
 }

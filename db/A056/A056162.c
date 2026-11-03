@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} (k!)^(n-k)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 9, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t pow_big(seq_t base, idx_t exp)
 {
@@ -45,12 +47,12 @@ static void ensure_fac(idx_t n)
     /* grow the factorial array if necessary */
     if (fac_cap == 0) {
         fac_cap = 1;
-        fac = (seq_t*)malloc(fac_cap * sizeof(seq_t));
+        fac = mem_new(seq_t, fac_cap);
     }
     while (fac_cap <= n) {
         size_t new_cap = fac_cap * 2;
         if (new_cap <= n) new_cap = n + 1;
-        fac = (seq_t*)realloc(fac, new_cap * sizeof(seq_t));
+        fac = mem_resize(seq_t, fac, new_cap);
         fac_cap = new_cap;
     }
 
@@ -73,12 +75,12 @@ static void ensure_cache(idx_t n)
     /* grow the cache array if necessary */
     if (cache_cap == 0) {
         cache_cap = 1;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     while (cache_cap <= n) {
         size_t new_cap = cache_cap * 2;
         if (new_cap <= n) new_cap = n + 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

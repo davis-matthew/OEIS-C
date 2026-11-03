@@ -9,6 +9,7 @@
  *            of prime indices of n (A112798) in standard order, A066099
  * Range:     u8 n <= 45, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
  * Helpers:   build_primes_upto, build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/build_spf.h"
 

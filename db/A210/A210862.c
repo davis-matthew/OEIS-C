@@ -12,12 +12,14 @@
  *            reading of the rows in which the first eleme...
  * Range:     u8 n <= 30, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) for the OEIS sequence A210862.  */
 seq_t a(idx_t n)
@@ -48,16 +50,16 @@ seq_t a(idx_t n)
 
     /* Allocate arrays for the previous row (row 1).  */
     size_t prev_len = 1;
-    seq_t *prev_u = (seq_t*)malloc(prev_len * sizeof(seq_t));
-    seq_t *prev_v = (seq_t*)malloc(prev_len * sizeof(seq_t));
+    seq_t *prev_u = mem_new(seq_t, prev_len);
+    seq_t *prev_v = mem_new(seq_t, prev_len);
     prev_u[0] = (seq_t)1;
     prev_v[0] = (seq_t)1;
 
     /* Build rows 2 through r.  */
     for (size_t row = 2; row <= r; ++row) {
         size_t curr_len = row;
-        seq_t *curr_u = (seq_t*)malloc(curr_len * sizeof(seq_t));
-        seq_t *curr_v = (seq_t*)malloc(curr_len * sizeof(seq_t));
+        seq_t *curr_u = mem_new(seq_t, curr_len);
+        seq_t *curr_v = mem_new(seq_t, curr_len);
 
         /* k = 0 (constant term).  */
         curr_u[0] = prev_u[0] + (seq_t)1;
@@ -81,8 +83,8 @@ seq_t a(idx_t n)
         }
 
         /* Free the previous row and advance.  */
-        free(prev_u);
-        free(prev_v);
+        mem_free(prev_u);
+        mem_free(prev_v);
         prev_u   = curr_u;
         prev_v   = curr_v;
         prev_len = curr_len;
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
 
     /* Retrieve the required coefficient and free memory.  */
     seq_t result = prev_u[col];
-    free(prev_u);
-    free(prev_v);
+    mem_free(prev_u);
+    mem_free(prev_v);
     return result;
 }

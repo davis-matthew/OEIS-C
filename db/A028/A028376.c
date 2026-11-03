@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  tabl, nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 28, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
+ * Range:     u8 n <= 33, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   catalan, triangular_rows
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-01)
+ * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,18 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
-#include "../utils/triangular_rows.h"
+
+static inline idx_t triangular_rows(idx_t n) {
+    idx_t r = 0;
+    /* Find the largest r with r*(r+1)/2 <= n < (r+1)*(r+2)/2 */
+    while ((r + 1) * (r + 2) / 2 <= n) {
+        ++r;
+    }
+    return r;
+}
 
 /*
  * a(n) gives the n-th term of OEIS A028376.

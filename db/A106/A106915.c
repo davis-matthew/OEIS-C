@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1628, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   integer_sqrt, is_prime
+ * Validated: standard, pass, 67 terms through n = 9832 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/integer_sqrt.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt.h"
 
 #define ALLOWED_MODS_COUNT 6
 static const int allowed_mods[ALLOWED_MODS_COUNT] = {3, 5, 13, 19, 27, 45};
@@ -34,7 +36,7 @@ static const int allowed_mods[ALLOWED_MODS_COUNT] = {3, 5, 13, 19, 27, 45};
 static bool represents_prime(uint64_t p)
 {
     /* Warn: use 128‑bit arithmetic to avoid overflow. */
-    uint64_t ymax = (uint64_t)integer_sqrt((idx_t)p);
+    uint64_t ymax = (uint64_t)isqrt((idx_t)p);
     for (int64_t y = -(int64_t)ymax; y <= (int64_t)ymax; ++y)
     {
         uint64_t uy = (y >= 0) ? (uint64_t)y : (uint64_t)(-y);
@@ -48,7 +50,7 @@ static bool represents_prime(uint64_t p)
         if (D == 0)
             continue;
 
-        uint64_t sqrtD = integer_sqrt((idx_t)D);
+        uint64_t sqrtD = isqrt((idx_t)D);
         if ((uint64_t)sqrtD * (uint64_t)sqrtD != D)
             continue;
 
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     uint64_t candidate = 3;        /* first odd prime */
 
     while (1) {
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             /* Quick residue test: only needed residues mod 56 */
             uint64_t r = candidate % 56;
             bool ok = false;

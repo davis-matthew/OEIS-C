@@ -8,7 +8,8 @@
  * Formula:   a(n) = A000041(n) + A000041(n-1) - 1 (for n ≥ 1); a(0) = 0
  * Range:     u8 n <= 14, u16 n <= 39, u32 n <= 121, u64 n <= 405,
  *            u128 n <= 1437, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 4905 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    all computed values.  Only integer arithmetic is used. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!p) {
         cap = 1;
-        p = (seq_t *)malloc(cap * sizeof(seq_t));
+        p = mem_new(seq_t, cap);
         if (!p) return (seq_t)0;
         p[0] = (seq_t)1;              /* p(0) = 1 */
         last = 0;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (n > last) {
         size_t new_cap = (size_t)n + 1;
         if (new_cap > cap) {
-            seq_t *tmp = (seq_t *)realloc(p, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, p, new_cap);
             if (!tmp) return (seq_t)0;
             p = tmp;
             cap = new_cap;

@@ -10,7 +10,8 @@
  *            (1+√5)/2)
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Long‑double approximation of the golden ratio.  It is accurate
    enough for k up to several millions, which covers all values
@@ -52,7 +54,7 @@ static void build_sequence(size_t up_to_n)
     /* ---------------------------------------------------------------- */
     size_t wcap   = 128;
     idx_t *wv     = (idx_t *)malloc(wcap * sizeof(idx_t));
-    if (!wv) { free(seq_cache); exit(EXIT_FAILURE); }
+    if (!wv) { mem_free(seq_cache); exit(EXIT_FAILURE); }
     size_t wlen   = 0;
 
     for (size_t k = 1; ; ++k) {
@@ -64,7 +66,7 @@ static void build_sequence(size_t up_to_n)
         if (wlen >= wcap) {
             wcap <<= 1;
             idx_t *tmp = (idx_t *)realloc(wv, wcap * sizeof(idx_t));
-            if (!tmp) { free(wv); free(seq_cache); exit(EXIT_FAILURE); }
+            if (!tmp) { free(wv); mem_free(seq_cache); exit(EXIT_FAILURE); }
             wv = tmp;
         }
         wv[wlen++] = v;
@@ -75,7 +77,7 @@ static void build_sequence(size_t up_to_n)
        The `used` array is indexed by integers up to `limit`. */
     /* ---------------------------------------------------------------- */
     bool *used = (bool *)calloc(limit + 1, sizeof(bool));
-    if (!used) { free(wv); free(seq_cache); exit(EXIT_FAILURE); }
+    if (!used) { free(wv); mem_free(seq_cache); exit(EXIT_FAILURE); }
 
     for (size_t i = 0; i < wlen; ++i) {
         idx_t vi = wv[i];
@@ -90,8 +92,8 @@ static void build_sequence(size_t up_to_n)
        Build the new cache with the first `up_to_n` numbers not marked
        in `used`.  These values are cast to seq_t before storing. */
     /* ---------------------------------------------------------------- */
-    seq_t *new_seq = (seq_t *)malloc(up_to_n * sizeof(seq_t));
-    if (!new_seq) { free(used); free(wv); free(seq_cache); exit(EXIT_FAILURE); }
+    seq_t *new_seq = mem_new(seq_t, up_to_n);
+    if (!new_seq) { free(used); free(wv); mem_free(seq_cache); exit(EXIT_FAILURE); }
 
     size_t pos = 0;
     for (size_t x = 1; x <= limit && pos < up_to_n; ++x) {
@@ -104,7 +106,7 @@ static void build_sequence(size_t up_to_n)
        the old cache after this point, no further memory safety issue
        arises. */
     /* --------------------------------------------------------------- */
-    free(seq_cache);
+    mem_free(seq_cache);
     seq_cache = new_seq;
     cache_cap = up_to_n;
     cache_nmax = (idx_t)up_to_n;

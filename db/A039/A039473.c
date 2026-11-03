@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  *  contains an equal, non‑zero number of digits 4 and 6.   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t      *cache   = NULL;  /* table of found terms   */
 static size_t      cache_len = 0;   /* how many terms stored */
@@ -26,10 +28,10 @@ static seq_t        last_checked = 0;   /* last value examined   */
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap == 0 ? 64 : cache_cap * 2;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     for (size_t i = 0; i < cache_len; ++i)
         new_cache[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }

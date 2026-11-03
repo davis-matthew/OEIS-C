@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n} k^(n-k) * binomial(n-1,k-1)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 38,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 174 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

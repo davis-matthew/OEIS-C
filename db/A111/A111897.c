@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 /* Recurrence: a(n) = a(n-1) + [second decimal digit of sqrt(n) == 7], a(0)=0 */
 /* Counts how many m ≤ n have 7 as the second digit after the decimal point in sqrt(m). */
 
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         /* Compute floor(sqrt(m) * 100) without floating‑point:
            floor(sqrt(m) * 100) = floor(sqrt(m * 10000)) */
         idx_t prod = (idx_t)((unsigned __int128)m * 10000u);
-        idx_t s    = int_sqrt(prod);
+        idx_t s    = isqrt(prod);
 
         /* second decimal digit = last digit of s */
         seq_t d = (seq_t)(s % 10);

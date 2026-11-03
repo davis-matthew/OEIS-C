@@ -13,13 +13,15 @@
  *            binomial(i+1, r-k-i)
  * Range:     u8 n <= 21, u16 n <= 44, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 #define MAX_R 200   /* sufficient for n up to about 10000 (r≈141) */
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 
             for (idx_t i = start; i <= m; ++i) {
                 idx_t mid   = m - i;                 /* n-k-i   */
-                seq_t term  = fact[kk + i] * binom(i + 1, mid);
+                seq_t term  = fact[kk + i] * binomial(i + 1, mid);
                 if (mid & 1) {
                     neg += term;
                 } else {

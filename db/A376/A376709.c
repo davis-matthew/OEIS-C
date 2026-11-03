@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline idx_t floor_sqrt(idx_t n)
 {
@@ -36,9 +38,9 @@ seq_t a(idx_t n)
     const idx_t maxK = floor_sqrt(N);     /* maximum k with k^2 ≤ n */
 
     /* Allocate three temporary arrays of length N+1 */
-    seq_t *dp     = (seq_t *)malloc(sizeof(seq_t) * (N + 1));
-    seq_t *dp_new = (seq_t *)malloc(sizeof(seq_t) * (N + 1));
-    seq_t *res    = (seq_t *)malloc(sizeof(seq_t) * (N + 1));
+    seq_t *dp     = mem_new(seq_t, (N + 1));
+    seq_t *dp_new = mem_new(seq_t, (N + 1));
+    seq_t *res    = mem_new(seq_t, (N + 1));
     if (!dp || !dp_new || !res) return (seq_t)0;  /* insufficient memory */
 
     /* initialise */
@@ -76,9 +78,9 @@ seq_t a(idx_t n)
     seq_t ans = res[N];
 
     /* clean up */
-    free(dp);
-    free(dp_new);
-    free(res);
+    mem_free(dp);
+    mem_free(dp_new);
+    mem_free(res);
 
     return ans;
 }

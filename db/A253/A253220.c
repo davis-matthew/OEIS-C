@@ -14,13 +14,15 @@
  *            = 126673 , a(11) = 189083
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 210, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed values for n = 1 … 11.  Index 0 is unused. */
 static const seq_t base[12] = {
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
 
     /* First call: allocate cache and fill base values. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * 12);
+        cache = mem_new(seq_t, 12);
         for (size_t i = 1; i <= 11; ++i)
             cache[i] = base[i];
         cached = 11;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
     /* Grow cache to hold up to n. */
     size_t newcap = (size_t)n + 1;
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * newcap);
+    cache = mem_resize(seq_t, cache, newcap);
     /* Assume allocation succeeds – the build environment guarantees enough memory. */
 
     /* Compute values using the recurrence. */

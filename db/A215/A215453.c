@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   gcd, rank_prime, seq_pow
+ * Validated: standard, pass, 37 terms through n = 852 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,29 @@
 
 #include <stdbool.h>
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_pow.h"
-#include "../utils/rank_prime.h"
+#include "../utils/ipow_idx.h"
+
+/* minimal k such that prime p divides Fibonacci(k) */
+static seq_t rank_prime(uint64_t p)
+{
+    seq_t mod = (seq_t)p;
+    seq_t a = (seq_t)1;   /* Fib(1) */
+    seq_t b = (seq_t)1;   /* Fib(2) */
+    seq_t k = 3;
+
+    for (;;) {
+        seq_t c = (a + b) % mod;
+        a = b;
+        b = c;
+        if (b == (seq_t)0)
+            break;
+        ++k;
+    }
+    return k;
+}
 
 /* minimal k such that p^e divides Fibonacci(k) */
 static seq_t rank_prime_power(uint64_t p, idx_t e)
@@ -35,13 +56,13 @@ static seq_t rank_prime_power(uint64_t p, idx_t e)
         if (e == 2)
             return (seq_t)6;
         /* e >= 3 : rank = 3 * 2^(e-2) */
-        seq_t pow2 = seq_pow((seq_t)2, e - 2); /* 2^(e-2) */
+        seq_t pow2 = ipow_idx((seq_t)2, e - 2); /* 2^(e-2) */
         return (seq_t)3 * pow2;
     } else {
         seq_t rp = rank_prime(p);
         if (e == 1)
             return rp;
-        seq_t powp = seq_pow((seq_t)p, e - 1); /* p^(e-1) */
+        seq_t powp = ipow_idx((seq_t)p, e - 1); /* p^(e-1) */
         return rp * powp;
     }
 }

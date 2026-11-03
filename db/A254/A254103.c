@@ -8,13 +8,15 @@
  * Formula:   a(0) = 0, a(2n) = 3*a(n) - 1, a(2n+1) = floor(3*(1 + a(n))/2)
  * Range:     u8 n <= 63, u16 n <= 2047, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   none
+ * Validated: standard, pass, 104 terms through n = 7761 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         size_t newcap = (cap > 0) ? cap << 1 : 1;
         while (newcap <= (size_t)n) newcap <<= 1;
 
-        seq_t *nc = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *nc = mem_resize(seq_t, cache, newcap);
         bool *nu  = (bool *)realloc(used,  newcap * sizeof(bool));
         if (!nc || !nu) {
             /* memory allocation failed – abort (unlikely in test harness) */

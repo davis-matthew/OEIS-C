@@ -9,14 +9,15 @@
  *            that are not prime numbers
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_exp
+ * Validated: standard, pass, 121 terms through n = 6805 (2026-11-01)
+ * Helpers:   is_prime_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_exp.h"
+#include "../utils/is_prime_u32.h"
 
 /* Compute A125071 */
 seq_t a(idx_t n)
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
         nn >>= 1;
         ++exp;
     }
-    if (exp > 0 && !is_prime_exp(exp)) sum += (seq_t)exp;
+    if (exp > 0 && !is_prime_u32(exp)) sum += (seq_t)exp;
 
     /* Factor odd primes */
     for (uint64_t p = 3; p <= nn / p; p += 2) {
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
                 nn /= p;
                 ++e;
             }
-            if (!is_prime_exp(e)) sum += (seq_t)e;
+            if (!is_prime_u32(e)) sum += (seq_t)e;
         }
     }
 

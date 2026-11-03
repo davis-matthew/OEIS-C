@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>    /* for memcpy */
+#include "../utils/mem.h"
 
 /*---------------------------------------------------------------*/
 /* Count the number of positive divisors of a 64‑bit integer      */
@@ -78,7 +80,7 @@ static void ensure_a_capacity(idx_t n)
 #ifdef __cplusplus
     seq_t *tmp = new seq_t[new_cap];
     if (a_cache) {
-        memcpy(tmp, a_cache, a_len * sizeof(seq_t));
+        mem_copy(tmp, a_cache, a_len * sizeof(seq_t));
         delete[] a_cache;
     }
     a_cache = tmp;
@@ -102,11 +104,11 @@ static void ensure_map_capacity(size_t d)
 #ifdef __cplusplus
     seq_t *tmp = new seq_t[new_cap];
     if (max_by_d) {
-        memcpy(tmp, max_by_d, maxd_cap * sizeof(seq_t));
+        mem_copy(tmp, max_by_d, maxd_cap * sizeof(seq_t));
         delete[] max_by_d;
     }
     else {
-        memset(tmp, 0, new_cap * sizeof(seq_t));
+        mem_set(tmp, 0, new_cap * sizeof(seq_t));
     }
     max_by_d = tmp;
 #else

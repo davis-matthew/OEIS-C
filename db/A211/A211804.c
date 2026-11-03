@@ -10,13 +10,15 @@
  *            with a single global cube table
  * Range:     u8 n <= 5, u16 n <= 31, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global cache of cubes up to the largest n requested. */
 static idx_t max_cube_n = 0;
@@ -29,7 +31,7 @@ static void ensure_cubes(idx_t need)
         return;
 
     /* Allocate new table. */
-    seq_t *new_tbl = (seq_t *)malloc((need + 1) * sizeof(seq_t));
+    seq_t *new_tbl = mem_new(seq_t, (need + 1));
     if (!new_tbl)
         abort();               /* out of memory */
 
@@ -39,7 +41,7 @@ static void ensure_cubes(idx_t need)
     new_tbl[0] = 0;
 
     /* Free old storage. */
-    free(cube_tbl);
+    mem_free(cube_tbl);
     cube_tbl = new_tbl;
 
     /* Compute missing cubes. */

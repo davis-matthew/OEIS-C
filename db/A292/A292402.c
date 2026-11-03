@@ -9,12 +9,14 @@
  *            a(8)=6
  * Range:     u8 n <= 20, u16 n <= 37, u32 n <= 71, u64 n <= 140,
  *            u128 n <= 278, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *CACHE = NULL;
 static size_t CACHE_CAP = 0;
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t n)
 {
     if ((size_t)n + 1 <= CACHE_CAP) return;
     size_t new_cap = (size_t)n + 1;
-    CACHE = (seq_t *)realloc(CACHE, new_cap * sizeof(seq_t));
+    CACHE = mem_resize(seq_t, CACHE, new_cap);
     if (!CACHE) abort();   /* allocation failure */
     for (size_t i = CACHE_CAP; i < new_cap; ++i) {
         switch (i) {

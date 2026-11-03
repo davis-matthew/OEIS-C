@@ -7,11 +7,16 @@
  * Formula:   a(n) = numerator( Σ_{k=1..n} (-1)^(k+1)/(prime(k)-1) )
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 22, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
  * Helpers:   gcd, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/gcd.h"
 #include "../utils/sieve_first_n_primes.h"
 

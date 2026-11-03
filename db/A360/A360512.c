@@ -12,14 +12,25 @@
  *            the generating function in OEIS A360512)
  * Range:     u8 n <= 21, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   add_seq, sub_seq
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/add_seq.h"
-#include "../utils/sub_seq.h"
+#include "../utils/mem.h"
+
+/* Use 64‑bit intermediates to avoid overflow with small unsigned types. */
+static inline seq_t add_seq(seq_t a, seq_t b)
+{
+    return (seq_t)((unsigned long long)a + (unsigned long long)b);
+}
+
+static inline seq_t sub_seq(seq_t a, seq_t b)
+{
+    return (seq_t)((unsigned long long)a - (unsigned long long)b);
+}
 
 #ifdef __cplusplus
 
@@ -38,7 +49,7 @@ static void ensure_capacity(idx_t n)
     if ((size_t)(n + 1) <= cache_cap) return;
     size_t new_cap = cache_cap > 0 ? cache_cap : 32;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);   /* abort on allocation failure */
     cache = tmp;
     cache_cap = new_cap;

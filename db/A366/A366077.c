@@ -9,14 +9,15 @@
  *            (additive with a(p^e) = e if e ≤ 2, and a(p^e) = 0 for e ≥ 3)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 103 terms through n = 8819 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
 
     while (t > 1) {
-        uint64_t p = _smallest_prime_factor(t);
+        uint64_t p = smallest_prime_factor(t);
         uint64_t e = 0;
 
         /* Count the exponent of p in t. */

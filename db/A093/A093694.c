@@ -9,18 +9,20 @@
  *            partitions of i d(k) = number of divisors of k
  * Range:     u8 n <= 10, u16 n <= 30, u32 n <= 99, u64 n <= 354,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the A093694 sequence. */
 seq_t a(idx_t n)
 {
     /* Allocate array for partition numbers p[0..n] */
-    seq_t *p = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)(n + 1));
     if (!p) return 0;                 /* unlikely allocation failure */
 
     /* p[0] = 1 (empty partition) */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     /* Compute divisor counts d[1..n] by a simple sieve */
     unsigned int *d = (unsigned int *)calloc((size_t)(n + 1), sizeof(unsigned int));
-    if (!d) { free(p); return 0; }           /* unlikely allocation failure */
+    if (!d) { mem_free(p); return 0; }           /* unlikely allocation failure */
     for (idx_t i = 1; i <= n; ++i) {
         for (idx_t j = i; j <= n; j += i) d[j]++;
     }
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     seq_t result = p[n] + T;
 
     /* Free allocated memory */
-    free(p);
+    mem_free(p);
     free(d);
 
     return result;

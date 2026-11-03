@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 2376 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    memoization. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Function required by the build system. */
 seq_t a(idx_t n)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         if ((runs % 7) == 3) {          /* satisfies the condition */
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) {
                     /* In production code handle this appropriately. */
                     exit(EXIT_FAILURE);

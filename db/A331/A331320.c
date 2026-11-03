@@ -8,12 +8,14 @@
  *            3, a(2) = 8, a(3) = 26, a(4) = 80
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 42, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* memoised values */
 static idx_t cache_len = 0;      /* number of valid entries in cache */
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough for n+1 entries */
     size_t new_len = (size_t)(n + 1);
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * new_len);
+        cache = mem_new(seq_t, new_len);
     } else if (new_len > cache_len) {
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        cache = mem_resize(seq_t, cache, new_len);
     }
     /* Compute missing entries from cache_len up to n */
     for (size_t i = cache_len; i <= (size_t)n; ++i) {

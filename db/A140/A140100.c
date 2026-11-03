@@ -9,9 +9,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 165, u16 n <= 9808, u32 n <= 9808, u64 n <= 9808,
- *            u128 n <= 9808, big any n
- * Helpers:   none
+ * Range:     u8 n <= 165, u16 n <= 42454, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 85 terms through n = 9808 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t current_n = 0;          /* number of pairs already computed */
 static seq_t *X = NULL;              /* values X(1..current_n) */
@@ -74,9 +76,9 @@ static void ensure_xy_cap(idx_t n) {
     if ((idx_t)xy_cap >= n) return;
     size_t newcap = (xy_cap == 0) ? 64 : xy_cap << 1;
     while (newcap < (size_t)n) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(X, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, X, newcap);
     if (!tmp) abort();   X = tmp;
-    tmp = (seq_t *)realloc(Y, newcap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, Y, newcap);
     if (!tmp) abort();   Y = tmp;
     xy_cap = newcap;
 }

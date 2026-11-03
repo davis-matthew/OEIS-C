@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 /*  The routine may be used in C11 and C++17.  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: does x have the consecutive digits 1,7 in its base‑8 representation? */
 static bool has17(seq_t x)
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();               /* out of memory */
         terms = tmp;
         terms_cap = new_cap;

@@ -11,16 +11,41 @@
  *            expands the table on demand
  * Range:     u8 n <= 49, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   ensure_seq_array, first_digit, isprime_big
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/ensure_seq_array.h"
-#include "../utils/isprime_big.h"
-#include "../utils/first_digit.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Ensure an array of seq_t is large enough to hold indexes [0..min_needed] */
+static void ensure_seq_array(seq_t **arr, size_t *cap, size_t min_needed)
+{
+    if (*cap <= min_needed) {
+        size_t newcap = (*cap) ? (*cap) * 2 : 16;
+        if (newcap <= min_needed) newcap = min_needed + 1;
+        *arr = mem_resize(seq_t, *arr, newcap);
+        for (size_t i = *cap; i < newcap; ++i) (*arr)[i] = 0;
+        *cap = newcap;
+    }
+}
+
+/* Return the most significant decimal digit of x.  Works for any
+   seq_t type that supports division and comparison with an integer
+   constant. */
+static seq_t first_digit(seq_t x)
+{
+    seq_t d = x;
+    while (d >= (seq_t)10)
+        d /= (seq_t)10;
+    return d;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +63,7 @@ seq_t a(idx_t n)
             for (;;) {
                 seq_t fd   = first_digit(cand);
                 seq_t diff = cand - fd;
-                if (isprime_big(diff)) {
+                if (is_prime_seq(diff)) {
                     val = cand;
                     break;
                 }

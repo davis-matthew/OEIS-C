@@ -9,7 +9,8 @@
  *            sqrt(781)
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 21, u64 n <= 44, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (cache_cap == 0) {
         /* allocate some space, will grow if needed */
         cache_cap = 64;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(1);
 
         /* compute first 36 convergents of sqrt(781) */
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         if (needed > cache_cap) {
             size_t newcap = cache_cap ? cache_cap * 2 : 64;
             if (newcap < needed) newcap = needed;
-            seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) exit(1);
             cache = tmp;
             cache_cap = newcap;

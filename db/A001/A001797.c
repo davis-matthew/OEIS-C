@@ -11,14 +11,15 @@
  *            2^(2n)/binomial(4n,2n)). Evaluated via prime factorization so...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 34,
  *            big any n
- * Helpers:   vp_u64
+ * Validated: standard, pass, 34 terms through n = 738 (2026-11-01)
+ * Helpers:   valuation_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/vp_u64.h"
+#include "../utils/valuation_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t m4 = 4 * (uint64_t)n;
@@ -40,9 +41,9 @@ seq_t a(idx_t n) {
             e += (long)(m4 / q) - 2 * (long)(m2 / q);
             if (q > m4 / p) break;
         }
-        e += vp_u64(10 * (uint64_t)n, p);
-        e -= vp_u64(m2 + 1, p);
-        e -= vp_u64(m2 + 3, p);
+        e += valuation_u64(10 * (uint64_t)n, p);
+        e -= valuation_u64(m2 + 1, p);
+        e -= valuation_u64(m2 + 3, p);
         if (p == 2) e -= pc;
         while (e > 0) { num *= (seq_t)p; e--; }
         while (e < 0) { den *= (seq_t)p; e++; }

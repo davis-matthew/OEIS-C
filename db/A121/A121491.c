@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 39 terms through n = 9851 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,11 @@
  *  Equivalently: a(n) = (23^n * 47594118) mod 100000001
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     /* Initialize constants as seq_t */
@@ -29,7 +34,7 @@ seq_t a(idx_t n) {
     static const seq_t init  = (seq_t)47594118;
 
     /* Compute 23^n modulo mod */
-    seq_t pow_n = mod_pow(coef, (uint64_t)n, mod);
+    seq_t pow_n = powmod(coef, (uint64_t)n, mod);
 
     /* Return result */
     return (pow_n * init) % mod;

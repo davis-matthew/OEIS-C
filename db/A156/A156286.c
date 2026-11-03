@@ -12,6 +12,7 @@
  *            for j = 1..r, exploiting that each term is d...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 25, u128 n <= 42,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 313 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

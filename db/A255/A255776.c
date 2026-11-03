@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 15, u64 n <= 33, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,6 +41,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Forward declaration: seq_t and idx_t are supplied by the build system. */
 
@@ -52,7 +54,7 @@ ensure_cache(idx_t needed, size_t *capp, seq_t **ptrp)
     size_t needed_cnt = (size_t)(needed + 1);          /* include unused cache[0] */
     if (*capp < needed_cnt) {
         size_t new_cap = needed_cnt;
-        seq_t *tmp = (seq_t *)realloc(*ptrp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *ptrp, new_cap);
         if (!tmp) {
             /* In a real library we would handle the error;  here
                we just abort to keep the example minimal. */

@@ -8,6 +8,7 @@
  *            repeated len = ((n-1)/9)+1 times to form the decimal repdigit
  * Range:     u8 n <= 20, u16 n <= 41, u32 n <= 84, u64 n <= 172,
  *            u128 n <= 345, big any n
+ * Validated: standard, pass, 68 terms through n = 989 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

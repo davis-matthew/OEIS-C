@@ -8,6 +8,7 @@
  *            that do NOT divide any (q – 1) for q ≤ n
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 40, u64 n <= 70, u128 n <= 130,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 2807 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

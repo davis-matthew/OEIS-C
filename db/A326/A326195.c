@@ -6,17 +6,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 0 (n=1) else 1 + a(gcd(n,phi(n)))
- * Range:     u8 n <= 4643, u16 n <= 9990, u32 n <= 9990, u64 n <= 9990,
- *            u128 n <= 9990, big any n
- * Helpers:   gcd, phi
+ * Range:     u8 n <= 4643, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9990 (2026-11-01)
+ * Helpers:   gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses the provided gcd and phi helpers. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     while (cur != 1)
     {
-        seq_t phi_val = phi((idx_t)cur);
+        seq_t phi_val = totient((idx_t)cur);
         cur = gcd(cur, phi_val);
         ++steps;
     }

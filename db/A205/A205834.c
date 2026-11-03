@@ -12,7 +12,8 @@
  *            condition, and then counts paths of length n+1 in the row gra...
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 10, u128 n <= 23,
  *            big any n
- * Helpers:   valid_pair
+ * Validated: standard, pass, 29 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/valid_pair.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static bool valid_pair(const uint8_t *top, const uint8_t *bot)
+{
+    for (int j = 0; j < 6; ++j)
+    {
+        int inc = 0;
+        /* top‑left → top‑right */
+        if (top[j+1] > top[j]) inc++;
+        /* top‑right → bottom‑right */
+        if (bot[j+1] > top[j+1]) inc++;
+        /* bottom‑right → bottom‑left */
+        if (bot[j] > bot[j+1]) inc++;
+        /* bottom‑left → top‑left   */
+        if (top[j] > bot[j]) inc++;
+        if (inc != 2) return false;
+    }
+    return true;
+}
 
 #define N_ROWS 2187          /* 3^7 */
 #define ROWS   N_ROWS
@@ -111,8 +131,8 @@ static bool vec_built = false;
 static void init_vec(void)
 {
     if (vec_built) return;
-    vec_cur  = (seq_t*)calloc(ROWS, sizeof(seq_t));
-    vec_next = (seq_t*)calloc(ROWS, sizeof(seq_t));
+    vec_cur  = mem_new(seq_t, ROWS);
+    vec_next = mem_new(seq_t, ROWS);
     vec_built = true;
 }
 
@@ -132,7 +152,7 @@ seq_t a(idx_t n)
     for (idx_t step = 1; step <= n; ++step)
     {
         /* zero next vector */
-        memset(vec_next, 0, ROWS * sizeof(seq_t));
+        mem_set(vec_next, 0, ROWS * sizeof(seq_t));
 
         /* propagate along edges */
         for (int i = 0; i < ROWS; ++i)

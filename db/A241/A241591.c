@@ -8,17 +8,34 @@
  * Formula:   a(n) = denominator of 2^n * (n+1)^(n-1) / n! (fully reduced)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 17, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   build_primes_upto, seq_mul, seq_pow, vp_in_value
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/vp_in_value.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Computes v_p(m) – exponent of prime p in factorisation of m.
+   m is given as idx_t, p is a small prime (uint64_t). */
+static idx_t vp_in_value(idx_t m, uint64_t p) {
+    idx_t cnt = 0;
+    while (m % p == 0) {
+        cnt++;
+        m /= p;
+    }
+    return cnt;
+}
 
 static idx_t primes_limit = 0;
 static uint64_t *primes = NULL;
@@ -63,7 +80,7 @@ seq_t a(idx_t n) {
         /* Remaining exponent to keep in denominator */
         if (e_den > e_num) {
             idx_t diff = e_den - e_num;
-            seq_t pow_p = seq_pow((seq_t)p, diff);
+            seq_t pow_p = ipow_idx((seq_t)p, diff);
             result = seq_mul(result, pow_p);
         }
     }

@@ -8,14 +8,16 @@
  *            sqrt(x)
  * Range:     u8 n <= 78, u16 n <= 3814, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 77 terms through n = 9704 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* Cache of cumulative sums a(1)..a(max_n) */
 static seq_t *prefix = NULL;     /* prefix[i] = a(i), prefix[0] unused */
@@ -24,7 +26,7 @@ static idx_t cache_size = 0;      /* highest n currently cached */
 /* Compute largest divisor of x that is <= sqrt(x) */
 static seq_t largest_divisor_le_sqrt(idx_t x)
 {
-    idx_t d = _floor_isqrt_u64(x);   /* floor(sqrt(x)) */
+    idx_t d = isqrt(x);   /* floor(sqrt(x)) */
     for (; d > 0; --d) {
         if (x % d == 0) {
             return (seq_t)d;
@@ -41,7 +43,7 @@ static void ensure_prefix(idx_t n)
     idx_t new_cap = (cache_size == 0) ? 1 : cache_size;
     while (new_cap < n) new_cap <<= 1;
 
-    seq_t *new_pref = (seq_t *)realloc(prefix, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_pref = mem_resize(seq_t, prefix, (new_cap + 1));
     if (!new_pref) abort();            /* allocation failed */
     prefix = new_pref;
 

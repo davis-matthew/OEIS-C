@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{k=0..n} (-n)^k * binomial(n,k) * binomial(2k,k)
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 6, i64 n <= 11, i128 n <= 20,
  *            big any n
+ * Validated: standard, pass, 31 terms through n = 321 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

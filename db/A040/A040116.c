@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow, seq_realloc
+ * Validated: standard, pass, 63 terms through n = 981 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,22 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"      /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
-#include "../utils/is_prime.h"     /* bool is_prime(idx_t x) */
-#include "../utils/seq_realloc.h"  /* seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *CACHE = NULL;  /* cache of terms */
 static size_t CNT   = 0;     /* number of stored terms */
@@ -72,7 +86,7 @@ seq_t a(idx_t n)
         else if (p % 4 == 3)       /* p ≡ 3 (mod 4) always qualifies */
             include = true;
         else {                     /* p ≡ 1 (mod 4) → check Legendre(3, p) */
-            seq_t leg = mod_pow((seq_t)3, (p - 1) / 2, (seq_t)p);
+            seq_t leg = powmod((seq_t)3, (p - 1) / 2, (seq_t)p);
             include = (leg == (seq_t)1);
         }
 

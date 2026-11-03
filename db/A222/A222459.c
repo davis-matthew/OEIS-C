@@ -8,12 +8,14 @@
  * Formula:   a(1) = 49, a(2) = 12943, a(n) = 270*a(n-1) - 1547*a(n-2) (n ≥ 3)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initial allocation (ensure space for indices 1 and 2) */
     if (!cache) {
         idx_t cap = (n < 2 ? 3 : n + 1); /* at least 3 to hold a(1) and a(2) */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();
         cache_cap = cap;
         cache[1] = (seq_t)49;            /* a(1) */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_cap) {
         idx_t new_cap = n + 1;
         if (new_cap < 3) new_cap = 3;   /* safety for very small n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache     = tmp;
         cache_cap = new_cap;

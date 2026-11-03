@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n = q*2^k where q is a Mersenne prime (A000668) else
  *            0
- * Range:     u8 n <= 9502, u16 n <= 9817, u32 n <= 9817, u64 n <= 9817,
- *            u128 n <= 9817, big any n
+ * Range:     u8 n <= 9502, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 144 terms through n = 9817 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

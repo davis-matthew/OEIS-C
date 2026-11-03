@@ -7,12 +7,14 @@
  * Formula:   a(n) = median{ |2*k^2 - median{2*j^2}| : 1 <= k <= n }
  * Range:     u8 n <= 11, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t values.  Works for all integer sizes. */
 static int cmp_seq_t(const void *a, const void *b)
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     }
 
     /* ---- absolute deviations from the median --------------------------------- */
-    seq_t *devs = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *devs = mem_new(seq_t, (size_t)n);
     if (!devs) return 0;                  /* allocation failure */
 
     for (idx_t i = 1; i <= n; ++i) {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     }
 
     /* ---- median of the deviations -------------------------------------------- */
-    qsort(devs, (size_t)n, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(devs, (size_t)n, sizeof(seq_t), cmp_seq_t);
 
     seq_t result;
     if (n & 1) {                          /* n odd */
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
         result = (devs[n / 2 - 1] + devs[n / 2]) / 2;
     }
 
-    free(devs);
+    mem_free(devs);
     return result;
 }

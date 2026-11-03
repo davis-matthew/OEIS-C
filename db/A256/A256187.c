@@ -7,12 +7,14 @@
  * Formula:   a(n) = A004718(n+1) - A004718(n)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9770 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *b = NULL;       /* cache for A004718 values */
 static idx_t b_cap = 0;       /* size of the allocated cache */
@@ -23,7 +25,7 @@ static void ensure_capacity(idx_t n)
 {
     if ((idx_t)(n + 1) > b_cap) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(b, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b, (size_t)new_cap);
         if (!tmp) abort();
         b = tmp;
         b_cap = new_cap;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     if (b == NULL) {
         b_cap = 2;               /* indices 0 and 1 */
         b_done = 1;
-        b = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b = mem_new(seq_t, b_cap);
         if (!b) abort();
         b[0] = (seq_t)0;
         b[1] = (seq_t)1;         /* A004718(0)=0, A004718(1)=1 */

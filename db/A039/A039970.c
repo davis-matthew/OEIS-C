@@ -6,14 +6,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(2*n) = 0, a(2*n+1) = Catalan(n) mod 3
- * Range:     u8 n <= 7430, u16 n <= 7431, u32 n <= 7431, u64 n <= 7431,
- *            u128 n <= 7431, big any n
- * Helpers:   none
+ * Range:     u8 n <= 7430, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 7431 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* initialize on first call */
     if (!cat) {
         cap = 8;
-        cat = (seq_t *)malloc(cap * sizeof(seq_t));
+        cat = mem_new(seq_t, cap);
         cat[0] = (seq_t)1;        /* Catalan(0) = 1 */
         sz  = 1;
     }
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (k + 1 > cap) {
         while (cap < k + 1)
             cap <<= 1;
-        cat = (seq_t *)realloc(cat, cap * sizeof(seq_t));
+        cat = mem_resize(seq_t, cat, cap);
     }
 
     /* compute missing values up to k */

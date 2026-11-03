@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t* cache = NULL;          /* array of found primes */
 static idx_t  cache_count = 0;       /* number of terms cached */
@@ -33,7 +36,7 @@ static void ensure_capacity(idx_t need)
     if (cache_count + need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (cache_count + need > new_cap) new_cap *= 2;
-    seq_t* new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t* new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) { /* allocation failed – abort quietly */
         abort();
     }
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
         seq_t val = p_minus_1 * p_minus_1 + 1;
 
         /* check divisibility: 2^(p-1) ≡ 1 (mod val) */
-        seq_t pow_res = mod_pow((seq_t)2, (uint64_t)(last_prime - 1), val);
+        seq_t pow_res = powmod((seq_t)2, (uint64_t)(last_prime - 1), val);
         if (pow_res == (seq_t)1)
         {
             ensure_capacity(1);

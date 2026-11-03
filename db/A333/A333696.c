@@ -9,14 +9,15 @@
  *            = n / gcd( n, Σ_{d|n} d*φ(d) ) (φ = Euler totient)
  * Range:     u8 n <= 16, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   gcd, phi
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -27,14 +28,14 @@ seq_t a(idx_t n)
         if (n % d == 0) {
             /* divisor d */
             seq_t d_seq = (seq_t)d;
-            seq_t phi_d = phi(d);          /* phi() from utils/phi.h */
+            seq_t phi_d = totient(d);          /* phi() from utils/phi.h */
             sum += d_seq * phi_d;
 
             /* complementary divisor m = n/d, if distinct */
             idx_t m = n / d;
             if (m != d) {
                 seq_t m_seq = (seq_t)m;
-                seq_t phi_m = phi(m);
+                seq_t phi_m = totient(m);
                 sum += m_seq * phi_m;
             }
         }

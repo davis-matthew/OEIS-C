@@ -9,11 +9,13 @@
  *            1)*(4*n - 1)) * a(n-1), a(0) = 105
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 14,
  *            big any n
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

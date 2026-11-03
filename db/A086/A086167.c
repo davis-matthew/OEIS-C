@@ -8,7 +8,8 @@
  *            is the smaller prime in a twin‑prime pair (p, p+2)
  * Range:     u8 n <= 8, u16 n <= 68, u32 n <= 8730, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 9651 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- static storage ------------------------------------------ */
 
@@ -88,7 +90,7 @@ ensure_twin_primes (idx_t needed_count)
         if (needed_count > twin_cap) {
             size_t new_cap = needed_count * 2;          /* over‑allocate a bit */
             lower_twin = (uint64_t *)realloc (lower_twin, new_cap * sizeof(uint64_t));
-            cumulative  = (seq_t   *)realloc (cumulative,  new_cap * sizeof(seq_t));
+            cumulative  = mem_resize(seq_t, cumulative, new_cap);
             twin_cap = new_cap;
         }
 

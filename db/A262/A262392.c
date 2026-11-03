@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} prime(k) + n mod 2 + 2 (a(0)=2)
  * Range:     u8 n <= 13, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *prime_sum = NULL;      /* prime_sum[i] = sum of first i primes (prime_sum[0] = 0) */
 static uint32_t *prime_list = NULL;  /* array of primes */
@@ -58,7 +60,7 @@ static void _ensure_primes(idx_t n)
             uint32_t *tmp_primes = (uint32_t *)malloc(count * sizeof(uint32_t));
             if (!tmp_primes) exit(1);
 
-            seq_t *tmp_sums = (seq_t *)malloc((count + 1) * sizeof(seq_t));
+            seq_t *tmp_sums = mem_new(seq_t, (count + 1));
             if (!tmp_sums) exit(1);
 
             size_t idx = 0;
@@ -75,7 +77,7 @@ static void _ensure_primes(idx_t n)
 
             free(is_composite);
             free(prime_list);
-            free(prime_sum);
+            mem_free(prime_sum);
 
             prime_list = tmp_primes;
             prime_sum = tmp_sums;

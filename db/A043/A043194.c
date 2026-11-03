@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_adjacent_1_8
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,14 +20,30 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/has_adjacent_1_8.h"
+#include "../utils/mem.h"
+
+/* Return true iff n written in base 9 has the digits 1 and 8 next to each other
+   (either order).  We scan from least significant digit upward, keeping the
+   previous digit seen in the variable 'prev'. */
+static bool has_adjacent_1_8(idx_t n)
+{
+    unsigned prev = 10; /* sentinel – not a valid base‑9 digit */
+    while (n > 0) {
+        unsigned d = n % 9;
+        if ((d == 1 && prev == 8) || (d == 8 && prev == 1))
+            return true;
+        prev = d;
+        n /= 9;
+    }
+    return false;
+}
 
 /* Grow the static cache for the sequence.  Doubles the capacity or starts at
    16 if it is currently empty. */
 static void grow_cache(idx_t cap, seq_t **valptr)
 {
     idx_t newcap = (cap == 0) ? 16 : cap << 1;
-    seq_t *newptr = (seq_t *)realloc(*valptr, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, *valptr, newcap);
     *valptr = newptr;
 }
 

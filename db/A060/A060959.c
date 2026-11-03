@@ -10,14 +10,30 @@
  *            index n to an antidiagonal of the two‑dimensional table T
  * Range:     u8 n <= 79, u16 n <= 173, u32 n <= 411, u64 n <= 1088,
  *            u128 n <= 3015, big any n
- * Helpers:   generalized_fib
+ * Validated: standard, pass, 107 terms through n = 4807 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* required for idx_t and seq_t types */
 #include <stdint.h>
-#include "../utils/generalized_fib.h"
+
+/* ----- helper: compute T(i, k) ----- */
+static seq_t generalized_fib(idx_t i, idx_t k)
+{
+    if (k == 0) return 0;
+    if (k == 1) return 1;
+    seq_t prev2 = 0;            /* T(i,0) */
+    seq_t prev1 = 1;            /* T(i,1) */
+    for (idx_t t = 2; t <= k; ++t)
+    {
+        seq_t cur = prev1 + (seq_t)i * prev2;
+        prev2 = prev1;
+        prev1 = cur;
+    }
+    return prev1;
+}
 
 /* ----- main sequence function ----- */
 seq_t a(idx_t n)

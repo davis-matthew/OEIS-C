@@ -11,7 +11,8 @@
  *            deficiency is within a bound are enumerate...
  * Range:     u8 n <= 38, u16 n <= 146, u32 n <= 501, u64 n <= 1692,
  *            u128 n <= 5975, big any n
- * Helpers:   h_bcmp, h_bmul, h_cmpD
+ * Validated: standard, pass, 75 terms through n = 9576 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,44 @@
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/h_bcmp.h"
-#include "../utils/h_bmul.h"
-#include "../utils/h_cmpD.h"
+
+static int h_bcmp(const uint32_t *x, size_t nx, const uint32_t *y, size_t ny) {
+    if (nx != ny) return nx < ny ? -1 : 1;
+    while (nx--) if (x[nx] != y[nx]) return x[nx] < y[nx] ? -1 : 1;
+    return 0;
+}
+
+static size_t h_bmul(uint32_t *d, size_t n, uint32_t m) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < n; i++) {
+        uint64_t t = (uint64_t)d[i] * m + c;
+        d[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    if (c) d[n++] = (uint32_t)c;
+    return n;
+}
+
+/* exact comparison of prod (u_i+1) and prod (v_i+1) */
+static int h_cmpD(const unsigned char *u, const unsigned char *v, int L) {
+    int i, cnt = 0, r;
+    size_t cap, na = 1, nb = 1;
+    uint32_t *A, *B;
+    for (i = 0; i < L; i++) if (u[i] != v[i]) cnt++;
+    cap = (size_t)cnt / 4 + 3;
+    A = (uint32_t *)calloc(cap, sizeof(uint32_t));
+    B = (uint32_t *)calloc(cap, sizeof(uint32_t));
+    A[0] = 1; B[0] = 1;
+    for (i = 0; i < L; i++) {
+        if (u[i] == v[i]) continue;
+        na = h_bmul(A, na, (uint32_t)u[i] + 1);
+        nb = h_bmul(B, nb, (uint32_t)v[i] + 1);
+    }
+    r = h_bcmp(A, na, B, nb);
+    free(A); free(B);
+    return r;
+}
 
 #define H_TOL 1e-9
 

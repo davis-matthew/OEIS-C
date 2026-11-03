@@ -11,14 +11,27 @@
  *            leading zeros)
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   same_nonzero_counts
+ * Validated: standard, pass, 76 terms through n = 985 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/same_nonzero_counts.h"
+
+static inline bool same_nonzero_counts(seq_t x, const int target[10]) {
+    int cnt[10] = {0};
+    seq_t t = x;
+    while (t > 0) {
+        int d = (int)(t % 10);
+        if (d != 0) cnt[d]++;
+        t /= 10;
+    }
+    for (int d = 1; d <= 9; ++d)
+        if (cnt[d] != target[d]) return false;
+    return true;
+}
 
 seq_t a(idx_t n) {
     /* compute non‑zero digit counts of n */

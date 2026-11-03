@@ -10,7 +10,8 @@
  *            < 2 return 0
  * Range:     u8 n <= 32, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 78 terms through n = 79 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(uint64_t) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 static uint64_t *prime_list   = NULL;   /* array of primes */
 static idx_t      prime_count = 0;      /* number of primes stored */
@@ -45,7 +47,7 @@ static void ensure_prime_count(idx_t idx)
     ensure_prime_cap(prime_count + 1);   /* at least one more space needed */
     while (prime_count <= idx)
     {
-        if (is_prime(next_candidate))
+        if (is_prime_u64(next_candidate))
         {
             prime_list[prime_count++] = next_candidate;
         }
@@ -87,9 +89,9 @@ seq_t a(idx_t n)
         uint64_t p = prime_list[i];
         uint64_t q = prime_list[i + n];
 
-        if (!is_prime(p + 4))
+        if (!is_prime_u64(p + 4))
             continue;
-        if (!is_prime(q + 4))
+        if (!is_prime_u64(q + 4))
             continue;
 
         return (seq_t)p;

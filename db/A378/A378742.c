@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 7, u16 n <= 1321, u32 n <= 9933, u64 n <= 9933,
- *            u128 n <= 9933, big any n
- * Helpers:   excluded
+ * Range:     u8 n <= 7, u16 n <= 1321, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 74 terms through n = 9933 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,12 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/excluded.h"
+
+/* primes that must be skipped */
+static bool excluded(uint64_t p)
+{
+    return p == 3 || p == 5 || p == 7 || p == 13 || p == 19 || p == 23;
+}
 
 /* primality test using 6k±1 wheel – safe for 64‑bit integers */
 static bool is_prime(uint64_t x)

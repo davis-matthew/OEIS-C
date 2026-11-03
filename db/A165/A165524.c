@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 30, u64 n <= 237,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
         a(12)=241269. */
    
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache for the recurrence.  */
 static seq_t *memo = NULL;
@@ -60,14 +62,14 @@ ensure_memo(idx_t n)
 
     if (memo == NULL) {
         /* First allocation: copy the initial 13 values.  */
-        memo = (seq_t *)malloc(required_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, required_cap);
         if (!memo) return;                 /* allocation failed; caller will use 0 */
         for (idx_t i = 0; i <= 12; ++i) memo[i] = init[i];
         memo_cap = required_cap;
         computed_up_to = 12;
     }
     else if (memo_cap < required_cap) {
-        seq_t *tmp = (seq_t *)realloc(memo, required_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, required_cap);
         if (!tmp) return;
         memo = tmp;
         memo_cap = required_cap;

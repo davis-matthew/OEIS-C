@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 21, u64 n <= 43, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Denominators of continued‑fraction convergents to sqrt(931) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*
  * seq_t a(idx_t n)
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     /* initialize cache on first use */
     if (len == 0) {
         /* allocate space for the first term */
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache)  return 0; /* failure: caller may check for 0 */
 
         cache[0] = prev2;   /* a(0) = 1 */
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         /* resize cache if necessary */
         if (len >= cap) {
             size_t newcap = cap ? (cap << 1) : 4;
-            seq_t *tmp    = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp    = mem_resize(seq_t, cache, newcap);
             if (!tmp)  return 0; /* failure */
             cache = tmp;
             cap   = newcap;

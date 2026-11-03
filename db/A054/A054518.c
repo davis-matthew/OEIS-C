@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 132, u16 n <= 1001, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   is_prime, rev
+ * Validated: standard, pass, 70 terms through n = 900 (2026-11-01)
+ * Helpers:   is_prime, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/rev.h"
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
     while (count < n) {
         ++num;                     /* advance to next integer           */
         if (!is_prime(num)) {      /* nonprime candidate                */
-            idx_t revnum = rev(num);
+            idx_t revnum = reverse_digits_idx(num);
             if (revnum != num && !is_prime(revnum)) {
                 ++count;          /* a valid Emirpnons found           */
             }

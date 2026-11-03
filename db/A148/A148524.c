@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* counted in exact seq_t type, which may be a builtin unsigned type
    or an arbitrary‑precision class (C++). */
@@ -57,25 +59,25 @@ seq_t a(idx_t n)
        initialise tables on first call */
     if (!a_arr) {
         a_cap = 1;
-        a_arr = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_cap);
         if (!a_arr) exit(1);
         a_arr[0] = (seq_t)1;      /* a(0)=1 */
         a_last = 0;
 
         B_cap = 1;
-        B_arr = (seq_t *)malloc(B_cap * sizeof(seq_t));
+        B_arr = mem_new(seq_t, B_cap);
         if (!B_arr) exit(1);
         B_arr[0] = (seq_t)1;      /* B(0,0)=1 */
         B_last = 0;
 
         M_cap = 1;
-        M_arr = (seq_t *)malloc(M_cap * sizeof(seq_t));
+        M_arr = mem_new(seq_t, M_cap);
         if (!M_arr) exit(1);
         M_arr[0] = (seq_t)1;      /* M(0)=1 */
 
         f_cap = 1;
-        f_arr  = (seq_t *)malloc(f_cap * sizeof(seq_t));
-        nf_arr = (seq_t *)malloc(f_cap * sizeof(seq_t));
+        f_arr  = mem_new(seq_t, f_cap);
+        nf_arr = mem_new(seq_t, f_cap);
         if (!f_arr || !nf_arr) exit(1);
         f_arr[0] = (seq_t)1;      /* height counts for length 0 */
         f_len = 0;
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         /* grow a_arr if necessary */
         if (a_cap < (size_t)(n + 1)) {
             a_cap = (size_t)(n + 1);
-            a_arr = (seq_t *)realloc(a_arr, a_cap * sizeof(seq_t));
+            a_arr = mem_resize(seq_t, a_arr, a_cap);
             if (!a_arr) exit(1);
         }
 
@@ -97,12 +99,12 @@ seq_t a(idx_t n)
 
             /* ---- update B_arr (Dyck prefix counts) ---- */
             if (B_cap < (size_t)(dmax + 1)) {
-                size_t new_cap = (size_t)(dmax + 1);
+                size_t new_cap = (size_t)(dmax + 1), old_cap = B_cap;
                 B_cap = new_cap;
-                B_arr = (seq_t *)realloc(B_arr, B_cap * sizeof(seq_t));
+                B_arr = mem_resize(seq_t, B_arr, B_cap);
                 if (!B_arr) exit(1);
-                /* zero new entries */
-                for (size_t i = cur/2 + 1; i < B_cap; ++i) B_arr[i] = (seq_t)0;
+                /* zero new entries (realloc leaves them unset in C) */
+                for (size_t i = old_cap; i < B_cap; ++i) B_arr[i] = (seq_t)0;
             }
             for (idx_t d = dmax; d >= 1; --d)
                 B_arr[d] += B_arr[d-1];
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
             if (M_cap < (size_t)(dmax + 1)) {
                 size_t new_cap = (size_t)(dmax + 1);
                 M_cap = new_cap;
-                M_arr = (seq_t *)realloc(M_arr, M_cap * sizeof(seq_t));
+                M_arr = mem_resize(seq_t, M_arr, M_cap);
                 if (!M_arr) exit(1);
                 for (size_t i = M_last + 1; i < M_cap; ++i) M_arr[i] = (seq_t)0;
             }
@@ -125,11 +127,11 @@ seq_t a(idx_t n)
                 if (f_cap < (size_t)(i + 1)) {
                     size_t new_cap = (size_t)(i + 1);
                     f_cap = new_cap;
-                    f_arr  = (seq_t *)realloc(f_arr,  f_cap * sizeof(seq_t));
-                    nf_arr = (seq_t *)realloc(nf_arr, f_cap * sizeof(seq_t));
+                    f_arr  = mem_resize(seq_t, f_arr, f_cap);
+                    nf_arr = mem_resize(seq_t, nf_arr, f_cap);
                     if (!f_arr || !nf_arr) exit(1);
                 }
-                memset(nf_arr, 0, (i + 1) * sizeof(seq_t));
+                mem_set(nf_arr, 0, (i + 1) * sizeof(seq_t));
 
                 /* DP transition */
                 for (idx_t h = 0; h < i; ++h) {

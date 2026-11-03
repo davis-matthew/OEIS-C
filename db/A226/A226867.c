@@ -13,6 +13,7 @@
  *            7, 37, 187, 792, 2866, 9136, 26267, 69311, 170084, * 3...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 27, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 210 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

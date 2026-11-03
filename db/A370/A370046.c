@@ -12,13 +12,15 @@
  *            representation of the sum of all previous terms
  * Range:     u8 n <= 22, u16 n <= 387, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9789 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper to compute the bit length of a seq_t value. */
 static unsigned bitlen_seq_t_local(seq_t x)
@@ -51,7 +53,7 @@ static void ensure_seq_cap(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap*2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *p = (seq_t*)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, seq_arr, new_cap);
     if (!p) exit(1);
     seq_arr = p;
     seq_cap = new_cap;
@@ -87,7 +89,7 @@ static void mark_used(seq_t v)
     if (bits >= 8 * sizeof(size_t)) {
         if (big_used_len == big_used_cap) {
             size_t new_cap = big_used_cap ? 2*big_used_cap : 8;
-            seq_t *p = (seq_t*)realloc(big_used, new_cap * sizeof(seq_t));
+            seq_t *p = mem_resize(seq_t, big_used, new_cap);
             if (!p) exit(1);
             big_used = p;
             big_used_cap = new_cap;

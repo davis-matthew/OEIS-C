@@ -8,16 +8,27 @@
  *            that begins with k^(n-1) for some k > 1
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   digit_count, pow10, pow_uint
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_u64_idx, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/pow_uint.h"
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/num_digits0.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     /* Handle the special case n = 1 */
@@ -32,14 +43,14 @@ seq_t a(idx_t n) {
 
     /* For n = 2 .. 5 brute‑force m and k */
     for (uint64_t m = 2; ; ++m) {
-        seq_t m_pow = pow_uint(m, (idx_t)n);
+        seq_t m_pow = ipow_u64_idx(m, (idx_t)n);
         uint64_t m_val = (uint64_t)m_pow;          /* fits in 64 bits for n < 6 */
-        int digits_v = digit_count(m_val);
+        int digits_v = num_digits0(m_val);
 
         for (uint64_t k = 2; ; ++k) {
-            seq_t k_pow = pow_uint(k, (idx_t)(n - 1));
+            seq_t k_pow = ipow_u64_idx(k, (idx_t)(n - 1));
             uint64_t k_val = (uint64_t)k_pow;
-            int digits_w = digit_count(k_val);
+            int digits_w = num_digits0(k_val);
 
             /* If the prefix would be longer than the value, stop this k loop */
             if (digits_w > digits_v) {

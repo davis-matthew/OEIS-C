@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 7, u64 n <= 9, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    a(n) = c(n)
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     /* Initialise on first call.  We need room for indices 0 and 1. */
     if (c_arr == NULL) {
         cap = 2;
-        b_arr = (seq_t *)malloc(cap * sizeof(seq_t));
-        c_arr = (seq_t *)malloc(cap * sizeof(seq_t));
+        b_arr = mem_new(seq_t, cap);
+        c_arr = mem_new(seq_t, cap);
         if (!b_arr || !c_arr) { /* allocation failure – abort */
             return (seq_t)0;
         }
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t new_cap = cap ? (cap << 1) : 2;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp_c = (seq_t *)realloc(c_arr, new_cap * sizeof(seq_t));
-        seq_t *tmp_b = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp_c = mem_resize(seq_t, c_arr, new_cap);
+        seq_t *tmp_b = mem_resize(seq_t, b_arr, new_cap);
         if (!tmp_c || !tmp_b) { /* allocation failure – abort */
             return (seq_t)0;
         }

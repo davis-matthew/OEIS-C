@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 3479, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow2_mod
+ * Validated: standard, pass, 74 terms through n = 9645 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow2_mod.h"
+#include "../utils/mem.h"
+
+/* fast modular exponentiation: 2^exp mod m (m ≥ 1) */
+static inline uint64_t pow2_mod(uint64_t exp, unsigned m)
+{
+    if (m == 1) return 0;
+    uint64_t result = 1 % m;
+    uint64_t base   = 2 % m;
+    while (exp > 0) {
+        if (exp & 1U) result = (result * base) % m;
+        base = (base * base) % m;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* count 1‑bits of a 64‑bit integer */
 static inline unsigned popcount_u64(uint64_t x)
@@ -43,7 +58,7 @@ seq_t a(idx_t n)
             if ((mod + 1U) % w == 0U) {           /* condition satisfied */
                 /* extend the cache */
                 size_t new_len = cache_len + 1;
-                void *tmp = realloc(cache, new_len * sizeof(seq_t));
+                void *tmp = mem_resize(seq_t, cache, new_len);
                 if (!tmp) abort();      /* allocation failure */
                 cache = (seq_t*)tmp;
                 cache[cache_len] = (seq_t)next_k;

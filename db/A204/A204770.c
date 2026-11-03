@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2500, i16 n <= 2500, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 2454 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system */
 
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     size_t N = (size_t)n;          /* use size_t for array lengths */
     /* Allocate array to store current coefficients up to degree N */
-    seq_t *coeff = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (N + 1));
     if (!coeff) abort();
 
     /* Initialise all coefficients to 0; coeff[0] will be set to 1 next */
@@ -63,6 +65,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coeff[N];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

@@ -11,7 +11,8 @@
  *            m_i*m_j*gcd(i,j) (edge cycles). Burnside over S_n: each ver...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   sg_gcd
+ * Validated: standard, pass, 32 terms through n = 50 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/sg_gcd.h"
+#include "../utils/gcd_i32.h"
 
 static int g_Lc;
 static uint32_t *g_buf;
@@ -64,7 +65,7 @@ static void rec(int depth, int rem, int maxk, long long e) {
     int k, j, m;
     for (k = (rem < maxk ? rem : maxk); k >= 1; k--) {
         long long cross = 0;
-        for (j = 0; j < depth; j++) cross += (long long)g_pm[j] * sg_gcd(k, g_pk[j]);
+        for (j = 0; j < depth; j++) cross += (long long)g_pm[j] * gcd_i32(k, g_pk[j]);
         memcpy(w, cur, sizeof(uint32_t) * (size_t)Lc);
         for (m = 1; m * k <= rem; m++) {
             long long ne;

@@ -9,7 +9,8 @@
  *            base‐6(A007908(n)), where A007908(n) = concat(1,…,n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   digits_of, pow10
+ * Validated: standard, pass, 31 terms through n = 285 (2026-11-03)
+ * Helpers:   mem, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/digits_of.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t *cache = NULL;           /* cache of already computed a(n) */
 static size_t cache_cap = 0;          /* allocated capacity of cache array */
@@ -29,7 +40,7 @@ static seq_t base6_of_concat(idx_t n)
 
     /* build the decimal concatenation 1…n */
     for (idx_t k = 1; k <= n; ++k) {
-        int dk = digits_of(k);                 /* number of decimal digits of k */
+        int dk = num_digits_idx(k);                 /* number of decimal digits of k */
         seq_t p   = pow10((idx_t)dk);           /* 10^dk as seq_t */
         concat = concat * p + (seq_t)k;        /* append k */
     }
@@ -72,7 +83,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (n + 1 > cache_cap) {
         size_t new_cap = n + 1024;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         cache = tmp;
         /* initialize new entries to 0 (sentinel for "not computed") */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +20,13 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Return true if value satisfies runs‑resistance = cuts‑resistance – 1 */
 static bool qualifies(seq_t value)
 {
-    idx_t blen = bitlen_seq_t(value);
+    idx_t blen = bit_length(value);
     if (blen == 0)
         return false;                 /* value 0 is not considered */
 
@@ -145,7 +147,7 @@ static void ensure_cache(idx_t need)
             new_size = 4;
         else if (new_size < cache_sz * 2)
             new_size = cache_sz * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)
             exit(EXIT_FAILURE);
         cache = tmp;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (8/3) * (503*7^(n-2) - 32) for n ≥ 2
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 21, u128 n <= 43,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 908 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

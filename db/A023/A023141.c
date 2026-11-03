@@ -7,13 +7,18 @@
  * Formula:   a(n) = Sum_{d|m} phi(d)/ord(9,d), where m = n with 3's removed
  * Range:     u8 n <= 867, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, mod_pow
+ * Validated: standard, pass, 109 terms through n = 9952 (2026-11-01)
+ * Helpers:   powmod, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/calc_phi.h"
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/totient_seq.h"
 
 static seq_t order9(idx_t d)
 {
@@ -22,7 +27,7 @@ static seq_t order9(idx_t d)
 
     seq_t mod   = (seq_t)d;
     seq_t base  = (seq_t)(9 % d);
-    seq_t phi_d = calc_phi((seq_t)d);
+    seq_t phi_d = totient_seq((seq_t)d);
 
     /* Gather all divisors of phi_d */
     seq_t divs[128];
@@ -48,7 +53,7 @@ static seq_t order9(idx_t d)
 
     /* Test each divisor for order */
     for (size_t k = 0; k < cnt; k++) {
-        if (mod_pow(base, (uint64_t)divs[k], mod) == (seq_t)1)
+        if (powmod(base, (uint64_t)divs[k], mod) == (seq_t)1)
             return divs[k];
     }
     return phi_d;   /* fallback, should not happen */
@@ -75,7 +80,7 @@ seq_t a(idx_t n)
 
     for (size_t k = 0; k < cnt; k++) {
         idx_t d     = divs[k];
-        seq_t phi_d = calc_phi((seq_t)d);
+        seq_t phi_d = totient_seq((seq_t)d);
         seq_t ord   = order9(d);
         sum += phi_d / ord;
     }

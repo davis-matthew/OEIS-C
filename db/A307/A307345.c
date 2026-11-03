@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 32, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* a(n) = the n‑th integer k with the property that every prime p ≤ √k divides k·(k‑1) */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* maximum known term – the sequence stops at k = 120 */
 static const idx_t MAX_K = 120;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     static const size_t CAP = 200;   /* enough for all known terms */
 
     if (!cache) {
-        cache = (seq_t*)malloc(CAP * sizeof(seq_t));
+        cache = mem_new(seq_t, CAP);
         sz = 0;
     }
 

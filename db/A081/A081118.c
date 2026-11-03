@@ -9,6 +9,7 @@
  *            where t = floor((-1 + sqrt(8*n-7))/2) – OEIS A081118
  * Range:     u8 n <= 29, u16 n <= 121, u32 n <= 497, u64 n <= 2017,
  *            u128 n <= 8129, big any n
+ * Validated: standard, pass, 70 terms through n = 9636 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

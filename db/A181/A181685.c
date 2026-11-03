@@ -8,12 +8,14 @@
  * Formula:   a(n) = (n - 1 - 2*floor((n-1)/3))*6^n
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -23,6 +25,6 @@ seq_t a(idx_t n)
     idx_t quo   = tmp / 3;               /* floor((n-1)/3) */
     idx_t factor = tmp - 2 * quo;        /* (n-1) - 2*floor((n-1)/3) */
 
-    seq_t pow6 = pow_uint(6, n);         /* compute 6^n (seq_t) */
+    seq_t pow6 = ipow_u64_idx(6, n);         /* compute 6^n (seq_t) */
     return (seq_t)factor * pow6;         /* final result */
 }

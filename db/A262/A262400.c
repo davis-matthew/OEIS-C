@@ -9,7 +9,8 @@
  * Formula:   a(n) = n * (coefficient of x^n in log(f(x)))
  * Range:     i8 n <= 20, i16 n <= 45, i32 n <= 94, i64 n <= 192,
  *            i128 n <= 387, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 2810 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for memoised values */
 static seq_t *a_coeff = NULL;      /* a[n] for n up to current max */
@@ -106,12 +108,12 @@ static void ensure_capacity(idx_t n)
     if (n <= max_n) return;
 
     /* free previous cache */
-    if (a_coeff) free(a_coeff);
-    if (B)       free(B);
+    if (a_coeff) mem_free(a_coeff);
+    if (B)       mem_free(B);
 
     /* allocate new arrays */
-    a_coeff = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
-    B       = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+    a_coeff = mem_new(seq_t, (size_t)n + 1);
+    B       = mem_new(seq_t, (size_t)n + 1);
     if (!a_coeff || !B) { exit(1); }
 
     /* compute up to n */

@@ -10,7 +10,8 @@
  *            the same forwards and backwards
  * Range:     u8 n <= 32, u16 n <= 762, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   is_palindrome, phi
+ * Validated: standard, pass, 72 terms through n = 1926 (2026-11-01)
+ * Helpers:   is_palindrome_base, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdbool.h>          /* bool, false, true */
 #include <stddef.h>           /* size_t */
 
-#include "../utils/phi.h"         /* seq_t phi(idx_t m); */
-#include "../utils/is_palindrome.h" /* bool is_palindrome(seq_t x, idx_t base); */
+#include <stdint.h>
+#include "../utils/is_palindrome_base.h"
+#include "../utils/totient.h"
 
 /* Maximum number of terms we are prepared to keep.  The tests only request
    up to about 10 000 terms, so 20 000 provides a generous safety margin. */
@@ -51,8 +53,8 @@ seq_t a(idx_t n) {
         /* examine next integer */
         ++last_checked;
 
-        seq_t phi_val = phi(last_checked);
-        if (is_palindrome(phi_val, (idx_t)10)) {
+        seq_t phi_val = totient(last_checked);
+        if (is_palindrome_base(phi_val, (idx_t)10)) {
             append_term(last_checked);
         }
     }

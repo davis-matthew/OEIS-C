@@ -8,17 +8,18 @@
  *            floor(sqrt(45*n^2)))/2), since phi^4 = (7+3*sqrt(5))/2
  * Range:     u8 n <= 37, u16 n <= 9561, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a004939_isqrt
+ * Validated: standard, pass, 62 terms through n = 9792 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a004939_isqrt.h"
+#include "../utils/isqrt_u128.h"
 
 seq_t a(idx_t n) {
     unsigned __int128 nn = (unsigned __int128)n;
-    unsigned __int128 m = a004939_isqrt(45 * nn * nn);
+    unsigned __int128 m = isqrt_u128(45 * nn * nn);
     unsigned __int128 r = (7 * nn + 1 + m) / 2;
     return (seq_t)(uint64_t)r;
 }

@@ -11,20 +11,22 @@
  *            (P(m-j(3j-1)/2) + P(m-j(3j+1)/2)), P(0) = 1
  * Range:     u8 n <= 13, u16 n <= 27, u32 n <= 72, u64 n <= 224,
  *            u128 n <= 761, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     seq_t res = 0;
     if (n < 6) return res;
     idx_t m, k;
-    seq_t *P = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *P = mem_new(seq_t, (size_t)(n + 1));
     P[0] = 1;
     for (m = 1; m < n; m++) {
         seq_t pos = 0, neg = 0;
@@ -56,6 +58,6 @@ seq_t a(idx_t n)
         else c = x * ((x + 1) / 2);
         res += c;
     }
-    free(P);
+    mem_free(P);
     return res;
 }

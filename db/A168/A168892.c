@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         return 1;
 
     /* Allocate space for a[0..n] */
-    seq_t *a = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, (n + 1));
     if (!a)
         return 0;          /* Memory failure – return 0 as a safe sentinel */
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     }
     if (i > n) {          /* we have reached the requested n */
         seq_t val = a[n];
-        free(a);
+        mem_free(a);
         return val;
     }
 
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     a[21] = (seq_t)1 + (seq_t)21 * sum20 - (seq_t)231 * a[0];
     if (n == 21) {
         seq_t val = a[21];
-        free(a);
+        mem_free(a);
         return val;
     }
 
@@ -85,6 +87,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a[n];
-    free(a);
+    mem_free(a);
     return result;
 }

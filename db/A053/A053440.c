@@ -12,6 +12,7 @@
  *            ⌊(√(8n+1)−1)/2⌋. Column c = n − r(r+1)/2
  * Range:     u8 n <= 11, u16 n <= 30, u32 n <= 71, u64 n <= 181,
  *            u128 n <= 511, big any n
+ * Validated: standard, pass, 61 terms through n = 1212 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

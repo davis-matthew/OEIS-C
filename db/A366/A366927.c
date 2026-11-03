@@ -10,7 +10,8 @@
  *            1. a(1)=0
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   gcd64
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /* ---------- deterministic 64‑bit modular arithmetic ---------- */
 static inline uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod)
@@ -102,7 +103,7 @@ static uint64_t pollard(uint64_t n)
             y = (mul_mod(y, y, n) + c) % n;
             y = (mul_mod(y, y, n) + c) % n;
             uint64_t diff = x > y ? x - y : y - x;
-            d = gcd64(diff, n);
+            d = gcd_u64(diff, n);
         }
         if (d != n) return d;
     }

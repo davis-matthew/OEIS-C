@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 985, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 65 terms through n = 9996 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start); */
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Dynamically store the found indices (1‑based prime indices). */
 static seq_t *g_indices = NULL;   /* array of seq_t values */
@@ -32,7 +34,7 @@ static void ensure_capacity(size_t needed) {
     if (needed <= g_cap) return;
     size_t newcap = (g_cap == 0) ? 1 : g_cap << 1;
     while (newcap < needed) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(g_indices, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, g_indices, newcap);
     if (!tmp) abort(); /* allocation failed */
     g_indices = tmp;
     g_cap = newcap;

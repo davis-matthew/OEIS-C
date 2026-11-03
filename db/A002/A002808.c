@@ -7,8 +7,9 @@
  * Keywords:  nonn, nice, easy, core
  * Formula:   a(n) = n-th composite number (positive integers that are neither
  *            1 nor prime)
- * Range:     u8 n <= 200, u16 n <= 9120, u32 n <= 9120, u64 n <= 9120,
- *            u128 n <= 9120, big any n
+ * Range:     u8 n <= 200, u16 n <= 17737, u32 n <= 17737, u64 n <= 17737,
+ *            u128 n <= 17737, big any n
+ * Validated: standard, pass, 80 terms through n = 9120 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

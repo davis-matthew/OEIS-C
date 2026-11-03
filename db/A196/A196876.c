@@ -8,12 +8,14 @@
  * Formula:   a(n)=1 for n<=7; a(n) = (n-8)+sum_{i=1..7}a(n-i)
  * Range:     u8 n <= 13, u16 n <= 21, u32 n <= 37, u64 n <= 69, u128 n <= 133,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,11 +34,11 @@ seq_t a(idx_t n)
         /* allocate or grow the array to hold indices up to n */
         idx_t new_cap = n + 1;      /* we ignore index 0 */
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, new_cap);
             if (!cache) exit(1);
             cache_size = new_cap;
         } else if (new_cap > cache_size) {
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(1);
             cache = tmp;
             cache_size = new_cap;

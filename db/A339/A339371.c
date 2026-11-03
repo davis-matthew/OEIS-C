@@ -10,12 +10,14 @@
  *            function uses dynamic‐programming with two parity tables
  * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,11 +26,11 @@ seq_t a(idx_t n)
 
     /* Allocate dynamic arrays for even/odd part counts. */
     size_t sz = (size_t)(n + 1);
-    seq_t *even = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *odd  = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *even = mem_new(seq_t, sz);
+    seq_t *odd  = mem_new(seq_t, sz);
     if (!even || !odd) {                    /* allocation failure */
-        free(even);
-        free(odd);
+        mem_free(even);
+        mem_free(odd);
         return (seq_t)0U;
     }
 
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = even[(size_t)n];
-    free(even);
-    free(odd);
+    mem_free(even);
+    mem_free(odd);
     return result;
 }

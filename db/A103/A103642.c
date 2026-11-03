@@ -9,13 +9,14 @@
  *            23298085122481}
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64.h"
 
 static const seq_t init[6] = {
     (seq_t)1,
@@ -37,6 +38,6 @@ seq_t a(idx_t n) {
         exp = 12ULL * k * (k - 1ULL) + k * (4ULL * r + 16ULL);
     }
 
-    seq_t pow13 = pow_uint((seq_t)13, exp);
+    seq_t pow13 = ipow_u64((seq_t)13, exp);
     return pow13 * init[r];
 }

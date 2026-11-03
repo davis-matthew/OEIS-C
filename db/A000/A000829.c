@@ -12,7 +12,8 @@
  *            x S_2 acting on pairs of Boolean functions); summed...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   a829_add, a829_addbit, a829_div, a829_gcd, a829_mul
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,11 +21,54 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a829_add.h"
-#include "../utils/a829_addbit.h"
-#include "../utils/a829_div.h"
-#include "../utils/a829_gcd.h"
-#include "../utils/a829_mul.h"
+#include "../utils/gcd_u64.h"
+
+static void a829_add(uint32_t *a, const uint32_t *b, size_t L)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)a[i] + b[i] + c;
+        a[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
+
+static void a829_addbit(uint32_t *x, size_t L, uint64_t b)
+{
+    size_t i = (size_t)(b / 32);
+    uint64_t c = (uint64_t)1 << (b % 32);
+    while (c && i < L) {
+        uint64_t t = (uint64_t)x[i] + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+        i++;
+    }
+}
+
+static void a829_div(uint32_t *x, size_t L, uint32_t d)
+{
+    uint64_t r = 0;
+    size_t i = L;
+    while (i > 0) {
+        uint64_t t;
+        i--;
+        t = (r << 32) | x[i];
+        x[i] = (uint32_t)(t / d);
+        r = t % d;
+    }
+}
+
+static void a829_mul(uint32_t *x, size_t L, uint32_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
 
 static int a829_n;
 static int *a829_mp, *a829_mn;
@@ -38,12 +82,12 @@ static uint64_t a829_fix(uint64_t j)
     uint64_t e = 0;
     for (k = 1; k <= n; k++) {
         if (a829_mn[k]) {
-            uint64_t g = a829_gcd(j, 2 * (uint64_t)k);
+            uint64_t g = gcd_u64(j, 2 * (uint64_t)k);
             if (((2 * (uint64_t)k / g) & 1) == 0) return 0;
             e += (uint64_t)a829_mn[k] * (g / 2);
         }
         if (a829_mp[k])
-            e += (uint64_t)a829_mp[k] * a829_gcd(j, (uint64_t)k);
+            e += (uint64_t)a829_mp[k] * gcd_u64(j, (uint64_t)k);
     }
     return (uint64_t)1 << e;
 }
@@ -54,8 +98,8 @@ static void a829_process(void)
     uint64_t L = 1, Lo, j, s, c, co, ce;
     size_t LL = a829_L;
     for (k = 1; k <= n; k++) {
-        if (a829_mp[k]) L = L / a829_gcd(L, (uint64_t)k) * (uint64_t)k;
-        if (a829_mn[k]) L = L / a829_gcd(L, 2 * (uint64_t)k) * (2 * (uint64_t)k);
+        if (a829_mp[k]) L = L / gcd_u64(L, (uint64_t)k) * (uint64_t)k;
+        if (a829_mn[k]) L = L / gcd_u64(L, 2 * (uint64_t)k) * (2 * (uint64_t)k);
     }
     s = 0;
     for (j = 1; j <= L; j++) s += a829_fix(j);
@@ -63,7 +107,7 @@ static void a829_process(void)
     Lo = L;
     while ((Lo & 1) == 0) Lo >>= 1;
     s = 0;
-    for (j = 1; j <= Lo; j++) s += a829_fix(a829_gcd(j, Lo));
+    for (j = 1; j <= Lo; j++) s += a829_fix(gcd_u64(j, Lo));
     co = s / Lo;
     ce = c - co;
 

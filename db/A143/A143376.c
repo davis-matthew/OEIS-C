@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 48, u32 n <= 160, u64 n <= 576,
  *            u128 n <= 2238, big any n
+ * Validated: standard, pass, 65 terms through n = 7611 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
    let k = n - m(m-1)/2; then a(n) = 2^(m-1) * binomial(m,k). */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

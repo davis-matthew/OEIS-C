@@ -8,6 +8,7 @@
  * Formula:   a(n) = -3328 - 2^n*(1820*n-18616) + 4^n*(13520*n-14040)
  * Range:     u8 none, u16 n <= 1, u32 n <= 7, u64 n <= 22, u128 n <= 54,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 842 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

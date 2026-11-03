@@ -11,7 +11,8 @@
  *            16 modulo p
  * Range:     u8 n <= 53, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   build_primes, mod_pow
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   build_primes, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/build_primes.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 static idx_t *prime_array = NULL;
 static size_t prime_count = 0;      /* number of primes stored (including 2) */
@@ -66,7 +69,7 @@ static uint64_t multiplicative_order_16(uint64_t p)
             /* try to reduce ord by the prime factor d */
             while (ord % d == 0) {
                 uint64_t cand = ord / d;
-                if (mod_pow((seq_t)16, cand, (seq_t)p) == (seq_t)1)
+                if (powmod((seq_t)16, cand, (seq_t)p) == (seq_t)1)
                     ord = cand;
                 else
                     break;
@@ -77,7 +80,7 @@ static uint64_t multiplicative_order_16(uint64_t p)
     if (m > 1) {
         while (ord % m == 0) {
             uint64_t cand = ord / m;
-            if (mod_pow((seq_t)16, cand, (seq_t)p) == (seq_t)1)
+            if (powmod((seq_t)16, cand, (seq_t)p) == (seq_t)1)
                 ord = cand;
             else
                 break;

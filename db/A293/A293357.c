@@ -10,12 +10,14 @@
  *            appearing in the sequence a() (the complementary sequence)
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
 
     /* Initialise on first call */
     if (!A) {
-        sizeA = 8;  A = (seq_t*)malloc(sizeA * sizeof(seq_t));
-        sizeB = 8;  B = (seq_t*)malloc(sizeB * sizeof(seq_t));
+        sizeA = 8;  A = mem_new(seq_t, sizeA);
+        sizeB = 8;  B = mem_new(seq_t, sizeB);
 
         /* base values */
         A[0] = (seq_t)1;
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
             /* Grow B as necessary */
             if (next_b_index >= sizeB) {
                 sizeB <<= 1;
-                B = (seq_t*)realloc(B, sizeB * sizeof(seq_t));
+                B = mem_resize(seq_t, B, sizeB);
             }
             B[next_b_index++] = (seq_t)nextCandidate;
             nextCandidate++;
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         /* Grow A as necessary */
         if (i >= sizeA) {
             sizeA <<= 1;
-            A = (seq_t*)realloc(A, sizeA * sizeof(seq_t));
+            A = mem_resize(seq_t, A, sizeA);
         }
 
         /* Compute a[i] using the recurrence */

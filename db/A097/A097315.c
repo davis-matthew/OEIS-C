@@ -8,12 +8,14 @@
  * Formula:   a(n) = 38*a(n-1) - a(n-2), a(0) = 1, a(1) = 37
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 568 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute terms of A097315.  Cache results to handle out‑of‑order
    requests efficiently.  The recurrence is linear, so we can generate
@@ -36,9 +38,9 @@ seq_t a(idx_t n)
 
         /* Allocate or reallocate memory */
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_end * sizeof(seq_t));
+            cache = mem_new(seq_t, new_end);
         } else {
-            cache = (seq_t *)realloc(cache, new_end * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_end);
         }
 
         /* Ensure base values are present */

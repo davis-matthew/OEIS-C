@@ -13,7 +13,8 @@
  *            lengths of λ
  * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 40, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   unsigned_int_cmp
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/unsigned_int_cmp.h"
+
+/* ------------------------------------------------------------------ */
+static int unsigned_int_cmp(const void *a, const void *b)
+{
+    const unsigned int *ua = (const unsigned int *)a;
+    const unsigned int *ub = (const unsigned int *)b;
+    return (*ua > *ub) - (*ua < *ub);
+}
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                     */

@@ -10,7 +10,8 @@
  *            linearly starting from a(1)
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* integer square root (floor), small n only */
 static uint64_t isqrt_uint64(uint64_t n)
@@ -49,7 +51,7 @@ static void ensure_cache_capacity(size_t min_need)
     if (min_need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     if (new_cap < min_need) new_cap = min_need;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) { /* allocation failed; abort */ abort(); }
     cache = tmp;
     cache_cap = new_cap;

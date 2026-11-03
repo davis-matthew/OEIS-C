@@ -10,6 +10,7 @@
  * Formula:   a(2k) = (10^(2k+1)-1)/9, a(2k+1) = 10^k
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 124 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

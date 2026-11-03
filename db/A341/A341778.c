@@ -10,7 +10,8 @@
  *            to 7
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 94 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Global cache for up to the largest n requested so far. */
 static seq_t *dp_cache = NULL;   /* dp[i*(N+1)+s] 0 <= i <=7, 0 <= s <= N */
@@ -35,9 +37,9 @@ static void compute_up_to(idx_t limit)
 
     /* Reallocate cache if needed */
     if (dp_cache != NULL)
-        free(dp_cache);
+        mem_free(dp_cache);
     size_t size = (size_t)(8 * (limit + 1));
-    dp_cache = (seq_t *)calloc(size, sizeof(seq_t));
+    dp_cache = mem_new(seq_t, size);
     if (dp_cache == NULL)
         return;   /* allocation failed – callers could check for 0 */
 

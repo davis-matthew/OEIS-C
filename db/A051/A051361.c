@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(n-1)*(n-2)*(n^4+31*n^3+287*n^2+1499*n+2922)/7!
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 76, u64 n <= 1906,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 52 terms through n = 8494 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

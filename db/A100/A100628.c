@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2^(3*prime(n) + 1) (offset 1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   is_prime, pow2
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   is_prime_u64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         uint64_t cand = (primes_cnt == 0) ? 2 : last_candidate + 1;
 
         /* Simple primality test: use the provided is_prime() helper */
-        while (!is_prime(cand))
+        while (!is_prime_u64(cand))
             cand++;
 
         /* Grow capacity if needed */

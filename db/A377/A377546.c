@@ -9,15 +9,43 @@
  *            ((2*n+k+2)*(n-k)!)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, mul_small
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/mul_small.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Multiply-by-self exponentiation for big exponent (seq_t type) */
+static seq_t big_pow(seq_t base, seq_t exp) {
+    seq_t result = 1;
+    while (exp != 0) {
+        if ((exp % 2) != 0) {
+            result *= base;
+        }
+        base *= base;
+        exp /= 2;
+    }
+    return result;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* This implementation computes the term in a way that avoids
    64‑bit overflow by using an unsigned __int128 intermediate
@@ -34,7 +62,7 @@ seq_t a(idx_t n)
     /* ensure factorial cache up to n */
     if (n >= fact_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_cache, new_cap);
         if (!tmp) abort();
         fact_cache = tmp;
         size_t start = fact_cap == 0 ? 1 : fact_cap;
@@ -47,7 +75,7 @@ seq_t a(idx_t n)
     /* ensure memoisation cache up to n */
     if (n >= cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         for (size_t i = cache_cap; i < new_cap; ++i)

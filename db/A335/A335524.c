@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   avoids_pattern, seq_alloc, seq_realloc
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,82 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/avoids_pattern.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Test whether the k-th composition avoids the pattern (2,2,1). */
+static bool avoids_pattern(idx_t k)
+{
+    /* Positions of 1-bits in k, least‑significant bit has position 1. */
+    idx_t pos[64];
+    size_t pos_len = 0;
+    idx_t bitpos = 1;
+    idx_t tmp = k;
+    while (tmp) {
+        if (tmp & 1ULL) {
+            pos[pos_len++] = bitpos;
+        }
+        tmp >>= 1;
+        ++bitpos;
+    }
+
+    /* Build the parts list: first difference with 0, then reverse. */
+    idx_t parts[64];
+    if (pos_len == 0) {
+        /* Empty composition – trivially avoids the pattern. */
+        return true;
+    }
+    parts[0] = pos[0];          /* first part = pos[0] - 0 */
+    for (size_t i = 1; i < pos_len; ++i) {
+        parts[i] = pos[i] - pos[i - 1];
+    }
+    /* Reverse the array to get the natural order of the composition. */
+    for (size_t i = 0; i < pos_len / 2; ++i) {
+        idx_t t = parts[i];
+        parts[i] = parts[pos_len - 1 - i];
+        parts[pos_len - 1 - i] = t;
+    }
+
+    /* Scan for a subsequence (2,2,1).  Track part values that have
+       appeared at least twice and keep the largest such value. */
+    int seen[65] = {0};
+    idx_t max_double = 0;
+    bool double_seen = false;
+
+    for (size_t i = 0; i < pos_len; ++i) {
+        idx_t v = parts[i];
+        if (double_seen && v < max_double) {
+            return false;          /* pattern found */
+        }
+        if (seen[v] == 1) {        /* second occurrence -> double */
+            double_seen = true;
+            if (v > max_double) {
+                max_double = v;
+            }
+        }
+        seen[v] = seen[v] + 1;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,6 +7,7 @@
  * Formula:   a(n) = A007093(n^3), where A007093 converts to base 7
  * Range:     u8 n <= 5, u16 n <= 25, u32 n <= 563, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 55 terms through n = 4641 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

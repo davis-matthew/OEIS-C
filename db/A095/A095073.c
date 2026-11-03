@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   not stated
- * Range:     u8 n <= 7, u16 n <= 513, u32 n <= 9875, u64 n <= 9875,
- *            u128 n <= 9875, big any n
- * Helpers:   alloc_seq_array, bitlen_seq_t, free_seq_array, is_prime
+ * Range:     u8 n <= 7, u16 n <= 513, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 60 terms through n = 9875 (2026-11-03)
+ * Helpers:   bit_length, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,20 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include "../utils/bit_length.h"
 #include "../utils/is_prime.h"
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t  *cache = NULL;   /* cached sequence values */
 static size_t  cache_len = 0;  /* number of cached values */
@@ -80,7 +91,7 @@ a(idx_t n)
             tmp >>= 1;
         }
 
-        idx_t bits = bitlen_seq_t(prime);
+        idx_t bits = bit_length(prime);
         idx_t zeros = bits - ones;
 
         if (ones == zeros + 1) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 121, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_power_of_two, is_prime, mod_pow
+ * Validated: standard, pass, 81 terms through n = 9427 (2026-11-03)
+ * Helpers:   is_pow2, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,12 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t) */
-#include "../utils/is_power_of_two.h"   /* bool is_power_of_two(seq_t) */
-#include "../utils/mod_pow.h"           /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/is_pow2.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* ---------- Static cache to memoise terms ---------- */
 static seq_t *cache      = NULL;   /* array of terms */
@@ -34,7 +38,7 @@ static void ensure_cache_cap(size_t min_cap)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < min_cap)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr)
         exit(EXIT_FAILURE);   /* out of memory */
     cache = new_arr;
@@ -60,10 +64,10 @@ seq_t a(idx_t n)
             continue;
 
         /* Compute 2^k mod k. */
-        seq_t mod_res = mod_pow((seq_t)2, (uint64_t)last_checked, (seq_t)last_checked);
+        seq_t mod_res = powmod((seq_t)2, (uint64_t)last_checked, (seq_t)last_checked);
 
         /* Keep the term if the result is a power of two. */
-        if (is_power_of_two(mod_res)) {
+        if (is_pow2(mod_res)) {
             cache[cache_size++] = (seq_t)last_checked;
         }
     }

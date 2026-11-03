@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, easy
  * Formula:   a(n) = n^2 - 4*n + 6 for n > 1, with a(0) = -1, a(1) = a(2) = 2
- * Range:     i8 n <= 13, i16 n <= 60, i32 n <= 60, i64 n <= 60, i128 n <= 60,
- *            big any n
+ * Range:     i8 n <= 13, i16 n <= 183, i32 n <= 1000, i64 n <= 1000,
+ *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 77 terms through n = 824 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

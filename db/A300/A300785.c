@@ -10,6 +10,7 @@
  *            the (n+1)-st entry of the triangle T(n,k) read by rows.)
  * Range:     u8 n <= 6, u16 n <= 22, u32 n <= 680, u64 n <= 5050,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 71 terms through n = 5022 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

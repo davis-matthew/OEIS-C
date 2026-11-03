@@ -7,7 +7,8 @@
  * Formula:   decimal digits of √(221/25) = √(8.84)
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------------- */
 /* Big integer type: base 10^9, little‑endian digits                             */
@@ -130,7 +132,7 @@ static void cache_grow(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_cap);
     if (!p) { /* memory failure, abort silently */
         exit(1);
     }

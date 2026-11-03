@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    allowing arbitrary order of calls with O(n) total work per new n. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     size_t target = (size_t)n;            /* cache is 1‑indexed, size n means indices 0..n-1 */
     if (target > cached_len) {
-        seq_t *new_cache = (seq_t *)realloc(cache, target * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, target);
         if (!new_cache) { /* allocation failed – abort */
             abort();
         }

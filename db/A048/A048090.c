@@ -10,12 +10,14 @@
  *            subsets of {1,…,n} in which exactly 4/5 of the elements are ≤ L
  * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
 
     seq_t result = 0;
     for (idx_t t = 1; t <= max_t; ++t) {
-        seq_t low  = binom(L, 4 * t);
-        seq_t high = binom(H, t);
+        seq_t low  = binomial(L, 4 * t);
+        seq_t high = binomial(H, t);
         result += low * high;
     }
     return result;

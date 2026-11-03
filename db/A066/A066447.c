@@ -8,21 +8,23 @@
  *            (1+x^i)/(1−x^i)
  * Range:     u8 n <= 23, u16 n <= 65, u32 n <= 199, u64 n <= 668,
  *            u128 n <= 2389, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9468 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     idx_t N = n;
 
     /* Allocate working arrays, initially zeroed. */
-    seq_t *f   = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *tmp = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *a   = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *f   = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *tmp = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *a   = mem_new(seq_t, (size_t)(N + 1));
 
     if (!f || !tmp || !a) return 0;            /* Allocation failure */
 
@@ -67,9 +69,9 @@ seq_t a(idx_t n)
     seq_t result = a[N];
 
     /* Free temporary storage. */
-    free(f);
-    free(tmp);
-    free(a);
+    mem_free(f);
+    mem_free(tmp);
+    mem_free(a);
 
     return result;
 }

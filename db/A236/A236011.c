@@ -10,13 +10,15 @@
  *            a(5)=18784, a(6)=70688, a(7)=278352
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 14, u64 n <= 30, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Initial values for n = 1..7 */
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
     if (target > cache_cap) {
         size_t new_cap = (cache_cap > 0) ? cache_cap * 2 : target;
         if (new_cap < target) new_cap = target;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         /* For the purpose of this problem we assume realloc succeeds. */
         cache = tmp;
         cache_cap = new_cap;

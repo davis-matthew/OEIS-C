@@ -12,7 +12,8 @@
  *            arithmetic is performed in seq_t
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *seq      = NULL;   /* array of computed a(i) in order */
 static size_t seq_len  = 0;      /* number of elements stored in seq    */
@@ -48,7 +50,7 @@ static void used_insert(seq_t key)
 {
     if (used_len == used_cap) {
         size_t newcap = used_cap ? used_cap << 1 : 16;
-        used = (seq_t *)realloc(used, newcap * sizeof(seq_t));
+        used = mem_resize(seq_t, used, newcap);
         used_cap = newcap;
     }
     size_t pos = used_find(used, key);
@@ -63,7 +65,7 @@ static void seq_ensure(size_t newcap)
 {
     if (seq_len >= newcap) return;
     if (newcap == 0) newcap = 16;
-    seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, newcap);
     seq_cap = newcap;
 }
 

@@ -10,13 +10,16 @@
  *            triangular numbering: n = r(r+1)/2 + c
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
 
     for (idx_t j = 0; j <= k; ++j) {
         seq_t bin = binomial(k, j);                     /* binomial(k,j)  */
-        seq_t pow = pow_seq((seq_t)(5 + j), (int)r);      /* (5+j)^r        */
+        seq_t pow = ipow_i32((seq_t)(5 + j), (int)r);      /* (5+j)^r        */
         seq_t term = bin * pow;                           /* term value     */
 
         if (((k - j) & 1)) {         /* odd parity -> negative term */

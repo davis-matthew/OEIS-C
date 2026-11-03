@@ -9,12 +9,14 @@
  *            (1+x^(2*i-1)-x^(4*i-2))/(1-x^(2*i))
  * Range:     u8 n <= 27, u16 n <= 70, u32 n <= 204, u64 n <= 658,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,9 +29,9 @@ seq_t a(idx_t n)
     int N = (int)n;
 
     /* allocate the three working arrays */
-    seq_t *dp      = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *dpF     = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *nextdp  = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, N + 1);
+    seq_t *dpF     = mem_new(seq_t, N + 1);
+    seq_t *nextdp  = mem_new(seq_t, N + 1);
 
     if (!dp || !dpF || !nextdp) { /* allocation failure */
         exit(1);
@@ -71,9 +73,9 @@ seq_t a(idx_t n)
 
     seq_t result = dp[N];
 
-    free(dp);
-    free(dpF);
-    free(nextdp);
+    mem_free(dp);
+    mem_free(dpF);
+    mem_free(nextdp);
 
     return result;
 }

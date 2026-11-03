@@ -10,12 +10,14 @@
  *            a(8) = 780
  * Range:     i8 n <= 3, i16 n <= 42, i32 n <= 42, i64 n <= 42, i128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of calculated values */
 static size_t  cap   = 0;        /* allocated size of cache */
@@ -27,7 +29,7 @@ static void ensure_capacity(size_t need)
     if (need < cap) return;
     size_t new_cap = cap ? cap : 64;
     while (new_cap <= need) new_cap = new_cap * 2 + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);               /* allocation failure */
     for (size_t i = cap; i < new_cap; ++i) tmp[i] = 0; /* initialise new slots */
     cache = tmp;
@@ -38,7 +40,7 @@ static void ensure_capacity(size_t need)
 static void init_cache(void)
 {
     if (cache) return;
-    cache = (seq_t *)malloc(64 * sizeof(seq_t));
+    cache = mem_new(seq_t, 64);
     if (!cache) exit(1);
     for (size_t i = 0; i < 64; ++i) cache[i] = 0;
     cap = 64;

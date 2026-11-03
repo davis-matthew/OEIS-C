@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>   /* malloc, realloc */
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Ensure dynamic array with capacity ≥ new_cap */
 static void ensure_capacity(seq_t **arr, size_t *cap, size_t new_cap)
@@ -35,7 +37,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t new_cap)
     size_t new_size = (*cap) ? (*cap) : 2;
     while (new_size < new_cap)
         new_size <<= 1;
-    seq_t *ptr = (seq_t *)realloc(*arr, new_size * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, *arr, new_size);
     *arr = ptr;
     *cap = new_size;
 }

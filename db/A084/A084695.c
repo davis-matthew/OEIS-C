@@ -9,13 +9,15 @@
  *            r(r+1)/2 ≥ n, m = n – r(r−1)/2 – 1 (0‑based offset in row r)
  * Range:     u8 n <= 1175, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 5034 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------  Prime sieve (on‑demand)  --------------------------------- */
 static struct {
@@ -33,7 +35,7 @@ static void add_primes_up_to(size_t new_limit)
     /* Ensure storage */
     if (!primes_state.primes) {
         primes_state.cap    = 64;
-        primes_state.primes = (seq_t *)malloc(primes_state.cap * sizeof(seq_t));
+        primes_state.primes = mem_new(seq_t, primes_state.cap);
     }
 
     /* Start from the first number that has not been checked yet */
@@ -50,8 +52,7 @@ static void add_primes_up_to(size_t new_limit)
         if (isprime) {
             if (primes_state.count == primes_state.cap) {
                 primes_state.cap <<= 1;
-                primes_state.primes = (seq_t *)realloc(
-                        primes_state.primes, primes_state.cap * sizeof(seq_t));
+                primes_state.primes = mem_resize(seq_t, primes_state.primes, primes_state.cap);
             }
             primes_state.primes[primes_state.count++] = (seq_t)cand;
         }

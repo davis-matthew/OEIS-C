@@ -11,13 +11,21 @@
  *            inner left-half digits from {0,1,6,8,9}, and the...
  * Range:     u8 n <= 10, u16 n <= 60, u32 n <= 3124, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a787_rot
+ * Validated: standard, pass, 63 terms through n = 9697 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a787_rot.h"
+
+static int a787_rot(int d) {
+    switch (d) {
+        case 6: return 9;
+        case 9: return 6;
+        default: return d;
+    }
+}
 
 static const int a787_first[4] = {1, 6, 8, 9};
 static const int a787_inner[5] = {0, 1, 6, 8, 9};

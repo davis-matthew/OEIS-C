@@ -10,13 +10,15 @@
  *            for n>1 and 0<k<n T(n,k) = Σ_{i=0}^{n-1} T(n-2,i) * T(i,k-1)
  * Range:     u8 n <= 56, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* 2. Ensure rows 0..r are computed. */
     while (rows_count <= r) {
         /* Allocate new row of length row+1.  */
-        seq_t *cur = (seq_t *)malloc((rows_count + 1) * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, (rows_count + 1));
         if (!cur) abort();          /* out of memory */
 
         /* Boundary values are always 1.  */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         if (rows_count >= rows_allocated) {
             size_t new_alloc = rows_allocated ? rows_allocated * 2 : 4;
             seq_t **tmp = (seq_t **)realloc(rows, new_alloc * sizeof(seq_t *));
-            if (!tmp) { free(cur); abort(); }
+            if (!tmp) { mem_free(cur); abort(); }
             rows = tmp;
             rows_allocated = new_alloc;
         }

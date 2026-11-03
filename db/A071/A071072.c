@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   ull_to_str
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/ull_to_str.h"
+#include "../utils/mem.h"
+
+/* convert a non‑negative unsigned long long to a decimal string.  
+   caller supplies a buffer of size at least 21 bytes. */
+static void ull_to_str(unsigned long long v, char *buf)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        buf[1] = '\0';
+        return;
+    }
+    char tmp[21];
+    int pos = 0;
+    while (v > 0) {
+        unsigned int digit = v % 10;
+        tmp[pos++] = '0' + digit;
+        v /= 10;
+    }
+    int len = pos;
+    for (int i = 0; i < len; ++i)
+        buf[i] = tmp[len - 1 - i];
+    buf[len] = '\0';
+}
 
 seq_t a(idx_t n)
 {
@@ -47,7 +70,7 @@ seq_t a(idx_t n)
     /* grow the arrays if necessary */
     if (terms_cap == 0) {
         terms_cap = 16;
-        terms   = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms   = mem_new(seq_t, terms_cap);
         tstr    = (char**)malloc(terms_cap * sizeof(char*));
     }
 
@@ -70,7 +93,7 @@ seq_t a(idx_t n)
             /* store the new term: numeric and string */
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms   = (seq_t*)realloc(terms,  terms_cap * sizeof(seq_t));
+                terms   = mem_resize(seq_t, terms, terms_cap);
                 tstr    = (char**)realloc(tstr,   terms_cap * sizeof(char*));
             }
             terms[terms_len] = (seq_t)next_mul;

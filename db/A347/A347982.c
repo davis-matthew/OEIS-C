@@ -8,13 +8,15 @@
  * Formula:   a(n) = greatest k < n such that tau(k) = tau(n), or -1 if none
  * Range:     i8 n <= 129, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9489 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *tau_cache = NULL;   /* divisor counts[0..size] */
 static idx_t tau_cache_size = 0;  /* current maximum index stored */
@@ -29,9 +31,9 @@ static void ensure_tau_cache(idx_t up_to)
 
     /* allocate new array */
     if (tau_cache) {
-        free(tau_cache);
+        mem_free(tau_cache);
     }
-    tau_cache = (seq_t *)malloc((up_to + 1) * sizeof(seq_t));
+    tau_cache = mem_new(seq_t, (up_to + 1));
     if (!tau_cache) abort();        /* memory fail */
 
     for (idx_t i = 0; i <= up_to; ++i) {

@@ -12,15 +12,32 @@
  *            e(p) = 0
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 143, u64 n <= 359,
  *            u128 n <= 2519, big any n
- * Helpers:   a5729_isprime, a5729_repunit
+ * Validated: standard, pass, 76 terms through n = 10000 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a5729_isprime.h"
-#include "../utils/a5729_repunit.h"
+#include "../utils/is_prime_u64.h"
+
+/* is n divisible by 1 + q + q^2 + ... + q^(m-1), m >= 2, where q = p^d, d >= 1 */
+static bool a5729_repunit(uint64_t n, uint64_t p)
+{
+    uint64_t pd = p;
+    while (1 + pd <= n) {
+        uint64_t r = 1, term = 1;
+        for (;;) {
+            term *= pd;
+            r += term;
+            if (r > n) break;
+            if (n % r == 0) return true;
+        }
+        pd *= p;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,7 +45,7 @@ seq_t a(idx_t n)
     uint64_t nn = (uint64_t)n;
     uint64_t p;
     for (p = 2; p <= nn; p++) {
-        if (!a5729_isprime(p)) continue;
+        if (!is_prime_u64(p)) continue;
         if ((nn % p == 0 && nn != p) || a5729_repunit(nn, p)) {
             r *= (seq_t)p;
             if (p == 2 && nn % 6 == 0)

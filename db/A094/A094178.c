@@ -9,7 +9,8 @@
  *            is ≡ 1 (mod 4)
  * Range:     u8 n <= 125, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9413 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- prime sieve up to a fixed limit -------------------------------- */
 
@@ -90,7 +92,7 @@ static void ensure_seq_capacity(size_t need)
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap ? (seq_cap << 1) : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *new_buf = (seq_t *)realloc(seq_buf, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, seq_buf, new_cap);
     if (!new_buf) exit(1);           /* allocation failure */
     seq_buf = new_buf;
     seq_cap = new_cap;

@@ -8,6 +8,7 @@
  * Formula:   a(n) = 36*n^2 - 168*n + 188 for n > 2; a(1)=0, a(2)=0
  * Range:     u8 n <= 5, u16 n <= 45, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 50 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

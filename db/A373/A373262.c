@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   v3
+ * Validated: standard, pass, 85 terms through n = 9420 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/v3.h"
+
+/* 3‑adic valuation of n */
+static inline int v3(idx_t n)
+{
+    int c = 0;
+    while (n % 3U == 0U) {
+        n /= 3U;
+        ++c;
+    }
+    return c;
+}
 
 /* 2‑adic valuation of n */
 static inline int v2(idx_t n)

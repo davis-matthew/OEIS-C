@@ -8,12 +8,15 @@
  * Formula:   a(n) = max_{b*c=n} |b^c - c^b| (b,c ∈ ℕ, b*c = n)
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +31,8 @@ seq_t a(idx_t n)
         idx_t e = n / d;                /* complementary divisor */
 
         /* Compute d^e and e^d exactly. */
-        seq_t pow1 = big_pow((seq_t)d, (seq_t)e);
-        seq_t pow2 = big_pow((seq_t)e, (seq_t)d);
+        seq_t pow1 = ipow((seq_t)d, (seq_t)e);
+        seq_t pow2 = ipow((seq_t)e, (seq_t)d);
 
         /* Absolute difference. */
         seq_t diff = pow1 > pow2 ? pow1 - pow2 : pow2 - pow1;

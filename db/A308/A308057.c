@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 203, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 1888 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Initialisation: allocate dummy zero element at index 0 */
     if (!seq_cache) {
         seq_cap = 16;
-        seq_cache = (seq_t *)malloc(sizeof(seq_t) * seq_cap);
+        seq_cache = mem_new(seq_t, seq_cap);
         seq_cache[0] = 0;      /* dummy, never accessed */
         seq_len = 1;           /* next free index will be 1 */
     }
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         if (seq_len >= seq_cap) {
             idx_t new_cap = seq_cap * 2;
             if (new_cap < 16) new_cap = 16;
-            seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, new_cap);
             seq_cap = new_cap;
         }
 

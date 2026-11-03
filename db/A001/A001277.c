@@ -7,13 +7,15 @@
  * Formula:   a(n) = n*a(n-1) - (n-1)*a(n-3), a(2) = 1, a(3) = 3, a(4) = 12
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_capacity = 0;
@@ -27,9 +29,9 @@ seq_t a(idx_t n) {
     
     if (memo == NULL) {
         memo_capacity = (n + 1000 < 100000) ? 100000 : n + 10000;
-        memo = (seq_t *)malloc(memo_capacity * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_capacity);
         if (memo == NULL) return 0;
-        memset(memo, 0, memo_capacity * sizeof(seq_t));
+        mem_set(memo, 0, memo_capacity * sizeof(seq_t));
         memo[2] = 1;
         memo[3] = 3;
         memo[4] = 12;
@@ -42,11 +44,11 @@ seq_t a(idx_t n) {
     
     if (n >= memo_capacity) {
         idx_t new_capacity = n + 10000;
-        seq_t *new_memo = (seq_t *)malloc(new_capacity * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_capacity);
         if (new_memo == NULL) return 0;
-        memcpy(new_memo, memo, memo_capacity * sizeof(seq_t));
-        memset(new_memo + memo_capacity, 0, (new_capacity - memo_capacity) * sizeof(seq_t));
-        free(memo);
+        mem_copy(new_memo, memo, memo_capacity * sizeof(seq_t));
+        mem_set(new_memo + memo_capacity, 0, (new_capacity - memo_capacity) * sizeof(seq_t));
+        mem_free(memo);
         memo = new_memo;
         memo_capacity = new_capacity;
     }

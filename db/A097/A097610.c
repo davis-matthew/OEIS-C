@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 35, u16 n <= 124, u32 n <= 358, u64 n <= 1080,
+ * Range:     u8 n <= 47, u16 n <= 124, u32 n <= 358, u64 n <= 1080,
  *            u128 n <= 1080, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 107 terms through n = 1036 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
  * Find the row r such that r(r+1)/2 ≤ n < (r+1)(r+2)/2,
  * then let c = n - r(r+1)/2.  Finally compute T(r,c).
  */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -41,12 +43,12 @@ seq_t a(idx_t n)
     idx_t m = delta >> 1;        /* m = (r-c)/2 */
 
     /* Compute binomial(r,c).  The helper returns 0 if c>r. */
-    seq_t binom_rc = binom(r, c);
+    seq_t binom_rc = binomial(r, c);
     if (binom_rc == 0)
         return 0;
 
     /* Catalan_{m} = binom(2m,m)/(m+1) */
-    seq_t catalan = binom(2 * m, m);
+    seq_t catalan = binomial(2 * m, m);
     catalan /= (seq_t)(m + 1);
 
     /* Result: binom(r,c) * Catalan_m */

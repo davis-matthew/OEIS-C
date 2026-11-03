@@ -8,13 +8,15 @@
  *            uses a classic 0‑1 knapsack over the square numbers k^2
  * Range:     u8 n <= 654, u16 n <= 2340, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 118 terms through n = 9105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(n)) for idx_t (=uint64_t). */
 static idx_t isqrt_u64(idx_t n)
@@ -34,13 +36,13 @@ seq_t a(idx_t n)
     /* Build or extend the DP table up to the requested n. */
     if (dp == NULL || n > dp_max) {
         /* Allocate (or enlarge) the table.  Need n+1 entries (0..n). */
-        seq_t *new_dp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, (n + 1));
         if (new_dp == NULL)            /* allocation failure – give up */
             return (seq_t)0;
         dp = new_dp;
 
         /* Zero all entries; then set dp[0] = 1. */
-        memset(dp, 0, (n + 1) * sizeof(seq_t));
+        mem_set(dp, 0, (n + 1) * sizeof(seq_t));
         dp[0] = (seq_t)1;
 
         /* 0‑1 knapsack over all square numbers <= n. */

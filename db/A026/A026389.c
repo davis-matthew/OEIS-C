@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
                  + (72n−172)a(n−3) − (35n−140)a(n−4)] / (n+2)
    Offset: 2 (a(2) = 1).  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Under the offset, values are undefined; return 0 for safety. */
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     /* Allocate an initial buffer if needed. */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Make sure the buffer can hold index n. */
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
         idx_t new_cap = cache_cap;
         while (n + 1 > new_cap)
             new_cap *= 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

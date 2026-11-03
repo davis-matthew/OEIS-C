@@ -13,7 +13,8 @@
  *            a(1)=49, a(2)=189, a(3)=812,
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 43,
  *            big any n
- * Helpers:   unpack_last4
+ * Validated: standard, pass, 35 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/unpack_last4.h"
+#include "../utils/mem.h"
+
+/* Unpack last four symbols */
+static void unpack_last4(uint32_t packed, int *a, int *b, int *c, int *d)
+{
+    *a = (int)((packed >> 9) & 7u);
+    *b = (int)((packed >> 6) & 7u);
+    *c = (int)((packed >> 3) & 7u);
+    *d = (int)(packed & 7u);
+}
 
 #define MAX_SYMBOL 8
 #define LAST4_BITS 12          /* 4 symbols * 3 bits each */
@@ -41,7 +51,7 @@ static void add_total(seq_t val)
 {
     if (tot_len >= tot_cap) {
         size_t new_cap = tot_cap ? tot_cap * 2 : 64;
-        totals = (seq_t*)realloc(totals, new_cap * sizeof(seq_t));
+        totals = mem_resize(seq_t, totals, new_cap);
         tot_cap = new_cap;
     }
     totals[tot_len++] = val;
@@ -52,8 +62,8 @@ static void init_once(void)
 {
     size_t i;
     /* Allocate DP arrays */
-    dp_cur    = (seq_t*)calloc(STATES, sizeof(seq_t));
-    dp_next   = (seq_t*)calloc(STATES, sizeof(seq_t));
+    dp_cur    = mem_new(seq_t, STATES);
+    dp_next   = mem_new(seq_t, STATES);
 
     /* Enumerate all restricted‑growth strings of length 4 */
     for (int a = 0; a < MAX_SYMBOL; ++a)
@@ -79,7 +89,7 @@ static void init_once(void)
     for (i = 0; i < STATES; ++i) sum += dp_cur[i];
 
     tot_cap = 64;
-    totals  = (seq_t*)calloc(tot_cap, sizeof(seq_t));
+    totals  = mem_new(seq_t, tot_cap);
     tot_len = 5;          /* indices 0..4 are defined, 4 holds length 4 */
     totals[4] = sum;
     init_done = true;
@@ -97,7 +107,7 @@ seq_t a(idx_t n)
     /* Extend DP until we reach target length */
     while (tot_len <= (size_t)target_len) {
         /* Clear dp_next */
-        memset(dp_next, 0, STATES * sizeof(seq_t));
+        mem_set(dp_next, 0, STATES * sizeof(seq_t));
 
         /* Transition from all current states */
         for (size_t s = 0; s < STATES; ++s) {

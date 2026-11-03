@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∑_{d|n} φ(n/d) · d^(d-2) (OEIS A342435)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   calc_phi, factor_u64, seq_pow
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,11 @@
 #include <stddef.h>
 
 /* Utility functions from the utils library */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t , uint64_t *, uint64_t *, size_t *); */
-#include "../utils/calc_phi.h"    /* seq_t calc_phi(seq_t ); */
-#include "../utils/seq_pow.h"    /* seq_t seq_pow(seq_t , idx_t ); */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/totient_seq.h"
 
 /* Enumerate all divisors of a number using its prime factorisation. */
 static void gen_divisors(size_t idx,
@@ -60,7 +63,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (size_t i = 0; i < dcnt; ++i) {
         uint64_t d = divisors[i];
-        seq_t phi = calc_phi((seq_t)(n / d));
+        seq_t phi = totient_seq((seq_t)(n / d));
 
         seq_t pow_term;
         if (d <= 2) {
@@ -68,7 +71,7 @@ seq_t a(idx_t n)
                d = 2 → exponent =  0, so 2^0 = 1 */
             pow_term = (seq_t)1;
         } else {
-            pow_term = seq_pow((seq_t)d, (idx_t)(d - 2));
+            pow_term = ipow_idx((seq_t)d, (idx_t)(d - 2));
         }
 
         sum += phi * pow_term;   /* allowed operators: * and + */

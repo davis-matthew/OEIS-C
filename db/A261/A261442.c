@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 40, u64 n <= 86, u128 n <= 179,
  *            big any n
- * Helpers:   alloc_cache
+ * Validated: standard, pass, 52 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,13 @@
 */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/alloc_cache.h"
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -52,7 +59,7 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1;
     if (needed > cache_len) {
         cache_len = needed;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_len);
+        cache = mem_resize(seq_t, cache, cache_len);
     }
 
     /* compute new values using the recurrence */

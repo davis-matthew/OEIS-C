@@ -8,12 +8,14 @@
  *            dividing n
  * Range:     u8 n <= 59, u16 n <= 209, u32 n <= 1259, u64 n <= 7559,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 112 terms through n = 9032 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* list of triangular divisors of n */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     }
 
     /* dp[i] = number of partitions of i with the allowed coins */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return 0; /* allocation failure – unlikely in the given scale */
 
     /* initialize */
@@ -46,6 +48,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

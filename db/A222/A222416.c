@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = sum of prime powers in the factorization of n (n = ∏
  *            p_j^k_j → a(n) = Σ p_j^k_j, a(1) = 1)
- * Range:     u8 n <= 255, u16 n <= 9965, u32 n <= 9965, u64 n <= 9965,
- *            u128 n <= 9965, big any n
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 89 terms through n = 9965 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,7 +12,8 @@
  *            irreducible f != x), with class size |GL_n(2)|/|C...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   a817_addsh, a817_div, a817_gcd, a817_mul, a817_pmod
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,11 +21,60 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a817_addsh.h"
-#include "../utils/a817_div.h"
-#include "../utils/a817_gcd.h"
-#include "../utils/a817_mul.h"
-#include "../utils/a817_pmod.h"
+#include "../utils/gcd_u64.h"
+
+static void a817_addsh(uint32_t *T, size_t LT, const uint32_t *s, size_t Ls, uint64_t sh)
+{
+    size_t off = (size_t)(sh / 32), i, idx;
+    unsigned b = (unsigned)(sh % 32);
+    uint64_t carry = 0;
+    for (i = 0; i <= Ls; i++) {
+        uint64_t v = i < Ls ? s[i] : 0;
+        uint64_t prev = i > 0 ? s[i - 1] : 0;
+        uint32_t piece = b ? (uint32_t)((v << b) | (prev >> (32 - b))) : (uint32_t)v;
+        uint64_t cur;
+        idx = off + i;
+        if (idx >= LT) return;
+        cur = (uint64_t)T[idx] + piece + carry;
+        T[idx] = (uint32_t)cur;
+        carry = cur >> 32;
+    }
+    for (idx = off + Ls + 1; carry && idx < LT; idx++) {
+        uint64_t cur = (uint64_t)T[idx] + carry;
+        T[idx] = (uint32_t)cur;
+        carry = cur >> 32;
+    }
+}
+
+static void a817_div(uint32_t *x, size_t L, uint32_t d)
+{
+    uint64_t r = 0;
+    size_t i;
+    for (i = L; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static void a817_mul(uint32_t *x, size_t L, uint32_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t cur = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)cur;
+        c = cur >> 32;
+    }
+}
+
+static uint64_t a817_pmod(uint64_t a, uint64_t f, int df)
+{
+    int i;
+    for (i = 63; i >= df; i--)
+        if ((a >> i) & 1) a ^= f << (i - df);
+    return a;
+}
 
 static int a817_n;
 static uint64_t a817_K;
@@ -77,7 +127,7 @@ static void a817_leaf(void)
         long long s2 = 0, sm = 0;
         while (tt < (uint64_t)l1) tt <<= 1;
         o = a817_co[ci] * tt;
-        m = m / a817_gcd(m, o) * o;
+        m = m / gcd_u64(m, o) * o;
         for (j = 1; j <= l1; j++) {
             long long cnt = 0;
             for (i = 0; i < len; i++) if (p[1 + i] >= j) cnt++;

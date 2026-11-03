@@ -8,9 +8,10 @@
  * Formula:   a(0) = 0; For n ≥ 0, a(n+1) is the smallest integer > a(n) whose
  *            binary representation has a 0 in every bit position a(0), a(1),
  *            …, a(n)
- * Range:     u8 n <= 63, u16 n <= 4095, u32 n <= 9996, u64 n <= 9996,
- *            u128 n <= 9996, big any n
- * Helpers:   none
+ * Range:     u8 n <= 63, u16 n <= 4095, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 82 terms through n = 9996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cache for previously computed terms. */
 static seq_t *cache = NULL;
@@ -37,14 +39,14 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache if needed. */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         small_mask = 0;
     }
     if ((size_t)n >= cache_size) {
         if ((size_t)n + 1 > cache_cap) {
             size_t new_cap = cache_cap * 2;
             if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
         /* Initialise the first term if the cache was empty. */

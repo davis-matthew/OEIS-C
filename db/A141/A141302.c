@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stdint.h> /* for uint64_t used in the primality test */
+#include "../utils/mem.h"
 
 /* Static cache of primes */
 static seq_t *prime_cache = NULL;  /* dynamic array of primes */
@@ -44,7 +46,7 @@ static void ensure_capacity(void)
 {
     if (prime_cnt >= prime_cap) {
         size_t new_cap = prime_cap ? prime_cap * 2 : 16;
-        seq_t *new_arr = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, prime_cache, new_cap);
         /* If realloc fails we keep the old array; subsequent allocations
          * will just try again.  The program will likely terminate on
          * out‑of‑memory conditions. */

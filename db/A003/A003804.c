@@ -7,6 +7,7 @@
  * Formula:   a(n) = q^21 * Product_{i=2..7} (q^i - 1), where q = A000961(n+1)
  *            is the (n+1)-th prime power (A000961(1) = 1)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 1, u128 n <= 4, big any n
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

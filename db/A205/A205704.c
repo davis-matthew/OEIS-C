@@ -11,7 +11,8 @@
  *            terms divisible by 8
  * Range:     u8 n <= 54, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Static state shared between calls */
 static seq_t *cache = NULL;      /* array of positions of multiples of 8   */
@@ -38,7 +40,7 @@ static uint64_t next_prime_candidate = 3;/* candidate for the next prime        
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap) ? cache_cap * 2 : 16;
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     }
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate sequence until we have n multiples of 8 */

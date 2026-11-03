@@ -12,13 +12,15 @@
  *            A238428. The computation uses only integer...
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 42, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 450 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,11 +34,11 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? cap : 1;
         while (new_cap <= n) new_cap <<= 1;
 
-        seq_t *tmp_val = (seq_t *)realloc(val, new_cap * sizeof(seq_t));
+        seq_t *tmp_val = mem_resize(seq_t, val, new_cap);
         if (!tmp_val) return (seq_t)0;          /* allocation failure */
         val = tmp_val;
 
-        seq_t *tmp_c = (seq_t *)realloc(c, new_cap * sizeof(seq_t));
+        seq_t *tmp_c = mem_resize(seq_t, c, new_cap);
         if (!tmp_c) return (seq_t)0;            /* allocation failure */
         c = tmp_c;
 

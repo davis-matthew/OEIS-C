@@ -12,7 +12,8 @@
  *            remembering the next occurrence of each factor
  * Range:     u8 n <= 19, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   largest_prime_factor
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Typedefs provided by the build system */
 extern seq_t a(idx_t n);  /* forward declaration */
@@ -42,7 +44,7 @@ static void recompute(idx_t limit)
 {
     /* Allocate new caches */
     uint64_t *new_gpf = (uint64_t *)malloc((size_t)(limit + 1) * sizeof(uint64_t));
-    seq_t    *new_a   = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    seq_t    *new_a   = mem_new(seq_t, (size_t)(limit + 1));
     if (!new_gpf || !new_a) {
         /* In a real implementation we might abort; here we just exit */
         abort();
@@ -85,7 +87,7 @@ static void recompute(idx_t limit)
 
     /* Free old caches */
     free(gpf_cache);
-    free(a_cache);
+    mem_free(a_cache);
     free(map);
 
     /* Store the new ones */

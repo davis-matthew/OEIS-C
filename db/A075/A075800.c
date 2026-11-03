@@ -11,7 +11,8 @@
  *            the conditions
  * Range:     u8 n <= 12, u16 n <= 228, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse_partial
+ * Validated: standard, pass, 67 terms through n = 9489 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/reverse_partial.h"
+#include "../utils/mem.h"
+
+/* Reverse the lowest 'digits' decimal digits of x. */
+static uint64_t reverse_partial(uint64_t x, int digits)
+{
+    uint64_t rev = 0;
+    while (digits--)
+    {
+        rev = rev * 10ULL + (x % 10ULL);
+        x /= 10ULL;
+    }
+    return rev;
+}
 
 /* --------------------------------------------------------------------- */
 /*  Utility helpers                                                      */
@@ -121,7 +134,7 @@ static void cache_add(seq_t v)
     if (cache_len == cache_cap)
     {
         cache_cap = cache_cap ? cache_cap * 2 : 64;
-        cache_vals = (seq_t *)realloc(cache_vals, cache_cap * sizeof(seq_t));
+        cache_vals = mem_resize(seq_t, cache_vals, cache_cap);
     }
     cache_vals[cache_len++] = v;
 }

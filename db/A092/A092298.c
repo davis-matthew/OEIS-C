@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* global prime list ----------------------------------------------------- */
 static uint64_t *primes = NULL;
@@ -84,10 +86,10 @@ seq_t a(idx_t n)
     size_t prime = (size_t)primes[n - 1];
 
     /* dynamic programming array */
-    seq_t *dp = (seq_t *)malloc((prime + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (prime + 1));
     if (!dp) exit(1);
 
-    memset(dp, 0, (prime + 1) * sizeof(seq_t));
+    mem_set(dp, 0, (prime + 1) * sizeof(seq_t));
     dp[0] = 1;                                 /* empty partition */
 
     /* build partitions using parts 1 .. n */
@@ -98,6 +100,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[prime];
-    free(dp);
+    mem_free(dp);
     return result;
 }

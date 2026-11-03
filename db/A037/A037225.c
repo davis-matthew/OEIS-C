@@ -7,15 +7,17 @@
  * Formula:   a(n) = phi(2*n+1)
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 82 terms through n = 9448 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     /* Compute argument 2*n+1 and apply phi */
-    return phi((idx_t)(2*n + 1));
+    return totient((idx_t)(2*n + 1));
 }

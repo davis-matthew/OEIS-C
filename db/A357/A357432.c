@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   seq_to_str
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,28 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/seq_to_str.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* cached values ---------------------------------------------------------- */
 static seq_t *cache = NULL;   /* sequence values */
@@ -60,7 +82,7 @@ static inline void ensure_cache_cap(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? (cache_cap << 1) : 64;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;
@@ -71,7 +93,7 @@ static inline void ensure_used_cap(size_t need)
     if (need <= used_cap) return;
     size_t new_cap = used_cap ? (used_cap << 1) : 64;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(used_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, used_vals, new_cap);
     if (!tmp) abort();
     used_vals = tmp;
     used_cap = new_cap;

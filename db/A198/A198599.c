@@ -13,7 +13,8 @@
  *            initial values a(1) = 2, a(2) = 32, a(3) = 674, a(4)...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 29,
  *            big any n
- * Helpers:   mul_by_pos
+ * Validated: standard, pass, 32 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mul_by_pos.h"
+#include "../utils/mem.h"
+
+/* multiply a by a non‑negative integer m using a 128‑bit intermediate
+   when seq_t is a built‑in integer type; otherwise rely on the
+   overloaded operator* of the arbitrary‑precision type. */
+static inline seq_t mul_by_pos(const seq_t a, unsigned long long m)
+{
+#if defined(__cplusplus)
+    if constexpr (sizeof(seq_t) <= 8) {
+        return (seq_t)((unsigned __int128)a * (unsigned __int128)m);
+    } else {
+        return a * (seq_t)m;
+    }
+#else
+    return (seq_t)((unsigned __int128)a * (unsigned __int128)m);
+#endif
+}
 
 /* coefficients of the recurrence: a(n) = Σ coeff[k]*a(n-k-1)  */
 static const int32_t coeff[12] = {
@@ -61,7 +78,7 @@ seq_t a(idx_t n)
 
     /* enlarge cache if necessary */
     if ((size_t)n > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp) {          /* allocation failure */
             return 0;
         }

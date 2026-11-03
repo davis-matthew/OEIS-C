@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   has_equal_nonzero_2_and_3
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_equal_nonzero_2_and_3.h"
+
+static bool has_equal_nonzero_2_and_3(seq_t x)
+{
+    int count2 = 0;
+    int count3 = 0;
+    seq_t t = x;
+    while (t > 0) {
+        seq_t rem = t % 12;
+        if (rem == 2)
+            ++count2;
+        else if (rem == 3)
+            ++count3;
+        t = t / 12;
+    }
+    return count2 > 0 && count2 == count3;
+}
 
 #define MAX_CACHE 20000   /* enough for n <= 10000 in the test harness */
 

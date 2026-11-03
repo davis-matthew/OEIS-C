@@ -10,14 +10,16 @@
  *            flat sequence a(n) is the concatenation of the rows
  * Range:     u8 n <= 38, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom_mult
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/binom_mult.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 
 /* Compute binomial coefficient C(n,k) as seq_t using multiplicative formula.
  * This implementation works for arbitrary‑precision seq_t as well as for
@@ -49,6 +51,6 @@ seq_t a(idx_t n)
     if (c == 0)               /* leftmost entry of a nonzero row */
         return (seq_t)3;
 
-    seq_t bin = binom_mult(r, c);
+    seq_t bin = binomial(r, c);
     return (seq_t)5 * bin;
 }

@@ -10,6 +10,7 @@
  *            divisors of e)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 106 terms through n = 9419 (2026-11-01)
  * Helpers:   factor_u64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 #include "../utils/pow2.h"
 

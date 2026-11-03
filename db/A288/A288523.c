@@ -9,12 +9,14 @@
  *            a(2)=5, a(3)=8, a(4)=11, for n≥5
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 51, u64 n <= 104,
  *            u128 n <= 209, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 9958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached sequence values */
 static idx_t   cap   = 0;        /* current cached size */
@@ -29,8 +31,8 @@ static void ensure_cache(idx_t n)
     if (cap < 5)
     {
         if (cache)
-            free(cache);
-        cache = (seq_t *)malloc(sizeof(seq_t) * 5);
+            mem_free(cache);
+        cache = mem_new(seq_t, 5);
         cache[0] = 2;
         cache[1] = 4;
         cache[2] = 5;
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
     /* Resize if necessary */
     if (cap <= n)
     {
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         cache = new_cache;
         /* Compute new values from old cap up to n */
         for (idx_t i = cap; i <= n; ++i)

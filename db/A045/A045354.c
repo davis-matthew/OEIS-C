@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 62 terms through n = 939 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     if (qual_cap == 0) {
         qual_cap = 16;
-        qual = (seq_t *)malloc(qual_cap * sizeof(seq_t));
+        qual = mem_new(seq_t, qual_cap);
         if (!qual) return 0; /* allocation failed */
     }
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
             if (r == 0 || r == 2 || r == 5 || r == 6) {
                 if (qual_sz == qual_cap) {
                     qual_cap <<= 1; /* double capacity */
-                    seq_t *tmp = (seq_t *)realloc(qual, qual_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, qual, qual_cap);
                     if (!tmp) return 0; /* allocation failed */
                     qual = tmp;
                 }

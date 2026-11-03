@@ -11,7 +11,8 @@
  *            row‑wise starting at offset 0
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 38, u64 n <= 110,
  *            u128 n <= 416, big any n
- * Helpers:   offset_row
+ * Validated: standard, pass, 61 terms through n = 1235 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/offset_row.h"
+#include <stdlib.h>
+#include <math.h>
+#include "../utils/triangular.h"
 
 #define MAX_PRIME_LIMIT 20000
 #define MAX_PRIMES      20000   /* enough for primes up to 20000 */
@@ -55,13 +58,13 @@ static idx_t row_from_index(idx_t n)
 {
     idx_t low  = 0;
     idx_t high = 1;
-    while (offset_row(high) <= n) {
+    while (triangular(high) <= n) {
         if (high >= (UINT64_MAX >> 1)) break;
         high <<= 1;
     }
     while (low < high) {
         idx_t mid = low + (high - low + 1) / 2;
-        if (offset_row(mid) <= n)
+        if (triangular(mid) <= n)
             low = mid;
         else
             high = mid - 1;
@@ -124,7 +127,7 @@ seq_t a(idx_t n)
 
     /* locate row and column */
     idx_t r = row_from_index(n);
-    idx_t k = n - offset_row(r);
+    idx_t k = n - triangular(r);
 
     /* exponent array */
     static int exp[MAX_PRIMES];

@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence: k such that 3 divides p(k), where p(k) is the k‑th partition number.
  * This implementation keeps a running array of p(k) modulo 3 and returns the
@@ -47,7 +49,7 @@ static void ensure_a_cap(size_t len)
     if (len <= a_cap) return;
     size_t new_cap = a_cap < 16 ? 16 : a_cap * 2;
     while (new_cap < len) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
     if (!tmp) exit(1);
     a_vals = tmp;
     a_cap  = new_cap;
@@ -88,7 +90,7 @@ static void ensure_a_terms(idx_t n)
 
     if (a_len == 0) {
         ensure_a_cap(16);
-        a_vals = (seq_t *)calloc(16, sizeof(seq_t));
+        a_vals = mem_new(seq_t, 16);
         if (!a_vals) exit(1);
     }
 

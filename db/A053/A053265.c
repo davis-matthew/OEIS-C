@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 167, u32 n <= 533, u64 n <= 1848,
  *            u128 n <= 6761, big any n
- * Helpers:   part_index
+ * Validated: standard, pass, 83 terms through n = 9933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/part_index.h"
+#include "../utils/mem.h"
+
+/* index into part_data for row m and column k */
+static inline size_t part_index(idx_t m, idx_t k, idx_t N)
+{
+    return (size_t)m * (size_t)(N + 1) + (size_t)k;
+}
 
 /* seq_t and idx_t are supplied by the harness; do not define them. */
 
@@ -45,16 +52,15 @@ static void recompute_tables(idx_t new_N)
     idx_t new_M = (idx_t)((sqrt(1.0 + 2.0 * (double)new_N) - 1.0) / 2.0);
 
     /* allocate sequence array */
-    seq_data = (seq_t *)realloc(seq_data, sizeof(seq_t) * (new_N + 1));
+    seq_data = mem_resize(seq_t, seq_data, (new_N + 1));
     /* allocate partition table */
-    part_data = (seq_t *)realloc(part_data,
-                                 sizeof(seq_t) * (new_M + 1) * (new_N + 1));
+    part_data = mem_resize(seq_t, part_data, (new_M + 1) * (new_N + 1));
 
     part_rows = new_M + 1;
     part_cols = new_N + 1;
 
     /* temporary DP array for partitions with odd parts */
-    seq_t *dp = (seq_t *)calloc((size_t)(new_N + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(new_N + 1));
     dp[0] = (seq_t)1;                     /* empty partition */
 
     /* compute partition counts row by row (each row adds one more odd part) */
@@ -70,7 +76,7 @@ static void recompute_tables(idx_t new_N)
             part_data[part_index(m, k, new_N)] = dp[k];
         }
     }
-    free(dp);
+    mem_free(dp);
 
     /* compute a(n) for all n up to new_N using the precomputed partition table */
     for (idx_t n = 0; n <= new_N; ++n) {

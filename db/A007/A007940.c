@@ -9,7 +9,8 @@
  *            x) (permutations may have leading zeros)
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a7940_cmp, a7940_sig
+ * Validated: standard, pass, 65 terms through n = 998 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,21 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a7940_cmp.h"
-#include "../utils/a7940_sig.h"
+
+static int a7940_cmp(const void *p, const void *q) {
+    uint64_t u = *(const uint64_t *)p, w = *(const uint64_t *)q;
+    return (u > w) - (u < w);
+}
+
+static uint64_t a7940_sig(uint64_t v) {
+    uint64_t s = 0;
+    while (v) {
+        unsigned d = (unsigned)(v % 10);
+        if (d) s += (uint64_t)1 << (6 * (d - 1));
+        v /= 10;
+    }
+    return s;
+}
 
 static uint64_t *a7940_terms = NULL;
 static size_t a7940_nterms = 0, a7940_cap = 0;

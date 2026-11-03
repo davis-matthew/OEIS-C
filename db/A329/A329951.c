@@ -9,14 +9,15 @@
  *            odd primes, not necessarily distinct)
  * Range:     u8 n <= 195, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 101 terms through n = 9166 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Return the least prime k for the given index n. */
 seq_t a(idx_t n)
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Enumerate odd primes k, starting with 3 */
     for (seq_t k = 3; ; k += 2) {
-        if (!is_prime_small(k))
+        if (!is_prime_seq(k))
             continue;                /* skip non‑primes */
 
         /* product p*q = (base + k)/2  (even numerator divisible by 2) */
@@ -43,8 +44,8 @@ seq_t a(idx_t n)
         for (uint64_t p = 3; p * p <= m64; p += 2) {
             if (m64 % p == 0) {
                 uint64_t q = m64 / p;
-                if (is_prime_small((seq_t)p) &&
-                    is_prime_small((seq_t)q)) {
+                if (is_prime_seq((seq_t)p) &&
+                    is_prime_seq((seq_t)q)) {
                     ok = true;
                     break;          /* found a valid factorisation */
                 }

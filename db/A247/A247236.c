@@ -10,14 +10,16 @@
  *            (k+1)*x^k = Sum_{k=0..n} T(n,k)*(x+k)^k
  * Range:     i8 n <= 11, i16 n <= 30, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Local power helper for arbitrary‑precision seq_t */
 static seq_t pow_seq_int(seq_t base, idx_t exp)
@@ -50,7 +52,7 @@ static void ensure_cache(idx_t r)
 /* Compute the entire row r of the triangle and store in cache */
 static void compute_row(idx_t r)
 {
-    seq_t *row = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)(r + 1));
     if (!row)
         abort();               /* out of memory */
 

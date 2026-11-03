@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------  Storage of Fibonacci numbers used for Zeckendorf  ---------- */
 static seq_t *fib = NULL;          /* array of Fibonacci numbers   */
@@ -33,7 +35,7 @@ static size_t fib_cap = 0;         /* allocated capacity           */
 static void ensure_fib(seq_t x) {
     if (fib == NULL) {              /* first time: create base fibs  */
         fib_cap = 2;
-        fib = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib = mem_new(seq_t, fib_cap);
         if (!fib) { exit(1); }
         fib[0] = (seq_t)1;
         fib[1] = (seq_t)2;
@@ -42,7 +44,7 @@ static void ensure_fib(seq_t x) {
     while (fib[fib_len-1] <= x) {
         if (fib_len == fib_cap) {   /* grow array if needed        */
             fib_cap = fib_cap ? fib_cap*2 : 2;
-            fib = (seq_t *)realloc(fib, fib_cap * sizeof(seq_t));
+            fib = mem_resize(seq_t, fib, fib_cap);
             if (!fib) { exit(1); }
         }
         fib[fib_len] = fib[fib_len-1] + fib[fib_len-2];
@@ -99,7 +101,7 @@ seq_t a(idx_t n) {
                 /* Store found term */
                 if (cache_len == cache_cap) {
                     cache_cap = cache_cap ? cache_cap*2 : 4;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                     if (!cache) { exit(1); }
                 }
                 cache[cache_len++] = candidate;

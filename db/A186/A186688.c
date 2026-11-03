@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 90, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 781 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* ---------- helpers for 64‑bit arithmetic ---------- */
 
@@ -132,7 +134,7 @@ static void _grow_cache(idx_t need)
     if (_cached_cap >= need) return;
     idx_t new_cap = _cached_cap ? _cached_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(_cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
     if (!tmp) abort();  /* out of memory */
     _cache = tmp;
     _cached_cap = new_cap;

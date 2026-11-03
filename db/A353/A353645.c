@@ -11,8 +11,9 @@
  *            A325045(A000290(n)). The implementation enumerates all
  *            multiplicative * partitions of n^2 in non‑decreasing order and
  *            counts those whose * largest factor occurs at least t...
- * Range:     u8 n <= 575, u16 n <= 9724, u32 n <= 9724, u64 n <= 9724,
- *            u128 n <= 9724, big any n
+ * Range:     u8 n <= 575, u16 n <= 16415, u32 n <= 16415, u64 n <= 16415,
+ *            u128 n <= 16415, big any n
+ * Validated: standard, pass, 116 terms through n = 9724 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64 */
+#include "../utils/factor_u64.h"
 
 /* comparison function for qsort */
 static int cmp_uint64(const void *a, const void *b)

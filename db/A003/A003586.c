@@ -9,6 +9,7 @@
  *            order (Hamming's method), with a(1) = 1
  * Range:     u8 n <= 27, u16 n <= 94, u32 n <= 349, u64 n <= 1344,
  *            u128 n <= 5272, big any n
+ * Validated: standard, pass, 71 terms through n = 9667 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

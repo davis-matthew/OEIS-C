@@ -8,7 +8,8 @@
  *            contains exactly three more 0’s than 2’s
  * Range:     u8 n <= 11, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* check if x satisfies the property (zeros = twos + 3) */
 static bool has_property(seq_t x)
@@ -43,11 +45,11 @@ static seq_t next_candidate = 1; /* next integer to test */
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) exit(1);
     if (cache) {
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

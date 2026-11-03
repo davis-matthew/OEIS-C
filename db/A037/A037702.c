@@ -10,6 +10,7 @@
  *            1,3,0,2. Thus a(1)=1, a(2)=13_4=7, a(3)=130_4=28, etc
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

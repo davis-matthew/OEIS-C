@@ -10,7 +10,8 @@
  *            fractional parts { frac( sqrt(k) ) | n <= k <= 2n }
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   cmp_double
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>   /* for sqrt in double precision */
-#include "../utils/cmp_double.h"
+
+/* Comparator for sorting double values */
+static int cmp_double(const void *a, const void *b)
+{
+    double da = *(const double *)a;
+    double db = *(const double *)b;
+    if (da < db) return -1;
+    if (da > db) return 1;
+    return 0;
+}
 
 /* Return a(n).  n >= 1. */
 seq_t a(idx_t n)

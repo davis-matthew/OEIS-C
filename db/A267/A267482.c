@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 110, i16 n <= 360, i32 n <= 495, i64 n <= 495,
  *            i128 n <= 495, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 491 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t       computed_rows = 0;          // highest row computed (>=0)
 static seq_t *     triangle      = NULL;       // contiguous storage of all rows
@@ -46,7 +48,7 @@ static size_t      tri_capacity  = 0;          // allocated storage size (in ele
 static void init_triangle(void) {
     if (triangle != NULL) return;
     tri_capacity = 3;                         // rows 0 and 1 → 1 + 2 = 3 entries
-    triangle = (seq_t*)malloc(tri_capacity * sizeof(seq_t));
+    triangle = mem_new(seq_t, tri_capacity);
     if (!triangle) abort();
     triangle[0] = 1;                          // row 0: [1]
     triangle[1] = 1;                          // row 1: [1, 1]
@@ -58,7 +60,7 @@ static void ensure_capacity(size_t needed) {
     if (needed <= tri_capacity) return;
     size_t newcap = tri_capacity ? tri_capacity : 1;
     while (newcap < needed) newcap <<= 1;     // grow geometrically to reduce reallocs
-    seq_t *tmp = (seq_t*)realloc(triangle, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, triangle, newcap);
     if (!tmp) abort();
     triangle = tmp;
     tri_capacity = newcap;

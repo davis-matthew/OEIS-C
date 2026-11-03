@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 1208, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 9689 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---- digit sums ----------------------------------------------------- */
 
@@ -151,7 +153,7 @@ static void ensure_terms_capacity(size_t needed)
     if (gw.terms_cap >= needed) return;
     size_t new_cap = gw.terms_cap ? gw.terms_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(gw.terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, gw.terms, new_cap);
     gw.terms     = tmp;
     gw.terms_cap = new_cap;
 }

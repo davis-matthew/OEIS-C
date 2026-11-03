@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* factorial of n (n ≤ r, r is small enough for seq_t or for divisor use). */
 static seq_t factorial_u64(idx_t n)
@@ -55,7 +57,7 @@ seq_t a(idx_t m)
     idx_t k = m - r * (r + 1) / 2;    /* 0 ≤ k ≤ r */
 
     /* pre‑compute factorials up to r to evaluate the formula efficiently */
-    seq_t *fact = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (size_t)(r + 1));
     if (!fact) return 0;              /* out of memory, return 0 as safe fallback */
     fact[0] = 1;
     for (idx_t i = 1; i <= r; ++i)
@@ -76,6 +78,6 @@ seq_t a(idx_t m)
         sum += term;
     }
 
-    free(fact);
+    mem_free(fact);
     return sum;
 }

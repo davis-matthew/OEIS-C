@@ -8,7 +8,8 @@
  * Formula:   a(n) = Min{x > 0 | Pi(x) - Pi(floor(x/2)) = n}
  * Range:     u8 n <= 24, u16 n <= 3030, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9871 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const size_t MAX_SIEVE = 5000000;          /* safe for n ≤ 10000 */
 static unsigned char *is_prime = NULL;
@@ -43,7 +45,7 @@ static void init_sieve(void)
     pi[0] = 0;
     for (i = 1; i <= MAX_SIEVE; ++i)
         pi[i] = pi[i - 1] + is_prime[i];
-    answers = (seq_t *)malloc(answers_len * sizeof(seq_t));
+    answers = mem_new(seq_t, answers_len);
     answers[0] = 0;  /* unused */
 }
 
@@ -52,8 +54,8 @@ static void ensure_answers_size(idx_t n)
 {
     if (n + 1 > answers_len) {
         size_t new_len = n + 10;               /* a small overhead */
-        answers = (seq_t *)realloc(answers, new_len * sizeof(seq_t));
-        memset(answers + answers_len, 0, (new_len - answers_len) * sizeof(seq_t));
+        answers = mem_resize(seq_t, answers, new_len);
+        mem_set(answers + answers_len, 0, (new_len - answers_len) * sizeof(seq_t));
         answers_len = new_len;
     }
 }

@@ -8,22 +8,22 @@
  * Keywords:  nonn, mult
  * Formula:   Multiplicative with a(p^e) = (q-1)*q^(e-1) where q =
  *            nextPrime(p)
- * Range:     u8 n <= 63, u16 n <= 2047, u32 n <= 9496, u64 n <= 9496,
- *            u128 n <= 9496, big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 63, u16 n <= 2047, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 83 terms through n = 9496 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-
+#include "../utils/is_prime_u64.h"
 
 static uint64_t next_prime(uint64_t p) {
     if (p == 2) return 3;
     uint64_t q = p + 2;
-    while (!is_prime(q)) {
+    while (!is_prime_u64(q)) {
         q += 2;
     }
     return q;

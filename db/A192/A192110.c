@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 91, u32 n <= 347, u64 n <= 534,
  *            u128 n <= 534, big any n
- * Helpers:   compare_seq_t
+ * Validated: standard, pass, 68 terms through n = 500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,17 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/compare_seq_t.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 static seq_t *cache = NULL;   /* unique sorted differences */
 static size_t cache_len = 0;  /* number of stored values */
@@ -36,7 +47,7 @@ seq_t a(idx_t n)
     /* Build the cache only once */
     if (cache_len == 0) {
         size_t capacity = 1024;          /* initial space for differences */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         size_t len = 0;
 
         /* Max value that can fit in seq_t */
@@ -54,7 +65,7 @@ seq_t a(idx_t n)
                     /* Grow the array if necessary */
                     if (len == capacity) {
                         capacity *= 2;
-                        cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+                        cache = mem_resize(seq_t, cache, capacity);
                     }
                     cache[len++] = (seq_t)diff;
                 }
@@ -66,7 +77,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort values */
-        qsort(cache, len, sizeof(seq_t), compare_seq_t);
+        mem_qsort(cache, len, sizeof(seq_t), compare_seq_t);
 
         /* Remove duplicates in place */
         size_t uniq = 0;

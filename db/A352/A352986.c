@@ -7,12 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} k^(3*(n-3*k))
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 15, u64 n <= 22, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
         if (k == 0 && exp == 0) {     /* 0^0 is defined as 1 for this sequence */
             term = (seq_t)1;
         } else {
-            term = big_pow(base, exp);
+            term = ipow(base, exp);
         }
         sum += term;
     }

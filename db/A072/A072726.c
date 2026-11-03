@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 94, u16 n <= 1023, u32 n <= 1023, u64 n <= 1023,
  *            u128 n <= 1023, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1013 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* helper to find floor(log2(n)) for n>0 */
 static inline idx_t floor_log2_uint64(idx_t n) {
@@ -72,7 +74,7 @@ static seq_t a_rec(idx_t n) {
         size_t new_size = n + 1;
         if (new_size < cache_size * 2) new_size = cache_size * 2;
         if (new_size == 0) new_size = 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) exit(1);               /* out of memory */
         if (new_size > cache_size) {
             /* initialise new cells to zero (except 0th) */

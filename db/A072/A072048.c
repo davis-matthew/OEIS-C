@@ -8,7 +8,8 @@
  *            integer and Ω(m) is the number of distinct prime factors of m
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   omega_of
+ * Validated: standard, pass, 112 terms through n = 9576 (2026-11-01)
+ * Helpers:   omega_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/omega_of.h"
+#include "../utils/omega_u64.h"
 
 static size_t int_sqrt(size_t x)
 {
@@ -86,7 +87,7 @@ seq_t a(idx_t n)
 {
     if (n == 0) return 0;                     /* guard, offset is 1 */
     size_t num = nth_squarefree(n);            /* A005117(n) */
-    seq_t omega = omega_of(num);               /* Ω(num) */
+    seq_t omega = omega_u64(num);               /* Ω(num) */
     seq_t ans = 1;
     for (seq_t i = 0; i < omega; ++i)
         ans <<= 1;                             /* multiply by 2 per prime factor */

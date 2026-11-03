@@ -8,15 +8,45 @@
  *            (x-y)*(x^3-y^3) for positive integers x>y
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bubble_down, bubble_up
+ * Validated: standard, pass, 67 terms through n = 9894 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/bubble_down.h"
-#include "../utils/bubble_up.h"
+
+static void bubble_down(seq_t heap[][3], size_t size, size_t idx)
+{
+    while (1) {
+        size_t left = idx << 1;
+        if (left > size) break;
+        size_t right = left + 1;
+        size_t child = right <= size && heap[right][0] < heap[left][0] ? right : left;
+        if (heap[child][0] < heap[idx][0]) {
+            /* swap nodes */
+            seq_t tmp0 = heap[idx][0]; seq_t tmp1 = heap[idx][1]; seq_t tmp2 = heap[idx][2];
+            heap[idx][0] = heap[child][0]; heap[idx][1] = heap[child][1]; heap[idx][2] = heap[child][2];
+            heap[child][0] = tmp0; heap[child][1] = tmp1; heap[child][2] = tmp2;
+            idx = child;
+        } else break;
+    }
+}
+
+static void bubble_up(seq_t heap[][3], size_t idx)
+{
+    while (idx > 1) {
+        size_t parent = idx >> 1;
+        if (heap[idx][0] < heap[parent][0]) {
+            /* swap nodes */
+            seq_t tmp0 = heap[idx][0]; seq_t tmp1 = heap[idx][1]; seq_t tmp2 = heap[idx][2];
+            heap[idx][0] = heap[parent][0]; heap[idx][1] = heap[parent][1]; heap[idx][2] = heap[parent][2];
+            heap[parent][0] = tmp0; heap[parent][1] = tmp1; heap[parent][2] = tmp2;
+            idx = parent;
+        } else break;
+    }
+}
 
 static inline seq_t compute_value(idx_t d, idx_t t)
 {

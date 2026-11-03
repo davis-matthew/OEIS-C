@@ -11,7 +11,8 @@
  *            among all primes examined so far
  * Range:     u8 n <= 31, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <math.h>
 #include "stdbool.h"
+#include "../utils/mem.h"
 
 static bool seq_ready = false;
 static seq_t *seq = NULL;
@@ -71,7 +73,7 @@ static void compute_sequence(void)
     /* Now iterate over primes, compute A(p) and record new maxima. */
     double current_max = -1e100;  /* very small */
     size_t records_est = prime_count / 10;  /* rough estimate */
-    seq_t *tmp = (seq_t *)malloc(records_est * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, records_est);
     size_t records = 0;
 
     for (size_t i = 0; i < prime_count; ++i) {
@@ -82,7 +84,7 @@ static void compute_sequence(void)
             current_max = ap;
             if (records == records_est) {
                 records_est *= 2;
-                tmp = (seq_t *)realloc(tmp, records_est * sizeof(seq_t));
+                tmp = mem_resize(seq_t, tmp, records_est);
             }
             tmp[records++] = (seq_t)k;
         }

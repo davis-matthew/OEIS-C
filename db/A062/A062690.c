@@ -9,14 +9,31 @@
  *            contains the decimal string of n in its exact center
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 1028, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_len_dec, seq_to_dec_rev
+ * Validated: standard, pass, 61 terms through n = 9761 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_len_dec.h"
-#include "../utils/seq_to_dec_rev.h"
+#include "../utils/num_digits.h"
+
+/* Convert val to a decimal string in buf.  The string is null‑terminated
+   and stored in reverse order; caller may reverse it if desired. */
+static void seq_to_dec_rev(seq_t val, char *buf, int *lenp)
+{
+    int len = 0;
+    seq_t tmp = val;
+    if (tmp == 0) {
+        buf[len++] = '0';
+    } else {
+        while (tmp) {
+            buf[len++] = (char)('0' + (int)(tmp % (seq_t)10));
+            tmp /= (seq_t)10;
+        }
+    }
+    *lenp = len;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +57,7 @@ seq_t a(idx_t n)
     /* Iterate over triangular numbers until we find a match. */
     for (idx_t k = 1; ; ++k) {
         seq_t N = (seq_t)k * ((seq_t)k + 1) / 2;
-        int len = seq_len_dec(N);
+        int len = num_digits(N);
         if (len < sn_len) continue;
         if (((len - sn_len) & 1) != 0) continue;   /* center alignment not possible */
 

@@ -9,7 +9,8 @@
  *            base‑4 representation is congruent to 5 modulo 6
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   runs_in_base4_u64
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/runs_in_base4_u64.h"
+#include "../utils/mem.h"
+
+/* Count the number of runs in the base‑4 representation of a 64‑bit
+ * unsigned integer.  A run is a maximal block of consecutive equal
+ * digits.  For example, 122341 in base 4 (which is 4141₂₀) has runs 1,22,3,4,1
+ * → 5 runs. */
+static inline unsigned char runs_in_base4_u64(uint64_t n)
+{
+    unsigned char runs = 1;              /* at least one run */
+    int last = n & 3;                    /* n % 4 */
+    n >>= 2;                             /* n /= 4 */
+    while (n > 0) {
+        int d = n & 3;
+        if (d != last) {
+            ++runs;
+            last = d;
+        }
+        n >>= 2;
+    }
+    return runs;
+}
 
 /* Dynamic array of results.  Elements are stored as seq_t. */
 static seq_t *cache = NULL;
@@ -29,7 +50,7 @@ static idx_t  last_checked = 0;        /* last integer examined */
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (new_ptr == NULL) exit(EXIT_FAILURE); /* cannot proceed */
     cache = new_ptr;
     cache_cap = new_cap;

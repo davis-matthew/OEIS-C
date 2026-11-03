@@ -7,12 +7,15 @@
  * Formula:   a(n) = ∑_{d|n} d^(d + n/d - 1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 375 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,12 +27,12 @@ seq_t a(idx_t n)
 
             seq_t d_val = (seq_t)d;
             seq_t exp_d = (seq_t)(d + co - 1);
-            sum += big_pow(d_val, exp_d);
+            sum += ipow(d_val, exp_d);
 
             if (co != d) {
                 seq_t co_val = (seq_t)co;
                 seq_t exp_co = (seq_t)(co + d - 1);
-                sum += big_pow(co_val, exp_co);
+                sum += ipow(co_val, exp_co);
             }
         }
     }

@@ -12,6 +12,7 @@
  *            -4*a(n-16) + a(n-17) - a(n-18) - a(n-19) Initial values (OE...
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 25, u64 n <= 48, u128 n <= 94,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 202 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

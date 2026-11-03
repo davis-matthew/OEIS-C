@@ -8,14 +8,17 @@
  * Formula:   a(n) = the r‑th positive integer coprime to m, where r is the
  *            smallest integer with r(r+1)/2 >= n and m = n - r(r-1)/2. The
  *            r‑th coprime is found by brute force
- * Range:     u8 n <= 2375, u16 n <= 9646, u32 n <= 9646, u64 n <= 9646,
- *            u128 n <= 9646, big any n
+ * Range:     u8 n <= 2375, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 9646 (2026-11-01)
  * Helpers:   gcd_u64, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/gcd_u64.h"
 #include "../utils/triangular.h"
 

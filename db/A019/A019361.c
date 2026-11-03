@@ -9,7 +9,8 @@
  *            condition via modular exponentiation
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 73 terms through n = 957 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Test whether a given prime p has 35 as a primitive root modulo p.
    The function assumes that prime_list contains all primes up to sqrt(p).
@@ -37,7 +40,7 @@ static bool has_primitive_root_35(uint64_t p, const uint64_t *prime_list, size_t
         uint64_t q = prime_list[i];
         if (tmp % q == 0) {
             uint64_t exp = phi / q;
-            if (mod_pow((seq_t)35, exp, (seq_t)p) == (seq_t)1)
+            if (powmod((seq_t)35, exp, (seq_t)p) == (seq_t)1)
                 return false;
             while (tmp % q == 0)
                 tmp /= q;
@@ -45,7 +48,7 @@ static bool has_primitive_root_35(uint64_t p, const uint64_t *prime_list, size_t
     }
     if (tmp > 1) {                       /* remaining prime factor > sqrt(phi) */
         uint64_t exp = phi / tmp;
-        if (mod_pow((seq_t)35, exp, (seq_t)p) == (seq_t)1)
+        if (powmod((seq_t)35, exp, (seq_t)p) == (seq_t)1)
             return false;
     }
     return true;
@@ -77,7 +80,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
             if (new_cap < (size_t)n)
                 new_cap = n;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)
                 abort();
             cache = tmp;

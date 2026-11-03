@@ -7,6 +7,7 @@
  * Formula:   a(n) = -2*a(n-1) + 2*a(n-3) with a(0)=1, a(1)=-2, a(2)=4
  * Range:     i8 n <= 10, i16 n <= 23, i32 n <= 48, i64 n <= 101,
  *            i128 n <= 202, big any n
+ * Validated: standard, pass, 58 terms through n = 935 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   digit_product_uint64
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   digit_product_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/digit_product_uint64.h"
+#include "../utils/digit_product_u64.h"
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build. */
 extern seq_t a(idx_t n);
@@ -38,7 +40,7 @@ static void append_term(seq_t v)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap == 0 ? 8 : terms_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) exit(1);           /* out of memory */
         terms = tmp;
         terms_cap = new_cap;
@@ -67,7 +69,7 @@ static void init_terms(void)
     unsigned long long prime_count = 0;
     for (size_t n = 1; n <= LIMIT; ++n) {
         if (is_prime[n]) ++prime_count;
-        unsigned long long prod = digit_product_uint64((unsigned long long)n);
+        unsigned long long prod = digit_product_u64((unsigned long long)n);
         if (prime_count == prod) {
             append_term((seq_t)n);
         }

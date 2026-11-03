@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, base
  * Formula:   not stated
- * Range:     u8 n <= 22, u16 n <= 2983, u32 n <= 8995, u64 n <= 8995,
- *            u128 n <= 8995, big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 22, u16 n <= 2983, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 72 terms through n = 8995 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h" /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* check whether a value contains the digit 1 */
 static inline bool contains_digit_one(seq_t x) {
@@ -41,7 +43,7 @@ static void grow_cache(size_t min_cap) {
     if (cache_cap >= min_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_cap);
     if (!p) abort();
     cache = p;
     cache_cap = new_cap;

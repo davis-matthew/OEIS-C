@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define BIGINT_BASE 1000000000U
 #define BIGINT_MAX_LIMBS 1200      /* enough for 10 000 decimal digits */
@@ -164,7 +166,7 @@ static void ensure_cache(idx_t n)
     if (cache_n == 0) {             /* first initialisation */
         /* allocate cache */
         cache_cap = 16;
-        digit_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        digit_cache = mem_new(seq_t, cache_cap);
         if (!digit_cache) abort();
 
         /* initialise sqrt extraction */
@@ -194,7 +196,7 @@ static void ensure_cache(idx_t n)
         /* Grow cache if necessary */
         if ((size_t)cache_n >= cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(digit_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, digit_cache, new_cap);
             if (!tmp) abort();
             digit_cache = tmp;
             cache_cap = new_cap;

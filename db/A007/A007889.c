@@ -11,12 +11,14 @@
  *            terms are nonnegative, so no intermediate exceeds a(n))
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   a000248_pow
+ * Validated: standard, pass, 38 terms through n = 191 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000248_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     idx_t j = 1;
     for (idx_t k = 1; 2 * k - 1 <= n; k++) {
         /* here j == 2k-1 and c == binomial(n, j) */
-        sum += c * a000248_pow((seq_t)k, n - 1);
+        sum += c * ipow_idx((seq_t)k, n - 1);
         /* advance c to binomial(n, j+2) */
         if (j + 2 <= n) {
             c = c * (seq_t)(n - j) / (seq_t)(j + 1);

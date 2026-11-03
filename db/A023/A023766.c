@@ -7,13 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom_ui
+ * Validated: standard, pass, 82 terms through n = 981 (2026-11-01)
+ * Helpers:   binomial_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_ui.h"
+#include "../utils/binomial_idx.h"
 
 /* Enumeration of base‑11 numbers whose digits are nonincreasing. */
 
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
     /* Find the length of the number */
     while (1) {
         ++length;
-        count_len = binom_ui(length + 10, 10) - 1; /* numbers of exactly this length */
+        count_len = binomial_idx(length + 10, 10) - 1; /* numbers of exactly this length */
         if (remaining <= count_len) break;
         remaining -= count_len;
     }
@@ -44,7 +45,7 @@ seq_t a(idx_t n)
     {
         idx_t r = length - 1;          /* remaining positions after current */
         for (idx_t d = 1; d <= 10; ++d) {
-            idx_t cnt = binom_ui(r + d, r);
+            idx_t cnt = binomial_idx(r + d, r);
             if (idx0 >= cnt) {
                 idx0 -= cnt;
                 continue;
@@ -59,7 +60,7 @@ seq_t a(idx_t n)
     for (idx_t pos = 1; pos < length; ++pos) {
         idx_t r = length - pos - 1;    /* remaining positions after this one */
         for (idx_t d = 0; d <= prev; ++d) {
-            idx_t cnt = binom_ui(r + d, r);
+            idx_t cnt = binomial_idx(r + d, r);
             if (idx0 >= cnt) {
                 idx0 -= cnt;
                 continue;

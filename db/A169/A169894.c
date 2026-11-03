@@ -6,8 +6,9 @@
  * Keywords:  nonn, base, look, tabl
  * Formula:   a(n) = carryless sum of i and j, where i+j=d, d =
  *            ⌊(√(8n+1)-1)/2⌋, i = n - d(d+1)/2, j = d - i
- * Range:     u8 n <= 9945, u16 n <= 9945, u32 n <= 9945, u64 n <= 9945,
- *            u128 n <= 9945, big any n
+ * Range:     u8 n <= 11475, u16 n <= 11475, u32 n <= 11475, u64 n <= 11475,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 107 terms through n = 9945 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

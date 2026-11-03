@@ -10,12 +10,14 @@
  *            pairs of b
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise cache */
     if (b == NULL) {
         b_len = 4;
-        b = (seq_t *)calloc(b_len, sizeof(seq_t));
+        b = mem_new(seq_t, b_len);
         if (!b) exit(1);
         b[0] = (seq_t)1;   /* b(0) */
         b[1] = (seq_t)1;   /* b(1) */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (b_len <= needed) {
         /* allocate enough space */
         size_t new_cap = (size_t)needed + 1;
-        seq_t *tmp = (seq_t *)realloc(b, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b, new_cap);
         if (!tmp) exit(1);
         b = tmp;
 

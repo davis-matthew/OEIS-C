@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/big_pow.h"
+#include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Cached factorials */
 static seq_t *fact_cache = NULL;
@@ -33,7 +36,7 @@ static void ensure_factorial(idx_t N)
         return;
 
     size_t new_cap = (size_t)N + 1;
-    fact_cache = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
+    fact_cache = mem_resize(seq_t, fact_cache, new_cap);
 
     /* Initialize fact_cache[0] if this is the first allocation */
     if (fact_cap == 0) {
@@ -64,7 +67,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t k = 1; k <= max_k; ++k) {
         /* k^ (n - 3k)  */
-        seq_t powk = big_pow((seq_t)k, (seq_t)(n - 3 * k));
+        seq_t powk = ipow((seq_t)k, (seq_t)(n - 3 * k));
 
         /* binomial(n - 3k + 1, k)  */
         seq_t bin = binomial(n - 3 * k + 1, k);

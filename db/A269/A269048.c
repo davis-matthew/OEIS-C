@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper arrays, initialized once */
 static bool _init_done = false;
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     static seq_t dp[81][2];
     static seq_t next[81][2];
     /* initialise for first row */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     for (int p = 0; p < 81; ++p) {
         if (_valid[p])
             dp[p][_internal[p]] = 1;
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
 
     /* iterate over remaining rows */
     for (idx_t row = 1; row < n; ++row) {
-        memset(next, 0, sizeof(next));
+        mem_set(next, 0, sizeof(next));
         for (int p = 0; p < 81; ++p) if (_valid[p]) {
             int inc_p = _internal[p];
             for (int q = 0; q < 81; ++q) {

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
- *            big any n
- * Helpers:   is_prime_ull
+ * Range:     u8 n <= 3, u16 n <= 49, u32 n <= 560, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 9538 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime_ull.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------- */
 /* Dynamic array helpers for seq_t storage.                             */
@@ -38,7 +40,7 @@ static void ensure_capacity(size_t min_cap, seq_t **arr, size_t *cap) {
     if (*cap < min_cap) {
         size_t new_cap = (*cap == 0 ? 8 : *cap * 2);
         if (new_cap < min_cap) new_cap = min_cap;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -67,7 +69,7 @@ static const int DIGITS[4] = {2, 3, 5, 7};
 static void generate_len_recursive(int pos, int len, uint64_t cur, int sum) {
     if (pos == len) {
         /* Test primality of the numeric value and the sum of its digits. */
-        if (is_prime_ull(cur) && is_prime_ull((uint64_t)sum)) {
+        if (is_prime_u64(cur) && is_prime_u64((uint64_t)sum)) {
             ensure_capacity(cache_size + 1, &cache, &cache_cap);
             cache[cache_size++] = (seq_t)cur;   /* cast is safe for arbitrary‑precision types */
         }

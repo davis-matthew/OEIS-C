@@ -13,13 +13,15 @@
  *            linear...
  * Range:     u8 n <= 16, u16 n <= 290, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* forward declaration of cache helpers */
 static void init_cache(void);
@@ -79,7 +81,7 @@ static void init_cache(void)
 {
     /* a(0)=1, a(1)=3 */
     a_cap = 4;
-    a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+    a_cache = mem_new(seq_t, a_cap);
     if (!a_cache) abort();
     a_cache[0] = (seq_t)1;
     a_cache[1] = (seq_t)3;
@@ -87,7 +89,7 @@ static void init_cache(void)
 
     /* b(0)=2 */
     b_cap = 2;
-    b_cache = (seq_t *)malloc(b_cap * sizeof(seq_t));
+    b_cache = mem_new(seq_t, b_cap);
     if (!b_cache) abort();
     b_cache[0] = (seq_t)2;
     b_len = 1;
@@ -114,7 +116,7 @@ static void ensure_up_to(idx_t n)
             set_used(cand);
             if (b_len >= b_cap) {
                 b_cap <<= 1;
-                b_cache = (seq_t *)realloc(b_cache, b_cap * sizeof(seq_t));
+                b_cache = mem_resize(seq_t, b_cache, b_cap);
                 if (!b_cache) abort();
             }
             b_cache[b_len++] = (seq_t)cand;
@@ -124,7 +126,7 @@ static void ensure_up_to(idx_t n)
         seq_t val = a_cache[i - 2] + b_cache[i - 1] + (seq_t)i * 2UL;
         if (a_len >= a_cap) {
             a_cap <<= 1;
-            a_cache = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, a_cap);
             if (!a_cache) abort();
         }
         a_cache[a_len++] = val;

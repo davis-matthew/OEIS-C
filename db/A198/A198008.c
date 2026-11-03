@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 31, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const int R[5] = {3, 3, 0, 1, 2};
 
@@ -132,12 +134,12 @@ a(idx_t n)
     }
 
     const size_t states = (size_t)ROWS * (size_t)ROWS;
-    seq_t *cur = (seq_t *)calloc(states, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(states, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, states);
+    seq_t *nxt = mem_new(seq_t, states);
     if (!cur || !nxt)
     {
-        free(cur);
-        free(nxt);
+        mem_free(cur);
+        mem_free(nxt);
         return 0;
     }
 
@@ -149,7 +151,7 @@ a(idx_t n)
     /* DP over remaining rows (from row 3 to row n). */
     for (idx_t step = 2; step < n; ++step)
     {
-        memset(nxt, 0, states * sizeof(seq_t));
+        mem_set(nxt, 0, states * sizeof(seq_t));
         for (int a = 0; a < ROWS; ++a)
             for (int b = 0; b < ROWS; ++b)
             {
@@ -179,7 +181,7 @@ a(idx_t n)
             if (check_row(b, a, -1)) ans += val;
         }
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return ans;
 }

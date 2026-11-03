@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   has_only_odd_digits
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_only_odd_digits.h"
+#include "../utils/mem.h"
+
+/* Check whether a positive integer 'v' has only odd decimal digits. */
+static bool has_only_odd_digits(idx_t v)
+{
+    while (v > 0) {
+        unsigned d = v % 10;
+        if ((d & 1) == 0)   /* even digit */
+            return false;
+        v /= 10;
+    }
+    return true;
+}
 
 /* Prime handling */
 static idx_t *prime_list  = NULL; /* Array of found primes            */
@@ -67,7 +80,7 @@ static void ensure_valid_cap(size_t needed)
     size_t new_cap = valid_cap == 0 ? 8 : valid_cap * 2;
     while (new_cap < needed)
         new_cap *= 2;
-    valid_indices = (seq_t *)realloc(valid_indices, new_cap * sizeof(seq_t));
+    valid_indices = mem_resize(seq_t, valid_indices, new_cap);
     valid_cap     = new_cap;
 }
 

@@ -8,13 +8,19 @@
  * Formula:   a(n) = |{k ≤ n : gcd(k,n) = 1 and popcount(k) is odd}|
  * Range:     u8 n <= 520, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   _is_odious_idx
+ * Validated: standard, pass, 89 terms through n = 4744 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_is_odious_idx.h"
+
+/* Check if an idx_t number is odious (odd popcount). */
+static inline int _is_odious_idx(idx_t x) {
+    /* built-in popcount: available in C11 and C++17. */
+    return (__builtin_popcountll(x) & 1);
+}
 
 /* Local helper: gcd for idx_t (uint64_t). */
 static inline idx_t _gcd(idx_t a, idx_t b) {

@@ -9,13 +9,18 @@
  *            T(k,j) = T(k,j-1) + T(k-1,k-j), E(k) = T(k,k)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 14, i64 n <= 22, i128 n <= 37,
  *            big any n
- * Helpers:   zalloc_arr
+ * Validated: standard, pass, 40 terms through n = 471 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/zalloc_arr.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
 
 static seq_t *E_tab = NULL;   /* E_tab[k] = E(k) for k < have */
 static seq_t *row = NULL;     /* row (have-1) of the triangle, length have */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Static storage for memoised terms */
 static seq_t *seq      = NULL;
@@ -50,7 +53,7 @@ static void ensure_seq_cap(idx_t min_cap)
     while (new_cap < min_cap)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(seq, (size_t)new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, (size_t)new_cap);
     if (!tmp)
         return;          /* allocation failed – leave seq unchanged */
     seq = tmp;
@@ -114,7 +117,7 @@ seq_t a(idx_t n)
             if (is_used(d))
                 ++d;
             /* Skip primes */
-            else if (is_prime((uint64_t)d))
+            else if (is_prime_u64((uint64_t)d))
                 ++d;
             else {
                 idx_t sum_i = prev_i + d;
@@ -122,7 +125,7 @@ seq_t a(idx_t n)
                 if (is_used(sum_i))
                     ++d;
                 /* Skip if the sum is prime */
-                else if (is_prime((uint64_t)sum_i))
+                else if (is_prime_u64((uint64_t)sum_i))
                     ++d;
                 else
                     break;   /* found admissible d */

@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) is the n-th positive integer k such that * 2*k - σ(k) +
  *            τ(k) - 1 is a prime number (deficiency + proper divisors)
- * Range:     u8 n <= 12, u16 n <= 927, u32 n <= 9466, u64 n <= 9466,
- *            u128 n <= 9466, big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 12, u16 n <= 927, u32 n <= 49999, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 86 terms through n = 9466 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* --- Smallest prime factor table ------------------------------------ */
 static uint32_t *spf_table = NULL;
@@ -81,7 +83,7 @@ static void ensure_cache_cap(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *new_ptr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_ptr) abort();
     seq_cache = new_ptr;
     cache_cap = new_cap;

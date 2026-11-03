@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, eigen, look
  * Formula:   not stated
- * Range:     i8 n <= 338, i16 n <= 9636, i32 n <= 9636, i64 n <= 9636,
- *            i128 n <= 9636, big any n
+ * Range:     i8 n <= 338, i16 n <= 65536, i32 n <= 65536, i64 n <= 65536,
+ *            i128 n <= 65536, big any n
+ * Validated: standard, pass, 92 terms through n = 9636 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

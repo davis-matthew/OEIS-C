@@ -7,14 +7,17 @@
  * Formula:   a(n) = Sum_{d|n} (n/d)^(n-n/d) * binomial(d+1,2)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 17, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
             idx_t d = i;
             idx_t quotient = n / d;              /* n/d */
             idx_t exp = n - quotient;           /* n - n/d */
-            seq_t pow_val = big_pow((seq_t)quotient, (seq_t)exp);
+            seq_t pow_val = ipow((seq_t)quotient, (seq_t)exp);
             seq_t bin_val = binomial(d + 1, 2);  /* (d+1 choose 2) */
             result += pow_val * bin_val;
 
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
             if (d != i) {
                 quotient = n / d;              /* which is i */
                 exp = n - quotient;           /* n - n/d */
-                pow_val = big_pow((seq_t)quotient, (seq_t)exp);
+                pow_val = ipow((seq_t)quotient, (seq_t)exp);
                 bin_val = binomial(d + 1, 2);
                 result += pow_val * bin_val;
             }

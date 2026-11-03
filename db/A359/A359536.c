@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 250, u16 n <= 250, u32 n <= 250, u64 n <= 250,
  *            u128 n <= 250, big any n
- * Helpers:   floor_log2_uint64, is_power_of_two
+ * Validated: standard, pass, 97 terms through n = 243 (2026-11-01)
+ * Helpers:   ilog2, is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,18 +26,19 @@
 */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_power_of_two.h"
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/is_pow2.h"
 
 seq_t a(idx_t n)
 {
     if (n <= 2)                     /* a(0)=1, a(1)=1, a(2)=1 */
         return (seq_t)1;
 
-    if (is_power_of_two(n))         /* a(2^k) = 2^(k-1) */
+    if (is_pow2(n))         /* a(2^k) = 2^(k-1) */
         return ((seq_t)n) >> 1;
 
-    unsigned k = floor_log2_uint64(n);
+    unsigned k = ilog2(n);
     seq_t pow2k = ((seq_t)1ULL) << k;          /* 2^k  (fits in idx_t) */
 
     seq_t part = (seq_t)(n - pow2k);           /* n - 2^k */

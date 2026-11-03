@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   has_equal_3_6
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/has_equal_3_6.h"
+
+/* Check whether a number has the same number of 3's and 6's. */
+static bool has_equal_3_6(seq_t n)
+{
+    int c3 = 0, c6 = 0;
+    seq_t x = n;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d == 3) ++c3;
+        else if (d == 6) ++c6;
+        x /= 10;
+    }
+    return c3 == c6;
+}
 
 /* Cache for computed sequence values */
 #if defined(__cplusplus)

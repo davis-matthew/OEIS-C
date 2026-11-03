@@ -10,12 +10,14 @@
  *            integer
  * Range:     i8 n <= 2, i16 n <= 13, i32 n <= 38, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t next_term(seq_t x)
 {
@@ -48,11 +50,11 @@ seq_t a(idx_t n)
 
     /* Allocate or grow cache */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * n);
+        cache = mem_new(seq_t, n);
         cache[0] = -1;             /* a(1) = -1 */
         cache_len = 1;
     } else if (n > cache_len) {
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * n);
+        cache = mem_resize(seq_t, cache, n);
     }
 
     /* Compute missing terms */

@@ -11,7 +11,8 @@
  *            current maximum frequency
  * Range:     u8 n <= 1002, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 8648 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Static state used to compute the sequence incrementally                 */
@@ -53,7 +55,7 @@ static void grow_a_vals(size_t needed)
     if (needed <= a_cap) return;
     size_t new_cap = a_cap ? a_cap * 2 : 32;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
     if (!tmp) abort();   /* out of memory */
     a_vals = tmp;
     a_cap  = new_cap;

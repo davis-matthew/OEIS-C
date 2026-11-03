@@ -11,12 +11,14 @@
  *            a(n)=47*(a(n-1)+a(n-2)+a(n-3)+a(n-4)+a(n-5)) - 1128*a(n-6)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 498 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cache_cap) {
         size_t newcap = (cache_cap == 0) ? 16 : cache_cap * 2;
         while (newcap < (size_t)n + 1) newcap <<= 1;
-        seq_t *newptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, newcap);
         cache = newptr;
         cache_cap = newcap;
     }

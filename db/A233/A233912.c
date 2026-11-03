@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 37,
  *            big any n
- * Helpers:   ok_2x2
+ * Validated: standard, pass, 32 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/ok_2x2.h"
+
+/* Helper: check the 2×2 condition for block (a,b; c,d) */
+static bool ok_2x2(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+{
+    int da = (int)a - (int)b;
+    int db = (int)c - (int)d;
+    int dc = (int)a - (int)c;
+    int dd = (int)b - (int)d;
+    int sum = da * da + db * db + dc * dc + dd * dd;
+    return sum == 30;
+}
 
 /* Row representation */
 typedef struct { uint8_t v[4]; } Row;

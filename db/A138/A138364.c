@@ -5,13 +5,15 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = binomial(n, (n+1)/2) for n odd, 0 otherwise
- * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 30, u64 n <= 68, u128 n <= 132,
+ * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 68, u128 n <= 132,
  *            big any n
+ * Validated: standard, pass, 59 terms through n = 967 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

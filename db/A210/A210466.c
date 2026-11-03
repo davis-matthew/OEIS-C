@@ -10,7 +10,8 @@
  *            in increasing x and then y
  * Range:     u8 n <= 5023, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_max_steps, gcd, seq_realloc
+ * Validated: standard, pass, 84 terms through n = 8460 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,120 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/compute_max_steps.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t compute_max_steps(seq_t X, seq_t Y)
+{
+    /* Ensure X ≥ Y */
+    if (X < Y) { seq_t t = X; X = Y; Y = t; }
+
+    idx_t a = (idx_t)X;  /* larger jug capacity */
+    idx_t b = (idx_t)Y;  /* smaller jug capacity */
+
+    /* BFS over all states (ci,cj) with 0≤ci≤a, 0≤cj≤b */
+    idx_t states = (a + 1) * (b + 1);
+    idx_t *dist = (idx_t*)calloc(states, sizeof(idx_t));
+    if (!dist) abort();
+    idx_t *queue = (idx_t*)malloc(states * sizeof(idx_t));
+    if (!queue) { free(dist); abort(); }
+
+    /* initialise dist[] with INF */
+    const idx_t INF = (idx_t)-1;
+    for (idx_t i = 0; i < states; ++i) dist[i] = INF;
+
+    dist[0] = 0;                 /* start state (0,0) has distance 0 */
+    idx_t head = 0, tail = 1;
+    queue[0] = 0;
+
+    idx_t max_steps = 0;
+    idx_t *fnd = (idx_t*)calloc(a + 1, sizeof(idx_t));
+    if (!fnd) { free(dist); free(queue); abort(); }
+    idx_t found = 0;
+
+    while (head < tail)
+    {
+        idx_t cur = queue[head++];
+        idx_t curdist = dist[cur];
+        idx_t ci = cur / (b + 1);   /* amount in larger jug */
+        idx_t cj = cur % (b + 1);   /* amount in smaller jug */
+
+        /* record first time each goal volume is reachable */
+        if (ci > 0 && !fnd[ci])
+        {
+            fnd[ci] = 1;
+            if (curdist > max_steps) max_steps = curdist;
+            if (++found == a) break;
+        }
+        if (cj > 0 && !fnd[cj])
+        {
+            fnd[cj] = 1;
+            if (curdist > max_steps) max_steps = curdist;
+            if (++found == a) break;
+        }
+
+        /* 1. Fill larger jug */
+        {
+            idx_t nci = a;
+            idx_t ncj = cj;
+            idx_t nidx = nci * (b + 1) + ncj;
+            if (dist[nidx] == INF) { dist[nidx] = curdist + 1; queue[tail++] = nidx; }
+        }
+        /* 2. Fill smaller jug */
+        {
+            idx_t nci = ci;
+            idx_t ncj = b;
+            idx_t nidx = nci * (b + 1) + ncj;
+            if (dist[nidx] == INF) { dist[nidx] = curdist + 1; queue[tail++] = nidx; }
+        }
+        /* 3. Empty larger jug */
+        {
+            idx_t nci = 0;
+            idx_t ncj = cj;
+            idx_t nidx = nci * (b + 1) + ncj;
+            if (dist[nidx] == INF) { dist[nidx] = curdist + 1; queue[tail++] = nidx; }
+        }
+        /* 4. Empty smaller jug */
+        {
+            idx_t nci = ci;
+            idx_t ncj = 0;
+            idx_t nidx = nci * (b + 1) + ncj;
+            if (dist[nidx] == INF) { dist[nidx] = curdist + 1; queue[tail++] = nidx; }
+        }
+        /* 5. Pour larger → smaller */
+        {
+            idx_t delta = (ci <= (b - cj)) ? ci : (b - cj);
+            idx_t nci = ci - delta;
+            idx_t ncj = cj + delta;
+            idx_t nidx = nci * (b + 1) + ncj;
+            if (dist[nidx] == INF) { dist[nidx] = curdist + 1; queue[tail++] = nidx; }
+        }
+        /* 6. Pour smaller → larger */
+        {
+            idx_t delta = (cj <= (a - ci)) ? cj : (a - ci);
+            idx_t nci = ci + delta;
+            idx_t ncj = cj - delta;
+            idx_t nidx = nci * (b + 1) + ncj;
+            if (dist[nidx] == INF) { dist[nidx] = curdist + 1; queue[tail++] = nidx; }
+        }
+    }
+
+    free(dist);
+    free(queue);
+    free(fnd);
+
+    return (seq_t)max_steps;
+}
 
 /* ----------  cache and enumeration logic  ---------- */
 

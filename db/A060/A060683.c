@@ -11,7 +11,8 @@
  *            on demand and cached; no explicit closed form is known
  * Range:     u8 n <= 184, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 8608 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- type aliases supplied by the build ---------- */
 typedef uint64_t idx_t;   /* index type */
@@ -27,28 +29,14 @@ typedef uint64_t idx_t;   /* index type */
 /* ---------- helpers for dynamic array of seq_t ---------- */
 static void ensure_seq_capacity(seq_t **arr, size_t *len, size_t *cap, size_t need)
 {
-#ifdef __cplusplus
+    (void)len;
     if (*cap >= need) return;
     size_t new_cap = (*cap == 0) ? 16 : *cap;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_arr = (seq_t*)::operator new(new_cap * sizeof(seq_t));
-    for (size_t i = 0; i < *len; ++i)
-        new (new_arr + i) seq_t((*arr)[i]);                 /* copy‑construct */
-    for (size_t i = 0; i < *len; ++i)
-        (*arr)[i].~seq_t();                                 /* destroy old */
-    ::operator delete(*arr);
+    seq_t *new_arr = mem_resize(seq_t, *arr, new_cap);   /* keeps the old values */
+    if (!new_arr) abort();
     *arr = new_arr;
     *cap = new_cap;
-#else
-    if (*cap >= need) return;
-    size_t new_cap = (*cap == 0) ? 16 : *cap;
-    while (new_cap < need) new_cap <<= 1;
-    seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
-    if (*arr) memcpy(new_arr, *arr, *len * sizeof(seq_t));
-    free(*arr);
-    *arr = new_arr;
-    *cap = new_cap;
-#endif
 }
 
 /* ---------- prime sieve ---------- */
@@ -164,7 +152,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;                 /* undefined, harmless */
 
     if (a_cache == NULL) {
-        a_cache = (seq_t*)malloc(16 * sizeof(seq_t));
+        a_cache = mem_new(seq_t, 16);
         a_cap = 16;
         a_len = 0;
     }

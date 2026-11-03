@@ -12,15 +12,28 @@
  *            number of 3-subsets fixed by sigma^k. The sum is take...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 18,
  *            big any n
- * Helpers:   is_prime, seq_is_fixed_width
+ * Validated: standard, pass, 30 terms through n = 49 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
-#include "../utils/seq_is_fixed_width.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static int g_n, g_np, g_d;
 static uint64_t *g_pr, *g_invk, *g_invf, *g_acc;
@@ -108,7 +121,7 @@ seq_t a(idx_t n)
 
     cand = 4294967295ULL;
     for (i = 0; i < P; i++) {
-        while (!is_prime(cand)) cand--;
+        while (!is_prime_u64(cand)) cand--;
         g_pr[i] = cand--;
     }
     for (i = 0; i < P; i++) {

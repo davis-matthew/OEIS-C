@@ -7,12 +7,28 @@
  * Formula:   a(n) = (n - 12*⌊(n-1)/12⌋)*(13^⌊(n+11)/12⌋ - 1)/12
  * Range:     u8 n <= 25, u16 n <= 50, u32 n <= 100, u64 n <= 205,
  *            u128 n <= 412, big any n
- * Helpers:   repdigit_sum
+ * Validated: standard, pass, 67 terms through n = 1178 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/repdigit_sum.h"
+/* Compute the 13‑power sum 1 + 13 + 13² + … + 13^(k‑1) without
+ * overflowing for 64‑bit seq_t values.  The loop keeps the intermediate
+ * power below 13^(k‑1).  This is safe because the final result fits in
+ * seq_t whenever the returned a(n) does. */
+static inline seq_t repdigit_sum(idx_t k)
+{
+    seq_t power = (seq_t)1;   /* 13^i */
+    seq_t sum   = (seq_t)0;
+    for (idx_t i = 0; i < k; ++i) {
+        sum += power;
+        /* Do not compute 13^k once the last term has been added. */
+        if (i + 1 == k) break;
+        power *= (seq_t)13;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of partitions of n into parts 1, 2, 3 and 7
  * Range:     u8 n <= 33, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Implementation: dynamic programming with memoised cache */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* cache array for partition counts */
 static idx_t  dp_size = 0;    /* number of entries in the cache */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Rebuild the cache iff we lack enough precomputed values. */
     if (n >= dp_size) {
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, new_size);
         if (!new_dp) abort();          /* allocation failed */
 
         dp = new_dp;

@@ -7,13 +7,15 @@
  * Formula:   a(n) = n^2*a(n-1) + n! with a(0) = 1 (OEIS A394681)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         size_t init_cap = (n + 1 > 1) ? (size_t)(n + 1) : 1;
         /* round capacity up to a power of two for easier growth */
         while (init_cap & (init_cap - 1)) init_cap++;  /* not really needed for small n */
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) abort();          /* allocation failed */
         cap = init_cap;
         cache[0] = (seq_t)1;           /* a(0) = 1 */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if ((idx_t)cap <= n) {
         size_t new_cap = cap;
         while ((idx_t)new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cap = new_cap;

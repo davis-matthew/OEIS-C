@@ -12,11 +12,13 @@
  *            k = n - r*(3*r - 1)/2. * Then * a(n) = Σ_{i=...
  * Range:     u8 n <= 56, u16 n <= 156, u32 n <= 500, u64 n <= 1861,
  *            u128 n <= 6787, big any n
+ * Validated: standard, pass, 86 terms through n = 9535 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

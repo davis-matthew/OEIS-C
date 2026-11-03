@@ -9,8 +9,9 @@
  *            first‑sums equal the k‑th composition in standard order. * The
  *            implementation maps n to its composition and then counts the *
  *            integer s satisfying the derived linear inequalities
- * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
+ * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
+ *            big any n
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

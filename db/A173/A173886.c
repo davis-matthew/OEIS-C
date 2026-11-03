@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 28, u32 n <= 45, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    and c(k) = product_{i=2..k} Fib(i-1)*Fib(i) with c(0)=c(1)=1. */
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* cached Fibonacci numbers and c values */
 static seq_t *fib = NULL;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
      *  Initialize Fibonacci array if necessary
      * ------------------------------------------------------------------ */
     if (!fib) {
-        fib = (seq_t *)malloc(2 * sizeof(seq_t));
+        fib = mem_new(seq_t, 2);
         if (!fib) return 0;          /* allocation failed – unlikely for the limits */
         fib[0] = 0;
         fib[1] = 1;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         size_t new_cap = fib_cap;
         while (new_cap <= (size_t)r + 1)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(fib, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib, new_cap);
         if (!tmp) return 0;
         fib = tmp;
         fib_cap = new_cap;
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
      *  Initialize c array if necessary
      * ------------------------------------------------------------------ */
     if (!c) {
-        c = (seq_t *)malloc(2 * sizeof(seq_t));
+        c = mem_new(seq_t, 2);
         if (!c) return 0;
         c[0] = 1;
         c[1] = 1;
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
         size_t new_cap = c_cap;
         while (new_cap <= (size_t)r + 1)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(c, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, c, new_cap);
         if (!tmp) return 0;
         c = tmp;
         c_cap = new_cap;

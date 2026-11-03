@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 14, u64 n <= 35, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool adj_init = false;
 static bool adj[16][16];
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
     /* expand cache if needed */
     if (n > cache_len) {
         /* enlarge cache array to hold up to n terms */
-        cache = (seq_t *)realloc(cache, ((size_t)n) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, ((size_t)n));
         if (!cache) exit(EXIT_FAILURE);  /* allocation failed */
 
         /* compute additional terms beyond current cache_len */

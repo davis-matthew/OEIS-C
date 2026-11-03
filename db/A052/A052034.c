@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1265, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_square_sum, is_prime_u64, next_prime
+ * Validated: standard, pass, 70 terms through n = 9734 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,22 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/next_prime.h"
+#include <stdint.h>
 #include "../utils/is_prime_u64.h"
-#include "../utils/digit_square_sum.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Helper: sum of squares of decimal digits of a 64‑bit integer. */
+static uint64_t digit_square_sum(uint64_t x)
+{
+    uint64_t sum = 0;
+    while (x > 0) {
+        uint64_t d = x % 10;
+        sum += d * d;
+        x /= 10;
+    }
+    return sum;
+}
 
 /* Memoised list of found terms. */
 static seq_t *terms = NULL;   /* array of seq_t values */
@@ -44,7 +58,7 @@ static void ensure_capacity(size_t new_used)
     size_t new_cap = cap ? cap * 2 : 16;
     while (new_cap < new_used)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort(); /* allocation failure */
     terms = tmp;
     cap = new_cap;

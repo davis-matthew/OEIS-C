@@ -8,13 +8,14 @@
  *            a(n) = (4n)!/((2n)!*n!^2))
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   a897_gcd_u
+ * Validated: standard, pass, 32 terms through n = 177 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a897_gcd_u.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
 	for (k = 1; k <= n; k++) {
 		uint64_t c = (uint64_t)4 * (4 * k - 3) * (4 * k - 1);
 		uint64_t d = (uint64_t)k * k;
-		uint64_t g = a897_gcd_u(c, d);
+		uint64_t g = gcd_u64(c, d);
 		c /= g;
 		d /= g;
 		/* c and d are coprime and r*c/d is an integer, so d divides r */

@@ -13,13 +13,40 @@
  *            σ₃(n) – 32 * σ₃(odd(n)) if n is even. For n = 0...
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 22, u64 n <= 62, u128 n <= 149,
  *            big any n
- * Helpers:   fib, sigma3_u64
+ * Validated: standard, pass, 44 terms through n = 972 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fib.h"
-#include "../utils/sigma3_u64.h"
+#include <stdbool.h>
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
+
+static seq_t sigma3_u64(idx_t n)
+{
+    seq_t sum = 0;
+    for (idx_t i = 1; i <= n / i; ++i) {
+        if (n % i == 0) {
+            seq_t d1 = (seq_t)i;
+            seq_t d2 = (seq_t)(n / i);
+            sum += d1 * d1 * d1;
+            if (d1 != d2) {
+                sum += d2 * d2 * d2;
+            }
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

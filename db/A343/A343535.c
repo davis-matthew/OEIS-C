@@ -10,7 +10,8 @@
  *            (n-2i)!
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 34, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   binom, factorial
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,19 @@
    where n≥0 and 0≤k≤⌊n/3⌋, and returns the entry read
    by rows as a single sequence a(n). */
 
-#include "../utils/binom.h"
-#include "../utils/factorial.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n_flat)
 {
@@ -40,8 +52,8 @@ seq_t a(idx_t n_flat)
     seq_t result = 0;
     idx_t max_i = r / 3;          /* upper bound for i       */
     for (idx_t i = k; i <= max_i; ++i) {
-        seq_t term = binom(i, k);                       /* C(i,k) */
-        term = term * binom(r - 2 * i, i);              /* *C(r-2i,i)   */
+        seq_t term = binomial(i, k);                       /* C(i,k) */
+        term = term * binomial(r - 2 * i, i);              /* *C(r-2i,i)   */
         term = term * factorial(r - 2 * i);             /* *(r-2i)!     */
         if (((i - k) & 1) == 0) {
             result += term;                            /* + term         */

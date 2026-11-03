@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 940, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small, powmod64
+ * Validated: standard, pass, 68 terms through n = 998 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,11 @@
    For odd primes p, this holds iff p ≡ 1 (mod 7) and 2^{(p−1)/7} ≠ 1 (mod p). */
 
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/powmod64.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *seq   = NULL;          /* array of sequence values */
 static size_t seq_len = 0;           /* number of values stored */
@@ -27,7 +31,7 @@ static uint64_t last_checked = 2;    /* last candidate examined */
 
 static inline bool is_prime_candidate(uint64_t n)
 {
-    return is_prime_small(n);
+    return is_prime_seq(n);
 }
 
 seq_t a(idx_t n)
@@ -48,14 +52,14 @@ seq_t a(idx_t n)
         if (cand % 7 == 1)
         {
             uint64_t exp = (cand - 1) / 7;
-            uint64_t r   = powmod64(2, exp, cand);
+            uint64_t r   = powmod_u64(2, exp, cand);
             if (r != 1)
             {
                 /* Store the prime in the sequence. */
                 if (seq_len == seq_alloc)
                 {
                     seq_alloc = seq_alloc ? seq_alloc * 2 : 64;
-                    seq = (seq_t *)realloc(seq, seq_alloc * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_alloc);
                 }
                 seq[seq_len++] = (seq_t)cand;
             }

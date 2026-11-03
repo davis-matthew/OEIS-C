@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 18, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,15 +23,16 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0;
     idx_t N = n;                 /* need coefficients up to index n */
     /* Allocate working arrays */
-    seq_t *A = (seq_t *)malloc((N+1) * sizeof(seq_t));   /* a array */
-    seq_t *H = (seq_t *)malloc((N+1) * sizeof(seq_t));   /* H array */
-    seq_t *S = (seq_t *)malloc((N+1) * sizeof(seq_t));   /* S array */
+    seq_t *A = mem_new(seq_t, (N+1));   /* a array */
+    seq_t *H = mem_new(seq_t, (N+1));   /* H array */
+    seq_t *S = mem_new(seq_t, (N+1));   /* S array */
 
     /* Init for S computation (division by 1+sinh) */
     S[0] = 1;                     /* p0 - sum = 1 */
@@ -81,8 +83,8 @@ seq_t a(idx_t n)
 
     seq_t result = A[N];
     /* Clean up */
-    free(A);
-    free(H);
-    free(S);
+    mem_free(A);
+    mem_free(H);
+    mem_free(S);
     return result;
 }

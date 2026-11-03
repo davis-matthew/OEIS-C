@@ -10,13 +10,15 @@
  *            a(5)=75, a(6)=105, a(7)=70, a(8)=90
  * Range:     u8 n <= 9, u16 n <= 161, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t init9[9] = {0,5,15,15,25,75,105,70,90};
 static seq_t *cache = NULL;      /* cache of computed terms */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* first time this function is called: allocate cache and store the seed values */
     if (cache == NULL) {
         cache_len = 9;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();
         for (size_t i = 0; i < cache_len; ++i)
             cache[i] = init9[i];
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     size_t target = (size_t)n;
     if (target >= cache_len) {
         size_t new_len = target + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
         for (size_t i = cache_len; i < new_len; ++i) {

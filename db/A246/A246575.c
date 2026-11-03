@@ -11,7 +11,8 @@
  *            otherwise b_k = 0)
  * Range:     i8 n <= 81, i16 n <= 81, i32 n <= 81, i64 n <= 81, i128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* The array a is built incrementally and memoised on use. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_vals = NULL;      /* a[0..cap-1]  */
 static size_t a_cap = 0;
@@ -39,8 +41,8 @@ static void ensure_cache(idx_t n)
     if (new_cap == 0) new_cap = 1;
     while (new_cap <= (size_t)n) new_cap <<= 1;
 
-    a_vals = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
-    b_vals = (seq_t *)realloc(b_vals, new_cap * sizeof(seq_t));
+    a_vals = mem_resize(seq_t, a_vals, new_cap);
+    b_vals = mem_resize(seq_t, b_vals, new_cap);
     a_cap = b_cap = new_cap;
 
     /* recompute all b[k] for k<new_cap from scratch */

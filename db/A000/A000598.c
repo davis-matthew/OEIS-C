@@ -12,12 +12,14 @@
  *            A(x), i.e. A(x) = 1 + (1/6)*x*(A(x)^3 + 3*A(x)*A(x^2) + 2*A...
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 26, u64 n <= 49, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A_ = NULL;
 static seq_t *H2_ = NULL;
@@ -47,8 +49,8 @@ static void a598_ensure(idx_t len) {
     idx_t nc = cap_ * 2;
     if (nc < len) nc = len;
     if (nc < 16) nc = 16;
-    A_ = (seq_t *)realloc(A_, nc * sizeof(seq_t));
-    H2_ = (seq_t *)realloc(H2_, nc * sizeof(seq_t));
+    A_ = mem_resize(seq_t, A_, nc);
+    H2_ = mem_resize(seq_t, H2_, nc);
     cap_ = nc;
 }
 

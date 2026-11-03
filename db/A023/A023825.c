@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of exponents in the prime‐factorization of C(3n, n+3)
  * Range:     u8 n <= 87, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _expo_factorial, build_primes_upto
+ * Validated: standard, pass, 94 terms through n = 9611 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/_expo_factorial.h"
+
+static seq_t _expo_factorial(seq_t m, seq_t p)
+{
+    seq_t exp = 0;
+    seq_t denom = p;
+    while (denom <= m) {
+        exp += m / denom;
+        if (denom > m / p)
+            break;
+        denom *= p;
+    }
+    return exp;
+}
 
 static seq_t _bigomega_binomial(idx_t n)
 {

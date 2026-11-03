@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 30, u64 n <= 70, u128 n <= 149,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free_array
+ * Validated: standard, pass, 45 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,16 @@
 
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* 8‑bit masks for 3‑bit rows.  A row mask is valid iff
  * it is not 000 (0) and not 011 (6).  Bit 2 is the leftmost
@@ -108,8 +117,8 @@ seq_t a(idx_t n)
 
         dp_cur  = seq_alloc_new_array(64);
         dp_next = seq_alloc_new_array(64);
-        memset(dp_cur, 0, 64 * sizeof(seq_t));
-        memset(dp_next, 0, 64 * sizeof(seq_t));
+        mem_set(dp_cur, 0, 64 * sizeof(seq_t));
+        mem_set(dp_next, 0, 64 * sizeof(seq_t));
 
         /* Initial arrays of height 2 (two rows).  Each valid pair of
          * rows counts as one configuration. */
@@ -127,7 +136,7 @@ seq_t a(idx_t n)
         size_t new_len = (size_t)n + 1;      /* indices 0..n     */
         seq_t *new_cache = seq_alloc_new_array(new_len);
         if (cache) {
-            memcpy(new_cache, cache, cache_len * sizeof(seq_t));
+            mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
             seq_free_array(cache);
         }
         cache = new_cache;
@@ -137,7 +146,7 @@ seq_t a(idx_t n)
     /* Compute new values up to requested n. */
     for (idx_t k = computed_n + 1; k <= n; ++k) {
         /* Transition: add one more row to reach height k+2. */
-        memset(dp_next, 0, 64 * sizeof(seq_t));
+        mem_set(dp_next, 0, 64 * sizeof(seq_t));
         for (int s = 0; s < 64; ++s) {
             seq_t cnt = dp_cur[s];
             if (!cnt)

@@ -11,14 +11,16 @@
  *            initial linear pass
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 17, u128 n <= 26,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 35 terms through n = 291 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>      /* malloc, realloc */
 #include <stdbool.h>     /* bool */
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,14 +36,14 @@ seq_t a(idx_t n)
 
     while (processed < n) {
         seq_t cand = (seq_t)next_candidate;
-        if (is_palindrome(cand, 10)) {
+        if (is_palindrome_base(cand, 10)) {
             prod *= cand;                /* update running product    */
             processed++;
 
             /* grow cache if necessary */
             if (cached_len == cached_cap) {
                 size_t new_cap = cached_cap ? cached_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cached, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cached, new_cap);
                 if (!tmp) {
                     /* allocation failure – return current product
                        (implementation fails gracefully) */

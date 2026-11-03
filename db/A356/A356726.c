@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Roman numeral values (int is safe up to 1000). */
 static const int roman_vals[13] = {
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
     /* Initialise the records array lazily. */
     if (records == NULL) {
         rec_cap = 8;
-        records = (seq_t *)malloc(rec_cap * sizeof(seq_t));
+        records = mem_new(seq_t, rec_cap);
         if (records == NULL)
             return 0;   /* allocation failure – return 0 */
     }
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
             /* New record: store it. */
             if (rec_len + 1 > rec_cap) {
                 rec_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(records, rec_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, records, rec_cap);
                 if (tmp == NULL)
                     return 0;   /* allocation failure */
                 records = tmp;

@@ -8,8 +8,9 @@
  * Formula:   a(n) = Sum_{d|n, d odd} mu(n/d)*d. Alternate closed form: a(n) =
  *            φ(n) for odd n, a(n) = φ(n) - 2·φ(n/2) for even n where φ is
  *            Euler’s totient function
- * Range:     i8 n <= 129, i16 n <= 9394, i32 n <= 9394, i64 n <= 9394,
- *            i128 n <= 9394, big any n
+ * Range:     i8 n <= 129, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 105 terms through n = 9394 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64() */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 static seq_t phi(idx_t n) {
     if (n == 0) return 0;

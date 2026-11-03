@@ -10,15 +10,22 @@
  *            (2j-1)^{\,n-j+1}
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 5, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   catalan, seq_alloc_new_array
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/catalan.h"   // provides seq_t catalan(idx_t)
-#include "../utils/seq_alloc_new_array.h"
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/catalan.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /* Helper to allocate/reallocate seq_t arrays */
 static seq_t *seq_alloc_new_array(size_t n);
@@ -111,5 +118,5 @@ seq_t a(idx_t n)
 
 static void seq_realloc_ptr(seq_t **p, size_t *cap, size_t new_cap)
 {
-    *p = (seq_t*)realloc(*p, new_cap * sizeof(seq_t));
+    *p = mem_resize(seq_t, *p, new_cap);
 }

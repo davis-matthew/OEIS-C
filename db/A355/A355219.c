@@ -8,7 +8,8 @@
  *            (a(0) = 1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   seq_realloc_arr
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
    seq_t arithmetic. */
 
 #include <stdlib.h>   /* malloc, realloc, free, size_t */
-#include "../utils/seq_realloc_arr.h"
+
+/* Auxiliary function for reallocating arrays of seq_t in a way that
+   is safe for C++ big-integer classes. */
+static seq_t *seq_realloc_arr(seq_t *old, size_t old_cap, size_t new_cap)
+{
+#if defined(__cplusplus)
+    seq_t *new_arr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_arr[i] = old[i];
+    delete[] old;
+    return new_arr;
+#else
+    return (seq_t *)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Main function as requested */
 seq_t a(idx_t n)

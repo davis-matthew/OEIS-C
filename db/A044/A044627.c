@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Sequence: numbers n such that the base‑8 representation of n contains
  * the substring “73” but the base‑8 representation of n+1 does not.
  * The function a(idx_t n) returns the n‑th such number (1‑based). */

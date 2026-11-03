@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   cmp_desc_uint64
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,15 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/cmp_desc_uint64.h"
+
+static int cmp_desc_uint64(const void *a, const void *b)
+{
+    const uint64_t *va = (const uint64_t *)a;
+    const uint64_t *vb = (const uint64_t *)b;
+    if (*va < *vb) return 1;
+    if (*va > *vb) return -1;
+    return 0;
+}
 
 /* factorise x into primes[] and exps[].  *cnt receives the number of
    distinct prime factors.  Return the total divisor count. */

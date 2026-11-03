@@ -10,13 +10,15 @@
  *            increasing order
  * Range:     u8 n <= 2, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of found terms */
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
         if (cnt9 > 0 && cnt9 == cnt11) {
             if (cache_size == cache_capacity) {
                 cache_capacity = cache_capacity ? cache_capacity * 2 : 16;
-                cache = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_capacity);
             }
             cache[cache_size++] = cand;
         }

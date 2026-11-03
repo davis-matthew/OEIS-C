@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a(n) is the element T(r,k) with r=floor(sqrt(n)) and k=n-r*r. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed rows. */
 static seq_t **rows = NULL;       /* array of pointers to each row */
@@ -44,7 +46,7 @@ static void ensure_rows_to(idx_t r)
         size_t n = rows_count;          /* current row number */
         size_t len = 2 * n + 1;         /* number of terms in row n */
 
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) return;               /* allocation failure */
 
         if (n == 0) {

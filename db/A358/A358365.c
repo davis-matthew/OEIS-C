@@ -7,7 +7,8 @@
  * Formula:   a(0) = 1, a(n) = 16*a(n-1) + binom(2*n, n)^2 (for all n >= 1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    which leads to the recurrence above. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         idx_t new_len = cache_len ? cache_len << 1 : n + 1;
         if (new_len < n + 1) new_len = n + 1;
 
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         computed = (unsigned char *)realloc(computed,
                                            new_len * sizeof(unsigned char));
         for (idx_t i = cache_len; i < new_len; ++i)

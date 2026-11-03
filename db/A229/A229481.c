@@ -7,13 +7,27 @@
  * Formula:   a(n) = final digit of ( 1^n + 2^n + … + n^n ). Period = 100
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod10_pow
+ * Validated: standard, pass, 116 terms through n = 1000 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/mod10_pow.h"
+
+/* Compute base^exp (mod 10).  base may be up to 99, exp up to 99. */
+static int mod10_pow(int base, int exp)
+{
+    int result = 1;
+    base %= 10;
+    while (exp > 0) {
+        if (exp & 1)
+            result = (result * base) % 10;
+        base = (base * base) % 10;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

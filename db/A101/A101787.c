@@ -9,14 +9,16 @@
  *            prime
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   is_prime_uint64
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     {
         uint64_t p1 = 4ULL * (uint64_t)i - 1ULL;
         uint64_t p2 = 8ULL * (uint64_t)i - 1ULL;
-        if (is_prime_uint64(p1) && is_prime_uint64(p2))
+        if (is_prime_u64(p1) && is_prime_u64(p2))
             count++;
     }
     return count;

@@ -11,14 +11,15 @@
  *            multiplicative summation)
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   my_isqrt
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/my_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 static uint64_t g_x, g_sq;
 static int64_t *lo_pc, *hi_pc, *lo_sc, *hi_sc;
@@ -54,7 +55,7 @@ static uint64_t S(uint64_t v, long long i) {
 static uint64_t count74(idx_t k) {
     uint64_t x = (uint64_t)1 << k;
     if (k < 2) return 1;
-    uint64_t sq = my_isqrt(x);
+    uint64_t sq = isqrt_u64(x);
     g_x = x; g_sq = sq;
     lo_pc = (int64_t *)malloc((size_t)(sq + 2) * sizeof(int64_t));
     hi_pc = (int64_t *)malloc((size_t)(sq + 2) * sizeof(int64_t));

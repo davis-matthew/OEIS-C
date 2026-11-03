@@ -9,6 +9,7 @@
  * Formula:   a(n) = n*(4*n^3 + 6*n^2 + 5*n + 1)/2
  * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 214, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 51 terms through n = 9136 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

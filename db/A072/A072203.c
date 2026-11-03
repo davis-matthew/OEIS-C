@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1 - Σ_{k=1..n} λ(k), λ(k) = (-1)^{Ω(k)} (Liouville)
  * Range:     i8 n <= 9836, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 119 terms through n = 9499 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,12 +7,14 @@
  * Formula:   a(n) = ceiling(n * phi^4), where phi^4 = (7 + 3*sqrt(5))/2
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 0, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a000037_isqrt
+ * Validated: standard, pass, 62 terms through n = 8548 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000037_isqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
@@ -21,7 +23,7 @@ seq_t a(idx_t n) {
     // Scale = 2^30 for high precision without overflow
     uint64_t scale = 1ULL << 30;
     uint64_t five_scale_sq = 5 * scale * scale;
-    uint64_t sqrt_5_scaled = a000037_isqrt(five_scale_sq);
+    uint64_t sqrt_5_scaled = isqrt_u64(five_scale_sq);
     
     seq_t n_seq = (seq_t)n;
     seq_t numerator_part = (seq_t)(7 * scale) + (seq_t)(3 * sqrt_5_scaled);

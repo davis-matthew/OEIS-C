@@ -11,13 +11,33 @@
  *            closed form for B(i,j) with a=min(i,j), b=ma...
  * Range:     u8 n <= 94, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   _diagonal_of
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_diagonal_of.h"
+
+/* helper to find the minimal diagonal number d with C(d) >= n */
+static idx_t _diagonal_of(idx_t n) {
+    if (n == 0) return 1;          /* unused, but safe */
+    idx_t low = 1;
+    idx_t high = n + 1;            /* high*(high-1)/2 >= n for all n>=1 */
+
+    /* ensure high is large enough (safety for very small n) */
+    while (((__uint128_t)high * (high - 1)) / 2 < n)
+        high <<= 1;
+
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        if (((__uint128_t)mid * (mid - 1)) / 2 >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;        /* offset is 1, but guard */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Helper: dynamic array of primes up to a limit */
 static void sieve_primes(uint64_t limit, uint64_t **primes_out, size_t *cnt_out)
@@ -86,7 +88,7 @@ static void dfs_generate(int L, int pos, uint64_t lastPrime,
     if (pos == L) {
         if (*lenPtr == *capPtr) {
             size_t newCap = (*capPtr) ? (*capPtr * 2) : 64;
-            *numPtr = (seq_t*)realloc(*numPtr, newCap * sizeof(seq_t));
+            *numPtr = mem_resize(seq_t, *numPtr, newCap);
             *capPtr = newCap;
         }
         (*numPtr)[(*lenPtr)++] = currProd;
@@ -174,7 +176,7 @@ static void generate_numbers(uint64_t bound, seq_t **out, size_t *len)
 
     /* Sort and unique */
     if (numsLen > 1) {
-        qsort(nums, numsLen, sizeof(seq_t), seq_compare);
+        mem_qsort(nums, numsLen, sizeof(seq_t), seq_compare);
         size_t uniq = 0;
         for (size_t i = 0; i < numsLen; ++i)
             if (uniq == 0 || seq_compare(&nums[uniq - 1], &nums[i]) != 0)
@@ -199,7 +201,7 @@ seq_t a(idx_t n)
             seq_t *new_cache = NULL;
             size_t new_len = 0;
             generate_numbers(bound, &new_cache, &new_len);
-            free(cache);
+            mem_free(cache);
             cache = new_cache; cache_len = new_len;
             if (cache_len < (size_t)n) bound *= 10;
         }

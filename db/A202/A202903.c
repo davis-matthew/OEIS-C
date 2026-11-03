@@ -11,7 +11,8 @@
  *            masks with a state consisting of two consecutive rows' masks
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   requiredSmask
+ * Validated: standard, pass, 32 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/requiredSmask.h"
+#include "../utils/mem.h"
+
+/* Compute required S neighbors for a given (prevPrevMask, prevMask). */
+static inline int requiredSmask(int prevPrev, int prevMask)
+{
+    int req = 0;
+    for (int j = 0; j < 5; ++j) {
+        if ((prevMask >> j) & 1) {                    /* Current cell is 1. */
+            int has_west      = (j > 0)   && ((prevPrev >> (j-1)) & 1);
+            int has_east      = (j < 4)   && ((prevMask >> (j+1)) & 1);
+            /* If NW and E are absent, S is required. */
+            if (!has_west && !has_east)
+                req |= (1 << j);
+        }
+    }
+    return req;
+}
 
 /* Pre‑computed tables for transitions and final validity. */
 static int  allowed_next[32][32];       /* Bitmask of allowed next row masks. */
@@ -56,7 +73,7 @@ seq_t a(idx_t n)
     /* dp[prevPrev][prev] holds number of ways up to current row. */
     static seq_t dp[32][32];
     static seq_t newdp[32][32];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* First row: prevPrev = 0, prev = curMask. */
     for (int cur = 0; cur < 32; ++cur) {
@@ -65,7 +82,7 @@ seq_t a(idx_t n)
 
     /* Process rows 2..n (if any). */
     for (idx_t row = 2; row <= n; ++row) {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
         for (int pp = 0; pp < 32; ++pp) {
             for (int pm = 0; pm < 32; ++pm) {
                 seq_t ways = dp[pp][pm];
@@ -80,7 +97,7 @@ seq_t a(idx_t n)
             }
         }
         /* Swap dp and newdp for next iteration. */
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
     }
 
     /* Sum up all ways that end in a valid final state. */

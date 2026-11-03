@@ -13,7 +13,8 @@
  *            sequence a is obtained by traversing T along its anti...
  * Range:     u8 n <= 69, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* internal storage -------------------------------------------------- */
@@ -48,7 +50,7 @@ static void ensure_row_length(size_t row, size_t len)
     if (row_cap[row] >= len)
         return;
 
-    seq_t *tmp = (seq_t *)realloc(T[row], len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, T[row], len);
     if (!tmp)
         abort();
     T[row] = tmp;
@@ -116,7 +118,7 @@ static void extend_to_n(idx_t n)
             /* append to flattened array */
             if (a_size >= a_cap) {
                 size_t new_cap = (a_cap == 0) ? 8 : a_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(a_buf, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, a_buf, new_cap);
                 if (!tmp)
                     abort();
                 a_buf = tmp;

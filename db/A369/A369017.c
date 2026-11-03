@@ -10,14 +10,17 @@
  *            offsets starting at 0
  * Range:     u8 n <= 18, u16 n <= 33, u32 n <= 70, u64 n <= 164,
  *            u128 n <= 424, big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 61 terms through n = 9506 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Compute a single triangle entry T(n, k).  */
 static seq_t T(idx_t n, idx_t k)
@@ -29,7 +32,7 @@ static seq_t T(idx_t n, idx_t k)
 
     /* (k-1)^(k-1)  (with 0^0 = 1) */
     if (k > 1)
-        term *= big_pow((seq_t)(k - 1), (seq_t)(k - 1));
+        term *= ipow((seq_t)(k - 1), (seq_t)(k - 1));
 
     /* multiply by k */
     term *= (seq_t)k;
@@ -39,7 +42,7 @@ static seq_t T(idx_t n, idx_t k)
     if (n != k) {
         idx_t base = n - k + 1;
         idx_t exp  = n - k - 1;    /* exp >= 0 for n > k */
-        term *= big_pow((seq_t)base, (seq_t)exp);
+        term *= ipow((seq_t)base, (seq_t)exp);
     }
 
     return term;

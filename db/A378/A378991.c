@@ -8,15 +8,23 @@
  * Formula:   a(n) is the Dirichlet inverse of the Möbius transform of
  *            f(n)=2*n - popcount(n). a(1)=1, for n>1 a(n) = -∑_{d|n, d<n}
  *            g(n/d) * a(d), where g(k)=∑_{d|k} μ(d)*f(k/d)
- * Range:     i8 n <= 41, i16 n <= 1429, i32 n <= 7029, i64 n <= 7029,
- *            i128 n <= 7029, big any n
- * Helpers:   allocate_array
+ * Range:     i8 n <= 41, i16 n <= 1429, i32 n <= 20020, i64 n <= 20020,
+ *            i128 n <= 20020, big any n
+ * Validated: standard, pass, 87 terms through n = 7029 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/allocate_array.h"
+
+static inline seq_t *allocate_array(idx_t size) {
+#ifdef __cplusplus
+    return new seq_t[size];
+#else
+    return (seq_t*)malloc(sizeof(seq_t) * size);
+#endif
+}
 
 static inline unsigned popcount64(idx_t x) {
     return __builtin_popcountll((unsigned long long)x);

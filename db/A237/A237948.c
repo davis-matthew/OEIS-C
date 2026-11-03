@@ -11,7 +11,8 @@
  *            rows
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 14, u128 n <= 31,
  *            big any n
- * Helpers:   build_row_values, top3sum
+ * Validated: standard, pass, 30 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,29 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdlib.h>  /* for abs */
-#include "../utils/build_row_values.h"
-#include "../utils/top3sum.h"
+#include "../utils/mem.h"
+
+/* Build row values: decode each 4‑bit row into 4 integers 0..3 */
+static void build_row_values(uint8_t row_vals[256][4])
+{
+    for (uint16_t r = 0; r < 256; ++r) {
+        row_vals[r][0] = (r >> 0) & 3;
+        row_vals[r][1] = (r >> 2) & 3;
+        row_vals[r][2] = (r >> 4) & 3;
+        row_vals[r][3] = (r >> 6) & 3;
+    }
+}
+
+/* Returns sum of the three largest of a,b,c,d */
+static inline uint8_t top3sum(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+{
+    uint8_t v[4] = {a,b,c,d};
+    uint8_t min = v[0];
+    if (v[1] < min) min = v[1];
+    if (v[2] < min) min = v[2];
+    if (v[3] < min) min = v[3];
+    return (a+b+c+d) - min;
+}
 
 /* Precomputed data structures for the DP */
 typedef struct {
@@ -178,8 +200,8 @@ seq_t a(idx_t n)
     init_precomputation();
 
     const size_t ST = 256*36;              /* number of DP states */
-    seq_t *dp_cur  = (seq_t*)calloc(ST, sizeof(seq_t));
-    seq_t *dp_next = (seq_t*)calloc(ST, sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, ST);
+    seq_t *dp_next = mem_new(seq_t, ST);
 
     /* Initialise with the two first rows */
     for (uint16_t a = 0; a < 256; ++a) {
@@ -194,7 +216,7 @@ seq_t a(idx_t n)
 
     /* Extend rows for n-1 additional rows (total n+1 rows) */
     for (idx_t step = 1; step <= n-1; ++step) {
-        memset(dp_next, 0, ST * sizeof(seq_t));
+        mem_set(dp_next, 0, ST * sizeof(seq_t));
         for (size_t sid = 0; sid < ST; ++sid) {
             seq_t cnt = dp_cur[sid];
             if (cnt == (seq_t)0) continue;
@@ -216,7 +238,7 @@ seq_t a(idx_t n)
     for (size_t sid = 0; sid < ST; ++sid)
         result += dp_cur[sid];
 
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return result;
 }

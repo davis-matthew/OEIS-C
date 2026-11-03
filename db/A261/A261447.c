@@ -10,7 +10,8 @@
  *            of m
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf, count_distinct_primes
+ * Validated: standard, pass, 97 terms through n = 9596 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,57 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/build_spf.h"          /* void build_spf(idx_t limit, idx_t **out); */
-#include "../utils/count_distinct_primes.h" /* int count_distinct_primes(uint64_t n); */
+/* Build the smallest‑prime‑factor table up to limit. */
+static void build_spf(idx_t limit, idx_t **spf_out)
+{
+    idx_t i, j;
+    idx_t *spf = (idx_t *)malloc((limit + 1) * sizeof(idx_t));
+    if (!spf) {
+        *spf_out = NULL;
+        return;
+    }
+
+    for (i = 0; i <= limit; ++i) spf[i] = 0;
+    spf[0] = 0;
+    spf[1] = 1;
+
+    for (i = 2; i <= limit; ++i) {
+        if (!spf[i]) {            /* i is prime */
+            spf[i] = i;
+            if (i <= limit / i)   /* avoid overflow in j loop */
+                for (j = i * i; j <= limit; j += i)
+                    if (!spf[j]) spf[j] = i;
+        }
+    }
+    *spf_out = spf;
+}
+
+/* Count distinct prime factors of an unsigned 64-bit integer n.
+   The result fits in a signed int for all n that may be passed. */
+static int count_distinct_primes(uint64_t n)
+{
+    if (n <= 1)
+        return 0;
+
+    int cnt = 0;
+    /* Handle factor 2 separately. */
+    if (n % 2 == 0) {
+        cnt++;
+        while (n % 2 == 0)
+            n /= 2;
+    }
+    /* Test odd divisors up to sqrt(n). */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            cnt++;
+            while (n % p == 0)
+                n /= p;
+        }
+    }
+    if (n > 1)   /* Remaining prime factor. */
+        cnt++;
+    return cnt;
+}
 
 static idx_t current_limit = 0;   /* highest n for which the SPF table is valid */
 static idx_t *spf = NULL;         /* smallest prime factor table */

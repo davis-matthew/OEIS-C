@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   is_rev_lyndon
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,30 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_rev_lyndon.h"
+
+/*----- Lyndon test for reversed exponent vector ------------------------*/
+static bool is_rev_lyndon(const int *exps, size_t len)
+{
+    if (len <= 1) return true;      /* empty or single exponent is Lyndon */
+
+    /* Build the reversed sequence */
+    int rev[32];                   /* 32 > max number of distinct primes for n<1e9 */
+    for (size_t i = 0; i < len; ++i)
+        rev[i] = exps[len - 1 - i];
+
+    /* Lyndon test: for every non‑trivial rotation, rev < rotation */
+    for (size_t k = 1; k < len; ++k) {
+        size_t i = 0;
+        for (; i < len; ++i) {
+            int a = rev[i];
+            int b = rev[(i + k) % len];
+            if (a < b) break;
+            if (a > b) return false;   /* not strictly less */
+        }
+        if (i == len) return false;    /* all rotations equal */
+    }
+    return true;
+}
  
 /*----- Prime table -----------------------------------------------------*/
 #define MAX_PRIME_LIMIT 1000000          /* primes up to 1e6 (~78k primes) */

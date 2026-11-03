@@ -12,7 +12,8 @@
  *            would be O(n^2); this implementation keeps a stati...
  * Range:     u8 n <= 58, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache of Ulam numbers and the |j - k| differences */
 static seq_t *ulam = NULL;     /* ulam[0] = 1, ulam[1] = 3 */
@@ -35,7 +37,7 @@ static void ensure_ulam_cap(idx_t needed)
     if (needed <= ulam_cap) return;
     idx_t new_cap = ulam_cap ? ulam_cap * 2 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(ulam, (size_t)new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, ulam, (size_t)new_cap);
     if (!new_arr) abort();                    /* failure is unrecoverable */
     ulam = new_arr;
     ulam_cap = new_cap;
@@ -47,7 +49,7 @@ static void ensure_diff_cap(idx_t needed)
     if (needed <= diff_cap) return;
     idx_t new_cap = diff_cap ? diff_cap * 2 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(diff_ij, (size_t)new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, diff_ij, (size_t)new_cap);
     if (!new_arr) abort();
     diff_ij = new_arr;
     diff_cap = new_cap;

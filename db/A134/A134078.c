@@ -11,13 +11,26 @@
  *            where S(k) = Σ_{d|k} d * s[d]. * This implements A134078
  * Range:     i8 n <= 3, i16 n <= 90, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   seq_realloc
+ * Validated: standard, pass, 66 terms through n = 994 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static const int base_seq[12] = { -6, 3, 4, 0, -6, -10, -6, 0, 4, 3, -6, -4 };
 

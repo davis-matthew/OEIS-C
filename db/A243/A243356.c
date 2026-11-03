@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 108, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 81 terms through n = 2927 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
    the supplied helper functions are used.  */
 
 #include <stdbool.h>
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
 
 /* For a given seq_t value, build a 10‑bit mask of the decimal
    digits that occur in it.  The least significant bit
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     idx_t found  = 0;
 
     while (true) {
-        seq_t phi = calc_phi(current);
+        seq_t phi = totient_seq(current);
 
         unsigned int mask1 = digit_mask(current);
         unsigned int mask2 = digit_mask(phi);

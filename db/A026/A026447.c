@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 136, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 803 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Binary search to test whether val occurs in the sorted array a[0..len-1]. */
 static bool seq_contains(const seq_t *a, size_t len, seq_t val)
@@ -49,7 +51,7 @@ static void ensure_capacity(size_t new_len, seq_t **arr, size_t *cap)
     size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
     while (new_cap < new_len)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) {
         /* Allocation failed – abort to avoid undefined behaviour. */
         abort();

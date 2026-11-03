@@ -11,6 +11,7 @@
  *            P_{m-1}(z)*(P_{m-1}(z)-z) for m > 0
  * Range:     u8 n <= 17, u16 n <= 24, u32 n <= 32, u64 n <= 41, u128 n <= 51,
  *            big any n
+ * Validated: standard, pass, 61 terms through n = 104 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

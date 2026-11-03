@@ -6,14 +6,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 1337, u16 n <= 5151, u32 n <= 9993, u64 n <= 9993,
- *            u128 n <= 9993, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1337, u16 n <= 5151, u32 n <= 23820, u64 n <= 23820,
+ *            u128 n <= 23820, big any n
+ * Validated: standard, pass, 122 terms through n = 9993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*
  * Formula: a(n) = the coefficient of x^e in
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
     /* Dynamic programming array: dp[s] = number of subsets summing to s */
     size_t size = (size_t)(maxSum + 1);
-    seq_t *dp = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
     if (!dp) {
         return (seq_t)0;                   /* allocation failure -> 0 */
     }
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[offset];
-    free(dp);
+    mem_free(dp);
     return result;
 }

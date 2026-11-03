@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(0) = 0; for n>0, a(n) = max_{d=0..9} #{k < n : a(k) contains digit d}. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         idx_t new_cap = cache_cap ? (cache_cap << 1) : 1;
         while (new_cap <= n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) abort();          /* memory failure   */
         cache_cap = new_cap;
     }

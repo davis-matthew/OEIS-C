@@ -10,12 +10,14 @@
  *            (row r has r entries)
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) for n ≥ 1.  The function may be called in any order. */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     idx_t k = n - prev_tri;             /* column within the row (1‑based) */
 
     /* 2. Compute total partitions of r into distinct odd parts (P(r)). */
-    seq_t *dp_total = (seq_t *)calloc((size_t)r + 1, sizeof(seq_t));
+    seq_t *dp_total = mem_new(seq_t, (size_t)r + 1);
     if (!dp_total) abort();                /* out of memory */
     dp_total[0] = 1;
     for (idx_t odd = 1; odd <= r; odd += 2) {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         }
     }
     seq_t total = dp_total[r];
-    free(dp_total);
+    mem_free(dp_total);
 
     /* 3. If k==1, all partitions satisfy the condition. */
     if (k <= 1) return total;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
 
     if (max_odd > r) max_odd = r;           /* restrict to row size */
 
-    seq_t *dp_less = (seq_t *)calloc((size_t)r + 1, sizeof(seq_t));
+    seq_t *dp_less = mem_new(seq_t, (size_t)r + 1);
     if (!dp_less) abort();
     dp_less[0] = 1;
     for (idx_t odd = 1; odd <= max_odd; odd += 2) {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         }
     }
     seq_t less = dp_less[r];
-    free(dp_less);
+    mem_free(dp_less);
 
     /* 5. The desired count is P(r) - partitions with all parts < k. */
     seq_t result = total > less ? total - less : 0;

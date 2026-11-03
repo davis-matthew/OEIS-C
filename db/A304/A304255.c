@@ -9,12 +9,14 @@
  *            T(0,0)=1 and, for 0≤k≤floor(n/2), T(n,k)=6*T(n‑1,k)+T(n‑2,k‑1)
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **T = NULL;          /* array of pointers to rows */
 static idx_t rows_cap = 0;        /* allocated number of rows */
@@ -34,7 +36,7 @@ static void ensure_row(idx_t r)
     while (max_row <= r) {
         idx_t cur = max_row;           /* row index to compute now */
         idx_t len = cur / 2 + 1;
-        T[cur] = (seq_t *)calloc(len, sizeof(seq_t));
+        T[cur] = mem_new(seq_t, len);
         if (cur == 0) {                /* base */
             T[0][0] = (seq_t)1;
         } else {

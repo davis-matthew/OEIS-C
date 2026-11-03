@@ -7,20 +7,22 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} binomial(n, k)*k!*Stirling1(n-k, k)
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 33,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 38 terms through n = 168 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     // Precompute Stirling numbers of the first kind using recurrence:
     // S(i,j) = S(i-1,j-1) - (i-1)*S(i-1,j)
     seq_t **stir = (seq_t **)malloc((n + 1) * sizeof(seq_t *));
     for (idx_t i = 0; i <= n; i++) {
-        stir[i] = (seq_t *)calloc(n + 1, sizeof(seq_t));
+        stir[i] = mem_new(seq_t, n + 1);
     }
     stir[0][0] = 1;
     
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     }
     
     // Precompute factorials
-    seq_t *fact = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (n + 1));
     fact[0] = 1;
     for (idx_t k = 1; k <= n; k++) {
         fact[k] = fact[k-1] * (seq_t)k;
@@ -41,16 +43,16 @@ seq_t a(idx_t n) {
     seq_t result = 0;
     idx_t limit = n / 2;
     for (idx_t k = 0; k <= limit; k++) {
-        seq_t term = binom(n, k) * fact[k] * stir[n - k][k];
+        seq_t term = binomial(n, k) * fact[k] * stir[n - k][k];
         result += term;
     }
     
     // Free memory
     for (idx_t i = 0; i <= n; i++) {
-        free(stir[i]);
+        mem_free(stir[i]);
     }
     free(stir);
-    free(fact);
+    mem_free(fact);
     
     return result;
 }

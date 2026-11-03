@@ -8,11 +8,13 @@
  * Formula:   a(1)=0, a(2)=1, a(3)=3; for n>=4, a(n) = 2^n - 2*n + 1
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

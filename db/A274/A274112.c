@@ -12,13 +12,15 @@
  *            most once, and respects the required types
  * Range:     u8 n <= 17, u16 n <= 31, u32 n <= 60, u64 n <= 118,
  *            u128 n <= 235, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 300 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;           /* a[0..max_cached]          */
 static seq_t *conv_cache = NULL;        /* conv[0..2*max_cached]     */
@@ -33,13 +35,13 @@ ensure_capacity(seq_t **cache, size_t *cap, size_t needed)
         size_t old_cap = *cap;
         size_t new_cap = old_cap ? old_cap << 1 : needed;
         if (new_cap < needed) new_cap = needed;
-        seq_t *newp = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, *cache, new_cap);
         if (!newp) abort();          /* allocation failure – terminate */
         *cache = newp;
         *cap   = new_cap;
         /* zero newly allocated elements (only needed for conv_cache) */
         if (new_cap > old_cap) {
-            memset(newp + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
+            mem_set(newp + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
         }
     }
 }

@@ -9,6 +9,7 @@
  * Formula:   a(n) = bigomega(Pisano(n))
  * Range:     u8 n <= 49, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/bigomega.h"
 
 seq_t a(idx_t n)

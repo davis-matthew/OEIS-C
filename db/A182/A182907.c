@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 119, u16 n <= 119, u32 n <= 119, u64 n <= 119,
  *            u128 n <= 119, big any n
- * Helpers:   none
+ * Validated: partial, pass, 119 terms through n = 119 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Comparison function used by qsort for seq_t elements. */
 static int cmp_seq_t(const void *a, const void *b)
@@ -99,7 +101,7 @@ static void init_sieve(void)
 /* --------------------------------------------------------------------- */
 static void init_nodes(void)
 {
-    nodes = (Node *)calloc(MAX_LIMIT + 1, sizeof(Node));
+    nodes = mem_new(Node, MAX_LIMIT + 1);
     if (!nodes) exit(EXIT_FAILURE);
 }
 
@@ -122,7 +124,7 @@ static Node *compute_node(idx_t n)
     if (n == 1) {
         nd->root_deg = 0;
         nd->len      = 1;
-        nd->seq = (seq_t *)malloc(sizeof(seq_t));
+        nd->seq = mem_new(seq_t, 1);
         if (!nd->seq) exit(EXIT_FAILURE);
         nd->seq[0] = (seq_t)0;
         return nd;
@@ -151,7 +153,7 @@ static Node *compute_node(idx_t n)
     }
 
     /* Allocate buffer for the combined degree sequence. */
-    seq_t *buffer = (seq_t *)malloc(total_len * sizeof(seq_t));
+    seq_t *buffer = mem_new(seq_t, total_len);
     if (!buffer) exit(EXIT_FAILURE);
 
     size_t pos = 0;
@@ -181,7 +183,7 @@ static Node *compute_node(idx_t n)
     (void)pos;   /* silence unused warning */
 
     /* Sort the resulting degree sequence. */
-    qsort(buffer, total_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(buffer, total_len, sizeof(seq_t), cmp_seq_t);
 
     nd->len = total_len;
     nd->seq = buffer;

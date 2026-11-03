@@ -8,6 +8,7 @@
  * Formula:   a(n) = ∏_{d|n} lcm(d, τ(d)) where τ(k) is the divisor count of k
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 47, u64 n <= 119, u128 n <= 419,
  *            big any n
+ * Validated: standard, pass, 60 terms through n = 9447 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

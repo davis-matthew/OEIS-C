@@ -7,11 +7,13 @@
  * Formula:   a(n) = (n+2)*mu(n+2) - 2*(n+1)*mu(n+1) + n*mu(n)
  * Range:     i8 n <= 44, i16 n <= 8200, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 75 terms through n = 9045 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/mobius.h"
 
 seq_t a(idx_t n)

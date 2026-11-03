@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 684, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 109 terms through n = 8325 (2026-11-01)
  * Helpers:   simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/simple_sieve.h"
 
 static uint32_t *primes = NULL;

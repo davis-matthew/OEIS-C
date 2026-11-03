@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Masks for positions of 1‑bits in i (i <= 64).  mask[i]
  * is a bitmask with bits set exactly at the positions which
@@ -78,7 +80,7 @@ static void push_term(seq_t v)
 {
     if (terms_count >= terms_capacity) {
         size_t new_cap = terms_capacity ? terms_capacity * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();          /* OOM: cannot recover */
         terms = tmp;
         terms_capacity = new_cap;

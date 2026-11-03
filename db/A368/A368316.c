@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   to_balanced
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/to_balanced.h"
+#include "../utils/mem.h"
+
+/* convert a non‑negative integer to balanced ternary.
+   Result is stored in buf (least‑significant digit first) and its
+   length in len.  The caller must provide a buffer large enough. */
+static void to_balanced(seq_t x, signed char *buf, size_t *len)
+{
+    *len = 0;
+    while (x != 0) {
+        seq_t r = x % 3;
+        x = x / 3;
+        if (r == 2) {           /* represent 2 as -1 with a carry */
+            buf[(*len)++] = -1;
+            x += 1;
+        } else {
+            buf[(*len)++] = (signed char)r;
+        }
+    }
+}
 
 /* running sum of the sequence so far (in the natural base) */
 static seq_t seq_sum = 0;
@@ -81,7 +100,7 @@ static void ensure_cache_cap(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (needed > new_cap)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         exit(1);
     cache = tmp;

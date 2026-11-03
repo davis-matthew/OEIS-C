@@ -8,7 +8,8 @@
  *            A000959)
  * Range:     u8 n <= 84, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 113 terms through n = 9602 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for lucky numbers */
 static seq_t *lucky = NULL;          /* array of lucky numbers, 0‑based: lucky[0] = 1 */
@@ -43,7 +45,7 @@ static void ensure_lucky_count(idx_t needed)
     while (1) {
         /* Number of odd integers up to 'limit' */
         idx_t odds_cap = limit / 2 + 1;
-        seq_t *odds = (seq_t *)malloc((size_t)odds_cap * sizeof(seq_t));
+        seq_t *odds = mem_new(seq_t, (size_t)odds_cap);
         if (!odds)
             return; /* allocation failure – give up */
 
@@ -73,14 +75,14 @@ static void ensure_lucky_count(idx_t needed)
 
         /* Store the lucky numbers in the static cache */
         if (lucky_cap < (size_t)sz) {
-            seq_t *tmp = (seq_t *)realloc(lucky, (size_t)sz * sizeof(seq_t));
-            if (!tmp) { free(odds); return; }
+            seq_t *tmp = mem_resize(seq_t, lucky, (size_t)sz);
+            if (!tmp) { mem_free(odds); return; }
             lucky = tmp;
             lucky_cap = (size_t)sz;
         }
-        memcpy(lucky, odds, (size_t)sz * sizeof(seq_t));
+        mem_copy(lucky, odds, (size_t)sz * sizeof(seq_t));
         lucky_len = sz;
-        free(odds);
+        mem_free(odds);
 
         if (lucky_len >= needed)
             break; /* success */

@@ -12,14 +12,31 @@
  *            T(2,1), T(2,2), T(3,1), T(3,2), T(3,3),
  * Range:     u8 n <= 23, u16 n <= 47, u32 n <= 94, u64 n <= 234,
  *            u128 n <= 633, big any n
- * Helpers:   pow3_limit
+ * Validated: standard, pass, 71 terms through n = 1203 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow3_limit.h"
+
+/* Helper: compute 3^k, clamped to max_val (if exceeded, resulting value > max_val) */
+static seq_t pow3_limit(idx_t k, idx_t max_val)
+{
+    seq_t p = 1;
+    for (idx_t i = 1; i <= k; ++i)
+    {
+        /* avoid overflow: if p > max_val/3 then set p > max_val to signal overflow */
+        if (p > (seq_t)(max_val) / 3)
+        {
+            p = (seq_t)(max_val) + 1;
+            break;
+        }
+        p *= 3;
+    }
+    return p;
+}
 
 seq_t a(idx_t n)
 {

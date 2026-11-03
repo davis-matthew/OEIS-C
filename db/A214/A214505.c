@@ -10,16 +10,35 @@
  *            T_k = k*(k+1)/2. * The implementation checks whether n/4 or
  *            (n-1)/12 is triangular * by verifying that 1+8*m is a perfect
  *            square
- * Range:     i8 n <= 31, i16 n <= 8121, i32 n <= 9363, i64 n <= 9363,
- *            i128 n <= 9363, big any n
- * Helpers:   floor_sqrt
+ * Range:     i8 n <= 31, i16 n <= 8121, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 101 terms through n = 9363 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Helper: check if m is a triangular number.
  * Returns true iff m = k*(k+1)/2 for some integer k >= 0. */

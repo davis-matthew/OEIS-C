@@ -11,7 +11,8 @@
  *            odd, and e(n) = binomial(3k-2,k-1) if n = 2k is even
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 18, u64 n <= 31, u128 n <= 55,
  *            big any n
- * Helpers:   a006402_totient
+ * Validated: standard, pass, 43 terms through n = 500 (2026-11-01)
+ * Helpers:   totient_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a006402_totient.h"
+#include "../utils/totient_u32.h"
 
 static void bn_mul(uint32_t *d, size_t *len, uint32_t m)
 {
@@ -97,7 +98,7 @@ seq_t a(idx_t n)
         if (n % L == 0) {
             idx_t m = n / L;
             bn_binom(T, &tl, 3 * m - 1, m);
-            bn_mul(T, &tl, a006402_totient((uint32_t)L));
+            bn_mul(T, &tl, totient_u32((uint32_t)L));
             bn_add(S, &sl, T, tl);
         }
     }

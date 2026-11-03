@@ -13,7 +13,8 @@
  *            of 6 base‑6 digits; a directed edge indicates two co...
  * Range:     u8 none, u16 none, u32 n <= 6, u64 n <= 19, u128 n <= 36,
  *            big any n
- * Helpers:   build_next_row, digits_to_state
+ * Validated: standard, pass, 32 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,43 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_next_row.h"
-#include "../utils/digits_to_state.h"
+#include "../utils/mem.h"
+
+/* Convert an array of 6 base‑6 digits to a state id (0 … 46655) */
+static inline int digits_to_state(const uint8_t d[6]) {
+    int id = 0;
+    for (int i = 0; i < 6; ++i)
+        id = id * 6 + d[i];
+    return id;
+}
+
+/* Recursive enumeration of compatible next rows */
+static void build_next_row(const uint8_t *prev, int pos,
+                           uint8_t *next,
+                           uint16_t *list, int *cnt) {
+    /* pos : index of the last digit that has been fixed (0…4) */
+    if (pos == 5) {                // all 6 digits determined
+        int id = digits_to_state(next);
+        list[(*cnt)++] = (uint16_t)id;
+        return;
+    }
+    int delta = prev[pos] - prev[pos + 1];
+    int diff1 = 3 - delta;
+    int diff2 = -3 - delta;
+
+    /* Try first possible difference */
+    int val1 = next[pos] + diff1;
+    if (0 <= val1 && val1 <= 5) {
+        next[pos + 1] = (uint8_t)val1;
+        build_next_row(prev, pos + 1, next, list, cnt);
+    }
+    /* Try second possible difference, skip if equal to first */
+    int val2 = next[pos] + diff2;
+    if (0 <= val2 && val2 <= 5 && val2 != val1) {
+        next[pos + 1] = (uint8_t)val2;
+        build_next_row(prev, pos + 1, next, list, cnt);
+    }
+}
 
 #define STATES 46656          // 6^6 possible rows
 #define MAX_EDGES_PER_STATE 200   // ≤192
@@ -69,8 +105,8 @@ static seq_t *dp_next = NULL;
 seq_t a(idx_t n) {
     /* Allocate DP buffers once */
     if (!dp_cur) {
-        dp_cur = (seq_t *)malloc(STATES * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(STATES * sizeof(seq_t));
+        dp_cur = mem_new(seq_t, STATES);
+        dp_next = mem_new(seq_t, STATES);
     }
 
     init_tables();

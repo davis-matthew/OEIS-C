@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 17, u64 n <= 36, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Parameters                                                        */
@@ -155,8 +157,8 @@ seq_t a(idx_t n)
         tables_built = true;
     }
     if (!dp_cur) {
-        dp_cur  = (seq_t *)calloc(STATES, sizeof(seq_t));
-        dp_next = (seq_t *)calloc(STATES, sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, STATES);
+        dp_next = mem_new(seq_t, STATES);
         /* all 10×10 pair states are initially valid for n=2 */
         for (unsigned char s = 0; s < STATES; ++s)
             dp_cur[s] = 1;
@@ -164,7 +166,7 @@ seq_t a(idx_t n)
 
     /* Ensure cache large enough. */
     size_t needed = (n > cache_len) ? n : cache_len;
-    seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, needed);
     if (!new_cache && needed > 0)
         return 0;    /* allocation failed; return 0 */
     cache = new_cache;
@@ -202,7 +204,7 @@ seq_t a(idx_t n)
         cache[cur - 1] = sum_dp(dp_next);
 
         /* Prepare for the next iteration. */
-        memset(dp_cur, 0, STATES * sizeof(seq_t));
+        mem_set(dp_cur, 0, STATES * sizeof(seq_t));
         seq_t *tmp = dp_cur;
         dp_cur = dp_next;
         dp_next = tmp;

@@ -9,13 +9,26 @@
  *            repeated decimal digit
  * Range:     u8 n <= 57, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_duplicate_digits
+ * Validated: standard, pass, 70 terms through n = 7110 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_duplicate_digits.h"
+#include <stdint.h>
+
+static bool has_duplicate_digits(seq_t x) {
+    unsigned int mask = 0;
+    while (x > 0) {
+        unsigned int d = (unsigned int)(x % 10);
+        if (mask & (1u << d))
+            return true;
+        mask |= (1u << d);
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     seq_t cur = 11;        /* first integer with a repeated digit */

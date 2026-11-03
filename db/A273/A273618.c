@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 822, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 60 terms through n = 9125 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,11 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,13 +43,13 @@ seq_t a(idx_t n)
         seq_t m = ((seq_t)next_k) * 2 + 1;
 
         /* Test the two congruences */
-        if (mod_pow((seq_t)3, (uint64_t)next_k, m) == (seq_t)1 &&
-            mod_pow((seq_t)next_k, (uint64_t)next_k, m) == (seq_t)1) {
+        if (powmod((seq_t)3, (uint64_t)next_k, m) == (seq_t)1 &&
+            powmod((seq_t)next_k, (uint64_t)next_k, m) == (seq_t)1) {
 
             /* Grow cache if needed */
             if (terms_len == terms_cap) {
                 terms_cap = terms_cap ? terms_cap << 1 : 32;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = m;
         }

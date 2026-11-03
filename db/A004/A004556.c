@@ -11,7 +11,8 @@
  *            m(k+1) >= 0; a(k+1) = d
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bn_mul_add
+ * Validated: standard, pass, 115 terms through n = 9982 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bn_mul_add.h"
+
+static int bn_mul_add(uint32_t *dst, const uint32_t *src, int len, uint32_t m, uint32_t add) {
+    uint64_t c = add;
+    int i;
+    for (i = 0; i < len; i++) {
+        c += (uint64_t)src[i] * m;
+        dst[i] = (uint32_t)c;
+        c >>= 32;
+    }
+    if (c) dst[len++] = (uint32_t)c;
+    while (len > 0 && dst[len - 1] == 0) len--;
+    return len;
+}
 
 static uint32_t *R_, *M_, *T_, *S_;
 static int lr_, lm_, cap_;

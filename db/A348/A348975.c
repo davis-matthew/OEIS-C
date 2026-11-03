@@ -8,8 +8,9 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = A003415(n) + A003958(n) - n (Arithmetic derivative +
  *            fully multiplicative function with a(p)=p-1, minus n)
- * Range:     u8 n <= 127, u16 n <= 9512, u32 n <= 9512, u64 n <= 9512,
- *            u128 n <= 9512, big any n
+ * Range:     u8 n <= 127, u16 n <= 12287, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 111 terms through n = 9512 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

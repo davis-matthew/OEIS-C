@@ -8,6 +8,7 @@
  *            m*c(m,k) + c(m,k-1), c(0,0) = 1, c(0,k) = 0 for k > 0
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 98 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

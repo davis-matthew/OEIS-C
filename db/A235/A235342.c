@@ -12,7 +12,8 @@
  *            Σ_{p^e‖n} e·a(p) (multiplicativity)
  * Range:     i8 n <= 5040, i16 n <= 5040, i32 n <= 5040, i64 n <= 5040,
  *            i128 n <= 5040, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 119 terms through n = 5002 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t exp_in_factorial(uint64_t num, uint64_t prime) {
     seq_t exp = 0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     build_primes_upto(n, &primes, &primes_cnt);
 
     /* Allocate array for a(p) values */
-    seq_t *a_val = (seq_t *)malloc(sizeof(seq_t) * primes_cnt);
+    seq_t *a_val = mem_new(seq_t, primes_cnt);
     if (!a_val) {
         free(primes);
         return (seq_t)0;                /* fallback, memory error */
@@ -85,7 +87,7 @@ seq_t a(idx_t n) {
             }
     }
 
-    free(a_val);
+    mem_free(a_val);
     free(primes);
     return result;
 }

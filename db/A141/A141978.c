@@ -8,13 +8,15 @@
  *            to 2 mod 29)
  * Range:     u8 n <= 3, u16 n <= 237, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for computed terms and auxiliary primes */
 static seq_t *mod2_primes = NULL;        /* primes ≡ 2 (mod 29) */
@@ -32,8 +34,8 @@ ensure_terms(idx_t n)
         /* initialise with prime 2 */
         all_cap = 16;
         mod2_cap = 16;
-        all_primes = (seq_t *)malloc(all_cap * sizeof(seq_t));
-        mod2_primes = (seq_t *)malloc(mod2_cap * sizeof(seq_t));
+        all_primes = mem_new(seq_t, all_cap);
+        mod2_primes = mem_new(seq_t, mod2_cap);
         all_primes[0] = (seq_t)2;
         mod2_primes[0] = (seq_t)2;     /* 2 % 29 == 2 */
         all_len = mod2_len = 1;
@@ -59,7 +61,7 @@ ensure_terms(idx_t n)
                 /* store to all_primes */
                 if (all_len == all_cap) {
                     all_cap = (all_cap ? all_cap * 2 : 16);
-                    all_primes = (seq_t *)realloc(all_primes, all_cap * sizeof(seq_t));
+                    all_primes = mem_resize(seq_t, all_primes, all_cap);
                 }
                 all_primes[all_len++] = cand;
 
@@ -67,7 +69,7 @@ ensure_terms(idx_t n)
                 if ((cand % (seq_t)29) == 2) {
                     if (mod2_len == mod2_cap) {
                         mod2_cap = (mod2_cap ? mod2_cap * 2 : 16);
-                        mod2_primes = (seq_t *)realloc(mod2_primes, mod2_cap * sizeof(seq_t));
+                        mod2_primes = mem_resize(seq_t, mod2_primes, mod2_cap);
                     }
                     mod2_primes[mod2_len++] = cand;
                 }

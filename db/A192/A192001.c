@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 
 #include <stdlib.h>   // malloc, realloc
 #include <stddef.h>   // size_t
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         if (cache_cap < needed) {
             size_t new_cap = cache_cap ? cache_cap << 1 : 128;
             if (new_cap < needed) new_cap = needed;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return (seq_t)0;      /* allocation failed */
             cache = tmp;
             cache_cap = new_cap;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
             seq_t sum = 0;
             idx_t max_k = r - m;            /* upper bound for k in the sum */
             for (idx_t k = 1; k <= max_k; ++k) {
-                sum += pow_int((seq_t)k, m);
+                sum += ipow_idx((seq_t)k, m);
             }
             cache[start + (size_t)m] = sum;
         }

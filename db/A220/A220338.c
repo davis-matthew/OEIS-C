@@ -8,13 +8,15 @@
  *            a(3k+3)=2*a(3k+2)-2 with a(1)=2, a(2)=6, a(3)=10
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 13, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,13 +30,13 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* a2[0] = a(2) = 6 */
         a2_cap = 4;
-        a2 = (seq_t *)malloc(a2_cap * sizeof(seq_t));
+        a2 = mem_new(seq_t, a2_cap);
         a2[0] = (seq_t)6;
         a2_size = 1;
 
         /* a3[0] = a(3) = 10 */
         a3_cap = 4;
-        a3 = (seq_t *)malloc(a3_cap * sizeof(seq_t));
+        a3 = mem_new(seq_t, a3_cap);
         a3[0] = (seq_t)10;
         a3_size = 1;
         initialized = 1;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
             /* resize a2 if needed */
             if (a2_size == a2_cap) {
                 a2_cap = (a2_cap * 2) > 0 ? (a2_cap * 2) : 4;
-                a2 = (seq_t *)realloc(a2, a2_cap * sizeof(seq_t));
+                a2 = mem_resize(seq_t, a2, a2_cap);
             }
             a2[a2_size++] = next;
 
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
             seq_t next_a3 = (seq_t)2 * next - (seq_t)2;
             if (a3_size == a3_cap) {
                 a3_cap = (a3_cap * 2) > 0 ? (a3_cap * 2) : 4;
-                a3 = (seq_t *)realloc(a3, a3_cap * sizeof(seq_t));
+                a3 = mem_resize(seq_t, a3, a3_cap);
             }
             a3[a3_size++] = next_a3;
         }
@@ -81,14 +83,14 @@ seq_t a(idx_t n)
 
             if (a2_size == a2_cap) {
                 a2_cap = (a2_cap * 2) > 0 ? (a2_cap * 2) : 4;
-                a2 = (seq_t *)realloc(a2, a2_cap * sizeof(seq_t));
+                a2 = mem_resize(seq_t, a2, a2_cap);
             }
             a2[a2_size++] = next;
 
             seq_t next_a3 = (seq_t)2 * next - (seq_t)2;
             if (a3_size == a3_cap) {
                 a3_cap = (a3_cap * 2) > 0 ? (a3_cap * 2) : 4;
-                a3 = (seq_t *)realloc(a3, a3_cap * sizeof(seq_t));
+                a3 = mem_resize(seq_t, a3, a3_cap);
             }
             a3[a3_size++] = next_a3;
         }

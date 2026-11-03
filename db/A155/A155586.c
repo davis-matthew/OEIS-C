@@ -7,13 +7,16 @@
  * Formula:   a(n) = flattened triangle T(r,c), where * T(r,c) = 1 if c = 0 *
  *            Catalan(r-c) if 1 ≤ c ≤ r * The row r is chosen so that *
  *            offset_row(r) = r*(r+1)/2 ≤ n < offset_row(r+1)
- * Range:     u8 n <= 28, u16 n <= 66, u32 n <= 77, u64 n <= 77, u128 n <= 77,
+ * Range:     u8 n <= 36, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)

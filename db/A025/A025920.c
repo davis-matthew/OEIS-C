@@ -8,6 +8,7 @@
  *            a(n-29) * with initial values a(0)=1 and a(n)=0 for 1≤n≤7
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -54,9 +55,7 @@ seq_t a(idx_t n)
         if (tmp == NULL) return (seq_t)0; /* reallocation failure */
         cache = tmp;
         /* initialise newly allocated slots to 0 */
-        memset((void *)(cache + cache_size),
-               0,
-               (size_t)((n + 1 - cache_size)) * sizeof(seq_t));
+        memset((cache + cache_size), 0, (size_t)((n + 1 - cache_size)) * sizeof(seq_t));
         cache_size = (idx_t)(n + 1);
 #endif
     }

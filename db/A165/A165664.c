@@ -8,6 +8,7 @@
  * Formula:   a(n) = floor(10*(n^2-2)/7) mod 10
  * Range:     u8 n <= 106, u16 n <= 106, u32 n <= 106, u64 n <= 106,
  *            u128 n <= 106, big any n
+ * Validated: partial, pass, 105 terms through n = 106 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

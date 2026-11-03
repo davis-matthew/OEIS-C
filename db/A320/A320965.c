@@ -7,7 +7,8 @@
  * Formula:   a(n) = (A060687(n))^2
  * Range:     u8 n <= 3, u16 n <= 51, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_a060687_candidate
+ * Validated: standard, pass, 59 terms through n = 9335 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,44 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_a060687_candidate.h"
+#include "../utils/mem.h"
+
+/* Test whether the integer m has exactly one prime factor with exponent 2
+   and all other prime factors with exponent 1.  This uses a simple trial
+   division factorisation.  The function is inexpensive for the range
+   of m considered in the sequence. */
+static bool is_a060687_candidate(uint64_t m)
+{
+    uint64_t temp = m;
+    int squared = 0;
+    bool ok = true;
+
+    for (uint64_t p = 2; p * p <= temp; ++p) {
+        if (temp % p == 0) {
+            int exp = 0;
+            while (temp % p == 0) {
+                temp /= p;
+                ++exp;
+            }
+            if (exp > 2) {
+                ok = false;
+                break;
+            }
+            if (exp == 2) {
+                ++squared;
+                if (squared > 1) {
+                    ok = false;
+                    break;
+                }
+            }
+        }
+    }
+    if (ok && temp > 1) { /* remaining prime factor with exponent 1 */
+        /* ok remains unchanged */
+    }
+
+    return ok && squared == 1;
+}
 
 /* Cache for the base integers A060687(n).  Elements are stored in
    ascending order.  The cache grows dynamically as more terms are
@@ -41,7 +79,7 @@ static void enlarge_cache(size_t min_cap)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     if (new_cap < min_cap)
         new_cap = min_cap;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     /* In the unlikely event of OOM we simply keep the old cache; the
        function will return 0 for any further request. */
     if (!new_cache)

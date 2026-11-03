@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 /* Utility for prime testing on 64‑bit numbers */
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
     uint64_t high = (uint64_t)n * 10ull + 10ull;  /* last number ≤ 10(n+1)*/
 
     for (uint64_t p = low; p <= high; ++p) {
-        if (is_prime_small(p)) {
+        if (is_prime_seq(p)) {
             prod *= (seq_t)p;
         }
     }

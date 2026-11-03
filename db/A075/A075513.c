@@ -9,15 +9,18 @@
  *            T(r,m)=(-1)^(r-m-1)*binomial(r-1,m)*(m+1)^(r-1) read by rows
  * Range:     i8 n <= 12, i16 n <= 24, i32 n <= 45, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Implements the OEIS sequence A075513 */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* Find the row r of the triangle such that r*(r+1)/2 >= n */
 static idx_t
@@ -53,7 +56,7 @@ a(idx_t n)
 
     /* Compute the binomial coefficient and the power */
     seq_t bin = binomial(r - 1, m);
-    seq_t pow = seq_pow((seq_t)(m + 1), r - 1);
+    seq_t pow = ipow_idx((seq_t)(m + 1), r - 1);
 
     /* Combine with the parity sign */
     seq_t res = bin * pow;

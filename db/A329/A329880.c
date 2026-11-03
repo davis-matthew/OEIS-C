@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 6715, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, rad
+ * Validated: standard, pass, 69 terms through n = 8273 (2026-11-01)
+ * Helpers:   factor_u64, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* factor_u64 */
-#include "../utils/rad.h"         /* rad */
+#include "../utils/factor_u64.h"
+#include "../utils/radical.h"
 
 static bool is_candidate(uint64_t k)
 {
@@ -66,8 +67,8 @@ static bool is_candidate(uint64_t k)
     uint64_t usigma_u64  = (uint64_t)usigma;
     uint64_t nusigma_u64 = (uint64_t)nusigma;
 
-    seq_t rad_us = rad((idx_t)usigma_u64);
-    seq_t rad_nu = rad((idx_t)nusigma_u64);
+    seq_t rad_us = radical((idx_t)usigma_u64);
+    seq_t rad_nu = radical((idx_t)nusigma_u64);
 
     return rad_us == rad_nu;
 }

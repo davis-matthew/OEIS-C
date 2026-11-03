@@ -9,13 +9,14 @@
  *            10*binomial(n,5)
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   _binom
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
+ * Helpers:   binomial_u64_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_binom.h"
+#include "../utils/binomial_u64_to_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -23,16 +24,16 @@ seq_t a(idx_t n)
     seq_t result = 0;
 
     /* term for binomial(n,2) with coefficient 1 */
-    result += _binom((uint64_t)n, 2);
+    result += binomial_u64_to_seq((uint64_t)n, 2);
 
     /* term for binomial(n,3) with coefficient 3 */
-    result += 3 * _binom((uint64_t)n, 3);
+    result += 3 * binomial_u64_to_seq((uint64_t)n, 3);
 
     /* term for binomial(n,4) with coefficient 6 */
-    result += 6 * _binom((uint64_t)n, 4);
+    result += 6 * binomial_u64_to_seq((uint64_t)n, 4);
 
     /* term for binomial(n,5) with coefficient 10 */
-    result += 10 * _binom((uint64_t)n, 5);
+    result += 10 * binomial_u64_to_seq((uint64_t)n, 5);
 
     return result;
 }

@@ -7,8 +7,9 @@
  * Formula:   a(n) = Sum_{d|n} A001227(d) (number of odd divisors of d).
  *            Multiplicative form: a(2^e) = e+1, a(p^e) = (e+1)(e+2)/2 for odd
  *            prime p
- * Range:     u8 n <= 3779, u16 n <= 9931, u32 n <= 9931, u64 n <= 9931,
- *            u128 n <= 9931, big any n
+ * Range:     u8 n <= 3779, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 109 terms through n = 9931 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

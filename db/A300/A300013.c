@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    both 2n−p and 2n+2−nextprime(p) are prime. */
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/is_prime.h"
 #include "../utils/next_prime.h"

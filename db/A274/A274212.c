@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 9673, u64 n <= 9673,
- *            u128 n <= 9673, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 15000, u64 n <= 15000,
+ *            u128 n <= 15000, big any n
+ * Validated: standard, pass, 96 terms through n = 9673 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *seq = NULL;          /* array of generated terms */
@@ -41,7 +43,7 @@ static void init(void)
 
     /* initialise the first term a(1)=1 */
     seq_cap = 1024;
-    seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     if (!seq) abort();
     seq[0] = (seq_t)1;
     seq_len = 1;
@@ -77,7 +79,7 @@ static void init(void)
 
     /* initialise indices and candidate values for each prime */
     idx = (size_t*)malloc(twin_cnt * sizeof(size_t));
-    cand = (seq_t*)malloc(twin_cnt * sizeof(seq_t));
+    cand = mem_new(seq_t, twin_cnt);
     if (!idx || !cand) abort();
     for (size_t i = 0; i < twin_cnt; ++i) {
         idx[i] = 0;
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
         /* append the new term */
         if (seq_len == seq_cap) {
             seq_cap = seq_cap * 2 + 1;
-            seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
             if (!seq) abort();
         }
         seq[seq_len++] = best;

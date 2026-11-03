@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 109 terms through n = 9896 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static size_t _semiprime_count = 0;
 static size_t _semiprime_capacity = 0;
@@ -72,14 +74,14 @@ static void _ensure_precomputed(idx_t n)
         size_t sp_cap = new_limit / 3 + 10;
         seq_t *sp_list = NULL;
         if (sp_cap > 0) {
-            sp_list = (seq_t *)malloc(sp_cap * sizeof(seq_t));
+            sp_list = mem_new(seq_t, sp_cap);
         }
 
         for (size_t i = 2; i <= new_limit; ++i) {
             if (cnt[i] == 2) {
                 if (sp_cnt == sp_cap) {
                     sp_cap = sp_cap ? sp_cap * 2 : 16;
-                    sp_list = (seq_t *)realloc(sp_list, sp_cap * sizeof(seq_t));
+                    sp_list = mem_resize(seq_t, sp_list, sp_cap);
                 }
                 sp_list[sp_cnt++] = (seq_t)i;
                 is_sp[i] = true;
@@ -89,7 +91,7 @@ static void _ensure_precomputed(idx_t n)
         /* Check if we have enough semiprimes. */
         if (sp_cnt >= (size_t)n) {
             /* Replace global data. */
-            free(_semiprimes);
+            mem_free(_semiprimes);
             free(_is_semiprime);
             _semiprimes = sp_list;
             _is_semiprime = is_sp;
@@ -108,7 +110,7 @@ static void _ensure_precomputed(idx_t n)
         free(cnt);
         free(is_sp);
         free(primes);
-        free(sp_list);
+        mem_free(sp_list);
         new_limit = new_limit * 2;
     }
 }

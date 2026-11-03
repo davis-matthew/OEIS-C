@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   in_cache
+ * Validated: standard, pass, 77 terms through n = 9874 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,15 @@
 */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/in_cache.h"
+#include "../utils/mem.h"
+
+static bool in_cache(seq_t val, seq_t *arr, size_t len)
+{
+    for (size_t i = 0; i < len; ++i)
+        if (arr[i] == val)
+            return true;
+    return false;
+}
 
 static void ensure_seq_cap(size_t *cap, seq_t **arr, size_t needed)
 {
@@ -31,7 +40,7 @@ static void ensure_seq_cap(size_t *cap, seq_t **arr, size_t needed)
         size_t new_cap = *cap ? *cap * 2 : 1;
         while (new_cap < needed) new_cap <<= 1;
         /* C++ needs an explicit cast for realloc */
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

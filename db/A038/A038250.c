@@ -9,13 +9,14 @@
  *            row, left‑to‑right)
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   mul_pow_small
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mul_pow_small.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +36,8 @@ seq_t a(idx_t n)
     }
 
     /* Compute 5^(i-j) and 8^j. */
-    seq_t pow5 = mul_pow_small(5, i - j);
-    seq_t pow8 = mul_pow_small(8, j);
+    seq_t pow5 = ipow_idx(5, i - j);
+    seq_t pow8 = ipow_idx(8, j);
 
     return bin * pow5 * pow8;
 }

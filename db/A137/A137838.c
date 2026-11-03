@@ -10,13 +10,17 @@
  *            A137838
  * Range:     u8 n <= 26, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   digit_len
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 /* Static mutable state used by the sequence function */
 static seq_t *seq = NULL;               /* current sequence values */
@@ -32,7 +36,7 @@ static unsigned long long next_val = 1; /* next integer to append when extending
 static void ensure_seq_size(size_t target) {
     if (seq_len >= target) return;
     if (seq_cap < target) seq_cap = target;
-    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, seq_cap);
     for (size_t i = seq_len; i < target; ++i) {
         seq[i] = (seq_t)next_val++;
     }
@@ -43,7 +47,7 @@ static void ensure_seq_size(size_t target) {
 static void ensure_memo_size(size_t needed) {
     if (memo_len >= needed) return;
     if (memo_cap < needed) memo_cap = needed;
-    memo = (seq_t *)realloc(memo, memo_cap * sizeof(seq_t));
+    memo = mem_resize(seq_t, memo, memo_cap);
     memo_len = needed;
 }
 
@@ -60,7 +64,7 @@ static void process_step(size_t k) {
     seq_t val = seq[pos-1];
 
     if (val >= 10) {
-        size_t d = digit_len(val) - 1;     /* number of remaining digits */
+        size_t d = num_digits(val) - 1;     /* number of remaining digits */
         seq_t pow10 = 1;
         for (size_t i = 0; i < d; ++i) pow10 *= 10;
         seq[pos-1] = val % pow10;          /* remove first digit */

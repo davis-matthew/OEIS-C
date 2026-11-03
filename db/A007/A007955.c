@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^(tau(n)/2), where tau(n) is the number of divisors of n
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 59, u64 n <= 179,
  *            u128 n <= 719, big any n
+ * Validated: standard, pass, 65 terms through n = 8768 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

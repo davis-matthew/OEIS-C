@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look, tabl
  * Formula:   not stated
- * Range:     u8 n <= 151, u16 n <= 9949, u32 n <= 9949, u64 n <= 9949,
- *            u128 n <= 9949, big any n
- * Helpers:   row_and_pos_idx
+ * Range:     u8 n <= 151, u16 n <= 20100, u32 n <= 20100, u64 n <= 20100,
+ *            u128 n <= 20100, big any n
+ * Validated: standard, pass, 94 terms through n = 9949 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,19 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/row_and_pos_idx.h"
+
+/* find r such that r*(r+1)/2 ≥ n, and position pos in that row (1‑based) */
+static void row_and_pos_idx(uint64_t n, uint64_t *row, uint64_t *pos)
+{
+    if (n == 1) { *row = 1; *pos = 1; return; }
+
+    uint64_t r = 1;
+    while ( ( (__int128)r * (r + 1) ) / 2 < n )
+        ++r;
+    uint64_t prev_sum = r * (r - 1) / 2; /* sum of lengths of rows < r */
+    *row = r;
+    *pos = n - prev_sum; /* 1‑based position inside the row */
+}
 
 /* pre‑computed primes up to a fixed limit (sufficient for all rows needed) */
 #define SIEVE_LIMIT 200000

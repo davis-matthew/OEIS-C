@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   binary_indices
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,18 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/binary_indices.h"
+
+static inline void binary_indices(idx_t n, idx_t *out, size_t *cnt)
+{
+    *cnt = 0;
+    idx_t pos = 1;
+    while (n) {
+        if (n & 1ULL)
+            out[(*cnt)++] = pos;
+        n >>= 1;
+        ++pos;
+    }
+}
 
 /* depth‑first search that tries to match the first `idx` left vertices
    using currently used right vertices `used`.  `S_mask` contains the

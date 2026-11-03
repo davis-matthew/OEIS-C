@@ -7,8 +7,9 @@
  * Keywords:  easy, frac, nonn
  * Formula:   a(n) = n / gcd(n, d(n)) where d(n) is the number of divisors of
  *            n
- * Range:     u8 n <= 255, u16 n <= 9535, u32 n <= 9535, u64 n <= 9535,
- *            u128 n <= 9535, big any n
+ * Range:     u8 n <= 255, u16 n <= 65535, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 92 terms through n = 9535 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

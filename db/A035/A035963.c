@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Assume seq_t and idx_t are provided by the build environment.           */
 seq_t a(idx_t n)
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
 
     /* Allocate or re‑allocate the DP array for the new maximum size. */
     if (dp != NULL)
-        free(dp);
-    dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        mem_free(dp);
+    dp = mem_new(seq_t, (size_t)(n + 1));
     if (dp == NULL)  /* allocation failure – abort gracefully */
         return (seq_t)0;
 

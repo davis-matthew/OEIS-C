@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   good_prime
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,44 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/good_prime.h"
+#include "../utils/mem.h"
+
+/* ---------- helpers ---------- */
+static bool good_prime(uint32_t p, const uint8_t *prime_flag, idx_t max_limit)
+{
+    /* Extract digits (reversed) */
+    int digs[12], len = 0;
+    uint32_t t = p;
+    while (t) {
+        digs[len++] = t % 10;
+        t /= 10;
+    }
+
+    /* Build digit mask and count distinct digits */
+    uint16_t mask = 0;
+    for (int i = 0; i < len; ++i) mask |= 1u << digs[i];
+    if (__builtin_popcount(mask) != 5) return false;
+
+    /* Test each distinct digit */
+    for (int d = 0; d < 10; ++d) {
+        if ((mask & (1u << d)) == 0) continue;
+
+        uint32_t new_num = 0;
+        bool first = false, bad = false;
+        for (int i = len - 1; i >= 0; --i) {
+            int dig = digs[i];
+            if (dig == d) continue;
+            if (!first) {
+                if (dig == 0) { bad = true; break; }
+                first = true;
+            }
+            new_num = new_num * 10 + dig;
+        }
+        if (bad || new_num < 2 || new_num > max_limit || !prime_flag[new_num])
+            return false;
+    }
+    return true;
+}
 
 /* ---------- main sequence logic ---------- */
 static seq_t *seq_vals   = NULL;   /* cached sequence values */
@@ -59,7 +97,7 @@ static void ensure_terms(idx_t n)
             if (good_prime((uint32_t)val, prime_flag, limit)) {
                 if (seq_len == seq_cap) {
                     size_t new_cap = seq_cap ? seq_cap * 2 : 128;
-                    seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
                     if (!tmp) { free(prime_flag); return; }
                     seq_vals = tmp;
                     seq_cap = new_cap;

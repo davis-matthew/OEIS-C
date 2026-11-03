@@ -9,7 +9,8 @@
  *            treated as a prime)
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Helper to generate primes (including 1 as the first prime) up to      */
@@ -86,7 +88,7 @@ static void recompute_dp(idx_t limit)
 {
     /* Allocate new table */
     size_t rows = (size_t)(limit + 1);
-    seq_t *newdp = (seq_t*)calloc(rows * 6, sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, rows * 6);
     if (!newdp) abort();
 
     /* Base case: one way to form 0 with 0 primes */
@@ -106,7 +108,7 @@ static void recompute_dp(idx_t limit)
     }
 
     /* Replace old table */
-    free(dp_table);
+    mem_free(dp_table);
     dp_table = newdp;
     dp_rows  = rows;
     dp_max_n = limit;

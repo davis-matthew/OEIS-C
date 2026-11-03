@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_93
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,27 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/contains_93.h"
+#include "../utils/mem.h"
+
+static bool contains_93(seq_t x)
+{
+    /* Extract decimal digits into a stack array.
+       digits[0] is the least‑significant digit. */
+    seq_t t = x;
+    uint8_t digits[64];
+    size_t len = 0;
+    if (t == 0) return false;
+    while (t > 0) {
+        digits[len++] = (uint8_t)(t % 10);
+        t /= 10;
+    }
+    /* Look for the pattern 9 (more significant) followed by 3 (less significant).
+       In the reversed array this is digits[i]==3 && digits[i+1]==9. */
+    for (size_t i = 0; i + 1 < len; ++i)
+        if (digits[i] == 3 && digits[i + 1] == 9)
+            return true;
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,10 +59,10 @@ seq_t a(idx_t n)
         size_t required = (size_t)n;
         if (cache_cap == 0) {
             cache_cap = 128;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         } else if (cache_cap < required) {
             cache_cap = required > 2 * cache_cap ? required : 2 * cache_cap;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         /* Extend cache by scanning numbers until we have enough terms. */
         while (cache_len < required) {

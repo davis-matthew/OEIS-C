@@ -11,13 +11,14 @@
  *            conjectured formulas give the first terms of A277059
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 12 terms through n = 13 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n_val)
 {
@@ -32,7 +33,7 @@ seq_t a(idx_t n_val)
     /* Even n = 2m */
     if ((n_u & 1ULL) == 0) {
         idx_t m = n_u >> 1;         /* m = n/2 */
-        seq_t pow_nm = pow_uint(n_u, m);              /* n^m */
+        seq_t pow_nm = ipow_u64_idx(n_u, m);              /* n^m */
         seq_t term = (pow_nm - 1) / (n - 1);         /* (n^m-1)/(n-1) */
         result = term + (seq_t)(m - 1);
     }
@@ -40,7 +41,7 @@ seq_t a(idx_t n_val)
     else if ((n_u % 4ULL) == 1ULL) {
         idx_t m = (n_u - 1) / 4;    /* m = (n-1)/4 */
         idx_t two_m = 2 * m;
-        seq_t pow_n2m = pow_uint(n_u, two_m);          /* n^(2m) */
+        seq_t pow_n2m = ipow_u64_idx(n_u, two_m);          /* n^(2m) */
         seq_t numer = pow_n2m - 1;                     /* n^(2m)-1 */
         seq_t n2 = n * n;                              /* n^2 */
         seq_t n2_plus1 = n2 + 1;                       /* n^2+1 */
@@ -55,7 +56,7 @@ seq_t a(idx_t n_val)
         idx_t m = (n_u + 1) / 4;      /* m = (n+1)/4 */
         idx_t exp1 = 2 * m - 2;        /* 2m-2 (may be 0) */
         idx_t exp2 = 2 * m - 1;        /* 2m-1 */
-        seq_t pow_n_exp1 = pow_uint(n_u, exp1);        /* n^(2m-2) */
+        seq_t pow_n_exp1 = ipow_u64_idx(n_u, exp1);        /* n^(2m-2) */
         seq_t numer = pow_n_exp1 - 1;                  /* n^(2m-2)-1 */
         seq_t n2 = n * n;                              /* n^2 */
         seq_t n2_plus1 = n2 + 1;                       /* n^2+1 */
@@ -63,7 +64,7 @@ seq_t a(idx_t n_val)
         seq_t denom = 2 * n2_minus1;                   /* 2(n^2-1) */
         seq_t prod = numer * n2_plus1;                 /* (n^(2m-2)-1)(n^2+1) */
         seq_t div = prod / denom;                      /* divide */
-        seq_t pow_n_exp2 = pow_uint(n_u, exp2);        /* n^(2m-1) */
+        seq_t pow_n_exp2 = ipow_u64_idx(n_u, exp2);        /* n^(2m-1) */
         result = div + (seq_t)m + pow_n_exp2;
     }
     return result;

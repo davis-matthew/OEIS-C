@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{k=1..n-1} (9*k - 3)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 303 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Offset: 1  (a(1) = 1) */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* array of precomputed terms, 1‑based */
 static idx_t  a_cache_last = 0; /* largest n that has been computed */
@@ -28,14 +30,14 @@ ensure_a_cache(idx_t n)
 
     /* Resize cache if necessary */
     if (a_cache == NULL) {
-        a_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (n + 1));
         if (a_cache == NULL)
             abort();                 /* allocation failure */
         /* initialize a(1) */
         a_cache[1] = (seq_t)1;
         a_cache_last = 1;
     } else if (a_cache_last < n) {
-        seq_t *tmp = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, (n + 1));
         if (tmp == NULL)
             abort();
         a_cache = tmp;

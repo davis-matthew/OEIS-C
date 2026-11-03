@@ -4,14 +4,15 @@
  *          numbers forms a palindrome.
  * https://oeis.org/A085924
  *
- * Offset:    0    (a(0) is the first term)
+ * Offset:    1    (a(1) is the first term)
  * Keywords:  base, less, easy, nonn
  * Formula:   a(n) = n-th integer k (starting from k=1) such that the
  *            concatenation of the exponents in the prime factorization of k
  *            is a palindrome in base 10
- * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
+ * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Dynamic array utilities for seq_t (value type)                */
@@ -36,7 +38,7 @@ static seq_t *_seq_cache = NULL;
 static void _cache_append(seq_t val) {
     if (_seq_cache_len == _seq_cache_cap) {
         size_t new_cap = _seq_cache_cap == 0 ? 64 : _seq_cache_cap * 2;
-        seq_t *newp = (seq_t *)realloc(_seq_cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, _seq_cache, new_cap);
         if (!newp) abort();            /* allocation failure */
         _seq_cache = newp;
         _seq_cache_cap = new_cap;
@@ -151,7 +153,7 @@ static bool _is_member(uint64_t k) {
 /* ------------------------------------------------------------ */
 /* Main sequence function                                        */
 /* ------------------------------------------------------------ */
-seq_t a(idx_t n) {
+seq_t a_old(idx_t n) {
     /* Grow cache until it contains at least n+1 terms. */
     static uint64_t next_candidate = 1;     /* integer to investigate next */
     while (_seq_cache_len <= n) {
@@ -161,4 +163,10 @@ seq_t a(idx_t n) {
         ++next_candidate;
     }
     return _seq_cache[n];
+}
+
+/* the OEIS now has offset 1 (this code was written for offset 0) */
+seq_t a(idx_t n)
+{
+    return a_old(n - 1);
 }

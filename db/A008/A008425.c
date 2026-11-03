@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 94, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   kronecker_minus4
+ * Validated: standard, pass, 68 terms through n = 7777 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,13 @@
  */
 
 #include <stdint.h>
-#include "../utils/kronecker_minus4.h"
+
+/* Kronecker symbol ( -4 | k ) for k > 0 */
+static int kronecker_minus4(idx_t k)
+{
+    if ((k & 1ULL) == 0) return 0;          /* even */
+    return (k % 4ULL == 1ULL) ? 1 : -1;     /* odd */
+}
 
 /* integer sqrt of n (floor), works for idx_t which is unsigned */
 static idx_t isqrt_u64(idx_t n)

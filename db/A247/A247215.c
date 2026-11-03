@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 632 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(n)=35*a(n-1)-35*a(n-2)+a(n-3) for n>=4 */
 
 #include <stdlib.h> /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Ensure we have at least 3 slots for the base values */
         cap = 3;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL)   /* allocation failure – fallback to base */
             return base[2];
         for (idx_t i = 0; i < 3; ++i)
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Resize if necessary for the requested index */
     if (n > (idx_t)cap) {
         size_t newcap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL)   /* allocation failure – give up gracefully */
             return base[2];
         cache = tmp;

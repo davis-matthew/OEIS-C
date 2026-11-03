@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 86, i16 n <= 86, i32 n <= 86, i64 n <= 86, i128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Coefficients of the numerator N(x) = Σ p[n] x^n   (degree 28) */
 static const seq_t P[29] = {
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
                                    : 64;
         if (new_cap < (size_t)n + 1)
             new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();   /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

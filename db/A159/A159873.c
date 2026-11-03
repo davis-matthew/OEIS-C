@@ -8,14 +8,26 @@
  *            1058*(n-1)*a(n-2) for n ≥ 2
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 10, i128 n <= 19,
  *            big any n
- * Helpers:   seq_alloc_array, seq_free_array
+ * Validated: standard, pass, 32 terms through n = 384 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>                      /* for size_t */
-#include "../utils/seq_alloc_array.h"     /* seq_alloc_array(seq_t *, size_t) */
-#include "../utils/seq_free_array.h"      /* seq_free_array(seq_t *) */
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *cache = NULL;      /* cached values up to 'computed' */
 static idx_t  cache_cap = 0;     /* allocated size of the cache */

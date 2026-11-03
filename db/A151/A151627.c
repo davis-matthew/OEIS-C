@@ -9,16 +9,24 @@
  *            2)^n
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   binomial, seq_mul, seq_pow
+ * Validated: standard, pass, 34 terms through n = 194 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Returns the nth term of A151627 for n >= 1. */
 seq_t a(idx_t n)
@@ -37,7 +45,7 @@ seq_t a(idx_t n)
     for (idx_t j = 0; j <= 5; ++j)
     {
         seq_t bj   = binomial(two_n_plus1, j);                 /* C(2n+1, j) */
-        seq_t powj = seq_pow(base_vals[j], n);                 /* (C(7-j,2))^n */
+        seq_t powj = ipow_idx(base_vals[j], n);                 /* (C(7-j,2))^n */
         seq_t term = seq_mul(bj, powj);                       /* term = bj * powj */
 
         if ((j & 1) == 0)

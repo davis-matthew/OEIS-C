@@ -14,13 +14,15 @@
  *            binary string
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute the number of bits in a seq_t value (bit length). */
 static inline idx_t bitlen_seq_t(seq_t x) {
@@ -67,7 +69,7 @@ seq_t a(idx_t n) {
         if (satisfies(candidate)) {
             if (len == cap) {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     abort();
                 cache = tmp;

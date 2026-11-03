@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = LCM_{p-1 | n-1, p | n, p prime} (p-1)
- * Range:     u8 n <= 256, u16 n <= 8579, u32 n <= 8579, u64 n <= 8579,
- *            u128 n <= 8579, big any n
+ * Range:     u8 n <= 256, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 8579 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* Provides seq_gcd if available */
+#include "../utils/gcd.h"
 
 static seq_t gcd_local(seq_t a, seq_t b)
 {

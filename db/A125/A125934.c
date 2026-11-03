@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sprague–Grundy value for octal game .7337
  * Range:     u8 n <= 92, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 92 terms through n = 92 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Octal digits .7337: index 1..4 (0 otherwise) */
 static const int _dig_len = 4;
@@ -37,11 +39,11 @@ seq_t a(idx_t n)
     if (n > max_n) {
         /* Allocate SG array if first time. */
         if (sg == NULL) {
-            sg = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+            sg = mem_new(seq_t, (size_t)(n + 1));
             if (sg == NULL) abort();
             sg[0] = 0;               /* SG(0) = 0 */
         } else if (n + 1 > max_n + 1) {
-            seq_t *tmp = (seq_t *)realloc(sg, (size_t)(n + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, sg, (size_t)(n + 1));
             if (tmp == NULL) abort();
             sg = tmp;
         }

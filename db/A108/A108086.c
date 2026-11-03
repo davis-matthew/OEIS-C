@@ -9,13 +9,15 @@
  * Formula:   T(0,0)=1; T(n,k)=(-1)^(n+k)*T(n-1,k)+T(n-1,k-1) for 0≤k≤n
  * Range:     i8 n <= 58, i16 n <= 178, i32 n <= 610, i64 n <= 1325,
  *            i128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 1225 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are defined by the build system.
    No redefinition is needed. */
@@ -28,11 +30,11 @@ static seq_t compute_T(idx_t r, idx_t c)
 
     /* Allocate two rows of size r+1. */
     idx_t sz = r + 1;
-    seq_t *prev = (seq_t *)calloc((size_t)sz, sizeof(seq_t));
-    seq_t *cur  = (seq_t *)calloc((size_t)sz, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)sz);
+    seq_t *cur  = mem_new(seq_t, (size_t)sz);
     if (!prev || !cur) {
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return (seq_t)0;               /* allocation failed – unlikely */
     }
 
@@ -60,8 +62,8 @@ static seq_t compute_T(idx_t r, idx_t c)
 
     seq_t result = prev[c];
 
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }
 

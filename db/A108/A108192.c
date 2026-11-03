@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 159, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9570 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         /* Store the found term */
         if (len == cap) {
             size_t new_cap = cap ? cap * 2 : 128;
-            seq_t *tmp = (seq_t *)realloc(list, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, list, new_cap);
             if (!tmp) {
                 /* Allocation failed – abort comfortably */
                 exit(EXIT_FAILURE);

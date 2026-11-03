@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 131, u16 n <= 131, u32 n <= 131, u64 n <= 131,
  *            u128 n <= 131, big any n
- * Helpers:   none
+ * Validated: partial, pass, 131 terms through n = 131 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached prefix of the sequence */
 static size_t cache_len = 0;     /* number of elements in cache (a(1) .. a(cache_len)) */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (n > cache_len) {
         /* If cache empty, start with the first symbol 0 */
         if (cache_len == 0) {
-            cache = (seq_t *)malloc(sizeof(seq_t));
+            cache = mem_new(seq_t, 1);
             cache[0] = 0;
             cache_len = 1;
         }
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
                 else             ++ones;
             }
             size_t next_len = zeros * 2 + ones * 3;
-            seq_t *next = (seq_t *)malloc(next_len * sizeof(seq_t));
+            seq_t *next = mem_new(seq_t, next_len);
             size_t idx = 0;
             for (size_t i = 0; i < cache_len; ++i) {
                 if (cache[i] == 0) {
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
                 }
             }
             /* Replace old cache with new */
-            free(cache);
+            mem_free(cache);
             cache = next;
             cache_len = next_len;
         }

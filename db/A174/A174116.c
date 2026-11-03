@@ -12,11 +12,14 @@
  *            gives the column. * For boundary values k=0 or k=r, T=1
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 179, u64 n <= 610,
  *            u128 n <= 2242, big any n
+ * Validated: standard, pass, 82 terms through n = 4932 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
 #include <stdint.h>
 

@@ -8,12 +8,14 @@
  *            -3, a(3) = -3, a(4) = 8, a(5) = 11
  * Range:     i8 n <= 10, i16 n <= 24, i32 n <= 36, i64 n <= 36, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t BASE[6] = {1, -2, -3, -3, 8, 11};
 
@@ -35,9 +37,9 @@ static void ensure_cache(size_t upto)
     /* allocate or reallocate the array */
     seq_t *tmp;
     if (CACHE)
-        tmp = (seq_t *)realloc(CACHE, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, CACHE, new_cap);
     else
-        tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        tmp = mem_new(seq_t, new_cap);
 
     if (!tmp)  /* allocation failure – leave cache unchanged */
         return;

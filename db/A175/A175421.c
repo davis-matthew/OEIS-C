@@ -10,7 +10,8 @@
  *            least‑significant digit. * Example: m = 6561 → ((1^6)^5)^6 = 1
  * Range:     u8 n <= 26, u16 n <= 36, u32 n <= 38, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 /* The implementation uses an external big_pow function for the
  * power operation. */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static seq_t digit_power(seq_t n)
 {
@@ -30,7 +33,7 @@ static seq_t digit_power(seq_t n)
 
     while (n > (seq_t)0) {
         seq_t d = n % (seq_t)10;   /* next digit (toward more significant) */
-        result = big_pow(result, d); /* left‑assoc exponentiation */
+        result = ipow(result, d); /* left‑assoc exponentiation */
         n /= (seq_t)10;
     }
 

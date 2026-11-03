@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into distinct nonprime parts
  * Range:     u8 n <= 52, u16 n <= 127, u32 n <= 356, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 906 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,14 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Convert n to a size_t for array indexing.  n is guaranteed to fit in size_t up to the limits of the test harness. */
     size_t N = (size_t)n;
 
     /* Allocate DP array for sums 0..N. */
-    seq_t *dp = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (N + 1));
     for (size_t i = 0; i <= N; ++i) dp[i] = (seq_t)0;
     dp[0] = (seq_t)1;                   /* one way to obtain the sum 0 */
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
     seq_t result = dp[N];   /* The desired partition count for n = N */
 
     /* Clean up */
-    free(dp);
+    mem_free(dp);
     free(is_prime);
 
     return result;

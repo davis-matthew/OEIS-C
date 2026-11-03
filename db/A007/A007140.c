@@ -13,7 +13,8 @@
  *            B(n-1,n-1). S(n) = Sum_{lambda|-n} 2^(Sum_k ceil(la...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   a7140_gcd
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   gcd_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a7140_gcd.h"
+#include "../utils/gcd_u32.h"
 
 typedef struct { uint32_t *d; size_t len, cap; } bn_t;
 
@@ -169,13 +170,13 @@ static void a7140_process(a7140_ctx *c)
         unsigned v = c->vals[i], cm = c->mults[i];
         s += cm * ((v + 1) / 2) + cm * (cm - 1) / 2 * v;
         for (j = i + 1; j < c->cnt; j++)
-            s += cm * c->mults[j] * a7140_gcd(v, c->vals[j]);
+            s += cm * c->mults[j] * gcd_u32(v, c->vals[j]);
     }
     bn_add_shl(&c->accS, &c->w, s);
     /* exponents e[k] = Sum_i gcd(lambda_i, k) */
     for (k = 1; k <= p; k++) {
         unsigned ek = 0;
-        for (i = 0; i < c->cnt; i++) ek += c->mults[i] * a7140_gcd(c->vals[i], k);
+        for (i = 0; i < c->cnt; i++) ek += c->mults[i] * gcd_u32(c->vals[i], k);
         c->e[k] = ek;
     }
     bn_set_u(&c->G[0], 1);

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor
+ * Validated: standard, pass, 72 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/factor.h"   /* provides factor(uint64_t,n,pr,exp,cnt) */
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------- */
+static void factor(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    size_t c = 0;
+    for (uint64_t p = 2; p*p <= n; ++p) {
+        if (n % p == 0) {
+            pr[c] = p; exp[c] = 0;
+            while (n % p == 0) { n /= p; ++exp[c]; }
+            ++c;
+        }
+    }
+    if (n > 1) { pr[c] = n; exp[c] = 1; ++c; }
+    *cnt = c;
+}
 
 static seq_t *cache = NULL;          /* cache of already found terms          */
 static size_t cache_len = 0;         /* number of cached terms                */
@@ -33,7 +50,7 @@ static void ensure_cache_cap(size_t n)
     if (cache_cap < n) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         if (new_cap < n) new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

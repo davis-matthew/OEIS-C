@@ -7,13 +7,15 @@
  * Formula:   A(x) = (1 + x*A(2x))^5 (OEIS A171205)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* binomial coefficients for (1 + y)^5 */
 static const int choose[6] = {1, 5, 10, 10, 5, 1};
@@ -29,17 +31,17 @@ static void extend(idx_t new_max) {
     idx_t old_max = computed_max;
 
     /* allocate / reallocate arrays */
-    a_arr    = (seq_t*)realloc(a_arr,    (new_max + 1) * sizeof(seq_t));
-    pow2_arr = (seq_t*)realloc(pow2_arr, (new_max + 1) * sizeof(seq_t));
+    a_arr    = mem_resize(seq_t, a_arr, (new_max + 1));
+    pow2_arr = mem_resize(seq_t, pow2_arr, (new_max + 1));
     for (int k = 1; k <= 5; ++k)
-        conv[k] = (seq_t*)realloc(conv[k], (new_max + 1) * sizeof(seq_t));
+        conv[k] = mem_resize(seq_t, conv[k], (new_max + 1));
 
     /* zero new entries (except for base case) */
     if (old_max < new_max) {
-        memset(a_arr + old_max + 1,    0, (new_max - old_max) * sizeof(seq_t));
-        memset(pow2_arr + old_max + 1, 0, (new_max - old_max) * sizeof(seq_t));
+        mem_set(a_arr + old_max + 1, 0, (new_max - old_max) * sizeof(seq_t));
+        mem_set(pow2_arr + old_max + 1, 0, (new_max - old_max) * sizeof(seq_t));
         for (int k = 1; k <= 5; ++k)
-            memset(conv[k] + old_max + 1, 0, (new_max - old_max) * sizeof(seq_t));
+            mem_set(conv[k] + old_max + 1, 0, (new_max - old_max) * sizeof(seq_t));
     }
 
     /* initialise base case (already done only once) */

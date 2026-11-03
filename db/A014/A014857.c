@@ -9,13 +9,15 @@
  *            divides s(k) ⇔ ∑_{i=0}^{k-1} i·9^{i} ≡ 0 (mod k)
  * Range:     u8 n <= 9, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* types seq_t and idx_t are defined by the build environment */
 
@@ -68,7 +70,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     if (new_cap < needed) new_cap = needed;
-    seq_array = (seq_t *)realloc(seq_array, new_cap * sizeof(seq_t));
+    seq_array = mem_resize(seq_t, seq_array, new_cap);
     seq_cap   = new_cap;
 }
 

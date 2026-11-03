@@ -7,6 +7,7 @@
  * Formula:   a(n) = [1, 2, 4, -4, -2, -1][n mod 6]
  * Range:     i8 n <= 73, i16 n <= 73, i32 n <= 73, i64 n <= 73, i128 n <= 73,
  *            big any n
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

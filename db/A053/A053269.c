@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 38, i16 n <= 120, i32 n <= 402, i64 n <= 1432,
  *            i128 n <= 5322, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9264 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,12 +24,13 @@
  */
 
 #include <stdlib.h> /* malloc, calloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate coefficients for the current A_k polynomial */
     idx_t N = n;
-    seq_t *A = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, N + 1);
     if (!A)
         return (seq_t)0;          /* allocation failure – return 0 */
 
@@ -74,6 +76,6 @@ seq_t a(idx_t n)
             A[i] -= A[i - m3];
     }
 
-    free(A);
+    mem_free(A);
     return result;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* return true if val appears in the sorted array arr[0..len-1] */
 static bool contains(const seq_t *arr, idx_t len, seq_t val)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         return (seq_t)2;
 
     /* allocate array to hold a[0..n] */
-    seq_t *a_vals = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *a_vals = mem_new(seq_t, (size_t)(n + 1));
     if (!a_vals)
         return (seq_t)0; /* unlikely, but defensive */
 
@@ -78,6 +80,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_vals[n];
-    free(a_vals);
+    mem_free(a_vals);
     return result;
 }

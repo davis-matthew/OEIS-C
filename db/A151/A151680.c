@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum_{k >= 0} binomial( A000120(n + k), k + 1 )
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Implements a(n) as defined in OEIS A151680. */
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

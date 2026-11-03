@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   is_prime, next_prime
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
                 if (len + 2 > cap) {
                     size_t new_cap = (cap == 0) ? 8 : cap * 2;
                     while (new_cap < len + 2) new_cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(list, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, list, new_cap);
                     if (!tmp) abort();
                     list = tmp;
                     cap = new_cap;

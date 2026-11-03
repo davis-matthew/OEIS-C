@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 511, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_composite_odd, set_composite_odd, small_sieve_mark
+ * Validated: standard, pass, 116 terms through n = 8461 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_composite_odd.h"
-#include "../utils/set_composite_odd.h"
-#include "../utils/small_sieve_mark.h"
+
+static inline int is_composite_odd(const unsigned char *sieve, idx_t n)
+{
+    idx_t idx = n >> 1;
+    return (sieve[idx >> 3] >> (idx & 0x07u)) & 0x01u;
+}
+
+/* set flag in odd‑only bitset */
+static inline void set_composite_odd(unsigned char *sieve, idx_t n)
+{
+    idx_t idx = n >> 1;                   /* position of odd number n    */
+    sieve[idx >> 3] |= (0x01u << (idx & 0x07u));
+}
+
+/* small sieve for numbers up to limit (odd‑only) */
+static void small_sieve_mark(idx_t limit, unsigned char *sieve)
+{
+    for (idx_t i = 3; i * i <= limit; i += 2)
+        if (!is_composite_odd(sieve, i))
+            for (idx_t j = i * i; j <= limit; j += i << 1)
+                set_composite_odd(sieve, j);
+}
 
 /* Compute a(n): number of primes p with n^2 < prime(p) < (n+2)^2,
    where prime(p) is the p‑th prime and the index p itself is prime. */

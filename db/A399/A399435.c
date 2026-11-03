@@ -8,12 +8,24 @@
  * Formula:   a(n) = numerator(1 - F(n+2)/2^n)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   fibonacci_u64
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fibonacci_u64.h"
+static seq_t fibonacci_u64(idx_t n)
+{
+    /* Return Fibonacci(n) with F(0)=0, F(1)=1.  */
+    seq_t a = 0;
+    seq_t b = 1;
+    for (idx_t i = 1; i < n; ++i) {
+        seq_t c = a + b;
+        a = b;
+        b = c;
+    }
+    return b;
+}
 /* Computes the numerator of (2^n - F_{n+2}) / 2^n after reduction.  */
 
 seq_t a(idx_t n)

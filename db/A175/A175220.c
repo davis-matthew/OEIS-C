@@ -8,6 +8,7 @@
  *            counted as numbers >1 that are not prime)
  * Range:     u8 n <= 53, u16 n <= 6542, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 73 terms through n = 9866 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 /* Global storage for the list of primes */
 static uint64_t *primes = NULL;      /* array of primes (minimal type) */

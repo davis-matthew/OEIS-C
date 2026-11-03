@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 21, u64 n <= 45, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,14 +37,14 @@ seq_t a(idx_t n)
     if (cap < n)
     {
         /* Allocate new array, preserving existing values */
-        seq_t *new_arr = (seq_t *)malloc(((size_t)n + 1) * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, ((size_t)n + 1));
         if (!new_arr) exit(EXIT_FAILURE);
 
         if (cache)
         {
             /* Copy old contents */
             for (idx_t i = 1; i <= cap; ++i) new_arr[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
 
         cache = new_arr;

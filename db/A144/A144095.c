@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 2471, u16 n <= 8738, u32 n <= 8738, u64 n <= 8738,
- *            u128 n <= 8738, big any n
- * Helpers:   bitlen_seq_t, factor_u64
+ * Range:     u8 n <= 2471, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 8738 (2026-11-01)
+ * Helpers:   bit_length, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,9 @@
 #include <string.h>
 
 /* helper functions provided by the build system */
+#include <stdlib.h>
+#include "../utils/bit_length.h"
 #include "../utils/factor_u64.h"
-#include "../utils/bitlen_seq_t.h"
 
 /* ------------------------------------------------------------------ */
 /* Convert an unsigned 64‑bit integer 'x' to its binary string of length
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     factor_u64((uint64_t)n, primes, exps, &cnt);
 
     /* binary representation of n */
-    size_t len_n = bitlen_seq_t((seq_t)n);
+    size_t len_n = bit_length((seq_t)n);
     char bin_n[65];                /* 64 bits max + '\0' */
     uint64_to_bin((uint64_t)n, len_n, bin_n);
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t e = exps[i];
-        size_t len_e = bitlen_seq_t((seq_t)e);
+        size_t len_e = bit_length((seq_t)e);
         char bin_e[65];
         uint64_to_bin(e, len_e, bin_e);
 

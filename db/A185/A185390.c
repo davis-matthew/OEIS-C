@@ -12,13 +12,17 @@
  *            * by rows. Special cases: T(0,0)=1 and T(n,n)=n^n
  * Range:     u8 n <= 13, u16 n <= 27, u32 n <= 64, u64 n <= 151,
  *            u128 n <= 404, big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 61 terms through n = 1238 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/big_pow.h"    /* seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Compute T(n,k) for 0 ≤ k ≤ n.  */
 static seq_t compute_T(idx_t n, idx_t k)
@@ -29,7 +33,7 @@ static seq_t compute_T(idx_t n, idx_t k)
 
     /* T(n,n) = n^n. */
     if (k == n)
-        return big_pow((seq_t)n, (seq_t)n);
+        return ipow((seq_t)n, (seq_t)n);
 
     /* General case. */
     seq_t bin = binomial(n, k);
@@ -39,11 +43,11 @@ static seq_t compute_T(idx_t n, idx_t k)
     if (k == 0)
         pk = (seq_t)1;
     else
-        pk = big_pow((seq_t)k, (seq_t)k);
+        pk = ipow((seq_t)k, (seq_t)k);
 
     /* (n-k+1)^(n-k-1), where n-k-1 ≥ 0 because k < n. */
     idx_t exp_n = n - k - 1;
-    seq_t pow2 = big_pow((seq_t)(n - k + 1), (seq_t)exp_n);
+    seq_t pow2 = ipow((seq_t)(n - k + 1), (seq_t)exp_n);
 
     /* Multiply the three factors. */
     seq_t result = bin * pk;

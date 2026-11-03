@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   _gcd_idx
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
  * that are coprime to n (in increasing order, starting at 1)
  * which is ≥ n.  a(1)=1, a(2)=3, a(3)=8, … */
 #include <stdlib.h>
-#include "../utils/_gcd_idx.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
 
 /* Euclidean algorithm for gcd on integer type idx_t */
 
@@ -37,9 +41,9 @@ static void _ensure_cache(idx_t n)
     size_t new_size = (size_t)n + 10;
     seq_t *tmp = a_cache;
     if (tmp == NULL) {
-        tmp = (seq_t *)malloc(new_size * sizeof(seq_t));
+        tmp = mem_new(seq_t, new_size);
     } else {
-        tmp = (seq_t *)realloc(tmp, new_size * sizeof(seq_t));
+        tmp = mem_resize(seq_t, tmp, new_size);
     }
     if (tmp == NULL)
         exit(EXIT_FAILURE);          /* memory allocation failed */
@@ -55,7 +59,7 @@ static void _ensure_cache(idx_t n)
             prod = (seq_t)1;
         } else {
             for (idx_t i = 1; /* empty */; ++i) {
-                if (_gcd_idx(i, k) == 1) {
+                if (gcd_idx(i, k) == 1) {
                     prod = prod * (seq_t)i;
                     if (prod >= (seq_t)k)
                         break;

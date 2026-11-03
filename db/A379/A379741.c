@@ -8,12 +8,14 @@
  *            Initial values: a(1)=0, a(2)=0, a(3)=0, a(4)=3
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 161 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* multiply a seq_t value by a small positive integer m (m <= 1960) */
 static seq_t mul_small(seq_t x, int m)
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (!cache || cache_len <= n)
     {
         size_t new_len = (size_t)(n + 1);   /* include index 0 */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         cache = tmp;
 
         /* if this is the first allocation, initialize base cases */

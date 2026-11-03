@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{i=1..n} Sum_{j=1..i} (prime(i)-prime(j))
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 57 terms through n = 964 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 seq_t a(idx_t n)

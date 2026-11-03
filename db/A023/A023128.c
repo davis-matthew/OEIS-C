@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   visited_test
+ * Validated: standard, pass, 104 terms through n = 943 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,14 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/visited_test.h"
+
+/*--- bitset visited -------------------------------------------*/
+static inline int visited_test(idx_t i, idx_t j, idx_t lim, const uint64_t *vis) {
+    size_t pos = (size_t)(i - 1) * (size_t)lim + (size_t)(j - 1);
+    size_t idx = pos >> 6;
+    uint64_t mask = 1ULL << (pos & 63);
+    return (vis[idx] & mask) != 0;
+}
 
 /* Node stores one pair (i,j). */
 typedef struct { idx_t i, j; } Node;

@@ -9,12 +9,14 @@
  *            L(k)=L(k-1)+L(k-2)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* --- compute Lucas numbers up to n --- */
     if (lucas_cap == 0) {
         lucas_cap  = 2;
-        lucas_cache = (seq_t*)malloc(lucas_cap * sizeof(seq_t));
+        lucas_cache = mem_new(seq_t, lucas_cap);
         if (!lucas_cache) return 0;
         lucas_cache[0] = (seq_t)2;
         lucas_cache[1] = (seq_t)1;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (lucas_cap <= (size_t)n) {
         size_t old_cap = lucas_cap;
         lucas_cap = (size_t)n + 1;
-        lucas_cache = (seq_t*)realloc(lucas_cache, lucas_cap * sizeof(seq_t));
+        lucas_cache = mem_resize(seq_t, lucas_cache, lucas_cap);
         if (!lucas_cache) return 0;
         for (size_t i = old_cap; i <= (size_t)n; ++i) {
             lucas_cache[i] = lucas_cache[i-1] + lucas_cache[i-2];
@@ -44,14 +46,14 @@ seq_t a(idx_t n)
     /* --- compute a(n) up to n --- */
     if (a_cap == 0) {
         a_cap = 1;
-        a_cache = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         if (!a_cache) return 0;
         a_cache[0] = (seq_t)2;
     }
     if (a_cap <= (size_t)n) {
         size_t old_cap = a_cap;
         a_cap = (size_t)n + 1;
-        a_cache = (seq_t*)realloc(a_cache, a_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, a_cap);
         if (!a_cache) return 0;
         for (size_t i = old_cap; i <= (size_t)n; ++i) {
             a_cache[i] = lucas_cache[i] + (seq_t)i * a_cache[i-1];

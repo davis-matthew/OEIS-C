@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n, sigma(d)-2*d > 0} (sigma(d)-2*d)
- * Range:     u8 n <= 178, u16 n <= 9935, u32 n <= 9935, u64 n <= 9935,
- *            u128 n <= 9935, big any n
- * Helpers:   none
+ * Range:     u8 n <= 178, u16 n <= 14399, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
  *   “abundancy” of d, counted only when it is positive.       */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for σ(i) for i = 0 .. n (σ(0) is unused)                     */
 static seq_t *sigma_cache = NULL;   /* sigma_cache[i] = σ(i) */
@@ -30,7 +32,7 @@ ensure_sigma_upto(idx_t n)
 
     /* Allocate space for indices 0..n (size n+1)                       */
     idx_t new_cap = n + 1;
-    seq_t *tmp = (seq_t *)realloc(sigma_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, sigma_cache, new_cap);
     if (!tmp)
         exit(1);                    /* out of memory                  */
     sigma_cache = tmp;

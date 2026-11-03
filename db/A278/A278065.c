@@ -9,13 +9,15 @@
  *            n > 13
  * Range:     u8 n <= 361, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9166 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for previously computed values */
 static seq_t *cache = NULL;
@@ -32,14 +34,14 @@ static void ensure_cache(idx_t n)
         return;
 
     idx_t  new_size = n + 1;
-    seq_t *new_cache = (seq_t*)calloc(new_size, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache)
         return;  /* allocation failure is ignored – the caller handles 0 */
 
     if (cache)
     {
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_size = new_size;

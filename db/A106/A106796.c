@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9003 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Initialise with the starting symbol 1 on the very first call. */
     if (word == NULL) {
         len = 1;
-        word = (seq_t *)malloc(sizeof(seq_t));
+        word = mem_new(seq_t, 1);
         if (!word) return (seq_t)0;      /* allocation failure */
         word[0] = (seq_t)1;              /* a(0) = 1 */
     }
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate space for the new expansion. */
-        seq_t *new_word = (seq_t *)malloc((size_t)new_len * sizeof(seq_t));
+        seq_t *new_word = mem_new(seq_t, (size_t)new_len);
         if (!new_word) return (seq_t)0;  /* allocation failure */
 
         /* Build the expanded word. */
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old word with the expanded one. */
-        free(word);
+        mem_free(word);
         word = new_word;
         len  = new_len;
     }

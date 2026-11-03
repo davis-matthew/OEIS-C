@@ -9,11 +9,13 @@
  *            n‑4‑i)·(4+i)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

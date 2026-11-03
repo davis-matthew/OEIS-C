@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   mulmod64
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,15 +25,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mulmod64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
 
 /* Deterministic Miller–Rabin for 64‑bit integers */
 
 static uint64_t powmod64(uint64_t a, uint64_t e, uint64_t mod) {
     uint64_t r = 1;
     while (e) {
-        if (e & 1) r = mulmod64(r, a, mod);
-        a = mulmod64(a, a, mod);
+        if (e & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -58,7 +60,7 @@ static bool isPrime64(uint64_t n) {
         if (x == 1 || x == n - 1) continue;
         bool cont = false;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mulmod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { cont = true; break; }
         }
         if (!cont) return false;

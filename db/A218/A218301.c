@@ -8,7 +8,8 @@
  * Formula:   a(n) = 3/2 * Sum_{k=0..n} (k+3)^(n-1) * binomial(n,k) (a(0)=1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    the provided big‑integer facilities. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage; the types seq_t and idx_t are supplied by the build. */
 
@@ -38,9 +40,9 @@ static void ensure_capacity(idx_t n)
     {
         max_n = 0;
         /* Allocate space for a(0), binom(0,0), pows[0] */
-        a_cache = (seq_t*)realloc(a_cache, sizeof(seq_t));
-        binom   = (seq_t*)realloc(binom,   sizeof(seq_t));
-        pows    = (seq_t*)realloc(pows,    sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, 1);
+        binom   = mem_resize(seq_t, binom, 1);
+        pows    = mem_resize(seq_t, pows, 1);
 
         a_cache[0] = (seq_t)1;  /* a(0) */
         binom[0]   = (seq_t)1;  /* C(0,0) */
@@ -50,9 +52,9 @@ static void ensure_capacity(idx_t n)
     /* Grow all arrays to size n+1. */
     if (n + 1 > max_n + 1)
     {
-        a_cache = (seq_t*)realloc(a_cache, (n+1)*sizeof(seq_t));
-        binom   = (seq_t*)realloc(binom,   (n+1)*sizeof(seq_t));
-        pows    = (seq_t*)realloc(pows,    (n+1)*sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (n+1));
+        binom   = mem_resize(seq_t, binom, (n+1));
+        pows    = mem_resize(seq_t, pows, (n+1));
 
         /* Initialise newly added entries (value 0) */
         for (idx_t i = max_n + 1; i <= n; ++i)

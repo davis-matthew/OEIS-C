@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9735, u16 n <= 9735, u32 n <= 9735, u64 n <= 9735,
- *            u128 n <= 9735, big any n
- * Helpers:   none
+ * Range:     u8 n <= 12166, u16 n <= 12166, u32 n <= 12166, u64 n <= 12166,
+ *            u128 n <= 12166, big any n
+ * Validated: standard, pass, 118 terms through n = 9735 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * Computed by dynamic programming: classic subset‑sum count.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* Allocate DP table: dp[s] = number of subsets summing to s. */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) return 0;           /* fallback in the unlikely event of OOM */
 
     for (idx_t i = 0; i <= n; ++i) dp[i] = 0;
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

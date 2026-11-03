@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   base9_zigzag
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,26 @@
    d0 ≥ d1 ≤ d2 ≥ d3 … (least significant digit first). */
 
 #include <stdbool.h>
-#include "../utils/base9_zigzag.h"
+
+static bool base9_zigzag(seq_t x)
+{
+    seq_t prev = x % 9;
+    x /= 9;
+    bool parity = false; /* parity==false -> need prev >= cur,
+                            parity==true  -> need prev <= cur */
+    while (x > 0) {
+        seq_t cur = x % 9;
+        x /= 9;
+        if (!parity) {
+            if ((int)prev < (int)cur) return false;
+        } else {
+            if ((int)prev > (int)cur) return false;
+        }
+        parity = !parity;
+        prev = cur;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

@@ -11,7 +11,8 @@
  *            required n ≤ 10 000. All arithmetic stays well...
  * Range:     u8 n <= 10, u16 n <= 698, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_or_die
+ * Validated: standard, pass, 64 terms through n = 9135 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_or_die.h"
+#include "../utils/mem.h"
+
+/* Helper to allocate memory or abort on failure.  Returned pointer
+   must be cast to the desired type (C++: static_cast). */
+static void *alloc_or_die(size_t count, size_t size) {
+    void *p = malloc(count * size);
+    if (!p) exit(EXIT_FAILURE);
+    return p;
+}
 
 seq_t a(idx_t n) {
     /* static data shared among all calls */
@@ -82,8 +91,7 @@ seq_t a(idx_t n) {
                 if (!pi_k_prime) {                /* π(k) not prime */
                     if (seq_cnt == seq_cap) {     /* grow seq array */
                         seq_cap *= 2;
-                        seq = (seq_t *)realloc(seq,
-                            seq_cap * sizeof(seq_t));
+                        seq = mem_resize(seq_t, seq, seq_cap);
                         if (!seq) exit(EXIT_FAILURE);
                     }
                     seq[seq_cnt++] = (seq_t)p;   /* store prime as seq_t */

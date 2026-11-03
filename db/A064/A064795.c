@@ -10,7 +10,8 @@
  * Formula:   a(n) = Home primes in base 2
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   mod_mul
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/mod_mul.h"
+#include <stdlib.h>
+#include "../utils/mulmod.h"
 
 /* --------------------------------------------------------------- */
 /* small‑prime sieve up to 1 000 000 --------------------------------
@@ -55,8 +57,8 @@ static uint64_t mod_pow(uint64_t a, uint64_t e, uint64_t mod)
 {
     uint64_t r = 1;
     while (e) {
-        if (e & 1) r = mod_mul(r, a, mod);
-        a = mod_mul(a, a, mod);
+        if (e & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -87,7 +89,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;

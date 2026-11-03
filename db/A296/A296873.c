@@ -10,7 +10,8 @@
  *            d(i) < d(i+1); a peak satisfies d(i-1) < d(i) > d(i+1)
  * Range:     u8 n <= 133, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   balanced_base7
+ * Validated: standard, pass, 83 terms through n = 8800 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,36 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/balanced_base7.h"
+#include "../utils/mem.h"
+
+static bool balanced_base7(uint64_t x)
+{
+    /* Numbers with fewer than three base‑7 digits are automatically balanced. */
+    if (x < 49) /* 7^2 */
+        return true;
+
+    unsigned char digits[64];
+    size_t len = 0;
+    while (x) {
+        digits[len++] = (unsigned char)(x % 7);
+        x /= 7;
+    }
+
+    /* Count pits and peaks.  For a digit at position i (1 ≤ i < len‑1)
+       we have both neighbors available. */
+    int pits = 0;
+    int peaks = 0;
+    for (size_t i = 1; i + 1 < len; ++i) {
+        unsigned char a = digits[i - 1];
+        unsigned char b = digits[i];
+        unsigned char c = digits[i + 1];
+        if (a > b && b < c)
+            ++pits;
+        else if (a < b && b > c)
+            ++peaks;
+    }
+    return pits == peaks;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +66,7 @@ seq_t a(idx_t n)
             /* Allocate / expand the cache if needed. */
             if (size == cap) {
                 size_t new_cap = cap ? 2 * cap : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(1);      /* out of memory */
                 cache = tmp;
                 cap   = new_cap;

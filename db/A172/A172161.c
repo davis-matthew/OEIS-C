@@ -8,12 +8,14 @@
  *            values a(1)=0, a(2)=1, a(3)=2, a(4)=3, a(5)=4
  * Range:     u8 n <= 13, u16 n <= 27, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
     if (a_cache == NULL)
     {
         /* allocate space for indices 0 .. 5  (6 entries) */
-        a_cache   = (seq_t *)malloc(6 * sizeof(seq_t));
-        sum_cache = (seq_t *)malloc(6 * sizeof(seq_t));
+        a_cache   = mem_new(seq_t, 6);
+        sum_cache = mem_new(seq_t, 6);
 
         /* initial values (a[0] unused) */
         a_cache[0] = (seq_t)0;   /* placeholder */
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
         return a_cache[n];
 
     /* Ensure the arrays are large enough to hold up to n */
-    if (sum_cache = (seq_t *)realloc(sum_cache, (size_t)(n + 1) * sizeof(seq_t)))
-        a_cache = (seq_t *)realloc(a_cache,   (size_t)(n + 1) * sizeof(seq_t));
+    if (sum_cache = mem_resize(seq_t, sum_cache, (size_t)(n + 1)))
+        a_cache = mem_resize(seq_t, a_cache, (size_t)(n + 1));
     else
     {
         /* realloc failed – in practice this should not happen for the limits */

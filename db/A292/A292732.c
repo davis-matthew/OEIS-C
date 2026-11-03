@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   majority_two
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,21 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/majority_two.h"
+
+/* count whether x has more 2's than all other digits together */
+static inline bool majority_two(seq_t x) {
+    unsigned cnt2 = 0, others = 0;
+    seq_t t = x;
+    while (t > (seq_t)0) {
+        unsigned digit = (unsigned)(t % (seq_t)10);
+        if (digit == 2)
+            ++cnt2;
+        else
+            ++others;
+        t /= (seq_t)10;
+    }
+    return cnt2 > others;
+}
 
 /* returns a(n) for n >= 1 */
 seq_t a(idx_t n) {

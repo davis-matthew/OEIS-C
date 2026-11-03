@@ -9,14 +9,29 @@
  *            not in n+1
  * Range:     u8 n <= 20, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   contains31_base4
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/contains31_base4.h"
+
+static bool contains31_base4(seq_t x)
+{
+    seq_t prev = 0;
+    bool first = true;
+    while (x > 0) {
+        seq_t d = x % 4;
+        if (!first && prev == 1 && d == 3)
+            return true;
+        prev = d;
+        first = false;
+        x = x / 4;
+    }
+    return false;
+}
 
 #define MAX_TERMS 200000
 

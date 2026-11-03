@@ -9,7 +9,8 @@
  *            squarefree number (s_1 = 1, s_2 = 2, …)
  * Range:     i8 n <= 76, i16 n <= 78, i32 n <= 78, i64 n <= 78, i128 n <= 78,
  *            big any n
- * Helpers:   is_squarefree
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Ensure a dynamic array has space for at least 'needed' elements. */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed > *cap) {
+        size_t new_cap = (*cap == 0) ? 16 : *cap << 1;
+        while (new_cap < needed) new_cap <<= 1;
+        *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (needed > *cap) {
@@ -29,6 +51,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
         *cap = new_cap;
     }
 }
+#endif
 
 /* ----------  global static state  ---------- */
 static seq_t *s_arr = NULL;      /* 1‑based array of squarefree numbers   */
@@ -49,12 +72,12 @@ seq_t a(idx_t n)
     /* Lazily initialise the state on first call. */
     if (s_arr == NULL) {
         /* Start by storing the first squarefree number 1. */
-        ensure_capacity(16, &s_cap, (void **)&s_arr, sizeof(seq_t));
+        ensure_capacity(16, &s_cap, OEISC_VPP(&s_arr), sizeof(seq_t));
         s_arr[1] = (seq_t)1;
         s_count = 1;
 
         /* Initialise the array that will hold a(n). */
-        ensure_capacity(16, &a_cap, (void **)&a_arr, sizeof(seq_t));
+        ensure_capacity(16, &a_cap, OEISC_VPP(&a_arr), sizeof(seq_t));
     }
 
     /* Grow the sequences until we have computed a(n). */
@@ -66,7 +89,7 @@ seq_t a(idx_t n)
                 ++last_checked;
                 if (is_squarefree((seq_t)last_checked)) {
                     ++s_count;
-                    ensure_capacity((size_t)s_count + 1, &s_cap, (void **)&s_arr, sizeof(seq_t));
+                    ensure_capacity((size_t)s_count + 1, &s_cap, OEISC_VPP(&s_arr), sizeof(seq_t));
                     s_arr[s_count] = (seq_t)last_checked;
                     break;
                 }
@@ -77,7 +100,7 @@ seq_t a(idx_t n)
         idx_t idx = a_count + 1;
         seq_t val = s_arr[idx + 2] - 2 * s_arr[idx + 1] + s_arr[idx];
         ++a_count;
-        ensure_capacity((size_t)a_count + 1, &a_cap, (void **)&a_arr, sizeof(seq_t));
+        ensure_capacity((size_t)a_count + 1, &a_cap, OEISC_VPP(&a_arr), sizeof(seq_t));
         a_arr[idx] = val;
     }
 

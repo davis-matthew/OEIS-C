@@ -13,7 +13,8 @@
  *            modifying both the prime bases and their * expon...
  * Range:     u8 n <= 9, u16 n <= 109, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _pow_int
+ * Validated: standard, pass, 70 terms through n = 9079 (2026-11-01)
+ * Helpers:   ipow_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/_pow_int.h"
+#include "../utils/ipow_u32.h"
 
 /* static state for primes ------------------------------------------- */
 static bool        _primes_initialized = false;
@@ -105,7 +106,7 @@ seq_t a(idx_t n)
         uint32_t eprime = (e & 1U) ? e + 1U : e - 1U;
 
         /* accumulate result ---------------------------------------- */
-        seq_t pow = _pow_int((seq_t)q, eprime);
+        seq_t pow = ipow_u32((seq_t)q, eprime);
         result *= pow;
     }
 

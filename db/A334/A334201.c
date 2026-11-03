@@ -8,8 +8,9 @@
  *            index)·e_i for each prime factor p_i^e_i of n and A061395(n) =
  *            max(p_i index) (1‑based index of the largest prime factor). a(1)
  *            = 0
- * Range:     u8 n <= 9943, u16 n <= 9943, u32 n <= 9943, u64 n <= 9943,
- *            u128 n <= 9943, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9943 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 static uint64_t *prime_list_u64 = NULL;  /* primes up to current limit */
 static size_t   prime_cnt  = 0;           /* number of primes in prime_list_u64 */

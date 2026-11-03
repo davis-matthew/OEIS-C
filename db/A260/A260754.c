@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n+1)! / prime(n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   factorial, next_prime
+ * Validated: standard, pass, 28 terms through n = 245 (2026-11-01)
+ * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start); */
-#include "../utils/factorial.h"    /* seq_t factorial(idx_t n); */
+#include <stdbool.h>
+#include "../utils/next_prime.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /*  Static state  */
 static uint64_t *primes      = NULL;      /* primes[i-1] = prime(i)             */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 144, u16 n <= 144, u32 n <= 144, u64 n <= 144,
  *            u128 n <= 144, big any n
- * Helpers:   none
+ * Validated: partial, pass, 144 terms through n = 144 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(n) is the nth symbol (1‑indexed) of the infinite word. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *word = NULL;   /* word currently stored (prefix of the limit)      */
 static idx_t  word_len = 0;  /* number of symbols in |word|                    */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise with the seed word "0" if not already done */
     if (word_len == 0) {
         word_len = 1;
-        word = (seq_t *)malloc(sizeof(seq_t) * (size_t)word_len);
+        word = mem_new(seq_t, (size_t)word_len);
         if (!word) return 0;          /* allocation failed – return 0 as a fallback */
         word[0] = 0;
     }
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         for (idx_t i = 0; i < word_len; ++i)
             next_len += (word[i] == 0) ? 3 : 2;
 
-        seq_t *next_word = (seq_t *)malloc(sizeof(seq_t) * (size_t)next_len);
+        seq_t *next_word = mem_new(seq_t, (size_t)next_len);
         if (!next_word) return 0;          /* allocation failed */
 
         /* build the next generation */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         }
 
         /* replace the old word with the new one */
-        free(word);
+        mem_free(word);
         word = next_word;
         word_len = next_len;
     }

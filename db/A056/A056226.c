@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = μ(n)^2 – μ(n‑1)·μ(n+1) where μ is the Möbius function
- * Range:     i8 n <= 8749, i16 n <= 8749, i32 n <= 8749, i64 n <= 8749,
- *            i128 n <= 8749, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 105 terms through n = 8749 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

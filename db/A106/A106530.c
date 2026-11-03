@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = lcm of parts in Zeckendorf representation of n
- * Range:     u8 n <= 44, u16 n <= 138, u32 n <= 981, u64 n <= 9352,
- *            u128 n <= 9352, big any n
+ * Range:     u8 n <= 44, u16 n <= 138, u32 n <= 981, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 80 terms through n = 9352 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,9 +11,10 @@
  *            contain no part equal to 1 in reverse‑lexicographic * order.
  *            Output each part of a partition separately. After all such *
  *            partitions, output p(m‑1) copies of 1, where p(...
- * Range:     u8 n <= 9751, u16 n <= 9751, u32 n <= 9751, u64 n <= 9751,
- *            u128 n <= 9751, big any n
- * Helpers:   none
+ * Range:     u8 n <= 16851, u16 n <= 16851, u32 n <= 16851, u64 n <= 16851,
+ *            u128 n <= 16851, big any n
+ * Validated: standard, pass, 121 terms through n = 9751 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 struct Part {
@@ -58,7 +60,7 @@ static inline void append_flat(seq_t val)
 {
     if (flat_len == flat_cap) {
         flat_cap = flat_cap ? flat_cap * 2 : 64;
-        flat = (seq_t *)realloc(flat, flat_cap * sizeof(seq_t));
+        flat = mem_resize(seq_t, flat, flat_cap);
     }
     flat[flat_len++] = val;
 }
@@ -141,7 +143,7 @@ static void build_up_to(idx_t target)
     static int initialised = 0;
     if (!initialised) {
         flat_cap = 64;
-        flat = (seq_t *)malloc(flat_cap * sizeof(seq_t));
+        flat = mem_new(seq_t, flat_cap);
         part_counts_prepare(0);
         part_counts_cap = 1;          /* part_counts[0] is already set */
         part_counts = (uint64_t *)malloc(part_counts_cap * sizeof(uint64_t));
@@ -186,7 +188,7 @@ seq_t a(idx_t n)
 {
     if (flat == NULL) {         /* first call initialises data          */
         flat_cap = 64;
-        flat = (seq_t *)malloc(flat_cap * sizeof(seq_t));
+        flat = mem_new(seq_t, flat_cap);
         part_counts_prepare(0);
         part_counts_cap = 1;
         part_counts = (uint64_t *)malloc(part_counts_cap * sizeof(uint64_t));

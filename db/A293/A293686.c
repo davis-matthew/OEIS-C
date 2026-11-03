@@ -12,6 +12,7 @@
  *            last four digits = middle four digits) in ascending order
  * Range:     u8 n <= 1, u16 n <= 13, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
+ * Validated: full, pass, 5050 terms through n = 5050 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

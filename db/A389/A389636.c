@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 4823, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: factorize a 64‑bit unsigned integer into primes and
    exponents.  The arrays pfs[] and exps[] are assumed large enough.
@@ -134,8 +136,7 @@ seq_t a(idx_t n)
             /* Ensure capacity for the new term. */
             if (terms_cnt == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *new_ptr = (seq_t *)realloc(terms,
-                                                  new_cap * sizeof(seq_t));
+                seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
                 terms = new_ptr;
                 terms_cap = new_cap;
             }

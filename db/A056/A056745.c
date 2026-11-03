@@ -8,7 +8,8 @@
  *            5^k + 6^k)
  * Range:     u8 n <= 13, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  Helper to compute b^e  (mod m) using binary exponentiation.
     All arithmetic is performed with 128‑bit intermediates so that the
@@ -56,11 +58,11 @@ static void extend_cache(size_t need)
     if (cache_cap == 0)
     {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     while (cache_cap < need)
         cache_cap <<= 1;
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 
     /* Test successive k values until enough terms are found. */
     while (cache_len < need)

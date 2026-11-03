@@ -9,6 +9,7 @@
  *            base is 1, * so 99 is represented by 99 ones (unary)
  * Range:     u8 n <= 10, u16 n <= 13, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
+ * Validated: full, pass, 16 terms through n = 15 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

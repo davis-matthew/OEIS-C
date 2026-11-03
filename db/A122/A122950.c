@@ -14,14 +14,27 @@
  *            each call...
  * Range:     u8 n <= 74, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/fib.h"   /* provides seq_t fib(idx_t) */
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static seq_t **T_rows_arr = NULL;   /* array of pointers to each row */
 static size_t  T_rows_count = 0;    /* number of rows already allocated */
@@ -47,7 +60,7 @@ static void ensure_rows(size_t max_row)
         size_t r   = T_rows_count;          /* index of the new row */
         size_t len = r + 1;                 /* number of elements in the row */
 
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) return;                    /* low‑memory abort */
 
         /* initialise the new row according to the recurrence */

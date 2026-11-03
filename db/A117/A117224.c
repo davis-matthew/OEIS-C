@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 138, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 72 terms through n = 9423 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of previously computed terms */
@@ -32,7 +35,7 @@ seq_t a(idx_t n) {
     /* Lazy initialization of cache */
     if (cache == NULL) {
         cap   = 128;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         size  = 0;
         next  = 0;
     }
@@ -50,9 +53,9 @@ seq_t a(idx_t n) {
             /* Ensure cache has enough capacity */
             if ((size_t)size >= cap) {
                 size_t new_cap = cap * 2;
-                seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
-                memcpy(new_cache, cache, cap * sizeof(seq_t));
-                free(cache);
+                seq_t *new_cache = mem_new(seq_t, new_cap);
+                mem_copy(new_cache, cache, cap * sizeof(seq_t));
+                mem_free(cache);
                 cache = new_cache;
                 cap   = new_cap;
             }

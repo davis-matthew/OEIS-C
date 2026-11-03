@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = # { 1 ≤ k ≤ n | φ(k) = φ(n) }
- * Range:     u8 n <= 395, u16 n <= 9584, u32 n <= 9584, u64 n <= 9584,
- *            u128 n <= 9584, big any n
- * Helpers:   none
+ * Range:     u8 n <= 395, u16 n <= 99999, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 116 terms through n = 9584 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,18 +18,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;                    /* defined only for n ≥ 1, safe guard */
     size_t sz = (size_t)n + 1;               /* indices 0..n inclusive */
 
     /* Allocate arrays for φ and a composite flag */
-    seq_t *phi = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, sz);
     if (!phi) return 0;
-    memset(phi, 0, sz * sizeof(seq_t));
+    mem_set(phi, 0, sz * sizeof(seq_t));
 
     bool *comp = (bool*)malloc(sz * sizeof(bool));
-    if (!comp) { free(phi); return 0; }
+    if (!comp) { mem_free(phi); return 0; }
     memset(comp, 0, sz * sizeof(bool));
 
     /* φ(0) = 0, φ(1) = 1 */
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
         if (phi[k] == target) ++count;
     }
 
-    free(phi);
+    mem_free(phi);
     free(comp);
     return count;
 }

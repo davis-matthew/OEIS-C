@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{k=0}^{n-1} a(floor(k/4)) * a(n-1-k), a(0)=1
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Computes OEIS A367653: a(n) = Σ_{k=0}^{n-1} a(⌊k/4⌋) * a(n-1-k), a(0)=1. */
 seq_t a(idx_t n)
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
         size_t newcap = cap ? cap * 2 : 8;
         while (newcap < (size_t)n + 1)
             newcap *= 2;
-        aval = (seq_t *)realloc(aval, newcap * sizeof(seq_t));
-        pref = (seq_t *)realloc(pref, newcap * sizeof(seq_t));
+        aval = mem_resize(seq_t, aval, newcap);
+        pref = mem_resize(seq_t, pref, newcap);
         cap = newcap;
     }
 

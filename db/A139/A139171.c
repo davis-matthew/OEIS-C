@@ -7,6 +7,7 @@
  * Formula:   a(n) = smallest prime p such that p! is divisible by n
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 97 terms through n = 9399 (2026-11-01)
  * Helpers:   is_prime, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides is_prime(idx_t) */
-#include "../utils/sieve_primes.h" /* provides utility prototypes */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/sieve_primes.h"
 
 /* Compute exponent of prime q in p! using Legendre's formula. */
 static uint64_t legendre(uint64_t p, uint64_t q)

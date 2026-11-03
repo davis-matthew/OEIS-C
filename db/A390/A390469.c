@@ -12,7 +12,8 @@
  *            s - o (row) * j = o (column, the k in A(i,k))...
  * Range:     u8 n <= 80, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the index s such that s*(s+1)/2 ≤ n < (s+1)*(s+2)/2
  * using a binary search with 128‑bit arithmetic to avoid overflow. */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Allocate an array f[0..i] to hold the recurrence values */
-    seq_t *f = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (i + 1));
     if (!f)          /* allocation failure – fail hard */
         abort();
 
@@ -74,6 +76,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = f[i];
-    free(f);
+    mem_free(f);
     return result;
 }

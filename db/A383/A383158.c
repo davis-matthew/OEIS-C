@@ -10,15 +10,32 @@
  *            τ(n) / gcd(∑_{d|n} A051903(d), τ(n))
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dfs_max_exponents, factor_u64, gcd
+ * Validated: standard, pass, 103 terms through n = 7874 (2026-11-01)
+ * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
-#include "../utils/dfs_max_exponents.h"
+
+static void dfs_max_exponents(size_t idx, uint64_t cur_max,
+                              const uint64_t *exps, size_t nprimes,
+                              seq_t *sum)
+{
+    if (idx == nprimes) {
+        *sum += (seq_t)cur_max;
+        return;
+    }
+    for (uint64_t e = 0; e <= exps[idx]; ++e) {
+        uint64_t new_max = (cur_max > e) ? cur_max : e;
+        dfs_max_exponents(idx + 1, new_max, exps, nprimes, sum);
+    }
+}
 
 /*------------------------------------------------------------------*/
 /*  a(n)  ----------------------------------------------------------*/

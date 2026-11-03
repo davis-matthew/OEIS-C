@@ -7,13 +7,15 @@
  * Formula:   e.g.f. exp(1/((1+x)*(1+x^2)*(1+x^3)*(1+x^4)*(1+x^5)) - 1)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 18, i128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 437 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  coefficients of (1+x)(1+x^2)(1+x^3)(1+x^4)(1+x^5) */
 static const seq_t ccoeffs[16] = {
@@ -48,14 +50,14 @@ static void ensure_capacity(idx_t n)
     if (d_cap < needed) {
         size_t new_cap = d_cap ? d_cap * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t*)realloc(d_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, d_vals, new_cap);
         d_vals = tmp;
         d_cap = new_cap;
     }
     if (a_cap < needed) {
         size_t new_cap = a_cap ? a_cap * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
         a_vals = tmp;
         a_cap = new_cap;
     }

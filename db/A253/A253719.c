@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 84, u16 n <= 9919, u32 n <= 9919, u64 n <= 9919,
- *            u128 n <= 9919, big any n
- * Helpers:   floor_log2_uint64, mod_pow, pow2
+ * Range:     u8 n <= 84, u16 n <= 9919, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 101 terms through n = 9919 (2026-11-01)
+ * Helpers:   ilog2, pow2, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,14 @@
    to avoid handling huge numbers. */
 
 /* required utilities */
-#include "../utils/floor_log2_uint64.h"   /* floor_log2_uint64() */
-#include "../utils/pow2.h"               /* pow2() */
-#include "../utils/mod_pow.h"            /* mod_pow() */
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ilog2.h"
+#include "../utils/pow2.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -30,14 +36,14 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* number of bits needed to represent n */
-    idx_t bitlen = floor_log2_uint64(n) + 1;
+    idx_t bitlen = ilog2(n) + 1;
     seq_t mod = pow2(bitlen);          /* modulus 2^bitlen */
     seq_t sn = (seq_t)n;               /* cast index to seq_t */
 
     for (idx_t k = 1; ; ++k)
     {
         /* compute n^k modulo 2^bitlen */
-        seq_t pow_mod = mod_pow(sn, (uint64_t)k, mod);
+        seq_t pow_mod = powmod(sn, (uint64_t)k, mod);
         seq_t and_val = sn & pow_mod;  /* bitwise AND with original n */
 
         /* stop when the result is 0 or 1 */

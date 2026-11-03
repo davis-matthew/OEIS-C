@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = (∏(p+1)^e - ∏(p-1)^e)/2 for n = ∏p^e, a(1)=0
- * Range:     u8 n <= 47, u16 n <= 2047, u32 n <= 9850, u64 n <= 9850,
- *            u128 n <= 9850, big any n
+ * Range:     u8 n <= 47, u16 n <= 2047, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 94 terms through n = 9850 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

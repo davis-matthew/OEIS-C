@@ -8,7 +8,8 @@
  *            the s(n)-Wythoff construction with s(n) = 2*n + 1
  * Range:     u8 n <= 74, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* state for the sequence */
 static idx_t max_computed = 0;           /* largest n that has been computed */
@@ -62,12 +64,10 @@ static void ensure_lower_cap(idx_t needed)
     if (needed <= lower_cap) return;
     idx_t new_cap = lower_cap > 0 ? lower_cap : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(lower, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, lower, (new_cap + 1));
     if (!new_arr) exit(EXIT_FAILURE);
     if (new_cap > lower_cap) {
-        memset(new_arr + lower_cap + 1,
-               0,
-               (new_cap - lower_cap) * sizeof(seq_t));
+        mem_set(new_arr + lower_cap + 1, 0, (new_cap - lower_cap) * sizeof(seq_t));
     }
     lower = new_arr;
     lower_cap = new_cap;

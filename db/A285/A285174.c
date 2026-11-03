@@ -11,6 +11,7 @@
  *            height non‑negative
  * Range:     u8 n <= 19, u16 n <= 30, u32 n <= 51, u64 n <= 91, u128 n <= 171,
  *            big any n
+ * Validated: standard, pass, 64 terms through n = 348 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

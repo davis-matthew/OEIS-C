@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 350, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   fibmod_u64, gcd
+ * Validated: standard, pass, 103 terms through n = 828 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,38 @@
  * arbitrary‑precision types) without overflow.  For each candidate m
  * it tests the coprimality condition and returns the minimal m. */
 
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t a, seq_t b) */
 #include <stdbool.h>
-#include "../utils/fibmod_u64.h"
+#include <stdint.h>
+#include "../utils/gcd.h"
+
+static seq_t fibmod_u64(idx_t n, idx_t mod)
+{
+    /* Computes Fib(n) modulo mod.  Works for mod <= 10000,
+     * so all intermediate products fit in 64 bits.  Uses the
+     * fast doubling method iteratively. */
+    if (mod == 1) return 0;
+    seq_t a = 0;          /* F(0) */
+    seq_t b = 1;          /* F(1) */
+    /* Find position of highest set bit of n */
+    int msb = 63 - __builtin_clzll(n);
+    for (int i = msb; i >= 0; --i) {
+        /* c = F(2k) = F(k) * (2*F(k+1) - F(k)) */
+        seq_t two_b = (b << 1) % mod;
+        seq_t two_b_minus_a = (two_b + mod - a) % mod;
+        seq_t c = (a * two_b_minus_a) % mod;
+        /* d = F(2k+1) = F(k)^2 + F(k+1)^2 */
+        seq_t d = (a * a + b * b) % mod;
+        if (((n >> i) & 1) == 0) {
+            a = c;
+            b = d;
+        } else {
+            a = d;
+            b = (c + d) % mod;
+        }
+    }
+    return a;
+}
+#include <stdbool.h>
 
 seq_t a(idx_t n)
 {

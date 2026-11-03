@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   factor_u64, seq_alloc_array, seq_free_array
+ * Validated: partial, pass, 75 terms through n = 76 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/seq_alloc_array.h"   /* seq_alloc_array(size_t n) */
-#include "../utils/seq_free_array.h"    /* seq_free_array(seq_t *p) */
+#include <string.h>
+#include <math.h>
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Sequence storage ------------------------------------------------------- */
 

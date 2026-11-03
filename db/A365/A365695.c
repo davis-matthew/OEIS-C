@@ -6,13 +6,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..⌊n/3⌋} binomial(n-2k-1, n-3k) * *
  *            binomial(n+2k+1, k) / (n+2k+1)
- * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 26, u64 n <= 50, u128 n <= 94,
+ * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 28, u64 n <= 50, u128 n <= 94,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 2220 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

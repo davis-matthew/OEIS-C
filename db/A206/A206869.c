@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   build_row_patterns, build_transitions
+ * Validated: standard, pass, 31 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,45 @@
    style DP with 44 allowed row patterns is used.  */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/build_row_patterns.h"
-#include "../utils/build_transitions.h"
+
+/* Helper: compute allowable 6-bit row patterns (avoid 000). */
+static void build_row_patterns(int *pat, int *cnt) {
+    int c = 0;
+    for (int v = 0; v < 64; ++v) {
+        bool ok = true;
+        for (int i = 0; i < 4; ++i)
+            if (((v >> i) & 7) == 0) { ok = false; break; }
+        if (ok) pat[c++] = v;
+    }
+    *cnt = c;   /* should be 44 */
+}
+
+/* Build transition lists: from state (prev1,prev2) to new state (prev2,p).
+   State indices run over 0 .. state_cnt-1. */
+static void build_transitions(const int *pat, int pat_cnt,
+    int (*state_idx)[44], int *state_cnt,
+    int next_count[1936], int next_state[1936][44]) {
+    *state_cnt = 0;
+    for (int i = 0; i < pat_cnt; ++i)
+        for (int j = 0; j < pat_cnt; ++j)
+            state_idx[i][j] = (*state_cnt)++;
+    for (int i = 0; i < pat_cnt; ++i) {
+        for (int j = 0; j < pat_cnt; ++j) {
+            int old = state_idx[i][j];
+            int mask = 0;          /* bits that must be 0 in next row */
+            for (int c = 0; c < 6; ++c)
+                if (((pat[i] >> c) & 1) && !((pat[j] >> c) & 1))
+                    mask |= 1 << c;
+            int kcnt = 0;
+            for (int k = 0; k < pat_cnt; ++k)
+                if ((pat[k] & mask) == 0) {
+                    int newstate = state_idx[j][k];
+                    next_state[old][kcnt++] = newstate;
+                }
+            next_count[old] = kcnt;
+        }
+    }
+}
 
 seq_t a(idx_t n) {
     /* Build the row pattern list once */

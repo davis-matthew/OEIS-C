@@ -12,7 +12,8 @@
  *            O(n,k) up to a fixed maximum * number of rows (2...
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper macros for table indexing */
 #define MAX_ROW 200
@@ -39,8 +41,8 @@ static bool initialized  = false;
 static void build_tables(void)
 {
     size_t total = (size_t)(MAX_ROW + 1) * K_LIMIT;
-    even_table = (seq_t *)malloc(total * sizeof(seq_t));
-    odd_table  = (seq_t *)malloc(total * sizeof(seq_t));
+    even_table = mem_new(seq_t, total);
+    odd_table  = mem_new(seq_t, total);
     if (even_table == NULL || odd_table == NULL) {
         /* In the unlikely event of malloc failure, abort the process */
         abort();

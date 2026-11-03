@@ -9,7 +9,8 @@
  *            ⎣x/2⎦, starting from x = n
  * Range:     u8 n <= 38, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,13 @@
    determine the tail length μ, which is the transient length. */
 
 #include <stddef.h>
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 static inline seq_t f(seq_t x)
 {
     /* φ(x) + ⎣x/2⎦, all operations in seq_t (unsigned). */
-    return phi((idx_t)x) + (x >> 1);
+    return totient((idx_t)x) + (x >> 1);
 }
 
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
     from right to left (i.e. reversed) and concatenating the rows.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;   /*  Pointer to array of row pointers          */
 static idx_t  max_row = 0;    /*  Highest row that has been computed        */
@@ -31,7 +33,7 @@ static void ensure_rows(idx_t r)
     if (rows == NULL) {
         rows = (seq_t **)malloc(sizeof(seq_t *));
         if (!rows) exit(EXIT_FAILURE);
-        seq_t *row0 = (seq_t *)malloc(sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         if (!row0) exit(EXIT_FAILURE);
         row0[0] = (seq_t)1;          /*  T(0,0) = 1  */
         rows[0] = row0;
@@ -48,7 +50,7 @@ static void ensure_rows(idx_t r)
     /* Compute the new rows */
     for (idx_t i = max_row + 1; i <= r; ++i) {
         idx_t len = i + 1;            /* number of entries in row i */
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) exit(EXIT_FAILURE);
 
         if (i == 0) {                 /* already handled in the first call */

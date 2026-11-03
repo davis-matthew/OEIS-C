@@ -9,7 +9,8 @@
  *            sum_{i=0}^{6} (-1)^i * C(6,i) * (6-i)^m (onto words of length m)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   mobius
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mobius.h"   /* provides seq_t mobius(idx_t m) */
+#include "../utils/mobius.h"
+#include "../utils/mem.h"
 
 /* fast power for seq_t values */
 static seq_t pow_seq(seq_t base, idx_t exp)
@@ -54,11 +56,11 @@ static void ensure_A920(idx_t n)
     if (n < A920_size) return;
 
     size_t newsize = (size_t)n + 1;
-    seq_t *new_arr = (seq_t *)realloc(A920, newsize * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, A920, newsize);
     if (!new_arr) return;                     /* allocation failure – leave as is */
 
     if (A920_size == 0)
-        memset(new_arr, 0, newsize * sizeof(seq_t));
+        mem_set(new_arr, 0, newsize * sizeof(seq_t));
 
     for (idx_t k = A920_size; k <= n; ++k)
     {
@@ -86,11 +88,11 @@ static void ensure_a(idx_t n)
     if (n < cache_size) return;
 
     size_t newsize = (size_t)n + 1;
-    seq_t *new_arr = (seq_t *)realloc(a_cache, newsize * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_cache, newsize);
     if (!new_arr) return;                     /* allocation failure – leave as is */
 
     if (cache_size == 0)
-        memset(new_arr, 0, newsize * sizeof(seq_t));
+        mem_set(new_arr, 0, newsize * sizeof(seq_t));
 
     /* make sure A920 values are ready */
     ensure_A920(n);

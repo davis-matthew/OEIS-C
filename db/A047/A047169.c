@@ -8,12 +8,14 @@
  * Formula:   a(n) = Σ_{k≥1} binomial(⌊n/2⌋, k) * binomial(⌈n/2⌉, 5k)
  * Range:     u8 n <= 14, u16 n <= 26, u32 n <= 48, u64 n <= 91, u128 n <= 176,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 58 terms through n = 480 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     for (idx_t k = 1; k <= kmax; ++k) {
-        seq_t left  = binom(fl, k);          /* binomial(⌊n/2⌋, k)   */
-        seq_t right = binom(ce, 5 * k);      /* binomial(⌈n/2⌉, 5k)  */
+        seq_t left  = binomial(fl, k);          /* binomial(⌊n/2⌋, k)   */
+        seq_t right = binomial(ce, 5 * k);      /* binomial(⌈n/2⌉, 5k)  */
         sum += left * right;                 /* exact multiplication for arbitrary‑precision builds */
     }
     return sum;

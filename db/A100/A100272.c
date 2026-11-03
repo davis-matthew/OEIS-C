@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 212, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow5_uint64
+ * Validated: standard, pass, 63 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,14 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/pow5_uint64.h"
+#include "../utils/mem.h"
+
+/* 5th power (fits into 128 bits; we cast to uint64_t for values < 2^64) */
+static inline uint64_t pow5_uint64(uint64_t a)
+{
+    __uint128_t r = (__uint128_t)a * a * a * a * a;
+    return (uint64_t)r;            /* value always < 2^64 for our use */
+}
 
 /* ---------- helpers --------------------------------------------------- */
 
@@ -100,7 +108,7 @@ static void heap_push(Node n)
 {
     if (heap_sz == heap_cap) {
         heap_cap = heap_cap ? heap_cap * 2 : 64;
-        heap = (Node*)realloc(heap, heap_cap * sizeof(Node));
+        heap = mem_resize(Node, heap, heap_cap);
     }
     size_t i = heap_sz++;
     heap[i] = n;
@@ -144,11 +152,11 @@ seq_t a(idx_t n)
     /* lazy allocation of structures */
     if (!prime_cache) {
         prime_cap = 64;
-        prime_cache = (seq_t*)malloc(prime_cap * sizeof(seq_t));
+        prime_cache = mem_new(seq_t, prime_cap);
     }
     if (!heap) {
         heap_cap = 64;
-        heap = (Node*)malloc(heap_cap * sizeof(Node));
+        heap = mem_new(Node, heap_cap);
     }
 
     /* generate primes until we have at least n */
@@ -189,7 +197,7 @@ seq_t a(idx_t n)
             if (prime_len == 0 || (uint64_t)prime_cache[prime_len - 1] != val64) {
                 if (prime_len == prime_cap) {
                     prime_cap *= 2;
-                    prime_cache = (seq_t*)realloc(prime_cache, prime_cap * sizeof(seq_t));
+                    prime_cache = mem_resize(seq_t, prime_cache, prime_cap);
                 }
                 prime_cache[prime_len++] = cur.val;
             }

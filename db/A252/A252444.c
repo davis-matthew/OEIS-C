@@ -10,7 +10,8 @@
  *            < 3. Computed by dynamic programming over admissible rows
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 11, u128 n <= 25,
  *            big any n
- * Helpers:   reset_seq_array
+ * Validated: standard, pass, 29 terms through n = 188 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/reset_seq_array.h"
+
+static void reset_seq_array(seq_t *p, size_t n) {
+    for (size_t i = 0; i < n; ++i) p[i] = (seq_t)0;
+}
 
 /* ------------------------------------------------------------------ */
 /* constants                                                   */

@@ -8,13 +8,15 @@
  * Keywords:  sign, mult
  * Formula:   a(n) = μ(m) if 3∤n; otherwise a(n) = μ(m) * 2 * 3^(e-1) where e
  *            = ord_3(n) (>0) and m = n / 3^e (so 3∤m)
- * Range:     i8 n <= 242, i16 n <= 9799, i32 n <= 9799, i64 n <= 9799,
- *            i128 n <= 9799, big any n
+ * Range:     i8 n <= 242, i16 n <= 59048, i32 n <= 59049, i64 n <= 59049,
+ *            i128 n <= 59049, big any n
+ * Validated: standard, pass, 121 terms through n = 9799 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/mobius.h"
 
 seq_t a(idx_t n)

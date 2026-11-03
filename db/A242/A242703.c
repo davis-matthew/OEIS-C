@@ -5,158 +5,163 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, cons, nonn
  * Formula:   a(n) = floor((sqrt(7)/2) * 10^(n-1)) mod 10
- * Range:     u8 n <= 9438, u16 n <= 9438, u32 n <= 9438, u64 n <= 9438,
- *            u128 n <= 9438, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 112 terms through n = 9438 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* i.e. the nth decimal digit of sqrt(7)/2 (a(1) is the integer part). */
+/* A242703: the decimal digits of sqrt(7)/2 = 1.3228..., a(1) = 1 being the first.
+ * The digits c(j) of sqrt(7) = 2.6457... (c(0) = 2 the integer part) come
+ * from the routine below, and halving digit by digit gives
+ * a(n) = 5 (c(n-2) mod 2) + floor(c(n-1)/2), with c(-1) = 0.
+ *
+ * Digit-by-digit square root in base 10^9 limbs that grow as needed (the
+ * original had a fixed number of limbs and overran it near 18000 digits):
+ * with p the root so far and r = 7 10^(2j) - p^2, each step sets r = 100 r and
+ * takes the largest d with (20 p + d) d <= r. d is estimated from the leading
+ * limbs and corrected, so a digit costs time linear in the length. The state
+ * is kept, so asking for more digits continues where the last call stopped. */
 
-#include <stddef.h>
 #include <stdint.h>
-#include <string.h>
 #include <stdlib.h>
 
-#define BASE 1000000000U          /* fits in 32‑bit, product fits in 64‑bit */
-#define MAX_DIGITS 2000           /* sufficient for n up to ~18000 */
+#define K 7
+#define OFF 0                         /* index of the first digit */
 
-typedef struct {
-    size_t len;               /* number of limbs used (little‑endian) */
-    uint32_t d[MAX_DIGITS];
-} BigInt;
+typedef struct { uint32_t *d; size_t len, cap; } num;   /* little-endian base 10^9 */
 
-static void bi_zero(BigInt *a) {
-    a->len = 1;
-    a->d[0] = 0;
+static void reserve(num *x, size_t n)
+{
+    if (n <= x->cap) return;
+    size_t c = x->cap ? x->cap : 16;
+    while (c < n) c *= 2;
+    uint32_t *t = (uint32_t *)realloc(x->d, c * sizeof *t);
+    if (!t) abort();
+    x->d = t;
+    x->cap = c;
 }
 
-static void bi_set_ui(BigInt *a, uint32_t v) {
-    a->len = 1;
-    a->d[0] = v;
+static void trim(num *x)
+{
+    while (x->len && x->d[x->len - 1] == 0) --x->len;
 }
 
-static void bi_copy(BigInt *dst, const BigInt *src) {
-    dst->len = src->len;
-    memcpy(dst->d, src->d, src->len * sizeof(uint32_t));
-}
-
-static void bi_trim(BigInt *a) {
-    while (a->len > 1 && a->d[a->len - 1] == 0)
-        a->len--;
-}
-
-/* multiply *a* by small integer *m* (m < BASE) and store result */
-static void bi_mul_small(const BigInt *a, uint32_t m, BigInt *dst) {
-    uint64_t carry = 0;
-    dst->len = a->len;
-    for (size_t i = 0; i < a->len; ++i) {
-        uint64_t prod = (uint64_t)a->d[i] * m + carry;
-        dst->d[i] = (uint32_t)(prod % BASE);
-        carry    = prod / BASE;
+static void mul_small_add(num *x, uint32_t m, uint32_t add)    /* x = x m + add */
+{
+    uint64_t c = add;
+    for (size_t i = 0; i < x->len; ++i) {
+        c += (uint64_t)x->d[i] * m;
+        x->d[i] = (uint32_t)(c % 1000000000u);
+        c /= 1000000000u;
     }
-    if (carry) {
-        dst->d[dst->len++] = (uint32_t)carry;
+    while (c) {
+        reserve(x, x->len + 1);
+        x->d[x->len++] = (uint32_t)(c % 1000000000u);
+        c /= 1000000000u;
     }
+    trim(x);
 }
 
-static void bi_add_small_inplace(BigInt *a, uint32_t v) {
-    uint64_t sum = (uint64_t)a->d[0] + v;
-    a->d[0] = (uint32_t)(sum % BASE);
-    uint64_t carry = sum / BASE;
-    size_t i = 1;
-    while (carry && i < a->len) {
-        sum = (uint64_t)a->d[i] + carry;
-        a->d[i] = (uint32_t)(sum % BASE);
-        carry = sum / BASE;
-        ++i;
-    }
-    if (carry) {
-        a->d[a->len++] = (uint32_t)carry;
-    }
-}
-
-static int bi_cmp(const BigInt *a, const BigInt *b) {
-    if (a->len != b->len)
-        return (a->len > b->len) ? 1 : -1;
-    for (size_t i = a->len; i-- > 0; ) {
-        if (a->d[i] != b->d[i])
-            return (a->d[i] > b->d[i]) ? 1 : -1;
-    }
+static int cmp(const num *x, const num *y)
+{
+    if (x->len != y->len) return x->len < y->len ? -1 : 1;
+    for (size_t i = x->len; i-- > 0;)
+        if (x->d[i] != y->d[i]) return x->d[i] < y->d[i] ? -1 : 1;
     return 0;
 }
 
-/* a = a * 10 (in-place) */
-static void bi_mul10_inplace(BigInt *a) {
-    bi_mul_small(a, 10, a);
-}
-
-/* a = a * 100 (in-place) */
-static void bi_mul100_inplace(BigInt *a) {
-    bi_mul_small(a, 100, a);
-}
-
-/* result = a - b   (assumes a >= b) */
-static void bi_sub(BigInt *result, const BigInt *a, const BigInt *b) {
-    int64_t borrow = 0;
-    result->len = a->len;
-    for (size_t i = 0; i < a->len; ++i) {
-        int64_t sub = (int64_t)a->d[i] - (i < b->len ? b->d[i] : 0) - borrow;
-        if (sub < 0) {
-            sub += BASE;
-            borrow = 1;
-        } else {
-            borrow = 0;
-        }
-        result->d[i] = (uint32_t)sub;
+static void sub(num *x, const num *y)                         /* x -= y, x >= y */
+{
+    int64_t b = 0;
+    for (size_t i = 0; i < x->len; ++i) {
+        int64_t v = (int64_t)x->d[i] - (i < y->len ? y->d[i] : 0) - b;
+        b = v < 0;
+        x->d[i] = (uint32_t)(b ? v + 1000000000 : v);
     }
-    bi_trim(result);
+    trim(x);
 }
 
-/* -------------------------------------------------------------------------- */
+static double lead(const num *x, size_t len)  /* x / 10^(9 (len - 3)), roughly */
+{
+    double v = 0;
+    for (size_t i = len; i-- > 0 && i + 3 >= len;) v = v * 1e9 + (i < x->len ? x->d[i] : 0);
+    return v;
+}
 
-seq_t a(idx_t n) {
-    if (n == 0) return 0;      /* outside the offset – not used */
+static num P, Rm, T;                        /* root, remainder, scratch */
+static unsigned char *digits = NULL;
+static size_t ndig = 0, dcap = 0;
 
-    BigInt result, remainder, temp, candidate;
-    bi_zero(&result);
-    bi_zero(&remainder);
-
-    int res_mod20 = 0;            /* keeps result mod 20 */
-
-    for (idx_t step = 0; step < n; ++step) {
-        /* bring down the next pair of digits (first step brings 7, others bring 00) */
-        bi_mul100_inplace(&remainder);
-        bi_add_small_inplace(&remainder, (step == 0) ? 7 : 0);
-
-        /* find largest d (0..9) such that (20*result + d)*d <= remainder */
-        int chosen = 0;
-        for (int d = 9; d >= 0; --d) {
-            /* temp = 20*result */
-            bi_mul_small(&result, 20, &temp);
-            /* temp += d */
-            bi_add_small_inplace(&temp, (uint32_t)d);
-            /* candidate = temp * d */
-            bi_mul_small(&temp, (uint32_t)d, &candidate);
-            if (bi_cmp(&candidate, &remainder) <= 0) {
-                chosen = d;
-                break;
-            }
-        }
-
-        /* update result: result = result*10 + chosen */
-        bi_mul10_inplace(&result);
-        bi_add_small_inplace(&result, (uint32_t)chosen);
-
-        /* remainder = remainder - candidate */
-        bi_sub(&remainder, &remainder, &candidate);
-
-        /* update result modulo 20 for final digit computation */
-        res_mod20 = (res_mod20 * 10 + chosen) % 20;
+static void next_digit(void)
+{
+    mul_small_add(&Rm, 100, 0);
+    /* estimate d = r / (20 p) from the leading limbs, then correct */
+    size_t L = Rm.len > P.len + 1 ? Rm.len : P.len + 1;
+    double est = P.len ? lead(&Rm, L) / (20.0 * lead(&P, L)) : 9.0;
+    int d = est >= 9.0 ? 9 : est <= 0 ? 0 : (int)est;
+    for (;; --d) {
+        /* T = (20 p + d) d */
+        reserve(&T, P.len + 2);
+        T.len = P.len;
+        for (size_t i = 0; i < P.len; ++i) T.d[i] = P.d[i];
+        mul_small_add(&T, 20, (uint32_t)d);
+        mul_small_add(&T, (uint32_t)d, 0);
+        if (cmp(&T, &Rm) <= 0 || d == 0) break;
     }
+    for (;;) {                               /* the estimate may also be low */
+        num U = {0, 0, 0};
+        reserve(&U, P.len + 2);
+        U.len = P.len;
+        for (size_t i = 0; i < P.len; ++i) U.d[i] = P.d[i];
+        mul_small_add(&U, 20, (uint32_t)(d + 1));
+        mul_small_add(&U, (uint32_t)(d + 1), 0);
+        int up = d < 9 && cmp(&U, &Rm) <= 0;
+        if (up) {
+            reserve(&T, U.len);
+            T.len = U.len;
+            for (size_t i = 0; i < U.len; ++i) T.d[i] = U.d[i];
+            ++d;
+        }
+        free(U.d);
+        if (!up) break;
+    }
+    sub(&Rm, &T);
+    mul_small_add(&P, 10, (uint32_t)d);
+    if (ndig == dcap) {
+        dcap = dcap ? 2 * dcap : 1024;
+        unsigned char *t = (unsigned char *)realloc(digits, dcap);
+        if (!t) abort();
+        digits = t;
+    }
+    digits[ndig++] = (unsigned char)d;
+}
 
-    /* a(n) = floor((result/2)) % 10, i.e. (res_mod20/2) % 10 */
-    uint32_t digit = (res_mod20 / 2) % 10;
-    return (seq_t)digit;
+static unsigned sqrt_digit(size_t n)
+{
+    if (ndig == 0) {                         /* the integer part: K < 100, one digit */
+        unsigned s = 0;
+        while ((s + 1) * (s + 1) <= K) ++s;
+        reserve(&P, 1);
+        P.d[0] = s;
+        P.len = s ? 1 : 0;
+        reserve(&Rm, 1);
+        Rm.d[0] = K - s * s;
+        Rm.len = Rm.d[0] ? 1 : 0;
+        reserve(&T, 1);
+        digits = (unsigned char *)malloc(dcap = 1024);
+        if (!digits) abort();
+        digits[ndig++] = (unsigned char)s;
+    }
+    while (ndig <= n - OFF) next_digit();
+    return digits[n - OFF];
+}
+
+seq_t a(idx_t n)
+{
+    if (n < 1) return (seq_t)0;
+    unsigned prev = n >= 2 ? sqrt_digit((size_t)n - 2) : 0;
+    return (seq_t)(5 * (prev & 1) + sqrt_digit((size_t)n - 1) / 2);
 }

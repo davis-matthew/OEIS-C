@@ -8,6 +8,7 @@
  *            representations of all nonnegative integers
  * Range:     u8 n <= 4664, u16 n <= 4664, u32 n <= 4664, u64 n <= 4664,
  *            u128 n <= 4664, big any n
+ * Validated: standard, pass, 107 terms through n = 4537 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

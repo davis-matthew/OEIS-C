@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, mod_pow
+ * Validated: standard, pass, 62 terms through n = 991 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,11 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Cache of primes and qualifying primes.  They are recomputed
    only when the requested index exceeds the current cache size. */
@@ -50,14 +54,14 @@ static void rebuild_cache(uint64_t limit)
         uint64_t exp = (p - 1) / g;
 
         /* 3 is a fourth power residue iff 3^exp ≡ 1 (mod p). */
-        seq_t r = mod_pow((seq_t)3, exp, (seq_t)p);
+        seq_t r = powmod((seq_t)3, exp, (seq_t)p);
         if (r != (seq_t)1) {
             ++q;
         }
     }
 
     /* Allocate new array for qualifying primes. */
-    seq_t *new_q = (seq_t *)malloc(q * sizeof(seq_t));
+    seq_t *new_q = mem_new(seq_t, q);
     size_t idx = 0;
     for (size_t i = 0; i < temp_count; ++i) {
         uint64_t p = temp[i];
@@ -65,7 +69,7 @@ static void rebuild_cache(uint64_t limit)
 
         uint64_t g = (p % 4 == 1) ? 4 : 2;
         uint64_t exp = (p - 1) / g;
-        seq_t r = mod_pow((seq_t)3, exp, (seq_t)p);
+        seq_t r = powmod((seq_t)3, exp, (seq_t)p);
         if (r != (seq_t)1) {
             new_q[idx++] = (seq_t)p;
         }
@@ -73,7 +77,7 @@ static void rebuild_cache(uint64_t limit)
 
     /* Free old data and replace with new. */
     free(prime_list);
-    free(qual_primes);
+    mem_free(qual_primes);
     prime_list = temp;
     prime_count = temp_count;
     qual_primes = new_q;

@@ -7,16 +7,18 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if (n modulo 65536)+1 is a quadratic residue of 65537,
  *            0 otherwise
- * Range:     u8 n <= 9414, u16 n <= 9414, u32 n <= 9414, u64 n <= 9414,
- *            u128 n <= 9414, big any n
- * Helpers:   mod_mul
+ * Range:     u8 n <= 65535, u16 n <= 65535, u32 n <= 65535, u64 n <= 65535,
+ *            u128 n <= 65535, big any n
+ * Validated: standard, pass, 118 terms through n = 9414 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include <stdlib.h>
+#include "../utils/mulmod.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         const uint64_t mod = 65537ULL;
         for (uint64_t i = 1; i < mod; ++i) {
-            uint64_t r = mod_mul(i, i, mod);   /* r is i^2 mod 65537 */
+            uint64_t r = mulmod(i, i, mod);   /* r is i^2 mod 65537 */
             residues[r] = true;
         }
         initialized = true;

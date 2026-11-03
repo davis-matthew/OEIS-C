@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 92, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
- * Helpers:   factor_u64_my
+ * Validated: partial, pass, 91 terms through n = 92 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,34 @@
  */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64_my.h"
+
+/* Simple trial‑division factorisation.  Stores primes and exponents
+ * in the provided arrays.  Arrays must be large enough (here 64 works).
+ */
+static void factor_u64_my(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt)
+{
+    *cnt = 0;
+    if (n < 2)
+        return;
+    uint64_t m = n;
+    for (uint64_t p = 2; p <= m / p; ++p) {
+        if (m % p == 0) {
+            uint64_t e = 0;
+            while (m % p == 0) {
+                m /= p;
+                ++e;
+            }
+            pr[*cnt] = p;
+            ex[*cnt] = e;
+            ++(*cnt);
+        }
+    }
+    if (m > 1) {
+        pr[*cnt] = m;
+        ex[*cnt] = 1;
+        ++(*cnt);
+    }
+}
 
 /* Integer square root of a 128‑bit unsigned integer. */
 static uint64_t isqrt_u128(unsigned __int128 x)

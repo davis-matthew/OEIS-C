@@ -9,7 +9,8 @@
  *            > 1. a(0) = Fibonacci(4), a(1) = Fibonacci(8), …
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   is_not_squarefree_uint64
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_not_squarefree_uint64.h"
+
+/* ------- Helper: test if a 64‑bit integer is not squarefree ------- */
+static bool is_not_squarefree_uint64(uint64_t n)
+{
+    for (uint64_t p = 2; p <= n / p; ++p) {   /* avoid overflow of p*p   */
+        uint64_t sq = p * p;
+        if (n % sq == 0)
+            return true;
+    }
+    return false;
+}
 
 /* ------- Fast doubling Fibonacci (exact arithmetic) ------- */
 static void fib_pair(idx_t n, seq_t *F, seq_t *Fnext)

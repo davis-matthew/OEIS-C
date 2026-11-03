@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 31, u32 n <= 59, u64 n <= 116,
  *            u128 n <= 230, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 490 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Memoized sequence values */
 static seq_t *seq_arr = NULL;
@@ -70,7 +72,7 @@ static void ensure_seq(idx_t n)
     /* Grow array as necessary */
     if (seq_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
         if (!tmp) abort();
         seq_arr = tmp;
         seq_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 148, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 static inline int cmp_seq_t(const void *p, const void *q) {
     const seq_t *a = (const seq_t *)p;
@@ -68,7 +70,7 @@ static inline void heap_swap(Node *a, Node *b) {
 static void heap_push(Node n) {
     if (heap_size == heap_cap) {
         size_t newcap = heap_cap ? heap_cap << 1 : 64;
-        Node *tmp = (Node *)realloc(heap, newcap * sizeof(Node));
+        Node *tmp = mem_resize(Node, heap, newcap);
         if (!tmp) abort();   /* critical failure */
         heap  = tmp;
         heap_cap = newcap;
@@ -127,7 +129,7 @@ static void init_sequence(void) {
     done = 1;
 
     seq_cap = 64;
-    seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, seq_cap);
     last_gen = (size_t *)malloc(seq_cap * sizeof(size_t));
     seq_len = 1;
     seq_vals[0] = 1;                     /* first term            */
@@ -162,7 +164,7 @@ static void expand_to(idx_t n) {
         /* add new value to sequence */
         if (seq_len == seq_cap) {
             size_t newcap = seq_cap << 1;
-            seq_t *tmpv = (seq_t *)realloc(seq_vals, newcap * sizeof(seq_t));
+            seq_t *tmpv = mem_resize(seq_t, seq_vals, newcap);
             size_t *tmpg = (size_t *)realloc(last_gen, newcap * sizeof(size_t));
             if (!tmpv || !tmpg) abort();
             seq_vals = tmpv; last_gen = tmpg; seq_cap = newcap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, cmp_seq_t
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,20 +25,31 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdbool>
-#define ALLOC_SEQ(sz) reinterpret_cast<seq_t*>(std::malloc((sz)*sizeof(seq_t)))
-#define REALLOC_SEQ(ptr,sz) reinterpret_cast<seq_t*>(std::realloc((ptr),(sz)*sizeof(seq_t)))
+#define ALLOC_SEQ(sz) mem_new(seq_t, (sz))
+#define REALLOC_SEQ(ptr,sz) mem_resize(seq_t, (ptr), (sz))
 #else
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#define ALLOC_SEQ(sz) ((seq_t*)malloc((sz)*sizeof(seq_t)))
-#define REALLOC_SEQ(ptr,sz) ((seq_t*)realloc((ptr),(sz)*sizeof(seq_t)))
+#define ALLOC_SEQ(sz) mem_new(seq_t, (sz))
+#define REALLOC_SEQ(ptr,sz) mem_resize(seq_t, (ptr), (sz))
 #endif
 
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/cmp_seq_t.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* ---------- static data ------------------------------------------------- */
 static seq_t *primePowers   = NULL;   /* all prime powers >=4, sorted           */
@@ -62,7 +74,7 @@ static bool initialized     = false;
 static void extendPrimePowers(idx_t new_limit)
 {
     /* build prime list up to sqrt(new_limit) if needed */
-    idx_t sqrt_lim = _floor_isqrt_u64(new_limit) + 1;
+    idx_t sqrt_lim = isqrt(new_limit) + 1;
     if (primeLimit < sqrt_lim) {
         uint64_t *tmp;
         size_t tmp_cnt;
@@ -92,9 +104,9 @@ static void extendPrimePowers(idx_t new_limit)
         }
     }
 
-    qsort(temps, cnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(temps, cnt, sizeof(seq_t), cmp_seq_t);
 
-    if (primePowers) free(primePowers);
+    if (primePowers) mem_free(primePowers);
     primePowers = temps;
     pp_cnt = cnt;
     pp_limit = (seq_t)new_limit;

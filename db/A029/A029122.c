@@ -10,12 +10,14 @@
  *            unbounded knapsack DP
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Grow the table if necessary and recompute all entries. */
     if (target > current_cap) {
         size_t new_cap = target;
-        seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_cap);
         if (!tmp) return (seq_t)0;              /* allocation failed */
         dp = tmp;
         /* initialise entries to 0, then set dp[0] = 1. */

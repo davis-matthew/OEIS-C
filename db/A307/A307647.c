@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 186, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 88 terms through n = 9680 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mul_mod64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Deterministic Miller–Rabin for 64‑bit integers (idx_t is assumed
@@ -32,8 +35,8 @@ static inline uint64_t pow_mod64(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t result = 1;
     uint64_t power  = base % mod;
     while (exp) {
-        if (exp & 1) result = mul_mod64(result, power, mod);
-        power = mul_mod64(power, power, mod);
+        if (exp & 1) result = mulmod(result, power, mod);
+        power = mulmod(power, power, mod);
         exp >>= 1;
     }
     return result;
@@ -64,7 +67,7 @@ static bool is_prime_u64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;
@@ -88,7 +91,7 @@ static void grow_seq_cache(size_t min_cap)
     if (seq_cap >= min_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 64;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     seq_cache = tmp;
     seq_cap   = new_cap;

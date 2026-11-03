@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *sums = NULL;            /* array of computed a(k) values   */
 static size_t sum_cap = 0, sum_len = 0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
             seq_t val = (seq_t)m;
 
             /* skip primes; only composites are relevant */
-            if (is_prime_small(val))
+            if (is_prime_seq(val))
                 continue;
 
             if (!run_active) {
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
                     /* current run ends at prev_comp */
                     if (sum_len == sum_cap) {
                         sum_cap = sum_cap ? sum_cap * 2 : 16;
-                        sums = (seq_t *)realloc(sums, sum_cap * sizeof(seq_t));
+                        sums = mem_resize(seq_t, sums, sum_cap);
                     }
                     sums[sum_len++] = run_sum;
 

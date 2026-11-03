@@ -9,12 +9,14 @@
  *            in the OEIS entry.)
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 32, u64 n <= 65, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc, exit */
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;    /* cached values of the sequence   */
 static idx_t cache_len = 0;      /* number of valid entries          */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     if (a_cache == NULL) {
         /* Initial capacity – at least enough for n+1. */
         cache_cap = (n > 16) ? (idx_t)(n + 1) : 16;
-        a_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, cache_cap);
         if (!a_cache) exit(1);              /* allocation failed */
 
         /* Initialise the first six terms explicitly. */
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
     } else if (cache_cap <= n) {
         /* Grow the array – double until it fits. */
         while (cache_cap <= n) cache_cap <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, cache_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, cache_cap);
         if (!a_cache) exit(1);
     }
 

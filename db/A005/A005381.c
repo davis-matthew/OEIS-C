@@ -8,12 +8,14 @@
  *            composite
  * Range:     u8 n <= 147, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 78 terms through n = 9823 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
@@ -21,7 +23,7 @@ seq_t a(idx_t n) {
     
     while (count < n) {
         k++;
-        if (!is_prime((uint64_t)k) && !is_prime((uint64_t)(k - 1))) {
+        if (!is_prime_u64((uint64_t)k) && !is_prime_u64((uint64_t)(k - 1))) {
             count++;
         }
     }

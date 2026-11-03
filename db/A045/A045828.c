@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 96, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 8611 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  Triangular number cache                                         */
 static seq_t *tri = NULL;       /* array of triangular numbers */
@@ -41,7 +43,7 @@ static void grow_tri_cache(size_t len)
     if (len <= tri_cap) return;
     size_t new_cap = tri_cap ? tri_cap * 2 : 8;
     while (new_cap < len) new_cap <<= 1;
-    tri = (seq_t *)realloc(tri, new_cap * sizeof(seq_t));
+    tri = mem_resize(seq_t, tri, new_cap);
     tri_cap = new_cap;
 }
 

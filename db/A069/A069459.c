@@ -7,13 +7,17 @@
  * Formula:   a(n) = prime(n)^n - 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   seq_pow, sieve_first_n_primes
+ * Validated: standard, pass, 33 terms through n = 283 (2026-11-01)
+ * Helpers:   ipow_idx, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/sieve_first_n_primes.h"
 
 seq_t a(idx_t n)
@@ -35,7 +39,7 @@ seq_t a(idx_t n)
     }
 
     seq_t base   = (seq_t)primes[n - 1]; /* nth prime, as seq_t */
-    seq_t value  = seq_pow(base, n);     /* compute prime^n */
+    seq_t value  = ipow_idx(base, n);     /* compute prime^n */
     value = value - 1;                   /* subtract 1 per definition */
 
     free(primes);

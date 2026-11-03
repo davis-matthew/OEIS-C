@@ -12,13 +12,15 @@
  *            t4 in sum2[s], sum3[s], sum4[s]. The required sum f...
  * Range:     u8 n <= 18, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,13 +32,13 @@ seq_t a(idx_t n)
     idx_t Smax = n - 5;
 
     /* allocate tables 0 … Smax */
-    seq_t *cnt  = (seq_t *)malloc((size_t)(Smax + 1) * sizeof(seq_t));
-    seq_t *sum2 = (seq_t *)malloc((size_t)(Smax + 1) * sizeof(seq_t));
-    seq_t *sum3 = (seq_t *)malloc((size_t)(Smax + 1) * sizeof(seq_t));
-    seq_t *sum4 = (seq_t *)malloc((size_t)(Smax + 1) * sizeof(seq_t));
+    seq_t *cnt  = mem_new(seq_t, (size_t)(Smax + 1));
+    seq_t *sum2 = mem_new(seq_t, (size_t)(Smax + 1));
+    seq_t *sum3 = mem_new(seq_t, (size_t)(Smax + 1));
+    seq_t *sum4 = mem_new(seq_t, (size_t)(Smax + 1));
 
     if (!cnt || !sum2 || !sum3 || !sum4) {
-        free(cnt); free(sum2); free(sum3); free(sum4);
+        mem_free(cnt); mem_free(sum2); mem_free(sum3); mem_free(sum4);
         return 0;
     }
 
@@ -100,10 +102,10 @@ seq_t a(idx_t n)
         total += (seq_t)b * cnt[s] + sum2[s] + sum3[s] + sum4[s];
     }
 
-    free(cnt);
-    free(sum2);
-    free(sum3);
-    free(sum4);
+    mem_free(cnt);
+    mem_free(sum2);
+    mem_free(sum3);
+    mem_free(sum4);
 
     return total;
 }

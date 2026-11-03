@@ -7,12 +7,26 @@
  * Formula:   a(n) is read by antidiagonals from T(i,j)=((i+2)^j-(i-1)^j)/3
  * Range:     u8 n <= 24, u16 n <= 61, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   diag_of
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/diag_of.h"
+static inline idx_t diag_of(idx_t n) {
+    /* Find s such that s*(s+1)/2 <= n < (s+1)*(s+2)/2 */
+    idx_t lo = 0, hi = (idx_t)1 << 33;   /* hi > maximal needed diagonal */
+    while (lo < hi) {
+        idx_t mid = (lo + hi + 1) >> 1;
+        unsigned __int128 t = (unsigned __int128)mid * (mid + 1);
+        t >>= 1;                          /* divide by 2 */
+        if (t <= n)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 static inline seq_t pow_seq(seq_t base, idx_t exp) {
     seq_t res = (seq_t)1;

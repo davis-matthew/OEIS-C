@@ -12,7 +12,8 @@
  *            = 3, …)
  * Range:     i8 n <= 10, i16 n <= 49, i32 n <= 49, i64 n <= 49, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--------------------------  dynamic array for the sequence  --------------------------*/
 static seq_t *seq_arr  = NULL;   /* a(0)…a(seq_size‑1)  */
@@ -33,7 +35,7 @@ static void ensure_seq_capacity(size_t n)
     if (seq_cap > n) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 8;
     while (new_cap <= n) new_cap <<= 1;
-    seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, new_cap);
     seq_cap = new_cap;
 }
 

@@ -11,15 +11,60 @@
  *            a(3)=R(2,1), a(4)=R(1,3), …
  * Range:     u8 n <= 24, u16 n <= 60, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   count_R, powers_of_idx
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/count_R.h"
-#include "../utils/powers_of_idx.h"
+#include "../utils/mem.h"
+
+/* Count R(k,n) for the given k and n (both ≥ 1).  It uses the
+   pre‑computed powers array. */
+static seq_t count_R(idx_t k, idx_t n, seq_t *p)
+{
+    seq_t total = 0;
+    seq_t max_pow = p[n];   /* n^k */
+
+    for (idx_t x = 1; x <= n; ++x) {
+        seq_t px = p[x];
+        for (idx_t y = 1; y <= n; ++y) {
+            seq_t sum = px + p[y];
+            if (sum > max_pow) continue;  /* no w can satisfy */
+
+            /* binary search for minimal w with w^k >= sum */
+            idx_t lo = 1, hi = n;
+            while (lo < hi) {
+                idx_t mid = (lo + hi) >> 1;
+                if (p[mid] >= sum)
+                    hi = mid;
+                else
+                    lo = mid + 1;
+            }
+            seq_t w_min = lo;
+            total += (seq_t)(n - w_min + 1);   /* w from w_min..n */
+        }
+    }
+    return total;
+}
+
+/* Compute all powers i^k for i = 1..n and return a newly allocated
+   array (size n+1, entry 0 unused).  The caller must free the array. */
+static seq_t *powers_of_idx(idx_t k, idx_t n)
+{
+    seq_t *p = mem_new(seq_t, (n + 1));
+    if (!p) return NULL;                    /* caller will treat as error */
+    p[0] = 0;
+    for (idx_t i = 1; i <= n; ++i) {
+        seq_t val = 1;
+        for (idx_t j = 0; j < k; ++j)
+            val *= (seq_t)i;
+        p[i] = val;
+    }
+    return p;
+}
 
 /* ------------------------------------------------------------ */
 /* Helper: determine the diagonal (sum k+m) that contains index n
@@ -65,6 +110,6 @@ seq_t a(idx_t n)
     if (!p) return 0;              /* allocation failed: treat as 0 */
 
     seq_t result = count_R(k, n_val, p);
-    free(p);
+    mem_free(p);
     return result;
 }

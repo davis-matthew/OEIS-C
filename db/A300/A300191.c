@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 6, u64 n <= 16, u128 n <= 3200,
  *            big any n
- * Helpers:   digit_frequencies, digit_len, pow10
+ * Validated: standard, pass, 34 terms through n = 2346 (2026-11-03)
+ * Helpers:   digit_frequencies, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,21 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/digit_frequencies.h" /* void digit_frequencies(seq_t x, unsigned int freq[10]); */
-#include "../utils/pow10.h"             /* seq_t pow10(idx_t exp); */
-#include "../utils/digit_len.h"         /* int digit_len(seq_t x); */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/digit_frequencies.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t *cache = NULL;   /* cache[1..] holds computed terms, cache[0] unused */
 static size_t cache_cap = 0;  /* allocated size of cache (including unused 0‑th slot) */
@@ -36,10 +49,10 @@ seq_t a(idx_t n)
     size_t need = (size_t)n + 1;              /* indices 0..n */
     if (cache == NULL) {
         if (need < 4) need = 4;               /* room for the first three terms */
-        cache = (seq_t *)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         cache_cap = need;
     } else if (need > cache_cap) {
-        cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, need);
         cache_cap = need;
     }
 
@@ -69,7 +82,7 @@ seq_t a(idx_t n)
         for (int d = 0; d < 10; ++d) {
             if (cnt[d] == 0) continue;
             seq_t count_seq = cnt[d];
-            seq_t mult = pow10((idx_t)(digit_len(count_seq) + 1));
+            seq_t mult = pow10((idx_t)(num_digits(count_seq) + 1));
             seq_t add  = count_seq * (seq_t)10 + (seq_t)d;
             new_term = new_term * mult + add;
         }

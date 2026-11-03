@@ -9,7 +9,8 @@
  *            and vertical 100
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   valid_vertical
+ * Validated: standard, pass, 31 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/valid_vertical.h"
+#include "../utils/mem.h"
+
+/* helper: test 6‑bit mask for the vertical 100 rule */
+static bool valid_vertical(uint8_t m)
+{
+    /* no three consecutive rows pattern 1 0 0 */
+    for (int r = 0; r <= 3; ++r) {
+        int b0 = (m >> r) & 1;
+        int b1 = (m >> (r + 1)) & 1;
+        int b2 = (m >> (r + 2)) & 1;
+        if (b0 && !b1 && !b2)
+            return false;
+    }
+    return true;
+}
 
 /* main sequence function */
 seq_t a(idx_t n)
@@ -40,22 +55,22 @@ seq_t a(idx_t n)
     idx_t S = V * V;              /* number of states */
 
     /* DP arrays holding counts for each state */
-    seq_t *dp_cur = (seq_t*)malloc(S * sizeof(seq_t));
-    seq_t *dp_next = (seq_t*)malloc(S * sizeof(seq_t));
+    seq_t *dp_cur = mem_new(seq_t, S);
+    seq_t *dp_next = mem_new(seq_t, S);
     if (!dp_cur || !dp_next) {
-        free(dp_cur);
-        free(dp_next);
+        mem_free(dp_cur);
+        mem_free(dp_next);
         return 0;
     }
-    memset(dp_cur, 0, S * sizeof(seq_t));
-    memset(dp_next, 0, S * sizeof(seq_t));
+    mem_set(dp_cur, 0, S * sizeof(seq_t));
+    mem_set(dp_next, 0, S * sizeof(seq_t));
 
     /* Preallocate transition lists for each state */
     struct TransNode { idx_t *to; unsigned cap; unsigned used; };
     struct TransNode *trans = (struct TransNode*)malloc(S * sizeof(struct TransNode));
     if (!trans) {
-        free(dp_cur);
-        free(dp_next);
+        mem_free(dp_cur);
+        mem_free(dp_next);
         return 0;
     }
     for (idx_t i = 0; i < S; ++i) {
@@ -65,8 +80,8 @@ seq_t a(idx_t n)
         if (!trans[i].to) {
             for (idx_t k = 0; k < i; ++k) free(trans[k].to);
             free(trans);
-            free(dp_cur);
-            free(dp_next);
+            mem_free(dp_cur);
+            mem_free(dp_next);
             return 0;
         }
     }
@@ -93,8 +108,8 @@ seq_t a(idx_t n)
                     if (!new_to) {
                         for (idx_t k = 0; k < i; ++k) free(trans[k].to);
                         free(trans);
-                        free(dp_cur);
-                        free(dp_next);
+                        mem_free(dp_cur);
+                        mem_free(dp_next);
                         return 0;
                     }
                     trans[state].to = new_to;
@@ -109,7 +124,7 @@ seq_t a(idx_t n)
 
     /* Process columns 3 .. n */
     for (idx_t col = 3; col <= n; ++col) {
-        memset(dp_next, 0, S * sizeof(seq_t));
+        mem_set(dp_next, 0, S * sizeof(seq_t));
         for (idx_t state = 0; state < S; ++state) {
             seq_t val = dp_cur[state];
             if (!val) continue;
@@ -133,8 +148,8 @@ seq_t a(idx_t n)
     /* Clean up */
     for (idx_t i = 0; i < S; ++i) free(trans[i].to);
     free(trans);
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
 
     return total;
 }

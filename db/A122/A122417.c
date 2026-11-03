@@ -7,7 +7,8 @@
  * Formula:   a(n) = (A002034(n)+1)!
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 12, u64 n <= 22, u128 n <= 28,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper: exponent of prime p in m! (Legendre's formula) */
 static inline uint64_t exp_in_factorial(uint64_t m, uint64_t p)
@@ -46,6 +48,7 @@ static inline uint64_t minimal_m_for(uint64_t p, uint64_t e)
 }
 
 /* Use the provided factorisation routine */
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 
 /* Compute A002034(n): min m such that n | m! */
@@ -80,7 +83,7 @@ static void ensure_fact_cache(idx_t k)
 {
     if (fact_cache == NULL) {                /* initialise */
         fact_cap = 64;
-        fact_cache = (seq_t *)malloc(fact_cap * sizeof(seq_t));
+        fact_cache = mem_new(seq_t, fact_cap);
         if (!fact_cache) return;             /* allocation failed – ignore here */
         fact_cache[0] = (seq_t)1;            /* 0! = 1 */
         fact_len = 1;
@@ -89,7 +92,7 @@ static void ensure_fact_cache(idx_t k)
     while (fact_len <= (size_t)k) {
         if (fact_len >= fact_cap) {          /* grow cache */
             fact_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(fact_cache, fact_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fact_cache, fact_cap);
             if (!tmp) return;                /* allocation failed – ignore here */
             fact_cache = tmp;
         }

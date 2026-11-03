@@ -9,12 +9,14 @@
  *            a(0)…a(31) are computed from the continued fraction expansion
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 18, u64 n <= 35, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoized sequence values */
 static idx_t cache_capacity = 0;     /* number of allocated slots */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* 32 slots are enough for the first 32 terms */
         cache_capacity = 32;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (cache == NULL)
             return (seq_t)0;                /* allocation failure */
 
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     while (cache_size <= n) {
         if (cache_size == cache_capacity) {
             idx_t new_capacity = cache_capacity ? cache_capacity * 2 : 32;
-            seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
             if (tmp == NULL)
                 return (seq_t)0;                    /* allocation failure */
             cache = tmp;

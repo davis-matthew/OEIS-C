@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 190, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9623 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*-----  Parameters  -----*/
 #define MAX_N   400000      /* upper bound for precomputation */
@@ -56,12 +58,12 @@ static void compute_terms(void)
 
     /* collect numbers with at least ten representations */
     terms_cap = (MAX_N / 10) + 1;
-    terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     for (idx_t n = 1; n <= MAX_N; ++n) {
         if (dp[10][n] >= 10) {
             if (terms_cnt == terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_cnt++] = (seq_t)n;
         }

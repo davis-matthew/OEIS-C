@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 40, u128 n <= 42,
  *            big any n
- * Helpers:   binom, mul_small
+ * Validated: standard, pass, 33 terms through n = 42 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,8 +38,21 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
-#include "../utils/mul_small.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static const idx_t P[11] =
 {
@@ -66,7 +80,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < 11; ++i) {
         if (n > i) {                /* corresponds to binom(...,12)=0 when n-1-i+12 < 12 */
             idx_t b = n - 1 - i + 12;
-            seq_t term = binom(b, 12);
+            seq_t term = binomial(b, 12);
             term = mul_small(term, (unsigned int)P[i]);
             result += term;
         }

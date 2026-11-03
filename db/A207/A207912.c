@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   horizontal_ok
+ * Validated: standard, pass, 35 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/horizontal_ok.h"
+#include "../utils/mem.h"
+
+static bool horizontal_ok(uint8_t a, uint8_t b, uint8_t c)
+{
+    for (int r = 0; r < 7; ++r) {
+        int x = (a >> r) & 1;
+        int y = (b >> r) & 1;
+        int z = (c >> r) & 1;
+        if ((x==0 && y==0 && z==0) || (x==0 && y==1 && z==0))
+            return false;
+    }
+    return true;
+}
 
 /*------------------------------------------------------------------------------*/
 /*  Helper functions to test admissible columns                                 */
@@ -121,8 +134,8 @@ seq_t a(idx_t n)
 
     /* DP over the state space (pairs of columns).  dp_prev[s] holds the
        number of ways to reach state s after the current length.               */
-    seq_t *dp_prev = (seq_t*)calloc(num_states, sizeof(seq_t));
-    seq_t *dp_cur  = (seq_t*)calloc(num_states, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, num_states);
+    seq_t *dp_cur  = mem_new(seq_t, num_states);
     if (!dp_prev || !dp_cur) { /* memory allocation failure */
         /* In the unlikely event of OOM we return 0; the caller can retry.   */
         return (seq_t)0;
@@ -158,8 +171,8 @@ seq_t a(idx_t n)
     for (int s = 0; s < num_states; ++s)
         total += dp_prev[s];
 
-    free(dp_prev);
-    free(dp_cur);
+    mem_free(dp_prev);
+    mem_free(dp_cur);
 
     return total;
 }

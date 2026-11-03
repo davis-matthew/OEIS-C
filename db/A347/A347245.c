@@ -11,9 +11,10 @@
  *            of x, starting from x = n, until a number whose largest prime
  *            factor is >= that of n is reached. If 1 is reached first, a(n) =
  *            0
- * Range:     u8 n <= 2540, u16 n <= 9179, u32 n <= 9179, u64 n <= 9179,
- *            u128 n <= 9179, big any n
- * Helpers:   largest_prime_divisor, sigma_of
+ * Range:     u8 n <= 2540, u16 n <= 102752, u32 n <= 102753, u64 n <= 102753,
+ *            u128 n <= 102753, big any n
+ * Validated: standard, pass, 137 terms through n = 9179 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,44 @@
 /* External helpers from utils. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"
-#include "../utils/largest_prime_divisor.h"
+#include <stdlib.h>
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Return the largest prime divisor of m (m >= 2). */
+static uint64_t largest_prime_divisor(uint64_t m)
+{
+    uint64_t largest = 0;
+    /* factor 2 */
+    while ((m & 1ULL) == 0) {
+        largest = 2;
+        m >>= 1;
+    }
+    /* odd factors */
+    for (uint64_t f = 3; f <= m / f; f += 2) {
+        if (m % f == 0) {
+            largest = f;
+            while (m % f == 0)
+                m /= f;
+        }
+    }
+    if (m > 1)            /* remaining m is prime */
+        largest = m;
+    return largest;
+}
 
 seq_t a(idx_t n)
 {

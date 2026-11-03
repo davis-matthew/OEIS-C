@@ -8,6 +8,7 @@
  *            binomial(r,k)² – 1 read by rows
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 179, u64 n <= 644,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1318 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Convert global index n to row r and column k in the triangle. */

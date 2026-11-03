@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 44, u128 n <= 88,
  *            big any n
- * Helpers:   p_value
+ * Validated: standard, pass, 46 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
    with p_0 = -1, p_2 = +2, p_6 = +1, and p_n = 0 otherwise. */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/p_value.h"
+#include "../utils/mem.h"
+
+/* Return the coefficient of P(x) at index n. */
+static inline int p_value(idx_t n)
+{
+    if (n == 0) return -1;
+    if (n == 2) return  2;
+    if (n == 6) return  1;
+    return 0;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_size       = 0; /* number of terms currently stored */
@@ -47,7 +57,7 @@ static void ensure_capacity(idx_t n)
     if (cache_capacity < needed) {
         size_t newcap = cache_capacity ? cache_capacity * 2 : 16;
         if (newcap < needed) newcap = needed;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();           /* memory allocation failed */
         cache      = tmp;
         cache_capacity = newcap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, mod_pow, next_prime
+ * Validated: standard, pass, 67 terms through n = 857 (2026-11-01)
+ * Helpers:   gcd, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/gcd.h"          /* gcd(seq_t, seq_t) */
-#include "../utils/mod_pow.h"      /* mod_pow(seq_t, uint64_t, seq_t) */
-#include "../utils/next_prime.h"   /* next_prime(uint64_t) */
+#include <string.h>
+#include "../utils/gcd.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
 
 /* 64‑bit greatest common divisor helper */
 static uint64_t gcd64(uint64_t a, uint64_t b)
@@ -62,7 +64,7 @@ static void ensure_cache(idx_t n)
         uint64_t exp = (curr - 1) / d;
 
         /* x^8≡3 has no solution ⇔ 3^exp ≠ 1 (mod p). */
-        if (mod_pow((seq_t)3, exp, curr) != (seq_t)1) {
+        if (powmod((seq_t)3, exp, curr) != (seq_t)1) {
             if (cache_size == cache_cap) {
                 cache_cap *= 2;
                 prime_cache = (uint64_t *)realloc(prime_cache,

@@ -9,7 +9,8 @@
  *            alternating permutation
  * Range:     u8 none, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   dfs_alt, has_alternating
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,58 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/dfs_alt.h"
-#include "../utils/has_alternating.h"
+
+/* depth‑first search for an alternating permutation */
+static bool
+dfs_alt(int uniq_cnt, const int uniq[],
+        int freq[], int last, bool next_gt, int remaining)
+{
+    if (remaining == 0)
+        return true;
+
+    for (int i = 0; i < uniq_cnt; ++i) {
+        if (freq[i] == 0)
+            continue;
+        int val = uniq[i];
+        if (next_gt) {
+            if (val <= last)
+                continue;
+        } else {
+            if (val >= last)
+                continue;
+        }
+        freq[i]--;
+        if (dfs_alt(uniq_cnt, uniq, freq, val, !next_gt, remaining - 1)) {
+            freq[i]++;          /* restore for the next candidate */
+            return true;
+        }
+        freq[i]++;
+    }
+    return false;
+}
+
+/* test whether the multiset admits an alternating permutation */
+static bool
+has_alternating(const int uniq[], const int freq_orig[],
+                int uniq_cnt, int k)
+{
+    for (int start = 0; start < uniq_cnt; ++start) {
+        int freq1[64];
+        memcpy(freq1, freq_orig, uniq_cnt * sizeof(int));
+        freq1[start]--;
+        if (dfs_alt(uniq_cnt, uniq, freq1,
+                    uniq[start], true, k - 1))
+            return true;
+
+        int freq2[64];
+        memcpy(freq2, freq_orig, uniq_cnt * sizeof(int));
+        freq2[start]--;
+        if (dfs_alt(uniq_cnt, uniq, freq2,
+                    uniq[start], false, k - 1))
+            return true;
+    }
+    return false;
+}
 
 static uint32_t *g_spf = NULL;
 static int      *g_prime_index = NULL;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 14, u64 n <= 23, u128 n <= 43,
  *            big any n
- * Helpers:   pow_seq_t_fixed
+ * Validated: standard, pass, 35 terms through n = 388 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
  */
 
 #include <stdint.h>          /* for idx_t and seq_t definitions by the build */
-#include "../utils/pow_seq_t_fixed.h"
+#include "../utils/ipow_idx.h"
 
 static seq_t binom7(idx_t n)
 {
@@ -36,6 +37,6 @@ seq_t a(idx_t n)
         return (seq_t)0;
     }
     seq_t c = binom7(n);
-    seq_t p = pow_seq_t_fixed((seq_t)7, n - 7);
+    seq_t p = ipow_idx((seq_t)7, n - 7);
     return c * p;
 }

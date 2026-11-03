@@ -8,6 +8,7 @@
  *            p ≡ 3 (mod 4) )
  * Range:     u8 n <= 4, u16 n <= 37, u32 n <= 4091, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 57 terms through n = 4931 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static uint64_t *p3 = NULL;          /* primes ≡ 3 (mod 4), 1‑based index */

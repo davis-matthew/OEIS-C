@@ -9,6 +9,7 @@
  *            mod k), or 0 if none. Indexed from n = 1
  * Range:     u8 n <= 56, u16 n <= 6547, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 85 terms through n = 9508 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 /* Cached list of the first primes needed for evaluations. */

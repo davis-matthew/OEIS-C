@@ -7,8 +7,9 @@
  * Formula:   a(1) = 1 ; a(n) = the (n-1)-th decimal digit of 3^12 / 2^19 for
  *            n >= 2. For n > 20 the expansion terminates and the digit
  *            sequence continues with 0
- * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 20, u64 n <= 20, u128 n <= 20,
+ * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: full, pass, 20 terms through n = 20 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

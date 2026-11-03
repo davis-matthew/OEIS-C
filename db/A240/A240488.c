@@ -9,13 +9,15 @@
  *            for k=3, where p_{≠3}(m) counts partitions of m using parts ≠ 3
  * Range:     u8 n <= 20, u16 n <= 47, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;        /* partitions excluding part 3 */
 static idx_t dp_len = 0;       /* allocated length (dp_len = n+1) */
@@ -23,7 +25,7 @@ static idx_t dp_len = 0;       /* allocated length (dp_len = n+1) */
 /* Recompute dp up to at least n if needed */
 static void ensure_dp(idx_t n) {
     if (dp_len <= n) {
-        seq_t *new_dp = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (size_t)(n + 1));
         if (!new_dp) return;          /* out of memory – silently abort */
         new_dp[0] = (seq_t)1;
 
@@ -34,7 +36,7 @@ static void ensure_dp(idx_t n) {
             }
         }
 
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
         dp_len = n + 1;
     }

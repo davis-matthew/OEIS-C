@@ -9,7 +9,8 @@
  *            positive divisors of n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_bits, factor_uint64
+ * Validated: standard, pass, 118 terms through n = 7286 (2026-11-01)
+ * Helpers:   factor_uint64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/factor_uint64.h"
-#include "../utils/count_bits.h"
+
+/* Count the number of set bits in a 10‑bit mask. */
+static unsigned count_bits(uint16_t mask)
+{
+    unsigned c = 0;
+    while (mask)
+    {
+        mask &= mask - 1; /* clear lowest set bit */
+        ++c;
+    }
+    return c;
+}
 
 /* Recursive enumeration of all divisors of n given its prime factors.
    The current product is 'cur', idx points to the current prime factor. */

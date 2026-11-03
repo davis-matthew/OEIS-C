@@ -9,12 +9,14 @@
  *            Sum_{k>=0} (-x)^(k(k+1)/2) / (k(k+1)/2)!
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static caches for sequence values and triangular data */
 static seq_t *seq_cache = NULL;
@@ -80,7 +82,7 @@ static void ensure_seq_cache(idx_t n)
 {
     if (seq_cache == NULL) {
         seq_cap = 1;
-        seq_cache = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         seq_cache[0] = (seq_t)1;  /* a(0) = 1 */
         seq_len = 1;
     }
@@ -88,7 +90,7 @@ static void ensure_seq_cache(idx_t n)
         return;
     while (seq_cap <= n)
         seq_cap = seq_cap ? seq_cap*2 : 1;
-    seq_cache = (seq_t*)realloc(seq_cache, seq_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
     for (size_t i = seq_len; i < seq_cap; ++i)
         seq_cache[i] = 0;
 }

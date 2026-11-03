@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 34, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9783 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Smallest prime factor table ---------- */
 static idx_t spf_limit = 1;   /* maximum index for which spf is filled */
@@ -63,7 +65,7 @@ static void add_term(seq_t val)
 {
     if (term_count == term_capacity) {
         size_t new_cap = (term_capacity == 0) ? 256 : term_capacity * 2;
-        terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         term_capacity = new_cap;
     }
     terms[term_count++] = val;

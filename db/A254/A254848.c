@@ -11,14 +11,19 @@
  *            successive rows
  * Range:     u8 none, u16 n <= 6, u32 n <= 18, u64 n <= 43, u128 n <= 93,
  *            big any n
- * Helpers:   bit_val
+ * Validated: standard, pass, 39 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bit_val.h"
+
+/* return the j‑th bit of a 4‑bit row */
+static inline int bit_val(int row, int col) {
+    return (row >> col) & 1;
+}
 
 /* compile‑time constants for the DP */
 enum {

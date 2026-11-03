@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 123 terms through n = 9748 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
     exceeds the current partial sum. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;   /* a(i) for i >= 1, stored from index 1 */
 static seq_t *cum   = NULL;   /* cumulative sum, cum[i] = sum_{1..i} */
@@ -33,8 +35,8 @@ static void ensure_capacity(idx_t n)
     size_t newcap = (cap == 0) ? 8 : cap << 1;
     while (newcap < (size_t)n)
         newcap <<= 1;
-    seq_t *t = (seq_t *)realloc(terms, (newcap + 1) * sizeof(seq_t));
-    seq_t *c = (seq_t *)realloc(cum,   (newcap + 1) * sizeof(seq_t));
+    seq_t *t = mem_resize(seq_t, terms, (newcap + 1));
+    seq_t *c = mem_resize(seq_t, cum, (newcap + 1));
     if (!t || !c) {
         /* Abort on allocation failure. */
         abort();

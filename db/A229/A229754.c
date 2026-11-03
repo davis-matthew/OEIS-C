@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 20, u64 n <= 50, u128 n <= 111,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed initial terms (index 0 is a dummy 0) */
 static const seq_t init[12] = {
@@ -70,7 +72,7 @@ static void ensure_cache(idx_t n)
     size_t new_size = (size_t)(n + 1);       /* include index 0 */
     seq_t *tmp;
 #ifdef __cplusplus
-    tmp = static_cast<seq_t*>(realloc(cache, new_size * sizeof(seq_t)));
+    tmp = mem_resize(seq_t, cache, new_size);
 #else
     tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
 #endif

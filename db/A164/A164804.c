@@ -9,7 +9,8 @@
  *            accents) contains a 'u' at position n, or -1 if none
  * Range:     i8 n <= 3, i16 n <= 25, i32 n <= 25, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   write_str
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/write_str.h"
+
+static void write_str(const char *s, char **p)
+{
+    while (*s) {
+        **p = *s;
+        (*p)++;
+        s++;
+    }
+}
 
 static const char *UNIT_STR[20] = {"cero","uno","dos","tres","cuatro","cinco","seis","siete","ocho","nueve",
                                     "diez","once","doce","trece","catorce","quince","dieciseis",

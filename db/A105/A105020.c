@@ -7,15 +7,17 @@
  * Keywords:  nonn, tabl, easy
  * Formula:   a(n) = r^2 - (r^2 + r - m)^2/4 * where m = 2*n + 2 and r =
  *            round(sqrt(m))
- * Range:     u8 n <= 35, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
- *            big any n
- * Helpers:   int_sqrt_idx
+ * Range:     u8 n <= 35, u16 n <= 1325, u32 n <= 1325, u64 n <= 1325,
+ *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1224 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/int_sqrt_idx.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     seq_t m = (seq_t)m_idx;
 
     /* r_floor = floor(sqrt(m)) */
-    idx_t r_floor = int_sqrt_idx(m_idx);
+    idx_t r_floor = isqrt(m_idx);
     seq_t r = (seq_t)r_floor;
     seq_t r_sq = r * r;
 

@@ -8,14 +8,16 @@
  *            r*(r+1)/2, T(r,k) = (-1)^(r-k) * (k+1) * binomial(2*r-k, r-k) /
  *            (r+1) for n >= 0. The function uses only integer arithmetic and
  *            the helper `binomial(idx_t, idx_t)` from the utils library
- * Range:     i8 n <= 9, i16 n <= 35, i32 n <= 54, i64 n <= 54, i128 n <= 54,
+ * Range:     i8 n <= 14, i16 n <= 44, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

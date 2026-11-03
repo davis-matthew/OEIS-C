@@ -6,8 +6,9 @@
  * Keywords:  easy, nonn
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 173, u32 n <= 329, u64 n <= 2309,
- *            u128 n <= 8612, big any n
- * Helpers:   factor_u64
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 93 terms through n = 8612 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment. */
 seq_t a(idx_t n)
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
     }
 
     /* DP array for partitions: dp[s] = number of partitions of s */
-    seq_t *dp = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) {
         free(unitary);
         return (seq_t)0;   /* Allocation failure – return 0 */
@@ -71,7 +74,7 @@ seq_t a(idx_t n)
     seq_t ans = dp[n];
 
     /* Clean up */
-    free(dp);
+    mem_free(dp);
     free(unitary);
 
     return ans;

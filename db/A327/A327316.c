@@ -11,7 +11,8 @@
  *            (0‑based index within the row)
  * Range:     u8 n <= 11, u16 n <= 38, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* declares seq_t binomial(idx_t n, idx_t k) */
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 /* Cached powers of 3 and 2.  pow3[i] = 3^i, pow2[i] = 2^i. */
 static seq_t *pow3 = NULL;
@@ -33,8 +50,8 @@ static void ensure_powers(idx_t exp)
         return;
 
     size_t new_cap = (size_t)exp + 1;
-    pow3 = (seq_t *)realloc(pow3, new_cap * sizeof(seq_t));
-    pow2 = (seq_t *)realloc(pow2, new_cap * sizeof(seq_t));
+    pow3 = mem_resize(seq_t, pow3, new_cap);
+    pow2 = mem_resize(seq_t, pow2, new_cap);
     for (size_t i = pow_cap; i < new_cap; ++i) {
         if (i == 0) {
             pow3[0] = 1;

@@ -7,16 +7,50 @@
  * Formula:   a(n) = floor(sqrt(prime(n) * prime(n+2)))
  * Range:     u8 n <= 3, u16 n <= 30, u32 n <= 3492, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, floor_sqrt, seq_mul
+ * Validated: standard, pass, 74 terms through n = 9964 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_prime_limit_for_idx.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Computes a(n) for n ≥ 1.  The sequence is defined for any
  * n ≥ 1, and the function is safe for any order of calls. */

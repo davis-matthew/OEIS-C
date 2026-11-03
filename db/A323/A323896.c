@@ -7,9 +7,10 @@
  * Keywords:  sign
  * Formula:   a(n) = A003188(n) + A323895(n) * where A003188(n) = n XOR (n >>
  *            1) * and A323895(n) is the Dirichlet inverse of A003188
- * Range:     i8 n <= 33, i16 n <= 1649, i32 n <= 8744, i64 n <= 8744,
- *            i128 n <= 8744, big any n
- * Helpers:   gray_code
+ * Range:     i8 n <= 33, i16 n <= 1649, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 100 terms through n = 8744 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,13 @@
 /* Required headers */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gray_code.h"
+#include "../utils/mem.h"
+
+/* Gray code:  g(n) = n XOR (n >> 1)  */
+static seq_t gray_code(idx_t n)
+{
+    return (seq_t)n ^ ((seq_t)n >> 1);
+}
 
 /* static storage for the Dirichlet inverse values */
 static seq_t *inv_cache   = NULL;   /* cache[n] holds g(n) */
@@ -32,7 +39,7 @@ static void ensure_cache(idx_t n)
         return;
 
     idx_t new_cap = (n + 1) * 2;
-    seq_t *new_cache = (seq_t *)realloc(inv_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, inv_cache, new_cap);
     bool   *new_done  = (bool   *)realloc(inv_done , new_cap * sizeof(bool));
 
     if (!new_cache || !new_done) {

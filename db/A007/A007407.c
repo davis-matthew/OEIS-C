@@ -9,21 +9,28 @@
  *            common factors (these can only be primes dividing k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 26, u128 n <= 46,
  *            big any n
- * Helpers:   reduce_by, sgcd
+ * Validated: standard, pass, 39 terms through n = 1136 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/reduce_by.h"
-#include "../utils/sgcd.h"
+#include "../utils/gcd.h"
+
+static void reduce_by(seq_t *r, seq_t *den, uint64_t p) {
+    while (*r % p == 0 && *den % p == 0) {
+        *r /= p;
+        *den /= p;
+    }
+}
 
 seq_t a(idx_t n) {
     seq_t r = 0, den = 1;   /* fractional part of the partial sum is r/den */
     for (idx_t k = 1; k <= n; k++) {
         seq_t k2 = (seq_t)k * (seq_t)k;
         if (k2 == 0) return den;  /* only possible on narrow fixed-width overflow */
-        seq_t g = sgcd(k2, den % k2);
+        seq_t g = gcd(k2, den % k2);
         seq_t u = den / g;
         seq_t f = k2 / g;
         seq_t nd = u * k2;

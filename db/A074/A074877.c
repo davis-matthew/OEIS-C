@@ -8,6 +8,7 @@
  * Formula:   a(n) = (128*4^n - 120*2^n + 9*n + 37) / 3 (n ≥ 0)
  * Range:     u8 n <= 0, u16 n <= 4, u32 n <= 12, u64 n <= 23, u128 n <= 23,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

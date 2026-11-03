@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5185, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_three_zeros
+ * Validated: standard, pass, 55 terms through n = 9497 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/has_three_zeros.h"
+#include "../utils/mem.h"
+
+/* Test whether a number has exactly three zeros in its base‑5 expansion */
+static bool has_three_zeros(idx_t x)
+{
+    idx_t t = x;
+    int cnt = 0;
+    while (t > 0) {
+        int digit = t % 5;
+        if (digit == 0) {
+            ++cnt;
+            if (cnt > 3)
+                return false;
+        }
+        t /= 5;
+    }
+    return cnt == 3;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -35,7 +53,7 @@ seq_t a(idx_t n)
         /* Grow cache when needed */
         if (len == cap) {
             size_t new_cap = cap ? cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) { /* allocation failed – abort gracefully */
                 abort();
             }

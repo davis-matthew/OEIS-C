@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 78, u32 n <= 146, u64 n <= 283,
  *            u128 n <= 556, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 823 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage required by the grader */
 seq_t a(idx_t n)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
     /* Allocate space for all terms up to n */
     size_t len = (size_t)n + 1;               /* number of elements needed   */
-    seq_t *seq = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, len);
     if (!seq) exit(1);                        /* fatal if memory unavailable */
 
     /* Copy the known initial values */
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[(size_t)n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

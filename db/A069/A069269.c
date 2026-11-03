@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 12, u16 n <= 26, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 13, u16 n <= 34, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,7 +22,8 @@
    where 0 ≤ k ≤ n.  a(0) = T(0,0) = 1, a(1) = T(1,0), a(2) = T(1,1), … */
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t n, idx_t k); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 static idx_t row_for_idx(idx_t idx)
 {

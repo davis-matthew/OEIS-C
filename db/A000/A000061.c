@@ -11,14 +11,15 @@
  *            / (8b)) * sum_{r odd < 4b} (b|r) r^2 * prod_{p|...
  * Range:     u8 n <= 63, u16 n <= 2670, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   jac
+ * Validated: standard, pass, 79 terms through n = 9437 (2026-11-01)
+ * Helpers:   jacobi_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/jac.h"
+#include "../utils/jacobi_i64.h"
 
 seq_t a(idx_t n)
 {
@@ -52,28 +53,28 @@ seq_t a(idx_t n)
         long long F = b;
         __int128 S = 0;
         for (long long r = 1; r < F; r++) {
-            int c = jac(r, b);
+            int c = jacobi_i64(r, b);
             if (c) S += (__int128)c * r * r;
         }
         num = 4 * S * m3; den = F;
         for (int i = 0; i < np; i++) {
             long long p = primes[i];
             if (b % p == 0) continue;
-            num *= (__int128)(p * p - jac(p, b));
+            num *= (__int128)(p * p - jacobi_i64(p, b));
             den *= (__int128)(p * p);
         }
     } else {
         long long F = 4 * b;
         __int128 S = 0;
         for (long long r = 1; r < F; r += 2) {
-            int c = jac(b, r);
+            int c = jacobi_i64(b, r);
             if (c) S += (__int128)c * r * r;
         }
         num = S * m3; den = 2 * (__int128)F;
         for (int i = 0; i < np; i++) {
             long long p = primes[i];
             if (p == 2 || b % p == 0) continue;
-            num *= (__int128)(p * p - jac(b, p));
+            num *= (__int128)(p * p - jacobi_i64(b, p));
             den *= (__int128)(p * p);
         }
     }

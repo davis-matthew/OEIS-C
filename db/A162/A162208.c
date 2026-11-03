@@ -9,14 +9,31 @@
  *            word of length 20, so a(n) = 0 for n > 20
  * Range:     u8 n <= 20, u16 n <= 20, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   multiply_factor
+ * Validated: full, pass, 21 terms through n = 20 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/multiply_factor.h"
+
+/* Multiply polynomial 'poly' by factor f(m) = 1 + x + ... + x^(m-1).
+   'deg' is the current degree of poly, updated to new degree. */
+static void multiply_factor(seq_t *poly, size_t *deg, size_t m)
+{
+    seq_t tmp[21] = {0};
+    size_t new_deg = *deg + m - 1;   /* resulting degree after multiplication */
+    for (size_t i = 0; i <= *deg; ++i) {
+        for (size_t j = 0; j < m; ++j) {
+            tmp[i + j] += poly[i];
+        }
+    }
+    for (size_t i = 0; i <= new_deg; ++i) {
+        poly[i] = tmp[i];
+    }
+    *deg = new_deg;
+}
 
 static bool initialized = false;
 static seq_t coeff[21];  /* coefficients for degrees 0..20 */

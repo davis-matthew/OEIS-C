@@ -7,21 +7,24 @@
  * Formula:   a(n) = Fibonacci(Catalan(n))
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   bitlen_seq_t, catalan
+ * Validated: standard, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   bit_length, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/bit_length.h"
 #include "../utils/catalan.h"
-#include "../utils/bitlen_seq_t.h"
-
 
 static seq_t fib_big(seq_t n)
 {
     /* Fast–doubling Fibonacci for an arbitrary–precision index n. */
     if (n == 0) return 0;
 
-    unsigned bits = bitlen_seq_t(n);
+    unsigned bits = bit_length(n);
     seq_t a = 0, b = 1;           /* (F(k), F(k+1)) for the current prefix */
 
     /* Process bits from most significant to least significant. */

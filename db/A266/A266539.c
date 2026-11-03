@@ -9,18 +9,21 @@
  *            repeated twice
  * Range:     u8 n <= 768, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 106 terms through n = 9510 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
     if (n <= 2) return 0;
     idx_t m = (n - 1) / 2;
-    idx_t k = floor_log2_uint64(m);
+    idx_t k = ilog2(m);
     idx_t power = (idx_t)1 << k;
     idx_t l = m - power;
     return ((seq_t)2 * l) + 1;

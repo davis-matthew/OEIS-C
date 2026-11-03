@@ -9,7 +9,8 @@
  *            a(1) = 121 a(2) = 1411 a(3) = 11025 a(4) = 106891 (OEIS A206466)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The function returns the n-th term of the sequence.
    It uses memoization; each term is computed only once. */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         idx_t new_cap = (cache_cap > 0) ? cache_cap * 2 : 16;
         while (new_cap < n + 1)
             new_cap *= 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {
             /* Allocation failed: return 0 as a safety net. */
             return (seq_t)0;

@@ -10,12 +10,38 @@
  *            gcd(x,y)=1}, t = u² + v² for the minimal solution u·x + v·y = 1
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   mod_inverse_minimal
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_inverse_minimal.h"
+/* Return the minimal (by absolute value) modular inverse of a modulo m.
+   The returned value satisfies a·inv ≡ 1 (mod m) and |inv| ≤ m/2. */
+static int64_t mod_inverse_minimal(idx_t a, idx_t m)
+{
+    /* Extended Euclidean algorithm with signed coefficients. */
+    int64_t r0 = a, r1 = m;
+    int64_t s0 = 1, s1 = 0;   /* s0 * a + t0 * m = r0 */
+    int64_t t0 = 0, t1 = 1;
+
+    while (r1 != 0) {
+        idx_t q = r0 / r1;
+        int64_t r2 = r0 - (int64_t)q * r1;
+        int64_t s2 = s0 - (int64_t)q * s1;
+        int64_t t2 = t0 - (int64_t)q * t1;
+        r0 = r1; r1 = r2;
+        s0 = s1; s1 = s2;
+        t0 = t1; t1 = t2;
+    }
+
+    /* r0 should be 1 (a and m coprime). s0 is the inverse modulo m. */
+    int64_t inv = s0;
+    int64_t mod_inv = inv % (int64_t)m;
+    if (mod_inv < 0) mod_inv += (int64_t)m;
+    if (mod_inv > (int64_t)m / 2) return mod_inv - (int64_t)m;
+    return mod_inv;
+}
 /* Compute gcd of two idx_t numbers. */
 static inline idx_t gcd_idx(idx_t a, idx_t b)
 {

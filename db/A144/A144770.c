@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 29, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: full, pass, 29 terms through n = 29 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Sequence A144770: numbers with sum of divisors σ(n) = 2880.
  * The function precomputes all n < 2880 satisfying σ(n)=2880
  * (there are finitely many) and returns the n‑th such number (1‑based). */

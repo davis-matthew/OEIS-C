@@ -8,6 +8,7 @@
  *            parts
  * Range:     u8 n <= 23, u16 n <= 70, u32 n <= 259, u64 n <= 1078,
  *            u128 n <= 4781, big any n
+ * Validated: standard, pass, 68 terms through n = 8061 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

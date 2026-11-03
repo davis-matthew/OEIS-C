@@ -7,19 +7,21 @@
  * Formula:   a(n) = -(1/n) * Σ_{d|n} φ(n/d) * (-4)^d
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 15, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   phi, pow_uint
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/phi.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 static seq_t pow_minus_four(idx_t exp)
 {
-    seq_t pow4 = pow_uint((uint64_t)4, exp);   /* compute 4^exp */
+    seq_t pow4 = ipow_u64_idx((uint64_t)4, exp);   /* compute 4^exp */
     return (exp & 1) ? -pow4 : pow4;          /* apply sign (-4)^exp */
 }
 
@@ -33,10 +35,10 @@ seq_t a(idx_t n)
 
     if (cache_size <= n) {
         size_t new_size = n + 1;               /* indices 0 … n (0 unused) */
-        seq_t *tmp = (seq_t *)realloc(phi_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, phi_cache, new_size);
         if (!tmp) return 0;                  /* allocation failure fallback */
         for (size_t i = cache_size; i <= n; ++i)
-            tmp[i] = phi((idx_t)i);           /* compute φ(i) */
+            tmp[i] = totient((idx_t)i);           /* compute φ(i) */
         phi_cache = tmp;
         cache_size = new_size;
     }

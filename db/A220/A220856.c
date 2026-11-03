@@ -8,6 +8,7 @@
  * Formula:   a(1)=2; a(2)=20; a(3)=102; a(4)=132; a(n)=20*n^2-18*n for n>=5
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

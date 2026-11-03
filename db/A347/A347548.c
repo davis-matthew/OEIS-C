@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000009(n) – floor((n + 1)/2)
  * Range:     u8 n <= 29, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Offset: 6  (a(6) is the first term of the sequence) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of the number of partitions of n into distinct parts. */
 static seq_t *part_distinct = NULL;
@@ -29,8 +31,7 @@ seq_t a(idx_t n)
 
     if (n > max_cached_n) {
         /* Reallocate cache to hold values up to n. */
-        seq_t *new_cache = (seq_t *)realloc(part_distinct,
-                                            (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, part_distinct, (n + 1));
         if (!new_cache)
             exit(1);          /* abort on allocation failure */
 

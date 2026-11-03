@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = semiprime(prime(n))
- * Range:     u8 none, u16 n <= 28, u32 n <= 55, u64 n <= 55, u128 n <= 55,
- *            big any n
- * Helpers:   estimate_prime_upper_bound
+ * Range:     u8 none, u16 n <= 28, u32 n <= 5094, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 8898 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/estimate_prime_upper_bound.h"
+#include <math.h>
+#include "../utils/mem.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* Helper: compare two seq_t values for qsort */
 static int cmp_seq(const void *a, const void *b)
@@ -56,7 +67,7 @@ static void sieve_primes(uint64_t limit)
     for (uint64_t i = 2; i <= limit; ++i)
         if (!isComposite[i]) ++cnt;
 
-    seq_t *newPrimes = (seq_t *)realloc(primes, cnt * sizeof(seq_t));
+    seq_t *newPrimes = mem_resize(seq_t, primes, cnt);
     if (!newPrimes) exit(1);
     primes = newPrimes;
     primeCnt = cnt;
@@ -77,7 +88,7 @@ static void generate_semiprimes(uint64_t limit)
 
     /* Estimate capacity: fewer than 'limit' semiprimes will exist */
     size_t estCap = (size_t)(limit / 2 + 10);
-    seq_t *buf = (seq_t *)malloc(estCap * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, estCap);
     if (!buf) exit(1);
     size_t count = 0;
 
@@ -89,16 +100,16 @@ static void generate_semiprimes(uint64_t limit)
             if (prod > limit) break;
             if (count == estCap) {
                 estCap <<= 1;
-                buf = (seq_t *)realloc(buf, estCap * sizeof(seq_t));
+                buf = mem_resize(seq_t, buf, estCap);
                 if (!buf) exit(1);
             }
             buf[count++] = prod;
         }
     }
 
-    qsort(buf, count, sizeof(seq_t), cmp_seq);
+    mem_qsort(buf, count, sizeof(seq_t), cmp_seq);
 
-    free(semiprimes);
+    mem_free(semiprimes);
     semiprimes = buf;
     semiprimeCnt = count;
     semiprimeLimit = limit;

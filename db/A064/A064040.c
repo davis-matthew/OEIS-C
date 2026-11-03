@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 184, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 83 terms through n = 944 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* External link function required by the build system */
 static seq_t *terms = NULL;          /* cache of computed sequence terms   */
@@ -74,10 +76,10 @@ static void ensure_terms(idx_t n)
         uint8_t cnt = omega[(size_t)next_candidate];
 
         /* If that count is prime, store the candidate. */
-        if (is_prime_small((seq_t)cnt)) {
+        if (is_prime_seq((seq_t)cnt)) {
             if (terms_len >= terms_cap) {
                 size_t newcap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *newarr = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                seq_t *newarr = mem_resize(seq_t, terms, newcap);
                 if (!newarr)
                     exit(EXIT_FAILURE);
                 terms = newarr;

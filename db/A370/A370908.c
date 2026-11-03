@@ -8,7 +8,8 @@
  * Formula:   a(n) = n! * Σ_{k=1..n} 4^{n-k} * S(n,k) / (n-k+1)!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,14 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* dynamic array helpers --------------------------------------------- */
 static void resize_array(size_t *cap, seq_t **ptr, size_t needed)
 {
     if (*cap < needed) {
         size_t old = *cap;
-        seq_t *tmp = (seq_t *)realloc(*ptr, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *ptr, needed);
         if (!tmp) abort();
         *ptr = tmp;
         *cap = needed;

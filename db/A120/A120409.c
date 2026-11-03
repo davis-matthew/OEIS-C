@@ -9,12 +9,16 @@
  *            n^1*(n+1)^2*(n+2)^3*(n+3)^4*(n+4)^5*(n+5)^6/(1!*2!*3!*4!*5!*6!)
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   seq_one
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_one.h"
+#include <stdint.h>
+#include <stdlib.h>
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {

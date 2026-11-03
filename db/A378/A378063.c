@@ -10,7 +10,8 @@
  *            binomial(2m, k) * Euler(k)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 7, i64 n <= 11, i128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Implementation uses a memoized table of Euler numbers of the second kind
  * (A000364) and computes a(n) in O(n) time per call. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for Euler numbers G_n (g_n).  Index 0 is always 1. */
 static seq_t *euler_cache = NULL;
@@ -26,8 +28,7 @@ static idx_t euler_cache_size = 0;
 /* Ensure euler_cache contains entries up to max_idx */
 static void ensure_euler(idx_t max_idx) {
     if (max_idx < euler_cache_size) return;
-    euler_cache = (seq_t *)realloc(euler_cache,
-                                   (max_idx + 1) * sizeof(seq_t));
+    euler_cache = mem_resize(seq_t, euler_cache, (max_idx + 1));
     if (!euler_cache) return; /* memory error: caller will fail */
 
     for (idx_t n = euler_cache_size; n <= max_idx; ++n) {

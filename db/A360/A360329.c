@@ -11,7 +11,8 @@
  *            a(p^e) = 1 if p is prime‑indexed, and p^e otherwise
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   small_is_prime
+ * Validated: standard, pass, 93 terms through n = 9107 (2026-11-01)
+ * Helpers:   is_prime_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/small_is_prime.h"
+#include "../utils/is_prime_i32.h"
 
 /* --------- Local utilities --------------------------------------- */
 
@@ -59,7 +60,7 @@ static void ensure_primes(uint64_t limit)
 
     /* Mark prime-indexed primes */
     for (size_t i = 0; i < primes_cnt; ++i)
-        prime_indexed[i] = small_is_prime((int)(i + 1));
+        prime_indexed[i] = is_prime_i32((int)(i + 1));
 
     primes_ready = true;
 }

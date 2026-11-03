@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=1..n} sigma((n/ gcd(k,n))^4)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 83, u64 n <= 7087,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 49 terms through n = 9906 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 static const uint64_t small_primes[] = {
     2ULL, 3ULL, 5ULL, 7ULL, 11ULL, 13ULL, 17ULL, 19ULL, 23ULL, 29ULL,
@@ -31,7 +33,7 @@ static inline seq_t prime_power_value(seq_t p, unsigned int e)
     /* S1 = Σ_{i=0..e} p^(5i) */
     seq_t sum1 = 1;
     seq_t term = 1;
-    seq_t pow5 = seq_pow(p, 5u);
+    seq_t pow5 = ipow_idx(p, 5u);
     for (unsigned int i = 1; i <= e; ++i) {
         term *= pow5;
         sum1 += term;

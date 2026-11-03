@@ -8,7 +8,8 @@
  * Formula:   a(n) = [x^(2*n)] (1+z+z^2)^(2*n-1)*(1+3*z+5*z^2)/(1-z)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    only up to degree 2*n and then evaluates the defined closed form. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,13 +30,13 @@ seq_t a(idx_t n)
     idx_t max_k   = 2 * n;          /* we need coefficients up to degree 2*n */
 
     /* Dynamically allocate array for coefficients [0..max_k] */
-    seq_t *coeff = (seq_t *)malloc((max_k + 1) * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (max_k + 1));
     if (!coeff)
     {
         /* If allocation fails, return 0 as a harmless fallback */
         return 0;
     }
-    memset(coeff, 0, (max_k + 1) * sizeof(seq_t));
+    mem_set(coeff, 0, (max_k + 1) * sizeof(seq_t));
     coeff[0] = 1;   /* (1+z+z^2)^0 = 1 */
 
     /* Build the polynomial (1+z+z^2)^m iteratively */
@@ -71,6 +73,6 @@ seq_t a(idx_t n)
        where c_k are the coefficients of (1+z+z^2)^(2*n-1). */
     seq_t result = coeff[max_k] + 4u * coeff[max_k - 1] + 9u * prefix;
 
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

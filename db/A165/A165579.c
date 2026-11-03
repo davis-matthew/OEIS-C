@@ -8,8 +8,9 @@
  *            symbol modulo the prime 233. The partial sums are periodic with
  *            * period 233, so a(n) = a(n mod 233). This implementation *
  *            precomputes the table of values for one period on first call
- * Range:     i8 n <= 9719, i16 n <= 9719, i32 n <= 9719, i64 n <= 9719,
- *            i128 n <= 9719, big any n
+ * Range:     i8 n <= 59881, i16 n <= 59881, i32 n <= 59881, i64 n <= 59881,
+ *            i128 n <= 59881, big any n
+ * Validated: standard, pass, 113 terms through n = 9719 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

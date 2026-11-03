@@ -10,12 +10,14 @@
  *            with all parts ≤ k
  * Range:     u8 n <= 33, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     {
         idx_t m = n / 2;
         /* dp[j] will hold p(j, current_max) */
-        seq_t *dp = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, (n + 1));
         if (!dp)
             return term;     /* fallback on OOM */
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             dp[j] += dp[j - m];
         seq_t p_nm = dp[n];
 
-        free(dp);
+        mem_free(dp);
 
         term += (p_nm - p_nm1);
     }

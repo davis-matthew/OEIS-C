@@ -10,14 +10,16 @@
  *            C(m-1,n-1) + C(m-1,n) where C is the binomial coefficient. The
  *            sequence a(n) is obtained by finding the unique row m such that
  *            m(m+1)/2 >= n, then column c = n - m(m-1)/2
- * Range:     u8 n <= 39, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
+ * Range:     u8 n <= 58, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Integer square root of a 128‑bit unsigned value.  Returns floor(sqrt(v)). */

@@ -9,6 +9,7 @@
  *            Σ_{j>=0} q^j * floor(binomial(n, k) / 2^j), q = 3
  * Range:     u8 n <= 30, u16 n <= 82, u32 n <= 284, u64 n <= 1008,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1308 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
    

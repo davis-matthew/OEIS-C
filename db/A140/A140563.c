@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Check primality of an idx_t value.  Works for 2, 3 and all odd numbers. */
 static bool is_prime_idx(idx_t n)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Initialise storage on first call. */
     if (output == NULL) {
         out_cap = 128;
-        output = (seq_t *)malloc(out_cap * sizeof(seq_t));
+        output = mem_new(seq_t, out_cap);
         out_count = 0;
         next = 2;
     }
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
                 /* Ensure there is room. */
                 if (out_count >= out_cap) {
                     out_cap *= 2;
-                    output = (seq_t *)realloc(output, out_cap * sizeof(seq_t));
+                    output = mem_resize(seq_t, output, out_cap);
                 }
                 output[out_count++] = (seq_t)next;
             }

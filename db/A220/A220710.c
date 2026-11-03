@@ -12,13 +12,15 @@
  *            1520, a(8) = 5706, a(9) = 21418, a(10) = 80390, a(11) = 301736
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 35, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for already computed terms (index 0 unused) */
 static seq_t *cache = NULL;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (!cache) {
         cache_size = sizeof(init_vals) / sizeof(init_vals[0]);   /* includes index 0 */
-        cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();                                 /* memory error */
 
         for (idx_t i = 1; i < cache_size; ++i)
@@ -54,14 +56,14 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t old_size = cache_size;
         idx_t new_size = n + 1;                 /* needed indices: 0 .. n */
-        seq_t *new_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) abort();
 
         /* copy old values */
         for (idx_t i = 0; i < old_size; ++i)
             new_cache[i] = cache[i];
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
 

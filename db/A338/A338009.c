@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   is_prime_small, lucas_u_mod
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,45 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/lucas_u_mod.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Compute U(n) modulo mod using fast doubling for the Lucas sequence
+   with recurrence U(n+2) = 5*U(n+1) - U(n) and U(0)=0, U(1)=1.
+   Returns the value of U(n) mod mod. */
+static seq_t lucas_u_mod(idx_t n, seq_t mod)
+{
+    if (n == 0) return 0;
+    seq_t a = 1, b = 0, c = 0, d = 1;      /* Result matrix R = I */
+    seq_t ma = 5 % mod;     /* Matrix M[0][0] = a = 5 mod m */
+    seq_t mb = (seq_t)(mod - 1); /* M[0][1] = -1 mod m */
+    seq_t mc = 1;           /* M[1][0] = 1           */
+    seq_t md = 0;           /* M[1][1] = 0           */
+
+    idx_t e = n - 1;
+    while (e)
+    {
+        if (e & 1)
+        {
+            /* R = R * M */
+            seq_t na = (a * ma + b * mc) % mod;
+            seq_t nb = (a * mb + b * md) % mod;
+            seq_t nc = (c * ma + d * mc) % mod;
+            seq_t nd = (c * mb + d * md) % mod;
+            a = na; b = nb; c = nc; d = nd;
+        }
+        /* M = M * M */
+        seq_t nma = (ma * ma + mb * mc) % mod;
+        seq_t nmb = (ma * mb + mb * md) % mod;
+        seq_t nmc = (mc * ma + md * mc) % mod;
+        seq_t nmd = (mc * mb + md * md) % mod;
+        ma = nma; mb = nmb; mc = nmc; md = nmd;
+
+        e >>= 1;
+    }
+    /* U(n) = first entry of R * [U(1), U(0)]^T; U(1)=1, U(0)=0 */
+    return a % mod;
+}
 
 /* Return the n‑th term of the sequence (n ≥ 1).  The function is
    memoised so calls may be in any order. */
@@ -37,7 +75,7 @@ seq_t a(idx_t n)
     if (!initialized)
     {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(1);
         len = 0;
         last_checked = 1;
@@ -50,7 +88,7 @@ seq_t a(idx_t n)
         ++last_checked;
         if ((last_checked & 1ULL) == 0)           /* skip evens */
             continue;
-        if (is_prime_small((uint64_t)last_checked))
+        if (is_prime_seq((uint64_t)last_checked))
             continue;
 
         seq_t m = last_checked;
@@ -60,7 +98,7 @@ seq_t a(idx_t n)
             if (len == cap)                       /* grow array if needed */
             {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cap);
                 if (!tmp) exit(1);
                 cache = tmp;
             }

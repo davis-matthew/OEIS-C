@@ -12,6 +12,7 @@
  *            index n, let d satisfy d(d+1)/2 ≤ n < (d+1)(d+2)/2,...
  * Range:     i8 n <= 47, i16 n <= 94, i32 n <= 214, i64 n <= 473,
  *            i128 n <= 1235, big any n
+ * Validated: standard, pass, 107 terms through n = 9858 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

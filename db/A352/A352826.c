@@ -12,7 +12,8 @@
  *            storing the valid ones in a cache. The cache is...
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdbool.h>
 
 #include "../utils/build_primes_upto.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t *valid_vals = NULL;      /* sorted sequence of valid Heinz numbers */
 static size_t  valid_len  = 0;        /* number of stored terms   */
@@ -54,7 +56,7 @@ add_valid(seq_t val)
 {
     if (valid_len >= valid_cap) {
         size_t new_cap = (valid_cap == 0) ? 16 : valid_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(valid_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, valid_vals, new_cap);
         if (!tmp) abort();
         valid_vals = tmp;
         valid_cap  = new_cap;
@@ -67,7 +69,7 @@ static bool
 is_valid_for_m(idx_t m)
 {
     uint64_t num   = (uint64_t)m;
-    idx_t    sqrt_m = _floor_isqrt_u64(num);
+    idx_t    sqrt_m = isqrt(num);
     ensure_primes_upto(sqrt_m);
 
     /* arrays holding (prime_index, exponent) pairs */

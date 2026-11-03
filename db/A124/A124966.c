@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 151, u16 n <= 7948, u32 n <= 7948, u64 n <= 7948,
- *            u128 n <= 7948, big any n
- * Helpers:   none
+ * Range:     u8 n <= 151, u16 n <= 54419, u32 n <= 83131, u64 n <= 83131,
+ *            u128 n <= 83131, big any n
+ * Validated: standard, pass, 79 terms through n = 7948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const size_t LIMIT = 400000;        /* enough to cover >10 000 terms   */
 static bool                 ready  = false;
@@ -34,7 +36,7 @@ static void grow_terms(void)
 {
     if (tcnt >= tcap) {
         size_t new_cap = tcap ? tcap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) return;                     /* allocation failed: abort */
         terms = tmp;
         tcap = new_cap;

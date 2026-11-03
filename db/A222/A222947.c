@@ -9,7 +9,8 @@
  *            n and gcd(i,j,k)<=1
  * Range:     u8 n <= 64, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   gcd_uint64_uint64
+ * Validated: standard, pass, 73 terms through n = 100 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/gcd_uint64_uint64.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -39,8 +40,8 @@ seq_t a(idx_t n)
             uint64_t limitK = (prod == 0) ? n : n / prod;                 /* |k| <= n/|i*j| */
             for (int64_t k = -(int64_t)limitK; k <= (int64_t)limitK; ++k) {
                 uint64_t abs_k = (k >= 0) ? (uint64_t)k : (uint64_t)(-k);
-                uint64_t g = gcd_uint64_uint64(abs_i, abs_j);
-                g = gcd_uint64_uint64(g, abs_k);
+                uint64_t g = gcd_u64(abs_i, abs_j);
+                g = gcd_u64(g, abs_k);
                 if (g <= 1) {
                     int64_t sum = i + j + k;                       /* sum ∈ [-3n,3n] */
                     seen[(size_t)(sum + offset)] = 1;

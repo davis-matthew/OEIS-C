@@ -12,12 +12,14 @@
  *            triangle row‑by‑row (rows and columns start at 1)
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 39, u64 n <= 96, u128 n <= 263,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1244 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;   /* rows[1] is row 1 (index 0 unused) */
 static size_t rowsCap = 0;    /* capacity of rows pointer array   */
@@ -43,7 +45,7 @@ static void ensure_rows(idx_t r)
     while (maxRow < r) {
         idx_t next = maxRow + 1;           /* row number (1‑based) */
         size_t len = (size_t)next;         /* length of the row   */
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row)
             return; /* allocation failed */
 

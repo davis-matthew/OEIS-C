@@ -12,6 +12,7 @@
  *            seq_t
  * Range:     i8 n <= 22, i16 n <= 58, i32 n <= 179, i64 n <= 644,
  *            i128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1271 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

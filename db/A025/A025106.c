@@ -10,13 +10,15 @@
  *            ceil(n/2) = (n+1)/2 using integer division
  * Range:     u8 n <= 9, u16 n <= 28, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache for Fibonacci numbers */
 static seq_t *fib_cache = NULL;
@@ -34,13 +36,13 @@ static void ensure_fib(size_t need)
     while (new_cap <= need)
         new_cap *= 2;
 
-    seq_t *new_fib = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_fib = mem_new(seq_t, new_cap);
     if (!new_fib)
         abort();   /* allocation failed */
 
     if (fib_cache) {
-        memcpy(new_fib, fib_cache, fib_len * sizeof(seq_t));
-        free(fib_cache);
+        mem_copy(new_fib, fib_cache, fib_len * sizeof(seq_t));
+        mem_free(fib_cache);
     }
     fib_cache = new_fib;
     fib_cap = new_cap;

@@ -9,12 +9,15 @@
  *            14*7^n - 24*6^n + 10*5^n
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 750 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,15 +27,15 @@ seq_t a(idx_t n)
     seq_t exp = (seq_t)n;
     seq_t result = 0;
 
-    result += (seq_t)16 * big_pow((seq_t)16, exp);
-    result += (seq_t)30 * big_pow((seq_t)15, exp);
-    result -= (seq_t)24 * big_pow((seq_t)12, exp);
-    result -= (seq_t)40 * big_pow((seq_t)10, exp);
-    result += (seq_t) 9 * big_pow((seq_t) 9, exp);
-    result += (seq_t)16 * big_pow((seq_t) 8, exp);
-    result += (seq_t)14 * big_pow((seq_t) 7, exp);
-    result -= (seq_t)24 * big_pow((seq_t) 6, exp);
-    result += (seq_t)10 * big_pow((seq_t) 5, exp);
+    result += (seq_t)16 * ipow((seq_t)16, exp);
+    result += (seq_t)30 * ipow((seq_t)15, exp);
+    result -= (seq_t)24 * ipow((seq_t)12, exp);
+    result -= (seq_t)40 * ipow((seq_t)10, exp);
+    result += (seq_t) 9 * ipow((seq_t) 9, exp);
+    result += (seq_t)16 * ipow((seq_t) 8, exp);
+    result += (seq_t)14 * ipow((seq_t) 7, exp);
+    result -= (seq_t)24 * ipow((seq_t) 6, exp);
+    result += (seq_t)10 * ipow((seq_t) 5, exp);
 
     return result;
 }

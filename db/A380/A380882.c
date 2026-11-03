@@ -9,7 +9,8 @@
  *            sphenic if it is the product of exactly three distinct primes
  * Range:     u8 none, u16 n <= 25, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     /* Grow or initialise cache if needed */
     if (terms == NULL) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* Generate terms until we have n terms */
@@ -54,7 +57,7 @@ seq_t a(idx_t n)
         if (cnt == 3 && exps[0] == 1 && exps[1] == 1 && exps[2] == 1) {
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (tmp == NULL) { /* allocation failure – terminate */
                     return (seq_t)0;
                 }

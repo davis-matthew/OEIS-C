@@ -11,12 +11,14 @@
  *            n≥9
  * Range:     u8 n <= 66, u16 n <= 996, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *b = NULL;          /* array of coefficients b(n) */
 static size_t computed = 0;      /* number of elements stored in b */
@@ -28,7 +30,7 @@ static void ensure_b(size_t upto)
     if (b == NULL || capacity < upto + 1) {
         size_t new_cap = capacity ? capacity * 2 : 16;
         if (new_cap < upto + 1) new_cap = upto + 1;
-        b = (seq_t *)realloc(b, new_cap * sizeof(seq_t));
+        b = mem_resize(seq_t, b, new_cap);
         capacity = new_cap;
     }
 

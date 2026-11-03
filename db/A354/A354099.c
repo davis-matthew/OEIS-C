@@ -5,15 +5,26 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = v₃(φ(n))
- * Range:     u8 n <= 9233, u16 n <= 9233, u32 n <= 9233, u64 n <= 9233,
- *            u128 n <= 9233, big any n
- * Helpers:   v3_u64
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9233 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/v3_u64.h"
+
+static inline unsigned int v3_u64(uint64_t x)
+{
+    unsigned int c = 0;
+    while (x % 3 == 0)
+    {
+        x /= 3;
+        ++c;
+    }
+    return c;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 8, u64 n <= 23, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATE 15625            /* 5^6 */
 #define POW5_5 3125            /* 5^5 */
@@ -89,10 +91,10 @@ static void ensure_cache_cap(size_t idx)
     if (idx < cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap <= idx) new_cap *= 2;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(1);
     /* initialise new slots to zero */
-    memset(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+    mem_set(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
     cache = new_cache;
     cache_cap = new_cap;
 }
@@ -106,8 +108,8 @@ static void expand_to(idx_t n)
     precompute_allowed();
 
     if (!dp) {
-        dp    = (seq_t*)calloc(STATE, sizeof(seq_t));
-        newdp = (seq_t*)calloc(STATE, sizeof(seq_t));
+        dp    = mem_new(seq_t, STATE);
+        newdp = mem_new(seq_t, STATE);
         if (!dp || !newdp) exit(1);
     }
 
@@ -122,7 +124,7 @@ static void expand_to(idx_t n)
         }
 
         /* Transition from length L = dp_len to L+1. */
-        memset(newdp, 0, STATE * sizeof(seq_t));
+        mem_set(newdp, 0, STATE * sizeof(seq_t));
 
         for (int idx = 0; idx < STATE; ++idx) {
             if (dp[idx] == 0) continue;

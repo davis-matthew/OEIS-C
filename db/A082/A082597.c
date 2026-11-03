@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Helper to estimate an upper bound for the n‑th prime (Rosser's theorem). */
 static uint64_t prime_upper_bound(idx_t n)
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         free(is_prime);
 
         /* Allocate or enlarge the prefix sums array. */
-        seq_t *new_pref = (seq_t*)realloc(pref, (new_cnt + 1) * sizeof(seq_t));
+        seq_t *new_pref = mem_resize(seq_t, pref, (new_cnt + 1));
         if (!new_pref) return (seq_t)0; /* memory error */
         pref = new_pref;
 

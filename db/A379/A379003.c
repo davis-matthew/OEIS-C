@@ -9,8 +9,9 @@
  *            equivalently, v = n / m where m is obtained by dividing n by all
  *            factors of 2 and 5. Then a(n) = #{t ≤ n / v : gcd(t,10) = 1} = m
  *            - ⌊m/2⌋ - ⌊m/5⌋ + ⌊m/10⌋ (m = n / v) a(0) = 0 by convention
- * Range:     u8 n <= 302, u16 n <= 9450, u32 n <= 9450, u64 n <= 9450,
- *            u128 n <= 9450, big any n
+ * Range:     u8 n <= 302, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 109 terms through n = 9450 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

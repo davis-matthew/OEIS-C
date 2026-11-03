@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 208, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 59 terms through n = 998 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,8 @@
 #include <stdbool.h>
 
 /* Ensure that the utility for primality testing is available. */
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of found primes */
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
     /* Initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();    /* allocation failure */
         cache_size = 0;
         next_candidate = 44;
@@ -59,8 +61,7 @@ seq_t a(idx_t n) {
             /* Grow cache if necessary */
             if (cache_size == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 1 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                               sizeof(seq_t) * new_cap);
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL) abort(); /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

@@ -7,11 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} binomial(3*k, n-3*k) * Catalan(k)
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 33, u64 n <= 61, u128 n <= 116,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 1482 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
 

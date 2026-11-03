@@ -11,7 +11,8 @@
  *            difference 1 between all horizontal and vertical neighbor cells
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 14, u128 n <= 32,
  *            big any n
- * Helpers:   block_f, encode_sub
+ * Validated: standard, pass, 30 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,27 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/block_f.h"
-#include "../utils/encode_sub.h"
+#include "../utils/mem.h"
+
+/* f = min + upper median + max of 4 integers (0..2) */
+static inline uint8_t block_f(uint8_t a00, uint8_t a01,
+                              uint8_t a10, uint8_t a11) {
+    uint8_t v[4] = {a00, a01, a10, a11};
+    /* simple insertion sort */
+    for (int i = 0; i < 4; ++i)
+        for (int j = i + 1; j < 4; ++j)
+            if (v[i] > v[j]) {
+                uint8_t t = v[i]; v[i] = v[j]; v[j] = t;
+            }
+    return v[0] + v[2] + v[3];
+}
+
+/* encode length‑5 subblock into base‑7 number (0..16806) */
+static inline int encode_sub(const uint8_t s[5]) {
+    int code = 0;
+    for (int i = 0; i < 5; ++i) code = code * 7 + s[i];
+    return code;
+}
 
 /* row of 6 values in 0..2 */
 static uint8_t rows[729][6];
@@ -159,11 +179,11 @@ seq_t a(idx_t n) {
                 valid_trans[i][j] = ok;
             }
 
-        dp_prev = (seq_t *)malloc(pair_count * sizeof(seq_t));
-        dp_curr = (seq_t *)malloc(pair_count * sizeof(seq_t));
+        dp_prev = mem_new(seq_t, pair_count);
+        dp_curr = mem_new(seq_t, pair_count);
         for (int i = 0; i < pair_count; ++i) dp_prev[i] = 1; /* step 1 */
 
-        seq_val = (seq_t *)malloc(sizeof(seq_t));
+        seq_val = mem_new(seq_t, 1);
         seq_val[0] = (seq_t)pair_count; /* a(1) */
         cached_max = 1;
     }
@@ -199,7 +219,7 @@ seq_t a(idx_t n) {
 
         /* grow seq_val if necessary */
         idx_t new_size = cached_max + 1;
-        seq_val = (seq_t *)realloc(seq_val, new_size * sizeof(seq_t));
+        seq_val = mem_resize(seq_t, seq_val, new_size);
         seq_val[cached_max] = total;
         ++cached_max;
     }

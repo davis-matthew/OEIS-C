@@ -10,13 +10,27 @@
  *            descending antidiagonals
  * Range:     u8 n <= 61, u16 n <= 199, u32 n <= 613, u64 n <= 2181,
  *            u128 n <= 8073, big any n
- * Helpers:   index_to_nk
+ * Validated: standard, pass, 94 terms through n = 9640 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/index_to_nk.h"
+
+/* Convert a linear index into (n, k) on the descending antidiagonals. */
+static void index_to_nk(idx_t idx, int *n_out, int *k_out)
+{
+    unsigned __int128 i = idx;
+    int d = 0;
+    while ((unsigned __int128)(d + 1) * (d + 2) / 2 <= i)
+        ++d;
+    unsigned __int128 pos = i - (unsigned __int128)d * (d + 1) / 2;
+    int n = (int)pos;
+    int k = d - n;
+    *n_out = n;
+    *k_out = k;
+}
 
 static seq_t dp[300][300];  /* DP[n][k] – works for all terms up to ~10 000 indices. */
 static int dp_max = -1;     /* Highest diagonal index computed so far. */

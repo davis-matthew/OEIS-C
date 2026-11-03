@@ -11,13 +11,15 @@
  *            (mod 3) else 0, T(n,k) = T(n‑1,k) + T(n‑1,k‑1) for 0 < k < n
  * Range:     u8 n <= 70, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static mutable state for memoisation */
 static seq_t  *seq_cache = NULL;     /* flattened sequence */
@@ -34,11 +36,11 @@ static void init_once(void)
 
     /* allocate capacity for the first value */
     seq_cap = 1;
-    seq_cache = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_cap);
 
     /* row 0 */
     prev_len = 1;
-    prev_row = (seq_t*)malloc(prev_len * sizeof(seq_t));
+    prev_row = mem_new(seq_t, prev_len);
     prev_row[0] = (seq_t)1;
 
     /* append the single element of row 0 to the cache */
@@ -54,7 +56,7 @@ static void ensure_cache(idx_t n)
         idx_t new_len = row + 1;   /* length of the new row */
 
         /* allocate memory for the new row */
-        seq_t *new_row = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
 
         /* left edge */
         new_row[0] = (seq_t)1;
@@ -71,7 +73,7 @@ static void ensure_cache(idx_t n)
         if (seq_len + new_len > seq_cap) {
             seq_cap = (seq_cap == 0) ? 1 : seq_cap * 2;
             while (seq_len + new_len > seq_cap) seq_cap *= 2;
-            seq_cache = (seq_t*)realloc(seq_cache, seq_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
         }
 
         /* append the new row to the flattened cache */
@@ -80,7 +82,7 @@ static void ensure_cache(idx_t n)
         }
 
         /* advance to the next row */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = new_row;
         prev_len = new_len;
     }

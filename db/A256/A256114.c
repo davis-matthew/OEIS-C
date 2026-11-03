@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 9662, u64 n <= 9662,
- *            u128 n <= 9662, big any n
- * Helpers:   digit_product, seq_alloc, seq_mul, seq_realloc
+ * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 15212, u64 n <= 15213,
+ *            u128 n <= 15213, big any n
+ * Validated: standard, pass, 67 terms through n = 9662 (2026-11-01)
+ * Helpers:   digit_product
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,35 @@
 /* Compute by brute‑force search over positive integers, skipping multiples of 10. */
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/digit_product.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {

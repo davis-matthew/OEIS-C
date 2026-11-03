@@ -11,7 +11,8 @@
  *            perimeter
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   floor_sqrt, gcd
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   gcd, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,13 +22,32 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Dynamic array helpers */
 static void grow_seq_array(seq_t **arr, size_t *cap, size_t new_cap)
 {
-    seq_t *tmp = (*cap == 0) ? (seq_t *)malloc(new_cap * sizeof(seq_t))
-                            : (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = (*cap == 0) ? mem_new(seq_t, new_cap)
+                            : mem_resize(seq_t, *arr, new_cap);
     *arr = tmp;
     *cap = new_cap;
 }

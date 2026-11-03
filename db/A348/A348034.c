@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Test whether n has a unitary divisor d such that sigma(d)*d == n. */
 static bool has_property(uint64_t n)
@@ -79,7 +81,7 @@ static void ensure_capacity(size_t need)
     if (cache_cap < need) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

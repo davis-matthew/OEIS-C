@@ -7,14 +7,17 @@
  * Formula:   a(1) = 7; a(n+1) = a(n) * digit_sum(a(n))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 23,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 32 terms through n = 229 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Initialize first term if needed */
     if (cached_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0; /* allocation failure */
         cache[0] = (seq_t)7;      /* a(1) */
         cached_len = 1;
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
         seq_t next = prev * sum;
 
         /* Grow cache */
-        seq_t *new_cache = (seq_t *)realloc(cache, (i + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (i + 1));
         if (!new_cache) return 0; /* allocation failure */
         cache = new_cache;
         cache[i] = next;

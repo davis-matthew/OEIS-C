@@ -11,12 +11,14 @@
  *            Then a(n) = T(r,c) where r(r+1)/2 ≤ n < (r+1)(r+2)/2 and c...
  * Range:     u8 n <= 29, u16 n <= 94, u32 n <= 307, u64 n <= 1142,
  *            u128 n <= 4217, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9578 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper functions. */
 static idx_t find_row(idx_t n);
@@ -55,7 +57,7 @@ static void ensure_rows(idx_t upto)
     }
 
     for (idx_t i = tri_rows; i <= upto; ++i) {
-        seq_t *row = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (!row) abort();
 
         if (i == 0) {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{p prime} p^{ Sum_{k≥0} floor((n-1)/((p-1)p^k)) }
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: standard, pass, 35 terms through n = 506 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,14 @@
 #include <stdlib.h>
 
 /* Helper functions supplied by the build */
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp) */
-#include "../utils/seq_mul.h"   /* seq_t seq_mul(seq_t a, seq_t b) */
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* The function must have external linkage.  No other functions are
    defined outside of this file.  All work is performed in this
@@ -86,7 +93,7 @@ seq_t a(idx_t n)
         }
 
         if (exp > 0) {
-            seq_t p_pow = big_pow((seq_t)p, (seq_t)exp);
+            seq_t p_pow = ipow((seq_t)p, (seq_t)exp);
             result = seq_mul(result, p_pow);
         }
     }

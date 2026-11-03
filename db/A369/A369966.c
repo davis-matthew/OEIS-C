@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 8301, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors
+ * Validated: standard, pass, 82 terms through n = 9871 (2026-11-03)
+ * Helpers:   bigomega_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
+#include "../utils/mem.h"
 
 /* Static cache for generated terms. */
 static seq_t *cache      = NULL;   /* array of computed values        */
@@ -36,14 +39,14 @@ static void ensure_cache(idx_t n)
 {
     while (terms_found < n) {
         /* Count prime factors (with multiplicity) of the current candidate. */
-        seq_t omega = count_prime_factors(next_candidate);
+        seq_t omega = bigomega_seq(next_candidate);
 
         /* If the total number of prime factors is even, store the candidate. */
         if ((omega & 1U) == 0) {
             if (cache_cap == terms_found) {
                 /* Grow the cache: double its capacity, or start at 8. */
                 size_t new_cap = (cache_cap == 0) ? 8 : (cache_cap << 1);
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* In case of allocation failure, terminate. */
                     abort();

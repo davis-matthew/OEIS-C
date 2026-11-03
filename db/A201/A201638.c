@@ -11,12 +11,14 @@
  *            this triangle, one after another
  * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find the row index r such that the cumulative number of terms
@@ -31,11 +33,11 @@ seq_t a(idx_t n) {
 
     /* Allocate two temporary rows.  The maximum row length up to r
        is r+1, so we allocate r+2 to be safe for indexing.  */
-    seq_t *prev = (seq_t *)malloc((size_t)(r + 2) * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc((size_t)(r + 2) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(r + 2));
+    seq_t *cur  = mem_new(seq_t, (size_t)(r + 2));
     if (!prev || !cur) {
-        if (prev) free(prev);
-        if (cur)  free(cur);
+        if (prev) mem_free(prev);
+        if (cur)  mem_free(cur);
         return (seq_t)0;          /* allocation failure (unlikely) */
     }
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n) {
     idx_t k = n - start;
     seq_t result = prev[k];
 
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }

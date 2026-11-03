@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 895, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9440 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Sum of prime factors with multiplicity for 64‑bit unsigned integers. */
 static seq_t sum_prime_factors_uint64(uint64_t n)
@@ -51,7 +53,7 @@ static void terms_ensure_capacity(size_t needed)
     if (needed <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 64;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort();            /* out of memory */
     terms = tmp;
     terms_cap = new_cap;

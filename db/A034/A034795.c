@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 3510, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 71 terms through n = 9388 (2026-11-01)
+ * Helpers:   next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start); */
-#include "../utils/mod_pow.h"     /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
 
 #define MAX_CACHE 200000        /* enough for n up to ~10⁶ in practice */
 
@@ -54,7 +56,7 @@ a(idx_t n)
 
         while (1) {
             seq_t cand = (seq_t)candidate;
-            seq_t leg = mod_pow(cand, exp, prev);   /* Legendre symbol */
+            seq_t leg = powmod(cand, exp, prev);   /* Legendre symbol */
             if (leg == (seq_t)1) {
                 cache[cache_len] = cand;            /* found a(k) */
                 cache_len++;

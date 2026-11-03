@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* prime test for 64‑bit numbers (deterministic Miller–Rabin) */
 static inline uint64_t mod_mul(uint64_t a, uint64_t b, uint64_t m)
@@ -79,7 +81,7 @@ static void ensure_cache_cap(size_t new_cap)
     if (cache_cap >= new_cap) return;
     size_t new_size = (cache_cap == 0) ? 16 : cache_cap * 2;
     while (new_size < new_cap) new_size <<= 1;
-    seq_t *p = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_size);
     if (!p) abort();  /* allocation failure */
     cache = p;
     cache_cap = new_size;

@@ -7,7 +7,8 @@
  * Formula:   a(n) is the nth index n such that prime(n)^2 + 1 is a semiprime
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   build_primes_upto, floor_sqrt, is_prime_small
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,26 @@
 #include <stdlib.h>
 
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_prime_small.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime_seq.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Static cache for primes */
 static uint64_t *prime_list   = NULL;
@@ -79,7 +98,7 @@ static bool is_semiprime(seq_t v)
             break;
         if (v % (seq_t)p == 0) {
             seq_t q = v / (seq_t)p;
-            return is_prime_small(q);
+            return is_prime_seq(q);
         }
     }
     return false;

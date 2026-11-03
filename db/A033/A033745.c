@@ -8,23 +8,25 @@
  *            Σ_{m∈ℤ} q^{m² } (OEIS A033745)
  * Range:     u8 n <= 287, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 8468 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate arrays to hold intermediate convolution results */
-    seq_t *cur  = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, n + 1);
+    seq_t *next = mem_new(seq_t, n + 1);
     if (!cur || !next) {
         /* In an error situation return 0 (sequence values are non‑negative) */
-        free(cur);
-        free(next);
+        mem_free(cur);
+        mem_free(next);
         return 0;
     }
 
@@ -68,8 +70,8 @@ seq_t a(idx_t n)
     seq_t result = cur[n];
 
     /* Free the allocated buffers */
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
 
     return result;
 }

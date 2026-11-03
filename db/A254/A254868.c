@@ -9,15 +9,17 @@
  *            {a(1)..a(n-1)} then a(n-1) + 4; else a(n-1) * 4 (guaranteed
  *            new). This implements the Recamán [-, +, *]-sequence with seed 6
  *            and step 4
- * Range:     u8 n <= 54, u16 n <= 8098, u32 n <= 8098, u64 n <= 8098,
- *            u128 n <= 8098, big any n
- * Helpers:   none
+ * Range:     u8 n <= 54, u16 n <= 13654, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 74 terms through n = 8098 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: linear search for a value in the computed sequence */
 static bool contains(const seq_t *terms, size_t len, seq_t val)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* initialize array with seed on first call */
     if (terms_len == 0) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms[0] = seed;
         terms_len = 1;
     }
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
         /* ensure capacity */
         if (terms_len == terms_cap) {
             terms_cap = terms_cap ? terms_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
             if (!tmp) {               /* allocation failure – return last known term */
                 return terms[terms_len - 1];
             }

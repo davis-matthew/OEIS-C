@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) + (isprime(a(n-1)) ? 2 : 1), a(1) = 1
  * Range:     u8 n <= 202, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9735 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Simple primality test for seq_t values.
    Works for any unsigned integer type without overflow. */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     if (cache_len == 0) {
         /* Allocate space for the first term */
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;
         cache[0] = (seq_t)1;      /* a(1) = 1 */
         cache_len = 1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
     if (cache_len < n) {
         idx_t new_len = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return 0;
         cache = tmp;
         for (idx_t i = cache_len; i < new_len; ++i) {

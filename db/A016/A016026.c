@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 261, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 108 terms through n = 9083 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
    This is OEIS sequence A016026.                                                          */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
        (a single digit).  Therefore the loop below always terminates. */
     for (idx_t base = 2;; ++base)
     {
-        if (is_palindrome((seq_t)n, base))
+        if (is_palindrome_base((seq_t)n, base))
             return (seq_t)base;
 
         /* When base > n the representation of n is a single digit,

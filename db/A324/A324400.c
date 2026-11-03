@@ -9,8 +9,9 @@
  * Formula:   a(n) = n <= 3 ? n * : ( (n & (n-1)) == 0 ? 2 * : 1 + n -
  *            floor_log2(n) ) * where floor_log2(n) is the largest k such that
  *            2^k ≤ n
- * Range:     u8 n <= 262, u16 n <= 9975, u32 n <= 9975, u64 n <= 9975,
- *            u128 n <= 9975, big any n
+ * Range:     u8 n <= 262, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 99 terms through n = 9975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

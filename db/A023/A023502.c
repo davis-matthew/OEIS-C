@@ -11,7 +11,8 @@
  *            The function is memoised and works for any order of calls
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   fib, init_lucas_array
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,48 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/fib.h"
-#include "../utils/init_lucas_array.h"
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
+
+/* Generate Lucas numbers > 3 up to a safe bound */
+static void init_lucas_array(uint64_t **lucas_out, size_t *cnt_out)
+{
+    static uint64_t *lucas = NULL;
+    static size_t lucas_cnt = 0;
+    if (lucas != NULL) {                       /* already initialised */
+        *lucas_out = lucas;
+        *cnt_out   = lucas_cnt;
+        return;
+    }
+
+    /* Upper bound chosen so that it covers d(n) for n up to 10000.
+       The worst‑case d(10000) is well below 200000. */
+    const uint64_t LIMIT = 200000;
+    uint64_t *buf = (uint64_t *)malloc(LIMIT * sizeof(uint64_t));
+    size_t idx = 0;
+    uint64_t l0 = 2, l1 = 1, l2;
+    while (l0 <= LIMIT) {
+        if (l0 > 3)
+            buf[idx++] = l0;
+        l2 = l0 + l1;
+        l0 = l1;
+        l1 = l2;
+    }
+    lucas = buf;
+    lucas_cnt = idx;
+    *lucas_out = lucas;
+    *cnt_out   = lucas_cnt;
+}
 
 /* Grow a dynamically allocated array of seq_t */
 static void grow_seq_t_array(seq_t **arr, size_t *cap, size_t needed)
@@ -28,7 +69,7 @@ static void grow_seq_t_array(seq_t **arr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
         while (new_cap < needed) new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   is_odd_prime_power_u64
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,27 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_odd_prime_power_u64.h"
+
+/* Test whether an ordinary unsigned 64‑bit integer is an odd prime power */
+static bool is_odd_prime_power_u64(uint64_t n)
+{
+    if (n < 3 || (n & 1) == 0)
+        return false;                 /* less than 3 or even → false */
+
+    uint64_t p;
+    for (p = 3; p * p <= n; p += 2)   /* trial divide by odd numbers */
+        if (n % p == 0)
+            break;                    /* found a divisor */
+
+    if (p * p > n)                    /* no divisor → n is prime (odd) */
+        return true;
+
+    /* n divisible by p – check if it is a pure power of p */
+    uint64_t tmp = n;
+    while (tmp % p == 0)
+        tmp /= p;
+    return tmp == 1;                  /* true iff n == p^k */
+}
 
 /* Determine whether a seq_t value is excluded (odd prime power or twice) */
 static bool is_excluded(seq_t m)

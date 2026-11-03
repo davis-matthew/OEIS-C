@@ -8,6 +8,7 @@
  *            iteration of the arithmetic derivative of the integer n
  * Range:     u8 n <= 7, u16 n <= 63, u32 n <= 7167, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 80 terms through n = 9677 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Compute the arithmetic derivative of a 64‑bit integer.

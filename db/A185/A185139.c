@@ -10,6 +10,7 @@
  *            triangle A185139 (offset 1). The first element of row r is 2^r−1
  * Range:     u8 n <= 9, u16 n <= 26, u32 n <= 77, u64 n <= 274, u128 n <= 989,
  *            big any n
+ * Validated: standard, pass, 64 terms through n = 1245 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* index type provided by the build; assumed to be unsigned 64‑bit */

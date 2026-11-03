@@ -7,13 +7,22 @@
  * Formula:   a(n) = (n^n - n) mod 10
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   pow_last_digit
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_last_digit.h"
+
+static unsigned char pow_last_digit(unsigned char base, unsigned char exp)
+{
+    /* exp is in 1..4 */
+    unsigned char result = 1;
+    while (exp--)
+        result = (result * base) % 10;
+    return result;
+}
 
 static const unsigned char cycle_len[10] = {1,1,4,4,2,1,1,4,4,2};
 

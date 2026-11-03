@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 32, u32 n <= 63, u64 n <= 128,
  *            u128 n <= 210, big any n
- * Helpers:   gcd_int
+ * Validated: standard, pass, 60 terms through n = 195 (2026-11-03)
+ * Helpers:   gcd_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/gcd_int.h"
+#include <stddef.h>
+#include "../utils/gcd_i32.h"
+#include "../utils/mem.h"
 
 /* small gcd for int */
 
@@ -36,7 +39,7 @@ seq_t a(idx_t n) {
     static bool init = false;
     if (!init) {
         for (int r = 0; r < 210; ++r)
-            good[r] = (gcd_int(r, 210) != 1);
+            good[r] = (gcd_i32(r, 210) != 1);
         init = true;
     }
 
@@ -48,7 +51,7 @@ seq_t a(idx_t n) {
     dp_cur[2] = 1;  /* prefix sum after first element = 2 */
 
     for (idx_t len = 2; len <= n; ++len) {
-        memset(dp_next, 0, 210 * sizeof(seq_t));
+        mem_set(dp_next, 0, 210 * sizeof(seq_t));
 
         for (int r = 0; r < 210; ++r) {
             if (!good[r]) continue;
@@ -70,7 +73,7 @@ seq_t a(idx_t n) {
         }
 
         /* prepare for next iteration */
-        memcpy(dp_cur, dp_next, 210 * sizeof(seq_t));
+        mem_copy(dp_cur, dp_next, 210 * sizeof(seq_t));
     }
 
     return 0;  /* unreachable */

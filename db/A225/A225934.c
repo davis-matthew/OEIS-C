@@ -12,7 +12,8 @@
  *            (11,11,15) if q≡3 (mod 6) (C,D,E) = (10,10,14) if...
  * Range:     u8 none, u16 none, u32 n <= 19, u64 n <= 285, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of comparator for qsort */
 static int cmp_seq(const void *a, const void *b);
@@ -56,7 +58,7 @@ static void recompute_prime_powers(idx_t limit)
 
     /* Generate prime powers */
     size_t qCap = primeCnt * 4;
-    seq_t *qList = (seq_t*)malloc(qCap * sizeof(seq_t));
+    seq_t *qList = mem_new(seq_t, qCap);
     size_t qSize = 0;
     for (size_t pi = 0; pi < primeCnt; ++pi) {
         uint64_t p = primes[pi];
@@ -64,7 +66,7 @@ static void recompute_prime_powers(idx_t limit)
         while (power <= (seq_t)limit) {
             if (qSize == qCap) {
                 qCap <<= 1;
-                qList = (seq_t*)realloc(qList, qCap * sizeof(seq_t));
+                qList = mem_resize(seq_t, qList, qCap);
             }
             qList[qSize++] = power;
             power *= (seq_t)p;
@@ -73,10 +75,10 @@ static void recompute_prime_powers(idx_t limit)
     free(primes);
 
     /* Sort the list */
-    qsort(qList, qSize, sizeof(seq_t), cmp_seq);
+    mem_qsort(qList, qSize, sizeof(seq_t), cmp_seq);
 
     /* Replace the old cache */
-    free(primePowers);
+    mem_free(primePowers);
     primePowers = qList;
     primePowersSize = (idx_t)qSize;
     sieveLimit = limit;

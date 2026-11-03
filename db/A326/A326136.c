@@ -8,15 +8,33 @@
  * Keywords:  nonn
  * Formula:   a(n) = sigma(n) - sigma(A028234(n)) where A028234(n) removes all
  *            occurrences of the smallest prime factor of n
- * Range:     u8 n <= 119, u16 n <= 9849, u32 n <= 9849, u64 n <= 9849,
- *            u128 n <= 9849, big any n
- * Helpers:   _smallest_prime_factor, sigma_of
+ * Range:     u8 n <= 119, u16 n <= 18479, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 99 terms through n = 9849 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sigma_of.h"
-#include "../utils/_smallest_prime_factor.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +45,7 @@ seq_t a(idx_t n)
     seq_t sigma_n = sigma_of(n);
 
     /* smallest prime factor of n */
-    uint64_t p = _smallest_prime_factor(n);
+    uint64_t p = smallest_prime_factor(n);
 
     /* remove all occurrences of p */
     uint64_t m = n;

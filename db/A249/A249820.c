@@ -12,6 +12,7 @@
  *            * a(1) = 0
  * Range:     i8 n <= 95, i16 n <= 3071, i32 n <= 3071, i64 n <= 3071,
  *            i128 n <= 3071, big any n
+ * Validated: standard, pass, 117 terms through n = 2821 (2026-11-01)
  * Helpers:   build_spf, factor_u64, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,9 +22,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/build_spf.h"
 #include "../utils/factor_u64.h"
 #include "../utils/next_prime.h"
-#include "../utils/build_spf.h"
 
 #define LIMIT 2000000ULL  /* enclose all values needed for the tested range */
 

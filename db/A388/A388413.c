@@ -7,17 +7,19 @@
  * Formula:   a(n) = Sum_{k=0..n} 4^(n-k) * binomial(n,k) * binomial(n+3,k)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 37 terms through n = 930 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     /* Compute 4^n once, then divide by 4 in each step. */
-    seq_t power4 = pow_uint(4, n);
+    seq_t power4 = ipow_u64_idx(4, n);
 
     /* Binomial coefficients C(n,k) and C(n+3,k) initialized at k = 0. */
     seq_t binom_n   = 1;      /* C(n,0) */

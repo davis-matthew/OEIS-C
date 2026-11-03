@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 27, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
  * (see the OEIS entry for sequence A379778)
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static seq_t gaussian_binomial(idx_t n, idx_t k)
 {
@@ -37,9 +40,9 @@ static seq_t gaussian_binomial(idx_t n, idx_t k)
     seq_t result = (seq_t)1;
     for (idx_t i = 1; i <= k; ++i) {
         /* numerator = 2^(n-k+i) - 1 */
-        seq_t num = big_pow((seq_t)2, (seq_t)(n - k + i)) - (seq_t)1;
+        seq_t num = ipow((seq_t)2, (seq_t)(n - k + i)) - (seq_t)1;
         /* denominator = 2^i - 1 */
-        seq_t den = big_pow((seq_t)2, (seq_t)i) - (seq_t)1;
+        seq_t den = ipow((seq_t)2, (seq_t)i) - (seq_t)1;
         /* The product so far is integer; multiply then divide */
         result *= num;
         result /= den;    /* exact division */
@@ -65,7 +68,7 @@ seq_t a(idx_t n)
     seq_t exp = (seq_t)(r - k) * (seq_t)(r - 1);
 
     /* 2^exponent */
-    seq_t pow2 = big_pow((seq_t)2, exp);
+    seq_t pow2 = ipow((seq_t)2, exp);
 
     return g * pow2;
 }

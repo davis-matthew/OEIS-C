@@ -11,13 +11,26 @@
  *            are 5, 6, 8, 9, 15, 30, 173
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 15, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   digit_counts, pow10
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

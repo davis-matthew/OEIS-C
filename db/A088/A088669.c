@@ -9,14 +9,21 @@
  *            standard coin‑change DP to count unordered partitions
  * Range:     u8 n <= 16, u16 n <= 50, u32 n <= 208, u64 n <= 1275,
  *            u128 n <= 10000, big any n
- * Helpers:   xcalloc
+ * Validated: standard, pass, 65 terms through n = 9802 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/xcalloc.h"
+#include "../utils/mem.h"
+
+/* Helper: calloc that returns a typed pointer (needed for C++ compilation). */
+static void* xcalloc(size_t n, size_t sz)
+{
+    return calloc(n, sz);
+}
 
 /* Helper: realloc that returns a typed pointer (needed for C++ compilation). */
 static void* xrealloc(void *ptr, size_t sz)
@@ -56,7 +63,7 @@ seq_t a(idx_t n)
 
     /* DP array: dp[j] = number of partitions of j. */
     size_t dp_size = (size_t)n + 1;
-    seq_t *dp = (seq_t *)xcalloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     dp[0] = (seq_t)1;
 
     for (size_t i = 0; i < part_len; ++i) {
@@ -66,7 +73,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(parts);
     return result;
 }

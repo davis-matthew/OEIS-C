@@ -9,12 +9,14 @@
  *            a(3)=8, a(4)=10
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of computed terms (1‑based) */
 static idx_t cache_len = 0;      /* number of elements stored in cache */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Initialise the cache with the first four terms if it is empty. */
     if (cache_len == 0) {
         idx_t init_len = (n > (idx_t)4) ? n : (idx_t)4;
-        cache = (seq_t *)malloc(init_len * sizeof(seq_t));
+        cache = mem_new(seq_t, init_len);
         if (!cache) abort();
         cache[0] = (seq_t)2;
         cache[1] = (seq_t)5;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Grow the cache if the requested term is not yet stored. */
     if (cache_len < n) {
         idx_t new_len = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
         /* Compute missing terms starting from the first missing index. */

@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 8419, u16 n <= 8419, u32 n <= 8419, u64 n <= 8419,
- *            u128 n <= 8419, big any n
- * Helpers:   is_candidate_valid
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 136 terms through n = 8419 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,14 +24,32 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_candidate_valid.h"
+#include "../utils/mem.h"
+
+static bool is_candidate_valid(const seq_t *seq, size_t len, seq_t cand)
+{
+    size_t new_len = len + 1;
+    for (size_t k = 1; 8 * k <= new_len; ++k) {
+        size_t start    = new_len - 8 * k;
+        size_t base_len = 5 * k;
+        size_t i;
+        for (i = 0; i < 3 * k; ++i) {
+            seq_t v1 = seq[start + i];
+            size_t idx2 = start + base_len + i;
+            seq_t v2 = (idx2 == len) ? cand : seq[idx2];
+            if (v1 != v2) break;
+        }
+        if (i == 3 * k) return false;   /* 8/5‑power found */
+    }
+    return true;
+}
 
 static void grow_seq(seq_t **arr, size_t *cap, size_t needed)
 {
     if (needed <= *cap) return;
     size_t new_cap = (*cap) ? (*cap) * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     *arr = tmp;
     *cap = new_cap;
 }
@@ -46,7 +65,7 @@ seq_t a(idx_t n)
 
     if (seq == NULL) {
         seq_cap = 128;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
 
     /* Generate terms until we reach the requested index */

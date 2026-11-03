@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 20, u16 n <= 829, u32 n <= 9800, u64 n <= 9800,
- *            u128 n <= 9800, big any n
- * Helpers:   sigma_small
+ * Range:     u8 n <= 20, u16 n <= 829, u32 n <= 10029, u64 n <= 10029,
+ *            u128 n <= 10029, big any n
+ * Validated: standard, pass, 68 terms through n = 9800 (2026-11-03)
+ * Helpers:   mem, sigma_u64_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/sigma_small.h"
+#include "../utils/sigma_u64_to_u64.h"
+#include "../utils/mem.h"
 
 /*---  Prime table (up to 1 000 000) --------------------------------------*/
 #define PRIME_LIMIT  1000000
@@ -105,7 +107,7 @@ static bool test_k(uint64_t k)
     }
 
     /* sigma(tau(k)) */
-    uint64_t sigma_tau = sigma_small(tau_k);
+    uint64_t sigma_tau = sigma_u64_to_u64(tau_k);
 
     /* tau(sigma(k)) – need to factor sigma(k) */
     uint64_t sigma_k = (uint64_t)sigma_k128;   /* assume it fits in 64‑bit for the test */
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
     /* initialise the list once */
     if (!list) {
         list_cap = 256;
-        list = (seq_t*)malloc(list_cap * sizeof(seq_t));
+        list = mem_new(seq_t, list_cap);
     }
 
     /* generate terms until we have n of them */
@@ -142,7 +144,7 @@ seq_t a(idx_t n)
         if (test_k(next_k)) {
             if (list_sz >= list_cap) {
                 list_cap *= 2;
-                list = (seq_t*)realloc(list, list_cap * sizeof(seq_t));
+                list = mem_resize(seq_t, list, list_cap);
             }
             list[list_sz++] = (seq_t)next_k;
         }

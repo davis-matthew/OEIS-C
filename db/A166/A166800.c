@@ -12,6 +12,7 @@
  *            25097225 n^3 – 108018018 n^2 – 1797300 n – 2494800
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 3, u64 n <= 15, u128 n <= 15,
  *            big any n
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

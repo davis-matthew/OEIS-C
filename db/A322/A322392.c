@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   nth_digit_of_fraction
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
    diagonals.  For each n≥1 the function returns that digit. */
 
 #include <stdint.h>
-#include "../utils/nth_digit_of_fraction.h"
+
+/* compute the pos‑th digit (1‑based) of the base base expansion
+   of the fraction 1/num (num ≥ 1).  The algorithm is the standard
+   long‑division method. */
+static inline seq_t nth_digit_of_fraction(idx_t pos, idx_t base, idx_t num)
+{
+    if (num == 0 || pos == 0) return 0;
+    idx_t r = 1 % num;            /* remainder after the integer part */
+    seq_t digit = 0;
+    for (idx_t step = 0; step < pos; ++step) {
+        r *= base;
+        digit = r / num;
+        r %= num;
+    }
+    return digit;
+}
 
 /* main entry for the OEIS sequence A322392 */
 seq_t a(idx_t n)

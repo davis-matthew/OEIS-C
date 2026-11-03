@@ -9,6 +9,7 @@
  *            23*C(n+2,6) - 2*C(n+1,6) + 1*C(n,6) (offset 1)
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /*---------------------------------*
  *  Helper: binomial coefficient C(a,6)
  *---------------------------------*/
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t binom6(idx_t a) /* a >= 6 */

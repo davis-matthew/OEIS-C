@@ -7,13 +7,14 @@
  * Formula:   a(n) = prod_{p^e||n} (p^⌊e/2⌋ + (p-1)*p^(e-1))
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 88 terms through n = 9439 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +34,8 @@ seq_t a(idx_t n)
             }
 
             seq_t p_val = (seq_t)p;
-            seq_t part1 = pow_int(p_val, e / 2);
-            seq_t part2 = (seq_t)(p - 1) * pow_int(p_val, e - 1);
+            seq_t part1 = ipow_idx(p_val, e / 2);
+            seq_t part2 = (seq_t)(p - 1) * ipow_idx(p_val, e - 1);
             result *= (part1 + part2);
         }
     }
@@ -44,8 +45,8 @@ seq_t a(idx_t n)
         idx_t p = tmp;
         seq_t p_val = (seq_t)p;
         /* exponent e = 1 */
-        seq_t part1 = pow_int(p_val, 0);          /* 1 */
-        seq_t part2 = (seq_t)(p - 1) * pow_int(p_val, 0); /* p-1 */
+        seq_t part1 = ipow_idx(p_val, 0);          /* 1 */
+        seq_t part2 = (seq_t)(p - 1) * ipow_idx(p_val, 0); /* p-1 */
         result *= (part1 + part2);               /* equals p */
     }
 

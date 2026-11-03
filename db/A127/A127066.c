@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   sieve_primes
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,10 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* memoized a(n) values */
 static size_t a_len   = 0;             /* number of stored elements (a_len-1 is max index) */
@@ -54,7 +58,7 @@ static void ensure_cache(idx_t n) {
         return;
 
     size_t new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp)
         abort();  /* allocation failure */
     a_cache = tmp;

@@ -6,13 +6,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = C(n+3,4) + 3*C(n+1,3) + 5*C(n-1,2) + 7*n - 15
- * Range:     u8 n <= 4, u16 n <= 23, u32 n <= 561, u64 n <= 10000,
+ * Range:     u8 n <= 5, u16 n <= 31, u32 n <= 562, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 49 terms through n = 8475 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

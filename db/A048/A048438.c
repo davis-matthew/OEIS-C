@@ -9,12 +9,14 @@
  *            base‑6 representations of 1,2,…,n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
 
     /* Ensure the cache can hold up to n elements */
     if (n > cache_cap) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)n);
         if (!new_cache) return 0;  /* allocation failure → zero (unlikely) */
         cache = new_cache;
         cache_cap = (size_t)n;

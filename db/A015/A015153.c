@@ -9,7 +9,8 @@
  *            where φ_k are the coefficients of Φ_1144(x)
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   divisors_of_uint64
+ * Validated: standard, pass, 97 terms through n = 1876 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,34 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/divisors_of_uint64.h"
+#include "../utils/mem.h"
+
+/* compute all divisors of 1144 in ascending order */
+static void divisors_of_uint64(uint64_t n, uint64_t *list, size_t *out_cnt)
+{
+    size_t cnt = 0;
+    for (uint64_t i = 1; i * i <= n; ++i)
+    {
+        if (n % i == 0)
+        {
+            list[cnt++] = i;
+            if (i != n / i) list[cnt++] = n / i;
+        }
+    }
+    /* simple insertion sort */
+    for (size_t i = 1; i < cnt; ++i)
+    {
+        uint64_t key = list[i];
+        size_t j = i;
+        while (j > 0 && list[j - 1] > key)
+        {
+            list[j] = list[j - 1];
+            --j;
+        }
+        list[j] = key;
+    }
+    *out_cnt = cnt;
+}
 
 /* structure for a polynomial in varchar order asc; coefficients are seq_t */
 struct Poly
@@ -31,7 +59,7 @@ struct Poly
 static struct Poly poly_mult(const struct Poly *a, const struct Poly *b)
 {
     size_t newdeg = a->deg + b->deg;
-    seq_t *c = (seq_t *)calloc(newdeg + 1, sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, newdeg + 1);
     for (size_t i = 0; i <= a->deg; ++i)
     {
         if (a->c[i] == 0) continue;
@@ -52,10 +80,10 @@ static struct Poly poly_divide(const struct Poly *dividend, const struct Poly *d
     size_t degB = divisor->deg;
     size_t degQ = degA - degB;
 
-    seq_t *r = (seq_t *)calloc(degA + 1, sizeof(seq_t));
+    seq_t *r = mem_new(seq_t, degA + 1);
     for (size_t i = 0; i <= degA; ++i) r[i] = dividend->c[i];
 
-    seq_t *q = (seq_t *)calloc(degQ + 1, sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, degQ + 1);
 
     for (int64_t i = (int64_t)degA; i >= (int64_t)degB; --i)
     {
@@ -69,7 +97,7 @@ static struct Poly poly_divide(const struct Poly *dividend, const struct Poly *d
         }
     }
 
-    free(r);
+    mem_free(r);
     struct Poly res = {degQ, q};
     return res;
 }
@@ -94,13 +122,13 @@ seq_t a(idx_t n)
         {
             uint64_t d = divs[i];
             /* dividend: x^d - 1 */
-            seq_t *divC = (seq_t *)calloc(d + 1, sizeof(seq_t));
+            seq_t *divC = mem_new(seq_t, d + 1);
             divC[0] = (seq_t)-1;
             divC[d] = (seq_t)1;
             struct Poly dividend = {d, divC};
 
             /* product of φ_e for proper divisors e of d */
-            seq_t *prodC = (seq_t *)calloc(1, sizeof(seq_t));
+            seq_t *prodC = mem_new(seq_t, 1);
             prodC[0] = (seq_t)1;
             struct Poly prod = {0, prodC};
 
@@ -109,7 +137,7 @@ seq_t a(idx_t n)
                 if (d % divs[j] == 0)
                 {
                     struct Poly newProd = poly_mult(&prod, &phi[j]);
-                    free(prod.c);
+                    mem_free(prod.c);
                     prod = newProd;
                 }
             }
@@ -118,8 +146,8 @@ seq_t a(idx_t n)
             struct Poly phiD = poly_divide(&dividend, &prod);
 
             /* clean up temporary objects */
-            free(divC);
-            free(prod.c);
+            mem_free(divC);
+            mem_free(prod.c);
 
             phi[i] = phiD;
         }
@@ -142,7 +170,7 @@ seq_t a(idx_t n)
 
         /* free cyclotomic polynomials */
         for (i = 0; i < dcnt; ++i)
-            free(phi[i].c);
+            mem_free(phi[i].c);
 
         initialized = 1;
     }

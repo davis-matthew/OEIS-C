@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 9, u64 n <= 12, u128 n <= 19,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
     uses only integer arithmetic on the supplied seq_t type.   */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/gcd_seq.h"
+#include <stdbool.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *a_arr = NULL;      /* cached a(i) values */
 static idx_t capacity = 0;       /* highest n computed so far */
@@ -34,7 +37,7 @@ static void ensure(idx_t n)
 
     /* allocate space for up to index n (inclusive) */
     size_t new_cap = (size_t)n + 1;        /* n+1 to include a[n] */
-    seq_t *tmp = (seq_t *)realloc(a_arr, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, a_arr, new_cap);
     if (!tmp) abort();                    /* out of memory */
     a_arr = tmp;
 
@@ -42,7 +45,7 @@ static void ensure(idx_t n)
         /* update H_i = H_{i-1} + 1/i   as p/q */
         seq_t new_p = last_p * (seq_t)i + last_q;
         seq_t new_q = last_q * (seq_t)i;
-        seq_t g = gcd_seq(new_p, new_q);
+        seq_t g = gcd(new_p, new_q);
         new_p /= g;
         new_q /= g;
         last_p = new_p;
@@ -63,7 +66,7 @@ static void ensure(idx_t n)
             sum += d;
             seq_t new_rp = rp * d - rq;
             seq_t new_rq = rq * d;
-            seq_t g2 = gcd_seq(new_rp, new_rq);
+            seq_t g2 = gcd(new_rp, new_rq);
             rp = new_rp / g2;
             rq = new_rq / g2;
         }

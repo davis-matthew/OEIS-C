@@ -7,6 +7,7 @@
  * Formula:   a(n) = Fibonacci(n) * Catalan(n)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 27, u128 n <= 51,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 780 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

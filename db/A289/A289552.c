@@ -12,7 +12,8 @@
  *            indexed from 1
  * Range:     u8 none, u16 none, u32 n <= 336, u64 n <= 336, u128 n <= 336,
  *            big any n
- * Helpers:   reverse_int_range, swap_int
+ * Validated: full, pass, 336 terms through n = 336 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/reverse_int_range.h"
-#include "../utils/swap_int.h"
+#include "../utils/mem.h"
+
+static inline void swap_int(int *a, int *b)
+{
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
+
+static void reverse_int_range(int *first, int *last)
+{
+    while (first < --last)
+        swap_int(first++, last);
+}
 
 /* --------------------------------------------------------------------- */
 /* Utility for soon. ----------------------------------------------------- */
@@ -69,7 +82,7 @@ static void build_sequence(void)
 
     size_t cap = 256;
     size_t len = 0;
-    seq_t *arr = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, cap);
     if (!arr) return;    /* allocation failed */
 
     do
@@ -87,10 +100,10 @@ static void build_sequence(void)
             if (len == cap)
             {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(arr, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, arr, cap);
                 if (!tmp)        /* realloc failed */
                 {
-                    free(arr);
+                    mem_free(arr);
                     arr = NULL;
                     len = 0;
                     break;
@@ -104,12 +117,12 @@ static void build_sequence(void)
     /* If we never filled the array, keep it empty. */
     if (arr == NULL || len == 0)
     {
-        free(arr);
+        mem_free(arr);
         return;
     }
 
     /* Sort numerically. */
-    qsort(arr, len, sizeof(seq_t), cmp_seq);
+    mem_qsort(arr, len, sizeof(seq_t), cmp_seq);
 
     cache_seq   = arr;
     cache_count = (idx_t)len;

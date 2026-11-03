@@ -10,13 +10,14 @@
  *            row such that Σ_{i=0}^{r} (⌊i/3⌋+1) > n
  * Range:     u8 n <= 28, u16 n <= 88, u32 n <= 281, u64 n <= 991,
  *            u128 n <= 2500, big any n
- * Helpers:   binom_multip
+ * Validated: standard, pass, 86 terms through n = 2480 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom_multip.h"
+#include "../utils/binomial.h"
 
 /* compute 3^k for small k */
 static inline seq_t pow3_idx(idx_t k) {
@@ -41,6 +42,6 @@ seq_t a(idx_t n) {
     }
 
     idx_t k = n - start;                /* column index */
-    seq_t val = pow3_idx(k) * binom_multip(row - 2 * k, k);
+    seq_t val = pow3_idx(k) * binomial(row - 2 * k, k);
     return val;
 }

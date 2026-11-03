@@ -10,14 +10,25 @@
  *            otherwise
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   factor_u64, init_factorials
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/factor_u64.h"
 #include <stdbool.h>
-#include "../utils/init_factorials.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+
+/* Compute factorials up to 64 once */
+static void init_factorials(seq_t *fact) {
+    fact[0] = (seq_t)1;
+    for (idx_t i = 1; i <= 64; ++i) {
+        fact[i] = fact[i - 1] * (seq_t)i;
+    }
+}
+#include <stdbool.h>
 
 seq_t a(idx_t n) {
     /* Static factorial table and one-time initialisation */

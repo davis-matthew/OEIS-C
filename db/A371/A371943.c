@@ -11,12 +11,14 @@
  *            memoised and works for any n >= 0
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     /* initialise tables with base values */
     if (A == NULL) {
         capacity = 5;                /* store indices 0..4 */
-        A = (seq_t*)malloc(capacity * sizeof(seq_t));
-        B = (seq_t*)malloc(capacity * sizeof(seq_t));
+        A = mem_new(seq_t, capacity);
+        B = mem_new(seq_t, capacity);
         /* a sequence base values */
         A[0] = (seq_t)0; A[1] = (seq_t)0; A[2] = (seq_t)0;
         A[3] = (seq_t)1; A[4] = (seq_t)2;
@@ -49,8 +51,8 @@ seq_t a(idx_t n)
     if (n >= capacity) {
         idx_t newcap = capacity;
         while (newcap <= n) newcap <<= 1;
-        A = (seq_t*)realloc(A, newcap * sizeof(seq_t));
-        B = (seq_t*)realloc(B, newcap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, newcap);
+        B = mem_resize(seq_t, B, newcap);
         capacity = newcap;
     }
 

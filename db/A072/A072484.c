@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 104, u16 n <= 7811, u32 n <= 7811, u64 n <= 7811,
- *            u128 n <= 7811, big any n
- * Helpers:   seq_to_str
+ * Range:     u8 n <= 104, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 81 terms through n = 7811 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,28 @@
 /* seq_t and idx_t are supplied by the build system.  The helper functions
  * are available in the utils library.  We need seq_to_str to test whether
  * a number contains the required digit string. */
-#include "../utils/seq_to_str.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 static seq_t **row_cache   = NULL; /* array of pointers to each row */
 static idx_t  cache_cap    = 0;    /* current capacity of row_cache   */
@@ -44,7 +66,7 @@ static void compute_row(idx_t r)
     snprintf(pat, sizeof(pat), "%llu", (unsigned long long)r);
 
     /* Allocate storage for the r elements of this row. */
-    seq_t *row = (seq_t *)malloc(r * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, r);
     if (!row) exit(1);                    /* allocation failure */
 
     idx_t  count = 0;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{q=1..⌊n/9⌋} q * P₈(n-9q)
  * Range:     u8 n <= 25, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* (equivalently, partitions of m with largest part ≤8).               */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p8_cache = NULL;   /* number of partitions of m using parts ≤8 */
 static size_t p8_cap  = 0;
@@ -27,7 +29,7 @@ static void compute_tables(idx_t up_to)
     /* Build partition table up to 'up_to' (parts ≤8) */
     if ((size_t)up_to + 1 > p8_cap) {
         size_t new_cap = (size_t)up_to + 1;
-        seq_t *new_p = (seq_t *)realloc(p8_cache, new_cap * sizeof(seq_t));
+        seq_t *new_p = mem_resize(seq_t, p8_cache, new_cap);
         if (!new_p) exit(EXIT_FAILURE);  /* allocation failed */
         p8_cache = new_p;
         /* Initialize array to zeros and set p8_cache[0] = 1 */
@@ -43,7 +45,7 @@ static void compute_tables(idx_t up_to)
     /* Compute a[n] for all n up to 'up_to' */
     if ((size_t)up_to + 1 > a_cap) {
         size_t new_a_cap = (size_t)up_to + 1;
-        seq_t *new_a = (seq_t *)realloc(a_cache, new_a_cap * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, new_a_cap);
         if (!new_a) exit(EXIT_FAILURE);
         a_cache = new_a;
         for (idx_t i = a_cap; i <= up_to; ++i) {

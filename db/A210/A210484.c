@@ -9,16 +9,37 @@
  *            n^2) (primitive integer Soddyian triangles)
  * Range:     u8 none, u16 none, u32 n <= 9, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   alloc_seq_array, cmp_seq_t, free_seq_array
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/cmp_seq_t.h"
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 #ifdef __cplusplus
 #include <type_traits>
@@ -83,7 +104,7 @@ static void build_sequence(idx_t max_m, seq_t **out, size_t *out_len)
             }
         }
     }
-    qsort(raw, pos, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(raw, pos, sizeof(seq_t), cmp_seq_t);
     *out = raw;
     *out_len = pos;
 }

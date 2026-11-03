@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compare_seq_t
+ * Validated: standard, pass, 55 terms through n = 9558 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,16 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/compare_seq_t.h"
+#include "../utils/mem.h"
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* multiply base^exp with early termination if product would exceed
    limit; used only for 32‑bit integer types.  */
@@ -84,13 +94,13 @@ static void generate_sequence(void)
 
     /* ---------- generate candidate n values ---------- */
     size_t cap = 100000;
-    seq_t *cand = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *cand = mem_new(seq_t, cap);
     if (!cand) exit(EXIT_FAILURE);
     size_t len = 0;
 #define ADD_CAND(v) do { \
     if (len == cap) { \
         cap <<= 1; \
-        cand = (seq_t *)realloc(cand, cap * sizeof(seq_t)); \
+        cand = mem_resize(seq_t, cand, cap); \
         if (!cand) exit(EXIT_FAILURE); \
     } \
     cand[len++] = (v); \
@@ -131,7 +141,7 @@ static void generate_sequence(void)
     free(primes);
 
     /* ---------- sort and deduplicate ---------- */
-    qsort(cand, len, sizeof(seq_t), compare_seq_t);
+    mem_qsort(cand, len, sizeof(seq_t), compare_seq_t);
     size_t uniq = 0;
     for (size_t i = 0; i < len; ++i) {
         if (uniq == 0 || compare_seq_t(&cand[uniq - 1], &cand[i]) != 0) {

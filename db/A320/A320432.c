@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 16, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* cached values of the sequence */
 static seq_t *a_cache = NULL;
@@ -30,13 +32,13 @@ static void ensure_cache(idx_t n)
 {
     if (a_cache_size == 0) {
         a_cache_size = n + 1;
-        a_cache = (seq_t *)malloc(a_cache_size * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_size);
     } else if (a_cache_size <= (size_t)n) {
         size_t new_size = a_cache_size * 2;
         if (new_size <= (size_t)n) new_size = n + 1;
-        seq_t *tmp = (seq_t *)malloc(new_size * sizeof(seq_t));
-        memcpy(tmp, a_cache, a_cache_size * sizeof(seq_t));
-        free(a_cache);
+        seq_t *tmp = mem_new(seq_t, new_size);
+        mem_copy(tmp, a_cache, a_cache_size * sizeof(seq_t));
+        mem_free(a_cache);
         a_cache = tmp;
         a_cache_size = new_size;
     }

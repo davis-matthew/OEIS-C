@@ -12,7 +12,8 @@
  *            a(n) = dp[n] This counts all ordered sums of element...
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 71, u128 n <= 143,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 3287 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Utility: factor n into primes p[i]^e[i].
    primes and exponents are written to arrays of length up to 64.
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
     /* 2.  Dynamic programming for ordered compositions. */
     /* Allocate dp array of size n+1. */
     idx_t size = n + 1;
-    seq_t *dp = (seq_t *)malloc((size_t)size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)size);
     if (!dp) return 0; /* Allocation failure, return 0 as fallback. */
 
     dp[0] = 1;
@@ -125,6 +127,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_phi, simple_sieve
+ * Validated: standard, pass, 121 terms through n = 9946 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,40 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/compute_phi.h"
-#include "../utils/simple_sieve.h"
+
+/* linear time φ sieve up to B */
+static void compute_phi(uint32_t B, uint32_t *phi_arr)
+{
+    for (uint32_t i = 0; i <= B; ++i)
+        phi_arr[i] = i;
+    for (uint32_t i = 2; i <= B; ++i) {
+        if (phi_arr[i] == i) { /* i is prime */
+            for (uint32_t j = i; j <= B; j += i) {
+                phi_arr[j] -= phi_arr[j] / i;
+            }
+        }
+    }
+}
+
+/* simple sieve to generate primes up to limit, returns number of primes */
+static size_t simple_sieve(uint32_t limit, uint32_t **out_primes)
+{
+    bool *is_comp = (bool *)malloc(limit + 1);
+    *out_primes = (uint32_t *)malloc((limit / 10) * sizeof(uint32_t)); /* rough reserve */
+    size_t sz = 0;
+    for (uint32_t i = 2; i <= limit; ++i)
+        if (!is_comp[i]) {
+            if (sz == limit / 10) {
+                *out_primes = (uint32_t *)realloc(*out_primes, sz * 2 * sizeof(uint32_t));
+            }
+            (*out_primes)[sz++] = i;
+            if ((uint64_t)i * i <= limit)
+                for (uint32_t j = i * i; j <= limit; j += i)
+                    is_comp[j] = true;
+        }
+    free(is_comp);
+    return sz;
+}
 
 /* idx_t and seq_t are provided by the build environment */
 static size_t B = 0;           /* maximum n for which φ(n) is computed */

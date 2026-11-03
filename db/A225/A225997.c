@@ -8,6 +8,7 @@
  *            2^{n+5b}
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 5, u128 n <= 10,
  *            big any n
+ * Validated: standard, pass, 25 terms through n = 66 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 
 /* Number of unordered pairs of orthogonal (-1,6)-vectors of length 7·n. */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

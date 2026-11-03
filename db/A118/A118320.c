@@ -10,13 +10,28 @@
  *            P_{k−1}+len, P_{k−1}[len−1] )
  * Range:     i8 n <= 48, i16 n <= 48, i32 n <= 48, i64 n <= 48, i128 n <= 48,
  *            big any n
- * Helpers:   perm_value
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/perm_value.h"
+
+static inline seq_t perm_value(idx_t k, idx_t offset)
+{
+    if (k == 0) return 0;
+    idx_t len = ((idx_t)1) << (k - 1);          /* block size / 2 */
+    idx_t first_size = len - 1;                 /* size of the first part */
+
+    if (offset < first_size)                  /* part 1 */
+        return perm_value(k - 1, offset);
+    else if (offset < first_size + len) {      /* part 2 */
+        idx_t sub_off = offset - first_size;
+        return perm_value(k - 1, sub_off) + (seq_t)len;
+    } else                                     /* last element */
+        return perm_value(k - 1, len - 1);
+}
 
 seq_t a(idx_t n)
 {

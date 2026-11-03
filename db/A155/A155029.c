@@ -11,6 +11,7 @@
  *            a(3)=T(2,2)=1,
  * Range:     u8 n <= 465, u16 n <= 465, u32 n <= 465, u64 n <= 465,
  *            u128 n <= 465, big any n
+ * Validated: standard, pass, 107 terms through n = 458 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

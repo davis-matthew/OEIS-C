@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   good_even
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,34 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/good_even.h"
+#include "../utils/mem.h"
+
+static bool good_even(uint64_t n)
+{
+    if ((n & 1ULL) != 0ULL)  /* skip odd numbers */
+        return false;
+
+    uint64_t m = n;
+    unsigned v2 = 0;
+    /* count trailing 2's */
+    while ((m & 1ULL) == 0ULL) {
+        v2++;
+        m >>= 1;
+    }
+
+    unsigned omega = v2;
+    /* factor remaining odd part */
+    for (uint64_t p = 3; p * p <= m; p += 2) {
+        while (m % p == 0ULL) {
+            omega++;
+            m /= p;
+        }
+    }
+    if (m > 1ULL)
+        omega++;
+
+    return (v2 << 1) >= omega;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +68,7 @@ seq_t a(idx_t n)
         if (good_even(m)) {
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap ? (cache_cap << 1) : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cache_cap = new_cap;

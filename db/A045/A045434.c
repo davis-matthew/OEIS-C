@@ -7,7 +7,8 @@
  * Formula:   primes congruent to 3 or 6 (mod 7)
  * Range:     u8 n <= 19, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 881 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for primes and qualifying primes */
 static idx_t *primes      = NULL;   /* all primes found so far      */
@@ -43,7 +45,7 @@ static void ensure_qual_cap(size_t needed)
     if (qual_cap < needed) {
         size_t new_cap = qual_cap ? qual_cap << 1 : 16;
         while (new_cap < needed) new_cap <<= 1;
-        qual_primes = (seq_t *)realloc(qual_primes, new_cap * sizeof(seq_t));
+        qual_primes = mem_resize(seq_t, qual_primes, new_cap);
         qual_cap = new_cap;
     }
 }

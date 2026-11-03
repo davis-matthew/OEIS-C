@@ -11,12 +11,14 @@
  *            G(t)=(t^13+2t^12+⋯+2t+1)/(10t^13−4t^12−⋯−4t+1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 473 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Resize array if necessary */
     if (n+1 > cache_size) {
         idx_t new_size = n+1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp && new_size > 0) { /* allocation failed */
             return 0; /* or handle error appropriately */
         }

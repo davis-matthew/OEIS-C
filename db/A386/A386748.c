@@ -8,12 +8,14 @@
  *            divisors)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 23, u64 n <= 559, u128 n <= 8000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 7969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>                /* malloc, free */
+#include "../utils/mem.h"
 
 static seq_t *sigma_cache = NULL; /* cache of sigma_4 values */
 static idx_t  sigma_max   = 0;    /* largest n cached */
@@ -21,7 +23,7 @@ static idx_t  sigma_max   = 0;    /* largest n cached */
 /* Recompute sigma_4 for all 0 <= i <= n */
 static void recompute_sigma(idx_t n)
 {
-    seq_t *new_cache = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (n + 1));
     if (!new_cache) return;          /* allocation failed – caller will handle no result */
 
     for (idx_t i = 0; i <= n; ++i)
@@ -40,7 +42,7 @@ static void recompute_sigma(idx_t n)
     }
 
     if (sigma_cache)
-        free(sigma_cache);
+        mem_free(sigma_cache);
     sigma_cache = new_cache;
     sigma_max   = n;
 }

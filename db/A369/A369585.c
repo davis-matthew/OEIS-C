@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 13, i16 n <= 26, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* compute a(n) for any n >= 0 */
 seq_t a(idx_t n)
@@ -47,14 +49,14 @@ seq_t a(idx_t n)
     seq_t *p_curr    = NULL;    /* p_{r} (current) */
 
     /* p_0 = [1] */
-    p_prev = (seq_t *)malloc(sizeof(seq_t) * 1);
+    p_prev = mem_new(seq_t, 1);
     if (!p_prev) return (seq_t)0; /* allocation failure, though unlikely */
     p_prev[0] = (seq_t)1;
 
     /* iterate to compute p_1, p_2, ... , p_r */
     for (idx_t i = 1; i <= r; ++i) {
         idx_t size = i + 1; /* degree i polynomial has i+1 coefficients */
-        p_curr = (seq_t *)malloc(sizeof(seq_t) * size);
+        p_curr = mem_new(seq_t, size);
         if (!p_curr) return (seq_t)0;
         for (idx_t j = 0; j < size; ++j) p_curr[j] = (seq_t)0;
 
@@ -75,14 +77,14 @@ seq_t a(idx_t n)
         if (i == r) {
             seq_t result = p_curr[k];
             /* free allocated memory */
-            free(p_curr);
-            free(p_prev);
-            free(p_prevprev);
+            mem_free(p_curr);
+            mem_free(p_prev);
+            mem_free(p_prevprev);
             return result;
         }
 
         /* prepare for next iteration */
-        free(p_prevprev);
+        mem_free(p_prevprev);
         p_prevprev = p_prev;
         p_prev     = p_curr;
     }

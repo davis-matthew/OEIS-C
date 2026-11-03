@@ -9,13 +9,15 @@
  *            = 2, a(1) = 4, a(2) = 7, a(3) = 11, a(4) = 20
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 34, u64 n <= 69, u128 n <= 139,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 1799 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _init[5] = { (seq_t)2, (seq_t)4, (seq_t)7, (seq_t)11, (seq_t)20 };
 static seq_t * _cache = NULL;
@@ -26,14 +28,14 @@ static void _ensure_cache(idx_t n)
 {
     if (_cache == NULL) {
         _cached_cap = (n > 4 ? n + 1 : 5);
-        _cache = (seq_t *)malloc(_cached_cap * sizeof(seq_t));
+        _cache = mem_new(seq_t, _cached_cap);
         if (_cache == NULL) exit(1);
         for (idx_t i = 0; i < 5; ++i) _cache[i] = _init[i];
         _cached_len = 5;
     } else if (_cached_cap <= n) {
         idx_t new_cap = (_cached_cap > 0 ? _cached_cap * 2 : 16);
         while (new_cap <= n) new_cap *= 2;
-        _cache = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+        _cache = mem_resize(seq_t, _cache, new_cap);
         if (_cache == NULL) exit(1);
         _cached_cap = new_cap;
     }

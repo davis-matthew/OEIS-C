@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n, d<n} A003415(d)
- * Range:     u8 n <= 95, u16 n <= 7679, u32 n <= 9788, u64 n <= 9788,
- *            u128 n <= 9788, big any n
+ * Range:     u8 n <= 95, u16 n <= 7679, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 117 terms through n = 9788 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static void dfs_divs(size_t idx,

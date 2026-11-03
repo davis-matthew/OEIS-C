@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   number_to_english
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,69 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/number_to_english.h"
+
+static void number_to_english(unsigned num, char *buf, size_t buflen) {
+    static const char *ones[] = {
+        "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
+    };
+    static const char *teens[] = {
+        "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+        "sixteen", "seventeen", "eighteen", "nineteen"
+    };
+    static const char *tens[] = {
+        "", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"
+    };
+    
+    buf[0] = '\0';
+    
+    if (num < 10) {
+        strncpy(buf, ones[num], buflen - 1);
+        buf[buflen - 1] = '\0';
+    } else if (num < 20) {
+        strncpy(buf, teens[num - 10], buflen - 1);
+        buf[buflen - 1] = '\0';
+    } else if (num < 100) {
+        unsigned t = num / 10;
+        unsigned o = num % 10;
+        strncpy(buf, tens[t], buflen - 1);
+        buf[buflen - 1] = '\0';
+        if (o > 0) {
+            strncat(buf, "-", buflen - strlen(buf) - 1);
+            strncat(buf, ones[o], buflen - strlen(buf) - 1);
+            buf[buflen - 1] = '\0';
+        }
+    } else if (num < 1000) {
+        unsigned h = num / 100;
+        unsigned rest = num % 100;
+        strncpy(buf, ones[h], buflen - 1);
+        buf[buflen - 1] = '\0';
+        strncat(buf, " hundred", buflen - strlen(buf) - 1);
+        buf[buflen - 1] = '\0';
+        if (rest > 0) {
+            strncat(buf, " ", buflen - strlen(buf) - 1);
+            buf[buflen - 1] = '\0';
+            char rest_str[32];
+            number_to_english(rest, rest_str, sizeof(rest_str));
+            strncat(buf, rest_str, buflen - strlen(buf) - 1);
+            buf[buflen - 1] = '\0';
+        }
+    } else {
+        unsigned th = num / 1000;
+        unsigned rest = num % 1000;
+        strncpy(buf, ones[th], buflen - 1);
+        buf[buflen - 1] = '\0';
+        strncat(buf, " thousand", buflen - strlen(buf) - 1);
+        buf[buflen - 1] = '\0';
+        if (rest > 0) {
+            strncat(buf, " ", buflen - strlen(buf) - 1);
+            buf[buflen - 1] = '\0';
+            char rest_str[32];
+            number_to_english(rest, rest_str, sizeof(rest_str));
+            strncat(buf, rest_str, buflen - strlen(buf) - 1);
+            buf[buflen - 1] = '\0';
+        }
+    }
+}
 
 typedef struct {
     unsigned num;

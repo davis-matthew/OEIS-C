@@ -12,13 +12,15 @@
  *            (1≤k≤min(x,y)/3) }; a(n) = SG(x,y) where (x,y) are the...
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Computes the Sprague–Grundy value as described. */
 seq_t a(idx_t n)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Allocate a square table large enough for all positions with sum ≤ s. */
     idx_t dim = s + 1;
     size_t table_size = (size_t)dim * (size_t)dim;
-    seq_t *sg = (seq_t *)calloc(table_size, sizeof(seq_t));
+    seq_t *sg = mem_new(seq_t, table_size);
     if (!sg)
         return 0;                       /* allocation failure → 0 */
 
@@ -90,6 +92,6 @@ seq_t a(idx_t n)
 
     /* Retrieve the result for the requested index. */
     seq_t result = sg[x * dim + y];
-    free(sg);
+    mem_free(sg);
     return result;
 }

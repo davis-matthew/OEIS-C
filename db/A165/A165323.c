@@ -7,7 +7,8 @@
  * Formula:   a(0)=1; a(1)=8; a(n)=17*a(n-1)-64*a(n-2) for n>1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   alloc_seq_array, seq_free, seq_one
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,18 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/seq_one.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/seq_free.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 static seq_t *cache = NULL;          /* cache of computed values */
 static size_t cache_size = 0;        /* allocated size of cache   */

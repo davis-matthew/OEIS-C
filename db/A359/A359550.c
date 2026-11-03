@@ -9,8 +9,9 @@
  * Formula:   Characteristic function of A048103; a(0)=0; for n>0, a(n)=1 iff
  *            for every prime p dividing n the exponent e of p satisfies p >
  *            e, otherwise 0
- * Range:     u8 n <= 9461, u16 n <= 9461, u32 n <= 9461, u64 n <= 9461,
- *            u128 n <= 9461, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 138 terms through n = 9461 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

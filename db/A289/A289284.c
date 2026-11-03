@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   used_exists
+ * Validated: full, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/used_exists.h"
+#include "../utils/mem.h"
+
+/* Helper: linear search for a value in an array.  Used only for the
+   small sequence size (≤ 31) so the overhead is negligible. */
+static bool used_exists(const seq_t *used, size_t used_len, seq_t val)
+{
+    for (size_t i = 0; i < used_len; ++i)
+        if (used[i] == val) return true;
+    return false;
+}
 
 /* Helper: returns true if the number contains the digit 0.
    Works for built‑in unsigned types and for arbitrary‑precision
@@ -59,7 +69,7 @@ static void grow_array(seq_t **arr, size_t *cap, size_t min_cap)
 {
     if (*cap >= min_cap) return;
     while (*cap < min_cap) *cap = (*cap == 0) ? 8 : (*cap << 1);
-    *arr = (seq_t *)realloc(*arr, (*cap) * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, (*cap));
 }
 
 seq_t a(idx_t n)

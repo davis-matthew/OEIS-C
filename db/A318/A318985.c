@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 8639 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* A318985: number of integer solutions of x^2 + x*y + 41*y^2 = n */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root of a 64‑bit unsigned integer.
    Uses binary search with 128‑bit multiplication to avoid overflow. */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t new_max   = n;
         size_t new_size = (size_t)new_max + 1;
-        seq_t *new_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache)   /* allocation failure – unlikely in tests */
             return 0;
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         }
 
         /* replace old cache with the new one */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

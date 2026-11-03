@@ -10,18 +10,20 @@
  *            function ∏_{k≥1}((1−x^{12k})(1−x^{12k−10})(1−x^{12k−9})/(1−x^k))
  * Range:     u8 n <= 24, u16 n <= 62, u32 n <= 178, u64 n <= 571,
  *            u128 n <= 1975, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 1918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate workspace for dynamic programming.  dp[i] holds the
      * number of partitions of i using only allowed part sizes. */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp)
         return 0;          /* allocation failure – best effort */
 
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

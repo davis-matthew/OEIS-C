@@ -9,12 +9,14 @@
  *            out‑of‑order calls up to n ~ 10000
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;   /* capacity of cache array */
@@ -34,7 +36,7 @@ static void ensure_cache(void) {
     if (cache != NULL)
         return;
     cache_cap = 4;
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+    cache = mem_new(seq_t, cache_cap);
     if (!cache)
         abort();
     for (idx_t i = 0; i < 4; ++i)
@@ -51,7 +53,7 @@ static void grow_cache_to(idx_t n) {
     while (cache_len <= n) {
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap << 1 : 8;
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)
                 abort();
             cache = tmp;

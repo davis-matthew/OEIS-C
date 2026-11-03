@@ -12,7 +12,8 @@
  *            Goldbach partitions for each integer, stores each qualifying...
  * Range:     u8 n <= 57, u16 n <= 5002, u32 n <= 5002, u64 n <= 5002,
  *            u128 n <= 5002, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 4740 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve utilities ---------- */
 static uint8_t *prime_sieve = NULL;        /* 1-byte flags: 1 = prime, 0 = composite */
@@ -73,7 +75,7 @@ static void ensure_term_capacity(size_t need)
     if (need <= term_cap) return;
     size_t new_cap = term_cap ? term_cap << 1 : 1024;
     if (new_cap < need) new_cap = need;
-    seq_t *new_cache = (seq_t*)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, term_cache, new_cap);
     if (!new_cache) return;          /* allocation failure – abort silently */
     term_cache = new_cache;
     term_cap   = new_cap;

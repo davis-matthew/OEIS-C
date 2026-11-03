@@ -9,7 +9,8 @@
  * Formula:   a(n) = (1/2) * |{M ∈ GF(5)^(n×n) | MMᵀ = I}|
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* For even n = 2k: a(n) = (5^k – 1) * ∏_{i=1}^{k-1} (5^(2k) – 5^(2i)). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pow5 = NULL;      /* pow5[e] = 5^e */
 static size_t pow5_len = 0;     /* number of stored entries */
@@ -32,13 +34,13 @@ static void ensure_pow5(idx_t n)
     seq_t *new_pow = NULL;
 
     if (pow5 == NULL) {
-        new_pow = (seq_t *)malloc(needed * sizeof(seq_t));
+        new_pow = mem_new(seq_t, needed);
         if (!new_pow) exit(EXIT_FAILURE);
         new_pow[0] = (seq_t)1;
         for (size_t i = 1; i < needed; ++i)
             new_pow[i] = new_pow[i-1] * (seq_t)5;
     } else {
-        new_pow = (seq_t *)realloc(pow5, needed * sizeof(seq_t));
+        new_pow = mem_resize(seq_t, pow5, needed);
         if (!new_pow) exit(EXIT_FAILURE);
         for (size_t i = pow5_len; i < needed; ++i)
             new_pow[i] = new_pow[i-1] * (seq_t)5;

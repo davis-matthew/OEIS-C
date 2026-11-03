@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   nonascending_uint128
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/nonascending_uint128.h"
+
+/* Check whether decimal digits of an unsigned 128‑bit integer are
+ * non‑ascending (each next digit ≤ previous). */
+static bool nonascending_uint128(unsigned __int128 x)
+{
+    if (x == 0) return true;               /* single digit 0 */
+    unsigned int prev = x % 10;
+    x /= 10;
+    while (x > 0) {
+        unsigned int d = x % 10;
+        if (d < prev) return false;        /* ascending step found */
+        prev = d;
+        x /= 10;
+    }
+    return true;
+}
 
 /* Ensure an array has space for at least 'min_cap' elements.
  * If the array is NULL, it is allocated.  The pointer to the array

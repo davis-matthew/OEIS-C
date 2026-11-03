@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 95, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_product, digit_sum
+ * Validated: standard, pass, 79 terms through n = 998 (2026-11-03)
+ * Helpers:   digit_product, digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_sum.h"
 #include "../utils/digit_product.h"
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Cache the sequence terms as they are discovered. */
 static seq_t *term_cache = NULL;     /* array of terms */
@@ -33,10 +35,10 @@ static void cache_append(seq_t val)
 {
     if (cache_cap == 0) {
         cache_cap = 16;
-        term_cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        term_cache = mem_new(seq_t, cache_cap);
     } else if (cache_len == cache_cap) {
         cache_cap <<= 1;
-        term_cache = (seq_t*)realloc(term_cache, sizeof(seq_t) * cache_cap);
+        term_cache = mem_resize(seq_t, term_cache, cache_cap);
     }
     term_cache[cache_len++] = val;
 }

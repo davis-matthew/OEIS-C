@@ -10,14 +10,34 @@
  *            contain it
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains67
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains67.h"
+#include "../utils/mem.h"
+
+/* Utility: check whether base‑9 representation of x contains "67" */
+static bool contains67(seq_t x)
+{
+    if (x == 0) return false;                 /* base‑9 of 0 is "0" */
+    seq_t digits[128];
+    int len = 0;
+    while (x > 0) {
+        digits[len++] = x % 9;
+        x /= 9;
+    }
+    /* digits[0] is least significant, digits[len-1] most significant.
+       Scan from most significant downwards. */
+    for (int i = len - 1; i > 0; --i) {
+        if (digits[i] == 6 && digits[i - 1] == 7)
+            return true;
+    }
+    return false;
+}
 
 /* Main function required by the test harness */
 seq_t a(idx_t n)
@@ -30,7 +50,7 @@ seq_t a(idx_t n)
     /* Grow terms array if needed */
     if (size == 0 || size == cap) {
         cap = (cap > 0) ? 2 * cap : 16;
-        terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, cap);
         /* In practice the allocation will not fail for the ranges
            we need to support. */
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 3439, u32 n <= 3439, u64 n <= 3439,
  *            u128 n <= 3439, big any n
- * Helpers:   contains8
+ * Validated: standard, pass, 72 terms through n = 3140 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/contains8.h"
+
+static bool contains8(seq_t x)
+{
+    while (x > 0) {
+        if ((x % 10) == 8)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

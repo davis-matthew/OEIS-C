@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 21, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   get_digits, is_palindrome, seq_from_str, seq_mul
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   get_digits, is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,26 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <stddef.h>
+#include <string.h>
 #include "../utils/get_digits.h"
-#include "../utils/is_palindrome.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_from_str.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 /* Return the smallest decimal palindrome strictly greater than x. */
 static seq_t next_palindrome(seq_t x)
@@ -129,11 +146,11 @@ seq_t a(idx_t n)
         seq_t q = next_palindrome(p);          /* palindrome after p          */
         seq_t prod = seq_mul(p, q);
 
-        if (is_palindrome(prod, 10)) {
+        if (is_palindrome_base(prod, 10)) {
             /* Grow cache if needed */
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();           /* unrecoverable failure */
                 cache = tmp;
                 cache_cap = new_cap;

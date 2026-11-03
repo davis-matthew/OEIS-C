@@ -11,14 +11,16 @@
  *            sequence lists these coefficients row by row, with row n
  *            containing the n coefficients of v(n,x+1). The implementation
  *            keeps the...
- * Range:     u8 n <= 29, u16 n <= 28, u32 n <= 59, u64 n <= 59, u128 n <= 59,
+ * Range:     u8 n <= 29, u16 n <= 28, u32 n <= 14, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* DO NOT CHANGE THE SIGNATURE */
 seq_t a(idx_t n)
@@ -41,13 +43,13 @@ seq_t a(idx_t n)
         size_t len_new = (size_t)(new_row + 1); /* length of new row */
 
         /* Allocate arrays for the new u and v coefficients */
-        seq_t *u_new = (seq_t *)calloc(len_new, sizeof(seq_t));
-        seq_t *v_new = (seq_t *)calloc(len_new, sizeof(seq_t));
+        seq_t *u_new = mem_new(seq_t, len_new);
+        seq_t *v_new = mem_new(seq_t, len_new);
         if (!u_new || !v_new)
         {
             /* Allocation failure – free what we have and bail out */
-            free(u_new);
-            free(v_new);
+            mem_free(u_new);
+            mem_free(v_new);
             return (seq_t)0;
         }
 
@@ -97,11 +99,11 @@ seq_t a(idx_t n)
             size_t new_cap = (cache_cap > 0) ? (cache_cap << 1) : 1;
             if (new_cap < cache_needed)
                 new_cap = cache_needed;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)
             {
-                free(u_new);
-                free(v_new);
+                mem_free(u_new);
+                mem_free(v_new);
                 return (seq_t)0;
             }
             cache = tmp;
@@ -124,8 +126,8 @@ seq_t a(idx_t n)
         cache_len += len_new;
 
         /* Prepare for the next iteration */
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_new;
         v_prev = v_new;
         prev_len = (idx_t)len_new;

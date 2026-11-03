@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 144, u64 n <= 144, u128 n <= 144,
  *            big any n
- * Helpers:   pow_mod_int
+ * Validated: standard, pass, 40 terms through n = 144 (2026-11-01)
+ * Helpers:   powmod_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow_mod_int.h"
+#include "../utils/powmod_i32.h"
 
 /* ------------------ magic constants ------------------ */
 #define NUM_PRIMES 7
@@ -89,7 +90,7 @@ static void init_tables(void) {
 
         /* multiplicative inverse table for 1..p-1 */
         int inv[MAX_PRIME] = {0};
-        for (int x = 1; x < p; ++x) inv[x] = pow_mod_int(x, p-2, p);
+        for (int x = 1; x < p; ++x) inv[x] = powmod_i32(x, p-2, p);
 
         /* exponent of each value that is a power of two modulo p */
         int exp_of_val[MAX_PRIME];

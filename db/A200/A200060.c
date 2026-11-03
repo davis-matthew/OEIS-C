@@ -9,6 +9,7 @@
  *            + 2*a(n-8) - a(n-10) - 2*a(n-11) + 3*a(n-12) - a(n-13)
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 67, u64 n <= 200, u128 n <= 200,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 199 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

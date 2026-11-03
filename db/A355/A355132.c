@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,10 +48,10 @@ seq_t a(idx_t n)
     /* Initial allocation for n = 0 */
     if (cap == 0) {
         cap = 1;
-        S_prev = (seq_t *)malloc(cap * sizeof(seq_t));
-        S_curr = (seq_t *)malloc(cap * sizeof(seq_t));
-        pow2   = (seq_t *)malloc(cap * sizeof(seq_t));
-        A      = (seq_t *)malloc(cap * sizeof(seq_t));
+        S_prev = mem_new(seq_t, cap);
+        S_curr = mem_new(seq_t, cap);
+        pow2   = mem_new(seq_t, cap);
+        A      = mem_new(seq_t, cap);
         if (!S_prev || !S_curr || !pow2 || !A) return 0; /* allocation failed */
 
         /* base values */
@@ -61,10 +63,10 @@ seq_t a(idx_t n)
     /* Grow tables if necessary */
     if ((idx_t)cap <= n) {
         size_t new_cap = (size_t)n + 1;
-        S_prev = (seq_t *)realloc(S_prev, new_cap * sizeof(seq_t));
-        S_curr = (seq_t *)realloc(S_curr, new_cap * sizeof(seq_t));
-        pow2   = (seq_t *)realloc(pow2,   new_cap * sizeof(seq_t));
-        A      = (seq_t *)realloc(A,      new_cap * sizeof(seq_t));
+        S_prev = mem_resize(seq_t, S_prev, new_cap);
+        S_curr = mem_resize(seq_t, S_curr, new_cap);
+        pow2   = mem_resize(seq_t, pow2, new_cap);
+        A      = mem_resize(seq_t, A, new_cap);
         if (!S_prev || !S_curr || !pow2 || !A) return 0; /* allocation failed */
 
         /* initialise new powers of two */

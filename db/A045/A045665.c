@@ -10,6 +10,7 @@
  *            = 1 * where μ(d) is the Möbius function
  * Range:     u8 n <= 9, u16 n <= 22, u32 n <= 52, u64 n <= 114, u128 n <= 240,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 974 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,7 @@
 
 #include <stdint.h>           /* for uint64_t */
 #include <stdbool.h>          /* for bool, true, false */
-#include "../utils/pow2.h"    /* pow2(idx_t) -> seq_t */
+#include "../utils/pow2.h"
 
 /* compute Möbius function μ(d) for d ≥ 1 (d is assumed odd in our usage) */
 static int mobius_uint64(uint64_t d)

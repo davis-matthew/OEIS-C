@@ -10,6 +10,7 @@
  *            (equivalently a(n) = (31*n+32*n^2-30) / 3^(5-n) for n=3,4)
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 16, u64 n <= 35, u128 n <= 74,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 208 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

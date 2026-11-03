@@ -10,12 +10,14 @@
  *            standard graded reverse‑lexicographic order (A066099)
  * Range:     i8 n <= 80, i16 n <= 80, i32 n <= 80, i64 n <= 80, i128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t  s_next_k      = 1;          /* next composition index (k)       */
 static idx_t  s_next_index  = 2;          /* last defined index of a(n)       */
@@ -27,7 +29,7 @@ static void push_val(seq_t val) {
     /* grow cache if needed */
     if (s_next_index + 1 >= (idx_t)s_cache_cap) {
         size_t new_cap = s_cache_cap ? s_cache_cap * 2 : 32;
-        seq_t *tmp = (seq_t *)realloc(s_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, s_cache, new_cap);
         if (!tmp) exit(1);               /* abort on allocation failure */
         s_cache = tmp;
         s_cache_cap = new_cap;
@@ -75,7 +77,7 @@ seq_t a(idx_t n) {
 
     /* initialize cache on first call */
     if (s_cache == NULL) {
-        seq_t *tmp = (seq_t *)calloc(32, sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, 32);
         if (!tmp) exit(1);
         s_cache = tmp;
         s_cache_cap = 32;

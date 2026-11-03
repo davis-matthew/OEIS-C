@@ -8,13 +8,15 @@
  * Formula:   a(n) = numerator of the reduced fraction A008472(n)/A001221(n) *
  *            (sum of distinct prime factors of n divided by their count). *
  *            If the fraction is a/k (in lowest terms), the function returns a
- * Range:     u8 n <= 256, u16 n <= 9670, u32 n <= 9670, u64 n <= 9670,
- *            u128 n <= 9670, big any n
+ * Range:     u8 n <= 256, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 111 terms through n = 9670 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

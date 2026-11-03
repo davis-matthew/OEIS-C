@@ -11,6 +11,7 @@
  *            * For n >= 0 the function returns the nth term
  * Range:     i8 n <= 14, i16 n <= 28, i32 n <= 67, i64 n <= 174,
  *            i128 n <= 470, big any n
+ * Validated: standard, pass, 61 terms through n = 1302 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

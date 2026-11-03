@@ -9,6 +9,7 @@
  * Formula:   a(n) = (4*n^3 + 15*n^2 + 17*n - 6*floor(n/3))/18
  * Range:     u8 n <= 2, u16 n <= 24, u32 n <= 1058, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 61 terms through n = 9991 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

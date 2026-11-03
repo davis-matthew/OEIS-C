@@ -9,6 +9,7 @@
  *            C((58+2n)/2-1,57)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 14, u128 n <= 14,
  *            big any n
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
 /* (Here C(a,b) denotes the binomial coefficient, defined to be 0 if b<0 or b>a.) */
 
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t, idx_t) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

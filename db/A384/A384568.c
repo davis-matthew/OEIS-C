@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 9528 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
     a(n) = (1574352261 * a(n‑1) + 1017980433) mod 10^10   for n > 1   */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Modulus 10^10 fits in uint64_t */
 static const uint64_t MOD = 10000000000ULL;
@@ -43,13 +45,13 @@ seq_t a(idx_t n)
             size_t new_cap = (cap == 0) ? 16 : cap * 2;
             if (new_cap < idx)
                 new_cap = idx;
-            seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_new(seq_t, new_cap);
             if (!tmp)
                 exit(1);          /* simple error handling */
             if (cache) {
                 for (size_t i = 0; i < used; ++i)
                     tmp[i] = cache[i];
-                free(cache);
+                mem_free(cache);
             }
             cache = tmp;
             cap   = new_cap;

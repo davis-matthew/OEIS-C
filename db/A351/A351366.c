@@ -8,16 +8,19 @@
  *            prime divisors of n
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, floor_isqrt
+ * Validated: standard, pass, 42 terms through n = 364 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/floor_isqrt.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/isqrt.h"
 
 /* Static storage for the prime list used to factor numbers. */
 static idx_t      _prime_limit = 0;       /* maximum number for which primes are known */
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Ensure we have all primes up to ⌊√n⌋. */
-    idx_t limit = floor_isqrt(n);          /* correct function from utils */
+    idx_t limit = isqrt(n);          /* correct function from utils */
     if (limit > _prime_limit) {
         free(_prime_list);                 /* free old list if any */
         build_primes_upto(limit, &_prime_list, &_prime_count);
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
         if (p * p > temp)                /* no further small factors */
             break;
         if (temp % p == 0) {
-            sum += big_pow((seq_t)p, (seq_t)p);
+            sum += ipow((seq_t)p, (seq_t)p);
             while (temp % p == 0)
                 temp /= p;
         }
@@ -55,7 +58,7 @@ seq_t a(idx_t n)
 
     /* If a prime factor larger than √n remains, it appears once. */
     if (temp > 1)
-        sum += big_pow((seq_t)temp, (seq_t)temp);
+        sum += ipow((seq_t)temp, (seq_t)temp);
 
     return sum;
 }

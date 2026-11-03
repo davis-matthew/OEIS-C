@@ -12,13 +12,15 @@
  *            42849, a(7) = 95220, a(8) = 211600, a(9) = 409860, a(10)...
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 35, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,14 +36,14 @@ seq_t a(idx_t n)
         size_t new_cap = (cap == 0) ? 32 : cap;
         while (new_cap <= (size_t)n)
             new_cap *= 2;
-        seq_t *new_cache = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache)
             return 0;            /* allocation failure – caller should handle */
         if (cache) {
             /* copy already computed values */
             for (size_t i = 0; i <= (size_t)max_computed; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cap   = new_cap;

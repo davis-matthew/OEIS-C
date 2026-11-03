@@ -9,12 +9,14 @@
  *            morphism 1 → {1,2,1}, 2 → {1}
  * Range:     u8 n <= 1392, u16 n <= 1392, u32 n <= 1392, u64 n <= 1392,
  *            u128 n <= 1392, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 1193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;   /* dynamic array holding generated terms */
 static idx_t seq_size = 0;  /* current number of stored terms */
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 {
     /* ensure at least the first term exists */
     if (seq == NULL) {
-        seq = (seq_t*)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         seq[0] = (seq_t)1;
         seq_size = 1;
     }
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         idx_t new_size = seq_size + 2 * ones;
 
         /* allocate space for the expanded word */
-        seq_t *new_seq = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *new_seq = mem_new(seq_t, new_size);
         idx_t pos = 0;
         for (idx_t i = 0; i < seq_size; ++i) {
             if (seq[i] == (seq_t)1) {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         }
 
         /* discard old word and keep the new one */
-        free(seq);
+        mem_free(seq);
         seq     = new_seq;
         seq_size = new_size;
     }

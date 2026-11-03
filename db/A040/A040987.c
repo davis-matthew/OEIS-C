@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes, mod_pow
+ * Validated: standard, pass, 61 terms through n = 818 (2026-11-01)
+ * Helpers:   build_primes, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/powmod.h"
 
 /* Static state for caching primes and found sequence elements */
 static idx_t *prime_list = NULL; /* list of primes up to the current limit */
@@ -65,7 +68,7 @@ seq_t a(idx_t n)
 
             if ((p % 5) == 1) {         /* only these primes can fail */
                 uint64_t exp = (p - 1) / 5;
-                seq_t val = mod_pow((seq_t)21, exp, (seq_t)p);
+                seq_t val = powmod((seq_t)21, exp, (seq_t)p);
                 if (val != (seq_t)1) { /* 21 is not a 5th power residue */
                     /* Store the prime in the result array */
                     if (found_len == found_cap) {

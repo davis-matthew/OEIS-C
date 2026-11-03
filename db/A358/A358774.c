@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   derivative_mod4_uint64
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,53 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/derivative_mod4_uint64.h"
+#include "../utils/mem.h"
+
+/* Helper routine: arithmetic derivative modulo 4 for a 64‑bit integer
+   Using only integer arithmetic; a & 3 isolates the value modulo 4.  */
+static unsigned derivative_mod4_uint64(uint64_t x)
+{
+    if (x < 2)
+        return 0;
+
+    uint64_t orig = x;
+    unsigned sum = 0;
+    uint64_t tmp = x;
+
+    /* factor 2 separately to avoid repeated division by 2 in loop */
+    if (tmp % 2 == 0) {
+        unsigned e = 0;
+        while ((tmp & 1) == 0) {
+            tmp >>= 1;
+            e++;
+        }
+        uint64_t term = (orig / 2) * e;
+        sum = (sum + (unsigned)(term & 3)) & 3;
+    }
+
+    /* odd prime factors */
+    for (uint64_t p = 3; p * p <= tmp; p += 2) {
+        if (tmp % p == 0) {
+            unsigned e = 0;
+            while (tmp % p == 0) {
+                tmp /= p;
+                e++;
+            }
+            uint64_t term = (orig / p) * e;
+            sum = (sum + (unsigned)(term & 3)) & 3;
+        }
+    }
+
+    /* remaining prime > sqrt(orig) (if any) */
+    if (tmp > 1) {
+        uint64_t p = tmp;
+        unsigned e = 1;
+        uint64_t term = (orig / p) * e;
+        sum = (sum + (unsigned)(term & 3)) & 3;
+    }
+
+    return sum;
+}
 
 /* types provided by the build system */
 extern seq_t a(idx_t n);
@@ -52,7 +99,7 @@ seq_t a(idx_t n)
     if (seq_cache == NULL) {
         /* a reasonable initial capacity; will grow as needed */
         seq_cap = (size_t)(n > 1024 ? n : 1024);
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         seq_len = 0;
         last_checked = 1;
     }
@@ -65,7 +112,7 @@ seq_t a(idx_t n)
             if (seq_len == seq_cap) {
                 /* double capacity */
                 seq_cap *= 2;
-                seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = (seq_t)last_checked;
         }

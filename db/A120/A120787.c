@@ -10,15 +10,52 @@
  *            where N(n) = Σ_{k=0}^n Catalan(k)·20^{n-k}
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 8, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   catalan_vp, pow2, power5
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2.h"     /* seq_t pow2(idx_t exp)   */
-#include "../utils/power5.h"   /* seq_t power5(idx_t exp) */
-#include "../utils/catalan_vp.h"
+#include <stdbool.h>
+#include "../utils/pow2.h"
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
+
+/* Return the exponent of the prime p in Catalan(k). */
+static idx_t catalan_vp(idx_t k, unsigned int p)
+{
+    /* v_p(Catalan(k)) = v_p(binomial(2k,k)) - v_p(k+1)           */
+    idx_t vp_binom = 0;
+    idx_t pk = p;
+    while (pk <= 2ULL * k) {
+        vp_binom += (2ULL * k) / pk - 2ULL * (k / pk);
+        /* avoid overflow when multiplying pk by p */
+        if (pk > UINT64_MAX / p) break;
+        pk *= p;
+    }
+
+    idx_t vp_k1 = 0;
+    idx_t t = k + 1ULL;
+    while (t % p == 0) {
+        ++vp_k1;
+        t /= p;
+    }
+
+    return vp_binom > vp_k1 ? vp_binom - vp_k1 : 0;
+}
 
 seq_t a(idx_t n)
 {

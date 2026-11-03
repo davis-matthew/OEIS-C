@@ -10,12 +10,14 @@
  *            of length n having no substrings 0000, 0001, or 0101, offset 4
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 41, u64 n <= 83, u128 n <= 167,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 460 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache for computed values.  The cache holds indices
    from 0 up to the maximum n that has been requested so far. */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         while (new_cap <= (size_t)n + 1) {
             new_cap <<= 1;
         }
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {
             /* Out of memory; return 0 as a safe failure value. */
             return (seq_t)0;

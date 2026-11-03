@@ -13,7 +13,8 @@
  *            that row. * * The triangle is generated as...
  * Range:     u8 n <= 13, u16 n <= 51, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   seq_gcd, seq_mul
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/seq_gcd.h"
-#include "../utils/seq_mul.h"
+#include <string.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 typedef struct {
     seq_t num;
@@ -42,7 +49,7 @@ static const uint64_t H_PRIME = 11400714785074694791ULL; /* Knuth's constant */
 static void h_init(void)
 {
     h_size  = 64;
-    h_keys  = (seq_t *)malloc(h_size * sizeof(seq_t));
+    h_keys  = mem_new(seq_t, h_size);
     h_used  = (unsigned char *)calloc(h_size, 1);
     h_count = 0;
 }
@@ -50,7 +57,7 @@ static void h_init(void)
 static void h_grow(void)
 {
     size_t new_size = h_size << 1;
-    seq_t *new_keys = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_keys = mem_new(seq_t, new_size);
     unsigned char *new_used = (unsigned char *)calloc(new_size, 1);
 
     for (size_t i = 0; i < h_size; ++i) {
@@ -61,7 +68,7 @@ static void h_grow(void)
             new_keys[pos] = h_keys[i];
         }
     }
-    free(h_keys);
+    mem_free(h_keys);
     free(h_used);
     h_keys = new_keys;
     h_used = new_used;
@@ -96,7 +103,7 @@ static void seq_append(seq_t v)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 8 : seq_cap << 1;
-        seq_buf = (seq_t *)realloc(seq_buf, new_cap * sizeof(seq_t));
+        seq_buf = mem_resize(seq_t, seq_buf, new_cap);
         seq_cap = new_cap;
     }
     seq_buf[seq_len++] = v;
@@ -112,7 +119,7 @@ static inline void frac_add(const frac_t *a, const frac_t *b, frac_t *res)
     seq_t num  = num1 + num2;
     seq_t den  = seq_mul(a->den, b->den);
 
-    seq_t g = seq_gcd(num, den);
+    seq_t g = gcd(num, den);
     res->num = num / g;
     res->den = den / g;
 }
@@ -156,7 +163,7 @@ seq_t a(idx_t n)
         process_row(row1, 3);
 
         /* --- row 2 (index 2) ------------------------------------------------ */
-        curr_row = (frac_t *)malloc(3 * sizeof(frac_t));
+        curr_row = mem_new(frac_t, 3);
         curr_row[0].num = 1; curr_row[0].den = 1;
         curr_row[1].num = 1; curr_row[1].den = 4;
         curr_row[2].num = 1; curr_row[2].den = 1;
@@ -172,14 +179,14 @@ seq_t a(idx_t n)
 
         /* generate next row */
         size_t next_len = curr_len + 1;
-        frac_t *next_row = (frac_t *)malloc(next_len * sizeof(frac_t));
+        frac_t *next_row = mem_new(frac_t, next_len);
 
         next_row[0].num = 1; next_row[0].den = 1;
         for (size_t i = 1; i < curr_len; ++i)
             frac_add(&curr_row[i-1], &curr_row[i], &next_row[i]);
         next_row[next_len-1].num = 1; next_row[next_len-1].den = 1;
 
-        free(curr_row);
+        mem_free(curr_row);
         curr_row = next_row;
         curr_len = next_len;
     }

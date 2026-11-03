@@ -12,14 +12,30 @@
  *            + 1 a(odd n > 1) = 2*a((3*n + 1)/2)
  * Range:     u8 n <= 6, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 2462,
  *            big any n
- * Helpers:   collatz_a_rec
+ * Validated: standard, pass, 56 terms through n = 9198 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include standard header for uint64_t type */
 #include <stdint.h>
-#include "../utils/collatz_a_rec.h"
+
+/* Recursive helper that implements the recurrence. */
+static seq_t collatz_a_rec(idx_t n)
+{
+    if (n == 1)            /* base case: a(1) = 0 */
+        return (seq_t)0;
+
+    if ((n & 1) == 0) {    /* n is even: a(2*n) = 2*a(n/2) + 1 */
+        return (collatz_a_rec(n >> 1) << 1) | 1;
+    }
+
+    /* n is odd (n > 1):  a(n) = 2*a((3*n + 1)/2) */
+    /* Use 128‑bit arithmetic to avoid overflow when n is large. */
+    idx_t m = ((unsigned __int128)3 * n + 1) >> 1;
+    return collatz_a_rec(m) << 1;
+}
 
 /* Public function required by the specification. */
 seq_t a(idx_t n)

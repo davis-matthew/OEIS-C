@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 1786, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 74 terms through n = 9993 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Helper: compute floor( x^(1/e) ) for uint64_t values.             */
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
             is_prime_power_uint64(next + 6)) {
             if (sz == cap) {                    /* grow array */
                 size_t new_cap = cap ? cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                 if (!tmp) { /* allocation failure – abort gracefully */
                     return 0;
                 }

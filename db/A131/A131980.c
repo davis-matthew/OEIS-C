@@ -12,12 +12,14 @@
  *            containing T(n,0),T(n,1),…,T(n,⌊n/2⌋)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
     /* The longest row needed is the current row r.
        Allocate two arrays large enough for that row. */
     idx_t max_len = r / 2 + 1;
-    seq_t *prev = (seq_t *)malloc((size_t)max_len * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((size_t)max_len * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)max_len);
+    seq_t *curr = mem_new(seq_t, (size_t)max_len);
     if (!prev || !curr) return 0;     /* memory allocation failed */
 
     /* Initialise the base case T(0,0)=1. */
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
 
     seq_t result = prev[c];           /* a(n) is T(r,c) */
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

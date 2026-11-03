@@ -9,13 +9,15 @@
  *            3 a(0) = 0, a(1) = 1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 8576 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static data for memoisation */
 static seq_t *seq      = NULL;   /* values */
@@ -31,10 +33,10 @@ static void ensure_cap(idx_t n)
     if (new_cap < 8) new_cap = 8;
 
     if (!seq) {
-        seq = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, new_cap);
         comp = (unsigned char*)malloc(new_cap * sizeof(unsigned char));
     } else {
-        seq  = (seq_t*)realloc(seq,  new_cap * sizeof(seq_t));
+        seq  = mem_resize(seq_t, seq, new_cap);
         comp = (unsigned char*)realloc(comp, new_cap * sizeof(unsigned char));
     }
     if (!seq || !comp)   /* fatal, bail out */

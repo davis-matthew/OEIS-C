@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 804, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   integer_sqrt, is_prime
+ * Validated: standard, pass, 61 terms through n = 9667 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
-#include "../utils/integer_sqrt.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt.h"
 
 /* Check whether a prime p (p ≥ 5) is representable as 4x^2 + 5y^2.
  * For p=5 the representation is 4*0^2+5*1^2.  For larger primes
@@ -39,14 +41,14 @@
 static bool has_representation(uint64_t p)
 {
     if (p == 5) return true;
-    uint64_t ymax = (uint64_t)integer_sqrt(p / 5);
+    uint64_t ymax = (uint64_t)isqrt(p / 5);
     for (uint64_t y = 1; y <= ymax; ++y) {
         uint64_t val = 5 * y * y;
         if (val > p) break;
         uint64_t rest = p - val;
         if (rest & 3) continue;           /* rest must be a multiple of 4   */
         uint64_t sq = rest >> 2;          /* sq = x^2                        */
-        uint64_t r  = (uint64_t)integer_sqrt(sq);
+        uint64_t r  = (uint64_t)isqrt(sq);
         if (r * r == sq) return true;     /* perfect square                 */
     }
     return false;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
 
     /* Scan odd integers ≥7.  Every prime ≥7 is odd. */
     for (uint64_t p = 7; ; p += 2) {
-        if (!is_prime(p)) continue;
+        if (!is_prime_u64(p)) continue;
         if (has_representation(p)) {
             ++count;
             if (count == n) return (seq_t)p;

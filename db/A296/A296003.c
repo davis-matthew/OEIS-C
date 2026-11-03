@@ -9,7 +9,8 @@
  * Formula:   a(n) = Σ_{k=0}^{n-1} a(k)*b(n-1-k)
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Initial values: a(0)=2, a(1)=4, b(0)=1, b(1)=3, ...   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Binary search: does val appear in the sorted array arr[0..len-1]? */
 static int contains(seq_t val, const seq_t *arr, size_t len)
@@ -41,7 +43,7 @@ static void grow_seq(seq_t **p, size_t *cap, size_t need)
         size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
         while (new_cap < need)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*p, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *p, new_cap);
         *p = tmp;
         *cap = new_cap;
     }

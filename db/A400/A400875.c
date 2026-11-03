@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, easy, frac, tabl, new
  * Formula:   not stated
- * Range:     i8 n <= 64, i16 n <= 9170, i32 n <= 9170, i64 n <= 9170,
- *            i128 n <= 9170, big any n
- * Helpers:   _diag_from_index, gcd
+ * Range:     i8 n <= 64, i16 n <= 11325, i32 n <= 11325, i64 n <= 11325,
+ *            i128 n <= 11325, big any n
+ * Validated: standard, pass, 82 terms through n = 9170 (2026-11-02)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,37 @@
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/_diag_from_index.h"
+
+/* locate the diagonal sum S for a given 1‑based index n */
+static idx_t
+_diag_from_index(idx_t n)
+{
+    idx_t low = 1;
+    idx_t high = 2;
+
+    /* find an upper bound where high*(high-1)/2 >= n */
+    while (1) {
+        unsigned __int128 val = (unsigned __int128)high * (high - 1) / 2;
+        if (val >= n)
+            break;
+        high <<= 1;
+        if (high == 0) {          /* overflow guard, should never happen */
+            high = (idx_t)-1;
+            break;
+        }
+    }
+
+    /* binary search between low+1 and high */
+    while (low + 1 < high) {
+        idx_t mid = low + (high - low) / 2;
+        unsigned __int128 val = (unsigned __int128)mid * (mid - 1) / 2;
+        if (val >= n)
+            high = mid;
+        else
+            low = mid;
+    }
+    return high;
+}
 
 seq_t
 a(idx_t n)

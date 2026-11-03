@@ -8,7 +8,8 @@
  * Formula:   a(n) = fib(n+4) + non_fib(n)
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 
 #include <stdlib.h>           /* malloc, realloc */
 #include <stdint.h>           /* uint64_t */
-#include "../utils/fib.h"     /* external Fibonacci routine */
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* Cache for non‑Fibonacci numbers (0‑based index). */
 static seq_t   *nonfib_vals = NULL;   /* array of non‑Fibonacci numbers */
@@ -36,7 +49,7 @@ static void init_nonfib_cache(void)
 {
     if (nonfib_vals != NULL) return;      /* already initialised */
     nonfib_cap = 1024;
-    nonfib_vals = (seq_t *)malloc(nonfib_cap * sizeof(seq_t));
+    nonfib_vals = mem_new(seq_t, nonfib_cap);
 }
 
 /* Ensure that nonfib_vals[0 … n] are filled. */
@@ -56,8 +69,7 @@ static void ensure_nonfib_size(idx_t n)
         if (curr_int != f_prev) {                /* curr_int is NOT Fibonacci */
             if (nonfib_len == nonfib_cap) {       /* grow the array */
                 nonfib_cap <<= 1;
-                nonfib_vals = (seq_t *)realloc(nonfib_vals,
-                                                nonfib_cap * sizeof(seq_t));
+                nonfib_vals = mem_resize(seq_t, nonfib_vals, nonfib_cap);
             }
             nonfib_vals[nonfib_len++] = curr_int; /* cache this non‑Fib number */
         }

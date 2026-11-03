@@ -8,8 +8,9 @@
  * Formula:   a(n) = Σ_{i=0}^{k-1} ((digit_{rev}(n)_i == 2) ? -1 :
  *            digit_{rev}(n)_i) * 3^i, where digit_{rev}(n) is the reversed
  *            base‑3 representation of n
- * Range:     i8 n <= 243, i16 n <= 9910, i32 n <= 9910, i64 n <= 9910,
- *            i128 n <= 9910, big any n
+ * Range:     i8 n <= 243, i16 n <= 19683, i32 n <= 19683, i64 n <= 19683,
+ *            i128 n <= 19683, big any n
+ * Validated: standard, pass, 83 terms through n = 9910 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

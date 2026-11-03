@@ -11,13 +11,16 @@
  *            (2^m – 2^k)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow, pow_int
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"   /* for pow_int(seq_t base, idx_t exp)   */
-#include "../utils/big_pow.h"   /* for big_pow(seq_t base, seq_t exp)   */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
 
     /* compute |GL(m,2)|  */
     seq_t result = (seq_t)1;
-    seq_t base   = pow_int((seq_t)2, m);   /* 2^m */
+    seq_t base   = ipow_idx((seq_t)2, m);   /* 2^m */
 
     seq_t sub = (seq_t)1;                  /* 2^0 */
     for (idx_t k = 0; k < m; ++k)
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
     }
     else
     {
-        result *= big_pow((seq_t)2, (seq_t)shift);
+        result *= ipow((seq_t)2, (seq_t)shift);
     }
 
     return result;

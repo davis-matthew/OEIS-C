@@ -13,13 +13,15 @@
  *            by dynamic programming in O(n·5)
  * Range:     u8 n <= 32, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static DP tables and cache size */
 static seq_t *odd5 = NULL, *even5 = NULL;
@@ -34,11 +36,11 @@ static void _ensure_cache(idx_t N)
     /* Allocate zeroed tables of size N+1 */
     size_t sz = (size_t)(N + 1);
 
-    free(odd5);  free(even5);  free(odd4);  free(even4);
-    odd5  = (seq_t*)calloc(sz, sizeof(seq_t));
-    even5 = (seq_t*)calloc(sz, sizeof(seq_t));
-    odd4  = (seq_t*)calloc(sz, sizeof(seq_t));
-    even4 = (seq_t*)calloc(sz, sizeof(seq_t));
+    mem_free(odd5);  mem_free(even5);  mem_free(odd4);  mem_free(even4);
+    odd5  = mem_new(seq_t, sz);
+    even5 = mem_new(seq_t, sz);
+    odd4  = mem_new(seq_t, sz);
+    even4 = mem_new(seq_t, sz);
 
     if (!odd5 || !even5 || !odd4 || !even4) { /* allocation failed */
         /* In a real system we would handle this error. For the

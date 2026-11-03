@@ -11,7 +11,8 @@
  *            memoizing results for any n >= 1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 24, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,15 +34,15 @@ seq_t a(idx_t n)
     /* ensure cache big enough to hold index n */
     if (cache_cap < (size_t)(n + 1)) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (new_cache == NULL) abort();   /* memory failure */
         if (cache) {
-            memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+            mem_free(cache);
         }
         /* zero-fill the new extended part */
         if (new_cap > cache_cap)
-            memset(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+            mem_set(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache = new_cache;
         cache_cap = new_cap;
     }

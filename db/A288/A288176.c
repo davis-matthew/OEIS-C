@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 56, u128 n <= 114,
  *            big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 48 terms through n = 1999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
  */
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* free() */
-#include "../utils/alloc_seq.h"   /* alloc_seq() */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Computes the n-th term of OEIS sequence A288176 */
 seq_t a(idx_t n)
@@ -54,7 +63,7 @@ seq_t a(idx_t n)
     }
 
     /* Free the old array (associated with alloc_seq) */
-    free(cache);
+    mem_free(cache);
 
     /* Compute missing terms using the recurrence */
     for (idx_t i = old_len; i < cache_len; ++i) {

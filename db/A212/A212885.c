@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 266, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;          /* a(n) values               */
 static seq_t *B = NULL;          /* b(n) values               */
@@ -45,9 +47,9 @@ static void ensure_up_to(idx_t n)
 
     /* allocate new larger arrays */
     size_t new_size = (size_t)n + 1;
-    seq_t *newA = (seq_t*)calloc(new_size, sizeof(seq_t));
-    seq_t *newB = (seq_t*)calloc(new_size, sizeof(seq_t));
-    seq_t *newC = (seq_t*)calloc(new_size, sizeof(seq_t));
+    seq_t *newA = mem_new(seq_t, new_size);
+    seq_t *newB = mem_new(seq_t, new_size);
+    seq_t *newC = mem_new(seq_t, new_size);
 
     if (ready) {
         /* copy old contents */
@@ -57,7 +59,7 @@ static void ensure_up_to(idx_t n)
             newB[i] = B[i];
             newC[i] = C[i];
         }
-        free(A); free(B); free(C);
+        mem_free(A); mem_free(B); mem_free(C);
     }
 
     /* compute c(d) for new indices */

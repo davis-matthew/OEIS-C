@@ -11,7 +11,8 @@
  *            of sums of all k‑combinations of the first r primes
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   longest_run
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/longest_run.h"
+
+/* -----------------------------------------------------------------
+   Return the maximum length of a consecutive run of set bits
+   in the bitset `bits` that has `words` 64‑bit words and
+   the highest relevant index is `max_bit` (inclusive).
+   ----------------------------------------------------------------- */
+static seq_t longest_run(const uint64_t *bits, int words, int max_bit)
+{
+    seq_t best = 0, cur = 0;
+    for (int i = 0; i <= max_bit; ++i) {
+        if (bits[i >> 6] & ((uint64_t)1 << (i & 63))) {
+            ++cur;
+        } else {
+            if (cur > best) best = cur;
+            cur = 0;
+        }
+    }
+    if (cur > best) best = cur;
+    return best;
+}
 
 /* ---------- constants ---------------------------------------- */
 #define MAX_PRIMES   200            /* enough for n ≤ 10000  (r≈142) */

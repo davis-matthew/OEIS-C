@@ -9,12 +9,14 @@
  *            Fibonacci(k))
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build system. */
 extern seq_t a(idx_t n);
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     /* Lazy initialisation of tables and product.  */
     if (fib == NULL) {
         fib_cap = 32;  /* initial capacity, will grow automatically.  */
-        fib = (seq_t*)malloc(sizeof(seq_t)*(fib_cap+1));
+        fib = mem_new(seq_t, (fib_cap+1));
         fib[0] = (seq_t)0;   /* unused */
         fib[1] = (seq_t)1;
         fib[2] = (seq_t)1;
@@ -45,13 +47,13 @@ seq_t a(idx_t n) {
 
     if (cache == NULL) {
         cache_cap = 32;
-        cache = (seq_t*)malloc(sizeof(seq_t)*(cache_cap+1));
+        cache = mem_new(seq_t, (cache_cap+1));
     }
 
     /* Ensure capacity for the required indices.  */
     if (n > cache_cap) {
         size_t new_cap = n + 32;
-        cache = (seq_t*)realloc(cache, sizeof(seq_t)*(new_cap+1));
+        cache = mem_resize(seq_t, cache, (new_cap+1));
         cache_cap = new_cap;
     }
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n) {
         if (new_bound > fib_max) {
             size_t need = new_bound + 1;
             while (need > fib_cap) fib_cap <<= 1;
-            fib = (seq_t*)realloc(fib, sizeof(seq_t)*(fib_cap+1));
+            fib = mem_resize(seq_t, fib, (fib_cap+1));
             for (idx_t i = fib_max + 1; i <= new_bound; ++i)
                 fib[i] = fib[i-1] + fib[i-2];
             fib_max = new_bound;
@@ -87,7 +89,7 @@ seq_t a(idx_t n) {
         if (sum_idx > fib_max) {
             size_t need = sum_idx + 1;
             while (need > fib_cap) fib_cap <<= 1;
-            fib = (seq_t*)realloc(fib, sizeof(seq_t)*(fib_cap+1));
+            fib = mem_resize(seq_t, fib, (fib_cap+1));
             for (idx_t i = fib_max + 1; i <= sum_idx; ++i)
                 fib[i] = fib[i-1] + fib[i-2];
             fib_max = sum_idx;

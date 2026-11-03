@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 80, u32 n <= 288, u64 n <= 1088,
  *            u128 n <= 2549, big any n
+ * Validated: standard, pass, 85 terms through n = 2341 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,6 +24,7 @@
    then k = n - cumulative_terms(r-1) and a(n) = T(r,k).   */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* cumulative number of triangle entries up to and including row r */

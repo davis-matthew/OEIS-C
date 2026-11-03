@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   antidiagonal_coords
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/antidiagonal_coords.h"
+
+/* mapping from linear index n to pair (i,j) on the antidiagonals of T */
+static inline void antidiagonal_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    /* find s such that (s+1)(s+2)/2 <= n < (s+2)(s+3)/2 */
+    idx_t s = 0;
+    while (((s + 1) * (s + 2)) / 2 <= n) ++s;
+    idx_t pos = n - (s * (s + 1)) / 2;  /* 0 <= pos <= s */
+    *i = pos;
+    *j = s - pos;
+}
 
 seq_t a(idx_t n)
 {

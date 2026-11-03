@@ -11,7 +11,8 @@
  *            are prime
  * Range:     u8 n <= 539, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_small_prime
+ * Validated: standard, pass, 107 terms through n = 9578 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/is_small_prime.h"
+#include "../utils/is_prime.h"
 
 /* ----------------------------------------------------------------------------- */
 
@@ -61,7 +62,7 @@ seq_t a(idx_t n)
     /* ---------- count prime sums ------------------------------------------- */
     seq_t count = 0;
     for (idx_t s = 2; s <= sigma; ++s) {
-        if (reachable[s] && is_small_prime(s))
+        if (reachable[s] && is_prime(s))
             ++count;
     }
 

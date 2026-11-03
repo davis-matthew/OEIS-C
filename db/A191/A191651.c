@@ -9,12 +9,14 @@
  *            a(5)=6, a(6)=9, a(7)=15, a(8)=20, a(9)=28
  * Range:     u8 n <= 14, u16 n <= 29, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* cache[0] unused, cache[i] holds a(i) */
 static idx_t   computed_upto = 0;   /* highest n already computed */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate minimum necessary capacity */
         cache_capacity = (size_t)9 + 1;   /* indices 0..9 */
-        cache = (seq_t*)calloc(cache_capacity, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) return 0;            /* out of memory */
         static const seq_t base[9] = {2,2,2,4,6,9,15,20,28};
         for (idx_t i = 1; i <= 9; ++i)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Grow cache if needed */
     if ((size_t)n + 1 > cache_capacity) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return 0;        /* out of memory */
         /* Zero any new slots (optional) */
         if (new_cap > cache_capacity)

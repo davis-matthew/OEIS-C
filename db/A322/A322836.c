@@ -11,14 +11,24 @@
  *            T_0(j)=1, T_1(j)=j, T_m(j)=2*j*T_{m-1}(j)-T_{m-2}(j)
  * Range:     i8 n <= 30, i16 n <= 59, i32 n <= 128, i64 n <= 316,
  *            i128 n <= 847, big any n
- * Helpers:   _find_t
+ * Validated: standard, pass, 82 terms through n = 9628 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_find_t.h"
+
+/* Find the antidiagonal index t such that t*(t+1)/2 <= n < (t+1)*(t+2)/2. */
+static idx_t _find_t(idx_t n)
+{
+    idx_t t = 0;
+    /* t is small for the intended n; simple linear search is fast enough. */
+    while (((t + 1) * (t + 2)) / 2 <= n)
+        ++t;
+    return t;
+}
 
 seq_t a(idx_t n)
 {

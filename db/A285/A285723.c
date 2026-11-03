@@ -11,13 +11,31 @@
  *            prev // row index (1-based) * Let j = s - i // column ind...
  * Range:     u8 n <= 276, u16 n <= 7260, u32 n <= 7260, u64 n <= 7260,
  *            u128 n <= 7260, big any n
- * Helpers:   get_diagonal
+ * Validated: standard, pass, 121 terms through n = 5802 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/get_diagonal.h"
+
+/* Compute the smallest s such that s*(s-1)/2 >= n   (s >= 2) */
+static idx_t get_diagonal(idx_t n)
+{
+    idx_t low = 2, high = 2;
+    /* Find an upper bound by doubling */
+    while (((unsigned __int128)high * (high - 1)) / 2 < n)
+        high <<= 1;
+    /* Binary search between low and high */
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        if (((unsigned __int128)mid * (mid - 1)) / 2 >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

@@ -13,16 +13,36 @@
  *            lcm(1,3,5,...,2n+1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 10,
  *            big any n
- * Helpers:   a001028_grow, a001028_z, a1904_fixed
+ * Validated: standard, pass, 30 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a001028_z.h"
-#include "../utils/a001028_grow.h"
-#include "../utils/a1904_fixed.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *a001028_z(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a001028_grow(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = a001028_z(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static int a1904_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x += x;
+    return x == 0;
+}
 
 static seq_t *a1904_Q = NULL;   /* coefficients of Prod_{i=1..cnt} (z + (2i-1)^2) */
 static idx_t a1904_cnt = 0;

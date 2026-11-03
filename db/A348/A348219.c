@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = tau(n) - omega(n) + Σ_{p|n} n/p
- * Range:     u8 n <= 209, u16 n <= 9982, u32 n <= 9982, u64 n <= 9982,
- *            u128 n <= 9982, big any n
- * Helpers:   divisor_count_u64, factorize
+ * Range:     u8 n <= 209, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 92 terms through n = 9982 (2026-11-01)
+ * Helpers:   factorize, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,15 +18,17 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factorize.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0; /* Undefined for 0, but harmless. */
 
     /* tau(n) */
-    seq_t tau = (seq_t)divisor_count_u64((uint64_t)n);
+    seq_t tau = (seq_t)num_divisors((uint64_t)n);
 
     /* Factorization of n to get distinct prime divisors and exponents. */
     uint64_t primes[64];

@@ -10,13 +10,15 @@
  *            38: a(n) = 16 · Σ_{k=n-36}^{n-1} a(k) – 136 · a(n-37)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence and its prefix sums. */
 static seq_t *seq_cache = NULL;
@@ -32,8 +34,8 @@ static void ensure_caches(size_t n)
     size_t new_cap = cache_cap == 0 ? 1 : cache_cap;
     while (new_cap <= n)
         new_cap *= 2;
-    seq_cache   = (seq_t *)realloc(seq_cache,   new_cap * sizeof(seq_t));
-    pref_cache  = (seq_t *)realloc(pref_cache,  new_cap * sizeof(seq_t));
+    seq_cache   = mem_resize(seq_t, seq_cache, new_cap);
+    pref_cache  = mem_resize(seq_t, pref_cache, new_cap);
     /* New entries are implicitly zero because a(n)=0 for n<0 in the recurrence. */
     cache_cap = new_cap;
 }

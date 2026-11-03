@@ -9,19 +9,33 @@
  *            T(1,1)=2, T(r,k)=T(r-1,k)+T(r-2,k-1)+T(r-2,k-2) (0 ≤ k ≤ r)
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   alloc_seq, free_cache
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The helpers below provide a portable allocator for seq_t objects
    that works with both scalar integer types and arbitrary‑precision
    integers. */
-#include "../utils/alloc_seq.h"
-#include "../utils/free_cache.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache        = NULL;   /* flattened a(n) values          */
 static size_t cache_cap    = 0;      /* current capacity in cache      */
@@ -40,7 +54,7 @@ static void grow_cache(size_t need)
         while (new_cap < need) new_cap <<= 1;
         seq_t *tmp = alloc_seq(new_cap);
         if (cache && cache_len) {
-            memcpy(tmp, cache, cache_len * sizeof(seq_t));
+            mem_copy(tmp, cache, cache_len * sizeof(seq_t));
             free_cache(cache);
         }
         cache = tmp;
@@ -75,7 +89,7 @@ seq_t a(idx_t n)
 
         /* Append the new row into the cache. */
         grow_cache(cache_len + curr_len);
-        memcpy(cache + cache_len, curr, curr_len * sizeof(seq_t));
+        mem_copy(cache + cache_len, curr, curr_len * sizeof(seq_t));
         cache_len += curr_len;
 
         /* Move rows for next iteration. */

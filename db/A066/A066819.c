@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 68, u32 n <= 8476, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9682 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* (SG prime: p such that 2p+1 is also prime) */
 
 #include <stddef.h>           /* for size_t */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 /* maximum number of SG primes we will store */

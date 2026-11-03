@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 17,
  *            big any n
- * Helpers:   digit_len, pow10, seq_mul
+ * Validated: standard, pass, 28 terms through n = 374 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,26 @@
    assume monotonically increasing calls. */
 
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +54,7 @@ seq_t a(idx_t n)
     /* Lazy initialization */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cur_val = (seq_t)1;          /* 6^0 */
         cur_exp = 0;
         cache[0] = cur_val;          /* a(1) = 1 */
@@ -50,7 +68,7 @@ seq_t a(idx_t n)
         ++cur_exp;
 
         /* Check whether the leading decimal digit is 1 */
-        idx_t   d   = digit_len(cur_val);           /* number of decimal digits */
+        idx_t   d   = num_digits(cur_val);           /* number of decimal digits */
         seq_t   base = pow10(d - 1);                /* 10^(d-1) */
         seq_t   leading = cur_val / base;           /* leading digit */
 
@@ -58,7 +76,7 @@ seq_t a(idx_t n)
             /* Ensure capacity */
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = cur_val;
         }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,12 +45,12 @@ seq_t a(idx_t n)
         if (is_prime((idx_t)p1) && is_prime((idx_t)p2)) {
             /* Allocate or grow cache as needed */
             if (cache_len == 0) {
-                cache = (seq_t *)malloc(8 * sizeof(seq_t));
+                cache = mem_new(seq_t, 8);
                 if (!cache) abort();
             } else {
                 size_t new_cap = cache_len * 2;
                 if (new_cap < cache_len + 1) new_cap = cache_len + 1;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
             }

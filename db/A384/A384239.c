@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of primes p ≤ n with p^p ≡ p (mod n)
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdbool.h>
 
 /* Provided util for modular exponentiation (sequence member is unsigned) */
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* Trial division primality test for uint64_t values */
 static bool is_prime_uint64(uint64_t x)
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
             continue;
 
         /* Compute p^p mod n.  mod_pow expects seq_t arguments. */
-        seq_t rem = mod_pow((seq_t)p, (uint64_t)p, (seq_t)n);
+        seq_t rem = powmod((seq_t)p, (uint64_t)p, (seq_t)n);
 
         /* Equivalent to testing rem == p % n, but for p ≤ n the
            equality rem == p holds exactly when the condition is met.

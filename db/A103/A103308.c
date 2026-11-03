@@ -9,13 +9,25 @@
  *            denominator((2^(n+3)+(-1)^n*2*(3*n+5))/((n+1)*(n+2)*3^(n+2)))
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   vpow_uint64
+ * Validated: partial, pass, 22 terms through n = 23 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/vpow_uint64.h"
+
+/* Count how many times p divides x */
+static inline int vpow_uint64(uint64_t x, uint64_t p)
+{
+    int cnt = 0;
+    while ((x % p) == 0)
+    {
+        x /= p;
+        ++cnt;
+    }
+    return cnt;
+}
 
 /* ---------- Helper functions ---------- */
 

@@ -7,12 +7,14 @@
  * Formula:   a(n) = prime(n) mod (n-1)
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 89 terms through n = 916 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +22,7 @@ seq_t a(idx_t n)
     uint64_t candidate = 2;
     
     while (1) {
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             count++;
             if (count == n) {
                 return ((seq_t)candidate) % ((seq_t)(n - 1));

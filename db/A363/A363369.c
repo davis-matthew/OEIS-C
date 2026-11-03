@@ -8,7 +8,8 @@
  *            factors p of n. a(p)=1 if n is prime
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_factor
+ * Validated: standard, pass, 103 terms through n = 9470 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/is_prime_factor.h"
+#include "../utils/mem.h"
+
+/* Auxiliary function: simple trial‑division factorisation; no external
+   helper library is required for the OEIS definition. */
+static bool is_prime_factor(idx_t n, idx_t *first_factor)
+{
+    if (n < 2)
+        return false;
+    for (idx_t p = 2; p * p <= n; ++p) {
+        if (n % p == 0) {
+            if (first_factor)
+                *first_factor = p;
+            return false; /* composite */
+        }
+    }
+    return true; /* prime */
+}
 
 /* Memoised recursive evaluation of the game length. */
 seq_t a(idx_t n)
@@ -35,12 +52,12 @@ seq_t a(idx_t n)
         size_t new_cap = (n + 2) * 2;
         if (new_cap < 16)
             new_cap = 16;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (tmp == NULL)
             return 0; /* allocation failure – not expected in test harness */
         if (cache) {
-            memcpy(tmp, cache, cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(tmp, cache, cap * sizeof(seq_t));
+            mem_free(cache);
         }
         const seq_t SENTINEL = (seq_t)-1;
         for (size_t i = cap; i < new_cap; ++i)

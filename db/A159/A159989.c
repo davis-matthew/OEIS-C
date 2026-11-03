@@ -7,13 +7,15 @@
  * Formula:   a(n) = Catalan(n) mod 12
  * Range:     u8 n <= 118, u16 n <= 118, u32 n <= 118, u64 n <= 118,
  *            u128 n <= 118, big any n
- * Helpers:   none
+ * Validated: partial, pass, 119 terms through n = 118 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) = C_n mod 12, where C_n is the nth Catalan number.  */
 
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
        to accommodate all values up to n.  */
     if (n + 1 > cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return 0;  /* unable to allocate; return 0 as fallback */
 
         cache = new_cache;

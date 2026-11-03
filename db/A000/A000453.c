@@ -8,6 +8,7 @@
  *            S(m-1,k-1), with S(1,1) = 1 and S(1,k) = 0 for k > 1
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 34, u128 n <= 66,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 200 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            has an even numerator and an odd denominator
  * Range:     u8 n <= 178, u16 n <= 8000, u32 n <= 8000, u64 n <= 8000,
  *            u128 n <= 8000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 7864 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Count trailing zeros of a 64‑bit integer (used for exponents). */
 static unsigned trailing_zeros_uint64(uint64_t x) {
@@ -85,7 +87,7 @@ seq_t a(idx_t n) {
     /* Allocate buffer once. */
     if (!term_buf) {
         term_cap = 128;
-        term_buf = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        term_buf = mem_new(seq_t, term_cap);
         if (!term_buf) abort();
     }
 
@@ -99,7 +101,7 @@ seq_t a(idx_t n) {
         if (is_good(last_num)) {
             if (term_cnt == term_cap) {
                 term_cap <<= 1;
-                term_buf = (seq_t *)realloc(term_buf, term_cap * sizeof(seq_t));
+                term_buf = mem_resize(seq_t, term_buf, term_cap);
                 if (!term_buf) abort();
             }
             term_buf[term_cnt++] = (seq_t)last_num;

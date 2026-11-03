@@ -7,6 +7,7 @@
  * Formula:   a(n) = decimal number formed by writing 99 in base n and
  *            interpreting the resulting digits as decimal digits
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

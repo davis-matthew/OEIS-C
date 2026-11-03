@@ -9,7 +9,8 @@
  *            a(n) is the n-th positive integer that is not marked
  * Range:     u8 n <= 61, u16 n <= 210, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *sequence = NULL;
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
             }
         }
 
-        sequence = (seq_t *)malloc(400 * sizeof(seq_t));
+        sequence = mem_new(seq_t, 400);
         seq_len = 0;
         for (long long i = 1; i <= LIMIT && seq_len < 400; i++) {
             if (!can_sum[i]) {

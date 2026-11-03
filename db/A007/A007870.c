@@ -7,12 +7,23 @@
  * Formula:   Product of all parts of all partitions of n
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   generate_partitions_helper
+ * Validated: standard, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/generate_partitions_helper.h"
+static void generate_partitions_helper(idx_t remaining, idx_t max_part, seq_t current_product, seq_t *result) {
+    if (remaining == 0) {
+        *result *= current_product;
+        return;
+    }
+    
+    idx_t limit = (remaining < max_part) ? remaining : max_part;
+    for (idx_t part = limit; part >= 1; part--) {
+        generate_partitions_helper(remaining - part, part, current_product * (seq_t)part, result);
+    }
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;

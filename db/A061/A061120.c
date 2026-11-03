@@ -7,17 +7,85 @@
  * Keywords:  nonn
  * Formula:   a(n) = Min{σ(c); p(n+1) > c > p(n)}, where σ = sum of divisors,
  *            and c is composite
- * Range:     u8 n <= 27, u16 n <= 2325, u32 n <= 9762, u64 n <= 9762,
- *            u128 n <= 9762, big any n
- * Helpers:   get_prime, is_prime_small, sigma_of
+ * Range:     u8 n <= 27, u16 n <= 2325, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 72 terms through n = 9762 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/get_prime.h"
-#include "../utils/is_prime_small.h"
-#include "../utils/sigma_of.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/is_prime_seq.h"
+
+/* Return the k‑th prime (k ≥ 1).  On first call the prime list
+   is built incrementally using trial division.  The list is
+   stored in a static array which is expanded as necessary.   */
+static uint32_t get_prime(idx_t k)
+{
+    static uint32_t *pr = NULL;     /* array of primes */
+    static size_t sz   = 0;         /* number of primes stored */
+    static size_t cap  = 0;         /* allocated capacity */
+    static uint32_t cand = 3;       /* candidate after 2 */
+
+    /* initialise the prime table on first use */
+    if (sz == 0) {
+        cap = 8;
+        pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+        if (!pr) abort();
+        sz = 0;
+    }
+
+    /* grow the array until we have at least k primes */
+    while (sz < (size_t)k) {
+        if (sz == 0) {                /* add the first prime */
+            pr[sz++] = 2;
+            continue;
+        }
+
+        /* find the next prime candidate */
+        uint32_t p = cand;
+        bool ok = true;
+        for (size_t i = 0; i < sz; ++i) {
+            uint32_t prime = pr[i];
+            if ((uint64_t)prime * prime > (uint64_t)p) break;
+            if (p % prime == 0) { ok = false; break; }
+        }
+
+        if (!ok) {                    /* not prime – keep searching */
+            cand += 2;                /* only odd numbers remain */
+            continue;
+        }
+
+        /* prime found – store it, grow table if needed */
+        if (sz == cap) {
+            cap <<= 1;
+            pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+            if (!pr) abort();
+        }
+        pr[sz++] = p;
+        cand = p + 2;
+    }
+
+    return pr[(size_t)k - 1];
+}
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +102,7 @@ seq_t a(idx_t n)
     /* Scan the open interval (p_n, p_n1). */
     for (idx_t c = p_n + 1; c < p_n1; ++c) {
         /* Skip primes; only composites are considered. */
-        if (is_prime_small((uint64_t)c))
+        if (is_prime_seq((uint64_t)c))
             continue;
 
         seq_t sigma_c = sigma_of(c);

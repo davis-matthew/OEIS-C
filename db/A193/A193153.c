@@ -11,11 +11,13 @@
  *            using only integer arithmetic
  * Range:     u8 none, u16 n <= 3, u32 n <= 6, u64 n <= 9, u128 n <= 16,
  *            big any n
+ * Validated: standard, pass, 28 terms through n = 73 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

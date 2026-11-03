@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 33, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* integer square root for 64‑bit unsigned integers */
 static inline uint64_t isqrt_u64(uint64_t x) {
@@ -81,16 +83,16 @@ static size_t cache_cap  = 0;            /* allocated capacity */
 static void ensure_cache_capacity(size_t need) {
     if (cache_cap >= need) return;
     size_t new_cap = need * 2;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) {
         /* allocation failure – panic silently by resetting cache */
-        free(seq_cache);
+        mem_free(seq_cache);
         seq_cache = NULL;
         cache_cap = cache_len = 0;
         return;
     }
     for (size_t i = 0; i < cache_len; ++i) tmp[i] = seq_cache[i];
-    free(seq_cache);
+    mem_free(seq_cache);
     seq_cache = tmp;
     cache_cap = new_cap;
 }

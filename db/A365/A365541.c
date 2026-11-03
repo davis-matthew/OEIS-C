@@ -10,13 +10,15 @@
  *            3 + (n-2 - (r-2)^2), m = max(0, floor((k-1)/2) - max(1,k-r) + 1)
  * Range:     u8 n <= 54, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 64 terms through n = 65 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 static inline idx_t isqrt_u64(idx_t n)
 {
@@ -47,13 +49,13 @@ seq_t a(idx_t n)
     idx_t R = (k - 1) / 2;                    // floor((k-1)/2)
     idx_t m = (L <= R) ? (R - L + 1) : 0;
 
-    seq_t pow2_n = seq_pow((seq_t)2, r);
+    seq_t pow2_n = ipow_idx((seq_t)2, r);
     if (m == 0)
         return (seq_t)0;  // no subset contains two elements summing to k
 
     idx_t exp2 = r - 2 * m;                    // r-2m, guaranteed non‑negative
-    seq_t pow2_n_minus_2m = seq_pow((seq_t)2, exp2);
-    seq_t pow3_m = seq_pow((seq_t)3, m);
+    seq_t pow2_n_minus_2m = ipow_idx((seq_t)2, exp2);
+    seq_t pow3_m = ipow_idx((seq_t)3, m);
 
     seq_t avoid = pow3_m * pow2_n_minus_2m;
     return pow2_n - avoid;

@@ -10,12 +10,14 @@
  *            ≤ j, T_i + T_j = n}, * where T_k = k(k+1)/2
  * Range:     u8 n <= 234, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 118 terms through n = 9758 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Allocate and fill the triangular numbers array. */
-    seq_t *tri = (seq_t *)malloc(sizeof(seq_t) * (size_t)m);
+    seq_t *tri = mem_new(seq_t, (size_t)m);
     if (!tri)
         return 0;                  /* out of memory → zero */
     for (idx_t i = 1; i <= m; ++i)
@@ -64,6 +66,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(tri);
+    mem_free(tri);
     return count;
 }

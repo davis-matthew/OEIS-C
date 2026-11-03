@@ -11,17 +11,23 @@
  *            summing binomial coefficients inside vertical bands in Pascal's
  *            triangle. The sequence is obtained by flattening the array row
  *            by row
- * Range:     u8 n <= 39, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
+ * Range:     u8 n <= 48, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   binomial, ceil_div2
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/ceil_div2.h"
+
+/* Helper: ceil division by 2 for signed integers. */
+static inline int64_t ceil_div2(int64_t a) {
+    return (a >= 0) ? (a + 1) / 2 : a / 2;
+}
 
 /* Helper: floor division by 2 for signed integers. */
 static inline int64_t floor_div2(int64_t a) {

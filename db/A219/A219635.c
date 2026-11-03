@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   mod_mul64
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_mul64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* Computes OEIS A219635:  a(n) is the smallest number > a(n-1)
    such that 1 + Σ_{k=1..n} a(k)^3 is prime. */
@@ -31,7 +34,7 @@ static void ensure_capacity(idx_t need) {
     idx_t new_cap = cache_cap ? cache_cap * 2 : 1;
     if (new_cap < need) new_cap = need;
 
-    seq_t *new_a = (seq_t *)realloc(cache_a, new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, cache_a, new_cap);
     uint64_t *new_s = (uint64_t *)realloc(cache_sum, new_cap * sizeof(uint64_t));
     if (!new_a || !new_s) abort();
 
@@ -47,8 +50,8 @@ static uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod) {
     uint64_t result = 1;
     uint64_t b = base % mod;
     while (exp) {
-        if (exp & 1) result = mod_mul64(result, b, mod);
-        b = mod_mul64(b, b, mod);
+        if (exp & 1) result = mulmod(result, b, mod);
+        b = mulmod(b, b, mod);
         exp >>= 1;
     }
     return result;
@@ -80,7 +83,7 @@ static bool is_prime_uint64(uint64_t n) {
         if (x == 1 || x == n-1) continue;
         bool composite = true;
         for (unsigned r = 1; r < s; ++r) {
-            x = mod_mul64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { composite = false; break; }
         }
         if (composite) return false;

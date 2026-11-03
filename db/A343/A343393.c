@@ -8,6 +8,7 @@
  * Formula:   a(n) = the nth decimal digit of 99^2/1103 (integer part first)
  * Range:     u8 none, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

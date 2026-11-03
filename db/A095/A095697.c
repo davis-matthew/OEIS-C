@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 28, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 53 terms through n = 917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,17 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/mem.h"
+
+/* Tiny primality test: works for the range needed (n <= about 10000) */
+static bool isPrime(idx_t x)
+{
+    if (x < 2)                return false;
+    if (x % 2ULL == 0ULL)     return x == 2;
+    for (idx_t d = 3; d*d <= x; d += 2)
+        if (x % d == 0)       return false;
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -51,7 +62,7 @@ seq_t a(idx_t n)
             if (cache_size == cache_cap)
             {
                 idx_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                 {
                     /* Allocation failed – return 0 for safety. */

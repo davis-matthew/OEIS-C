@@ -9,13 +9,22 @@
  *            (g-1)*g*(2g-1)/3 ≥ n, then a(n)=2*(g-1)^2
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   sum_groups
+ * Validated: full, pass, 60 terms through n = 60 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sum_groups.h"
+
+static inline seq_t sum_groups(idx_t g) {
+    if (g < 2) return 1;                       // only used for g>=2
+    seq_t gg = (idx_t)g;
+    seq_t a = gg - 1;
+    seq_t b = gg;
+    seq_t c = 2 * gg - 1;
+    return (a * b * c) / 3;
+}
 
 seq_t a(idx_t n) {
     if (n == 1) return (seq_t)1;

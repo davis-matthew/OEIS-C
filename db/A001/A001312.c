@@ -11,14 +11,26 @@
  *            G.f.: 1/((1-x)*(1-x^2)*(1-x^5)*(1-x^10)*(1-x^50)*(1-x^100))
  * Range:     u8 n <= 44, u16 n <= 252, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ways125
+ * Validated: standard, pass, 76 terms through n = 977 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/ways125.h"
+
+/* number of ways to make m from coins 1, 2, 5 */
+static uint64_t ways125(uint64_t m) {
+    uint64_t K = m / 5;
+    uint64_t S = (K + 1) * m - 5 * (K * (K + 1) / 2); /* sum of (m - 5t) */
+    uint64_t odd;
+    if (m % 2 == 0)
+        odd = (K + 1) / 2;   /* m - 5t odd when t odd */
+    else
+        odd = K / 2 + 1;     /* m - 5t odd when t even */
+    return (S - odd) / 2 + K + 1;
+}
 
 seq_t a(idx_t n) {
     seq_t result = 0;

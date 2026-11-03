@@ -9,7 +9,8 @@
  *            + 39/4*8! · S2(n,8) + 4*9! · S2(n,9) + 10! · S2(n,10)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Number of terms that are needed in the Stirling table.  */
 #define KMAX 10
@@ -53,12 +55,12 @@ static void compute_stirling_up_to(idx_t n_target)
     seq_t *tmp = NULL;
 
     if (S == NULL) {                 /* first allocation */
-        tmp = (seq_t *)calloc(new_size, sizeof(seq_t));
+        tmp = mem_new(seq_t, new_size);
         if (!tmp) exit(EXIT_FAILURE);
         /* Construct each element (necessary when seq_t is a class). */
 #ifdef __cplusplus
         for (size_t i = 0; i < new_size; ++i)
-            new (&tmp[i]) seq_t();
+            *(&tmp[i]) = (seq_t)0;
 #endif
         /* Zero the whole array – calloc already did it, but we re‑assign
            to guarantee the value for class types. */
@@ -69,12 +71,12 @@ static void compute_stirling_up_to(idx_t n_target)
         max_n = n_target;
     } else if (max_n + 1 < n_target + 1) {   /* enlarge the table */
         size_t old_size = (max_n + 1) * (KMAX + 1);
-        tmp = (seq_t *)realloc(S, new_size * sizeof(seq_t));
+        tmp = mem_resize(seq_t, S, new_size);
         if (!tmp) exit(EXIT_FAILURE);
         /* Construct the newly allocated part. */
 #ifdef __cplusplus
         for (size_t i = old_size; i < new_size; ++i)
-            new (&tmp[i]) seq_t();
+            *(&tmp[i]) = (seq_t)0;
 #endif
         /* Zero the new entries. */
         for (size_t i = old_size; i < new_size; ++i)

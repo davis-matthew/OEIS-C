@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------
  * Simple prime sieve (up to 1 000 000) – used for factorisation
@@ -129,24 +131,24 @@ seq_t a(idx_t n)
 
     /* dynamic array for previously seen values */
     size_t seen_cap = 16;
-    seq_t *seen = (seq_t *)malloc(seen_cap * sizeof(seq_t));
+    seq_t *seen = mem_new(seq_t, seen_cap);
     size_t seen_len = 0;
 
     while (1) {
         if (k == 0) {                    /* reached zero */
-            free(seen);
+            mem_free(seen);
             return steps;
         }
         /* check for cycle */
         for (size_t i = 0; i < seen_len; ++i)
             if (seen[i] == k) {          /* cycle detected – never reaches 0 */
-                free(seen);
+                mem_free(seen);
                 return (seq_t)-1;
             }
         /* store current value */
         if (seen_len == seen_cap) {
             seen_cap <<= 1;
-            seen = (seq_t *)realloc(seen, seen_cap * sizeof(seq_t));
+            seen = mem_resize(seq_t, seen, seen_cap);
         }
         seen[seen_len++] = k;
 

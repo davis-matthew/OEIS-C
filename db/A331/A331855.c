@@ -8,8 +8,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = number of distinct values obtained by reversing every
  *            block of a partition of the binary representation of n
- * Range:     u8 n <= 1112, u16 n <= 9565, u32 n <= 9565, u64 n <= 9565,
- *            u128 n <= 9565, big any n
+ * Range:     u8 n <= 1112, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 91 terms through n = 9565 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

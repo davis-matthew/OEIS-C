@@ -8,12 +8,14 @@
  *            decimal point in the expansion of 1/471, with offset 0
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         /* append the new digit to the cache */
         if (digits_len == digits_cap) {
             size_t new_cap = digits_cap ? digits_cap * 2 : 16;
-            seq_t *p = (seq_t *)realloc(digits, new_cap * sizeof(seq_t));
+            seq_t *p = mem_resize(seq_t, digits, new_cap);
             if (!p) { /* allocation failed – return 0 as safe fallback */
                 return (seq_t)0;
             }

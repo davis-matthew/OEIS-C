@@ -12,7 +12,8 @@
  *            + [m even ? W(m/2) : 0] ) / 2
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 39, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for the sequence values (a) and for Wedderburn‑Etherington numbers (w). */
 static seq_t *a_cache = NULL;   /* a[0]..a[max_a] */
@@ -40,7 +42,7 @@ static void grow_to(idx_t n)
         if (w_cache == NULL)
         {
             w_cap = needed_w + 1;              /* +1 because we index from 0      */
-            w_cache = (seq_t *)calloc((size_t)w_cap, sizeof(seq_t));
+            w_cache = mem_new(seq_t, (size_t)w_cap);
             w_cache[0] = 0;                    /* not used but convenient        */
             w_cache[1] = 1;                    /* W(1)=1                           */
             w_max   = 1;
@@ -48,7 +50,7 @@ static void grow_to(idx_t n)
         else if (needed_w + 1 > w_cap)
         {
             w_cap = needed_w + 1;
-            w_cache = (seq_t *)realloc(w_cache, (size_t)w_cap * sizeof(seq_t));
+            w_cache = mem_resize(seq_t, w_cache, (size_t)w_cap);
         }
 
         /* Compute new w values */
@@ -68,7 +70,7 @@ static void grow_to(idx_t n)
     if (a_cache == NULL)
     {
         a_cap = (n < 2 ? 2 : n + 1);
-        a_cache = (seq_t *)calloc((size_t)a_cap, sizeof(seq_t));
+        a_cache = mem_new(seq_t, (size_t)a_cap);
         a_cache[0] = 0;
         a_cache[1] = 1;
         a_max = (n >= 1 ? 1 : 0);
@@ -76,7 +78,7 @@ static void grow_to(idx_t n)
     else if (n + 1 > a_cap)
     {
         a_cap = n + 1;
-        a_cache = (seq_t *)realloc(a_cache, (size_t)a_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (size_t)a_cap);
     }
 
     /* Compute missing a values. */

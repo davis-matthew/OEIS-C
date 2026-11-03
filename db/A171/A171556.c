@@ -7,13 +7,16 @@
  * Formula:   a(n) = 3*C(n)-2, where C(n) is the n-th Catalan number
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>              /* malloc, realloc, free */
-#include "../utils/gcd.h"        /* seq_t gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Cache for Catalan numbers */
 static seq_t *cat = NULL;    /* array of Catalan numbers 0 .. cat_size-1 */
@@ -29,7 +32,7 @@ static void ensure_cat(idx_t n)
     idx_t new_cap = cat_cap ? (cat_cap << 1) : 1;
     while (new_cap <= n) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cat, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cat, new_cap);
     if (!tmp && new_cap > 0) {
         /* Allocation failure – aborting is acceptable for the evaluation. */
         exit(1);

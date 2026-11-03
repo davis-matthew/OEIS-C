@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 typedef struct { seq_t num; seq_t den; } Rational;
 
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     idx_t produced = 0;
 
     /* start with row 0: {1/1} */
-    Rational *prev = (Rational*)malloc(sizeof(Rational));
+    Rational *prev = mem_new(Rational, 1);
     prev[0].num = (seq_t)1;
     prev[0].den = (seq_t)1;
     size_t prev_len = 1;
@@ -50,14 +52,14 @@ seq_t a(idx_t n) {
             if (den != (seq_t)1 && den != (seq_t)2) {
                 ++produced;
                 if (produced == n) {
-                    free(prev);
+                    mem_free(prev);
                     return den;
                 }
             }
             if (num != (seq_t)1 && num != (seq_t)2) {
                 ++produced;
                 if (produced == n) {
-                    free(prev);
+                    mem_free(prev);
                     return num;
                 }
             }
@@ -66,7 +68,7 @@ seq_t a(idx_t n) {
 
         /* compute next row */
         size_t next_len = prev_len + 1;
-        Rational *next = (Rational*)malloc(next_len * sizeof(Rational));
+        Rational *next = mem_new(Rational, next_len);
         next[0].num = (seq_t)1;
         next[0].den = (seq_t)1;
         next[next_len - 1].num = (seq_t)1;
@@ -91,12 +93,12 @@ seq_t a(idx_t n) {
             }
         }
 
-        free(prev);
+        mem_free(prev);
         prev = next;
         prev_len = next_len;
         ++row;
     }
 
-    free(prev);
+    mem_free(prev);
     return (seq_t)0;        /* unreachable for n ≥ 1 */
 }

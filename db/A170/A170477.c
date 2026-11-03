@@ -9,12 +9,14 @@
  *            n ≥ 45: a(n) = 34 * Σ_{k=n-44}^{n-1} a(k) – 595 * a(n-45)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
         idx_t new_len = n + 1;
 
         /* allocate new arrays of the required size */
-        seq_t *new_cache  = (seq_t *)malloc(new_len * sizeof(seq_t));
-        seq_t *new_prefix = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache  = mem_new(seq_t, new_len);
+        seq_t *new_prefix = mem_new(seq_t, new_len);
         if (!new_cache || !new_prefix) {
             /* allocation failure – return 0 (caller must handle) */
             return (seq_t)0;
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
             new_prefix[i] = prefix[i];
         }
         /* free old memory */
-        free(cache);
-        free(prefix);
+        mem_free(cache);
+        mem_free(prefix);
 
         /* switch to the new arrays */
         cache   = new_cache;

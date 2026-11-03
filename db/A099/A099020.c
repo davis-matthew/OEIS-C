@@ -12,6 +12,7 @@
  *            = n – d(d+1)/2 - row r = d – offset - column j =...
  * Range:     u8 n <= 35, u16 n <= 77, u32 n <= 189, u64 n <= 527,
  *            u128 n <= 1539, big any n
+ * Validated: standard, pass, 82 terms through n = 9578 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

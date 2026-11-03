@@ -9,7 +9,8 @@
  *            prime P where digit_sum(P) == digit_sum(n)
  * Range:     u8 n <= 1, u16 n <= 295, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 58 terms through n = 9917 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* ----- global state for memoisation ----- */
 static seq_t *honaker = NULL;   /* stored Honaker primes            */
@@ -75,7 +78,7 @@ static void init(void)
             /* resize storage if needed */
             if (hon_cnt == hon_cap) {
                 size_t ncap = hon_cap ? hon_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(honaker, ncap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, honaker, ncap);
                 if (!tmp)
                     exit(1);                   /* out of memory */
                 honaker = tmp;

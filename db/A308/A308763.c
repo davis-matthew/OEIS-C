@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n} d^(n-2)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 28,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 379 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

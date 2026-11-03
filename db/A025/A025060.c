@@ -10,14 +10,27 @@
  *            sorted * unique values
  * Range:     u8 none, u16 none, u32 n <= 2000, u64 n <= 2000, u128 n <= 2000,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: standard, pass, 87 terms through n = 1880 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_seq_t.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 #define INITIAL_K 200       /* initial bound for i, j, k in the triples */
 #define K_STEP     50       /* step size to enlarge the bound if needed */
@@ -34,7 +47,7 @@ static size_t generate_values(idx_t K)
 {
     /* number of triples = K choose 3 */
     size_t total = (size_t)K * (K - 1) * (K - 2) / 6;
-    seq_t *tmp = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, total);
     if (tmp == NULL) return 0;
 
     size_t pos = 0;
@@ -49,7 +62,7 @@ static size_t generate_values(idx_t K)
     }
 
     /* sort the values */
-    qsort(tmp, total, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(tmp, total, sizeof(seq_t), cmp_seq_t);
 
     /* deduplicate in place */
     size_t uniq = 0;
@@ -63,7 +76,7 @@ static size_t generate_values(idx_t K)
     }
 
     /* replace existing cache */
-    free(unique_vals);
+    mem_free(unique_vals);
     unique_vals = tmp;
     unique_len = uniq;
     current_K   = K;

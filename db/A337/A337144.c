@@ -7,9 +7,10 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = number of j (1 ≤ j ≤ n) such that Collatz_steps(j) =
  *            Collatz_steps(n)
- * Range:     u8 n <= 9458, u16 n <= 9458, u32 n <= 9458, u64 n <= 9458,
- *            u128 n <= 9458, big any n
- * Helpers:   none
+ * Range:     u8 n <= 14259, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 103 terms through n = 9458 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: compute total Collatz steps until reaching 1.
    For n = 1 the function returns 0. */
@@ -53,7 +55,7 @@ static void ensure_a_cache_size(size_t n_plus_one)
     size_t new_size = a_cache_size ? a_cache_size * 2 : 16;
     while (new_size < n_plus_one)
         new_size *= 2;
-    seq_t *new_arr = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_cache, new_size);
     if (!new_arr) {
         /* In a judge environment memory exhaustion is unlikely.
            If it does happen, fall back to an error return. */
@@ -74,7 +76,7 @@ static void ensure_step_counts_size(size_t max_step_plus_one)
     size_t new_size = step_counts_size ? step_counts_size * 2 : 16;
     while (new_size < max_step_plus_one)
         new_size *= 2;
-    seq_t *new_arr = (seq_t *)realloc(step_counts, new_size * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, step_counts, new_size);
     if (!new_arr) {
         abort();
     }

@@ -7,12 +7,15 @@
  * Formula:   a(n) = round((n + 1/4)^n) = round((4*n+1)^n / 4^n)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow, pow2
+ * Validated: standard, pass, 34 terms through n = 279 (2026-11-01)
+ * Helpers:   ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
         return (seq_t)result;
     } else {
         seq_t base = (seq_t)n * (seq_t)4 + 1;
-        seq_t numer = big_pow(base, n);
+        seq_t numer = ipow(base, n);
         seq_t denom = pow2(2 * n);
         seq_t half  = pow2(2 * n - 1);
         return (numer + half) / denom;

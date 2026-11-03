@@ -13,8 +13,9 @@
  *            cycle or fixed point is reached. * Return the smallest element
  *            of the cycle, * or the fixed point itself. If the process *
  *            never repeats, return 0. This definition * follow...
- * Range:     u8 n <= 78, u16 n <= 9808, u32 n <= 9808, u64 n <= 9808,
- *            u128 n <= 9808, big any n
+ * Range:     u8 n <= 78, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 116 terms through n = 9808 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

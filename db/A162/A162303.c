@@ -9,14 +9,15 @@
  *            C(j,r−j) * C(j+1,k) * C(j+1,k+1) / (j+1)
  * Range:     u8 n <= 16, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>                 /* for idx_t, seq_t types if needed */
 #include <math.h>                   /* sqrt */
-#include "../utils/binom.h"        /* binom(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,13 +33,13 @@ seq_t a(idx_t n)
     seq_t sum = 0;
 
     for (idx_t j = 0; j <= r; ++j) {
-        seq_t c1 = binom(j, r - j);
+        seq_t c1 = binomial(j, r - j);
         if (!c1) continue;
 
-        seq_t c2 = binom(j + 1, k);
+        seq_t c2 = binomial(j + 1, k);
         if (!c2) continue;
 
-        seq_t c3 = binom(j + 1, k + 1);
+        seq_t c3 = binomial(j + 1, k + 1);
         if (!c3) continue;
 
         seq_t term = c1 * c2 * c3;

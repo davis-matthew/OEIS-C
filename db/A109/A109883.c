@@ -13,7 +13,8 @@
  *            divisor has been subtracted
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_idx
+ * Validated: standard, pass, 95 terms through n = 9069 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
 /* seq_t and idx_t are defined by the harness. */
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/cmp_idx.h"
+
+static int cmp_idx(const void *a, const void *b)
+{
+    idx_t av = *(const idx_t *)a;
+    idx_t bv = *(const idx_t *)b;
+    return (av < bv) ? -1 : (av > bv) ? 1 : 0;
+}
 
 seq_t a(idx_t n)
 {

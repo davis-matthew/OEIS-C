@@ -7,12 +7,14 @@
  * Formula:   a(n) = 3*a(n-1) + 5*a(n-2) + a(n-3), a(0)=5, a(1)=1, a(2)=21
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence.  The array is grown as needed. */
 static seq_t *seq_cache = NULL;
@@ -23,7 +25,7 @@ static void ensure_cache(idx_t n)
 {
     if (seq_cache == NULL) {
         /* allocate space for first 3 terms */
-        seq_cache = (seq_t*)malloc(3 * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, 3);
         seq_cache[0] = (seq_t)5;
         seq_cache[1] = (seq_t)1;
         seq_cache[2] = (seq_t)21;
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
     if (n <= seq_cache_n) return;
 
     /* Grow the array to hold terms up to n */
-    seq_t *new_cache = (seq_t*)realloc(seq_cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, (n + 1));
     if (!new_cache) { /* allocation failed – abort */
         abort();
     }

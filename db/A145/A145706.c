@@ -9,17 +9,19 @@
  *            x^{4k-2})
  * Range:     i8 n <= 45, i16 n <= 127, i32 n <= 390, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Allocate array f[0..n] and initialize to zero */
     size_t len = (size_t)(n + 1);
-    seq_t *f = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, len);
     if (!f) return 0;            /* Allocation failed; return 0 as safe fallback */
     f[0] = 1;                    /* Constant term of the product */
 
@@ -45,6 +47,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = f[n];
-    free(f);
+    mem_free(f);
     return result;
 }

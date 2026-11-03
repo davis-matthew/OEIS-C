@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <stdint.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Return the n-th term of the sequence (1‑based index). */
 seq_t a(idx_t n)
@@ -34,7 +38,7 @@ seq_t a(idx_t n)
     /* initialise the array on first call */
     if (terms == NULL) {
         cap   = 64;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -58,14 +62,14 @@ seq_t a(idx_t n)
         /* compute 2^(k-1) mod k² */
         seq_t k_seq = (seq_t)k;
         seq_t mod = k_seq * k_seq;
-        seq_t r   = mod_pow((seq_t)2, (uint64_t)(k - 1), mod);
+        seq_t r   = powmod((seq_t)2, (uint64_t)(k - 1), mod);
 
         /* check the second congruence: 2^(k-1) ≡ 1 + 3k (mod k²) */
         if (r == 1 + ((seq_t)3 * k_seq)) {
             /* grow the array if necessary */
             if (len + 1 > cap) {
                 size_t new_cap = cap ? cap * 2 : 64;
-                seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
                 if (new_arr) {
                     terms = new_arr;
                     cap   = new_cap;

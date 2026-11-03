@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 259, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   product_contains_digit
+ * Validated: standard, pass, 93 terms through n = 4827 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,9 +33,44 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/product_contains_digit.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* test whether prod = prev * cand contains digit d (0‑9)                 */
+static bool product_contains_digit(seq_t prev, seq_t cand, uint8_t d)
+{
+    seq_t prod = prev * cand;
+    while (prod != 0) {
+        if ((uint8_t)(prod % (seq_t)10) == d)
+            return true;
+        prod /= (seq_t)10;
+    }
+    return false;
+}
 
 /* ------------------- generic reallocation helper ------------------- */
+#ifdef __cplusplus
+template <class T>
+static T *grow_array(T *ptr, size_t *cap, size_t need, size_t elem_size)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 8 : *cap;
+        while (new_cap < need)
+            new_cap <<= 1;
+        ptr = mem_resize(T, ptr, (new_cap * elem_size) / sizeof(T));
+        if (!ptr) abort();          /* out of memory – stop execution */
+        *cap = new_cap;
+    }
+    return ptr;
+}
+#else
 static void *grow_array(void *ptr, size_t *cap, size_t need, size_t elem_size)
 {
     if (*cap < need) {
@@ -47,6 +83,7 @@ static void *grow_array(void *ptr, size_t *cap, size_t need, size_t elem_size)
     }
     return ptr;
 }
+#endif
 
 /* ------------------- storage for the sequence --------------------- */
 static seq_t *seq_array = NULL;  /* array of generated terms            */

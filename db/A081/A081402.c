@@ -8,14 +8,15 @@
  *            floor(n / p^k) (Legendre's formula)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     if (n <= 1)
@@ -53,7 +54,7 @@ seq_t a(idx_t n) {
         }
 
         /* add p^exp to result */
-        seq_t term = pow_uint(p, exp);
+        seq_t term = ipow_u64_idx(p, exp);
         result += term;
     }
 

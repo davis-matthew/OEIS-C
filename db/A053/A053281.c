@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 102, u32 n <= 340, u64 n <= 1204,
  *            u128 n <= 4455, big any n
+ * Validated: standard, pass, 73 terms through n = 9510 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -29,7 +30,7 @@
 # define FREE_ARRAY(P)    delete [] (P)
 #else
 # define ALLOC_ARRAY(T, N) ((T*)calloc((size_t)(N), sizeof(T)))
-# define FREE_ARRAY(P)    (free((void*)(P)))
+# define FREE_ARRAY(P)    (free((P)))
 #endif
 
 /* cache of previously computed a(n) values */

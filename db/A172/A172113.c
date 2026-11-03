@@ -8,7 +8,8 @@
  *            (equivalently: primes of the form x^2 + xy + y^2)
  * Range:     u8 n <= 8, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* declares bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cum = NULL;          /* cumulative sums of qualifying primes */
 static idx_t storedcnt = 0;        /* how many terms currently stored */
@@ -26,7 +28,7 @@ static uint64_t last_checked = 2;  /* last integer examined */
 /* Ensure the array has at least ‘newcap’ slots. */
 static void grow(void) {
     size_t newcap = cap ? cap * 2 : 32;
-    seq_t *newarr = (seq_t *)realloc(cum, newcap * sizeof(seq_t));
+    seq_t *newarr = mem_resize(seq_t, cum, newcap);
     if (!newarr) abort();          /* allocation failed */
     cum = newarr;
     cap = newcap;

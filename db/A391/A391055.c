@@ -9,13 +9,14 @@
  *            until x=2 (a(2)=0)
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   gpf
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
     while (x != 2)
     {
         uint64_t val = 3ULL * x + 1ULL;   /* 3*x + 1 fits in uint64_t for used values */
-        x = gpf(val);                     /* greatest prime factor of val */
+        x = largest_prime_factor(val);                     /* greatest prime factor of val */
         steps++;
 
         /* Protect against potential stalling: the sequence is conjectured

@@ -9,13 +9,28 @@
  *            T(2,1),T(2,2),T(3,1),T(3,2),T(3,3), …
  * Range:     u8 n <= 1275, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   count_ge_div
+ * Validated: standard, pass, 107 terms through n = 1141 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_ge_div.h"
+
+static idx_t count_ge_div(idx_t n, idx_t k) {
+    /* count divisors d of n with d >= k */
+    idx_t cnt = 0;
+    idx_t lim = (idx_t)((__int128)8 * n + 1);
+    /* use simple loop up to sqrt(n) */
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            if (d >= k) ++cnt;
+            idx_t e = n / d;
+            if (e != d && e >= k) ++cnt;
+        }
+    }
+    return cnt;
+}
 
 static idx_t row_of(idx_t n) {
     /* binary search for the smallest r such that r*(r+1)/2 >= n */

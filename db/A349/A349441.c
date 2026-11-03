@@ -8,8 +8,9 @@
  * Formula:   a(n) = Sum_{d|n} A057521(n/d) * A055615(d) (Dirichlet
  *            convolution). Multiplicative: for prime p, a(p^e) = 1 - p if e
  *            == 1 p^2 - p if e == 2 0 otherwise
- * Range:     i8 n <= 130, i16 n <= 9093, i32 n <= 9093, i64 n <= 9093,
- *            i128 n <= 9093, big any n
+ * Range:     i8 n <= 130, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 92 terms through n = 9093 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

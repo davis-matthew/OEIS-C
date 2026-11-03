@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 199, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_square_sum, digit_sum, is_prime_small
+ * Validated: standard, pass, 53 terms through n = 953 (2026-11-03)
+ * Helpers:   digit_sum, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,44 @@
 #include <stdlib.h>
 
 /* Required utilities from the build */
-#include "../utils/digit_sum.h"          /* seq_t digit_sum(seq_t v);   */
-#include "../utils/digit_square_sum.h"   /* uint64_t digit_square_sum(uint64_t n); */
-#include "../utils/is_prime_small.h"     /* bool is_prime_small(uint64_t n); */
+#include "../utils/digit_sum.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Helper: sum of squares of decimal digits of a 64‑bit integer. */
+static uint64_t digit_square_sum(uint64_t x)
+{
+    uint64_t sum = 0;
+    while (x > 0) {
+        uint64_t d = x % 10;
+        sum += d * d;
+        x /= 10;
+    }
+    return sum;
+}
+
+#ifdef __cplusplus
+template <class T>
+static inline void grow_array(T **ptr, size_t *cap, size_t needed, size_t elem)
+{
+    if (*cap < needed) {
+        size_t new_cap = (*cap == 0 ? 8 : *cap * 2);
+        while (new_cap < needed) new_cap <<= 1;
+        T *tmp = mem_resize(T, *ptr, (new_cap * elem) / sizeof(T));
+        if (!tmp) abort(); /* out of memory */
+        *ptr = tmp;
+        *cap = new_cap;
+    }
+}
+#else
 static inline void grow_array(void **ptr, size_t *cap, size_t needed, size_t elem)
 {
     if (*cap < needed) {
@@ -38,6 +73,7 @@ static inline void grow_array(void **ptr, size_t *cap, size_t needed, size_t ele
         *cap = new_cap;
     }
 }
+#endif
 
 /* Cache of sequence values */
 static seq_t  *term_cache     = NULL;
@@ -50,7 +86,7 @@ static uint64_t next_candidate = 2;
 /* Append a new term to the cache */
 static void append_term(seq_t val)
 {
-    grow_array((void **)&term_cache, &term_cache_cap,
+    grow_array(OEISC_VPP(&term_cache), &term_cache_cap,
                term_cache_len + 1, sizeof(seq_t));
     term_cache[term_cache_len++] = val;
 }
@@ -69,14 +105,14 @@ seq_t a(idx_t n)
             continue;
 
         /* Primality test (fast for 64‑bit numbers) */
-        if (!is_prime_small(cand))
+        if (!is_prime_seq(cand))
             continue;
 
         /* Digit sum and digit‑square sum checks */
         uint64_t dsum  = (uint64_t)digit_sum((seq_t)cand);
         uint64_t dssq  = digit_square_sum(cand);
 
-        if (!is_prime_small(dsum) && is_prime_small(dssq)) {
+        if (!is_prime_seq(dsum) && is_prime_seq(dssq)) {
             append_term((seq_t)cand);
         }
     }

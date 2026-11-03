@@ -12,6 +12,7 @@
  *            n - (d-1)d/2 (r ranges from 1 to d) and th...
  * Range:     u8 n <= 28, u16 n <= 1275, u32 n <= 1830, u64 n <= 1830,
  *            u128 n <= 1830, big any n
+ * Validated: standard, pass, 67 terms through n = 1775 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

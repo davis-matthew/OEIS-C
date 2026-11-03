@@ -9,6 +9,7 @@
  *            Sum_{k=0..n}C(n,k)*C(n+k,k)*C(2k,k)*C(2n-2k,n-k)*(-8)^(n-k)
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 7, i64 n <= 14, i128 n <= 26,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 97 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
 /* Compute OEIS A337332. */
 
 #include <stddef.h>
-#include "../utils/binomial.h" /* provides seq_t binomial(idx_t, idx_t) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 /* Helper: multiply two seq_t values safely, using 128‑bit intermediate
    when available and seq_t is 64-bit or smaller. */

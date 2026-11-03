@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 1967, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   concat_parts, is_prime
+ * Validated: standard, pass, 48 terms through n = 9383 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/concat_parts.h"
+#include "../utils/mem.h"
+
+static seq_t concat_parts(idx_t a, idx_t b)
+{
+    seq_t part_a = (seq_t)a;
+    seq_t part_b = (seq_t)b;
+    seq_t pow = 1;
+    seq_t tmp = part_b;
+    /* pow = 10^(number of decimal digits of b) */
+    while (tmp > 0) {
+        pow *= 10;
+        tmp /= 10;
+    }
+    return part_a * pow + part_b;
+}
 
 /* Cache for the sequence terms. */
 static seq_t *cache = NULL;
@@ -39,7 +54,7 @@ static void grow_cache(size_t need)
     if (cache_cap < need) {
         size_t newcap = cache_cap ? cache_cap * 2 : 16;
         if (newcap < need) newcap = need;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cache_cap = newcap;
     }
 }

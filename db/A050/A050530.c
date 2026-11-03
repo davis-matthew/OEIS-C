@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 4845, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, phi
+ * Validated: standard, pass, 71 terms through n = 9282 (2026-11-03)
+ * Helpers:   is_prime, mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/phi.h"      /* provides static seq_t phi(idx_t m) */
-#include "../utils/is_prime.h" /* provides bool is_prime(idx_t n) */
+#include <stdint.h>
+#include "../utils/is_prime.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,14 +37,14 @@ seq_t a(idx_t n)
     /* Generate terms until we have at least n of them */
     while (cache_len < n) {
         seq_t k = (seq_t)next_k++;
-        seq_t phi_k = phi((idx_t)k);      /* φ(k) */
+        seq_t phi_k = totient((idx_t)k);      /* φ(k) */
         seq_t diff  = k - phi_k;          /* k - φ(k) */
 
         if (is_prime((idx_t)diff)) {
             /* grow cache if necessary */
             if (cache_len == cache_cap) {
                 idx_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0;          /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

@@ -13,7 +13,8 @@
  *            value in the next row, otherwise it must have n...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static unsigned char target[5] = {3, 0, 1, 4, 2};
 
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
 
     static seq_t dp[STATES];
     static seq_t ndp[STATES];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* first row */
     for (int rid = 0; rid < 125; ++rid) {
@@ -136,7 +138,7 @@ seq_t a(idx_t n)
 
     /* rows 2 .. n */
     for (idx_t row = 2; row <= n; ++row) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int s = 0; s < STATES; ++s) {
             if (dp[s] == (seq_t)0) continue;
             unsigned char cnt = next_cnt[s];
@@ -145,7 +147,7 @@ seq_t a(idx_t n)
                 ndp[ns] += dp[s];
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* final answer: sum states with mask 0 */

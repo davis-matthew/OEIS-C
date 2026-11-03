@@ -7,6 +7,7 @@
  * Formula:   a(n) = (11*n + 1)^12
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 0, u64 n <= 3, u128 n <= 147,
  *            big any n
+ * Validated: standard, pass, 28 terms through n = 9823 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

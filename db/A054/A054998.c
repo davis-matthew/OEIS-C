@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 1643, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9775 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* ---------- static state ---------- */
 static seq_t *SEQ = NULL;          /* sequence terms (0‑based index for storage) */
@@ -40,12 +50,22 @@ static void *xmalloc(size_t size)
     if (!p) exit(EXIT_FAILURE);
     return p;
 }
+#ifdef __cplusplus
+template <class T>
+static T *xrealloc(T *p, size_t size)
+{
+    T *q = mem_resize(T, p, (size) / sizeof(T));
+    if (!q) exit(EXIT_FAILURE);
+    return q;
+}
+#else
 static void *xrealloc(void *p, size_t size)
 {
     void *q = realloc(p, size);
     if (!q) exit(EXIT_FAILURE);
     return q;
 }
+#endif
 
 /* ---------- push_back into dynamic SEQ ---------- */
 static void seq_push(seq_t val)
@@ -94,7 +114,7 @@ static void sieve_primes(size_t limit, int **primes_out, size_t *cnt_out)
 static void compute_sequence(size_t limit)
 {
     /* free any previous data */
-    free(SEQ);
+    mem_free(SEQ);
     SEQ = NULL;
     SEQ_LEN = SEQ_CAP = 0;
     CUR_LIMIT = limit;

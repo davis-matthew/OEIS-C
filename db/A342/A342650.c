@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static bool is_good(seq_t v)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Ensure sufficient cache space. */
     if (cache_len + 1 > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();
         cache = new_cache;
         cache_cap = new_cap;

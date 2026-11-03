@@ -9,7 +9,8 @@
  *            binomial((n - floor(k/2) - 1), n - k)
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Offset: 1, external linkage as requested */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;      /* factorials 0..fact_size-1 */
 static size_t fact_size = 0;          /* number of elements in fact_cache */
@@ -27,7 +29,7 @@ static void ensure_factorials(idx_t n_half)
     if ((size_t)n_half < fact_size) return;
 
     size_t new_size = (size_t)n_half + 1;
-    seq_t *tmp = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact_cache, new_size);
     if (!tmp) abort();
     fact_cache = tmp;
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   divisor_count_u64, is_prime, seq_alloc_array, seq_realloc
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,28 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/divisor_count_u64.h"   /* divisor_count_u64(uint64_t) */
-#include "../utils/is_prime.h"           /* bool is_prime(idx_t) */
-#include "../utils/seq_alloc_array.h"    /* seq_alloc_array */
-#include "../utils/seq_realloc.h"        /* seq_realloc */
+#include <stdlib.h>
+#include "../utils/is_prime.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Computes a(n) for any n >= 1.  Calls may be in any order.
  * The sequence is generated lazily and cached in static storage. */
@@ -46,7 +65,7 @@ seq_t a(idx_t n)
 
     /* Generate terms until we have at least n of them */
     while (cache_len < (size_t)n) {
-        idx_t d = (idx_t)divisor_count_u64((uint64_t)next_k);
+        idx_t d = (idx_t)num_divisors((uint64_t)next_k);
         bool accept = false;
 
         if (d <= 1) {

@@ -9,16 +9,18 @@
  *            * 2^(r-1) otherwise * where m = ⌊(√(8*n + 1) – 1)/2⌋ (the
  *            largest m with m(m+1)/2 ≤ n) * and r = n – m(m + 1)/2 (offset of
  *            n inside its triangle block)
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"   /* binom(idx_t, idx_t) --> seq_t */
-#include "../utils/pow2.h"    /* pow2(idx_t)  --> seq_t */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 /* integer square root: returns ⌊√x⌋  (works for 64‑bit values) */
 static idx_t isqrt_u64(idx_t x)
@@ -52,13 +54,13 @@ seq_t a(idx_t n)
 
     if (m == 0) return (seq_t)1;        /* only possible for n = 0 */
 
-    seq_t base = binom(2 * m, m) >> 1;  /* C(2m,m)/2 */
+    seq_t base = binomial(2 * m, m) >> 1;  /* C(2m,m)/2 */
 
     if (r <= 1) return base;           /* r = 0 or 1 → central term */
 
     /* r ≥ 2 */
     idx_t k  = m - r;                   /* m - r */
-    seq_t t  = binom(2 * m - r, k);     /* C(2m - r, m - r) */
+    seq_t t  = binomial(2 * m - r, k);     /* C(2m - r, m - r) */
     seq_t p  = pow2(r - 1);             /* 2^(r-1) */
     return t * p;
 }

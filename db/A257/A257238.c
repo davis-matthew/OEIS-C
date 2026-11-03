@@ -7,8 +7,9 @@
  * Formula:   a(n) = row^3 - col^3, where row is the unique r such that
  *            r(r+1)/2 ≤ n < (r+1)(r+2)/2, col = n - r(r+1)/2. (This reads the
  *            triangle T(n,k)=n^3−k^3 row‑by‑row.)
- * Range:     u8 n <= 27, u16 n <= 860, u32 n <= 9767, u64 n <= 9767,
- *            u128 n <= 9767, big any n
+ * Range:     u8 n <= 27, u16 n <= 860, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 82 terms through n = 9767 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

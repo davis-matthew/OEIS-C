@@ -8,7 +8,8 @@
  *            k)
  * Range:     u8 n <= 11, u16 n <= 26, u32 n <= 65, u64 n <= 173,
  *            u128 n <= 485, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 9018 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t maxN = 0;          /* largest n computed so far          */
 static size_t kmax = 0;         /* maximum k used for current data    */
@@ -40,14 +42,14 @@ static void recompute(idx_t newMaxN)
     size_t total = rows * cols;
 
     /* free old tables if any */
-    if (q)          free(q);
-    if (a_cache)    free(a_cache);
-    if (fac)        free(fac);
+    if (q)          mem_free(q);
+    if (a_cache)    mem_free(a_cache);
+    if (fac)        mem_free(fac);
 
     /* allocate new tables */
-    q = (seq_t*)calloc(total, sizeof(seq_t));
-    a_cache = (seq_t*)calloc(rows, sizeof(seq_t));
-    fac = (seq_t*)calloc(new_kmax, sizeof(seq_t));
+    q = mem_new(seq_t, total);
+    a_cache = mem_new(seq_t, rows);
+    fac = mem_new(seq_t, new_kmax);
 
     /* factorials up to new_kmax-1 */
     fac[0] = 1;

@@ -8,9 +8,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 212, u16 n <= 8889, u32 n <= 8889, u64 n <= 8889,
- *            u128 n <= 8889, big any n
- * Helpers:   none
+ * Range:     u8 n <= 212, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 82 terms through n = 8889 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Static storage for memoised triangle and used–bitset ---------- */
 
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
     /* Initialisation: row 0 contains only 0 */
     if (tri_len == 0) {
         tri_cap = 16;
-        tri = (seq_t *)realloc(NULL, tri_cap * sizeof(seq_t));
+        tri = mem_resize(seq_t, NULL, tri_cap);
         tri[tri_len++] = 0;
         set_used(0);
         rows_completed = 1;           /* row 0 is finished                    */
@@ -142,7 +144,7 @@ seq_t a(idx_t n)
             /* Ensure capacity for tri */
             if (tri_len == tri_cap) {
                 tri_cap = tri_cap ? tri_cap * 2 : 16;
-                seq_t *new_tri = (seq_t *)realloc(tri, tri_cap * sizeof(seq_t));
+                seq_t *new_tri = mem_resize(seq_t, tri, tri_cap);
                 if (!new_tri) return 0;   /* allocation failure → abort        */
                 tri = new_tri;
             }

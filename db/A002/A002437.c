@@ -10,13 +10,15 @@
  *            c(n) = (3^(2n+1)+1)/4 satisfies c(0)=1, c(n)=9*c(n-1)-2
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *zig = NULL;
 static idx_t zcap = 0;
@@ -28,9 +30,9 @@ static void build_zig(idx_t m) {
     seq_t *z, *prev, *cur, *tmp;
     if (cap < grow) cap = grow;
     if (cap < 16) cap = 16;
-    z = (seq_t *)calloc((size_t)cap, sizeof(seq_t));
-    prev = (seq_t *)calloc((size_t)cap, sizeof(seq_t));
-    cur = (seq_t *)calloc((size_t)cap, sizeof(seq_t));
+    z = mem_new(seq_t, (size_t)cap);
+    prev = mem_new(seq_t, (size_t)cap);
+    cur = mem_new(seq_t, (size_t)cap);
     prev[0] = 1;
     z[0] = 1;
     for (k = 1; k < cap; k++) {
@@ -40,9 +42,9 @@ static void build_zig(idx_t m) {
         z[k] = cur[k];
         tmp = prev; prev = cur; cur = tmp;
     }
-    free(prev);
-    free(cur);
-    if (zig != NULL) free(zig);
+    mem_free(prev);
+    mem_free(cur);
+    if (zig != NULL) mem_free(zig);
     zig = z;
     zcap = cap;
 }

@@ -7,18 +7,21 @@
  * Formula:   a(n) = 1 + 8^n + 64^n
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 32 terms through n = 534 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Compute a(n) for the 9th cyclotomic polynomial evaluated at powers of 2. */
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* Compute 8^n and 64^n with arbitrary-precision power */
-    seq_t pow8  = seq_pow((seq_t)8,  n);
-    seq_t pow64 = seq_pow((seq_t)64, n);
+    seq_t pow8  = ipow_idx((seq_t)8,  n);
+    seq_t pow64 = ipow_idx((seq_t)64, n);
     return (seq_t)1 + pow8 + pow64;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1751, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_product
+ * Validated: standard, pass, 66 terms through n = 9411 (2026-11-03)
+ * Helpers:   digit_product, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/digit_product.h"
+#include "../utils/mem.h"
 
 /* Catalysed array of qualifying primes. */
 static seq_t *qualifiers = NULL;
@@ -36,7 +38,7 @@ static void add_qualifier(seq_t p)
 {
     if (qual_len == qual_cap) {
         size_t new_cap = qual_cap ? qual_cap * 2 : 32;
-        seq_t *tmp = (seq_t *)realloc(qualifiers, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, qualifiers, new_cap);
         qualifiers = tmp;
         qual_cap   = new_cap;
     }

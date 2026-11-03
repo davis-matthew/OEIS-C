@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9833 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint32_t *spf = NULL;         /* smallest prime factor array */
 static size_t spf_size = 0;          /* current allocated size of spf */
@@ -85,7 +87,7 @@ static void append_seq(size_t val)
 {
     if (seq_size == seq_cap) {
         size_t new_cap = seq_cap == 0 ? 64 : seq_cap * 2;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
     seq[seq_size++] = (seq_t)val;

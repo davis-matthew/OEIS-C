@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 51, u64 n <= 101,
  *            u128 n <= 199, big any n
- * Helpers:   resize_cache
+ * Validated: standard, pass, 58 terms through n = 1000 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,27 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/resize_cache.h"
+
+/* helper: resize the cache */
+static seq_t *resize_cache(seq_t *old, idx_t old_len, idx_t new_len)
+{
+#ifdef __cplusplus
+    seq_t *new_arr = new seq_t[new_len];
+    if (old) {
+        for (idx_t i = 0; i < old_len; ++i)
+            new_arr[i] = old[i];
+        delete[] old;
+    }
+    return new_arr;
+#else
+    seq_t *new_arr = (seq_t *)malloc(new_len * sizeof(seq_t));
+    if (new_arr && old) {
+        memcpy(new_arr, old, old_len * sizeof(seq_t));
+        free(old);
+    }
+    return new_arr;
+#endif
+}
 
 static seq_t *cache = NULL;     /* stored terms */
 static idx_t cache_size = 0;    /* allocated array size */

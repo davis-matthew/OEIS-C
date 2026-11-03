@@ -8,8 +8,9 @@
  * Formula:   a(n) = A(i,j) with A(i,j)=i*j-2*(i+j), * where (i,j) are the
  *            antidiagonal coordinates of the n‑th term * in the array
  *            (i>0,j>0)
- * Range:     i8 n <= 337, i16 n <= 9236, i32 n <= 9236, i64 n <= 9236,
- *            i128 n <= 9236, big any n
+ * Range:     i8 n <= 337, i16 n <= 10011, i32 n <= 10011, i64 n <= 10011,
+ *            i128 n <= 10011, big any n
+ * Validated: standard, pass, 121 terms through n = 9236 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

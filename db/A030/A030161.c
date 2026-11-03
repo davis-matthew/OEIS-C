@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   has_alternating_parity
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_alternating_parity.h"
+#include "../utils/mem.h"
+
+/* Helper: returns true if the decimal digits of n alternate in parity. */
+static bool has_alternating_parity(seq_t n)
+{
+    if (n == (seq_t)0) return true;          /* only digit 0 – alternates trivially */
+    unsigned int prev_parity = 10;           /* sentinel value > 1 */
+    seq_t x = n;
+    while (x > (seq_t)0) {
+        unsigned long long digit = (unsigned long long)(x % (seq_t)10);
+        unsigned int parity = digit & 1u;
+        if (prev_parity != 10 && parity == prev_parity) return false;
+        prev_parity = parity;
+        x = x / (seq_t)10;
+    }
+    return true;
+}
 
 /* Cache of computed sequence terms (1‑based indexing). */
 static seq_t *cache     = NULL;   /* array of terms */
@@ -38,7 +55,7 @@ seq_t a(idx_t n)
     /* Ensure the cache at least contains the first term (0). */
     if (cache_len == 0) {
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) __builtin_trap();     /* out of memory */
         cache[0] = (seq_t)0;              /* a(1) = 0 */
         cache_len = 1;
@@ -56,7 +73,7 @@ seq_t a(idx_t n)
         /* Add the qualifying k to the cache. */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) __builtin_trap();   /* out of memory */
             cache = tmp;
             cache_cap = new_cap;

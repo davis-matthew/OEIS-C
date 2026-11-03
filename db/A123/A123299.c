@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 1924, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9903 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const idx_t LIMIT = 20000000ULL;   /* sieve limit – enough for >10 000 terms */
 static seq_t *prime_cache = NULL;         /* cache of representable primes */
@@ -103,7 +105,7 @@ static void build_sequence(void)
 
     /* 4. Collect representable primes */
     size_t cap = 16384;           /* initial capacity; will grow as needed */
-    prime_cache = (seq_t*)malloc(cap * sizeof(seq_t));
+    prime_cache = mem_new(seq_t, cap);
     cache_cnt = 0;
 
     for (idx_t p = 13; p <= LIMIT; ++p) {
@@ -112,7 +114,7 @@ static void build_sequence(void)
         if (bit_test(dp_cur, offset)) {
             if (cache_cnt == cap) {
                 cap <<= 1;
-                prime_cache = (seq_t*)realloc(prime_cache, cap * sizeof(seq_t));
+                prime_cache = mem_resize(seq_t, prime_cache, cap);
             }
             prime_cache[cache_cnt++] = (seq_t)p;
         }

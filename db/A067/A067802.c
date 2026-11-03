@@ -9,6 +9,7 @@
  *            T(r,k) = binomial(2*r+1, r-k)^2 * (2*k+1) / (2*r+1)
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 /* The binomial function is provided by the build in "../utils/binomial.h". */
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Determine 0‑based row r and column k for a linear index n.  */

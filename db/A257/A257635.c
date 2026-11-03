@@ -12,13 +12,15 @@
  *            a(1)=2, a(2)=1, a(3)=12, a(4)=7, a(5)=1, .....
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #pragma once
 
@@ -51,7 +53,7 @@ a(idx_t n)
     idx_t k = n - cumulative_before;  /* 0 ≤ k ≤ r */
 
     /* Allocate coefficient array of size k+1. */
-    seq_t *coeff = (seq_t *)calloc((size_t)(k + 1), sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (size_t)(k + 1));
     if (!coeff) return 0;  /* allocation failure (unlikely) */
 
     coeff[0] = 1;  /* start with polynomial = 1 */
@@ -67,6 +69,6 @@ a(idx_t n)
     }
 
     seq_t result = coeff[k];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

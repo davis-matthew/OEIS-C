@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏(p^⌈e/2⌉) over the prime factorization p^e of n(n+1)
  * Range:     u8 n <= 20, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 70 terms through n = 9229 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,14 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Trial‑division factorization for 64‑bit values.
    Accommodates up to MAX_FACTORS distinct prime factors. */
@@ -74,7 +81,7 @@ seq_t a(idx_t n)
         uint64_t p = fac_primes[i];
         int e = fac_exps[i];
         int q = (e + 1) / 2;                 /* ceil(e/2) */
-        seq_t pw = seq_pow((seq_t)p, (idx_t)q);
+        seq_t pw = ipow_idx((seq_t)p, (idx_t)q);
         result = seq_mul(result, pw);
     }
     return result;

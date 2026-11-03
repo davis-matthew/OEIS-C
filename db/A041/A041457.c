@@ -10,13 +10,15 @@
  *            convergent generation (see code)
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 27, u64 n <= 53, u128 n <= 106,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *den = NULL;         /* cache of denominators */
 static size_t den_cap = 0;        /* current allocated capacity in elements */
@@ -36,7 +38,7 @@ static seq_t q_prev = 0;
 /* Helper to grow the cache. */
 static void grow_cache(void) {
     size_t new_cap = den_cap ? den_cap * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(den, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, den, new_cap);
     if (!tmp) abort();          /* allocation failed */
     den = tmp;
     den_cap = new_cap;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* initialise on first invocation */
     if (!den) {
         den_cap = 16;
-        den = (seq_t *)malloc(den_cap * sizeof(seq_t));
+        den = mem_new(seq_t, den_cap);
         if (!den) abort();
         den_len = 0;
 

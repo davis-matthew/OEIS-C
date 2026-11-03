@@ -8,12 +8,14 @@
  *            a(1,1)=1. Flattened a(k) is the triangular reindex of a(n,m)
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 #if defined(__SIZEOF_INT128__)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         size_t row_len = (size_t)row + 1; /* include dummy index 0 */
 
         /* Allocate space for the new row. */
-        seq_t *curr = (seq_t *)malloc(row_len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, row_len);
         if (!curr)
             return (seq_t)0;              /* allocation failure */
 
@@ -73,9 +75,9 @@ seq_t a(idx_t n)
         for (idx_t m = 1; m <= row; ++m) {
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 128 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
-                    free(curr);
+                    mem_free(curr);
                     return (seq_t)0;      /* allocation failure */
                 }
                 cache = tmp;
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
         }
 
         /* Prepare for next iteration. */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = curr;
         current_row = row;
     }

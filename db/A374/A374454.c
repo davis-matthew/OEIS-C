@@ -8,13 +8,15 @@
  *            a(n)=4*a(n-1)+6*a(n-2)+4*a(n-3)+a(n-4) for n>=4
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the nth term of OEIS A374454.  The function is memoized
  * and works for arbitrary build‐dependent integer type seq_t
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* First call: allocate cache and initialise base values. */
     if (cache == NULL) {
         size_t init_cap = 4;                    /* store a(0)..a(3) */
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (cache == NULL) abort();             /* out‑of‑memory */
         cache_size = init_cap;
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         while ((size_t)(n + 1) > new_cap) {
             new_cap *= 2;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();
         cache = tmp;
         cache_size = new_cap;

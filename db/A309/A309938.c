@@ -10,9 +10,10 @@
  *            adjacent parts differing by ±1. The function maps index n to row
  *            r and column k by the triangular index: r = min{R : R(R+1)/2 ≥
  *            n}, k = n – (r−1)r/2, and returns T(r,k)
- * Range:     u8 n <= 91, u16 n <= 1736, u32 n <= 6377, u64 n <= 9824,
- *            u128 n <= 9824, big any n
- * Helpers:   none
+ * Range:     u8 n <= 91, u16 n <= 1736, u32 n <= 6377, u64 n <= 20100,
+ *            u128 n <= 20100, big any n
+ * Validated: standard, pass, 107 terms through n = 9824 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Maximum row computed so far (dimension‑1 for the square arrays). */
 static size_t current_max_r = 0;
@@ -48,13 +50,13 @@ static void recompute_up_to(size_t new_max_r)
     size_t new_stride = new_max_r + 1;
     size_t total = new_stride * new_stride;
 
-    free(T_arr);
-    free(dp_cur);
-    free(dp_next);
+    mem_free(T_arr);
+    mem_free(dp_cur);
+    mem_free(dp_next);
 
-    T_arr   = (seq_t *)calloc(total, sizeof(seq_t));
-    dp_cur  = (seq_t *)calloc(total, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(total, sizeof(seq_t));
+    T_arr   = mem_new(seq_t, total);
+    dp_cur  = mem_new(seq_t, total);
+    dp_next = mem_new(seq_t, total);
 
     if (!T_arr || !dp_cur || !dp_next) return; /* out of memory – caller handles */
 

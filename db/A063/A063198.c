@@ -11,6 +11,7 @@
  *            (6*n-3+12*cos(2*n*Pi/3)-4*sqrt(3)*sin(2*n*Pi/3))/9 for n>1
  * Range:     u8 n <= 383, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 66 terms through n = 867 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -5,13 +5,15 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 25, u128 n <= 47,
+ * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 25, u128 n <= 1,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 268 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /*  OEIS A394143
     The recurrence was derived from the functional equation
     A(x)^4 - 3*A(x)^3 + (3 - x)*A(x)^2 - A(x) - x^2 + x = 0.

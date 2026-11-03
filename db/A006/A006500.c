@@ -8,12 +8,14 @@
  *            3)) where F(n) is Fibonacci
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 45, u64 n <= 91, u128 n <= 183,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 791 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fib_cache = NULL;
 static idx_t fib_cache_len = 0;
@@ -24,7 +26,7 @@ static seq_t fib(idx_t n) {
     
     if (n >= fib_cache_len) {
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) {
             seq_t a = 0, b = 1;
             for (idx_t i = 2; i <= n; i++) {
@@ -39,7 +41,7 @@ static seq_t fib(idx_t n) {
             for (idx_t i = 0; i < fib_cache_len; i++) {
                 new_cache[i] = fib_cache[i];
             }
-            free(fib_cache);
+            mem_free(fib_cache);
         } else {
             new_cache[0] = 0;
             new_cache[1] = 1;

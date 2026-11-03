@@ -12,7 +12,8 @@
  *            f(n) ≥ n, then a(n) = 0
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   is_prime, seq_cmp, seq_mul
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,23 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
 #include "../utils/is_prime.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_cmp.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 #define MAX_N 20000   /* sufficient for n up to about 10000 */
 

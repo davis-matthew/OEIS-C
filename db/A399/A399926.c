@@ -9,8 +9,9 @@
  * Formula:   a(n) = flatten by rows of the irregular triangle T(n,k) =
  *            Π_{p|n} (p - [m ≡ 1 (mod p)]) where m = the k‑th integer coprime
  *            to n (listed in increasing order)
- * Range:     u8 n <= 9995, u16 n <= 9995, u32 n <= 9995, u64 n <= 9995,
- *            u128 n <= 9995, big any n
+ * Range:     u8 n <= 10060, u16 n <= 10060, u32 n <= 10060, u64 n <= 10060,
+ *            u128 n <= 10060, big any n
+ * Validated: standard, pass, 96 terms through n = 9995 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

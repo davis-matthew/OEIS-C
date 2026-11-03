@@ -10,8 +10,9 @@
  *            implementation below computes this value by checking the minimal
  *            possible sum of squares of the first m integers and verifying
  *            that the remaining part can be expressed using integ...
- * Range:     u8 n <= 1318, u16 n <= 8987, u32 n <= 8987, u64 n <= 8987,
- *            u128 n <= 8987, big any n
+ * Range:     u8 n <= 1318, u16 n <= 20539, u32 n <= 20539, u64 n <= 20539,
+ *            u128 n <= 20539, big any n
+ * Validated: standard, pass, 122 terms through n = 8987 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

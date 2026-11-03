@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 10, u64 n <= 22, u128 n <= 48,
  *            big any n
- * Helpers:   subblock_sum
+ * Validated: standard, pass, 34 terms through n = 204 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,21 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/subblock_sum.h"
+
+/* compute the (max + upper median + lower median) of a 2×2 block
+   formed by two consecutive rows r1 (top) and r2 (bottom) at column j
+   (j = 0 or 1).  The result is in the range 0–9. */
+static inline int subblock_sum(const uint8_t *r1, const uint8_t *r2, int j)
+{
+    int v[4] = { r1[j], r1[j+1], r2[j], r2[j+1] };
+    /* insertion sort of 4 elements */
+    if (v[0] > v[1]) { int t=v[0]; v[0]=v[1]; v[1]=t; }
+    if (v[2] > v[3]) { int t=v[2]; v[2]=v[3]; v[3]=t; }
+    if (v[0] > v[2]) { int t=v[0]; v[0]=v[2]; v[2]=t; }
+    if (v[1] > v[3]) { int t=v[1]; v[1]=v[3]; v[3]=t; }
+    if (v[1] > v[2]) { int t=v[1]; v[1]=v[2]; v[2]=t; }
+    return v[3] + v[2] + v[1];           /* max + upper + lower medians */
+}
 
 #define NUM_ROWS 64          /* number of possible 3‑tuples 0..3 (4³) */
 #define NUM_S    10          /* sums 0..9 */

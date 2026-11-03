@@ -8,14 +8,16 @@
  * Formula:   a(n) = Sum_{1 ≤ k < n, gcd(k,n)=1} φ(k); a(1) = 1
  * Range:     u8 n <= 30, u16 n <= 466, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 74 terms through n = 973 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
 
 /* Euclidean algorithm on idx_t */
 static inline idx_t gcd_idx(idx_t a, idx_t b)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     seq_t sum = (seq_t)0;
     for (idx_t k = (idx_t)1; k < n; ++k) {
         if (gcd_idx(k, n) == (idx_t)1) {
-            sum += calc_phi((seq_t)k);
+            sum += totient_seq((seq_t)k);
         }
     }
     return sum;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 214, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   tau_of_uint
+ * Validated: standard, pass, 84 terms through n = 9373 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,25 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/tau_of_uint.h"
+#include "../utils/mem.h"
+
+/* Count divisors of e (e ≥ 1) */
+static uintptr_t tau_of_uint(uintptr_t e)
+{
+    uintptr_t t = 1;
+    for (uintptr_t p = 2; p * p <= e; ++p) {
+        if (e % p == 0) {
+            uintptr_t cnt = 0;
+            while (e % p == 0) {
+                e /= p;
+                ++cnt;
+            }
+            t *= (cnt + 1);
+        }
+    }
+    if (e > 1) t *= 2;
+    return t;
+}
 
 /* Freezer for dynamic array growth */
 static void *grow(void *p, size_t *cap, size_t need, size_t elem_size)
@@ -41,7 +60,7 @@ static void append_term(seq_t **buf, size_t *len, size_t *cap, seq_t val)
 {
     if (*len == *cap) {
         *cap = (*cap == 0) ? 16 : (*cap << 1);
-        *buf = (seq_t *)realloc(*buf, *cap * sizeof(seq_t));
+        *buf = mem_resize(seq_t, *buf, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     }
     (*buf)[(*len)++] = val;
 }

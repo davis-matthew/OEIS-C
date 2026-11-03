@@ -11,12 +11,14 @@
  *            -2·504·s5 + 504^2·c2_5 a(n) = (13·A4 + 5·A6)...
  * Range:     i8 n <= 0, i16 n <= 1, i32 n <= 4, i64 n <= 15, i128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for computed tables */
 static seq_t *s3          = NULL;
@@ -34,20 +36,20 @@ static void ensure_cache(idx_t n)
     if (new_cap <= cached_cap) return;   /* already big enough */
 
     /* free old memory if any */
-    if (s3)    free(s3);
-    if (s5)    free(s5);
-    if (c2_3)  free(c2_3);
-    if (c3_3)  free(c3_3);
-    if (c2_5)  free(c2_5);
-    if (a_vals) free(a_vals);
+    if (s3)    mem_free(s3);
+    if (s5)    mem_free(s5);
+    if (c2_3)  mem_free(c2_3);
+    if (c3_3)  mem_free(c3_3);
+    if (c2_5)  mem_free(c2_5);
+    if (a_vals) mem_free(a_vals);
 
     /* allocate new arrays, zero-initialised */
-    s3   = (seq_t*)calloc(new_cap, sizeof(seq_t));
-    s5   = (seq_t*)calloc(new_cap, sizeof(seq_t));
-    c2_3 = (seq_t*)calloc(new_cap, sizeof(seq_t));
-    c3_3 = (seq_t*)calloc(new_cap, sizeof(seq_t));
-    c2_5 = (seq_t*)calloc(new_cap, sizeof(seq_t));
-    a_vals = (seq_t*)calloc(new_cap, sizeof(seq_t));
+    s3   = mem_new(seq_t, new_cap);
+    s5   = mem_new(seq_t, new_cap);
+    c2_3 = mem_new(seq_t, new_cap);
+    c3_3 = mem_new(seq_t, new_cap);
+    c2_5 = mem_new(seq_t, new_cap);
+    a_vals = mem_new(seq_t, new_cap);
 
     /* 1. divisor sums σ_3 and σ_5 */
     for (size_t i = 1; i < new_cap; ++i) {

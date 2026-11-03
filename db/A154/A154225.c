@@ -7,13 +7,15 @@
  * Formula:   a(n) = ((n%2==0) ? (n/2)*(n/2+1)*(n+1)/6 : ((n-1)/2)!^2)
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 18, u64 n <= 26, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 428 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for factorial values */
 static seq_t *fact = NULL;          /* factorial array: fact[i] = i! */
@@ -26,7 +28,7 @@ static void ensure_factorial_capacity(size_t up_to)
     if (fact_cap <= up_to) {
         size_t new_cap = fact_cap ? fact_cap * 2 : 1;
         while (new_cap <= up_to) new_cap <<= 1;
-        fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_cap);
         fact_cap = new_cap;
         /* initialize factorial array if it was just created */
         if (fact_len == 0) {

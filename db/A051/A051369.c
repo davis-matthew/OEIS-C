@@ -7,14 +7,17 @@
  * Formula:   a(1) = 3; for n ≥ 1: a(n+1) = a(n) + sum_of_digits(a(n)²)
  * Range:     u8 n <= 3, u16 n <= 18, u32 n <= 3119, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 69 terms through n = 9812 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
         size_t new_cap = capacity ? capacity * 2 : 1;
         while (new_cap < (size_t)n + 1)
             new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();           /* allocation failed */
         cache = tmp;
         capacity = new_cap;

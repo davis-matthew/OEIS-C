@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle_rows = NULL;      /* pointers to rows of the triangle */
 static size_t   rows_computed = 0;        /* number of rows already computed */
@@ -50,7 +52,7 @@ static void ensure_rows(idx_t need_row)
 
     /* Compute missing rows sequentially. */
     for (size_t r = rows_computed; r <= (size_t)need_row; ++r) {
-        seq_t *row = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (r + 1));
         for (size_t c = 0; c <= r; ++c) {
             seq_t val = 0;
 

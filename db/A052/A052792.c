@@ -8,14 +8,16 @@
  *            a(n)=0 for n<6
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 60,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 41 terms through n = 950 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This implements a(n) = 4!*n*(n-1)*Stirling2(n-2,4) with Stirling2(n,4) = (4^n - 4*3^n + 6*2^n - 4)/24 */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -23,9 +25,9 @@ seq_t a(idx_t n)
 
     /* Compute powers using pow_seq; exponent fits in an int for n ≤ 10000 */
     idx_t m = n - 2;               /* m = n-2 */
-    seq_t pow4 = pow_seq((seq_t)4, (int)m);
-    seq_t pow3 = pow_seq((seq_t)3, (int)m);
-    seq_t pow2 = pow_seq((seq_t)2, (int)m);
+    seq_t pow4 = ipow_i32((seq_t)4, (int)m);
+    seq_t pow3 = ipow_i32((seq_t)3, (int)m);
+    seq_t pow2 = ipow_i32((seq_t)2, (int)m);
 
     /* term = 4^m - 4*3^m + 6*2^m - 4 */
     seq_t term = pow4 -

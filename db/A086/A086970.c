@@ -8,6 +8,7 @@
  *            piecewise: a(n) = (n%2==0) ? 2*n-1 : 2*n+3, a(0) = 1
  * Range:     u8 n <= 126, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 77 terms through n = 1977 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

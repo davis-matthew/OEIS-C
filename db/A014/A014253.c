@@ -7,13 +7,15 @@
  * Formula:   a(n+2) = (a(n+1) + a(n))^2, a(0) = 0, a(1) = 1
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache to allow arbitrary order of calls and reuse of values */
 static seq_t *cache       = NULL;  /* array of computed a(n) */
@@ -27,7 +29,7 @@ ensure_capacity(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 4;
     while (new_cap <= needed) new_cap <<= 1;
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     if (!newp) {
         /* Allocation failed – abort.  In contest settings this is unlikely. */
         abort();

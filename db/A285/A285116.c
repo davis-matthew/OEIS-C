@@ -10,6 +10,7 @@
  *            a(n) is the row‑wise reading of the triangle
  * Range:     u8 n <= 81, u16 n <= 217, u32 n <= 682, u64 n <= 2445,
  *            u128 n <= 8973, big any n
+ * Validated: standard, pass, 107 terms through n = 9620 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

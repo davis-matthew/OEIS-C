@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define MAX_N 10000                /* maximum n that is guaranteed to be
                                    * requested by the test harness */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;                     /* safety for out‑of‑range */
     if (n > MAX_N) {                          /* fallback for larger n */
         /* This branch is rarely executed – the static table covers tests. */
-        seq_t *dp_dyn = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *dp_dyn = mem_new(seq_t, (size_t)(n + 1));
         if (!dp_dyn) return 0;                /* allocation failed */
         dp_dyn[0] = 0;
         for (idx_t i = 1; i <= n; ++i) dp_dyn[i] = (seq_t)(n + 1);
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             }
         }
         seq_t result = dp_dyn[n];
-        free(dp_dyn);
+        mem_free(dp_dyn);
         return result;
     }
 

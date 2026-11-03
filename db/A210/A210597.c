@@ -12,12 +12,14 @@
  *            1 The k‑th coefficient (0 ≤ k < n) of u(n,x) is...
  * Range:     u8 n <= 24, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
     idx_t c = n - prev_sum - 1;       /* column in row r */
 
     /* Allocate arrays of length r for current and previous rows. */
-    seq_t *u_prev = (seq_t *)calloc(r, sizeof(seq_t));
-    seq_t *v_prev = (seq_t *)calloc(r, sizeof(seq_t));
-    seq_t *u_curr = (seq_t *)calloc(r, sizeof(seq_t));
-    seq_t *v_curr = (seq_t *)calloc(r, sizeof(seq_t));
+    seq_t *u_prev = mem_new(seq_t, r);
+    seq_t *v_prev = mem_new(seq_t, r);
+    seq_t *u_curr = mem_new(seq_t, r);
+    seq_t *v_curr = mem_new(seq_t, r);
     if (!u_prev || !v_prev || !u_curr || !v_curr) {
-        free(u_prev); free(v_prev); free(u_curr); free(v_curr);
+        mem_free(u_prev); mem_free(v_prev); mem_free(u_curr); mem_free(v_curr);
         return (seq_t)0;
     }
 
@@ -70,10 +72,10 @@ seq_t a(idx_t n)
     seq_t result = u_prev[c];
 
     /* Clean up. */
-    free(u_prev);
-    free(v_prev);
-    free(u_curr);
-    free(v_curr);
+    mem_free(u_prev);
+    mem_free(v_prev);
+    mem_free(u_curr);
+    mem_free(v_curr);
 
     return result;
 }

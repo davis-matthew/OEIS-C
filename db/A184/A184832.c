@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 157, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9803 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------------*/
 /*  Test whether an unsigned integer (idx_t) is square‑free.  This   */
@@ -64,7 +66,7 @@ static void ensure_sqf(idx_t need)
 
     if (sqf_cap == 0) {
         sqf_cap = 32;
-        sqf = (seq_t *)malloc(sqf_cap * sizeof(seq_t));
+        sqf = mem_new(seq_t, sqf_cap);
     }
 
     while (sqf_len < need) {
@@ -75,7 +77,7 @@ static void ensure_sqf(idx_t need)
         /* Resize if necessary. */
         if (sqf_len == sqf_cap) {
             sqf_cap <<= 1;
-            sqf = (seq_t *)realloc(sqf, sqf_cap * sizeof(seq_t));
+            sqf = mem_resize(seq_t, sqf, sqf_cap);
         }
 
         /* Store the value and advance. */

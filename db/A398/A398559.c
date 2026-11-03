@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^4 - 99*n^3 + 3441*n^2 - 49259*n + 247889
  * Range:     i8 none, i16 none, i32 n <= 240, i64 n <= 10000, i128 n <= 10000,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 9834 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

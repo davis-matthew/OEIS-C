@@ -10,19 +10,21 @@
  *            n - row(row+1)/2
  * Range:     u8 n <= 24, u16 n <= 61, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* find row (r) and column (c) for index n */
     idx_t d = 1 + (idx_t)8 * n;
-    idx_t sqrt_d = _floor_isqrt_u64(d);
+    idx_t sqrt_d = isqrt(d);
     idx_t r = (sqrt_d - 1) / 2;          /* initial guess */
 
     /* adjust r to satisfy r(r+1)/2 <= n < (r+1)(r+2)/2 */
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
 
     /* dynamic construction of the triangle up to row r */
     idx_t max_rows = r + 1;
-    seq_t *row   = (seq_t *)malloc(max_rows * sizeof(seq_t));
-    seq_t *next  = (seq_t *)malloc(max_rows * sizeof(seq_t));
+    seq_t *row   = mem_new(seq_t, max_rows);
+    seq_t *next  = mem_new(seq_t, max_rows);
 
     row[0] = 1;                          /* row 0 */
 
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 
     seq_t ans = row[col];
 
-    free(row);
-    free(next);
+    mem_free(row);
+    mem_free(next);
     return ans;
 }

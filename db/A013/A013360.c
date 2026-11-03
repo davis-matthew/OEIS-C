@@ -9,13 +9,15 @@
  *            – (k‑1)!) with a(0)=1
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 13, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* 1. Ensure cache has enough capacity for indices up to n */
     if (n + 1 > cache_cap) {
         idx_t new_cap = n + 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if (needed_fact > fact_cap) {
         idx_t old_cap = fact_cap;
         idx_t new_cap = needed_fact;
-        fact = (seq_t*)realloc(fact, new_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_cap);
 
         /* Initialise new entries */
         if (old_cap == 0) {

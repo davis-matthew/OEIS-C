@@ -12,7 +12,8 @@
  *            of S * is also nondecreasing top‑to‑bottom. *...
  * Range:     u8 none, u16 n <= 3, u32 n <= 12, u64 n <= 42, u128 n <= 106,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #ifdef __cplusplus
 #include <vector>
 #endif
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Types supplied by the build -------------------------------------- */
@@ -195,7 +197,7 @@ static void init(void)
     dp_next = alloc_seq_array(num_states);
     for (int i = 0; i < num_states; ++i)
         dp_cur[i] = (seq_t)1;   /* a(1) counts each state once */
-    memset(dp_next, 0, sizeof(seq_t) * num_states);
+    mem_set(dp_next, 0, sizeof(seq_t) * num_states);
 
     /* compute a(1) */
     seq_t sum = (seq_t)0;
@@ -229,7 +231,7 @@ static void memo_grow(size_t new_cap)
 static void dp_step(void)
 {
     /* zero dp_next */
-    memset(dp_next, 0, sizeof(seq_t) * num_states);
+    mem_set(dp_next, 0, sizeof(seq_t) * num_states);
 
     /* propagate counts */
     for (int src = 0; src < num_states; ++src) {

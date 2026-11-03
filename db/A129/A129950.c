@@ -6,14 +6,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = 2*A164292(n) - A010051(n)
- * Range:     i8 n <= 9522, i16 n <= 9522, i32 n <= 9522, i64 n <= 9522,
- *            i128 n <= 9522, big any n
+ * Range:     i8 n <= 20000, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 116 terms through n = 9522 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n) = 1 if n is a twin‑prime member, 0 if n is not prime, -1 if n is an isolated prime (including 2). */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

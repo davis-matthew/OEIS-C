@@ -9,13 +9,25 @@
  *            ≥ n, where v5(i) is the exponent of 5 in i
  * Range:     u8 n <= 318, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   v5_of_integer
+ * Validated: standard, pass, 81 terms through n = 9909 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/v5_of_integer.h"
+
+/* exponent of 5 in the factorization of m */
+static idx_t
+v5_of_integer(idx_t m)
+{
+    idx_t e = 0;
+    while (m % 5 == 0) {
+        e++;
+        m /= 5;
+    }
+    return e;
+}
 
 static idx_t *cumul   = NULL;   /* cumulative counts, size len */
 static idx_t *vals    = NULL;   /* corresponding integer m, size len */

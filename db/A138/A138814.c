@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^(n-1) for 1 ≤ n ≤ 6; a(n) = 127·2^(n-7) for 7 ≤ n ≤ 12
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   digit_distinct_idx
+ * Validated: full, pass, 26 terms through n = 26 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
    all having distinct decimal digits. */
 #include <stdbool.h>
 #include <stddef.h>         /* for size_t */
-#include "../utils/digit_distinct_idx.h"
+
+static bool digit_distinct_idx(idx_t x) {
+    unsigned mask = 0;
+    if (x == 0) return true;
+    while (x) {
+        unsigned d = x % 10U;
+        if (mask & (1U << d)) return false;
+        mask |= (1U << d);
+        x /= 10U;
+    }
+    return true;
+}
 
 /* Storage for the sequence values (2155 possible entries). */
 static seq_t seq_vals[2155];

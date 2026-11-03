@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* modular exponentiation using 128‑bit intermediate.
+   Works for any seq_t. */
+static seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod)
+{
+    seq_t res = 1 % mod;
+    base   %= mod;
+    while (exp) {
+        if (exp & 1)
+            res = (unsigned __int128)res * base % mod;
+        exp >>= 1;
+        if (exp)
+            base = (unsigned __int128)base * base % mod;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +51,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first use. */
     if (!initialized) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
         next_candidate = 3;
         initialized = 1;
@@ -41,7 +60,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary. */
     if (cache_len < n && cache_cap < cache_len + 1) {
         size_t new_cap = cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp) {
             cache = tmp;
             cache_cap = new_cap;

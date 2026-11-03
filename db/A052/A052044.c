@@ -11,7 +11,8 @@
  *            is requested it converts the stored k to seq_t
  * Range:     u8 n <= 148, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_zero_uint128
+ * Validated: standard, pass, 87 terms through n = 9769 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_zero_uint128.h"
+
+/* Test whether a 128‑bit integer contains a zero digit. */
+static bool has_zero_uint128(unsigned __int128 x)
+{
+    while (x > 0) {
+        if ((x % 10) == 0) return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Array of computed k-values.  We store them as uint64_t to keep the array
    construction portable across builds where seq_t may be an arbitrary‑precision

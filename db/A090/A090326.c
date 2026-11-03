@@ -8,12 +8,13 @@
  * Formula:   a(n) = 3^n - 2^(n+1) + n + 1
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   pow_seq_t_local
+ * Validated: standard, pass, 43 terms through n = 968 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq_t_local.h"
+#include "../utils/ipow_idx.h"
 /* a(1) = 1, a(2) = 4, a(3) = 15, ... */
 
 seq_t a(idx_t n)
@@ -22,11 +23,11 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* compute 3^n */
-    seq_t pow3 = pow_seq_t_local((seq_t)3, n);
+    seq_t pow3 = ipow_idx((seq_t)3, n);
 
     /* compute 2^(n+1) */
     idx_t exp2 = n + 1;
-    seq_t pow2 = pow_seq_t_local((seq_t)2, exp2);
+    seq_t pow2 = ipow_idx((seq_t)2, exp2);
 
     seq_t sn = (seq_t)n;
     return pow3 - pow2 + sn + 1;

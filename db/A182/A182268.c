@@ -8,20 +8,22 @@
  *            odd (n>=3), * a(0) = 1, a(1) = 7
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;
     if (n == 1) return (seq_t)7;
 
-    seq_t seven_pow = pow_uint(7, n);
-    seq_t two_pow  = (n & 1) ? pow_uint(2, n - 2) : pow_uint(2, n);
+    seq_t seven_pow = ipow_u64_idx(7, n);
+    seq_t two_pow  = (n & 1) ? ipow_u64_idx(2, n - 2) : ipow_u64_idx(2, n);
 
     return seven_pow * two_pow;
 }

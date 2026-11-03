@@ -9,12 +9,14 @@
  *            a(4)=0, a(5)=1, ... * This implements OEIS sequence A365698
  * Range:     u8 n <= 21, u16 n <= 33, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* allocate initial space if needed */
     if (cap == 0) {
-        arr = (seq_t *)malloc(sizeof(seq_t));
+        arr = mem_new(seq_t, 1);
         if (!arr) exit(EXIT_FAILURE);
         arr[0] = (seq_t)1;            /* a(0) = 1 */
         cap = 1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cap;
         while (new_cap < n + 1)
             new_cap <<= 1;               /* double until big enough */
-        arr = (seq_t *)realloc(arr, new_cap * sizeof(seq_t));
+        arr = mem_resize(seq_t, arr, new_cap);
         if (!arr) exit(EXIT_FAILURE);
         cap = new_cap;
     }

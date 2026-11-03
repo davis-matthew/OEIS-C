@@ -8,12 +8,14 @@
  *            - 1/(1-z^5-z^10)^2 - 1/(1-z^10-z^20)) ]
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static long long binom(int n, int k)
 {
@@ -113,10 +115,10 @@ seq_t a(idx_t n)
 
     /* allocate arrays for the series up to index n-1 */
     idx_t size = n;                      /* we need indices 0 .. n-1 */
-    seq_t *aA = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *aB = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *aC = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *aD = (seq_t*)calloc(size, sizeof(seq_t));
+    seq_t *aA = mem_new(seq_t, size);
+    seq_t *aB = mem_new(seq_t, size);
+    seq_t *aC = mem_new(seq_t, size);
+    seq_t *aD = mem_new(seq_t, size);
 
     if (!aA || !aB || !aC || !aD) return 0;  /* allocation failure */
 
@@ -177,10 +179,10 @@ seq_t a(idx_t n)
 
     seq_t result = numer / (seq_t)10;
 
-    free(aA);
-    free(aB);
-    free(aC);
-    free(aD);
+    mem_free(aA);
+    mem_free(aB);
+    mem_free(aC);
+    mem_free(aD);
 
     return result;
 }

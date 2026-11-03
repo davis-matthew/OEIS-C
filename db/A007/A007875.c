@@ -8,12 +8,15 @@
  *            number of distinct prime divisors
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pw2
+ * Validated: standard, pass, 106 terms through n = 935 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pw2.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     if (n == 1) {
@@ -48,5 +51,5 @@ seq_t a(idx_t n) {
     }
     
     // Return 2^(distinct_primes - 1)
-    return pw2((idx_t)(distinct_primes - 1));
+    return pow2((idx_t)(distinct_primes - 1));
 }

@@ -13,7 +13,8 @@
  *            avoid counting identical intermediate * numbe...
  * Range:     u8 n <= 72, u16 n <= 596, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 7906 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of seq_t arithmetic are assumed to be
  * available via the build system; we use only + and assignments.   */
@@ -37,8 +39,7 @@ ensure_cache_capacity(idx_t n)
         return;                      /* already big enough          */
 
     idx_t new_cap = (n < 4 ? 4 : n * 2 + 1);  /* grow enough          */
-    seq_t *new_vals = (seq_t *)realloc(cached_vals,
-                                       new_cap * sizeof(seq_t));
+    seq_t *new_vals = mem_resize(seq_t, cached_vals, new_cap);
     bool   *new_seen = (bool   *)realloc(cached_seen,
                                         new_cap * sizeof(bool));
     if (!new_vals || !new_seen) {

@@ -11,13 +11,15 @@
  *            a(1)=T(1,0), a(2)=T(2,0), …
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 40, u64 n <= 101, u128 n <= 263,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 67 terms through n = 1275 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) returning seq_t */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* fast exponentiation: base^exp in seq_t, exp is idx_t */
 static seq_t pow_seq(seq_t base, idx_t exp)
@@ -51,8 +53,8 @@ seq_t a(idx_t n)
 
     for (idx_t i = 0; i <= k; ++i)
     {
-        seq_t bin1 = binom(3 * r + 1, i);             /* binom(3r+1,i) */
-        seq_t bin3 = binom(k + 3 - i, 3);             /* binom(k+3-i,3) */
+        seq_t bin1 = binomial(3 * r + 1, i);             /* binom(3r+1,i) */
+        seq_t bin3 = binomial(k + 3 - i, 3);             /* binom(k+3-i,3) */
         seq_t pw   = pow_seq(bin3, r);                /* bin3^r    */
         seq_t term = bin1 * pw;                       /* individual term */
 

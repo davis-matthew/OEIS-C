@@ -11,13 +11,15 @@
  *            a(6)=9072 Recurrence uses 0‑based caching with cache[0] unused
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 17, u64 n <= 37, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ static void init_cache(void)
 
     /* initial cache size: positions 0 … 6  (index 0 unused) */
     size_t init_len = 7;
-    cache = (seq_t *)malloc(init_len * sizeof(seq_t));
+    cache = mem_new(seq_t, init_len);
     if (cache == NULL)         /* unlikely but keep the compiler happy */
         return;
 
@@ -52,7 +54,7 @@ static void ensure_cache(idx_t n)
 
     /* grow cache to hold indices 0 … n (inclusive) */
     size_t new_len = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (tmp == NULL)
         return;   /* out of memory – caller will get garbage; unlikely */
 

@@ -10,6 +10,7 @@
  *            + 1 where h(k) = (3^k - 1)/2, h(0) = 0, h(k) = 3*h(k-1) + 1
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 41, u128 n <= 81,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 862 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

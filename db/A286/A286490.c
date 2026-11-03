@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   tm_bit
+ * Validated: standard, pass, 102 terms through n = 9853 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/tm_bit.h"
+
+/* Return the Thue–Morse bit at position i (1‑based). */
+static inline seq_t tm_bit(idx_t i)
+{
+    idx_t v = i - 1;                 /* 0‑based index */
+    /* compute parity of v using XOR‑folding */
+    v ^= v >> 32;
+    v ^= v >> 16;
+    v ^= v >> 8;
+    v ^= v >> 4;
+    v ^= v >> 2;
+    v ^= v >> 1;
+    return (seq_t)(v & 1U);
+}
 
 /* Return the n‑th term of the transform (n >= 1). */
 seq_t a(idx_t n)

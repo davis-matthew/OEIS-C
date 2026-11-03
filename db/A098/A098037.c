@@ -8,7 +8,8 @@
  * Formula:   a(n) = A001222(A001043(n))
  * Range:     u8 n <= 30, u16 n <= 3581, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, count_prime_factors
+ * Validated: standard, pass, 121 terms through n = 8076 (2026-11-01)
+ * Helpers:   bigomega_seq, build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(limit, uint64_t **, size_t *) */
-#include "../utils/count_prime_factors.h" /* count_prime_factors(seq_t) */
+#include <stdbool.h>
+#include "../utils/bigomega_seq.h"
+#include "../utils/build_primes_upto.h"
 
 seq_t a(idx_t n)
 {
@@ -53,5 +55,5 @@ seq_t a(idx_t n)
     seq_t sum = (seq_t)(p_n + p_next);
 
     /* return the number of prime factors with multiplicity */
-    return count_prime_factors(sum);
+    return bigomega_seq(sum);
 }

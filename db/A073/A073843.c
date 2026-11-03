@@ -11,16 +11,18 @@
  *            A073843
  * Range:     u8 n <= 16, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   big_pow, factor_u64, gcd
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     seq_t root = (seq_t)1;
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t exp_div = exps[i] / (uint64_t)b;   /* exact division */
-        seq_t   term = big_pow((seq_t)primes[i], (seq_t)exp_div);
+        seq_t   term = ipow((seq_t)primes[i], (seq_t)exp_div);
         root *= term;
     }
 

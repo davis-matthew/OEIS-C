@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 14, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    The function caches computed values to work in O(n) total time
    per maximal argument. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Expand cache if necessary */
     if (!cache || n > cached_n) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache)                /* out‑of‑memory */
             return (seq_t)0;
 
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         if (cache) {
             for (idx_t i = 0; i <= cached_n; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
 
         /* Compute missing values */

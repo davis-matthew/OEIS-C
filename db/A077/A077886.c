@@ -8,12 +8,14 @@
  *            1, a(3) = -1
  * Range:     i8 n <= 23, i16 n <= 47, i32 n <= 95, i64 n <= 191,
  *            i128 n <= 383, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         /* Determine new size: at least n+1, but keep it a power of two for few reallocs */
         idx_t new_size = (n + 1 > 8) ? (n + 1) : 8;
         if (new_size < cache_size * 2) new_size = cache_size * 2;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         if (cache == NULL) abort();           /* out of memory */
 
         /* Fill cache from old_size up to new_size-1 */

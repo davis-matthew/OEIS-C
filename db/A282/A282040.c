@@ -9,6 +9,7 @@
  *            8) that are greater than p/2 (where p is that prime)
  * Range:     u8 n <= 3, u16 n <= 28, u32 n <= 3323, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 59 terms through n = 8757 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
 
 /* memoised list of primes ≡ 7 (mod 8) */

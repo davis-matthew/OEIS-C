@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 143, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   balanced06
+ * Validated: standard, pass, 81 terms through n = 9184 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,21 @@
 /* A031482: Numbers whose base‑7 representation has equal number of 0's and 6's */
 
 #include <stdbool.h>
-#include "../utils/balanced06.h"
+
+/* check whether a base‑7 representation of x has the same count of 0s and 6s */
+static bool balanced06(seq_t x)
+{
+    unsigned zeros = 0;
+    unsigned sixes = 0;
+    while (x != (seq_t)0)
+    {
+        seq_t d = x % (seq_t)7;
+        if (d == (seq_t)0)  ++zeros;
+        else if (d == (seq_t)6)  ++sixes;
+        x = x / (seq_t)7;
+    }
+    return zeros == sixes;
+}
 
 /* return the n‑th term of the sequence (1‑based index) */
 seq_t a(idx_t n)

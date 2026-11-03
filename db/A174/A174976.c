@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   equal_012, is_prime
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,16 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/equal_012.h"
+
+/* Check if the ternary representation of x contains equal counts of 0,1,2. */
+static bool equal_012(idx_t x) {
+    unsigned cnt[3] = {0, 0, 0};
+    while (x > 0) {
+        cnt[x % 3] += 1;
+        x /= 3;
+    }
+    return (cnt[0] == cnt[1]) && (cnt[1] == cnt[2]);
+}
 
 /* Cache of primes that satisfy the ternary digit property */
 static idx_t current      = 2;          /* next candidate to test     */

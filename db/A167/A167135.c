@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -65,8 +67,7 @@ seq_t a(idx_t n)
             /* store prime in prime_list */
             if (prime_cnt == prime_cap) {
                 size_t new_cap = prime_cap ? prime_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(prime_list,
-                                              new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_list, new_cap);
                 if (!tmp) return (seq_t)0; /* allocation failure */
                 prime_list = tmp;
                 prime_cap = new_cap;
@@ -78,8 +79,7 @@ seq_t a(idx_t n)
             if (r == 2 || r == 3 || r == 5 || r == 7 || r == 11) {
                 if (res_cnt == res_cap) {
                     size_t new_cap = res_cap ? res_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(residues,
-                                                  new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, residues, new_cap);
                     if (!tmp) return (seq_t)0; /* allocation failure */
                     residues = tmp;
                     res_cap = new_cap;

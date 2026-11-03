@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Dynamic arrays holding a(n) and b(n)                               */
@@ -59,13 +61,13 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = A_cap ? (A_cap << 1) : 8;
     while ((idx_t)new_cap <= n) new_cap <<= 1;
 
-    seq_t *tmpA = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-    seq_t *tmpB = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+    seq_t *tmpA = mem_resize(seq_t, A, new_cap);
+    seq_t *tmpB = mem_resize(seq_t, B, new_cap);
     if (!tmpA || !tmpB) exit(1);
 
     /* new elements are zero-initialised */
-    memset(tmpA + A_cap, 0, (new_cap - A_cap) * sizeof(seq_t));
-    memset(tmpB + A_cap, 0, (new_cap - A_cap) * sizeof(seq_t));
+    mem_set(tmpA + A_cap, 0, (new_cap - A_cap) * sizeof(seq_t));
+    mem_set(tmpB + A_cap, 0, (new_cap - A_cap) * sizeof(seq_t));
 
     A = tmpA;
     B = tmpB;
@@ -80,11 +82,11 @@ static void init(void)
     if (A) return;          /* already initialised */
 
     A_cap = 8;
-    A = (seq_t *)malloc(A_cap * sizeof(seq_t));
-    B = (seq_t *)malloc(A_cap * sizeof(seq_t));
+    A = mem_new(seq_t, A_cap);
+    B = mem_new(seq_t, A_cap);
     if (!A || !B) exit(1);
-    memset(A, 0, A_cap * sizeof(seq_t));
-    memset(B, 0, A_cap * sizeof(seq_t));
+    mem_set(A, 0, A_cap * sizeof(seq_t));
+    mem_set(B, 0, A_cap * sizeof(seq_t));
 
     /* Base values */
     A[0] = (seq_t)1;  A[1] = (seq_t)3;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     const idx_t base = n + 1;
 
     /* Allocate DP array: (parts+1) * (n+1) elements of type seq_t. */
-    seq_t *dp = (seq_t *)malloc(sizeof(seq_t) * (parts + 1) * base);
+    seq_t *dp = mem_new(seq_t, (parts + 1) * base);
     if (!dp) {
         /* In case of allocation failure, return 0 (should not happen). */
         return (seq_t)0;
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
     /* Result is number of ways to form n with exactly 7 parts. */
     seq_t result = DP(parts, n);
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

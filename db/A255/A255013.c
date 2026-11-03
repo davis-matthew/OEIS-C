@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
- * Helpers:   build_primes_upto, floor_sqrt
+ * Validated: partial, pass, 92 terms through n = 92 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,27 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Prime sieve limits the maximum prime needed for factorisation.
    With n up to about 10000 the corresponding s and n+s are far below

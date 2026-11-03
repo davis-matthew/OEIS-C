@@ -8,12 +8,14 @@
  *            hexagonal numbers)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* array of computed terms, indexed from 1 */
 static idx_t a_cache_size = 0;  /* greatest index that has been computed */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     /* First allocation and seed the first two terms */
     if (a_cache_size == 0) {
         a_cache_cap = 8;
-        a_cache = (seq_t*)malloc(a_cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_cap);
         if (!a_cache) return;          /* allocation failure: give up silently */
 
         a_cache[1] = (seq_t)1;
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t n)
         a_cache_size = next;
         if (a_cache_size + 1 > a_cache_cap) {     /* ensure room for the next index */
             a_cache_cap *= 2;
-            a_cache = (seq_t*)realloc(a_cache, a_cache_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, a_cache_cap);
             if (!a_cache) return;                 /* allocation failure: stop extending */
         }
         a_cache[a_cache_size] = val;

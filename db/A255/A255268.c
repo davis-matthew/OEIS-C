@@ -7,6 +7,7 @@
  * Formula:   a(n) = (∏_{k=1..n} k!)^n
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

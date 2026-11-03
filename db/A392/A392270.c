@@ -9,13 +9,15 @@
  *            binomial(k,2*n-5*k)
  * Range:     u8 n <= 15, u16 n <= 32, u32 n <= 70, u64 n <= 152,
  *            u128 n <= 322, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 61 terms through n = 906 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* If the cache does not exist yet, allocate and compute up to n */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         if (!cache) return (seq_t)0;      /* allocation failed */
 
         for (idx_t i = 0; i <= n; ++i) {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     }
     /* If a larger value is requested, extend the cache */
     else if (n >= cache_len) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) return (seq_t)0;      /* allocation failed */
         cache = new_cache;
         for (idx_t i = cache_len; i <= n; ++i) {

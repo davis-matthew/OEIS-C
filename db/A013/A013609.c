@@ -10,13 +10,16 @@
  *            utility functions pow2(idx_t) and binomial(idx_t,idx_t)
  * Range:     u8 n <= 30, u16 n <= 84, u32 n <= 266, u64 n <= 970,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1306 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

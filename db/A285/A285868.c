@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   mul_small, seq_alloc_new_array
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,26 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul_small.h"
-#include "../utils/seq_alloc_new_array.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 seq_t a(idx_t n)
 {
@@ -65,10 +84,10 @@ seq_t a(idx_t n)
         }
 
         /* Free old memory if it exists */
-        if (S_prev) free(S_prev);
-        if (S_curr) free(S_curr);
-        if (fact)   free(fact);
-        if (a_cache) free(a_cache);
+        if (S_prev) mem_free(S_prev);
+        if (S_curr) mem_free(S_curr);
+        if (fact)   mem_free(fact);
+        if (a_cache) mem_free(a_cache);
 
         /* Commit new storage */
         S_prev   = new_prev;

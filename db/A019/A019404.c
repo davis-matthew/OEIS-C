@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, is_prime, mod_pow
+ * Validated: standard, pass, 72 terms through n = 990 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Return true iff p is a prime and 82 is a primitive root mod p.  */
 /* p is treated as a 64‑bit unsigned integer.                     */
@@ -45,7 +48,7 @@ static bool is_primitive_root(uint64_t p)
     /* For each prime factor q of φ(p), check g^((p‑1)/q) ≠ 1 (mod p). */
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t q = pr[i];
-        if (mod_pow(base_mod, phi / q, mod) == (seq_t)1) {
+        if (powmod(base_mod, phi / q, mod) == (seq_t)1) {
             return false;
         }
     }
@@ -63,7 +66,7 @@ seq_t a(idx_t n)
     /* Lazily allocate storage for results. */
     if (!results) {
         res_cap = 16;
-        results = (seq_t *)malloc(res_cap * sizeof(seq_t));
+        results = mem_new(seq_t, res_cap);
         if (!results) {
             exit(1);
         }
@@ -84,7 +87,7 @@ seq_t a(idx_t n)
             /* Grow the array if necessary. */
             if (res_len == res_cap) {
                 size_t new_cap = res_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, results, new_cap);
                 if (!tmp) {
                     exit(1);
                 }

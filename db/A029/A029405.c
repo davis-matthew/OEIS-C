@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n into parts 5, 8, 9, and 12
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *dp = NULL;
@@ -22,8 +24,8 @@ seq_t a(idx_t n) {
 
     /* Allocate or reallocate the DP array if necessary. */
     if (need > cap) {
-        free(dp);
-        dp = (seq_t *)malloc((size_t)need * sizeof(seq_t));
+        mem_free(dp);
+        dp = mem_new(seq_t, (size_t)need);
         if (!dp) return 0;                /* Allocation failure, unlikely. */
         for (idx_t i = 0; i < need; ++i) dp[i] = 0;
         cap = need;

@@ -8,12 +8,14 @@
  *            a(n) = a(n-1)*(8^n-1)/7
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* initialize cache with a(0) if not yet done */
     if (cache_size == 0) {
-        cache = (seq_t*) malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;      /* out of memory: return zero */
         cache[0] = (seq_t)1;
         cache_size = 1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* extend cache to hold up to n */
     size_t new_len = n + 1;
-    seq_t *new_cache = (seq_t*) realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache) return (seq_t)0;      /* out of memory */
     cache = new_cache;
 

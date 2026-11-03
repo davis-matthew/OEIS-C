@@ -11,8 +11,9 @@
  *            (1+w)^(d_k-1) · (3+w)^k * and {d_k} are the base‑7 digits of n
  *            (least significant first). * The result is the coefficient of w
  *            in the Eisenstein integer
- * Range:     i8 n <= 8733, i16 n <= 8733, i32 n <= 8733, i64 n <= 8733,
- *            i128 n <= 8733, big any n
+ * Range:     i8 n <= 16806, i16 n <= 16806, i32 n <= 16806, i64 n <= 16806,
+ *            i128 n <= 16806, big any n
+ * Validated: standard, pass, 96 terms through n = 8733 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

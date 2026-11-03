@@ -8,17 +8,20 @@
  *            prime factors of n
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   count_distinct_primes, pow_seq
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   ipow_i32, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_distinct_primes.h"
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/omega.h"
 
 seq_t a(idx_t n)
 {
     /* For n >= 1. count_distinct_primes(1) returns 0, so a(1) = 4^0 = 1. */
-    int w = count_distinct_primes((uint64_t)n);   /* ω(n) */
-    return pow_seq((seq_t)4, w);                  /* 4^ω(n) */
+    int w = omega((uint64_t)n);   /* ω(n) */
+    return ipow_i32((seq_t)4, w);                  /* 4^ω(n) */
 }

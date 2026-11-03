@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 123, u32 n <= 348, u64 n <= 348,
  *            u128 n <= 348, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 343 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- global memoisation state ----- */
 static seq_t *cache = NULL;          /* cache[n-1] holds a(n) */
@@ -42,7 +44,7 @@ static void grow_cache(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = (cache_cap > 0) ? cache_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;
@@ -53,7 +55,7 @@ static void grow_ugly(size_t needed)
     if (ugly_cap >= needed) return;
     size_t new_cap = (ugly_cap > 0) ? ugly_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(ugly, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, ugly, new_cap);
     if (!tmp) abort();
     ugly = tmp;
     ugly_cap = new_cap;
@@ -83,7 +85,7 @@ static void init_globals(void)
     cache = NULL; cache_cap = 0; cache_size = 0;
     ugly = NULL; ugly_cap = 0; ugly_size = 0;
     p2 = p5 = 0;
-    ugly = (seq_t *)malloc(sizeof(seq_t));
+    ugly = mem_new(seq_t, 1);
     if (!ugly) abort();
     ugly[0] = (seq_t)1;                      /* 2^0 * 5^0 */
     ugly_size = 1;

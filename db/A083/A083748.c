@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   int_isqrt
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/int_isqrt.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 /* -------- simple digit utilities ------------------------------------------- */
 static seq_t digit_sum(seq_t n)
@@ -51,7 +53,7 @@ static bool is_triangular(seq_t v)
 {
     unsigned long long xv = (unsigned long long)v;
     unsigned long long t = xv * 8ULL + 1ULL;
-    unsigned long long r = int_isqrt(t);
+    unsigned long long r = isqrt_u64(t);
     return r * r == t;
 }
 
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         /* ensure enough storage */
         if (count == cap) {
             size_t new_cap = cap ? cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, new_cap);
             if (!tmp) return (seq_t)0;   /* safety fallback */
             terms = tmp;
             cap   = new_cap;

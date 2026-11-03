@@ -7,15 +7,50 @@
  * Formula:   a(n) = coefficient of Φ₆₀(x) at degree n; a(n)=0 for n>16
  * Range:     i8 n <= 16, i16 n <= 16, i32 n <= 16, i64 n <= 16, i128 n <= 16,
  *            big any n
- * Helpers:   divide_by_xk_minus_1, multiply_by_xk_minus_1
+ * Validated: full, pass, 17 terms through n = 16 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/divide_by_xk_minus_1.h"
-#include "../utils/multiply_by_xk_minus_1.h"
+
+/* divide poly by (x^k-1); poly degree *deg, result degree *deg-k.
+   Poly has space for at least 81 terms. */
+static void divide_by_xk_minus_1(seq_t poly[], size_t *deg, idx_t k)
+{
+    size_t new_deg = *deg - (size_t)k;
+    seq_t tmp[81];
+    for (size_t i = 0; i < 81; ++i) tmp[i] = 0;
+    seq_t work[81];
+    for (size_t i = 0; i <= *deg; ++i) work[i] = poly[i];
+    for (long i = (long)*deg; i >= (long)k; --i) {
+        seq_t coeff = work[i];
+        if (coeff != 0) {
+            tmp[i - k] = coeff;
+            work[i] = 0;
+            work[i - k] += coeff;
+        }
+    }
+    for (size_t i = 0; i <= new_deg; ++i) poly[i] = tmp[i];
+    *deg = new_deg;
+}
+
+/* multiply poly by (x^k-1); poly degree *deg, result degree *deg+k.
+   Poly has space for at least 81 terms. */
+static void multiply_by_xk_minus_1(seq_t poly[], size_t *deg, idx_t k)
+{
+    size_t new_deg = *deg + (size_t)k;
+    seq_t tmp[81];
+    for (size_t i = 0; i <= new_deg; ++i) tmp[i] = 0;
+    for (size_t i = 0; i <= *deg; ++i) {
+        tmp[i]     -= poly[i];
+        tmp[i + k] += poly[i];
+    }
+    for (size_t i = 0; i <= new_deg; ++i) poly[i] = tmp[i];
+    *deg = new_deg;
+}
 
 /* Compute all 17 coefficients of Φ₆₀(x). */
 static void compute_coefficients(seq_t *coeff_out)

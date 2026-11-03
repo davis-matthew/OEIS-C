@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of octahedral numbers (A005900) dividing n
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*
  * Static cache for octahedral numbers.
@@ -50,7 +52,7 @@ ensure_oct_cache(idx_t n)
         /* Grow array if needed */
         if (oct_cnt >= oct_cap) {
             size_t new_cap = (oct_cap == 0) ? 16 : oct_cap << 1;
-            seq_t *tmp_ptr = (seq_t *)realloc(oct_nums, sizeof(seq_t) * new_cap);
+            seq_t *tmp_ptr = mem_resize(seq_t, oct_nums, new_cap);
             if (!tmp_ptr)
                 abort();  /* out‑of‑memory */
             oct_nums = tmp_ptr;

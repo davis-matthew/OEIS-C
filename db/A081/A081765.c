@@ -8,14 +8,33 @@
  *            – 1
  * Range:     u8 n <= 25, u16 n <= 1884, u32 n <= 2519, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_solution
+ * Validated: standard, pass, 71 terms through n = 9867 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_solution.h"
+#include "../utils/mem.h"
+
+/* test whether a given k satisfies (k+2) | (2^(k-1) – 1) */
+static bool is_solution(seq_t k)
+{
+    seq_t m = k + 2;                    /* modulus */
+    seq_t result = 1 % m;
+    seq_t base   = 2 % m;
+    idx_t exp    = (idx_t)(k - 1);      /* exponent fits in idx_t for the intended n-range */
+
+    while (exp > 0)
+    {
+        if (exp & 1U)
+            result = (result * base) % m;
+        base = (base * base) % m;
+        exp >>= 1U;
+    }
+    return result == 1;
+}
 
 static seq_t *cache = NULL;            /* stored sequence values */
 static idx_t  cache_len = 0;           /* number of values stored */
@@ -31,7 +50,7 @@ static void ensure_capacity(idx_t needed)
         cache_cap = 1;
     while (cache_cap < needed)
         cache_cap <<= 1U;
-    cache = (seq_t *)realloc(cache, (size_t)cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (size_t)cache_cap);
 }
 
 seq_t a(idx_t n)

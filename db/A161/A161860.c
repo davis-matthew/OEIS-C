@@ -7,7 +7,8 @@
  * Formula:   a(n) = square numbers that are anagrams of some cube number
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 1234, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_counts, floor_cube_root, pack_counts, pow_uint
+ * Validated: standard, pass, 50 terms through n = 9733 (2026-11-03)
+ * Helpers:   digit_counts, ipow_i32, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,10 +16,41 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"       /* seq_t pow_uint(uint64_t base, idx_t exp); */
-#include "../utils/floor_cube_root.h" /* idx_t floor_cube_root(seq_t x); */
-#include "../utils/digit_counts.h"    /* void digit_counts(seq_t x, unsigned char cnt[10]); */
-#include "../utils/pack_counts.h"
+#include <stddef.h>
+#include "../utils/digit_counts.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Helper to pack 10 decimal‑digit counts into a 64‑bit key.  Each count
+   fits in 6 bits (0–63), enough for any digit frequency of a 64‑bit number.
+*/
+static uint64_t pack_counts(const unsigned char cnt[10]) {
+    uint64_t key = 0;
+    for (int i = 0; i < 10; ++i) {
+        key = (key << 6) | cnt[i];
+    }
+    return key;
+}
 
 /* Compare two uint64_t values for qsort/bsearch. */
 static int cmp_uint64(const void *a, const void *b) {
@@ -61,8 +93,8 @@ static void ensure_cube_for_digit(size_t d) {
     if (cube_computed[d]) return;
 
     /* Lower and upper bounds for cubes with d digits */
-    seq_t lower = pow_uint(10, d - 1);       /* 10^(d-1)   */
-    seq_t upper = pow_uint(10, d);           /* 10^d       */
+    seq_t lower = ipow_u64_idx(10, d - 1);       /* 10^(d-1)   */
+    seq_t upper = ipow_u64_idx(10, d);           /* 10^d       */
 
     /* Find the first and last cube roots that give d‑digit cubes. */
     idx_t root_min = (idx_t)floor_cube_root(lower - (seq_t)1) + 1;
@@ -81,7 +113,7 @@ static void ensure_cube_for_digit(size_t d) {
     unsigned char cnt[10];
     size_t pos = 0;
     for (idx_t r = root_min; r <= root_max; ++r) {
-        seq_t cube = pow_uint((uint64_t)r, 3);
+        seq_t cube = ipow_u64_idx((uint64_t)r, 3);
         digit_counts(cube, cnt);
         cube_keys[d][pos++] = pack_counts(cnt);
     }
@@ -118,11 +150,11 @@ seq_t a(idx_t n) {
     if (terms_len <= target) {
         if (terms_cap == 0) {
             terms_cap = 128;
-            terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+            terms = mem_new(seq_t, terms_cap);
         }
 
         while (terms_len <= target) {
-            seq_t square = pow_uint((uint64_t)next_root, 2);
+            seq_t square = ipow_u64_idx((uint64_t)next_root, 2);
 
             int d = seq_digit_len(square);
             if ((size_t)d >= digit_arrays_cap) expand_digit_arrays_if_needed(d);
@@ -140,7 +172,7 @@ seq_t a(idx_t n) {
             if (found) {
                 if (terms_len == terms_cap) {
                     terms_cap *= 2;
-                    terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_len++] = square;
             }

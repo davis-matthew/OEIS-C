@@ -8,13 +8,15 @@
  *            19, a(2) = 90, a(3) = 426
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache of previously computed terms */
 static seq_t *cache      = NULL; /* pointer to array of seq_t values */
@@ -26,7 +28,7 @@ static void ensure_capacity(idx_t n)
 {
     if (capacity <= n) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         capacity = new_cap;
     }
@@ -40,7 +42,7 @@ static void init_base_terms(void)
         return; /* already initialised */
     }
     capacity = 4;
-    cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+    cache = mem_new(seq_t, capacity);
     cache[0] = (seq_t)4;
     cache[1] = (seq_t)19;
     cache[2] = (seq_t)90;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of digits of 6^n
  * Range:     u8 n <= 64, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 892 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) = sum of the decimal digits of 6^n.
    The result fits in the type seq_t (for n up to about 10 000
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* cache for a(0) */
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;          /* allocation failure */
         cache[0] = (seq_t)1;                  /* a(0) = sum of digits of 1 */
         cache_len = 1;
@@ -82,8 +84,7 @@ seq_t a(idx_t n)
         /* store the newly computed a(idx) */
         if (cache_len == cache_cap) {
             cache_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache,
-                                          cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (!tmp) return (seq_t)0;      /* allocation failure */
             cache = tmp;
         }

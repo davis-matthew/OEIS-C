@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 38, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* gcd for small integers */
 static inline int gcd_int(int a, int b)
@@ -54,7 +56,7 @@ static void heap_reserve(Heap *h, size_t min_cap)
     if (h->capacity >= min_cap) return;
     size_t new_cap = h->capacity ? h->capacity * 2 : 64;
     if (new_cap < min_cap) new_cap = min_cap;
-    Node *new_data = (Node *)realloc(h->data, new_cap * sizeof(Node));
+    Node *new_data = mem_resize(Node, h->data, new_cap);
     h->data = new_data;
     h->capacity = new_cap;
 }
@@ -107,8 +109,8 @@ static void init_primitives(void)
     if (prim_cnt != 0) return;   /* already done */
 
     prim_cap = 256;
-    P0_arr = (seq_t *)malloc(prim_cap * sizeof(seq_t));
-    A0_arr = (seq_t *)malloc(prim_cap * sizeof(seq_t));
+    P0_arr = mem_new(seq_t, prim_cap);
+    A0_arr = mem_new(seq_t, prim_cap);
 
     for (int m = 2; m <= MAX_M; ++m) {
         for (int n = 1; n < m; ++n) {
@@ -125,8 +127,8 @@ static void init_primitives(void)
 
             if (prim_cnt == prim_cap) {
                 prim_cap <<= 1;
-                P0_arr = (seq_t *)realloc(P0_arr, prim_cap * sizeof(seq_t));
-                A0_arr = (seq_t *)realloc(A0_arr, prim_cap * sizeof(seq_t));
+                P0_arr = mem_resize(seq_t, P0_arr, prim_cap);
+                A0_arr = mem_resize(seq_t, A0_arr, prim_cap);
             }
             P0_arr[prim_cnt] = P0;
             A0_arr[prim_cnt] = A0;
@@ -161,7 +163,7 @@ static void area_reserve(size_t min_cap)
     if (area_alloc >= min_cap) return;
     size_t new_cap = area_alloc ? area_alloc * 2 : 64;
     if (new_cap < min_cap) new_cap = min_cap;
-    area_arr = (seq_t *)realloc(area_arr, new_cap * sizeof(seq_t));
+    area_arr = mem_resize(seq_t, area_arr, new_cap);
     area_alloc = new_cap;
 }
 

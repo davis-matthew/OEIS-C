@@ -7,17 +7,19 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{j=0..7} (-1)^j * binomial(2*n+1, j) * *
  *            binomial(9-j, 2)^n
- * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 24,
+ * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 33 terms through n = 196 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
             /* j > 2*n+1 ⇒ binomial is zero; skip the term */
             continue;
         }
-        seq_t pow_term = big_pow(base_tbl[j], (seq_t)n);
+        seq_t pow_term = ipow(base_tbl[j], (seq_t)n);
         seq_t term = binom_part * pow_term;
         if (j & 1U)
             odd_sum += term;

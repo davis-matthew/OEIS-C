@@ -12,20 +12,22 @@
  *            If no such k exists, 0 is returned
  * Range:     u8 n <= 22, u16 n <= 366, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, int_sqrt_idx
+ * Validated: standard, pass, 78 terms through n = 9942 (2026-11-01)
+ * Helpers:   gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/int_sqrt_idx.h"
+#include "../utils/isqrt.h"
 
 static inline void try_divisor(idx_t d, idx_t n, seq_t *min_k)
 {
     idx_t nprime = n / d;
     /* ----- first type: nprime = p^2 - q^2 ----- */
-    idx_t lim = int_sqrt_idx(nprime);
+    idx_t lim = isqrt(nprime);
     for (idx_t y = 1; y <= lim; ++y) {
         if (nprime % y != 0) continue;
         idx_t x = nprime / y;
@@ -43,7 +45,7 @@ static inline void try_divisor(idx_t d, idx_t n, seq_t *min_k)
 
     /* ----- second type: nprime = 2 * p * q ----- */
     if (nprime >= 2) {
-        idx_t limq = int_sqrt_idx(nprime / 2);
+        idx_t limq = isqrt(nprime / 2);
         for (idx_t q = 1; q <= limq; ++q) {
             if ((nprime & 1) != 0) continue; /* nprime must be even */
             if (nprime % (2 * q) != 0) continue;

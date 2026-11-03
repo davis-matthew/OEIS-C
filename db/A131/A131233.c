@@ -9,7 +9,8 @@
  *            prime power
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, is_prime_power_u64
+ * Validated: standard, pass, 89 terms through n = 8718 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,35 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/is_prime_power_u64.h"
+
+/* Works for x up to 64‑bit values; the routine is fast for small x. */
+static inline bool is_prime_power_u64(uint64_t x)
+{
+    if (x <= 1) return true;          /* 0 and 1 are considered prime powers (p^0) */
+
+    uint64_t p = 0;
+
+    /* Find the smallest prime factor of x. */
+    if ((x & 1) == 0) {           /* 2 is a factor */
+        p = 2;
+    } else {
+        for (uint64_t d = 3; d <= x / d; d += 2) {
+            if (x % d == 0) {
+                p = d;
+                break;
+            }
+        }
+    }
+
+    /* If no factor found, x is prime. */
+    if (p == 0) return true;
+
+    /* Remove all occurrences of the found prime factor. */
+    while (x % p == 0) x /= p;
+
+    /* Remaining x is 1 => x is a power of p; otherwise it contains another prime factor. */
+    return x == 1;
+}
 
 /* Test whether x is a prime power (x ≥ 0).  Returns true for 0,1 or any prime power. */
 

@@ -10,6 +10,7 @@
  *            (undefined) for n > 110
  * Range:     u8 n <= 110, u16 n <= 110, u32 n <= 110, u64 n <= 110,
  *            u128 n <= 110, big any n
+ * Validated: full, pass, 110 terms through n = 110 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^5 + 10*n^4 + 45*n^3 + 100*n^2 + 109*n + 44
  * Range:     u8 n <= 0, u16 n <= 7, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

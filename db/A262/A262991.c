@@ -9,12 +9,14 @@
  *            is_squarefree(n-i)]
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
 
 seq_t a(idx_t n)

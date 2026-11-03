@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   floor_sqrt, rev_int
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   ipow_i32, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,27 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/rev_int.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/reverse_digits.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Return the nth element of the sequence (n >= 1). */
 seq_t a(idx_t n)
@@ -43,7 +63,7 @@ seq_t a(idx_t n)
 
         for (seq_t pref = start; pref <= end; ++pref) {
             seq_t pref_s  = pref;
-            seq_t rev_pref = rev_int(is_even ? pref_s : pref_s / 10);
+            seq_t rev_pref = reverse_digits(is_even ? pref_s : pref_s / 10);
             seq_t pal = pref_s * (is_even ? pow10_half : pow10_half_minus1) + rev_pref;
 
             if (pal == 1)

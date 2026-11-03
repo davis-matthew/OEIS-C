@@ -8,14 +8,16 @@
  * Formula:   a(0) = -1, a(1) = 0, a(2) = 1. For n ≥ 3: let m = (n – 3)/6 + 1
  *            and r = (n – 3) % 6. If r∈{0,1,2}: a(n) = 2^(4m‑1) + (r‑1). If
  *            r∈{3,4,5}: a(n) = 2^(4m) + (r‑3)
- * Range:     i8 n <= 9, i16 n <= 21, i32 n <= 42, i64 n <= 42, i128 n <= 42,
+ * Range:     i8 n <= 9, i16 n <= 21, i32 n <= 45, i64 n <= 93, i128 n <= 189,
  *            big any n
- * Helpers:   pow2_exp
+ * Validated: standard, pass, 59 terms through n = 998 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2_exp.h"
+#include <stdint.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)-1;
@@ -26,8 +28,8 @@ seq_t a(idx_t n) {
     idx_t m = k / 6 + 1;
     idx_t r = k % 6;
 
-    seq_t p1 = pow2_exp((idx_t)(4 * m - 1));  /* 2^(4m-1) */
-    seq_t p2 = pow2_exp((idx_t)(4 * m));      /* 2^(4m) */
+    seq_t p1 = pow2((idx_t)(4 * m - 1));  /* 2^(4m-1) */
+    seq_t p2 = pow2((idx_t)(4 * m));      /* 2^(4m) */
 
     switch (r) {
         case 0: return p1 - (seq_t)1;            /* 2^(4m-1) - 1 */

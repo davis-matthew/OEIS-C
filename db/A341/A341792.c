@@ -9,13 +9,15 @@
  *            combinations of tetrahedral numbers with exactly nine parts
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 92 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute a(idx_t n) for n >= 9.
    For n < 9 the function returns 0, which is irrelevant for the
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     const size_t cols  = (size_t)n + 1;
     const size_t dp_size = parts * cols;
 
-    seq_t *dp = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) {
         free(tetra);
         return 0;
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = dp[9 * cols + (size_t)n];
-    free(dp);
+    mem_free(dp);
     free(tetra);
     return ans;
 }

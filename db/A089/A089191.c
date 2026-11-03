@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 4558, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 7836 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Global state                                                    */
@@ -55,7 +57,7 @@ static void add_qual_to_list(seq_t p)
 {
     if (qual_cnt == qual_cap) {
         qual_cap = qual_cap ? qual_cap * 2 : 8;
-        seq_t *tmp = (seq_t*)realloc(qual_list, qual_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, qual_list, qual_cap);
         qual_list = tmp;
     }
     qual_list[qual_cnt++] = p;

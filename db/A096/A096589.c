@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   alloc_row, alloc_rows, free_rows
+ * Validated: partial, pass, 83 terms through n = 82 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,9 +33,38 @@
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_row.h"
-#include "../utils/alloc_rows.h"
-#include "../utils/free_rows.h"
+
+/* Allocate a row of seq_t with (len) elements.  The elements are not
+ * initialized.  This works for both C and C++ builds. */
+static inline seq_t *alloc_row(idx_t len)
+{
+#if defined(__cplusplus)
+    return new seq_t[len];
+#else
+    return (seq_t *)malloc((size_t)len * sizeof(seq_t));
+#endif
+}
+
+/* Allocate an array of pointers to rows. */
+static inline seq_t **alloc_rows(size_t len)
+{
+#if defined(__cplusplus)
+    return new seq_t*[len];
+#else
+    return (seq_t **)malloc(len * sizeof(seq_t *));
+#endif
+}
+
+/* Free an array of pointers to rows.  The rows themselves are freed
+ * separately (by the caller, if ever needed). */
+static inline void free_rows(seq_t **p)
+{
+#if defined(__cplusplus)
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 /* Global storage for the triangular table of T.
  * Trows[r] points to an array of length r+1 that holds T(r,0), … ,T(r,r).   */

@@ -8,7 +8,8 @@
  *            sum of all divisors of m
  * Range:     u8 n <= 44, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   sigma_div
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,26 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/sigma_div.h"
+
+/* Compute the sum of divisors of x using integer arithmetic only. */
+static seq_t sigma_div(seq_t x)
+{
+    if (x == 0)
+        return 0;               /* convention for x = 0 */
+    seq_t sum = 0;
+    /* iterate d from 1 to floor(sqrt(x)) */
+    for (idx_t d = 1; d <= x / d; ++d)
+    {
+        if (x % (seq_t)d == 0)
+        {
+            sum += (seq_t)d;
+            seq_t d2 = x / (seq_t)d;
+            if (d2 != (seq_t)d)
+                sum += d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

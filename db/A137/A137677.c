@@ -12,7 +12,8 @@
  *            a(4*n+3) = A122130(n) * * The following implement...
  * Range:     u8 n <= 107, u16 n <= 278, u32 n <= 819, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static int8_t *num_sign = NULL;          /* numerator coefficient signs (+1, -1, 0) */
 static int8_t *den_sign = NULL;          /* denominator coefficient signs (+1, -1, 0) */
@@ -70,7 +72,7 @@ static void expand_to(idx_t N)
     }
 
     /* Resize cache array */
-    seq_t *new_cache = (seq_t*)realloc(cache, len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, len);
     if (new_cache == NULL) {
         /* Out of memory; abort since we cannot continue */
         abort();

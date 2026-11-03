@@ -7,12 +7,14 @@
  * Formula:   a(n) = Bell(n+1)-Bell(n)-1 (OEIS A052834)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n).  Uses a Stirling‑of‑second‑kind recurrence
    to generate Bell numbers up to the needed index.  All
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
     /* First call: allocate minimal arrays. */
     if (bell == NULL) {
         size_t cap = 1;                   /* only Bell(0) and S(0) are needed initially */
-        bell = (seq_t *)malloc(cap * sizeof(seq_t));
-        S    = (seq_t *)malloc(cap * sizeof(seq_t));
+        bell = mem_new(seq_t, cap);
+        S    = mem_new(seq_t, cap);
         if (bell == NULL || S == NULL) exit(1);
         bell[0] = (seq_t)1;              /* Bell(0) = 1 */
         S[0]    = (seq_t)1;              /* S(0,0) = 1 */
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
     if (needed > last_n) {
         /* New capacity for indices 0 .. needed. */
         size_t new_cap = (size_t)needed + 1;
-        seq_t *new_bell = (seq_t *)realloc(bell, new_cap * sizeof(seq_t));
-        seq_t *new_S    = (seq_t *)realloc(S,    new_cap * sizeof(seq_t));
+        seq_t *new_bell = mem_resize(seq_t, bell, new_cap);
+        seq_t *new_S    = mem_resize(seq_t, S, new_cap);
         if (new_bell == NULL || new_S == NULL) exit(1);
         bell = new_bell;
         S    = new_S;

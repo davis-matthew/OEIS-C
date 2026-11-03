@@ -7,6 +7,7 @@
  * Formula:   a(n) = product_{k=1..n} k * (-2(k+1))^(k-1)
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 4, i64 n <= 6, i128 n <= 8,
  *            big any n
+ * Validated: standard, pass, 26 terms through n = 33 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 63, u64 n <= 83, u128 n <= 83,
  *            big any n
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
    a(0) = 1;
    a(n) = 0                  if n > 0 and n is not a power of two;
    a(2^m) = 2^(2^m - m)      for m >= 0 (i.e. for powers of two). */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 20, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   packuv, unpackuv
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/packuv.h"
-#include "../utils/unpackuv.h"
+#include "../utils/mem.h"
+
+/* ---------------------------------------------------------------------- */
+static inline uint32_t packuv(int x, int y, int z) {
+    return ((uint32_t)x << 17) | ((uint32_t)y << 9) | (uint32_t)z;
+}
+
+static inline void unpackuv(uint32_t key, int *xp, int *yp, int *zp) {
+    *zp = (int)(key & 0x1FF);
+    *yp = (int)((key >> 9) & 0xFF);
+    *xp = (int)(key >> 17);
+}
 
 /* ---------------------------------------------------------------------- */
 /*  Helper hash table (open addressing) to store state counts            */
@@ -44,7 +55,7 @@ static void ht_init(HashTable *ht, size_t power_of_two) {
     ht->size = sz;
     ht->mask  = sz - 1;
     ht->keys  = (uint32_t *)malloc(sz * sizeof(uint32_t));
-    ht->vals  = (seq_t   *)malloc(sz * sizeof(seq_t   ));
+    ht->vals  = mem_new(seq_t, sz);
     ht->used  = (bool    *)malloc(sz * sizeof(bool    ));
     for (size_t i = 0; i < sz; ++i) ht->used[i] = false;
 }
@@ -161,7 +172,7 @@ seq_t a(idx_t n) {
     if (!initialized) {
         /* --- compute first 200 terms exactly using DP -------------- */
         const size_t MAX_N = 200;
-        seq_t *seq_val = (seq_t *)malloc((MAX_N + 1) * sizeof(seq_t));
+        seq_t *seq_val = mem_new(seq_t, (MAX_N + 1));
         seq_val[0] = 1;
 
         /* hash tables for current and next step */
@@ -239,7 +250,7 @@ seq_t a(idx_t n) {
         rec_len = (recLens[0] > recLens[1]) ? recLens[0] : recLens[1];
 
         /* --- combine residues via CRT to get integer coefficients -- */
-        rec_coef = (seq_t *)malloc(rec_len * sizeof(seq_t));
+        rec_coef = mem_new(seq_t, rec_len);
         for (size_t j = 0; j < rec_len; ++j) {
             seq_t val = 0;
             seq_t prod = 1;
@@ -259,10 +270,10 @@ seq_t a(idx_t n) {
         /* --- initialise memoisation cache with first rec_len terms --- */
         cache_size  = rec_len;
         cache_cap   = cache_size;
-        cache       = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
         for (size_t i = 0; i < rec_len; ++i) cache[i] = seq_val[i];
 
-        free(seq_val);
+        mem_free(seq_val);
         initialized = true;
     }
 
@@ -273,7 +284,7 @@ seq_t a(idx_t n) {
     size_t target = (size_t)n;
     while (cache_cap <= target) {
         cache_cap = cache_cap ? cache_cap * 2 : 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     for (size_t i = cache_size; i <= target; ++i) {

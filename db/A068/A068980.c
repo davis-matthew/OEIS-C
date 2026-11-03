@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 317, u32 n <= 1661, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 7748 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  *  operations per call).  The function works for all supported seq_t
  *  types, relying only on addition and indexing. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Allocate or enlarge the array to hold all values up to n. */
     if (n + 1 > dp_size) {
         dp_size = n + 1;
-        dp = (seq_t *)realloc(dp, dp_size * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, dp_size);
     }
 
     /* Initialise the array: dp[0] = 1 and all other entries 0. */

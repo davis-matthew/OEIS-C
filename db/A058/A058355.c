@@ -10,7 +10,8 @@
  *            is prime ? 1 : 0)
  * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* -------------  implementation follows  ------------- */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* stored values a(0)..a(k) */
 static idx_t a_cache_size = 0;         /* number of stored values */
@@ -58,8 +60,7 @@ static void ensure_cache(idx_t n)
     if (n < a_cache_size)
         return;
 
-    seq_t *new_cache = (seq_t *)realloc(a_cache,
-            (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, (size_t)(n + 1));
     if (!new_cache)
         return;          /* out of memory – caller will fail */
     a_cache = new_cache;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- Node and heap ----------------------------------------------------- */
 typedef struct {
@@ -83,7 +85,7 @@ static void heap_push(Node n)
 {
     if (heap_len == heap_cap) {
         size_t new_cap = heap_cap ? heap_cap << 1 : 64;
-        Node *tmp = (Node *)realloc(heap, new_cap * sizeof(Node));
+        Node *tmp = mem_resize(Node, heap, new_cap);
         if (!tmp) abort();
         heap = tmp;
         heap_cap = new_cap;
@@ -106,7 +108,7 @@ static void cache_ensure(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;
@@ -119,9 +121,9 @@ static void init(void)
 
     /* allocate heap and cache */
     heap_cap = 64;
-    heap = (Node *)calloc(heap_cap, sizeof(Node));
+    heap = mem_new(Node, heap_cap);
     cache_cap = 64;
-    cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
 
     /* Limit for base generation – large enough to cover n up to many thousands */
     const seq_t BASE_LIMIT = (seq_t)1000000000000ULL;  /* 1e12 */

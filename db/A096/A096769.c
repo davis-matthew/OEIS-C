@@ -9,14 +9,15 @@
  *            the OEIS definition of A096769
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   is_square
+ * Validated: standard, pass, 35 terms through n = 441 (2026-11-01)
+ * Helpers:   is_square_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_square.h"
+#include "../utils/is_square_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
 
     for (idx_t m = 2; ; ++m)
     {
-        if (is_square(m)) continue;          /* skip perfect squares */
+        if (is_square_idx(m)) continue;          /* skip perfect squares */
         prod *= (seq_t)m;
         if (++done == n - 1) break;
     }

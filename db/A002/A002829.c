@@ -11,14 +11,56 @@
  *            (2N)!/(2N-2t)! * a(N-t), a(0) = 1, a(m) = 0 for m < 0
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   a2829_from128, a2829_small
+ * Validated: standard, pass, 30 terms through n = 143 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a2829_from128.h"
-#include "../utils/a2829_small.h"
+
+static seq_t a2829_from128(unsigned __int128 v)
+{
+    uint64_t lo = (uint64_t)v;
+    uint64_t hi = (uint64_t)(v >> 64);
+    seq_t r = (seq_t)hi;
+    if (hi) {
+        r *= 4294967296ULL;
+        r *= 4294967296ULL;
+    }
+    r += (seq_t)lo;
+    return r;
+}
+
+static void a2829_small(__int128 *s)
+{
+    int N, t;
+    s[0] = 1;
+    for (N = 0; N < 13; N++) {
+        __int128 W = 0;
+        for (t = 5; t >= 0; t--) {
+            long long M = (long long)N - t;
+            long long c;
+            __int128 term;
+            switch (t) {
+            case 0: c = 72LL * N * (N - 1) + 192LL * N; break;
+            case 1: c = -72LL * (N - 1) * (N - 2) + 4; break;
+            case 2: c = -36LL * (N - 2) * (N - 3) - 36LL * (N - 2) - 8; break;
+            case 3: c = -36LL * (N - 3); break;
+            case 4: c = -6LL * (N - 4) + 4; break;
+            default: c = 1; break;
+            }
+            term = (M >= 0) ? (__int128)c * s[M] : 0;
+            if (t == 5) {
+                W = term;
+            } else {
+                long long p = (2LL * N - 2LL * t) * (2LL * N - 2LL * t - 1);
+                W = term + (__int128)p * W;
+            }
+        }
+        s[N + 1] = (__int128)(2 * N + 1) * W / 24;
+    }
+}
 
 static seq_t a2829_win[6];
 static idx_t a2829_top = 0;

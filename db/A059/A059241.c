@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 593, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 61 terms through n = 987 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"          /* mod_pow(seq_t base, uint64_t exp, seq_t mod) */
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static const uint64_t SIEVE_LIMIT = 6000000;   /* sufficient for n ≤ 10000 */
 
@@ -61,7 +64,7 @@ static void build_prime_list(void)
 static bool satisfies(uint32_t p)
 {
     if (p % 11 != 1) return false;
-    seq_t val = mod_pow((seq_t)2, (uint64_t)(p - 1) / 11, (seq_t)p);
+    seq_t val = powmod((seq_t)2, (uint64_t)(p - 1) / 11, (seq_t)p);
     return val != 1;
 }
 
@@ -76,7 +79,7 @@ static void ensure_cache_size(idx_t n)
     if (cache_cap < (size_t)n) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 128;
         while (new_cap < (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;           /* unlikely, but keep safe */
         cache = tmp;
         cache_cap = new_cap;

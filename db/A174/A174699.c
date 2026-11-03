@@ -8,13 +8,26 @@
  *            mod (2*k+1)
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   pow_mod_4
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_mod_4.h"
+
+static inline seq_t pow_mod_4(idx_t exp, uint64_t mod)
+{
+    if (mod == 1) return (seq_t)0;
+    uint64_t base = 4 % mod;
+    uint64_t res  = 1 % mod;
+    while (exp) {
+        if (exp & 1) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return (seq_t)res;
+}
 
 static inline idx_t isqrt_u128(unsigned __int128 v)
 {

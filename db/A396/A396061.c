@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   rev, reverse
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   reverse_digits, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/rev.h"      /* rev(idx_t x) */
-#include "../utils/reverse.h"  /* reverse(seq_t v) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/reverse_digits_idx.h"
 
 extern seq_t a(idx_t n)
 {
@@ -42,11 +45,11 @@ extern seq_t a(idx_t n)
                 k = k * 10 + digits[i];
 
             /* apply the defining conditions */
-            if (k < rev(k))
+            if (k < reverse_digits_idx(k))
             {
                 seq_t ksquared = (seq_t)k * (seq_t)k;
-                seq_t rev_ksq  = reverse(ksquared);
-                seq_t rev_k    = rev(k);
+                seq_t rev_ksq  = reverse_digits(ksquared);
+                seq_t rev_k    = reverse_digits_idx(k);
                 seq_t rev_k_sq = rev_k * rev_k;
                 if (rev_ksq == rev_k_sq)
                 {

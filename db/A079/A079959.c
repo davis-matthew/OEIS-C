@@ -8,12 +8,14 @@
  * Formula:   a(n) = a(n-1)+a(n-2)+a(n-4)+a(n-6), a(0)=1, a(n)=0 for n<0
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* first call: allocate and initialise a(0)=1 */
     if (buf_sz == 0) {
         buf_sz = 1;
-        buf = (seq_t *)malloc(buf_sz * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_sz);
         if (!buf) return (seq_t)0; /* allocation failure: return zero */
         buf[0] = (seq_t)1;          /* a(0) = 1 */
         last_computed = 0;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (buf_sz < n + 1) {
         idx_t old_sz = buf_sz;
         buf_sz = (n + 1) * 2; /* grow by factor 2 for amortised cost */
-        seq_t *tmp = (seq_t *)realloc(buf, buf_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, buf_sz);
         if (!tmp) return (seq_t)0; /* allocation failure */
         buf = tmp;
         /* initialise newly allocated slots to 0 */

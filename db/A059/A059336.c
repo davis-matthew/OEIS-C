@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 71 terms through n = 955 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -71,14 +74,13 @@ seq_t a(idx_t n)
             uint64_t e = (p - 1) / d;
 
             /* evaluate 2^e (mod p) ------------------------------------- */
-            seq_t res = mod_pow((seq_t)2, e, (seq_t)p);
+            seq_t res = powmod((seq_t)2, e, (seq_t)p);
 
             /* if not 1, p is a term of the sequence --------------------- */
             if (res != (seq_t)1) {
                 if (term_cnt == term_cap) {
                     term_cap = term_cap ? term_cap * 2 : 8;
-                    term_list = (seq_t *)realloc(term_list,
-                                                 term_cap * sizeof(seq_t));
+                    term_list = mem_resize(seq_t, term_list, term_cap);
                 }
                 term_list[term_cnt++] = (seq_t)p;
             }

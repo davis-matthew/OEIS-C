@@ -9,15 +9,17 @@
  *            expands it as needed. A small Euclidean gcd function is provided
  *            for seq_t values. The code follows all styling and safety
  *            requirements of the evaluation system
- * Range:     u8 n <= 32, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 32, u16 n <= 267, u32 n <= 4343, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 80 terms through n = 8828 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Small gcd for seq_t values; seq_t is an unsigned integer type. */
 static inline seq_t seq_gcd(seq_t a, seq_t b)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Expand table if necessary. */
     if (n > max_n) {
         idx_t new_size = n + 1;    /* include index 0, unused */
-        seq_t *tmp = (seq_t*)realloc(tbl, (size_t)new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tbl, (size_t)new_size);
         if (!tmp) return 0;        /* allocation failure (unlikely) */
         tbl = tmp;
 

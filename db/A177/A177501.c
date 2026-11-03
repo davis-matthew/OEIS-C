@@ -8,7 +8,8 @@
  * Formula:   a(n) = |{ k | 1 ≤ k ≤ ⌊n/2⌋, k divides C(n‑k‑1, k‑1) }|
  * Range:     u8 n <= 520, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   _vp_factorial
+ * Validated: standard, pass, 96 terms through n = 1871 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_vp_factorial.h"
+
+/* Helper: factorial exponent of prime p in n! */
+static inline idx_t _vp_factorial(idx_t n, idx_t p)
+{
+    idx_t v = 0;
+    while (n)
+    {
+        n /= p;
+        v += n;
+    }
+    return v;
+}
 
 /* Sieve of Eratosthenes to generate all primes ≤ 10000.
    The array is built only once. */

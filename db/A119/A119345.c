@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 888 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    to answer any call in O(1) after an initial O(n²) build. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global cached data */
 static seq_t *terms = NULL;           /* array of terms sorted increasingly   */
@@ -62,7 +64,7 @@ static void recompute_terms_up_to(idx_t max_val)
     }
 
     /* Allocate new terms array */
-    seq_t *new_terms = (seq_t *)malloc(new_term_count * sizeof(seq_t));
+    seq_t *new_terms = mem_new(seq_t, new_term_count);
     size_t pos = 0;
     for (idx_t v = 0; v <= max_val; ++v) {
         if (cnt[v] == 1) {
@@ -74,7 +76,7 @@ static void recompute_terms_up_to(idx_t max_val)
     /* Free old structures */
     free(cnt);
     free(tri);
-    free(terms);
+    mem_free(terms);
 
     /* Store new data */
     terms      = new_terms;

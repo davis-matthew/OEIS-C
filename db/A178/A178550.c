@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 2543, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_one_digit_one, next_prime
+ * Validated: standard, pass, 72 terms through n = 9926 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,23 @@
 
 /* next_prime: returns the next prime > start (library function) */
 #include "../utils/next_prime.h"
-#include "../utils/has_one_digit_one.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static bool has_one_digit_one(seq_t x)
+{
+    int ones = 0;
+    while (x > 0)
+    {
+        if ((x % 10) == 1)
+        {
+            if (++ones > 1)
+                return false;
+        }
+        x /= 10;
+    }
+    return ones == 1;
+}
 
 /* --------------------------------------------------------------------- */
 /* Helper: test whether a number has exactly one decimal digit '1'.      */
@@ -53,7 +70,7 @@ static void cache_append(seq_t val)
     if (cache_cnt == cache_cap)
     {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();             /* memory allocation failed */
         cache = tmp;

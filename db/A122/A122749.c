@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 24, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  *  a(4*k+2) = 4 · (k+1)^4 · ((2*k)!)^2
  *  a(4*k+3) = (1/3) · (3+17*k+22*k^2+6*k^3) · (2*k)! · (2*k+2)! */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed factorials up to 5002 (needed for all n ≤ 10000). */
 #define MAX_FACT 5002
@@ -31,7 +33,7 @@ static void init_fact(void)
     if (fact != NULL)
         return;
 
-    fact = (seq_t*)malloc((MAX_FACT + 1) * sizeof(seq_t));
+    fact = mem_new(seq_t, (MAX_FACT + 1));
     if (!fact) abort();               /* out of memory */
 
     fact[0] = (seq_t)1;                /* 0! = 1 */

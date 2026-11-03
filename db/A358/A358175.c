@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 38, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------- */
 /*  Static state (memoisation)                                          */
@@ -70,7 +72,7 @@ static void extend_sequence(size_t cap)
     if (cap <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 128;
     while (new_cap < cap) new_cap <<= 1;
-    seq_t *newp = (seq_t *)realloc(sequence, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, sequence, new_cap);
     if (!newp) exit(EXIT_FAILURE);
     sequence = newp;
     seq_cap  = new_cap;
@@ -125,7 +127,7 @@ static void build_primes(uint32_t limit)
     free(is_composite);
 
     prime_small_cap = prime_cnt;
-    prime_small = (seq_t *)malloc(prime_small_cap * sizeof(seq_t));
+    prime_small = mem_new(seq_t, prime_small_cap);
     if (!prime_small) exit(EXIT_FAILURE);
     for (size_t i = 0; i < prime_cnt; ++i)
         prime_small[i] = (seq_t)prime_list[i];
@@ -277,7 +279,7 @@ static void initialise(void)
     if (!used) exit(EXIT_FAILURE);
 
     seq_cap = 128;
-    sequence = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+    sequence = mem_new(seq_t, seq_cap);
     if (!sequence) exit(EXIT_FAILURE);
 
     sequence[1] = 1; mark_used(1);

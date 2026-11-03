@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 31, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   append_candidate, digit_len, pow10, rad
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem, num_digits, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,36 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/append_candidate.h"
-#include "../utils/rad.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include "../utils/num_digits.h"
+#include "../utils/radical.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     /* static cache of already found terms */
@@ -38,15 +65,15 @@ seq_t a(idx_t n) {
     /* generate terms until we have at least n of them */
     while (cache_len < n) {
         seq_t cur = (seq_t)next;
-        int d = digit_len(cur);          /* number of decimal digits of cur */
+        int d = num_digits(cur);          /* number of decimal digits of cur */
 
         if (d >= 3) {                    /* at least 3 digits to have a middle part */
             seq_t pow = pow10(d - 2);     /* 10^(d-2) */
             seq_t mid = (cur / 10) % pow; /* middle digits, leading zeros allowed */
 
             if (mid != 0) {
-                seq_t rad_cur = rad((idx_t)cur);
-                seq_t rad_mid = rad((idx_t)mid);
+                seq_t rad_cur = radical((idx_t)cur);
+                seq_t rad_mid = radical((idx_t)mid);
                 if (rad_cur == rad_mid) {
                     append_candidate(&cache, &cache_len, &cache_cap, cur);
                 }

@@ -7,12 +7,14 @@
  * Formula:   a(n) = sum_{k=0..n} (-1)^(n-k) * binom(2*k,k) * binom(3*k,k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Compute the OEIS sequence A188918.  It is valid for both C11 and C++17
  * and works for any seq_t/idx_t types supplied by the build system. */
@@ -20,8 +22,8 @@ seq_t a(idx_t n)
 {
     seq_t sum = (seq_t)0;
     for (idx_t k = 0; k <= n; ++k) {
-        seq_t t1 = binom(2 * k, k);
-        seq_t t2 = binom(3 * k, k);
+        seq_t t1 = binomial(2 * k, k);
+        seq_t t2 = binomial(3 * k, k);
         seq_t term = t1 * t2;
         if (((n - k) & 1) != 0) {
             term = -term;   /* apply the (-1)^(n-k) factor */

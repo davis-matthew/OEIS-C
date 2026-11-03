@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   calc_phi, get_digits
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   get_digits, mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/get_digits.h"
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 /* Cache for found terms */
 static seq_t *found = NULL;
@@ -31,7 +34,7 @@ static void add_found(seq_t value)
 {
     if (found_count == found_cap) {
         size_t new_cap = found_cap ? found_cap * 2 : 256;
-        seq_t *tmp = (seq_t *)realloc(found, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, found, new_cap);
         if (!tmp) exit(1);
         found = tmp;
         found_cap = new_cap;
@@ -70,7 +73,7 @@ static void generate_all(void)
         }
         if (has_zero) continue;
 
-        seq_t phi_val = calc_phi(sum);
+        seq_t phi_val = totient_seq(sum);
         if (prod * phi_val == m) {
             add_found(m);
         }

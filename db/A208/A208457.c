@@ -12,13 +12,26 @@
  *            every 12.) * * This product equals the gener...
  * Range:     i8 n <= 200, i16 n <= 2500, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   alpha_func
+ * Validated: standard, pass, 83 terms through n = 2445 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alpha_func.h"
+#include "../utils/mem.h"
+
+/* compute α_m for a given m */
+static inline int alpha_func(size_t m)
+{
+    int a = 1;
+    if ((m & 1) == 0) a++;            /* m even */
+    if (m % 3 == 0) a++;
+    if (m % 12 == 0) a += 4;
+    if (m % 4 == 0) a -= 2;
+    if (m % 6 == 0) a -= 1;
+    return a;
+}
 
 static seq_t *g = NULL;          /* coefficient array */
 static size_t g_size = 0;        /* current array size (number of coefficients) */
@@ -27,7 +40,7 @@ static size_t g_size = 0;        /* current array size (number of coefficients) 
 static void recompute_coefficients(size_t target)
 {
     size_t new_size = target + 1;
-    seq_t *new_g = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_g = mem_new(seq_t, new_size);
     if (!new_g) return; /* out of memory – caller will handle lack of result */
 
     new_g[0] = 1;
@@ -42,7 +55,7 @@ static void recompute_coefficients(size_t target)
         }
     }
 
-    if (g) free(g);
+    if (g) mem_free(g);
     g       = new_g;
     g_size  = new_size;
 }

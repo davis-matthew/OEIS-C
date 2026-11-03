@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   has_valid
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_valid.h"
+#include "../utils/mem.h"
+
+/* Counts whether a given value satisfies the property. */
+static bool has_valid(seq_t v)
+{
+    unsigned long long c0 = 0, c2 = 0, c3 = 0;
+    seq_t t = v;
+    while (t > 0) {
+        int d = (int)(t % 6);        /* 0 <= d < 6 */
+        if (d == 0)     c0++;
+        else if (d == 2) c2++;
+        else if (d == 3) c3++;
+        t = t / 6;
+    }
+    return (c0 == c2 && c2 == c3);
+}
 
 /* Cached results: a static array that grows as needed. */
 static seq_t *cache     = NULL;   /* array of values */
@@ -38,7 +54,7 @@ static void extend_upto(idx_t need)
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < (size_t)need)
             new_cap = (size_t)need;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

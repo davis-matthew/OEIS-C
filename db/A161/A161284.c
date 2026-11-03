@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 185, u32 n <= 533, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 94 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
    not divisible by 3 where every part appears at least 6 times. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq_array.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *dp = NULL;
 static idx_t  dp_nmax = 0;
@@ -31,7 +39,7 @@ static void recompute(idx_t N)
     seq_t *g = alloc_seq_array(N + 1);   /* next DP table */
     seq_t *I = alloc_seq_array(N + 1);   /* temporary array for sums */
 
-    if (!f || !g || !I) { free(f); free(g); free(I); return; }
+    if (!f || !g || !I) { mem_free(f); mem_free(g); mem_free(I); return; }
 
     /* initialise the empty partition */
     for (idx_t i = 0; i <= N; ++i) f[i] = 0;
@@ -63,11 +71,11 @@ static void recompute(idx_t N)
     }
 
     /* free temporary arrays */
-    free(g);
-    free(I);
+    mem_free(g);
+    mem_free(I);
 
     /* store new DP table */
-    free(dp);
+    mem_free(dp);
     dp = f;
     dp_nmax = N;
 }

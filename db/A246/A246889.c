@@ -10,14 +10,24 @@
  *            Implementation uses a 4‑digit automaton (state = last 4 digits)
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 22, u128 n <= 48,
  *            big any n
- * Helpers:   split_state
+ * Validated: standard, pass, 33 terms through n = 196 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/split_state.h"
+
+/* State to digits */
+static void split_state(int state, int *d3, int *d2, int *d1, int *d0) {
+    *d3 = state / 216;               // 6^3
+    int rem = state % 216;
+    *d2 = rem / 36;                  // 6^2
+    rem %= 36;
+    *d1 = rem / 6;                   // 6^1
+    *d0 = rem % 6;                   // 6^0
+}
 
 #define STATES 1296          /* 6^4 possible last‑4‑digit states */
 #define DIGITS 6

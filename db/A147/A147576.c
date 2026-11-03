@@ -7,7 +7,8 @@
  * Formula:   a(n) = 105 * A108347(n)
  * Range:     u8 n <= 1, u16 n <= 31, u32 n <= 378, u64 n <= 3595,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 9390 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* A108347(n) is the nth number of the form 3^i 5^j 7^k (i,j,k≥0) in increasing order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* grow the array if necessary */
     if (cap < n) {
-        seq_t *tmp = (seq_t *)realloc(b, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b, (size_t)n);
         if (!tmp) return 0;                 /* allocation failure */
         b = tmp;
         cap = n;

@@ -9,7 +9,8 @@
  *            whose sum is 2·n
  * Range:     u8 n <= 1001, u16 n <= 1001, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   count_carries_uint64
+ * Validated: standard, pass, 103 terms through n = 957 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,25 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/count_carries_uint64.h"
+
+/* ---------- Carry counting ---------- */
+static int count_carries_uint64(uint64_t a, uint64_t b)
+{
+    int carries = 0;
+    uint64_t carry = 0;
+    while (a || b || carry) {
+        uint64_t sum = (a & 1) + (b & 1) + carry;
+        if (sum >= 2) {
+            ++carries;
+            carry = 1;
+        } else {
+            carry = 0;
+        }
+        a >>= 1;
+        b >>= 1;
+    }
+    return carries;
+}
 
 /* ---------- Prime sieve management ---------- */
 static idx_t sieve_limit = 0;

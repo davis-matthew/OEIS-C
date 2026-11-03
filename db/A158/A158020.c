@@ -12,12 +12,14 @@
  *            odd (r = 2m+1) then T(r,2i) = (-1)^(m+i) * C(m,i) T(...
  * Range:     i8 n <= 77, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
             return 0;
         }
         idx_t i = k >> 1;              /* i = k/2                     */
-        seq_t val = binom(m, i);       /* C(m,i)                     */
+        seq_t val = binomial(m, i);       /* C(m,i)                     */
         if (((m - i) & 1) == 1) {      /* multiply by -1 if (m-i) odd */
             val = -val;
         }
@@ -56,13 +58,13 @@ seq_t a(idx_t n)
         seq_t val;
         if ((k & 1) == 0) {            /* even column k = 2i         */
             idx_t i = k >> 1;          /* i = k/2                     */
-            val = binom(m, i);
+            val = binomial(m, i);
             if (((m + i) & 1) == 1) {  /* multiply by -1 if (m+i) odd */
                 val = -val;
             }
         } else {                       /* odd column k = 2i+1        */
             idx_t i = (k - 1) >> 1;    /* i = (k-1)/2                */
-            val = binom(m, i);
+            val = binomial(m, i);
             if (((m + i + 1) & 1) == 1) { /* multiply by -1 if (m+i+1) odd */
                 val = -val;
             }

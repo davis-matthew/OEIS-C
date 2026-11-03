@@ -8,17 +8,20 @@
  * Formula:   a(n) = (4^n-1)^3 + 3*(4^n-1)^2 - 3*n*(4^n-n-1) + 3
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 195 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Compute 4^n */
-    seq_t pow4n = big_pow((seq_t)4, (seq_t)n);
+    seq_t pow4n = ipow((seq_t)4, (seq_t)n);
 
     /* t = 4^n - 1 */
     seq_t t = pow4n - (seq_t)1;

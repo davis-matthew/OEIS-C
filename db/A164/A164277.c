@@ -12,12 +12,14 @@
  *            903*a(0). This * yields the reported a(6...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 569 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 /* Static cache for computed terms; dynamically resized as needed */
@@ -30,7 +32,7 @@ static void ensure_cache_size(idx_t n)
 {
     if (cache_len <= n) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) abort();
         cache = tmp;
         cache_len = new_len;
@@ -42,7 +44,7 @@ static void init_cache(void)
 {
     if (cache == NULL) {
         size_t init_len = 7;                 /* a0 .. a6 */
-        cache = (seq_t *)malloc(init_len * sizeof(seq_t));
+        cache = mem_new(seq_t, init_len);
         if (cache == NULL) abort();
         cache_len = init_len;
     }

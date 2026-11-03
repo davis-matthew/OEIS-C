@@ -11,6 +11,7 @@
  *            intermediate product a^2 fits inside 64 bits on the 64‑bit bu...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 7,
  *            big any n
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            significant one equal to 0 or 1
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   trial_is_prime
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/trial_is_prime.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* ----------
    Static state – sequence storage
@@ -54,7 +56,7 @@ static void ensure_primes(size_t needed)
     }
     while (primes_cnt < needed) {
         uint64_t candidate = (primes_cnt == 0) ? 2 : primes[primes_cnt - 1] + 1;
-        while (!trial_is_prime(candidate)) ++candidate;
+        while (!is_prime_u64(candidate)) ++candidate;
 
         if (primes_cnt == primes_cap) {
             primes_cap *= 2;
@@ -111,7 +113,7 @@ static void ensure_terms(idx_t n)
     /* grow the storage array if necessary */
     if (seq_cap == 0) {
         seq_cap = 16;
-        seq_arr = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
     }
 
     while (seq_len < (size_t)n) {
@@ -121,7 +123,7 @@ static void ensure_terms(idx_t n)
                 /* store it */
                 if (seq_len >= seq_cap) {
                     seq_cap *= 2;
-                    seq_arr = (seq_t*)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                    seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
                 }
                 seq_arr[seq_len++] = cur_scan;
                 cur_scan = cur_scan + 1;   /* next integer to test */

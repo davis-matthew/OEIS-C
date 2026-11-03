@@ -9,7 +9,8 @@
  * Formula:   a(n) = nozero(a(n-1) * 3), a(1) = 1
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 64, u64 n <= 108, u128 n <= 108,
  *            big any n
- * Helpers:   nozero
+ * Validated: standard, pass, 55 terms through n = 98 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,32 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/nozero.h"
+
+/* Remove all zeros from the decimal representation of x and return the result. */
+static seq_t nozero(seq_t x)
+{
+    /* Enough to hold all possible digits up to n ≈ 10000. */
+    uint8_t digits[12000];
+    size_t len = 0;
+
+    while (x != (seq_t)0) {
+        seq_t d = x % (seq_t)10;
+        x /= (seq_t)10;
+        if (d != (seq_t)0) {
+            digits[len++] = (uint8_t)d;
+        }
+    }
+
+    if (len == 0)
+        return (seq_t)0;
+
+    seq_t result = (seq_t)0;
+    /* Reconstruct the number from most significant non‑zero digit. */
+    while (len--) {
+        result = result * (seq_t)10 + (seq_t)digits[len];
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

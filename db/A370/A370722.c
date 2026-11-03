@@ -9,12 +9,14 @@
  *            1, a(6) = 1, a(7) = 2. Offset: 0
  * Range:     u8 n <= 16, u16 n <= 28, u32 n <= 53, u64 n <= 103,
  *            u128 n <= 204, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The following function must have external linkage.  It maintains a
  * static cache so that calls may come in any order and the recurrence
@@ -35,9 +37,9 @@ seq_t a(idx_t n)
     idx_t new_size = n + 1;
     seq_t *new_cache;
     if (cache == NULL)
-        new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        new_cache = mem_new(seq_t, new_size);
     else
-        new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        new_cache = mem_resize(seq_t, cache, new_size);
     if (new_cache == NULL) {
         /* Memory allocation failed; return 0 as a sentinel. */
         return (seq_t)0;

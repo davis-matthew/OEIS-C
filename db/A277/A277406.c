@@ -10,7 +10,8 @@
  *            integers 1..n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /*  a(0) = 1  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Cache structure: on first call initialize for n==0.
@@ -35,11 +37,11 @@ seq_t a(idx_t n) {
         idx_t new_max = n;
 
         /* Resize factorial array */
-        fact = (seq_t *)realloc(fact, (new_max + 1) * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, (new_max + 1));
         /* Resize elementary sums array */
-        e = (seq_t *)realloc(e, (new_max + 1) * sizeof(seq_t));
+        e = mem_resize(seq_t, e, (new_max + 1));
         /* Resize a(n) cache array */
-        aval = (seq_t *)realloc(aval, (new_max + 1) * sizeof(seq_t));
+        aval = mem_resize(seq_t, aval, (new_max + 1));
 
         /* First call initialisation */
         if (max_n == 0) {

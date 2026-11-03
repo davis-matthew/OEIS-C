@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(n*(n-1)*(n-2)/25) (offset 0)
  * Range:     u8 n <= 7, u16 n <= 41, u32 n <= 1832, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 85 terms through n = 1833 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

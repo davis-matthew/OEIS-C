@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* External linkages defined by the build */
 extern seq_t binomial(idx_t n, idx_t k);
@@ -49,11 +51,11 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
         if (cache_size == 0) {
-            B    = (seq_t *)malloc(new_size * sizeof(seq_t));
-            Aarr = (seq_t *)malloc(new_size * sizeof(seq_t));
+            B    = mem_new(seq_t, new_size);
+            Aarr = mem_new(seq_t, new_size);
         } else {
-            B    = (seq_t *)realloc(B,    new_size * sizeof(seq_t));
-            Aarr = (seq_t *)realloc(Aarr, new_size * sizeof(seq_t));
+            B    = mem_resize(seq_t, B, new_size);
+            Aarr = mem_resize(seq_t, Aarr, new_size);
         }
 
         /* Initialize B[0] = 0;  Aarr[0] = 1 for the very first allocation */

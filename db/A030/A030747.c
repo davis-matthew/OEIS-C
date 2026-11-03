@@ -12,7 +12,8 @@
  *            (see A030747)
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   seq_equal, seq_to_str
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,32 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
-#include "../utils/seq_to_str.h"
-#include "../utils/seq_equal.h"
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+static inline int seq_equal(const seq_t *a, const seq_t *b)
+{
+    return (*a == *b);
+}
 
 /* --------------------------------------------------------------------- */
 /* Hash table for counts (total frequency across both lists) and presence
@@ -59,7 +83,7 @@ static void hash_rehash(void)
     HashEntry *old_tab = hash_tab;
 
     hash_cap <<= 1;
-    hash_tab = (HashEntry*)calloc(hash_cap, sizeof(HashEntry));
+    hash_tab = mem_new(HashEntry, hash_cap);
     hash_used = 0;
 
     for (size_t i = 0; i < old_cap; ++i) {
@@ -69,14 +93,14 @@ static void hash_rehash(void)
         hash_tab[idx] = old_tab[i];
         hash_used++;
     }
-    free(old_tab);
+    mem_free(old_tab);
 }
 
 static void inc_count(const seq_t key, size_t delta)
 {
     if (!hash_tab) {
         hash_cap = 128;
-        hash_tab = (HashEntry*)calloc(hash_cap, sizeof(HashEntry));
+        hash_tab = mem_new(HashEntry, hash_cap);
         hash_used = 0;
     }
     if (hash_used * 2 >= hash_cap) hash_rehash();
@@ -119,7 +143,7 @@ static void present_set_true(const seq_t key)
 {
     if (!hash_tab) {
         hash_cap = 128;
-        hash_tab = (HashEntry*)calloc(hash_cap, sizeof(HashEntry));
+        hash_tab = mem_new(HashEntry, hash_cap);
         hash_used = 0;
     }
     if (hash_used * 2 >= hash_cap) hash_rehash();
@@ -150,7 +174,7 @@ static void grow_first(size_t need)
     if (first_cap >= need) return;
     size_t new_cap = first_cap ? first_cap * 2 : 64;
     if (new_cap < need) new_cap = need;
-    first = (seq_t*)realloc(first, new_cap * sizeof(seq_t));
+    first = mem_resize(seq_t, first, new_cap);
     first_cap = new_cap;
 }
 
@@ -167,7 +191,7 @@ static MinHeap heap = {NULL, 0, 0};
 static void heap_grow(void)
 {
     size_t new_cap = heap.cap ? heap.cap * 2 : 64;
-    heap.data = (seq_t*)realloc(heap.data, new_cap * sizeof(seq_t));
+    heap.data = mem_resize(seq_t, heap.data, new_cap);
     heap.cap = new_cap;
 }
 
@@ -236,8 +260,8 @@ seq_t a(idx_t n)
         size_t k = heap_size();
         if (k == 0) break; /* safety, should not happen */
 
-        seq_t *vals = (seq_t*)malloc(k * sizeof(seq_t));
-        seq_t *freqs = (seq_t*)malloc(k * sizeof(seq_t));
+        seq_t *vals = mem_new(seq_t, k);
+        seq_t *freqs = mem_new(seq_t, k);
 
         /* pop all distinct values, compute their current frequencies */
         for (size_t i = 0; i < k; ++i) {
@@ -267,8 +291,8 @@ seq_t a(idx_t n)
             heap_push(vals[i]);
         }
 
-        free(vals);
-        free(freqs);
+        mem_free(vals);
+        mem_free(freqs);
     }
 
     return first[n - 1];

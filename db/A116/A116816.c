@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* initial six values */
 static const seq_t INIT[6] = {
@@ -40,7 +42,7 @@ static void ensure_cache_cap(size_t needed)
     size_t new_cap = CACHE_CAP ? CACHE_CAP * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    CACHE = (seq_t *)realloc(CACHE, new_cap * sizeof(seq_t));
+    CACHE = mem_resize(seq_t, CACHE, new_cap);
     CACHE_CAP = new_cap;
 }
 

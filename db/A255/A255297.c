@@ -12,12 +12,15 @@
  *            where f(L) = 2*3^L - 2^L
  * Range:     u8 n <= 30, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -41,8 +44,8 @@ seq_t a(idx_t n)
         } else {                        /* bit is 0 */
             if (in_run) {               /* end of a run */
                 /* compute f(run_len) = 2*3^run_len - 2^run_len */
-                seq_t p3 = big_pow((seq_t)3, run_len);
-                seq_t p2 = big_pow((seq_t)2, run_len);
+                seq_t p3 = ipow((seq_t)3, run_len);
+                seq_t p2 = ipow((seq_t)2, run_len);
                 seq_t fval = ((seq_t)2 * p3) - p2;
                 result *= fval;
                 in_run = false;
@@ -53,8 +56,8 @@ seq_t a(idx_t n)
 
     /* process a trailing run (if the number ends with 1) */
     if (in_run) {
-        seq_t p3 = big_pow((seq_t)3, run_len);
-        seq_t p2 = big_pow((seq_t)2, run_len);
+        seq_t p3 = ipow((seq_t)3, run_len);
+        seq_t p2 = ipow((seq_t)2, run_len);
         seq_t fval = ((seq_t)2 * p3) - p2;
         result *= fval;
     }

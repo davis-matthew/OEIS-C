@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for generated terms */
 static seq_t *seq_cache = NULL;     /* dynamic array of terms a(1), a(2), … */
@@ -41,7 +43,7 @@ static void expand_seq(size_t cap)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     if (new_cap < cap)
         new_cap = cap;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 37, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   comb_uint
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/comb_uint.h"
+#include "../utils/binomial.h"
 
 /* 3^e  (e is small, ≤ few dozen) */
 static inline seq_t pow3_idx(idx_t e)
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
     seq_t target = (seq_t)n;
 
     for (;; ++L) {
-        seq_t count = comb_uint(L - 1, 4) * pow3_idx(L - 4);
+        seq_t count = binomial(L - 1, 4) * pow3_idx(L - 4);
         if (target <= cumulative + count)
             break;
         cumulative += count;
@@ -69,13 +70,13 @@ seq_t a(idx_t n)
                     if (need > rem)
                         count = 0;
                     else
-                        count = comb_uint(rem, need) * pow3_idx(rem - need);
+                        count = binomial(rem, need) * pow3_idx(rem - need);
                 }
             } else { /* d = 1, 2, or 3 */
                 if (zeros_left > rem)
                     count = 0;
                 else
-                    count = comb_uint(rem, zeros_left) * pow3_idx(rem - zeros_left);
+                    count = binomial(rem, zeros_left) * pow3_idx(rem - zeros_left);
             }
 
             if (rank > count) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2245, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9648 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    4 091 131st term, sorts it ascending, and returns the nth element. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static size_t factorial(int n)
 {
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
             term -= factorial(k - 1);
             seq_cap += term;
         }
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 0;
 
         seq[seq_len++] = (seq_t)0;    /* a(1) = 0 */
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
                 permute(seq, &seq_len, digits, k, 0);
             }
         }
-        qsort(seq, seq_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(seq, seq_len, sizeof(seq_t), cmp_seq_t);
     }
     return seq[(size_t)(n - 1)];
 }

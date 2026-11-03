@@ -7,7 +7,8 @@
  * Formula:   a(2n-1)=A065091(n), a(2n)=A071904(n)
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* global cached data */
 static bool *is_prime = NULL;     /* sieve flags (true=prime) */
@@ -38,8 +40,8 @@ static void extend_to(idx_t new_limit)
 
     /* free previous data */
     if (is_prime) free(is_prime);
-    if (primes)  free(primes);
-    if (comps)   free(comps);
+    if (primes)  mem_free(primes);
+    if (comps)   mem_free(comps);
 
     /* allocate and initialise sieve */
     is_prime = (bool *)calloc((size_t)new_limit + 1, sizeof(bool));
@@ -63,8 +65,8 @@ static void extend_to(idx_t new_limit)
             ++c_cnt;          /* odd composite */
 
     /* allocate arrays */
-    primes = (seq_t *)malloc(p_cnt * sizeof(seq_t));
-    comps  = (seq_t *)malloc(c_cnt  * sizeof(seq_t));
+    primes = mem_new(seq_t, p_cnt);
+    comps  = mem_new(seq_t, c_cnt);
 
     /* fill arrays */
     size_t pi = 0, ci = 0;

@@ -10,14 +10,27 @@
  *            first digit to the end and add 14)
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/digit_len.h"   /* int digit_len(seq_t x); */
-#include "../utils/pow10.h"      /* seq_t pow10(idx_t e); */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t *cache = NULL;     /* memoized sequence values */
 static size_t cap   = 0;        /* allocated capacity */
@@ -29,7 +42,7 @@ static void ensure_capacity(size_t need)
     if (cap >= need) return;
     size_t new_cap = cap ? cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cap = new_cap;
 }
 
@@ -52,7 +65,7 @@ seq_t a(idx_t n)
     seq_t curr = cache[len - 1];
     for (idx_t idx = len; idx < n; ++idx) {
         /* digit count of current term */
-        int d = digit_len(curr);
+        int d = num_digits(curr);
         seq_t pow = pow10(d - 1);      /* 10^(d-1) */
         seq_t first = curr / pow;      /* most significant digit */
         seq_t without = curr % pow;    /* remaining digits */

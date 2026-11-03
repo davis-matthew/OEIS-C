@@ -8,11 +8,13 @@
  *            a(n) = mu(n) for n != 2; a(2) = -2
  * Range:     i8 n <= 800, i16 n <= 800, i32 n <= 800, i64 n <= 800,
  *            i128 n <= 800, big any n
+ * Validated: standard, pass, 108 terms through n = 791 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/mobius.h"
 
 seq_t a(idx_t n)

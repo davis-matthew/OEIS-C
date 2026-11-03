@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 994, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has77
+ * Validated: standard, pass, 62 terms through n = 985 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
    substring "77" but the number k+1 does not.  
    This implementation searches integers sequentially. */
 #include <stdbool.h>
-#include "../utils/has77.h"
+
+/* Return true if x has two consecutive digits 7 in base 8. */
+static bool has77(seq_t x)
+{
+    int prev = -1;
+    while (x > 0) {
+        int d = (int)(x % 8);
+        if (d == 7 && prev == 7)
+            return true;
+        prev = d;
+        x = x / 8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

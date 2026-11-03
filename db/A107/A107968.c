@@ -7,20 +7,21 @@
  * Formula:   a(n) = (n+1)*(n+2)^3*(n+3)^2*(n+4)*(3n+5)/1440
  * Range:     u8 none, u16 n <= 6, u32 n <= 32, u64 n <= 551, u128 n <= 1000,
  *            big any n
- * Helpers:   gcd_any
+ * Validated: standard, pass, 43 terms through n = 960 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_any.h"
+#include "../utils/gcd.h"
 
 static inline void reduce_mul(seq_t *result, seq_t *denom, seq_t factor)
 {
-    seq_t g = gcd_any(factor, *denom);
+    seq_t g = gcd(factor, *denom);
     factor /= g;
     *denom /= g;
     *result *= factor;
-    g = gcd_any(*result, *denom);
+    g = gcd(*result, *denom);
     *result /= g;
     *denom /= g;
 }

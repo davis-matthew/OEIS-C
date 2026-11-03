@@ -14,13 +14,25 @@
  *            = 10111010 a(10) = 10101010111 a(11) = 111011101010 a...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   str_to_seq
+ * Validated: standard, pass, 36 terms through n = 126 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/str_to_seq.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t str_to_seq(const char *s)
+{
+    seq_t r = 0;
+    while (*s) {
+        r = r * 10 + (seq_t)(*s - '0');
+        ++s;
+    }
+    return r;
+}
 
 /* Helper to convert a decimal string (containing only '0'..'9') to seq_t */
 
@@ -42,7 +54,7 @@ seq_t a(idx_t n) {
     /* Allocate and initialise the cache if this is the first call */
     if (cache == NULL) {
         cap = 20;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         for (size_t i = 0; i < 20; ++i)
             cache[i] = str_to_seq(base_str[i]);
         last = 19;
@@ -53,7 +65,7 @@ seq_t a(idx_t n) {
         size_t newcap = cap * 2;
         if (newcap < (size_t)n + 1)
             newcap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();  /* allocation failed */
         cache = tmp;
         cap = newcap;

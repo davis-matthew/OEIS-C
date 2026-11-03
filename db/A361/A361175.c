@@ -10,7 +10,8 @@
  *            of e
  * Range:     u8 n <= 171, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 83 terms through n = 9698 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
    provided utilities for arbitrary‑precision arithmetic. */
 
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* factor_u64() */
-#include "../utils/seq_pow.h"     /* seq_pow() */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
         uint64_t e = exps[i];
 
         /* sum over infinitary divisors of e */
-        seq_t sum = seq_pow(p, (idx_t)1);   /* d = 1 gives p^1 */
+        seq_t sum = ipow_idx(p, (idx_t)1);   /* d = 1 gives p^1 */
 
         /* factor the integer e itself */
         uint64_t ep[64];
@@ -70,7 +73,7 @@ seq_t a(idx_t n)
                     d *= qpow;   /* product of selected prime powers */
                 }
             }
-            sum += seq_pow(p, d);
+            sum += ipow_idx(p, d);
         }
 
         result *= sum;

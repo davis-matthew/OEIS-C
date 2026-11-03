@@ -9,15 +9,16 @@
  * Formula:   a(n) = (∑_{d|n} φ(2d) + ∑_{d|n, d odd} φ(d)·3^{n/d}) / (2n)
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 20, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   phi, pow3
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   pow3, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Utility functions from the build */
 #include <stdint.h>
-#include "../utils/phi.h"   /* phi(idx_t) -> seq_t */
-#include "../utils/pow3.h" /* pow3(idx_t) -> seq_t */
+#include "../utils/pow3.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -28,16 +29,16 @@ seq_t a(idx_t n)
             idx_t d2 = n / d;
 
             /* first divisor d1 */
-            sum += phi(2 * d1);
+            sum += totient(2 * d1);
             if (d1 & 1U) {                       /* d1 is odd */
-                sum += phi(d1) * pow3(n / d1);
+                sum += totient(d1) * pow3(n / d1);
             }
 
             /* second divisor d2, if distinct */
             if (d1 != d2) {
-                sum += phi(2 * d2);
+                sum += totient(2 * d2);
                 if (d2 & 1U) {                   /* d2 is odd */
-                    sum += phi(d2) * pow3(n / d2);
+                    sum += totient(d2) * pow3(n / d2);
                 }
             }
         }

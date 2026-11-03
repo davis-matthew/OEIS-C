@@ -13,6 +13,7 @@
  *            the row * c = (m+2)/2 // ceil((m+1)/2) * Then * if...
  * Range:     u8 n <= 222, u16 n <= 9126, u32 n <= 9126, u64 n <= 9126,
  *            u128 n <= 9126, big any n
+ * Validated: standard, pass, 103 terms through n = 9088 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

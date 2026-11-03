@@ -7,30 +7,32 @@
  * Formula:   a(n) = Sum_{k=0..n} (-1)^(n-k) * (Stirling1(n,k) * k!)^2
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 12, i128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate arrays for current and previous rows of Stirling numbers */
     size_t len = (size_t)(n + 1);
-    seq_t *prev = (seq_t*)calloc(len, sizeof(seq_t));
-    seq_t *cur  = (seq_t*)malloc  (len * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, len);
+    seq_t *cur  = mem_new(seq_t, len);
     if (!prev || !cur) {
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return 0;
     }
 
     /* Factorial array */
-    seq_t *fact = (seq_t*)calloc(len, sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, len);
     if (!fact) {
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return 0;
     }
     fact[0] = 1;
@@ -64,8 +66,8 @@ seq_t a(idx_t n)
         ans += prod;
     }
 
-    free(prev);
-    free(cur);
-    free(fact);
+    mem_free(prev);
+    mem_free(cur);
+    mem_free(fact);
     return ans;
 }

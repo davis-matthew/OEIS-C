@@ -9,14 +9,26 @@
  *            (k-1)!
  * Range:     u8 n <= 11, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   ratio_lt_two
+ * Validated: standard, pass, 65 terms through n = 94 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/ratio_lt_two.h"
+
+/* Helper that decides whether the inequality holds for given n and k.
+   It computes the logarithm of the product ∏(k+i)/(k-i) and checks
+   whether it is strictly less than log(2).  The function assumes k > n+1. */
+static bool ratio_lt_two(idx_t n, idx_t k) {
+    const long double LOG2 = logl(2.0L);
+    long double sum = 0.0L;
+    for (idx_t i = 1; i <= n + 1; ++i) {
+        sum += logl((long double)(k + i)) - logl((long double)(k - i));
+    }
+    return sum < LOG2;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n) {

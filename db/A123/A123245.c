@@ -11,7 +11,8 @@
  *            the rows 0,1,2,… produces the sequence
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* Standard headers – no stdio, only what is required for memory. */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Storage of all generated rows – rows[0] … rows[r] each an array   */
@@ -60,12 +62,12 @@ static void ensure_rows(size_t r_target)
     /* Generate missing rows one by one.                                 */
     for (size_t i = row_count; i <= r_target; ++i) {
         if (i == 0) {                          /* first row */
-            rows[0] = (seq_t *)malloc(sizeof(seq_t));
+            rows[0] = mem_new(seq_t, 1);
             rows[0][0] = (seq_t)1;
             continue;
         }
         if (i == 1) {                          /* second row */
-            rows[1] = (seq_t *)malloc(2 * sizeof(seq_t));
+            rows[1] = mem_new(seq_t, 2);
             rows[1][0] = (seq_t)1;
             rows[1][1] = (seq_t)1;
             continue;
@@ -73,7 +75,7 @@ static void ensure_rows(size_t r_target)
 
         /* General case: allocate row of length i+1.                     */
         size_t len = i + 1;
-        seq_t *ri = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *ri = mem_new(seq_t, len);
         if (!ri)
             abort();
 

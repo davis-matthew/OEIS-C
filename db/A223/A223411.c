@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define DIGIT_MAX 10          /* digits 0–9 */
 #define MAX_K 200             /* maximum number of row patterns */
@@ -136,7 +138,7 @@ seq_t a(idx_t n)
 
     /* compute consecutively up to n */
     for (idx_t cur = _cached_n + 1; cur <= n; ++cur) {
-        memset(_dp_next, 0, sizeof(_dp_next));
+        mem_set(_dp_next, 0, sizeof(_dp_next));
 
         for (size_t i = 0; i < _K; ++i) {
             seq_t val = _dp_prev[i];
@@ -152,7 +154,7 @@ seq_t a(idx_t n)
         for (size_t j = 0; j < _K; ++j) sum += _dp_next[j];
 
         _cache[(size_t)cur] = sum;
-        memcpy(_dp_prev, _dp_next, sizeof(_dp_prev));
+        mem_copy(_dp_prev, _dp_next, sizeof(_dp_prev));
     }
 
     _cached_n = n;

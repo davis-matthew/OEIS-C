@@ -7,8 +7,9 @@
  * Formula:   a(0) = 5; for n ≥ 1, the terms repeat with period 4: a(1)=1,
  *            a(2)=4, a(3)=1, a(4)=10, then a(5)=1, a(6)=4, a(7)=1, a(8)=10, …
  *            Thus a(n) = periodic array {(1,4,1,10)} for n>0
- * Range:     u8 n <= 9074, u16 n <= 9074, u32 n <= 9074, u64 n <= 9074,
- *            u128 n <= 9074, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 89 terms through n = 9074 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

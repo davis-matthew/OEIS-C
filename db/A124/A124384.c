@@ -9,13 +9,15 @@
  *            = 2
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     if (pow2_size < needed) {
         /* Allocate new storage.  Preserve existing values.   */
-        seq_t *tmp = (seq_t *)malloc(needed * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, needed);
         if (!tmp) return 0;  /* out‑of‑memory: simplest fallback */
 
         /* Copy old part (if any). */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
             tmp[i] = tmp[i-1] << 1;   /* exact multiplication by 2 */
 
         /* Replace old table. */
-        free(pow2);
+        mem_free(pow2);
         pow2 = tmp;
         pow2_size = needed;
     }

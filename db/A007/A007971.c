@@ -12,14 +12,28 @@
  *            O(n) recurrence from...
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 25, u64 n <= 46, u128 n <= 87,
  *            big any n
- * Helpers:   seq_is_fixed_width
+ * Validated: standard, pass, 46 terms through n = 928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -32,7 +46,7 @@ seq_t a(idx_t n) {
 
     if (cache == NULL) {
         cache_len = 128;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = 0;
         cache[1] = 1;
         cache[2] = 2;
@@ -42,9 +56,9 @@ seq_t a(idx_t n) {
     if (n >= cache_len) {
         idx_t new_len = cache_len;
         while (n >= new_len) new_len *= 2;
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         for (idx_t i = 0; i <= max_computed; i++) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
     }

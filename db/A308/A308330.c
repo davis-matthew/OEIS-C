@@ -7,22 +7,24 @@
  * Formula:   a(n) = n! * [x^n] exp(exp(n*x)/(1 - x) - 1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate space for c_k = k! * Σ_{r=0}^{k} n^r/r!   (k = 0..n) */
-    seq_t *c = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-    seq_t *B = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *B = mem_new(seq_t, (size_t)(n + 1));
     if (!c || !B) { /* out of memory – return 0 */
-        free(c);
-        free(B);
+        mem_free(c);
+        mem_free(B);
         return (seq_t)0;
     }
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = B[n];
-    free(c);
-    free(B);
+    mem_free(c);
+    mem_free(B);
     return result;
 }

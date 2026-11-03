@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 27, u128 n <= 57,
  *            big any n
- * Helpers:   subblock_ok
+ * Validated: standard, pass, 36 terms through n = 208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/subblock_ok.h"
+
+/* Test whether the 2×2 block with top row h1 and bottom row h2
+   satisfies the clockwise ≠ counter‑clockwise edge‑increase condition. */
+static bool subblock_ok(const int h1[4], const int h2[4], int col) {
+    int cw = 0, ccw = 0;
+
+    if (h1[col]     < h1[col + 1]) ++cw;
+    if (h1[col + 1] < h2[col + 1]) ++cw;
+    if (h2[col + 1] < h2[col])     ++cw;
+    if (h2[col]     < h1[col])     ++cw;
+
+    if (h1[col]     < h2[col])     ++ccw;
+    if (h2[col]     < h2[col + 1]) ++ccw;
+    if (h2[col + 1] < h1[col + 1]) ++ccw;
+    if (h1[col + 1] < h1[col])     ++ccw;
+
+    return cw != ccw;
+}
 
 /* A205818: number of (n+1)×4 arrays with entries 0..2 such that in every
    2×2 subblock the number of clockwise edge increases is different from

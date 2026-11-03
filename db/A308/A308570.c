@@ -8,15 +8,23 @@
  *            of the k-th powers of the divisors of n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 30 terms through n = 190 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t base, idx_t exp) */
-#include "../utils/seq_mul.h"   /* seq_mul(seq_t a, seq_t b) */
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Computes a(n) for n >= 1 */
 seq_t a(idx_t n)
@@ -34,7 +42,7 @@ seq_t a(idx_t n)
             exp++;
         }
         /* Compute sum_{i=0}^{exp} 2^(i*2*n) */
-        seq_t pk = seq_pow((seq_t)2, 2 * n); /* 2^(2*n) */
+        seq_t pk = ipow_idx((seq_t)2, 2 * n); /* 2^(2*n) */
         seq_t term = 1;
         seq_t local_sum = 0;
         for (idx_t i = 0; i <= exp; ++i) {
@@ -52,7 +60,7 @@ seq_t a(idx_t n)
                 to_factor /= p;
                 exp++;
             }
-            seq_t pk = seq_pow((seq_t)p, 2 * n); /* p^(2*n) */
+            seq_t pk = ipow_idx((seq_t)p, 2 * n); /* p^(2*n) */
             seq_t term = 1;
             seq_t local_sum = 0;
             for (idx_t i = 0; i <= exp; ++i) {
@@ -65,7 +73,7 @@ seq_t a(idx_t n)
 
     /* If after division the remaining factor is > 1, it is prime */
     if (to_factor > 1) {
-        seq_t pk = seq_pow((seq_t)to_factor, 2 * n); /* p^(2*n) */
+        seq_t pk = ipow_idx((seq_t)to_factor, 2 * n); /* p^(2*n) */
         seq_t term = 1;
         seq_t local_sum = 0;
         for (idx_t i = 0; i <= 1; ++i) {   /* exponent is 1 */

@@ -7,6 +7,7 @@
  * Formula:   a(0) = 2, a(1) = 6; for n >= 2, a(n) = 3*n^2
  * Range:     u8 n <= 9, u16 n <= 147, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 67 terms through n = 1878 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

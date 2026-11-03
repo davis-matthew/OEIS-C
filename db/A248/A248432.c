@@ -11,12 +11,14 @@
  *            third. Computed by a linear‑recurrence on pair states
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 28, u64 n <= 62, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Transition table for the pair state graph */
 static unsigned char next_vals[64][8];
@@ -84,7 +86,7 @@ static void ensure_cache(idx_t n) {
 
         /* Grow the cache array */
         idx_t new_len = cache_len + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         cache = tmp;
         cache[cache_len] = total;
         cache_len = new_len;

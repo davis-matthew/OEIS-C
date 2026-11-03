@@ -10,13 +10,15 @@
  *            starting from a single ON cell. The sequence is read row‑by‑row
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 7992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer floor square root for uint64_t */
 static idx_t floor_isqrt(idx_t n)
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
 
     /* Allocate buffers large enough for the final row. */
     idx_t max_len = 2 * r + 1;
-    seq_t *prev = (seq_t *)calloc(max_len, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(max_len, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, max_len);
+    seq_t *curr = mem_new(seq_t, max_len);
 
     prev[0] = 1;            /* row 0 */
     idx_t prev_len = 1;      /* number of cells in previous row */
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = prev[j];
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

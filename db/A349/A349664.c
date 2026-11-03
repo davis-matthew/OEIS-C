@@ -11,13 +11,33 @@
  *            with e_i exponents of odd primes in n
  * Range:     u8 n <= 419, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   odd_factor_product
+ * Validated: standard, pass, 91 terms through n = 9948 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/odd_factor_product.h"
+
+static seq_t odd_factor_product(seq_t odd_part) {
+    seq_t prod = 1;
+    uint64_t temp = (uint64_t)odd_part;
+    for (uint64_t p = 3; p * p <= temp; p += 2) {
+        if (temp % p == 0) {
+            int e = 0;
+            while (temp % p == 0) {
+                temp /= p;
+                ++e;
+            }
+            prod *= (seq_t)(4 * e + 1);
+        }
+    }
+    if (temp > 1) {
+        /* remaining prime factor with exponent 1 */
+        prod *= (seq_t)(4 * 1 + 1);
+    }
+    return prod;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;   /* safety; defined only for n ≥ 1 */

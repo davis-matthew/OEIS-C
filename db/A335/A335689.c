@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 11, u32 n <= 13, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
    The function returns a(n) = denominator of b(n)
    for all n >= 1. */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
         seq_t den   = num1 * den2;
 
         /* reduce to lowest terms */
-        seq_t g = seq_gcd(num, den);
+        seq_t g = gcd(num, den);
         num   /= g;
         den   /= g;
 

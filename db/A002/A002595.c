@@ -9,13 +9,19 @@
  *            popcount(n)) * (2n+1)/gcd(binomial(2n,n), 2n+1)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   a2595_vfact
+ * Validated: standard, pass, 39 terms through n = 189 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a2595_vfact.h"
+
+static uint64_t a2595_vfact(uint64_t m, uint64_t p) {
+    uint64_t v = 0;
+    while (m) { m /= p; v += m; }
+    return v;
+}
 
 seq_t a(idx_t n) {
     uint64_t m = 2 * (uint64_t)n + 1;

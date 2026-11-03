@@ -9,9 +9,10 @@
  *            antidiagonal mapping: find t such that T_{t-1} < n ≤ T_t (T_m =
  *            m(m+1)/2), let i = n - T_{t-1}, let k = t + 1 - i. Then a(n) is
  *            the exponent of the k‑th prime p_k in the factorisation of i
- * Range:     u8 n <= 9117, u16 n <= 9117, u32 n <= 9117, u64 n <= 9117,
- *            u128 n <= 9117, big any n
- * Helpers:   _prime_exp_u64
+ * Range:     u8 n <= 22155, u16 n <= 22155, u32 n <= 22155, u64 n <= 22155,
+ *            u128 n <= 22155, big any n
+ * Validated: standard, pass, 136 terms through n = 9117 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_prime_exp_u64.h"
+
+/* Compute exponent of prime p in number n */
+static seq_t _prime_exp_u64(unsigned long long n, unsigned p)
+{
+    seq_t exp = 0;
+    while (n % p == 0) {
+        ++exp;
+        n /= p;
+    }
+    return exp;
+}
 
 /* static state for prime generation */
 static unsigned _primes[2000];

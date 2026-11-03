@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 1136, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_sub61
+ * Validated: standard, pass, 57 terms through n = 9534 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,33 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_sub61.h"
+#include "../utils/mem.h"
+
+/* Test whether seq_t value x has the octal substring "61".
+   The routine extracts octal digits into a small buffer and scans
+   for the pattern.  The buffer size is ample for any value that
+   will occur for the tested n. */
+static bool has_sub61(seq_t x)
+{
+    if (x == 0) return false;
+
+    /* 256 digits suffices for all tested ranges (see comments). */
+    int digits[256];
+    int pos = 0;
+
+    while (x != (seq_t)0)
+    {
+        digits[pos++] = (int)(x % (seq_t)8);
+        x = x / (seq_t)8;
+    }
+
+    for (int i = pos - 1; i > 0; --i)
+    {
+        if (digits[i] == 6 && digits[i - 1] == 1)
+            return true;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;      /* memoized sequence values */
 static size_t cache_len = 0;     /* number of cached terms */
@@ -37,7 +64,7 @@ static void cache_append(seq_t val)
     if (cache_len == cache_cap)
     {
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
         {
             /* In a contest environment we could abort, but the

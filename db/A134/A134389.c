@@ -9,12 +9,14 @@
  *            4*(4-n)*a(n-2) - 8*(n-3)*a(n-3) (n>=4)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 25, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;          /* array of computed terms          */
@@ -30,7 +32,7 @@ static void grow_cache(idx_t need)
     while (new_cap <= need) new_cap <<= 1;   /* double until large enough */
 
     seq_t *old = cache;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                      /* allocation failed       */
     cache = tmp;
 
@@ -39,7 +41,7 @@ static void grow_cache(idx_t need)
         idx_t i;
         for (i = cache_cap; i < new_cap; ++i) {
 #ifdef __cplusplus
-            new (&cache[i]) seq_t();      /* placement new for C++    */
+            *(&cache[i]) = (seq_t)0;      /* placement new for C++    */
 #endif
         }
     }

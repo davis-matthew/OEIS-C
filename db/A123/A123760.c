@@ -7,11 +7,13 @@
  * Formula:   a(n) = (9 + 2*((n-1)%4)) * 2^((n-1)/4)
  * Range:     u8 n <= 20, u16 n <= 52, u32 n <= 116, u64 n <= 244,
  *            u128 n <= 500, big any n
+ * Validated: standard, pass, 63 terms through n = 9880 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

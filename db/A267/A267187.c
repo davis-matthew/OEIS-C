@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
         a(0)=0, a(1)=3, a(2)=1, a(3)=4, a(4)=0, a(5)=6
 */
 #include <stdlib.h>   /* malloc, realloc, exit, NULL */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* memoisation array */
 static size_t cache_capacity = 0;  /* allocated size */
@@ -33,7 +35,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = cache_capacity ? cache_capacity : 16;
     while (new_cap <= (size_t)n) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
     for (size_t i = cache_capacity; i < new_cap; ++i) cache[i] = 0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   is_composite_simple
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_composite_simple.h"
+
+/* Simple composite test: works for 64‑bit integers and below.
+   (All composites needed for n ≤ 10000 are far below 2³².) */
+static bool is_composite_simple(uint64_t x)
+{
+    if (x < 4) return false;          /* 0,1,2,3 are not composite */
+    if (x % 2 == 0) return true;      /* even numbers ≥4 are composite */
+    for (uint64_t d = 3; d * d <= x; d += 2)
+        if (x % d == 0) return true;  /* found a divisor → composite */
+    return false;                     /* no divisor found → prime */
+}
 
 /* Return the n‑th term (offset 1). */
 seq_t a(idx_t n)

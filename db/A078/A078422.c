@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n+1)^prime(n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   pow_seq_t
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* The pow_seq_t function performs exponentiation on the build’s
    arbitrary‑precision type 'seq_t'.  It is declared in the utility
    header pow_seq_t.h. */
-#include "../utils/pow_seq_t.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 #define MAX_PRIME_COUNT 20000   /* enough for n ≤ 10000 (prime(10001)=104743) */
 
@@ -84,5 +86,5 @@ seq_t a(idx_t n)
 
     /* Compute prime(n+1) ^ prime(n).  pow_seq_t handles arbitrary
        precision built‐ins. */
-    return pow_seq_t((seq_t)p_n1, (idx_t)p_n);
+    return ipow_idx((seq_t)p_n1, (idx_t)p_n);
 }

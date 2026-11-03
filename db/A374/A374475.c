@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 24, u16 n <= 3188, u32 n <= 9977, u64 n <= 9977,
- *            u128 n <= 9977, big any n
- * Helpers:   none
+ * Range:     u8 n <= 24, u16 n <= 3188, u32 n <= 12000, u64 n <= 12000,
+ *            u128 n <= 12000, big any n
+ * Validated: standard, pass, 90 terms through n = 9977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------*/
 /*  Global state for prime sieve and cache                   */
@@ -157,9 +159,9 @@ seq_t a(idx_t n)
         while (!good_k(next_k)) ++next_k;
 
         /* Append next_k to cache. */
-        seq_t *tmp = (seq_t*)realloc(cache, (cache_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (cache_size + 1));
         if (!tmp) { /* allocation error – give up */
-            free(cache); cache = NULL; cache_size = 0; return 0;
+            mem_free(cache); cache = NULL; cache_size = 0; return 0;
         }
         cache = tmp;
         cache[cache_size++] = (seq_t)next_k;

@@ -9,7 +9,8 @@
  *            number
  * Range:     u8 n <= 11, u16 n <= 157, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 65 terms through n = 9540 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 /* External helper: prime sieve up to a limit. */
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Static state for memoisation and prime data. */
 static seq_t *cache = NULL;
@@ -47,7 +49,7 @@ static void ensure_cache(idx_t n)
 {
     if (n < cache_cap) return;
     size_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(1);        /* allocation failure */
     /* Initialise new entries. */
     for (idx_t i = cache_cap; i < new_cap; ++i) new_cache[i] = 0;

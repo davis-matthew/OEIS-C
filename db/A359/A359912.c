@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64, sort_indices
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,22 @@
 #include <stdlib.h>
 
 /* helper prototypes from the build environment */
-#include "../utils/build_primes_upto.h"   /* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
-#include "../utils/factor_u64.h"          /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/sort_indices.h"
+#include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+
+/* insertion sort for small arrays; used to sort the indices */
+static void sort_indices(size_t *arr, size_t n)
+{
+    for (size_t i = 1; i < n; ++i) {
+        size_t key = arr[i];
+        size_t j = i;
+        while (j > 0 && arr[j - 1] > key) {
+            arr[j] = arr[j - 1];
+            --j;
+        }
+        arr[j] = key;
+    }
+}
 
 static uint64_t *prime_list = NULL;   /* prime_list[i] = (i+1)-th prime (1‑based index = i+1) */
 static size_t     prime_cnt  = 0;

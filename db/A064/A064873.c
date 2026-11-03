@@ -12,14 +12,24 @@
  *            the smallest k with n-k^2 NOT of that form
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   forbidden_three_sq
+ * Validated: standard, pass, 121 terms through n = 9331 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/forbidden_three_sq.h"
+
+/* helper: test if x ≥ 1 and is of the form 4^a(8b+7) */
+static bool forbidden_three_sq(idx_t x)
+{
+    if (x == 0U)          /* 0 is representable as 0^2+0^2+0^2 */
+        return false;
+    while ((x & 3U) == 0U) /* while x divisible by 4 */
+        x >>= 2;
+    return (x & 7U) == 7U; /* finally check mod 8 */
+}
 
 /* The required sequence -->
  * a(n) = minimal k with n - k^2 representable as sum of three squares

@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of partitions of n into parts 1, 5, 10, and 11
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Initialise cache with the base case a(0) = 1 */
         cache_size = 1;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();
         cache[0] = (seq_t)1;
         max_cached = 0;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Recompute the sequence up to n if we haven't reached it yet */
     if (n > max_cached) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) abort();
 
         /* initialise all entries to zero */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
         max_cached = n;

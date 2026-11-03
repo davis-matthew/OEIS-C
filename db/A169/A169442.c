@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* dynamic cache of computed terms */
 static seq_t *cache = NULL;      /* cache[i] stores a(i) */
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n)
         /* initial allocation */
         cache_cap = target + 1;
         if (cache_cap < 8) cache_cap = 8;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 1;            /* a(0) */
         cache_len = 1;
         sumPrev31 = cache[0];    /* for n=1 we need a(0) */
@@ -47,7 +49,7 @@ static void ensure_cache(idx_t n)
 
     /* grow capacity if needed */
     while (cache_cap <= target) cache_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
     if (!tmp) return;  /* allocation failure: abort silently (should not happen) */
     cache = tmp;
 

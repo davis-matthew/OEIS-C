@@ -11,7 +11,8 @@
  *            the coefficient of q^n in ∏_{i≥1} 1/(1-q^i)
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 27, u64 n <= 59, u128 n <= 123,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    incrementally, caching the full table up to the largest n requested. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,11 +38,11 @@ seq_t a(idx_t n)
     /* If a larger n is requested, recompute the entire tables up to n. */
     if (n > maxComputed) {
         /* Allocate fresh tables initialized to zero. */
-        seq_t *newG = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-        seq_t *newP = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        seq_t *newG = mem_new(seq_t, (size_t)(n + 1));
+        seq_t *newP = mem_new(seq_t, (size_t)(n + 1));
         if (!newG || !newP) {   /* allocation failure – return 0 (unlikely). */
-            if (newG) free(newG);
-            if (newP) free(newP);
+            if (newG) mem_free(newG);
+            if (newP) mem_free(newP);
             return 0;
         }
 
@@ -57,8 +59,8 @@ seq_t a(idx_t n)
         }
 
         /* Free old tables and update static references. */
-        if (dpG) free(dpG);
-        if (dpP) free(dpP);
+        if (dpG) mem_free(dpG);
+        if (dpP) mem_free(dpP);
         dpG = newG;
         dpP = newP;
         maxComputed = n;

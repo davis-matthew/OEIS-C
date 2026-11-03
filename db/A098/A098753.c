@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   second_last_nonzero
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/second_last_nonzero.h"
+#include "../utils/mem.h"
+
+/* Second‑to‑last digit must not be zero */
+static bool second_last_nonzero(seq_t x)
+{
+    if (x < 10) return true;            /* single‑digit numbers have no 2nd‑last digit */
+    return ((x / 10) % 10) != 0;
+}
 
 static seq_t *terms      = NULL;  /* stored sequence terms (also the used set) */
 static idx_t  terms_len  = 0;
@@ -29,7 +37,7 @@ static void append_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         terms_cap = (terms_cap ? terms_cap * 2 : 1);
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_len++] = val;
 }

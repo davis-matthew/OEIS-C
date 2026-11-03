@@ -9,13 +9,15 @@
  *            three 3's
  * Range:     u8 none, u16 n <= 37, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seqs   = NULL;        /* dynamic array of values */
 static size_t seq_cap = 0;          /* current capacity of the array */
@@ -26,7 +28,7 @@ static void append(seq_t val)
 {
     if (seq_len >= seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
-        seq_t *new_ptr = (seq_t *)realloc(seqs, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, seqs, new_cap);
         if (!new_ptr) exit(1);
 
         /* In C++ the pointer type may be a class; the cast keeps the

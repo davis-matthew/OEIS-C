@@ -11,12 +11,14 @@
  *            a(12)=1488, a(13)=1644
  * Range:     i8 n <= 3, i16 n <= 42, i32 n <= 42, i64 n <= 42, i128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: initialise the cache with known first values. */
 static void init_cache(void);
@@ -36,7 +38,7 @@ static void init_cache(void)
         return;
     /* Allocate space sufficient for indices 0..13. */
     cache_size = 14;
-    cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_size);
     if (!cache)
         exit(1); /* allocation failed */
 
@@ -64,7 +66,7 @@ static void ensure_cache(idx_t n)
         return;                      /* already computed */
     if (n + 1 > cache_size) {        /* grow array if necessary */
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)
             exit(1);
         cache = tmp;

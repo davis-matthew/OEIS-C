@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has90
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has90.h"
+#include "../utils/mem.h"
+
+/* Return true if the decimal representation of x contains the
+   substring "90" (i.e., a digit '9' immediately followed by a
+   digit '0'). */
+static bool has90(seq_t x)
+{
+    seq_t t = x;
+    while (t >= (seq_t)10) {
+        if ((t % (seq_t)100) == (seq_t)90) return true;
+        t /= (seq_t)10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +52,7 @@ seq_t a(idx_t n)
         if (has90((seq_t)cur) && !has90((seq_t)(cur - 1))) {
             if (len == cap) {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cap   = new_cap;

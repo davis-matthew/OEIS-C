@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define ROWS     7
 #define STATES  (1 << ROWS)           /* 128 */
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
 
     /* clear dp_prev for this call */
     for (int p = 0; p < STATES; ++p)
-        memset(dp_prev[p], 0, sizeof(dp_prev[p]));
+        mem_set(dp_prev[p], 0, sizeof(dp_prev[p]));
 
     /* initialise dp_prev for column 1 */
     for (int p = 0; p < STATES; ++p) {
@@ -68,7 +70,7 @@ seq_t a(idx_t n) {
     for (idx_t col = 2; col <= n; ++col) {
         /* clear dp_next */
         for (int p = 0; p < STATES; ++p)
-            memset(dp_next[p], 0, sizeof(dp_next[p]));
+            mem_set(dp_next[p], 0, sizeof(dp_next[p]));
 
         for (int prev = 0; prev < STATES; ++prev) {
             /* copy current row into subset array */
@@ -99,7 +101,7 @@ seq_t a(idx_t n) {
 
         /* swap dp_prev and dp_next */
         for (int p = 0; p < STATES; ++p)
-            memcpy(dp_prev[p], dp_next[p], sizeof(dp_prev[p]));
+            mem_copy(dp_prev[p], dp_next[p], sizeof(dp_prev[p]));
     }
 
     /* final answer: pending mask must be zero after the last column */

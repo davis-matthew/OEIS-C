@@ -13,13 +13,15 @@
  *            a(1)=126, a(2)=1792, a(3)=14336, a(4)=68712, a(5)=2490...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 22, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_max = 0;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
     /* Lazy initialization with the first 19 values */
     if (!cache_initialized) {
-        cache = (seq_t *)malloc((19 + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (19 + 1));
         if (!cache) return 0;   /* allocation failure */
         for (idx_t i = 1; i <= 19; ++i) cache[i] = init_vals[i];
         cache[0] = 0;     /* unused */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     if (n <= cache_max) return cache[n];
 
     /* Extend the cache to hold up to index n */
-    seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
     if (!tmp) return 0;   /* allocation failure */
     cache = tmp;
 

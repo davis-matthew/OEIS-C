@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, tabf
  * Formula:   not stated
- * Range:     u8 n <= 1465, u16 n <= 7866, u32 n <= 7866, u64 n <= 7866,
- *            u128 n <= 7866, big any n
- * Helpers:   divisor_count_u64, factor_u64, pow_seq
+ * Range:     u8 n <= 1465, u16 n <= 11214, u32 n <= 11214, u64 n <= 11214,
+ *            u128 n <= 11214, big any n
+ * Validated: standard, pass, 109 terms through n = 7866 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,11 @@
 #include <stddef.h>
 
 /* Helpers provided by the framework */
-#include "../utils/divisor_count_u64.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/num_divisors.h"
 
 /* Convert position (1‑based) to the corresponding divisor of m. */
 static seq_t nth_divisor(idx_t m, idx_t pos)
@@ -50,7 +53,7 @@ static seq_t nth_divisor(idx_t m, idx_t pos)
         idx      /= base;
 
         /* Multiply by p_i^exp.  pow_seq handles seq_t size (even arbitrary). */
-        result = result * pow_seq((seq_t)primes[i], (int)exp);
+        result = result * ipow_i32((seq_t)primes[i], (int)exp);
     }
     return result;
 }
@@ -64,7 +67,7 @@ seq_t a(idx_t n)
     idx_t cumulative = 0;
     idx_t m = 0;
     while (1) {
-        idx_t tau_next = divisor_count_u64(m + 1);
+        idx_t tau_next = num_divisors(m + 1);
         if (cumulative + tau_next >= n) break;
         cumulative += tau_next;
         ++m;

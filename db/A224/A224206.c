@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 31, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* State encoding:
    each row uses 3 bits: high 2 bits = value 0..3, low 1 bit = flag
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
     build_transitions();
 
     /* Initialise dp_prev for the first column. */
-    memset(dp_prev, 0, sizeof(dp_prev));
+    mem_set(dp_prev, 0, sizeof(dp_prev));
     for (int col = 0; col < 256; ++col) {
         int state = 0;
         int mult = 1;
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
 
     /* Process remaining columns. */
     for (idx_t step = 1; step < n; ++step) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int s = 0; s < 4096; ++s) {
             seq_t val = dp_prev[s];
             if (!val) continue;
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap dp arrays */
-        memcpy(dp_prev, dp_next, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_next, sizeof(dp_prev));
     }
 
     /* Sum all states to obtain the answer. */

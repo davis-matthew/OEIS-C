@@ -7,6 +7,7 @@
  * Formula:   a(n) = μ(n) * n^2 (μ = Möbius function)
  * Range:     i8 n <= 12, i16 n <= 181, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 77 terms through n = 8118 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,13 +12,26 @@
  *            is read by traversing the table T(n,k) along these...
  * Range:     u8 n <= 23, u16 n <= 38, u32 n <= 47, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   row_col_value
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>   /* for sqrt */
-#include "../utils/row_col_value.h"
+
+static seq_t
+row_col_value(idx_t row, idx_t col)
+{
+    seq_t v = (seq_t)row;          /* T(row,0) */
+    for (idx_t k = 1; k <= col; ++k) {
+        /* T(row,k) = T(row,k-1) + (T(row,k-1)/k)^2   (T(prev,k-1) is divisible by k) */
+        seq_t s = v / k;           /* v is guaranteed divisible by k  */
+        seq_t inc = s * s;
+        v += inc;
+    }
+    return v;
+}
 
 static idx_t
 find_diagonal(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   _index_to_rowcol
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,25 @@
    arbitrary‑precision integer class). */
 
 #include <stdlib.h>
-#include "../utils/_index_to_rowcol.h"
+
+/* Convert a linear index into row and column (both 1‑based) in the triangle */
+static void _index_to_rowcol(idx_t n, idx_t *row, idx_t *col)
+{
+    if (n == 0) {
+        *row = 0;
+        *col = 0;
+        return;
+    }
+    idx_t r = 1;
+    idx_t sum = 1;                          /* 1+2+…+r  */
+    while (sum < n) {
+        ++r;
+        sum += r;
+    }
+    idx_t prev_sum = sum - r;               /* entries up to row r-1 */
+    *row = r;
+    *col = n - prev_sum;                    /* 1‑based column in row r */
+}
 
 /* Portable allocation macros for C and C++ */
 #ifdef __cplusplus

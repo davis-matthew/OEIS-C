@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: count divisors of n.  Result fits in seq_t for all n<=SIEVE_LIMIT. */
 static seq_t divisor_count(idx_t n)
@@ -54,7 +56,7 @@ static void build_terms(void)
 
     /* Allocate an initial buffer for the terms. */
     size_t cap = 32;
-    terms = (seq_t *)malloc(cap * sizeof(seq_t));
+    terms = mem_new(seq_t, cap);
     if (!terms) {
         return;
     }
@@ -67,9 +69,9 @@ static void build_terms(void)
         if (numer % denom == 0) {
             if (terms_size == cap) {
                 cap <<= 1;                          /* grow buffer */
-                seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, cap);
                 if (!tmp) {
-                    free(terms);
+                    mem_free(terms);
                     terms = NULL;
                     terms_size = 0;
                     return;
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
            portable across builds. */
         const idx_t LIMIT = 2000;
         size_t cap = 32;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         if (!terms) {
             terms_size = 0;
         } else {
@@ -127,7 +129,7 @@ seq_t a(idx_t n)
                 if (numer % denom == 0) {
                     if (terms_size == cap) {
                         cap <<= 1;
-                        seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, terms, cap);
                         if (!tmp) break;
                         terms = tmp;
                     }

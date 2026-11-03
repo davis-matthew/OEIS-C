@@ -9,7 +9,8 @@
  * Formula:   a(n) = (tau(A147516(n)) - 1)^3
  * Range:     u8 n <= 6, u16 n <= 30, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stddef.h>          /* for size_t */
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Small array of the first 32 odd primes.                           */
@@ -117,7 +119,7 @@ static void a_cache_reserve(size_t need)
     if (need > a_cache_cap) {
         size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 64;
         while (new_cap < need) new_cap *= 2;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cache_cap = new_cap;
     }
 }
@@ -132,7 +134,7 @@ static void generate_terms(idx_t target)
         heap_cap = 64;
         heap = (Node **)malloc(heap_cap * sizeof(Node *));
         heap_size = 0;
-        Node *root = (Node *)malloc(sizeof(Node));
+        Node *root = mem_new(Node, 1);
         root->val = (seq_t)1;
         root->len = 0;
         heap_push(root);
@@ -159,7 +161,7 @@ static void generate_terms(idx_t target)
 
             /* Generate children: increment last exponent or add new prime. */
             if (cur->len == 0) {   /* start from the first odd integer (3) */
-                Node *child = (Node *)malloc(sizeof(Node));
+                Node *child = mem_new(Node, 1);
                 child->len = 1;
                 child->exps[0] = 1;
                 child->val = cur->val * (seq_t)odd_primes[0];
@@ -168,7 +170,7 @@ static void generate_terms(idx_t target)
                 /* Child 1: increase last exponent if still non‑increasing. */
                 uint8_t last = cur->exps[cur->len - 1];
                 if (cur->len == 1 || (last + 1) <= cur->exps[cur->len - 2]) {
-                    Node *child = (Node *)malloc(sizeof(Node));
+                    Node *child = mem_new(Node, 1);
                     child->len = cur->len;
                     memcpy(child->exps, cur->exps, cur->len);
                     child->exps[cur->len - 1] = last + 1;
@@ -176,7 +178,7 @@ static void generate_terms(idx_t target)
                     heap_push(child);
                 }
                 /* Child 2: append a new prime with exponent 1. */
-                Node *child = (Node *)malloc(sizeof(Node));
+                Node *child = mem_new(Node, 1);
                 child->len = cur->len + 1;
                 memcpy(child->exps, cur->exps, cur->len);
                 child->exps[cur->len] = 1;
@@ -184,7 +186,7 @@ static void generate_terms(idx_t target)
                 heap_push(child);
             }
 
-            free(cur);   /* current node processed */
+            mem_free(cur);   /* current node processed */
         }
     }
 }

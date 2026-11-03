@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*a(n-1) - 18*(n-1)*a(n-2) with a(0) = 1, a(1) = 2
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 10, i64 n <= 18, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Allocate the initial two values if the cache is empty */
     if (cache_len == 0) {
         cache_len = 2;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0;          /* out‐of‑memory guard */
         cache[0] = 1;
         cache[1] = 2;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         idx_t new_len = n + 1;
         /* Reallocate with the larger size */
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_len);
         if (!new_cache) return 0;      /* out‑of‑memory guard */
         /* Keep the original pointer for the case realloc fails */
         cache = new_cache;

@@ -9,13 +9,15 @@
  *            (the kernel equals k*(k-1)*(k-2)*(k-3) and vanishes for k < 4)
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 8, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are provided by the build system. */
 extern seq_t a(idx_t n);
@@ -30,13 +32,13 @@ seq_t a(idx_t n)
     /* expand cache as needed */
     if ((size_t)n+1 > cached) {
         size_t newsize = (size_t)n+1;
-        seq_t *newcache = (seq_t*)malloc(newsize * sizeof(seq_t));
+        seq_t *newcache = mem_new(seq_t, newsize);
         if (!newcache) return (seq_t)0; /* insufficient memory, abort */
 
         /* copy previous values */
         if (cached > 0) {
-            memcpy(newcache, cache, cached * sizeof(seq_t));
-            free(cache);
+            mem_copy(newcache, cache, cached * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = newcache;
 

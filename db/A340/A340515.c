@@ -9,7 +9,8 @@
  *            extra(2,n) = ⌊n/4⌋ extra(p>2,n) = ⌊(n-1)/(p^2-1)⌋ (p odd prime)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   build_primes_upto, pow_int, seq_mul
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,15 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_int.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -59,7 +66,7 @@ seq_t a(idx_t n)
         idx_t total_exp = e_lcm + extra;
 
         /* multiply the prime power into result   */
-        seq_t term = pow_int((seq_t)p, total_exp);
+        seq_t term = ipow_idx((seq_t)p, total_exp);
         result = seq_mul(result, term);
     }
 

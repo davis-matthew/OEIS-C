@@ -12,12 +12,14 @@
  *            iteratively, memoising all lower values
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 45, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 2221 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- memoisation storage ---------- */
 static seq_t *a_arr = NULL;       /* a-values, 1‑based, a_arr[0] unused   */
@@ -33,7 +35,7 @@ static void grow_array(seq_t **arr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t newCap = (*cap == 0) ? 1 : *cap;
         while (newCap < needed) newCap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newCap);
         if (!tmp) exit(EXIT_FAILURE);
         /* initialise the newly allocated part */
         for (size_t i = *cap; i < newCap; ++i) tmp[i] = (seq_t)0;

@@ -9,6 +9,7 @@
  * Formula:   a(1)=0, a(2)=1, a(3)=2, a(n)=n*(n-1)/2 for all n>=4
  * Range:     u8 n <= 13, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

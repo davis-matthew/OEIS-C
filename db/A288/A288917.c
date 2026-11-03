@@ -11,13 +11,15 @@
  *            are given below
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 19, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int coeff[26] = {
     0,   /* 0    */ 0,   /* 1    */
@@ -83,7 +85,7 @@ seq_t a(idx_t n) {
 
     if (!cache) {              /* first allocation */
         size_t init_size = 26;          /* indices 0..25 inclusive */
-        cache = (seq_t*)malloc(init_size * sizeof(seq_t));
+        cache = mem_new(seq_t, init_size);
         if (!cache) abort();
         for (idx_t i = 0; i <= 23; ++i)
             cache[i] = init_vals[i];
@@ -99,7 +101,7 @@ seq_t a(idx_t n) {
     /* Grow cache to accommodate up to n */
     size_t needed = (size_t)n + 1;          /* indices 0..n */
     if (needed > (size_t)max_cached + 1) {
-        seq_t *tmp = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();
         cache = tmp;
     }

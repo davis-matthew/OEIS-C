@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq_t
+ * Validated: standard, pass, 57 terms through n = 8376 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_seq_t.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* --------------------------------------------------------------------- */
 /* Static storage for intermediate values and the final cache             */
@@ -80,7 +92,7 @@ static void build_cache(void)
     }
 
     /* Sort all generated values */
-    qsort(temp_storage, temp_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(temp_storage, temp_len, sizeof(seq_t), cmp_seq_t);
 
     /* Copy unique values into the final cache */
     cache_len = 0;

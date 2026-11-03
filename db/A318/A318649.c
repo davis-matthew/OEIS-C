@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac
  * Formula:   not stated
- * Range:     u8 n <= 14, u16 n <= 80, u32 n <= 5102, u64 n <= 9185,
- *            u128 n <= 9185, big any n
- * Helpers:   none
+ * Range:     u8 n <= 14, u16 n <= 80, u32 n <= 5102, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 82 terms through n = 9185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for the computed values */
 static seq_t *f_num   = NULL;   /* numerator of f(n) */
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
     if (n < f_cap) return;
     size_t new_cap = f_cap ? f_cap << 1 : 1;
     while (new_cap <= n) new_cap <<= 1;
-    f_num   = (seq_t *)   realloc(f_num,   new_cap * sizeof(seq_t));
+    f_num   = mem_resize(seq_t, f_num, new_cap);
     f_exp   = (int  *)    realloc(f_exp,   new_cap * sizeof(int));
     f_seen  = (unsigned char *)realloc(f_seen, new_cap * sizeof(unsigned char));
     for (size_t i = f_cap; i < new_cap; ++i) f_seen[i] = 0;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = C(83,n) (row 83 of Pascal's triangle)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 7, u64 n <= 20, u128 n <= 83,
  *            big any n
+ * Validated: full, pass, 84 terms through n = 83 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

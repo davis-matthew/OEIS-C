@@ -9,7 +9,8 @@
  *            / 3
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 9, u64 n <= 15, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow, pow2
+ * Validated: partial, pass, 16 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 /* This implementation works for all n >= 6. It handles the negative exponent
    case (n=6) by canceling with the product (n-3)*(n-4)*(n-5). */
 
-#include "../utils/pow2.h"   /* pow2(idx_t exp) -> 2^exp */
-#include "../utils/big_pow.h"/* big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
        with the product below. */
     seq_t pow_n = (seq_t)1;
     if (n >= 7)
-        pow_n = big_pow(N, (seq_t)(n - 7));
+        pow_n = ipow(N, (seq_t)(n - 7));
 
     /* (n-3)*(n-4)*(n-5) */
     seq_t prod = (N - (seq_t)3) * (N - (seq_t)4) * (N - (seq_t)5);

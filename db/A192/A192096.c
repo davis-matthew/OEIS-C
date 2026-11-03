@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2 * coefficient of x^n in ∏_{k≥1} (1 + 2·x^k + x^{2k})
  * Range:     u8 n <= 10, u16 n <= 33, u32 n <= 109, u64 n <= 379,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,17 +17,18 @@
 /*              (equivalently, 2 · the coefficient of x^n in ∏_{k≥1} (1 + x^k)^2) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     size_t sz = (size_t)(n + 1);
     /* dp[j]  : coefficient of x^j after processing factors for all k < current k */
     /* next[j] : coefficient of x^j after processing current k */
-    seq_t *dp   = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, sz);
+    seq_t *next = mem_new(seq_t, sz);
     if (!dp || !next) {
-        free(dp);
-        free(next);
+        mem_free(dp);
+        mem_free(next);
         return (seq_t)0;                     /* allocation failure */
     }
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = (seq_t)2 * dp[n];           /* final external factor 2 */
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

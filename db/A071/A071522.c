@@ -9,7 +9,8 @@
  *            root modulo p (p = 2 counts as good, p = 5 does not)
  * Range:     u8 n <= 24, u16 n <= 2589, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*---------- helper: modular exponentiation for arbitrary seq_t ----------*/
 static seq_t mod_pow_seq(seq_t base, uint64_t exp, seq_t mod)
@@ -65,7 +67,7 @@ static void good_reserve(size_t need)
     if (need <= good_cap) return;
     size_t new_cap = good_cap ? good_cap * 2 : 8;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(good_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, good_vals, new_cap);
     if (!tmp) abort();
     good_vals = tmp;
     good_cap  = new_cap;

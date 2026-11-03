@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Initial values for n = 0 .. 10 */
 static const seq_t _init[11] = {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Ensure cache is initialized up to at least 11 elements. */
     if (_cache_len == 0) {
         _cache_len = 11;
-        _cache = (seq_t*)malloc(_cache_len * sizeof(seq_t));
+        _cache = mem_new(seq_t, _cache_len);
         if (!_cache) abort();          /* out of memory */
         for (idx_t i = 0; i < 11; ++i) {
             _cache[i] = _init[i];
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Expand cache if required. */
     if ((idx_t)_cache_len <= n) {
         size_t new_len = (size_t)n + 1;
-        seq_t *new_cache = (seq_t*)realloc(_cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, _cache, new_len);
         if (!new_cache) abort();        /* out of memory */
         _cache = new_cache;
         /* Compute new entries */

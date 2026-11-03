@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   pow4
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,19 @@
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
-#include "../utils/pow4.h"   /* provides seq_t pow4(idx_t exp) */
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 /* Static cache for memoisation */
 static seq_t *cache      = NULL;   /* array holding a(0)..a(max) */
@@ -36,7 +48,7 @@ static void extend_cache(idx_t n)
         return;
 
     size_t new_size = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)        /* allocation failed – let the caller handle it */
         return;
 

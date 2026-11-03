@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 /* static cache of already generated terms */
 static seq_t *cache = NULL;          /* array of generated terms      */
@@ -69,14 +71,14 @@ static bool is_perfect_power(seq_t x)
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-    seq_t *tmp = (seq_t*)calloc(new_cap, sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp)
         return;                      /* allocation failed – keep old cache */
 
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i)
             tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = new_cap;

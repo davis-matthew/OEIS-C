@@ -10,12 +10,14 @@
  *            a(n)=∑_{m=1..n}∑_{t} (n!/(m!t!))·C(m,j)·3ᵗ + 3ⁿ (m=0 case)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static size_t fac_cap = 0;
 static seq_t *fac = NULL;   /* factorials 0! … */
@@ -27,14 +29,14 @@ static seq_t *pow3 = NULL;  /* powers 3⁰ … */
 static void ensure_factorial(idx_t n) {
     if (fac_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_fac = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_fac = mem_new(seq_t, new_cap);
         if (!new_fac) exit(1); /* out of memory */
         for (size_t i = 0; i < fac_cap; ++i) new_fac[i] = fac[i];
         for (size_t i = fac_cap; i < new_cap; ++i) {
             if (i == 0) new_fac[i] = 1;
             else new_fac[i] = new_fac[i-1] * (seq_t)((idx_t)i);
         }
-        free(fac);
+        mem_free(fac);
         fac = new_fac;
         fac_cap = new_cap;
     }
@@ -44,14 +46,14 @@ static void ensure_factorial(idx_t n) {
 static void ensure_pow3(idx_t n) {
     if (pow3_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_pow3 = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_pow3 = mem_new(seq_t, new_cap);
         if (!new_pow3) exit(1); /* out of memory */
         for (size_t i = 0; i < pow3_cap; ++i) new_pow3[i] = pow3[i];
         for (size_t i = pow3_cap; i < new_cap; ++i) {
             if (i == 0) new_pow3[i] = 1;
             else new_pow3[i] = new_pow3[i-1] * (seq_t)3;
         }
-        free(pow3);
+        mem_free(pow3);
         pow3 = new_pow3;
         pow3_cap = new_cap;
     }

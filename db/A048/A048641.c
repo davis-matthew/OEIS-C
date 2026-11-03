@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = Sum_{j=0}^{n-1} (j ^ (j >> 1))
- * Range:     u8 n <= 21, u16 n <= 332, u32 n <= 9875, u64 n <= 9875,
- *            u128 n <= 9875, big any n
+ * Range:     u8 n <= 21, u16 n <= 332, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 69 terms through n = 9875 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

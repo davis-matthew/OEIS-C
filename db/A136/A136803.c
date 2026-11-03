@@ -10,6 +10,7 @@
  *            then sorting the distinct values
  * Range:     u8 n <= 128, u16 n <= 129, u32 n <= 129, u64 n <= 129,
  *            u128 n <= 129, big any n
+ * Validated: full, pass, 129 terms through n = 129 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

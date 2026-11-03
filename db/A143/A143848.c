@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 6, i32 n <= 7, i64 n <= 8, i128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * a(n) = Re(x(n)).  a(1)=1, a(2)=1, a(3)=0, a(4)=–9, a(5)=80, … */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for real and imaginary parts (indices 0…n, 0 unused) */
 static seq_t *re_cache = NULL;  /* real part */
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
      * slots so that indices 1…n are valid (index 0 is unused). */
     if (cap < n + 1) {
         size_t new_cap = (size_t)(n + 1);
-        re_cache = (seq_t *)realloc(re_cache, new_cap * sizeof(seq_t));
-        im_cache = (seq_t *)realloc(im_cache, new_cap * sizeof(seq_t));
+        re_cache = mem_resize(seq_t, re_cache, new_cap);
+        im_cache = mem_resize(seq_t, im_cache, new_cap);
         if (!re_cache || !im_cache)
             return (seq_t)0;                /* allocation failure handled elsewhere */
 

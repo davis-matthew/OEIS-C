@@ -9,11 +9,14 @@
  *            binomial(n-6*k,2*k)
  * Range:     u8 n <= 18, u16 n <= 31, u32 n <= 57, u64 n <= 109,
  *            u128 n <= 212, big any n
+ * Validated: standard, pass, 62 terms through n = 950 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stddef.h>
 #include "../utils/binomial.h"
 #include <stddef.h>
 

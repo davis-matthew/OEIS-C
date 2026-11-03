@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state for memoised generation */
 static seq_t *seq      = NULL;     /* concatenated sequence           */
@@ -43,10 +45,10 @@ static bool initialized = false;
 static void ensure_seq_capacity(size_t new_cap)
 {
     if (new_cap > seq_cap) {
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (new_arr == NULL) abort();
         for (size_t i = 0; i < seq_len; ++i) new_arr[i] = seq[i];
-        free(seq);
+        mem_free(seq);
         seq = new_arr;
         seq_cap = new_cap;
     }
@@ -64,7 +66,7 @@ static bool in_prevprev(seq_t v)
 static void init_sequence(void)
 {
     seq_cap = 64;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq_len = 0;
 
     /* Row 1 */
@@ -88,12 +90,12 @@ static void init_sequence(void)
 
     /* Store row 3 and 4 for future rows. */
     len_prevprev = 2;
-    row_prevprev = (seq_t *)malloc(len_prevprev * sizeof(seq_t));
+    row_prevprev = mem_new(seq_t, len_prevprev);
     row_prevprev[0] = (seq_t)2;
     row_prevprev[1] = (seq_t)1;
 
     len_prev = 3;
-    row_prev = (seq_t *)malloc(len_prev * sizeof(seq_t));
+    row_prev = mem_new(seq_t, len_prev);
     row_prev[0] = (seq_t)2;
     row_prev[1] = (seq_t)3;
     row_prev[2] = (seq_t)1;
@@ -112,7 +114,7 @@ static void generate_until(idx_t n)
             if (in_prevprev(row_prev[i])) ++matches;
 
         size_t new_len = len_prev + matches;
-        seq_t *new_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
         if (new_row == NULL) abort();
 
         size_t j = 0;
@@ -132,7 +134,7 @@ static void generate_until(idx_t n)
             seq[seq_len++] = new_row[i];
 
         /* Advance row buffers. */
-        free(row_prevprev);
+        mem_free(row_prevprev);
         row_prevprev = row_prev;
         len_prevprev = len_prev;
 

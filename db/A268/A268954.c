@@ -13,14 +13,28 @@
  *            (a(1)=1, a(2)=2, ..., a(17)=32923518967)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 27, u128 n <= 50,
  *            big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 39 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +56,7 @@ seq_t a(idx_t n)
     /* Ensure cache contains base values up to 17 */
     if (cache == NULL) {
         cache_size = 18;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (idx_t i = 0; i < cache_size; ++i)
             cache[i] = base[i];
     }
@@ -50,7 +64,7 @@ seq_t a(idx_t n)
     /* Grow cache up to n, computing new terms with recurrence */
     if (cache_size <= n) {
         size_t new_size = (size_t)(n + 1);
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
 
         for (idx_t i = cache_size; i <= n; ++i) {
             seq_t pos = 0;

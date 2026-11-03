@@ -9,15 +9,29 @@
  *            the term read from the triangle by rows
  * Range:     u8 n <= 11, u16 n <= 30, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binomial, get_row_col
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) */
-#include "../utils/get_row_col.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Convert a linear index n (starting at 1) to triangle row r and column k. */
+static inline void get_row_col(idx_t n, idx_t *row, idx_t *col)
+{
+    idx_t r = 1;
+    idx_t total = 1;
+    while (n > total) {
+        ++r;
+        total += r;
+    }
+    *row = r;
+    *col = n - (total - r);   /* 1‑based column */
+}
 
 static seq_t **c_tbl = NULL;          /* unsigned Stirling numbers of first kind c(n,k) */
 static idx_t  c_cap = 0;
@@ -38,7 +52,7 @@ static void ensure_c_up_to(idx_t n)
     c_tbl = new_tbl;
 
     for (idx_t i = c_cap; i <= n; ++i) {
-        c_tbl[i] = (seq_t *)calloc(i + 1, sizeof(seq_t));
+        c_tbl[i] = mem_new(seq_t, i + 1);
         if (i == 0) {
             c_tbl[0][0] = (seq_t)1;
         } else {
@@ -61,7 +75,7 @@ static void ensure_fac_up_to(idx_t n)
     idx_t new_cap = fac_cap ? fac_cap * 2 : 128;
     if (new_cap < n + 1) new_cap = n + 1;
 
-    seq_t *new_fac = (seq_t *)realloc(fac, new_cap * sizeof(seq_t));
+    seq_t *new_fac = mem_resize(seq_t, fac, new_cap);
     for (idx_t i = fac_cap; i <= n; ++i) {
         if (i == 0) {
             new_fac[0] = (seq_t)1;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         /* auxiliary arrays */
         primeUsed = (bool*)calloc(primeCnt, sizeof(bool));
         diffUsed  = (bool*)calloc(DIFFSZ, sizeof(bool));
-        seq       = (seq_t*)calloc(MAXN + 1, sizeof(seq_t));
+        seq       = mem_new(seq_t, MAXN + 1);
 
         /* initialise first term */
         seq[1] = 2;
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;            /* offset starts at 1 */
     if (n > MAXN)
     {
-        seq = (seq_t*)realloc(seq, (n + 1) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (n + 1));
     }
 
     /* memoisation: compute up to n ------------------------------------------- */

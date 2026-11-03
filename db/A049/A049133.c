@@ -9,15 +9,17 @@
  *            binomial(n+1 , k) * binomial(2n-2k , n-3k). The function caches
  *            previously computed values so that calls in any order are fast
  *            and each term is evaluated exactly
- * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 15, i64 n <= 29, i128 n <= 29,
+ * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 18, i64 n <= 29, i128 n <= 29,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (n > cache_size) {
         idx_t new_size = n + 1;      /* indices 0..n, index 0 unused */
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         if (cache == NULL) exit(1);  /* minimal error handling */
 
         /* Initialize base cases if not already set */

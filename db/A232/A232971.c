@@ -7,7 +7,8 @@
  * Formula:   a(n) = 7*a(n-1) - 10*a(n-2) - a(n-3) + a(n-4) (n ≥ 4)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Initial values: a(0)=1, a(1)=2, a(2)=7, a(3)=29 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache     = NULL;   /* cached sequence values */
 static size_t  cache_cap = 0;     /* allocated capacity */
@@ -30,7 +32,7 @@ ensure_cache(idx_t n)
     /* If cache is uninitialised, create it with first four terms */
     if (cache_len == 0) {
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) {
             /* In a real program you might handle this more gracefully */
             exit(EXIT_FAILURE);
@@ -55,7 +57,7 @@ ensure_cache(idx_t n)
         /* Expand cache if necessary */
         if ((size_t)cache_len >= cache_cap) {
             cache_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (!tmp) {
                 exit(EXIT_FAILURE);
             }

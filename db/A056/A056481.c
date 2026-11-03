@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 34, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   g
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/g.h"
+
+/* Helper: g(k) = 2^{⌈k/2⌉–1} – 1, for k ≥ 1. */
+static seq_t g(idx_t k)
+{
+    idx_t exp = (k + 1) / 2;               /* ceil(k/2) */
+    seq_t val = (seq_t)1;
+    /* compute 2^{exp-1} */
+    for (idx_t i = 1; i < exp; ++i)
+        val *= (seq_t)2;
+    val -= (seq_t)1;                       /* 2^{exp-1} – 1 */
+    return val;
+}
 
 /* Return the Möbius value of m: 1, -1, or 0. */
 static int mobius(idx_t m)

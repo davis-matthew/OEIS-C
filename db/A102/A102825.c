@@ -13,12 +13,14 @@
  *            the recurrence a(n) = min( 3*cnt[0], 3*cnt[1] + 1, 3*cn...
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *sequence   = NULL;   /* array of generated terms   */
 static idx_t   capacity  = 0;      /* allocated array capacity  */
@@ -46,10 +48,10 @@ static void ensure_capacity(idx_t needed)
     if (needed <= capacity) return;
     idx_t new_cap = (capacity == 0) ? 16 : capacity * 2;
     while (new_cap <= needed) new_cap *= 2;
-    seq_t *new_seq = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_seq = mem_new(seq_t, new_cap);
     if (!new_seq) abort(); /* out of memory */
     for (idx_t i = 0; i < size; ++i) new_seq[i] = sequence[i];
-    free(sequence);
+    mem_free(sequence);
     sequence = new_seq;
     capacity = new_cap;
 }
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         if (cand2 < next) next = cand2;
 
         /* store the term */
-        ensure_capacity(size);
+        ensure_capacity(size + 1);             /* room for index size */
         sequence[size] = next;
 
         /* update counts with the new term's digits */

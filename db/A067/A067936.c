@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   rep_mod_n
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
    cache so that any n can be requested in arbitrary order. */
 
 #include <stdlib.h>
-#include "../utils/rep_mod_n.h"
+
+/* Compute rep(m) mod m, where rep(m)=1,11,111,...   */
+static idx_t rep_mod_n(idx_t m)
+{
+    idx_t r = 0;
+    for (idx_t i = 0; i < m; ++i) {
+        r = (r * 10 + 1) % m;
+    }
+    return r;
+}
 
 /* static cache of terms: terms[i] == a(i+1) for i>=0 */
 static idx_t *terms = NULL;   /* array of n's that satisfy the condition */

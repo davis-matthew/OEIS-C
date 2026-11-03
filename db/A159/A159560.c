@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 102, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes_uint64
+ * Validated: standard, pass, 81 terms through n = 9833 (2026-11-03)
+ * Helpers:   mem, omega_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes_uint64.h"
+#include "../utils/omega_u64.h"
+#include "../utils/mem.h"
 
 /* --- Memoisation infrastructure ------------------------------------- */
 
@@ -49,7 +51,7 @@ ensure_cache(idx_t up_to)
     size_t new_cap = cache_cap ? cache_cap : 64;
     while (new_cap <= (size_t)up_to) new_cap <<= 1;
     if (new_cap != cache_cap) {
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         /* initialise new slots to 0 – safe for all seq_t types */
         for (size_t i = cache_cap; i < new_cap; ++i) cache[i] = 0;
         cache_cap = new_cap;
@@ -62,11 +64,11 @@ ensure_cache(idx_t up_to)
             continue;
         }
         /* ω(i) is the target value. */
-        seq_t target = count_distinct_primes_uint64(i);
+        seq_t target = omega_u64(i);
 
         /* Scan upwards from a(i-1)+1 until a matching ω is found. */
         idx_t m = (idx_t)cache[i - 1] + 1;
-        while (count_distinct_primes_uint64(m) != target) {
+        while (omega_u64(m) != target) {
             ++m;
         }
         cache[i] = (seq_t)m;

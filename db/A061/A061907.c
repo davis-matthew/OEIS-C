@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 15, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   f_of, orbit_has_four
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,47 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/f_of.h"
-#include "../utils/orbit_has_four.h"
+#include "../utils/mem.h"
+
+/* Compute f(x) = sum of digits of x². */
+static seq_t f_of(seq_t x)
+{
+    seq_t sq = x * x;
+    seq_t s = 0;
+    while (sq != 0) {
+        s += sq % 10;
+        sq /= 10;
+    }
+    return s;
+}
+
+/* Return true iff the orbit of start under f contains exactly
+   four distinct values. */
+static bool orbit_has_four(seq_t start)
+{
+    /* At most five distinct values may be seen. */
+    seq_t seen[5];
+    int distinct = 0;
+    seq_t curr = start;
+
+    while (true) {
+        seq_t next = f_of(curr);
+
+        /* Check if next has already appeared. */
+        bool repeated = false;
+        for (int i = 0; i < distinct; ++i) {
+            if (seen[i] == next) { repeated = true; break; }
+        }
+
+        if (repeated) break;               /* cycle completed */
+
+        if (distinct == 4) return false;   /* would exceed 4 distinct values */
+
+        seen[distinct++] = next;
+        curr = next;
+    }
+    return distinct == 4;
+}
 
 /* Cache of previously found terms. */
 static seq_t *terms    = NULL;
@@ -36,7 +76,7 @@ static void grow_terms(void)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, terms, new_cap);
         if (!ptr) abort();            /* out of memory */
         terms = ptr;
         terms_cap = new_cap;

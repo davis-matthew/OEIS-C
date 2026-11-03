@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n)=Σ_{k=0}^{n-2} binomial(n-2,k) * 5^k * a(n-k-2)   (n≥2) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* computed values  */
 static size_t cache_cap  = 0;      /* allocated capacity */
@@ -28,11 +30,11 @@ static void ensure_cache_size(idx_t n)
     if (!cache || cache_cap <= (size_t)n) {
         size_t old_cap = cache_cap;
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (!new_arr) exit(1);
         if (cache) {
             for (size_t i = 0; i < old_cap; ++i) new_arr[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         for (size_t i = old_cap; i < new_cap; ++i) new_arr[i] = 0;
         cache      = new_arr;

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 120, u16 n <= 8558, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _hash64
+ * Validated: standard, pass, 84 terms through n = 9258 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_hash64.h"
+#include "../utils/mem.h"
+
+/* 64‑bit hash of a pair (a,b)                                */
+static uint64_t _hash64(int64_t a, int64_t b)
+{
+    uint64_t ha = (uint64_t)a ^ ((uint64_t)a >> 32);
+    uint64_t hb = (uint64_t)b ^ ((uint64_t)b >> 32);
+    return ha * 0x9e3779b97f4a7c15ULL ^ hb * 0xbf58476d1ce4e5b9ULL;
+}
 
 /* ------------------------------------------------------------------ */
 /* Data structures                                                     */
@@ -97,7 +106,7 @@ static void _grow_vals(size_t need)
     if (vals_cap >= need) return;
     size_t new_cap = (vals_cap == 0) ? 16 : vals_cap << 1;
     while (new_cap < need) new_cap <<= 1;
-    vals = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+    vals = mem_resize(seq_t, vals, new_cap);
     vals_cap = new_cap;
 }
 

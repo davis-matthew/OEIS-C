@@ -8,7 +8,8 @@
  * Formula:   a(n) = number of distinct second signatures among divisors of n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dfs_recurse
+ * Validated: standard, pass, 104 terms through n = 8044 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,70 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "../utils/dfs_recurse.h"
+
+/* recursive enumeration of all exponent combinations for the given prime factors */
+static void dfs_recurse(size_t depth, size_t num_factors,
+                        const uint64_t *max_exp, uint64_t *cur_exp,
+                        char ***signatures, size_t *cnt, size_t *cap)
+{
+    if (depth == num_factors) {
+        /* collect exponents >= 2 for this divisor */
+        uint8_t sig[16];
+        size_t sig_len = 0;
+        for (size_t i = 0; i < num_factors; ++i) {
+            if (cur_exp[i] >= 2) {
+                sig[sig_len++] = (uint8_t)cur_exp[i];
+            }
+        }
+
+        /* sort the exponents to obtain a canonical string representation */
+        for (size_t i = 0; i < sig_len; ++i) {
+            for (size_t j = i + 1; j < sig_len; ++j) {
+                if (sig[j] < sig[i]) {
+                    uint8_t tmp = sig[i];
+                    sig[i] = sig[j];
+                    sig[j] = tmp;
+                }
+            }
+        }
+
+        /* encode into a null‑terminated string */
+        char buf[64];
+        size_t pos = 0;
+        for (size_t i = 0; i < sig_len; ++i) {
+            if (i) buf[pos++] = ',';
+            int written = sprintf(buf + pos, "%u", sig[i]);
+            pos += written;
+        }
+        buf[pos] = '\0';
+
+        /* check for duplicate signatures */
+        for (size_t j = 0; j < *cnt; ++j) {
+            if (strcmp(buf, (*signatures)[j]) == 0) return; /* duplicate */
+        }
+
+        /* store new signature */
+        if (*cnt == *cap) {
+            size_t new_cap = (*cap * 2) ? (*cap * 2) : 4;
+            char **new_arr = (char **)realloc(*signatures,
+                                              new_cap * sizeof(char *));
+            if (!new_arr) return; /* allocation failed, abort this branch */
+            *signatures = new_arr;
+            *cap = new_cap;
+        }
+        (*signatures)[*cnt] = (char *)malloc(pos + 1);
+        if (!(*signatures)[*cnt]) return;
+        memcpy((*signatures)[*cnt], buf, pos + 1);
+        (*cnt)++;
+        return;
+    }
+
+    for (uint64_t e = 0; e <= max_exp[depth]; ++e) {
+        cur_exp[depth] = e;
+        dfs_recurse(depth + 1, num_factors, max_exp, cur_exp,
+                    signatures, cnt, cap);
+    }
+}
 
 /* factorise a uint64_t n into prime bases and exponents (max 16 factors) */
 static void factor_uint64(uint64_t n, uint64_t *primes, uint64_t *exps,

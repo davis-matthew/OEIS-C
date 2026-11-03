@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #ifdef __cplusplus
 #include <new>   /* for placement new */
 #endif
+#include "../utils/mem.h"
 
 /* recurrence coefficients */
 static const int coeff[16] = {
@@ -67,14 +69,12 @@ static idx_t cache_size = 0;
 static void init_cache(void)
 {
     size_t cap = 16;
-    /* allocate raw memory */
-    void *p = malloc(cap * sizeof(seq_t));
-    if (!p) abort();
-    cache = (seq_t *)p;
+    cache = mem_new(seq_t, cap);
+    if (!cache) abort();
     /* construct objects */
 #ifdef __cplusplus
     for (idx_t i = 0; i < cap; ++i) {
-        new (cache + i) seq_t(init[i]);
+        *(cache + i) = (seq_t)(init[i]);
     }
 #else
     for (idx_t i = 0; i < cap; ++i) {
@@ -119,13 +119,13 @@ seq_t a(idx_t n)
 
         /* resize cache */
         size_t new_cap = cache_size + 1;
-        void *np = realloc(cache, new_cap * sizeof(seq_t));
+        void *np = mem_resize(seq_t, cache, new_cap);
         if (!np) abort();
         cache = (seq_t *)np;
 
         /* construct the new element */
 #ifdef __cplusplus
-        new (cache + cache_size) seq_t(next);
+        *(cache + cache_size) = (seq_t)(next);
 #else
         cache[cache_size] = next;
 #endif

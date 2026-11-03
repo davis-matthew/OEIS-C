@@ -7,14 +7,18 @@
  * Formula:   a(n) = sigma(n * 2^n)
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 26, u64 n <= 56, u128 n <= 119,
  *            big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 44 terms through n = 986 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/seq_pow.h"     /* seq_t seq_pow(seq_t base, idx_t exp); */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -45,16 +49,16 @@ seq_t a(idx_t n)
 
         seq_t term;
         if (p == (seq_t)2) {
-            term = seq_pow((seq_t)2, k + 1) - (seq_t)1;
+            term = ipow_idx((seq_t)2, k + 1) - (seq_t)1;
         } else {
-            term = (seq_pow(p, k + 1) - (seq_t)1) / (p - 1);
+            term = (ipow_idx(p, k + 1) - (seq_t)1) / (p - 1);
         }
         product *= term;
     }
 
     /* if 2 does not divide n, add the 2^n factor */
     if (e2 == 0) {
-        seq_t term = seq_pow((seq_t)2, n + 1) - (seq_t)1;
+        seq_t term = ipow_idx((seq_t)2, n + 1) - (seq_t)1;
         product *= term;
     }
 

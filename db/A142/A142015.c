@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 217, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 60 terms through n = 860 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto */
+#include "../utils/build_primes_upto.h"
 
 /* Cached primes that are ≡ 11 (mod 31) */
 static uint64_t *prime_cache = NULL;   /* array of uint64_t primes */

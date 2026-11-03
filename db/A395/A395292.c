@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 6, i64 n <= 10, i128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the binomial function provided by the build */
 seq_t binomial(idx_t n, idx_t k);
@@ -40,10 +42,10 @@ static void ensure_cache_size(idx_t n)
     while (old_size <= n) old_size <<= 1;      /* double until big enough */
 
     /* reallocate arrays */
-    cache     = (seq_t*)realloc(cache,     old_size * sizeof(seq_t));
+    cache     = mem_resize(seq_t, cache, old_size);
     computed  = (bool*)realloc(computed,  old_size * sizeof(bool));
-    pow_m2    = (seq_t*)realloc(pow_m2,    old_size * sizeof(seq_t));
-    pow_9     = (seq_t*)realloc(pow_9,     old_size * sizeof(seq_t));
+    pow_m2    = mem_resize(seq_t, pow_m2, old_size);
+    pow_9     = mem_resize(seq_t, pow_9, old_size);
 
     /* initialise new entries */
     for (idx_t i = cache_size; i < old_size; ++i)

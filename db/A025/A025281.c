@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} A001414(k) (sopfr of factorial n!)
  * Range:     u8 n <= 28, u16 n <= 652, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9866 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     /* Compute sopfr values and accumulate the sum */
     seq_t sum = 0;
-    seq_t *sopfr = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *sopfr = mem_new(seq_t, N);
     if (!sopfr) { free(spf); free(primes); exit(EXIT_FAILURE); }
 
     sopfr[0] = sopfr[1] = 0;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     }
 
     /* Clean up */
-    free(sopfr);
+    mem_free(sopfr);
     free(spf);
     free(primes);
 

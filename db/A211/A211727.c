@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 22, u64 n <= 47, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Helper: ensure the buffer has at least 'needed' elements.  */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (*cap < needed) {
+        size_t new_cap = needed > (*cap << 1) ? needed : (*cap << 1);
+        *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (*cap < needed) {
@@ -38,6 +59,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
         *cap = new_cap;
     }
 }
+#endif
 
 /* Empirical recurrence coefficients for order 19   */
 static const int coeff[19] = {
@@ -66,7 +88,7 @@ seq_t a(idx_t n)
 
     /* Ensure buffer holds indices 0..n */
     size_t needed = (size_t)n + 1;
-    ensure_capacity(needed, &cache_len, (void **)&cache, sizeof(seq_t));
+    ensure_capacity(needed, &cache_len, OEISC_VPP(&cache), sizeof(seq_t));
 
     /* Compute missing values up to n */
     for (idx_t i = cache_max + 1; i <= n; ++i) {

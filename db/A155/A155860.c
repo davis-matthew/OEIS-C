@@ -7,8 +7,9 @@
  * Keywords:  nice, nonn
  * Formula:   a(n) = #ways to write 2n-1 as p + 2^x + 3*2^y with p an odd
  *            prime and x, y positive integers
- * Range:     u8 n <= 67, u16 n <= 8706, u32 n <= 8706, u64 n <= 8706,
- *            u128 n <= 8706, big any n
+ * Range:     u8 n <= 67, u16 n <= 8706, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 102 terms through n = 8706 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

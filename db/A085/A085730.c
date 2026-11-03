@@ -8,7 +8,8 @@
  *            power; a(1)=φ(1)=1)
  * Range:     u8 n <= 71, u16 n <= 6636, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9845 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------- */
 /* Basic heap of prime powers                                            */
@@ -105,7 +107,7 @@ static void ensure_up_to(idx_t n)
     if (cache_sz == 0) {
         /* Allocate initial cache space                                   */
         cache_cap = 256;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
 
         /* a(1) = φ(1) = 1                                               */
@@ -169,10 +171,10 @@ static void ensure_up_to(idx_t n)
         /* Store the new term, enlarge cache if needed                       */
         if (cache_sz + 1 >= cache_cap) {
             size_t new_cap = cache_cap << 1;
-            seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, new_cap);
             if (!new_cache) abort();
             for (size_t k = 1; k <= cache_sz; ++k) new_cache[k] = cache[k];
-            free(cache);
+            mem_free(cache);
             cache = new_cache;
             cache_cap = new_cap;
         }

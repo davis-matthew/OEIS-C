@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 47, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>   /* for realloc */
+#include "../utils/mem.h"
 
 /* Compute the sum of decimal digits of a seq_t value.   */
 static inline seq_t digit_sum_seq(seq_t v)
@@ -71,8 +73,7 @@ seq_t a(idx_t n)
     /* Ensure the cache has enough capacity. */
     size_t required = (size_t)n;
     if (required > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, required);
         if (tmp == NULL) {
             /* Allocation failed; in the test harness this should not
              * happen for the expected ranges.  Return 0 as a simple

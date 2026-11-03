@@ -8,7 +8,8 @@
  * Formula:   a(1) = 1, a(n) = sort_digits(2 * a(n-1)) for n > 1
  * Range:     u8 n <= 11, u16 n <= 25, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   sort_digits_local
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,41 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/sort_digits_local.h"
+#include "../utils/mem.h"
+
+/* ========================= helper: sort digits ascending ========================= */
+static seq_t sort_digits_local(seq_t x)
+{
+    /* 128‑bit integer needs at most 39 decimal digits; allow a safety margin. */
+    uint8_t digits[50];
+    int len = 0;
+
+    if (x == 0) {
+        digits[len++] = 0;
+    } else {
+        while (x > 0) {
+            digits[len++] = (uint8_t)(x % 10);
+            x /= 10;
+        }
+    }
+
+    /* Ascending insertion sort – number of digits is tiny. */
+    for (int i = 1; i < len; ++i) {
+        uint8_t key = digits[i];
+        int j = i - 1;
+        while (j >= 0 && digits[j] > key) {
+            digits[j + 1] = digits[j];
+            --j;
+        }
+        digits[j + 1] = key;
+    }
+
+    seq_t result = 0;
+    for (int i = 0; i < len; ++i) {
+        result = result * 10 + digits[i];
+    }
+    return result;
+}
 
 /* ============================ memoised sequence function ======================= */
 
@@ -40,7 +75,7 @@ seq_t a(idx_t n)
     /* initialise cache on first use */
     if (cache == NULL) {
         cache_cap = 8;                  /* start with 8 entries (0..7) */
-        cache = (seq_t *)calloc((size_t)cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (!cache) return (seq_t)0;    /* allocation failure – unlikely in tests */
         cache_len = 0;
     }
@@ -54,7 +89,7 @@ seq_t a(idx_t n)
         if ((size_t)new_cap > SIZE_MAX / sizeof(seq_t))
             new_cap = SIZE_MAX / sizeof(seq_t);
 
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp) return (seq_t)0;      /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

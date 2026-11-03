@@ -9,12 +9,14 @@
  *            the partition function A000041
  * Range:     u8 n <= 14, u16 n <= 36, u32 n <= 111, u64 n <= 375,
  *            u128 n <= 1360, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9606 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 /* Returns the total number of parts which are positive powers of 2
@@ -32,8 +34,8 @@ seq_t a(idx_t n) {
         idx_t new_n = n;
 
         /* Allocate storage for partitions and the answer array. */
-        seq_t *p_new = (seq_t*)calloc(new_n + 1, sizeof(seq_t));
-        seq_t *a_new = (seq_t*)calloc(new_n + 1, sizeof(seq_t));
+        seq_t *p_new = mem_new(seq_t, new_n + 1);
+        seq_t *a_new = mem_new(seq_t, new_n + 1);
 
         /* p[0] = 1; others are already zero by calloc. */
         p_new[0] = (seq_t)1;
@@ -51,17 +53,17 @@ seq_t a(idx_t n) {
            temporary array f where f[m] = f[m‑s] + p_new[m‑s] for m ≥ s.
            Then a_new[m] += f[m] for all m. */
         for (idx_t s = 2; s <= new_n; s <<= 1) {
-            seq_t *f = (seq_t*)calloc(new_n + 1, sizeof(seq_t));
+            seq_t *f = mem_new(seq_t, new_n + 1);
             for (idx_t m = s; m <= new_n; ++m) {
                 f[m] = f[m - s] + p_new[m - s];
                 a_new[m] += f[m];
             }
-            free(f);
+            mem_free(f);
         }
 
         /* Replace the old tables. */
-        if (p)   free(p);
-        if (aarr) free(aarr);
+        if (p)   mem_free(p);
+        if (aarr) mem_free(aarr);
 
         p = p_new;
         aarr = a_new;

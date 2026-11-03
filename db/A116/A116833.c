@@ -10,13 +10,15 @@
  *            a(n)=8*a(n‑1)-28*a(n‑2)+56*a(n‑3)-70*a(n‑4)+56*a(n‑5)-28*a(n‑6)+8*a(n‑7)-a(n‑8)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     if (cached < n) {
         size_t newsize = (size_t)n;
-        seq_t *newcache = (seq_t *)malloc(newsize * sizeof(seq_t));
+        seq_t *newcache = mem_new(seq_t, newsize);
         if (newcache == NULL)
             return 0;          /* allocation failure – unlikely in tests */
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
         /* free old cache and adopt new one */
         if (cache != NULL)
-            free(cache);
+            mem_free(cache);
         cache  = newcache;
         cached = n;
     }

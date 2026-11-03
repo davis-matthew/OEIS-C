@@ -10,7 +10,8 @@
  *            b(0)=0, b(1)=1, b(2)=3, b(k)=3*b(k-1)-2*b(k-2)+b(k-3) for k>=3
  * Range:     u8 n <= 36, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* we assume idx_t and seq_t are defined by the build system */
 seq_t a(idx_t n)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
     if (b_cache == NULL) {                 /* first call: initialise */
         b_cap = 3;
-        b_cache = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_cache = mem_new(seq_t, b_cap);
         if (!b_cache) return 0;            /* should not happen */
         b_cache[0] = (seq_t)0;
         b_cache[1] = (seq_t)1;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if ((size_t)r + 1 > b_cap) {
         size_t new_cap = (size_t)r + 1;
-        seq_t *new_cache = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, b_cache, new_cap);
         if (!new_cache) return 0;          /* should not happen */
         b_cache = new_cache;
         b_cap   = new_cap;

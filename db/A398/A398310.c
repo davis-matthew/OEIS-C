@@ -9,12 +9,14 @@
  *            a(1)=0, a(2)=5, a(3)=10, a(4)=40
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 16, u64 n <= 30, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t seq_cache_last = (idx_t)-1;    /* last index computed, -1 means none */
@@ -24,7 +26,7 @@ static void seq_cache_ensure(idx_t n) {
     if (seq_cache_last == (idx_t)-1) {               /* first time */
         idx_t size = n + 1;
         if (size < 5) size = 5;
-        seq_cache = (seq_t *)malloc(size * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, size);
         seq_cache[0] = 1;
         seq_cache[1] = 0;
         seq_cache[2] = 5;
@@ -32,7 +34,7 @@ static void seq_cache_ensure(idx_t n) {
         seq_cache[4] = 40;
         seq_cache_last = 4;
     } else if (seq_cache_last < n) {                /* grow cache */
-        seq_cache = (seq_t *)realloc(seq_cache, (n + 1) * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, (n + 1));
     }
     /* compute missing terms */
     for (idx_t i = seq_cache_last + 1; i <= n; ++i) {

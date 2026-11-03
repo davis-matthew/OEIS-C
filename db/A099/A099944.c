@@ -8,6 +8,7 @@
  * Formula:   a(n) = 11*2^n - 12 (valid for n ≥ 3)
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 28, u64 n <= 32, u128 n <= 32,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 32 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

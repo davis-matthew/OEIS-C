@@ -7,16 +7,28 @@
  * Formula:   a(n+1) = sum_{k=0}^{n} a(k)*binomial(n,k)*n^(n-k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, free_cache, seq_alloc_new_array
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"              /* seq_t big_pow(seq_t, seq_t) */
-#include "../utils/seq_alloc_new_array.h" /* seq_t *seq_alloc_new_array(size_t) */
-#include "../utils/free_cache.h"          /* void free_cache(seq_t *) */
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Compute a(n), offset 0 (a(0)=1) */
 seq_t a(idx_t n)
@@ -60,7 +72,7 @@ seq_t a(idx_t n)
         seq_t sum   = (seq_t)0;
 
         seq_t binom  = (seq_t)1;                 /* C(p,0) */
-        seq_t power  = big_pow((seq_t)p, (seq_t)p); /* p^p, with 0^0 = 1 */
+        seq_t power  = ipow((seq_t)p, (seq_t)p); /* p^p, with 0^0 = 1 */
 
         for (idx_t k = 0; k <= p; ++k) {
             seq_t term = cache[(size_t)k];        /* a(k)   */

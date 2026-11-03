@@ -8,7 +8,8 @@
  * Formula:   computed by dynamic programming on rows (n+1)x3 arrays)
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 38,
  *            big any n
- * Helpers:   edge_inc, get_row_vals, subblock_counts
+ * Validated: standard, pass, 32 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,32 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/edge_inc.h"
-#include "../utils/get_row_vals.h"
-#include "../utils/subblock_counts.h"
+
+/* Helper functions to compute the number of clockwise edge increases
+   in a 2x2 subblock.  The subblock is defined by two consecutive rows
+   each of 3 columns with entries in {0,1,2}.  */
+static inline uint8_t edge_inc(uint8_t a, uint8_t b)
+{
+    return (b > a) ? 1u : 0u;
+}
+
+static inline void get_row_vals(int idx, uint8_t *v0, uint8_t *v1, uint8_t *v2)
+{
+    *v0 = (uint8_t)(idx / 9);
+    *v1 = (uint8_t)((idx / 3) % 3);
+    *v2 = (uint8_t)(idx % 3);
+}
+
+static inline void subblock_counts(int row1, int row2, uint8_t *L, uint8_t *R)
+{
+    uint8_t a0, a1, a2, b0, b1, b2;
+    get_row_vals(row1, &a0, &a1, &a2);
+    get_row_vals(row2, &b0, &b1, &b2);
+    /* left subblock (columns 0-1) */
+    *L = edge_inc(a0, a1) + edge_inc(a1, b1) + edge_inc(b1, b0) + edge_inc(b0, a0);
+    /* right subblock (columns 1-2) */
+    *R = edge_inc(a1, a2) + edge_inc(a2, b2) + edge_inc(b2, b1) + edge_inc(b1, a1);
+}
 
 /* Main function returning the nth term.  n >= 1.  */
 seq_t a(idx_t n)

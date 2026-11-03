@@ -9,7 +9,8 @@
  *            that are closest to n; a(1)=1, a(2)=1, a(3)=1
  * Range:     u8 n <= 41, u16 n <= 89, u32 n <= 211, u64 n <= 487,
  *            u128 n <= 1109, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9643 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- Global mutable state ---------- */
 
@@ -43,7 +45,7 @@ static void ensure_seq_capacity(seq_t **arr, size_t *size, size_t need)
     size_t new_cap = (*size == 0) ? 64 : *size * 2;
     while (new_cap < need)
         new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *size = new_cap;
 }
 

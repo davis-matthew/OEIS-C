@@ -9,12 +9,14 @@
  *            (offset 1): a(1)=27, a(2)=54, a(3)=246, a(4)=912
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state: cache of computed terms */
 static seq_t *cache = NULL;    /* array indices 0..cache_cap   */
@@ -31,7 +33,7 @@ ensure_capacity(idx_t need)
 
     idx_t new_cap = need;           /* highest index to store */
     idx_t new_size = new_cap + 1;   /* number of elements                  */
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
 
     if (!new_cache)                 /* allocation failed – give up */
         return;
@@ -40,7 +42,7 @@ ensure_capacity(idx_t need)
     if (cache != NULL && last_computed <= cache_cap) {
         for (idx_t i = 0; i <= last_computed; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     cache = new_cache;

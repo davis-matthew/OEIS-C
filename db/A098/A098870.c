@@ -9,7 +9,8 @@
  *            2
  * Range:     u8 n <= 2, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* 1‑based cache for sequence values */
 static idx_t  cache_size = 0;        /* current allocated size (elements) */
@@ -49,12 +51,12 @@ seq_t a(idx_t n)
     /* Allocate or enlarge cache if necessary */
     if (cache_size == 0) {
         cache_size = n + 10; /* initial size with headroom */
-        cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
     } else if (n + 5 > cache_size) {
         size_t new_size = cache_size * 2;
         if (new_size < (size_t)(n + 5))
             new_size = n + 5;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         if (cache == NULL) abort(); /* allocation failure */
         cache_size = new_size;
     }

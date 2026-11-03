@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   _sort_ascending
+ * Validated: standard, pass, 84 terms through n = 7752 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,20 @@
  */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_sort_ascending.h"
+
+/* Helper: simple insertion sort for small arrays. */
+static void _sort_ascending(int *arr, int n)
+{
+    for (int i = 1; i < n; ++i) {
+        int key = arr[i];
+        int j   = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            --j;
+        }
+        arr[j + 1] = key;
+    }
+}
 
 /* Main function implementing A335834.  */
 seq_t a(idx_t n)

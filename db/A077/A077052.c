@@ -10,6 +10,7 @@
  *            (1,1), (2,1),(1,2),(3,1),(2,2),(1,3),…
  * Range:     i8 n <= 96, i16 n <= 96, i32 n <= 96, i64 n <= 96, i128 n <= 96,
  *            big any n
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,13 +11,16 @@
  *            an integer satisfying b(n)^2 ≡ -7 (mod 2^...
  * Range:     u8 n <= 15, u16 n <= 20, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>                /* for size_t */
-#include "../utils/pow2.h"          /* pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +35,8 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? cap * 2 : 4;
         if (new_cap < (size_t)(n + 1))
             new_cap = (size_t)(n + 1);
-        a_tbl = (seq_t *)realloc(a_tbl, new_cap * sizeof(seq_t));
-        b_tbl = (seq_t *)realloc(b_tbl, new_cap * sizeof(seq_t));
+        a_tbl = mem_resize(seq_t, a_tbl, new_cap);
+        b_tbl = mem_resize(seq_t, b_tbl, new_cap);
         cap   = new_cap;
     }
 

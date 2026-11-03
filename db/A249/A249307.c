@@ -9,14 +9,15 @@
  *            if k odd
  * Range:     u8 n <= 21, u16 n <= 75, u32 n <= 246, u64 n <= 882,
  *            u128 n <= 3332, big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 75 terms through n = 9608 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 /* Integer floor square root for unsigned 64‑bit values. */
@@ -41,10 +42,10 @@ seq_t a(idx_t n)
     seq_t bin;
     if ((k & 1) == 0) {                     /* even k      */
         idx_t half = k >> 1;
-        bin = binom(r, half);
+        bin = binomial(r, half);
     } else {                                /* odd k       */
         idx_t half = (k - 1) >> 1;
-        bin = binom(r - 1, half);
+        bin = binomial(r - 1, half);
     }
 
     seq_t powk = pow2(k);                   /* 2^k         */

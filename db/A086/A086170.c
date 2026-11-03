@@ -13,7 +13,8 @@
  *            stored in a dynamic boolean array
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   ensure_present_capacity, record_presence
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,29 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/ensure_present_capacity.h"
-#include "../utils/record_presence.h"
+#include "../utils/mem.h"
+
+/* Helper to resize and zero the boolean presence array */
+static void ensure_present_capacity(bool **present, size_t *cap, size_t idx)
+{
+    if (idx < *cap) return;
+    size_t new_cap = (*cap > 0) ? *cap * 2 : 64;
+    while (new_cap <= idx) new_cap <<= 1;
+    bool *tmp = (bool *)realloc(*present, new_cap * sizeof(bool));
+    /* Zero any new entries */
+    for (size_t i = *cap; i < new_cap; ++i) tmp[i] = false;
+    *present = tmp;
+    *cap = new_cap;
+}
+
+/* Record that a value appears in the sequence */
+static void record_presence(bool *present, size_t cap, seq_t val)
+{
+    if (val > SIZE_MAX) return;              /* value too large for index */
+    size_t idx = (size_t)val;
+    if (idx >= cap) return;                   /* we didn't enlarge to the needed size */
+    present[idx] = true;
+}
 
 /* Helper to resize the cache that stores computed a(n) values */
 static void ensure_cache_capacity(seq_t **cache, size_t *cap, size_t needed)
@@ -31,7 +53,7 @@ static void ensure_cache_capacity(seq_t **cache, size_t *cap, size_t needed)
     if (needed <= *cap) return;
     size_t new_cap = (*cap > 0) ? *cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    *cache = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+    *cache = mem_resize(seq_t, *cache, new_cap);
     *cap = new_cap;
 }
 

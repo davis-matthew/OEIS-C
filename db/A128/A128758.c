@@ -10,7 +10,8 @@
  *            recurrence gives the expansion of q^(‑1/3)*(η(q³)/η(q))⁴
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 44, u64 n <= 149, u128 n <= 529,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,15 +19,16 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate arrays */
-    seq_t *A = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (size_t)(n + 1));
     if (!A) return 0;           /* fallback if allocation fails */
 
     uint32_t *L = (uint32_t *)malloc((size_t)(n + 1) * sizeof(uint32_t));
-    if (!L) { free(A); return 0; }
+    if (!L) { mem_free(A); return 0; }
 
     /* Initialize arrays */
     A[0] = 1;
@@ -71,6 +73,6 @@ seq_t a(idx_t n)
 
     seq_t result = A[n];
     free(L);
-    free(A);
+    mem_free(A);
     return result;
 }

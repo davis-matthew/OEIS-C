@@ -7,12 +7,14 @@
  * Formula:   Number of partitions of n into parts of the form 6k+3 or 6k+4
  * Range:     u8 n <= 56, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* dynamic array storing partition counts */
 static idx_t dp_len = 0;          /* number of elements in dp (dp_len = max_n + 1) */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Grow the dynamic array if we need to compute up to a larger n */
     if (dp_len <= n) {
         idx_t new_len = n + 1;
-        seq_t *newdp = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, new_len);
         if (!newdp) abort();          /* fallback on allocation failure */
 
         /* initialize to zero */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old array */
-        free(dp);
+        mem_free(dp);
         dp      = newdp;
         dp_len  = new_len;
     }

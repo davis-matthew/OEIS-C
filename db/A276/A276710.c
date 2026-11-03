@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1540, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 68 terms through n = 9097 (2026-11-01)
  * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t) */
-#include "../utils/factor_u64.h"        /* void factor_u64(uint64_t,uint64_t*,uint64_t*,size_t*) */
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
 
 /* Legendre exponent of prime p in n! */
 static inline seq_t legendre(idx_t n, idx_t p) {

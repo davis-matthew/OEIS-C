@@ -7,12 +7,14 @@
  * Formula:   a(n) = 8*a(n-1) - 4*a(n-2), a(0)=0, a(1)=1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 23, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function returns the n‑th term of OEIS A099156.
    It uses a static cache so repeated calls with arbitrary n
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise cache with a(0)=0 and a(1)=1 */
     if (cache_len == 0) {
         cache_len = 2;
-        cache = (seq_t *)malloc((size_t)cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_len);
         if (!cache) { /* allocation failed – abort */
             exit(1);
         }
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         idx_t old_len = cache_len;
         cache_len = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)cache_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)cache_len);
         if (!new_cache) {
-            free(cache);
+            mem_free(cache);
             exit(1);
         }
         cache = new_cache;

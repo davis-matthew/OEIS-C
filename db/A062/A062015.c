@@ -9,16 +9,49 @@
  *            factorisation into two integers each having all even digits
  * Range:     u8 n <= 15, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   all_even_digits, seq_alloc_new_array, seq_realloc
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/all_even_digits.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_realloc.h"
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* Test whether all decimal digits of x are even. */
+static inline bool all_even_digits(seq_t x)
+{
+    if (x == 0)           /* 0 is considered to have only even digits */
+        return true;
+
+    while (x != 0) {
+        seq_t dig   = x % 10;     /* least significant decimal digit   */
+        if ((dig % 2) != 0)       /* odd digit found                    */
+            return false;
+        x /= 10;                  /* move to next digit                  */
+    }
+    return true;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_cap = 0;

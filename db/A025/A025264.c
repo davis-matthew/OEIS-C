@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    with a(1)=2, a(2)=1, a(3)=1.  The array is built on demand and memoised. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Note: seq_t and idx_t are provided by the build environment. */
 seq_t a(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     while (new_cap < (size_t)n)
         new_cap <<= 1;               /* double until enough */
 
-    seq_t *new_tbl = (seq_t *)realloc(tbl, new_cap * sizeof(seq_t));
+    seq_t *new_tbl = mem_resize(seq_t, tbl, new_cap);
     if (new_tbl == NULL)            /* memory allocation failed */
         return 0;
     tbl = new_tbl;

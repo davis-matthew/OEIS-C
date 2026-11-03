@@ -8,8 +8,9 @@
  * Formula:   a(n) = the (n‑th) term of the flattened triangle where row r
  *            consists of all distinct products of subsets of {1,2,…,r},
  *            sorted in ascending order
- * Range:     u8 n <= 51, u16 n <= 330, u32 n <= 3005, u64 n <= 9984,
- *            u128 n <= 9984, big any n
+ * Range:     u8 n <= 51, u16 n <= 330, u32 n <= 3005, u64 n <= 85327,
+ *            u128 n <= 85327, big any n
+ * Validated: standard, pass, 96 terms through n = 9984 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

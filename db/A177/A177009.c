@@ -7,12 +7,13 @@
  * Formula:   a(n) = n^n - (10^n - 1)/9
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 9, i64 n <= 15, i128 n <= 26,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 36 terms through n = 379 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -20,10 +21,10 @@ seq_t a(idx_t n)
     seq_t ns = (seq_t)n;
 
     /* Compute n^n */
-    seq_t pow_n = pow_int(ns, n);
+    seq_t pow_n = ipow_idx(ns, n);
 
     /* Compute 10^n */
-    seq_t pow10_n = pow_int((seq_t)10, n);
+    seq_t pow10_n = ipow_idx((seq_t)10, n);
 
     /* Compute repunit (10^n - 1)/9 */
     seq_t repunit = (pow10_n - (seq_t)1) / (seq_t)9;

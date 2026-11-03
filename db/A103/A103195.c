@@ -9,20 +9,30 @@
  *            the decimal concatenation of the pair
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   digit_len, is_prime_uint64, pow10_idx
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   is_prime_u64, num_digits0_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/is_prime_uint64.h"
-#include "../utils/pow10_idx.h"
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits0_seq.h"
+
+static seq_t pow10_idx(idx_t exp)
+{
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= 10;
+    return res;
+}
 
 /* Concatenate a and b in decimal notation. */
 static seq_t concat(seq_t a, seq_t b)
 {
-    idx_t d   = digit_len(b);
+    idx_t d   = num_digits0_seq(b);
     seq_t mul = pow10_idx(d);   /* 10^d as seq_t */
     return a * mul + b;
 }
@@ -36,7 +46,7 @@ seq_t a(idx_t n)
     uint64_t cand  = 3;     /* first odd number > 2 */
 
     for (;;) {
-        if (is_prime_uint64(cand) && is_prime_uint64(cand + 4)) {
+        if (is_prime_u64(cand) && is_prime_u64(cand + 4)) {
             count++;
             if (count == n) break;
         }

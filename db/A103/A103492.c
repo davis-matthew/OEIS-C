@@ -11,7 +11,8 @@
  *            returns the full order. It uses a simple trial‑division f...
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   factor_primes_u64
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor_primes_u64.h"
+
+/* ----- helper: factorise a 64‑bit integer ---------------------------------
+ * The routine fills arrays with distinct prime factors and (optionally)
+ * their exponents.  For simplicity we store only the primes (no exponents)
+ * because they are all that we need for computing the order.
+ */
+static void factor_primes_u64(uint64_t n, uint64_t *primes, size_t *cnt)
+{
+    size_t c = 0;
+    for (uint64_t p = 2; p * p <= n; ++p) {
+        if (n % p == 0) {
+            primes[c++] = p;
+            while (n % p == 0) n /= p;
+        }
+    }
+    if (n > 1) primes[c++] = n;
+    *cnt = c;
+}
 
 /* ----- helper: power modulo 64‑bit ---------------------------------------
  * Uses binary exponentiation, all arithmetic performed modulo 'mod'.

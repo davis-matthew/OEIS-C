@@ -8,17 +8,19 @@
  *            = Sum_{k=-∞}^{∞} q^(k^2)
  * Range:     i8 n <= 4, i16 n <= 13, i32 n <= 42, i64 n <= 139, i128 n <= 490,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t len = n + 1;
     
-    seq_t *theta3 = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *theta3 = mem_new(seq_t, len);
     if (!theta3) return 0;
     
     theta3[0] = 1;
@@ -26,9 +28,9 @@ seq_t a(idx_t n) {
         theta3[k * k] = 2;
     }
     
-    seq_t *theta3_sq = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *theta3_sq = mem_new(seq_t, len);
     if (!theta3_sq) {
-        free(theta3);
+        mem_free(theta3);
         return 0;
     }
     
@@ -40,10 +42,10 @@ seq_t a(idx_t n) {
         }
     }
     
-    seq_t *result = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *result = mem_new(seq_t, len);
     if (!result) {
-        free(theta3);
-        free(theta3_sq);
+        mem_free(theta3);
+        mem_free(theta3_sq);
         return 0;
     }
     
@@ -58,9 +60,9 @@ seq_t a(idx_t n) {
     }
     
     seq_t ans = result[n];
-    free(theta3);
-    free(theta3_sq);
-    free(result);
+    mem_free(theta3);
+    mem_free(theta3_sq);
+    mem_free(result);
     
     return ans;
 }

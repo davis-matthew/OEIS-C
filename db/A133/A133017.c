@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_perfect
+ * Validated: standard, pass, 94 terms through n = 888 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,29 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_perfect.h"
+
+/* List of all perfect numbers that fit in 64 bits.  Only the smallest
+   few are relevant for n up to 10 000, but the table covers the full range
+   of 64‑bit values.  The array is sorted increasingly. */
+static bool is_perfect(uint64_t x)
+{
+    static const uint64_t perfect[] = {
+        6ULL,
+        28ULL,
+        496ULL,
+        8128ULL,
+        33550336ULL,
+        8589869056ULL,
+        137438691328ULL,
+        2305843008139952128ULL
+    };
+    size_t i;
+    for (i = 0; i < sizeof(perfect) / sizeof(perfect[0]); ++i) {
+        if (perfect[i] == x) return true;
+        if (perfect[i] > x) break;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,14 +7,16 @@
  * Formula:   a(n) = (27^n - 6*18^n + 6*14^n + 9*9^n - 18*6^n + 14*3^n)/6
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Requires the helper big_pow() to compute arbitrary‑precision powers. */
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -44,12 +46,12 @@ seq_t a(idx_t n)
     }
 #endif
     /* General case: use arbitrary precision big_pow for other types */
-    seq_t p27 = big_pow((seq_t)27, (seq_t)n);
-    seq_t p18 = big_pow((seq_t)18, (seq_t)n);
-    seq_t p14 = big_pow((seq_t)14, (seq_t)n);
-    seq_t p9  = big_pow((seq_t)9,  (seq_t)n);
-    seq_t p6  = big_pow((seq_t)6,  (seq_t)n);
-    seq_t p3  = big_pow((seq_t)3,  (seq_t)n);
+    seq_t p27 = ipow((seq_t)27, (seq_t)n);
+    seq_t p18 = ipow((seq_t)18, (seq_t)n);
+    seq_t p14 = ipow((seq_t)14, (seq_t)n);
+    seq_t p9  = ipow((seq_t)9,  (seq_t)n);
+    seq_t p6  = ipow((seq_t)6,  (seq_t)n);
+    seq_t p3  = ipow((seq_t)3,  (seq_t)n);
 
     seq_t num = p27;
     num -= 6 * p18;

@@ -12,12 +12,14 @@
  *            function computes the sequence on demand, memoizing results
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the sum of prime factors of x (with multiplicity). */
 static seq_t sopfr(seq_t x)
@@ -49,7 +51,7 @@ static size_t defined_terms = 0;   /* number of valid terms present in cache */
 /* Grow the cache to a new capacity. */
 static void grow_cache(size_t new_cap)
 {
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();   /* allocation failed */
     cache = tmp;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     if (!cache)
     {
         cache_capacity = 16;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache)
             abort();
     }

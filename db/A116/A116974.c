@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for generated primes */
 static seq_t *primes = NULL;
@@ -34,7 +36,7 @@ static void add_prime(seq_t p)
 {
     if (primes_count == primes_cap) {
         size_t new_cap = primes_cap ? primes_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, primes, new_cap);
         if (!tmp) abort(); /* fail fast */
         primes = tmp;
         primes_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 36, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   mul_mod64, pow2
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   mulmod, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
    ord_m(2) is the multiplicative order of 2 modulo m (for odd m).   */
 
 #include <stdint.h>
-#include "../utils/mul_mod64.h"   /* mul_mod64(uint64_t, uint64_t, uint64_t) */
-#include "../utils/pow2.h"        /* pow2(idx_t) -> seq_t */
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/pow2.h"
 
 static inline uint64_t modpow64(uint64_t base, uint64_t exp, uint64_t mod)
 {
@@ -28,8 +31,8 @@ static inline uint64_t modpow64(uint64_t base, uint64_t exp, uint64_t mod)
     while (exp)
     {
         if (exp & 1ULL)
-            result = mul_mod64(result, base, mod);
-        base = mul_mod64(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1ULL;
     }
     return result;

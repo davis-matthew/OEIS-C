@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bigomega, sigma_idx
+ * Validated: standard, pass, 71 terms through n = 875 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,35 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/bigomega.h"
-#include "../utils/sigma_idx.h"
+#include "../utils/mem.h"
+
+/*----------- helper to compute σ(n) using trial division -----------*/
+static idx_t sigma_idx(idx_t n) {
+    if (n <= 1) return 1;
+    idx_t result = 1;
+    idx_t m = n;
+    for (idx_t p = 2; (uint64_t)p * p <= m; ++p) {
+        if (m % p == 0) {
+            idx_t e = 0;
+            idx_t pe = 1;
+            while (m % p == 0) {
+                m /= p;
+                ++e;
+                pe *= p;
+            }
+            /* term = (p^(e+1) - 1) / (p - 1) */
+            __uint128_t numerator = (__uint128_t)pe * p - 1;   /* p^(e+1)-1 */
+            idx_t denom = p - 1;
+            idx_t term = (idx_t)(numerator / denom);
+            result = (idx_t)((__uint128_t)result * term);
+        }
+    }
+    if (m > 1) {
+        /* remaining prime factor */
+        result = (idx_t)((__uint128_t)result * (m + 1));
+    }
+    return result;
+}
 
 /*----------- auxiliary data for caching terms -----------*/
 static seq_t *cache      = NULL;   /* stored terms */
@@ -31,7 +60,7 @@ static void ensure_cache_capacity(size_t needed) {
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     /* realloc failure is unlikely in the test harness */
     cache = tmp;
     cache_cap = new_cap;

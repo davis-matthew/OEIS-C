@@ -8,14 +8,17 @@
  * Formula:   a(n) = ∏_{p^e‖n} (1 + p + … + p^e) if e < p, otherwise 1
  *            (multiplicative sequence). The function uses factor_u64 to
  *            obtain the prime factorisation of n
- * Range:     u8 n <= 125, u16 n <= 8727, u32 n <= 8727, u64 n <= 8727,
- *            u128 n <= 8727, big any n
+ * Range:     u8 n <= 125, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 98 terms through n = 8727 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

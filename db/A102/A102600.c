@@ -9,13 +9,16 @@
  *            the decimal digits of n^2; 0 if no such prime exists
  * Range:     u8 n <= 12, u16 n <= 102, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 76 terms through n = 9698 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 /* Recursive generator that builds numbers of a fixed length from the
  * remaining digit multiset (freq).  Digits are tried in descending
@@ -26,7 +29,7 @@ static bool gen_rec(int depth, int target_len, seq_t cur,
                     int *freq, seq_t *best)
 {
     if (depth == target_len) {
-        if (cur > 0 && is_prime((uint64_t)cur)) {
+        if (cur > 0 && is_prime_u64((uint64_t)cur)) {
             *best = cur;
             return true;
         }

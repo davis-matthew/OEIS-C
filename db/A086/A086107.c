@@ -11,7 +11,8 @@
  *            eight numbers listed are found)
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-02)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 static bool check_property(uint64_t x) {
     /* Check that all elementary symmetric sums of the digits of x are prime. */
@@ -48,7 +49,7 @@ static bool check_property(uint64_t x) {
     }
     /* All sums must be prime. */
     for (int sz = 1; sz <= dlen; ++sz) {
-        if (!is_prime_small(sums[sz]))
+        if (!is_prime_seq(sums[sz]))
             return false;
     }
     return true;
@@ -65,7 +66,7 @@ seq_t a(idx_t n) {
            up to one million to be safe. */
         const uint64_t LIMIT = 1000000;
         for (uint64_t p = 2; p <= LIMIT; ++p) {
-            if (!is_prime_small(p))
+            if (!is_prime_seq(p))
                 continue;
             if (check_property(p)) {
                 term[len++] = (seq_t)p;

@@ -10,12 +10,14 @@
  *            (k+2)*T(n-1,k) + (n-k)*T(n-1,k-1) (0 < k < n)
  * Range:     u8 n <= 22, u16 n <= 46, u32 n <= 95, u64 n <= 238,
  *            u128 n <= 609, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 4772 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* static storage for the rows of the triangle */
 static seq_t **rows = NULL;
@@ -38,7 +40,7 @@ static void compute_rows_up_to(idx_t r)
 {
     for (idx_t m = rows_count; m <= r; ++m) {
         ensure_rows_capacity(m);
-        seq_t *cur = (seq_t *)malloc((size_t)(m + 1) * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, (size_t)(m + 1));
         rows[m] = cur;
         if (m == 0) {
             cur[0] = 1;

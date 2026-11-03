@@ -9,7 +9,8 @@
  *            powers, for k = 0..10
  * Range:     u8 n <= 38, u16 n <= 3380, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9269 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_LIMIT 3000000
 
@@ -77,7 +79,7 @@ static void compute_sequence(void)
     }
     
     // Store sorted values
-    cache.values = (seq_t *)malloc((count + 1) * sizeof(seq_t));
+    cache.values = mem_new(seq_t, (count + 1));
     if (!cache.values) {
         free(curr);
         free(next);

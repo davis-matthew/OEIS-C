@@ -13,13 +13,25 @@
  *            n. The algorithm runs in O(K³) where K ≈ √n a...
  * Range:     u8 n <= 32, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   push_val
+ * Validated: standard, pass, 87 terms through n = 2874 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/push_val.h"
+
+/* push an idx_t value onto a dynamic array */
+static void push_val(idx_t **arr, size_t *len, size_t *cap, idx_t val)
+{
+    if (*len >= *cap) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        idx_t *tmp = (idx_t *)realloc(*arr, new_cap * sizeof(idx_t));
+        *arr = tmp;
+        *cap = new_cap;
+    }
+    (*arr)[(*len)++] = val;
+}
 
 seq_t a(idx_t n)
 {

@@ -10,8 +10,9 @@
  *            method: a(n) = floor of the unique real root (> 1) of P_n, where
  *            P_0(x) = x^3 - 8*x - 10 and P_{n+1}(y) = -y^3 * P_n(a(n) + 1/y).
  *            The coefficients are big integers
- * Range:     u8 n <= 16, u16 n <= 32, u32 n <= 9591, u64 n <= 9591,
- *            u128 n <= 9591, big any n
+ * Range:     u8 n <= 16, u16 n <= 32, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 76 terms through n = 9591 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

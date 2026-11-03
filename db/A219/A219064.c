@@ -13,12 +13,14 @@
  *            … a(10)): 1, 59, 503, 4049, 32313, 258353,...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         return base[n - 1];
 
     /* Allocate space for terms up to n (1‑based index) */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp)
         return (seq_t)0;          /* allocation failure – return 0 */
 
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

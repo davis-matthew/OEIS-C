@@ -7,13 +7,15 @@
  * Formula:   a(n) = 11*a(n-1) – 18*a(n-2) + 8, a(0)=3, a(1)=12
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise the table with the first two terms */
     if (memo_cap == 0) {
         memo_cap = 4;                                   /* spare room */
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (!memo) return (seq_t)0;                     /* allocation failed */
         memo[0] = (seq_t)3;
         memo[1] = (seq_t)12;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         size_t new_cap = memo_cap;
         while (nn + 1 > new_cap)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (!tmp)
             return (seq_t)0;                            /* allocation failed */
         memo = tmp;

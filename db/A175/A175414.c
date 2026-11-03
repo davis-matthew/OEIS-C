@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,14 +26,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 static bool qualifies(seq_t x)
 {
     if (x == (seq_t)0) return false;     /* skip zero */
 
     /* number of bits in x */
-    unsigned int bitlen = bitlen_seq_t(x);
+    unsigned int bitlen = bit_length(x);
     size_t cnt1 = 0, cnt0 = 0;
 
     /* Temporary storage for run lengths */

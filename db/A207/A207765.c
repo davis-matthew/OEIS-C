@@ -12,7 +12,8 @@
  *            of all pairs of admissible columns, so t...
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 16, u64 n <= 36, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Pre‑computed data shared between calls (generated once).           */
@@ -93,8 +95,8 @@ static void init(void)
     }
 
     /* allocate DP arrays (state_count <= 1024)                     */
-    dp_cur  = (seq_t *)malloc(state_count * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(state_count * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, state_count);
+    dp_next = mem_new(seq_t, state_count);
 
     /* initial DP for length 2: each pair of admissible columns is 1*/
     for (size_t i = 0; i < state_count; ++i) {
@@ -104,7 +106,7 @@ static void init(void)
 
     /* allocate total array for n = 0,1,2                                    */
     total_cap = 3;
-    total = (seq_t *)malloc(total_cap * sizeof(seq_t));
+    total = mem_new(seq_t, total_cap);
     total[0] = (seq_t)0;
     total[1] = (seq_t)col_cnt;                           /* a(1)    */
     total[2] = (seq_t)col_cnt * (seq_t)col_cnt;           /* a(2)    */
@@ -132,7 +134,7 @@ seq_t a(idx_t n)
     /* Ensure total array large enough */
     if ((size_t)n + 1 > total_cap) {
         total_cap = (size_t)n + 1;
-        total = (seq_t *)realloc(total, total_cap * sizeof(seq_t));
+        total = mem_resize(seq_t, total, total_cap);
     }
 
     /* Compute DP from max_n_comp + 1 up to n                           */

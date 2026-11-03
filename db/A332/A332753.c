@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   new_seq_arr
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/new_seq_arr.h"
+#include "../utils/mem.h"
+
+static inline seq_t* new_seq_arr(size_t sz)
+{
+    return mem_new(seq_t, sz);
+}
 
 #if defined(__cplusplus)
 

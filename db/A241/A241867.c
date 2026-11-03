@@ -6,8 +6,9 @@
  * Offset:    7    (a(7) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 36, u64 n <= 73, u128 n <= 155,
+ * Range:     u8 n <= 13, u16 n <= 20, u32 n <= 36, u64 n <= 73, u128 n <= 155,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 948 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
     a(n) = sum_{s>=1} sum_{r>=0} C(r+7,7) * C(n-7s-r(s+1)+r-1, r-1),
     where the inner sum over r runs over all r such that n-7s - r(s+1) >= 0.
     For r = 0 this reduces to the single composition n = 7s.  */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

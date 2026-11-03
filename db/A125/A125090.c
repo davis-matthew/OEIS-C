@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 83, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 /* Standard headers */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Function required by the specification */
 seq_t a(idx_t n)
@@ -62,14 +64,14 @@ seq_t a(idx_t n)
 
     /* Allocate three working arrays of length r+1 (maximum needed).   */
     idx_t max_len = r + 1;
-    seq_t *prev2 = (seq_t *)malloc(max_len * sizeof(seq_t));
-    seq_t *prev  = (seq_t *)malloc(max_len * sizeof(seq_t));
-    seq_t *cur   = (seq_t *)malloc(max_len * sizeof(seq_t));
+    seq_t *prev2 = mem_new(seq_t, max_len);
+    seq_t *prev  = mem_new(seq_t, max_len);
+    seq_t *cur   = mem_new(seq_t, max_len);
     if (!prev2 || !prev || !cur) {
         /* Allocation failure – return 0 as a safe fallback   */
-        if (prev2) free(prev2);
-        if (prev)  free(prev);
-        if (cur)   free(cur);
+        if (prev2) mem_free(prev2);
+        if (prev)  mem_free(prev);
+        if (cur)   mem_free(cur);
         return (seq_t)0;
     }
 
@@ -113,9 +115,9 @@ seq_t a(idx_t n)
     seq_t answer = prev[r - k];
 
     /* Free allocated memory */
-    free(prev2);
-    free(prev);
-    free(cur);
+    mem_free(prev2);
+    mem_free(prev);
+    mem_free(cur);
 
     return answer;
 }

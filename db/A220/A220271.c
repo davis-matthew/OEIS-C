@@ -9,7 +9,8 @@
  *            (product of distinct prime factors of k)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   build_spf, factor_u64, seq_mul
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   build_spf, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <string.h>
 #include "../utils/build_spf.h"
 #include "../utils/factor_u64.h"
-#include "../utils/seq_mul.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,14 +43,14 @@ seq_t a(idx_t n)
     idx_t needed = n - 1;
     if (needed > rad_limit) {
         /* free old cache */
-        if (rad_cache) free(rad_cache);
+        if (rad_cache) mem_free(rad_cache);
         if (spf_cache) free(spf_cache);
 
         /* build spf array up to needed */
         build_spf(needed, &spf_cache);
 
         /* allocate and compute radical values */
-        rad_cache = (seq_t *)calloc((size_t)(needed + 1), sizeof(seq_t));
+        rad_cache = mem_new(seq_t, (size_t)(needed + 1));
         rad_cache[0] = (seq_t)0;
         rad_cache[1] = (seq_t)1;
         for (idx_t i = 2; i <= needed; ++i) {

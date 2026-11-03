@@ -12,7 +12,8 @@
  *            use the classic formula k' = Σ e_i * (k / p_i)...
  * Range:     u8 n <= 37, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   ensure_res_cap, factor_u64
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/ensure_res_cap.h"
+#include "../utils/mem.h"
+
+/* Ensure the cache array has space for at least `needed` elements. */
+static void ensure_res_cap(size_t needed, size_t *cap, seq_t **p)
+{
+    if (*cap < needed) {
+        size_t new_cap = (*cap == 0) ? 1 : (*cap << 1);
+        while (new_cap < needed) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *p, new_cap);
+        if (!tmp) abort();            /* Out of memory – terminate. */
+        *p = tmp;
+        *cap = new_cap;
+    }
+}
 
 static seq_t arithmetic_derivative(uint64_t n)
 {

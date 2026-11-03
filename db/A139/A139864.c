@@ -9,7 +9,8 @@
  *            any index order
  * Range:     u8 n <= 9, u16 n <= 822, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 62 terms through n = 9648 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* integer square root (64‑bit) */
 static inline uint64_t isqrt_u64(uint64_t x)
@@ -67,10 +69,10 @@ seq_t a(idx_t n)
     /* initialise cache if first call */
     if (cache == NULL) {
         size_t cap = (size_t)(n > 200 ? n : 200);
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache_len = 0;
     } else if (cache_len < n) {          /* grow if needed */
-        cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)n);
     }
 
     /* set first term */

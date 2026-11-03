@@ -12,7 +12,8 @@
  *            denominator by checking whether there exists a k with (p‑1)...
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   binom_not_divisible, build_primes_upto, seq_gcd
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,26 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_gcd.h"
-#include "../utils/binom_not_divisible.h"
+#include "../utils/gcd.h"
+
+/* Returns 1 if binom(n,k) is NOT divisible by prime p,
+   0 otherwise (using Lucas' theorem). */
+static bool binom_not_divisible(idx_t n, idx_t k, uint64_t p)
+{
+    if (k == 0 || k == n)   /* binom(n,0)=binom(n,n)=1 */
+        return 1;
+    while (n > 0 || k > 0) {
+        uint64_t n_d = n % p;
+        uint64_t k_d = k % p;
+        if (k_d > n_d)
+            return 0;         /* position where binom is 0 mod p */
+        n /= p;
+        k /= p;
+    }
+    return 1;
+}
 
 static uint64_t *prime_list   = NULL;
 static size_t   prime_cnt    = 0;
@@ -76,6 +94,6 @@ seq_t a(idx_t n)
         return 1;                 /* a(0) = 1 by definition */
     seq_t Pn      = denom_of_bpoly(n);
     seq_t Pnm1    = denom_of_bpoly(n - 1);
-    seq_t g       = seq_gcd((seq_t)n, Pnm1);   /* gcd between n and denominator of B_{n-1} */
+    seq_t g       = gcd((seq_t)n, Pnm1);   /* gcd between n and denominator of B_{n-1} */
     return Pn * g / Pnm1;
 }

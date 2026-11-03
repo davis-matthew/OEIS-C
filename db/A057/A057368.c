@@ -12,7 +12,8 @@
  *            deterministic Miller–Rabin test for 64‑bit * integers and co...
  * Range:     u8 n <= 1884, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_mul_u64
+ * Validated: standard, pass, 107 terms through n = 9312 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mod_mul_u64.h"
+#include "../utils/mulmod.h"
 
 /* 64‑bit modular multiplication without overflow (uses __uint128_t). */
 
@@ -69,7 +70,7 @@ static bool is_prime_u64(uint64_t n) {
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (unsigned r = 1; r < s; ++r) {
-            x = mod_mul_u64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;

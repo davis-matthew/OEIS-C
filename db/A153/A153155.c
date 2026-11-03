@@ -8,7 +8,8 @@
  *            (1+q^{2k}) / ∏_{k=0}^m (1+q^{2k+1})
  * Range:     i8 n <= 32, i16 n <= 91, i32 n <= 288, i64 n <= 991,
  *            i128 n <= 3617, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9608 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    maintaining the series for P_m/D_m incrementally. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External types: seq_t, idx_t are supplied by the build system */
 seq_t a(idx_t n)
@@ -24,12 +26,12 @@ seq_t a(idx_t n)
     /* Allocate arrays of length n+1 to hold coefficients up to n. */
     idx_t  N   = n;
     size_t sz  = (size_t)(N + 1);
-    seq_t *A    = (seq_t*)calloc(sz, sizeof(seq_t));   /* final accumulated series */
-    seq_t *R    = (seq_t*)calloc(sz, sizeof(seq_t));   /* current P_m/D_m series */
-    seq_t *Rnext= (seq_t*)calloc(sz, sizeof(seq_t));   /* temporary for next m */
+    seq_t *A    = mem_new(seq_t, sz);   /* final accumulated series */
+    seq_t *R    = mem_new(seq_t, sz);   /* current P_m/D_m series */
+    seq_t *Rnext= mem_new(seq_t, sz);   /* temporary for next m */
 
     if (!A || !R || !Rnext) {
-        free(A); free(R); free(Rnext);
+        mem_free(A); mem_free(R); mem_free(Rnext);
         return (seq_t)0;
     }
 
@@ -84,8 +86,8 @@ seq_t a(idx_t n)
 
     seq_t result = A[N];
 
-    free(A);
-    free(R);
-    free(Rnext);
+    mem_free(A);
+    mem_free(R);
+    mem_free(Rnext);
     return result;
 }

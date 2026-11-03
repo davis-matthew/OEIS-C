@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 6811, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9371 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- global state ---------- */
 static uint32_t *spf = NULL;           /* smallest prime factor table */
@@ -123,7 +125,7 @@ static void grow_seq(size_t needed) {
     if (seq_cap >= needed) return;
     seq_cap = seq_cap * 2;
     if (seq_cap < needed) seq_cap = needed;
-    seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
     if (!seq_arr) exit(1);
 }
 
@@ -131,7 +133,7 @@ static void grow_seq(size_t needed) {
 seq_t a(idx_t n) {
     if (seq_arr == NULL) {
         seq_cap = 32;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         if (!seq_arr) exit(1);
     }
     /* Generate terms until we have at least n of them */

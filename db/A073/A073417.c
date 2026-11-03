@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 96, u16 n <= 336, u32 n <= 336, u64 n <= 336,
  *            u128 n <= 336, big any n
- * Helpers:   none
+ * Validated: full, pass, 336 terms through n = 336 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Masks for forbidden letters: bit0 = 'a', bit1 = 'f', bit2 = 'l', bit3 = 'w'.
    The array holds a mask for each number from 0 to 19 (inclusive). */
@@ -82,7 +84,7 @@ static void init_flawless(void)
 {
     if (flawless)
         return;
-    flawless = (seq_t *)malloc(1000 * sizeof(seq_t));
+    flawless = mem_new(seq_t, 1000);
     idx_t i = 0;
     for (idx_t n = 0; n <= 999; ++n) {
         if (!has_forbidden_letters(n))

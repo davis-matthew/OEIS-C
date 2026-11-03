@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 27, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* Standard headers */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparison function for qsort on seq_t values. */
 static int seq_cmp(const void *p1, const void *p2)
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the raw values. */
-        qsort(raw, raw_cnt, sizeof(seq_t), seq_cmp);
+        mem_qsort(raw, raw_cnt, sizeof(seq_t), seq_cmp);
 
         /* Remove duplicates in place. */
         idx_t uniq = 0;

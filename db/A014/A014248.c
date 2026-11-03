@@ -11,14 +11,35 @@
  *            complementary Beatty sequence for beta = alpha/(alpha-1).)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 2360, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 82 terms through n = 9730 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"   /* seq_t floor_sqrt(seq_t x) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,11 +56,11 @@ seq_t a(idx_t n)
     size_t arr_size = (size_t)new_max + 1;        /* indices 1..new_max used */
 
     /* Allocate arrays for b(i) and final a(i). */
-    seq_t *b = (seq_t *)calloc(arr_size, sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, arr_size);
     if (!b) return (seq_t)0;           /* allocation failed */
 
-    seq_t *new_cache = (seq_t *)calloc(arr_size, sizeof(seq_t));
-    if (!new_cache) { free(b); return (seq_t)0; }
+    seq_t *new_cache = mem_new(seq_t, arr_size);
+    if (!new_cache) { mem_free(b); return (seq_t)0; }
 
     seq_t max_b = 0;      /* keep track of the largest b(i) */
 
@@ -69,7 +90,7 @@ seq_t a(idx_t n)
     /* Step 2: build a bitmap of numbers present in the b sequence. */
     size_t pres_size = (size_t)max_b + 2;          /* +2 to avoid bounds checking */
     bool *present = (bool *)calloc(pres_size, sizeof(bool));
-    if (!present) { free(b); free(new_cache); return (seq_t)0; }
+    if (!present) { mem_free(b); mem_free(new_cache); return (seq_t)0; }
 
     for (idx_t i = 1; i <= new_max; ++i)
         present[(size_t)b[i]] = true;
@@ -87,11 +108,11 @@ seq_t a(idx_t n)
         }
     }
 
-    free(b);
+    mem_free(b);
     free(present);
 
     /* Replace old cache with the new one. */
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache     = new_cache;
     cache_max = new_max;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* sequence array (sorted ascending) */
 static size_t seq_len = 0;         /* number of terms stored */
@@ -84,7 +86,7 @@ static void init_once(void)
 
     /* Build the desired sequence. */
     size_t cap = 128;
-    seq = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq = mem_new(seq_t, cap);
     if (!seq) {
         free(phi); free(tau); free(spf);
         exit(EXIT_FAILURE);
@@ -95,7 +97,7 @@ static void init_once(void)
         if (phi_phi == tau[i]) {
             if (seq_len == cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, cap);
                 if (!tmp) {
                     free(phi); free(tau); free(spf);
                     exit(EXIT_FAILURE);
@@ -107,7 +109,7 @@ static void init_once(void)
     }
 
     /* Trim the dynamic array to the exact size. */
-    seq_t *tmp = (seq_t *)realloc(seq, seq_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, seq_len);
     if (tmp)
         seq = tmp;
 

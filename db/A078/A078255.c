@@ -12,14 +12,17 @@
  *            testing squares for this property
  * Range:     u8 n <= 12, u16 n <= 106, u32 n <= 566, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_frequencies, digit_len
+ * Validated: standard, pass, 65 terms through n = 9564 (2026-11-01)
+ * Helpers:   digit_frequencies, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/digit_len.h"
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
         seq_t sq = (seq_t)i * (seq_t)i;     /* compute the square */
 
         /* Count the decimal digits of sq. */
-        int m = digit_len(sq);              /* number of digits */
+        int m = num_digits(sq);              /* number of digits */
         int max_per_digit = (m + 9) / 10;   /* ceil(m/10) */
 
         unsigned int freq[10];

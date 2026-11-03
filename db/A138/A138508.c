@@ -10,17 +10,19 @@
  *            returns 0 if no such m is found
  * Range:     u8 n <= 14, u16 n <= 111, u32 n <= 111, u64 n <= 111,
  *            u128 n <= 111, big any n
- * Helpers:   count_prime_factors
+ * Validated: partial, pass, 111 terms through n = 111 (2026-11-01)
+ * Helpers:   bigomega_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
 
 static bool is_semiprime(seq_t x) {
-    return count_prime_factors(x) == 2;
+    return bigomega_seq(x) == 2;
 }
 
 seq_t a(idx_t n) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* Recurrence: a(1)=1; a(n)=gcd(n,a(n-1))+gcd(n+1,a(n-1)) */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
         size_t new_cap = (cap == 0 ? needed : (size_t)(2 * cap));
         if (new_cap < needed)
             new_cap = needed;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (new_cache == NULL) abort();          /* allocation failed */
         cache = new_cache;
         cap   = (idx_t)new_cap;

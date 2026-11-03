@@ -8,13 +8,15 @@
  *            a finite sequence of length 16)
  * Range:     u8 n <= 14, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The function assumes seq_t can represent the value 440. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t divs[16];
 static size_t div_count = 0;
@@ -48,7 +50,7 @@ static void init_divisors(void)
     div_count = idx; /* should be 16 */
 
     /* Sort the array */
-    qsort(divs, div_count, sizeof(seq_t), cmp_seq);
+    mem_qsort(divs, div_count, sizeof(seq_t), cmp_seq);
 }
 
 /* Return the nth term (1‑based).  For n > 16, return 0. */

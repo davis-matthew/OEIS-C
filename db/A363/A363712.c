@@ -9,12 +9,14 @@
  *            a positive fourth power * (OEIS A363712)
  * Range:     u8 n <= 106, u16 n <= 106, u32 n <= 106, u64 n <= 106,
  *            u128 n <= 106, big any n
- * Helpers:   none
+ * Validated: partial, pass, 106 terms through n = 106 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Grow the cache array if needed (and initialise new entries to 0). */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) abort();
         for (idx_t i = cache_size; i < new_size; ++i)
             new_cache[i] = (seq_t)0;

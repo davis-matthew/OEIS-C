@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 86, u16 n <= 392, u32 n <= 1352, u64 n <= 4901,
+ * Range:     u8 n <= 128, u16 n <= 392, u32 n <= 1352, u64 n <= 4901,
  *            u128 n <= 5151, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 108 terms through n = 5061 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
    <../utils/binom.h>.  See the OEIS entry for the full description. */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -67,5 +68,5 @@ seq_t a(idx_t n)
     idx_t k = j >> 1;               /* k = j/2                          */
     idx_t n1 = r - k - 1;           /* upper argument of the binomial    */
 
-    return binom(n1, k);
+    return binomial(n1, k);
 }

@@ -10,14 +10,16 @@
  *            diagonal ordered from k = d down to 1 (i.e. decreasing n).
  *            T(k,n) is defined by T(k,n) = binomial(n-1,k) + sum_{i=0..k}
  *            binomial(n,i), with the convention binomial(n,k)=0 for...
- * Range:     u8 n <= 74, u16 n <= 316, u32 n <= 1208, u64 n <= 1275,
+ * Range:     u8 n <= 87, u16 n <= 317, u32 n <= 1209, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 107 terms through n = 1274 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

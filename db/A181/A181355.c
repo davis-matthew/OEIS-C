@@ -8,13 +8,22 @@
  * Formula:   a(3*n+1)=4^(2^n), a(3*n+2)=3^(2^n), a(3*n+3)=4^(2^n)-3^(2^n)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 12, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   pow_two_exp
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_two_exp.h"
+
+/* Compute base^(2^exp) by repeated squaring. */
+static seq_t pow_two_exp(seq_t base, idx_t exp)
+{
+    seq_t result = base;
+    for (idx_t i = 0; i < exp; ++i)
+        result = result * result;
+    return result;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 890, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_14
+ * Validated: standard, pass, 56 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_14.h"
+#include "../utils/mem.h"
+
+/* Test whether seq_t number `x` has the substring "14" in its
+   base‑9 representation. Digits are extracted least‑significant
+   first; the pattern "1""4" corresponds to a digit of 1 followed
+   immediately (more significant) by a digit of 4. */
+static bool has_14(seq_t x)
+{
+    uint8_t digits[64];   /* 128‑bit numbers have <= 40 base‑9 digits */
+    size_t sz = 0;
+    while (x > 0) {
+        digits[sz++] = (uint8_t)(x % 9);
+        x /= 9;
+    }
+    for (size_t i = 1; i < sz; ++i)
+        if (digits[i] == 1 && digits[i-1] == 4)
+            return true;
+    return false;
+}
 
 /* Cache of discovered terms */
 static seq_t *cache    = NULL;
@@ -41,7 +60,7 @@ static void ensure_cache(idx_t need)
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < (need + 1) * 2)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* allocation failure */
         cache    = tmp;
         cache_cap = new_cap;

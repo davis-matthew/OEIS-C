@@ -10,7 +10,8 @@
  *            must lie in the set {0,2,3,4} modulo 6
  * Range:     u8 n <= 4, u16 n <= 22, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   residue_counts
+ * Validated: standard, pass, 53 terms through n = 206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
    the integer types. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/residue_counts.h"
+
+/* Count how many integers in [1,N] have a given residue modulo 6. */
+static void residue_counts(idx_t N, seq_t *cnt)
+{
+    for (int r = 0; r < 6; ++r)
+    {
+        if (r == 0)
+            cnt[0] = N / 6U;
+        else if ((seq_t)r <= N)
+            cnt[r] = (N - (idx_t)r) / 6U + 1U;
+        else
+            cnt[r] = 0U;
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -9,7 +9,8 @@
  *            less than its greatest prime power
  * Range:     u8 n <= 163, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   big_pow, build_primes_upto, factor_u64, int_sqrt
+ * Validated: standard, pass, 80 terms through n = 2342 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, ipow, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/ipow.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
                                           : (uint64_t)terms[term_len-1] + 1;
         for (uint64_t cand = start; ; ++cand) {
             /* Ensure we have enough primes for factoring cand */
-            idx_t sqrt_lim = int_sqrt(cand) + 1;
+            idx_t sqrt_lim = isqrt(cand) + 1;
             if (prime_limit < sqrt_lim) {
                 if (prime_list)
                     free(prime_list);
@@ -60,15 +62,15 @@ seq_t a(idx_t n)
             factor_u64(cand, primes, exps, &cnt);
 
             /* Compute prime powers */
-            seq_t pow_min = big_pow(primes[0], (seq_t)exps[0]);
-            seq_t pow_max = big_pow(primes[cnt-1], (seq_t)exps[cnt-1]);
+            seq_t pow_min = ipow(primes[0], (seq_t)exps[0]);
+            seq_t pow_max = ipow(primes[cnt-1], (seq_t)exps[cnt-1]);
 
             if (pow_min < pow_max) {
                 /* Candidate satisfies the condition */
                 seq_t val = (seq_t)cand;
                 if (term_len + 1 > term_cap) {
                     term_cap = term_cap ? term_cap * 2 : 16;
-                    terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, term_cap);
                 }
                 terms[term_len++] = val;
                 break; /* move on to the next required term */

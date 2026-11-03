@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 58, u128 n <= 116,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 876 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * Recurrence valid for n > 5.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage, as required */
 seq_t a(idx_t n)
@@ -39,13 +41,13 @@ seq_t a(idx_t n)
         while (new_cap < n)
             new_cap <<= 1;          /* double until it contains n */
 
-        seq_t *tmp = (seq_t *)calloc((size_t)(new_cap + 1), sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, (size_t)(new_cap + 1));
         if (!tmp)
             abort();               /* allocation failure */
 
         if (cache) {
-            memcpy(tmp, cache, (size_t)(cap + 1) * sizeof(seq_t));
-            free(cache);
+            mem_copy(tmp, cache, (size_t)(cap + 1) * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = tmp;
         cap   = new_cap;

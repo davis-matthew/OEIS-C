@@ -7,15 +7,24 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (-n*(n-k+1))^k / k!
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 13, i128 n <= 17,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free_array, seq_pow
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/seq_alloc_new_array.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 seq_t a(idx_t n)
 {
@@ -33,7 +42,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t k = 0; k <= n; ++k) {
         seq_t base = -(seq_t)n * ((seq_t)n - (seq_t)k + 1);
-        seq_t pow_val = seq_pow(base, k);
+        seq_t pow_val = ipow_idx(base, k);
         seq_t term = pow_val * prod[k];
         sum += term;
     }

@@ -10,13 +10,33 @@
  *            1‑s. Computed by a transfer‑matrix DP over column configurations
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 53,
  *            big any n
- * Helpers:   valid_col
+ * Validated: standard, pass, 38 terms through n = 208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/valid_col.h"
+
+static inline int valid_col(int col, int left, int right)
+{
+    for (int r = 0; r < 3; ++r) {
+        if ((col >> r) & 1) {
+            int cnt = 0;
+            /* horizontal neighbours */
+            if ((left >> r) & 1) ++cnt;  /* left */
+            if ((right >> r) & 1) ++cnt; /* right */
+            /* diagonal neighbours (up‑left, down‑right) */
+            if (r > 0 && ((left >> (r - 1)) & 1)) ++cnt;
+            if (r < 2 && ((right >> (r + 1)) & 1)) ++cnt;
+            /* anti‑diagonal neighbours (up‑right, down‑left) */
+            if (r > 0 && ((right >> (r - 1)) & 1)) ++cnt;
+            if (r < 2 && ((left >> (r + 1)) & 1)) ++cnt;
+            if (cnt < 2 || cnt > 4) return 0;
+        }
+    }
+    return 1;
+}
 
 seq_t a(idx_t n)
 {

@@ -11,7 +11,8 @@
  *            a(2*n-3-2^(p+1))
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: floor(log2(x)) for x>0.  Works for 64‑bit unsigned.  */
 static inline unsigned int floor_log2_u64(uint64_t x)
@@ -53,11 +55,11 @@ seq_t a(idx_t n)
         size_t newCap = capacity ? capacity * 2 : 4;
         while (newCap < (size_t)n) newCap <<= 1;
 
-        seq_t *newA    = (seq_t*)realloc(A,    (newCap + 1) * sizeof(seq_t));
-        seq_t *newPref = (seq_t*)realloc(Pref, (newCap + 1) * sizeof(seq_t));
+        seq_t *newA    = mem_resize(seq_t, A, (newCap + 1));
+        seq_t *newPref = mem_resize(seq_t, Pref, (newCap + 1));
         if (!newA || !newPref) abort(); /* memory exhaustion */
 
-        /* If this is the first allocation, initialise Pref[0] */
+        /* If this is the first allocation, initialise newPref[0] */
         if (capacity == 0) newPref[0] = (seq_t)0;
 
         A    = newA;

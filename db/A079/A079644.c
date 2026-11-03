@@ -7,11 +7,15 @@
  * Formula:   a(n) = n mod floor(sqrt(n))
  * Range:     u8 n <= 314, u16 n <= 1023, u32 n <= 1023, u64 n <= 1023,
  *            u128 n <= 1023, big any n
+ * Validated: standard, pass, 121 terms through n = 1008 (2026-11-01)
  * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)

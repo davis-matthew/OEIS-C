@@ -8,12 +8,14 @@
  *            r*(r+1)/2
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 39, u64 n <= 81, u128 n <= 143,
  *            big any n
+ * Validated: standard, pass, 61 terms through n = 1292 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

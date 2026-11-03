@@ -9,7 +9,8 @@
  *            digit numbers in ascending order of the digit value
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow10.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t *cache = NULL;    /* array of cached terms */
 static size_t cache_len = 0;   /* number of terms currently cached (indices 0 .. cache_len-1) */
@@ -37,7 +48,7 @@ static void ensure_capacity(idx_t n)
     if (cache_cap > n) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while (new_cap <= n) new_cap <<= 1;          /* double until big enough */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                           /* allocation failed */
     cache = tmp;
     cache_cap = new_cap;

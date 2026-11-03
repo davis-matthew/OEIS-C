@@ -9,7 +9,8 @@
  *            zeros and 7 ones (i.e. 14 bits total)
  * Range:     u8 none, u16 n <= 189, u32 n <= 189, u64 n <= 189, u128 n <= 189,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: full, pass, 189 terms through n = 189 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
         /* The maximum number of 14-bit numbers with 7 ones is C(13,6)=1716. */
         const size_t max_candidates = 1716;
-        primes = (seq_t *)malloc(max_candidates * sizeof(seq_t));
+        primes = mem_new(seq_t, max_candidates);
         if (!primes) {            /* allocation failed – give up */
             initialized = true;
             return (seq_t)0;
@@ -51,14 +53,14 @@ seq_t a(idx_t n)
             if (pc != 7) continue;         /* not 7 ones */
 
             /* For 14‑bit values a small primality routine is sufficient. */
-            if (is_prime_small((uint64_t)v)) {
+            if (is_prime_seq((uint64_t)v)) {
                 primes[primes_cnt++] = (seq_t)v;
             }
         }
 
         /* Shrink to the exact number of primes found. */
         if (primes_cnt < max_candidates) {
-            seq_t *tmp = (seq_t *)realloc(primes, primes_cnt * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, primes, primes_cnt);
             if (tmp) primes = tmp;
         }
 

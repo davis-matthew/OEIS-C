@@ -6,15 +6,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = gcd(2n+1, lcm{1 + d : d|2n+1}) - gcd(2n+1, sigma(2n+1))
- * Range:     i8 n <= 15, i16 n <= 51, i32 n <= 6506, i64 n <= 9993,
- *            i128 n <= 9993, big any n
+ * Range:     i8 n <= 15, i16 n <= 51, i32 n <= 6506, i64 n <= 32768,
+ *            i128 n <= 32768, big any n
+ * Validated: standard, pass, 140 terms through n = 9993 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 /* Recursively generate all divisors of a number given its prime factorization. */
 static void gen_divisors_rec(const uint64_t *pr, const uint64_t *ex,

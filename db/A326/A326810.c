@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = smallest prime that does not divide the prime product
  *            form of n in primorial base (A276086)
- * Range:     u8 n <= 9762, u16 n <= 9762, u32 n <= 9762, u64 n <= 9762,
- *            u128 n <= 9762, big any n
+ * Range:     u8 n <= 32768, u16 n <= 32768, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 122 terms through n = 9762 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            is divisible by 3m (equivalently, C(2m,m) divisible by 3m(m+1))
  * Range:     u8 n <= 21, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------
    Static state for memoisation of terms and SPF sieve.
@@ -47,7 +49,7 @@ static void ensure_terms_cap(size_t needed)
     size_t newcap = terms_cap ? terms_cap * 2 : 16;
     while (newcap < needed)
         newcap *= 2;
-    seq_t *newp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, terms, newcap);
     if (!newp)
         exit(EXIT_FAILURE);
     terms = newp;

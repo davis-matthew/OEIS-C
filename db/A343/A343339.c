@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Global data for the sieve and for the cached values.               */
@@ -149,8 +151,7 @@ static void extend_sequence(idx_t target)
         if (is_valid_uint64(last_checked)) {
             if (seq_cache_size >= seq_cache_cap) {
                 seq_cache_cap = seq_cache_cap ? seq_cache_cap * 2 : 16;
-                seq_cache = (seq_t *)realloc(seq_cache,
-                                             seq_cache_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cache_cap);
             }
             seq_cache[seq_cache_size++] = (seq_t)last_checked;
         }

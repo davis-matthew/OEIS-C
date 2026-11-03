@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..⌊n/2⌋} binomial(2*n-3*k-1, k) * Catalan(n-2*k)
- * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 64,
+ * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 33, u128 n <= 64,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 1298 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,8 +15,10 @@
 
 /*  OEIS A387063;  offset 0  (a(0)=1) */
 
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b) -> seq_t */
-#include "../utils/catalan.h"    /* catalan(idx_t k) -> seq_t */
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/catalan.h"
 
 seq_t a(idx_t n)
 {

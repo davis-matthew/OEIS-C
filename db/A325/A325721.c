@@ -12,7 +12,8 @@
  *            follows the definition directly
  * Range:     u8 n <= 1318, u16 n <= 5001, u32 n <= 5001, u64 n <= 5001,
  *            u128 n <= 5001, big any n
- * Helpers:   seq_to_str
+ * Validated: standard, pass, 112 terms through n = 4820 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_to_str.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 static seq_t *cache = NULL;        /* cached sequence values */
 static idx_t cache_size = 0;       /* number of terms already computed */
@@ -40,7 +62,7 @@ static void reserve_cache(idx_t n)
     if (n <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < n) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp && new_cap > 0) abort();
     cache = tmp;
     cache_cap = new_cap;

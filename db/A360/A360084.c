@@ -8,7 +8,8 @@
  *            c_m = Σ_{i=0..m} a_i * a_{m-i}. a(0)=1, c_0=1
  * Range:     i8 n <= 7, i16 n <= 13, i32 n <= 25, i64 n <= 30, i128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    dates c(n) incrementally, so any order of calls is supported. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,13 +33,13 @@ seq_t a(idx_t n)
     if (need > a_cap) {
         size_t new_cap = a_cap ? a_cap << 1 : 16;
         while (new_cap < need) new_cap <<= 1;
-        a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
         a_cap = new_cap;
     }
     if (need > c_cap) {
         size_t new_cap = c_cap ? c_cap << 1 : 16;
         while (new_cap < need) new_cap <<= 1;
-        c_arr = (seq_t *)realloc(c_arr, new_cap * sizeof(seq_t));
+        c_arr = mem_resize(seq_t, c_arr, new_cap);
         c_cap = new_cap;
     }
 

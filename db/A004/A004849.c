@@ -8,13 +8,15 @@
  *            powers
  * Range:     u8 n <= 61, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *sequence = NULL;
@@ -66,7 +68,7 @@ seq_t a(idx_t n) {
             if (reach[i]) count++;
         }
         
-        sequence = (seq_t *)malloc(count * sizeof(seq_t));
+        sequence = mem_new(seq_t, count);
         idx_t idx = 0;
         for (long long i = 0; i <= upper; i++) {
             if (reach[i]) {

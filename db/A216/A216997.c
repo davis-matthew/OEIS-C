@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1023, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 63 terms through n = 9398 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* cache for previously found terms */
 static seq_t *cache = NULL;     /* array of found terms                    */
@@ -31,11 +33,11 @@ static void ensure_cache_capacity(size_t new_cap)
     if (at_least < new_cap) at_least = new_cap;
 
     /* Allocate new storage and copy existing elements */
-    seq_t *new_ptr = (seq_t*)malloc(sizeof(seq_t) * at_least);
+    seq_t *new_ptr = mem_new(seq_t, at_least);
     for (size_t i = 0; i < cache_len; ++i)
         new_ptr[i] = cache[i];
 
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = new_ptr;
     cache_cap = at_least;
 }

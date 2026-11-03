@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 382, i32 n <= 1500, i64 n <= 1500,
  *            i128 n <= 1500, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 87 terms through n = 1192 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
    For general n, a(n) = ∏p^e a(p^e)  over all prime powers of n. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* Helper that evaluates the prime‐power contribution. */
 static seq_t _prime_power_val(idx_t p, idx_t e)
@@ -32,11 +33,11 @@ static seq_t _prime_power_val(idx_t p, idx_t e)
         return (seq_t)(-3);
     }
     if (p == 3) {
-        seq_t term = seq_pow((seq_t)3, e + 1);
+        seq_t term = ipow_idx((seq_t)3, e + 1);
         return (seq_t)4 - term;
     }
     /* p > 3 */
-    seq_t num = seq_pow((seq_t)p, e + 1) - (seq_t)1;
+    seq_t num = ipow_idx((seq_t)p, e + 1) - (seq_t)1;
     seq_t den = (seq_t)p - (seq_t)1;
     return num / den;
 }

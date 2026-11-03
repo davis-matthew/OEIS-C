@@ -11,14 +11,20 @@
  *            row‑by‑row
  * Range:     u8 n <= 1275, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   gcd, prev_row_sum
+ * Validated: standard, pass, 94 terms through n = 1243 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/prev_row_sum.h"
+
+/* Total terms in rows 1..(r-1) : C(r-1) = (r-1)*r/2 */
+static inline idx_t prev_row_sum(idx_t r)
+{
+    return (unsigned __int128)(r - 1) * r / 2;
+}
 
 /* Find the row r such that the n-th term lies in row r
    of the triangle.  Row r contains exactly r terms. */

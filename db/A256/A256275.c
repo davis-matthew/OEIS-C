@@ -8,11 +8,13 @@
  * Formula:   a(n) = ((2^(n^2) - 2)*(2^n - 1))/(2*2^n - 1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
+ * Validated: standard, pass, 27 terms through n = 27 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Computes the n-th term of OEIS A256275.  The index n is 1‑based

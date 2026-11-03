@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    and array indexing into a 64‑bit index space.  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* State needed for memoisation */
 static seq_t *self_nums   = NULL;   /* stored self‑numbers */
@@ -43,7 +45,7 @@ static void ensure_self_capacity(size_t min_cap)
     if (min_cap <= self_cap) return;
     size_t new_cap = self_cap ? self_cap * 2 : 8;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *tmp = (seq_t *)realloc(self_nums, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, self_nums, new_cap);
     if (!tmp) return;          /* allocation failure; caller will abort */
     self_nums = tmp;
     self_cap = new_cap;

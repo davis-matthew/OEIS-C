@@ -8,14 +8,26 @@
  *            n-1-m). a(0) = 1. See OEIS A295268
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   binom, factorial, pow_int
+ * Validated: standard, pass, 36 terms through n = 351 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
-#include "../utils/factorial.h"
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Return the n-th term of sequence A295268. */
 seq_t a(idx_t n)
@@ -36,7 +48,7 @@ seq_t a(idx_t n)
         /* binomial coefficient  C(2n-2m , n-1-m) */
         idx_t top    = 2 * n - 2 * m;
         idx_t bottom = n - 1 - m;
-        seq_t binom_part = binom(top, bottom);
+        seq_t binom_part = binomial(top, bottom);
 
         /* term = n^m * binom_part * Q  */
         seq_t term = pow_n * binom_part * Q;

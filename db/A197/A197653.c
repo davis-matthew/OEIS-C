@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 22, u32 n <= 58, u64 n <= 179, u128 n <= 644,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,6 +42,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are provided by the build system.  */
 
@@ -56,10 +58,10 @@ seq_t a(idx_t n)
 
     /* Allocate temporary arrays for this row.  */
     size_t sz = (size_t)r + 1;
-    seq_t *C  = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *T2 = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *T3 = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *T4 = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *C  = mem_new(seq_t, sz);
+    seq_t *T2 = mem_new(seq_t, sz);
+    seq_t *T3 = mem_new(seq_t, sz);
+    seq_t *T4 = mem_new(seq_t, sz);
 
     /* C[j] = binom(r , j) computed multiplicatively.  */
     C[0] = 1;
@@ -84,10 +86,10 @@ seq_t a(idx_t n)
     seq_t result = T4[k];
 
     /* Clean up.  */
-    free(C);
-    free(T2);
-    free(T3);
-    free(T4);
+    mem_free(C);
+    mem_free(T2);
+    mem_free(T3);
+    mem_free(T4);
 
     return result;
 }

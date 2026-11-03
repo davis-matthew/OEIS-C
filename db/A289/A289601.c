@@ -11,13 +11,15 @@
  *            * (4*k - 2) / (k + 1) (k ≥ 1)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 17, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for Catalan numbers C[0 ..] */
 static seq_t *cat = NULL;      /* array of Catalan numbers */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
             while (new_cap < need)
                 new_cap <<= 1;
             /* realloc with explicit cast for C++ */
-            cat = (seq_t *)realloc(cat, new_cap * sizeof(seq_t));
+            cat = mem_resize(seq_t, cat, new_cap);
             cat_cap = new_cap;
         }
         /* compute missing Catalan numbers */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 32, i16 n <= 99, i32 n <= 326, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
     g[k]≠0 only for k=3t² (t>0); f[n]≠0 only for n=t² (t>0).          */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *f = NULL;
 static seq_t *g = NULL;
@@ -40,9 +42,9 @@ static void ensure_capacity(idx_t N)
         idx_t newCap = capacity ? capacity * 2 : 128;
         if (newCap < N + 1) newCap = N + 1;
 
-        seq_t *f_new = (seq_t*)malloc(newCap * sizeof(seq_t));
-        seq_t *g_new = (seq_t*)malloc(newCap * sizeof(seq_t));
-        seq_t *h_new = (seq_t*)malloc(newCap * sizeof(seq_t));
+        seq_t *f_new = mem_new(seq_t, newCap);
+        seq_t *g_new = mem_new(seq_t, newCap);
+        seq_t *h_new = mem_new(seq_t, newCap);
 
         for (idx_t i = 0; i < capacity; ++i) {
             f_new[i] = f[i];
@@ -50,7 +52,7 @@ static void ensure_capacity(idx_t N)
             h_new[i] = h[i];
         }
 
-        free(f); free(g); free(h);
+        mem_free(f); mem_free(g); mem_free(h);
         f = f_new; g = g_new; h = h_new;
         capacity = newCap;
     }

@@ -8,16 +8,35 @@
  *            decimal digit is even)
  * Range:     u8 n <= 18, u16 n <= 2945, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, is_prime, rev
+ * Validated: standard, pass, 78 terms through n = 9010 (2026-11-03)
+ * Helpers:   is_prime, mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/append_candidate.h"
-#include "../utils/rev.h"
+#include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +53,7 @@ seq_t a(idx_t n)
             continue;
         /* rev(cand) returns the decimal reversal of cand */
         /* If the reversal is even, the first decimal digit of cand is even */
-        if ((rev(cand) & 1) != 0)
+        if ((reverse_digits_idx(cand) & 1) != 0)
             continue;
         /* Append the prime as the next term */
         append_candidate(&cache, &len, &cap, (seq_t)cand);

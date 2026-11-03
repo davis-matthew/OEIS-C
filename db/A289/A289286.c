@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   has_nonzero_digits
+ * Validated: full, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/has_nonzero_digits.h"
+#include "../utils/mem.h"
+
+static inline bool has_nonzero_digits(seq_t x) {
+    if (x == (seq_t)0) return false;             /* 0 contains digit 0 */
+    while (x != (seq_t)0) {
+        if ((x % (seq_t)10) == (seq_t)0) return false;
+        x = x / (seq_t)10;
+    }
+    return true;
+}
 
 /* Helpers --------------------------------------------------------------- */
 
@@ -60,7 +70,7 @@ static void ensure_cache(size_t len) {
     if (len <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < len) new_cap = len;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     cache  = tmp;
     cache_cap = new_cap;

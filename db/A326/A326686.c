@@ -9,7 +9,8 @@
  *            into 10 primes
  * Range:     u8 n <= 45, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: simple sieve to generate all primes <= limit. */
 static void sieve_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out) {
@@ -78,12 +80,12 @@ seq_t a(idx_t n) {
         return (seq_t)0;
     }
     for (size_t k = 0; k < max_k; ++k) {
-        dp_count[k] = (seq_t *)calloc(sz, sizeof(seq_t));
-        dp_sum[k]   = (seq_t *)calloc(sz, sizeof(seq_t));
+        dp_count[k] = mem_new(seq_t, sz);
+        dp_sum[k]   = mem_new(seq_t, sz);
         if (!dp_count[k] || !dp_sum[k]) {
             /* Clean up and return 0 on allocation failure. */
             for (size_t t = 0; t <= k; ++t) {
-                free(dp_count[t]); free(dp_sum[t]);
+                mem_free(dp_count[t]); mem_free(dp_sum[t]);
             }
             free(dp_count); free(dp_sum);
             free(primes);
@@ -121,8 +123,8 @@ seq_t a(idx_t n) {
 
     /* Free allocated memory. */
     for (size_t k = 0; k < max_k; ++k) {
-        free(dp_count[k]);
-        free(dp_sum[k]);
+        mem_free(dp_count[k]);
+        mem_free(dp_sum[k]);
     }
     free(dp_count);
     free(dp_sum);

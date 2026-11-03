@@ -8,6 +8,7 @@
  *            m≥2, * a(2*m+1)=15*2^(m-1) for m≥2
  * Range:     u8 n <= 11, u16 n <= 27, u32 n <= 59, u64 n <= 123,
  *            u128 n <= 251, big any n
+ * Validated: standard, pass, 57 terms through n = 912 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

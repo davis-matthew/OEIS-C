@@ -12,7 +12,8 @@
  *            accumulated for each n. The code memoises results u...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   has_horiz000
+ * Validated: standard, pass, 31 terms through n = 192 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/has_horiz000.h"
+
+/* Helper: test for a horizontal run of three zeros in a 6‑bit pattern. */
+static bool has_horiz000(uint8_t pat)
+{
+    for (int shift = 0; shift <= 3; ++shift) {
+        if ((pat & (0b111U << shift)) == 0U)
+            return true;
+    }
+    return false;
+}
 
 /* Parameters for the 6‑column problem */
 #define ALLOWED_ROWS   44               /* number of 6‑bit rows without 000 */

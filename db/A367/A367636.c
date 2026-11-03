@@ -10,13 +10,14 @@
  * Formula:   a(n) = 2^(4n-5) + 2^(2n-3) + 2^(n-1) for n ≥ 2, a(1) = 2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Utility to compute integer powers of 2. */
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,9 +28,9 @@ seq_t a(idx_t n)
     idx_t e2 = 2 * n - 3;                  /* exponent of 2^(2n-3) */
     idx_t e3 = n - 1;                      /* exponent of 2^(n-1) */
 
-    seq_t term1 = pow_int((seq_t)2, e1);
-    seq_t term2 = pow_int((seq_t)2, e2);
-    seq_t term3 = pow_int((seq_t)2, e3);
+    seq_t term1 = ipow_idx((seq_t)2, e1);
+    seq_t term2 = ipow_idx((seq_t)2, e2);
+    seq_t term3 = ipow_idx((seq_t)2, e3);
 
     return term1 + term2 + term3;
 }

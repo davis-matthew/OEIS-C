@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 18, u64 n <= 39, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* constants */
 #define COLS     16           /* 4 rows → 2⁴ column patterns */
@@ -94,8 +96,8 @@ static void init_tables(void)
     }
 
     /* allocate DP arrays */
-    dp0 = (seq_t *)malloc(STATES * sizeof(seq_t));
-    dp1 = (seq_t *)malloc(STATES * sizeof(seq_t));
+    dp0 = mem_new(seq_t, STATES);
+    dp1 = mem_new(seq_t, STATES);
     dp_curr = dp0;
     dp_next = dp1;
     for (int i = 0; i < STATES; ++i) dp_curr[i] = dp_next[i] = 0;
@@ -105,7 +107,7 @@ static void init_tables(void)
 static void ensure_values(size_t need)
 {
     if (values_size >= need) return;
-    seq_t *newv = (seq_t *)realloc(values, need * sizeof(seq_t));
+    seq_t *newv = mem_resize(seq_t, values, need);
     if (!newv) abort();  /* allocation failure */
     values = newv;
     if (values_size < need) {

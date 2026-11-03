@@ -12,13 +12,15 @@
  *            is undefined
  * Range:     u8 n <= 21, u16 n <= 36, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Standard headers are allowed. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Maximum row we need to handle for n up to about 10 000.
  * The smallest r that satisfies r(r+1)/2 ≥ 10 000 is 141,
@@ -37,7 +39,7 @@ static void init_stirling(void)
         return;                           /* already initialised */
 
     size_t size = (MAX_ROW + 1) * (MAX_ROW + 1);
-    c = (seq_t *)malloc(size * sizeof(seq_t));
+    c = mem_new(seq_t, size);
     /* initialise all entries to zero */
     for (size_t i = 0; i < size; ++i)
         c[i] = 0;

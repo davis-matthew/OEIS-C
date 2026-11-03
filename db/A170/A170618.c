@@ -12,12 +12,14 @@
  *            denominator: 1 - 31t - 31t^2 - … - 31t^47 + 496t^48
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate array [0..n] */
-    seq_t *a = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, (n + 1));
     a[0] = (seq_t)1;
 
     for (idx_t i = 1; i <= n; ++i) {
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = a[n];
-    free(a);
+    mem_free(a);
     return res;
 }

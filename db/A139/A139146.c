@@ -12,7 +12,8 @@
  *            increasing m with the constant term first for each polynomial
  * Range:     i8 n <= 41, i16 n <= 41, i32 n <= 41, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Chebyshev T_n(x) coefficients are generated once and reused.
    We pre‑compute T_n for n up to a fixed limit sufficient for n ≤ 10 000.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static size_t const MAX_T_N = 300;   /* safe for n ≤ 10000  */
 
@@ -36,12 +38,12 @@ static void init_chebyshev(void)
     if (!T_coeffs || !T_deg) return;   /* allocation failed – let caller see 0 */
 
     /* T_0 = 1 */
-    T_coeffs[0] = (seq_t*)calloc(1, sizeof(seq_t));
+    T_coeffs[0] = mem_new(seq_t, 1);
     T_coeffs[0][0] = (seq_t)1;
     T_deg[0] = 0;
 
     /* T_1 = x  -> [0, 1] */
-    T_coeffs[1] = (seq_t*)calloc(2, sizeof(seq_t));
+    T_coeffs[1] = mem_new(seq_t, 2);
     T_coeffs[1][0] = (seq_t)0;
     T_coeffs[1][1] = (seq_t)1;
     T_deg[1] = 1;
@@ -51,7 +53,7 @@ static void init_chebyshev(void)
         size_t deg_prevprev = T_deg[n - 2];
 
         /* allocate space for T_n, degree n */
-        seq_t *newcoeff = (seq_t*)calloc(n + 1, sizeof(seq_t));
+        seq_t *newcoeff = mem_new(seq_t, n + 1);
 
         /* 2*x * T_{n-1} : shift by one position and multiply by 2 */
         for (size_t k = 0; k <= deg_prev; ++k) {

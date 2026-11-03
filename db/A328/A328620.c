@@ -10,8 +10,9 @@
  *            product of the first i primes and 0 ≤ d_i < next_prime(i). *
  *            a(n) counts how many digits d_0 … d_{k-1} are zero, where k is
  *            the * highest index with a non‑zero digit. a(0) = 0 by...
- * Range:     u8 n <= 7121, u16 n <= 7121, u32 n <= 7121, u64 n <= 7121,
- *            u128 n <= 7121, big any n
+ * Range:     u8 n <= 32768, u16 n <= 32768, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 122 terms through n = 7121 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

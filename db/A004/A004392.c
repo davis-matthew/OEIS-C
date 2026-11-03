@@ -7,12 +7,13 @@
  * Formula:   a(n) = C(8n, n-11) = Product_{i=1..n-11} (7n+11+i)/i
  * Range:     u8 n <= 12, u16 n <= 13, u32 n <= 16, u64 n <= 23, u128 n <= 38,
  *            big any n
- * Helpers:   a004392_gcd
+ * Validated: standard, pass, 34 terms through n = 770 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a004392_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     seq_t result = 1;
@@ -22,7 +23,7 @@ seq_t a(idx_t n) {
     for (i = 1; i <= k; i++) {
         seq_t num = (seq_t)(8 * n - i + 1);
         seq_t den = (seq_t)i;
-        seq_t g = a004392_gcd(result, den);
+        seq_t g = gcd(result, den);
         result /= g;
         den /= g;
         /* den now divides num exactly */

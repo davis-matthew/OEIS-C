@@ -9,6 +9,7 @@
  *            [gcd(k,i)=1]·[gcd(k,n-k-i)=1]
  * Range:     u8 n <= 77, u16 n <= 1169, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 85 terms through n = 1897 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 /* where [P] = 1 if the predicate P is true, 0 otherwise. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

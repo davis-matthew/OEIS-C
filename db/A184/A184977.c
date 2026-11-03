@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{k=1..n} ⌊k·γ⌋ (γ = Euler's constant)
  * Range:     u8 none, u16 n <= 3, u32 n <= 2, u64 n <= 5000, u128 n <= 5000,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: standard, pass, 77 terms through n = 4759 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
    all seq_t types that can hold a 64‑bit integer. */
 
 #include <stdint.h>
-#include "../utils/seq_from_str.h"   /* optional: not used here */
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 #define GAM_NUM (seq_t)577215664901532ULL
 #define GAM_DEN (seq_t)1000000000000000ULL   /* 10^15 */

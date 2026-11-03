@@ -10,15 +10,25 @@
  *            handled efficiently
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 21, u64 n <= 45, u128 n <= 95,
  *            big any n
- * Helpers:   alloc_seq, seq_free
+ * Validated: standard, pass, 44 terms through n = 910 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"   /* alloc_seq(size_t n) -> seq_t* */
-#include "../utils/seq_free.h"    /* seq_free(seq_t*) */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 /* External linkage as requested */
 seq_t a(idx_t n)

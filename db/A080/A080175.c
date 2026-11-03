@@ -7,15 +7,18 @@
  * Formula:   a(n) = A002144(n)^4 (fourth power of the n‑th prime ≡1 (mod 4))
  * Range:     u8 none, u16 n <= 2, u32 n <= 24, u64 n <= 3257, u128 n <= 10000,
  *            big any n
- * Helpers:   big_pow, next_prime
+ * Validated: standard, pass, 38 terms through n = 9554 (2026-11-03)
+ * Helpers:   ipow, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/next_prime.h"   /* next_prime(uint64_t start) */
-#include "../utils/big_pow.h"      /* big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
             /* grow cache if necessary */
             if (primes4_len + 1 > primes4_cap) {
                 size_t new_cap = primes4_cap ? (primes4_cap << 1) : 16;
-                seq_t *tmp = (seq_t *)realloc(primes4, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes4, new_cap);
                 if (!tmp) abort();
                 primes4 = tmp;
                 primes4_cap = new_cap;
@@ -47,5 +50,5 @@ seq_t a(idx_t n)
     }
 
     /* Return the fourth power of the requested prime. */
-    return big_pow(primes4[n - 1], (seq_t)4);
+    return ipow(primes4[n - 1], (seq_t)4);
 }

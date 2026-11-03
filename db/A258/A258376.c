@@ -9,7 +9,8 @@
  * Formula:   a(n) = Sum_{i=1..n} max(0, A005206(i)-n+i)
  * Range:     u8 n <= 45, u16 n <= 743, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *G = NULL;   /* cache for G(1..max) */
 static idx_t Gmax = 0;    /* largest index cached */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (n > Gmax) {
         idx_t newlen = n + 1;   /* +1 so that index n is accessible */
 #ifdef __cplusplus
-        seq_t *tmp = reinterpret_cast<seq_t*>(realloc(G, newlen * sizeof(seq_t)));
+        seq_t *tmp = reinterpret_cast<seq_t*>(mem_resize(seq_t, G, newlen));
 #else
         seq_t *tmp = (seq_t*)realloc(G, newlen * sizeof(seq_t));
 #endif

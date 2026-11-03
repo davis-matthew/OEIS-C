@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 40, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom_int_int
+ * Validated: partial, pass, 50 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
    and each strictly less than n/2.  This is a bounded composition
    count solved by inclusion–exclusion.  */
 #include <stdint.h>
-#include "../utils/binom_int_int.h"
+
+/* binomial coefficient C(n,k) for 0 <= k <= n <= ~10000.
+   Uses 64‑bit intermediates; seq_t may be larger. */
+static seq_t binom_int_int(int n, int k) {
+    if (k < 0 || k > n) return 0;
+    if (k > n - k) k = n - k;
+    seq_t res = 1;
+    for (int i = 1; i <= k; ++i) {
+        res = res * (n - k + i) / i;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     if (n < 5) return 0;                     /* sequence starts at n = 5 */

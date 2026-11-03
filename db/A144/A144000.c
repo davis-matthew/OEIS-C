@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 343, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   antidiagonal_pair
+ * Validated: standard, pass, 99 terms through n = 1258 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,22 @@
 /* The value is computed in O(sqrt(n)) time. */
 
 #include <stdint.h>
-#include "../utils/antidiagonal_pair.h"
+
+static void
+antidiagonal_pair(idx_t n, idx_t *m, idx_t *j)
+{
+    /* Find smallest S such that S*(S-1)/2 >= n.
+       Since n <= 10000 (at least for the required limits),
+       a simple loop is fast enough. */
+    idx_t S = 2;
+    while (S * (S - 1) / 2 < n)
+        ++S;
+
+    idx_t prevCount = (S - 1) * (S - 2) / 2;
+    idx_t within    = n - prevCount;          /* 1 .. S-1 */
+    *m = within;
+    *j = S - within;
+}
 
 seq_t a(idx_t n)
 {

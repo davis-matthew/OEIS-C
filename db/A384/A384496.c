@@ -9,7 +9,8 @@
  *            abs(Stirling1(2*n-2*k,n-k))
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The following types are supplied by the build.  Do not define them. */
 extern seq_t binomial(idx_t n, idx_t k);   /* positive binomial coefficient */
@@ -44,8 +46,8 @@ ensure_sstirling(idx_t desired_n)
     /* Resize rows if needed.  They must be able to hold indices up to needed_n2. */
     if ((size_t)needed_n2 + 1 > row_cap) {
         size_t new_cap = (size_t)needed_n2 + 1;
-        seq_t *new_prev = (seq_t *)realloc(prev_row, new_cap * sizeof(seq_t));
-        seq_t *new_curr = (seq_t *)realloc(curr_row, new_cap * sizeof(seq_t));
+        seq_t *new_prev = mem_resize(seq_t, prev_row, new_cap);
+        seq_t *new_curr = mem_resize(seq_t, curr_row, new_cap);
         if (!new_prev || !new_curr) {
             /* Allocation failure – aborting compute will cause a runtime error. */
             abort();
@@ -58,7 +60,7 @@ ensure_sstirling(idx_t desired_n)
     /* Resize f_arr if needed.  It must hold indices up to desired_n. */
     if ((size_t)desired_n + 1 > f_cap) {
         size_t new_cap = (size_t)desired_n + 1;
-        seq_t *new_f = (seq_t *)realloc(f_arr, new_cap * sizeof(seq_t));
+        seq_t *new_f = mem_resize(seq_t, f_arr, new_cap);
         if (!new_f) abort();
         f_arr = new_f;
         f_cap = new_cap;

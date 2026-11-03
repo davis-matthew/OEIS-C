@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (3*(n-k)-1)^k / k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Derived recurrence: a(n) = n * Σ_{j=0}^{n-1} C(n-1,j) * 3^{n-1-j} * a(j) + (-1)^n */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialise storage if needed */
     if (!val) {
         val_cap = 1;
-        val = (seq_t *)malloc(val_cap * sizeof(seq_t));
+        val = mem_new(seq_t, val_cap);
         val[0] = (seq_t)1;               /* a(0) = 1 */
         val_len = 1;
     }
@@ -41,13 +43,13 @@ seq_t a(idx_t n)
         if (new_cap > val_cap) {
             size_t alloc = new_cap;
             if (alloc < 2 * val_cap) alloc = 2 * val_cap;
-            val = (seq_t *)realloc(val, alloc * sizeof(seq_t));
+            val = mem_resize(seq_t, val, alloc);
             val_cap = alloc;
         }
         /* Allocate powers of 3 up to exponent n-1 */
         if (!p3) {
             p_cap = 1;
-            p3 = (seq_t *)malloc(p_cap * sizeof(seq_t));
+            p3 = mem_new(seq_t, p_cap);
             p3[0] = (seq_t)1;            /* 3^0 */
             p_len = 1;
         }
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
             if (need > p_cap) {
                 size_t alloc = need;
                 if (alloc < 2 * p_cap) alloc = 2 * p_cap;
-                p3 = (seq_t *)realloc(p3, alloc * sizeof(seq_t));
+                p3 = mem_resize(seq_t, p3, alloc);
                 p_cap = alloc;
             }
             for (idx_t i = p_len; i < need; ++i)

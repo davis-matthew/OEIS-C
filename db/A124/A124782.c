@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n+3)/gcd(A000522(n), A000522(n+2))
  * Range:     u8 n <= 79, u16 n <= 4096, u32 n <= 4096, u64 n <= 4096,
  *            u128 n <= 4096, big any n
+ * Validated: standard, pass, 96 terms through n = 4019 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

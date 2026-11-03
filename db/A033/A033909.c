@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   digit_sort
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/digit_sort.h"
+
+static seq_t digit_sort(seq_t x)
+{
+    /* Extract the decimal digits, count them, and rebuild in ascending order. */
+    if (x == 0)
+        return 0;
+    unsigned char cnt[10] = {0};
+    while (x > 0) {
+        size_t d = (size_t)(x % 10);
+        cnt[d]++;
+        x /= 10;
+    }
+    seq_t sorted = 0;
+    for (size_t d = 0; d < 10; ++d) {
+        for (size_t i = 0; i < cnt[d]; ++i) {
+            sorted = sorted * 10 + (seq_t)d;
+        }
+    }
+    return sorted;
+}
 
 seq_t a(idx_t n)
 {

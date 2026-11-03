@@ -12,15 +12,45 @@
  *            primitive partition identities a1+a2+a3 = b1+b2+b3...
  * Range:     u8 n <= 9, u16 n <= 25, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
- * Helpers:   gauss_coeffs, sum_pairs
+ * Validated: standard, pass, 53 terms through n = 120 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gauss_coeffs.h"
-#include "../utils/sum_pairs.h"
+
+/* coefficients of [n+k-1 choose k]_q into p; returns degree */
+static long long gauss_coeffs(long long *p, long long len, idx_t n, int k)
+{
+    long long deg = 0, j;
+    int i;
+    for (j = 0; j < len; j++) p[j] = 0;
+    p[0] = 1;
+    for (i = 1; i <= k; i++) {
+        long long m = (long long)n - 1 + i;
+        for (j = deg + m; j >= m; j--) p[j] -= p[j - m];
+        deg += m;
+        for (j = i; j <= deg; j++) p[j] += p[j - i];
+        deg -= i;
+    }
+    return deg;
+}
+
+static seq_t sum_pairs(const long long *p, long long deg)
+{
+    seq_t s = 0;
+    long long j;
+    for (j = 0; j <= deg; j++) {
+        uint64_t c = (uint64_t)p[j];
+        if (c >= 2) {
+            uint64_t t = (c % 2 == 0) ? (c / 2) * (c - 1) : c * ((c - 1) / 2);
+            s += (seq_t)t;
+        }
+    }
+    return s;
+}
 
 seq_t a(idx_t n)
 {

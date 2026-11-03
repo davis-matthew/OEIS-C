@@ -8,12 +8,26 @@
  *            row containing n) k = n - r*(r-1)/2 (position within that row)
  * Range:     u8 n <= 65, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   find_row_for_index
+ * Validated: standard, pass, 82 terms through n = 5017 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/find_row_for_index.h"
+static idx_t find_row_for_index(idx_t n)
+{
+    /* Binary search for the smallest r with r*(r+1)/2 >= n */
+    idx_t lo = 1, hi = n;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo) / 2;
+        unsigned __int128 cum = (unsigned __int128)mid * (mid + 1) / 2;
+        if (cum >= n)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {

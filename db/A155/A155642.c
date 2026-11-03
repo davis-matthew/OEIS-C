@@ -8,13 +8,15 @@
  *            14*a(n-1) - 45*a(n-2) + 32 for n ≥ 2
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, realloc, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (cache_cap < (size_t)n + 1) {
         size_t new_cap = (cache_cap > 0) ? cache_cap * 2 : 4;
         while (new_cap < (size_t)n + 1) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();        /* keep behaviour deterministic */
         cache = tmp;
         cache_cap = new_cap;

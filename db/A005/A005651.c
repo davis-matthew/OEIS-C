@@ -9,14 +9,19 @@
  *            integer partitions (n_1, n_2, ...) of n
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   encode
+ * Validated: standard, pass, 39 terms through n = 450 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/encode.h"
+#include "../utils/mem.h"
+
+static idx_t encode(idx_t remaining, idx_t max_part, idx_t n) {
+    return remaining * (n + 1) + max_part;
+}
 
 static struct {
     seq_t **binom_table;
@@ -56,14 +61,14 @@ seq_t a(idx_t n) {
     if (state.n < n) {
         if (state.binom_table != NULL) {
             for (idx_t i = 0; i <= state.n; i++) {
-                free(state.binom_table[i]);
+                mem_free(state.binom_table[i]);
             }
             free(state.binom_table);
         }
         
         state.binom_table = (seq_t **)malloc((n + 1) * sizeof(seq_t *));
         for (idx_t i = 0; i <= n; i++) {
-            state.binom_table[i] = (seq_t *)calloc(i + 1, sizeof(seq_t));
+            state.binom_table[i] = mem_new(seq_t, i + 1);
             state.binom_table[i][0] = 1;
             if (i > 0) state.binom_table[i][i] = 1;
             for (idx_t j = 1; j < i; j++) {
@@ -71,9 +76,9 @@ seq_t a(idx_t n) {
             }
         }
         
-        free(state.part_memo);
+        mem_free(state.part_memo);
         idx_t size = (n + 1) * (n + 2);
-        state.part_memo = (seq_t *)calloc(size, sizeof(seq_t));
+        state.part_memo = mem_new(seq_t, size);
         
         state.n = n;
     }

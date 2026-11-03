@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rec_gen
+ * Validated: standard, pass, 105 terms through n = 9690 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,7 +41,31 @@
  */
 
 #include <stdint.h>
-#include "../utils/rec_gen.h"
+
+static int
+rec_gen(uint64_t m, uint64_t max_val, int depth,
+        uint64_t *cur, idx_t *cnt, idx_t n, seq_t *ans)
+{
+    for (uint64_t i = 2; i <= max_val; ++i) {
+        cur[depth] = i;
+        uint64_t sz = depth + 1;              /* |X| after adding i */
+        if (sz + 1 < i) {                     /* size < min(i)  */
+            ++(*cnt);
+            if (*cnt == n) { *ans = (seq_t)m; return 1; }
+            /* Output elements of X in decreasing order.
+             *   cur is stored in ascending order (smallest to largest),
+             *   so we output from cur[0] up to cur[depth] to
+             *   produce decreasing order. */
+            for (int j = 0; j <= depth; ++j) {
+                ++(*cnt);
+                if (*cnt == n) { *ans = (seq_t)cur[j]; return 1; }
+            }
+        }
+        if (rec_gen(m, i - 1, depth + 1, cur, cnt, n, ans))
+            return 1;
+    }
+    return 0;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (floor(10 * n^(1/9))) mod 10
  * Range:     u8 n <= 2, u16 none, u32 n <= 2, u64 n <= 1000, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 118 terms through n = 972 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

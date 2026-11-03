@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   seq_cmp, seq_mul, seq_pow
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_cmp.h"
+#include <string.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* Small primes ≡ 1 (mod 4); plenty for all factorizations up to n≈10 000. */
 static const uint32_t prime1mod4[] = {
@@ -62,7 +77,7 @@ static void backtrack(idx_t rem, idx_t start, idx_t *factors, size_t len,
         /* Compute d = Π primes[i]^{exps[i]}. */
         seq_t d = 1;
         for (size_t i = 0; i < len; ++i) {
-            d = seq_mul(d, seq_pow((seq_t)prime1mod4[i], exps[i]));
+            d = seq_mul(d, ipow_idx((seq_t)prime1mod4[i], exps[i]));
         }
 
         if (!*found || seq_cmp(&d, &(*best_d)) < 0) {
@@ -91,7 +106,7 @@ seq_t a(idx_t n)
 
     if (cache_len <= n) {
         size_t new_len = n + 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         for (size_t i = cache_len; i < new_len; ++i)
             cache[i] = 0;          /* 0 means “not yet computed” */
         cache_len = new_len;
@@ -108,7 +123,7 @@ seq_t a(idx_t n)
     backtrack(odd, 3, factors, 0, &best_d, &found);
 
     /* a(n) = d^3. */
-    seq_t result = seq_pow(best_d, 3);
+    seq_t result = ipow_idx(best_d, 3);
     cache[n] = result;
     return result;
 }

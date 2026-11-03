@@ -9,8 +9,9 @@
  *            (-1)^{ω(n)} where ω(n) is the number of distinct prime factors
  *            of n. The function uses the supplied factor_u64() routine to
  *            factor n
- * Range:     i8 n <= 9169, i16 n <= 9169, i32 n <= 9169, i64 n <= 9169,
- *            i128 n <= 9169, big any n
+ * Range:     i8 n <= 100000, i16 n <= 100000, i32 n <= 100000,
+ *            i64 n <= 100000, i128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9169 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 #define MAX_FACTORS 64                /* sufficient for any 64‑bit integer */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth prime p such that p % 47 == 44
  * Range:     u8 none, u16 n <= 137, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, seq_realloc
+ * Validated: standard, pass, 57 terms through n = 944 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,19 @@
 #include <stdlib.h>   /* abort */
 #include <stdint.h>   /* uint64_t, size_t */
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* is_prime(idx_t) */
-#include "../utils/seq_realloc.h"/* seq_realloc(seq_t*,size_t,size_t) */
+#include "../utils/is_prime.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache   = NULL;  /* cached primes */
 static size_t cache_cap = 0;   /* allocated capacity */

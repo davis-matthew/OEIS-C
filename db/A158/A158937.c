@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   val_of
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
 #include <stdint.h>  /* uint64_t, etc. */
 #include <stdlib.h>  /* malloc, realloc, free */
 #include <stdbool.h>
-#include "../utils/val_of.h"
+#include "../utils/mem.h"
+
+/* Compute x^2 + 3*y^2 using the arithmetic of seq_t. */
+static inline seq_t val_of(uint64_t x, uint64_t y)
+{
+    seq_t xx = (seq_t)x * (seq_t)x;
+    seq_t yy = (seq_t)y * (seq_t)y;
+    return xx + (seq_t)3 * yy;
+}
 
 typedef struct {
     seq_t val;
@@ -69,7 +78,7 @@ static void heap_push(Node **hp, size_t *psize, size_t *pcap,
 {
     if (*psize == *pcap) {
         *pcap = (*pcap == 0) ? 16 : (*pcap << 1);
-        *hp = (Node*)realloc(*hp, *pcap * sizeof(Node));
+        *hp = mem_resize(Node, *hp, (*pcap * sizeof(Node)) / sizeof(Node));
     }
     size_t idx = *psize;
     (*hp)[idx].val = v;
@@ -110,7 +119,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         cache_cap = (cache_cap == 0) ? 16 : cache_cap;
         while (cache_cap < n) cache_cap <<= 1;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* extend cache if needed */
@@ -118,7 +127,7 @@ seq_t a(idx_t n)
         /* initialise heap on first call */
         if (heap_size == 0 && heap_cap == 0) {
             heap_cap = 16;
-            heap = (Node*)malloc(heap_cap * sizeof(Node));
+            heap = mem_new(Node, heap_cap);
             heap_push(&heap, &heap_size, &heap_cap,
                       val_of(1, 1), 1, 1);
             next_x = 2;

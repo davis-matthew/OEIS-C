@@ -10,7 +10,8 @@
  *            (OEIS A382960)
  * Range:     u8 none, u16 n <= 610, u32 n <= 626, u64 n <= 626, u128 n <= 626,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 626 terms through n = 626 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Comparator for seq_t values */
 static int seq_cmp(const void *p1, const void *p2) {
@@ -37,7 +39,7 @@ static void ensure_terms_cap(size_t needed) {
     if (terms_cap >= needed) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     if (!new_terms) abort();
     terms = new_terms;
     terms_cap = new_cap;
@@ -105,7 +107,7 @@ static void init_terms(void) {
     }
 
     /* 3. Sort terms */
-    qsort(terms, terms_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(terms, terms_len, sizeof(seq_t), seq_cmp);
 
     /* 4. Deduplicate (safety) */
     size_t uniq = 0;

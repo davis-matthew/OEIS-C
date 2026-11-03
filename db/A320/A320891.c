@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 3824, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 71 terms through n = 9163 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 /* Utility from the available library */
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Static state for the sequence: cache of found terms and list of primes */
@@ -45,7 +47,7 @@ static void cache_push(seq_t val)
 {
     if (cache_size == cache_cap) {
         cache_cap = cache_cap ? cache_cap << 1 : 128;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) abort();          /* allocation failure */
         cache = tmp;
     }

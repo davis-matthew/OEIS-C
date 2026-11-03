@@ -9,7 +9,8 @@
  *            Σ_{j=0}^{k} (-1)^j * C(k,j) * 3^{k-j} * (n-j)!
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   triangle_start
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,15 +20,15 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/triangle_start.h"
+#include "../utils/triangular.h"
 
 static inline idx_t row_of(idx_t n)
 {
     double d = sqrt((double)8.0 * (double)n + 1.0);
     idx_t r = (idx_t)((d - 1.0) * 0.5);
     /* correct possible rounding errors */
-    while (triangle_start(r + 1) <= n) ++r;
-    while (triangle_start(r) > n) --r;
+    while (triangular(r + 1) <= n) ++r;
+    while (triangular(r) > n) --r;
     return r;
 }
 
@@ -62,7 +63,7 @@ seq_t a(idx_t n)
     init_arrays();
 
     idx_t r = row_of(n);                     /* row index      */
-    idx_t c = n - triangle_start(r);         /* column index   */
+    idx_t c = n - triangular(r);         /* column index   */
 
     seq_t pos = (seq_t)0;
     seq_t neg = (seq_t)0;

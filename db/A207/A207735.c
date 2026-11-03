@@ -10,14 +10,23 @@
  *            The sequence returns ±1 or 0
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   sign_of_k
+ * Validated: standard, pass, 100 terms through n = 999 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sign_of_k.h"
+
+/* Return (-1)^[floor(k/2)] as +1 or -1.  Works for negative k. */
+static inline int sign_of_k(int64_t k)
+{
+    int64_t floor_k2 = k / 2;                     /* trunc toward zero */
+    if (k < 0 && (k & 1LL))                       /* adjust for floor */
+        floor_k2 -= 1;
+    return ((floor_k2 & 1LL) == 0) ? 1 : -1;     /* even → +1, odd → -1  */
+}
 
 /* Integer square root of a 128‑bit unsigned integer, result fits in 64 bits. */
 static inline uint64_t isqrt_u128(unsigned __int128 x)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   ok_for
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,43 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/ok_for.h"
+
+/* Test whether an integer cand yields a valid set‑system.
+   All vertices must appear in at least two of the generated sets. */
+static bool ok_for(uint64_t cand)
+{
+    if (cand == 0) return false;
+
+    /* Collect positions of 1‑bits (1‑based) of cand. */
+    int pos[64];
+    int plen = 0;
+    for (int i = 0; cand; ++i) {
+        if (cand & 1ULL) pos[plen++] = i + 1;
+        cand >>= 1ULL;
+    }
+
+    /* Frequency of each vertex in the resulting set‑system. */
+    int freq[65] = {0};
+    int maxbit = 0;
+    for (int k = 0; k < plen; ++k) {
+        uint64_t val = pos[k];
+        int b = 1;
+        while (val) {
+            if (val & 1ULL) {
+                ++freq[b];
+                if (b > maxbit) maxbit = b;
+            }
+            val >>= 1ULL;
+            ++b;
+        }
+    }
+
+    /* All vertices must appear in at least two sets. */
+    for (int v = 1; v <= maxbit; ++v)
+        if (freq[v] == 1) return false;
+
+    return true;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   contains45
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains45.h"
+#include "../utils/mem.h"
+
+/* Helper: does x (in base 7) contain the digit pair 4,5?  */
+static bool contains45(seq_t x)
+{
+    int prev = -1;
+    while (x > 0) {
+        int d = (int)(x % 7);   /* least significant digit */
+        if (d == 4 && prev == 5)
+            return true;
+        prev = d;
+        x /= 7;
+    }
+    return false;
+}
 
 /* Cache structure */
 static seq_t *cache = NULL;          /* array of found terms */
@@ -44,7 +59,7 @@ static void ensure_cache(size_t need)
     if (new_capacity < need)
         new_capacity = need;
     /* realloc returns same pointer type; cast for arbitrary seq_t */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_capacity);
     cache = new_cache;
     cache_capacity = new_capacity;
 }

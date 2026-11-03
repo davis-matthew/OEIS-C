@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 137, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: linear search in an array of seq_t */
 static bool contains(const seq_t *arr, size_t sz, seq_t val)
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
     /* Lazy initialisation: first terms a(1)=0, d(1)=2 */
     if (len == 0) {
         cap = 16;
-        A = (seq_t *)malloc(cap * sizeof(seq_t));
-        D = (seq_t *)malloc(cap * sizeof(seq_t));
+        A = mem_new(seq_t, cap);
+        D = mem_new(seq_t, cap);
         if (!A || !D) abort();      /* out of memory */
         A[0] = (seq_t)0;
         D[0] = (seq_t)2;
@@ -73,8 +75,8 @@ seq_t a(idx_t n)
         /* Append new elements to the cache */
         if (len == cap) {
             cap *= 2;
-            A = (seq_t *)realloc(A, cap * sizeof(seq_t));
-            D = (seq_t *)realloc(D, cap * sizeof(seq_t));
+            A = mem_resize(seq_t, A, cap);
+            D = mem_resize(seq_t, D, cap);
             if (!A || !D) abort();        /* out of memory */
         }
         A[len] = a_k + h;                  /* a(k+1) */

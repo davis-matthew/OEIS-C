@@ -9,13 +9,15 @@
  *            (offset 1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for the recurrence values */
 static seq_t *rec = NULL;      /* array of seq_t holding a(1)..a(n)   */
@@ -34,14 +36,14 @@ seq_t a(idx_t n)
     if (rec == NULL) {
         /* allocate an initial small capacity */
         rec_capacity = 4;
-        rec = (seq_t *)malloc(rec_capacity * sizeof(seq_t));
+        rec = mem_new(seq_t, rec_capacity);
         if (!rec) abort();          /* allocation failed */
 
         /* base values for the recurrence (offset 1) */
         rec[0] = (seq_t)1;          /* a(1) */
         if (rec_capacity < 2) {
             rec_capacity = 2;
-            seq_t *tmp = (seq_t *)realloc(rec, rec_capacity * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, rec, rec_capacity);
             if (!tmp) abort();
             rec = tmp;
         }
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         /* ensure there is enough space */
         if (rec_size == rec_capacity) {
             idx_t new_cap = rec_capacity * 2;
-            seq_t *tmp = (seq_t *)realloc(rec, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, rec, new_cap);
             if (!tmp) abort();
             rec = tmp;
             rec_capacity = new_cap;

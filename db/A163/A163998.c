@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- Local helpers ---------------------------------------------------- */
 
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
             /* Append to the list of all primes. */
             if (primes_len == primes_cap) {
                 size_t new_cap = primes_cap ? primes_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, new_cap);
                 if (!tmp) abort();
                 primes = tmp;
                 primes_cap = new_cap;
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
             if (parity[(size_t)cur] == ((cur & 1) ? 1 : 0)) {
                 if (qual_len == qual_cap) {
                     size_t new_cap = qual_cap ? qual_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(qualifies, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, qualifies, new_cap);
                     if (!tmp) abort();
                     qualifies = tmp;
                     qual_cap = new_cap;

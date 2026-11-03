@@ -13,14 +13,22 @@
  *            transform of A191371)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 17,
  *            big any n
- * Helpers:   alloc_a2028, p2_a2028
+ * Validated: standard, pass, 34 terms through n = 50 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_a2028.h"
-#include "../utils/p2_a2028.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_a2028(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    idx_t i;
+    for (i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *memo_c = NULL;
 static idx_t memo_len = 0;
@@ -43,11 +51,11 @@ static void build_a2028(idx_t N) {
         cur[m] = 1;
 
         s = 0;
-        for (k = 0; k <= m; k++) s += cur[k] * p2_a2028(k * (m - k));
+        for (k = 0; k <= m; k++) s += cur[k] * pow2(k * (m - k));
         T[m] = s;
 
         s = 0;
-        for (k = 0; k <= m; k++) s += cur[k] * p2_a2028(k * (m - k)) * T[m - k];
+        for (k = 0; k <= m; k++) s += cur[k] * pow2(k * (m - k)) * T[m - k];
         A[m] = s;
 
         t = A[m];
@@ -57,8 +65,8 @@ static void build_a2028(idx_t N) {
         tmp = prev; prev = cur; cur = tmp;
     }
 
-    free(A); free(T); free(prev); free(cur);
-    if (memo_c) free(memo_c);
+    mem_free(A); mem_free(T); mem_free(prev); mem_free(cur);
+    if (memo_c) mem_free(memo_c);
     memo_c = c;
     memo_len = N + 1;
 }

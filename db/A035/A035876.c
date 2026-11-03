@@ -8,13 +8,28 @@
  *            1, a(0)=1)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   binomial, mult_safe
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/mult_safe.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+static inline seq_t mult_safe(seq_t a, seq_t b) {
+#if defined(__GNUC__) || defined(__clang__)
+    /* Use 128‑bit arithmetic when seq_t is 64‑bit to avoid overflow */
+    if (sizeof(seq_t) <= 8) {
+        return (seq_t)(((__int128)a) * (__int128)b);
+    } else {
+        return a * b;
+    }
+#else
+    /* Fallback: rely on seq_t's built‑in multiplication (works for big‑int) */
+    return a * b;
+#endif
+}
 
 seq_t a(idx_t n) {
     if (n == 0) {

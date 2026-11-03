@@ -8,7 +8,8 @@
  * Formula:   a(n) = A007917(n)^n for n > 1, a(1) = 0
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, sieve_primes
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,10 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow.h"
 #include "../utils/sieve_primes.h"
 
 seq_t a(idx_t n)
@@ -57,5 +61,5 @@ seq_t a(idx_t n)
     seq_t p = (seq_t)primes[lo - 1];
     seq_t exp = (seq_t)n;
 
-    return big_pow(p, exp);
+    return ipow(p, exp);
 }

@@ -11,12 +11,14 @@
  *            arbitrary order are fast
  * Range:     u8 n <= 42, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
             /* grow the cache: double until it fits, or to needed */
             idx_t new_cap = cache_capacity == 0 ? 16 : cache_capacity;
             while (new_cap < needed) new_cap <<= 1U;
-            seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_cap);
             if (new_cache == NULL) exit(1); /* fatal if out of memory */
             cache = new_cache;
             cache_capacity = new_cap;

@@ -9,7 +9,8 @@
  *            q^{j+2})
  * Range:     u8 n <= 49, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
         /* allocate new space if needed */
         if (n >= alloc)
         {
-            seq_arr = (seq_t *)realloc(seq_arr, (n + 1) * sizeof(seq_t));
-            dp_arr  = (seq_t *)realloc(dp_arr , (n + 1) * sizeof(seq_t));
+            seq_arr = mem_resize(seq_t, seq_arr, (n + 1));
+            dp_arr  = mem_resize(seq_t, dp_arr, (n + 1));
             alloc = n + 1;
         }
 

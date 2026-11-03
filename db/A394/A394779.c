@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   grow_arr
+ * Validated: standard, pass, 34 terms through n = 292 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,21 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/grow_arr.h"
+#include "../utils/mem.h"
+
+/* grow an array of seq_t elements until it has at least `need` slots */
+static void grow_arr(seq_t **arr, size_t *len, size_t need)
+{
+    if (need <= *len)
+        return;
+    size_t new_len = (*len > 0) ? (*len) * 2 : 1;
+    while (new_len < need)
+        new_len *= 2;
+    *arr = mem_resize(seq_t, *arr, new_len);
+    /* initialise the newly allocated part to zero */
+    mem_set(*arr + *len, 0, (new_len - *len) * sizeof(seq_t));
+    *len = new_len;
+}
 
 /* memoised array of sequence values (a(0), a(1), ...) */
 static seq_t *a_cache = NULL;
@@ -52,11 +67,11 @@ seq_t a(idx_t n)
     /* initialise a(0) and conv[0] on first call */
     if (a_len == 0) {
         a_len = 1;
-        a_cache = (seq_t *)realloc(a_cache, a_len * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, a_len);
         a_cache[0] = (seq_t)1;
 
         conv_len = 1;
-        conv = (seq_t *)realloc(conv, conv_len * sizeof(seq_t));
+        conv = mem_resize(seq_t, conv, conv_len);
         conv[0] = (seq_t)1;   /* a[0] * a[0] */
     }
 

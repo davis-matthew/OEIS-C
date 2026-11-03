@@ -11,7 +11,8 @@
  *            The y found is unique because the class number of -11 is 1
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   a2347_isprime, a2347_isqrt
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a2347_isprime.h"
-#include "../utils/a2347_isqrt.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *a2347_vals = NULL;
 static idx_t a2347_cnt = 0;
@@ -31,17 +33,17 @@ static void a2347_extend(idx_t upto) {
     if (a2347_cnt >= upto) return;
     if (upto > a2347_cap) {
         idx_t nc = upto * 2 + 16;
-        a2347_vals = (seq_t *)realloc(a2347_vals, (size_t)nc * sizeof(seq_t));
+        a2347_vals = mem_resize(seq_t, a2347_vals, (size_t)nc);
         a2347_cap = nc;
     }
     while (a2347_cnt < upto) {
         uint64_t p = a2347_p++;
         uint64_t fp, y;
-        if (!a2347_isprime(p)) continue;
+        if (!is_prime_u64(p)) continue;
         fp = 4 * p;
         for (y = 1; 11 * y * y <= fp; y++) {
             uint64_t xs = fp - 11 * y * y;
-            uint64_t x = a2347_isqrt(xs);
+            uint64_t x = isqrt_u64(xs);
             if (x * x == xs) {
                 a2347_vals[a2347_cnt++] = (seq_t)y;
                 break;

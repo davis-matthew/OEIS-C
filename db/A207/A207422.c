@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 29, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
        a(15) = 14146485721
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[16] = {
     (seq_t)0,                            /* a(0) unused */
@@ -51,7 +53,7 @@ static void init_cache(void)
     /* make sure we have at least capacity 16 (indexes 0–15) */
     size_t needed = 16;
     cache_cap = needed;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) abort();                   /* allocation failure */
 
     /* load the known values (a[0] is unused) */
@@ -71,7 +73,7 @@ static void ensure_capacity(size_t need)
     while (new_cap <= need)
         new_cap *= 2;
 
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     if (!newp) abort();                      /* reallocation failure */
     cache = newp;
     cache_cap = new_cap;

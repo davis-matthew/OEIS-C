@@ -10,20 +10,22 @@
  *            square appear at most once; parts that are twice an even square
  *            (8k²) may be used arbitrarily many times. No other part types
  *            are allowed
- * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 173, u16 n <= 605, u32 n <= 2543, u64 n <= 12822,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 107 terms through n = 9693 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     idx_t N = n;
     /* Allocate DP array for 0..N.  calloc gives zeroes.  */
-    seq_t *dp = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(N + 1));
     if (!dp) abort();           /* fatal if allocation fails */
     dp[0] = 1;                  /* one way to form 0 */
 
@@ -55,6 +57,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[N];
-    free(dp);
+    mem_free(dp);
     return result;
 }

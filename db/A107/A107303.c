@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 8847, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9848 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Deterministic Miller–Rabin for 64‑bit integers. */
 static bool is_prime_uint64(uint64_t n)
@@ -82,12 +84,12 @@ static idx_t seq_cap   = 0;   /* allocated capacity */
 
 static void seq_alloc(size_t new_cap)
 {
-    seq_t *new_table = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, new_cap);
     if (!new_table)
         exit(EXIT_FAILURE);
     if (seq_table) {
-        memcpy(new_table, seq_table, seq_size * sizeof(seq_t));
-        free(seq_table);
+        mem_copy(new_table, seq_table, seq_size * sizeof(seq_t));
+        mem_free(seq_table);
     }
     seq_table = new_table;
     seq_cap   = (idx_t)new_cap;

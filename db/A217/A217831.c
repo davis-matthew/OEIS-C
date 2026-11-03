@@ -8,16 +8,17 @@
  * Formula:   a(n) = 1 iff gcd(row, column) = 1, * where row = ⌊(√(8n+1) –
  *            1)/2⌋ and column = n – row(row+1)/2. * T(0,0) = 0; all other
  *            entries are 1 exactly when the two indices are coprime
- * Range:     u8 n <= 9710, u16 n <= 9710, u32 n <= 9710, u64 n <= 9710,
- *            u128 n <= 9710, big any n
- * Helpers:   uint64_gcd
+ * Range:     u8 n <= 11475, u16 n <= 11475, u32 n <= 11475, u64 n <= 11475,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 112 terms through n = 9710 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/uint64_gcd.h"
+#include "../utils/gcd_idx.h"
 
 /* Greatest‑common divisor for 64‑bit indices. */
 
@@ -53,6 +54,6 @@ seq_t a(idx_t n)
     if (row == 0 && col == 0)          /* T(0,0) = 0 */
         return (seq_t)0;
 
-    idx_t g = uint64_gcd(row, col);
+    idx_t g = gcd_idx(row, col);
     return (seq_t)(g == 1 ? 1 : 0);
 }

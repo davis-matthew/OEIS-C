@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 1014, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
+ * Validated: standard, pass, 104 terms through n = 7829 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /* OEIS recurrence:
    a(0) = 1, a(1) = 1;
    for n ≥ 2 let i = ⌊log₂(n)⌋, p = 2ⁱ, j = n - p.

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^(n - 2) * (binomial(n,2) + 2) (offset 1)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 25, u64 n <= 55, u128 n <= 117,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 230 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

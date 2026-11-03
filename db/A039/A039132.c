@@ -9,7 +9,8 @@
  *            and 7's
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   equal_two_sevens
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,27 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/equal_two_sevens.h"
+#include "../utils/mem.h"
+
+/* Return true if the decimal representation of x contains the same
+ * number of digit 2 and digit 7. */
+static bool equal_two_sevens(seq_t x)
+{
+    if (x == (seq_t)0)
+        return true;            /* 0 has zero 2's and zero 7's */
+
+    int cnt2 = 0, cnt7 = 0;
+    while (x > (seq_t)0)
+    {
+        int d = (int)(x % (seq_t)10);
+        if (d == 2)
+            ++cnt2;
+        else if (d == 7)
+            ++cnt7;
+        x /= (seq_t)10;
+    }
+    return cnt2 == cnt7;
+}
 
 /* Static cache for memoisation */
 static seq_t *seq_cache = NULL;
@@ -31,7 +52,7 @@ static void ensure_cache(idx_t n)
     if (seq_cache == NULL)
     {
         seq_cache_cap = 32;
-        seq_cache = (seq_t *)malloc(seq_cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cache_cap);
     }
     while (seq_cache_size < (size_t)n)
     {
@@ -41,7 +62,7 @@ static void ensure_cache(idx_t n)
             if (seq_cache_size >= seq_cache_cap)
             {
                 seq_cache_cap *= 2;
-                seq_cache = (seq_t *)realloc(seq_cache, seq_cache_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cache_cap);
             }
             seq_cache[seq_cache_size++] = val;
         }

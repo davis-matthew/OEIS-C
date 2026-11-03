@@ -13,12 +13,14 @@
  *            to a 1D walk with step weights 2 (up) and 3...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,18 +39,18 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* cache for a(0) */
         cache_cap = 16;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;
         cache_len = 1;
 
         /* current height distribution for n=0 (only height 0) */
         cur_len = 1;
-        cur = (seq_t*)malloc(sizeof(seq_t) * cur_len);
+        cur = mem_new(seq_t, cur_len);
         cur[0] = (seq_t)1;
 
         /* next array (will be resized as needed) */
         next_len = 2;
-        next = (seq_t*)malloc(sizeof(seq_t) * next_len);
+        next = mem_new(seq_t, next_len);
     }
 
     /* extend precomputation up to requested n */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
             size_t needed = (size_t)cur_len + 1;          /* new heights after this step */
             if (next_len < needed) {                     /* grow next buffer */
                 next_len = needed;
-                next = (seq_t*)realloc(next, sizeof(seq_t) * next_len);
+                next = mem_resize(seq_t, next, next_len);
             }
             /* clear next buffer */
             for (size_t i = 0; i < needed; ++i)
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
             /* store a(step+1) */
             if (cache_len >= cache_cap) {
                 cache_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                cache = (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = sum_next;
         }

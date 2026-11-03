@@ -12,6 +12,7 @@
  *            T(r,k)=Π_{j=1..k} floor(r/j-1) for 0<k≤⌊r/2⌋
  * Range:     u8 n <= 45, u16 n <= 161, u32 n <= 474, u64 n <= 1295,
  *            u128 n <= 1295, big any n
+ * Validated: standard, pass, 88 terms through n = 1265 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

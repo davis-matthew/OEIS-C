@@ -8,7 +8,8 @@
  *            divisors of n)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 13, u64 n <= 19, u128 n <= 31,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 41 terms through n = 311 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/big_pow.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* Helper: recursively enumerate all divisors of n and accumulate d^n,
    skipping d == n. */
@@ -35,7 +37,7 @@ add_divisor_powers(idx_t n,
         /* cur is a divisor.  Exclude the divisor n itself. */
         seq_t N = (seq_t)n;
         if (cur < N) {
-            seq_t term = big_pow(cur, N);
+            seq_t term = ipow(cur, N);
             *sum += term;
         }
         return;

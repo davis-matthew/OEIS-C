@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 13, i32 n <= 23, i64 n <= 26, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    (OEIS recurrence with k = 0, l = -2) */
 
 #include <stdlib.h>  /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Cached values of the sequence */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t needed)
     /* Initialise on first use */
     if (len == 0) {
         cap = (idx_t)2;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();          /* out‑of‑memory abort */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)0;
@@ -46,7 +48,7 @@ static void ensure_cache(idx_t needed)
         idx_t newcap = cap ? cap << 1 : (idx_t)2;
         while (needed >= newcap)
             newcap = newcap << 1;
-        seq_t *tmp = (seq_t*)realloc(cache, (size_t)newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)newcap);
         if (!tmp) abort();
         cache = tmp;
         cap = newcap;

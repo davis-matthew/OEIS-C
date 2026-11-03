@@ -9,7 +9,8 @@
  *            binomial(n-1,k) * a(k) * a(n-1-k)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,18 +35,18 @@ seq_t a(idx_t n)
     /* initial allocation */
     if (cap == 0) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(EXIT_FAILURE);
-        memset(cache, 0, cap * sizeof(seq_t));
+        mem_set(cache, 0, cap * sizeof(seq_t));
     }
 
     /* grow if necessary */
     if ((size_t)n >= cap) {
         size_t newcap = cap;
         while ((size_t)n >= newcap) newcap <<= 1;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         if (!cache) exit(EXIT_FAILURE);
-        memset(cache + cap, 0, (newcap - cap) * sizeof(seq_t));
+        mem_set(cache + cap, 0, (newcap - cap) * sizeof(seq_t));
         cap = newcap;
     }
 

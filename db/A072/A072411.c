@@ -5,15 +5,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = LCM of the exponents in the prime factorization of n
- * Range:     u8 n <= 9592, u16 n <= 9592, u32 n <= 9592, u64 n <= 9592,
- *            u128 n <= 9592, big any n
+ * Range:     u8 n <= 10080, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 136 terms through n = 9592 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 /* LCM of two positive values (a and b) using the static gcd defined in gcd.h */
 static seq_t lcm_seq_t(seq_t a, seq_t b)

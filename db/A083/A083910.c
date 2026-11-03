@@ -11,13 +11,14 @@
  *            10 are 2^i · 5^j · d', 1 ≤ i ≤ e2, 1 ≤ j ≤ e5, d' |...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   tau_u64
+ * Validated: standard, pass, 121 terms through n = 8592 (2026-11-01)
+ * Helpers:   num_divisors_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/tau_u64.h"
+#include "../utils/num_divisors_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t m = n;
@@ -38,6 +39,6 @@ seq_t a(idx_t n) {
     if (e2 == 0 || e5 == 0)
         return (seq_t)0;
 
-    seq_t tau_m = tau_u64(m);
+    seq_t tau_m = num_divisors_u64(m);
     return (seq_t)e2 * (seq_t)e5 * tau_m;
 }

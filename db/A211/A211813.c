@@ -9,13 +9,15 @@
  *            implementation uses memoisation in a static array indexed from 1
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 41, u64 n <= 87, u128 n <= 175,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The calling program supplies the types seq_t and idx_t. */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1;
     if (needed > cached_upto) {
         /* Grow the array to the required size. */
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) return (seq_t)0;     /* allocation failure */
         cache = tmp;
 

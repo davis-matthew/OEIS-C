@@ -10,6 +10,7 @@
  *            primality and * a binary‑search integer square root
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 71, u64 n <= 239,
  *            u128 n <= 719, big any n
+ * Validated: standard, pass, 75 terms through n = 7376 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

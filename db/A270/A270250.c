@@ -10,7 +10,8 @@
  *            from the constant term upward
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;          /* rows[0] is row 1 */
 static size_t rows_cap = 0;
@@ -40,13 +42,13 @@ static void ensure_rows(size_t target_k)
 
     if (max_computed == 0) {
         /* Compute row 1: Q_1 = 1 */
-        rows[0] = (seq_t *)malloc(1 * sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = (seq_t)1;
         max_computed = 1;
 
         /* Initialise T_poly for k = 2: (x + 1) */
         tlen = 2;
-        T_poly = (seq_t *)malloc(tlen * sizeof(seq_t));
+        T_poly = mem_new(seq_t, tlen);
         T_poly[0] = (seq_t)1;   /* constant term */
         T_poly[1] = (seq_t)1;   /* coefficient of x */
     }
@@ -54,7 +56,7 @@ static void ensure_rows(size_t target_k)
     for (size_t k = max_computed + 1; k <= target_k; ++k) {
         if (k == 2) {
             /* Q_2 = Q_1 + T_poly (T_poly is (x + 1)) */
-            seq_t *row = (seq_t *)malloc(2 * sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, 2);
             row[0] = rows[0][0] + T_poly[0]; /* constant term: 1 + 1 = 2 */
             row[1] = T_poly[1];             /* x term: 1 */
             rows[1] = row;
@@ -64,20 +66,20 @@ static void ensure_rows(size_t target_k)
             /* Multiply T_poly by (x + k) to obtain T_k */
             size_t oldlen = tlen;
             size_t newlen = oldlen + 1;
-            seq_t *newT = (seq_t *)malloc(newlen * sizeof(seq_t));
+            seq_t *newT = mem_new(seq_t, newlen);
             seq_t a = (seq_t)k;            /* coefficient of x in (x + k) */
             newT[0] = a * T_poly[0];
             for (size_t i = 1; i < newlen - 1; ++i) {
                 newT[i] = a * T_poly[i] + T_poly[i - 1];
             }
             newT[newlen - 1] = T_poly[oldlen - 1];
-            free(T_poly);
+            mem_free(T_poly);
             T_poly = newT;
             tlen = newlen;
 
             /* Compute Q_k = Q_{k-1} + T_k */
             seq_t *prevRow = rows[k - 2];          /* row k-1, length k-1 */
-            seq_t *row = (seq_t *)malloc(k * sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, k);
             for (size_t i = 0; i < k - 1; ++i) {
                 row[i] = prevRow[i] + T_poly[i];
             }

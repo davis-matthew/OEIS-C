@@ -10,7 +10,8 @@
  *            where q is prime)
  * Range:     u8 n <= 17, u16 n <= 7310, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 70 terms through n = 8545 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Cache for already computed a(n) values. */
 static seq_t *cache = NULL;
@@ -43,10 +45,10 @@ static void ensure_safe_primes_upto(idx_t limit)
 
     /* Allocate a bit larger array if necessary. */
     for (uint64_t cand = safe_last_checked; cand <= (uint64_t)limit; cand += 2) {
-        if (!is_prime_small((seq_t)cand))
+        if (!is_prime_seq((seq_t)cand))
             continue;
         uint64_t q = (cand - 1) / 2;
-        if (is_prime_small((seq_t)q)) {
+        if (is_prime_seq((seq_t)q)) {
             /* Append to the safe primes list. */
             if (safe_cnt == safe_cap) {
                 safe_cap = safe_cap ? safe_cap * 2 : 8;
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < safe_cnt && safe_arr[i] <= u_cand - 2; ++i) {
             uint64_t s = safe_arr[i];
             uint64_t p = u_cand - s;
-            if (p >= 3 && (p & 1) && is_prime_small((seq_t)p)) {
+            if (p >= 3 && (p & 1) && is_prime_seq((seq_t)p)) {
                 representable = true;
                 break;
             }
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
             /* Store the new term. */
             if (cache_size == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 4;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = cand;
         }

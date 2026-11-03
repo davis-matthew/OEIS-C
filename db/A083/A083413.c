@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n} d*2^(d-1) (OEIS A083413)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 31, u128 n <= 31,
  *            big any n
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,7 +15,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow2.h"   /* gives seq_t pow2(idx_t exp) */
+#include "../utils/pow2.h"
 
 /* Computes the nth term of OEIS A083413.
  * For n = 0, a(0) = 0 is returned.

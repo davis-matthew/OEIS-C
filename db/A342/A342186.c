@@ -10,14 +10,17 @@
  *            T(2,1), a(3) = T(2,2), a(4) = T(3,1), …
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 36, i64 n <= 66, i128 n <= 136,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 52 terms through n = 208 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     /* Grow rows up to required row r */
     while (max_row < (size_t)r) {
         size_t new_row = max_row + 1;           /* 1‑based row number */
-        seq_t *row = (seq_t *)malloc(new_row * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, new_row);
         if (!row) abort();                      /* allocation failure */
 
         if (new_row == 1) {

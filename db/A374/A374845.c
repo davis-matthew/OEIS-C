@@ -8,7 +8,8 @@
  * Formula:   A374845 – merge of primes ≡ 3 (mod 4) and their doubles
  * Range:     u8 n <= 44, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Cache for the sequence terms and for the primes ≡ 3 (mod 4). */
 static seq_t *seq_cache = NULL;   /* cached values of the sequence */
@@ -50,7 +52,7 @@ static void ensure_sequence(idx_t n)
             /* Grow the prime list if necessary. */
             if (prime_len == prime_cap) {
                 size_t new_cap = prime_cap ? prime_cap << 1 : 16;
-                seq_t *tmp = (seq_t *)realloc(prime3, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime3, new_cap);
                 if (!tmp) exit(1);           /* allocation failure */
                 prime3 = tmp;
                 prime_cap = new_cap;
@@ -75,7 +77,7 @@ static void ensure_sequence(idx_t n)
         /* Grow the sequence cache if necessary. */
         if (seq_len == seq_cap) {
             size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             if (!tmp) exit(1);           /* allocation failure */
             seq_cache = tmp;
             seq_cap = new_cap;

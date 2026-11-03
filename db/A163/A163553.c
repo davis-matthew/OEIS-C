@@ -8,6 +8,7 @@
  *            of all positive divisors of m
  * Range:     i8 n <= 59, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 86 terms through n = 966 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 
 /* Compute sigma(m) = sum of all positive divisors of m.

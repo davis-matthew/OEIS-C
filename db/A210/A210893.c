@@ -11,13 +11,15 @@
  *            dates and checking the palindrome condition
  * Range:     u8 none, u16 none, u32 n <= 331, u64 n <= 331, u128 n <= 331,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 314 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* check leap year for years between 1000 and 9999 */
 static bool is_leap_year(idx_t year) {
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     if (seq == NULL) {
         /* allocate initial capacity */
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         for (idx_t year = 1000; year <= 9999; ++year) {
             for (idx_t month = 1; month <= 12; ++month) {
                 size_t dim = days_in_month(year, month);
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
                         seq_t val = month * 1000000ULL + day * 10000ULL + year;
                         if (seq_len == seq_cap) {
                             seq_cap <<= 1;
-                            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                            seq = mem_resize(seq_t, seq, seq_cap);
                         }
                         seq[seq_len++] = val;
                     }

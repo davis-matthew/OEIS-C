@@ -8,12 +8,14 @@
  * Formula:   a(n) = a(n-1) + a(n-2) + 2*a([n/2]), a(0)=1, a(1)=1, a(2)=1
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 43, u64 n <= 90, u128 n <= 182,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (!cache) {
         capacity = (size_t)(n + 1);
         if (capacity < 3) capacity = 3;                 /* at least a(0..2) */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         cache[0] = 1;                                   /* a(0) */
         cache[1] = 1;                                   /* a(1) */
         cache[2] = 1;                                   /* a(2) */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Grow the array if necessary */
     if ((size_t)n + 1 > capacity) {
         capacity = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, capacity);
     }
 
     /* Compute missing terms in increasing order */

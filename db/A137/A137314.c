@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 654, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 70 terms through n = 9503 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t n); */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;      /* cached sequence terms */
 static size_t terms_cap = 0;      /* allocated capacity */
@@ -43,7 +46,7 @@ static uint64_t order_two_prime(uint64_t p) {
             while (temp % q == 0) temp /= q;   /* remove multiplicity */
             /* try to divide out q from order as long as possible */
             while (order % q == 0) {
-                seq_t val = mod_pow((seq_t)2, (idx_t)(order / q), (seq_t)p);
+                seq_t val = powmod((seq_t)2, (idx_t)(order / q), (seq_t)p);
                 if (val == (seq_t)1)
                     order /= q;
                 else
@@ -54,7 +57,7 @@ static uint64_t order_two_prime(uint64_t p) {
     if (temp > 1) {                          /* remaining prime factor */
         uint64_t q = temp;
         while (order % q == 0) {
-            seq_t val = mod_pow((seq_t)2, (idx_t)(order / q), (seq_t)p);
+            seq_t val = powmod((seq_t)2, (idx_t)(order / q), (seq_t)p);
             if (val == (seq_t)1)
                 order /= q;
             else
@@ -68,7 +71,7 @@ static uint64_t order_two_prime(uint64_t p) {
 static void append_term(seq_t val) {
     if (terms_len == terms_cap) {
         terms_cap = (terms_cap == 0) ? 16 : terms_cap * 2;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_len++] = val;
 }

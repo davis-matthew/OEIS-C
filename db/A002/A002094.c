@@ -13,20 +13,121 @@
  *            4*n*C(n) ) / (4*n), where P(x) = x*C'(x)/(1-C(x)) and T(...
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 25, u64 n <= 47, u128 n <= 91,
  *            big any n
- * Helpers:   grow_zero, x2094_fixed, x2094_modrun, x2094_phi, x2094_pw,
- *            x2094_width
+ * Validated: standard, pass, 47 terms through n = 399 (2026-11-03)
+ * Helpers:   mem, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/grow_zero.h"
-#include "../utils/x2094_fixed.h"
-#include "../utils/x2094_modrun.h"
-#include "../utils/x2094_phi.h"
-#include "../utils/x2094_pw.h"
-#include "../utils/x2094_width.h"
+#include <string.h>
+#include "../utils/totient_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static uint64_t x2094_pw(uint64_t b, uint64_t e, uint64_t p)
+{
+    uint64_t r = 1 % p;
+    b %= p;
+    while (e) {
+        if (e & 1) r = r * b % p;
+        b = b * b % p;
+        e >>= 1;
+    }
+    return r;
+}
+
+/* a(n) mod p, p < 2^31 prime */
+static uint64_t x2094_modrun(idx_t n, uint64_t p)
+{
+    idx_t L = n + 1, m, i;
+    uint64_t *A = (uint64_t *)calloc(L, sizeof(uint64_t));
+    uint64_t *S2 = (uint64_t *)calloc(L, sizeof(uint64_t));
+    uint64_t *A3 = (uint64_t *)calloc(L, sizeof(uint64_t));
+    uint64_t *C = (uint64_t *)calloc(L, sizeof(uint64_t));
+    uint64_t *CC = (uint64_t *)calloc(L, sizeof(uint64_t));
+    uint64_t *T = (uint64_t *)calloc(L, sizeof(uint64_t));
+    uint64_t *P = (uint64_t *)calloc(L, sizeof(uint64_t));
+    uint64_t inv6 = x2094_pw(6, p - 2, p), inv2 = x2094_pw(2, p - 2, p);
+    uint64_t S = 0, num, d;
+    A[0] = 1; S2[0] = 1; A3[0] = 1;
+    for (m = 1; m <= n; m++) {
+        idx_t k = m - 1;
+        uint64_t s = A3[k], t = 0, q;
+        for (i = 0; 2 * i <= k; i++) t = (t + A[i] * A[k - 2 * i]) % p;
+        s = (s + 3 * t) % p;
+        if (k % 3 == 0) s = (s + 2 * A[k / 3]) % p;
+        A[m] = s * inv6 % p;
+        s = 0;
+        for (i = 0; i <= m; i++) s = (s + A[i] * A[m - i]) % p;
+        S2[m] = s;
+        s = 0;
+        for (i = 0; i <= m; i++) s = (s + A[i] * S2[m - i]) % p;
+        A3[m] = s;
+        s = S2[k];
+        if (k % 2 == 0) s = (s + A[k / 2]) % p;
+        C[m] = s * inv2 % p;
+        s = 0;
+        for (i = 1; i < m; i++) s = (s + C[i] * C[m - i]) % p;
+        CC[m] = s;
+        q = (2 * C[m] + CC[m]) % p;
+        if (m % 2 == 0) q = (q + C[m / 2]) % p;
+        for (i = 1; 2 * i <= m; i++) q = (q + C[i] * T[m - 2 * i]) % p;
+        T[m] = q;
+        q = (uint64_t)(m % p) * C[m] % p;
+        for (i = 1; i <= m; i++) q = (q + C[i] * P[m - i]) % p;
+        P[m] = q;
+    }
+    for (d = 1; d <= n; d++)
+        if (n % d == 0) S = (S + (totient_u64(d) % p) * P[n / d]) % p;
+    num = (2 * S + (n % p) * T[n]) % p;
+    num = (num + p - (4 * (n % p)) % p * C[n] % p) % p;
+    num = num * x2094_pw((4 * (n % p)) % p, p - 2, p) % p;
+    free(A); free(S2); free(A3); free(C); free(CC); free(T); free(P);
+    return num;
+}
+
+static seq_t x2094_fixed(idx_t n)
+{
+    static const uint64_t pr[6] = {2147483647ULL, 2147483629ULL, 2147483587ULL,
+                                   2147483579ULL, 2147483563ULL, 2147483549ULL};
+    uint64_t r[6], c[6];
+    seq_t res = 0, mult = 1;
+    int i, j;
+    for (i = 0; i < 6; i++) r[i] = x2094_modrun(n, pr[i]);
+    for (i = 0; i < 6; i++) {
+        uint64_t p = pr[i], v = 0, pm = 1;
+        for (j = 0; j < i; j++) {
+            v = (v + c[j] % p * pm) % p;
+            pm = pm * (pr[j] % p) % p;
+        }
+        c[i] = (r[i] % p + p - v) % p * x2094_pw(pm, p - 2, p) % p;
+    }
+    for (i = 0; i < 6; i++) {
+        res += (seq_t)c[i] * mult;
+        mult *= (seq_t)pr[i];
+    }
+    return res;
+}
+
+static int x2094_width(void)
+{
+    seq_t x = 1;
+    int w = 0;
+    while (x != 0 && w < 400) { x *= 2; w++; }
+    return w;
+}
 
 static seq_t *gA, *gS2, *gA3, *gC, *gCC, *gT, *gP;
 static idx_t gN = 0, gCap = 0;
@@ -101,7 +202,7 @@ seq_t a(idx_t n)
         idx_t d;
         x2094_extend(n);
         for (d = 1; d <= n; d++)
-            if (n % d == 0) S += (seq_t)x2094_phi(d) * gP[n / d];
+            if (n % d == 0) S += (seq_t)totient_u64(d) * gP[n / d];
         num = 2 * S + (seq_t)n * gT[n];
         num -= (seq_t)n * 4 * gC[n];
         return num / ((seq_t)n * 4);

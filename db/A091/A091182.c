@@ -6,16 +6,18 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, nice
  * Formula:   not stated
- * Range:     u8 n <= 34, u16 n <= 846, u32 n <= 9733, u64 n <= 9733,
- *            u128 n <= 9733, big any n
- * Helpers:   is_prime_small
+ * Range:     u8 n <= 34, u16 n <= 846, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 103 terms through n = 9733 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This function counts the number of unordered pairs (x,y) with x>=y>0, x+y=n,
    such that xy-1 and xy+1 are both prime. */
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         seq_t prod = (seq_t)x * (seq_t)y;
 
         /* test both neighbours for primality */
-        if (is_prime_small(prod - 1) && is_prime_small(prod + 1))
+        if (is_prime_seq(prod - 1) && is_prime_seq(prod + 1))
             ++count;
     }
 

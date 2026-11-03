@@ -7,13 +7,15 @@
  * Formula:   a(n) = F(F(n)-1), with F(0)=0, F(1)=1
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 9, u64 n <= 11, u128 n <= 12,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Fast doubling Fibonacci for an index of type seq_t.
    It works for any non‑negative big integer index. */
@@ -21,7 +23,7 @@ static seq_t fib_big(seq_t n)
 {
     seq_t a = 0;    /* F(0) */
     seq_t b = 1;    /* F(1) */
-    size_t bits = bitlen_seq_t(n);
+    size_t bits = bit_length(n);
     /* Process bits from most significant to least */
     for (size_t i = 0; i < bits; ++i)
     {

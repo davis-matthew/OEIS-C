@@ -9,6 +9,7 @@
  *            C(4n,2n) minus that in C(2n,n))
  * Range:     u8 n <= 1559, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 101 terms through n = 9992 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdlib.h>      /* free, malloc */
 #include <stdbool.h>     /* for bool if needed */
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
 
 /* Legendre’s formula: exponent of prime p in k! */

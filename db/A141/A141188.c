@@ -10,7 +10,8 @@
  *            terms are these primes in increasing order
  * Range:     i8 n <= 14, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for discovered primes and sequence values */
 static uint64_t *primes = NULL;
@@ -44,7 +46,7 @@ static void ensure_seq_cap(size_t needed) {
     if (needed > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 16;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *ptr = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, seq, new_cap);
         if (!ptr) return;                 /* out of memory – unlikely for n<1e4 */
         seq = ptr;
         seq_cap = new_cap;

@@ -9,14 +9,15 @@
  *            (A249226: denominators of constants A(n))
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 24, u64 n <= 46, u128 n <= 88,
  *            big any n
- * Helpers:   gcd, phi
+ * Validated: standard, pass, 46 terms through n = 883 (2026-11-01)
+ * Helpers:   gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd.h"   /* gcd(seq_t,a,seq_t,b) */
-#include "../utils/phi.h"   /* seq_t phi(idx_t n) */
+#include "../utils/gcd.h"
+#include "../utils/totient.h"
 
 static void add_one_over_j(seq_t *num, seq_t *den, idx_t j)
 {
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
     }
 
     /* Multiply by n/phi(n) and reduce */
-    seq_t phi_n   = phi(n);                    /* φ(n) */
+    seq_t phi_n   = totient(n);                    /* φ(n) */
     seq_t a_num   = num * (seq_t)n;            /* numerator of A(n) */
     seq_t a_den   = den * phi_n;               /* denominator of A(n) */
 

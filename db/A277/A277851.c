@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>   /* malloc, calloc, realloc, abort */
 #include <stdbool.h>  /* bool */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 /* ---------- static state ---------- */
 static bool initialized = false;
@@ -133,7 +135,7 @@ static void init(void)
 
     /* initialise missing array */
     missing_cap = 1024;
-    missing = (seq_t *)calloc(missing_cap, sizeof(seq_t));
+    missing = mem_new(seq_t, missing_cap);
     if (!missing) abort();
     missing_cnt = 0;
     missing_next_start = 1;
@@ -149,7 +151,7 @@ static void ensure_missing_at_least(idx_t want)
     while (missing_cnt < want) {
         if (missing_cnt == missing_cap) {
             missing_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(missing, missing_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, missing, missing_cap);
             if (!tmp) abort();
             missing = tmp;
         }

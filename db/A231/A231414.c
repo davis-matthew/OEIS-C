@@ -12,7 +12,8 @@
  *            a(4)=221445, a(5)=3245016, a(6)=47557773, a(7)=697029563
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #if defined(__cplusplus)
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* cache[0] is unused; cache[1]–cache[7] hold the initial terms */
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
 
         if (cache == NULL) {
             /* Allocate a little extra buffer for safety */
-            cache = (seq_t*)malloc((newSize + 2) * sizeof(seq_t));
+            cache = mem_new(seq_t, (newSize + 2));
             if (!cache) return 0;               /* out of memory */
 
             /* initial terms */
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
             cache_n = 7;
         } else if (newSize + 2 > cache_n + 2) {
             /* Grow cache if needed */
-            seq_t *tmp = (seq_t*)realloc(cache, (newSize + 2) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (newSize + 2));
             if (!tmp) return 0;                 /* out of memory */
             cache = tmp;
         }

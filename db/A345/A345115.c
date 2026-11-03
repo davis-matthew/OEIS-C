@@ -9,15 +9,47 @@
  *            -> 431, 574 -> 745)
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 21, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   rotate_left, seq_realloc
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_realloc.h"
-#include "../utils/rotate_left.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* rotate the decimal digits of x left by one position */
+static seq_t rotate_left(seq_t x)
+{
+    if (x < 10)                /* single‑digit numbers stay the same */
+        return x;
+
+    seq_t pow10 = 1;           /* will become 10^(d-1) */
+    seq_t y = x;
+    int d = 1;
+    while (y >= 10)            /* count digits and compute 10^(d-1) */
+    {
+        y   /= 10;
+        d++;
+        pow10 *= 10;
+    }
+
+    seq_t first = x / pow10;   /* most significant digit */
+    seq_t rem   = x % pow10;   /* the remaining part */
+    return rem * 10 + first;   /* rotated value */
+}
 
 static seq_t *cache = NULL;   /* array of computed terms */
 static size_t cache_len = 0;  /* current number of stored terms */

@@ -8,13 +8,28 @@
  *            decimal point of 1/808
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   powmod_10_mod_8080
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/powmod_10_mod_8080.h"
+
+/* Compute 10^exp (mod 8080) using binary exponentiation. */
+static uint64_t powmod_10_mod_8080(uint64_t exp)
+{
+    const uint64_t MOD = 8080ULL;
+    uint64_t res = 1ULL % MOD;
+    uint64_t base = 10ULL % MOD;
+    while (exp != 0ULL) {
+        if (exp & 1ULL)
+            res = (res * base) % MOD;
+        base = (base * base) % MOD;
+        exp >>= 1ULL;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

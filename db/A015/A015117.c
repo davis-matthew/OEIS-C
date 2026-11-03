@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 16, i32 n <= 30, i64 n <= 58, i128 n <= 109,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 837 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    r(r+1)/2 ≤ n < (r+1)(r+2)/2.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Euclidean gcd for seq_t.  Works for any signed integer type. */
 static seq_t seq_gcd(seq_t a, seq_t b)
@@ -45,7 +47,7 @@ static seq_t gaussian_binom(idx_t n, idx_t k)
     const seq_t q = (seq_t)-7;
 
     /* Pre‑compute powers q^i for i=0..n */
-    seq_t *qpow = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *qpow = mem_new(seq_t, (size_t)(n + 1));
     if (!qpow) return (seq_t)0; /* allocation failure → 0 */
 
     qpow[0] = (seq_t)1;
@@ -78,7 +80,7 @@ static seq_t gaussian_binom(idx_t n, idx_t k)
     num /= g;
     den /= g;
 
-    free(qpow);
+    mem_free(qpow);
     return num / den;
 }
 

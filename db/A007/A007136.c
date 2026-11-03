@@ -11,14 +11,27 @@
  *            subtrees) over those trees (S(0)=S(1)=0, S(m) = S...
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   choose2rep, grow_zero
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/grow_zero.h"
-#include "../utils/choose2rep.h"
+#include <string.h>
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static seq_t *bb = NULL;
 static seq_t *ss = NULL;
@@ -40,7 +53,7 @@ static void extend(idx_t len) {
         for (i = 1; i < k; i++)
             q += ss[i] * bb[k - i];
         if (k % 2 == 0) {
-            p += choose2rep(bb[k / 2]);
+            p += triangular_seq(bb[k / 2]);
             q += ss[k / 2] + bb[k / 2];
         }
         bb[m] = bb[k] + p;

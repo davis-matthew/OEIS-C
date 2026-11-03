@@ -11,14 +11,15 @@
  *            11*x*y is a power of two
  * Range:     u8 n <= 28, u16 n <= 4679, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPowerOfTwo
+ * Validated: standard, pass, 116 terms through n = 9960 (2026-11-01)
+ * Helpers:   is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPowerOfTwo.h"
+#include "../utils/is_pow2.h"
 
 /* Integer square root (floor), suitable for idx_t values up to 10^12. */
 static idx_t isqrt_u64(idx_t v)
@@ -59,7 +60,7 @@ seq_t a(idx_t n)
             idx_t y2 = y * y;
             seq_t expr = (seq_t)x2 + (seq_t)26 * (seq_t)y2
                          - (seq_t)11 * (seq_t)x * (seq_t)y;
-            if (expr > 0 && isPowerOfTwo(expr)) {
+            if (expr > 0 && is_pow2(expr)) {
                 idx_t s = n - x2 - y2;
                 total += count_pairs(s);
             }

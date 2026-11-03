@@ -13,12 +13,14 @@
  *            arithmetic only
  * Range:     u8 n <= 1600, u16 n <= 1600, u32 n <= 1600, u64 n <= 1600,
  *            u128 n <= 1600, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 110 terms through n = 1472 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/int_sqrt.h"   /* int_sqrt(idx_t n) → floor(sqrt(n)) */
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* Locate the row containing the nth entry */
     while (1) {
-        idx_t s = int_sqrt(8 * r + 1);          /* floor(sqrt(8r+1))  */
+        idx_t s = isqrt(8 * r + 1);          /* floor(sqrt(8r+1))  */
         kmax = (s - 1) / 2;                     /* floor((sqrt(8r+1)-1)/2) */
         if (cumulative + kmax >= n) break;      /* found the row  */
         cumulative += kmax;                      /* add whole row to total   */

@@ -8,6 +8,7 @@
  * Formula:   a(n) = 6*6^n + 310*5^n + 2408*4^n + 8106*3^n + 16324*2^n + 19502
  * Range:     u8 none, u16 none, u32 n <= 9, u64 n <= 23, u128 n <= 48,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 944 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

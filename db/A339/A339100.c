@@ -10,6 +10,7 @@
  *            otherwise. (a(odd n) = 1)
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 119, u64 n <= 419,
  *            u128 n <= 1201, big any n
+ * Validated: standard, pass, 76 terms through n = 1088 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

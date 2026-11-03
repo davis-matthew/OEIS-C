@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 62 terms through n = 896 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* smallest prime factor table */
 static idx_t *spf = NULL;
@@ -105,7 +107,7 @@ static void generate_upto(size_t need)
             /* grow cache if necessary */
             if (cache_len == cache_cap) {
                 size_t newcap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) exit(1);           /* allocation failure */
                 cache = tmp;
                 cache_cap = newcap;

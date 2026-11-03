@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Compute the triangle entry. */
     seq_t binom = binomial(r, k - 1);          /* C(r, k-1) */
     idx_t exp   = r - k + 1;                   /* exponent for 7 */
-    seq_t pow7  = pow_uint(7, exp);            /* 7^exp */
+    seq_t pow7  = ipow_u64_idx(7, exp);            /* 7^exp */
     seq_t term  = (pow7 - 1) / 6;              /* (7^exp - 1)/6 */
 
     return binom * term;                       /* exact product in seq_t */

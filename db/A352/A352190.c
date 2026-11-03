@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 662, u32 n <= 662, u64 n <= 662,
  *            u128 n <= 662, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 662 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static state for prime generation */
 static seq_t *prime_list = NULL;
@@ -30,7 +32,7 @@ ensure_primes_count(idx_t count)
 {
     if (prime_list == NULL) {
         prime_cap = 64;
-        prime_list = (seq_t *)malloc(prime_cap * sizeof(seq_t));
+        prime_list = mem_new(seq_t, prime_cap);
         prime_list[0] = (seq_t)2;   /* first prime */
         prime_len   = 1;
     }
@@ -56,7 +58,7 @@ ensure_primes_count(idx_t count)
             /* Grow array if needed */
             if (prime_len >= prime_cap) {
                 prime_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(prime_list, prime_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_list, prime_cap);
                 if (!tmp) {
                     /* Allocation failed; abort to avoid undefined behaviour */
                     exit(1);

@@ -8,16 +8,47 @@
  *            = σ(n) − 2n, σ(n) = sum of divisors of n
  * Range:     u8 n <= 6170, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _count_divs_leq, factor_u64, sigma_of
+ * Validated: standard, pass, 116 terms through n = 8147 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/sigma_of.h"
-#include "../utils/_count_divs_leq.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+static void _count_divs_leq(uint64_t *pr, uint64_t *exp, size_t pcnt,
+                            size_t idx, seq_t cur, seq_t abundance,
+                            size_t *cnt)
+{
+    if (idx == pcnt) {
+        if (cur <= abundance) (*cnt)++;
+        return;
+    }
+    seq_t val = cur;
+    for (uint64_t e = 0; e <= exp[idx]; ++e) {
+        _count_divs_leq(pr, exp, pcnt, idx + 1, val, abundance, cnt);
+        val *= (seq_t)pr[idx];
+    }
+}
 
 seq_t a(idx_t n)
 {

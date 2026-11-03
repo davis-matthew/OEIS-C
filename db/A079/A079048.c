@@ -9,15 +9,37 @@
  *            (e.g., 0 → "zero" → 9376, 21 → "twenty one" → 893689663)
  * Range:     u8 none, u16 n <= 2, u32 n <= 22, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   add_word, digit_from_char
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <ctype.h>
 #include <string.h>
-#include "../utils/add_word.h"
-#include "../utils/digit_from_char.h"
+
+/* Append a word to the buffer, adding a leading space if needed. */
+static void add_word(char *buf, int *pos, const char *w, int *first) {
+    if (!*first) buf[(*pos)++] = ' ';
+    while (*w) buf[(*pos)++] = *w++;
+    *first = 0;
+}
+
+/* Map a letter to its telephone keypad digit. */
+static unsigned digit_from_char(char c) {
+    c = toupper((unsigned char)c);
+    switch (c) {
+        case 'A': case 'B': case 'C': return 2;
+        case 'D': case 'E': case 'F': return 3;
+        case 'G': case 'H': case 'I': return 4;
+        case 'J': case 'K': case 'L': return 5;
+        case 'M': case 'N': case 'O': return 6;
+        case 'P': case 'Q': case 'R': case 'S': return 7;
+        case 'T': case 'U': case 'V': return 8;
+        case 'W': case 'X': case 'Y': case 'Z': return 9;
+        default: return 0;   /* non‑letters map to 0 (e.g., space) */
+    }
+}
 
 static const char *ones[]  = {"zero","one","two","three","four","five",
                               "six","seven","eight","nine"};

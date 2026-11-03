@@ -8,13 +8,15 @@
  *            for n >= 10, initial values for n = 0..9 given below)
  * Range:     u8 n <= 14, u16 n <= 30, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Lazy initialization */
     if (!cache) {
         cap = 16;                       /* start with some space */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         for (idx_t i = 0; i < 10; ++i)
             cache[i] = init[i];
         comp = 10;                       /* 0..9 are ready */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t new_cap = cap;
         while ((size_t)n >= new_cap) new_cap <<= 1;    /* double until enough */
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 

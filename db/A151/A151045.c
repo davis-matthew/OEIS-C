@@ -10,7 +10,8 @@
  *            with steps {(-1,-1,-1), (-1,-1,0), (0,1,0), (0,1,1), (1,0,1)}
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MODULO 9223372036854775783ULL  /* prime > 2^63 */
 
@@ -119,8 +121,8 @@ seq_t a(idx_t n)
         const size_t TOTAL = (size_t)DIM * DIM * DIM;
 
         /* allocate 3‑D arrays as linear vectors */
-        seq_t *cur = (seq_t*)malloc(TOTAL * sizeof(seq_t));
-        seq_t *nxt = (seq_t*)malloc(TOTAL * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, TOTAL);
+        seq_t *nxt = mem_new(seq_t, TOTAL);
 
         /* initialise cur with zeros */
         for (size_t i = 0; i < TOTAL; ++i) cur[i] = (seq_t)0;
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
 
         /* cache will hold INIT_N+1 terms */
         cache_cap = INIT_N + 1;
-        seq_cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
         seq_cache[0] = (seq_t)1;     /* a(0) = 1 */
         cache_len  = 1;
 
@@ -193,8 +195,8 @@ seq_t a(idx_t n)
             seq_t *tmp = cur; cur = nxt; nxt = tmp;
         }
 
-        free(cur);
-        free(nxt);
+        mem_free(cur);
+        mem_free(nxt);
 
         /* ---- 2. Find linear recurrence from initial terms -------------------------- */
         unsigned long long *seq_mod = (unsigned long long*)malloc(cache_len * sizeof(unsigned long long));
@@ -216,7 +218,7 @@ seq_t a(idx_t n)
     while (cache_len <= n) {
         if (cache_len >= cache_cap) {
             cache_cap <<= 1;
-            seq_cache = (seq_t*)realloc(seq_cache, cache_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
         }
         size_t idx = cache_len;
         seq_t pos = (seq_t)0;

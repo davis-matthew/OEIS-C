@@ -10,7 +10,8 @@
  *            by testing each * successive prime for the property
  * Range:     u8 n <= 13, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   is_consecutive_product
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,36 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_consecutive_product.h"
+#include "../utils/mem.h"
+
+/* Test whether x can be written as a product of two or more consecutive
+ * positive integers.  We iteratively build the product for each possible
+ * starting integer. */
+static bool is_consecutive_product(seq_t x)
+{
+    if (x < 6)                 /* the smallest product 2*3 = 6 */
+        return false;
+
+    for (seq_t start = 2; start <= x / start; ++start)
+    {
+        seq_t prod = start;
+        seq_t term = start + 1;
+        while (prod <= x / term)
+        {
+            prod *= term;
+            if (prod == x)
+                return true;        /* found a product */
+            ++term;
+            /* stop if at least two terms have been multiplied */
+            if (term - start >= 2) {
+                /* Next term multiplication will exceed x soon */
+                if (prod > x)
+                    break;
+            }
+        }
+    }
+    return false;
+}
 
 /* --- Small helpers ----------------------------------------------------- */
 
@@ -122,7 +152,7 @@ seq_t a(idx_t n)
             if (cache_len >= cache_cap)
             {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = next_candidate;
         }

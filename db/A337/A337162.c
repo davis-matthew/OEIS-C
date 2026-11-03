@@ -9,7 +9,8 @@
  *            Sum_{d|m, 1 <= d <= sqrt(m)} (m/d - d) is a multiple of m
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --- Integer square root -------------------------------------------- */
 static uint64_t isqrt_u64(uint64_t x)
@@ -164,7 +166,7 @@ seq_t a(idx_t n)
             /* store term */
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
             cache[cache_len++] = (seq_t)m;

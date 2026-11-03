@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 2034, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has34_base6
+ * Validated: standard, pass, 67 terms through n = 8551 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
 
 #include <stdbool.h>
 #include <stdlib.h>   /* for realloc and abort */
-#include "../utils/has34_base6.h"
+#include "../utils/mem.h"
+
+/* Return true iff the base‑6 representation of x contains the
+   consecutive digits 3,4. */
+static bool has34_base6(seq_t x)
+{
+    /* Get the least significant digit first. */
+    seq_t prev = x % 6;
+    x = x / 6;
+
+    while (x > 0)
+    {
+        seq_t curr = x % 6;
+        if (curr == 3 && prev == 4)
+            return true;
+        prev = curr;
+        x = x / 6;
+    }
+    return false;
+}
 
 /* Return the n-th term of the sequence.  n is 1‑based. */
 seq_t a(idx_t n)
@@ -46,8 +66,7 @@ seq_t a(idx_t n)
                 if (cache_len == cache_cap)
                 {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                    seq_t *tmp = (seq_t *)realloc(cache,
-                                                  new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp)
                         abort();   /* memory exhaustion */
                     cache = tmp;

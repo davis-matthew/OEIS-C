@@ -11,12 +11,14 @@
  *            627
  * Range:     i8 n <= 4, i16 n <= 44, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 /* precalculate the first 14 values (indices 0..13) */
 static const seq_t initial_vals[14] = {
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         /* realloc to size (n+1) */
         size_t new_size = (size_t)(n + 1) * sizeof(seq_t);
-        cache = (seq_t *)realloc(cache, new_size);
+        cache = mem_resize(seq_t, cache, (new_size) / sizeof(seq_t));
         if (!cache) return 0;  /* nothing else we can do */
 
         /* compute values up to n */

@@ -8,12 +8,14 @@
  *            a(1)=13, a(2)=45
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 35, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 245 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence. */
 static seq_t *seq_cache = NULL;
@@ -27,7 +29,7 @@ static void grow_cache(idx_t n)
     if (cache_cap < needed)
     {
         /* Allocate or reallocate.  Use realloc for growth. */
-        seq_t *new_mem = (seq_t *)realloc(seq_cache, needed * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, seq_cache, needed);
         if (!new_mem) abort();          /* Allocation failure → abort. */
         seq_cache = new_mem;
         cache_cap = needed;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     {
         /* Allocate at least three slots and set the initial terms. */
         cache_cap = 3;
-        seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
         if (!seq_cache) abort();
         seq_cache[0] = (seq_t)4;
         seq_cache[1] = (seq_t)13;

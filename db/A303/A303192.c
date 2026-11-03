@@ -12,13 +12,15 @@
  *            a(9)=1757, a(10)=4500, a(11)=11625
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 49, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑based cache of computed terms */
 static size_t max_n = 0;      /* highest n fully computed in cache   */
@@ -32,10 +34,10 @@ static void ensure_cache(idx_t n)
     size_t new_cap = (cap ? cap : 11);  /* start with at least 11 slots */
     while (new_cap < (size_t)n) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)calloc(new_cap + 1, sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap + 1);
     if (cache) {
         for (idx_t i = 1; i <= max_n; ++i) tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = tmp;
     cap   = new_cap;

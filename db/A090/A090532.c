@@ -8,12 +8,15 @@
  * Formula:   a(n) = number of iterations of f(x) = x - π(x) until reaching 1
  * Range:     u8 n <= 728, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi
+ * Validated: standard, pass, 122 terms through n = 9208 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
 
     while (current > (seq_t)1)
     {
-        seq_t pi_val = compute_pi((idx_t)current);
+        seq_t pi_val = prime_pi((idx_t)current);
         current -= pi_val;
         ++steps;
     }

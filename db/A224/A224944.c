@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   is_non_leap_year, weekday_gregorian_1jan
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,8 +38,23 @@
  */
 
 #include <stdint.h>
-#include "../utils/is_non_leap_year.h"
-#include "../utils/weekday_gregorian_1jan.h"
+
+static int is_non_leap_year(idx_t Y)
+{
+    uint64_t y = (uint64_t)Y;
+    return !((y % 400ULL == 0ULL) || ((y % 4ULL == 0ULL) && (y % 100ULL != 0ULL)));
+}
+
+static int weekday_gregorian_1jan(idx_t Y)
+{
+    static const int t[12] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
+    uint64_t y = (uint64_t)Y;
+    /* month = 1, so for Jan and Feb, subtract 1 from year */
+    y--;  /* year for formula */
+    uint64_t w = (y + y / 4 - y / 100 + y / 400 + t[0] + 1) % 7;
+    /* 0=Sunday, 6=Saturday */
+    return (int)w;
+}
 
 seq_t a(idx_t n)
 {

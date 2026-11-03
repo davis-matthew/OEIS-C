@@ -10,7 +10,8 @@
  *            all subblocks
  * Range:     u8 none, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   max4, upper_median4
+ * Validated: standard, pass, 32 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,29 @@
    the next.  The algorithm runs in O(n·27²) time and O(27·5) space. */
 
 #include <stdint.h>
-#include "../utils/max4.h"
-#include "../utils/upper_median4.h"
+
+/* compute maximum of four values */
+static int max4(int a,int b,int c,int d)
+{
+    int m=a;
+    if(b>m)m=b;
+    if(c>m)m=c;
+    if(d>m)m=d;
+    return m;
+}
+
+/* upper median of four values (third smallest) */
+static int upper_median4(int a,int b,int c,int d)
+{
+    int v[4] = {a,b,c,d};
+    /* simple sorting network for 4 elements */
+    if(v[0]>v[1]) {int t=v[0];v[0]=v[1];v[1]=t;}
+    if(v[2]>v[3]) {int t=v[2];v[2]=v[3];v[3]=t;}
+    if(v[0]>v[2]) {int t=v[0];v[0]=v[2];v[2]=t;}
+    if(v[1]>v[3]) {int t=v[1];v[1]=v[3];v[3]=t;}
+    if(v[1]>v[2]) {int t=v[1];v[1]=v[2];v[2]=t;}
+    return v[2];
+}
 
 enum { ROWS = 27 };          /* 3^3 possible rows of length 3 */
 enum { SUMS = 5 };           /* possible values of (max + upper median) */

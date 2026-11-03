@@ -8,13 +8,16 @@
  *            a(1) = 1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   a000707_binom
+ * Validated: standard, pass, 38 terms through n = 187 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a000707_binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_size = 0;
@@ -25,13 +28,13 @@ seq_t a(idx_t n) {
     // Expand memo array if needed
     if (n >= memo_size) {
         idx_t new_size = n + 1;
-        seq_t *new_memo = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_size);
         
         if (memo) {
             for (idx_t i = 0; i < memo_size; i++) {
                 new_memo[i] = memo[i];
             }
-            free(memo);
+            mem_free(memo);
         }
         
         for (idx_t i = memo_size; i < new_size; i++) {
@@ -56,7 +59,7 @@ seq_t a(idx_t n) {
         memo[m] = 0;
         idx_t limit = (m + 1) / 2;
         for (idx_t k = 1; k <= limit; k++) {
-            seq_t binom = a000707_binom(m, 2 * k - 1);
+            seq_t binom = binomial(m, 2 * k - 1);
             seq_t prev = memo[m - 2 * k + 1];
             memo[m] += binom * prev;
         }

@@ -12,15 +12,57 @@
  *            states follow by symmetry j -> i+1-j. P_k(i) = 2...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   grow_zero, step, zeroed
+ * Validated: standard, pass, 38 terms through n = 448 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/zeroed.h"
-#include "../utils/grow_zero.h"
-#include "../utils/step.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+/* calloc gives zeroed storage, which is a valid zero value for every seq_t build */
+static seq_t *zeroed(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+/* advance U from length i to i+1 in place; returns total of up-ending perms of length i */
+static seq_t step(seq_t *U, seq_t *T, idx_t K, idx_t i) {
+    idx_t s, j, jp;
+    seq_t tot;
+    for (s = 0; s < K; s++) {
+        seq_t run = 0;
+        for (j = 1; j <= i; j++) {
+            run += U[j * K + s];
+            U[j * K + s] = run;
+        }
+    }
+    T[0] = 0;
+    for (j = 1; j <= i; j++) {
+        seq_t t = 0;
+        for (s = 0; s < K; s++) t += U[j * K + s];
+        T[j] = t;
+    }
+    tot = T[i];
+    for (jp = i + 1; jp >= 1; jp--) {
+        for (s = K - 1; s >= 1; s--)
+            U[jp * K + s] = U[(jp - 1) * K + (s - 1)];
+        U[jp * K + 0] = tot - T[i + 1 - jp];
+    }
+    return tot;
+}
 
 static seq_t *U3 = NULL, *U2 = NULL, *T3 = NULL, *T2 = NULL, *res = NULL;
 static idx_t cur = 0, cap = 0;

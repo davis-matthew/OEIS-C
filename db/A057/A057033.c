@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
     entry, and the implementation works for any seq_t and idx_t
     supplied by the build.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     size_t M = (size_t)(2 * (uint64_t)n - 1);
 
     /* work array holding the current permutation of 1..M */
-    seq_t *arr = (seq_t *)malloc(M * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, M);
     if (!arr)
         return 0;        /* allocation failed – unlikely for n ≤ 10000 */
 
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n - 1];     /* a(n) is at zero‑based index n-1 */
-    free(arr);
+    mem_free(arr);
     return result;
 }

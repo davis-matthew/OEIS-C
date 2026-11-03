@@ -7,7 +7,8 @@
  * Formula:   a(n) = (53^p_n - 1) / 52 where p_n is the n‑th prime
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 5, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Static table of primes, expanded on demand. */
 static uint64_t *prime_table = NULL;   /* array of primes            */
@@ -73,7 +74,7 @@ seq_t a(idx_t n)
 
     /* `p` is the n-th prime. */
     seq_t p   = (seq_t)prime_table[(size_t)n - 1];
-    seq_t pow = big_pow((seq_t)53, p);
+    seq_t pow = ipow((seq_t)53, p);
 
     /* Compute (pow - 1) / 52 exactly. */
     seq_t res = (pow - (seq_t)1) / (seq_t)52;

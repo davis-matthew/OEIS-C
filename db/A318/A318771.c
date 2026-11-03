@@ -9,12 +9,14 @@
  *            and uses a simple integer square‑root routine
  * Range:     u8 n <= 21, u16 n <= 44, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- simple integer sqrt for idx_t (uint64_t) ---- */
 static idx_t isqrt_u64(idx_t v)
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
     size_t need = (size_t)n + 1;
 
     if (dp == NULL || cap < need) {
-        seq_t *tmp = (seq_t *)malloc(need * sizeof(seq_t));
-        if (dp != NULL) free(dp);
+        seq_t *tmp = mem_new(seq_t, need);
+        if (dp != NULL) mem_free(dp);
         dp   = tmp;
         cap  = need;
     }

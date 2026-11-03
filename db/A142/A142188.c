@@ -7,7 +7,8 @@
  * Formula:   a(n) is the nth prime congruent to 13 (mod 40)
  * Range:     u8 n <= 3, u16 n <= 419, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 61 terms through n = 932 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Internal cache of found primes */
 static seq_t   *prime_cache = NULL;
@@ -30,15 +32,14 @@ static void ensure_primes(idx_t needed)
 
     if (!prime_cache) {
         cache_cap = 1024;
-        prime_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        prime_cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_len < (size_t)needed) {
         if (is_prime(last_candidate)) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                prime_cache = (seq_t *)realloc(prime_cache,
-                                               cache_cap * sizeof(seq_t));
+                prime_cache = mem_resize(seq_t, prime_cache, cache_cap);
             }
             prime_cache[cache_len++] = (seq_t)last_candidate;
         }

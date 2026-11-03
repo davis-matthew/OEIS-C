@@ -12,15 +12,47 @@
  *            a(4)=T(2,1), a(5)=T(2,2), ... and so on. This us...
  * Range:     u8 n <= 39, u16 n <= 99, u32 n <= 339, u64 n <= 1157,
  *            u128 n <= 4334, big any n
- * Helpers:   row_of, seq_malloc
+ * Validated: standard, pass, 82 terms through n = 9102 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/row_of.h"      /* provides idx_t row_of(idx_t n)   */
-#include "../utils/seq_malloc.h"  /* provides seq_t *seq_malloc(idx_t n) */
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static inline idx_t
+row_of(idx_t n)                 /* return r with r(r+1)/2 ≤ n < (r+1)(r+2)/2 */
+{
+    idx_t low  = 0;
+    idx_t high = 1;
+    /* exponential search to find an upper bound */
+    while ((unsigned __int128)high * (high + 1) / 2 <= n) {
+        low  = high;
+        high <<= 1;              /* double high */
+    }
+    /* binary search between low (inclusive) and high (inclusive) */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1) + 1; /* upper mid to avoid infinite loop */
+        if ((unsigned __int128)mid * (mid + 1) / 2 <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
 
 /* Static storage for the triangle, grown as needed. */
 static seq_t **table = NULL;   /* array of pointers to each row of the triangle */

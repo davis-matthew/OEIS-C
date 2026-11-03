@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   _prime_limit_for_idx
+ * Validated: standard, pass, 29 terms through n = 168 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,16 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/_prime_limit_for_idx.h"
+#include <math.h>
+#include <stdbool.h>
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* Cached sieve and prime list up to the largest n seen so far. */
 static uint64_t *primes     = NULL;

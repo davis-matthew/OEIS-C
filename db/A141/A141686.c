@@ -11,14 +11,17 @@
  *            below computes a(n) exactly for any build (uint8_t … arb...
  * Range:     u8 n <= 12, u16 n <= 30, u32 n <= 70, u64 n <= 160,
  *            u128 n <= 447, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 71 terms through n = 7552 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom.h"          /* seq_t binom(idx_t a, idx_t b); */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,11 +41,11 @@ seq_t a(idx_t n)
     idx_t k = n - terms_before;     /* 1 ≤ k ≤ r */
 
     /* Allocate temporary arrays for computing Eulerian numbers A008292. */
-    seq_t *prev = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(r + 1));
+    seq_t *curr = mem_new(seq_t, (size_t)(r + 1));
     if (!prev || !curr) {
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
 
@@ -65,11 +68,11 @@ seq_t a(idx_t n)
 
     /* Now prev[k] is A008292(r,k); compute the binomial factor. */
     seq_t eulerian = prev[k];
-    seq_t comb     = binom(r - 1, k - 1);
+    seq_t comb     = binomial(r - 1, k - 1);
 
     seq_t result = comb * eulerian;
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

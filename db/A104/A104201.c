@@ -8,14 +8,15 @@
  *            (n-3)th composite number (indices start at 4)
  * Range:     u8 n <= 98, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   my_is_prime
+ * Validated: standard, pass, 76 terms through n = 9992 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/my_is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -26,18 +27,18 @@ seq_t a(idx_t n)
     uint64_t count = 0;
     uint64_t cand = 4;
     while (count < target) {
-        if (!my_is_prime(cand)) ++count;
+        if (!is_prime_u64(cand)) ++count;
         if (count < target) ++cand;
     }
     uint64_t comp = cand;
 
     /* Find nearest prime < comp */
     uint64_t prev = comp - 1;
-    while (!my_is_prime(prev)) --prev;
+    while (!is_prime_u64(prev)) --prev;
 
     /* Find nearest prime > comp */
     uint64_t next = comp + 1;
-    while (!my_is_prime(next)) ++next;
+    while (!is_prime_u64(next)) ++next;
 
     return (seq_t)prev + (seq_t)next;
 }

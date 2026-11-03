@@ -12,17 +12,19 @@
  *            routine from the utils
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 26, u64 n <= 58, u128 n <= 122,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 43 terms through n = 187 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     /* n ≥ 1 by definition of the sequence. The formula works for n = 1 as well. */
-    seq_t t = pow_uint((uint64_t)2, n);  /* compute 2^n */
+    seq_t t = ipow_u64_idx((uint64_t)2, n);  /* compute 2^n */
     t = t * (seq_t)44;                   /* multiply by 44 */
     t = t - (seq_t)7;                    /* subtract 7 */
     return t;

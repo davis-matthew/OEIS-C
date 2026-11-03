@@ -12,15 +12,18 @@
  *            uphi/(p^e-1) * e. * This always yields an integer result
  * Range:     u8 n <= 443, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 91 terms through n = 9953 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
     {
         seq_t p = (seq_t)primes[i];
         seq_t e = (seq_t)exps[i];
-        seq_t pe = big_pow(p, e);     /* p^e */
+        seq_t pe = ipow(p, e);     /* p^e */
         denom[i] = pe - 1;            /* p^e - 1 */
         uphi *= denom[i];
     }

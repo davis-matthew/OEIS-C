@@ -13,15 +13,27 @@
  *            lists T(0,0), T(1,0),T(1,1), T(2,0),T(2,1),T(2,2), …
  * Range:     u8 n <= 11, u16 n <= 30, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   factorial, pow_uint
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_uint.h"
-#include "../utils/factorial.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* static cache of triangle rows */
 static seq_t **rows = NULL;          /* NULL until first use */
@@ -42,7 +54,7 @@ static void ensure_row(idx_t r)
     for (idx_t i = (idx_t)rows_capacity; i <= r; ++i)
     {
         /* allocate array of length i+1 for row i */
-        rows[i] = (seq_t *)calloc((size_t)i + 1, sizeof(seq_t));
+        rows[i] = mem_new(seq_t, (size_t)i + 1);
         if (!rows[i]) abort();              /* allocation failure */
 
         if (i == 0)                         /* T(0,0) */
@@ -51,7 +63,7 @@ static void ensure_row(idx_t r)
             continue;
         }
 
-        rows[i][0] = pow_uint((uint64_t)2, i);                     /* T(i,0)=2^i */
+        rows[i][0] = ipow_u64_idx((uint64_t)2, i);                     /* T(i,0)=2^i */
         rows[i][i] = factorial(i + 1);                            /* T(i,i)=(i+1)! */
 
         /* recurrence for interior elements */

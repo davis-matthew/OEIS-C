@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains33
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
    brute‑forces the sequence each time a call is made, which is fast
    enough for n up to about 10 000. */
 #include <stdbool.h>
-#include "../utils/contains33.h"
+
+/* Test whether the decimal representation of value contains the
+   substring "33".  Returns true if it does, false otherwise. */
+static bool contains33(idx_t value)
+{
+    idx_t x = value;
+    int prev = -1;
+    if (x == 0) return false;                 /* zero never contains "33" */
+    while (x != 0) {
+        int d = (int)(x % 10);                 /* digit */
+        if (d == 3 && prev == 3) return true;
+        prev = d;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Return the nth term of A044365 (n >= 1).  The sequence is
    indexed as a(1) = 33, a(2) = 133, etc. */

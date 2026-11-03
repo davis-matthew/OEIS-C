@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9719 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint32_t *g_spf = NULL;
 static size_t    g_spf_limit = 0;
@@ -69,7 +71,7 @@ static void append_term(seq_t val)
 {
     if (g_len >= g_capacity) {
         size_t new_cap = g_capacity ? g_capacity * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(g_terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, g_terms, new_cap);
         if (!tmp) exit(1);
         g_terms    = tmp;
         g_capacity = new_cap;

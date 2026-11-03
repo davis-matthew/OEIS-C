@@ -7,9 +7,10 @@
  * Formula:   a(n) are the primes p representable as 3x² − 2xy + 5y² with
  *            non‑negative integers x and y. This function returns the n‑th
  *            such prime for any n ≥ 1
- * Range:     u8 n <= 12, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
- *            big any n
- * Helpers:   is_prime, isqrt_uint64
+ * Range:     u8 n <= 12, u16 n <= 939, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 63 terms through n = 7851 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/isqrt_uint64.h"
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 static bool representable_uint64(uint64_t p)
 {
@@ -33,7 +36,7 @@ static bool representable_uint64(uint64_t p)
         __int128 temp = (__int128)12 * p - (__int128)56 * y * y;
         if (temp < 0) break;
         uint64_t D = (uint64_t)temp;
-        uint64_t s = isqrt_uint64(D);
+        uint64_t s = isqrt_u64(D);
         if (s * s == D)
         {
             if ((2 * y + s) % 6 == 0) return true;
@@ -55,15 +58,14 @@ seq_t a(idx_t n)
     while (prime_cnt < n)
     {
         ++candidate;
-        if (!is_prime(candidate)) continue;   /* skip composites */
+        if (!is_prime_u64(candidate)) continue;   /* skip composites */
 
         if (representable_uint64(candidate))
         {
             if (prime_cnt == prime_cap)
             {
                 prime_cap = prime_cap ? prime_cap * 2 : 256;
-                seq_t *tmp = (seq_t *)realloc(prime_list,
-                                              prime_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_list, prime_cap);
                 if (!tmp) return 0;            /* allocation failure */
                 prime_list = tmp;
             }

@@ -8,6 +8,7 @@
  *            Φ_413(x) computed as (x-1)(x^413-1)/((x^7-1)(x^59-1))
  * Range:     i8 n <= 348, i16 n <= 348, i32 n <= 348, i64 n <= 348,
  *            i128 n <= 348, big any n
+ * Validated: full, pass, 349 terms through n = 348 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

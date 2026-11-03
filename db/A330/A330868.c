@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, changed
  * Formula:   a(n) = Sum_{d|n, d<n} mu(n-d)^2
- * Range:     u8 n <= 507, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
+ * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
+ *            big any n
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Computes the number of proper divisors d of n such that n-d is squarefree. */
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
 
 static idx_t isqrt(idx_t n) {

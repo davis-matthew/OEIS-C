@@ -9,9 +9,10 @@
  *            polynomial reducible over GF(2). The implementation finds primes
  *            one by one and tests reducibility using standard irreducibility
  *            criteria for GF(2)
- * Range:     u8 n <= 27, u16 n <= 5386, u32 n <= 9512, u64 n <= 9512,
- *            u128 n <= 9512, big any n
- * Helpers:   bitlen_seq_t, bitlen_uint128, grow_seq, next_prime
+ * Range:     u8 n <= 27, u16 n <= 5386, u32 n <= 71800, u64 n <= 71800,
+ *            u128 n <= 71800, big any n
+ * Validated: standard, pass, 79 terms through n = 9512 (2026-11-03)
+ * Helpers:   bit_length, bit_length_u128, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,24 @@
 #include <stdbool.h>
 #include <limits.h>
 
+#include <stddef.h>
+#include "../utils/bit_length.h"
+#include "../utils/bit_length_u128.h"
 #include "../utils/next_prime.h"
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/grow_seq.h"
-#include "../utils/bitlen_uint128.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Multiply two polynomials over GF(2) modulo a modulus */
 static seq_t poly_mul_mod(seq_t a, seq_t b, seq_t mod) {
@@ -37,9 +52,9 @@ static seq_t poly_mul_mod(seq_t a, seq_t b, seq_t mod) {
         bb >>= 1;
     }
     /* reduction */
-    unsigned int degM = bitlen_seq_t(mod);
-    while (bitlen_uint128(prod) >= degM) {
-        unsigned int shift = bitlen_uint128(prod) - degM;
+    unsigned int degM = bit_length(mod);
+    while (bit_length_u128(prod) >= degM) {
+        unsigned int shift = bit_length_u128(prod) - degM;
         prod ^= (unsigned __int128)mod << shift;
     }
     return (seq_t)prod;
@@ -48,9 +63,9 @@ static seq_t poly_mul_mod(seq_t a, seq_t b, seq_t mod) {
 /* Polynomial remainder div(a,b) over GF(2) */
 static seq_t poly_mod(seq_t a, seq_t b) {
     if (!b) return a;
-    unsigned int degB = bitlen_seq_t(b);
-    while (bitlen_seq_t(a) >= degB) {
-        unsigned int shift = bitlen_seq_t(a) - degB;
+    unsigned int degB = bit_length(b);
+    while (bit_length(a) >= degB) {
+        unsigned int shift = bit_length(a) - degB;
         a ^= (seq_t)((unsigned __int128)b << shift);
     }
     return a;
@@ -77,7 +92,7 @@ static seq_t poly_pow_2k(seq_t base, unsigned int k, seq_t modPoly) {
 /* Test if polynomial (given as binary integer) is reducible over GF(2) */
 static bool is_reducible(seq_t poly) {
     if (poly < 4) return false;               /* degree 0 or 1 => irreducible */
-    unsigned int d = bitlen_seq_t(poly) - 1;   /* degree */
+    unsigned int d = bit_length(poly) - 1;   /* degree */
 
     /* factor d into distinct prime divisors */
     unsigned int tmp = d;

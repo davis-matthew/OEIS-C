@@ -12,13 +12,15 @@
  *            54·a(n-3) – 45·a(n-4) + 20·a(n-5) – 4·a(n-6)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 31, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* stored sequence values (1‑based indices) */
 static size_t cache_size = 0;    /* number of terms currently stored */
@@ -32,7 +34,7 @@ static void ensure_cache_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap < needed)
         new_cap <<= 1;                /* double until big enough */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         exit(1);                      /* abort on out of memory */
     cache = new_cache;

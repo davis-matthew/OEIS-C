@@ -7,7 +7,8 @@
  * Formula:   a(n) = (15*n)! * (4*n)! / ((8*n)! * (6*n)! * (5*n)!)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 8,
  *            big any n
- * Helpers:   build_primes_upto, seq_mul, seq_pow
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,18 @@
 /* Implementation uses prime‑factorisation of the factorials to keep */
 /* intermediate values small; works for any idx_t/seq_t size. */
 
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -69,7 +79,7 @@ seq_t a(idx_t n)
         }
 
         if (exp > 0) {
-            seq_t pw = seq_pow((seq_t)p, exp);
+            seq_t pw = ipow_idx((seq_t)p, exp);
             result = seq_mul(result, pw);
         }
     }

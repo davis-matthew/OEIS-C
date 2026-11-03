@@ -9,13 +9,15 @@
  *            defined for n ≥ 2 via the recurrence above
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 8, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static state for memoisation */
 static seq_t *a_arr = NULL;      /* array of computed terms (1‑based)          */
@@ -29,7 +31,7 @@ static void ensure_capacity(size_t n)
     if (a_len < n + 1) {
         size_t new_len = a_len ? a_len * 2 : 2;
         if (new_len < n + 1) new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_arr, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, new_len);
         if (!tmp) abort();          /* unrecoverable allocation failure */
         a_arr = tmp;
         a_len = new_len;

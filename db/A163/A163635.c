@@ -8,7 +8,8 @@
  *            (p, p+2, p+6)
  * Range:     u8 n <= 4, u16 n <= 92, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 56 terms through n = 994 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static idx_t _next_candidate = 5;            /* next odd number to test for a triple */
 static idx_t _generated_count = 0;           /* how many terms are cached */
@@ -26,7 +28,7 @@ static size_t _cache_cap = 0;                /* capacity of _cache */
 static void _grow_cache(void)
 {
     _cache_cap = (_cache_cap == 0) ? 16 : _cache_cap * 2;
-    _cache = (seq_t *)realloc(_cache, _cache_cap * sizeof(seq_t));
+    _cache = mem_resize(seq_t, _cache, _cache_cap);
 }
 
 /* Ensure that values up to index n are computed and stored in _cache. */
@@ -35,7 +37,7 @@ static void _ensure_cache(idx_t n)
     if (_cache == NULL)
     {
         _cache_cap = 16;
-        _cache = (seq_t *)malloc(_cache_cap * sizeof(seq_t));
+        _cache = mem_new(seq_t, _cache_cap);
         _next_candidate = 5;          /* start at the first possible prime triple */
         _generated_count = 0;
     }

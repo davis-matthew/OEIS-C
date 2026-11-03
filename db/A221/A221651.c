@@ -9,13 +9,22 @@
  *            d^2 divides the integer (d > 1)
  * Range:     u8 n <= 20, u16 n <= 5392, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   first_digit
+ * Validated: standard, pass, 69 terms through n = 9403 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/first_digit.h"
+#include <stdlib.h>
+#include <stdbool.h>
+
+/* Most significant digit of a positive idx_t value */
+static inline idx_t first_digit(idx_t x)
+{
+    while (x >= 10) x /= 10;
+    return x;
+}
 
 seq_t a(idx_t n)
 {

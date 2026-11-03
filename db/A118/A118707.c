@@ -9,12 +9,15 @@
  *            1, a(1) = 0
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 5, i64 n <= 9, i128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,15 +30,15 @@ seq_t a(idx_t n)
     seq_t two_n_minus_1 = 2 * sn - 1;       /* 2n-1 */
 
     /* n^(n-2) */
-    seq_t n_pow_n_minus_2 = big_pow(sn, sn - 2);
+    seq_t n_pow_n_minus_2 = ipow(sn, sn - 2);
 
     /* factor = (n-1)*(2n-1)*n^(n-2) */
     seq_t factor = n_minus_1 * two_n_minus_1 * n_pow_n_minus_2;
 
     /* n^n and (n-2)^n */
-    seq_t n_pow_n       = big_pow(sn, sn);
+    seq_t n_pow_n       = ipow(sn, sn);
     seq_t n_minus_2     = sn - 2;           /* safe for n>=2 */
-    seq_t n_minus_2_pow_n = big_pow(n_minus_2, sn);
+    seq_t n_minus_2_pow_n = ipow(n_minus_2, sn);
 
     /* diff = n^n - (n-2)^n */
     seq_t diff = n_pow_n - n_minus_2_pow_n;

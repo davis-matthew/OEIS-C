@@ -9,7 +9,8 @@
  *            OEIS * A330947
  * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   compute_pi, is_prime
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime, mem, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"    /* bool is_prime(idx_t) */
-#include "../utils/compute_pi.h"  /* seq_t compute_pi(idx_t) */
+#include <stddef.h>
+#include "../utils/is_prime.h"
+#include "../utils/prime_pi.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;  /* cached sequence values */
 static size_t seq_len   = 0;     /* current number of cached values */
@@ -38,7 +41,7 @@ static void ensure_seq_capacity(size_t needed)
     if (seq_cache == NULL || seq_cap < needed) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
         while (new_cap < needed) new_cap <<= 1;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cap   = new_cap;
     }
 }
@@ -83,7 +86,7 @@ static size_t prime_index(uint64_t p)
         else                       hi = mid;
     }
     /* p is larger than our pre‑computed limit */
-    seq_t pi = compute_pi(p);
+    seq_t pi = prime_pi(p);
     return (size_t)pi;
 }
 

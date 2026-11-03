@@ -10,7 +10,8 @@
  *            table of square‑free counts and sums, extending it as needed
  * Range:     u8 n <= 19, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static prefix tables */
 static seq_t *sqfree_cnt = NULL;   /* number of square‑free ≤ i */
@@ -69,11 +71,11 @@ static void recompute_cache(idx_t new_cap)
         }
 
     /* Allocate new prefix tables */
-    seq_t *cnt = (seq_t*)malloc(new_cap * sizeof(seq_t));
-    seq_t *sum = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, new_cap);
+    seq_t *sum = mem_new(seq_t, new_cap);
     if (!cnt || !sum) {   /* failure: abort */
         free(is_prime); free(is_sqfree);
-        free(cnt); free(sum);
+        mem_free(cnt); mem_free(sum);
         exit(1);
     }
 
@@ -91,8 +93,8 @@ static void recompute_cache(idx_t new_cap)
     free(is_sqfree);
 
     /* Free old tables if they exist */
-    if (sqfree_cnt) free(sqfree_cnt);
-    if (sqfree_sum) free(sqfree_sum);
+    if (sqfree_cnt) mem_free(sqfree_cnt);
+    if (sqfree_sum) mem_free(sqfree_sum);
 
     /* Store new tables */
     sqfree_cnt = cnt;

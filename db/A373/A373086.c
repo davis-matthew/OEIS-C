@@ -11,7 +11,8 @@
  *            (i+1)^(i-1) * (i-k+1)^(n-i)
  * Range:     u8 n <= 18, u16 n <= 33, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 /* Required helpers are provided by the build system: */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 static idx_t isqrt_u64(idx_t x)
 /* integer floor sqrt using binary search, does not use floating point */
@@ -49,9 +51,9 @@ static seq_t triangle_term(idx_t n, idx_t k)
         if (i == 0) {
             pow1 = 1;                                    // (i+1)^(i-1) = 1 for i=0
         } else {
-            pow1 = big_pow((seq_t)(i + 1), (seq_t)(i - 1));
+            pow1 = ipow((seq_t)(i + 1), (seq_t)(i - 1));
         }
-        seq_t pow2 = big_pow((seq_t)(i - k + 1), (seq_t)(n - i));
+        seq_t pow2 = ipow((seq_t)(i - k + 1), (seq_t)(n - i));
         seq_t term = bin * pow1 * pow2;
         if (((n - i) & 1ULL) == 0)
             pos += term;

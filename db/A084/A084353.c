@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 280, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 67 terms through n = 985 (2026-11-03)
  * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
    the product of its non‑zero digits plus 1 is a prime. */
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/is_prime_u64.h"
 
 static const uint64_t pow10[20] = {

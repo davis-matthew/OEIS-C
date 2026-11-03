@@ -7,7 +7,8 @@
  * Formula:   a(n) = (Sum_{k=1..n} prime(k))^3 - Sum_{k=1..n} prime(k)^3
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 30, u64 n <= 857,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 9908 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static prime storage */
 static uint64_t *primes      = NULL;   /* array of primes */
@@ -51,10 +53,10 @@ static void grow_pref(size_t need)
     if (need <= pref_cap) return;
     size_t new_cap = pref_cap ? pref_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp1 = (seq_t *)realloc(sum_prime_pref, new_cap * sizeof(seq_t));
+    seq_t *tmp1 = mem_resize(seq_t, sum_prime_pref, new_cap);
     if (!tmp1) abort();
     sum_prime_pref = tmp1;
-    seq_t *tmp2 = (seq_t *)realloc(sum_cubes_pref, new_cap * sizeof(seq_t));
+    seq_t *tmp2 = mem_resize(seq_t, sum_cubes_pref, new_cap);
     if (!tmp2) abort();
     sum_cubes_pref = tmp2;
     pref_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = (A120944(n))³
  * Range:     u8 n <= 1, u16 n <= 13, u32 n <= 734, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 902 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* A120944(n) is the nth product of distinct primes (square‑free composite numbers) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static state for caching computed terms and the smallest prime factor table */
 static idx_t *spf = NULL;                 /* smallest prime factor for each integer */
@@ -61,7 +63,7 @@ static void ensure_cache_size(size_t needed)
     size_t new_cap = cache_cap ? cache_cap : 16;
     while (new_cap < needed) new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(1);               /* allocation failure */
     cache = new_cache;
     cache_cap = new_cap;

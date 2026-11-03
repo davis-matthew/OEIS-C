@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     if (seq_len == 0) {
         /* initialise flattened list with the first three rows */
         seq_cap = 32;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         assert(seq != NULL);
 
         seq[0] = (seq_t)0;   /* P1 : 0            */
@@ -59,12 +61,12 @@ seq_t a(idx_t n)
 
         /* initialise P2 and P3 for use in the recurrence */
         prevprev_len = 1;
-        prevprev = (seq_t*)malloc(prevprev_len * sizeof(seq_t));
+        prevprev = mem_new(seq_t, prevprev_len);
         assert(prevprev != NULL);
         prevprev[0] = (seq_t)2;                /* P2 */
 
         prev_len = 1;
-        prev = (seq_t*)malloc(prev_len * sizeof(seq_t));
+        prev = mem_new(seq_t, prev_len);
         assert(prev != NULL);
         prev[0] = (seq_t)3;                    /* P3 */
 
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
     while (seq_len < (size_t)n) {
         /* ----- 1. compute next polynomial P_next_row -------------------- */
         size_t curr_len = (size_t)(next_row / 2);     /* floor(next_row/2) */
-        seq_t *curr = (seq_t*)malloc(curr_len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, curr_len);
         assert(curr != NULL);
 
         /* constant term   */
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
         if (seq_len + curr_len > seq_cap) {
             size_t new_cap = seq_cap * 2;
             while (seq_len + curr_len > new_cap) new_cap *= 2;
-            seq = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             assert(seq != NULL);
             seq_cap = new_cap;
         }
@@ -116,7 +118,7 @@ seq_t a(idx_t n)
         prev_len = curr_len;
 
         /* free the earlier polynomial that is no longer needed */
-        free(old_prevprev);
+        mem_free(old_prevprev);
 
         /* advance to the next row number */
         ++next_row;

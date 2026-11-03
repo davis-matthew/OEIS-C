@@ -8,7 +8,8 @@
  * Keywords:  nonn
  * Formula:   a(n) = ∏_{i=0}^{7} C(n+17, n+i) * i! / (n+17-i)^{7-i}
  * Range:     u8 none, u16 none, u32 none, u64 n <= 5, u128 n <= 6, big any n
- * Helpers:   binomial, gcd, pow_seq
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-01)
+ * Helpers:   binomial, gcd, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,11 @@
  * Number of 8×10 matrices with entries in 0..n, each row and column
  * in nondecreasing order. */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 static const seq_t _fact[8] = {
     (seq_t)1,  /* 0! */
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
 
         /* Power part (s-i)^{r-i-1} */
         seq_t base = (seq_t)(s - i);
-        seq_t term_den = pow_seq(base, (int)(r - 1 - i));
+        seq_t term_den = ipow_i32(base, (int)(r - 1 - i));
 
         /* Reduce cross fractions to keep intermediate values small */
         seq_t g1 = gcd(term_num, den);

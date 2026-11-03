@@ -9,13 +9,15 @@
  *            numbers)
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 10, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 371 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for NULL, size_t */
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 /* Static cache for memoization */
 static seq_t *cache = NULL;       /* array of computed terms */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 {
     /* Initialise the cache with the first two terms if needed */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (cache == NULL) {
             /* In case of allocation failure, just return 0 */
             return (seq_t)0;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     }
 
     /* Expand the cache to hold terms up to n */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (new_cache == NULL) {
         /* In case of allocation failure, return 0 */
         return (seq_t)0;

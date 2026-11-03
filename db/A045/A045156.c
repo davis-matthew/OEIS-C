@@ -10,13 +10,15 @@
  *            in increasing order
  * Range:     u8 none, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state for caching computed terms */
 static seq_t *sequence_cache   = NULL;   /* array of cached terms  */
@@ -30,7 +32,7 @@ static int    next_length      = 7;      /* next base‑4 length to generate */
 static void grow_cache(void)
 {
     size_t new_cap = sequence_cap ? sequence_cap * 2 : 64;
-    seq_t *tmp = (seq_t *)realloc(sequence_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, sequence_cache, new_cap);
     if (!tmp) abort(); /* allocation failure */
     sequence_cache = tmp;
     sequence_cap   = new_cap;
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!sequence_cache) {
         sequence_cap = 64;
-        sequence_cache = (seq_t *)malloc(sequence_cap * sizeof(seq_t));
+        sequence_cache = mem_new(seq_t, sequence_cap);
         if (!sequence_cache) abort();
     }
 

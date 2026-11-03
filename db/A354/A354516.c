@@ -10,7 +10,8 @@
  *            of m
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 5 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_K 10000000UL   /* upper bound for k to search up to */
 
@@ -52,8 +54,7 @@ static void ensure_min_k_buffer(size_t n_needed)
 {
     if (min_k_size > n_needed) return;
     size_t new_size = n_needed + 1;
-    seq_t *new_buf = (seq_t*)realloc(min_k_for_count,
-                                     new_size * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, min_k_for_count, new_size);
     if (!new_buf) return; /* cannot grow: memory failure */
     if (new_buf != min_k_for_count) { /* copy is done by realloc */
         min_k_for_count = new_buf;

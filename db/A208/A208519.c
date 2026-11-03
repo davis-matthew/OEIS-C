@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------- */
 /*  Static state used to memoise computed rows and values                      */
@@ -55,7 +57,7 @@ static void ensure_res_cap(size_t needed)
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
     seq_vals = tmp;
     seq_cap  = new_cap;
 }
@@ -68,7 +70,7 @@ static void init_base(void)
         return;                     /* already initialised */
 
     /* row 1 has length 1 */
-    seq_t *row1 = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *row1 = mem_new(seq_t, 1);
     row1[0] = (seq_t)1;
 
     /* store the coefficient of v(1,x) in the flat sequence */
@@ -76,8 +78,8 @@ static void init_base(void)
     seq_vals[seq_len++] = row1[0];
 
     /* initialise the previous‑row arrays */
-    u_prev   = (seq_t *)malloc(sizeof(seq_t));
-    v_prev   = (seq_t *)malloc(sizeof(seq_t));
+    u_prev   = mem_new(seq_t, 1);
+    v_prev   = mem_new(seq_t, 1);
     u_prev[0] = (seq_t)1;
     v_prev[0] = (seq_t)1;
     prev_len  = 1;
@@ -95,8 +97,8 @@ static void ensure_rows_up_to(idx_t need)
 
     for (idx_t n = max_row + 1; n <= need; ++n) {
         idx_t curr_len = n;                         /* length of new row */
-        seq_t *u_curr = (seq_t *)malloc(curr_len * sizeof(seq_t));
-        seq_t *v_curr = (seq_t *)malloc(curr_len * sizeof(seq_t));
+        seq_t *u_curr = mem_new(seq_t, curr_len);
+        seq_t *v_curr = mem_new(seq_t, curr_len);
 
         /* ----- compute u_curr ------------------------------------------- */
         for (idx_t k = 0; k < curr_len; ++k) {
@@ -126,8 +128,8 @@ static void ensure_rows_up_to(idx_t need)
             seq_vals[seq_len++] = v_curr[k];
 
         /* ----- recycle memory for the next iteration ------------------ */
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev   = u_curr;
         v_prev   = v_curr;
         prev_len = curr_len;

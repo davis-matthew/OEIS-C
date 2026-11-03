@@ -8,8 +8,9 @@
  * Formula:   a(n) = Sum_{d|n, (n/d) odd} sigma(d), where sigma(d) is the sum
  *            of all positive divisors of d (OEIS A000203). This implements
  *            the generating function Sum_{k>=1} sigma(k)*x^k/(1-x^(2k))
- * Range:     u8 n <= 71, u16 n <= 9123, u32 n <= 9123, u64 n <= 9123,
- *            u128 n <= 9123, big any n
+ * Range:     u8 n <= 71, u16 n <= 10079, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 78 terms through n = 9123 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

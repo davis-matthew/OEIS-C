@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* integer square root of a uint64_t (floor) */
 static uint64_t isqrt_uint64(uint64_t v)
@@ -50,7 +52,7 @@ static void append_value(seq_t v)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(seq_list, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_list, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         seq_list = tmp;
         seq_cap  = new_cap;
@@ -76,13 +78,13 @@ static void recompute_upto(uint64_t limit)
             uint64_t n = x2 + 2 * y * y;
             if (n > limit) continue;
             rep[n]  = 1;
-            if (gcd_uint64(x, y) == 1)
+            if (gcd_u64(x, y) == 1)
                 prim[n] = 1;
         }
     }
 
     /* rebuild the sequence array */
-    free(seq_list);
+    mem_free(seq_list);
     seq_list = NULL;
     seq_len  = 0;
     seq_cap  = 0;

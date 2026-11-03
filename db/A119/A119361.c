@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 381 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* local helper: factorize n and collect its distinct prime factors.
  * n is assumed to be a uint64_t, and primes[] must be large enough to
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
     /* Step 3: generate the Hamming‑type sequence for this set of primes.
      * We generate the first n terms in ascending order and return a[n-1]. */
-    seq_t *arr = (seq_t *)malloc(sizeof(seq_t) * (size_t)n);
+    seq_t *arr = mem_new(seq_t, (size_t)n);
     if (!arr) return 0;  /* allocation failure */
 
     arr[0] = rad;
@@ -86,6 +88,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[(size_t)n - 1];
-    free(arr);
+    mem_free(arr);
     return result;
 }

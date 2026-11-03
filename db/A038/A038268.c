@@ -9,14 +9,18 @@
  *            * 7^(i-j) * 2^j is read row‑wise
  * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required helper functions */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +37,8 @@ seq_t a(idx_t n)
 
     /* Compute the triangle entry */
     seq_t term = binomial(i, j);
-    term *= big_pow((seq_t)7, (seq_t)(i - j));
-    term *= big_pow((seq_t)2, (seq_t)j);
+    term *= ipow((seq_t)7, (seq_t)(i - j));
+    term *= ipow((seq_t)2, (seq_t)j);
 
     return term;
 }

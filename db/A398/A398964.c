@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   a_pow_2, a_pow_3
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,8 +32,68 @@
  */
 
 #include <stdint.h>
-#include "../utils/a_pow_2.h"
-#include "../utils/a_pow_3.h"
+
+/* a(2^k) table using the generating-function recurrence */
+static seq_t
+a_pow_2(idx_t k)
+{
+    static seq_t cache[64];
+    static idx_t max_k = 0;          /* largest k already computed */
+
+    if (k <= max_k)               /* already computed */
+        return cache[k];
+
+    if (max_k == 0) {            /* initialise first entry */
+        cache[0] = (seq_t)1;
+        max_k   = 0;
+    }
+
+    for (idx_t i = max_k + 1; i <= k; ++i) {
+        seq_t val = 4 * cache[i - 1];
+        if (i >= 6)
+            val += (seq_t)2048 * cache[i - 6];
+        if (i >= 7)
+            val -= (seq_t)8192 * cache[i - 7];
+        if (i == 2)
+            val += (seq_t)4;
+        if (i == 6)
+            val -= (seq_t)1024;
+        cache[i] = val;
+    }
+    max_k = k;
+    return cache[k];
+}
+
+/* a(3^k) table using the generating-function recurrence */
+static seq_t
+a_pow_3(idx_t k)
+{
+    static seq_t cache[64];
+    static idx_t max_k = 0;
+
+    if (k <= max_k)
+        return cache[k];
+
+    if (max_k == 0) {
+        cache[0] = (seq_t)1;
+        max_k    = 0;
+    }
+
+    for (idx_t i = max_k + 1; i <= k; ++i) {
+        seq_t val = 9 * cache[i - 1];
+        if (i >= 6)
+            val += (seq_t)177147 * cache[i - 6];
+        if (i >= 7)
+            val -= (seq_t)1594323 * cache[i - 7];
+        if (i == 2)
+            val += (seq_t)54;
+        if (i == 6)
+            val -= (seq_t)59049;
+        cache[i] = val;
+    }
+    max_k = k;
+    return cache[k];
+}
 
 /* Small integer power for seq_t base and idx_t exponent */
 static seq_t

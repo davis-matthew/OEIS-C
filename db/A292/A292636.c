@@ -8,7 +8,8 @@
  * Formula:   a(n) = n + floor( n * (3 - sqrt(2)) / (3 + sqrt(2)) )
  * Range:     u8 n <= 7, u16 n <= 212, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   f_nonpositive, g_positive
+ * Validated: standard, pass, 82 terms through n = 987 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,24 @@
 /* (computed using integer inequalities without floating‑point arithmetic) */
 
 #include <stddef.h>
-#include "../utils/f_nonpositive.h"
-#include "../utils/g_positive.h"
+
+static inline int f_nonpositive(seq_t n, seq_t k)
+{
+    seq_t a = k + n;
+    seq_t left  = 2 * a * a;
+    seq_t b = n - k;
+    seq_t right = 9 * b * b;
+    return left <= right;
+}
+
+static inline int g_positive(seq_t n, seq_t k)
+{
+    seq_t a = n + k + 1;
+    seq_t left  = 2 * a * a;
+    seq_t b = n - k - 1;
+    seq_t right = 9 * b * b;
+    return left > right;
+}
 
 /* Auxiliary predicates implemented with integer arithmetic.
    They test the inequalities derived from the Beatty‑sequence definition.

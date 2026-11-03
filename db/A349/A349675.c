@@ -9,13 +9,15 @@
  *            (1/(1-x))*Π_{i>=1} 1/(1-x^(i*(i+1))) from the OEIS entry
  * Range:     u8 n <= 43, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *part_dp = NULL;   /* DP array: part_dp[s] = a(s) */
 static idx_t  part_size = 0;    /* size allocated in part_dp (number of elements) */
@@ -28,7 +30,7 @@ static void ensure_dp(idx_t n)
 
     /* Allocate new array of length n+1, initialized to 0 */
     size_t newlen = (size_t)(n + 1);
-    seq_t *newdp = (seq_t *)calloc(newlen, sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, newlen);
     if (!newdp) { /* out of memory */
         exit(1);
     }
@@ -49,7 +51,7 @@ static void ensure_dp(idx_t n)
     }
 
     /* Replace old table with the new one */
-    if (part_dp) free(part_dp);
+    if (part_dp) mem_free(part_dp);
     part_dp   = newdp;
     part_size = newlen;
 }

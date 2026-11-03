@@ -8,6 +8,7 @@
  *            ds(x) is the sum of the decimal digits of x
  * Range:     u8 n <= 24, u16 n <= 1900, u32 n <= 1900, u64 n <= 1900,
  *            u128 n <= 1900, big any n
+ * Validated: standard, pass, 70 terms through n = 1506 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_sum.h"   /* digit_sum(seq_t) */
+#include "../utils/digit_sum.h"
 
 #ifdef __cplusplus
 #include <vector>

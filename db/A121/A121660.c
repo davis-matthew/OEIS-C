@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 8, i64 n <= 15, i128 n <= 25,
  *            big any n
- * Helpers:   enlarge_seq_array
+ * Validated: standard, pass, 33 terms through n = 373 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/enlarge_seq_array.h"
+#include "../utils/mem.h"
+
+/* ----------  Helper: enlarge array  ---------- */
+static void enlarge_seq_array(seq_t **arr, idx_t *cap, idx_t new_size)
+{
+    if (*cap >= new_size) return;
+    size_t new_cap = *cap == 0 ? 64 : *cap;
+    while (new_cap < new_size) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* ----------  Static state  ---------- */
 static seq_t *semiprimes     = NULL;   /* array of semiprimes */

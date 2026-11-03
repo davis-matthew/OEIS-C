@@ -12,15 +12,18 @@
  *            perfect power * by inspecting the gcd of...
  * Range:     u8 n <= 224, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd, pow_uint
+ * Validated: standard, pass, 97 terms through n = 9017 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
 #include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < cnt; ++i) {
             if (mask & ((size_t)1 << i)) {
                 /* multiply by p[i]^e[i] */
-                d *= pow_uint(p[i], (idx_t)e[i]);
+                d *= ipow_u64_idx(p[i], (idx_t)e[i]);
 
                 /* update gcd of exponents */
                 if (g == 0)

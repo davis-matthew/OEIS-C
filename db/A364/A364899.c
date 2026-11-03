@@ -13,13 +13,15 @@
  *            i>=1,...
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 98 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const uint64_t N64 = 3543690390625000ULL;
 static const uint64_t D64 = 2048383000000000ULL;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         uint64_t int_part = N64 / D64;
         rem64 = N64 % D64;
         digits_cap = 32;
-        digits = (seq_t*)malloc(digits_cap * sizeof(seq_t));
+        digits = mem_new(seq_t, digits_cap);
         digits[0] = (seq_t)int_part;
         digits_len = 1;
     }
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     for (size_t i = digits_len; i < (size_t)n; ++i) {
         if (digits_len >= digits_cap) {     /* grow buffer */
             digits_cap *= 2;
-            digits = (seq_t*)realloc(digits, digits_cap * sizeof(seq_t));
+            digits = mem_resize(seq_t, digits, digits_cap);
         }
         uint64_t prod = rem64 * 10ULL;       /* up to ~2e16, fits in 64‑bit */
         uint64_t digit = prod / D64;

@@ -10,14 +10,16 @@
  *            where C(a,b) is the binomial coefficient
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: standard, pass, 37 terms through n = 290 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Compute a(n) for A363559 */
 seq_t a(idx_t n)
@@ -36,16 +38,16 @@ seq_t a(idx_t n)
             /* Positive contribution */
             if (t <= 2 * d + 1) {
                 idx_t k = t - 1;   /* j = n/d – 1 */
-                seq_t bin = binom((idx_t)(2 * d), k);
-                seq_t pow3 = big_pow((seq_t)3, (seq_t)(2 * d - k));
+                seq_t bin = binomial((idx_t)(2 * d), k);
+                seq_t pow3 = ipow((seq_t)3, (seq_t)(2 * d - k));
                 pos += bin * pow3;
             }
 
             /* Negative contribution */
             if (t >= 2 * d - 1) {
                 idx_t k = t - (2 * d - 1);   /* k = n/d – (2d–1) */
-                seq_t binneg = binom((idx_t)(2 * d + k - 1), k);
-                seq_t pow3n = big_pow((seq_t)3, (seq_t)k);
+                seq_t binneg = binomial((idx_t)(2 * d + k - 1), k);
+                seq_t pow3n = ipow((seq_t)3, (seq_t)k);
                 seq_t term = binneg * pow3n;
                 if ((k & 1) == 0) {
                     pos += term;        /* sign (+) */
@@ -63,16 +65,16 @@ seq_t a(idx_t n)
                 /* Positive contribution for d2 */
                 if (t <= 2 * d + 1) {
                     idx_t k = t - 1;
-                    seq_t bin = binom((idx_t)(2 * d), k);
-                    seq_t pow3 = big_pow((seq_t)3, (seq_t)(2 * d - k));
+                    seq_t bin = binomial((idx_t)(2 * d), k);
+                    seq_t pow3 = ipow((seq_t)3, (seq_t)(2 * d - k));
                     pos += bin * pow3;
                 }
 
                 /* Negative contribution for d2 */
                 if (t >= 2 * d - 1) {
                     idx_t k = t - (2 * d - 1);
-                    seq_t binneg = binom((idx_t)(2 * d + k - 1), k);
-                    seq_t pow3n = big_pow((seq_t)3, (seq_t)k);
+                    seq_t binneg = binomial((idx_t)(2 * d + k - 1), k);
+                    seq_t pow3n = ipow((seq_t)3, (seq_t)k);
                     seq_t term = binneg * pow3n;
                     if ((k & 1) == 0) {
                         pos += term;

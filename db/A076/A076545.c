@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=1..n} (2*mu(k)^2 + mu(k) - 1)
  * Range:     u8 n <= 1198, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,15 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* --------- static state for memoisation ---------- */
 static idx_t            max_computed = 0;   /* highest n that is ready */
@@ -37,6 +47,24 @@ static size_t           prime_cnt   = 0;
 static size_t           prime_cap   = 0;
 
 /* --------- helper for dynamic arrays ---------- */
+#ifdef __cplusplus
+template <class T>
+static void ensure_cap(T **ptr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (*cap >= needed)
+        return;
+    size_t old = *cap;
+    size_t new_cap = old ? old << 1 : 16;
+    while (new_cap < needed)
+        new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    *ptr = tmp;
+    *cap = new_cap;
+    /* initialise new part to zero */
+    if (new_cap > old)
+        mem_set((char *)tmp + old * elem_size, 0, (new_cap - old) * elem_size);
+}
+#else
 static void ensure_cap(void **ptr, size_t *cap, size_t needed, size_t elem_size)
 {
     if (*cap >= needed)
@@ -52,6 +80,7 @@ static void ensure_cap(void **ptr, size_t *cap, size_t needed, size_t elem_size)
     if (new_cap > old)
         memset((char *)tmp + old * elem_size, 0, (new_cap - old) * elem_size);
 }
+#endif
 
 /* --------- build tables up to n ---------- */
 static void ensure_up_to(idx_t n)
@@ -61,10 +90,10 @@ static void ensure_up_to(idx_t n)
 
     /* enlarge arrays to hold indices 0..n */
     size_t needed = (size_t)(n + 1);
-    ensure_cap((void**)&mu_vals,   &mu_cap,   needed, sizeof(int8_t));
-    ensure_cap((void**)&comp_flags,&comp_cap, needed, sizeof(uint8_t));
-    ensure_cap((void**)&sums,      &sum_cap,  needed, sizeof(seq_t));
-    ensure_cap((void**)&primes,    &prime_cap,needed, sizeof(uint32_t));
+    ensure_cap(OEISC_VPP(&mu_vals),   &mu_cap,   needed, sizeof(int8_t));
+    ensure_cap(OEISC_VPP(&comp_flags),&comp_cap, needed, sizeof(uint8_t));
+    ensure_cap(OEISC_VPP(&sums),      &sum_cap,  needed, sizeof(seq_t));
+    ensure_cap(OEISC_VPP(&primes),    &prime_cap,needed, sizeof(uint32_t));
 
     /* initialise μ[1] and zero others (μ[0] unused) */
     mu_vals[0] = 0;

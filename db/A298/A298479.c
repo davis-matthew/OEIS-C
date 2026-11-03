@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- helper structures and globals ---------- */
 
@@ -164,7 +166,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         extend_limit(1024);                  /* start with a modest limit */
         seq_cap    = 128;
-        seq_terms  = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_terms  = mem_new(seq_t, seq_cap);
         initialized = true;
     }
 
@@ -179,7 +181,7 @@ seq_t a(idx_t n)
         if (analyze(last_checked, &dummy)) { /* valid tree found */
             if (seq_cnt + 1 > seq_cap) {
                 seq_cap <<= 1;
-                seq_terms = (seq_t*)realloc(seq_terms, seq_cap * sizeof(seq_t));
+                seq_terms = mem_resize(seq_t, seq_terms, seq_cap);
             }
             seq_terms[seq_cnt++] = (seq_t)last_checked;
         }

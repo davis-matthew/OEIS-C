@@ -11,12 +11,14 @@
  *            1, a(1) = 11, a(2) = 110, a(3) = 1111
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 119 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* dynamic array of computed terms */
 static size_t  cap    = 0;      /* current allocated capacity */
@@ -28,7 +30,7 @@ static void ensure_capacity(idx_t n)
     if (cache == NULL) {
         /* initial allocation: at least 4 entries for the known terms */
         size_t init = (n < 4) ? 4 : n + 1;
-        cache = (seq_t*)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (!cache) abort();          /* out of memory */
         cap   = init;
         /* set the initial four terms */
@@ -41,7 +43,7 @@ static void ensure_capacity(idx_t n)
         size_t new_cap = cap * 2;
         if ((size_t)n + 1 > new_cap)
             new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();           /* out of memory */
         cache = tmp;
         cap = new_cap;

@@ -9,6 +9,7 @@
  *            == 10; * 4 if n == 14; * 6 otherwise
  * Range:     u8 n <= 20, u16 n <= 20, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 20 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

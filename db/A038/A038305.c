@@ -8,15 +8,24 @@
  *            floor((sqrt(8*n+1)-1)/2) and j = n - i*(i+1)/2
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 54, u64 n <= 173, u128 n <= 669,
  *            big any n
- * Helpers:   binom_, pow10_, pow3_
+ * Validated: standard, pass, 51 terms through n = 914 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_.h"
-#include "../utils/pow10_.h"
-#include "../utils/pow3_.h"
+#include "../utils/binomial.h"
+#include "../utils/pow3.h"
+
+/* Small power helpers – exponents are tiny (≤ 160 for n ≤ 10 000).          */
+static seq_t pow10_(idx_t e)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < e; ++i)
+        r *= 10;
+    return r;
+}
 
 /*----------------------------------------------------------------------------*/
 /* Compute binomial coefficient C(n,k) – multiplicative, avoiding large     */
@@ -35,9 +44,9 @@ seq_t a(idx_t n)
     idx_t j = n - (i * (i + 1)) / 2;
 
     /* Evaluate the triangle entry. */
-    seq_t term = binom_(i, j);
+    seq_t term = binomial(i, j);
     term = term * pow10_(i - j);
-    term = term * pow3_(j);
+    term = term * pow3(j);
 
     return term;
 }

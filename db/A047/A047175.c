@@ -9,6 +9,7 @@
  *            binom(floor((n-1)/2),3k) * binom(n-floor((n-1)/2),k)
  * Range:     u8 n <= 14, u16 n <= 24, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

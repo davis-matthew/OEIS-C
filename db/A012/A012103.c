@@ -11,13 +11,18 @@
  *            powers of x
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 6, i64 n <= 10, i128 n <= 15,
  *            big any n
- * Helpers:   seq_pow_uint
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Ensure that the required utility for powering 2 is available. */
-#include "../utils/seq_pow_uint.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -76,7 +81,7 @@ seq_t a(idx_t n)
                 term *= cache[i - j];
                 sum += term;
             }
-            seq_t pow2_i = seq_pow_uint(2, 2 * i - 1);
+            seq_t pow2_i = ipow_idx(2, 2 * i - 1);
             seq_t total = pow2_i + sum;
             seq_t a_val = -(total / (seq_t)2);
             cache[i] = a_val;

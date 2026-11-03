@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 484, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 102 terms through n = 1963 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,7 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto */
+#include "../utils/build_primes_upto.h"
 
 static inline bool is_odious(seq_t x)
 {

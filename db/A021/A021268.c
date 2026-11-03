@@ -8,13 +8,15 @@
  *            with initial values a(0)=1, a(1)=21, a(2)=305, a(3)=3825
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static size_t cache_cap = 0;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     /* First call: allocate cache and set initial terms */
     if (cache_len == 0) {
         size_t initcap = (size_t)((n >= 3) ? n + 1 : 4);
-        seq_cache = (seq_t *)malloc(initcap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, initcap);
         seq_cache[0] = (seq_t)1;
         seq_cache[1] = (seq_t)21;
         seq_cache[2] = (seq_t)305;
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     /* Grow cache if needed */
     if ((size_t)n + 1 > cache_cap) {
         size_t newcap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, newcap);
         seq_cache = tmp;
         cache_cap = newcap;
     }

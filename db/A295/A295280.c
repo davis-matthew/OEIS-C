@@ -9,7 +9,8 @@
  *            n
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Cache for already computed a(n) values. */
 static seq_t *cache = NULL;
@@ -36,7 +39,7 @@ static void ensure_cache_capacity(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     /* double until large enough */
     while (new_cap < (size_t)n) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();
     cache = new_cache;
     cache_cap = new_cap;

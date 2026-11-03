@@ -9,7 +9,8 @@
  *            the number of distinct prime factors (OEIS A001221)
  * Range:     u8 n <= 2309, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 106 terms through n = 9299 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* --- Sieve for counting distinct prime factors up to LIMIT --- */
 #define SIEVE_LIMIT 4000000ULL
@@ -68,7 +71,7 @@ static int distinct_omega(uint64_t x)
 {
     if (x <= SIEVE_LIMIT)
         return omega_arr[(size_t)x];
-    return count_distinct_primes(x);
+    return omega(x);
 }
 
 /* --- Cache for sequence values --- */
@@ -80,7 +83,7 @@ static void ensure_cache(idx_t n)
     if (n < a_cache_len)
         return;
     size_t new_len = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_len);
     if (!new_cache)
         return; /* allocation failed – unlikely in tests */
     /* initialize new slots to 0 */

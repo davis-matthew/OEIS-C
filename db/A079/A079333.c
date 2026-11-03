@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 26, i16 n <= 26, i32 n <= 26, i64 n <= 26, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* a(1)=1; a(n)=the n‑th integer of the type 2ᵢ·3ʲ·5ᵏ·7ˡ in increasing order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         if (cache_size == 0)
         {
             cache_cap  = 16;
-            cache      = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache      = mem_new(seq_t, cache_cap);
             if (cache == NULL) return (seq_t)0;          /* out of memory */
             cache[0]   = (seq_t)1;
             cache_size = 1;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         if (cache_size >= cache_cap)
         {
             cache_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-            cache      = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache      = mem_resize(seq_t, cache, cache_cap);
             if (cache == NULL) return (seq_t)0;          /* out of memory */
         }
         cache[cache_size++] = next;

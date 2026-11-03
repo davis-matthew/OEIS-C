@@ -10,14 +10,28 @@
  *            a(5)=20072, a(6)=126872
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 38 terms through n = 443 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t *cache = NULL;          /* 1‑based cache */
 static size_t cache_cap = 0;         /* allocated length (including index 0) */
@@ -30,7 +44,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* allocate space for indices 0..7 (index 0 unused) */
         size_t init = 8;
-        cache = (seq_t*)malloc((init + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (init + 1));
         if (!cache) abort();  /* allocation failed */
         cache_cap  = init + 1;
         cache_size = 6;
@@ -48,7 +62,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap <= n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

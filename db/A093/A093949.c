@@ -12,13 +12,15 @@
  *            convolving...
  * Range:     i8 n <= 94, i16 n <= 94, i32 n <= 94, i64 n <= 94, i128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *P_arr = NULL;
 static seq_t *Q_arr = NULL;
@@ -32,14 +34,14 @@ static void recompute_up_to(idx_t n)
     if (cached_n >= N) return;
 
     /* Reallocate arrays to size N */
-    P_arr = (seq_t*)realloc(P_arr, N * sizeof(seq_t));
-    Q_arr = (seq_t*)realloc(Q_arr, N * sizeof(seq_t));
-    A_arr = (seq_t*)realloc(A_arr, N * sizeof(seq_t));
+    P_arr = mem_resize(seq_t, P_arr, N);
+    Q_arr = mem_resize(seq_t, Q_arr, N);
+    A_arr = mem_resize(seq_t, A_arr, N);
 
     /* Initialise to zero */
-    memset(P_arr, 0, N * sizeof(seq_t));
-    memset(Q_arr, 0, N * sizeof(seq_t));
-    memset(A_arr, 0, N * sizeof(seq_t));
+    mem_set(P_arr, 0, N * sizeof(seq_t));
+    mem_set(Q_arr, 0, N * sizeof(seq_t));
+    mem_set(A_arr, 0, N * sizeof(seq_t));
 
     /* ---------- 1. Partition numbers Q[0..N‑1] ---------- */
     if (N > 0) Q_arr[0] = 1;
@@ -64,7 +66,7 @@ static void recompute_up_to(idx_t n)
     P_arr[0] = 1;                     /* start with product = 1 */
     size_t kmax = (N - 1) / 3;         /* largest k such that 3k <= N-1 */
 
-    seq_t *temp = (seq_t*)calloc(N, sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, N);
 
     for (size_t k = 1; k <= kmax; ++k)
     {
@@ -77,7 +79,7 @@ static void recompute_up_to(idx_t n)
                                  (seq_t)-10, (seq_t)5, (seq_t)-1 };
 
         /* reset temp */
-        memset(temp, 0, N * sizeof(seq_t));
+        mem_set(temp, 0, N * sizeof(seq_t));
 
         for (size_t i = 0; i < N; ++i)
         {
@@ -92,9 +94,9 @@ static void recompute_up_to(idx_t n)
             if (i + d4 < N) temp[i + d4] += coeff[4] * pv;
             if (i + d5 < N) temp[i + d5] += coeff[5] * pv;
         }
-        memcpy(P_arr, temp, N * sizeof(seq_t));
+        mem_copy(P_arr, temp, N * sizeof(seq_t));
     }
-    free(temp);
+    mem_free(temp);
 
     /* ---------- 3. Convolution A = P * Q  (coefficients up to N-1) ---------- */
     for (size_t j = 0; j < N; ++j)

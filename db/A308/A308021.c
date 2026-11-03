@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 168, u16 n <= 5564, u32 n <= 5564, u64 n <= 5564,
  *            u128 n <= 5564, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 4726 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------- state & helpers --------------------------------- */
 static idx_t cur_idx = 1;          /* current index being processed     */
@@ -49,11 +51,11 @@ static void ensure_vals(idx_t idx)
         size_t new_cap = val_cap ? val_cap << 1 : 256;
         while (new_cap <= idx) new_cap <<= 1;
 
-        a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
         visited = (uint8_t *)realloc(visited, new_cap);
         computed = (uint8_t *)realloc(computed, new_cap);
 
-        memset(a_arr + val_cap, 0, (new_cap - val_cap) * sizeof(seq_t));
+        mem_set(a_arr + val_cap, 0, (new_cap - val_cap) * sizeof(seq_t));
         memset(visited + val_cap, 0, new_cap - val_cap);
         memset(computed + val_cap, 0, new_cap - val_cap);
 
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         initialized = true;
         val_cap   = 256;
-        a_arr     = (seq_t *)calloc(val_cap, sizeof(seq_t));
+        a_arr     = mem_new(seq_t, val_cap);
         visited   = (uint8_t *)calloc(val_cap, sizeof(uint8_t));
         computed  = (uint8_t *)calloc(val_cap, sizeof(uint8_t));
 

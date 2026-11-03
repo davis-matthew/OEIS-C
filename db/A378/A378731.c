@@ -8,7 +8,8 @@
  *            (4*(n-k)+3) ]
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binom, gcd, seq_mul
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   binomial, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <string.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
-#include "../utils/seq_mul.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     /* static cache of computed terms */
@@ -29,7 +36,7 @@ seq_t a(idx_t n) {
     /* Ensure capacity for index n */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return (seq_t)0;  /* allocation failure – not expected */
         cache = new_cache;
         cache_cap = new_cap;
@@ -50,8 +57,8 @@ seq_t a(idx_t n) {
             idx_t m_curr = 4 * m - 4 * k + 3;
             seq_t denom = (seq_t)m_curr;
 
-            seq_t binom1 = binom((idx_t)m_curr, k);           /* C(m_curr , k)   */
-            seq_t binom2 = binom((idx_t)m - 1, k - 1);        /* C(m-1 , k-1)    */
+            seq_t binom1 = binomial((idx_t)m_curr, k);           /* C(m_curr , k)   */
+            seq_t binom2 = binomial((idx_t)m - 1, k - 1);        /* C(m-1 , k-1)    */
 
             seq_t term_num = seq_mul(binom1, binom2);         /* numerator of term */
             seq_t term_den = denom;                          /* denominator of term */

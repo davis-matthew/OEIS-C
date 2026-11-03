@@ -7,9 +7,10 @@
  * Keywords:  nonn, easy, nice, core
  * Formula:   search — a(n) is the n-th k >= 1 such that no p^2 (p > 1)
  *            divides k
- * Range:     u8 n <= 157, u16 n <= 9631, u32 n <= 9631, u64 n <= 9631,
- *            u128 n <= 9631, big any n
- * Helpers:   is_squarefree_u64
+ * Range:     u8 n <= 157, u16 n <= 39844, u32 n <= 60794, u64 n <= 60794,
+ *            u128 n <= 60794, big any n
+ * Validated: standard, pass, 87 terms through n = 9631 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_squarefree_u64.h"
+
+static bool is_squarefree_u64(uint64_t k) {
+    if (k % 4 == 0)
+        return false;
+    for (uint64_t i = 3; i * i <= k; i += 2) {
+        if (k % (i * i) == 0)
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n) {
     static uint64_t *cache = 0;

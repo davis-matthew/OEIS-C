@@ -12,7 +12,8 @@
  *            compatible iff for every adjacent pair of colum...
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define S_ROWS       4096          /* 4⁶ possible row patterns */
 #define MAX_DIGITS   6
@@ -107,8 +109,8 @@ seq_t a(idx_t n)
 
     /* Allocate DP arrays once. */
     if (!dp_alloced) {
-        dp_prev = (seq_t *)malloc(S_ROWS * sizeof(seq_t));
-        dp_curr = (seq_t *)malloc(S_ROWS * sizeof(seq_t));
+        dp_prev = mem_new(seq_t, S_ROWS);
+        dp_curr = mem_new(seq_t, S_ROWS);
         dp_alloced = true;
     }
 

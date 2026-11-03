@@ -8,14 +8,40 @@
  *            2^n
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 32, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   inv_mod_2_pow, make_mask
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/inv_mod_2_pow.h"
-#include "../utils/make_mask.h"
+
+static seq_t make_mask(idx_t n)
+{
+    /* bit width of the type; works for built-in integer types */
+    const idx_t bits = sizeof(seq_t) * 8;
+    if (n >= bits) {
+        /* For built-in types, modulo 2^n is effectively modulo 2^bits */
+        return ~((seq_t)0);
+    } else {
+        return ((seq_t)1 << n) - 1;
+    }
+}
+
+static seq_t inv_mod_2_pow(seq_t d, idx_t n)
+{
+    if (n == 0) return (seq_t)1;
+    seq_t mask = make_mask(n);
+    seq_t inv = (seq_t)1;           /* inverse modulo 2^1 */
+    idx_t bits = 1;
+    while (bits < n) {
+        seq_t t = (d * inv) & mask;          /* d * inv  (mod 2^n) */
+        seq_t y = ((seq_t)2 - t) & mask;     /* 2 - t    (mod 2^n) */
+        inv = (inv * y) & mask;              /* extend to larger modulus */
+        bits <<= 1;                          /* next power of two */
+    }
+    return inv;
+}
 
 seq_t a(idx_t n)
 {

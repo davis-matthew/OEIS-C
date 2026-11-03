@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9780 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Simple gcd for small integers                                       */
@@ -150,7 +152,7 @@ static void heap_push(Node node)
 {
     if (heap_sz == heap_cap) {
         size_t new_cap = heap_cap ? heap_cap * 2 : 128;
-        Node *tmp = (Node *)realloc(heap, new_cap * sizeof(Node));
+        Node *tmp = mem_resize(Node, heap, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         heap = tmp;
         heap_cap = new_cap;
@@ -186,7 +188,7 @@ seq_t a(idx_t n)
     static bool initialized = false;
     if (!initialized) {
         /* Allocate cache for initial size (adjustable later) */
-        seq_cache = (seq_t *)malloc(20000 * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, 20000);
         if (!seq_cache) exit(EXIT_FAILURE);
         seq_len = 0;
 
@@ -210,7 +212,7 @@ seq_t a(idx_t n)
         /* Deduplicate consecutive equal values */
         if (!last_set || val != last_val) {
             if (seq_len >= 20000) {    /* grow cache as needed */
-                seq_cache = (seq_t *)realloc(seq_cache, (seq_len + 1000) * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, (seq_len + 1000));
                 if (!seq_cache) exit(EXIT_FAILURE);
             }
             seq_cache[seq_len++] = val;

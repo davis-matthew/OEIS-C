@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 122 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* initial 16 terms, stored as literals.  Truncation is allowed for
  * implementations where seq_t is smaller than 64 bits; values that
@@ -59,12 +61,12 @@ ensure_cache(idx_t n)
     size_t need = (size_t)n + 1;
     if (need <= cache_cap)
         return;
-    seq_t *new_cache = (seq_t *)malloc(need * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, need);
     if (!new_cache)
         return;  /* allocation failed – leave cache empty */
     if (cache)
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-    free(cache);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+    mem_free(cache);
     cache = new_cache;
     cache_cap = need;
 }

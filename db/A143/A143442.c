@@ -10,13 +10,14 @@
  *            function
  * Range:     i8 n <= 66, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   fast_mu
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fast_mu.h"
+#include "../utils/mobius_idx.h"
 /* The following helper can be used if provided, otherwise a simple
    on‑the‑fly implementation of μ is supplied below. */
 #ifndef HAVE_MOBIUS
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
 
     /* compute Möbius value */
 #ifndef HAVE_MOBIUS
-    int mu_val = fast_mu(k);
+    int mu_val = mobius_idx(k);
 #else
     /* If a library implementation exists, use it. */
     extern seq_t mobius(idx_t m);

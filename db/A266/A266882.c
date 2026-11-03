@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
 
         /* ---------- pre‑allocate matches array ---------- */
         size_t cap = 1024;
-        matches = (seq_t *)malloc(cap * sizeof(seq_t));
+        matches = mem_new(seq_t, cap);
         if (!matches) {
             /* allocation error – return 0 */
             return 0;
@@ -71,10 +73,10 @@ seq_t a(idx_t n)
                 if ((p1 + p4 == p2 + p3) && (p1 + p5 == p3 + p4)) {
                     if (matches_cnt == cap) {
                         cap *= 2;
-                        seq_t *tmp = (seq_t *)realloc(matches, cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, matches, cap);
                         if (!tmp) {
                             /* realloc failed – terminate */
-                            free(matches);
+                            mem_free(matches);
                             return 0;
                         }
                         matches = tmp;

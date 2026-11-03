@@ -9,8 +9,9 @@
  *            + 11*a(n-6) + a(n-7) - a(n-8) with initial values a(2)=47,
  *            a(3)=228, a(4)=1511, a(5)=9213, a(6)=57536, a(7)=356863,
  *            a(8)=2217871, a(9)=13775700 (a(0) and a(1) are unused)
- * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 20, u128 n <= 20,
+ * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 48,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 804 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

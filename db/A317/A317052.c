@@ -11,12 +11,14 @@
  *            * i.e. first row 0, then row 1, then row 2, …
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 35, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Build the triangle up to row r. */
     for (idx_t cur = 0; cur <= r; cur++) {
         idx_t len_cur = cur / 2 + 1;               /* length of current row   */
-        row_cur = (seq_t*)malloc(len_cur * sizeof(seq_t));
+        row_cur = mem_new(seq_t, len_cur);
         if (!row_cur) return 0; /* allocation failure – unlikely in tests */
 
         /* Lengths of the previous rows, if they exist. */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         }
 
         /* Advance the row buffers. */
-        if (row_prev2) free(row_prev2);
+        if (row_prev2) mem_free(row_prev2);
         row_prev2 = row_prev1;
         row_prev1 = row_cur;
     }
@@ -73,8 +75,8 @@ seq_t a(idx_t n)
     seq_t result = row_prev1[k];
 
     /* Clean up. */
-    free(row_prev1);
-    if (row_prev2) free(row_prev2);
+    mem_free(row_prev1);
+    if (row_prev2) mem_free(row_prev2);
 
     return result;
 }

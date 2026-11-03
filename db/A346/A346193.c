@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=1}^{⌊(n-1)/5⌋} sigma(k) * sigma(n-5*k)
  * Range:     u8 n <= 25, u16 n <= 149, u32 n <= 5759, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 8975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of divisor sums */
@@ -23,10 +25,10 @@ seq_t a(idx_t n) {
     if (n > max_cache) {
         /* free old array if present */
         if (sigma != NULL)
-            free(sigma);
+            mem_free(sigma);
 
         /* allocate new array: indices 0..n, all initialised to 0 */
-        sigma = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+        sigma = mem_new(seq_t, (size_t)(n + 1));
         if (sigma == NULL) { /* allocation failed: return 0 as safe hull */
             return (seq_t)0;
         }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 299, u32 n <= 500, u64 n <= 500, u128 n <= 500,
  *            big any n
- * Helpers:   good_seq_t
+ * Validated: standard, pass, 55 terms through n = 482 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <limits.h>
-#include "../utils/good_seq_t.h"
+#include "../utils/mem.h"
+
+/* Test whether x satisfies the required property: product of digits
+   equals 9 times the sum of digits. */
+static int good_seq_t(seq_t x)
+{
+    if (x == 0) return 0;             /* positive integers only */
+
+    seq_t prod = 1;
+    seq_t sum = 0;
+    seq_t temp = x;
+
+    while (temp > 0) {
+        seq_t d = temp % 10;          /* last decimal digit */
+        sum += d;
+        prod *= d;
+        temp = temp / 10;
+    }
+
+    return prod == (seq_t)9 * sum;
+}
 
 static seq_t *cache = NULL;         /* cached terms of the sequence   */
 static size_t cache_len = 0;        /* number of terms stored         */
@@ -33,7 +54,7 @@ static void push_cache(seq_t val)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 16 : (cache_cap << 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();              /* unrecoverable allocation failure */
         cache = tmp;
         cache_cap = new_cap;

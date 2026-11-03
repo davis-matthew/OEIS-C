@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = smallest divisor d of n such that the sum of all divisors
  *            of n not exceeding d is >= n
- * Range:     u8 n <= 255, u16 n <= 9787, u32 n <= 9787, u64 n <= 9787,
- *            u128 n <= 9787, big any n
+ * Range:     u8 n <= 255, u16 n <= 65535, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 89 terms through n = 9787 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

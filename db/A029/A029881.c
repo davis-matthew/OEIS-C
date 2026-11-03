@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 9866, i16 n <= 9866, i32 n <= 9866, i64 n <= 9866,
- *            i128 n <= 9866, big any n
- * Helpers:   mu_val
+ * Range:     i8 n <= 20000, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 117 terms through n = 9866 (2026-11-01)
+ * Helpers:   mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
  
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mu_val.h"
+#include "../utils/mobius_idx.h"
 
 /* Thue‑Morse value T(k): 0 if popcount(k) even, 1 if odd. */
 static inline unsigned thue_morse(idx_t k)
@@ -41,13 +42,13 @@ seq_t a(idx_t n)
             idx_t d1 = d;
             idx_t d2 = n / d;
 
-            int mu_d2 = mu_val(d2);
+            int mu_d2 = mobius_idx(d2);
             unsigned tm1 = thue_morse(d1 - 1ull);
             sum += (seq_t)mu_d2 * (seq_t)(tm1 + 1);
 
             if (d1 != d2)          /* avoid double counting perfect square */
             {
-                int mu_d1 = mu_val(d1);
+                int mu_d1 = mobius_idx(d1);
                 unsigned tm2 = thue_morse(d2 - 1ull);
                 sum += (seq_t)mu_d1 * (seq_t)(tm2 + 1);
             }

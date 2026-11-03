@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    Memoised to allow any order of calls. */
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* The sequence array holds pre‑computed values.
    The array may be enlarged on demand. */
@@ -37,7 +39,7 @@ static void ensure_capacity(idx_t n)
     while (newcap <= n)
         newcap <<= 1;               /* double until we exceed n        */
 
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)newcap);
     if (!tmp)
         abort();                    /* out of memory */
     cache = tmp;

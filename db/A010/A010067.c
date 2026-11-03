@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_digits_base6
+ * Validated: standard, pass, 73 terms through n = 9480 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/sum_digits_base6.h"
+#include "../utils/mem.h"
+
+/* Sum of base‑6 digits of x (x is an idx_t). */
+static inline seq_t sum_digits_base6(idx_t x)
+{
+    seq_t s = 0;
+    while (x != 0) {
+        s += x % 6;
+        x /= 6;
+    }
+    return s;
+}
 
 /* ------------------------------------------------------------------------- */
 /*  Dynamic storage for the sieve                                          */
@@ -62,7 +74,7 @@ static void ensure_ungenerated_cap(size_t needed)
     size_t newcap = ungenerated_cap ? ungenerated_cap : 8;
     while (newcap <= needed)
         newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(ungenerated, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, ungenerated, newcap);
     if (!tmp) abort();
     ungenerated = tmp;
     ungenerated_cap = newcap;

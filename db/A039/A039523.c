@@ -9,13 +9,26 @@
  *            contains * an equal, nonzero number of digits 3 and 4
  * Range:     u8 n <= 4, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   has_equal34
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_equal34.h"
+
+/* Return true iff v in base 12 has the same nonzero count of 3's and 4's. */
+static inline bool has_equal34(idx_t v) {
+    idx_t t = v;
+    unsigned cnt3 = 0, cnt4 = 0;
+    while (t > 0) {
+        unsigned d = t % 12;
+        if (d == 3) ++cnt3;
+        else if (d == 4) ++cnt4;
+        t /= 12;
+    }
+    return cnt3 > 0 && cnt3 == cnt4;
+}
 
 seq_t a(idx_t n) {
     idx_t found = 0;

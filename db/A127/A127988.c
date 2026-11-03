@@ -7,6 +7,7 @@
  * Formula:   a(n) = 8 * sum_{k>=0} ((n >> k) & 1) * 4^k
  * Range:     u8 n <= 7, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

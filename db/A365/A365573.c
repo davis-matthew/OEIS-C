@@ -9,7 +9,8 @@
  *            prime(n)+⌊log(prime(n))⌋, exclusive. (log is natural logarithm)
  * Range:     u8 n <= 53, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 static struct {
     seq_t *data;
@@ -30,8 +32,7 @@ static void ensure_prime_cap(size_t needed)
     if (prime_cache.cap < needed) {
         size_t new_cap = prime_cache.cap ? prime_cache.cap * 2 : 1;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *new_data = (seq_t *)realloc(prime_cache.data,
-                                           new_cap * sizeof(seq_t));
+        seq_t *new_data = mem_resize(seq_t, prime_cache.data, new_cap);
         prime_cache.data = new_data;
         prime_cache.cap = new_cap;
     }

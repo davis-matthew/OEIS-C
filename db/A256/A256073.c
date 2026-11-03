@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 typedef uint64_t idx_t;   /* defined by the build */
 
@@ -38,7 +40,7 @@ static void ensure_term_cap(size_t need)
 {
     if (TERM_CAP < need) {
         size_t new_cap = need * 2 + 10;
-        seq_t *tmp = (seq_t *)realloc(TERM, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, TERM, new_cap);
         if (!tmp) abort();
         TERM = tmp;
         TERM_CAP = new_cap;

@@ -9,6 +9,7 @@
  *            polynomial has degree 182; all other coefficients are 0
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 26, u64 n <= 182, u128 n <= 182,
  *            big any n
+ * Validated: full, pass, 183 terms through n = 182 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,18 +7,20 @@
  * Formula:   a(n) = decimal value of the base‑7 representation of 10^n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 33 terms through n = 759 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* 10ⁿ as a big integer. */
-    seq_t pow10 = seq_pow((seq_t)10, n);
+    seq_t pow10 = ipow_idx((seq_t)10, n);
 
     /* Convert to base‑7 digits (least‑significant first). */
     size_t cap = n * 2 + 10;                /* generous initial capacity */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 71, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, isPrimeGeneric
+ * Validated: standard, pass, 58 terms through n = 9460 (2026-11-03)
+ * Helpers:   build_primes, is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,32 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/isPrimeGeneric.h"   /*  bool isPrimeGeneric(seq_t)  */
-#include "../utils/build_primes.h"     /*  void build_primes(idx_t limit, idx_t **out, size_t *cnt)  */
+#include <stdint.h>
+#include <limits.h>
+#include "../utils/build_primes.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /*  Cache of primes and their prefix sums  */
 static idx_t       *prime_list   = NULL;      /* array of primes  */
@@ -45,12 +70,12 @@ static void ensure_primes(size_t need)
         if (tmp_cnt >= need) {
             /*  Replace the old data  */
             if (prime_list) free(prime_list);
-            if (prime_prefix) free(prime_prefix);
+            if (prime_prefix) mem_free(prime_prefix);
 
             prime_list  = tmp_list;
             prime_count = tmp_cnt;
 
-            prime_prefix = (seq_t *)malloc((prime_count + 1) * sizeof(seq_t));
+            prime_prefix = mem_new(seq_t, (prime_count + 1));
             if (!prime_prefix) {
                 /*  In a real program we would handle out‑of‑memory here  */
                 abort();

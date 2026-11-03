@@ -11,6 +11,7 @@
  *            k is odd
  * Range:     u8 n <= 48, u16 n <= 179, u32 n <= 611, u64 n <= 2374,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 4175 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

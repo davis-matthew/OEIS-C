@@ -8,13 +8,34 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 52, u32 n <= 116, u64 n <= 301,
  *            u128 n <= 834, big any n
- * Helpers:   double_fact_k, f_val
+ * Validated: standard, pass, 80 terms through n = 2330 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/double_fact_k.h"
-#include "../utils/f_val.h"
+/* ---- double factorial (2k-1)!! for k≥0 ---- */
+static inline seq_t double_fact_k(idx_t k)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = (idx_t)1; i <= k; ++i) {
+        res *= (seq_t)(2 * i - 1);
+    }
+    return res;
+}
+
+/* ---- utility functions for triangle indexing ---- */
+static inline idx_t f_val(idx_t r)
+{
+    /* total number of terms up to and including row r */
+    if ((r & 1) == 0) {          /* r = 2*m */
+        idx_t m = r >> 1;
+        return (m + 1) * (m + 1);
+    } else {                     /* r = 2*m+1 */
+        idx_t m = r >> 1;
+        return (m + 1) * (m + 2);
+    }
+}
 /* Triangle of Bessel numbers read by rows (OEIS A100861).
    The n‑th term a(n) is the n‑th entry of the triangle
    T(n,k) = n!/(k!(n-2k)!·2^k) read row‑wise, starting with

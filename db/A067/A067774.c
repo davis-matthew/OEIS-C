@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime p such that p+2 is composite (≠ prime)
  * Range:     u8 n <= 37, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 72 terms through n = 969 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* static cache for already generated terms */
 static seq_t *seq_cache = NULL;    /* array of found terms    */
@@ -35,8 +37,7 @@ static void ensure_seq(idx_t n)
                 /* store it */
                 if (seq_len == seq_cap) {
                     seq_cap = seq_cap ? seq_cap * 2 : 8;
-                    seq_cache = (seq_t *)realloc(seq_cache,
-                                                 seq_cap * sizeof(seq_t));
+                    seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
                 }
                 seq_cache[seq_len++] = (seq_t)last_checked;
             }

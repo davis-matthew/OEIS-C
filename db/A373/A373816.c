@@ -7,13 +7,15 @@
  * Formula:   a(n) = 4^n * Σ_{k>=0} (1/2)^(k+1) * binomial(n-1 + 3*k/2, n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static storage for memoisation */
 static seq_t *a_cache = NULL;     /* a[0..a_used-1]    */
@@ -31,7 +33,7 @@ ensure_cache(idx_t n)
     if (g_used == 0) {
         /* allocate minimal capacity */
         size_t new_cap = 1;
-        g_cache = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+        g_cache = mem_resize(seq_t, g_cache, new_cap);
         g_cap = new_cap;
         /* g[0] = 1 */
         g_cache[0] = (seq_t)1;
@@ -40,7 +42,7 @@ ensure_cache(idx_t n)
     if (g_cap <= (size_t)n) {
         size_t new_cap = g_cap ? g_cap * 2 : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        g_cache = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+        g_cache = mem_resize(seq_t, g_cache, new_cap);
         g_cap = new_cap;
     }
     /* compute g[k] for k = g_used .. n */
@@ -55,7 +57,7 @@ ensure_cache(idx_t n)
     /* ---------- grow and initialise a_cache ---------- */
     if (a_used == 0) {
         size_t new_cap = 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cap = new_cap;
         a_cache[0] = (seq_t)1;  /* a[0] = 1 */
         a_used = 1;
@@ -63,7 +65,7 @@ ensure_cache(idx_t n)
     if (a_cap <= (size_t)n) {
         size_t new_cap = a_cap ? a_cap * 2 : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cap = new_cap;
     }
 

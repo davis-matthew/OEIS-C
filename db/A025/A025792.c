@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;   /* dp[i] = a(i) */
 static idx_t dp_size = 0;  /* current allocated size */
@@ -29,14 +31,14 @@ static void recompute_dp(idx_t n)
 {
     /* Allocate or resize the table to hold 0..n. */
     if (dp_size < n + 1) {
-        seq_t *tmp = (seq_t *)realloc(dp, (n + 1) * sizeof *dp);
+        seq_t *tmp = mem_resize(seq_t, dp, ((n + 1) * sizeof *dp) / sizeof(seq_t));
         if (!tmp) abort();           /* should not happen; halt on failure */
         dp = tmp;
         dp_size = n + 1;
     }
 
     /* Zero the entire table and set the base case. */
-    memset(dp, 0, dp_size * sizeof *dp);
+    mem_set(dp, 0, dp_size * sizeof *dp);
     dp[0] = 1;                      /* one way to partition zero */
 
     /* Coin denominations: 1, 9, 11. */

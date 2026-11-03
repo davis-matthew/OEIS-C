@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   first_digit_seq
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/first_digit_seq.h"
+#include "../utils/mem.h"
+
+/* ---------- first decimal digit of a seq_t value ---------- */
+static inline int first_digit_seq(seq_t v) {
+    while (v >= 10) v /= 10;
+    return (int)(v % 10);   /* v now < 10 */
+}
 
 /* ---------- primitive prime test (for two‑digit numbers) ---------- */
 static inline bool is_small_prime(int x) {
@@ -62,7 +69,7 @@ seq_t a(idx_t n) {
     /* Initialise on first call */
     if (seq == NULL) {
         seq_cap = 1;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) abort();
         seq[0]    = (seq_t)0;  /* a(0) = 0 */
 
@@ -91,7 +98,7 @@ seq_t a(idx_t n) {
 
             /* Candidate found */
             used[cand] = 1;
-            seq = (seq_t *)realloc(seq, (seq_cap + 1) * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, (seq_cap + 1));
             if (!seq) abort();
             seq[seq_cap++] = (seq_t)cand;
 

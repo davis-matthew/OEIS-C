@@ -8,18 +8,20 @@
  * Formula:   a(0) = 1, a(n) = 8 * 7^(n-1) for n >= 1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0)
         return (seq_t)1;
     /* compute 8 * 7^(n-1) */
-    seq_t pow7 = pow_seq((seq_t)7, (int)(n - 1));
+    seq_t pow7 = ipow_i32((seq_t)7, (int)(n - 1));
     return (seq_t)8 * pow7;
 }

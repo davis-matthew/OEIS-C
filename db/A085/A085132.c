@@ -8,12 +8,14 @@
  *            whose prime factors are ≤7). h(1)=1, h(2)=2, h(3)=3, …
  * Range:     u8 n <= 21, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (!h) {
         h_cap = 16;
-        h = (seq_t *)malloc(h_cap * sizeof(seq_t));
+        h = mem_new(seq_t, h_cap);
         if (!h) return 0;          /* malloc failed */
         h[0] = 0;                   /* unused slot for 1‑based access */
         h[1] = (seq_t)1;            /* first 7‑smooth number */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         /* grow storage if needed */
         if (h_len + 1 == h_cap) {
             h_cap = h_cap * 2;
-            h = (seq_t *)realloc(h, h_cap * sizeof(seq_t));
+            h = mem_resize(seq_t, h, h_cap);
         }
         h[++h_len] = next;
     }

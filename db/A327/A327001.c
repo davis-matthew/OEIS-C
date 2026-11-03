@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 38, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Triangular number T(x)=x*(x+1)/2, using idx_t to avoid overflow. */
 static inline idx_t triangular(idx_t x)
@@ -71,7 +73,7 @@ seq_t a(idx_t m)
     if (n_row == 0ULL) {
         /* Special values for n=0: 1,1,2,4,8,...  (k>=2 -> 2^{k-1}) */
         if (k_col <= 1ULL) return (seq_t)1;
-        return big_pow((seq_t)2, (seq_t)(k_col - 1ULL));
+        return ipow((seq_t)2, (seq_t)(k_col - 1ULL));
     }
 
     /* For n>=1 use the recurrence. */

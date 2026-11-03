@@ -7,7 +7,8 @@
  * Formula:   coefficient of q^n in (1 + q + q^4 + q^9 + …)^10
  * Range:     u8 n <= 4, u16 n <= 30, u32 n <= 680, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 9675 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static inline idx_t int_sqrt(idx_t x)
 {
@@ -34,10 +36,10 @@ static inline idx_t int_sqrt(idx_t x)
 seq_t a(idx_t n)
 {
     size_t len = (size_t)(n + 1);
-    seq_t *dp   = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, len);
+    seq_t *next = mem_new(seq_t, len);
     if (!dp || !next) {
-        free(dp); free(next);
+        mem_free(dp); mem_free(next);
         return 0;
     }
     dp[0] = 1;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     size_t sqcnt = (size_t)(max_sqrt + 1);
     uint64_t *squares = (uint64_t *)malloc(sqcnt * sizeof(uint64_t));
     if (!squares) {
-        free(dp); free(next);
+        mem_free(dp); mem_free(next);
         return 0;
     }
     for (size_t i = 0; i < sqcnt; ++i)
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
 
     /* perform 10-fold convolution */
     for (idx_t var = 0; var < 10; ++var) {
-        memset(next, 0, len * sizeof(seq_t));
+        mem_set(next, 0, len * sizeof(seq_t));
         for (size_t si = 0; si < sqcnt; ++si) {
             idx_t sq = (idx_t)squares[si];
             if (sq > n) break;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[n];
     free(squares);
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

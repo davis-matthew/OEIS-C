@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * [1,2,…,n].  The rank is computed using the factorial number system.  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Fenwick tree helpers */
 static inline void bit_add(idx_t *bit, idx_t n, idx_t idx, idx_t val) {
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
     }
 
     /* Precompute factorials 0! … n! in seq_t */
-    seq_t *fact = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (n + 1));
     if (!fact) { free(S); return (seq_t)0; }
     fact[0] = (seq_t)1;
     for (idx_t k = 1; k <= n; ++k)
@@ -59,7 +61,7 @@ seq_t a(idx_t n) {
 
     /* Build a Fenwick tree for the unused numbers (initially all present) */
     idx_t *bit = (idx_t*)malloc((n + 1) * sizeof(idx_t));
-    if (!bit) { free(S); free(fact); return (seq_t)0; }
+    if (!bit) { free(S); mem_free(fact); return (seq_t)0; }
     for (idx_t i = 0; i <= n; ++i)
         bit[i] = 0;
     for (idx_t i = 0; i < n; ++i)
@@ -76,7 +78,7 @@ seq_t a(idx_t n) {
 
     /* Clean up */
     free(S);
-    free(fact);
+    mem_free(fact);
     free(bit);
 
     return rank;

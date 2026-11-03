@@ -7,7 +7,8 @@
  * Formula:   a(n) = binomial(n+9, n) mod n
  * Range:     u8 n <= 299, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _gcd64
+ * Validated: standard, pass, 91 terms through n = 958 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* Compute using cancelling of factors to avoid overflow. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_gcd64.h"
+#include <math.h>
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return (seq_t)0;          /* binomial(10,1)=10, 10 mod 1 = 0 */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
         uint64_t d = denom[i];
         if (d == 1) continue;
         for (int j = 0; j < 9 && d > 1; ++j) {
-            uint64_t g = _gcd64(numer[j], d);
+            uint64_t g = gcd_u64(numer[j], d);
             if (g > 1) {
                 numer[j] /= g;
                 d /= g;

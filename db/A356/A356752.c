@@ -8,7 +8,8 @@
  *            |Stirling1(n-2*k,k)|/(2^k * (n-2*k)!)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* This implementation evaluates the sum directly using unsigned Stirling numbers of the first kind. */
 
@@ -29,8 +32,8 @@ seq_t a(idx_t n)
     size_t sz = (size_t)(n + 1);        /* array size needed for Stirling rows */
 
     /* Allocate rows for Stirling numbers of the first kind */
-    seq_t *st_prev = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *st_curr = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *st_prev = mem_new(seq_t, sz);
+    seq_t *st_curr = mem_new(seq_t, sz);
     if (!st_prev || !st_curr) return (seq_t)0;    /* allocation failure */
 
     /* Initial row (k = 0): S1(0,0) = 1, others zero (calloc already zeroed) */
@@ -69,7 +72,7 @@ seq_t a(idx_t n)
                 for (idx_t i = m_index + 1; i <= n; ++i)
                     ratio *= (seq_t)i;
 
-                seq_t pow_kplus1 = big_pow((seq_t)(k + 1), (seq_t)(k - 1));
+                seq_t pow_kplus1 = ipow((seq_t)(k + 1), (seq_t)(k - 1));
                 seq_t term = ratio;
                 term *= stir_val;
                 term *= pow_kplus1;
@@ -86,7 +89,7 @@ seq_t a(idx_t n)
         pow2 = pow2 * (seq_t)2;        /* update 2^k for the next iteration */
     }
 
-    free(st_prev);
-    free(st_curr);
+    mem_free(st_prev);
+    mem_free(st_curr);
     return result;
 }

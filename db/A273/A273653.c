@@ -9,12 +9,15 @@
  * Formula:   a(n) = C(n,3) * (1 + 3*2^(n-3) + 3^(n-3))
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 17, u64 n <= 35, u128 n <= 73,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 40 terms through n = 987 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +30,8 @@ seq_t a(idx_t n)
 
     /* Compute 2^(n-3) and 3^(n-3) */
     idx_t exp = n - 3;
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)exp);
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)exp);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)exp);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)exp);
 
     /* Sum = 1 + 3*2^(n-3) + 3^(n-3) */
     seq_t sum = pow3;

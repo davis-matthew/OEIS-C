@@ -9,13 +9,14 @@
  * Formula:   a(0) = 1, a(1) = 8, a(n) = 14*4^(n-1) - 4*2^n + 1 for n > 1
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
@@ -23,11 +24,11 @@ seq_t a(idx_t n) {
 
     /* 4^(n-1) = 2^(2*(n-1)) */
     idx_t exp4 = 2 * (n - 1);
-    seq_t pow4 = pow_int((seq_t)2, exp4);         /* 4^(n-1) */
+    seq_t pow4 = ipow_idx((seq_t)2, exp4);         /* 4^(n-1) */
 
     seq_t term1 = pow4 * (seq_t)14;               /* 14*4^(n-1) */
 
-    seq_t pow2n = pow_int((seq_t)2, n);           /* 2^n */
+    seq_t pow2n = ipow_idx((seq_t)2, n);           /* 2^n */
     seq_t term2 = pow2n * (seq_t)4;               /* 4*2^n */
 
     return term1 - term2 + (seq_t)1;

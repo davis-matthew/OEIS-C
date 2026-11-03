@@ -9,13 +9,15 @@
  *            part used appears at least 7 times
  * Range:     u8 n <= 95, u16 n <= 329, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *CACHE = NULL;      /* cached values up to CACHE_SIZE */
 static idx_t  CACHE_SIZE = 0;    /* largest n computed and stored */
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
         size_t sz = (size_t)(n + 1);
 
         /* Temporary buffers for the dynamic programming arrays. */
-        seq_t *pre = (seq_t*)calloc(sz, sizeof(seq_t));
-        seq_t *cur = (seq_t*)calloc(sz, sizeof(seq_t));
+        seq_t *pre = mem_new(seq_t, sz);
+        seq_t *cur = mem_new(seq_t, sz);
         if (!pre || !cur) return 0;   /* Out of memory – fallback */
 
         /* Base case: only one way to partition 0. */
@@ -54,10 +56,10 @@ seq_t a(idx_t n)
         }
 
         /* After the loop, 'pre' holds the final array. */
-        free(cur);                /* cur now holds the old 'pre' before swap */
+        mem_free(cur);                /* cur now holds the old 'pre' before swap */
 
         /* Replace old cache, if any. */
-        if (CACHE) free(CACHE);
+        if (CACHE) mem_free(CACHE);
         CACHE = pre;               /* keep the final results for future calls */
         CACHE_SIZE = n;
     }

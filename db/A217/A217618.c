@@ -9,14 +9,37 @@
  *            and all decimal digits are even when n is even. a(n) is that k
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   all_digits_even, all_digits_odd
+ * Validated: standard, pass, 98 terms through n = 975 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/all_digits_even.h"
-#include "../utils/all_digits_odd.h"
+
+/* Return true if every decimal digit of x is even. */
+static bool all_digits_even(seq_t x)
+{
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d & 1)          /* digit odd -> fail */
+            return false;
+        x /= 10;
+    }
+    return true;
+}
+
+/* Return true if every decimal digit of x is odd. */
+static bool all_digits_odd(seq_t x)
+{
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if ((d & 1) == 0)   /* digit even -> fail */
+            return false;
+        x /= 10;
+    }
+    return true;
+}
 
 /* Compute a(n) for n >= 1. */
 seq_t a(idx_t n)

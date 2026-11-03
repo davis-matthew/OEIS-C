@@ -9,6 +9,7 @@
  *            the standard split of the two subtrees.)
  * Range:     u8 n <= 12, u16 n <= 19, u32 n <= 37, u64 n <= 89, u128 n <= 255,
  *            big any n
+ * Validated: full, pass, 256 terms through n = 255 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

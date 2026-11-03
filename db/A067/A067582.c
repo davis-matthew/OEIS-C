@@ -13,7 +13,8 @@
  *            increasing order
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_LIMIT 200000   /* enough for n up to ~12e4 terms, far beyond the 10k limit */
 
@@ -95,13 +97,13 @@ static void init_seq(void)
 
     /* Allocate space for values; will grow if needed */
     vals_cap = MAX_LIMIT;
-    vals = (seq_t *)malloc(vals_cap * sizeof(seq_t));
+    vals = mem_new(seq_t, vals_cap);
 
     for (uint32_t i = 1; i <= MAX_LIMIT; ++i) {
         if (good_n(i)) {
             if (vals_sz >= vals_cap) {
                 vals_cap *= 2;
-                vals = (seq_t *)realloc(vals, vals_cap * sizeof(seq_t));
+                vals = mem_resize(seq_t, vals, vals_cap);
             }
             vals[vals_sz++] = (seq_t)i;
         }

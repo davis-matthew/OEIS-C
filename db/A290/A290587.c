@@ -8,11 +8,13 @@
  *            + 50*n^4 + 3*n^5)/120 for n>3 with a(1)=3, a(2)=16, a(3)=81
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 19, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

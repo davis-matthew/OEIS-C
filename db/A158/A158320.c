@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 20, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   is_prime_leq_seq
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_leq_seq.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Helpers */
 
@@ -54,14 +56,14 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough. */
     if (cache_len == 0) {
         /* Allocate initial capacity. */
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();
         cache[0] = (seq_t)0;      /* a(1) */
         cache_len = 1;
     }
     if (cache_len < n) {
         size_t new_size = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         cache = tmp;
 
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
             for (int e = 0; e < d; ++e)        /* compute base^d */
                 power *= base;
             seq_t cand = power + (seq_t)1;     /* start just above base^d */
-            while (is_prime_leq_seq(cand))
+            while (is_prime_seq(cand))
                 ++cand;
             cache[k] = cand;                   /* store a(k+1) */
         }

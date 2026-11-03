@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow, is_prime, mod_pow
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   ipow, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,12 @@
 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+#include "../utils/ipow.h"
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
-#include "../utils/big_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -63,7 +67,7 @@ seq_t a(idx_t n)
                     while (k % f == 0)
                     {
                         uint64_t cand = k / f;
-                        if (mod_pow((seq_t)10, cand, (seq_t)p) == 1)
+                        if (powmod((seq_t)10, cand, (seq_t)p) == 1)
                             k = cand;
                         else
                             break;
@@ -76,7 +80,7 @@ seq_t a(idx_t n)
                 while (k % f == 0)
                 {
                     uint64_t cand = k / f;
-                    if (mod_pow((seq_t)10, cand, (seq_t)p) == 1)
+                    if (powmod((seq_t)10, cand, (seq_t)p) == 1)
                         k = cand;
                     else
                         break;
@@ -93,7 +97,7 @@ seq_t a(idx_t n)
                 {
                     size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
 #if defined(__cplusplus)
-                    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
 #else
                     seq_t *tmp = realloc(cache, new_cap * sizeof(seq_t));
 #endif
@@ -103,7 +107,7 @@ seq_t a(idx_t n)
                 }
 
                 /* compute the period integer r = (10^k − 1)/p          */
-                seq_t powm = big_pow((seq_t)10, (seq_t)k);
+                seq_t powm = ipow((seq_t)10, (seq_t)k);
                 seq_t r = (powm - (seq_t)1) / (seq_t)p;
 
                 /* strip the common leading zero for p > 9            */

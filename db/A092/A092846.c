@@ -8,15 +8,27 @@
  * Formula:   a(n) = (10^k + 1)^n, k = digits( binom(n, floor(n/2)) )
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 4, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   pow10, seq_pow
+ * Validated: standard, pass, 29 terms through n = 50 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static bool _init_logs = false;
 #define MAX_LOG_N 20000
@@ -47,5 +59,5 @@ seq_t a(idx_t n)
         return (seq_t)1;
     idx_t k = _central_binom_digits(n);
     seq_t base = pow10(k) + (seq_t)1;
-    return seq_pow(base, n);
+    return ipow_idx(base, n);
 }

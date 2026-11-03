@@ -10,7 +10,8 @@
  *            = x*(P_t(x)+2*P_t(x+1)) (recurrence provided in the OEIS entry)
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 /* Includes needed for dynamic allocation and binomial helper */
 #include <stdlib.h>
 /* Assuming binom(idx_t a, idx_t b) is available from utils. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* The function as required by the build system. */
 seq_t a(idx_t n)
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     /* Build polynomials up to row m. */
     /* Start with P_0(x) = 1. */
     idx_t curr_size = 1;                 /* size of current coefficient array = degree + 1 */
-    seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * curr_size);
+    seq_t *curr = mem_new(seq_t, curr_size);
     if (!curr) return 0;                 /* allocation failed */
     curr[0] = 1;                         /* P_0(x) coefficients: only a_0 = 1 */
 
@@ -45,20 +48,20 @@ seq_t a(idx_t n)
     {
         /* Next polynomial will have size curr_size+1 (degree increases by 1). */
         idx_t next_size = curr_size + 1;
-        seq_t *next = (seq_t *)calloc(next_size, sizeof(seq_t));
-        if (!next) { free(curr); return 0; }
+        seq_t *next = mem_new(seq_t, next_size);
+        if (!next) { mem_free(curr); return 0; }
 
         /* Compute shift polynomial: P_row(x+1) coefficients. */
         /* shift[j] = sum_{i=j}^{curr_size-1} curr[i] * C(i,j)  for 0 <= j < curr_size */
-        seq_t *shift = (seq_t *)calloc(curr_size, sizeof(seq_t));
-        if (!shift) { free(curr); free(next); return 0; }
+        seq_t *shift = mem_new(seq_t, curr_size);
+        if (!shift) { mem_free(curr); mem_free(next); return 0; }
 
         for (idx_t i = 0; i < curr_size; ++i)
         {
             for (idx_t j = 0; j <= i; ++j)
             {
                 /* binom(i, j) */
-                seq_t b = binom((idx_t)i, (idx_t)j);
+                seq_t b = binomial((idx_t)i, (idx_t)j);
                 shift[j] = shift[j] + curr[i] * b;
             }
         }
@@ -71,14 +74,14 @@ seq_t a(idx_t n)
         }
 
         /* Clean up and prepare for next iteration. */
-        free(shift);
-        free(curr);
+        mem_free(shift);
+        mem_free(curr);
         curr = next;
         curr_size = next_size;
     }
 
     /* At this point 'curr' holds coefficients of P_m(x).   curr[0] is the constant term (0). */
     seq_t result = curr[k];   /* k is 1‑based column index, 0‑based array index is k */
-    free(curr);
+    mem_free(curr);
     return result;
 }

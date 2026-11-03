@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_power_of_two, trailing_two_bits
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   ctz_seq_to_u32, is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,8 +32,8 @@
  */
 
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
-#include "../utils/trailing_two_bits.h"
+#include "../utils/ctz_seq_to_u32.h"
+#include "../utils/is_pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -47,10 +48,10 @@ seq_t a(idx_t n)
             if (pos == n)
                 return cur;                     /* desired term found */
 
-            if (is_power_of_two(cur))
+            if (is_pow2(cur))
                 break;                          /* row terminates */
 
-            unsigned e = trailing_two_bits(cur);
+            unsigned e = ctz_seq_to_u32(cur);
             cur = 6 * cur + ((seq_t)1 << (e + 1));
         }
     }

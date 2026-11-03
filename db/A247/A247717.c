@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 12, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   collatz_avg_integer
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/collatz_avg_integer.h"
+#include "../utils/mem.h"
+
+/* Determine whether the average of the Collatz (3x+1) iteration of X is an integer. */
+static bool collatz_avg_integer(idx_t X)
+{
+    seq_t x = (seq_t)X;
+    seq_t sum = x;
+    size_t len = 1;
+
+    while (x != (seq_t)1) {
+        if ((x & (seq_t)1) == 0)   /* even */
+            x = x >> 1;
+        else                       /* odd */
+            x = x * (seq_t)3 + (seq_t)1;
+        ++len;
+        sum += x;
+    }
+    return (sum % (seq_t)len) == 0;
+}
 
 static seq_t *cache = NULL;          /* array of accepted numbers */
 static size_t cache_cap = 0;         /* current capacity */
@@ -35,7 +54,7 @@ static void ensure_cache_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 4;
     while (new_cap < needed)
         new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

@@ -12,7 +12,8 @@
  *            e...
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 26, u64 n <= 53, u128 n <= 103,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Storage for the periodic continued‑fraction coefficients a1,a2,… */
 static bool     _cf_init  = false;
@@ -76,7 +78,7 @@ static void _init_cache(void)
     if (_cache_len) return;        /* already initialised */
 
     _cache_cap = 4;
-    _cache = (seq_t *)malloc(_cache_cap * sizeof(seq_t));
+    _cache = mem_new(seq_t, _cache_cap);
     _cache[0] = (seq_t)1;          /* q_0 = 1 */
     _cache_len = 1;
 }
@@ -94,7 +96,7 @@ static void _ensure_cache(idx_t n)
         /* reallocate if needed */
         if (_cache_len == _cache_cap) {
             _cache_cap = _cache_cap ? _cache_cap * 2 : 4;
-            _cache = (seq_t *)realloc(_cache, _cache_cap * sizeof(seq_t));
+            _cache = mem_resize(seq_t, _cache, _cache_cap);
         }
 
         /* previous two denominators */

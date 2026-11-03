@@ -13,11 +13,13 @@
  *            q * ∏_{m≥1} (1 - q^m)^{-...
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 94 terms through n = 986 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
 #ifdef __cplusplus

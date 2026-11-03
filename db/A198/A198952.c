@@ -9,21 +9,23 @@
  *            / Product_{j=1..k} (1 + j*3^j*x)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate temporary storage for coefficients */
-    seq_t *a   = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *cur = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *new_cur = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *a   = mem_new(seq_t, (size_t)n + 1);
+    seq_t *cur = mem_new(seq_t, (size_t)n + 1);
+    seq_t *new_cur = mem_new(seq_t, (size_t)n + 1);
     if (!a || !cur || !new_cur) {
-        free(a); free(cur); free(new_cur);
+        mem_free(a); mem_free(cur); mem_free(new_cur);
         return (seq_t)0;            /* graceful failure on OOM */
     }
 
@@ -71,6 +73,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a[n];
-    free(a); free(cur); free(new_cur);
+    mem_free(a); mem_free(cur); mem_free(new_cur);
     return result;
 }

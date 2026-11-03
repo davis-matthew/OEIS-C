@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
    utility pow_uint, which returns a big integer value. */
 
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 /* Computes the n-th term of the sequence A378091. */
 seq_t a(idx_t n)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
             /* (k+1)^(k-1) is 1 for k = 0 or 1 */
             pow_term = (seq_t)1;
         } else {
-            pow_term = pow_uint((uint64_t)(k + 1), k - 1);
+            pow_term = ipow_u64_idx((uint64_t)(k + 1), k - 1);
         }
 
         seq_t term = pow_term;

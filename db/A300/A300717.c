@@ -7,8 +7,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = Sum_{d|n} mu(d) * phi(d) * phi(n/d) Equivalent:
  *            multiplicative, a(p)=0, a(p^e) = (p-1)*p^(e-2) for e≥2
- * Range:     u8 n <= 1023, u16 n <= 9876, u32 n <= 9876, u64 n <= 9876,
- *            u128 n <= 9876, big any n
+ * Range:     u8 n <= 1023, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 124 terms through n = 9876 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

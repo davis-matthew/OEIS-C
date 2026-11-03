@@ -7,6 +7,7 @@
  * Formula:   a(0)=1; a(n)=8*n*(1 - n*n)/3 for n>0
  * Range:     i8 n <= 2, i16 n <= 16, i32 n <= 39, i64 n <= 39, i128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

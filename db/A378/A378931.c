@@ -10,14 +10,15 @@
  *            -2^(n-1-k) * (2^(k+1)+(-1)^k)^2 / 9 for 1 ≤ k < n
  * Range:     i8 n <= 5, i16 n <= 27, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -31,17 +32,17 @@ seq_t a(idx_t n)
     /* Compute T(r,k) using the formulas above. */
     if (k == r) {
         /* Diagonal element: (2*4^r - (-2)^r - 1)/9 */
-        seq_t term1 = (seq_t)2 * pow_seq((seq_t)4, (int)r);
-        seq_t pow2r = pow_seq((seq_t)2, (int)r);
+        seq_t term1 = (seq_t)2 * ipow_i32((seq_t)4, (int)r);
+        seq_t pow2r = ipow_i32((seq_t)2, (int)r);
         if (r & 1) pow2r = -pow2r;   /* (-2)^r */
         seq_t numer = term1 - pow2r - (seq_t)1;
         return numer / (seq_t)9;
     } else {
         /* Off‑diagonal element: -2^(r-1-k) * (2^(k+1)+(-1)^k)^2 / 9 */
         seq_t exp1 = (seq_t)(r - 1 - k);
-        seq_t pow2_exp1 = pow_seq((seq_t)2, (int)exp1);
+        seq_t pow2_exp1 = ipow_i32((seq_t)2, (int)exp1);
 
-        seq_t pow2_kplus1 = pow_seq((seq_t)2, (int)(k + 1));
+        seq_t pow2_kplus1 = ipow_i32((seq_t)2, (int)(k + 1));
         seq_t signk = (k & 1) ? (seq_t)-1 : (seq_t)1;
         seq_t inner = pow2_kplus1 + signk;
         seq_t inner_sq = inner * inner;

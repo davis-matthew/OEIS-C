@@ -7,15 +7,37 @@
  * Formula:   a(n) = smallest palindrome > 1 such that a(n) ≡ 1 (mod n)
  * Range:     u8 n <= 22, u16 n <= 90, u32 n <= 1088, u64 n <= 9800,
  *            u128 n <= 10000, big any n
- * Helpers:   make_even_pal, make_odd_pal
+ * Validated: standard, pass, 74 terms through n = 9763 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/make_even_pal.h"
-#include "../utils/make_odd_pal.h"
+
+static inline seq_t make_even_pal(uint64_t half)
+{
+    seq_t pal = (seq_t)half;
+    uint64_t rev = half;
+    while (rev > 0) {
+        pal = pal * (seq_t)10 + (seq_t)(rev % 10);
+        rev /= 10;
+    }
+    return pal;
+}
+
+static inline seq_t make_odd_pal(uint64_t half, int mid)
+{
+    seq_t pal = (seq_t)half;
+    pal = pal * (seq_t)10 + (seq_t)mid;
+    uint64_t rev = half;
+    while (rev > 0) {
+        pal = pal * (seq_t)10 + (seq_t)(rev % 10);
+        rev /= 10;
+    }
+    return pal;
+}
 
 static const uint64_t pow10[20] = {
     1ULL, 10ULL, 100ULL, 1000ULL, 10000ULL, 100000ULL,

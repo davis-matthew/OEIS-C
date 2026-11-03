@@ -9,13 +9,15 @@
  *            r(r+1)/2. S are signed Stirling numbers of the first kind
  * Range:     i8 n <= 23, i16 n <= 49, i32 n <= 112, i64 n <= 247,
  *            i128 n <= 656, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 7996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     idx_t target = r - col;
 
     /* allocate the row array (zero‑initialised) */
-    seq_t *A = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (size_t)(r + 1));
     if (!A) return (seq_t)0;                 /* allocation failure */
 
     A[0] = (seq_t)1;                         /* S(0,0)=1 */
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = A[target];
-    free(A);
+    mem_free(A);
     return result;
 }

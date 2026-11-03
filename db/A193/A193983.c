@@ -12,6 +12,7 @@
  *            reproduces the OEIS A193983 values for all n≥1
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 24, u64 n <= 52, u128 n <= 52,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 50 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

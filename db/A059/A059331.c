@@ -11,7 +11,8 @@
  *            a^((p‑1)/gcd(k,p‑1)) ≡ 1 (mod p)
  * Range:     u8 n <= 1, u16 n <= 255, u32 n <= 370, u64 n <= 370,
  *            u128 n <= 370, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 59 terms through n = 365 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Euclidean gcd for uint64_t */
 static uint64_t gcd_u64(uint64_t a, uint64_t b)
@@ -40,13 +42,13 @@ static bool prime_has_property(uint64_t p)
     /* 2^((p-1)/gcd(12,p-1)) ≡ 1  (x^12 = 2 solvable)                */
     uint64_t g12 = gcd_u64(12ULL, p - 1ULL);
     uint64_t exp12 = (p - 1ULL) / g12;
-    if (mod_pow((seq_t)2, exp12, (seq_t)p) != (seq_t)1)
+    if (powmod((seq_t)2, exp12, (seq_t)p) != (seq_t)1)
         return false;
 
     /* 2^((p-1)/gcd(24,p-1)) ≠ 1  (x^24 = 2 unsolvable)            */
     uint64_t g24 = gcd_u64(24ULL, p - 1ULL);
     uint64_t exp24 = (p - 1ULL) / g24;
-    if (mod_pow((seq_t)2, exp24, (seq_t)p) == (seq_t)1)
+    if (powmod((seq_t)2, exp24, (seq_t)p) == (seq_t)1)
         return false;
 
     return true;

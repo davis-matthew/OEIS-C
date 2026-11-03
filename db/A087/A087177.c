@@ -11,13 +11,15 @@
  *            irrelevant and we XOR the contributions of the generaliz...
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (parity == NULL) {
         capacity = 1;
         parity    = (uint8_t *)malloc(sizeof(uint8_t) * capacity);
-        cum_even  = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        cum_even  = mem_new(seq_t, capacity);
         parity[0] = 1;                /* P(0) = 1 (odd) */
         cum_even[0] = 0;              /* no even partitions ≤ P(0) */
         max_computed = 0;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
             /* grow arrays to the required size */
             capacity = new_cap;
             parity   = (uint8_t *)realloc(parity, sizeof(uint8_t) * capacity);
-            cum_even = (seq_t *)realloc(cum_even, sizeof(seq_t) * capacity);
+            cum_even = mem_resize(seq_t, cum_even, capacity);
         }
         /* compute new values */
         for (idx_t i = max_computed + 1; i <= n; ++i) {

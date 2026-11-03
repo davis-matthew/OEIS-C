@@ -11,13 +11,15 @@
  *            a(6)=28912, a(7)=100008
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 16, u64 n <= 35, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t  cache_size = 0;    /* number of values stored */
@@ -31,7 +33,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = cache_cap ? cache_cap : 8;
     while (new_cap < (size_t)n)
         new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Initial cache population on the first call. */
     if (cache_size == 0) {
         cache_cap = 8;            /* at least enough for the 7 base terms */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 81;
         cache[1] = 268;
         cache[2] = 928;

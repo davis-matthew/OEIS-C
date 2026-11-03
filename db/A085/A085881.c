@@ -9,13 +9,24 @@
  *            r(r+1)/2
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 48, u64 n <= 124,
  *            u128 n <= 356, big any n
- * Helpers:   odd_double_factorial
+ * Validated: standard, pass, 61 terms through n = 4793 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/odd_double_factorial.h"
+
+/* compute odd double‑factorial (2r-1)!! */
+static seq_t odd_double_factorial(idx_t r)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = (idx_t)1; i <= r; ++i)
+    {
+        res = res * (seq_t)(2 * i - (idx_t)1);
+    }
+    return res;
+}
 
 /* compute binomial coefficient C(n,k) using multiplicative formula */
 static seq_t binom(idx_t n, idx_t k)

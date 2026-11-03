@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 43 terms through n = 744 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 /* ----------------- dynamic array helpers ----------------- */
 static inline void grow_uint64(uint64_t **arr, size_t *cap, size_t need)
@@ -111,7 +112,7 @@ static size_t    window_start = 0;   /* current start index of the window */
 /* ----------------- square test ----------------- */
 static inline bool is_square_u64(uint64_t x)
 {
-    uint64_t r = _floor_isqrt_u64(x);
+    uint64_t r = isqrt(x);
     return r * r == x;
 }
 

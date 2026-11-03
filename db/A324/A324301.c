@@ -9,7 +9,8 @@
  *            Σ_{u=0}^{min(t,k)} binom(t,u)*binom(t+k−u,k−u)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 17, u64 n <= 29, u128 n <= 67,
  *            big any n
- * Helpers:   binomial_sum
+ * Validated: standard, pass, 77 terms through n = 180 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,35 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binomial_sum.h"
+
+/* ------------- Core binomial sum S(t,k) ------------- */
+static seq_t binomial_sum(seq_t t, seq_t k) {
+    if (t == 0 || k == 0) return 1;
+    seq_t B = 1;
+    if (t <= k) {
+        for (idx_t i = 1; i <= (idx_t)t; ++i) {
+            B = B * (k + (seq_t)i);
+            B = B / (seq_t)i;
+        }
+    } else {
+        for (idx_t i = 1; i <= (idx_t)k; ++i) {
+            B = B * (t + (seq_t)i);
+            B = B / (seq_t)i;
+        }
+    }
+    seq_t A = 1;
+    seq_t sum = A * B;
+    idx_t U = (t <= k) ? (idx_t)t : (idx_t)k;
+    for (idx_t u = 0; u < U; ++u) {
+        seq_t u_seq = (seq_t)u;
+        B = B * (k - u_seq);
+        B = B / (t + k - u_seq);
+        A = A * (t - u_seq);
+        A = A / (u_seq + 1);
+        sum += A * B;
+    }
+    return sum;
+}
 
 /* ------------- Prime sieve (static) ------------- */
 #define MAX_PRIME 10001

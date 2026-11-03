@@ -11,13 +11,15 @@
  *            the coefficients of Φ_195(x) once, inverts the series to o...
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  Local helper: Möbius function for small arguments (≤195).  */
 static int mu_of(idx_t m)
@@ -48,11 +50,11 @@ static void compute_phi_195(void)
     const idx_t n = 195;
 
     /*  Start with numerator and denominator polynomials = 1.  */
-    seq_t *num = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *num = mem_new(seq_t, 1);
     num[0] = 1;
     size_t deg_num = 0;
 
-    seq_t *den = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *den = mem_new(seq_t, 1);
     den[0] = 1;
     size_t deg_den = 0;
 
@@ -62,22 +64,22 @@ static void compute_phi_195(void)
         int mu = mu_of(n / d);
         if (mu == 1) {   /* multiply numerator by (x^d - 1) */
             size_t new_deg = deg_num + d;
-            seq_t *new_num = (seq_t*)calloc(new_deg + 1, sizeof(seq_t));
+            seq_t *new_num = mem_new(seq_t, new_deg + 1);
             for (size_t i = 0; i <= deg_num; ++i) {
                 new_num[i]     -= num[i];
                 new_num[i + d] += num[i];
             }
-            free(num);
+            mem_free(num);
             num = new_num;
             deg_num = new_deg;
         } else if (mu == -1) {   /* multiply denominator by (x^d - 1) */
             size_t new_deg = deg_den + d;
-            seq_t *new_den = (seq_t*)calloc(new_deg + 1, sizeof(seq_t));
+            seq_t *new_den = mem_new(seq_t, new_deg + 1);
             for (size_t i = 0; i <= deg_den; ++i) {
                 new_den[i]     -= den[i];
                 new_den[i + d] += den[i];
             }
-            free(den);
+            mem_free(den);
             den = new_den;
             deg_den = new_deg;
         }
@@ -86,7 +88,7 @@ static void compute_phi_195(void)
 
     /*  Long division: num / den  (den is monic).  */
     size_t deg_q = (deg_num >= deg_den) ? (deg_num - deg_den) : 0;
-    seq_t *q = (seq_t*)calloc(deg_q + 1, sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, deg_q + 1);
 
     for (size_t i = deg_num; ; --i) {
         seq_t coeff = num[i];
@@ -101,8 +103,8 @@ static void compute_phi_195(void)
     }
 
     /*  Store results and free temporaries.  */
-    free(den);
-    free(num);
+    mem_free(den);
+    mem_free(num);
     phi_coeff_195 = q;
     phi_deg_195   = deg_q;   /* should be φ(195)=96 */
     phi_computed  = true;

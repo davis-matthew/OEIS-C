@@ -9,6 +9,7 @@
  *            composite
  * Range:     u8 n <= 2, u16 n <= 29, u32 n <= 1386, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 57 terms through n = 9099 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 /* compute the exponent of prime p in n! (Legendre's formula) */
 static idx_t _exp_fact(idx_t n, idx_t p)

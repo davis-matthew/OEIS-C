@@ -12,6 +12,7 @@
  *            y · v_p(x) ≥ k_p for all prime powers p^k_p || n, and a...
  * Range:     u8 n <= 31, u16 n <= 511, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 80 terms through n = 8661 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

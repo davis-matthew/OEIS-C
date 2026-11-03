@@ -12,7 +12,8 @@
  *            and an edge (r₁,r₂)→(r₂,r₃) exists iff t...
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* state constants */
 #define NUM_ROWS 64                      /* 4³ possible rows */
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
     /* number of transitions = n (since we add n rows after the first two) */
     for (idx_t step = 0; step < n; ++step) {
         /* clear destination array */
-        memset(d, 0, NUM_STATES * sizeof(seq_t));
+        mem_set(d, 0, NUM_STATES * sizeof(seq_t));
 
         for (int s = 0; s < NUM_STATES; ++s) {
             seq_t val = c[s];

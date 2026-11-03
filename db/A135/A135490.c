@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* shifts corresponding to the allowed scores */
 static const int SHIFTS[6] = {-3, -2, -1, 1, 2, 3};
@@ -61,8 +63,8 @@ static void ensure_capacity(idx_t n)
     size_t new_size = (size_t)(6 * new_n + 1);
 
     /* Allocate new DP tables */
-    seq_t *new_curr = (seq_t *)calloc(new_size, sizeof(seq_t));
-    seq_t *new_next = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_curr = mem_new(seq_t, new_size);
+    seq_t *new_next = mem_new(seq_t, new_size);
     if (!new_curr || !new_next)
         exit(1);                /* out of memory                    */
 
@@ -78,19 +80,19 @@ static void ensure_capacity(idx_t n)
         new_curr[3 * new_n] = 1;   /* only the zero sum state       */
     }
 
-    free(curr);
-    free(next);
+    mem_free(curr);
+    mem_free(next);
     curr = new_curr;
     next = new_next;
 
     /* Resize the sequence cache for a(n)              */
     if (!a_vals) {
-        a_vals = (seq_t *)calloc(new_n + 1, sizeof(seq_t));
+        a_vals = mem_new(seq_t, new_n + 1);
         if (!a_vals) exit(1);
         a_cap  = new_n + 1;
         a_vals[0] = (seq_t)1;
     } else if (new_n + 1 > a_cap) {
-        seq_t *tmp = (seq_t *)realloc(a_vals, (new_n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, (new_n + 1));
         if (!tmp) exit(1);
         for (size_t i = a_cap; i < new_n + 1; ++i)
             tmp[i] = (seq_t)0;
@@ -102,7 +104,7 @@ static void ensure_capacity(idx_t n)
     /* Compute a(k) for each new step k = old_max+1 … new_n   */
     for (idx_t step = old_max + 1; step <= new_n; ++step) {
         /* clear next array                                    */
-        memset(next, 0, new_size * sizeof(seq_t));
+        mem_set(next, 0, new_size * sizeof(seq_t));
 
         /* propagate transitions from all existing states      */
         for (idx_t i = 0; i < new_size; ++i) {

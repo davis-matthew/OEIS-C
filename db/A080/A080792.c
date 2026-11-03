@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Mapping of single decimal digits when mirrored.  Digits not appearing
    in the set {0,1,2,5,8} are never accessed, but are given
@@ -45,7 +47,7 @@ static void growSeq(size_t need)
     if (seqCap >= need) return;
     size_t newCap = seqCap ? seqCap * 2 : 4;
     while (newCap < need) newCap <<= 1;
-    seqVals = (seq_t *)realloc(seqVals, newCap * sizeof(seq_t));
+    seqVals = mem_resize(seq_t, seqVals, newCap);
     seqCap  = newCap;
 }
 

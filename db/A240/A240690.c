@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 47, u32 n <= 135, u64 n <= 428,
  *            u128 n <= 1479, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 2090 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *p_cache = NULL;   /* partition numbers up to max_cached_n */
 static seq_t *a_cache = NULL;   /* a(n) values up to max_cached_n */
@@ -37,11 +39,11 @@ static void ensure_cache(idx_t n)
         return;                    /* already cached */
 
     /* Allocate fresh arrays. */
-    seq_t *newp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *newa = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *newa = mem_new(seq_t, (size_t)(n + 1));
     if (!newp || !newa) {
-        free(newp);
-        free(newa);
+        mem_free(newp);
+        mem_free(newa);
         exit(EXIT_FAILURE);
     }
 
@@ -61,8 +63,8 @@ static void ensure_cache(idx_t n)
     }
 
     /* Replace old tables. */
-    free(p_cache);
-    free(a_cache);
+    mem_free(p_cache);
+    mem_free(a_cache);
     p_cache = newp;
     a_cache = newa;
     max_cached_n = n;

@@ -9,7 +9,8 @@
  *            max{f(q)+1 : q is a prime factor of (p-1)}
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, build_spf, factor_u64
+ * Validated: standard, pass, 115 terms through n = 9842 (2026-11-03)
+ * Helpers:   build_primes_upto, build_spf, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,10 @@
 #include <stdlib.h>
 
 /* Utility headers provided by the build system */
-#include "../utils/factor_u64.h"
 #include "../utils/build_primes_upto.h"
 #include "../utils/build_spf.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------ */
 /* Global tables and limits                                               */
@@ -74,8 +76,7 @@ static void ensure_f_cache(size_t n)
     size_t new_limit = f_limit ? f_limit : 1;
     while (new_limit <= n) new_limit <<= 1;   /* grow by factor 2 */
 
-    seq_t *new_cache = (seq_t *)realloc(f_cache,
-                                      (new_limit + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, f_cache, (new_limit + 1));
     bool  *new_valid = (bool *)realloc(f_valid,
                                       (new_limit + 1) * sizeof(bool));
 

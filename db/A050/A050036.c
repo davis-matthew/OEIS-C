@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 53, u32 n <= 193, u64 n <= 768,
  *            u128 n <= 3618, big any n
- * Helpers:   alloc_seq_array, ensure_cache, floor_log2_uint64
+ * Validated: standard, pass, 59 terms through n = 7880 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,9 +29,43 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/alloc_seq_array.h"      /* if needed for allocation */
-#include "../utils/ensure_cache.h"
-#include "../utils/floor_log2_uint64.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
 
 static seq_t *cache           = NULL; /* 1‑based: cache[0] unused */
 static size_t cache_capacity  = 0;      /* number of elements allocated */
@@ -60,7 +95,7 @@ compute_to(idx_t n)
             cache[i] = (seq_t)4;
         } else {
             /* p satisfies 2^p < i-1 ≤ 2^(p+1)  →  p = floor_log2_uint64(i-2) */
-            idx_t p = floor_log2_uint64(i - 2);
+            idx_t p = ilog2(i - 2);
             idx_t two_pow = (idx_t)1 << (p + 1);           /* 2^(p+1) */
             idx_t m = 2 * i - 3 - two_pow;                 /* 1 ≤ m < i */
             cache[i] = cache[i - 1] + cache[m];

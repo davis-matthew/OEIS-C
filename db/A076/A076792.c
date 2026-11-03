@@ -11,6 +11,7 @@
  *            (1 + (-1)^e * p^(2e+2)) / (1 + p^2)
  * Range:     i8 n <= 4, i16 n <= 16, i32 n <= 5221, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9420 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* External integer types supplied by the build system */

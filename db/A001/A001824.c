@@ -8,12 +8,14 @@
  *            10
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 218 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static struct {
     seq_t *data;
@@ -24,7 +26,7 @@ static struct {
 static void ensure_computed(idx_t n) {
     if (state.data == NULL) {
         state.len = (n < 100) ? 100 : n + 10;
-        state.data = (seq_t *)malloc(state.len * sizeof(seq_t));
+        state.data = mem_new(seq_t, state.len);
         state.data[0] = 1;
         state.data[1] = 10;
         state.computed = 2;
@@ -32,7 +34,7 @@ static void ensure_computed(idx_t n) {
     
     if (n >= state.len) {
         idx_t new_len = n + 10;
-        state.data = (seq_t *)realloc(state.data, new_len * sizeof(seq_t));
+        state.data = mem_resize(seq_t, state.data, new_len);
         state.len = new_len;
     }
     

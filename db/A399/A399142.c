@@ -13,7 +13,8 @@
  *            L(1)=0, and strictly increases from parent to child
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,8 @@
 #include <stdbool.h>
 
 /* Utility functions from the utils repository */
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/big_pow.h"    /* seq_t big_pow(seq_t base, seq_t exp); */
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Compatibility cast: works in both C and C++ */
 #ifdef __cplusplus
@@ -32,6 +33,7 @@
 #else
 #define CAST(ptr, to) ((to)(ptr))
 #endif
+#include "../utils/mem.h"
 
 /* Cached triangle */
 static seq_t **T = NULL;          /* rows indexed from 1 */
@@ -61,7 +63,7 @@ static void ensure_T_rows(idx_t max_r)
 
     /* Allocate new rows and set base cases */
     for (idx_t n = T_rows + 1; n <= max_r; ++n) {
-        T[n] = CAST(calloc((size_t)n, sizeof(seq_t)), seq_t *);
+        T[n] = CAST(mem_new(seq_t, (size_t)n), seq_t *);
         if (!T[n]) abort();
         if (n == 1) T[n][0] = (seq_t)1;   /* T(1,0) = 1 */
     }
@@ -71,7 +73,7 @@ static void ensure_T_rows(idx_t max_r)
         for (idx_t k = 1; k <= n - 1; ++k) {
             seq_t sum = 0;
             for (idx_t j = k; j <= n - 1; ++j) {
-                seq_t term = big_pow((seq_t)j, (seq_t)(n - j));
+                seq_t term = ipow((seq_t)j, (seq_t)(n - j));
                 term *= binomial(n - 1, j - 1);
                 term *= T[j][k - 1];
                 sum += term;

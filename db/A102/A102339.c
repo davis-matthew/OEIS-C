@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_uint64, resize_array
+ * Validated: standard, pass, 82 terms through n = 812 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,32 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/resize_array.h"
-#include "../utils/is_prime_uint64.h"
+#include "../utils/is_prime_u64.h"
+
+/* dynamic array helpers -------------------------------------------------- */
+static seq_t *resize_array(seq_t *old, idx_t old_size, idx_t new_size)
+{
+    seq_t *new_arr;
+#ifdef __cplusplus
+    new_arr = new seq_t[new_size]();        /* value–init for C++ objects   */
+#else
+    new_arr = (seq_t *)calloc(new_size, sizeof(seq_t));   /* zero for C */
+#endif
+    /* copy old data */
+    idx_t i;
+    for (i = 0; i < old_size && i < new_size; ++i)
+        new_arr[i] = old[i];
+
+    /* free old storage */
+    if (old) {
+#ifdef __cplusplus
+        delete[] old;
+#else
+        free(old);
+#endif
+    }
+    return new_arr;
+}
 
 /* Cache of already discovered k values. */
 static seq_t *cache = NULL;      /* array of seq_t */
@@ -55,7 +80,7 @@ static void ensure_cache(idx_t N)
        required for the expected sequence lengths. */
     while (cached < N) {
         uint64_t val = 1000ULL * (uint64_t)next_k + 333ULL;
-        if (is_prime_uint64(val)) {
+        if (is_prime_u64(val)) {
             cache[cached++] = (seq_t)next_k;
         }
         ++next_k;

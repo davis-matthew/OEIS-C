@@ -12,14 +12,29 @@
  *            index, storing them in a static array for subsequent...
  * Range:     u8 n <= 32, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_equal_13
+ * Validated: standard, pass, 70 terms through n = 857 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_equal_13.h"
+#include "../utils/mem.h"
+
+/* Return true if x has the same number of 1’s and 3’s in base‑6
+   and that count is non‑zero. */
+static bool has_equal_13(seq_t x)
+{
+    unsigned count1 = 0, count3 = 0;
+    while (x > 0) {
+        unsigned digit = (unsigned)(x % 6);
+        if (digit == 1) ++count1;
+        else if (digit == 3) ++count3;
+        x /= 6;
+    }
+    return (count1 > 0) && (count1 == count3);
+}
 
 static seq_t *terms = NULL;      /* stored sequence values          */
 static size_t terms_cap = 0;      /* capacity of the terms array     */
@@ -34,7 +49,7 @@ static void ensure_terms(size_t need)
     /* Grow the array as necessary. */
     if (terms_cap == 0) {
         terms_cap = 8;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
     while (terms_len < need) {
         /* Search for the next good number. */
@@ -43,7 +58,7 @@ static void ensure_terms(size_t need)
         /* Append to the array. */
         if (terms_len == terms_cap) {
             terms_cap *= 2;
-            terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, terms_cap);
         }
         terms[terms_len++] = last_checked;
     }

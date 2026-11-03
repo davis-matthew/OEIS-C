@@ -10,7 +10,8 @@
  *            q*(q^2-1)
  * Range:     u8 n <= 4, u16 n <= 19, u32 n <= 338, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   fill_spf
+ * Validated: standard, pass, 55 terms through n = 9398 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/fill_spf.h"
+
+/* Helper: fill spf[0..limit] with the smallest prime factor of each integer. */
+static void fill_spf(idx_t limit, idx_t *spf) {
+    spf[0] = spf[1] = 0;
+    for (idx_t i = 2; i <= limit; ++i) {
+        if (!spf[i]) {            /* i is prime */
+            spf[i] = i;
+            if (i <= limit / i) {    /* avoid overflow */
+                for (idx_t j = i * i; j <= limit; j += i)
+                    if (!spf[j]) spf[j] = i;
+            }
+        }
+    }
+}
 
 /* Check if x is a prime power using its smallest prime factor table. */
 static bool is_prime_power(idx_t x, idx_t *spf) {

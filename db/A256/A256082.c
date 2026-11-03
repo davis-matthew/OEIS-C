@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 1624, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 73 terms through n = 9198 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* stored sequence values           */
 static size_t cache_len = 0;         /* number of values stored          */
@@ -30,7 +32,7 @@ static void push_val(seq_t val)
 {
     if (cache_len == cache_cap) {
         cache_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_len++] = val;
 }
@@ -124,7 +126,7 @@ static void process_length(idx_t length)
                         }
                         num |= bit;
                     }
-                    if (!is_palindrome(num, 2))
+                    if (!is_palindrome_base(num, 2))
                         push_val(num);
                 }
             } else {
@@ -140,7 +142,7 @@ static void process_length(idx_t length)
                     }
                     num |= bit;
                 }
-                if (!is_palindrome(num, 2))
+                if (!is_palindrome_base(num, 2))
                     push_val(num);
             }
             ++lo;
@@ -159,7 +161,7 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n) {
         ++processed_len;
         process_length(processed_len);
-        qsort(cache, cache_len, sizeof(seq_t), cmp_seq);   /* keep cache sorted */
+        mem_qsort(cache, cache_len, sizeof(seq_t), cmp_seq);   /* keep cache sorted */
     }
     return cache[n - 1];
 }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = -41 if n ≤ 8, otherwise -5*n (OEIS A291501)
  * Range:     i8 n <= 25, i16 n <= 70, i32 n <= 70, i64 n <= 70, i128 n <= 70,
  *            big any n
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

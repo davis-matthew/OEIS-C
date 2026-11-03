@@ -10,7 +10,8 @@
  *            num_coeff(k)=0 for k>32
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 16,
  *            big any n
- * Helpers:   num_coeff
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,16 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/num_coeff.h"
+#include "../utils/mem.h"
+
+/* numerator coefficient of the generating function */
+static seq_t num_coeff(idx_t k)
+{
+    if (k == 0u)      return (seq_t)1;
+    if (k <= 31u)     return (seq_t)2;
+    if (k == 32u)     return (seq_t)1;
+    return (seq_t)0;
+}
 
 /* global memoisation array */
 static seq_t *memo = NULL;       /* pointer to the computed values */
@@ -38,8 +48,8 @@ static void ensure_capacity(size_t need)
     /* use explicit casts so the code works in C++ even when seq_t
        is a non‑trivial class type (the constructors are trivial for
        types used in the OEIS test harness). */
-    seq_t *new_mem = memo ? (seq_t*)realloc(memo, new_cap * sizeof(seq_t))
-                          : (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_mem = memo ? mem_resize(seq_t, memo, new_cap)
+                          : mem_new(seq_t, new_cap);
     if (!new_mem) abort();   /* allocation failed */
     memo = new_mem;
     memo_cap = new_cap;

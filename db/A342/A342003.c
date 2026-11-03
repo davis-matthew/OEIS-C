@@ -10,8 +10,9 @@
  *            evaluating its arithmetic derivative D(n) = Σ e·(n/p), and then
  *            taking the largest exponent in the factorization of D(n). The
  *            algorithm runs in O(√n) per call and is suitable for...
- * Range:     u8 n <= 9780, u16 n <= 9780, u32 n <= 9780, u64 n <= 9780,
- *            u128 n <= 9780, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 120 terms through n = 9780 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

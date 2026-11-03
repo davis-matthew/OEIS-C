@@ -13,15 +13,16 @@
  *            row, then * compute T(r,k) by summing over all...
  * Range:     u8 n <= 10, u16 n <= 36, u32 n <= 136, u64 n <= 529,
  *            u128 n <= 2146, big any n
- * Helpers:   binom_n_k, pow3
+ * Validated: standard, pass, 70 terms through n = 9864 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow3.h"
-#include "../utils/binom_n_k.h"
-
 
 seq_t a(idx_t n)
 {
@@ -50,11 +51,11 @@ seq_t a(idx_t n)
     idx_t maxR = m > k ? m - k : 0;   /* R cannot exceed m‑k */
     for (idx_t R = 1; R <= maxR; ++R) {
         /* Composition of (k+R) into R parts: C(k+R‑1, R‑1) */
-        seq_t comp = binom_n_k(k + R - 1, R - 1);
+        seq_t comp = binomial(k + R - 1, R - 1);
 
         /* Positioning of the R runs among the compressed sequence:
            C(m‑k‑R+1, R) (no adjacent runs) */
-        seq_t pos = binom_n_k(m - k - R + 1, R);
+        seq_t pos = binomial(m - k - R + 1, R);
 
         /* Remaining non‑zero digits: 3^{m‑k‑R} */
         seq_t pow = pow3(m - k - R);

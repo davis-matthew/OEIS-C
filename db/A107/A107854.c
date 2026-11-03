@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(0)=0,a(1)=1,a(2)=1,a(3)=2,a(4)=3,a(5)=3,a(6)=5; 
    for n>=7: a(n)=a(n-2)+2*a(n-3)-a(n-4)+a(n-6)+2*a(n-7) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* cache of previously computed terms */
@@ -24,13 +26,13 @@ seq_t a(idx_t n) {
     if (n >= cache_size) {
         /* grow cache to hold up to index n */
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t*)malloc(sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return 0;  /* OOM, unlikely in tests */
 
         /* copy old values */
         for (idx_t i = 0; i < cache_size; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
 
         /* compute missing entries */

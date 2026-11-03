@@ -8,12 +8,14 @@
  *            whose binary representation contains no consecutive 1 bits
  * Range:     u8 n <= 33, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     if (cap == 0) {
         cap = 16;
-        fb = (seq_t*)malloc(cap * sizeof(seq_t));
+        fb = mem_new(seq_t, cap);
         if (!fb) abort();
     }
 
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
             if ((next_candidate & (next_candidate >> 1)) == 0) {
                 if (fb_len >= cap) {
                     cap <<= 1;
-                    fb = (seq_t*)realloc(fb, cap * sizeof(seq_t));
+                    fb = mem_resize(seq_t, fb, cap);
                     if (!fb) abort();
                 }
                 fb[fb_len++] = (seq_t)next_candidate;

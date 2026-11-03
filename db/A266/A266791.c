@@ -9,11 +9,13 @@
  * Formula:   a(n) = (-(-1)^n + 5627*2^(n-9) - 3)/6 for n>9
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 990 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static const seq_t first[10] = {

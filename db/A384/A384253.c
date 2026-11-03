@@ -7,7 +7,8 @@
  * Formula:   a(n) = 1 + ((1+(-1)^(n-1))*(n-1)!)/(n+1)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 14, u64 n <= 22, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Even terms equal 1; odd terms use factorial division. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (fact == NULL) {
         fact_cap = 1;
-        fact = (seq_t *)malloc(fact_cap * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_cap);
         if (fact == NULL) return (seq_t)0;   /* allocation failure */
         fact[0] = (seq_t)1;                  /* 0! = 1 */
     }
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* extend cache up to index (n-1) if needed */
     if ((size_t)n > fact_cap - 1) {          /* need factorial[n-1] */
         size_t new_cap = (size_t)n;           /* allocate n entries: 0..n-1 */
-        fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_cap);
         if (fact == NULL) return (seq_t)0;   /* allocation failure */
         for (size_t i = fact_cap; i < new_cap; ++i) {
             fact[i] = fact[i - 1] * (seq_t)i;/* i! = (i-1)! * i */

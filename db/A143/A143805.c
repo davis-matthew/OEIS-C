@@ -11,12 +11,14 @@
  *            supported
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static storage for memoization */
@@ -29,13 +31,13 @@ seq_t a(idx_t n) {
     /* Initialize for n = 0 on first call */
     if (computed_max == (idx_t)(-1)) {
         a_cap = 4;
-        a_vals = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
         a_vals[0] = 1;           /* a(0) = 1 */
         computed_max = 0;
 
         /* Row for n = 0: C(0,0)=1 */
         prev_len = 1;
-        prev_row = (seq_t*)malloc(sizeof(seq_t));
+        prev_row = mem_new(seq_t, 1);
         prev_row[0] = 1;
     }
 
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
     /* Extend the sequence up to n */
     for (idx_t m = computed_max + 1; m <= n; ++m) {
         /* Allocate current Stirling row of length m+1 */
-        seq_t *curr = (seq_t*)malloc((m + 1) * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, (m + 1));
         curr[0] = 0; /* C(m,0) = 0 for m >= 1 */
 
         /* Build the row using the recurrence */
@@ -70,14 +72,14 @@ seq_t a(idx_t n) {
         if (a_cap <= m) {
             size_t new_cap = (a_cap == 0 ? 4 : a_cap * 2);
             while (new_cap <= m) new_cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
             a_vals = tmp;
             a_cap = new_cap;
         }
         a_vals[m] = sum;
 
         /* Advance the Stirling row */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = curr;
         prev_len = m + 1;
     }

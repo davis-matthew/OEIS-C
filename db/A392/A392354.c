@@ -9,7 +9,8 @@
  *            from 1 to k in the Ulam spiral is not a prime number
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   is_prime_custom
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_custom.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(x)) for seq_t values */
 static inline seq_t isqrt_seq(seq_t x)
@@ -41,14 +43,14 @@ seq_t a(idx_t n)
     static seq_t next_k = 2;            /* next integer to test */
     while (cache_len < n) {
         seq_t k = next_k++;
-        if (!is_prime_custom(k)) {          /* k is composite */
+        if (!is_prime_seq(k)) {          /* k is composite */
             seq_t s = isqrt_seq(k);
             bool is_sq = (s * s == k);
             seq_t r = is_sq ? (s >> 1) : ((s + 1) >> 1); /* Chebyshev distance */
-            if (!is_prime_custom(r)) {      /* distance not prime */
+            if (!is_prime_seq(r)) {      /* distance not prime */
                 if (cache_len == cache_cap) {
                     size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-                    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                     if (!new_cache) {
                         /* allocation failure – return 0 */
                         return 0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   is_prime_big, mod_pow
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,64 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime_big.h"   /* bool is_prime_big(seq_t n); */
-#include "../utils/mod_pow.h"        /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+#include "../utils/is_prime_u64.h"
+
+/* Miller–Rabin primality test for seq_t (supports 8/16/32/64/128/ arbitrary-precision) */
+/* n fits in uint64_t (n >= 0 here) */
+static bool is_prime_big_fits_u64(seq_t v)
+{
+    if (sizeof(seq_t) <= 8) return true;
+    return !((seq_t)UINT64_MAX < v);
+}
+
+static bool is_prime_big(seq_t n) {
+    if (n < 2) return false;
+    /* exact in 64 bits when n fits: the seq_t products below overflow at
+       u64/i64 once n passes 2^32, and are slow under big */
+    if (is_prime_big_fits_u64(n)) return is_prime_u64((uint64_t)n);
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    /* write n-1 as d * 2^s with d odd */
+    seq_t d = n - 1;
+    unsigned s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    /* deterministic bases covering 128‑bit values */
+    static const int base_list[] = {2,3,5,7,11,13,17,19,23,29,31,37};
+    const int num_bases = sizeof(base_list)/sizeof(base_list[0]);
+
+    for (int i = 0; i < num_bases; i++) {
+        seq_t a = (seq_t)base_list[i];
+        if (a >= n) continue;
+
+        /* compute a^d mod n */
+        seq_t x = 1;
+        seq_t pow = a % n;
+        seq_t exp = d;
+        while (exp > 0) {
+            if (exp & 1) x = (x * pow) % n;
+            pow = (pow * pow) % n;
+            exp >>= 1;
+        }
+
+        if (x == 1 || x == n-1) continue;
+
+        bool cont = false;
+        for (unsigned r = 1; r < s; r++) {
+            x = (x * x) % n;
+            if (x == n-1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
 
 /* ---- cache of qualifying primes (answers) ---- */
 static seq_t *answers     = NULL;   /* array of qualifying primes */
@@ -32,14 +89,14 @@ static size_t answers_cnt = 0;      /* number of stored answers */
 static void append_answer(seq_t val)
 {
     if (answers_cnt == 0) {
-        answers = (seq_t*)malloc(8 * sizeof(seq_t));
+        answers = mem_new(seq_t, 8);
         if (!answers) exit(1);
         answers_cnt   = 0;
     } else if (answers_cnt >= 8) {
         /* grow on the fly; the initial size 8 is arbitrary and can be
          * expanded whenever the count is a multiple of the capacity */
         size_t new_cap = (answers_cnt < 16 ? 16 : answers_cnt << 1);
-        seq_t *tmp = (seq_t*)realloc(answers, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, answers, new_cap);
         if (!tmp) exit(1);
         answers = tmp;
     }
@@ -67,7 +124,7 @@ seq_t a(idx_t n)
 
             /* Compute r = 2^e mod m. The helper mod_pow works for arbitrary
                precision seq_t types and returns a seq_t. */
-            seq_t r = mod_pow((seq_t)2, e, m);
+            seq_t r = powmod((seq_t)2, e, m);
 
             /* If r is prime, the candidate satisfies the definition of the
                sequence, so store it. */

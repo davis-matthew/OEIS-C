@@ -7,9 +7,10 @@
  * Keywords:  nonn, changed
  * Formula:   a(n) = number of ordered pairs of divisors (d1,d2) of n with d1
  *            prime and d1 < d2
- * Range:     u8 n <= 4699, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, factor_u64, is_prime_small
+ * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
+ *            big any n
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   factor_u64, is_prime_seq, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,9 @@
 #include <stdint.h>
 
 /* Helper prototypes – provided by the build system */
-#include "../utils/factor_u64.h"          /* void factor_u64(uint64_t n, uint64_t* pr, uint64_t* ex, size_t* cnt); */
-#include "../utils/is_prime_small.h"     /* bool is_prime_small(seq_t n); */
-#include "../utils/divisor_count_u64.h"  /* uint64_t divisor_count_u64(uint64_t n); */
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/num_divisors.h"
 
 /* Recursive generation of all divisors from the prime factorisation. */
 static void
@@ -66,7 +67,7 @@ seq_t a(idx_t n)
     factor_u64((uint64_t)n, primes, exps, &pcnt);
 
     /* --- 2. Allocate space for all divisors ----------------------------- */
-    uint64_t dcnt_est = divisor_count_u64((uint64_t)n);
+    uint64_t dcnt_est = num_divisors((uint64_t)n);
     uint64_t *divs    = (uint64_t *)malloc(dcnt_est * sizeof(uint64_t));
     if (!divs) {
         /* allocation failure – return 0 as a safe default. */
@@ -83,7 +84,7 @@ seq_t a(idx_t n)
     /* --- 5. Count prime divisors with a larger divisor ------------------- */
     uint64_t count = 0;
     for (size_t i = 0; i < dcnt; ++i) {
-        if (!is_prime_small(divs[i])) {
+        if (!is_prime_seq(divs[i])) {
             continue;
         }
         /* All later divisors are larger because the list is sorted. */

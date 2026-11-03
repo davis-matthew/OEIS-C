@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9816 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Local comparator for qsort */
 static int cmp_seq_t(const void *p, const void *q)
@@ -42,7 +44,7 @@ static size_t cache_len = 0;
 static void build_cache(void)
 {
     size_t cap = 4096;
-    cache = (seq_t *)malloc(cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cap);
     if (!cache) return;           /* allocation failure → leave cache empty  */
 
     for (int i = 0; i <= 59; ++i) {          /* i <= 59 ensures room for j,k */
@@ -53,14 +55,14 @@ static void build_cache(void)
                            ((seq_t)1ULL << k);
                 if (cache_len == cap) {
                     cap <<= 1;
-                    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                     if (!cache) return;
                 }
                 cache[cache_len++] = val;
             }
         }
     }
-    qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
 }
 
 /* External function required by the harness */

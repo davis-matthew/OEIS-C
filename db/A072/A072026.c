@@ -9,15 +9,17 @@
  *            OEIS sequence A072026
  * Range:     u8 n <= 124, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_prime_small
+ * Validated: standard, pass, 82 terms through n = 9406 (2026-11-01)
+ * Helpers:   factor_u64, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
 
         if (p <= 3) {
             mapped = p;
-        } else if (is_prime_small((seq_t)(p + 2))) {
+        } else if (is_prime_seq((seq_t)(p + 2))) {
             mapped = p + 2;
-        } else if (is_prime_small((seq_t)(p - 2))) {
+        } else if (is_prime_seq((seq_t)(p - 2))) {
             mapped = p - 2;
         } else {
             mapped = p;

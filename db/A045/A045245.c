@@ -9,13 +9,29 @@
  *            exactly three 1's and exactly one 3
  * Range:     u8 n <= 3, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_three_ones_and_one_three
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/has_three_ones_and_one_three.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a number satisfies the base‑5 condition */
+static inline int has_three_ones_and_one_three(seq_t val)
+{
+    size_t count1 = 0, count3 = 0;
+    while (val > (seq_t)0) {
+        seq_t d = val % (seq_t)5;
+        if (d == (seq_t)1)
+            ++count1;
+        else if (d == (seq_t)3)
+            ++count3;
+        val /= (seq_t)5;
+    }
+    return count1 == 3 && count3 == 1;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -36,7 +52,7 @@ seq_t a(idx_t n)
             /* Grow the array if necessary. */
             if (term_len == term_cap) {
                 size_t new_cap = term_cap ? term_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(term, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, term, new_cap);
                 term = tmp;
                 term_cap = new_cap;
             }

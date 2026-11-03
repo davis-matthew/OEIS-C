@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (k+1)*(k+2)^(n-k)/(n-k)!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 405 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"     /* seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdint.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Factorial table and a cache for sequence values.
    The tables are expanded lazily to the maximum n requested. */
@@ -30,7 +33,7 @@ static void ensure_factorial(idx_t n)
 {
     if (n + 1 <= fact_size) return;
     idx_t new_size = n + 1;
-    seq_t *new_fact = (seq_t*)realloc(fact_table, new_size * sizeof(seq_t));
+    seq_t *new_fact = mem_resize(seq_t, fact_table, new_size);
     if (!new_fact) { abort(); }          /* allocation failed */
     fact_table = new_fact;
     if (fact_size == 0) {
@@ -48,7 +51,7 @@ static void ensure_cache(idx_t n)
 {
     if (n + 1 <= cache_size) return;
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t*)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_size);
     if (!new_cache) { abort(); }
     a_cache = new_cache;
 
@@ -62,7 +65,7 @@ static void ensure_cache(idx_t n)
             /* term = ratio * (k+1) * (k+2)^(i-k) */
             seq_t term = ratio;
             term *= (seq_t)(k + 1);
-            term *= big_pow((seq_t)(k + 2), (seq_t)(i - k));
+            term *= ipow((seq_t)(k + 2), (seq_t)(i - k));
             sum += term;
         }
         a_cache[i] = sum;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 5415, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   init_base_terms, mod_pow10
+ * Validated: standard, pass, 70 terms through n = 9891 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,32 @@
 
 /* minimal includes – idx_t and seq_t are supplied externally */
 #include <stdint.h>
-#include "../utils/init_base_terms.h"
-#include "../utils/mod_pow10.h"
+
+/* modular exponentiation – specialized for exponent 10 */
+static seq_t mod_pow10(seq_t base, seq_t mod)
+{
+    seq_t result = (seq_t)1;
+    /* multiply ten times – works for any integer seq_t, even big integers */
+    for (int i = 0; i < 10; ++i) {
+        result = (result * base) % mod;
+    }
+    return result;
+}
+
+/* compute the 10 base residues once */
+static void init_base_terms(seq_t *base)
+{
+    seq_t mod = (seq_t)121;
+    int   count = 0;
+
+    for (idx_t k = 1; k < (idx_t)121; ++k) {
+        seq_t km = (seq_t)k % mod;          /* k modulo 121 as seq_t */
+        if (mod_pow10(km, mod) == (seq_t)1) {
+            base[count++] = (seq_t)k;
+            if (count == 10) break;
+        }
+    }
+}
 
 /* public function ---------------------------------------------------------- */
 seq_t a(idx_t n)

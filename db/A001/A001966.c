@@ -8,14 +8,38 @@
  *            + floor((m + floor(sqrt(5*m^2)))/2)
  * Range:     u8 n <= 48, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a001966_isqrt_seq, a001966_isqrt_u64
+ * Validated: standard, pass, 72 terms through n = 9355 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001966_isqrt_seq.h"
-#include "../utils/a001966_isqrt_u64.h"
+
+static seq_t a001966_isqrt_seq(seq_t x, seq_t start)
+{
+    seq_t r = start, y;
+    if (r == 0) return r;
+    y = (r + x / r) / 2;
+    while (y < r) {
+        r = y;
+        y = (r + x / r) / 2;
+    }
+    return r;
+}
+
+static uint64_t a001966_isqrt_u64(uint64_t x, uint64_t start)
+{
+    /* Newton from an upper bound start >= sqrt(x) */
+    uint64_t r = start, y;
+    if (r == 0) return 0;
+    y = (r + x / r) / 2;
+    while (y < r) {
+        r = y;
+        y = (r + x / r) / 2;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {

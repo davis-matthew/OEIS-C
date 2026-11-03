@@ -8,12 +8,15 @@
  *            2*n^2)
  * Range:     u8 n <= 45, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -21,8 +24,8 @@ seq_t a(idx_t n)
     idx_t n2      = n * n;           /* n^2                  */
     idx_t two_n2  = n2 * (idx_t)2;   /* 2*n^2                */
 
-    seq_t pi_hi = compute_pi(two_n2); /* pi(2*n^2) */
-    seq_t pi_lo = compute_pi(n2);     /* pi(n^2)   */
+    seq_t pi_hi = prime_pi(two_n2); /* pi(2*n^2) */
+    seq_t pi_lo = prime_pi(n2);     /* pi(n^2)   */
 
     return pi_hi - pi_lo;
 }

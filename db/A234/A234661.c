@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 21, u128 n <= 46,
  *            big any n
- * Helpers:   _row_compatible
+ * Validated: standard, pass, 33 terms through n = 181 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,22 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/_row_compatible.h"
+
+/* Row compatibility test ---------------------------------------- */
+static bool _row_compatible(const int *r1, const int *r2)
+{
+    int d;
+    d = r1[0] + r2[1] - (r1[1] + r2[0]);
+    if (d < 0) d = -d;
+    if (d != 4) return false;
+    d = r1[1] + r2[2] - (r1[2] + r2[1]);
+    if (d < 0) d = -d;
+    if (d != 4) return false;
+    d = r1[2] + r2[3] - (r1[3] + r2[2]);
+    if (d < 0) d = -d;
+    if (d != 4) return false;
+    return true;
+}
 
 /* Parameters ----------------------------------------------------- */
 #define ROWS 2401          /* 7⁴ possible rows */

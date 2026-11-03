@@ -9,7 +9,8 @@
  *            form 2^p · (2k+1) where p is prime and k ≥ 0
  * Range:     u8 n <= 53, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 73 terms through n = 8959 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,10 +38,10 @@ seq_t a(idx_t n)
         /* Grow the cache if needed. */
         if (cache_cap == 0) {
             cache_cap = 8;
-            cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+            cache = mem_new(seq_t, cache_cap);
         } else if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* Check the next integer. */

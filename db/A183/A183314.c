@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 59, u128 n <= 119,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Recurrence: a(n) = a(n-1) + 3*a(n-2) - a(n-3) - a(n-4)  for n>=5
  * with initial values: a(1)=3, a(2)=6, a(3)=13, a(4)=27 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;      /* 1‑based cache, memo[0] unused */
 static idx_t memo_size  = 0;    /* allocated size of memo (number of slots) */
@@ -31,7 +33,7 @@ static void ensure_idx(idx_t n)
     if (memo_size == 0) memo_size = 16;
     while (memo_size <= n) memo_size <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(memo, memo_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, memo, memo_size);
     memo = tmp;  /* realloc may move the block */
 
     /* Compute missing terms. */

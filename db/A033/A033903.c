@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 17, u32 n <= 50, u64 n <= 356,
  *            u128 n <= 1000, big any n
- * Helpers:   sort_ascending_digits
+ * Validated: standard, pass, 49 terms through n = 970 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,27 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/sort_ascending_digits.h"
+
+static seq_t sort_ascending_digits(seq_t x)
+{
+    unsigned int cnt[10] = {0};
+
+    /* Count each decimal digit */
+    while (x > 0)
+    {
+        unsigned int d = (unsigned int)(x % 10);
+        ++cnt[d];
+        x /= 10;
+    }
+
+    /* Reconstruct the number from the smallest digit to the largest */
+    seq_t res = 0;
+    for (int d = 0; d <= 9; ++d)
+        for (unsigned int k = 0; k < cnt[d]; ++k)
+            res = res * 10 + d;
+
+    return res;
+}
 
 seq_t a(idx_t n)
 {

@@ -13,13 +13,15 @@
  *            a(n)=T(r, n‑r(r+1)/2)
  * Range:     u8 n <= 23, u16 n <= 49, u32 n <= 101, u64 n <= 247,
  *            u128 n <= 560, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 547 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise the first row on first call */
     if (!tri) {
         tri = (seq_t**)malloc(sizeof(seq_t*));
-        tri[0] = (seq_t*)malloc(sizeof(seq_t));   /* row 0 has length 1   */
+        tri[0] = mem_new(seq_t, 1);   /* row 0 has length 1   */
         tri[0][0] = (seq_t)1;
         rows = 0;
         cum  = 1;                       /* one element (row 0)   */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         tri = (seq_t**)realloc(tri,
                                 sizeof(seq_t*) * (r + 1));
         /* Allocate new row of length r+1 */
-        tri[r] = (seq_t*)malloc(sizeof(seq_t) * (r + 1));
+        tri[r] = mem_new(seq_t, (r + 1));
         tri[r][0] = (seq_t)1;                   /* first element of row r */
 
         seq_t *prev = tri[rows]; /* pointer to previous row */

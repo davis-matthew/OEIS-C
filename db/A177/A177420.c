@@ -13,6 +13,7 @@
  *            a(9)=12683673552, a(10)=51137150880
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 8, u64 n <= 24, u128 n <= 56,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 968 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

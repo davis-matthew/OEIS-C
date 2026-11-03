@@ -9,7 +9,8 @@
  *            + (-1)^b(n-1)) * a(n-1) / 2. Initial values: a(0) = b(0) = 0
  * Range:     u8 n <= 25, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Ensure that the array *arr has room for indices up to |idx|. */
 static void ensure_seq_cap(idx_t idx, seq_t **arr, size_t *cap)
@@ -24,7 +26,7 @@ static void ensure_seq_cap(idx_t idx, seq_t **arr, size_t *cap)
     if ((size_t)idx >= *cap) {
         size_t new_cap = (*cap) ? (*cap) << 1 : 1;
         while ((size_t)idx >= new_cap) new_cap <<= 1;
-        *arr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -57,8 +59,8 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (max_n == (idx_t)-1) {
         a_cap = b_cap = 1;
-        a_seq = (seq_t*)malloc(a_cap * sizeof(seq_t));
-        b_seq = (seq_t*)malloc(b_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
+        b_seq = mem_new(seq_t, b_cap);
         a_seq[0] = 0;
         b_seq[0] = 0;
 

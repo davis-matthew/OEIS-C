@@ -11,13 +11,15 @@
  *            a(6)=31630, a(7)=74324, a(8)=188438, a(9)=502364
  * Range:     u8 none, u16 n <= 6, u32 n <= 17, u64 n <= 37, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of sequence A253450.  n is 1‑based. */
 seq_t a(idx_t n)
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
     /* Allocate larger array.  Copy old values, free old memory. */
     size_t old_size = cache_size;
     size_t new_size = (size_t)n;
-    seq_t *new_cache = (seq_t*)calloc(new_size, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) return 0;  /* allocation failed (unlikely) */
 
     if (cache) {
-        memcpy(new_cache, cache, old_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, old_size * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_size = new_size;

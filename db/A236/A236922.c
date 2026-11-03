@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 8084, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 104 terms through n = 9982 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* Cached array of r₂ values */
 static seq_t *r2_cache = NULL;
@@ -37,11 +39,11 @@ static void recompute_r2(idx_t limit)
 {
     /* allocate new array */
     size_t len = (size_t)(limit + 1);
-    seq_t *tmp = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, len);
     if (!tmp) return; /* allocation failed; caller will receive 0 */
 
     /* compute all a^2 + b^2 up to 'limit' */
-    int M = (int)_floor_isqrt_u64(limit);   /* <= sqrt(limit) */
+    int M = (int)isqrt(limit);   /* <= sqrt(limit) */
     for (int a = -M; a <= M; ++a) {
         int a2 = a * a;
         for (int b = -M; b <= M; ++b) {
@@ -53,7 +55,7 @@ static void recompute_r2(idx_t limit)
     }
 
     /* replace old cache */
-    free(r2_cache);
+    mem_free(r2_cache);
     r2_cache = tmp;
     r2_cache_limit = limit + 1; /* one past the last valid index */
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,15 +19,16 @@
    the generating function relation for sin and cos. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
 
     /* Allocate temporary arrays */
-    seq_t *fact = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *D    = (seq_t*)malloc((n + 2) * sizeof(seq_t));   /* up to n+1 */
-    seq_t *A    = (seq_t*)malloc((n + 1) * sizeof(seq_t));   /* a[0..n]   */
-    seq_t *B    = (seq_t*)malloc((n + 1) * sizeof(seq_t));   /* sin coefficients*/
+    seq_t *fact = mem_new(seq_t, (n + 1));
+    seq_t *D    = mem_new(seq_t, (n + 2));   /* up to n+1 */
+    seq_t *A    = mem_new(seq_t, (n + 1));   /* a[0..n]   */
+    seq_t *B    = mem_new(seq_t, (n + 1));   /* sin coefficients*/
 
     /* factorials */
     fact[0] = 1;
@@ -85,10 +87,10 @@ seq_t a(idx_t n) {
     seq_t result = A[n];
 
     /* Free allocated memory */
-    free(fact);
-    free(D);
-    free(A);
-    free(B);
+    mem_free(fact);
+    mem_free(D);
+    mem_free(A);
+    mem_free(B);
 
     return result;
 }

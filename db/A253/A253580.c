@@ -8,8 +8,9 @@
  * Formula:   a(n) is obtained by locating n in the triangular array. * Let r
  *            = ⌊√n⌋ and k = n – r². Then * a(n) = 2*(r – k) – 1 if k < r, *
  *            a(n) = 0 if k == r, * a(n) = 2*(k – r) if k > r
- * Range:     u8 n <= 9931, u16 n <= 9931, u32 n <= 9931, u64 n <= 9931,
- *            u128 n <= 9931, big any n
+ * Range:     u8 n <= 10200, u16 n <= 10200, u32 n <= 10200, u64 n <= 10200,
+ *            u128 n <= 10200, big any n
+ * Validated: standard, pass, 97 terms through n = 9931 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

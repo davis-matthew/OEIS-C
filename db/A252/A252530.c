@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 24, u64 n <= 56, u128 n <= 120,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache – indices 1…last_computed contain valid values. */
 static seq_t *cache = NULL;
@@ -31,7 +33,7 @@ static void init_cache(void)
 {
     /* Allocate room for indices 0…32 (enough for the first few terms). */
     cache_size = 32;
-    cache = (seq_t *)calloc((size_t)cache_size, sizeof(seq_t));
+    cache = mem_new(seq_t, (size_t)cache_size);
     if (!cache) abort();
 
     cache[1] = (seq_t)932;
@@ -65,7 +67,7 @@ static void ensure_cache_up_to(idx_t n)
             }
             new_size <<= 1;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_size);
         if (!tmp) abort();
         cache = tmp;
         cache_size = new_size;

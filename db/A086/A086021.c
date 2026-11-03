@@ -8,7 +8,8 @@
  *            + 81*C(n-1,4) + 40*C(n-1,5) + 8*C(n-1,6))
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 18, u64 n <= 180, u128 n <= 5000,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 42 terms through n = 4706 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 
 /* Ensure the provided binomial function is accessible */
-#include "../utils/binom.h"   /* Assume binom(idx_t a, idx_t b) is defined here */
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,15 +28,15 @@ seq_t a(idx_t n)
 
     /* Sum of weighted binomials */
     seq_t sum = 1;                                 /* 1 = C(n-1,0) */
-    sum += (seq_t)12 * binom(n_minus_1, 1);
-    sum += (seq_t)46 * binom(n_minus_1, 2);
-    sum += (seq_t)84 * binom(n_minus_1, 3);
-    sum += (seq_t)81 * binom(n_minus_1, 4);
-    sum += (seq_t)40 * binom(n_minus_1, 5);
-    sum += (seq_t)8  * binom(n_minus_1, 6);
+    sum += (seq_t)12 * binomial(n_minus_1, 1);
+    sum += (seq_t)46 * binomial(n_minus_1, 2);
+    sum += (seq_t)84 * binomial(n_minus_1, 3);
+    sum += (seq_t)81 * binomial(n_minus_1, 4);
+    sum += (seq_t)40 * binomial(n_minus_1, 5);
+    sum += (seq_t)8  * binomial(n_minus_1, 6);
 
     /* Multiplying by C(n+3,4) */
-    seq_t coeff = binom(n + 3, 4);
+    seq_t coeff = binomial(n + 3, 4);
 
     return coeff * sum;
 }

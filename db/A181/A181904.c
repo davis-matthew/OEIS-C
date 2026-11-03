@@ -9,13 +9,15 @@
  *            computed by enumerating the divisors of n
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   is_prime, pow_uint
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   ipow_u64_idx, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include <stdbool.h>
+#include "../utils/ipow_u64_idx.h"
 #include "../utils/is_prime.h"
 
 static seq_t _clausen_denominator(idx_t n)
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     seq_t denom = _clausen_denominator(n);
 
     /* numerator: 4^n - 1 */
-    seq_t num = pow_uint(4, n);
+    seq_t num = ipow_u64_idx(4, n);
     num -= 1;
 
     /* result */

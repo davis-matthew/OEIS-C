@@ -12,7 +12,8 @@
  *            rows are processed, where M is the number of 7‑bi...
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 27, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Configuration constants (do not modify)                           */
@@ -135,7 +137,7 @@ seq_t a(idx_t n)
 
     for (idx_t step = cached_max + 1; step <= n; ++step) {
         /*   a) clear current DP array */
-        memset(dp_cur, 0, stateCount * sizeof(seq_t));
+        mem_set(dp_cur, 0, stateCount * sizeof(seq_t));
 
         /*   b) transition from every (i,j) pair to all allowed k   */
         for (int i = 0; i < M; ++i) {
@@ -160,7 +162,7 @@ seq_t a(idx_t n)
         cache[step] = total;
 
         /*   d) make dp_cur the new dp_prev for the next iteration   */
-        memcpy(dp_prev, dp_cur, stateCount * sizeof(seq_t));
+        mem_copy(dp_prev, dp_cur, stateCount * sizeof(seq_t));
     }
 
     cached_max = n;

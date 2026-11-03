@@ -9,7 +9,8 @@
  *            floor(sqrt(a(n-3)*a(n-4))) + … , a(0)=1, a(1)=1
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   floor_sqrt, seq_mul
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,32 @@
 #include <stdint.h>   /* uint64_t etc.  (idx_t comes from the build) */
 #include <stdbool.h>  /* bool */
 
-#include "../utils/floor_sqrt.h"   /* floor_sqrt(seq_t)          */
-#include "../utils/seq_mul.h"      /* seq_mul(seq_t,seq_t)      */
+#include <string.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* return floor(sqrt(a*b)) for any seq_t */
 static inline seq_t sqrt_prod(seq_t a, seq_t b)
@@ -55,7 +80,7 @@ seq_t a(idx_t n)
      *     seq_t* so the code compiles both as C and C++.
      * ---------------------------------------------------------------- */
     size_t new_len = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache)                     /* allocation failure */
         abort();
     cache = new_cache;

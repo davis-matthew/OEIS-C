@@ -12,26 +12,31 @@
  *            by rows: 1; 2,1; 4,2,3; 8,4,6,9; …
  * Range:     u8 n <= 32, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   offset_row, pow2, pow3
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   pow2, pow3, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/offset_row.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <math.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
+#include "../utils/triangular.h"
 
 static inline idx_t find_row(idx_t n)
 {
     idx_t low = 0;
     idx_t high = 1;
     /* Exponentially increase high until it passes n */
-    while (offset_row(high) <= n)
+    while (triangular(high) <= n)
         high <<= 1;
     /* Binary search between low (<= n) and high (> n) */
     while (low < high) {
         idx_t mid = low + (high - low + 1) / 2;
-        if (offset_row(mid) <= n)
+        if (triangular(mid) <= n)
             low = mid;
         else
             high = mid - 1;
@@ -42,7 +47,7 @@ static inline idx_t find_row(idx_t n)
 seq_t a(idx_t n)
 {
     idx_t row = find_row(n);
-    idx_t col = n - offset_row(row);
+    idx_t col = n - triangular(row);
 
     seq_t pow2_val = pow2(row - col);            /* 2^(row-col)    */
     if (col == 0)

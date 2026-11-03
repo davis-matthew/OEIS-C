@@ -6,8 +6,9 @@
  * Keywords:  nonn, cons, easy
  * Formula:   a(n) = 1 if n equals the product of the first k Fibonacci
  *            numbers for some k (F(1)*F(2)*…*F(k)), otherwise a(n) = 0
- * Range:     u8 n <= 5274, u16 n <= 9356, u32 n <= 9356, u64 n <= 9356,
- *            u128 n <= 9356, big any n
+ * Range:     u8 n <= 5274, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 103 terms through n = 9356 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

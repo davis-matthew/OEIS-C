@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_cube_root
+ * Validated: standard, pass, 91 terms through n = 917 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,28 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_cube_root.h"   /* floor_cube_root(seq_t) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *missing_vals = NULL;   /* 1‑based array of missing numbers */
 static size_t missing_count = 0;     /* count of stored missing numbers */
@@ -59,7 +81,7 @@ static void ensure_capacity(idx_t n)
         }
 
         /* Allocate space for the missing numbers up to 'limit'. */
-        seq_t *new_missing = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+        seq_t *new_missing = mem_new(seq_t, (limit + 1));
         if (!new_missing)
             abort();
 
@@ -71,7 +93,7 @@ static void ensure_capacity(idx_t n)
 
         /* Replace the old data. */
         free(repr);
-        free(missing_vals);
+        mem_free(missing_vals);
         repr     = new_repr;
         repr_limit = limit;
         missing_vals = new_missing;

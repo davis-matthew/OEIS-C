@@ -7,15 +7,24 @@
  * Formula:   a(n) = largest n-digit number coprime to n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   mod_pow, pow10_idx
+ * Validated: standard, pass, 34 terms through n = 894 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10_idx.h"
-#include "../utils/mod_pow.h"
+#include <stddef.h>
+#include "../utils/powmod_u64.h"
+
+static seq_t pow10_idx(idx_t exp)
+{
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= 10;
+    return res;
+}
 
 static const uint64_t SMALL_PRIMES[] = {
     2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
@@ -50,7 +59,7 @@ seq_t a(idx_t n)
     uint8_t residues[20];
     for (size_t i = 0; i < prime_cnt; ++i) {
         uint64_t p = primes[i];
-        uint64_t mod10n = mod_pow(10, (uint64_t)n, p);
+        uint64_t mod10n = powmod_u64(10, (uint64_t)n, p);
         residues[i] = (uint8_t)((mod10n + p - 1) % p);  /* x0 mod p */
     }
 

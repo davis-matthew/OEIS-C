@@ -8,14 +8,16 @@
  *            n and the next prime‑power after n)
  * Range:     u8 n <= 12, u16 n <= 30, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   next_prime, pow_uint
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   ipow_u64_idx, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_u64_idx.h"
 #include "../utils/next_prime.h"
-#include "../utils/pow_uint.h"
 
 /* Return ⌈n^(1/e)⌉ for n ≥ 1 and e ≥ 2; guaranteed that result^e > n. */
 static uint64_t ceil_root_uint64(idx_t n, int e)
@@ -29,7 +31,7 @@ static uint64_t ceil_root_uint64(idx_t n, int e)
 
     while (lo < hi) {
         uint64_t mid = lo + (hi - lo) / 2;
-        seq_t pow_mid = pow_uint(mid, (idx_t)e);
+        seq_t pow_mid = ipow_u64_idx(mid, (idx_t)e);
         if (pow_mid > N)
             hi = mid;
         else
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     for (int e = 2; ; ++e) {
         /* If even the minimum possible power 2^e exceeds the current best
            gap, further exponents cannot improve the result. */
-        seq_t pow2e = pow_uint(2, (idx_t)e);
+        seq_t pow2e = ipow_u64_idx(2, (idx_t)e);
         if (pow2e > N + best)
             break;
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
            ≥ x (expanding the implementation to use next_prime(b-1) if
            the utility returns >b). */
         uint64_t p = next_prime(base_min - 1);
-        seq_t val = pow_uint(p, (idx_t)e);
+        seq_t val = ipow_u64_idx(p, (idx_t)e);
         seq_t diff = val - N;
 
         if (diff < best) {

@@ -5,180 +5,108 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 33, u16 n <= 4325, u32 n <= 9806, u64 n <= 9806,
- *            u128 n <= 9806, big any n
- * Helpers:   factorize, hm_hash
+ * Range:     u8 n <= 33, u16 n <= 4325, u32 n <= 50071, u64 n <= 50071,
+ *            u128 n <= 50071, big any n
+ * Validated: standard, pass, 83 terms through n = 9806 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* Sequence A334105: Numbers m for which A329697(m) = 5.
-   The function scans integers in increasing order and keeps those
-   that can be reduced to a power of two in exactly five steps by the
-   operation m := m / p * (p – 1), where p is an odd prime divisor of m.
-   The result is returned as the nth such integer (offset 1). */
+/* A329697 is completely additive with f(2) = 0 and f(p) = 1 + f(p - 1) for
+ * odd primes p. So up to a bound L, level by level for v = 1..5:
+ *   the primes with f = v are the primes 2^j o + 1 (j >= 1) for the odd o
+ *   with f(o) = v - 1, and
+ *   the odd numbers with f = v are the products of such primes (with
+ *   repetition) whose f's add up to v;
+ * and the terms are the 2^j o <= L with o odd, f(o) = 5, sorted. L doubles
+ * until there are n. (The original factored every m in turn, with a hash
+ * table of step counts; the terms pass 2e9, so it timed out.) */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
-#include "../utils/factorize.h"
-#include "../utils/hm_hash.h"
+typedef struct { uint64_t *v; size_t n, cap; } list;
 
-/* --------------------------------------------------------------------- */
-/*  Hash table for memoising minimal step counts for 64‑bit numbers      */
-/* --------------------------------------------------------------------- */
-
-#define HM_INITIAL_CAP (1ULL << 16)   /* 65536 entries, power of two */
-#define HM_LOAD_FACTOR 0.75f
-
-struct hm_entry {
-    uint64_t key;  /* 0 is reserved for an empty slot */
-    int      value;
-};
-
-static struct hm_entry *hm = NULL;  /* hash table array         */
-static size_t            hm_cap = 0;/* current capacity         */
-static size_t            hm_used = 0;/* number of occupied cells */
-
-static void hm_init(void)
+static void push(list *l, uint64_t x)
 {
-    if (hm)
-        return;
-    hm_cap = HM_INITIAL_CAP;
-    hm = (struct hm_entry *)calloc(hm_cap, sizeof(struct hm_entry));
-    if (!hm)
-        abort(); /* memory exhaustion – halt */
-    hm_used = 0;
-}
-
-/* Forward prototypes so that hm_rehash can call them. */
-static void hm_put(uint64_t key, int value);
-static int  hm_get(uint64_t key, int *out);
-
-static void hm_rehash(void)
-{
-    size_t old_cap = hm_cap;
-    struct hm_entry *old = hm;
-    hm_cap <<= 1;                 /* double capacity */
-    hm = (struct hm_entry *)calloc(hm_cap, sizeof(struct hm_entry));
-    if (!hm)
-        abort();
-    hm_used = 0;
-
-    for (size_t i = 0; i < old_cap; ++i) {
-        if (old[i].key)
-            hm_put(old[i].key, old[i].value);
+    if (l->n == l->cap) {
+        l->cap = l->cap ? 2 * l->cap : 64;
+        uint64_t *t = (uint64_t *)realloc(l->v, l->cap * sizeof *t);
+        if (!t) abort();
+        l->v = t;
     }
-    free(old);
+    l->v[l->n++] = x;
 }
 
-static void hm_put(uint64_t key, int value)
+static int cmp_u64(const void *x, const void *y)
 {
-    hm_init();
-    if ((float)(hm_used + 1) / (float)hm_cap > HM_LOAD_FACTOR)
-        hm_rehash();
+    uint64_t a = *(const uint64_t *)x, b = *(const uint64_t *)y;
+    return (a > b) - (a < b);
+}
 
-    uint64_t h = hm_hash(key);
-    size_t idx = h & (hm_cap - 1);
+static uint64_t PR[4096];                     /* the primes with f <= 5, ascending */
+static int PF[4096], npr;                     /* and their f */
+static uint64_t lim;
 
-    while (hm[idx].key && hm[idx].key != key) {
-        idx = (idx + 1) & (hm_cap - 1);
+static void products(int start, int budget, uint64_t prod, list *out)
+{
+    if (budget == 0) { push(out, prod); return; }
+    for (int i = start; i < npr; ++i) {
+        if (PR[i] > lim / prod) break;        /* ascending, so all further are too big */
+        if (PF[i] <= budget) products(i, budget - PF[i], prod * PR[i], out);
     }
-
-    if (!hm[idx].key)
-        ++hm_used;
-    hm[idx].key   = key;
-    hm[idx].value = value;
 }
 
-static int hm_get(uint64_t key, int *out)
+static seq_t *T = NULL;
+static size_t cnt = 0;
+static uint64_t L = 0;
+
+static void build(uint64_t bound)
 {
-    hm_init();
-    uint64_t h = hm_hash(key);
-    size_t idx = h & (hm_cap - 1);
-
-    while (hm[idx].key) {
-        if (hm[idx].key == key) {
-            *out = hm[idx].value;
-            return 1;
-        }
-        idx = (idx + 1) & (hm_cap - 1);
-    }
-    return 0;
-}
-
-/* --------------------------------------------------------------------- */
-/*  Minimal step count for a single number                               */
-/* --------------------------------------------------------------------- */
-
-static int steps_for_m(uint64_t m)
-{
-    if (m <= 1)
-        return 0;                  /* 1 is already a power of two */
-
-    /* strip all factors of two */
-    while ((m & 1ULL) == 0)
-        m >>= 1;
-    if (m <= 1)
-        return 0;
-
-    int cached;
-    if (hm_get(m, &cached))
-        return cached;
-
-    /* factorisation into distinct primes */
-    uint64_t primes[64];
-    int     exps[64];
-    size_t  pcnt = factorize(m, primes, exps);   /* returns number of distinct primes */
-
-    int best = INT32_MAX; /* steps count is non‑negative and small */
-    for (size_t i = 0; i < pcnt; ++i) {
-        uint64_t p = primes[i];
-        uint64_t next = (m / p) * (p - 1);
-        int r = 1 + steps_for_m(next);
-        if (r < best)
-            best = r;
-        if (best == 2)          /* cannot be better than 2 */
-            break;
-    }
-
-    hm_put(m, best);
-    return best;
-}
-
-/* --------------------------------------------------------------------- */
-/*  Sequence cache: list of terms with exactly five steps                */
-/* --------------------------------------------------------------------- */
-
-static seq_t *seq_buf = NULL;
-static size_t seq_cap = 0;
-static size_t seq_len = 0;
-static uint64_t last_checked = 1; /* last m that was examined */
-
-static void extend_seq(size_t n)
-{
-    while (seq_len < n) {
-        ++last_checked;
-        if (steps_for_m(last_checked) == 5) {
-            if (seq_len == seq_cap) {
-                seq_cap = (seq_cap == 0 ? 16 : seq_cap << 1);
-                seq_buf = (seq_t *)realloc(seq_buf, seq_cap * sizeof(seq_t));
-                if (!seq_buf)
-                    abort();
+    lim = bound;
+    list odd[6] = {{0}};
+    push(&odd[0], 1);
+    npr = 0;
+    for (int v = 1; v <= 5; ++v) {
+        for (size_t i = 0; i < odd[v - 1].n; ++i)
+            for (uint64_t x = 2 * odd[v - 1].v[i]; x < lim; x *= 2) {
+                if (is_prime_u64(x + 1)) {
+                    if (npr == 4096) abort();
+                    PR[npr] = x + 1;
+                    PF[npr++] = v;
+                }
+                if (x > lim / 2) break;
             }
-            seq_buf[seq_len++] = (seq_t)last_checked;
-        }
+        for (int i = 1; i < npr; ++i)         /* keep PR ascending (with PF) */
+            for (int j = i; j > 0 && PR[j - 1] > PR[j]; --j) {
+                uint64_t t = PR[j]; PR[j] = PR[j - 1]; PR[j - 1] = t;
+                int f = PF[j]; PF[j] = PF[j - 1]; PF[j - 1] = f;
+            }
+        products(0, v, 1, &odd[v]);
     }
+    list t = {0};
+    for (size_t i = 0; i < odd[5].n; ++i)
+        for (uint64_t m = odd[5].v[i]; m <= lim; m *= 2) {
+            push(&t, m);
+            if (m > lim / 2) break;
+        }
+    qsort(t.v, t.n, sizeof *t.v, cmp_u64);
+    mem_free(T);
+    T = mem_new(seq_t, t.n ? t.n : 1);
+    if (!T) abort();
+    for (size_t i = 0; i < t.n; ++i) T[i] = (seq_t)t.v[i];
+    cnt = t.n;
+    for (int v = 0; v <= 5; ++v) free(odd[v].v);
+    free(t.v);
+    L = bound;
 }
-
-/* --------------------------------------------------------------------- */
-/*  Public entry point                                                   */
-/* --------------------------------------------------------------------- */
 
 seq_t a(idx_t n)
 {
-    if (n == 0)
-        return 0;                 /* safety for offset 1 */
-    extend_seq((size_t)n);
-    return seq_buf[n - 1];
+    if (n == 0) return (seq_t)0;
+    while (cnt < (size_t)n) build(L ? 2 * L : (uint64_t)1 << 20);
+    return T[n - 1];
 }

@@ -12,15 +12,17 @@
  *            b(k) is the lexicographically earliest positive integer sequence
  *            with b(k) ≠ b(k+1) and b(k) ≠ b(k+2) and such that the complex
  *            numbers f(n) are all distinct
- * Range:     i8 n <= 9804, i16 n <= 9804, i32 n <= 9804, i64 n <= 9804,
- *            i128 n <= 9804, big any n
- * Helpers:   none
+ * Range:     i8 n <= 33265, i16 n <= 59999, i32 n <= 59999, i64 n <= 59999,
+ *            i128 n <= 59999, big any n
+ * Validated: standard, pass, 90 terms through n = 9804 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t real;
@@ -38,8 +40,8 @@ static void ensure_capacity(idx_t need)
     if (cap <= (size_t)need) {
         size_t newcap = cap ? cap * 2 : 128;
         while (newcap <= (size_t)need) newcap <<= 1;
-        point_t *newf = (point_t *)realloc(f_vals, newcap * sizeof(point_t));
-        seq_t  *newb = (seq_t  *)realloc(b_vals, newcap * sizeof(seq_t));
+        point_t *newf = mem_resize(point_t, f_vals, newcap);
+        seq_t  *newb = mem_resize(seq_t, b_vals, newcap);
         if (!newf || !newb) exit(1);  /* allocation failed */
         f_vals = newf;
         b_vals = newb;

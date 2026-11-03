@@ -10,14 +10,21 @@
  *            > 0, E(m,k) = E(m,k-1) + E(m-1,m-k) (central terms of A008280)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 19,
  *            big any n
- * Helpers:   alloc_zero
+ * Validated: standard, pass, 33 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *cur = NULL;   /* current row m, entries 0..m */
 static seq_t *nxt = NULL;
@@ -30,7 +37,7 @@ static idx_t memo_len = 0;
 static seq_t *grow_buf(seq_t *old, idx_t oldlen, idx_t newcap) {
     seq_t *p = alloc_zero(newcap);
     for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
-    if (old) free(old);
+    if (old) mem_free(old);
     return p;
 }
 
@@ -53,7 +60,7 @@ seq_t a(idx_t n) {
         idx_t nc = row_cap * 2;
         if (nc < need_row) nc = need_row;
         cur = grow_buf(cur, m_cur + 1, nc);
-        free(nxt);
+        mem_free(nxt);
         nxt = alloc_zero(nc);
         row_cap = nc;
     }

@@ -8,12 +8,15 @@
  *            (recurrence a(n) = 4*a(n-1) - 3*a(n-2) for n > 4 is equivalent)
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 23, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +26,7 @@ seq_t a(idx_t n)
 
     /* For n >= 3 compute (3^(n-3) + 5)/2 */
     idx_t exp = n - (idx_t)3;
-    seq_t pow_val = seq_pow((seq_t)3, exp);
+    seq_t pow_val = ipow_idx((seq_t)3, exp);
 
     /* (pow_val + 5) is guaranteed even, so division truncates correctly */
     return (pow_val + (seq_t)5) / (seq_t)2;

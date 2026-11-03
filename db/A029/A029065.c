@@ -7,14 +7,29 @@
  * Formula:   a(n) = number of partitions of n into parts 1, 4, 5, and 8
  * Range:     u8 n <= 53, u16 n <= 388, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: standard, pass, 70 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,14 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"   /* alloc_seq_array() */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *sunday_months = NULL;   /* cache of month numbers */
 static size_t cache_len = 0;          /* number of cached entries   */
@@ -43,7 +51,7 @@ static void cache_ensure(size_t needed) {
     for (size_t i = 0; i < cache_len; ++i)
         new_cache[i] = sunday_months[i];
     if (sunday_months)
-        free(sunday_months);
+        mem_free(sunday_months);
     sunday_months = new_cache;
     cache_cap = new_cap;
 }

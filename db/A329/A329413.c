@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 253, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 94 terms through n = 9151 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* static cache for the constructed sequence */
 static seq_t  *seq      = NULL;   /* stored values */
@@ -55,7 +57,7 @@ static void ensure_seq_capacity(size_t need)
     if (need <= seq_cap) return;
     size_t cap = seq_cap ? seq_cap << 1 : 16;
     while (cap < need) cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, cap);
     if (!tmp) abort();
     seq = tmp;
     seq_cap = cap;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     if (!seq) {
         seq_len = 5;
         seq_cap = 16;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;
         seq[1] = (seq_t)2;
         seq[2] = (seq_t)3;
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
 
                 int primes = 0;
                 for (int i = 0; i < 10; ++i)
-                    if (is_prime_small(sums[i])) ++primes;
+                    if (is_prime_seq(sums[i])) ++primes;
 
                 if (primes == 2) {
                     /* Accept this candidate */

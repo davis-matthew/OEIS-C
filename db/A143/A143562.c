@@ -11,13 +11,15 @@
  *            is computed in O(n²) time with memoised arrays
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Grow the dynamic array `arr` to at least `need` elements.
    `elem_size` is sizeof one element. */
@@ -30,7 +32,7 @@ static void grow_to(idx_t need, seq_t **arr, idx_t *cap, size_t elem_size)
     while (need >= new_cap)
         new_cap <<= 1;
 
-    *arr = (seq_t *)realloc(*arr, new_cap * elem_size);
+    *arr = mem_resize(seq_t, *arr, (new_cap * elem_size) / sizeof(seq_t));
     /* zero any new elements */
     size_t added = new_cap - *cap;
     if (added)

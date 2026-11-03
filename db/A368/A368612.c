@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=2..n} pi(k-1) * ceil(n/k)
  * Range:     u8 n <= 23, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   up_to
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,46 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/up_to.h"
+
+/* Allocate or resize a prime sieve and pi array up to `limit` */
+static void up_to(idx_t limit, uint8_t **prime_flag, idx_t **pi_arr, idx_t *max_limit)
+{
+    if (*max_limit >= limit)
+        return;
+
+    /* free old data */
+    free(*prime_flag);
+    free(*pi_arr);
+
+    /* allocate new arrays */
+    *prime_flag = (uint8_t *)calloc(limit + 1, sizeof(uint8_t));
+    *pi_arr     = (idx_t  *)calloc(limit + 1, sizeof(idx_t));
+    *max_limit  = limit;
+
+    if (*prime_flag == NULL || *pi_arr == NULL) {
+        /* allocation failed; abort */
+        exit(EXIT_FAILURE);
+    }
+
+    /* mark 0 and 1 as non-prime */
+    (*prime_flag)[0] = (*prime_flag)[1] = 1;
+
+    /* simple sieve */
+    for (idx_t i = 2; i * i <= limit; ++i) {
+        if ((*prime_flag)[i] == 0) {          /* i is prime */
+            for (idx_t j = i * i; j <= limit; j += i)
+                (*prime_flag)[j] = 1;
+        }
+    }
+
+    /* build cumulative pi array */
+    idx_t count = 0;
+    for (idx_t i = 0; i <= limit; ++i) {
+        if ((*prime_flag)[i] == 0 && i >= 2)
+            ++count;
+        (*pi_arr)[i] = count;
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -9,12 +9,14 @@
  *            a(n,m)=(4*m-n+1)*a(n-1,m)+a(n-1,m-1) for n>=m>=1
  * Range:     u8 n <= 16, u16 n <= 31, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 /* Return the n-th term of OEIS A049410 (offset 1).  */
 seq_t a(idx_t n)
@@ -31,20 +33,20 @@ seq_t a(idx_t n)
 
     /* Build the triangle row by row only keeping the current and previous rows. */
     size_t prev_len = 1;
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t) * (prev_len + 1));
+    seq_t *prev = mem_new(seq_t, (prev_len + 1));
     if (!prev) return (seq_t)0;           /* allocation failure */
     prev[1] = (seq_t)1;                   /* a(1,1) = 1 */
 
     if (r == 1) {                         /* n = 1 → answer already computed */
         seq_t result = prev[1];
-        free(prev);
+        mem_free(prev);
         return result;
     }
 
     for (idx_t row = 2; row <= r; ++row) {
         size_t curr_len = (size_t)row;
-        seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * (curr_len + 1));
-        if (!curr) { free(prev); return (seq_t)0; }
+        seq_t *curr = mem_new(seq_t, (curr_len + 1));
+        if (!curr) { mem_free(prev); return (seq_t)0; }
 
         for (size_t m = 1; m <= curr_len; ++m) {
             seq_t term1 = (m <= prev_len) ? prev[m] : (seq_t)0;
@@ -53,13 +55,13 @@ seq_t a(idx_t n)
             curr[m] = coef * term1 + term2;
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_len = curr_len;
     }
 
     /* Retrieve the desired entry and clean up. */
     seq_t result = prev[(size_t)c];
-    free(prev);
+    mem_free(prev);
     return result;
 }

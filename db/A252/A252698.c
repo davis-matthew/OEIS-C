@@ -11,7 +11,8 @@
  *            a(n−1) – a( floor((n−1)/2) + 1 )
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Ensure cache is large enough */
     if (n >= cached) {
         size_t newsize = n + 1;
-        seq_t *newcache = (seq_t*)malloc(newsize * sizeof(seq_t));
+        seq_t *newcache = mem_new(seq_t, newsize);
         if (!newcache) return 0; /* allocation failed; caller will handle */
 
         /* copy existing values */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache = newcache;
         cached = newsize;
     }

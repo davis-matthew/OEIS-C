@@ -7,15 +7,26 @@
  * Formula:   a(n) = numerator of Fib(n)/n = Fib(n)/gcd(Fib(n), n)
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   fib, gcd
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/fib.h"
 #include "../utils/gcd.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* Computes the nth term of OEIS A270312.
    a(1)=1, a(2)=1, a(3)=2, a(4)=3, a(5)=1, ...  */ 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_substring_86
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_substring_86.h"
+#include "../utils/mem.h"
+
+/* Check whether seq_t value x has the substring "86" in its base‑9 representation. */
+static bool has_substring_86(seq_t x)
+{
+    int prev = -1;
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)9);          /* current (least‑significant) digit */
+        if (prev == 6 && d == 8)              /* digits seen high→low are 8,6 */
+            return true;
+        prev = d;
+        x = x / (seq_t)9;
+    }
+    return false;
+}
 
 /* Static cache state */
 static seq_t *cache      = NULL;   /* array of found terms */
@@ -39,11 +54,11 @@ seq_t a(idx_t n)
     if (cache_size < (size_t)n) {
         if (cache_cap == 0) {
             cache_cap = 64;                        /* initial capacity */
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         } else {
             while (cache_cap < (size_t)n)
                 cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* Search for new terms until we have n of them */

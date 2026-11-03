@@ -13,12 +13,14 @@
  *            uses one‑dimensional dynamic programming. The rout...
  * Range:     u8 n <= 14, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Coins in half‑cent units: 0.5c => 1, 1c => 2, 2c => 4, 3c => 6,
    5c =>10, 10c =>20, 20c =>40, 25c =>50, 50c =>100, 100c =>200  */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     static size_t dp_size = 0;
 
     if (target + 1 > dp_size) {
-        seq_t *newdp = (seq_t*)realloc(dp, (target + 1) * sizeof(seq_t));
+        seq_t *newdp = mem_resize(seq_t, dp, (target + 1));
         if (!newdp) return 0;          /* allocation failed – return 0 */
         dp = newdp;
         dp_size = target + 1;

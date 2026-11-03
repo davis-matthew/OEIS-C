@@ -9,13 +9,15 @@
  *            * A(x) = 1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 154 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;   /* a(0..memo_len-1) */
 static seq_t *sums = NULL;   /* s(0..memo_len-1) */
@@ -25,11 +27,11 @@ static idx_t memo_len = 0;
 static idx_t cap = 0;
 
 static seq_t *grow_buf(seq_t *old, idx_t oldlen, idx_t newlen) {
-    seq_t *p = (seq_t *)malloc((size_t)newlen * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
     idx_t i;
     for (i = 0; i < newlen; i++) p[i] = 0;
     for (i = 0; i < oldlen; i++) p[i] = old[i];
-    if (old) free(old);
+    if (old) mem_free(old);
     return p;
 }
 

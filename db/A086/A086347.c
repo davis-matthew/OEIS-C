@@ -8,13 +8,15 @@
  * Formula:   a(n) = 4*a(n-1)+4*a(n-2), a(0)=1, a(1)=5
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 1125 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Compute A086347, the number of n‑move king routes ending in a side square on a 3×3 board. */
 seq_t a(idx_t n)
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initial allocation and first two terms */
     if (cache == NULL) {
         cap = 2;
-        cache = (seq_t*)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)1;       /* a(0) */
         cache[1] = (seq_t)5;       /* a(1) */
         max = 1;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         if (need > cap) {
             size_t newcap = cap;
             while (newcap < need) newcap *= 2;
-            cache = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, newcap);
             cap = newcap;
         }
         for (size_t i = max + 1; i <= (size_t)n; ++i) {

@@ -8,13 +8,15 @@
  *            values: a(1) = 7, a(2) = 20, a(3) = 53, a(4) = 147
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 20, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* indices start at 1; cache[0] unused */
 static size_t cache_cap = 0;  /* number of slots allocated (≥ needed index + 1) */
@@ -26,7 +28,7 @@ static void ensure_capacity(idx_t n) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         while (new_cap <= (size_t)n) new_cap <<= 1;            /* grow until > n    */
         /* For C++ builds where seq_t is not a POD, use a cast */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) exit(1);                               /* allocation failure */
         cache = new_cache;
         cache_cap = new_cap;

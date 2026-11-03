@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 8057, u64 n <= 8057, u128 n <= 8057,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 7420 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int cmp_seq(const void *p1, const void *p2)
@@ -54,14 +56,14 @@ seq_t a(idx_t n)
         if (!cnt) return 0;   /* allocation failure → give up */
 
         /* pre‑compute squares */
-        seq_t *sq = (seq_t *)malloc((size_t)(MAX_K + 1) * sizeof(seq_t));
+        seq_t *sq = mem_new(seq_t, (size_t)(MAX_K + 1));
         if (!sq) { free(cnt); return 0; }
         for (idx_t i = 0; i <= MAX_K; ++i) sq[i] = (seq_t)i * (seq_t)i;
 
         /* dynamic array for the sums that occur at least twice */
         size_t vals_cap = 200000;                 /* generous initial cap */
-        seq_t *vals = (seq_t *)malloc(vals_cap * sizeof(seq_t));
-        if (!vals) { free(cnt); free(sq); return 0; }
+        seq_t *vals = mem_new(seq_t, vals_cap);
+        if (!vals) { free(cnt); mem_free(sq); return 0; }
         size_t vals_len = 0;
 
         /* generate all i<=j<=k triples and count sums */
@@ -77,9 +79,8 @@ seq_t a(idx_t n)
                         if (cnt[idx] == 2) {   /* first time it appears twice */
                             if (vals_len == vals_cap) {
                                 vals_cap *= 2;
-                                seq_t *tmp = (seq_t *)realloc(vals,
-                                     vals_cap * sizeof(seq_t));
-                                if (!tmp) { free(cnt); free(sq); free(vals);
+                                seq_t *tmp = mem_resize(seq_t, vals, vals_cap);
+                                if (!tmp) { free(cnt); mem_free(sq); mem_free(vals);
                                             return 0; }
                                 vals = tmp;
                             }
@@ -92,10 +93,10 @@ seq_t a(idx_t n)
 
         /* we no longer need the count array or squares */
         free(cnt);
-        free(sq);
+        mem_free(sq);
 
         /* sort the qualifying sums */
-        qsort(vals, vals_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(vals, vals_len, sizeof(seq_t), cmp_seq);
 
         /* cache the result */
         cache = vals;

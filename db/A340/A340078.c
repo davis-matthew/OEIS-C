@@ -8,6 +8,7 @@
  * Formula:   a(n) = gcd(n, 1 + sum_{k=1..n} gcd(k,n))
  * Range:     u8 n <= 59, u16 n <= 7685, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
+ * Validated: standard, pass, 114 terms through n = 7686 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

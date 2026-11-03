@@ -9,14 +9,24 @@
  *            [n-k+i-1, i-1]_3 * (3^(n-k+i) - 1)/(3^i - 1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   gcd_seq, seq_is_big
+ * Validated: standard, pass, 33 terms through n = 50 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/gcd_seq.h"
-#include "../utils/seq_is_big.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
 
 static seq_t pow3(idx_t e) {
     seq_t result = 1;
@@ -48,7 +58,7 @@ seq_t a(idx_t n) {
             result = result * num / den;
         } else {
             /* reduce first so the intermediate never exceeds the final value */
-            seq_t g = gcd_seq(result, den);
+            seq_t g = gcd(result, den);
             result /= g;
             den /= g;
             result *= num / den;

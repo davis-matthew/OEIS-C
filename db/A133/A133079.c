@@ -10,6 +10,7 @@
  *            (-1)^{∑_{p≡5,7(8)} f_p}
  * Range:     i8 n <= 714, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 112 terms through n = 9342 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,6 +8,7 @@
  *            (272*n^7+273*n^6+749*n^5+1365*n^4+1043*n^3+882*n^2+456*n)/5040
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 35, u64 n <= 857, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 942 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

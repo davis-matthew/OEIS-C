@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    (left‑to‑right, starting with n = 1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static caches for rows of the triangular array */
 static seq_t **row_data   = NULL;   /* row_data[n][k] , 1‑based indices   */
@@ -41,7 +43,7 @@ static void ensure_rows(idx_t n)
 
     while (total_entries < n) {
         idx_t new_row = max_row + 1;
-        seq_t *row = (seq_t*)malloc((new_row + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (new_row + 1));
         if (!row) abort();   /* allocation failure */
 
         if (new_row == 1) {

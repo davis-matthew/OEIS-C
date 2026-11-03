@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 75, i16 n <= 75, i32 n <= 75, i64 n <= 75, i128 n <= 75,
  *            big any n
- * Helpers:   mu_of
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,31 @@
    integers with Σ_{k∈S} k = n of ∏_{k∈S} μ(k). */
 
 #include <stdlib.h>
-#include "../utils/mu_of.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 static seq_t *cache = NULL;   /* cached coefficients a[0..max_n]  */
 static idx_t max_n   = 0;     /* highest n that has been computed */
@@ -29,7 +54,7 @@ seq_t a(idx_t n)
     /* Recompute the table if we need higher indices */
     if (cache == NULL || n > max_n) {
         idx_t size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, size);
         if (!tmp) return (seq_t)0;   /* OOM – return 0 */
         cache = tmp;
 

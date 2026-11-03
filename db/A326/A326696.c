@@ -9,7 +9,8 @@
  *            sigma(d) divides m
  * Range:     u8 n <= 43, u16 n <= 6214, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dfs_has_divisor, factor_u64
+ * Validated: standard, pass, 72 terms through n = 9889 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,41 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/dfs_has_divisor.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* Recursive search over all divisors of m.  
+   cur_div   : current divisor value (idx_t)  
+   sigma_cur : sigma(cur_div) as seq_t */
+static bool dfs_has_divisor(seq_t m_seq, uint64_t *pr, uint64_t *ex, size_t cnt,
+                            size_t pos, idx_t cur_div, seq_t sigma_cur)
+{
+    if (pos == cnt) {
+        if (cur_div > (idx_t)1 && (m_seq % sigma_cur) == (seq_t)0)
+            return true;
+        return false;
+    }
+
+    uint64_t p   = pr[pos];
+    int    max_e = (int)ex[pos];
+
+    /* Case e = 0 – divisor unchanged */
+    if (dfs_has_divisor(m_seq, pr, ex, cnt, pos + 1, cur_div, sigma_cur))
+        return true;
+
+    /* Iterate e = 1 .. max_e */
+    idx_t  cur   = cur_div;
+    seq_t  sigma_p = 1;   /* sigma(p^0) */
+
+    for (int e = 1; e <= max_e; ++e) {
+        cur   *= p;
+        sigma_p = sigma_p * (seq_t)p + 1;      /* sigma(p^e) from sigma(p^(e−1)) */
+        seq_t new_sigma = sigma_cur * sigma_p;
+        if (dfs_has_divisor(m_seq, pr, ex, cnt, pos + 1, cur, new_sigma))
+            return true;
+    }
+    return false;
+}
 
 /* Memoised storage of the sequence */
 static seq_t *terms      = NULL;
@@ -33,10 +67,10 @@ static void ensure_terms_capacity(void)
 {
     if (terms_cap == 0) {
         terms_cap = 16;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     } else if (terms_len == terms_cap) {
         terms_cap <<= 1;
-        terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
 }
 

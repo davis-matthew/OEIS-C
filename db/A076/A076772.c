@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   gcd, isPrimeTrial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   gcd, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,8 +35,10 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"   /* bool isPrimeTrial(seq_t n); */
-#include "../utils/gcd.h"            /* seq_t gcd(seq_t a, seq_t b); */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/is_prime_seq.h"
 
 /* --------------------------------------------------------------------------- */
 /* Static data: odd composite numbers up to 211 (the largest relevant odd composite) */
@@ -49,7 +52,7 @@ static void build_odd_composites(void)
 
     size_t idx = 0;
     for (seq_t n = 9; n <= 211; n += 2) {     /* odd numbers only */
-        if (!isPrimeTrial(n)) {
+        if (!is_prime_seq(n)) {
             odd_composites[idx++] = n;
         }
     }
@@ -66,7 +69,7 @@ static bool is_representable_even(seq_t e)
         if (a > e - 9) break;          /* minimal odd composite is 9 */
         seq_t b = e - a;
         if (b < 9 || (b & 1) == 0) continue;          /* b must be odd composite */
-        if (isPrimeTrial(b)) continue;                /* b must be composite */
+        if (is_prime_seq(b)) continue;                /* b must be composite */
 
         if (gcd(a, b) == 1) return true;               /* coprime pair found */
     }

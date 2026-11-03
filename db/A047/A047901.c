@@ -7,7 +7,8 @@
  * Formula:   a(1) = 9; a(n+1) = a(n) * digit_sum(a(n)) (OEIS A047901)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 13, u128 n <= 22,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 32 terms through n = 242 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/digit_sum.h"   /* seq_t digit_sum(seq_t v); */
+#include <stdbool.h>
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 static seq_t *cache          = NULL;   /* cache[0] holds a(1) */
 static idx_t  cache_capacity = 0;     /* number of elements allocated */
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     if (n > cache_capacity) {
         /* Allocate a larger array (no shrinking) */
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();            /* out of memory – terminate */
         cache = tmp;
         cache_capacity = new_cap;

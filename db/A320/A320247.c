@@ -9,6 +9,7 @@
  *            (i.e. the coefficient of q^n in ∏_{k=1}^{16} θ₃(q^k))
  * Range:     u8 n <= 13, u16 n <= 39, u32 n <= 194, u64 n <= 4617,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 64 terms through n = 9624 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

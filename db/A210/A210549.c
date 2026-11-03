@@ -12,12 +12,14 @@
  *            row n has n coefficients, row 1: 1; row 2: 1 2; row...
  * Range:     u8 n <= 33, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find the row r that contains the n-th flattened term */
@@ -31,8 +33,8 @@ seq_t a(idx_t n) {
     idx_t k = n - prevcum - 1;        /* 0‑based column index in row r */
 
     /* Arrays holding the coefficient vectors of the previous row */
-    seq_t *prevU = (seq_t *)malloc(sizeof(seq_t));
-    seq_t *prevV = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prevU = mem_new(seq_t, 1);
+    seq_t *prevV = mem_new(seq_t, 1);
     if (!prevU || !prevV) return (seq_t)0;  /* allocation failure (unlikely) */
     prevU[0] = 1;
     prevV[0] = 1;
@@ -40,9 +42,9 @@ seq_t a(idx_t n) {
     /* Build successive rows up to row r */
     for (idx_t i = 2; i <= r; ++i) {
         /* Current row has i coefficients (indices 0 .. i-1) */
-        seq_t *currU = (seq_t *)malloc(i * sizeof(seq_t));
-        seq_t *currV = (seq_t *)malloc(i * sizeof(seq_t));
-        if (!currU || !currV) { free(prevU); free(prevV); return (seq_t)0; }
+        seq_t *currU = mem_new(seq_t, i);
+        seq_t *currV = mem_new(seq_t, i);
+        if (!currU || !currV) { mem_free(prevU); mem_free(prevV); return (seq_t)0; }
 
         currU[0] = 1;
         currV[0] = prevU[0] + 1;
@@ -59,8 +61,8 @@ seq_t a(idx_t n) {
         }
 
         /* Free previous row and advance pointers */
-        free(prevU);
-        free(prevV);
+        mem_free(prevU);
+        mem_free(prevV);
         prevU = currU;
         prevV = currV;
     }
@@ -69,8 +71,8 @@ seq_t a(idx_t n) {
     seq_t result = prevU[k];
 
     /* Clean up */
-    free(prevU);
-    free(prevV);
+    mem_free(prevU);
+    mem_free(prevV);
 
     return result;
 }

@@ -8,18 +8,20 @@
  *            x^k)
  * Range:     u8 n <= 14, u16 n <= 37, u32 n <= 110, u64 n <= 358,
  *            u128 n <= 1252, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 4845 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate the dynamic-programming array */
     size_t N = (size_t)n;
-    seq_t *dp = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, N + 1);
     if (!dp) return 0;          /* unlikely in normal tests */
     dp[0] = 1;                  /* start with the empty partition */
 
@@ -38,6 +40,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[N];
-    free(dp);
+    mem_free(dp);
     return result;
 }

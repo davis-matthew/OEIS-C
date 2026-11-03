@@ -9,7 +9,8 @@
  *            contains the decimal expansion of n as a consecutive substring
  * Range:     u8 n <= 10, u16 n <= 156, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, seq_to_str
+ * Validated: standard, pass, 86 terms through n = 9663 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,28 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../utils/seq_to_str.h"   /* seq_to_str(seq_t x, char *buf, size_t *len) */
-#include "../utils/digit_len.h"    /* digit_len(seq_t x) returns number of decimal digits */
+#include <stdint.h>
+#include "../utils/num_digits.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* Search for the first occurrence of pat[0..pat_len-1] inside big[0..big_len-1]. */
 static bool contains_substring(const char *big, size_t big_len,
@@ -41,7 +62,7 @@ seq_t a(idx_t n)
 
     /* Convert n to decimal string once. */
     seq_t n_seq = (seq_t)n;
-    size_t n_len  = digit_len(n_seq);
+    size_t n_len  = num_digits(n_seq);
     char *n_buf = (char *)malloc(n_len + 1);
     if (!n_buf) abort();
     seq_to_str(n_seq, n_buf, &n_len);
@@ -56,7 +77,7 @@ seq_t a(idx_t n)
     while (1) {
         seq_t prod = n_seq * k;
 
-        size_t prod_len = digit_len(prod);
+        size_t prod_len = num_digits(prod);
         size_t needed = prod_len + 1;   /* +1 for terminating NUL */
         if (needed > prod_cap) {
             prod_buf = (char *)realloc(prod_buf, needed);

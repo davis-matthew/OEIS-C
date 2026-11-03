@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 1001, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Modular multiplication: a*b mod m (using 128‑bit intermediate) */
 static uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t m)
@@ -123,7 +125,7 @@ static void cache_append(seq_t term)
 {
     if (cache_len == cache_cap) {
         size_t newcap = cache_cap ? cache_cap * 2 : 8;
-        seq_t *newptr = (seq_t *)realloc(cache_terms, newcap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache_terms, newcap);
         if (!newptr) abort();   /* out of memory */
         cache_terms = newptr;
         cache_cap   = newcap;

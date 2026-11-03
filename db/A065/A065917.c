@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
    next primorial q(j+1) is computed on the fly.
    The helper below finds the next prime after a given prime.   */
 
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
 #include <stdint.h>   /* for uint64_t */
 
 /* return the smallest prime strictly greater than n (n is a prime) */
@@ -31,7 +34,7 @@ static uint64_t next_prime_gt(uint64_t n)
     uint64_t cand = n + 1;
     if (cand <= 2) return 2;
     if ((cand & 1ULL) == 0) cand += 1;   /* make odd */
-    while (!is_prime_small(cand))
+    while (!is_prime_seq(cand))
         cand += 2;
     return cand;
 }

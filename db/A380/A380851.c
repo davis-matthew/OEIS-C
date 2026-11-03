@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 20, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,9 @@
  */
 
 #include <math.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     /* Find row r and column c from the index n */
@@ -53,7 +56,7 @@ seq_t a(idx_t n) {
 
     /* Compute 2^(2r – i) */
     idx_t exp = 2 * r - i;
-    seq_t pow2 = seq_pow((seq_t)2, exp);
+    seq_t pow2 = ipow_idx((seq_t)2, exp);
 
     /* Assemble numerator: prod * 2^(2r-i) with sign (−1)^i */
     seq_t num = prod * pow2;

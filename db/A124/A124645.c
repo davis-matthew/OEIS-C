@@ -9,24 +9,28 @@
  * Formula:   a(n) = T(r,k) where r = floor((sqrt(8*n+1)-1)/2), k = n -
  *            r(r+1)/2, T(r,k) = (-1)^(k+floor(r/2)) *
  *            binomial(floor((r+1)/2), k-floor(r/2))
- * Range:     i8 n <= 163, i16 n <= 653, i32 n <= 1325, i64 n <= 1325,
+ * Range:     i8 n <= 202, i16 n <= 654, i32 n <= 1325, i64 n <= 1325,
  *            i128 n <= 1325, big any n
- * Helpers:   binom, offset_row
+ * Validated: standard, pass, 107 terms through n = 1238 (2026-11-01)
+ * Helpers:   binomial, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/offset_row.h"
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <math.h>
+#include "../utils/binomial.h"
+#include "../utils/triangular.h"
 
 seq_t a(idx_t n)
 {
     /* Locate the row r containing index n. */
     idx_t r = 0;
-    while (offset_row(r + 1) <= n)
+    while (triangular(r + 1) <= n)
         ++r;
 
-    idx_t row_start = offset_row(r);   /* first index of row r */
+    idx_t row_start = triangular(r);   /* first index of row r */
     idx_t k = n - row_start;           /* column within the row */
 
     idx_t floor_r2 = r / 2;             /* floor(r/2) */
@@ -39,7 +43,7 @@ seq_t a(idx_t n)
     if (kk > binom_n)
         return 0;                       /* binomial is zero when kk > binom_n */
 
-    seq_t val = binom(binom_n, kk);     /* binomial coefficient */
+    seq_t val = binomial(binom_n, kk);     /* binomial coefficient */
 
     /* Apply the alternating sign: (-1)^(k + floor(r/2)) */
     if ( ((k + floor_r2) & (idx_t)1) == 1 )

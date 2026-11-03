@@ -13,7 +13,8 @@
  *            T(-1)=0). The value is the product of all integers fr...
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   triangle_T
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   triangular_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
    seq_t  – unsigned integer type for sequence values   */
 
 #include <math.h>   /* for sqrt() */
-#include "../utils/triangle_T.h"
+#include "../utils/triangular_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -44,9 +45,9 @@ seq_t a(idx_t n)
     seq_t Tk2 = 0; /* T(k-2); zero when k==1 */
     if (c >= 2) {
         idx_t m = c - 2;
-        Tk2 = triangle_T(m);
+        Tk2 = triangular_idx(m);
     }
-    seq_t Tk1 = triangle_T(c - 1);
+    seq_t Tk1 = triangular_idx(c - 1);
 
     seq_t low  = ((seq_t)(c - 1)) * r - Tk2 + 1;
     seq_t high = ((seq_t)c) * r - Tk1;

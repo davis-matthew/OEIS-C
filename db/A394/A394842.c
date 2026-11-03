@@ -7,15 +7,23 @@
  * Formula:   a(0) = 1 a(n) = Sum_{k=0..n-1} a(k)*a(n-1-k) + (2*(n-1)/3) *
  *            Sum_{i+j+k=n-1} a(i)*a(j)*a(k) (n≥1) Offset: 0 (a(0) is the
  *            first term listed)
- * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 19,
+ * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>                     /* for size_t */
-#include "../utils/seq_alloc_new_array.h"   /* allocates zero‑initialised seq_t arrays */
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /* Static cache of values and pair convolution table */
 static idx_t last = (idx_t)-1;           /* highest n computed */
@@ -31,7 +39,7 @@ static void ensure_capacity(idx_t n) {
         if (newcap <= (size_t)n) newcap = (size_t)n + 1;
         seq_t *newA = seq_alloc_new_array(newcap);
         for (size_t i = 0; i < capA; ++i) newA[i] = A[i];
-        if (A) free(A);
+        if (A) mem_free(A);
         A = newA;
         capA = newcap;
     }
@@ -40,7 +48,7 @@ static void ensure_capacity(idx_t n) {
         if (newcap <= (size_t)(2 * n)) newcap = (size_t)(2 * n) + 1;
         seq_t *newC = seq_alloc_new_array(newcap);
         for (size_t i = 0; i < capC; ++i) newC[i] = C2[i];
-        if (C2) free(C2);
+        if (C2) mem_free(C2);
         C2 = newC;
         capC = newcap;
     }

@@ -8,7 +8,8 @@
  * Formula:   a(n) = odd perfect powers (excluding 1) minus 1
  * Range:     u8 n <= 7, u16 n <= 48, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9557 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    Subsequent calls to a(n) simply return the cached entry. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for seq_t values, usable with qsort */
 static int cmp_seq(const void *p1, const void *p2)
@@ -64,7 +66,7 @@ static void ensure_cache(idx_t needed)
         }
 
         /* Sort the collected powers */
-        qsort(pow_buf, pow_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(pow_buf, pow_len, sizeof(seq_t), cmp_seq);
 
         /* Unique‑filter and store minus one */
         size_t uniq = 0;

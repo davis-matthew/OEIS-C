@@ -11,16 +11,19 @@
  *            read row by row. The sequence is built incrementally by counting
  *            prime factors up to n and storing the cumulative counts for each
  *            m in that row
- * Range:     u8 n <= 1678, u16 n <= 7831, u32 n <= 7831, u64 n <= 7831,
- *            u128 n <= 7831, big any n
- * Helpers:   count_distinct_primes
+ * Range:     u8 n <= 1678, u16 n <= 47448, u32 n <= 47448, u64 n <= 47448,
+ *            u128 n <= 47448, big any n
+ * Validated: standard, pass, 96 terms through n = 7831 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state between calls */
@@ -38,7 +41,7 @@ seq_t a(idx_t n) {
         if (current_row == 1) {
             if (seq_len + 1 > seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)0;   /* T(1,0) = 0 in the flattened sequence */
             ++current_row;
@@ -46,13 +49,13 @@ seq_t a(idx_t n) {
         }
 
         /* Determine number of distinct prime factors of current_row */
-        int m = count_distinct_primes((uint64_t)current_row);
+        int m = omega((uint64_t)current_row);
 
         /* Ensure counts array has room for m */
         if ((size_t)m >= counts_cap) {
             size_t new_cap = counts_cap ? counts_cap * 2 : ((m + 1) * 2);
             while (new_cap <= (size_t)m) new_cap <<= 1;
-            counts = (seq_t *)realloc(counts, new_cap * sizeof(seq_t));
+            counts = mem_resize(seq_t, counts, new_cap);
             /* initialize new slots to zero */
             for (size_t i = counts_cap; i < new_cap; ++i)
                 counts[i] = (seq_t)0;
@@ -68,7 +71,7 @@ seq_t a(idx_t n) {
             size_t new_cap = seq_cap ? seq_cap * 2 : 16;
             while (new_cap < seq_len + (size_t)current_max_m)
                 new_cap <<= 1;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             seq_cap = new_cap;
         }
 

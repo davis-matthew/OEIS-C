@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* computed a(n) values, indexed from 1 */
 static seq_t *pow_cache  = NULL;   /* k^(k-1) for k ≥ 1, indexed from 0 (unused) */
@@ -42,8 +44,8 @@ static void ensure_capacity(idx_t n)
         new_cap <<= 1;
 
     /* realloc may return void*; cast it to seq_t* to satisfy C++ */
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
-    seq_t *new_pow   = (seq_t*)realloc(pow_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
+    seq_t *new_pow   = mem_resize(seq_t, pow_cache, new_cap);
 
     /* if allocation fails, keep the old tables (calls will fail later) */
     if (!new_cache && !new_pow) {
@@ -58,7 +60,7 @@ static void ensure_capacity(idx_t n)
         if (i == 0) {
             pow_cache[i] = 0;          /* unused slot 0 */
         } else {
-            pow_cache[i] = pow_seq((seq_t)i, (int)(i - 1));
+            pow_cache[i] = ipow_i32((seq_t)i, (int)(i - 1));
         }
     }
 }

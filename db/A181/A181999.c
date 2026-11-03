@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 34, u128 n <= 65,
  *            big any n
- * Helpers:   free_sequence_array
+ * Validated: standard, pass, 44 terms through n = 981 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/free_sequence_array.h"
+
+/* Free an array allocated by allocate_seq_array. */
+static void free_sequence_array(seq_t *p) {
+#ifdef __cplusplus
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 static seq_t *cache = NULL;     /* memoised values */
 static idx_t  cache_size = 0;   /* number of allocated elements */

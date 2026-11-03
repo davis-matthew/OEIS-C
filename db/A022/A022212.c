@@ -7,13 +7,16 @@
  * Formula:   a(n) = Product_{i=1..5} (5^{\,n-i+1}-1)/(5^i-1) (q = 5)
  * Range:     u8 none, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 27 terms through n = 199 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Use the pre‑existing big integer helper for exponentiation */
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 /* Gaussian binomial coefficient [n,5] for q = 5 */
 seq_t a(idx_t n)
@@ -24,13 +27,13 @@ seq_t a(idx_t n)
 
     /* 5^n as a seq_t.  All further numerator powers are obtained by
        dividing this value by 5 in each iteration. */
-    seq_t pow5 = seq_pow((seq_t)5, n);
+    seq_t pow5 = ipow_idx((seq_t)5, n);
     seq_t result = 1;
 
     for (idx_t i = 1; i <= 5; ++i) {
         /* Numerator (5^{n-i+1} - 1) and denominator (5^i - 1) */
         seq_t num = pow5 - 1;
-        seq_t den = seq_pow((seq_t)5, i) - 1;
+        seq_t den = ipow_idx((seq_t)5, i) - 1;
 
         /* For native integer builds (≤ 64 bits) use a 128‑bit
            intermediate to avoid overflow.  For arbitrary‑precision

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   trailing_ge
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,13 @@
 /* Note: no external helpers are used; binary search determines the row. */
 
 #include <stdint.h>
-#include "../utils/trailing_ge.h"
+
+/* Helper: returns true if r*(r+1)/2 >= n.  Uses 128‑bit arithmetic to avoid overflow. */
+static inline int trailing_ge(idx_t r, idx_t n) {
+    __uint128_t prod = (__uint128_t)r * (r + 1);
+    prod /= 2;
+    return prod >= n;
+}
 
 /* Helper: find smallest r such that r*(r+1)/2 >= n.  n >= 1. */
 static inline idx_t find_row(idx_t n) {

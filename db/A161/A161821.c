@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t, sort_runs
+ * Validated: standard, pass, 87 terms through n = 9224 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,15 +22,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/sort_runs.h"
+#include "../utils/bit_length.h"
+
+/* Simple insertion sort for a small array of seq_t values. */
+static void sort_runs(seq_t runs[], size_t n)
+{
+    for (size_t i = 1; i < n; ++i) {
+        seq_t key = runs[i];
+        size_t j = i;
+        while (j > 0 && runs[j - 1] > key) {
+            runs[j] = runs[j - 1];
+            --j;
+        }
+        runs[j] = key;
+    }
+}
 
 /* Compute the lengths of runs of consecutive zeros in the binary
    representation of x.  The lengths are stored in runs[0..*cnt-1].
    The array must be large enough to hold all runs (bit length of x). */
 static void get_zero_runs(seq_t x, seq_t runs[], size_t *cnt)
 {
-    unsigned bl = bitlen_seq_t(x);
+    unsigned bl = bit_length(x);
     if (bl == 0) {
         *cnt = 0;
         return;

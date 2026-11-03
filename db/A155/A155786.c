@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   absdiff_int, get_digits, next_prime, seq_alloc, seq_realloc
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   get_digits, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,11 +18,36 @@
    with a static dynamic array and can be called in any order. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/get_digits.h"
-#include "../utils/absdiff_int.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/next_prime.h"
+
+static inline int absdiff_int(int a, int b) {
+    return a > b ? a - b : b - a;
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *good = NULL;      /* array of good primes (seq_t type) */
 static size_t good_cap = 0;     /* current capacity of the array      */

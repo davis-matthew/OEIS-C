@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy, mult
  * Formula:   a(n) = 1 iff n is a perfect square and n % 3 != 0, else 0
- * Range:     u8 n <= 9904, u16 n <= 9904, u32 n <= 9904, u64 n <= 9904,
- *            u128 n <= 9904, big any n
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 138 terms through n = 9904 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

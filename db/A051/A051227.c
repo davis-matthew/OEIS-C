@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------- Miller–Rabin primality test for 64‑bit numbers --------- */
 static bool mod_mul_uint64(uint64_t a, uint64_t b, uint64_t mod, __uint128_t *res)
@@ -145,8 +147,8 @@ static void extend_cache(idx_t target)
 {
     while (cache_size < target) {
         if (test_m(next_candidate)) {
-            seq_t *tmp = (seq_t*)realloc(cache, (cache_size + 1) * sizeof(seq_t));
-            if (!tmp) { free(cache); abort(); }
+            seq_t *tmp = mem_resize(seq_t, cache, (cache_size + 1));
+            if (!tmp) { mem_free(cache); abort(); }
             cache = tmp;
             cache[cache_size++] = (seq_t)next_candidate;
         }

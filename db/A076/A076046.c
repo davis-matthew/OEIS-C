@@ -10,14 +10,15 @@
  *            if t+1 is 2^k
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   _is_power_of_two
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-02)
+ * Helpers:   is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/_is_power_of_two.h"
+#include "../utils/is_pow2.h"
 
 /* Temporary storage for the sequence terms.
    The sequence is finite (5 terms in the OEIS entry). */
@@ -38,7 +39,7 @@ static void _init_terms(void)
         idx_t plus1 = tri + 1;
         seq_t val   = (seq_t)plus1;       /* cast for the power‑of‑two test */
 
-        if (_is_power_of_two(val))
+        if (is_pow2(val))
             _terms[_term_count++] = (seq_t)tri;
     }
 }

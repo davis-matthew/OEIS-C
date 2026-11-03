@@ -11,12 +11,14 @@
  *            a(6)=75992, a(7)=164004
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 44, u64 n <= 138, u128 n <= 138,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 134 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[7] = {
     (seq_t)64,
@@ -40,9 +42,9 @@ static void ensure_capacity(idx_t need)
     /* grow to exactly 'need' elements – small growth cost is fine */
     seq_t *ptr = NULL;
     if (memo == NULL)
-        ptr = (seq_t *)malloc((size_t)need * sizeof(seq_t));
+        ptr = mem_new(seq_t, (size_t)need);
     else
-        ptr = (seq_t *)realloc(memo, (size_t)need * sizeof(seq_t));
+        ptr = mem_resize(seq_t, memo, (size_t)need);
     if (!ptr) abort();          /* out of memory */
     memo = ptr;
     memo_cap = need;

@@ -10,12 +10,14 @@
  *            = 14*(a(n-1)+...+a(n-6)) - 105*a(n-7) (linear recurrence)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[7] = {
     (seq_t)1,
@@ -40,12 +42,12 @@ seq_t a(idx_t n) {
     /* Ensure cache has enough storage */
     if (cache_size == 0) {
         cache_size = (n >= 7 ? n + 1 : 7);
-        cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return (seq_t)0;   /* allocation failed */
         for (idx_t i = 0; i < 7; ++i) cache[i] = init_vals[i];
         last_computed = 6;
     } else if (cache_size <= n) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return (seq_t)0;     /* allocation failed */
         cache = tmp;
         /* initialise newly allocated part to zero */

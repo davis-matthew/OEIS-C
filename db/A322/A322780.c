@@ -8,12 +8,14 @@
  *            a(4)=32 (offset 1)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 43, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for memoisation */
 static seq_t *cache = NULL;          /* array holding terms 1..n */
@@ -39,10 +41,10 @@ seq_t a(idx_t n)
     /* allocate or grow the cache to hold the first n terms */
     if (cache == NULL) {
         cache_cap = n;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_cap < (size_t)n) {
         cache_cap = n;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* initialise the first four values if they are not already set */

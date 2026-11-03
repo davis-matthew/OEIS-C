@@ -11,12 +11,14 @@
  *            using the standard * coin‑change DP over the od...
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined in the build environment. */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* initialise DP array on first call */
     if (dp == NULL) {
-        dp = (seq_t *)malloc(sizeof(seq_t));   /* capacity 1 for index 0  */
+        dp = mem_new(seq_t, 1);   /* capacity 1 for index 0  */
         if (!dp) abort();
         dp[0] = (seq_t)1;                     /* only one way to make 0   */
         dp_cap = 0;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         size_t old_cap = dp_cap;
         size_t new_cap = (dp_cap == 0) ? 256 : dp_cap * 2 + 256;
         /* reallocate DP array */
-        seq_t *new_dp = (seq_t *)realloc(dp, (new_cap + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, (new_cap + 1));
         if (!new_dp) abort();
         dp = new_dp;
         for (size_t i = old_cap + 1; i <= new_cap; ++i)
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
                 max_record = dp[i];
                 if (rec_len == rec_cap) {
                     size_t new_c = rec_cap ? rec_cap * 2 : 2;
-                    seq_t *tmp = (seq_t *)realloc(records, new_c * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, records, new_c);
                     if (!tmp) abort();
                     records = tmp;
                     rec_cap = new_c;

@@ -11,14 +11,16 @@
  *            binomial(n,v) * k^v
  * Range:     u8 n <= 17, u16 n <= 47, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Find diagonal d such that d*(d+1)/2 ≥ n (in C‑style 1‑based count). */
 static idx_t find_diagonal(idx_t n)
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
     idx_t k = offset + 1;                    /* column index (1‑based) */
 
     /* T(r,k) = ((1+k)^r - (-1)^r * (k-1)^r) / 2  */
-    seq_t A = seq_pow((seq_t)(k + 1), r);
-    seq_t B = seq_pow((seq_t)(k > 0 ? k - 1 : 0), r);
+    seq_t A = ipow_idx((seq_t)(k + 1), r);
+    seq_t B = ipow_idx((seq_t)(k > 0 ? k - 1 : 0), r);
 
     seq_t result;
     if (r % 2 == 0)                     /* even r : (A - B)/2 */

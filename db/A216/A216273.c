@@ -12,14 +12,33 @@
  *            * whose squares sum to n. This follows from the gen...
  * Range:     i8 n <= 71, i16 n <= 425, i32 n <= 1035, i64 n <= 1035,
  *            i128 n <= 1035, big any n
- * Helpers:   append_candidate
+ * Validated: standard, pass, 121 terms through n = 814 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/append_candidate.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* Length and dynamic array for the output sequence */
 static seq_t *seq_vals = NULL;
@@ -42,7 +61,7 @@ static void ensure_dp_rows(idx_t n)
     /* Resize the dp pointer array */
     dp = (seq_t**)realloc(dp, (n + 1) * sizeof(seq_t*));
     for (idx_t i = dp_rows; i <= n; ++i) {
-        dp[i] = (seq_t*)calloc((size_t)(i + 1), sizeof(seq_t)); /* dp[i][0..i] = 0 */
+        dp[i] = mem_new(seq_t, (size_t)(i + 1)); /* dp[i][0..i] = 0 */
     }
     /* Initialize the base case once */
     if (dp_rows == 0) {

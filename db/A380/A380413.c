@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   cast_malloc, cast_realloc
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/cast_malloc.h"
-#include "../utils/cast_realloc.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------
+   Helper: cast from void* for C++ builds.
+   ------------------------------------------------------------------ */
+static inline void *cast_malloc(size_t size) { return (void*)malloc(size); }
+
+static inline void *cast_realloc(void *p, size_t size) { return (void*)realloc(p, size); }
 
 /* Forward declaration required by the build system */
 seq_t a(idx_t n);
@@ -52,6 +59,7 @@ static size_t prime_count          = 0;      /* number of primes found */
 
 static seq_t *repeat_cache        = NULL;   /* recorded repeated values */
 static size_t repeat_count        = 0;      /* number of repeats stored */
+static size_t repeat_cap          = 0;      /* its capacity */
 
 /* --------------------------------------------------------------------
    Build a prime sieve and mark all nonsquarefree numbers < SIEVE_LIMIT.
@@ -104,7 +112,8 @@ static void build_sieve_and_non_squarefree(void)
    ------------------------------------------------------------------ */
 static void compute_repeats(void)
 {
-    repeat_cache = (seq_t*)cast_malloc(INITIAL_REPEATS_CAP * sizeof(seq_t));
+    repeat_cache = mem_new(seq_t, INITIAL_REPEATS_CAP);
+    repeat_cap = INITIAL_REPEATS_CAP;
     repeat_count = 0;
     /* A378086 for the prime immediately before the first prime (2) is 0. */
     seq_t prev_count = 0;
@@ -130,14 +139,10 @@ static void compute_repeats(void)
         seq_t curr_value = run_sum;
 
         if (!first && curr_value == prev_value) {
-            if (repeat_count == (size_t)(INITIAL_REPEATS_CAP * 2)) {
-                size_t new_cap = repeat_count * 2;
-                repeat_cache = (seq_t*)cast_realloc(repeat_cache,
-                                                     new_cap * sizeof(seq_t));
-            } else if (repeat_count == INITIAL_REPEATS_CAP) {
-                size_t new_cap = repeat_count * 2;
-                repeat_cache = (seq_t*)cast_realloc(repeat_cache,
-                                                     new_cap * sizeof(seq_t));
+            if (repeat_count == repeat_cap) {     /* double whenever full (it grew only twice) */
+                repeat_cap *= 2;
+                repeat_cache = mem_resize(seq_t, repeat_cache, repeat_cap);
+                if (!repeat_cache) abort();
             }
             repeat_cache[repeat_count++] = curr_value;
         }

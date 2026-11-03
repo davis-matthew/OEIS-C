@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 25, u32 n <= 59, u64 n <= 128, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>    /* abort, realloc, size_t */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamic array of computed values */
 static size_t cache_capacity = 0;    /* allocated size of cache   */
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
         return;
 
     /* allocate new buffer */
-    void *buf = realloc(cache, needed * sizeof(seq_t));
+    void *buf = mem_resize(seq_t, cache, needed);
     if (!buf)
         abort();                    /* out of memory */
 

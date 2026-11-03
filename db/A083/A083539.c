@@ -9,12 +9,14 @@
  *            n+1)
  * Range:     u8 n <= 10, u16 n <= 142, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for σ values */
 static seq_t *sigma = NULL;      /* σ[0] is unused */
@@ -28,11 +30,11 @@ static void ensure_sigma(idx_t idx)
     /* Allocate or grow the array */
     size_t new_size = (size_t)idx + 1;      /* need indices 0 .. idx */
     if (sigma == NULL) {
-        sigma = (seq_t *)malloc(new_size * sizeof(seq_t));
+        sigma = mem_new(seq_t, new_size);
         if (!sigma) return;                /* allocation failure – abort gracefully */
         for (size_t i = 0; i < new_size; ++i) sigma[i] = 0;
     } else {
-        sigma = (seq_t *)realloc(sigma, new_size * sizeof(seq_t));
+        sigma = mem_resize(seq_t, sigma, new_size);
         if (!sigma) return;
         for (size_t i = (size_t)sigma_max + 1; i < new_size; ++i) sigma[i] = 0;
     }

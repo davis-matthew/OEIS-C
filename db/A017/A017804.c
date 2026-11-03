@@ -7,7 +7,8 @@
  * Formula:   a(n) = binomial(88,n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 19, u128 n <= 88,
  *            big any n
- * Helpers:   _exponent_idx, seq_mul, seq_pow
+ * Validated: full, pass, 89 terms through n = 88 (2026-11-02)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,28 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/_exponent_idx.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Exponent of prime p in n! (Legendre's formula) */
+static idx_t _exponent_idx(idx_t n, idx_t p)
+{
+    idx_t exp = 0;
+    idx_t power = p;
+    while (power <= n) {
+        exp += n / power;
+        /* p <= 83 and n <= 88, multiplying power by p cannot overflow idx_t */
+        power *= p;
+    }
+    return exp;
+}
 
 static const idx_t _primes_88[] = {
     2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
@@ -47,7 +67,7 @@ seq_t a(idx_t n)
         if (exp == 0)
             continue;
 
-        seq_t pow_p = seq_pow((seq_t)p, exp);
+        seq_t pow_p = ipow_idx((seq_t)p, exp);
         result = seq_mul(result, pow_p);
     }
 

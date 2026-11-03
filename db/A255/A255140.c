@@ -9,13 +9,16 @@
  *            gcd(a(m),m) > 1, otherwise a(n) = a(m) + m + 2
  * Range:     u8 n <= 79, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 80 terms through n = 986 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
 
     /* initialise cache on first call */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));   /* indices 0 and 1 */
+        cache = mem_new(seq_t, 2);   /* indices 0 and 1 */
         if (!cache) return 0;                               /* allocation failure */
         cache[1] = (seq_t)1;
         cache_size = 1;
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
 
     /* extend cache up to n if necessary */
     if (n > cache_size) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) return 0;                       /* allocation failure */
         cache = new_cache;
         for (idx_t i = cache_size + 1; i <= n; ++i) {

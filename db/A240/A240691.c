@@ -10,12 +10,14 @@
  *            a(n) = A240690(n+1) - A240690(n), a(n) + 2*A240690(n) = p(n)
  * Range:     u8 n <= 25, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p_arr = NULL;   /* ordinary partitions p(n), 0 <= n */
 static seq_t *b_arr = NULL;   /* A240690(n), 1 <= n */
@@ -29,9 +31,9 @@ static void ensure_up_to(idx_t n)
     /* Allocate or grow the arrays if necessary */
     if (p_arr == NULL) {
         array_size = (size_t)n + 3;                     /* guard space for b[n+1] */
-        p_arr = (seq_t *)malloc(array_size * sizeof(seq_t));
-        b_arr = (seq_t *)malloc(array_size * sizeof(seq_t));
-        a_arr = (seq_t *)malloc(array_size * sizeof(seq_t));
+        p_arr = mem_new(seq_t, array_size);
+        b_arr = mem_new(seq_t, array_size);
+        a_arr = mem_new(seq_t, array_size);
         for (idx_t i = 0; i < array_size; ++i) {
             p_arr[i] = 0;
             b_arr[i] = 0;
@@ -42,9 +44,9 @@ static void ensure_up_to(idx_t n)
         computed = 0;
     } else if ((size_t)n + 3 > array_size) {
         size_t newsize = (size_t)n + 3;
-        p_arr = (seq_t *)realloc(p_arr, newsize * sizeof(seq_t));
-        b_arr = (seq_t *)realloc(b_arr, newsize * sizeof(seq_t));
-        a_arr = (seq_t *)realloc(a_arr, newsize * sizeof(seq_t));
+        p_arr = mem_resize(seq_t, p_arr, newsize);
+        b_arr = mem_resize(seq_t, b_arr, newsize);
+        a_arr = mem_resize(seq_t, a_arr, newsize);
         for (idx_t i = array_size; i < newsize; ++i) {
             p_arr[i] = 0;
             b_arr[i] = 0;

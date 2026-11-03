@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
    The routine enumerates all unordered triples of powers of two whose
    sum is n, treating the cases of one and two parts separately. */
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

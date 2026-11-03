@@ -9,13 +9,15 @@
  *            column is c = n - (r-1)r/2 (1‑based)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache for computed terms */
 static seq_t *cache   = NULL;     /* array, 1‑indexed */
@@ -97,9 +99,9 @@ static void extend_cache(idx_t n) {
     size_t new_cap = n + 1;
     seq_t *new_cache = NULL;
     if (cache == NULL) {
-        new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        new_cache = mem_new(seq_t, new_cap);
     } else {
-        new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        new_cache = mem_resize(seq_t, cache, new_cap);
     }
     if (!new_cache) return;            /* out of memory – unlikely */
 

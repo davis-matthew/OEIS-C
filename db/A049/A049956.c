@@ -12,14 +12,26 @@
  *            function memoizes results, so calls may be in any order
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   compute_m
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_m.h"
+#include "../utils/mem.h"
+
+/* helper: compute m for index i (i ≥ 4) */
+static idx_t compute_m(idx_t i) {
+    idx_t t = i - 1;                    /* n-1 */
+    int p = 0;
+    /* find largest p such that 1<<p < t <= 1<<(p+1) */
+    while (((idx_t)1 << (p + 1)) <= t) ++p;
+    if (((idx_t)1 << p) == t) --p;      /* adjust if t is exact power of two */
+    idx_t power = ((idx_t)1 << (p + 1));
+    return 2 * i - 3 - power;
+}
 
 static seq_t *arr = NULL;    /* values a[n]  (index 1..len) */
 static seq_t *pref = NULL;  /* prefix sums S[n] = a(1)+...+a(n)  (index 0..len) */
@@ -30,8 +42,8 @@ static void ensure_capacity(size_t need) {
     if (cap >= need) return;
     size_t newcap = cap ? cap << 1 : 16;
     while (newcap < need) newcap <<= 1;
-    arr   = (seq_t *)realloc(arr,   newcap * sizeof(seq_t));
-    pref  = (seq_t *)realloc(pref,  newcap * sizeof(seq_t));
+    arr   = mem_resize(seq_t, arr, newcap);
+    pref  = mem_resize(seq_t, pref, newcap);
     cap   = newcap;
 }
 

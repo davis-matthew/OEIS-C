@@ -9,15 +9,34 @@
  *            congruent to 1 (mod 4)
  * Range:     u8 n <= 14, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   is_prime_small, mod_mul_safe
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/mod_mul_safe.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+
+/* Multiply two numbers modulo m without overflow (works for any unsigned seq_t). */
+static seq_t mod_mul_safe(seq_t a, seq_t b, seq_t mod)
+{
+    seq_t result = 0;
+    while (b) {
+        if (b & 1) {
+            result += a;
+            if (result >= mod)
+                result -= mod;
+        }
+        a += a;
+        if (a >= mod)
+            a -= mod;
+        b >>= 1;
+    }
+    return result;
+}
 
 /* cache of Pythagorean primes (1 mod 4) */
 static uint64_t *prime_list = NULL;   /* prime_list[i] = p_{i+1}   */
@@ -41,7 +60,7 @@ static void ensure_primes(idx_t n)
 
     /* Generate primes until we have (target+1) of them. */
     while (prime_count <= target) {
-        if ((candidate & 3u) == 1u && is_prime_small((seq_t)candidate)) {
+        if ((candidate & 3u) == 1u && is_prime_seq((seq_t)candidate)) {
             if (prime_count == prime_cap) {      /* grow array */
                 prime_cap <<= 1;
                 prime_list = (uint64_t *)realloc(

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* typenames supplied by the build system */
  /* seq_t and idx_t are already defined */
@@ -45,7 +47,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap << 1 : 64;
     while (new_cap < needed)
         new_cap <<= 1;
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

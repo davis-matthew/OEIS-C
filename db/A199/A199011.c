@@ -10,14 +10,16 @@
  *            order. For n>0 let r be the unique integer with r(r+1)/2 ≤ n <
  *            (r+1)(r+2)/2 and set c = n – r(r+1)/2. Then a(n) = binom(r,
  *            c+1). For n==0, a(0)=1
- * Range:     u8 n <= 38, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -34,5 +36,5 @@ seq_t a(idx_t n)
     }
 
     idx_t c = n - tri;          /* column index within the row */
-    return binom(r, c + 1);     /* T(r,c) = binomial(r,c+1)  */
+    return binomial(r, c + 1);     /* T(r,c) = binomial(r,c+1)  */
 }

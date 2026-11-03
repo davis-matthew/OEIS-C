@@ -8,7 +8,8 @@
  *            (Harshad) and whose digit‑square trajectory reaches 1 (happy)
  * Range:     u8 n <= 9, u16 n <= 1436, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_square_digits
+ * Validated: standard, pass, 64 terms through n = 8779 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/sum_square_digits.h"
+#include "../utils/mem.h"
+
+/* sum of squares of decimal digits of x */
+static seq_t sum_square_digits(seq_t x) {
+    seq_t sum = 0;
+    while (x) {
+        seq_t d = x % 10;
+        sum += d * d;
+        x  /= 10;
+    }
+    return sum;
+}
 
 /* sum of decimal digits of x */
 static seq_t digit_sum(seq_t x) {
@@ -53,11 +65,11 @@ static void grow_cache(size_t need) {
     if (need <= cache_cap) return;
     size_t newcap = cache_cap ? cache_cap * 2 : 16;
     while (newcap < need) newcap <<= 1;
-    seq_t *tmp = (seq_t*)malloc(newcap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, newcap);
     if (!tmp) exit(EXIT_FAILURE);
     if (cache) {
-        memcpy(tmp, cache, cache_cnt * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, cache_cnt * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = newcap;

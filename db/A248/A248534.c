@@ -13,12 +13,14 @@
  *            a(12)=2748, a(13)=3534, a(14)=4710, a(15)=6222,...
  * Range:     u8 n <= 2, u16 n <= 23, u32 n <= 62, u64 n <= 139, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Array of known initial values: index 0 unused */
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     /* Ensure cache is allocated at least up to index 17 on first call */
     if (!cache) {
         cache_size = 18;          /* indices 0..17 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;     /* allocation failure */
         for (idx_t i = 0; i < cache_size; ++i)
             cache[i] = init[i];
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     /* Grow cache if necessary */
     if (n >= cache_size) {
         idx_t new_size = n + 18;      /* +18 guarantees room for future 17 offsets */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return 0;     /* allocation failure */
         cache = new_cache;
         cache_size = new_size;

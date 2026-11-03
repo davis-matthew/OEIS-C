@@ -12,13 +12,15 @@
  *            a(6)=108173. The recurrence holds for all n ≥ 7
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for previously computed terms.  
    cache[i] stores a(i+1).  cache_size is number of stored terms. */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Ensure cache has at least n terms */
     if ((idx_t)cache_size < n) {
         /* Allocate new array of size n and copy old values */
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * (size_t)n);
+        seq_t *new_cache = mem_new(seq_t, (size_t)n);
         if (!new_cache) {
             /* Allocation failure: return 0 (unlikely in test environment) */
             return (seq_t)0;
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         }
 
         /* Free old cache and replace with new one */
-        free(cache);
+        mem_free(cache);
         cache      = new_cache;
         cache_size = (size_t)n;
     }

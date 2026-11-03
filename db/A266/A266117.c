@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 13, u16 n <= 408, u32 n <= 9826, u64 n <= 9826,
- *            u128 n <= 9826, big any n
- * Helpers:   good_product
+ * Range:     u8 n <= 13, u16 n <= 408, u32 n <= 14641, u64 n <= 14641,
+ *            u128 n <= 14641, big any n
+ * Validated: standard, pass, 101 terms through n = 9826 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,38 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "../utils/good_product.h"
+#include "../utils/mem.h"
+
+static bool good_product(seq_t x, seq_t y)
+{
+    seq_t prod = x * y;
+    seq_t tmp  = prod;
+
+    bool *seen   = NULL;
+    size_t seen_cap = 0;
+
+    for (unsigned k = 1; tmp; ++k) {
+        seq_t mod   = (seq_t)(k + 1);      /* base = k+1 */
+        seq_t digit = tmp % mod;
+        tmp        /= mod;
+        if (digit == 0) continue;
+
+        size_t d = (size_t)digit;
+        if (d >= seen_cap) {
+            size_t newcap = d + 1;
+            bool *newseen = (bool *)realloc(seen, newcap * sizeof(bool));
+            if (!newseen) { free(seen); return false; }
+            memset(newseen + seen_cap, 0, (newcap - seen_cap) * sizeof(bool));
+            seen   = newseen;
+            seen_cap = newcap;
+        }
+        if (seen[d]) { free(seen); return false; }
+        seen[d] = true;
+    }
+
+    free(seen);
+    return true;
+}
 
 /* ==================== dynamic storage helpers ==================== */
 
@@ -44,7 +76,7 @@ static void ensure_cap_seq(size_t needed)
     if (seq_cap >= needed) return;
     size_t newcap = seq_cap ? (seq_cap << 1) : 16;
     if (newcap < needed) newcap = needed;
-    seq_t *tmp = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, newcap);
     if (!tmp) abort();
     seq = tmp;
     seq_cap = newcap;

@@ -9,6 +9,7 @@
  * Formula:   a(n) = (3877*a(n‑1) + 29573) mod 139968, with a(1) = 1
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 52 terms through n = 9704 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

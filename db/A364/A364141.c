@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   count_distinct_primes, is_squarefree
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   is_squarefree, mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/is_squarefree.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Return the n-th term of A364141 (offset 1). */
 seq_t a(idx_t n)
@@ -46,14 +48,14 @@ seq_t a(idx_t n)
 
             /* Since it is squarefree, count_distinct_primes gives the
                number of distinct prime factors.  We need exactly 4. */
-            if (count_distinct_primes((uint64_t)candidate) != 4) continue;
+            if (omega((uint64_t)candidate) != 4) continue;
 
             /* Both neighbors must NOT be squarefree. */
             if (!is_squarefree(candidate - 1) && !is_squarefree(candidate + 1)) {
                 /* Ensure capacity for the new term. */
                 if (terms_len == terms_cap) {
                     size_t new_cap = terms_cap == 0 ? 4 : terms_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                     if (!tmp) abort();          /* out of memory */
                     terms = tmp;
                     terms_cap = new_cap;

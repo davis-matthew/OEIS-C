@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 n <= 9314, u64 n <= 9314, u128 n <= 9314,
- *            big any n
- * Helpers:   build_spf
+ * Range:     u8 none, u16 none, u32 n <= 11329, u64 n <= 11329,
+ *            u128 n <= 11329, big any n
+ * Validated: standard, pass, 75 terms through n = 9314 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,13 @@
     (tau = number of divisors).  a(1) = 1, a(2) = 4, …           */
 
 /* Needs the helper functions provided in the libutils folder: */
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* -----------------------------------------------------------------------
    A comparison routine that works both for integral seq_t in C and for
@@ -93,13 +97,13 @@ a(idx_t n)
 
         /* 3. Compute the raw values m * tau(m).  The product comfortably
            fits in seq_t for all m <= LIMIT (max ~ 2·10^7). */
-        seq_t *vals = (seq_t *)malloc(LIMIT * sizeof(seq_t));
+        seq_t *vals = mem_new(seq_t, LIMIT);
         for (idx_t m = 1; m <= LIMIT; ++m)
             vals[m - 1] = (seq_t)m * (seq_t)tau[m];
 
         /* 4. Sort the array, because we need the distinct, sorted
            elements for the sequence. */
-        qsort(vals, (size_t)LIMIT, sizeof(seq_t), seq_cmp);
+        mem_qsort(vals, (size_t)LIMIT, sizeof(seq_t), seq_cmp);
 
         /* 5. Count how many distinct values there are. */
         size_t uniq = 0;
@@ -110,7 +114,7 @@ a(idx_t n)
         }
 
         /* 6. Allocate the final cache and copy the distinct values. */
-        cache = (seq_t *)malloc(uniq * sizeof(seq_t));
+        cache = mem_new(seq_t, uniq);
         size_t src = 0, dst = 0;
         while (src < (size_t)LIMIT)
         {
@@ -122,7 +126,7 @@ a(idx_t n)
         cache_len = uniq;
 
         /* 7. Cleanup temporary arrays. */
-        free(vals);
+        mem_free(vals);
         free(tau);
         free(spf);
     }

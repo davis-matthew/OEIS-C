@@ -10,13 +10,15 @@
  *            a(2)=T(1,1), a(3)=T(2,0), ...)
  * Range:     i8 n <= 38, i16 n <= 96, i32 n <= 310, i64 n <= 1148,
  *            i128 n <= 4222, big any n
+ * Validated: standard, pass, 94 terms through n = 4696 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"  /* provides seq_t binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t N)
 {

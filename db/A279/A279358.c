@@ -7,7 +7,8 @@
  * Formula:   a(0)=1; for n≥1, a(n)=∑_{k=1..n} binom(n-1,k-1) * k^3 * a(n-k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 476 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed terms and bookkeeping */
 static idx_t  cache_capacity = 0;
@@ -28,7 +30,7 @@ static void ensure_capacity(idx_t new_cap)
     if (new_cap <= cache_capacity)
         return;
 
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp)
         return;            /* memory fault is ignored – build harness handles it */
     a_cache = tmp;

@@ -10,13 +10,15 @@
  *            Eulerian number for k parts with exactly 10 descents
  * Range:     u8 n <= 77, u16 n <= 85, u32 n <= 112, u64 n <= 203,
  *            u128 n <= 551, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
        flattened as dp[k * stride + s]  (stride = n+1)            */
     size_t stride = (size_t)(n + 1);
     size_t dp_size = (size_t)(max_k + 1) * stride;
-    seq_t *dp = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) return 0;                       /* out of memory → 0 */
 
     /* base case: zero parts sum to zero */
@@ -52,9 +54,9 @@ seq_t a(idx_t n)
     }
 
     /* Eulerian numbers A(k,10) up to max_k */
-    seq_t *euler = (seq_t *)calloc((size_t)(max_k + 1), sizeof(seq_t));
+    seq_t *euler = mem_new(seq_t, (size_t)(max_k + 1));
     if (!euler) {
-        free(dp);
+        mem_free(dp);
         return 0;
     }
 
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(dp);
-    free(euler);
+    mem_free(dp);
+    mem_free(euler);
     return result;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 667, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 9654 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* 1‑based array of sequence values   */
 static size_t seq_cap = 0;         /* allocated capacity of seq           */
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
     /* Initialise on first call. */
     if (seq == NULL) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
-        memset(seq, 0, seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
+        mem_set(seq, 0, seq_cap * sizeof(seq_t));
         seq[1] = 1;
         seq[2] = 1;
         last = 2;
@@ -70,8 +72,8 @@ seq_t a(idx_t n)
     if ((size_t)n >= seq_cap) {
         size_t newcap = seq_cap;
         while (newcap <= (size_t)n) newcap <<= 1;
-        seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
-        memset(seq + seq_cap, 0, (newcap - seq_cap) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, newcap);
+        mem_set(seq + seq_cap, 0, (newcap - seq_cap) * sizeof(seq_t));
         seq_cap = newcap;
     }
 

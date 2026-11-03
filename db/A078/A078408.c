@@ -9,12 +9,14 @@
  *            odd parts
  * Range:     u8 n <= 13, u16 n <= 38, u32 n <= 118, u64 n <= 395,
  *            u128 n <= 1410, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>          /* for bool */
+#include "../utils/mem.h"
 
 static seq_t part[20002];    /* part[k] holds the partition count for integer k */
 static bool initialized = false;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         /* Compute the target */
         idx_t target = 2 * n + 1;
         /* Allocate a temporary array big enough for this single query */
-        seq_t *tmp = (seq_t *)malloc(sizeof(seq_t) * (target + 1));
+        seq_t *tmp = mem_new(seq_t, (target + 1));
         if (!tmp) return (seq_t)0; /* allocation failure – return 0 as a fallback */
 
         for (idx_t i = 0; i <= target; ++i)
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         }
 
         seq_t result = tmp[target];
-        free(tmp);
+        mem_free(tmp);
         return result;
     }
 

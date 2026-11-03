@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 379, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 931 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Integer square root (integer arithmetic)                           */
@@ -189,7 +191,7 @@ seq_t a(idx_t n)
         if (seq_cap < (size_t)n) {
             seq_cap = (seq_cap == 0) ? 16 : seq_cap;
             while (seq_cap < (size_t)n) seq_cap <<= 1;
-            seq_cache = (seq_t*)realloc(seq_cache, seq_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             if (!seq_cache) abort();
         }
         while (seq_len < (size_t)n) {

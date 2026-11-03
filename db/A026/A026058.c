@@ -8,6 +8,7 @@
  * Formula:   a(n) = ((n^3 + 12*n^2 - 25*n)/6 - (n%4==2 ? 1 : 0)) / 2
  * Range:     u8 n <= 4, u16 n <= 36, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 51 terms through n = 54 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

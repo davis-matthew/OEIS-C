@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   abs64
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/abs64.h"
+#include "../utils/mem.h"
+
+/* Internal types are supplied by the build: idx_t (uint64_t), seq_t (unsigned). */
+static inline int64_t abs64(int64_t v) { return v < 0 ? -v : v; }
 
 static inline int64_t gcd64(int64_t a, int64_t b)
 {
@@ -63,7 +67,7 @@ seq_t a(idx_t n)
             new_cap *= 2;
         int64_t *tmp_x = (int64_t *)realloc(x, new_cap * sizeof(int64_t));
         int64_t *tmp_y = (int64_t *)realloc(y, new_cap * sizeof(int64_t));
-        seq_t  *tmp_c = (seq_t *)realloc(cnt, new_cap * sizeof(seq_t));
+        seq_t  *tmp_c = mem_resize(seq_t, cnt, new_cap);
         if (!tmp_x || !tmp_y || !tmp_c) { /* allocation failure */
             return (seq_t)0;
         }

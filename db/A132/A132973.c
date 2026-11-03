@@ -9,12 +9,14 @@
  *            where c_k = 3 + 3*I(4|k)+I(6|k) – 3*I(2|k) – I(3|k) – I(12|k)
  * Range:     i8 n <= 25, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,14 +28,14 @@ seq_t a(idx_t n)
     /* c[k] for 1..n   */
     int *c = (int *)malloc(N * sizeof(int));
     /* alpha[k] = Σ_{d|k} d*c[d]  */
-    seq_t *alpha = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *alpha = mem_new(seq_t, N);
     /* aseq[k] = a(k)  */
-    seq_t *aseq = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *aseq = mem_new(seq_t, N);
 
     if (!c || !alpha || !aseq) {
         free(c);
-        free(alpha);
-        free(aseq);
+        mem_free(alpha);
+        mem_free(aseq);
         return (seq_t)1;   /* fallback on allocation failure */
     }
 
@@ -72,8 +74,8 @@ seq_t a(idx_t n)
     seq_t result = aseq[(size_t)n];
 
     free(c);
-    free(alpha);
-    free(aseq);
+    mem_free(alpha);
+    mem_free(aseq);
 
     return result;
 }

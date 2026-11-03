@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 294, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 69 terms through n = 874 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 /* Integer square‑root (floor) for uint64_t using Newton's method. */
 static uint64_t floor_sqrt_u64(uint64_t n)
@@ -104,7 +106,7 @@ static bool has_three_pal_primes(uint64_t val)
     for (size_t i = 0; i < primes_len && (uint64_t)primes[i] * primes[i] <= x; ++i) {
         uint32_t p = primes[i];
         if (x % p == 0) {
-            if (!is_palindrome((seq_t)p, 10)) return false;
+            if (!is_palindrome_base((seq_t)p, 10)) return false;
 
             int mult = 0;
             while (x % p == 0) {
@@ -118,7 +120,7 @@ static bool has_three_pal_primes(uint64_t val)
 
     /* if remainder > 1, it's a prime factor */
     if (x > 1) {
-        if (!is_palindrome((seq_t)x, 10)) return false;
+        if (!is_palindrome_base((seq_t)x, 10)) return false;
         ++factors;
         if (factors > 3) return false;
     }
@@ -154,7 +156,7 @@ seq_t a(idx_t n)
             if (has_three_pal_primes(current)) {
                 if (cache_len == cache_cap) {
                     cache_cap = (cache_cap == 0 ? 8 : cache_cap << 1);
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)current;
             }

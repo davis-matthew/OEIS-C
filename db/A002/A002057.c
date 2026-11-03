@@ -9,13 +9,14 @@
  *            = 4*binomial(2*n+3,n)/(n+4))
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 33, u128 n <= 66,
  *            big any n
- * Helpers:   a002057_gcd_u
+ * Validated: standard, pass, 42 terms through n = 942 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002057_gcd_u.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t r = (seq_t)1;
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
     for (i = 1; i <= n; i++) {
         uint64_t num = (uint64_t)2 * (2 * (uint64_t)i + 3) * ((uint64_t)i + 1);
         uint64_t den = (uint64_t)i * ((uint64_t)i + 4);
-        uint64_t g = a002057_gcd_u(num, den);
+        uint64_t g = gcd_u64(num, den);
         num /= g;
         den /= g;
         /* num and den are coprime and r*num/den is an integer, so den divides r */

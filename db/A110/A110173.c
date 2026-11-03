@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 613, u16 n <= 9434, u32 n <= 9434, u64 n <= 9434,
- *            u128 n <= 9434, big any n
- * Helpers:   none
+ * Range:     u8 n <= 613, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 106 terms through n = 9434 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    returns 0 if no such k.  Uses a cached Euler totient sieve. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached totient values; indexed 1..N. */
 static seq_t *phi_cache = NULL;
@@ -28,7 +30,7 @@ static void ensure_phi(idx_t n) {
         return;
 
     /* Allocate space for 0..n (we ignore index 0). */
-    seq_t *new_cache = (seq_t *)realloc(phi_cache, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, phi_cache, (size_t)(n + 1));
     if (!new_cache) {
         /* Allocation failed – abort (should not happen in normal use). */
         abort();

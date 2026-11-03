@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 152, u32 n <= 560, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   pow2, v2_binomial
+ * Validated: standard, pass, 82 terms through n = 1314 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,16 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"   /* pow2(exp) returns seq_t */
-#include "../utils/v2_binomial.h"
+#include "../utils/pow2.h"
+
+/* exponent of 2 in binomial coefficient C(n,k) */
+static idx_t v2_binomial(idx_t n, idx_t k) {
+    /* Legendre's formula for prime 2 */
+    idx_t v = 0;
+    for (idx_t p = 2; p <= n; p <<= 1)
+        v += n / p - k / p - (n - k) / p;
+    return v;
+}
 
 /* integer square‑root of a 64‑bit value */
 static idx_t uint64_isqrt(idx_t v) {

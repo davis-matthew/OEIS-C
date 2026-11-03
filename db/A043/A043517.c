@@ -7,14 +7,24 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   count7
+ * Validated: standard, pass, 66 terms through n = 1888 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Numbers having exactly one decimal digit 7; returns the n‑th such number. */
 #include <stdlib.h>
-#include "../utils/count7.h"
+#include "../utils/mem.h"
+
+static int count7(seq_t x) {
+    int cnt = 0;
+    while (x > 0) {
+        if ((x % 10) == 7) ++cnt;
+        x /= 10;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -30,7 +40,7 @@ seq_t a(idx_t n) {
             if (count7(next) == 1) {
                 if (cache_size == cache_cap) {
                     cache_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-                    cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_size++] = next;
             }

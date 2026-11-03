@@ -10,7 +10,8 @@
  *            reading the matrix A(n,k) by ascending antidiagonals
  * Range:     u8 n <= 19, u16 n <= 34, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   antidiagonal_row, binomial, factorial, pow2
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,31 @@
 #include <math.h>
 
 /* Utility function headers */
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/factorial.h"
 #include "../utils/pow2.h"
-#include "../utils/antidiagonal_row.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+static inline idx_t antidiagonal_row(idx_t n) {
+    /* Find minimal d such that (d+1)*(d+2)/2 > n */
+    double approx = sqrt(8.0 * (double)n + 1.0);
+    idx_t d = (idx_t)((approx - 1.0) / 2.0);
+    /* Correct possible rounding error */
+    while (((unsigned __int128)(d + 1) * (d + 2) / 2) <= n) ++d;
+    while (((unsigned __int128)d * (d + 1) / 2) > n) --d;
+    return d;
+}
 
 seq_t a(idx_t n) {
     /* Find diagonal */

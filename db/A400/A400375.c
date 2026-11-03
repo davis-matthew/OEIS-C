@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 5100, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_good_idx
+ * Validated: standard, pass, 71 terms through n = 8494 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,45 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_good_idx.h"
+#include "../utils/mem.h"
+
+/* Test whether an unsigned integer x satisfies the greedy alternating digit
+   sum equals zero.  Uses only integer arithmetic. */
+static bool is_good_idx(idx_t num)
+{
+    idx_t s = 0, t = num;
+    size_t len = 0;
+
+    if (t == 0)
+        len = 1;
+    else
+    {
+        while (t > 0)
+        {
+            ++len;
+            t /= 10;
+        }
+    }
+
+    uint8_t digits[128];
+    t = num;
+    for (size_t i = len; i > 0; --i)
+    {
+        digits[i - 1] = t % 10;
+        t /= 10;
+    }
+
+    for (size_t i = 0; i < len; ++i)
+    {
+        idx_t d = digits[i];
+        if (s >= d)
+            s -= d;
+        else
+            s += d;
+    }
+
+    return s == 0;
+}
 
 /* Returns the n-th term of the sequence (1‑based index). */
 seq_t a(idx_t n)
@@ -38,7 +77,7 @@ seq_t a(idx_t n)
             if (len >= cap)
             {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     return 0;  /* allocation failed */
                 cache = tmp;

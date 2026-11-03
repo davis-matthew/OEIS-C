@@ -7,13 +7,16 @@
  * Formula:   a(n) = n * lcm{1,2,…,n}
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
         size_t need = (size_t)n;
         if (lcms_cap < need) {
             lcms_cap = need;
-            seq_t *tmp = (seq_t *)realloc(lcms, lcms_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, lcms, lcms_cap);
             if (!tmp && lcms_cap > 0)
                 return 0;   /* allocation failed */
             lcms = tmp;

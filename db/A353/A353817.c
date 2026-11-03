@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is a prime power with an odd exponent; otherwise 0
- * Range:     u8 n <= 9165, u16 n <= 9165, u32 n <= 9165, u64 n <= 9165,
- *            u128 n <= 9165, big any n
+ * Range:     u8 n <= 65539, u16 n <= 65539, u32 n <= 65539, u64 n <= 65539,
+ *            u128 n <= 65539, big any n
+ * Validated: standard, pass, 141 terms through n = 9165 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

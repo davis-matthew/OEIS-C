@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
      a(n) = 2*a(n‑1) – 2*a(n‑2) + a(n‑3) – a(n‑6) + 2*a(n‑7) – 2*a(n‑8) + a(n‑9),
    for n > 9.  The sequence repeats every 12 terms. */
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t period[12];

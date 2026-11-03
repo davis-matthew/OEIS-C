@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{i=1..n} C(i+4,5)^3 (offset 1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 9, u64 n <= 44, u128 n <= 744,
  *            big any n
- * Helpers:   binomial_small
+ * Validated: standard, pass, 37 terms through n = 4778 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binomial_small.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------
  *  a:  compute sequence A086026.
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache if necessary. */
     if (!cache || n >= cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)                     /* allocation failed: return 0 */
             return (seq_t)0;
         cache = tmp;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Compute missing terms incrementally. */
     for (idx_t i = cache_max + 1; i <= n; ++i) {
-        seq_t c   = binomial_small(i + 4, 5);   /* C(i+4,5) */
+        seq_t c   = binomial(i + 4, 5);   /* C(i+4,5) */
         seq_t cube = c * c * c;                 /* its cube */
         cache[i] = cache[i - 1] + cube;         /* accumulate sum */
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 159, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 4704 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Occupy enough space to find at least the first 10000 terms. */
 #define MAX_LIMIT     16000000U      /* 16 million → ~64 MB of uint32_t */
@@ -36,7 +38,7 @@ static void grow_seq_array(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t new_cap = (*cap == 0) ? 128 : (*cap << 1);
         while (new_cap < need) new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

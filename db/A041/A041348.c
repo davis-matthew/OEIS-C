@@ -11,12 +11,14 @@
  *            continued‑fraction coefficients of sqrt(188).)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 18, u64 n <= 37, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t   *cache        = NULL;   /* array of computed numerators p_n  */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 {
     /* --- initialise on first call --------------------------------- */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;                 /* allocation failure – unlikely */
         cache[0] = a0;                       /* p_0 = a0 = 13 */
         cache_size = 1;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* --- grow cache to hold up to index n ------------------------ */
     idx_t    start = cache_size;                 /* first index to compute  */
     if ((idx_t)(n + 1) > cache_size) {
-        cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!cache) return 0;                   /* allocation failure – unlikely */
         cache_size = n + 1;
     }

@@ -8,7 +8,8 @@
  *            function
  * Range:     u8 n <= 514, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    (sufficient for n up to ~10⁴, as required). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* 1‑based cache, index 0 unused      */
 static idx_t   cache_size = 0;   /* largest n that has been computed  */
@@ -28,7 +30,7 @@ static void grow_cache(idx_t need)
     if (need <= cache_cap) return;
     idx_t newcap = cache_cap ? (cache_cap << 1) : 8;
     while (newcap < need) newcap <<= 1;
-    a_cache = (seq_t *)realloc(a_cache, newcap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, newcap);
     cache_cap = newcap;
 }
 

@@ -9,7 +9,8 @@
  *            offset = 15 (a(15) is the first digit)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 100, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define INT_START    ((idx_t)15)
 #define INT_LENGTH   ((idx_t)15)
@@ -48,7 +50,7 @@ static void init(void)
 
     /* allocate initial capacity for fractional digits */
     dig_cap = 128;
-    dig_arr = (seq_t *)malloc(dig_cap * sizeof(seq_t));
+    dig_arr = mem_new(seq_t, dig_cap);
     dig_cnt = 0;
     initialized = true;
 }
@@ -58,7 +60,7 @@ static void ensure_capacity(size_t need)
     if (need <= dig_cap) return;
     size_t new_cap = dig_cap ? dig_cap : 128;
     while (new_cap < need) new_cap <<= 1;
-    dig_arr = (seq_t *)realloc(dig_arr, new_cap * sizeof(seq_t));
+    dig_arr = mem_resize(seq_t, dig_arr, new_cap);
     dig_cap = new_cap;
 }
 

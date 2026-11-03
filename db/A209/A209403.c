@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n} prime(k) * odd_prime(n-k+1)
  * Range:     u8 n <= 5, u16 n <= 32, u32 n <= 825, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 57 terms through n = 9452 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

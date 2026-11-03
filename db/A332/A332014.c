@@ -9,12 +9,14 @@
  *            of |S|!
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* DP table: dp[k*stride + s] = number of subsets of size k summing to s. */
     size_t stride = (size_t)n + 1;                      /* columns = 0 … n */
-    seq_t *dp = (seq_t *)calloc((m + 1) * stride, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (m + 1) * stride);
     if (!dp) return 0;  /* allocation failure – unlikely in tests */
 
     dp[0] = 1;           /* empty subset */
@@ -47,9 +49,9 @@ seq_t a(idx_t n)
     }
 
     /* factorials up to m. */
-    seq_t *fact = (seq_t *)calloc(m + 1, sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, m + 1);
     if (!fact) {
-        free(dp);
+        mem_free(dp);
         return 0;
     }
     fact[0] = 1;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         res += ways * fact[k];
     }
 
-    free(dp);
-    free(fact);
+    mem_free(dp);
+    mem_free(fact);
     return res;
 }

@@ -7,7 +7,8 @@
  * Formula:   list the divisors of 299792458 in ascending order
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   _compare_seq_t, _seq_t_compare
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_compare_seq_t.h"
-#include "../utils/_seq_t_compare.h"
+#include "../utils/mem.h"
+
+static void _compare_seq_t(const void *p1, const void *p2, void *out)
+{
+    seq_t a = *((const seq_t *)p1);
+    seq_t b = *((const seq_t *)p2);
+    if (a < b) *((int *)out) = -1;
+    else if (a > b) *((int *)out) = 1;
+    else *((int *)out) = 0;
+}
+
+static int _seq_t_compare(const void *p1, const void *p2)
+{
+    seq_t a = *((const seq_t *)p1);
+    seq_t b = *((const seq_t *)p2);
+    return (a > b) - (a < b);
+}
 
 static seq_t _divs[16];
 static bool _ready = false;
@@ -39,7 +55,7 @@ seq_t a(idx_t n)
         }
 
         /* sort the array */
-        qsort(_divs, 16, sizeof(seq_t), _seq_t_compare);
+        mem_qsort(_divs, 16, sizeof(seq_t), _seq_t_compare);
         _ready = true;
     }
 

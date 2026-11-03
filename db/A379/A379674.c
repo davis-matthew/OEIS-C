@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Called from the build system.  The types seq_t and idx_t are defined
    elsewhere.  No other helpers are needed. */
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
 
     if (max_n == 0) {
         /* First access: allocate arrays with required capacity. */
-        a_vals   = (seq_t *)realloc(a_vals,   need_cap * sizeof(seq_t));
-        s4_vals  = (seq_t *)realloc(s4_vals,  need_cap * sizeof(seq_t));
+        a_vals   = mem_resize(seq_t, a_vals, need_cap);
+        s4_vals  = mem_resize(seq_t, s4_vals, need_cap);
         if (!a_vals || !s4_vals) exit(EXIT_FAILURE);
 
         /* Initialise base indices 0..4. */
@@ -54,8 +56,8 @@ seq_t a(idx_t n)
         /* c_prev already holds the row for n=0: [1,0,0,0,0]. */
     } else if (need_cap > max_n + 1) {
         /* Grow the arrays if necessary. */
-        seq_t *new_a   = (seq_t *)realloc(a_vals,   need_cap * sizeof(seq_t));
-        seq_t *new_s4  = (seq_t *)realloc(s4_vals,  need_cap * sizeof(seq_t));
+        seq_t *new_a   = mem_resize(seq_t, a_vals, need_cap);
+        seq_t *new_s4  = mem_resize(seq_t, s4_vals, need_cap);
         if (!new_a || !new_s4) exit(EXIT_FAILURE);
         a_vals = new_a;
         s4_vals = new_s4;

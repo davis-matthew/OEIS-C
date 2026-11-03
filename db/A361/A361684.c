@@ -7,18 +7,19 @@
  * Formula:   a(n) = ceil(2*n - 3/2 + sqrt(2*(n-1)^2 + 9/4))
  * Range:     u8 n <= 6, u16 n <= 1622, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 76 terms through n = 9661 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 static seq_t floor_sqrt_seq(seq_t x) {
     if (x < 2) return x;
-    unsigned bitlen = bitlen_seq_t(x);
+    unsigned bitlen = bit_length(x);
     seq_t low = 0;
     seq_t high = ((seq_t)1) << ((bitlen + 1) / 2);
     while (low < high) {

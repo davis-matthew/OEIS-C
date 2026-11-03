@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 54, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt, is_palindrome, pow10, rev_prefix
+ * Validated: standard, pass, 70 terms through n = 9253 (2026-11-03)
+ * Helpers:   ipow_i32, is_palindrome_base, mem, reverse_digits_idx_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,10 +27,38 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/pow10.h"
-#include "../utils/rev_prefix.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits_idx_to_seq.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Generate the next decimal palindrome in increasing order.
    The function uses static state, so consecutive calls produce
@@ -44,10 +73,10 @@ static seq_t next_palindrome(void)
 
     seq_t pal;
     if ((len & 1) == 0) {              /* even length */
-        pal = (seq_t)prefix * pow10(half) + rev_prefix(prefix);
+        pal = (seq_t)prefix * pow10(half) + reverse_digits_idx_to_seq(prefix);
     } else {                           /* odd  length */
         pal = (seq_t)prefix * pow10(half - 1) +
-              rev_prefix(prefix / 10);
+              reverse_digits_idx_to_seq(prefix / 10);
     }
 
     /* Advance generator state for the next call */
@@ -84,7 +113,7 @@ seq_t a(idx_t n)
             if (d <= 1) continue;                       /* trivial factor*/
             if (p % d == 0) {
                 seq_t q = p / d;
-                if (is_palindrome(q, 10)) {            /* both palindromes? */
+                if (is_palindrome_base(q, 10)) {            /* both palindromes? */
                     is_valid = false;
                     break;
                 }
@@ -94,7 +123,7 @@ seq_t a(idx_t n)
         /* Append p to the full palindrome list. */
         if (pal_len == pal_cap) {
             pal_cap = pal_cap ? pal_cap * 2 : 8;
-            pal_list = (seq_t*)realloc(pal_list, pal_cap * sizeof(seq_t));
+            pal_list = mem_resize(seq_t, pal_list, pal_cap);
         }
         pal_list[pal_len++] = p;
 
@@ -102,7 +131,7 @@ seq_t a(idx_t n)
         if (is_valid) {
             if (res_len == res_cap) {
                 res_cap = res_cap ? res_cap * 2 : 8;
-                res = (seq_t*)realloc(res, res_cap * sizeof(seq_t));
+                res = mem_resize(seq_t, res, res_cap);
             }
             res[res_len++] = p;
         }

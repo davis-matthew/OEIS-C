@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 111, u16 n <= 111, u32 n <= 111, u64 n <= 111,
  *            u128 n <= 111, big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 111 terms through n = 111 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Cached triangle rows; rows[i] points to array of length i+1
    representing row (i+1). */
@@ -74,7 +76,7 @@ static void _build_rows(size_t targetRow)
 
     /* Build new rows. */
     for (size_t r = _rows_max + 1; r <= targetRow; ++r) {
-        seq_t *row = (seq_t *)malloc(r * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, r);
         if (!row)
             continue; /* OOM – skip this row; future calls will miss it */
 

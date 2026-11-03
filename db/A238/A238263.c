@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1994, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_power_odd, is_representable_uint64
+ * Validated: standard, pass, 87 terms through n = 9205 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,28 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_power_odd.h"
-#include "../utils/is_representable_uint64.h"
+
+/* Determine whether m is a prime power with an odd prime (or 1). */
+static bool is_prime_power_odd(uint64_t m)
+{
+    if (m == 1) return true;                 /* 1 is p^0 for any p */
+    uint64_t d = 0;
+    for (uint64_t i = 3; i * i <= m; i += 2) /* only odd divisors are needed */
+        if ((m % i) == 0) { d = i; break; }
+
+    if (d == 0) return true;                 /* m itself is an odd prime */
+
+    while ((m % d) == 0) m /= d;
+    return (m == 1);
+}
+
+/* Check if x can be expressed as 2^k * (odd prime)^j with k,j ≥ 0. */
+static bool is_representable_uint64(uint64_t x)
+{
+    if (x == 0) return false;                /* zero cannot appear in the sum */
+    while ((x & 1ULL) == 0ULL) x >>= 1;      /* strip all factors of 2 */
+    return is_prime_power_odd(x);
+}
 
 /* Main OEIS sequence function. */
 seq_t a(idx_t n)

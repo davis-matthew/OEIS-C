@@ -10,7 +10,8 @@
  *            order, while k-1 does not
  * Range:     u8 n <= 8, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   has17
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has17.h"
+#include "../utils/mem.h"
+
+/* Helper: Check whether an unsigned integer contains “17” or “71” in its
+ * octal representation.  We inspect the digits from least‑significant to
+ * most‑significant, so the pattern is detected when a 1 is followed by a 7
+ * or a 7 is followed by a 1 in the next higher digit. */
+static bool has17(idx_t x)
+{
+    if (x < 8)               /* < 2 octal digits → cannot contain the pattern   */
+        return false;
+
+    idx_t prev = x % 8;      /* least significant digit                        */
+    x /= 8;
+    while (x > 0) {
+        idx_t curr = x % 8;
+        if ((prev == 1 && curr == 7) || (prev == 7 && curr == 1))
+            return true;
+        prev = curr;
+        x /= 8;
+    }
+    return false;
+}
 
 /* --------------------------------------------------------------------- */
 
@@ -35,7 +57,7 @@ static idx_t  next_k     = 1;     /* smallest integer to test next */
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 8 : cache_cap << 1;   /* *2 */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                                 /* unrecoverable */
     cache = tmp;
     cache_cap = new_cap;

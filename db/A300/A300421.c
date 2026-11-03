@@ -11,7 +11,8 @@
  *            3*a(n-4) - 2*a(n-5) - a(n-6) for n > 7 (see OEIS A300421)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 39, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for memoisation */
 static seq_t *cache = NULL;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache array if necessary */
     if ((size_t)n > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         cache = tmp;
         cache_cap = (size_t)n;
     }

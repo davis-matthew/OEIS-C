@@ -12,13 +12,15 @@
  *            common constant value
  * Range:     u8 none, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Adjacency matrices for the 7 possible constants (0..6).  */
 static uint8_t adj[7][16][16];
@@ -73,11 +75,11 @@ static void init(void)
 /* Grow the cache array to hold at least new_cap entries (1‑based). */
 static void grow_cache(size_t new_cap)
 {
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) exit(EXIT_FAILURE);
     for (idx_t i = 1; i <= cache_max; ++i)
         new_cache[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }

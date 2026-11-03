@@ -9,13 +9,14 @@
  *            with the convention that a(p)=1 for primes p
  * Range:     u8 n <= 95, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 113 terms through n = 9214 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -49,6 +50,6 @@ seq_t a(idx_t n)
 
     /* Compute the greatest prime factor of the derivative.
        gpf is available from the utils and works on uint64_t values. */
-    uint64_t gpf_val = gpf((uint64_t)deriv);
+    uint64_t gpf_val = largest_prime_factor((uint64_t)deriv);
     return (seq_t)(gpf_val > 1 ? gpf_val : 1);
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: compute sum of decimal digits of an unsigned 64‑bit integer */
 static inline unsigned int digit_sum_uint64(uint64_t x)
@@ -47,12 +49,12 @@ seq_t a(idx_t n)
         /* Grow cache lazily */
         if (sz == 0) {
             cap = 128;
-            cache = (seq_t*)malloc(sizeof(seq_t) * cap);
+            cache = mem_new(seq_t, cap);
         } else {
             while (cap <= target) {
                 size_t new_cap = cap << 1;
                 if (new_cap < cap) new_cap = cap + 64;   /* avoid overflow */
-                cache = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+                cache = mem_resize(seq_t, cache, new_cap);
                 cap = new_cap;
             }
         }

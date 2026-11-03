@@ -9,13 +9,16 @@
  *            numbers up to n)
  * Range:     u8 n <= 35, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   mobius
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mobius.h"   /* assumes seq_t mobius(idx_t) is defined elsewhere */
+#include <stdint.h>
+#include "../utils/mobius.h"
+#include "../utils/mem.h"
 
 static seq_t *prefix = NULL;   /* prefix[i] = a(i) for 0 <= i <= pref_max */
 static idx_t  pref_max = 0;
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
 
     /* initialise storage if this is the first call */
     if (prefix == NULL) {
-        prefix   = (seq_t *)malloc(sizeof(seq_t) * 1);
+        prefix   = mem_new(seq_t, 1);
         if (prefix == NULL)
             abort();                 /* out of memory */
         prefix[0] = (seq_t)0;
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
 
     /* extend the array and recompute missing values if necessary */
     if (n > pref_max) {
-        seq_t *new_prefix = (seq_t *)realloc(prefix, sizeof(seq_t) * (n + 1));
+        seq_t *new_prefix = mem_resize(seq_t, prefix, (n + 1));
         if (new_prefix == NULL)
             abort();                 /* out of memory */
         prefix = new_prefix;

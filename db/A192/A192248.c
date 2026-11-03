@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 26, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
     that calls are efficient regardless of order.                       */
 
 #include <stdlib.h>   /* for malloc / realloc */
+#include "../utils/mem.h"
 
 static const seq_t pre[11] = {
     (seq_t)1, (seq_t)1, (seq_t)16, (seq_t)51, (seq_t)191,
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
     /* Expand cache if necessary */
     if (cache == NULL) {
         /* Allocate space for at least 11 terms */
-        cache = (seq_t *)malloc(sizeof(seq_t) * 11);
+        cache = mem_new(seq_t, 11);
         for (idx_t i = 0; i < 11; ++i) cache[i] = pre[i];
         cached = 11;
     }
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
 
     /* Resize cache to accommodate up to index 'idx' */
     if (idx + 1 > cached) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (idx + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (idx + 1));
         if (tmp == NULL) { /* allocation failure; fall back on precomputed values if available */
             /* In the unlikely event of failure, just return 0 */
             return (seq_t)0;

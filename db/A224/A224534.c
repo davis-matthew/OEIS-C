@@ -8,7 +8,8 @@
  *            prime (the 8th prime is 19)
  * Range:     u8 n <= 47, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdbool.h>
 
 /* Utility for primality testing of 64‑bit numbers. */
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* ---------- Prime cache implementation ---------- */
 
@@ -58,7 +59,7 @@ ensure_primes(size_t need)
         else
             candidate = prime_cache[prime_count - 1] + 2; /* skip even numbers */
 
-        while (!is_prime_small(candidate)) {
+        while (!is_prime_seq(candidate)) {
             candidate += 2;
         }
         prime_cache[prime_count++] = candidate;

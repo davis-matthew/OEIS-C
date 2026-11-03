@@ -11,7 +11,8 @@
  *            triangle is read row by row
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   _prime_limit_for_idx, build_primes
+ * Validated: partial, pass, 98 terms through n = 98 (2026-11-01)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_prime_limit_for_idx.h"
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/build_primes.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* Global cache of primes */
 static idx_t *PRIMES = NULL;

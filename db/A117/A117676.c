@@ -7,6 +7,7 @@
  * Formula:   a(n) = (9*(n/7) + offset[n%7])^2, where offset = {0,1,2,3,6,7,8}
  * Range:     u8 n <= 11, u16 n <= 199, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9717 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

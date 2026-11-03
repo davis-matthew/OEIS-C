@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 48, u64 n <= 94, u128 n <= 186,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n)=a(n-1)+a(n-2) for all n>8 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Base values for the first 8 terms */
 static const seq_t base_values[9] = {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         /* Choose new capacity: at least n+1 and at least double the old size */
         idx_t new_capacity = capacity * 2;
         if (new_capacity < n + 1) new_capacity = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (tmp == NULL) {
             return (seq_t)0;      /* allocation failed – unlikely in tests */
         }

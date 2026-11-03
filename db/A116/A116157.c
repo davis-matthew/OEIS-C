@@ -8,13 +8,15 @@
  *            values a(0)=1, a(1)=1, a(2)=3, a(3)=3, a(4)=7
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 46, u64 n <= 92, u128 n <= 184,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Implementation uses a relaxed memoization scheme; recursion
    is only handled via a simple array cache.  The cache holds
@@ -36,7 +38,7 @@ static void ensure_capacity(idx_t needed)
         new_cap <<= 1;
     /* realloc may return NULL on failure; abort to keep behaviour
        deterministic in the contest environment. */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();
     cache = tmp;

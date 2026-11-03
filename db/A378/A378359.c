@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 315, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_digits
+ * Validated: standard, pass, 95 terms through n = 8394 (2026-11-03)
+ * Helpers:   get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,14 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include "../utils/get_digits.h"
 
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* static state ------------------------------------------------------------- */
 static seq_t *seq_cache   = NULL;   /* 1‑based array of computed terms   */
@@ -37,14 +41,14 @@ static void ensure_capacity(size_t need)
         size_t old_cap = cache_cap;
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, sizeof(seq_t) * (new_cap + 1));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, (new_cap + 1));
         if (!tmp) abort();          /* allocation failed */
         seq_cache = tmp;
         cache_cap = new_cap;
 #ifdef __cplusplus
         /* construct the newly allocated elements (C++ non‑POD types may require construction) */
         for (size_t i = old_cap + 1; i <= new_cap; ++i) {
-            new(&seq_cache[i]) seq_t();
+            *(&seq_cache[i]) = (seq_t)0;
         }
 #endif
     }
@@ -89,10 +93,10 @@ static void init_cache(void)
     if (cache_cap == 0) {
         cache_cap  = 1;
         cache_len  = 1;
-        seq_cache = (seq_t *)malloc(sizeof(seq_t) * (cache_cap + 1));
+        seq_cache = mem_new(seq_t, (cache_cap + 1));
         if (!seq_cache) abort();
 #ifdef __cplusplus
-        new(&seq_cache[1]) seq_t();   /* construct element 1 */
+        *(&seq_cache[1]) = (seq_t)0;   /* construct element 1 */
 #endif
         seq_cache[1] = (seq_t)0;
         for (size_t i = 0; i < 10; ++i) digit_cnt[i] = (seq_t)0;

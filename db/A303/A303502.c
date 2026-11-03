@@ -12,7 +12,8 @@
  *            the parity condition derived above
  * Range:     u8 n <= 147, u16 n <= 4816, u32 n <= 4816, u64 n <= 4816,
  *            u128 n <= 4816, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 4265 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* test whether integer k satisfies the palindrome‑with‑one‑digit condition */
 static bool good_candidate(idx_t k)
@@ -62,7 +64,7 @@ static void grow_cache(size_t need)
     size_t new_cap = cached_cap ? (cached_cap << 1) : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    cached_seq = (seq_t *)realloc(cached_seq, new_cap * sizeof(seq_t));
+    cached_seq = mem_resize(seq_t, cached_seq, new_cap);
     cached_cap = new_cap;
 }
 

@@ -8,7 +8,8 @@
  *            C(m) = 1 for m = 0, otherwise C(m) = 2^{m-1}
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 60, u128 n <= 123,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 3249 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *A      = NULL;     /* a(n) values          */
 static seq_t *comp   = NULL;     /* C(n)  = compositions of n */
@@ -35,8 +37,8 @@ static void ensure_capacity(idx_t n)
     if ((size_t)(n + 1) <= cap) return;
     size_t newcap = (size_t)(n + 1) * 2;
     if (newcap < 2) newcap = 2;
-    seq_t *newA  = (seq_t*)realloc(A, newcap * sizeof(seq_t));
-    seq_t *newC  = (seq_t*)realloc(comp, newcap * sizeof(seq_t));
+    seq_t *newA  = mem_resize(seq_t, A, newcap);
+    seq_t *newC  = mem_resize(seq_t, comp, newcap);
     if (!newA || !newC) exit(EXIT_FAILURE);
     A      = newA;
     comp   = newC;
@@ -111,8 +113,8 @@ seq_t a(idx_t n)
     if (A == NULL) {
         /* Initial allocation for indices 0 through 1 */
         size_t init_cap = 8;
-        A     = (seq_t*)malloc(init_cap * sizeof(seq_t));
-        comp  = (seq_t*)malloc(init_cap * sizeof(seq_t));
+        A     = mem_new(seq_t, init_cap);
+        comp  = mem_new(seq_t, init_cap);
         if (!A || !comp) exit(EXIT_FAILURE);
         cap = init_cap;
 

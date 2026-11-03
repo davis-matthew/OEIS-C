@@ -10,6 +10,7 @@
  *            equals the last three digits
  * Range:     u8 none, u16 none, u32 n <= 336, u64 n <= 336, u128 n <= 336,
  *            big any n
+ * Validated: full, pass, 336 terms through n = 336 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

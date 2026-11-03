@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 100, u16 n <= 9619, u32 n <= 9619, u64 n <= 9619,
- *            u128 n <= 9619, big any n
- * Helpers:   none
+ * Range:     u8 n <= 100, u16 n <= 19685, u32 n <= 19685, u64 n <= 19685,
+ *            u128 n <= 19685, big any n
+ * Validated: standard, pass, 117 terms through n = 9619 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    not exceeding n. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     }
 
     /* dynamic programming array */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;          /* allocation failed – return 0 */
     for (size_t i = 0; i <= (size_t)n; ++i) dp[i] = 0;
     dp[0] = 1;                          /* empty sum */
@@ -60,6 +62,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

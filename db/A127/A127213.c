@@ -6,14 +6,16 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 6*a(n-1) + 36*a(n-2), a(1) = 6, a(2) = 108 (Equivalently
  *            a(n) = 6^n * Lucas(n))
- * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 none,
+ * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,19 +28,19 @@ seq_t a(idx_t n)
         return 0; /* Undefined for n < 1; return 0 for safety */
 
     /* Determine how many array entries are needed (index n included). */
-    size_t needed = (size_t)n + 1; /* +1 because we use 1‑based indexing */
+    size_t needed = (size_t)n + 1 < 3 ? 3 : (size_t)n + 1;   /* 1-based; cache[2] is set below */
 
     /* Allocate or grow the cache.  Use C‑style cast for compatibility. */
     if (cache == NULL) {
-        cache = (seq_t*)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         capacity = needed;
     } else if (needed > capacity) {
-        seq_t *tmp = (seq_t*)malloc(needed * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, needed);
         /* Copy existing values into the new array. */
         for (idx_t i = 1; i <= last; ++i) {
             tmp[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         cache = tmp;
         capacity = needed;
     }

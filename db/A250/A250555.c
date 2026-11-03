@@ -12,12 +12,14 @@
  *            a(9)=88503, a(10)=266769, a(11)=802699, a(12)=2412545, a(...
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 38, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence.  cache[0] == a(1). */
 static seq_t *cache = NULL;
@@ -33,7 +35,7 @@ static void ensure(idx_t n)
     if (cache == NULL) {
         /* Initialise with the first 16 slots (actually 15 needed). */
         need = n >= 16 ? n : 16;
-        cache = (seq_t *)calloc((size_t)need, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)need);
         /* Initial terms a(1)..a(15). */
         static const seq_t init[15] = {
             (seq_t)5,          /* a(1) */
@@ -56,7 +58,7 @@ static void ensure(idx_t n)
         used = 15;
     }
     else if (need > used) {
-        cache = (seq_t *)realloc(cache, (size_t)need * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)need);
     }
 
     /* Compute terms from index used up to n-1 (0‑based).  The recurrence

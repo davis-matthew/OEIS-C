@@ -11,7 +11,8 @@
  *            values are computed by dynamic programming over triples of rows
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 21, u64 n <= 47, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -84,8 +86,8 @@ seq_t a(idx_t n)
     static seq_t *cur  = NULL;
     static int  allocated = 0;
     if (!allocated) {
-        prev = (seq_t*)malloc(27*27*sizeof(seq_t));
-        cur  = (seq_t*)malloc(27*27*sizeof(seq_t));
+        prev = mem_new(seq_t, 27 * 27);
+        cur  = mem_new(seq_t, 27 * 27);
         allocated = 1;
     }
 

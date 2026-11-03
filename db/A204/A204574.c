@@ -12,17 +12,30 @@
  *            digit string
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   alloc_seq_array, bitlen_seq_t, free_seq_array
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Allocate and free functions for seq_t arrays (provided by the build) */
-#include "../utils/alloc_seq_array.h"   /* alloc_seq_array(size_t) */
-#include "../utils/free_seq_array.h"    /* free_seq_array(seq_t*) */
 
 static seq_t *X_arr = NULL;   /* array of Pell x-values   */
 static seq_t *Y_arr = NULL;   /* array of Pell y-values   */
@@ -79,7 +92,7 @@ seq_t a(idx_t n)
     /* Convert binary representation of x_k to a decimal digit string */
     seq_t xk = X_arr[k];
     seq_t result = (seq_t)0;
-    size_t len = bitlen_seq_t(xk);
+    size_t len = bit_length(xk);
     for (size_t pos = len; pos-- > 0; ) {
         seq_t bit = (xk >> pos) & ((seq_t)1);
         result = result * 10 + bit;

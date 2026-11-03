@@ -7,20 +7,30 @@
  * Formula:   a(n) = A024629(A000244(n))
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   pow10, seq_pow
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"   /* seq_t seq_pow(seq_t base, idx_t exp); */
-#include "../utils/pow10.h"    /* seq_t pow10(idx_t e); */
+#include "../utils/ipow_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
     /* 1. Compute 2^n as a seq_t value. */
-    seq_t val = seq_pow((seq_t)2, n);
+    seq_t val = ipow_idx((seq_t)2, n);
 
     /* 2. Extract base‑3/2 digits (least significant first). */
     size_t cap = (size_t)n * 2 + 1;          /* enough space for digits */

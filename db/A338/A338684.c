@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^(d-1) * (n/d)^n * binomial(d + n/d - 1, d)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, binomial, compare_seq_t
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,19 @@
  * three provided utilities: big_pow, binomial, and compare_seq_t. */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/compare_seq_t.h"
+#include "../utils/ipow.h"
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +48,7 @@ seq_t a(idx_t n)
 
         /* First divisor: d */
         idx_t m  = n / d;
-        seq_t pow_m = big_pow((seq_t)m, (seq_t)n);
+        seq_t pow_m = ipow((seq_t)m, (seq_t)n);
         seq_t bin    = binomial(d + m - 1, d);
         seq_t term   = pow_m * bin;
 
@@ -50,7 +61,7 @@ seq_t a(idx_t n)
         idx_t d2 = n / d;
         if (d2 != d) {
             idx_t m2  = n / d2;   /* m2 == d */
-            seq_t pow_m2 = big_pow((seq_t)m2, (seq_t)n);
+            seq_t pow_m2 = ipow((seq_t)m2, (seq_t)n);
             seq_t bin2    = binomial(d2 + m2 - 1, d2);
             seq_t term2   = pow_m2 * bin2;
 

@@ -7,13 +7,15 @@
  * Formula:   a(n) = 5*a(n-2) + 2*a(n-3); a(0)=1, a(1)=2, a(2)=4
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 50, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 895 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for memoisation */
 static seq_t *cache = NULL;
@@ -26,9 +28,9 @@ static void ensure_cache(idx_t n) {
         return;                           /* already computed */
 
     if (cache == NULL) {                   /* first allocation */
-        cache = (seq_t*)malloc(required * sizeof(seq_t));
+        cache = mem_new(seq_t, required);
     } else {                               /* grow existing array */
-        cache = (seq_t*)realloc(cache, required * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, required);
     }
 
     /* Compute new entries */

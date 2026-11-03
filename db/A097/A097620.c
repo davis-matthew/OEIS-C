@@ -8,7 +8,8 @@
  *            Computed by sieve and filtering
  * Range:     u8 n <= 44, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9887 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -56,15 +58,15 @@ seq_t a(idx_t n)
 
         /* Build the terms array */
         terms_cap = 10000;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) { free(spf); free(omega); return 0; }
 
         for (idx_t k = 2; k + 1 <= LIMIT; ++k) {
             if ( (uint32_t)omega[(size_t)k] > (uint32_t)(omega[(size_t)k-1] + omega[(size_t)k+1]) ) {
                 if (terms_size == terms_cap) {
                     size_t new_cap = terms_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
-                    if (!tmp) { free(spf); free(omega); free(terms); return 0; }
+                    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
+                    if (!tmp) { free(spf); free(omega); mem_free(terms); return 0; }
                     terms = tmp;
                     terms_cap = new_cap;
                 }

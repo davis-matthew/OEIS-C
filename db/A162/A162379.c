@@ -10,13 +10,15 @@
  *            symmetry of the resulting palindromic polynomial of degree 992
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const int MAX_DEG = 992;   /* degree of the growth series polynomial */
 static const int HALF_DEG = MAX_DEG / 2;
@@ -41,12 +43,12 @@ seq_t a(idx_t n)
     size_t len = (size_t)N + 1;
 
     /* Allocate DP arrays */
-    seq_t *dp   = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, len);
+    seq_t *next = mem_new(seq_t, len);
     if (!dp || !next) {
         /* In case of allocation failure return 0 */
-        if (dp) free(dp);
-        if (next) free(next);
+        if (dp) mem_free(dp);
+        if (next) mem_free(next);
         return (seq_t)0;
     }
 
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[N];
 
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

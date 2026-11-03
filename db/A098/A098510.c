@@ -8,7 +8,8 @@
  * Formula:   a(n) = sum_{k=0..n} denominator((n+1)*C(n,k)/C(2n,n))
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   factor_update, legendre_idx_t, sieve_primes_idx_t
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,103 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/factor_update.h"
-#include "../utils/legendre_idx_t.h"
-#include "../utils/sieve_primes_idx_t.h"
+
+/* Update the exponent array exps by adding 'sign' times the exponent
+   of all prime factors of val.  sign is +1 for addition, -1 for
+   subtraction.  primeIndex maps prime value -> its index in primes. */
+static void
+factor_update(uint64_t val, int sign, const int *primes, int P,
+              int *exps, const int *primeIndex)
+{
+    uint64_t m = val;
+    for (int i = 0; i < P && (uint64_t)primes[i] * (uint64_t)primes[i] <= m; ++i) {
+        int p = primes[i];
+        int e = 0;
+        while (m % p == 0) {
+            m /= p;
+            ++e;
+        }
+        if (e) {
+            exps[i] += sign * e;
+        }
+    }
+    if (m > 1) {                  /* m is now prime and <= limit */
+        int idx = primeIndex[(int)m];
+        if (idx >= 0) {
+            exps[idx] += sign;    /* exponent 1 */
+        }
+    }
+}
+
+/* Legendre's formula: exponent of prime p in N!. */
+static int
+legendre_idx_t(idx_t N, int p)
+{
+    int e = 0;
+    while (N) {
+        N /= p;
+        e += (int)N;
+    }
+    return e;
+}
+
+/* Helper: generate all primes <= limit and return them in primesOut
+   and the number of primes in *cntOut.  The caller must free the
+   returned array. */
+static void
+sieve_primes_idx_t(idx_t limit, int **primesOut, int *cntOut)
+{
+    if (limit < 2) {
+        *primesOut = NULL;
+        *cntOut = 0;
+        return;
+    }
+
+    size_t sz = (size_t)limit + 1;
+    unsigned char *isComposite = (unsigned char *)calloc(sz, sizeof(unsigned char));
+    if (!isComposite) {
+        *primesOut = NULL;
+        *cntOut = 0;
+        return;
+    }
+
+    /* Sieve. */
+    for (size_t i = 2; i * i <= limit; ++i) {
+        if (!isComposite[i]) {
+            for (size_t j = i * i; j <= limit; j += i) {
+                isComposite[j] = 1;
+            }
+        }
+    }
+
+    /* Count primes first. */
+    int primesCnt = 0;
+    for (size_t i = 2; i <= limit; ++i) {
+        if (!isComposite[i]) {
+            ++primesCnt;
+        }
+    }
+
+    /* Allocate array and fill it. */
+    int *primes = (int *)malloc((size_t)primesCnt * sizeof(int));
+    if (!primes) {
+        free(isComposite);
+        *primesOut = NULL;
+        *cntOut = 0;
+        return;
+    }
+
+    int idx = 0;
+    for (size_t i = 2; i <= limit; ++i) {
+        if (!isComposite[i]) {
+            primes[idx++] = (int)i;
+        }
+    }
+
+    free(isComposite);
+    *primesOut = primes;
+    *cntOut = primesCnt;
+}
 
 /* Forward declarations of helper functions. */
 static void sieve_primes_idx_t(idx_t limit, int **primes, int *cnt);

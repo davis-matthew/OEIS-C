@@ -9,15 +9,32 @@
  * Formula:   a(n) = Fibonacci(n)*(Fibonacci(n)-1)*(2*Fibonacci(n)-1)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 16, u64 n <= 31, u128 n <= 62,
  *            big any n
- * Helpers:   fib, seq_mul
+ * Validated: standard, pass, 43 terms through n = 978 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/fib.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <string.h>
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {

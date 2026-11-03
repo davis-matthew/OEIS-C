@@ -11,7 +11,8 @@
  *            the greatest prime factor
  * Range:     u8 n <= 35, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   build_primes_upto, gpf
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   build_primes_upto, largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Cached sequence values: a_cache[i] = a(i),  i ≥ 0 (index 0 unused).  */
 static seq_t *a_cache = NULL;
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
     size_t new_len = (size_t)n + 1;
 
     /* Resize sequence and prime‑count caches.  */
-    a_cache  = (seq_t  *)realloc(a_cache,  new_len * sizeof(seq_t));
+    a_cache  = mem_resize(seq_t, a_cache, new_len);
     pi_cache = (size_t *)realloc(pi_cache, new_len * sizeof(size_t));
 
     /* Build primes up to n.  */
@@ -64,7 +66,7 @@ static void ensure_cache(idx_t n)
         if (pi_cache[k] > pi_cache[k-1]) {           /* k is prime   */
             a_cache[k] = a_cache[k-1] + (seq_t)(k-1);
         } else {                                    /* k is composite */
-            uint64_t g   = gpf((uint64_t)k);          /* gpf(k)       */
+            uint64_t g   = largest_prime_factor((uint64_t)k);          /* gpf(k)       */
             size_t g_pi = pi_cache[g];               /* π(gpf(k)) */
             a_cache[k] = a_cache[k-1] + (seq_t)(pi_cache[k] - g_pi);
         }

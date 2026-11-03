@@ -9,7 +9,8 @@
  *            integer
  * Range:     u8 n <= 214, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 85 terms through n = 9494 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Cache of cubefree numbers, 1‑based. */
 static seq_t *cubefree_cache = NULL;
@@ -32,7 +34,7 @@ static void grow_cubefree_cap(size_t needed)
     if (cubefree_cap < needed) {
         size_t new_cap = cubefree_cap ? cubefree_cap * 2 : 16;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *newptr = (seq_t *)realloc(cubefree_cache, new_cap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cubefree_cache, new_cap);
         assert(newptr != NULL);
         cubefree_cache = newptr;
         cubefree_cap = new_cap;

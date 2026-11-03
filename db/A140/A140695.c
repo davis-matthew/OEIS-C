@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, gcd
+ * Validated: standard, pass, 77 terms through n = 9329 (2026-11-01)
+ * Helpers:   gcd, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,13 @@
    neither divides the integer nor is coprime to it. */
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
     idx_t count = 0;
     for (idx_t x = 1; ; ++x) {
-        uint64_t d = divisor_count_u64(x);
+        uint64_t d = num_divisors(x);
         if (x % d == 0) continue;                   /* d divides x → skip */
         seq_t g = gcd((seq_t)x, (seq_t)d);          /* gcd(d, x) > 1 ? */
         if (g <= 1) continue;                       /* coprime → skip */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    supported seq_t types (fixed‑width or arbitrary‑precision). */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;     /* Dynamically grown array of terms */
 static size_t terms_cap = 0;    /* Its allocated capacity */
@@ -36,9 +38,9 @@ static void ensure_cap(idx_t need)
     if (new_cap < (size_t)need) new_cap = need;
     seq_t *tmp;
     if (terms == NULL) {
-        tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        tmp = mem_new(seq_t, new_cap);
     } else {
-        tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, terms, new_cap);
     }
     terms = tmp;
     terms_cap = new_cap;

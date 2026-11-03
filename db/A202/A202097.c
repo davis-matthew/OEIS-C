@@ -9,6 +9,7 @@
  *            alpha = ⌊(n+3)/2⌋, beta = ⌊(n+2)/2⌋
  * Range:     u8 none, u16 n <= 2, u32 n <= 13, u64 n <= 90, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 210 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 /* E = 4, O = 3 for width w = 7. */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

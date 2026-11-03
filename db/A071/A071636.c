@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Static state for caching the results */
 static seq_t *terms = NULL;          /* terms[n-1] holds a(n) */
@@ -44,6 +54,21 @@ static uint64_t next_candidate = 2;  /* next n = 4*k+2 to test */
 /* ----------------------------------------------------------------------- */
 /* | Utility: reallocate array with growth                                       */
 /* ----------------------------------------------------------------------- */
+#ifdef __cplusplus
+template <class T>
+static T *grow(T *ptr, size_t *cap, size_t need, size_t elem_size)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        T *tmp = mem_resize(T, ptr, (new_cap * elem_size) / sizeof(T));
+        if (!tmp) exit(1);            /* memory exhaustion */
+        ptr = tmp;
+        *cap = new_cap;
+    }
+    return ptr;
+}
+#else
 static void *grow(void *ptr, size_t *cap, size_t need, size_t elem_size)
 {
     if (*cap < need) {
@@ -56,6 +81,7 @@ static void *grow(void *ptr, size_t *cap, size_t need, size_t elem_size)
     }
     return ptr;
 }
+#endif
 
 /* ----------------------------------------------------------------------- */
 /* | Ensure sieve up to 'limit' and rebuild prime tables.                     */

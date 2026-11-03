@@ -11,12 +11,14 @@
  *            a(9)=254, a(10)=482, a(11)=902, a(12)=1710
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 35, u64 n <= 70, u128 n <= 139,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static memoization table (1‑based index) */
@@ -30,13 +32,13 @@ seq_t a(idx_t n) {
         /* allocate initial capacity */
         size_t cap = n + 1;
         if (cap < 16) cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0; /* allocation failed */
         cache_size = 0;
     } else if (n >= cache_size && n + 1 > 0) {
         size_t needed = n + 1;
         if (needed > 0) {
-            cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, needed);
             if (!cache) return 0; /* allocation failed */
         }
     }

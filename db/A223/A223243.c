@@ -14,13 +14,15 @@
  *            a(7)=275682413748
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External types provided by the build environment */
 extern seq_t a(idx_t n);   /* prototype for the compiler */
@@ -42,12 +44,12 @@ static const seq_t base_values[8] = {
 
 static void resize_cache(idx_t new_cap)
 {
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) abort();
 
     if (cache) {
-        memcpy(new_cache, cache, sizeof(seq_t) * cache_capacity);
-        free(cache);
+        mem_copy(new_cache, cache, sizeof(seq_t) * cache_capacity);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_capacity = new_cap;

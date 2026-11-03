@@ -12,12 +12,14 @@
  *            function below computes a(n) by dynamic programming
  * Range:     u8 n <= 20, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     idx_t N = n;
     /* dp[t] will hold p_k(t) after the k‑th iteration (parts ≤ k)   */
-    seq_t *dp = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (N + 1));
     if (!dp) return 0;                  /* memory failure – unlikely          */
 
     dp[0] = 1;                          /* p_0(0) = 1, p_0(t>0) = 0          */
@@ -56,6 +58,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     return ans;
 }

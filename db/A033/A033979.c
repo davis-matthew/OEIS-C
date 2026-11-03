@@ -7,6 +7,7 @@
  * Formula:   a(0)=1; a(n)= a(n-1)/2 if a(n-1) even, else 47*a(n-1)+1 (n>=1)
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 18, u64 n <= 43, u128 n <= 90,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 974 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   a(n) = 100 * floor(a(n‑1)/60) + a(n‑1)%60, a(1) = 60
  * Range:     u8 n <= 4, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    using only the allowed operators. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Ensure cache can hold at least n terms (1‑based index). */
     if (n > 0 && (size_t)n > cache_len) {
         size_t new_len = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return 0;           /* allocation failed – return 0 as placeholder */
 
         cache = tmp;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 20, u32 n <= 2341, u64 n <= 2400,
  *            u128 n <= 2400, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 54 terms through n = 2298 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Deterministic Miller–Rabin test for 64‑bit integers.  The candidate
    numbers k²+6 are always < 2⁶⁴ for k up to about 2³², so this test is
@@ -58,7 +61,7 @@ static bool isPrimeSeq(seq_t n)
         seq_t a = (seq_t)bases[i];
         if (a % n == 0)
             continue;
-        seq_t x = mod_pow(a, (uint64_t)d, n);
+        seq_t x = powmod(a, (uint64_t)d, n);
         if (x == 1 || x == n - 1)
             continue;
         bool composite = true;
@@ -91,7 +94,7 @@ seq_t a(idx_t n)
             /* Grow the array if necessary */
             if (primes_sz == primes_cap) {
                 size_t new_cap = primes_cap ? primes_cap << 1 : 8;
-                seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, new_cap);
                 if (!tmp) {
                     /* Allocation failure – abort so the caller sees a crash */
                     exit(1);

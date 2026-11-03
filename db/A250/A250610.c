@@ -9,6 +9,7 @@
  * Formula:   a(n) = 128 + 2^(7+n) + 410*n + 219*n^2
  * Range:     u8 none, u16 n <= 8, u32 n <= 24, u64 n <= 56, u128 n <= 120,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 171 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
  * formula directly using the supplied pow2() routine.  All arithmetic is
  * performed with the build‑specific integer type seq_t. */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

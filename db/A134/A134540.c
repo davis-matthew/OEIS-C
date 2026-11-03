@@ -10,6 +10,7 @@
  *            ordering of the triangle
  * Range:     i8 n <= 1275, i16 n <= 1275, i32 n <= 1275, i64 n <= 1275,
  *            i128 n <= 1275, big any n
+ * Validated: standard, pass, 107 terms through n = 1268 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 
 /*  Dependencies:  seq_t and idx_t types are supplied by the build.
     mobius(idx_t x) returns μ(x) as seq_t.                           */
+#include <stdint.h>
+#include <math.h>
 #include "../utils/mobius.h"
 #include <math.h>
 

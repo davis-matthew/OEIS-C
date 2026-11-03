@@ -9,7 +9,8 @@
  *            the combinatorial interpretation of sequence A092255
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 82,
  *            big any n
- * Helpers:   binom_unsigned
+ * Validated: standard, pass, 45 terms through n = 981 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 /* Initial values: a(0)=1, a(1)=1, a(2)=3, a(3)=10, ... */
 
 #include <stdint.h>
-#include "../utils/binom_unsigned.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* Base cases */
@@ -33,7 +34,7 @@ seq_t a(idx_t n) {
 
         idx_t j_max = m / 2;        /* floor((n−k)/2) */
         /* Start with j = k */
-        seq_t binom_m_j = binom_unsigned(m, k);  /* C(m, k) */
+        seq_t binom_m_j = binomial(m, k);  /* C(m, k) */
 
         for (idx_t j = k; j <= j_max; ++j) {
             /* term = C(n,k) * C(m,j) */

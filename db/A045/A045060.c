@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 32, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    ascending order, so a(n) can be accessed directly. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of computed terms (1‑based) */
 static size_t cap    = 0;     /* current capacity of cache        */
@@ -31,7 +33,7 @@ static void add_value(seq_t val)
 {
     if (stored == cap) {
         size_t new_cap = (cap == 0 ? 64 : cap * 2);
-        seq_t *p = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, (new_cap + 1));
         if (!p) abort();  /* should not happen in valid environments */
         cache = p;
         cap = new_cap;

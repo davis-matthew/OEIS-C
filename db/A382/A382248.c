@@ -9,6 +9,7 @@
  *            q is the second smallest prime coprime to n
  * Range:     u8 n <= 29, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 79 terms through n = 9496 (2026-11-01)
  * Helpers:   gcd, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
 #include "../utils/gcd.h"
+#include "../utils/is_prime.h"
 
 /* Return the n-th term of OEIS sequence A382248.  */
 seq_t a(idx_t n)

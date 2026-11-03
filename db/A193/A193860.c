@@ -10,13 +10,16 @@
  *            row‑major order (row 0 first, then row 1, …)
  * Range:     u8 n <= 18, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/pow2.h"    /* seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     /* --- compute T(r,k) = Σ_{i=0..k} binom(r+1, k-i) * 2^(k-i) --- */
     seq_t sum = 0;
     for (idx_t i = 0; i <= k; ++i) {
-        seq_t bin  = binom(r + 1, k - i);
+        seq_t bin  = binomial(r + 1, k - i);
         seq_t pow  = pow2(k - i);
         sum += bin * pow;
     }

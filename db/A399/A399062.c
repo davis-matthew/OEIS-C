@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,10 @@
 #include <stdlib.h>
 
 /* Provided utilities */
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     /* Ensure cache is large enough for index n */
     if (n >= cache_cap) {
         size_t new_cap = (size_t)(n + 1) * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;        /* memory error – return 0 (unlikely) */
         /* Zero the new portion – new_cap > cache_cap */
         for (size_t i = cache_cap; i < new_cap; ++i) tmp[i] = 0;
@@ -66,7 +69,7 @@ seq_t a(idx_t n)
             term *= binomial(i - 1, 2 * k);
 
             /* Multiply by A054879(k) = (3^(2k)+3)/4 */
-            seq_t pow3 = pow_uint(3, 2 * k);          /* 3^(2k) */
+            seq_t pow3 = ipow_u64_idx(3, 2 * k);          /* 3^(2k) */
             seq_t A    = (pow3 + 3) / 4;              /* integer division OK */
             term *= A;
 

@@ -8,6 +8,7 @@
  *            Φ₁₆₁(x) = (x¹⁶² - x¹⁶¹ - x + 1) / (x³⁰ - x²³ - x⁷ + 1)
  * Range:     i8 n <= 132, i16 n <= 132, i32 n <= 132, i64 n <= 132,
  *            i128 n <= 132, big any n
+ * Validated: full, pass, 133 terms through n = 132 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

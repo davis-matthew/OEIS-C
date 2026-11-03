@@ -11,6 +11,7 @@
  *            a_{r,k}=2 for 1≤k≤r-2, and a_{r,k}=1 for k=r-1 or k=r
  * Range:     u8 n <= 344, u16 n <= 1325, u32 n <= 1325, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 107 terms through n = 1095 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,8 +10,9 @@
  *            index n the antidiagonal coordinates are * k such that k(k+1)/2
  *            <= n < (k+1)(k+2)/2, * j = n - k(k+1)/2, * i = k - j. * A(i,j) =
  *            Σ_{t=0..j} (-1)^(j-t) * C(j,t) * A008578...
- * Range:     i8 n <= 43, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
+ * Range:     i8 n <= 53, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
  * Helpers:   binomial, build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,8 +22,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/build_primes_upto.h"
 #include "../utils/binomial.h"
+#include "../utils/build_primes_upto.h"
 
 /* Pre‑allocate enough non‑composite numbers (1 + primes). */
 static seq_t noncomposite[600];

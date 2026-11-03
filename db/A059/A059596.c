@@ -9,20 +9,22 @@
  *            binom(k+12,12) * 8*(2k+5)*(2k+13)*(2k+21) / 1365
  * Range:     u8 none, u16 n <= 1, u32 n <= 13, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(0)=1, a(1)=8, a(2)=44, …  (OEIS A059596) */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     if ((n & 1) == 0) {                /* n = 2k  */
         idx_t k      = n >> 1;
-        seq_t bin    = binom(k + 11, 11);   /* C(k+11,11) */
+        seq_t bin    = binomial(k + 11, 11);   /* C(k+11,11) */
 
         seq_t kseq   = (seq_t)k;
         seq_t k2     = kseq * kseq;         /* k^2   */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         return num / 4095;                  /* 15*7*13*3 */
     } else {                                 /* n = 2k+1 */
         idx_t k      = (n - 1) >> 1;
-        seq_t bin    = binom(k + 12, 12);   /* C(k+12,12) */
+        seq_t bin    = binomial(k + 12, 12);   /* C(k+12,12) */
 
         seq_t kseq   = (seq_t)k;
         seq_t two_k  = 2 * kseq;

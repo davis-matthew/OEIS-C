@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * Initial values: a(1)=1, a(2)=2, a(3)=7, a(4)=18, a(5)=31, a(6)=98
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* undefined for offset 1, safe guard */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
         return base[n];
     }
 
-    seq_t *arr = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (n + 1));
     if (!arr) return 0;            /* allocation failure – unlikely */
 
     static const seq_t base[] = {0, 1, 2, 7, 18, 31, 98};
@@ -39,6 +41,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

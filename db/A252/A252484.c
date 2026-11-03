@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 55, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   big_pow, digit_counts
+ * Validated: standard, pass, 85 terms through n = 992 (2026-11-01)
+ * Helpers:   digit_counts, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 /* It uses a fixed-size cache of 20000 terms – enough for n ≤ 10000
    as required by the performance specification.  */
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Return true iff x contains no zero digit in decimal form. */
 static bool is_zeroless(seq_t x)
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
         /* check m^2, m^3, m^4 */
         bool ok = true;
         for (int k = 2; k <= 4 && ok; ++k) {
-            seq_t p = big_pow(m, (seq_t)k);
+            seq_t p = ipow(m, (seq_t)k);
             if (!is_zeroless(p))
                 ok = false;
         }

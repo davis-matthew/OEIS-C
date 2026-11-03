@@ -11,7 +11,8 @@
  *            enumerating partitions mod several 31-bit primes, then CRT
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 21, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   a6650_gcd, seq_is_fixed_width
+ * Validated: partial, pass, 22 terms through n = 25 (2026-11-01)
+ * Helpers:   gcd_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/a6650_gcd.h"
+#include "../utils/gcd_i64.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 typedef uint64_t u64;
 
@@ -136,7 +148,7 @@ static void a6650_dfs(int depth, long r, long maxp)
             a6650_mulpow(NP, (u64)(L / 2), 1);
         }
         for (t = 0; t < nd6650; t++) {
-            long g = a6650_gcd(L, dk6650[t]);
+            long g = gcd_i64(L, dk6650[t]);
             a6650_mulpow(NP, (u64)(L / g) * (u64)dk6650[t], (u64)g * (u64)dc6650[t]);
         }
         cL = (nd6650 > 0 && dk6650[nd6650 - 1] == L) ? dc6650[nd6650 - 1] : 0;

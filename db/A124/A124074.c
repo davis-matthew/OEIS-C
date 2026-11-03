@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   reverse_decimal
+ * Validated: standard, pass, 67 terms through n = 4753 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,8 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 static const size_t MAX_STEPS = 5000;   /* Sufficient for the required range */
 
@@ -43,13 +45,13 @@ static bool reaches_nonzero_cycle(seq_t start)
     for (size_t step = 0; step < MAX_STEPS; ++step)
     {
         /* Advance tortoise once. */
-        seq_t r = reverse_decimal(tortoise);
+        seq_t r = reverse_digits(tortoise);
         tortoise = (tortoise >= r) ? (tortoise - r) : (tortoise + r);
 
         /* Advance hare twice. */
         for (int k = 0; k < 2; ++k)
         {
-            r = reverse_decimal(hare);
+            r = reverse_digits(hare);
             hare = (hare >= r) ? (hare - r) : (hare + r);
         }
 
@@ -65,10 +67,10 @@ static bool reaches_nonzero_cycle(seq_t start)
     tortoise = start;
     while (tortoise != hare)
     {
-        seq_t r = reverse_decimal(tortoise);
+        seq_t r = reverse_digits(tortoise);
         tortoise = (tortoise >= r) ? (tortoise - r) : (tortoise + r);
 
-        r = reverse_decimal(hare);
+        r = reverse_digits(hare);
         hare = (hare >= r) ? (hare - r) : (hare + r);
     }
 

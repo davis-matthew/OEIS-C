@@ -13,13 +13,20 @@
  *            S(k,n) = Σ_{i=1}^{n−k+1} k^i · S(k−1, n−i) (for 0<k<n...
  * Range:     u8 n <= 23, u16 n <= 40, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   _idx
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_idx.h"
+#include "../utils/mem.h"
+
+static inline idx_t _idx(idx_t n, idx_t k)
+/* return linear index for entry S(k,n) , 0 ≤ k ≤ n */
+{
+    return n * (n + 1) / 2 + k;
+}
 
 /* triangular storage of S(k,n)   (index = _idx(n,k)) */
 static seq_t *S   = NULL;   /* array of computed values */
@@ -35,9 +42,9 @@ static void _ensure_rows(idx_t max_r)
 
     /* allocate or grow the array */
     if (S == NULL) {
-        S = (seq_t*)malloc(sizeof(seq_t) * new_cap);
+        S = mem_new(seq_t, new_cap);
     } else {
-        S = (seq_t*)realloc(S, sizeof(seq_t) * new_cap);
+        S = mem_resize(seq_t, S, new_cap);
     }
 
     /* compute the new rows one by one */

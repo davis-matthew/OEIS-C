@@ -11,14 +11,34 @@
  *            with the special case k = 48. The sequence is fi...
  * Range:     u8 n <= 14, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   seq_alloc, seq_cmp
+ * Validated: full, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_cmp.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -58,7 +78,7 @@ seq_t a(idx_t n)
         seq[idx++] = (seq_t)48ULL;
 
         /* sort the sequence ascending */
-        qsort(seq, seq_len, sizeof(seq_t), seq_cmp);
+        mem_qsort(seq, seq_len, sizeof(seq_t), seq_cmp);
     }
 
     /* return the nth element (1‑based), or 0 if n exceeds length */

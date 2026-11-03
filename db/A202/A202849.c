@@ -12,7 +12,8 @@
  *            +(n-13)*a(n-10)=0 Initial values: a(0)=1, a(1)=1, a(2)=...
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 25, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Includes for generic integer types and memory allocation */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External function following the required signature */
 seq_t a(idx_t n) {
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     if (len == 0) {
         /* Initial capacity large enough to hold at least 16 elements */
         cap = 16;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(1);
 
         /* Base values a(0) … a(9) */
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
     if (cap < needed) {
         size_t newcap = cap ? cap << 1 : 16;
         if (newcap < needed) newcap = needed;
-        seq_t *ptr = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, cache, newcap);
         if (!ptr) exit(1);
         cache = ptr;
         cap = newcap;

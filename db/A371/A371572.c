@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 9808, u16 n <= 9808, u32 n <= 9808, u64 n <= 9808,
- *            u128 n <= 9808, big any n
+ * Range:     u8 n <= 11944, u16 n <= 11944, u32 n <= 11944, u64 n <= 11944,
+ *            u128 n <= 11944, big any n
+ * Validated: standard, pass, 105 terms through n = 9808 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

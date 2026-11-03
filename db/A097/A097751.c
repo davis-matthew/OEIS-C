@@ -11,14 +11,24 @@
  *            integer is obtained by replacing each 3 (mod 4) prime...
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   cmp_desc
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/cmp_desc.h"
+
+/* descending comparison for qsort */
+static int cmp_desc(const void *a, const void *b)
+{
+    unsigned x = *(const unsigned *)a;
+    unsigned y = *(const unsigned *)b;
+    if (x < y) return 1;
+    if (x > y) return -1;
+    return 0;
+}
 
 /* smallest primes ≡3 (mod 4) and ≡1 (mod 4) – enough for any n≤2⁶⁴ */
 static const unsigned primes3[20] = {

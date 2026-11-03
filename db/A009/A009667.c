@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2*n * c[n] (c[n] = (2n-1)! * [x^(2n-1)] tan(sin(x)))
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 12, i128 n <= 20,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 31 terms through n = 248 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* Recurrence derived from the differential equation for tan(sin(x)). */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *c_arr = NULL;          /* c[n]  */
 static seq_t *m_arr = NULL;          /* m_even[q] = m[2q]  */
@@ -30,8 +33,8 @@ static void ensure_cache(idx_t n)
     /* Allocate or grow storage as needed. */
     size_t new_cap = (cap == 0) ? 16 : cap;
     while (new_cap < (size_t)n + 1) new_cap <<= 1;
-    c_arr = (seq_t *)realloc(c_arr, (new_cap + 1) * sizeof(seq_t));
-    m_arr = (seq_t *)realloc(m_arr, (new_cap + 1) * sizeof(seq_t));
+    c_arr = mem_resize(seq_t, c_arr, (new_cap + 1));
+    m_arr = mem_resize(seq_t, m_arr, (new_cap + 1));
     cap = new_cap;
 
     /* Initialize base values if this is the first call. */
@@ -41,7 +44,7 @@ static void ensure_cache(idx_t n)
             c_arr[1] = (seq_t)1;    /* c[1] = 1 */
             /* m[2] = binom(2,1) * c1 * c1 */
             seq_t sum = (seq_t)0;
-            seq_t bin = binom((idx_t)2, (idx_t)1);   /* = 2 */
+            seq_t bin = binomial((idx_t)2, (idx_t)1);   /* = 2 */
             sum += bin * c_arr[1] * c_arr[1];
             m_arr[1] = sum;
         }

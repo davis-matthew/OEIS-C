@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 999, u64 n <= 999, u128 n <= 999,
  *            big any n
- * Helpers:   delete_multiple_digits
+ * Validated: standard, pass, 86 terms through n = 982 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,47 @@
    *delete_multiple_digits* mapping (A320485) is defined below. */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/delete_multiple_digits.h"
+
+/* Delete digits that appear more than once in a number.
+   Digits that appear exactly once are kept in their original order.
+   If no digits are kept the result is 0. */
+static seq_t delete_multiple_digits(seq_t m)
+{
+    unsigned int counts[10] = {0};
+    if (m == 0) {
+        counts[0] = 1;
+    } else {
+        seq_t temp = m;
+        while (temp > 0) {
+            unsigned int d = (unsigned int)(temp % 10);
+            counts[d]++;
+            temp /= 10;
+        }
+    }
+
+    /* Store digits in reverse order to reconstruct in original order later. */
+    unsigned char digits[128];
+    size_t nd = 0;
+    if (m == 0) {
+        digits[nd++] = 0;
+    } else {
+        seq_t temp = m;
+        while (temp > 0) {
+            digits[nd++] = (unsigned char)(temp % 10);
+            temp /= 10;
+        }
+    }
+
+    /* Build the result keeping only digits that appear once. */
+    seq_t result = 0;
+    for (size_t i = nd; i-- > 0; ) {
+        unsigned int d = digits[i];
+        if (counts[d] == 1) {
+            result = result * 10 + d;
+        }
+    }
+    return result;
+}
 
 /* a(n) – number of steps to reach 0 or 1 by the map described above,
    or -1 if a cycle occurs that never contains 0 or 1. */

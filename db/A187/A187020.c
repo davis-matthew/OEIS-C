@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 53, u32 n <= 169, u64 n <= 578,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static cache of partition counts dp[i] = s(i) for i = 0…current_size-1  */
 static seq_t *dp = NULL;
@@ -49,7 +51,7 @@ static void ensure_dp(idx_t n)
 
     if (dp == NULL || need > dp_size) {
         /* Allocate or reallocate cache */
-        seq_t *newdp = (seq_t*)malloc(need * sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, need);
         if (!newdp) return;                /* allocation failed – leave unchanged  */
 
         /* initialise to zero and set dp[0]=1 (s(0)=1) */
@@ -66,7 +68,7 @@ static void ensure_dp(idx_t n)
         }
 
         /* replace old cache if any */
-        free(dp);
+        mem_free(dp);
         dp = newdp;
         dp_size = need;
     }

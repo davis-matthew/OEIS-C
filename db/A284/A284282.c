@@ -8,7 +8,8 @@
  * Formula:   a(n) = k such that A030067(2k-1) = n, otherwise 0
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    for n odd   : a(n) = a(n-1) + a(n-2).                     */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static storage for the generated values of A030067 */
 static seq_t *a_vals = NULL;      /* 1‑based indexing, a_vals[0] unused */
@@ -36,7 +38,7 @@ static void ensure_a_vals(size_t max_index) {
     /* Initialise if first time */
     if (a_len == 0) {
         a_cap = 16;
-        a_vals = (seq_t*)calloc(a_cap, sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
         if (!a_vals) exit(EXIT_FAILURE);
         a_vals[1] = (seq_t)1;
         a_vals[2] = a_vals[1];
@@ -46,7 +48,7 @@ static void ensure_a_vals(size_t max_index) {
     /* Grow capacity if necessary */
     if (max_index >= a_cap) {
         while (a_cap <= max_index) a_cap <<= 1;
-        a_vals = (seq_t*)realloc(a_vals, a_cap * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, a_cap);
         if (!a_vals) exit(EXIT_FAILURE);
     }
 
@@ -75,7 +77,7 @@ static void extend_odd_vals(idx_t target) {
         /* Grow odd_vals array if needed */
         if (odd_len == odd_cap) {
             odd_cap = odd_cap ? odd_cap << 1 : 16;
-            odd_vals = (seq_t*)realloc(odd_vals, odd_cap * sizeof(seq_t));
+            odd_vals = mem_resize(seq_t, odd_vals, odd_cap);
             if (!odd_vals) exit(EXIT_FAILURE);
         }
         odd_vals[odd_len++] = a_vals[idx];

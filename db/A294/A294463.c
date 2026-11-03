@@ -9,15 +9,28 @@
  *            Implementation uses memoisation to answer queries in any order
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 19, i128 n <= 32,
  *            big any n
- * Helpers:   pow_int, seq_realloc
+ * Validated: standard, pass, 37 terms through n = 402 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_int.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *a_vals = NULL;   /* a(n) values, a_vals[0] = 1 */
 static seq_t *S      = NULL;   /* A055225(k) values, S[0] unused */
@@ -58,12 +71,12 @@ static void compute_S_part(idx_t start, idx_t end)
         for (idx_t d = 1; d * d <= i; ++d) {
             if (i % d == 0) {
                 /* term for divisor d */
-                seq_t term1 = pow_int((seq_t)d, (idx_t)(i / d));
+                seq_t term1 = ipow_idx((seq_t)d, (idx_t)(i / d));
                 sum += term1;
                 /* term for complementary divisor d2 = i/d if distinct */
                 if (d != i / d) {
                     idx_t d2 = i / d;
-                    seq_t term2 = pow_int((seq_t)d2, (idx_t)(i / d2));
+                    seq_t term2 = ipow_idx((seq_t)d2, (idx_t)(i / d2));
                     sum += term2;
                 }
             }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   big_pow, digit_sum_seq
+ * Validated: full, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   digit_sum, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/digit_sum_seq.h"
+#include <stdint.h>
+#include "../utils/digit_sum.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached terms */
 static idx_t  cache_len = 0;         /* number of cached terms */
@@ -34,7 +37,7 @@ ensure_cache(idx_t target)
     /* Grow cache array if necessary.  C++ requires an explicit cast. */
     if (cache_len + 1 > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 32;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;                     /* allocation failure: stop */
         cache = tmp;
         cache_cap = new_cap;
@@ -43,8 +46,8 @@ ensure_cache(idx_t target)
     /* Find new qualifying integers until we have enough terms. */
     while (cache_len < target) {
         seq_t cand = (seq_t) next_candidate;
-        seq_t pow5 = big_pow(cand, (seq_t)5);
-        seq_t s    = digit_sum_seq(pow5);
+        seq_t pow5 = ipow(cand, (seq_t)5);
+        seq_t s    = digit_sum(pow5);
         if (s >= cand) {
             cache[cache_len++] = cand;        /* store qualifying integer */
         }

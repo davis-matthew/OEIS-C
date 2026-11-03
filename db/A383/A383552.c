@@ -11,7 +11,8 @@
  *            reading the square array A by antidiagonals downwards
  * Range:     u8 n <= 58, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   antidiagonal_of
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/antidiagonal_of.h"
+#include "../utils/mem.h"
+
+/* Find the largest d such that d*(d+1)/2 ≤ n.  */
+static idx_t antidiagonal_of(idx_t n)
+{
+    idx_t low = 0, high = 1;
+    /* first double high until it exceeds the target */
+    while (((__int128)high * (high + 1)) / 2 <= n)
+        high <<= 1;
+    low = high >> 1;
+    while (low < high)
+    {
+        idx_t mid = low + (high - low) / 2;
+        if (((__int128)mid * (mid + 1)) / 2 <= n)
+            low = mid + 1;
+        else
+            high = mid;
+    }
+    return low - 1;
+}
 
 /* Cached table of values A(i,j).  */
 static seq_t *table = NULL;
@@ -37,7 +57,7 @@ seq_t a(idx_t n)
         size_t new_side = (size_t)(d + 1);
         /* Allocate a new table of size new_side × new_side. */
         seq_t *new_table =
-            (seq_t *)malloc(sizeof(seq_t) * new_side * new_side);
+            mem_new(seq_t, new_side * new_side);
         if (!new_table)
             return 0; /* allocation failure → return 0 as safe value */
 
@@ -63,7 +83,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old table. */
-        free(table);
+        mem_free(table);
         table = new_table;
         max_side = new_side;
     }

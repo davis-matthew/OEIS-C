@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 2186, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 116 terms through n = 8433 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -31,7 +32,9 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"          /* factorization utility */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 /*  v_p(m!)  using Legendre's formula  */
 static uint32_t vp_factorial(uint64_t m, uint64_t p)

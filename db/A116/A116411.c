@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{k=0}^{⌊n/3⌋} binom(n,3k) * binom(3k,k)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 44, u128 n <= 86,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 922 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

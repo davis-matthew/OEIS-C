@@ -8,7 +8,8 @@
  *            (This satisfies a(2) = -2, a(3) = 2, etc.)
  * Range:     i8 n <= 14, i16 n <= 30, i32 n <= 61, i64 n <= 126,
  *            i128 n <= 253, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build environment. */
 extern seq_t a(idx_t n); /* declared below */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 {
     /* Lazy initialization: first call creates cache with a(0) and a(1) */
     if (!initialized) {
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) return (seq_t)0;          /* out of memory, return 0 */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)0;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     idx_t new_size = required > max_index * 2 ? required : max_index * 2;
     if (new_size < required) new_size = required;  /* safety check */
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) return (seq_t)0;           /* allocation failed */
     cache = new_cache;
 

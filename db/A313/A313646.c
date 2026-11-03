@@ -12,13 +12,15 @@
  *            a(10)=52
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* memoized sequence values */
 static size_t cache_len = 0;       /* number of values currently cached */
@@ -36,9 +38,9 @@ seq_t a(idx_t n)
         seq_t *new_cache = NULL;
 
         if (cache) {
-            new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            new_cache = mem_resize(seq_t, cache, new_len);
         } else {
-            new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+            new_cache = mem_new(seq_t, new_len);
         }
 
         if (!new_cache) {

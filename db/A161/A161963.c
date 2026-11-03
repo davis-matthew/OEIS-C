@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth even integer m such that φ(m) > φ(m+1)
  * Range:     u8 none, u16 n <= 526, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 56 terms through n = 4935 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 /* External linkage as required.  The types seq_t and idx_t are supplied
    by the build system.  No other definitions may be made. */
@@ -35,15 +37,15 @@ seq_t a(idx_t n)
     /* Loop until we have at least n terms stored. */
     while (terms_len < n) {
         /* Compute φ for the even number and the following odd number. */
-        seq_t phi_even = phi(next_even);
-        seq_t phi_odd  = phi(next_even + 1);
+        seq_t phi_even = totient(next_even);
+        seq_t phi_odd  = totient(next_even + 1);
 
         /* If the inequality holds, store the even number. */
         if (phi_even > phi_odd) {
             if (terms_len == terms_cap) {
                 /* Grow the array: double the capacity or start at 16. */
                 size_t new_cap = (terms_cap < 16) ? 16 : terms_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) {
                     /* Out‑of‑memory: terminate the program. */
                     exit(EXIT_FAILURE);

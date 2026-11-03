@@ -9,7 +9,8 @@
  *            sqrt(8*n-7))/2)
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 54, u64 n <= 135, u128 n <= 377,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: standard, pass, 71 terms through n = 997 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
    the provided seq_mul helper. */
 
 #include <stdint.h>
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Computes base^exp with seq_mul; exp is given as idx_t. */
 static seq_t pow_seq_seq_t(seq_t base, idx_t exp)

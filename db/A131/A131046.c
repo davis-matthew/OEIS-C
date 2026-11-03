@@ -8,12 +8,14 @@
  *            transform of σ(n) = sum of divisors)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached divisor sums σ(0..N).  sigma[0] is unused. */
 static seq_t *sigma_cache = NULL;
@@ -29,7 +31,7 @@ static void ensure_sigma(idx_t n)
     if (sigma_len > n) return;           /* already large enough */
 
     idx_t new_len = n + 1;                /* indices 0..n */
-    seq_t *new_sigma = (seq_t*)malloc(new_len * sizeof(seq_t));
+    seq_t *new_sigma = mem_new(seq_t, new_len);
     if (!new_sigma) return;              /* allocation failure → abort later */
 
     /* zero‑initialize */
@@ -43,7 +45,7 @@ static void ensure_sigma(idx_t n)
     }
 
     /* replace old cache */
-    free(sigma_cache);
+    mem_free(sigma_cache);
     sigma_cache = new_sigma;
     sigma_len   = new_len;
 }
@@ -54,7 +56,7 @@ static void ensure_a(idx_t n)
     if (a_len > n) return;               /* already large enough */
 
     idx_t new_len = n + 1;
-    seq_t *new_a = (seq_t*)malloc(new_len * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, new_len);
     if (!new_a) return;                  /* allocation failure → abort later */
 
     /* copy previously computed entries (if any) */
@@ -83,7 +85,7 @@ static void ensure_a(idx_t n)
     }
 
     /* replace old cache */
-    free(a_cache);
+    mem_free(a_cache);
     a_cache = new_a;
     a_len   = new_len;
 }

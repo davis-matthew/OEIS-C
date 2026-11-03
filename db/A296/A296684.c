@@ -9,7 +9,8 @@
  *            3 king‑move neighboring 1s
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   neigh_row
+ * Validated: standard, pass, 33 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,17 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/neigh_row.h"
+#include "../utils/mem.h"
+
+/* Utility to count neighbors in a row (above, below) that are in columns j-1, j, j+1. */
+static inline int neigh_row(int mask, int j)
+{
+    int cnt = 0;
+    if (j > 0 && (mask & (1 << (j - 1)))) cnt++;
+    if (mask & (1 << j)) cnt++;
+    if (j < 3 && (mask & (1 << (j + 1)))) cnt++;
+    return cnt;
+}
 
 /* Precomputed horizontal neighbor counts for each 4‑bit row and column. */
 static int horiz[16][4];
@@ -80,13 +91,13 @@ seq_t a(idx_t n)
     static seq_t next[16][16];
 
     /* Initialize DP for zero rows: only state (0,0) is 1. */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     dp[0][0] = (seq_t)1;
 
     /* Iterate over rows 1..n */
     for (idx_t row = 1; row <= n; ++row) {
         /* Zero next DP */
-        memset(next, 0, sizeof(next));
+        mem_set(next, 0, sizeof(next));
 
         /* Transition from each existing state to all possible new rows */
         for (int prevprev = 0; prevprev < 16; ++prevprev) {
@@ -102,7 +113,7 @@ seq_t a(idx_t n)
         }
 
         /* Swap dp and next for next iteration */
-        memcpy(dp, next, sizeof(dp));
+        mem_copy(dp, next, sizeof(dp));
     }
 
     /* After processing n rows, sum over states where the last row is valid */

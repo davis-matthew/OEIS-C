@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   eval_qi, is_prime_small
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,31 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/eval_qi.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Evaluate a quater‑imaginary number given as a decimal integer whose
+ * digits are all in {0,1,2,3}.  The real and imaginary parts are
+ * returned in *real and *imag (possibly negative). */
+static inline void eval_qi(uint64_t n, int64_t *real, int64_t *imag)
+{
+    uint8_t dig[32];
+    int nd = 0;
+    uint64_t t = n;
+    while (t > 0) {
+        dig[nd++] = t % 10;
+        t /= 10;
+    }
+    *real = 0;
+    *imag = 0;
+    for (int i = nd - 1; i >= 0; --i) {
+        int64_t d = dig[i];
+        int64_t new_real = -(*imag) * 2 + d;
+        int64_t new_imag = (*real) * 2;
+        *real = new_real;
+        *imag = new_imag;
+    }
+}
 
 /* Determine whether a Gaussian integer a+bi is a prime in Z[i] and
  * has an even imaginary part.  It is assumed that bi is even. */
@@ -36,14 +60,14 @@ static inline bool is_gaussian_prime(int64_t a, int64_t b)
     if (b == 0) {                   /* purely real case */
         if (a < 0) a = -a;
         if (a <= 1) return false;
-        return (a & 3) == 3 && is_prime_small((uint64_t)a);
+        return (a & 3) == 3 && is_prime_seq((uint64_t)a);
     }
     if (a == 0)                      /* purely imaginary is never prime */
         return false;
     uint64_t aa = (a < 0) ? (uint64_t)(-a) : (uint64_t)a;
     uint64_t bb = (b < 0) ? (uint64_t)(-b) : (uint64_t)b;
     uint64_t norm = aa * aa + bb * bb;
-    return norm > 1 && is_prime_small(norm);
+    return norm > 1 && is_prime_seq(norm);
 }
 
 /* Return the nth member of this sequence (offset 1).  The function uses
@@ -89,7 +113,7 @@ seq_t a(idx_t n)
             /* Expand cache if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cache_cap = new_cap;

@@ -7,15 +7,19 @@
  * Formula:   a(n) = Σ_{d|n} Catalan(d-1) * Bell(n/d-1) (n ≥ 1)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom, catalan
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   binomial, catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/binomial.h"
 #include "../utils/catalan.h"
-#include "../utils/binom.h"
+#include "../utils/mem.h"
 
 static seq_t *bell_cache = NULL;   /* B[0] .. B[n] (B[0] = 1)   */
 static size_t bell_cap = 0;        /* allocated size of bell_cache */
@@ -30,11 +34,11 @@ static void ensure_bell_cache(idx_t n)
     seq_t *arr;
 
     if (bell_cache) {
-        arr = (seq_t *)realloc(bell_cache, needed * sizeof(seq_t));
+        arr = mem_resize(seq_t, bell_cache, needed);
         if (!arr) return;            /* allocation failure */
         for (size_t i = bell_cap; i < needed; ++i) arr[i] = 0;
     } else {
-        arr = (seq_t *)malloc(needed * sizeof(seq_t));
+        arr = mem_new(seq_t, needed);
         if (!arr) return;
         for (size_t i = 0; i < needed; ++i) arr[i] = 0;
     }
@@ -53,7 +57,7 @@ static void ensure_bell_cache(idx_t n)
     for (idx_t m = start; m <= n; ++m) {
         seq_t sum = 0;
         for (idx_t k = 0; k < m; ++k) {
-            sum += arr[k] * binom((idx_t)m - 1, k);
+            sum += arr[k] * binomial((idx_t)m - 1, k);
         }
         arr[m] = sum;
     }

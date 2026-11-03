@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 24, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   next_perm
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_perm.h"
+#include "../utils/mem.h"
+
+/* Next‑permutation routine for integer arrays.  Returns true if a
+   further permutation exists; otherwise false. */
+static bool next_perm(int *a, int n)
+{
+    int i = n - 2;
+    while (i >= 0 && a[i] >= a[i + 1]) i--;
+    if (i < 0) return false;
+    int j = n - 1;
+    while (a[j] <= a[i]) j--;
+    int t = a[i]; a[i] = a[j]; a[j] = t;
+    for (int l = i + 1, r = n - 1; l < r; ++l, --r) {
+        t = a[l]; a[l] = a[r]; a[r] = t;
+    }
+    return true;
+}
 
 /* Comparison function for qsort on seq_t values. */
 static int cmp_seq(const void *p1, const void *p2)
@@ -98,7 +115,7 @@ static void build_terms(void)
     }
 
     /* Sort the global list. */
-    qsort(values, pos, sizeof(seq_t), cmp_seq);
+    mem_qsort(values, pos, sizeof(seq_t), cmp_seq);
     /* pos should equal TOTAL_TERMS, but we ignore any discrepancy. */
 }
 

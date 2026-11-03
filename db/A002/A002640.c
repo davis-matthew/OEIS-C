@@ -7,6 +7,7 @@
  * Formula:   a(n) = n-th k such that (k^2 + k + 1)/3 is prime
  * Range:     u8 n <= 4, u16 n <= 37, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 72 terms through n = 997 (2026-11-01)
  * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

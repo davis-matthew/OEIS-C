@@ -8,6 +8,7 @@
  *            {20,1,18,4,13,6,10,15,2,17,3,19,7,16,8,11,14,9,12,5}
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

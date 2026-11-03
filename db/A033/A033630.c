@@ -10,7 +10,8 @@
  *            fast for n up to ≈10000
  * Range:     u8 n <= 119, u16 n <= 719, u32 n <= 2519, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 117 terms through n = 9962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Prime sieve up to 10000 (enough for all required factorizations).  */
@@ -127,7 +129,7 @@ seq_t a(idx_t n)
     get_divisors(n, divs, &div_cnt);
 
     /* DP array for subset–sum counts; allocate on heap to avoid stack limits. */
-    seq_t *dp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp) return 0;             /* allocation failure → zero count */
 
     dp[0] = 1;                     /* empty sum */
@@ -139,6 +141,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

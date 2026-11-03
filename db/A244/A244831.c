@@ -10,7 +10,8 @@
  *            |S_k – k·3.5| ≤ 2·sqrt(k·5.25)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root for 0 ≤ n < 2^64.
    Returns ⌊√n⌋.  Implemented with a binary search to avoid
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     /* Upper bound U = floor((7k + t)/2). */
     U_curr = (seven_k + t) / 2;
     len_curr = U_curr - L_curr + 1;
-    dp_curr = (seq_t *)calloc((size_t)len_curr, sizeof(seq_t));
+    dp_curr = mem_new(seq_t, (size_t)len_curr);
     if (!dp_curr) return 0;                 /* allocation failure */
 
     /* Initialize for all possible first digits 0..7. */
@@ -91,9 +93,9 @@ seq_t a(idx_t n)
             L_curr = 0;
         U_curr = (seven_k + t) / 2;
         len_curr = U_curr - L_curr + 1;
-        dp_curr = (seq_t *)calloc((size_t)len_curr, sizeof(seq_t));
+        dp_curr = mem_new(seq_t, (size_t)len_curr);
         if (!dp_curr) {
-            free(dp_prev);
+            mem_free(dp_prev);
             return 0;                /* allocation failure */
         }
 
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(dp_prev);
+        mem_free(dp_prev);
         dp_prev = dp_curr;
         L_prev = L_curr;
         U_prev = U_curr;
@@ -122,6 +124,6 @@ seq_t a(idx_t n)
         result += dp_prev[i];
     }
 
-    free(dp_prev);
+    mem_free(dp_prev);
     return result;
 }

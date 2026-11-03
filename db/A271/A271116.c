@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 131, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow, seq_realloc
+ * Validated: standard, pass, 80 terms through n = 8892 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,21 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Cache for the sequence values */
 static seq_t *cache     = NULL;
@@ -37,7 +51,7 @@ passes(idx_t k)
     seq_t    m   = ((seq_t)4) * ((seq_t)k);
 
     /* compute 3^(k-1) mod m */
-    seq_t    pow = mod_pow((seq_t)3, (uint64_t)exp, m);
+    seq_t    pow = powmod((seq_t)3, (uint64_t)exp, m);
 
     /* odd k requires 3^(k-1) ≡ 1 (mod m); even k requires ≡ -1 */
     if (k & 1ULL) {                           /* k is odd */

@@ -11,18 +11,21 @@
  *            n.(n)(n)(n)... with period n
  * Range:     u8 n <= 9, u16 n <= 99, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digits, gcd
+ * Validated: standard, pass, 66 terms through n = 9715 (2026-11-01)
+ * Helpers:   gcd, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/digits.h"
+#include "../utils/num_digits_idx.h"
 
 seq_t a(idx_t n)
 {
     /* number of decimal digits of n (n ≥ 1) */
-    int d = digits(n);
+    int d = num_digits_idx(n);
 
     /* compute 10^d as seq_t */
     seq_t pow10 = 1;

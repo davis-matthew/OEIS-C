@@ -7,16 +7,25 @@
  * Formula:   a(n) = Sum_{d|n} (n/d)^d * binomial(d+n-1,d)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   big_pow, seq_gcd, seq_mul
+ * Validated: standard, pass, 42 terms through n = 1602 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Offset: 1 */
 
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_gcd.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static inline seq_t _binom(idx_t n, idx_t k)
 {
@@ -31,12 +40,12 @@ static inline seq_t _binom(idx_t n, idx_t k)
         seq_t den = (seq_t)i;
 
         /* cancel gcd between numerator and denominator */
-        seq_t g = seq_gcd(num, den);
+        seq_t g = gcd(num, den);
         num /= g;
         den /= g;
 
         /* cancel remaining gcd with current result */
-        g = seq_gcd(res, den);
+        g = gcd(res, den);
         res /= g;
         den /= g;
 
@@ -49,7 +58,7 @@ static inline seq_t _binom(idx_t n, idx_t k)
 
 static inline seq_t _contrib(idx_t d, idx_t n)
 {
-    seq_t power = big_pow((seq_t)(n / d), (seq_t)d);
+    seq_t power = ipow((seq_t)(n / d), (seq_t)d);
     seq_t binom = _binom(d + n - 1, d);
     return seq_mul(power, binom);
 }

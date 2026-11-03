@@ -11,15 +11,23 @@
  *            (3·tau² – 2·M) / 6, and returns the product
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 11, u64 n <= 23, u128 n <= 29,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -69,7 +77,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i)
     {
         unsigned __int128 exp128 = (unsigned __int128)exps[i] * numerator / 6;
-        seq_t term = seq_pow((seq_t)primes[i], (idx_t)exp128);
+        seq_t term = ipow_idx((seq_t)primes[i], (idx_t)exp128);
         ans = seq_mul(ans, term);
     }
     return ans;

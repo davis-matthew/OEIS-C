@@ -7,12 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n} (-1)^k * k! * (n*k)^(n-k) * binomial(n,k)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 13, i128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
         if (base == 0 && exp == 0)
             pow_val = 1;
         else
-            pow_val = big_pow(base, exp);
+            pow_val = ipow(base, exp);
 
         /* term = (-1)^k * k! * (n*k)^(n-k) * C(n,k) */
         seq_t term = f;                     /* k!      */

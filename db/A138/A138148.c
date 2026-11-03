@@ -8,13 +8,15 @@
  *            a(2)=11011, a(n)=111*a(n-1) - 1110*a(n-2) + 1000*a(n-3) (n>2)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* cache of already computed terms   */
 static size_t cache_capacity = 0;     /* allocated capacity of the cache   */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Ensure at least three slots to store a(0..2)                */
         cache_capacity = (idx > 2 ? idx + 1 : 3);
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) return 0;                     /* allocation failed   */
         cache[0] = 0;
         cache[1] = 101;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Grow the cache if the requested index is beyond current size   */
     if (idx >= cache_capacity) {
         size_t new_cap = cache_capacity * 2 + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                     /* allocation failed   */
         cache       = tmp;
         cache_capacity = new_cap;

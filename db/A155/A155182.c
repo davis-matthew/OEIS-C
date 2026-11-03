@@ -7,13 +7,15 @@
  * Formula:   a(n) = nth divisor of 12! (sorted in ascending order)
  * Range:     u8 none, u16 n <= 87, u32 n <= 792, u64 n <= 792, u128 n <= 792,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 792 terms through n = 792 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compare function for qsort on seq_t */
 static int seq_cmp(const void *p1, const void *p2)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     if (divs == NULL) {
         divcnt = 792;                       /* (10+1)*(5+1)*(2+1)*(1+1)*(1+1) */
-        divs = (seq_t *)malloc(divcnt * sizeof(seq_t));
+        divs = mem_new(seq_t, divcnt);
         if (divs == NULL) return 0;          /* allocation failure */
 
         /* Exponents for each prime */
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the divisor list */
-        qsort(divs, divcnt, sizeof(seq_t), seq_cmp);
+        mem_qsort(divs, divcnt, sizeof(seq_t), seq_cmp);
     }
 
     if (n < 1 || (size_t)n > divcnt) return 0;  /* undefined for out of bounds */

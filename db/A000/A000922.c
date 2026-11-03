@@ -13,7 +13,8 @@
  *            interpolation...
  * Range:     u8 n <= 8, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a922_isprime
+ * Validated: standard, pass, 63 terms through n = 910 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a922_isprime.h"
+#include "../utils/is_prime_u64.h"
 
 #define A922_TB 16384
 
@@ -73,7 +74,7 @@ seq_t a(idx_t n) {
     while (a922_cnt < n) {
         uint64_t p = a922_next_p;
         a922_next_p += 6;
-        if (!a922_isprime(p)) continue;
+        if (!is_prime_u64(p)) continue;
         if (!a922_ok(p)) continue;
         if (a922_cnt == a922_cap) {
             idx_t nc = a922_cap ? a922_cap * 2 : 256;

@@ -9,18 +9,20 @@
  *            largest part ≤ m (equivalently, partitions into at most m parts)
  * Range:     u8 n <= 36, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;                 /* a(0) is defined as 0 */
 
     /* total partitions p(n) using parts 1..n */
-    seq_t *p = (seq_t*)calloc(n + 1, sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, n + 1);
     if (!p) return 0;                     /* allocation failure fallback */
     p[0] = 1;
     for (idx_t part = 1; part <= n; ++part) {
@@ -32,8 +34,8 @@ seq_t a(idx_t n) {
     /* partitions with largest part ≤ m, i.e. partitions into at most m parts
        where m = floor(2n/3) */
     idx_t m = (2 * n) / 3;
-    seq_t *q = (seq_t*)calloc(n + 1, sizeof(seq_t));
-    if (!q) { free(p); return 0; }
+    seq_t *q = mem_new(seq_t, n + 1);
+    if (!q) { mem_free(p); return 0; }
     q[0] = 1;
     for (idx_t part = 1; part <= m; ++part) {
         for (idx_t sum = part; sum <= n; ++sum) {
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
 
     seq_t result = p[n] - q[n];
 
-    free(p);
-    free(q);
+    mem_free(p);
+    mem_free(q);
     return result;
 }

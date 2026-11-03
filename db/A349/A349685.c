@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 39, u16 n <= 1463, u32 n <= 9490, u64 n <= 9490,
- *            u128 n <= 9490, big any n
+ * Range:     u8 n <= 39, u16 n <= 1463, u32 n <= 10489, u64 n <= 10489,
+ *            u128 n <= 10489, big any n
+ * Validated: standard, pass, 99 terms through n = 9490 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,8 +26,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 static idx_t *cum = NULL;          /* cumulative lengths: cum[0] = 0 */
 static size_t cum_cnt = 0;          /* number of entries stored (rows + 1) */

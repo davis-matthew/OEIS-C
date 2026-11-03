@@ -9,13 +9,14 @@
  *            < n, 0 ≤ z < n, n² = x² + y² – z²
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   isqrt_idx
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/isqrt_idx.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
             idx_t sqx = x * x;
             if (sqx > t) break;
             idx_t val = t - sqx;
-            idx_t y = isqrt_idx(val);
+            idx_t y = isqrt(val);
             if (y * y != val) continue;    /* not a square */
             if (y < x) continue;           /* enforce x ≤ y */
             if (y >= n) continue;          /* y must be < n */

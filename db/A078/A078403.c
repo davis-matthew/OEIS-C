@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   dr_is_prime, grow_array
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/dr_is_prime.h"
-#include "../utils/grow_array.h"
+
+/* return true if the digital root of x is one of 2,3,5,7 */
+static inline bool dr_is_prime(uint64_t x)
+{
+    /* digital root: 1 + (x-1) % 9, 1 ≤ dr ≤ 9 */
+    uint64_t dr = (x - 1) % 9 + 1;
+    return (dr == 2 || dr == 3 || dr == 5 || dr == 7);
+}
+
+/* enlarge a dynamic array when full */
+static inline void grow_array(uint64_t **arr, size_t *cnt, size_t *cap)
+{
+    if (*cnt >= *cap) {
+        size_t newc = *cap ? (*cap << 1) : 16;
+        uint64_t *tmp = (uint64_t *)realloc(*arr, newc * sizeof(uint64_t));
+        *arr = tmp;
+        *cap = newc;
+    }
+}
 
 /* prime list (uint64_t) – expands as needed */
 static uint64_t *primes      = NULL;

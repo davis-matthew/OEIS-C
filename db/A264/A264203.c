@@ -10,13 +10,15 @@
  *            14641, a(4) = 202500, a(5) = 2825761
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External types provided by the build */
 extern void *seq_realloc(void *, size_t); /* placeholder, actual realloc used */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     if (n > cached_max) {
         size_t newsize = (size_t)(n + 1);
-        seq_t *newp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, newsize);
         if (newp == NULL) {
             /* handle allocation failure (unlikely in typical use) */
             abort();

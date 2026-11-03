@@ -8,6 +8,7 @@
  *            residue modulo 97
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 70 terms through n = 974 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"      /* provides bool is_prime(idx_t x) */
+#include "../utils/is_prime.h"
 
 static bool residues[97];
 static bool residues_initialized = false;

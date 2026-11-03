@@ -9,13 +9,15 @@
  *            + k, n - 2*k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* `seq_t` and `idx_t` are defined by the build system. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Computes the OEIS sequence A379084. */
 seq_t a(idx_t n)
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
         idx_t second_n  = first_n;              /* 2*n + k   */
         idx_t second_k  = n - 2 * k;            /* n - 2*k   */
 
-        seq_t t1 = binom(first_n - 1, first_k);   /* binomial(2*n + k - 1, k) */
-        seq_t t2 = binom(second_n, second_k);     /* binomial(2*n + k, n - 2*k) */
+        seq_t t1 = binomial(first_n - 1, first_k);   /* binomial(2*n + k - 1, k) */
+        seq_t t2 = binomial(second_n, second_k);     /* binomial(2*n + k, n - 2*k) */
 
         sum += t1 * t2;
     }

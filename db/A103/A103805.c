@@ -7,15 +7,28 @@
  * Formula:   Search for primes p such that 2p-27 and 2p+27 are primes
  * Range:     u8 n <= 8, u16 n <= 339, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_capacity, is_prime
+ * Validated: standard, pass, 66 terms through n = 996 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"
-#include "../utils/ensure_capacity.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Grow an array of seq_t elements to at least min_cap elements. */
+static void ensure_capacity(size_t min_cap, seq_t **arr, size_t *cap)
+{
+    if (min_cap <= *cap) return;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 1024;
+    if (new_cap < min_cap) new_cap = min_cap;
+    *arr = mem_resize(seq_t, *arr, new_cap);
+    *cap = new_cap;
+}
 
 static seq_t *primes_arr = NULL;   /* array of found primes p */
 static size_t sz = 0;              /* number of primes stored */
@@ -30,7 +43,7 @@ seq_t a(idx_t n)
         uint64_t candidate = last_checked + 1;
         last_checked = candidate;
 
-        if (!is_prime(candidate))
+        if (!is_prime_u64(candidate))
             continue;                                 /* not prime */
 
         uint64_t low  = 2 * candidate - 27;
@@ -38,7 +51,7 @@ seq_t a(idx_t n)
 
         if (low < 2)            /* ensure positivity */
             continue;
-        if (!is_prime(low) || !is_prime(high))
+        if (!is_prime_u64(low) || !is_prime_u64(high))
             continue;         /* both neighbours must be prime */
 
         /* store the candidate (fits in seq_t for the required n) */

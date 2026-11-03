@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = #{ d | d divides n and sigma(d)/d ≥ 5/3 }
- * Range:     u8 n <= 9720, u16 n <= 9720, u32 n <= 9720, u64 n <= 9720,
- *            u128 n <= 9720, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9720 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static void count_divs(size_t pos, uint64_t cur_d, uint64_t cur_sigma,

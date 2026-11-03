@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 19, u16 n <= 1087, u32 n <= 9759, u64 n <= 9759,
- *            u128 n <= 9759, big any n
- * Helpers:   none
+ * Range:     u8 n <= 19, u16 n <= 1087, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 91 terms through n = 9759 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---- global state ---- */
 static seq_t *cache      = NULL;   /* sequence values          */
@@ -59,7 +61,7 @@ static void ensure_cache_capacity(size_t needed)
     size_t old = cache_cap;
     size_t new_cap = cache_cap ? cache_cap * 2 : 32;
     if (new_cap < needed) new_cap = needed;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) abort();               /* allocation failure */
     cache = new_arr;
     /* newly allocated slots will be written before use */

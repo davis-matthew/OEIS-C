@@ -8,13 +8,14 @@
  *            (n-3*k)!)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +33,7 @@ seq_t a(idx_t n)
         idx_t exp = n - 2 * k;          /* n-2k   */
 
         /* (n-3k)^(n-2k) */
-        seq_t pow_m = pow_seq((seq_t)m, (int)exp);
+        seq_t pow_m = ipow_i32((seq_t)m, (int)exp);
 
         /* term = prod * pow_m / (pow6 * factk) */
         seq_t term_num = prod * pow_m;

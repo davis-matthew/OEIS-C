@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 39, u64 n <= 104, u128 n <= 328,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 1992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>   /* for NULL */
+#include "../utils/mem.h"
 
 struct Triple
 {
@@ -50,7 +52,7 @@ static void ensure_triples_cap(size_t needed)
     {
         size_t new_cap = triples_cap ? triples_cap * 2 : 16;
         while (new_cap < needed) new_cap *= 2;
-        struct Triple *tmp = (struct Triple *)realloc(triples, new_cap * sizeof(struct Triple));
+        struct Triple *tmp = mem_resize(struct Triple, triples, new_cap);
         triples = tmp;
         triples_cap = new_cap;
     }
@@ -63,7 +65,7 @@ static void ensure_middles_cap(size_t needed)
     {
         size_t new_cap = middles_cap ? middles_cap * 2 : 16;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(middles, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, middles, new_cap);
         middles = tmp;
         middles_cap = new_cap;
     }

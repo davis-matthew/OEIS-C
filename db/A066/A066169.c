@@ -8,14 +8,15 @@
  *            search
  * Range:     u8 n <= 250, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 87 terms through n = 832 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
 
     idx_t k = n;
     while (true) {
-        if (phi(k) >= (seq_t)n) {
+        if (totient(k) >= (seq_t)n) {
             break;
         }
         ++k;

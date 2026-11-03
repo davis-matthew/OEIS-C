@@ -11,7 +11,8 @@
  *            converted to seq_t
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 23, u64 n <= 40, u128 n <= 73,
  *            big any n
- * Helpers:   b_add, b_central, b_div, b_mul, b_sub, b_to_seq, b_trim
+ * Validated: standard, pass, 46 terms through n = 964 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,83 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/b_add.h"
-#include "../utils/b_central.h"
-#include "../utils/b_div.h"
-#include "../utils/b_mul.h"
-#include "../utils/b_sub.h"
-#include "../utils/b_to_seq.h"
-#include "../utils/b_trim.h"
+
+static void b_add(uint32_t *a, size_t *la, const uint32_t *b, size_t lb) {
+    size_t n = (*la > lb) ? *la : lb;
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < n; i++) {
+        uint64_t x = (i < *la) ? a[i] : 0;
+        uint64_t y = (i < lb) ? b[i] : 0;
+        c += x + y;
+        a[i] = (uint32_t)c;
+        c >>= 32;
+    }
+    if (c) a[n++] = (uint32_t)c;
+    *la = n;
+}
+
+static void b_trim(uint32_t *a, size_t *len) {
+    while (*len > 1 && a[*len - 1] == 0) (*len)--;
+}
+
+static void b_div(uint32_t *a, size_t *len, uint32_t x) {
+    uint64_t r = 0;
+    size_t i = *len;
+    while (i-- > 0) {
+        r = (r << 32) | a[i];
+        a[i] = (uint32_t)(r / x);
+        r %= x;
+    }
+    b_trim(a, len);
+}
+
+static void b_mul(uint32_t *a, size_t *len, uint32_t x) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        c += (uint64_t)a[i] * x;
+        a[i] = (uint32_t)c;
+        c >>= 32;
+    }
+    if (c) a[(*len)++] = (uint32_t)c;
+}
+
+static void b_central(uint32_t *a, size_t *len, idx_t d) {
+    idx_t i;
+    a[0] = 1;
+    *len = 1;
+    for (i = 1; i <= d; i++) {
+        b_mul(a, len, (uint32_t)(d + i));
+        b_div(a, len, (uint32_t)i);
+    }
+}
+
+/* a -= b, assuming a >= b */
+static void b_sub(uint32_t *a, size_t *la, const uint32_t *b, size_t lb) {
+    int64_t br = 0;
+    size_t i;
+    for (i = 0; i < *la; i++) {
+        int64_t x = (int64_t)a[i] - (i < lb ? (int64_t)b[i] : 0) - br;
+        if (x < 0) { x += ((int64_t)1 << 32); br = 1; } else br = 0;
+        a[i] = (uint32_t)x;
+    }
+    b_trim(a, la);
+}
+
+static seq_t b_to_seq(const uint32_t *a, size_t len) {
+    seq_t r = 0;
+    size_t k = len;
+    while (k-- > 0) {
+        r = (seq_t)(r << 8);
+        r = (seq_t)(r << 8);
+        r += (seq_t)(unsigned)(a[k] >> 16);
+        r = (seq_t)(r << 8);
+        r = (seq_t)(r << 8);
+        r += (seq_t)(unsigned)(a[k] & 0xFFFFu);
+    }
+    return r;
+}
 
 static int mobius(idx_t k) {
     int mu = 1;

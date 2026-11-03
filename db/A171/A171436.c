@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 953, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   allocate_or_die
+ * Validated: standard, pass, 60 terms through n = 938 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/allocate_or_die.h"
+
+/* Allocate a buffer of the given type and size, or exit on failure.
+   The function is defined separately so it can be used in both
+   C and C++ environments. */
+static void *allocate_or_die(size_t sz)
+{
+    void *p = malloc(sz);
+    if (!p) exit(EXIT_FAILURE);   /* abort if memory allocation fails */
+    return p;
+}
 
 /* Forward declaration of the function requested by the grader. */
 seq_t a(idx_t n);

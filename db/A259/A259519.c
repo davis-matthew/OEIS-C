@@ -13,13 +13,15 @@
  *            a(10)=54980553426 The r...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The external definitions of seq_t and idx_t are supplied by the build. */
 
@@ -32,7 +34,7 @@ static void ensure_cache_capacity(size_t new_cap)
 {
     if (new_cap <= cache_cap) return;
     /* Allocate a new array and copy existing values */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) {
         /* In a real program we would handle allocation failure. */
         abort();

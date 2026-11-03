@@ -9,13 +9,16 @@
  *            4*C(n-1,n/2) for even n
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/binom.h"
 
 seq_t a(idx_t n)
 {
@@ -24,10 +27,10 @@ seq_t a(idx_t n)
     seq_t sub;
 
     if (n & 1u) {                  /* odd n                          */
-        sub = binom(n - 1, (n - 1) / 2);
+        sub = binomial(n - 1, (n - 1) / 2);
         sub = sub * (seq_t)2;      /* multiply by 2                  */
     } else {                       /* even n                         */
-        sub = binom(n - 1, n / 2);
+        sub = binomial(n - 1, n / 2);
         sub = sub * (seq_t)4;      /* multiply by 4                  */
     }
 

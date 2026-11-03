@@ -10,14 +10,40 @@
  *            starting from the most significant digit)
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   a032854_valid
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/a032854_valid.h"
+
+static bool a032854_valid(seq_t v)
+{
+    seq_t t = v;
+    uint8_t digits[64];
+    int len = 0;
+    while (t > 0) {
+        digits[len++] = (uint8_t)(t % 7);
+        t /= 7;
+    }
+    if (len <= 1) return true;
+    int i = len - 1;               /* most significant digit index */
+    bool less_eq = true;           /* first comparison is ≤ */
+    uint8_t prev = digits[i];
+    for (int k = i - 1; k >= 0; --k) {
+        uint8_t cur = digits[k];
+        if (less_eq) {
+            if (prev > cur) return false;
+        } else {
+            if (prev < cur) return false;
+        }
+        less_eq = !less_eq;
+        prev = cur;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

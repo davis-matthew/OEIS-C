@@ -7,13 +7,22 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   compare_sums
+ * Validated: standard, pass, 45 terms through n = 8920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/compare_sums.h"
+#include "../utils/mem.h"
+
+static int compare_sums(const void *pa, const void *pb) {
+    seq_t a = *(const seq_t *)pa;
+    seq_t b = *(const seq_t *)pb;
+    if (a < b) return -1;
+    if (a > b) return 1;
+    return 0;
+}
 
 /* a(n) = n-th smallest sum a^10 + b^10 + c^10 where 1 <= a <= b <= c */
 
@@ -32,7 +41,7 @@ seq_t a(idx_t n) {
     if (cached == NULL) {
         idx_t limit = 60;
         idx_t max_count = (limit + 2) * (limit + 1) * limit / 6;
-        seq_t *sums = (seq_t *)malloc(max_count * sizeof(seq_t));
+        seq_t *sums = mem_new(seq_t, max_count);
         idx_t count = 0;
         
         for (idx_t a = 1; a <= limit; a++) {
@@ -46,7 +55,7 @@ seq_t a(idx_t n) {
             }
         }
         
-        qsort(sums, count, sizeof(seq_t), compare_sums);
+        mem_qsort(sums, count, sizeof(seq_t), compare_sums);
         cached = sums;
         cached_len = count;
     }

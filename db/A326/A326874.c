@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Maximum number of terms to cache – sufficient for all
    calls with n ≤ 10 000. */
@@ -34,7 +36,7 @@ static seq_t next_candidate = 0;       /* next integer to test */
    property needed for A326874. */
 static bool is_valid(seq_t val)
 {
-    unsigned bits = bitlen_seq_t(val);   /* number of significant bits */
+    unsigned bits = bit_length(val);   /* number of significant bits */
     for (idx_t l = 0; l < bits; ++l) {
         if ( ((val >> l) & 1) != 0 ) {      /* bit at position l is set */
             seq_t p   = (seq_t)(l + 1);     /* position in the set (1‑based) */

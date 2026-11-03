@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 125, u32 n <= 440, u64 n <= 1788,
  *            u128 n <= 8161, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9659 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    independent of any external utilities.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,11 +37,11 @@ seq_t a(idx_t n)
 
     /* DP arrays holding the current coefficients (dp) and temporary
        results after processing part k (dp2).  All entries are zero at start. */
-    seq_t *dp  = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *dp2 = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, N + 1);
+    seq_t *dp2 = mem_new(seq_t, N + 1);
     if (!dp || !dp2) {
-        free(dp);
-        free(dp2);
+        mem_free(dp);
+        mem_free(dp2);
         return 0;               /* memory allocation failed */
     }
     dp[0] = 1;                   /* empty partition */
@@ -57,10 +59,10 @@ seq_t a(idx_t n)
         /* Running sums for each residue class modulo k.  The sum is
            constructed by scanning s from 0 to N and adding dp[s - k^2]
            when it becomes available.  */
-        seq_t *sum = (seq_t *)calloc(k, sizeof(seq_t));
+        seq_t *sum = mem_new(seq_t, k);
         if (!sum) {
-            free(dp);
-            free(dp2);
+            mem_free(dp);
+            mem_free(dp2);
             return 0;
         }
 
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
             dp2[s] += sum[s % k];              /* add all contributions for this residue */
         }
 
-        free(sum);
+        mem_free(sum);
 
         /* Prepare for next part: swap dp and dp2 pointers. */
         seq_t *tmp = dp;
@@ -85,8 +87,8 @@ seq_t a(idx_t n)
     seq_t result = dp[N];
 
     /* Release allocated memory. */
-    free(dp);
-    free(dp2);
+    mem_free(dp);
+    mem_free(dp2);
 
     return result;
 }

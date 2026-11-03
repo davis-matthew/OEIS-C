@@ -9,7 +9,8 @@
  *            a(1)=0, a(2)=40, a(3)=901, a(4)=1077, a(5)=1281, a(6)=6160
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,10 +39,10 @@ seq_t a(idx_t n)
     /* Allocate initial cache if needed. */
     if (!cache) {
         size_t init_cap = 64;  /* starting capacity */
-        cache = (seq_t*)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) return 0;  /* out‑of‑memory – return 0 as a safe failure */
 #ifdef __cplusplus
-        for (size_t i = 0; i < init_cap; ++i) new (&cache[i]) seq_t();
+        for (size_t i = 0; i < init_cap; ++i) *(&cache[i]) = (seq_t)0;
 #endif
         /* Store the first six terms. */
         cache[0] = (seq_t)0;
@@ -57,16 +59,16 @@ seq_t a(idx_t n)
     if ((size_t)n > cache_len) {
         size_t new_cap = cache_len;
         while (new_cap < (size_t)n) new_cap <<= 1;   /* double until big enough */
-        seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) return 0; /* out‑of‑memory */
 #ifdef __cplusplus
-        for (size_t i = 0; i < new_cap; ++i) new (&new_cache[i]) seq_t();
+        for (size_t i = 0; i < new_cap; ++i) *(&new_cache[i]) = (seq_t)0;
         /* Copy existing values */
         for (size_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
 #else
         memcpy(new_cache, cache, cache_len * sizeof(seq_t));
 #endif
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_cap;
     }

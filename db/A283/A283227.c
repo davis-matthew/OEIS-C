@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   violations_of_row
+ * Validated: standard, pass, 36 terms through n = 208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,25 @@
  */
 
 #include <stdint.h>
-#include "../utils/violations_of_row.h"
+
+/* Count the number of violating 1s in a single row. */
+static inline int violations_of_row(int row, int up, int down)
+{
+    int v = 0;
+    for (int j = 0; j < 3; ++j) {
+        int cur = (row >> j) & 1;
+        if (!cur)
+            continue;
+        int sum = 0;                         /* neighbours only */
+        sum += (j > 0)      ? ((row >> (j-1)) & 1) : 0;
+        sum += (j < 2)      ? ((row >> (j+1)) & 1) : 0;
+        sum += (up  >> j) & 1;
+        sum += (down>> j) & 1;
+        if (sum > 2)
+            ++v;
+    }
+    return v;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(n) = a(n-2) + 2*a(n-4) + 2*a(n-6) + a(n-8);
    initial values: a(0)=1, a(1)=1, a(2)=1, a(3)=2, a(4)=3, a(5)=4, a(6)=7, a(7)=10 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute a(n) for OEIS sequence A363958 */
 seq_t a(idx_t n)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cache_cap)
     {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();            /* out of memory: terminate */
         cache = tmp;
         cache_cap = new_cap;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = denominator of Σ_{i=1..n} 1/(i^2*binomial(2*i,i))
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 16, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,9 @@
 /* a(0) = 1 */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) */
-#include "../utils/gcd.h"        /* gcd(seq_t a, seq_t b) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

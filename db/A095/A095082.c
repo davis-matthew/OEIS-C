@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Fibonacci numbers, fib_arr[0] = 1, fib_arr[1] = 2 */
 static seq_t *fib_arr = NULL;
@@ -42,7 +44,7 @@ static uint64_t next_candidate = 3;
 static void init_fib(void)
 {
     fib_len = 2;
-    fib_arr = (seq_t *)realloc(fib_arr, fib_len * sizeof(seq_t));
+    fib_arr = mem_resize(seq_t, fib_arr, fib_len);
     fib_arr[0] = (seq_t)1;
     fib_arr[1] = (seq_t)2;
 }
@@ -54,7 +56,7 @@ static void ensure_fib_upto(seq_t value)
         init_fib();
     while (fib_arr[fib_len - 1] <= value) {
         seq_t next = fib_arr[fib_len - 1] + fib_arr[fib_len - 2];
-        fib_arr = (seq_t *)realloc(fib_arr, (fib_len + 1) * sizeof(seq_t));
+        fib_arr = mem_resize(seq_t, fib_arr, (fib_len + 1));
         fib_arr[fib_len++] = next;
     }
 }
@@ -92,7 +94,7 @@ static void add_fib00(seq_t p)
 {
     if (fib00_len == fib00_cap) {
         fib00_cap = fib00_cap ? fib00_cap * 2 : 16;
-        fib00_arr = (seq_t *)realloc(fib00_arr, fib00_cap * sizeof(seq_t));
+        fib00_arr = mem_resize(seq_t, fib00_arr, fib00_cap);
     }
     fib00_arr[fib00_len++] = p;
 }

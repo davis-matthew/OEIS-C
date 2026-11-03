@@ -9,7 +9,8 @@
  *            a0=1,a1=1,a2=2,a3=4,a4=10,a5=22,a6=48
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 29, u64 n <= 57, u128 n <= 114,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>   /* for size_t and SIZE_MAX */
+#include "../utils/mem.h"
 
 /* Static cache of previously computed terms */
 static seq_t *cache = NULL;          /* dynamically allocated array of seq_t */
@@ -33,7 +35,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = cache_size ? cache_size * 2 : 16;
     while (new_cap < need) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     /* In the unlikely event realloc fails tmp will be NULL; let it propagate */
     cache = tmp;
     cache_size = new_cap;
@@ -47,7 +49,7 @@ static void init_cache(void)
         (seq_t)1, (seq_t)1, (seq_t)2,
         (seq_t)4, (seq_t)10, (seq_t)22, (seq_t)48
     };
-    memcpy(cache, init, sizeof(init));
+    mem_copy(cache, init, sizeof(init));
     computed_max = 6;
 }
 

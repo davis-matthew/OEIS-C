@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 72 terms through n = 932 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_seq = NULL;   /* stored terms */
 static size_t prime_cnt = 0;      /* number of terms produced */
@@ -28,7 +30,7 @@ static idx_t last_checked = 2;    /* highest candidate examined */
 static void grow_prime_seq(void)
 {
     size_t new_cap = prime_cap ? prime_cap * 2 : 128;
-    seq_t *tmp = (seq_t *)realloc(prime_seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_seq, new_cap);
     if (!tmp) abort();           /* allocation failure */
     prime_seq = tmp;
     prime_cap = new_cap;

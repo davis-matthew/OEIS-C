@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 381 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
     recursively.  No pre‑computed tables are used – the result can
     be produced for any n in a practical amount of time.  */
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Recursive helper: compute B_{base+1}(x) for a given base (>=2).
    The function evaluates the hereditary base representation of
@@ -48,7 +50,7 @@ transform_rec(seq_t x, unsigned base)
             const seq_t exp_val = transform_rec((seq_t)exp_index, base);
 
             /* term = coeff * (base+1)^{exp_val} */
-            seq_t term = big_pow(base_plus1, exp_val);
+            seq_t term = ipow(base_plus1, exp_val);
             term *= coeff;
             result += term;
         }

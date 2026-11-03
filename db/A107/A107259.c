@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 102 terms through n = 101 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
  * (e.g. 1) occur twice in the Fibonacci sequence.
  */
 
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
             idx_t rem = n - (idx_t)fib_prev;
             /* Check if rem = j(j+1)/2 for some integer j.  Solve 8*rem + 1 = (2j+1)^2 */
             idx_t t = 8 * rem + 1;
-            idx_t r = int_sqrt(t);      /* floor(sqrt(t)) */
+            idx_t r = isqrt(t);      /* floor(sqrt(t)) */
             if (r * r == t && (r & 1)) {
                 /* r is odd => (r-1)/2 is integer j. */
                 count++;

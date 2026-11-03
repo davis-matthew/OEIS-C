@@ -8,7 +8,8 @@
  *            A100484(k) (k‑th even semiprime)
  * Range:     u8 n <= 63, u16 n <= 7025, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9732 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Precomputation of odd and even semiprimes up to the required size  */
@@ -66,8 +68,8 @@ static void init_sequence(void)
     if (initialized) return;
 
     build_spf(PRECOMP_LIMIT);
-    odd_semiprimes  = (seq_t *)malloc(MAX_PER_TYPE * sizeof(seq_t));
-    even_semiprimes = (seq_t *)malloc(MAX_PER_TYPE * sizeof(seq_t));
+    odd_semiprimes  = mem_new(seq_t, MAX_PER_TYPE);
+    even_semiprimes = mem_new(seq_t, MAX_PER_TYPE);
 
     for (uint32_t m = 3; m <= PRECOMP_LIMIT; ++m) {
         if (count_factors(m) == 2) {     /* m is a semiprime */

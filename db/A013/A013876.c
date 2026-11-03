@@ -7,15 +7,18 @@
  * Formula:   a(n) = 15^(5*n+3)
  * Range:     u8 none, u16 n <= 0, u32 n <= 1, u64 n <= 2, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 24 terms through n = 95 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     idx_t e = 5 * n + 3;
-    return big_pow((seq_t)15, (seq_t)e);
+    return ipow((seq_t)15, (seq_t)e);
 }

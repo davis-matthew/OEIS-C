@@ -9,7 +9,8 @@
  *            is the n-th such number in increasing order
  * Range:     u8 n <= 4, u16 n <= 1291, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3367_shor
+ * Validated: standard, pass, 53 terms through n = 8774 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/a3367_shor.h"
+
+static void a3367_shor(uint64_t *dst, const uint64_t *src, size_t W, uint64_t s)
+{
+    size_t q = (size_t)(s >> 6);
+    unsigned r = (unsigned)(s & 63);
+    size_t w;
+    if (q >= W) return;
+    for (w = W; w-- > q;) {
+        size_t j = w - q;
+        uint64_t v = src[j] << r;
+        if (r && j > 0) v |= src[j - 1] >> (64 - r);
+        dst[w] |= v;
+    }
+}
 
 static uint64_t *terms_cache = NULL;
 static idx_t terms_count = 0;

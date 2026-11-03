@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial values for n = 0 … 15. */
 static const seq_t init[16] = {
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {
         /* Allocate at least n+1 entries. */
-        cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
         if (!cache) abort();
         /* Initialise first 16 entries. */
         for (idx_t i = 0; i <= 15 && i <= n; ++i) cache[i] = init[i];
@@ -63,7 +65,7 @@ static void ensure_cache(idx_t n)
     } else if (n > cached) {
         /* Resize cache. */
         size_t newcap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();
         cache = tmp;
         /* Compute new entries. */

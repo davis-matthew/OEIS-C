@@ -10,13 +10,26 @@
  *            a(1)=1, a(2)=2, a(3)=3, a(4)=4, a(5)=6, a(6)=9, a(7)=14, a(8)=23
  * Range:     u8 n <= 19, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   log2ceil_idx
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/log2ceil_idx.h"
+
+/* compute ceil(log2(v)) for v ≥ 1 with integer arithmetic */
+static inline unsigned int log2ceil_idx(idx_t v)
+{
+    unsigned int fl = 0;   /* floor(log2(v)) */
+    idx_t t = v;
+    while (t > 1)
+    {
+        t >>= 1;
+        ++fl;
+    }
+    return (v & (v - 1)) == 0 ? fl : fl + 1;
+}
 
 seq_t a(idx_t n)
 {

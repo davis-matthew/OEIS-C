@@ -9,7 +9,8 @@
  * Formula:   a(n) = (tau(4*n-1) - 2) / 2
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   divisor_count_uint64
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,29 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_uint64.h"
+
+/* Count the number of positive divisors of an odd uint64_t value. */
+static inline uint64_t divisor_count_uint64(uint64_t x)
+{
+    uint64_t div_cnt = 1;
+    uint64_t rem = x;
+
+    /* Since x is odd, start at 3 and skip evens. */
+    for (uint64_t p = 3; p * p <= rem; p += 2) {
+        if (rem % p == 0) {
+            uint64_t exp = 0;
+            while (rem % p == 0) {
+                rem /= p;
+                ++exp;
+            }
+            div_cnt *= (exp + 1);
+        }
+    }
+    if (rem > 1) {            /* remaining prime factor */
+        div_cnt *= 2;
+    }
+    return div_cnt;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

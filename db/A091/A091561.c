@@ -8,7 +8,8 @@
  *            4*(n-1)*a(n-2) + 2*(2n-5)*a(n-3) ) / (n+2)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* ensure at least 4 slots for base values */
     if (cache == NULL) {
         cache_size = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();
         /* we will use indices 1..n inclusive, ignore cache[0] */
         cache[0] = 0;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if (n >= (idx_t)cache_size) {
         idx_t new_size = (cache_size < 16) ? 16 : cache_size * 2;
         while (new_size <= n) new_size *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         cache = tmp;
         cache_size = new_size;

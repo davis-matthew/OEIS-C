@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 161, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 903 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* integer square root for idx_t (uint64_t) */
 static idx_t _isqrt_idx(idx_t x)
@@ -79,7 +81,7 @@ static void build_sequence(void)
         if (ways >= 9) {
             if (seq_len >= cap) {
                 cap = cap ? cap * 2 : 64;
-                seq_values = (seq_t *)realloc(seq_values, cap * sizeof(seq_t));
+                seq_values = mem_resize(seq_t, seq_values, cap);
                 if (!seq_values) { free(dp); return; }
             }
             seq_values[seq_len++] = (seq_t)v;

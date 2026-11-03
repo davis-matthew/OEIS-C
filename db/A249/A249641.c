@@ -9,13 +9,15 @@
  *            for n>=0
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Use the provided integer types seq_t and idx_t. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the nth term of OEIS sequence A249641. */
 seq_t a(idx_t n)
@@ -36,14 +38,14 @@ seq_t a(idx_t n)
     if (seq_len == 0) {
         /* Allocate sequence table with capacity 2 */
         seq_cap = 2;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         seq_arr[0] = 0;
         seq_arr[1] = 0;
         seq_len = 2;
 
         /* Allocate powers-of-8 table with capacity 2 */
         pow_cap = 2;
-        pow8_arr = (seq_t *)malloc(pow_cap * sizeof(seq_t));
+        pow8_arr = mem_new(seq_t, pow_cap);
         pow8_arr[0] = 1;         /* 8^0 */
         pow_len = 1;             /* only index 0 computed so far */
     }
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             size_t new_cap = seq_cap ? seq_cap : 2;
             while (new_cap <= (size_t)n)
                 new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
             seq_arr = tmp;
             seq_cap = new_cap;
         }
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
                 size_t new_cap = pow_cap ? pow_cap : 2;
                 while (new_cap <= k)
                     new_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(pow8_arr, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, pow8_arr, new_cap);
                 pow8_arr = tmp;
                 pow_cap = new_cap;
             }

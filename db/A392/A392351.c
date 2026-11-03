@@ -9,13 +9,15 @@
  *            a(9)=15, a(10)=24, a(11)=42, a(12)=69, a(13)=105
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 53, u64 n <= 105,
  *            u128 n <= 208, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static memoization table */
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     /* allocate cache and fill initial values on first call */
     if (!cache) {
         cap = 14;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         for (idx_t i = 0; i < 14; ++i)
             cache[i] = init[i];
     }
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     /* grow cache if necessary */
     if (n + 1 > cap) {
         cap = n + 1;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     /* return immediately if value already known */

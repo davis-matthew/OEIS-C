@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = prime(n) - floor(prime(n)^(1/3))^3
- * Range:     u8 n <= 47, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
- *            big any n
- * Helpers:   cube_root_floor, is_prime
+ * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 90 terms through n = 904 (2026-11-03)
+ * Helpers:   icbrt_seq, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/cube_root_floor.h"
+#include <stddef.h>
+#include "../utils/icbrt_seq.h"
+#include "../utils/is_prime_u64.h"
 
 /* Static buffer for primes */
 static uint64_t *primes = NULL;  /* array of primes */
@@ -52,7 +54,7 @@ static void ensure_primes(idx_t n)
 
     /* Simple trial division using the is_prime utility. */
     for ( /* use candidate from above */; prime_cnt < n; candidate++) {
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             primes[prime_cnt++] = candidate;
         }
     }
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     uint64_t p = primes[n - 1];    /* nth prime (1‑based) */
 
     seq_t sp = (seq_t)p;           /* promote to seq_t type */
-    seq_t r = cube_root_floor(sp); /* floor cube root of sp */
+    seq_t r = icbrt_seq(sp); /* floor cube root of sp */
     seq_t cube = r * r * r;
 
     return sp - cube;              /* cube excess */

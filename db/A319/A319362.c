@@ -7,14 +7,35 @@
  * Formula:   a(n) = [x^n] exp( Σ_{k≥1} σ(n·k)·x^k/k ) (offset 0)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 41,
  *            big any n
- * Helpers:   _factorize_uint32
+ * Validated: standard, pass, 40 terms through n = 889 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_factorize_uint32.h"
+#include "../utils/mem.h"
+
+/* factorize x (x>=1) with a spf array already filled for [0..lim].
+   The factor lists are stored in arrays provided by the caller;
+   arrays are assumed large enough (max primes for 64‑bit numbers). */
+static void _factorize_uint32(uint32_t x,
+                              uint32_t *primes, unsigned char *exps, int *sz,
+                              const uint32_t *spf)
+{
+    *sz = 0;
+    while (x > 1) {
+        uint32_t p = spf[x];
+        unsigned char e = 0;
+        while (x % p == 0) {
+            x /= p;
+            ++e;
+        }
+        primes[(*sz)++] = p;
+        exps[(*sz) - 1] = e;
+    }
+}
 
 /* --------------------------------------------------------------------- */
 /* Local helpers ------------------------------------------------------- */
@@ -73,7 +94,7 @@ seq_t a(idx_t n)
     /* --------------------------------------------------------------- */
     /* Compute sigma(n·k) for k = 1..n                                 */
     /* --------------------------------------------------------------- */
-    seq_t *sigma = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (size_t)n + 1);
     if (!sigma) { free(spf); return (seq_t)0; }
 
     for (idx_t k = 1; k <= n; ++k) {
@@ -118,8 +139,8 @@ seq_t a(idx_t n)
     /* --------------------------------------------------------------- */
     /* Recurrence: e[0] = 1;  e[m] = (1/m) Σ_{k=1..m} sigma[k] * e[m-k] */
     /* --------------------------------------------------------------- */
-    seq_t *e = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    if (!e) { free(sigma); return (seq_t)0; }
+    seq_t *e = mem_new(seq_t, (size_t)n + 1);
+    if (!e) { mem_free(sigma); return (seq_t)0; }
     e[0] = (seq_t)1;
 
     for (size_t m = 1; m <= (size_t)n; ++m) {
@@ -131,7 +152,7 @@ seq_t a(idx_t n)
 
     seq_t result = e[(size_t)n];
 
-    free(e);
-    free(sigma);
+    mem_free(e);
+    mem_free(sigma);
     return result;
 }

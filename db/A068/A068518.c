@@ -13,13 +13,16 @@
  *            where S(k,j) are Stirling numbers of the second kind. Al...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Binomial coefficient utility from the build's utils */
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,19 +30,19 @@ seq_t a(idx_t n)
     idx_t N = n;
 
     /* Pre‑compute factorials up to N */
-    seq_t *fact = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (N + 1));
     if (!fact) return (seq_t)0;
     fact[0] = (seq_t)1;
     for (idx_t i = 1; i <= N; ++i)
         fact[i] = fact[i - 1] * (seq_t)i;
 
     /* Allocate Stirling number rows */
-    seq_t *prev = (seq_t *)calloc((N + 1), sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc((N + 1), sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (N + 1));
+    seq_t *next = mem_new(seq_t, (N + 1));
     if (!prev || !next) {
-        free(fact);
-        free(prev);
-        free(next);
+        mem_free(fact);
+        mem_free(prev);
+        mem_free(next);
         return (seq_t)0;
     }
     prev[0] = (seq_t)1;   /* S(0,0) = 1 */
@@ -99,9 +102,9 @@ seq_t a(idx_t n)
     }
 
     /* Clean up */
-    free(fact);
-    free(prev);
-    free(next);
+    mem_free(fact);
+    mem_free(prev);
+    mem_free(next);
 
     /* Final answer: positive part minus negative part */
     return result_pos - result_neg;

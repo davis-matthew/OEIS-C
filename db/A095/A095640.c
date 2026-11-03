@@ -9,13 +9,20 @@
  *            digit 125. Implementation converts 125 to base n and builds the
  *            decimal number formed by concatenating the base‑n digits
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
- * Helpers:   int_pow10
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/int_pow10.h"
+
+static seq_t int_pow10(unsigned e)
+{
+    seq_t r = 1;
+    while (e--) r *= 10;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

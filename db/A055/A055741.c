@@ -9,14 +9,15 @@
  *            number of distinct prime factors of k. (OEIS A055741)
  * Range:     u8 n <= 95, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   omega_u64
+ * Validated: standard, pass, 76 terms through n = 8983 (2026-11-01)
+ * Helpers:   omega_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/omega_u64.h"
+#include "../utils/omega_u64_to_u32.h"
 
 /* Euler's totient φ(n) for unsigned 64‑bit n */
 static uint64_t phi_u64(uint64_t n) {
@@ -36,8 +37,8 @@ seq_t a(idx_t n) {
     uint64_t k = 2;
     while (found < n) {
         uint64_t phi = phi_u64(k);
-        unsigned int omega_k = omega_u64(k);
-        unsigned int omega_phi = omega_u64(phi);
+        unsigned int omega_k = omega_u64_to_u32(k);
+        unsigned int omega_phi = omega_u64_to_u32(phi);
         if (omega_phi > omega_k) {
             found++;
             if (found == n) {

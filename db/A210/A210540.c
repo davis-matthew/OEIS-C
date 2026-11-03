@@ -10,13 +10,15 @@
  *            via a dynamic programming table
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 22, u64 n <= 35, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 675 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* --- initialization, allocate space for first four values --- */
     if (cap < 4) {
         idx_t new_cap = 4;
-        cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        cache = mem_new(seq_t, new_cap);
         /* initialise first four terms to 1 */
         cache[0] = 1;
         cache[1] = 1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (n >= cap) {
         idx_t new_cap = cap * 2;
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         /* initialise newly allocated entries to zero (they will be filled when computed) */
         for (idx_t i = cap; i < new_cap; ++i)
             new_cache[i] = 0;

@@ -11,12 +11,14 @@
  *            operations for * n = 10000). It requires only <std...
  * Range:     i8 n <= 9, i16 n <= 18, i32 n <= 34, i64 n <= 67, i128 n <= 133,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const unsigned long long NUM = 1570796326794897ULL;   /* round(pi*1e15/2) */
 static const unsigned long long DEN = 1000000000000000ULL;   /* 1e15 */
@@ -24,7 +26,7 @@ static const unsigned long long DEN = 1000000000000000ULL;   /* 1e15 */
 seq_t a(idx_t n)
 {
     /* Allocate array to hold f[0..n] */
-    seq_t *f = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (n + 1));
     if (!f) return 0;                     /* unlikely – out of memory */
 
     /* Compute f(k) = floor(pi * k / 2) using an exact rational */
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = f[0];
-    free(f);
+    mem_free(f);
     return result;
 }

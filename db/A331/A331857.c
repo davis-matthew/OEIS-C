@@ -10,16 +10,29 @@
  *            ways of partitioning the binary representation of n into
  *            consecutive blocks. The value is interpreted in base‑2 (i.e.,
  *            concatenated reversed blocks as a binary number)
- * Range:     u8 n <= 255, u16 n <= 7999, u32 n <= 7999, u64 n <= 7999,
- *            u128 n <= 7999, big any n
- * Helpers:   reverse_bits_u64
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 83 terms through n = 7999 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/reverse_bits_u64.h"
+
+/* Reverse the lowest ‘len’ bits of a unsigned integer ``v``.
+   Allows the function to work for arbitrary 64‑bit values of ``v``.  */
+static inline idx_t reverse_bits_u64(idx_t v, unsigned len)
+{
+    idx_t rev = 0;
+    for (unsigned i = 0; i < len; ++i)
+    {
+        rev = (rev << 1) | (v & 1);
+        v >>= 1;
+    }
+    return rev;
+}
 
 /* Compute a(n).  All computations are done on
    idx_t (uint64_t) for bit extraction and on

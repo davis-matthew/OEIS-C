@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9877 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort – works for both built‑in integer types and
    arbitrary‑precision integer types that provide operator<. */
@@ -69,7 +71,7 @@ static void build_cache(uint64_t prime_limit)
 
     /* Generate all p^2 + q^2 (p <= q) */
     size_t pair_count = primes_cnt * (primes_cnt + 1) / 2;
-    seq_t *sums = (seq_t *)malloc(pair_count * sizeof(seq_t));
+    seq_t *sums = mem_new(seq_t, pair_count);
     if (!sums) abort();
     size_t pos = 0;
     for (size_t i = 0; i < primes_cnt; ++i) {
@@ -80,10 +82,10 @@ static void build_cache(uint64_t prime_limit)
     }
 
     /* Sort sums */
-    qsort(sums, pair_count, sizeof(seq_t), seq_cmp);
+    mem_qsort(sums, pair_count, sizeof(seq_t), seq_cmp);
 
     /* Deduplicate into new_cache */
-    seq_t *new_cache = (seq_t *)malloc(pair_count * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, pair_count);
     if (!new_cache) abort();
     size_t uniq = 0;
     for (size_t i = 0; i < pair_count; ++i) {
@@ -93,14 +95,14 @@ static void build_cache(uint64_t prime_limit)
     }
 
     /* Replace old cache */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = uniq;
     cache_prime_limit = prime_limit;
 
     free(primes);
     free(is_prime);
-    free(sums);
+    mem_free(sums);
 }
 
 /* Ensure that the cache contains at least n terms. */

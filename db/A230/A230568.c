@@ -13,13 +13,15 @@
  *            a(8)=3223042422, a(9)=104788977596, a(10)=3405425285562
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Function that returns the nth term of OEIS A230568 */
 seq_t a(idx_t n)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     {
         /* Allocate initial storage (at least 10 + 1). */
         idx_t size = (n > 10 ? n : 10);
-        cache = (seq_t*)malloc((size + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size + 1));
         if (cache == NULL)
             return 0;     /* Allocation failed – unlikely in tests. */
         /* Initialise the base terms up to the smaller of size and 10. */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     {
         /* Extend cache to accommodate new terms. */
         idx_t new_size = n;
-        seq_t *new_cache = (seq_t*)realloc(cache, (new_size + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (new_size + 1));
         if (new_cache == NULL)
             return 0;     /* Allocation failed – unlikely. */
         cache = new_cache;

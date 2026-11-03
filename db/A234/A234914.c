@@ -10,7 +10,8 @@
  * Formula:   a(n) = 4*a(n-1) - 2*a(n-2) - 2*a(n-3) + a(n-4)
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 16, u64 n <= 35, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /*           a(1) =  40,  a(2) = 120,  a(3) = 376,  a(4) = 1200  */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache     = NULL;   /* 1‑based cache: cache[0] unused */
 static size_t cache_len = 0;      /* largest n for which cache[n] is valid */
@@ -31,7 +33,7 @@ static void ensure_cache_size(idx_t n)
     size_t new_cap = (size_t)(n + 1);
     if (new_cap < 16)
         new_cap = 16;
-    void *p = realloc(cache, new_cap * sizeof(seq_t));
+    void *p = mem_resize(seq_t, cache, new_cap);
     if (!p)
         abort();                  /* unlikely on an online judge */
     cache = (seq_t *)p;

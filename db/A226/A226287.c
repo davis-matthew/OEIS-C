@@ -8,13 +8,25 @@
  *            C(ceil(n/2),6)
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 14, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   choose6
+ * Validated: standard, pass, 38 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/choose6.h"
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient (m choose 6) for m >= 6 */
+static seq_t choose6(idx_t m)
+{
+    seq_t res = 1;
+    for (idx_t i = 1; i <= 6; ++i) {
+        res = res * (m - i + 1);
+        res = res / i;
+    }
+    return res;
+}
 
 static seq_t *fact_cache = NULL;
 static idx_t   fact_cache_size = 0;
@@ -25,7 +37,7 @@ static void ensure_fact_cache(idx_t n)
     if (n < fact_cache_size) return;           /* already computed */
     /* Grow cache to hold indices 0 .. n */
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, fact_cache, new_size);
     if (!new_cache) exit(EXIT_FAILURE);
     fact_cache = new_cache;
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 if n == {1,3,4} mod 6, otherwise 0
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

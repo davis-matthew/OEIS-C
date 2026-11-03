@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   kronecker_minus15_prime
+ * Validated: standard, pass, 121 terms through n = 896 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,25 @@
 */
 
 #include <stdint.h>
-#include "../utils/kronecker_minus15_prime.h"
+
+/* compute Kronecker(-15, p) for an odd prime p */
+static int kronecker_minus15_prime(idx_t p)
+{
+    if (p == 3 || p == 5)  /* already handled as special case */
+        return 0;
+    /* (−1/p) */
+    int s1 = (p % 4 == 1) ? 1 : -1;
+
+    /* (3/p) : 1 if p ≡ ±1 (mod 12), –1 if p ≡ ±5 (mod 12) */
+    int mod12 = p % 12;
+    int s2 = (mod12 == 1 || mod12 == 11) ? 1 : -1;
+
+    /* (5/p) : 1 if p ≡ ±1 (mod 5), –1 if p ≡ ±2 (mod 5) */
+    int mod5 = p % 5;
+    int s3 = (mod5 == 1 || mod5 == 4) ? 1 : -1;
+
+    return s1 * s2 * s3;
+}
 
 seq_t a(idx_t n)
 {

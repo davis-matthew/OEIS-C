@@ -8,14 +8,25 @@
  * Formula:   a(0) = 1; a(n+1) = 4*a(n) + binomial(2(n+2), n+1) (OEIS A029760)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 29, u128 n <= 61,
  *            big any n
- * Helpers:   binom_2kplus4_kplus1
+ * Validated: standard, pass, 40 terms through n = 1550 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
 #include <stddef.h>   /* size_t */
-#include "../utils/binom_2kplus4_kplus1.h"
+#include "../utils/mem.h"
+
+/* Compute C(2k+4, k+1) multiplicatively. */
+static seq_t binom_2kplus4_kplus1(idx_t k)
+{
+    seq_t res = 1;
+    /* N = 2k+4, K = k+1 : product_{i=1..K} (N-K+i)/i = (k+3+i)/i */
+    for (idx_t i = 1; i <= k + 1; ++i)
+        res = res * (seq_t)(k + 3 + i) / (seq_t)i;
+    return res;
+}
 
 /*--------------------------------- cache handling ---------------------------------*/
 static seq_t *cache = NULL;     /* array holding computed a(n) values */
@@ -35,7 +46,7 @@ static void grow_cache(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 

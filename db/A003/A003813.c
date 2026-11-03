@@ -7,7 +7,8 @@
  * Formula:   a(n) = q^36 * Product_{i=2..9} (q^i - 1) / gcd(9, q-1), where q
  *            = A000961(n+1)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 2, big any n
- * Helpers:   pp_gcd, pp_is_prime_power, pp_pow
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   gcd_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/pp_gcd.h"
-#include "../utils/pp_is_prime_power.h"
-#include "../utils/pp_pow.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ipow_i32.h"
+
+static bool pp_is_prime_power(uint64_t n) {
+    if (n < 2) return false;
+    for (uint64_t p = 2; p * p <= n; p++) {
+        if (n % p == 0) {
+            while (n % p == 0) n /= p;
+            return n == 1;
+        }
+    }
+    return true;
+}
 
 static uint64_t *pp_cache = NULL;
 static idx_t pp_len = 0, pp_cap = 0;
@@ -42,12 +53,12 @@ static uint64_t pp_get(idx_t k) {
 seq_t a(idx_t n) {
     uint64_t q = pp_get(n + 1);
     seq_t qq = (seq_t)q;
-    uint64_t g = pp_gcd(9, q - 1);
+    uint64_t g = gcd_u64(9, q - 1);
 
     /* gcd(9, q-1) divides q-1, hence q^2-1: divide there exactly */
     seq_t result = (qq * qq - 1) / (seq_t)g;
     for (int i = 3; i <= 9; i++)
-        result *= pp_pow(qq, i) - 1;
-    result *= pp_pow(qq, 36);
+        result *= ipow_i32(qq, i) - 1;
+    result *= ipow_i32(qq, 36);
     return result;
 }

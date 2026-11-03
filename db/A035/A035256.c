@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Least‑prime‐factor sieve ------------------------------------- */
 static idx_t *spf = NULL;      /* least prime factor for every integer ≥2 */
@@ -120,8 +122,7 @@ static idx_t  next_check   = 1;     /* next integer to test           */
 static void
 grow_cache(size_t new_cap)
 {
-    seq_t *new_cache = (seq_t *)realloc(term_cache,
-                                        new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, term_cache, new_cap);
     if (!new_cache)
         exit(EXIT_FAILURE);
     term_cache = new_cache;

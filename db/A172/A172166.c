@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 19, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------- */
 /* Global data                                                    */
@@ -92,7 +94,7 @@ static void ensure_good_primes(size_t need)
         uint32_t *tmpg = (uint32_t*)realloc(g_good, new_cap * sizeof(uint32_t));
         if (!tmpg) exit(EXIT_FAILURE);
         g_good = tmpg;
-        seq_t *tmpc = (seq_t*)realloc(g_cumsum, new_cap * sizeof(seq_t));
+        seq_t *tmpc = mem_resize(seq_t, g_cumsum, new_cap);
         if (!tmpc) exit(EXIT_FAILURE);
         g_cumsum = tmpc;
         g_good_cap = new_cap;

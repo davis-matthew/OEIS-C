@@ -10,7 +10,8 @@
  *            of divisors of 2 n² that are greater than n
  * Range:     u8 n <= 4619, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   enumerate_divisors_gt_n
+ * Validated: standard, pass, 106 terms through n = 9743 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/enumerate_divisors_gt_n.h"
+
+static void enumerate_divisors_gt_n(const uint64_t *primes,
+                                   const uint32_t *exp,
+                                   size_t idx, size_t len,
+                                   __uint128_t cur,
+                                   uint64_t n, seq_t *cnt)
+{
+    if (idx == len) {
+        if (cur > n)
+            (*cnt)++;
+        return;
+    }
+    __uint128_t power = 1;
+    for (uint32_t k = 0; k <= exp[idx]; ++k) {
+        enumerate_divisors_gt_n(primes, exp, idx + 1, len,
+                                cur * power, n, cnt);
+        power *= primes[idx];
+    }
+}
 
 seq_t a(idx_t n)
 {

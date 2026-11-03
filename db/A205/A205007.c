@@ -9,8 +9,9 @@
  * Formula:   a(n) = (1/n) * A205006(n), * where A205006(n) is the difference
  *            of the first pair of distinct * triangular numbers whose
  *            difference is divisible by n
- * Range:     u8 n <= 9656, u16 n <= 9656, u32 n <= 9656, u64 n <= 9656,
- *            u128 n <= 9656, big any n
+ * Range:     u8 n <= 23515, u16 n <= 23515, u32 n <= 23515, u64 n <= 23515,
+ *            u128 n <= 23515, big any n
+ * Validated: standard, pass, 121 terms through n = 9656 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

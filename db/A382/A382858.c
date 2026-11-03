@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   gcd_uint16
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   gcd_u16, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -45,7 +46,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <limits.h>
-#include "../utils/gcd_uint16.h"
+#include "../utils/gcd_u16.h"
+#include "../utils/mem.h"
 
 #define MAXN 10000
 #define PRIME_CAP 1300          /* number of primes ≤ 10000 */
@@ -107,11 +109,11 @@ typedef struct {
 
 static CacheEntry *make_cache(size_t cap)
 {
-    CacheEntry *c = (CacheEntry *)malloc(cap * sizeof(CacheEntry));
+    CacheEntry *c = mem_new(CacheEntry, cap);
     for (size_t i = 0; i < cap; ++i) c[i].key = UINT64_MAX;
     return c;
 }
-static void free_cache(CacheEntry *c) { free(c); }
+static void free_cache(CacheEntry *c) { mem_free(c); }
 
 /*--- recursion with memoisation -----------------------------------------*/
 static seq_t dfs(uint8_t *t, int prev, int r, CacheEntry *cache, size_t cap)
@@ -158,7 +160,7 @@ seq_t a(idx_t n)
 
     /* compute gcd of M */
     uint16_t g = M[0];
-    for (size_t i = 1; i < r; ++i) g = gcd_uint16(g, M[i]);
+    for (size_t i = 1; i < r; ++i) g = gcd_u16(g, M[i]);
 
     /* enumerate all divisors of g */
     uint16_t divisors[32];

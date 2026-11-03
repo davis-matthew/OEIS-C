@@ -8,6 +8,7 @@
  * Formula:   a(n) = (tau(n^2) + Sum_{d|n^2} tau((n+d)^2))/2
  * Range:     u8 n <= 11, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Compute tau(m^2) = product over prime factors p^e of m of (2*e+1). */

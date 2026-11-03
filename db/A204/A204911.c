@@ -12,7 +12,8 @@
  *            previously seen prime ≥ 5, that earlier prime is re...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 109 terms through n = 9625 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"      /* is_prime(idx_t) -> bool */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* prime storage                                                  */
@@ -69,11 +71,11 @@ seq_t a(idx_t n)
        conversion to size_t is safe for the allowed values (≤~10⁴). */
     if ((size_t)n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) abort();
         if (cache) {
-            memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cache_size = new_size;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
 
     /* Allocate storage for the most recent prime of each residue
        modulo n.  All entries start at 0 (sentinel). */
-    seq_t *last = (seq_t *)calloc((size_t)n, sizeof(seq_t));
+    seq_t *last = mem_new(seq_t, (size_t)n);
     if (!last) abort();
 
     /* Iterate primes until we find a suitable pair.  The primes
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
 
         if (q_prev >= 5) {                /* we have a valid earlier prime */
             cache[n] = q_prev;
-            free(last);
+            mem_free(last);
             return q_prev;
         }
 

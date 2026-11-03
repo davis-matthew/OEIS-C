@@ -9,7 +9,8 @@
  *            odd; a(0)=2, a(1)=1
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 10, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;
 static idx_t  cache_len = 0;
@@ -31,11 +33,11 @@ static void ensure_cache(idx_t n)
     if (n < cache_len) return;
     idx_t new_len = cache_len ? cache_len << 1 : 2;
     while (new_len <= n) new_len <<= 1;
-    seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache) exit(EXIT_FAILURE);
     if (cache) {
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache     = new_cache;
     cache_len = new_len;

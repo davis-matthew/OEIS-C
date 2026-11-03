@@ -6,8 +6,9 @@
  * Keywords:  nonn, base, look
  * Formula:   a(n) = generalized nim sum n + n in base 5 Convert n to base 5,
  *            apply digit mapping (0->0, 1->2, 2->4, 3->1, 4->3), convert back
- * Range:     u8 n <= 129, u16 n <= 9825, u32 n <= 9825, u64 n <= 9825,
- *            u128 n <= 9825, big any n
+ * Range:     u8 n <= 129, u16 n <= 15625, u32 n <= 15625, u64 n <= 15625,
+ *            u128 n <= 15625, big any n
+ * Validated: standard, pass, 72 terms through n = 9825 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

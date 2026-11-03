@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 209, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 59 terms through n = 964 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Ensure that the dynamic array has capacity for at least 'needed' elements. */
 static void ensure_capacity(size_t *cap, seq_t **ptr, size_t needed)
@@ -30,7 +32,7 @@ static void ensure_capacity(size_t *cap, seq_t **ptr, size_t needed)
     size_t new_cap = (*cap > 0) ? (*cap << 1) : 16;
     if (new_cap < needed)
         new_cap = needed;
-    *ptr = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    *ptr = mem_resize(seq_t, *ptr, new_cap);
     *cap = new_cap;
 }
 

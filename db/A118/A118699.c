@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 370, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 59 terms through n = 9877 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* Upper bound for the sieve.  This comfortably covers the first 10 000 terms. */
 static const idx_t MAX_LIMIT = 20000000;
@@ -68,7 +70,7 @@ static void init(void)
     if (initialized) return;
     build_spf(MAX_LIMIT, &spf);
     cache_cap = 64;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) abort();
     initialized = true;
 }
@@ -77,7 +79,7 @@ static void push_cache(seq_t v)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap << 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

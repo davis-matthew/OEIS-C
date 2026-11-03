@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 585, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 915 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    The array `dp` is stored statically and recomputed only when a larger
    index is requested. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;     /* stored counts for 0..max_n */
 static idx_t max_n = 0;      /* largest index computed in dp */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Allocate and compute dp up to `n` if needed. */
     if (dp == NULL || n > max_n) {
         size_t sz = (size_t)(n + 1);
-        seq_t *new_dp = (seq_t *)calloc(sz, sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, sz);
         if (new_dp == NULL)
             return 0;   /* allocation failed */
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old table, free when appropriate. */
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
         max_n = n;
     }

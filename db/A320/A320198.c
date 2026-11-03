@@ -7,7 +7,8 @@
  * Formula:   number of integer solutions to a^2 + 2*b^2 + 4*c^2 + 10*d^2 = n
  * Range:     u8 n <= 157, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9072 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* integer square root for idx_t */
 static inline idx_t isqrt_u64(idx_t n) {
@@ -33,12 +35,12 @@ seq_t a(idx_t n) {
 
     /* temporary arrays for successive convolutions.
        Size n+1 suffices because every partial sum is <= n. */
-    seq_t *tmp1 = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *tmp2 = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *tmp3 = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *tmp1 = mem_new(seq_t, (size_t)n + 1);
+    seq_t *tmp2 = mem_new(seq_t, (size_t)n + 1);
+    seq_t *tmp3 = mem_new(seq_t, (size_t)n + 1);
 
     if (!tmp1 || !tmp2 || !tmp3) {
-        free(tmp1); free(tmp2); free(tmp3);
+        mem_free(tmp1); mem_free(tmp2); mem_free(tmp3);
         return (seq_t)0;
     }
 
@@ -84,6 +86,6 @@ seq_t a(idx_t n) {
     /* Result: number of representations summing to n */
     const seq_t result = tmp3[(size_t)n];
 
-    free(tmp1); free(tmp2); free(tmp3);
+    mem_free(tmp1); mem_free(tmp2); mem_free(tmp3);
     return result;
 }

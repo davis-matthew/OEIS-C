@@ -10,13 +10,15 @@
  *            a(0)=1,a(1)=0,a(2)=0,a(3)=1,a(4)=1,a(5)=1,a(6)=1,a(7)=2,a(8)=4,a(9)=3
  * Range:     u8 n <= 22, u16 n <= 40, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[10] = {1,0,0,1,1,1,1,2,4,3};
 
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
 
     if (memo == NULL) {
         /* First time: allocate up to the required size and compute values */
-        memo = (seq_t *)malloc(need * sizeof(seq_t));
+        memo = mem_new(seq_t, need);
         if (!memo) return 0;
         for (size_t i = 0; i < 10; ++i)
             memo[i] = init_vals[i];
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
         memo_size = need;
     } else if (memo_size < need) {
         /* Grow the allocation and compute new entries */
-        seq_t *tmp = (seq_t *)realloc(memo, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, need);
         if (!tmp) return 0;
         memo = tmp;
         for (size_t i = memo_size; i < need; ++i)

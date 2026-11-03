@@ -10,13 +10,15 @@
  *            ∏_{j=1}^7 (1 – x^j)
  * Range:     u8 n <= 14, u16 n <= 52, u32 n <= 386, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 453 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for partition numbers p_{≤7}(i) */
 static seq_t *part = NULL;   /* dynamic array of values */
@@ -29,7 +31,7 @@ static void compute_partitions(size_t N)
         return;
 
     /* allocate/expand array */
-    seq_t *tmp = (seq_t *)realloc(part, (N + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, part, (N + 1));
     if (!tmp) return;               /* allocation failed – abort silently */
     part = tmp;
     part_len = N + 1;

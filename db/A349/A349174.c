@@ -11,7 +11,8 @@
  *            gcd(sigma(k), A003961(k))
  * Range:     u8 n <= 10, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   build_spf, gcd, next_prime, seq_mul, seq_pow
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   build_spf, gcd, ipow_idx, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gcd.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/next_prime.h"
+#include <string.h>
 #include "../utils/build_spf.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Global state                                                     */
@@ -92,7 +99,7 @@ static bool is_valid_k(idx_t k)
     seq_t f = 1;
     for (size_t i = 0; i < cnt; ++i) {
         seq_t np  = next_prime_of((seq_t)primes[i]);
-        seq_t pw  = seq_pow(np, (idx_t)exps[i]);
+        seq_t pw  = ipow_idx(np, (idx_t)exps[i]);
         f = seq_mul(f, pw);
     }
 
@@ -100,7 +107,7 @@ static bool is_valid_k(idx_t k)
     seq_t sigma = 1;
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p_seq = (seq_t)primes[i];
-        seq_t term  = (seq_pow(p_seq, (idx_t)(exps[i] + 1)) - 1) / (p_seq - 1);
+        seq_t term  = (ipow_idx(p_seq, (idx_t)(exps[i] + 1)) - 1) / (p_seq - 1);
         sigma = seq_mul(sigma, term);
     }
 
@@ -127,7 +134,7 @@ static void ensure_terms(idx_t n)
         if (is_valid_k(k)) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 8;
-                seq_buf = (seq_t *)realloc(seq_buf, seq_cap * sizeof(seq_t));
+                seq_buf = mem_resize(seq_t, seq_buf, seq_cap);
             }
             seq_buf[seq_len++] = (seq_t)k;
         }

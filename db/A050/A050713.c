@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   interleave3_uint64
+ * Validated: standard, pass, 71 terms through n = 886 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/interleave3_uint64.h"
+#include "../utils/mem.h"
+
+/* returns interleaved number as uint64_t, assumes the result fits in 64 bits */
+static uint64_t interleave3_uint64(idx_t n)
+{
+    int digits[20];
+    int cnt = 0;
+    uint64_t tmp = n;
+    /* get digits least‑significant first */
+    do {
+        digits[cnt++] = (int)(tmp % 10);
+        tmp /= 10;
+    } while (tmp);
+    uint64_t res = 0;
+    for (int i = cnt - 1; i >= 0; --i) {
+        res = res * 10 + (uint64_t)digits[i];
+        if (i > 0)
+            res = res * 10 + 3ULL;  /* insert 3 between digits */
+    }
+    return res;
+}
 
 /* ---------- Utility: 64‑bit Miller–Rabin primality test ---------- */
 
@@ -99,7 +120,7 @@ static void ensure_cache_cap(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr)
         return; /* allocation failure; the caller will not be able to continue */
     cache = new_ptr;

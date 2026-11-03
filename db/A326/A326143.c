@@ -7,8 +7,9 @@
  * Keywords:  sign, easy
  * Formula:   a(n) = sigma(n) - rad(n) - n where sigma(n) is the sum of all
  *            divisors of n and rad(n) is the largest squarefree divisor of n
- * Range:     i8 n <= 48, i16 n <= 8730, i32 n <= 8730, i64 n <= 8730,
- *            i128 n <= 8730, big any n
+ * Range:     i8 n <= 48, i16 n <= 12599, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 8730 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,15 +10,30 @@
  *            1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   alloc_zero, grow_arr
+ * Validated: standard, pass, 37 terms through n = 356 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_arr.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_arr(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *r = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) r[i] = old[i];
+    if (old) mem_free(old);
+    return r;
+}
 
 static seq_t *row = NULL;   /* row[k] = T(m,k) for the last computed row m */
 static seq_t *vals = NULL;  /* vals[i] = a(i) for i < done */

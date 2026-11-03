@@ -8,12 +8,14 @@
  * Formula:   a(n) = 2^(n/2^valuation(n,2))
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,5 +29,5 @@ seq_t a(idx_t n)
         odd >>= 1;
 
     /* a(n) = 2^odd_part(n) */
-    return pow_uint(2, odd);
+    return ipow_u64_idx(2, odd);
 }

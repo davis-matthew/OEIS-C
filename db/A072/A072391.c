@@ -8,14 +8,32 @@
  * Formula:   a(n) = sum_{k=1..n} #{ d | k^2 : d <= n }
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   dfs_div_counts
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/dfs_div_counts.h"
+
+/* Recursive generator of divisors of k^2 that are <= n and accumulate the count */
+static void dfs_div_counts(int idx, seq_t prod, idx_t n,
+                           int primes_cnt, const idx_t *primes,
+                           const int *exps, seq_t *out) {
+    if (idx == primes_cnt) {
+        if (prod <= n) (*out)++;
+        return;
+    }
+    idx_t p = primes[idx];
+    seq_t cur = prod;
+    for (int e = 0; e <= 2 * exps[idx]; ++e) {
+        if (cur > n) break;
+        dfs_div_counts(idx + 1, cur, n, primes_cnt, primes, exps, out);
+        if (e == 2 * exps[idx]) break;
+        cur *= p;
+    }
+}
 
 /* Helper: factorize x into primes[] and exps[], returning number of distinct primes in cnt */
 static void factorize(idx_t x, idx_t primes[], int exps[], int *cnt) {

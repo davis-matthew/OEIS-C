@@ -8,12 +8,14 @@
  *            Recurrence for n >= 10: a(n) = 1764 * a(n-5) + a(n-10)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 14, u64 n <= 29, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* allocated array of terms                */
 static idx_t  cache_len = 0;         /* length of allocated array (in terms)    */
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
     /* grow the cache if necessary ------------------------------------- */
     if (cache_len < n + 1) {
         /* allocate new storage */
-        seq_t *new_arr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, (size_t)(n + 1));
         if (!new_arr) abort();      /* out of memory */
 
         /* copy old values to new array */
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t n)
             new_arr[i] = cache[i];
 
         /* free old storage and install the new one */
-        free(cache);
+        mem_free(cache);
         cache = new_arr;
         cache_len = n + 1;
     }

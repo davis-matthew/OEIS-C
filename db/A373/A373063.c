@@ -11,7 +11,8 @@
  *            is indexed with offset 1
  * Range:     u8 n <= 13, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             if (new_cap < n) new_cap = n;
 
             /* Allocate a new buffer of seq_t objects.   */
-            seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, new_cap);
             if (!new_cache) abort();          /* allocation failure */
 
             /* Copy existing data to the new buffer. */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
                 new_cache[i] = cache[i];
 
             /* Free the old buffer. */
-            free(cache);
+            mem_free(cache);
             cache     = new_cache;
             cache_cap = new_cap;
         }

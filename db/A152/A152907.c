@@ -12,7 +12,8 @@
  *            times, so the linear index n satisfies start(...
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   binom_n_k
+ * Validated: partial, pass, 98 terms through n = 97 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom_n_k.h"
+#include "../utils/binomial.h"
 
 static idx_t isqrt_u128(unsigned __int128 x)
 {
@@ -62,5 +63,5 @@ seq_t a(idx_t n)
     idx_t k = pos / 4;                             /* which binomial coeff */
 
     /* ---- Return the binomial coefficient C(r,k) ---- */
-    return binom_n_k(r_est, k);
+    return binomial(r_est, k);
 }

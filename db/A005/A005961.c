@@ -9,12 +9,26 @@
  *            where B(x) = 1 + x*(B(x)^3 + 2*B(x^3))/3 is the g.f. of A000625
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   grow_zero
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/grow_zero.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static seq_t *B = 0, *S2 = 0, *S3 = 0, *G1 = 0, *G2 = 0;
 static idx_t cap = 0, bdone = 0, gdone = 0;

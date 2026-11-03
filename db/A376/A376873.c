@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * |Stirling1(2*n, n)|
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* OEIS A376873: a(n) = n! * |Stirling1(2*n, n)| */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,9 +31,9 @@ seq_t a(idx_t n)
     /* initialise state on first call */
     if (max_n == 0 && max_m == 0) {
         /* allocate minimal size 1 for all arrays */
-        stirling  = (seq_t *)realloc(stirling,  sizeof(seq_t));
-        factorial = (seq_t *)realloc(factorial, sizeof(seq_t));
-        values    = (seq_t *)realloc(values,    sizeof(seq_t));
+        stirling  = mem_resize(seq_t, stirling, 1);
+        factorial = mem_resize(seq_t, factorial, 1);
+        values    = mem_resize(seq_t, values, 1);
         if (!stirling || !factorial || !values) return 0;
 
         /* base values */
@@ -50,17 +52,17 @@ seq_t a(idx_t n)
         idx_t new_max_m = 2 * new_max_n;
 
         /* enlarge Stirling array to new_max_m+1 */
-        seq_t *tmp = (seq_t *)realloc(stirling, (new_max_m + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, stirling, (new_max_m + 1));
         if (!tmp) return 0;
         stirling = tmp;
 
         /* enlarge factorial array to new_max_n+1 */
-        tmp = (seq_t *)realloc(factorial, (new_max_n + 1) * sizeof(seq_t));
+        tmp = mem_resize(seq_t, factorial, (new_max_n + 1));
         if (!tmp) return 0;
         factorial = tmp;
 
         /* enlarge values array to new_max_n+1 */
-        tmp = (seq_t *)realloc(values, (new_max_n + 1) * sizeof(seq_t));
+        tmp = mem_resize(seq_t, values, (new_max_n + 1));
         if (!tmp) return 0;
         values = tmp;
 

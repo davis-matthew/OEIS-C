@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = complement of the bit two places to the left of the least
  *            significant 1 in the binary expansion of n
- * Range:     u8 n <= 9200, u16 n <= 9200, u32 n <= 9200, u64 n <= 9200,
- *            u128 n <= 9200, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 109 terms through n = 9200 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

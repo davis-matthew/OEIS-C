@@ -8,12 +8,14 @@
  *            A182808)
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 56, u64 n <= 168, u128 n <= 551,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 857 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* DP array: dp[i] = partitions of i into parts ≥3 */
 static size_t dp_size = 0;    /* allocated size */
@@ -25,7 +27,7 @@ static void compute_dp_up_to(size_t m)
     if (dp_size > m) return;   /* already computed */
 
     /* reallocate to the new required size */
-    dp = (seq_t *)realloc(dp, (m + 1) * sizeof(seq_t));
+    dp = mem_resize(seq_t, dp, (m + 1));
     dp_size = m + 1;
 
     /* initialise dp[0] = 1, dp[1..m] = 0 */

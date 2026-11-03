@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 11, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;          /* array of computed a(i) */
@@ -40,12 +42,12 @@ static void ensure_cache(idx_t need)
     idx_t required = need + 1;             /* array indices 0..need                     */
     if (cache_size > need) return;         /* already large enough                       */
 
-    seq_t *new_cache = (seq_t *)malloc((size_t)required * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)required);
     if (!new_cache) return;                /* allocation failure (should not happen)     */
 
     if (cache) {
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
 
     /* zero new entries */

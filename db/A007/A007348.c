@@ -7,13 +7,14 @@
  * Formula:   search for primes p where -10 is a primitive root modulo p
  * Range:     u8 n <= 23, u16 n <= 2475, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 73 terms through n = 8737 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 static uint64_t modpow(uint64_t base, uint64_t exp, uint64_t mod) {
     uint64_t result = 1;
@@ -53,7 +54,7 @@ seq_t a(idx_t n) {
     uint64_t p = 2;
     
     while (1) {
-        if (is_prime(p)) {
+        if (is_prime_u64(p)) {
             uint64_t ten_mod_p = 10 % p;
             uint64_t mod_neg10 = ten_mod_p ? (p - ten_mod_p) : 0;
             

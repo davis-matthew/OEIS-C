@@ -9,6 +9,7 @@
  *            1/sqrt(2))*cos(Pi*n/4))*2^ceil(binomial(n+1,2)/2)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 10, i64 n <= 15, i128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* Simplified:  Let f(n) = 1 if n mod 8 = 0,1,7; 0 if n mod 8 = 2,6; -1 if n mod 8 = 3,4,5.  */
 /*  Let e(n) = ceil((n^2 + n)/4) = (n*n + n + 3)/4.  Then a(n) = f(n) * 2^e(n). */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Computes OEIS sequence A134185 */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   same_zero_five
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/same_zero_five.h"
+#include "../utils/mem.h"
+
+/* Helper that checks whether the base‑6 representation of x has
+   an equal number of 0's and 5's. */
+static bool same_zero_five(seq_t x)
+{
+    seq_t c0 = 0, c5 = 0;
+    while (x != 0)
+    {
+        seq_t d = x % (seq_t)6;
+        if (d == 0)
+            c0++;
+        else if (d == 5)
+            c5++;
+        x /= (seq_t)6;
+    }
+    return c0 == c5;
+}
 
 /* Local static cache of already found terms. */
 static seq_t *cache = NULL;
@@ -36,7 +54,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                 {
                     /* Out of memory – terminate the program. */

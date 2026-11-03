@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has_adj_04
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 */
 
 #include <stdbool.h>
-#include "../utils/has_adj_04.h"
+
+static bool has_adj_04(seq_t x)
+{
+    seq_t tmp = x;
+    seq_t prev = 0;
+    bool first = true;
+    while (tmp > 0) {
+        seq_t digit = tmp % 5;
+        tmp /= 5;
+        if (!first) {
+            if ((prev == 0 && digit == 4) || (prev == 4 && digit == 0))
+                return true;
+        }
+        first = false;
+        prev = digit;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

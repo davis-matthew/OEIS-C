@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   realloc_array
+ * Validated: standard, pass, 62 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/realloc_array.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+#ifdef __cplusplus
+template <class T>
+static T * realloc_array(T *ptr, size_t nbytes)
+{
+    return mem_resize(T, ptr, (nbytes) / sizeof(T));
+}
+#else
+static void* realloc_array(void *ptr, size_t nbytes)
+{
+    return realloc(ptr, nbytes);
+}
+#endif
 
 /* static state ----------------------------------------------------- */
 static idx_t *prime_list      = NULL;   /* primes up to the current sieve limit */
@@ -171,7 +193,7 @@ static void ensure_sequence(idx_t n)
         build_prime_sieve(new_limit);
 
         /* Restart: clear old cache and start scanning from the beginning. */
-        free(seq_cache);
+        mem_free(seq_cache);
         seq_cache = NULL;
         seq_len   = 0;
         seq_cap   = 0;

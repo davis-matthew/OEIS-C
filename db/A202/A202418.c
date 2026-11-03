@@ -11,7 +11,8 @@
  *            closed formula
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Precomputed data */
 static size_t R = 0;             /* number of valid row patterns (≤7 bits)   */
@@ -140,8 +142,8 @@ static void init_combinatorics(void)
     }
 
     /* Allocate DP buffers */
-    dp_prev = (seq_t*)malloc(S * sizeof(seq_t));
-    dp_next = (seq_t*)malloc(S * sizeof(seq_t));
+    dp_prev = mem_new(seq_t, S);
+    dp_next = mem_new(seq_t, S);
 }
 
 static void ensure_capacity(size_t needed)
@@ -149,10 +151,10 @@ static void ensure_capacity(size_t needed)
     if (a_capacity >= needed + 1) return;
     size_t new_cap = a_capacity * 2;
     if (new_cap < needed + 1) new_cap = needed + 1;
-    seq_t *new_a = (seq_t*)calloc(new_cap + 1, sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, new_cap + 1);
     if (a_vals) {
-        memcpy(new_a, a_vals, a_capacity * sizeof(seq_t));
-        free(a_vals);
+        mem_copy(new_a, a_vals, a_capacity * sizeof(seq_t));
+        mem_free(a_vals);
     }
     a_vals = new_a;
     a_capacity = new_cap;
@@ -170,7 +172,7 @@ seq_t a(idx_t n)
         for (size_t s = 0; s < S; ++s) dp_next[s] = 0;
         current_rows = 2; /* 2 rows have been processed */
         a_capacity = 16;
-        a_vals = (seq_t*)calloc(a_capacity + 1, sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_capacity + 1);
         precomputed = true;
     }
 

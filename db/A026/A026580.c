@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 20, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   reallocate_seq
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,29 @@
 
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdint.h>   /* uint64_t */
-#include "../utils/reallocate_seq.h"
+
+/* Helper: reallocate an array of seq_t.  Works both in C and C++.
+   In C++ we use new[]/delete[]; in C we fall back to realloc. */
+static seq_t *reallocate_seq(seq_t *old, size_t old_cap, size_t new_cap)
+{
+    if (old == NULL) {
+#ifdef __cplusplus
+        return new seq_t[new_cap];
+#else
+        return (seq_t *)malloc(new_cap * sizeof(seq_t));
+#endif
+    }
+    if (old_cap >= new_cap) return old;
+    seq_t *tmp;
+#ifdef __cplusplus
+    tmp = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i) tmp[i] = old[i];
+    delete [] old;
+#else
+    tmp = (seq_t *)realloc(old, new_cap * sizeof(seq_t));
+#endif
+    return tmp;
+}
 
 seq_t a(idx_t n)
 {

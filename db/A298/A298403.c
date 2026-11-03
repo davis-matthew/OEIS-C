@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 41, u64 n <= 87, u128 n <= 180,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    static array so that callers may request terms in any order. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 /* static cache of computed terms */
 static seq_t *cache = NULL;     /* array of values */
 static size_t cache_cap = 0;     /* allocated capacity of cache array    */
@@ -31,13 +33,13 @@ static void ensure_cache_cap(size_t needed)
     size_t new_cap = cache_cap? (cache_cap << 1) : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *newc = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *newc = mem_new(seq_t, new_cap);
     if (!newc)
         abort(); /* out of memory */
     if (cache) {
         for (size_t i = 0; i < cache_size; ++i)
             newc[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = newc;
     cache_cap = new_cap;

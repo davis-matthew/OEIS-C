@@ -11,13 +11,15 @@
  *            seq_t. realloc/calloc cast to seq_t* for...
  * Range:     i8 n <= 7, i16 n <= 10, i32 n <= 15, i64 n <= 22, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache for a(n) values */
 static seq_t *a_cache = NULL;      /* array of a(n) */
@@ -35,7 +37,7 @@ static void ensure_a(idx_t n)
     if ((idx_t)a_cap <= n) {
         size_t new_cap = a_cap ? a_cap * 2 : 64;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         a_cache = tmp;
         a_cap   = new_cap;
     }
@@ -47,7 +49,7 @@ static void ensure_fact(idx_t upto)
     if (fact_cache == NULL) {
         size_t init_cap = upto + 1;
         if (init_cap < 64) init_cap = 64;
-        fact_cache = (seq_t *)calloc(init_cap, sizeof(seq_t));
+        fact_cache = mem_new(seq_t, init_cap);
         if (!fact_cache) abort();          /* safety */
         fact_cache[0] = (seq_t)1;
         fact_cache[1] = (seq_t)1;
@@ -57,7 +59,7 @@ static void ensure_fact(idx_t upto)
     if ((idx_t)fact_cap <= upto) {
         size_t new_cap = fact_cap ? fact_cap * 2 : 64;
         if (new_cap <= (size_t)upto) new_cap = (size_t)upto + 1;
-        seq_t *tmp = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_cache, new_cap);
         fact_cache = tmp;
         fact_cap   = new_cap;
     }

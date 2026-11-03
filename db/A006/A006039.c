@@ -10,6 +10,7 @@
  *            doubles until n terms are found
  * Range:     u8 n <= 6, u16 n <= 327, u32 n <= 8671, u64 n <= 8671,
  *            u128 n <= 8671, big any n
+ * Validated: standard, pass, 60 terms through n = 8296 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,15 +7,18 @@
  * Formula:   a(n) = σ(n⁴) (sum of divisors of n⁴)
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 196, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 51 terms through n = 820 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
 
         /* n⁴ contributes p^(4e).  σ(p^(4e)) = (p^(4e+1)-1)/(p-1). */
         uint64_t exp = 4 * e + 1;
-        seq_t pow_val = seq_pow(p, (idx_t)exp);
+        seq_t pow_val = ipow_idx(p, (idx_t)exp);
         seq_t term = (pow_val - 1) / ((seq_t)primes[i] - 1);
         result *= term;
     }

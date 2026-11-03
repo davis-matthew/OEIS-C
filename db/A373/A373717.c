@@ -11,12 +11,14 @@
  *            array T by antidiagonals (0,0),(1,0),(0,1),(2,0),(1,1),(0,2),…
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Count of entries up to and including all pairs with sum i+j <= s.

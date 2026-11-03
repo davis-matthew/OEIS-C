@@ -10,13 +10,15 @@
  *            * k * C(2n,n-k) for n > 0 where C(a,b) = binomial coefficient
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* a(0)…a(max) */
 static idx_t   a_size  = 0;
@@ -30,8 +32,8 @@ static void ensure_a(idx_t n)
     if (n + 1 <= a_size) return;
     idx_t new_size = n + 1;
     /* Allocate or grow a_cache */
-    if (!a_cache) a_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
-    else a_cache = (seq_t*)realloc(a_cache, new_size * sizeof(seq_t));
+    if (!a_cache) a_cache = mem_new(seq_t, new_size);
+    else a_cache = mem_resize(seq_t, a_cache, new_size);
     for (idx_t i = a_size; i <= n; ++i) a_cache[i] = 0;
     if (a_size == 0) a_cache[0] = 1;   /* a(0) = 1 */
     a_size = new_size;
@@ -42,8 +44,8 @@ static void ensure_d(idx_t n)
     if (n >= d_size) {
         idx_t old = d_size;
         d_size = n + 1;
-        if (!d_cache) d_cache = (seq_t*)malloc(d_size * sizeof(seq_t));
-        else d_cache = (seq_t*)realloc(d_cache, d_size * sizeof(seq_t));
+        if (!d_cache) d_cache = mem_new(seq_t, d_size);
+        else d_cache = mem_resize(seq_t, d_cache, d_size);
         for (idx_t k = old; k <= n; ++k) {
             seq_t comb = 1;
             idx_t M = 3 * k + 1;
@@ -62,8 +64,8 @@ static void ensure_binom(idx_t n)
 {
     if (n + 1 <= binom_size) return;
     idx_t new_size = n + 1;
-    if (!binom_row) binom_row = (seq_t*)malloc(new_size * sizeof(seq_t));
-    else binom_row = (seq_t*)realloc(binom_row, new_size * sizeof(seq_t));
+    if (!binom_row) binom_row = mem_new(seq_t, new_size);
+    else binom_row = mem_resize(seq_t, binom_row, new_size);
     /* compute C(2n, r) for r = 0..n */
     seq_t comb = 1;
     for (idx_t r = 0; r <= n; ++r) {

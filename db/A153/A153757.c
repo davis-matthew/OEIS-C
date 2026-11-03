@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  *      A003266(k) = A003266(k-1) * Fib(k),
  *  with Fib(1)=Fib(2)=1, Fib(k)=Fib(k-1)+Fib(k-2).  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Memoised tables:
  *      F[i]    = i‑th Fibonacci number      (F[1]=1, F[2]=1)
@@ -41,13 +43,13 @@ seq_t a(idx_t n)
         seq_t *tmp;
 
         /* realloc returns void*; cast explicitly for C++ */
-        tmp = (seq_t *)realloc(F,    newlen * sizeof(seq_t));
+        tmp = mem_resize(seq_t, F, newlen);
         if (!tmp) return 0; /* allocation failed – should not happen */
         F    = tmp;
-        tmp = (seq_t *)realloc(term, newlen * sizeof(seq_t));
+        tmp = mem_resize(seq_t, term, newlen);
         if (!tmp) return 0;
         term = tmp;
-        tmp = (seq_t *)realloc(pref, newlen * sizeof(seq_t));
+        tmp = mem_resize(seq_t, pref, newlen);
         if (!tmp) return 0;
         pref = tmp;
 

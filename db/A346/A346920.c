@@ -8,7 +8,8 @@
  *            a(n-k) (n >= 1)
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 15, u64 n <= 23, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 443 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Dynamic array helpers                                               */
@@ -27,7 +29,7 @@ static void expand_array(seq_t **arr, size_t *cap, size_t needed)
     if (*cap >= needed) return;
     size_t new_cap = *cap ? *cap * 2 : 1;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) abort();          /* out of memory */
     *arr = tmp;
     *cap = new_cap;
@@ -54,11 +56,11 @@ static seq_t stirling[6] = { 0 };
 static void compute_to_n(idx_t n)
 {
     if (a_cache == NULL) {                 /* first call */
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         a_cap   = 1;
         a_cache[0] = (seq_t)1;             /* a(0)=1 */
 
-        S5_cache = (seq_t *)malloc(sizeof(seq_t));
+        S5_cache = mem_new(seq_t, 1);
         S5_cap   = 1;
         S5_cache[0] = (seq_t)0;             /* S(0,5)=0 */
 

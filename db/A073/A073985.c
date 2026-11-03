@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
     a(n;2,2).  Complexity: O(36·6·n) ≈ O(n).  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         f[0][0] = 1;                       /* empty string */
 
         a_cap = 16;                        /* initial capacity */
-        a_vals = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
         a_vals[0] = 0;                     /* a(0), unused but keeps indices aligned */
     }
 
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         /* ensure result array has space */
         if (cur + 1 >= a_cap) {
             a_cap *= 2;
-            a_vals = (seq_t*)realloc(a_vals, a_cap * sizeof(seq_t));
+            a_vals = mem_resize(seq_t, a_vals, a_cap);
         }
 
         a_vals[cur + 1] = f[2][2];  /* a(n;2,2) */

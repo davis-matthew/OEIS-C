@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 11, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Recurrence: a(0)=1, a(1)=3,
    n*a(n) + (7n-10)*a(n-1) + 8*(-n+2)*a(n-2) = 0  for n>=2. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* Array of computed terms */
 static idx_t cache_size = 0;    /* Number of terms currently in cache */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* Initial cache allocation. */
     if (cache == NULL) {
         cache_capacity = (size_t)2;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)3;
         cache_size = 2;
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     /* Grow cache if necessary to hold term n. */
     if ((size_t)n + 1 > cache_capacity) {
         cache_capacity = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_capacity);
     }
 
     /* Compute missing terms up to n using the recurrence. */

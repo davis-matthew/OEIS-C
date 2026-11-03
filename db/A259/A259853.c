@@ -8,7 +8,8 @@
  * Formula:   a(n) = denominator(n^2 * 2^n / binomial(2n,n))
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   build_primes_upto, build_spf, pow_int
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   build_primes_upto, build_spf, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,12 @@
 /* This implementation computes the denominator by prime factorisation and Legendre's theorem, */
 /* avoiding manipulation of gigantic intermediate binomial values. */
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/build_spf.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 static size_t factorial_exp(idx_t m, idx_t p)
 {
@@ -103,7 +107,7 @@ seq_t a(idx_t n)
         if (extra == 1)
             denom = denom * (seq_t)p;              /* fast path */
         else
-            denom = denom * pow_int((seq_t)p, (idx_t)extra);
+            denom = denom * ipow_idx((seq_t)p, (idx_t)extra);
     }
 
     return denom;

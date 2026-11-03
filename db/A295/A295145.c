@@ -10,13 +10,15 @@
  *            (the first positive integer not equal to a(0), a(1))
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* sequence computation ----------------------------------------------------- */
 seq_t a(idx_t n)
@@ -37,14 +39,14 @@ seq_t a(idx_t n)
     if (a_vals == NULL) {
         /* base a(0), a(1) */
         a_cap = 2;
-        a_vals = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
         a_vals[0] = (seq_t)1;
         a_vals[1] = (seq_t)2;
         a_len   = 2;
 
         /* initialise first b value */
         b_cap = 1;
-        b_vals = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_vals = mem_new(seq_t, b_cap);
         seq_t cand = (seq_t)1;
         /* skip a(0) and a(1) */
         while (cand == a_vals[0] || cand == a_vals[1]) cand++;
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
             /* store new b value */
             if (b_len >= b_cap) {
                 size_t new_cap = (b_cap == 0) ? 4 : b_cap << 1;
-                b_vals = (seq_t *)realloc(b_vals, new_cap * sizeof(seq_t));
+                b_vals = mem_resize(seq_t, b_vals, new_cap);
                 b_cap = new_cap;
             }
             b_vals[b_len++] = cand;
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         /* ensure capacity for new a value */
         if (a_len >= a_cap) {
             size_t new_cap = (a_cap == 0) ? 4 : a_cap << 1;
-            a_vals = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+            a_vals = mem_resize(seq_t, a_vals, new_cap);
             a_cap = new_cap;
         }
 

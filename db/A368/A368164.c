@@ -10,12 +10,14 @@
  *            arithmetic is performed in seq_t
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (m == 0)
         B = 1;
     else
-        B = 3 * pow_seq((seq_t)9, (int)(m - 1));
+        B = 3 * ipow_i32((seq_t)9, (int)(m - 1));
 
     for (idx_t k = 0; k <= n; ++k) {
         /* term = B(m) * C(2k,k) * 2^k */

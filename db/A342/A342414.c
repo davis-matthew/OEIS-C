@@ -6,16 +6,20 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A003415(n) / gcd(phi(n), A003415(n))
- * Range:     u8 n <= 95, u16 n <= 9286, u32 n <= 9286, u64 n <= 9286,
- *            u128 n <= 9286, big any n
- * Helpers:   factor_u64, gcd, phi
+ * Range:     u8 n <= 95, u16 n <= 12500, u32 n <= 12500, u64 n <= 12500,
+ *            u128 n <= 12500, big any n
+ * Validated: standard, pass, 112 terms through n = 9286 (2026-11-01)
+ * Helpers:   factor_u64, gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 /* Arithmetic derivative of n: A003415(n) */
 static seq_t arithmetic_derivative(idx_t n)
@@ -47,7 +51,7 @@ static seq_t arithmetic_derivative(idx_t n)
 seq_t a(idx_t n)
 {
     seq_t deriv = arithmetic_derivative(n);
-    seq_t phi_n = phi(n);          /* Euler totient function */
+    seq_t phi_n = totient(n);          /* Euler totient function */
     seq_t g     = gcd(deriv, phi_n); /* gcd */
     return deriv / g;
 }

@@ -9,6 +9,7 @@
  *            prime_k is the (k+1)-th prime (starting with 2 for k=0)
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

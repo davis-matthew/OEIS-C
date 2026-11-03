@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   contains_04
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains_04.h"
+
+static bool contains_04(seq_t x)
+{
+    bool seen_four = false;           /* will become true after a digit 4 */
+    while (x > 0)
+    {
+        seq_t d = x % (seq_t)5;        /* current least‑significant digit */
+        x = x / (seq_t)5;             /* strip it */
+        if (seen_four && d == (seq_t)0)   /* previous digit was 4, now 0 -> 04 */
+            return true;
+        seen_four = (d == (seq_t)4);
+    }
+    return false;
+}
 
 /* Rough upper bound on the number of terms the cache will hold.
    For n=10 000 the sequence visits well below 2 × 10⁵ numbers. */

@@ -11,7 +11,8 @@
  *            (k*5+5)
  * Range:     u8 none, u16 none, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *p1, const void *p2)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
         /* Collect prime powers */
         size_t est = 30000;
-        seq_t *vals = (seq_t *)malloc(est * sizeof(seq_t));
+        seq_t *vals = mem_new(seq_t, est);
         size_t cnt = 0;
         for (idx_t p = 2; p <= MAX_LIMIT; ++p) {
             if (!is_prime[p]) continue;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             while (power <= MAX_LIMIT) {
                 if (cnt >= est) {
                     est <<= 1;
-                    vals = (seq_t *)realloc(vals, est * sizeof(seq_t));
+                    vals = mem_resize(seq_t, vals, est);
                 }
                 vals[cnt++] = power;
                 if (power > MAX_LIMIT / p) break;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         free(is_prime);
 
         /* Sort the list of prime powers */
-        qsort(vals, cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(vals, cnt, sizeof(seq_t), cmp_seq);
 
         prime_powers = vals;
         prime_powers_len = cnt;

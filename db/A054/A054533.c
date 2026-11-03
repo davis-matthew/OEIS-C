@@ -11,14 +11,15 @@
  *            T(r,k) = Σ_{d | gcd(r,k)} d * μ(r/d) (µ = Möbius function)
  * Range:     i8 n <= 8645, i16 n <= 9870, i32 n <= 9870, i64 n <= 9870,
  *            i128 n <= 9870, big any n
- * Helpers:   mobius, mygcd
+ * Validated: standard, pass, 108 terms through n = 9497 (2026-11-01)
+ * Helpers:   gcd_idx, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mobius.h"      /* provides seq_t mobius(idx_t) */
-#include "../utils/mygcd.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/mobius.h"
 
 /* Integer triangular number r*(r+1)/2, computed safely */
 static inline idx_t triangular(idx_t r)
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
     idx_t k = n - prev_tri;            /* column index (1‑based) */
 
     /* Compute T(r,k) = Σ_{d | gcd(r,k)} d * μ(r/d) */
-    idx_t g = mygcd(r, k);
+    idx_t g = gcd_idx(r, k);
     seq_t sum = 0;
 
     for (idx_t d = 1; d * d <= g; ++d) {

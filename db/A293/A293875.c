@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 2989, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 67 terms through n = 9750 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,19 @@
    representation contains the substring "15".  */
 
 #include <stdbool.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Return true if number x contains the two consecutive digits '1' and '5'. */
 static bool has15(seq_t x)
@@ -25,7 +37,7 @@ static bool has15(seq_t x)
     if (x < (seq_t)15)          /* No way to contain "15" */
         return false;
 
-    idx_t len = digit_len(x);
+    idx_t len = num_digits(x);
     if (len < 2)                /* Not enough digits */
         return false;
 

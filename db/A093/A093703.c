@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const unsigned ROMAN_VALUES[] = {
     1000, 900, 500, 400, 100, 90,
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     {
         /* Pre‑compute all valid numbers up to 3999 */
         const unsigned MAX_VAL = 3999;
-        seq = (seq_t *)malloc(MAX_VAL * sizeof(seq_t));
+        seq = mem_new(seq_t, MAX_VAL);
         if (!seq) return (seq_t)0; /* allocation failure */
 
         char buf[20], rev[20];

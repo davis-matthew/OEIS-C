@@ -8,7 +8,8 @@
  *            2^n
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* The implementation keeps a cache of previously computed terms.  */
 #include <stdlib.h>   /* for malloc, realloc, realloc */
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 /* Cache data */
 static seq_t *a_cache      = NULL;   /* cached a(n) values             */
@@ -32,8 +34,8 @@ static void ensure_cache_size(idx_t n)
     if (needed <= cache_cap)
         return;
     /* Allocate or grow the arrays.  C++ requires an explicit cast.  */
-    a_cache = (seq_t *)realloc(a_cache, needed * sizeof(*a_cache));
-    pow2_cache = (seq_t *)realloc(pow2_cache, needed * sizeof(*pow2_cache));
+    a_cache = mem_resize(seq_t, a_cache, needed);
+    pow2_cache = mem_resize(seq_t, pow2_cache, needed);
     /* If realloc failed, pointers become NULL; the build framework
        will treat that as an error.  */
     cache_cap = needed;

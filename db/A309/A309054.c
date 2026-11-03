@@ -12,6 +12,7 @@
  *            non‑negative indices
  * Range:     u8 n <= 2187, u16 n <= 4374, u32 n <= 4374, u64 n <= 4374,
  *            u128 n <= 4374, big any n
+ * Validated: standard, pass, 101 terms through n = 4208 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

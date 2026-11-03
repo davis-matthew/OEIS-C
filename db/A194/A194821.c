@@ -8,14 +8,27 @@
  * Formula:   a(n) = 1+floor(Sum_{k=1..n} <((-1)^k)*k*sqrt(2)>)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int128_floor_div
+ * Validated: standard, pass, 115 terms through n = 9898 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/int128_floor_div.h"
+
+/* floor division for signed __int128 by unsigned __int128
+   returns floor(num / den)                     */
+static inline signed __int128 int128_floor_div(signed __int128 num,
+                                               unsigned __int128 den)
+{
+    if (num >= 0)
+        return num / (signed __int128)den;
+    else {
+        signed __int128 neg = -num;
+        return -((neg + (signed __int128)den - 1) / (signed __int128)den);
+    }
+}
 
 /* ---------- internal helpers ---------- */
 

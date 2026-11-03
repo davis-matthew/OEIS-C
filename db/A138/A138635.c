@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 50, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence: a(n) = 3*a(n-3) - 3*a(n-6) + 2*a(n-9)
    Initial values: a(0)=0, a(1)=0, a(2)=1, a(3)=0, a(4)=1,
@@ -30,7 +32,7 @@ static void ensure_cache_size(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 9;
     if (new_cap <= needed)
         new_cap = needed + 1;       /* need at least needed+1 */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     cache = new_cache;
     cache_cap = new_cap;
 }

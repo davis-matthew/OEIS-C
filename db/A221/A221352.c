@@ -11,7 +11,8 @@
  *            a(1)=0,a(2)=1,a(3)=18,a(4)=148,a(5)=1164,a(6)=8824,a(7)=65932
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached values a[0..cap-1]   */
 static size_t cap = 0;               /* allocated size             */
@@ -37,7 +39,7 @@ ensure_cache(idx_t need)
     if (new_cap < 8) new_cap = 8;                       /* enough for seeds 1..7 */
 
     if (cap < new_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { abort(); }                         /* allocation failure */
         cache = tmp;
         cap = new_cap;

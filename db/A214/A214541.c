@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 29, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>   /* malloc, realloc */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 static void ensure_cache(idx_t need, seq_t **p, size_t *cap)
 {
@@ -30,9 +32,9 @@ static void ensure_cache(idx_t need, seq_t **p, size_t *cap)
     if (*cap <= (size_t)need) {
         size_t new_cap = (size_t)need + 1;
         if (*p == NULL)
-            *p = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            *p = mem_new(seq_t, new_cap);
         else
-            *p = (seq_t *)realloc(*p, new_cap * sizeof(seq_t));
+            *p = mem_resize(seq_t, *p, new_cap);
         if (*p == NULL) {
             /* allocation failed – terminate the program */
             abort();

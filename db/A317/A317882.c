@@ -9,13 +9,15 @@
  *            a(1)=1
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 23, u64 n <= 44, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static memoisation tables (1‑based indices for a(n)) */
 static seq_t *A = NULL;   /* a(n) values */
@@ -42,20 +44,20 @@ seq_t a(idx_t n)
         idx_t new_cap = (cap) ? cap << 1U : 8U;
         while (new_cap <= n) new_cap <<= 1U;
 
-        seq_t *Anew = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        seq_t *Snew = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *Anew = mem_new(seq_t, new_cap);
+        seq_t *Snew = mem_new(seq_t, new_cap);
         if (!Anew || !Snew) exit(1);          /* allocation failed */
 
         /* Zero the new arrays first */
-        memset(Anew, 0, new_cap * sizeof(seq_t));
-        memset(Snew, 0, new_cap * sizeof(seq_t));
+        mem_set(Anew, 0, new_cap * sizeof(seq_t));
+        mem_set(Snew, 0, new_cap * sizeof(seq_t));
 
         /* Copy old data and free the old buffers */
         if (A) {
-            memcpy(Anew, A, cap * sizeof(seq_t));
-            free(A);
+            mem_copy(Anew, A, cap * sizeof(seq_t));
+            mem_free(A);
         }
-        if (S) free(S);   /* old S will be recomputed from scratch */
+        if (S) mem_free(S);   /* old S will be recomputed from scratch */
 
         /* Adopt the new buffers */
         A = Anew;

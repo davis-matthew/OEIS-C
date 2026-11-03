@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 123, u32 n <= 413, u64 n <= 1499,
  *            u128 n <= 5493, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9851 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    returns the appropriate entry.  Complexity O(r²) with r≈√(2n). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,11 +34,11 @@ seq_t a(idx_t n)
     size_t sz = (size_t)r + 1;
 
     /* Allocate three rows.  Cast from void* to seq_t* (required in C++). */
-    seq_t *row0 = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *row1 = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *row2 = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *row0 = mem_new(seq_t, sz);
+    seq_t *row1 = mem_new(seq_t, sz);
+    seq_t *row2 = mem_new(seq_t, sz);
     if (!row0 || !row1 || !row2) {
-        free(row0); free(row1); free(row2);
+        mem_free(row0); mem_free(row1); mem_free(row2);
         return 0;                /* OOM → return 0 as safe default */
     }
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     row1[0] = fib_cur;
     if (n == 0) {
         seq_t res = row1[0];
-        free(row0); free(row1); free(row2);
+        mem_free(row0); mem_free(row1); mem_free(row2);
         return res;
     }
 
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
         idx_t end   = start + i;        /* last  index of row i */
         if (n >= start && n <= end) {
             seq_t result = cur[n - start];
-            free(row0); free(row1); free(row2);
+            mem_free(row0); mem_free(row1); mem_free(row2);
             return result;
         }
 
@@ -94,6 +96,6 @@ seq_t a(idx_t n)
     }
 
     /* The loop should always return above.  Fallback. */
-    free(row0); free(row1); free(row2);
+    mem_free(row0); mem_free(row1); mem_free(row2);
     return 0;
 }

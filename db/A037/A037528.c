@@ -8,19 +8,22 @@
  * Formula:   a(n) = floor(7*3^n/13) (OEIS A037528)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* The sequence is defined for n ≥ 1.  For safety, return 0 when n==0. */
     if (n == 0) return (seq_t)0;
 
     /* Compute 3^n as a big integer. */
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n);
 
     /* Compute floor(7*pow3/13).  All intermediate operations are
        performed in the seq_t type, so the result is exact.  For fixed

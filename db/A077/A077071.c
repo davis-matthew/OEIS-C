@@ -8,12 +8,14 @@
  *            2*a(k) + 4*k*k + 6*k + 2
  * Range:     u8 n <= 11, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     if (n >= size) {
         /* enlarge cache to hold a[n] */
         idx_t newsize = n + 1;
-        cache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newsize);
         if (!cache) {                /* allocation failed – abort */
             return (seq_t)0;
         }

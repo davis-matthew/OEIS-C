@@ -7,11 +7,13 @@
  * Formula:   a(n) = 11*3^n-1
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 18, u64 n <= 38, u128 n <= 78,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 937 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)

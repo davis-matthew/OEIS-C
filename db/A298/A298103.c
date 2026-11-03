@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 326, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 62 terms through n = 887 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
         /* Allocate a bit of storage for term list */
         terms_cap = 256;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) {
             /* allocation failure: cannot proceed */
             return 0;
@@ -61,9 +63,9 @@ seq_t a(idx_t n)
                     /* Grow term buffer if necessary */
                     if (terms_cnt == terms_cap) {
                         terms_cap <<= 1;
-                        seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                         if (!tmp) {
-                            free(terms);
+                            mem_free(terms);
                             return 0;
                         }
                         terms = tmp;

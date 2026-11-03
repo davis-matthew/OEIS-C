@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of x^n in x * ∏_{k>0} (1 + x^(25k))/(1 + x^k)
  * Range:     i8 n <= 56, i16 n <= 156, i32 n <= 483, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    loop to avoid using the same factor more than once. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
     const idx_t N = n;                         /* we need coefficients up to x^(n‑1) */
     const size_t sz = (size_t)(N + 1);         /* array size: indices 0 … N */
 
-    seq_t *denom = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *num   = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *conv  = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *denom = mem_new(seq_t, sz);
+    seq_t *num   = mem_new(seq_t, sz);
+    seq_t *conv  = mem_new(seq_t, sz);
     if (!denom || !num || !conv) {
-        free(denom); free(num); free(conv);
+        mem_free(denom); mem_free(num); mem_free(conv);
         return 0;                            /* memory allocation failure */
     }
 
@@ -65,6 +67,6 @@ seq_t a(idx_t n)
 
     seq_t result = conv[n - 1];                /* coefficient of x^(n‑1) */
 
-    free(denom); free(num); free(conv);
+    mem_free(denom); mem_free(num); mem_free(conv);
     return result;
 }

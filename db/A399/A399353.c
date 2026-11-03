@@ -10,13 +10,15 @@
  *            a(5)=497, a(6)=1894, a(7)=5759, a(8)=21857, a(9)=66560
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 36, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 485 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values; grows dynamically. */
 static seq_t *cache = NULL;      /* pointer to stored values */
@@ -36,10 +38,10 @@ static void ensure_capacity(idx_t n)
     if (cache == NULL) {
         /* First allocation: ensure capacity of at least 16. */
         cache_capacity = 16;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) abort();       /* allocation failure */
         /* Copy the initial values. */
-        memcpy(cache, init_values, sizeof(init_values));
+        mem_copy(cache, init_values, sizeof(init_values));
         /* Initialize the rest to zero. */
         for (size_t i = 10; i < cache_capacity; ++i)
             cache[i] = (seq_t)0;
@@ -53,7 +55,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = cache_capacity ? cache_capacity * 2 : 16;
     if ((idx_t)new_cap < n + 1)
         new_cap = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();   /* allocation failure */
     cache = tmp;
     /* Zero-initialize new slots. */

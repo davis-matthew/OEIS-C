@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 594, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_uint64, push_seq
+ * Validated: standard, pass, 66 terms through n = 8694 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,66 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
-#include "../utils/push_seq.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Deterministic Miller‑Rabin for 64‑bit integers */
+static bool is_prime_uint64(uint64_t n) {
+    if (n < 2) return false;
+    static const uint64_t small_primes[] = {2ULL,3ULL,5ULL,7ULL,11ULL,
+                                            13ULL,17ULL,19ULL,23ULL,29ULL,
+                                            31ULL,37ULL};
+    for (size_t i = 0; i < sizeof(small_primes)/sizeof(small_primes[0]); ++i) {
+        uint64_t p = small_primes[i];
+        if (n == p) return true;
+        if (n % p == 0) return false;
+    }
+    /* Write n-1 = d * 2^s with d odd. */
+    uint64_t d = n - 1, s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        ++s;
+    }
+    /* Bases sufficient for 64‑bit deterministic test. */
+    const uint64_t bases[] = {2ULL, 325ULL, 9375ULL, 28178ULL, 450775ULL,
+                              9780504ULL, 1795265022ULL};
+    for (size_t i = 0; i < sizeof(bases)/sizeof(bases[0]); ++i) {
+        uint64_t a = bases[i] % n;
+        if (a == 0) continue;            /* skip witnesses that equal 0 */
+        __uint128_t x = 1, power = d;
+        __uint128_t base = a;
+        /* Compute a^d mod n using binary exponentiation. */
+        while (power) {
+            if (power & 1) x = (x * base) % n;
+            base = (base * base) % n;
+            power >>= 1;
+        }
+        if (x == 1 || x == n - 1) continue;
+        bool cont = false;
+        for (uint64_t r = 1; r < s; ++r) {
+            x = (x * x) % n;
+            if (x == n - 1) {
+                cont = true;
+                break;
+            }
+        }
+        if (cont) continue;
+        return false;
+    }
+    return true;
+}
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 static seq_t *cache = NULL;      /* dynamic array of seq_t terms */
 static idx_t cache_len = 0;      /* number of terms stored */

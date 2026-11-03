@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4*prime(n) + (prime(n) mod 4)
  * Range:     u8 n <= 18, u16 n <= 1900, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9267 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,9 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
 
 /* Static state for prime generation */

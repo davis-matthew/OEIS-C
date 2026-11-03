@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has30
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
    Computation is done by linear search; no hard‑coded table. */
 
 #include <stdbool.h>
-#include "../utils/has30.h"
+
+/* Helper: does x contain the adjacent digits 3 followed by 0 in base 10? */
+static bool has30(seq_t x)
+{
+    if (x < (seq_t)10)          /* single‑digit numbers cannot contain two digits */
+        return false;
+
+    seq_t prev = x % (seq_t)10; /* lower digit of the current pair */
+    x /= (seq_t)10;
+
+    while (x != (seq_t)0) {
+        seq_t curr = x % (seq_t)10;   /* higher digit of the pair */
+        if (curr == (seq_t)3 && prev == (seq_t)0)
+            return true;
+        prev = curr;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -13,14 +13,41 @@
  *            a...
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   correction, seq_realloc
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/seq_realloc.h"
-#include "../utils/correction.h"
+#include <stdlib.h>
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Helper: correction term from the numerator. */
+static inline seq_t correction(idx_t n)
+{
+    switch (n) {
+        case 3:  return (seq_t)2;
+        case 4:  return (seq_t)5;
+        case 5:  return (seq_t)3;
+        case 6:  return (seq_t)3;
+        case 7:  return (seq_t)4;
+        case 8:  return (seq_t)4;
+        case 11: return (seq_t)2;
+        default: return (seq_t)0;
+    }
+}
 
 /* Initial known values a(1)..a(10).  Index 0 is unused. */
 static const seq_t init_vals[11] = {

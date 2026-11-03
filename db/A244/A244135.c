@@ -10,14 +10,17 @@
  *            T(r,0)=0^r by convention (T(0,0)=1)
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 47, i64 n <= 123,
  *            i128 n <= 333, big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 61 terms through n = 4760 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* integer square‑root of a 64‑bit unsigned integer, floor value */
 static uint64_t isqrt_u64(uint64_t v)
@@ -57,11 +60,11 @@ seq_t a(idx_t n)
     seq_t binom = binomial(r, col);
 
     /* compute |col|^(col-1) and apply sign */
-    seq_t col_pow = big_pow((seq_t)col, (seq_t)(col - 1));
+    seq_t col_pow = ipow((seq_t)col, (seq_t)(col - 1));
     if ((col - 1) & 1) col_pow = -col_pow;   /* negative if exponent odd */
 
     /* compute (r+col)^(r-col) */
-    seq_t power_term = big_pow((seq_t)(r + col), (seq_t)(r - col));
+    seq_t power_term = ipow((seq_t)(r + col), (seq_t)(r - col));
 
     /* combine the components */
     seq_t result = col_pow;

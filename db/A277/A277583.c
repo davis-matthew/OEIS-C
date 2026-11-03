@@ -11,14 +11,17 @@
  *            which 2n‑p is prime)
  * Range:     u8 n <= 18, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
+ * Validated: partial, pass, 86 terms through n = 89 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t) */
-#include "../utils/build_primes_upto.h"/* void build_primes_upto(idx_t, uint64_t **, size_t *) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 static idx_t   cached_limit = 0;   /* largest 2*n for which primes are built */
 static uint64_t *cached_primes = NULL;

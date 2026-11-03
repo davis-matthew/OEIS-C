@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 58, i16 n <= 81, i32 n <= 81, i64 n <= 81, i128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: P(0,x)=1, P(1,x)=x, P(n,x)=x*P(n-1,x)-⌊(n‑1)/2⌋*P(n‑2,x).
    a(n) is the flattened coefficient array (row by row). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **coef_rows = NULL;
 static idx_t rows_alloc = 0;
@@ -39,7 +41,7 @@ static void compute_rows_up_to(idx_t r)
 {
     /* Create row 0 if this is the first call. */
     if (max_row_computed == (idx_t)(-1)) {
-        seq_t *row0 = (seq_t*)malloc(sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         if (!row0) exit(EXIT_FAILURE);
         row0[0] = 1;
         ensure_rows_alloc(1);
@@ -52,7 +54,7 @@ static void compute_rows_up_to(idx_t r)
     ensure_rows_alloc(r + 1);
 
     for (idx_t i = max_row_computed + 1; i <= r; ++i) {
-        seq_t *row = (seq_t*)malloc((size_t)(i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(i + 1));
         if (!row) exit(EXIT_FAILURE);
 
         if (i == 1) {               /* P(1,x)=x */

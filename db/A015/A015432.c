@@ -7,13 +7,16 @@
  * Formula:   a(n) = Product_{i=1..12} ((-9)^(n-i+1)-1)/((-9)^i-1)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow, seq_gcd
+ * Validated: standard, pass, 23 terms through n = 86 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/seq_gcd.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
        Compute 9^n once and produce the 12
        successive powers 9^n, 9^{n-1}, …, 9^{n-11}.
        ----------------------------------------- */
-    seq_t pow9_n = big_pow(nine, n);          /* 9^n */
+    seq_t pow9_n = ipow(nine, n);          /* 9^n */
     seq_t nums[12];                          /* f(n-i+1) values */
     seq_t cur_pow = pow9_n;                  /* current 9^k value */
 
@@ -75,7 +78,7 @@ seq_t a(idx_t n)
     for (int i = 0; i < 12; ++i) {
         for (int j = 0; j < 12; ++j) {
             if (dens[j] == 1) continue;
-            seq_t g = seq_gcd(nums[i], dens[j]);
+            seq_t g = gcd(nums[i], dens[j]);
             if (g > 1) {
                 nums[i] /= g;
                 dens[j] /= g;

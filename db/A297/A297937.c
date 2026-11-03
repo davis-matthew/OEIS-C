@@ -10,12 +10,14 @@
  *            results in a static cache so that any order of calls works
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 32, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[0] unused; cache[i] = a(i) for i>=1 */
 static size_t cap   = 0;      /* allocated size (indices 0 .. cap-1) */
@@ -32,7 +34,7 @@ static void ensure_a(idx_t n)
 
     /* Grow the allocation if necessary */
     if (required > cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, required);
         if (!tmp) abort();                  /* allocation failure */
         cache = tmp;
         cap   = required;

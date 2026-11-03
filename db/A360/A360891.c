@@ -8,7 +8,8 @@
  *            a(0)=1
  * Range:     u8 n <= 13, u16 n <= 20, u32 n <= 33, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binomial.h"     /* provides binomial(idx_t n, idx_t k) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         }
 
         /* realloc with explicit cast so it compiles in C++ */
-        seq_t *new_vals = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+        seq_t *new_vals = mem_resize(seq_t, vals, new_cap);
         unsigned char *new_done = (unsigned char *)realloc(done,
                                    new_cap * sizeof(unsigned char));
         if (!new_vals || !new_done) {

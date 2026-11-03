@@ -7,13 +7,15 @@
  * Formula:   a(n) = coefficient of q^n in the product ∏_{d|35} θ₃(q^d)
  * Range:     u8 n <= 335, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 8358 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This uses the definition θ₃(q) = 1 + 2∑_{m≥1} q^{m²} */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
         idx_t new_len = n + 1;
         idx_t i, r, j, k;
         /* arrays for convolution */
-        seq_t *cur  = (seq_t *)malloc(new_len * sizeof(seq_t));
-        seq_t *next = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *cur  = mem_new(seq_t, new_len);
+        seq_t *next = mem_new(seq_t, new_len);
         if (!cur || !next) { /* handle allocation failure */
             return (seq_t)0;
         }
@@ -71,10 +73,10 @@ seq_t a(idx_t n)
 
         /* copy result into cache */
         if (cache)
-            free(cache);
+            mem_free(cache);
         cache = cur;
         cache_len = new_len;
-        free(next);   /* next is just the temporary array we swapped with */
+        mem_free(next);   /* next is just the temporary array we swapped with */
 
     }
 

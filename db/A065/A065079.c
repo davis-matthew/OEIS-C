@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alt_bit_sum, is_prime, seq_realloc
+ * Validated: standard, pass, 68 terms through n = 949 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,33 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"     /* bool is_prime(idx_t)      */
-#include "../utils/seq_realloc.h"  /* seq_t* seq_realloc(seq_t*,size_t,size_t) */
-#include "../utils/alt_bit_sum.h"
+#include "../utils/is_prime.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Alternating binary digit sum.   LSB has sign +1, next sign –1, etc. */
+static int alt_bit_sum(seq_t v)
+{
+    int sum = 0;
+    int sign = 1;
+    while (v != (seq_t)0) {
+        if ((v & (seq_t)1) != (seq_t)0)
+            sum += sign;
+        sign = -sign;
+        v >>= 1;
+    }
+    return sum;
+}
 
 /* Cache of sequence values.  Allocated lazily and grown as needed. */
 static seq_t *cache = NULL;

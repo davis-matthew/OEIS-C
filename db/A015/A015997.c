@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   poly_div_monico
+ * Validated: standard, pass, 97 terms through n = 1913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,34 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/poly_div_monico.h"
+#include "../utils/mem.h"
+
+/* Divide monic divisor d(x) of degree dd (Δ) into num(x)
+ * of degree dn. The divisor is assumed to divide num exactly.
+ * Returns quotient q(x) of degree dn-dd.  (rem is discarded)
+ */
+static seq_t *poly_div_monico(const seq_t *num, size_t dn,
+                              const seq_t *den, size_t dd,
+                              size_t *dout)
+{
+    size_t dq = dn - dd;   /* degree of quotient */
+    seq_t *q = mem_new(seq_t, dq + 1);
+    seq_t *rem = mem_new(seq_t, (dn + 1));
+    for (size_t i = 0; i <= dn; ++i) rem[i] = num[i];
+
+    for (int64_t k = (int64_t)dn; k >= (int64_t)dd; --k) {
+        seq_t coef = rem[(size_t)k];
+        if (!coef) continue;
+        size_t qi = k - dd;   /* index in quotient and remainder shift */
+        q[qi] = coef;
+        for (size_t j = 0; j <= dd; ++j) {
+            rem[qi + j] -= coef * den[j];
+        }
+    }
+    mem_free(rem);
+    *dout = dq;
+    return q;
+}
 
 /* Multiply two polynomials: c = a * b.
  * a has degree da, b has degree db.
@@ -34,7 +62,7 @@ static seq_t *poly_mul(const seq_t *a, size_t da,
                        size_t *dout)
 {
     size_t d = da + db;
-    seq_t *c = (seq_t *)calloc(d + 1, sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, d + 1);
     for (size_t i = 0; i <= da; ++i) if (a[i]) {
         for (size_t j = 0; j <= db; ++j) {
             c[i + j] += a[i] * b[j];
@@ -69,7 +97,7 @@ seq_t a(idx_t n)
             uint64_t d = divisors[idx];
 
             /* Product of Φ_{d'} for all proper divisors d'|d */
-            seq_t *product = (seq_t *)calloc(1, sizeof(seq_t));
+            seq_t *product = mem_new(seq_t, 1);
             product[0] = 1;
             size_t deg_prod = 0;
 
@@ -79,7 +107,7 @@ seq_t a(idx_t n)
                     size_t new_deg;
                     new_prod = poly_mul(product, deg_prod,
                                         poly[j], deg[j], &new_deg);
-                    free(product);
+                    mem_free(product);
                     product = new_prod;
                     deg_prod = new_deg;
                 }
@@ -87,7 +115,7 @@ seq_t a(idx_t n)
 
             /* Numerator: x^d - 1  */
             size_t dn = (size_t)d;
-            seq_t *num = (seq_t *)calloc(dn + 1, sizeof(seq_t));
+            seq_t *num = mem_new(seq_t, dn + 1);
             num[0] = -1;
             num[dn] = 1;
 
@@ -99,8 +127,8 @@ seq_t a(idx_t n)
             poly[idx] = phi;
             deg[idx]  = dphi;
 
-            free(num);
-            free(product); /* product no longer needed */
+            mem_free(num);
+            mem_free(product); /* product no longer needed */
         }
 
         /* Φ_1988 is the last polynomial in the list. */
@@ -109,7 +137,7 @@ seq_t a(idx_t n)
         const size_t PHI_DEG = deg[LAST]; /* 840 */
 
         /* Compute the first 1988 terms of the sequence. */
-        seq = (seq_t *)calloc(1988, sizeof(seq_t));
+        seq = mem_new(seq_t, 1988);
         seq[0] = 1;
         for (size_t i = 1; i < 1988; ++i) {
             seq_t s = 0;

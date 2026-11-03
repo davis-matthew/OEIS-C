@@ -8,13 +8,15 @@
  * Formula:   a(n) is the element at index n of the triangle * T(r,k) =
  *            binomial(r,k) - binomial(r,k) mod r^2, * read by rows. r and k
  *            are obtained from the * triangular numbering of the sequence
- * Range:     u8 n <= 39, u16 n <= 196, u32 n <= 645, u64 n <= 1325,
+ * Range:     u8 n <= 69, u16 n <= 197, u32 n <= 646, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 107 terms through n = 1293 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

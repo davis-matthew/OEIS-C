@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 55, u64 n <= 153,
  *            u128 n <= 406, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 6938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *tri_buffer = NULL;      /* buffer storing one triangle row */
 static size_t  buffer_cap = 0;        /* current capacity of tri_buffer */
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     /* Allocate buffer large enough to hold one row up to length k */
     size_t need = (size_t)(k + 1);
     if (buffer_cap < need) {
-        seq_t *tmp = (seq_t*)realloc(tri_buffer, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tri_buffer, need);
         if (!tmp) return 0;           /* allocation failed */
         tri_buffer = tmp;
         buffer_cap = need;

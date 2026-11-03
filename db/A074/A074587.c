@@ -8,13 +8,15 @@
  * Formula:   a(n) = 1 + sum_{i=1}^{n-1} floor(n / i) * a(i) (a(1)=1)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 295 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (sz == 0) {
         cap = 1;
-        A    = (seq_t *)malloc(cap * sizeof(seq_t));
-        pref = (seq_t *)malloc(cap * sizeof(seq_t));
+        A    = mem_new(seq_t, cap);
+        pref = mem_new(seq_t, cap);
         if (!A || !pref) { /* allocation failed – return 0 (unlikely) */
             return (seq_t)0;
         }
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
         while (new_cap < (size_t)n + 1) {
             new_cap <<= 1;
         }
-        A    = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-        pref = (seq_t *)realloc(pref, new_cap * sizeof(seq_t));
+        A    = mem_resize(seq_t, A, new_cap);
+        pref = mem_resize(seq_t, pref, new_cap);
         if (!A || !pref) { /* allocation failed – return 0 (unlikely) */
             return (seq_t)0;
         }

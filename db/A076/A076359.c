@@ -7,14 +7,27 @@
  * Formula:   a(n) = denominator(n!/phi(n!))
  * Range:     u8 n <= 16, u16 n <= 22, u32 n <= 40, u64 n <= 72, u128 n <= 136,
  *            big any n
- * Helpers:   prime_index
+ * Validated: standard, pass, 53 terms through n = 2830 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/prime_index.h"
+
+/* binary search helper: returns index of value in primes[0..cnt-1] (value is guaranteed to be present) */
+static inline idx_t prime_index(const int *primes, idx_t cnt, int value)
+{
+    idx_t lo = 0, hi = cnt;
+    while (lo < hi) {
+        idx_t mid = (lo + hi) >> 1;
+        if (primes[mid] == value) return mid;
+        if (primes[mid] < value) lo = mid + 1;
+        else hi = mid;
+    }
+    return cnt; /* should not happen for this problem */
+}
 
 seq_t a(idx_t n)
 {

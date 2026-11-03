@@ -7,6 +7,7 @@
  * Formula:   a(0) = 0, a(1) = -1, a(n) = 0 for n >= 2
  * Range:     i8 n <= 104, i16 n <= 104, i32 n <= 104, i64 n <= 104,
  *            i128 n <= 104, big any n
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

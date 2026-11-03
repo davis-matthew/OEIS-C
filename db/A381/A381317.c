@@ -7,8 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 18,
  *            big any n
- * Helpers:   _prime_limit_for_idx, big_pow, build_primes_upto, cmp_seq_t,
- *            free_seq_array, seq_alloc_new_array
+ * Validated: standard, pass, 34 terms through n = 147 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +19,38 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/_prime_limit_for_idx.h"
+#include <stddef.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
-#include "../utils/cmp_seq_t.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq_array.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -67,14 +93,14 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < prime_count; ++i)
     {
         uint64_t p = primes[i];
-        seq_t low  = big_pow((seq_t)p, (seq_t)(p - 1));
-        seq_t high = big_pow((seq_t)p, (seq_t)(p + 1));
+        seq_t low  = ipow((seq_t)p, (seq_t)(p - 1));
+        seq_t high = ipow((seq_t)p, (seq_t)(p + 1));
         vals[idx++] = low;
         vals[idx++] = high;
     }
 
     /* ---- sort values ----------------------------------------------------- */
-    qsort(vals, total_vals, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(vals, total_vals, sizeof(seq_t), cmp_seq_t);
 
     /* ---- store in cache and free old data -------------------------------- */
     if (cache)

@@ -7,13 +7,15 @@
  * Formula:   a(n) = sigma(n)^2 (sum of divisors of n, squared)
  * Range:     u8 n <= 9, u16 n <= 107, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9125 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *sigma_cache = NULL;
 static seq_t *a_cache     = NULL;
@@ -29,19 +31,19 @@ seq_t a(idx_t n)
     {
         /* Allocate new arrays of size n+1 (index 0 unused). */
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_sigma = (seq_t *)malloc(new_size * sizeof(seq_t));
-        seq_t *new_a     = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_sigma = mem_new(seq_t, new_size);
+        seq_t *new_a     = mem_new(seq_t, new_size);
 
         if (!new_sigma || !new_a) {
             /* Allocation failure – fallback to zero result. */
-            if (new_sigma) free(new_sigma);
-            if (new_a)     free(new_a);
+            if (new_sigma) mem_free(new_sigma);
+            if (new_a)     mem_free(new_a);
             return 0;
         }
 
         /* Initialise new arrays to zero. */
-        memset(new_sigma, 0, new_size * sizeof(seq_t));
-        memset(new_a, 0, new_size * sizeof(seq_t));
+        mem_set(new_sigma, 0, new_size * sizeof(seq_t));
+        mem_set(new_a, 0, new_size * sizeof(seq_t));
 
         /* Compute sigma(k) for k = 1..n. */
         for (idx_t i = 1; i <= n; ++i)
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
             new_a[i] = new_sigma[i] * new_sigma[i];
 
         /* Replace old caches. */
-        free(sigma_cache);
-        free(a_cache);
+        mem_free(sigma_cache);
+        mem_free(a_cache);
         sigma_cache = new_sigma;
         a_cache     = new_a;
         cache_size  = n;

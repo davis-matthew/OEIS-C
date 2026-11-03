@@ -7,14 +7,16 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = ∑_{k=1}^{n} τ(k) , where τ(k) | n and τ(k) is the number
  *            of positive divisors of k
- * Range:     u8 n <= 71, u16 n <= 7919, u32 n <= 9772, u64 n <= 9772,
- *            u128 n <= 9772, big any n
- * Helpers:   none
+ * Range:     u8 n <= 71, u16 n <= 7919, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 93 terms through n = 9772 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for divisor counts; indices 0..limit */
 static seq_t *tau_cache = NULL;
@@ -27,12 +29,12 @@ static void ensure_tau_limit(idx_t limit)
         return;                     /* already adequate */
 
     /* Allocate a new table of size limit+1, free the old one */
-    seq_t *new_cache = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (limit + 1));
     if (!new_cache)
         abort();                     /* memory allocation failed */
 
     if (tau_cache)
-        free(tau_cache);
+        mem_free(tau_cache);
 
     /* Initialize all entries to zero */
     for (idx_t i = 0; i <= limit; ++i)

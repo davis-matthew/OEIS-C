@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   prime_digits_in_square
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,38 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/prime_digits_in_square.h"
+#include "../utils/mem.h"
+
+/* Check whether every digit that occurs in p also occurs in p². */
+static bool prime_digits_in_square(uint64_t p)
+{
+    /* Frequency tables for digits 0–9 */
+    unsigned cnt_p[10]   = {0};
+    unsigned cnt_sq[10]  = {0};
+
+    /* Count digits of the prime */
+    uint64_t tmp = p;
+    while (tmp > 0) {
+        cnt_p[tmp % 10]++;
+        tmp /= 10;
+    }
+
+    /* Square the prime in seq_t (assuming seq_t can hold the result) */
+    seq_t square = (seq_t)p * (seq_t)p;
+
+    /* Count digits of the square */
+    seq_t tmp_sq = square;
+    while (tmp_sq > 0) {
+        cnt_sq[(unsigned)(tmp_sq % 10)]++;
+        tmp_sq /= 10;
+    }
+
+    /* Verify that each digit present in p appears in square */
+    for (int d = 0; d < 10; ++d) {
+        if (cnt_p[d] && !cnt_sq[d]) return false;
+    }
+    return true;
+}
 
 static seq_t   *cache      = NULL;  /* cached a(1..k) values            */
 static size_t  cache_len   = 0;     /* number of cached terms            */
@@ -38,7 +70,7 @@ static void cache_append(seq_t value)
 {
     if (cache_len == cache_cap) {
         cache_cap = cache_cap ? cache_cap * 2 : 8;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_len++] = value;
 }

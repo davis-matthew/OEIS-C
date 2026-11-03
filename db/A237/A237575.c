@@ -12,7 +12,8 @@
  *            of a+b in non‑increasing order
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 20, u64 n <= 37, u128 n <= 59,
  *            big any n
- * Helpers:   digit_frequencies, digit_len, seq_from_str
+ * Validated: standard, pass, 46 terms through n = 499 (2026-11-03)
+ * Helpers:   digit_frequencies, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,21 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include <string.h>
+#include <stdint.h>
 #include "../utils/digit_frequencies.h"
-#include "../utils/digit_len.h"
-#include "../utils/seq_from_str.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 /* Cache for already computed terms */
 static seq_t *cache = NULL;
@@ -39,7 +52,7 @@ static seq_t sort_desc_digits(seq_t val) {
     unsigned int freq[10];
     digit_frequencies(val, freq);
 
-    size_t len = (size_t)digit_len(val);
+    size_t len = (size_t)num_digits(val);
     if (tmp_cap < len + 1) {
         tmp_cap = len + 1;
         char *newbuf = (char *)realloc(tmp_buf, tmp_cap);
@@ -61,10 +74,10 @@ static void ensure_cache(idx_t n) {
     size_t needed = (size_t)n + 1;
     if (cache_cap < needed) {
         size_t newcap = needed * 2;
-        seq_t *newc = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *newc = mem_new(seq_t, newcap);
         if (cache) {
             for (size_t i = 0; i < cache_cap; ++i) newc[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = newc;
         cache_cap = newcap;

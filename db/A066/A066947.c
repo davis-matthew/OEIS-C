@@ -9,14 +9,15 @@
  *            multiplier is * c(0)=1, c(1)=4, c(2)=28, c(m)=9*4^{m-1}+32 (m>2)
  * Range:     u8 n <= 11, u16 n <= 119, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_uint64, pow_uint
+ * Validated: standard, pass, 64 terms through n = 9983 (2026-11-01)
+ * Helpers:   factor_uint64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factor_uint64.h"   /* uint64_t factorization */
-#include "../utils/pow_uint.h"        /* seq_t pow_uint(uint64_t,idx_t) */
+#include "../utils/factor_uint64.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -44,15 +45,15 @@ seq_t a(idx_t n)
             else if (e == 2)
                 c = 28;
             else {
-                seq_t pow4 = pow_uint(4, (idx_t)(e - 1)); /* 4^{e-1} */
+                seq_t pow4 = ipow_u64_idx(4, (idx_t)(e - 1)); /* 4^{e-1} */
                 c = 9 * pow4 + 32;
             }
             prod *= c;
         } else {                           /* odd prime factor */
             uint64_t p = fac[i];
             uint64_t e = exp[i];
-            seq_t p_pow_2e   = pow_uint(p, (idx_t)(2 * e));
-            seq_t p_pow_2e_m = pow_uint(p, (idx_t)(2 * e - 1));
+            seq_t p_pow_2e   = ipow_u64_idx(p, (idx_t)(2 * e));
+            seq_t p_pow_2e_m = ipow_u64_idx(p, (idx_t)(2 * e - 1));
             seq_t term = p_pow_2e + p_pow_2e_m + 2;
             prod *= term;
         }

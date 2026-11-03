@@ -10,13 +10,15 @@
  *            forward difference of Bell numbers)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 230 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *bell_cache = NULL;
 static size_t bell_computed = 0;
@@ -26,7 +28,7 @@ static void ensure_bell(size_t idx)
 {
     if (bell_cache == NULL) {
         /* Allocate enough space for indices 0..idx */
-        bell_cache = (seq_t *)malloc((idx + 1) * sizeof(seq_t));
+        bell_cache = mem_new(seq_t, (idx + 1));
         if (bell_cache == NULL) return;      /* allocation failure: silently abort */
         /* Bell[0] = 1 */
         bell_cache[0] = (seq_t)1;
@@ -36,7 +38,7 @@ static void ensure_bell(size_t idx)
     } else {
         /* Grow the allocated array to fit up to idx */
         size_t new_size = idx + 1;
-        seq_t *tmp = (seq_t *)realloc(bell_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, bell_cache, new_size);
         if (tmp == NULL) return; /* allocation failure */
         bell_cache = tmp;
     }

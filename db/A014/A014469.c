@@ -9,7 +9,8 @@
  *            Eulerian numbers triangle A008292
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 24, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    to the right of the midpoint of each row, counting rows in the usual 0‑based order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Initialise the first row (row 0 of the Eulerian triangle) if necessary */
     if (!prev) {
         prev_len = 1;
-        prev = (seq_t *)malloc(prev_len * sizeof(seq_t));
+        prev = mem_new(seq_t, prev_len);
         prev[0] = 1;
         last_row = 0;
     }
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         size_t len = (size_t)(r + 1);          /* number of elements in this row */
 
         /* Allocate space for the new row */
-        seq_t *curr = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, len);
         if (!curr) return 0;                   /* allocation failed – return 0 as a safe value */
 
         /* Boundary values of each Eulerian row are 1 */
@@ -72,14 +74,14 @@ seq_t a(idx_t n)
                 /* Grow cache if necessary */
                 if (cache_len >= cache_cap) {
                     cache_cap = (cache_cap == 0 ? 16 : cache_cap << 1);
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = curr[(size_t)k];
             }
         }
 
         /* Prepare for the next iteration: the current row becomes the previous row. */
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_len = len;
         last_row = r;

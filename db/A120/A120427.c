@@ -10,14 +10,17 @@
  *            (ordered by the value of the leg)
  * Range:     u8 none, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Comparator for sorting an array of seq_t values. */
 static int seq_cmp(const void *p, const void *q)
@@ -41,7 +44,7 @@ static idx_t   limit_val = 0;   /* current upper bound used for y     */
 static void generate_upto(idx_t limit)
 {
     /* free any previously allocated array */
-    free(y_array);
+    mem_free(y_array);
     y_array = NULL;
     y_cnt = 0;
     y_cap = 0;
@@ -52,7 +55,7 @@ static void generate_upto(idx_t limit)
 
     /* temporary dynamic array for collecting values before sorting */
     size_t cap = 1024;
-    y_array = (seq_t *)malloc(cap * sizeof(seq_t));
+    y_array = mem_new(seq_t, cap);
     if (!y_array) exit(EXIT_FAILURE);
     y_cap = cap;
 
@@ -67,7 +70,7 @@ static void generate_upto(idx_t limit)
             if (((m - n) & 1U) && gcd((seq_t)m, (seq_t)n) == (seq_t)1) {
                 if (y_cnt == y_cap) {        /* grow temporary array if needed */
                     y_cap <<= 1;
-                    y_array = (seq_t *)realloc(y_array, y_cap * sizeof(seq_t));
+                    y_array = mem_resize(seq_t, y_array, y_cap);
                     if (!y_array) exit(EXIT_FAILURE);
                 }
                 y_array[y_cnt++] = (seq_t)y;
@@ -76,7 +79,7 @@ static void generate_upto(idx_t limit)
     }
 
     /* sort the array to obtain the sequence order */
-    qsort(y_array, y_cnt, sizeof(seq_t), seq_cmp);
+    mem_qsort(y_array, y_cnt, sizeof(seq_t), seq_cmp);
 }
 
 /* The externally visible OEIS sequence function */

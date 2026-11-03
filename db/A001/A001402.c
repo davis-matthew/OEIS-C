@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 78, u32 n <= 809, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Partitions of n into at most 6 parts; computed via DP over parts 1..6 */
 seq_t a(idx_t n) {
@@ -21,9 +23,9 @@ seq_t a(idx_t n) {
   
   if (n >= dp_capacity) {
     idx_t new_capacity = (n + 1) * 2;
-    seq_t *new_dp = (seq_t *)malloc(new_capacity * sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, new_capacity);
     if (!new_dp) return 0;
-    free(dp);
+    mem_free(dp);
     dp = new_dp;
     dp_capacity = new_capacity;
   }

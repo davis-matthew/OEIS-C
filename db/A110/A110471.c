@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   is_prime_len
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   is_prime_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    contains no maximal block of consecutive zeros of prime length,
    otherwise 0. */
 #include <stdbool.h>
-#include "../utils/is_prime_len.h"
+#include "../utils/is_prime_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
             /* A zero run has just finished (if any). */
             if (zeros > 0)
             {
-                if (is_prime_len(zeros))
+                if (is_prime_i32(zeros))
                     return (seq_t)0;
                 zeros = 0;
             }

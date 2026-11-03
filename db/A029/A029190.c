@@ -7,12 +7,14 @@
  * Formula:   partitions of n into parts 2,4,9,12 (coin‑change DP)
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* grow the buffer if necessary */
     size_t new_cap = (size_t)(n + 1);
     if (new_cap > cap) {
-        seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_cap);
         if (tmp == NULL) return (seq_t)0;   /* allocation failure */
         dp  = tmp;
         cap = new_cap;

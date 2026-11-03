@@ -11,13 +11,15 @@
  *            partial quotients a_k are produced by the classic continue...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 23, u64 n <= 45, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const idx_t RADICAND = 956;          /* N = 956              */
 static const int  ROOT0     = 30;           /* floor(sqrt(956))     */
@@ -37,7 +39,7 @@ static void grow_cache(idx_t n)
     if (n < (idx_t)cap) return;
     size_t new_cap = cap ? cap << 1 : 64;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) { cap = 0; cache = NULL; return; }  /* out of memory */
     cache = tmp;
     cap   = new_cap;

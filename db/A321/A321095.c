@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 200, u16 n <= 200, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   f_value
+ * Validated: partial, pass, 201 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,20 @@
  *   (This implements the OEIS given rules.)
  */
 #include <stdint.h>
-#include "../utils/f_value.h"
+
+static seq_t f_value(idx_t n) {
+    /* Recursive helper for a(3*n+1) values 1 or 4. */
+    if (n % 3 == 0) {
+        /* n = 0, 3, 6, ...  -> a(9*k+1) = 1 */
+        return (seq_t)1;
+    }
+    if (n % 3 == 2) {
+        /* n = 2, 5, 8, ...  -> a(9*k+7) = 4 */
+        return (seq_t)4;
+    }
+    /* n % 3 == 1 :  n = 3*m + 1  -> a(9*m+4) = 5 - a(3*m+1) */
+    return (seq_t)(5 - f_value((n - 1) / 3));
+}
 
 seq_t a(idx_t n) {
     if (n == 0) {

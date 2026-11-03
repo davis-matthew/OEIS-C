@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_phi_and_primes
+ * Validated: standard, pass, 73 terms through n = 9306 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,48 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/compute_phi_and_primes.h"
+#include "../utils/mem.h"
+
+/* --------- linear sieve for φ and prime list --------- */
+static void compute_phi_and_primes(idx_t limit,
+                                   seq_t *phi,
+                                   idx_t **primes,
+                                   size_t *primes_cnt)
+{
+    /* is_prime boolean array */
+    bool *is_prime = (bool *)calloc(limit + 1, sizeof(bool));
+    if (!is_prime) exit(EXIT_FAILURE);
+    for (idx_t i = 0; i <= limit; ++i)
+        is_prime[i] = (i >= 2);
+
+    /* prime list */
+    *primes = (idx_t *)malloc(limit * sizeof(idx_t));
+    if (!(*primes)) { free(is_prime); exit(EXIT_FAILURE); }
+    *primes_cnt = 0;
+
+    phi[0] = 0;
+    phi[1] = 1;
+
+    for (idx_t i = 2; i <= limit; ++i) {
+        if (is_prime[i]) {
+            (*primes)[(*primes_cnt)++] = i;
+            phi[i] = ((seq_t)i) - 1;
+        }
+        for (size_t pi = 0; pi < *primes_cnt; ++pi) {
+            idx_t p = (*primes)[pi];
+            idx_t val = i * p;
+            if (val > limit) break;
+            is_prime[val] = false;
+            if (i % p == 0) {
+                phi[val] = phi[i] * ((seq_t)p);
+                break;
+            } else {
+                phi[val] = phi[i] * ((seq_t)(p - 1));
+            }
+        }
+    }
+    free(is_prime);
+}
 
 extern seq_t phi(idx_t m);           /* provided utility (unused here but kept for consistency) */
 
@@ -33,7 +75,7 @@ static size_t seq_size     = 0;      /* number of terms stored */
 static void extend_to(idx_t new_limit)
 {
     /* allocate φ array */
-    seq_t *phi = (seq_t *)malloc((new_limit + 1) * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, (new_limit + 1));
     if (!phi) exit(EXIT_FAILURE);
 
     /* compute φ and prime list */
@@ -43,16 +85,16 @@ static void extend_to(idx_t new_limit)
 
     /* build new cache */
     size_t cap = new_limit / 10 + 10;   /* initial guess */
-    seq_t *new_cache = (seq_t *)malloc(cap * sizeof(seq_t));
-    if (!new_cache) { free(phi); free(primes); exit(EXIT_FAILURE); }
+    seq_t *new_cache = mem_new(seq_t, cap);
+    if (!new_cache) { mem_free(phi); free(primes); exit(EXIT_FAILURE); }
     size_t new_size = 0;
 
     for (idx_t k = 1; k <= new_limit; ++k) {
         if ((phi[k] % 12) == 4) {
             if (new_size == cap) {          /* grow if necessary */
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(new_cache, cap * sizeof(seq_t));
-                if (!tmp) { free(phi); free(primes); free(new_cache); exit(EXIT_FAILURE); }
+                seq_t *tmp = mem_resize(seq_t, new_cache, cap);
+                if (!tmp) { mem_free(phi); free(primes); mem_free(new_cache); exit(EXIT_FAILURE); }
                 new_cache = tmp;
             }
             new_cache[new_size++] = k;
@@ -60,12 +102,12 @@ static void extend_to(idx_t new_limit)
     }
 
     /* replace old cache */
-    free(seq_cache);
+    mem_free(seq_cache);
     seq_cache    = new_cache;
     seq_size     = new_size;
     current_limit = new_limit;
 
-    free(phi);
+    mem_free(phi);
     free(primes);
 }
 

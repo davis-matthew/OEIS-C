@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 102 terms through n = 8196 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Recursively generate all divisors of n from its prime factorization. */
 static void gen_divisors_rec(const uint64_t *pr, const uint64_t *ex,
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 
     /* subset‑sum DP: can we reach sum n using proper divisors? */
     int N = (int)n;
-    seq_t *reach = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *reach = mem_new(seq_t, (size_t)(N + 1));
     if (!reach) return (seq_t)0;          /* allocation failure → 0 */
 
     reach[0] = 1;                         /* sum 0 is always achievable */
@@ -76,6 +78,6 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = reach[N] ? 1 : 0;
-    free(reach);
+    mem_free(reach);
     return ans;
 }

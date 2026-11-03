@@ -9,13 +9,17 @@
  *            with m = x^x and the decimal digit length of m equals x
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   big_pow, digit_len
+ * Validated: full, pass, 3 terms through n = 3 (2026-11-02)
+ * Helpers:   ipow, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/ipow.h"
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +32,8 @@ seq_t a(idx_t n)
        we are certain no further solutions exist. */
     for (idx_t x = 1; x <= 20; ++x)
     {
-        seq_t val = big_pow((seq_t)x, (seq_t)x);
-        int d = digit_len(val);
+        seq_t val = ipow((seq_t)x, (seq_t)x);
+        int d = num_digits(val);
 
         if (d == (int)x)
         {

@@ -7,13 +7,34 @@
  * Formula:   a(1) = 1, a(n+1) = σ(a(n)) – 2*a(n) (σ = sum of divisors)
  * Range:     i8 n <= 94, i16 n <= 94, i32 n <= 94, i64 n <= 94, i128 n <= 94,
  *            big any n
- * Helpers:   _sigma_of
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_sigma_of.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* ---------- compute sigma (sum of divisors) for n >= 1 ---------- */
+static seq_t _sigma_of(idx_t n)
+{
+    seq_t sum = 0;
+    idx_t root = isqrt(n);
+    for (idx_t d = 1; d <= root; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t q = n / d;
+            if (q != d)
+                sum += (seq_t)q;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +48,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (n > max_computed) {
         idx_t new_size = n + 1;   /* use 1‑based indexing */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache)   /* allocation failed; abort */
             abort();
         cache = new_cache;

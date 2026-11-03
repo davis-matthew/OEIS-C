@@ -8,7 +8,8 @@
  *            x4^2 + x5^2 + x6^2 = n
  * Range:     u8 n <= 17, u16 n <= 414, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9772 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    maximum requested n.                                            */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t floor_sqrt_u64(idx_t n)
 {
@@ -38,21 +40,21 @@ seq_t a(idx_t n)
         /* compute a(0)..a(n) and extend the cache */
 
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t*) calloc(new_size, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return 0;   /* allocation failure – unlikely */
 
         /* dynamic‑programming arrays for the 6 convolutions */
-        seq_t *dp = (seq_t*) calloc(new_size, sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, new_size);
         seq_t *next;
-        if (!dp) { free(new_cache); return 0; }
+        if (!dp) { mem_free(new_cache); return 0; }
 
         dp[0] = 1;   /* 0 variables give sum 0 */
 
         idx_t kmax = floor_sqrt_u64(n);
 
         for (idx_t var = 0; var < 6; ++var) {
-            next = (seq_t*) calloc(new_size, sizeof(seq_t));
-            if (!next) { free(dp); free(new_cache); return 0; }
+            next = mem_new(seq_t, new_size);
+            if (!next) { mem_free(dp); mem_free(new_cache); return 0; }
 
             for (idx_t k = 0; k <= kmax; ++k) {
                 idx_t sq = k * k;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
                     next[i + sq] += dp[i];
             }
 
-            free(dp);
+            mem_free(dp);
             dp = next;
         }
 
@@ -68,8 +70,8 @@ seq_t a(idx_t n)
         for (idx_t i = 0; i < new_size; ++i)
             new_cache[i] = dp[i];
 
-        free(dp);
-        free(cache);          /* safe even if cache == NULL */
+        mem_free(dp);
+        mem_free(cache);          /* safe even if cache == NULL */
         cache = new_cache;
         cache_size = new_size;
     }

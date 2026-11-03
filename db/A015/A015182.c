@@ -11,7 +11,8 @@
  *            Hence 1/Φ₁₁₇₃(x) = (x‑1)(x⁵¹‑1)(x⁶⁹‑1)(x³͜⁹¹‑1) /((x³‑1)(...
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define PERIOD (1173UL)
 
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     /* Build the periodic coefficient array once.                */
     if (!ready) {
         /* Allocate the two arrays once.                          */
-        cache = (seq_t *)malloc(PERIOD * sizeof(seq_t));
-        work  = (seq_t *)malloc(PERIOD * sizeof(seq_t));
+        cache = mem_new(seq_t, PERIOD);
+        work  = mem_new(seq_t, PERIOD);
         if (!cache || !work) return (seq_t)0; /* allocation failure */
 
         /* Initialise to the series 1.                            */

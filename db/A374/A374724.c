@@ -9,8 +9,9 @@
  * Formula:   sequence A374724 is the fixed point of the morphism * 1 →
  *            {1,2,3,4,1,1}, 2 → {2,1,4,3,2,2}, 3 → {3,4,1,2,3,3}, 4 →
  *            {4,3,2,1,4,4} * with axiom 1
- * Range:     u8 n <= 9604, u16 n <= 9604, u32 n <= 9604, u64 n <= 9604,
- *            u128 n <= 9604, big any n
+ * Range:     u8 n <= 46655, u16 n <= 46655, u32 n <= 46655, u64 n <= 46655,
+ *            u128 n <= 46655, big any n
+ * Validated: standard, pass, 100 terms through n = 9604 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

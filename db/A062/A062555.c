@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: number of decimal digits of a positive seq_t.
    The loop terminates when x becomes zero; zero itself never occurs
@@ -46,7 +48,7 @@ static void ensure_pow10(size_t maxk)
     if (pow10_cap > maxk) return;
     size_t new_cap = pow10_cap ? pow10_cap * 2 : 1;
     while (new_cap <= maxk) new_cap <<= 1;
-    seq_t *new_pow = (seq_t *)realloc(pow10, new_cap * sizeof(seq_t));
+    seq_t *new_pow = mem_resize(seq_t, pow10, new_cap);
     if (!new_pow) exit(1);              /* allocation failed */
     pow10 = new_pow;
     if (pow10_cap == 0) {
@@ -98,7 +100,7 @@ static void append_term(seq_t v)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) exit(1);
         cache = new_cache;
         cache_cap = new_cap;

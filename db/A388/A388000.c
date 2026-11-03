@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, calc_phi, compute_pi
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem, prime_pi, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/calc_phi.h"          /* seq_t calc_phi(seq_t m); */
-#include "../utils/compute_pi.h"        /* seq_t compute_pi(idx_t n); */
-#include "../utils/build_primes_upto.h" /* void build_primes_upto(idx_t limit, uint64_t **out, size_t *cnt); */
-#include "../utils/_floor_isqrt_u64.h"  /* idx_t _floor_isqrt_u64(idx_t n); */
+#include <stddef.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/prime_pi.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Cached sequence values.                                               */
@@ -87,7 +90,7 @@ seq_t a(idx_t n)
     /* Allocate storage for found terms on first use. */
     if (found_cap == 0) {
         found_cap = 16;
-        found_terms = (seq_t*)calloc(found_cap, sizeof(seq_t));
+        found_terms = mem_new(seq_t, found_cap);
     }
 
     /* Already have the answer? */
@@ -101,19 +104,18 @@ seq_t a(idx_t n)
     /* Search forward from the last checked integer. */
     uint64_t candidate = last_checked + 1;
     while (found_len < (size_t)n) {
-        uint64_t sqrt_c = _floor_isqrt_u64(candidate);
+        uint64_t sqrt_c = isqrt(candidate);
         extend_primes(sqrt_c);
 
-        seq_t phi = calc_phi((seq_t)candidate);
-        seq_t pi  = compute_pi(candidate);
+        seq_t phi = totient_seq((seq_t)candidate);
+        seq_t pi  = prime_pi(candidate);
         seq_t tau = tau_seq(candidate);
 
         if (phi == pi + tau) {
             /* Grow the array if necessary. */
             if (found_len == found_cap) {
                 found_cap *= 2;
-                found_terms = (seq_t*)realloc(found_terms,
-                                              found_cap * sizeof(seq_t));
+                found_terms = mem_resize(seq_t, found_terms, found_cap);
             }
             found_terms[found_len++] = (seq_t)candidate;
         }

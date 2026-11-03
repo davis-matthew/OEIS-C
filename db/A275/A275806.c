@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = number of distinct nonzero digits in the factorial base
  *            representation of n
- * Range:     u8 n <= 192, u16 n <= 9262, u32 n <= 9262, u64 n <= 9262,
- *            u128 n <= 9262, big any n
+ * Range:     u8 n <= 192, u16 n <= 40319, u32 n <= 40320, u64 n <= 40320,
+ *            u128 n <= 40320, big any n
+ * Validated: standard, pass, 137 terms through n = 9262 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

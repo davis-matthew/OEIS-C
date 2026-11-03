@@ -7,16 +7,28 @@
  * Formula:   a(n) = Product_{p^e||n} [ (p^(e+1)-p)/(p-1) + e + 1 ] (a(1) = 1)
  * Range:     u8 n <= 16, u16 n <= 786, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, int_sqrt, prime_power_val
+ * Validated: standard, pass, 81 terms through n = 8805 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/int_sqrt.h"
-#include "../utils/prime_power_val.h"
+#include "../utils/isqrt.h"
+
+/* Compute the contribution of a prime power p^e (e ≥ 1).  */
+static seq_t
+prime_power_val(uint64_t p, uint64_t e)
+{
+    seq_t pe1 = 1;                    /* p^(e+1) */
+    for (uint64_t i = 0; i <= e; ++i) pe1 *= (seq_t)p;
+
+    seq_t part1 = (pe1 - (seq_t)p) / ((seq_t)p - 1);
+    return part1 + (seq_t)e + 1;
+}
 
 static uint64_t *prime_list = NULL;   /* cached list of primes */
 static size_t prime_cnt   = 0;
@@ -45,7 +57,7 @@ a(idx_t n)
     if (n == 1) return 1;   /* multiplicative neutral element */
 
     /* Prime sieve needed up to √n for factorisation. */
-    idx_t limit = int_sqrt(n);
+    idx_t limit = isqrt(n);
     if (limit < 2) limit = 2;
     ensure_primes(limit);
 

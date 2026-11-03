@@ -9,20 +9,21 @@
  *            of n-th prime
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_helper, nth_prime_helper, powmod_helper
+ * Validated: standard, pass, 117 terms through n = 9471 (2026-11-03)
+ * Helpers:   is_prime_u64, nth_prime_u64, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime_helper.h"
-#include "../utils/nth_prime_helper.h"
-#include "../utils/powmod_helper.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/nth_prime_u64.h"
+#include "../utils/powmod_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;
     
-    uint64_t p = nth_prime_helper(n);
+    uint64_t p = nth_prime_u64(n);
     uint64_t phi = p - 1;
     
     uint64_t factors[64];
@@ -40,11 +41,11 @@ seq_t a(idx_t n) {
     }
     
     for (uint64_t q = 2; q < p; q++) {
-        if (!is_prime_helper(q)) continue;
+        if (!is_prime_u64(q)) continue;
         
         bool is_prim_root = true;
         for (int i = 0; i < nf; i++) {
-            if (powmod_helper(q, phi / factors[i], p) == 1) {
+            if (powmod_u64(q, phi / factors[i], p) == 1) {
                 is_prim_root = false;
                 break;
             }

@@ -10,7 +10,8 @@
  *            property
  * Range:     u8 n <= 12, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   dsu_find, dsu_union, isHypertree
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,100 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/dsu_find.h"
-#include "../utils/dsu_union.h"
-#include "../utils/isHypertree.h"
+#include "../utils/mem.h"
+
+/* Disjoint‑set union helpers. */
+static inline int dsu_find(uint8_t *p, int x)
+{
+    while (p[x] != x) {
+        p[x] = p[p[x]];
+        x = p[x];
+    }
+    return x;
+}
+
+static inline void dsu_union(uint8_t *p, int x, int y)
+{
+    int fx = dsu_find(p, x);
+    int fy = dsu_find(p, y);
+    if (fx != fy) p[fy] = fx;
+}
+
+/* Test whether integer n encodes a hypertree. */
+static bool isHypertree(uint64_t n)
+{
+    if (n == 0) return true;          /* only needed for the first term */
+    uint64_t edges[64];
+    int edge_count = 0;
+
+    /* For every 1‑bit of n, build the edge from the binary indices of its
+       position (1‑based). */
+    uint64_t tmp = n;
+    while (tmp) {
+        int i = __builtin_ctzll(tmp);          /* 0‑based bit index */
+        uint64_t pos_val = (uint64_t)(i + 1);   /* position is 1‑based */
+        uint64_t mask = 0;
+        uint64_t t = pos_val;
+        int b = 0;
+        while (t) {
+            if (t & 1ULL) mask |= 1ULL << b;
+            t >>= 1;
+            ++b;
+        }
+        edges[edge_count++] = mask;
+        tmp &= tmp - 1;
+    }
+
+    /* Antichain: no edge is subset of another. */
+    for (int i = 0; i < edge_count; ++i) {
+        for (int j = i + 1; j < edge_count; ++j) {
+            uint64_t a = edges[i], b = edges[j];
+            if ((a & b) == a || (a & b) == b) return false;
+        }
+    }
+
+    /* Connectivity via DSU on the involved vertices. */
+    uint8_t parent[64];
+    for (int i = 0; i < 64; ++i) parent[i] = i;
+    uint64_t all_vertices = 0;
+    for (int i = 0; i < edge_count; ++i) all_vertices |= edges[i];
+
+    for (int e = 0; e < edge_count; ++e) {
+        uint64_t m = edges[e];
+        if (!m) continue;
+        int first = __builtin_ctzll(m);
+        uint64_t rest = m & ~(1ULL << first);
+        while (rest) {
+            int v = __builtin_ctzll(rest);
+            dsu_union(parent, first, v);
+            rest &= rest - 1;
+        }
+    }
+
+    /* All vertices must belong to a single component. */
+    int first_g = -1;
+    for (int b = 0; b < 64; ++b) {
+        if ((all_vertices >> b) & 1ULL) {
+            first_g = b;
+            break;
+        }
+    }
+    if (first_g == -1) return false;          /* no vertices */
+    int root = dsu_find(parent, first_g);
+    for (int b = 0; b < 64; ++b) {
+        if ((all_vertices >> b) & 1ULL) {
+            if (dsu_find(parent, b) != root) return false;
+        }
+    }
+
+    /* Density check: sum|edges| - |edges| - |vertices| == -1 */
+    int sum_sizes = 0;
+    for (int i = 0; i < edge_count; ++i) sum_sizes += __builtin_popcountll(edges[i]);
+    int vertex_count = __builtin_popcountll(all_vertices);
+    if (sum_sizes - edge_count - vertex_count != -1) return false;
+
+    return true;
+}
 
 /* The main sequence function. */
 seq_t a(idx_t n)
@@ -32,7 +124,7 @@ seq_t a(idx_t n)
 
     if (seq_len == 0) {          /* initialise with the first term 0 */
         seq_cap = 1;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)0;
         seq_len = 1;
         next_candidate = 1;
@@ -44,7 +136,7 @@ seq_t a(idx_t n)
 
         if (seq_len == seq_cap) {
             seq_cap = seq_cap ? seq_cap * 2 : 4;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = (seq_t)cand;
         next_candidate = cand + 1;

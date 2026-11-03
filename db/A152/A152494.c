@@ -10,6 +10,7 @@
  *            a(n)=16*a(n-1)-69*a(n-2)+90*a(n-3) for n>3
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 40,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 177 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

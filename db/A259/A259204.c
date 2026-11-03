@@ -7,10 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 /* OEIS A259204: a(n) = coefficient of x^n in
    A(x) = Σ_{k≥0} x^k (1+x^k)^k exp(4 x^{k+1}) / k!  (EGF)
@@ -36,15 +39,15 @@ seq_t a(idx_t n)
         pow4n *= (seq_t)4;
 
     /* factorials up to n */
-    seq_t *fact = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (n + 1));
     if (!fact) return 0;  /* allocation failure */
     fact[0] = 1;
     for (idx_t i = 1; i <= n; ++i)
         fact[i] = fact[i - 1] * (seq_t)i;
 
     /* binom(n, k) for all k=0..n */
-    seq_t *bn = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    if (!bn) { free(fact); return 0; }
+    seq_t *bn = mem_new(seq_t, (n + 1));
+    if (!bn) { mem_free(fact); return 0; }
     bn[0] = 1;
     for (idx_t k = 1; k <= n; ++k)
         bn[k] = (bn[k - 1] * (seq_t)(n - k + 1)) / k;
@@ -81,7 +84,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(bn);
-    free(fact);
+    mem_free(bn);
+    mem_free(fact);
     return res;
 }

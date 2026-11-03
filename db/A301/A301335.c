@@ -8,17 +8,19 @@
  * Formula:   a(n) = n * Sum_{k>=1, k^2 <= n} a(n - k^2); a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate space for a[0..n] */
-    seq_t *f = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (size_t)(n + 1));
     if (!f) return (seq_t)0;          /* allocation failure */
 
     f[0] = (seq_t)1;
@@ -31,6 +33,6 @@ seq_t a(idx_t n)
         f[m] = (seq_t)n * sum;
     }
     seq_t ans = f[n];
-    free(f);
+    mem_free(f);
     return ans;
 }

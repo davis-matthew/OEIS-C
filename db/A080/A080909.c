@@ -7,7 +7,8 @@
  * Formula:   a(n) = (2*n+1)! modulo (4*n+3) (|a(n)| ≤ 1)
  * Range:     i8 n <= 31, i16 n <= 82, i32 n <= 82, i64 n <= 82, i128 n <= 82,
  *            big any n
- * Helpers:   isPrime
+ * Validated: partial, pass, 83 terms through n = 82 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
    a(n) = ((p-1)/2)! mod p, which is always ±1.                */
 
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
     idx_t m_idx = 4*n + 3;
 
     /* Composite modulus ⇒ factorial contains the modulus. */
-    if (!isPrime(m_idx))
+    if (!is_prime(m_idx))
         return (seq_t)0;
 
     /* Work modulo m in seq_t arithmetic. */

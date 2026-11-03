@@ -10,12 +10,14 @@
  *            values: a(1)=7056, a(2)=49599, a(3)=290646, a(4)=1499679
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 25, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached values of the sequence, 1‑based */
 static idx_t cache_len = 0;   /* number of terms stored in cache */
@@ -28,7 +30,7 @@ static idx_t cache_len = 0;   /* number of terms stored in cache */
 static void construct_cache_element(seq_t *p)
 {
 #ifdef __cplusplus
-    new (p) seq_t();
+    *(p) = (seq_t)0;
 #endif
 }
 
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Ensure we have the first four terms in the cache */
     if (!cache) {
         cache_len = 4;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0; /* allocation failure guard */
         for (idx_t i = 0; i < cache_len; ++i)
             construct_cache_element(cache + i);
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
     /* If the requested n is larger than what we have, extend the cache */
     if (cache_len < n) {
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * n);
+        seq_t *new_cache = mem_resize(seq_t, cache, n);
         if (!new_cache) return 0; /* allocation failure guard */
         for (idx_t i = cache_len; i < n; ++i)
             construct_cache_element(new_cache + i);

@@ -7,13 +7,17 @@
  * Formula:   a(n) = binomial(n,3)*(3*n-8)^(n-5)
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 10, u64 n <= 15, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 35 terms through n = 100 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +36,7 @@ seq_t a(idx_t n)
     seq_t exp = (seq_t)(n - 5);
 
     /* (3*n-8)^(n-5) */
-    seq_t pow_val = big_pow(base, exp);
+    seq_t pow_val = ipow(base, exp);
 
     return bin * pow_val;
 }

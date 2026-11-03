@@ -9,12 +9,14 @@
  *            a(n)=a(n-1)+a(n-2); if n is odd: a(n)=a(n-1)+a(n-2)+a((n-1)/2)
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Ensure at least 3 entries in the cache (our initial conditions). */
     if (cache_size < 3) {
         idx_t new_size = 3;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_size + 1));
         if (!tmp) return (seq_t)0; /* Allocation failed */
         cache = tmp;
         cache_size = new_size;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (n > cache_size) {
         idx_t old_size = cache_size;
         cache_size = n;
-        seq_t *tmp = (seq_t *)realloc(cache, (cache_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (cache_size + 1));
         if (!tmp) return (seq_t)0;
         cache = tmp;
 

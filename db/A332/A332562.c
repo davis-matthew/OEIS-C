@@ -8,13 +8,25 @@
  * Formula:   a(n) = concat(44, 45, …, 44+n)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 8, u128 n <= 18,
  *            big any n
- * Helpers:   digit_count, pow10
+ * Validated: standard, pass, 30 terms through n = 350 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
-#include "../utils/digit_count.h"
+#include <stdint.h>
+#include <math.h>
+#include "../utils/num_digits0.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Compute a(n) for OEIS sequence A332562.
  *
@@ -34,7 +46,7 @@ seq_t a(idx_t n)
     for (idx_t i = start; i <= end; ++i) {
         /* Number of decimal digits of i.  digit_count returns a
            uint64_t; this is safe because i fits in uint64_t. */
-        uint64_t digits = digit_count(i);
+        uint64_t digits = num_digits0(i);
 
         /* 10^digits as a seq_t */
         seq_t pow10_digits = pow10(digits);

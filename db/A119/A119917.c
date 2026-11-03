@@ -8,7 +8,8 @@
  * Formula:   a(n) = sum_{i=1..n} sum_{d|i} (2^d - 1) * mu(i/d)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>   /* malloc, realloc, calloc, free */
 #include <stdint.h>   /* uint64_t */
+#include "../utils/mem.h"
 
 /* Forward declaration of the required function signature */
 seq_t a(idx_t n);
@@ -82,16 +84,16 @@ seq_t a(idx_t n)
 
         /* Reallocate prefix array */
         if (prefix) {
-            prefix = (seq_t *)realloc(prefix, new_size * sizeof(seq_t));
+            prefix = mem_resize(seq_t, prefix, new_size);
         } else {
-            prefix = (seq_t *)malloc(new_size * sizeof(seq_t));
+            prefix = mem_new(seq_t, new_size);
         }
 
         /* Reallocate pow2 array */
         if (pow2) {
-            pow2 = (seq_t *)realloc(pow2, new_size * sizeof(seq_t));
+            pow2 = mem_resize(seq_t, pow2, new_size);
         } else {
-            pow2 = (seq_t *)malloc(new_size * sizeof(seq_t));
+            pow2 = mem_new(seq_t, new_size);
         }
 
         /* Reallocate mu array */
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
         compute_mu(new_lim, mu);
 
         /* Allocate temporary array for f[i] */
-        seq_t *f = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *f = mem_new(seq_t, new_size);
         for (idx_t i = 0; i <= new_lim; ++i) f[i] = (seq_t)0;
 
         /* Compute f[i] = Σ_{d|i} (2^d-1)*μ(i/d) */
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
         }
         max_computed = new_lim;
 
-        free(f);
+        mem_free(f);
     }
 
     return prefix[n];

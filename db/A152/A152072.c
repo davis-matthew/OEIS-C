@@ -11,15 +11,23 @@
  *            Values are computed exactly using integer arithmetic; auxiliary
  *            functions seq_mul and seq_pow are used for multi...
  * Range:     u8 n <= 123, u16 n <= 474, u32 n <= 1849, u64 n <= 7420,
- *            u128 n <= 9749, big any n
- * Helpers:   seq_mul
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9749 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* One line comment explaining method, since this is not a recurrence */
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Compute base^exp using only seq_mul, safe for small exponents. */
 static inline seq_t power(seq_t base, idx_t exp) {

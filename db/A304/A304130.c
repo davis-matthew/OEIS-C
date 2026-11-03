@@ -12,7 +12,8 @@
  *            a(9)=2178, a(10)=4222, a(11)=8066, a(12)=15568, a(1...
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 30, u64 n <= 64, u128 n <= 131,
  *            big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 47 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static const seq_t init_vals[23] = {
     0ULL,      /* index 0 unused */
@@ -34,7 +48,7 @@ static seq_t *values = NULL;
 static idx_t computed = 0;   /* highest n for which values[n] is computed */
 
 static void init_cache(void) {
-    values = (seq_t *)calloc(23, sizeof(seq_t));
+    values = mem_new(seq_t, 23);
     for (size_t i = 1; i < 23; ++i)
         values[i] = init_vals[i];
     computed = 22;
@@ -46,7 +60,7 @@ seq_t a(idx_t n) {
     if (n <= computed) return values[n];
 
     size_t new_len = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(values, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, values, new_len);
     values = tmp;
 
     for (idx_t i = computed + 1; i <= n; ++i) {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor( Σ_{d|n} d / 10^{digits(d)} )
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digits
+ * Validated: standard, pass, 103 terms through n = 869 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
    then return its integer part.) */
 
 #include <stdint.h>
-#include "../utils/digits.h"
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Determine the maximum digit length among all divisors:
        it is the digit length of n itself. */
-    int max_digits = digits(n);
+    int max_digits = num_digits_idx(n);
 
     /* Compute 10^max_digits as a seq_t value. */
     seq_t pow10 = (seq_t)1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         if (n % i == 0)
         {
             /* Process divisor i. */
-            int di = digits(i);
+            int di = num_digits_idx(i);
             int diff1 = max_digits - di;
             seq_t mult1 = (seq_t)1;
             for (int k = 0; k < diff1; ++k)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             idx_t j = n / i;
             if (j != i)
             {
-                int dj = digits(j);
+                int dj = num_digits_idx(j);
                 int diff2 = max_digits - dj;
                 seq_t mult2 = (seq_t)1;
                 for (int k = 0; k < diff2; ++k)

@@ -9,6 +9,7 @@
  *            a(n)=3a(n-1)+30a(n-2)-17a(n-3)-138a(n-4)+85a(n-5)+116a(n-6)-42a(n-7)-32a(n-8)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

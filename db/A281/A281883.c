@@ -14,7 +14,8 @@
  *            a(5)=4832, a(6)=35002, a(7)=241209, a(8)=1612568, a(9)=10...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 /* Include standard facilities for memory allocation */
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc / realloc */
+#include "../utils/mem.h"
 
 /* Initial values up to n = 17 (1‑based indices) */
 static const seq_t init_vals[17] = {
@@ -56,9 +58,9 @@ static void ensure_cache_capacity(size_t new_cap)
         return;
     seq_t *new_ptr = NULL;
     if (cache_cap == 0) {
-        new_ptr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        new_ptr = mem_new(seq_t, new_cap);
     } else {
-        new_ptr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        new_ptr = mem_resize(seq_t, cache, new_cap);
     }
     cache = new_ptr;
     cache_cap = new_cap;

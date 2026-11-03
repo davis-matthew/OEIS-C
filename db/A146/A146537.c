@@ -7,6 +7,7 @@
  * Formula:   a(n) = numerator(1/9 - 1/(8*n+5)^2) / 16
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 2795, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 75 terms through n = 4623 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* That equals ( (8*n+5)^2 - 9 ) / gcd( (8*n+5)^2 - 9 , 9*(8*n+5)^2 ) ) / 16 */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

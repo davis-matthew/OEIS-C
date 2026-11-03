@@ -12,13 +12,14 @@
  *            3*(2^(k-1)*row - (2^(k-1)-1))
  * Range:     u8 n <= 16, u16 n <= 46, u32 n <= 154, u64 n <= 562,
  *            u128 n <= 1000, big any n
- * Helpers:   triangular_num
+ * Validated: standard, pass, 71 terms through n = 989 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/triangular_num.h"
+#include "../utils/triangular.h"
 
 seq_t a(idx_t n)
 {
@@ -27,16 +28,16 @@ seq_t a(idx_t n)
     /* Find smallest s with s*(s+1)/2 >= n */
     idx_t lo = 0;
     idx_t hi = 1;
-    while (triangular_num(hi) < n) hi <<= 1;
+    while (triangular(hi) < n) hi <<= 1;
     while (lo + 1 < hi) {
         idx_t mid = lo + (hi - lo) / 2;
-        if (triangular_num(mid) < n)
+        if (triangular(mid) < n)
             lo = mid;
         else
             hi = mid;
     }
     idx_t s = hi;
-    idx_t cum_before = triangular_num(s - 1);
+    idx_t cum_before = triangular(s - 1);
     idx_t pos = n - cum_before - 1;       /* 0‑based position in this antidiagonal */
     seq_t row = (seq_t)(pos + 1);
     seq_t k   = (seq_t)(s - row);

@@ -11,13 +11,24 @@
  *            of trailing zeros in binary)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Compute 2^exp for any exponent that may not fit in the bit width of seq_t. */
+static seq_t pow2(idx_t exp)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= (seq_t)2;
+    return res;
+}
 
 /* Utility: exponent of 2 dividing n, assumes n>0 */
 static inline idx_t trailing_zeros(idx_t n) {
@@ -34,7 +45,7 @@ seq_t a(idx_t n) {
 
     /* Initialise cache for a(0) */
     if (a_cap == 0) {
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache) return 0;         /* allocation failure */
         a_cache[0] = 1;
         a_cap = 1;
@@ -42,7 +53,7 @@ seq_t a(idx_t n) {
 
     /* Create b cache on demand */
     if (b_cap == 0) {
-        b_cache = (seq_t *)malloc(sizeof(seq_t));
+        b_cache = mem_new(seq_t, 1);
         if (!b_cache) return 0;
         b_cap = 0;
     }
@@ -50,7 +61,7 @@ seq_t a(idx_t n) {
     if (n >= a_cap) {
         /* Extend b cache up to n */
         if (n >= b_cap) {
-            seq_t *new_b = (seq_t *)realloc(b_cache, (n + 1) * sizeof(seq_t));
+            seq_t *new_b = mem_resize(seq_t, b_cache, (n + 1));
             if (!new_b) return 0;          /* allocation failure */
             b_cache = new_b;
             for (idx_t i = b_cap; i <= n; ++i) {
@@ -63,7 +74,7 @@ seq_t a(idx_t n) {
         }
 
         /* Extend a cache up to n */
-        seq_t *new_a = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, (n + 1));
         if (!new_a) return 0;
         a_cache = new_a;
         for (idx_t i = a_cap; i <= n; ++i) {

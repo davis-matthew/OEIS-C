@@ -8,14 +8,17 @@
  *            binomial(n,2k+1) * a(n-2k-1)
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 13, i64 n <= 22, i128 n <= 23,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   binomial, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with a(0) */
     if (!cache) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;          /* out of memory */
         cache[0] = 1;
         cached = 1;
@@ -34,8 +37,8 @@ seq_t a(idx_t n)
     /* extend cache up to n if necessary */
     if ((idx_t)n >= (idx_t)cached) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
-        if (!tmp) { free(cache); return 0; }
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp) { mem_free(cache); return 0; }
         cache = tmp;
 
         for (idx_t i = (idx_t)cached; i <= n; ++i) {
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
                 idx_t j = i - 2 * k - 1;
                 seq_t term = binomial(i, 2 * k + 1);
                 term = term * cache[j];
-                seq_t pow2 = pow_uint(2, k);
+                seq_t pow2 = ipow_u64_idx(2, k);
                 term = term * pow2;
                 if (k & 1) term = -term;
                 sum = sum + term;

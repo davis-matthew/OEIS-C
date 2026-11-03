@@ -11,7 +11,8 @@
  *            pair is listed
  * Range:     u8 none, u16 none, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   next_permutation
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_permutation.h"
+
+/* next_permutation for array of length len */
+static bool next_permutation(int *arr, int len)
+{
+    int i = len - 2;
+    while (i >= 0 && arr[i] >= arr[i + 1]) --i;
+    if (i < 0) return false;
+    int j = len - 1;
+    while (arr[j] <= arr[i]) --j;
+    int tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    /* reverse arr[i+1 .. end] */
+    int l = i + 1, r = len - 1;
+    while (l < r) {
+        tmp = arr[l]; arr[l] = arr[r]; arr[r] = tmp;
+        ++l; --r;
+    }
+    return true;
+}
 
 /* ---------- helper functions ---------- */
 

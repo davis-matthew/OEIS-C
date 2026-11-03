@@ -7,12 +7,14 @@
  * Formula:   a(n+2) = 14*a(n+1) - 1922*(n+1)*a(n), a(0) = 1, a(1) = 14
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 9, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 363 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoization */
 static seq_t *cache = NULL;      /* cached sequence values */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* Initial allocation: need at least two elements (a0 and a1). */
         cache_cap = 2;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* Initialise first two terms. */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)14;
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n)
         /* Grow the array to at least n+1 elements. */
         size_t new_cap = cache_cap;
         while ((idx_t)new_cap <= n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

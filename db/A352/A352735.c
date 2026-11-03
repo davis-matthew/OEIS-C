@@ -9,7 +9,8 @@
  *            contains * at least one digit 8 and contains no digit 4
  * Range:     u8 n <= 38, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   has_valid_digits, seq_alloc, seq_realloc
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,46 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/has_valid_digits.h"
+#include <stdlib.h>
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Helper to test an integer for the required digit pattern. */
+static bool has_valid_digits(seq_t x)
+{
+    bool has8 = false;
+    if (x == 0)             /* 0 is not a valid lucky number */
+        return false;
+
+    while (x > 0) {
+        unsigned digit = (unsigned)(x % 10);   /* cast to unsigned works for all seq_t types */
+        if (digit == 4)
+            return false;                     /* forbidden digit */
+        if (digit == 8)
+            has8 = true;                      /* required digit */
+        x /= 10;
+    }
+    return has8;
+}
 
 /* Main sequence accessor.  Uses a static cache that grows as needed. */
 seq_t a(idx_t n)

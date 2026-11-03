@@ -7,15 +7,18 @@
  * Formula:   a(n) = Sum_{d|n} d^n * binomial(d + n/d - 2, d-1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 35 terms through n = 379 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"    /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +32,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
 #if defined(__cplusplus)
-        seq_t *tmp = reinterpret_cast<seq_t *>(realloc(cache,
-                    new_size * sizeof(seq_t)));
+        seq_t *tmp = reinterpret_cast<seq_t *>(mem_resize(seq_t, cache, new_size));
 #else
         seq_t *tmp = (seq_t *)realloc(cache,
                     new_size * sizeof(seq_t));
@@ -56,13 +58,13 @@ seq_t a(idx_t n)
         idx_t d2 = n / d;
 
         /* contribution from divisor d1 */
-        seq_t pow1  = big_pow((seq_t)d1, (seq_t)n);
+        seq_t pow1  = ipow((seq_t)d1, (seq_t)n);
         seq_t bin1  = binomial(d1 + n/d1 - 2, d1 - 1);
         sum += pow1 * bin1;
 
         /* If d2 is different, add its contribution too */
         if (d2 != d1) {
-            seq_t pow2  = big_pow((seq_t)d2, (seq_t)n);
+            seq_t pow2  = ipow((seq_t)d2, (seq_t)n);
             seq_t bin2  = binomial(d2 + n/d2 - 2, d2 - 1);
             sum += pow2 * bin2;
         }

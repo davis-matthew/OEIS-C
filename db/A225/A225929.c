@@ -9,7 +9,8 @@
  *            n‑th prime power
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t values */
 static int cmp_seq_t(const void *a, const void *b) {
@@ -49,7 +51,7 @@ static void init(void) {
 
     /* Dynamic array for prime powers */
     size_t cap = 1024;
-    prime_powers = (seq_t*)malloc(cap * sizeof(seq_t));
+    prime_powers = mem_new(seq_t, cap);
     if (!prime_powers) exit(EXIT_FAILURE);
 
     /* Generate all prime powers <= LIMIT */
@@ -59,7 +61,7 @@ static void init(void) {
         for (;;) {
             if (prime_power_count >= cap) {
                 cap <<= 1;
-                prime_powers = (seq_t*)realloc(prime_powers, cap * sizeof(seq_t));
+                prime_powers = mem_resize(seq_t, prime_powers, cap);
                 if (!prime_powers) exit(EXIT_FAILURE);
             }
             prime_powers[prime_power_count++] = val;
@@ -70,7 +72,7 @@ static void init(void) {
     }
 
     /* Sort the list of prime powers */
-    qsort(prime_powers, prime_power_count, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(prime_powers, prime_power_count, sizeof(seq_t), cmp_seq_t);
 
     free(is_prime);
     initialized = true;

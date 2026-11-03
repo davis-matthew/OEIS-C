@@ -10,14 +10,15 @@
  *            sequence offset is 2 (so a(2) is the first entry)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   binom_mult
+ * Validated: partial, pass, 31 terms through n = 32 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom_mult.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute binomial(row-k-1, k-1). For k = 1 this is 1. */
-    seq_t binom = binom_mult(row - k - 1, k - 1);
+    seq_t binom = binomial(row - k - 1, k - 1);
 
     /* Return the associated Lah number. */
     return prod * binom;

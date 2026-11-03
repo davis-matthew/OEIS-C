@@ -9,7 +9,8 @@
  *            immediately preceded by a digit <= d
  * Range:     u8 n <= 107, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_even_preceded
+ * Validated: standard, pass, 74 terms through n = 9953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,31 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_even_preceded.h"
+#include "../utils/mem.h"
+
+/* Test whether a number contains an even digit d immediately preceded by a digit <= d. */
+static bool has_even_preceded(seq_t n)
+{
+    if (n < 10) return false;            /* one‑digit numbers never qualify */
+
+    seq_t tmp = n;
+    uint8_t digits[128];                  /* enough for up to 128‑bit values */
+    size_t cnt = 0;
+
+    while (tmp > 0) {
+        digits[cnt++] = (uint8_t)(tmp % 10);  /* least significant digit first */
+        tmp /= 10;
+    }
+
+    for (size_t i = 1; i < cnt; ++i) {
+        uint8_t d = digits[i - 1];           /* current (right) digit */
+        if ((d & 1) == 0) {                  /* d is even */
+            if (digits[i] <= d)              /* preceding (left) digit <= d */
+                return true;
+        }
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +55,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cap == 0) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();
     }
 
@@ -39,7 +64,7 @@ seq_t a(idx_t n)
         if (has_even_preceded(next_candidate)) {
             if (len >= cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cap);
                 if (!tmp) abort();
                 cache = tmp;
             }

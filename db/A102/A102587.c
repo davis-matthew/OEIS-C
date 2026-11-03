@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 71, i16 n <= 86, i32 n <= 86, i64 n <= 86, i128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  * The function memoises the triangle on successive calls. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_buf   = NULL;  /* flattened triangle          */
 static size_t a_cap   = 0;      /* capacity of a_buf           */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* initialisation on first call */
     if (!a_buf) {
         a_cap = 64;
-        a_buf = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_buf = mem_new(seq_t, a_cap);
         a_len = 0;
 
         /* row 0 */
@@ -54,11 +56,11 @@ seq_t a(idx_t n)
         a_buf[a_len++] = (seq_t)1;
 
         /* allocate base rows for recurrence */
-        seq_t *row1 = (seq_t *)malloc(2 * sizeof(seq_t));
+        seq_t *row1 = mem_new(seq_t, 2);
         row1[0] = (seq_t)-1;
         row1[1] = (seq_t)1;
 
-        seq_t *row2 = (seq_t *)malloc(3 * sizeof(seq_t));
+        seq_t *row2 = mem_new(seq_t, 3);
         row2[0] = (seq_t)-1;
         row2[1] = (seq_t)-2;
         row2[2] = (seq_t)1;
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         size_t cur_len = (size_t)r + 1;     /* number of elements in this row */
 
         /* allocate array for the current row */
-        seq_t *row_curr = (seq_t *)malloc(cur_len * sizeof(seq_t));
+        seq_t *row_curr = mem_new(seq_t, cur_len);
         for (idx_t k = 0; k < (idx_t)cur_len; ++k) {
             seq_t val = 0;
             if (k > 0 && (size_t)(k - 1) < len1)
@@ -91,10 +93,10 @@ seq_t a(idx_t n)
         if (a_len + cur_len > a_cap) {
             size_t new_cap = a_cap * 2;
             if (new_cap < a_len + cur_len) new_cap = a_len + cur_len;
-            seq_t *new_buf = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_buf = mem_new(seq_t, new_cap);
             for (size_t i = 0; i < a_len; ++i)
                 new_buf[i] = a_buf[i];
-            free(a_buf);
+            mem_free(a_buf);
             a_buf = new_buf;
             a_cap = new_cap;
         }
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
             a_buf[a_len++] = row_curr[i];
 
         /* shift rows for next iteration */
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;  len2 = len1;
         prev1 = row_curr;  len1 = cur_len;
 

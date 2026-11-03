@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 12, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   reverse_base4_seq
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
    where reverse_base4(x) reads the base‑4 digits of x forwards and
    returns the number represented by those digits read backwards. */
 #include <stdlib.h>
-#include "../utils/reverse_base4_seq.h"
+#include "../utils/mem.h"
+
+/* Reverse a number in base 4. Works for any seq_t that supports the
+   usual integer operators (+, -, *, /, %) with unsigned constants. */
+static seq_t reverse_base4_seq(seq_t x)
+{
+    seq_t rev = 0;
+    const seq_t four = (seq_t)4;
+    while (x > (seq_t)0) {
+        seq_t digit = x % four;
+        rev = rev * four + digit;
+        x   = x / four;
+    }
+    return rev;
+}
 
 /* Cache of computed terms.  cache[i] holds a(i).  Cache is grown
    incrementally and reused for subsequent calls. */
@@ -34,7 +49,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_len) return;  /* already available */
 
     /* Allocate sufficient space. */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) { /* allocation failed – terminate */ abort(); }
     cache = new_cache;
 

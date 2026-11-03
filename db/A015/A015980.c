@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 42, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_palindrome, reverse_decimal
+ * Validated: standard, pass, 65 terms through n = 995 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/reverse_decimal.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache of found terms          */
 static size_t cache_len = 0;         /* number of cached terms        */
@@ -32,7 +34,7 @@ static seq_t next_start = 0;         /* next number to test           */
 static void add_to_cache(seq_t val) {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         cache = new_cache;
         cache_cap = new_cap;
     }
@@ -46,9 +48,9 @@ seq_t a(idx_t n) {
         bool hit = false;
 
         for (int k = 1; k <= 4; ++k) {
-            seq_t rev = reverse_decimal(x);
+            seq_t rev = reverse_digits(x);
             x = x + rev;
-            if (is_palindrome(x, 10)) {
+            if (is_palindrome_base(x, 10)) {
                 if (k == 4) hit = true;
                 break;
             }

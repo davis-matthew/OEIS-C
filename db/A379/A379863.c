@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   gcd, mod_pow
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,11 @@
  * It returns the number of iterations until gcd(x−y, m) ≠ 1. */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -35,11 +39,11 @@ seq_t a(idx_t n)
 
     while (true) {
         /* advance the “tortoise” */
-        x = mod_pow(2, (uint64_t)x, m);
+        x = powmod(2, (uint64_t)x, m);
 
         /* advance the “hare” two steps at a time */
-        seq_t fy = mod_pow(2, (uint64_t)y, m);
-        y   = mod_pow(2, (uint64_t)fy, m);
+        seq_t fy = powmod(2, (uint64_t)y, m);
+        y   = powmod(2, (uint64_t)fy, m);
 
         ++steps;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 138, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, is_palint
+ * Validated: standard, pass, 76 terms through n = 9644 (2026-11-03)
+ * Helpers:   gcd, is_palindrome, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/gcd.h"          /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/is_palint.h"
+#include "../utils/gcd.h"
+#include "../utils/is_palindrome.h"
+#include "../utils/mem.h"
 
 /* ---------- Helper: palindrome test (decimal) ---------- */
 
@@ -41,11 +43,10 @@ static void ensure_pal_list(uint64_t limit)
 
     /* grow the array as needed */
     for (uint64_t i = pal_max + 1; i <= limit; ++i) {
-        if (is_palint((seq_t)i)) {
+        if (is_palindrome((seq_t)i)) {
             if (pal_len == pal_cap) {
                 pal_cap = pal_cap ? pal_cap * 2 : 16;
-                pal_list = (seq_t *)realloc(pal_list,
-                                            pal_cap * sizeof(seq_t));
+                pal_list = mem_resize(seq_t, pal_list, pal_cap);
             }
             pal_list[pal_len++] = (seq_t)i;
         }
@@ -65,7 +66,7 @@ static void seq_ensure_capacity(size_t needed)
     if (seq_cap < needed) {
         seq_cap = seq_cap ? seq_cap * 2 : 16;
         while (seq_cap < needed) seq_cap *= 2;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
 }
 

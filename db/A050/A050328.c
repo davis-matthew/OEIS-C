@@ -9,13 +9,15 @@
  *            >1)
  * Range:     u8 n <= 719, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 114 terms through n = 9665 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* global cache for computed values */
 static seq_t  *cache = NULL;          /* cache[1..N] holds a(n) values   */
@@ -59,7 +61,7 @@ static void ensure_cache_up_to(idx_t n)
     if (n <= cached_up_to) return;     /* nothing to do */
 
     /* grow cache array */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) abort();
     cache = new_cache;
 

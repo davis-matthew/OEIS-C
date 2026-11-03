@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 166, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   mod_pow_uint64, mul_mod_uint64
+ * Validated: standard, pass, 88 terms through n = 1871 (2026-11-03)
+ * Helpers:   mem, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow_uint64.h"
-#include "../utils/mul_mod_uint64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- deterministic Miller–Rabin for 64‑bit integers ---------- */
 
@@ -55,12 +57,12 @@ static bool is_prime_uint64(uint64_t n)
         uint64_t a = bases[i] % n;
         if (a == 0)
             continue;
-        uint64_t x = mod_pow_uint64(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n - 1)
             continue;
         bool cont = false;
         for (unsigned r = 1; r < s; ++r) {
-            x = mul_mod_uint64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 cont = true;
                 break;
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     /* initialise the cache on first call */
     if (cache_cap == 0) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) /* allocation failure – return zero (unlikely test) */
             return (seq_t)0;
     }
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
             /* grow array if necessary */
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) /* allocation failure – return zero */
                     return (seq_t)0;
                 cache = tmp;

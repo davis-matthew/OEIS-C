@@ -10,12 +10,18 @@
  *            nearest integer (ties go up)
  * Range:     u8 n <= 10, u16 n <= 27, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   _round_mul_c
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_round_mul_c.h"
+/* Helper: round(x * 4/3) using only integer arithmetic. */
+static inline seq_t _round_mul_c(seq_t x)
+{
+    /* round(4*x/3) == (4*x + 1)/3 for all non‑negative integers x */
+    return (x * 4 + 1) / 3;
+}
 
 /* Main function required by the platform. */
 seq_t a(idx_t n)

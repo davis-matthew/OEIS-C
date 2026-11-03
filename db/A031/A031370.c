@@ -7,6 +7,7 @@
  * Formula:   a(n) = prime(4n‑1)
  * Range:     u8 n <= 13, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 68 terms through n = 948 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/build_primes.h"  /* provides void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
+#include "../utils/build_primes.h"
 
 static idx_t *prime_arr   = NULL;   /* cached primes (built by build_primes) */
 static size_t prime_cnt   = 0;      /* number of primes stored */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 8597, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    in the prime factorization of k.  */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise storage if necessary */
     if (cap == 0) {
         cap = 16;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
     }
 
     /* generate terms until we reach the requested index */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         if (p < exp) {                    /* condition satisfied */
             if (count == cap) {           /* grow array if needed */
                 cap <<= 1;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[count++] = (seq_t)k;
         }

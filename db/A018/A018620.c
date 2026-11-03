@@ -7,12 +7,14 @@
  * Formula:   a(n) = the nth divisor of 740 in ascending order
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int cmp_seq(const void *a, const void *b)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
             }
         }
         /* sort the small list of 12 divisors */
-        qsort(divisors, 12, sizeof(seq_t), cmp_seq);
+        mem_qsort(divisors, 12, sizeof(seq_t), cmp_seq);
         initialized = 1;
     }
 

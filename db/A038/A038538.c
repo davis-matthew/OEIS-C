@@ -6,8 +6,9 @@
  * Keywords:  nonn, nice, mult
  * Formula:   a(n) = ∏_{p^k‖n} A004101(k) (multiplicative), where A004101(k)
  *            counts unordered sums of terms m·n² with m,n≥1
- * Range:     u8 n <= 8159, u16 n <= 8159, u32 n <= 8159, u64 n <= 8159,
- *            u128 n <= 8159, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 115 terms through n = 8159 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 #define MAX_K 64          /* maximum exponent we consider (≥ log₂(UINT64_MAX)) */

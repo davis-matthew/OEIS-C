@@ -10,11 +10,13 @@
  *            - 1 (OEIS A140503)
  * Range:     i8 n <= 21, i16 n <= 59, i32 n <= 59, i64 n <= 59, i128 n <= 59,
  *            big any n
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

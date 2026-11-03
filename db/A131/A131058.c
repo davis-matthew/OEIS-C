@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 5688, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9562 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 /* Standard headers for dynamic allocation. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Reverse a seq_t value in base 10.  Works for all supported seq_t
    types because it uses only unsigned arithmetic operators. */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         if (len >= cap) {
             idx_t new_cap = (cap == 0) ? 16 : cap * 2;
             /* Explicit cast for C++ compatibility. */
-            seq_t *p = (seq_t *)realloc(list, (size_t)new_cap * sizeof(seq_t));
+            seq_t *p = mem_resize(seq_t, list, (size_t)new_cap);
             if (!p) {            /* allocation failure: abort with 0. */
                 return (seq_t)0;
             }

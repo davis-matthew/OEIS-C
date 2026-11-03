@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 106, u32 n <= 991, u64 n <= 992,
  *            u128 n <= 992, big any n
- * Helpers:   none
+ * Validated: full, pass, 992 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static int compare_seq(const void *v1, const void *v2)
 {
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         }
         seq_len = id;
         /* Sort the list of numbers in ascending order */
-        qsort(seq_cache, seq_len, sizeof(seq_t), compare_seq);
+        mem_qsort(seq_cache, seq_len, sizeof(seq_t), compare_seq);
     }
 
     if (n == 0 || n > seq_len) return 0;

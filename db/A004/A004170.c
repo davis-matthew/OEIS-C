@@ -10,15 +10,43 @@
  *            the current candidate. Then sort and pick the n-th value
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 47, u64 n <= 92, u128 n <= 185,
  *            big any n
- * Helpers:   a004170_flog5, a004170_step
+ * Validated: standard, pass, 52 terms through n = 969 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a004170_flog5.h"
-#include "../utils/a004170_step.h"
+
+static int a004170_flog5(idx_t k) {
+    int r = 0;
+    while (k >= 5) { k /= 5; r++; }
+    return r;
+}
+
+/* p <- p + c, then swap so that (p, c) becomes (old c, sum) */
+static void a004170_step(unsigned char **p, size_t *lp, unsigned char **c, size_t *lc,
+                         size_t *capd) {
+    size_t i, nl;
+    int carry = 0;
+    unsigned char *t;
+    if (*lc + 2 > *capd) {
+        size_t nc = *capd * 2 + 16;
+        *p = (unsigned char *)realloc(*p, nc);
+        *c = (unsigned char *)realloc(*c, nc);
+        *capd = nc;
+    }
+    for (i = 0; i < *lc; i++) {
+        int s = (i < *lp ? (*p)[i] : 0) + (*c)[i] + carry;
+        (*p)[i] = (unsigned char)(s % 10);
+        carry = s / 10;
+    }
+    nl = *lc;
+    if (carry) (*p)[nl++] = 1;
+    t = *p; *p = *c; *c = t;
+    *lp = *lc; *lc = nl;
+}
 
 typedef struct {
     unsigned char *s; /* most significant digit first, no leading zeros */

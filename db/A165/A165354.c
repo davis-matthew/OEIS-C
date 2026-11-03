@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 72 terms through n = 983 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/mul_mod64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
 
 /* Modular multiplication (a*b) % mod for 64‑bit values using 128‑bit intermediate */
 
@@ -29,8 +31,8 @@ static uint64_t mod_pow_uint64(uint64_t base, uint64_t exp, uint64_t mod) {
     uint64_t result = 1 % mod;
     uint64_t b = base % mod;
     while (exp) {
-        if (exp & 1ULL) result = mul_mod64(result, b, mod);
-        b = mul_mod64(b, b, mod);
+        if (exp & 1ULL) result = mulmod(result, b, mod);
+        b = mulmod(b, b, mod);
         exp >>= 1;
     }
     return result;
@@ -53,7 +55,7 @@ static bool is_prime_uint64(uint64_t n) {
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;

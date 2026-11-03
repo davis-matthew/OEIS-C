@@ -12,12 +12,14 @@
  *            the anti‑diagonal index n
  * Range:     u8 n <= 21, u16 n <= 105, u32 n <= 465, u64 n <= 1830,
  *            u128 n <= 1830, big any n
+ * Validated: standard, pass, 82 terms through n = 1758 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Compute T(n,k) for 1‑based indices n,k */

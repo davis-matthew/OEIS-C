@@ -11,6 +11,7 @@
  *            a_n * p_{n-1} + p_{n-2}
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 18, u64 n <= 38, u128 n <= 77,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 200 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

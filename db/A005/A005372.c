@@ -7,6 +7,7 @@
  * Formula:   a(n) = L(L(n+1)+1), where L(n) are Lucas numbers A000032
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 6, u64 n <= 8, u128 n <= 9,
  *            big any n
+ * Validated: standard, pass, 17 terms through n = 16 (2026-11-01)
  * Helpers:   lucas
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

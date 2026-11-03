@@ -12,14 +12,17 @@
  *            c[i] = - Σ_{j=i+1}^{min(2i,r)} c[j] * Then B[r][...
  * Range:     i8 n <= 34, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find row r such that T(r) <= n < T(r+1), where T(r) = r*(r+1)/2. */
@@ -42,7 +45,7 @@ seq_t a(idx_t n) {
     idx_t c = n - row_start;        /* column index within the row */
 
     /* Allocate coefficient array for the row */
-    seq_t *coef = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *coef = mem_new(seq_t, (r + 1));
     if (!coef) return 0;            /* memory failure → return 0 (unlikely) */
 
     /* Recurrence to fill coef[i] : c[i] values */
@@ -61,6 +64,6 @@ seq_t a(idx_t n) {
     D_c = D_c - 1;
     seq_t result = coef[c] * D_c;
 
-    free(coef);
+    mem_free(coef);
     return result;
 }

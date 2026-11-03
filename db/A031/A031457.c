@@ -10,14 +10,30 @@
  *            fill
  * Range:     u8 n <= 52, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   special_number
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/special_number.h"
+#include "../utils/mem.h"
+
+/* Helper that tests the base‑3 digit condition. */
+static bool special_number(seq_t x)
+{
+    unsigned int zeros = 0, twos = 0;
+    while (x > 0) {
+        unsigned int d = (unsigned int)(x % 3);
+        if (d == 0)
+            ++zeros;
+        else if (d == 2)
+            ++twos;
+        x /= 3;
+    }
+    return twos == zeros + 1;
+}
 
 /* Return the n‑th term of OEIS A031457.  n is 1‑based. */
 seq_t a(idx_t n)
@@ -33,7 +49,7 @@ seq_t a(idx_t n)
         /* Grow the cache if needed. */
         if (cache_size == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, new_cap);
             if (!tmp) abort();        /* allocation failed */
             terms = tmp;
             cache_cap = new_cap;

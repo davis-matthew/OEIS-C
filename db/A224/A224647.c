@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 16, u64 n <= 36, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Precomputed coefficients of the recurrence (index 0 ↔ a(n-1), … , 19 ↔ a(n-20)). */
 static const int coeffs[20] = {
@@ -59,7 +61,7 @@ static void compute_base_terms(void)
        not yet been fixed. */
     static seq_t dp[64][64][11];
     static seq_t newdp[64][64][11];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initialise for the first two rows: common sum still undefined
        (represented by index 10).  All 64×64 pairs of rows are allowed. */
@@ -74,7 +76,7 @@ static void compute_base_terms(void)
 
     /* Build rows from 3 up to 22 (since n+2 rows are needed for n up to 20). */
     for (idx_t rows = 3; rows <= 22; ++rows) {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
 
         if (rows == 3) { /* first time we fix the common sum */
             for (int p0 = 0; p0 < 64; ++p0) {
@@ -117,7 +119,7 @@ static void compute_base_terms(void)
         }
 
         /* Copy newdp back into dp for the next iteration. */
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
 
         /* Number of rows built so far is 'rows'.  Corresponding n is rows-2. */
         idx_t n = rows - 2;
@@ -151,7 +153,7 @@ seq_t a(idx_t n)
     /* Initialise cache lazily. */
     if (cache == NULL) {
         cache_size = 21;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         for (size_t i = 0; i < cache_size; ++i) cache[i] = 0;
         for (size_t i = 1; i <= 20; ++i) cache[i] = base[i];
         cache_last = 20;
@@ -160,7 +162,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary. */
     if ((idx_t)cache_size <= n) {
         size_t new_cap = (size_t)(n + 1) * 2;
-        cache = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        cache = mem_resize(seq_t, cache, new_cap);
         for (size_t i = cache_size; i < new_cap; ++i) cache[i] = 0;
         cache_size = new_cap;
     }

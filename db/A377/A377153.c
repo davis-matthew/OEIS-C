@@ -7,13 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(k+5,5) * binomial(k,n-k)^2
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd.h"          /* for gcd(seq_t, seq_t) */
+#include "../utils/gcd.h"
 
 /* Helper: compute (a*b)/c without overflow (uses gcd reduction) */
 static seq_t mul_div_seq(seq_t a, seq_t b, seq_t c) {

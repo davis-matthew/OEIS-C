@@ -12,7 +12,8 @@
  *            divisors, and stores the corresponding sums as the...
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   is_palindrome, seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,16 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_palindrome.h"          /* is_palindrome(seq_t x, idx_t base) */
-#include "../utils/seq_alloc_new_array.h"    /* seq_alloc_new_array(size_t) */
-#include "../utils/seq_free_array.h"         /* seq_free_array(seq_t*) */
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* static cache of sequence values a(1), a(2), …  */
 static seq_t *term_cache = NULL;     /* pointer to array of seq_t */
@@ -32,7 +40,6 @@ static size_t cache_cap  = 0;        /* allocated capacity       */
 
 /* next integer k to test for the property */
 static idx_t next_k = 1;
-
 
 /* Ensure the cache has at least 'needed' slots allocated.  */
 static void ensure_cache_capacity(size_t needed)
@@ -61,7 +68,6 @@ static void ensure_cache_capacity(size_t needed)
     cache_cap  = new_cap;
 }
 
-
 /* Return the n-th term of A183107;  n >= 1.
    For n < 1 the function returns 0. */
 seq_t a(idx_t n)
@@ -82,7 +88,7 @@ seq_t a(idx_t n)
             if (k % d == 0)
             {
                 seq_t sd = (seq_t)d;
-                if (is_palindrome(sd, 10))
+                if (is_palindrome_base(sd, 10))
                 {
                     sum += sd;
                 }
@@ -91,7 +97,7 @@ seq_t a(idx_t n)
                 if (e != d)          /* distinct divisor pair */
                 {
                     seq_t se = (seq_t)e;
-                    if (is_palindrome(se, 10))
+                    if (is_palindrome_base(se, 10))
                     {
                         sum += se;
                     }
@@ -101,7 +107,7 @@ seq_t a(idx_t n)
 
         /* If the sum of palindromic divisors is itself a palindrome,
            record it as the next sequence value. */
-        if (is_palindrome(sum, 10))
+        if (is_palindrome_base(sum, 10))
         {
             term_cache[cache_size++] = sum;
         }

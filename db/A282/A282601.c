@@ -9,14 +9,15 @@
  *            totatives of n
  * Range:     u8 n <= 66, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/phi.h"   /* provides static seq_t phi(idx_t m); */
+#include "../utils/totient.h"
 
 /* Euclidean GCD for idx_t values. */
 static inline idx_t gcd_idx(idx_t a, idx_t b)
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
     if (n < 1u) return (seq_t)0;  /* the sequence is defined for n >= 1 */
 
     /* Compute φ(n).  φ(1) comes out 1. */
-    seq_t phi_val = phi(n);
+    seq_t phi_val = totient(n);
     idx_t half_phi = (idx_t)(phi_val / 2u);
 
     seq_t sum = 0;

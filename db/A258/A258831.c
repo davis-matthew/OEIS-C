@@ -11,12 +11,14 @@
  *            c[d-1]
  * Range:     i8 n <= 9, i16 n <= 186, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const long long c_arr[12] = { -2,  2,  0,  0, -2, -4, -2,  0,  0,  2, -2, -4 };
 
@@ -30,8 +32,8 @@ static void ensure_capacity(idx_t n)
     if (a_cap <= n) {
         idx_t new_cap = a_cap ? a_cap << 1 : 256;
         while (new_cap <= (idx_t)n) new_cap <<= 1;
-        a_cache    = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-        dsum_cache = (seq_t *)realloc(dsum_cache, new_cap * sizeof(seq_t));
+        a_cache    = mem_resize(seq_t, a_cache, new_cap);
+        dsum_cache = mem_resize(seq_t, dsum_cache, new_cap);
         if (a_cache && dsum_cache) {
             /* Zero-initialize new space */
             for (idx_t i = a_cap; i < new_cap; ++i) {

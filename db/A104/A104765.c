@@ -8,14 +8,15 @@
  * Formula:   a(n) = Lucas( n - t(t+1)/2 ) where t = floor((sqrt(8n-7)-1)/2)
  * Range:     u8 n <= 77, u16 n <= 299, u32 n <= 1127, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   lucas_at
+ * Validated: standard, pass, 99 terms through n = 1267 (2026-11-01)
+ * Helpers:   lucas
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/lucas_at.h"
+#include "../utils/lucas.h"
 
 seq_t a(idx_t n)
 {
@@ -38,5 +39,5 @@ seq_t a(idx_t n)
     idx_t t   = low;
     unsigned __int128 tri = (unsigned __int128)t * (t + 1) / 2;
     idx_t m = n - (idx_t)tri;          /* position in the row */
-    return lucas_at(m);
+    return lucas(m);
 }

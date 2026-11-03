@@ -12,12 +12,30 @@
  *            -> (y, x/3)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   steps_to_zero
+ * Validated: standard, pass, 102 terms through n = 977 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/steps_to_zero.h"
+static seq_t steps_to_zero(seq_t x, seq_t y)
+{
+    seq_t steps = 0;
+    while (x != 0 || y != 0)
+    {
+        seq_t r = x % (seq_t)3;
+        if (r > 0)
+            x -= r;                     /* subtract remainder */
+        else
+        {
+            seq_t tmp = x / (seq_t)3;   /* x is divisible by 3 here */
+            x = y;
+            y = tmp;                    /* swap and divide */
+        }
+        ++steps;
+    }
+    return steps;
+}
 
 seq_t a(idx_t n)
 {

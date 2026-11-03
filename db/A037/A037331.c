@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   seq_alloc
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,16 @@
 /* Implements a search for numbers whose base‑7 and base‑8 digit sums are equal. */
 
 #include <stddef.h>
-#include "../utils/seq_alloc.h"
+#include <stdlib.h>
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache          = NULL; /* array of found numbers               */
 static size_t cache_cap      = 0;    /* capacity of cache                    */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    where b(k) = #{(x,y,z)∈ℤ³ : x+y+z even, x²+y²+z² = k}. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *b_cache = NULL;   /* b(k) for k < b_size */
 static size_t b_size = 0;       /* number of b entries stored */
@@ -26,7 +28,7 @@ static size_t a_size = 0;       /* number of a entries stored */
 /* compute all b(k) for k < new_b_size (new_b_size = 2*max_n+1) */
 static void recompute_b(size_t new_b_size)
 {
-    seq_t *new_b = (seq_t *)malloc(new_b_size * sizeof(seq_t));
+    seq_t *new_b = mem_new(seq_t, new_b_size);
     if (!new_b) return; /* allocation failure: leave caches unchanged */
 
     for (size_t i = 0; i < new_b_size; ++i) new_b[i] = 0;
@@ -51,7 +53,7 @@ static void recompute_b(size_t new_b_size)
         }
     }
 
-    if (b_cache) free(b_cache);
+    if (b_cache) mem_free(b_cache);
     b_cache = new_b;
     b_size = new_b_size;
 }
@@ -59,7 +61,7 @@ static void recompute_b(size_t new_b_size)
 /* recompute a(n) for n < new_a_size (new_a_size = max_n+1) */
 static void recompute_a(size_t new_a_size)
 {
-    seq_t *new_a = (seq_t *)malloc(new_a_size * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, new_a_size);
     if (!new_a) return; /* allocation failure: leave caches unchanged */
 
     for (size_t i = 0; i < new_a_size; ++i) new_a[i] = 0;
@@ -73,7 +75,7 @@ static void recompute_a(size_t new_a_size)
         new_a[n] = acc;
     }
 
-    if (a_cache) free(a_cache);
+    if (a_cache) mem_free(a_cache);
     a_cache = new_a;
     a_size = new_a_size;
 }

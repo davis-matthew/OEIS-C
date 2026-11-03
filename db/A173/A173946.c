@@ -9,7 +9,8 @@
  *            natural numbers and keeps those that satisfy the condition
  * Range:     u8 n <= 59, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_distinct_primes, factor_u64, gcd
+ * Validated: standard, pass, 74 terms through n = 970 (2026-11-01)
+ * Helpers:   factor_u64, gcd, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 #include <stdint.h>
 
 /* Use utility helpers from the build */
-#include "../utils/count_distinct_primes.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
+#include "../utils/omega.h"
 
 /* Compute Carmichael λ(n) for n>=1.
    λ(1) = 1.  For an odd prime power p^e, λ = φ(p^e) = p^(e‑1)(p‑1).
@@ -72,13 +74,13 @@ static bool satisfies(uint64_t n)
     }
 
     /* ω(n) */
-    int omega_n = count_distinct_primes(n);
+    int omega_n = omega(n);
 
     /* λ(n) */
     seq_t lam_n = lambda_of_uint64(n);
 
     /* ω(λ(n)) as an integer */
-    int omega_lam_n = count_distinct_primes((uint64_t)lam_n);
+    int omega_lam_n = omega((uint64_t)lam_n);
 
     /* λ(ω(n)) as a seq_t value */
     seq_t lam_omega_n = lambda_of_uint64((uint64_t)omega_n);

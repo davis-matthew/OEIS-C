@@ -9,7 +9,8 @@
  *            number of digits
  * Range:     u8 n <= 1, u16 n <= 13, u32 n <= 2803, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, digit_sum
+ * Validated: standard, pass, 49 terms through n = 9741 (2026-11-01)
+ * Helpers:   digit_sum, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/digit_len.h"
 #include "../utils/digit_sum.h"
+#include "../utils/num_digits.h"
 #ifdef __cplusplus
 #include <vector>
 #endif
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
 #else
         sq = (seq_t)m * m;
 #endif
-        int d = digit_len(sq);
+        int d = num_digits(sq);
         seq_t sum = digit_sum(sq);
         seq_t target = (seq_t)5 * (seq_t)d;
         if (sum == target) {
@@ -61,7 +62,7 @@ seq_t a(idx_t n)
 #else
         sq = (seq_t)m * m;
 #endif
-        int d = digit_len(sq);
+        int d = num_digits(sq);
         seq_t sum = digit_sum(sq);
         seq_t target = (seq_t)5 * (seq_t)d;
         if (sum == target) {

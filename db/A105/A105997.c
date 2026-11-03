@@ -7,7 +7,8 @@
  * Formula:   a(n) = A001358(A001358(A001358(n)))
  * Range:     u8 n <= 10, u16 n <= 1107, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 8784 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------  local types  ------------------------------------------ */
 
@@ -154,7 +156,7 @@ static void generate_next_semiprime(void)
 
     if (semip_cnt == semip_cap) {
         semip_cap = (semip_cap ? semip_cap << 1 : 8192);
-        semiprimes = (seq_t *)realloc(semiprimes, semip_cap * sizeof(seq_t));
+        semiprimes = mem_resize(seq_t, semiprimes, semip_cap);
         if (!semiprimes) exit(1);
     }
 

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, easy, nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 20, u64 n <= 9393,
- *            u128 n <= 9393, big any n
- * Helpers:   get_digits, reverse_decimal
+ * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 20, u64 n <= 37363,
+ *            u128 n <= 37363, big any n
+ * Validated: standard, pass, 39 terms through n = 9393 (2026-11-03)
+ * Helpers:   get_digits, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/get_digits.h"
-#include "../utils/reverse_decimal.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* Pre‑computed values of d^d (0^0 = 1) for d = 0 … 9 */
 static const seq_t pow_table[10] = {
@@ -64,12 +67,12 @@ seq_t a(idx_t n)
     /* ensure capacity */
     if (n + 1 > cache_cap) {
         size_t new_cap = n + 1 > 16 ? n + 1 : 16;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) abort();    /* allocation failure */
         if (cache) {
             for (size_t i = 1; i <= cache_len; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = new_cap;
@@ -83,7 +86,7 @@ seq_t a(idx_t n)
             seq_t prev = cache[i - 1];
             seq_t spd  = spd_func(prev);
             seq_t sum  = prev + spd;
-            cache[i] = reverse_decimal(sum);
+            cache[i] = reverse_digits(sum);
         }
     }
     cache_len = n;  /* last computed index */

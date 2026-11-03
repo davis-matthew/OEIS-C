@@ -9,13 +9,15 @@
  *            col=diag-offset)
  * Range:     u8 n <= 38, u16 n <= 81, u32 n <= 194, u64 n <= 471,
  *            u128 n <= 1186, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 82 terms through n = 9106 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
        the width of seq_t. */
     seq_t n_seq = (seq_t)row;
     seq_t k_seq = (seq_t)col;
-    seq_t pow_row_k = big_pow(n_seq, k_seq);     /* row^col */
+    seq_t pow_row_k = ipow(n_seq, k_seq);     /* row^col */
     seq_t val = pow_row_k - (seq_t)1;            /* row^col - 1 */
     val = val / (n_seq - (seq_t)1);              /* divide by (row-1) */
     val = val * n_seq;                           /* multiply by row */

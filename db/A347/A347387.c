@@ -7,14 +7,43 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 1435, u16 n <= 9866, u32 n <= 9866, u64 n <= 9866,
- *            u128 n <= 9866, big any n
- * Helpers:   psi_odd
+ * Range:     u8 n <= 1435, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9866 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/psi_odd.h"
+static seq_t psi_odd(seq_t n)
+{
+    /* odd part of n */
+    seq_t odd = n;
+    while ((odd & 1) == 0)
+        odd >>= 1;
+
+    if (odd <= 1)
+        return odd;                     /* ψ(1)=1, ψ(0)=0 */
+
+    seq_t m = odd;
+    seq_t result = m;
+
+    /* factor m by trial division (only odd primes) */
+    for (seq_t p = 3; p <= m / p; p += 2) {
+        if (m % p == 0) {
+            /* ψ(m) = m * Π(1 + 1/p) ⇒  result = result/p * (p+1) */
+            result = result / p * (p + 1);
+            while (m % p == 0)
+                m /= p;
+        }
+    }
+    if (m > 1) {
+        /* remaining prime factor */
+        result = result / m * (m + 1);
+    }
+
+    return result;
+}
 /* A347387: a(n) is the exponent k of the first power of two 2^k
  * reached by iterating the Dedekind ψ-function applied to the odd
  * part of n.  The function repeatedly replaces the current value

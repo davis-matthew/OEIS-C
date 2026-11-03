@@ -8,17 +8,18 @@
  *            = floor((n + 1 + n*sqrt(5))/2)
  * Range:     u8 n <= 157, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a007067_isqrt128
+ * Validated: standard, pass, 82 terms through n = 9778 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a007067_isqrt128.h"
+#include "../utils/isqrt_u128.h"
 
 seq_t a(idx_t n) {
     unsigned __int128 nn = (unsigned __int128)n;
-    unsigned __int128 s = a007067_isqrt128(5 * nn * nn);
+    unsigned __int128 s = isqrt_u128(5 * nn * nn);
     unsigned __int128 r = (nn + 1 + s) / 2;
     return (seq_t)(uint64_t)r;
 }

@@ -13,7 +13,8 @@
  *            p in the sequence of primes (2,3,5,7,…). * This is equ...
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   sieve
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/sieve.h"
+#include <string.h>
+#include <stdbool.h>
+
+/* Create a standard sieve of Eratosthenes up to 'max'.
+   The caller must provide an array of size max+1. */
+static void sieve(bool *is_prime, size_t max)
+{
+    memset(is_prime, true, (max + 1) * sizeof(bool));
+    is_prime[0] = is_prime[1] = false;
+    for (size_t p = 2; p * p <= max; ++p) {
+        if (is_prime[p]) {
+            for (size_t m = p * p; m <= max; m += p) {
+                is_prime[m] = false;
+            }
+        }
+    }
+}
 
 static uint8_t *prime_mark = NULL;
 static size_t  p_mark_size = 0;

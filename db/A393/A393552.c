@@ -11,16 +11,19 @@
  *            % 2)) * n / d) )
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 5, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   factor_u64, phi, pow2
+ * Validated: standard, pass, 25 terms through n = 41 (2026-11-01)
+ * Helpers:   factor_u64, pow2, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow2.h"
-#include "../utils/phi.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/pow2.h"
+#include "../utils/totient.h"
 
 /* Recursive enumeration of all divisors of n and accumulation of
    φ(d) * 2^((2*n-3 - d%2) * n / d) into *sum.  */
@@ -29,7 +32,7 @@ static void rec_divs(const uint64_t *primes, const uint64_t *exps,
                      idx_t n, seq_t *sum)
 {
     if (idx == pcnt) {
-        seq_t phi_cur = phi((idx_t)cur);
+        seq_t phi_cur = totient((idx_t)cur);
         idx_t mult = 2 * n - 3 - (cur & 1ULL);
         idx_t term = mult * (n / cur);
         seq_t pw = pow2(term);

@@ -10,13 +10,15 @@
  *            a(8)=53832
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;            /* 1‑based array of computed values */
 static size_t cache_size = 0;          /* allocated capacity (elements) */
@@ -46,7 +48,7 @@ static void ensure_cache_up_to(size_t target) {
             new_cap <<= 1;                       /* double until large enough */
 
         /* Use a C‑style cast so the code compiles in both C and C++. */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();                            /* out of memory */
 

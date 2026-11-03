@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 982, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_array, next_prime
+ * Validated: standard, pass, 67 terms through n = 9661 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 #include "../utils/next_prime.h"
-#include "../utils/alloc_seq_array.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Multiply two seq_t numbers modulo mod.
    For 8/16/32/64-bit seq_t we use 128‑bit intermediate.
@@ -113,7 +120,7 @@ seq_t a(idx_t n)
                 size_t new_cap = terms_cap ? terms_cap * 2 : 8;
                 seq_t *tmp = alloc_seq_array(new_cap);
                 if (terms)
-                    memcpy(tmp, terms, terms_size * sizeof(seq_t));
+                    mem_copy(tmp, terms, terms_size * sizeof(seq_t));
                 terms = tmp;
                 terms_cap = new_cap;
             }

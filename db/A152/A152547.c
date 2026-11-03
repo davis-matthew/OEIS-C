@@ -10,6 +10,7 @@
  *            C(i,⌊i/2⌋). Then a(n) = #{j : 0 ≤ j ≤ r, C(r,j) > k}
  * Range:     u8 n <= 7059, u16 n <= 7059, u32 n <= 7059, u64 n <= 7059,
  *            u128 n <= 7059, big any n
+ * Validated: standard, pass, 121 terms through n = 6827 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,6 +8,7 @@
  * Formula:   a(n) = n*tau(n) - sigma(n) - phi(n)
  * Range:     i8 n <= 12, i16 n <= 632, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 96 terms through n = 9878 (2026-11-01)
  * Helpers:   factor_uint64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

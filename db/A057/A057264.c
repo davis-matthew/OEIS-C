@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 34, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,11 @@
    k | 11^k + 10^k + 9^k + 8^k + 7^k + 6^k + 5^k. */
 
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,19 +38,19 @@ seq_t a(idx_t n)
         seq_t sum   = 0;
 
         /* Compute each power modulo 'last_checked' and accumulate modulo 'mod'. */
-        sum = (sum + mod_pow((seq_t)5,  last_checked, mod)) % mod;
-        sum = (sum + mod_pow((seq_t)6,  last_checked, mod)) % mod;
-        sum = (sum + mod_pow((seq_t)7,  last_checked, mod)) % mod;
-        sum = (sum + mod_pow((seq_t)8,  last_checked, mod)) % mod;
-        sum = (sum + mod_pow((seq_t)9,  last_checked, mod)) % mod;
-        sum = (sum + mod_pow((seq_t)10, last_checked, mod)) % mod;
-        sum = (sum + mod_pow((seq_t)11, last_checked, mod)) % mod;
+        sum = (sum + powmod((seq_t)5,  last_checked, mod)) % mod;
+        sum = (sum + powmod((seq_t)6,  last_checked, mod)) % mod;
+        sum = (sum + powmod((seq_t)7,  last_checked, mod)) % mod;
+        sum = (sum + powmod((seq_t)8,  last_checked, mod)) % mod;
+        sum = (sum + powmod((seq_t)9,  last_checked, mod)) % mod;
+        sum = (sum + powmod((seq_t)10, last_checked, mod)) % mod;
+        sum = (sum + powmod((seq_t)11, last_checked, mod)) % mod;
 
         /* If the sum is a multiple of 'last_checked', store the term. */
         if (sum == 0) {
             if (len == cap) {
                 cap = cap ? (cap << 1) : 8;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[len++] = (seq_t)last_checked;
         }

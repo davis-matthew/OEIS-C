@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   _floor_isqrt_u64, bigomega
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   bigomega, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,14 +23,15 @@
    value of bigomega. */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/bigomega.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     /* n is 1–based.  Compute the diagonal s (≥1) such that
        T(s-1) < n ≤ T(s), where T(s)=s*(s+1)/2.  */
     idx_t discr = 8 * n + 1;
-    idx_t sqrt_d = _floor_isqrt_u64(discr);
+    idx_t sqrt_d = isqrt(discr);
     idx_t s = (sqrt_d - 1) / 2;          /* floor of the formula */
     if (s * (s + 1) / 2 < n)             /* adjust if needed    */
         s++;

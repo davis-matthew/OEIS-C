@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 13, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* 7³ possible rows. */
 #define NODES 343
@@ -117,8 +119,8 @@ static void init(void)
     build_graph();
 
     /* Allocate DP arrays. */
-    dp_prev = (seq_t *)malloc(NODES * sizeof(seq_t));
-    dp_curr = (seq_t *)malloc(NODES * sizeof(seq_t));
+    dp_prev = mem_new(seq_t, NODES);
+    dp_curr = mem_new(seq_t, NODES);
     if (!dp_prev || !dp_curr) abort();
 
     /* Base state: first row may be any of the NODES possibilities. */
@@ -126,7 +128,7 @@ static void init(void)
     for (size_t i = 0; i < NODES; ++i) dp_curr[i] = (seq_t)0;
 
     /* Allocate cache for at least index 1. */
-    cache = (seq_t *)malloc(2 * sizeof(seq_t));   /* indices 0 and 1 */
+    cache = mem_new(seq_t, 2);   /* indices 0 and 1 */
     if (!cache) abort();
     cache[0] = (seq_t)0;
     cache[1] = (seq_t)0;
@@ -146,7 +148,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary. */
     if ((size_t)n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) abort();
         /* initialise new cells to 0 */
         for (size_t i = cache_size; i < new_size; ++i)

@@ -8,16 +8,34 @@
  *            of divisors of k
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _sum_tau_divisors, factor_u64, gcd
+ * Validated: standard, pass, 103 terms through n = 9424 (2026-11-01)
+ * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/_sum_tau_divisors.h"
+#include "../utils/gcd.h"
+
+/* Recursive helper to accumulate Σ τ(d) for all divisors d of n. */
+static void _sum_tau_divisors(const uint64_t *primes, const uint64_t *exps,
+                              size_t cnt, size_t pos,
+                              seq_t cur_tau, seq_t *sum)
+{
+    if (pos == cnt) {
+        *sum += cur_tau;
+        return;
+    }
+    /* iterate over exponent e for this prime factor */
+    for (uint64_t e = 0; e <= exps[pos]; ++e) {
+        seq_t new_tau = cur_tau * (seq_t)(e + 1);
+        _sum_tau_divisors(primes, exps, cnt, pos + 1, new_tau, sum);
+    }
+}
 
 seq_t a(idx_t n)
 {

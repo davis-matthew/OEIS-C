@@ -10,12 +10,14 @@
  *            2*a(n-2) - 2*a(n-3) - 5*a(n-4) + 6*a(n-5)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache == NULL) {
         cache_size = 5;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL)  /* allocation failure – return 0 as safe fallback */
             return (seq_t)0;
         for (size_t i = 0; i < 5; ++i)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Grow cache if needed */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL)  /* allocation failure – keep old cache */
             return cache[n];  /* unchanged, but better than crash */
         cache = tmp;

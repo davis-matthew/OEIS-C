@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    keeping only those divisible by 5 but not by 4, whose reverse is
    divisible by 4 but not by 5. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: reverse the decimal digits of x. */
 static seq_t reverse_decimal(seq_t x) {
@@ -64,10 +66,10 @@ seq_t a(idx_t n) {
         /* Allocate or grow the cache as needed. */
         if (cache_cap == 0) {
             cache_cap = 4;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         } else if (cache_size == cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         cache[cache_size++] = val;

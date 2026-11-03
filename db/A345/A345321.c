@@ -8,13 +8,25 @@
  *            does not divide n)
  * Range:     u8 n <= 107, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   cube_not_divides
+ * Validated: standard, pass, 85 terms through n = 872 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/cube_not_divides.h"
+
+/* Test whether d^3 divides n: return true if d^3 does NOT divide n */
+static bool cube_not_divides(seq_t n, seq_t d)
+{
+    seq_t temp = n;
+    for (int k = 0; k < 3; ++k) {
+        if (temp % d != 0)
+            return true;          /* d^3 does NOT divide n */
+        temp /= d;
+    }
+    return false;                 /* d^3 divides n */
+}
 
 seq_t a(idx_t n)
 {

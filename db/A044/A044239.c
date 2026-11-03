@@ -11,14 +11,31 @@
  *            * keeping the first n such k
  * Range:     u8 n <= 4, u16 n <= 1136, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_64
+ * Validated: standard, pass, 57 terms through n = 7789 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_64.h"
+#include "../utils/mem.h"
+
+static bool has_64(seq_t x) {
+    if (x == 0)
+        return false;
+    bool prev_set = false;
+    int prev_digit = 0;
+    while (x != 0) {
+        int digit = (int)(x % 8);
+        if (prev_set && digit == 6 && prev_digit == 4)
+            return true;
+        prev_digit = digit;
+        prev_set = true;
+        x = x / 8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -38,7 +55,7 @@ seq_t a(idx_t n) {
                 /* store result */
                 if (cache_len >= cache_cap) {
                     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                     if (!new_cache) {
                         /* allocation failure – abort */
                         exit(1);

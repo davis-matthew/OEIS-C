@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 6, i64 n <= 11, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 302 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * where C(n,m) is the binomial coefficient. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[0..cache_len-1] holds a(n) */
 static idx_t cache_len = 0;          /* current number of cached entries */
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
         return;                       /* already computed */
 
     /* Allocate / resize cache */
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache)
         exit(1);                     /* cannot allocate – abort */
     cache = new_cache;

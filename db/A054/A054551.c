@@ -8,7 +8,8 @@
  *            the list of all primes)
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   estimate_prime_upper
+ * Validated: standard, pass, 55 terms through n = 924 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/estimate_prime_upper.h"
+
+/* ---------- Upper bound for the k-th prime ----------
+ * Dusart's estimate: p_k < k (ln k + ln ln k) for k >= 6.
+ */
+static uint64_t estimate_prime_upper(uint64_t k)
+{
+    if (k < 6) return 15;
+    double dk = (double)k;
+    double bound = dk * (log(dk) + log(log(dk)));
+    return (uint64_t)(bound + 3.0);   /* safety margin */
+}
 
 /* ---------- Prime storage ----------
  * primes[0] = 2, primes[1] = 3, ...   uint64_t for storage

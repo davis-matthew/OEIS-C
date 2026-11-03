@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 15, u64 n <= 25, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence:  a(0)=…=a(6)=0,  a(7)=1
    a(n) = 9 * (10^(n-8) - a(n-8) + Σ_{i=7}^{n-1} a(i))   (n ≥ 8)  */
 #include <stdlib.h>   /* malloc, realloc, calloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* stored values of a(i) */
 static size_t cache_cap = 0;       /* allocated capacity (number of elements) */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate an array large enough for indices 0…7 inclusive. */
         cache_cap = 8;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* a(0)…a(6) are already zero.  Set a(7)=1. */
         cache[7] = (seq_t)1;
         cache_size = 8;           /* values up to index 7 are valid */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Expand the cache if the requested index is beyond the current capacity. */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)   /* out of memory – fail gracefully */
             return (seq_t)0;
         cache = new_cache;

@@ -11,8 +11,9 @@
  *            r(r‑1)/2 < n ≤ r(r+1)/2, and k = n – r(r‑1)/2. * Then a(n) =
  *            T(r,k), where * T(r,k) = #{ (L,R) | L,R ⊆ {1,…,k‑1},
  *            sum(L)+sum(R) = r‑k }. * That is, the number of pairs of su...
- * Range:     u8 n <= 283, u16 n <= 1553, u32 n <= 9312, u64 n <= 9312,
- *            u128 n <= 9312, big any n
+ * Range:     u8 n <= 283, u16 n <= 1553, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9312 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

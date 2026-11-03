@@ -8,13 +8,15 @@
  *            distinct parts, with two sorts of 1's)
  * Range:     u8 n <= 24, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* DP array: dp[i] = A000009(i) */
 static idx_t dp_size = 0;         /* current allocated size of dp (at least n+1) */
@@ -25,7 +27,7 @@ static void compute_dp(idx_t n)
 {
     /* Allocate or reallocate the array if necessary */
     if (dp_size < n + 1) {
-        seq_t *tmp = (seq_t *)realloc(dp, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (size_t)(n + 1));
         if (!tmp) abort();               /* allocation failed */
         dp = tmp;
         dp_size = n + 1;

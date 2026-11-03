@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   find_j
+ * Validated: standard, pass, 88 terms through n = 9677 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,23 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/find_j.h"
+
+/* Find j such that T(j-1) < p ≤ T(j), where T(k)=k(k+1)/2.  */
+static inline idx_t find_j(idx_t p)
+{
+    idx_t lo = 1, hi = 1;
+    /* Increase hi until T(hi) ≥ p */
+    while ((unsigned __int128)hi * (hi + 1) / 2 < p) hi <<= 1;
+    /* Binary search on [lo,hi] */
+    while (lo < hi) {
+        idx_t mid = (lo + hi) >> 1;
+        if ((unsigned __int128)mid * (mid + 1) / 2 >= p)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo;                   /* j */
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* -------------  sequence generator function  ------------- */
 seq_t a(idx_t n) {
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     if (cap_a < N + 1) {
         size_t new_cap = cap_a ? cap_a << 1 : 1;
         while (new_cap < N + 1) new_cap <<= 1;
-        a_arr = (seq_t*)realloc(a_arr, new_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
         cap_a = new_cap;
     }
 
@@ -53,12 +55,10 @@ seq_t a(idx_t n) {
         size_t old_cap = cap_c;
         size_t new_cap = cap_c ? cap_c << 1 : 1;
         while (new_cap < required_c) new_cap <<= 1;
-        c_arr = (seq_t*)realloc(c_arr, new_cap * sizeof(seq_t));
+        c_arr = mem_resize(seq_t, c_arr, new_cap);
         /* zero newly allocated part of c_arr */
         if (new_cap > old_cap)
-            memset((void*)(c_arr + old_cap),
-                   0,
-                   (new_cap - old_cap) * sizeof(seq_t));
+            mem_set((c_arr + old_cap), 0, (new_cap - old_cap) * sizeof(seq_t));
         cap_c = new_cap;
     }
 

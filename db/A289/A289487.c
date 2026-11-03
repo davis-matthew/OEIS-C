@@ -11,13 +11,15 @@
  *            followed by the fractional digits
  * Range:     u8 n <= 40, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 7 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const uint32_t DEN = 662607015U;          /* denominator of 4/h */
 static const uint64_t BASE = 1000000000ULL;      /* base for big integer limbs */
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
         /* store digit */
         if (frac_len >= frac_cap) {
             size_t new_cap = frac_cap ? frac_cap * 2 : 1024;
-            seq_t *new_arr = (seq_t *)realloc(frac_digits, new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_resize(seq_t, frac_digits, new_cap);
             if (!new_arr) abort();   /* out of memory */
             frac_digits = new_arr;
             frac_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_cap_size, ensure_num_cap
+ * Validated: standard, pass, 103 terms through n = 9670 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,8 +31,27 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/ensure_cap_size.h"
-#include "../utils/ensure_num_cap.h"
+#include "../utils/mem.h"
+
+static void ensure_cap_size(size_t *cap, seq_t **arr, size_t needed) {
+    if (*cap >= needed) return;
+    size_t new_cap = (*cap == 0) ? 1 : (*cap * 2);
+    while (new_cap < needed) new_cap *= 2;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *cap = new_cap;
+}
+
+static void ensure_num_cap(size_t *cap, uint64_t **arr, size_t needed) {
+    if (*cap >= needed) return;
+    size_t new_cap = (*cap == 0) ? 1 : (*cap * 2);
+    while (new_cap < needed) new_cap *= 2;
+    uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(uint64_t));
+    if (!tmp) abort();
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* Prime sieve -------------------------------------------------------------*/
 static uint32_t *prime_list = NULL;   /* primes up to limit */

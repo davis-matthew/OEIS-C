@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 19, u64 n <= 39, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    with an arbitrary‑precision integer class. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const uint64_t D = 790;    /* D = 790. */
 static const unsigned int a0 = 28;/* floor(sqrt(790)). */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Initialise cache for the first term a(0)=1. */
     if (cache_len == 0) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;         /* OOM protection. */
         cache[0] = 1;                 /* q(0) = 1. */
         /* State (cf_m, cf_d, cf_a_prev) already set for producing a(1). */
@@ -50,9 +52,9 @@ seq_t a(idx_t n)
         idx_t old_len = cache_len;
         /* Grow buffer. */
         if (cache) {
-            cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (n + 1));
         } else {
-            cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+            cache = mem_new(seq_t, (n + 1));
         }
         if (!cache) return 0; /* OOM protection. */
 

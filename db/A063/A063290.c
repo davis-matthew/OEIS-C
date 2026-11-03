@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 13, i16 n <= 52, i32 n <= 52, i64 n <= 52, i128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
      a(8)= 64, a(9)= 76, a(10)=88, a(11)=100, a(12)=112, a(13)=122
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[14] = {
     0, 0,          /* indices 0,1 are unused */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold up to n */
     if (cache_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         cache = tmp;
         cache_size = new_size;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* Initialise base values up to 13 if not yet done */
     if (current_max < 13) {
         if (cache_size <= 13) {            /* safe reallocation if needed */
-            seq_t *tmp = (seq_t*)realloc(cache, 14 * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, 14);
             if (!tmp) return (seq_t)0;
             cache = tmp;
             cache_size = 14;

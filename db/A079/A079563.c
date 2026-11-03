@@ -8,13 +8,27 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(7*k, k) * binomial(7*(n-k), n-k)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 33 terms through n = 791 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient C(a,b) using multiplicative formula. */
+static seq_t binom(idx_t a, idx_t b) {
+    if (b > a) return 0;
+    if (b > a - b) b = a - b;          /* use symmetry */
+    seq_t res = 1;
+    for (idx_t i = 1; i <= b; ++i) {
+        res *= (seq_t)(a - b + i);
+        res /= (seq_t)i;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,13 +43,13 @@ seq_t a(idx_t n)
     /* Initialise the caches on the first call */
     if (cache_len == 0) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;        /* silently fail if out of memory */
         cache[0] = 1;                /* a(0) = 1 */
     }
     if (f_len == 0) {
         f_len = 1;
-        f = (seq_t *)malloc(sizeof(seq_t));
+        f = mem_new(seq_t, 1);
         if (!f) return 0;
         f[0] = 1;                    /* binomial(0,0) = 1 */
     }
@@ -45,7 +59,7 @@ seq_t a(idx_t n)
         /* Make sure binomial(7*k, k) is available up to k = m */
         if (f_len <= m) {
             size_t new_f_len = m + 1;
-            seq_t *tmp = (seq_t *)realloc(f, new_f_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, f, new_f_len);
             if (!tmp) return 0;
             f = tmp;
             for (size_t k = f_len; k <= m; ++k)
@@ -60,7 +74,7 @@ seq_t a(idx_t n)
 
         /* Append the new term to the cache */
         size_t new_cache_len = cache_len + 1;
-        seq_t *tmp_cache = (seq_t *)realloc(cache, new_cache_len * sizeof(seq_t));
+        seq_t *tmp_cache = mem_resize(seq_t, cache, new_cache_len);
         if (!tmp_cache) return 0;
         cache = tmp_cache;
         cache[cache_len] = sum;

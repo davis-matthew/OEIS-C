@@ -9,7 +9,8 @@
  *            27*a(n-6) - 81*a(n-7)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 25, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
       a(5)=70767, a(6)=351549, a(7)=1750896 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of computed values, 1‑based */
 static idx_t computed = 0;    /* highest index already computed */
@@ -27,7 +29,7 @@ static void init_cache(idx_t n)
 {
     /* ensure storage for indices 0..n (size n+1) */
     idx_t new_size = n > 7 ? n + 1 : 8;   /* at least indices 0..7 */
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+    cache = mem_resize(seq_t, cache, new_size);
     /* set constants (they may overwrite if re‑expanded) */
     cache[0] = 0;
     cache[1] = 126;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* If requested index is beyond current cache size, grow it */
     if (n + 1 > computed + 1) {
         idx_t new_size = n + 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        cache = mem_resize(seq_t, cache, new_size);
     }
 
     /* Compute any new terms up to n */

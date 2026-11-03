@@ -7,17 +7,31 @@
  * Keywords:  nonn
  * Formula:   a(n) = gcd(n, A064989(n)) A064989 is fully multiplicative, a(2)
  *            = 1, a(p) = prev_prime(p) for odd primes p
- * Range:     u8 n <= 1694, u16 n <= 8081, u32 n <= 8081, u64 n <= 8081,
- *            u128 n <= 8081, big any n
- * Helpers:   factor_u64, gcd, prev_prime
+ * Range:     u8 n <= 1694, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8081 (2026-11-01)
+ * Helpers:   factor_u64, gcd, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/prev_prime.h"
+#include "../utils/gcd.h"
+#include "../utils/is_prime.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 /* Fast exponentiation for seq_t */
 static seq_t pow_seq_t(seq_t base, int exp)

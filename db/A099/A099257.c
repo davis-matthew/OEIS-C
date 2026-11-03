@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --- static storage ----------------------------------------------------- */
 static seq_t *seq_arr = NULL;          /* a(1)..a(k) stored (0‑based)       */
@@ -37,12 +39,12 @@ static void ensure_seq_capacity(idx_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < (size_t)need) new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) return;                    /* allocation failure – abort */
 
     if (seq_arr) {
-        memcpy(new_arr, seq_arr, seq_len * sizeof(seq_t));
-        free(seq_arr);
+        mem_copy(new_arr, seq_arr, seq_len * sizeof(seq_t));
+        mem_free(seq_arr);
     }
     seq_arr = new_arr;
     seq_cap = new_cap;

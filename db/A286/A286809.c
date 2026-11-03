@@ -7,12 +7,15 @@
  * Formula:   a(n) = 3 + 2*(n-1) - ⌊log₂(n)⌋
  * Range:     u8 n <= 130, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 79 terms through n = 9395 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +25,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* floor_log2_uint64 returns ⌊log₂(n)⌋ for n ≥ 1. */
-    unsigned log = floor_log2_uint64(n);
+    unsigned log = ilog2(n);
 
     /* Compute a(n) = 3 + 2*(n-1) - ⌊log₂(n)⌋ in seq_t arithmetic. */
     seq_t part = (seq_t)(n - 1) * 2;   /* 2*(n-1) */

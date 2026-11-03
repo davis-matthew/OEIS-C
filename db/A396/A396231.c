@@ -10,13 +10,15 @@
  *            descending order (OEIS A004186)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 32, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Reorder the decimal digits of v in descending order. */
 static seq_t sort_desc(seq_t v)
@@ -48,7 +50,7 @@ static void ensure_cap(idx_t needed)
     if (needed <= cap) return;
     idx_t newcap = cap ? cap * 2 : 16;
     while (newcap < needed) newcap *= 2;
-    seq_t *newarr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newarr = mem_resize(seq_t, cache, newcap);
     if (!newarr) abort();   /* Allocation failure – abort. */
     cache = newarr;
     cap = newcap;

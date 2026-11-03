@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n*(28*n^2-129*n+176) + 3*(5*n^2-12*n+8)*(-1)^n - 72)/48
  * Range:     u8 none, u16 n <= 15, u32 n <= 709, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 9161 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

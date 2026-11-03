@@ -10,7 +10,8 @@
  *            of any length‑12 subsequence ≤5)
  * Range:     u8 none, u16 n <= 7, u32 n <= 27, u64 n <= 66, u128 n <= 145,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MASK 0x7FFU   /* 11 bits */
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 0; i < L; ++i) {
         /* clear next array */
-        memset(next, 0, sizeof(next[0]) * (1 << 11));
+        mem_set(next, 0, sizeof(next[0]) * (1 << 11));
 
         int need_constraint = (i >= 11);   /* only after first 11 bits */
 

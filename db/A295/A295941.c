@@ -10,14 +10,38 @@
  *            over rows
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 37,
  *            big any n
- * Helpers:   is_valid_triplet
+ * Validated: standard, pass, 33 terms through n = 204 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_valid_triplet.h"
+
+/* test whether a 3‑row window (prev,curr,next) satisfies the adjacency
+   rule for all 1‑cells of the middle row curr */
+static bool is_valid_triplet(unsigned prev, unsigned curr, unsigned next) {
+    for (int j = 0; j < 6; ++j) {
+        if (!(curr & (1u << j)))
+            continue;
+        int cnt = 0;
+        /* same row neighbours */
+        if (j > 0 && (curr & (1u << (j - 1)))) ++cnt;
+        if (j < 5 && (curr & (1u << (j + 1)))) ++cnt;
+        /* row above neighbours */
+        if (prev & (1u << j))                 ++cnt;
+        if (j > 0 && (prev & (1u << (j - 1))))++cnt;
+        if (j < 5 && (prev & (1u << (j + 1))))++cnt;
+        /* row below neighbours */
+        if (next & (1u << j))                 ++cnt;
+        if (j > 0 && (next & (1u << (j - 1))))++cnt;
+        if (j < 5 && (next & (1u << (j + 1))))++cnt;
+        if (cnt != 1 && cnt != 3)
+            return false;
+    }
+    return true;
+}
 
 #define STATES 64u
 #define FULL (STATES * STATES)

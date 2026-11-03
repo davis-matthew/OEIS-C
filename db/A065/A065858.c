@@ -10,7 +10,8 @@
  *            on demand and returns the p_n‑th composite
  * Range:     u8 n <= 46, u16 n <= 5962, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9088 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static idx_t cur_limit = 0;
 static idx_t *primes = NULL;
@@ -64,7 +66,7 @@ static void rebuild_sieve(idx_t new_limit)
     seq_t *new_composites = NULL;
     size_t new_comps_cnt = 0;
     if (new_limit >= 4) {
-        new_composites = (seq_t *)malloc(sz * sizeof(seq_t));
+        new_composites = mem_new(seq_t, sz);
         if (!new_composites) abort();
         for (idx_t i = 4; i <= new_limit; ++i)
             if (!is_prime[i])
@@ -73,7 +75,7 @@ static void rebuild_sieve(idx_t new_limit)
 
     free(is_prime);
     free(primes);
-    free(composites);
+    mem_free(composites);
 
     primes = new_primes;
     primes_cnt = new_primes_cnt;

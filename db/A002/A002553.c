@@ -10,15 +10,24 @@
  *            v_p((2n-1)!!) = v_p((2n)!) - v_p(n!) for odd p and 0 for p = 2
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 16,
  *            big any n
- * Helpers:   a002553_pw, a002553_vf
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a002553_pw.h"
-#include "../utils/a002553_vf.h"
+#include "../utils/ipow_i64.h"
+
+static long long a002553_vf(unsigned long long m, unsigned long long p) {
+    long long e = 0;
+    while (m) {
+        m /= p;
+        e += (long long)m;
+    }
+    return e;
+}
 
 seq_t a(idx_t n) {
     unsigned long long M = 2ULL * (unsigned long long)n + 1ULL;
@@ -35,7 +44,7 @@ seq_t a(idx_t n) {
             long long vdf = a002553_vf(M - 1, p) - a002553_vf(n, p);
             e = a002553_vf(M, p) - 2 * vdf;
         }
-        if (e > 0) r *= a002553_pw((seq_t)p, e);
+        if (e > 0) r *= ipow_i64((seq_t)p, e);
     }
     free(comp);
     return r;

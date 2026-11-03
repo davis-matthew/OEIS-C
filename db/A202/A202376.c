@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 12, u64 n <= 43, u128 n <= 116,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static int R = 0;                 /* number of valid rows (≤ 64)        */
@@ -88,8 +90,8 @@ seq_t a(idx_t n)
 
     idx_t m = n + 2;                 /* number of rows */
     /* dp[(p,q)] holds count of ways to reach rows ... , p, q. */
-    seq_t *dp   = (seq_t *)calloc(S, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(S, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, S);
+    seq_t *next = mem_new(seq_t, S);
     if (!dp || !next) return 0;     /* allocation failure */
 
     /* initialise for the first two rows: any pair is allowed */
@@ -121,7 +123,7 @@ seq_t a(idx_t n)
     seq_t total = 0;
     for (size_t id = 0; id < S; ++id) total += dp[id];
 
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return total;
 }

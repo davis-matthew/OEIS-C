@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9124 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* popcount for a 64‑bit value */
 static inline unsigned popcount_uint64(uint64_t x)
@@ -78,7 +80,7 @@ static size_t cache_last      = 0;    /* highest n for which a(n) known */
 static void ensure_cache(idx_t n)
 {
     if ((size_t)n > cache_allocated) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp) exit(1);
         for (size_t i = cache_allocated; i < (size_t)n; ++i) tmp[i] = 0;
         cache = tmp;

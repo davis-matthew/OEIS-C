@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 2587, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 70 terms through n = 9420 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
                 if (len == cap)
                 {
                     cap = cap ? cap * 2 : 16;
-                    cached = (seq_t *)realloc(cached, cap * sizeof(seq_t));
+                    cached = mem_resize(seq_t, cached, cap);
                 }
                 cached[len++] = (seq_t)cur;
             }

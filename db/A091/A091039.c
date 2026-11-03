@@ -11,13 +11,16 @@
  *            - (r-1)*r/2
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 39, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0)  /* offset is 1; undefined for n=0 */
@@ -36,9 +39,9 @@ seq_t a(idx_t n) {
         F *= (seq_t)i;
 
     /* F^(e-1) */
-    seq_t F_pow = big_pow(F, (seq_t)(e - 1));
+    seq_t F_pow = ipow(F, (seq_t)(e - 1));
     /* (c+1)^e - 1 */
-    seq_t G = big_pow((seq_t)(c + 1), (seq_t)e);
+    seq_t G = ipow((seq_t)(c + 1), (seq_t)e);
     G -= (seq_t)1;
 
     /* Final result = F_pow * G / c */

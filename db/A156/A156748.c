@@ -9,13 +9,15 @@
  *            with initial values a(1)=a(2)=a(3)=a(4)=0 and offset 1
  * Range:     i8 n <= 204, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 109 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values.  cache[0] corresponds to a(1). */
 static seq_t   *cache   = NULL;
@@ -30,10 +32,10 @@ static void ensure_cache_cap(size_t need)
     size_t newcap = cache_cap ? cache_cap : 16;
     while (newcap < need)
         newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp)  /* allocation failed; abort */
     {
-        free(cache);
+        mem_free(cache);
         cache = NULL;
         cached_len = 0;
         cache_cap  = 0;

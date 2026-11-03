@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of helper functions */
 static void ensure_seq_capacity(idx_t idx);
@@ -46,9 +48,9 @@ static void ensure_seq_capacity(idx_t idx)
     if ((size_t)idx >= seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 64;
         while (new_cap <= (size_t)idx) new_cap <<= 1;
-        seq_t *na = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
-        seq_t *nb = (seq_t *)realloc(b_seq, new_cap * sizeof(seq_t));
-        seq_t *nc = (seq_t *)realloc(c_seq, new_cap * sizeof(seq_t));
+        seq_t *na = mem_resize(seq_t, a_seq, new_cap);
+        seq_t *nb = mem_resize(seq_t, b_seq, new_cap);
+        seq_t *nc = mem_resize(seq_t, c_seq, new_cap);
         if (!na || !nb || !nc) abort();          /* memory exhausted */
         a_seq = na; b_seq = nb; c_seq = nc;
         seq_cap = new_cap;

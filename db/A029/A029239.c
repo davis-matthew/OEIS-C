@@ -7,17 +7,19 @@
  * Formula:   count of partitions of n into parts 2, 8, 10, 11 using DP
  * Range:     u8 n <= 119, u16 n <= 863, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* dp[i] = number of ways to write i as a sum of 2,8,10,11 (order irrelevant) */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (dp == NULL) {
         /* out of memory – unlikely for n ≤ 10000 */
         return (seq_t)0;
@@ -39,6 +41,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

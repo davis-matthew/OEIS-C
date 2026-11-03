@@ -8,6 +8,7 @@
  * Formula:   a(3k)=9k, a(3k+1)=5+9k, a(3k+2)=7+9k
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

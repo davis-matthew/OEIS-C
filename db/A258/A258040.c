@@ -12,7 +12,8 @@
  *            g(k) * a(n‑k). * This is the Euler transform of th...
  * Range:     i8 n <= 18, i16 n <= 60, i32 n <= 314, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 844 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Period‑20 sequence b */
 static const int periodic[20] = {
@@ -40,7 +42,7 @@ static void ensure_a(idx_t n)
     size_t new_len = (size_t)(n + 1);
     if (new_len > cache_cap) {
         size_t new_cap = new_len * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

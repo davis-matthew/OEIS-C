@@ -10,6 +10,7 @@
  *            for n ≥ 8 and n odd a(n) = (n²+2n+2)/2 for n ≥ 8 and n even
  * Range:     u8 n <= 21, u16 n <= 360, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
+ * Validated: standard, pass, 59 terms through n = 485 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

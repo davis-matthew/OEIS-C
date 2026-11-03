@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,12 +25,12 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"  /* provides divisor_count_u64(uint64_t) */
+#include "../utils/num_divisors.h"
 
 /* Helper to count divisors of a 64‑bit integer.
    This wrapper uses the supplied utility function. */
 static inline idx_t tau_u64(uint64_t m) {
-    return (idx_t)divisor_count_u64(m);
+    return (idx_t)num_divisors(m);
 }
 
 /* The main sequence function. */

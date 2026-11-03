@@ -9,7 +9,8 @@
  *            nonprime
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Append a value to a dynamic array of seq_t. */
 static void push_seq(seq_t **arr, size_t *size, size_t *cap, seq_t val) {
     if (*size >= *cap) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
-        *arr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
     (*arr)[*size] = val;
@@ -35,10 +37,10 @@ static seq_t smallest_nonisolated_prime_gt(seq_t threshold) {
     seq_t cand = threshold + 1;
     while (1) {
         uint64_t u = (uint64_t)cand;
-        if (is_prime_small(u)) {
+        if (is_prime_seq(u)) {
             bool twin = false;
-            if (u >= 2) twin |= is_prime_small(u - 2);
-            twin |= is_prime_small(u + 2);
+            if (u >= 2) twin |= is_prime_seq(u - 2);
+            twin |= is_prime_seq(u + 2);
             if (twin) return cand;
         }
         cand++;
@@ -60,12 +62,12 @@ static idx_t current_x = 0;   /* Next integer to examine for iso_np */
 static void ensure_iso_np(idx_t n) {
     while (iso_np_size < n) {
         uint64_t x = (uint64_t)current_x;
-        bool prime = is_prime_small(x);
+        bool prime = is_prime_seq(x);
         if (!prime) {
             bool left_np  = false;
             bool right_np = false;
-            if (current_x > 0) left_np  = !is_prime_small(x - 1);
-            right_np = !is_prime_small(x + 1);
+            if (current_x > 0) left_np  = !is_prime_seq(x - 1);
+            right_np = !is_prime_seq(x + 1);
             if (left_np || right_np) {
                 push_seq(&iso_np, &iso_np_size, &iso_np_cap, (seq_t)current_x);
             }

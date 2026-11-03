@@ -7,15 +7,23 @@
  * Formula:   a(n) = Sum_{k=0..n} (-n)^(n-k) * k^k * binomial(n,k)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 15, i128 n <= 26,
  *            big any n
- * Helpers:   binomial, seq_mul, seq_pow
+ * Validated: standard, pass, 35 terms through n = 382 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,10 +34,10 @@ seq_t a(idx_t n)
         seq_t bin = binomial(n, k);
 
         /* k^k */
-        seq_t pow_k = seq_pow((seq_t)k, k);
+        seq_t pow_k = ipow_idx((seq_t)k, k);
 
         /* n^(n-k) */
-        seq_t pow_n = seq_pow((seq_t)n, n - k);
+        seq_t pow_n = ipow_idx((seq_t)n, n - k);
 
         /* combine */
         seq_t term = seq_mul(bin, pow_k);

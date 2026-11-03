@@ -7,12 +7,14 @@
  * Formula:   a(n) = -3*a(n-1) + 5*a(n-2), a(0)=1, a(1)=-5
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 14, i64 n <= 30, i128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
 
     /* enlarge cache if necessary */
     if (n + 1 > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) abort();          /* out of memory -> terminate */
         cache = tmp;
 

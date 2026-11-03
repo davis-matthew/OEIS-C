@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 587, u32 n <= 8159, u64 n <= 8159,
- *            u128 n <= 8159, big any n
- * Helpers:   gcd
+ * Range:     u8 n <= 5, u16 n <= 587, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 74 terms through n = 8159 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* dynamic array of seq_t values */
 static seq_t *terms = NULL;
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
             if (term_cnt >= term_cap) {
                 /* grow the storage */
                 term_cap = (term_cap == 0) ? 8 : term_cap * 2;
-                terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, term_cap);
             }
             terms[term_cnt++] = (seq_t)max_checked;
         }

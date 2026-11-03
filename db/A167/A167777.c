@@ -8,7 +8,8 @@
  *            average of the nth twin prime pair)
  * Range:     u8 n <= 18, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Helper: dynamic array of primes (uint32_t)                          */
@@ -73,7 +75,7 @@ static void ensure_cache(idx_t n)
 {
     if (!cache) {                 /* first call: initialise structures   */
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = (seq_t)2;       /* a(1) = 2 */
         cache_len = 1;
@@ -96,7 +98,7 @@ static void ensure_cache(idx_t n)
                 /* Twin pair found: add average */
                 if (cache_len == cache_cap) {
                     size_t new_cap = cache_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) abort();
                     cache = tmp;
                     cache_cap = new_cap;

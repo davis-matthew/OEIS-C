@@ -8,8 +8,9 @@
  * Formula:   T(n,k) = sum_{j=max(0,ceil((p*k-n)/(p-1)))}^{k} (-1)^(k-j) * *
  *            C(k,j) * C(n-p*k + p*j - 1, j-1), with p = 8. * a(n) is the
  *            flattened triangle read row by row
- * Range:     u8 n <= 40, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
+ * Range:     u8 n <= 70, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static inline idx_t _row_start(idx_t r)

@@ -11,13 +11,18 @@
  *            (number of paired fragments, number of fragme...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   tm_find
+ * Validated: standard, pass, 31 terms through n = 544 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/tm_find.h"
+
+static int tm_find(int *par, int x) {
+    while (par[x] != x) x = par[x];
+    return x;
+}
 
 static int R_tm[9][9];
 static int F_tm[9];

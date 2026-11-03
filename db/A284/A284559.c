@@ -5,15 +5,18 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base
  * Formula:   a(n) = LCM of run lengths in binary representation of n
- * Range:     u8 n <= 9776, u16 n <= 9776, u32 n <= 9776, u64 n <= 9776,
- *            u128 n <= 9776, big any n
- * Helpers:   floor_log2_uint64, gcd
+ * Range:     u8 n <= 10922, u16 n <= 10922, u32 n <= 10922, u64 n <= 10922,
+ *            u128 n <= 10922, big any n
+ * Validated: standard, pass, 136 terms through n = 9776 (2026-11-01)
+ * Helpers:   gcd, ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/floor_log2_uint64.h"
+#include "../utils/ilog2.h"
 
 static seq_t lcm_seq(seq_t a, seq_t b)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Determine the position of the most significant bit */
-    unsigned msb = floor_log2_uint64(n);
+    unsigned msb = ilog2(n);
 
     seq_t lcm = (seq_t)1;
     int count = 1;

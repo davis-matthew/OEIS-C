@@ -9,13 +9,15 @@
  *            a(0)=0, a(1)=-2, a(2)=14, a(3)=-58
  * Range:     i8 n <= 3, i16 n <= 9, i32 n <= 22, i64 n <= 52, i128 n <= 113,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* dynamic array of already computed terms */
 static idx_t   cache_len = 0; /* number of valid terms in cache (0..cache_len-1) */
@@ -26,7 +28,7 @@ static void ensure_capacity(idx_t cap)
     if (cap <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 4;
     if (new_cap < cap) new_cap = cap;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

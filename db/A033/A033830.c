@@ -7,15 +7,17 @@
  * Keywords:  nonn, fini, base
  * Formula:   The n-th term is the n-th smallest number that can be expressed
  *            as the product of three 2-digit integers (10…99)
- * Range:     u8 none, u16 none, u32 n <= 8587, u64 n <= 8587, u128 n <= 8587,
- *            big any n
- * Helpers:   none
+ * Range:     u8 none, u16 none, u32 n <= 42730, u64 n <= 42730,
+ *            u128 n <= 42730, big any n
+ * Validated: standard, pass, 59 terms through n = 8587 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the function */
 static int compare_seq(const void *, const void *);
@@ -42,7 +44,7 @@ static void build_sequence(void)
     const size_t total = 90u * 90u * 90u;  /* 729000 */
 
     /* Allocate raw buffer for all products */
-    seq_t *buf = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, total);
     if (buf == NULL)
         return; /* allocation failure; caller may receive 0 for all entries */
 
@@ -56,7 +58,7 @@ static void build_sequence(void)
     }
 
     /* Sort all products */
-    qsort(buf, count, sizeof(seq_t), compare_seq);
+    mem_qsort(buf, count, sizeof(seq_t), compare_seq);
 
     /* Deduplicate in place */
     size_t uniq = 0;
@@ -67,7 +69,7 @@ static void build_sequence(void)
     }
 
     /* Reallocate to exact size (optional) */
-    seq_t *seq = (seq_t *)realloc(buf, uniq * sizeof(seq_t));
+    seq_t *seq = mem_resize(seq_t, buf, uniq);
     if (seq == NULL) /* realloc failed, keep original buffer */
         seq = buf;
 

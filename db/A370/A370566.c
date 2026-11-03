@@ -8,6 +8,7 @@
  * Formula:   a(n) = n * 5^e * gcd(4, n'), where n = 5^e * n' and 5 ∤ n'
  * Range:     u8 n <= 19, u16 n <= 499, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 80 terms through n = 8967 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

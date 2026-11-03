@@ -8,13 +8,15 @@
  * Formula:   a(i,j) = Stirling2(i,j) * j^j, read by rows as defined in OEIS
  * Range:     u8 n <= 9, u16 n <= 24, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   power_seq
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/power_seq.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* Locate the row r such that r(r+1)/2 >= n  (n >= 1) */
 static idx_t
@@ -45,7 +47,7 @@ a(idx_t n)
 
     /* Compute Stirling numbers of the second kind S(row,col) */
     size_t sz = (size_t)col + 1u;          /* need indices 0..col */
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp)
         return 0;                          /* allocation failure */
 
@@ -62,10 +64,10 @@ a(idx_t n)
     }
 
     seq_t stir = dp[col];
-    free(dp);
+    mem_free(dp);
 
     /* Compute col^col */
-    seq_t powcol = power_seq((seq_t)col, col);
+    seq_t powcol = ipow_idx((seq_t)col, col);
 
     return stir * powcol;
 }

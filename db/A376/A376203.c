@@ -10,6 +10,7 @@
  *            occurs at most once. Otherwise A376202(k) = 0
  * Range:     u8 n <= 201, u16 n <= 7814, u32 n <= 7814, u64 n <= 7814,
  *            u128 n <= 7814, big any n
+ * Validated: standard, pass, 86 terms through n = 7723 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

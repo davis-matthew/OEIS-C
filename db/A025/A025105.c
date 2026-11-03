@@ -10,12 +10,14 @@
  *            i.e. a(1) is the first listed term
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc, exit, EXIT_FAILURE */
+#include "../utils/mem.h"
 
 static seq_t *fib_cache = NULL;   /* Fibonacci numbers, fib_cache[i] = F(i)   */
 static idx_t  fib_len   = 0;      /* current allocated size of fib_cache   */
@@ -29,7 +31,7 @@ static void ensure_fibs(idx_t upto)
     if (fib_len > upto) return;
 
     idx_t new_len = upto + 1;   /* indices 0 .. upto inclusive */
-    seq_t *tmp = (seq_t *)realloc(fib_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fib_cache, new_len);
     if (!tmp) exit(EXIT_FAILURE);
 
     for (idx_t i = fib_len; i <= upto; ++i) {
@@ -47,7 +49,7 @@ static void ensure_a(idx_t upto)
     if (a_len > upto) return;                /* nothing to do */
 
     idx_t new_len = upto + 1;                /* indices 0 .. upto inclusive */
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_len);
     if (!tmp) exit(EXIT_FAILURE);
 
     /* First element is unused; set to 0 for completeness. */

@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 13, u16 n <= 43, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 24, u16 n <= 51, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static idx_t floor_sqrt128(__int128 x)
 {
@@ -52,8 +53,8 @@ static seq_t compute_A(idx_t n, seq_t k)
     for (idx_t j = 0; j <= n / 2; ++j) {
         if (j > 0 && k_sq == 0) break;       /* further terms vanish */
         idx_t m = n - j;                     /* m = n−j    */
-        seq_t bin1 = binom(2 * m, m);        /* binom(2m,m)   */
-        seq_t bin2 = binom(m, j);            /* binom(m,j)    */
+        seq_t bin1 = binomial(2 * m, m);        /* binom(2m,m)   */
+        seq_t bin2 = binomial(m, j);            /* binom(m,j)    */
         seq_t term = bin1;
         term *= bin2;
         term *= power;

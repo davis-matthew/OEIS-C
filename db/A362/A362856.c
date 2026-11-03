@@ -11,14 +11,23 @@
  *            j^j * binomial(n,j)
  * Range:     i8 n <= 13, i16 n <= 26, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   binomial, seq_mul, seq_pow
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -46,10 +55,10 @@ seq_t a(idx_t n)
     for (idx_t jj = 0; jj <= row; ++jj) {
         /* Compute (-col)^(row-jj) */
         seq_t base_neg_col = -(seq_t)(col);
-        seq_t pow_neg_col = seq_pow(base_neg_col, row - jj);
+        seq_t pow_neg_col = ipow_idx(base_neg_col, row - jj);
 
         /* Compute jj^jj */
-        seq_t pow_jj = seq_pow((seq_t)jj, jj);
+        seq_t pow_jj = ipow_idx((seq_t)jj, jj);
 
         /* Binomial coefficient */
         seq_t bin = binomial(row, jj);

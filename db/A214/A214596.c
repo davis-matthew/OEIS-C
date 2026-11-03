@@ -12,13 +12,15 @@
  *            indices are 1‑based
  * Range:     u8 n <= 4, u16 n <= 21, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Allocate an array large enough to keep indices 1..n.
        Index 0 remains unused, so that references such as a[i-2]
        stay valid. */
-    seq_t *arr = (seq_t *)calloc((size_t)n + 13, sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (size_t)n + 13);
     if (!arr) return 0;  /* allocation failure, return 0 as safe fail */
 
     /* Copy the known first 12 terms. */
@@ -60,6 +62,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

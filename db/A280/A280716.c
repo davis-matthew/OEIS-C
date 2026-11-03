@@ -9,13 +9,15 @@
  *            parts > 1
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build system */
 extern seq_t a(idx_t n); /* declare prototype for completeness */
@@ -73,7 +75,7 @@ static void recompute(idx_t max_n)
 
     /* --------------------------------------------------------------------- */
     /* 3. DP over distinct parts. */
-    seq_t *newdp = (seq_t *)calloc((size_t)max_n + 1, sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, (size_t)max_n + 1);
     if (!newdp) { free(parts); exit(EXIT_FAILURE); }
     newdp[0] = 1;   /* empty partition */
 
@@ -88,7 +90,7 @@ static void recompute(idx_t max_n)
 
     /* --------------------------------------------------------------------- */
     /* 4. Replace the old DP cache. */
-    if (dp_cache) free(dp_cache);
+    if (dp_cache) mem_free(dp_cache);
     dp_cache = newdp;
     dp_cap   = (size_t)max_n + 1;
 }

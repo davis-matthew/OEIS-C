@@ -13,7 +13,8 @@
  *            f(n)=0; for f(n)≠0 we pair each i with the smallest...
  * Range:     u8 n <= 243, u16 n <= 6560, u32 n <= 6560, u64 n <= 6560,
  *            u128 n <= 6560, big any n
- * Helpers:   seq_realloc, ternary_balance
+ * Validated: standard, pass, 84 terms through n = 6486 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/seq_realloc.h"   /* reallocation helper */
-#include "../utils/ternary_balance.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/*  Helper: compute f(x) = (#1 – #2) in base‑3                         */
+static int ternary_balance(idx_t n)
+{
+    int bal = 0;
+    while (n) {
+        int d = n % 3;
+        if (d == 1)  ++bal;
+        else if (d == 2) --bal;
+        n /= 3;
+    }
+    return bal;
+}
 
 /* Maximum absolute value of f(x) for 64‑bit numbers: 40.  Add safety margin. */
 #define F_OFFSET 50

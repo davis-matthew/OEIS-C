@@ -9,13 +9,15 @@
  *            distinct prime factors
  * Range:     u8 n <= 32, u16 n <= 4405, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 96 terms through n = 4711 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 /* Compute floor of k‑th root of x (x >= 1, k >= 1). */
 static seq_t kth_root(seq_t x, seq_t k)
@@ -26,7 +28,7 @@ static seq_t kth_root(seq_t x, seq_t k)
     seq_t ans = 1;
     while (low <= high) {
         seq_t mid = low + (high - low) / 2;
-        seq_t p = big_pow(mid, k);          /* mid^k */
+        seq_t p = ipow(mid, k);          /* mid^k */
         if (p <= x) {
             ans = mid;
             low = mid + 1;

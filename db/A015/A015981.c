@@ -8,7 +8,8 @@
  *            φ₁₉₇₂(x)
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1880 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,14 @@
 /* for d = 2, 4, 34, 58, 68, 116, 986, 1972. The algorithm multiplies the
  * generating functions (1 – xᵈ) or 1 / (1 – xᵈ) accordingly. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate coefficient array up to index n */
     /* cast malloc result for C++ arbitrary‑precision seq_t,            */
     /*   while remaining compliant with C11 and C++17.                  */
-    seq_t *buf = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, (size_t)(n + 1));
     if (!buf) return (seq_t)0;             /* handle allocation failure */
 
     /* initialise with 1 at x⁰, all other coefficients 0 */
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = buf[N];
-    free(buf);
+    mem_free(buf);
     return res;
 }

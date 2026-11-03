@@ -10,14 +10,17 @@
  *            modulo m
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 106 terms through n = 9188 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* not used, safety */
@@ -84,7 +87,7 @@ seq_t a(idx_t n) {
     for (int i = 0; i < pcnt; ++i) {
         uint64_t q = primes[i];
         while (ord % q == 0 &&
-               mod_pow(10, (idx_t)(ord / q), (seq_t)m) == 1) {
+               powmod(10, (idx_t)(ord / q), (seq_t)m) == 1) {
             ord /= q;
         }
     }

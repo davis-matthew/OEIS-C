@@ -8,16 +8,29 @@
  * Formula:   a(n) = floor(n^(1/Omega(n)))^Omega(n)
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, bigomega, seq_cmp
+ * Validated: standard, pass, 90 terms through n = 9221 (2026-11-01)
+ * Helpers:   bigomega, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Omega(n) = number of prime factors of n counted with multiplicity (A001222) */
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/bigomega.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_cmp.h"
+#include "../utils/ipow.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* Find floor of N^(1/exp) for integer exp >= 1.
    Returns the largest seq_t x such that x^exp <= N. */
@@ -33,7 +46,7 @@ static seq_t integer_nth_root(seq_t N, seq_t exp)
     while (low < high) {
         /* mid = ceil((low+high)/2) to avoid infinite loop when low+1 == high */
         seq_t mid = (low + high + 1) / 2;
-        seq_t mid_pow = big_pow(mid, exp);
+        seq_t mid_pow = ipow(mid, exp);
 
         /* Compare mid_pow with N */
         if (seq_cmp(&mid_pow, &N) <= 0) {
@@ -55,5 +68,5 @@ seq_t a(idx_t n)
     /* Compute floor(n^(1/omega)) */
     seq_t root = integer_nth_root((seq_t)n, omega);
     /* Return root^omega (which is <= n) */
-    return big_pow(root, omega);
+    return ipow(root, omega);
 }

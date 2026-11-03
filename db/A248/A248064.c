@@ -10,7 +10,8 @@
  *            into two triples with equal sums
  * Range:     u8 none, u16 n <= 3, u32 n <= 16, u64 n <= 41, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const idx_t NUM_STATES = 3125;      /* 5^5 */
 static const idx_t NUM_STATES6 = 15625;    /* 5^6 */
@@ -76,8 +78,8 @@ seq_t a(idx_t n)
     idx_t *shift = shift_state();
 
     /* arrays for DP */
-    seq_t *dp_prev = (seq_t *)calloc(NUM_STATES, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(NUM_STATES, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, NUM_STATES);
+    seq_t *dp_next = mem_new(seq_t, NUM_STATES);
 
     /* initial state: length 5, all patterns allowed with count 1 */
     for (idx_t s = 0; s < NUM_STATES; ++s)
@@ -110,8 +112,8 @@ seq_t a(idx_t n)
         total += dp_prev[s];
 
     /* free temporary tables only if not static (here they are static) */
-    free(dp_prev);
-    free(dp_next);
+    mem_free(dp_prev);
+    mem_free(dp_next);
 
     return total;
 }

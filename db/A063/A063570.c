@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1013, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   multiply_by_7
+ * Validated: standard, pass, 77 terms through n = 9340 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/multiply_by_7.h"
+#include "../utils/mem.h"
+
+/* ---------- Helper for multiplying a decimal string by 7 ---------- */
+static size_t multiply_by_7(const char *s, char **dest)
+{
+    size_t len = strlen(s);
+    /* Temporary buffer to hold up to len+1 digits plus NUL */
+    char *tmp = (char *)malloc(len + 2);
+    int carry = 0;
+    int idx = len + 1;          /* position to write next digit */
+    tmp[idx] = '\0';
+
+    for (int i = (int)len - 1; i >= 0; --i) {
+        int prod = (s[i] - '0') * 7 + carry;
+        tmp[--idx] = '0' + (prod % 10);
+        carry = prod / 10;
+    }
+    if (carry) {
+        tmp[--idx] = '0' + carry;
+    }
+
+    size_t newlen = len + 1 - idx;
+    *dest = (char *)malloc(newlen + 1);
+    memcpy(*dest, tmp + idx, newlen + 1);   /* copy NUL too */
+    free(tmp);
+    return newlen;
+}
 
 /* ---------- Globals for memoised powers of 7 and cache of results ---------- */
 static char **pow_str = NULL;      /* array of decimal strings for 7^k */
@@ -38,7 +65,7 @@ static void ensure_a_cache(size_t new_size)
     if (new_size <= cache_size)
         return;
     size_t new_cap = new_size + 1; /* allow zero index */
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     /* Initialise new slots to 0 */
     for (size_t i = cache_size; i < new_cap; ++i)
         a_cache[i] = 0;
@@ -53,7 +80,7 @@ static void ensure_pow_str(size_t k)
     /* Initialize first power if needed */
     if (pow_cnt == 0) {
         pow_str = (char **)malloc(sizeof(char *));
-        pow_str[0] = strdup("7"); /* 7^1 */
+        pow_str[0] = mem_strdup("7"); /* 7^1 */
         pow_cnt = 1;
     }
     /* Grow array as needed */

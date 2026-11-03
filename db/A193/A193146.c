@@ -8,13 +8,15 @@
  *            initial: a(0) = 1 ; a(n) = 0 for n < 0
  * Range:     u8 n <= 16, u16 n <= 33, u32 n <= 68, u64 n <= 137,
  *            u128 n <= 274, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 295 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache to store previously computed values */
@@ -30,12 +32,12 @@ seq_t a(idx_t n) {
     /* grow the cache if necessary */
     if (capacity == 0) {
         capacity = needed > 16 ? needed : 16;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
     } else if (capacity < needed) {
         capacity = capacity * 2;
         if (capacity < needed)
             capacity = needed;
-        cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, capacity);
     }
 
     /* compute missing values up to n */

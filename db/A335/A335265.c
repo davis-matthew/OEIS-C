@@ -8,7 +8,8 @@
  * Formula:   a(n) = denominator(Bernoulli(n)^2*(2^(n+2) - 4))
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   mul_mod64
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/mul_mod64.h"
+#include "../utils/mulmod.h"
 
 /* Modulo multiplication using unsigned __int128 to avoid overflow */
 
@@ -27,8 +28,8 @@ static uint64_t modpow_u64(uint64_t base, idx_t exp, uint64_t mod) {
     uint64_t result = 1 % mod;
     uint64_t power = base % mod;
     while (exp > 0) {
-        if (exp & 1U) result = mul_mod64(result, power, mod);
-        power = mul_mod64(power, power, mod);
+        if (exp & 1U) result = mulmod(result, power, mod);
+        power = mulmod(power, power, mod);
         exp >>= 1;
     }
     return result;

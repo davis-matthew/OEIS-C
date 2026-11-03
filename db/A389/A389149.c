@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static size_t cache_size = 0;
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)(n + 1) > cache_size)
     {
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_arr = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, a_cache, new_size);
         if (!new_arr)
             exit(1); /* Out of memory */
         a_cache = new_arr;

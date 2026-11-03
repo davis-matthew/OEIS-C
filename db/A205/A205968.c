@@ -10,13 +10,26 @@
  *            216*sigma_3(n/3) : 0)), a(0)=1
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 21, u64 n <= 61, u128 n <= 148,
  *            big any n
- * Helpers:   fib
+ * Validated: standard, pass, 44 terms through n = 883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* sigma_3(k) = sum of cubes of divisors of k */
 static seq_t *sigma3_arr = NULL;
@@ -29,7 +42,7 @@ static void ensure_sigma3(idx_t n)
 
     /* Resize the array */
     size_t new_size = (size_t)n + 1;
-    seq_t *new_arr = (seq_t *)realloc(sigma3_arr, new_size * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, sigma3_arr, new_size);
     if (!new_arr) exit(1);
     sigma3_arr = new_arr;
 

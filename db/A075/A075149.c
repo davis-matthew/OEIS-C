@@ -10,14 +10,25 @@
  *            where F(k) is the k‑th Fibonacci number (A000045)
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/fib.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* Return ⌊log₂(n)⌋ for n > 0.  For n = 0 the value is unused,
    so the caller must guard against it. */

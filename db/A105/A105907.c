@@ -9,7 +9,8 @@
  *            * returns the requested term
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 73 terms through n = 977 (2026-11-03)
+ * Helpers:   mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"   /* uint64_t mod_pow(uint64_t a, uint64_t e, uint64_t m) */
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* State: a dynamically growing sieve and list of primes. */
 static bool *sieve = NULL;
@@ -51,13 +53,13 @@ static bool is_primitive_root(uint32_t p)
         if ((uint64_t)q * (uint64_t)q > temp) break;
         if (temp % q == 0) {
             const uint64_t exp = (uint64_t)phi / q;
-            if (mod_pow((uint64_t)base, exp, (uint64_t)p) == 1) return false;
+            if (powmod_u64((uint64_t)base, exp, (uint64_t)p) == 1) return false;
             while (temp % q == 0) temp /= q;
         }
     }
     if (temp > 1) {
         const uint64_t exp = (uint64_t)phi / temp;
-        if (mod_pow((uint64_t)base, exp, (uint64_t)p) == 1) return false;
+        if (powmod_u64((uint64_t)base, exp, (uint64_t)p) == 1) return false;
     }
     return true;
 }
@@ -99,7 +101,7 @@ static void extend_sieve(uint32_t new_limit)
     }
 
     /* Build the list of accepted primes. */
-    free(accepted);
+    mem_free(accepted);
     acc_count = 0;
     acc_capacity = 0;
     for (size_t i = 0; i < prime_count; ++i) {
@@ -107,7 +109,7 @@ static void extend_sieve(uint32_t new_limit)
         if (is_primitive_root(p)) {
             if (acc_count >= acc_capacity) {
                 acc_capacity = acc_capacity ? acc_capacity * 2 : 16;
-                seq_t *tmp2 = (seq_t*)realloc(accepted, acc_capacity * sizeof(seq_t));
+                seq_t *tmp2 = mem_resize(seq_t, accepted, acc_capacity);
                 if (!tmp2) exit(1);
                 accepted = tmp2;
             }

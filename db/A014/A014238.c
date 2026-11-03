@@ -8,7 +8,8 @@
  *            number)
  * Range:     i8 n <= 43, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #if defined(__cplusplus)
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Forward declaration of the sequence function */
 seq_t a(idx_t n);
@@ -29,7 +31,7 @@ seq_t a(idx_t n);
 static void seq_assign_int(seq_t *dst, idx_t val)
 {
 #if defined(__cplusplus)
-    new (dst) seq_t(val);
+    *(dst) = (seq_t)(val);
 #else
     *dst = (seq_t)val;
 #endif
@@ -72,8 +74,8 @@ static void init_sequence(void)
     for (idx_t i = 4; i <= N; ++i) if (!is_prime[i]) ++comp_count;
 
     /* Allocate arrays */
-    primes = (seq_t *)malloc(prime_count * sizeof(seq_t));
-    composites = (seq_t *)malloc(comp_count * sizeof(seq_t));
+    primes = mem_new(seq_t, prime_count);
+    composites = mem_new(seq_t, comp_count);
     if (!primes || !composites) exit(EXIT_FAILURE);
 
     /* Fill arrays with proper construction */

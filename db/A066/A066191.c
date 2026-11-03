@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 6654, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 7811 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static size_t terms_count = 0;
 static size_t terms_cap   = 0;
@@ -56,7 +58,7 @@ static void rebuild_terms(size_t limit)
     recompute_tables(limit);
 
     /* Allocate space for the terms. The number of terms is at most 'limit'. */
-    seq_t *new_terms = (seq_t*)realloc(terms, (limit + 1) * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, (limit + 1));
     terms_cap        = limit + 1;
     terms            = new_terms;
 

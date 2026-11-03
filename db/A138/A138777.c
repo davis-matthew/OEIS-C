@@ -6,9 +6,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 45, u32 n <= 47, u64 n <= 47, u128 n <= 47,
+ * Range:     u8 n <= 20, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 46 terms through n = 47 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,8 @@
  * coefficient.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         if (cum + len > pos)           /* the desired term is in this row */
         {
             idx_t k = pos - cum;       /* column index within the row     */
-            return binom(r - 2 * k, 3 * k + 2);   /* T(r,k) */
+            return binomial(r - 2 * k, 3 * k + 2);   /* T(r,k) */
         }
 
         cum += len;                     /* skip entire row */

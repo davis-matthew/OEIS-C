@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 23, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Least‑significant set bit index (x > 0). */
 static int lsb_index(unsigned int x)
@@ -83,10 +85,10 @@ static void ensure_cache(size_t need)
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap ? seq_cap : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *newp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, new_cap);
     if (seq_cache) {
-        memcpy(newp, seq_cache, seq_len * sizeof(seq_t));
-        free(seq_cache);
+        mem_copy(newp, seq_cache, seq_len * sizeof(seq_t));
+        mem_free(seq_cache);
     }
     seq_cache = newp;
     seq_cap   = new_cap;

@@ -11,6 +11,7 @@
  *            implements the sum over all pairs (a,b) with b-a=d
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

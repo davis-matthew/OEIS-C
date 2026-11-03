@@ -8,7 +8,8 @@
  *            (2*(n-2*k)+1)^(n-2*k-1) * binomial(3*(n-2*k),k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 23,
  *            big any n
- * Helpers:   alloc_seq_array, big_pow, binomial
+ * Validated: standard, pass, 35 terms through n = 297 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/binomial.h"      /* binomial(idx_t n, idx_t k)   */
-#include "../utils/big_pow.h"       /* big_pow(seq_t base, seq_t exp) */
-#include "../utils/alloc_seq_array.h" /* alloc_seq_array(size_t n) */
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *fact_table = NULL;  /* factorial cache: fact_table[i] = i! */
 static idx_t fact_len = 0;        /* highest n for which fact_table[n] is valid */
@@ -36,7 +44,7 @@ ensure_fact(idx_t n)
         fact_len    = 0;
     } else if (fact_len < n) {
         /* realloc using the provided allocator. */
-        fact_table = (seq_t *)realloc(fact_table, (n + 1) * sizeof(seq_t));
+        fact_table = mem_resize(seq_t, fact_table, (n + 1));
         if (!fact_table) abort();   /* allocation failure */
     }
 
@@ -77,7 +85,7 @@ seq_t a(idx_t n)
         if (m == 0) {
             power = (seq_t)1;
         } else {
-            power = big_pow((seq_t)(2 * m + 1), (seq_t)(m - 1));
+            power = ipow((seq_t)(2 * m + 1), (seq_t)(m - 1));
         }
 
         /* Binomial coefficient; avoid calling it when m==0 (k = n/2). */

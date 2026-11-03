@@ -9,13 +9,15 @@
  *            2*a(n-5) - a(n-6) + 2*a(n-7) - a(n-8) for n >= 8
  * Range:     u8 n <= 9, u16 n <= 60, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialize cache on first call */
     if (cap == 0) {
         cap = 8;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();                /* allocation failure */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if (n + 1 > cap) {
         idx_t newcap = cap;
         while (newcap <= n) newcap <<= 1;   /* double */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * newcap);
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();                  /* allocation failure */
         cache = tmp;
         cap   = newcap;

@@ -11,7 +11,8 @@
  *            (n - ((m-1)^3+2(m-1))/3 - 1)
  * Range:     u8 n <= 249, u16 n <= 9951, u32 n <= 9951, u64 n <= 9951,
  *            u128 n <= 9951, big any n
- * Helpers:   block_end, block_start
+ * Validated: standard, pass, 93 terms through n = 9361 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,19 @@
    ((n-1)^3+2(n-1))/3+1 to (n^3+2n)/3, with a(0)=0. */
 
 #include <stdint.h>
-#include "../utils/block_end.h"
-#include "../utils/block_start.h"
+
+static inline seq_t block_end(idx_t m)
+{
+    /* Return e = (m^3 + 2*m)/3 = S(m) */
+    seq_t mm = (seq_t)m;
+    return (mm * (mm * mm + 2)) / 3;
+}
+
+static inline seq_t block_start(idx_t m)
+{
+    /* Return s = ((m-1)^3 + 2*(m-1))/3 + 1 = S(m-1) + 1 */
+    return block_end(m - 1) + 1;
+}
 
 static idx_t find_block(idx_t n)
 {

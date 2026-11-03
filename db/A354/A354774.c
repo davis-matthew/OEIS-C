@@ -12,20 +12,21 @@
  *            = n+1
  * Range:     u8 n <= 253, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_power_of_two
+ * Validated: standard, pass, 100 terms through n = 9885 (2026-11-01)
+ * Helpers:   is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
 
 seq_t a(idx_t n)
 {
     /* Pattern I: n = 3*2^(k-1)-3  →  n+3 = 3*2^(k-1) */
     if ((n + 3) % 3 == 0) {
         seq_t p = ((seq_t)(n + 3)) / 3;
-        if (is_power_of_two(p) && p >= 2) {
+        if (is_pow2(p) && p >= 2) {
             if (n == 3 || n == 9) return 4;
             if (n == 21)          return 5;
             return ((seq_t)n + 1) / 2;
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
     }
 
     /* Pattern II: n = 2^(k+1)-3  →  n+3 = 2^(k+1) */
-    if (n + 3 >= 4 && is_power_of_two((seq_t)(n + 3))) {
+    if (n + 3 >= 4 && is_pow2((seq_t)(n + 3))) {
         if (n == 5 || n == 13) return 6;
         if (n == 29)          return 7;
         return ((seq_t)n + 1) / 2;
@@ -42,12 +43,12 @@ seq_t a(idx_t n)
     /* Pattern III: n = 3*2^(k-1)-2  →  n+2 = 3*2^(k-1) */
     if ((n + 2) % 3 == 0) {
         seq_t p = ((seq_t)(n + 2)) / 3;
-        if (is_power_of_two(p) && p >= 2)
+        if (is_pow2(p) && p >= 2)
             return ((seq_t)n) + 1;
     }
 
     /* Pattern IV: n = 2^(k+1)-2  →  n+2 = 2^(k+1) */
-    if (n + 2 >= 4 && is_power_of_two((seq_t)(n + 2)))
+    if (n + 2 >= 4 && is_pow2((seq_t)(n + 2)))
         return ((seq_t)n) + 1;
 
     /* Default rule */

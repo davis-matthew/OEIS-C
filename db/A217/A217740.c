@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 4030, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9073 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* A pre‑computation limit that comfortably covers n up to ~10 000.
    With this limit there are well over 2 000 000 integers, comfortably
@@ -50,7 +52,7 @@ static void precompute_abundant(void)
 
     /* Allocate an initial estimate (~0.3 * LIMIT). */
     size_t cap = LIMIT / 3 + 16;
-    abund_nums = (seq_t *)malloc(cap * sizeof(seq_t));
+    abund_nums = mem_new(seq_t, cap);
     if (!abund_nums) {
         free(sum);
         exit(EXIT_FAILURE);
@@ -61,7 +63,7 @@ static void precompute_abundant(void)
         if (sum[i] > i) {           /* i is abundant */
             if (abund_count == cap) {
                 cap <<= 1;          /* double the capacity */
-                seq_t *tmp = (seq_t *)realloc(abund_nums, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, abund_nums, cap);
                 if (!tmp) {
                     free(sum);
                     exit(EXIT_FAILURE);

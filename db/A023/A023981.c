@@ -8,6 +8,7 @@
  * Formula:   a(n) = sum over primes p and k>=1 of (⌊5n/p^k⌋ – 5·⌊n/p^k⌋)
  * Range:     u8 n <= 148, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 82 terms through n = 9647 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 40, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Recurrence: a(1)=0, a(2)=2, a(3)=5, a(4)=16,
  * a(n)=3*a(n-1)+a(n-2)-2*a(n-3) for n>4. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n‑th term of A278274.  The function is thread‑safe in the
  * sense that each call can be made in any order; results are cached for
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
 
     /* Allocate more space if necessary. */
     if (n > cache_cap) {
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * n);
+        seq_t *new_cache = mem_new(seq_t, n);
         if (!new_cache)  /* allocation failed – return 0 as a safe fallback */
             return (seq_t)0;
         for (idx_t i = 0; i < cache_len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = n;
     }

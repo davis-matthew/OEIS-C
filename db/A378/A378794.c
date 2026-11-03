@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* cache of computed terms */
 static seq_t *cache = NULL;
@@ -37,7 +39,7 @@ static void push_back(seq_t val)
 {
     if (len == cap) {
         cap = cap ? cap * 2 : 8;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
     cache[len++] = val;
 }
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         seq_t k = (seq_t)m * (seq_t)m;          /* k = m² */
 
         /* tau(k) – count divisors of m²; use divisor_count_u64 */
-        uint64_t tau_k = divisor_count_u64((uint64_t)k);
+        uint64_t tau_k = num_divisors((uint64_t)k);
 
         /* t = k² + k – 1 = m⁴ + m² – 1; compute in 128‑bit to avoid overflow */
         __int128 m128 = (__int128)m;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         uint64_t t = (uint64_t)t128;            /* fits in 64 bits for the needed range */
 
         /* tau(t) */
-        uint64_t tau_t = divisor_count_u64(t);
+        uint64_t tau_t = num_divisors(t);
 
         /* check the congruence condition */
         uint64_t mod = 2 * tau_t;

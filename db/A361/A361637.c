@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0}^{⌊n/4⌋} 1/(k!^4 * (n-4k)!)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 31, u128 n <= 59,
  *            big any n
- * Helpers:   binomial_m
+ * Validated: standard, pass, 43 terms through n = 1386 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial_m.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= maxk; ++k) {
         /* Contribution for current k */
         idx_t m = 4 * k;                    /* the binomial upper index */
-        seq_t binom = binomial_m(n, m);     /* C(n,4k) */
+        seq_t binom = binomial(n, m);     /* C(n,4k) */
         sum += binom * mult;
 
         if (k == maxk) break;               /* finished */

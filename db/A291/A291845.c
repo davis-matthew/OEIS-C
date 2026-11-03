@@ -9,12 +9,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 128, u64 n <= 303,
  *            u128 n <= 865, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 1468 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Triangle defined by iteratively convolving with 
    (1 + (2k+1)x + x^2) for row k≥1; row 0 = [1].
@@ -43,7 +45,7 @@ static void ensure_rows(idx_t r)
     /* Initial allocation on first call. */
     if (rows_ptrs == NULL) {
         rows_ptrs = (seq_t **)malloc(sizeof(seq_t *));
-        seq_t *row0 = (seq_t *)malloc(sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         row0[0] = (seq_t)1;
         rows_ptrs[0] = row0;
         last_row_computed = 0;
@@ -54,7 +56,7 @@ static void ensure_rows(idx_t r)
         idx_t prev_len = 2 * last_row_computed + 1;
         idx_t curr_len = 2 * next + 1;
 
-        seq_t *curr = (seq_t *)malloc(curr_len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, curr_len);
         for (idx_t i = 0; i < curr_len; ++i)
             curr[i] = (seq_t)0;
 

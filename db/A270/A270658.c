@@ -7,8 +7,9 @@
  * Keywords:  sign, look
  * Formula:   a(3n) = a(n), a(3n+1) = a(n)+a(n+1), a(3n+2) = a(n)-a(n+1);
  *            a(0)=0, a(1)=1
- * Range:     i8 n <= 9667, i16 n <= 9667, i32 n <= 9667, i64 n <= 9667,
- *            i128 n <= 9667, big any n
+ * Range:     i8 n <= 59049, i16 n <= 59049, i32 n <= 59049, i64 n <= 59049,
+ *            i128 n <= 59049, big any n
+ * Validated: standard, pass, 98 terms through n = 9667 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

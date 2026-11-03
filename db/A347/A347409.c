@@ -9,6 +9,7 @@
  *            trajectory from n to 1
  * Range:     u8 n <= 26, u16 n <= 6862, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 8360 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,11 +9,15 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#ifdef __cplusplus
+#include <vector>
+#endif
 /* Sequence: a(n) = nth integer k such that the continued fraction
  * for sqrt(k) has even period and, after the last term of that period
  * is deleted, the central term of the remaining periodic part equals 56.

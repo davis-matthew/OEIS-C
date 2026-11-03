@@ -7,13 +7,16 @@
  * Formula:   a(n) = 3^(3^n) + 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   big_pow, pow3
+ * Validated: partial, pass, 6 terms through n = 5 (2026-11-01)
+ * Helpers:   ipow, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow3.h"    /* seq_t pow3(idx_t exp) */
-#include "../utils/big_pow.h" /* seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +24,7 @@ seq_t a(idx_t n)
     seq_t exp = pow3(n);
 
     /* Compute 3^(3^n) */
-    seq_t val = big_pow((seq_t)3, exp);
+    seq_t val = ipow((seq_t)3, exp);
 
     /* Add 1 to get the sequence term */
     return val + 1;

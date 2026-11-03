@@ -11,14 +11,18 @@
  *            (5 bits) and a mask of zeros that still need a lower neighbor
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   is_zero
+ * Validated: standard, pass, 33 terms through n = 138 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_zero.h"
+#include "../utils/mem.h"
+
+/* Utility: check if the DP value is zero (works for all seq_t types) */
+static inline int is_zero(seq_t v) { return v == 0; }
 
 /* Width of the matrix */
 #define WIDTH 5
@@ -89,8 +93,8 @@ seq_t a(idx_t n) {
     if (n == 0) return 0;          /* undefined offset, but safe */
 
     /* dp arrays: counts for each state (pattern, needed‑mask) */
-    seq_t *dp_cur = (seq_t *)calloc(STATES, sizeof(seq_t));
-    seq_t *dp_nxt = (seq_t *)calloc(STATES, sizeof(seq_t));
+    seq_t *dp_cur = mem_new(seq_t, STATES);
+    seq_t *dp_nxt = mem_new(seq_t, STATES);
 
     /* Initialization for the first row (no upper neighbours) */
     for (int p = 0; p < PAT; ++p) {
@@ -131,7 +135,7 @@ seq_t a(idx_t n) {
         if ((s & (PAT - 1)) == 0) ans += dp_cur[s];
     }
 
-    free(dp_cur);
-    free(dp_nxt);
+    mem_free(dp_cur);
+    mem_free(dp_nxt);
     return ans;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 96 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*--- cached data ----------------------------------------------------- */
 static unsigned short *dp     = NULL;   /* minimal number of 4th powers */
@@ -71,7 +73,7 @@ static void init(void)
 
     /* collect all numbers that need at least 17 4th powers */
     seq_cap = 128;                       /* initial capacity */
-    seq_vals = (seq_t *)malloc(seq_cap * sizeof *seq_vals);
+    seq_vals = mem_new(seq_t, (seq_cap * sizeof *seq_vals) / sizeof(seq_t));
     if (seq_vals == NULL) {
         free(dp);
         dp = NULL;
@@ -82,10 +84,10 @@ static void init(void)
         if (dp[s] > 16) {                /* minimal count > 16 */
             if (seq_len >= seq_cap) {
                 seq_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(seq_vals, seq_cap * sizeof *seq_vals);
+                seq_t *tmp = mem_resize(seq_t, seq_vals, (seq_cap * sizeof *seq_vals) / sizeof(seq_t));
                 if (tmp == NULL) {        /* allocation failed */
                     free(dp);
-                    free(seq_vals);
+                    mem_free(seq_vals);
                     dp = NULL;
                     seq_vals = NULL;
                     seq_len = 0;

@@ -11,7 +11,8 @@
  *            removes duplicates and answers any a(n) in...
  * Range:     u8 none, u16 none, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* The function has external linkage and obeys the required signature.  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *p, const void *q)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
            (JMAX = 400 gives ≈ 80 000 pairs, easily enough).  */
         const idx_t JMAX = 400;
         const size_t est_pairs = JMAX * (JMAX + 1) / 2;
-        seq_t *tmp = (seq_t *)malloc(est_pairs * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, est_pairs);
         if (!tmp) return 0;          /* allocation failed – return 0 */
         size_t count = 0;
 
@@ -55,11 +57,11 @@ seq_t a(idx_t n)
         }
 
         /* Sort the values.  */
-        qsort(tmp, count, sizeof(seq_t), cmp_seq);
+        mem_qsort(tmp, count, sizeof(seq_t), cmp_seq);
 
         /* Deduplicate into the final cache.  */
-        cache = (seq_t *)malloc(count * sizeof(seq_t));
-        if (!cache) { free(tmp); return 0; }
+        cache = mem_new(seq_t, count);
+        if (!cache) { mem_free(tmp); return 0; }
         if (count > 0) {
             cache[0] = tmp[0];
             cache_size = 1;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        free(tmp);
+        mem_free(tmp);
     }
 
     /* If the request exceeds the precomputed size, generate more terms
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         const idx_t JMAX = 800;               /* new bound */
         size_t old_size = cache_size;
         size_t new_cap = old_size * 2 + 10;    /* rough estimate */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return cache[cache_size - 1];
         cache = new_cache;
         cache_size = old_size;                 /* will increase below */
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the enlarged array and deduplicate again.  */
-        qsort(cache, cache_size, sizeof(seq_t), cmp_seq);
+        mem_qsort(cache, cache_size, sizeof(seq_t), cmp_seq);
         size_t uniq = 0;
         for (size_t i = 1; i < cache_size; ++i) {
             if (cache[i] != cache[uniq]) {

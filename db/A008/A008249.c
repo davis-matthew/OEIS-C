@@ -9,7 +9,8 @@
  *            12: a(n) = a(n-1) + a(n-3) - a(n-5) - a(n-7) + a(n-8)
  * Range:     u8 n <= 9, u16 n <= 152, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Author: ChatGPT */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* seq_t and idx_t are defined in the build environment. */
 
 static const seq_t init_vals[12] = {
@@ -32,7 +34,7 @@ static void ensure_capacity(idx_t n)
 {
     if (cache == NULL) {
         buf_size = 12;
-        cache = (seq_t*)malloc(buf_size * sizeof(seq_t));
+        cache = mem_new(seq_t, buf_size);
         if (!cache) return; /* allocation failure – caller will handle (likely abort) */
         for (size_t i = 0; i < 12; ++i) cache[i] = init_vals[i];
         cached_max = 11;
@@ -41,7 +43,7 @@ static void ensure_capacity(idx_t n)
     if ((size_t)n + 1 <= buf_size) return;
     size_t new_size = buf_size;
     while (new_size <= (size_t)n) new_size <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) return; /* allocation failure – caller will handle */
     cache = tmp;
     buf_size = new_size;

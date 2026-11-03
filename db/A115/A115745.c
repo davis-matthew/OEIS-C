@@ -9,7 +9,8 @@
  *            expressed as a product of two palindromes greater than 1
  * Range:     u8 n <= 3, u16 n <= 16, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   floor_sqrt, is_palindrome
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   ipow_i32, is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_palindrome.h"   /* is_palindrome(seq_t, idx_t) */
-#include "../utils/floor_sqrt.h"      /* floor_sqrt(seq_t) */
+#include "../utils/ipow_i32.h"
+#include "../utils/is_palindrome_base.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Return true iff the value X can be written as a product of two
    decimal palindromes each greater than 1.  X is treated as a
@@ -41,8 +60,8 @@ static bool has_palindrome_product(seq_t X)
             uint64_t other = xu / d;
             if (other <= 1)
                 continue;
-            if (is_palindrome((seq_t)d, 10) &&
-                is_palindrome((seq_t)other, 10))
+            if (is_palindrome_base((seq_t)d, 10) &&
+                is_palindrome_base((seq_t)other, 10))
                 return true;
         }
     }

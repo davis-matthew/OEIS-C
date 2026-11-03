@@ -8,6 +8,7 @@
  * Formula:   a(n) = T(r,k) = (1/6) * k * (k+1) * (k+2) * binomial(r,k)
  * Range:     u8 n <= 18, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* The row r and column k are recovered from the index n by */
 /* solving (r-1)*r/2 < n ≤ r*(r+1)/2. */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -12,14 +12,33 @@
  *            exceed a(n)
  * Range:     u8 n <= 13, u16 n <= 22, u32 n <= 39, u64 n <= 72, u128 n <= 137,
  *            big any n
- * Helpers:   add_term, phi_ull
+ * Validated: standard, pass, 56 terms through n = 3316 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/add_term.h"
-#include "../utils/phi_ull.h"
+#include "../utils/totient_u64.h"
+
+/* Adds m * r0 * 2^k (r0 < M) to the running value Q*M + R, without forming the full product. */
+static void add_term(seq_t *Q, unsigned long long *R,
+                     unsigned long long r0, unsigned long long k,
+                     unsigned long long m, unsigned long long M)
+{
+    seq_t q = 0;
+    unsigned long long r = r0, i;
+    for (i = 0; i < k; i++) {
+        q = q * 2;
+        r = r * 2;
+        if (r >= M) { r -= M; q += 1; }
+    }
+    q = q * m + (seq_t)((r * m) / M);
+    r = (r * m) % M;
+    *Q += q;
+    *R += r;
+    while (*R >= M) { *R -= M; *Q += 1; }
+}
 
 seq_t a(idx_t n)
 {
@@ -32,9 +51,9 @@ seq_t a(idx_t n)
     for (d = 1; d * d <= nn; d++) {
         if (nn % d == 0) {
             unsigned long long e = nn / d;
-            add_term(&Q, &R, 1, e, phi_ull(2 * d), M);
+            add_term(&Q, &R, 1, e, totient_u64(2 * d), M);
             if (e != d)
-                add_term(&Q, &R, 1, d, phi_ull(2 * e), M);
+                add_term(&Q, &R, 1, d, totient_u64(2 * e), M);
         }
     }
     add_term(&Q, &R, 2 * nn, nn / 2, 1, M);

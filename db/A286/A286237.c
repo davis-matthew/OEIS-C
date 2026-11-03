@@ -11,8 +11,9 @@
  *            r/k – 1))/2 + φ(k), * where r and k are the row and column
  *            indices obtained by * triangular indexing of n (row r has
  *            k=1..r)
- * Range:     u8 n <= 276, u16 n <= 9392, u32 n <= 9392, u64 n <= 9392,
- *            u128 n <= 9392, big any n
+ * Range:     u8 n <= 276, u16 n <= 10585, u32 n <= 10585, u64 n <= 10585,
+ *            u128 n <= 10585, big any n
+ * Validated: standard, pass, 136 terms through n = 9392 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

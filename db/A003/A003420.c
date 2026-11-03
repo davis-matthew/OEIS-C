@@ -13,7 +13,8 @@
  *            a new strict maximum, compared exactly with integers. A trun...
  * Range:     u8 n <= 10, u16 n <= 29, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   k3420_jac, k3420_kron
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   jacobi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/k3420_jac.h"
-#include "../utils/k3420_kron.h"
+#include "../utils/jacobi.h"
+
+static int k3420_kron(long long a, uint64_t n) {
+    int r = 1;
+    while (!(n & 1)) {
+        n >>= 1;
+        if (!(a & 1)) return 0;
+        long long a8 = ((a % 8) + 8) % 8;
+        if (a8 == 3 || a8 == 5) r = -r;
+    }
+    if (n == 1) return r;
+    long long am = a % (long long)n;
+    if (am < 0) am += (long long)n;
+    return r * jacobi((uint64_t)am, n);
+}
 
 static const double K3420_PI = 3.14159265358979323846;
 
@@ -101,7 +115,7 @@ static void k3420_setup(void) {
         k3420_res[i] = 0;
         double lp = -log(1.0 - 1.0 / p), lm = -log(1.0 + 1.0 / p);
         for (j = 0; j < p; j++) {
-            int q = k3420_jac((uint64_t)j, (uint64_t)p);
+            int q = jacobi((uint64_t)j, (uint64_t)p);
             k3420_tab[o + j] = q == 0 ? 0.0 : (q > 0 ? lp : lm);
         }
         o += p;
@@ -126,7 +140,7 @@ seq_t a(idx_t n) {
             double s2 = s1;
             for (i = 0; i < k3420_n2; i++) {
                 uint64_t p = (uint64_t)k3420_p2[i];
-                int q = k3420_jac((p - m % p) % p, p);
+                int q = jacobi((p - m % p) % p, p);
                 if (q > 0) s2 += -log(1.0 - 1.0 / (double)p);
                 else if (q < 0) s2 += -log(1.0 + 1.0 / (double)p);
             }

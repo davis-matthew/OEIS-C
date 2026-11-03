@@ -8,7 +8,8 @@
  *            that contain at least one prime)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   prime_count
+ * Validated: standard, pass, 49 terms through n = 871 (2026-11-01)
+ * Helpers:   prime_pi_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/prime_count.h"
+#include "../utils/prime_pi_idx.h"
 
 /* Compute 2^k as a seq_t by repeated multiplication.   */
 static seq_t pow2(size_t k)
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
 {
     if (n <= 0) return 0;                    /* sequence is defined for n≥1 */
 
-    uint64_t pi_n = prime_count(n);
+    uint64_t pi_n = prime_pi_idx(n);
 
     seq_t total_subsets   = pow2((size_t)n);           /* 2^n            */
     seq_t nonprime_subsets = pow2((size_t)(n - pi_n)); /* 2^(n-π(n))      */

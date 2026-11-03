@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 9979 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
    uses the helper is_squarefree(seq_t) to test each integer. */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
 
 /* External integer types supplied by the build system */

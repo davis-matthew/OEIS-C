@@ -8,7 +8,8 @@
  *            (twin primes)
  * Range:     u8 n <= 60, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_mul64
+ * Validated: standard, pass, 102 terms through n = 9471 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>   /* for size_t */
-#include "../utils/mod_mul64.h"
+#include <stdlib.h>
+#include "../utils/mulmod.h"
 
 /*----- 64‑bit deterministic Miller–Rabin primality test -----*/
 
@@ -24,8 +26,8 @@ static inline uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)
 {
     uint64_t res = 1;
     while (exp) {
-        if (exp & 1) res = mod_mul64(res, base, mod);
-        base = mod_mul64(base, base, mod);
+        if (exp & 1) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return res;
@@ -62,7 +64,7 @@ static inline bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mod_mul64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of computed values */
@@ -38,10 +40,10 @@ seq_t a(idx_t n) {
     /* Allocate / expand cache if necessary */
     if (cached < n) {
         idx_t new_sz = n;
-        A = (seq_t*)realloc(A, sizeof(seq_t)*(new_sz+1));
-        E = (seq_t*)realloc(E, sizeof(seq_t)*(new_sz+1));
-        inner = (seq_t*)realloc(inner, sizeof(seq_t)*(new_sz+1));
-        c = (seq_t*)realloc(c, sizeof(seq_t)*(new_sz+1));
+        A = mem_resize(seq_t, A, (new_sz+1));
+        E = mem_resize(seq_t, E, (new_sz+1));
+        inner = mem_resize(seq_t, inner, (new_sz+1));
+        c = mem_resize(seq_t, c, (new_sz+1));
         if (cached == 0) {
             /* Initialise for n = 1 */
             A[1] = (seq_t)1;

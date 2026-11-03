@@ -12,7 +12,8 @@
  *            a(4)=1,
  * Range:     u8 n <= 4950, u16 n <= 4950, u32 n <= 4950, u64 n <= 4950,
  *            u128 n <= 4950, big any n
- * Helpers:   _rc_from_index
+ * Validated: standard, pass, 81 terms through n = 4682 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_rc_from_index.h"
+
+/* Helper: convert flatten index to (row, column)                      */
+static void _rc_from_index(idx_t n, idx_t *row, idx_t *col)
+{
+    /* Find smallest r with r*(r+1)/2 >= n */
+    idx_t lo = 1, hi = 1;
+    while ((hi * (hi + 1)) / 2 < n)
+        hi <<= 1;              /* exponential search */
+    while (lo < hi) {
+        idx_t mid = lo + ((hi - lo) >> 1);
+        if ((mid * (mid + 1)) / 2 >= n)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    *row = lo;
+    *col = n - ((lo - 1) * lo) / 2;
+}
 
 /* ------------------------------------------------------------------ */
 

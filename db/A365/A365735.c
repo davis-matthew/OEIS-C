@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 34, u64 n <= 63, u128 n <= 119,
+ * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 34, u64 n <= 63, u128 n <= 119,
  *            big any n
- * Helpers:   binomial, gcd, seq_mul
+ * Validated: standard, pass, 53 terms through n = 2676 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,16 @@
    Offset: 0  (a(0)=1)                                            */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {

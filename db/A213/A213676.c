@@ -9,8 +9,9 @@
  *            Zeckendorf binary representations written with least‑significant
  *            bit first. (Each representation is the unique binary string of
  *            0/1 such that n = Σ bit_i * F_{i+2} where F_0=1, F_...
- * Range:     u8 n <= 5752, u16 n <= 9695, u32 n <= 9695, u64 n <= 9695,
- *            u128 n <= 9695, big any n
+ * Range:     u8 n <= 5752, u16 n <= 12433, u32 n <= 12433, u64 n <= 12433,
+ *            u128 n <= 12433, big any n
+ * Validated: standard, pass, 102 terms through n = 9695 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

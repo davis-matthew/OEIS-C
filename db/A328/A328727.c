@@ -10,8 +10,9 @@
  *            terms are listed in increasing numerical order starting with *
  *            a(1)=0. This implementation enumerates the admissible base‑3 *
  *            strings in length‑increasing order and uses unra...
- * Range:     u8 n <= 51, u16 n <= 1706, u32 n <= 9850, u64 n <= 9850,
- *            u128 n <= 9850, big any n
+ * Range:     u8 n <= 51, u16 n <= 1706, u32 n <= 10923, u64 n <= 10923,
+ *            u128 n <= 10923, big any n
+ * Validated: standard, pass, 75 terms through n = 9850 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

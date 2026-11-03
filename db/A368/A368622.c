@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{j=1..n, k=1..n} (j^2 + k^2 + n^2)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

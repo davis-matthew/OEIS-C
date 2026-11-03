@@ -9,14 +9,22 @@
  *            r(1…31)=2, r(32)=1, r(n>32)=0
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   coeff_N
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/coeff_N.h"
+
+static inline seq_t coeff_N(idx_t n)
+{
+    if (n == 0)  return (seq_t)1;
+    if (n <= 31) return (seq_t)2;
+    if (n == 32) return (seq_t)1;
+    return (seq_t)0;
+}
 
 /* Static cache for memoisation */
 static seq_t *cache      = NULL;

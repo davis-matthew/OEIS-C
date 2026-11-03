@@ -7,7 +7,8 @@
  * Formula:   a(n) = phi(p)^phi(p) where p = prime(n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 /* Static state for prime generation */
 static idx_t *primes = NULL;
@@ -68,5 +70,5 @@ seq_t a(idx_t n)
     ensure_nprimes((size_t)n);
     idx_t p = primes[(size_t)n - 1];
     seq_t base = (seq_t)(p - 1);
-    return pow_seq(base, (int)(p - 1));
+    return ipow_i32(base, (int)(p - 1));
 }

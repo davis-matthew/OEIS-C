@@ -12,13 +12,16 @@
  *            meander numbers)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* ---------- cache for Motzkin meander numbers M_k = Q[k] ---------- */
 static seq_t *Q = NULL;          /* Q[0..size-1] = M_k                 */
@@ -32,21 +35,21 @@ static void ensure_M(size_t n)
     if (Qsize > n) return;
 
     size_t newsize = n + 1;
-    seq_t *tmp = (seq_t *)realloc(Q, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, Q, newsize);
     if (!tmp) return;          /* allocation failure, leave function */
     Q = tmp;
 
     for (size_t k = Qsize; k <= n; ++k) {
         if (k == 0) {          /* M_0 = 1 ; initialise DP base    */
             Q[0] = (seq_t)1;
-            prev = (seq_t *)malloc(1 * sizeof(seq_t));
+            prev = mem_new(seq_t, 1);
             prev[0] = Q[0];
             prev_len = 1;
             continue;
         }
 
         /* allocate current array of size k+1 */
-        seq_t *curr = (seq_t *)malloc((k + 1) * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, (k + 1));
 
         /* h = 0  : from prev[0] via 0-step or from prev[1] via -1 step */
         curr[0] = prev[0];
@@ -68,7 +71,7 @@ static void ensure_M(size_t n)
         for (size_t h = 0; h <= k; ++h) sum += curr[h];
         Q[k] = sum;
 
-        free(prev);                    /* discard previous step array */
+        mem_free(prev);                    /* discard previous step array */
         prev = curr;
         prev_len = k + 1;
     }
@@ -87,10 +90,10 @@ seq_t a(idx_t n)
         size_t i  = N - d;          /* number of +1 steps           */
         size_t r  = N - 2 * d;      /* i – d                         */
 
-        seq_t binom_nd = binom((idx_t)N, (idx_t)d);
+        seq_t binom_nd = binomial((idx_t)N, (idx_t)d);
         seq_t B = (binom_nd * (seq_t)(r + 1)) / (seq_t)(i + 1); /* ballot */
 
-        seq_t P = binom((idx_t)d, (idx_t)(d / 2));              /* y‑walks */
+        seq_t P = binomial((idx_t)d, (idx_t)(d / 2));              /* y‑walks */
         seq_t Qi = Q[i];                                       /* z‑walks */
 
         seq_t term = B;

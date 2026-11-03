@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 20, u64 n <= 40, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    for repeated calls. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* initialise first term if this is the first call */
     if (cache_size == 0) {
         cache_cap = 1;
-        den = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        den = mem_new(seq_t, cache_cap);
         den[0] = (seq_t)1;          /* a(0) = 1 */
         cache_size = 1;
     }
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         /* grow the storage if necessary */
         if (cache_size >= cache_cap) {
             cache_cap = cache_cap ? cache_cap * 2 : 16;
-            den = (seq_t *)realloc(den, cache_cap * sizeof(seq_t));
+            den = mem_resize(seq_t, den, cache_cap);
         }
 
         /* store and advance the history of denominators */

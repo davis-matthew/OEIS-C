@@ -12,13 +12,15 @@
  *            scans for the pattern and caches the found terms....
  * Range:     u8 none, u16 n <= 171, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 1956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state ------------------------------------------------------------- */
 static uint32_t prime_limit   = 2000000;    /* start sieve limit                   */
@@ -50,7 +52,7 @@ static void ensure_term_cap(size_t fit)
     if (term_cap >= fit) return;
     size_t new_cap = term_cap ? term_cap * 2 : 16;
     while (new_cap < fit) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(term_buf, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, term_buf, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     term_buf = tmp;
     term_cap = new_cap;

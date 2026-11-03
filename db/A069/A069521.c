@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 22, u64 n <= 46, u128 n <= 96,
  *            big any n
- * Helpers:   pow10_exp
+ * Validated: standard, pass, 61 terms through n = 1726 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,19 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow10_exp.h"
+
+/* compute 10^e as seq_t; uses exponentiation by squaring */
+static seq_t pow10_exp(idx_t e)
+{
+    seq_t result = (seq_t)1;
+    seq_t base   = (seq_t)10;
+    while (e) {
+        if (e & 1ULL) result *= base;
+        base *= base;
+        e >>= 1ULL;
+    }
+    return result;
+}
 
 /* modular exponentiation: (base^exp) mod mod, all uint64_t */
 static uint64_t pow_mod_uint64(uint64_t base, uint64_t exp, uint64_t mod)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   fib_if_nonzero
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
    is Fibonacci(i−j+1).  Fibonacci(1)=1, Fibonacci(2)=1.  */
 
 #include <stdbool.h>
-#include "../utils/fib_if_nonzero.h"
+#include "../utils/fibonacci.h"
 
 seq_t a(idx_t n)
 {
@@ -49,5 +50,5 @@ seq_t a(idx_t n)
     /* Fibonacci index is i−j+1 */
     idx_t k = i - j + 1;   /* k ≥ 1 */
 
-    return fib_if_nonzero(k);
+    return fibonacci(k);
 }

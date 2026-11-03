@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of partitions of n into parts {2,5,7,11}
  * Range:     u8 n <= 93, u16 n <= 659, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (OEIS A029202, offset 0) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* DP array holding partition counts */
 static idx_t  dp_size = 0;        /* length of the allocated array */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Recompute the DP array if necessary */
     if (dp == NULL || n + 1 > dp_size) {
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (size_t)new_size);
         if (!new_dp) return 0;                     /* out‑of‑memory safeguard */
 
         /* Initialise all entries to zero */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old table and free memory */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp = new_dp;
         dp_size = new_size;
     }

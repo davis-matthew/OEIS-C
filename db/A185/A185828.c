@@ -9,12 +9,14 @@
  *            a(2) = 3, a(3) = 10, a(4) = 23
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 46, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Allocate a temporary array big enough for the required terms.
        For n up to about 10 000 this is negligible. */
     size_t sz = (size_t)n;
-    seq_t *buf = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, sz);
     if (!buf) exit(1);        /* allocation failed */
 
     /* seed the first four values */
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[n - 1];
-    free(buf);
+    mem_free(buf);
     return result;
 }

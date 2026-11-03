@@ -11,7 +11,8 @@
  *            where B_3 = S(3) x C(2,3) acts on {0,1}^3
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   g857_gcd, u128_to_seq
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/g857_gcd.h"
+#include "../utils/gcd_u64.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 static int g857_fl2[48][12]; /* log2 #fixed points of g^k on the cube, -1 if none */
 static bool g857_inited = false;
@@ -61,7 +73,7 @@ static void g857_process(void) {
     int n = g857_N;
     uint64_t Lc = 1;
     for (int i = 1; i <= n; i++)
-        if (g857_cnt[i]) Lc = Lc / g857_gcd(Lc, (uint64_t)i) * (uint64_t)i;
+        if (g857_cnt[i]) Lc = Lc / gcd_u64(Lc, (uint64_t)i) * (uint64_t)i;
 
     /* divisors of Lc */
     uint64_t pr[32]; int ex[32], np = 0;
@@ -94,7 +106,7 @@ static void g857_process(void) {
     for (long long a = 0; a < nd; a++) {
         uint64_t e = dv[a], c = 0;
         for (int i = 1; i <= n; i++)
-            if (g857_cnt[i]) c += (uint64_t)g857_cnt[i] * g857_gcd((uint64_t)i, e);
+            if (g857_cnt[i]) c += (uint64_t)g857_cnt[i] * gcd_u64((uint64_t)i, e);
         uint64_t p = (uint64_t)1 << c;
         for (long long b = 0; b < a; b++)
             if (e % dv[b] == 0) p -= pts[b];

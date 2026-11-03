@@ -12,15 +12,30 @@
  *            Stirling numbers of the second kind
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq, gcd
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Requires utilities for gcd, memory allocation and freeing of seq_t arrays */
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/alloc_seq_array.h"   /* provides alloc_seq_array/alloc_seq */
-#include "../utils/free_seq.h"          /* provides free_seq */
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Compute a(n) for arbitrary n ≥ 1.  The function memoises all values
    computed so far so that arbitrary calls with decreasing n are still

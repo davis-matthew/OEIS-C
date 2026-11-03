@@ -10,7 +10,8 @@
  *            condition
  * Range:     u8 n <= 9, u16 n <= 132, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 69 terms through n = 8867 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Compute sigma (sum of all divisors) of a value using the prime list. */
 static seq_t sigma_of(seq_t num, const uint64_t *primes, size_t primes_cnt)
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
             if (cache_len + 1 > cache_cap)
             {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache)   /* allocation failure – return zero */
                     return (seq_t)0;
                 cache = new_cache;

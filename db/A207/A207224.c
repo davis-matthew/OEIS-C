@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   bad3
+ * Validated: standard, pass, 31 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bad3.h"
+#include "../utils/mem.h"
+
+/* Helper: test the forbidden 3‑tuple pattern a,b,c.
+   Returns true if a==c and |b-a|==1. */
+static inline bool bad3(int a, int b, int c) {
+    if (a != c) return false;
+    return (b == a + 1) || (b == a - 1);
+}
 
 /*------------------------------------------------------------------------------*/
 /* Utility prototypes – the build provides these */
@@ -148,12 +156,12 @@ static void _initialise(void)
     }
 
     /* DP arrays */
-    _dp_cur  = (seq_t*)malloc(_state_cnt * sizeof(seq_t));
-    _dp_next = (seq_t*)malloc(_state_cnt * sizeof(seq_t));
+    _dp_cur  = mem_new(seq_t, _state_cnt);
+    _dp_next = mem_new(seq_t, _state_cnt);
 
     /* Cache */
     _cache_cap   = 3;                      /* at least 2 entries (1 and 2)  */
-    _cache       = (seq_t*)malloc(_cache_cap * sizeof(seq_t));
+    _cache       = mem_new(seq_t, _cache_cap);
     _cache[1] = (seq_t)_valid_cnt;                       /* n = 1   */
     _cache[2] = (seq_t)_valid_cnt * (seq_t)_valid_cnt;   /* n = 2   */
     _computed_max = 2;
@@ -177,7 +185,7 @@ seq_t a(idx_t n)
         if (n + 5 > _cache_cap) {
             size_t new_cap = _cache_cap * 2;
             while (new_cap <= n + 5) new_cap *= 2;
-            _cache = (seq_t*)realloc(_cache, new_cap * sizeof(seq_t));
+            _cache = mem_resize(seq_t, _cache, new_cap);
             _cache_cap = new_cap;
         }
 
@@ -186,7 +194,7 @@ seq_t a(idx_t n)
            corresponds to length 2 (all pairs). */
         for (idx_t cur_n = _computed_max + 1; cur_n <= n; ++cur_n) {
             /* zero next array */
-            memset(_dp_next, 0, _state_cnt * sizeof(seq_t));
+            mem_set(_dp_next, 0, _state_cnt * sizeof(seq_t));
 
             /* transition step */
             for (int src = 0; src < _state_cnt; ++src) {

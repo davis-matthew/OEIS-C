@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 11, i32 n <= 23, i64 n <= 30, i128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* pointer to cached values */
 static idx_t cache_cap   = 0;      /* allocated capacity in elements */
@@ -38,7 +40,7 @@ static void init_cache(void)
     {
         /* start with a small capacity and grow as needed */
         cache_cap = 8;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return; /* allocation failure – unlikely in tests */
 
         cache[0] = (seq_t)1;       /* a(0) */
@@ -58,7 +60,7 @@ static void grow_cache(idx_t n)
     idx_t new_cap = cache_cap ? cache_cap : 4;
     while (new_cap <= n) new_cap <<= 1;
 
-    seq_t *ptr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, cache, new_cap);
     if (ptr) {
         cache = ptr;
         cache_cap = new_cap;

@@ -13,13 +13,15 @@
  *            pairs * by the sum i+j increasing and, within eac...
  * Range:     u8 n <= 44, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>            // for idx_t, seq_t
-#include "../utils/pow2.h"     // seq_t pow2(idx_t)
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 static inline int mu_of(idx_t n)
 {

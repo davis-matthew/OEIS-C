@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1494, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (dp_size <= (size_t)n)
     {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_size);
         if (!tmp) return 0;          /* allocation failure – return 0 */
         dp = tmp;
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         if (coins == NULL)
         {
             coin_cap = 64;
-            coins = (seq_t*)malloc(coin_cap * sizeof(seq_t));
+            coins = mem_new(seq_t, coin_cap);
         }
 
         idx_t k;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
             if (coin_cnt == coin_cap)
             {
                 size_t new_cap = coin_cap * 2;
-                seq_t *old = (seq_t*)realloc(coins, new_cap * sizeof(seq_t));
+                seq_t *old = mem_resize(seq_t, coins, new_cap);
                 if (!old) return 0;
                 coins   = old;
                 coin_cap = new_cap;

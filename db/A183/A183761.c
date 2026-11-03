@@ -11,6 +11,7 @@
  *            m>1 (φ = Euler’s totient)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
+ * Validated: standard, pass, 52 terms through n = 183 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

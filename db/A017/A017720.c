@@ -7,11 +7,13 @@
  * Formula:   a(n) = binomial(n,56)
  * Range:     u8 n <= 57, u16 n <= 59, u32 n <= 63, u64 n <= 78, u128 n <= 134,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 9754 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Return the n‑th term of OEIS sequence A017720.

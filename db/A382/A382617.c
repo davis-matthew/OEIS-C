@@ -10,7 +10,8 @@
  *            for subsequent calls
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 174, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 50 terms through n = 9580 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /*  ----- Memoized sequence generator -----------------------------------  */
 seq_t a(idx_t n)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         /* Allocate initial capacity if needed */
         if (cache == NULL) {
             cache_size = 16;
-            cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_size);
         }
 
         /* Generate missing terms */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
                     if (cache_len + 1 > cache_size) {
                         size_t new_size = cache_size * 2;
                         if (new_size < cache_len + 1) new_size = cache_len + 1;
-                        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, cache, new_size);
                         if (!tmp) { /* allocation failed – abort gracefully */
                             abort();
                         }

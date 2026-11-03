@@ -10,7 +10,8 @@
  *            sieve of primes
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 #if defined(__cplusplus)
 #include <vector>
@@ -131,7 +132,7 @@ static void ensure_terms(idx_t n) {
         ++lastChecked;
         seq_t phi_k = get_phi(lastChecked);
         seq_t val = phi_k * phi_k + phi_k + (seq_t)1;
-        if (is_palindrome(val, (idx_t)10))
+        if (is_palindrome_base(val, (idx_t)10))
             terms_append((seq_t)lastChecked);
     }
 }

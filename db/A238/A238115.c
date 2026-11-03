@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{k=1..n} binomial(n,k)^2 * catalan(k)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 23, u128 n <= 44,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 496 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>      /* for size_t */
-#include "../utils/catalan.h"   /* provides catalan(idx_t) */
+#include <stdlib.h>
+#include "../utils/catalan.h"
 
 /* External function declaration for idx_t and seq_t types. */
 extern seq_t catalan(idx_t k);

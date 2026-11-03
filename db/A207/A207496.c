@@ -12,13 +12,15 @@
  *            equal 001 or 100. The total number of n×4 arr...
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 14, u64 n <= 30, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static const uint8_t valid_rows[9] = {2,4,5,9,10,12,13,14,15};   /* 0010,0100,0101,1001,1010,1100,1101,1110,1111 */
@@ -62,7 +64,7 @@ static void init(void) {
 
     /* Allocate answer cache */
     ans_cap = 3;                /* indices 0..2 used initially */
-    answers = (seq_t*)calloc(ans_cap, sizeof(seq_t));
+    answers = mem_new(seq_t, ans_cap);
     answers[1] = 9;             /* a(1) */
     answers[2] = 81;            /* a(2) */
 
@@ -83,7 +85,7 @@ seq_t a(idx_t n) {
     if (n >= ans_cap) {
         size_t newcap = ans_cap ? ans_cap : 1;
         while (newcap <= n) newcap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(answers, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, answers, newcap);
         if (!tmp) return 0;     /* memory allocation failed */
         answers = tmp;
         ans_cap = newcap;

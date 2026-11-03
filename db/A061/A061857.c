@@ -11,8 +11,9 @@
  *            c*q)/2 + q*b - 2*q - b + 1 Else if b ≥ (k+3)/2: a = (q²*k +
  *            c*(q+1) - k)/2 + q*b - 2*q + b - 1 Else: a = (q²*k + c*q)/2 +
  *            q*b - 2*q The public function returns the flattene...
- * Range:     u8 n <= 276, u16 n <= 9980, u32 n <= 9980, u64 n <= 9980,
- *            u128 n <= 9980, big any n
+ * Range:     u8 n <= 276, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 105 terms through n = 9980 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

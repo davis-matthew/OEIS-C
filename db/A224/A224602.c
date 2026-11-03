@@ -10,12 +10,14 @@
  *            1657, 2280. Recurrence is valid for n > 8
  * Range:     u8 none, u16 n <= 17, u32 n <= 46, u64 n <= 104, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,9 +34,9 @@ seq_t a(idx_t n)
         /* Ensure storage for indices 0..8 */
         idx_t need = 8;
         if (cache == NULL) {
-            cache = (seq_t *)malloc((need + 1) * sizeof(seq_t));
+            cache = mem_new(seq_t, (need + 1));
         } else {
-            cache = (seq_t *)realloc(cache, (need + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (need + 1));
         }
         cache_len = need;
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
 
     /* Ensure the cache can store up to index n */
     if (cache_len < n) {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         cache_len = n;
     }
 

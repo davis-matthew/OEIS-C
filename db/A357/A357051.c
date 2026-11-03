@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{d|n} 3^(n-d)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Allocate and extend the 3^k cache as needed. */
 static seq_t *pow3_cache = NULL;   /* power of 3 array: pow3_cache[k] = 3^k */
@@ -26,14 +28,14 @@ static void ensure_pow3(idx_t n)
 {
     if (pow3_cap == 0) {
         /* initial allocation for exponent 0 */
-        pow3_cache = (seq_t *)malloc(sizeof(seq_t));
+        pow3_cache = mem_new(seq_t, 1);
         if (!pow3_cache) exit(1);
         pow3_cache[0] = (seq_t)1;
         pow3_cap = 1;
     }
     if (n >= pow3_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(pow3_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow3_cache, new_cap);
         if (!tmp) exit(1);
         pow3_cache = tmp;
         /* compute missing powers */

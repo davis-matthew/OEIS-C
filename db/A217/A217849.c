@@ -8,7 +8,8 @@
  *            as a sum of consecutive ninth powers. (a(1) = 0, a(2) = 1, … )
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 16, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   max_start_64bit
+ * Validated: standard, pass, 46 terms through n = 892 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/max_start_64bit.h"
+#include "../utils/mem.h"
+
+/* Determine the maximum starting integer that fits in 64‑bit
+   when its ninth power is calculated.  This is only used for
+   the 64‑bit build; all other builds are treated as infinite. */
+static idx_t max_start_64bit(void)
+{
+    idx_t b = 1;
+    while (1) {
+        __uint128_t p = 1;
+        for (int i = 0; i < 9; ++i) p *= b;
+        if (p > (__uint128_t)ULLONG_MAX) break;
+        ++b;
+    }
+    return b - 1;
+}
 
 /* ---------- helper structures ---------- */
 
@@ -96,7 +112,7 @@ static void init(void)
 
     /* initialise cache storage */
     cache_cap = 64;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) exit(EXIT_FAILURE);
     cache[0] = 0;            /* a(1) = 0 */
     cache_len = 1;
@@ -126,7 +142,7 @@ static void ensure_cache(idx_t n)
         if (cache_len == 0 || value != cache[cache_len - 1]) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) exit(EXIT_FAILURE);
             }
             cache[cache_len++] = value;

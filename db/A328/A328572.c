@@ -13,6 +13,7 @@
  *            strictly less than prime_i, P_0 = 1)
  * Range:     u8 n <= 27, u16 n <= 147, u32 n <= 1047, u64 n <= 2310,
  *            u128 n <= 2310, big any n
+ * Validated: standard, pass, 104 terms through n = 2268 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

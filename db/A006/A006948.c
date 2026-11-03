@@ -11,14 +11,15 @@
  *            connected component holds at most one cycle (e...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   zpc
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   popcount
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/zpc.h"
+#include "../utils/popcount.h"
 
 static int zN;
 static uint64_t zadj[64];
@@ -39,8 +40,8 @@ static bool zok(int s)
         if (((r[s] >> u) & 1ULL) && ((r[u] >> s) & 1ULL)) scc |= 1ULL << u;
     int e = 0;
     for (u = 0; u < m; u++)
-        if ((scc >> u) & 1ULL) e += zpc(zadj[u] & scc);
-    return e <= zpc(scc);
+        if ((scc >> u) & 1ULL) e += popcount(zadj[u] & scc);
+    return e <= popcount(scc);
 }
 
 static void zrec(int k, uint64_t used)

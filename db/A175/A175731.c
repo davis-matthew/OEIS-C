@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   isPrimeTrial
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
 
 static const uint64_t INITIAL_SPF_LIMIT = 2000000ULL; /* first sieve size */
 
@@ -94,8 +95,8 @@ seq_t a(idx_t n) {
         if (is_semiprime(last_checked)) {
             unsigned long long v1 = 2 * last_checked - 1;
             unsigned long long v2 = 2 * last_checked + 1;
-            bool p1 = isPrimeTrial((seq_t)v1);
-            bool p2 = isPrimeTrial((seq_t)v2);
+            bool p1 = is_prime_seq((seq_t)v1);
+            bool p2 = is_prime_seq((seq_t)v2);
             if (p1 ^ p2) {
                 grow_cache();
                 cache[cache_len++] = last_checked;

@@ -9,8 +9,9 @@
  * Formula:   a(n) = number of steps in the simple Euclidean subtraction
  *            algorithm * for gcd(n, k) where k = 1 + φ(n), starting from the
  *            pair (n, k) and * terminating when the two numbers become equal
- * Range:     u8 n <= 343, u16 n <= 9844, u32 n <= 9844, u64 n <= 9844,
- *            u128 n <= 9844, big any n
+ * Range:     u8 n <= 343, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9844 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

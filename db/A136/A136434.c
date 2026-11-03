@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^3 - 3*n
  * Range:     i8 n <= 5, i16 n <= 13, i32 n <= 13, i64 n <= 13, i128 n <= 13,
  *            big any n
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

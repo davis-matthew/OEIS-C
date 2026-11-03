@@ -6,16 +6,19 @@
  * Keywords:  nonn
  * Formula:   a(n) = sum_{p^e||n, e>=2} primepi(p), where primepi(p) = number
  *            of primes <= p. For n=1,2,3 the value is 0
- * Range:     u8 n <= 9335, u16 n <= 9335, u32 n <= 9335, u64 n <= 9335,
- *            u128 n <= 9335, big any n
- * Helpers:   compute_pi
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 120 terms through n = 9335 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 /* integer square root for uint64_t:  floor(sqrt(n)). */
 static inline idx_t isqrt_u64(idx_t n)
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
                 ++exp;
             }
             if (exp >= 2) {
-                sum += compute_pi(p);
+                sum += prime_pi(p);
             }
             limit = isqrt_u64(m);  /* adjust limit for remaining factor */
         }

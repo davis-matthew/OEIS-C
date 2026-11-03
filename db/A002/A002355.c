@@ -11,7 +11,8 @@
  *            * P(c + 1/x); repeat
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 22, u64 n <= 39, u128 n <= 82,
  *            big any n
- * Helpers:   a2355_add, a2355_isneg, a2355_mulsm, a2355_negate, a2355_roomy
+ * Validated: standard, pass, 46 terms through n = 970 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,48 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2355_add.h"
-#include "../utils/a2355_isneg.h"
-#include "../utils/a2355_mulsm.h"
-#include "../utils/a2355_negate.h"
-#include "../utils/a2355_roomy.h"
+
+static void a2355_add(uint32_t *x, const uint32_t *y, size_t L) {
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t s = (uint64_t)x[i] + y[i] + carry;
+        x[i] = (uint32_t)s;
+        carry = s >> 32;
+    }
+}
+
+static int a2355_isneg(const uint32_t *x, size_t L) {
+    return (int)(x[L - 1] >> 31);
+}
+
+static void a2355_mulsm(uint32_t *x, size_t L, uint32_t m) {
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t p = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)p;
+        carry = p >> 32;
+    }
+}
+
+static void a2355_negate(uint32_t *x, size_t L) {
+    uint64_t carry = 1;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t s = (uint64_t)(uint32_t)~x[i] + carry;
+        x[i] = (uint32_t)s;
+        carry = s >> 32;
+    }
+}
+
+static int a2355_roomy(const uint32_t *x, size_t L) {
+    uint32_t ext = (x[L - 1] >> 31) ? 0xFFFFFFFFu : 0u;
+    size_t j;
+    for (j = L - 4; j < L; j++)
+        if (x[j] != ext) return 0;
+    return 1;
+}
 
 static uint32_t *a2355_A = NULL, *a2355_B = NULL, *a2355_C = NULL, *a2355_D = NULL;
 static uint32_t *a2355_t = NULL, *a2355_u = NULL, *a2355_w = NULL;

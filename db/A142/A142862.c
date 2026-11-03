@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_spf, gcd, is_prime
+ * Validated: standard, pass, 70 terms through n = 985 (2026-11-03)
+ * Helpers:   build_spf, gcd, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,11 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/gcd.h"
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static idx_t spf_limit = 0;          /* current sieve limit */
 static idx_t *spf = NULL;            /* smallest prime factor table */
@@ -75,7 +78,7 @@ static void ensure_sequence(idx_t n)
                 if (val_len == val_cap)
                 {
                     val_cap = val_cap ? val_cap * 2 : 16;
-                    vals = (seq_t *)realloc(vals, val_cap * sizeof(seq_t));
+                    vals = mem_resize(seq_t, vals, val_cap);
                     if (!vals) abort(); /* sanity check */
                 }
                 vals[val_len++] = (seq_t)scan_start;

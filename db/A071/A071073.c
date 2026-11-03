@@ -11,7 +11,8 @@
  *            inserting a number when it is not already covere...
  * Range:     u8 n <= 36, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   contains_substr, uint64_to_str
+ * Validated: full, pass, 76 terms through n = 76 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,33 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/contains_substr.h"
-#include "../utils/uint64_to_str.h"
+
+static int contains_substr(const char *text, const char *pat)
+{
+    if (!*pat) return 1;                /* empty pattern always matches */
+    for (; *text; text++) {
+        const char *p = text;
+        const char *q = pat;
+        while (*p && *q && *p == *q) { p++; q++; }
+        if (!*q) return 1;              /* full pattern matched */
+    }
+    return 0;
+}
+
+static void uint64_to_str(uint64_t v, char *buf)
+{
+    char tmp[32];
+    int i = 0;
+    if (v == 0) { buf[0] = '0'; buf[1] = '\0'; return; }
+    while (v > 0) {
+        tmp[i++] = '0' + (v % 10);
+        v /= 10;
+    }
+    int j;
+    for (j = 0; j < i; j++)
+        buf[j] = tmp[i - j - 1];
+    buf[j] = '\0';
+}
 
 seq_t a(idx_t n)
 {

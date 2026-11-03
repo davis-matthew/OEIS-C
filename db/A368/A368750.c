@@ -9,16 +9,18 @@
  * Keywords:  nonn, tabf
  * Formula:   a(n) = number of atoms in the n-th balanced parentheses string
  *            (listed in reverse lexicographic order)
- * Range:     u8 n <= 36, u16 n <= 8063, u32 n <= 8063, u64 n <= 8063,
- *            u128 n <= 8063, big any n
- * Helpers:   small_binomial
+ * Range:     u8 n <= 17576, u16 n <= 17576, u32 n <= 17576, u64 n <= 17576,
+ *            u128 n <= 17576, big any n
+ * Validated: standard, pass, 114 terms through n = 8063 (2026-11-02)
+ * Helpers:   binomial_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/small_binomial.h"
+#include "../utils/binomial_idx.h"
 
 /* Return the number of atoms in the k-th (0‑based) string of length
    2*pair_count in reverse lexicographic order. */
@@ -35,7 +37,7 @@ static seq_t count_atoms(idx_t pair_count, idx_t k)
         /* Number of strings starting with ')' from this position */
         idx_t cnt_start_right = 0;
         if (close_rem > 0)
-            cnt_start_right = small_binomial(rem - 1, open_rem);
+            cnt_start_right = binomial_idx(rem - 1, open_rem);
         if (k < cnt_start_right) {
             s[pos] = ')';
             --close_rem;
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     idx_t row = 1;
     idx_t cumulative = 0;
     while (1) {
-        idx_t row_len = small_binomial(2 * row, row);
+        idx_t row_len = binomial_idx(2 * row, row);
         if (cumulative + row_len >= n)
             break;
         cumulative += row_len;

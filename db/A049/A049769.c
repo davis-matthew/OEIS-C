@@ -9,13 +9,14 @@
  *            (r‑1) + k (row‑major order). T(r,k) = (k³ mod r) + (r³ mod k)
  * Range:     u8 n <= 5050, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 94 terms through n = 4356 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     /* n is 1‑based; for n==0 return 0 (undefined by OEIS). */
@@ -25,7 +26,7 @@ seq_t a(idx_t n) {
     /* Find row r such that r(r+1)/2 >= n. */
     /* Compute floor sqrt of (1 + 8n). */
     idx_t tmp = (idx_t)(1 + 8 * n);
-    idx_t s = int_sqrt(tmp);                /* floor sqrt */
+    idx_t s = isqrt(tmp);                /* floor sqrt */
     idx_t r = (s - 1) / 2;                  /* initial guess (floor) */
     while ((r * (r + 1)) / 2 < n)
         ++r;

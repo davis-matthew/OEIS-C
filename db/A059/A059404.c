@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------------
    Prime sieve – generates all primes up to MAX_PRIME once.
@@ -94,10 +96,10 @@ static void ensure_capacity (size_t need)
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (seq_vals) {
-        memcpy(new_arr, seq_vals, seq_len * sizeof(seq_t));
-        free(seq_vals);
+        mem_copy(new_arr, seq_vals, seq_len * sizeof(seq_t));
+        mem_free(seq_vals);
     }
     seq_vals = new_arr;
     seq_cap  = new_cap;

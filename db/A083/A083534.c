@@ -12,15 +12,27 @@
  *            difference between consecutive elements
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   safe_calloc, safe_malloc
+ * Validated: standard, pass, 121 terms through n = 9851 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/safe_calloc.h"
-#include "../utils/safe_malloc.h"
+
+static void *safe_calloc(size_t nmemb, size_t size)
+{
+    return calloc(nmemb, size);
+}
+
+static void *safe_malloc(size_t sz)
+{
+    /* In C++24, malloc returns void*, C++ allows implicit cast.  In C
+       it can be assigned to any pointer.  For safety we cast explicitly
+       to void* and let the caller cast to the desired type. */
+    return malloc(sz);
+}
 
 /* ------------------------------------------------------------------ */
 /* Parameters                                                      */

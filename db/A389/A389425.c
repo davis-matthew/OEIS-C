@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   isPrimeTrial
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/isPrimeTrial.h"   /* for isPrimeTrial(seq_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *A_terms = NULL;    /* stored A199716 terms (k values) */
 static size_t A_size = 0, A_cap = 0;
@@ -34,7 +36,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
     if (needed <= *cap) return;
     size_t newcap = (*cap > 0) ? *cap * 2 : 16;
     while (newcap < needed) newcap <<= 1;
-    *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap = newcap;
 }
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         while (A_size < (size_t)n + 1) {
             seq_t r1 = (seq_t)6 * next_k - 5;
             seq_t r2 = (seq_t)6 * next_k - 1;
-            if (!isPrimeTrial(r1) && !isPrimeTrial(r2)) {
+            if (!is_prime_seq(r1) && !is_prime_seq(r2)) {
                 /* store the new term */
                 ensure_capacity(&A_terms, &A_cap, A_size + 1);
                 A_terms[A_size++] = next_k;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (1-(-1)^n-8*n+18*n^2+12*n^3)/4
  * Range:     u8 n <= 2, u16 n <= 17, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

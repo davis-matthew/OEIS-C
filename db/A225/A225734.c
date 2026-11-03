@@ -8,7 +8,8 @@
  * Formula:   Numbers n such that n^5 < d(n)^13 (i.e., n < d(n)^(26/10))
  * Range:     u8 n <= 105, u16 n <= 1380, u32 n <= 2046, u64 n <= 2046,
  *            u128 n <= 2046, big any n
- * Helpers:   none
+ * Validated: full, pass, 2046 terms through n = 2046 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper to compute a^e for unsigned 128‑bit types */
 static inline unsigned __int128 pow_uint128(unsigned __int128 a, unsigned e)
@@ -55,7 +57,7 @@ static void append_term(seq_t val)
 {
     if (term_cnt == term_cap) {
         term_cap = term_cap ? term_cap * 2 : 16;
-        seq_terms = (seq_t *)realloc(seq_terms, term_cap * sizeof(seq_t));
+        seq_terms = mem_resize(seq_t, seq_terms, term_cap);
     }
     seq_terms[term_cnt++] = val;
 }

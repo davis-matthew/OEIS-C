@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 65, u32 n <= 94, u64 n <= 197,
  *            u128 n <= 595, big any n
- * Helpers:   kmax_for_n
+ * Validated: standard, pass, 54 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
    where p_distinct_k(n) counts partitions of n into k distinct parts.
    The function memoizes a DP table for all n up to the largest requested value. */
 #include <stdlib.h>
-#include "../utils/kmax_for_n.h"
+#include "../utils/mem.h"
+
+/* Compute the largest k such that 1+2+...+k <= n. */
+static idx_t kmax_for_n(idx_t n)
+{
+    idx_t k = 0;
+    /* Increment until (k+1)(k+2)/2 would exceed n. */
+    while (((k + 1) * (k + 2)) / 2 <= n)
+        ++k;
+    return k;
+}
 
 static seq_t *cache_ways = NULL;      /* Flattened table [k][s] => ways[k*stride+s] */
 static seq_t *cache_eulerian = NULL;  /* cache_eulerian[k] = Eulerian(k,8) */
@@ -30,11 +41,11 @@ static void rebuild_cache(idx_t mx)
 {
     /* Free any previous cache */
     if (cache_ways) {
-        free(cache_ways);
+        mem_free(cache_ways);
         cache_ways = NULL;
     }
     if (cache_eulerian) {
-        free(cache_eulerian);
+        mem_free(cache_eulerian);
         cache_eulerian = NULL;
     }
 
@@ -45,7 +56,7 @@ static void rebuild_cache(idx_t mx)
     /* Allocate ways table: (kmax+1) × (mx+1) */
     size_t stride = (size_t)(mx + 1);
     size_t ways_len = (size_t)(cache_kmax + 1) * stride;
-    seq_t *ways = (seq_t *)calloc(ways_len, sizeof(seq_t));
+    seq_t *ways = mem_new(seq_t, ways_len);
     if (!ways) exit(1);          /* allocation failure */
 
     cache_ways = ways;
@@ -67,7 +78,7 @@ static void rebuild_cache(idx_t mx)
     }
 
     /* Compute Eulerian numbers a(k,8) for k up to kmax */
-    seq_t *eul = (seq_t *)calloc((size_t)(cache_kmax + 1), sizeof(seq_t));
+    seq_t *eul = mem_new(seq_t, (size_t)(cache_kmax + 1));
     if (!eul) exit(1);
 
     /* We keep two rows of the recurrence for m = 0..8 */

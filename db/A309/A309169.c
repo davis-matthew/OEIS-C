@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -50,6 +51,7 @@
 #else
 #  define HAVE_UINT128 0
 #endif
+#include "../utils/mem.h"
 
 /*  -----  function  -----  */
 seq_t a(idx_t n)
@@ -69,9 +71,9 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1;
     if (cap < needed) {
         size_t newcap = needed;
-        seq_t *p = (seq_t*)realloc(prev_row, newcap * sizeof(seq_t));
-        seq_t *c = (seq_t*)realloc(cur_row,  newcap * sizeof(seq_t));
-        seq_t *a = (seq_t*)realloc(ans,      newcap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, prev_row, newcap);
+        seq_t *c = mem_resize(seq_t, cur_row, newcap);
+        seq_t *a = mem_resize(seq_t, ans, newcap);
         if (!p || !c || !a) { /* allocation failed */
             return (seq_t)0;
         }

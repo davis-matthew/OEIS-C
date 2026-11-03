@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 4395, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 68 terms through n = 9052 (2026-11-01)
  * Helpers:   build_spf, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,8 +25,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"        /* is_prime(idx_t) */
-#include "../utils/build_spf.h"      /* build_spf(idx_t, idx_t ** ) */
+#include "../utils/build_spf.h"
+#include "../utils/is_prime.h"
 
 /* SPF table (smallest prime factor) */
 static idx_t *spf_tbl = NULL;   /* array indexed by integer value */

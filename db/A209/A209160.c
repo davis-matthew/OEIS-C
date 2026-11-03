@@ -12,7 +12,8 @@
  *            rows are 1 2 1 3 6 4
  * Range:     u8 n <= 24, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,16 +22,17 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Allocate an array of seq_t of given length.
    In C++ the elements are default‑constructed; in C no construction is needed. */
 static seq_t* alloc_seq(size_t len)
 {
 #ifdef __cplusplus
-    seq_t* p = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t* p = mem_new(seq_t, len);
     if (!p) abort();
     for (size_t i = 0; i < len; ++i)
-        new(&p[i]) seq_t();
+        *(&p[i]) = (seq_t)0;
     return p;
 #else
     return (seq_t*)malloc(len * sizeof(seq_t));
@@ -127,7 +129,7 @@ static void ensure_rows(idx_t need)
         U_rows[m] = U_new;
 
         /* Free old V row and set new one. */
-        free(V_prev);
+        mem_free(V_prev);
         V_prev = V_new;
         V_prev_len = len;
     }

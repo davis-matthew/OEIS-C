@@ -8,6 +8,7 @@
  *            x)^(-1) / (1 + x - x^2 - 2*x^3) (OEIS A077901)
  * Range:     i8 n <= 21, i16 n <= 45, i32 n <= 53, i64 n <= 53, i128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

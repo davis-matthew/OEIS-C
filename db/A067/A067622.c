@@ -8,14 +8,17 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 12, i64 n <= 24, i128 n <= 24,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A067622: Numerators of (1 + x)^(1/3) */
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +33,8 @@ seq_t a(idx_t n)
     {
         size_t newcap = cap > 0 ? cap : 1;
         while (newcap <= (size_t)n) newcap <<= 1;
-        seq_t *tmp_nums = (seq_t *)realloc(nums, newcap * sizeof(seq_t));
-        seq_t *tmp_dens = (seq_t *)realloc(dens, newcap * sizeof(seq_t));
+        seq_t *tmp_nums = mem_resize(seq_t, nums, newcap);
+        seq_t *tmp_dens = mem_resize(seq_t, dens, newcap);
         nums = tmp_nums;
         dens = tmp_dens;
         cap  = newcap;

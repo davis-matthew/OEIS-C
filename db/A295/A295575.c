@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{1 <= j <= n/2, gcd(j,n)=1} j^3
  * Range:     u8 n <= 12, u16 n <= 46, u32 n <= 726, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9103 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Implementation: direct summation checking coprimality with j and n. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

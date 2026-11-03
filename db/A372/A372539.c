@@ -11,7 +11,8 @@
  *            binary property
  * Range:     u8 n <= 35, u16 n <= 4350, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9433 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* count set bits in a 64‑bit integer */
 static idx_t popcount_uint64(uint64_t x) {
@@ -110,7 +112,7 @@ seq_t a(idx_t n) {
         if (2 * ones == len - 1) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 4;
-                seq_buf = (seq_t*)realloc(seq_buf, seq_cap * sizeof(seq_t));
+                seq_buf = mem_resize(seq_t, seq_buf, seq_cap);
             }
             seq_buf[seq_len++] = (seq_t)k;
         }

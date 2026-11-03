@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 21, u64 n <= 39, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 888 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
           a(16)=4280686, a(17)=15974526, a(18)=58974616. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int RECUR[13] = {
     12, -51, 66, 144, -540, 411, 510, -1006, 380,
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
     /* first time: allocate base array */
     if (cache == NULL) {
         cache_cap = 13;
-        cache = (seq_t*)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;            /* allocation failure (unlikely) */
         for (int i = 0; i < 13; ++i) cache[i] = BASE[i];
         last_computed = 18;                     /* a(18) is the last pre‑filled term */
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
     /* grow capacity if necessary */
     if ((size_t)off + 1 > cache_cap) {
         size_t new_cap = (size_t)off + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;             /* allocation failure (unlikely) */
         cache = tmp;
         cache_cap = new_cap;

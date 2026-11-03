@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   pow10
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,17 @@
 /* Multipliers of SI prefixes: a(n) = 10^e(n), where the exponents e(n) are
    1, 2, 3, 6, 9, 12, 15, ... (i.e. e(1)=1, e(2)=2, e(3)=3, and for n>=4
    e(n)=3*(n-2). */
-#include "../utils/pow10.h"
+#include <stdint.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

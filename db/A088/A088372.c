@@ -11,12 +11,19 @@
  *            inverse Gray‑code mapping
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   gray_to_binary
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gray_to_binary.h"
+static inline idx_t gray_to_binary(idx_t g, idx_t bits)
+{
+    idx_t b = g;
+    for (idx_t shift = 1; shift < bits; shift <<= 1)
+        b ^= b >> shift;
+    return b;
+}
 /*--- bit utilities -------------------------------------------------------*/
 static inline idx_t floor_log2(idx_t v)
 {

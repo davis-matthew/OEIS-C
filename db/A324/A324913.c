@@ -8,13 +8,14 @@
  * Formula:   a(n) = Sum_{k=1..n} 2^k * phi(k)
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 26, u64 n <= 58, u128 n <= 120,
  *            big any n
- * Helpers:   phi_simple
+ * Validated: standard, pass, 47 terms through n = 3229 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi_simple.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
     seq_t power = 2;                     /* 2^1 */
 
     for (idx_t k = 1; k <= n; ++k) {
-        seq_t phi_k = phi_simple(k);     /* phi(k) */
+        seq_t phi_k = totient(k);     /* phi(k) */
         sum += power * phi_k;            /* add 2^k * phi(k) */
         power *= 2;                      /* next power of 2 */
     }

@@ -9,12 +9,14 @@
  *            Fibonacci number (F(0)=0, F(1)=1)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 46, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 902 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--- cache of Fibonacci numbers ------------------------------------------------*/
 /* fib_cache[k] = standard Fibonacci F(k) (F(0)=0, F(1)=1).  The array is
@@ -29,7 +31,7 @@ ensure_fib(idx_t max_index)
 {
     if (fib_cache_size <= (size_t)max_index) {
         size_t new_size = (size_t)max_index + 1;          /* indices 0..max_index */
-        seq_t *new_cache = (seq_t *)realloc(fib_cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, fib_cache, new_size);
         if (!new_cache) abort();                         /* allocation failed */
 
         /* Initialise new portion of the cache.  For the first call we

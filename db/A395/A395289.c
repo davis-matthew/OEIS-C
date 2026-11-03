@@ -9,7 +9,8 @@
  *            (-576)^(n-k) * binomial(2*n, 2*k) * a(k)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 5, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for a(k) values */
 static seq_t *cache = NULL;          /* pointer to a(k) array            */
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n + 1 <= cache_len)
         return;
     size_t new_len = (size_t)n + 1;
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     for (size_t i = cache_len; i < new_len; ++i)
         cache[i] = 0;
     cache_len = new_len;
@@ -53,10 +55,10 @@ static void ensure_powers(idx_t n)
     if ((size_t)n + 1 <= pow_len)
         return;
     size_t new_len = (size_t)n + 1;
-    pow9  = (seq_t *)realloc(pow9,  new_len * sizeof(seq_t));
-    pow25 = (seq_t *)realloc(pow25, new_len * sizeof(seq_t));
-    pow81 = (seq_t *)realloc(pow81, new_len * sizeof(seq_t));
-    pow576= (seq_t *)realloc(pow576,new_len * sizeof(seq_t));
+    pow9  = mem_resize(seq_t, pow9, new_len);
+    pow25 = mem_resize(seq_t, pow25, new_len);
+    pow81 = mem_resize(seq_t, pow81, new_len);
+    pow576= mem_resize(seq_t, pow576, new_len);
     for (size_t i = pow_len; i < new_len; ++i) {
         if (i == 0) {
             pow9[i]   = 1;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 216, u32 n <= 2100, u64 n <= 2100,
  *            u128 n <= 2100, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 1924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Helper functions for 64‑bit primality test ---------- */
 
@@ -97,7 +99,7 @@ static void ensure_seq_cap(size_t need)
     if (seq_cap >= need) return;
     if (seq_cap == 0) seq_cap = 16;
     while (seq_cap < need) seq_cap <<= 1U;
-    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, seq_cap);
 }
 
 /* ---------- Main function ---------- */

@@ -11,14 +11,35 @@
  *            |z| < 2 then N must be a multiple of 3
  * Range:     u8 n <= 46, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   representable_norm
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/representable_norm.h"
+
+/* Test whether a non‑negative integer n (stored in seq_t) can be written
+   as x*x – x*y + y*y, i.e. as the norm of an Eisenstein integer.
+   The property is that all prime factors p ≡ 2 (mod 3) must appear to an
+   even exponent in the factorisation of n. */
+static bool representable_norm(seq_t n)
+{
+    /* n fits in idx_t for the small values we deal with. */
+    if (n == 0) return true;
+    idx_t m = (idx_t)n;          /* safe cast because n is small. */
+    idx_t temp = m;
+    for (idx_t p = 2; p * p <= temp; ++p) {
+        if (temp % p == 0) {
+            int exp = 0;
+            do { temp /= p; ++exp; } while (temp % p == 0);
+            if (p % 3 == 2 && (exp & 1)) return false;
+        }
+    }
+    if (temp > 1 && (temp % 3 == 2)) return false;
+    return true;
+}
 
 /* Integer square root of a value stored in seq_t.
    Returns ⌊sqrt(x)⌋. */

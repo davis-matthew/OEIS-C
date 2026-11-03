@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 720, u32 n <= 720, u64 n <= 720,
  *            u128 n <= 720, big any n
- * Helpers:   none
+ * Validated: full, pass, 720 terms through n = 720 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const unsigned char _DIGIT_SEG[10] = {6,2,5,5,4,5,6,3,7,6};
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
                 ++pos;
             }
         }
-        qsort(entries, 720, sizeof(entries[0]), cmp_timeentry);
+        mem_qsort(entries, 720, sizeof(entries[0]), cmp_timeentry);
         for (idx_t i = 0; i < 720; ++i) {
             cache[i] = entries[i].val;
         }

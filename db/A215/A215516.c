@@ -10,7 +10,8 @@
  *            coefficient of x^k in sin(x)*log(cos x)
  * Range:     i8 n <= 8, i16 n <= 10, i32 n <= 15, i64 n <= 24, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -30,11 +32,11 @@ seq_t a(idx_t n) {
     size_t N = (size_t)n;
 
     /* Allocate storage for the factorial‑scaled coefficient arrays. */
-    seq_t *C = (seq_t *)malloc((N + 1) * sizeof(seq_t));   /* cos scaled          */
-    seq_t *D = (seq_t *)malloc((N + 1) * sizeof(seq_t));   /* 1/cos scaled       */
-    seq_t *L = (seq_t *)malloc((N + 1) * sizeof(seq_t));   /* log(cos) scaled    */
-    seq_t *G = (seq_t *)malloc((N + 1) * sizeof(seq_t));   /* sin*log scaled     */
-    seq_t *A = (seq_t *)malloc((N + 1) * sizeof(seq_t));   /* target sequence    */
+    seq_t *C = mem_new(seq_t, (N + 1));   /* cos scaled          */
+    seq_t *D = mem_new(seq_t, (N + 1));   /* 1/cos scaled       */
+    seq_t *L = mem_new(seq_t, (N + 1));   /* log(cos) scaled    */
+    seq_t *G = mem_new(seq_t, (N + 1));   /* sin*log scaled     */
+    seq_t *A = mem_new(seq_t, (N + 1));   /* target sequence    */
 
     /* 1.  Cosine coefficients scaled by factorial. */
     for (size_t i = 0; i <= N; ++i) {
@@ -81,7 +83,7 @@ seq_t a(idx_t n) {
     }
 
     /* 4.  Compute sin(x) scaled (odd indices only). */
-    seq_t *S = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (N + 1));
     for (size_t i = 0; i <= N; ++i) {
         if ((i & 1) == 1) {                /* odd i */
             /* (-1)^{(i-1)/2} */
@@ -127,12 +129,12 @@ seq_t a(idx_t n) {
     seq_t result = A[N];
 
     /* Free allocated memory. */
-    free(C);
-    free(D);
-    free(L);
-    free(G);
-    free(A);
-    free(S);
+    mem_free(C);
+    mem_free(D);
+    mem_free(L);
+    mem_free(G);
+    mem_free(A);
+    mem_free(S);
 
     return result;
 }

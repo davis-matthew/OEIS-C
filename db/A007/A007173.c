@@ -9,14 +9,16 @@
  *            3]*C(n,(n-1)/3) + [2==n mod 3]*C(n,(n-2)/3)) / (3n)
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 17, u64 n <= 29, u128 n <= 53,
  *            big any n
- * Helpers:   binom_exact, gcd_ull
+ * Validated: standard, pass, 42 terms through n = 199 (2026-11-01)
+ * Helpers:   binomial, gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom_exact.h"
-#include "../utils/gcd_ull.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd_u64.h"
 
 static long long legendre(unsigned long long N, unsigned long long p) {
     long long e = 0;
@@ -64,15 +66,15 @@ seq_t a(idx_t n) {
     free(ex);
 
     /* term 2 */
-    if (N % 2 == 0) B = binom_exact(3 * n / 2, n);
-    else B = binom_exact((3 * n - 1) / 2, (n - 1) / 2);
+    if (N % 2 == 0) B = binomial(3 * n / 2, n);
+    else B = binomial((3 * n - 1) / 2, (n - 1) / 2);
     q2 = B / (seq_t)d2;
     r2 = (unsigned long long)(B % (seq_t)d2);
 
     /* term 3 */
     C3 = 0;
-    if (N % 3 == 1) C3 = 2 * binom_exact(n, (n - 1) / 3);
-    else if (N % 3 == 2) C3 = 2 * binom_exact(n, (n - 2) / 3);
+    if (N % 3 == 1) C3 = 2 * binomial(n, (n - 1) / 3);
+    else if (N % 3 == 2) C3 = 2 * binomial(n, (n - 2) / 3);
     q3 = C3 / (seq_t)d3;
     r3 = (unsigned long long)(C3 % (seq_t)d3);
 

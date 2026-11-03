@@ -8,6 +8,7 @@
  *            9*n^2 + 29*n - 21)/6 for n odd
  * Range:     u8 n <= 8, u16 n <= 70, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 61 terms through n = 858 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

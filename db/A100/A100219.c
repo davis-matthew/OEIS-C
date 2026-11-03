@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, sign
  * Formula:   a(n) = [1, 0, -2, -3, -2, 0] repeated with period 6
- * Range:     i8 n <= 74, i16 n <= 74, i32 n <= 74, i64 n <= 74, i128 n <= 74,
- *            big any n
+ * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
+ *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 91 terms through n = 9644 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

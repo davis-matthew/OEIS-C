@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 210, u64 n <= 4845,
  *            u128 n <= 10000, big any n
- * Helpers:   comb_four
+ * Validated: standard, pass, 48 terms through n = 9644 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/comb_four.h"
+#include "../utils/mem.h"
+
+/* Compute C(m,4) for 0 < m ≤ 127.  Uses 128‑bit arithmetic for safety. */
+static size_t comb_four(size_t m)
+{
+    if (m < 4) return 0;
+    unsigned __int128 t = (unsigned __int128)m * (m - 1) * (m - 2) * (m - 3);
+    t /= 24;
+    return (size_t)t;
+}
 
 /* Comparator for qsort on seq_t values. */
 static int compare_seq(const void *p1, const void *p2)
@@ -66,7 +76,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Allocate cache for all terms with exponents up to max_pow. */
-    seq_t *new_cache = (seq_t *)malloc(total_combs * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, total_combs);
     if (!new_cache) return 0;               /* allocation failure */
 
     /* Generate all sums of four distinct powers of ten. */
@@ -78,10 +88,10 @@ seq_t a(idx_t n)
                     new_cache[idx++] = pow10[i0] + pow10[i1] + pow10[i2] + pow10[i3];
 
     /* Sort the generated values. */
-    qsort(new_cache, total_combs, sizeof(seq_t), compare_seq);
+    mem_qsort(new_cache, total_combs, sizeof(seq_t), compare_seq);
 
     /* Replace old cache. */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = total_combs;
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 75 terms through n = 969 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"   /* provides seq_t mod_pow(seq_t, uint64_t, seq_t) */
+#include <string.h>
+#include "../utils/powmod.h"
 
 #define CACHE_CAP 200000   /* enough for n up to about 200 000 */
 
@@ -118,7 +120,7 @@ static bool is_quadratic_residue(seq_t r, seq_t m)
                 continue;
             }
             /* Legendre symbol via Euler's criterion */
-            seq_t leg = mod_pow((seq_t)r0, (p - 1ULL) / 2ULL, (seq_t)p);
+            seq_t leg = powmod((seq_t)r0, (p - 1ULL) / 2ULL, (seq_t)p);
             if (leg == (seq_t)(p - 1ULL))
                 return false;   /* ≡ -1 (mod p) */
         }

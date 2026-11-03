@@ -9,14 +9,32 @@
  *            6's
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   equal_ones_sixes
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/equal_ones_sixes.h"
+#include "../utils/mem.h"
+
+/* Check whether a number has the same number of 1’s and 6’s in octal */
+static bool equal_ones_sixes(seq_t v)
+{
+    if (v == (seq_t)0)
+        return true;          /* 0 has 0 of each */
+    int ones = 0, sixes = 0;
+    while (v > (seq_t)0) {
+        int digit = (int)(v % (seq_t)8);
+        if (digit == 1)
+            ++ones;
+        else if (digit == 6)
+            ++sixes;
+        v = v / (seq_t)8;
+    }
+    return ones == sixes;
+}
 
 /* Return the n-th term (1‑based) of the sequence */
 seq_t a(idx_t n)
@@ -30,7 +48,7 @@ seq_t a(idx_t n)
     /* initialize state on first call */
     if (cache_len == 0) {
         cache_cap = 32;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         /* term a(1) = 0 */
         cache[0] = (seq_t)0;
         cache_len = 1;
@@ -42,7 +60,7 @@ seq_t a(idx_t n)
         /* grow cache if necessary */
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* test next_candidate */

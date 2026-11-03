@@ -14,7 +14,8 @@
  *            resulting words in order until the n‑th...
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 96, u64 n <= 120, u128 n <= 851,
  *            big any n
- * Helpers:   push_digit
+ * Validated: standard, pass, 52 terms through n = 2527 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/push_digit.h"
+
+/* Append a digit to a dynamic array of uint8_t. */
+static void push_digit(uint8_t **arr, size_t *len, size_t *cap, uint8_t d)
+{
+    if (*len >= *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        uint8_t *tmp = (uint8_t *)realloc(*arr, newcap);
+        *arr = tmp;
+        *cap = newcap;
+    }
+    (*arr)[(*len)++] = d;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,11 +8,13 @@
  * Formula:   a(n) = 0 if 4 | (n+1); otherwise a(n) = (-1)^⌊(n+1)/4⌋ * 2^⌊n/2⌋
  * Range:     i8 n <= 15, i16 n <= 31, i32 n <= 63, i64 n <= 127,
  *            i128 n <= 255, big any n
+ * Validated: standard, pass, 62 terms through n = 6557 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

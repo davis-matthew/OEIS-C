@@ -9,13 +9,15 @@
  *            a(2)=-2, a(3)=12, a(4)=12, a(5)=10
  * Range:     i8 n <= 8, i16 n <= 17, i32 n <= 35, i64 n <= 71, i128 n <= 144,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 871 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* First call: allocate cache for the first 6 elements. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(6 * sizeof(seq_t));
+        cache = mem_new(seq_t, 6);
         for (idx_t i = 0; i < 6; ++i)
             cache[i] = init_vals[i];
         max_computed = 5;  /* we have values up to index 5 */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     size_t new_size = (size_t)(n + 1);       /* array size needed */
     size_t cur_size = (size_t)(max_computed + 1);
     if (new_size > cur_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) /* allocation failure: abort */
             abort();
         cache = tmp;

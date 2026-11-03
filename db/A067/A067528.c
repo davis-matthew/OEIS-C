@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 89, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   is_prime_u64
+ * Validated: standard, pass, 71 terms through n = 102 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Helper: test whether n satisfies the defining property */
 static bool good_candidate(uint64_t n)
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     if (!seq)
     {
         cap = 32;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
             if ((size_t)len == cap)
             {
                 cap <<= 1;
-                seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
             }
             seq[len++] = (seq_t)cand;
         }

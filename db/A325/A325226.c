@@ -7,14 +7,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = A001222(n) - A071178(n) Number of prime factors of n that
  *            are less than the largest, counted with multiplicity
- * Range:     u8 n <= 9958, u16 n <= 9958, u32 n <= 9958, u64 n <= 9958,
- *            u128 n <= 9958, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9958 (2026-11-01)
  * Helpers:   bigomega, largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/bigomega.h"
 #include "../utils/largest_prime_factor.h"
 

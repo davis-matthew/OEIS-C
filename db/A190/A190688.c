@@ -6,24 +6,26 @@
  * Keywords:  nonn
  * Formula:   a(n) = floor((bn+c)r) - b*floor(nr) - floor(cr) with r =
  *            sqrt(3), b = 3, c = 2
- * Range:     u8 none, u16 n <= 9, u32 n <= 132, u64 n <= 132, u128 n <= 132,
- *            big any n
- * Helpers:   sqrt_floor
+ * Range:     u8 n <= 2, u16 n <= 48, u32 n <= 132, u64 n <= 132,
+ *            u128 n <= 132, big any n
+ * Validated: partial, pass, 132 terms through n = 132 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sqrt_floor.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
     /* compute floor(k * sqrt(3)) as floor(sqrt(3 * k^2))                     */
     seq_t k1    = (seq_t)3 * n + 2;                 /* k1 = 3n + 2 */
     seq_t k1sq  = k1 * k1;                          /* k1^2    */
-    seq_t s1    = sqrt_floor((seq_t)3 * k1sq);     /* floor(sqrt(3*k1^2)) */
+    seq_t s1    = isqrt_seq((seq_t)3 * k1sq);     /* floor(sqrt(3*k1^2)) */
 
     seq_t n_sq  = (seq_t)n * (seq_t)n;              /* n^2    */
-    seq_t s2    = sqrt_floor((seq_t)3 * n_sq);      /* floor(sqrt(3*n^2)) */
+    seq_t s2    = isqrt_seq((seq_t)3 * n_sq);      /* floor(sqrt(3*n^2)) */
 
     seq_t result = s1 - 3 * s2 - 3;                 /* a(n) */
     return result;

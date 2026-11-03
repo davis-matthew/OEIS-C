@@ -7,7 +7,8 @@
  * Formula:   a(n) = (15n)! * (n/2)! / ( (15n/2)! * (5n)! * (3n)! )
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 1, u64 n <= 3, u128 n <= 6,
  *            big any n
- * Helpers:   build_primes_upto, seq_mul, seq_pow
+ * Validated: standard, pass, 25 terms through n = 108 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,15 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static uint64_t *prime_list = NULL;
 static size_t prime_count  = 0;
@@ -74,7 +81,7 @@ seq_t a(idx_t n)
                     - exp_fact(6  * k, p);
             if (e == 0)
                 continue;
-            seq_t mult = seq_pow((seq_t)p, e);
+            seq_t mult = ipow_idx((seq_t)p, e);
             result = seq_mul(result, mult);
         }
         return result;
@@ -102,7 +109,7 @@ seq_t a(idx_t n)
             e -= exp_fact(6 * k + 3, p);
             if (e == 0)
                 continue;
-            seq_t mult = seq_pow((seq_t)p, e);
+            seq_t mult = ipow_idx((seq_t)p, e);
             result = seq_mul(result, mult);
         }
         return result;

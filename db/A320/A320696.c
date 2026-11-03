@@ -9,14 +9,28 @@
  *            can be computed with a simple DP using only additions
  * Range:     u8 n <= 4, u16 n <= 24, u32 n <= 96, u64 n <= 365,
  *            u128 n <= 1377, big any n
- * Helpers:   compute_p2
+ * Validated: standard, pass, 55 terms through n = 8803 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Include only standard headers needed. */
 #include <stdlib.h>
-#include "../utils/compute_p2.h"
+#include "../utils/mem.h"
+
+/*  Helper: compute p2[0..n] where p2[0]=1 and p2[m] counts
+    partitions of m into parts >=2 (unlimited).  */
+static void compute_p2(idx_t n, seq_t *p2)
+{
+    p2[0] = 1;
+    for (idx_t i = 1; i <= n; ++i) p2[i] = 0;
+    for (idx_t k = 2; k <= n; ++k) {
+        for (idx_t i = k; i <= n; ++i) {
+            p2[i] += p2[i - k];
+        }
+    }
+}
 
 /*  Main function required by the specification.  */
 seq_t a(idx_t n)
@@ -28,7 +42,7 @@ seq_t a(idx_t n)
     /*  Recompute p2 if we need values beyond what we have.  */
     if (n + 1 > p2_size) {
         size_t new_size = (size_t)(n + 1);
-        p2 = (seq_t *)realloc(p2, new_size * sizeof(seq_t));
+        p2 = mem_resize(seq_t, p2, new_size);
         compute_p2(n, p2);
         p2_size = (idx_t)new_size;
     }

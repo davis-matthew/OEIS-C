@@ -7,14 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n} Stirling2(n,k) * pi(k) (OEIS A347041)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 24, u128 n <= 42,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: standard, pass, 41 terms through n = 561 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
 
 static seq_t *S        = NULL; /* current Stirling S(n,k) row, index by k */
 static seq_t *a_vals   = NULL; /* stored a(n) values */
@@ -77,7 +78,7 @@ seq_t a(idx_t n)
         /* base case S(0,0) = 1 */
         S[0]        = (seq_t)1;
         a_vals[0]   = (seq_t)0;
-        pi_arr[0]   = compute_pi(0); /* pi(0) = 0 */
+        pi_arr[0]   = prime_pi(0); /* pi(0) = 0 */
         max_n       = 0;
     }
 
@@ -88,7 +89,7 @@ seq_t a(idx_t n)
     if (n > max_n) {
         for (idx_t i = max_n + 1; i <= n; ++i) {
             /* Compute pi(i) once and store */
-            pi_arr[i] = compute_pi(i);
+            pi_arr[i] = prime_pi(i);
 
             /* Initialise the new entry for S[i] (new column) */
             S[i] = (seq_t)0;

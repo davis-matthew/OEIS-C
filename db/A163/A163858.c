@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9919, u16 n <= 9919, u32 n <= 9919, u64 n <= 9919,
- *            u128 n <= 9919, big any n
- * Helpers:   none
+ * Range:     u8 n <= 41946, u16 n <= 99982, u32 n <= 99982, u64 n <= 99982,
+ *            u128 n <= 99982, big any n
+ * Validated: standard, pass, 121 terms through n = 9919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state */
 static idx_t   max_n   = 0;     /* largest n processed so far */
@@ -58,7 +60,7 @@ rebuild(idx_t n)
 
     /* Resize cumulative array to hold entries up to n. */
     size_t new_csize = (size_t)(n + 1);          /* indices 0..n */
-    seq_t *tmp_c = (seq_t *)realloc(cumul, new_csize * sizeof(seq_t));
+    seq_t *tmp_c = mem_resize(seq_t, cumul, new_csize);
     if (!tmp_c) exit(1);
     cumul = tmp_c;
 

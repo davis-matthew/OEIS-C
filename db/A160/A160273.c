@@ -11,6 +11,7 @@
  *            by OEIS A160273
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 80 terms through n = 9175 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
 #include <stdint.h>
 
 /* Helpers available from the build system */
+#include <stddef.h>
 #include "../utils/build_primes.h"
 
 static uint64_t *twin_lower = NULL;   /* lower primes of twin pairs */

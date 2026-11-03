@@ -8,7 +8,8 @@
  *            power > 1 (order of SL(3,q))
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   is_prime_power_u64
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_power_u64.h"
+
+static bool is_prime_power_u64(uint64_t m) {
+    uint64_t p = 0;
+    if (m < 2) return false;
+    if (m % 2 == 0) p = 2;
+    else {
+        for (uint64_t d = 3; d * d <= m; d += 2) {
+            if (m % d == 0) { p = d; break; }
+        }
+        if (p == 0) return true;
+    }
+    while (m % p == 0) m /= p;
+    return m == 1;
+}
 
 static uint64_t *pp_list = NULL;
 static idx_t pp_len = 0;

@@ -12,13 +12,14 @@
  *            * of 5 and in which exactly 3/5 of the elements belon...
  * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +30,8 @@ seq_t a(idx_t n)
     if (R / 2 < kmax) kmax = R / 2;
     seq_t total = 0;
     for (idx_t k = 1; k <= kmax; ++k) {
-        seq_t left  = binom(L, 3 * k);
-        seq_t right = binom(R, 2 * k);
+        seq_t left  = binomial(L, 3 * k);
+        seq_t right = binomial(R, 2 * k);
         total += left * right;
     }
     return total;

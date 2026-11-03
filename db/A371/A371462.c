@@ -12,7 +12,8 @@
  *            condition * mean = sd is equivalent to * * Q · k...
  * Range:     u8 n <= 10, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define POW10_SIZE 64          /* enough for all considered lengths */
 
@@ -43,7 +45,7 @@ static void bump_cap(void) {
 static void add_term(seq_t v) {
     if (term_len == term_cap) {
         bump_cap();
-        term_arr = (seq_t *)realloc(term_arr, term_cap * sizeof(seq_t));
+        term_arr = mem_resize(seq_t, term_arr, term_cap);
     }
     term_arr[term_len++] = v;
 }
@@ -119,7 +121,7 @@ static void ensure_terms(idx_t n) {
         generate_length((int)max_generated_k);
         /* sort and dedup */
         if (term_len == 0) continue;          /* should not happen */
-        qsort(term_arr, term_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(term_arr, term_len, sizeof(seq_t), cmp_seq);
         size_t write = 1;
         for (size_t i = 1; i < term_len; ++i) {
             if (term_arr[i] != term_arr[write-1]) {

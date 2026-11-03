@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 6, i64 n <= 9, i128 n <= 15,
  *            big any n
- * Helpers:   alloc_seq_array, free_cache
+ * Validated: standard, pass, 31 terms through n = 147 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,20 @@
    computed, which is fast enough for the required limits. */
 
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"   /* seq_t *alloc_seq_array(size_t) */
-#include "../utils/free_cache.h"        /* free_cache(seq_t *) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache       = NULL;   /* cache for a(k) values             */
 static size_t cache_cap   = 0;       /* current capacity of cache         */

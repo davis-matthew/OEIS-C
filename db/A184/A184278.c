@@ -8,7 +8,8 @@
  *            3^(n^2/lcm(c,d))
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow, phi
+ * Validated: standard, pass, 27 terms through n = 40 (2026-11-01)
+ * Helpers:   ipow, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/phi.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/totient.h"
 
 static idx_t gcd_idx_t(idx_t a, idx_t b)
 {
@@ -59,16 +60,16 @@ seq_t a(idx_t n)
 
     for (idx_t ic = 0; ic < dcnt; ++ic) {
         idx_t c = divs[ic];
-        seq_t phi_c = phi(c);
+        seq_t phi_c = totient(c);
         for (idx_t id = 0; id < dcnt; ++id) {
             idx_t d = divs[id];
-            seq_t phi_d = phi(d);
+            seq_t phi_d = totient(d);
 
             idx_t g = gcd_idx_t(c, d);
             idx_t lcm = (c / g) * d;          /* lcm(c,d) fits in idx_t */
             idx_t exp = n2 / lcm;             /* exponent for 3^... */
 
-            seq_t term = big_pow((seq_t)3, (seq_t)exp);
+            seq_t term = ipow((seq_t)3, (seq_t)exp);
             term *= phi_c;
             term *= phi_d;
             sum += term;

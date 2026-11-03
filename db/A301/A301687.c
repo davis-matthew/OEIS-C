@@ -9,13 +9,36 @@
  *            a(4)=44, a(5)=63, a(6)=91
  * Range:     u8 n <= 10, u16 n <= 175, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (*cap < needed) {
+        size_t new_cap = *cap ? (*cap << 1) : 8;
+        if (new_cap < needed)
+            new_cap = needed;
+        *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (*cap < needed) {
@@ -26,6 +49,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
         *cap = new_cap;
     }
 }
+#endif
 
 seq_t a(idx_t n)
 {
@@ -43,14 +67,14 @@ seq_t a(idx_t n)
 
     /* Initialize the cache if this is the first call */
     if (cache == NULL) {
-        ensure_capacity(7, &cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(7, &cap, OEISC_VPP(&cache), sizeof(seq_t));
         for (size_t i = 0; i < 7; ++i) cache[i] = init[i];
         count = 7;    /* we have values for indices 0..6 */
     }
 
     /* Grow the allocation if needed */
     if ((size_t)(n + 1) > cap)
-        ensure_capacity((size_t)(n + 1), &cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity((size_t)(n + 1), &cap, OEISC_VPP(&cache), sizeof(seq_t));
 
     /* Compute missing terms up to index n */
     for (size_t i = count; i <= (size_t)n; ++i) {

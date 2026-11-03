@@ -8,7 +8,8 @@
  * Formula:   a(n) = binomial(n+1,2) - \sum_{i=1}^{n-1} a(i) * floor(n/i)
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache storage for a(n) values */
 static seq_t *a_cache   = NULL; /* array, 1‑based indices: a_cache[n] = a(n) */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     while ((size_t)n + 1 > new_cap)
         new_cap <<= 1;
 
-    seq_t *new_a = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_cache, new_cap);
     if (!new_a)
         abort(); /* out of memory */
 

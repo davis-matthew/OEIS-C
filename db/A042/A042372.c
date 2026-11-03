@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 7, u32 n <= 18, u64 n <= 36, u128 n <= 75,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 38 terms through n = 200 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
  * continued‑fraction coefficients of √713. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ----------  continued‑fraction coefficients of √713  ---------- */
 static seq_t *coeff = NULL;      /* array of coefficients          */
@@ -33,7 +53,7 @@ static void coeff_push(seq_t v)
 {
     if (coeff_len == coeff_cap) {
         size_t new_cap = coeff_cap ? (coeff_cap << 1) : 16;
-        seq_t *tmp = (seq_t *)realloc(coeff, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, coeff, new_cap);
         coeff = tmp;
         coeff_cap = new_cap;
     }
@@ -87,7 +107,7 @@ static void ensure_num_cap(size_t needed)
     if (needed <= num_cap) return;
     size_t new_cap = num_cap ? (num_cap << 1) : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(num, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, num, new_cap);
     num = tmp;
     num_cap = new_cap;
 }

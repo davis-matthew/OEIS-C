@@ -8,14 +8,26 @@
  *            the form 4*x^2 + 5*y^2
  * Range:     u8 n <= 1, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/cmp_seq_t.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* Integer square root for uint64_t, used to bound x and y */
 static uint64_t isqrt_u64(uint64_t n)
@@ -38,7 +50,7 @@ static void build_cache(idx_t need)
 {
     /* Free old cache if present */
     if (cache) {
-        free(cache);
+        mem_free(cache);
         cache = NULL;
         cache_len = 0;
     }
@@ -50,7 +62,7 @@ static void build_cache(idx_t need)
 
         /* Estimate total raw values; allocate nevertheless */
         size_t total = (size_t)(max_x + 1) * (size_t)(max_y + 1);
-        seq_t *raw = (seq_t *)malloc(total * sizeof(seq_t));
+        seq_t *raw = mem_new(seq_t, total);
         if (!raw) exit(1);  /* out of memory */
 
         size_t cnt = 0;
@@ -68,7 +80,7 @@ static void build_cache(idx_t need)
         }
 
         /* Sort and deduplicate */
-        qsort(raw, cnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(raw, cnt, sizeof(seq_t), cmp_seq_t);
 
         size_t uniq = 0;
         for (size_t i = 0; i < cnt; ++i) {
@@ -83,7 +95,7 @@ static void build_cache(idx_t need)
 
         /* Not enough terms: enlarge LIMIT and retry */
         LIMIT *= 2;
-        free(cache);
+        mem_free(cache);
         cache = NULL;
         cache_len = 0;
     }

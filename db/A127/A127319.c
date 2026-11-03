@@ -8,15 +8,18 @@
  * Formula:   a(n) = binomial(n, A007953(n)) mod n
  * Range:     u8 n <= 369, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, mod_mul
+ * Validated: standard, pass, 108 terms through n = 9412 (2026-11-01)
+ * Helpers:   build_primes, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_mul.h"
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/mulmod.h"
 
 static inline int digit_sum_idx(idx_t n)
 {
@@ -85,8 +88,8 @@ static inline uint64_t pow_mod_uint64(uint64_t base, uint64_t exp, uint64_t mod)
 {
     uint64_t result = 1 % mod;
     while (exp) {
-        if (exp & 1) result = mod_mul(result, base, mod);
-        base = mod_mul(base, base, mod);
+        if (exp & 1) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -150,7 +153,7 @@ seq_t a(idx_t n)
         if (e <= 0) continue;
         uint64_t pmod = primes[i] % mod;
         uint64_t pe   = pow_mod_uint64(pmod, (uint64_t)e, mod);
-        r = mod_mul(r, pe, mod);
+        r = mulmod(r, pe, mod);
     }
 
     return (seq_t)r;

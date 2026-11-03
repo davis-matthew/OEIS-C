@@ -10,12 +10,14 @@
  *            c(n,4)=c(n-1,4)-(n-1)*c(n-2,4)-(n-3)*(n-2)*(n-1)*(1+c(n-4,2)+c(n-4,4))
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 15, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
     if (n + 1 > cap) {
         size_t newcap = (cap == 0 ? 8 : cap * 2);
         while (newcap <= n) newcap <<= 1;
-        c2 = (seq_t *)realloc(c2, newcap * sizeof(seq_t));
-        c4 = (seq_t *)realloc(c4, newcap * sizeof(seq_t));
+        c2 = mem_resize(seq_t, c2, newcap);
+        c4 = mem_resize(seq_t, c4, newcap);
         cap = (idx_t)newcap;
     }
 

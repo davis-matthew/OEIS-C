@@ -12,15 +12,66 @@
  *            B(n/k) (decomposable classes), B(m) = number of reduced binar...
  * Range:     u8 n <= 250, u16 n <= 250, u32 n <= 250, u64 n <= 250,
  *            u128 n <= 250, big any n
- * Helpers:   binary_indec, ternary_total
+ * Validated: standard, pass, 110 terms through n = 246 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binary_indec.h"
-#include "../utils/ternary_total.h"
+
+static long long binary_indec(long long m)
+{
+    long long cnt = 0, f, p;
+    for (f = 1; 3 * f * f <= m; f++) {
+        long long prod = m + f * f;
+        for (p = 2 * f; p * p <= prod; p++) {
+            if (prod % p == 0 && prod / p >= p) cnt++;
+        }
+    }
+    return cnt;
+}
+
+static long long ternary_total(long long n)
+{
+    long long cnt = 0, a, b, r, s, t;
+    for (a = 1; a * a * a <= 2 * n; a++) {
+        for (b = a; a * b * b <= 2 * n; b++) {
+            for (t = -a; t <= a; t++) {
+                long long den;
+                if (t & 1) continue;
+                den = 4 * a * b - t * t;
+                for (s = -a; s <= a; s++) {
+                    if (s & 1) continue;
+                    for (r = -b; r <= b; r++) {
+                        long long num, c, sum;
+                        if (r & 1) continue;
+                        if (!((r > 0 && s > 0 && t > 0) || (r <= 0 && s <= 0 && t <= 0)))
+                            continue;
+                        num = 4 * n - r * s * t + a * r * r + b * s * s;
+                        if (num <= 0 || num % den != 0) continue;
+                        c = num / den;
+                        if (c < b) continue;
+                        sum = a + b + r + s + t;
+                        if (sum < 0) continue;
+                        if (a == t && s > 2 * r) continue;
+                        if (a == s && t > 2 * r) continue;
+                        if (b == r && t > 2 * s) continue;
+                        if (a == -t && s != 0) continue;
+                        if (a == -s && t != 0) continue;
+                        if (b == -r && t != 0) continue;
+                        if (sum == 0 && 2 * a + 2 * s + t > 0) continue;
+                        if (a == b && llabs(r) > llabs(s)) continue;
+                        if (b == c && llabs(s) > llabs(t)) continue;
+                        cnt++;
+                    }
+                }
+            }
+        }
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

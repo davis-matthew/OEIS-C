@@ -8,12 +8,14 @@
  *            a(1) = 0, a(2) = 0, a(3) = 0, a(4) = 0
  * Range:     i8 n <= 59, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* array storing computed terms      */
 static size_t sz = 0;          /* number of terms currently stored   */
@@ -26,7 +28,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = (cap == 0) ? 16 : cap << 1;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp == NULL) {
         /* In the unlikely event of memory exhaustion, abort. */
         abort();

@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{k=1..n} gcd(5*k, n)
  * Range:     u8 n <= 29, u16 n <= 1649, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 81 terms through n = 9711 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

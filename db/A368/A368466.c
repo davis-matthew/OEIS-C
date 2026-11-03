@@ -7,12 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n} 2^k * k^n
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
         }
         else
         {
-            term = seq_pow((seq_t)k, n);   /* k^n          */
+            term = ipow_idx((seq_t)k, n);   /* k^n          */
         }
 
         term = term * pow2;      /* 2^k * k^n     */

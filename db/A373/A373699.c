@@ -8,8 +8,8 @@
  * Formula:   a(n) = Sum_{k=2}^{n-1} (prime(k)+prime(k+1))/2
  * Range:     u8 n <= 13, u16 n <= 157, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, seq_alloc_new_array,
- *            seq_free_array
+ * Validated: standard, pass, 65 terms through n = 8952 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +18,25 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_prime_limit_for_idx.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/mem.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 seq_t a(idx_t n)
 {

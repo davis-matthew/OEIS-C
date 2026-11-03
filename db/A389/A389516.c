@@ -10,9 +10,10 @@
  *            first(R) for every maximal run R. The implementation enumerates
  *            k until n qualifying numbers are found and caches the results
  *            for repeated calls
- * Range:     u8 n <= 27, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 27, u16 n <= 951, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 72 terms through n = 8853 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool qualifies(idx_t k)
 {
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
             if (good_len == good_cap)
             {
                 size_t new_cap = good_cap == 0 ? 128 : good_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(good, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, good, new_cap);
                 good = tmp;
                 good_cap = new_cap;
             }

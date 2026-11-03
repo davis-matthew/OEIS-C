@@ -9,6 +9,7 @@
  *            2·3^(e-1), f(p,e) = (p-2)·p^(e-1) for p ≥ 5
  * Range:     u8 n <= 262, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 97 terms through n = 9718 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -44,6 +45,9 @@ static idx_t isqrt_idx(idx_t x)
    Cached prime sieve up to a required limit.  The array is rebuilt
    only when the new limit exceeds the current one.
    ------------------------------------------------------------------ */
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static uint64_t *prime_cache = NULL;

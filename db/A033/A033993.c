@@ -7,7 +7,8 @@
  * Formula:   a(n) are the integers with exactly four distinct prime factors
  * Range:     u8 n <= 1, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 62 terms through n = 920 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,11 +32,11 @@ seq_t a(idx_t n)
     /* If we do not yet have n terms, continue searching */
     while (tcnt < n) {
         ++checked;                           /* examine next integer */
-        if (count_distinct_primes(checked) == 4) {
+        if (omega(checked) == 4) {
             /* Ensure we have room in the array */
             if (tcnt == tcap) {
                 size_t newcap = tcap ? tcap << 1 : 32;
-                seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, newcap);
                 if (!tmp) {               /* allocation failure, unlikely */
                     /* In a real system we would handle this error */
                     return 0;

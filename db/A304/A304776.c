@@ -7,17 +7,20 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n / A007947(n)^(A051904(n)-1)
- * Range:     u8 n <= 256, u16 n <= 9993, u32 n <= 9993, u64 n <= 9993,
- *            u128 n <= 9993, big any n
- * Helpers:   big_pow, factor_u64
+ * Range:     u8 n <= 256, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 99 terms through n = 9993 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
     seq_t res = 1;
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t e = exps[i] - min_e + 1;      /* exponent ≥ 1       */
-        res *= big_pow((seq_t)primes[i], (seq_t)e);
+        res *= ipow((seq_t)primes[i], (seq_t)e);
     }
     return res;
 }

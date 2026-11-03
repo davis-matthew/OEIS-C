@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 158, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   odd_flimsy, pc64
+ * Validated: standard, pass, 79 terms through n = 990 (2026-11-01)
+ * Helpers:   popcount
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,52 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/odd_flimsy.h"
-#include "../utils/pc64.h"
+#include "../utils/popcount.h"
+
+static bool odd_flimsy(uint64_t m) {
+    if (m <= 1) return false;
+    int w = popcount(m);
+    if (w <= 2) return false;
+    int *orb = (int *)malloc(m * sizeof(int));
+    uint64_t *rep = (uint64_t *)malloc(m * sizeof(uint64_t));
+    uint64_t r, i;
+    int K = 0;
+    for (r = 0; r < m; r++) orb[r] = -1;
+    for (r = 0; r < m; r++) {
+        if (orb[r] >= 0) continue;
+        uint64_t s = r;
+        while (orb[s] < 0) { orb[s] = K; s = (2 * s) % m; }
+        rep[K++] = r;
+    }
+    uint64_t ord = 0;
+    { uint64_t p = 1; do { p = (2 * p) % m; ord++; } while (p != 1); }
+    int *dist = (int *)malloc(K * sizeof(int));
+    int *queue = (int *)malloc(K * sizeof(int));
+    int k;
+    for (k = 0; k < K; k++) dist[k] = -1;
+    int zero = orb[0];
+    int head = 0, tail = 0;
+    bool found = false;
+    dist[orb[1]] = 1;
+    queue[tail++] = orb[1];
+    while (head < tail && !found) {
+        int o = queue[head++];
+        int d = dist[o];
+        if (d >= w - 1) break;
+        uint64_t base = rep[o];
+        uint64_t p = 1;
+        for (i = 0; i < ord; i++) {
+            uint64_t s = base + p;
+            if (s >= m) s -= m;
+            int t = orb[s];
+            if (t == zero) { found = true; break; }
+            if (dist[t] < 0) { dist[t] = d + 1; queue[tail++] = t; }
+            p = (2 * p) % m;
+        }
+    }
+    free(orb); free(rep); free(dist); free(queue);
+    return found;
+}
 
 /* Search: n is flimsy iff its odd part m is. For odd m, a multiple of m with j one-bits
    is a sum of j powers of 2 that is 0 mod m, and powers of 2 mod m repeat. So a BFS over

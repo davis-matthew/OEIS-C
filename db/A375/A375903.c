@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 18, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,11 +25,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Allocate an array of seq_t objects. */
 static inline seq_t *alloc_seq_array(size_t n)
 {
-    return (seq_t *)malloc(sizeof(seq_t) * n);
+    return mem_new(seq_t, n);
 }
 
 /* Ensure that a dynamic array has at least 'need' elements.
@@ -42,7 +44,7 @@ static void ensure_capacity(idx_t need, seq_t **arr, size_t *cap)
         while (newcap <= (size_t)need) newcap <<= 1;
         seq_t *newarr = alloc_seq_array(newcap);
         for (size_t i = 0; i < *cap; ++i) newarr[i] = (*arr)[i];
-        free(*arr);
+        mem_free(*arr);
         *arr = newarr;
         *cap = newcap;
     }

@@ -13,7 +13,8 @@
  *            order described in the OEIS entry
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cycle = NULL;   /* 24 precomputed cycle values */
 
@@ -40,7 +42,7 @@ static const seq_t P3[6][3] = {
 static void init_cycle(void) {
     if (cycle) return; /* already initialised */
 
-    cycle = (seq_t *)malloc(24 * sizeof(seq_t));
+    cycle = mem_new(seq_t, 24);
     /* permutation array for the 4‑bell state */
     seq_t perm[4] = {1, 2, 3, 4};
     int dir = -1;          /* -1 : move 4 left, +1 : move 4 right */

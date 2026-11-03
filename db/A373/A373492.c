@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 4336, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 7745, big any n
- * Helpers:   factor_u64
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 81 terms through n = 9676 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -43,7 +44,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_vals = NULL;   /* sequence elements already found */
 static size_t   seq_len  = 0;     /* count of stored elements         */
@@ -55,7 +58,7 @@ static void grow_seq_t(seq_t **arr, size_t *cap, size_t new_len)
     if (*cap >= new_len) return;
     size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
     while (new_cap < new_len) new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 
@@ -117,14 +120,14 @@ seq_t a(idx_t n)
     /* Extend the cached sequence until it contains at least n terms. */
     while (seq_len < (size_t)n) {
         if (is_good_k((uint64_t)next_candidate)) {
-            /* Append the candidate to the array. */
-            size_t new_len = seq_len + 1;
-            size_t cap = seq_len > 0 ? (new_len > seq_len ? new_len : seq_len) : 0;
-            /* Simple growth strategy: double capacity when needed. */
-            if (cap < new_len) {
-                cap = (cap == 0) ? 16 : (cap << 1);
-                while (cap < new_len) cap <<= 1;
-                seq_vals = (seq_t *)realloc(seq_vals, cap * sizeof(seq_t));
+            /* Append the candidate to the array (the capacity used to be
+               recomputed from the length each time, so it never grew). */
+            static size_t cap = 0;
+            if (seq_len >= cap) {
+                cap = cap ? 2 * cap : 16;
+                seq_t *grown_ = mem_resize(seq_t, seq_vals, cap);
+                if (!grown_) abort();
+                seq_vals = grown_;
             }
             seq_vals[seq_len++] = (seq_t)next_candidate;
         }

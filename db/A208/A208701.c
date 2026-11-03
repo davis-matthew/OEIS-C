@@ -12,14 +12,39 @@
  *            transition from a pair of columns (prev,curr) to a...
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   is_horiz_valid, is_vert_valid
+ * Validated: standard, pass, 34 terms through n = 190 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/is_horiz_valid.h"
-#include "../utils/is_vert_valid.h"
+
+/* Check horizontal constraint for a triple of columns */
+static int is_horiz_valid(int prev, int curr, int next)
+{
+    for (int r = 0; r < 6; ++r) {
+        int a = (prev >> r) & 1;
+        int b = (curr >> r) & 1;
+        int c = (next >> r) & 1;
+        if ((a == 0 && b == 0 && c == 1) ||
+            (a == 1 && b == 0 && c == 0))
+            return 0;
+    }
+    return 1;
+}
+
+/* Check if a 6‑bit column contains the forbidden vertical patterns */
+static int is_vert_valid(int col)
+{
+    /* examine triples of rows 0‑1‑2, 1‑2‑3 */
+    for (int r = 0; r <= 3; ++r) {
+        int trip = (col >> r) & 7;          /* 3‑bit value */
+        if (trip == 0b010 || trip == 0b101) /* 010 or 101 forbidden */
+            return 0;
+    }
+    return 1;
+}
 
 enum { COLS   = 64 };                /* number of 6‑bit columns   */
 enum { STATES = COLS * COLS };       /* pair of columns          */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 179, u32 n <= 199, u64 n <= 199,
  *            u128 n <= 199, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 seq_t a(idx_t n) {
     /* For n < 8 no partition into 8 primes exists */
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
  
     /* ---------- 2. DP table: dp[t][s]  (t = 0..7, s = 0..N) ----------- */
     size_t dp_size = 8 * Np1;
-    seq_t *dp = (seq_t*)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) { free(primes); return (seq_t)0; }
     /* helper for indexing */
     #define IDX(t,s) ((t) * Np1 + (s))
@@ -90,7 +92,7 @@ seq_t a(idx_t n) {
     }
  
     #undef IDX
-    free(dp);
+    mem_free(dp);
     free(primes);
     return ans;
 }

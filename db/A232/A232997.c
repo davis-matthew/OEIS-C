@@ -11,13 +11,15 @@
  *            value
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 73 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>          /* for standard integer literals */
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     seq_t exp = (seq_t)(prod / 4);
 
     /* Compute 5^exp. */
-    seq_t result = big_pow((seq_t)5, exp);
+    seq_t result = ipow((seq_t)5, exp);
 
     /* If n ≡ 3 (mod 4), multiply by 2. */
     if ((n & 3) == 3) {

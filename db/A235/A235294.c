@@ -13,12 +13,14 @@
  *            a(9)=138744, a(10)=356632
  * Range:     u8 none, u16 n <= 8, u32 n <= 19, u64 n <= 40, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[10] = {
     (seq_t)744, (seq_t)1132, (seq_t)1736, (seq_t)3184, (seq_t)5784,
@@ -36,9 +38,9 @@ seq_t a(idx_t n)
     if (cache_len <= (size_t)n) {
         size_t new_len = (size_t)n + 1;   /* extra slot for index 0 */
         if (cache == NULL) {
-            cache = (seq_t*)calloc(new_len, sizeof(seq_t));
+            cache = mem_new(seq_t, new_len);
         } else {
-            cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_len);
         }
         /* fill the uninitialized part with the first 10 terms if needed */
         if (cache_len == 0) {

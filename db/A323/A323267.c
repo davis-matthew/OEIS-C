@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence.  cache[0] = a(1), cache[1] = a(2), … */
 static seq_t *cache = NULL;
@@ -29,13 +31,13 @@ static void ensure_cache_len(idx_t n)
     if (n <= cache_cap)
         return;
 
-    seq_t *new_cache = (seq_t *)malloc(n * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, n);
     if (!new_cache)           /* allocation failure: terminate (safe for tests) */
         abort();
 
     if (cache) {
-        memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
 
     /* If the array grows, the new slots contain indeterminate values;

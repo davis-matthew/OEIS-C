@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
    the calls. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for positions of 3’s */
 static seq_t *positions = NULL;
@@ -58,8 +60,7 @@ static void ensure_cache(idx_t n)
                 /* Ensure capacity for the new position. */
                 if (pos_len == pos_cap) {
                     pos_cap = pos_cap ? pos_cap << 1 : 1024;
-                    seq_t *newp = (seq_t *)realloc(positions,
-                                                   pos_cap * sizeof(seq_t));
+                    seq_t *newp = mem_resize(seq_t, positions, pos_cap);
                     /* In a realistic build we would check for NULL. */
                     positions = newp;
                 }

@@ -10,7 +10,8 @@
  *            a(n) is the n‑th coefficient of v(n,x), read row‑by‑row
  * Range:     u8 n <= 16, u16 n <= 39, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,16 +45,16 @@ seq_t a(idx_t n)
     size_t max_len = (size_t)r;
 
     /* Allocate coefficient arrays for the current and previous rows */
-    seq_t *u_prev = (seq_t *)malloc(max_len * sizeof(seq_t));
-    seq_t *v_prev = (seq_t *)malloc(max_len * sizeof(seq_t));
+    seq_t *u_prev = mem_new(seq_t, max_len);
+    seq_t *v_prev = mem_new(seq_t, max_len);
     if (!u_prev || !v_prev)
         return (seq_t)0;              /* allocation failure */
 
 #ifdef __cplusplus
     /* Construct each element (needed if seq_t is a class type) */
     for (size_t k = 0; k < max_len; ++k) {
-        new (&u_prev[k]) seq_t();
-        new (&v_prev[k]) seq_t();
+        *(&u_prev[k]) = (seq_t)0;
+        *(&v_prev[k]) = (seq_t)0;
     }
 #endif
 
@@ -63,28 +65,28 @@ seq_t a(idx_t n)
 
     if (r == 1u) {
         seq_t result = v_prev[0];
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         return result;
     }
 
     /* --- iterate to build rows up to r --- */
     for (size_t i = 2; i <= (size_t)r; ++i)
     {
-        seq_t *u_cur = (seq_t *)malloc(max_len * sizeof(seq_t));
-        seq_t *v_cur = (seq_t *)malloc(max_len * sizeof(seq_t));
+        seq_t *u_cur = mem_new(seq_t, max_len);
+        seq_t *v_cur = mem_new(seq_t, max_len);
         if (!u_cur || !v_cur) {
             /* Clean up and return 0 on failure */
-            free(u_prev);
-            free(v_prev);
-            if (u_cur) free(u_cur);
-            if (v_cur) free(v_cur);
+            mem_free(u_prev);
+            mem_free(v_prev);
+            if (u_cur) mem_free(u_cur);
+            if (v_cur) mem_free(v_cur);
             return (seq_t)0;
         }
 #ifdef __cplusplus
         for (size_t k = 0; k < max_len; ++k) {
-            new (&u_cur[k]) seq_t();
-            new (&v_cur[k]) seq_t();
+            *(&u_cur[k]) = (seq_t)0;
+            *(&v_cur[k]) = (seq_t)0;
         }
 #endif
 
@@ -107,8 +109,8 @@ seq_t a(idx_t n)
         }
 
         /* Free previous row arrays */
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
 
         /* Prepare for next iteration */
         u_prev = u_cur;
@@ -119,8 +121,8 @@ seq_t a(idx_t n)
     seq_t result = v_prev[offset];
 
     /* Clean up */
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
 
     return result;
 }

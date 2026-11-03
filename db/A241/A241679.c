@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^p_n + 7 where p_n is the nth prime (a(1) = 2^2+7 = 11)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 31,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 184 (2026-11-01)
  * Helpers:   build_primes_upto, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include "../utils/build_primes_upto.h"
 #include "../utils/pow2.h"
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto */
 
 static uint64_t *prime_cache = NULL;   /* array of primes (type idx_t == uint64_t)      */
 static size_t prime_cache_cnt = 0;     /* number of primes stored                       */

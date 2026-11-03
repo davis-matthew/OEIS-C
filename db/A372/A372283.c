@@ -11,13 +11,15 @@
  *            (row+col-1)=d with d(d+1)/2≥n, set col=p=n−d(d−1)/2 and
  *            row=d−p+1, then start from v=2·col−1 and apply R=v →
  *            odd_part(3v+1) (row−1) times
- * Range:     u8 n <= 391, u16 n <= 9727, u32 n <= 9727, u64 n <= 9727,
- *            u128 n <= 9727, big any n
+ * Range:     u8 n <= 391, u16 n <= 22155, u32 n <= 22155, u64 n <= 22155,
+ *            u128 n <= 22155, big any n
+ * Validated: standard, pass, 107 terms through n = 9727 (2026-11-01)
  * Helpers:   odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/odd_part.h"
 
 /* Compute a(n) for n≥1.  The function is safe for any n that fits

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,14 +19,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 /* Count the number of runs (maximal blocks of equal bits) in the binary
    representation of x. */
 static inline idx_t count_runs(seq_t x)
 {
     if (x == 0) return 0;
-    idx_t bitlen = (idx_t)bitlen_seq_t(x);      /* most significant bit + 1 */
+    idx_t bitlen = (idx_t)bit_length(x);      /* most significant bit + 1 */
     int prev   = -1;
     int runcnt = 0;
     /* iterate from the most significant bit down to the least significant */

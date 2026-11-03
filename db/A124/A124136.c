@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_pi.h"   /* provides: seq_t compute_pi(idx_t n) */
+#include <stddef.h>
+#include "../utils/prime_pi.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
         plen = 1;
 
         rcap   = 16;
-        records = (seq_t *)malloc(rcap * sizeof(seq_t));
+        records = mem_new(seq_t, rcap);
         if (!records) exit(1);
         records[0] = (seq_t)2;
         rlen = 1;
@@ -82,14 +85,14 @@ seq_t a(idx_t n)
         primes[plen++] = p;
 
         /* Count primes in the open interval (p,2p). */
-        seq_t cnt = compute_pi((idx_t)((p << 1) - 1)) - compute_pi((idx_t)p);
+        seq_t cnt = prime_pi((idx_t)((p << 1) - 1)) - prime_pi((idx_t)p);
 
         /* New record? */
         if (cnt > rmax) {
             rmax = cnt;
             if (rlen == rcap) {
                 rcap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(records, rcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, records, rcap);
                 if (!tmp) exit(1);
                 records = tmp;
             }

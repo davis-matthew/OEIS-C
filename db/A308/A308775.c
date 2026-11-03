@@ -8,13 +8,15 @@
  *            of n into exactly four positive parts
  * Range:     u8 n <= 13, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* Initialise the table on first entry. */
     if (dp == NULL) {
-        dp = (seq_t *)malloc(sizeof(seq_t));
+        dp = mem_new(seq_t, 1);
         if (dp == NULL)
             return 0;           /* unlikely, but defensive */
         dp[0] = 1;              /* empty partition */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Recompute dp up to new maximum m when necessary. */
     if (m > max_m) {
         size_t size = (size_t)(m + 1);
-        dp = (seq_t *)realloc(dp, size * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, size);
         if (dp == NULL)
             return 0;           /* unlikely */
         dp[0] = 1;

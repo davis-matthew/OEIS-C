@@ -7,13 +7,15 @@
  * Formula:   a(0)=1, a(1)=10, a(n+2)=10*a(n+1)-1922*(n+1)*a(n)
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 9, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 301 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Cache to avoid recomputation.  Cache[0] and Cache[1] are always
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* Allocate cache on first use (or if capacity exceeded).  */
     if (cache == NULL) {
         cache_cap = (n + 1 > 16) ? (n + 1) : 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;                       /* allocation failure */
 
         cache[0] = 1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     if ((size_t)(n + 1) > cache_cap) {
         size_t new_cap = cache_cap;
         while ((size_t)(n + 1) > new_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                       /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

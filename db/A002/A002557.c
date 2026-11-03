@@ -9,13 +9,22 @@
  *            factors <= 31
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 486, u64 n <= 512, u128 n <= 512,
  *            big any n
- * Helpers:   compare_seq_t
+ * Validated: full, pass, 512 terms through n = 512 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/compare_seq_t.h"
+#include "../utils/mem.h"
+
+static int compare_seq_t(const void *a, const void *b) {
+    seq_t va = *(const seq_t *)a;
+    seq_t vb = *(const seq_t *)b;
+    if (va < vb) return -1;
+    if (va > vb) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n) {
     static const uint64_t primes[] = {3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
@@ -25,7 +34,7 @@ seq_t a(idx_t n) {
     static int initialized = 0;
     
     if (!initialized) {
-        seq_t* temp = (seq_t*)malloc(512 * sizeof(seq_t));
+        seq_t* temp = mem_new(seq_t, 512);
         idx_t idx = 0;
         
         for (int mask = 0; mask < (1 << num_primes); mask++) {
@@ -46,7 +55,7 @@ seq_t a(idx_t n) {
         
         count = idx;
         values = temp;
-        qsort(values, count, sizeof(seq_t), compare_seq_t);
+        mem_qsort(values, count, sizeof(seq_t), compare_seq_t);
         initialized = 1;
     }
     

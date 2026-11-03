@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 2076, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Parameters and static state                                          */
@@ -82,7 +84,7 @@ static void init_sieve(void)
 
     /* initialise memoisation cache */
     cache_capacity = 128;
-    cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_capacity);
     if (!cache) abort();
     cache_count = 0;
     next_prime_index = 0;
@@ -95,7 +97,7 @@ static void cache_grow(void)
 {
     if (cache_count < cache_capacity) return;
     cache_capacity *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_capacity);
     if (!tmp) abort();
     cache = tmp;
 }

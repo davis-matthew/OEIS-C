@@ -12,13 +12,16 @@
  *            (descending) choose the smallest unused * integ...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
     if (n == 3) return 6;
 
     /* Allocate array for used denominators: exactly n values will be stored */
-    seq_t *used = (seq_t*)malloc((size_t)n * sizeof(seq_t));
+    seq_t *used = mem_new(seq_t, (size_t)n);
     if (!used) return 0;  /* memory failure */
 
     size_t used_cnt = 0;
@@ -98,6 +101,6 @@ seq_t a(idx_t n)
     if (x2 > max_den) max_den = x2;
 
     /* Final remainder should be zero; we ignore it here. */
-    free(used);
+    mem_free(used);
     return max_den;
 }

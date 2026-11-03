@@ -8,14 +8,31 @@
  *            4) divides k to an even power
  * Range:     u8 n <= 97, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a001481_is_s2s
+ * Validated: standard, pass, 82 terms through n = 9567 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/a001481_is_s2s.h"
+
+static bool a001481_is_s2s(uint64_t m) {
+    if (m == 0) return true;
+    while ((m & 1) == 0) m >>= 1;
+    for (uint64_t p = 3; p * p <= m; p += 2) {
+        if (m % p == 0) {
+            int cnt = 0;
+            while (m % p == 0) {
+                m /= p;
+                cnt++;
+            }
+            if ((p & 3) == 3 && (cnt & 1)) return false;
+        }
+    }
+    if (m > 1 && (m & 3) == 3) return false;
+    return true;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

@@ -5,14 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = Smallest k > 1 such that k | Sigma(k) + n
- * Range:     u8 n <= 507, u16 n <= 9894, u32 n <= 9894, u64 n <= 9894,
- *            u128 n <= 9894, big any n
- * Helpers:   none
+ * Range:     u8 n <= 507, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 115 terms through n = 9894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*
  * Precompute the divisor‑sum function sigma(k) up to a fixed limit.
@@ -28,7 +30,7 @@ static seq_t *sigma_array = NULL;  /* sigma(k) values, 0 ≤ k ≤ SIGMA_LIMIT *
 static void init_sigma(void) {
     if (sigma_array != NULL) return;          /* already initialized */
 
-    sigma_array = (seq_t *)malloc((SIGMA_LIMIT + 1) * sizeof(seq_t));
+    sigma_array = mem_new(seq_t, (SIGMA_LIMIT + 1));
     if (sigma_array == NULL) {
         /* Allocation failed – abort program. */
         abort();

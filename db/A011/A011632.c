@@ -7,6 +7,7 @@
  * Formula:   a(n) = 0 if n is odd or n > 12; otherwise a(n) = (-1)^(n/2)
  * Range:     i8 n <= 12, i16 n <= 12, i32 n <= 12, i64 n <= 12, i128 n <= 12,
  *            big any n
+ * Validated: full, pass, 13 terms through n = 12 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

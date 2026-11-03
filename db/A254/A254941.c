@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 28, u64 n <= 57, u128 n <= 113,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* LCM of the divisors 2,3,5,7,11 */
 #define MOD 2310
@@ -81,7 +83,7 @@ ensure_cache(idx_t n)
 {
     if (!a_cache || a_cap <= n) {
         size_t new_cap = (size_t)n + 1;  /* indices 0..n */
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         if (!a_cache) exit(1);
         a_cap = new_cap;
     }

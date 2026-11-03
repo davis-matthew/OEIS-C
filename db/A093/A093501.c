@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 979, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   get_digits, is_squarefree
+ * Validated: standard, pass, 81 terms through n = 980 (2026-11-03)
+ * Helpers:   get_digits, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,9 @@
 #include <stdlib.h>
 
 /* Helper prototypes from the build */
-#include "../utils/is_squarefree.h"   /* bool is_squarefree(seq_t x) */
-#include "../utils/get_digits.h"      /* void get_digits(seq_t x, uint8_t *buf, size_t *len) */
+#include "../utils/get_digits.h"
+#include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 static bool perm_sf(const uint8_t *digits, size_t len,
                     unsigned long long used, seq_t val) {
@@ -82,7 +84,7 @@ seq_t a(idx_t n) {
         if (all_permutations_squarefree(last_checked)) {
             if (terms_len >= terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) abort();   /* allocation failure */
                 terms = tmp;
                 terms_cap = new_cap;

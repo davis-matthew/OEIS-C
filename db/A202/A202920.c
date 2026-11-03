@@ -10,6 +10,7 @@
  *            (horizontal), * a[i][j] - a[i-1][j] ∈ {0,1,2,3} (vertical)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 44, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 209 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

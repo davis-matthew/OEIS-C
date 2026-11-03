@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n and sigma(n) have equal 2‑adic valuations, else 0
- * Range:     u8 n <= 7496, u16 n <= 9853, u32 n <= 9853, u64 n <= 9853,
- *            u128 n <= 9853, big any n
+ * Range:     u8 n <= 7496, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9853 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  *            350*p^5 + 29*p^6 - p^7) / 7! , where p is the prime at index n+5
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 18, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 /* Prime storage (1‑based indices). */
 static uint64_t *prime_list   = NULL;
@@ -50,7 +52,7 @@ ensure_primes(idx_t needed)
         if ((candidate & 1ULL) == 0)
             candidate++;
 
-        while (!is_prime(candidate))          /* helper from utils/is_prime.h */
+        while (!is_prime_u64(candidate))          /* helper from utils/is_prime.h */
             candidate += 2;
 
         if (prime_count == prime_cap) {

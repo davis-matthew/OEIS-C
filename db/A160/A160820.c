@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 9962, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors
+ * Validated: standard, pass, 73 terms through n = 9628 (2026-11-03)
+ * Helpers:   bigomega_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_prime_factors.h"
+#include "../utils/bigomega_seq.h"
+#include "../utils/mem.h"
 
 /*-----------------------------------------------------------*/
 /* Dynamic cache for previously computed terms                */
@@ -45,7 +47,7 @@ static void grow_cache(idx_t need)
     if (need <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap : 4;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();               /* out of memory */
     cache = tmp;
     cache_cap = new_cap;
@@ -72,8 +74,8 @@ seq_t a(idx_t n)
             seq_t cand = last + (seq_t)1;         /* start search */
 
             while (true) {
-                seq_t ocand = count_prime_factors(cand);
-                seq_t odiff = count_prime_factors(cand - last);
+                seq_t ocand = bigomega_seq(cand);
+                seq_t odiff = bigomega_seq(cand - last);
                 if (ocand == odiff) break;
                 cand = cand + (seq_t)1;
             }

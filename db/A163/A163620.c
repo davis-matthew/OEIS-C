@@ -11,14 +11,15 @@
  *            min{ m>n | ∀p|n, q(p) | m } where q(p) = next prime after p
  * Range:     u8 n <= 101, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime, seq_gcd
+ * Validated: standard, pass, 84 terms through n = 967 (2026-11-01)
+ * Helpers:   gcd, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 #include "../utils/next_prime.h"
 
 static seq_t lcm_of_next_prime_factors(uint64_t n)
@@ -30,7 +31,7 @@ static seq_t lcm_of_next_prime_factors(uint64_t n)
     if ((temp & 1) == 0) {
         uint64_t p = 2;
         uint64_t q = next_prime(p);          /* q = 3 */
-        seq_t g = seq_gcd(l, (seq_t)q);
+        seq_t g = gcd(l, (seq_t)q);
         l = (l / g) * (seq_t)q;
         while ((temp & 1) == 0) temp >>= 1;
     }
@@ -40,7 +41,7 @@ static seq_t lcm_of_next_prime_factors(uint64_t n)
         if (temp % i == 0) {
             uint64_t p = i;
             uint64_t q = next_prime(p);
-            seq_t g = seq_gcd(l, (seq_t)q);
+            seq_t g = gcd(l, (seq_t)q);
             l = (l / g) * (seq_t)q;
             while (temp % p == 0) temp /= p;
         }
@@ -50,7 +51,7 @@ static seq_t lcm_of_next_prime_factors(uint64_t n)
     if (temp > 1) {
         uint64_t p = temp;
         uint64_t q = next_prime(p);
-        seq_t g = seq_gcd(l, (seq_t)q);
+        seq_t g = gcd(l, (seq_t)q);
         l = (l / g) * (seq_t)q;
     }
 

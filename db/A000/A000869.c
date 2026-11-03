@@ -10,15 +10,38 @@
  *            56*2^(2^(n-1) + n) - 56*2^(2^(n-1)) + 48*2^n)/(168*2^n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   a869_from_u128, a869_is_fixed, a869_p2
+ * Validated: standard, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a869_from_u128.h"
-#include "../utils/a869_is_fixed.h"
-#include "../utils/a869_p2.h"
+
+static seq_t a869_from_u128(unsigned __int128 v) {
+    uint64_t hi = (uint64_t)(v >> 64);
+    uint64_t lo = (uint64_t)v;
+    seq_t r = 0;
+    if (hi != 0) {
+        r = (seq_t)hi;
+        r *= 65536; r *= 65536; r *= 65536; r *= 65536;
+    }
+    r += (seq_t)lo;
+    return r;
+}
+
+static int a869_is_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x *= 2;
+    return x == 0;
+}
+
+static seq_t a869_p2(idx_t e) {
+    seq_t r = 1;
+    r <<= e;
+    return r;
+}
 
 seq_t a(idx_t n) {
     idx_t N = (idx_t)1 << n;        /* 2^n */

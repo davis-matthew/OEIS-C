@@ -9,7 +9,8 @@
  *            2*t)
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 36, u64 n <= 223,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 45 terms through n = 878 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 /* arbitrary precision). The function is independent of call order. */
 
 #include <stddef.h>          /* for size_t */
-#include "../utils/binom.h"  /* provides seq_t binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t t = 0; t <= n / 2; ++t) {
         /* small intermediate values (indices) fit in idx_t */
-        seq_t part1 = binom((idx_t)(9 + t), (idx_t)t);
-        seq_t part2 = binom((idx_t)(4 + n - 2 * t), (idx_t)(n - 2 * t));
+        seq_t part1 = binomial((idx_t)(9 + t), (idx_t)t);
+        seq_t part2 = binomial((idx_t)(4 + n - 2 * t), (idx_t)(n - 2 * t));
         sum += part1 * part2;
     }
     return sum;

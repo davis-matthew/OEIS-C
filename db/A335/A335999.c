@@ -14,13 +14,15 @@
  *            sets
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a_arr      = NULL;   /* cache of a(n) values   */
 static size_t a_cap      = 0;      /* capacity of a_arr      */
@@ -52,7 +54,7 @@ static void ensure_a_capacity(void)
 {
     if (a_cap > a_sz) return;
     size_t new_cap = a_cap > 0 ? a_cap << 1 : 4;
-    seq_t *tmp = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_arr, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     a_arr = tmp;
     a_cap = new_cap;

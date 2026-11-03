@@ -9,12 +9,14 @@
  *            (1,1,1,1,1,...) with p(S) = (1-2S²)²)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 47, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 830 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised table for previously computed terms */
 static seq_t *cache = NULL;     /* array of computed a(n) */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_size) {
         /* Resize cache to new size */
         size_t new_size = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         /* Initialise from the first ten indices if needed */
         if (cache_size < new_size) {
             /* Fill missing initial values */

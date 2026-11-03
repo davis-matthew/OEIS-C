@@ -9,8 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, floor_log2_uint64,
- *            pow_uint
+ * Validated: standard, pass, 116 terms through n = 9667 (2026-11-01)
+ * Helpers:   build_primes_upto, ilog2, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,10 +31,20 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow_uint.h"   /* for pow_uint, not strictly needed but harmless */
-#include "../utils/_prime_limit_for_idx.h"
+#include <stdlib.h>
+#include <math.h>
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/floor_log2_uint64.h"
+#include "../utils/ilog2.h"
+#include "../utils/ipow_u64_idx.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 static uint64_t *primes_cache = NULL;  /* cached list of primes */
 static size_t primes_cnt   = 0;        /* number of cached primes */
@@ -74,7 +84,7 @@ static inline uint64_t nth_prime(idx_t n)
 static inline seq_t palin_change_count(uint64_t p)
 {
     /* Bit length of the number (p > 0). */
-    idx_t bl = floor_log2_uint64(p) + 1;   /* type idx_t is uint64_t */
+    idx_t bl = ilog2(p) + 1;   /* type idx_t is uint64_t */
 
     seq_t mismatches = 0;
     idx_t i, j;

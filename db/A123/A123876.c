@@ -10,12 +10,14 @@
  *            triangle T(n,k) is defined by the given Riordan array
  * Range:     i8 n <= 15, i16 n <= 56, i32 n <= 193, i64 n <= 675,
  *            i128 n <= 2574, big any n
- * Helpers:   binom_n_k, pow2
+ * Validated: standard, pass, 71 terms through n = 5106 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_n_k.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 /* Find the row index r such that r*(r+1)/2 ≤ n < (r+1)*(r+2)/2. */
@@ -39,8 +41,8 @@ static seq_t triangle_entry(idx_t r, idx_t k)
     seq_t sign = (( (r - k) & 1) ? -1 : 1 );
 
     for (idx_t j = j_min; j <= j_max; ++j) {
-        seq_t term = binom_n_k(k, j - k);          /* C(k, j-k) */
-        term = term * binom_n_k(r, j);             /* * C(r, j) */
+        seq_t term = binomial(k, j - k);          /* C(k, j-k) */
+        term = term * binomial(r, j);             /* * C(r, j) */
         term = term * pow2(r - j);                 /* * 2^(r-j) */
         if (sign < 0) sum -= term;
         else          sum += term;

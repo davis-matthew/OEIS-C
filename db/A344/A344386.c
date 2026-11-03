@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   big_compare, big_copy, big_ensure, big_trim
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,10 +26,31 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/big_compare.h"
-#include "../utils/big_copy.h"
-#include "../utils/big_ensure.h"
-#include "../utils/big_trim.h"
+
+static inline int big_compare(const uint32_t *a, size_t len_a,
+                              const uint32_t *b, size_t len_b) {
+    if (len_a != len_b) return (len_a > len_b) ? 1 : -1;
+    for (size_t i = len_a; i-- > 0;) {
+        if (a[i] != b[i]) return (a[i] > b[i]) ? 1 : -1;
+    }
+    return 0;
+}
+
+static inline void big_copy(const uint32_t *src, size_t src_len,
+                            uint32_t *dst, size_t *dst_len) {
+    for (size_t i = 0; i < src_len; i++) dst[i] = src[i];
+    while (src_len > 0 && dst[src_len - 1] == 0) src_len--;
+    *dst_len = src_len;
+}
+
+static inline void big_ensure(size_t *len, uint32_t *buf, size_t need) {
+    /* no-op; use static buffers of size WORD_CAP */
+}
+
+static inline size_t big_trim(size_t len, uint32_t *buf) {
+    while (len > 0 && buf[len - 1] == 0) len--;
+    return len;
+}
 
 #define WORD_BASE 1000000000U   /* 1e9 */
 #define WORD_CAP  1200          /* enough for >10000 decimal digits */

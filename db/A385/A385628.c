@@ -12,7 +12,8 @@
  *            over the prime factorisation of n
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   build_primes
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 /* Static cache for the prime table */
 static size_t   primes_cnt   = 0;
@@ -118,7 +121,7 @@ a(idx_t n)
     factor_n(n, pf, ex, &cnt);
 
     /* Alloc buffer large enough for all divisors (≤ d(n) ≤ 128 for n ≤ 10000) */
-    seq_t *divs = (seq_t *)malloc(sizeof(seq_t) * 256);
+    seq_t *divs = mem_new(seq_t, 256);
     if (divs == NULL)
         return (seq_t)0;   /* out of memory – return 0 */
 
@@ -133,6 +136,6 @@ a(idx_t n)
             sum += (seq_t)d;
     }
 
-    free(divs);   /* clean up */
+    mem_free(divs);   /* clean up */
     return sum;
 }

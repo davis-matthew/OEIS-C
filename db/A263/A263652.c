@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 72 terms through n = 8958 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -59,10 +60,8 @@ static void ensure_val_cap(idx_t needed)
     if (!prev_pos) abort();
 
     /* initialise new slots to zero */
-    memset((void *)(last_pos + val_cap), 0,
-           (new_cap - val_cap) * sizeof(idx_t));
-    memset((void *)(prev_pos + val_cap), 0,
-           (new_cap - val_cap) * sizeof(idx_t));
+    memset((last_pos + val_cap), 0, (new_cap - val_cap) * sizeof(idx_t));
+    memset((prev_pos + val_cap), 0, (new_cap - val_cap) * sizeof(idx_t));
 
     val_cap = new_cap;
 }

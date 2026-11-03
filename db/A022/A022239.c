@@ -7,12 +7,15 @@
  * Formula:   a(n) = Product_{i=1..10} (7^(n-i+1)-1)/(7^i-1) (q = 7)
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 11, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 22 terms through n = 126 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
         int maxj = cur < 10 ? (int)cur : 10;     /* only j ≤ 10 are needed */
 
         /* power = q^(cur - maxj) = 7^(cur - maxj) */
-        seq_t power = big_pow((seq_t)7, cur - (idx_t)maxj);
+        seq_t power = ipow((seq_t)7, cur - (idx_t)maxj);
 
         /* Update bin[j] from j = maxj down to 1 following the recurrence:
            C_q(n,j) = C_q(n-1,j) + q^(n-j) * C_q(n-1,j-1)

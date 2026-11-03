@@ -12,14 +12,17 @@
  *            array grows geometrically to accommodate arbitr...
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* cache[n] = a(n) */
 static unsigned char *seen = NULL; /* seen[n] == 1 iff cache[n] is valid */
@@ -31,7 +34,7 @@ static void ensure_capacity(idx_t n)
     if ((size_t)n < cache_size) return;
     size_t new_size = cache_size ? cache_size << 1 : 1;
     while (new_size <= (size_t)n) new_size <<= 1;
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     seen  = (unsigned char *)realloc(seen, new_size);
     for (size_t i = cache_size; i < new_size; ++i) seen[i] = 0;
     cache_size = new_size;
@@ -69,7 +72,7 @@ static seq_t rec(idx_t n)
 
     if (n == T) {
         /* a(n) = 2^(k-1) */
-        result = pow_uint((uint64_t)2, k - 1);
+        result = ipow_u64_idx((uint64_t)2, k - 1);
     } else if (n > T && n < U) {
         /* a(n) = a(2*T - n) */
         idx_t m = 2 * T - n;

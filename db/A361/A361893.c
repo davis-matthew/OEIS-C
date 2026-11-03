@@ -10,16 +10,28 @@
  *            a(n) = r! * C(r-1,k-1) / (r-k)!
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial, factorial, floor_isqrt_u64
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_isqrt_u64.h"
-#include "../utils/factorial.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/isqrt.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +41,7 @@ seq_t a(idx_t n)
 
     /* Determine the row r and column k */
     idx_t t   = 8 * n + 1;                     /* 8*n+1 */
-    idx_t s   = floor_isqrt_u64(t);            /* floor(sqrt(t)) */
+    idx_t s   = isqrt(t);            /* floor(sqrt(t)) */
     idx_t r   = (s - 1) / 2;                   /* r = floor((sqrt(8*n+1)-1)/2) */
     idx_t first = r * (r + 1) / 2;             /* index of first term in row r */
     idx_t k   = n - first;

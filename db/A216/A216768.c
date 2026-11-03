@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, u64_gcd
+ * Validated: standard, pass, 66 terms through n = 996 (2026-11-01)
+ * Helpers:   gcd_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
-#include "../utils/u64_gcd.h"
+#include <string.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -76,10 +78,10 @@ seq_t a(idx_t n)
             primes[primes_cnt++] = candidate;
 
             /* Test the 46th‑power residuosity condition. */
-            uint64_t g = u64_gcd(46ULL, candidate-1);
+            uint64_t g = gcd_u64(46ULL, candidate-1);
             uint64_t e = (candidate-1) / g;
             seq_t base = (seq_t)(candidate-2u);                     /* -2 mod p   */
-            seq_t res  = mod_pow(base, e, (seq_t)candidate);
+            seq_t res  = powmod(base, e, (seq_t)candidate);
             if (res != (seq_t)1) {                                  /* no solution */
                 if (special_cnt >= special_cap) {
                     special_cap *= 2;

@@ -8,15 +8,23 @@
  *            binomial(2*n,2*k) * a(k) (OEIS A395272)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   binomial, seq_mul
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"    /* binomial(idx_t, idx_t) */
-#include "../utils/seq_mul.h"     /* seq_mul(seq_t, seq_t) */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* ---------- power tables ---------- */
 static seq_t *pow49_arr = NULL;
@@ -29,9 +37,9 @@ static void ensure_pow_tables(idx_t n)
     if (pow_cap > n) return;
 
     idx_t new_cap = n + 1;
-    seq_t *p49 = (seq_t *)realloc(pow49_arr, new_cap * sizeof(seq_t));
-    seq_t *p9  = (seq_t *)realloc(pow9_arr,  new_cap * sizeof(seq_t));
-    seq_t *p100 = (seq_t *)realloc(pow100_arr, new_cap * sizeof(seq_t));
+    seq_t *p49 = mem_resize(seq_t, pow49_arr, new_cap);
+    seq_t *p9  = mem_resize(seq_t, pow9_arr, new_cap);
+    seq_t *p100 = mem_resize(seq_t, pow100_arr, new_cap);
     if (!p49 || !p9 || !p100) abort();
     pow49_arr = p49;  pow9_arr = p9;  pow100_arr = p100;
 
@@ -58,7 +66,7 @@ static void ensure_a_cache(idx_t n)
     if (n < a_cap) return;
 
     idx_t new_cap = n + 1;
-    seq_t *arr = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *arr = mem_resize(seq_t, a_cache, new_cap);
     if (!arr) abort();
     a_cache = arr;
 

@@ -13,12 +13,14 @@
  *            a(8)=565044857, a(9)=1478308633 Offset: 1 (a(1) is the fi...
  * Range:     u8 none, u16 none, u32 n <= 10, u64 n <= 31, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial terms (index 1..9) */
 static const seq_t init_terms[9] =
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if (cache_sz == 0)
     {
         cache_sz = 9;
-        cache = (seq_t *)malloc(cache_sz * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_sz);
         if (!cache) abort(); /* allocation failure */
         for (size_t i = 0; i < 9; ++i)
             cache[i] = init_terms[i];
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cache_sz)
     {
         size_t new_sz = (size_t)n;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_sz);
         if (!new_cache) abort();
         cache = new_cache;
         /* Compute terms from cache_sz to new_sz-1 */

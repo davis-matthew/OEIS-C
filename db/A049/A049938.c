@@ -10,7 +10,8 @@
  *            integer such that 2^p < n-1 ≤ 2^(p+1)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Static cache for a(n) and its prefix sums. */
 static seq_t *A = NULL;                /* a(n) values, 1‑based */
@@ -41,8 +43,8 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = capacity ? capacity << 1 : 16;
     while (new_cap < (size_t)n + 1)
         new_cap <<= 1;
-    A = (seq_t *)realloc((void *)A, (new_cap + 1) * sizeof(seq_t));
-    S = (seq_t *)realloc((void *)S, (new_cap + 1) * sizeof(seq_t));
+    A = mem_resize(seq_t, A, (new_cap + 1));
+    S = mem_resize(seq_t, S, (new_cap + 1));
     assert(A && S);   /* abort if allocation failed */
     capacity = new_cap;
 }

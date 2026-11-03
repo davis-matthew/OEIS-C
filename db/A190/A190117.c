@@ -9,13 +9,15 @@
  *            of k
  * Range:     u8 n <= 9, u16 n <= 63, u32 n <= 2555, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9745 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------------
    Smallest-prime-factor sieve.  All functions and variables below are
@@ -71,7 +73,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL || cache_cap < n + 2) {    /* +2 for safety */
         cache_cap = n + 2;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         cache[0] = 0;
     }
 }

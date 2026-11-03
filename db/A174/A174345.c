@@ -11,13 +11,22 @@
  *            = ( floor(r/2) >= k ) ? k-1 : r-k
  * Range:     u8 n <= 23, u16 n <= 49, u32 n <= 144, u64 n <= 479,
  *            u128 n <= 1275, big any n
- * Helpers:   fac_prime_exp
+ * Validated: standard, pass, 71 terms through n = 1264 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/fac_prime_exp.h"
+
+/* helper: exponent of prime p in n!   */
+static inline unsigned int fac_prime_exp(idx_t n, int p)
+{
+    unsigned int cnt = 0;
+    for (idx_t d = p; d <= n; d *= p)
+        cnt += n / d;
+    return cnt;
+}
 
 /* Primes up to 199 – all primes that can appear in n <= 10000   */
 static const int PRIMES[46] = {

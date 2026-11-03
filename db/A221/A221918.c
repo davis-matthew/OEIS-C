@@ -10,12 +10,14 @@
  *            = 2, a(3) = 1 a(4) = 3, a(5) = 6, a(6) = 3
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"          /* gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 static idx_t row_for(idx_t n) {
     /* Find the smallest r such that r*(r+1)/2 >= n */

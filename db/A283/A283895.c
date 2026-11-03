@@ -7,15 +7,17 @@
  * Keywords:  nonn
  * Formula:   a(1) = 41, a(2) = 2; thereafter a(n) = a(n-a(n-1)) +
  *            a(n-a(n-2)), with a(n) = 0 for n <= 0
- * Range:     u8 n <= 98, u16 n <= 9504, u32 n <= 9504, u64 n <= 9504,
- *            u128 n <= 9504, big any n
- * Helpers:   none
+ * Range:     u8 n <= 98, u16 n <= 19797, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 91 terms through n = 9504 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* 0‑based index 0 is unused; we keep index 1..N to store a(n).
    When a(n) == 0 we treat the entry as "not yet computed". */
@@ -33,10 +35,10 @@ static void ensure_capacity(idx_t idx)
     while (new_cap < needed) new_cap *= 2;
 
     /* Reallocate and zero‑initialize the new part. */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort(); /* allocation failure */
     if (new_cap > cache_cap)
-        memset(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
 
     cache = tmp;
     cache_cap = new_cap;

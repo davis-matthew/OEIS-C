@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Helper: integer sqrt (floor) for 64‑bit unsigned ---------- */
 static idx_t isqrt_u64(idx_t x)
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
     /* ---------- compute Q(r-1, ·) recursively ---------- */
     idx_t m = r - 1;                  /* exponent of (1+3x+x²)      */
     idx_t qsize = (m == 0) ? 1 : 2 * m + 1;
-    seq_t *q = (seq_t *)calloc((size_t)qsize, sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, (size_t)qsize);
     if (!q)
         return (seq_t)0;             /* allocation failure guard   */
 
@@ -97,10 +99,10 @@ seq_t a(idx_t n)
     {
         idx_t oldlen = 2 * (t - 1) + 1;
         idx_t newlen = 2 * t + 1;
-        seq_t *nxt = (seq_t *)calloc((size_t)newlen, sizeof(seq_t));
+        seq_t *nxt = mem_new(seq_t, (size_t)newlen);
         if (!nxt)
         {
-            free(q);
+            mem_free(q);
             return (seq_t)0;
         }
         for (idx_t j = 0; j < oldlen; ++j)
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
             nxt[j + 1] += val * 3;  /* coefficient 3 */
             nxt[j + 2] += val;      /* coefficient 1 */
         }
-        free(q);
+        mem_free(q);
         q = nxt;
         qsize = newlen;
     }
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
     seq_t Qk1 = (k >= 1 && k - 1 <= 2 * m) ? q[k - 1] : (seq_t)0;
     seq_t Qk2 = (k >= 2 && k - 2 <= 2 * m) ? q[k - 2] : (seq_t)0;
 
-    free(q);
+    mem_free(q);
 
     /* binomial part: binom(2r-2, k-1) for k≥1 */
     seq_t bin = (k >= 1) ? binom_idx(2 * r - 2, k - 1) : (seq_t)0;

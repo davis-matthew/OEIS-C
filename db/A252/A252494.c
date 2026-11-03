@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Sequence: numbers n such that all prime factors of n and n+1 are <= 11 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term (1‑based index) of OEIS A252494 */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Helper to ensure cache capacity */
     if (cache == NULL) {
         cache_cap = 64;              /* initial capacity, more than enough */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
     /* Generate the sequence once */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             /* Store m as term */
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;                  /* double capacity */
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)m;
         }

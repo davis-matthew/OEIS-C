@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 31,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 39 terms through n = 196 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,9 @@
  */
 
 #include <stdlib.h>
-#include "../utils/pow2.h"          /* seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *fub = NULL;          /* memoised Fubini numbers */
 static size_t fub_size   = 0;      /* capacity of the array   */
@@ -39,7 +42,7 @@ static void ensure_fubini(idx_t upto)
     /* Initialise the table if it does not exist yet. */
     if (fub == NULL) {
         fub_size = 1;
-        fub = (seq_t *)malloc(fub_size * sizeof(seq_t));
+        fub = mem_new(seq_t, fub_size);
         if (!fub) exit(EXIT_FAILURE);
         fub[0] = (seq_t)1;          /* F(0) = 1 */
         fub_valid = 1;
@@ -49,7 +52,7 @@ static void ensure_fubini(idx_t upto)
     if ((size_t)upto >= fub_size) {
         size_t new_cap = fub_size ? fub_size : 1;
         while (new_cap <= (size_t)upto) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(fub, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fub, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         fub = tmp;
         fub_size = new_cap;

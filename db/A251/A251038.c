@@ -13,12 +13,14 @@
  *            * a(6)=546600, a(7)=2624313, a(8)=12343573, a(9)=57...
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 27, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int coeffs[13] = {10, -25, -30, 146, 31, -287, -50, 239, 59,
                                -86, -27, 11, 4};
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if (n <= 13) return initial[n-1];
 
     /* Allocate array for values up to n (index 0 unused). */
-    seq_t *buf = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, (n + 1));
     if (!buf) return 0; /* allocation failure */
 
     for (idx_t i = 1; i <= 13; ++i)
@@ -66,6 +68,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[n];
-    free(buf);
+    mem_free(buf);
     return result;
 }

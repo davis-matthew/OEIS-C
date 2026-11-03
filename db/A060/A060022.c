@@ -8,12 +8,14 @@
  *            values: a(0)=1, a(1)=0, a(2)=1, a(3)=0, a(4)=0, a(5)=-1
  * Range:     i8 n <= 40, i16 n <= 628, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* Allocate working array up to n */
     size_t len = (size_t)n + 1;
-    seq_t *arr = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, len);
     if (!arr) return 0;            /* fallback, should not happen */
 
     /* Set known initial values */
@@ -37,6 +39,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

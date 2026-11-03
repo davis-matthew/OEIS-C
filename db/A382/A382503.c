@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} binomial(2*d-1,d) (OEIS A382503)
- * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 26, u128 n <= 26,
+ * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
  * Helpers:   binomial, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/factor_u64.h" /* provides void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/factor_u64.h"
 
 /* Recursively generate all divisors of n from its prime factorization. */
 static void

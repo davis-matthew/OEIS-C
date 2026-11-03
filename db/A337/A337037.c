@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Dynamic arrays for good and bad numbers                            */
@@ -45,7 +47,7 @@ static bool initialized = false;       /* lazy initialization flag        */
 static void ensure_good(void) {
     if (good_len >= good_cap) {
         size_t newCap = good_cap == 0 ? 8 : good_cap * 2;
-        seq_t *p = (seq_t*)realloc(good, newCap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, good, newCap);
         if (!p) exit(EXIT_FAILURE);
         good = p; good_cap = newCap;
     }

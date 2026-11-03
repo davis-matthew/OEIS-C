@@ -9,13 +9,14 @@
  *            = 6*binomial(2*n+1, n-2)/(n+4))
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 34, u128 n <= 67,
  *            big any n
- * Helpers:   a3517_gcd
+ * Validated: standard, pass, 42 terms through n = 924 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a3517_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     if (n < 2) return 0;
@@ -24,7 +25,7 @@ seq_t a(idx_t n) {
     for (idx_t k = 3; k <= n; k++) {
         uint64_t num = 2 * (uint64_t)k * (2 * (uint64_t)k + 1);
         uint64_t den = ((uint64_t)k + 4) * ((uint64_t)k - 2);
-        uint64_t g = a3517_gcd(num, den);
+        uint64_t g = gcd_u64(num, den);
         num /= g;
         den /= g;
         /* den now divides result exactly, since result*num/den is an integer and gcd(num,den)=1 */

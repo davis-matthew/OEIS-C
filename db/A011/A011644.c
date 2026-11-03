@@ -8,6 +8,7 @@
  *            Φ85(x) = (x^85 - 1)(x - 1) / ((x^5 - 1)(x^17 - 1)) (0 ≤ n ≤ 64)
  * Range:     i8 n <= 64, i16 n <= 64, i32 n <= 64, i64 n <= 64, i128 n <= 64,
  *            big any n
+ * Validated: full, pass, 65 terms through n = 64 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

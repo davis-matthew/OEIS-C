@@ -13,13 +13,15 @@
  *            a(9)=26, a(10)=32, a(11)=37, a(12)=43
  * Range:     u8 n <= 33, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t init[13] = {
     0ULL, /* unused index 0 */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* Allocate or enlarge cache if necessary */
     if (cache == NULL || cache_size <= n) {
         idx_t new_size = n + 1;       /* indices 0 … n inclusive */
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (new_cache == NULL) {
             /* In a real system you might handle allocation failure.
                For the purposes of this task we simply abort. */
@@ -60,15 +62,14 @@ seq_t a(idx_t n)
 
         /* Copy old data if it exists */
         if (cache != NULL) {
-            memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+            mem_free(cache);
         }
 
         /* Initialize the new freed region (optional, zeros anyway) */
         if (new_size > cache_size) {
             /* zero the rest */
-            memset(new_cache + cache_size, 0,
-                   (new_size - cache_size) * sizeof(seq_t));
+            mem_set(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
         }
 
         /* Ensure base values are set up to 12 */

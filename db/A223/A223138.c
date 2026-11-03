@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 951, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- helpers ----- */
 
@@ -101,7 +103,7 @@ static void _append_term(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_vals = (seq_t*)realloc(seq_vals, seq_cap * sizeof(seq_t));
+        seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
     }
     seq_vals[seq_len++] = val;
 }

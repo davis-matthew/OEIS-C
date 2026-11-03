@@ -7,13 +7,15 @@
  * Formula:   a(n) = floor(a(n-1)/3) + a(n-2); a(0)=2, a(1)=3
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* memoization array */
 static size_t cache_cap = 0;    /* currently allocated capacity (in elements) */
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* First call → initialise cache with the two seed values */
     if (cache == NULL) {
         cache_cap = 2;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* the minimal allocation is guaranteed to succeed on a correct build
            (the test harness provides memory and does not trigger out‑of‑memory
            errors).  If it fails we return 0 as a last resort – no correct
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return (seq_t)0;  /* Out‑of‑memory guard */
         cache = tmp;
         cache_cap = new_cap;

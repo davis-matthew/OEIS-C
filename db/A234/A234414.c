@@ -12,13 +12,15 @@
  *            a(7)=2094334
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 24, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Multiply a seq_t by a small unsigned integer k.  For built-in
    integral seq_t types up to 64 bits we use an intermediate
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cap = 8 > 7 ? 8 : 7;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         for (size_t i = 0; i < 7; ++i) cache[i] = init[i];
         sz = 7;
     }
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if ((size_t)n > cap) {
         while (cap < (size_t)n) cap *= 2;
-        cache = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     /* compute missing terms up to n */

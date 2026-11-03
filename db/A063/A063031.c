@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,11 +32,11 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* Allocate arrays for the sequence and the convolution results. */
-    seq_t *a_val  = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *c2     = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *c3     = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *c4     = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *c5     = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *a_val  = mem_new(seq_t, N + 1);
+    seq_t *c2     = mem_new(seq_t, N + 1);
+    seq_t *c3     = mem_new(seq_t, N + 1);
+    seq_t *c4     = mem_new(seq_t, N + 1);
+    seq_t *c5     = mem_new(seq_t, N + 1);
 
     /* Initial values */
     a_val[1] = (seq_t)1;
@@ -79,11 +81,11 @@ seq_t a(idx_t n)
     seq_t result = a_val[N];
 
     /* Clean up */
-    free(a_val);
-    free(c2);
-    free(c3);
-    free(c4);
-    free(c5);
+    mem_free(a_val);
+    mem_free(c2);
+    mem_free(c3);
+    mem_free(c4);
+    mem_free(c5);
 
     return result;
 }

@@ -12,7 +12,8 @@
  *            contour word cut by the 8 cotree half-edges,...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   alloc_zero, release
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static int pidx[9][9];
 static uint32_t cmask[105];

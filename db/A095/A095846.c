@@ -10,7 +10,8 @@
  *            and b(d) = 3 - (d even ? 1 : 0) - 3*(d%10==0) + (d%5==0)
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build. */
 extern seq_t a(idx_t n);
@@ -36,8 +38,8 @@ static void ensure_capacity(size_t N)
     if (cap <= N) {
         size_t new_cap = (cap == 0) ? 16 : cap << 1;
         if (new_cap <= N) new_cap = N + 1;
-        B = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
-        S = (seq_t *)realloc(S, new_cap * sizeof(seq_t));
+        B = mem_resize(seq_t, B, new_cap);
+        S = mem_resize(seq_t, S, new_cap);
         for (size_t i = cap; i < new_cap; ++i) {
             B[i] = 0;
             S[i] = 0;

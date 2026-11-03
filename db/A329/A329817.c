@@ -8,14 +8,30 @@
  * Formula:   a(n) = max{ d | n^(d-1) <= d*(n-1)^d }
  * Range:     u8 n <= 29, u16 n <= 3409, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   inequality_holds
+ * Validated: standard, pass, 72 terms through n = 9540 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/inequality_holds.h"
+
+static bool inequality_holds(idx_t n, idx_t d)
+{
+    /* Compare n^(d-1) and d*(n-1)^d using logarithms
+       to avoid overflow.  All computations are in double
+       because they are not part of the seq_t value. */
+    double ln_n   = log((double)n);
+    double ln_n1  = log((double)(n - 1));
+    double ln_d   = log((double)d);
+
+    double left  = (double)(d - 1) * ln_n;
+    double right = ln_d + (double)d * ln_n1;
+
+    /* left <= right -> inequality holds */
+    return left <= right;
+}
 
 seq_t a(idx_t n)
 {

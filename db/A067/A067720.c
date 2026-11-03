@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 752, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  64‑bit deterministic Miller–Rabin primality test (deterministic for
@@ -129,7 +131,7 @@ static void ensure_cache_cap(idx_t needed)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *new_ptr = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, term_cache, new_cap);
     if (!new_ptr)
         abort();             /* out of memory */
     term_cache = new_ptr;

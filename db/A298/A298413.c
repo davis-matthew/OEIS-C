@@ -8,12 +8,14 @@
  * Formula:   a(n) = a(floor(n/2))*a(ceil(n/2)), a(0)=1, a(1)=2, a(2)=3
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 38, u64 n <= 77, u128 n <= 154,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>       // For malloc, realloc
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* dynamic array of computed values     */
 static size_t cache_cap = 0;  /* allocated buffer size                 */
@@ -24,7 +26,7 @@ static void ensure_cache_size(idx_t n)
     /* Allocate or grow the cache if necessary, and initialize the base cases. */
     if (cache == NULL) {
         size_t init = (n + 1 > 3 ? n + 1 : 3);
-        cache = (seq_t*)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (cache == NULL) exit(1);          /* out of memory */
         cache_cap = init;
         cache[0] = (seq_t)1;
@@ -35,7 +37,7 @@ static void ensure_cache_size(idx_t n)
         size_t new_cap = cache_cap * 2;
         if ((size_t)n + 1 > new_cap)
             new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) exit(1);            /* out of memory */
         cache = tmp;
         cache_cap = new_cap;

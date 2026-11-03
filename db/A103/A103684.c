@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7415, u16 n <= 7415, u32 n <= 7415, u64 n <= 7415,
  *            u128 n <= 7415, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 6948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    least n terms, caching all terms so subsequent calls are
    O(1).  The algorithm is O(n) in the number of terms generated. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_buf = NULL;   /* global sequence built so far   */
 static size_t seq_len = 0;      /* number of elements in seq_buf  */
@@ -41,7 +43,7 @@ static void ensure_seq_cap(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 1;
     while (seq_len + need > new_cap)
         new_cap *= 2;
-    seq_buf = (seq_t *)realloc(seq_buf, new_cap * sizeof(seq_t));
+    seq_buf = mem_resize(seq_t, seq_buf, new_cap);
     seq_cap = new_cap;
 }
 
@@ -53,7 +55,7 @@ static void ensure_row_cap(size_t need)
     size_t new_cap = row_cap ? row_cap * 2 : 1;
     while (row_len + need > new_cap)
         new_cap *= 2;
-    row_buf = (seq_t *)realloc(row_buf, new_cap * sizeof(seq_t));
+    row_buf = mem_resize(seq_t, row_buf, new_cap);
     row_cap = new_cap;
 }
 
@@ -109,7 +111,7 @@ static void build_upto(idx_t n)
         /* 4. build the new row (old row + images) for the next iteration */
         size_t new_len = row_len + img_len;
         ensure_row_cap(new_len);
-        seq_t *new_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
 
         /* copy old row */
         for (size_t i = 0; i < row_len; ++i)
@@ -131,7 +133,7 @@ static void build_upto(idx_t n)
         }
 
         /* replace old row with new row */
-        free(row_buf);
+        mem_free(row_buf);
         row_buf = new_row;
         row_len = new_len;
         row_cap = new_len;

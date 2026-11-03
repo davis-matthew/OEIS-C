@@ -12,7 +12,8 @@
  *            updating * both lazily when a(n) is requested....
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   bit_test
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/bit_test.h"
+#include "../utils/mem.h"
+
+/*--- Bit helpers --------------------------------------------------------*/
+static inline bool bit_test(uint64_t *bits, uint64_t pos)
+{
+    return (bits[pos >> 6] >> (pos & 63)) & 1ULL;
+}
 
 /*--- Global state -------------------------------------------------------*/
 static seq_t *a_cache = NULL;      /* a_cache[n] = a(n), 1‑based index */
@@ -97,7 +104,7 @@ static void compute_up_to(idx_t target)
     idx_t old_max = cache_size;          /* last computed n */
 
     /* Resize cache to hold indices up to target */
-    seq_t *tmp_cache = (seq_t*)realloc(a_cache, (target + 1) * sizeof(seq_t));
+    seq_t *tmp_cache = mem_resize(seq_t, a_cache, (target + 1));
     if (!tmp_cache) return;              /* allocation failure */
     for (idx_t i = old_max + 1; i <= target; ++i) tmp_cache[i] = 0; /* init */
     a_cache = tmp_cache;

@@ -10,7 +10,8 @@
  *            r*(r+1)/2. The triangle A173018 is read row‑major
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *tri = NULL;          /* flattened triangle values */
 static idx_t  max_row = (idx_t)-1;  /* highest computed row */
@@ -57,12 +59,12 @@ seq_t a(idx_t n)
     if (tri == NULL || r > max_row) {
         idx_t new_max = r;
         size_t new_cap = (size_t)(new_max + 1) * (new_max + 2) / 2;
-        seq_t *new_tri = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_tri = mem_new(seq_t, new_cap);
         size_t old_cap = 0;
         if (tri != NULL) {
             old_cap = (size_t)(max_row + 1) * (max_row + 2) / 2;
-            memcpy(new_tri, tri, old_cap * sizeof(seq_t));
-            free(tri);
+            mem_copy(new_tri, tri, old_cap * sizeof(seq_t));
+            mem_free(tri);
         }
         tri = new_tri;
 

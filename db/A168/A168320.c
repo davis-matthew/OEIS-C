@@ -7,13 +7,16 @@
  * Formula:   a(n) = a(n-1)^2 + 2^n, a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +24,7 @@ seq_t a(idx_t n)
     static idx_t cached_n = (idx_t)-1;
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = 1;                    /* a(0) = 1 */
         cached_n = 0;
     }
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     }
 
     /* Grow cache to accommodate up to n */
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
     cache = new_cache;
 
     for (idx_t i = cached_n + 1; i <= n; ++i) {

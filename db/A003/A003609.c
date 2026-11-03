@@ -11,14 +11,26 @@
  *            Sum_{2<=i<n-i} G_k(i)*G_k(n-i) + [n=2m, m>=2] ( 2^...
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 23, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   A_grow
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/A_grow.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 #define A3609_LV 64
 

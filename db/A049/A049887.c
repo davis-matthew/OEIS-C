@@ -11,7 +11,8 @@
  *            ≤ 2^(p+1) (equivalently, p = floor_log2(n-2) )
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return floor(log2(v)) for v > 0.  Uses builtin if available,
    otherwise falls back to a simple loop. */
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
         idx_t old_size = cache_size;
         cache_size = n;
 
-        a_cache   = (seq_t*)realloc(a_cache, (cache_size + 1) * sizeof(seq_t));
-        sum_cache = (seq_t*)realloc(sum_cache, (cache_size + 1) * sizeof(seq_t));
+        a_cache   = mem_resize(seq_t, a_cache, (cache_size + 1));
+        sum_cache = mem_resize(seq_t, sum_cache, (cache_size + 1));
 
         if (old_size == 0) {
             sum_cache[0] = (seq_t)0;

@@ -9,7 +9,8 @@
  *            powertrain map of A133500
  * Range:     u8 n <= 14, u16 n <= 16, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   big_pow, digit_len, seq_alloc, seq_mul, seq_realloc, seq_to_str
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   ipow, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,16 +18,60 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_to_str.h"
-#include "../utils/digit_len.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/ipow.h"
+#include "../utils/num_digits.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t powertrain(seq_t x)
 {
-    size_t len = digit_len(x);
+    size_t len = num_digits(x);
     char *buf = (char *)malloc(len + 1);
     seq_t tmp;
     seq_to_str(x, buf, &len);   /* returns len in the third arg */
@@ -34,7 +79,7 @@ static seq_t powertrain(seq_t x)
     for (idx_t i = 0; i + 1 < (idx_t)len; i += 2) {
         seq_t base = (seq_t)(buf[i] - '0');
         seq_t exp  = (seq_t)(buf[i + 1] - '0');
-        seq_t pow  = big_pow(base, exp);
+        seq_t pow  = ipow(base, exp);
         result = seq_mul(result, pow);
     }
     if (len % 2 == 1) {

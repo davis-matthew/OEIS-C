@@ -8,21 +8,44 @@
  * Formula:   a(n) = Sum_{k=0..n} Stirling1(n, k)*2^binomial(k, 2)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   alloc_zero, pw2, release, seq_is_fixed_width
+ * Validated: standard, pass, 32 terms through n = 49 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/pw2.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_fixed_width.h"
+#include <stdlib.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static seq_t a006024_p2(idx_t e) {
     if (seq_is_fixed_width() && e >= (idx_t)(8 * sizeof(seq_t))) return 0;
-    return pw2(e);
+    return pow2(e);
 }
 
 seq_t a(idx_t n) {

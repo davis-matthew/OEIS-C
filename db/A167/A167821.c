@@ -9,12 +9,13 @@
  * Formula:   a(n) = 2^n - 2*Fibonacci(n+1)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   _fib_n_plus1
+ * Validated: standard, pass, 49 terms through n = 986 (2026-11-01)
+ * Helpers:   fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_fib_n_plus1.h"
+#include "../utils/fibonacci.h"
 
 seq_t a(idx_t n) {
     /* compute 2^n */
@@ -24,7 +25,7 @@ seq_t a(idx_t n) {
     }
 
     /* compute Fibonacci(n+1) */
-    seq_t fib = _fib_n_plus1(n + 1);
+    seq_t fib = fibonacci(n + 1);
 
     /* result = 2^n - 2*Fib(n+1) */
     seq_t two_fib = fib + fib;

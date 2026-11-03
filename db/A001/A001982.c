@@ -11,18 +11,20 @@
  *            coefficients, so subtractions never go below zero
  * Range:     u8 n <= 6, u16 n <= 20, u32 n <= 115, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
     long long N = (long long)(4 * n - 1);
     long long L = N + 1;
-    seq_t *g = (seq_t *)malloc((size_t)L * sizeof(seq_t));
+    seq_t *g = mem_new(seq_t, (size_t)L);
     long long j;
     for (j = 0; j < L; j++) g[j] = 0;
     g[0] = 1;
@@ -34,6 +36,6 @@ seq_t a(idx_t n) {
         for (j = N; j >= m; j--) g[j] -= g[j - m];
     }
     seq_t r = g[N];
-    free(g);
+    mem_free(g);
     return r;
 }

@@ -11,6 +11,7 @@
  * Formula:   a(n) = (n^4 - 4*n^3 + 11*n^2 - 20*n + 15) / 3 (n ≥ 2)
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 95 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

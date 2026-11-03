@@ -12,7 +12,8 @@
  *            This implementation computes a * single static ta...
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Configuration: increase LIMIT_FOR_SEQUENCES to cover the required n. */
@@ -55,7 +57,7 @@ static void init_sequence(void)
     idx_t  idx = 1;
     FIB_CNT = 0;
     size_t fib_cap = 64;
-    FIB_VALS = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+    FIB_VALS = mem_new(seq_t, fib_cap);
     FIB_EVEN = (char *)malloc(fib_cap * sizeof(char));
     if (!FIB_VALS || !FIB_EVEN)
         return;  /* allocation failure: leave DIST NULL */
@@ -63,7 +65,7 @@ static void init_sequence(void)
     while (a <= LIMIT_FOR_SEQUENCES) {
         if (FIB_CNT == fib_cap) {          /* grow arrays */
             fib_cap *= 2;
-            FIB_VALS = (seq_t *)realloc(FIB_VALS, fib_cap * sizeof(seq_t));
+            FIB_VALS = mem_resize(seq_t, FIB_VALS, fib_cap);
             FIB_EVEN = (char *)realloc(FIB_EVEN, fib_cap * sizeof(char));
             if (!FIB_VALS || !FIB_EVEN)
                 return;
@@ -83,7 +85,7 @@ static void init_sequence(void)
      * Allocate distance array.
      * ----------------------------------------------------------------- */
     DIST_SIZE = 2 * OFFSET + 1;
-    DIST = (seq_t *)malloc(DIST_SIZE * sizeof(seq_t));
+    DIST = mem_new(seq_t, DIST_SIZE);
     if (!DIST)
         return;  /* allocation failure */
 
@@ -97,7 +99,7 @@ static void init_sequence(void)
      * ----------------------------------------------------------------- */
     int *queue = (int *)malloc(DIST_SIZE * sizeof(int));
     if (!queue) {
-        free(DIST);
+        mem_free(DIST);
         DIST = NULL;
         return;
     }

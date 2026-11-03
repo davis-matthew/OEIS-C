@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 960, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 9946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for memoisation */
 static seq_t *seq_arr = NULL;          /* a[0..N-1] */
@@ -72,7 +74,7 @@ static void ensure_upto(idx_t n)
 
     /* Resize sequence array if needed */
     if (seq_len < (size_t)n) {
-        seq_t *tmp = (seq_t *)realloc(seq_arr, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_arr, n);
         if (!tmp) exit(EXIT_FAILURE);
         seq_arr = tmp;              /* contents beyond seq_len are uninitialised */
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 1889, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9551 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper to test whether a value belongs to the sequence. */
 static bool in_seq(seq_t x)
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
             /* Ensure capacity. */
             if (cache_size >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2U : 16U;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     abort();           /* critical failure */
                 cache = tmp;

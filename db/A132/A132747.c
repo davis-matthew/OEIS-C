@@ -8,14 +8,22 @@
  *            non‑isolated if either d-1 or d+1 divides n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   non_isolated
+ * Validated: standard, pass, 121 terms through n = 9559 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/non_isolated.h"
+
+/* helper: true if d is non‑isolated with respect to n */
+static inline bool non_isolated(idx_t d, idx_t n)
+{
+    if (d == 1)                /* avoid division by zero */
+        return (n & 1U) == 0;  /* 2 | n  ⇔  n is even */
+    return (n % (d - 1) == 0) || (n % (d + 1) == 0);
+}
 
 seq_t a(idx_t n)
 {

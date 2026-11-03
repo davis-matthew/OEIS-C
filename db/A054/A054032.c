@@ -8,7 +8,8 @@
  *            distinct decimal digits
  * Range:     u8 n <= 110, u16 n <= 3130, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_digits, grow_seq
+ * Validated: standard, pass, 76 terms through n = 9531 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,35 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_seq.h"    /* for grow_seq */
-#include "../utils/count_distinct_digits.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+
+/* helper to count distinct decimal digits of a 128‑bit number */
+static unsigned
+count_distinct_digits(unsigned __int128 v)
+{
+    unsigned mask = 0;
+    if (v == 0) return 1;
+    while (v > 0) {
+        int d = v % 10;
+        mask |= 1u << d;
+        v /= 10;
+    }
+    return __builtin_popcount(mask);
+}
 
 static seq_t  *terms = NULL;     /* stored terms of the sequence   */
 static size_t terms_len = 0;     /* current number of stored terms */

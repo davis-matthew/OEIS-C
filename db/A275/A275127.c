@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 32, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[23] = {
     14ULL, 64ULL, 174ULL, 568ULL, 2178ULL, 8321ULL, 31772ULL,
@@ -55,7 +57,7 @@ static void ensure_cache(idx_t n)
     while (new_cap < (size_t)n)
         new_cap <<= 1;
 
-    cache = (seq_t *)realloc((void *)cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

@@ -11,7 +11,8 @@
  *            construction with memoisation
  * Range:     u8 n <= 207, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --- Hash set for values that already appeared in the sequence --- */
 typedef struct {
@@ -44,7 +46,7 @@ static void visited_resize(size_t new_size)
     visited_hash_t new_vh;
     new_vh.size = new_size;
     new_vh.used_count = 0;
-    new_vh.table = (seq_t*)calloc(new_size, sizeof(seq_t));
+    new_vh.table = mem_new(seq_t, new_size);
     new_vh.used = (bool*)calloc(new_size, sizeof(bool));
     if (!new_vh.table || !new_vh.used)
         exit(1); /* out of memory */
@@ -59,7 +61,7 @@ static void visited_resize(size_t new_size)
             new_vh.used[idx] = true;
             new_vh.used_count++;
         }
-    free(h->table);
+    mem_free(h->table);
     free(h->used);
     *h = new_vh;
 }
@@ -114,7 +116,7 @@ static void seq_ensure_cap(size_t need)
     size_t new_cap = SEQ_CAP ? SEQ_CAP * 2 : 64;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(SEQ, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, SEQ, new_cap);
     if (!tmp)
         exit(1);
     SEQ = tmp;

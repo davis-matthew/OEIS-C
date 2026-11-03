@@ -10,12 +10,14 @@
  *            a(3)=9720 (derived from a(n)=8*3^(2n-3)*(16n-3) for n>1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,10 +31,10 @@ seq_t a(idx_t n)
         needed = 3;
     /* resize cache if required */
     if (cache_len == 0) {
-        cache = (seq_t*)realloc(cache, (needed + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (needed + 1));
         cache_len = 0;
     } else if (needed + 1 > cache_len + 1) {
-        cache = (seq_t*)realloc(cache, (needed + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (needed + 1));
     }
 
     /* initialise base cases if not already done */

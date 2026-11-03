@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 73, u32 n <= 128, u64 n <= 131,
  *            u128 n <= 131, big any n
- * Helpers:   none
+ * Validated: full, pass, 131 terms through n = 131 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* local storage for the sequence, filled once */
 static seq_t seq_buf[200];
@@ -73,7 +75,7 @@ static void build_sequence(void)
     }
 
     /* sort the list */
-    qsort(seq_buf, seq_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(seq_buf, seq_len, sizeof(seq_t), seq_cmp);
 
     digits_done = true;
 }

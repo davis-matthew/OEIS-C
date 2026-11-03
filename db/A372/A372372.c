@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{k=0}^{⌊n/3⌋} binomial(3n, k) * binomial(2n – k, n –
  *            3k)
- * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 23, u128 n <= 23,
+ * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binomial, seq_mul
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,15 @@
  * library.  The implementation is O(n) per call. */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     seq_t total = 0;

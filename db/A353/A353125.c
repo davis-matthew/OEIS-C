@@ -12,13 +12,15 @@
  *            counted with multiplicity
  * Range:     u8 n <= 96, u16 n <= 1468, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9665 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static inline seq_t sopfr_uint64(uint64_t m)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* initialise with a(1)=2 if needed */
     if (terms_len == 0) {
         terms_len = 1;
-        terms = (seq_t *)realloc(terms, terms_len * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_len);
         if (!terms) abort();
         terms[0] = 2;
     }
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* extend cache up to n if required */
     if (terms_len < n) {
         idx_t new_len = n;
-        seq_t *tmp = (seq_t *)realloc(terms, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_len);
         if (!tmp) abort();
         terms = tmp;
 

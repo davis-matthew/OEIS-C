@@ -9,15 +9,37 @@
  *            Stirling numbers of the first kind.)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 18, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* internal helper to grow an array of seq_t values */
+#ifdef __cplusplus
+template <class T>
+static T *grow_array(T *ptr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (needed <= *cap) return ptr;
+    size_t new_cap = *cap ? *cap * 2 : 64;
+    while (new_cap <= needed) new_cap *= 2;
+    ptr = mem_resize(T, ptr, (new_cap * elem_size) / sizeof(T));
+    *cap = new_cap;
+    return ptr;
+}
+#else
 static void *grow_array(void *ptr, size_t *cap, size_t needed, size_t elem_size)
 {
     if (needed <= *cap) return ptr;
@@ -27,6 +49,7 @@ static void *grow_array(void *ptr, size_t *cap, size_t needed, size_t elem_size)
     *cap = new_cap;
     return ptr;
 }
+#endif
 
 /* The main sequence function */
 seq_t a(idx_t n)
@@ -65,7 +88,7 @@ seq_t a(idx_t n)
 
     /* ---------- prepare a[n] array up to n ---------- */
     if (a_vals == NULL) {
-        a_vals = (seq_t *)malloc(64 * sizeof(seq_t));
+        a_vals = mem_new(seq_t, 64);
         a_cap = 64;
         a_last = 0;
         /* set a(0)=1 */

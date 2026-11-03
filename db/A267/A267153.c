@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: standard, pass, 33 terms through n = 915 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,19 @@
 */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_from_str.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 /* constant strings for the first 13 terms */
 static const char *const init_str[13] = {
@@ -65,7 +78,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         /* initial allocation */
-        cache = (seq_t *)malloc(needed_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, needed_cap);
         if (!cache) return (seq_t)0;   /* allocation failed */
 
         /* set initial 13 terms */
@@ -80,7 +93,7 @@ seq_t a(idx_t n)
         max_computed = 12;
     } else if (needed_cap > cache_cap) {
         /* enlarge existing cache */
-        seq_t *tmp = (seq_t *)realloc(cache, needed_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed_cap);
         if (!tmp) return (seq_t)0;   /* reallocation failed */
         cache = tmp;
         /* zero new slots */

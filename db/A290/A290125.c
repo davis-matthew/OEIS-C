@@ -9,8 +9,9 @@
  *            from the square array by antidiagonals with n ≥ 0, k ≥ 1. This
  *            implementation computes the antidiagonal coordinates for a given
  *            index n, then evaluates T(n,k) using a simple divisor summation
- * Range:     i8 n <= 77, i16 n <= 5049, i32 n <= 5049, i64 n <= 5049,
+ * Range:     i8 n <= 285, i16 n <= 5049, i32 n <= 5049, i64 n <= 5049,
  *            i128 n <= 5049, big any n
+ * Validated: standard, pass, 94 terms through n = 4842 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

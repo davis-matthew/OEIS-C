@@ -12,6 +12,7 @@
  *            transition checks that * the current row sat...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 75,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 194 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

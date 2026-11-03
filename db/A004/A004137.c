@@ -10,14 +10,15 @@
  *            max over r,s >= 0 with 4r+s+3 = n of 4r(r+s+2) + 3(s+1)
  * Range:     u8 n <= 26, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   pc64
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   popcount
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pc64.h"
+#include "../utils/popcount.h"
 
 static int g_L;
 static uint64_t g_full;
@@ -40,7 +41,7 @@ static bool dfs(uint64_t S, uint64_t cov, int m, int k)
     int D, p;
     if (unc == 0) return true;
     if (k <= 0) return false;
-    if (pc64(unc) > k * m + k * (k - 1) / 2) return false;
+    if (popcount(unc) > k * m + k * (k - 1) / 2) return false;
     D = g_L;
     while (!((unc >> D) & 1ULL)) D--;
     /* one new mark */

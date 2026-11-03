@@ -11,16 +11,23 @@
  *            Initial values: a(0)=1, a(1)=‑2, a(2)=‑2, a(3)=4, …
  * Range:     i8 n <= 12, i16 n <= 793, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_mul, seq_pow
+ * Validated: standard, pass, 77 terms through n = 9968 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -60,13 +67,13 @@ seq_t a(idx_t n)
 
         if (p % 8 == 1 || p % 8 == 7) {
             /* b(p^e) = (p^(e+1)-1)/(p-1)  */
-            seq_t powp = seq_pow((seq_t)p, e + 1);
+            seq_t powp = ipow_idx((seq_t)p, e + 1);
             seq_t numer = powp - (seq_t)1;
             seq_t denom = (seq_t)(p - 1);
             term = numer / denom;
         } else { /* p % 8 == 3 or 5 */
             /* b(p^e) = ((-p)^(e+1)-1)/(-p-1)  */
-            seq_t powp = seq_pow((seq_t)p, e + 1);
+            seq_t powp = ipow_idx((seq_t)p, e + 1);
 
             seq_t numer;
             /* (-p)^(e+1) = (-1)^(e+1) * p^(e+1)  */

@@ -8,14 +8,15 @@
  *            m = n with all factors of 2 and 3 removed
  * Range:     u8 n <= 1294, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 117 terms through n = 9184 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* numeric helpers -------------------------------------------------------- */
 static uint64_t powmod_uint64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -106,7 +107,7 @@ seq_t a(idx_t n)
     uint64_t rem = 1 % m;          /* 6^0 mod m */
     for (uint64_t j = 0; j < ord; ++j) {
         uint64_t diff = (rem + m - 1) % m;      /* (6^j - 1) mod m */
-        sum += gcd_uint64(diff, m);
+        sum += gcd_u64(diff, m);
         rem = rem * 6 % m;                      /* next power of 6 */
     }
 

@@ -11,12 +11,14 @@
  *            pos + 1 , pos = k – T_{d‑1}
  * Range:     u8 n <= 5, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   floor_sqrt_seq
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_sqrt_seq.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     seq_t inside = (seq_t)8 * k + (seq_t)1;     /* 8k+1 for the root test */
 
     /* integer part of sqrt(8k+1) */
-    seq_t s   = floor_sqrt_seq(inside);
+    seq_t s   = isqrt_seq(inside);
 
     /* preliminary diagonal number */
     seq_t d0  = (s - (seq_t)1) / (seq_t)2;

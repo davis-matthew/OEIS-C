@@ -10,14 +10,38 @@
  *            / 2 )
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   mu_of, pow_seq
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Helpers from the library */
-#include "../utils/mu_of.h"
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ipow_i32.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 static seq_t A056312(idx_t n)
 {
@@ -28,8 +52,8 @@ static seq_t A056312(idx_t n)
 
     for (int j = 0; j <= 5; ++j) {
         int k = 5 - j;                      /* remaining colors */
-        seq_t pow_k_n     = pow_seq((seq_t)k, (int)n);
-        seq_t pow_k_half  = pow_seq((seq_t)k, (int)ceil_half);
+        seq_t pow_k_n     = ipow_i32((seq_t)k, (int)n);
+        seq_t pow_k_half  = ipow_i32((seq_t)k, (int)ceil_half);
         seq_t part        = (pow_k_n + pow_k_half) / 2;
         seq_t term        = part * (seq_t)comb[j];
 

@@ -14,12 +14,14 @@
  *            a(16)=209...
  * Range:     u8 none, u16 n <= 20, u32 n <= 60, u64 n <= 139, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static const seq_t init_values[23] = {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Ensure storage for indices 0..n */
     if (cache_len <= n) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         /* zero the newly allocated part */
         for (idx_t i = cache_len; i < new_len; ++i) tmp[i] = (seq_t)0;

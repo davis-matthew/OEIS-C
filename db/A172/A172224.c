@@ -9,6 +9,7 @@
  *            n>=15. For n < 15, use the pre‑computed values
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 22, u64 n <= 813, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 965 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,12 +36,13 @@
  */
 
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 /* ---------- sequence function ---------- */
 seq_t a(idx_t n)
 {
     /* Allocate array for coefficients a[0..n] */
-    seq_t *coeff = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (n + 1));
     if (coeff == NULL) { return (seq_t)0; }  /* allocation failure */
 
     /* ------------------------------------------------------------------
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
      * ------------------------------------------------------------------ */
     if (n <= 38) {
         seq_t result = coeff[n];
-        free(coeff);
+        mem_free(coeff);
         return result;
     }
 
@@ -92,6 +94,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coeff[n];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

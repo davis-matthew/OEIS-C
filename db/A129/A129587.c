@@ -8,6 +8,7 @@
  * Formula:   a(n) = n!*((1+3n+n^2)*H(n) - n)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

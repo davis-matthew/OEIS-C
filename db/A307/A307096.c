@@ -11,7 +11,8 @@
  *            is ⌈log₂(m+1)⌉. The sequence starts a(1)=1
  * Range:     u8 n <= 21, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the generated sequence */
 static seq_t *seq_arr = NULL;
@@ -36,7 +38,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (seq_len + need > new_cap)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
     seq_arr = tmp;
     seq_cap = new_cap;
 }
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     if (seq_arr == NULL)
     {
         seq_cap = 16;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         seq_len = 1;
         seq_arr[0] = (seq_t)1;          /* a(1) = 1 */
         cur_bitlen = 1;                 /* numbers with 1 bit already present */

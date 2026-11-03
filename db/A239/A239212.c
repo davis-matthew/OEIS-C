@@ -10,7 +10,8 @@
  *            brute‑force search
  * Range:     u8 n <= 6, u16 n <= 37, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   get_digits
+ * Validated: standard, pass, 72 terms through n = 873 (2026-11-03)
+ * Helpers:   get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stddef.h>   /* for size_t */
 #include <stdbool.h>  /* for bool */
 #include <stdlib.h>   /* for malloc/realloc */
-#include "../utils/get_digits.h"   /* get_digits(seq_t x, uint8_t *buf, size_t *len) */
+#include "../utils/get_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         if (ok) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0;   /* OOM – should not happen for the requested range */
                 cache = tmp;
                 cache_cap = new_cap;

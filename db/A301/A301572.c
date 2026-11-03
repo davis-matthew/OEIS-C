@@ -8,13 +8,18 @@
  *            consecutive 1s in binary)
  * Range:     u8 n <= 453, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_fibbinary
+ * Validated: standard, pass, 102 terms through n = 8957 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_fibbinary.h"
+
+static inline bool is_fibbinary(seq_t x)
+{
+    return ((x & (x >> 1)) == 0);
+}
 
 seq_t a(idx_t n)
 {

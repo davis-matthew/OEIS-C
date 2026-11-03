@@ -9,7 +9,8 @@
  *            with multiplicity (i.e., ω(n)=7 and n is odd)
  * Range:     u8 none, u16 n <= 90, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 50 terms through n = 9842 (2026-11-03)
+ * Helpers:   mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdint.h>
 
 /* required helper */
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static bool initialized = false;
@@ -39,7 +42,7 @@ static void grow_terms(size_t needed)
     size_t new_cap = terms_cap ? terms_cap * 2 : 1024;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_terms = (seq_t *)realloc((void *)terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     if (!new_terms)
         abort();            /* out of memory */
     terms = new_terms;
@@ -51,7 +54,7 @@ static uint8_t omega_larger(uint64_t n)
 {
     uint8_t cnt = 0;
     while (n > 1) {
-        uint64_t p = _smallest_prime_factor(n);
+        uint64_t p = smallest_prime_factor(n);
         n /= p;
         cnt++;
     }
@@ -113,7 +116,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         init_sieve();
         terms_cap = 8000;            /* initial capacity */
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) abort();
         terms_len = 0;
         /* pre‑populate with first terms up to a reasonable number */

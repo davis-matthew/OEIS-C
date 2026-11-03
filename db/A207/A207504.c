@@ -10,7 +10,8 @@
  *            column patterns
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 12, u64 n <= 32, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -75,8 +77,8 @@ seq_t a(idx_t n)
 
         /* allocate DP arrays (size C*C) */
         DPsize = C * C;
-        dp_cur  = (seq_t *)malloc(DPsize * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(DPsize * sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, DPsize);
+        dp_next = mem_new(seq_t, DPsize);
         init_done = true;
     }
 
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
 
     for (size_t step = 3; step <= steps; ++step) {
         /* zero dp_next */
-        memset(dp_next, 0, DPsize * sizeof(seq_t));
+        mem_set(dp_next, 0, DPsize * sizeof(seq_t));
 
         for (size_t idx = 0; idx < DPsize; ++idx) {
             seq_t val = dp_cur[idx];

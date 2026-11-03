@@ -9,7 +9,8 @@
  *            permutation of squarefree numbers with μ(a(n)) = -(-1)^n)
  * Range:     u8 n <= 156, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mobius
+ * Validated: standard, pass, 85 terms through n = 944 (2026-11-03)
+ * Helpers:   mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/mobius.h"
+#include "../utils/mem.h"
 
 /* Cached sequence */
 static seq_t *seq_cache = NULL;
@@ -39,7 +42,7 @@ static idx_t checked_up_to = 0;
 static void grow_array(seq_t **arr, size_t *cap, size_t new_cap)
 {
     *cap = new_cap;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
 }
 
 /* Fill the requested parity queue until it contains at least

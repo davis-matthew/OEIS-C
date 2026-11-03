@@ -11,14 +11,16 @@
  *            A001333(m)=2*A001333(m-1)+A001333(m-2)
  * Range:     u8 n <= 28, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binomial.h"   /* provides binomial(idx_t, idx_t) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,13 +41,13 @@ seq_t a(idx_t n)
 
     if ((idx_t)r >= a_cap) {
         size_t new_cap = (size_t)r + 1;
-        seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp)
             return 0;           /* allocation failure, unlikely for given constraints */
 
         /* copy previous entries if any */
         if (a_cache)
-            memcpy(tmp, a_cache, a_cap * sizeof(seq_t));
+            mem_copy(tmp, a_cache, a_cap * sizeof(seq_t));
 
         /* compute new entries from a_cap to r */
         for (size_t i = a_cap; i <= (size_t)r; ++i) {
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         }
 
         if (a_cache)
-            free(a_cache);
+            mem_free(a_cache);
         a_cache = tmp;
         a_cap   = new_cap;
     }

@@ -10,19 +10,50 @@
  *            A074650(n/d, a(d))
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   a6175_binom, a6175_ghost, a6175_ipw, seq_is_fixed_width,
- *            u128_to_seq
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/a6175_binom.h"
-#include "../utils/a6175_ghost.h"
-#include "../utils/a6175_ipw.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+/* (4d)!/(d!)^4 = C(4d,d) C(3d,d) C(2d,d) */
+static seq_t a6175_ghost(idx_t d)
+{
+    seq_t g = binomial(4 * d, d);
+    g = g * binomial(3 * d, d);
+    g = g * binomial(2 * d, d);
+    return g;
+}
 
 #define A6175_MAXD 8192
 
@@ -49,7 +80,7 @@ seq_t a(idx_t n)
         seq_t s = a6175_ghost(d);
         for (j = 0; j < i; j++) {
             if (d % D[j] == 0)
-                s -= (seq_t)D[j] * a6175_ipw(v[j], d / D[j]);
+                s -= (seq_t)D[j] * ipow_idx(v[j], d / D[j]);
         }
         if (fixed) {
             idx_t m = d;

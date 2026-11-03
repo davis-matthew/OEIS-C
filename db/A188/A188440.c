@@ -9,12 +9,15 @@
  *            triangle T(n,k) = 2^k * C(floor(n/2),k) flattened row by row
  * Range:     u8 n <= 58, u16 n <= 162, u32 n <= 519, u64 n <= 1916,
  *            u128 n <= 2600, big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 84 terms through n = 2469 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     idx_t k = n - cum;          /* column within the row */
     idx_t m = r / 2;            /* floor(r/2) */
 
-    seq_t val = binom(m, k);    /* C(floor(r/2), k) */
+    seq_t val = binomial(m, k);    /* C(floor(r/2), k) */
     val *= pow2(k);             /* multiply by 2^k */
 
     return val;

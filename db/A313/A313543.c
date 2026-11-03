@@ -10,13 +10,27 @@
  *            : d(n) = {5,5,5,4,5,4,6,4,5,4,5}[ n mod 11 ] (period 11)
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   diff_at
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/diff_at.h"
+#include "../utils/mem.h"
+
+static seq_t diff_at(idx_t k)
+{
+    if (k == 1)
+        return (seq_t)4;
+    /* periodic increment pattern for n > 1 */
+    static const seq_t pat[11] = {
+        (seq_t)5, (seq_t)5, (seq_t)5, (seq_t)4, (seq_t)5,
+        (seq_t)4, (seq_t)6, (seq_t)4, (seq_t)5, (seq_t)4, (seq_t)5
+    };
+    int r = (int)(k % 11);
+    return pat[r];
+}
 
 /* Cached values of the coordination sequence. */
 static seq_t *cache      = NULL;   /* array holding a(0) … a(cached_len-1)   */
@@ -31,7 +45,7 @@ seq_t a(idx_t n)
         size_t new_cap = cached_cap ? cached_cap * 2 : 16;
         if (new_cap < need)
             new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Allocation failed – abort the program. */
             abort();

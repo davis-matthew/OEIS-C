@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Transition mask: for each (prev, cur) the set of possible next
  * rows that make 'cur' valid given prev and next.  A bit i is set
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
 
     static seq_t dp[64][64];   /* dp[prev][cur] – counts so far */
     static seq_t next[64][64];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initial state: dummy previous row of all zeros, first row (cur)
        is not yet validated.  Every mask is allowed. */
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
 
     /* Process rows 2 … n */
     for (idx_t row = 2; row <= n; ++row) {
-        memset(next, 0, sizeof(next));
+        mem_set(next, 0, sizeof(next));
         for (int prev = 0; prev < 64; ++prev) {
             for (int cur = 0; cur < 64; ++cur) {
                 seq_t ways = dp[prev][cur];
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, next, sizeof(dp));
+        mem_copy(dp, next, sizeof(dp));
     }
 
     /* Final validation: the last row (cur) must be valid with below = 0. */

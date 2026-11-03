@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 1136, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_73
+ * Validated: standard, pass, 57 terms through n = 9407 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,26 @@
  * representation of k contains the substring 73, but the octal
  * representation of (k‑1) does NOT contain that substring. */
 #include <stdbool.h>
-#include "../utils/has_73.h"
+
+/* Test whether x contains the octal substring 73 */
+static bool has_73(idx_t x)
+{
+    /* Scan digits from least‑significant to most‑significant.
+       A pair 7 (higher digit) followed by 3 (lower digit) is detected
+       when the current digit equals 7 and the previously processed digit
+       equals 3. */
+    bool found = false;
+    int prev = 8;                    /* sentinel value not an octal digit */
+    while (x > 0) {
+        int cur = x % 8;
+        if (prev == 3 && cur == 7) {
+            found = true;
+        }
+        prev = cur;
+        x /= 8;
+    }
+    return found;
+}
 
 seq_t a(idx_t n)
 {

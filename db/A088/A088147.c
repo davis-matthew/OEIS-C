@@ -7,7 +7,8 @@
  * Formula:   a(n) = rotate left by one bit of the n‑th prime
  * Range:     u8 n <= 54, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   rotate_left_one_bit
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,27 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/rotate_left_one_bit.h"
+
+/* ----------------------------------------------------------------------- */
+static seq_t rotate_left_one_bit(seq_t x)
+{
+    /* Find number of bits needed to represent x */
+    unsigned len = 0;
+    seq_t tmp = x;
+    while (tmp) {
+        ++len;
+        tmp >>= 1;
+    }
+    if (len == 0) return 0;            /* never happens for primes */
+
+    /* Mask to keep only the lower 'len' bits after rotation */
+    seq_t mask = ((seq_t)1 << len) - 1;
+
+    seq_t left  = (x << 1) & mask;           /* shift left, drop bit that falls out       */
+    seq_t carry = (x >> (len - 1)) & 1;       /* most‑significant bit to the least side    */
+
+    return (left | carry) & mask;
+}
 
 #define MAX_PRIME_LIMIT 200000      /* > p(10000) = 104729              */
 #define MAX_PRIMES       20000      /* number of primes up to MAX_LIMIT */

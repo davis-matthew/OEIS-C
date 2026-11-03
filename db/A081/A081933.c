@@ -9,15 +9,27 @@
  *            starts with a(n‑1) and which is coprime to n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   pow10, seq_gcd
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/pow10.h"   /* pow10(idx_t e)  -> 10^e as seq_t      */
-#include "../utils/seq_gcd.h" /* seq_gcd(seq_t a, seq_t b)           */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t *terms  = NULL; /* Array of computed terms (0‑based index)  */
 static size_t terms_len = 0; /* Number of terms stored (i.e. terms_len >= 1 for a(1)) */
@@ -32,7 +44,7 @@ ensure_capacity(size_t need)
     size_t new_cap = terms_cap ? terms_cap : 128;
     while (new_cap < need)
         new_cap <<= 1;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 
@@ -64,7 +76,7 @@ a(idx_t n)
 
                 /* Scan numbers in this block in increasing order. */
                 while (1) {
-                    if (seq_gcd(cand, (seq_t)i) == (seq_t)1) {
+                    if (gcd(cand, (seq_t)i) == (seq_t)1) {
                         result = cand;
                         goto assign_result;
                     }

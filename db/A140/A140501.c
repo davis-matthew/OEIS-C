@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 202, u128 n <= 202,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 202 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *seq_cache = NULL;      /* array of found terms  */
@@ -64,7 +66,7 @@ static void build_cache(void)
             /* ensure space in the cache */
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-                seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
                 if (!tmp) exit(1);            /* allocation failure */
                 seq_cache = tmp;
                 seq_cap   = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{p^e || n} Prod_{k=1..8} (p^(e+k)-1)/(p^k-1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 12, u64 n <= 215,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_gcd
+ * Validated: standard, pass, 41 terms through n = 9963 (2026-11-02)
+ * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,10 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"      /* factor_u64(uint64_t n, uint64_t *primes,
-                                       uint64_t *exps, size_t *cnt) */
-#include "../utils/seq_gcd.h"        /* seq_t seq_gcd(seq_t a, seq_t b) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 /* Helper: multiply two seq_t numbers safely (no overflow in arbitrary-precision
  * builds; for fixed-width builds assume values fit). */
@@ -71,11 +73,11 @@ seq_t a(idx_t n) {
             /* multiply prime_factor by numerator and divide by denominator
              * keeping the result integer and avoiding overflow by canceling
              * common factors with GCD. */
-            seq_t g1 = seq_gcd(prime_factor, denominator);
+            seq_t g1 = gcd(prime_factor, denominator);
             prime_factor /= g1;
             denominator /= g1;
 
-            seq_t g2 = seq_gcd(numerator, denominator);
+            seq_t g2 = gcd(numerator, denominator);
             numerator /= g2;
             denominator /= g2;
 

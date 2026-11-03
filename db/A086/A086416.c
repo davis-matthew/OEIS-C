@@ -8,7 +8,8 @@
  *            3‑smooth number (n ≥ 1)
  * Range:     u8 n <= 487, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9776 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Internal storage for exponents of 2 and 3 and the divisor counts.  */
 static idx_t *exp2_arr = NULL;   /* exponent of 2  */
@@ -42,7 +44,7 @@ static void ensure_capacity(size_t new_cap)
 
     exp2_arr = (idx_t *)realloc(exp2_arr, grow * sizeof(idx_t));
     exp3_arr = (idx_t *)realloc(exp3_arr, grow * sizeof(idx_t));
-    tau_arr  = (seq_t *)realloc(tau_arr,  grow * sizeof(seq_t));
+    tau_arr  = mem_resize(seq_t, tau_arr, grow);
 
     if (!exp2_arr || !exp3_arr || !tau_arr)
         abort();               /* allocation failed */

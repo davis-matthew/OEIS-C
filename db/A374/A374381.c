@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 78, i16 n <= 78, i32 n <= 78, i64 n <= 78, i128 n <= 78,
  *            big any n
- * Helpers:   next_not_dividing
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,20 @@
 #include <stdint.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/next_not_dividing.h"
+
+/* Return the smallest integer >1 that does not divide d.  This is
+   the value of A007978(d). */
+static inline idx_t next_not_dividing(idx_t d)
+{
+    /* For odd d the answer is 2.
+       For even d start at 3 and increase until d % m != 0. */
+    if ((d & 1) == 1)
+        return 2;
+    idx_t m = 3;
+    while (d % m == 0)
+        ++m;
+    return m;
+}
 
 /*  Return the nth term of A374381 (n >= 1).  Input n is the
     position in the flattened triangle. */

@@ -10,7 +10,8 @@
  *            leading zeros to the same length
  * Range:     u8 n <= 50, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ndigits_u64, sig_u64
+ * Validated: standard, pass, 74 terms through n = 9656 (2026-11-01)
+ * Helpers:   num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/ndigits_u64.h"
-#include "../utils/sig_u64.h"
+#include "../utils/num_digits_u64.h"
+
+/* digit-frequency signature of x padded to d digits, 4 bits per digit */
+static uint64_t sig_u64(uint64_t x, int d) {
+    uint64_t key = 0;
+    int i;
+    for (i = 0; i < d; i++) {
+        key += (uint64_t)1 << (4 * (x % 10));
+        x /= 10;
+    }
+    return key;
+}
 
 static uint64_t *terms = NULL;
 static idx_t terms_len = 0;
@@ -66,7 +77,7 @@ static bool in_seq(uint64_t k) {
     int d;
     uint64_t key;
     if (r != 0 && r != 1 && r != 3 && r != 6) return false;
-    d = ndigits_u64(k);
+    d = num_digits_u64(k);
     if (d != keys_d) build_keys(d);
     key = sig_u64(k, d);
     return bsearch(&key, keys, keys_len, sizeof(uint64_t), cmp_u64) != NULL;

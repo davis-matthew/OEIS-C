@@ -11,7 +11,8 @@
  *            a(5)=5, a(7)=11, a(9)=13)
  * Range:     u8 n <= 22, u16 n <= 22, u32 n <= 22, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   a_special_odd, build_primes_upto, int_sqrt
+ * Validated: partial, pass, 21 terms through n = 22 (2026-11-02)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,21 @@
 
 /* Utility functions from the OEIS utils library */
 #include "../utils/build_primes_upto.h"
-#include "../utils/int_sqrt.h"
-#include "../utils/a_special_odd.h"
+#include "../utils/isqrt.h"
+
+/* Return the special values for odd n < 11 */
+static seq_t
+a_special_odd(idx_t n)
+{
+    /* n is one of 3,5,7,9 */
+    switch (n) {
+        case 3: return 1;
+        case 5: return 5;
+        case 7: return 11;
+        case 9: return 13;
+        default: return 0;   /* should never happen */
+    }
+}
 
 /* Static cache of primes up to the largest requested limit */
 static uint64_t *prime_list = NULL;
@@ -60,7 +74,7 @@ phi_of(idx_t n)
     uint64_t tmp = (uint64_t)n;
 
     /* Obtain primes up to √n */
-    idx_t sqrt_n = int_sqrt(n);
+    idx_t sqrt_n = isqrt(n);
     ensure_primes(sqrt_n);
 
     /* Trial division */

@@ -14,13 +14,15 @@
  *            a(9)=743017...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const int coeff[12] = {
     7, 27, -77, -247, 195, 277, -51, -32, 103, -78, 25, -4
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* Allocate initial space and store the 12 initial terms. */
     if (cache == NULL) {
         size = 32;                     /* reasonable start size          */
-        cache = (seq_t *)malloc(size * sizeof(seq_t));
+        cache = mem_new(seq_t, size);
         if (cache == NULL) return 0;   /* out‑of‑memory: return 0        */
         for (size_t i = 0; i < 12; ++i) cache[i] = init[i];
         cached = 12;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     /* Enlarge cache if it is too small for the requested index. */
     if ((size_t)n > size) {
         size_t new_size = n < size * 2 ? size * 2 : n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) return 0;
         cache = tmp;
         size = new_size;

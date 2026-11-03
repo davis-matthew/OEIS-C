@@ -7,7 +7,8 @@
  * Formula:   a(n) = Count{ numbers ≤ n that are cubefree but NOT squarefree }
  * Range:     u8 n <= 1131, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_icbrt, mobius_small
+ * Validated: standard, pass, 100 terms through n = 9229 (2026-11-01)
+ * Helpers:   icbrt, mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 
 #include <stddef.h>   /* for size_t (not used directly but required by headers) */
 #include <stdbool.h>  /* included for consistency with the build utils */
-#include "../utils/floor_icbrt.h"
-#include "../utils/mobius_small.h"
+#include "../utils/icbrt.h"
+#include "../utils/mobius_idx.h"
 
 /* Integer floor square root, works for values up to 2⁶⁴-1. */
 static idx_t floor_isqrt(idx_t n)
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
     idx_t sqrt_n = floor_isqrt(n);
     seq_t sqfree = 0;
     for (idx_t d = 1; d <= sqrt_n; ++d) {
-        int mu = mobius_small(d);
+        int mu = mobius_idx(d);
         if (mu == 0) continue;
         seq_t term = (seq_t)(n / (d * d));
         if (mu == 1) sqfree += term;
@@ -43,10 +44,10 @@ seq_t a(idx_t n)
     }
 
     /* Count cubefree numbers ≤ n: Σ μ(d) * ⌊n / d³⌋ */
-    idx_t cbrt_n = floor_icbrt(n);
+    idx_t cbrt_n = icbrt(n);
     seq_t cubefree = 0;
     for (idx_t d = 1; d <= cbrt_n; ++d) {
-        int mu = mobius_small(d);
+        int mu = mobius_idx(d);
         if (mu == 0) continue;
         seq_t term = (seq_t)(n / (d * d * d));
         if (mu == 1) cubefree += term;

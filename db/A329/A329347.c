@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} d * bigomega(n/d)
- * Range:     u8 n <= 95, u16 n <= 8252, u32 n <= 8252, u64 n <= 8252,
- *            u128 n <= 8252, big any n
+ * Range:     u8 n <= 95, u16 n <= 12599, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 107 terms through n = 8252 (2026-11-01)
  * Helpers:   bigomega, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,8 +15,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
+#include "../utils/factor_u64.h"
 
 /* Recursively enumerate all divisors of N.
    `primes` and `exps` contain the prime factorisation of N

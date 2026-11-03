@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth prime p such that x^8 ≡ -2 (mod p) has a solution
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_u64, next_prime, pow_mod128
+ * Validated: standard, pass, 67 terms through n = 983 (2026-11-03)
+ * Helpers:   gcd_u64, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/next_prime.h"
-#include "../utils/pow_mod128.h"
+#include <stddef.h>
 #include "../utils/gcd_u64.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* ---------- modular exponentiation for 128‑bit values ---------- */
+static unsigned __int128 pow_mod128(unsigned __int128 base,
+                                     unsigned long long exp,
+                                     unsigned __int128 mod)
+{
+    unsigned __int128 result = 1;
+    base %= mod;
+    while (exp) {
+        if (exp & 1)
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* Predicate: does p admit a solution to x^8 ≡ -2 (mod p)? */
 static inline bool has_solution(uint64_t p) {
@@ -42,7 +60,7 @@ static void ensure_cache(size_t need) {
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;                     /* allocation failed – keep old */
     cache = tmp;
     cache_cap = new_cap;

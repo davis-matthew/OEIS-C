@@ -8,7 +8,8 @@
  * Formula:   a(n) = 1 + 8 * Σ_{r=1..n} Π_{p≡1 (mod 4)} (2·exp_p(r) + 1)
  * Range:     u8 n <= 19, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state */
 static idx_t      memo_max = 0;     /* largest n for which prefix is valid   */
@@ -33,7 +35,7 @@ static void ensure_capacity(idx_t new_max)
     spf = tmp_spf;
 
     /* Allocate or grow the prefix array */
-    seq_t *tmp_prefix = (seq_t *)realloc(prefix, (new_max + 1) * sizeof(seq_t));
+    seq_t *tmp_prefix = mem_resize(seq_t, prefix, (new_max + 1));
     if (!tmp_prefix) abort();
     prefix = tmp_prefix;
 
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
 {
     if (n == 0) {
         if (!prefix) {
-            prefix = (seq_t *)malloc(sizeof(seq_t));
+            prefix = mem_new(seq_t, 1);
             if (!prefix) abort();
             prefix[0] = (seq_t)1;
         }

@@ -12,7 +12,8 @@
  *            cache; it does not hard‑code any terms
  * Range:     u8 n <= 9, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   jacobi_symbol_u64, modmul_u64
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/jacobi_symbol_u64.h"
-#include "../utils/modmul_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
+
+/* Simple Jacobi symbol (a/n) for odd n. */
+static int jacobi_symbol_u64(uint64_t a, uint64_t n)
+{
+    if (n <= 0 || (n & 1) == 0) return 0;
+    a %= n;
+    int result = 1;
+    while (a != 0)
+    {
+        while ((a & 1) == 0)
+        {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5) result = -result;
+        }
+        uint64_t tmp = a; a = n; n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3) result = -result;
+        a %= n;
+    }
+    return (n == 1) ? result : 0;
+}
 
 /* ------------------------ helpers ------------------------------------ */
 
@@ -46,15 +68,15 @@ static bool is_prime_u64(uint64_t n)
         uint64_t exp = d;
         while (exp)
         {
-            if (exp & 1) x = modmul_u64(x, base, n);
-            base = modmul_u64(base, base, n);
+            if (exp & 1) x = mulmod(x, base, n);
+            base = mulmod(base, base, n);
             exp >>= 1;
         }
         if (x == 1 || x == n-1) continue;
         bool comp = true;
         for (uint64_t r = 1; r < s; ++r)
         {
-            x = modmul_u64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { comp = false; break; }
         }
         if (comp) return false;
@@ -68,10 +90,10 @@ typedef struct { uint64_t a[2][2]; } Mat_u64;
 static Mat_u64 matMul_u64(Mat_u64 x, Mat_u64 y, uint64_t mod)
 {
     Mat_u64 r;
-    r.a[0][0] = (modmul_u64(x.a[0][0], y.a[0][0], mod) + modmul_u64(x.a[0][1], y.a[1][0], mod)) % mod;
-    r.a[0][1] = (modmul_u64(x.a[0][0], y.a[0][1], mod) + modmul_u64(x.a[0][1], y.a[1][1], mod)) % mod;
-    r.a[1][0] = (modmul_u64(x.a[1][0], y.a[0][0], mod) + modmul_u64(x.a[1][1], y.a[1][0], mod)) % mod;
-    r.a[1][1] = (modmul_u64(x.a[1][0], y.a[0][1], mod) + modmul_u64(x.a[1][1], y.a[1][1], mod)) % mod;
+    r.a[0][0] = (mulmod(x.a[0][0], y.a[0][0], mod) + mulmod(x.a[0][1], y.a[1][0], mod)) % mod;
+    r.a[0][1] = (mulmod(x.a[0][0], y.a[0][1], mod) + mulmod(x.a[0][1], y.a[1][1], mod)) % mod;
+    r.a[1][0] = (mulmod(x.a[1][0], y.a[0][0], mod) + mulmod(x.a[1][1], y.a[1][0], mod)) % mod;
+    r.a[1][1] = (mulmod(x.a[1][0], y.a[0][1], mod) + mulmod(x.a[1][1], y.a[1][1], mod)) % mod;
     return r;
 }
 
@@ -95,8 +117,8 @@ static uint64_t V_mod_uint64(uint64_t k, uint64_t mod)
     if (k == 0) return 2 % mod;
     if (k == 1) return 7 % mod;
     Mat_u64 p = matPow_u64(k - 1, mod);
-    uint64_t term1 = modmul_u64(p.a[0][0], 7 % mod, mod);
-    uint64_t term2 = modmul_u64(p.a[0][1], 2 % mod, mod);
+    uint64_t term1 = mulmod(p.a[0][0], 7 % mod, mod);
+    uint64_t term2 = mulmod(p.a[0][1], 2 % mod, mod);
     return (term1 + term2) % mod;
 }
 
@@ -145,7 +167,7 @@ seq_t a(idx_t n)
                 if (cache_len == cache_cap)
                 {
                     cache_cap = cache_cap ? cache_cap * 2 : 16;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)m;
             }

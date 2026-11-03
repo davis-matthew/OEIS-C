@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 17, i64 n <= 26, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(n) = a(n-4) + 4*a(n-3) - 4*a(n-1)  for n >= 4   */
 /* Implements A097947: Expansion of (2+7x+2x²)/((x²-1)(1+4x+x²)) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
         return cache[n];
 
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp)
         abort();                     /* allocation failure – not expected */
     cache = tmp;

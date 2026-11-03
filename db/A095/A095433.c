@@ -8,6 +8,7 @@
  *            18 expressed in base n, then read as a decimal integer)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 18, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

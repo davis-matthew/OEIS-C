@@ -8,17 +8,20 @@
  * Formula:   a(n) = R(n) if gcd(n,R(n))==1 else n/gcd(n,R(n))
  * Range:     u8 n <= 102, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, rev
+ * Validated: standard, pass, 90 terms through n = 9055 (2026-11-01)
+ * Helpers:   gcd, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Implements OEIS A371034 */
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/rev.h"
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n) {
-    idx_t rev_n = rev(n);                 /* decimal reversal of n */
+    idx_t rev_n = reverse_digits_idx(n);                 /* decimal reversal of n */
     seq_t g     = gcd((seq_t)n, (seq_t)rev_n); /* gcd(n, R(n)) */
     if (g == (seq_t)1) return (seq_t)rev_n;    /* coprime case */
     return (seq_t)n / g;                       /* otherwise n/gcd */

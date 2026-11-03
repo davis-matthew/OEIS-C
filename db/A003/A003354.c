@@ -9,7 +9,8 @@
  *            terms are found
  * Range:     u8 n <= 9, u16 n <= 5721, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3354_shift_or
+ * Validated: standard, pass, 67 terms through n = 9979 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/a3354_shift_or.h"
+
+static void a3354_shift_or(uint64_t *dst, const uint64_t *src, size_t W, uint64_t s) {
+    size_t ws = (size_t)(s / 64);
+    unsigned bit = (unsigned)(s % 64);
+    size_t i;
+    if (ws >= W) return;
+    for (i = W; i-- > ws; ) {
+        size_t j = i - ws;
+        uint64_t v = src[j] << bit;
+        if (bit && j > 0) v |= src[j - 1] >> (64 - bit);
+        dst[i] |= v;
+    }
+}
 
 static uint64_t *a3354_terms = NULL;
 static size_t a3354_nterms = 0;

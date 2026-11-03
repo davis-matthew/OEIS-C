@@ -10,13 +10,14 @@
  *            4) g(p,e) = ∑_{k=0..e} (-1)^k p^{12k} if p≡3 (mod 4)
  * Range:     i8 n <= 2, i16 n <= 2, i32 n <= 6, i64 n <= 38, i128 n <= 1534,
  *            big any n
- * Helpers:   pow_seq_long
+ * Validated: standard, pass, 37 terms through n = 9643 (2026-11-01)
+ * Helpers:   ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq_long.h"
+#include "../utils/ipow_u64.h"
 
 seq_t a(idx_t n) {
     if (n <= 1)          /* n==1 gives 1 as required */
@@ -38,7 +39,7 @@ seq_t a(idx_t n) {
                 ++e;
             }
 
-            seq_t base = pow_seq_long((seq_t)p, 12);   /* p^12   */
+            seq_t base = ipow_u64((seq_t)p, 12);   /* p^12   */
             seq_t contrib = 1;                         /* k = 0 term 1 */
             seq_t term = 1;                            /* current p^(12*k) */
 
@@ -66,7 +67,7 @@ seq_t a(idx_t n) {
     if (m > 1) {
         uint64_t p = m;              /* remaining prime */
         int e = 1;                   /* exponent is 1 */
-        seq_t base = pow_seq_long((seq_t)p, 12);
+        seq_t base = ipow_u64((seq_t)p, 12);
         seq_t contrib = 1;
         seq_t term = 1;
         if (p % 4 == 1) {

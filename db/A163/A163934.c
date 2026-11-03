@@ -10,14 +10,17 @@
  *            eliminates the sign factor seen in the OEIS definition
  * Range:     u8 n <= 7, u16 n <= 21, u32 n <= 56, u64 n <= 172, u128 n <= 498,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 52 terms through n = 1269 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Includes */
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Table for unsigned Stirling numbers of the first kind (c).
    c[n][k] stores c(n,k) for 0 ≤ k ≤ n. */
@@ -36,14 +39,14 @@ static void ensure_stirling(idx_t nMax)
 
     /* Initialize row 0 if this is the first expansion. */
     if (c_maxN == 0) {
-        c_table[0] = (seq_t *)malloc(sizeof(seq_t));
+        c_table[0] = mem_new(seq_t, 1);
         if (!c_table[0]) exit(1);
         c_table[0][0] = 1;
     }
 
     /* Build successive rows. */
     for (idx_t n = c_maxN + 1; n <= nMax; ++n) {
-        c_table[n] = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        c_table[n] = mem_new(seq_t, (n + 1));
         if (!c_table[n]) exit(1);
         for (idx_t k = 0; k <= n; ++k) {
             seq_t val;
@@ -86,7 +89,7 @@ seq_t a(idx_t n)
     ensure_stirling(N);
 
     seq_t stir = c_table[N][K];                /* unsigned Stirling number */
-    seq_t bin  = binom(m + 2, 3);              /* binomial coefficient */
+    seq_t bin  = binomial(m + 2, 3);              /* binomial coefficient */
 
     return bin * stir;
 }

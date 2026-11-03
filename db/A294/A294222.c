@@ -8,13 +8,15 @@
  *            transform of Lucas)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 21, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* cached Lucas numbers (L(0)=2, L(1)=1, L(k)=L(k-1)+L(k-2)) */
 static seq_t *lucas_arr = NULL;
@@ -32,7 +34,7 @@ static void ensure_capacity(size_t needed, seq_t **arr, size_t *cap)
     if (needed <= *cap) return;
     size_t new_cap = (*cap == 0) ? 1 : *cap * 2;
     while (new_cap < needed) new_cap *= 2;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

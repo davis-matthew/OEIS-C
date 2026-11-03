@@ -9,13 +9,16 @@
  *            A000005(n), else a(n-1) + A000005(n)
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise cache for a(1) */
     if (cache == NULL) {
         /* Allocate space for indices 0..1 */
-        cache = (seq_t *)malloc(sizeof(seq_t) * 2);
+        cache = mem_new(seq_t, 2);
         if (cache == NULL)
             return (seq_t)0;      /* malloc failed */
         cache[0] = (seq_t)0;
@@ -40,13 +43,13 @@ seq_t a(idx_t n)
     if (n > last) {
         /* New size includes index 0..n */
         idx_t new_size = n;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (new_size + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_size + 1));
         if (tmp == NULL)
             return (seq_t)0;      /* realloc failed */
         cache = tmp;
 
         for (idx_t i = last + 1; i <= new_size; ++i) {
-            seq_t d = (seq_t)divisor_count_u64((uint64_t)i);
+            seq_t d = (seq_t)num_divisors((uint64_t)i);
             if (cache[i - 1] > d)
                 cache[i] = cache[i - 1] - d;
             else

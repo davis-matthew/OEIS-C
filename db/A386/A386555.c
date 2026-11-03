@@ -10,14 +10,23 @@
  *            the rotational symmetry group of the cube)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 17, u128 n <= 125,
  *            big any n
- * Helpers:   _compute_binom
+ * Validated: full, pass, 126 terms through n = 125 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/_compute_binom.h"
+
+/* compute binomial(N,k) iteratively in 128‑bit */
+static void _compute_binom(unsigned __int128 *dest, idx_t N)
+{
+    dest[0] = 1;
+    for (idx_t k = 1; k <= N; ++k) {
+        dest[k] = dest[k - 1] * (N + 1 - k) / k;
+    }
+}
 
 static bool _initialized = false;
 static seq_t _coeff[126];

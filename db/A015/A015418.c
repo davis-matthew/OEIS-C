@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 11, i32 n <= 11, i64 n <= 12, i128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 22 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define K 11  /* fixed upper index of the Gaussian binomial */
 
@@ -34,21 +36,21 @@ static idx_t pow_q_len   = 0;    /* number of computed powers of q */
 static void ensure_coeff_arrays(void)
 {
     if (!coeff_prev) {
-        coeff_prev = (seq_t *)calloc(K + 1, sizeof(seq_t));
-        coeff_curr = (seq_t *)calloc(K + 1, sizeof(seq_t));
+        coeff_prev = mem_new(seq_t, K + 1);
+        coeff_curr = mem_new(seq_t, K + 1);
     }
 }
 
 static void ensure_pow_q(idx_t needed)
 {
     if (!pow_q) {
-        pow_q      = (seq_t *)calloc(1, sizeof(seq_t));
+        pow_q      = mem_new(seq_t, 1);
         pow_q[0]   = (seq_t)1;
         pow_q_len  = 1;
     }
     while (pow_q_len <= needed) {
         seq_t next = pow_q[pow_q_len - 1] * (seq_t)(-11);
-        pow_q = (seq_t *)realloc(pow_q, (pow_q_len + 1) * sizeof(seq_t));
+        pow_q = mem_resize(seq_t, pow_q, (pow_q_len + 1));
         pow_q[pow_q_len] = next;
         pow_q_len++;
     }
@@ -57,7 +59,7 @@ static void ensure_pow_q(idx_t needed)
 static void ensure_cache_size(size_t new_len)
 {
     if (cache_len < new_len) {
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         for (size_t i = cache_len; i < new_len; ++i)
             cache[i] = (seq_t)0;
         cache_len = new_len;

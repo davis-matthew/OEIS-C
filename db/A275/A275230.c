@@ -11,13 +11,15 @@
  *            a(5) = 64248 a(6) = 640250
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
     size_t need = (size_t)n;
     if (need < 6) need = 6;
     if (need > cap) {
-        seq_t *new_arr = (seq_t *)malloc(need * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, need);
         if (!new_arr) exit(1);          /* memory allocation failed */
         if (cache) {
-            memcpy(new_arr, cache, cur_len * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_arr, cache, cur_len * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_arr;
         cap   = need;

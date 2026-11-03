@@ -10,14 +10,35 @@
  *            representation of its argument
  * Range:     u8 n <= 13, u16 n <= 31, u32 n <= 927, u64 n <= 927,
  *            u128 n <= 927, big any n
- * Helpers:   no_zero_digits
+ * Validated: standard, pass, 63 terms through n = 821 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/no_zero_digits.h"
+
+/* Remove all zero digits from x. */
+static seq_t no_zero_digits(seq_t x)
+{
+    /* The sequence never generates negative numbers, so x >= 0. */
+    /* We collect non‑zero digits in reverse order, then rebuild. */
+    int digits[64] = {0};   /* enough for 128‑bit numbers (~39 digits). */
+    int len = 0;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d != 0) {
+            digits[len++] = d;
+        }
+        x /= 10;
+    }
+    seq_t res = 0;
+    for (int i = len - 1; i >= 0; --i) {
+        res = res * 10 + digits[i];
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

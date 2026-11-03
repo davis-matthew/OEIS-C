@@ -13,13 +13,15 @@
  *            a(13)=15497207...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 493 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t string_to_seq(const char *s) {
     seq_t val = 0;
@@ -45,7 +47,7 @@ static size_t cache_cap = 0;   /* allocated capacity */
 static void init_cache(void) {
     /* Allocate at least 18 entries */
     cache_cap = 18;
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
     /* Fill known initial 16 terms */
     for (size_t i = 0; i < 16; ++i) {
         cache[i] = string_to_seq(init_str[i]);
@@ -67,7 +69,7 @@ static void ensure_cache(idx_t n) {
     /* Grow cache if needed */
     if ((size_t)(n + 1) > cache_cap) {
         cache_cap = (size_t)(n + 1);
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     if ((size_t)n < cache_len) return;
 

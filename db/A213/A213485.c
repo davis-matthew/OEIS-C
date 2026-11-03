@@ -10,12 +10,14 @@
  *            sequence is OEIS A213485.)
  * Range:     u8 n <= 5, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with the first six terms if not done yet */
     if (!cache) {
-        cache = (seq_t*)malloc(6 * sizeof(seq_t));
+        cache = mem_new(seq_t, 6);
         if (!cache) return 0;      /* failure to allocate – unlikely */
         cache[0] = 0;
         cache[1] = 4;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* grow the cache to hold up to n */
     idx_t newsize = n + 1;
-    seq_t *tmp = (seq_t*)realloc(cache, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newsize);
     if (!tmp) return 0;          /* memory allocation failed */
     cache = tmp;
 

@@ -9,13 +9,15 @@
  *            the generating‑function relation A(x)=1+2x+x²*A(x/(1+x))/(1+x)
  * Range:     i8 n <= 8, i16 n <= 12, i32 n <= 19, i64 n <= 31, i128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 616 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache      = NULL;   /* array of previously computed a(n) */
 static size_t seq_cap       = 0;      /* current allocated capacity */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     /* initial allocation with base values */
     if (!seq_cache) {
         seq_cap = 8;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         if (!seq_cache) abort();
 
         seq_cache[0] = (seq_t)1;
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n >= seq_cap) {
         size_t new_cap = seq_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();
         seq_cache = tmp;
         seq_cap   = new_cap;

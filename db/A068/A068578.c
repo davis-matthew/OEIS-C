@@ -7,7 +7,8 @@
  * Formula:   a(n) is the nth integer k such that τ(k)*σ(k) > k*φ(k)
  * Range:     u8 n <= 21, u16 n <= 23, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   calc_phi, factor_u64, seq_alloc_new_array, seq_realloc, sigma_of
+ * Validated: full, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   factor_u64, mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,11 +17,42 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
 #include "../utils/factor_u64.h"
-#include "../utils/sigma_of.h"
-#include "../utils/calc_phi.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Static cache for previously found terms */
 static seq_t *terms = NULL;
@@ -48,7 +80,7 @@ seq_t a(idx_t n)
 
         /* σ(k) and φ(k) via provided helpers */
         seq_t sigma = sigma_of(next_k);   /* sum of divisors              */
-        seq_t phi   = calc_phi(k);        /* Euler’s totient             */
+        seq_t phi   = totient_seq(k);        /* Euler’s totient             */
 
         /* Inequality check: τ(k)*σ(k) > k*φ(k) */
         if ((tau * sigma) > (k * phi))

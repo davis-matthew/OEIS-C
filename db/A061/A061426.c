@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 136, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9496 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    cache contains at least n entries. */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* digits that may appear in a term (1,2,4,8) and their exponents of 2 */
 static const seq_t DIGITS[4] = {1, 2, 4, 8};
@@ -44,7 +46,7 @@ static void ensure_cache_capacity(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap : 4;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) { /* rollback to avoid crash on allocation failure */
         /* In an actual build environment we would handle this, but for
            the purposes of this implementation we can simply abort. */

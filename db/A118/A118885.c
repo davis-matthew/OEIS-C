@@ -11,13 +11,15 @@
  *            while iterating over the length
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *best = NULL;          /* memoised results a(0)..a(max_n)   */
 static idx_t best_len = 0;          /* allocated length of best array     */
@@ -81,7 +83,7 @@ static void extend_to(idx_t n)
         if (best_len <= computed_len + 1) {
             size_t new_len = best_len ? best_len * 2 : 8;
             while (new_len <= computed_len + 1) new_len *= 2;
-            best = (seq_t *)realloc(best, sizeof(seq_t) * new_len);
+            best = mem_resize(seq_t, best, new_len);
             best_len = new_len;
         }
         best[computed_len + 1] = sum;
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
 
         /* memoise a(0) = 0 */
         best_len = 1;
-        best = (seq_t *)malloc(sizeof(seq_t));
+        best = mem_new(seq_t, 1);
         best[0] = 0;
 
         build_transitions();

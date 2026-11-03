@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   table_value
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,17 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/table_value.h"
+
+/* Compute T(row, col) by iterating the recurrence */
+static inline seq_t table_value(idx_t row, idx_t col)
+{
+    seq_t val = (3 * (seq_t)row) + 1;          /* T(row,0)  */
+    for (idx_t m = 0; m < col; ++m) {
+        /* Use 128‑bit arithmetic to avoid overflow of the multiplication */
+        val = (seq_t)(((__uint128_t)3 * val + 1) / 2);
+    }
+    return val;
+}
 
 /* a(n) = value at (i,j) where (i,j) are the coordinates of the
  * element n in the anti‑diagonal reading of T. */

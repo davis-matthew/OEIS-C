@@ -8,12 +8,14 @@
  *            a(4)=21477, a(5)=21868, a(6)=283893, a(7)=305761
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of computed values       */
 static idx_t cache_len = 0;          /* allocated size of the array   */
@@ -30,8 +32,7 @@ static void ensure_capacity(idx_t n)
     while (new_len < n + 1)
         new_len *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(cache,
-                                  (size_t)new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_len);
     if (!tmp && new_len > 0)         /* realloc failed */
         exit(EXIT_FAILURE);
     cache = tmp;

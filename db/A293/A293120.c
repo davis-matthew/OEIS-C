@@ -9,7 +9,8 @@
  *            d(n-k). The desired terms are a(n)=(-1)^n * d(n)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 19, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 412 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static caches for factorials and d[n] values */
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     if (n + 1 > fact_cap) {
         size_t new_cap = fact_cap == 0 ? 2 : fact_cap * 2;
         while (new_cap <= n) new_cap <<= 1;
-        fact = (seq_t*)realloc(fact, new_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_cap);
         /* initialise new entries */
         for (size_t i = fact_cap; i < new_cap; ++i) {
             if (i == 0) fact[i] = 1;
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
     if (n + 1 > cache_cap) {
         size_t new_cap = cache_cap == 0 ? 2 : cache_cap * 2;
         while (new_cap <= n) new_cap <<= 1;
-        d = (seq_t*)realloc(d, new_cap * sizeof(seq_t));
+        d = mem_resize(seq_t, d, new_cap);
         /* initialise new entries to zero */
         for (size_t i = cache_cap; i < new_cap; ++i) d[i] = 0;
         cache_cap = new_cap;

@@ -9,7 +9,8 @@
  *            are not exponential divisors equals the number itself
  * Range:     u8 none, u16 n <= 51, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 9518 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Build smallest prime factor array up to LIMIT */
 #define LIMIT 20000000u
@@ -52,7 +54,7 @@ static void ensure_cache(idx_t need)
 {
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(1);
     }
 
@@ -98,7 +100,7 @@ static void ensure_cache(idx_t need)
             if (diff == g) {
                 if (cache_len >= cache_cap) {
                     cache_cap <<= 1;
-                    cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                     if (!cache) exit(1);
                 }
                 cache[cache_len++] = (seq_t)n;

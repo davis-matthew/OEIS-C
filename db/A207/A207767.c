@@ -12,14 +12,26 @@
  *            * column patterns is filtered first, reducing the...
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 13, u64 n <= 29, u128 n <= 62,
  *            big any n
- * Helpers:   _valid_column
+ * Validated: standard, pass, 36 terms through n = 201 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/_valid_column.h"
+
+/* Helper: determine whether a 7‑bit mask satisfies the vertical
+ * constraints (no 011 or 101 on any three consecutive rows). */
+static bool _valid_column(unsigned char mask)
+{
+    for (int i = 0; i <= 4; ++i) {
+        unsigned char tri = (mask >> i) & 0x7;          /* three bits */
+        if (tri == 0x3 || tri == 0x5)                  /* 011 or 101 */
+            return false;
+    }
+    return true;
+}
 
 #define MAX_COLS 128
 #define MAX_NEXT 32

@@ -10,14 +10,19 @@
  *            is the n-th smallest such sum
  * Range:     u8 n <= 11, u16 n <= 285, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a4883_cmp
+ * Validated: standard, pass, 61 terms through n = 9037 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a4883_cmp.h"
+
+static int a4883_cmp(const void *x, const void *y) {
+    uint64_t u = *(const uint64_t *)x, v = *(const uint64_t *)y;
+    return (u < v) ? -1 : (u > v) ? 1 : 0;
+}
 
 static uint64_t *a4883_buf = NULL;
 static size_t a4883_blen = 0, a4883_bcap = 0;

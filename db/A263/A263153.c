@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 13, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Constants for the size of the DP tables */
 #define STATE_COUNT   6561
@@ -92,8 +94,8 @@ seq_t a(idx_t n)
     static seq_t *dp2  = NULL;
     static int dp_allocated = 0;
     if (!dp_allocated) {
-        dp  = (seq_t*)malloc(STATE_COUNT * sizeof(seq_t));
-        dp2 = (seq_t*)malloc(STATE_COUNT * sizeof(seq_t));
+        dp  = mem_new(seq_t, STATE_COUNT);
+        dp2 = mem_new(seq_t, STATE_COUNT);
         dp_allocated = 1;
     }
 

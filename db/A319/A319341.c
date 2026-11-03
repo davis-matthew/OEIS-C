@@ -8,8 +8,9 @@
  *            totient function. The product over an empty set equals 1, so for
  *            a pure power of two the formula becomes a(n) = φ(n) – 1. This
  *            implementation factors n by trial division
- * Range:     u8 n <= 287, u16 n <= 9288, u32 n <= 9288, u64 n <= 9288,
- *            u128 n <= 9288, big any n
+ * Range:     u8 n <= 287, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9288 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

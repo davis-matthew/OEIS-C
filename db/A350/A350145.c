@@ -7,12 +7,15 @@
  * Formula:   a(n) = Sum_{k=1..n} floor(n/(2*k-1))^n
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
             ++count;
         } else {
             if (prev_t != 0) {
-                seq_t term = big_pow((seq_t)prev_t, exp) * (seq_t)count;
+                seq_t term = ipow((seq_t)prev_t, exp) * (seq_t)count;
                 sum += term;
             }
             prev_t = t;
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
     }
 
     if (prev_t != 0) {
-        sum += big_pow((seq_t)prev_t, exp) * (seq_t)count;
+        sum += ipow((seq_t)prev_t, exp) * (seq_t)count;
     }
 
     return sum;

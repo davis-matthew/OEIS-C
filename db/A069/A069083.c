@@ -10,16 +10,32 @@
  *            gcd(σ(m), τ(m))
  * Range:     u8 n <= 5, u16 n <= 391, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, gcd, sigma_of
+ * Validated: standard, pass, 63 terms through n = 9792 (2026-11-03)
+ * Helpers:   gcd, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/sigma_of.h"
 #include "../utils/gcd.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static seq_t *cache      = NULL;   /* stored sequence values          */
 static size_t cache_len  = 0;      /* number of terms cached          */
@@ -33,7 +49,7 @@ find_next(void)
 {
     for (;;)
     {
-        size_t tau   = divisor_count_u64(next_candidate);
+        size_t tau   = num_divisors(next_candidate);
         seq_t  sigma = sigma_of(next_candidate);
         seq_t  g     = gcd(sigma, (seq_t)tau);
 
@@ -53,7 +69,7 @@ a(idx_t n)
     while (cache_len < (size_t)n) {
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();                /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

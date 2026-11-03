@@ -11,12 +11,23 @@
  *            including x) * equals x. This produces the OEIS sequence A338742
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   count_even_digits
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_even_digits.h"
+static seq_t count_even_digits(seq_t x)
+{
+    seq_t cnt = 0;
+    while (x != 0) {
+        seq_t digit = x % 10;
+        if ((digit & 1) == 0)
+            cnt++;
+        x /= 10;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

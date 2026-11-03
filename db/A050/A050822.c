@@ -8,13 +8,15 @@
  *            Q(1)=Q(2)=1, Q(k)=Q(k‑Q(k‑1))+Q(k‑Q(k‑2)) for k>2
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *q_arr   = NULL;   /* full Hofstadter Q sequence (1‑based)   */
 static size_t q_len   = 0;      /* number of computed Q terms              */
@@ -31,7 +33,7 @@ static void ensure_q_cap(size_t need)
     size_t new_cap = q_cap ? q_cap << 1 : 8;
     if (new_cap < need)
         new_cap = need;
-    q_arr = (seq_t *)realloc(q_arr, new_cap * sizeof(seq_t));
+    q_arr = mem_resize(seq_t, q_arr, new_cap);
     q_cap = new_cap;
 }
 
@@ -42,7 +44,7 @@ static void ensure_odd_cap(size_t need)
     size_t new_cap = odd_cap ? odd_cap << 1 : 8;
     if (new_cap < need)
         new_cap = need;
-    odd_arr = (seq_t *)realloc(odd_arr, new_cap * sizeof(seq_t));
+    odd_arr = mem_resize(seq_t, odd_arr, new_cap);
     odd_cap = new_cap;
 }
 

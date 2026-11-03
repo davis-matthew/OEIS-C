@@ -10,12 +10,14 @@
  *            the ordered-squares-composition counts
  * Range:     u8 n <= 39, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *b_vals = NULL;
 static seq_t *a_vals = NULL;
@@ -26,8 +28,8 @@ static void extend_cache(idx_t n)
     if (n + 1 <= cache_size)
         return;
     idx_t new_size = n + 1;
-    seq_t *new_b = (seq_t *)malloc(new_size * sizeof(seq_t));
-    seq_t *new_a = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_b = mem_new(seq_t, new_size);
+    seq_t *new_a = mem_new(seq_t, new_size);
     if (!new_b || !new_a) {
         exit(EXIT_FAILURE);
     }
@@ -43,8 +45,8 @@ static void extend_cache(idx_t n)
         }
         i_start = cache_size;
     }
-    if (b_vals) free(b_vals);
-    if (a_vals) free(a_vals);
+    if (b_vals) mem_free(b_vals);
+    if (a_vals) mem_free(a_vals);
     b_vals = new_b;
     a_vals = new_a;
 

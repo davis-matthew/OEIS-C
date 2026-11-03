@@ -9,13 +9,15 @@
  *            a(1)=1, a(2)=1, a(3)=3, a(4)=6, a(5)=10
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 37, u64 n <= 73, u128 n <= 144,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,9 +29,9 @@ seq_t a(idx_t n)
     /* First call: initialise the buffer with the first 6 terms */
     if (maxComputed == (idx_t)-1) {
         maxComputed = 5;
-        memo = (seq_t *)malloc((size_t)(maxComputed + 1) * sizeof(seq_t));
+        memo = mem_new(seq_t, (size_t)(maxComputed + 1));
         if (!memo) return 0;     /* out of memory, return 0 as safe fallback */
-        memcpy(memo, init, sizeof(init));
+        mem_copy(memo, init, sizeof(init));
     }
 
     /* If the requested index is already known, return it */
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
 
     /* Expand the memo table to at least n */
     size_t newSize = (size_t)(n + 1);
-    seq_t *newMemo = (seq_t *)malloc(newSize * sizeof(seq_t));
+    seq_t *newMemo = mem_new(seq_t, newSize);
     if (!newMemo) return 0;  /* out of memory */
-    memcpy(newMemo, memo, (size_t)(maxComputed + 1) * sizeof(seq_t));
+    mem_copy(newMemo, memo, (size_t)(maxComputed + 1) * sizeof(seq_t));
 
     /* Compute new entries from (maxComputed+1) up to n */
     for (idx_t i = maxComputed + 1; i <= n; ++i) {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     }
 
     /* Replace old memo array */
-    free(memo);
+    mem_free(memo);
     memo = newMemo;
     maxComputed = n;
 

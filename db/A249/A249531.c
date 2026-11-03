@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 39, u64 n <= 101, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
             - 2*a(n-9) + 2*a(n-10) - 3*a(n-11) + 4*a(n-12) - 5*a(n-13) + 6*a(n-14)
             - 4*a(n-15) + a(n-16) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[16] = {
     (seq_t)62,   (seq_t)606,   (seq_t)3492,   (seq_t)13580,
@@ -38,7 +40,7 @@ static void ensure_cap(idx_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap > 0 ? cache_cap : 16;
     while (new_cap < (size_t)needed) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(EXIT_FAILURE);
     cache = new_cache;
     cache_cap = new_cap;

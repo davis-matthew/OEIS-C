@@ -10,12 +10,14 @@
  *            A000930(2*n-3) for n≥3)
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 31, u64 n <= 60, u128 n <= 118,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache: a[1]..a[cached_size] */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
 
     if (cache == NULL) {            /* initial allocation */
         size_t init_sz = 10;        /* enough for indices up to 9 */
-        cache = (seq_t*)malloc(sizeof(seq_t) * init_sz);
+        cache = mem_new(seq_t, init_sz);
         if (!cache) return 0;       /* allocation failed, return 0 */
         cached_size = 0;
         /* base cases */
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     /* expand cache if needed */
     if (n > cached_size) {
         size_t new_sz = (size_t)(n) + 5;  /* some spare room */
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_sz);
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (!tmp) return 0;             /* realloc failed */
         cache = tmp;
         for (idx_t i = cached_size + 1; i <= n; ++i) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 7, i64 n <= 15, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 854 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    function G(x) = –x(1–x)/(1+14x+x²)³. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_len)
         return;
     idx_t new_len = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache)
         exit(1);                     /* allocation failure */
     cache = new_cache;

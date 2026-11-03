@@ -7,16 +7,31 @@
  * Formula:   a(n) = n-th prime of the form 2x^2 - xy + 4y^2 with x,y >= 0
  * Range:     u8 n <= 12, u16 n <= 1227, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   integer_sqrt, is_prime, push_seq
+ * Validated: standard, pass, 64 terms through n = 9442 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/integer_sqrt.h"
-#include "../utils/push_seq.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 /* Test whether a prime p can be represented as 2x^2 - xy + 4y^2
    with non‑negative integers x and y. */
@@ -32,7 +47,7 @@ static bool is_representable(uint64_t p)
 
         __int128 D = rhs - lhs;        /* D = 8p - 31y^2 */
         idx_t D64 = (idx_t)D;          /* fits in idx_t for all n up to about 10^7 */
-        idx_t sqrtD = integer_sqrt(D64);
+        idx_t sqrtD = isqrt(D64);
         if ((__int128)sqrtD * sqrtD == D) {
             /* Corresponding x values: (y ± sqrtD)/4  */
             if ((y + sqrtD) % 4 == 0)
@@ -57,7 +72,7 @@ static uint64_t current   = 2;      /* next integer to test */
 static void generate_upto(idx_t n)
 {
     while (prime_cnt < n) {
-        if (is_prime(current)) {
+        if (is_prime_u64(current)) {
             if (is_representable(current)) {
                 push_seq(&prime_array, &prime_cap, &prime_cnt, (seq_t)current);
             }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 34, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -28,10 +30,10 @@ seq_t a(idx_t n)
     /* initialise the cache with the first four terms */
     if (cache == NULL) {
         cache_len = 4;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();
 #ifdef __cplusplus
-        for (idx_t i = 0; i < cache_len; ++i) new (&cache[i]) seq_t();
+        for (idx_t i = 0; i < cache_len; ++i) *(&cache[i]) = (seq_t)0;
 #endif
         cache[0] = 0;
         cache[1] = 1;
@@ -45,11 +47,11 @@ seq_t a(idx_t n)
 
     /* extend the cache up to n (inclusive) */
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) abort();
     cache = tmp;
 #ifdef __cplusplus
-    for (idx_t i = cache_len; i < new_len; ++i) new (&cache[i]) seq_t();
+    for (idx_t i = cache_len; i < new_len; ++i) *(&cache[i]) = (seq_t)0;
 #endif
     for (idx_t i = cache_len; i <= n; ++i) {
         cache[i] = 8 * cache[i-1]

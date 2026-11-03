@@ -7,13 +7,15 @@
  * Formula:   a(n) = Product_{i=1..3} ((-13)^(n-i+1) - 1)/((-13)^i - 1)
  * Range:     i8 none, i16 none, i32 n <= 5, i64 n <= 8, i128 n <= 14,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 26 terms through n = 198 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Local GCD for seq_t (handles signed values).  Works for built‑in
    integer types and arbitrary‑precision integer classes that support
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     for (int i = 1; i <= 3; ++i)
     {
         seq_t exp = (seq_t)(n - i + 1);           /* exponent for q^...   */
-        seq_t numer = big_pow(q, exp) - 1;        /* (q^(n-i+1) - 1)     */
+        seq_t numer = ipow(q, exp) - 1;        /* (q^(n-i+1) - 1)     */
 
         seq_t g = seq_gcd_local(numer, denom_rem);
         if (g > 1)

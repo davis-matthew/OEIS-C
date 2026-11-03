@@ -11,7 +11,8 @@
  *            This works for any seq_t (built‑in unsigned...
  * Range:     u8 none, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto()   */
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* comparison function for qsort when seq_t may be a class */
 static int cmp_seq(const void *a, const void *b)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
         /* Buffer for prime powers. */
         size_t vals_cap = (prime_cnt * 4) + 16;
-        seq_t *vals = (seq_t *)malloc(vals_cap * sizeof(seq_t));
+        seq_t *vals = mem_new(seq_t, vals_cap);
         if (!vals) { free(primes); return 0; }
 
         size_t vals_len = 0;
@@ -68,9 +70,8 @@ seq_t a(idx_t n)
                 if (vals_len == vals_cap)
                 {
                     vals_cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(vals,
-                                                  vals_cap * sizeof(seq_t));
-                    if (!tmp) { free(vals); free(primes); return 0; }
+                    seq_t *tmp = mem_resize(seq_t, vals, vals_cap);
+                    if (!tmp) { mem_free(vals); free(primes); return 0; }
                     vals = tmp;
                 }
                 vals[vals_len++] = val;
@@ -84,17 +85,17 @@ seq_t a(idx_t n)
         free(primes);
 
         /* Sort the collected values to obtain order of the sequence. */
-        qsort(vals, vals_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(vals, vals_len, sizeof(seq_t), cmp_seq);
 
         if (vals_len >= n)
         {
             seq_t result = vals[n - 1];   /* zero‑based index */
-            free(vals);
+            mem_free(vals);
             return result;
         }
 
         /* Not enough terms: free data and double the search limit. */
-        free(vals);
+        mem_free(vals);
         limit *= 2;
     }
 }

@@ -8,6 +8,7 @@
  * Formula:   a(0)=1, a(1)=6, a(n)=n^5-5*n^4+25*n^3-55*n^2+80*n-46 for n>=2
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 85, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 47 terms through n = 867 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

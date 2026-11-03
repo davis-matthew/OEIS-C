@@ -10,12 +10,17 @@
  *            element, row r has r+1 elements)
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   tri_a
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/tri_a.h"
+/* helper: a(k) = binomial(k+2, 2)   (= (k+2)*(k+1)/2)   for k ≥ 1 */
+static inline seq_t tri_a(idx_t k)
+{
+    return ((seq_t)(k + 2) * (seq_t)(k + 1)) / 2;
+}
 
 seq_t a(idx_t n)
 {

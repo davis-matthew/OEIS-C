@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   median_is_five
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,54 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/median_is_five.h"
+
+/* Test whether the median of the decimal digits of x equals 5. */
+static bool median_is_five(seq_t x)
+{
+    unsigned freq[10] = {0};
+    seq_t t = x;
+
+    /* Count the digits of x. */
+    if (t == 0) {
+        freq[0] = 1;
+    } else {
+        while (t != 0) {
+            unsigned d = (unsigned)(t % 10);
+            freq[d]++;
+            t /= 10;
+        }
+    }
+
+    /* Total number of digits. */
+    int total = 0;
+    for (int d = 0; d < 10; d++) total += freq[d];
+
+    /* Odd number of digits: the middle digit after sorting must be 5. */
+    if (total % 2 == 1) {
+        int k = total / 2;          /* 0‑based index of middle digit */
+        int cum = 0;
+        for (int d = 0; d < 10; d++) {
+            cum += freq[d];
+            if (cum > k) {
+                return d == 5;
+            }
+        }
+    } else {  /* Even number of digits: the two middle digits must average 5. */
+        int k = total / 2;          /* positions k-1 and k in 0‑based sorted order */
+        int pos1 = k - 1;
+        int pos2 = k;
+        int cum = 0;
+        int d1 = -1, d2 = -1;
+        for (int d = 0; d < 10; d++) {
+            cum += freq[d];
+            if (d1 == -1 && cum > pos1) d1 = d;
+            if (d2 == -1 && cum > pos2) { d2 = d; break; }
+        }
+        return (d1 != -1) && (d2 != -1) && (d1 + d2 == 10);
+    }
+
+    return false;
+}
 
 /* A large enough cache to hold thousands of terms. */
 #define CACHE_SIZE 500000

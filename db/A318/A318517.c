@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = largest proper divisor of n XOR (n - largest proper
  *            divisor of n)
- * Range:     u8 n <= 256, u16 n <= 9443, u32 n <= 9443, u64 n <= 9443,
- *            u128 n <= 9443, big any n
+ * Range:     u8 n <= 256, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 111 terms through n = 9443 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

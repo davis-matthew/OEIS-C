@@ -9,12 +9,14 @@
  *            numbers with exactly the five distinct odd primes {3,5,7,11,13}
  * Range:     u8 none, u16 n <= 2, u32 n <= 589, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 9338 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Initialize the list on first call. */
     if (H_len == 0) {
         H_cap = 64;
-        H = (seq_t *)malloc(H_cap * sizeof(seq_t));
+        H = mem_new(seq_t, H_cap);
         if (H == NULL) return 0;       /* allocation failure */
         H[1] = (seq_t)1;
         H_len = 1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         if ((size_t)H_cap <= target) {
             size_t new_cap = H_cap * 2;
             while ((size_t)new_cap <= target) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(H, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, H, new_cap);
             if (tmp == NULL) return 0;   /* allocation failure */
             H = tmp;
             H_cap = new_cap;

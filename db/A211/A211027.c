@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 297, u64 n <= 8959,
  *            u128 n <= 8959, big any n
- * Helpers:   no_initial_repeat
+ * Validated: standard, pass, 59 terms through n = 8569 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
    returned as 101 (not 5). */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/no_initial_repeat.h"
+
+/* true iff the binary word encoded in v (len bits, highest bit set)
+   has no initial repeats, i.e. for each 1 ≤ k ≤ len/2 the first k
+   bits differ from the next k bits. */
+static bool no_initial_repeat(seq_t v, int len)
+{
+    int half = len / 2;
+    for (int k = 1; k <= half; ++k) {
+        seq_t prefix = v >> (len - k);
+        seq_t block   = (v >> (len - 2 * k)) & (((seq_t)1 << k) - 1);
+        if (prefix == block)
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

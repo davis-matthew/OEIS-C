@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: standard, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 
 /* Utility prototypes provided by the build system. */
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Static storage for the prime table.  primes[i] is the (i+1)-th prime. */
 static uint64_t *primes = NULL;       /* array of primes */
@@ -76,7 +77,7 @@ seq_t a(idx_t n)
     seq_t exp = (seq_t)(p_target - p_n + 1);
 
     /* Base^{exp}. */
-    seq_t pow_part = big_pow((seq_t)p_n, exp);
+    seq_t pow_part = ipow((seq_t)p_n, exp);
 
     /* Product of primes from index n+1 to target_idx. */
     seq_t prod = 1;

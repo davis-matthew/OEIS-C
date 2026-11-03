@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n^4 + 24*n^3 + 164*n^2 + 378*n + 243) * 3^(n-5)
  * Range:     u8 n <= 0, u16 n <= 6, u32 n <= 14, u64 n <= 32, u128 n <= 69,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 984 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

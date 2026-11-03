@@ -10,7 +10,8 @@
  *            6^((n^2+1)/2) + 4*6^((n^2+n)/2)) if n odd
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 25 terms through n = 35 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static unsigned __int128 pow_u128(unsigned long long base, uint64_t exp)
 {
@@ -86,10 +87,10 @@ seq_t a(idx_t n)
             exp3 = (seq_t)(n_sq / 2U);
             exp4 = (seq_t)((n_sq + n) / 2U);
 
-            term1 = big_pow((seq_t)6, exp1);
-            term2 = big_pow((seq_t)6, exp2) * (seq_t)2;
-            term3 = big_pow((seq_t)6, exp3) * (seq_t)3;
-            term4 = big_pow((seq_t)6, exp4) * (seq_t)2;
+            term1 = ipow((seq_t)6, exp1);
+            term2 = ipow((seq_t)6, exp2) * (seq_t)2;
+            term3 = ipow((seq_t)6, exp3) * (seq_t)3;
+            term4 = ipow((seq_t)6, exp4) * (seq_t)2;
         }
         else                                   /* odd n */
         {
@@ -97,10 +98,10 @@ seq_t a(idx_t n)
             exp3 = (seq_t)((n_sq + 1U) / 2U);
             exp4 = (seq_t)((n_sq + n) / 2U);
 
-            term1 = big_pow((seq_t)6, exp1);
-            term2 = big_pow((seq_t)6, exp2) * (seq_t)2;
-            term3 = big_pow((seq_t)6, exp3);
-            term4 = big_pow((seq_t)6, exp4) * (seq_t)4;
+            term1 = ipow((seq_t)6, exp1);
+            term2 = ipow((seq_t)6, exp2) * (seq_t)2;
+            term3 = ipow((seq_t)6, exp3);
+            term4 = ipow((seq_t)6, exp4) * (seq_t)4;
         }
 
         sum    = term1 + term2 + term3 + term4;

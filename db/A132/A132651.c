@@ -7,14 +7,16 @@
  * Formula:   a(n) = s(n)^s(n), where s(n) is the sum of proper divisors of n
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 11, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static idx_t precomp_max = 0;          /* largest n for which sums are ready   */
 static seq_t *sum_prop   = NULL;       /* array, 1-based, sum_prop[n] = s(n)   */
@@ -61,5 +63,5 @@ seq_t a(idx_t n)
 
     ensure_sum_prop(n);
     seq_t s = sum_prop[n];
-    return big_pow(s, s);
+    return ipow(s, s);
 }

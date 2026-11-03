@@ -14,13 +14,15 @@
  *            a(10)=...
  * Range:     u8 none, u16 n <= 3, u32 n <= 16, u64 n <= 48, u128 n <= 112,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Defined with external linkage as requested. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline seq_t mul_const(seq_t a, unsigned int m)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Ensure cache holds at least the first 13 terms */
     if (cached_terms == 0) {
         idx_t needed = n > 13 ? n : 13;
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (!cache) return (seq_t)0; /* allocation failure */
 
         static const seq_t init[13] = {
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     if (n > cached_terms) {
         /* Grow to at least n terms */
         idx_t new_size = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;  /* allocation failure */
         cache = tmp;
 

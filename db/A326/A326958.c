@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 28, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *p_arr   = NULL;   /* partition numbers p[0..max]   */
 static seq_t *a_arr   = NULL;   /* desired sequence a[0..max]   */
@@ -36,13 +38,13 @@ static void recompute_up_to(idx_t N)
     size_t cap = (size_t)N + 1;
 
     /* Allocate or resize arrays. */
-    p_arr   = (seq_t *)realloc(p_arr,   cap * sizeof(seq_t));
-    a_arr   = (seq_t *)realloc(a_arr,   cap * sizeof(seq_t));
+    p_arr   = mem_resize(seq_t, p_arr, cap);
+    a_arr   = mem_resize(seq_t, a_arr, cap);
     prime_arr = (bool *)realloc(prime_arr, cap * sizeof(bool));
 
     /* Initialize to zero. */
-    memset(p_arr, 0, cap * sizeof(seq_t));
-    memset(a_arr, 0, cap * sizeof(seq_t));
+    mem_set(p_arr, 0, cap * sizeof(seq_t));
+    mem_set(a_arr, 0, cap * sizeof(seq_t));
     memset(prime_arr, 0, cap * sizeof(bool));
 
     /* ----- Sieve of Eratosthenes ----- */
@@ -65,12 +67,12 @@ static void recompute_up_to(idx_t N)
     }
 
     /* ----- Compute a(n) using the recurrence for each non‑composite part ----- */
-    seq_t *cnt = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, cap);
 
     for (idx_t k = 1; k <= N; ++k) {
         if (k == 1 || prime_arr[k]) {
             /* Reset temporary array */
-            memset(cnt, 0, cap * sizeof(seq_t));
+            mem_set(cnt, 0, cap * sizeof(seq_t));
 
             /* Compute count_k(n) for all n ≥ k */
             for (idx_t n = k; n <= N; ++n) {
@@ -84,7 +86,7 @@ static void recompute_up_to(idx_t N)
         }
     }
 
-    free(cnt);
+    mem_free(cnt);
     cached_max = N;
 }
 

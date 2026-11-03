@@ -11,18 +11,81 @@
  *            (1-q^(25k))^6/(1-q^(5k))^6. It is computed as power series,...
  * Range:     i8 n <= 6, i16 n <= 26, i32 n <= 101, i64 n <= 366,
  *            i128 n <= 1000, big any n
- * Helpers:   alloc_zero, release, t5a_div_euler, t5a_mulY, t5a_mul_euler
+ * Validated: standard, pass, 58 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/t5a_div_euler.h"
-#include "../utils/t5a_mulY.h"
-#include "../utils/t5a_mul_euler.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* a /= Prod_{j>=1} (1 - q^(m*j)), in place, length K */
+static void t5a_div_euler(seq_t *a, long long K, long long m)
+{
+    long long i, g;
+    for (i = 0; i < K; i++) {
+        seq_t t = a[i];
+        for (g = 1;; g++) {
+            long long e1 = m * (g * (3 * g - 1) / 2);
+            long long e2 = m * (g * (3 * g + 1) / 2);
+            if (e1 > i) break;
+            if (g & 1) {
+                t += a[i - e1];
+                if (e2 <= i) t += a[i - e2];
+            } else {
+                t -= a[i - e1];
+                if (e2 <= i) t -= a[i - e2];
+            }
+        }
+        a[i] = t;
+    }
+}
+
+/* a *= Prod_{j>=1} (1 - q^(m*j)), in place, length K */
+static void t5a_mul_euler(seq_t *a, long long K, long long m)
+{
+    long long i, g;
+    for (i = K - 1; i >= 0; i--) {
+        seq_t t = a[i];
+        for (g = 1;; g++) {
+            long long e1 = m * (g * (3 * g - 1) / 2);
+            long long e2 = m * (g * (3 * g + 1) / 2);
+            if (e1 > i) break;
+            if (g & 1) {
+                t -= a[i - e1];
+                if (e2 <= i) t -= a[i - e2];
+            } else {
+                t += a[i - e1];
+                if (e2 <= i) t += a[i - e2];
+            }
+        }
+        a[i] = t;
+    }
+}
+
+/* s *= Y where Y = Prod(1-q^k)/Prod(1-q^(25k)) + q */
+static void t5a_mulY(seq_t *s, seq_t *tmp, long long K)
+{
+    long long i;
+    for (i = 0; i < K; i++) tmp[i] = s[i];
+    t5a_mul_euler(tmp, K, 1);
+    t5a_div_euler(tmp, K, 25);
+    for (i = K - 1; i >= 1; i--) s[i] = tmp[i] + s[i - 1];
+    s[0] = tmp[0];
+}
 
 static seq_t *t5a_tab = 0;
 static long long t5a_len = 0;

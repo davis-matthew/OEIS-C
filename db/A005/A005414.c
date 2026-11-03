@@ -11,15 +11,34 @@
  *            satisfies (W-1)*W*(W^2 - 2zWW' - 2zW + 3z^2W') =...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   grow_zero, mk
+ * Validated: standard, pass, 36 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_zero.h"
-#include "../utils/mk.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+/* magnitude/sign of pos - neg */
+static void mk(seq_t pos, seq_t neg, seq_t *m, unsigned char *s)
+{
+    if (pos >= neg) { *m = pos - neg; *s = 0; }
+    else { *m = neg - pos; *s = 1; }
+}
 
 static seq_t *W = 0, *P = 0, *Bm = 0, *WBm = 0, *Tt = 0;
 static unsigned char *Bs = 0, *WBs = 0;

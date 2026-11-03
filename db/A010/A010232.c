@@ -11,14 +11,34 @@
  *            14)
  * Range:     u8 none, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +51,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Allocate initial space */
         size_t cap = 64;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         if (!seq) return 0;           /* fallback on allocation failure */
         seq_len = 0;
         period_len = 0;
@@ -57,7 +77,7 @@ seq_t a(idx_t n)
             /* Grow buffer if necessary */
             if (seq_len == cap) {
                 cap *= 2;
-                seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
                 if (!seq) return 0;
             }
             seq[seq_len++] = a;        /* term a_{k+1} */

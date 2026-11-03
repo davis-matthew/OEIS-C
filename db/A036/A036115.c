@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 /* Recurrence: a(0)=4, a(1)=1. For n≥2,
    construct a(n) by concatenating a(n‑2) and a(n‑1),
    counting the occurrences of each decimal digit in that
@@ -23,7 +25,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
-#include "../utils/seq_from_str.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 typedef struct Term { char* str; seq_t val; } Term;
 
@@ -36,17 +49,17 @@ seq_t a(idx_t n) {
     /* initial capacity for cache */
     if (cache_cap == 0) {
         cache_cap = 4;
-        cache = (Term*)malloc(cache_cap * sizeof(Term));
+        cache = mem_new(Term, cache_cap);
         if (!cache) abort();
     }
 
     /* ensure base terms are present */
     if (cache_size == 0) {
         /* a(0) = 4 */
-        cache[0].str = strdup("4");
+        cache[0].str = mem_strdup("4");
         cache[0].val = seq_from_str(cache[0].str);
         /* a(1) = 1 */
-        cache[1].str = strdup("1");
+        cache[1].str = mem_strdup("1");
         cache[1].val = seq_from_str(cache[1].str);
         cache_size = 2;
     }
@@ -54,7 +67,7 @@ seq_t a(idx_t n) {
     /* expand cache if needed */
     if ((size_t)n >= cache_cap) {
         while (cache_cap <= (size_t)n) cache_cap *= 2;
-        Term* new_cache = (Term*)realloc(cache, cache_cap * sizeof(Term));
+        Term* new_cache = mem_resize(Term, cache, cache_cap);
         if (!new_cache) abort();
         cache = new_cache;
     }

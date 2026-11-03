@@ -8,14 +8,25 @@
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = concatenation of (number of even digits in n)(number of
  *            digits in n)(number of odd digits in n)
- * Range:     u8 n <= 199, u16 n <= 8543, u32 n <= 8543, u64 n <= 8543,
- *            u128 n <= 8543, big any n
- * Helpers:   pow10
+ * Range:     u8 n <= 199, u16 n <= 28000, u32 n <= 28000, u64 n <= 28000,
+ *            u128 n <= 28000, big any n
+ * Validated: standard, pass, 71 terms through n = 8543 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
+#include <stdint.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Count decimal digits of a 64‑bit unsigned value */
 static inline int digits_of_uint64(idx_t v)

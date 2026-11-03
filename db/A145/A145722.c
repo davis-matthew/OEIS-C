@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 33, u32 n <= 100, u64 n <= 333,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const idx_t period20[20] = {
     1,2,1,1,2,2,1,1,1,0,
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)1;
 
     /* Allocate coefficient array up to n */
-    seq_t *coeff = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (n + 1));
     if (!coeff) return (seq_t)0;           /* allocation failure (not expected) */
 
     /* Initialize */
@@ -65,6 +67,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coeff[n];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

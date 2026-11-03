@@ -13,7 +13,8 @@
  *            the Petersen (3,1) graph. Sequence A223502
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;              /* not used but safe */
@@ -109,13 +111,13 @@ seq_t a(idx_t n) {
         }
 
         /* -------- initialise DP vectors ---------- */
-        cur  = (seq_t *)malloc(S * sizeof(*cur));
-        next = (seq_t *)malloc(S * sizeof(*next));
+        cur  = mem_new(seq_t, S);
+        next = mem_new(seq_t, S);
         for (size_t i = 0; i < S; ++i)
             cur[i] = (rows[i][0] == 0) ? (seq_t)1 : (seq_t)0;
 
         /* -------- initial result (n = 1) ---------- */
-        res = (seq_t *)malloc(2 * sizeof(*res));
+        res = mem_new(seq_t, 2);
         res[0] = (seq_t)0;                     /* unused for index 0 */
         seq_t total = 0;
         for (size_t i = 0; i < S; ++i) total += cur[i];
@@ -129,7 +131,7 @@ seq_t a(idx_t n) {
     if (n > computed) {
         for (idx_t lev = computed + 1; lev <= n; ++lev) {
             /* zero next vector */
-            memset(next, 0, S * sizeof(*next));
+            mem_set(next, 0, S * sizeof(*next));
 
             /* one transition step */
             for (size_t i = 0; i < S; ++i) {
@@ -152,7 +154,7 @@ seq_t a(idx_t n) {
             /* ensure capacity of res */
             if ((size_t)(computed + 1) >= resCap) {
                 resCap = resCap * 2;
-                res = (seq_t *)realloc(res, resCap * sizeof(*res));
+                res = mem_resize(seq_t, res, resCap);
             }
             res[computed + 1] = sum;
             ++computed;

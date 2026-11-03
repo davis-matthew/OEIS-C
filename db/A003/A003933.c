@@ -7,6 +7,7 @@
  * Formula:   a(n) = B(A000961(n + 1), 4) where B(q, 4) = q^16 * (q^2 - 1)(q^4
  *            - 1)(q^6 - 1)(q^8 - 1)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 2, u128 n <= 7, big any n
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

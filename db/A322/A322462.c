@@ -8,6 +8,7 @@
  * Formula:   a(n) = 3*n*(n+2)/2 for even n, a(n) = a(n-1)+1 for odd n
  * Range:     u8 n <= 13, u16 n <= 209, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 65 terms through n = 963 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

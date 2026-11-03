@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth prime ≡ 33 (mod 62)
  * Range:     u8 n <= 1, u16 n <= 222, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 59 terms through n = 966 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n)
 {
@@ -39,8 +41,7 @@ extern seq_t a(idx_t n)
                 if (candidate % 62 == 33) {      /* meet congruence condition */
                     if (cache_len >= cache_cap) {
                         cache_cap = cache_cap ? cache_cap << 1 : 16;
-                        seq_t *tmp = (seq_t *)realloc(cache,
-                                                       cache_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                         if (!tmp) {
                             exit(EXIT_FAILURE);    /* out of memory */
                         }

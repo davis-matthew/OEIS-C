@@ -11,13 +11,15 @@
  *            division)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* global arrays storing the sequence and the computed k*b_k values */
 static seq_t *terms = NULL;    /* a[0]..a[n]  */
@@ -38,8 +40,8 @@ static void ensure_terms(idx_t n)
         new_cap <<= 1;
 
     if (new_cap != terms_cap) {
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
-        kbarr = (seq_t *)realloc(kbarr, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
+        kbarr = mem_resize(seq_t, kbarr, new_cap);
         terms_cap = new_cap;
     }
 

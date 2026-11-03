@@ -7,13 +7,15 @@
  * Formula:   a(n) = (n - 1)*(a(n - 2) - a(n - 3) + 1), a(0) = a(1) = a(2) = 1
  * Range:     i8 n <= 8, i16 n <= 13, i32 n <= 20, i64 n <= 33, i128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 449 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache    = NULL;
 static bool  *computed = NULL;
@@ -27,7 +29,7 @@ static void ensure_capacity(idx_t n)
     idx_t new_cap = cap ? cap : 8;
     while (new_cap <= n) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp && new_cap > 0) abort();
 
     bool *tmp2 = (bool *)realloc(computed, new_cap * sizeof(bool));

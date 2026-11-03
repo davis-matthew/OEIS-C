@@ -7,7 +7,8 @@
  * Formula:   terms of the continued fraction expansion of sqrt(773)
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   integer_sqrt773
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,15 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/integer_sqrt773.h"
+
+/* Compute the integer square root of 773 by a small linear search (works
+   for such a tiny constant).  The result fits in a seq_t because 27 < 256. */
+static inline uint64_t integer_sqrt773(void)
+{
+    uint64_t x = 0;
+    while ((x + 1) * (x + 1) <= 773ULL) ++x;
+    return x;
+}
 
 /* Global cache for the period of the continued fraction of sqrt(773). */
 static seq_t a0_seq = 0;                     /* integer part of sqrt(773) */

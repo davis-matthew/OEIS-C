@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 43, u64 n <= 84, u128 n <= 167,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  * (uint8_t, uint16_t, uint32_t, uint64_t, unsigned __int128, etc.). */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static const seq_t init_vals[14] = {
     (seq_t)0,  (seq_t)0,  (seq_t)1,  (seq_t)1,
@@ -42,7 +44,7 @@ static void ensure_and_compute(idx_t n)
     if (cache_size <= n) {
         /* Allocate enough space (at least n+1 or 14) */
         size_t new_size = (n + 1 > 14 ? n + 1 : 14);
-        void *tmp = realloc(cache, new_size * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         cache = (seq_t *)tmp;
         cache_size = new_size;

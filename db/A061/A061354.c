@@ -7,7 +7,8 @@
  * Formula:   a(n) = numerator of sum_{k=0..n} 1/k! (reduced fraction)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 38 terms through n = 180 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
    This computes a(n) for any n ≥ 0 with O(n) per new maximum. */
 
 #include <stdlib.h>            /* malloc, realloc */
-#include "../utils/gcd.h"      /* gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;        /* cache of numerators a(i) */
 static idx_t  max_n = 0;       /* highest n computed */
@@ -33,7 +36,7 @@ static void ensure_cache(idx_t n)
 {
     if (A == NULL) {
         size_t sz = (size_t)(n + 1);
-        A = (seq_t *)malloc(sz * sizeof(seq_t));
+        A = mem_new(seq_t, sz);
         if (!A) return;                /* allocation failed – caller will get 0 */
         A[0]  = (seq_t)1;               /* a(0) = 1 */
         fact  = (seq_t)1;               /* 0! = 1   */
@@ -44,7 +47,7 @@ static void ensure_cache(idx_t n)
 
     if (n > max_n) {
         size_t new_sz = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(A, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, new_sz);
         if (!tmp) return;                /* realloc failed – caller will get 0 */
         A = tmp;
 

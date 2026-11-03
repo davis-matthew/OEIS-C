@@ -7,12 +7,14 @@
  * Formula:   a(n) = Σ_{k=1..n} (p mod k), where p = prime(n) (the n‑th prime)
  * Range:     u8 n <= 32, u16 n <= 511, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9873 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>    /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static void ensure_primes(idx_t need);
 static seq_t prime_n(idx_t n);
@@ -34,8 +36,7 @@ static void ensure_primes(idx_t need)
         idx_t new_cap = primes_cap ? primes_cap * 2 : 16;
         if (new_cap < need)
             new_cap = need;
-        seq_t *tmp = (seq_t *)realloc((void *)primes_arr,
-                                      new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, primes_arr, new_cap);
         if (!tmp)            /* allocation failure – abort for safety */
             abort();
         primes_arr = tmp;

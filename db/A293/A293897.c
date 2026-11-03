@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = sum of proper divisors of n that are ≡ 1 (mod 3)
- * Range:     u8 n <= 319, u16 n <= 8913, u32 n <= 8913, u64 n <= 8913,
- *            u128 n <= 8913, big any n
+ * Range:     u8 n <= 319, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 8913 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

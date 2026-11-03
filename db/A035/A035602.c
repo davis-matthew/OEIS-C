@@ -8,12 +8,14 @@
  *            0
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 29, u64 n <= 481, u128 n <= 1000,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 41 terms through n = 925 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         idx_t k = n + 7 - (idx_t)j;   /* n - j + 7  */
         if (k < 8)   /* binom(k,8) is zero for k < 8 */
             continue;
-        seq_t term = binom(k, 8);      /* binom(n - j + 7, 8) */
+        seq_t term = binomial(k, 8);      /* binom(n - j + 7, 8) */
         term *= C7[j];
         term *= 2;
         result += term;

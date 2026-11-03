@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 429, u32 n <= 573, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq_array, fib_mod_calc, free_seq_array
+ * Validated: standard, pass, 63 terms through n = 912 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,46 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/fib_mod_calc.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Fast doubling Fibonacci modulo mod.
+   Computes fn = F(n) mod mod and fn1 = F(n+1) mod mod. */
+static void fib_mod_calc(idx_t n, seq_t mod, seq_t *fn, seq_t *fn1)
+{
+    if (n == 0) {
+        *fn  = 0;
+        *fn1 = 1 % mod;
+        return;
+    }
+    seq_t a, b;
+    fib_mod_calc(n >> 1, mod, &a, &b);
+
+    seq_t two_b          = ((seq_t)2 * b) % mod;
+    seq_t two_b_minus_a  = (two_b + mod - a) % mod;
+    seq_t c              = (a * two_b_minus_a) % mod;
+    seq_t a_sq           = (a * a) % mod;
+    seq_t b_sq           = (b * b) % mod;
+    seq_t d              = (a_sq + b_sq) % mod;
+
+    if (n & 1) {
+        *fn  = d;
+        *fn1 = (c + d) % mod;
+    } else {
+        *fn  = c;
+        *fn1 = d;
+    }
+}
 
 /* Return true when Fibonacci(k) ≡ -2 (mod k). */
 static bool qualifies(idx_t k)

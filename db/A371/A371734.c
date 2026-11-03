@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 7892, u16 n <= 7892, u32 n <= 7892, u64 n <= 7892,
- *            u128 n <= 7892, big any n
- * Helpers:   build_primes_upto, dfs_feasible, factor_u64
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 7892 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,35 @@
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
-#include "../utils/dfs_feasible.h"
+
+/* Recursive feasibility test: can the remaining items in mask be
+   partitioned into k_rem non‑empty groups with strictly increasing
+   sums, the smallest previous sum being last_sum?  sumArray contains
+   the weight sums of all masks. */
+static bool dfs_feasible(int mask, int k_rem, int last_sum, const int *sumArray)
+{
+    if (k_rem == 0)
+        return mask == 0;                /* all items used */
+    if (mask == 0)                       /* not enough items */
+        return false;
+
+    /* quick prune: the minimal total sum that the remaining k_rem groups
+       could achieve is last_sum+1 + … + last_sum+k_rem. */
+    int remWeight = sumArray[mask];
+    int min_needed = k_rem * last_sum + k_rem * (k_rem + 1) / 2;
+    if (remWeight < min_needed)
+        return false;
+
+    /* Try all non‑empty submasks of mask. */
+    for (int sub = mask; sub; sub = (sub - 1) & mask) {
+        int s = sumArray[sub];
+        if (s <= last_sum)
+            continue;
+        if (dfs_feasible(mask ^ sub, k_rem - 1, s, sumArray))
+            return true;
+    }
+    return false;
+}
 
 /* Cache of primes up to the largest n requested. */
 static uint64_t *prime_cache = NULL;

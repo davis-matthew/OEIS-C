@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   has_three1_two2
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,25 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_three1_two2.h"
+
+/* Count the number of 1's and 2's in the base‑5 representation of x. */
+static inline bool has_three1_two2(seq_t x)
+{
+    unsigned cnt1 = 0;
+    unsigned cnt2 = 0;
+    while (x > 0) {
+        unsigned d = (unsigned)(x % 5);
+        if (d == 1) {
+            ++cnt1;
+            if (cnt1 > 3) return false;
+        } else if (d == 2) {
+            ++cnt2;
+            if (cnt2 > 2) return false;
+        }
+        x /= 5;
+    }
+    return (cnt1 == 3 && cnt2 == 2);
+}
 
 /* Cached list of terms.  20000 is more than enough for n ≤ 10000. */
 #define MAX_CACHE 20000

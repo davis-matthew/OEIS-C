@@ -9,14 +9,22 @@
  *            L(d,5) is the Legendre symbol (d|5)
  * Range:     i8 n <= 3, i16 n <= 8, i32 n <= 20, i64 n <= 45, i128 n <= 95,
  *            big any n
- * Helpers:   legendre5
+ * Validated: standard, pass, 44 terms through n = 937 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/legendre5.h"
+
+/* Legendre symbol (d | 5).  Returns 0, 1 or -1. */
+static inline int legendre5(idx_t d)
+{
+    unsigned r = d % 5ULL;
+    if (r == 0) return 0;
+    return (r == 1 || r == 4) ? 1 : -1;
+}
 
 /* Integer square root, floor(sqrt(n)).  Works for all uint64_t. */
 static inline idx_t int_sqrt_u64(idx_t n)

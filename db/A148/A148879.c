@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- helper macros and constants ---------- */
 #define T_MAX 120          /* number of terms built for BM (must be >= 2*L) */
@@ -144,11 +146,11 @@ static seq_t linear_term(const seq_t *init, const int64_t *coeff, int L,
         if (e & 1ULL) {
             seq_t tmp[128];
             poly_mul(curr, pol, coeff, L, tmp);
-            memcpy(curr, tmp, sizeof(tmp));
+            mem_copy(curr, tmp, sizeof(tmp));
         }
         seq_t tmp[128];
         poly_mul(pol, pol, coeff, L, tmp);
-        memcpy(pol, tmp, sizeof(tmp));
+        mem_copy(pol, tmp, sizeof(tmp));
         e >>= 1ULL;
     }
 
@@ -276,8 +278,8 @@ seq_t a(idx_t n)
         /* -------------------- 4. Compute exact initial terms up to L-1 -------------------- */
         size_t dim2 = L;
         size_t size2 = dim2 * dim2 * dim2;
-        seq_t *dp_ex1 = (seq_t*)calloc(size2, sizeof(seq_t));
-        seq_t *dp_ex2 = (seq_t*)calloc(size2, sizeof(seq_t));
+        seq_t *dp_ex1 = mem_new(seq_t, size2);
+        seq_t *dp_ex2 = mem_new(seq_t, size2);
         seq_t *cur_ex = dp_ex1, *nxt_ex = dp_ex2;
 
         int vis_cur_e[VIS_CAP], vis_nxt_e[VIS_CAP];
@@ -286,7 +288,7 @@ seq_t a(idx_t n)
         cur_ex[origin_ex] = 1;
         vis_cur_e[sz_cur_e++] = origin_ex;
 
-        init_vals = (seq_t*)malloc(L * sizeof(seq_t));
+        init_vals = mem_new(seq_t, L);
         init_vals[0] = 1;
 
         for (size_t step = 0; step < (size_t)(L - 1); ++step) {
@@ -325,14 +327,14 @@ seq_t a(idx_t n)
                 cur_ex[idx] = 0;
             }
 
-            memcpy(cur_ex, nxt_ex, size2 * sizeof(seq_t));
+            mem_copy(cur_ex, nxt_ex, size2 * sizeof(seq_t));
             sz_cur_e = sz_nxt_e;
             memcpy(vis_cur_e, vis_nxt_e, sz_cur_e * sizeof(int));
-            memset(nxt_ex, 0, size2 * sizeof(seq_t));
+            mem_set(nxt_ex, 0, size2 * sizeof(seq_t));
         }
 
-        free( dp_ex1 );
-        free( dp_ex2 );
+        mem_free(dp_ex1);
+        mem_free(dp_ex2);
 
         init_done = true;
     }

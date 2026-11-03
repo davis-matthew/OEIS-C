@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, powmod64
+ * Validated: standard, pass, 89 terms through n = 9453 (2026-11-01)
+ * Helpers:   is_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/powmod64.h"
+#include "../utils/powmod_u64.h"
 
 /* Return true iff 2 is a primitive root modulo the prime p. */
 static bool has_primitive_root_2(uint64_t p)
@@ -35,7 +36,7 @@ static bool has_primitive_root_2(uint64_t p)
     /* Factor φ(p) and test the condition for each prime divisor. */
     while (q * q <= m) {
         if (m % q == 0) {
-            if (powmod64(2ULL, phi / q, p) == 1ULL)
+            if (powmod_u64(2ULL, phi / q, p) == 1ULL)
                 return false;
             while (m % q == 0)
                 m /= q;
@@ -43,7 +44,7 @@ static bool has_primitive_root_2(uint64_t p)
         q += (q == 2) ? 1 : 2;       /* try only odd q after 2 */
     }
     if (m > 1) {                     /* remaining prime factor > sqrt(φ) */
-        if (powmod64(2ULL, phi / m, p) == 1ULL)
+        if (powmod_u64(2ULL, phi / m, p) == 1ULL)
             return false;
     }
     return true;

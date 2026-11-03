@@ -7,12 +7,14 @@
  * Formula:   a(n) = p(2*n + 1), where p(m) is the partition function
  * Range:     u8 n <= 7, u16 n <= 21, u32 n <= 63, u64 n <= 207, u128 n <= 728,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 7997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* seq_t and idx_t are supplied by the build system */
 
 static seq_t *p = NULL;        /* dynamic array for partition numbers */
@@ -31,7 +33,7 @@ static void ensure_capacity(idx_t m)
     if (new_len < alloc_len * 3 / 2 + 16)
         new_len = alloc_len * 3 / 2 + 16;
 
-    seq_t *new_p = (seq_t *)realloc(p, new_len * sizeof(seq_t));
+    seq_t *new_p = mem_resize(seq_t, p, new_len);
     if (!new_p)                /* allocation failure – abort for now */
         return;
     p = new_p;

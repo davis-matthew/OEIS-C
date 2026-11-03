@@ -14,7 +14,8 @@
  *            the...
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- prime generation (static) ---------- */
 #define PRIME_LIMIT 2000000ULL
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
         if (in_sequence(scanner)) {
             if (cache_len == cache_cap) {
                 cache_cap = (cache_cap > 0) ? cache_cap * 2 : 8;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) exit(1);
             }
             cache[cache_len++] = (seq_t)scanner;

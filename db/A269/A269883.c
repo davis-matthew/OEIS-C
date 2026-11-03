@@ -14,7 +14,8 @@
  *            a...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The helper tables are small enough that a single static allocation
    suffices. */
@@ -91,7 +93,7 @@ static void ensure_computed(idx_t n)
     if (cache_size <= n) {
         seq_t *tmp = NULL;
 #if defined(__cplusplus)
-        tmp = reinterpret_cast<seq_t*>(realloc(cache, (n + 1) * sizeof(seq_t)));
+        tmp = reinterpret_cast<seq_t*>(mem_resize(seq_t, cache, (n + 1)));
 #else
         tmp = realloc(cache, (n + 1) * sizeof(seq_t));
 #endif
@@ -106,8 +108,8 @@ static void ensure_computed(idx_t n)
 
     /* Initialise DP for n = 1 once. */
     if (max_n == 0) {
-        memset(dp0, 0, sizeof(dp0));
-        memset(dp1, 0, sizeof(dp1));
+        mem_set(dp0, 0, sizeof(dp0));
+        mem_set(dp1, 0, sizeof(dp1));
         for (int cfg = 0; cfg < 216; ++cfg) {
             unsigned char w = within[cfg];
             if (w == 0)
@@ -125,8 +127,8 @@ static void ensure_computed(idx_t n)
 
     /* Extend the DP to rows max_n+1 … n. */
     for (idx_t row = max_n + 1; row <= n; ++row) {
-        memset(new0, 0, sizeof(new0));
-        memset(new1, 0, sizeof(new1));
+        mem_set(new0, 0, sizeof(new0));
+        mem_set(new1, 0, sizeof(new1));
         for (int prev = 0; prev < 216; ++prev) {
             seq_t prev0 = dp0[prev];
             seq_t prev1 = dp1[prev];
@@ -145,8 +147,8 @@ static void ensure_computed(idx_t n)
                 }
             }
         }
-        memcpy(dp0, new0, sizeof(dp0));
-        memcpy(dp1, new1, sizeof(dp1));
+        mem_copy(dp0, new0, sizeof(dp0));
+        mem_copy(dp1, new1, sizeof(dp1));
         seq_t s = 0;
         for (int i = 0; i < 216; ++i)
             if (dp1[i])

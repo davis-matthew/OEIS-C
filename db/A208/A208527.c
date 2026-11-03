@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    The flattened sequence is obtained by reading the triangle
    row‑by‑row: a(1) = 1, a(2) = 1, a(3) = 4, …   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for the v‑polynomial coefficient rows */
 static seq_t **v_rows          = NULL;  /* v_rows[r] -> pointer to array of length r */
@@ -47,8 +49,8 @@ static void extend_to(idx_t target)
 
     /* initialise first row */
     if (max_computed == 0) {
-        u_prev = (seq_t*)calloc(1, sizeof(seq_t));
-        v_prev = (seq_t*)calloc(1, sizeof(seq_t));
+        u_prev = mem_new(seq_t, 1);
+        v_prev = mem_new(seq_t, 1);
         u_prev[0] = (seq_t)1;
         v_prev[0] = (seq_t)1;
         v_rows[1] = v_prev;                 /* row 1 stored */
@@ -59,8 +61,8 @@ static void extend_to(idx_t target)
     /* build rows max_computed+1 … target */
     for (size_t r = max_computed + 1; r <= (size_t)target; ++r) {
         size_t sz = r;                     /* number of coefficients in row r */
-        seq_t *u_curr = (seq_t*)calloc(sz, sizeof(seq_t));
-        seq_t *v_curr = (seq_t*)calloc(sz, sizeof(seq_t));
+        seq_t *u_curr = mem_new(seq_t, sz);
+        seq_t *v_curr = mem_new(seq_t, sz);
 
         /* v(r,x): constant term then coefficients of x^k, k=1…r-1 */
         v_curr[0] = (seq_t)1;              /* constant term 1 */
@@ -82,7 +84,7 @@ static void extend_to(idx_t target)
         v_rows[r] = v_curr;
 
         /* free previous u_prev (v_prev is still referenced by v_rows) */
-        free(u_prev);
+        mem_free(u_prev);
 
         /* advance to next row */
         u_prev = u_curr;

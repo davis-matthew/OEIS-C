@@ -9,7 +9,8 @@
  *            (3^(2e) + 3) / 4 ( integer ) This yields the sequence A399065
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are defined by the build system. */
 /* No other includes or definitions are allowed. */
@@ -29,7 +31,7 @@ static void ensure_capacity_seq(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t new_cap = need * 2;
         if (new_cap < need) new_cap = need;  /* protect overflow */
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -55,13 +57,13 @@ static void init_once(void)
 
     /* allocate space for a(0) */
     a_cap = 1;
-    a_vals = (seq_t *)malloc(a_cap * sizeof(seq_t));
+    a_vals = mem_new(seq_t, a_cap);
     a_vals[0] = (seq_t)1;  /* a(0) = 1 */
     a_len = 1;
 
     /* allocate space for B[0] */
     B_cap = 1;
-    B_vals = (seq_t *)malloc(B_cap * sizeof(seq_t));
+    B_vals = mem_new(seq_t, B_cap);
     B_vals[0] = (seq_t)1;  /* B[0] = (3^0 + 3)/4 = 1 */
     B_len = 1;
 

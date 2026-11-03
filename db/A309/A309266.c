@@ -11,12 +11,14 @@
  *            1) Final answer a(n) = dp_n[n] + dp_n[n−1] (wi...
  * Range:     u8 n <= 9, u16 n <= 25, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static memoisation state ------------------------------------------ */
 static seq_t *dp      = NULL;   /* dp array for the current product      */
@@ -29,8 +31,8 @@ static void ensure_capacity(idx_t n)
     idx_t needed = n + 1;          /* indices 0..n */
     if (cap < needed)
     {
-        dp  = (seq_t *)realloc(dp,  needed * sizeof(seq_t));
-        tmp = (seq_t *)realloc(tmp, needed * sizeof(seq_t));
+        dp  = mem_resize(seq_t, dp, needed);
+        tmp = mem_resize(seq_t, tmp, needed);
         for (idx_t i = cap; i < needed; ++i)     /* initialise new cells */
             dp[i] = tmp[i] = (seq_t)0;
         cap = needed;

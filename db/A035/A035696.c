@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 200, u32 n <= 553, u64 n <= 1735,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 4995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types defined by the build system */
 typedef idx_t idx_t;
@@ -41,9 +43,9 @@ static idx_t maxN = 0;
 static void init_tables(idx_t n)
 {
     /* Allocate new tables */
-    seq_t *new_p4 = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *new_p7 = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *new_a  = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_p4 = mem_new(seq_t, (n + 1));
+    seq_t *new_p7 = mem_new(seq_t, (n + 1));
+    seq_t *new_a  = mem_new(seq_t, (n + 1));
 
     if (!new_p4 || !new_p7 || !new_a) {
         /* Allocation failed – keep old tables (should not happen in tests) */
@@ -51,9 +53,9 @@ static void init_tables(idx_t n)
     }
 
     /* Free old tables */
-    free(p4);
-    free(p7);
-    free(a_arr);
+    mem_free(p4);
+    mem_free(p7);
+    mem_free(a_arr);
 
     p4 = new_p4;
     p7 = new_p7;

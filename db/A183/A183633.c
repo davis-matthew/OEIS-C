@@ -8,12 +8,15 @@
  * Formula:   a(n) = 12*6^n - 12*3^n + 4*2^n
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 23, u128 n <= 48,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 38 terms through n = 959 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -21,9 +24,9 @@ seq_t a(idx_t n)
     if (n == 0u) return 0;
 
     /* Compute the needed powers using the utility function seq_pow. */
-    seq_t pow6 = seq_pow((seq_t)6, n);   /* 6^n  */
-    seq_t pow3 = seq_pow((seq_t)3, n);   /* 3^n  */
-    seq_t pow2 = seq_pow((seq_t)2, n);   /* 2^n  */
+    seq_t pow6 = ipow_idx((seq_t)6, n);   /* 6^n  */
+    seq_t pow3 = ipow_idx((seq_t)3, n);   /* 3^n  */
+    seq_t pow2 = ipow_idx((seq_t)2, n);   /* 2^n  */
 
     /* Combine them according to the closed formula. */
     seq_t res = (seq_t)12 * pow6;

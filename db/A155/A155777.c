@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, largest_digit_prime
+ * Validated: standard, pass, 72 terms through n = 875 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/largest_digit_prime.h"
+#include "../utils/mem.h"
+
+/* returns true iff the largest decimal digit of x is a prime digit
+   (2,3,5, or 7) */
+static bool largest_digit_prime(seq_t x)
+{
+    seq_t t = x;
+    int max_digit = 0;
+    /* Extract digits from least significant to most significant */
+    while (t != 0) {
+        int d = (int)(t % 10);   /* t % 10 returns seq_t, cast to int */
+        if (d > max_digit)
+            max_digit = d;
+        t = t / 10;
+    }
+    return (max_digit == 2 || max_digit == 3 || max_digit == 5 || max_digit == 7);
+}
 
 /* a(n) : return the n‑th term (1‑based) of the sequence   */
 seq_t a(idx_t n)
@@ -43,9 +60,9 @@ seq_t a(idx_t n)
                 /* Ensure enough space in the cache */
                 if (cache_size == cache_capacity) {
                     size_t new_cap = cache_capacity ? cache_capacity * 2 : 8;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) { /* allocation failed – return 0 */
-                        free(cache);
+                        mem_free(cache);
                         cache = NULL;
                         return 0;
                     }

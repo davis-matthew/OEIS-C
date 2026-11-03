@@ -10,6 +10,7 @@
  *            exists, a(n)=n)
  * Range:     u8 n <= 510, u16 n <= 8190, u32 n <= 8190, u64 n <= 8190,
  *            u128 n <= 8190, big any n
+ * Validated: standard, pass, 91 terms through n = 8183 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

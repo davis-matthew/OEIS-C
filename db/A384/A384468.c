@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(0) = 1; for n≥1, if a(n-1) even then a(n)=a(n-1)/2 else a(n)=2*a(n-1)+n. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Initialize cache with a(0) if empty */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;            /* out‑of‑memory safeguard */
         cache[0] = 1;
         cache_cap = 1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         while (new_cap < target) {
             new_cap *= 2;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;          /* out‑of‑memory safeguard */
         cache = tmp;
         cache_cap = new_cap;

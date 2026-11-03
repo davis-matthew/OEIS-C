@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 22,
  *            big any n
- * Helpers:   binomial, mobius
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t, idx_t) */
-#include "../utils/mobius.h"     /* provides seq_t mobius(idx_t) */
+#include "../utils/binomial.h"
+#include "../utils/mobius.h"
+#include "../utils/mem.h"
 
 /* Cached data structures */
 static seq_t *a_cache = NULL;   /* a_cache[i] = a(i) */
@@ -39,7 +41,7 @@ static void ensure_cache(size_t need)
         if (new_cap < 2 * cache_cap)
             new_cap = 2 * cache_cap;
         if (new_cap < 1) new_cap = 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         cache_cap = new_cap;
     }
 }
@@ -52,7 +54,7 @@ static void ensure_fact(size_t need)
         if (new_cap < 2 * fact_cap)
             new_cap = 2 * fact_cap;
         if (new_cap < 1) new_cap = 1;
-        fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_cap);
         fact_cap = new_cap;
     }
 }

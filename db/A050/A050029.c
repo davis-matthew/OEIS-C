@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 77, u32 n <= 517, u64 n <= 4470,
  *            u128 n <= 8193, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 7625 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute ceil(log₂(x)) for x ≥ 1.  Returns 0 for x ≤ 1. */
 static idx_t ceil_log2_idx(idx_t x)
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
     /* Initialise: indices 1,2,3 are known. */
     if (!cache) {
-        cache = (seq_t*)calloc(4, sizeof(seq_t));  /* indices 0..3 */
+        cache = mem_new(seq_t, 4);  /* indices 0..3 */
         if (!cache) return (seq_t)0;               /* allocation failed */
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)1;
@@ -56,12 +58,11 @@ seq_t a(idx_t n)
     /* Grow the cache if the requested index exceeds it. */
     if (n > max_n) {
         idx_t new_size = n + 1;                 /* up to n inclusive */
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;              /* allocation failed */
         cache = tmp;
         /* Zero any newly allocated slots. */
-        memset(cache + max_n + 1, 0,
-               (new_size - (max_n + 1)) * sizeof(seq_t));
+        mem_set(cache + max_n + 1, 0, (new_size - (max_n + 1)) * sizeof(seq_t));
 
         /* Compute all missing terms. */
         for (idx_t i = max_n + 1; i <= n; ++i) {

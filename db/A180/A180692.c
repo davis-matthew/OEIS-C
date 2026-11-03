@@ -8,8 +8,9 @@
  *            12^k starts with the decimal digits of n. The algorithm uses the
  *            leading‑digit property of powers of 12: the fractional part of
  *            k·log10(12) determines the leading digits
- * Range:     u8 n <= 82, u16 n <= 9029, u32 n <= 9029, u64 n <= 9029,
- *            u128 n <= 9029, big any n
+ * Range:     u8 n <= 82, u16 n <= 20601, u32 n <= 32699, u64 n <= 32699,
+ *            u128 n <= 32699, big any n
+ * Validated: standard, pass, 88 terms through n = 9029 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,14 +12,21 @@
  *            "rigid" alkyls r(x) = 1 + x*r(x)*r(x^2), so...
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 25, u64 n <= 44, u128 n <= 82,
  *            big any n
- * Helpers:   alloc_zero
+ * Validated: standard, pass, 48 terms through n = 1801 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static int a623_fixed = -1;
 static seq_t a623_inv3;

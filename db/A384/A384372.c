@@ -9,7 +9,8 @@
  *            bigomega(m+1) >= 4
  * Range:     u8 n <= 11, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   bigomega
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 static seq_t *cached_terms = NULL;   /* Array of found terms */
 static size_t cache_count = 0;        /* Number of terms cached so far */
@@ -27,11 +29,11 @@ static idx_t last_checked = 1;        /* Last candidate m that was examined */
 static void grow_cache(void)
 {
     size_t new_capacity = cache_capacity ? cache_capacity * 2 : 8;
-    seq_t *new_terms = (seq_t *)malloc(sizeof(seq_t) * new_capacity);
+    seq_t *new_terms = mem_new(seq_t, new_capacity);
     if (!new_terms) abort();                /* Memory allocation failed */
     if (cached_terms) {
         for (size_t i = 0; i < cache_count; ++i) new_terms[i] = cached_terms[i];
-        free(cached_terms);
+        mem_free(cached_terms);
     }
     cached_terms = new_terms;
     cache_capacity = new_capacity;

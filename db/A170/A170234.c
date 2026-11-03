@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* Allocate space for indices 0..39 */
         cache_len = 40 + 1;
-        cache     = (seq_t*)malloc(sizeof(seq_t) * cache_len);
+        cache     = mem_new(seq_t, cache_len);
 
         /* Compute a(0) */
         cache[0] = 1;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     /* Extend cache if n is not yet computed */
     if ((size_t)n >= cache_len) {
         size_t new_len = (size_t)n + 1;
-        cache          = (seq_t*)realloc(cache, sizeof(seq_t) * new_len);
+        cache          = mem_resize(seq_t, cache, new_len);
 
         /* Compute missing terms from the current size up to n */
         for (size_t i = cache_len; i <= n; ++i) {

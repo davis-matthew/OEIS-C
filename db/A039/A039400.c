@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   equal_zero_eight
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 /* Required headers for allocations and boolean type. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/equal_zero_eight.h"
+#include "../utils/mem.h"
+
+/* Test whether decimal representation of x has the same *nonzero*
+   number of 0's and 8's.  Returns false for x == 0 (it has one
+   zero digit and no eights). */
+static bool equal_zero_eight(seq_t x)
+{
+    if (x == (seq_t)0) return false;   /* Zero itself does not satisfy. */
+
+    unsigned cnt0 = 0, cnt8 = 0;
+    while (x != (seq_t)0) {
+        unsigned d = (unsigned)(x % (seq_t)10);
+        if (d == 0u) ++cnt0;
+        else if (d == 8u) ++cnt8;
+        x /= (seq_t)10;
+    }
+    return cnt0 == cnt8 && cnt0 != 0;   /* Both counts must be non‑zero. */
+}
 
 /* Static cache for previously found terms. */
 static seq_t *cache = NULL;
@@ -37,7 +55,7 @@ static void ensure_cache(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     for (; (idx_t)cache_len < n; ++next_chk) {
@@ -45,7 +63,7 @@ static void ensure_cache(idx_t n)
         if (equal_zero_eight(val)) {
             if (cache_len >= cache_cap) {
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (tmp == NULL) {
                     /* Allocation failure – terminate. */
                     abort();

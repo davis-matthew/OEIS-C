@@ -9,14 +9,16 @@
  *            is the unique row with Σ_{j=1}^{r-1}(5j-4) < n ≤
  *            Σ_{j=1}^{r}(5j-4), and k = n - Σ_{j=1}^{r-1}(5j-4) - 1
  *            (zero‑based index within the row)
- * Range:     u8 n <= 5, u16 n <= 312, u32 n <= 8910, u64 n <= 8910,
+ * Range:     u8 n <= 17, u16 n <= 821, u32 n <= 8910, u64 n <= 8910,
  *            u128 n <= 8910, big any n
+ * Validated: standard, pass, 71 terms through n = 8835 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* cumulative number of terms in rows 1..r */

@@ -7,6 +7,7 @@
  * Formula:   a(n) = exp(1/2) * Sum_{k>=0} (2*k + 1)^n / ((-2)^k * k!)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 14, i64 n <= 23, i128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

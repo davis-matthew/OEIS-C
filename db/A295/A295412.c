@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Constants ---------------------------------------------------- */
 #define WIDTH      4          /* number of columns */
@@ -142,15 +144,15 @@ seq_t a(idx_t n)
 
     /* Allocate DP arrays on first use */
     if (dp == NULL) {
-        dp = (seq_t *)malloc(sizeof(seq_t) * STATE_CNT);
-        newdp = (seq_t *)malloc(sizeof(seq_t) * STATE_CNT);
+        dp = mem_new(seq_t, STATE_CNT);
+        newdp = mem_new(seq_t, STATE_CNT);
         for (int i = 0; i < STATE_CNT; ++i)
             dp[i] = 0;
         dp[0] = 1;                     /* empty board */
         cur_len = 0;
 
         /* values[0] unused; allocate space for term 1 */
-        values = (seq_t *)malloc(sizeof(seq_t) * 1);
+        values = mem_new(seq_t, 1);
         values[0] = 0;
         vals_sz = 1;
     }
@@ -158,7 +160,7 @@ seq_t a(idx_t n)
     /* Grow the values array if necessary */
     if (n + 1 > vals_sz) {
         vals_sz = n + 1;
-        values = (seq_t *)realloc(values, sizeof(seq_t) * vals_sz);
+        values = mem_resize(seq_t, values, vals_sz);
     }
 
     /* Compute terms up to n if needed */

@@ -9,7 +9,8 @@
  *            sequence records these m in increasing order
  * Range:     u8 n <= 4, u16 n <= 23, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 68 terms through n = 989 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Forward declaration of utils provided by the framework. */
 seq_t digit_sum(seq_t v);
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
             /* Grow cache if necessary. */
             if (cache_size == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 /* realloc can return NULL only if allocation fails; in that
                    case, the program will terminate as per the build’s
                    expectations. */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 3281, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod_u64
+ * Validated: standard, pass, 82 terms through n = 8725 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/mul_mod_u64.h"
+#include <stdlib.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* --- utilities ----------------------------------------------------------- */
 
@@ -55,8 +58,8 @@ static inline uint64_t pow_mod_u64(uint64_t a, uint64_t d, uint64_t mod)
     uint64_t res = 1;
     while (d) {
         if (d & 1)
-            res = mul_mod_u64(res, a, mod);
-        a = mul_mod_u64(a, a, mod);
+            res = mulmod(res, a, mod);
+        a = mulmod(a, a, mod);
         d >>= 1;
     }
     return res;
@@ -84,7 +87,7 @@ static inline bool is_prime_u64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool cont = false;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul_mod_u64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 cont = true;
                 break;
@@ -110,7 +113,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (cache_len == cache_cap) {
         cache_cap = cache_cap ? cache_cap << 1 : 8;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         cache = tmp;
     }
 
@@ -138,7 +141,7 @@ seq_t a(idx_t n)
             /* store the term */
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap << 1 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 cache = tmp;
             }
             cache[cache_len++] = (seq_t)next_candidate;

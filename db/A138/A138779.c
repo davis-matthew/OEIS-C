@@ -8,13 +8,15 @@
  * Formula:   a(n) = k * binomial(r-2*k, 3*k+1) where (r,k) are obtained by
  *            flattening the triangle T(r,k)=k*binomial(r-2k,3k+1) row by row
  *            (omit zeros), and offset 6 sets a(6)=T(6,1)=1
- * Range:     u8 n <= 9, u16 n <= 33, u32 n <= 47, u64 n <= 47, u128 n <= 47,
+ * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
+ * Validated: partial, pass, 42 terms through n = 47 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

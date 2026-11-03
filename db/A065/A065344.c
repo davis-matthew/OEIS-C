@@ -7,14 +7,30 @@
  * Formula:   a(n) = binomial(2*n, n) mod ((n+1)*(n+2))
  * Range:     u8 n <= 24, u16 n <= 330, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow_mod128
+ * Validated: standard, pass, 103 terms through n = 902 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pow_mod128.h"
+
+/* ---------- modular exponentiation for 128‑bit values ---------- */
+static unsigned __int128 pow_mod128(unsigned __int128 base,
+                                     unsigned long long exp,
+                                     unsigned __int128 mod)
+{
+    unsigned __int128 result = 1;
+    base %= mod;
+    while (exp) {
+        if (exp & 1)
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* ---------- prime sieve ---------- */
 #define MAX_PRIME 20000

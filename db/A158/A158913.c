@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9715 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>   /* uint8_t */
+#include "../utils/mem.h"
 
 static const size_t LIMIT = 2000000;          /* upper bound for computing */
 static bool           initialized = false;   /* has data been prepared? */
@@ -59,9 +61,9 @@ static void initialize(void)
     for (size_t i = 2; i <= LIMIT; ++i) if (is_prime[i]) prime_list[prime_cnt++] = (int)i;
 
     /* ---------- compute sigma values ---------- */
-    sigma = (seq_t*)malloc((LIMIT + 1) * sizeof(seq_t));
+    sigma = mem_new(seq_t, (LIMIT + 1));
     if (!sigma) abort();
-    memset(sigma, 0, (LIMIT + 1) * sizeof(seq_t));
+    mem_set(sigma, 0, (LIMIT + 1) * sizeof(seq_t));
     for (size_t i = 1; i <= LIMIT; ++i) {
         for (size_t j = i; j <= LIMIT; j += i) {
             sigma[j] += (seq_t)i;

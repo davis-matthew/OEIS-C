@@ -9,12 +9,13 @@
  *            4^(n-1)*(11664*n^2 -38232*n+58482)
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +25,8 @@ seq_t a(idx_t n)
     long long t2 = 11664LL * nn * nn - 38232LL * nn + 58482LL;
 
     /* Compute powers of 2 and 4. */
-    seq_t pow2n = pow_int((seq_t)2, n > 0 ? n - 1 : 0);
-    seq_t pow4n = pow_int((seq_t)4, n > 0 ? n - 1 : 0);
+    seq_t pow2n = ipow_idx((seq_t)2, n > 0 ? n - 1 : 0);
+    seq_t pow4n = ipow_idx((seq_t)4, n > 0 ? n - 1 : 0);
 
     /* Absolute value of the first polynomial coefficient. */
     seq_t abs_t1 = (t1 < 0) ? (seq_t)(-t1) : (seq_t)t1;

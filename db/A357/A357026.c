@@ -10,7 +10,8 @@
  *            -LambertW(-log(1-x)^2) )
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --- global caches ----------------------------------------------------- */
 
@@ -38,18 +40,15 @@ static idx_t cur_n = 0;            /* largest n already computed   */
 /* --------------------------------------------------------------------- */
 /* helpers ---------------------------------------------------------------- */
 
-static void ensure_capacity(size_t needed, size_t *cap, void **ptr)
+/* typed (raw malloc/realloc must not create or move seq_t under big) */
+static void ensure_capacity(size_t needed, size_t *cap, seq_t **ptr)
 {
-    if (needed <= *cap) {
-        if (*ptr == NULL) {
-            *ptr = (void*)malloc(needed * sizeof(seq_t));
-            *cap = needed;
-        }
-        return;
-    }
+    if (needed <= *cap && *ptr) return;
     size_t new_cap = (*cap) ? (*cap) * 2 : 1;
     while (new_cap < needed) new_cap <<= 1;
-    *ptr = (void*)realloc(*ptr, new_cap * sizeof(seq_t));
+    seq_t *t = mem_resize(seq_t, *ptr, new_cap);
+    if (!t) abort();
+    *ptr = t;
     *cap = new_cap;
 }
 
@@ -61,7 +60,7 @@ static void compute_prefactor_upto(idx_t kmax)
     /* enlarge array */
     size_t new_cap = pref_cap ? pref_cap * 2 : 1;
     while (new_cap < need) new_cap <<= 1;
-    prefactor = (seq_t*)realloc(prefactor, new_cap * sizeof(seq_t));
+    prefactor = mem_resize(seq_t, prefactor, new_cap);
 
     size_t start = pref_cap;
     if (pref_cap == 0) {
@@ -96,9 +95,9 @@ static void ensure_computed(idx_t n)
     if (n <= cur_n) return;
 
     /* guarantee space for current n */
-    ensure_capacity((size_t)(n + 1), &a_cap,   (void **)&a_cache);
-    ensure_capacity((size_t)(n + 1), &s_cap_a, (void **)&s_prev);
-    ensure_capacity((size_t)(n + 1), &s_cap_b, (void **)&s_curr);
+    ensure_capacity((size_t)(n + 1), &a_cap,   &a_cache);
+    ensure_capacity((size_t)(n + 1), &s_cap_a, &s_prev);
+    ensure_capacity((size_t)(n + 1), &s_cap_b, &s_curr);
     compute_prefactor_upto(n / 2);
 
     if (cur_n == 0) {

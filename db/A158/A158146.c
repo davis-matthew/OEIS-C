@@ -11,13 +11,15 @@
  *            partition table up to the requested n and accumulates the result
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 71, u64 n <= 474, u128 n <= 474,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 470 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,9 +37,9 @@ seq_t a(idx_t n)
 
         seq_t *new_table = NULL;
         if (part == NULL) {
-            new_table = (seq_t *)calloc(new_size, sizeof(seq_t));
+            new_table = mem_new(seq_t, new_size);
         } else {
-            new_table = (seq_t *)realloc(part, new_size * sizeof(seq_t));
+            new_table = mem_resize(seq_t, part, new_size);
             if (new_table) {
                 /* Zero the newly allocated part of the array */
                 for (size_t i = old_size; i < new_size; ++i)

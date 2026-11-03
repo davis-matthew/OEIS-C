@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------
  * Local static data
@@ -124,8 +126,7 @@ static void extend_cache(idx_t n)
         if (should_include(current)) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap == 0 ? 128 : seq_cap * 2;
-                seq_cache = (seq_t *)realloc(seq_cache,
-                                             seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = (seq_t)current;
         }

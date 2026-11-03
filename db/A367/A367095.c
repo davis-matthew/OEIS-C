@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of distinct sums of pairs (repeats allowed) of
  *            prime indices of n
- * Range:     u8 n <= 9983, u16 n <= 9983, u32 n <= 9983, u64 n <= 9983,
- *            u128 n <= 9983, big any n
- * Helpers:   build_primes_upto, compute_pi
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9983 (2026-11-01)
+ * Helpers:   build_primes_upto, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
 
 static uint64_t *sieve_primes = NULL;     /* primes up to a fixed limit */
 static size_t   sieve_count = 0;
@@ -57,7 +58,7 @@ seq_t a(idx_t n)
         }
     }
     if (tmp > 1) {                      /* remaining prime factor > sieve limit */
-        prime_indices[k++] = (idx_t)compute_pi(tmp);
+        prime_indices[k++] = (idx_t)prime_pi(tmp);
     }
 
     if (k == 0)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   build_spf, gcd, gcd_int
+ * Validated: partial, pass, 87 terms through n = 89 (2026-11-01)
+ * Helpers:   build_spf, gcd, gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"           /* seq_t gcd(seq_t a, seq_t b) */
-#include "../utils/gcd_int.h"       /* int gcd_int(int a, int b) */
-#include "../utils/build_spf.h"     /* void build_spf(idx_t limit, idx_t **spf_out) */
+#include "../utils/build_spf.h"
+#include "../utils/gcd.h"
+#include "../utils/gcd_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -71,13 +72,13 @@ seq_t a(idx_t n)
         idx_t m = n - k;
 
         /* gcd(k,m) == 1 is a necessary condition */
-        if (gcd_int((int)k, (int)m) != 1)
+        if (gcd_i32((int)k, (int)m) != 1)
             continue;
 
         uint64_t rad_k = rad_cache[k];
         uint64_t rad_m = rad_cache[m];
-        uint64_t rad_gkn = rad_cache[gcd_int((int)k, (int)n)];
-        uint64_t rad_gmn = rad_cache[gcd_int((int)m, (int)n)];
+        uint64_t rad_gkn = rad_cache[gcd_i32((int)k, (int)n)];
+        uint64_t rad_gmn = rad_cache[gcd_i32((int)m, (int)n)];
 
         /* rad(k,m,n) = rad_k * rad_m * rad_n / rad_gkn / rad_gmn  (all integers) */
         uint64_t rad_abc = rad_k * rad_m;

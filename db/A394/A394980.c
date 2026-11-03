@@ -10,13 +10,15 @@
  *            decimal strings whose second half is an anagram of the first
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,12 +26,12 @@ seq_t a(idx_t n)
     size_t len = (size_t)n + 1;
 
     /* Allocate memory for two arrays of seq_t */
-    seq_t *cur = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *nxt = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, len);
+    seq_t *nxt = mem_new(seq_t, len);
     if (!cur || !nxt) {
         /* Allocation failure – return 0 as a safe default */
-        free(cur);
-        free(nxt);
+        mem_free(cur);
+        mem_free(nxt);
         return (seq_t)0;
     }
 
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = cur[n];
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return result;
 }

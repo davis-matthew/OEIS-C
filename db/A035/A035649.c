@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 138, u32 n <= 391, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,13 +31,13 @@ seq_t a(idx_t n)
 
     /* work with a plain C array sized n+1   */
     size_t N = (size_t)n;
-    seq_t *total = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *only3  = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *only4  = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *total = mem_new(seq_t, N + 1);
+    seq_t *only3  = mem_new(seq_t, N + 1);
+    seq_t *only4  = mem_new(seq_t, N + 1);
 
     /* if allocation failed – return 0 (should not happen for n≤10000) */
     if (!total || !only3 || !only4) {
-        free(total); free(only3); free(only4);
+        mem_free(total); mem_free(only3); mem_free(only4);
         return 0;
     }
 
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
     result -= only3[n];
     result -= only4[n];
 
-    free(total); free(only3); free(only4);
+    mem_free(total); mem_free(only3); mem_free(only4);
     return result;
 }

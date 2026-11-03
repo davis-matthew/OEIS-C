@@ -7,13 +7,14 @@
  * Formula:   a(n) = n*(n+1)*(n^2 + 21*n + 50)/24
  * Range:     u8 n <= 5, u16 n <= 30, u32 n <= 561, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   small_gcd
+ * Validated: standard, pass, 55 terms through n = 992 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/small_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t nn = n;
@@ -24,15 +25,15 @@ seq_t a(idx_t n) {
     uint64_t div = 24;                /* denominator */
 
     /* Reduce each part by factors of the denominator */
-    uint64_t g = small_gcd((uint64_t)part1, div);
+    uint64_t g = gcd_u64((uint64_t)part1, div);
     part1 /= g;
     div /= g;
 
-    g = small_gcd((uint64_t)part2, div);
+    g = gcd_u64((uint64_t)part2, div);
     part2 /= g;
     div /= g;
 
-    g = small_gcd((uint64_t)part3, div);
+    g = gcd_u64((uint64_t)part3, div);
     part3 /= g;
     div /= g;
 

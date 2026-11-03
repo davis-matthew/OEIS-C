@@ -8,7 +8,8 @@
  *            2*a(n‑3) + 2*a(n‑1) – 2*a(n‑4)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 28, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    2*a(n) – 2*a(n+1) – 2*a(n+3) + a(n+4) = 0   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         /* we will cache at least up to n, and at least 4 terms for the recurrence */
         idx_t need = n + 1;
         if (need < 4) need = 4;
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) return (seq_t)0;     /* memory error – return zero (unlikely in tests) */
         cache = tmp;
 

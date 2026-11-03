@@ -9,8 +9,9 @@
  *            n-1, q = m / 4, r = m % 4. r = 0: a(m) = q * (15*q + 1) / 2 r =
  *            1: a(m) = (3*q + 1) * (5*q + 2) / 2 r = 2: a(m) = (3*q + 2) *
  *            (5*q + 3) / 2 r = 3: a(m) = (q + 1) * (15*q + 1...
- * Range:     u8 n <= 23, u16 n <= 374, u32 n <= 9550, u64 n <= 9550,
- *            u128 n <= 9550, big any n
+ * Range:     u8 n <= 23, u16 n <= 374, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 70 terms through n = 9550 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

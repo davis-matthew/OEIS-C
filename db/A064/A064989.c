@@ -9,13 +9,27 @@
  *            prevprime(p)^e (with a(2^e) = 1)
  * Range:     u8 n <= 262, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, prev_prime
+ * Validated: standard, pass, 97 terms through n = 9310 (2026-11-01)
+ * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/factor_u64.h"   /* static void factor_u64(uint64_t, uint64_t*, uint64_t*, size_t*) */
-#include "../utils/prev_prime.h"   /* idx_t prev_prime(idx_t) */
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 seq_t a(idx_t n)
 {

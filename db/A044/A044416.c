@@ -10,7 +10,8 @@
  *            not
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains84_u64
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/contains84_u64.h"
+
+/* Test whether a non‑negative integer contains the substring "84".  */
+static bool contains84_u64(uint64_t x)
+{
+    /* Store digits in reverse order (least significant first).  */
+    unsigned int digits[20];          /* 20 digits are enough for 64‑bit numbers.    */
+    int len = 0;
+    do {
+        digits[len++] = (unsigned int)(x % 10);
+        x /= 10;
+    } while (x > 0);
+
+    /* Scan from most significant to least significant digit.      */
+    for (int i = len - 1; i > 0; --i)
+    {
+        if (digits[i] == 8 && digits[i - 1] == 4)
+            return true;
+    }
+    return false;
+}
 
 /* Cache of the first terms found; size sufficient for up to 10 000    
    pre‑computed terms (you can enlarge if you wish).                   */

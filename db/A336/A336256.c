@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------- static state --------------------- */
 static seq_t *a_vals = NULL;     /* cached a(n) values          */
@@ -46,7 +48,7 @@ static void ensure_a_vals(idx_t n)
     if (n + 1 <= a_cap) return;
     idx_t new_cap = a_cap ? a_cap * 2 : 32;
     while (new_cap <= n) new_cap <<= 1;
-    a_vals = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+    a_vals = mem_resize(seq_t, a_vals, new_cap);
     a_cap  = new_cap;
 }
 
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
 {
     /* initialise on first call ------------------------------------------- */
     if (a_vals == NULL) {
-        a_vals = (seq_t *)calloc(1, sizeof(seq_t));   /* a(0)=0          */
+        a_vals = mem_new(seq_t, 1);   /* a(0)=0          */
         a_cap  = 1;
         cur_max = 0;
 

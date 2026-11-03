@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Configuration  --------------------------------------------------- */
@@ -147,7 +149,7 @@ static void ensure_initialised(void) {
     init_thresholds();
     sieve_and_prime_powers();
     terms_cap = 64;
-    terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     terms_len = 0;
     initialized = true;
 }
@@ -179,8 +181,7 @@ seq_t a(idx_t n) {
             /* Store the term.  */
             if (terms_len == terms_cap) {
                 terms_cap <<= 1;
-                seq_t *new_terms = (seq_t *)realloc(terms,
-                                                    terms_cap * sizeof(seq_t));
+                seq_t *new_terms = mem_resize(seq_t, terms, terms_cap);
                 if (!new_terms) return 0;   /* allocation failure */
                 terms = new_terms;
             }

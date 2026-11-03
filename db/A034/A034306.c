@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
+ * Validated: full, pass, 68 terms through n = 68 (2026-11-02)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/digit_counts.h"   /* for digit_counts(seq_t, unsigned char[10]) */
+#include "../utils/digit_counts.h"
 
 /* Return true if x is a 9‑digit pandigital (digits 1..9 each once, no 0). */
 static bool is_pandigital9(seq_t x)

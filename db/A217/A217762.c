@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Fibonacci cache                                               */
@@ -36,7 +38,7 @@ ensure_fib(idx_t k)
     /* Initialise cache if it is empty. */
     if (fib_cap == 0) {
         fib_cap = 2;                     /* store F(0) and F(1)                     */
-        fib_cache = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, fib_cap);
         if (!fib_cache) exit(1);          /* abort on allocation failure             */
         fib_cache[0] = (seq_t)0;
         fib_cache[1] = (seq_t)1;
@@ -48,7 +50,7 @@ ensure_fib(idx_t k)
         /* Grow capacity when we run out of space. */
         if ((size_t)(fib_last + 1) == fib_cap) {
             size_t new_cap = fib_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(fib_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib_cache, new_cap);
             if (!tmp) exit(1);
             fib_cache = tmp;
             fib_cap   = new_cap;

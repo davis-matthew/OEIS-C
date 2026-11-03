@@ -8,13 +8,23 @@
  * Formula:   a(n) = (n-2)*(n-3)*(n-2)! for n ≥ 3 (a(3)=0)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   fact_u64
+ * Validated: standard, pass, 34 terms through n = 191 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fact_u64.h"
+
+/* Helper to compute (m!) as seq_t (m ≥ 0) */
+static seq_t fact_u64(idx_t m)
+{
+    seq_t r = (seq_t)1;
+    for (idx_t i = (idx_t)2; i <= m; ++i) {
+        r *= (seq_t)i;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,8 +8,9 @@
  * Formula:   a(n) = sigma(A097706(n)) A097706(n) is the part of n composed of
  *            prime factors ≡ 3 (mod 4). a(n) is multiplicative with a(p^e) =
  *            (p^(e+1)-1)/(p-1) for p ≡ 3 (mod 4) and 1 otherwise
- * Range:     u8 n <= 48, u16 n <= 7327, u32 n <= 7327, u64 n <= 7327,
- *            u128 n <= 7327, big any n
+ * Range:     u8 n <= 48, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 118 terms through n = 7327 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

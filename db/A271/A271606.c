@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 1187, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 116 terms through n = 9725 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <limits.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static unsigned long long primes[20000];
 static size_t prime_cnt = 0;
@@ -51,8 +52,8 @@ static seq_t sigma_of_e(idx_t k, idx_t e,
     for (size_t i = 0; i < pf_cnt; ++i) {
         seq_t base = (seq_t)pf[i];
         seq_t exp_num = (seq_t)(e * (ex[i] + 1));
-        seq_t num = big_pow(base, exp_num) - (seq_t)1;
-        seq_t denom = big_pow(base, (seq_t)e) - (seq_t)1;
+        seq_t num = ipow(base, exp_num) - (seq_t)1;
+        seq_t denom = ipow(base, (seq_t)e) - (seq_t)1;
         seq_t factor = num / denom;
         total *= factor;
     }

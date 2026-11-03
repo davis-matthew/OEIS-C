@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_33
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,22 @@
    build constraints. */
 
 #include <stdbool.h>
-#include "../utils/has_33.h"
+
+/* Return true if x (in base 7) contains the substring 33.  The loop
+   scans the digits from least significant to most significant, which
+   is sufficient because adjacency is symmetric. */
+static bool has_33(seq_t x)
+{
+    seq_t prev = 7;          /* a value that cannot be a digit (0–6) */
+    while (x) {
+        seq_t d = x % 7;
+        if (prev == 3 && d == 3)
+            return true;
+        prev = d;
+        x /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

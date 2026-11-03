@@ -12,13 +12,15 @@
  *            uint16, uint32, uint64, uint128 or arbitrary‑pre...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The following helper is provided by the build environment. */
 extern seq_t binomial(idx_t n, idx_t k);
@@ -37,11 +39,11 @@ static size_t fact_cap = 0;        /* allocated size of fact_cache */
 static void ensure_a_cache(idx_t n)
 {
     if (a_cache == NULL) {
-        a_cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (size_t)(n + 1));
         a_cache[0] = (seq_t)1;          /* a(0) = 1 */
         a_cap   = (size_t)(n + 1);
     } else if (a_cap <= (size_t)n) {
-        a_cache = (seq_t *)realloc(a_cache, (size_t)(n + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (size_t)(n + 1));
         a_cap   = (size_t)(n + 1);
     }
 }
@@ -50,11 +52,11 @@ static void ensure_a_cache(idx_t n)
 static void ensure_fact_cache(idx_t n)
 {
     if (fact_cache == NULL) {
-        fact_cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        fact_cache = mem_new(seq_t, (size_t)(n + 1));
         fact_cache[0] = (seq_t)1;          /* 0! = 1 */
         fact_cap   = 1;
     } else if (fact_cap <= (size_t)n) {
-        fact_cache = (seq_t *)realloc(fact_cache, (size_t)(n + 1) * sizeof(seq_t));
+        fact_cache = mem_resize(seq_t, fact_cache, (size_t)(n + 1));
     }
 
     /* Compute any missing factorials.  fact_cap == m+1 means factorials 0…m present. */

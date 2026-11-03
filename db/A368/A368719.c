@@ -7,7 +7,8 @@
  * Formula:   a(n) = n*a(n-1) + n^5 (a(0) = 0)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(n) = n*a(n-1) + n^5, for n >= 1 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t  cache_size = 0;
@@ -33,14 +35,14 @@ static seq_t pow5(idx_t n)
 seq_t a(idx_t n)
 {
     if (cache_size == 0) {
-        cache = (seq_t *)calloc(1, sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;          /* OOM handling */
         cache[0] = 0;                  /* a(0) */
         cache_size = 1;
     }
 
     if (n >= cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return 0;            /* OOM handling */
         cache = tmp;
         for (idx_t i = cache_size; i <= n; ++i) {

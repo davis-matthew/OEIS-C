@@ -9,7 +9,8 @@
  *            for which pi(d) is even
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   count_even_pi_divisors
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/count_even_pi_divisors.h"
+
+/* ----------------------------------------------------------------------- */
+static seq_t count_even_pi_divisors(const idx_t *pr, const idx_t *exp,
+                                    size_t cnt, size_t pos, idx_t cur,
+                                    const idx_t *pi_prefix)
+{
+    if (pos == cnt) {
+        /* Check parity of pi(cur).  Even -> add 1. */
+        return ((pi_prefix[cur] & (idx_t)1) == 0) ? (seq_t)1 : (seq_t)0;
+    } else {
+        seq_t sum = 0;
+        idx_t mult = 1;
+        for (size_t e = 0; e <= exp[pos]; ++e) {
+            sum += count_even_pi_divisors(pr, exp, cnt, pos + 1,
+                                          cur * mult, pi_prefix);
+            mult *= pr[pos];
+        }
+        return sum;
+    }
+}
 
 /* The type definitions seq_t and idx_t are provided by the build system. */
 /* We use idx_t for all integer calculations that may exceed 32 bits,

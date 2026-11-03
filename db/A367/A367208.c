@@ -14,12 +14,14 @@
  *            triangular array T(n,k); a(n) is * read row‑by‑row from thi...
  * Range:     u8 n <= 23, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 extern seq_t mul_small(seq_t x, unsigned int m);
 
@@ -40,17 +42,17 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* start with a small capacity and grow as needed */
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
 
         /* row 1: p(1,x) = 1 */
         len_prev_prev = 1;
-        row_prev_prev = (seq_t *)malloc(sizeof(seq_t));
+        row_prev_prev = mem_new(seq_t, 1);
         row_prev_prev[0] = 1;
         cache[cache_size++] = row_prev_prev[0];
 
         /* row 2: p(2,x) = 1 + 3*x */
         len_prev = 2;
-        row_prev = (seq_t *)malloc(2 * sizeof(seq_t));
+        row_prev = mem_new(seq_t, 2);
         row_prev[0] = 1;
         row_prev[1] = 3;
         cache[cache_size++] = row_prev[0];
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
     while (cache_size < n) {
         idx_t r = len_prev + 1;              /* current row number */
         idx_t len_curr = r;
-        seq_t *row_curr = (seq_t *)malloc(len_curr * sizeof(seq_t));
+        seq_t *row_curr = mem_new(seq_t, len_curr);
 
         for (idx_t k = 0; k < len_curr; ++k) {
             seq_t pos = 0, neg = 0;
@@ -85,13 +87,13 @@ seq_t a(idx_t n) {
             /* store coefficient in the cache */
             if (cache_size == cache_cap) {
                 cache_cap = (cache_cap == 0) ? 1 : cache_cap * 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = coeff;
         }
 
         /* shift rows for next iteration */
-        free(row_prev_prev);
+        mem_free(row_prev_prev);
         row_prev_prev = row_prev;
         len_prev_prev = len_prev;
 

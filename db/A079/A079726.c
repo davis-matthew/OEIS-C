@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    having parity even if k(n)=2, odd if k(n)=1,
    where k is the classic Kolakoski sequence (A000002). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (a_curr == 0) {
         /* allocate default capacities */
         a_cap = 16;
-        a_arr = (seq_t *)realloc(NULL, a_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, NULL, a_cap);
 
         k_cap = 16;
         k_arr = (unsigned char *)realloc(NULL, k_cap * sizeof(unsigned char));
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     /* grow a_arr if necessary */
     while ((size_t)n + 1 > a_cap) {
         a_cap <<= 1;
-        a_arr = (seq_t *)realloc(a_arr, a_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, a_cap);
     }
 
     /* grow k_arr if necessary */

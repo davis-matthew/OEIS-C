@@ -7,13 +7,16 @@
  * Formula:   a(n) = prime(7*n - 6)
  * Range:     u8 n <= 8, u16 n <= 935, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 61 terms through n = 981 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t k = 7*n - 6;                /* desired prime index */
@@ -24,7 +27,7 @@ seq_t a(idx_t n) {
 
     if (cache == NULL) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     if (k <= filled)
@@ -34,7 +37,7 @@ seq_t a(idx_t n) {
         size_t new_cap = cap;
         while (new_cap < (size_t)k)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cap = new_cap;
     }

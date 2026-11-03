@@ -7,13 +7,15 @@
  * Formula:   a(n) = 340*a(n-1) - a(n-2) with a(1)=0, a(2)=39
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Compute the n‑th term of OEIS sequence A174765. */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (need < 3u) need = 3u;              /* at least enough for the base values */
 
     if (cache_cap < need) {
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         cache = tmp;
         cache_cap = need;
     }

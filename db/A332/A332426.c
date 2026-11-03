@@ -10,11 +10,13 @@
  *            to avoid negative exponents
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 31, u128 n <= 62,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 465 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Computes the n-th term of OEIS sequence A332426 */

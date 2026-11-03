@@ -9,12 +9,20 @@
  *            a(0)=1, a(1)=0, a(2)=3, a(n+3)=3*a(n+1)+a(n+2)-2*a(n)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   alloc_cache
+ * Validated: standard, pass, 49 terms through n = 933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/alloc_cache.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *cache = NULL;    /* cache[n] = a(n) */
 static idx_t cache_len = 0;    /* number of cached entries (>=0) */

@@ -8,12 +8,14 @@
  *            a(n-2) - 2 (n odd, n >= 3), a(0) = 1, a(1) = 2
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 13, i64 n <= 13, i128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -24,14 +26,14 @@ seq_t a(idx_t n) {
     
     if (cache == NULL || n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         
         idx_t start_idx = 0;
         if (cache != NULL) {
             for (idx_t i = 0; i < cache_len; i++) {
                 new_cache[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
             start_idx = cache_len;
         } else {
             new_cache[0] = 1;

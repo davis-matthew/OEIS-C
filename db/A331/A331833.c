@@ -12,7 +12,8 @@
  *            works for any n * that does not require k > U...
  * Range:     u8 n <= 38, u16 n <= 6309, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   evensize_negabinary_ones_u64
+ * Validated: standard, pass, 74 terms through n = 9650 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/evensize_negabinary_ones_u64.h"
+
+/* Test whether the binary expansion of a positive 64‑bit integer in base
+ * –2 contains an even number of 1’s. */
+static bool evensize_negabinary_ones_u64(uint64_t n)
+{
+    if (n == 0) return true;                     /* representation 0 has zero 1’s */
+
+    __int128 v = n;
+    int parity = 0;                              /* 0 = even, 1 = odd */
+
+    while (v != 0) {
+        int r = (int)(v % -2);                    /* remainder is 0 or 1, maybe negative */
+        v /= -2;
+        if (r < 0) {                              /* make r non‑negative */
+            r += 2;
+            v += 1;
+        }
+        parity ^= (r & 1);
+    }
+    return parity == 0;
+}
 
 /* Test whether every divisor d > 1 of k has an even number of 1’s in its
  * negabinary representation.  For k=1 the property is satisfied by definition. */

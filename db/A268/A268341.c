@@ -9,7 +9,8 @@
  *            [gcd(n,k)==1]
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   gcd, phi
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t N)
 {
@@ -44,7 +45,7 @@ seq_t a(idx_t N)
     idx_t k = N - prev - 1;
 
     /* Compute φ(r). */
-    seq_t phi_r = phi(r);
+    seq_t phi_r = totient(r);
 
     /* Determine the final value. */
     if ((r & 1) == 0) {                 /* r even */

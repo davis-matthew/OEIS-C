@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Return the value of a(n).  idx_t and seq_t are defined by    */
@@ -42,12 +44,12 @@ seq_t a(idx_t n)
     const size_t offset = (size_t)n;
 
     /* Allocate six arrays for the DP */
-    seq_t *cur1 = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *cur2 = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *cur3 = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *tmp1 = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *tmp2 = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *tmp3 = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *cur1 = mem_new(seq_t, size);
+    seq_t *cur2 = mem_new(seq_t, size);
+    seq_t *cur3 = mem_new(seq_t, size);
+    seq_t *tmp1 = mem_new(seq_t, size);
+    seq_t *tmp2 = mem_new(seq_t, size);
+    seq_t *tmp3 = mem_new(seq_t, size);
 
     /* Safety: initialise all elements to zero */
     for (size_t i = 0; i < size; ++i) {
@@ -108,12 +110,12 @@ seq_t a(idx_t n)
     seq_t result = cur1[offset] + cur2[offset] + cur3[offset];
 
     /* Release allocated memory */
-    free(cur1);
-    free(cur2);
-    free(cur3);
-    free(tmp1);
-    free(tmp2);
-    free(tmp3);
+    mem_free(cur1);
+    mem_free(cur2);
+    mem_free(cur3);
+    mem_free(tmp1);
+    mem_free(tmp2);
+    mem_free(tmp3);
 
     return result;
 }

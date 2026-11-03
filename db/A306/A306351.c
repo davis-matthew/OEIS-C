@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 34, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed initial values for n = 0 … 9 */
 static const seq_t init_vals[10] = {
@@ -54,7 +56,7 @@ static void ensure(idx_t n)
     size_t new_len = memo_len == 0 ? 10 : memo_len * 2;
     while (new_len <= (size_t)n) new_len <<= 1;   /* keep doubling */
 
-    seq_t *new_mem = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_len);
     if (!new_mem) exit(EXIT_FAILURE);          /* allocation fail */
     memo = new_mem;
 

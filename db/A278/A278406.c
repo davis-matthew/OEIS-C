@@ -7,12 +7,14 @@
  * Formula:   a(n) = n*(n-1)*A000041(n) (OEIS A278406)
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 61, u64 n <= 252,
  *            u128 n <= 1064, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 9447 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static array storing partition numbers up to the largest n we have computed */
 static seq_t *part = NULL;   /* array of partition numbers  p[0] … p[n]           */
@@ -25,7 +27,7 @@ static void part_ensure (idx_t need)
     if (part_cap < n) {
         size_t new_cap = part_cap ? part_cap : 1;
         while (new_cap < n) new_cap <<= 1;      /* double until sufficient */
-        seq_t *tmp = (seq_t *)realloc (part, new_cap * sizeof (seq_t));
+        seq_t *tmp = mem_resize(seq_t, part, new_cap);
         part      = tmp;                       /* assume allocation never fails, crash otherwise */
         part_cap  = new_cap;
     }

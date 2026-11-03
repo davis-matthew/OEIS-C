@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n+1)*(3*n+1)/4 for n odd; a(n) = n*(3*n+2)/4 for n even
  * Range:     u8 n <= 18, u16 n <= 294, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 68 terms through n = 965 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

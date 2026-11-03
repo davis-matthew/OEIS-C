@@ -8,7 +8,8 @@
  *            numbers
  * Range:     u8 n <= 18, u16 n <= 283, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree
+ * Validated: standard, pass, 68 terms through n = 9793 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 /* Cached cumulative sums of squarefree numbers.  sum[1] holds a(1). */
 static seq_t *sum = NULL;          /* array of cumulative sums (1‑based) */
@@ -33,11 +35,11 @@ grow_sum(idx_t need)
     idx_t new_cap = sum_cap ? sum_cap << 1 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) abort();                /* fatal on allocation failure */
     if (sum)
-        memcpy(tmp, sum, sizeof(seq_t) * sum_cap);
-    free(sum);
+        mem_copy(tmp, sum, sizeof(seq_t) * sum_cap);
+    mem_free(sum);
     sum = tmp;
     sum_cap = new_cap;
 }

@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 23, u64 n <= 31, u128 n <= 31,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
  * Helpers:   gcd, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,8 +23,9 @@
     These are provided by the build in ../utils/is_prime.h and
     ../utils/gcd.h.  */
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/is_prime.h"
 
 /* Static cache large enough for all n used in tests (up to ~10000). */
 #define MAXCACHE 20000

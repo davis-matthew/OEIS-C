@@ -7,14 +7,25 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   sum_fact_digits
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes all amicable factorions by exhaustive search up to a fixed limit. */
 #include <stddef.h>
-#include "../utils/sum_fact_digits.h"
+
+static seq_t sum_fact_digits(idx_t n, const seq_t fact[10]) {
+    seq_t s = 0;
+    if (n == 0) return fact[0];
+    while (n != 0) {
+        idx_t d = n % 10;
+        s += fact[d];
+        n /= 10;
+    }
+    return s;
+}
 
 /* Increase this limit only if new amicable factorions are discovered. */
 #define LIMIT 200000

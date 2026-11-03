@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 2795, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, digit_sum, is_prime_small
+ * Validated: standard, pass, 66 terms through n = 8290 (2026-11-03)
+ * Helpers:   digit_sum, is_prime_seq, mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,11 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "../utils/is_prime_small.h"
+#include <stddef.h>
 #include "../utils/digit_sum.h"
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Cache of found hoax numbers. */
 static seq_t *cache = NULL;      /* array of seq_t hoax numbers */
@@ -38,7 +41,7 @@ static void init_cache(void)
 {
     if (cache_cap == 0) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         assert(cache != NULL);
     }
 }
@@ -48,7 +51,7 @@ static void grow_cache(void)
 {
     size_t old_cap = cache_cap;
     cache_cap = cache_cap ? cache_cap * 2 : 64;
-    seq_t *newp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, cache_cap);
     assert(newp != NULL);
     cache = newp;
 }
@@ -61,7 +64,7 @@ static unsigned int sum_distinct_prime_digit_sums(uint64_t x)
     uint64_t last_p = 0;
 
     while (n > 1) {
-        uint64_t p = _smallest_prime_factor(n);
+        uint64_t p = smallest_prime_factor(n);
         if (p != last_p) {
             seq_t pd = digit_sum((seq_t)p);
             sum += (unsigned int)pd;
@@ -84,7 +87,7 @@ seq_t a(idx_t n)
         uint64_t x = ++last_checked;
 
         /* Skip primes – hoax numbers are composite. */
-        if (is_prime_small((seq_t)x))
+        if (is_prime_seq((seq_t)x))
             continue;
 
         /* Digit sum of the candidate number. */

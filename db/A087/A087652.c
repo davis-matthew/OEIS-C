@@ -9,14 +9,17 @@
  *            of n), where d(n) is the number of divisors of n
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 71, u64 n <= 239,
  *            u128 n <= 719, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 74 terms through n = 894 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Computes A087652: product of nonprime divisors of n */
 seq_t a(idx_t n)
@@ -39,15 +42,15 @@ seq_t a(idx_t n)
     /* product of all divisors */
     seq_t prodAll;
     if ((d & 1) == 0) {                 /* d is even */
-        prodAll = big_pow((seq_t)n, (seq_t)(d / 2));
+        prodAll = ipow((seq_t)n, (seq_t)(d / 2));
     } else {                            /* d is odd – n is a perfect square */
         /* n^(d-1)/2 part */
-        seq_t temp = big_pow((seq_t)n, (seq_t)((d - 1) / 2));
+        seq_t temp = ipow((seq_t)n, (seq_t)((d - 1) / 2));
 
         /* sqrt(n) = Π p_i^(e_i/2) */
         seq_t sqrt_n = 1;
         for (size_t i = 0; i < cnt; ++i) {
-            seq_t p_pow = big_pow((seq_t)primes[i], (seq_t)(exps[i] / 2));
+            seq_t p_pow = ipow((seq_t)primes[i], (seq_t)(exps[i] / 2));
             sqrt_n = sqrt_n * p_pow;
         }
         prodAll = temp * sqrt_n;

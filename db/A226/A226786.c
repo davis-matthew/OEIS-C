@@ -8,13 +8,17 @@
  *            n)
  * Range:     u8 n <= 296, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 83 terms through n = 7647 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 /* Euler's totient function for 64‑bit integers. */
 static idx_t phi_u64(idx_t n)
@@ -41,5 +45,5 @@ seq_t a(idx_t n)
     idx_t phi = phi_u64(n);          /* φ(n) ≤ n−1, fits in idx_t. */
     idx_t exp = phi - 1;             /* 8^(φ(n)−1) ≡ 8^(−1) (mod n). */
 
-    return mod_pow((seq_t)8, exp, (seq_t)n);
+    return powmod((seq_t)8, exp, (seq_t)n);
 }

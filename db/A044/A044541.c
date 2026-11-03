@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has31_base7
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has31_base7.h"
+#include "../utils/mem.h"
+
+static bool has31_base7(seq_t x)
+{
+    seq_t prev = 7;                 /* sentinel (cannot be a base‑7 digit) */
+    while (x > 0) {
+        seq_t cur = x % 7;          /* least significant digit */
+        if (cur == 3 && prev == 1)  /* pattern 3 (more significant), 1 (less) */
+            return true;
+        prev = cur;
+        x = x / 7;                  /* move to next more significant digit */
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -43,10 +57,10 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache if needed. */
     if (cache_cap == 0) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_len >= cache_cap) {
         cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Search further numbers until we have at least n terms. */
@@ -55,7 +69,7 @@ seq_t a(idx_t n)
         if (has31_base7(k) && !has31_base7(k + 1)) {
             if (cache_len == cache_cap) {    /* grow if necessary */
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = k;
         }

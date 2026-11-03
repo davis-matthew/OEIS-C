@@ -10,8 +10,9 @@
  *            multiplicity), omega = number of distinct prime factors. All
  *            three functions are computed from the prime factorisation of n.
  *            This implementation uses trial division; it is f...
- * Range:     i8 n <= 9864, i16 n <= 9864, i32 n <= 9864, i64 n <= 9864,
- *            i128 n <= 9864, big any n
+ * Range:     i8 n <= 100000, i16 n <= 100000, i32 n <= 100000,
+ *            i64 n <= 100000, i128 n <= 100000, big any n
+ * Validated: standard, pass, 103 terms through n = 9864 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

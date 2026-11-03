@@ -12,6 +12,7 @@
  *            a(4n+3)=4*n^2-142*n+1301, a(4n+4)=4*n^2-140*n+1877
  * Range:     u8 none, u16 n <= 147, u32 n <= 147, u64 n <= 147, u128 n <= 147,
  *            big any n
+ * Validated: full, pass, 147 terms through n = 147 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

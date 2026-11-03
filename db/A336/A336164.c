@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
  *   if gcd(a(n-1),n)>1 then a(n)=a(n-1)/gcd(a(n-1),n),
  *   else a(n)=a(n-1)+n-1. */
 #include <stdlib.h>          /* malloc, realloc */
-#include "../utils/gcd.h"    /* seq_t gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* static cache: 1‑based indexing; seq_cache[i] holds a(i). */
 static seq_t *seq_cache = NULL;        /* allocated array */
@@ -30,11 +33,11 @@ static void grow_cache(idx_t n)
 {
     size_t needed = (size_t)n + 2;     /* indices 0..n inclusive */
     if (seq_cache == NULL) {
-        seq_cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, needed);
         seq_cache_size = needed;
         seq_cache[1] = 1;             /* a(1) */
     } else if (needed > seq_cache_size) {
-        seq_cache = (seq_t *)realloc(seq_cache, needed * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, needed);
         seq_cache_size = needed;
     }
 }

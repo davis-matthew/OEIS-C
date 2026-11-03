@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 25, u32 n <= 387, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   seq_isqrt
+ * Validated: standard, pass, 78 terms through n = 4595 (2026-11-03)
+ * Helpers:   isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,21 +18,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_isqrt.h"
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
 
 /* Test if an integer x satisfies  
    floor(x*sqrt(3)*floor(x/sqrt(3))) == floor((x/sqrt(3))*floor(x*sqrt(3)))   */
 static inline bool is_solution(seq_t x)
 {
     seq_t x2 = x * x;                                   /* x²            */
-    seq_t f  = seq_isqrt((seq_t)3 * x2);                /* floor(x*√3)   */
-    seq_t g  = seq_isqrt(x2 / (seq_t)3);                /* floor(x/√3)   */
+    seq_t f  = isqrt_seq((seq_t)3 * x2);                /* floor(x*√3)   */
+    seq_t g  = isqrt_seq(x2 / (seq_t)3);                /* floor(x/√3)   */
 
     seq_t u = g * x;                                   /* g*x           */
-    seq_t L = seq_isqrt((seq_t)3 * u * u);              /* LHS of equality */
+    seq_t L = isqrt_seq((seq_t)3 * u * u);              /* LHS of equality */
 
     seq_t v = f * x;                                   /* f*x           */
-    seq_t R = seq_isqrt(v * v / (seq_t)3);              /* RHS of equality */
+    seq_t R = isqrt_seq(v * v / (seq_t)3);              /* RHS of equality */
 
     return L == R;
 }
@@ -49,7 +51,7 @@ static void grow_cache(void)
 {
     if (cache_len >= cache_cap) {
         cache_cap = cache_cap ? cache_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) { /* allocation failure – shouldn't happen for the expected limits */
             exit(EXIT_FAILURE);
         }
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     /* Initialise cache with a(0) = 0. */
     if (cache_len == 0) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)0;
         cache_len = 1;
         current_x = 0;

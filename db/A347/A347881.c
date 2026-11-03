@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   uint128_pow
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/uint128_pow.h"
+
+/*  Primitive power: base^exp, result fits in unsigned __int128        */
+static unsigned __int128 uint128_pow(unsigned __int128 base,
+                                     uint64_t exp)
+{
+    unsigned __int128 res = 1;
+    while (exp) {
+        if (exp & 1) res *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return res;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Prime sieve: simple Eratosthenes up to a fixed limit, allocated lazily */

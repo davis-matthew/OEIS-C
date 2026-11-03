@@ -8,13 +8,15 @@
  *            where d_m are the divisors of n in increasing order
  * Range:     u8 n <= 17, u16 n <= 539, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 889 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
     }
 
-    seq_t *divs = (seq_t *)malloc((size_t)tau * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, (size_t)tau);
     if (!divs) {
         return (seq_t)0; /* out of memory */
     }
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
     }
 
     /* 4) Sort divisors in increasing order */
-    qsort(divs, (size_t)tau, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(divs, (size_t)tau, sizeof(seq_t), cmp_seq_t);
 
     /* 5) Compute the required sum */
     seq_t sum = (seq_t)0;
@@ -100,6 +102,6 @@ seq_t a(idx_t n)
         sum += divs[(size_t)idx] * mult;
     }
 
-    free(divs);
+    mem_free(divs);
     return sum;
 }

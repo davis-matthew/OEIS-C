@@ -7,13 +7,15 @@
  * Formula:   a(n) = n-th divisor of 448 in ascending order; a(n) = 0 for n>14
  * Range:     u8 n <= 12, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *p, const void *q) {
     seq_t a = *(const seq_t *)p;
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
                 divisors[idx++] = pow2[i] * pow7[j];
             }
         }
-        qsort(divisors, 14, sizeof(seq_t), cmp_seq);
+        mem_qsort(divisors, 14, sizeof(seq_t), cmp_seq);
         initialized = true;
     }
 

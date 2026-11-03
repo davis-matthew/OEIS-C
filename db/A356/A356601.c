@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 29, u32 n <= 57, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   eulerian_row_value, gcd
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,44 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* gcd(seq_t,seq_t) */
-#include "../utils/eulerian_row_value.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* Compute the Eulerian number E(n,k) for n>=1 and 0<=k<n.
+   n is the current row index.  We build row n from row n-1. */
+static seq_t eulerian_row_value(idx_t n, idx_t k)
+{
+    if (k >= n) return 0;   /* will be handled by caller for last element */
+
+    /* Arrays for previous and current rows, size up to n+1 */
+    size_t sz = (size_t)(n + 1);
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *curr = mem_new(seq_t, sz);
+
+    prev[0] = 1;  /* row 0: E(0,0)=1 */
+
+    /* Build rows 1 .. n */
+    for (idx_t row = 1; row <= n; ++row) {
+        curr[0] = 1;        /* E(row,0) = 1 */
+
+        for (idx_t j = 1; j < row; ++j) {
+            seq_t a = 0;
+            if (j <= row - 2)   /* prev[j] exists */
+                a = (seq_t)(j + 1) * prev[j];
+            seq_t b = (seq_t)(row - j) * prev[j - 1];
+            curr[j] = a + b;
+        }
+
+        /* copy current row into prev for next iteration */
+        for (idx_t j = 0; j < row; ++j)
+            prev[j] = curr[j];
+    }
+
+    seq_t result = prev[k];
+    mem_free(curr);
+    mem_free(prev);
+    return result;
+}
 
 static seq_t factorial_u64(idx_t m)
 {

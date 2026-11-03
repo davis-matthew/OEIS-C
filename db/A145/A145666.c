@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{d=1}^{n-1} 7^(n-d)/d, a(1)=0
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

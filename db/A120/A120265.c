@@ -7,6 +7,7 @@
  * Formula:   a(n) = numerator(∑_{k=1..n} 1/k!)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 100 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* Each term is reduced at every step to keep the values as small
    as possible, avoiding overflow for 64‑bit builds. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

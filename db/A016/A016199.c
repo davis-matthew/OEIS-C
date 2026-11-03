@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3000, i16 n <= 3000, i32 n <= 3000, i64 n <= 3000,
  *            i128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 2727 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Polynomial utilities ---------- */
 
@@ -43,14 +45,14 @@ static poly_t *poly_new(size_t len)
 {
     poly_t *p = (poly_t*)malloc(sizeof(poly_t));
     p->len = len;
-    p->coef = (seq_t*)calloc(len, sizeof(seq_t));
+    p->coef = mem_new(seq_t, len);
     return p;
 }
 
 static void poly_free(poly_t *p)
 {
     if (!p) return;
-    free(p->coef);
+    mem_free(p->coef);
     free(p);
 }
 
@@ -73,7 +75,7 @@ static poly_t *poly_div_exact(const poly_t *num, const poly_t *den)
     size_t deg_den = den->len - 1;
     size_t qlen = deg_num - deg_den + 1;
     poly_t *Q = poly_new(qlen);
-    seq_t *r = (seq_t*)malloc((deg_num + 1) * sizeof(seq_t));
+    seq_t *r = mem_new(seq_t, (deg_num + 1));
     for (size_t i = 0; i <= deg_num; ++i) r[i] = num->coef[i];
 
     for (long k = (long)deg_num; k >= (long)deg_den; --k) {
@@ -83,7 +85,7 @@ static poly_t *poly_div_exact(const poly_t *num, const poly_t *den)
         for (size_t j = 0; j <= deg_den; ++j)
             r[k - (long)deg_den + j] -= q * den->coef[j];
     }
-    free(r);
+    mem_free(r);
     return Q;
 }
 
@@ -150,7 +152,7 @@ static void build_period(seq_t *period)
 
     /* 5. copy its coefficients for recurrence */
     size_t deg = phi_n->len - 1;          /* should be 576 */
-    seq_t *phi_coeff = (seq_t*)malloc((deg + 1) * sizeof(seq_t));
+    seq_t *phi_coeff = mem_new(seq_t, (deg + 1));
     for (size_t i = 0; i <= deg; ++i) phi_coeff[i] = phi_n->coef[i];
 
     /* 6. compute the period using the linear recurrence */
@@ -170,7 +172,7 @@ static void build_period(seq_t *period)
     /* 7. free temporary memory */
     for (size_t j = 0; j < div_count; ++j) poly_free(phi[j]);
     poly_free(phi_n);
-    free(phi_coeff);
+    mem_free(phi_coeff);
 }
 
 /* ---------- Public function ---------- */

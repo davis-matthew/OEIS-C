@@ -7,7 +7,8 @@
  * Formula:   a(n) = A002808(n)+A141468(n) (nth composite + nth nonprime)
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /*  a(n) = sum of the nth composite number and the nth nonprime number.
     The function memoises the sequences across calls and only
@@ -37,11 +39,11 @@ seq_t a(idx_t n)
     /* initialise caches on first call */
     if (!composites) {
         comp_cap = 64;
-        composites = (seq_t *)malloc(comp_cap * sizeof(seq_t));
+        composites = mem_new(seq_t, comp_cap);
     }
     if (!nonprimes) {
         np_cap = 64;
-        nonprimes = (seq_t *)malloc(np_cap * sizeof(seq_t));
+        nonprimes = mem_new(seq_t, np_cap);
         /* nonprime sequence starts with 0, 1 */
         nonprimes[0] = (seq_t)0;
         nonprimes[1] = (seq_t)1;
@@ -57,8 +59,7 @@ seq_t a(idx_t n)
             if (next_i >= 4) {
                 if ((size_t)comp_len >= comp_cap) {
                     comp_cap *= 2;
-                    composites = (seq_t *)realloc(composites,
-                                                  comp_cap * sizeof(seq_t));
+                    composites = mem_resize(seq_t, composites, comp_cap);
                 }
                 composites[comp_len++] = (seq_t)next_i;
             }
@@ -67,8 +68,7 @@ seq_t a(idx_t n)
             if (next_i >= 2) {
                 if ((size_t)np_len >= np_cap) {
                     np_cap *= 2;
-                    nonprimes = (seq_t *)realloc(nonprimes,
-                                                 np_cap * sizeof(seq_t));
+                    nonprimes = mem_resize(seq_t, nonprimes, np_cap);
                 }
                 nonprimes[np_len++] = (seq_t)next_i;
             }

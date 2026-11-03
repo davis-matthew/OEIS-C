@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 2587, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_forbidden_digit
+ * Validated: standard, pass, 73 terms through n = 9676 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/has_forbidden_digit.h"
+#include "../utils/mem.h"
+
+/* Helper: true if n contains a forbidden digit 2 or 6. */
+static bool has_forbidden_digit(idx_t n)
+{
+    while (n > 0) {
+        uint8_t d = n % 10;
+        if (d == 2 || d == 6)
+            return true;
+        n /= 10;
+    }
+    return false;
+}
 
 /* Deterministic Miller‑Rabin primality test for 64‑bit integers.  */
 static bool is_prime_u64(uint64_t n)
@@ -84,7 +97,7 @@ static void ensure_cache(idx_t n)
     /* initialise cache once */
     if (cache == NULL) {
         cache_cap = 8;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) /* allocation failure – best effort */
             return;
         cache_len = 0;
@@ -96,7 +109,7 @@ static void ensure_cache(idx_t n)
         size_t newcap = cache_cap ? cache_cap * 2 : 8;
         while (newcap < (size_t)n)
             newcap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp) {
             cache = tmp;
             cache_cap = newcap;

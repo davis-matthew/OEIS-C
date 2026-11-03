@@ -9,15 +9,36 @@
  *            }
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a246600, factor_u64
+ * Validated: standard, pass, 103 terms through n = 9250 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/a246600.h"
+
+/* Compute A246600(e) = # of divisors k of e satisfying k|e and (e&k)=k */
+static seq_t a246600(uint64_t e)
+{
+    if (e == 0)
+        return 0;                       /* not used for e>0 */
+
+    static seq_t cache[65];
+    if (e < 65 && cache[e] != 0)
+        return cache[e];
+
+    uint64_t cnt = 0;
+    for (uint64_t k = 1; k <= e; ++k) {
+        if ((e % k) == 0 && ((e & k) == k))
+            ++cnt;
+    }
+    cache[e] = (seq_t)cnt;
+    return cache[e];
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

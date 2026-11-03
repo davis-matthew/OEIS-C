@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the built sequence */
 static seq_t *seq_vals = NULL;
@@ -51,7 +53,7 @@ static void ensure_seqcap(idx_t need)
     if (need <= seq_cap) return;
     size_t newcap = seq_cap ? seq_cap * 2 : 16;
     while (newcap < (size_t)need) newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_vals, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_vals, newcap);
     seq_vals = tmp;
     for (size_t i = seq_cap; i < newcap; ++i) seq_vals[i] = (seq_t)0;
     seq_cap = newcap;

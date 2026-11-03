@@ -9,13 +9,14 @@
  *            c(x)^3*x/(1-4x))
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   a006419_gcd
+ * Validated: standard, pass, 42 terms through n = 1548 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a006419_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t s = 0;   /* a(k) */
@@ -26,9 +27,9 @@ seq_t a(idx_t n) {
         if (k >= 2) {
             uint64_t m = (uint64_t)(k - 1);
             uint64_t p = 2 * m + 1, q = 2 * m + 2, d = m * (m + 3);
-            uint64_t g = a006419_gcd(p, d);
+            uint64_t g = gcd_u64(p, d);
             p /= g; d /= g;
-            g = a006419_gcd(q, d);
+            g = gcd_u64(q, d);
             q /= g; d /= g;
             t = t / d;
             t = t * p;

@@ -7,14 +7,29 @@
  * Formula:   a(n) = a(n-1)! + a(n-2)!, a(0) = 1, a(1) = 1
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   fact_small
+ * Validated: partial, pass, 6 terms through n = 5 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/fact_small.h"
+
+static seq_t fact_small(seq_t m) {
+    seq_t result = 1;
+    idx_t lim;
+    idx_t i;
+    if (m > (seq_t)1000000) {
+        lim = 1000000;
+    } else {
+        lim = (idx_t)(long long)m;
+    }
+    for (i = 2; i <= lim; i++) {
+        result *= (seq_t)i;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     static seq_t cache[16];

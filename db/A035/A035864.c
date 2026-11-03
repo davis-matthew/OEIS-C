@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{d=1..38} C(39,d) * C(n-1,d-1) * C(38-d+n, n) (n>0)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 10, u128 n <= 12,
  *            big any n
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

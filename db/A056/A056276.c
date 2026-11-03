@@ -9,7 +9,8 @@
  *            A056272(n)=∑_{k=1}^{min(5,n)} S(n,k)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   mul_small
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t *A_arr = NULL;   /* A056272 values, A_arr[0] unused   */
 static seq_t *a_arr = NULL;   /* a(n) values, a_arr[0] unused     */
@@ -37,8 +51,8 @@ static void recompute(idx_t n)
     if ((size_t)n <= cur_max) return;
 
     /* Resize the arrays */
-    A_arr = (seq_t *)realloc(A_arr, (n + 1) * sizeof(seq_t));
-    a_arr = (seq_t *)realloc(a_arr, (n + 1) * sizeof(seq_t));
+    A_arr = mem_resize(seq_t, A_arr, (n + 1));
+    a_arr = mem_resize(seq_t, a_arr, (n + 1));
 
     /* 1. Compute A056272(k) for k = 1 .. n using Stirling numbers
        of the second kind S(k, i) for i = 0..5.  */

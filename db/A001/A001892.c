@@ -11,13 +11,21 @@
  *            Sum_{j=0..min(k,i-1)} T(i-1,k-j), T(1,0)=1, which is...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 36, u128 n <= 68,
  *            big any n
- * Helpers:   a001892_big
+ * Validated: standard, pass, 43 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a001892_big.h"
+#include "../utils/mem.h"
+
+static int a001892_big(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x += x;
+    return x != 0;
+}
 
 seq_t a(idx_t n) {
     idx_t k, t, j;
@@ -48,11 +56,11 @@ seq_t a(idx_t n) {
         free(sg);
         return pos - neg;
     } else {
-        seq_t *dp = (seq_t *)calloc(k + 1, sizeof(seq_t));
-        seq_t *cum = (seq_t *)calloc(k + 2, sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, k + 1);
+        seq_t *cum = mem_new(seq_t, k + 2);
         seq_t r;
         idx_t i;
-        if (!dp || !cum) { free(dp); free(cum); return 0; }
+        if (!dp || !cum) { mem_free(dp); mem_free(cum); return 0; }
         dp[0] = 1;
         for (i = 2; i <= n; i++) {
             cum[0] = 0;
@@ -63,8 +71,8 @@ seq_t a(idx_t n) {
             }
         }
         r = dp[k];
-        free(dp);
-        free(cum);
+        mem_free(dp);
+        mem_free(cum);
         return r;
     }
 }

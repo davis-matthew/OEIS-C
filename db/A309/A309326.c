@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array, is_minimal_cover
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,84 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/is_minimal_cover.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Return true iff n yields a minimal cover.  n is a 64‑bit
+ * integer (idx_t is typedef'd to uint64_t).  The binary indices
+ * of n are the positions of its set bits (position 1 is the
+ * least‑significant bit).  For each such position p we form
+ * the set of positions of 1‑bits in p; all these sets form the
+ * edges of a set system.  The system is a minimal cover iff
+ * each edge contains at least one vertex that only occurs in
+ * that edge.  Vertices are the positions 1…6 because a
+ * 64‑bit number can have at most 6 positions set. */
+static bool is_minimal_cover(idx_t n)
+{
+    /* Empty set (n = 0) is a minimal cover by definition. */
+    if (n == 0) return true;
+
+    /* At most 64 edges (one per bit of n). */
+    int edges[64];
+    size_t edge_cnt = 0;
+
+    /* Frequency of each vertex (1..6) over all edges. */
+    int freq[8] = {0};
+
+    idx_t x = n;
+    int pos = 1;          /* 1‑based bit position in n */
+    while (x != 0) {
+        if (x & 1ULL) {
+            /* Build mask for the binary indices of pos.
+             * The mask uses bits 0..5 for vertices 1..6. */
+            int mask = 0;
+            idx_t t = pos;
+            int bit = 1; /* vertex 1 corresponds to bit 0 of mask */
+            while (t != 0) {
+                if (t & 1ULL)
+                    mask |= 1 << (bit - 1);
+                t >>= 1;
+                bit++;
+            }
+            edges[edge_cnt++] = mask;
+        }
+        x >>= 1;
+        pos++;
+    }
+
+    /* Count how many edges contain each vertex. */
+    for (size_t i = 0; i < edge_cnt; ++i) {
+        int m = edges[i];
+        for (int v = 0; v < 6; ++v)
+            if (m & (1 << v))
+                ++freq[v];
+    }
+
+    /* Check that every edge has a uniquely occurring vertex. */
+    for (size_t i = 0; i < edge_cnt; ++i) {
+        int m = edges[i];
+        bool unique = false;
+        for (int v = 0; v < 6; ++v) {
+            if ((m & (1 << v)) && freq[v] == 1) {
+                unique = true;
+                break;
+            }
+        }
+        if (!unique)
+            return false;
+    }
+    return true;
+}
 
 /* a(n): nth BII‑number of a minimal cover.
  *  The function caches all qualifying numbers and returns

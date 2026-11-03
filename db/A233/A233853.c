@@ -14,7 +14,8 @@
  *            har...
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 25, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* adjacency matrix for the 64 states (pairs (x,y), 0≤x,y≤7) */
 static bool adj[64][64] = {false};
@@ -74,7 +76,7 @@ static void ensure_cache_size(idx_t n)
     if ((size_t)n + 1 <= cache_size)
         return;
     size_t new_size = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) abort();            /* out of memory */
     /* zero new entries to avoid garbage reads */
     if (new_size > cache_size)

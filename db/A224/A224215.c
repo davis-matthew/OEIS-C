@@ -8,19 +8,21 @@
  *            z^3 <= n^3
  * Range:     u8 n <= 5, u16 n <= 39, u32 n <= 1317, u64 n <= 1500,
  *            u128 n <= 1500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 1401 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Precompute cubes up to n^3 */
     idx_t np1 = n + 1;
-    seq_t *cubes = (seq_t*)malloc(np1 * sizeof(seq_t));
+    seq_t *cubes = mem_new(seq_t, np1);
     if (!cubes) return (seq_t)0; /* allocation failure, return 0 */
 
     seq_t n3 = (seq_t)n * n * n;
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(cubes);
+    mem_free(cubes);
     return ans;
 }

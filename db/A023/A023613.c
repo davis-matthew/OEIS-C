@@ -9,12 +9,14 @@
  *            tetrahedral number t = m(m+1)(m+2)/6, 0 otherwise
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 46, u64 n <= 92, u128 n <= 184,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 3940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cached Fibonacci numbers, 1‑based indexing */
 static seq_t *fib_cache = NULL;   /* array of Fibonacci numbers */
@@ -27,7 +29,7 @@ static void ensure_fib(idx_t n)
     idx_t needed = n + 1;                    /* largest Fibonacci index required */
     if (fib_cache == NULL) {                 /* first allocation */
         size_t init_cap = needed + 2;         /* some slack for growth */
-        fib_cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, init_cap);
         fib_cap = init_cap;
         fib_cache[1] = 1;
         fib_cache[2] = 1;
@@ -36,7 +38,7 @@ static void ensure_fib(idx_t n)
     if (fib_last < needed) {                 /* grow and compute new terms */
         if (fib_cap <= needed) {
             size_t new_cap = needed * 2 + 2;  /* exponential growth for speed */
-            fib_cache = (seq_t *)realloc(fib_cache, new_cap * sizeof(seq_t));
+            fib_cache = mem_resize(seq_t, fib_cache, new_cap);
             fib_cap = new_cap;
         }
         for (idx_t i = fib_last + 1; i <= needed; ++i) {

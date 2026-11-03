@@ -12,9 +12,10 @@
  *            Let k = max(i,j) and consider the interval c ∈ [k² , (k+1)² –
  *            1]. - If j ≤ i: m[i,j] is the number of integers c in that
  *            interval for which floor(√(gpf(c))) = j. - If j ≥ i: m[i,j] i...
- * Range:     u8 n <= 3486, u16 n <= 9800, u32 n <= 9800, u64 n <= 9800,
- *            u128 n <= 9800, big any n
- * Helpers:   ceil_tri_inverse, gpf
+ * Range:     u8 n <= 3486, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 100 terms through n = 9800 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"
-#include "../utils/ceil_tri_inverse.h"
+#include "../utils/largest_prime_factor.h"
+
+/* Smallest s with s*(s+1)/2 ≥ n  (ceiling inverse of triangular numbers). */
+static inline idx_t ceil_tri_inverse(idx_t n)
+{
+    idx_t low = 0, high = 1;
+    while ((high * (high + 1)) / 2 < n) high <<= 1;
+    while (low + 1 < high) {
+        idx_t mid = low + ((high - low) >> 1);
+        if ((mid * (mid + 1)) / 2 >= n)
+            high = mid;
+        else
+            low = mid;
+    }
+    return high;
+}
 
 /* Integer square root of a 64‑bit unsigned integer. */
 static inline idx_t isqrt_u64(uint64_t n)
@@ -89,7 +104,7 @@ seq_t a(idx_t n)
 
     if (j <= i) {                              /* use greatest prime factor */
         for (uint64_t c = L; c <= R; ++c) {
-            uint64_t h = gpf(c);
+            uint64_t h = largest_prime_factor(c);
             if (isqrt_u64(h) == j)
                 total++;
         }

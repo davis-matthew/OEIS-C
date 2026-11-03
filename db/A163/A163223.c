@@ -9,12 +9,14 @@
  *            values: a(0)=1, a(1)=40, a(2)=1560, a(3)=60840, a(4)=2371980
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 582 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of A163223.  The function is memoised in a
    static cache, so calls in any order are O(n) time in total. */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     /* Expand the cache up to n (inclusive). */
     idx_t old_size   = cache_size;
     idx_t new_size   = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) {                      /* out‑of‑memory – return 0 (rare) */
         return (seq_t)0;
     }

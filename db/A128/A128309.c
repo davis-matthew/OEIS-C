@@ -7,13 +7,24 @@
  * Formula:   a(n) = 2*A000069(n) (even odious numbers)
  * Range:     u8 n <= 64, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   popcnt_parity
+ * Validated: standard, pass, 77 terms through n = 7293 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/popcnt_parity.h"
+
+/* Return 1 if x has an odd number of set bits (parity of popcount == 1) */
+static inline int popcnt_parity(seq_t x)
+{
+    int parity = 0;
+    while (x) {
+        parity ^= 1;
+        x &= (x - 1);
+    }
+    return parity;
+}
 
 seq_t a(idx_t n)
 {

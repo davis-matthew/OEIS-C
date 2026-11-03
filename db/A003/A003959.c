@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, nice, mult
  * Formula:   If n = Product p^e then a(n) = Product (p+1)^e; a(1) = 1
- * Range:     u8 n <= 47, u16 n <= 1535, u32 n <= 9655, u64 n <= 9655,
- *            u128 n <= 9655, big any n
+ * Range:     u8 n <= 47, u16 n <= 1535, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 83 terms through n = 9655 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

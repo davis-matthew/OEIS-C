@@ -8,14 +8,17 @@
  * Formula:   a(n) = 2^(4*(n-1)) * C(4*n^2, 2*n^2)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 5,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the n-th term of OEIS sequence A183765. */
-#include "../utils/binom.h"   /* declares seq_t binom(idx_t, idx_t); */
-#include "../utils/pow2.h"    /* declares seq_t pow2(idx_t); */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
     idx_t half = 2 * sq;                /* 2n²  */
 
     /* Binomial coefficient C(4n², 2n²). */
-    seq_t bin = binom(tot, half);
+    seq_t bin = binomial(tot, half);
 
     /* Power of two: 2^(4*(n‑1)). */
     idx_t shift = 4 * (n - 1);          /* exponent for 2ⁿ */

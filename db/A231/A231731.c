@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   cumulative_before
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,15 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/cumulative_before.h"
+#include "../utils/mem.h"
+
+/* Helper: cumulative number of terms before row r (0‑based). */
+static inline idx_t cumulative_before(idx_t r) {
+    /* sum_{i=0}^{r-1} (i+2) = r*(r-1)/2 + 2*r = (r^2 + 3*r)/2 */
+    unsigned __int128 rr = r;
+    unsigned __int128 val = (rr * rr + 3 * rr) >> 1;
+    return (idx_t)val;
+}
 
 /* Binary search for the row containing the global index n (1‑based). */
 static idx_t find_row(idx_t n) {
@@ -66,7 +75,7 @@ static void compute_row(idx_t r) {
 
     /* General lengths */
     idx_t len_cur = r + 2;                      /* number of coefficients in row r */
-    seq_t *cur = (seq_t *)malloc(len_cur * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, len_cur);
     rows[r] = cur;
 
     if (r == 0) {

@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{i=0..n/2} binomial(n,2*i)*(2*i)!!
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 30, u128 n <= 53,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 763 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

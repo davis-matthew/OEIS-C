@@ -11,7 +11,8 @@
  *            This is exactly the definition of OEIS A236507
  * Range:     u8 n <= 10, u16 n <= 102, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 471 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root for 64‑bit values (returns floor(sqrt(v))) */
 static inline uint64_t isqrt_u64(uint64_t v)
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;  /* undefined for n < 1 */
 
     if (n > cache_sz) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp) abort();
         cache = tmp;
         for (idx_t i = cache_sz + 1; i <= n; ++i)

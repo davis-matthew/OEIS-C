@@ -9,13 +9,14 @@
  *            binomial(k,2*n-3*k)
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 43, u64 n <= 95, u128 n <= 203,
  *            big any n
- * Helpers:   comb
+ * Validated: standard, pass, 54 terms through n = 986 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/comb.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
     {
         idx_t r = 2 * n - 3 * k;          /* lower index for binomial(k, r) */
         seq_t termA = ((seq_t)(k + 2) * (k + 1)) / 2;   /* binomial(k+2,2) */
-        seq_t termB = comb(k, r);                     /* binomial(k, r) */
+        seq_t termB = binomial(k, r);                     /* binomial(k, r) */
         sum += termA * termB;
     }
     return sum;

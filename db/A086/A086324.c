@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2^n - A003473(n)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   pow_seq, pow_uint
+ * Validated: standard, pass, 50 terms through n = 984 (2026-11-01)
+ * Helpers:   ipow_i32, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pow_uint.h"
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_u64_idx.h"
 
 #define PRIME_LIMIT 10000
 
@@ -151,13 +153,13 @@ seq_t a(idx_t n)
 
         S += deg * cnt;
 
-        seq_t term = pow_uint(2, deg) - (seq_t)1;
-        seq_t fac = pow_seq(term, (int)cnt);
+        seq_t term = ipow_u64_idx(2, deg) - (seq_t)1;
+        seq_t fac = ipow_i32(term, (int)cnt);
         P *= fac;
     }
 
-    seq_t pow2_n = pow_uint(2, n);
-    seq_t pow2_n_minus_S = pow_uint(2, n - S);
+    seq_t pow2_n = ipow_u64_idx(2, n);
+    seq_t pow2_n_minus_S = ipow_u64_idx(2, n - S);
     seq_t nonsingular = pow2_n_minus_S * P;
     seq_t result = pow2_n - nonsingular;
     return result;

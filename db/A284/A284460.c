@@ -12,8 +12,9 @@
  *            2^{k+1}. * Define c_0 = b_0 and for i = 1 … k-1 set c_i = (b_i
  *            == b_{i-1}) ? 1 : 0. * Then a(n) = 1 c_{k-1} … c_1 c_0 (binary).
  *            * This defines a permutation of each block [2^k, 2^{k+1}-1]
- * Range:     u8 n <= 255, u16 n <= 9964, u32 n <= 9964, u64 n <= 9964,
- *            u128 n <= 9964, big any n
+ * Range:     u8 n <= 255, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 79 terms through n = 9964 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,12 +9,15 @@
  *            the exponent of prime p in n!
  * Range:     u8 n <= 23, u16 n <= 37, u32 n <= 65, u64 n <= 139,
  *            u128 n <= 265, big any n
+ * Validated: standard, pass, 64 terms through n = 4798 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
 
 seq_t a(idx_t n)

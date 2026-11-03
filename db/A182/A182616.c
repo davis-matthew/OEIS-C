@@ -7,12 +7,14 @@
  * Formula:   a(n) = p(2n) - p(n) (p(m) = number of partitions of m)
  * Range:     u8 n <= 8, u16 n <= 21, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of partition numbers p(0) … p(max).  The size of the cache
  * (how many partition values are stored) is given by cache_size.  The
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t N)
     while (new_cap <= N) new_cap <<= 1;
 
     /* Allocate new buffer and initialise to zero. */
-    seq_t *new_buf = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_new(seq_t, new_cap);
     if (!new_buf) exit(EXIT_FAILURE);
     for (idx_t i = 0; i < new_cap; ++i) new_buf[i] = 0;
 
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t N)
     if (part_cache) {
         for (idx_t i = 0; i < cache_size; ++i)
             new_buf[i] = part_cache[i];
-        free(part_cache);
+        mem_free(part_cache);
     }
     part_cache = new_buf;
 

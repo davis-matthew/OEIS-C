@@ -11,7 +11,8 @@
  *            eta(q)^3 = sum_{k>=0} (-1)^k (2k+1) q^(k(k+1)/2)
  * Range:     i8 n <= 2, i16 n <= 11, i32 n <= 47, i64 n <= 173, i128 n <= 659,
  *            big any n
- * Helpers:   a2507_apply, a2507_tail
+ * Validated: standard, pass, 53 terms through n = 9326 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,50 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/a2507_apply.h"
-#include "../utils/a2507_tail.h"
+#include "../utils/mem.h"
+
+/* sum_{j>=1} E_j * f[i - e_j], where E = eta(q^m) or eta(q^m)^3 without its constant term 1 */
+static seq_t a2507_tail(const seq_t *f, idx_t i, idx_t m, int cube)
+{
+    seq_t s = 0;
+    idx_t k;
+    if (cube) {
+        for (k = 1;; k++) {
+            idx_t e = m * (k * (k + 1) / 2);
+            if (e > i) break;
+            if (k & 1) s -= f[i - e] * (2 * k + 1);
+            else       s += f[i - e] * (2 * k + 1);
+        }
+    } else {
+        for (k = 1;; k++) {
+            idx_t e1 = m * (k * (3 * k - 1) / 2);
+            idx_t e2 = m * (k * (3 * k + 1) / 2);
+            if (e1 > i) break;
+            if (k & 1) {
+                s -= f[i - e1];
+                if (e2 <= i) s -= f[i - e2];
+            } else {
+                s += f[i - e1];
+                if (e2 <= i) s += f[i - e2];
+            }
+        }
+    }
+    return s;
+}
+
+/* multiply (divide == 0) or divide (divide == 1) f in place by eta(q^m) or eta(q^m)^3 */
+static void a2507_apply(seq_t *f, idx_t L, idx_t m, int cube, int divide, int times)
+{
+    int t;
+    idx_t i;
+    for (t = 0; t < times; t++) {
+        if (!divide) {
+            for (i = L - 1; i >= 1; i--) f[i] += a2507_tail(f, i, m, cube);
+        } else {
+            for (i = 1; i < L; i++) f[i] -= a2507_tail(f, i, m, cube);
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +77,7 @@ seq_t a(idx_t n)
         seq_t *f;
         if (L < m + 1) L = m + 1;
         if (L < 64) L = 64;
-        f = (seq_t *)malloc((size_t)L * sizeof(seq_t));
+        f = mem_new(seq_t, (size_t)L);
         for (i = 0; i < L; i++) f[i] = 0;
         f[0] = 1;
         /* eta(q^2)^10 = (eta(q^2)^3)^3 * eta(q^2) */
@@ -48,7 +91,7 @@ seq_t a(idx_t n)
         /* / eta(q^6)^22 = / ((eta(q^6)^3)^7 * eta(q^6)) */
         a2507_apply(f, L, 6, 1, 1, 7);
         a2507_apply(f, L, 6, 0, 1, 1);
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = f;
         cap = L;
     }

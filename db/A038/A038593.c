@@ -12,7 +12,8 @@
  *            the n‑th term
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9909 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compare function for qsort */
 static int compare_seq_t(const void *v1, const void *v2)
@@ -44,8 +46,8 @@ static void build_list(idx_t a_max)
     /* Total number of unordered pairs (a,b) with 1≤b<a≤a_max */
     size_t total_pairs = (size_t)a_max * (a_max - 1) / 2;
     seq_t *diffs = NULL;
-    if (diffs) { free(diffs); }
-    diffs = (seq_t *)malloc(total_pairs * sizeof(seq_t));
+    if (diffs) { mem_free(diffs); }
+    diffs = mem_new(seq_t, total_pairs);
 
     /* Generate all differences a^3 - b^3 */
     size_t idx = 0;
@@ -58,11 +60,11 @@ static void build_list(idx_t a_max)
     }
 
     /* Sort the differences */
-    qsort(diffs, total_pairs, sizeof(seq_t), compare_seq_t);
+    mem_qsort(diffs, total_pairs, sizeof(seq_t), compare_seq_t);
 
     /* Count duplicates and keep those occurring ≤3 times */
     /* Allocate maximum possible size first */
-    seq_t *tmp_valids = (seq_t *)malloc(total_pairs * sizeof(seq_t));
+    seq_t *tmp_valids = mem_new(seq_t, total_pairs);
     size_t v_idx = 0;
     for (size_t i = 0; i < total_pairs; ) {
         size_t j = i + 1;
@@ -75,10 +77,10 @@ static void build_list(idx_t a_max)
     }
 
     /* Free temporary structures */
-    free(diffs);
+    mem_free(diffs);
 
     /* Replace old tables */
-    if (valids) free(valids);
+    if (valids) mem_free(valids);
     valids = tmp_valids;
     val_count = v_idx;
 }

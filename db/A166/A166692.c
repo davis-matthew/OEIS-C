@@ -10,6 +10,7 @@
  *            mod 2 else : a(n) = 2^(c-1)
  * Range:     u8 n <= 53, u16 n <= 169, u32 n <= 593, u64 n <= 2209,
  *            u128 n <= 5049, big any n
+ * Validated: standard, pass, 94 terms through n = 4770 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 /* The function uses only integer arithmetic, no floating point and no
    external libraries except the supplied pow2 helper. */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

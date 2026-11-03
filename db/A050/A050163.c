@@ -9,14 +9,16 @@
  *            are the row and column indices such that n = r(r+1)/2 + c (0 ≤ c
  *            ≤ r). This follows from T(n,k) = binomial(2n+2,n) −
  *            binomial(2n+2,n+k+3) in the OEIS entry
- * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 41, u64 n <= 41, u128 n <= 41,
+ * Range:     u8 n <= 14, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"   /* Provides seq_t binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

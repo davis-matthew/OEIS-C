@@ -9,6 +9,7 @@
  * Formula:   a(n) = floor(log_2(n)) + ceil(log_2(n))
  * Range:     u8 n <= 513, u16 n <= 513, u32 n <= 513, u64 n <= 513,
  *            u128 n <= 513, big any n
+ * Validated: standard, pass, 80 terms through n = 430 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

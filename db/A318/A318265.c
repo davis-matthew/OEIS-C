@@ -7,8 +7,9 @@
  * Keywords:  sign, look
  * Formula:   a(1) = 1, a(n) = 5*a(n/3) if n % 3 == 0, a(n) = n - a(n-1)
  *            otherwise
- * Range:     i8 n <= 32, i16 n <= 2186, i32 n <= 8914, i64 n <= 8914,
- *            i128 n <= 8914, big any n
+ * Range:     i8 n <= 32, i16 n <= 2186, i32 n <= 19682, i64 n <= 19682,
+ *            i128 n <= 19682, big any n
+ * Validated: standard, pass, 88 terms through n = 8914 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

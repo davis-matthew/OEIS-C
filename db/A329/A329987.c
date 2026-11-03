@@ -8,14 +8,29 @@
  *            1.52980838275...)
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   _compute_x
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/_compute_x.h"
+
+static long double _compute_x(void)
+{
+    long double lo = 1.0L, hi = 2.0L;          /* root lies between 1 and 2 */
+    for (int i = 0; i < 80; ++i)                /* 80 rounds gives > 1e-19 accuracy */
+    {
+        long double mid = (lo + hi) * 0.5L;
+        long double f = 1.0L / mid + powl(2.0L, -mid) - 1.0L; /* f(mid) = 0 at root */
+        if (f > 0.0L)
+            lo = mid;
+        else
+            hi = mid;
+    }
+    return hi;
+}
 
 /* Compute the constant x once, using a binary search in long double precision. */
 static bool _x_computed = false;

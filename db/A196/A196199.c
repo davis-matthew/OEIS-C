@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, tabf, easy, frac, look
  * Formula:   a(n) = n - floor(sqrt(n))*(floor(sqrt(n))+1)
- * Range:     i8 n <= 9685, i16 n <= 9685, i32 n <= 9685, i64 n <= 9685,
- *            i128 n <= 9685, big any n
+ * Range:     i8 n <= 10200, i16 n <= 10200, i32 n <= 10200, i64 n <= 10200,
+ *            i128 n <= 10200, big any n
+ * Validated: standard, pass, 97 terms through n = 9685 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

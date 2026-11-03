@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   good_squarefree_mod6, seq_alloc_new_array, seq_realloc
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,9 +29,61 @@
 #include <stdlib.h>
 
 /* Utility functions provided by the framework */
-#include "../utils/seq_alloc_new_array.h"   /* seq_t* seq_alloc_new_array(size_t n) */
-#include "../utils/seq_realloc.h"           /* seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) */
-#include "../utils/good_squarefree_mod6.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/*  Test whether the squarefree part of x is congruent to 1 (mod 6). */
+static bool good_squarefree_mod6(seq_t x)
+{
+    seq_t tmp = x;
+    int mod = 1;                     /* product of odd‑exponent primes (mod 6) */
+
+    /* trial division by all integers up to √tmp */
+    for (int p = 2; ((seq_t)p * (seq_t)p) <= tmp; ++p) {
+        seq_t P = (seq_t)p;
+        if (tmp % P == 0) {
+            int cnt = 0;
+            while (tmp % P == 0) {
+                tmp /= P;
+                ++cnt;
+            }
+            if (cnt & 1) {                /* odd exponent */
+                if (p == 2 || p == 3)     /* 2 or 3 would give squarefree part ≠ 1 mod 6 */
+                    return false;
+                mod = (mod * (p % 6)) % 6; /* multiply the prime’s residue */
+            }
+        }
+    }
+
+    /* any remaining prime factor (must be > √original) */
+    if (tmp > (seq_t)1) {
+        seq_t P = tmp;                 /* now P is a prime > √original */
+        if (P == (seq_t)2 || P == (seq_t)3)
+            return false;
+        /* P appears with exponent 1 (odd) */
+        uint64_t rem = (uint64_t)P;    /* fits into 64‑bit for values in the test range */
+        mod = (mod * (int)(rem % 6)) % 6;
+    }
+
+    return mod == 1;
+}
 
 /* --------------------------------------------------------------- */
 

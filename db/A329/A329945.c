@@ -8,13 +8,15 @@
  *            P(n-1,k-1)*a(n-k) where P(n-1,k-1)=∏_{t=1}^{k-1}(n-t)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 442 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* integer floor sqrt for idx_t (values up to 10 000 are typical). */
 static idx_t int_sqrt(idx_t n)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     if (n >= cap) {
         idx_t new_cap = n + 1;
-        A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_cap);
         IS = (bool *)realloc(IS, new_cap * sizeof(bool));
 
         for (idx_t i = cap; i < new_cap; ++i) {

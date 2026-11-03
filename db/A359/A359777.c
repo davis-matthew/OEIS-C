@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state */
 static idx_t *spf      = NULL;   /* smallest prime factor for each n */
@@ -46,9 +48,9 @@ static void init_tables(idx_t limit)
 
     /* allocate new tables */
     idx_t *new_spf  = (idx_t*)malloc((limit + 1) * sizeof(idx_t));
-    seq_t *new_fpar = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
-    seq_t *new_gpar = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
-    seq_t *new_smod = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *new_fpar = mem_new(seq_t, (limit + 1));
+    seq_t *new_gpar = mem_new(seq_t, (limit + 1));
+    seq_t *new_smod = mem_new(seq_t, (limit + 1));
     if (!new_spf || !new_fpar || !new_gpar || !new_smod)
         abort();
 
@@ -94,9 +96,9 @@ static void init_tables(idx_t limit)
 
     /* replace old tables */
     free(spf);
-    free(fpar);
-    free(gpar);
-    free(smod);
+    mem_free(fpar);
+    mem_free(gpar);
+    mem_free(smod);
     spf   = new_spf;
     fpar  = new_fpar;
     gpar  = new_gpar;
@@ -108,7 +110,7 @@ static void add_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap << 1 : 8;
-        seq_t *new_arr = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
         if (!new_arr)
             abort();
         terms = new_arr;

@@ -11,12 +11,14 @@
  *            concatenated list of the triangle’s rows
  * Range:     u8 n <= 21, u16 n <= 68, u32 n <= 215, u64 n <= 754,
  *            u128 n <= 2874, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 74 terms through n = 7882 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
     idx_t max_j = r - k;            /* j runs 0 .. r-k */
     for (idx_t j = 0; j <= max_j; ++j)
     {
-        seq_t term1 = binom(r + j, k);
-        seq_t term2 = binom(r - k, j);
+        seq_t term1 = binomial(r + j, k);
+        seq_t term2 = binomial(r - k, j);
         sum += term1 * term2;
     }
     return sum;

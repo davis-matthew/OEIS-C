@@ -8,18 +8,20 @@
  *            nondecreasing order
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 8480 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *cached = NULL;
 static idx_t cached_count = 0;
 
-static int cmp(const void *a, const void *b) {
+static int cmp_sort(const void *a, const void *b) {
     seq_t x = *(const seq_t *)a;
     seq_t y = *(const seq_t *)b;
     if (x < y) return -1;
@@ -33,7 +35,7 @@ static void generate(void) {
     idx_t base = 50;
     
     // Precompute 10th powers
-    seq_t *powers = (seq_t *)malloc((base + 1) * sizeof(seq_t));
+    seq_t *powers = mem_new(seq_t, (base + 1));
     for (idx_t i = 1; i <= base; i++) {
         seq_t x = (seq_t)i;
         seq_t p = x;
@@ -44,7 +46,7 @@ static void generate(void) {
     }
     
     // Generate sums
-    seq_t *temp = (seq_t *)malloc(500000 * sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, 500000);
     idx_t count = 0;
     
     for (idx_t a = 1; a <= base; a++) {
@@ -57,10 +59,10 @@ static void generate(void) {
         }
     }
     
-    free(powers);
+    mem_free(powers);
     
     // Sort
-    qsort(temp, count, sizeof(seq_t), cmp);
+    mem_qsort(temp, count, sizeof(seq_t), cmp_sort);
     
     // Remove duplicates
     idx_t out_idx = 0;

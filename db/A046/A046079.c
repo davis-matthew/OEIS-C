@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   for odd n: a(n) = (τ(n²)–1)/2, for even n: a(n) =
  *            (τ((n/2)²)–1)/2 where τ(m) counts the positive divisors of m
- * Range:     u8 n <= 9298, u16 n <= 9298, u32 n <= 9298, u64 n <= 9298,
- *            u128 n <= 9298, big any n
+ * Range:     u8 n <= 18479, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 115 terms through n = 9298 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Return the number of Pythagorean triangles having leg n (OEIS A046079). */

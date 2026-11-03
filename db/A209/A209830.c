@@ -12,13 +12,15 @@
  *            u(1,x)=v(1,x)=1. The recurrence for the coefficients is...
  * Range:     u8 n <= 24, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,10 +45,10 @@ seq_t a(idx_t n)
     size_t max_len = (size_t)r;
     seq_t *bufU[2];
     seq_t *bufV[2];
-    bufU[0] = (seq_t *)calloc(max_len, sizeof(seq_t));
-    bufV[0] = (seq_t *)calloc(max_len, sizeof(seq_t));
-    bufU[1] = (seq_t *)calloc(max_len, sizeof(seq_t));
-    bufV[1] = (seq_t *)calloc(max_len, sizeof(seq_t));
+    bufU[0] = mem_new(seq_t, max_len);
+    bufV[0] = mem_new(seq_t, max_len);
+    bufU[1] = mem_new(seq_t, max_len);
+    bufV[1] = mem_new(seq_t, max_len);
 
     /* Initialize row 1. */
     bufU[0][0] = (seq_t)1;
@@ -89,10 +91,10 @@ seq_t a(idx_t n)
     seq_t result = bufU[cur][pos];
 
     /* Free all allocated buffers. */
-    free(bufU[0]);
-    free(bufU[1]);
-    free(bufV[0]);
-    free(bufV[1]);
+    mem_free(bufU[0]);
+    mem_free(bufU[1]);
+    mem_free(bufV[0]);
+    mem_free(bufV[1]);
 
     return result;
 }

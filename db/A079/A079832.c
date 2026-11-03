@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 1712, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9244 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* reverse the decimal digits of a seq_t value                           */
@@ -50,7 +52,7 @@ static void ensure_cache_cap(size_t need)
     if (new_cap < need)
         new_cap = need;
 
-    void *p = realloc(cache, new_cap * sizeof(seq_t));
+    void *p = mem_resize(seq_t, cache, new_cap);
     if (!p) {
         /* allocation failed – abort so that the caller sees a failure */
         exit(EXIT_FAILURE);

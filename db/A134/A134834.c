@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   build_primes_upto, floor_sqrt
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Prime table used for factorisation of the numbers appearing in the
  * recurrence.  The primes are stored as 64‑bit integers (they are
@@ -94,7 +114,7 @@ seq_t a(idx_t n)
     seq_t *visited = NULL;
     size_t visited_len = 0;
     size_t visited_cap = 16;   /* initial capacity */
-    visited = (seq_t *)malloc(visited_cap * sizeof(seq_t));
+    visited = mem_new(seq_t, visited_cap);
     if (!visited)
         return 0;              /* memory allocation failure – unlikely */
 
@@ -115,7 +135,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < visited_len; ++i) {
             if (visited[i] == next_val) {
                 seq_t period = (seq_t)(visited_len - i);
-                free(visited);
+                mem_free(visited);
                 return period;
             }
         }
@@ -123,7 +143,7 @@ seq_t a(idx_t n)
         /* Store the new value, growing the buffer if necessary. */
         if (visited_len == visited_cap) {
             visited_cap *= 2;
-            visited = (seq_t *)realloc(visited, visited_cap * sizeof(seq_t));
+            visited = mem_resize(seq_t, visited, visited_cap);
             if (!visited)
                 return 0; /* memory allocation failure */
         }

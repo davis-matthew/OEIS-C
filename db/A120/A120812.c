@@ -9,13 +9,14 @@
  *            binom(2 n, n-5)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: standard, pass, 35 terms through n = 497 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
 
 /* offset: 5 */
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
     seq_t denom = 24 * (m + 6);
 
     /* binomial coefficient binom(2n, n-5). */
-    seq_t bin = binom(2 * (idx_t)n, n - 5);
+    seq_t bin = binomial(2 * (idx_t)n, n - 5);
 
     /* reduce common factors between numerator and denominator. */
     seq_t g = gcd(num, denom);

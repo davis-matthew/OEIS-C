@@ -12,17 +12,40 @@
  *            Euler transform (MSET) of C, so a(n) = P(n) = MSET(...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 18, u64 n <= 34, u128 n <= 63,
  *            big any n
- * Helpers:   alloc_zero, gcd_seq, release, seq_is_fixed_width
+ * Validated: standard, pass, 43 terms through n = 961 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/gcd_seq.h"
-#include "../utils/seq_is_fixed_width.h"
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static seq_t *Pm = NULL;
 static idx_t Pcap = 0;
@@ -50,7 +73,7 @@ static void build(idx_t N) {
             for (j = 1; j * n <= N; j++) {
                 seq_t r = mc[j - 1];
                 seq_t t = C[n] + (seq_t)(j - 1);
-                seq_t g = gcd_seq(r, (seq_t)j);
+                seq_t g = gcd(r, (seq_t)j);
                 seq_t jj;
                 if (g == 0) g = 1;
                 r /= g;

@@ -9,14 +9,17 @@
  *            binomial(n+k-1,k)^2 )^3
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 1, u64 n <= 3, u128 n <= 5,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: standard, pass, 25 terms through n = 107 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 /*
  * Computes term a(n) of OEIS sequence A357674.
@@ -51,7 +54,7 @@ seq_t a(idx_t n)
     }
 
     /* Final value: S1^4 * S2^3 */
-    seq_t pow_S1 = pow_seq(S1, 4);
-    seq_t pow_S2 = pow_seq(sum_sq, 3);
+    seq_t pow_S1 = ipow_i32(S1, 4);
+    seq_t pow_S2 = ipow_i32(sum_sq, 3);
     return pow_S1 * pow_S2;
 }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^n * Sum_{k=0..n} Product_{j=1..k} (2/j)^((-1)^j)
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 26, u64 n <= 31, u128 n <= 31,
  *            big any n
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
    -1; in that case the term equals (t * C(2t,t))/2.
    This avoids any negative intermediate values. */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

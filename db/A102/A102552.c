@@ -7,13 +7,26 @@
  * Formula:   a(n) = prime(n) - (prime(n+1) + prime(n-1))/2 (OEIS A102552)
  * Range:     i8 n <= 18, i16 n <= 2357, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   estimate_prime_upper_bound
+ * Validated: standard, pass, 119 terms through n = 8510 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/estimate_prime_upper_bound.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* Static state: primes[0] = 2, primes[1] = 3, ... */
 static seq_t *primes = NULL;
@@ -52,7 +65,7 @@ static void ensure_primes(idx_t required)
             ++count;
 
     /* Allocate storage for the primes */
-    seq_t *new_primes = (seq_t *)malloc(count * sizeof(seq_t));
+    seq_t *new_primes = mem_new(seq_t, count);
     if (!new_primes) {
         free(is_prime);
         return;                    /* allocation failure */
@@ -67,7 +80,7 @@ static void ensure_primes(idx_t required)
     }
 
     /* Replace the old array if present */
-    free(primes);
+    mem_free(primes);
     primes = new_primes;
     prime_count = count;
 

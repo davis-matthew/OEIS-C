@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   u128_to_u64
+ * Validated: standard, pass, 116 terms through n = 9120 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/u128_to_u64.h"
+
+/* convert uint64_t to seq_t safely; the build will provide seq_t */
+static inline uint64_t u128_to_u64(unsigned __int128 v) {
+    return (uint64_t)v;
+}
 
 /* integer square root of a 64‑bit unsigned integer */
 static inline uint64_t isqrt_u64(uint64_t x)

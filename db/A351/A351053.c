@@ -8,12 +8,22 @@
  *            a(n-k-2) for n ≥ 2
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 23, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /*------------------------------------------------------------*/
 /*   Memoisation helpers                                     */
@@ -26,6 +36,16 @@ static seq_t *pow3_cache = NULL; /* pow3_cache[i] = 3^i      */
 static idx_t  pow3_cap   = 0;    /* current size of pow3_cache */
 
 /* Reallocation helper that is valid in C and C++ */
+#ifdef __cplusplus
+template <class T>
+static T * safe_realloc(T * p, size_t n) {
+#ifdef __cplusplus
+    return static_cast<T *>(mem_resize(T, p, (n) / sizeof(T)));
+#else
+    return mem_resize(T, p, (n) / sizeof(T));
+#endif
+}
+#else
 static void* safe_realloc(void* p, size_t n) {
 #ifdef __cplusplus
     return static_cast<void*>(realloc(p, n));
@@ -33,6 +53,7 @@ static void* safe_realloc(void* p, size_t n) {
     return realloc(p, n);
 #endif
 }
+#endif
 
 /* Ensure pow3_cache contains powers of 3 up to exp; grow if needed */
 static void ensure_pow3(idx_t exp) {

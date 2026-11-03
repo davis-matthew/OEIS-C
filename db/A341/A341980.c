@@ -9,7 +9,8 @@
  *            a prime)
  * Range:     u8 n <= 151, u16 n <= 151, u32 n <= 151, u64 n <= 151,
  *            u128 n <= 151, big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 151 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the sequence function */
 seq_t a(idx_t n);
@@ -30,7 +32,7 @@ static int dp_allocated = 0;       /* Flag indicating whether dp has been alloca
 static void free_dp(idx_t limit)
 {
     for (idx_t k = 0; k < 10; ++k)
-        free(dp[k]);
+        mem_free(dp[k]);
     free(dp);
     dp_allocated = 0;
     cur_limit = 0;
@@ -42,7 +44,7 @@ static void build_dp(idx_t limit)
     /* Allocate DP table: 10 rows (k = 0..9), each with (limit + 1) columns */
     dp = (seq_t **)malloc(sizeof(seq_t *) * 10);
     for (idx_t k = 0; k < 10; ++k)
-        dp[k] = (seq_t *)calloc((size_t)limit + 1, sizeof(seq_t));
+        dp[k] = mem_new(seq_t, (size_t)limit + 1);
 
     /* DP base case: one way to choose 0 primes summing to 0 */
     dp[0][0] = (seq_t)1;

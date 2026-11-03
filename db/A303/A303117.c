@@ -9,12 +9,15 @@
  *            k^{n/d}
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static inline int mobius(idx_t n) {
     if (n == 1) return 1;
@@ -44,8 +47,8 @@ seq_t a(idx_t n) {
         int mu1 = mobius(d);
         if (mu1 != 0) {
             idx_t exp = n / d;
-            seq_t p3 = big_pow((seq_t)3, (seq_t)exp);
-            seq_t p2 = big_pow((seq_t)2, (seq_t)exp);
+            seq_t p3 = ipow((seq_t)3, (seq_t)exp);
+            seq_t p2 = ipow((seq_t)2, (seq_t)exp);
             if (mu1 > 0) {
                 sum1 += p3;
                 sum2 += p2;
@@ -61,8 +64,8 @@ seq_t a(idx_t n) {
         int mu2 = mobius(d2);
         if (mu2 != 0) {
             idx_t exp = n / d2;              /* equals d */
-            seq_t p3 = big_pow((seq_t)3, (seq_t)exp);
-            seq_t p2 = big_pow((seq_t)2, (seq_t)exp);
+            seq_t p3 = ipow((seq_t)3, (seq_t)exp);
+            seq_t p2 = ipow((seq_t)2, (seq_t)exp);
             if (mu2 > 0) {
                 sum1 += p3;
                 sum2 += p2;

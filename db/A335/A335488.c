@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         cache_cap = 64; /* initial capacity, will grow as needed */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
         next_k = 1;
         initialized = 1;
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n) {
         idx_t k = next_k;
         /* Find n_comp: ceil(log2(k+1)) = floor_log2(k) + 1 */
-        idx_t n_comp = floor_log2_uint64(k) + 1;
+        idx_t n_comp = ilog2(k) + 1;
         idx_t r = k - ((idx_t)1 << (n_comp - 1)); /* r in [0, 2^{n_comp-1}-1] */
 
         /* Build the composition of n_comp from r */
@@ -73,7 +76,7 @@ seq_t a(idx_t n)
         if (has_dup) {
             if (cache_len >= cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)k;
         }

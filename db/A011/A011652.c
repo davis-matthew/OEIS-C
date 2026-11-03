@@ -8,14 +8,30 @@
  *            (x²–1)(x³–1)(x¹⁹–1)(x¹¹⁴–1) ÷ (x–1)(x⁶–1)(x³⁸–1)(x⁵⁷–1)
  * Range:     i8 n <= 36, i16 n <= 36, i32 n <= 36, i64 n <= 36, i128 n <= 36,
  *            big any n
- * Helpers:   multiply_by_xd_minus_one
+ * Validated: full, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/multiply_by_xd_minus_one.h"
+#include "../utils/mem.h"
+
+/* Multiply a polynomial {!poly} (deg = *deg) by (x^d–1). */
+static void multiply_by_xd_minus_one(seq_t **poly, size_t *deg, int d)
+{
+    size_t newdeg = *deg + (size_t)d;
+    seq_t *newpoly = mem_new(seq_t, newdeg + 1);
+    for (size_t i = 0; i <= *deg; ++i)
+    {
+        newpoly[i]          -= (*poly)[i];    /* multiply by –1 */
+        newpoly[i + d]      += (*poly)[i];    /* multiply by x^d */
+    }
+    mem_free(*poly);
+    *poly = newpoly;
+    *deg = newdeg;
+}
 
 static seq_t *phi114_tbl = NULL;   /* coefficients of Φ₁₁₄(x) */
 static size_t deg114_tbl = 0;      /* degree of Φ₁₁₄(x) = 36 */
@@ -28,7 +44,7 @@ static bool phi114_init = false;   /* flag indicating that φ₁₁₄ has been 
 static void compute_phi114(void)
 {
     /* -------- build numerator (x^2–1)(x^3–1)(x^19–1)(x^114–1) -------- */
-    seq_t *num = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *num = mem_new(seq_t, 1);
     num[0] = (seq_t)1;
     size_t num_deg = 0;
     int num_factors[] = { 2, 3, 19, 114 };
@@ -36,7 +52,7 @@ static void compute_phi114(void)
         multiply_by_xd_minus_one(&num, &num_deg, num_factors[i]);
 
     /* -------- build denominator (x–1)(x^6–1)(x^38–1)(x^57–1) -------- */
-    seq_t *den = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *den = mem_new(seq_t, 1);
     den[0] = (seq_t)1;
     size_t den_deg = 0;
     int den_factors[] = { 1, 6, 38, 57 };
@@ -45,14 +61,14 @@ static void compute_phi114(void)
 
     /* -------- division: numerator ÷ denominator -------- */
     size_t qlen = num_deg - den_deg + 1;            /* degree of Φ₁₁₄ = 36 */
-    seq_t *phi = (seq_t*)malloc(qlen * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, qlen);
     for (size_t i = 0; i < qlen; ++i)
         phi[i] = (seq_t)0;
 
-    seq_t *num_mod = (seq_t*)malloc((num_deg + 1) * sizeof(seq_t));
+    seq_t *num_mod = mem_new(seq_t, (num_deg + 1));
     for (size_t i = 0; i <= num_deg; ++i)
         num_mod[i] = num[i];
-    free(num);
+    mem_free(num);
 
     int nd = (int)den_deg;
     for (int i = (int)num_deg; i >= nd; --i)
@@ -63,8 +79,8 @@ static void compute_phi114(void)
             num_mod[i - nd + j] -= coeff * den[j];
     }
 
-    free(num_mod);
-    free(den);
+    mem_free(num_mod);
+    mem_free(den);
 
     phi114_tbl  = phi;
     deg114_tbl  = num_deg - den_deg;

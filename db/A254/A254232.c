@@ -8,12 +8,14 @@
  *            (P(0)=3, P(1)=0, P(2)=2, P(k)=P(k-2)+P(k-3))
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 17, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 119 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
         idx_t new_cap = n + 1;
         /* allocate or grow the Perrin array */
         if (perrs == NULL) {
-            perrs = (seq_t *)malloc(new_cap * sizeof(seq_t));
-            prods = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            perrs = mem_new(seq_t, new_cap);
+            prods = mem_new(seq_t, new_cap);
         } else {
-            perrs = (seq_t *)realloc(perrs, new_cap * sizeof(seq_t));
-            prods = (seq_t *)realloc(prods, new_cap * sizeof(seq_t));
+            perrs = mem_resize(seq_t, perrs, new_cap);
+            prods = mem_resize(seq_t, prods, new_cap);
         }
 
         /* initialize base Perrin numbers if not yet done */

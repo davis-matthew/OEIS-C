@@ -11,12 +11,14 @@
  *            (partition numbers, via Euler's pentagonal recurrence)
  * Range:     u8 n <= 4, u16 n <= 17, u32 n <= 68, u64 n <= 273,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 845 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *part_tab = NULL;
 static idx_t part_len = 0;
@@ -25,7 +27,7 @@ static void ensure_parts(idx_t n) {
     idx_t need = n + 1, m, k;
     seq_t *t;
     if (need <= part_len) return;
-    t = (seq_t *)calloc((size_t)need, sizeof(seq_t));
+    t = mem_new(seq_t, (size_t)need);
     for (m = 0; m < part_len; m++) t[m] = part_tab[m];
     for (m = part_len; m < need; m++) {
         seq_t pos = 0, neg = 0;
@@ -64,7 +66,7 @@ seq_t a(idx_t n) {
     int p, q;
     idx_t i, k;
     ensure_parts(n);
-    f = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    f = mem_new(seq_t, (size_t)(n + 1));
     for (p = 0; p < 7; p++) {
         for (i = 0; i <= n; i++) f[i] = part_tab[i];
         for (q = 0; q < 3; q++) {
@@ -74,6 +76,6 @@ seq_t a(idx_t n) {
         }
         total += f[n];
     }
-    free(f);
+    mem_free(f);
     return total;
 }

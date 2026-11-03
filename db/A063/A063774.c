@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9689 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------------- */
 /* Integer square root and perfect‑square test (no floating point)             */
@@ -119,7 +121,7 @@ static void push_cache(seq_t val)
 {
     if (cache_len == cache_cap) {
         cache_cap = cache_cap ? cache_cap << 1 : 16;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_len++] = val;
 }
@@ -145,7 +147,7 @@ seq_t a(idx_t n)
 {
     if (n == 0) return 0;                     /* undefined by OEIS, but safe */
     if (cache == NULL) {
-        cache = (seq_t*)malloc(16 * sizeof(seq_t));
+        cache = mem_new(seq_t, 16);
         cache_len = 0;
         cache_cap = 16;
     }

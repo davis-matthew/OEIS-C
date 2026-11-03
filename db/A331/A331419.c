@@ -9,11 +9,14 @@
  *            binomial((n/2), 4) * 2^(n/2) for even n
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 39, u64 n <= 93, u128 n <= 211,
  *            big any n
+ * Validated: standard, pass, 54 terms through n = 986 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

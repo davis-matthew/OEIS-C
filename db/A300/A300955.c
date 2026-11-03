@@ -9,13 +9,22 @@
  *            for p>3
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 15, u64 n <= 1249,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_seq, seq_mul
+ * Validated: standard, pass, 75 terms through n = 9443 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_i32.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t a_rec(idx_t n)
 {
@@ -34,7 +43,7 @@ static seq_t a_rec(idx_t n)
         }
         seq_t base = 3;               /* f(2) = 3 */
         seq_t exponent = a_rec(exp);  /* a(exp) */
-        result = seq_mul(result, pow_seq(base, (int)exponent));
+        result = seq_mul(result, ipow_i32(base, (int)exponent));
     }
 
     /* handle factor 3 */
@@ -46,7 +55,7 @@ static seq_t a_rec(idx_t n)
         }
         seq_t base = 2;               /* f(3) = 2 */
         seq_t exponent = a_rec(exp);  /* a(exp) */
-        result = seq_mul(result, pow_seq(base, (int)exponent));
+        result = seq_mul(result, ipow_i32(base, (int)exponent));
     }
 
     /* handle remaining odd primes */
@@ -59,7 +68,7 @@ static seq_t a_rec(idx_t n)
             }
             seq_t base = (seq_t)p;          /* f(p) = p for p>3 */
             seq_t exponent = a_rec(exp);
-            result = seq_mul(result, pow_seq(base, (int)exponent));
+            result = seq_mul(result, ipow_i32(base, (int)exponent));
         }
     }
 

@@ -13,13 +13,15 @@
  *            a(4)=97, a(5)=112, a(6)=132, a(7)=153, a(8)=196
  * Range:     u8 n <= 9, u16 n <= 34, u32 n <= 82, u64 n <= 178, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Initial values for indices 1..8; index 0 is unused to keep 1‑based access. */
 static const seq_t init_vals[9] = {0,
@@ -39,13 +41,13 @@ seq_t a(idx_t n)
     /* If we have not computed up to n yet, grow the cache. */
     if (n > cap) {
         /* Allocate new storage: indices 0 .. n (size n+1). */
-        seq_t *new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         if (!new_cache) abort();   /* allocation failed */
 
         /* Copy any previously cached values. */
         if (cache) {
-            memcpy(new_cache, cache, (cap + 1) * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, (cap + 1) * sizeof(seq_t));
+            mem_free(cache);
         }
 
         /* Compute the new entries. */

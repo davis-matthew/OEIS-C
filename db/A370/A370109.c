@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^2*(2*n^2-23)
  * Range:     i8 n <= 3, i16 n <= 11, i32 n <= 35, i64 n <= 35, i128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = largest k such that n+i = i * p_i for all 1 ≤ i ≤ k,
  *            where each p_i is prime
- * Range:     u8 n <= 6467, u16 n <= 9951, u32 n <= 9951, u64 n <= 9951,
- *            u128 n <= 9951, big any n
- * Helpers:   is_prime_small
+ * Range:     u8 n <= 6467, u16 n <= 21000, u32 n <= 21000, u64 n <= 21000,
+ *            u128 n <= 21000, big any n
+ * Validated: standard, pass, 136 terms through n = 9951 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 /* Computations use only integer arithmetic and the provided primality test. */
 
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
         idx_t m = n + i;       /* current number n + i */
         if (m % i != 0) break; /* must be divisible by i */
         idx_t q = m / i;       /* the candidate prime factor */
-        if (!is_prime_small((uint64_t)q)) break;
+        if (!is_prime_seq((uint64_t)q)) break;
     }
     /* The loop exits with i being the first index that fails,
        so the answer is i-1. */

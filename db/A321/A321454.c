@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   backtrack_partition, build_primes_upto, prime_pi
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,25 @@
 #include <string.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/prime_pi.h"
-#include "../utils/backtrack_partition.h"
+#include "../utils/mem.h"
+
+static bool backtrack_partition(size_t pos, size_t k, int target,
+                                int *groupSum, const int *items, size_t m)
+{
+    if (pos == m) return true;            /* all items placed */
+
+    int val = items[pos];
+    for (size_t g = 0; g < k; ++g) {
+        if (groupSum[g] + val <= target) {
+            groupSum[g] += val;
+            if (backtrack_partition(pos + 1, k, target, groupSum, items, m))
+                return true;
+            groupSum[g] -= val;
+        }
+        if (groupSum[g] == 0) break;      /* symmetry pruning */
+    }
+    return false;
+}
 
 #define SIEVE_LIMIT 2000000      /* primes up to this limit are precomputed */
 
@@ -131,7 +150,7 @@ static void ensure_capacity(size_t needed, size_t *cap, seq_t **ptr)
     if (needed > *cap) {
         size_t newcap = (*cap) ? (*cap) * 2 : 16;
         while (newcap < needed) newcap <<= 1;
-        *ptr = (seq_t*)realloc(*ptr, newcap * sizeof(seq_t));
+        *ptr = mem_resize(seq_t, *ptr, newcap);
         if (!*ptr) abort();
         *cap = newcap;
     }

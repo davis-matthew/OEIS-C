@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 203, u32 n <= 677, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint, seq_alloc_new_array, seq_free_array
+ * Validated: standard, pass, 64 terms through n = 9747 (2026-11-03)
+ * Helpers:   factor_u64, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,10 +37,17 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* helper: compute σ_inf(n) and whether it is infinitary abundant */
 static seq_t calc_sigma_inf(uint64_t n, bool *abundant)
@@ -60,7 +68,7 @@ static seq_t calc_sigma_inf(uint64_t n, bool *abundant)
         {
             if (tmp & 1U)
             {
-                seq_t pw = pow_uint(p, 1ULL << bit);
+                seq_t pw = ipow_u64_idx(p, 1ULL << bit);
                 sigma *= (pw + 1);
             }
             tmp >>= 1;

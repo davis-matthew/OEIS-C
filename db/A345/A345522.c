@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9102 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const idx_t LIMIT_MAX = 1000000U;       /* upper bound for sums */
 static seq_t *seq_cache = NULL;                /* array of sequence values */
@@ -62,7 +64,7 @@ static void compute_sequence(void)
 
     /* Allocate sequence buffer */
     size_t cap = 20000;                        /* initial capacity   */
-    seq_cache = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, cap);
     if (!seq_cache) { abort(); }
 
     /* Collect numbers with at least four representations */
@@ -70,7 +72,7 @@ static void compute_sequence(void)
         if (dp[7 * width + s] >= 4) {
             if (seq_len == cap) {
                 cap <<= 1;                      /* double capacity   */
-                seq_cache = (seq_t *)realloc(seq_cache, cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, cap);
                 if (!seq_cache) { abort(); }
             }
             seq_cache[seq_len++] = (seq_t)s;

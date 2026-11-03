@@ -8,14 +8,16 @@
  * Formula:   a(n) = A004001(2*n) - n where A004001(1)=1, A004001(2)=1, and
  *            for k>2: A004001(k) = A004001(A004001(k-1)) + A004001(k -
  *            A004001(k-1))
- * Range:     u8 n <= 1178, u16 n <= 9814, u32 n <= 9814, u64 n <= 9814,
- *            u128 n <= 9814, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1178, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 144 terms through n = 9814 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for values of A004001 up to some index */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t need)
         return;
 
     /* allocate or enlarge cache */
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)(need + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(need + 1));
     if (new_cache == NULL)
         return;                         /* allocation failed – abort silently */
     cache = new_cache;

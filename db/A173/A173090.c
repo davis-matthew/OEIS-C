@@ -8,12 +8,14 @@
  *            for n≥3
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed values; 1‑based indexing in the specification,
@@ -27,9 +29,9 @@ seq_t a(idx_t n) {
     /* Extend the cache if necessary */
     if (n > max_n) {
         idx_t new_max = n;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_max * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_max);
         if (!new_cache) { /* allocation failed */
-            if (cache) free(cache);
+            if (cache) mem_free(cache);
             cache = NULL;
             max_n = 0;
             return 0;

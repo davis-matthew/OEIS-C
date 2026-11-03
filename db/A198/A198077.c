@@ -7,7 +7,8 @@
  * Formula:   a(n) = round((n + 1/3)^n)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 34 terms through n = 289 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
  * from utils/pow_seq.h is employed. */
 
 #include <stdint.h>                  /* for uint64_t */
-#include "../utils/pow_seq.h"         /* seq_t pow_seq(seq_t base, int exp) */
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -41,8 +42,8 @@ seq_t a(idx_t n)
 
     /* General case: use arbitrary‑precision power routine */
     seq_t base   = (seq_t)3 * (seq_t)n + (seq_t)1;
-    seq_t denom  = pow_seq((seq_t)3, (int)n);
-    seq_t numer  = pow_seq(base, (int)n);
+    seq_t denom  = ipow_i32((seq_t)3, (int)n);
+    seq_t numer  = ipow_i32(base, (int)n);
     seq_t half   = denom / (seq_t)2;
     seq_t result = (numer + half) / denom;
     return result;

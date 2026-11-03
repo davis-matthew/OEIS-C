@@ -9,13 +9,16 @@
  *            a(2)=0, a(3)=1, a(4)=2, a(5)=2, a(6)=3, …
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   bigomega, phi
+ * Validated: partial, pass, 76 terms through n = 77 (2026-11-01)
+ * Helpers:   bigomega, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/bigomega.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
 
     while (current != 2) {
         /* reduce current by the bigomega of its totient value   */
-        idx_t phi_val = (idx_t)phi(current);
+        idx_t phi_val = (idx_t)totient(current);
         idx_t sub     = (idx_t)bigomega(phi_val);
         current -= sub;
         steps++;

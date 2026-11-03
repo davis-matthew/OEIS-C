@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n^{n^3} + 3 * n^{n^2(n+1)/2} + 2 * n^{(n^3+2n)/3}) / 6
  * Range:     u8 none, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 3,
  *            big any n
+ * Validated: partial, pass, 5 terms through n = 6 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,6 +8,7 @@
  * Formula:   a(n) = (1/(n+1)) * Σ{k=0..⌊n/2⌋} C(2n+2, k) * C(2n−k, n−2k)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 24, u128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
    accumulated in a seq_t and the final division by (n+1) is exact. */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

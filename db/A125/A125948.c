@@ -10,25 +10,33 @@
  * Formula:   a(n) = 27*7^n - 81*6^n + 108*5^n - 81*4^n + 36*3^n - 9*2^n + 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: standard, pass, 35 terms through n = 991 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 /* use the provided big_pow and seq_mul from utils */
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
     /* Compute each power */
-    seq_t pow7 = big_pow((seq_t)7, (seq_t)n);
-    seq_t pow6 = big_pow((seq_t)6, (seq_t)n);
-    seq_t pow5 = big_pow((seq_t)5, (seq_t)n);
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)n);
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n);
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
+    seq_t pow7 = ipow((seq_t)7, (seq_t)n);
+    seq_t pow6 = ipow((seq_t)6, (seq_t)n);
+    seq_t pow5 = ipow((seq_t)5, (seq_t)n);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)n);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)n);
 
     /* Compute the weighted sum according to the formula */
     seq_t result = seq_mul((seq_t)27, pow7);

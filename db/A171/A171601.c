@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 274, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*   Dynamic cache of triangular numbers T_m = m*(m+1)/2                */
@@ -32,7 +34,7 @@ static void ensure_tri_up_to(idx_t limit)
 {
     if (tri_cap == 0) {
         tri_cap = 64;
-        tri = (seq_t *)malloc(tri_cap * sizeof(seq_t));
+        tri = mem_new(seq_t, tri_cap);
         tri_len = 1;           /* tri[0] = 0                         */
         tri[0] = 0;
     }
@@ -44,7 +46,7 @@ static void ensure_tri_up_to(idx_t limit)
             break;
         if (tri_len == tri_cap) {
             tri_cap *= 2;
-            tri = (seq_t *)realloc(tri, tri_cap * sizeof(seq_t));
+            tri = mem_resize(seq_t, tri, tri_cap);
         }
         tri[tri_len++] = next_val;
     }

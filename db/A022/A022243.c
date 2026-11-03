@@ -7,7 +7,8 @@
  * Formula:   a(n) = Prod_{i=1..3} (8^(n-i+1)-1)/(8^i-1)
  * Range:     u8 none, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 30 terms through n = 183 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 /* External linkage function as requested */
 seq_t a(idx_t n) {
@@ -31,9 +32,9 @@ seq_t a(idx_t n) {
 
     for (idx_t i = 1; i <= 3; ++i) {
         /* numerator: 8^(n-i+1) - 1 */
-        seq_t num = big_pow(base, (seq_t)(n - i + 1)) - (seq_t)1;
+        seq_t num = ipow(base, (seq_t)(n - i + 1)) - (seq_t)1;
         /* denominator: 8^i - 1 */
-        seq_t den = big_pow(base, (seq_t)i) - (seq_t)1;
+        seq_t den = ipow(base, (seq_t)i) - (seq_t)1;
 
         /* Cancel common factors between numerator and denominator */
         seq_t g = gcd(num, den);

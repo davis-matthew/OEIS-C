@@ -11,16 +11,41 @@
  *            v_p(4^(p-1)-1) + v_p(m) for odd p dividing 4^m-1 (LTE)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   a2676_mulmod, a2676_powmod, a2676_vnum
+ * Validated: partial, pass, 15 terms through n = 16 (2026-11-01)
+ * Helpers:   mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a2676_mulmod.h"
-#include "../utils/a2676_powmod.h"
-#include "../utils/a2676_vnum.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+/* v_p(4^m - 1) for odd prime p, m >= 1 */
+static uint64_t a2676_vnum(uint64_t p, uint64_t m)
+{
+    uint64_t t, pk, mm, v;
+    if (powmod_u64(4, m, p) != 1) return 0;
+    t = 1;
+    pk = p;
+    while (pk <= ((uint64_t)1 << 62) / p) {
+        uint64_t nx = pk * p;
+        if (powmod_u64(4, p - 1, nx) == 1) {
+            t++;
+            pk = nx;
+        } else {
+            break;
+        }
+    }
+    v = 0;
+    mm = m;
+    while (mm % p == 0) {
+        v++;
+        mm /= p;
+    }
+    return t + v;
+}
 
 seq_t a(idx_t n)
 {

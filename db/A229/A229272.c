@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 80, u32 n <= 300, u64 n <= 300, u128 n <= 300,
  *            big any n
- * Helpers:   factor_u64, isPrimeGeneric
+ * Validated: standard, pass, 58 terms through n = 295 (2026-11-03)
+ * Helpers:   factor_u64, is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,32 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
+#include <limits.h>
 #include "../utils/factor_u64.h"
-#include "../utils/isPrimeGeneric.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 static seq_t *seq_cache = NULL;   /* cached terms of the sequence   */
 static size_t seq_cap   = 0;      /* allocated capacity              */
@@ -83,7 +108,7 @@ seq_t a(idx_t n)
         /* Expand cache if needed. */
         if (seq_len >= seq_cap) {
             size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             if (!tmp)          /* allocation failure – terminate */
                 abort();
             seq_cache = tmp;

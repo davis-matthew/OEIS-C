@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has61_in_base8
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has61_in_base8.h"
+#include "../utils/mem.h"
+
+/* Return true iff the octal representation of x contains the substring 6,1. */
+static bool has61_in_base8(seq_t x)
+{
+    int prev = -1;                     /* previous least‑significant octal digit */
+    while (x != (seq_t)0) {
+        int d = (int)(x % (seq_t)8);    /* current least‑significant digit */
+        if (prev == 1 && d == 6) return true; /* 6 followed by 1 in normal order */
+        prev = d;
+        x = x / (seq_t)8;
+    }
+    return false;
+}
 
 /* Static cache of found terms. */
 static seq_t *cache     = NULL;   /* array of found terms */
@@ -34,7 +48,7 @@ static void ensure_cap(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < need) new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

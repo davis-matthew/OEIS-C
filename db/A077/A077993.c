@@ -8,13 +8,15 @@
  *            a(0)=1, a(1)=-2, a(2)=2
  * Range:     i8 n <= 11, i16 n <= 24, i32 n <= 50, i64 n <= 101,
  *            i128 n <= 203, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,10 +29,10 @@ seq_t a(idx_t n)
     if (cap < n + 1) {
         idx_t new_cap = n + 1;
         if (new_cap < 3) new_cap = 3;
-        seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (cache && computed > 0) {
-            memcpy(new_cache, cache, computed * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, computed * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cap   = new_cap;

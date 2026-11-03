@@ -8,12 +8,14 @@
  *            p(n,m) = number of partitions of n with all parts <= m
  * Range:     u8 n <= 25, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate array for dynamic programming */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp)
         return (seq_t)0;   /* out‑of‑memory guard */
 
@@ -58,6 +60,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

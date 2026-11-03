@@ -6,14 +6,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = n - 1 - pi(2*n-1) + pi(n)
- * Range:     u8 n <= 305, u16 n <= 9474, u32 n <= 9474, u64 n <= 9474,
- *            u128 n <= 9474, big any n
+ * Range:     u8 n <= 305, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 84 terms through n = 9474 (2026-11-01)
  * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)

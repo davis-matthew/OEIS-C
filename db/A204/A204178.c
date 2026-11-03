@@ -13,13 +13,15 @@
  *            The sequence is obtained by writing the coefficien...
  * Range:     i8 n <= 46, i16 n <= 60, i32 n <= 60, i64 n <= 60, i128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: s(r) = cumulative number of terms up to row r
  * s(r) = r*(r+3)/2  (integer arithmetic; use 128-bit to avoid overflow)
@@ -54,7 +56,7 @@ seq_t a(idx_t idx)
 
     /* Compute the binomial coefficients B_k = (-1)^k * C(r-2, k)   */
     idx_t m = r - 2;                    /* last index of B[]                 */
-    seq_t *B = (seq_t *)malloc((r - 1) * sizeof(seq_t));
+    seq_t *B = mem_new(seq_t, (r - 1));
     if (!B) return (seq_t)0;            /* safety fallback                 */
     B[0] = 1;
     for (idx_t k = 1; k <= m; ++k) {
@@ -73,6 +75,6 @@ seq_t a(idx_t idx)
     if (pos >= 2 && pos - 2 <= m)
         coeff += B[pos - 2];
 
-    free(B);
+    mem_free(B);
     return coeff;
 }

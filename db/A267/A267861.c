@@ -13,14 +13,24 @@
  *            and then enumerates all admissible (u,v,t)
  * Range:     u8 n <= 67, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   fourth_root
+ * Validated: standard, pass, 86 terms through n = 9115 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/fourth_root.h"
+
+/* ----- small integer fourth‑root (floor) ------------------------------- */
+static idx_t fourth_root(idx_t n)
+/* returns ⌊n^(1/4)⌋ for a non‑negative idx_t n */
+{
+    idx_t r = 0;
+    while ((idx_t )(r + 1) * (r + 1) * (r + 1) * (r + 1) <= n)
+        ++r;
+    return r;
+}
 
 /* ----- cache for sums of the form 2*w^4 + 3*x^4 + 4*y^4 + 6*z^4 -------- */
 static seq_t *cnt4 = NULL;      /* local cached counts */

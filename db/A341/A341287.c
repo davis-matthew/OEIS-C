@@ -12,7 +12,8 @@
  *            binomial(n-1,i)*T(n-1-i,k)
  * Range:     i8 n <= 28, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binomial, seq_alloc_new_array
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,15 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"      /* binomial(idx_t n, idx_t k) */
-#include "../utils/seq_alloc_new_array.h"  /* seq_alloc_new_array(size_t n) */
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 static seq_t **triangle = NULL;        /* triangular array: triangle[row][k] */
 static size_t max_row = (size_t)-1;    /* highest row computed */

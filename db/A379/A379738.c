@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 29, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   anagram_seq, is_prime
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,36 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/anagram_seq.h"
+#include "../utils/mem.h"
+
+/* ---------- helper: check whether two seq_t numbers are anagrams -------- */
+static bool anagram_seq(seq_t x, seq_t y)
+{
+    unsigned char cnt1[10] = {0};
+    unsigned char cnt2[10] = {0};
+    seq_t t;
+
+    t = x;
+    if (t == (seq_t)0) cnt1[0]++;     /* handle zero explicitly */
+    while (t != (seq_t)0) {
+        unsigned d = (unsigned)(t % (seq_t)10);
+        cnt1[d]++;
+        t /= (seq_t)10;
+    }
+
+    t = y;
+    if (t == (seq_t)0) cnt2[0]++;
+    while (t != (seq_t)0) {
+        unsigned d = (unsigned)(t % (seq_t)10);
+        cnt2[d]++;
+        t /= (seq_t)10;
+    }
+
+    for (int i = 0; i < 10; ++i) {
+        if (cnt1[i] != cnt2[i]) return false;
+    }
+    return true;
+}
 
 /* ---------- cache for the k values ----------------------------------- */
 static seq_t *k_cache = NULL;   /* array of results (k) */
@@ -35,7 +65,7 @@ static void grow_cache(size_t new_len)
     if (cache_cap < new_len) {
         size_t new_cap = (cache_cap ? cache_cap << 1 : 8);
         if (new_cap < new_len) new_cap = new_len;
-        seq_t *tmp = (seq_t *)realloc(k_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, k_cache, new_cap);
         k_cache = tmp;
         cache_cap = new_cap;
     }

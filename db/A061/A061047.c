@@ -8,12 +8,14 @@
  *            a(n) = (n^2 – 49) / gcd(n^2 – 49, 49·n^2)
  * Range:     u8 n <= 9, u16 n <= 36, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 64 terms through n = 993 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The build supplies seq_t, idx_t, and a compatible gcd function. */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

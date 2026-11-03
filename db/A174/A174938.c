@@ -9,7 +9,8 @@
  *            A007955(m) = product of the divisors of m
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   build_spf
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/build_spf.h"   /* provides build_spf() */
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Public sequence function declaration (kept external) */
@@ -53,15 +55,15 @@ static void ensure_b(idx_t n)
 
     /* Resize cache if necessary */
     if (b_cache == NULL) {
-        b_cache = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+        b_cache = mem_new(seq_t, (size_t)(n + 1));
         if (!b_cache) abort();          /* allocation failure */
         b_cap   = n + 1;
     } else if ((size_t)(n + 1) > b_cap) {
-        seq_t *tmp = (seq_t*)realloc(b_cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b_cache, (size_t)(n + 1));
         if (!tmp) abort();
         /* Zero‑initialize the newly added part */
         size_t added = (size_t)(n + 1) - b_cap;
-        memset(tmp + b_cap, 0, added * sizeof(seq_t));
+        mem_set(tmp + b_cap, 0, added * sizeof(seq_t));
         b_cache = tmp;
         b_cap   = (idx_t)(n + 1);
     }

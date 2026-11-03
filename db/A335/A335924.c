@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   hash_val
+ * Validated: standard, pass, 83 terms through n = 8937 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,20 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/hash_val.h"
+#include "../utils/mem.h"
+
+/* mix the bits of a seq_t value to produce a hash */
+static size_t hash_val(seq_t v)
+{
+    /* treat the value as unsigned 64‑bit, then mix */
+    uint64_t x = (uint64_t)v;
+    x ^= x >> 33;
+    x *= 0xff51afd7ed558ccdULL;
+    x ^= x >> 33;
+    x *= 0xc4ceb9fe1a85ec53ULL;
+    x ^= x >> 33;
+    return (size_t)x;
+}
 
 /* ---------- simple hash set for seq_t values ---------- */
 
@@ -42,7 +56,7 @@ static void hash_expand(void)
     /* power‑of‑two growth */
     while (new_cap < hash_capacity * 2) new_cap <<= 1;
 
-    seq_t *new_keys = (seq_t*)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_keys = mem_new(seq_t, new_cap);
     unsigned char *new_used = (unsigned char*)calloc(new_cap, 1);
     if (!new_keys || !new_used) abort();
 
@@ -59,7 +73,7 @@ static void hash_expand(void)
         }
     }
 
-    free(hash_keys);
+    mem_free(hash_keys);
     free(hash_used);
     hash_keys   = new_keys;
     hash_used   = new_used;
@@ -111,7 +125,7 @@ static void cache_extend(idx_t n)
     if (cache_cap < needed) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();              /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

@@ -8,12 +8,14 @@
  *            3*z - sqrt(1-6*z+5*z^2))/(2*z^2). A(4)=1, A(5)=12, etc
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* ---- compute M coefficients m[0..L] -------------------------------- */
     if (L >= m_len) {
         size_t new_len = (size_t)L + 1;
-        seq_t *tmp = (seq_t *)realloc(m, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, m, new_len);
         if (!tmp) abort();            /* out of memory */
         m = tmp;
         if (m_len == 0) {             /* initialise m[0] when starting */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* ---- compute convolution m2[k] = sum_{i=0}^{k} m[i]*m[k-i]  (0<=k<=L) */
     if (L >= m2_len) {
         size_t new_len = (size_t)L + 1;
-        seq_t *tmp = (seq_t *)realloc(m2, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, m2, new_len);
         if (!tmp) abort();
         m2 = tmp;
         for (idx_t k = m2_len; k <= L; ++k) {

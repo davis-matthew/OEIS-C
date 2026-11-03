@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 8416 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache for memoised values */
 static seq_t *cache = NULL;       /* 1‑based indexing, cache[0] unused   */
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n)
     while (new_cap < n + 1)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) {
         /* allocation failure – abort so caller sees failure */
         abort();
@@ -44,8 +46,8 @@ static void ensure_cache(idx_t n)
 
     /* copy old data if any */
     if (cache) {
-        memcpy(new_cache + 1, cache + 1, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache + 1, cache + 1, cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
 
     cache = new_cache;

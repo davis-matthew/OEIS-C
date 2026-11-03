@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 5040, u64 n <= 5040, u128 n <= 5040,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5040 terms through n = 5040 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort, works for builtin integers and for
    arbitrary‑precision integer types with operator< and operator>. */
@@ -39,7 +41,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         assert(tmp);
         *arr = tmp;
         *cap = new_cap;
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
         } while (next_permutation(perm, 9));
 
         /* sort determinants */
-        if (det_cnt > 1) qsort(det_arr, det_cnt, sizeof(seq_t), seq_t_cmp);
+        if (det_cnt > 1) mem_qsort(det_arr, det_cnt, sizeof(seq_t), seq_t_cmp);
 
         /* deduplicate */
         size_t uniq_cnt = 0;
@@ -113,11 +115,11 @@ seq_t a(idx_t n)
 
         /* shrink to exact size */
         if (uniq_cnt > 0) {
-            seq_t *tmp = (seq_t *)realloc(det_arr, uniq_cnt * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, det_arr, uniq_cnt);
             assert(tmp);
             det_arr = tmp;
         } else {
-            free(det_arr);
+            mem_free(det_arr);
             det_arr = NULL;
         }
 

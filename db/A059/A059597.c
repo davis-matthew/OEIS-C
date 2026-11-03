@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 6, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binomial, poly_even, poly_odd
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,9 +31,36 @@
  * avoid overflow on 64‑bit builds.
  */
 
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/poly_even.h"
-#include "../utils/poly_odd.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* Compute the even‑index polynomial in k. */
+static seq_t poly_even(idx_t k)
+{
+    seq_t kk = (seq_t)k;
+    seq_t kk2 = kk * kk;          /* k^2 */
+    seq_t kk3 = kk2 * kk;          /* k^3 */
+    seq_t kk4 = kk3 * kk;          /* k^4 */
+    return 8   * kk4
+         + 190 * kk3
+         + 1414 * kk2
+         + 3488 * kk
+         + 1785;
+}
+
+/* Compute the odd‑index polynomial in k. */
+static seq_t poly_odd(idx_t k)
+{
+    seq_t kk = (seq_t)k;
+    seq_t kk2 = kk * kk;          /* k^2 */
+    seq_t kk3 = kk2 * kk;          /* k^3 */
+    seq_t kk4 = kk3 * kk;          /* k^4 */
+    return 8   * kk4
+         + 258 * kk3
+         + 2842 * kk2
+         + 12192 * kk
+         + 16065;
+}
 
 /* Euclidean algorithm for seq_t values. */
 static seq_t seq_gcd(seq_t a, seq_t b)

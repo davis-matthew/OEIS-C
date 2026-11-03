@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 /* Standard headers for dynamic allocation */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for memoised values, 1‑based indexing */
 static seq_t *cache = NULL;   /* cache[1..N] holds computed values */
@@ -30,8 +32,8 @@ static void ensure_capacity(idx_t need)
 
     size_t newcap = (size_t)need + 1;           /* +1 for 1‑based indexing */
     seq_t *tmp = (cache == NULL)
-                ? (seq_t *)malloc(newcap * sizeof(seq_t))
-                : (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                ? mem_new(seq_t, newcap)
+                : mem_resize(seq_t, cache, newcap);
 
     if (tmp == NULL) abort();   /* unrecoverable */
 

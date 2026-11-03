@@ -10,16 +10,29 @@
  *            B(1)=-1/2. The function computes this numerator for any n ≥ 0
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 11, i64 n <= 23, i128 n <= 30,
  *            big any n
- * Helpers:   free_seq_array, gcd, pow2, seq_alloc_new_array
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   gcd, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
 #include "../utils/gcd.h"
 #include "../utils/pow2.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq_array.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *Ber_num = NULL;  /* numerator of B(n) */
 static seq_t *Ber_den = NULL;  /* denominator of B(n) */

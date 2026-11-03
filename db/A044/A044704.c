@@ -9,7 +9,8 @@
  *            substring “80” but whose successor n+1 does not
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has80
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has80.h"
+#include "../utils/mem.h"
+
+static bool has80(seq_t x) {
+    seq_t tmp = x;
+    int prev = -1;
+    while (tmp > 0) {
+        int digit = (int)(tmp % (seq_t)9);
+        if (prev == 0 && digit == 8) return true;
+        prev = digit;
+        tmp /= (seq_t)9;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -33,7 +46,7 @@ seq_t a(idx_t n) {
             if (cache_len == cache_cap) {
                 /* grow cache */
                 idx_t new_cap = cache_cap == 0 ? 64 : cache_cap * 2;
-                seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
                 if (!new_ptr) {
                     /* allocation failure – return 0 as a last resort */
                     return 0;

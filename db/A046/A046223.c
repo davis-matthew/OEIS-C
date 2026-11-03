@@ -9,13 +9,15 @@
  *            = 1, A046222(3) = 1, A046222(2m) = 1 for m ≥ 3, A046222(2m+1) =
  *            Catalan(m) * (5*m + 1) / 2 for m ≥ 1 where Catalan(m) =
  *            binomial(2m, m) / (m + 1)
- * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 71, u128 n <= 135,
+ * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 37, u64 n <= 71, u128 n <= 135,
  *            big any n
+ * Validated: standard, pass, 61 terms through n = 2840 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

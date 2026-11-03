@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 135 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const uint64_t POWERS[8] = {1ULL,2ULL,4ULL,8ULL,16ULL,32ULL,64ULL,128ULL};
 
@@ -74,12 +76,12 @@ static void init_cache()
     /* Allocate cache for first 14 terms (indices 0..13) */
     cache_cap  = 16;
     cache_size = 0;
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) return;   /* OOM – unlikely on contest platform */
 
     /* DP for partitions of numbers up to 8192 (2^13) */
     const size_t MAXVAL = 8192;        /* 2^13 */
-    seq_t *part = (seq_t *)calloc(MAXVAL + 1, sizeof(seq_t));
+    seq_t *part = mem_new(seq_t, MAXVAL + 1);
     if (!part) return;
     part[0] = 1;                     /* one way to make 0 */
     for (size_t i = 0; i < 8; ++i) {
@@ -92,7 +94,7 @@ static void init_cache()
     for (int n = 0; n <= 13; ++n) {
         cache[cache_size++] = part[1u << n];
     }
-    free(part);
+    mem_free(part);
 }
 
 /* ------------------------------------------------------------ */
@@ -106,7 +108,7 @@ static void ensure_cache(idx_t n)
         /* Grow array if necessary */
         if (cache_size == cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
             if (!new_ptr) return;   /* OOM – ignore */
             cache = new_ptr;
             cache_cap = new_cap;

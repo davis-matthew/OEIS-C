@@ -12,12 +12,14 @@
  *            a(1,0),a(1,1), …)
  * Range:     i8 n <= 50, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline idx_t
 row_of(idx_t n){
@@ -38,8 +40,8 @@ seq_t a(idx_t n){
     if (row == 1) return (offset == 0) ? (seq_t)1 : (seq_t)0; /* row 1 : [1,0] */
 
     /* Allocate storage for the first two rows */
-    seq_t *prev2 = (seq_t*)malloc(sizeof(seq_t) * (row - 1)); /* row 0 */
-    seq_t *prev1 = (seq_t*)malloc(sizeof(seq_t) * (row));     /* row 1 */
+    seq_t *prev2 = mem_new(seq_t, (row - 1)); /* row 0 */
+    seq_t *prev1 = mem_new(seq_t, (row));     /* row 1 */
     if (!prev2 || !prev1) return (seq_t)0; /* memory failure – unlikely in tests */
 
     /* initialize row 0 and row 1 */
@@ -48,8 +50,8 @@ seq_t a(idx_t n){
 
     /* Build rows up to the requested one */
     for (idx_t i = 2; i <= row; ++i){
-        seq_t *cur = (seq_t*)malloc(sizeof(seq_t) * (i + 1));
-        if (!cur) { free(prev2); free(prev1); return (seq_t)0; }
+        seq_t *cur = mem_new(seq_t, (i + 1));
+        if (!cur) { mem_free(prev2); mem_free(prev1); return (seq_t)0; }
 
         for (idx_t j = 0; j <= i; ++j){
             seq_t term1 = (j <= i-1) ? prev1[j] : 0;           /* from row i-1 */
@@ -58,13 +60,13 @@ seq_t a(idx_t n){
         }
 
         /* Shift rows for next iteration; free old data */
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;
         prev1 = cur;
     }
 
     seq_t result = prev1[offset];
-    free(prev1);
-    free(prev2);
+    mem_free(prev1);
+    mem_free(prev2);
     return result;
 }

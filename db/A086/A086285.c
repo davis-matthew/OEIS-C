@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul64
+ * Validated: standard, pass, 71 terms through n = 995 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 
@@ -28,8 +30,8 @@ static inline uint64_t powmod(uint64_t a, uint64_t e, uint64_t mod)
 {
     uint64_t r = 1;
     while (e) {
-        if (e & 1) r = mul64(r, a, mod);
-        a   = mul64(a, a, mod);
+        if (e & 1) r = mulmod(r, a, mod);
+        a   = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -62,7 +64,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     if (cache_len < (size_t)n) {
         if (cache_cap == 0) {
             cache_cap = 8;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
             if (!cache) return 0; /* allocation failure – fallback value */
         }
         while (cache_len < (size_t)n) {
@@ -98,9 +100,8 @@ seq_t a(idx_t n)
             if (is_prime_uint64(val)) {
                 if (cache_len == cache_cap) {
                     cache_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(cache,
-                                                  cache_cap * sizeof(seq_t));
-                    if (!tmp) { free(cache); return 0; }
+                    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
+                    if (!tmp) { mem_free(cache); return 0; }
                     cache = tmp;
                 }
                 cache[cache_len++] = (seq_t)k;

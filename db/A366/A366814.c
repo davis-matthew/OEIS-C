@@ -7,12 +7,21 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^(n/d-1) * binomial(d+3,4)
  * Range:     u8 n <= 2, u16 n <= 14, u32 n <= 405, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom_d_plus3_choose4
+ * Validated: standard, pass, 59 terms through n = 9752 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_d_plus3_choose4.h"
+static inline seq_t binom_d_plus3_choose4(idx_t d)
+{
+    seq_t x = (seq_t)d;
+    seq_t r = x * (x + 1);
+    r *= (x + 2);
+    r *= (x + 3);
+    r /= 24;                 /* (x+3 choose 4) = x*(x+1)*(x+2)*(x+3)/24 */
+    return r;
+}
 
 seq_t a(idx_t n)
 {

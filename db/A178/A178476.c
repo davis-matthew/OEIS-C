@@ -9,6 +9,7 @@
  *            digits 1..6
  * Range:     u8 none, u16 none, u32 n <= 720, u64 n <= 720, u128 n <= 720,
  *            big any n
+ * Validated: full, pass, 720 terms through n = 720 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (10*n+3)*(10*n+17)
  * Range:     u8 n <= 0, u16 n <= 24, u32 n <= 6552, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 9746 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,13 +10,15 @@
  *            a(2)=6, a(3)=18, a(4)=42, a(5)=108
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 24, u64 n <= 48, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 /* Static cache of already computed values, 1‑based storage at cache[n‑1] */
 static seq_t *cache       = NULL;
@@ -33,10 +35,10 @@ static void compute_to(idx_t n)
     size_t new_cap  = (target > 5 ? target : 5);/* at least five entries          */
 
     if (new_cap > cache_cap) {
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {
             /* Allocation failed – keep cache empty; caller will see 0. */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_len = 0;
             cache_cap = 0;

@@ -7,8 +7,9 @@
  * Formula:   sieve of P-positions of Fibonacci nim: x is a P-position iff no
  *            x - F(k) (F(k) >= 1, F(k) <= x) is a P-position; 0 is one. a(n)
  *            = n-th nonzero P-position
- * Range:     u8 n <= 45, u16 n <= 9525, u32 n <= 9525, u64 n <= 9525,
- *            u128 n <= 9525, big any n
+ * Range:     u8 n <= 45, u16 n <= 10759, u32 n <= 165109, u64 n <= 165109,
+ *            u128 n <= 165109, big any n
+ * Validated: standard, pass, 72 terms through n = 9525 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

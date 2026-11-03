@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 29, u64 n <= 59, u128 n <= 117,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 51 terms through n = 967 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
  */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 static void ensure_G_upto(idx_t upto, seq_t *G, bool *computed)
 {
@@ -32,7 +35,7 @@ static void ensure_G_upto(idx_t upto, seq_t *G, bool *computed)
         {
             /* exp = 2^i – 1 */
             idx_t exp = (((idx_t)1) << i) - 1;
-            seq_t two = seq_pow((seq_t)2, exp);
+            seq_t two = ipow_idx((seq_t)2, exp);
             G[i] = G[i - 1] * G[i - 1] + two;
             computed[i] = true;
         }

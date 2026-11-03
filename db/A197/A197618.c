@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 44, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Parameters of the problem */
 #define NROWS        125          /* 5^3 possible rows */
@@ -126,8 +128,8 @@ static void _build_tables(void)
     free(pos);
 
     /* Allocate DP tables. */
-    _dp       = (seq_t *)calloc(MAXSTATES, sizeof(seq_t));
-    _dp_next  = (seq_t *)calloc(MAXSTATES, sizeof(seq_t));
+    _dp       = mem_new(seq_t, MAXSTATES);
+    _dp_next  = mem_new(seq_t, MAXSTATES);
 
     _initialized = true;
 }

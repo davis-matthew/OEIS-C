@@ -8,14 +8,16 @@
  *            (3k+1) where binomial(n,k) is the usual binomial coefficient
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The helper function binom is provided by "../utils/binom.h". */
 #include <stddef.h>
-#include "../utils/binom.h"   /* defines static seq_t binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= maxk; ++k) {
         idx_t m = n - 3 * k;          /* second binomial's k argument */
-        seq_t c1 = binom(3 * k, m);   /* binomial(3k, n-3k) */
-        seq_t c2 = binom(4 * k, k);   /* binomial(4k, k)   */
+        seq_t c1 = binomial(3 * k, m);   /* binomial(3k, n-3k) */
+        seq_t c2 = binomial(4 * k, k);   /* binomial(4k, k)   */
         seq_t prod = c1 * c2;         /* product of binomials */
         seq_t denom = (seq_t)(3 * k + 1); /* divisor (3k+1) */
         seq_t term = prod / denom;    /* exact division          */

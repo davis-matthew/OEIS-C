@@ -8,12 +8,14 @@
  *            point (OEIS A136274)
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 103, u64 n <= 103, u128 n <= 103,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 104 terms through n = 103 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Allocate initial storage if necessary */
     if (digits == NULL) {
         capacity = 128;
-        digits = (seq_t *)malloc(capacity * sizeof(seq_t));
+        digits = mem_new(seq_t, capacity);
         length = 0;
     }
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         /* Grow the array if needed */
         if (length >= capacity) {
             capacity *= 2;
-            digits = (seq_t *)realloc(digits, capacity * sizeof(seq_t));
+            digits = mem_resize(seq_t, digits, capacity);
         }
 
         digits[length++] = digit;

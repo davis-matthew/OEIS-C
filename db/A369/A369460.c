@@ -7,91 +7,58 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of representations of 12*n-9 as p*q + p*r + q*r
  *            with odd primes p ≤ q ≤ r
- * Range:     u8 n <= 9297, u16 n <= 9297, u32 n <= 9297, u64 n <= 9297,
- *            u128 n <= 9297, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9297 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+/* A369460: the number of ways to write 12n - 9 as pq + pr + qr with odd primes
+ * p <= q <= r. For each p <= q, r = (12n - 9 - pq)/(p + q) must be an integer
+ * prime >= q. The prime table covers 12n and grows with n (the original's
+ * stopped at 20000, below the r needed from n = 10000 on). */
+
 #include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
-#define SIEVE_MAX 20000            /* sufficient for n ≤ 10000 */
+static unsigned char *isp = NULL;
+static uint64_t lim = 0;
 
-/* static state for sieve */
-static bool sieve_initialized = false;
-static bool is_prime[SIEVE_MAX + 1];
-static uint32_t primes[3000];
-static size_t primes_cnt = 0;
-
-/* build smallest prime sieve once */
-static void init_sieve(void)
+static void build(uint64_t L)
 {
-    if (sieve_initialized) return;
-    sieve_initialized = true;
-
-    for (size_t i = 0; i <= SIEVE_MAX; ++i) is_prime[i] = true;
-    is_prime[0] = is_prime[1] = false;
-
-    /* even numbers >2 are composite */
-    for (size_t i = 4; i <= SIEVE_MAX; i += 2) is_prime[i] = false;
-
-    /* odd primes */
-    for (size_t i = 3; i * i <= SIEVE_MAX; i += 2) {
-        if (is_prime[i]) {
-            for (size_t j = i * i; j <= SIEVE_MAX; j += 2 * i)
-                is_prime[j] = false;
-        }
-    }
-
-    /* store prime list (all primes up to SIEVE_MAX) */
-    for (size_t i = 2; i <= SIEVE_MAX; ++i) {
-        if (is_prime[i]) primes[primes_cnt++] = (uint32_t)i;
-    }
+    free(isp);
+    isp = (unsigned char *)malloc((size_t)L + 1);
+    if (!isp) abort();
+    memset(isp, 1, (size_t)L + 1);
+    isp[0] = isp[1] = 0;
+    for (uint64_t i = 2; i * i <= L; ++i)
+        if (isp[i])
+            for (uint64_t j = i * i; j <= L; j += i) isp[j] = 0;
+    lim = L;
 }
 
 seq_t a(idx_t n)
 {
-    init_sieve();
-
-    /*
-     * target = 12*n - 9
-     * (use idx_t for the arithmetic; it is the same type as the input)
-     */
-    idx_t target = 12 * n - 9;
-    seq_t count = 0;
-
-    /* iterate over odd primes p */
-    for (size_t ip = 0; ip < primes_cnt; ++ip) {
-        uint32_t p = primes[ip];
-        if ((p & 1U) == 0) continue;           /* skip 2 */
-        if ((uint64_t)p * p > target) break;    /* p ≤ sqrt(target) */
-
-        /* iterate over odd primes q ≥ p */
-        for (size_t iq = ip; iq < primes_cnt; ++iq) {
-            uint32_t q = primes[iq];
-            if ((q & 1U) == 0) continue;         /* skip 2 */
-
-            uint64_t pq = (uint64_t)p * q;
-            if (pq > target) break;               /* further q are larger */
-
-            uint64_t rem = (uint64_t)target - pq;
-            if (rem == 0) continue;               /* r would be 0 */
-
-            uint64_t denom = (uint64_t)p + q;
-            if (rem % denom) continue;           /* r not integral */
-
-            uint64_t r = rem / denom;
-            if (r < q) continue;                 /* enforce p ≤ q ≤ r */
-
-            if (r > SIEVE_MAX) continue;         /* r out of sieve range */
-
-            if (is_prime[(size_t)r] && (r & 1U))
-                ++count;
+    if (n < 1) return (seq_t)0;
+    const uint64_t T = 12 * (uint64_t)n - 9;
+    if (T > lim) {
+        uint64_t L = lim ? 2 * lim : 1 << 16;
+        while (L < T) L *= 2;
+        build(L);
+    }
+    uint64_t count = 0;
+    for (uint64_t p = 3; p * p <= T; p += 2) {
+        if (!isp[p]) continue;
+        for (uint64_t q = p; p * q < T; q += 2) {
+            if (!isp[q]) continue;
+            uint64_t rem = T - p * q;
+            if (rem % (p + q)) continue;
+            uint64_t r = rem / (p + q);
+            if (r >= q && (r & 1) && isp[r]) ++count;
         }
     }
-
-    return count;
+    return (seq_t)count;
 }

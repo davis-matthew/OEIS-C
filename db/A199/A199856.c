@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 44, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
     of the triangle. */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Compute 2^exp as seq_t.  exp will not exceed the bit width of seq_t
    for the test cases. */
@@ -58,7 +60,7 @@ static void ensure_rows(idx_t r_need)
     /* Construct new rows. */
     for (idx_t n = rows_used; n <= r_need; ++n) {
         size_t len = (size_t)(n + 1);
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
 
         if (n == 0) {
             /* T(0,0) */

@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(0) = 0; for n > 0, a(4*n) = 4*a(n); otherwise a(n) is the
  *            integer obtained by reversing the base‑4 representation of n
- * Range:     u8 n <= 255, u16 n <= 8769, u32 n <= 8769, u64 n <= 8769,
- *            u128 n <= 8769, big any n
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 98 terms through n = 8769 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

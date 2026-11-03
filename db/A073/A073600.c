@@ -8,14 +8,20 @@
  *            n^k equals the leading decimal digit of n
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 30,
  *            big any n
- * Helpers:   leading_digit
+ * Validated: standard, pass, 37 terms through n = 5572 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdint.h>
-#include "../utils/leading_digit.h"
+
+/* Return the most significant decimal digit of a positive integer x. */
+static uint64_t leading_digit(uint64_t x) {
+    while (x >= 10u) x /= 10u;
+    return x;
+}
 
 seq_t a(idx_t n) {
     if (n == 1u) return (seq_t)1;   /* special case – 1^k is always 1 */

@@ -6,15 +6,17 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = the nth positive integer that is divisible by the product
  *            of its non‑zero decimal digits
- * Range:     u8 n <= 49, u16 n <= 1073, u32 n <= 8220, u64 n <= 8220,
- *            u128 n <= 8220, big any n
- * Helpers:   none
+ * Range:     u8 n <= 49, u16 n <= 1073, u32 n <= 11442, u64 n <= 11442,
+ *            u128 n <= 11442, big any n
+ * Validated: standard, pass, 75 terms through n = 8220 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* public function: the nth term of A055471 */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* ensure we have a storage area */
     if (cache == NULL) {
         cap = 128;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) exit(EXIT_FAILURE);
     }
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             /* resize if needed */
             if (sz == cap) {
                 size_t new_cap = cap * 2;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (new_cache == NULL) exit(EXIT_FAILURE);
                 cache = new_cache;
                 cap   = new_cap;

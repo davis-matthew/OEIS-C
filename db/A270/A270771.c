@@ -10,7 +10,8 @@
  *            of size m). * a(8) is the first term of the sequence
  * Range:     u8 none, u16 n <= 10, u32 n <= 15, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 531 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *bell = NULL;   /* bell[0..]  */
 static size_t bell_len = 0;  /* largest index computed (inclusive) */
@@ -32,7 +34,7 @@ static void ensure_bell(size_t max)
     if (bell_cap < max + 1) {
         size_t new_cap = bell_cap ? bell_cap : 1;
         while (new_cap <= max) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(bell, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, bell, new_cap);
         if (!tmp) exit(1);                 /* out of memory */
         bell = tmp;
         bell_cap = new_cap;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
     /* initialise / grow storage as needed */
     if (!bell) {
-        bell = (seq_t *)malloc(sizeof(seq_t));
+        bell = mem_new(seq_t, 1);
         if (!bell) exit(1);
         bell_cap = 1;
         bell[0] = (seq_t)1;

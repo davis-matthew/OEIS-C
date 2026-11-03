@@ -9,12 +9,14 @@
  *            factorial x·(x−1)…(x−k+1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 379 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise cache with a(0) = 1 */
     if (cache == NULL) {
         cache_size = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)1;
     }
 
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* extend cache up to n */
     idx_t new_cap = n + 1;
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
 
     for (idx_t i = cache_size; i <= n; ++i) {
         /* compute a(i) using recurrence from a(i-1) down to a(0) */

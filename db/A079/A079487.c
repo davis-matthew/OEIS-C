@@ -12,6 +12,7 @@
  *            row‑by‑row: a(0)=p(0,0), a(1)=p(1,0), a(2)=p(1,1), …
  * Range:     u8 n <= 141, u16 n <= 416, u32 n <= 1350, u64 n <= 4896,
  *            u128 n <= 9869, big any n
+ * Validated: standard, pass, 95 terms through n = 8708 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

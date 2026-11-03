@@ -11,13 +11,15 @@
  *            sizes k,…,k+9. * The result is accumulated into...
  * Range:     u8 n <= 26, u16 n <= 60, u32 n <= 241, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed values. */
 static seq_t *cache = NULL;
@@ -33,13 +35,13 @@ static void compute_upto(idx_t N)
 
     /* Resize DP array if necessary. */
     if (dp_size < N + 1) {
-        free(dp);
-        dp = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+        mem_free(dp);
+        dp = mem_new(seq_t, (N + 1));
         dp_size = N + 1;
     }
 
     /* Allocate new cache and copy old values. */
-    seq_t *new_cache = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (N + 1));
     if (cache) {
         idx_t copy_len = cache_len < (N + 1) ? cache_len : N + 1;
         for (idx_t i = 0; i < copy_len; ++i) new_cache[i] = cache[i];
@@ -73,7 +75,7 @@ static void compute_upto(idx_t N)
     }
 
     /* Replace old cache. */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = N + 1;
 }

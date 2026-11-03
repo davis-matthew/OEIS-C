@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n / gcd(n, A002034(n))
- * Range:     u8 n <= 766, u16 n <= 9971, u32 n <= 9971, u64 n <= 9971,
- *            u128 n <= 9971, big any n
+ * Range:     u8 n <= 766, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9971 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,10 @@
 /* A002034(n) is the least k such that n | k! */
 
 #include <stdint.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 static seq_t min_k_for_prime_power(seq_t p, seq_t e)
 {

@@ -12,17 +12,25 @@
  *            row
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 18, u64 n <= 26, u128 n <= 35,
  *            big any n
- * Helpers:   _floor_isqrt_u64, seq_mul, seq_pow, sieve_first_n_primes
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   ipow_idx, isqrt, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/isqrt.h"
 #include "../utils/sieve_first_n_primes.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     /* ----- Prime table -------------------------------------------------- */
@@ -42,7 +50,7 @@ seq_t a(idx_t n) {
 
     /* ----- Row and column indices ------------------------------------- */
     idx_t t = n * 8 + 1;                    /* 8*n + 1  (no overflow for n <= 2^61) */
-    idx_t r = (_floor_isqrt_u64(t) - 1) / 2;
+    idx_t r = (isqrt(t) - 1) / 2;
     idx_t start = r * (r + 1) / 2;
     idx_t c = n - start;                    /* column index (0 <= c <= r) */
 
@@ -54,9 +62,9 @@ seq_t a(idx_t n) {
     seq_t p_r1  = (seq_t)primes[r];      /* prime(r+1) */
 
     /* ----- Compute the two powers ------------------------------------- */
-    seq_t part1 = seq_pow(p_r1, c);            /* prime(r+1)^c            */
+    seq_t part1 = ipow_idx(p_r1, c);            /* prime(r+1)^c            */
     idx_t exp2  = (c * (c - 1)) / 2;           /* exponent for prime(r)   */
-    seq_t part2 = seq_pow(p_r, exp2);
+    seq_t part2 = ipow_idx(p_r, exp2);
 
     /* ----- Multiply the two parts ------------------------------------- */
     return seq_mul(part1, part2);

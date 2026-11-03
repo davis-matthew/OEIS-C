@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/binom.h"       /* provides seq_t binom(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* integer square root of an unsigned 64‑bit integer (floor) */
 static idx_t isqrt_u64(idx_t x)
@@ -76,7 +78,7 @@ static void grow_cache(size_t need)
     size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
     while (new_cap < cache_size + need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();           /* out of memory – hard fail */
     cache = tmp;
@@ -87,7 +89,7 @@ static void grow_cache(size_t need)
 static void init_static(void)
 {
     /* row 0: T(0,0)=1 */
-    prev = (seq_t *)malloc(sizeof(seq_t));
+    prev = mem_new(seq_t, 1);
     if (!prev)
         abort();
     prev[0] = 1;
@@ -115,7 +117,7 @@ static void compute_up_to(uint64_t need_row)
     while (max_row < need_row) {
         uint64_t n = max_row + 1;          /* compute row n */
 
-        seq_t *new_row = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, (n + 1));
         if (!new_row)
             abort();
 
@@ -139,7 +141,7 @@ static void compute_up_to(uint64_t need_row)
                 new_row[k] = numerator / denominator;
             }
             /* last element T(n,n) = binom(2*n,n) */
-            new_row[n] = binom((idx_t)(2 * n), (idx_t)n);
+            new_row[n] = binomial((idx_t)(2 * n), (idx_t)n);
         }
 
         /* append the new row to the cache */
@@ -149,7 +151,7 @@ static void compute_up_to(uint64_t need_row)
 
         /* shift row pointers: prevprev ← prev, prev ← new_row */
         if (prevprev)
-            free(prevprev);
+            mem_free(prevprev);
         prevprev      = prev;
         prevprev_len  = prev_len;
         prev          = new_row;

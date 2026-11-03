@@ -10,14 +10,29 @@
  *            generating letter bit masks for the words and intersecting them
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   mask_from_str
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mask_from_str.h"
+
+/* Helper to build a bit mask from a string of letters */
+static uint32_t
+mask_from_str(const char *s)
+{
+    uint32_t m = 0;
+    for (const char *p = s; *p; ++p) {
+        char c = *p;
+        if (c >= 'A' && c <= 'Z')
+            c = c - 'A' + 'a';
+        if (c >= 'a' && c <= 'z')
+            m |= 1U << (c - 'a');
+    }
+    return m;
+}
 
 /* Forward declarations */
 static uint32_t mask_of(uint64_t n);

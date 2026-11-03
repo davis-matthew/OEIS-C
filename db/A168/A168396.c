@@ -10,7 +10,8 @@
  *            T(n-k,x) otherwise
  * Range:     u8 n <= 78, u16 n <= 253, u32 n <= 903, u64 n <= 3403,
  *            u128 n <= 7260, big any n
- * Helpers:   seq_alloc
+ * Validated: standard, pass, 107 terms through n = 7006 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_alloc.h"   /* for seq_alloc */
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t **tri = NULL;      /* pointer to rows, 1‑based */
 static idx_t tri_rows = 0;      /* highest row computed */

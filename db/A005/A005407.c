@@ -10,12 +10,14 @@
  *            Product_{i=1..6} (1-x-x^i+x^(1+2*i))
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 40, u64 n <= 86, u128 n <= 178,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define DDEG 48
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     if (!d_ready) build_d();
     if (n >= g_len) {
         newlen = n + 1;
-        seq_t *ng = (seq_t *)malloc(sizeof(seq_t) * newlen);
+        seq_t *ng = mem_new(seq_t, newlen);
         for (k = 0; k < g_len; k++) ng[k] = G[k];
         for (k = g_len; k < newlen; k++) {
             seq_t pos = 0, neg = 0;
@@ -65,7 +67,7 @@ seq_t a(idx_t n) {
             }
             ng[k] = pos - neg;
         }
-        if (G) free(G);
+        if (G) mem_free(G);
         G = ng;
         g_len = newlen;
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 44, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,13 +30,14 @@
     unsigned seq_t and idx_t. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate two working arrays of size n+3 (enough for all indices) */
     size_t size = (size_t)(n + 3);
-    seq_t *cur  = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, size);
+    seq_t *next = mem_new(seq_t, size);
     if (!cur || !next) {          /* allocation failure (unlikely) */
         return (seq_t)0;
     }
@@ -58,15 +60,14 @@ seq_t a(idx_t n)
         /* zero out any unused entries of cur beyond step+1
            to keep the forthcoming accesses correct     */
         if (step + 2 < size) {
-            memset(cur + (step + 2), 0,
-                   (size - (step + 2)) * sizeof(seq_t));
+            mem_set(cur + (step + 2), 0, (size - (step + 2)) * sizeof(seq_t));
         }
         /* next array will be overwritten in the next iteration */
     }
 
     seq_t result = cur[0];        /* a(n) is the first component */
     /* free temporary storage */
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

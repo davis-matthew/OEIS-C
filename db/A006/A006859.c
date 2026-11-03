@@ -7,13 +7,14 @@
  * Formula:   a(n) = (n+1)*(n+2)^2*(n+3)^2*(n+4)*(2*n+3)*(2*n+5)*(2*n+7)/15120
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 24, u64 n <= 317,
  *            u128 n <= 10000, big any n
- * Helpers:   a006859_gcd
+ * Validated: standard, pass, 44 terms through n = 9820 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a006859_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t f[9];
@@ -33,7 +34,7 @@ seq_t a(idx_t n) {
 
     /* cancel the denominator exactly against the factors first */
     for (i = 0; i < 9; i++) {
-        uint64_t g = a006859_gcd(f[i], divisor);
+        uint64_t g = gcd_u64(f[i], divisor);
         f[i] /= g;
         divisor /= g;
     }

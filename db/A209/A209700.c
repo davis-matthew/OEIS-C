@@ -13,12 +13,14 @@
  *            Th...
  * Range:     u8 n <= 41, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, free, exit */
+#include "../utils/mem.h"
 
 static idx_t max_row_needed = 0;
 static seq_t **v_rows = NULL;  /* v_rows[k][j]  coefficient of x^j in v(k,x) */
@@ -41,8 +43,8 @@ ensure_rows(idx_t target)
     for (idx_t k = max_row_needed + 1; k <= target; ++k)
     {
         /* Each row has exactly k coefficients for v(k,x) (degree k-1). */
-        v_rows[k] = (seq_t*)malloc(sizeof(seq_t) * k);
-        u_rows[k] = (seq_t*)malloc(sizeof(seq_t) * k);
+        v_rows[k] = mem_new(seq_t, k);
+        u_rows[k] = mem_new(seq_t, k);
         if (!v_rows[k] || !u_rows[k]) { exit(EXIT_FAILURE); }
 
         if (k == 1)

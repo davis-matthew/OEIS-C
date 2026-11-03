@@ -8,9 +8,10 @@
  * Keywords:  nonn, tabl, easy
  * Formula:   a(n) = T(i,j) read by antidiagonals, where T(i,j) = i*j +
  *            ceil(phi*i)*ceil(phi*j), phi = (1+sqrt(5))/2, i,j ≥ 1
- * Range:     u8 n <= 126, u16 n <= 9791, u32 n <= 9791, u64 n <= 9791,
- *            u128 n <= 9791, big any n
- * Helpers:   diag_idx
+ * Range:     u8 n <= 126, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 83 terms through n = 9791 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 /* Helpers needed for integer square root */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/diag_idx.h"
+
+/* Find diagonal index d such that d*(d+1)/2 ≥ n. */
+static idx_t diag_idx(idx_t n)
+{
+    idx_t d = 1;
+    while ((unsigned __int128)d * (d + 1) / 2 < (unsigned __int128)n)
+        ++d;
+    return d;
+}
 
 /* 128‑bit integer sqrt (floor) using binary search. */
 static unsigned __int128 isqrt128(unsigned __int128 x)

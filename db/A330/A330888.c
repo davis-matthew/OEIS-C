@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 33, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;      /* memoisation buffer */
 static size_t cache_len   = 0;       /* number of elements stored */
@@ -42,7 +44,7 @@ ensure_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) {
         /* unrecoverable allocation failure – terminate */
         abort();

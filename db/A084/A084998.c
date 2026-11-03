@@ -10,7 +10,8 @@
  *            rev(n) padded with leading zeros; 0 if no such palindrome exists
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 505, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digits, rev, seq_from_str
+ * Validated: standard, pass, 55 terms through n = 966 (2026-11-01)
+ * Helpers:   num_digits_idx, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,20 +23,29 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../utils/seq_from_str.h"
-#include "../utils/rev.h"
-#include "../utils/digits.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/reverse_digits_idx.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 seq_t a(idx_t n)
 {
     /* Compute reverse and sum */
-    idx_t rev_n = rev(n);
+    idx_t rev_n = reverse_digits_idx(n);
     idx_t sum   = n + rev_n;
 
     /* Lengths of components */
-    int len_n   = digits(n);
-    int len_sum = digits(sum);
-    int len_rev = digits(rev_n);
+    int len_n   = num_digits_idx(n);
+    int len_sum = num_digits_idx(sum);
+    int len_rev = num_digits_idx(rev_n);
 
     /* Buffer to hold concatenated string */
     size_t buf_len = (size_t)len_n + (size_t)len_sum + (size_t)len_n + 1;

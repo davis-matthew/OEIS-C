@@ -8,14 +8,15 @@
  *            ⌈(√(8n+1)-1)/2⌉ (smallest r with r(r+1)/2 ≥ n)
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   phi
+ * Validated: partial, pass, 103 terms through n = 103 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Implementation for OEIS A141294 */
 #include <stdint.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -39,11 +40,11 @@ seq_t a(idx_t n)
 
         /* Add φ(r/d1) if d1 ≥ k */
         if (d1 >= k)
-            total += phi(r / d1);   /* r/d1 == d2 */
+            total += totient(r / d1);   /* r/d1 == d2 */
 
         /* Add φ(r/d2) if the pair is distinct and d2 ≥ k */
         if (d2 != d1 && d2 >= k)
-            total += phi(r / d2);   /* r/d2 == d1 */
+            total += totient(r / d2);   /* r/d2 == d1 */
     }
 
     return total;

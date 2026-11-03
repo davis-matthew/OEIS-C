@@ -8,6 +8,7 @@
  * Formula:   a(n) = n*(n+1)*(n^4 + 2*n^3 + 11*n^2 + 10*n + 12)/36
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 71, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 49 terms through n = 948 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

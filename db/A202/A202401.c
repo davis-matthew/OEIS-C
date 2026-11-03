@@ -10,7 +10,8 @@
  *            programming over rows, using only addition
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -100,8 +102,8 @@ seq_t a(idx_t n)
 
     /* 3. Dynamic programming over the rows.
        dp_cur holds counts for the current last‑two rows. */
-    seq_t *dp_cur  = (seq_t*)calloc(total_states, sizeof(seq_t));
-    seq_t *dp_next = (seq_t*)calloc(total_states, sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, total_states);
+    seq_t *dp_next = mem_new(seq_t, total_states);
 
     /* Initialize with all pairs of allowed rows. */
     for (int a = 0; a < R; ++a)
@@ -135,8 +137,8 @@ seq_t a(idx_t n)
     for (int s = 0; s < total_states; ++s) total += dp_cur[s];
 
     /* 5. Clean up */
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     for (int s = 0; s < total_states; ++s) {
         free(trans[s]);
     }

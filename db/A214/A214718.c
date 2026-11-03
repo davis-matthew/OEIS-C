@@ -7,13 +7,32 @@
  * Formula:   a(n) = minimal m>0 such that gcd(5^n - m, n - m) = 1
  * Range:     u8 n <= 266, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 103 terms through n = 986 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* modular exponentiation using 128‑bit intermediate.
+   Works for any seq_t. */
+static seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod)
+{
+    seq_t res = 1 % mod;
+    base   %= mod;
+    while (exp) {
+        if (exp & 1)
+            res = (unsigned __int128)res * base % mod;
+        exp >>= 1;
+        if (exp)
+            base = (unsigned __int128)base * base % mod;
+    }
+    return res;
+}
 
 /* Euclidean algorithm for seq_t (works for any seq_t supporting %). */
 static seq_t my_gcd(seq_t a, seq_t b)

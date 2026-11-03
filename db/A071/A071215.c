@@ -8,7 +8,8 @@
  *            factors of the sum of the n‑th and (n+1)‑st primes
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, count_distinct_primes
+ * Validated: standard, pass, 121 terms through n = 998 (2026-11-01)
+ * Helpers:   build_primes_upto, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,19 @@
 
 #include <stddef.h>                     /* size_t */
 #include <stdlib.h>                     /* free */
-#include "../utils/_prime_limit_for_idx.h"
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* static cache of primes */
 static uint64_t *prime_list   = NULL;   /* array of primes (uint64_t) */
@@ -61,5 +72,5 @@ seq_t a(idx_t n)
     uint64_t p2 = prime_list[(size_t)n];
     uint64_t sum = p1 + p2;
 
-    return count_distinct_primes(sum);
+    return omega(sum);
 }

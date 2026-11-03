@@ -9,13 +9,27 @@
  *            (Lunnon's generalized Conway-Guy recurrence, shifted)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   grow_zero
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/grow_zero.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static const int init_vals[10] = {0, 8, 10, 11, 12, 16, 32, 54, 97, 183};
 

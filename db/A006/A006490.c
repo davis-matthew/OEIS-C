@@ -8,15 +8,16 @@
  * Formula:   a(n) = n*Fibonacci(n-2) for n > 2; a(1) = 1, a(2) = 0
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 41, u64 n <= 86, u128 n <= 177,
  *            big any n
- * Helpers:   compute_fibonacci
+ * Validated: standard, pass, 54 terms through n = 942 (2026-11-01)
+ * Helpers:   fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_fibonacci.h"
+#include "../utils/fibonacci.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;
     if (n == 2) return 0;
-    return (seq_t)n * compute_fibonacci(n - 2);
+    return (seq_t)n * fibonacci(n - 2);
 }

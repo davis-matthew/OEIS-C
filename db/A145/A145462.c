@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 83, i16 n <= 83, i32 n <= 83, i64 n <= 83, i128 n <= 83,
  *            big any n
- * Helpers:   ensure_pad_up_to
+ * Validated: partial, pass, 78 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,37 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/ensure_pad_up_to.h"
+#include "../utils/mem.h"
+
+/* The iterator for the Padovan numbers starts at 1,1,2. */
+static seq_t *
+ensure_pad_up_to(idx_t need)
+{
+    static seq_t *pad = NULL;
+    static idx_t pad_len = 0;  /* number of values stored (0 means none) */
+
+    if (pad_len == 0) {
+        /* allocate space for at least 3 entries; index 0 unused */
+        pad = mem_new(seq_t, (size_t)(4u));
+        if (!pad) return NULL;
+        pad_len = 3u;
+        pad[1] = (seq_t)1;
+        pad[2] = (seq_t)1;
+        pad[3] = (seq_t)2;
+    }
+    if (need > pad_len) {
+        size_t new_cap = (size_t)(need + 1u);
+        seq_t *tmp = mem_resize(seq_t, pad, new_cap);
+        if (!tmp) return NULL;
+        pad = tmp;
+        for (idx_t i = pad_len + 1u; i <= need; ++i) {
+            /* Pad(k) = Pad(k-2)+Pad(k-3) for k>=4 */
+            pad[i] = pad[i - 2] + pad[i - 3];
+        }
+        pad_len = need;
+    }
+    return pad;
+}
 
 /* coefficient C[t]  where t = r-k+1 >=1 */
 static int

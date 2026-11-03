@@ -8,7 +8,8 @@
  * Formula:   a(n) = n - Σ_{p≤√n}(p-1) - Σ_{√n<p≤n} ⌊n/p⌋ (p prime)
  * Range:     u8 n <= 890, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isqrt_ull
+ * Validated: standard, pass, 94 terms through n = 939 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/isqrt_ull.h"
+#include "../utils/isqrt_u64.h"
 
 /* a(n) -- number of integers k ≤ n with all prime divisors ≤ √k */
 seq_t a(idx_t n)
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
         }
     }
 
-    uint64_t sqrt_n = isqrt_ull(N);
+    uint64_t sqrt_n = isqrt_u64(N);
     seq_t result = (seq_t)N;
 
     /* subtract (p-1) for primes ≤ √n */

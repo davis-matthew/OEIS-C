@@ -9,6 +9,7 @@
  *            (binom(n/2-1,3) - 8*binom(floor(n/4),2)) : 0) )
  * Range:     u8 none, u16 n <= 16, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
+ * Validated: partial, pass, 32 terms through n = 42 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

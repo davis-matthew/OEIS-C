@@ -9,13 +9,43 @@
  *            exactly two 1's and one 3
  * Range:     u8 n <= 21, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   search_len
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/search_len.h"
+
+/* depth‑first search that yields the k‑th number of length L (k is passed as *remaining) */
+static int search_len(idx_t L, idx_t pos, int rem1, int rem3,
+                      seq_t current, idx_t *remaining, seq_t *out)
+{
+    if (pos == L) {
+        if (rem1 == 0 && rem3 == 0) {
+            if (--(*remaining) == 0) {
+                *out = current;
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    int lo = (pos == 0) ? 1 : 0;          /* most significant digit cannot be 0 */
+    for (int d = lo; d <= 4; ++d) {
+        if (rem1 == 0 && d == 1) continue;
+        if (rem3 == 0 && d == 3) continue;
+        int nrem1 = rem1 - (d == 1);
+        int nrem3 = rem3 - (d == 3);
+        int rem_pos = (int)(L - pos - 1);
+        if (nrem1 > rem_pos || nrem3 > rem_pos) continue;
+        if (nrem1 + nrem3 > rem_pos) continue;
+        seq_t next = current * (seq_t)5 + (seq_t)d;
+        if (search_len(L, pos + 1, nrem1, nrem3, next, remaining, out))
+            return 1;
+    }
+    return 0;
+}
 
 /* integer power for 64‑bit results – sufficient for the tiny exponents needed */
 static uint64_t pow_uint64(uint64_t base, unsigned exp)

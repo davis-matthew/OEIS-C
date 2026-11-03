@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 3270, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, gcd
+ * Validated: standard, pass, 82 terms through n = 9868 (2026-11-03)
+ * Helpers:   gcd, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* Cache of found terms */
 static seq_t *cached_terms = NULL;
@@ -38,7 +41,7 @@ static void append_term(idx_t k)
     if (cached_len == cached_cap) {
         size_t new_cap = (cached_cap == 0) ? 64 : cached_cap * 2;
         /* cast required for C++ compatibility */
-        seq_t *tmp = (seq_t *)realloc(cached_terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cached_terms, new_cap);
         if (!tmp) abort();
         cached_terms = tmp;
         cached_cap   = new_cap;
@@ -53,7 +56,7 @@ seq_t a(idx_t n)
 
     while (cached_len < (size_t)n) {
         ++processed_k;
-        uint64_t d_k  = divisor_count_u64((uint64_t)processed_k);
+        uint64_t d_k  = num_divisors((uint64_t)processed_k);
         seq_t dseq   = (seq_t)d_k;
         seq_t new_sum = sum_div + dseq;
 

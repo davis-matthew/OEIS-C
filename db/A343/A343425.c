@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} mu(k) * n^(n-k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 35 terms through n = 366 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 static idx_t     mu_cap   = 0;          /* largest n computed for μ */
 static int      *mu       = NULL;      /* mu[1..n] : -1,0,1 */
@@ -50,7 +51,7 @@ static void ensure_mu(idx_t n)
 
     for (idx_t i = 2; i <= n; ++i) {
         /* i is prime ? */
-        if (is_prime_small((seq_t)i)) {
+        if (is_prime_seq((seq_t)i)) {
             primes[primes_sz++] = i;
             mu[i] = -1;
         }

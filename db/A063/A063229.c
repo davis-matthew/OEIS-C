@@ -12,6 +12,7 @@
  *            only integer arithmetic and works for all seq_t and idx_...
  * Range:     u8 n <= 35, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

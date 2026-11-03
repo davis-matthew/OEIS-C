@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 47, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 72 terms through n = 961 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* --- Cache for perimeters --------------------------------------- */
 static seq_t *cache      = NULL;
@@ -45,7 +47,7 @@ static void push_perimeter(seq_t perimeter)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort(); /* memory exhaustion */
         cache = tmp;
         cache_cap = new_cap;

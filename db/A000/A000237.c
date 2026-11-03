@@ -12,15 +12,21 @@
  *            a(i)a(m-i) + C(a(m/2),2) (unordered unequal end pairs)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 34, u128 n <= 64,
  *            big any n
- * Helpers:   mh_ch2, mh_gcd
+ * Validated: standard, pass, 42 terms through n = 498 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mh_ch2.h"
-#include "../utils/mh_gcd.h"
+#include "../utils/gcd_u64.h"
+
+static seq_t mh_ch2(seq_t x)
+{
+    if (x % 2 == 0) return (x / 2) * (x - 1);
+    return ((x - 1) / 2) * x;
+}
 
 #define MAXN 10010
 #define FCAP 150
@@ -82,7 +88,7 @@ static void mh_init(void)
             for (j = 1; j <= jmax; j++) {
                 seq_t xx = b + (seq_t)(j - 1);
                 unsigned long long xr = (unsigned long long)(xx % (seq_t)j);
-                unsigned long long g = mh_gcd((unsigned long long)j, xr);
+                unsigned long long g = gcd_u64((unsigned long long)j, xr);
                 r = (r / (seq_t)((unsigned long long)j / g)) * (xx / (seq_t)g);
                 MCv[j] = r;
             }

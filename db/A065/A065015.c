@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   _floor_cuberoot, _floor_sqrt
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   icbrt, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_floor_cuberoot.h"
-#include "../utils/_floor_sqrt.h"
+#include "../utils/icbrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -29,11 +30,11 @@ seq_t a(idx_t n)
 
     seq_t count = 0;
 
-    idx_t zmax = _floor_cuberoot(limitXYZ);
+    idx_t zmax = icbrt(limitXYZ);
     for (idx_t z = 1; z <= zmax; ++z)
     {
         /* y must satisfy y^2 <= limitXYZ / z  (since x≥y and xy*z <= limitXYZ) */
-        idx_t ymax = _floor_sqrt(limitXYZ / z);
+        idx_t ymax = isqrt(limitXYZ / z);
         for (idx_t y = z; y <= ymax; ++y)
         {
             idx_t yz = y * z;

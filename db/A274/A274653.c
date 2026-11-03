@@ -10,7 +10,8 @@
  *            c(n) = ((2*n)!)^2 / (n!^3 * 2^(4*n)) (a rational number)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,10 +31,10 @@ seq_t a(idx_t n)
 
     /* initialisation on first call */
     if (!num) {
-        num    = (seq_t *)malloc(sizeof(seq_t));
-        den    = (seq_t *)malloc(sizeof(seq_t));
-        c_num  = (seq_t *)malloc(sizeof(seq_t));
-        c_den  = (seq_t *)malloc(sizeof(seq_t));
+        num    = mem_new(seq_t, 1);
+        den    = mem_new(seq_t, 1);
+        c_num  = mem_new(seq_t, 1);
+        c_den  = mem_new(seq_t, 1);
         if (!num || !den || !c_num || !c_den) return 0;  /* error fallback */
         num[0]   = 0;
         den[0]   = 1;
@@ -45,10 +47,10 @@ seq_t a(idx_t n)
 
     if (n > max_cached) {
         idx_t newmax = n;
-        num   = (seq_t *)realloc(num,   (newmax + 1) * sizeof(seq_t));
-        den   = (seq_t *)realloc(den,   (newmax + 1) * sizeof(seq_t));
-        c_num = (seq_t *)realloc(c_num, (newmax + 1) * sizeof(seq_t));
-        c_den = (seq_t *)realloc(c_den, (newmax + 1) * sizeof(seq_t));
+        num   = mem_resize(seq_t, num, (newmax + 1));
+        den   = mem_resize(seq_t, den, (newmax + 1));
+        c_num = mem_resize(seq_t, c_num, (newmax + 1));
+        c_den = mem_resize(seq_t, c_den, (newmax + 1));
         if (!num || !den || !c_num || !c_den) return 0;  /* error fallback */
 
         for (idx_t i = max_cached + 1; i <= newmax; ++i) {

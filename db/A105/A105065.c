@@ -12,12 +12,14 @@
  *            are efficient
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 8, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
 
     if (cap == 0) {                /* first call: initialise for n=0 */
         cap = 1;
-        a_vals = (seq_t *)malloc(cap * sizeof(seq_t));
-        b_vals = (seq_t *)malloc(cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, cap);
+        b_vals = mem_new(seq_t, cap);
         if (!a_vals || !b_vals) return (seq_t)0; /* allocation failed */
         a_vals[0] = (seq_t)0;
         b_vals[0] = (seq_t)1;
@@ -93,8 +95,8 @@ seq_t a(idx_t n)
         if (len == cap) {
             idx_t new_cap = cap * 2;
             if (new_cap == 0) new_cap = 1;
-            seq_t *a_new = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
-            seq_t *b_new = (seq_t *)realloc(b_vals, new_cap * sizeof(seq_t));
+            seq_t *a_new = mem_resize(seq_t, a_vals, new_cap);
+            seq_t *b_new = mem_resize(seq_t, b_vals, new_cap);
             if (!a_new || !b_new) return (seq_t)0; /* allocation failed */
             a_vals = a_new;
             b_vals = b_new;

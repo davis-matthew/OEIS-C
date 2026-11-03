@@ -7,18 +7,20 @@
  * Formula:   a(n) = n^3*phi(n)
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 256, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 52 terms through n = 981 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     /* cast to seq_t to avoid overflow in intermediate types */
     seq_t n_seq = (seq_t)n;
     seq_t n3 = n_seq * n_seq * n_seq;   /* n^3 in seq_t */
-    seq_t phi_n = phi(n);                /* φ(n) */
+    seq_t phi_n = totient(n);                /* φ(n) */
     return n3 * phi_n;                   /* n^3 * φ(n) = φ(n^4) */
 }

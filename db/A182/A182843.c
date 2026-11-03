@@ -10,7 +10,8 @@
  *            factor of k. a(1) = 0, a(2) = 0
  * Range:     u8 n <= 77, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 858 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         pi[i] = pi[i - 1] + (is_prime[i] ? 1u : 0u);
 
     /* compute a[1..n] */
-    seq_t *a_arr = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, sz);
     if (!a_arr) {
         free(is_prime);
         free(spf);
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
     free(is_prime);
     free(spf);
     free(pi);
-    free(a_arr);
+    mem_free(a_arr);
 
     return result;
 }

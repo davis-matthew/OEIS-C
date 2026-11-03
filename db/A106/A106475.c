@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, sign
  * Formula:   a(n) = Sum_{k=0..2*n} gcd(2*n-k+1, k+1)*(-1)^k
- * Range:     i8 n <= 34, i16 n <= 1438, i32 n <= 9967, i64 n <= 9967,
- *            i128 n <= 9967, big any n
+ * Range:     i8 n <= 34, i16 n <= 1438, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 85 terms through n = 9967 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

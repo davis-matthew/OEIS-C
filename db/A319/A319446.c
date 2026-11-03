@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd, pow_uint
+ * Validated: standard, pass, 77 terms through n = 9179 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,11 @@
 
 /* Required utilities */
 #include <stdint.h>
-#include "../utils/factor_u64.h"  /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/pow_uint.h"   /* seq_t pow_uint(uint64_t base, idx_t exp) */
-#include "../utils/gcd.h"        /* seq_t gcd(seq_t a, seq_t b) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Compute A319446(n) */
 seq_t a(idx_t n)
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
         uint64_t p = primes[i];
         uint64_t e = exps[i];
 
-        seq_t pe_minus1 = pow_uint(p, (idx_t)(e - 1));
+        seq_t pe_minus1 = ipow_u64_idx(p, (idx_t)(e - 1));
         seq_t local;
 
         if (p == 3) {

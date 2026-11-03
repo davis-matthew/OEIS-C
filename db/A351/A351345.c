@@ -9,12 +9,14 @@
  *            binomial(n-6,k) * 2^k * a(n-k-6)
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 23, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;   /* allocated capacity of cache */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* allocate at least capacity 6 so indices 0..5 exist */
         size_t cap = need < 6 ? 6 : need;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) {
             /* allocation failed – return 0 on all subsequent calls */
             return;
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
     }
     if (need > cache_cap) {
         size_t new_cap = need;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) {
             /* realloc failed – keep old cache, may give wrong results afterwards */
             return;

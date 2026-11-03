@@ -9,12 +9,14 @@
  *            a(n)=8*a(n-1)-22*a(n-2)+26*a(n-3)-17*a(n-4)+6*a(n-5)-a(n-6)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 366 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache holding already computed terms   */
 static idx_t  cache_last = (idx_t)-1;/* highest index that has been computed   */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap == 0) {
         size_t cap = 7;
         if ((size_t)n + 1 > cap) cap = (size_t)n + 1;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache_cap = cap;
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)2;
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
     } else if (cache_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
         if (new_cap < 7) new_cap = 7;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
         /* newly allocated slots will be filled during expansion */
     }

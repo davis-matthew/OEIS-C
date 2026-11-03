@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   seq_to_bits
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,35 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/seq_to_bits.h"
+#include "../utils/mem.h"
+
+/* Convert a seq_t value to a binary string in heap memory */
+static void seq_to_bits(seq_t value, char **out, size_t *len)
+{
+    seq_t temp = value;
+    size_t alloc = 32;
+    char *rev = (char*)malloc(alloc);
+    if (!rev) exit(EXIT_FAILURE);
+    *len = 0;
+    if (temp == (seq_t)0) {
+        rev[(*len)++] = '0';
+    } else {
+        while (temp != (seq_t)0) {
+            if (*len == alloc) {
+                alloc <<= 1;
+                rev = (char*)realloc(rev, alloc);
+                if (!rev) exit(EXIT_FAILURE);
+            }
+            rev[(*len)++] = ((temp & (seq_t)1) == (seq_t)1) ? '1' : '0';
+            temp = temp >> 1;
+        }
+    }
+    *out = (char*)malloc(*len + 1);
+    if (!*out) exit(EXIT_FAILURE);
+    for (size_t i = 0; i < *len; ++i) (*out)[i] = rev[*len - 1 - i];
+    (*out)[*len] = '\0';
+    free(rev);
+}
 
 /* Forward declarations */
 static void ensure_binary_cap(size_t n);
@@ -83,7 +112,7 @@ static void ensure_a_cap(size_t n)
     if (a_cap <= n) {
         size_t new_cap = a_cap ? a_cap * 2 : 16;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         a_vals = tmp;
         a_cap = new_cap;

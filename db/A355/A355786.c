@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} 2^(n-k) * (k+1)^(k-1) * |Stirling1(n,k)|
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
    supported by the build. */
 
 #include <stdlib.h>
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* cache of a(n) values           */
 static size_t a_cap = 0;               /* capacity of a_cache            */
@@ -47,22 +50,22 @@ static void init(void)
     if (s_prev != NULL) return;        /* already initialised */
 
     /* a(0) = 1, a_cache size 1 */
-    a_cache = (seq_t *)malloc(1 * sizeof(seq_t));
+    a_cache = mem_new(seq_t, 1);
     a_cache[0] = (seq_t)1;
     a_cap = 1;
     max_n_cache = 0;
 
     /* Stirling numbers: row for n = 0 */
     prev_len = 1;
-    s_prev = (seq_t *)malloc(prev_len * sizeof(seq_t));
+    s_prev = mem_new(seq_t, prev_len);
     s_prev[0] = (seq_t)1;             /* s(0,0) = 1 */
 
     /* powers of 2 and (k+1)^(k-1) for n = 0 */
-    pow2_cache = (seq_t *)malloc(1 * sizeof(seq_t));
+    pow2_cache = mem_new(seq_t, 1);
     pow2_cache[0] = (seq_t)1;
     pow2_cap = 1;
 
-    powkminus1 = (seq_t *)malloc(1 * sizeof(seq_t));
+    powkminus1 = mem_new(seq_t, 1);
     powkminus1[0] = (seq_t)1;
     powkminus1_cap = 1;
 }
@@ -71,7 +74,7 @@ static void init(void)
 static void ensure_pow2(idx_t n)
 {
     if (pow2_cap > (size_t)n) return;
-    pow2_cache = (seq_t *)realloc(pow2_cache, (n + 1) * sizeof(seq_t));
+    pow2_cache = mem_resize(seq_t, pow2_cache, (n + 1));
     for (idx_t i = pow2_cap; i <= n; ++i) {
         if (i == 0)
             pow2_cache[i] = (seq_t)1;
@@ -85,12 +88,12 @@ static void ensure_pow2(idx_t n)
 static void ensure_powkminus1(idx_t n)
 {
     if (powkminus1_cap > (size_t)n) return;
-    powkminus1 = (seq_t *)realloc(powkminus1, (n + 1) * sizeof(seq_t));
+    powkminus1 = mem_resize(seq_t, powkminus1, (n + 1));
     for (idx_t k = powkminus1_cap; k <= n; ++k) {
         if (k <= 1)
             powkminus1[k] = (seq_t)1;              /* (1)^(0) = 1 and (2)^(1-1)=1 */
         else
-            powkminus1[k] = pow_seq((seq_t)(k + 1), (int)(k - 1));
+            powkminus1[k] = ipow_i32((seq_t)(k + 1), (int)(k - 1));
     }
     powkminus1_cap = n + 1;
 }
@@ -104,7 +107,7 @@ static void ensure_stirling(idx_t n)
 
     for (idx_t m = prev_len; m <= n; ++m) {
         /* allocate current row of length m+1 */
-        s_cur = (seq_t *)realloc(s_cur, (m + 1) * sizeof(seq_t));
+        s_cur = mem_resize(seq_t, s_cur, (m + 1));
         s_cur[0] = (seq_t)0;
         /* compute inner entries */
         for (idx_t k = 1; k < m; ++k) {
@@ -129,7 +132,7 @@ static void ensure_stirling(idx_t n)
                 size_t new_cap = a_cap * 2;
                 if (new_cap == 0) new_cap = 8;
                 while (new_cap <= (size_t)m) new_cap *= 2;
-                a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+                a_cache = mem_resize(seq_t, a_cache, new_cap);
                 a_cap = new_cap;
             }
             a_cache[m] = sum;

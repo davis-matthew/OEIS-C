@@ -9,7 +9,8 @@
  *            discriminants -k) found by a search
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   A001832_pow2, in_A003657, omega_u64, sqfree_u64
+ * Validated: standard, pass, 121 terms through n = 1000 (2026-11-01)
+ * Helpers:   omega, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/A001832_pow2.h"
-#include "../utils/in_A003657.h"
-#include "../utils/omega_u64.h"
-#include "../utils/sqfree_u64.h"
+#include "../utils/omega.h"
+#include "../utils/pow2.h"
+
+static bool sqfree_u64(uint64_t n) {
+	if (n == 0) return false;
+	for (uint64_t i = 2; i * i <= n; i++) {
+		if (n % (i * i) == 0) return false;
+	}
+	return true;
+}
+
+static bool in_A003657(uint64_t k) {
+	if (k % 4 == 3) return sqfree_u64(k);
+	if (k % 4 == 0) {
+		uint64_t m = k / 4;
+		if (m % 4 != 1 && m % 4 != 2) return false;
+		return sqfree_u64(m);
+	}
+	return false;
+}
 
 seq_t a(idx_t n) {
 	static uint64_t *cache = NULL;
@@ -45,6 +62,6 @@ seq_t a(idx_t n) {
 		cache_size = new_size;
 	}
 
-	int w = omega_u64(cache[n - 1]);
-	return A001832_pow2((idx_t)(w - 1));
+	int w = omega(cache[n - 1]);
+	return pow2((idx_t)(w - 1));
 }

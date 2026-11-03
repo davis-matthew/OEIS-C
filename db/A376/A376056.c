@@ -13,12 +13,14 @@
  *            supported
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,12 +36,12 @@ seq_t a(idx_t n)
         /* enlarge allocations to include index n */
         size_t new_cap = (size_t)(n + 1);   /* +1 so that index n is valid */
         if (A == NULL) {
-            A = (seq_t *)malloc(new_cap * sizeof(seq_t));
-            E = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            A = mem_new(seq_t, new_cap);
+            E = mem_new(seq_t, new_cap);
             if (!A || !E) exit(EXIT_FAILURE);
         } else {
-            seq_t *tmpA = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-            seq_t *tmpE = (seq_t *)realloc(E, new_cap * sizeof(seq_t));
+            seq_t *tmpA = mem_resize(seq_t, A, new_cap);
+            seq_t *tmpE = mem_resize(seq_t, E, new_cap);
             if (!tmpA || !tmpE) exit(EXIT_FAILURE);
             A = tmpA;  E = tmpE;
         }

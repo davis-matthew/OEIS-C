@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 12, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* number of possible rows of length 4 over {0,1,2,3} */
 #define N_STATES 256
@@ -88,12 +90,12 @@ static void init_sequence(void)
 
     /* Allocate cache (will grow as needed) */
     cache_cap   = 32;
-    cache       = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache       = mem_new(seq_t, cache_cap);
     cache[0]    = 0;                /* unused, keep zero */
 
     /* Allocate temporary DP arrays */
-    seq_t *dp   = (seq_t *)malloc(N_STATES * sizeof(seq_t));
-    seq_t *newdp = (seq_t *)malloc(N_STATES * sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, N_STATES);
+    seq_t *newdp = mem_new(seq_t, N_STATES);
 
     /* Initial state: any single row is allowed */
     for (int i = 0; i < N_STATES; ++i) dp[i] = 1;
@@ -121,8 +123,8 @@ static void init_sequence(void)
         newdp = tmp;
     }
 
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
 }
 
 /* ------------------------------------------------------------------ */
@@ -145,9 +147,9 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 32;
         while ((size_t)n + 1 > new_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         for (idx_t i = 1; i <= cache_len; ++i) tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = tmp;
         cache_cap = new_cap;
     }

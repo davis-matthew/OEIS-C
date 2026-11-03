@@ -9,12 +9,14 @@
  *            at index 0
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;  /* cache[0] = a(1) */
 static size_t cap   = 0;     /* currently allocated elements */
@@ -31,7 +33,7 @@ static void ensure_capacity(idx_t n)
         newcap = (size_t)n;
 
     /* realloc may return NULL on failure – abort on that case. */
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp)
         abort();
     cache = tmp;

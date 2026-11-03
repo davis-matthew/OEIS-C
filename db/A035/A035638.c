@@ -9,12 +9,14 @@
  *            least one part of each type (OEIS A035638)
  * Range:     u8 n <= 49, u16 n <= 127, u32 n <= 377, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 753 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,13 +26,13 @@ seq_t a(idx_t n)
 
     idx_t N = n;            /* local copy to use as a bound */
     /* Allocate arrays of seq_t.  The cast is required for C++ (C does not need it). */
-    seq_t *f = (seq_t*)calloc(N + 1, sizeof(seq_t));  /* partitions using 6k only   */
-    seq_t *g = (seq_t*)calloc(N + 1, sizeof(seq_t));  /* partitions using 6k+2 only */
-    seq_t *s = (seq_t*)calloc(N + 1, sizeof(seq_t));  /* partitions using 6k or 6k+2 */
+    seq_t *f = mem_new(seq_t, N + 1);  /* partitions using 6k only   */
+    seq_t *g = mem_new(seq_t, N + 1);  /* partitions using 6k+2 only */
+    seq_t *s = mem_new(seq_t, N + 1);  /* partitions using 6k or 6k+2 */
 
     if (!f || !g || !s) {
         /* Allocation failed – return 0 as a safe default. */
-        free(f); free(g); free(s);
+        mem_free(f); mem_free(g); mem_free(s);
         return 0;
     }
 
@@ -58,6 +60,6 @@ seq_t a(idx_t n)
 
     seq_t result = s[N] - f[N] - g[N];  /* remove partitions lacking one part type */
 
-    free(f); free(g); free(s);
+    mem_free(f); mem_free(g); mem_free(s);
     return result;
 }

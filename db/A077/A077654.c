@@ -7,14 +7,16 @@
  * Formula:   a(n) = the n-th composite k such that 2*k+1 is also composite
  * Range:     u8 n <= 54, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 76 terms through n = 9103 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,18 +33,18 @@ seq_t a(idx_t n)
     {
         ++last_k;
         seq_t k = (seq_t)last_k;              /* candidate k */
-        if (is_prime_small(k))
+        if (is_prime_seq(k))
             continue;                         /* skip primes */
 
         seq_t two_k_plus_one = k * 2 + 1;
-        if (is_prime_small(two_k_plus_one))
+        if (is_prime_seq(two_k_plus_one))
             continue;                         /* skip if 2k+1 is prime */
 
         /* append to cache */
         if (cache_len == cache_cap)
         {
             cache_cap = (cache_cap == 0 ? 16 : cache_cap * 2);
-            seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (!tmp)
                 abort();   /* memory allocation failed */
             cache = tmp;

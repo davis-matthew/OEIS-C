@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_adjacent_07_or_70
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,25 @@
  */
 
 #include <stdbool.h>
-#include "../utils/has_adjacent_07_or_70.h"
+
+/* return true if x (in base 9) has a neighbouring pair 0 and 7 (any order) */
+static bool has_adjacent_07_or_70(seq_t x)
+{
+    seq_t t = x;
+    if (t == (seq_t)0)
+        return false;
+    unsigned prev = 9;          /* sentinel value */
+    while (t > (seq_t)0) {
+        unsigned cur = (unsigned)(t % (seq_t)9);
+        t /= (seq_t)9;
+        if (prev != 9) {
+            if ((prev == 0 && cur == 7) || (prev == 7 && cur == 0))
+                return true;
+        }
+        prev = cur;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

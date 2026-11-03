@@ -7,14 +7,19 @@
  * Formula:   a(n) = a(n-1)^n + 1, a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow, seq_one
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_one.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 static seq_t *cache = NULL;      /* array of pre‑computed values */
 static size_t cache_cap = 0;     /* allocated capacity (>= n+1) */
@@ -27,8 +32,7 @@ seq_t a(idx_t n)
 
     /* grow the cache if necessary */
     if (!cache || cache_cap < (size_t)n + 1) {
-        seq_t *new_cache = (seq_t*)realloc(cache,
-                                           ((size_t)n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, ((size_t)n + 1));
         cache = new_cache;
         cache_cap = (size_t)n + 1;
     }
@@ -40,7 +44,7 @@ seq_t a(idx_t n)
             val = seq_one();                     /* a(1) = 1 */
         } else {
             seq_t base  = cache[(size_t)i - 1];   /* a(i‑1) */
-            seq_t powed = big_pow(base, (seq_t)i);/* base^i   */
+            seq_t powed = ipow(base, (seq_t)i);/* base^i   */
             val = powed + 1;                     /* a(i) = base^i + 1 */
         }
         cache[(size_t)i] = val;

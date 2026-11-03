@@ -12,7 +12,8 @@
  *            resulting ascending list
  * Range:     u8 n <= 0, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,18 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cmp_seq_t.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /*======================================================================
   Compile‑time determination of the maximum number of base‑5 digits
@@ -84,12 +96,12 @@ static seq_t *build_cache(size_t max_digits, size_t *len_out)
        well below 200 000 for built‑in types.  For smaller types the
        generated value set is far smaller. */
     size_t buf_cap = 200000;
-    seq_t *buffer = (seq_t*)malloc(buf_cap * sizeof(seq_t));
+    seq_t *buffer = mem_new(seq_t, buf_cap);
     if (!buffer) return NULL;
 
     /* Pre‑compute powers of 5 up to max_digits. */
-    seq_t *pow5 = (seq_t*)malloc((max_digits + 1) * sizeof(seq_t));
-    if (!pow5) { free(buffer); return NULL; }
+    seq_t *pow5 = mem_new(seq_t, (max_digits + 1));
+    if (!pow5) { mem_free(buffer); return NULL; }
     pow5[0] = (seq_t)1;
     for (size_t i = 1; i <= max_digits; ++i) {
         pow5[i] = pow5[i-1] * (seq_t)5;
@@ -103,17 +115,17 @@ static seq_t *build_cache(size_t max_digits, size_t *len_out)
     if (count >= buf_cap) {
         /* This should never happen with the chosen buffer size. */
         buf_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(buffer, buf_cap * sizeof(seq_t));
-        if (!tmp) { free(buffer); free(pow5); return NULL; }
+        seq_t *tmp = mem_resize(seq_t, buffer, buf_cap);
+        if (!tmp) { mem_free(buffer); mem_free(pow5); return NULL; }
         buffer = tmp;
     }
     buffer[count++] = (seq_t)0;
 
     /* Sort the list. */
-    qsort(buffer, count, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(buffer, count, sizeof(seq_t), cmp_seq_t);
 
     *len_out = count;
-    free(pow5);
+    mem_free(pow5);
     return buffer;
 }
 
@@ -136,7 +148,7 @@ static void ensure_cache(idx_t n)
         seq_t *new_cache = build_cache(new_digits, &new_len);
         if (!new_cache) return;          /* allocation failure → keep old cache */
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len   = new_len;
         cache_digits = new_digits;

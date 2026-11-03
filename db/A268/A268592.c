@@ -5,15 +5,18 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = (6/n^3) * Sum_{d|n} μ(n/d)*binomial(2*d,d)
- * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 15, u64 n <= 40, u128 n <= 72,
+ * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 16, u64 n <= 40, u128 n <= 72,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 1343 (2026-11-01)
  * Helpers:   binomial, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mobius.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mobius.h"
 
 /* 128‑bit binomial for small arguments (used when seq_t is 64‑bit). */
 static unsigned __int128 binom128(idx_t d) {

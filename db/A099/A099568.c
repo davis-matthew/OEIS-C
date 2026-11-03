@@ -10,12 +10,14 @@
  *            works for any call order
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Allocate an array for indices 0 .. n */
     size_t sz = (size_t)(n + 1);
-    seq_t *arr = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, sz);
     if (!arr) {
         /* In an OEIS test harness this should never happen; exit on error */
         exit(1);
@@ -48,6 +50,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

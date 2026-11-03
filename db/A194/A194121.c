@@ -7,16 +7,19 @@
  * Formula:   a(n) = C(r+2, k)+C(r+2, k+1)+C(r+2, k+2) where r =
  *            floor((sqrt(8n+1)-1)/2) is the row number and k = n - r(r+1)/2
  *            is the column within that row
- * Range:     u8 n <= 22, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
+ * Range:     u8 n <= 30, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   binom, offset_row
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-01)
+ * Helpers:   binomial, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binom.h"
-#include "../utils/offset_row.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/triangular.h"
 
 seq_t a(idx_t n)
 {
@@ -27,12 +30,12 @@ seq_t a(idx_t n)
     while ((r + 1) * (r + 2) / 2 <= n) r++;
     while (r * (r + 1) / 2 > n) r--;
 
-    idx_t k = n - offset_row(r);
+    idx_t k = n - triangular(r);
 
     /* Compute the triple sum of binomial coefficients */
-    seq_t val = binom(r + 2, k);
-    val += binom(r + 2, k + 1);
-    val += binom(r + 2, k + 2);
+    seq_t val = binomial(r + 2, k);
+    val += binomial(r + 2, k + 1);
+    val += binomial(r + 2, k + 2);
 
     return val;
 }

@@ -9,14 +9,25 @@
  *            the triangle obtained from the flattened index n
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   cum_ge
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cum_ge.h"
+
+/* Check if the triangular number r(r+1)/2 is at least n, guarding
+   against overflow of the 64‑bit product. */
+static bool cum_ge(idx_t r, idx_t n)
+{
+    /* If r is large enough that r*(r+1) overflows, the triangular
+       number is certainly >= n. */
+    if (r > UINT64_MAX / (r + 1))
+        return true;
+    return ((r * (r + 1)) / 2) >= n;
+}
 
 /* Euclidean algorithm for seq_t (works for any integer type, including
    arbitrary‑precision implementations that support % and ==). */

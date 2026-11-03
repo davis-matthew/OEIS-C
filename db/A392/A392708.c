@@ -7,8 +7,9 @@
  * Keywords:  nonn, changed
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 3905, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 7927, big any n
- * Helpers:   none
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 78 terms through n = 9449 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #ifndef MAX_PARTS
 #define MAX_PARTS 128   /* safe upper bound for number of parts */
 #endif
+#include "../utils/mem.h"
 
 /* Check whether the 0‑based partial alternating sums of the composition
    corresponding to k are all distinct. */
@@ -88,17 +90,23 @@ static void ensure_cache(size_t n)
 
     if (cached_cap == 0) {
         cached_cap = 64;
-        cache = (seq_t *)malloc(cached_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cached_cap);
         if (!cache) abort();
     } else if (cached_len == cached_cap) {
         cached_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, cached_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cached_cap);
         if (!tmp) abort();
         cache = tmp;
     }
 
     while (cached_len < n) {
         if (qualifies(next_k_to_test)) {
+            if (cached_len >= cached_cap) {                 /* grow before storing */
+                cached_cap = cached_cap ? 2 * cached_cap : 16;
+                seq_t *grown_ = mem_resize(seq_t, cache, cached_cap);
+                if (!grown_) abort();
+                cache = grown_;
+            }
             cache[cached_len++] = (seq_t)next_k_to_test;
         }
         ++next_k_to_test;

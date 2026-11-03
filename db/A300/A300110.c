@@ -14,13 +14,15 @@
  *            a(9)=5...
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache ---------------------------------------------------- */
 static seq_t *cache = NULL;   /* array of computed terms, 1‑based */
@@ -41,7 +43,7 @@ init_base(void)
     };
     size_t need = 18;
     if (cache_cap < need) {
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = need;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     if (cache_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
         if (new_cap < cache_cap * 2) new_cap = cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = new_cap;

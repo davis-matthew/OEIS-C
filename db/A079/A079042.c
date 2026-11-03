@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   is_good
+ * Validated: full, pass, 61 terms through n = 61 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,31 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_good.h"
+
+static bool is_good(seq_t x)
+{
+    /* Count decimal digits of x. */
+    int m = 0;
+    seq_t tmp = x;
+    while (tmp > 0) {
+        tmp /= 10;
+        ++m;
+    }
+    if (m == 0) return false;  /* exclude 0 */
+
+    seq_t divisor = 1;
+    for (int k = m; k >= 1; --k) {
+        seq_t prefix = x / divisor;
+
+        /* Compute k² as an unsigned 64‑bit integer, then cast to seq_t. */
+        uint64_t k_sq = (uint64_t)k * (uint64_t)k;
+        seq_t sq = (seq_t)k_sq;
+
+        if (prefix % sq != 0) return false;
+        divisor *= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

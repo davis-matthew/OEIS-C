@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of partitions of n into parts 4, 8, 11, and 12
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* DP implementation of the coin‑change recurrence. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_limit = 0; /* number of valid indices in cache */
@@ -22,7 +24,7 @@ seq_t a(idx_t n) {
     /* grow cache and recompute values up to n if necessary */
     if (n + 1 > cache_limit) {
         idx_t new_limit = n + 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_limit);
+        cache = mem_resize(seq_t, cache, new_limit);
         for (idx_t i = 0; i < new_limit; ++i)
             cache[i] = 0;
         cache[0] = 1;                       /* base case */

@@ -9,7 +9,8 @@
  *            * to n produce a composite number
  * Range:     u8 n <= 294, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9512 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static storage for the sequence (1‑indexed). */
 static seq_t *a_seq  = NULL;   /* a_seq[0] = a(1)           */
@@ -36,7 +38,7 @@ ensure_a_cap(idx_t n)
     size_t new_cap = (a_cap == 0) ? 16 : a_cap;
     while ((idx_t)new_cap < n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_seq, new_cap);
     if (!tmp)
         abort();
     a_seq = tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   has_equal_0_2
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_equal_0_2.h"
+#include "../utils/mem.h"
+
+/* Test whether a number has equal counts of digit 0 and 2 in base 3. */
+static bool has_equal_0_2(seq_t x) {
+    unsigned c0 = 0, c2 = 0;
+    while (x) {
+        unsigned d = (unsigned)(x % (seq_t)3);
+        if (d == 0) ++c0;
+        else if (d == 2) ++c2;
+        x /= (seq_t)3;
+    }
+    return c0 == c2;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;               /* safety guard for offset */
@@ -34,7 +47,7 @@ seq_t a(idx_t n) {
         if (has_equal_0_2(candidate)) {
             if (cached_sz == capacity) {       /* grow the array           */
                 size_t new_cap = capacity ? capacity << 1 : 4;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 cache = tmp;
                 capacity = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = composite(2*n+3) - composite(2*n+1)
  * Range:     u8 n <= 307, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 106 terms through n = 9966 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Cache for composite numbers (1‑based index). */
 static uint64_t *comp_vals   = NULL;   /* cached composites */
@@ -51,7 +52,7 @@ static uint64_t comp_of(idx_t k)
         return 0;
     /* Grow cache until it contains at least k composites. */
     while (comp_cnt < (size_t)k) {
-        if (!is_prime_small(next_candidate))
+        if (!is_prime_seq(next_candidate))
             comp_add(next_candidate);      /* composite found */
         ++next_candidate;
     }

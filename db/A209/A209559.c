@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    integer class. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,10 +45,10 @@ seq_t a(idx_t n)
         return 1;
 
     /* allocate coefficient arrays */
-    seq_t *u  = (seq_t *)malloc(sizeof(seq_t) * r);
-    seq_t *v  = (seq_t *)malloc(sizeof(seq_t) * r);
-    seq_t *nu = (seq_t *)malloc(sizeof(seq_t) * r);   /* next u */
-    seq_t *nv = (seq_t *)malloc(sizeof(seq_t) * r);   /* next v */
+    seq_t *u  = mem_new(seq_t, r);
+    seq_t *v  = mem_new(seq_t, r);
+    seq_t *nu = mem_new(seq_t, r);   /* next u */
+    seq_t *nv = mem_new(seq_t, r);   /* next v */
     if (!u || !v || !nu || !nv)
         return 0;                 /* memory allocation failure */
 
@@ -96,10 +98,10 @@ seq_t a(idx_t n)
     seq_t result = u[p - 1];
 
     /* free allocated memory */
-    free(u);
-    free(v);
-    free(nu);
-    free(nv);
+    mem_free(u);
+    mem_free(v);
+    mem_free(nu);
+    mem_free(nv);
 
     return result;
 }

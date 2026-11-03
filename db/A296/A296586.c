@@ -10,7 +10,8 @@
  *            down‑left)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define WIDTH 6
 #define PAT_COUNT 64
@@ -86,12 +88,12 @@ seq_t a(idx_t n)
     static seq_t newdp[STATE_COUNT];
 
     /* Initialise with two empty rows (0,0). */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     dp[0] = (seq_t)1;               /* state index 0 corresponds to (0,0) */
 
     for (idx_t row = 0; row < n; ++row)
     {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
 
         for (unsigned s = 0; s < STATE_COUNT; ++s)
         {
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
             }
         }
 
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
     }
 
     /* Final dummy row of zeros (index 0) must be appended. */

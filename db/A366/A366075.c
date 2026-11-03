@@ -9,6 +9,7 @@
  *            the exponent e of p in n (i.e., a(p^e) = e & -e)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9995 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /*  These utilities are provided by the build environment. */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Computes the number of prime factors (counted with multiplicity) of the smallest coreful infinitary divisor of n. */

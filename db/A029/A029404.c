@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    The result is computed with the classic coin‑change DP
    (each combination is counted once). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for computed values of the DP array. */
 static seq_t *dp = NULL;   /* pointer to array of size dp_len */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     size_t need = (size_t)n + 1;          /* inclusive */
     if (need > dp_len) {
         /* Reallocate a larger array. */
-        seq_t *new_dp = (seq_t *)realloc(dp, need * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, need);
         if (new_dp == NULL) {
             abort();  /* allocation failure; acceptable for this context */
         }

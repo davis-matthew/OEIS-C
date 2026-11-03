@@ -12,20 +12,23 @@
  *            3) ); * where S₂(m, k) are Stirling numbers of the sec...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   big_pow, phi
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   ipow, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/totient.h"
 
 /* Stirling numbers of the second kind S₂(n,3) as a closed formula. */
 static seq_t Stirling2_3(idx_t n)
 {
     if (n < 3) return 0;
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n);
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)n);
     seq_t temp = pow3 - pow2 * (seq_t)3 + (seq_t)3;
     return temp / (seq_t)6;
 }
@@ -34,7 +37,7 @@ static seq_t Stirling2_3(idx_t n)
 static seq_t term_for_divisor(idx_t d, idx_t n)
 {
     idx_t m = n / d;
-    seq_t phi_d = phi(d);
+    seq_t phi_d = totient(d);
 
     seq_t s2_m  = 0, s2_m1 = 0, s2_m2 = 0;
     if (m      >= 3) s2_m  = Stirling2_3(m);

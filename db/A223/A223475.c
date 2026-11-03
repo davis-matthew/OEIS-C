@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 362, u32 n <= 1088, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   nonincreasing
+ * Validated: standard, pass, 139 terms through n = 1671 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
    has digits in nonincreasing order.
    (OEIS A223475) */
 #include <stdbool.h>
-#include "../utils/nonincreasing.h"
+
+/* Test whether the decimal digits of x are in nonincreasing order
+   when read from left to right, equivalently nondecreasing
+   when scanned from right to left. */
+static bool nonincreasing(seq_t x)
+{
+    seq_t last = 0; /* sentinel smaller than any digit */
+    while (x > 0) {
+        seq_t d = x % 10;
+        if (d < last)         /* digit is smaller than previous
+                                 (scanning from LSB) */
+            return false;
+        last = d;
+        x /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

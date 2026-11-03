@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 217, u64 n <= 1004,
  *            u128 n <= 1004, big any n
- * Helpers:   digit_counts
+ * Validated: standard, pass, 47 terms through n = 865 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/digit_counts.h"
+#include "../utils/mem.h"
 
 static inline seq_t digit_square_sum_seqt(seq_t x)
 {
@@ -75,10 +77,10 @@ seq_t a(idx_t n)
             /* Grow cache if needed */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
-                seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_new(seq_t, new_cap);
                 if (cache) {
-                    memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-                    free(cache);
+                    mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+                    mem_free(cache);
                 }
                 cache = new_cache;
                 cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   generate_prime_sols
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,40 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/generate_prime_sols.h"
+#include "../utils/mem.h"
+
+/* Generate all exponent solutions for one prime using the equations
+   derived from the magic‑product condition.  Solutions are put into
+   the supplied array.  The array must be pre‑allocated large enough
+   for all solutions (46 in total). */
+static void generate_prime_sols(uint8_t (*sol)[9], size_t *count)
+{
+    *count = 0;
+    for (uint8_t a = 0; a < 4; ++a)
+    for (uint8_t b = 0; b < 4; ++b)
+    for (uint8_t c = 0; c < 4; ++c)
+    for (uint8_t d = 0; d < 4; ++d)
+    for (uint8_t e = 0; e < 4; ++e)
+    for (uint8_t f = 0; f < 4; ++f)
+    for (uint8_t g = 0; g < 4; ++g)
+    for (uint8_t h = 0; h < 4; ++h)
+    for (uint8_t i = 0; i < 4; ++i)
+    {
+        if (a + b + c != 3) continue;
+        if (d + e + f != 3) continue;
+        if (g + h + i != 3) continue;
+        if (a + d + g != 3) continue;
+        if (b + e + h != 3) continue;
+        if (c + f + i != 3) continue;
+        if (a + e + i != 3) continue;
+        if (c + e + g != 3) continue;
+        uint8_t *p = sol[*count];
+        p[0] = a; p[1] = b; p[2] = c;
+        p[3] = d; p[4] = e; p[5] = f;
+        p[6] = g; p[7] = h; p[8] = i;
+        ++(*count);
+    }
+}
 
 /* Pre‑computed powers of 2 and 3 for exponents 0..3 */
 static const seq_t pow2[4] = {1, 2, 4, 8};
@@ -88,7 +122,7 @@ seq_t a(idx_t n)
 
                 if (sq_cnt == sq_cap) {
                     sq_cap = sq_cap ? sq_cap << 1 : 32;
-                    sqs = (struct Square *)realloc(sqs, sq_cap * sizeof(struct Square));
+                    sqs = mem_resize(struct Square, sqs, sq_cap);
                     if (!sqs) { free(prime_sols); return 0; }
                 }
                 sqs[sq_cnt++] = s;
@@ -99,7 +133,7 @@ seq_t a(idx_t n)
         /* ------------------------------------
            Sort squares lexicographically and deduplicate
           ------------------------------------ */
-        qsort(sqs, sq_cnt, sizeof(struct Square), cmp_squares);
+        mem_qsort(sqs, sq_cnt, sizeof(struct Square), cmp_squares);
 
         size_t uniq_cnt = 0;
         struct Square *uniq = NULL;
@@ -108,24 +142,24 @@ seq_t a(idx_t n)
             if (i == 0 || cmp_squares(&sqs[i], &sqs[i - 1]) != 0) {
                 if (uniq_cnt == uniq_cap) {
                     uniq_cap = uniq_cap ? uniq_cap << 1 : 32;
-                    uniq = (struct Square *)realloc(uniq, uniq_cap * sizeof(struct Square));
-                    if (!uniq) { free(sqs); return 0; }
+                    uniq = mem_resize(struct Square, uniq, uniq_cap);
+                    if (!uniq) { mem_free(sqs); return 0; }
                 }
                 uniq[uniq_cnt++] = sqs[i];
             }
         }
-        free(sqs);
+        mem_free(sqs);
 
         /* ------------------------------------
            Build flattened sequence
           ------------------------------------ */
         seq_len = uniq_cnt * 9;
-        seq = (seq_t *)malloc(seq_len * sizeof(seq_t));
-        if (!seq) { free(uniq); return 0; }
+        seq = mem_new(seq_t, seq_len);
+        if (!seq) { mem_free(uniq); return 0; }
         for (size_t i = 0; i < uniq_cnt; ++i)
-            memcpy(seq + i * 9, uniq[i].v, 9 * sizeof(seq_t));
+            mem_copy(seq + i * 9, uniq[i].v, 9 * sizeof(seq_t));
 
-        free(uniq);
+        mem_free(uniq);
         init = true;
     }
 

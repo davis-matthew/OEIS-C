@@ -9,7 +9,8 @@
  *            graph that do not contain any element with a zero component
  * Range:     u8 n <= 20, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   next_idx
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/next_idx.h"
+
+static inline uint32_t next_idx(uint32_t idx, uint32_t n) {
+    uint32_t a = idx / n;
+    uint32_t b = idx % n;
+    uint32_t sum = a + b;
+    if (sum >= n) sum -= n;
+    return b * n + sum;
+}
 
 static inline bool has_zero(uint32_t idx, uint32_t n) {
     return (idx / n == 0) || (idx % n == 0);

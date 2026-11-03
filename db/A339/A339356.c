@@ -10,6 +10,7 @@
  *            - 32*C(k+4,5) where C(n,r) is the binomial coefficient
  * Range:     u8 none, u16 n <= 6, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

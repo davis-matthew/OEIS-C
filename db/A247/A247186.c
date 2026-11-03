@@ -9,13 +9,15 @@
  *            formed from [a(0), ... a(n-1)] + [a(0), ... a(n-1)]
  * Range:     u8 n <= 23, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,13 +36,13 @@ seq_t a(idx_t n)
     if (seq_len == 0) {
         /* sequence array: start with capacity 1 */
         seq_cap = 1;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = 0;
         seq_len = 1;
 
         /* unique values array: start with one element (0) */
         uniq_cap = 8;
-        uniq = (seq_t *)malloc(uniq_cap * sizeof(seq_t));
+        uniq = mem_new(seq_t, uniq_cap);
         uniq[0] = 0;
         uniq_len = 1;
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         /* ensure capacity for new term */
         if (seq_len >= seq_cap) {
             seq_cap = seq_cap * 2;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len] = repeats;
         seq_t val = repeats;           /* new element to add to the system */
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
             /* add value to unique list */
             if (uniq_len >= uniq_cap) {
                 uniq_cap = uniq_cap * 2;
-                uniq = (seq_t *)realloc(uniq, uniq_cap * sizeof(seq_t));
+                uniq = mem_resize(seq_t, uniq, uniq_cap);
             }
             uniq[uniq_len++] = val;
         }

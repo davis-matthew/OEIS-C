@@ -8,7 +8,8 @@
  *            Tribonacci word)
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* We maintain a cached word and its running zero count to compute a(n) in O(n) overall. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static unsigned char *tribo_word = NULL;   /* current Tribonacci word */
 static seq_t *cum_zero = NULL;            /* cumulative zero counts */
@@ -32,7 +34,7 @@ static void ensure_len(idx_t need)
     if (!tribo_word) {
         tribo_word = /* word */ (unsigned char *)malloc(1);
         tribo_word[0] = 0;                    /* first symbol is 0 */
-        cum_zero = (seq_t *)malloc(1 * sizeof(seq_t));
+        cum_zero = mem_new(seq_t, 1);
         cum_zero[0] = 1;                       /* first symbol is a zero */
         cur_len = 1;
     }
@@ -47,7 +49,7 @@ static void ensure_len(idx_t need)
 
         /* allocate new structures */
         unsigned char *new_word = (unsigned char *)malloc((size_t)new_len);
-        seq_t *new_cum = (seq_t *)malloc((size_t)new_len * sizeof(seq_t));
+        seq_t *new_cum = mem_new(seq_t, (size_t)new_len);
 
         /* expand and compute cumulative zeros on the fly */
         idx_t j = 0;
@@ -80,7 +82,7 @@ static void ensure_len(idx_t need)
 
         /* replace old arrays */
         free(tribo_word);
-        free(cum_zero);
+        mem_free(cum_zero);
 
         tribo_word = new_word;
         cum_zero  = new_cum;

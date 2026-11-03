@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 82, u32 n <= 223, u64 n <= 672,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Computes sequence A379314: number of integer partitions of n in which
    exactly one part is equal to 1 or to a prime, and all other parts are
@@ -35,7 +37,7 @@ static void recompute(idx_t new_limit)
     /* --- ensure f array has enough space --- */
     size_t cap_f = (size_t)new_limit + 1;
     if (f_cap < cap_f) {
-        seq_t *tmp = (seq_t *)realloc(f, cap_f * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, f, cap_f);
         if (!tmp) abort();
         f = tmp;
         f_cap = cap_f;

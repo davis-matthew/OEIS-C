@@ -12,13 +12,15 @@
  *            first determining the smallest * k with |s(k)| ≥ n,...
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Ensure arrays for lengths are available up to a needed index */
 static seq_t *S_len = NULL;        /* S_len[k] = |s(k)| (1‑based) */
@@ -31,7 +33,7 @@ static void ensure_len(idx_t n)
     if (S_len_cnt == 0) {
         /* initialise */
         S_len_cap = 4;
-        S_len = (seq_t *)malloc(sizeof(seq_t) * (S_len_cap + 1));
+        S_len = mem_new(seq_t, (S_len_cap + 1));
         if (!S_len) exit(1);
         S_len_cnt = 1;
         S_len[1] = (seq_t)1;
@@ -41,7 +43,7 @@ static void ensure_len(idx_t n)
         /* grow capacity if needed */
         if (S_len_cnt >= S_len_cap) {
             size_t new_cap = S_len_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(S_len, sizeof(seq_t) * (new_cap + 1));
+            seq_t *tmp = mem_resize(seq_t, S_len, (new_cap + 1));
             if (!tmp) exit(1);
             S_len = tmp;
             S_len_cap = new_cap;

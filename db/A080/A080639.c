@@ -12,14 +12,28 @@
  *            OEIS A080639
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   ensure_member_capacity
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/ensure_member_capacity.h"
+#include "../utils/mem.h"
+
+/* Ensure bitmap can index up to index 'needed' (inclusive). */
+static void ensure_member_capacity(size_t needed, bool **bitmap, size_t *cap)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 8 : *cap;
+    while (new_cap <= needed) new_cap <<= 1;
+    bool *tmp = (bool *)realloc(*bitmap, (new_cap + 1) * sizeof(bool));
+    if (!tmp) abort();
+    for (size_t i = *cap + 1; i <= new_cap; ++i) tmp[i] = false;
+    *bitmap = tmp;
+    *cap    = new_cap;
+}
 
 /* Ensure seq array can store indices up to 'needed' (inclusive). */
 static void ensure_seq_capacity(idx_t needed, seq_t **seq, size_t *cap)
@@ -27,7 +41,7 @@ static void ensure_seq_capacity(idx_t needed, seq_t **seq, size_t *cap)
     if ((size_t)needed <= *cap) return;
     size_t new_cap = (*cap == 0) ? 16 : *cap;
     while (new_cap < (size_t)needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*seq, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *seq, (new_cap + 1));
     if (!tmp) abort();
     *seq = tmp;
     *cap = new_cap;

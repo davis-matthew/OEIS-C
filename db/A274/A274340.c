@@ -8,7 +8,8 @@
  * Formula:   a(n) = A187793(a(n-1)), a(1) = 19, a(n+4)=a(n)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sum_divisors
+ * Validated: standard, pass, 76 terms through n = 995 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 /* a(1)=19 and apply sigma_d at each step.  This works for all n≥1. */
 
 #include <stdint.h> /* for standard integer types */
-#include "../utils/sum_divisors.h"
+
+static seq_t sum_divisors(seq_t n)
+{
+    seq_t s = 0;
+    for (seq_t i = 1; i * i <= n; ++i)
+    {
+        if (n % i == 0)
+        {
+            seq_t d = n / i;
+            s += i;
+            if (d != i)
+                s += d;
+        }
+    }
+    return s;
+}
 
 static int is_deficient(seq_t n)
 {

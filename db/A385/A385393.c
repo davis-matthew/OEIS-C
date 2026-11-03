@@ -7,7 +7,8 @@
  * Formula:   a(n) = (Sum_{k=0..n} (binomial(n,k) mod 4)) / 2^bitcount(n)
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   POPCOUNT
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   popcount_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,11 +17,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/POPCOUNT.h"
+#include "../utils/popcount_u64.h"
 
 /* popcount for idx_t (uint64_t) */
 #if defined(__GNUC__) || defined(__clang__)
-#  define POPCOUNT(n) (__builtin_popcountll((unsigned long long)(n)))
+#  define popcount_u64(n) (__builtin_popcountll((unsigned long long)(n)))
 #else
 
 #endif
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
     for (idx_t j = 0; j <= n; ++j) sum += row[j];
 
     /* Divide by 2^bitcount(n) */
-    unsigned int bc = POPCOUNT(n);
+    unsigned int bc = popcount_u64(n);
     uint64_t divisor = 1ULL << bc;    /* 2^bitcount(n) fits in 64 bits for n <= 10⁴ */
     uint64_t res = sum / divisor;
 

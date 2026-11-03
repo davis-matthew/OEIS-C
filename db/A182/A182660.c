@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 0 for all n that are not powers of two; a(2^(k+1)) = k
  *            (so a(0)=0, a(1)=0, a(2)=0, a(4)=1, a(8)=2, …)
- * Range:     u8 n <= 8524, u16 n <= 8524, u32 n <= 8524, u64 n <= 8524,
- *            u128 n <= 8524, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 117 terms through n = 8524 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

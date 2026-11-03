@@ -7,7 +7,8 @@
  * Formula:   a(0)=1, a(n+1)=∑_{i=0..n} (-5)^i * a(i) * a(n-i)
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 5, i64 n <= 7, i128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>   /* for uint64_t if needed */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* cached sequence values */
 static  size_t cache_len = 0;      /* allocated array size (in elements) */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
 {
     if (n + 1 > cache_len) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) {
             /* allocation failed – return the cache unchanged */
             return;

@@ -9,13 +9,16 @@
  *            binomial(n,j)*a(j)*a(n-j) (n>1)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 35 terms through n = 347 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise the array on the first call */
     if (!arr) {
         cap = 4;                       /* small start, will grow automatically */
-        arr = (seq_t*)malloc(cap * sizeof(seq_t));
+        arr = mem_new(seq_t, cap);
         if (!arr) return (seq_t)0;     /* allocation failure – conservative */
         arr[0] = (seq_t)0;
         arr[1] = (seq_t)1;
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
     /* grow the array if necessary */
     if ((size_t)n >= cap) {
         while (cap <= (size_t)n) cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(arr, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, arr, cap);
         if (!tmp) return (seq_t)0;     /* allocation failure */
         arr = tmp;
     }
@@ -57,7 +60,7 @@ seq_t a(idx_t n)
             idx_t l = k - j;          /* complementary index      */
             seq_t prod = arr[j];
             prod *= arr[l];
-            prod *= binom(k, j);      /* binomial coefficient      */
+            prod *= binomial(k, j);      /* binomial coefficient      */
 
             sum += prod;              /* term for j                 */
             if (j != l) sum += prod;  /* symmetric partner – double */

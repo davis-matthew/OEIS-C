@@ -8,15 +8,16 @@
  * Formula:   a(n) = T(r, k) where T(r, k) = binomial(r, k) * (2 + (-1)^k * (1
  *            + (-1)^r)) / 2, and the index n is converted to (r, k) by moving
  *            through the rows of the triangle (offset 0)
- * Range:     u8 n <= 39, u16 n <= 178, u32 n <= 610, u64 n <= 2373,
+ * Range:     u8 n <= 58, u16 n <= 178, u32 n <= 610, u64 n <= 2373,
  *            u128 n <= 5150, big any n
- * Helpers:   binom_nat
+ * Validated: standard, pass, 94 terms through n = 4813 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_nat.h"
+#include "../utils/binomial.h"
 
 /* Integer square‑root of a 64‑bit unsigned value (floor) */
 static inline idx_t isqrt_u64(idx_t v)
@@ -44,7 +45,7 @@ seq_t a(idx_t n)
     idx_t base = (idx_t)(((__uint128_t)r * (r + 1u)) >> 1);  /* first index of row r */
     idx_t k = n - base;                                     /* column index within the row */
 
-    seq_t bin = binom_nat(r, k);
+    seq_t bin = binomial(r, k);
 
     /* Compute T(r, k) according to the formula.
        When r is odd, T = bin.

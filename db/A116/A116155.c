@@ -11,12 +11,14 @@
  *            function builds rows of the triangle lazily and caches them
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 135, u64 n <= 152,
  *            u128 n <= 152, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 141 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **tri_rows = NULL; /* pointers to each triangle row */
 static size_t  rows_cap = 0;     /* number of rows currently allocated */
@@ -35,7 +37,7 @@ static void ensure_rows(idx_t target)
 
     /* Allocate new rows, initialised to zero. */
     for (size_t i = rows_cap; i < new_cap; ++i)
-        tri_rows[i] = (seq_t *)calloc(i + 1, sizeof(seq_t));
+        tri_rows[i] = mem_new(seq_t, i + 1);
 
     /* The very first row (row 0) has one entry T(0,0)=1. */
     if (new_cap > 0 && tri_rows[0])
@@ -50,7 +52,7 @@ static void ensure_rows(idx_t target)
 
         /* Compute suffix sums of the previous row:
            suff[j] = Σ_{t=j}^{prev_len-1} prev[t]  (suff[prev_len] = 0) */
-        seq_t *suff = (seq_t *)malloc((prev_len + 1) * sizeof(seq_t));
+        seq_t *suff = mem_new(seq_t, (prev_len + 1));
         suff[prev_len] = (seq_t)0;
         for (size_t j = prev_len; j-- > 0; )
             suff[j] = suff[j + 1] + prev[j];
@@ -74,7 +76,7 @@ static void ensure_rows(idx_t target)
             cur[k] = val;
         }
 
-        free(suff);
+        mem_free(suff);
     }
 
     rows_cap = new_cap; /* update cached rows count */

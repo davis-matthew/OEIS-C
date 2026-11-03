@@ -6,8 +6,9 @@
  * Keywords:  nonn, base, tabl, look, easy, nice
  * Formula:   tersum(col, row-col) where tersum adds base-3 digits mod 3 with
  *            no carries
- * Range:     u8 n <= 9461, u16 n <= 9461, u32 n <= 9461, u64 n <= 9461,
- *            u128 n <= 9461, big any n
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 121 terms through n = 9461 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

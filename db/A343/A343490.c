@@ -8,13 +8,26 @@
  *            4^(gcd(k,n)-1)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   phi_pow_p, pow2
+ * Validated: standard, pass, 42 terms through n = 1614 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/phi_pow_p.h"
+
+/* Compute φ(p^e) in seq_t */
+static inline seq_t phi_pow_p(seq_t p, idx_t e)
+{
+    if (e == 0) return (seq_t)1;
+    seq_t res = 1;
+    for (idx_t i = 0; i + 1 < e; ++i) {
+        res *= p;
+    }
+    res *= (p - 1);
+    return res;
+}
 
 /* Recursive enumeration of divisors of n.
    primes, exps hold the factorization of n; num is number of prime factors.

@@ -11,15 +11,30 @@
  *            division by k
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 52, u64 n <= 99, u128 n <= 193,
  *            big any n
- * Helpers:   seq_w, zalloc_arr
+ * Validated: standard, pass, 51 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/zalloc_arr.h"
-#include "../utils/seq_w.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
+
+static int seq_w(void) {
+    static int W = -1;
+    if (W < 0) {
+        seq_t x = 1;
+        int w = 0;
+        while (w < 300 && x != 0) { x <<= 1; w++; }
+        W = (w >= 300) ? 0 : w;
+    }
+    return W;
+}
 
 #define P61 2305843009213693951ULL
 
@@ -108,7 +123,7 @@ static void build(idx_t N) {
     }
 
     free(mu); free(Lp); free(Xp);
-    free(Lw); free(pos); free(neg);
+    mem_free(Lw); mem_free(pos); mem_free(neg);
     A_cache = A;
     A_cap = N;
 }

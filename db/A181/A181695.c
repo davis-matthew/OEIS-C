@@ -10,13 +10,16 @@
  *            read by rows of T(n,m) with offset 1
  * Range:     u8 n <= 38, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/binom.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i <= max_i; ++i) {
         idx_t arg   = row - col * i;                       /* n - m*i */
         idx_t expo  = row - (col + 1) * i;                 /* n - (m+1)i */
-        seq_t bin   = binom(arg, i);                       /* binomial(arg,i)   */
+        seq_t bin   = binomial(arg, i);                       /* binomial(arg,i)   */
         seq_t p2    = pow2(expo);                         /* 2^expo            */
         seq_t term  = bin * p2;                           /* product (no overflow in arbitrary‑precision build) */
 

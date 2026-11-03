@@ -8,6 +8,7 @@
  * Formula:   a(n) = 3^n * A000108(n-1) = (3^n/(n)) * binomial(2n-2, n-1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 38,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 852 (2026-11-01)
  * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,10 @@
 
 /* a(1) = 3, a(n) = a(1)*a(n-1)+a(2)*a(n-2)+...+a(n-1)*a(1)  (n>=2)  */
 
-#include "../utils/pow3.h"    /* seq_t pow3(idx_t exp); */
-#include "../utils/binomial.h" /* seq_t binomial(idx_t n, idx_t k); */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Node stores a value `c` and its corresponding D(c). */
 struct Node {
@@ -37,7 +39,7 @@ static void heap_push(seq_t c, seq_t d)
 {
     if (heap_sz == heap_cap) {
         size_t new_cap = heap_cap ? heap_cap * 2 : 16;
-        struct Node *tmp = (struct Node*)realloc(heap, new_cap * sizeof(struct Node));
+        struct Node *tmp = mem_resize(struct Node, heap, new_cap);
         heap = tmp;
         heap_cap = new_cap;
     }
@@ -85,13 +87,13 @@ static void ensure_terms(idx_t n)
     /* Allocate storage for sequence terms if not yet done. */
     if (seq_arr == NULL) {
         seq_cap = 128;
-        seq_arr = (seq_t*)realloc(NULL, seq_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, NULL, seq_cap);
     }
 
     /* Allocate storage for heap and insert the root if not yet done. */
     if (heap == NULL) {
         heap_cap = 16;
-        heap = (struct Node*)realloc(NULL, heap_cap * sizeof(struct Node));
+        heap = mem_resize(struct Node, NULL, heap_cap);
         heap_sz = 0;
         heap_push((seq_t)0, (seq_t)1);      /* D(0) = 1 */
     }
@@ -99,7 +101,7 @@ static void ensure_terms(idx_t n)
     while (seq_len < (size_t)n) {
         if (seq_len >= seq_cap) {
             size_t new_cap = seq_cap ? seq_cap * 2 : 128;
-            seq_t *tmp = (seq_t*)realloc(seq_arr, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
             seq_arr = tmp;
             seq_cap = new_cap;
         }

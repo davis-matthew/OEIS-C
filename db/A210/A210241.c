@@ -7,7 +7,8 @@
  * Formula:   a(n) = A022559(n) + n
  * Range:     u8 n <= 77, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 75 terms through n = 9703 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
    number of prime factors of k counted with multiplicity. */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -74,7 +77,7 @@ seq_t a(idx_t n)
     /* Extend prefix sum array if needed */
     if (n > prefix_limit) {
         idx_t new_limit = n;
-        seq_t *new_pref = (seq_t *)malloc((new_limit + 1) * sizeof(seq_t));
+        seq_t *new_pref = mem_new(seq_t, (new_limit + 1));
         if (!new_pref)
             return 0; /* allocation failure */
 
@@ -83,7 +86,7 @@ seq_t a(idx_t n)
         if (prefix) {
             for (idx_t i = 0; i <= prefix_limit; ++i)
                 new_pref[i] = prefix[i];
-            free(prefix);
+            mem_free(prefix);
         }
 
         for (idx_t k = prefix_limit + 1; k <= new_limit; ++k)

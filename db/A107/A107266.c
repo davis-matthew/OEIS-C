@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 21,
+ * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,17 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
+
+/* intermediate type: 128 bits at the fixed widths, seq_t for big (where
+   __int128 would truncate) */
+#ifdef __cplusplus
+typedef seq_t wide_u;
+typedef seq_t wide_s;
+#else
+typedef unsigned __int128 wide_u;
+typedef __int128 wide_s;
+#endif
 
 static seq_t *dp = NULL;     /* cache of previously computed terms */
 static idx_t dp_cap = 0;     /* allocated capacity of dp */
@@ -35,11 +47,11 @@ static void ensure_capacity(idx_t n)
     /* Grow cache if necessary */
     if (dp_cap == 0) {
         dp_cap = 8;
-        dp = (seq_t*)malloc(dp_cap * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_cap);
     } else {
         while (dp_cap <= n) {
             dp_cap <<= 1;
-            dp = (seq_t*)realloc(dp, dp_cap * sizeof(seq_t));
+            dp = mem_resize(seq_t, dp, dp_cap);
         }
     }
 
@@ -51,11 +63,11 @@ static void ensure_capacity(idx_t n)
             dp[i] = (seq_t)6;
         } else {
 #ifdef __SIZEOF_INT128__
-            unsigned __int128 t1 = (unsigned __int128)dp[i-1] *
+            wide_u t1 = (wide_u)dp[i-1] *
                                   (uint64_t)(6 * (2*i + 1));
-            unsigned __int128 t2 = (unsigned __int128)dp[i-2] *
+            wide_u t2 = (wide_u)dp[i-2] *
                                   (uint64_t)(12 * (i-1));
-            unsigned __int128 num = t1 - t2;
+            wide_u num = t1 - t2;
             dp[i] = (seq_t)(num / (uint64_t)(i + 2));
 #else
             seq_t t1 = dp[i-1] * (seq_t)(6 * (2*i + 1));

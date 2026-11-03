@@ -10,7 +10,8 @@
  *            constant (the concatenation 1,2,3,4,5,…)
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 46 terms through n = 838 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Global state retained across calls to a(). */
 static seq_t *prime_buffer = NULL;  /* array of primes found so far   */
@@ -64,7 +67,7 @@ static uint8_t next_cham_digit(void)
 static void grow_prime_buffer(void)
 {
     size_t new_cap = prime_cap == 0 ? 16 : prime_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(prime_buffer, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_buffer, new_cap);
     if (tmp == NULL) exit(1);                 /* memory exhausted */
     prime_buffer = tmp;
     prime_cap = new_cap;
@@ -91,7 +94,7 @@ seq_t a(idx_t n)
 
         /* Test the window when it has 6 digits and no leading zero. */
         if (window_len == 6 && window_value >= 100000) {
-            if (is_prime((uint64_t)window_value)) {
+            if (is_prime_u64((uint64_t)window_value)) {
                 prime_buffer[prime_cnt++] = (seq_t)window_value;
             }
         }

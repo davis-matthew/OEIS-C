@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   int_sqrt_idx
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
  */
 
 #include <stdint.h>
-#include "../utils/int_sqrt_idx.h"
+#include <stdbool.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -30,13 +32,13 @@ seq_t a(idx_t n)
     idx_t bestSum = (idx_t)-1;            /* large */
     idx_t bestC   = 0;
 
-    idx_t sqrt_n  = int_sqrt_idx(n);      /* floor(sqrt(n)) */
+    idx_t sqrt_n  = isqrt(n);      /* floor(sqrt(n)) */
 
     for (idx_t a = 1; a <= sqrt_n; ++a)
     {
         if (n % a != 0) continue;
         idx_t n1 = n / a;
-        idx_t sqrt_n1 = int_sqrt_idx(n1);
+        idx_t sqrt_n1 = isqrt(n1);
 
         for (idx_t b = a; b <= sqrt_n1; ++b)
         {

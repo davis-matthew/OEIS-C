@@ -8,20 +8,21 @@
  *            C(0,0) = 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 28, u128 n <= 59,
  *            big any n
- * Helpers:   a002736_gcd_u
+ * Validated: standard, pass, 39 terms through n = 197 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002736_gcd_u.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t c = 1;
     idx_t k;
     for (k = 1; k <= n; k++) {
         uint64_t r = (uint64_t)(c % (seq_t)k);
-        uint64_t g = a002736_gcd_u((uint64_t)k, r);
+        uint64_t g = gcd_u64((uint64_t)k, r);
         uint64_t kg = (uint64_t)k / g;
         uint64_t m = 2 * (2 * (uint64_t)k - 1);
         c = (c / (seq_t)g) * (seq_t)(m / kg);

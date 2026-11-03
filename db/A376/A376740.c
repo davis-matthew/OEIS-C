@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 144, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9907 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>  /* for bool */
 #include <stdint.h>   /* for uint64_t */
 #include <stdlib.h>   /* for malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static const uint64_t _two_digit_primes[] = {
     11,13,17,19,23,29,31,37,41,43,47,
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary. */
             if (_cache_len == _cache_cap) {
                 idx_t new_cap = _cache_cap ? _cache_cap * 2 : 128;
-                seq_t *tmp = (seq_t *)realloc(_cache, sizeof(seq_t) * new_cap);
+                seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
                 if (!tmp) abort();       /* out of memory – terminate safely */
                 _cache     = tmp;
                 _cache_cap = new_cap;

@@ -9,14 +9,17 @@
  *            a(2) = 1
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 36, u64 n <= 69, u128 n <= 136,
  *            big any n
- * Helpers:   rev
+ * Validated: standard, pass, 52 terms through n = 989 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/rev.h"
+#include <stdbool.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *seq = NULL;
@@ -26,7 +29,7 @@ seq_t a(idx_t n) {
     /* initial terms */
     if (sz == 0) {
         cap = 4;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         if (seq == NULL) return 0;            /* out of memory */
         seq[0] = 0;
         seq[1] = 0;
@@ -43,7 +46,7 @@ seq_t a(idx_t n) {
     if (needed > cap) {
         size_t newcap = cap > 0 ? cap : 4;
         while (newcap < needed) newcap <<= 1;
-        seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, newcap);
         if (seq == NULL) return 0;            /* out of memory */
         cap = newcap;
     }
@@ -52,7 +55,7 @@ seq_t a(idx_t n) {
         seq_t a1 = seq[(size_t)(i - 1)];
         seq_t a2 = seq[(size_t)(i - 2)];
         seq_t a3 = seq[(size_t)(i - 3)];
-        seq[(size_t)i] = rev(rev(a1) + rev(a2) + a3);
+        seq[(size_t)i] = reverse_digits(reverse_digits(a1) + reverse_digits(a2) + a3);
     }
     sz = n + 1;
     return seq[(size_t)n];

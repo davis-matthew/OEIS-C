@@ -12,21 +12,25 @@
  *            1..p-1 (rightmost prime varying fastest)
  * Range:     u8 n <= 61, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 /* Modular inverse modulo a prime modulus */
 static seq_t modinv(seq_t a, seq_t mod)
 {
     seq_t a_mod = a % mod;
     uint64_t m = (uint64_t)mod;
-    return mod_pow(a_mod, m - 2, mod);
+    return powmod(a_mod, m - 2, mod);
 }
 
 seq_t a(idx_t n)

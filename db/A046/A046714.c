@@ -7,12 +7,14 @@
  * Formula:   a(n) = 5*a(n-1) + Catalan(n); a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values for a(n) */
 static seq_t *a_cache = NULL;   /* array of a values, 0..cached_to */
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 {
     /* Initialise cache for n = 0 on first call */
     if (a_cache == NULL) {
-        a_cache   = (seq_t *)malloc(sizeof(seq_t));  /* capacity for index 0 */
+        a_cache   = mem_new(seq_t, 1);  /* capacity for index 0 */
         if (a_cache == NULL) abort();                /* allocation failure */
         a_cache[0] = (seq_t)1;                       /* a(0) = 1 */
         cached_to  = 0;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* Extend the cache to hold values up to n */
     size_t new_cap = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_cap);
     if (new_cache == NULL) abort();
     a_cache = new_cache;
 

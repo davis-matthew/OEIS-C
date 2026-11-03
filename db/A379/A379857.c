@@ -9,14 +9,28 @@
  *            of k distinct positive squares
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   max_square_count
+ * Validated: standard, pass, 101 terms through n = 9304 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/max_square_count.h"
+
+/* Compute max number of squares that can sum to n by using the smallest
+   squares 1^2 + 2^2 + ... + k^2 <= n.  */
+static size_t max_square_count(idx_t n)
+{
+    size_t k = 0;
+    seq_t sum = 0;
+    for (size_t i = 1; i * i <= n; ++i) {
+        sum += (seq_t)(i * i);
+        if (sum <= n) k = i;
+        else break;
+    }
+    return k;
+}
 
 /* Return number of set bits in a 64‑bit word.  GCC/Clang provide this builtin
    and C++ standard also defines it as __builtin_popcountll. */

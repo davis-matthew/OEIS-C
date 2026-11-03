@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 + n*(n+1)*(89*n^4+183*n^3+427*n^2+333*n+288)/60
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 37, u64 n <= 1521,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 43 terms through n = 9833 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

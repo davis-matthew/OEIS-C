@@ -11,7 +11,8 @@
  *            values
  * Range:     u8 n <= 20, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (n > a_cap) {
         size_t new_cap = a_cap ? a_cap * 2 : 16;
         if (new_cap < (size_t)n) new_cap = (size_t)n;
-        seq_t *tmp = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
         if (!tmp) return (seq_t)0;  /* allocation failure */
         a_vals = tmp;
         a_cap = new_cap;

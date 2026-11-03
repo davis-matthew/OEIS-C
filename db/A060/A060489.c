@@ -8,12 +8,13 @@
  *            term 9*binomial(n-1,-1) is always zero)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 43, u64 n <= 568, u128 n <= 1000,
  *            big any n
- * Helpers:   binom128
+ * Validated: standard, pass, 48 terms through n = 969 (2026-11-01)
+ * Helpers:   binomial_idx_to_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom128.h"
+#include "../utils/binomial_idx_to_u128.h"
 
 seq_t a(idx_t n)
 {
@@ -22,8 +23,8 @@ seq_t a(idx_t n)
     /* Intermediate results are kept in signed 128‑bit integers to avoid
        overflow and to allow the subtraction of a larger term from a
        smaller one without wrap‑around. */
-    __int128 b1 = (__int128)binom128(n + 9, 9);   /* C(n+9,9)   */
-    __int128 b2 = (__int128)binom128(n + 3, 3);   /* C(n+3,3)   */
+    __int128 b1 = (__int128)binomial_idx_to_u128(n + 9, 9);   /* C(n+9,9)   */
+    __int128 b2 = (__int128)binomial_idx_to_u128(n + 3, 3);   /* C(n+3,3)   */
 
     __int128 res = b1
                    - 15 * b2

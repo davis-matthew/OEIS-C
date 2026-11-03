@@ -9,7 +9,8 @@
  *            binomial(i+j-1,j) * binomial(j,n-i-j)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 39 terms through n = 975 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 /* Implementation uses incremental computation of the inner binomials
    to run in O(n^2) time and O(1) additional memory. */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
                 c1 = c1 * (i + j - 1) / j;
 
             /* c2 for the first j in the inner sum */
-            seq_t c2 = binom(j_start, limit - j_start);
+            seq_t c2 = binomial(j_start, limit - j_start);
 
             for (idx_t j = j_start; ; ++j) {
                 seq_t term = c1 * c2;

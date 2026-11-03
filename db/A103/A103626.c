@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 101, u32 n <= 206, u64 n <= 418,
  *            u128 n <= 841, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Base values for n = 0..15 are
    1,1,1,1,1,2,2,2,1,3,4,4,1,5,6,7   (the first 16 terms of A103626) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* first call – initialise the table with the first 16 terms */
     if (values == NULL) {
         capacity = 16;
-        values = (seq_t*)malloc(capacity * sizeof(seq_t));
+        values = mem_new(seq_t, capacity);
         for (idx_t i = 0; i < capacity; ++i)
             values[i] = init_vals[i];
         max_n = 15;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* enlarge the table if necessary */
     if (n + 1 > capacity) {
         capacity = n + 1;
-        values = (seq_t*)realloc(values, capacity * sizeof(seq_t));
+        values = mem_resize(seq_t, values, capacity);
     }
 
     /* compute the new values using the recurrence */

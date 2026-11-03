@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 7, u32 n <= 26, u64 n <= 66, u128 n <= 144,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 170 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define DP_STATES 1024          /* 32 × 32 */
 
@@ -124,11 +126,11 @@ seq_t a(idx_t n)
     init_tables();
 
     /* DP arrays for current and next column length */
-    seq_t *dp_cur  = (seq_t *)calloc(DP_STATES, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(DP_STATES, sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, DP_STATES);
+    seq_t *dp_next = mem_new(seq_t, DP_STATES);
     if (!dp_cur || !dp_next) {
-        free(dp_cur);
-        free(dp_next);
+        mem_free(dp_cur);
+        mem_free(dp_next);
         return 0;       /* out of memory → return 0 */
     }
 
@@ -145,7 +147,7 @@ seq_t a(idx_t n)
 
     /* propagate over the remaining columns */
     for (idx_t step = 0; step < N - 2; ++step) {
-        memset(dp_next, 0, DP_STATES * sizeof(seq_t));
+        mem_set(dp_next, 0, DP_STATES * sizeof(seq_t));
         for (int s = 0; s < DP_STATES; ++s) {
             seq_t cnt = dp_cur[s];
             if (!cnt)
@@ -169,7 +171,7 @@ seq_t a(idx_t n)
     for (int s = 0; s < DP_STATES; ++s)
         result = result + dp_cur[s];
 
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return result;
 }

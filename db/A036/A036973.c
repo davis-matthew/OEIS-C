@@ -7,11 +7,13 @@
  * Formula:   a(n) = (7*n^3+4*n^2+4*n)*binomial(2*n,n)/30
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

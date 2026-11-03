@@ -9,12 +9,14 @@
  *            a(n-1)/2 if a(n-1) is even. ( OEIS offset 1 )
  * Range:     u8 n <= 49, u16 n <= 125, u32 n <= 439, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (!cache)
     {
         capacity = (n > 128) ? n : 128;
-        cache = (seq_t *)calloc(capacity, sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) abort();
     }
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     {
         size_t newcap = capacity;
         while (newcap < n) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();
         cache = tmp;
         capacity = newcap;

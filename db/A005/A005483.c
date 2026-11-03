@@ -9,9 +9,10 @@
  *            r_{n+1} = 1/(r_n - a(n)); each r_n is tracked as the unique real
  *            root of an integer cubic, transformed by x -> a(n) + 1/y at each
  *            step
- * Range:     u8 n <= 27, u16 n <= 9942, u32 n <= 9942, u64 n <= 9942,
- *            u128 n <= 9942, big any n
- * Helpers:   mag_cmp
+ * Range:     u8 n <= 27, u16 n <= 19999, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 101 terms through n = 9942 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mag_cmp.h"
+
+static int mag_cmp(const uint32_t *a, size_t la, const uint32_t *b, size_t lb) {
+    size_t i;
+    if (la != lb) return la < lb ? -1 : 1;
+    for (i = la; i-- > 0;) {
+        if (a[i] != b[i]) return a[i] < b[i] ? -1 : 1;
+    }
+    return 0;
+}
 
 typedef struct { int neg; size_t len, cap; uint32_t *d; } cf_bn;
 

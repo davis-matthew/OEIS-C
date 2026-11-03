@@ -9,6 +9,7 @@
  *            = ∏_p a(p^e)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 239, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 52 terms through n = 9949 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static inline __int128 pow_int128(uint64_t base, unsigned int exp)

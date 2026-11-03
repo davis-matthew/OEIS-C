@@ -10,12 +10,14 @@
  *            a(15)=10
  * Range:     u8 n <= 30, u16 n <= 56, u32 n <= 108, u64 n <= 213,
  *            u128 n <= 422, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[16] = {
     1, 1, 1, 1, 1, 1, 1, 1,
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* If the cache has never been created, allocate it up to sn. */
     if (cache == NULL) {
         cache_size = sn + 1;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort(); /* allocation failed */
 
         /* Copy the known initial segment. */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     /* The cache must be enlarged. */
     size_t old_size = cache_size;
     cache_size = sn + 1;
-    seq_t *tmp = (seq_t*)realloc(cache, cache_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_size);
     if (!tmp) abort();
     cache = tmp;
 

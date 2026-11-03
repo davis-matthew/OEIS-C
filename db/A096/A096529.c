@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   _factor_u64, isPrime
+ * Validated: standard, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,42 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/_factor_u64.h"   /* void _factor_u64(uint64_t n, uint64_t *pr,
-                                      uint64_t *exp, size_t *cnt) */
-#include "../utils/isPrime.h"       /* bool isPrime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* ---------- Trial division factorisation ----------------------------------- */
+static void _factor_u64(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    *cnt = 0;
+    if (n < 2) return;
+    /* factor 2 separately */
+    if ((n & 1ULL) == 0) {
+        pr[*cnt] = 2ULL;
+        exp[*cnt] = 0;
+        while ((n & 1ULL) == 0) {
+            n >>= 1;
+            exp[*cnt] += 1;
+        }
+        (*cnt)++;
+    }
+    /* odd primes */
+    for (uint64_t d = 3ULL; d * d <= n; d += 2ULL) {
+        if (n % d == 0) {
+            pr[*cnt] = d;
+            exp[*cnt] = 0;
+            while (n % d == 0) {
+                n /= d;
+                exp[*cnt] += 1;
+            }
+            (*cnt)++;
+        }
+    }
+    if (n > 1) {
+        pr[*cnt] = n;
+        exp[*cnt] = 1;
+        (*cnt)++;
+    }
+}
 
 /* ---------- helper: generate all divisors ---------- */
 static void gen_divs_rec(const uint64_t *pr, const uint64_t *exp,
@@ -63,7 +97,7 @@ static bool dfs_perm(size_t depth, size_t last1, size_t last2,
         if (used[j])
             continue;
         uint64_t sum = dv[last1] + dv[last2] + dv[j];
-        if (!isPrime((idx_t)sum))
+        if (!is_prime((idx_t)sum))
             continue;
         used[j] = true;
         if (dfs_perm(depth + 1, last2, j, used, dv, d))
@@ -92,7 +126,7 @@ static bool has_property(uint64_t n)
 
     if (d == 3) {                  /* only one triple – sum of all */
         uint64_t sum = divs[0] + divs[1] + divs[2];
-        return isPrime((idx_t)sum);
+        return is_prime((idx_t)sum);
     }
 
     bool used[4096];
@@ -123,8 +157,7 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n) {
         ++checked;
         if (has_property(checked)) {
-            seq_t *tmp = (seq_t *)realloc(seq_cache,
-                        (cache_len + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, (cache_len + 1));
             if (!tmp)
                 exit(1);          /* allocation failure */
             seq_cache = tmp;

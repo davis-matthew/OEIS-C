@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 /* Header for the binomial helper supplied by the test harness */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Compute a single term a(n).  The algorithm runs in O(n²) time
    and uses only integer arithmetic.  It works for any seq_t width
@@ -38,7 +39,7 @@ static seq_t compute_a(idx_t n)
         /* Pre‑compute the first term of the second binomial */
         idx_t k = 5 * i - 1;              /* fixed lower index */
         idx_t m = n + 4 * i - 1;          /* initial upper index for j = 0 */
-        seq_t bj = binom(m, k);           /* binom(m,k) */
+        seq_t bj = binomial(m, k);           /* binom(m,k) */
 
         for (idx_t j = 0; j <= i; ++j)
         {

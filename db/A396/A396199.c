@@ -8,11 +8,14 @@
  * Formula:   a(n) = (n + 1) * (2^(n + 1) - binomial(n, floor(n / 2)))
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 26, u64 n <= 57, u128 n <= 120,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 996 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

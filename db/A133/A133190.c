@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Ensure that *arr has room for indices up to n (inclusive). */
 static void ensure_cache(idx_t n, seq_t **arr, size_t *cap)
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t n, seq_t **arr, size_t *cap)
     if (*cap < (size_t)(n + 1))
     {
         size_t new_cap = (size_t)(n + 1);
-        void *tmp = realloc(*arr, new_cap * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp)
             abort();
         *arr = (seq_t*)tmp;

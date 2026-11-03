@@ -12,14 +12,15 @@
  *            rectangular array A(n,k)
  * Range:     u8 n <= 10, u16 n <= 11, u32 n <= 16, u64 n <= 22, u128 n <= 29,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 45 terms through n = 75 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* includes */
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 /* fast doubling Fibonacci for an index that fits in seq_t */
 static seq_t fib_big(seq_t n)
@@ -27,7 +28,7 @@ static seq_t fib_big(seq_t n)
     if (n == 0) return 0;
     seq_t a = 0;      /* F(k)   */
     seq_t b = 1;      /* F(k+1) */
-    unsigned int bits = bitlen_seq_t(n);
+    unsigned int bits = bit_length(n);
     unsigned int i;
     for (i = bits - 1; ; --i) {
         seq_t two_b = b + b;                        /* 2*b   */

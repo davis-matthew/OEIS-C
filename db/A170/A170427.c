@@ -9,7 +9,8 @@
  *            44: a(n) = 32 * (a(n-1)+...+a(n-43)) - 528 * a(n-44)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   alloc_cache, big_pow, grow_seq_array
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,28 @@
 #include <stdint.h>
 
 /* Utility functions supplied by the build */
-#include "../utils/big_pow.h"
-#include "../utils/alloc_cache.h"
-#include "../utils/grow_seq_array.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;      /* actual allocated size */
@@ -65,7 +85,7 @@ seq_t a(idx_t n)
                     cache[0] = 1;
                 } else if (i < 44) {
                     /* a(i) = 34 * 33^(i-1) */
-                    cache[i] = C_34 * big_pow(C_33, (seq_t)(i - 1));
+                    cache[i] = C_34 * ipow(C_33, (seq_t)(i - 1));
                 } else { /* i == 44 */
                     /* compute sum of a(1)..a(43) */
                     sum43 = 0;

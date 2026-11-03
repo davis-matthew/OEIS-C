@@ -9,7 +9,8 @@
  *            1,2,…,n,n‑1,…,1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   digits15, pow15_int
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,26 @@
 /* The implementation builds the value by repeatedly appending digits in base 15. */
 
 #include <stdint.h>
-#include "../utils/digits15.h"
-#include "../utils/pow15_int.h"
+
+/* Return the number of base‑15 digits of a positive number x. */
+static inline int digits15(idx_t x)
+{
+    int d = 0;
+    do {
+        ++d;
+        x /= 15;
+    } while (x);
+    return d;
+}
+
+/* Compute 15^d where d is a small non‑negative integer. */
+static inline seq_t pow15_int(int d)
+{
+    seq_t p = 1;
+    for (int i = 0; i < d; ++i)
+        p *= 15;
+    return p;
+}
 
 /* OEIS sequence A260865. */
 seq_t a(idx_t n)

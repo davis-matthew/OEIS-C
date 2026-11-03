@@ -8,14 +8,31 @@
  *            all odd prime factors of n ≡1 (mod4) -> 1; else -> 2
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   odd_factors_all_one_mod_four
+ * Validated: standard, pass, 110 terms through n = 9731 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/odd_factors_all_one_mod_four.h"
+
+static bool odd_factors_all_one_mod_four(idx_t n) {
+    /* n is guaranteed to be odd (or 1). */
+    if (n <= 1) return true;
+    idx_t d = 3;
+    /* trial division up to sqrt(n) using 128‑bit comparison to avoid overflow */
+    while ((__uint128_t)d * d <= n) {
+        if (n % d == 0) {
+            if (d % 4 != 1) return false;
+            while (n % d == 0) n /= d;
+        }
+        d += 2;
+    }
+    /* remaining prime factor, if any */
+    if (n > 1) return (n % 4 == 1);
+    return true;
+}
 
 seq_t a(idx_t n) {
     if (n == 1) return (seq_t)0;

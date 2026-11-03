@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has13_base4
+ * Validated: standard, pass, 64 terms through n = 889 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
    and guarantees values are computed exactly for all supported seq_t types. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has13_base4.h"
+
+static bool has13_base4(seq_t v)
+{
+    /* Return true if the base‑4 representation of v contains the pattern
+       1 followed by 3 (most significant to least significant). */
+    if (v == 0) return false;
+    seq_t prev = v % 4;   /* least significant digit */
+    v /= 4;
+    while (v > 0) {
+        seq_t curr = v % 4;
+        if (prev == 3 && curr == 1) return true;   /* pattern 1 3 seen */
+        prev = curr;
+        v /= 4;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

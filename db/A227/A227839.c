@@ -8,13 +8,15 @@
  *            iteratively)
  * Range:     u8 n <= 100, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 125 terms through n = 8937 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Computes A227839: a(n) = v_3( Recamán(n) ), where Recamán is defined
    with a(0)=0 and for n>=1: if a(n-1)-n >=0 and not already seen, use it;
@@ -34,16 +36,16 @@ static void computeUpTo(idx_t n)
     if (recVals == NULL) {
         size_t init = n + 1;
         if (init < 16) init = 16;
-        recVals = (seq_t*)malloc(init * sizeof(seq_t));
-        aVals   = (seq_t*)malloc(init * sizeof(seq_t));
+        recVals = mem_new(seq_t, init);
+        aVals   = mem_new(seq_t, init);
         cap     = init;
         recVals[0] = (seq_t)0;
         aVals[0]   = (seq_t)0;
     } else if (cap <= (size_t)n) {
         size_t newCap = cap;
         while (newCap <= (size_t)n) newCap <<= 1;
-        recVals = (seq_t*)realloc(recVals, newCap * sizeof(seq_t));
-        aVals   = (seq_t*)realloc(aVals,   newCap * sizeof(seq_t));
+        recVals = mem_resize(seq_t, recVals, newCap);
+        aVals   = mem_resize(seq_t, aVals, newCap);
         cap     = newCap;
     }
 

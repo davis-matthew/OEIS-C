@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 61 terms through n = 870 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/is_prime.h"  /* bool is_prime(idx_t n); */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Grow a dynamic array of seq_t values. */
 static void grow_seq(seq_t **p, size_t *cap, size_t need)
@@ -27,7 +30,7 @@ static void grow_seq(seq_t **p, size_t *cap, size_t need)
     if (*cap < need) {
         size_t newcap = (*cap == 0 ? 8 : *cap << 1);
         while (newcap < need) newcap <<= 1;
-        *p = (seq_t *)realloc(*p, newcap * sizeof(seq_t));
+        *p = mem_resize(seq_t, *p, newcap);
         *cap = newcap;
     }
 }
@@ -42,7 +45,7 @@ static uint64_t next_candidate = 2;  /* first number to test */
 static bool residue26(uint64_t p)
 {
     /* Legendre symbol (26|p) via Euler's criterion. */
-    seq_t r = mod_pow((seq_t)26, (uint64_t)((p - 1) / 2), (seq_t)p);
+    seq_t r = powmod((seq_t)26, (uint64_t)((p - 1) / 2), (seq_t)p);
     return r == (seq_t)1;
 }
 

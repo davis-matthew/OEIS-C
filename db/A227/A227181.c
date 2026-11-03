@@ -12,6 +12,7 @@
  *            * *Find the row r such that the running total of...
  * Range:     u8 n <= 1375, u16 n <= 9951, u32 n <= 9951, u64 n <= 9951,
  *            u128 n <= 9951, big any n
+ * Validated: standard, pass, 93 terms through n = 9665 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

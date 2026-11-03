@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 25, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve (simple, on‑demand) ---------- */
 static uint32_t *prime_list = NULL;   /* array of primes  (1‑based) */
@@ -84,7 +86,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 2;         /* small guard space */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;                      /* allocation failure – unlikely */
         cache = tmp;
         cache_cap = new_cap;
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
     /* first‑time initialization */
     if (!cache) {
         cache_cap = 3;                                    /* 0,1,2 indices at least */
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;                             /* allocation failure */
         cache[1] = 1;                                     /* a(1) = 1 */
         computed_max = 1;

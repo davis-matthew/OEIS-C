@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
    Then a(n) = 1 iff gcd(r,k)=1 and k∤(r−1), otherwise 0.
    (k=0 is always 0.) */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n) {

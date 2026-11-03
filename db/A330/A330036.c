@@ -9,7 +9,8 @@
  * Formula:   a(n) = A087117(n) + A038374(n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   max_idx_t
+ * Validated: standard, pass, 99 terms through n = 9066 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,12 @@
  *  A038374(n): length of the longest run of 1's in the binary representation of n
  */
 #include <stdbool.h>
-#include "../utils/max_idx_t.h"
+
+static inline idx_t
+max_idx_t(idx_t a, idx_t b)
+{
+    return (a > b) ? a : b;
+}
 
 /* Return a(n).  n is the OEIS index (offset 0).  */
 seq_t

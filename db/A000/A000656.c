@@ -12,7 +12,8 @@
  *            (centralizer of the cycle type in S(2^n)), m_d = (1...
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   igcd, mobius, pdegree, pmod
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_i32, mobius_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,17 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../utils/igcd.h"
-#include "../utils/mobius.h"
-#include "../utils/pdegree.h"
-#include "../utils/pmod.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/mobius_i32.h"
+
+static int pdegree(uint32_t a) { int d = -1; while (a) { a >>= 1; d++; } return d; }
+
+static uint32_t pmod(uint32_t a, uint32_t q, int dq)
+{
+    int da;
+    while (a && (da = pdegree(a)) >= dq) a ^= q << (da - dq);
+    return a;
+}
 
 #define NMAX 15
 #define KMAX 128
@@ -94,12 +102,12 @@ static void gen_lams(int rem, int maxp, int np)
         uint64_t z = 1, nf = 1;
         for (i = 0; i < np; i++) lam_parts[nlam][i] = cur[i];
         lam_np[nlam] = np;
-        for (i = 0; i < np; i++) L = L / igcd(L, cur[i]) * cur[i];
+        for (i = 0; i < np; i++) L = L / gcd_i32(L, cur[i]) * cur[i];
         lam_L[nlam] = L;
         if (L > kmax_used) kmax_used = L;
         for (k = 1; k <= L; k++) {
             int c = 0;
-            for (i = 0; i < np; i++) c += igcd(cur[i], k);
+            for (i = 0; i < np; i++) c += gcd_i32(cur[i], k);
             lam_F[nlam][k] = c;
         }
         memset(cnt, 0, sizeof cnt);
@@ -212,9 +220,9 @@ static void cyc_counts(int l, int64_t *md)
         for (e = 1; e <= d; e++) {
             int c = 0, mu;
             if (d % e) continue;
-            mu = mobius(d / e);
+            mu = mobius_i32(d / e);
             if (!mu) continue;
-            for (i = 0; i < lam_np[l]; i++) c += igcd(lam_parts[l][i], e);
+            for (i = 0; i < lam_np[l]; i++) c += gcd_i32(lam_parts[l][i], e);
             s += mu * ((int64_t)1 << c);
         }
         md[d] = s / d;

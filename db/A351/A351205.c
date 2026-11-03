@@ -10,7 +10,8 @@
  *            number
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Helper: test whether a number has a repeated run in its binary      */
@@ -36,7 +38,7 @@ static bool has_repeated_runs(seq_t x)
     /* Determine number of significant bits.  For arbitrary precision
        the returned value may be larger than 64 but at most the bit
        width of seq_t, which is fine for small stacks. */
-    unsigned len = bitlen_seq_t(x);
+    unsigned len = bit_length(x);
     if (len <= 1)
         return false;          /* single-bit numbers cannot repeat */
 
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
         /* Ensure capacity for another element */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();    /* fatal allocation error */
             cache = tmp;
             cache_cap = new_cap;

@@ -9,6 +9,7 @@
  * Formula:   a(1)=1; for k>=1 a(2k) = 3*2^(k-1)-1 a(2k+1) = 3*2^(k-1)
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

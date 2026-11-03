@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 15, i64 n <= 24, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 /* Standard C headers – they are available in both C and C++ builds */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system.  They are
    signed integer types of arbitrary width and unsigned 64‑bit
@@ -42,13 +44,13 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;                 /* assume n fits into size_t */
     size_t len = N + 1;                   /* indices 0..N */
 
-    seq_t *new_cache = (seq_t*)calloc(len, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, len);
     if (!new_cache)                       /* out of memory */
         return (seq_t)0;
 
-    seq_t *b = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, len);
     if (!b) {
-        free(new_cache);
+        mem_free(new_cache);
         return (seq_t)0;
     }
 
@@ -74,8 +76,8 @@ seq_t a(idx_t n)
     }
 
     /* remember the newly computed series */
-    free(cache);
-    free(b);
+    mem_free(cache);
+    mem_free(b);
     cache = new_cache;
     cache_len = (idx_t)len;
 

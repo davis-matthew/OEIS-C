@@ -10,7 +10,8 @@
  *            or 8
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 26, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*--- constants ---------------------------------------------------*/
 #define WIDTH      7
@@ -141,8 +143,8 @@ seq_t a(idx_t n)
     /* initialise tables once */
     if (!built) {
         build_tables();
-        dp  = (seq_t*)malloc(STATES * sizeof(seq_t));
-        ndp = (seq_t*)malloc(STATES * sizeof(seq_t));
+        dp  = mem_new(seq_t, STATES);
+        ndp = mem_new(seq_t, STATES);
         if (!dp || !ndp) abort();
         /* zero init */
         for (int i = 0; i < STATES; ++i) { dp[i] = 0; ndp[i] = 0; }

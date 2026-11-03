@@ -8,12 +8,14 @@
  *            a(-1) = -1 Recurrence holds for n ≥ 0
  * Range:     i8 n <= 0, i16 n <= 2, i32 n <= 4, i64 n <= 9, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 249 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Euclidean algorithm for seq_t (handles signed types) */
 static seq_t gcd_seq_t(seq_t a, seq_t b)
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* initialize cache on first invocation */
     if (!cache) {
         cap = 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;          /* malloc failed */
         cache[0] = (seq_t)-1;          /* a(-1) */
         last_n = -1;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if ((size_t)idx >= cap) {
         size_t new_cap = (size_t)idx + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;
         cache = tmp;
         cap = new_cap;

@@ -9,15 +9,56 @@
  *            τ(n) (apply f at least once)
  * Range:     u8 n <= 39, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   isPrimeGeneric, isqrt_seq
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/isqrt_seq.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
 
 /* Compute τ(n) for an arbitrary seq_t value */
 static seq_t tau_seq(seq_t n)

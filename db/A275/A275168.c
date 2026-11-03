@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 145, u32 n <= 150, u64 n <= 150,
  *            u128 n <= 150, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 138 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define LIMIT 200000U          /* Upper bound containing all known terms */
 
@@ -72,7 +74,7 @@ _init_nonrep(seq_t **out, idx_t *cnt)
     /* Collect the non‑representable numbers into a dynamic array. */
     size_t cap = 256;
     size_t len = 0;
-    seq_t *res = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, cap);
     if (!res)
         return;               /* Allocation failure – should not happen. */
 
@@ -80,9 +82,9 @@ _init_nonrep(seq_t **out, idx_t *cnt)
         if (!bitmap[i]) {
             if (len == cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(res, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, res, cap);
                 if (!tmp) {
-                    free(res);
+                    mem_free(res);
                     return;
                 }
                 res = tmp;

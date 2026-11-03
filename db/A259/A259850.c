@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 528, u32 n <= 1230, u64 n <= 1230,
  *            u128 n <= 1230, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 74 terms through n = 1149 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
    uses only integer arithmetic and the utility functions provided. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static const size_t SPF_LIMIT = 2000000;   /* pre‑computed spf up to this limit */
 static const size_t HASH_SIZE  = 1u << 20; /* 1,048,576 buckets */
@@ -113,7 +116,7 @@ static void add_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         terms_cap = (terms_cap == 0 ? 64 : terms_cap << 1);
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_len++] = val;
 }
@@ -173,7 +176,7 @@ seq_t a(idx_t n)
     /* initialise structures on the first call */
     if (spf == NULL) {
         init_spf();
-        hash_table = (ratio_t *)calloc(HASH_SIZE, sizeof(ratio_t));
+        hash_table = mem_new(ratio_t, HASH_SIZE);
         hash_mask = HASH_SIZE - 1;
     }
 

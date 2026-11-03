@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Helper for casting malloced memory in a way that compiles in both C
    and C++. */
@@ -59,14 +61,14 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* Start with room for at least the initial 17 terms. */
         cap = 64;
-        cache = PTRCAST(malloc(cap * sizeof(seq_t)));
+        cache = PTRCAST(mem_new(seq_t, cap));
         if (!cache) abort();      /* unrecoverable failure */
 
 #ifdef __cplusplus
         /* Construct the objects in the array so that they are
            ready for assignment even when seq_t is a C++ class. */
         for (size_t i = 0; i < cap; ++i) {
-            ::new(&cache[i]) seq_t();
+            *(&cache[i]) = (seq_t)0;
         }
 #endif
         /* Copy the known initial terms into the cache. */
@@ -82,14 +84,14 @@ seq_t a(idx_t n) {
         size_t newcap = cap;
         /* Double until the new capacity is sufficient. */
         while (target >= newcap) newcap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();          /* unrecoverable failure */
         cache = tmp;
         cap = newcap;
 #ifdef __cplusplus
         /* Construct the newly added elements. */
         for (size_t i = 17; i < cap; ++i) {
-            ::new(&cache[i]) seq_t();
+            *(&cache[i]) = (seq_t)0;
         }
 #endif
     }

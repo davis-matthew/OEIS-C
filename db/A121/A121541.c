@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* offset 1 – if called with 0 return 0 (unused) */
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
     /* Initialise sequence array on first call */
     if (seq == NULL) {
         seq_cap = 16;
-        seq     = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq     = mem_new(seq_t, seq_cap);
     }
 
     /* Generate terms until we have at least n of them */
@@ -67,7 +69,7 @@ seq_t a(idx_t n) {
             /* Grow sequence array if needed */
             if (seq_len >= seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-                seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                 seq = tmp;
                 seq_cap = new_cap;
             }

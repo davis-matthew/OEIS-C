@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 954, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9031 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--- small integer square root for 64‑bit unsigned integers --------------*/
 static uint64_t isqrt_u64(uint64_t n)
@@ -131,7 +133,7 @@ static void ensure_terms(uint64_t n)
             if (terms_cnt == terms_cap)
             {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 32;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 terms = tmp;
                 terms_cap = new_cap;

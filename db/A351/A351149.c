@@ -8,6 +8,7 @@
  * Formula:   a(n) = minimal k ≥ 1 such that popcount(n^(k+1)) ≤ popcount(n^k)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9151 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  *            primorial of the first i-1 primes)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 21,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     /* initialise caches on first call */
     if (a_cache == NULL) {
         a_cache_capacity = 1;
-        a_cache = (seq_t*)calloc(a_cache_capacity, sizeof(seq_t));
-        prim_cache = (seq_t*)calloc(a_cache_capacity, sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_capacity);
+        prim_cache = mem_new(seq_t, a_cache_capacity);
         a_cache[0] = (seq_t)1;
         prim_cache[0] = (seq_t)1;
     }
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
     if (n >= a_cache_capacity) {
         idx_t new_cap = a_cache_capacity ? a_cache_capacity << 1 : 16;
         while (new_cap <= n) new_cap <<= 1;
-        a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
-        prim_cache = (seq_t*)realloc(prim_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        prim_cache = mem_resize(seq_t, prim_cache, new_cap);
         a_cache_capacity = new_cap;
     }
 

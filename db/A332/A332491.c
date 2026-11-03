@@ -7,13 +7,15 @@
  * Formula:   a(n) = 2*a(n-1) + a(n-3) with a(0)=3, a(1)=1, a(2)=2
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 28, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache      = NULL;
@@ -32,7 +34,7 @@ static void ensure(idx_t n)
     if (cache == NULL) {
         /* initial allocation: at least first 3 terms */
         size_t init_cap = needed > 3 ? needed : 3;
-        cache = (seq_t*)malloc(sizeof(seq_t) * init_cap);
+        cache = mem_new(seq_t, init_cap);
         if (!cache) exit(EXIT_FAILURE);
         cache_cap      = init_cap;
         cache[0] = (seq_t)3;
@@ -43,7 +45,7 @@ static void ensure(idx_t n)
         size_t new_cap = cache_cap;
         while (new_cap < needed)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         cache     = tmp;
         cache_cap = new_cap;

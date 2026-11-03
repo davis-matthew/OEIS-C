@@ -7,13 +7,15 @@
  * Formula:   a(n) = [n,5]q with q = -6 (Gaussian binomial coefficient)
  * Range:     i8 n <= 5, i16 n <= 6, i32 n <= 7, i64 n <= 9, i128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 26 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
         /* power array with one element for exponent 0 */
         pow_cap = 1;
-        pow_arr = (seq_t*)malloc(sizeof(seq_t) * pow_cap);
+        pow_arr = mem_new(seq_t, pow_cap);
         if (!pow_arr) abort();
         pow_arr[0] = 1;
         pow_max = 0;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     if (pow_cap <= (size_t)n) {
         size_t new_cap = pow_cap ? pow_cap * 2 : 2;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(pow_arr, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, pow_arr, new_cap);
         if (!tmp) abort();
         pow_arr = tmp;
         pow_cap = new_cap;
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
             if (cache_cap <= (size_t)m) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
                 while (new_cap <= (size_t)m) new_cap <<= 1;
-                seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cache_cap = new_cap;

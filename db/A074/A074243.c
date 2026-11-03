@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9409 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint32_t *g_spf = NULL;          /* smallest prime factor */
 static uint32_t *g_primes = NULL;       /* list of primes up to current limit */
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
 
     if (!seq) {                         /* first call */
         seq_cap = 128;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = 1;
         seq_len = 1;
     }
@@ -104,8 +106,7 @@ seq_t a(idx_t n)
             if (is_good(next_to_check)) {
                 if (seq_len >= seq_cap) {
                     seq_cap <<= 1;
-                    seq_t *tmp = (seq_t*)realloc(seq, seq_cap *
-                                                sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, seq, seq_cap);
                     if (!tmp) return 0;            /* allocation failure */
                     seq = tmp;
                 }

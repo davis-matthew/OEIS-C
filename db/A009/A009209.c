@@ -9,13 +9,15 @@
  *            exp(sin(x))/exp(x))
  * Range:     i8 n <= 8, i16 n <= 12, i32 n <= 18, i64 n <= 26, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache for already evaluated terms */
 static seq_t *cache      = NULL;   /* pointer to sequence array */
@@ -31,7 +33,7 @@ static void ensure_capacity(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap *= 2;
     /* cast is needed for C++ where realloc returns void* */
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

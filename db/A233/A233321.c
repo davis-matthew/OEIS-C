@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 708, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   total_with_limit
+ * Validated: standard, pass, 121 terms through n = 1259 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,38 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/total_with_limit.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------ */
+static seq_t total_with_limit(idx_t r, idx_t k)
+{
+    /* Compute F(r,k): number of palindromic partitions of r with largest part ≤ k */
+    idx_t M = r >> 1;                     /* floor(r/2) */
+    size_t sz = (size_t)(M + 1);
+    seq_t *dp = mem_new(seq_t, sz);
+    if (!dp) return (seq_t)0;             /* allocation failure → 0 (should not happen) */
+
+    dp[0] = (seq_t)1;
+    for (idx_t i = 1; i <= M; ++i) dp[i] = (seq_t)0;
+
+    for (idx_t v = 1; v <= k; ++v) {
+        for (idx_t s = v; s <= M; ++s) {
+            dp[s] += dp[s - v];
+        }
+    }
+
+    seq_t total = (seq_t)0;
+    for (idx_t c = 0; c <= k; ++c) {
+        idx_t diff = r - c;
+        if ((diff & 1) == 0) {
+            idx_t m = diff >> 1;
+            total += dp[m];
+        }
+    }
+
+    mem_free(dp);
+    return total;
+}
 
 /* ------------------------------------------------------------ */
 /* External function required by the judge */

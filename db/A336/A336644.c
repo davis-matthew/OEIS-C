@@ -8,8 +8,9 @@
  * Formula:   a(n) = (n - rad(n)) / core(n) where rad(n) = product of distinct
  *            primes dividing n core(n) = product of primes dividing n to an
  *            odd exponent
- * Range:     u8 n <= 287, u16 n <= 9761, u32 n <= 9761, u64 n <= 9761,
- *            u128 n <= 9761, big any n
+ * Range:     u8 n <= 287, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9761 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

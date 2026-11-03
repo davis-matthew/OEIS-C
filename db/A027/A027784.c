@@ -7,11 +7,13 @@
  * Formula:   a(n) = binomial(n+1,10) * binomial(n+2,2)
  * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 26, u64 n <= 153,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 41 terms through n = 965 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

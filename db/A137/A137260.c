@@ -8,6 +8,7 @@
  *            = n - r(r-1)/2 * T(r,k) = k * (r-1)! - k!
  * Range:     u8 n <= 17, u16 n <= 37, u32 n <= 86, u64 n <= 217,
  *            u128 n <= 596, big any n
+ * Validated: standard, pass, 71 terms through n = 1255 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

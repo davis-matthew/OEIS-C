@@ -11,7 +11,8 @@
  *            are not powers of 2
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   is_power_of_two
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -31,18 +32,18 @@ seq_t a(idx_t n)
         seq_t row_s = (seq_t)row;
         idx_t len = 0;
 
-        if (is_power_of_two(row_s)) {
+        if (is_pow2(row_s)) {
             len = 1;
         } else {
             for (idx_t d = 1; d * d <= row; ++d) {
                 if (row % d == 0) {
                     seq_t d_s = (seq_t)d;
-                    if (!is_power_of_two(d_s))
+                    if (!is_pow2(d_s))
                         ++len;
                     idx_t d2 = row / d;
                     if (d2 != d) {
                         seq_t d2_s = (seq_t)d2;
-                        if (!is_power_of_two(d2_s))
+                        if (!is_pow2(d2_s))
                             ++len;
                     }
                 }
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
         if (sum + len >= n) {          /* row found */
             idx_t k = n - sum - 1;     /* zero‑based index in the row */
 
-            if (is_power_of_two(row_s))
+            if (is_pow2(row_s))
                 return 0;              /* row of a power of 2 */
 
             /* collect non‑power‑of‑2 divisors of row */
@@ -61,12 +62,12 @@ seq_t a(idx_t n)
             for (idx_t d = 1; d * d <= row; ++d) {
                 if (row % d == 0) {
                     seq_t d_s = (seq_t)d;
-                    if (!is_power_of_two(d_s))
+                    if (!is_pow2(d_s))
                         divs[cnt++] = d_s;
                     idx_t d2 = row / d;
                     if (d2 != d) {
                         seq_t d2_s = (seq_t)d2;
-                        if (!is_power_of_two(d2_s))
+                        if (!is_pow2(d2_s))
                             divs[cnt++] = d2_s;
                     }
                 }

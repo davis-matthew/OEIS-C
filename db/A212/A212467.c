@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 10, u64 n <= 27, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*  Number of possible states for the last 7 digits: 4^7 = 16384.  */
 #define STATE_SIZE 16384
@@ -71,11 +73,11 @@ seq_t a(idx_t n)
     /*  Ensure the cached array is large enough.  */
     if (L >= valid_size) {
         size_t new_size = L + 1;          /* include index 0   */
-        seq_t *new_valid = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_valid = mem_new(seq_t, new_size);
         if (!new_valid) return (seq_t)0;  /* allocation failure */
         if (valid) {
-            memcpy(new_valid, valid, valid_size * sizeof(seq_t));
-            free(valid);
+            mem_copy(new_valid, valid, valid_size * sizeof(seq_t));
+            mem_free(valid);
         }
         valid       = new_valid;
         valid_size  = new_size;
@@ -100,14 +102,14 @@ seq_t a(idx_t n)
 
         /*  Initialise DP tables once, for length 7.  */
         if (!dp_inited) {
-            dp_prev = (seq_t *)malloc(STATE_SIZE * sizeof(seq_t));
-            dp_next = (seq_t *)malloc(STATE_SIZE * sizeof(seq_t));
+            dp_prev = mem_new(seq_t, STATE_SIZE);
+            dp_next = mem_new(seq_t, STATE_SIZE);
             for (size_t i = 0; i < STATE_SIZE; ++i) dp_prev[i] = (seq_t)1;
             dp_inited = true;
         }
 
         /*  Clear the next‑state table.  */
-        memset(dp_next, 0, STATE_SIZE * sizeof(seq_t));
+        mem_set(dp_next, 0, STATE_SIZE * sizeof(seq_t));
 
         /*  Transition from sequences of length (computed_up‑1) to length computed_up.  */
         for (size_t s = 0; s < STATE_SIZE; ++s) {

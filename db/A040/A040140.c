@@ -9,16 +9,43 @@
  *            condition
  * Range:     u8 n <= 35, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, jacobi_symbol, mod_pow
+ * Validated: standard, pass, 63 terms through n = 913 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/jacobi_symbol.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +73,7 @@ seq_t a(idx_t n)
         int has_solution = 0;
         if ((cand & 3) == 1) {   /* cand % 4 == 1 */
             idx_t exp = (cand - 1) / 4;
-            seq_t r = mod_pow((seq_t)17, exp, (seq_t)cand);
+            seq_t r = powmod((seq_t)17, exp, (seq_t)cand);
             has_solution = (r == (seq_t)1);
         } else {                /* cand % 4 == 3 */
             /* Jacobi symbol (17/p) == 1 iff 17 is a quadratic residue.
@@ -58,8 +85,7 @@ seq_t a(idx_t n)
             /* Ensure capacity */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(prime_cache,
-                                               new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
                 if (!tmp) return (seq_t)0; /* allocation failure */
                 prime_cache = tmp;
                 cache_cap = new_cap;

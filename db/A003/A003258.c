@@ -11,15 +11,28 @@
  *            floor((j+1)/phi)
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   a3258_B, a3258_G, a3258_isqrt
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a3258_B.h"
-#include "../utils/a3258_G.h"
-#include "../utils/a3258_isqrt.h"
+#include "../utils/isqrt_u128.h"
+
+/* A003231(k) = floor((5k + sqrt(5k^2))/2) */
+static uint64_t a3258_B(uint64_t k) {
+    unsigned __int128 kk = k;
+    unsigned __int128 s = isqrt_u128(5 * kk * kk);
+    return (uint64_t)((5 * kk + s) / 2);
+}
+
+/* A005206(j) = floor((j+1)(sqrt(5)-1)/2) */
+static uint64_t a3258_G(uint64_t j) {
+    unsigned __int128 m = (unsigned __int128)j + 1;
+    unsigned __int128 s = isqrt_u128(5 * m * m);
+    return (uint64_t)((s - m) / 2);
+}
 
 seq_t a(idx_t n) {
     uint64_t v = a3258_G(a3258_B((uint64_t)n));

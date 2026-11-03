@@ -7,6 +7,7 @@
  * Formula:   a(n) = p(5n+4) where p(k) is the partition function
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 24, u64 n <= 82, u128 n <= 290,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 927 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

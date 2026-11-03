@@ -12,6 +12,7 @@
  *            read * as a decimal integer composed of 0’s and 1’s
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 682, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 53 terms through n = 9438 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

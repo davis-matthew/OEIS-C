@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External integer types provided by the build. */
 /* idx_t   – unsigned integer type for indices (e.g. uint64_t)   */
@@ -85,7 +87,7 @@ static void extend_cache(idx_t new_n)
     }
 
     /* Allocate a new counts array and zero it. */
-    seq_t *new_cache = (seq_t *)calloc(vis_len, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, vis_len);
     if (!new_cache) { free(visited); return; }
 
     /* Count all unordered triples of distinct perfect powers. */
@@ -105,7 +107,7 @@ static void extend_cache(idx_t new_n)
     }
 
     /* Replace the old cache with the new one. */
-    free(count_cache);
+    mem_free(count_cache);
     count_cache = new_cache;
     max_cached_n = new_n;
 

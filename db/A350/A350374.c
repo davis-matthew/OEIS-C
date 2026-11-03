@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4175, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9831 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* External integer types defined by the build system */
 extern idx_t _floor_isqrt_u64(idx_t n);
@@ -44,7 +46,7 @@ static void seq_reserve(size_t need)
     if (seq_cap < need) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 128;
         while (new_cap < need) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
         if (!tmp) abort();
         seq_arr = tmp;
         seq_cap = new_cap;
@@ -56,7 +58,7 @@ static void seq_append(seq_t v)
 {
     seq_reserve(seq_len + 1);
 #ifdef __cplusplus
-    new (&seq_arr[seq_len]) seq_t(v);   /* placement new for C++ */
+    *(&seq_arr[seq_len]) = (seq_t)(v);   /* placement new for C++ */
 #else
     seq_arr[seq_len] = v;              /* plain assignment for C */
 #endif
@@ -68,9 +70,9 @@ static void seq_free_all(void)
 {
 #ifdef __cplusplus
     for (size_t i = 0; i < seq_len; ++i)
-        seq_arr[i].~seq_t();
+(void)0;  /* mem_free destroys the elements */
 #endif
-    free(seq_arr);
+    mem_free(seq_arr);
     seq_arr = NULL;
     seq_len = 0;
     seq_cap = 0;

@@ -9,9 +9,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, fini, full, walk
  * Formula:   not stated
- * Range:     u8 n <= 117, u16 n <= 9517, u32 n <= 9517, u64 n <= 9517,
- *            u128 n <= 9517, big any n
- * Helpers:   none
+ * Range:     u8 n <= 117, u16 n <= 23015, u32 n <= 23015, u64 n <= 23015,
+ *            u128 n <= 23015, big any n
+ * Validated: full, pass, 23015 terms through n = 23015 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,12 +29,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build.      */
 typedef uint64_t idx_t;   /* index type */
 
-static const int MAX_NUM   = 26000;   /* up to 25809 is enough         */
-static const int OFFSET    = 400;     /* radius big enough for 26000   */
+static const int MAX_NUM   = 300000;  /* the walk reaches squares past 27000 */
+static const int OFFSET    = 300;     /* a 601x601 board holds 300000 squares */
 static const int SZ        = 2 * OFFSET + 1;
 
 /* Global state – initialized lazily. */
@@ -63,7 +65,7 @@ static void init_tables(void)
     num_map   = (int*)  calloc(SZ * SZ, sizeof(int));
     coord_x   = (int*)  malloc(MAX_NUM * sizeof(int));
     coord_y   = (int*)  malloc(MAX_NUM * sizeof(int));
-    path_seq  = (seq_t*)malloc(MAX_NUM * sizeof(seq_t));
+    path_seq  = mem_new(seq_t, MAX_NUM);
 
     /* Generate the square‑spiral mapping up to MAX_NUM.  */
     int curx = 0, cury = 0;

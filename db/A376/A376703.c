@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 20, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 66 terms through n = 9575 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t *cache     = NULL; /* memoised sequence values                     */
 static size_t cache_len = 0;    /* number of values stored                      */
@@ -48,7 +50,7 @@ static void ensure_cache_capacity(size_t need)
     if (required <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 128;
     while (new_cap < required) new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -65,11 +67,11 @@ static int cmp_seq_t_local(const void *a, const void *b)
 /* Append a sorted array of values to the cache and free the array. */
 static void append_sorted_group(seq_t *group, size_t count)
 {
-    qsort(group, count, sizeof(seq_t), cmp_seq_t_local);
+    mem_qsort(group, count, sizeof(seq_t), cmp_seq_t_local);
     ensure_cache_capacity(count);
-    memcpy(cache + cache_len, group, count * sizeof(seq_t));
+    mem_copy(cache + cache_len, group, count * sizeof(seq_t));
     cache_len += count;
-    free(group);
+    mem_free(group);
 }
 
 /* Main sequence function. */
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
         size_t combo_cnt = (((size_t)k + 2) * ((size_t)k + 1) * k) / 6;
 
         /* Allocate array for this group's products. */
-        seq_t *group_vals = (seq_t *)malloc(combo_cnt * sizeof(seq_t));
+        seq_t *group_vals = mem_new(seq_t, combo_cnt);
         if (!group_vals) { free(all_primes); return 0; } /* out of memory */
 
         /* Generate all i ≤ j ≤ l triples. */

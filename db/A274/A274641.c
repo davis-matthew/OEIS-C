@@ -11,8 +11,9 @@
  *            algorithm. Each row, column and diagonal must contain distinct
  *            numbers. The algorithm proceeds step by step, always inserting
  *            the smallest non‑present integer that does not appear...
- * Range:     u8 n <= 8006, u16 n <= 8006, u32 n <= 8006, u64 n <= 8006,
- *            u128 n <= 8006, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 8006 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,7 +12,8 @@
  *            caches * found primes so that any order of calls is handled
  * Range:     u8 n <= 21, u16 n <= 2444, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mu_of
+ * Validated: standard, pass, 70 terms through n = 9307 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,28 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/mu_of.h"
+#include "../utils/mem.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,7 +67,7 @@ seq_t a(idx_t n)
                 /* Expand cache if necessary */
                 if (val_cnt == val_cap) {
                     val_cap = val_cap ? val_cap * 2 : 4;
-                    seq_t *tmp = (seq_t *)realloc(valid, val_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, valid, val_cap);
                     if (!tmp) abort();          /* allocation failure */
                     valid = tmp;
                 }

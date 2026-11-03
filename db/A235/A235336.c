@@ -8,7 +8,8 @@
  *            weight
  * Range:     u8 n <= 140, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   popcnt_uint
+ * Validated: standard, pass, 81 terms through n = 9083 (2026-11-03)
+ * Helpers:   mem, popcount_u32_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/popcnt_uint.h"
+#include "../utils/popcount_u32_to_u32.h"
+#include "../utils/mem.h"
 
 /*-- Generic popcount for seq_t -------------------------------------------*/
 static inline unsigned popcnt_seq(seq_t x)
@@ -41,7 +43,7 @@ static inline unsigned popcnt_seq(seq_t x)
 static inline bool is_evil_popcount(seq_t x)
 {
     unsigned pc = popcnt_seq(x);        /* popcount of x  */
-    unsigned pc_of_pc = popcnt_uint(pc);/* popcount of pc  */
+    unsigned pc_of_pc = popcount_u32_to_u32(pc);/* popcount of pc  */
     return (pc_of_pc % 2) == 0;         /* even popcount -> evil */
 }
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
             /* ensure capacity */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

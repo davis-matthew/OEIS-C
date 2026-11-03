@@ -7,6 +7,7 @@
  * Formula:   a(n) = k such that the leading digit of 4^k is 4
  * Range:     u8 n <= 30, u16 n <= 6353, u32 n <= 9693, u64 n <= 9693,
  *            u128 n <= 9693, big any n
+ * Validated: standard, pass, 81 terms through n = 9456 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,13 +10,14 @@
  *            standard elementary definition
  * Range:     u8 n <= 48, u16 n <= 160, u32 n <= 609, u64 n <= 2241,
  *            u128 n <= 5150, big any n
- * Helpers:   binomial_safe
+ * Validated: standard, pass, 94 terms through n = 4587 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial_safe.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,11 +33,11 @@ seq_t a(idx_t n)
     idx_t k = n - (idx_t)(((seq_t)r * (r + 1)) / 2);
 
     /* Compute the triangle entry using the given formula. */
-    seq_t bin1 = binomial_safe(r, k);            /* binomial(r, k)   */
+    seq_t bin1 = binomial(r, k);            /* binomial(r, k)   */
     seq_t res   = bin1 * (seq_t)3;               /* 3*bin(r,k)       */
 
     idx_t mid   = (r + k) / 2;                    /* floor((r+k)/2)   */
-    seq_t bin2  = binomial_safe(mid, k);          /* bin(mid,k)       */
+    seq_t bin2  = binomial(mid, k);          /* bin(mid,k)       */
 
     res -= bin2 * (seq_t)2;                      /* subtract 2*bin   */
     return res;

@@ -12,7 +12,8 @@
  *            A(m) is the next term. Pi*m is compared in 64.64 fixed point
  * Range:     u8 n <= 9, u16 n <= 40, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   isqrt_local
+ * Validated: standard, pass, 59 terms through n = 196 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/isqrt_local.h"
+#include "../utils/isqrt_u64.h"
 
 #define BLK ((uint64_t)1 << 18)
 
@@ -54,7 +55,7 @@ static void process_block(void)
         if (ii >= L) j = 0;
         else {
             uint64_t t = L - ii;
-            j = isqrt_local(t);
+            j = isqrt_u64(t);
             if (j * j < t) j++;
         }
         q = ii + j * j;

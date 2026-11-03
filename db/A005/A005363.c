@@ -10,13 +10,14 @@
  *            T(n,k) = T(n,k-1) * Prod_{j=0..4} (n+1-k+j)/(k+j)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 33,
  *            big any n
- * Helpers:   g_ull
+ * Validated: standard, pass, 37 terms through n = 669 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/g_ull.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t result = 1;
@@ -34,14 +35,14 @@ seq_t a(idx_t n) {
             progress = false;
             for (i = 0; i < 5; i++) {
                 for (j = 0; j < 5 && den[i] > 1; j++) {
-                    unsigned long long g = g_ull(num[j], den[i]);
+                    unsigned long long g = gcd_u64(num[j], den[i]);
                     if (g > 1) { num[j] /= g; den[i] /= g; progress = true; }
                 }
                 if (den[i] > 1) {
                     seq_t d = (seq_t)den[i];
                     if ((unsigned long long)d == den[i]) {
                         unsigned long long r = (unsigned long long)(term % d);
-                        unsigned long long g = g_ull(den[i], r);
+                        unsigned long long g = gcd_u64(den[i], r);
                         if (g > 1) {
                             term /= (seq_t)g;
                             den[i] /= g;

@@ -9,13 +9,15 @@
  *            factors)
  * Range:     u8 n <= 480, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 9904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- static state --------------------------------------------------- */
 static idx_t  max_computed = 0;           /* largest n already processed      */
@@ -43,7 +45,7 @@ static void build_spf(idx_t limit)
     }
 
     /* replace old table */
-    free((void *)spf_cache);
+    free(spf_cache);
     spf_cache = new_spf;
     spf_limit = limit;
 }
@@ -58,7 +60,7 @@ static void ensure_computed(idx_t n)
 
     /* grow a[] and ω[] arrays */
     size_t new_cap = (size_t)(n + 1);
-    a_cache      = (seq_t *)realloc(a_cache,      new_cap * sizeof(seq_t));
+    a_cache      = mem_resize(seq_t, a_cache, new_cap);
     omega_cache  = (unsigned char *)realloc(omega_cache,
                                             new_cap * sizeof(unsigned char));
 

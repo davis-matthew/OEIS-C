@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   digit_mask_uint128, is_prime
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/digit_mask_uint128.h"
+#include "../utils/mem.h"
+
+/* Compute a decimal digit mask for an arbitrary 128‑bit integer.
+ * The mask is a 10‑bit value where bit d is set iff digit d occurs. */
+static unsigned digit_mask_uint128(__uint128_t v)
+{
+    unsigned mask = 0;
+    do {
+        unsigned d = v % 10;
+        mask |= 1U << d;
+        v /= 10;
+    } while (v);
+    return mask;
+}
 
 /* The sequence function */
 seq_t a(idx_t n)
@@ -48,7 +62,7 @@ seq_t a(idx_t n)
     /* Initialise cache capacity if first call. */
     if (cache_cap == 0) {
         cache_cap = 16;                 /* start with a small capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Extend the cache until it contains at least n terms. */
@@ -74,7 +88,7 @@ seq_t a(idx_t n)
         /* Store the prime. */
         if (cache_len == cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = (seq_t)candidate;
     }

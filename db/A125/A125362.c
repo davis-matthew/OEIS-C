@@ -10,13 +10,15 @@
  *            numbers whose adjacent digits differ by at most 4
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static bool seq_init_done = false;
 
@@ -44,7 +46,7 @@ static void seq_work_init(void) {
         }
     /* allocate cache for a(0) */
     seq_data.cache_cap = 1;
-    seq_data.cache = (seq_t*)malloc(seq_data.cache_cap * sizeof(seq_t));
+    seq_data.cache = mem_new(seq_t, seq_data.cache_cap);
     seq_data.cache[0] = 1;          /* a(0) = 1 */
     seq_data.cache_len = 1;         /* highest n computed = 0 */
     seq_init_done = true;
@@ -80,7 +82,7 @@ static void seq_work_ensure_cache(idx_t n) {
     if (seq_data.cache_cap < needed) {
         size_t new_cap = seq_data.cache_cap ? seq_data.cache_cap * 2 : 1;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *new_cache = (seq_t*)realloc(seq_data.cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_data.cache, new_cap);
         if (!new_cache) abort();  /* memory failure */
         seq_data.cache = new_cache;
         seq_data.cache_cap = new_cap;

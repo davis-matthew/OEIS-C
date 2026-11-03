@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 618, u16 n <= 9573, u32 n <= 9573, u64 n <= 9573,
- *            u128 n <= 9573, big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 618, u16 n <= 10607, u32 n <= 10607, u64 n <= 10607,
+ *            u128 n <= 10607, big any n
+ * Validated: standard, pass, 114 terms through n = 9573 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /*  True for non‑composite numbers (1 or prime). */
 static inline bool is_noncomposite(idx_t d) {
@@ -62,7 +64,7 @@ seq_t a(idx_t n) {
                 /* end of current sublist – store its sum */
                 if (cache_len == cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 16;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                     if (!cache) exit(1);
                 }
                 cache[cache_len++] = segsum;
@@ -76,7 +78,7 @@ seq_t a(idx_t n) {
         /* store the sum of the last sublist in the row */
         if (cache_len == cache_cap) {
             cache_cap = cache_cap ? cache_cap * 2 : 16;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
             if (!cache) exit(1);
         }
         cache[cache_len++] = segsum;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   digit_square_sum_seq
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_square_sum_seq.h"
+#include "../utils/mem.h"
+
+/* Helper: sum of the squares of the decimal digits of a value.  Works for
+   both built‑in integer types and arbitrary‑precision types implemented
+   with normal arithmetic operators. */
+static seq_t digit_square_sum_seq(seq_t x)
+{
+    seq_t sum = 0;
+    while (x) {
+        seq_t d = x % (seq_t)10;      /* one decimal digit (0‑9)   */
+        sum += d * d;                 /*  d^2  (safe for all types) */
+        x /= (seq_t)10;               /* drop the last digit       */
+    }
+    return sum;
+}
 
 /* Static cache to store the found sequence values.  The array grows
    by repetition of the build‑up loop, so it remains sorted. */
@@ -35,7 +50,7 @@ static void ensure_cache_capacity(void)
 {
     if (cache_sz >= cache_cap) {
         size_t new_cap = cache_cap == 0 ? 8 : cache_cap * 2;
-        seq_t *newp = (seq_t *)realloc(cached, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cached, new_cap);
         if (!newp) exit(EXIT_FAILURE);   /* out of memory */
         cached = newp;
         cache_cap = new_cap;

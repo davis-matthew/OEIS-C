@@ -12,19 +12,21 @@
  *            z) – 1)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 50 terms through n = 116 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* odd n: all 1s on the diagonal */
     if (n & 1U) {
-        return big_pow((seq_t)2, (seq_t)n) - (seq_t)1;
+        return ipow((seq_t)2, (seq_t)n) - (seq_t)1;
     }
 
     /* even n */
@@ -37,12 +39,12 @@ seq_t a(idx_t n)
         z = power - (seq_t)1;                          /* 2^t – 1 */
     }
 
-    seq_t pow2n = big_pow((seq_t)2, (seq_t)n);
+    seq_t pow2n = ipow((seq_t)2, (seq_t)n);
 
     /* exponent of the trailing block of 1s */
     idx_t trailing = n - (idx_t)z;                     /* n – z  (z ≤ n) */
 
-    seq_t powTrailing = big_pow((seq_t)2, (seq_t)trailing);
+    seq_t powTrailing = ipow((seq_t)2, (seq_t)trailing);
     seq_t trailingOnes = powTrailing - (seq_t)1;
 
     return pow2n + trailingOnes;

@@ -8,6 +8,7 @@
  * Formula:   a(n) = n^3 - #{(w,x,y)∈[1..⌊√n⌋]^3 | w^2 + x^2 + y^2 ≤ n}
  * Range:     u8 n <= 6, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

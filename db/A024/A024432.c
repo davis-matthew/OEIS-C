@@ -11,12 +11,14 @@
  *            (-1)^(n+1)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: comparison for qsort on seq_t elements. */
 static int cmp_seq_t(const void *a, const void *b)
@@ -35,9 +37,9 @@ seq_t a(idx_t n)
     if (n == 0) return 0;          /* offset is 1, but guard for safety */
 
     /* Two rows of size n + 1 (indices 0 … n). */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
-    seq_t *cur  = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
-    if (!prev || !cur) { free(prev); free(cur); return 0; }
+    seq_t *prev = mem_new(seq_t, (n + 1));
+    seq_t *cur  = mem_new(seq_t, (n + 1));
+    if (!prev || !cur) { mem_free(prev); mem_free(cur); return 0; }
 
     /* Initialise row 1: S(1,1) = 1. */
     for (idx_t i = 0; i <= n; ++i) prev[i] = 0;
@@ -59,10 +61,10 @@ seq_t a(idx_t n)
         /* Clean the old row to avoid stale data (optional). */
         for (idx_t j = 1; j <= i; ++j) cur[j] = 0;
     }
-    free(cur);   /* only the second buffer is freed; prev holds the final row */
+    mem_free(cur);   /* only the second buffer is freed; prev holds the final row */
 
     /* Sort the Stirling numbers in ascending order. */
-    qsort(prev + 1, (size_t)n, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(prev + 1, (size_t)n, sizeof(seq_t), cmp_seq_t);
 
     /* Alternating sum starting with + on the largest element. */
     seq_t sum  = 0;
@@ -75,6 +77,6 @@ seq_t a(idx_t n)
         sign = -sign;
     }
 
-    free(prev);
+    mem_free(prev);
     return sum;
 }

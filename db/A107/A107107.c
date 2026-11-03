@@ -10,17 +10,19 @@
  *            partitions of n of product_i (c_i-1)!^k_i
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 446 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* f[k] will hold a(k) */
-    seq_t *f = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (size_t)(n + 1));
     if (!f) return 0;                /* allocation failed */
     f[0] = 1;
     for (idx_t i = 1; i <= n; ++i) f[i] = 0;
@@ -35,6 +37,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = f[n];
-    free(f);
+    mem_free(f);
     return result;
 }

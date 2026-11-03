@@ -7,12 +7,19 @@
  * Formula:   a(n) = 3^n mod 89
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod_89
+ * Validated: standard, pass, 74 terms through n = 9932 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mul_mod_89.h"
+static inline seq_t mul_mod_89(seq_t a, seq_t b)
+{
+    seq_t res = 0;
+    for (idx_t i = 0; i < (idx_t)b; ++i)
+        res = (res + a) % 89;
+    return res;
+}
 
 seq_t a(idx_t n)
 {

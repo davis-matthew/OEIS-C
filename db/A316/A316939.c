@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Basic Fibonacci function (fib(0)=0, fib(1)=1). */
 static seq_t fib(idx_t n)
@@ -60,7 +62,7 @@ static void compute_rows_up_to(idx_t r)
     /* Build row 0 first, if not already done. */
     if (max_row_computed == (idx_t)-1) {
         ensure_rows_capacity(0);
-        rows[0] = (seq_t*)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         if (!rows[0]) exit(1);
         rows[0][0] = fib((idx_t)2);      /* Fib(2) = 1 */
         max_row_computed = 0;
@@ -70,7 +72,7 @@ static void compute_rows_up_to(idx_t r)
     for (idx_t k = max_row_computed + 1; k <= r; ++k) {
         size_t len = (size_t)k + 1;
         ensure_rows_capacity(k);
-        rows[k] = (seq_t*)malloc(len * sizeof(seq_t));
+        rows[k] = mem_new(seq_t, len);
         if (!rows[k]) exit(1);
 
         seq_t edge = fib(k + 2);          /* Fibonacci(k+2) */

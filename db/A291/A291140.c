@@ -7,15 +7,17 @@
  * Formula:   a(n) = prime(1)^n + prime(2)^n + … + prime(n)^n
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   build_primes_upto, seq_pow
+ * Validated: standard, pass, 31 terms through n = 187 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* --- Compute the sum of the n‑th powers of the first n primes. --- */
     seq_t sum = 0;
     for (idx_t i = 0; i < n; ++i)
-        sum += seq_pow((seq_t)primes[i], n);
+        sum += ipow_idx((seq_t)primes[i], n);
 
     free(primes);
     return sum;

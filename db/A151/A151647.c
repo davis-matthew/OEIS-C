@@ -8,18 +8,21 @@
  * Formula:   a(n) = 21^n - (5*n + 1)*6^n + 5*n*(5*n + 1)/2
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 459 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     seq_t sn = (seq_t)n;                     /* n as seq_t            */
-    seq_t term1 = big_pow((seq_t)21, sn);    /* 21^n                  */
-    seq_t pow6  = big_pow((seq_t)6, sn);     /* 6^n                   */
+    seq_t term1 = ipow((seq_t)21, sn);    /* 21^n                  */
+    seq_t pow6  = ipow((seq_t)6, sn);     /* 6^n                   */
     seq_t f = (seq_t)5 * sn + 1;             /* 5*n + 1               */
     seq_t term2 = f * pow6;                  /* (5*n+1)*6^n           */
     seq_t t3 = (seq_t)5 * sn * f;            /* 5*n*(5*n+1)           */

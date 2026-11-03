@@ -13,13 +13,35 @@
  *            antidiagonal
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 22, u128 n <= 49,
  *            big any n
- * Helpers:   compute_window_value
+ * Validated: standard, pass, 34 terms through n = 193 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/compute_window_value.h"
+
+/* Helper to compute the 3×3 window value for an offset (0=left,1=right). */
+static int compute_window_value(uint8_t r0, uint8_t r1, uint8_t r2, int off)
+{
+    /* Extract bits for the 3×3 block. */
+    int a = (r0 >> (off + 0)) & 1;
+    int b = (r0 >> (off + 1)) & 1;
+    int c = (r0 >> (off + 2)) & 1;
+    int d = (r1 >> (off + 0)) & 1;
+    int e = (r1 >> (off + 1)) & 1;
+    int f = (r1 >> (off + 2)) & 1;
+    int g = (r2 >> (off + 0)) & 1;
+    int h = (r2 >> (off + 1)) & 1;
+    int i = (r2 >> (off + 2)) & 1;
+
+    int m_diag  = (a + e + i) >= 2;
+    int m_anti  = (c + e + g) >= 2;
+    int m_row   = (d + e + f) >= 2;
+    int m_col   = (b + e + h) >= 2;
+
+    return m_diag + m_anti - m_row - m_col;   /* range [-2,2] */
+}
 
 seq_t a(idx_t n)
 {

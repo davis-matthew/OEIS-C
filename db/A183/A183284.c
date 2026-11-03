@@ -13,14 +13,15 @@
  *            * The implementation uses binomial coeff...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 12, u64 n <= 23, u128 n <= 44,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 37 terms through n = 198 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* Handle the special case n == 1 separately. */
@@ -34,7 +35,7 @@ seq_t a(idx_t n) {
             int64_t need = 2 - (int64_t)2 * y;
             if (need < 0 || need > 2) continue;
             idx_t x = (idx_t)need;                /* need will be 0 or 2 */
-            seq_t ways = binom(2, x) * binom(1, y);
+            seq_t ways = binomial(2, x) * binomial(1, y);
             total += ways;
         }
         return total / 2;    /* divide by two to account for complements */
@@ -50,7 +51,7 @@ seq_t a(idx_t n) {
     /* Pre‑compute the handful of binomials for the outer loops. */
     seq_t binom4[5];
     for (idx_t x = 0; x <= 4; ++x)
-        binom4[x] = binom(4, x);
+        binom4[x] = binomial(4, x);
 
     /* Loop over the number of chosen weight‑3 cells (corners). */
     for (idx_t x = 0; x <= 4; ++x) {
@@ -67,10 +68,10 @@ seq_t a(idx_t n) {
             idx_t y = (idx_t)(rem / 5);
             if (y > two_n_minus_2) continue;
 
-            seq_t waysZ = binom(n_minus_2, z);
+            seq_t waysZ = binomial(n_minus_2, z);
             if (waysZ == 0) continue;
 
-            seq_t waysY = binom(two_n_minus_2, y);
+            seq_t waysY = binomial(two_n_minus_2, y);
             if (waysY == 0) continue;
 
             /* Multiply the three independent choices. */

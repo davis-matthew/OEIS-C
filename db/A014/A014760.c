@@ -9,15 +9,35 @@
  *            of the middle of Pascal's triangle, excluding the coefficient 1)
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   binomial, count_odd_right, seq_mul
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
-#include "../utils/count_odd_right.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Count the number of odd binomial coefficients not equal to 1
+   that occur to the right of the middle of row r of Pascal's triangle. */
+static inline idx_t count_odd_right(idx_t r)
+{
+    /* popcount of r */
+    unsigned pc = 0;
+    idx_t t = r;
+    while (t) { t &= t - 1; ++pc; }
+
+    if (pc == 0) return 0;                       /* rows 0,1,2 produce nothing */
+    return ((1ULL << (pc - 1)) - 1);              /* 2^(pc-1) – 1 */
+}
 
 seq_t a(idx_t n)
 {

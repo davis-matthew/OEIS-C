@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 32, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* fast exponentiation: base^exp  (base and result are of type seq_t) */
 static seq_t seq_pow(seq_t base, idx_t exp)
@@ -89,8 +91,8 @@ seq_t a(idx_t n)
     {
         if (!A)
         {
-            A = (seq_t*)malloc(sizeof(seq_t));
-            B = (seq_t*)malloc(sizeof(seq_t));
+            A = mem_new(seq_t, 1);
+            B = mem_new(seq_t, 1);
             A[0] = 1;
             B[0] = 0;
             max_computed = 0;
@@ -101,8 +103,8 @@ seq_t a(idx_t n)
     /* enlarge tables if necessary */
     if (n > max_computed)
     {
-        A = (seq_t*)realloc(A, (n + 1) * sizeof(seq_t));
-        B = (seq_t*)realloc(B, (n + 1) * sizeof(seq_t));
+        A = mem_resize(seq_t, A, (n + 1));
+        B = mem_resize(seq_t, B, (n + 1));
 
         /* compute B for new indices */
         for (idx_t m = max_computed + 1; m <= n; ++m)

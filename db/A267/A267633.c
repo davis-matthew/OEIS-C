@@ -12,6 +12,7 @@
  *            of the polynomial whose row position m is the one...
  * Range:     i8 n <= 42, i16 n <= 53, i32 n <= 53, i64 n <= 53, i128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

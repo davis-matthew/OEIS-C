@@ -10,8 +10,9 @@
  *            treated as a horizontal segment of unit length * (height 0),
  *            contributing 2 to the perimeter and not overlapping * with
  *            neighbors
- * Range:     u8 n <= 9864, u16 n <= 9864, u32 n <= 9864, u64 n <= 9864,
- *            u128 n <= 9864, big any n
+ * Range:     u8 n <= 23000, u16 n <= 23000, u32 n <= 23000, u64 n <= 23000,
+ *            u128 n <= 23000, big any n
+ * Validated: standard, pass, 84 terms through n = 9864 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

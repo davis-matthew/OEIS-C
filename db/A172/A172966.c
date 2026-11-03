@@ -9,14 +9,36 @@
  *            >= 9. Brute‑force computation for n < 9
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 24, u64 n <= 380, u128 n <= 1000,
  *            big any n
- * Helpers:   knight_attacks
+ * Validated: standard, pass, 41 terms through n = 976 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/knight_attacks.h"
+
+/* Determine whether two knights attack each other on an n×n cylindrical board. */
+static bool knight_attacks(idx_t r1, idx_t c1, idx_t r2, idx_t c2, idx_t n)
+{
+    /* vertical move of +1 row */
+    if (r2 == r1 + 1) {
+        if (((c1 + 2) % n) == c2 || ((c1 + n - 2) % n) == c2) return true;
+    }
+    /* vertical move of -1 row */
+    if (r1 > 0 && r2 == r1 - 1) {
+        if (((c1 + 2) % n) == c2 || ((c1 + n - 2) % n) == c2) return true;
+    }
+    /* vertical move of +2 rows */
+    if (r2 == r1 + 2) {
+        if (((c1 + 1) % n) == c2 || ((c1 + n - 1) % n) == c2) return true;
+    }
+    /* vertical move of -2 rows */
+    if (r1 > 1 && r2 == r1 - 2) {
+        if (((c1 + 1) % n) == c2 || ((c1 + n - 1) % n) == c2) return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

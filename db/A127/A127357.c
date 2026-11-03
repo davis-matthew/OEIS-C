@@ -7,13 +7,22 @@
  * Formula:   a(n) = 2*a(n-1) - 9*a(n-2) with a(0)=1, a(1)=2
  * Range:     i8 n <= 4, i16 n <= 9, i32 n <= 19, i64 n <= 40, i128 n <= 80,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 39 terms through n = 877 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *cache = NULL;
 static size_t  cache_cap = 0;

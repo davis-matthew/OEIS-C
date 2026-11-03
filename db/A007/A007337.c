@@ -11,16 +11,34 @@
  *            comparison is done in exact integer arithmetic
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sig3_fl, sig3_isqrt, sig3_less
+ * Validated: standard, pass, 110 terms through n = 979 (2026-11-01)
+ * Helpers:   isqrt_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/sig3_fl.h"
-#include "../utils/sig3_isqrt.h"
-#include "../utils/sig3_less.h"
+#include "../utils/isqrt_i64.h"
+
+/* floor(j*sqrt(3)) */
+static long long sig3_fl(long long j) {
+    return isqrt_i64(3 * j * j);
+}
+
+/* true iff frac(a*sqrt3) < frac(b*sqrt3), a != b */
+static int sig3_less(long long a, long long b) {
+    long long d = a - b;
+    long long e = sig3_fl(a) - sig3_fl(b);
+    /* test d*sqrt3 < e */
+    if (d > 0) {
+        if (e <= 0) return 0;
+        return 3 * d * d < e * e;
+    } else {
+        if (e >= 0) return 1;
+        return 3 * d * d > e * e;
+    }
+}
 
 seq_t a(idx_t n) {
     long long cap = 64, J = 0;

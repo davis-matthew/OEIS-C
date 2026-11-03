@@ -7,13 +7,15 @@
  * Formula:   a(n) = -n * Σ_{k=0}^{n-1} a(k) * binomial(n-1, k)
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 14, i64 n <= 23, i128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 455 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cache of computed a(k) values */
 static size_t cache_cap = 0;      /* allocated size of seq_cache */
@@ -24,12 +26,12 @@ static void ensure_cache(idx_t n)
     if (cache_cap >= (size_t)(n + 1)) return;
     size_t new_cap = cache_cap > 0 ? cache_cap : 1;
     while (new_cap <= (size_t)(n + 1)) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) return; /* out of memory */
     if (seq_cache) {
         /* copy all computed entries, including cache_max */
-        memcpy(new_cache, seq_cache, (cache_max + 1) * sizeof(seq_t));
-        free(seq_cache);
+        mem_copy(new_cache, seq_cache, (cache_max + 1) * sizeof(seq_t));
+        mem_free(seq_cache);
     }
     seq_cache = new_cache;
     cache_cap = new_cap;

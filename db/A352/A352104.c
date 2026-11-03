@@ -11,7 +11,8 @@
  *            whose sum equals n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   free_dp
+ * Validated: standard, pass, 103 terms through n = 9869 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/free_dp.h"
+
+static void free_dp(uint64_t **dp, size_t rows, size_t len)
+{
+    for (size_t r = 0; r < rows; ++r) {
+        free(dp[r]);
+    }
+    free(dp);
+}
 
 /* Forward declaration of the required function */
 seq_t a(idx_t n);

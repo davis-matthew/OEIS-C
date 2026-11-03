@@ -10,13 +10,15 @@
  *            divisible by 4
  * Range:     u8 n <= 18, u16 n <= 51, u32 n <= 157, u64 n <= 526,
  *            u128 n <= 1878, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9030 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a001935_cache = NULL;
 static idx_t a001935_len = 0;
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     if (m < 2 * a001935_len) m = 2 * a001935_len;
     if (m < 64) m = 64;
 
-    seq_t *dp = (seq_t *)calloc((size_t)m, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)m);
     for (idx_t i = 0; i < m; i++) dp[i] = 0;
     dp[0] = 1;
 
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
         }
     }
 
-    if (a001935_cache) free(a001935_cache);
+    if (a001935_cache) mem_free(a001935_cache);
     a001935_cache = dp;
     a001935_len = m;
     return a001935_cache[n];

@@ -9,7 +9,8 @@
  *            representation is unique among all smaller integers
  * Range:     u8 n <= 14, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   product_of_binary_run_lengths
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,33 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/product_of_binary_run_lengths.h"
+#include "../utils/mem.h"
+
+/* Return the product of binary run lengths of x.  For x == 0, the
+   product is defined to be 1. */
+static inline seq_t product_of_binary_run_lengths(seq_t x)
+{
+    if (x == (seq_t)0)
+        return (seq_t)1;
+
+    seq_t prod = (seq_t)1;
+    unsigned long long run_len = 1;
+    int prev_bit = (int)(x & (seq_t)1);
+    x = x >> 1;
+    while (x != (seq_t)0) {
+        int bit = (int)(x & (seq_t)1);
+        if (bit == prev_bit) {
+            run_len++;
+        } else {
+            prod = prod * (seq_t)run_len;
+            prev_bit = bit;
+            run_len = 1;
+        }
+        x = x >> 1;
+    }
+    prod = prod * (seq_t)run_len;
+    return prod;
+}
 
 /* Static state for memoization */
 static seq_t *terms       = NULL; /* the sequence values  */
@@ -36,11 +63,11 @@ static void ensure_terms(idx_t n)
     /* Grow capacity when needed */
     if (term_cap < 8) {
         term_cap = 8;
-        terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, term_cap);
     }
     if (seen_cap < 8) {
         seen_cap = 8;
-        seen = (seq_t *)realloc(seen, seen_cap * sizeof(seq_t));
+        seen = mem_resize(seq_t, seen, seen_cap);
     }
 
     while (term_cnt < (size_t)n) {
@@ -65,13 +92,13 @@ static void ensure_terms(idx_t n)
         /* New product: record term and product. */
         if (term_cnt == term_cap) {
             term_cap <<= 1;
-            terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, term_cap);
         }
         terms[term_cnt++] = cur_val;
 
         if (seen_cnt == seen_cap) {
             seen_cap <<= 1;
-            seen = (seq_t *)realloc(seen, seen_cap * sizeof(seq_t));
+            seen = mem_resize(seq_t, seen, seen_cap);
         }
         /* Shift seen elements to make room at position lo. */
         for (size_t i = seen_cnt; i > lo; --i)

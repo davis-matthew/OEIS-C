@@ -7,18 +7,20 @@
  * Formula:   a(n) = C(n+6, 6)*(4*n+7)/7 (OEIS A050483)
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 62, u64 n <= 1564,
  *            u128 n <= 10000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 50 terms through n = 8942 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Returns the n-th term of sequence A050483 with offset 0. */
 seq_t a(idx_t n)
 {
     /* Compute the binomial coefficient C(n+6,6). */
-    seq_t res = binom(n + 6, 6);
+    seq_t res = binomial(n + 6, 6);
 
     /* Compute the multiplier (4*n + 7) / 7 without overflow. */
     seq_t num = (seq_t)(4 * (seq_t)n + 7);

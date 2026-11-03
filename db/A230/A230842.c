@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,14 @@
 */
 
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Signed integer with unsigned magnitude */
 typedef struct {

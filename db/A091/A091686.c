@@ -7,12 +7,14 @@
  * Formula:   a(n) = ((n-9)*(1-10^n))/9 (0^0 = 1, 0^n = 0 for n>0)
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 9, i64 n <= 18, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 903 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>    /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *pow10_cache = NULL; /* cached powers of 10, pow10_cache[i] = 10^i */
 static idx_t  pow10_cache_size = 0;  /* number of cached elements */
@@ -22,7 +24,7 @@ static void ensure_pow10(idx_t n)
 {
     if (pow10_cache == NULL) {
         /* initial allocation for 10^0 */
-        pow10_cache = (seq_t *)malloc(sizeof(seq_t));
+        pow10_cache = mem_new(seq_t, 1);
         if (!pow10_cache) return;               /* out of memory – let the caller handle it */
         pow10_cache[0] = (seq_t)1;
         pow10_cache_size = 1;
@@ -33,7 +35,7 @@ static void ensure_pow10(idx_t n)
         idx_t   new_size = old_size * 2;
         if (new_size <= n) new_size = n + 1;
 
-        seq_t *tmp = (seq_t *)realloc(pow10_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow10_cache, new_size);
         if (!tmp) return;  /* out of memory – abort and let caller handle it */
         pow10_cache = tmp;
 

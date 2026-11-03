@@ -9,7 +9,8 @@
  * Formula:   a(n) = coefficient of x^d(n) in Product_{k=1..n} (1 + x^d(k))
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Small helper: divisor count using simple trial division.  This is
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
 
         /* dp[0] = 1 (empty subset) */
         dp_cap = 1;
-        dp = (seq_t *)malloc(dp_cap * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_cap);
         if (!dp) return 0;
         dp[0] = 1;
 
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         if (!divcnt) return 0;
 
         answers_cap = 64;
-        answers = (seq_t *)malloc(answers_cap * sizeof(seq_t));
+        answers = mem_new(seq_t, answers_cap);
         if (!answers) return 0;
 
         /* answers[0] unused, leave it zero */
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
         if (needed > answers_cap) {
             size_t new_cap = answers_cap ? answers_cap * 2 : 64;
             while (new_cap < needed) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(answers, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, answers, new_cap);
             if (!tmp) return 0;
             answers = tmp;
             answers_cap = new_cap;
@@ -130,7 +132,7 @@ seq_t a(idx_t n)
             if (new_max_sum + 1 > dp_cap) {
                 size_t new_cap = dp_cap ? dp_cap * 2 : 64;
                 while (new_cap <= new_max_sum) new_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, dp, new_cap);
                 if (!tmp) return 0;
                 for (size_t i = dp_cap; i < new_cap; ++i) tmp[i] = 0;
                 dp = tmp;

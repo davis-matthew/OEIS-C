@@ -13,7 +13,8 @@
  *            recover A015440 via g(0)=1, g(1)=0 (...
  * Range:     i8 n <= 15, i16 n <= 45, i32 n <= 253, i64 n <= 990,
  *            i128 n <= 3455, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 5117 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *g_arr  = NULL;
 static seq_t *s_arr  = NULL;
@@ -33,8 +35,8 @@ static void ensure_capacity(idx_t n)
     if (n < (idx_t)cap) return;
     size_t new_cap = cap ? cap * 2 : 8;
     while (n >= (idx_t)new_cap) new_cap <<= 1;
-    g_arr = (seq_t *)realloc(g_arr, new_cap * sizeof(seq_t));
-    s_arr = (seq_t *)realloc(s_arr, new_cap * sizeof(seq_t));
+    g_arr = mem_resize(seq_t, g_arr, new_cap);
+    s_arr = mem_resize(seq_t, s_arr, new_cap);
     cap   = new_cap;
 }
 

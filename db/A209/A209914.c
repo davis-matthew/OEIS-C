@@ -10,7 +10,8 @@
  *            of r (k ≥ 1) or (n + p) is a positive multiple of r (k ≥ 1)
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   build_primes_upto, rev
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-01)
+ * Helpers:   build_primes_upto, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 /* Note:  rev(n) is the decimal reversal of n (without leading zeros). */
 
 #include <stdlib.h>
-#include "../utils/rev.h"
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/reverse_digits_idx.h"
 
 static idx_t _prime_limit = 0;
 static uint64_t *_prime_list = NULL;
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
     if (n <= 1)
         return (seq_t)0;
 
-    idx_t r = rev(n);               /* reversed decimal digits of n */
+    idx_t r = reverse_digits_idx(n);               /* reversed decimal digits of n */
     if (r == 0)                     /* n = 0 handled above, harmless here */
         return (seq_t)0;
 

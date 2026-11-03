@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=1..n} Sum_{d|k} 1/(d! * (k/d)!)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return a(n) for n >= 1.
    Uses memoisation and the recurrence
@@ -28,8 +30,8 @@ seq_t a(idx_t n) {
 
     /* initialise for n==1 first time */
     if (max_n_cached < 1) {
-        fact = (seq_t*)malloc((1 + 1) * sizeof(seq_t));
-        A    = (seq_t*)malloc((1 + 1) * sizeof(seq_t));
+        fact = mem_new(seq_t, (1 + 1));
+        A    = mem_new(seq_t, (1 + 1));
         fact[0] = (seq_t)1;
         fact[1] = (seq_t)1;
         A[0]    = (seq_t)0;
@@ -43,8 +45,8 @@ seq_t a(idx_t n) {
         idx_t new_n = n;
 
         /* resize arrays */
-        fact = (seq_t*)realloc(fact, (new_n + 1) * sizeof(seq_t));
-        A    = (seq_t*)realloc(A,    (new_n + 1) * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, (new_n + 1));
+        A    = mem_resize(seq_t, A, (new_n + 1));
 
         /* compute new factorials */
         for (idx_t i = old + 1; i <= new_n; ++i) {

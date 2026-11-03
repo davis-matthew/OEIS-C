@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_adj25_or52
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/has_adj25_or52.h"
+#include "../utils/mem.h"
+
+/* Return true iff x contains the adjacent pair 2‑5 or 5‑2 in base‑9. */
+static bool has_adj25_or52(seq_t x)
+{
+    if (x < (seq_t)9)            /* a single digit cannot contain a pair */
+        return false;
+
+    seq_t prev = x % (seq_t)9;
+    x     /= (seq_t)9;
+    while (x) {
+        seq_t cur = x % (seq_t)9;
+        if ((prev == (seq_t)2 && cur == (seq_t)5) ||
+            (prev == (seq_t)5 && cur == (seq_t)2))
+            return true;
+        prev = cur;
+        x   /= (seq_t)9;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,12 +60,12 @@ seq_t a(idx_t n)
             /* Grow cache if necessary. */
             if (cache_used == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *newp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *newp = mem_new(seq_t, new_cap);
                 if (!newp)
                     abort();           /* out of memory */
                 if (cache) {
-                    memcpy(newp, cache, cache_cap * sizeof(seq_t));
-                    free(cache);
+                    mem_copy(newp, cache, cache_cap * sizeof(seq_t));
+                    mem_free(cache);
                 }
                 cache = newp;
                 cache_cap = new_cap;

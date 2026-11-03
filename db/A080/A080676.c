@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache to allow arbitrary call order */
 static seq_t *a_cache      = NULL;   /* 1‑based cache of computed terms          */
@@ -50,12 +52,12 @@ static void ensure_cache(idx_t n)
     /* (Re)allocate the cache if needed */
     if (a_cache == NULL) {
         cache_cap = (size_t)n + 1;          /* 1‑based indexing + 1 */
-        a_cache   = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        a_cache   = mem_resize(seq_t, NULL, cache_cap);
         if (!a_cache)
             exit(EXIT_FAILURE);
     } else if ((size_t)n + 1 > cache_cap) {
         cache_cap = (size_t)n + 1;
-        a_cache   = (seq_t *)realloc(a_cache, cache_cap * sizeof(seq_t));
+        a_cache   = mem_resize(seq_t, a_cache, cache_cap);
         if (!a_cache)
             exit(EXIT_FAILURE);
     }

@@ -5,14 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 4 * sum_{k=1}^n phi(k)
- * Range:     u8 n <= 13, u16 n <= 231, u32 n <= 9956, u64 n <= 9956,
- *            u128 n <= 9956, big any n
- * Helpers:   none
+ * Range:     u8 n <= 13, u16 n <= 231, u32 n <= 49999, u64 n <= 49999,
+ *            u128 n <= 49999, big any n
+ * Validated: standard, pass, 67 terms through n = 9956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +22,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Allocate array for Euler's totient values up to n */
-    seq_t *phi = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, (n + 1));
     if (!phi)
         return 0;   /* allocation failure – return 0 as a safe fallback */
 
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
     /* Multiply by 4 to obtain the number of distinct slopes */
     seq_t result = sum * ((seq_t)4);
 
-    free(phi);
+    mem_free(phi);
     return result;
 }

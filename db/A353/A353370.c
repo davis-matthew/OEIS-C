@@ -10,7 +10,8 @@
  *            otherwise 0
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, _smallest_prime_factor, build_primes_upto
+ * Validated: standard, pass, 138 terms through n = 9303 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/smallest_prime_factor.h"
 
 static uint64_t *prime_list = NULL;
 static size_t      prime_cnt  = 0;
@@ -67,13 +69,13 @@ seq_t a(idx_t n)
 
     idx_t  nn = n;
     /* Initially ensure primes up to sqrt(n)+1 for factorization. */
-    ensure_primes_limit(_floor_isqrt_u64(n) + 1);
+    ensure_primes_limit(isqrt(n) + 1);
 
     size_t even = 0, odd = 0;
 
     while (nn > 1)
     {
-        uint64_t p = _smallest_prime_factor(nn);
+        uint64_t p = smallest_prime_factor(nn);
         if (p == 0)   /* safety check */
             break;
 

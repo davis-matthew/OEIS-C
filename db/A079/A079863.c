@@ -9,6 +9,7 @@
  * Formula:   a(n) = (n + 22) * 2^(n-12) (valid for n >= 12)
  * Range:     u8 n <= 14, u16 n <= 22, u32 n <= 38, u64 n <= 69, u128 n <= 132,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 858 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

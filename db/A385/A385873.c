@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 123 terms through n = 9322 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Parameters for the Poisson(1) distribution.  λ = 1,  e = 2.718281828… */
 #define MAX_K 50                          /* safe upper bound for k up to n≈10000 */
@@ -65,7 +67,7 @@ static void ensure_capacity(idx_t n)
     if (seq_arr == NULL || seq_capacity <= (size_t)n) {
         size_t new_cap = seq_capacity ? seq_capacity * 2 : 256;
         if (new_cap < (size_t)(n + 1)) new_cap = (size_t)(n + 1);
-        seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, new_cap);
         seq_capacity = new_cap;
     }
 }

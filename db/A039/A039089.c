@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 123, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   has_equal_ones_sevens
+ * Validated: standard, pass, 82 terms through n = 4805 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_equal_ones_sevens.h"
+#include "../utils/mem.h"
+
+/* Return true if x has equal numbers of digits 1 and 7 in base‑9. */
+static bool has_equal_ones_sevens(seq_t x)
+{
+    int c1 = 0, c7 = 0;
+    while (x != (seq_t)0) {
+        int d = (int)(x % (seq_t)9);
+        if (d == 1) ++c1;
+        else if (d == 7) ++c7;
+        x /= (seq_t)9;
+    }
+    return c1 == c7;
+}
 
 /* Cached terms and state. */
 static seq_t *cache      = NULL;
@@ -33,7 +47,7 @@ static void init_cache(void)
     if (cache_len != 0)
         return;
     cache_cap = 64;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache)
         exit(1);
     cache[0] = (seq_t)0;          /* a(1) = 0 */
@@ -49,7 +63,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         exit(1);
     cache = tmp;

@@ -8,11 +8,13 @@
  *            = (n*(n+5)+2) / 2^(4-n) for n < 4
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 26, u64 n <= 56, u128 n <= 118,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 968 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

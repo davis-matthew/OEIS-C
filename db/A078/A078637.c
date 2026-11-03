@@ -11,21 +11,22 @@
  *            x.)
  * Range:     u8 n <= 8, u16 n <= 40, u32 n <= 1632, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rad
+ * Validated: standard, pass, 62 terms through n = 9562 (2026-11-01)
+ * Helpers:   radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/rad.h"
+#include "../utils/radical.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* below offset, unused */
     if (n & 1ULL)                  /* n is odd  */
-        return rad(n) * rad(n + 1) * rad(n + 2);
+        return radical(n) * radical(n + 1) * radical(n + 2);
     else                           /* n is even */
     {
         idx_t half = n >> 1;
-        return rad(half) * rad(n + 1) * rad(half + 1);
+        return radical(half) * radical(n + 1) * radical(half + 1);
     }
 }

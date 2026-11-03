@@ -9,7 +9,8 @@
  *            [ (log p)^2 , 2 (log p)^2 ])
  * Range:     u8 n <= 7, u16 n <= 831, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_sqrt, is_prime_small
+ * Validated: standard, pass, 65 terms through n = 9849 (2026-11-01)
+ * Helpers:   is_prime_seq, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"   /* provides is_prime_small(idx_t) */
-#include "../utils/int_sqrt.h"        /* provides int_sqrt(idx_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/isqrt.h"
 
 /* ------------------------------------------------------------------ */
 /*  Static state for prime generation                                 */
@@ -76,7 +77,7 @@ static bool is_prime_candidate(idx_t n)
     if (n < 2) return false;
     if (n == 2) return true;
     if ((n & 1) == 0) return false;
-    idx_t limit = (idx_t)int_sqrt(n);
+    idx_t limit = (idx_t)isqrt(n);
     for (size_t i = 0; i < primes_cnt && prime_list[i] <= limit; ++i) {
         if (n % prime_list[i] == 0) return false;
     }

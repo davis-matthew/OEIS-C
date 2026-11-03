@@ -5,168 +5,154 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, cons
  * Formula:   not stated
- * Range:     u8 n <= 9916, u16 n <= 9916, u32 n <= 9916, u64 n <= 9916,
- *            u128 n <= 9916, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9916 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* Sequence: digits of sqrt(26) (decimal expansion) */
+/* A010481: the decimal digits of sqrt(26), a(1) being the first.
+ *
+ * Digit-by-digit square root in base 10^9 limbs that grow as needed (the
+ * original had a fixed number of limbs and overran it near 18000 digits):
+ * with p the root so far and r = 26 10^(2j) - p^2, each step sets r = 100 r and
+ * takes the largest d with (20 p + d) d <= r. d is estimated from the leading
+ * limbs and corrected, so a digit costs time linear in the length. The state
+ * is kept, so asking for more digits continues where the last call stopped. */
+
 #include <stdint.h>
-#include <stddef.h>
 #include <stdlib.h>
-#include <string.h>
 
-/* Big integer in base BASE, little‑endian */
-#define MAX_DIGITS 1200          /* enough for 10000 decimal digits in base 1e9 */
-#define BASE 1000000000U         /* 1e9 */
+#define K 26
+#define OFF 1                         /* index of the first digit */
 
-typedef struct {
-    uint32_t d[MAX_DIGITS];
-    size_t len;
-} BigInt;
+typedef struct { uint32_t *d; size_t len, cap; } num;   /* little-endian base 10^9 */
 
-/* Remove leading zero groups */
-static void bi_norm(BigInt *x) {
-    while (x->len > 0 && x->d[x->len-1] == 0)
-        x->len--;
+static void reserve(num *x, size_t n)
+{
+    if (n <= x->cap) return;
+    size_t c = x->cap ? x->cap : 16;
+    while (c < n) c *= 2;
+    uint32_t *t = (uint32_t *)realloc(x->d, c * sizeof *t);
+    if (!t) abort();
+    x->d = t;
+    x->cap = c;
 }
 
-/* Copy big integer */
-static void bi_copy(BigInt *dest, const BigInt *src) {
-    dest->len = src->len;
-    memcpy(dest->d, src->d, src->len * sizeof(uint32_t));
+static void trim(num *x)
+{
+    while (x->len && x->d[x->len - 1] == 0) --x->len;
 }
 
-/* Multiply by small integer (m <= 100) */
-static void bi_mul_small(BigInt *x, unsigned int m) {
-    if (m == 0) { x->len = 0; return; }
-    uint64_t carry = 0;
+static void mul_small_add(num *x, uint32_t m, uint32_t add)    /* x = x m + add */
+{
+    uint64_t c = add;
     for (size_t i = 0; i < x->len; ++i) {
-        uint64_t prod = (uint64_t)x->d[i] * m + carry;
-        x->d[i] = (uint32_t)(prod % BASE);
-        carry = prod / BASE;
+        c += (uint64_t)x->d[i] * m;
+        x->d[i] = (uint32_t)(c % 1000000000u);
+        c /= 1000000000u;
     }
-    while (carry) {
-        x->d[x->len++] = (uint32_t)(carry % BASE);
-        carry /= BASE;
+    while (c) {
+        reserve(x, x->len + 1);
+        x->d[x->len++] = (uint32_t)(c % 1000000000u);
+        c /= 1000000000u;
     }
+    trim(x);
 }
 
-/* Add small integer (a <= 100) */
-static void bi_add_small(BigInt *x, unsigned int a) {
-    if (a == 0) return;
-    uint64_t carry = a;
-    for (size_t i = 0; i < x->len && carry; ++i) {
-        uint64_t sum = (uint64_t)x->d[i] + carry;
-        x->d[i] = (uint32_t)(sum % BASE);
-        carry = sum / BASE;
-    }
-    if (carry) {
-        x->d[x->len++] = (uint32_t)carry;
-    }
-}
-
-/* Subtract b from a (a >= b) */
-static void bi_sub(BigInt *a, const BigInt *b) {
-    int64_t carry = 0;
-    for (size_t i = 0; i < a->len; ++i) {
-        int64_t sub = (int64_t)a->d[i] - (i < b->len ? b->d[i] : 0) + carry;
-        if (sub < 0) {
-            sub += BASE;
-            carry = -1;
-        } else {
-            carry = 0;
-        }
-        a->d[i] = (uint32_t)sub;
-    }
-    bi_norm(a);
-}
-
-/* Compare a and b: return -1 if a<b, 0 if equal, 1 if a>b */
-static int bi_cmp(const BigInt *a, const BigInt *b) {
-    if (a->len != b->len) return (a->len > b->len) ? 1 : -1;
-    for (int i = (int)a->len-1; i >= 0; --i) {
-        if (a->d[i] != b->d[i]) return (a->d[i] > b->d[i]) ? 1 : -1;
-    }
+static int cmp(const num *x, const num *y)
+{
+    if (x->len != y->len) return x->len < y->len ? -1 : 1;
+    for (size_t i = x->len; i-- > 0;)
+        if (x->d[i] != y->d[i]) return x->d[i] < y->d[i] ? -1 : 1;
     return 0;
 }
 
-/* Return the n‑th decimal digit of sqrt(26) (n ≥ 1) */
-seq_t a(idx_t n) {
-    /* Memoised state: digits already computed */
-    static seq_t *digits = NULL;      /* array of digits, 0‑indexed */
-    static size_t digits_cap = 0;     /* allocated capacity */
-    static idx_t digits_calc = 0;     /* number of digits stored */
-
-    /* Big integer state for the algorithm */
-    static BigInt S, R;               /* current partial root and remainder */
-    static int initialized = 0;       /* 0 → not yet set up */
-
-    /* Allocate/resize memoisation array if necessary */
-    if (n > digits_cap) {
-        size_t new_cap = digits_cap ? digits_cap * 2 : 16;
-        while (new_cap < n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(digits, new_cap * sizeof(seq_t));
-        if (!tmp) return (seq_t)0; /* allocation failure → return 0 */
-        digits = tmp;
-        digits_cap = new_cap;
+static void sub(num *x, const num *y)                         /* x -= y, x >= y */
+{
+    int64_t b = 0;
+    for (size_t i = 0; i < x->len; ++i) {
+        int64_t v = (int64_t)x->d[i] - (i < y->len ? y->d[i] : 0) - b;
+        b = v < 0;
+        x->d[i] = (uint32_t)(b ? v + 1000000000 : v);
     }
+    trim(x);
+}
 
-    /* If requested digit already known, return it */
-    if (n <= digits_calc)
-        return digits[n-1];
+static double lead(const num *x, size_t len)  /* x / 10^(9 (len - 3)), roughly */
+{
+    double v = 0;
+    for (size_t i = len; i-- > 0 && i + 3 >= len;) v = v * 1e9 + (i < x->len ? x->d[i] : 0);
+    return v;
+}
 
-    /* Initialise state on first call */
-    if (!initialized) {
-        /* Integer part of sqrt(26) */
-        S.len = 1;
-        S.d[0] = 5;
-        R.len = 1;
-        R.d[0] = 26 - 5 * 5;          /* 1 */
-        digits[0] = 5;
-        digits_calc = 1;
-        initialized = 1;
+static num P, Rm, T;                        /* root, remainder, scratch */
+static unsigned char *digits = NULL;
+static size_t ndig = 0, dcap = 0;
+
+static void next_digit(void)
+{
+    mul_small_add(&Rm, 100, 0);
+    /* estimate d = r / (20 p) from the leading limbs, then correct */
+    size_t L = Rm.len > P.len + 1 ? Rm.len : P.len + 1;
+    double est = P.len ? lead(&Rm, L) / (20.0 * lead(&P, L)) : 9.0;
+    int d = est >= 9.0 ? 9 : est <= 0 ? 0 : (int)est;
+    for (;; --d) {
+        /* T = (20 p + d) d */
+        reserve(&T, P.len + 2);
+        T.len = P.len;
+        for (size_t i = 0; i < P.len; ++i) T.d[i] = P.d[i];
+        mul_small_add(&T, 20, (uint32_t)d);
+        mul_small_add(&T, (uint32_t)d, 0);
+        if (cmp(&T, &Rm) <= 0 || d == 0) break;
     }
-
-    /* Compute further digits up to n */
-    for (idx_t cur = digits_calc + 1; cur <= n; ++cur) {
-        /* Bring down next decimal group '00' */
-        bi_mul_small(&R, 100);
-
-        /* divisor = S * 20 */
-        BigInt divisor;
-        bi_copy(&divisor, &S);
-        bi_mul_small(&divisor, 20);
-
-        /* Find largest x in 0..9 with (divisor + x) * x <= R */
-        int x = 0;
-        for (int cand = 9; cand >= 0; --cand) {
-            BigInt tmp;
-            bi_copy(&tmp, &divisor);
-            bi_add_small(&tmp, cand);
-            bi_mul_small(&tmp, cand);
-            if (bi_cmp(&tmp, &R) <= 0) {
-                x = cand;
-                break;
-            }
+    for (;;) {                               /* the estimate may also be low */
+        num U = {0, 0, 0};
+        reserve(&U, P.len + 2);
+        U.len = P.len;
+        for (size_t i = 0; i < P.len; ++i) U.d[i] = P.d[i];
+        mul_small_add(&U, 20, (uint32_t)(d + 1));
+        mul_small_add(&U, (uint32_t)(d + 1), 0);
+        int up = d < 9 && cmp(&U, &Rm) <= 0;
+        if (up) {
+            reserve(&T, U.len);
+            T.len = U.len;
+            for (size_t i = 0; i < U.len; ++i) T.d[i] = U.d[i];
+            ++d;
         }
-
-        /* Append x to the root: S = S * 10 + x */
-        bi_mul_small(&S, 10);
-        bi_add_small(&S, (unsigned int)x);
-
-        /* Subtract the value found from the remainder */
-        BigInt rem_sub;
-        bi_copy(&rem_sub, &divisor);
-        bi_add_small(&rem_sub, (unsigned int)x);
-        bi_mul_small(&rem_sub, (unsigned int)x);
-        bi_sub(&R, &rem_sub);
-
-        /* Store the digit */
-        digits[digits_calc++] = (seq_t)x;
+        free(U.d);
+        if (!up) break;
     }
+    sub(&Rm, &T);
+    mul_small_add(&P, 10, (uint32_t)d);
+    if (ndig == dcap) {
+        dcap = dcap ? 2 * dcap : 1024;
+        unsigned char *t = (unsigned char *)realloc(digits, dcap);
+        if (!t) abort();
+        digits = t;
+    }
+    digits[ndig++] = (unsigned char)d;
+}
 
-    return digits[n-1];
+seq_t a(idx_t n)
+{
+    if (n < OFF) return (seq_t)0;
+    if (ndig == 0) {                         /* the integer part: K < 100, one digit */
+        unsigned s = 0;
+        while ((s + 1) * (s + 1) <= K) ++s;
+        reserve(&P, 1);
+        P.d[0] = s;
+        P.len = s ? 1 : 0;
+        reserve(&Rm, 1);
+        Rm.d[0] = K - s * s;
+        Rm.len = Rm.d[0] ? 1 : 0;
+        reserve(&T, 1);
+        digits = (unsigned char *)malloc(dcap = 1024);
+        if (!digits) abort();
+        digits[ndig++] = (unsigned char)s;
+    }
+    while (ndig <= (size_t)(n - OFF)) next_digit();
+    return (seq_t)digits[n - OFF];
 }

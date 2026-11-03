@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 5, i32 n <= 8, i64 n <= 11, i128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    with a(0)=1, a(1)=1, a(2)=1, a(3)=-9. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #if defined(__SIZEOF_INT128__) && !defined(__cplusplus)
 /* C mode: use __int128 to avoid overflow for 64‑bit seq_t. */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             return 0;   /* out of memory – unlikely in test harness */
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     if (need > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             return 0;   /* out of memory */
         cache = tmp;

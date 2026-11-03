@@ -9,12 +9,14 @@
  *            the same parity as n among i = 1..n-1. a(1) = 1, offset = 1
  * Range:     u8 n <= 21, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (n > cap) {
         /* grow a bit larger than needed to reduce reallocs */
         idx_t newCap = n + 16;
-        seq = (seq_t *)realloc(seq, sizeof(seq_t) * (newCap + 1));
+        seq = mem_resize(seq_t, seq, (newCap + 1));
         if (!seq) abort();        /* unlikely, but guarantees defined behaviour */
         cap = newCap;
     }

@@ -11,7 +11,8 @@
  *            1 + log(3/2)/log(2). Euclid runs on both int...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 37, u128 n <= 80,
  *            big any n
- * Helpers:   add_w, cmp_w, lead_w, qstep, sub_w, submul_w, top_w
+ * Validated: standard, pass, 43 terms through n = 173 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,86 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/add_w.h"
-#include "../utils/cmp_w.h"
-#include "../utils/lead_w.h"
-#include "../utils/qstep.h"
-#include "../utils/sub_w.h"
-#include "../utils/submul_w.h"
-#include "../utils/top_w.h"
+
+static void add_w(uint32_t *x, const uint32_t *y, int Ly, int L) {
+    uint64_t c = 0;
+    int i;
+    for (i = 0; i < Ly; i++) {
+        uint64_t s = (uint64_t)x[i] + y[i] + c;
+        x[i] = (uint32_t)s;
+        c = s >> 32;
+    }
+    for (; c && i < L; i++) {
+        uint64_t s = (uint64_t)x[i] + c;
+        x[i] = (uint32_t)s;
+        c = s >> 32;
+    }
+}
+
+static int cmp_w(const uint32_t *x, const uint32_t *y, int L) {
+    for (int i = L - 1; i >= 0; i--)
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    return 0;
+}
+
+static double lead_w(const uint32_t *x, int pos) {
+    double v = 0.0;
+    for (int j = pos; j >= pos - 2; j--) {
+        v *= 4294967296.0;
+        if (j >= 0) v += (double)x[j];
+    }
+    return v;
+}
+
+static void sub_w(uint32_t *x, const uint32_t *y, int L) {
+    uint64_t br = 0;
+    for (int i = 0; i < L; i++) {
+        uint64_t d = (uint64_t)x[i] - y[i] - br;
+        x[i] = (uint32_t)d;
+        br = (d >> 32) ? 1 : 0;
+    }
+}
+
+static void submul_w(uint32_t *x, const uint32_t *y, uint32_t m, int L) {
+    uint64_t carry = 0, br = 0;
+    for (int i = 0; i < L; i++) {
+        uint64_t pr = (uint64_t)y[i] * m + carry;
+        carry = pr >> 32;
+        uint64_t d = (uint64_t)x[i] - (uint32_t)pr - br;
+        x[i] = (uint32_t)d;
+        br = (d >> 32) ? 1 : 0;
+    }
+}
+
+static int top_w(const uint32_t *x, int L) {
+    int i = L - 1;
+    while (i >= 0 && x[i] == 0) i--;
+    return i;
+}
+
+/* a = floor(p/q), p -= a*q */
+static uint64_t qstep(uint32_t *p, const uint32_t *q, int L) {
+    uint64_t a = 0;
+    for (;;) {
+        int lp = top_w(p, L), lq = top_w(q, L);
+        if (lp < lq) return a;
+        double pd = lead_w(p, lp), qd = lead_w(q, lp) + 1.0;
+        double r = pd / qd * (1.0 - 1e-12);
+        uint64_t est;
+        if (r >= 4294967295.0) est = 4294967295ULL;
+        else est = (uint64_t)r;
+        if (est >= 1) {
+            submul_w(p, q, (uint32_t)est, lp + 1);
+            a += est;
+        } else {
+            while (cmp_w(p, q, lp + 1) >= 0) {
+                sub_w(p, q, lp + 1);
+                a++;
+            }
+            return a;
+        }
+    }
+}
 
 static void add_small(uint32_t *x, uint32_t v, int L) {
     uint64_t c = v;

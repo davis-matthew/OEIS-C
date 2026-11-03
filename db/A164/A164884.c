@@ -8,8 +8,9 @@
  * Keywords:  base, nonn
  * Formula:   a(n) = (2^{popcount(n)} - 1) * (2^{len(n)-popcount(n)} - 1)
  *            where len(n) = floor(log2(n)) + 1 (len(0)=1)
- * Range:     u8 n <= 256, u16 n <= 9986, u32 n <= 9986, u64 n <= 9986,
- *            u128 n <= 9986, big any n
+ * Range:     u8 n <= 256, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 91 terms through n = 9986 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

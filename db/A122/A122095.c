@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 189, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mul64
+ * Validated: standard, pass, 59 terms through n = 9393 (2026-11-03)
+ * Helpers:   is_prime, mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/mul64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* fast binary exponentiation modulo mod (all 64‑bit values) */
 static inline uint64_t mod_pow_u64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -35,8 +37,8 @@ static inline uint64_t mod_pow_u64(uint64_t base, uint64_t exp, uint64_t mod)
     base %= mod;
     while (exp) {
         if (exp & 1)
-            result = mul64(result, base, mod);
-        base = mul64(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -71,9 +73,8 @@ seq_t a(idx_t n)
             /* store the prime in the cache */
             if (terms_len + 1 > terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 16;
-                terms = (terms ? (seq_t *)realloc(terms,
-                            terms_cap * sizeof(seq_t))
-                              : (seq_t *)malloc(terms_cap * sizeof(seq_t)));
+                terms = (terms ? mem_resize(seq_t, terms, terms_cap)
+                              : mem_new(seq_t, terms_cap));
                 if (!terms)
                     return 0;            /* allocation failure – give up */
             }

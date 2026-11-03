@@ -9,12 +9,14 @@
  *            4, else 0; T(j,k) = T(j-1,k-1) + T(j,k-1) for 2 <= k <= j
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 32, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The following static data allow memoisation between calls.
  * a_cache[1..max_computed] stores the sequence values,
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         if ((size_t)new_n + 1 > a_cache_cap) {
             size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 1;
             while (new_cap <= (size_t)new_n + 1) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
             if (!tmp) abort();          /* allocation failed */
             a_cache = tmp;
             a_cache_cap = new_cap;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
         /* Allocate a new row of length new_n. */
         size_t new_len = (size_t)new_n + 1;   /* indices 1..new_n */
-        seq_t *new_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
         if (!new_row) abort();              /* allocation failed */
 
         /* First element of the row. */
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         a_cache[new_n] = sum;
 
         /* Free the old row and adopt the new row. */
-        if (row) free(row);
+        if (row) mem_free(row);
         row = new_row;
         max_computed = new_n;
     }

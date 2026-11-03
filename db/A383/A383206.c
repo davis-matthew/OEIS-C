@@ -12,14 +12,17 @@
  *            array of size (r+1)×(r+1). Only the rows that are need...
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"   /* provides seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static idx_t      _max_r   = 0;            /* largest row that has been computed */
 static size_t     _stride  = 0;            /* stride of the flat 2‑D array (row+1) */
@@ -45,7 +48,7 @@ static void _ensure_stirling(idx_t r)
     if (_stir == NULL) {                     /* first time: build from scratch */
         size_t new_stride = (size_t)r + 1;
         size_t new_size   = new_stride * new_stride;
-        seq_t *new_stir   = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_stir   = mem_new(seq_t, new_size);
         if (!new_stir) exit(1);              /* fatal error */
 
         /* initialise all entries to 0 */
@@ -73,7 +76,7 @@ static void _ensure_stirling(idx_t r)
     /* Expand existing cache */
     size_t new_stride = (size_t)r + 1;
     size_t new_size   = new_stride * new_stride;
-    seq_t *new_stir   = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_stir   = mem_new(seq_t, new_size);
     if (!new_stir) exit(1);
 
     /* copy old data */
@@ -97,7 +100,7 @@ static void _ensure_stirling(idx_t r)
         }
     }
 
-    free(_stir);
+    mem_free(_stir);
     _stir   = new_stir;
     _stride = new_stride;
     _max_r  = r;
@@ -118,7 +121,7 @@ seq_t a(idx_t n)
     /* compute T(r,k) */
     seq_t val = 0;
     for (idx_t j = k; j <= r; ++j) {
-        seq_t p = big_pow((seq_t)2, (seq_t)(r - j));   /* 2^(r-j) */
+        seq_t p = ipow((seq_t)2, (seq_t)(r - j));   /* 2^(r-j) */
         seq_t s1 = _stir[r * _stride + j];
         seq_t s2 = _stir[j * _stride + k];
         val += p * s1 * s2;

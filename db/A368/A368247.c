@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏_{p^e || n} (3 if e ≥ 3 else 1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 103 terms through n = 9776 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 /* a(p^e) = 1 for e ≤ 2, and 3 for e ≥ 3.              */
 
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -42,5 +45,5 @@ seq_t a(idx_t n)
 
     /* The result is 3 ^ cnt_ge3.  seq_pow works on seq_t values
        so we cast the base 3 to seq_t. */
-    return seq_pow((seq_t)3, cnt_ge3);
+    return ipow_idx((seq_t)3, cnt_ge3);
 }

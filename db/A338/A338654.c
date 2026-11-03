@@ -12,14 +12,16 @@
  *            binomial coefficient). The sequence is the tri...
  * Range:     u8 n <= 35, u16 n <= 135, u32 n <= 520, u64 n <= 2040,
  *            u128 n <= 8101, big any n
- * Helpers:   binom_2m_m, pow2
+ * Validated: standard, pass, 82 terms through n = 9867 (2026-11-01)
+ * Helpers:   central_binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include "../utils/central_binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/binom_2m_m.h"
 
 /* integer square root of a 128‑bit unsigned integer */
 static inline idx_t isqrt_u128(unsigned __int128 v)
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     idx_t k = n - tri;
     idx_t m = k / 2;   /* floor(k/2) */
 
-    seq_t bin = binom_2m_m(m);
+    seq_t bin = central_binomial(m);
 
     idx_t exp = r - 2 * m - (k & 1);   /* exponent of 2, always >= 0 */
     seq_t result = pow2(exp) * bin;

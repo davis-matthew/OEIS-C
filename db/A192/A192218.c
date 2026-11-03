@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 236, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   count_distinct_primes, phi
+ * Validated: standard, pass, 89 terms through n = 4824 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,48 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
-#include "../utils/phi.h"
+#include "../utils/mem.h"
+
+/* Count distinct prime factors of an unsigned 64-bit integer n.
+   The result fits in a signed int for all n that may be passed. */
+static int count_distinct_primes(uint64_t n)
+{
+    if (n <= 1)
+        return 0;
+
+    int cnt = 0;
+    /* Handle factor 2 separately. */
+    if (n % 2 == 0) {
+        cnt++;
+        while (n % 2 == 0)
+            n /= 2;
+    }
+    /* Test odd divisors up to sqrt(n). */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            cnt++;
+            while (n % p == 0)
+                n /= p;
+        }
+    }
+    if (n > 1)   /* Remaining prime factor. */
+        cnt++;
+    return cnt;
+}
+
+static seq_t phi(idx_t m)
+{
+    seq_t result = (seq_t)m;
+    idx_t d = 2;
+    for (; d * d <= m; ++d) {
+        if (m % d == 0) {
+            while (m % d == 0) m /= d;
+            result -= result / (seq_t)d;
+        }
+    }
+    if (m > 1) result -= result / (seq_t)m;
+    return result;
+}
 
 seq_t a(idx_t n) {
     /* static cache of terms */
@@ -38,7 +79,7 @@ seq_t a(idx_t n) {
             /* ensure space for new term */
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) abort();
                 terms = tmp;
                 terms_cap = new_cap;

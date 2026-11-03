@@ -14,6 +14,7 @@
  *            numbers ≤1080 the sequence is simply consecuti...
  * Range:     u8 none, u16 n <= 538, u32 n <= 538, u64 n <= 538, u128 n <= 538,
  *            big any n
+ * Validated: standard, pass, 67 terms through n = 505 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

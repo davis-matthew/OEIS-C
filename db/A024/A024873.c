@@ -11,12 +11,14 @@
  *            a(7)=156, a(8)=308, a(9)=499, a(10)=915, a(11)=1480
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* cache of a(n) values */
 static size_t seq_cap = 0;         /* allocated capacity (in elements) */
@@ -31,7 +33,7 @@ static void ensure(idx_t limit)
     if (!seq) {
         size_t cap = 12;                      /* indices 0..11 */
         while (cap <= (size_t)limit) cap <<= 1;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         if (!seq) abort();
 
         seq_cap = cap;
@@ -54,7 +56,7 @@ static void ensure(idx_t limit)
     if ((size_t)limit + 1 > seq_cap) {
         size_t cap = seq_cap;
         while ((size_t)limit + 1 > cap) cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, cap);
         if (!tmp) abort();
         seq = tmp;
         seq_cap = cap;

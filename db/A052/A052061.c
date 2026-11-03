@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 13, u16 n <= 1046, u32 n <= 9472, u64 n <= 9472,
- *            u128 n <= 9472, big any n
- * Helpers:   is_good_candidate
+ * Range:     u8 n <= 13, u16 n <= 1046, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 86 terms through n = 9472 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,55 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_good_candidate.h"
+#include "../utils/mem.h"
+
+/* Check whether the square of k contains any palindromic decimal
+   substring of length ≥ 2.  The function uses only the required
+   arithmetic operators and stdio functions. */
+static bool is_good_candidate(seq_t k)
+{
+    seq_t sq = k * k;                 /* square of k */
+
+    /* Extract digits of sq into a small stack array. */
+    uint8_t digits[64];               /* enough for very large numbers */
+    size_t len = 0;
+    seq_t tmp = sq;
+
+    if (tmp == 0) {
+        digits[0] = 0;
+        len = 1;
+    } else {
+        while (tmp > 0) {
+            digits[len++] = (uint8_t)(tmp % 10);
+            tmp /= 10;
+        }
+    }
+
+    /* Reverse to most‑significant‑digit first. */
+    for (size_t i = 0, j = len - 1; i < j; ++i, --j) {
+        uint8_t t = digits[i];
+        digits[i] = digits[j];
+        digits[j] = t;
+    }
+
+    /* Test all substrings of length ≥ 2 for being palindromic. */
+    for (size_t i = 0; i < len; ++i) {
+        for (size_t j = i + 1; j < len; ++j) {
+            size_t left = i, right = j;
+            bool pal = true;
+            while (left < right) {
+                if (digits[left] != digits[right]) {
+                    pal = false;
+                    break;
+                }
+                ++left;
+                --right;
+            }
+            if (pal) return false;  /* forbidden palindrome found */
+        }
+    }
+    return true;
+}
 
 /* Function required by the build system.  Returns the n‑th term. */
 seq_t a(idx_t n)
@@ -34,7 +83,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (cache_len == 0) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;            /* allocation failure */
         cache[0] = (seq_t)0;
         cache_len = 1;
@@ -44,7 +93,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;             /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

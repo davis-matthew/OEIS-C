@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,27 @@
 /*  Implements OEIS A322045.  a(n) is the n‑th triangular number
     that is a 2‑digit repblock. */
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Local cache of the sequence.  The cache is built incrementally on
    the first call and extended on demand. */
@@ -54,7 +75,7 @@ seq_t a(idx_t n)
             /* Store the value in the cache.  Resize if necessary. */
             if (cache_sz == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
                 if (!new_arr) /* memory exhausted – abort the program */
                     abort();
                 cache = new_arr;

@@ -7,15 +7,40 @@
  * Keywords:  nonn
  * Formula:   a(n) = A003415(n) - A300251(n) equivalent: a(n) = -sum_{d|n,
  *            d<n} μ(n/d) * A003415(d) where μ is the Möbius function
- * Range:     u8 n <= 191, u16 n <= 9024, u32 n <= 9024, u64 n <= 9024,
- *            u128 n <= 9024, big any n
- * Helpers:   factor_u64, mu_of
+ * Range:     u8 n <= 191, u16 n <= 18431, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9024 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mu_of.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 /* Recursive generator of all divisors of n, accumulating
    contributions of each divisor d (d < n) to sumPos and sumNeg.

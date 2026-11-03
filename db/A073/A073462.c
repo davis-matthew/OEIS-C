@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The caller-provided types */
 extern seq_t calc_phi(seq_t m);   /* not used – φ is computed inline */
@@ -41,14 +43,14 @@ static bool initialized = false;
 static void init_counts(void)
 {
     /* Allocate φ array */
-    seq_t *phi = (seq_t *)malloc((LIMIT + 1) * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, (LIMIT + 1));
     if (!phi) return; /* allocation failure – ignore for brevity */
 
     /* Sieve data structures */
     uint8_t *is_composite = (uint8_t *)calloc(LIMIT + 1, 1);
     uint32_t *prime_buf   = (uint32_t *)malloc((LIMIT / 10 + 100) * sizeof(uint32_t));
     if (!is_composite || !prime_buf) {
-        free(phi); free(is_composite); free(prime_buf);
+        mem_free(phi); free(is_composite); free(prime_buf);
         return;
     }
 
@@ -56,8 +58,8 @@ static void init_counts(void)
     seq_t pi_val = 0;    /* current number of primes ≤ i */
 
     /* initialise counts array */
-    counts = (seq_t *)malloc((MAX_N + 2) * sizeof(seq_t));
-    if (!counts) { free(phi); free(is_composite); free(prime_buf); return; }
+    counts = mem_new(seq_t, (MAX_N + 2));
+    if (!counts) { mem_free(phi); free(is_composite); free(prime_buf); return; }
     for (int i = 0; i < MAX_N + 2; ++i) counts[i] = 0;
 
     /* Treat x = 1 separately (φ(1)=1, π(1)=0) */
@@ -100,7 +102,7 @@ static void init_counts(void)
     }
 
     /* Clean up */
-    free(phi);
+    mem_free(phi);
     free(is_composite);
     free(prime_buf);
     initialized = true;

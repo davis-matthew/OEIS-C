@@ -9,13 +9,15 @@
  *            k (Euler's recurrence)
  * Range:     u8 n <= 12, u16 n <= 33, u32 n <= 105, u64 n <= 366,
  *            u128 n <= 1344, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9393 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache of partition numbers */
 static seq_t *p = NULL;   /* p[0..p_max] */
@@ -28,7 +30,7 @@ static void ensure_partitions(idx_t n)
 
     /* resize the array */
     size_t new_size = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(p, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, p, new_size);
     if (!tmp) abort();
     p = tmp;
 

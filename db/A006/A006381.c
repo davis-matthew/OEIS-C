@@ -7,21 +7,23 @@
  * Keywords:  nonn, nice, easy
  * Formula:   a(n) = (1/(1-x)^8 + 13/(1-x^2)^4 + 6/(1-x)^4/(1-x^2)^2 +
  *            12/(1-x^4)^2 + 8/(1-x)^2/(1-x^3)^2 + 8/(1-x^2)/(1-x^6))/48
- * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 71, u64 n <= 1000,
+ * Range:     u8 n <= 2, u16 n <= 12, u32 n <= 134, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a000707_binom
+ * Validated: standard, pass, 55 terms through n = 898 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/a000707_binom.h"
-
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static seq_t coeff_1minus_pow(idx_t n, int d, int k) {
     if (n % d != 0) return 0;
     idx_t m = n / d;
-    return a000707_binom(m + k - 1, k - 1);
+    return binomial(m + k - 1, k - 1);
 }
 
 static seq_t coeff_product2(idx_t n, int d1, int k1, int d2, int k2) {

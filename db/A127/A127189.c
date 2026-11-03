@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 14, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Initial values: a(0)=1, a(1)=1 */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for memoisation */
 static seq_t *cache = NULL;        /* dynamic array for computed values   */
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
         new_cap *= 2;
 
     size_t alloc_size = (size_t)new_cap * sizeof(seq_t);
-    seq_t *tmp = (seq_t *)realloc(cache, alloc_size);
+    seq_t *tmp = mem_resize(seq_t, cache, (alloc_size) / sizeof(seq_t));
     if (tmp) {
         cache = tmp;
         cache_cap = new_cap;

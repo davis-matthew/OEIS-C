@@ -8,13 +8,25 @@
  *            a(1)=10, a(2)=101 For n≥3: a(n) = (10^(n-1)+1) · a(n-1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,7 +40,7 @@ seq_t a(idx_t n)
     /* Initialise the cache if it is empty */
     if (cache_len == 0) {
         cache_len = 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)10;
@@ -37,7 +49,7 @@ seq_t a(idx_t n)
     /* Grow the cache to accommodate up to n */
     if ((size_t)n + 1 > cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
 

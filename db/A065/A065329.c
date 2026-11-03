@@ -12,7 +12,8 @@
  *            ties by increasing n. Thus for an index n:...
  * Range:     u8 n <= 14, u16 n <= 20, u32 n <= 27, u64 n <= 35, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------------------------- */
 /* Parameters (large enough for n <= 10000)                               */
@@ -73,7 +75,7 @@ static void ensure_rows(size_t up_to)
     /* Allocate the polys array once */
     if (!polys) {
         size_t total = (MAXROW + 1) * (MAXK + 1);
-        polys = (seq_t *)calloc(total, sizeof(seq_t));
+        polys = mem_new(seq_t, total);
     }
 
     /* Lazily initialize binomial coefficients */

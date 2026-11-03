@@ -9,7 +9,8 @@
  *            * via a min‑heap; no hard‑coded table
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 120 terms through n = 9052 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* compile‑time key for the hash table (i<<32)|j */
 #define HKEY(i, j) (((uint64_t)(i) << 32) | (uint64_t)(j))
@@ -136,7 +138,7 @@ seq_t a(idx_t n)
     /* init cache & heap on first call */
     if (!cache) {
         cache_capacity = 64;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) exit(1);
         /* start with (0,0) */
         HeapNode first = {0.0, 0, 0};
@@ -148,7 +150,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cache_capacity) {
         size_t new_cap = cache_capacity;
         while ((size_t)n > new_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_capacity = new_cap;

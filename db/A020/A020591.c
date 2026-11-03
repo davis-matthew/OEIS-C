@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *a, const void *b)
 {
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
     if (!built) {
         /* initial allocation */
         S_cap = 16;
-        S = (seq_t *)malloc(S_cap * sizeof(seq_t));
+        S = mem_new(seq_t, S_cap);
         S_len = 0;
         proc = 0;
 
@@ -60,7 +63,7 @@ seq_t a(idx_t n)
             uint64_t m = (uint64_t)p * 4ULL + 6ULL;  /* 4p+6 */
             uint64_t tmp = m;
             while (tmp > 1) {
-                uint64_t spf = _smallest_prime_factor(tmp);
+                uint64_t spf = smallest_prime_factor(tmp);
                 /* add spf if not already present */
                 bool found = false;
                 for (size_t i = 0; i < S_len; ++i) {
@@ -69,7 +72,7 @@ seq_t a(idx_t n)
                 if (!found) {
                     if (S_len == S_cap) {
                         S_cap = S_cap ? S_cap * 2 : 16;
-                        S = (seq_t *)realloc(S, S_cap * sizeof(seq_t));
+                        S = mem_resize(seq_t, S, S_cap);
                     }
                     S[S_len++] = (seq_t)spf;
                 }
@@ -78,7 +81,7 @@ seq_t a(idx_t n)
         }
 
         /* sort the final set for easy indexing */
-        qsort(S, S_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(S, S_len, sizeof(seq_t), cmp_seq);
         sorted = S;
         built = true;
     }

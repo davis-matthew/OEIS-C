@@ -8,7 +8,8 @@
  * Formula:   a(n) = A143543(n+1, 3)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 9, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   grow_table, pow2
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,28 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/grow_table.h"
+#include "../utils/mem.h"
+
+/*  Grow a table to size new_cap (indices 0 … new_cap-1), keeping old
+    entries and setting new ones to zero.  The realloc cast makes the
+    code compile as both C and C++. */
+static void grow_table(seq_t **table, size_t *cap, size_t new_cap)
+{
+    if (new_cap <= *cap)
+        return;
+    seq_t *tmp = mem_resize(seq_t, *table, new_cap);
+    if (!tmp) {                /* allocation failure – leave tables empty */
+        *table = NULL;
+        *cap   = 0;
+        return;
+    }
+    for (size_t i = *cap; i < new_cap; ++i)
+        tmp[i] = 0;
+    *table = tmp;
+    *cap   = new_cap;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Static tables: connected graphs (c[n]), graphs with 2 components (a2[n]),

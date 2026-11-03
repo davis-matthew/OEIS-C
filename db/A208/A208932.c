@@ -11,7 +11,8 @@
  *            v(n,x)=(x+1)·u(n‑1,x)+(x+1)·v(n‑1,x)+1, u(1,x)=1, v(1,x)=1
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #  define SEQ_NEW(type, count) ((type*)malloc((count)*sizeof(type)))
 #  define SEQ_DELETE(arr, count) free(arr)
 #endif
+#include "../utils/mem.h"
 
 /* Persistent state shared between calls */
 static seq_t *coeffs = NULL;       /* flattened coefficients of all v(n,x) rows   */
@@ -44,7 +46,7 @@ static void ensure_coeffs(size_t needed)
     if (needed <= coeffs_cap) return;
     size_t new_cap = coeffs_cap ? coeffs_cap << 1 : 4;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(coeffs, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, coeffs, new_cap);
     if (!tmp) exit(1); /* out of memory */
     coeffs = tmp;
     coeffs_cap = new_cap;

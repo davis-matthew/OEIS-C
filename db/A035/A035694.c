@@ -10,12 +10,14 @@
  *            partitions of m into parts 8t+5
  * Range:     u8 n <= 76, u16 n <= 188, u32 n <= 528, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t max_computed = 0;          /* largest n already processed */
 static seq_t *p4 = NULL;                /* partitions using only parts ≡4 (mod 8) */
@@ -25,16 +27,16 @@ static seq_t *a_cache = NULL;           /* memoised a(n) values */
 /* Allocate and zero an array of seq_t of size sz (indices 0..sz-1). */
 static seq_t *alloc_array(idx_t sz)
 {
-    return (seq_t *)calloc((size_t)sz, sizeof(seq_t));
+    return mem_new(seq_t, (size_t)sz);
 }
 
 /* Recompute all auxiliary tables up to and including N. */
 static void compute_up_to(idx_t N)
 {
     /* Free any existing arrays. */
-    free(p4);
-    free(p5);
-    free(a_cache);
+    mem_free(p4);
+    mem_free(p5);
+    mem_free(a_cache);
 
     /* Allocate new zeroed arrays. */
     idx_t sz = N + 1;

@@ -8,13 +8,15 @@
  *            1001*a(n‑3) for n ≥ 3
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 694 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Compute the n-th term of sequence A092806.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with the first three elements */
     if (cache_size == 0) {
-        cache = (seq_t *)malloc(3 * sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         if (!cache) abort();   /* out of memory */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)11;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Grow the cache to accommodate up to index n */
     idx_t old_size = cache_size;
     if (n + 1 > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) abort();   /* out of memory */
         cache = tmp;
         cache_size = n + 1;

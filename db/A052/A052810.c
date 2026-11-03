@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 127, u64 n <= 416,
  *            u128 n <= 1458, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9817 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 // Uses the generalized pentagonal number theorem.
 // The cache is static so calls in any order are supported.
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,7 @@ seq_t a(idx_t n)
     /* grow cache to include n */
     if (n >= cache_size) {
         /* allocate or enlarge the array (realloc handles null pointer) */
-        seq_t *tmp = (seq_t *)realloc(partition_cache,
-                                      sizeof(seq_t) * (n + 1));
+        seq_t *tmp = mem_resize(seq_t, partition_cache, (n + 1));
         if (!tmp) return (seq_t)0;           /* allocation failure, return 0 */
         partition_cache = tmp;
 

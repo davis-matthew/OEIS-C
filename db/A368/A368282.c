@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   ceil_triangular
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,7 +38,26 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/ceil_triangular.h"
+#include "../utils/mem.h"
+
+/* Helper: find the smallest s such that s*(s+1)/2 >= N */
+static inline idx_t ceil_triangular(idx_t N)
+{
+    if (N == 0) return 0;
+    idx_t low = 0, high = 1;
+    while ((__int128)high * (high + 1) / 2 < N)
+        high <<= 1;                       /* exponential search for an upper bound */
+
+    while (low + 1 < high)               /* binary search between low and high */
+    {
+        idx_t mid = low + (high - low) / 2;
+        if ((__int128)mid * (mid + 1) / 2 >= N)
+            high = mid;
+        else
+            low = mid;
+    }
+    return high;                          /* high is the required s */
+}
 
 /* Main function required by the build */
 seq_t a(idx_t N)
@@ -53,7 +73,7 @@ seq_t a(idx_t N)
     idx_t k      = s - offset;                /* column index (k ≥ 0) */
 
     /* Allocate space for the row values up to column k */
-    seq_t *row_vals = (seq_t *)malloc((k + 1) * sizeof(seq_t));
+    seq_t *row_vals = mem_new(seq_t, (k + 1));
     if (!row_vals)          /* crash on OOM – acceptable for an online judge */
         abort();
 
@@ -69,6 +89,6 @@ seq_t a(idx_t N)
     }
 
     seq_t result = row_vals[k];
-    free(row_vals);
+    mem_free(row_vals);
     return result;
 }

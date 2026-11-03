@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 159, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 1983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;   /* a‑sequence values (only for recurrence) */
 static seq_t *B = NULL;   /* b‑sequence values that are requested */
@@ -53,8 +55,8 @@ static void extend_used(size_t new_max) {
 static void init_arrays(void) {
     /* initial capacity for A and B */
     a_cap = 16;
-    A = (seq_t *)malloc(a_cap * sizeof(seq_t));
-    B = (seq_t *)malloc(a_cap * sizeof(seq_t));
+    A = mem_new(seq_t, a_cap);
+    B = mem_new(seq_t, a_cap);
     if (!A || !B) abort();
 
     /* base values as given in the definition */
@@ -87,8 +89,8 @@ static void ensure_upto(idx_t n) {
         /* grow sequences storage if necessary */
         if ((size_t)idx >= a_cap) {
             a_cap <<= 1;
-            A = (seq_t *)realloc(A, a_cap * sizeof(seq_t));
-            B = (seq_t *)realloc(B, a_cap * sizeof(seq_t));
+            A = mem_resize(seq_t, A, a_cap);
+            B = mem_resize(seq_t, B, a_cap);
             if (!A || !B) abort();
         }
 

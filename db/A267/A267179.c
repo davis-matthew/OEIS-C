@@ -13,13 +13,27 @@
  *            m = ⌊√(n‑1)⌋ + 1, let p = n – (m‑1)² – 1 (0‑based of...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   parity_substeps
+ * Validated: standard, pass, 123 terms through n = 9303 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/parity_substeps.h"
+
+/* Parity of steps of the Euclidean subtraction algorithm for (a,b). */
+static seq_t parity_substeps(idx_t a, idx_t b)
+{
+    seq_t parity = 1;             /* steps starts at 1 */
+    while (a != b) {
+        if (a > b)
+            a -= b;
+        else
+            b -= a;
+        parity ^= 1;              /* toggle each subtraction */
+    }
+    return parity;
+}
 
 /* Integer square root: floor(sqrt(n)) for n up to 2^64-1. */
 static idx_t int_sqrt_u64(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 822, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 60 terms through n = 931 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Cache of discovered terms. */
 static seq_t *cache     = NULL;
@@ -36,7 +40,7 @@ ensure_cache_capacity(idx_t need)
     if (need <= cache_cap) return;
     idx_t new_cap = (cache_cap > 0) ? cache_cap * 2 : 8;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     cache     = tmp;
     cache_cap = new_cap;
@@ -52,11 +56,11 @@ good_candidate(seq_t k)
     uint64_t e1 = (uint64_t)((k - 1) / 2);          /* (k-1)/2 */
 
     /* 2^((k-1)/2) ≡ k-1 (mod k)  ⇔  ≡ -1 (mod k) */
-    if (mod_pow((seq_t)2, e1, k) != (k - 1))
+    if (powmod((seq_t)2, e1, k) != (k - 1))
         return false;
 
     /* 3^((3k-1)/2) ≡ 3 (mod k) */
-    return mod_pow((seq_t)3, e2, k) == 3U;
+    return powmod((seq_t)3, e2, k) == 3U;
 }
 
 /* Main sequence function. */

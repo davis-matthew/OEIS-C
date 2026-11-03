@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 8129, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small, pow2, power5
+ * Validated: standard, pass, 96 terms through n = 9833 (2026-11-01)
+ * Helpers:   is_prime_seq, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,23 @@
    force enumeration of all powers of 2 and 5 up to the target. */
 
 #include <stdbool.h>
-#include "../utils/pow2.h"        /* seq_t pow2(idx_t exp);  returns 2^exp   */
-#include "../utils/power5.h"      /* seq_t power5(idx_t exp); returns 5^exp   */
-#include "../utils/is_prime_small.h" /* bool is_prime_small(seq_t n);  n ≤ small */
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/pow2.h"
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* External linkage as required. */
 seq_t a(idx_t n)
@@ -44,7 +59,7 @@ seq_t a(idx_t n)
             seq_t p = target - sum;
             if (p <= (seq_t)1) continue;          /* p must be > 1 (prime). */
 
-            if (is_prime_small(p)) ++count;       /* count if p is prime. */
+            if (is_prime_seq(p)) ++count;       /* count if p is prime. */
         }
     }
 

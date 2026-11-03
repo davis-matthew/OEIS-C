@@ -10,12 +10,14 @@
  *            a(n-1) + a(n-5) - a(n-6) for n > 5 (OEIS A286717)
  * Range:     u8 n <= 425, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 4503 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         /* Allocate (n+1) entries */
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) {
             /* Allocation failed – terminate the program; the build
                harness will never call this for huge n. */

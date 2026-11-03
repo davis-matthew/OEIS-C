@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Array holding the number of distinct prime factors (omega) for each integer.
  * omega[i] == 0 for i less than the first prime (2).  We treat 0 and 1 as having omega 0. */
@@ -82,8 +84,7 @@ static void generate_until(idx_t target)
                 /* Grow the sequence array if necessary. */
                 if (seq_len == seq_cap) {
                     seq_cap = seq_cap ? seq_cap * 2 : 16;
-                    seq = (seq_t *)realloc(seq,
-                                            seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                     if (!seq)
                         abort();
                 }

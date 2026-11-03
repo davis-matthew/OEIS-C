@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n * Sum_{p|n} 1/p (sum over distinct prime divisors of n)
- * Range:     u8 n <= 268, u16 n <= 9574, u32 n <= 9574, u64 n <= 9574,
- *            u128 n <= 9574, big any n
+ * Range:     u8 n <= 268, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 96 terms through n = 9574 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

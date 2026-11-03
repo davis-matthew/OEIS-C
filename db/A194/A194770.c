@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 13, i64 n <= 21, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    Implementation uses incremental factorials of multiples of three. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache of factorials (3*k)! for k = 0,1,2,... */
 static seq_t *fact_cache = NULL;   /* dynamically allocated array */
@@ -35,7 +37,7 @@ static void ensure_factorial(idx_t need)
     if (fact_cap <= need) {
         idx_t new_cap = (fact_cap > 0) ? fact_cap * 2 : 8;
         if (new_cap < need + 1) new_cap = need + 1;
-        seq_t *tmp = (seq_t*)realloc(fact_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_cache, new_cap);
         fact_cache = tmp;
         fact_cap   = new_cap;
     }

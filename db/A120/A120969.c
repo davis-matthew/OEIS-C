@@ -7,17 +7,20 @@
  * Formula:   a(n) = 8*n + 5^n - 3^n
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 38 terms through n = 988 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Compute 5^n and 3^n using the provided big_pow helper. */
-    seq_t pow5 = big_pow((seq_t)5, (seq_t)n);
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n);
+    seq_t pow5 = ipow((seq_t)5, (seq_t)n);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n);
 
     /* 8*n as seq_t to avoid intermediate 64‑bit overflow. */
     seq_t term = ((seq_t)8) * (seq_t)n;

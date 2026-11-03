@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for seq_t values – returns negative if x<y, 0 if equal,
    positive if x>y. */
@@ -51,7 +53,7 @@ static void build_global_sequence(void)
 
     /* Maximum number of (a,b) pairs – fits in size_t. */
     const size_t MAX_PAIRS = (size_t)MAX_A * (MAX_A - 1) / 2;
-    seq_t *tmp = (seq_t *)malloc(MAX_PAIRS * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, MAX_PAIRS);
     if (!tmp) exit(1);
 
     size_t cnt = 0;
@@ -67,7 +69,7 @@ static void build_global_sequence(void)
     }
 
     /* Sort the collected values. */
-    qsort(tmp, cnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(tmp, cnt, sizeof(seq_t), cmp_seq_t);
 
     /* Remove duplicates in place. */
     size_t uniq = 0;
@@ -78,7 +80,7 @@ static void build_global_sequence(void)
     }
 
     /* Resize to actual size. */
-    seq_t *final = (seq_t *)realloc(tmp, uniq * sizeof(seq_t));
+    seq_t *final = mem_resize(seq_t, tmp, uniq);
     if (!final) exit(1);
 
     global_terms      = final;

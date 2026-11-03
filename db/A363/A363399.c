@@ -12,13 +12,16 @@
  *            the triangle T(n,k) read row‑by‑row
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -32,10 +35,10 @@ seq_t a(idx_t n)
     idx_t k = n - cnt;
 
     /* (k+1)^r */
-    seq_t power = pow_seq((seq_t)(k + 1), (int)r);
+    seq_t power = ipow_i32((seq_t)(k + 1), (int)r);
 
     /* 2^(r+1) */
-    seq_t two_pow = pow_seq((seq_t)2, (int)(r + 1));
+    seq_t two_pow = ipow_i32((seq_t)2, (int)(r + 1));
 
     /* sum of binomial coefficients up to k */
     seq_t sum_bin = (seq_t)0;

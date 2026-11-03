@@ -6,9 +6,10 @@
  * Keywords:  easy, nonn, tabf
  * Formula:   a(n) = offset within the concatenation of rows of numbers
  *            1..(prime(i)-1) where rows are indexed by i starting from 1
- * Range:     u8 n <= 1168, u16 n <= 9696, u32 n <= 9696, u64 n <= 9696,
- *            u128 n <= 9696, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1168, u16 n <= 10123, u32 n <= 10123, u64 n <= 10123,
+ *            u128 n <= 10123, big any n
+ * Validated: standard, pass, 105 terms through n = 9696 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Prime number handling                                               */
@@ -71,7 +73,7 @@ static void grow_cum(size_t min_cap)
     if (cum_cap >= min_cap) return;
     size_t new_cap = cum_cap ? cum_cap * 2u : 16u;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cum, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cum, new_cap);
     if (!tmp) abort();
     cum = tmp;
     cum_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 17, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system */
 extern seq_t seq_t_dummy;
@@ -50,17 +52,17 @@ static idx_t current_m = 0;
 
 /* ------------------------------------------------------------------ */
 /*  Ensure a memory buffer has at least 'needed' elements               */
-static void ensure_cap(void **array, size_t *cap, size_t needed)
+static void ensure_cap(seq_t **array, size_t *cap, size_t needed)
 {
     if (*cap >= needed)
         return;
     size_t newcap = needed;
-    void *tmp = realloc(*array, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *array, newcap);
     if (!tmp)
         exit(1);
     *array = tmp;
-    /* initialise new elements to 0 (works for POD or trivial types) */
-    seq_t *s = (seq_t *)*array;
+    /* initialise new elements to 0 */
+    seq_t *s = *array;
     for (size_t i = *cap; i < newcap; ++i)
         s[i] = (seq_t)0;
     *cap = newcap;
@@ -75,7 +77,7 @@ static void init_state(void)
 
     /* cache for a(0) and a(1) */
     cache_len = 2;
-    cache = (seq_t *)malloc(sizeof(seq_t) * 2);
+    cache = mem_new(seq_t, 2);
     if (!cache)
         exit(1);
     cache[0] = (seq_t)-1;
@@ -83,8 +85,8 @@ static void init_state(void)
 
     /* Stirling arrays – start with row m = 0 : S(0,0)=1 */
     S_cap   = 1;
-    S_prev  = (seq_t *)malloc(sizeof(seq_t));
-    S_curr  = (seq_t *)malloc(sizeof(seq_t));
+    S_prev  = mem_new(seq_t, 1);
+    S_curr  = mem_new(seq_t, 1);
     if (!S_prev || !S_curr)
         exit(1);
     S_prev[0] = (seq_t)1;   /* S(0,0)=1 */
@@ -92,7 +94,7 @@ static void init_state(void)
 
     /* factorial array – fact[0] = 1 */
     fact_cap = 1;
-    fact = (seq_t *)malloc(sizeof(seq_t));
+    fact = mem_new(seq_t, 1);
     if (!fact)
         exit(1);
     fact[0] = (seq_t)1;
@@ -114,15 +116,15 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* Expand cache to hold value for n */
-    ensure_cap((void **)&cache, &cache_len, (size_t)n + 1);
+    ensure_cap(&cache, &cache_len, (size_t)n + 1);
 
     /* Compute Stirling rows up to m = n-1 */
     idx_t target_m = n - 1;
     for (idx_t m = current_m + 1; m <= target_m; ++m)
     {
         /* Ensure arrays are large enough for row m */
-        ensure_cap((void **)&S_curr, &S_cap, (size_t)m + 1);
-        ensure_cap((void **)&fact,   &fact_cap, (size_t)m + 1);
+        ensure_cap(&S_curr, &S_cap, (size_t)m + 1);
+        ensure_cap(&fact,   &fact_cap, (size_t)m + 1);
 
         /* Update factorial: fact[m] = fact[m-1] * m */
         fact[m] = fact[m - 1] * (seq_t)m;

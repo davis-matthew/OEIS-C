@@ -9,14 +9,30 @@
  *            ]
  * Range:     u8 n <= 22, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   sumMultiples
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sumMultiples.h"
+
+/* sum of all multiples of `prod` in the inclusive range [L,R] */
+static seq_t sumMultiples(idx_t L, idx_t R, idx_t prod) {
+    if (prod == 0 || L > R) return 0;
+
+    /* first multiple of prod not less than L */
+    idx_t first = (L + prod - 1) / prod * prod;
+    /* last multiple of prod not greater than R */
+    idx_t last  = R / prod * prod;
+
+    if (first > last) return 0;
+
+    idx_t count = (last - first) / prod + 1;
+    seq_t sum = (seq_t)count * ((seq_t)first + (seq_t)last) / 2;
+    return sum;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;   /* undefined for 0, but safe */

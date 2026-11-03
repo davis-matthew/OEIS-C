@@ -10,7 +10,8 @@
  *            p_i^{e_i} (p_i prime in ascending order). A069799
  * Range:     u8 n <= 51, u16 n <= 271, u32 n <= 2367, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   factor
+ * Validated: standard, pass, 81 terms through n = 7867 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor.h"
+
+/* --------------------------------------------------------------- */
+static void factor(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    size_t c = 0;
+    for (uint64_t p = 2; p*p <= n; ++p) {
+        if (n % p == 0) {
+            pr[c] = p; exp[c] = 0;
+            while (n % p == 0) { n /= p; ++exp[c]; }
+            ++c;
+        }
+    }
+    if (n > 1) { pr[c] = n; exp[c] = 1; ++c; }
+    *cnt = c;
+}
 
 /* Multiply a seq_t base by itself exp times. */
 static seq_t pow_seq_t(seq_t base, idx_t exp)

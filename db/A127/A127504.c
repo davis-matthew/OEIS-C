@@ -10,12 +10,14 @@
  *            the appropriate entry
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* Return phi(r) if k divides r, else 0 */
     if (r % k == 0) {
-        return phi(r);
+        return totient(r);
     } else {
         return (seq_t)0;
     }

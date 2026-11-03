@@ -12,14 +12,17 @@
  *            = cand else a(n) = p + n
  * Range:     u8 n <= 46, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *seq   = NULL; /* pointer to array of terms   */
@@ -37,7 +40,7 @@ static void ensure_cache(idx_t n)
     while (new_cap < needed) new_cap <<= 1;      /* grow by factor 2            */
 
     /* realloc and cast to seq_t* for C++ compatibility */
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) { abort(); }
     seq   = tmp;
     cache_cap = new_cap;

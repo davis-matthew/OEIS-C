@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 640, u16 n <= 8007, u32 n <= 8007, u64 n <= 8007,
- *            u128 n <= 8007, big any n
- * Helpers:   factor_u64, is_prime
+ * Range:     u8 n <= 640, u16 n <= 25000, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 121 terms through n = 8007 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* ---------- Helpers ---------- */
 
@@ -102,7 +104,7 @@ static void ensure_composites_cap(size_t needed)
     if (composites_cap >= needed) return;
     size_t new_cap = composites_cap ? composites_cap * 2 : 32;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(composites, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, composites, new_cap);
     if (!tmp) abort();
     composites = tmp;
     composites_cap = new_cap;

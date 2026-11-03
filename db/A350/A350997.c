@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} k^rad(k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, rad
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   ipow, mem, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/rad.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
+#include "../utils/radical.h"
+#include "../utils/mem.h"
 
 /* Stateful cache of cumulative sums: cumulative[0] = 0, cumulative[n] = a(n) */
 static seq_t *cumulative = NULL;          /* array of seq_t values */
@@ -27,7 +30,7 @@ static idx_t   cumulative_len = 0;        /* largest n for which cumulative[n] i
 static void ensure_cumulative_size(size_t new_cap)
 {
     if (new_cap > cumulative_cap) {
-        seq_t *tmp = (seq_t *)realloc(cumulative, new_cap * sizeof(*cumulative));
+        seq_t *tmp = mem_resize(seq_t, cumulative, new_cap);
         if (!tmp) return;               /* allocation failed – leave cache unchanged */
         cumulative = tmp;
         cumulative_cap = new_cap;
@@ -51,8 +54,8 @@ seq_t a(idx_t n)
     /* Compute missing terms up to n */
     for (size_t k = (size_t)(cumulative_len + 1); k <= (size_t)n; ++k) {
         idx_t     ik   = (idx_t)k;
-        seq_t     radk = rad(ik);                 /* radical of k */
-        seq_t     pk   = big_pow((seq_t)ik, radk);/* k^rad(k) */
+        seq_t     radk = radical(ik);                 /* radical of k */
+        seq_t     pk   = ipow((seq_t)ik, radk);/* k^rad(k) */
         cumulative[k] = cumulative[k - 1] + pk;
     }
 

@@ -13,7 +13,8 @@
  *            fixed‑width (e.g. uint64_t) and * arbitrary‑precision (seq_t)...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 148 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Compute binomial coefficient C(n,k) as seq_t using multiplicative formula.
    The division is exact at each step. */
@@ -60,7 +62,7 @@ static void ensure_cache(idx_t n)
     size_t new_size = n + 1;
     /* Grow by 1.5x to reduce reallocs if possible */
     if (new_size < cache_size * 3 / 2) new_size = cache_size * 3 / 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) exit(1);                 /* memory error */
     cache = new_cache;
     /* Initialise new entries to zero */

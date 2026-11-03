@@ -12,15 +12,16 @@
  *            edges)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 27, u128 n <= 57,
  *            big any n
- * Helpers:   central_binom_a006432, ugcd_a006432
+ * Validated: standard, pass, 39 terms through n = 100 (2026-11-01)
+ * Helpers:   central_binomial, gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/central_binom_a006432.h"
-#include "../utils/ugcd_a006432.h"
+#include "../utils/central_binomial.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -34,16 +35,16 @@ seq_t a(idx_t n)
     seq_t t, T, p;
     idx_t i;
 
-    g = ugcd_a006432(d, ap);
+    g = gcd_u64(d, ap);
     if (g) {
         d /= g;
         ap /= g;
     }
-    g = ugcd_a006432(d, o);
+    g = gcd_u64(d, o);
     d /= g;
     o /= g;
 
-    t = central_binom_a006432(n);
+    t = central_binomial(n);
     T = t / (seq_t)d;
     T *= (seq_t)o;
     T *= (seq_t)ap;

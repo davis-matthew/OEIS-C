@@ -10,12 +10,14 @@
  *            tools
  * Range:     u8 n <= 136, u16 n <= 1348, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 9979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*---------------------------------------------*/
 /* Memoisation cache for a(n) values            */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n < cache_cap) return;            /* already large enough */
 
     size_t new_cap = (size_t)n + 1;                /* need room for indices 0..n */
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) {                             /* allocation failed */
         /* abort – this should never happen in test harness */
         exit(1);

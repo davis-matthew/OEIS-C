@@ -8,14 +8,15 @@
  * Formula:   a(n) = (n-1)*n! - Σ_{k=1}^{n-1} k! * k^{n-k}
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 33,
  *            big any n
- * Helpers:   pow_small_seq
+ * Validated: standard, pass, 37 terms through n = 438 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* For each n >= 1 returns the n-th term of OEIS A018927. */
 #include <stddef.h>
-#include "../utils/pow_small_seq.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= n - 1; ++k)
     {
         fact *= k;                         /* k!  */
-        seq_t pow_val = pow_small_seq((seq_t)k, n - k);   /* k^{n-k} */
+        seq_t pow_val = ipow_idx((seq_t)k, n - k);   /* k^{n-k} */
         sum += fact * pow_val;
     }
 

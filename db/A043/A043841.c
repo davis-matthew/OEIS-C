@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   runs_in_base4
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
  * congruent to 4 (mod 6).  The function lazily generates the sequence
  * as it is needed, caching previously found terms. */
 #include <stdlib.h>
-#include "../utils/runs_in_base4.h"
+
+/* Count number of runs in the base‑4 representation of n.
+ * A run is a maximal consecutive block of equal digits. */
+static inline int runs_in_base4(uint64_t n)
+{
+    if (n == 0) return 1;   /* only digit 0 -> one run */
+    int runs = 0;
+    int prev = -1;
+    while (n) {
+        int d = n & 3;          /* n % 4 */
+        if (d != prev) {
+            runs++;
+            prev = d;
+        }
+        n >>= 2;                /* n /= 4 */
+    }
+    return runs;
+}
 
 static uint64_t *vals = NULL;        /* cached integers satisfying the property */
 static size_t vals_len = 0;          /* number of cached integers */

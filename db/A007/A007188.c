@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{i=0..n} prime(i+1)^C(n,i)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   p7188_isprime, p7188_pow
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-03)
+ * Helpers:   ipow_u64, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/p7188_isprime.h"
-#include "../utils/p7188_pow.h"
+#include "../utils/ipow_u64.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t *row = (uint64_t *)malloc((size_t)(n + 1) * sizeof(uint64_t));
@@ -29,8 +30,8 @@ seq_t a(idx_t n) {
     seq_t result = 1;
     uint64_t p = 1;
     for (i = 0; i <= n; i++) {
-        do { p++; } while (!p7188_isprime(p));
-        result *= p7188_pow((seq_t)p, row[i]);
+        do { p++; } while (!is_prime_u64(p));
+        result *= ipow_u64((seq_t)p, row[i]);
     }
     free(row);
     return result;

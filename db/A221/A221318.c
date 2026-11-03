@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 50, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* binomial coefficient using seq_t arithmetic */
 static seq_t binom_seq(idx_t a, idx_t b)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* enlarge result cache if necessary */
     if (res_cap <= n) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(res, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, res, new_cap);
         if (tmp == NULL) abort();
         res = tmp;
         for (size_t i = res_cap; i < new_cap; ++i) res[i] = 0;
@@ -64,21 +66,20 @@ seq_t a(idx_t n)
     /* grow residue‑sum arrays if required */
     if (cur_cap < needed_cap) {
         for (int r = 0; r < 5; ++r) {
-            seq_t *tmp = (seq_t *)realloc(cur[r], needed_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cur[r], needed_cap);
             if (tmp == NULL) abort();
             cur[r] = tmp;
-            memset(cur[r] + cur_cap, 0,
-                   (needed_cap - cur_cap) * sizeof(seq_t));
+            mem_set(cur[r] + cur_cap, 0, (needed_cap - cur_cap) * sizeof(seq_t));
         }
         for (int r = 0; r < 5; ++r) {
             if (nxt[r] == NULL) {
-                nxt[r] = (seq_t *)calloc(needed_cap, sizeof(seq_t));
+                nxt[r] = mem_new(seq_t, needed_cap);
                 if (nxt[r] == NULL) abort();
             } else {
-                seq_t *tmp = (seq_t *)realloc(nxt[r], needed_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, nxt[r], needed_cap);
                 if (tmp == NULL) abort();
                 nxt[r] = tmp;
-                memset(nxt[r], 0, needed_cap * sizeof(seq_t));
+                mem_set(nxt[r], 0, needed_cap * sizeof(seq_t));
             }
         }
         cur_cap = needed_cap;
@@ -87,7 +88,7 @@ seq_t a(idx_t n)
     /* initialise for n == 1 if this is the first call */
     if (dp_max_n == 0) {
         for (int r = 0; r < 5; ++r)
-            memset(cur[r], 0, cur_cap * sizeof(seq_t));
+            mem_set(cur[r], 0, cur_cap * sizeof(seq_t));
         for (int r = 0; r < 5; ++r)
             cur[r][r] = 1;               /* sequences of length 1 */
         res[1] = 1;
@@ -103,8 +104,7 @@ seq_t a(idx_t n)
 
         /* reset temporary arrays */
         for (int r = 0; r < 5; ++r) {
-            memset(nxt[r], 0,
-                   (new_max_s + 1) * sizeof(seq_t));
+            mem_set(nxt[r], 0, (new_max_s + 1) * sizeof(seq_t));
         }
 
         /* transition from length len-1 to len */

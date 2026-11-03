@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 51, u64 n <= 575,
  *            u128 n <= 1000, big any n
- * Helpers:   binom9_u128
+ * Validated: standard, pass, 45 terms through n = 984 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,16 @@
     where c = {3, -23, 83, -178, 253, -242, 157, -67, 17, -2}.
 */
 #include <stdint.h>
-#include "../utils/binom9_u128.h"
+
+/*  Helper: binomial coefficient binom(m , 9)  (m ≥ 9)  */
+static inline unsigned __int128 binom9_u128(idx_t m)
+{
+    unsigned __int128 r = 1;
+    for (idx_t k = 0; k < 9; ++k)
+        r *= (unsigned __int128)(m - k);
+    r /= 362880;                    /* 9! = 362880 */
+    return r;
+}
 
 seq_t a(idx_t n)
 {

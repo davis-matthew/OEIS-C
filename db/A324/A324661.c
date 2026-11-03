@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   ht_hash
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/ht_hash.h"
+
+static size_t ht_hash(int64_t key, size_t cap)
+{
+    uint64_t h = (uint64_t)key;
+    h ^= h >> 33;
+    h *= 0xff51afd7ed558ccdULL;
+    h ^= h >> 33;
+    h *= 0xc4ceb9fe1a85ec53ULL;
+    h ^= h >> 33;
+    return (size_t)h & (cap - 1);
+}
 
 /* -- Simple open‑addressing hash table for int64_t keys ---------- */
 typedef struct {

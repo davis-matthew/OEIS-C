@@ -12,14 +12,18 @@
  *            coefficient at position n in that flattening
  * Range:     u8 n <= 29, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,19 +44,19 @@ seq_t a(idx_t n)
     idx_t j = n - offset;                /* column index within the row */
 
     /* Allocate an array for the row's coefficients */
-    seq_t *coeff = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (r + 1));
     if (!coeff) return 0;                /* fallback on allocation failure */
 
     /* Initial terms from (x + 1)^r */
     for (idx_t k = 0; k <= r; ++k) {
-        coeff[k] = binom(r, k);
+        coeff[k] = binomial(r, k);
     }
 
     /* Add the additional terms for r ≥ 2 */
     if (r >= 2) {
         seq_t power = pow2(r - 2);       /* 2^(r-2) */
         for (idx_t m = 1; m <= r - 1; ++m) {
-            seq_t bin = binom(r - m, m);
+            seq_t bin = binomial(r - m, m);
             seq_t contrib = power * bin; /* exact product */
             coeff[m] += contrib;
             coeff[r - m] += contrib;
@@ -60,6 +64,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coeff[j];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

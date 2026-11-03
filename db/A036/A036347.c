@@ -10,13 +10,15 @@
  *            returns the n-th element of this sequence (1‑indexed)
  * Range:     u8 n <= 134, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build system */
 typedef uint64_t idx_t;
@@ -61,7 +63,7 @@ static void recompute_upto(idx_t limit)
     }
 
     /* 3. Build the sequence array */
-    seq_t *new_terms = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    seq_t *new_terms = mem_new(seq_t, (size_t)(limit + 1));
     if (!new_terms) { free(spf); free(parity); return; }
 
     size_t count = 0;
@@ -74,9 +76,9 @@ static void recompute_upto(idx_t limit)
     }
 
     /* 4. Replace old array */
-    seq_t *temp = (seq_t *)realloc(new_terms, count * sizeof(seq_t));
+    seq_t *temp = mem_resize(seq_t, new_terms, count);
     if (temp) new_terms = temp;
-    free(terms);
+    mem_free(terms);
     terms = new_terms;
     terms_len = count;
 

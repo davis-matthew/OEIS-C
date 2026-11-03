@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 50, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(1)=4, a(2)=6; for n>2,
    a(n)=2*a(n-1)+a(n-2)-4*((n-1) mod 2) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the nth term of OEIS sequence A162485.
    Index n is 1‑based; n >= 1. */
@@ -29,10 +31,10 @@ seq_t a(idx_t n)
     /* Ensure sufficient storage. */
     if (cache == NULL || (size_t)n + 1 > cache_sz) {
         size_t new_sz = ((size_t)n + 1) * 2;     /* grow a bit to avoid frequent reallocs */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_sz);
         if (!new_cache) {
             /* allocation failed – free old memory if any */
-            free(cache);
+            mem_free(cache);
             cache     = NULL;
             cache_sz  = 0;
             last_idx  = 0;

@@ -11,12 +11,14 @@
  *            Fibonacci numbers F[0..r] (F[0]=0, F[1]=1)
  * Range:     u8 n <= 21, u16 n <= 36, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* for realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     static size_t fib_size = 0;
     if ((size_t)(r + 1) > fib_size) {
         fib_size = (size_t)(r + 1);
-        fib = (seq_t *)realloc(fib, fib_size * sizeof(seq_t));
+        fib = mem_resize(seq_t, fib, fib_size);
     }
     fib[0] = (seq_t)0;
     if (r >= 1) fib[1] = (seq_t)1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     static size_t e_size = 0;
     if ((size_t)(r + 1) > e_size) {
         e_size = (size_t)(r + 1);
-        e = (seq_t *)realloc(e, e_size * sizeof(seq_t));
+        e = mem_resize(seq_t, e, e_size);
     }
     e[0] = (seq_t)1;
     for (idx_t j = 1; j <= r; ++j)

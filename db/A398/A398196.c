@@ -10,12 +10,14 @@
  *            a(5)=31, a(6)=44
  * Range:     u8 n <= 14, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute the n-th term of A398196 (lower (2/5,1) midsequence) */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (size == 0) {
         /* start with a small capacity, grow as needed */
         cap = 8;
-        cache = (seq_t*)malloc(cap * sizeof(*cache));
+        cache = mem_new(seq_t, cap);
         /* initial terms */
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         size_t new_cap = (cap > 0) ? cap * 2 : 8;
         while (new_cap <= n)
             new_cap *= 2;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(*cache));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = (idx_t)new_cap;
     }
 

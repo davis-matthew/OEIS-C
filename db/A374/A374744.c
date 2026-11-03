@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    The function a(n) returns the n‑th such number (offset 1).         */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Check whether the leaders of all weakly decreasing runs in the
    composition of k (given by the standard mapping) are identical. */
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         /* Store it. */
         if (cache_size >= cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)
                 abort();           /* allocation failed */
             cache = tmp;

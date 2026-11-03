@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{m=1..n, gcd(n,m)=1} tau(m) (A143615)
  * Range:     u8 n <= 60, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global tables for divisor counts (tau) and their prefix sums */
 static seq_t *tau_arr = NULL;      /* 1‑based: tau_arr[i] = τ(i) */
@@ -27,10 +29,10 @@ static void ensure_divisor_tables(idx_t N)
 
     idx_t new_size = N + 1;                 /* 1‑based indices */
     size_t sz = (size_t)new_size;
-    seq_t *new_tau = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *new_prefix = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *new_tau = mem_new(seq_t, sz);
+    seq_t *new_prefix = mem_new(seq_t, sz);
     if (!new_tau || !new_prefix) {
-        free(new_tau); free(new_prefix);
+        mem_free(new_tau); mem_free(new_prefix);
         return; /* allocation failure */
     }
 
@@ -50,8 +52,8 @@ static void ensure_divisor_tables(idx_t N)
         new_prefix[i] = new_prefix[i-1] + new_tau[i];
 
     /* swap in the new tables */
-    free(tau_arr);
-    free(prefix_arr);
+    mem_free(tau_arr);
+    mem_free(prefix_arr);
     tau_arr = new_tau;
     prefix_arr = new_prefix;
     tau_size = new_size;
@@ -83,7 +85,7 @@ static void ensure_a_cache(idx_t N)
 {
     if (N < a_cache_size) return;
     size_t new_sz = (size_t)(N + 1);
-    seq_t *new_cache = (seq_t*)realloc(a_cache, new_sz * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_sz);
     if (!new_cache) return; /* allocation failure */
     for (size_t i = a_cache_size; i < new_sz; ++i) new_cache[i] = 0;
     a_cache = new_cache;

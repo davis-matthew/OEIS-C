@@ -11,14 +11,25 @@
  *            col = m - t. Finally a(n)=T(row,col)
  * Range:     u8 n <= 38, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   _diag_of
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/_diag_of.h"
+
+static inline idx_t _diag_of(idx_t n) {
+    /* Find smallest m with (m+1)(m+2)/2 > n, i.e. m(m+1)/2 ≤ n. */
+    /* Initial guess using floating point sqrt. */
+    long double approx = sqrtl((long double)8 * (long double)n + 1.0L);
+    idx_t m = (idx_t)((approx - 1.0L) * 0.5L);
+    /* Correct possible off‑by‑one errors. */
+    while (( (__int128)m * (m + 1) ) / 2 > n) --m;
+    while (((__int128)(m + 1) * (m + 2)) / 2 <= n) ++m;
+    return m;
+}
 
 seq_t a(idx_t n) {
     idx_t m = _diag_of(n);

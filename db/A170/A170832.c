@@ -7,12 +7,14 @@
  * Formula:   a(n) = 3^floor(n/2)+3^(floor(n/2)-1)-3^floor((n-1)/3)
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 38 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Offset: 2 (a(2) is the first term) */
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)

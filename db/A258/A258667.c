@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 14, u64 n <= 22, u128 n <= 24,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,9 +44,9 @@ seq_t a(idx_t n)
         size_t new_cap = (size_t)n;                    /* number of entries */
         seq_t *new_fact;
         if (fact == NULL) {
-            new_fact = (seq_t *)calloc(new_cap, sizeof(seq_t));
+            new_fact = mem_new(seq_t, new_cap);
         } else {
-            new_fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+            new_fact = mem_resize(seq_t, fact, new_cap);
         }
         fact = new_fact;
 

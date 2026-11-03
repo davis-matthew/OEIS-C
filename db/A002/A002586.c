@@ -9,14 +9,24 @@
  *            (mod p)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 127, u64 n <= 3967,
  *            u128 n <= 3967, big any n
- * Helpers:   a2586_mulmod, a2586_powmod2
+ * Validated: standard, pass, 102 terms through n = 3908 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a2586_mulmod.h"
-#include "../utils/a2586_powmod2.h"
+#include "../utils/mulmod.h"
+
+static uint64_t a2586_powmod2(uint64_t e, uint64_t m) {
+    uint64_t r = 1 % m, b = 2 % m;
+    while (e > 0) {
+        if (e & 1) r = mulmod(r, b, m);
+        b = mulmod(b, b, m);
+        e >>= 1;
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     uint64_t k = 0, m = n, step, p, budget;

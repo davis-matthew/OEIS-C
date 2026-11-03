@@ -9,6 +9,7 @@
  *            prime p, a(p)=2^(π(p)–1)
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 136, u64 n <= 312,
  *            u128 n <= 726, big any n
+ * Validated: standard, pass, 92 terms through n = 3698 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

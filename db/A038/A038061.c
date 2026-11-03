@@ -7,12 +7,15 @@
  * Formula:   a(n) = 3^n * n^(n-1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -20,10 +23,10 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* 3^n */
-    seq_t pow3n = seq_pow((seq_t)3, n);
+    seq_t pow3n = ipow_idx((seq_t)3, n);
 
     /* n^(n-1) */
-    seq_t pown = seq_pow((seq_t)n, n - 1);
+    seq_t pown = ipow_idx((seq_t)n, n - 1);
 
     return pow3n * pown;
 }

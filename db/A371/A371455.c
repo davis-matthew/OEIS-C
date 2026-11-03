@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 158, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 84 terms through n = 9822 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state held across calls */
@@ -106,7 +108,7 @@ seq_t a(idx_t n) {
             /* store the valid number */
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 32;
-                seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
                 if (!seq_arr) return (seq_t)0;    /* allocation failure */
             }
             seq_arr[seq_len++] = (seq_t)next_candidate;

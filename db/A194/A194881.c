@@ -8,7 +8,8 @@
  * Formula:   a(n) = 1 + \sum_{j=1}^{n} \phi(3j)/2
  * Range:     u8 n <= 26, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   sieve_phi
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,25 @@
 /* (where \phi is Euler's totient function, A000010) */
 
 #include <stdlib.h>
-#include "../utils/sieve_phi.h"
+
+static uint64_t *sieve_phi(idx_t up)
+{
+    /* Allocate array of size up+1 (up may be 0) */
+    uint64_t *phi = (uint64_t *)malloc((size_t)(up + 1) * sizeof(uint64_t));
+    if (!phi) return NULL;
+
+    for (idx_t i = 0; i <= up; ++i)
+        phi[i] = i;                     /* phi of a prime will stay unchanged */
+
+    for (idx_t i = 2; i <= up; ++i) {
+        if (phi[i] == i) {              /* i is prime */
+            for (idx_t j = i; j <= up; j += i) {
+                phi[j] = (phi[j] / i) * (i - 1);
+            }
+        }
+    }
+    return phi;
+}
 
 seq_t a(idx_t n)
 {

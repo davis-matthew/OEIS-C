@@ -14,7 +14,8 @@
  *            entry, and returns the * element with inde...
  * Range:     u8 n <= 127, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* constants for the prime sieve */
 #define MAX_SIEVE 5000000UL             /* covers 4*m up to ≈1.5×10^6 for m up to ~200 000 */
@@ -97,7 +99,7 @@ static void ensure_cache(void)
     if (cache_ready) return;
     cache_ready = true;
     cache_cap   = 64;      /* initial capacity */
-    found_vals  = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    found_vals  = mem_new(seq_t, cache_cap);
 }
 
 /* ------------------------------------------------------------------ */
@@ -117,7 +119,7 @@ seq_t a(idx_t n)
             ++found_cnt;
             if (found_cnt > cache_cap) {
                 cache_cap *= 2;
-                found_vals = (seq_t *)realloc(found_vals, cache_cap * sizeof(seq_t));
+                found_vals = mem_resize(seq_t, found_vals, cache_cap);
             }
             found_vals[found_cnt - 1] = (seq_t)last_m;
         }

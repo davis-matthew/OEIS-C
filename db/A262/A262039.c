@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   pow10, rev_decimal
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,18 @@
 /* Computes nearest palindrome to n (in base 10); ties favor the larger one. */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/rev_decimal.h"
+#include <stdint.h>
+#include "../utils/reverse_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Construct the palindrome that has the same length as `total_len` and
    whose left half (plus middle digit if odd) equals `prefix`. */
@@ -26,14 +37,14 @@ static seq_t make_pal_from_prefix(seq_t prefix, size_t total_len)
     size_t k = total_len / 2;
     if (total_len % 2 == 0) {               /* even length */
         seq_t powk = pow10(k);
-        seq_t rev = rev_decimal(prefix);    /* reverse the whole prefix */
+        seq_t rev = reverse_digits(prefix);    /* reverse the whole prefix */
         return prefix * powk + rev;
     } else {                                 /* odd length */
         seq_t powk   = pow10(k);
         seq_t powk1  = pow10(k + 1);
         seq_t mid    = prefix % 10;
         seq_t left   = prefix / 10;
-        seq_t rev    = rev_decimal(left);
+        seq_t rev    = reverse_digits(left);
         return left * powk1 + mid * powk + rev;
     }
 }

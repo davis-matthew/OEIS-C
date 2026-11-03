@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n, floor(k/2)) * (-2)^(n-k)
  * Range:     i8 n <= 5, i16 n <= 12, i32 n <= 24, i64 n <= 48, i128 n <= 96,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 45 terms through n = 186 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /*  (C11 + C++17); seq_t and idx_t are defined by the build environment. */
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 #ifdef __cplusplus
 #include <type_traits>
@@ -45,7 +48,7 @@ seq_t a(idx_t n) {
 
     /* pre‑compute binomial(n, i) for i = 0 .. floor(n/2) */
     idx_t m = n >> 1;                     /* floor(n/2) */
-    seq_t *binom = (seq_t *)malloc((size_t)(m + 1) * sizeof(seq_t));
+    seq_t *binom = mem_new(seq_t, (size_t)(m + 1));
     if (!binom) return (seq_t)0;          /* allocation failure not expected */
 
     binom[0] = (seq_t)1;
@@ -67,6 +70,6 @@ seq_t a(idx_t n) {
         if (k < n) power = power / (-2);      /* divide by -2 for next power */
     }
 
-    free(binom);
+    mem_free(binom);
     return sum;
 }

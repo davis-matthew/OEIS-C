@@ -6,8 +6,9 @@
  * Keywords:  sign, look
  * Formula:   a(n) = (# odd proper divisors of n) – (# even proper divisors of
  *            n)
- * Range:     i8 n <= 9128, i16 n <= 9128, i32 n <= 9128, i64 n <= 9128,
- *            i128 n <= 9128, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 96 terms through n = 9128 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

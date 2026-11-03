@@ -13,12 +13,14 @@
  *            322*a(n-17) - 49*a(n-18), with a(1..18) given below
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[18] = {
     2ULL, 16ULL, 318ULL, 1952ULL, 16584ULL, 119176ULL, 832218ULL,
@@ -39,7 +41,7 @@ static void grow_cache(idx_t n)
     if (new_cap <= cache_cap)
         return;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();
 

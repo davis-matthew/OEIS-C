@@ -8,6 +8,7 @@
  *            p^5)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 27, u64 n <= 2069,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 42 terms through n = 9420 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* simple integer power for seq_t */

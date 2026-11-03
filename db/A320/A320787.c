@@ -9,7 +9,8 @@
  *            is the number of partitions of k into distinct parts
  * Range:     u8 n <= 16, u16 n <= 41, u32 n <= 121, u64 n <= 401,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    128‑bit intermediate arithmetic to avoid overflow on 64‑bit builds. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache for partition counts into distinct parts. */
 static seq_t *dp = NULL;
@@ -31,7 +33,7 @@ static void ensure_dp(idx_t n)
 
     /* Allocate new array.  (idx_t may be 64‑bit, but n is small in practice.) */
     idx_t new_len = n + 1;
-    seq_t *newdp = (seq_t *)malloc((size_t)new_len * sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, (size_t)new_len);
     if (!newdp) return;                /* memory allocation failed – leave dp unchanged */
 
     /* Initialise to zero and set dp[0] = 1 (empty partition). */
@@ -47,7 +49,7 @@ static void ensure_dp(idx_t n)
     }
 
     /* Replace the old array. */
-    free(dp);
+    mem_free(dp);
     dp = newdp;
     dp_max = n;
 }

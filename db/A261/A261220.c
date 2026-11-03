@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 995, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper: check whether a value satisfies the A261220 condition. */
 static bool is_valid(seq_t val)
@@ -82,10 +84,10 @@ static void enlarge_cache(size_t need)
     size_t new_cap = cache_cap * 2;
     if (new_cap < need) new_cap = need;
     if (new_cap == 0) new_cap = 16;           /* initial capacity         */
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);
     for (size_t i = 0; i < cache_len; ++i) new_arr[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache = new_arr;
     cache_cap = new_cap;
 }

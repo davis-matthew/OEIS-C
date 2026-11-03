@@ -12,7 +12,8 @@
  *            that digit that has not yet been examined
  * Range:     u8 n <= 154, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9817 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const size_t USED_TABLE_SIZE = 1u << 15;     /* 32768 - power of two */
 static seq_t *used_table = NULL;
@@ -39,7 +41,7 @@ static inline size_t hash_seq_t(seq_t x)
 static void init_used_table(void)
 {
     if (used_table != NULL) return;
-    used_table = (seq_t *)calloc(USED_TABLE_SIZE, sizeof(seq_t));
+    used_table = mem_new(seq_t, USED_TABLE_SIZE);
     used_mask = USED_TABLE_SIZE - 1;
 }
 
@@ -85,7 +87,7 @@ static void grow_seq(idx_t needed)
     if (needed <= (idx_t)seq_cap) return;
     size_t new_cap = (seq_cap < 16) ? 16 : seq_cap;
     while ((idx_t)new_cap < needed) new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
     if (seq_len == 0 && seq_cap > 0) {
         /* Mark first slot as unused (but we never use 0 as a value). */
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
     /* initialise if first call */
     if (seq == NULL) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         /* index 0 unused, but harmless */
         seq_len = 0;
         for (int d = 1; d <= 9; ++d) next_mult[d] = (seq_t)d;

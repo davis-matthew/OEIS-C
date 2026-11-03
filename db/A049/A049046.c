@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   number of integers k ≥ 1 with k! ≡ 1 (mod n)
- * Range:     u8 n <= 2730, u16 n <= 9550, u32 n <= 9550, u64 n <= 9550,
- *            u128 n <= 9550, big any n
+ * Range:     u8 n <= 2730, u16 n <= 12021, u32 n <= 12021, u64 n <= 12021,
+ *            u128 n <= 12021, big any n
+ * Validated: standard, pass, 121 terms through n = 9550 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

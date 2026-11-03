@@ -9,15 +9,16 @@
  * Keywords:  base, nonn
  * Formula:   a(n) = binomial(10,n) - binomial(6,n) - binomial(4,n), with
  *            a(1)=5
- * Range:     u8 n <= 2, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
+ * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,5 +28,5 @@ seq_t a(idx_t n)
     }
 
     /* For n > 10 the binomials are zero, so the result is 0 automatically. */
-    return binom((idx_t)10, n) - binom((idx_t)6, n) - binom((idx_t)4, n);
+    return binomial((idx_t)10, n) - binomial((idx_t)6, n) - binomial((idx_t)4, n);
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 1261, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_adjacent15
+ * Validated: standard, pass, 57 terms through n = 9873 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
  * first traversal. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent15.h"
+#include "../utils/mem.h"
+
+/* Return true if x contains the adjacent digits 15 or 51 in its base‑10
+ * representation. */
+static bool has_adjacent15(seq_t x)
+{
+    if (x < (seq_t)10) return false; /* single digit numbers can't contain the pattern */
+    seq_t last = x % (seq_t)10;
+    x /= (seq_t)10;
+    while (x > (seq_t)0) {
+        seq_t d = x % (seq_t)10;
+        if ((d == (seq_t)1 && last == (seq_t)5) ||
+            (d == (seq_t)5 && last == (seq_t)1)) return true;
+        last = d;
+        x    = x / (seq_t)10;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;        /* stored sequence terms */
 static idx_t  cache_len = 0;       /* number of terms in cache      */
@@ -31,11 +49,11 @@ static seq_t  next_num  = (seq_t)1;/* next integer to examine       */
 static void grow_cache(void)
 {
     idx_t new_cap = cache_cap ? cache_cap * 2 : (idx_t)16;
-    seq_t *newp   = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *newp   = mem_new(seq_t, new_cap);
     if (!newp) exit(1); /* allocation failure; abort */
     if (cache) {
         for (idx_t i = 0; i < cache_len; ++i) newp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = newp;
     cache_cap = new_cap;

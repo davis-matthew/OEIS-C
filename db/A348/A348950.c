@@ -8,7 +8,8 @@
  * Keywords:  nonn, base
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 52, u32 n <= 207, u64 n <= 2096,
- *            u128 n <= 9865, big any n
+ *            u128 n <= 11550, big any n
+ * Validated: standard, pass, 79 terms through n = 9865 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

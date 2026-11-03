@@ -7,9 +7,10 @@
  * Formula:   a(n) is the number of ordered factorizations of n into composite
  *            factors. Recurrence: a(1)=1; for n>1, a(n)=∑_{c composite, c|n}
  *            a(n/c)
- * Range:     u8 n <= 2879, u16 n <= 8865, u32 n <= 8865, u64 n <= 8865,
- *            u128 n <= 8865, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2879, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 118 terms through n = 8865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static uint64_t *spf = NULL;          /* smallest prime factors */
 static size_t spf_size = 0;
@@ -49,7 +51,7 @@ static void ensure_dp(idx_t n)
 {
     if (dp_size > n) return;
     size_t new_sz = n + 1;
-    seq_t *new_dp = (seq_t *)realloc(dp, new_sz * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, new_sz);
     if (!new_dp) abort();
     unsigned char *new_seen = (unsigned char *)realloc(seen, new_sz * sizeof(unsigned char));
     if (!new_seen) abort();

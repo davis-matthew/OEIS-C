@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 394, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute a(n).  The function is self‑contained and does not use any external
    utilities.  It allocates a small amount of memory per call and frees it
@@ -41,11 +43,11 @@ seq_t a(idx_t n)
     }
 
     /* Allocate arrays to hold the triangular numbers and flags for used ones. */
-    seq_t *tri = (seq_t *)malloc(tri_cnt * sizeof(seq_t));
+    seq_t *tri = mem_new(seq_t, tri_cnt);
     bool  *used = (bool  *)calloc(tri_cnt, sizeof(bool));
     if (!tri || !used) {
         /* Memory allocation failed – return 0 (unlikely for small n). */
-        free(tri);
+        mem_free(tri);
         free(used);
         return 0;
     }
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(tri);
+    mem_free(tri);
     free(used);
     return (seq_t)distinct;
 }

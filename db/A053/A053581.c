@@ -9,13 +9,15 @@
  *            C(2,2-n) = 1 for n=2, 0 for n>2
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 811 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the n-th term of OEIS A053581. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialise cache if not done yet */
     if (cache_len == 0) {
         cache_len = 2;
-        cache = (seq_t*)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)3;
     }
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         } else {
             val = (seq_t)5 * cache[cache_len-1] - (seq_t)6 * cache[cache_len-2];
         }
-        seq_t *new_cache = (seq_t*)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (cache_len + 1));
         /* If realloc fails we terminate silently; caller will just get an UB error. */
         if (!new_cache) break;
         cache = new_cache;

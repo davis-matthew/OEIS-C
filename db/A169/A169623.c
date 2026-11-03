@@ -10,7 +10,8 @@
  *            rows, where T(n,0) = T(0,n) = 1, T(n,k) = 0 for k<0 or k>n,
  *            T(n,k) = T(n-2,k-2) + T(n-2,k-1) + T(n-2,k) for 1 ≤ k ≤ n-1
  * Range:     u8 n <= 96, u16 n <= 310, u32 n <= 1053, u64 n <= 3779,
- *            u128 n <= 9708, big any n
+ *            u128 n <= 14106, big any n
+ * Validated: standard, pass, 94 terms through n = 9708 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

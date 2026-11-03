@@ -10,13 +10,15 @@
  *            a(2)=10, a(3)=15, a(4)=19, a(5)=24, a(6)=29, a(7)=34, a(8)=39
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Initial values for indices 0 … 8 */
 static const seq_t init[9] = {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* first call: allocate initial capacity and copy the first 9 terms */
     if (cache == NULL) {
         capacity = 9;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL) {
             return 0; /* allocation failure */
         }
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         while ((size_t)n + 1 > new_cap) {
             new_cap <<= 1;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) {
             return 0; /* allocation failure */
         }

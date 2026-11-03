@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true if x expressed in base 8 has the same positive
    count of digit 5 and digit 7.  The empty 0 representation
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary. */
             if (cache_len >= cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : (cache_cap << 1);
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 cache  = tmp;
                 cache_cap = new_cap;

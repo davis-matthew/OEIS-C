@@ -8,7 +8,8 @@
  * Formula:   a(1)=2; a(n+1)=concat(a(n),L(n+1))
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,18 @@
 #include <stdlib.h>
 #include <stdint.h>             /* for uint64_t if needed */
 #include <stdbool.h>            /* for bool */
-#include "../utils/digit_len.h" /* int digit_len(seq_t x) */
-#include "../utils/pow10.h"     /* seq_t pow10(idx_t e) */
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* seq_t and idx_t are supplied by the build system                         */
 /* seq_t is either a built‑in unsigned type or an arbitrary‑precision class */
@@ -37,7 +48,7 @@ static void ensure_a_cap(idx_t need)
     if (a_cap > 0 && a_cap >= (size_t)(need + 2))
         return;
     size_t newcap = (size_t)(need + 2) * 2;
-    a_cache = (seq_t *)realloc(a_cache, newcap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, newcap);
     a_cap   = newcap;
 }
 
@@ -47,7 +58,7 @@ static void ensure_lucas_cap(idx_t need)
     if (lucas_cap > 0 && lucas_cap >= (size_t)(need + 2))
         return;
     size_t newcap = (size_t)(need + 2) * 2;
-    lucas_cache = (seq_t *)realloc(lucas_cache, newcap * sizeof(seq_t));
+    lucas_cache = mem_resize(seq_t, lucas_cache, newcap);
     lucas_cap   = newcap;
 }
 
@@ -82,7 +93,7 @@ seq_t a(idx_t n)
         for (idx_t i = a_max + 1; i <= n; ++i) {
             seq_t   prev_a = a_cache[i - 1];
             seq_t   l_val  = lucas_cache[i - 1];
-            int     d_len  = digit_len(l_val);
+            int     d_len  = num_digits(l_val);
             seq_t   mult   = prev_a * pow10((idx_t)d_len);
             a_cache[i]    = mult + l_val;
         }

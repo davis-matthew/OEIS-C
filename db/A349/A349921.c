@@ -9,7 +9,8 @@
  *            the number of factors
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper structure for storing divisors and memoization of a(n,min_factor) values. */
 typedef struct DivInfo {
@@ -82,7 +84,7 @@ static DivInfo *get_divinfo(idx_t n)
         qsort(arr, cnt, sizeof(idx_t), cmp_idx_t);
 
         /* Allocate memoization array, initialized to 0. */
-        seq_t *memo = (seq_t *)calloc(cnt, sizeof(seq_t));
+        seq_t *memo = mem_new(seq_t, cnt);
         if (!memo) abort();
 
         divinfo[n].divs = arr;

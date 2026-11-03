@@ -9,8 +9,9 @@
  * Formula:   a(n) is the (n‑2)-th element of the triangle whose row r
  *            consists of the trimmed zero‑based partial alternating sums of
  *            the reversed multiset of prime indices of r
- * Range:     i8 n <= 2023, i16 n <= 8582, i32 n <= 8582, i64 n <= 8582,
- *            i128 n <= 8582, big any n
+ * Range:     i8 n <= 86, i16 n <= 86, i32 n <= 86, i64 n <= 86, i128 n <= 86,
+ *            big any n
+ * Validated: partial, pass, 85 terms through n = 86 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,13 +7,15 @@
  * Formula:   a(n) = [x^n] ∏_{k=1..n}(k + x + 2*k*x²) (offset 0)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 300 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static working buffers.  They are sized to 2*max_n + 1, where
    max_n is the largest n requested so far.  The buffers are
@@ -29,14 +31,14 @@ seq_t a(idx_t n)
     /* Ensure allocated capacity is at least 2*n + 1 coefficients. */
     if (2 * (size_t)n + 1 > cap) {
         size_t new_cap = 2 * (size_t)n + 1;
-        seq_t *new_coeff = (seq_t *)realloc(coeff, new_cap * sizeof(seq_t));
-        seq_t *new_temp  = (seq_t *)realloc(temp,  new_cap * sizeof(seq_t));
+        seq_t *new_coeff = mem_resize(seq_t, coeff, new_cap);
+        seq_t *new_temp  = mem_resize(seq_t, temp, new_cap);
         coeff = new_coeff;
         temp  = new_temp;
         /* Zero any newly allocated space. */
         if (new_cap > cap) {
-            memset(&coeff[cap], 0, (new_cap - cap) * sizeof(seq_t));
-            memset(&temp[cap],  0, (new_cap - cap) * sizeof(seq_t));
+            mem_set(&coeff[cap], 0, (new_cap - cap) * sizeof(seq_t));
+            mem_set(&temp[cap], 0, (new_cap - cap) * sizeof(seq_t));
         }
         cap = new_cap;
     }
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         size_t new_deg   = 2 * k;                   /* new degree after step */
 
         /* Zero the work buffer up to the new degree. */
-        memset(temp, 0, (new_deg + 1) * sizeof(seq_t));
+        mem_set(temp, 0, (new_deg + 1) * sizeof(seq_t));
 
         /* Polynomial multiplication: (coeff) * (k + x + 2*k*x²). */
         for (size_t i = 0; i <= old_deg; ++i) {

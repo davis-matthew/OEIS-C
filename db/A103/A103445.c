@@ -11,7 +11,8 @@
  *            function computes the row sum of this triangle
  * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   pow2_uint
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow2_uint.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -89,7 +90,7 @@ seq_t a(idx_t n)
             if (e > 0)
                 ++cnt;
         }
-        sum += pow2_uint(cnt);
+        sum += pow2(cnt);
     }
 
     free(v);

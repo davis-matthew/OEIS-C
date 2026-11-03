@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 13, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 49 terms through n = 2967 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Compute the decimal digit sum of a 64‑bit unsigned integer. */
 static inline uint64_t digit_sum_uint64(uint64_t v)
@@ -44,8 +47,7 @@ static void ensure_special_cap(idx_t need)
     if (special_cap < need) {
         if (special_cap == 0) special_cap = 16;
         while (special_cap < need) special_cap <<= 1;
-        special_list = (seq_t *)realloc(special_list,
-                                         special_cap * sizeof(seq_t));
+        special_list = mem_resize(seq_t, special_list, special_cap);
     }
 }
 
@@ -54,7 +56,7 @@ static void grow_sequence(idx_t need)
 {
     while (special_cnt < need) {
         uint64_t cand = next_candidate;
-        if (is_prime(cand) && digit_sum_uint64(cand) == 37) {
+        if (is_prime_u64(cand) && digit_sum_uint64(cand) == 37) {
             ensure_special_cap(special_cnt + 1);
             special_list[special_cnt++] = (seq_t)cand;
         }

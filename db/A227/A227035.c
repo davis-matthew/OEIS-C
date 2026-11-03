@@ -7,14 +7,16 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{k=0..floor(n/4)}
  *            binomial(n,4k)*binomial(5k,k)/(4k+1)
- * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 26, u64 n <= 48, u128 n <= 91,
+ * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 26, u64 n <= 48, u128 n <= 91,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 971 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

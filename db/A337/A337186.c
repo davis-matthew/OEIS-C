@@ -8,7 +8,8 @@
  *            a(0) = 1, a(1) = 1
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   /* binomial(idx_t, idx_t) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache     = NULL;   /* cached values of a(n)          */
 static size_t cap       = 0;      /* capacity of the cache array    */
@@ -31,8 +33,7 @@ ensure_capacity(idx_t n)
         size_t newcap = (size_t)n + 1;
         if (newcap < 8)          /* grow in blocks of at least 8 */
             newcap = 8;
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                     newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp)            /* allocation failed */
             return 0;
         cache = tmp;
@@ -47,7 +48,7 @@ a(idx_t n)
     /* First‑time initialisation of the cache. */
     if (!cache) {
         cap = 8;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache)
             return (seq_t)0;    /* allocation failure – unlikely */
         cache[0] = (seq_t)1;    /* a(0) */

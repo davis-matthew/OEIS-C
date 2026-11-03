@@ -9,11 +9,13 @@
  *            r*(r-1)/2; T(r,c) = (c*r - (gcd(r-1,c-1)+1))/2
  * Range:     u8 n <= 296, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
+ * Validated: standard, pass, 94 terms through n = 7238 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static inline idx_t isqrt_u64(idx_t x)

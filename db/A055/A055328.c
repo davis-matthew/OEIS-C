@@ -10,13 +10,15 @@
  *            undefined; this implementation returns 0
  * Range:     u8 n <= 13, u16 n <= 44, u32 n <= 676, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t const base_vals[14] = {
     0, 0, 0, 0, 0, 0,
@@ -34,7 +36,7 @@ static void ensure_cache(size_t n)
     size_t new_size = n + 1;
     if (new_size < 64)
         new_size = 64;
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     /* initialize new elements to 0 */
     for (size_t i = cache_size; i < new_size; ++i)
         cache[i] = 0;

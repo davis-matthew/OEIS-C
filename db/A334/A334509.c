@@ -10,12 +10,24 @@
  *            a(9)=36, a(10)=20, a(11)=44, a(12)=12, a(13)=52, a(14)=28
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   alloc_seq
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/alloc_seq.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 #include <string.h>
 
 /* Cache to store computed values */
@@ -62,7 +74,7 @@ seq_t a(idx_t n)
     /* Extend cache to accommodate index n */
     size_t new_size = (size_t)(n + 1);
     seq_t *new_cache = alloc_seq(new_size);
-    memcpy(new_cache, cache, (size_t)(cached_max + 1) * sizeof(seq_t));
+    mem_copy(new_cache, cache, (size_t)(cached_max + 1) * sizeof(seq_t));
 
     /* Compute values up to n using the recurrence */
     for (idx_t i = cached_max + 1; i <= n; ++i) {
@@ -77,7 +89,7 @@ seq_t a(idx_t n)
     }
 
     /* Free old cache and update static state */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cached_max = n;
 

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 141, u32 n <= 446, u64 n <= 1562,
  *            u128 n <= 5150, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 5099 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root – floor(sqrt(x)) for 64‑bit unsigned x */
 static inline idx_t floor_isqrt_u64(idx_t x)
@@ -59,7 +61,7 @@ static void ensure_rows(idx_t r_needed)
     idx_t new_total =
         (idx_t)(((unsigned __int128)(r_needed + 1) * (r_needed + 2)) / 2);
 
-    tri = (seq_t *)realloc(tri, (size_t)new_total * sizeof(seq_t));
+    tri = mem_resize(seq_t, tri, (size_t)new_total);
 
     for (idx_t r = cur_rows; r <= r_needed; ++r) {
         idx_t base = (idx_t)(((unsigned __int128)r * (r + 1)) / 2);

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 244, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 62 terms through n = 9594 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 #define MAX_SIEVE 20000000U   /* upper bound sufficient for all tests */
 
@@ -108,7 +111,7 @@ static bool is_golden_semiprime(uint64_t m)
 
     uint64_t q = m / p;
     if (q == p) return false;       /* distinct primes required */
-    if (!is_prime(q)) return false;   /* q must be prime */
+    if (!is_prime_u64(q)) return false;   /* q must be prime */
 
     /* golden check: q equals floor(p·φ) or floor(p·φ)+1 */
     unsigned __int128 prod = (unsigned __int128)p * PHINUM;
@@ -121,7 +124,7 @@ static void add_term(uint32_t n)
 /* Append n to the sequence array after confirming it satisfies
  * the property. */
 {
-    seq_values = (seq_t*)realloc(seq_values, (seq_size + 1) * sizeof(seq_t));
+    seq_values = mem_resize(seq_t, seq_values, (seq_size + 1));
     if (seq_values == NULL) { while (1); }
     seq_values[seq_size++] = (seq_t)n;
 }

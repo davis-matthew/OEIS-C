@@ -12,12 +12,14 @@
  *            Σ_{d|k} d * c(d). Then a(n) = g[n-2] for n≥2
  * Range:     i8 n <= 8, i16 n <= 46, i32 n <= 2041, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 2405 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,10 +30,10 @@ seq_t a(idx_t n)
 
     /* Compute coefficients up to degree n-2. */
     idx_t N = n - 2;                /* largest index needed in g */
-    seq_t *w = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *g = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *w = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *g = mem_new(seq_t, (size_t)(N + 1));
     if (!w || !g) {
-        free(w); free(g);
+        mem_free(w); mem_free(g);
         return 0;                    /* allocation failed */
     }
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = g[N];               /* a(n) = coefficient of q^(n-2) */
-    free(w);
-    free(g);
+    mem_free(w);
+    mem_free(g);
     return result;
 }

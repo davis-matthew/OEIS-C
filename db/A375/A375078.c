@@ -9,13 +9,15 @@
  *            mod 10) in all digits of the sequence terms up to index n-1
  * Range:     u8 n <= 630, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9730 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;
 static size_t seq_len = 0;
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
 
 #ifdef __cplusplus
         seq_t *tmp = reinterpret_cast<seq_t *>(
-            realloc(seq, new_cap * sizeof(seq_t)));
+            mem_resize(seq_t, seq, new_cap));
 #else
         seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
 #endif

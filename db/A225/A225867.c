@@ -5,8 +5,9 @@
  * Offset:    6    (a(6) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = max_{2 <= k <= (n-2)/2} sum_{d>1, d|n+k, k|n+d} 1
- * Range:     u8 n <= 9618, u16 n <= 9618, u32 n <= 9618, u64 n <= 9618,
- *            u128 n <= 9618, big any n
+ * Range:     u8 n <= 10005, u16 n <= 10005, u32 n <= 10005, u64 n <= 10005,
+ *            u128 n <= 10005, big any n
+ * Validated: standard, pass, 105 terms through n = 9618 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

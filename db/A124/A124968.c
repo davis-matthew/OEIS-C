@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 35, u16 n <= 9826, u32 n <= 9826, u64 n <= 9826,
- *            u128 n <= 9826, big any n
- * Helpers:   vec_zero
+ * Range:     u8 n <= 35, u16 n <= 53321, u32 n <= 81953, u64 n <= 81953,
+ *            u128 n <= 81953, big any n
+ * Validated: standard, pass, 68 terms through n = 9826 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/vec_zero.h"
+#include "../utils/mem.h"
+
+/* Allocate a vector of size cap with zero‑initialised elements */
+static void vec_zero(void *ptr, size_t cap, size_t elem_size) {
+    memset(ptr, 0, cap * elem_size);
+}
 
 /* --------- internal helpers (static) ---------------- */
 
@@ -47,7 +53,7 @@ static size_t terms_cap  = 0;     /* allocated capacity for terms */
 static void recompute(idx_t new_limit) {
     /* free old data */
     free(rep_count);
-    free(terms);
+    mem_free(terms);
     rep_count = NULL;
     terms = NULL;
     terms_used = 0;
@@ -75,8 +81,7 @@ static void recompute(idx_t new_limit) {
         if (rep_count[i] >= 4) {
             if (terms_used == terms_cap) {
                 terms_cap = terms_cap == 0 ? 16 : terms_cap << 1;
-                terms = (seq_t *)realloc(terms,
-                                         terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_used++] = (seq_t)i;
         }

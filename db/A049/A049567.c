@@ -8,7 +8,8 @@
  *            solution
  * Range:     u8 n <= 38, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached qualifying primes */
 static seq_t *qual_primes = NULL;       /* array of cached primes */
@@ -146,8 +148,7 @@ seq_t a(idx_t n)
             if (qual_len == qual_cap)
             {
                 qual_cap = (qual_cap == 0) ? 8 : qual_cap * 2;
-                qual_primes = (seq_t *)realloc(qual_primes,
-                                               qual_cap * sizeof(seq_t));
+                qual_primes = mem_resize(seq_t, qual_primes, qual_cap);
             }
             qual_primes[qual_len++] = (seq_t)p;
         }

@@ -8,6 +8,7 @@
  * Formula:   a(1)=2, a(2)=2, a(3)=1, a(n)=a(n-3)+floor(a(n-2)/2) for n>=4
  * Range:     u8 n <= 37, u16 n <= 73, u32 n <= 145, u64 n <= 290,
  *            u128 n <= 580, big any n
+ * Validated: standard, pass, 76 terms through n = 9839 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

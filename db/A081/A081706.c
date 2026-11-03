@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _a081706_ok
+ * Validated: standard, pass, 77 terms through n = 9461 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,29 @@
    the trailing‑ones parity rule. */
 
 #include <stdbool.h>
-#include "../utils/_a081706_ok.h"
+
+/* Return true if x satisfies the condition for A081706 */
+static inline bool _a081706_ok(seq_t x)
+{
+    /* odd numbers: must have even number of trailing 1’s */
+    if ((x & 1) == 1) {
+        idx_t count = 0;
+        seq_t tmp = x;
+        while ((tmp & 1) != 0) {
+            ++count;
+            tmp >>= 1;
+        }
+        return (count & 1) == 0;          /* even parity */
+    }
+    /* even numbers: trailing 0 followed by an odd number of 1’s in x>>1 */
+    seq_t y = x >> 1;
+    idx_t count = 0;
+    while ((y & 1) != 0) {
+        ++count;
+        y >>= 1;
+    }
+    return (count & 1) == 1;              /* odd parity */
+}
 
 seq_t a(idx_t n)
 {

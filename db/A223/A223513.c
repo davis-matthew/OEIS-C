@@ -10,12 +10,14 @@
  *            a(1)=T(1,1), a(2)=T(2,1), a(3)=T(2,2), a(4)=T(3,1), …
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 28, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,14 +37,14 @@ seq_t a(idx_t n)
     {
         /* allocate reciprocally for the first row */
         prev_cap = 2;                /* indices: 0 .. 1, 1 will hold T(1,1) */
-        prev_row = (seq_t *)malloc(prev_cap * sizeof(seq_t));
+        prev_row = mem_new(seq_t, prev_cap);
         prev_row[0] = 0;
         prev_row[1] = 1;
         prev_len  = 1;
 
         /* ensure capacity for the values array */
         values_cap = 16;
-        values     = (seq_t *)malloc(values_cap * sizeof(seq_t));
+        values     = mem_new(seq_t, values_cap);
         values[0] = prev_row[1];
         values_len = 1;
     }
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         idx_t r = prev_len + 1;
 
         /* allocate array for the new row (size r+1) */
-        seq_t *curr_row = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+        seq_t *curr_row = mem_new(seq_t, (r + 1));
         curr_row[0] = 0;
 
         /* compute each entry of the new row */
@@ -73,13 +75,13 @@ seq_t a(idx_t n)
             if (values_len == values_cap)
             {
                 values_cap = values_cap ? 2 * values_cap : 16;
-                values = (seq_t *)realloc(values, values_cap * sizeof(seq_t));
+                values = mem_resize(seq_t, values, values_cap);
             }
             values[values_len++] = curr_row[k];
         }
 
         /* free the old row and promote the new row to prev_row */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = curr_row;
         prev_len = r;
     }

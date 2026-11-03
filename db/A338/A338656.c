@@ -5,16 +5,41 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, look
  * Formula:   a(n) = Sum_{d|n} mu(d) * binomial(d + n/d - 2, d-1)
- * Range:     i8 n <= 23, i16 n <= 89, i32 n <= 314, i64 n <= 1146,
- *            i128 n <= 4223, big any n
- * Helpers:   binom, factor_u64, mu_of
+ * Range:     i8 n <= 32, i16 n <= 89, i32 n <= 314, i64 n <= 1146,
+ *            i128 n <= 4415, big any n
+ * Validated: standard, pass, 82 terms through n = 9746 (2026-11-01)
+ * Helpers:   binomial, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/factor_u64.h"
-#include "../utils/mu_of.h"
-#include "../utils/binom.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 #include <stdlib.h>
 #include <stddef.h>
 
@@ -68,7 +93,7 @@ seq_t a(idx_t n)
         idx_t nd = n / d;
         idx_t a_val = d + nd - 2;
         idx_t b_val = d - 1;
-        seq_t bin = binom(a_val, b_val);
+        seq_t bin = binomial(a_val, b_val);
         if (mu_d > 0)
             sum += bin;
         else

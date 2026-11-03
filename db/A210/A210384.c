@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define ROWS 27   /* number of possible rows of length 3 */
 
@@ -87,12 +89,12 @@ seq_t a(idx_t n)
     /* first call: initialise everything */
     if (!init) {
         init_once();
-        cur = (seq_t*)malloc(ROWS * sizeof(seq_t));
-        nxt = (seq_t*)malloc(ROWS * sizeof(seq_t));
+        cur = mem_new(seq_t, ROWS);
+        nxt = mem_new(seq_t, ROWS);
         for (int i = 0; i < ROWS; ++i) cur[i] = (seq_t)1;   /* one way to form a single row */
 
         cache_cap = n > 256 ? n : 256;   /* initial capacity */
-        cache = (seq_t*)malloc((cache_cap + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_cap + 1));
         cache[0] = (seq_t)0;             /* unused, keep zeroed */
         cache_len = 0;
         init = true;
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         size_t new_cap = cache_cap * 2;
         while (new_cap < n) new_cap *= 2;
-        cache = (seq_t*)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (new_cap + 1));
         cache_cap = new_cap;
     }
 

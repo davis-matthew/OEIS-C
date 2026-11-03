@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n} (-1)^(k+1) * floor(n/(2*k-1))^2
  * Range:     u8 n <= 16, u16 n <= 267, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 68 terms through n = 9973 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

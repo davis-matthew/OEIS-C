@@ -11,6 +11,7 @@
  *            using the constant 1/phi² ≈ 0.3819660112501051
  * Range:     u8 n <= 218, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 84 terms through n = 4344 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

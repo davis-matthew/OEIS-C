@@ -7,19 +7,22 @@
  * Formula:   a(n) = (4^n + 2^n + 1) * (7^n + 1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 196 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Compute 4^n, 2^n and 7^n with arbitrary‑precision exponentiation */
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)n);
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
-    seq_t pow7 = big_pow((seq_t)7, (seq_t)n);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)n);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)n);
+    seq_t pow7 = ipow((seq_t)7, (seq_t)n);
 
     /* Evaluate the two factors of the formula */
     seq_t part1 = pow4 + pow2 + (seq_t)1;

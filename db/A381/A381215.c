@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 12, u64 n <= 16, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: standard, pass, 37 terms through n = 155 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 
 /* Include necessary headers from the utilities. */
 #include <stdbool.h>
-#include "../utils/big_pow.h"        /* big_pow(seq_t, seq_t) */
-#include "../utils/build_primes_upto.h" /* build_primes_upto(idx_t, uint64_t **, size_t*) */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -62,5 +65,5 @@ seq_t a(idx_t n)
     uint64_t p   = prime_list[pair_idx + 2];
     seq_t    exp = (offset == 0) ? (seq_t)(p - 1) : (seq_t)(p + 1);
 
-    return big_pow((seq_t)p, exp);
+    return ipow((seq_t)p, exp);
 }

@@ -9,14 +9,16 @@
  *            r (r>=0) has r+1 entries: * if r==0: a(0)=1 * else: first entry
  *            is -r, * each following entry (k>=1) is C(r+1, k). * The
  *            sequence is a(0)=1, a(1)=-1, a(2)=2, a(3)=-2, a(4)=3, a(5)=3, …
- * Range:     i8 n <= 30, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
+ * Range:     i8 n <= 48, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static idx_t row_of_n(idx_t n)

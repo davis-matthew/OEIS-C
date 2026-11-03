@@ -8,6 +8,7 @@
  *            / (1 - x^13 - x^29 + x^42)
  * Range:     i8 n <= 336, i16 n <= 336, i32 n <= 336, i64 n <= 336,
  *            i128 n <= 336, big any n
+ * Validated: full, pass, 337 terms through n = 336 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

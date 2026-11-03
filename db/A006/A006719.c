@@ -9,14 +9,45 @@
  *            binomial(H(m-k), k+1)
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   binx, grow_zero
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/grow_zero.h"
-#include "../utils/binx.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+/* binomial(x, j) for j >= 2, computed multiplicatively */
+static seq_t binx(seq_t x, idx_t j)
+{
+    if (j == 2) {
+        if (x < 2) return 0;
+        if (x % 2 == 0) return (x / 2) * (x - 1);
+        return x * ((x - 1) / 2);
+    }
+    seq_t r = 1;
+    idx_t i;
+    for (i = 0; i < j; i++) {
+        seq_t f = x - (seq_t)i;
+        if (f == 0) return 0;
+        r = r * f / ((seq_t)i + 1);
+    }
+    return r;
+}
 
 static seq_t *H = 0;
 static idx_t Hlen = 0; /* H[0..Hlen-1] allocated; H[1..Hcnt] valid */

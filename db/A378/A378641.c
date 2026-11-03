@@ -9,13 +9,15 @@
  *            none
  * Range:     i8 n <= 127, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9600 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *phi_cache = NULL;
 static idx_t phi_cap = 0;
@@ -28,9 +30,9 @@ ensure_phi(idx_t n)
         return;                     /* already computed up to at least n */
 
     /* Allocate new cache and free the old one */
-    free(phi_cache);
+    mem_free(phi_cache);
     size_t size = (size_t)(n + 1);
-    phi_cache = (seq_t *)malloc(size * sizeof(seq_t));
+    phi_cache = mem_new(seq_t, size);
     if (!phi_cache)
         return;                     /* allocation failed – caller will handle */
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 8532 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Prime sieve (up to a fixed upper bound)                               */
@@ -48,7 +50,7 @@ static void init_primes(void)
         return;  /* allocation failed – fallback will happen but unlikely here */
 
     primes_cap = 25000;           /* enough for 2e5 (pi(200k) < 17984)            */
-    primes = (seq_t *)calloc(primes_cap, sizeof(seq_t));
+    primes = mem_new(seq_t, primes_cap);
     if (!primes) {
         free(comp);
         return;
@@ -59,7 +61,7 @@ static void init_primes(void)
             if (primes_cnt == primes_cap) {
                 /* grow array if necessary (unlikely for this size) */
                 primes_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(primes, primes_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, primes_cap);
                 if (!tmp) break;
                 primes = tmp;
             }
@@ -85,7 +87,7 @@ static void add_term(seq_t val)
 {
     if (cache_len == cache_cap) {
         cache_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) return;  /* allocation failed – cannot store more terms */
         cache = tmp;
     }

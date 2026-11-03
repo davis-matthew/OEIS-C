@@ -8,12 +8,14 @@
  *            values: a(0)=3, a(1)=2, a(2)=5, a(3)=10, a(4)=25, a(5)=56
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* initialise base values on first call */
     if (sz == 0) {
-        dp = (seq_t*)malloc(6 * sizeof(seq_t));
+        dp = mem_new(seq_t, 6);
         dp[0] = (seq_t)3;
         dp[1] = (seq_t)2;
         dp[2] = (seq_t)5;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     }
 
     /* resize the array to hold values up to index n */
-    seq_t *tmp = (seq_t*)realloc(dp, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, (size_t)(n + 1));
     if (tmp == NULL) { /* allocation failure – fallback to reallocate the same size */
         tmp = dp;
     }

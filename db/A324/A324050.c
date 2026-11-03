@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 6558, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 8895 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Internal state */
 static seq_t *terms = NULL;
@@ -32,7 +34,7 @@ static void push_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap << 1ULL : 64;
-        seq_t *new_ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
         if (!new_ptr) abort();
         terms = new_ptr;
         terms_cap = new_cap;
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
     while ((size_t)n > terms_len) {
         uint64_t new_bound = current_bound * 2;
         if (new_bound < 200000) new_bound = 200000;
-        free(terms);
+        mem_free(terms);
         terms_cap = 0;
         terms_len = 0;
         build_terms(new_bound);

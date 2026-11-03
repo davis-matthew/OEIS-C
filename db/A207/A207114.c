@@ -10,13 +10,15 @@
  *            The algorithm uses transfer‑matrix DP over pairs of columns
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 20, u64 n <= 45, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Number of possible 5‑bit columns */
 #define MAX_COLS 32                  /* 5 bits: 0 … 31 */
@@ -45,7 +47,7 @@ ensure_cache(idx_t n)
 {
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = ((size_t)n + 1) * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         /* initialise new entries to 0 */
         for (size_t i = cache_cap; i < new_cap; ++i) tmp[i] = 0;
@@ -113,8 +115,8 @@ init(void)
 
     /* 3. Allocate DP arrays */
     dp_size = MAX_COLS * MAX_COLS;          /* 1024 */
-    dp_cur  = (seq_t *)calloc(dp_size, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, dp_size);
+    dp_next = mem_new(seq_t, dp_size);
 
     /* 4. Initialise dp_cur for length 2 (no horizontal restriction yet). */
     for (int i = 0; i < num_valid; ++i) {

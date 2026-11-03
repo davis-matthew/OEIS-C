@@ -11,8 +11,9 @@
  *            row n has as many entries as there are maximal 2‑dense sublists
  *            of the sorted list of divisors of n. Each entry T(n,k) is the
  *            sum of nonprime divisors in the k‑th sublist....
- * Range:     u8 n <= 234, u16 n <= 9933, u32 n <= 9933, u64 n <= 9933,
- *            u128 n <= 9933, big any n
+ * Range:     u8 n <= 234, u16 n <= 10607, u32 n <= 10607, u64 n <= 10607,
+ *            u128 n <= 10607, big any n
+ * Validated: standard, pass, 111 terms through n = 9933 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

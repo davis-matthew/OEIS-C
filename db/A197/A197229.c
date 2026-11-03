@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 49, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* 1‑indexed cache, grows as needed */
 static size_t cache_size = 0;        /* maximum index for which cache is allocated */
@@ -42,7 +44,7 @@ static void grow_cache(size_t needed)
     size_t new_size = cache_size ? cache_size * 2 : 6;
     if (new_size < needed)
         new_size = needed;
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (new_size + 1));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_size + 1));
     /* if realloc fails, leave cache unchanged (undefined – unlikely in contest) */
     if (new_cache != NULL) {
         cache = new_cache;

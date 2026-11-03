@@ -8,12 +8,14 @@
  *            3k)
  * Range:     u8 n <= 8, u16 n <= 1352, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Reverse the digits of a positive integer of type seq_t. */
 static seq_t reverse_seq(seq_t x) {
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     /* Expand cache as needed */
     if (terms == NULL) {
         terms_size = 128;
-        terms = (seq_t *)malloc(terms_size * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_size);
     }
 
     /* Scan forward until we have at least n terms */
@@ -59,7 +61,7 @@ seq_t a(idx_t n) {
             /* Grow array if necessary */
             if (terms_cnt == terms_size) {
                 terms_size *= 2;
-                terms = (seq_t *)realloc(terms, terms_size * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_size);
             }
             terms[terms_cnt++] = k;
         }

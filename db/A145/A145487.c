@@ -6,8 +6,9 @@
  * Keywords:  nonn, changed
  * Formula:   a(n) = k such that 6k+5 and 12k+5 are both prime (OEIS A145487)
  * Range:     u8 n <= 65, u16 n <= 4760, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 7505, big any n
- * Helpers:   is_prime_generic
+ *            u128 n <= 8072, big any n
+ * Validated: standard, pass, 79 terms through n = 9885 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_generic.h"   /* provides bool is_prime_generic(idx_t) */
+#include <stdint.h>
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Return the n-th element of the sequence. */
 seq_t a(idx_t n)
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
     /* grow the cache when necessary */
     if (len == cap) {
         idx_t newcap = (cap) ? cap * 2 : 4;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)newcap);
         if (!tmp) abort();               /* out of memory */
         cache = tmp;
         cap   = newcap;
@@ -41,8 +44,8 @@ seq_t a(idx_t n)
         uint64_t k = next_k++;          /* candidate k */
 
         /* test primality of 6k+5 and 12k+5 */
-        bool ok = is_prime_generic((idx_t)(6 * k + 5)) &&
-                  is_prime_generic((idx_t)(12 * k + 5));
+        bool ok = is_prime((idx_t)(6 * k + 5)) &&
+                  is_prime((idx_t)(12 * k + 5));
 
         if (ok) {
             cache[len++] = (seq_t)k;    /* store the k value */

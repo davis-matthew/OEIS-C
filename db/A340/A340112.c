@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>          /* for sqrt() */
+#include "../utils/mem.h"
 
 /* Helper structures ----------------------------------------------------- */
 
@@ -50,7 +52,7 @@ static void clear_digit_lists(void)
         digit_lists[d].size = 0;
         digit_lists[d].cap  = 0;
     }
-    memset(min_prime, 0, sizeof(min_prime));
+    mem_set(min_prime, 0, sizeof(min_prime));
 }
 
 static void append_to_list(DigitList *lst, uint64_t val)

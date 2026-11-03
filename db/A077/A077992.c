@@ -8,12 +8,14 @@
  *            a(2)=2. Expansion of 1/(1+2*x+2*x^2-x^3)
  * Range:     i8 n <= 11, i16 n <= 19, i32 n <= 42, i64 n <= 83, i128 n <= 169,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;        /* cache of computed values */
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* Ensure at least space for the first 3 terms */
         cache_size = (n + 1 > 3 ? n + 1 : 3);
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return (seq_t)0; /* allocation failure */
 
         /* Initial values */
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
         /* Grow cache to accommodate index n */
         idx_t new_size = cache_size;
         while (new_size <= n) new_size <<= 1;   /* double until large enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) return (seq_t)0;       /* realloc failure */
         cache = tmp;
         cache_size = new_size;

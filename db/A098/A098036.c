@@ -9,6 +9,7 @@
  *            some k ≥ 1 (n > 1)
  * Range:     u8 n <= 39, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
+ * Validated: partial, pass, 61 terms through n = 62 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            prime factor of m
  * Range:     u8 n <= 72, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* internal storage for generated terms (1‑based) */
 static seq_t *terms = NULL;
@@ -90,7 +92,7 @@ static void generate_terms_upto(idx_t target)
                 if (q > 1 && (q & (q - 1)) == 0) {
                     if (terms_sz == terms_cap) {
                         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                         if (!tmp) exit(1);
                         terms = tmp;
                         terms_cap = new_cap;

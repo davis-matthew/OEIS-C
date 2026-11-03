@@ -7,7 +7,8 @@
  * Formula:   a(n) = ceil( n / a( a( a(n-1) ) ) )
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* (Integers are 1‑based; a(1)=1.  For n>=2 the recurrence holds.) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of already computed values, 1‑based internally */
@@ -24,9 +26,9 @@ seq_t a(idx_t n) {
     /* Expand cache if necessary and fill new terms */
     if (n > cache_len) {
         /* Allocate space for up to n terms */
-        seq_t *new_cache = (seq_t*)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)n);
         if (!new_cache) { /* out‑of‑memory; return 0 as sentinel (not expected) */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_len = 0;
             return (seq_t)0;

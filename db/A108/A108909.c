@@ -9,13 +9,19 @@
  *            k = number of decimal digits of n
  * Range:     u8 n <= 9, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
+
+static seq_t pow10(idx_t exp) {
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) res *= (seq_t)10;
+    return res;
+}
 
 /* Pre‑computed powers of 10: p10digits[d] = 10^(d-1) for 1 ≤ d ≤ 20 */
 static const uint64_t p10digits[21] = {

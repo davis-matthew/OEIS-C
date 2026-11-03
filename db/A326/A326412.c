@@ -9,13 +9,15 @@
  *            consecutive triple i,j,k satisfies i >= j <= k or i <= j >= k
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 22, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 481 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,28 +28,28 @@ seq_t a(idx_t n)
 
     idx_t cap = n + 1;            /* maximum index that can appear as a value */
     /* current DP arrays ---------------------------------------------- */
-    seq_t *less_cur   = (seq_t *)calloc(cap, sizeof(seq_t));
-    seq_t *equal_cur  = (seq_t *)calloc(cap, sizeof(seq_t));
-    seq_t *greater_cur= (seq_t *)calloc(cap, sizeof(seq_t));
+    seq_t *less_cur   = mem_new(seq_t, cap);
+    seq_t *equal_cur  = mem_new(seq_t, cap);
+    seq_t *greater_cur= mem_new(seq_t, cap);
 
     /* initialise for length = 2 */
     less_cur[1]   = 1;          /* sequence (0,1) : previous < current */
     equal_cur[0]  = 1;          /* sequence (0,0) : previous == current */
 
     /* reusable arrays for next iteration and difference accumulators */
-    seq_t *less_next   = (seq_t *)calloc(cap, sizeof(seq_t));
-    seq_t *equal_next  = (seq_t *)calloc(cap, sizeof(seq_t));
-    seq_t *greater_next= (seq_t *)calloc(cap, sizeof(seq_t));
+    seq_t *less_next   = mem_new(seq_t, cap);
+    seq_t *equal_next  = mem_new(seq_t, cap);
+    seq_t *greater_next= mem_new(seq_t, cap);
 
-    seq_t *diff_less   = (seq_t *)calloc(cap, sizeof(seq_t));
-    seq_t *diff_equal  = (seq_t *)calloc(cap, sizeof(seq_t));
-    seq_t *diff_greater= (seq_t *)calloc(cap, sizeof(seq_t));
+    seq_t *diff_less   = mem_new(seq_t, cap);
+    seq_t *diff_equal  = mem_new(seq_t, cap);
+    seq_t *diff_greater= mem_new(seq_t, cap);
 
     for (idx_t len = 3; len <= n; ++len) {
         /* zero difference arrays for current length */
-        memset(diff_less,   0, sizeof(seq_t)*cap);
-        memset(diff_equal,  0, sizeof(seq_t)*cap);
-        memset(diff_greater,0, sizeof(seq_t)*cap);
+        mem_set(diff_less, 0, sizeof(seq_t)*cap);
+        mem_set(diff_equal, 0, sizeof(seq_t)*cap);
+        mem_set(diff_greater, 0, sizeof(seq_t)*cap);
 
         idx_t limit = len - 1;      /* current arrays have indices 0..len-2 */
 
@@ -130,15 +132,15 @@ seq_t a(idx_t n)
     }
 
     /* free allocated memory */
-    free(less_cur);
-    free(equal_cur);
-    free(greater_cur);
-    free(less_next);
-    free(equal_next);
-    free(greater_next);
-    free(diff_less);
-    free(diff_equal);
-    free(diff_greater);
+    mem_free(less_cur);
+    mem_free(equal_cur);
+    mem_free(greater_cur);
+    mem_free(less_next);
+    mem_free(equal_next);
+    mem_free(greater_next);
+    mem_free(diff_less);
+    mem_free(diff_equal);
+    mem_free(diff_greater);
 
     return result;
 }

@@ -11,12 +11,15 @@
  *            else s(n) = +1 For n = 1 a(1) = 0. This...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
 
     idx_t exp1 = n - 2;              /* exponent for the main term 7^(n-2)   */
     idx_t exp2 = (n - 2) / 2;         /* exponent for the correction term     */
-    seq_t term   = big_pow((seq_t)7, (seq_t)exp1);     /* 7^(n-2) */
+    seq_t term   = ipow((seq_t)7, (seq_t)exp1);     /* 7^(n-2) */
 
     /* compute the sign s(n) according to the rules above */
     int sign = 1;
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
     }
 
     if (sign != 0) {
-        seq_t corr = big_pow((seq_t)7, (seq_t)exp2);  /* 7^(floor((n-2)/2)) */
+        seq_t corr = ipow((seq_t)7, (seq_t)exp2);  /* 7^(floor((n-2)/2)) */
         if (sign > 0)
             term += corr;
         else

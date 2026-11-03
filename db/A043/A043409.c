@@ -8,13 +8,32 @@
  *            contains exactly one digit 4
  * Range:     u8 n <= 52, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   single4
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/single4.h"
+
+/* Return true if the base‑7 representation of x contains exactly one
+   digit 4.  The algorithm is valid for any seq_t supporting / and %.
+*/
+static bool single4(seq_t x)
+{
+    unsigned count = 0;
+    /* Zero has no digits, so immediately false */
+    if (x == 0)
+        return false;
+    while (x > 0) {
+        if ((x % 7) == 4)
+            ++count;
+        if (count > 1)
+            return false;
+        x /= 7;
+    }
+    return count == 1;
+}
 
 /* Public sequence function. */
 seq_t a(idx_t n)

@@ -13,7 +13,8 @@
  *            sequence is read by antidiagonals: T[0,0],...
  * Range:     u8 n <= 30, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         if (cat_cap < needed) {
             idx_t new_cap = cat_cap ? cat_cap * 2 : 8;
             while (new_cap < needed) new_cap *= 2;
-            catalan = (seq_t*)realloc(catalan, (size_t)new_cap * sizeof(seq_t));
+            catalan = mem_resize(seq_t, catalan, (size_t)new_cap);
             cat_cap = new_cap;
         }
         if (cat_len == 0) {
@@ -83,11 +85,11 @@ seq_t a(idx_t n)
     /* ---------- ensure row r has enough columns ---------- */
     idx_t need_cols = c + 1;
     if (T[r] == NULL) {
-        T[r] = (seq_t*)calloc((size_t)need_cols, sizeof(seq_t));
+        T[r] = mem_new(seq_t, (size_t)need_cols);
         row_cap[r] = need_cols;
         row_len[r] = 0;
     } else if (need_cols > row_cap[r]) {
-        T[r] = (seq_t*)realloc(T[r], (size_t)need_cols * sizeof(seq_t));
+        T[r] = mem_resize(seq_t, T[r], (size_t)need_cols);
         row_cap[r] = need_cols;
     }
 

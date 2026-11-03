@@ -12,7 +12,8 @@
  *            base O(k,k)=1 and E(k,k)=0
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *E_cache = NULL;
 static seq_t *O_cache = NULL;
@@ -28,14 +30,14 @@ static idx_t max_cached = 0;
 /* Rebuild the triangular tables up to the specified row (inclusive). */
 static void rebuild_tables(idx_t max_row)
 {
-    if (E_cache) free(E_cache);
-    if (O_cache) free(O_cache);
+    if (E_cache) mem_free(E_cache);
+    if (O_cache) mem_free(O_cache);
 
     size_t width = (size_t)(max_row + 1);          /* number of columns per row (includes column 0) */
     size_t total = width * width;                  /* enough space for all rows and columns up to max_row */
 
-    E_cache = (seq_t *)calloc(total, sizeof(seq_t));
-    O_cache = (seq_t *)calloc(total, sizeof(seq_t));
+    E_cache = mem_new(seq_t, total);
+    O_cache = mem_new(seq_t, total);
     if (!E_cache || !O_cache) return;              /* out of memory – unlikely with small max_row */
 
     for (idx_t n = 1; n <= max_row; ++n)

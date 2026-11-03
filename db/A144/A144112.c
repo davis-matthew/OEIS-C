@@ -9,8 +9,9 @@
  *            * W(i,j) = 1 (i > 1 and j > 1) * * The sequence is obtained by
  *            reading W along diagonals with constant i+j, * enumerated as
  *            follows: * s = 2,3,4,... * for each s list t...
- * Range:     u8 n <= 9645, u16 n <= 9645, u32 n <= 9645, u64 n <= 9645,
- *            u128 n <= 9645, big any n
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 117 terms through n = 9645 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

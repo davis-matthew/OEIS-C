@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-02)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* Sequence: A138824 – the divisors of 4064 written in base 2 (decimal interpretation) */
 /* a(1)=1, a(2)=10, a(3)=100, …, a(12)=111111100000 */
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Convert d's binary representation to a decimal‑digit number */
     seq_t result = 0;
-    unsigned len = bitlen_seq_t(d);          /* number of bits in d */
+    unsigned len = bit_length(d);          /* number of bits in d */
 
     for (unsigned i = 0; i < len; ++i) {
         unsigned pos   = len - 1 - i;         /* index of current bit from MSB */

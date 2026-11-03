@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Σ_{1<k<n, gcd(n,k)=1, k composite} k
- * Range:     u8 n <= 28, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 28, u16 n <= 400, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 96 terms through n = 8632 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Euclidean gcd for idx_t values */
 static inline idx_t gcd_idx(idx_t a, idx_t b)
@@ -72,8 +74,7 @@ static void ensure_cache(idx_t n)
     if (cache_max >= n) return;      /* already have the needed values */
 
     /* Resize cache array */
-    seq_t *new_cache = (seq_t *)realloc(cache_vals,
-                                        (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache_vals, (size_t)(n + 1));
     if (!new_cache) abort();
     cache_vals = new_cache;
 

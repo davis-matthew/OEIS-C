@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------  Helper: primality test (trial division, sufficient for n ≤ 10 000) --------- */
 
@@ -55,7 +57,7 @@ static void ensure_capacity(size_t n)
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
         while (new_cap < n + 1)
             new_cap <<= 1;
-        seq_t *new_seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *new_seq = mem_resize(seq_t, seq, new_cap);
         seq = new_seq;
         seq_cap = new_cap;
     }

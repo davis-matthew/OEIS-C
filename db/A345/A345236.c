@@ -14,19 +14,20 @@
  *            0. The global sequence a(n) is the triangle read by rows
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 97 terms through n = 96 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 static idx_t c_of(idx_t m)
 {
     /* 9+8*m fits in idx_t for any valid m. */
     idx_t d = 9 + 8 * m;
-    idx_t s = int_sqrt(d);
+    idx_t s = isqrt(d);
     return (s - 3) / 2;
 }
 

@@ -12,13 +12,15 @@
  *            the odd ones. * a(1) = 1, a(2) = 2, ... as required
  * Range:     u8 none, u16 none, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global state for the one-time precomputation. */
 static int _a025055_initialized = 0;
@@ -54,7 +56,7 @@ static void _a025055_init(void)
     const idx_t triple_count = (I_MAX + 2) * (I_MAX + 1) * I_MAX / 6;
 
     /* Allocate temporary array for all values. */
-    seq_t *all_vals = (seq_t *)malloc((size_t)triple_count * sizeof(seq_t));
+    seq_t *all_vals = mem_new(seq_t, (size_t)triple_count);
     if (!all_vals) return; /* allocation failed – unlikely here */
 
     /* Generate all values S = i*j + j*k + i*k. */
@@ -70,13 +72,13 @@ static void _a025055_init(void)
     }
 
     /* Sort the array. */
-    qsort(all_vals, (size_t)triple_count, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(all_vals, (size_t)triple_count, sizeof(seq_t), cmp_seq_t);
 
     /* Remove duplicates into _a025055_solutions. */
     _a025055_solutions_count = 0;
-    _a025055_solutions = (seq_t *)malloc((size_t)triple_count * sizeof(seq_t));
+    _a025055_solutions = mem_new(seq_t, (size_t)triple_count);
     if (!_a025055_solutions) {
-        free(all_vals);
+        mem_free(all_vals);
         return;
     }
 
@@ -90,12 +92,12 @@ static void _a025055_init(void)
         }
     }
 
-    free(all_vals); /* free temporary list */
+    mem_free(all_vals); /* free temporary list */
 
     /* Count odd positions. */
     _a025055_odd_positions = (idx_t *)malloc((size_t)_a025055_solutions_count * sizeof(idx_t));
     if (!_a025055_odd_positions) {
-        free(_a025055_solutions);
+        mem_free(_a025055_solutions);
         return;
     }
 

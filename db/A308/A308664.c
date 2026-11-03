@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- integer square root for 64‑bit values ----- */
 static uint64_t isqrt_uint64(uint64_t x) {
@@ -75,7 +77,7 @@ static void build_sequence(seq_t **out, size_t *len) {
 
     /* collect the valid k values */
     size_t cap = 16;
-    seq_t *list = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_t *list = mem_new(seq_t, cap);
     size_t count = 0;
 
     for (size_t n = 1; n <= NMAX; ++n) {
@@ -86,7 +88,7 @@ static void build_sequence(seq_t **out, size_t *len) {
         if (w * w == s) {                     /* perfect square, triple exists */
             if (count == cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t*)realloc(list, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, list, cap);
                 list = tmp;
             }
             list[count++] = (seq_t)n;

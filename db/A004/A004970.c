@@ -8,13 +8,26 @@
  *            682*n + floor(sqrt(465125*n^2)) + 1 for n >= 1, a(0) = 0
  * Range:     u8 n <= 0, u16 n <= 28, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   u128_to_seq
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/u128_to_seq.h"
+#include <stdlib.h>
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 static unsigned __int128 isqrt_u128(unsigned __int128 x) {
     unsigned __int128 r = 0;

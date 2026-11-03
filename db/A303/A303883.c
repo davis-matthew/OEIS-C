@@ -12,12 +12,14 @@
  *            Initial values: * a(1)=1, a(2)=8, a(3)=11, a(4)=36,...
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 44, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_values[18] = {
     1ULL,   8ULL,   11ULL,   36ULL,   87ULL,
@@ -36,9 +38,9 @@ static void ensure_rec_cache(idx_t need)
 
     size_t new_size = (size_t) (need + 1);
     if (!rec_cache) {
-        rec_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        rec_cache = mem_new(seq_t, new_size);
     } else if (new_size > rec_cache_upto + 1) {
-        rec_cache = (seq_t*)realloc(rec_cache, new_size * sizeof(seq_t));
+        rec_cache = mem_resize(seq_t, rec_cache, new_size);
     }
 
     /* Fill missing entries from the initial values. */

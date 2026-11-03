@@ -10,12 +10,14 @@
  *            k*S(n-1,k)+S(n-1,k-1), S(0,0)=1, S(n,0)=0 for n>0)
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,11 +32,11 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* allocate two rows of length r+1, zero‑initialized */
-    seq_t *prev = (seq_t *)calloc(r + 1, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(r + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, r + 1);
+    seq_t *curr = mem_new(seq_t, r + 1);
     if (!prev || !curr) {
-        if (prev) free(prev);
-        if (curr) free(curr);
+        if (prev) mem_free(prev);
+        if (curr) mem_free(curr);
         return (seq_t)0;    /* allocation failure (arbitrary) */
     }
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return sum;
 }

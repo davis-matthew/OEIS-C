@@ -9,13 +9,15 @@
  *            uses classic unbounded coin‑change DP
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Recompute DP only when a larger n is requested. */
     if (dp == NULL || n >= dp_cap) {
         idx_t new_cap = n + 1;                 /* indices 0 .. n inclusive */
-        seq_t *new_dp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_cap);
         if (!new_dp) abort();                  /* OOM protection */
 
         new_dp[0] = (seq_t)0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             }
         }
 
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp    = new_dp;
         dp_cap = new_cap;
     }

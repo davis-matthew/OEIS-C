@@ -8,13 +8,15 @@
  * Formula:   a(n) = Catalan(n) - n, with a(0)=1, a(1)=1, a(2)=1, a(3)=3
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 17, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* compute Catalan numbers recursively and cache them */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *catalan_cache = NULL;
 static idx_t catalan_len = 0;
@@ -28,7 +30,7 @@ static void ensure_catalan(idx_t n)
     if (catalan_cache == NULL) {
         /* initial allocation */
         catalan_cap = 1;
-        catalan_cache = (seq_t *)malloc(sizeof(seq_t) * catalan_cap);
+        catalan_cache = mem_new(seq_t, catalan_cap);
         if (!catalan_cache)
             return; /* allocation failed – should not happen in tests */
         catalan_cache[0] = (seq_t)1;   /* C0 = 1 */
@@ -40,7 +42,7 @@ static void ensure_catalan(idx_t n)
         while (new_cap <= n) {
             new_cap *= 2;
         }
-        seq_t *tmp = (seq_t *)realloc(catalan_cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, catalan_cache, new_cap);
         if (!tmp)
             return; /* allocation failed – should not happen in tests */
         catalan_cache = tmp;

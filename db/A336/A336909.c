@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 72 terms through n = 8557 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +22,41 @@
 #include <stdint.h>              /* uint64_t */
 #include <stdbool.h>             /* bool, true, false */
 #include <math.h>                /* log, sqrt */
-#include "../utils/count_distinct_primes.h"  /* int count_distinct_primes(uint64_t n); */
+#include "../utils/mem.h"
+
+/* Count distinct prime factors of an unsigned 64-bit integer n.
+   The result fits in a signed int for all n that may be passed. */
+static int count_distinct_primes(uint64_t n)
+{
+    if (n <= 1)
+        return 0;
+
+    int cnt = 0;
+    /* Handle factor 2 separately. */
+    if (n % 2 == 0) {
+        cnt++;
+        while (n % 2 == 0)
+            n /= 2;
+    }
+    /* Test odd divisors up to sqrt(n). */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            cnt++;
+            while (n % p == 0)
+                n /= p;
+        }
+    }
+    if (n > 1)   /* Remaining prime factor. */
+        cnt++;
+    return cnt;
+}
 
 /* Append a value to a dynamic array, expanding its capacity as needed.       */
 static void append_candidate(seq_t **arr, size_t *len, size_t *cap, seq_t val)
 {
     if (*len >= *cap) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();              /* unrecoverable allocation failure */
         *arr = tmp;
         *cap = new_cap;

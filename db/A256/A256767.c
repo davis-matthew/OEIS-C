@@ -11,14 +11,27 @@
  *            subblock satisfying a+d >= b+c
  * Range:     u8 none, u16 n <= 1, u32 n <= 7, u64 n <= 23, u128 n <= 55,
  *            big any n
- * Helpers:   compute_transition_ok
+ * Validated: standard, pass, 33 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_transition_ok.h"
+
+static inline bool compute_transition_ok(int p1, int p2)
+{
+    int x0 = (p1 >> 2) & 1;
+    int x1 = (p1 >> 1) & 1;
+    int x2 = p1 & 1;
+    int y0 = (p2 >> 2) & 1;
+    int y1 = (p2 >> 1) & 1;
+    int y2 = p2 & 1;
+    int d0 = (x0 - x1) + (y1 - y0);
+    int d1 = (x1 - x2) + (y2 - y1);
+    return (d0 >= 0) && (d1 >= 0);
+}
 
 /* transition table between two consecutive rows (3 bits each) */
 static bool transition_ok[8][8];

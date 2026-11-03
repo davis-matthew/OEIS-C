@@ -7,14 +7,31 @@
  * Formula:   a(n) = Sum_{k=1..n} floor(2^k / k)
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 36, u64 n <= 69, u128 n <= 134,
  *            big any n
- * Helpers:   a000801_pmod2, a000801_width
+ * Validated: standard, pass, 51 terms through n = 498 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a000801_pmod2.h"
-#include "../utils/a000801_width.h"
+
+static uint64_t a000801_pmod2(uint64_t e, uint64_t m) {
+    if (m == 1) return 0;
+    uint64_t r = 1, b = 2 % m;
+    while (e) {
+        if (e & 1) r = (uint64_t)((unsigned __int128)r * b % m);
+        b = (uint64_t)((unsigned __int128)b * b % m);
+        e >>= 1;
+    }
+    return r;
+}
+
+static int a000801_width(void) {
+    seq_t t = 1;
+    int w = 0;
+    while (t != 0 && w < 300) { t += t; w++; }
+    return w < 300 ? w : 0; /* 0 => arbitrary precision */
+}
 
 seq_t a(idx_t n) {
     int w = a000801_width();

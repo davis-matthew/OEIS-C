@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   realloc_cast
+ * Validated: standard, pass, 76 terms through n = 9951 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/realloc_cast.h"
+
+/* ---------- utils for dynamic arrays ---------- */
+static void *realloc_cast(void *ptr, size_t size, const char *type)
+{
+    void *p = realloc(ptr, size);
+    return p;
+}
 
 static void grow_uint64_array(uint64_t **arr, size_t *cap, size_t min_cap)
 {

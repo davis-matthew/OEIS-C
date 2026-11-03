@@ -7,11 +7,13 @@
  * Formula:   a(n) = numerator of (1/64 - 1/n²) after simplifying
  * Range:     u8 none, u16 n <= 31, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 67 terms through n = 988 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -8,7 +8,8 @@
  *            base 10
  * Range:     u8 n <= 3, u16 n <= 5603, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count5_digits
+ * Validated: standard, pass, 59 terms through n = 9352 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 
 #include <stddef.h>    /* for size_t */
 #include <stdbool.h>   /* for bool */
-#include "../utils/count5_digits.h"
+
+/* Count the occurrences of the digit 5 in the decimal representation of x. */
+static idx_t count5_digits(seq_t x)
+{
+    idx_t cnt = 0;
+    while (x > (seq_t)0) {
+        seq_t d = x % (seq_t)10;
+        if (d == (seq_t)5) ++cnt;
+        x /= (seq_t)10;
+    }
+    return cnt;
+}
 
 /* Cache large enough for the typical usage (≈10 000 terms). */
 #define MAX_TERMS 20000

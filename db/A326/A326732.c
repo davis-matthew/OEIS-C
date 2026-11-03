@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8192, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 117 terms through n = 7961 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
    The implementation uses the utility function floor_log2_uint64
    to obtain the logarithm. */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 /* Compute A230877(n) using the iterative recurrence described above */
 static seq_t compute_A(idx_t n)
@@ -34,7 +37,7 @@ static seq_t compute_A(idx_t n)
         if ((n & 1) == 0) {        /* even */
             n >>= 1;
         } else {                   /* odd */
-            result += (seq_t)(floor_log2_uint64(n) + 1);
+            result += (seq_t)(ilog2(n) + 1);
             n -= 1;
         }
     }

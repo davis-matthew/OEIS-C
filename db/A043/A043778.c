@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   runs_in_base3
+ * Validated: standard, pass, 69 terms through n = 1968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
    is O(n), well within the 2 s limit for n up to ~10 000. */
 
 #include <stdlib.h>
-#include "../utils/runs_in_base3.h"
+#include "../utils/mem.h"
+
+/* Count the number of runs in the base‑3 representation of x (x > 0). */
+static int runs_in_base3(seq_t x)
+{
+    int runs = 1;
+    seq_t last = x % 3;
+    while ((x /= 3) != 0) {
+        seq_t d = x % 3;
+        if (d != last) {
+            ++runs;
+            last = d;
+        }
+    }
+    return runs;
+}
 
 /* Return the n‑th term (offset 1) of sequence A043778. */
 seq_t a(idx_t n)
@@ -44,7 +60,7 @@ seq_t a(idx_t n)
                 /* Append to cache. */
                 if (cache_len == cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) {
                         /* Allocation failure; terminate. */
                         exit(1);

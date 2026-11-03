@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 21, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------  Static state  ----------------- */
 static seq_t *terms = NULL;   /* stored qualifying numbers */
@@ -33,7 +35,7 @@ static void recompute_terms(idx_t limit)
 {
     /* Allocate a byte array: 0 = none, 1 = one, 2 = more */
     uint8_t *count = (uint8_t *)calloc((size_t)(limit + 1), sizeof(uint8_t));
-    if (!count) { free(terms); terms = NULL; terms_count = 0; return; }
+    if (!count) { mem_free(terms); terms = NULL; terms_count = 0; return; }
 
     /* Enumerate all triples with i ≥ j ≥ k ≥ 0 */
     for (idx_t i = 0; i * i <= limit; ++i) {
@@ -57,8 +59,8 @@ static void recompute_terms(idx_t limit)
                               (s & 7ULL) == 5ULL || (s & 7ULL) == 6ULL)) {
             if (new_len == new_cap) {
                 new_cap = new_cap ? new_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(new_terms, new_cap * sizeof(seq_t));
-                if (!tmp) { free(count); free(new_terms); free(terms);
+                seq_t *tmp = mem_resize(seq_t, new_terms, new_cap);
+                if (!tmp) { free(count); mem_free(new_terms); mem_free(terms);
                             terms = NULL; terms_count = 0; return; }
                 new_terms = tmp;
             }
@@ -67,7 +69,7 @@ static void recompute_terms(idx_t limit)
     }
 
     free(count);
-    free(terms);   /* discard previous list */
+    mem_free(terms);   /* discard previous list */
     terms = new_terms;
     terms_count = new_len;
 }

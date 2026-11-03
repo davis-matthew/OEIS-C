@@ -7,19 +7,42 @@
  * Keywords:  nonn
  * Formula:   a(n) = the smallest m such that σ(n) = m^k for some k ≥ 1 (σ =
  *            A000203, sum‑of‑divisors function)
- * Range:     u8 n <= 107, u16 n <= 9340, u32 n <= 9340, u64 n <= 9340,
- *            u128 n <= 9340, big any n
- * Helpers:   factor_u64, gcd_int, seq_mul, seq_pow, sigma_of
+ * Range:     u8 n <= 107, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 86 terms through n = 9340 (2026-11-01)
+ * Helpers:   factor_u64, gcd_i32, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/sigma_of.h"   /* seq_t sigma_of(idx_t n); */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/gcd_int.h"     /* int gcd_int(int a, int b); */
-#include "../utils/seq_mul.h"     /* seq_t seq_mul(seq_t a, seq_t b); */
-#include "../utils/seq_pow.h"     /* seq_t seq_pow(seq_t base, idx_t exp); */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/ipow_idx.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,13 +65,13 @@ seq_t a(idx_t n)
     /* compute gcd of the exponents */
     int g = (int)exps[0];
     for (size_t i = 1; i < cnt; ++i)
-        g = gcd_int(g, (int)exps[i]);
+        g = gcd_i32(g, (int)exps[i]);
 
     /* build m = ∏ p^(e/g) */
     seq_t result = (seq_t)1;
     for (size_t i = 0; i < cnt; ++i) {
         idx_t e_div_g = (idx_t)(exps[i] / g);
-        seq_t term = seq_pow((seq_t)primes[i], e_div_g);
+        seq_t term = ipow_idx((seq_t)primes[i], e_div_g);
         result = seq_mul(result, term);
     }
     return result;

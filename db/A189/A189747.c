@@ -7,12 +7,14 @@
  * Formula:   a(1) = 5, a(2) = 3, a(n) = 5*a(n-1) + 3*a(n-2) for n ≥ 3
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 26, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* enlarge the cache to accommodate index n */
     size_t new_size = (size_t)n + 1;               /* indices 0 .. n (0 unused) */
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache)
         abort();                                 /* allocation failed */
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         new_cache[i] = cache[i];
 
     /* free the old cache (may be NULL) and use the new one */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
 
     /* set the base values (overwriting if they already exist) */

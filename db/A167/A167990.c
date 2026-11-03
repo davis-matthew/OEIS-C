@@ -8,12 +8,14 @@
  *            entries equal to 1 (none occur in this sequence)
  * Range:     u8 n <= 1275, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 1263 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cached = NULL;
 static size_t cached_len  = 0;
@@ -38,7 +40,7 @@ static void extend_cache_until(idx_t target)
             if (v != (seq_t)1) {      /* skip value 1, but 0 is kept */
                 if (cached_len == cached_cap) {
                     size_t new_cap = cached_cap ? cached_cap << 1 : 128;
-                    seq_t *tmp = (seq_t *)realloc(cached, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cached, new_cap);
                     cached   = tmp;
                     cached_cap = new_cap;
                 }

@@ -11,13 +11,15 @@
  *            D = 661, a0 = floor(sqrt(D)), m_0 = 0, d_0 = 1
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Constant square‑root to be expanded. */
 static const idx_t D = 661;
@@ -41,7 +43,7 @@ static void ensure_cap(size_t needed) {
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         exit(1);   /* Allocation failed – abort. */
     cache = tmp;

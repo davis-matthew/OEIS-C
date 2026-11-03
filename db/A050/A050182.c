@@ -10,26 +10,28 @@
  *            binomial(n + 2, n/2)) * /(2*n + 4) if n is even * * This
  *            implements the closed‐form formula directly, using the utility *
  *            function binom(idx_t a, idx_t b) from the shared utilities
- * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 24, u128 n <= 24,
+ * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Compute the nth term of OEIS sequence A050182. */
 seq_t a(idx_t n)
 {
     /* Compute the main binomial coefficient binom(2*n+4, n). */
     idx_t two_n_plus_4 = 2*n + 4;
-    seq_t top = binom(two_n_plus_4, n);
+    seq_t top = binomial(two_n_plus_4, n);
 
     /* For even n subtract binom(n+2, n/2). */
     if ((n & 1) == 0) {  /* n is even */
         idx_t half = n / 2;
-        seq_t sub   = binom(n + 2, half);
+        seq_t sub   = binomial(n + 2, half);
         top -= sub;
     }
 

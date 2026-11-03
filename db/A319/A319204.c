@@ -7,8 +7,9 @@
  * Keywords:  sign
  * Formula:   a(n) = Sum_{2e2+3e3 = n+1} (-1)^(e2+e3) * (n+1)! / *
  *            ((n+1-(e2+e3))! e2! e3!) for n ≥ 0
- * Range:     i8 n <= 6, i16 n <= 13, i32 n <= 26, i64 n <= 33, i128 n <= 33,
+ * Range:     i8 n <= 7, i16 n <= 13, i32 n <= 26, i64 n <= 33, i128 n <= 33,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 /* Uses the multiplier identity (n+1)!/(…)=C(n+1,e2)*C(n+1-e2,e3) */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

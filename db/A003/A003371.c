@@ -7,23 +7,32 @@
  * Formula:   a(n) = the n-th number that is a sum of 4 positive 7th powers
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: standard, pass, 55 terms through n = 9773 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cmp_seq_t.h"
+#include "../utils/mem.h"
+
+static int cmp_seq_t(const void *a, const void *b) {
+	seq_t va = *(const seq_t *)a;
+	seq_t vb = *(const seq_t *)b;
+	if (va < vb) return -1;
+	if (va > vb) return 1;
+	return 0;
+}
 
 static seq_t *seq_cache = NULL;
 static idx_t cache_len = 0;
 
 static void build_cache(void) {
     idx_t max_base = 60;
-    seq_t *all = (seq_t *)malloc(700000 * sizeof(seq_t));
+    seq_t *all = mem_new(seq_t, 700000);
     idx_t cnt = 0;
     
-    seq_t *pow7 = (seq_t *)malloc((max_base + 1) * sizeof(seq_t));
+    seq_t *pow7 = mem_new(seq_t, (max_base + 1));
     for (idx_t i = 0; i <= max_base; i++) {
         seq_t x = (seq_t)i;
         pow7[i] = x * x * x * x * x * x * x;
@@ -39,8 +48,8 @@ static void build_cache(void) {
         }
     }
     
-    free(pow7);
-    qsort(all, cnt, sizeof(seq_t), cmp_seq_t);
+    mem_free(pow7);
+    mem_qsort(all, cnt, sizeof(seq_t), cmp_seq_t);
     
     idx_t write_pos = 0;
     for (idx_t read_pos = 0; read_pos < cnt; read_pos++) {

@@ -10,12 +10,14 @@
  *            a(1)=1, a(2)=1, a(3)=5, a(4)=13, a(5)=37, a(6)=105, a(7)=298
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 44, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache that survives between calls */
 static seq_t *cache = NULL;          /* array of computed values */
@@ -27,7 +29,7 @@ static void cache_init(void)
 {
     if (cache != NULL) return;
     cache_size = 8;                      /* capacity for indices 0..7 */
-    cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_size);
     if (cache == NULL) exit(EXIT_FAILURE);
     cache[0] = 0;        /* unused, but keeps indices 1..7 correct */
     cache[1] = 1;
@@ -46,7 +48,7 @@ static void cache_ensure_alloc(idx_t n)
     if (cache == NULL) cache_init();
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (new_cache == NULL) exit(EXIT_FAILURE);
         cache = new_cache;
         cache_size = new_size;

@@ -8,13 +8,15 @@
  *            OEIS sequence A081194 using memoised recurrence
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 26, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on first use. */
     if (cache == NULL) {
         cache_len = 2;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return (seq_t)0;          /* unlikely: out of memory */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)16;
@@ -37,11 +39,11 @@ seq_t a(idx_t n)
     /* Grow and fill the cache if the requested index is beyond what we have. */
     if ((size_t)n >= cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) {
             /* Allocation failed – compute the requested term on the fly. */
             seq_t prev2 = cache[0];
-            seq_t prev1 = cache[1];
+            seq_t prev1 = new_cache[1];
             seq_t cur;
             for (idx_t i = 2; i <= n; ++i) {
                 cur = prev1 * ((seq_t)8) - prev2 * ((seq_t)15);

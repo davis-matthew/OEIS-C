@@ -7,18 +7,22 @@
  * Formula:   a(n) = n + digit_sum(n) + digit_len(n)
  * Range:     u8 n <= 238, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, digit_sum
+ * Validated: standard, pass, 82 terms through n = 9094 (2026-11-01)
+ * Helpers:   digit_sum, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/digit_sum.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n)
 {
     seq_t sn = (seq_t)n;
     seq_t ds = digit_sum(sn);
-    int    dl = digit_len(sn);
+    int    dl = num_digits(sn);
     return sn + ds + (seq_t)dl;
 }

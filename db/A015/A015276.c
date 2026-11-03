@@ -11,13 +11,14 @@
  *            final multiplication
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 6, i64 n <= 10, i128 n <= 17,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 28 terms through n = 196 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_gcd.h"   /* provides seq_gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     /* values below the offset are undefined – return 0 */
@@ -38,10 +39,10 @@ seq_t a(idx_t n) {
         seq_t den = pow_n_minus3 - (seq_t)1;
 
         /* reduce with gcd to avoid overflow */
-        seq_t g = seq_gcd(result, den);
+        seq_t g = gcd(result, den);
         result /= g;
         den /= g;
-        g = seq_gcd(num, den);
+        g = gcd(num, den);
         num /= g;
         den /= g;   /* den should now be 1 */
 

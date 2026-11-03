@@ -11,13 +11,24 @@
  *            with u = x^2, Y(0) = 1, and a(n) = [x^n] chi
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   A_grow
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/A_grow.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static int g_big = -1;
 static int is_big(void)

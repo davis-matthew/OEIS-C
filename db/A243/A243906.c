@@ -8,6 +8,7 @@
  *            number of primes ≤ n)
  * Range:     i8 n <= 964, i16 n <= 5195, i32 n <= 5195, i64 n <= 5195,
  *            i128 n <= 5195, big any n
+ * Validated: standard, pass, 109 terms through n = 4968 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   o1174_add, o1174_divs, o1174_gcd
+ * Validated: standard, pass, 30 terms through n = 49 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/o1174_add.h"
-#include "../utils/o1174_divs.h"
-#include "../utils/o1174_gcd.h"
+#include "../utils/gcd_u64.h"
+
+static void o1174_add(uint32_t *a, const uint32_t *b, int L) {
+    uint64_t c = 0;
+    for (int i = 0; i < L; i++) {
+        c += (uint64_t)a[i] + b[i];
+        a[i] = (uint32_t)c;
+        c >>= 32;
+    }
+}
+
+static void o1174_divs(uint32_t *x, int L, uint32_t d) {
+    uint64_t r = 0;
+    for (int i = L - 1; i >= 0; i--) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
 
 static int o1174_L;
 static uint32_t *o1174_C;
@@ -45,7 +62,7 @@ static void o1174_rec(int rem, int maxk, int depth, uint64_t e) {
     for (int k = top; k >= 1; k--) {
         uint64_t base = (uint64_t)(k - 1) / 2;
         for (int i = 0; i < o1174_nd; i++)
-            base += (uint64_t)o1174_mul[i] * o1174_gcd((uint64_t)k, (uint64_t)o1174_len[i]);
+            base += (uint64_t)o1174_mul[i] * gcd_u64((uint64_t)k, (uint64_t)o1174_len[i]);
         memcpy(nx, cur, (size_t)L * sizeof(uint32_t));
         uint64_t ee = e;
         o1174_len[o1174_nd] = k;

@@ -9,7 +9,8 @@
  *            q is the greatest prime < p. (offset 1)
  * Range:     u8 n <= 33, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 72 terms through n = 964 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
             /* Grow array if needed */
             if (list_len == list_cap) {
                 list_cap = list_cap ? list_cap * 2 : 16;
-                list = (seq_t *)realloc(list, list_cap * sizeof(seq_t));
+                list = mem_resize(seq_t, list, list_cap);
             }
             list[list_len++] = (seq_t)cur_prime;
         }

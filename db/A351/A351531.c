@@ -7,13 +7,15 @@
  * Formula:   a(0) = 1; a(1) = 1; for n > 1, a(n) = a(n-1) + 3*n*a(n-2)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 13, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoised values */
 static seq_t *cache = NULL;      /* array of sequence values */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     {
         /* Always allocate at least two slots to store a(0) and a(1) */
         size_t alloc_len = (n >= 1 ? (size_t)n + 1 : 2);
-        cache = (seq_t*)malloc(alloc_len * sizeof(seq_t));
+        cache = mem_new(seq_t, alloc_len);
         cache[0] = (seq_t)1;
         if (alloc_len > 1)
             cache[1] = (seq_t)1;
@@ -47,8 +49,8 @@ static void ensure_cache(idx_t n)
 
     /* Grow the cache to hold up to n */
     size_t new_len = (size_t)n + 1;
-    seq_t *new_cache = (seq_t*)malloc(new_len * sizeof(seq_t));
-    memcpy(new_cache, cache, cache_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
+    mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
 
     /* Compute new terms */
     for (idx_t i = cache_len; i <= n; ++i)
@@ -56,7 +58,7 @@ static void ensure_cache(idx_t n)
         new_cache[i] = new_cache[i-1] + (seq_t)3 * (seq_t)i * new_cache[i-2];
     }
 
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = new_len;
 }

@@ -7,12 +7,14 @@
  * Formula:   a(n) = binomial(n+9,9)*7^n
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 391 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the OEIS sequence A197192:
    a(n) = C(n+9,9) * 7^n
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* allocate initial cache space if needed */
     if (!cache) {
         cache_len = 1;                          /* store a(0) */
-        cache = (seq_t *)malloc(sizeof(seq_t) * 64); /* initial capacity */
+        cache = mem_new(seq_t, 64); /* initial capacity */
         cache[0] = (seq_t)1;                   /* a(0) = 1 */
     }
 
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
             new_cap <<= 1;                       /* exponential growth */
 
         /* reallocate cache */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* allocation failed – abort (unlikely in the test environment) */
             exit(EXIT_FAILURE);

@@ -9,12 +9,28 @@
  *            of n, * sigma(m) = sum of divisors of m
  * Range:     u8 n <= 5039, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _sigma_u64
+ * Validated: standard, pass, 105 terms through n = 9227 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_sigma_u64.h"
+/* Compute sum of divisors of an unsigned integer m. */
+static seq_t _sigma_u64(idx_t m)
+{
+    seq_t sum = 0;
+    for (idx_t d = 1; d <= m / d; ++d)
+    {
+        if (m % d == 0)
+        {
+            sum += (seq_t)d;
+            idx_t twin = m / d;
+            if (twin != d)
+                sum += (seq_t)twin;
+        }
+    }
+    return sum;
+}
 /* Compute number of divisors of an unsigned integer n. */
 static seq_t _tau_u64(idx_t n)
 {

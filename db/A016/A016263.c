@@ -7,7 +7,8 @@
  * Formula:   a(n) = 21*a(n-1) - 108*a(n-2) + 1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Initial conditions: a(0) = 1, a(1) = 22           */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,9 +26,9 @@ seq_t a(idx_t n)
     /* ensure the array is large enough */
     size_t need = (size_t)n + 1;
     if (cache == NULL) {
-        cache = (seq_t *)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
     } else if (need > cached) {
-        cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, need);
     }
 
     /* initialise the memoised entries that are missing */

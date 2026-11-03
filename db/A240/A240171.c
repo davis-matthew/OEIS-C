@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 109, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 77 terms through n = 9554 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* Sequence A240171: numbers k such that divisor_count(k) > divisor_count(k-1) */
 
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 /* A fixed-size cache is sufficient for the required range (n up to ≈10 000). */
 #define CACHE_CAP 200000
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
     while (terms_cnt < n)
     {
         /* avoid overflow: cur_k is idx_t (uint64_t) */
-        seq_t d_k   = divisor_count_u64((uint64_t)cur_k);
-        seq_t d_km1 = divisor_count_u64((uint64_t)(cur_k - 1));
+        seq_t d_k   = num_divisors((uint64_t)cur_k);
+        seq_t d_km1 = num_divisors((uint64_t)(cur_k - 1));
 
         if (d_k > d_km1)
         {

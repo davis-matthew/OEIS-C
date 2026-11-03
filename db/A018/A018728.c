@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   seq_uint_cmp
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_uint_cmp.h"
+#include "../utils/mem.h"
+
+/* Comparer for qsort that works for any integer or big‑int seq_t. */
+static int seq_uint_cmp(const void *p1, const void *p2)
+{
+    const seq_t *a = (const seq_t *)p1;
+    const seq_t *b = (const seq_t *)p2;
+    return (*a > *b) - (*a < *b);  /* returns 1, 0, or -1 */
+}
 
 seq_t a(idx_t n)
 {
@@ -49,7 +58,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the six values. */
-        qsort(divisors, m, sizeof(seq_t), seq_uint_cmp);
+        mem_qsort(divisors, m, sizeof(seq_t), seq_uint_cmp);
         init = true;
     }
 

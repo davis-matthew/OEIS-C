@@ -9,8 +9,9 @@
  * Formula:   a(n) = T(r,c) where r = floor((sqrt(8n+1)-1)/2), c = n -
  *            r(r+1)/2 T(n,m) = 1 for m=n T(n,m) = \sum_{k=1}^{n-m} k/(n-m) *
  *            C(2n-2m, n-m-k) * C(k+m,k)
- * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t triangle_T(idx_t n, idx_t m)

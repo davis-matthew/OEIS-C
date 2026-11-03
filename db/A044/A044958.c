@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   valid_base9
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,37 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/valid_base9.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a non‑negative integer has all distinct
+   non‑zero digit counts when written in base 9. */
+static inline bool valid_base9( unsigned long long v )
+{
+    unsigned char counts[9] = {0};
+    if ( v == 0 )
+        counts[0] = 1;
+    else
+    {
+        while ( v > 0 )
+        {
+            counts[ v % 9 ]++;
+            v /= 9;
+        }
+    }
+
+    /* At most 20 occurrences are possible for 64‑bit numbers. */
+    bool seen[21] = { false };
+    for ( int d = 0; d < 9; ++d )
+    {
+        unsigned char c = counts[d];
+        if ( c == 0 )
+            continue;
+        if ( seen[c] )
+            return false;          /* duplicate frequency */
+        seen[c] = true;
+    }
+    return true;
+}
 
 /* Static state to cache already found terms. */
 static seq_t *cache          = NULL;
@@ -39,7 +70,7 @@ seq_t a( idx_t n )
         size_t new_cap = cache_cap ? cache_cap << 1 : 64;
         while ( new_cap < (size_t)n )
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc( cache, new_cap * sizeof( seq_t ) );
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

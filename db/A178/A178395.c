@@ -8,14 +8,16 @@
  * Formula:   a(n) is the row‑major enumeration of the triangle T(r,m) =
  *            binom(r,m) if binom(r,m) is odd, otherwise binom(r,m)/2. Here r
  *            = floor((sqrt(8*n+1)-1)/2) and m = n - r*(r+1)/2
- * Range:     u8 n <= 39, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
+ * Range:     u8 n <= 69, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     idx_t m = n - (idx_t)start;          /* column within the row */
 
     /* Compute the binomial coefficient C(r,m) exactly. */
-    seq_t val = binom(r, m);
+    seq_t val = binomial(r, m);
 
     /* If the binomial coefficient is even, divide by 2 to get the numerator
        of (C(r,m)/2).  If it is odd, the numerator is just C(r,m). */

@@ -8,6 +8,7 @@
  * Formula:   a(n) = n^2*(n^6 - 54*n^4 + 1115*n^2 - 8934)/24 (n ≥ 9)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 24, u64 n <= 380, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 886 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

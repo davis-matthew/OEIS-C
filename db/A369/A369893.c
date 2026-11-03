@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∑_{p|n, p prime} n^{τ(n/p)} (ω(1)=0)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 35, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdint.h>
 #include <stddef.h>
 /* big_pow: exponentiation for seq_t */
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n <= 1)
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
         uint32_t e = exps[i];
         /* τ(n/p) = τ(n) * e / (e+1) */
         uint64_t tauByP = (tauN / (uint64_t)(e + 1)) * (uint64_t)e;
-        seq_t term = big_pow(base, (seq_t)tauByP);
+        seq_t term = ipow(base, (seq_t)tauByP);
         sum += term;
     }
     return sum;

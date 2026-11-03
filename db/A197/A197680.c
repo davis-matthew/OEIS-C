@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 166, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_square_exponent
+ * Validated: standard, pass, 82 terms through n = 6724 (2026-11-03)
+ * Helpers:   is_square_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_square_exponent.h"
+#include "../utils/is_square_i32.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached a(k) values */
 static size_t cache_len = 0, cache_cap = 0;
@@ -96,7 +98,7 @@ static bool good_number(uint64_t x)
                 tmp /= p;
                 ++e;
             }
-            if (!is_square_exponent(e)) return false;
+            if (!is_square_i32(e)) return false;
         }
     }
     /* Remaining prime factor (if any) has exponent 1 = 1², OK. */
@@ -108,7 +110,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        void *tmp = realloc(cache, new_cap * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, new_cap);
         cache = (seq_t *)tmp;
         cache_cap = new_cap;
     }

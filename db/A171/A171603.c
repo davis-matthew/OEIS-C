@@ -9,7 +9,8 @@
  *            (p+q)/2 is the product of two distinct primes
  * Range:     u8 n <= 15, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Prime cache.  The list grows as needed.  It is never shrunk.        */
@@ -56,7 +58,7 @@ static void ensure_initialized(void)
     prime_list[prime_count++] = 3;
 
     term_capacity = 16;
-    term_list = (seq_t *)malloc(term_capacity * sizeof(seq_t));
+    term_list = mem_new(seq_t, term_capacity);
 
     next_pair_index = 0;
     initialized = true;
@@ -165,8 +167,7 @@ static void generate_terms(size_t needed)
                 if (term_len == term_capacity)
                 {
                     term_capacity = term_capacity ? term_capacity * 2 : 16;
-                    term_list = (seq_t *)realloc(term_list,
-                                                 term_capacity * sizeof(seq_t));
+                    term_list = mem_resize(seq_t, term_list, term_capacity);
                 }
                 term_list[term_len++] = (seq_t)p;
             }

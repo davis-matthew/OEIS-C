@@ -9,8 +9,9 @@
  *            in the prime factorisation of n. That is, if n = ∏ p_i^{e_i},
  *            then a(n) = ∏_{e in {e_i | e_i > 0}} prime(e) (square‑free
  *            version)
- * Range:     u8 n <= 9867, u16 n <= 9867, u32 n <= 9867, u64 n <= 9867,
- *            u128 n <= 9867, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 114 terms through n = 9867 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

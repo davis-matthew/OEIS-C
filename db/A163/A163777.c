@@ -8,17 +8,19 @@
  *            (mod8) and 2 is a primitive root modulo p)
  * Range:     u8 n <= 15, u16 n <= 1263, u32 n <= 3378, u64 n <= 3378,
  *            u128 n <= 3378, big any n
- * Helpers:   factor_u64, is_prime, mod_pow
+ * Validated: standard, pass, 71 terms through n = 3282 (2026-11-01)
+ * Helpers:   factor_u64, is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 static bool has_primitive_root_2(uint64_t p) {
     /* p is an odd prime */
@@ -30,7 +32,7 @@ static bool has_primitive_root_2(uint64_t p) {
     factor_u64(phi, pr, ex, &cnt);
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t q = pr[i];
-        seq_t res = mod_pow((seq_t)2, (idx_t)(phi / q), (seq_t)p);
+        seq_t res = powmod((seq_t)2, (idx_t)(phi / q), (seq_t)p);
         if (res == (seq_t)1)
             return false;
     }

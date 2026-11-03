@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 10, i32 n <= 21, i64 n <= 45, i128 n <= 105,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 44 terms through n = 1141 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,9 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
         {
             size_t new_cap = e_cap ? e_cap << 1 : 4;
             while (new_cap <= (size_t)i) new_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(e, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, e, new_cap);
             if (!tmp) return (seq_t)0;           /* allocation failure */
             if (!e) {
                 /* initialise with zeros */
@@ -95,7 +98,7 @@ seq_t a(idx_t n)
         {
             size_t new_cap = seq_cap ? seq_cap << 1 : 8;
             while (new_cap < seq_len + (size_t)i) new_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (!tmp) return (seq_t)0;
             seq = tmp;
             seq_cap = new_cap;

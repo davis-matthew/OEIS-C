@@ -7,12 +7,14 @@
  * Formula:   a(0)=0, a(1)=2, a(2)=2, a(3)=6; a(n)=3*a(n-2)-a(n-4) for n≥4
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 46, u64 n <= 92, u128 n <= 184,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 4667 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;   /* array of computed terms */
@@ -29,7 +31,7 @@ static int ensure_cache_size(size_t needed)
     if (new_cap < needed)
         new_cap = needed;
 #if defined(__cplusplus)
-    seq_t *tmp = static_cast<seq_t *>(realloc(cache, new_cap * sizeof(seq_t)));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
 #else
     seq_t *tmp = realloc(cache, new_cap * sizeof(seq_t));
 #endif

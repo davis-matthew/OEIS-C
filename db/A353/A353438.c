@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Auxiliary data for detecting the decimal expansion of 1/m. */
 static uint32_t *visited = NULL;          /* marks remainders per test   */
@@ -76,7 +78,7 @@ static void grow_terms(size_t needed)
     if (terms_cap >= needed) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
     if (!new_arr) return;              /* out of memory: leave unchanged */
     terms = new_arr;
     terms_cap = new_cap;

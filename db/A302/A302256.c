@@ -8,6 +8,7 @@
  * Formula:   a(n) = (81*n^4+261*n^3+264*n^2+540*n+132)/6
  * Range:     u8 none, u16 n <= 4, u32 n <= 107, u64 n <= 1000, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 904 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

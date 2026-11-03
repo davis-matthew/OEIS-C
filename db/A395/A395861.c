@@ -13,7 +13,8 @@
  *            number, reducing it and returning its denominator
  * Range:     u8 n <= 12, u16 n <= 26, u32 n <= 63, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   big_pow, binom, factorial, gcd, pow2
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   binomial, gcd, ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +22,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) */
-#include "../utils/factorial.h"   /* factorial(idx_t n) */
-#include "../utils/gcd.h"   /* gcd(seq_t a, seq_t b) */
-#include "../utils/pow2.h"   /* pow2(idx_t exp) -> seq_t */
-#include "../utils/big_pow.h"   /* big_pow(seq_t base, seq_t exp) */
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow.h"
+#include "../utils/pow2.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Convert linear index into row r and column k.
    The first element of row r has index r*(r+1)/2. */
@@ -56,8 +67,8 @@ seq_t a(idx_t n)
         uint64_t abs_base = (base_signed < 0) ? (uint64_t)(-base_signed)
                                                : (uint64_t)base_signed;
 
-        seq_t bin = binom(k, j);                  /* C(k,j) */
-        seq_t pow = big_pow((seq_t)abs_base, (seq_t)r); /* |base|^r */
+        seq_t bin = binomial(k, j);                  /* C(k,j) */
+        seq_t pow = ipow((seq_t)abs_base, (seq_t)r); /* |base|^r */
         seq_t term_abs = bin * pow;                 /* absolute value */
 
         /* Determine sign: (-1)^j * sign(base^r). */

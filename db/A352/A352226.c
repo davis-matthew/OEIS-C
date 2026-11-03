@@ -15,7 +15,8 @@
  *            Manhattan distance of an * occupied site
  * Range:     u8 n <= 2447, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   push
+ * Validated: standard, pass, 87 terms through n = 9751 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/push.h"
+
+static inline void push(uint32_t x, uint32_t y, uint32_t M,
+                        uint8_t *inq, uint16_t *qx, uint16_t *qy,
+                        uint32_t *tail)
+{
+    size_t idx = (size_t)x * M + y;
+    if (!inq[idx]) {
+        inq[idx] = 1;
+        qx[(*tail)] = (uint16_t)x;
+        qy[(*tail)] = (uint16_t)y;
+        (*tail)++;
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -11,7 +11,8 @@
  *            equal to the sum of the remaining four
  * Range:     u8 none, u16 n <= 1, u32 n <= 9, u64 n <= 24, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define STATE_COUNT 7776  /* 6^5 */
 
@@ -39,8 +41,8 @@ static void init_tables(void)
     initialized = true;
 
     /* Allocate dp buffers */
-    dp_cur = (seq_t*)malloc(sizeof(seq_t) * STATE_COUNT);
-    dp_nxt = (seq_t*)malloc(sizeof(seq_t) * STATE_COUNT);
+    dp_cur = mem_new(seq_t, STATE_COUNT);
+    dp_nxt = mem_new(seq_t, STATE_COUNT);
 
     int d[6];
     for (int d0 = 0; d0 < 6; ++d0)
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
     /* perform n extensions (from length 5 to length 5+n) */
     for (idx_t step = 0; step < n; ++step)
     {
-        memset(dp_nxt, 0, sizeof(seq_t) * STATE_COUNT);
+        mem_set(dp_nxt, 0, sizeof(seq_t) * STATE_COUNT);
         for (int i = 0; i < STATE_COUNT; ++i)
         {
             seq_t val = dp_cur[i];

@@ -12,12 +12,14 @@
  *            + a(n−4) − a(n−5) − a(n−6) + a(n−7)
  * Range:     u8 n <= 13, u16 n <= 128, u32 n <= 128, u64 n <= 128,
  *            u128 n <= 128, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 125 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[13] = {
     1, 5, 12, 20, 32, 44, 68, 72, 100, 112, 156, 160, 204
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (cache_len == 0)
     {
         cache_len = 13;
-        cache = (seq_t *)malloc((size_t)cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_len);
         if (!cache) return 0;  /* malloc failed; caller can handle 0 as error */
         for (idx_t i = 0; i < cache_len; ++i)
             cache[i] = init[i];
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
     /* Extend the cache to include terms up to n. */
     size_t new_len = (size_t)(n + 1);
-    seq_t *temp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *temp = mem_resize(seq_t, cache, new_len);
     if (!temp) return 0;  /* realloc failed */
     cache = temp;
     /* Compute missing terms from the current cache_len up to n. */

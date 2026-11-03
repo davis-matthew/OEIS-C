@@ -7,13 +7,15 @@
  * Formula:   a(n) = (7*9^n + 1)/8
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(0)=1, a(1)=8, a(n)=10*a(n-1)-9*a(n-2) for n≥2 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for previously computed values */
 static seq_t *cache = NULL;   /* array of seq_t holding a(0) … a(k) */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t new_n)
         return; /* already large enough */
 
     size_t new_size = (size_t)(new_n + 1);
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
         exit(EXIT_FAILURE); /* allocation failure */
 

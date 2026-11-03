@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 39, u64 n <= 59, u128 n <= 119,
  *            big any n
- * Helpers:   bigomega, count_distinct_primes, rad, seq_pow
+ * Validated: standard, pass, 69 terms through n = 3300 (2026-11-01)
+ * Helpers:   bigomega, ipow_idx, omega, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,10 +30,11 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rad.h"
+#include <stdlib.h>
 #include "../utils/bigomega.h"
-#include "../utils/count_distinct_primes.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/omega.h"
+#include "../utils/radical.h"
 
 /* compute C(a,b) for 0 ≤ b ≤ a, a,b fit in idx_t.
    The result always fits in idx_t for all values that occur for n ≤ 10¹⁰⁴
@@ -61,18 +63,18 @@ seq_t a(idx_t n)
     if (n <= 1) return (seq_t)1;
 
     /* rad(n) and bigomega(n) are small enough for our calculations. */
-    seq_t radn = rad(n);
+    seq_t radn = radical(n);
     idx_t bigomega_n = (idx_t)bigomega(n);
 
     /* For primes (or n = 1) exponent is 0. */
     if (bigomega_n < 2) return (seq_t)1;
 
-    int omega_n = count_distinct_primes(n);
+    int omega_n = omega(n);
 
     /* exponent = binomial(omega + bigomega - 1, bigomega - 2) */
     idx_t a_coeff = (idx_t)(omega_n + bigomega_n - 1);
     idx_t b_coeff = (idx_t)(bigomega_n - 2);
     idx_t exp = binomial_idx(a_coeff, b_coeff);
 
-    return seq_pow(radn, exp);
+    return ipow_idx(radn, exp);
 }

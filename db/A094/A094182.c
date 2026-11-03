@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 23, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 struct Entry
 {
@@ -58,7 +61,7 @@ static void init_cache(void)
     const idx_t MMAX = 2000;
 
     size_t capacity = 100000;                        /* initial capacity */
-    struct Entry *entries = (struct Entry *)malloc(capacity * sizeof(struct Entry));
+    struct Entry *entries = mem_new(struct Entry, capacity);
     size_t len = 0;
 
     for (idx_t m = 2; m <= MMAX; ++m)
@@ -76,7 +79,7 @@ static void init_cache(void)
             if (len == capacity)
             {
                 capacity <<= 1;
-                entries = (struct Entry *)realloc(entries, capacity * sizeof(struct Entry));
+                entries = mem_resize(struct Entry, entries, capacity);
             }
             entries[len].area = area;
             entries[len].r    = r;
@@ -84,13 +87,13 @@ static void init_cache(void)
         }
     }
 
-    qsort(entries, len, sizeof(struct Entry), cmp_entries);
+    mem_qsort(entries, len, sizeof(struct Entry), cmp_entries);
 
-    cache = (seq_t *)malloc(len * sizeof(seq_t));
+    cache = mem_new(seq_t, len);
     for (size_t i = 0; i < len; ++i) cache[i] = entries[i].r;
     cache_len = len;
 
-    free(entries);
+    mem_free(entries);
     initialized = true;
 }
 

@@ -10,7 +10,8 @@
  *            n
  * Range:     u8 n <= 359, u16 n <= 2159, u32 n <= 2159, u64 n <= 2159,
  *            u128 n <= 2159, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 2024 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the recursive divisor generation helper. */
 static void gen_divisors(int r, const int *exp_arr, int *cur_exp, int pos,
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     }
 
     /* DP array: dp[sum_vector] = number of subsets achieving that sum. */
-    seq_t *dp = (seq_t*)calloc(states, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, states);
     dp[0] = 1;  /* Empty subset */
 
     /* Recursively generate all divisors and update DP. */
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
     seq_t result = total - (seq_t)1;  /* Exclude empty subset */
 
     /* Free allocated memory. */
-    free(dp);
+    mem_free(dp);
     free(idx_exp);
     free(stride);
 

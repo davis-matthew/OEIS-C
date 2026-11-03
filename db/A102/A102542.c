@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 none, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   is_prime, isprime_big, resize_array
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   is_prime_seq, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,35 @@
 */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/resize_array.h"
-#include "../utils/is_prime.h"       /* bool is_prime(uint64_t)   */
-#include "../utils/isprime_big.h"   /* bool isprime_big(seq_t)   */
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/is_prime_u64.h"
+
+/* dynamic array helpers -------------------------------------------------- */
+static seq_t *resize_array(seq_t *old, idx_t old_size, idx_t new_size)
+{
+    seq_t *new_arr;
+#ifdef __cplusplus
+    new_arr = new seq_t[new_size]();        /* value–init for C++ objects   */
+#else
+    new_arr = (seq_t *)calloc(new_size, sizeof(seq_t));   /* zero for C */
+#endif
+    /* copy old data */
+    idx_t i;
+    for (i = 0; i < old_size && i < new_size; ++i)
+        new_arr[i] = old[i];
+
+    /* free old storage */
+    if (old) {
+#ifdef __cplusplus
+        delete[] old;
+#else
+        free(old);
+#endif
+    }
+    return new_arr;
+}
 
 seq_t a(idx_t n) {
     static seq_t *terms = NULL;
@@ -49,8 +76,8 @@ seq_t a(idx_t n) {
     while (count < n) {
         seq_t val = (seq_t)k * 1000000 + 333333;
         bool prime =
-            (sizeof(seq_t) <= 8) ? is_prime((uint64_t)val)
-                                 : isprime_big(val);
+            (sizeof(seq_t) <= 8) ? is_prime_u64((uint64_t)val)
+                                 : is_prime_seq(val);
 
         if (prime) {
             if (count == allocated) {

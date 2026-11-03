@@ -7,7 +7,8 @@
  * Formula:   a(n) = (12^(n+3)-9*8^(n+3)+9*7^(n+3)-3^(n+3))/180
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(0)=1, a(1)=30, a(2)=583, a(3)=9360,
    a(n)=30*a(n-1)-317*a(n-2)+1380*a(n-3)-2016*a(n-4)  (n>=4) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Initialise on first call */
     if (buf == NULL) {
         cap = 16;                          /* initial capacity */
-        buf = (seq_t *)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         if (!buf) return (seq_t)0;         /* unlikely in tests */
         buf[0] = (seq_t)1;
         buf[1] = (seq_t)30;
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
         if (need > cap) {
             size_t newcap = cap * 2;
             if (newcap < need) newcap = need;
-            seq_t *tmp = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
-            if (!tmp) { free(buf); return (seq_t)0; }
+            seq_t *tmp = mem_resize(seq_t, buf, newcap);
+            if (!tmp) { mem_free(buf); return (seq_t)0; }
             buf = tmp;
             cap = newcap;
         }

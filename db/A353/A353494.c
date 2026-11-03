@@ -8,8 +8,9 @@
  * Formula:   a(n) = 1 if the arithmetic derivative d(n) is a multiple of 4,
  *            otherwise 0. d(n) is computed via the prime‐factorisation
  *            formula d(n) = Σ e_i * n / p_i, where n = Π p_i^e_i
- * Range:     u8 n <= 450, u16 n <= 8963, u32 n <= 8963, u64 n <= 8963,
- *            u128 n <= 8963, big any n
+ * Range:     u8 n <= 450, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 122 terms through n = 8963 (2026-11-02)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,9 @@
 /* Must include the helper that provides the prime factorisation routine. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr,
-                                   uint64_t *ex, size_t *cnt); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)
 {

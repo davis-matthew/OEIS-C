@@ -12,6 +12,7 @@
  *            r(r+1)/2 ≥ n, * k = n – (r−1)r/2. Then a(n) = sigma...
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

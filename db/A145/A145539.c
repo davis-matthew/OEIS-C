@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 168, u64 n <= 168, u128 n <= 168,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: full, pass, 168 terms through n = 168 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 #define LIMIT (idx_t)1000000ULL
 
@@ -42,7 +44,7 @@ static void compute_once(void)
     /* 2. Allocate lookup tables */
     size_t limit_sz = (size_t)LIMIT + 1;
     prime_to_index = (size_t *)calloc(limit_sz, sizeof(size_t));
-    counts = (seq_t *)calloc((size_t)num_primes, sizeof(seq_t));
+    counts = mem_new(seq_t, (size_t)num_primes);
 
     /* 3. Map each prime to its 1‑based index (1‑based for easier use later) */
     for (size_t i = 0; i < num_primes; ++i) {

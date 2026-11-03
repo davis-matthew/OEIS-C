@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Maximum n expected.  Adjust if needed. */
 #define MAX_N 10000
@@ -50,7 +52,7 @@ static void ensure_seq_cap(size_t min_cap)
     if (seq_cap >= min_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *new_arr = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq, new_cap);
     if (!new_arr) abort();
     seq = new_arr;
     seq_cap = new_cap;

@@ -9,13 +9,15 @@
  *            sorted list of distinct * such values
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---\\ static storage --------------------------------------------- */
 static seq_t *a_vals = NULL;   /* array of computed terms                */
@@ -40,10 +42,10 @@ static void rebuild(seq_t limit)
     seq_t val;
 
     if (a_vals != NULL) {
-        free(a_vals);
+        mem_free(a_vals);
     }
 
-    a_vals  = (seq_t *)malloc(cap * sizeof(seq_t));
+    a_vals  = mem_new(seq_t, cap);
     if (a_vals == NULL) {
         /* out of memory – terminate the program */
         exit(1);
@@ -62,7 +64,7 @@ static void rebuild(seq_t limit)
 
             if (a_count == cap) {              /* grow buffer */
                 cap <<= 1;
-                a_vals = (seq_t *)realloc(a_vals, cap * sizeof(seq_t));
+                a_vals = mem_resize(seq_t, a_vals, cap);
                 if (a_vals == NULL) {          /* out of memory */
                     exit(1);
                 }
@@ -72,7 +74,7 @@ static void rebuild(seq_t limit)
     }
 
     /* sort and unique */
-    qsort(a_vals, a_count, sizeof(seq_t), cmp_seq);
+    mem_qsort(a_vals, a_count, sizeof(seq_t), cmp_seq);
     for (i = 1, j = 1; j < a_count; ++j) {
         if (a_vals[j] != a_vals[i - 1]) {
             a_vals[i++] = a_vals[j];

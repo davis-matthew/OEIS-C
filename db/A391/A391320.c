@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 26, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes, is_squarefree
+ * Validated: standard, pass, 54 terms through n = 9882 (2026-11-03)
+ * Helpers:   is_squarefree, mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stdbool.h>
 
 /* utilities supplied by the build */
-#include "../utils/is_squarefree.h"     /* bool is_squarefree(seq_t x); */
-#include "../utils/count_distinct_primes.h"  /* int count_distinct_primes(uint64_t n); */
+#include "../utils/is_squarefree.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,21 +42,21 @@ seq_t a(idx_t n)
     /* initialise the cache lazily */
     if (!cap) {
         cap   = 16;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
     }
 
     /* generate new terms until we have at least n of them */
     while (sz < n) {
         ++last;                       /* next candidate integer */
         /* test squarefreeness and prime factor count */
-        if (is_squarefree(last) && count_distinct_primes(last) >= 3) {
+        if (is_squarefree(last) && omega(last) >= 3) {
             /* store its square; cast first to keep arbitrary‑precision types */
             terms[sz++] = (seq_t)last * (seq_t)last;
 
             /* (re)allocate if capacity reached   */
             if (sz >= cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, cap);
                 if (!tmp) /* allocation failure – return 0 as safe fallback */
                     return 0;
                 terms = tmp;

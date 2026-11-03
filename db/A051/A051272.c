@@ -10,14 +10,15 @@
  *            prod(p–1) − 2^n + 1, where * P_n is the nth primorial
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   pow2_n
+ * Validated: standard, pass, 33 terms through n = 331 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow2_n.h"
+#include "../utils/pow2.h"
 
 static size_t  primes_cap = 0;
 static size_t  primes_cnt = 0;
@@ -73,7 +74,7 @@ seq_t a(idx_t n)
     ensure_primes((size_t)n);
 
     /* product of (prime‐1) and product of primes have been built up to n */
-    seq_t two_n = pow2_n(n);
+    seq_t two_n = pow2(n);
     seq_t result = prodP - prodQ - two_n + (seq_t)1;
     return result;
 }

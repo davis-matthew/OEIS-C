@@ -8,7 +8,8 @@
  *            prime (deterministic Miller-Rabin, memoized)
  * Range:     u8 n <= 42, u16 n <= 4695, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a2731_isprime, a2731_mulmod, a2731_powmod
+ * Validated: standard, pass, 78 terms through n = 9574 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a2731_isprime.h"
-#include "../utils/a2731_mulmod.h"
-#include "../utils/a2731_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t *a2731_terms = NULL;
 static idx_t a2731_count = 0;
@@ -30,7 +31,7 @@ seq_t a(idx_t n) {
         uint64_t k = a2731_next_k;
         a2731_next_k += 2;
         uint64_t v = (k * k + 1) / 2;
-        if (a2731_isprime(v)) {
+        if (is_prime_u64(v)) {
             if (a2731_count == a2731_cap) {
                 idx_t nc = a2731_cap ? a2731_cap * 2 : 1024;
                 uint64_t *p = (uint64_t *)realloc(a2731_terms, (size_t)nc * sizeof(uint64_t));

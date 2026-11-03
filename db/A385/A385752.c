@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} Stirling1(n,k) * (n!/k!)^2
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 6, i64 n <= 10, i128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *prev_row = NULL;   /* Stirling numbers for n-1 */
@@ -27,12 +29,12 @@ seq_t a(idx_t n)
 {
     /* Initialisation for n = 0 */
     if (prev_row == NULL) {
-        prev_row = (seq_t *)malloc(sizeof(seq_t));
+        prev_row = mem_new(seq_t, 1);
         prev_row[0] = 1;        /* S1(0,0) = 1 */
 
         prev_size = 1;
 
-        seq_vals = (seq_t *)malloc(sizeof(seq_t));
+        seq_vals = mem_new(seq_t, 1);
         seq_vals[0] = 1;        /* a(0) = 1 */
 
         max_comp = 0;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     for (idx_t i = max_comp + 1; i <= n; ++i) {
         /* Allocate buffer for current row (length i+1) */
         if (curr_row == NULL || prev_size < (size_t)(i + 1))
-            curr_row = (seq_t *)realloc(curr_row, sizeof(seq_t) * (i + 1));
+            curr_row = mem_resize(seq_t, curr_row, (i + 1));
 
         /* Stirling numbers of the first kind: S1(i,k) = S1(i-1,k-1) - (i-1)*S1(i-1,k) */
         curr_row[0] = 0;                           /* S1(i,0) = 0 for i>0 */
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         }
 
         /* Store the value */
-        seq_vals = (seq_t *)realloc(seq_vals, sizeof(seq_t) * (i + 1));
+        seq_vals = mem_resize(seq_t, seq_vals, (i + 1));
         seq_vals[i] = a_val;
 
         /* Prepare for next iteration: swap rows */

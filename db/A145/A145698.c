@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence storage */
 static seq_t *seq_cache = NULL;      /* seq_cache[1] holds a(1) */
@@ -38,7 +40,7 @@ static void grow_cache(idx_t n)
         new_cap <<= 1;
 
     /* Allocate a new buffer and copy old contents */
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp)
         abort();                        /* out‑of‑memory */
     seq_cache = tmp;

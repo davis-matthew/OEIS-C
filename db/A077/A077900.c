@@ -8,12 +8,14 @@
  *            values a(0)=1, a(1)=0, a(2)=3, a(3)=-4
  * Range:     i8 n <= 7, i16 n <= 13, i32 n <= 27, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *vals = NULL;
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* initialize the array with the first four terms */
     if (capacity == 0) {
         capacity = 4;
-        vals = (seq_t*)malloc(capacity * sizeof(seq_t));
+        vals = mem_new(seq_t, capacity);
         vals[0] = (seq_t)1;
         vals[1] = (seq_t)0;
         vals[2] = (seq_t)3;
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     if (n >= capacity) {
         idx_t newcap = capacity;
         while (newcap <= n) newcap *= 2;
-        vals = (seq_t*)realloc(vals, newcap * sizeof(seq_t));
+        vals = mem_resize(seq_t, vals, newcap);
         capacity = newcap;
     }
 

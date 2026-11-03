@@ -10,7 +10,8 @@
  *            rationals)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   q2429_add, q2429_div_small, q2429_mul_small
+ * Validated: standard, pass, 37 terms through n = 545 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,48 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/q2429_add.h"
-#include "../utils/q2429_div_small.h"
-#include "../utils/q2429_mul_small.h"
+
+static size_t q2429_add(uint32_t *a, size_t la, const uint32_t *b, size_t lb) {
+    size_t n = la > lb ? la : lb, i;
+    uint64_t c = 0;
+    for (i = 0; i < n; i++) {
+        c += (uint64_t)(i < la ? a[i] : 0) + (i < lb ? b[i] : 0);
+        a[i] = (uint32_t)c;
+        c >>= 32;
+    }
+    if (c) a[n++] = (uint32_t)c;
+    return n;
+}
+
+/* q = x / d (q may alias x or be NULL), returns remainder */
+static uint32_t q2429_div_small(uint32_t *q, const uint32_t *x, size_t len, uint32_t d, size_t *qlen) {
+    uint64_t r = 0;
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        r = (r << 32) | x[i];
+        if (q) q[i] = (uint32_t)(r / d);
+        r %= d;
+    }
+    if (q && qlen) {
+        size_t l = len;
+        while (l > 0 && q[l - 1] == 0) l--;
+        *qlen = l;
+    }
+    return (uint32_t)r;
+}
+
+static size_t q2429_mul_small(uint32_t *x, size_t len, uint32_t m) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        c += (uint64_t)x[i] * m;
+        x[i] = (uint32_t)c;
+        c >>= 32;
+    }
+    while (c) { x[len++] = (uint32_t)c; c >>= 32; }
+    return len;
+}
 
 seq_t a(idx_t n) {
     uint64_t N = (uint64_t)n + 1, M = 2 * N + 1, top = 2 * N;

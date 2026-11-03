@@ -10,14 +10,27 @@
  *            for efficiency
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 30, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   free_seq_array, seq_alloc_new_array
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;          /* cached values */
 static idx_t  cache_len = 0;          /* number of stored entries */

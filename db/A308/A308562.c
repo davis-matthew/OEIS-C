@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 23, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define BOARD 8   /* Board side length (2^3) */
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     /* Allocate/extend sequence array on first use */
     if (seq == NULL) {
         seq_cap = 32;
-        seq = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
 
     /* Generate terms until we have at least n terms or the knight
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         seq_len++;
         if (seq_len >= seq_cap) {
             seq_cap *= 2;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         visited[curx + cury * BOARD] = true;
 

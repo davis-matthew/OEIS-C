@@ -12,13 +12,15 @@
  *            (A025147(d) – 1)
  * Range:     u8 n <= 33, u16 n <= 85, u32 n <= 249, u64 n <= 813,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *part_counts = NULL;   /* Number of partitions of i into
                                        distinct parts >1 (any size). */
@@ -28,7 +30,7 @@ static void compute_part_counts(idx_t up_to)
 {
     idx_t new_size = up_to + 1;
     size_t len = (size_t)new_size;
-    seq_t *cnt = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, len);
     if (!cnt)
         return;           /* Allocation failure – sequence will fail silently. */
 
@@ -42,7 +44,7 @@ static void compute_part_counts(idx_t up_to)
         }
     }
 
-    free(part_counts);
+    mem_free(part_counts);
     part_counts = cnt;
     part_counts_size = new_size;
 }

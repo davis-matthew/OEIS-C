@@ -9,14 +9,44 @@
  *            a(2)=1, a(3)=2, a(4)=3, a(5)=4, a(6)=5
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   ensure_cache
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/ensure_cache.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
 
-static seq_t *hexanacci_cache = NULL;   /* zero‑indexed: cache[0] = a(1) */
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
+
+static seq_t *hexanacci_cache = NULL;   /* zero‑indexed: tmp[0] = a(1) */
 static size_t   hexanacci_cap   = 0;    /* capacity of hexanacci_cache   */
 static idx_t    hexanacci_len   = 0;    /* number of terms currently cached */
 

@@ -9,13 +9,15 @@
  *            where τ(i) is the number of positive divisors of i
  * Range:     u8 n <= 14, u16 n <= 165, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static state: divisor counts and sequence values */
 static seq_t *tau_arr = NULL;      /* divisor counts, indices 0..max_n */
@@ -36,12 +38,12 @@ static void extend_tau(idx_t n)
         return;
 
     idx_t new_len = n + 1;             /* indices 0..n */
-    seq_t *tmp = (seq_t *)realloc(tau_arr, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, tau_arr, new_len);
     if (!tmp) abort();
     tau_arr = tmp;
 
     /* Zero the entire array before filling divisor counts */
-    memset(tau_arr, 0, new_len * sizeof(seq_t));
+    mem_set(tau_arr, 0, new_len * sizeof(seq_t));
 
     /* classical divisor sieve */
     for (idx_t i = 1; i <= n; ++i)
@@ -66,11 +68,11 @@ static void extend_a(idx_t n)
     /* Allocate or grow a_arr */
     idx_t new_len = n + 1;           /* indices 0..n */
     if (a_arr == NULL) {
-        a_arr = (seq_t *)malloc(new_len * sizeof(seq_t));
+        a_arr = mem_new(seq_t, new_len);
         if (!a_arr) abort();
         a_len = new_len;
     } else if (a_len < new_len) {
-        seq_t *tmp = (seq_t *)realloc(a_arr, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, new_len);
         if (!tmp) abort();
         a_arr = tmp;
         a_len = new_len;

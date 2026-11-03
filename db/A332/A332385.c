@@ -8,7 +8,8 @@
  *            function
  * Range:     u8 n <= 52, u16 n <= 1618, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi, factor_u64
+ * Validated: standard, pass, 91 terms through n = 9980 (2026-11-01)
+ * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     for (size_t i = 0; i < count; ++i) {
-        seq_t pi_val = compute_pi((idx_t)primes[i]);   /* π(p) = index of prime p */
+        seq_t pi_val = prime_pi((idx_t)primes[i]);   /* π(p) = index of prime p */
         sum += pi_val * pi_val;
     }
 

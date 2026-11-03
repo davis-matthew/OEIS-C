@@ -7,6 +7,7 @@
  * Formula:   a(n) = (5*n + 3)^12
  * Range:     u8 none, u16 none, u32 n <= 0, u64 n <= 7, u128 n <= 324,
  *            big any n
+ * Validated: standard, pass, 27 terms through n = 931 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

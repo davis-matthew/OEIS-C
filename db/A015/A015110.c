@@ -10,13 +10,15 @@
  *            (‑3)^(r‑k) · C_{r-1,k‑1}
  * Range:     i8 n <= 16, i16 n <= 29, i32 n <= 48, i64 n <= 95, i128 n <= 179,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>   /* for sqrt */
+#include "../utils/mem.h"
 
 static seq_t *pows = NULL;          /* pows[e] = (‑3)^e  */
 static idx_t maxPow = 0;
@@ -28,7 +30,7 @@ static idx_t maxR = 0;
 static void ensure_pows(idx_t e)
 {
     if (e <= maxPow) return;
-    seq_t *newp = (seq_t *)realloc(pows, (size_t)(e + 1) * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, pows, (size_t)(e + 1));
     if (!newp) abort();
     pows = newp;
     if (maxPow == 0) {
@@ -53,7 +55,7 @@ static void ensure_coefs(idx_t r)
     ensure_pows(r);
 
     for (idx_t i = maxR + 1; i <= r; ++i) {
-        seq_t *row = (seq_t *)malloc((size_t)(i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(i + 1));
         if (!row) abort();
         row[0] = row[i] = (seq_t)1;
         for (idx_t k = 1; k < i; ++k) {
@@ -63,7 +65,7 @@ static void ensure_coefs(idx_t r)
     }
 
     if (maxR == 0 && coefs[0] == NULL) {
-        seq_t *row0 = (seq_t *)malloc(sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         if (!row0) abort();
         row0[0] = (seq_t)1;
         coefs[0] = row0;
@@ -84,14 +86,14 @@ seq_t a(idx_t n)
     if (coefs == NULL) {
         coefs = (seq_t **)malloc(sizeof(seq_t *));
         if (!coefs) abort();
-        seq_t *row0 = (seq_t *)malloc(sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         if (!row0) abort();
         row0[0] = (seq_t)1;
         coefs[0] = row0;
         maxR = 0;
     }
     if (pows == NULL) {
-        pows = (seq_t *)malloc(sizeof(seq_t));
+        pows = mem_new(seq_t, 1);
         if (!pows) abort();
         pows[0] = (seq_t)1;
         maxPow = 0;

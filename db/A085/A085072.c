@@ -5,9 +5,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 63, u16 n <= 2047, u32 n <= 9962, u64 n <= 9962,
- *            u128 n <= 9962, big any n
- * Helpers:   factor_u64, sorted_exponents
+ * Range:     u8 n <= 63, u16 n <= 2047, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 106 terms through n = 9962 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,31 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/sorted_exponents.h"
+
+/* Sorts the exponents of a factorised number in ascending order.  The sorted
+ * array is stored in `sig`.  The length of the signature is `cnt`. */
+static void sorted_exponents(const uint64_t *ex, size_t cnt, uint8_t *sig)
+{
+    /* copy into a temporary buffer (uint64_t sufficient) */
+    uint64_t tmp[64];
+    for (size_t i = 0; i < cnt; ++i) tmp[i] = ex[i];
+
+    /* simple insertion sort (cnt <= number of prime factors of n <= 64) */
+    for (size_t i = 1; i < cnt; ++i) {
+        uint64_t key = tmp[i];
+        size_t j = i;
+        while (j > 0 && tmp[j - 1] > key) {
+            tmp[j] = tmp[j - 1];
+            --j;
+        }
+        tmp[j] = key;
+    }
+
+    /* copy back as uint8_t (exponents are small for n <= 10^4) */
+    for (size_t i = 0; i < cnt; ++i) sig[i] = (uint8_t)tmp[i];
+}
 
 /* Compares two sorted signatures for equality. */
 static bool same_signature(const uint8_t *a, size_t ca,

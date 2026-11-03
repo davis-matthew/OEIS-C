@@ -8,7 +8,8 @@
  *            that can be represented as a sum of two positive squares)
  * Range:     u8 n <= 5, u16 n <= 85, u32 n <= 1400, u64 n <= 1400,
  *            u128 n <= 1400, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 1362 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Ensure that we have at least 'n' values in the table. */
     if (inner_count < n) {
         /* Free previous allocation if any. */
-        free(inner);
+        mem_free(inner);
         inner = NULL;
         inner_count = 0;
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             /* If we have enough, extract them into the table. */
             if (cnt >= (size_t)n) {
                 /* Allocate the table. */
-                inner = (seq_t*)malloc((cnt + 1) * sizeof(seq_t));
+                inner = mem_new(seq_t, (cnt + 1));
                 if (!inner) { free(mark); return 0; }
 
                 size_t pos = 0;

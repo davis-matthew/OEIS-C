@@ -7,6 +7,7 @@
  * Formula:   a(n) = 22^n * ∏_{k=0}^{n-1} (22^n – 22^k)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
+ * Validated: standard, pass, 24 terms through n = 26 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

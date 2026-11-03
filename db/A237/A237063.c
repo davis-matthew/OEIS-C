@@ -13,14 +13,27 @@
  *            exists if the pair * of rows satisfies the requi...
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   block_S
+ * Validated: standard, pass, 31 terms through n = 196 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/block_S.h"
+
+/* Compute the required value for a 2×2 block of four entries. */
+static int block_S(int a, int b, int c, int d)
+{
+    int v[4] = {a, b, c, d};
+    /* Simple sorting of 4 integers */
+    if (v[0] > v[1]) { int t = v[0]; v[0] = v[1]; v[1] = t; }
+    if (v[2] > v[3]) { int t = v[2]; v[2] = v[3]; v[3] = t; }
+    if (v[0] > v[2]) { int t = v[0]; v[0] = v[2]; v[2] = t; }
+    if (v[1] > v[3]) { int t = v[1]; v[1] = v[3]; v[3] = t; }
+    if (v[1] > v[2]) { int t = v[1]; v[1] = v[2]; v[2] = t; }
+    return v[3] + v[2] + v[0] - v[1];
+}
 
 typedef struct {
     int *items;

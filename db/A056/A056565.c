@@ -11,14 +11,17 @@
  *            Fibonacci terms
  * Range:     u8 none, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Lazy Fibonacci cache shared by all calls */
 static seq_t *fib_cache = NULL;
@@ -29,7 +32,7 @@ static void ensure_fib(idx_t n)
 {
     if (fib_cache_len == 0) {
         fib_cache_len = 2;                    /* indices 0 and 1 */
-        fib_cache = (seq_t *)malloc(fib_cache_len * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, fib_cache_len);
         assert(fib_cache != NULL);
         fib_cache[0] = 0;
         fib_cache[1] = 1;
@@ -42,7 +45,7 @@ static void ensure_fib(idx_t n)
     while (new_len <= n)
         new_len <<= 1;                        /* double until big enough */
 
-    seq_t *tmp = (seq_t *)realloc(fib_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fib_cache, new_len);
     assert(tmp != NULL);
     fib_cache = tmp;
 

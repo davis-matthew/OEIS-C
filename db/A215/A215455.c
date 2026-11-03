@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 35, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 491 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(n) = 6*a(n-1) - 9*a(n-2) + a(n-3) with a(0)=3, a(1)=6, a(2)=18 */
 #include <stddef.h>  /* size_t */
 #include <stdlib.h>  /* malloc, free */
+#include "../utils/mem.h"
 
 /* Return the n-th term of OEIS A215455. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise the cache with the first three known values */
     if (cache == NULL) {
         cap = 4;                     /* small initial capacity */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)3;
         cache[1] = (seq_t)6;
         cache[2] = (seq_t)18;
@@ -45,11 +47,11 @@ seq_t a(idx_t n)
     if (needed > cap) {
         size_t new_cap = cap * 2;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_new(seq_t, new_cap);
         for (size_t i = 0; i < cap; ++i) {
             tmp[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         cache = tmp;
         cap = new_cap;
     }

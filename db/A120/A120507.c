@@ -9,13 +9,15 @@
  *            + a(n-2-a(n-3)) + a(n-3-a(n-4)), n>4 (1‑based indexing)
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache of already computed terms (1‑based).  cache[0] is unused. */
 static seq_t *cache = NULL;
@@ -32,21 +34,21 @@ static void grow_cache(idx_t need)
     while (new_cap < (size_t)need)
         new_cap <<= 1;  /* double */
 
-    seq_t *new_cache = (seq_t *)malloc((new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (new_cap + 1));
     if (!new_cache)
         return; /* in practice we could abort; here we just return */
 
     if (cache) {
-        memcpy(new_cache, cache, (cached + 1) * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, (cached + 1) * sizeof(seq_t));
+        mem_free(cache);
     } else {
         /* first time: zero the array up to 'cached', though cached==0 */
-        memset(new_cache, 0, (cached + 1) * sizeof(seq_t));
+        mem_set(new_cache, 0, (cached + 1) * sizeof(seq_t));
     }
 
     /* Zero the newly allocated part to keep things clean. */
     if (new_cap > cached)
-        memset(new_cache + cached + 1, 0, (new_cap - cached) * sizeof(seq_t));
+        mem_set(new_cache + cached + 1, 0, (new_cap - cached) * sizeof(seq_t));
 
     cache = new_cache;
     cache_cap = new_cap;

@@ -10,7 +10,8 @@
  *            10 * (a(n‑1)+…+a(n‑19)) – 55 * a(n‑20)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
     12 generators with all relations (S_i)^2 = (S_i S_j)^20 = I.  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoised values */
 static idx_t  cache_size = 0;    /* number of stored terms */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Ensure cache holds at least terms 0 … n */
     if (n >= cache_size) {
         size_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();          /* out of memory */
         cache = tmp;
         /* initialise cache[0] if it was not yet set */

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 7, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 7, u16 n <= 80, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 57 terms through n = 9630 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;               /* safety; the sequence is 1‑based */
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     /* grow cache as needed */
     if (cache_count >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 32;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;            /* unlikely: allocation failure */
         cache = tmp;
         cache_cap = new_cap;
@@ -52,6 +54,13 @@ seq_t a(idx_t n) {
         }
 
         /* store the term (truncated to seq_t if necessary) */
+        if (cache_count >= cache_cap) {       /* grow before each store (it grew once) */
+            size_t new_cap = cache_cap ? cache_cap << 1 : 32;
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+            if (!tmp) return 0;
+            cache = tmp;
+            cache_cap = new_cap;
+        }
         cache[cache_count++] = (seq_t)candidate;
 
         /* advance to next odd candidate for the following search */

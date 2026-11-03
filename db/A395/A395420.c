@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* A pair containing the value f(n) = sigma(n)-3n and the index n */
 typedef struct {
@@ -116,7 +118,7 @@ static void precompute(idx_t need_n)
 
         /* Gather sequence terms in increasing order of k */
         size_t cap = 20000;           /* initial capacity for terms array */
-        g_terms = (seq_t *)realloc(g_terms, cap * sizeof(seq_t));
+        g_terms = mem_resize(seq_t, g_terms, cap);
         if (!g_terms) exit(1);
 
         idx_t count = 0;
@@ -124,7 +126,7 @@ static void precompute(idx_t need_n)
             if (good[k]) {
                 if (count >= (idx_t)cap) {
                     cap *= 2;
-                    g_terms = (seq_t *)realloc(g_terms, cap * sizeof(seq_t));
+                    g_terms = mem_resize(seq_t, g_terms, cap);
                     if (!g_terms) exit(1);
                 }
                 g_terms[count++] = (seq_t)k;

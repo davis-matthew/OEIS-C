@@ -9,16 +9,23 @@
  *            smallest integer with d*(d+1)/2 >= n (diagonal index, 1‑based)
  *            let t = n - (d-1)*d/2 - 1 (offset in diagonal, 0‑based) then r =
  *            d - t, c = t + 1 result = C(r+2,3) * C(c+1,2)
- * Range:     u8 n <= 30, u16 n <= 386, u32 n <= 8568, u64 n <= 8568,
- *            u128 n <= 8568, big any n
- * Helpers:   tetrahedral
+ * Range:     u8 n <= 30, u16 n <= 386, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 71 terms through n = 8568 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/tetrahedral.h"
+
+/* helper: tetrahedral number C(r+2,3) */
+static seq_t tetrahedral(idx_t r) {
+    __int128 x = r;
+    __int128 y = (x * (x + 1) * (x + 2)) / 6;
+    return (seq_t)y;
+}
 
 /* helper: triangular number C(c+1,2) */
 static seq_t triangular(idx_t c) {

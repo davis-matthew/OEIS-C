@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3053, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 9150 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Global buffers for the dynamic programming tables and the solution list. */
 static uint32_t *dp[9] = {0};     /* dp[parts][sum] – number of
@@ -33,7 +35,7 @@ static void append_solution(seq_t v)
     if (solutions_len == solutions_cap)
     {
         size_t new_cap = solutions_cap ? solutions_cap << 1 : 64;
-        seq_t *ptr = (seq_t *)realloc(solutions, new_cap * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, solutions, new_cap);
         if (!ptr) exit(EXIT_FAILURE);
         solutions = ptr;
         solutions_cap = new_cap;
@@ -85,12 +87,12 @@ static void recompute(size_t new_max)
 
     /* Prepare the solutions vector. */
     if (solutions) {
-        free(solutions);
+        mem_free(solutions);
         solutions = NULL;
     }
     solutions_len = 0;
     solutions_cap = 64;
-    solutions = (seq_t *)malloc(solutions_cap * sizeof(seq_t));
+    solutions = mem_new(seq_t, solutions_cap);
     if (!solutions) exit(EXIT_FAILURE);
 
     /* Collect all sums that occur in at least nine different ways. */

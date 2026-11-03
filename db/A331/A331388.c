@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n} mu(gcd(n,k)) * k / gcd(n,k)
  * Range:     u8 n <= 28, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
  * Helpers:   mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

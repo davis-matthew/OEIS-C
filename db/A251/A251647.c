@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 17, u64 n <= 41, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 164 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
  * behaviour when seq_t is a big‑integer class.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* initial allocation and copy known terms */
     if (cache == NULL) {
         cache_max = 13ULL;
-        cache = (seq_t *)malloc((cache_max + 1ULL) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_max + 1ULL));
         if (cache == NULL)
             abort();                       /* allocation failure */
         for (idx_t i = 1ULL; i <= 13ULL; ++i)
@@ -66,8 +68,7 @@ seq_t a(idx_t n)
 
     /* extend cache if necessary */
     if (n > cache_max) {
-        seq_t *new_cache = (seq_t *)realloc(cache,
-                                            (n + 1ULL) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1ULL));
         if (new_cache == NULL)
             abort();
         cache = new_cache;

@@ -9,8 +9,9 @@
  *            the shorter longest suffix of the form ss in a(1..n) (choose 1
  *            on a tie); repeated suffixes are found with a Z-function on the
  *            reversed word
- * Range:     u8 n <= 9736, u16 n <= 9736, u32 n <= 9736, u64 n <= 9736,
- *            u128 n <= 9736, big any n
+ * Range:     u8 n <= 50000, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 121 terms through n = 9736 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

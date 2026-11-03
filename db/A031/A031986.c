@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   distinct_in_base9
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,22 @@
    The sequence is defined by: a(n) is the n‑th positive integer whose
    representation in base 9 contains exactly five distinct digits.    */
 #include <stdint.h>   /* for uintptr_t etc.  */
-#include "../utils/distinct_in_base9.h"
+
+static inline int distinct_in_base9(seq_t x)
+{
+    unsigned mask = 0;
+    while (x != 0) {
+        unsigned d = (unsigned)(x % 9);   /* digit in base 9          */
+        mask |= 1U << d;
+        x /= 9;
+    }
+    int cnt = 0;
+    while (mask) {
+        cnt += mask & 1U;
+        mask >>= 1U;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

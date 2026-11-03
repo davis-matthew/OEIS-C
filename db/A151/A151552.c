@@ -7,15 +7,17 @@
  * Formula:   a(n) = 1 for 0 ≤ n ≤ 3; for n ≥ 4, let n = 2^i + j with 0 ≤ j <
  *            2^i. If n+1 or n+2 is a power of two then a(n)=1, else
  *            a(n)=a(j)+a(j+1)
- * Range:     u8 n <= 2037, u16 n <= 9990, u32 n <= 9990, u64 n <= 9990,
- *            u128 n <= 9990, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2037, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 119 terms through n = 9990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build system */
 extern unsigned long long format; /* placeholder, unused */
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap < needed) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, new_cap);
         if (!p) abort();         /* allocation failure */
         cache = p;
         cache_cap = new_cap;

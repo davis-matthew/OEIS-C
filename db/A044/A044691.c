@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_65
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/contains_65.h"
+#include "../utils/mem.h"
+
+/* Does n's base‑9 digits contain the pattern 6 followed by 5? */
+static bool contains_65(seq_t n)
+{
+    int prev = -1;
+    while (n > 0) {
+        int d = (int)(n % 9);
+        if (prev == 5 && d == 6)
+            return true;
+        prev = d;
+        n /= 9;
+    }
+    return false;
+}
 
 /* Does the integer cand satisfy the OEIS condition? */
 static bool is_candidate(idx_t cand)
@@ -41,11 +56,11 @@ static void ensure_cache_capacity(void)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (!new_arr) exit(EXIT_FAILURE);
         if (cache && cache_len > 0)
-            memcpy(new_arr, cache, cache_len * sizeof(seq_t));
-        free(cache);
+            mem_copy(new_arr, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
         cache = new_arr;
         cache_cap = new_cap;
     }

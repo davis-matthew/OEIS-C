@@ -9,7 +9,8 @@
  *            3) 2^s*7^t − 1 (s ≥ 0, t ≥ 1)
  * Range:     u8 n <= 13, u16 n <= 50, u32 n <= 189, u64 n <= 449,
  *            u128 n <= 449, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 447 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Min‑heap for the 2^s*7^t − 1 sequence                           */
@@ -95,7 +97,7 @@ static void cache_ensure_cap(size_t need)
     size_t new_cap = cache_cap ? cache_cap << 1 : 64;
     while (new_cap < need) new_cap <<= 1;
 #if defined(__cplusplus)
-    auto tmp = static_cast<seq_t*>(realloc(cache, new_cap * sizeof(seq_t)));
+    auto tmp = mem_resize(seq_t, cache, new_cap);
 #else
     void *tmp = realloc(cache, new_cap * sizeof(seq_t));
 #endif

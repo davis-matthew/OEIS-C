@@ -7,12 +7,14 @@
  * Formula:   a(n) = (n+1)! - n!! - a(n-1), a(0) = 0
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,9 +38,9 @@ seq_t a(idx_t n)
         size_t val_sz    = new_n + 1;   /* indices 0 .. new_n            */
 
         /* realloc or allocate */
-        seq_t *f = (seq_t*)realloc(fact,   fact_sz   * sizeof(seq_t));
-        seq_t *d = (seq_t*)realloc(dfact,  dfact_sz  * sizeof(seq_t));
-        seq_t *v = (seq_t*)realloc(val,    val_sz    * sizeof(seq_t));
+        seq_t *f = mem_resize(seq_t, fact, fact_sz);
+        seq_t *d = mem_resize(seq_t, dfact, dfact_sz);
+        seq_t *v = mem_resize(seq_t, val, val_sz);
         if (!f || !d || !v)
             return (seq_t)0;   /* allocation failure */
 

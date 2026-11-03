@@ -9,14 +9,16 @@
  *            k)
  * Range:     u8 n <= 13, u16 n <= 21, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Where the sum runs over all k such that 2k <= floor((n-2)/2) and k <= n - floor((n-2)/2). */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     for (idx_t k = 1; k <= max_k; ++k) {
-        seq_t low_part  = binom(low, 2 * k);
-        seq_t high_part = binom(high, k);
+        seq_t low_part  = binomial(low, 2 * k);
+        seq_t high_part = binomial(high, k);
         sum += low_part * high_part;
     }
     return sum;

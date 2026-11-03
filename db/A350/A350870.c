@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   digit_count, pow10
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,19 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/pow10.h"
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Helper: test whether a uint64_t is a Kaprekar number
  * (for the same‑length split used in A350870). */
@@ -32,7 +44,7 @@ static bool is_kaprekar(uint64_t n)
     if (n == 0) return false;
 
     /* number of digits of n */
-    uint64_t k = digit_count(n);
+    uint64_t k = num_digits0(n);
     /* divisor 10^k as seq_t */
     seq_t divk = pow10((idx_t)k);
     seq_t divk_1 = pow10((idx_t)(k == 1 ? 0 : k - 1));
@@ -67,7 +79,7 @@ extern seq_t a(idx_t n)
             seq_t sq = (seq_t)next_candidate * (seq_t)next_candidate;
             if (cache_len == cache_cap) {      /* grow cache if needed */
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return (seq_t)0;     /* memory allocation failed */
                 cache = tmp;
                 cache_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 397, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_frequencies, is_power_of_10
+ * Validated: standard, pass, 69 terms through n = 983 (2026-11-01)
+ * Helpers:   digit_frequencies
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
  * and that contains all digits of n, with the same multiplicities. */
 #include <stdbool.h>
 #include "../utils/digit_frequencies.h"
-#include "../utils/is_power_of_10.h"
+
+/* ------------------------------------------------------------------ */
+static bool is_power_of_10(idx_t k)
+{
+    if (k <= 1) return false;   /* 1 is not allowed; 10^0 = 1 */
+    while (k % 10 == 0) k /= 10;
+    return k == 1;
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper: fill an array with the number of occurrences of each digit */

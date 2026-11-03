@@ -8,7 +8,8 @@
  * Formula:   1/((1-x)*(1-x^2)*(1-x^5)*(1-x^10)*(1-x^20)*(1-x^50))
  * Range:     u8 n <= 41, u16 n <= 197, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 922 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Number of partitions of n into parts from {1, 2, 5, 10, 20, 50} */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;
 static idx_t max_computed = 0;
@@ -29,9 +31,9 @@ seq_t a(idx_t n) {
   
   idx_t new_max = (n > max_computed) ? n : max_computed;
   if (dp == NULL) {
-    dp = (seq_t *)malloc((new_max + 1) * sizeof(seq_t));
+    dp = mem_new(seq_t, (new_max + 1));
   } else if (new_max > max_computed) {
-    seq_t *new_dp = (seq_t *)realloc(dp, (new_max + 1) * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, (new_max + 1));
     dp = new_dp;
   }
   

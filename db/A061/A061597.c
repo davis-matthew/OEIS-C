@@ -10,7 +10,8 @@
  *            prime
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Small prime table up to 200.
  * The digit sum of any number fitting in seq_t is guaranteed to be <= 200
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
 
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Extend the cache until we have at least n terms. */
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         /* Store it. */
         if (cache_len >= cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = (seq_t)last_checked;
         ++last_checked;

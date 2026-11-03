@@ -7,11 +7,13 @@
  * Formula:   a(n) = n*(n+1)*(9*n^2+n-4)/12
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 274, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 51 terms through n = 999 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

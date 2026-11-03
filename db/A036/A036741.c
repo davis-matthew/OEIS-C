@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Lookup table for Roman notation (strongest pattern first). */
 static const struct {
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
                 /* Accept current. Grow cache if necessary. */
                 if (cache_len >= cache_cap) {
                     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *newp = mem_resize(seq_t, cache, new_cap);
                     if (!newp) exit(1); /* allocation failure */
                     cache = newp;
                     cache_cap = new_cap;

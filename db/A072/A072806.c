@@ -9,11 +9,13 @@
  *            representation
  * Range:     u8 n <= 10, u16 n <= 227, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 61 terms through n = 975 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 #include <stdbool.h>
 

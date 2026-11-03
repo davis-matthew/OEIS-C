@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, fini, full
  * Formula:   a(n) = the nth prime canyon number (A134971)
- * Range:     u8 none, u16 none, u32 n <= 921, u64 n <= 9237, u128 n <= 9237,
+ * Range:     u8 none, u16 none, u32 n <= 482, u64 n <= 9237, u128 n <= 9237,
  *            big any n
- * Helpers:   mul_mod64
+ * Validated: full, pass, 9237 terms through n = 9237 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,15 +17,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_mod64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---------- Miller–Rabin primality test for 64‑bit integers ---------- */
 static inline uint64_t mod_pow_uint64(uint64_t a, uint64_t e, uint64_t mod) {
     uint64_t result = 1;
     a %= mod;
     while (e) {
-        if (e & 1ull) result = mul_mod64(result, a, mod);
-        a = mul_mod64(a, a, mod);
+        if (e & 1ull) result = mulmod(result, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return result;
@@ -58,7 +61,7 @@ static bool is_prime_u64(uint64_t n) {
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (unsigned r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;
@@ -85,7 +88,7 @@ seq_t a(idx_t n) {
     if (!initialized) {
         /* total number of canyon numbers = 116 505 (sum_{d=1}^9 (4^d-1)/3) */
         const idx_t total_cav = 116505;
-        seq_t *cav = (seq_t *)malloc(sizeof(seq_t) * (size_t)total_cav);
+        seq_t *cav = mem_new(seq_t, (size_t)total_cav);
         if (!cav) return 0; /* allocation failure */
 
         idx_t idx = 0;
@@ -127,7 +130,7 @@ seq_t a(idx_t n) {
         }
         /* The loop should have filled exactly total_cav entries */
         /* sort canyon numbers */
-        qsort(cav, (size_t)total_cav, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(cav, (size_t)total_cav, sizeof(seq_t), cmp_seq_t);
 
         /* count primes */
         count_primes = 0;
@@ -136,9 +139,9 @@ seq_t a(idx_t n) {
         }
 
         /* allocate array for primes */
-        canyon_primes = (seq_t *)malloc(sizeof(seq_t) * (size_t)count_primes);
+        canyon_primes = mem_new(seq_t, (size_t)count_primes);
         if (!canyon_primes) {
-            free(cav);
+            mem_free(cav);
             return 0; /* allocation failure */
         }
 
@@ -149,7 +152,7 @@ seq_t a(idx_t n) {
             }
         }
 
-        free(cav);
+        mem_free(cav);
         initialized = true;
     }
 

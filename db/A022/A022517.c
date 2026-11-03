@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   describe
+ * Validated: standard, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,49 @@
    consecutive digits, and for each group writes the digit followed by the
    count of that digit. */
 #include <stdlib.h>
-#include "../utils/describe.h"
+#include "../utils/mem.h"
+
+/* Helper: produce the next term of the sequence by the description rule. */
+static seq_t describe(seq_t x)
+{
+    seq_t result = (seq_t)0;
+
+    while (x > (seq_t)0) {
+        /* Current rightmost digit of the group. */
+        seq_t digit = x % (seq_t)10;
+
+        /* Count how many identical digits are in this group. */
+        seq_t count = (seq_t)0;
+        while (x > (seq_t)0) {
+            seq_t cur = x % (seq_t)10;
+            if (cur != digit)
+                break;
+            ++count;
+            x /= (seq_t)10;
+        }
+
+        /* Compute 10^len(count), where len(count) is the number of decimal
+           digits in 'count'. */
+        seq_t tmp = count;
+        unsigned long long lenCount = 0;
+        while (tmp > (seq_t)0) {
+            ++lenCount;
+            tmp /= (seq_t)10;
+        }
+        seq_t pow10 = (seq_t)1;
+        for (unsigned long long i = 0; i < lenCount; ++i)
+            pow10 *= (seq_t)10;
+
+        /* encode = digit followed by count (e.g., digit=1,count=12 → 112). */
+        seq_t encode = digit * pow10 + count;
+        seq_t pow10Encode = pow10 * (seq_t)10;
+
+        /* Append encode to the right of the result. */
+        result = result * pow10Encode + encode;
+    }
+
+    return result;
+}
 
 /* Memoization cache for computed terms. */
 static seq_t *cache      = NULL;   /* array of terms */
@@ -37,7 +80,7 @@ static void cache_grow(size_t needed)
         newcap *= 2;
 
     /* In C++, cast the void* result of realloc to seq_t*. */
-    cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newcap);
     cache_cap = newcap;
 }
 

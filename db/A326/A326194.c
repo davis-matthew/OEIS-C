@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 0 if gcd(n,σ(n)) = n * a(n) = 1 + a(gcd(n,σ(n)))
  *            otherwise * where σ(n) is the sum of divisors of n
- * Range:     u8 n <= 679, u16 n <= 9627, u32 n <= 9627, u64 n <= 9627,
- *            u128 n <= 9627, big any n
+ * Range:     u8 n <= 679, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9627 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t *sigma   = NULL;   /* σ values for 0 … cap-1      */

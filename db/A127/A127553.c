@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{k=1..n} lcm(k,n)/gcd(k,n)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 12, u128 n <= 18,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 231 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = binomial(n+4,4) - Sum_{k=0..n-5} a(k) * a(n-k-5)
- * Range:     i8 n <= 3, i16 n <= 13, i32 n <= 29, i64 n <= 58, i128 n <= 115,
+ * Range:     i8 n <= 5, i16 n <= 13, i32 n <= 29, i64 n <= 58, i128 n <= 115,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 49 terms through n = 951 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* extend the cache if needed */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();                /* memory allocation failed */
         cache = tmp;
 

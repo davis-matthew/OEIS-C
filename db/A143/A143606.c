@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 27, i16 n <= 51, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[0] is always 0 */
 static size_t cache_cap = 0;     /* allocated capacity */
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
     while (new_cap <= n)
         new_cap <<= 1;        /* double until enough */
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         abort();             /* fatal error – out of memory */
 
@@ -45,7 +47,7 @@ static void ensure_cache(idx_t n)
     if (cache) {
         for (size_t i = 0; i < cache_cap; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     cache      = new_cache;

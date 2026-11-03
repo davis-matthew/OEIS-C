@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 177, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
  * limit. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
+
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t *len, size_t *cap, T **arr, size_t elem_size) /* elem_size: sizeof(T) */
+{
+    if (*len >= *cap) {
+        size_t newcap = (*cap == 0) ? 8 : (*cap << 1);
+        T *tmp = mem_resize(T, *arr, newcap);
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = newcap;
+    }
+}
+#else
 static void ensure_capacity(size_t *len, size_t *cap, void **arr, size_t elem_size)
 {
     if (*len >= *cap) {
@@ -32,6 +53,7 @@ static void ensure_capacity(size_t *len, size_t *cap, void **arr, size_t elem_si
         *cap = newcap;
     }
 }
+#endif
 
 seq_t a(idx_t n)
 {
@@ -47,7 +69,7 @@ seq_t a(idx_t n)
     /* initialise on the first call */
     if (A == NULL) {
         A_cap = 8;
-        A = (seq_t*)calloc(A_cap, sizeof(seq_t));
+        A = mem_new(seq_t, A_cap);
         D_cap = 8;
         D = (long long*)calloc(D_cap, sizeof(long long));
 
@@ -94,8 +116,8 @@ seq_t a(idx_t n)
         }
 
         /* store new term and difference */
-        ensure_capacity(&A_len, &A_cap, (void **)&A, sizeof(seq_t));
-        ensure_capacity(&D_len, &D_cap, (void **)&D, sizeof(long long));
+        ensure_capacity(&A_len, &A_cap, OEISC_VPP(&A), sizeof(seq_t));
+        ensure_capacity(&D_len, &D_cap, OEISC_VPP(&D), sizeof(long long));
 
         seq_t a_next = (h >= 0) ? last_a + (seq_t)h : last_a - (seq_t)(-h);
         A[A_len] = a_next;

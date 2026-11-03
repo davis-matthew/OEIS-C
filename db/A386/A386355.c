@@ -9,7 +9,8 @@
  *            primes so that calls in any order are efficient
  * Range:     u8 n <= 47, u16 n <= 3134, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   hasForbiddenDigits
+ * Validated: standard, pass, 73 terms through n = 9857 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/hasForbiddenDigits.h"
+#include "../utils/mem.h"
+
+/* test whether a number has the forbidden digits 6 or 8 */
+static bool hasForbiddenDigits(seq_t x)
+{
+    const seq_t TEN = (seq_t)10;
+    while (x > (seq_t)0)
+    {
+        seq_t d = x % TEN;
+        if (d == (seq_t)6 || d == (seq_t)8)
+            return true;
+        x /= TEN;
+    }
+    return false;
+}
 
 /* global static tables for primes and filtered primes */
 static uint64_t *prime_tbl   = NULL;
@@ -51,7 +66,7 @@ static void ensure_filtered_cap(void)
     if (filtered_cnt >= filtered_cap)
     {
         size_t new_cap = filtered_cap ? filtered_cap << 1 : 16;
-        seq_t *tmp = (seq_t*)realloc(filtered_tbl, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, filtered_tbl, new_cap);
         if (!tmp) abort();
         filtered_tbl = tmp;
         filtered_cap = new_cap;

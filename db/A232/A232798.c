@@ -10,7 +10,8 @@
  *            for each x in S, add x+1, 3x-1, 3x+1 if not already in S
  * Range:     u8 n <= 98, u16 n <= 4000, u32 n <= 4000, u64 n <= 4000,
  *            u128 n <= 4000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 3569 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Ensure S is initialized. */
     if (!init) {
         cap = 2048;                   /* initial capacity – more than enough for n <= 10000 */
-        S = (seq_t *)malloc(cap * sizeof(seq_t));
+        S = mem_new(seq_t, cap);
         if (!S) return (seq_t)0;     /* out of memory */
         S[0] = (seq_t)1;             /* first element */
         sz = 1;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         if (!dup) {
             if (sz == cap) {
                 cap *= 2;
-                S = (seq_t *)realloc(S, cap * sizeof(seq_t));
+                S = mem_resize(seq_t, S, cap);
                 if (!S) return (seq_t)0;
             }
             S[sz++] = c;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         if (!dup) {
             if (sz == cap) {
                 cap *= 2;
-                S = (seq_t *)realloc(S, cap * sizeof(seq_t));
+                S = mem_resize(seq_t, S, cap);
                 if (!S) return (seq_t)0;
             }
             S[sz++] = c;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         if (!dup) {
             if (sz == cap) {
                 cap *= 2;
-                S = (seq_t *)realloc(S, cap * sizeof(seq_t));
+                S = mem_resize(seq_t, S, cap);
                 if (!S) return (seq_t)0;
             }
             S[sz++] = c;

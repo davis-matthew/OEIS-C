@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   digit_mask, has_zero_digit, prod_of_digits
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,43 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_zero_digit.h"
-#include "../utils/digit_mask.h"
-#include "../utils/prod_of_digits.h"
+#include "../utils/mem.h"
+
+/* ---------- Check 0‑free in decimal -------------------------------- */
+static inline bool has_zero_digit(seq_t x)
+{
+    while (x) {
+        if ((x % (seq_t)10) == (seq_t)0) return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
+
+static inline uint16_t digit_mask(seq_t x)
+{
+    uint16_t m = 0;
+    while (x != 0)
+    {
+        uint8_t d = (uint8_t)(x % 10);
+        m |= 1u << d;
+        x /= 10;
+    }
+    return m;
+}
+
+/* Compute product of decimal digits of x. */
+static seq_t prod_of_digits(seq_t x)
+{
+    seq_t prod = 1;
+    const seq_t TEN = 10;
+    while (x > 0)
+    {
+        seq_t d = x % TEN;
+        prod *= d;
+        x /= TEN;
+    }
+    return prod;
+}
 
 /* Cache of previously computed terms. */
 static seq_t *cache = NULL;
@@ -37,7 +72,7 @@ seq_t a(idx_t n)
         /* Ensure capacity for a(1). */
         if (cache_cap < 2)
         {
-            seq_t *tmp = (seq_t *)realloc(cache, 2 * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, 2);
             cache = tmp;
             cache_cap = 2;
         }
@@ -52,7 +87,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap <= (size_t)(n + 1))
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

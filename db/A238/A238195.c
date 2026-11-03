@@ -12,14 +12,16 @@
  *            k*(k-1)/2 ≥ pos l = pos - (k-1)*(k-2)/2 Let d = gcd(...
  * Range:     i8 n <= 4, i16 n <= 11, i32 n <= 37, i64 n <= 106, i128 n <= 326,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 52 terms through n = 4944 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Compute gcd for 64‑bit unsigned integers */
 static idx_t gcd_uint64(idx_t a, idx_t b)
@@ -53,11 +55,11 @@ seq_t a(idx_t n)
     idx_t exp_l = l / d;
 
     /* k^t */
-    seq_t k_pow_t = seq_pow((seq_t)k, t);
+    seq_t k_pow_t = ipow_idx((seq_t)k, t);
 
     /* B = u^(u/d) * l^(l/d) */
-    seq_t u_pow  = seq_pow((seq_t)u, exp_u);
-    seq_t l_pow  = seq_pow((seq_t)l, exp_l);
+    seq_t u_pow  = ipow_idx((seq_t)u, exp_u);
+    seq_t l_pow  = ipow_idx((seq_t)l, exp_l);
     seq_t B = u_pow * l_pow;
 
     /* c = (-1)^(exp_u) * B */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     seq_t diff = k_pow_t - c;
 
     /* (k^t - c)^d */
-    seq_t pow_d = seq_pow(diff, d);
+    seq_t pow_d = ipow_idx(diff, d);
 
     /* sign = (-1)^((k-1)*(k+2)/2) */
     idx_t sign_exp = ((k - 1) * (k + 2)) / 2;

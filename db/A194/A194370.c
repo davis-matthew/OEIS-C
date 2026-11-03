@@ -12,13 +12,15 @@
  *            cumulative difference * diff(m) = (# of k with {k√2}...
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: integer square root of an unsigned __int128
  * using binary search between 0 and a given upper bound. */
@@ -49,7 +51,7 @@ grow_terms(void)
 {
     if (terms_len == terms_cap) {
         terms_cap = (terms_cap == 0) ? 4 : terms_cap * 2;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
 }
 

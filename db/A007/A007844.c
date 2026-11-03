@@ -8,12 +8,21 @@
  *            floor(k/3^i); found by binary search on k in [1, 3n]
  * Range:     u8 n <= 125, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   exponent_of_3_in_factorial
+ * Validated: standard, pass, 83 terms through n = 954 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/exponent_of_3_in_factorial.h"
+static seq_t exponent_of_3_in_factorial(seq_t k) {
+    seq_t e = 0;
+    seq_t q = k / 3;
+    while (q > 0) {
+        e += q;
+        q /= 3;
+    }
+    return e;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;

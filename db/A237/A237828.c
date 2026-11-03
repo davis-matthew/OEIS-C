@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 139, u32 n <= 495, u64 n <= 1786,
  *            u128 n <= 6652, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 8130 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,11 +43,11 @@ seq_t a(idx_t n)
     /* need to recompute for a larger n: allocate or grow arrays */
     if (n + 1 > cap) {
         /* free old arrays if any */
-        free(H);
-        free(A);
+        mem_free(H);
+        mem_free(A);
         cap = (size_t)(n + 1);
-        H = (seq_t*)calloc(cap, sizeof(seq_t));
-        A = (seq_t*)calloc(cap, sizeof(seq_t));
+        H = mem_new(seq_t, cap);
+        A = mem_new(seq_t, cap);
         if (!H || !A) {   /* allocation failed */
             return (seq_t)0;
         }

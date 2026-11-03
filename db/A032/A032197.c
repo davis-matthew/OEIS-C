@@ -11,13 +11,22 @@
  *            ((n-12)/6) - 1, (n-12)/6) if (n-12) % 6 == 0 + 4 * binom(1 +...
  * Range:     u8 n <= 14, u16 n <= 19, u32 n <= 35, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   binom_from_t
+ * Validated: partial, pass, 29 terms through n = 40 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint64_t */
-#include "../utils/binom_from_t.h"
+
+static inline seq_t binom_from_t(idx_t t, idx_t m_minus1)
+{
+    /* Returns C(t + m_minus1, m_minus1) = (t+1)*(t+2)*...*(t+m-1) / (m-1)! */
+    seq_t res = (seq_t)1;
+    for (idx_t i = 1; i <= m_minus1; ++i)
+        res = res * (seq_t)(t + i) / (seq_t)i;
+    return res;
+}
 
 seq_t a(idx_t n)
 {

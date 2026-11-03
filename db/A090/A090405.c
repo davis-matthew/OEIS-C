@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime_pi(n+2) - prime_pi(n) (offset 1)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 118 terms through n = 898 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Computes the nth term of OEIS A090405.
  *    a(n) = PrimePi(n+2) - PrimePi(n)
@@ -36,11 +38,11 @@ seq_t a(idx_t n)
         /* Allocate new arrays for the extended range */
         size_t sz = (size_t)(need + 1);      /* array size (0 .. need) */
         uint8_t *prime = (uint8_t*)malloc(sz * sizeof(uint8_t));
-        seq_t *pi_arr = (seq_t*)malloc(sz * sizeof(seq_t));
+        seq_t *pi_arr = mem_new(seq_t, sz);
         if (!prime || !pi_arr) {
             /* malloc failed – fall back to zero result */
             free(prime);
-            free(pi_arr);
+            mem_free(pi_arr);
             return (seq_t)0;
         }
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
 
         /* replace old data */
         free(is_prime);
-        free(prime_pi);
+        mem_free(prime_pi);
         is_prime = prime;
         prime_pi = pi_arr;
         limit = need;

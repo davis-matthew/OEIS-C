@@ -7,14 +7,16 @@
  * Formula:   a(n) = the nth prime of the form 13*k + 3
  * Range:     u8 n <= 4, u16 n <= 545, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 61 terms through n = 972 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 /* seq_t and idx_t are defined by the build configuration */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         uint64_t cand = 13 * k + 3;
 
         /* Check primality using the supplied helper. */
-        if (is_prime(cand)) {
+        if (is_prime_u64(cand)) {
             ++count;
             if (count == n) {
                 return (seq_t)cand;

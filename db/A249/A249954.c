@@ -13,7 +13,8 @@
  *            Initial values: a(1)=285, a(2)=505, … (see OEIS)
  * Range:     u8 none, u16 n <= 10, u32 n <= 29, u64 n <= 67, u128 n <= 143,
  *            big any n
- * Helpers:   valid_window
+ * Validated: standard, pass, 44 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/valid_window.h"
+#include "../utils/mem.h"
+
+/* Check whether a 6‑digit window is valid */
+static bool valid_window(const uint8_t *t)
+{
+    for (int i = 0; i < 6; ++i) {
+        for (int j = i + 1; j < 6; ++j) {
+            int m = t[i] > t[j] ? t[i] : t[j];
+            int mn = 3; /* greater than any digit in the alphabet */
+            for (int k = 0; k < 6; ++k) {
+                if (k == i || k == j) continue;
+                if (t[k] < mn) mn = t[k];
+            }
+            if (m == mn) return false;  /* forbidden */
+        }
+    }
+    return true;
+}
 
 #define STATE_COUNT 243            /* 3^5 possible last–five-digit states */
 #define TRANS_INVALID 0xFFFFU
@@ -64,15 +82,15 @@ static void init(void)
     }
 
     /* Allocate DP arrays */
-    dp_cur   = (seq_t *)malloc(sizeof(seq_t) * STATE_COUNT);
-    dp_next  = (seq_t *)malloc(sizeof(seq_t) * STATE_COUNT);
+    dp_cur   = mem_new(seq_t, STATE_COUNT);
+    dp_next  = mem_new(seq_t, STATE_COUNT);
     if (!dp_cur || !dp_next) exit(EXIT_FAILURE);
 
     /* Length 5: all 5‑digit sequences are allowed */
     for (int i = 0; i < STATE_COUNT; ++i) dp_cur[i] = 1;
 
     /* Allocate totals array up to length 5 */
-    totals = (seq_t *)malloc(sizeof(seq_t) * 6);
+    totals = mem_new(seq_t, 6);
     if (!totals) exit(EXIT_FAILURE);
     totals_size = 6;
     totals[5] = 0; /* will be computed on first extend_to call */
@@ -84,7 +102,7 @@ static void grow_totals(idx_t new_max)
 {
     if ((size_t)new_max + 1 > totals_size) {
         size_t new_size = (size_t)new_max + 1;
-        seq_t *new_totals = (seq_t *)realloc(totals, new_size * sizeof(seq_t));
+        seq_t *new_totals = mem_resize(seq_t, totals, new_size);
         if (!new_totals) exit(EXIT_FAILURE);
         totals = new_totals;
         totals_size = new_size;
@@ -109,7 +127,7 @@ static void extend_to(idx_t need_len)
     /* DP for lengths from 6 up to need_len */
     for (idx_t L = cached_len + 1; L <= need_len; ++L) {
         /* zero dp_next */
-        memset(dp_next, 0, sizeof(seq_t) * STATE_COUNT);
+        mem_set(dp_next, 0, sizeof(seq_t) * STATE_COUNT);
 
         /* transitions */
         for (int s = 0; s < STATE_COUNT; ++s) {

@@ -8,7 +8,8 @@
  * Formula:   a(n) = B(n+2) - 3*B(n+1) + B(n), where B(i) are Bell numbers
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 13, u64 n <= 23, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* The function caches Bell numbers in a static array that is expanded as needed. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage as required by the build. */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (B == NULL) {
         B_len = 1;
 
-        B = (seq_t *)malloc(sizeof(seq_t) * B_len);
+        B = mem_new(seq_t, B_len);
         if (B == NULL)
             return (seq_t)0;          /* Should never happen in normal build. */
 
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         /* Allocate space for indices 0 .. need (inclusive). */
         idx_t new_len = need + 1;
         seq_t *old = B;
-        B = (seq_t *)realloc(B, sizeof(seq_t) * new_len);
+        B = mem_resize(seq_t, B, new_len);
         if (B == NULL) {
             /* Allocation failure – restore old pointer and return 0. */
             B = old;

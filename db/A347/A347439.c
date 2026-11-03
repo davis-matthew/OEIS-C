@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 6759, u16 n <= 9975, u32 n <= 9975, u64 n <= 9975,
- *            u128 n <= 9975, big any n
- * Helpers:   divisors_list
+ * Range:     u8 n <= 6759, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 124 terms through n = 9975 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,32 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/divisors_list.h"
+
+/* returns an array of all divisors of n (n>1) in ascending order.
+   The array is written into arr and its length is stored in *cnt.
+   The array must have room for at least 256 elements. */
+static void divisors_list(idx_t n, idx_t *arr, size_t *cnt)
+{
+    *cnt = 0;
+    for (idx_t i = 2; i * i <= n; ++i) {
+        if (n % i == 0) {
+            arr[(*cnt)++] = i;
+            if (i * i != n)
+                arr[(*cnt)++] = n / i;
+        }
+    }
+    /* include n itself (the largest divisor) */
+    if (n >= 2)
+        arr[(*cnt)++] = n;
+    /* simple bubble sort to get ascending order */
+    for (size_t a = 0; a < *cnt; ++a)
+        for (size_t b = a + 1; b < *cnt; ++b)
+            if (arr[a] > arr[b]) {
+                idx_t tmp = arr[a];
+                arr[a] = arr[b];
+                arr[b] = tmp;
+            }
+}
 
 /* recursive DFS that enumerates factorizations of 'rem', the next factor must
    be at least 'last'.  'len' is the number of factors chosen so far.

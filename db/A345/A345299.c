@@ -8,7 +8,8 @@
  *            p)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Cached list of primes up to prime_cache_limit inclusive.
    The list is stored in ascending order. */
@@ -80,7 +81,7 @@ seq_t a(idx_t n)
             break;
         if (remaining % p == 0) {
             /* Distinct prime divisor p found. */
-            seq_t term = big_pow((seq_t)p, (seq_t)(i + 1)); /* pi(p) = i+1 */
+            seq_t term = ipow((seq_t)p, (seq_t)(i + 1)); /* pi(p) = i+1 */
             sum += term;
             /* Remove all powers of p. */
             do {
@@ -93,7 +94,7 @@ seq_t a(idx_t n)
     if (remaining > 1) {
         size_t idx = prime_index(remaining);
         if (idx != SIZE_MAX) {
-            seq_t term = big_pow((seq_t)remaining, (seq_t)(idx + 1));
+            seq_t term = ipow((seq_t)remaining, (seq_t)(idx + 1));
             sum += term;
         }
     }

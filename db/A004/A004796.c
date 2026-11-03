@@ -13,7 +13,8 @@
  *            with y = exp(m - gamma) - exp(gamma - m)/24...
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 17, u64 n <= 31, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 typedef uint32_t limb;
 
@@ -97,7 +99,7 @@ static void rec(long double lg, seq_t k) {
         minlog = lg;
         if (cnt == cap) {
             cap = cap ? 2 * cap : 64;
-            res = (seq_t *)realloc(res, cap * sizeof(seq_t));
+            res = mem_resize(seq_t, res, cap);
         }
         res[cnt++] = k;
     }

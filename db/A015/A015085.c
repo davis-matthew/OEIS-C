@@ -8,12 +8,14 @@
  *            on‑demand memoisation with O(n²) time per new value
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,12 +27,12 @@ seq_t a(idx_t n)
 
     /* initialise a(0) and 4^0 the first time */
     if (seq_cap == 0) {
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         if (!seq) return 0;           /* out of memory – caller will handle */
         seq[0] = (seq_t)1;
         seq_cap = 1;
 
-        pwr = (seq_t *)malloc(sizeof(seq_t));
+        pwr = mem_new(seq_t, 1);
         if (!pwr) return 0;
         pwr[0] = (seq_t)1;
         pwr_cap = 1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* growth of the sequence cache to at least n+1 entries   */
     if (seq_cap <= n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) return 0;
         seq = tmp;
         /* initialise new slots to 0 */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         /* ensure powers of 4 up to 4^(n-1) are pre‑computed   */
         if (pwr_cap <= (idx_t)n - 1) {
             size_t new_pwr_cap = (size_t)n;          /* indices 0 .. n-1   */
-            seq_t *tmp2 = (seq_t *)realloc(pwr, new_pwr_cap * sizeof(seq_t));
+            seq_t *tmp2 = mem_resize(seq_t, pwr, new_pwr_cap);
             if (!tmp2) return 0;
             pwr = tmp2;
             for (idx_t i = pwr_cap; i < (idx_t)new_pwr_cap; ++i)

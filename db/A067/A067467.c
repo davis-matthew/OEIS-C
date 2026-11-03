@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 3015, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9864 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The build system defines seq_t and idx_t.  We only use them implicitly. */
 
@@ -93,8 +95,7 @@ static void ensure_sufficient(idx_t required)
         build_sieve(current_limit);
 
         /* rebuild the list of good primes */
-        seq_t *new_good = (seq_t*)realloc(good_primes,
-                                         primes_cnt * sizeof(seq_t));
+        seq_t *new_good = mem_resize(seq_t, good_primes, primes_cnt);
         if (!new_good) return;           /* allocation failure – caller will notice */
         good_primes = new_good;
 

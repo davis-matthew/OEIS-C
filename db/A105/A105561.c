@@ -6,16 +6,17 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = the m-th prime, where m = A001221(n), a(1) = 1
- * Range:     u8 n <= 120, u16 n <= 120, u32 n <= 120, u64 n <= 120,
- *            u128 n <= 120, big any n
- * Helpers:   count_distinct_prime_factors
+ * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 136 terms through n = 9366 (2026-11-01)
+ * Helpers:   omega_u64_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/count_distinct_prime_factors.h"
+#include "../utils/omega_u64_to_u64.h"
 
 /* storage for primes */
 #define PRIME_CAP 1000                      /* enough for all expected m values   */
@@ -59,7 +60,7 @@ seq_t a(idx_t n)
 {
     if (n == 1)
         return (seq_t)1;
-    size_t m = count_distinct_prime_factors((uint64_t)n);
+    size_t m = omega_u64_to_u64((uint64_t)n);
     if (m == 0)
         return (seq_t)1;  /* should not happen, but safely handles n==1 */
     ensure_primes(m);

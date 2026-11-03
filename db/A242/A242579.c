@@ -13,7 +13,8 @@
  *            does NOT use the empirical recurrence; * it coun...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 32, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *cur  = NULL;        /* counts for current length  */
@@ -38,10 +40,10 @@ static void ensure_values_capacity(idx_t needed)
     if (needed < values_cap) return;
     size_t newcap = values_cap ? values_cap : 16;
     while (newcap <= (size_t)needed) newcap <<= 1;
-    seq_t *newptr = (seq_t *)calloc(newcap, sizeof(seq_t));
+    seq_t *newptr = mem_new(seq_t, newcap);
     if (values) {
-        memcpy(newptr, values, values_len * sizeof(seq_t));
-        free(values);
+        mem_copy(newptr, values, values_len * sizeof(seq_t));
+        mem_free(values);
     }
     values = newptr;
     values_cap = newcap;
@@ -50,15 +52,15 @@ static void ensure_values_capacity(idx_t needed)
 /* initialise DP state for sequences of length 3 */
 static void init(void)
 {
-    cur  = (seq_t *)calloc(256, sizeof(seq_t));
-    next = (seq_t *)calloc(256, sizeof(seq_t));
+    cur  = mem_new(seq_t, 256);
+    next = mem_new(seq_t, 256);
 
     cur_len = 3;
     max_computed_n = 0;
 
     /* allocate values array with one dummy slot (index 0 unused) */
     values_cap = 16;
-    values = (seq_t *)calloc(values_cap, sizeof(seq_t));
+    values = mem_new(seq_t, values_cap);
     values_len = 0;             /* no a(n) computed yet */
 
     /* generate all length‑3 sequences obeying the introduction rule */
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
     /* extend DP until we have a(n) */
     while (max_computed_n < n) {
         /* reset 'next' array */
-        memset(next, 0, 256 * sizeof(seq_t));
+        mem_set(next, 0, 256 * sizeof(seq_t));
 
         /* transition from cur to next */
         for (idx_t id = 0; id < 256; ++id) {

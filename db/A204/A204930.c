@@ -9,13 +9,24 @@
  *            within the k‑th block)
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   factorial
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factorial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* integer square‑root (floor) for 64‑bit unsigned values. */
 static idx_t isqrt_u64(idx_t v)

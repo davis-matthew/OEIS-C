@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 38, u16 n <= 158, u32 n <= 608, u64 n <= 1325,
+ * Range:     u8 n <= 47, u16 n <= 159, u32 n <= 609, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1299 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,6 +24,7 @@
             binom(i,j) + 2·binom(i,j+1)        if j odd   */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static idx_t _row_of(idx_t n)

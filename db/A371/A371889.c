@@ -8,14 +8,17 @@
  *            binomial(n-3*k,n-k-1)
  * Range:     i8 n <= 6, i16 n <= 12, i32 n <= 22, i64 n <= 30, i128 n <= 30,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;   /* number of computed elements */
@@ -29,7 +32,7 @@ static void ensure_cache_capacity(size_t n)
     size_t new_cap = cache_capacity ? (cache_capacity << 1) : 1;
     while (new_cap <= n)
         new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort(); /* allocation failed */
     cache = new_cache;
@@ -42,7 +45,7 @@ static void ensure_cache_capacity(size_t n)
 static seq_t binom_neg_top(int m, idx_t b)
 {
     /* m = -top > 0, b >= 1 here (b=0 case handled earlier). */
-    seq_t t = binom((idx_t)(m + b - 1), b);
+    seq_t t = binomial((idx_t)(m + b - 1), b);
     return (b & 1) ? -t : t;
 }
 
@@ -76,7 +79,7 @@ static void compute_up_to(idx_t n)
                     if (top < bottom) {
                         binom2 = 0;
                     } else {
-                        binom2 = binom((idx_t)top, (idx_t)bottom);
+                        binom2 = binomial((idx_t)top, (idx_t)bottom);
                     }
                 } else { /* top < 0 */
                     if (bottom == 0) {

@@ -9,14 +9,15 @@
  *            if n odd, else 2^(n/2-1) + 2^(n/2-2))
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 38, u64 n <= 71, u128 n <= 136,
  *            big any n
- * Helpers:   phi_ull, pow2_s
+ * Validated: standard, pass, 54 terms through n = 287 (2026-11-01)
+ * Helpers:   pow2_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi_ull.h"
-#include "../utils/pow2_s.h"
+#include "../utils/pow2_u64.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
                 q += 1;
             }
         }
-        ph = phi_ull(d);
+        ph = totient_u64(d);
         Q += q * (seq_t)ph;
         R += r * ph;
         Q += (seq_t)(R / M);
@@ -54,9 +55,9 @@ seq_t a(idx_t n)
     }
 
     if (n & 1)
-        half = pow2_s(((unsigned long long)n - 1) / 2);
+        half = pow2_u64(((unsigned long long)n - 1) / 2);
     else
-        half = pow2_s((unsigned long long)n / 2 - 2) * 3;
+        half = pow2_u64((unsigned long long)n / 2 - 2) * 3;
 
     return Q + half;
 }

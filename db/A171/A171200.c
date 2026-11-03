@@ -8,13 +8,15 @@
  *            * a(j) * a(n-i-j-1) (n ≥ 1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,10 +32,10 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 1;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 1;          /* a(0) = 1 */
         conv_cap = 1;
-        conv = (seq_t*)malloc(conv_cap * sizeof(seq_t));
+        conv = mem_new(seq_t, conv_cap);
         conv[0] = 1;          /* conv[0] = a0*a0 = 1 */
         max_n = 0;
         two_pow = 1;          /* 2^0 = 1 */
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         {
             size_t new_cap = cache_cap ? cache_cap * 2 : 1;
             while (new_cap <= (size_t)m) new_cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = new_cap;
@@ -78,9 +80,9 @@ seq_t a(idx_t n)
         {
             size_t new_cap = conv_cap ? conv_cap * 2 : 1;
             while (new_cap < need_cap) new_cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(conv, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, conv, new_cap);
             if (!tmp) abort();
-            memset(tmp + conv_cap, 0, (new_cap - conv_cap) * sizeof(seq_t));
+            mem_set(tmp + conv_cap, 0, (new_cap - conv_cap) * sizeof(seq_t));
             conv = tmp;
             conv_cap = new_cap;
         }

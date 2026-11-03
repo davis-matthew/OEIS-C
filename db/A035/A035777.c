@@ -7,12 +7,14 @@
  * Formula:   a(n) = [x^(2n)] ((1+x)/(1-x))^40
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 9, u128 n <= 35,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 9823 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Pre‑compute the 41 binomial coefficients C(40,i). */

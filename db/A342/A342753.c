@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   bit_at_word, child_index
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,28 @@
     by concatenating w(1), w(2), … .            */
 
 #include <stdlib.h>
-#include "../utils/bit_at_word.h"
-#include "../utils/child_index.h"
+
+/* Helper to compute child index of word n.  For n∈s use s'(n),
+   for n∈t use t'(n).  Here s = numbers not divisible by 3,
+   t = numbers divisible by 3.                          */
+static inline idx_t child_index(idx_t n)
+{
+    idx_t a = n - 1;
+    idx_t tprime = a / 3;           /* number of t numbers ≤ n‑1   */
+    idx_t sprime = a - tprime;       /* number of s numbers ≤ n‑1   */
+    return (n % 3 == 0) ? tprime : sprime;
+}
+
+/* Recursive routine that returns the offset‑th bit of word 'word'.
+   offset is 1‑based and guaranteed to be ≤ length(word).           */
+static seq_t bit_at_word(idx_t word, idx_t offset)
+{
+    if (offset == 1)
+        return (seq_t)((word % 3 == 0) ? 1 : 0);
+
+    /* offset>1 -> recurse on child word */
+    return bit_at_word(child_index(word), offset - 1);
+}
 
 /* Memoized array of word lengths: lens[k] = length of w(k).
    Indices start at 1; lens[0] is a sentinel with length 0.      */

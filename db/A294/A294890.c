@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{d|n} 1 if d is primitively abundant (A091191); 0
  *            otherwise
- * Range:     u8 n <= 9258, u16 n <= 9258, u32 n <= 9258, u64 n <= 9258,
- *            u128 n <= 9258, big any n
- * Helpers:   factor_u64, generate_divisors_u64
+ * Range:     u8 n <= 70560, u16 n <= 70560, u32 n <= 70560, u64 n <= 70560,
+ *            u128 n <= 70560, big any n
+ * Validated: standard, pass, 136 terms through n = 9258 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,34 @@
 /* Helpers */
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/generate_divisors_u64.h"
+
+/* Generate all divisors of a number given its prime factorisation.
+   The divisors are returned in the array `divs` and the count in `divsz`. */
+static void generate_divisors_u64(const uint64_t pr[],
+                                 const uint64_t ex[],
+                                 size_t cnt,
+                                 idx_t divs[],
+                                 size_t *divsz)
+{
+    divs[0] = 1;
+    *divsz = 1;
+
+    for (size_t i = 0; i < cnt; ++i) {
+        uint64_t p = pr[i];
+        unsigned int e = (unsigned int)ex[i];
+        size_t cur = *divsz;
+        idx_t pw = 1;
+        for (unsigned int ee = 1; ee <= e; ++ee) {
+            pw *= p;
+            for (size_t j = 0; j < cur; ++j) {
+                divs[(*divsz)++] = divs[j] * pw;
+            }
+        }
+    }
+}
 
 /* Estimate the maximum number of divisors for n up to 10⁴ ( < 256 ) */
 #define MAX_DIVISORS 1024

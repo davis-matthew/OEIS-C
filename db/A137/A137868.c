@@ -7,17 +7,35 @@
  * Formula:   LCM of the two smallest numbers with n divisors
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 28, u128 n <= 30,
  *            big any n
- * Helpers:   seq_gcd, seq_mul, seq_pow, upd_min
+ * Validated: partial, pass, 29 terms through n = 30 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_gcd.h"
-#include "../utils/upd_min.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Update the two smallest values found so far */
+static void upd_min(seq_t *first, seq_t *second, seq_t val)
+{
+    if (*first == 0 || val < *first) {
+        *second = *first;
+        *first  = val;
+    } else if (*second == 0 || val < *second) {
+        *second = val;
+    }
+}
 
 /* First 20 primes are sufficient for n <= 10000 */
 static const uint64_t PRIMES[] = {
@@ -44,7 +62,7 @@ static void dfs(idx_t rem, size_t pos, seq_t val,
     for (idx_t d = 2; d <= rem; ++d) {
         if (rem % d == 0) {
             idx_t e = d - 1;
-            seq_t part = seq_pow((seq_t)PRIMES[pos], e);
+            seq_t part = ipow_idx((seq_t)PRIMES[pos], e);
             seq_t new_val = seq_mul(val, part);
             dfs(rem / d, pos + 1, new_val, first, second);
         }
@@ -59,7 +77,7 @@ seq_t a(idx_t n)
     dfs(n, 0, (seq_t)1, &first, &second);
 
     /* Compute the LCM of the two smallest numbers */
-    seq_t g   = seq_gcd(first, second);
+    seq_t g   = gcd(first, second);
     seq_t lcm = seq_mul(first, second);
     lcm = lcm / g;
     return lcm;

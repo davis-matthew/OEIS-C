@@ -10,6 +10,7 @@
  *            from OEIS A216973
  * Range:     u8 n <= 38, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"          /* provides static seq_t binomial(idx_t, idx_t) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

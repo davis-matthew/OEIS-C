@@ -10,7 +10,8 @@
  *            starts 0, 1, 7, 15, 19, … as given in OEIS A115783
  * Range:     u8 n <= 1, u16 n <= 41, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Compare function for qsort on seq_t values */
 static int cmp_seq(const void *a, const void *b)
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         /* ----------------------------------------------------------- */
         const seq_t MAXVAL = (seq_t)2000000000ULL;   /* safety bound   */
         size_t cap = 8192;
-        seq_t *vals = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *vals = mem_new(seq_t, cap);
         size_t sz = 0;
         if (!vals) return (seq_t)0;
 
@@ -54,14 +56,14 @@ seq_t a(idx_t n)
             /* For each m until value > MAXVAL */
             for (idx_t m = 0; /* loop inside */; ++m) {
                 /* (m+1)^k - m^k */
-                seq_t a_pow = big_pow((seq_t)(m + 1), (seq_t)k);
-                seq_t b_pow = big_pow((seq_t)m, (seq_t)k);
+                seq_t a_pow = ipow((seq_t)(m + 1), (seq_t)k);
+                seq_t b_pow = ipow((seq_t)m, (seq_t)k);
                 seq_t val = a_pow - b_pow;
                 if (val > MAXVAL) break;
                 if (sz == cap) {                     /* grow array      */
                     cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(vals, cap * sizeof(seq_t));
-                    if (!tmp) { free(vals); return (seq_t)0; }
+                    seq_t *tmp = mem_resize(seq_t, vals, cap);
+                    if (!tmp) { mem_free(vals); return (seq_t)0; }
                     vals = tmp;
                 }
                 vals[sz++] = val;
@@ -71,12 +73,12 @@ seq_t a(idx_t n)
         /* ----------------------------------------------------------- */
         /* 2. Sort and compress duplicates (count occurrences)        */
         /* ----------------------------------------------------------- */
-        qsort(vals, sz, sizeof(seq_t), cmp_seq);
+        mem_qsort(vals, sz, sizeof(seq_t), cmp_seq);
 
         size_t uniq_cap = sz;
-        seq_t *uniq_vals = (seq_t *)malloc(uniq_cap * sizeof(seq_t));
+        seq_t *uniq_vals = mem_new(seq_t, uniq_cap);
         size_t *uniq_cnt = (size_t *)malloc(uniq_cap * sizeof(size_t));
-        if (!uniq_vals || !uniq_cnt) { free(vals); return (seq_t)0; }
+        if (!uniq_vals || !uniq_cnt) { mem_free(vals); return (seq_t)0; }
 
         size_t i = 0, u = 0;
         while (i < sz) {
@@ -87,15 +89,15 @@ seq_t a(idx_t n)
             ++u;
             i = j;
         }
-        free(vals);
+        mem_free(vals);
 
         /* ----------------------------------------------------------- */
         /* 3. Build final list: count representation sources, keep
              value if it has at least two overall representations.   */
         /* ----------------------------------------------------------- */
         size_t final_cap = u + 1;    /* +1 for the number 0 */
-        seq_t *final_vals = (seq_t *)malloc(final_cap * sizeof(seq_t));
-        if (!final_vals) { free(uniq_vals); free(uniq_cnt); return (seq_t)0; }
+        seq_t *final_vals = mem_new(seq_t, final_cap);
+        if (!final_vals) { mem_free(uniq_vals); free(uniq_cnt); return (seq_t)0; }
         size_t fsz = 0;
 
         /* 0 is always in the sequence (k=0, all m give 0) */
@@ -118,15 +120,15 @@ seq_t a(idx_t n)
             if (total >= 2) {
                 if (fsz == final_cap) {          /* grow if needed */
                     final_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(final_vals, final_cap * sizeof(seq_t));
-                    if (!tmp) { free(uniq_vals); free(uniq_cnt); free(final_vals); return (seq_t)0; }
+                    seq_t *tmp = mem_resize(seq_t, final_vals, final_cap);
+                    if (!tmp) { mem_free(uniq_vals); free(uniq_cnt); mem_free(final_vals); return (seq_t)0; }
                     final_vals = tmp;
                 }
                 final_vals[fsz++] = val;
             }
         }
 
-        free(uniq_vals);
+        mem_free(uniq_vals);
         free(uniq_cnt);
 
         /* ----------------------------------------------------------- */

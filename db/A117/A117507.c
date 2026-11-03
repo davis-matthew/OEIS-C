@@ -9,7 +9,8 @@
  *            the lesser twin prime of the k‑th twin pair (offset 1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *a_vals = NULL;           /* cached a(n) values */
 static size_t  a_cap  = 0;
@@ -104,8 +106,7 @@ static void compute_up_to(idx_t target)
             /* store a(n) = sum_num / 4 */
             if (a_cnt == a_cap) {
                 a_cap = a_cap ? a_cap * 2 : 16;
-                a_vals = (seq_t*)realloc(a_vals,
-                                         a_cap * sizeof(seq_t));
+                a_vals = mem_resize(seq_t, a_vals, a_cap);
             }
             a_vals[a_cnt++] = sum_num / (seq_t)4;
         }

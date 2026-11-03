@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    builds the sequence on demand, caching already found terms so that
    any order of calls is fast. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for already‑generated values */
 static seq_t *cache = NULL;
@@ -33,12 +35,12 @@ static void grow_cache(size_t new_cap)
     size_t new_cap2 = cache_cap == 0 ? 128 : cache_cap;
     while (new_cap2 < new_cap)
         new_cap2 <<= 1;
-    seq_t *tmp = (seq_t *)malloc(new_cap2 * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap2);
     if (!tmp)
         abort(); /* out of memory */
     for (size_t i = 0; i < cache_len; ++i)
         tmp[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache = tmp;
     cache_cap = new_cap2;
 }

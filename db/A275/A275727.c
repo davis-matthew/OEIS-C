@@ -6,8 +6,9 @@
  * Keywords:  nonn, base, look
  * Formula:   a(n) = Σ_{i≥1, d_i>0} 2^{i-1} where d_i are the digits of n in
  *            factorial base (n = Σ d_i·i!, 0 ≤ d_i ≤ i)
- * Range:     u8 n <= 9876, u16 n <= 9876, u32 n <= 9876, u64 n <= 9876,
- *            u128 n <= 9876, big any n
+ * Range:     u8 n <= 40320, u16 n <= 40320, u32 n <= 40320, u64 n <= 40320,
+ *            u128 n <= 40320, big any n
+ * Validated: standard, pass, 104 terms through n = 9876 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

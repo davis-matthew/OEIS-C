@@ -10,6 +10,7 @@
  *            (n-1)*b(n), a(3) = 2, b(3) = 8
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 19 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

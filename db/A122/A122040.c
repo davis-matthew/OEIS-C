@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   next_prime
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *seq_cache      = NULL;
@@ -61,7 +63,7 @@ static void ensure_seq_cap(size_t needed)
     if (seq_cache_cap >= needed) return;
     size_t new_cap = seq_cache_cap ? seq_cache_cap : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) return;                        /* allocation failure – ignore */
     seq_cache   = tmp;
     seq_cache_cap = new_cap;

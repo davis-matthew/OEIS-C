@@ -8,20 +8,22 @@
  *            (exp(A(x)) - 1)^2 (EGF)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Auxiliary function to ensure a dynamic array has enough capacity */
 static void ensure_capacity(seq_t **arr, size_t *cap, size_t need)
 {
     if (*cap < need) {
         *cap = need * 2;
-        *arr = (seq_t *)realloc(*arr, *cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     }
 }
 

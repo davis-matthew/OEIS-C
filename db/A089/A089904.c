@@ -8,12 +8,14 @@
  *            OEIS formula a(n) = (-77*(-1+10^n)+9*(14+9*10^n)*n)/81)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pow10_cache = NULL;   /* pow10_cache[i] = 10^i */
 static idx_t  pow10_cache_size = 0;
@@ -22,13 +24,13 @@ static idx_t  pow10_cache_size = 0;
 static seq_t get_pow10(idx_t n)
 {
     if (pow10_cache_size == 0) {            /* initialise for n==0 */
-        pow10_cache = (seq_t *)malloc(sizeof(seq_t));
+        pow10_cache = mem_new(seq_t, 1);
         pow10_cache[0] = (seq_t)1;
         pow10_cache_size = 1;
     }
     if (n >= pow10_cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(pow10_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow10_cache, new_size);
         if (!tmp) /* allocation failure will be ignored; value will be unreproducible */
             return (seq_t)1;
         pow10_cache = tmp;

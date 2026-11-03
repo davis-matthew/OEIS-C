@@ -10,13 +10,15 @@
  *            1/(1 - x^(3k+1))
  * Range:     u8 n <= 70, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The function is memoised over calls; when a larger n is requested the
    dynamic programme is recomputed up to that value. */
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     if (n > max_n || dp == NULL) {
         idx_t new_n = n;
         if (dp != NULL)
-            free(dp);                       /* free old table */
-        dp = (seq_t*)malloc(sizeof(seq_t) * (size_t)(new_n + 1));
+            mem_free(dp);                       /* free old table */
+        dp = mem_new(seq_t, (size_t)(new_n + 1));
         if (dp == NULL)                   /* allocation failure */
             return (seq_t)0;
 

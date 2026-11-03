@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   two_distinct_digits
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/two_distinct_digits.h"
+#include "../utils/mem.h"
+
+/* Test whether n has exactly two distinct decimal digits */
+static bool two_distinct_digits(seq_t n)
+{
+    unsigned char seen[10] = {0};
+    int distinct = 0;
+    while (n) {
+        unsigned d = (unsigned)(n % 10);
+        if (!seen[d]) {
+            seen[d] = 1;
+            ++distinct;
+            if (distinct > 2) return false;
+        }
+        n /= 10;
+    }
+    return distinct == 2;
+}
 
 /* Prime sieve data */
 static uint32_t *prime_list   = NULL;
@@ -131,7 +149,7 @@ seq_t a(idx_t n)
         if (is_semiprime(cand) && two_distinct_digits(cand)) {
             if (terms_len >= terms_cap) {
                 size_t new_cap = terms_cap == 0 ? 16 : terms_cap * 2;
-                seq_t *tmp = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) return 0;       /* allocation failure */
                 terms     = tmp;
                 terms_cap = new_cap;

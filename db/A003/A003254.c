@@ -11,7 +11,8 @@
  *            + U(k). The terms of A003234 are found by s...
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   a3254_L, a3254_U, a3254_in234, a3254_isqrt
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/a3254_L.h"
-#include "../utils/a3254_U.h"
-#include "../utils/a3254_in234.h"
-#include "../utils/a3254_isqrt.h"
+#include "../utils/isqrt_u64.h"
+
+/* floor(k*phi) */
+static uint64_t a3254_L(uint64_t k)
+{
+    return (k + isqrt_u64(5 * k * k)) / 2;
+}
+
+/* floor(k*phi^2) = A001950(k) */
+static uint64_t a3254_U(uint64_t k)
+{
+    return k + a3254_L(k);
+}
+
+static int a3254_in234(uint64_t k)
+{
+    uint64_t u = a3254_U(k);
+    return a3254_U(k + u) - u - a3254_U(u) == 1;
+}
 
 static uint64_t *a3254_T = NULL;
 static size_t a3254_cnt = 0, a3254_cap = 0;

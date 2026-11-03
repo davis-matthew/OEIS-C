@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 468, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_limit_uint64
+ * Validated: standard, pass, 74 terms through n = 8903 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/pow_limit_uint64.h"
+#include "../utils/mem.h"
+
+/* Helper: power with limit.  Returns base^exp, but
+ * if the result would exceed 'limit', returns 'limit'+1. */
+static seq_t pow_limit_uint64(uint64_t base, uint64_t exp, seq_t limit) {
+    seq_t result = 1;
+    for (uint64_t i = 0; i < exp; ++i) {
+        if (base == 0) return 1;
+        if (result > limit / base) return limit + 1;
+        result *= base;
+    }
+    return result;
+}
 
 /* Comparison for qsort on seq_t values. */
 static int cmp_seq(const void *a, const void *b) {
@@ -56,7 +69,7 @@ seq_t a(idx_t n)
         const seq_t MAX_SUM = 5000000000ULL;   /* 5 000 000 000 */
 
         size_t cap = 1 << 20;                 /* initial capacity ~1 048 576 */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;                 /* allocation failed */
         size_t len = 0;
 
@@ -78,8 +91,8 @@ seq_t a(idx_t n)
                 /* Store the sum. */
                 if (len == cap) {
                     cap <<= 1;                        /* double capacity */
-                    seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
-                    if (!tmp) { free(cache); cache = NULL; return 0; }
+                    seq_t *tmp = mem_resize(seq_t, cache, cap);
+                    if (!tmp) { mem_free(cache); cache = NULL; return 0; }
                     cache = tmp;
                 }
                 cache[len++] = sum;
@@ -87,7 +100,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort and remove duplicates. */
-        qsort(cache, len, sizeof(seq_t), cmp_seq);
+        mem_qsort(cache, len, sizeof(seq_t), cmp_seq);
         /* Deduplicate in-place. */
         size_t unique_len = 0;
         if (len > 0) {

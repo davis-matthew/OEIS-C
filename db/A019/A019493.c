@@ -9,12 +9,14 @@
  *            n >= 6
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 26, u64 n <= 55, u128 n <= 112,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* dynamically sized array of sequence values */
 static idx_t  cache_cap = 0;     /* allocated capacity of cache */
@@ -27,12 +29,12 @@ static void ensure_cache(idx_t need)
     if (cache_cap <= need) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         while (new_cap <= (size_t)need) new_cap <<= 1;
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (!new_arr) abort();                /* max. safety */
         if (cache) {
             for (idx_t i = 0; i <= max_computed; ++i)
                 new_arr[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_arr;
         cache_cap = new_cap;

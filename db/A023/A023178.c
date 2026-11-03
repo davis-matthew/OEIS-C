@@ -7,7 +7,8 @@
  * Formula:   numbers k such that Fib(k) == 13 (mod k)
  * Range:     u8 n <= 6, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* multiply a and b modulo mod without overflow */
 static seq_t mulmod(seq_t a, seq_t b, seq_t mod) {
@@ -68,7 +70,7 @@ static void ensure_values_cap(size_t needed) {
     if (needed <= values_cap) return;
     size_t new_cap = values_cap ? values_cap * 2 : 4;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(values, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, values, new_cap);
     values = tmp;
     values_cap = new_cap;
 }

@@ -9,12 +9,27 @@
  *            A013973)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 14,
  *            big any n
- * Helpers:   a706_sigma5
+ * Validated: standard, pass, 28 terms through n = 356 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a706_sigma5.h"
+static seq_t a706_sigma5(idx_t m) {
+    seq_t sum = 0;
+    idx_t d;
+    for (d = 1; d * d <= m; d++) {
+        if (m % d == 0) {
+            seq_t x = (seq_t)d;
+            sum += x * x * x * x * x;
+            if (d * d != m) {
+                seq_t y = (seq_t)(m / d);
+                sum += y * y * y * y * y;
+            }
+        }
+    }
+    return sum;
+}
 #define A706_MAX 20001
 
 static seq_t a706_memo[A706_MAX];

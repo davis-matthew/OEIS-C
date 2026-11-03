@@ -13,12 +13,14 @@
  *            starts with a(1)=3, a(2)=6, a(3)=12, … (see...
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 24, u64 n <= 43, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
      * and the largest digit used so far is 'max' (0..9). */
     static seq_t dp[10][10][10];
     static seq_t dp_next[10][10][10];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initial arrays of length 2.  The first element is always 0. */
     dp[0][0][0] = 1;          /* 0,0 */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Extend the arrays to the required length L one element at a time. */
     for (idx_t len = 2; len < L; ++len)
     {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (int last = 0; last < 10; ++last)
         {
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
             }
         }
 
-        memcpy(dp, dp_next, sizeof(dp));
+        mem_copy(dp, dp_next, sizeof(dp));
     }
 
     /* Sum all states to obtain the result. */

@@ -10,12 +10,14 @@
  *            Implementation uses lazy memoisation for arbitrary call order
  * Range:     u8 n <= 255, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for already computed terms: index 1..cap-1 inclusive */
@@ -27,9 +29,9 @@ seq_t a(idx_t n) {
     if (n >= cap) {                /* need to grow and compute up to n */
         idx_t new_cap = n + 1;     /* we store up to index n inclusive */
         if (cache) {
-            cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
         } else {
-            cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, new_cap);
         }
         /* fill new entries; start at the smallest index that hasn't yet
            been computed.  If cap==0 we start at 1. */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   not_necklace
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/not_necklace.h"
+#include "../utils/mem.h"
+
+/* Return true if the exponent sequence exps[0..len-1] is NOT a necklace. */
+static bool not_necklace(const int *exps, int len)
+{
+    if (len == 0) return true;          /* the empty signature (for 1) */
+    for (int rot = 1; rot < len; ++rot) {
+        int min_rot = -1;                 /* indicates if this rotation is smaller */
+        for (int k = 0; k < len; ++k) {
+            int a = exps[(k + rot) % len];
+            int b = exps[k];
+            if (a < b) { min_rot = 1; break; }
+            if (a > b) { min_rot = 0; break; }
+        }
+        if (min_rot == 1) return true;    /* found a smaller rotation */
+    }
+    return false;                         /* all rotations are >= original */
+}
 
 /* Build primes up to limit (inclusive) using a simple sieve */
 static void build_primes_upto(unsigned long long limit,
@@ -68,7 +86,7 @@ seq_t a(idx_t n)
     /* Initialise terms array once */
     if (!terms) {
         terms_cap = 1024;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* Generate terms until we reach the desired index n */
@@ -94,7 +112,7 @@ seq_t a(idx_t n)
             /* Append to cache if needed */
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)x;
         }

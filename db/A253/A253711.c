@@ -8,14 +8,18 @@
  *            2050
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 7, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Cache of already computed terms. Indexes start at 1. */
 static seq_t *cache = NULL;
@@ -32,7 +36,7 @@ static void ensure_cache(idx_t n)
 
     /* Allocate space up to index n (allocate +1 so index n is valid). */
     size_t new_alloc = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
     if (!tmp)
         abort();
     cache = tmp;
@@ -47,7 +51,7 @@ static void ensure_cache(idx_t n)
        all required previous values. */
     idx_t start = (old_size >= 2) ? old_size : 2;
     for (idx_t k = start + 1; k <= n; ++k) {
-        seq_t pow = big_pow((seq_t)k, (seq_t)11);
+        seq_t pow = ipow((seq_t)k, (seq_t)11);
         seq_t prev  = cache[k-1];
         seq_t prevp = cache[k-2];
         cache[k] = prev * (seq_t)2 - prevp + pow;

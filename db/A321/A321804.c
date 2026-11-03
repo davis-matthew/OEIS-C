@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 199, i16 n <= 199, i32 n <= 199, i64 n <= 199,
  *            i128 n <= 199, big any n
+ * Validated: partial, pass, 200 terms through n = 199 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

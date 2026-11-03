@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(2*n, k) * (n-k)^(4*n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>            /* for standard integer types, if needed */
-#include "../utils/big_pow.h"  /* prototype for big_pow(seq_t, seq_t) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     for (idx_t k = (idx_t)0; k <= n; ++k)
     {
         seq_t base = (seq_t)n - (seq_t)k;    /* (n-k)  */
-        seq_t p    = big_pow(base, exp);    /* (n-k)^(4*n)  */
+        seq_t p    = ipow(base, exp);    /* (n-k)^(4*n)  */
 
         sum += binom * p;                   /* accumulate term */
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 10, u64 n <= 23, u128 n <= 48,
  *            big any n
- * Helpers:   f_of_subblock
+ * Validated: standard, pass, 34 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
    whose max+upper‑median−lower‑median is the same for all 2×2 subblocks. */
 #include <stddef.h>
 #include <string.h>
-#include "../utils/f_of_subblock.h"
+#include "../utils/mem.h"
+
+/* helper: compute f = max + upper_median - lower_median for a single 2×2 block
+   with entries (a0,a1) in the upper row and (b0,b1) in the lower row. */
+static int f_of_subblock(int a0, int a1, int b0, int b1)
+{
+    int v[4] = {a0, a1, b0, b1};
+    /* small sorting network for 4 elements */
+    if (v[0] > v[1]) { int t = v[0]; v[0] = v[1]; v[1] = t; }
+    if (v[2] > v[3]) { int t = v[2]; v[2] = v[3]; v[3] = t; }
+    if (v[0] > v[2]) { int t = v[0]; v[0] = v[2]; v[2] = t; }
+    if (v[1] > v[3]) { int t = v[1]; v[1] = v[3]; v[3] = t; }
+    if (v[1] > v[2]) { int t = v[1]; v[1] = v[2]; v[2] = t; }
+    return v[3] + v[2] - v[1];           /* value in 0..4 */
+}
 
 /* encode a triple (d0,d1,d2) of digits 0..2 into 0..26 */
 static inline int encode(int d0, int d1, int d2)
@@ -64,7 +79,7 @@ seq_t a(idx_t n)
 
     static seq_t dp_cur[5][27];
     static seq_t dp_next[5][27];
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
 
     /* first transition: rows 0 and 1 */
     for (int p0 = 0; p0 < 27; ++p0) {
@@ -86,7 +101,7 @@ seq_t a(idx_t n)
 
     /* subsequent transitions: rows 1→2, 2→3, ..., (n-1)→n */
     for (idx_t step = 2; step <= n; ++step) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int f = 0; f < 5; ++f) {
             for (int cur = 0; cur < 27; ++cur) {
                 seq_t val = dp_cur[f][cur];
@@ -97,7 +112,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     seq_t total = 0;

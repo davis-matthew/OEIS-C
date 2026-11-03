@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 213, u16 n <= 1247, u32 n <= 1247, u64 n <= 1247,
  *            u128 n <= 1247, big any n
- * Helpers:   grow_seq_array
+ * Validated: standard, pass, 83 terms through n = 1243 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Include the utility that reallocates a seq_t array. */
-#include "../utils/grow_seq_array.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* ------------------------------------------------------------- */
 /* Global tables for primes and prime indices  */

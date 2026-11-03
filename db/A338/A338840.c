@@ -11,7 +11,8 @@
  *            a dynamic bit‑set
  * Range:     u8 n <= 211, u16 n <= 5001, u32 n <= 5001, u64 n <= 5001,
  *            u128 n <= 5001, big any n
- * Helpers:   no_even_digits
+ * Validated: standard, pass, 96 terms through n = 4917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/no_even_digits.h"
+#include "../utils/mem.h"
+
+/* test whether decimal representation of 'x' contains any even digit
+   (digit 0,2,4,6,8).                     */
+static inline bool no_even_digits(seq_t x)
+{
+    if (x == 0) return false;          /* digit 0 is even */
+    while (x > 0) {
+        seq_t d = x % 10;
+        if ((d & 1) == 0) return false;/* even digit found */
+        x /= 10;
+    }
+    return true;
+}
 
 static seq_t   *seq_cache = NULL;   /* cache of computed terms          */
 static size_t  seq_len   = 0;        /* number of stored terms           */
@@ -34,7 +48,7 @@ static inline void ensure_seq_capacity(size_t need)
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 4;
     while (new_cap < need) new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     if (!seq_cache) exit(1);
     seq_cap = new_cap;
 }

@@ -8,11 +8,13 @@
  * Formula:   a(n) = Σ_{k=0..⌊n/3⌋} binomial(k+3,3) * binomial(k,n-3k)^2
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 47, u64 n <= 98, u128 n <= 205,
  *            big any n
+ * Validated: standard, pass, 56 terms through n = 5482 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

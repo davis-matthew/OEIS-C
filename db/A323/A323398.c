@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   ensure_bitset_size, is_stanley
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,33 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/ensure_bitset_size.h"
-#include "../utils/is_stanley.h"
+#include "../utils/mem.h"
+
+/* Ensure bitset big enough for bit index `needed_bit`.  */
+static void ensure_bitset_size(uint64_t **arr, size_t *len, size_t needed_bit)
+{
+    size_t required = (needed_bit >> 6) + 1;          /* number of words */
+    if (required <= *len) return;
+    size_t newlen = *len ? *len : 8;
+    while (newlen < required) newlen <<= 1;
+    uint64_t *tmp = (uint64_t*)realloc(*arr, newlen * sizeof(uint64_t));
+    if (!tmp) abort();                               /* allocation failure */
+    for (size_t i = *len; i < newlen; ++i) tmp[i] = 0ULL;
+    *arr  = tmp;
+    *len  = newlen;
+}
+
+/* Check whether a non‑negative integer belongs to S(0,1). */
+static bool is_stanley(seq_t x)
+{
+    if (x == (seq_t)0) return true;    /* 0 is in S(0,1) */
+    idx_t n = (idx_t)x;
+    while (n > 0) {
+        if ((n % 3) == 2) return false;
+        n /= 3;
+    }
+    return true;
+}
 
 /* Simple bitset helpers ------------------------------------------- */
 static inline void set_bit(uint64_t *arr, size_t idx)
@@ -73,7 +99,7 @@ static void add_term(idx_t t)
     /* Store the term. */
     if (seq_cnt == seq_cap) {
         size_t newcap = seq_cap ? seq_cap * 2 : 8;
-        seq_t *tmp = (seq_t*)realloc(seq_store, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_store, newcap);
         if (!tmp) abort();
         seq_store = tmp;
         seq_cap   = newcap;

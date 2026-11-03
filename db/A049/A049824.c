@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    approach which is fast enough for n ≤ 10 000. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of computed a(n) values */
 static idx_t cached_max = 0;         /* largest n computed so far */
@@ -34,9 +36,9 @@ static void compute_upto(idx_t limit)
     /* Allocate or resize the cache array. */
     size_t newsize = (size_t)(limit) + 1; /* indices 0..limit inclusive */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(newsize * sizeof(seq_t));
+        cache = mem_new(seq_t, newsize);
     } else {
-        cache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newsize);
     }
 
     /* Safety: set unused element 0. */

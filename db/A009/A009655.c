@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! * [x^n] tan(log(1+x)^2) (OEIS A009655)
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 11, i64 n <= 18, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* the build provides the types seq_t and idx_t */
 static idx_t max_n = 0;                 /* biggest index pre‑computed */
@@ -29,11 +31,11 @@ static void grow_tables(idx_t n)
     if (n <= max_n) return;
 
     size_t newsize = (size_t)n + 1;          /* indices 0..n */
-    a_vals  = (seq_t *)realloc(a_vals,  newsize * sizeof(seq_t));
-    S_vals  = (seq_t *)realloc(S_vals,  newsize * sizeof(seq_t));
-    fact    = (seq_t *)realloc(fact,    newsize * sizeof(seq_t));
-    Dvals   = (seq_t *)realloc(Dvals,   newsize * sizeof(seq_t));
-    Cfact   = (seq_t *)realloc(Cfact,   newsize * sizeof(seq_t));
+    a_vals  = mem_resize(seq_t, a_vals, newsize);
+    S_vals  = mem_resize(seq_t, S_vals, newsize);
+    fact    = mem_resize(seq_t, fact, newsize);
+    Dvals   = mem_resize(seq_t, Dvals, newsize);
+    Cfact   = mem_resize(seq_t, Cfact, newsize);
 
     /* initialise the very first values */
     if (max_n == 0 && fact != NULL) {

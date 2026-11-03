@@ -7,6 +7,7 @@
  * Formula:   a(n) = (∏_{i=1..10} (n^i + i)) / 10!
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 2, u128 n <= 4,
  *            big any n
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9338 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* ---------- prime table ---------- */
 static uint32_t *primes = NULL;
@@ -94,7 +96,7 @@ static void add_term(seq_t v)
 {
     if (terms_size >= terms_cap) {
         size_t new_cap = (terms_cap == 0) ? 8 : terms_cap * 2;
-        seq_t *new_arr = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
         assert(new_arr);
         terms = new_arr;
         terms_cap = new_cap;

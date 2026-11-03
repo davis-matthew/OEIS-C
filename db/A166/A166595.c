@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   alloc_seq, mod_pow
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,18 @@
    The dimensions d are scanned in increasing order.  Each time a residue
    satisfies r > d it is stored; the n-th such residue is returned. */
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
-#include "../utils/alloc_seq.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -39,14 +50,13 @@ seq_t a(idx_t n)
     /* Compute until we have at least n residues */
     while (count < n) {
         seq_t mod = (seq_t)2 * (seq_t)next_d;
-        seq_t r   = mod_pow((seq_t)2, next_d, mod);
+        seq_t r   = powmod((seq_t)2, next_d, mod);
 
         if (r > next_d) { /* condition r > d  */
             /* Resize if necessary */
             if (count == capacity) {
                 capacity <<= 1;            /* double capacity */
-                values = (seq_t *)realloc(values,
-                                            capacity * sizeof(seq_t));
+                values = mem_resize(seq_t, values, capacity);
             }
             values[count++] = r;
         }

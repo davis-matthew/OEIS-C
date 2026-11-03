@@ -12,7 +12,8 @@
  *            (0…3 * or 4 for an empty slot) and a flag indica...
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 26, u64 n <= 52, u128 n <= 103,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_VAL   5          /* 0..3 plus sentinel 4 for empty */
 #define MAX_NEED  2          /* 0 or 1 */
@@ -76,7 +78,7 @@ static void ensure_memo(size_t n)
 {
     if (n < memo_cap) return;
     size_t new_cap = n + 1;
-    seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, memo, new_cap);
     if (!tmp) abort();
     for (size_t i = memo_cap; i < new_cap; ++i) tmp[i] = 0;
     memo = tmp;
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
     /* Allocate memo the first time */
     if (!memo) {
         memo_cap = 1;
-        memo = (seq_t *)calloc(memo_cap, sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (!memo) abort();
     }
 

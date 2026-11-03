@@ -11,16 +11,27 @@
  *            antidiagonals. * The mapping from the linear index n to the pair
  *            (r,c) is * provided by antidiagonal_coords(n...
  * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 152, u64 n <= 594,
- *            u128 n <= 2209, big any n
- * Helpers:   antidiagonal_coords, binom_custom
+ *            u128 n <= 2210, big any n
+ * Validated: standard, pass, 71 terms through n = 9551 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/binom_custom.h"
-#include "../utils/antidiagonal_coords.h"
+#include "../utils/binomial.h"
+
+/* mapping from linear index n to pair (i,j) on the antidiagonals of T */
+static inline void antidiagonal_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    /* find s such that (s+1)(s+2)/2 <= n < (s+2)(s+3)/2 */
+    idx_t s = 0;
+    while (((s + 1) * (s + 2)) / 2 <= n) ++s;
+    idx_t pos = n - (s * (s + 1)) / 2;  /* 0 <= pos <= s */
+    *i = pos;
+    *j = s - pos;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,8 +42,8 @@ seq_t a(idx_t n)
     antidiagonal_coords(n, &r, &c);
 
     /* Compute the central binomials C(2r,r) and C(2c,c). */
-    seq_t binom_r = binom_custom(2 * r, r);
-    seq_t binom_c = binom_custom(2 * c, c);
+    seq_t binom_r = binomial(2 * r, r);
+    seq_t binom_c = binomial(2 * c, c);
 
     /* Apply the formula:  T = binom_r * binom_c * (2c + 1) / (r + c + 1). */
     seq_t numerator   = binom_r * binom_c;

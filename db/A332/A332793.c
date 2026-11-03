@@ -7,7 +7,8 @@
  * Formula:   a(n) = n * Sum_{d|n, d < n} (-1)^(n/d) * a(d)/d with a(1) = 1
  * Range:     i8 n <= 15, i16 n <= 255, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 8711 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
             new_size *= 2;
 
         /* In both C and C++ realloc returns void*, so cast explicitly. */
-        seq_t *new_cache   = (seq_t*)realloc(cache,   new_size * sizeof(seq_t));
+        seq_t *new_cache   = mem_resize(seq_t, cache, new_size);
         bool   *new_cached = (bool*)realloc(cached,   new_size * sizeof(bool));
 
         cache   = new_cache;

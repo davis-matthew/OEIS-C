@@ -10,7 +10,8 @@
  *            F(n) mod n) and then count its divisors
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   fib_mod_idx, modmul_idx
+ * Validated: standard, pass, 119 terms through n = 8542 (2026-11-01)
+ * Helpers:   mulmod_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,43 @@
 /* ------------------------------------------------------------ */
 /* Auxiliary types ------------------------------------------------ */
 #include <stdint.h>  /* for uint64_t, but we rely on idx_t and seq_t defined by the build */
-#include "../utils/fib_mod_idx.h"
-#include "../utils/modmul_idx.h"
+#include "../utils/mulmod_idx.h"
+
+/* Fast doubling Fibonacci modulo a given modulus.
+   Returns F(n) modulo mod. */
+static idx_t fib_mod_idx(idx_t n, idx_t mod)
+{
+    /* Iterative version to avoid recursion depth issues */
+    idx_t a = 0;          /* F(0) */
+    idx_t b = 1 % mod;    /* F(1) */
+
+    /* Find highest bit of n */
+    int shift = 63;
+    while (shift >= 0 && ((n >> shift) & 1ULL) == 0)
+        shift--;
+
+    for (; shift >= 0; --shift)
+    {
+        /* Doubling step */
+        idx_t t1 = a;
+        idx_t t2 = b;
+        idx_t m2 = (idx_t)((2ULL * t2) % mod);
+        idx_t c = mulmod_idx(t1, (m2 + mod - t1) % mod, mod);       /* c = F(2k)   */
+        idx_t d = (mulmod_idx(t1, t1, mod) + mulmod_idx(t2, t2, mod)) % mod; /* d = F(2k+1) */
+
+        if ((n >> shift) & 1ULL)      /* If bit is 1, use F(2k+1) and F(2k+2) */
+        {
+            a = d;
+            b = (c + d) % mod;
+        }
+        else                          /* If bit is 0, use F(2k) and F(2k+1) */
+        {
+            a = c;
+            b = d;
+        }
+    }
+    return a % mod;   /* F(n) mod mod */
+}
 
 /* ------------------------------------------------------------ */
 

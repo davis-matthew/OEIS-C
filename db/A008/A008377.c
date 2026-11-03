@@ -11,13 +11,15 @@
  *            1,145,4339,55171,416773,2218645, 9195511,31608967...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 12, u64 n <= 154, u128 n <= 1000,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 40 terms through n = 981 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static const seq_t init_seq[10] = {
     (seq_t)1,          /* a(0) */
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
     /* Evaluate a(n) via the binomial summation. */
     seq_t result = (seq_t)0;
     for (int k = 0; k < 10; ++k) {
-        result += binom(n, (idx_t)k) * delta[k];
+        result += binomial(n, (idx_t)k) * delta[k];
     }
     return result;
 }

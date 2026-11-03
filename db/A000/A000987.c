@@ -11,12 +11,14 @@
  *            x^2/(2(1-x))) / sqrt(1-x))
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 399 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo_a = NULL;
 static seq_t *memo_b = NULL;
@@ -26,8 +28,8 @@ static idx_t memo_done = 0; /* indices 0..memo_done valid in both arrays */
 static void ensure_cap(idx_t n) {
     if (memo_a == NULL) {
         memo_cap = 16;
-        memo_a = (seq_t *)malloc(memo_cap * sizeof(seq_t));
-        memo_b = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo_a = mem_new(seq_t, memo_cap);
+        memo_b = mem_new(seq_t, memo_cap);
         memo_a[0] = 0; memo_a[1] = 1; memo_a[2] = 1; memo_a[3] = 2;
         memo_b[0] = 1; memo_b[1] = 1; memo_b[2] = 3; memo_b[3] = 11;
         memo_done = 3;
@@ -35,8 +37,8 @@ static void ensure_cap(idx_t n) {
     if (n >= memo_cap) {
         idx_t nc = memo_cap;
         while (n >= nc) nc *= 2;
-        memo_a = (seq_t *)realloc(memo_a, nc * sizeof(seq_t));
-        memo_b = (seq_t *)realloc(memo_b, nc * sizeof(seq_t));
+        memo_a = mem_resize(seq_t, memo_a, nc);
+        memo_b = mem_resize(seq_t, memo_b, nc);
         memo_cap = nc;
     }
 }

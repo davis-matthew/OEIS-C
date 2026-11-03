@@ -11,6 +11,7 @@
  *            a(n) = a·100 + b·10 + c
  * Range:     u8 n <= 14, u16 n <= 5889, u32 n <= 8991, u64 n <= 8991,
  *            u128 n <= 8991, big any n
+ * Validated: standard, pass, 80 terms through n = 7973 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

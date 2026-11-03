@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = (1 + A003961(A003961(n))) / 2 (mod 3)
- * Range:     u8 n <= 15, u16 n <= 3923, u32 n <= 9821, u64 n <= 9821,
- *            u128 n <= 9821, big any n
+ * Range:     u8 n <= 15, u16 n <= 3923, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9821 (2026-11-01)
  * Helpers:   factor_u64, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/next_prime.h"
 

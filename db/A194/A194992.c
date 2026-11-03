@@ -11,11 +11,13 @@
  *            integer)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 14, u128 n <= 20,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 87 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Computes the n-th term of OEIS sequence A194992. */

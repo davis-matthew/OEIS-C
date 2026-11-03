@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth prime congruent to 10 (mod 11)
  * Range:     u8 n <= 5, u16 n <= 663, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 62 terms through n = 826 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"   /* provides bool isPrimeTrial(seq_t); */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,17 +35,17 @@ seq_t a(idx_t n)
     /* Allocate / grow the primes array lazily */
     if (primes == NULL) {
         cap = 32;
-        primes = (seq_t *)malloc(cap * sizeof(seq_t));
+        primes = mem_new(seq_t, cap);
         if (primes == NULL) return 0;           /* allocation failure */
     }
 
     /* Extend the cache until it contains at least n primes */
     while (count < n) {
         seq_t cand = (seq_t)22 * (seq_t)r + (seq_t)21;  /* candidate 22*r+21 */
-        if (isPrimeTrial(cand)) {
+        if (is_prime_seq(cand)) {
             if (count >= cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(primes, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, cap);
                 if (tmp == NULL) return 0;                /* allocation failure */
                 primes = tmp;
             }

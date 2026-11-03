@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 7, u32 n <= 21, u64 n <= 48, u128 n <= 103,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  External integer types defined by the build system; do not declare them here.  */
 /*  typedef idx_t;  code will compile with a proper definition elsewhere  */
@@ -89,7 +91,7 @@ ensure_totals_capacity(idx_t needed)
     if (needed_cap > totals_cap) {
         size_t new_cap = totals_cap ? totals_cap * 2 : 16;
         while (new_cap < needed_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(totals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, totals, new_cap);
         totals = tmp;
         totals_cap = new_cap;
     }

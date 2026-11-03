@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_unitary
+ * Validated: standard, pass, 119 terms through n = 9994 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/count_unitary.h"
+
+/* --------------------- recursive enumeration of unitary divisors ------ */
+static void count_unitary(const uint64_t *pr, const int *ex, int k,
+                          uint64_t cur, uint64_t limit, seq_t *result)
+{
+    if (cur > limit)          /* already exceed threshold */
+        return;
+    if (k == 0) {              /* finished all primes */
+        ++(*result);
+        return;
+    }
+    /* Choice 1 – skip this prime (exponent 0) */
+    count_unitary(pr + 1, ex + 1, k - 1, cur, limit, result);
+
+    /* Choice 2 – use the full prime power */
+    __uint128_t prod = cur;
+    for (int i = 0; i < ex[0]; ++i) {
+        prod *= pr[0];
+        if (prod > limit) break;   /* no need to go deeper */
+    }
+    if (prod <= limit)
+        count_unitary(pr + 1, ex + 1, k - 1,
+                       (uint64_t)prod, limit, result);
+}
 
 /* --------------------- helper: integer factorisation --------------------- */
 static void factor_uint64(uint64_t n, uint64_t *pr, int *ex, int *cnt)

@@ -7,16 +7,19 @@
  * Formula:   a(n) = n - 2*pi(n) - 1
  * Range:     i8 n <= 77, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pi = compute_pi(n);
+    seq_t pi = prime_pi(n);
     seq_t res = (seq_t)n - (seq_t)2 * pi - (seq_t)1;
     return res;
 }

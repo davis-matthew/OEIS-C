@@ -10,15 +10,26 @@
  *            straightforward search
  * Range:     u8 n <= 13, u16 n <= 22, u32 n <= 27, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   digit_sum, is_palindrome, pow10
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   digit_sum, is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_sum.h"
-#include "../utils/is_palindrome.h"
-#include "../utils/pow10.h"
+#include "../utils/is_palindrome_base.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     /* Handle the trivial 0‑based case (not used in OEIS indexing) */
@@ -35,10 +46,10 @@ seq_t a(idx_t n) {
             idx_t count = 0;      /* count of valid terms found */
 
             while (count < n) {
-                if (is_palindrome(m, 10)) {
+                if (is_palindrome_base(m, 10)) {
                     seq_t sum  = digit_sum(m);
                     seq_t diff = m - sum;
-                    if (is_palindrome(diff, 10))
+                    if (is_palindrome_base(diff, 10))
                         cache[++count] = m;   /* store 1‑based index */
                 }
                 ++m;

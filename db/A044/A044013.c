@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has23or32_u64
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has23or32_u64.h"
+
+static bool has23or32_u64(uint64_t x)
+{
+    int prev = -1;
+    while (x > 0)
+    {
+        int cur = x % 10;
+        if (prev >= 0 && ((prev == 2 && cur == 3) || (prev == 3 && cur == 2)))
+            return true;
+        prev = cur;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -11,12 +11,14 @@
  *            … + 350x + 1) / (1 - x)^14
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 6, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     for (idx_t j = 0; j < 15; ++j) {
         if (n < j) continue;               /* term vanishes if n < j */
         idx_t m = n - j + 13;               /* binomial argument */
-        seq_t term = binom(m, 13);
+        seq_t term = binomial(m, 13);
         term *= (seq_t)coeff[j];
         result += term;
     }

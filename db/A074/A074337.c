@@ -8,6 +8,7 @@
  *            sequence is finite; a(n) is 0 for n ≥ 18
  * Range:     u8 none, u16 none, u32 none, u64 n <= 17, u128 n <= 17,
  *            big any n
+ * Validated: full, pass, 18 terms through n = 17 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

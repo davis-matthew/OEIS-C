@@ -10,8 +10,9 @@
  * Formula:   a(n) = for each bit position i (0‑based from LSB) set a(i) = 1
  *            iff bit i of n and bit i of reversed(n) are both 0. Then a(n) is
  *            the integer value of these bits. (a(0)=0 by definition.)
- * Range:     u8 n <= 511, u16 n <= 9806, u32 n <= 9806, u64 n <= 9806,
- *            u128 n <= 9806, big any n
+ * Range:     u8 n <= 511, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 105 terms through n = 9806 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

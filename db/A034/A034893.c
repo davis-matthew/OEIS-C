@@ -10,13 +10,15 @@
  *            (k-1). For n = 0,1, a(n) = 1
  * Range:     u8 n <= 17, u16 n <= 38, u32 n <= 89, u64 n <= 227,
  *            u128 n <= 598, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 62 terms through n = 9261 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Please include the integer square‑root helper provided in the build. */
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Compute k using an integer square‑root */
-    idx_t k = (int_sqrt(8*n + 9) - 1) / 2;        /* k ≥ 2 for n ≥ 2 */
+    idx_t k = (isqrt(8*n + 9) - 1) / 2;        /* k ≥ 2 for n ≥ 2 */
 
     /* Compute d, b, r, and the upper index B = b + k */
     idx_t d   = n - k*(k+1)/2 + 1;

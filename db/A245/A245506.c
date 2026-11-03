@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Maximum number of indices we prepare – enough for the tests. */
 #define MAX_REQ 10000
@@ -51,10 +53,10 @@ static void build_cache(idx_t limit)
     if (limit > MAX_REQ) limit = MAX_REQ;
 
     /* Allocate new tables.  calloc zeros them. */
-    seq_t *p_new = (seq_t *)calloc((size_t)(limit + 1), sizeof(seq_t));
-    seq_t *a_new = (seq_t *)calloc((size_t)(limit + 1), sizeof(seq_t));
+    seq_t *p_new = mem_new(seq_t, (size_t)(limit + 1));
+    seq_t *a_new = mem_new(seq_t, (size_t)(limit + 1));
     if (!p_new || !a_new) {        /* allocation failed – bail out */
-        free(p_new); free(a_new);
+        mem_free(p_new); mem_free(a_new);
         return;
     }
 
@@ -108,8 +110,8 @@ static void build_cache(idx_t limit)
     }
 
     /* Replace old cache with the newly built one. */
-    free(cache_a);
-    free(cache_p);
+    mem_free(cache_a);
+    mem_free(cache_p);
     cache_a = a_new;
     cache_p = p_new;
     cache_limit = limit;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 17, u64 n <= 26, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 484 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* A098738: a(1)=1,a(2)=2,a(3)=2,a(4)=3; for n≥3, a(n+2)=a(n+1)+a(n)*⌊n/2⌋*⌈n/2⌉ */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -29,15 +31,15 @@ static void ensure_cache(idx_t needed)
     idx_t new_size = (cache_size == 0) ? 32 : cache_size * 2;
     while (new_size <= needed)
         new_size <<= 1;
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (new_cache == NULL)
         return;                   /* out‑of‑memory – caller will get garbage */
     if (cache) {
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     /* zero the newly allocated part */
-    memset(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
+    mem_set(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
     cache = new_cache;
     cache_size = new_size;
 }

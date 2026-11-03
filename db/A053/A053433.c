@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 55, u32 n <= 1022, u64 n <= 1023,
  *            u128 n <= 1023, big any n
- * Helpers:   none
+ * Validated: full, pass, 1023 terms through n = 1023 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* English names of the digits */
 static const char *digit_names[10] = {
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
             seqnums[seqcount++] = val;
         }
         /* Sort the collected numbers numerically */
-        qsort(seqnums, seqcount, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(seqnums, seqcount, sizeof(seq_t), cmp_seq_t);
         initialized = true;
     }
 

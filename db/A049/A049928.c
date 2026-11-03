@@ -11,7 +11,8 @@
  *            (a(1)+…+a(n‑1)) – a(m)
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * extension of the cache. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* floor(log₂(x)) for x ≥ 1, implemented with a simple loop so it
  * works on all compilers that support C11/C++17. */
@@ -41,8 +43,8 @@ seq_t a(idx_t n) {
     if (n > sz) {
         /* grow the tables to accommodate n */
         idx_t new_sz = n + 1;                  /* index 0 unused */
-        A = (seq_t*)realloc(A, new_sz * sizeof(seq_t));
-        C = (seq_t*)realloc(C, new_sz * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_sz);
+        C = mem_resize(seq_t, C, new_sz);
 
         /* compute new entries */
         for (idx_t i = sz + 1; i <= n; ++i) {

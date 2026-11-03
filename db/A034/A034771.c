@@ -7,15 +7,16 @@
  * Formula:   a(n) = Σ_{d|n} τ(d) * 2^{n/d - 1}
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   _tau_of, pow2
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   num_divisors_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/num_divisors_idx.h"
 #include "../utils/pow2.h"
-#include "../utils/_tau_of.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
         if (n % d != 0) continue;
         idx_t e1 = n / d;                     /* n/d   */
         seq_t pow1 = pow2(e1 - 1);             /* 2^{e1-1} */
-        seq_t term1 = _tau_of(d) * pow1;
+        seq_t term1 = num_divisors_idx(d) * pow1;
         sum += term1;
 
         idx_t d2 = n / d;
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
         {
             idx_t e2 = n / d2;                /* should equal d */
             seq_t pow2_ = pow2(e2 - 1);
-            seq_t term2 = _tau_of(d2) * pow2_;
+            seq_t term2 = num_divisors_idx(d2) * pow2_;
             sum += term2;
         }
     }

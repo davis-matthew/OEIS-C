@@ -7,8 +7,9 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = number of unordered representations of n as * the sum of
  *            two coprime squarefree semiprimes. (OEIS A198255)
- * Range:     u8 n <= 1327, u16 n <= 9339, u32 n <= 9339, u64 n <= 9339,
- *            u128 n <= 9339, big any n
+ * Range:     u8 n <= 1327, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 117 terms through n = 9339 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,12 +8,14 @@
  *            Initial values: a(0)=1, a(1)=2, a(2)=2, a(3)=5, a(4)=6
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 46, u64 n <= 92, u128 n <= 184,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, NULL */
+#include "../utils/mem.h"
 
 /* Compute the n-th term of sequence A377368.  */
 seq_t a(idx_t n)
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initialise cache if first call.  */
     if (cache == NULL) {
         size_t init_cap = 5;                /* at least 5 elements for the first 5 terms */
-        cache = (seq_t *)malloc(sizeof(seq_t) * init_cap);
+        cache = mem_new(seq_t, init_cap);
         if (!cache) return 0;               /* allocation failure – return 0 as sentinel */
         cache[0] = 1;
         cache[1] = 2;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (needed > cap) {
         size_t new_cap = cap ? cap : 1;
         while (new_cap < needed) new_cap <<= 1;   /* double until large enough */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;           /* allocation failure – return 0 as sentinel */
         cache = tmp;
         cap   = new_cap;

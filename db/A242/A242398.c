@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 8597, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 87 terms through n = 9218 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto */
+#include <stdint.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t *a_values = NULL;   /* cumulative sums a(1) … a(a_len)   */
 static size_t a_len = 0;         /* number of computed terms          */
@@ -68,7 +71,7 @@ seq_t a(idx_t n)
            twin pairs */
         a_len = (twin_cnt > 1 ? twin_cnt - 1 : 0);      /* a(1)…a(len) */
         if (a_len > 0)
-            a_values = (seq_t*)malloc(a_len * sizeof(seq_t));
+            a_values = mem_new(seq_t, a_len);
 
         seq_t running = 0;
         for (size_t i = 0; i + 1 < twin_cnt; ++i) {

@@ -8,18 +8,20 @@
  *            = 0 for k < 0 (number of partitions of n into parts 3, 8, 9, 10)
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* calloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate an array of seq_t of length n+1 and zero‑initialize it. */
     size_t len = (size_t)n + 1;
-    seq_t *dp = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp) return 0;           /* allocation failure – unlikely for small n */
 
     dp[0] = 1;   /* one way to make 0: choose nothing */
@@ -35,6 +37,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = dp[n];
-    free(dp);
+    mem_free(dp);
     return res;
 }

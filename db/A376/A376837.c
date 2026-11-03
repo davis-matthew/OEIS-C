@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 36, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* ---------- initialise static data --------------------------------------------------- */
     if (answers == NULL) {
         /* Allocate minimal storage (size 1 for index 0). */
-        answers = (seq_t *)malloc((size_t)1 * sizeof(seq_t));
+        answers = mem_new(seq_t, (size_t)1);
         if (answers == NULL) return 0;           /* allocation failure */
         answers_cap = 1;
         answers[0] = 0;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     if (n > max_computed) {
         /* Grow answers array if necessary. */
         if ((size_t)n + 1 > answers_cap) {
-            seq_t *tmp = (seq_t *)realloc(answers, ((size_t)n + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, answers, ((size_t)n + 1));
             if (tmp == NULL) return 0;          /* allocation failure */
             answers = tmp;
             answers_cap = (size_t)n + 1;

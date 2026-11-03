@@ -10,7 +10,8 @@
  *            primes separated by differences > 2)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   generate_odd_primes
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,47 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/generate_odd_primes.h"
+#include "../utils/mem.h"
+
+/* Helper: simple prime sieve that stores only odd primes > 2   */
+static void generate_odd_primes(idx_t limit, idx_t **primes_out, size_t *cnt_out)
+/*  limit        : sieve upper bound (inclusive)
+    primes_out   : pointer to returned array of odd primes (malloc'd)
+    cnt_out      : number of primes returned                       */
+{
+    /* Allocate boolean array for composite flags */
+    bool *is_composite = (bool*)calloc((size_t)(limit + 1), sizeof(bool));
+    if (!is_composite)
+        return;
+
+    /* Sieve – only odd numbers are processed */
+    for (idx_t i = 3; i * i <= limit; i += 2)
+        if (!is_composite[i])
+            for (idx_t j = i * i; j <= limit; j += 2 * i)
+                is_composite[j] = true;
+
+    /* Estimate number of primes to preallocate an array */
+    size_t est = limit / 10 + 10;
+    size_t cnt = 0;
+    idx_t *primes = (idx_t*)malloc(est * sizeof(idx_t));
+    if (!primes) {
+        free(is_composite);
+        return;
+    }
+
+    for (idx_t i = 3; i <= limit; i += 2)
+        if (!is_composite[i]) {
+            if (cnt == est) {                /* enlarge buffer if needed */
+                est *= 2;
+                primes = (idx_t*)realloc(primes, est * sizeof(idx_t));
+            }
+            primes[cnt++] = i;
+        }
+
+    free(is_composite);
+    *primes_out = primes;
+    *cnt_out     = cnt;
+}
 
 /* ------------------------------------------------------------ */
 
@@ -50,7 +91,7 @@ seq_t a(idx_t n)
             return (seq_t)0;
 
         /* Allocate space for run_lengths (at most prime_cnt values).   */
-        run_lengths = (seq_t*)malloc(prime_cnt * sizeof(seq_t));
+        run_lengths = mem_new(seq_t, prime_cnt);
         if (!run_lengths) {
             free(odd_primes);
             return (seq_t)0;

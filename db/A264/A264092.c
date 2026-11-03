@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > memocap) {
         size_t newcap = (size_t)(n + 1);
         seq_t *tmp = (memo == NULL) ?
-            (seq_t *)malloc(sizeof(seq_t) * newcap) :
-            (seq_t *)realloc(memo, sizeof(seq_t) * newcap);
+            mem_new(seq_t, newcap) :
+            mem_resize(seq_t, memo, newcap);
         if (tmp == NULL) /* allocation failed – abort, as per requirement. */
             abort();
         memo   = tmp;

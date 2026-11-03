@@ -6,14 +6,16 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) is the nth term of the triangle where a(n,1)=n and
  *            a(n,k)=a(n,k-1)*a(n-1,k-1) enumerated row‑wise
- * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 20, u64 n <= 26, u128 n <= 3,
+ * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 20, u64 n <= 26, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     if (r == 1) return (seq_t)1;          /* a(1)=1 */
 
     /* Allocate two rows of size up to r. */
-    seq_t *prev = (seq_t *)malloc((r - 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(r * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, r);         /* the rows are swapped: both hold r */
+    seq_t *curr = mem_new(seq_t, r);
     if (!prev || !curr) {                  /* out of memory */
         /* In a contest setting we could abort; here we simply return 0. */
         return (seq_t)0;
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
     seq_t result = prev[k - 1];
 
     /* Free the temporary storage. */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
 
     return result;
 }

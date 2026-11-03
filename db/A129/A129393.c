@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 13, i32 n <= 30, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(n) = -2*a(n-1) - a(n-2) + 4*a(n-3) for n>2,
    a(0) = 1, a(1) = 5, a(2) = -15.  Row sums of A129392. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache == NULL) {
         cache_size = 3;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return (seq_t)0; /* allocation failure */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)5;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) return (seq_t)0; /* reallocation failure */
         cache = tmp;
         cache_size = new_size;

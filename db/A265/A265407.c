@@ -8,7 +8,8 @@
  * Formula:   a(0)=0, a(1)=1, a(n)=2*a(n-1) XOR a(A265409(n))
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 245 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* sizes for the hash map */
 #define HASH_BITS   18
@@ -89,7 +91,7 @@ static void ensure_vals_cap(size_t n)
     if (n <= vals_cap) return;
     size_t new_cap = vals_cap > 0 ? vals_cap : 32;
     while (new_cap < n + 1) new_cap <<= 1;
-    seq_t *new_vals = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+    seq_t *new_vals = mem_resize(seq_t, vals, new_cap);
     int   *new_xs   = (int   *)realloc(xs,   new_cap * sizeof(int));
     int   *new_ys   = (int   *)realloc(ys,   new_cap * sizeof(int));
     if (!new_vals || !new_xs || !new_ys) exit(1);

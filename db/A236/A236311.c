@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 22, i16 n <= 58, i32 n <= 58, i64 n <= 58, i128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of helper functions */
 static void row_col_from_index(idx_t n, idx_t *r, idx_t *c);
@@ -60,12 +62,12 @@ static seq_t compute_T(idx_t r, idx_t c)
     /* Allocate three rows of size r+1 each, using explicit cast
        to satisfy C++17. */
     size_t sz = (size_t)(r + 1);
-    seq_t *prev2 = (seq_t *)calloc(sz, sizeof(seq_t));   /* row n-2 */
-    seq_t *prev1 = (seq_t *)calloc(sz, sizeof(seq_t));   /* row n-1 */
-    seq_t *tmp   = (seq_t *)calloc(sz, sizeof(seq_t));   /* current row */
+    seq_t *prev2 = mem_new(seq_t, sz);   /* row n-2 */
+    seq_t *prev1 = mem_new(seq_t, sz);   /* row n-1 */
+    seq_t *tmp   = mem_new(seq_t, sz);   /* current row */
 
     if (!prev2 || !prev1 || !tmp) {
-        free(prev2); free(prev1); free(tmp);
+        mem_free(prev2); mem_free(prev1); mem_free(tmp);
         return (seq_t)0;   /* allocation failure – should never happen */
     }
 
@@ -96,9 +98,9 @@ static seq_t compute_T(idx_t r, idx_t c)
 
     seq_t result = prev1[c];   /* row r is now in prev1 */
 
-    free(prev2);
-    free(prev1);
-    free(tmp);
+    mem_free(prev2);
+    mem_free(prev1);
+    mem_free(tmp);
     return result;
 }
 

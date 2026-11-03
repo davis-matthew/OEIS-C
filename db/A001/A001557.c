@@ -7,18 +7,19 @@
  * Formula:   a(n) = Sum_{j=1..10} j^n
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   a1557_pow
+ * Validated: standard, pass, 36 terms through n = 177 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a1557_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     seq_t result = 0;
     int j;
     for (j = 1; j <= 10; j++) {
-        result += a1557_pow((seq_t)j, n);
+        result += ipow_idx((seq_t)j, n);
     }
     return result;
 }

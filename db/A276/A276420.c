@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 61, u32 n <= 117, u64 n <= 231,
  *            u128 n <= 459, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --- global (static) data ----------------------------------------- */
 static uint64_t *primes_arr   = NULL;   /* list of primes up to primes_max */
@@ -78,7 +80,7 @@ static void ensure_c(idx_t limit)
         return;
 
     size_t new_sz = (size_t)limit + 1;
-    seq_t *new_arr = (seq_t*)realloc(c_arr, new_sz * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, c_arr, new_sz);
     if (!new_arr) abort();
     c_arr = new_arr;
     /* initialise new entries to 0 */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 /* Tables holding φ(m) for 0 ≤ m ≤ cur_limit+1 and a mask indicating
  * whether φ(m‑1) = φ(m+1).  They are extended by build_sieve(). */
@@ -85,8 +86,8 @@ seq_t a(idx_t n)
                 return k;
         } else {
             /* fallback uses the provided phi routine */
-            seq_t phi1 = phi((idx_t)(m - 1));
-            seq_t phi2 = phi((idx_t)(m + 1));
+            seq_t phi1 = totient((idx_t)(m - 1));
+            seq_t phi2 = totient((idx_t)(m + 1));
             if (phi1 == phi2)
                 return k;
         }

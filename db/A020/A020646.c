@@ -8,13 +8,23 @@
  *            smallest k with v_7(k!) ≥ n, where v_7(k!) = Σ_{i≥1} ⌊k/7^i⌋)
  * Range:     u8 n <= 41, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   v7_of_uint64
+ * Validated: standard, pass, 75 terms through n = 986 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/v7_of_uint64.h"
+
+static inline uint64_t v7_of_uint64(uint64_t x)
+{
+    uint64_t cnt = 0;
+    for (uint64_t div = 7; div <= x; div *= 7) {
+        cnt += x / div;
+        if (div > x / 7) break;      /* avoid overflow on next multiplication */
+    }
+    return cnt;
+}
 
 static inline uint64_t minimal_k(uint64_t n)
 {

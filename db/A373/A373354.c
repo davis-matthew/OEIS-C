@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   is_qr_mod
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
    a(n) is the n-th term of the triangle when read row‑wise (offset 1). */
 
 #include <stdbool.h>
-#include "../utils/is_qr_mod.h"
+
+/* Test whether n is a quadratic residue modulo k:
+   ∃ x: x² ≡ n (mod k). */
+static inline bool is_qr_mod(idx_t n, idx_t k)
+{
+    if (k <= 1)          /* mod 1: every integer is a residue; k=0 never occurs */
+        return true;
+    idx_t target = n % k;
+    for (idx_t x = 0; x < k; ++x) {
+        unsigned __int128 sq = (unsigned __int128)x * x;
+        idx_t val = (idx_t)(sq % k);
+        if (val == target)
+            return true;
+    }
+    return false;
+}
 
 /* Return the row r such that r*(r+1)/2 >= n  (the smallest such r). */
 static inline idx_t triangle_row(idx_t n)

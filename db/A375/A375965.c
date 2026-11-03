@@ -7,8 +7,9 @@
  * Keywords:  nonn, base, easy
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 1617, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 6425, big any n
- * Helpers:   is_prime_small, next_prime
+ *            u128 n <= 8123, big any n
+ * Validated: standard, pass, 70 terms through n = 9475 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 #include "../utils/next_prime.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/mem.h"
 
 /* Helper: extract decimal digits of x into buf[0..len-1] (most significant first) */
 static void get_digits_seq(seq_t x, uint8_t *buf, size_t *len)
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         /* resize array if necessary */
         if (terms_len == terms_cap) {
             size_t new_cap = terms_cap ? terms_cap << 1 : 32;
-            seq_t *tmp = (seq_t *)realloc((void *)terms, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, new_cap);
             if (tmp == NULL) {
                 /* Allocation failed – abort */
                 return 0;
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
                     swapped = swapped * 10 + d;
                 }
 
-                if (swapped != (seq_t)curr_prime && is_prime_small(swapped))
+                if (swapped != (seq_t)curr_prime && is_prime_seq(swapped))
                     ok = true;
             }
 

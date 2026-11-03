@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 30, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global dynamic arrays for memoisation --------------------------------- */
 static seq_t *seq = NULL;          /* sequence values */
@@ -49,7 +51,7 @@ static void used_add(seq_t v)
 {
     if (used_len == used_cap) {
         size_t new_cap = used_cap ? used_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(used, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, used, new_cap);
         if (!tmp) abort();
         used = tmp;
         used_cap = new_cap;
@@ -62,7 +64,7 @@ static void seq_add(seq_t v)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) abort();
         seq = tmp;
         seq_cap = new_cap;

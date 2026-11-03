@@ -9,13 +9,21 @@
  *            * enumerated in increasing numerical order
  * Range:     u8 n <= 3, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   pow8_table
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow8_table.h"
+
+/* Helper: power of eight.  We precompute up to 20.  */
+static void pow8_table(idx_t *pow8, idx_t max_exp) {
+    pow8[0] = 1;
+    for (idx_t i = 1; i <= max_exp; ++i) {
+        pow8[i] = pow8[i - 1] * 8;
+    }
+}
  
 /* Helper: binomial coefficient C(n,k).  n,k are small (≤20).  */
 static idx_t binom_idx(idx_t n, idx_t k) {

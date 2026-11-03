@@ -10,6 +10,7 @@
  *            == 2: a(n) = s^3 + 5*s^2 + 6*s + 2
  * Range:     u8 n <= 16, u16 n <= 118, u32 n <= 4873, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 67 terms through n = 4972 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

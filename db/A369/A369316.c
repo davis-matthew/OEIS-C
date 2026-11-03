@@ -9,12 +9,14 @@
  *            a(2)=2, a(3)=2, a(4)=8 (valid for all n ≥ 0)
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 27, u64 n <= 52, u128 n <= 103,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #ifdef __cplusplus
 /* C++ build – assume seq_t is an arithmetic type or a big‑integer class.
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* initial cache setup (only once) */
     if (cap == 0) {
         cap = 8;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)0;
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
     if (n + 1 > cap) {
         idx_t new_cap = cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cap = new_cap;

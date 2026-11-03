@@ -13,19 +13,22 @@
  *            calls with arbitrary n work * efficiently
  * Range:     u8 n <= 33, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   digit_len, get_digits
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   get_digits, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 
-#include "../utils/get_digits.h"   /* void get_digits(seq_t x, uint8_t *buf, size_t *len) */
-#include "../utils/digit_len.h"   /* int digit_len(seq_t x) */
+#include "../utils/get_digits.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 /* maximum digits we expect for any seq_t value used in the sequence.
  * 512 is more than enough for 128‑bit integers (39 digits) or even for
@@ -92,7 +95,7 @@ static void ensure_terms(idx_t target)
         if (is_good(candidate)) {
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) { perror("realloc"); exit(EXIT_FAILURE); }
                 cache = tmp;
                 cache_cap = new_cap;

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9328, u16 n <= 9328, u32 n <= 9328, u64 n <= 9328,
- *            u128 n <= 9328, big any n
- * Helpers:   cmp_idx
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 124 terms through n = 9328 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_idx.h"
+
+/* compare two idx_t values for qsort */
+static int cmp_idx(const void *a, const void *b)
+{
+    idx_t va = *(const idx_t *)a;
+    idx_t vb = *(const idx_t *)b;
+    if (va < vb) return -1;
+    if (va > vb) return 1;
+    return 0;
+}
 
 static uint64_t *prime_list = NULL;   /* array of primes          */
 static size_t   prime_cnt  = 0;      /* number of primes         */

@@ -11,14 +11,16 @@
  *            is encountered because such numbers are fixed points of the map
  * Range:     u8 n <= 789, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf, is_prime
+ * Validated: standard, pass, 116 terms through n = 8762 (2026-11-01)
+ * Helpers:   is_prime, largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/gpf.h"    /* uint64_t gpf(uint64_t x);            */
-#include "../utils/is_prime.h" /* bool is_prime(idx_t x);  */
+#include <stdint.h>
+#include "../utils/is_prime.h"
+#include "../utils/largest_prime_factor.h"
 
 /* External linkage: computes the desired sequence term. */
 seq_t a(idx_t n)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         /* gpf expects a 64‑bit unsigned integer.  cur fits in it
            for all n up to the tested limits. */
         uint64_t cur64 = (uint64_t)cur;
-        uint64_t g     = gpf(cur64);          /* greatest prime factor */
+        uint64_t g     = largest_prime_factor(cur64);          /* greatest prime factor */
 
         /* Compute the next term: cur - 1 + cur/g. */
         seq_t next = cur - 1 + cur / (seq_t)g;

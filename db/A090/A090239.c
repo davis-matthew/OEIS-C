@@ -5,15 +5,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = mod(n + a([n/3]), 3), a(0)=2
- * Range:     u8 n <= 272, u16 n <= 8365, u32 n <= 8365, u64 n <= 8365,
- *            u128 n <= 8365, big any n
- * Helpers:   none
+ * Range:     u8 n <= 272, u16 n <= 19682, u32 n <= 19682, u64 n <= 19682,
+ *            u128 n <= 19682, big any n
+ * Validated: standard, pass, 121 terms through n = 8365 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the OEIS sequence A090239: a(0)=2, a(n)= (n + a(n/3)) mod 3 for n>0. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* dynamic array of cached values */
 static size_t cache_capacity = 0;
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
         while (new_cap < needed) new_cap <<= 1;     /* double until large enough */
 
         if (new_cap != cache_capacity) {
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             if (!cache) abort();  /* allocation failed */
             cache_capacity = new_cap;
         }

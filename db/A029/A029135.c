@@ -9,16 +9,18 @@
  *            + 10*j + 11*k + 12*l = n
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Allocate array for dynamic programming up to n. */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return 0;                 /* allocation failed, return 0 */
 
     /* Initialize dp table */
@@ -37,6 +39,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t res = dp[n];
-    free(dp);
+    mem_free(dp);
     return res;
 }

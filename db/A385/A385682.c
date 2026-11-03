@@ -7,7 +7,8 @@
  * Formula:   a(n) = (n - 1) * Sum_{k=2..n} phi(k)
  * Range:     u8 n <= 9, u16 n <= 60, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* a(n) = (n - 1) * (A002088(n) - 1) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *phi_cache = NULL;     /* phi values, phi[0] unused */
 static seq_t *pref_cache = NULL;    /* prefix sums: pref[i] = sum_{k=1..i} phi(k) */
@@ -44,8 +46,8 @@ static void ensure_cache(idx_t n)
     idx_t new_cap = (cache_cap ? cache_cap * 2 : 2);
     if (new_cap < n) new_cap = n;
 
-    seq_t *new_phi = (seq_t *)malloc(sizeof(seq_t) * (new_cap + 1));
-    seq_t *new_pref = (seq_t *)malloc(sizeof(seq_t) * (new_cap + 1));
+    seq_t *new_phi = mem_new(seq_t, (new_cap + 1));
+    seq_t *new_pref = mem_new(seq_t, (new_cap + 1));
     if (!new_phi || !new_pref) exit(1); /* out of memory */
 
     /* Copy old data */
@@ -62,8 +64,8 @@ static void ensure_cache(idx_t n)
     }
 
     /* Free old arrays if they were allocated */
-    if (phi_cache) free(phi_cache);
-    if (pref_cache) free(pref_cache);
+    if (phi_cache) mem_free(phi_cache);
+    if (pref_cache) mem_free(pref_cache);
 
     phi_cache = new_phi;
     pref_cache = new_pref;

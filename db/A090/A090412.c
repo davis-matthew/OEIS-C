@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 16, i32 n <= 34, i64 n <= 38, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached terms for memoisation */
 static seq_t *seq_cache = NULL;
@@ -42,13 +44,13 @@ static void ensure_cache(idx_t n)
     /* Grow capacity if necessary */
     if (cache_cap == 0) {
         cache_cap = 4;
-        seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
         if (!seq_cache)
             return;              /* (Out-of‑memory is unlikely in test harness) */
     }
     while (n >= cache_cap) {
         cache_cap <<= 1;
-        seq_cache = (seq_t *)realloc(seq_cache, cache_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
         if (!seq_cache)
             return;
     }

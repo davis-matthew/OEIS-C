@@ -11,18 +11,55 @@
  *            a(k)/A088802(k) and A088802(k) = 4^k * 2^v2(k!)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   alloc_zero, grow_zero, seq_is_big, u128_to_seq, v2f
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_is_big.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_zero.h"
-#include "../utils/v2f.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static idx_t v2f(idx_t k) { idx_t c = 0, x = k; while (x) { c += x & 1; x >>= 1; } return k - c; }
 
 /* ---------- fixed-width path: exact 2-adic arithmetic mod 2^128 ---------- */
 typedef unsigned __int128 u128_t;

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 317, u16 n <= 9248, u32 n <= 9248, u64 n <= 9248,
- *            u128 n <= 9248, big any n
- * Helpers:   factor_u64, gpf, is_prime
+ * Range:     u8 n <= 317, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 108 terms through n = 9248 (2026-11-01)
+ * Helpers:   factor_u64, is_prime, largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
    over the prime factorisation n = Π p_i^{k_i}. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/gpf.h"
+#include "../utils/is_prime.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -53,6 +55,6 @@ seq_t a(idx_t n)
         return (seq_t)0;
     }
 
-    uint64_t lp = gpf(derivative);
+    uint64_t lp = largest_prime_factor(derivative);
     return (seq_t)lp;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------
    Helpers
@@ -89,7 +91,7 @@ static void generate_terms(size_t limit, seq_t **vals, size_t *cnt)
     if (!primes) { *vals = NULL; *cnt = 0; return; }
 
     size_t cap = 65536;
-    seq_t *buffer = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *buffer = mem_new(seq_t, cap);
     size_t nvals = 0;
 
     for (size_t ip = 0; ip < prime_cnt; ++ip) {
@@ -103,14 +105,14 @@ static void generate_terms(size_t limit, seq_t **vals, size_t *cnt)
             if (prod > limit) break;          /* primes are increasing   */
             if (nvals == cap) {
                 cap <<= 1;
-                buffer = (seq_t *)realloc(buffer, cap * sizeof(seq_t));
+                buffer = mem_resize(seq_t, buffer, cap);
             }
             buffer[nvals++] = (seq_t)prod;
         }
     }
 
     free(primes);
-    qsort(buffer, nvals, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(buffer, nvals, sizeof(seq_t), cmp_seq_t);
     *vals = buffer;
     *cnt = nvals;
 }
@@ -140,12 +142,12 @@ seq_t a(idx_t n)
         size_t cnt = 0;
         generate_terms(limit, &vals, &cnt);
         if (cnt >= (size_t)n) {
-            free(cache);         /* discard previous cache */
+            mem_free(cache);         /* discard previous cache */
             cache = vals;
             cache_size = cnt;
             return cache[n - 1];
         }
-        free(vals);
+        mem_free(vals);
         limit <<= 1;             /* double the bound and retry */
     }
 }

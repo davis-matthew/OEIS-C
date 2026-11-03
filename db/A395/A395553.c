@@ -13,12 +13,14 @@
  *            s_{n-8} + s_{n-9} -...
  * Range:     u8 n <= 17, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,9 +38,9 @@ seq_t a(idx_t n)
 
         /* reallocate */
         seq_t *tmp;
-        tmp = (seq_t *)realloc(s_arr, newsize * sizeof(seq_t));
+        tmp = mem_resize(seq_t, s_arr, newsize);
         s_arr = tmp;
-        tmp = (seq_t *)realloc(a_arr, newsize * sizeof(seq_t));
+        tmp = mem_resize(seq_t, a_arr, newsize);
         a_arr = tmp;
 
         /* initialise new entries: zero them (calloc or explicit loop) */

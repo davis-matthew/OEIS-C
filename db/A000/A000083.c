@@ -12,7 +12,8 @@
  *            L = Sum_{d>=1} (phi(d)/d) * (-log(1 - B(x^d...
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 21, u64 n <= 36, u128 n <= 67,
  *            big any n
- * Helpers:   alloc_series, madd, minv, mmul, mpow, msub, totient_small
+ * Validated: standard, pass, 46 terms through n = 475 (2026-11-03)
+ * Helpers:   addmod_u64, mem, mulmod, powmod_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/alloc_series.h"
-#include "../utils/madd.h"
-#include "../utils/minv.h"
-#include "../utils/mmul.h"
-#include "../utils/mpow.h"
-#include "../utils/msub.h"
-#include "../utils/totient_small.h"
+#include "../utils/addmod_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/totient_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_series(size_t sz)
+{
+    seq_t *p = mem_new(seq_t, sz);
+    size_t i;
+    for (i = 0; i < sz; i++) p[i] = 0;
+    return p;
+}
+
+static uint64_t minv(uint64_t a, uint64_t p) { return powmod_u64(a, p - 2, p); }
+
+static uint64_t msub(uint64_t a, uint64_t b, uint64_t p)
+{
+    return a >= b ? a - b : a + (p - b);
+}
 
 static int big_mode = -1;
 
@@ -102,7 +116,7 @@ static seq_t big_a(long n)
         big_build(N);
     }
     for (d = 1; d <= n; d++)
-        if (n % d == 0) L += (seq_t)totient_small((unsigned long long)d) * Bh[n / d];
+        if (n % d == 0) L += (seq_t)totient_u64((unsigned long long)d) * Bh[n / d];
     L /= n;
     for (i = 1; i < n; i++) {
         b2t += Bu[i] * Bt[n - i];
@@ -132,38 +146,38 @@ static void mod_build(int k)
         uint64_t acc;
         b[m] = pp[m - 1];
         acc = b[m];
-        for (i = 1; i < m; i++) acc = madd(acc, mmul(b[i], s[m - i], p), p);
+        for (i = 1; i < m; i++) acc = addmod_u64(acc, mulmod(b[i], s[m - i], p), p);
         s[m] = acc;
         if (m % 2 == 0) {
             acc = b[m / 2];
-            for (i = 1; 2 * i < m; i++) acc = madd(acc, mmul(b[i], t[m - 2 * i], p), p);
+            for (i = 1; 2 * i < m; i++) acc = addmod_u64(acc, mulmod(b[i], t[m - 2 * i], p), p);
             t[m] = acc;
         } else {
             t[m] = 0;
         }
         acc = 0;
-        for (i = 1; i < m; i++) acc = madd(acc, mmul(b[i], t[m - i], p), p);
+        for (i = 1; i < m; i++) acc = addmod_u64(acc, mulmod(b[i], t[m - i], p), p);
         bt[m] = acc;
-        acc = madd(madd(msub(s[m], b[m], p), t[m], p), bt[m], p);
-        f[m] = madd(b[m], mmul(acc, inv2, p), p);
+        acc = addmod_u64(addmod_u64(msub(s[m], b[m], p), t[m], p), bt[m], p);
+        f[m] = addmod_u64(b[m], mulmod(acc, inv2, p), p);
         acc = 0;
-        for (i = 1; i < m; i++) acc = madd(acc, mmul(b[i], b[m - i], p), p);
+        for (i = 1; i < m; i++) acc = addmod_u64(acc, mulmod(b[i], b[m - i], p), p);
         u[m] = acc;
-        acc = mmul((uint64_t)m, b[m], p);
+        acc = mulmod((uint64_t)m, b[m], p);
         for (i = 1; i < m; i++)
-            acc = madd(acc, mmul(mmul((uint64_t)i, b[i], p), s[m - i], p), p);
+            acc = addmod_u64(acc, mulmod(mulmod((uint64_t)i, b[i], p), s[m - i], p), p);
         h[m] = acc;
         acc = 0;
         for (d = 1; d * d <= m; d++)
             if (m % d == 0) {
                 long e = m / d;
-                acc = madd(acc, mmul((uint64_t)d, f[d], p), p);
-                if (e != d) acc = madd(acc, mmul((uint64_t)e, f[e], p), p);
+                acc = addmod_u64(acc, mulmod((uint64_t)d, f[d], p), p);
+                if (e != d) acc = addmod_u64(acc, mulmod((uint64_t)e, f[e], p), p);
             }
         c[m] = acc;
         acc = 0;
-        for (i = 1; i <= m; i++) acc = madd(acc, mmul(c[i], pp[m - i], p), p);
-        pp[m] = mmul(acc, minv((uint64_t)m, p), p);
+        for (i = 1; i <= m; i++) acc = addmod_u64(acc, mulmod(c[i], pp[m - i], p), p);
+        pp[m] = mulmod(acc, minv((uint64_t)m, p), p);
     }
 }
 
@@ -174,20 +188,20 @@ static uint64_t mod_a(int k, long n)
     long d, i;
     for (d = 1; d <= n; d++)
         if (n % d == 0)
-            L = madd(L, mmul(totient_small((unsigned long long)d) % p, h[n / d], p), p);
-    L = mmul(L, minv((uint64_t)n, p), p);
+            L = addmod_u64(L, mulmod(totient_u64((unsigned long long)d) % p, h[n / d], p), p);
+    L = mulmod(L, minv((uint64_t)n, p), p);
     for (i = 1; i < n; i++) {
-        b2t = madd(b2t, mmul(u[i], t[n - i], p), p);
-        bf = madd(bf, mmul(b[i], f[n - i], p), p);
+        b2t = addmod_u64(b2t, mulmod(u[i], t[n - i], p), p);
+        bf = addmod_u64(bf, mulmod(b[i], f[n - i], p), p);
     }
-    num = madd(L, L, p);
-    num = madd(num, t[n], p);
-    num = madd(num, madd(bt[n], bt[n], p), p);
-    num = madd(num, b2t, p);
-    num = madd(num, u[n], p);
-    num = msub(num, madd(b[n], b[n], p), p);
-    cc = mmul(num, minv(4, p), p);
-    return msub(madd(b[n], cc, p), bf, p);
+    num = addmod_u64(L, L, p);
+    num = addmod_u64(num, t[n], p);
+    num = addmod_u64(num, addmod_u64(bt[n], bt[n], p), p);
+    num = addmod_u64(num, b2t, p);
+    num = addmod_u64(num, u[n], p);
+    num = msub(num, addmod_u64(b[n], b[n], p), p);
+    cc = mulmod(num, minv(4, p), p);
+    return msub(addmod_u64(b[n], cc, p), bf, p);
 }
 
 static seq_t fixed_a(long n)
@@ -203,9 +217,9 @@ static seq_t fixed_a(long n)
     }
     r1 = mod_a(0, n); r2 = mod_a(1, n); r3 = mod_a(2, n);
     d1 = r1;
-    d2 = mmul(msub(r2, d1 % p2, p2), minv(p1 % p2, p2), p2);
-    x12 = madd(d1 % p3, mmul(d2 % p3, p1 % p3, p3), p3);
-    d3 = mmul(msub(r3, x12, p3), minv(mmul(p1 % p3, p2 % p3, p3), p3), p3);
+    d2 = mulmod(msub(r2, d1 % p2, p2), minv(p1 % p2, p2), p2);
+    x12 = addmod_u64(d1 % p3, mulmod(d2 % p3, p1 % p3, p3), p3);
+    d3 = mulmod(msub(r3, x12, p3), minv(mulmod(p1 % p3, p2 % p3, p3), p3), p3);
     x = (unsigned __int128)d1 + (unsigned __int128)d2 * p1
         + (unsigned __int128)d3 * ((unsigned __int128)p1 * p2);
     r = (seq_t)(uint64_t)(x >> 64);

@@ -8,7 +8,8 @@
  *            pi(k) is prime (that is, k = A077510(n))
  * Range:     u8 n <= 42, u16 n <= 5942, u32 n <= 6414, u64 n <= 6414,
  *            u128 n <= 6414, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 5377 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* -------------  constants  ------------------------------------------ */
 #define SIEVE_MAX 5000000   /* enough to generate many thousands of terms */
@@ -71,7 +73,7 @@ static void ensure_seq_capacity(idx_t needed)
     idx_t newCap = seqCap ? seqCap << 1 : INITIAL_CAP;
     while (newCap < needed)
         newCap <<= 1;
-    seqVals = (seq_t *)realloc(seqVals, newCap * sizeof(seq_t));
+    seqVals = mem_resize(seq_t, seqVals, newCap);
     seqCap = newCap;
 }
 

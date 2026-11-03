@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, seq_realloc
+ * Validated: standard, pass, 75 terms through n = 9594 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include "../utils/num_divisors.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* static state for memoisation */
 static seq_t *terms = NULL;    /* array of found terms       */
@@ -63,11 +76,11 @@ seq_t a(idx_t n)
         ++last_checked;                      /* next j to examine */
 
         /* compute divisor counts */
-        seq_t d_j   = divisor_count_u64((uint64_t)last_checked);
+        seq_t d_j   = num_divisors((uint64_t)last_checked);
         idx_t d_j_idx = (idx_t)d_j;
         idx_t target  = last_checked + 2 * d_j_idx;
 
-        seq_t d_target = divisor_count_u64((uint64_t)target);
+        seq_t d_target = num_divisors((uint64_t)target);
 
         if (d_j == d_target)
             add_term((seq_t)last_checked);

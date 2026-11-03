@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=0..n} Stirling2(n,k) * k! * Bell(k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,11 +26,11 @@ seq_t a(idx_t n)
     size_t len = (size_t)n + 1;
 
     /* Allocate working arrays. */
-    seq_t *S     = (seq_t *)malloc(len * sizeof(seq_t));   /* Stirling numbers of the 2nd kind (current row)   */
-    seq_t *U     = (seq_t *)malloc(len * sizeof(seq_t));   /* U(k) = k! * Bell(k)                              */
-    seq_t *bell  = (seq_t *)malloc(len * sizeof(seq_t));   /* Bell numbers                                    */
-    seq_t *fact  = (seq_t *)malloc(len * sizeof(seq_t));   /* factorials                                      */
-    seq_t *a_val = (seq_t *)malloc(len * sizeof(seq_t));   /* to store a(k) for all k if needed               */
+    seq_t *S     = mem_new(seq_t, len);   /* Stirling numbers of the 2nd kind (current row)   */
+    seq_t *U     = mem_new(seq_t, len);   /* U(k) = k! * Bell(k)                              */
+    seq_t *bell  = mem_new(seq_t, len);   /* Bell numbers                                    */
+    seq_t *fact  = mem_new(seq_t, len);   /* factorials                                      */
+    seq_t *a_val = mem_new(seq_t, len);   /* to store a(k) for all k if needed               */
 
     /* Initialise to zero. */
     for (size_t i = 0; i < len; ++i) {
@@ -87,11 +89,11 @@ seq_t a(idx_t n)
     }
 
     /* Free memory */
-    free(S);
-    free(U);
-    free(bell);
-    free(fact);
-    free(a_val);
+    mem_free(S);
+    mem_free(U);
+    mem_free(bell);
+    mem_free(fact);
+    mem_free(a_val);
 
     return result;
 }

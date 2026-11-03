@@ -12,7 +12,8 @@
  *            [C(n-1,k) mod 2] * q[k]
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   S_parity
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/S_parity.h"
+#include "../utils/mem.h"
+
+/* Sierpinski triangle parity: C(i,j) mod 2 == 1 iff (j & (i-j)) == 0 */
+static inline int S_parity(idx_t i, idx_t j)
+{
+    return ((j & (i - j)) == 0) ? 1 : 0;
+}
 
 /* integer square root for unsigned __int128 (returns floor(sqrt(x))) */
 static inline idx_t isqrt_uint128(unsigned __int128 x)
@@ -70,7 +77,7 @@ static void ensure_q(idx_t need)
     if (need + 1 > q_cap) {
         size_t new_cap = q_cap ? q_cap * 2 : 4;
         while (new_cap <= (size_t)need + 1) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(q_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, q_cache, new_cap);
         q_cache = tmp;
         q_cap   = new_cap;
     }

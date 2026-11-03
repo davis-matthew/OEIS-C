@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 17, i32 n <= 34, i64 n <= 67, i128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 2980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {               /* first call: initialise */
         cap = 16;
         while (cap <= 9) cap <<= 1;    /* ensure space for indices 0..9 */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         for (idx_t i = 0; i <= 8; ++i) cache[i] = 1;
         cache[9] = 0;
         next = 10;                     /* all values up to 9 are ready */
@@ -44,9 +46,9 @@ seq_t a(idx_t n)
         if ((size_t)next >= cap) {     /* need more space */
             size_t newcap = cap << 1;
             if (newcap <= next) newcap = (size_t)next + 1;
-            seq_t *tmp = (seq_t *)malloc(newcap * sizeof(seq_t));
+            seq_t *tmp = mem_new(seq_t, newcap);
             for (size_t i = 0; i < cap; ++i) tmp[i] = cache[i];
-            free(cache);
+            mem_free(cache);
             cache = tmp;
             cap   = newcap;
         }

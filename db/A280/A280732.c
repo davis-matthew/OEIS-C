@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 624, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   digit_len, pow10, seq_realloc
+ * Validated: standard, pass, 61 terms through n = 8573 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,30 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 #define A_LIMIT 200000ULL   /* number of a‑values pre‑injected into the heap */
 
@@ -40,8 +62,8 @@ static size_t heap_size = 0;
 static seq_t concat_ab_c(idx_t a, idx_t b)
 {
     seq_t c = (seq_t)a * (seq_t)b;          /* c = a*b   */
-    idx_t len_b = digit_len((seq_t)b);      /* digits of b  */
-    idx_t len_c = digit_len(c);             /* digits of c  */
+    idx_t len_b = num_digits((seq_t)b);      /* digits of b  */
+    idx_t len_c = num_digits(c);             /* digits of c  */
     seq_t N = (seq_t)a * pow10(len_b + len_c)
             + (seq_t)b * pow10(len_c)
             + c;

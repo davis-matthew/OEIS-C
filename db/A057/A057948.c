@@ -12,7 +12,8 @@
  *            (prime can repeat)
  * Range:     u8 none, u16 n <= 6971, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9565 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*--- Static state -------------------------------------------------------*/
 static uint8_t  *sieve_buf   = NULL;    /* sieve marks 0 = prime, 1 = composite   */
@@ -57,7 +59,7 @@ static void ensure_sp_cap(size_t need)
     if (sp_cap >= need) return;
     size_t new_cap = sp_cap ? sp_cap * 2 : 64;
     while (new_cap < need) new_cap <<= 1;
-    sp_list = (seq_t *)realloc(sp_list, new_cap * sizeof(seq_t));
+    sp_list = mem_resize(seq_t, sp_list, new_cap);
     sp_cap   = new_cap;
 }
 
@@ -130,7 +132,7 @@ static void build_sp_list(uint64_t bound)
     free(p3);
 
     /* 4. sort the list (ascending) */
-    qsort(sp_list, sp_cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(sp_list, sp_cnt, sizeof(seq_t), cmp_seq);
 }
 
 /*--- Main function -----------------------------------------------------*/

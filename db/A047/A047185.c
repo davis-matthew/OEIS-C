@@ -9,12 +9,14 @@
  *            ⌊(n-2)/2⌋, H = n - L
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Pre‑compute binomial coefficients C(H, j) for j = 0 … 3*kmax */
     size_t len = 3u * (size_t)kmax + 1u;
-    seq_t *Hcomb = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *Hcomb = mem_new(seq_t, len);
     if (!Hcomb) return 0;                 /* allocation failure – safe fallback */
 
     Hcomb[0] = 1;
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
         total += cL * Hcomb[3u * k];        /* C(H,3k) */
     }
 
-    free(Hcomb);
+    mem_free(Hcomb);
     return total;
 }

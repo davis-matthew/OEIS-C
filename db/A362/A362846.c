@@ -10,6 +10,7 @@
  *            Gamma(n+k)/Gamma(n-k) = product_{j=n-k}^{n+k-1} j
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

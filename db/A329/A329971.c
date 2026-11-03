@@ -7,7 +7,8 @@
  * Formula:   a(0) = 1, a(n) = 2 * Σ_{k=1..⌊√n⌋} a(n - k^2) for n ≥ 1
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 28, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,14 @@
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* malloc, free */
 #include <string.h>   /* memset, memcpy */
-#include "../utils/alloc_seq_array.h"   /* alloc_seq_array(size_t) */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Static memoization storage */
 static seq_t *a_arr   = NULL;   /* array of computed terms */
@@ -39,13 +47,13 @@ ensure_capacity(idx_t n)
     if (cap > 0)
     {
         /* seq_t may be not trivially copyable; use memcpy on the raw block. */
-        memcpy(new_a, a_arr, cap * sizeof(seq_t));
-        free(a_arr);     /* free previous block – works for the allocator used by alloc_seq_array */
+        mem_copy(new_a, a_arr, cap * sizeof(seq_t));
+        mem_free(a_arr);     /* free previous block – works for the allocator used by alloc_seq_array */
     }
 
     /* Zero the new slots (seq_t defaults to zero for integer types; for big ints zero works). */
     if (newcap > cap)
-        memset(new_a + cap, 0, (newcap - cap) * sizeof(seq_t));
+        mem_set(new_a + cap, 0, (newcap - cap) * sizeof(seq_t));
 
     a_arr = new_a;
     cap   = newcap;

@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   ensure_seq_array, ensure_uint32_array, ensure_uint64_array,
- *            generate_next_prime
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +20,67 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/ensure_seq_array.h"
-#include "../utils/ensure_uint32_array.h"
-#include "../utils/ensure_uint64_array.h"
-#include "../utils/generate_next_prime.h"
+#include "../utils/mem.h"
+
+/* Ensure an array of seq_t is large enough to hold indexes [0..min_needed] */
+static void ensure_seq_array(seq_t **arr, size_t *cap, size_t min_needed)
+{
+    if (*cap <= min_needed) {
+        size_t newcap = (*cap) ? (*cap) * 2 : 16;
+        if (newcap <= min_needed) newcap = min_needed + 1;
+        *arr = mem_resize(seq_t, *arr, newcap);
+        for (size_t i = *cap; i < newcap; ++i) (*arr)[i] = 0;
+        *cap = newcap;
+    }
+}
+
+/* Ensure an array of uint32_t is large enough to hold indexes [0..min_needed] */
+static void ensure_uint32_array(uint32_t **arr, size_t *cap, size_t min_needed)
+{
+    if (*cap <= min_needed) {
+        size_t newcap = (*cap) ? (*cap) * 2 : 16;
+        if (newcap <= min_needed) newcap = min_needed + 1;
+        *arr = (uint32_t *)realloc(*arr, newcap * sizeof(uint32_t));
+        for (size_t i = *cap; i < newcap; ++i) (*arr)[i] = 0;
+        *cap = newcap;
+    }
+}
+
+/* Ensure an array of uint64_t is large enough to hold indexes [0..min_needed] */
+static void ensure_uint64_array(uint64_t **arr, size_t *cap, size_t min_needed)
+{
+    if (*cap <= min_needed) {
+        size_t newcap = (*cap) ? (*cap) * 2 : 64;
+        if (newcap <= min_needed) newcap = min_needed + 1;
+        *arr = (uint64_t *)realloc(*arr, newcap * sizeof(uint64_t));
+        *cap = newcap;
+    }
+}
+
+/* Generate the next prime after last */
+static uint64_t generate_next_prime(uint64_t last,
+                                    uint64_t **primes, size_t *cnt, size_t *cap)
+{
+    uint64_t candidate = last + 1;
+    if (candidate <= 2) candidate = 2;
+    if (candidate > 2 && (candidate & 1) == 0) ++candidate;  /* start from odd */
+
+    for (;;) {
+        bool prime = true;
+        for (size_t i = 0; i < *cnt; ++i) {
+            uint64_t p = (*primes)[i];
+            if (p * p > candidate) break;
+            if (candidate % p == 0) { prime = false; break; }
+        }
+        if (prime) {
+            ensure_uint64_array(primes, cap, *cnt);
+            (*primes)[*cnt] = candidate;
+            ++(*cnt);
+            return candidate;
+        }
+        candidate += 2;
+    }
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

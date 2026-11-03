@@ -9,6 +9,7 @@
  *            x^2 + 2·y^2 with integers x,y; returns -1 if no such k exists
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 96 terms through n = 7887 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto() */
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
 
 static uint64_t *primes = NULL;
 static size_t prime_cnt = 0;

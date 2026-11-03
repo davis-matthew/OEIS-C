@@ -8,6 +8,7 @@
  * Formula:   a(n) = 10*A007088(floor(n/3)) + (n mod 3)
  * Range:     u8 n <= 11, u16 n <= 47, u32 n <= 1535, u64 n <= 3072,
  *            u128 n <= 3072, big any n
+ * Validated: standard, pass, 60 terms through n = 2749 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,8 +12,8 @@
  *            v_p(L*N!)))
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   g207_addmul, g207_bitlen, g207_cmp, g207_divs, g207_mods,
- *            g207_muls, g207_norm, g207_sub
+ * Validated: standard, pass, 38 terms through n = 96 (2026-11-01)
+ * Helpers:   bit_length_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +21,77 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/g207_addmul.h"
-#include "../utils/g207_bitlen.h"
-#include "../utils/g207_cmp.h"
-#include "../utils/g207_divs.h"
-#include "../utils/g207_mods.h"
-#include "../utils/g207_muls.h"
-#include "../utils/g207_norm.h"
-#include "../utils/g207_sub.h"
+#include "../utils/bit_length_u64.h"
+
+static void g207_addmul(uint32_t *acc, size_t alen, const uint32_t *x, size_t lx,
+                        const uint32_t *y, size_t ly) {
+    for (size_t i = 0; i < lx; i++) {
+        uint64_t xi = x[i], c = 0;
+        size_t j;
+        if (xi == 0) continue;
+        for (j = 0; j < ly; j++) {
+            uint64_t t = xi * y[j] + acc[i + j] + c;
+            acc[i + j] = (uint32_t)t;
+            c = t >> 32;
+        }
+        for (j = i + ly; c && j < alen; j++) {
+            uint64_t t = (uint64_t)acc[j] + c;
+            acc[j] = (uint32_t)t;
+            c = t >> 32;
+        }
+    }
+}
+
+static int g207_cmp(const uint32_t *x, size_t lx, const uint32_t *y, size_t ly) {
+    if (lx != ly) return lx < ly ? -1 : 1;
+    for (size_t i = lx; i-- > 0;)
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    return 0;
+}
+
+static uint32_t g207_divs(uint32_t *x, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    for (size_t i = len; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+    return (uint32_t)r;
+}
+
+static uint32_t g207_mods(const uint32_t *x, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    for (size_t i = len; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        r = cur % d;
+    }
+    return (uint32_t)r;
+}
+
+static uint32_t g207_muls(uint32_t *x, size_t len, uint32_t m) {
+    uint64_t c = 0;
+    for (size_t i = 0; i < len; i++) {
+        uint64_t t = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    return (uint32_t)c;
+}
+
+static size_t g207_norm(const uint32_t *x, size_t len) {
+    while (len > 0 && x[len - 1] == 0) len--;
+    return len;
+}
+
+/* a -= b, requires a >= b */
+static void g207_sub(uint32_t *x, size_t lx, const uint32_t *y, size_t ly) {
+    int64_t br = 0;
+    for (size_t i = 0; i < lx; i++) {
+        int64_t t = (int64_t)x[i] - (i < ly ? (int64_t)y[i] : 0) - br;
+        if (t < 0) { t += ((int64_t)1 << 32); br = 1; } else br = 0;
+        x[i] = (uint32_t)t;
+    }
+}
 
 seq_t a(idx_t n) {
     idx_t N, P, m, k, i, j;
@@ -42,7 +105,7 @@ seq_t a(idx_t n) {
             for (j = i * i; j <= P; j += i) comp[j] = 1;
 
     size_t fbits = 1;
-    for (m = 1; m <= N; m++) fbits += (size_t)g207_bitlen((uint64_t)m);
+    for (m = 1; m <= N; m++) fbits += (size_t)bit_length_u64((uint64_t)m);
     size_t W = fbits / 32 + 2;
 
     size_t lbits = 1;
@@ -50,7 +113,7 @@ seq_t a(idx_t n) {
         if (comp[i]) continue;
         idx_t pk = i;
         while (pk <= P / i) pk *= i;
-        lbits += (size_t)g207_bitlen((uint64_t)pk);
+        lbits += (size_t)bit_length_u64((uint64_t)pk);
     }
     size_t WL = lbits / 32 + 2;
     uint32_t *L = (uint32_t *)calloc(WL, sizeof(uint32_t));
@@ -69,7 +132,7 @@ seq_t a(idx_t n) {
     c[W] = 1;
     size_t curbits = 1, cur = 1;
     for (m = 1; m < N; m++) {
-        curbits += (size_t)g207_bitlen((uint64_t)(m + 1));
+        curbits += (size_t)bit_length_u64((uint64_t)(m + 1));
         cur = curbits / 32 + 2;
         if (cur > W) cur = W;
         for (k = m + 1; k >= 1; k--) {

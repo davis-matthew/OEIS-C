@@ -8,7 +8,8 @@
  *            binomial(n–k,k)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 71,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 44 terms through n = 465 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /* OEIS A383605, offset 0 */
 
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *T_cache = NULL;      /* T_k = 3^k * Π_{j=1}^k (3*j-1) / k!  */
 static size_t T_len  = 0;          /* number of cached values so far   */
@@ -29,7 +32,7 @@ static void ensure_T(idx_t maxk)
         return;
 
     /* grow array */
-    T_cache = (seq_t *)realloc(T_cache, new_cap * sizeof(seq_t));
+    T_cache = mem_resize(seq_t, T_cache, new_cap);
     /* initialise new slots to 0 (will be overwritten below) */
     for (size_t i = T_len; i < new_cap; ++i)
         T_cache[i] = (seq_t)0;

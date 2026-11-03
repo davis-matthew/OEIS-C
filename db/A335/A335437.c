@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 76 terms through n = 8928 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
  */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n) {
     if (n < 1)
@@ -43,7 +44,7 @@ seq_t a(idx_t n) {
                 ++exp;
             }
             int ceil_exp = (exp + 1) / 2;
-            l *= pow_seq((seq_t)2, ceil_exp);
+            l *= ipow_i32((seq_t)2, ceil_exp);
         }
 
         /* odd prime factors */
@@ -55,7 +56,7 @@ seq_t a(idx_t n) {
                     ++exp;
                 }
                 int ceil_exp = (exp + 1) / 2;
-                l *= pow_seq((seq_t)p, ceil_exp);
+                l *= ipow_i32((seq_t)p, ceil_exp);
             }
         }
 

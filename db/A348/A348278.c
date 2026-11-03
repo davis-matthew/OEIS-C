@@ -7,15 +7,17 @@
  * Formula:   a(n) = Sum_{d|n} d^(d') where d' = Σ_{p^e||d} e * d / p
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static void rec(const uint64_t *pr, const uint64_t *ex,
                 size_t cnt, size_t idx, uint64_t d,
@@ -29,7 +31,7 @@ static void rec(const uint64_t *pr, const uint64_t *ex,
                 d_prime += (seq_t)chosen[i] * (seq_t)(d / pr[i]);
             }
         }
-        seq_t term = big_pow((seq_t)d, d_prime);
+        seq_t term = ipow((seq_t)d, d_prime);
         *res += term;
         return;
     }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types */
 typedef idx_t  idx_t;   /* defined by the build, typically uint64_t */
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
 
         /* Allocate cache for at least the first term. */
         cache_cap = 2;                         /* indices 0 and 1 */
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         cache[0]  = 0;                         /* unused */
         cache[1]  = 0;                         /* will be filled when needed */
         cache_max = 0;                         /* none computed yet */
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
     size_t required = (size_t)n + 1;
     if (required > cache_cap) {
         cache_cap = required + 1;   /* a bit of slack for future calls */
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* ------------------------------------------------------------------

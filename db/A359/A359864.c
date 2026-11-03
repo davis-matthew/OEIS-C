@@ -8,7 +8,8 @@
  * Formula:   a(n) = #{ (x, y) in [0,n]^2 : x^y ≡ y^x (mod n) }
  * Range:     u8 n <= 47, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Ensure n >= 1, but works for any n >= 0 */
     const seq_t n_seq = (seq_t)n;
     /* Array holding y^x (mod n) for current exponent x */
     const size_t sz = (size_t)(n + 1);
-    seq_t *pow_y = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *pow_y = mem_new(seq_t, sz);
     if (!pow_y) return 0;  /* allocation failure, return 0 */
 
     /* Initialize for x = 0: y^0 = 1 (mod n) */
@@ -45,6 +47,6 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(pow_y);
+    mem_free(pow_y);
     return count;
 }

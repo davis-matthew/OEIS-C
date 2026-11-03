@@ -12,13 +12,15 @@
  *            2k+1...
  * Range:     u8 n <= 21, u16 n <= 63, u32 n <= 208, u64 n <= 730,
  *            u128 n <= 2688, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Assume seq_t and idx_t are supplied by the build. */
 static seq_t *dp = NULL;      /* temporary array for partition counts */
@@ -27,7 +29,7 @@ static idx_t dp_size = 0;     /* current allocated size of dp */
 seq_t a(idx_t n) {
     /* Allocate or enlarge the dp array if necessary. */
     if (dp_size < n + 1) {
-        seq_t *newdp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+        seq_t *newdp = mem_resize(seq_t, dp, (n + 1));
         if (!newdp) exit(1);          /* allocation failed */
         dp = newdp;
         dp_size = n + 1;

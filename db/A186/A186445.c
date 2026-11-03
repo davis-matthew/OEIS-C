@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system */
 static seq_t *p_cache = NULL;   /* partition numbers 0 .. p_cap-1   */
@@ -37,13 +39,13 @@ static void ensure_partitions(idx_t upto)
     if (!p_cache) {                         /* first call */
         p_cap = upto + 1;
         if (p_cap == 0) p_cap = 1;          /* make room for p(0) */
-        p_cache = (seq_t *)malloc(p_cap * sizeof(seq_t));
+        p_cache = mem_new(seq_t, p_cap);
         if (!p_cache) abort();              /* OOM */
         p_cache[0] = (seq_t)1;              /* p(0) = 1 */
         p_last  = 0;
     } else if (upto >= p_cap) {             /* need more space */
         idx_t new_cap = upto + 1;
-        seq_t *new_cache = (seq_t *)realloc(p_cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, p_cache, new_cap);
         if (!new_cache) abort();
         p_cache = new_cache;
         p_cap   = new_cap;

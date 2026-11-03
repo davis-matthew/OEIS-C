@@ -9,6 +9,7 @@
  *            * 34 if n = 4 * 6 otherwise (n ≥ 5)
  * Range:     i8 n <= 112, i16 n <= 112, i32 n <= 112, i64 n <= 112,
  *            i128 n <= 112, big any n
+ * Validated: partial, pass, 113 terms through n = 112 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

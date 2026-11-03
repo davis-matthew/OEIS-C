@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 64‑bit deterministic Miller–Rabin primality test (deterministic for n<2⁶⁴). */
 static bool is_prime_64(uint64_t n)
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
             uint64_t sq_plus_two = k * k + 2ULL;
             if (!is_prime_64(sq_plus_two)) {
                 /* Store the odd integer k as a term. */
-                seq_t *tmp = (seq_t *)realloc(terms, (term_count + 1) * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, (term_count + 1));
                 if (!tmp) { abort(); }      /* allocation failure */
                 terms = tmp;
                 terms[term_count] = (seq_t)k;

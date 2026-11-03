@@ -13,7 +13,8 @@
  *            sequence's convention
  * Range:     u8 n <= 21, u16 n <= 423, u32 n <= 423, u64 n <= 423,
  *            u128 n <= 423, big any n
- * Helpers:   seq_alloc_array, seq_free_array
+ * Validated: standard, pass, 80 terms through n = 384 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,18 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Lengths of the basic English words (without hyphens or spaces). */
 static const int ones_len[10]  = {0,3,3,5,4,4,3,5,5,4};   /* zero‑nine   */

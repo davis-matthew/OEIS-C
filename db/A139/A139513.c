@@ -9,14 +9,16 @@
  *            be called with indices in any order
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 71 terms through n = 986 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Cached sequence: prime_cache[k] == a(k+1) */
 static seq_t *prime_cache = NULL;
@@ -31,15 +33,14 @@ static void extend_cache_until(idx_t n)
 {
     while (cache_len < n) {
         /* Test current candidate for primality */
-        if (is_prime_small((seq_t)next_candidate)) {
+        if (is_prime_seq((seq_t)next_candidate)) {
             /* Accept only primes congruent to 1,3,7,9 modulo 20 */
             idx_t mod20 = next_candidate % 20;
             if (mod20 == 1 || mod20 == 3 || mod20 == 7 || mod20 == 9) {
                 /* Grow array if needed */
                 if (cache_len == cache_cap) {
                     idx_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(prime_cache,
-                                                  (size_t)new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, prime_cache, (size_t)new_cap);
                     if (!tmp) abort();          /* memory exhaustion */
                     prime_cache = tmp;
                     cache_cap   = new_cap;

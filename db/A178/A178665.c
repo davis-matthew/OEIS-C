@@ -9,6 +9,7 @@
  *            (1+x^3)(1+x^15)(1+x^23)(1+x^27)(1+x^35)(1+x^39)(1+x^47)(1+x^59)
  * Range:     u8 n <= 143, u16 n <= 143, u32 n <= 143, u64 n <= 143,
  *            u128 n <= 143, big any n
+ * Validated: partial, pass, 144 terms through n = 143 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

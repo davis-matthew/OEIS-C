@@ -8,6 +8,7 @@
  * Formula:   a(n) = number of primes p ≤ 2n² that are 2 or ≡ 1 (mod 4)
  * Range:     u8 n <= 43, u16 n <= 933, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 82 terms through n = 919 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Primes of the form x² + y² are exactly 2 and primes ≡ 1 (mod 4). */
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 seq_t a(idx_t n)

@@ -11,12 +11,14 @@
  *            row 2, …). The first few rows are 1; 2,‑1; 3,‑4,...
  * Range:     i8 n <= 24, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;   /* 1‑based array of rows */
 static idx_t maxRow = 0;
@@ -32,7 +34,7 @@ static void ensure_rows(idx_t upTo)
     }
 
     for (idx_t r = maxRow + 1; r <= upTo; ++r) {
-        triangle[r] = (seq_t *)malloc((r + 2) * sizeof(seq_t));  /* 1‑based */
+        triangle[r] = mem_new(seq_t, (r + 2));  /* 1‑based */
 
         if (r == 1) {
             triangle[1][1] = (seq_t)1;

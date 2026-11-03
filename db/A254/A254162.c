@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 21, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Number of possible 3×4 binary states (4 rows×4 columns) */
 enum { STATE_CNT = 4096 };
@@ -112,8 +114,8 @@ seq_t a(idx_t n)
     static seq_t newdp[STATE_CNT];
 
     /* Clear DP arrays for this call. */
-    memset(dp,   0, sizeof(dp));
-    memset(newdp,0, sizeof(newdp));
+    mem_set(dp, 0, sizeof(dp));
+    mem_set(newdp, 0, sizeof(newdp));
 
     /* Initial states: need left ≤ right for the very first 3×3
        subblock. */
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
     const size_t steps = (size_t)(H) > 3 ? (size_t)(H) - 3 : 0;
 
     for (size_t step = 0; step < steps; ++step) {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
 
         for (int s = 0; s < STATE_CNT; ++s) {
             if (!dp[s]) continue;
@@ -138,7 +140,7 @@ seq_t a(idx_t n)
         }
 
         /* Prepare for next iteration */
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
     }
 
     /* Sum over all final states; they already satisfy horizontal

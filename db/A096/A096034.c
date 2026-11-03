@@ -12,13 +12,16 @@
  *            r*(r-1)/2 (1‑based column)
  * Range:     u8 n <= 15, u16 n <= 46, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
     seq_t bin      = binomial((idx_t)row, k_minus1);
 
     /* 3^(row - k + 1) = 3^(row - k_minus1) */
-    seq_t pow3 = pow_seq((seq_t)3, (int)(row - k_minus1));
+    seq_t pow3 = ipow_i32((seq_t)3, (int)(row - k_minus1));
     seq_t diff = pow3 - (seq_t)1;            /* 3^d - 1  (always even) */
 
     seq_t result = (bin * diff) / (seq_t)2;  /* exact integer division */

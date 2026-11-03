@@ -8,7 +8,8 @@
  * Formula:   a(n) = (Sum_{d|n, d odd} mu(d)*(3^(n/d)-1))/(2*n)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 23, u64 n <= 44, u128 n <= 85,
  *            big any n
- * Helpers:   bn_pow3
+ * Validated: standard, pass, 46 terms through n = 179 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bn_pow3.h"
+
+static void bn_pow3(uint32_t *x, uint64_t m, size_t L) {
+    uint64_t k;
+    size_t i;
+    memset(x, 0, L * sizeof(uint32_t));
+    x[0] = 1;
+    for (k = 0; k < m; k++) {
+        uint64_t c = 0;
+        for (i = 0; i < L; i++) {
+            c += (uint64_t)x[i] * 3u;
+            x[i] = (uint32_t)c;
+            c >>= 32;
+        }
+    }
+}
 
 static int mobius_u64(uint64_t n) {
     int mu = 1;

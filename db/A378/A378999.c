@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of trailing 1-bits in binary representation of
  *            σ(n²)
- * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 5325, u64 n <= 8505,
- *            u128 n <= 8505, big any n
- * Helpers:   big_pow
+ * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 5325, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 8505 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* External linkage as requested */
 seq_t a(idx_t n)
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     {
         seq_t  p   = (seq_t)primes[i];
         seq_t  exp = (seq_t)(2 * exps[i] + 1);
-        seq_t  geom = (big_pow(p, exp) - 1) / (p - 1);   /* Σ_{k=0}^{2e} p^k */
+        seq_t  geom = (ipow(p, exp) - 1) / (p - 1);   /* Σ_{k=0}^{2e} p^k */
         sigma *= geom;
     }
 

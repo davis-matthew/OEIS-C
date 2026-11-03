@@ -7,7 +7,8 @@
  * Formula:   a(n) = ((18*n+25)*F(n+1) + 11*(n+1)*F(n)) / 5
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   fib_pair, mul_small
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   fib_pair
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,21 @@
 /* where F(0)=0, F(1)=1.  The helper fib_pair returns F(n) and F(n+1). */
 /* mul_small is used to multiply a seq_t by a small unsigned int. */
 
+#include <stdlib.h>
 #include "../utils/fib_pair.h"
-#include "../utils/mul_small.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* External linkage as required */
 seq_t a(idx_t n)

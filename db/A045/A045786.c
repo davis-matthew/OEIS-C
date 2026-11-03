@@ -7,7 +7,8 @@
  * Formula:   a(n) = A045857(n)^2
  * Range:     u8 n <= 1, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache of already found squares with leading digit 3          */
 /* cache[i] holds a(i+1)                                               */
@@ -28,7 +30,7 @@ static uint64_t next     = 1;      /* next integer to test for leading 3 */
    existing elements to the new block before freeing the old one.  */
 static void grow_cache(void) {
     size_t new_cap = (capacity == 0) ? 8 : capacity << 1;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) {
         /* Out of memory: aborting – in the real test harness this will
            terminate the process, which is acceptable for a rare failure. */
@@ -36,7 +38,7 @@ static void grow_cache(void) {
     }
     for (size_t i = 0; i < size; ++i)
         tmp[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache    = tmp;
     capacity = new_cap;
 }

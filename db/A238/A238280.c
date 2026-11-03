@@ -10,6 +10,7 @@
  *            lcm(1..j)
  * Range:     u8 n <= 6441, u16 n <= 6441, u32 n <= 6441, u64 n <= 6441,
  *            u128 n <= 6441, big any n
+ * Validated: standard, pass, 131 terms through n = 6358 (2026-11-01)
  * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@
    variable-width types provided by the build (seq_t and idx_t). */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/gcd_u64.h"
 
 /* Compute GCD using 64‑bit arithmetic to avoid overflow when

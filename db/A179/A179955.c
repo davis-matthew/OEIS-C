@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 511, u64 n <= 511, u128 n <= 511,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 511 terms through n = 511 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the comparator used by qsort. */
 static int cmp_seq_t(const void *a, const void *b);
@@ -57,7 +59,7 @@ static void prepare_sequence(void)
         gen(10, (seq_t)0);           /* start with sum 10 and value 0 */
         /* After generation seq_len should be 511 */
         if (seq_len < SEQ_CAP) {
-            qsort(seq, seq_len, sizeof(seq_t), cmp_seq_t);
+            mem_qsort(seq, seq_len, sizeof(seq_t), cmp_seq_t);
         }
         seq_ready = true;
     }

@@ -8,7 +8,8 @@
  * Formula:   a(n) = n * Sum_{i=1..floor(n/2)} [A008966(i) = A008966(n-i)]
  * Range:     u8 n <= 27, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool *squarefree = NULL;      /* squarefree status, 1 if true */
 static idx_t squarefree_size = 0;    /* allocated size */
@@ -53,7 +55,7 @@ static void ensure_a_cache(idx_t n)
     if (n < a_cache_size)
         return;
     idx_t new_size = n + 1;
-    seq_t *new_arr = (seq_t*)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_cache, new_size);
     if (!new_arr)
         return;
     a_cache = new_arr;

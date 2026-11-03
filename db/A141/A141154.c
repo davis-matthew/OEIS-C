@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -59,13 +61,13 @@ seq_t a(idx_t n)
      * -------------------------------------------------------------------- */
     if (fact_len == 0) {
         fact_len = 1;
-        fact_arr = (seq_t*)malloc(fact_len * sizeof(seq_t));
+        fact_arr = mem_new(seq_t, fact_len);
         if (!fact_arr) abort();
         fact_arr[0] = 1;           /* 0! = 1 */
     }
     if (fact_len < needed + 1) {
         size_t newlen = (size_t)(needed + 1);
-        seq_t *tmp = (seq_t*)realloc(fact_arr, newlen * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_arr, newlen);
         if (!tmp) abort();
         fact_arr = tmp;
         for (idx_t i = fact_len; i < newlen; ++i)
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
      * -------------------------------------------------------------------- */
     if (B_len < needed) {
         size_t newlen = (size_t)needed;
-        seq_t *tmp = (seq_t*)realloc(B_arr, newlen * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, B_arr, newlen);
         if (!tmp) abort();
         B_arr = tmp;
         if (B_len == 0)
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
      * -------------------------------------------------------------------- */
     if (g_len < n) {
         size_t newlen = (size_t)n;
-        seq_t *tmp = (seq_t*)realloc(g_arr, newlen * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, g_arr, newlen);
         if (!tmp) abort();
         g_arr = tmp;
         for (idx_t i = g_len; i < n; ++i) {
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
      * -------------------------------------------------------------------- */
     if (a_len < needed) {
         size_t newlen = (size_t)needed;
-        seq_t *tmp = (seq_t*)realloc(a_arr, newlen * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, newlen);
         if (!tmp) abort();
         a_arr = tmp;
         for (idx_t i = a_len; i < newlen; ++i) {

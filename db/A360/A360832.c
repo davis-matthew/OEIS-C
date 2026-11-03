@@ -7,15 +7,17 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} (n-2*k)^n * binomial(n-k-1, k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     idx_t half = n / 2;
     for (idx_t k = 0; k <= half; ++k) {
-        seq_t pow_term = pow_uint((uint64_t)(n - 2*k), n);
+        seq_t pow_term = ipow_u64_idx((uint64_t)(n - 2*k), n);
         seq_t bin = binomial(n - k - 1, k);
         result += pow_term * bin;
     }

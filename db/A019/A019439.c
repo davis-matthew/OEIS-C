@@ -9,12 +9,14 @@
  *            values: a(0)=1, a(1)=1, a(2)=2, a(3)=6, a(4)=17, a(5)=43
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 47, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 2373 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Allocate or enlarge cache as needed */
     size_t target = (size_t)n + 1;
     if (cache_len < target) {
-        seq_t *new_cache = (seq_t *)realloc(cache, target * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, target);
         if (!new_cache) return (seq_t)0;           /* fall back on failure */
         cache = new_cache;
         /* Initialize the first six entries if this is the first allocation */

@@ -11,12 +11,14 @@
  *            b(0)=2, b(1)=4, b(2)=5 and a, b are complementary
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 35, u64 n <= 81, u128 n <= 173,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global caches for the sequences; they are allocated lazily. */
 static seq_t *a_cache = NULL;
@@ -29,11 +31,11 @@ static void grow_a(size_t need)
 {
     if (a_cap == 0) {
         a_cap = 8;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
     }
     while (a_cap < need) {
         a_cap *= 2;
-        a_cache = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, a_cap);
     }
 }
 
@@ -42,11 +44,11 @@ static void grow_b(size_t need)
 {
     if (b_cap == 0) {
         b_cap = 8;
-        b_cache = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_cache = mem_new(seq_t, b_cap);
     }
     while (b_cap < need) {
         b_cap *= 2;
-        b_cache = (seq_t *)realloc(b_cache, b_cap * sizeof(seq_t));
+        b_cache = mem_resize(seq_t, b_cache, b_cap);
     }
 }
 

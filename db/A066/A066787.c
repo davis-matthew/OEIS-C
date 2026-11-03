@@ -7,13 +7,18 @@
  * Formula:   a(n) = gcd(2^n + 1, n^2 + 1)
  * Range:     u8 n <= 17, u16 n <= 260, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, mod_pow
+ * Validated: standard, pass, 117 terms through n = 983 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +27,7 @@ seq_t a(idx_t n)
     seq_t m = (seq_t)tmp;                   /* modulus for the power */
 
     /* 2^n mod (n^2 + 1) */
-    seq_t pow_val = mod_pow((seq_t)2, n, m);
+    seq_t pow_val = powmod((seq_t)2, n, m);
 
     /* (2^n + 1) mod (n^2 + 1) */
     seq_t plus = pow_val + (seq_t)1;

@@ -8,14 +8,16 @@
  * Formula:   a(n) = 2*(n-1)^2 + Sum_{i=2..n-1} (n-i)*(2n-i)*phi(i)
  * Range:     u8 n <= 6, u16 n <= 25, u32 n <= 410, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 56 terms through n = 9861 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (with a(1) = 0) */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     for (idx_t i = 2; i < n; ++i) {
         seq_t term1 = sn - (seq_t)i;                      /* n-i  */
         seq_t term2 = 2 * sn - (seq_t)i;                  /* 2n-i */
-        seq_t phi_i = phi(i);                              /* φ(i) */
+        seq_t phi_i = totient(i);                              /* φ(i) */
         sum += term1 * term2 * phi_i;
     }
 

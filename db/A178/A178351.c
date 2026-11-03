@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,15 +19,17 @@
  * (all divisions are integer divisions, truncating toward 0)
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* compute powers */
-    seq_t p11 = big_pow((seq_t)11, (seq_t)n);
-    seq_t p13 = big_pow((seq_t)13, (seq_t)n);
-    seq_t p9  = big_pow((seq_t)9,  (seq_t)n);
-    seq_t p7  = big_pow((seq_t)7,  (seq_t)n);
+    seq_t p11 = ipow((seq_t)11, (seq_t)n);
+    seq_t p13 = ipow((seq_t)13, (seq_t)n);
+    seq_t p9  = ipow((seq_t)9,  (seq_t)n);
+    seq_t p7  = ipow((seq_t)7,  (seq_t)n);
 
     /* terms of the formula */
     seq_t term1 = (seq_t)2 * p11;                /* 2*11^n */

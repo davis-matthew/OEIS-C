@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 173, u32 n <= 173, u64 n <= 173, u128 n <= 173,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: standard, pass, 68 terms through n = 171 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Required comparison routine supplied by the OEIS build. */
-# include "../utils/cmp_seq_t.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* Global storage for the sequence. */
 static seq_t *g_terms = NULL;
@@ -73,13 +84,13 @@ static void build_sequence(idx_t target_n)
 
         /* Collect all sums that have exactly two representations. */
         size_t cap = 32;
-        seq_t *local = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *local = mem_new(seq_t, cap);
         size_t len = 0;
         for (size_t s = 0; s <= Smax; ++s) {
             if (dp[8][s] == 2) {
                 if (len >= cap) {
                     cap <<= 1;
-                    local = (seq_t *)realloc(local, cap * sizeof(seq_t));
+                    local = mem_resize(seq_t, local, cap);
                 }
                 local[len++] = (seq_t)s;
             }
@@ -90,16 +101,16 @@ static void build_sequence(idx_t target_n)
         free(dp);
 
         if (len < (size_t)target_n) {
-            free(local);
+            mem_free(local);
             Smax <<= 1;                     /* double the bound and try again */
             continue;
         }
 
         /* Sort the collected terms so that a(1) is the smallest. */
-        qsort(local, len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(local, len, sizeof(seq_t), cmp_seq_t);
 
         /* Replace global sequence storage. */
-        free(g_terms);
+        mem_free(g_terms);
         g_terms = local;
         g_len   = len;
         break;

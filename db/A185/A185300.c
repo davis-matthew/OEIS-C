@@ -9,14 +9,15 @@
  *            k) + (product of decimal digits of k) is a prime number
  * Range:     u8 n <= 70, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 82 terms through n = 9868 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Return the nth term of OEIS A185300.
    The function is memoization‑free and works for any build
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
             t /= 10;
         }
 
-        if (is_prime_small(sum + prod)) {
+        if (is_prime_seq(sum + prod)) {
             ++cnt;
             if (cnt == n)
                 return (seq_t)k;

@@ -9,7 +9,8 @@
  *            k > x such that rad(k) | x)
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   factorize
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   factorize, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factorize.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;  /* array of terms, 1‑based */
 static idx_t  cache_cap = 0;   /* highest n currently cached */
@@ -64,12 +67,12 @@ static void ensure_cache(idx_t n)
 
     size_t new_cap = (size_t)(n + 1);          /* terms are 1‑based */
     if (a_cache == NULL) {
-        a_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, new_cap);
         if (a_cache == NULL) abort();
         a_cache[1] = (seq_t)2;                /* a(1) = 2 */
         cache_cap = 1;
     } else {
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (tmp == NULL) abort();
         a_cache = tmp;
     }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = gcd(phi(n!), phi(n^n), phi(lcm(1..n)))
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 29, u64 n <= 83, u128 n <= 149,
  *            big any n
- * Helpers:   gcd, seq_mul, seq_pow
+ * Validated: standard, pass, 56 terms through n = 286 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,14 @@
 #include <limits.h>
 
 /* external helper functions */
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* global prime tables */
 #define PRIME_LIMIT 10000
@@ -157,7 +163,7 @@ seq_t a(idx_t n)
         if (e2[i] < min_e) min_e = e2[i];
         if (e3[i] < min_e) min_e = e3[i];
         if (min_e == 0) continue;
-        seq_t p_pow = seq_pow((seq_t)primes_u32[i], min_e);
+        seq_t p_pow = ipow_idx((seq_t)primes_u32[i], min_e);
         result = seq_mul(result, p_pow);
     }
     return result;

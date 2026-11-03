@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   factor_u64, gcd
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   factor_u64, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 /* --- utility headers providing gcd and prime factorisation --- */
-#include "../utils/gcd.h"          /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/factor_u64.h"   /* void factor_u64(...); */
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* --- helper to compute the divisor count of a uint64_t number --- */
 static uint64_t divisor_count_u64(uint64_t n)
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
         /* grow the cache if necessary */
         if (length == capacity) {
             size_t newcap = (capacity == 0) ? 8 : capacity << 1;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) abort();                 /* out of memory */
             cache    = tmp;
             capacity = newcap;

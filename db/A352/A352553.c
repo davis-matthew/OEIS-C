@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   legendre_13_fundamental
+ * Validated: standard, pass, 132 terms through n = 8697 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,21 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/legendre_13_fundamental.h"
+
+/* Legendre symbol (13|p) for an odd prime p   (returns 0,1,-1). */
+static inline int legendre_13_fundamental(int p)
+{
+    int exp = (p - 1) >> 1;
+    int res = 1;
+    int base = 13 % p;
+    while (exp > 0) {
+        if (exp & 1) res = (int)((int64_t)res * base % p);
+        base = (int)((int64_t)base * base % p);
+        exp >>= 1;
+    }
+    if (res == p - 1) return -1;
+    return res;
+}
 
 /* Partition numbers p(0)…p(13).  These are sufficiently large for n≤10000. */
 static const seq_t part[14] = {

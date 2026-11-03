@@ -10,13 +10,15 @@
  *            where r is the row containing index n
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t row_from_index(idx_t n)
 {
@@ -50,11 +52,11 @@ seq_t a(idx_t n)
 
     /* Allocate two arrays of size r+1 for the recurrence. */
     size_t sz = (size_t)(r + 1);
-    seq_t *prev = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *cur  = mem_new(seq_t, sz);
     if (!prev || !cur) {        /* allocation failure – unlikely for small r   */
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return (seq_t)0;
     }
 
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     /* prev now holds the desired row; extract the k‑th element. */
     seq_t result = prev[k];
 
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }

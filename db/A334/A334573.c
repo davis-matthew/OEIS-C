@@ -9,7 +9,8 @@
  *            m
  * Range:     u8 n <= 120, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
         spf     = (idx_t *)realloc(spf,     new_size * sizeof(idx_t));
         pf_exp  = (idx_t *)realloc(pf_exp,  new_size * sizeof(idx_t));
-        cum     = (seq_t *)realloc(cum,     new_size * sizeof(seq_t));
+        cum     = mem_resize(seq_t, cum, new_size);
         if (!spf || !pf_exp || !cum) abort();
 
         /* Initialise spf values */

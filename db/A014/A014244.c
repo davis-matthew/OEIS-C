@@ -11,13 +11,32 @@
  *            6, B_3 = 8, …). For n = 1,2,3 the sequence is defined as 2
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 45, u64 n <= 91, u128 n <= 183,
  *            big any n
- * Helpers:   is_lucas_uint
+ * Validated: standard, pass, 48 terms through n = 887 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_lucas_uint.h"
+
+/* Helper: test whether x (uint64_t) is a Lucas number.  */
+static bool is_lucas_uint(unsigned long long x)
+{
+    if (x == 1 || x == 2)
+        return true;
+
+    unsigned long long a = 2;
+    unsigned long long b = 1;
+    while (1) {
+        unsigned long long c = a + b;
+        if (c == x)
+            return true;
+        if (c > x)
+            return false;
+        a = b;
+        b = c;
+    }
+}
 
 /* The required sequence function.  */
 seq_t a(idx_t n)

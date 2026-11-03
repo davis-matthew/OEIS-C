@@ -9,14 +9,26 @@
  *            of n if n is a perfect square; a(1) = 2
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   lpf_simple
+ * Validated: standard, pass, 116 terms through n = 9310 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/lpf_simple.h"
+
+/* Smallest prime factor of a 64‑bit unsigned integer.
+   Returns 1 for n <= 1 (not used for such n in this sequence).  */
+static inline uint64_t lpf_simple(uint64_t n)
+{
+    if (n < 2) return 1;
+    if ((n & 1) == 0) return 2;
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) return p;
+    }
+    return n;   /* n is prime */
+}
 
 /* Integer square root (floor) for 64‑bit unsigned integers */
 static inline uint64_t isqrt_uint64(uint64_t n)

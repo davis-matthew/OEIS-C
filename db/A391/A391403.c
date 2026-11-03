@@ -11,11 +11,13 @@
  *            T(2,0), a(3) = T(2,1), etc
  * Range:     u8 n <= 21, u16 n <= 52, u32 n <= 162, u64 n <= 541,
  *            u128 n <= 1876, big any n
+ * Validated: standard, pass, 72 terms through n = 9845 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static inline idx_t row_and_pos(idx_t idx, idx_t *row, idx_t *pos)

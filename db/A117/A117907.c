@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor((5*n-1)/3) mod 2 – 3*[(n mod 6)=1], a(0)=1, a(1)=-1
  * Range:     i8 n <= 331, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 79 terms through n = 891 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

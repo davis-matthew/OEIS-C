@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum_minmax, is_prime_small
+ * Validated: standard, pass, 69 terms through n = 897 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,21 @@
 #include <stdlib.h>   /* realloc, malloc */
 #include <stdint.h>   /* uint64_t */
 
-#include "../utils/is_prime_small.h"
-#include "../utils/digit_sum_minmax.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Helper: compute the sum of the smallest and largest digit of a prime. */
+static int digit_sum_minmax(uint64_t p)
+{
+    int min_d = 9, max_d = 0;
+    while (p > 0) {
+        int d = (int)(p % 10);
+        if (d < min_d) min_d = d;
+        if (d > max_d) max_d = d;
+        p /= 10;
+    }
+    return min_d + max_d;
+}
 
 /* Helper: check whether a small integer (≤18) is prime. */
 static bool is_small_prime_int(int s)
@@ -49,7 +63,7 @@ seq_t a(idx_t n)
     if (sz < (size_t)n) {
         size_t new_cap = cap ? cap : 4;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {   /* allocation failed */
             return (seq_t)0;
         }
@@ -65,7 +79,7 @@ seq_t a(idx_t n)
             continue;
         }
 
-        if (is_prime_small(next)) {
+        if (is_prime_seq(next)) {
             int s = digit_sum_minmax(next);
             if (is_small_prime_int(s)) {
                 cache[sz++] = (seq_t)next;

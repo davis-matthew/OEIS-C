@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 7, u16 n <= 3971, u32 n <= 9313, u64 n <= 9313,
- *            u128 n <= 9313, big any n
- * Helpers:   none
+ * Range:     u8 n <= 7, u16 n <= 3971, u32 n <= 13937, u64 n <= 13937,
+ *            u128 n <= 13937, big any n
+ * Validated: standard, pass, 75 terms through n = 9313 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    sort them, and return the n‑th element of this sorted list. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* qsort comparison for seq_t values. */
 static int cmp_seq_t(const void *a, const void *b)
@@ -60,7 +62,7 @@ static void generate_up_to(idx_t bound)
     }
 
     /* Allocate space for all values. */
-    seq_t *allVals = (seq_t *)malloc(pairCount * sizeof(seq_t));
+    seq_t *allVals = mem_new(seq_t, pairCount);
     seq_t *p = allVals;
 
     /* Generate all representations. */
@@ -76,10 +78,10 @@ static void generate_up_to(idx_t bound)
     }
 
     /* Sort the generated values. */
-    qsort(allVals, pairCount, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(allVals, pairCount, sizeof(seq_t), cmp_seq_t);
 
     /* Free any previously stored sequence data. */
-    if (seqVals) free(seqVals);
+    if (seqVals) mem_free(seqVals);
     seqVals = NULL;
     seqSize = 0;
     seqCapacity = 0;
@@ -91,14 +93,14 @@ static void generate_up_to(idx_t bound)
         if (j - i >= 2) {
             if (seqSize >= seqCapacity) {
                 seqCapacity = seqCapacity ? seqCapacity * 2 : 16;
-                seqVals = (seq_t *)realloc(seqVals, seqCapacity * sizeof(seq_t));
+                seqVals = mem_resize(seq_t, seqVals, seqCapacity);
             }
             seqVals[seqSize++] = allVals[i];
         }
         i = j;
     }
 
-    free(allVals);
+    mem_free(allVals);
     currentBound = bound;
     initialized  = true;
 }

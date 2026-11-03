@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 47, u64 n <= 94, u128 n <= 186,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 455 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(n)=a(n-1)+a(n-2)-a(n-13)    for n >= 13
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     {
         idx_t new_sz = (sz == 0) ? 64 : sz * 2;
         while (new_sz <= n) new_sz <<= 1;   /* double until big enough */
-        seq_t *tmp = (seq_t *)realloc(dp, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_sz);
         if (!tmp) return (seq_t)0;          /* allocation failure */
         dp = tmp;
         sz = new_sz;

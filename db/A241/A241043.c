@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 952, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, grow_seq, is_prime, mod_pow
+ * Validated: standard, pass, 64 terms through n = 950 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, isqrt, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
-#include "../utils/grow_seq.h"
-#include "../utils/_floor_isqrt_u64.h"
 #include "../utils/is_prime.h"
+#include "../utils/isqrt.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Test whether 2 and 3 are primitive roots modulo a prime p > 3. */
 static bool is_both_primitive_roots(uint64_t p, const uint64_t *primes,
@@ -31,22 +47,22 @@ static bool is_both_primitive_roots(uint64_t p, const uint64_t *primes,
 {
     const uint64_t m = p - 1;
     uint64_t remaining = m;
-    uint64_t sqrt_rem = _floor_isqrt_u64(remaining);
+    uint64_t sqrt_rem = isqrt(remaining);
 
     for (size_t i = 0; i < primes_cnt && primes[i] <= sqrt_rem; ++i) {
         uint64_t q = primes[i];
         if (remaining % q == 0) {
             /* Test the primitive‑root condition for this factor. */
-            if (mod_pow((seq_t)2, m / q, (seq_t)p) == (seq_t)1) return false;
-            if (mod_pow((seq_t)3, m / q, (seq_t)p) == (seq_t)1) return false;
+            if (powmod((seq_t)2, m / q, (seq_t)p) == (seq_t)1) return false;
+            if (powmod((seq_t)3, m / q, (seq_t)p) == (seq_t)1) return false;
             while (remaining % q == 0) remaining /= q;
-            sqrt_rem = _floor_isqrt_u64(remaining);
+            sqrt_rem = isqrt(remaining);
         }
     }
     if (remaining > 1) {
         /* remaining is a prime factor > sqrt(original). */
-        if (mod_pow((seq_t)2, m / remaining, (seq_t)p) == (seq_t)1) return false;
-        if (mod_pow((seq_t)3, m / remaining, (seq_t)p) == (seq_t)1) return false;
+        if (powmod((seq_t)2, m / remaining, (seq_t)p) == (seq_t)1) return false;
+        if (powmod((seq_t)3, m / remaining, (seq_t)p) == (seq_t)1) return false;
     }
     return true;
 }

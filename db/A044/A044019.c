@@ -10,7 +10,8 @@
  *            k + 1 does NOT contain such an adjacency
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_adjacent_29_92
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_29_92.h"
+#include "../utils/mem.h"
+
+/* Test whether a number contains the substring "29" or "92" */
+static inline bool has_adjacent_29_92(seq_t x)
+{
+    if (x < 10u) return false;          /* single digit can't contain an adjacency */
+    seq_t prev = x % 10u;
+    x /= 10u;
+    while (x)
+    {
+        seq_t cur = x % 10u;
+        if ((prev == 2u && cur == 9u) || (prev == 9u && cur == 2u))
+            return true;
+        prev = cur;
+        x /= 10u;
+    }
+    return false;
+}
 
 /* Memoised sequence */
 static seq_t *cache   = NULL;   /* array of found terms */
@@ -34,7 +52,7 @@ static void ensure_cache_capacity(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2u : 4u;
     while (new_cap < need) new_cap *= 2u;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort(); /* unrecoverable allocation failure */
     cache     = tmp;
     cache_cap = new_cap;

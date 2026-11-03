@@ -10,7 +10,8 @@
  *            or |base|=1 (illegal bases) the result is defined to be 0
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   decimal_digits
+ * Validated: full, pass, 10 terms through n = 9 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,19 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/decimal_digits.h"
+
+/* Small helper: count decimal digits of a non‑negative long long */
+static inline int decimal_digits(long long d)
+{
+    int cnt = 0;
+    if (d == 0)
+        return 1;
+    while (d != 0) {
+        cnt++;
+        d /= 10;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

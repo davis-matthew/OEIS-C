@@ -15,13 +15,40 @@
  *            function returns the n‑th run‑length
  * Range:     u8 n <= 5120, u16 n <= 5120, u32 n <= 5120, u64 n <= 5120,
  *            u128 n <= 5120, big any n
- * Helpers:   run_length_at
+ * Validated: standard, pass, 105 terms through n = 4881 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/run_length_at.h"
+
+/* Return the run‑length at position 'off' (0‑based) within the runs of n. */
+static inline seq_t run_length_at(idx_t n, idx_t off)
+{
+    idx_t rem = n;                     /* bits still to process               */
+    idx_t cur_bit = rem & 1;           /* current bit being counted           */
+    idx_t count   = 1;                 /* length of current run               */
+    rem >>= 1;                         /* drop processed bit                  */
+
+    while (rem) {
+        idx_t next_bit = rem & 1;
+        if (next_bit == cur_bit) {
+            ++count;
+        } else {
+            /* run ended */
+            if (off == 0) return (seq_t)count;
+            --off;
+            cur_bit = next_bit;
+            count   = 1;
+        }
+        rem >>= 1;
+    }
+    /* Handle last run */
+    if (off == 0) return (seq_t)count;
+    /* Should not occur for valid input */
+    return (seq_t)0;
+}
 
 /* popcount for 64‑bit unsigned integers */
 static inline idx_t popcount64(idx_t x)

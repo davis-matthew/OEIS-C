@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 8888, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, is_bad_sum_of_three_squares
+ * Validated: standard, pass, 69 terms through n = 8983 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* gcd(seq_t a, seq_t b) */
-#include "../utils/is_bad_sum_of_three_squares.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* --- Test whether n is of the form 4^a(8b+7) --- */
+static bool is_bad_sum_of_three_squares(seq_t n) {
+    seq_t m = n;
+    while (m % 4 == 0) m /= 4;
+    return (m % 8 == 7);
+}
 
 /* --- Prime sieve (up to 1,000,000) --- */
 #define PRIME_LIMIT 1000000
@@ -56,7 +64,7 @@ static idx_t last_checked = 0;
 static void append_term(seq_t val) {
     if (cached_len == cached_cap) {
         size_t new_cap = (cached_cap == 0) ? 16 : cached_cap * 2;
-        seq_t *new_arr = (seq_t *)realloc(cached_terms, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cached_terms, new_cap);
         if (!new_arr) abort();   /* allocation failure */
         cached_terms = new_arr;
         cached_cap   = new_cap;

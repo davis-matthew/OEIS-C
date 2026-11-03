@@ -10,6 +10,7 @@
  *            (a(n) OR a(n‑1)) == 2^k‑1 for some k >= 1
  * Range:     u8 n <= 159, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 87 terms through n = 8297 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

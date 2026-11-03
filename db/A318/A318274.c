@@ -12,15 +12,24 @@
  *            the row). Then a(n) = { 1, if c==0 or c==r r, otherwise...
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   prev_rowsum, t_rowsum
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/prev_rowsum.h"
-#include "../utils/t_rowsum.h"
+#include "../utils/triangular.h"
+
+static idx_t
+t_rowsum(idx_t r) /* return (r+1)(r+2)/2 */
+{
+    /* compute safely to avoid overflow ---------------------------------- */
+    __uint128_t a = (__uint128_t)(r + 1);
+    __uint128_t b = (__uint128_t)(r + 2);
+    return (idx_t)((a * b) / 2U);
+}
 
 static idx_t
 find_row(idx_t n) /* minimal r with (r+1)(r+2)/2 > n */
@@ -41,7 +50,7 @@ seq_t a(idx_t n)
 {
     /* locate row r and column c ---------------------------------------- */
     idx_t r = find_row(n);
-    idx_t prev = prev_rowsum(r);
+    idx_t prev = triangular(r);
     idx_t c = n - prev;
 
     /* evaluate the triangle entry --------------------------------------- */

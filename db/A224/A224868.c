@@ -11,12 +11,14 @@
  *            initial values: a(1)=7, a(2)=11, a(3)=17, a(4)=26)
  * Range:     u8 n <= 9, u16 n <= 24, u32 n <= 53, u64 n <= 111, u128 n <= 227,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Array of previously computed terms.
    Index 0 is unused to keep 1‑based indexing. */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Initialize cache on first call */
     if (cache == NULL) {
         cache_cap = 5;                 /* indices 0..4 inclusive */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) { /* allocation failure – abort */
             return 0;
         }
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* If the requested index is not yet computed, extend and compute */
     if (n > cache_len) {
         idx_t new_cap = n + 1;          /* need indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) {             /* allocation failure – abort */
             return 0;
         }

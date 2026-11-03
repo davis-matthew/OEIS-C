@@ -12,13 +12,15 @@
  *            Σ_{s: 2s ≤ t ≤ M-1 or max(0,2s−M) ≤ t ≤ s-1} dp_k[...
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 145, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,10 +33,10 @@ seq_t a(idx_t n)
     if (M == 0)          /* overflow of n+1 (only if n == UINT64_MAX) */
         return 0;
 
-    seq_t *cur  = (seq_t *)calloc(M, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(M, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, M);
+    seq_t *next = mem_new(seq_t, M);
     if (!cur || !next) {
-        free(cur); free(next);
+        mem_free(cur); mem_free(next);
         return 0;
     }
 
@@ -45,9 +47,9 @@ seq_t a(idx_t n)
     /* 4 transitions to reach 5 elements */
     for (int step = 0; step < 4; ++step) {
         /* Prefix sums of cur */
-        seq_t *pref = (seq_t *)calloc(M, sizeof(seq_t));
+        seq_t *pref = mem_new(seq_t, M);
         if (!pref) {
-            free(cur); free(next);
+            mem_free(cur); mem_free(next);
             return 0;
         }
         seq_t acc = 0;
@@ -74,13 +76,13 @@ seq_t a(idx_t n)
             next[t] = part1 + part2;
         }
 
-        free(pref);
+        mem_free(pref);
 
         /* Prepare for next iteration */
         seq_t *tmp = cur;
         cur = next;
         next = tmp;
-        memset(next, 0, M * sizeof(seq_t));
+        mem_set(next, 0, M * sizeof(seq_t));
     }
 
     /* Sum over all final states to get total number of arrays */
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
     for (size_t s = 0; s < M; ++s)
         result += cur[s];
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

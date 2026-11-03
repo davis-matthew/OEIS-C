@@ -10,7 +10,8 @@
  *            increasing order of (m+k)
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,26 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Cached powers of (2+√2) in the form A_m + B_m√2. */
 static seq_t *A = NULL;
@@ -43,8 +63,8 @@ ensure_power(idx_t n)
         new_cap <<= 1;                     /* double until enough */
 
     /* Reallocate storage; +1 to make the array 1‑indexed. */
-    A = (seq_t *)realloc(A, (new_cap + 1) * sizeof(seq_t));
-    B = (seq_t *)realloc(B, (new_cap + 1) * sizeof(seq_t));
+    A = mem_resize(seq_t, A, (new_cap + 1));
+    B = mem_resize(seq_t, B, (new_cap + 1));
 
     if (cap == 0) {      /* initialise the base case */
         A[1] = 2;

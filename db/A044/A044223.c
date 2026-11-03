@@ -12,13 +12,32 @@
  *            * supported seq_t types (built‑in unsigned integers...
  * Range:     u8 n <= 4, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_44_base8
+ * Validated: standard, pass, 56 terms through n = 950 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_44_base8.h"
+
+/* Check whether an unsigned integer v contains the adjacent digits "44"
+ * in base 8.  The routine works with any unsigned integer type that
+ * supports bitwise and shift operations, including the built‑in types
+ * and the arbitrary‑precision class (which must provide the same
+ * operators via overloads).
+ */
+static inline bool has_44_base8(idx_t v)
+{
+    int prev = -1;                /* sentinel for "no previous digit" */
+    while (v > 0) {
+        int d = (int)(v & 7ULL);  /* v % 8  */
+        if (d == 4 && prev == 4)  /* found consecutive 4's */
+            return true;
+        prev = d;
+        v >>= 3;                  /* v /= 8 */
+    }
+    return false;
+}
 
 /* Return the nth term of sequence A044223 (OEIS). */
 seq_t a(idx_t n)

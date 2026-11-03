@@ -8,13 +8,15 @@
  *            (triangular numbers: 1, 3, 6, 10, 15, …). * a(0) = 1
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,9 +37,9 @@ seq_t a(idx_t n)
      */
     seq_t *dp[7];
     for (int k = 0; k <= 6; ++k) {
-        dp[k] = (seq_t*)malloc((new_max + 1) * sizeof(seq_t));
+        dp[k] = mem_new(seq_t, (new_max + 1));
         /* initialise all entries to zero */
-        memset(dp[k], 0, (new_max + 1) * sizeof(seq_t));
+        mem_set(dp[k], 0, (new_max + 1) * sizeof(seq_t));
     }
 
     /* Base case: 0 can be partitioned with 0 triangular numbers in exactly
@@ -61,9 +63,9 @@ seq_t a(idx_t n)
     /* ----------------- Build the answer cache --------------------- */
     /* Reallocate answers array if necessary */
     if (answers) {
-        free(answers);
+        mem_free(answers);
     }
-    answers = (seq_t*)malloc((new_max + 1) * sizeof(seq_t));
+    answers = mem_new(seq_t, (new_max + 1));
 
     for (idx_t i = 0; i <= new_max; ++i) {
         seq_t total = 0;
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
 
     /* Free temporary DP arrays */
     for (int k = 0; k <= 6; ++k) {
-        free(dp[k]);
+        mem_free(dp[k]);
     }
 
     return answers[n];

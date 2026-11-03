@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 111, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9250 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* global static storage for memoisation                               */
@@ -65,9 +67,9 @@ seq_t a(idx_t n)
     /* initialise storage once */
     if (!seq_buf) {
         seq_cap   = 32;
-        seq_buf   = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_buf   = mem_new(seq_t, seq_cap);
         used_cap  = 32;
-        used_buf  = (seq_t *)malloc(used_cap * sizeof(seq_t));
+        used_buf  = mem_new(seq_t, used_cap);
         seq_len   = 0;
         used_len  = 0;
         min_missing = 1;
@@ -97,14 +99,14 @@ seq_t a(idx_t n)
         /* store the new term in the sequence buffer */
         if (seq_len >= seq_cap) {
             seq_cap = seq_cap * 2;
-            seq_buf = (seq_t *)realloc(seq_buf, seq_cap * sizeof(seq_t));
+            seq_buf = mem_resize(seq_t, seq_buf, seq_cap);
         }
         seq_buf[seq_len] = next;
 
         /* keep a record of all used values */
         if (used_len >= used_cap) {
             used_cap = used_cap * 2;
-            used_buf = (seq_t *)realloc(used_buf, used_cap * sizeof(seq_t));
+            used_buf = mem_resize(seq_t, used_buf, used_cap);
         }
         used_buf[used_len++] = next;
 

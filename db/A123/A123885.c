@@ -8,13 +8,15 @@
  * Formula:   a(n) = a(n-1) + (number of earlier terms that divide n)
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses memoisation; computes terms only once and works for any n ≥ 1 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_table = NULL;  /* 1‑based array of a(1)…a(N) */
 static idx_t  seq_allocated = 0; /* number of slots currently allocated */
@@ -26,7 +28,7 @@ static void ensure_allocated(idx_t size)
     if (seq_allocated < size) {
         idx_t new_alloc = seq_allocated ? seq_allocated << 1 : 8;
         if (new_alloc < size) new_alloc = size;
-        seq_table = (seq_t *)realloc(seq_table, (size_t)new_alloc * sizeof(seq_t));
+        seq_table = mem_resize(seq_t, seq_table, (size_t)new_alloc);
         seq_allocated = new_alloc;
     }
 }

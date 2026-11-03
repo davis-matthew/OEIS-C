@@ -10,7 +10,8 @@
  *            term repeats
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   has_digit5
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/has_digit5.h"
+#include "../utils/mem.h"
+
+/* Utility: true if decimal expansion of v contains a 5 */
+static bool has_digit5(seq_t v)
+{
+    if (v == 0) return false;
+    while (v > (seq_t)0) {
+        if ((v % (seq_t)10) == (seq_t)5) return true;
+        v /= (seq_t)10;
+    }
+    return false;
+}
 
 /* Dynamically sized arrays */
 static seq_t *seq   = NULL;          /* stored sequence terms, 0‑based indexes */
@@ -53,7 +65,7 @@ static void ensure_seq_cap(idx_t cnt)
     if (cnt <= seq_cap) return;
     idx_t new_cap = seq_cap ? seq_cap : 1;
     while (new_cap < cnt) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) abort();
     seq = tmp;
     seq_cap = new_cap;

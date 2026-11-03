@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 1900, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_idx
+ * Validated: standard, pass, 71 terms through n = 8722 (2026-11-03)
+ * Helpers:   digit_sum_idx_to_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
    and testing divisibility by the sum of their digits. */
 
 #include <stdlib.h>
-#include "../utils/digit_sum_idx.h"
+#include "../utils/digit_sum_idx_to_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Extend cache until we have at least n terms */
     while (sz < n)
     {
-        seq_t sum = digit_sum_idx(candidate);
+        seq_t sum = digit_sum_idx_to_seq(candidate);
 
         /* Odd and divisible by the sum of its decimal digits */
         if ((candidate & 1U) && (candidate % (idx_t)sum) == 0)
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
             if (sz == cap)            /* grow array when needed */
             {
                 idx_t new_cap = (cap == 0) ? 16 : (cap << 1);
-                seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
                 if (!new_arr) return 0; /* allocation failed */
                 cache = new_arr;
                 cap   = new_cap;

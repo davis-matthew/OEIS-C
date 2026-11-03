@@ -12,7 +12,8 @@
  *            that entry), which splits rows and columns into...
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 19, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   a348_dp, a348_is_prime, u128_to_seq
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,51 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/a348_dp.h"
-#include "../utils/a348_is_prime.h"
+#include "../utils/is_prime_u64.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+/* rows (even values) over columns A (bits 0..na-1) then B (bits na..);
+   t[mask] = number of ways the first popcount(mask) rows fill exactly mask */
+static uint64_t *a348_dp(int nr, const uint64_t *rows, int na, const uint64_t *A,
+                         int nb, const uint64_t *B) {
+    size_t size = (size_t)1 << (na + nb);
+    uint64_t *t = (uint64_t *)calloc(size, sizeof(uint64_t));
+    uint64_t *adj = (uint64_t *)malloc(sizeof(uint64_t) * (size_t)(nr + 1));
+    for (int k = 0; k < nr; k++) {
+        uint64_t m = 0, e = rows[k];
+        for (int c = 0; c < na; c++)
+            if (is_prime_u64(e * e + A[c] * A[c])) m |= 1ULL << c;
+        for (int c = 0; c < nb; c++)
+            if (is_prime_u64(e * e + B[c] * B[c])) m |= 1ULL << (na + c);
+        adj[k] = m;
+    }
+    t[0] = 1;
+    for (size_t mask = 0; mask < size; mask++) {
+        uint64_t v = t[mask];
+        if (v == 0) continue;
+        int k = __builtin_popcountll((uint64_t)mask);
+        if (k >= nr) continue;
+        uint64_t av = adj[k] & ~(uint64_t)mask;
+        while (av) {
+            int b = __builtin_ctzll(av);
+            av &= av - 1;
+            t[mask | ((size_t)1 << b)] += v;
+        }
+    }
+    free(adj);
+    return t;
+}
 
 /* context for the enumeration of class-0 rows */
 static int a348_r0, a348_r1, a348_r4, a348_c0, a348_c1, a348_c4;
@@ -84,9 +127,9 @@ static unsigned __int128 a348_count(int n, int skip) {
     for (int t = 0; t < r0; t++) {
         uint64_t e = R0[t], mz = 0, mw = 0;
         for (int c = 0; c < c1; c++)
-            if (a348_is_prime(e * e + C1[c] * C1[c])) mz |= 1ULL << c;
+            if (is_prime_u64(e * e + C1[c] * C1[c])) mz |= 1ULL << c;
         for (int c = 0; c < c4; c++)
-            if (a348_is_prime(e * e + C4[c] * C4[c])) mw |= 1ULL << c;
+            if (is_prime_u64(e * e + C4[c] * C4[c])) mw |= 1ULL << c;
         a348_adjZ[t] = mz;
         a348_adjW[t] = mw;
     }

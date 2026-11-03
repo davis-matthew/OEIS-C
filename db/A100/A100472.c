@@ -7,18 +7,20 @@
  * Formula:   a(n) = Sum_{k=0..n} (-1)^A010060(n-k)*(binomial(n,k) mod 2)*9^k
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* precompute powers of 9 up to n */
-    seq_t *pow9 = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *pow9 = mem_new(seq_t, (size_t)(n + 1));
     if (!pow9) return (seq_t)0;                 /* allocation failure → zero */
     pow9[0] = (seq_t)1;
     for (idx_t i = 1; i <= n; ++i)
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
         mask = (mask - 1) & n;                      /* next subset of n */
     } while (mask != n);
 
-    free(pow9);
+    mem_free(pow9);
     return pos - neg;
 }

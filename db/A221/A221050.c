@@ -8,13 +8,27 @@
  * Formula:   a(n) = 28 + 2^n*(448*n+1554) + 4^n*(784*n-1540)
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 9, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   pow2, pow4
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
-#include "../utils/pow4.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 #include <stdint.h>
 
 /* Computes the n-th term of OEIS sequence A221050. */

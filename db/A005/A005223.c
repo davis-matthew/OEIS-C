@@ -11,14 +11,25 @@
  *            have y > 0: D[x][y] = D[x-1][y-2] + D[x-1][y+2...
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 28, u64 n <= 51, u128 n <= 96,
  *            big any n
- * Helpers:   alloc_zero, release
+ * Validated: standard, pass, 49 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;

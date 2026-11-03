@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdint.h>   /* uint64_t etc. */
 #include <stdlib.h>   /* malloc, free, memset */
+#include "../utils/mem.h"
 
 /* Memoised array of a(n) values */
 static seq_t *cache   = NULL;
@@ -35,18 +37,18 @@ seq_t a(idx_t n)
     /* --- Ensure cache large enough for 0..n --- */
     if ((size_t)n >= cache_cap) {
         size_t new_cap = (size_t)n + 1;          /* need indices 0..n */
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) {                         /* allocation failed */
             return (seq_t)0;
         }
         /* Initialise new slots to 0 */
-        memset(new_cache, 0, sizeof(seq_t) * new_cap);
+        mem_set(new_cache, 0, sizeof(seq_t) * new_cap);
         /* Copy old data */
         if (cache != NULL) {
             size_t copy_len = cache_cap < new_cap ? cache_cap : new_cap;
             for (size_t i = 0; i < copy_len; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = new_cap;
@@ -55,17 +57,17 @@ seq_t a(idx_t n)
     /* --- Ensure pow4 large enough for 4^(n-1) --- */
     if (n > 0 && (size_t)(n-1) >= pow_cap) {
         size_t new_pow_cap = (size_t)n;        /* need indices 0..n-1  */
-        seq_t *new_pow = (seq_t *)malloc(sizeof(seq_t) * new_pow_cap);
+        seq_t *new_pow = mem_new(seq_t, new_pow_cap);
         if (!new_pow) {                         /* allocation failed */
             return (seq_t)0;
         }
-        memset(new_pow, 0, sizeof(seq_t) * new_pow_cap);
+        mem_set(new_pow, 0, sizeof(seq_t) * new_pow_cap);
         /* Copy old powers */
         if (pow4 != NULL) {
             size_t copy_len = pow_cap < new_pow_cap ? pow_cap : new_pow_cap;
             for (size_t i = 0; i < copy_len; ++i)
                 new_pow[i] = pow4[i];
-            free(pow4);
+            mem_free(pow4);
         }
         /* Make sure pow4[0]==1 and fill remaining */
         if (new_pow[0] == 0)

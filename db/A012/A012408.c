@@ -8,7 +8,8 @@
  *            i.e. a(n) = n! * [x^n] exp(arctan(x)*exp(x))
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   compute_P
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,32 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_P.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static seq_t compute_P(idx_t k)
+{
+    seq_t P = 0;
+    /* iterate over odd s = 1,3,5,... <= k */
+    for (idx_t s = 1; s <= k; s += 2U) {
+        /* compute product = k! / (k-s)! = k*(k-1)*...*(k-s+1)   */
+        seq_t prod = 1;
+        idx_t start = k - s + 1U;          /* first factor */
+        for (idx_t t = start; t <= k; ++t) {
+            prod *= (seq_t)t;
+        }
+        /* now prod / s is integer (s divides prod) */
+        seq_t term = prod / (seq_t)s;
+
+        /* sign = (-1)^((s-1)/2) */
+        int sign = (((s - 1U) / 2U) & 1U) ? -1 : 1;
+        if (sign > 0)
+            P += term;
+        else
+            P -= term;
+    }
+    return P;
+}
 
 /* --------------------------------------------------------------------- */
 /* compute P(k) = k! * coefficient of x^k in arctan(x)*exp(x)             */
@@ -44,8 +70,8 @@ seq_t a(idx_t n)
 
     if (known == (idx_t)-1) {      /* first call */
         known = 0;
-        a_tbl = (seq_t*)malloc(sizeof(seq_t));
-        P_tbl = (seq_t*)malloc(sizeof(seq_t));
+        a_tbl = mem_new(seq_t, 1);
+        P_tbl = mem_new(seq_t, 1);
         a_tbl[0] = 1;             /* a(0) = 1 */
         P_tbl[0] = 0;             /* dummy */
     }
@@ -53,8 +79,8 @@ seq_t a(idx_t n)
     if (n > known) {
         size_t new_cap = (size_t)n + 1U;
 
-        a_tbl = (seq_t*)realloc(a_tbl, new_cap * sizeof(seq_t));
-        P_tbl = (seq_t*)realloc(P_tbl, new_cap * sizeof(seq_t));
+        a_tbl = mem_resize(seq_t, a_tbl, new_cap);
+        P_tbl = mem_resize(seq_t, P_tbl, new_cap);
 
         /* compute missing entries */
         for (idx_t i = known + 1U; i <= n; ++i) {

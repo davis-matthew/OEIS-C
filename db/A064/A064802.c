@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 188, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 87 terms through n = 8999 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/isPrimeTrial.h"          /* declares bool isPrimeTrial(seq_t n); */
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
 
 static uint64_t next_prime_after(uint64_t p)
 {
@@ -32,7 +34,7 @@ static uint64_t next_prime_after(uint64_t p)
 
     for (;;)
     {
-        if (isPrimeTrial((seq_t)cand)) return cand;
+        if (is_prime_seq((seq_t)cand)) return cand;
         cand += 2;                           /* skip evens */
     }
 }

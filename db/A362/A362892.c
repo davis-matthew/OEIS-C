@@ -8,7 +8,8 @@
  *            Stirling2(n-2*k,k)/(n-2*k)!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,16 @@
 /* Uses the recurrence S(n,k) = k*S(n-1,k)+S(n-1,k-1) for Stirling numbers of the second kind. */
 
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,8 +37,8 @@ seq_t a(idx_t n)
     seq_t sum = (seq_t)0;
 
     /* Allocate two rows for the dynamic programming of Stirling numbers */
-    seq_t *prev = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *curr = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *curr = mem_new(seq_t, (size_t)(n + 1));
     if (!prev || !curr) return (seq_t)0;   /* allocation failed */
 
     /* Base row: S(0,0) = 1 */
@@ -61,7 +70,7 @@ seq_t a(idx_t n)
                         prod = seq_mul(prod, (seq_t)i);
 
                     /* Compute k^k */
-                    seq_t k_pow = seq_pow((seq_t)k_needed, k_needed);
+                    seq_t k_pow = ipow_idx((seq_t)k_needed, k_needed);
 
                     /* term = prod * k_pow * s */
                     seq_t term = seq_mul(prod, k_pow);
@@ -78,7 +87,7 @@ seq_t a(idx_t n)
         curr = tmp;
     }
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return sum;
 }

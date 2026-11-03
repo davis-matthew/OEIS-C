@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = SumXOR_{d|n} [moebius(n/d) > 0]*(sigma(d)-d)
- * Range:     u8 n <= 143, u16 n <= 9463, u32 n <= 9463, u64 n <= 9463,
- *            u128 n <= 9463, big any n
- * Helpers:   none
+ * Range:     u8 n <= 143, u16 n <= 25199, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 107 terms through n = 9463 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Static cache structures for σ, μ and smallest prime factors (spf) */
@@ -38,7 +40,7 @@ static void build_upto(idx_t max_n)
 
     /* Allocate new tables (zero‑initialised) */
     size_t new_size   = (size_t)(max_n + 1);
-    seq_t *new_sigma  = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_sigma  = mem_new(seq_t, new_size);
     int8_t *new_mu    = (int8_t *)calloc(new_size, sizeof(int8_t));
     uint32_t *new_spf = (uint32_t *)calloc(new_size, sizeof(uint32_t));
     if (!new_sigma || !new_mu || !new_spf) {
@@ -84,7 +86,7 @@ static void build_upto(idx_t max_n)
     }
 
     /* Free old tables and cache the new ones */
-    free(sigma_cache);
+    mem_free(sigma_cache);
     free(mu_cache);
     free(spf_cache);
     free(primes);

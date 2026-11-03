@@ -8,16 +8,31 @@
  * Keywords:  nonn, tabl, base, easy
  * Formula:   a(n) = T(n,k) read by ascending antidiagonals, where * T(n,1)=1
  *            and T(n,k)=noz(T(n,k-1)+(k-1)*(n-2)+1) (n>=2)
- * Range:     u8 n <= 131, u16 n <= 9678, u32 n <= 9848, u64 n <= 9848,
- *            u128 n <= 9848, big any n
- * Helpers:   noz
+ * Range:     u8 n <= 131, u16 n <= 9678, u32 n <= 11326, u64 n <= 11326,
+ *            u128 n <= 11326, big any n
+ * Validated: standard, pass, 94 terms through n = 9848 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/noz.h"
+
+/* Helper: remove zero digits from a decimal number. */
+static seq_t noz(seq_t x) {
+    seq_t res = 0;
+    seq_t factor = 1;
+    while (x > 0) {
+        seq_t d = x % 10;
+        if (d != 0) {
+            res += d * factor;
+            factor *= 10;
+        }
+        x /= 10;
+    }
+    return res;
+}
 
 /* Helper: integer square root (floor) for 64‑bit values. */
 static inline idx_t isqrt_u64(idx_t n) {

@@ -7,9 +7,10 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = binomial(n+6,6) * sum_{s=0}^n (-1)^s * binom(n,s) *
  *            (n-s-1)!
- * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 31,
+ * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 31,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 35 terms through n = 400 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 /*              with the convention (−1)! = 1 (used when s = n).                 */
 
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* ----- factorial cache --------------------------------------------------- */
 static seq_t *fact_cache = NULL;
@@ -30,7 +33,7 @@ static void ensure_factorials(idx_t n)
 
     /* Allocate or grow the factorial table to store 0! … n!. */
     size_t new_cap = n + 1;
-    seq_t *new_fact = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
+    seq_t *new_fact = mem_resize(seq_t, fact_cache, new_cap);
     if (!new_fact) return;                 /* allocation failed – ignore */
 
     if (!fact_cache) {                     /* first time: build from 0 upward */
@@ -51,7 +54,7 @@ static void ensure_factorials(idx_t n)
 seq_t a(idx_t n)
 {
     /* binomial(n+6,6) */
-    seq_t binom_total = binom(n + 6, 6);
+    seq_t binom_total = binomial(n + 6, 6);
 
     /* factorials needed for the summation */
     ensure_factorials(n);

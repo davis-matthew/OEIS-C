@@ -7,8 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   cusps_prime_power, elliptic_points_order2,
- *            elliptic_points_order3
+ * Validated: full, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,9 +28,64 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cusps_prime_power.h"
-#include "../utils/elliptic_points_order2.h"
-#include "../utils/elliptic_points_order3.h"
+#include "../utils/mem.h"
+
+/* Cusps for a single prime power p^e. */
+static seq_t cusps_prime_power(uint64_t p, int e)
+{
+    seq_t cp = 0;
+    if (e < 0) return 0;
+    /* Precompute powers of p. */
+    seq_t pow_m[e + 1];
+    pow_m[0] = 1;
+    for (int m = 1; m <= e; ++m)
+        pow_m[m] = pow_m[m - 1] * (seq_t)p;
+
+    for (int k = 0; k <= e; ++k) {
+        int m = (k < e - k) ? k : (e - k);
+        if (m == 0)
+            cp += 1;
+        else
+            cp += pow_m[m] - pow_m[m - 1];
+    }
+    return cp;
+}
+
+/* Number of elliptic points of order two.  Result is 0, 1 or 2. */
+static seq_t elliptic_points_order2(uint64_t *pr, const int *ex, size_t cnt)
+{
+    seq_t e2 = 1;
+    for (size_t i = 0; i < cnt; ++i) {
+        uint64_t p = pr[i];
+        int e = ex[i];
+        if (p == 2ULL) {
+            if (e == 1) e2 *= 1;
+            else { e2 = 0; break; }
+        } else {
+            if (p % 4ULL == 1ULL) e2 *= 2;
+            else { e2 = 0; break; }
+        }
+    }
+    return e2;
+}
+
+/* Number of elliptic points of order three.  Result is 0, 1 or 2. */
+static seq_t elliptic_points_order3(uint64_t *pr, const int *ex, size_t cnt)
+{
+    seq_t e3 = 1;
+    for (size_t i = 0; i < cnt; ++i) {
+        uint64_t p = pr[i];
+        int e = ex[i];
+        if (p == 3ULL) {
+            if (e == 1) e3 *= 1;
+            else { e3 = 0; break; }
+        } else {
+            if (p % 3ULL == 1ULL) e3 *= 2;
+            else { e3 = 0; break; }
+        }
+    }
+    return e3;
+}
 
 /* Prime factorisation of an unsigned 64‑bit integer.
    The caller must provide arrays large enough for all factors (≤64). */
@@ -110,7 +165,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

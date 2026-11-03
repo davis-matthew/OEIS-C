@@ -11,7 +11,8 @@
  *            multiplies the series by 1/(1-x^k) c(k) times (additions only)
  * Range:     u8 n <= 22, u16 n <= 43, u32 n <= 94, u64 n <= 220,
  *            u128 n <= 548, big any n
- * Helpers:   alloc_zero, c_of, grow_zero, release, seq_is_big
+ * Validated: standard, pass, 66 terms through n = 9308 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,43 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_zero.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/c_of.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static idx_t c_of(idx_t k) {
+    if (k < 4) return 0;
+    return (k - 2) / 2;
+}
 
 /* fixed-width: series product with overflow tracking */
 static seq_t *fb = NULL;

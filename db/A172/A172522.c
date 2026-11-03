@@ -11,7 +11,8 @@
  *            The * sequence a(n) is the partial sum of...
  * Range:     u8 n <= 10, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   sieve_uint64
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,31 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sieve_uint64.h"
+
+/* simple sieve: returns array of primes ≤ limit, count in *cnt  (malloc) */
+static void sieve_uint64(uint64_t limit, uint64_t **primes_out, size_t *cnt_out)
+{
+    uint8_t *is_comp = (uint8_t *)calloc(limit + 1, 1);
+    size_t cap = (limit < 64 ? 64 : limit);
+    uint64_t *primes = (uint64_t *)malloc(cap * sizeof(uint64_t));
+    size_t cnt = 0;
+
+    for (uint64_t i = 2; i <= limit; ++i) {
+        if (!is_comp[i]) {
+            if (cnt == cap) {            /* grow storage if needed */
+                cap <<= 1;
+                primes = (uint64_t *)realloc(primes, cap * sizeof(uint64_t));
+            }
+            primes[cnt++] = i;
+            if (i * i <= limit)
+                for (uint64_t j = i * i; j <= limit; j += i)
+                    is_comp[j] = 1;
+        }
+    }
+    free(is_comp);
+    *primes_out = primes;
+    *cnt_out = cnt;
+}
 
 /* The integer types are supplied by the build:   seq_t is the output type,
  * idx_t is an unsigned integer type (uint64_t).  No definitions of these

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 13 + 12*n - n^2
  * Range:     i8 n <= 19, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

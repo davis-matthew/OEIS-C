@@ -7,11 +7,15 @@
  * Formula:   a(0) = 879; a(n) = a(n-1) + reverse(a(n-1)) for n ≥ 1
  * Range:     u8 none, u16 n <= 3, u32 n <= 14, u64 n <= 37, u128 n <= 84,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 2352 (2026-11-01)
  * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)

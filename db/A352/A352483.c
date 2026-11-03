@@ -9,6 +9,7 @@
  *            reduced to lowest terms, where d(n) is the divisor count of n
  * Range:     u8 n <= 35, u16 n <= 6353, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 93 terms through n = 9268 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

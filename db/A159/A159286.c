@@ -8,14 +8,28 @@
  *            a(2)=2
  * Range:     i8 n <= 18, i16 n <= 32, i32 n <= 58, i64 n <= 111,
  *            i128 n <= 217, big any n
- * Helpers:   free_seq_array, seq_alloc_array
+ * Validated: standard, pass, 56 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

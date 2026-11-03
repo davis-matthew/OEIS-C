@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 29, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,14 @@
 /* Recurrence: a(0)=4, a(1)=5, b(0)=1; a(n) = 2*a(n-2) - b(n-1) + n */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Resize array to at least min_cap elements */
 static void ensure_cap(seq_t **arr, size_t *cap, size_t min_cap) {
     if (*cap < min_cap) {
         size_t new_cap = (*cap ? *cap * 2 : 4);
         while (new_cap < min_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();
         *arr = tmp;
         *cap = new_cap;

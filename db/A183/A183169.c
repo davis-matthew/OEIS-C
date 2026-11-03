@@ -11,7 +11,8 @@
  *            rows have 2^(n‑1) elements. The sequence a(n)...
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 32, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Return the idx‑th non‑square number (1‑based).  */
 static seq_t nth_non_square(seq_t idx)
@@ -52,14 +72,14 @@ seq_t a(idx_t n)
 
     /* Prepare row 1 as the previous row for generating row 2.  */
     size_t prevSize = 1;
-    seq_t *prev = (seq_t*)calloc(prevSize, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, prevSize);
     prev[0] = (seq_t)2;
 
     /* Generate rows sequentially until we reach the row containing n.  */
     while (true)
     {
         size_t nextSize = prevSize * 2;
-        seq_t *next = (seq_t*)malloc(nextSize * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, nextSize);
 
         for (size_t i = 0; i < prevSize; ++i)
         {
@@ -75,12 +95,12 @@ seq_t a(idx_t n)
             idx_t offset    = n - prevCum - 1;
             seq_t result    = next[offset];
             /* Free allocated memory before returning. */
-            free(prev);
-            free(next);
+            mem_free(prev);
+            mem_free(next);
             return result;
         }
 
-        free(prev);
+        mem_free(prev);
         prev      = next;
         prevSize  = nextSize;
     }

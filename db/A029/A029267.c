@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 109, u16 n <= 762, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    for i = w … n.  The array is grown lazily so that repeated calls
    with arbitrary indices remain fast. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *dp = NULL;          /* cached partition counts */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* Expand the cache if necessary */
     if (dp_size == 0 || n >= dp_size) {
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, new_size);
         if (!new_dp) return 0;      /* allocation failed */
         dp = new_dp;
 

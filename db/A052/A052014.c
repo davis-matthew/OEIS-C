@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 15, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: full, pass, 87 terms through n = 87 (2026-11-02)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* The sequence function requested by the build system. */
 seq_t a(idx_t n)
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
                     num = num * 10 + (seq_t)d;
             }
             if (num != 0 &&
-                is_prime_small((uint64_t)num))
+                is_prime_seq((uint64_t)num))
                 primes[count++] = num;
         }
 

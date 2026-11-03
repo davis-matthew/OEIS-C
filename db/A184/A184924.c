@@ -9,13 +9,34 @@
  *            floor(n*sqrt(7))
  * Range:     u8 n <= 33, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
- * Helpers:   floor_sqrt_mn
+ * Validated: partial, pass, 120 terms through n = 120 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_sqrt_mn.h"
+
+/* Compute floor(n*sqrt(m)) for m = 3,5, or 7. */
+static inline seq_t floor_sqrt_mn(idx_t n, unsigned m)
+{
+    /* Compute prod = n*n*m, safely in 128 bits (valid for the expected n). */
+    unsigned __int128 nn = (unsigned __int128)n;
+    unsigned __int128 prod = nn * nn * m;
+
+    /* Upper bound for sqrt(prod) is 3*n (since sqrt(m) < 3 for m = 3,5,7). */
+    unsigned __int128 hi = (unsigned __int128)3 * nn + 1;
+    unsigned __int128 lo = 0;
+
+    while (lo + 1 < hi) {
+        unsigned __int128 mid = (lo + hi) >> 1;
+        if (mid * mid <= prod)
+            lo = mid;
+        else
+            hi = mid;
+    }
+    return (seq_t)lo;
+}
 
 /* Return floor(sqrt(x)) for a 128‑bit unsigned integer using binary search. */
 static inline unsigned __int128 isqrt128(unsigned __int128 x)

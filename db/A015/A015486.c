@@ -7,12 +7,14 @@
  * Formula:   a(0)=1, a(1)=2, a(n) = Σ_{k=0}^{n-1} 2^k a(k) (n≥2)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_vals = NULL;     /* a(n) values */
 static seq_t *s_vals = NULL;     /* s(n) = Σ_{k=0}^{n} 2^k a(k)  */
@@ -25,7 +27,7 @@ static void ensure_pow2(idx_t n)
 {
     if (pow2_len > n) return;
 
-    seq_t *tmp = (seq_t *)realloc(pow2_vals, (n+1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pow2_vals, (n+1));
     if (!tmp) exit(EXIT_FAILURE);
     pow2_vals = tmp;
 
@@ -43,8 +45,8 @@ static void ensure_sequence(idx_t n)
 {
     /* initialise a[0] and s[0] */
     if (a_len == 0) {
-        seq_t *tmp_a = (seq_t *)realloc(a_vals, sizeof(seq_t));
-        seq_t *tmp_s = (seq_t *)realloc(s_vals, sizeof(seq_t));
+        seq_t *tmp_a = mem_resize(seq_t, a_vals, 1);
+        seq_t *tmp_s = mem_resize(seq_t, s_vals, 1);
         if (!tmp_a || !tmp_s) exit(EXIT_FAILURE);
         a_vals = tmp_a;  s_vals = tmp_s;
         a_vals[0] = (seq_t)1;
@@ -56,8 +58,8 @@ static void ensure_sequence(idx_t n)
     /* handle a[1] specially */
     if (a_len == 1 && n >= 1) {
         ensure_pow2(1);
-        seq_t *tmp_a = (seq_t *)realloc(a_vals, 2 * sizeof(seq_t));
-        seq_t *tmp_s = (seq_t *)realloc(s_vals, 2 * sizeof(seq_t));
+        seq_t *tmp_a = mem_resize(seq_t, a_vals, 2);
+        seq_t *tmp_s = mem_resize(seq_t, s_vals, 2);
         if (!tmp_a || !tmp_s) exit(EXIT_FAILURE);
         a_vals = tmp_a;  s_vals = tmp_s;
         a_vals[1] = (seq_t)2;
@@ -68,8 +70,8 @@ static void ensure_sequence(idx_t n)
     /* now compute for i ≥ 2 up to n */
     if (a_len <= n && a_len >= 2) {
         ensure_pow2(n);
-        seq_t *tmp_a = (seq_t *)realloc(a_vals, (n+1) * sizeof(seq_t));
-        seq_t *tmp_s = (seq_t *)realloc(s_vals, (n+1) * sizeof(seq_t));
+        seq_t *tmp_a = mem_resize(seq_t, a_vals, (n+1));
+        seq_t *tmp_s = mem_resize(seq_t, s_vals, (n+1));
         if (!tmp_a || !tmp_s) exit(EXIT_FAILURE);
         a_vals = tmp_a;  s_vals = tmp_s;
         for (idx_t i = a_len; i <= n; ++i) {

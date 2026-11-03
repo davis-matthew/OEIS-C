@@ -12,7 +12,8 @@
  *            memoises all found terms
  * Range:     u8 n <= 13, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   append_prime, bigomega_uint64
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,15 +22,40 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/append_prime.h"
-#include "../utils/bigomega_uint64.h"
+#include "../utils/mem.h"
+
+/* Helper to append a prime to a dynamic array of uint64_t */
+static void append_prime(uint64_t **arr, size_t *cnt, size_t *cap, uint64_t val)
+{
+    if (*cnt >= *cap) {
+        *cap = (*cap == 0) ? 64 : (*cap << 1);
+        *arr = (uint64_t *)realloc(*arr, *cap * sizeof(uint64_t));
+    }
+    (*arr)[*cnt] = val;
+    (*cnt)++;
+}
+
+/* Computes the total number of prime factors (with multiplicity) of x. */
+static uint8_t bigomega_uint64(uint64_t x, uint64_t *primes, size_t primes_cnt)
+{
+    uint8_t cnt = 0;
+    for (size_t i = 0; i < primes_cnt && primes[i] * primes[i] <= x; ++i) {
+        uint64_t p = primes[i];
+        while (x % p == 0) {
+            ++cnt;
+            x /= p;
+        }
+    }
+    if (x > 1) ++cnt;
+    return cnt;
+}
 
 /* Helper to append a value to a dynamic array */
 static void append_term(seq_t **arr, size_t *cnt, size_t *cap, seq_t val)
 {
     if (*cnt >= *cap) {
         *cap = (*cap == 0) ? 64 : (*cap << 1);
-        *arr = (seq_t *)realloc(*arr, *cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     }
     (*arr)[*cnt] = val;
     (*cnt)++;

@@ -11,19 +11,21 @@
  *            follows from the generating function in OEIS A170504.)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;
 
     /* Allocate array to hold a[0..n] */
-    seq_t *arr = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (n + 1));
     arr[0] = (seq_t)1;
 
     for (idx_t i = 1; i <= n; ++i) {
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

@@ -7,13 +7,33 @@
  * Formula:   a(n) = tau(n) + (n-1)*tau(n-1)
  * Range:     u8 n <= 36, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _tau_u64
+ * Validated: standard, pass, 74 terms through n = 996 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_tau_u64.h"
+
+/* Count divisors of a 64-bit integer n (n > 0). */
+static inline seq_t _tau_u64(uint64_t n)
+{
+    if (n == 0) return 0;
+    seq_t result = (seq_t)1;
+    uint64_t m = n;
+    for (uint64_t p = 2; p * p <= m; ++p) {
+        if (m % p == 0) {
+            uint64_t cnt = 0;
+            while (m % p == 0) {
+                m /= p;
+                ++cnt;
+            }
+            result *= (seq_t)(cnt + 1);
+        }
+    }
+    if (m > 1) result *= (seq_t)2;  /* remaining prime factor */
+    return result;
+}
 
 seq_t a(idx_t n)
 {

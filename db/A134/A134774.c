@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 28, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   binomial, my_gcd_idx_t
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,34 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) -> seq_t */
-#include "../utils/my_gcd_idx_t.h"
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
+
+/* Euclidean GCD for idx_t (uint64_t).  Safely handle unsigned values. */
+static inline idx_t my_gcd_idx_t(idx_t a, idx_t b)
+{
+    while (b != 0) {
+        idx_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
 
 /* ------------------------------------------------------------------ */
 
@@ -39,8 +66,8 @@ ensure_upto(idx_t n)
     /* Allocate or grow the storage arrays as needed. */
     if (A == NULL) {
         size_t sz = (size_t)(n + 1);
-        A = (seq_t *)malloc(sz * sizeof(seq_t));
-        W = (seq_t *)malloc(sz * sizeof(seq_t));
+        A = mem_new(seq_t, sz);
+        W = mem_new(seq_t, sz);
         if (!A || !W) exit(EXIT_FAILURE);
         A[0] = (seq_t)1;            /* a(0) */
         max_n = 0;
@@ -48,8 +75,8 @@ ensure_upto(idx_t n)
         return; /* already prepared */
     } else {
         size_t sz = (size_t)(n + 1);
-        A = (seq_t *)realloc(A, sz * sizeof(seq_t));
-        W = (seq_t *)realloc(W, sz * sizeof(seq_t));
+        A = mem_resize(seq_t, A, sz);
+        W = mem_resize(seq_t, W, sz);
         if (!A || !W) exit(EXIT_FAILURE);
     }
 

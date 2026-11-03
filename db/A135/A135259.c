@@ -8,13 +8,15 @@
  *            a(1)=-1, a(2)=2, a(3)=1 Recurrence is valid for n ≥ 4
  * Range:     i8 n <= 10, i16 n <= 18, i32 n <= 34, i64 n <= 66, i128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t  cache_size = 0;
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n)
     if (cache_size == 0) {
         /* Initialise the first four values. */
         cache_size = 4;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = 0;
         cache[1] = -1;
         cache[2] = 2;
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
     /* Grow the cache to at least n+1 entries, doubling each time. */
     idx_t new_size = cache_size * 2;
     if (new_size <= n) new_size = n + 1;
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     cache_size = new_size;
 
     /* Fill in missing terms using the recurrence. */

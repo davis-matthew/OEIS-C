@@ -9,12 +9,14 @@
  *            a(2)=25, a(3)=125, a(4)=625 for n≥5
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
 
     if (n + 1 > buf_len) {           /* need to extend the table */
         idx_t needed = n + 1;
-        seq_t *new_buf = (seq_t *)realloc(buf, needed * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, buf, needed);
         if (!new_buf) {              /* allocation failed; abort or return 0 */
             return (seq_t)0;
         }

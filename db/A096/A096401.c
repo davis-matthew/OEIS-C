@@ -12,7 +12,8 @@
  *            t(t-1)/2, t) (m - t(t-1)/2 >= 0) with p_unrestri...
  * Range:     u8 n <= 55, u16 n <= 133, u32 n <= 377, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 869 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_un = NULL;          /* flat 2‑D table for unrestricted partitions */
 static size_t dp_rows = 0;           /* number of rows (max n + 1) */
@@ -35,7 +37,7 @@ static void ensure_dp_un(idx_t n)
     size_t new_cols = (size_t)((sqrt(8.0 * (double)n + 1.0) - 1.0) / 2.0) + 1; /* max t + 1 */
 
     /* allocate new table */
-    seq_t *new_dp = (seq_t *)calloc(new_rows * new_cols, sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, new_rows * new_cols);
     if (!new_dp) abort();                 /* out of memory */
 
     /* base case */
@@ -53,7 +55,7 @@ static void ensure_dp_un(idx_t n)
     }
 
     /* free old table */
-    free(dp_un);
+    mem_free(dp_un);
     dp_un = new_dp;
     dp_rows = new_rows;
     dp_cols = new_cols;

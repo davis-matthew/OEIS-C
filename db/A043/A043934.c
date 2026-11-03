@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adjacent_03_30
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_03_30.h"
+#include "../utils/mem.h"
+
+/* Check whether an octal representation of x contains two adjacent
+   digits that are 0 and 3 in either order.  Leading zeros are not present
+   in the representation. */
+static bool has_adjacent_03_30(seq_t x)
+{
+    int prev = -1;          /* initialize to an impossible value */
+    while (x > (seq_t)0) {
+        int cur = (int)(x % (seq_t)8);
+        if (prev >= 0 &&
+            ((prev == 0 && cur == 3) || (prev == 3 && cur == 0)))
+            return true;
+        prev = cur;
+        x /= (seq_t)8;
+    }
+    return false;
+}
 
 /* Static storage for memoization */
 static seq_t *cache = NULL;
@@ -32,7 +50,7 @@ static seq_t next_k = 0;   /* next number to test */
 static void cache_grow(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-    seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     cache = new_buf;
     cache_cap = new_cap;
 }

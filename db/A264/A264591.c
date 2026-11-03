@@ -11,13 +11,15 @@
  *            number of partitions of k with all parts ≤ m
  * Range:     u8 n <= 48, u16 n <= 117, u32 n <= 329, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,11 +34,11 @@ seq_t a(idx_t n)
         idx_t k = n - shift;          /* k ≥ 0 */
 
         /* allocate array dp[0..k] of type seq_t, initialized to 0 */
-        seq_t *dp = (seq_t *)malloc((k + 1) * sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, (k + 1));
         if (!dp)
             return result;           /* out‑of‑memory fallback */
 
-        memset(dp, 0, (k + 1) * sizeof(seq_t));
+        mem_set(dp, 0, (k + 1) * sizeof(seq_t));
         dp[0] = 1;                    /* one way to partition 0 */
 
         /* dynamic programming: partitions of k with parts ≤ m */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
         result += dp[k];
 
-        free(dp);
+        mem_free(dp);
     }
 
     return result;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------- primality helpers for uint64_t --------- */
 static inline uint64_t mod_mul(uint64_t a, uint64_t b, uint64_t mod) {
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     /* lazy initialization */
     if (k_cache == NULL) {
         k_cache_cap = 128;
-        k_cache = (seq_t *)malloc(k_cache_cap * sizeof(seq_t));
+        k_cache = mem_new(seq_t, k_cache_cap);
         k_cache_size = 0;
         next_k = 1;
     }
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
                 /* store this k */
                 if (k_cache_size >= k_cache_cap) {
                     k_cache_cap <<= 1;               /* double capacity */
-                    k_cache = (seq_t *)realloc(k_cache, k_cache_cap * sizeof(seq_t));
+                    k_cache = mem_resize(seq_t, k_cache, k_cache_cap);
                 }
                 k_cache[k_cache_size++] = (seq_t)next_k;
                 next_k++;                            /* advance to the next candidate */

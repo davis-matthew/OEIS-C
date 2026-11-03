@@ -7,8 +7,9 @@
  * Formula:   a(n) = 1 if n+1 is a triangular number, * -1 if n is a
  *            triangular number, * 0 otherwise. * Triangular numbers are of
  *            the form k(k+1)/2, k>0
- * Range:     i8 n <= 9398, i16 n <= 9398, i32 n <= 9398, i64 n <= 9398,
- *            i128 n <= 9398, big any n
+ * Range:     i8 n <= 10010, i16 n <= 10010, i32 n <= 10010, i64 n <= 10010,
+ *            i128 n <= 10010, big any n
+ * Validated: standard, pass, 121 terms through n = 9398 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 263, u32 n <= 923, u64 n <= 3443,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 5109 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
     Flattened row by row: a(n) = 3^min(k, r-k) where r satisfies
     r(r+1)/2 ≤ n < (r+1)(r+2)/2  and k = n – r(r+1)/2. */
 
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)

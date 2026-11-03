@@ -6,15 +6,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{k=0..⌊n/4⌋} binomial(k+1, n-4k) * a(k), a(0)=1
- * Range:     u8 n <= 65, u16 n <= 69, u32 n <= 74, u64 n <= 74, u128 n <= 74,
+ * Range:     u8 n <= 66, u16 n <= 72, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t  *cache   = NULL;   /* memoised sequence values   */
 static unsigned char *done = NULL;/* 1 if cache[n] valid, else 0 */
@@ -28,7 +30,7 @@ ensure_arrays(idx_t n)
     size_t new_cap = (cap == 0) ? 16 : cap * 2;
     while (new_cap <= (size_t)n) new_cap *= 2;
 
-    seq_t   *tmp_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t   *tmp_cache = mem_resize(seq_t, cache, new_cap);
     unsigned char *tmp_done = (unsigned char*)realloc(done, new_cap * sizeof(unsigned char));
     if (!tmp_cache || !tmp_done) abort();          /* allocation failure */
 

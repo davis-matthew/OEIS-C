@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 327, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>   /* malloc, free, realloc */
 #include <stddef.h>   /* size_t */
 #include <stdbool.h>  /* bool, false, true */
+#include "../utils/mem.h"
 
 /* the types seq_t and idx_t are defined by the build system */
 static const idx_t INITIAL_LIMIT = 3000000u;   /* sufficient for n≈10 000 */
@@ -37,7 +39,7 @@ static void build_prime_cache(idx_t limit)
 {
     /* free previous cache */
     if (prime_cache != NULL) {
-        free(prime_cache);
+        mem_free(prime_cache);
         prime_cache = NULL;
     }
     prime_count  = 0;
@@ -61,7 +63,7 @@ static void build_prime_cache(idx_t limit)
 
     /* estimate number of qualifying primes to pre‑allocate */
     size_t estimate = (size_t)(limit / 20u) + 50;
-    prime_cache  = (seq_t *)malloc(estimate * sizeof(seq_t));
+    prime_cache  = mem_new(seq_t, estimate);
     if (prime_cache == NULL) {
         free(is_composite);
         return;
@@ -73,8 +75,7 @@ static void build_prime_cache(idx_t limit)
         if (!is_composite[p] && (p % 25u == 14u)) {
             if (prime_count == prime_capacity) {
                 prime_capacity *= 2;
-                seq_t *tmp = (seq_t *)realloc(prime_cache,
-                                              prime_capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_cache, prime_capacity);
                 if (tmp == NULL) {
                     /* allocation failure – stop collecting */
                     break;

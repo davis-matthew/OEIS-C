@@ -7,6 +7,7 @@
  * Formula:   a(n) = coefficient of x^n in 1/Φ2054(x)
  * Range:     i8 n <= 3000, i16 n <= 3000, i32 n <= 3000, i64 n <= 3000,
  *            i128 n <= 3000, big any n
+ * Validated: standard, pass, 97 terms through n = 2620 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=2..n} 3^(n-k) * binomial(k,2) * Stirling2(n,k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,9 +31,9 @@ seq_t a(idx_t n)
 
     /* Initialise on first call. */
     if (S == NULL) {
-        S      = (seq_t*)calloc(cap, sizeof(seq_t));
-        pow3   = (seq_t*)calloc(cap, sizeof(seq_t));
-        a_cache= (seq_t*)calloc(cap, sizeof(seq_t));
+        S      = mem_new(seq_t, cap);
+        pow3   = mem_new(seq_t, cap);
+        a_cache= mem_new(seq_t, cap);
         if (!S || !pow3 || !a_cache)
             return (seq_t)0;  /* allocation failed */
 
@@ -49,9 +51,9 @@ seq_t a(idx_t n)
         size_t new_cap = cap;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        S      = (seq_t*)realloc(S,      new_cap * sizeof(seq_t));
-        pow3   = (seq_t*)realloc(pow3,   new_cap * sizeof(seq_t));
-        a_cache= (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        S      = mem_resize(seq_t, S, new_cap);
+        pow3   = mem_resize(seq_t, pow3, new_cap);
+        a_cache= mem_resize(seq_t, a_cache, new_cap);
         if (!S || !pow3 || !a_cache)
             return (seq_t)0;          /* allocation failed */
         for (size_t i = cap; i < new_cap; ++i) {

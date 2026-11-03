@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   contains25_oct_idx
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/contains25_oct_idx.h"
+#include "../utils/mem.h"
+
+/* Test whether an integer (idx_t) contains the octal substring 25.
+   The most significant digit is processed first. */
+static bool contains25_oct_idx(idx_t x)
+{
+    bool first = true;
+    idx_t prev = 0;                 /* previous least significant digit */
+    while (x > 0) {
+        idx_t d = x % 8;
+        x /= 8;
+        if (!first && d == 2 && prev == 5)
+            return true;
+        prev = d;
+        first = false;
+    }
+    return false;
+}
 
 /* ------------------------------------------------------------------ */
 /* a(n) – the n‑th element of A044589 (offset 1)                       */
@@ -40,7 +58,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cache_cap = 8;
         /* Use a C‑style cast – required for both C and C++ */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
 
@@ -58,7 +76,7 @@ seq_t a(idx_t n)
         /* Grow cache if needed */
         if (cache_len == cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* Store the candidate, letting the cast create a seq_t value

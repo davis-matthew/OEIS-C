@@ -7,7 +7,8 @@
  * Formula:   a(n) = reverse(9 * a(n-1)), a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   reverse
+ * Validated: standard, pass, 37 terms through n = 983 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
  * “seq_t reverse(seq_t v)”. */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/reverse.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     if (!cache) {
         /* Initialise cache for a(1) = 1 */
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();
         cache[0] = (seq_t)1;   /* a(1) */
         cap   = 1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cap) {
         size_t newcap = cap ? cap * 2 : 1;
         while (newcap < (size_t)n) newcap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();
         cache = tmp;
         cap   = newcap;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         for (size_t i = len; i < (size_t)n; ++i) {
             seq_t prev = cache[i - 1];          /* a(i)   (since i starts at len) */
             seq_t prod = prev * (seq_t)9;       /* 9 * a(i) */
-            cache[i]   = reverse(prod);         /* a(i+1) */
+            cache[i]   = reverse_digits(prod);         /* a(i+1) */
         }
         len = (size_t)n;
     }

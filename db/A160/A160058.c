@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 64 terms through n = 690 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/build_primes_upto.h"   /* declares: void build_primes_upto(idx_t, uint64_t **, size_t *); */
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static uint64_t *primeList = NULL;   /* array of all primes up to sieveLimit */
 static size_t     primeCnt  = 0;      /* count of primes in primeList */
@@ -43,13 +45,13 @@ static void rebuild_cache(idx_t limit)
 {
     /* free previous allocations */
     if (primeList) free(primeList);
-    if (qualPrimes) free(qualPrimes);
+    if (qualPrimes) mem_free(qualPrimes);
 
     /* allocate primes up to 'limit' */
     build_primes_upto(limit, (uint64_t **)&primeList, &primeCnt);
 
     /* allocate space for qualifying primes (worst case: all primes qualify) */
-    qualPrimes = (seq_t *)malloc(primeCnt * sizeof(seq_t));
+    qualPrimes = mem_new(seq_t, primeCnt);
     qualCount  = 0;
 
     /* scan between the second and second‑last primes; the first and last

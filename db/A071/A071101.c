@@ -9,12 +9,14 @@
  *            2*a(n-3) - a(n-4) for n ≥ 4
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 19, u64 n <= 40, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 2099 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Remember the cache of computed values. */
 static seq_t *cache = NULL;      /* pointer to cached terms */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
         new_cap <<= 1;
 
     /* Allocate new storage. */
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) {
         /* In a production environment you might handle this error. */
         abort();
@@ -45,7 +47,7 @@ static void ensure_cache(idx_t n)
         new_cache[i] = cache[i];
 
     /* Free old cache and update pointers/capacity. */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
     /* Ensure cache is allocated and large enough. */
     if (!cache)
-        cache = (seq_t *)malloc(4 * sizeof(seq_t));  /* initial capacity 4 */
+        cache = mem_new(seq_t, 4);  /* initial capacity 4 */
     if (!cache)
         abort();  /* allocation failure */
 

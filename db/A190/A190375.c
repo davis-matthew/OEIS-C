@@ -8,7 +8,8 @@
  * Formula:   a(n) = n + ⌊n*√5/4⌋ + ⌊n*φ⌋ + ⌊n*(5+√5)/8⌋
  * Range:     u8 n <= 7, u16 n <= 1825, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 90 terms through n = 7853 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
    using only integer operations, avoiding floating point. */
 
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 /* Integer square‑root via binary search.  Works for any seq_t that
    supports <, <=, +, -, *, /, <<. */
@@ -25,7 +26,7 @@ static seq_t floor_sqrt(seq_t x)
 {
     seq_t low = 0;
     seq_t high = 1;
-    unsigned bl = bitlen_seq_t(x);
+    unsigned bl = bit_length(x);
     high <<= (bl + 1) / 2;           /* high ≈ 2^(ceil(bitlen/2)) */
     while (low < high) {
         seq_t mid = (low + high) / 2;

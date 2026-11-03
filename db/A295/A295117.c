@@ -9,7 +9,8 @@
  *            * 1 or 4 horizontally/vertically adjacent 1s
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Constants for the transfer‑matrix */
 #define ROWS       5
@@ -84,8 +86,8 @@ seq_t a(idx_t n) {
     seq_t *nxt = _dp[1];
 
     /* Zero initialise */
-    memset(cur, 0, sizeof(seq_t) * STATE_SZ);
-    memset(nxt, 0, sizeof(seq_t) * STATE_SZ);
+    mem_set(cur, 0, sizeof(seq_t) * STATE_SZ);
+    mem_set(nxt, 0, sizeof(seq_t) * STATE_SZ);
 
     /* First column: left boundary is zero */
     for (int mask = 0; mask < MASKS; ++mask) {
@@ -95,7 +97,7 @@ seq_t a(idx_t n) {
     /* Process remaining columns */
     for (idx_t step = 1; step < n; ++step) {
         /* clear next array */
-        memset(nxt, 0, sizeof(seq_t) * STATE_SZ);
+        mem_set(nxt, 0, sizeof(seq_t) * STATE_SZ);
 
         for (int idx = 0; idx < STATE_SZ; ++idx) {
             seq_t cnt = cur[idx];

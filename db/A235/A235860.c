@@ -11,6 +11,7 @@
  *            satisfy n = Σ_{p=1}^k d_{k-p+1}^p (p=1 is the rightmost digit)
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 67, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 56 terms through n = 967 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

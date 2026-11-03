@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 39, u32 n <= 124, u64 n <= 357,
  *            u128 n <= 1000, big any n
- * Helpers:   T_row_k_n
+ * Validated: standard, pass, 71 terms through n = 1211 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -51,7 +52,52 @@
  */
 
 #include <stdint.h>
-#include "../utils/T_row_k_n.h"
+
+/* --- helper: compute T(k,n) (row and column are 1‑indexed) --- */
+static seq_t T_row_k_n(idx_t k, idx_t n)
+{
+    /* first term */
+    seq_t a1 = (seq_t)k * (seq_t)k + (seq_t)3 * k;
+
+    if (n == 1)
+        return a1;
+
+    /* second term */
+    __int128 k128 = k;
+    __int128 kk = k128 * k128;
+    __int128 k3 = kk * k128;
+    __int128 num2 = ( (__int128)4 * k3
+                     + (__int128)12 * kk
+                     + (__int128)2 * k128 );
+    seq_t a2 = (seq_t)(num2 / 3);
+
+    if (n == 2)
+        return a2;
+
+    /* third term */
+    __int128 num3 = k128 * ( (__int128)19 * k3
+                             + (__int128)64 * kk
+                             + (__int128)11 * k128
+                             + (__int128)2 );
+    seq_t a3 = (seq_t)(num3 / 12);
+
+    if (n == 3)
+        return a3;
+
+    /* recurrence for n ≥ 4 */
+    seq_t prev2 = a2;   /* T(k,n-2)   */
+    seq_t prev1 = a3;   /* T(k,n-1)   */
+
+    seq_t two_k = (seq_t)(2 * k);
+    seq_t k_sq  = (seq_t)k * (seq_t)k;
+
+    for (idx_t i = 4; i <= n; ++i) {
+        seq_t cur = two_k * prev1 - k_sq * prev2;
+        prev2 = prev1;
+        prev1 = cur;
+    }
+    return prev1;
+}
 
 /* --- public sequence function a(n) --- */
 seq_t a(idx_t n)

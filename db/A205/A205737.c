@@ -14,12 +14,14 @@
  *            linear–recurrence evaluator
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 25, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* memoisation array, indexed by 0..n */
 static size_t   cap    = 0;      /* allocated capacity of cache */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise storage on first call */
     if (!cache) {
         cap = 8;                   /* at least hold indices 0..7 */
-        cache = (seq_t*)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;      /* out of memory – silently return 0 */
         /* set the known first seven values */
         cache[1] = (seq_t)81;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t new_cap = cap ? cap : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;       /* allocation failure – fall back to 0 */
         /* zero the newly allocated part */
         for (size_t i = cap; i < new_cap; ++i) tmp[i] = 0;

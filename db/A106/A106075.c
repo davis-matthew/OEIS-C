@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *good_list = NULL;
 static idx_t good_cnt   = 0;
@@ -30,7 +32,7 @@ static void add_good(seq_t val)
 {
     if (good_cnt >= good_cap) {
         size_t new_cap = good_cap ? good_cap * 2 : 8;
-        seq_t *new_arr = (seq_t *)realloc(good_list, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, good_list, new_cap);
         if (!new_arr) exit(1);                     /* simple error handling */
         good_list = new_arr;
         good_cap = (idx_t)new_cap;
@@ -50,7 +52,7 @@ static void ensure(idx_t n)
             ++last_checked;                 /* make it odd */
 
         /* Skip non‑primes. */
-        while (!is_prime((uint64_t)last_checked)) {
+        while (!is_prime_u64((uint64_t)last_checked)) {
             if (last_checked == 2)
                 last_checked = 3;
             else
@@ -65,7 +67,7 @@ static void ensure(idx_t n)
 
         /* Test the conditions if the values fit in 64 bits. */
         if (v1 <= UINT64_MAX && v2 <= UINT64_MAX) {
-            if (is_prime((uint64_t)v1) && is_prime((uint64_t)v2))
+            if (is_prime_u64((uint64_t)v1) && is_prime_u64((uint64_t)v2))
                 add_good((seq_t)p);
         }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 2046, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow3_small
+ * Validated: standard, pass, 96 terms through n = 9879 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,15 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow3_small.h"
+
+/* Compute 3^exp where exp fits in idx_t (≤ 63) */
+static seq_t pow3_small(idx_t exp)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        r *= 3;
+    return r;
+}
 
 /* Portable popcount for 64‑bit unsigned integers */
 static inline idx_t popcount_u64(idx_t x)

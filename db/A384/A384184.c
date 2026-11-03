@@ -9,6 +9,7 @@
  *            indices i and 2*i (mod n) for i = 0 .. n-1
  * Range:     u8 n <= 68, u16 n <= 134, u32 n <= 558, u64 n <= 2006,
  *            u128 n <= 9846, big any n
+ * Validated: standard, pass, 84 terms through n = 9865 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 77, u64 n <= 77, u128 n <= 77,
+ * Range:     u8 n <= 27, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   catalan
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 */
 
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
 
     for (idx_t row = 0; row <= r; ++row) {
         size_t len = row + 1;
-        seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * len);
+        seq_t *curr = mem_new(seq_t, len);
         if (!curr) abort(); /* allocation failure */
 
         /* Borders */
@@ -49,12 +52,12 @@ seq_t a(idx_t n)
 
         if (row == r) {
             seq_t result = curr[k];
-            free(prev);
-            free(curr);
+            mem_free(prev);
+            mem_free(curr);
             return result;
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_len = len;
     }

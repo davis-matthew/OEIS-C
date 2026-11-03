@@ -12,6 +12,7 @@
  *            a(19)=24, a(20)=27, a(21)=30, a(22)=33, a(23)=36, a(...
  * Range:     u8 n <= 42, u16 n <= 97, u32 n <= 209, u64 n <= 431,
  *            u128 n <= 875, big any n
+ * Validated: standard, pass, 87 terms through n = 954 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

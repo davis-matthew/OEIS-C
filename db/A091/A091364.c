@@ -7,12 +7,14 @@
  * Formula:   a(n) = n! * n^4
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 16, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoized factorial cache */
 static seq_t *fact_cache = NULL;   /* array of factorial values */
@@ -25,7 +27,7 @@ static void ensure_factorial(idx_t n) {
         /* Grow capacity if needed */
         if (fact_len == fact_cap) {
             fact_cap = fact_cap ? fact_cap * 2 : 4;
-            fact_cache = (seq_t *)realloc(fact_cache, fact_cap * sizeof(seq_t));
+            fact_cache = mem_resize(seq_t, fact_cache, fact_cap);
         }
 
         if (fact_len == 0) {

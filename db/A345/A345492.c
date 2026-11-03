@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 204, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* maximum number to pre‑compute; large enough for 10 000 terms */
 #define MAX_SUM 200000
@@ -66,7 +68,7 @@ static void build(void)
 
     /* collect numbers with at least 5 representations */
     /* allocate generous space; MAX_SUM is enough to hold more than 10 000 terms */
-    good = (seq_t *)malloc(sizeof(seq_t) * (MAX_SUM + 1));
+    good = mem_new(seq_t, (MAX_SUM + 1));
     if (!good) { exit(1); }
 
     good_len = 0;

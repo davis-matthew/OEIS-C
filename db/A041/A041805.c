@@ -10,13 +10,15 @@
  *            a(13)=893759, a(14)=1170177, a(15)=2063936
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 20, u64 n <= 39, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t init_tbl[16] = {
     1, 1, 2, 7, 30, 97, 127, 224,
@@ -35,12 +37,12 @@ static void ensure_cache(size_t need)
         return;
     size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
     while (new_cap < need) new_cap *= 2;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) return;  /* allocation failure: caller will handle via NULL check */
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

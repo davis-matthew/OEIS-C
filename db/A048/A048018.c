@@ -9,12 +9,14 @@
  *            ⌊(n-2)/3⌋, b = n – a
  * Range:     u8 n <= 16, u16 n <= 28, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     for (idx_t k = 1; k <= max_k; ++k) {
-        seq_t ca = binom(a_val, k << 1); /* C(a, 2k) */
-        seq_t cb = binom(b_val, k);      /* C(b, k) */
+        seq_t ca = binomial(a_val, k << 1); /* C(a, 2k) */
+        seq_t cb = binomial(b_val, k);      /* C(b, k) */
         sum += ca * cb;
     }
     return sum;

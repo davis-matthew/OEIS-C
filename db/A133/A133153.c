@@ -10,7 +10,8 @@
  *            allowed part p ≤ n * for i = p .. n * dp[i] += dp[i – p]
  * Range:     u8 n <= 19, u16 n <= 54, u32 n <= 167, u64 n <= 561,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Allocate or enlarge dp array as needed */
     if ((size_t)n + 1 > dp_capacity) {
-        seq_t *tmp = (seq_t *)realloc(dp, ((size_t)n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, ((size_t)n + 1));
         if (!tmp) abort();          /* allocation failed */
         dp = tmp;
         dp_capacity = n + 1;

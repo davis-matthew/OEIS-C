@@ -7,7 +7,8 @@
  * Formula:   a(n) = 1/(3n) * Σ_{d|n} φ(n/d) * [ 6^{3d} + 2·6^{d·gcd(n/d,3)} ]
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 29 terms through n = 98 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 typedef uint64_t idx_t;   /* index type is uint64_t */
 #define seq_from_int(x) ((seq_t)(x))   /* helper to convert integer to seq_t */
@@ -60,9 +61,9 @@ seq_t a(idx_t n) {
         /* divisor d1 = i */
         idx_t d1 = i;
         idx_t idx1 = n / d1;          /* n/d */
-        seq_t term1 = big_pow(seq_from_int(6), seq_from_int(3 * d1));
+        seq_t term1 = ipow(seq_from_int(6), seq_from_int(3 * d1));
         idx_t g1 = gcd_idx(idx1, 3);
-        seq_t term2 = big_pow(seq_from_int(6), seq_from_int(d1 * g1));
+        seq_t term2 = ipow(seq_from_int(6), seq_from_int(d1 * g1));
         term2 *= seq_from_int(2);    /* 2 * 6^{...} */
         term1 += term2;
         sum += term1 * seq_from_int(phi[idx1]);
@@ -71,9 +72,9 @@ seq_t a(idx_t n) {
         if (i != n / i) {
             idx_t d2 = n / i;
             idx_t idx2 = n / d2;      /* n/d, equals i */
-            seq_t term1b = big_pow(seq_from_int(6), seq_from_int(3 * d2));
+            seq_t term1b = ipow(seq_from_int(6), seq_from_int(3 * d2));
             idx_t g2 = gcd_idx(idx2, 3);
-            seq_t term2b = big_pow(seq_from_int(6), seq_from_int(d2 * g2));
+            seq_t term2b = ipow(seq_from_int(6), seq_from_int(d2 * g2));
             term2b *= seq_from_int(2);
             term1b += term2b;
             sum += term1b * seq_from_int(phi[idx2]);

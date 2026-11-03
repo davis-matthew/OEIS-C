@@ -8,7 +8,8 @@
  *            prime
  * Range:     u8 n <= 11, u16 n <= 830, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   append_candidate, digit_product, is_prime_small
+ * Validated: standard, pass, 64 terms through n = 998 (2026-11-03)
+ * Helpers:   digit_product, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,27 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>                        /* for uint64_t */
+#include <stdlib.h>
 #include "../utils/digit_product.h"
-#include "../utils/is_prime_small.h"
-#include "../utils/append_candidate.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* static data for incremental search and caching */
 static uint64_t last_checked = 1;          /* last number examined for primality   */
@@ -45,7 +64,7 @@ static uint64_t next_prime(uint64_t x)
     uint64_t p = (x % 2 == 0) ? x + 1 : x + 2;   /* start with an odd number */
 
     for (;;) {
-        if (is_prime_small((seq_t)p))
+        if (is_prime_seq((seq_t)p))
             return p;
         p += 2;
     }
@@ -62,7 +81,7 @@ seq_t a(idx_t n)
 
         seq_t prod = digit_product((seq_t)cand);
         /* product of digits is always positive; add 1 and -1 are safe */
-        if (is_prime_small(prod + 1) && is_prime_small(prod - 1)) {
+        if (is_prime_seq(prod + 1) && is_prime_seq(prod - 1)) {
             append_candidate(&cache_seq, &cache_len, &cache_cap,
                              (seq_t)cand);
             ++found_count;

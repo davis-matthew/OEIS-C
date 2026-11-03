@@ -11,13 +11,15 @@
  *            below. This implements A208947 for all n ≥ 1
  * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t base_vals[10] =
     { 8, 68, 274, 766, 1722, 3376, 6004, 9928, 15514, 23178 };
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (cache == NULL || cache_max < n)
     {
         idx_t new_size = n + 1;   /* indices 0..n; 0 unused */
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) abort(); /* allocation failed */
         cache = new_cache;
 

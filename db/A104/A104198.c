@@ -12,14 +12,26 @@
  *            digit_mask(0) includes digit 0
  * Range:     u8 n <= 11, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   digit_mask
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_mask.h"
+
+static inline uint16_t digit_mask(seq_t x)
+{
+    uint16_t m = 0;
+    while (x != 0)
+    {
+        uint8_t d = (uint8_t)(x % 10);
+        m |= 1u << d;
+        x /= 10;
+    }
+    return m;
+}
 
 seq_t a(idx_t n)
 {

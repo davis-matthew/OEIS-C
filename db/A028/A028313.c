@@ -9,11 +9,13 @@
  *            triangle. Base values: a(0)=a(1)=1
  * Range:     u8 n <= 58, u16 n <= 178, u32 n <= 644, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 94 terms through n = 1316 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute C(n,k) for nonnegative n,k using only seq_t arithmetic.*/

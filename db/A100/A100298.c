@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;
 static size_t seq_len = 0;
@@ -50,7 +53,7 @@ static void ensure_seq_capacity(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap : 1;
     while (new_cap < needed) new_cap <<= 1;
-    seq = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 
@@ -59,7 +62,7 @@ static void ensure_comps_capacity(size_t needed)
     if (needed <= comps_cap) return;
     size_t new_cap = comps_cap ? comps_cap : 1;
     while (new_cap < needed) new_cap <<= 1;
-    comps = (seq_t*)realloc(comps, new_cap * sizeof(seq_t));
+    comps = mem_resize(seq_t, comps, new_cap);
     comps_cap = new_cap;
 }
 
@@ -67,7 +70,7 @@ static void generate_composites_up_to(size_t count)
 {
     while (comps_len < count) {
         /* find next composite */
-        while (is_prime(next_comp_candidate)) ++next_comp_candidate;
+        while (is_prime_u64(next_comp_candidate)) ++next_comp_candidate;
         ensure_comps_capacity(comps_len + 1);
         comps[comps_len++] = (seq_t)next_comp_candidate;
         ++next_comp_candidate;

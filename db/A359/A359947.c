@@ -12,7 +12,8 @@
  *            > n with n XOR m prime
  * Range:     u8 n <= 254, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9642 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Global state for the partner mapping */
 static seq_t   *partner = NULL;   /* partner[n] = m in the pair {n,m} */
@@ -35,11 +37,10 @@ static void ensure_partner_cap(idx_t n_needed) {
     if (n_needed + 1 <= cap) return;
     size_t new_cap = cap ? cap * 2 : 32;
     while (new_cap <= (size_t)n_needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(partner, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, partner, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);          /* allocation failure */
     if (new_cap > cap)
-        memset(new_arr + cap, 0,
-               (new_cap - cap) * sizeof(seq_t));
+        mem_set(new_arr + cap, 0, (new_cap - cap) * sizeof(seq_t));
     partner = new_arr;
     cap = new_cap;
 }

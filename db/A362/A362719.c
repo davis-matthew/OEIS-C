@@ -7,13 +7,14 @@
  * Formula:   a(n) = Sum_{k=1..n} [phi(k) = phi(n-k+1)]
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi.h"   /* provides seq_t phi(idx_t) */
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -22,8 +23,8 @@ seq_t a(idx_t n)
 
     seq_t count = 0;
     for (idx_t k = 1; k <= n; ++k) {
-        seq_t phik = phi(k);                 /* phi(k) */
-        seq_t phin = phi(n - k + 1);         /* phi(n-k+1) */
+        seq_t phik = totient(k);                 /* phi(k) */
+        seq_t phin = totient(n - k + 1);         /* phi(n-k+1) */
         if (phik == phin) {
             ++count;
         }

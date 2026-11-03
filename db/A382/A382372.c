@@ -9,13 +9,20 @@
  *            Σ_{k=1..n} w(k) * a(n‑k) with w(k)=v4(k)+1, v4(k)=max e:4^e|k
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   v4
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/v4.h"
+#include "../utils/mem.h"
+
+static inline idx_t v4(idx_t k)      /* floor(v2(k)/2), i.e. count of 4 dividing k */
+{
+    /* __builtin_ctzll counts trailing zeros (i.e. exponent of 2) */
+    return __builtin_ctzll((unsigned long long)k) >> 1;
+}
 
 /* -------------------------------------- */
 /*  Memoized implementation up to n = 10000  */
@@ -36,7 +43,7 @@ seq_t a(idx_t n)
         seq_t result = 1;                /* a(0) */
         if (n == 0) return result;
         /* dynamic reusable buffer (small enough) */
-        seq_t *buf = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *buf = mem_new(seq_t, (n + 1));
         if (!buf) return 0;              /* allocation failure – return zero */
         buf[0] = result;
         for (idx_t i = 1; i <= n; ++i)
@@ -47,7 +54,7 @@ seq_t a(idx_t n)
             buf[i] = sum;
         }
         result = buf[n];
-        free(buf);
+        mem_free(buf);
         return result;
     }
 

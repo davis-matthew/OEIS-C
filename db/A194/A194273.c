@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    the needed terms have been computed. */
 
 #include <stdlib.h>  /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;    /* memoised terms */
 static size_t cache_cap = 0;     /* allocated capacity */
@@ -34,7 +36,7 @@ static void init_cache(void)
 
     /* start with a modest capacity – will grow as needed */
     cache_cap = 32;
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) return;   /* allocation failure – function will crash
                             later, matching the build environment */
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while (new_cap < required)
             new_cap <<= 1;            /* double until large enough */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)                 /* allocation failure – abort */
             return 0;
         cache = tmp;

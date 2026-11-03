@@ -11,6 +11,7 @@
  *            ** a(10)= 320, ** a(11)= 358, ** a(12)= 400, ** a(13)= 440
  * Range:     i8 n <= 5, i16 n <= 46, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 46 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

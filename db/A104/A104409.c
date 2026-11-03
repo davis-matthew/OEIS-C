@@ -8,16 +8,28 @@
  *            [0,0,0,1,-1,1,-1,1,-1,1,0,0,0,0] (c(1)=0, c(2)=0, c(3)=0, etc.)
  *            a(0)=1, and for n>0 a(n) = (1/n) * Σ_{k=1}^n ( Σ_{d|k} d*c(d) )
  *            * a(n-k) (Euler transform)
- * Range:     i8 n <= 17, i16 n <= 54, i32 n <= 63, i64 n <= 63, i128 n <= 63,
- *            big any n
- * Helpers:   none
+ * Range:     i8 n <= 39, i16 n <= 103, i32 n <= 309, i64 n <= 1020,
+ *            i128 n <= 3224, big any n
+ * Validated: standard, pass, 80 terms through n = 9562 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
-static seq_t *a_vals = NULL;      /* cache of a(n) values  */
+/* the code below runs in wide_t: 128 bits at the fixed widths (never narrower
+   than seq_t), seq_t itself for big, so values that pass 2^64 on the way to a
+   term that fits stay exact; a() returns the term in seq_t */
+#ifdef __cplusplus
+typedef seq_t wide_t;
+#else
+typedef __typeof__((seq_t)0 + (__int128)0) wide_t;
+#endif
+#define seq_t wide_t
+
+static seq_t *a_vals = NULL;      /* cache of a_wide(n) values  */
 static long long *p_vals = NULL; /* cache of divisor sums Σ_{d|k} d*c(d) */
 static idx_t max_n = 0;           /* highest index computed so far        */
 
@@ -39,14 +51,14 @@ static void recompute_p(idx_t up_to) {
     }
 }
 
-seq_t a(idx_t n) {
+seq_t a_wide(idx_t n) {
     /* initialise on first call */
     if (a_vals == NULL) {
-        a_vals = (seq_t *)malloc(sizeof(seq_t));
+        a_vals = mem_new(seq_t, 1);
         p_vals = (long long *)malloc(sizeof(long long));
         if (!a_vals || !p_vals) return (seq_t)0; /* out of memory */
 
-        a_vals[0] = (seq_t)1;   /* a(0) = 1 */
+        a_vals[0] = (seq_t)1;   /* a_wide(0) = 1 */
         p_vals[0] = 0;          /* unused but harmless */
         max_n   = 0;
     }
@@ -59,14 +71,14 @@ seq_t a(idx_t n) {
         idx_t new_max = n;
 
         /* reallocate storage */
-        a_vals = (seq_t *)realloc(a_vals, (new_max + 1) * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, (new_max + 1));
         p_vals = (long long *)realloc(p_vals, (new_max + 1) * sizeof(long long));
         if (!a_vals || !p_vals) return (seq_t)0; /* out of memory */
 
         /* recompute divisor sums for all k <= new_max */
         recompute_p(new_max);
 
-        /* compute a(k) for k = max_n+1 .. new_max */
+        /* compute a_wide(k) for k = max_n+1 .. new_max */
         for (idx_t k = max_n + 1; k <= new_max; ++k) {
             seq_t acc = (seq_t)0;
             for (idx_t j = 1; j <= k; ++j)
@@ -78,4 +90,10 @@ seq_t a(idx_t n) {
     }
 
     return a_vals[n];
+}
+
+#undef seq_t
+seq_t a(idx_t n)
+{
+    return (seq_t)a_wide(n);
 }

@@ -11,12 +11,14 @@
  *            compositions of n)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 60, u128 n <= 123,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* pre‑compute powers of two up to n */
-    seq_t *pow2 = (seq_t *)malloc((n + 1u) * sizeof(seq_t));
+    seq_t *pow2 = mem_new(seq_t, (n + 1u));
     if (!pow2)
         return (seq_t)0;   /* allocation failure – unlikely in test harness */
 
@@ -83,6 +85,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(pow2);
+    mem_free(pow2);
     return sum;
 }

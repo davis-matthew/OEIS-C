@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sq_u64, sum2sq_u64
+ * Validated: standard, pass, 81 terms through n = 9549 (2026-11-01)
+ * Helpers:   is_square_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,25 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sq_u64.h"
-#include "../utils/sum2sq_u64.h"
+#include "../utils/is_square_u64.h"
+
+static bool sum2sq_u64(uint64_t x) {
+    uint64_t p;
+    while (x % 2 == 0) x /= 2;
+    for (p = 3; p * p <= x; p += 2) {
+        if (x % p == 0) {
+            int e = 0;
+            while (x % p == 0) { x /= p; e++; }
+            if ((p % 4 == 3) && (e & 1)) return false;
+        }
+    }
+    if (x > 1 && x % 4 == 3) return false;
+    return true;
+}
 
 static bool in_seq(uint64_t x) {
     if (x == 0) return false;
-    if (x % 3 == 0 && sq_u64(x / 3)) return true;
+    if (x % 3 == 0 && is_square_u64(x / 3)) return true;
     return sum2sq_u64(x);
 }
 

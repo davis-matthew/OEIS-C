@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 71 terms through n = 9701 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,14 +19,14 @@
    (a(1) = 6). */
 
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 /* Compute BCR(n) = reverse of the bitwise complement of n,
    where the complement is taken over the minimal number of bits
    required to represent n. */
 static seq_t BCR(seq_t n)
 {
-    idx_t k = bitlen_seq_t(n);
+    idx_t k = bit_length(n);
     if (k == 0) return 0;
     /* mask with k low bits set to 1 */
     seq_t mask = ((seq_t)1 << k) - 1;

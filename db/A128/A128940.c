@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 698, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 64 terms through n = 969 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <string.h>
 
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* --- Static state ------------------------------------------------------- */
 static uint64_t *small_primes = NULL;   /* primes up to a fixed limit */
@@ -63,7 +65,7 @@ static void ensure_output_capacity(size_t need)
     size_t new_cap = output_cap ? output_cap * 2 : 128;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(output_seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, output_seq, new_cap);
     output_seq = tmp;
     output_cap = new_cap;
 }

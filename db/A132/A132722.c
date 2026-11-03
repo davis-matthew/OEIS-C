@@ -8,7 +8,8 @@
  *            power
  * Range:     u8 n <= 17, u16 n <= 27, u32 n <= 38, u64 n <= 48, u128 n <= 49,
  *            big any n
- * Helpers:   digit_len, pow_uint
+ * Validated: full, pass, 49 terms through n = 49 (2026-11-02)
+ * Helpers:   ipow_u64_idx, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
    base, storing them in increasing order of k then base. The sequence has
    only 49 terms, so the cache is static. */
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/num_digits.h"
 
 static seq_t _cache[60];
 static idx_t _count = 0;
@@ -30,8 +33,8 @@ seq_t a(idx_t n)
         for (idx_t k = 1; k <= 60; ++k) {
             bool any = false;
             for (uint64_t base = 1; base <= 9; ++base) {
-                seq_t val = pow_uint(base, k);
-                if (digit_len(val) == k) {
+                seq_t val = ipow_u64_idx(base, k);
+                if (num_digits(val) == k) {
                     _cache[_count++] = val;
                     any = true;
                 }

@@ -11,7 +11,8 @@
  *            For each n the block consisting of the next n imperfect numbe...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   is_perfect_uint64, pow10
+ * Validated: standard, pass, 28 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/is_perfect_uint64.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Check if a given uint64_t is one of the known perfect numbers. */
+static bool is_perfect_uint64(uint64_t x)
+{
+    /* Known perfect numbers (tested up to 2^64). */
+    static const uint64_t perfects[] = {
+        6ULL, 28ULL, 496ULL, 8128ULL,
+        33550336ULL, 8589869056ULL, 137438691328ULL,
+        2305843008139952128ULL
+    };
+    for (size_t i = 0; i < sizeof(perfects)/sizeof(perfects[0]); ++i) {
+        if (x == perfects[i]) return true;
+        if (x < perfects[i]) break;
+    }
+    return false;
+}
 
 /* Return the number of decimal digits of a value of type seq_t. */
 static int digit_len_seq(seq_t v)
@@ -38,7 +64,7 @@ static int digit_len_seq(seq_t v)
 static void grow_seq_array(seq_t **arr, size_t *cap)
 {
     size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
-    seq_t *tmp = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) {
         /* Out of memory – abort. */
         abort();

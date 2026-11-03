@@ -12,14 +12,17 @@
  *            (β&1)) – 1) / (p^2 – 1). The answer is the produc...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_seq
+ * Validated: standard, pass, 102 terms through n = 9619 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
         /* Exponent in the geometric‑series formula */
         size_t exp = beta + (beta & 1ULL);      /* beta if even, beta+1 if odd */
 
-        numerator = pow_seq(p_val, (int)exp) - 1;
+        numerator = ipow_i32(p_val, (int)exp) - 1;
         denom     = p_val * p_val - 1;
         div       = numerator / denom;          /* exact division */
 

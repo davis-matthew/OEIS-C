@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 61, u64 n <= 148,
  *            u128 n <= 400, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 61 terms through n = 1253 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
  *     else              a(n) = (r-k)*[(k+1)^r - 2*k^r + (k-1)^r].
  */
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t N) {
     /* Find the row r */
@@ -38,9 +40,9 @@ seq_t a(idx_t N) {
     if (k == 0) {
         return (seq_t)r;
     } else {
-        seq_t p1 = big_pow((seq_t)(k + 1), (seq_t)r);
-        seq_t p2 = big_pow((seq_t)k, (seq_t)r);
-        seq_t p3 = big_pow((seq_t)(k - 1), (seq_t)r);
+        seq_t p1 = ipow((seq_t)(k + 1), (seq_t)r);
+        seq_t p2 = ipow((seq_t)k, (seq_t)r);
+        seq_t p3 = ipow((seq_t)(k - 1), (seq_t)r);
 
         /* Compute e = p1 + p3 - 2*p2 */
         seq_t e = p1 + p3;

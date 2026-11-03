@@ -11,7 +11,8 @@
  *            in the OEIS entry) has only distinct values
  * Range:     u8 n <= 223, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9611 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t S_len = 0;          /* Number of computed a values so far */
 static size_t A_cap = 0;
@@ -36,7 +38,7 @@ static void grow_A(void)
 {
     if (S_len == A_cap) {
         size_t new_cap = A_cap ? A_cap << 1 : 64;
-        seq_t *p = (seq_t *)realloc(A_vals, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, A_vals, new_cap);
         if (!p) abort();
         A_vals = p;
         A_cap = new_cap;
@@ -48,7 +50,7 @@ static void grow_S(void)
 {
     if (S_seen_len == S_seen_cap) {
         size_t new_cap = S_seen_cap ? S_seen_cap << 1 : 64;
-        seq_t *p = (seq_t *)realloc(S_seen, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, S_seen, new_cap);
         if (!p) abort();
         S_seen = p;
         S_seen_cap = new_cap;
@@ -76,9 +78,9 @@ static void init_state(void)
     if (S_len != 0) return;          /* already initialised */
 
     /* Allocate arrays. */
-    A_vals = (seq_t *)malloc(64 * sizeof(seq_t));
+    A_vals = mem_new(seq_t, 64);
     A_cap  = 64;
-    S_seen = (seq_t *)malloc(64 * sizeof(seq_t));
+    S_seen = mem_new(seq_t, 64);
     S_seen_cap = 64;
 
     /* Recamán start: r(0)=0 is already seen. */

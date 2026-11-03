@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 22, u128 n <= 22,
+ * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binomial, seq_gcd
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
    a(n) = Sum_{k=0..⌊n/2⌋} n^k * binomial(2*n-k , n-2*k)   (offset 0) */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t n, idx_t k) */
-#include "../utils/seq_gcd.h"    /* provides seq_t seq_gcd(seq_t a, seq_t b) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         /* Cancel numerator factors with denominator factors */
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 2 && num[i] > 1; ++j) {
-                seq_t g = seq_gcd(num[i], den[j]);
+                seq_t g = gcd(num[i], den[j]);
                 if (g > (seq_t)1) {
                     num[i] /= g;
                     den[j] /= g;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             /* Cancel any remaining denominator factors against the current
                running result to keep the product small. */
             for (int j = 0; j < 2 && den[j] > (seq_t)1; ++j) {
-                seq_t g = seq_gcd(res, den[j]);
+                seq_t g = gcd(res, den[j]);
                 if (g > (seq_t)1) {
                     res /= g;
                     den[j] /= g;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
            not, divide them out from the result (this should never happen). */
         for (int j = 0; j < 2; ++j) {
             if (den[j] > (seq_t)1) {
-                seq_t g = seq_gcd(res, den[j]);
+                seq_t g = gcd(res, den[j]);
                 if (g > (seq_t)1) {
                     res /= g;
                     den[j] /= g;

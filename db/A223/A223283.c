@@ -10,12 +10,14 @@
  * Formula:   a(n) = 3*a(n-1) + 6*a(n-2) for n>3, a(1)=20, a(2)=15, a(3)=87
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Initialize the cache with the first three values if needed. */
     if (cache == NULL) {
         size = 3;
-        cache = (seq_t*)malloc(size * sizeof(seq_t));
+        cache = mem_new(seq_t, size);
         cache[0] = (seq_t)20;   /* a(1) */
         cache[1] = (seq_t)15;   /* a(2) */
         cache[2] = (seq_t)87;   /* a(3) */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     /* Extend the cache to accommodate up to n. */
     idx_t new_size = n;
-    seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (tmp == NULL) {
         /* Allocation failed; in a real program we might exit or handle it.
            For the purposes of this sequence function, we simply return 0. */

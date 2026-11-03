@@ -8,13 +8,15 @@
  *            * initial values: a(0)=1, a(1)=2, a(2)=8
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* The sequence element type and index type are supplied by the build. */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 3;                     /* need at least a(0)..a(2)   */
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         /* base values */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)2;
@@ -41,11 +43,11 @@ seq_t a(idx_t n)
         size_t required = (size_t)n + 1;
         if (required > cache_cap) {
             /* Allocate larger buffer */
-            seq_t *new_cache = (seq_t *)malloc(required * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, required);
             for (size_t i = 0; i < cache_len; ++i) {
                 new_cache[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
             cache = new_cache;
             cache_cap = required;
         }

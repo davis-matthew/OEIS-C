@@ -7,7 +7,8 @@
  * Formula:   a(n) is the nth decimal digit of √231 / 4 (1‑indexed)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   seq_alloc_array, seq_free_array
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,17 @@
 /* seq_t and idx_t are supplied by the build system */
 
 /* Big‑integer helpers (base 10^9) */
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 typedef struct {
     uint32_t *d;   /* little‑endian limbs in base BASE */
@@ -152,7 +162,7 @@ static void ensure_digits_capacity(size_t needed) {
     while (new_cap < needed) new_cap <<= 1;
     seq_t *new_arr = seq_alloc_array(new_cap);
     if (digits_len) {
-        memmove(new_arr, digits, digits_len * sizeof(seq_t));
+        mem_move(new_arr, digits, digits_len * sizeof(seq_t));
         seq_free_array(digits);
     }
     digits = new_arr;

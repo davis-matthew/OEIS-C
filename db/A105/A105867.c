@@ -8,7 +8,8 @@
  *            (2^m – (‑1)^m) / 3 is the Jacobsthal number
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 /*  pow2(exp)      – 2^exp                                            */
 /* ------------------------------------------------------------------ */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <sys/types.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
         else                           /* m odd : (2^m + 1) / 3 */
             J = (pow2m + 1) / 3;
 
-        seq_t bin = binom(n - k, k);   /* C(n‑k, k)         */
+        seq_t bin = binomial(n - k, k);   /* C(n‑k, k)         */
         seq_t term = bin * J * pow2k;  /* product of all parts */
 
         result += term;                /* accumulate sum     */

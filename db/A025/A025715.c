@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1 + Sum_{k=1..n} ceil(k * log_5(6))
  * Range:     u8 n <= 20, u16 n <= 342, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
+ * Validated: standard, pass, 70 terms through n = 9347 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

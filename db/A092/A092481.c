@@ -13,7 +13,8 @@
  *            2^(n/2c-1)φ(2c)) + 2^((n-4)/2) + 2^((n-8)/4) - 2^(ceil((n-...
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 32, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   build_primes, factor_uint64, pow2_idx
+ * Validated: partial, pass, 34 terms through n = 36 (2026-11-01)
+ * Helpers:   build_primes, factor_uint64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
 #include "../utils/factor_uint64.h"
-#include "../utils/pow2_idx.h"
+#include "../utils/pow2.h"
 
 /* Prime table for factorisation */
 static idx_t  *PRIMES = NULL;
@@ -60,7 +62,7 @@ static void dfs_sum1(int idx, uint64_t d, const uint64_t *pr, const int *exp,
                      int num, idx_t n, seq_t *sum)
 {
     if (idx == num) {
-        seq_t term = phi_u64(d) * pow2_idx(n / d - 1);
+        seq_t term = phi_u64(d) * pow2(n / d - 1);
         *sum += term;
         return;
     }
@@ -78,7 +80,7 @@ static void dfs_sum2(int idx, uint64_t d, const uint64_t *pr, const int *exp,
                      int num, idx_t m, seq_t *sum)
 {
     if (idx == num) {
-        seq_t term = phi_u64(2 * d) * pow2_idx(m / d - 1);
+        seq_t term = phi_u64(2 * d) * pow2(m / d - 1);
         *sum += term;
         return;
     }
@@ -120,19 +122,19 @@ seq_t a(idx_t n)
         return tmp / (seq_t)n;
     } else if ((n % 4) == 2) {    /* n = 4k+2 */
         seq_t res = (sum1 - sum2) / (seq_t)n;
-        seq_t extra = pow2_idx((idx_t)((n - 4) / 2));
+        seq_t extra = pow2((idx_t)((n - 4) / 2));
         return res + extra;
     } else {                     /* n = 4k  */
         seq_t res = (sum1 - sum2) / (seq_t)n;
-        seq_t extra1 = pow2_idx((idx_t)((n - 4) / 2));
+        seq_t extra1 = pow2((idx_t)((n - 4) / 2));
         /* compute 2^((n-8)/4) only if exponent non‑negative */
         int e2 = (int)(n / 4) - 2;          /* (n-8)/4 */
         seq_t extra2 = 0;
-        if (e2 >= 0) extra2 = pow2_idx((idx_t)e2);
+        if (e2 >= 0) extra2 = pow2((idx_t)e2);
         /* exponent ceil((n-4)/8)-1  ->  ((n+3)/8)-1   */
         int e3 = (int)((n + 3) / 8) - 1;
         seq_t extra3 = 0;
-        if (e3 >= 0) extra3 = pow2_idx((idx_t)e3);
+        if (e3 >= 0) extra3 = pow2((idx_t)e3);
         return res + extra1 + extra2 - extra3;
     }
 }

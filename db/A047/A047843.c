@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 15, u64 n <= 899,
  *            u128 n <= 5000, big any n
- * Helpers:   ndigits_idx_t
+ * Validated: standard, pass, 43 terms through n = 4734 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
  * count of 0.
  */
 #include <stdint.h>
-#include "../utils/ndigits_idx_t.h"
+#include "../utils/num_digits_idx.h"
 
 seq_t a(idx_t n) {
     unsigned char cnt[10] = {0};
@@ -48,7 +49,7 @@ seq_t a(idx_t n) {
     for (int d = min_d; d <= max_d; d++) {
         idx_t c = cnt[d];
         /* Number of decimal digits in count c */
-        int len = (c == 0) ? 1 : ndigits_idx_t(c);
+        int len = (c == 0) ? 1 : num_digits_idx(c);
         /* pow10 = 10^len */
         seq_t pow10 = (seq_t)1;
         for (int i = 0; i < len; i++) pow10 *= (seq_t)10;

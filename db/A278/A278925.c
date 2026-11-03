@@ -9,18 +9,20 @@
  *            j³ (1 ≤ i,j ≤ n); a(0)=1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Allocate arrays for elementary symmetric sums e[0..n]
        and factorials fac[0..n]. */
-    seq_t *e   = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *fac = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *e   = mem_new(seq_t, (n + 1));
+    seq_t *fac = mem_new(seq_t, (n + 1));
     if (!e || !fac) return 0;          /* failure – unlikely in tests */
 
     /* Initialize e[0] = 1, others 0 */
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
     }
 
     /* Clean up and return */
-    free(e);
-    free(fac);
+    mem_free(e);
+    mem_free(fac);
     return perm;
 }

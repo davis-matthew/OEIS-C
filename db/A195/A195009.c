@@ -11,15 +11,18 @@
  *            (central binomial coefficient) * * The function...
  * Range:     u8 n <= 12, u16 n <= 19, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   _floor_isqrt_u64, binom_n_k, seq_pow
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow_idx, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/binom_n_k.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/isqrt.h"
 
 /* Static cache to avoid recomputing factorials / binomials */
 static idx_t fact_cache_size = 0;
@@ -29,7 +32,7 @@ seq_t a(idx_t idx)
 {
     /* Compute the row index r such that
      * offset = r*(r+1)/2 <= idx < (r+1)*(r+2)/2   */
-    idx_t r = (_floor_isqrt_u64(8 * idx + 1) - 1) / 2;
+    idx_t r = (isqrt(8 * idx + 1) - 1) / 2;
 
     /* Offset of the first element of row r */
     idx_t offset = r * (r + 1) / 2;
@@ -47,7 +50,7 @@ seq_t a(idx_t idx)
      *                     = (2m+1)*binom(2m, m) if row = 2m+1
      */
     idx_t m = r / 2;                /* floor(r/2) */
-    seq_t binom_coeff = binom_n_k(2 * m, m);
+    seq_t binom_coeff = binomial(2 * m, m);
 
     seq_t A;
     if ((r & 1) == 0) { /* even row */
@@ -61,7 +64,7 @@ seq_t a(idx_t idx)
     if (k == 0 && r > 0) {
         pow_k = (seq_t)0;                /* 0^r with r>0 */
     } else {
-        pow_k = seq_pow((seq_t)k, r);
+        pow_k = ipow_idx((seq_t)k, r);
     }
 
     /* Result: k^row * A */

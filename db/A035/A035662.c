@@ -9,12 +9,14 @@
  *            one part of each type
  * Range:     u8 n <= 52, u16 n <= 135, u32 n <= 408, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>          /* malloc, free */
+#include "../utils/mem.h"
 
 static void compute_dp(idx_t N, seq_t *dp_all, seq_t *dp2, seq_t *dp3)
 {
@@ -60,9 +62,9 @@ seq_t a(idx_t n)
      * n ≤ 10000 in the 2‑second limit. */
     if (n > maxN) {
         size_t sz = (size_t)(n + 1);
-        seq_t *new_all = (seq_t *)malloc(sz * sizeof(seq_t));
-        seq_t *new2    = (seq_t *)malloc(sz * sizeof(seq_t));
-        seq_t *new3    = (seq_t *)malloc(sz * sizeof(seq_t));
+        seq_t *new_all = mem_new(seq_t, sz);
+        seq_t *new2    = mem_new(seq_t, sz);
+        seq_t *new3    = mem_new(seq_t, sz);
 
         if (!new_all || !new2 || !new3) {   /* allocation failed */
             /* In the unlikely event of out‑of‑memory, fall back to 0. */
@@ -70,9 +72,9 @@ seq_t a(idx_t n)
         }
 
         if (dp_all) {            /* free old memory if present */
-            free(dp_all);
-            free(dp2);
-            free(dp3);
+            mem_free(dp_all);
+            mem_free(dp2);
+            mem_free(dp3);
         }
 
         dp_all = new_all;

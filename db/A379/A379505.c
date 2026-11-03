@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 127, u16 n <= 1799, u32 n <= 1799, u64 n <= 1799,
  *            u128 n <= 1799, big any n
- * Helpers:   none
+ * Validated: standard, pass, 144 terms through n = 1778 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     size_t tgt = (size_t)target;        /* fits into size_t for n ≤ 10⁴ */
 
     /* DP array: dp[s] = number of ways to reach sum s using divisors >1 */
-    seq_t *dp = (seq_t*)calloc(tgt + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, tgt + 1);
     if (!dp) return (seq_t)0;
     dp[0] = (seq_t)1;
 
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     if (tgt >= 1) ways += dp[tgt - 1];
     if (tgt >= 2) ways += dp[tgt - 2];
 
-    free(dp);
+    mem_free(dp);
 
     /* Each unordered partition corresponds to two subsets, hence divide by 2 */
     return ways / (seq_t)2;

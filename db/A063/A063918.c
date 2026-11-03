@@ -11,13 +11,15 @@
  *            table (sieve)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         /* allocate array of size LIMIT+1, indices 0..LIMIT */
-        spf = (seq_t *)malloc((LIMIT + 1) * sizeof(seq_t));
+        spf = mem_new(seq_t, (LIMIT + 1));
         for (idx_t i = 0; i <= LIMIT; ++i) spf[i] = 0;
 
         for (idx_t i = 2; i <= LIMIT; ++i) {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 8557 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const idx_t LIMIT_SIEVE = (idx_t)1000000;
 
@@ -39,8 +41,8 @@ static void init(void)
     if (initialized) return;
     /* allocate arrays */
     spf_arr = (uint32_t *)malloc((LIMIT_SIEVE + 1) * sizeof(uint32_t));
-    sopfr_arr = (seq_t *)malloc((LIMIT_SIEVE + 1) * sizeof(seq_t));
-    omega_arr = (seq_t *)malloc((LIMIT_SIEVE + 1) * sizeof(seq_t));
+    sopfr_arr = mem_new(seq_t, (LIMIT_SIEVE + 1));
+    omega_arr = mem_new(seq_t, (LIMIT_SIEVE + 1));
     if (!spf_arr || !sopfr_arr || !omega_arr) return; /* allocation failure */
 
     /* sieve for smallest prime factor */
@@ -104,7 +106,7 @@ static void ensure_cache_size(idx_t n)
 {
     if (n <= cache_capacity) return;
     size_t new_cap = n * 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) return;           /* allocation failure */
     for (size_t i = cache_capacity; i < new_cap; ++i) new_cache[i] = 0;
     cache = new_cache;

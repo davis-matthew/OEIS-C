@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 39, u16 n <= 125, u32 n <= 417, u64 n <= 1455,
+ * Range:     u8 n <= 47, u16 n <= 125, u32 n <= 417, u64 n <= 1455,
  *            u128 n <= 5150, big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 94 terms through n = 4157 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
    T(r,k) = sum_{j=0}^{r-k} binom(r-k,j)*binom(k,j)*2^j - binom(r,k). */
 
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <sys/types.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
@@ -33,11 +36,11 @@ seq_t a(idx_t n) {
     seq_t sum = 0;
     idx_t maxj = r - k;
     for (idx_t j = 0; j <= maxj; ++j) {
-        seq_t term = binom(r - k, j);
-        term *= binom(k, j);
+        seq_t term = binomial(r - k, j);
+        term *= binomial(k, j);
         term *= pow2(j);
         sum += term;
     }
-    seq_t result = sum - binom(r, k);
+    seq_t result = sum - binomial(r, k);
     return result;
 }

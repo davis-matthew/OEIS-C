@@ -10,13 +10,29 @@
  *            digit‑wise minimum of r and c (with left‑padded zeros)
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   min_digitwise
+ * Validated: partial, pass, 102 terms through n = 101 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/min_digitwise.h"
+
+static seq_t min_digitwise(idx_t r, idx_t k)
+{
+    seq_t result = 0;
+    seq_t factor  = 1;
+    while (r > 0 || k > 0) {
+        unsigned dr = r % 10;
+        unsigned dk = k % 10;
+        unsigned d  = dr < dk ? dr : dk;
+        result += (seq_t)d * factor;
+        factor *= 10;
+        r /= 10;
+        k /= 10;
+    }
+    return result;
+}
 
 static idx_t floor_sqrt_u64(idx_t x)
 {

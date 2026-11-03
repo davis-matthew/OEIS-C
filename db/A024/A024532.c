@@ -13,7 +13,8 @@
  *            updated by S2 += (sum_of_primes_so_far) * p e3 i...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state for prime generation and prefix sums */
 static uint32_t *prime_arr = NULL;
@@ -93,9 +95,9 @@ static void ensure_sums(size_t new_max_k)
     /* enlarge arrays */
     size_t new_cap = new_max_k + 1;
     if (e1_arr == NULL || e1_arr == (seq_t*)0x1) { /* first allocation */
-        e1_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        S2_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        S3_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        e1_arr = mem_new(seq_t, new_cap);
+        S2_arr = mem_new(seq_t, new_cap);
+        S3_arr = mem_new(seq_t, new_cap);
         if (!e1_arr || !S2_arr || !S3_arr) { abort(); }
         /* initial state: k = 0 (only element 1) */
         e1_arr[0] = (seq_t)1;
@@ -104,9 +106,9 @@ static void ensure_sums(size_t new_max_k)
     } else {
         /* extend existing arrays */
         size_t old_cap = summax + 1;
-        e1_arr = (seq_t*)realloc(e1_arr, new_cap * sizeof(seq_t));
-        S2_arr = (seq_t*)realloc(S2_arr, new_cap * sizeof(seq_t));
-        S3_arr = (seq_t*)realloc(S3_arr, new_cap * sizeof(seq_t));
+        e1_arr = mem_resize(seq_t, e1_arr, new_cap);
+        S2_arr = mem_resize(seq_t, S2_arr, new_cap);
+        S3_arr = mem_resize(seq_t, S3_arr, new_cap);
         if (!e1_arr || !S2_arr || !S3_arr) { abort(); }
     }
 

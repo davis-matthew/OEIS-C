@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 7, u64 n <= 21, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATE_COUNT 7776  /* 6^5 */
 
@@ -78,13 +80,13 @@ static idx_t current_n = 0;             /* highest n computed so far */
 static void init_dp(void)
 {
     init_transition_table();
-    dp_cur  = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, STATE_COUNT);
+    dp_next = mem_new(seq_t, STATE_COUNT);
     /* start with all 5‑tuples: one way each */
     for (int i = 0; i < STATE_COUNT; ++i) dp_cur[i] = (seq_t)1;
     /* memo[1] will be computed after first step */
     memo_cap = 16;
-    memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+    memo = mem_new(seq_t, memo_cap);
     current_n = 0;
 }
 
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
 
     while (current_n < n) {
         /* dp_next = 0 */
-        memset(dp_next, 0, STATE_COUNT * sizeof(seq_t));
+        mem_set(dp_next, 0, STATE_COUNT * sizeof(seq_t));
 
         for (int st = 0; st < STATE_COUNT; ++st) {
             seq_t cnt = dp_cur[st];
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
         if (pos >= memo_cap) {
             size_t new_cap = memo_cap ? memo_cap * 2 : 16;
             while (new_cap <= pos) new_cap *= 2;
-            memo = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+            memo = mem_resize(seq_t, memo, new_cap);
             memo_cap = new_cap;
         }
         memo[pos] = total;

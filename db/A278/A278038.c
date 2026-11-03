@@ -9,8 +9,9 @@
  *            decimal number whose digits are the binary * tribonacci digits
  *            (0 or 1). The representation is unique * and contains no three
  *            consecutive 1's
- * Range:     u8 n <= 6, u16 n <= 23, u32 n <= 503, u64 n <= 9823,
- *            u128 n <= 9823, big any n
+ * Range:     u8 n <= 6, u16 n <= 23, u32 n <= 503, u64 n <= 25280,
+ *            u128 n <= 25280, big any n
+ * Validated: standard, pass, 61 terms through n = 9823 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

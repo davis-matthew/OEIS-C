@@ -12,7 +12,8 @@
  *            (number/2) is prime
  * Range:     u8 n <= 4, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   isPrimeGeneric, seq_alloc, seq_free_array
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,43 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_free_array.h"
+#include <limits.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Build a palindrome from 'left': if 'odd' is true, the middle digit
    is omitted when mirroring. */

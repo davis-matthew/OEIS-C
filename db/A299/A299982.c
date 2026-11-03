@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   has_digit_two
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/has_digit_two.h"
+#include "../utils/mem.h"
+
+/* Helper: check whether a number contains the digit 2. */
+static inline bool has_digit_two(seq_t x)
+{
+    if (x == 0) return false;
+    while (x) {
+        if ((x % (seq_t)10) == (seq_t)2) return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +47,7 @@ seq_t a(idx_t n)
     /* Initialize the cache on first call */
     if (cache_len == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(1);
     }
     /* Grow the cache array if necessary */
@@ -43,7 +55,7 @@ seq_t a(idx_t n)
         while (cache_cap <= (size_t)n) {
             cache_cap *= 2;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) exit(1);
         cache = tmp;
     }

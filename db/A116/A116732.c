@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 44, u64 n <= 85, u128 n <= 166,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 3490 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes A116732 a(n).  Uses a static cache so calls may come in any order. */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         /* need to extend the cache up to n */
         idx_t new_len = n + 1;
         /* realloc is fine in both C and C++ (C‑style cast is allowed in C++) */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) {
             /* allocation failed – fall back to iterative computation for this call */
             cache = NULL;

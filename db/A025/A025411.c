@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *sums = NULL;          /* sorted unique sums of 4 distinct cubes */
 static size_t sums_count = 0;       /* number of stored sums */
@@ -45,7 +47,7 @@ static void init_sums(void)
     const size_t max_combinations =
         (size_t)L * (L - 1) * (L - 2) * (L - 3) / 24;
 
-    sums = (seq_t *)malloc(max_combinations * sizeof(seq_t));
+    sums = mem_new(seq_t, max_combinations);
     if (!sums)
         abort();                 /* allocation failure */
 
@@ -84,7 +86,7 @@ static void init_sums(void)
     sums_count = idx;
 
     /* Sort the array of sums. */
-    qsort(sums, sums_count, sizeof(seq_t), compare_seq);
+    mem_qsort(sums, sums_count, sizeof(seq_t), compare_seq);
 
     /* Remove duplicates in place. */
     size_t uniq = 0;

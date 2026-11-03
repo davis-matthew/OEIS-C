@@ -7,15 +7,18 @@
  * Formula:   a(n) = sigma_2(n)^2 = A001157(n)^2
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 215, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 52 terms through n = 9704 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0; /* offset starts at 1 */
@@ -34,7 +37,7 @@ seq_t a(idx_t n) {
 
         /* sigma_2(p^e) = (p^(2e+2) - 1) / (p^2 - 1) */
         seq_t exp = (seq_t)(2 * e + 2);
-        seq_t num = big_pow(p, exp) - 1;
+        seq_t num = ipow(p, exp) - 1;
         seq_t den = (p * p) - 1;
         seq_t sum = num / den;          /* integer division */
 

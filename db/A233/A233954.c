@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Row representation */
 #define ROW_DIGITS 5
@@ -137,8 +139,8 @@ seq_t a(idx_t n)
     static size_t dp_size = 0;
     if (dp0 == NULL) {
         dp_size = num_states;
-        dp0 = (seq_t *)malloc(dp_size * sizeof(seq_t));
-        dp1 = (seq_t *)malloc(dp_size * sizeof(seq_t));
+        dp0 = mem_new(seq_t, dp_size);
+        dp1 = mem_new(seq_t, dp_size);
     }
 
     /* Initialise dp0 to 1 (each row can start) */

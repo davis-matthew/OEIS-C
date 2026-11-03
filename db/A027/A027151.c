@@ -8,13 +8,15 @@
  *            a(3)=21
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 47, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* First allocation */
     if (!memo) {
-        memo = (seq_t*)malloc((size_t)required * sizeof(seq_t));
+        memo = mem_new(seq_t, (size_t)required);
         if (!memo) /* allocation failure – return zero (undefined in tests) */
             return (seq_t)0;
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     }
     /* Expand table if the current size is insufficient */
     else if (memo_size < required) {
-        seq_t *tmp = (seq_t*)realloc(memo, (size_t)required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, (size_t)required);
         if (!tmp) /* allocation failure – return zero */
             return (seq_t)0;
         memo = tmp;

@@ -10,7 +10,8 @@
  *            of m) are both palindromic
  * Range:     u8 n <= 10, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   factor_u64, is_palindrome
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   factor_u64, is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_palindrome.h"
 #include "../utils/factor_u64.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 /* Helper: recursive generation of all divisors, accumulating
    the sum of all divisors (sum_all) and the sum of palindromic
@@ -36,7 +38,7 @@ generate_divisors(const uint64_t *pr,
 {
     if (idx == cnt) {
         *sum_all += cur;
-        if (is_palindrome(cur, 10))
+        if (is_palindrome_base(cur, 10))
             *sum_pal += cur;
         return;
     }
@@ -62,7 +64,7 @@ good_number(uint64_t m)
     seq_t sum_pal = 0;
     generate_divisors(pr, ex, 0, cnt, 1, &sum_all, &sum_pal);
 
-    return is_palindrome(sum_all, 10) && is_palindrome(sum_pal, 10);
+    return is_palindrome_base(sum_all, 10) && is_palindrome_base(sum_pal, 10);
 }
 
 /* Main function: returns the nth term of the sequence. */
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
     /* Ensure capacity for new terms. */
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Keep generating until the nth term is found. */
@@ -94,8 +96,7 @@ seq_t a(idx_t n)
         if (good_number(candidate)) {
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache,
-                                         cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)candidate;
         }

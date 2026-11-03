@@ -13,12 +13,14 @@
  *            sequence lazily and memoises results
  * Range:     u8 n <= 114, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_arr = NULL;       /* a(1), a(2), …           */
 static size_t seq_len = 0, seq_cap = 0;
@@ -30,7 +32,7 @@ static seq_t running_sum = 0;       /* running total           */
 static void recompute(uint64_t limit)
 {
     /* Allocate and zero the count array. */
-    cnt_arr = (seq_t *)realloc(cnt_arr, (limit + 1) * sizeof(seq_t));
+    cnt_arr = mem_resize(seq_t, cnt_arr, (limit + 1));
     if (!cnt_arr) abort();
     for (size_t i = 0; i <= limit; ++i) cnt_arr[i] = 0;
 
@@ -43,7 +45,7 @@ static void recompute(uint64_t limit)
     }
 
     /* Allocate space for the cumulative sequence. */
-    seq_arr = (seq_t *)realloc(seq_arr, limit * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, limit);
     if (!seq_arr) abort();
     seq_cap = limit;
     seq_len = 0;

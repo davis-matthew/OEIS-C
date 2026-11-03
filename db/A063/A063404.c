@@ -8,7 +8,8 @@
  *            n≥3
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 11, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache if first call */
     if (!cache) {
         cache_cap = 16;                /* initial capacity (in seq_t elements) */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* initialise the first three terms */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

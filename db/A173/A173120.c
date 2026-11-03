@@ -9,14 +9,16 @@
  *            rows. The triangle is defined by T(n,k) = q*[n==2] + Σ_{j=0..5}
  *            q^j * binomial(n-2*j, k-j) * [n>2*j], with the boundary values
  *            T(n,0)=T(n,n)=1
- * Range:     i8 n <= 38, i16 n <= 215, i32 n <= 751, i64 n <= 1325,
+ * Range:     i8 n <= 48, i16 n <= 218, i32 n <= 757, i64 n <= 1325,
  *            i128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1259 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Include the provided binomial utility.  */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static const seq_t pow_q[6] = { (seq_t)1, (seq_t)-4, (seq_t)16,

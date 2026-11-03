@@ -7,12 +7,15 @@
  * Formula:   a(2*n) = 6*n*5^n, a(2*n+1) = (2*n+1)*5^(n+1)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 22, u64 n <= 49, u128 n <= 103,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 47 terms through n = 962 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Compute OEIS sequence A187275 */
 seq_t a(idx_t n)
@@ -21,11 +24,11 @@ seq_t a(idx_t n)
     seq_t pow5;
     if ((n & 1) == 0) {                /* even n */
         idx_t k = n >> 1;              /* n = 2*k */
-        pow5 = big_pow((seq_t)5, (seq_t)k);
+        pow5 = ipow((seq_t)5, (seq_t)k);
         return pow5 * ((seq_t)6 * (seq_t)k); /* 6*k*5^k */
     } else {                            /* odd n */
         /* exponent = (n+1)/2  */
-        pow5 = big_pow((seq_t)5, (seq_t)((n + 1) >> 1));
+        pow5 = ipow((seq_t)5, (seq_t)((n + 1) >> 1));
         return pow5 * (seq_t)n;          /* n*5^((n+1)/2) */
     }
 }

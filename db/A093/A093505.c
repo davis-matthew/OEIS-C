@@ -8,14 +8,16 @@
  *            number (nonnegative integer with an even number of 1‑bits)
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   popcnt_seq
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem, popcount_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/popcnt_seq.h"
+#include "../utils/popcount_seq.h"
+#include "../utils/mem.h"
 
 /* Compute the n‑th term of A093505.  idx_t is unsigned 64‑bit,
    seq_t is an unsigned integer type (8,16,32,64, or 128 bits),
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
        ------------------------------------------------------------------ */
     if (len == 0) {
         cap   = 16;
-        evens = (seq_t *)malloc(cap * sizeof(seq_t));
+        evens = mem_new(seq_t, cap);
         if (!evens) return 0;                 /* allocation failure */
         evens[0] = 0;                         /* unused 0‑based slot */
         evens[1] = 0;                         /* A001969(1) = 0, a(1)=0 */
@@ -45,12 +47,12 @@ seq_t a(idx_t n)
        ------------------------------------------------------------------ */
     for (idx_t i = len + 1; i <= n; ++i) {
         seq_t x = evens[len] + 1;            /* next integer to test */
-        while (popcnt_seq(x) & 1) ++x;        /* skip odd‑popcount numbers */
+        while (popcount_seq(x) & 1) ++x;        /* skip odd‑popcount numbers */
 
         /* grow array if necessary */
         if (i >= cap) {
             size_t new_cap = cap * 2;
-            seq_t *tmp = (seq_t *)realloc(evens, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, evens, new_cap);
             if (!tmp) return 0;               /* allocation failure */
             evens = tmp;
             cap   = new_cap;

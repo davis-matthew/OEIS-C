@@ -9,12 +9,14 @@
  *            a(n-1)+5*(a(n-4)-a(n-5)) for n>=6 (offset 1)
  * Range:     u8 n <= 9, u16 n <= 23, u32 n <= 50, u64 n <= 105, u128 n <= 216,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;
 
     /* Allocate array for values up to n */
-    seq_t *arr = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (size_t)n);
     if (!arr) return (seq_t)0;   /* allocation failure -> 0 */
 
     /* Base cases */
@@ -40,6 +42,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n-1];
-    free(arr);
+    mem_free(arr);
     return result;
 }

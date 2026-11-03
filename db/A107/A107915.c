@@ -7,12 +7,23 @@
  * Formula:   a(n) = binomial(n+4,4)*binomial(n+5,4)*binomial(n+6,4)/75
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 16, u64 n <= 124, u128 n <= 1000,
  *            big any n
- * Helpers:   reduce_val
+ * Validated: standard, pass, 41 terms through n = 891 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reduce_val.h"
+static inline seq_t reduce_val(seq_t val, int *c2, int *c3, int *c5)
+{
+    const seq_t two = 2;
+    const seq_t three = 3;
+    const seq_t five = 5;
+
+    while (*c2 > 0 && (val % two) == 0) { val /= two; (*c2)--; }
+    while (*c3 > 0 && (val % three) == 0) { val /= three; (*c3)--; }
+    while (*c5 > 0 && (val % five) == 0) { val /= five; (*c5)--; }
+    return val;
+}
 
 seq_t a(idx_t n)
 {

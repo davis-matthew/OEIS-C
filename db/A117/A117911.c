@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   _gcd_u32, _lcm_u32
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-01)
+ * Helpers:   gcd_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>   /* size_t */
-#include "../utils/_gcd_u32.h"
-#include "../utils/_lcm_u32.h"
+#include "../utils/gcd_u32.h"
+
+/* lcm for 32‑bit unsigned integers */
+static inline uint32_t _lcm_u32(uint32_t a, uint32_t b)
+{
+    return a / gcd_u32(a, b) * b;
+}
 
 /*  Recursive enumeration of all permutations of distinct digits 1‑9
  *  (up to length 7).  `cnt` must be initialised with zeros before the first

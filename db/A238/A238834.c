@@ -12,12 +12,14 @@
  *            2, 2, 5, 4, 13, 6, 30, 11,…)
  * Range:     u8 n <= 14, u16 n <= 30, u32 n <= 62, u64 n <= 126,
  *            u128 n <= 254, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 5882 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external integer types are supplied by the build system. */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* initial allocation and seed value for a(0) */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t*)calloc(1, sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;     /* unlikely, but keep compiler happy */
         cache[0] = (seq_t)0;
         last_computed = 0;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (cache_cap <= n) {
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) return (seq_t)0;     /* unlikely, but keep compiler happy */
         cache_cap = new_cap;
     }

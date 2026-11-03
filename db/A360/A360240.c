@@ -11,14 +11,40 @@
  *            the triples in that order and extracts the requested digit
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   digit_from_num
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/digit_from_num.h"
+
+/* Extract decimal digits of 'num' from most significant to least.
+   'pos' is the current zero‑based position in the full digit stream.
+   If the desired digit is found within 'num', it is stored in '*digit'
+   and true is returned.  Otherwise false is returned. */
+static bool digit_from_num(idx_t num, idx_t *pos, seq_t *digit)
+{
+    /* store digits in reverse order */
+    int buf[50];
+    int d = 0;
+    idx_t tmp = num;
+
+    while (tmp > 0) {
+        buf[d++] = (int)(tmp % 10);
+        tmp /= 10;
+    }
+
+    for (int i = d - 1; i >= 0; --i) {
+        if (*pos == 0) {
+            *digit = (seq_t)buf[i];
+            return true;
+        }
+        --(*pos);
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

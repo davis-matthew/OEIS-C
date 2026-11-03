@@ -7,9 +7,10 @@
  * Keywords:  nonn, fini, full
  * Formula:   a(n) = coefficient of x^n in
  *            (1-x^2)(1-x^5)(1-x^6)(1-x^8)(1-x^9)(1-x^12)/(1-x)^6
- * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 36, u64 n <= 36, u128 n <= 36,
+ * Range:     u8 n <= 5, u16 n <= 32, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   binom, mul_small
+ * Validated: full, pass, 37 terms through n = 36 (2026-11-02)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,22 @@
    coefficients of 1/(1-x)^6, i.e. C(n-k+5,5). */
 
 #include <stddef.h>
-#include "../utils/binom.h"
-#include "../utils/mul_small.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -50,7 +65,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     idx_t limit = (n < 42 ? n : 42);
     for (idx_t k = 0; k <= limit; ++k) {
-        seq_t bin = binom(n - k + 5, 5);
+        seq_t bin = binomial(n - k + 5, 5);
         if (g[k] >= 0) {
             result += mul_small(bin, (unsigned)g[k]);
         } else {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   popcount_generic
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem, popcount_seq_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/popcount_generic.h"
+#include "../utils/popcount_seq_to_seq.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------- */
 /* Helper: popcount for generic seq_t                                         */
@@ -63,9 +65,9 @@ static bool has_increasing(seq_t x)
 /* ------------------------------------------------------------------- */
 static bool is_good(seq_t k)
 {
-    seq_t pk     = popcount_generic(k);
+    seq_t pk     = popcount_seq_to_seq(k);
     seq_t k2     = k * k;
-    seq_t pk2    = popcount_generic(k2);
+    seq_t pk2    = popcount_seq_to_seq(k2);
 
     if (pk != pk2)
         return false;
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cap   = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         len   = 0;
         next_k = 0;
     }
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
         if (len >= cap)
         {
             cap *= 2;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
         cache[len++] = next_k;
     }

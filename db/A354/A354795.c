@@ -13,14 +13,28 @@
  *            (n)-th term of the triangle read row‑by‑row
  * Range:     i8 n <= 36, i16 n <= 55, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   _row_for_index
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/_row_for_index.h"
+#include "../utils/mem.h"
+
+/* Find the row r such that r*(r+1)/2 ≤ n < (r+1)*(r+2)/2 */
+static inline idx_t _row_for_index(idx_t n)
+{
+    idx_t r = 0;
+    while (1) {
+        __int128 limit = (__int128)(r + 1) * (r + 2) / 2;
+        if (limit > n)
+            break;
+        ++r;
+    }
+    return r;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -36,12 +50,12 @@ seq_t a(idx_t n)
         return 1;
 
     /* Allocate and initialise row 0 and row 1 */
-    seq_t *prevprev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prevprev = mem_new(seq_t, 1);
     if (!prevprev) return 0;
     prevprev[0] = 1;
 
-    seq_t *prev = (seq_t *)malloc(2 * sizeof(seq_t));
-    if (!prev) { free(prevprev); return 0; }
+    seq_t *prev = mem_new(seq_t, 2);
+    if (!prev) { mem_free(prevprev); return 0; }
     prev[0] = 0;
     prev[1] = 1;
 
@@ -50,18 +64,18 @@ seq_t a(idx_t n)
         seq_t val = (col == 0) ? 0 : 1;
         if ((row - col) & 1)
             val = -val;
-        free(prevprev);
-        free(prev);
+        mem_free(prevprev);
+        mem_free(prev);
         return val;
     }
 
     /* Build rows up to the requested row using the recurrence for t(n,k) */
     for (idx_t r = 2; r <= row; ++r) {
         size_t sz = (size_t)r + 1;
-        seq_t *curr = (seq_t *)malloc(sz * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, sz);
         if (!curr) {
-            free(prevprev);
-            free(prev);
+            mem_free(prevprev);
+            mem_free(prev);
             return 0;
         }
         curr[0] = 0;
@@ -71,7 +85,7 @@ seq_t a(idx_t n)
             seq_t term2 = (seq_t)(r - 1 - k) * prev[k];
             curr[k] = term1 - term2 + prev[k - 1];
         }
-        free(prevprev);
+        mem_free(prevprev);
         prevprev = prev;
         prev = curr;
     }
@@ -81,7 +95,7 @@ seq_t a(idx_t n)
     if (((row - col) & 1) != 0)
         result = -result;
 
-    free(prevprev);
-    free(prev);
+    mem_free(prevprev);
+    mem_free(prev);
     return result;
 }

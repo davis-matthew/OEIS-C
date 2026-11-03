@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 890, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9645 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>   /* for malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static bool has62(seq_t value)
 {
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
             size_t new_cap = (cap == 0) ? 4 : cap * 2;
             while (new_cap < n)
                 new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof *terms);
+            seq_t *tmp = mem_resize(seq_t, terms, (new_cap * sizeof *terms) / sizeof(seq_t));
             if (!tmp) {                /* out of memory; propagate error */
                 abort();
             }

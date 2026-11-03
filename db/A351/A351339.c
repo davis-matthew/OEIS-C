@@ -11,13 +11,14 @@
  *            T(t,k) of the square array
  * Range:     u8 n <= 39, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n) {
     /* Find diagonal index d using binary search on d*(d+1)/2 <= n */
@@ -43,8 +44,8 @@ seq_t a(idx_t n) {
     /* Evaluate the sum */
     seq_t sum = (seq_t)0;
     for (idx_t j = 0; j <= row; ++j) {
-        seq_t term = pow_seq((seq_t)col, (int)j);            /* col^j */
-        term *= pow_seq((seq_t)j, (int)(row - j));          /* j^(row-j) */
+        seq_t term = ipow_i32((seq_t)col, (int)j);            /* col^j */
+        term *= ipow_i32((seq_t)j, (int)(row - j));          /* j^(row-j) */
         sum += term;
     }
     return sum;

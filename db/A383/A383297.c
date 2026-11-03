@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 6450, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   largest_prime_factor
+ * Validated: standard, pass, 85 terms through n = 9603 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 static const uint32_t PRIMES[] = {
     2U, 3U, 5U, 7U, 11U, 13U, 17U, 19U, 23U, 29U,
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_capacity = 64;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_capacity);
+        cache = mem_new(seq_t, cache_capacity);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
         /* Resize storage if needed. */
         if (cache_size >= cache_capacity) {
             cache_capacity *= 2;
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_capacity);
+            cache = mem_resize(seq_t, cache, cache_capacity);
         }
         cache[cache_size++] = (seq_t)next_candidate;
         ++next_candidate;

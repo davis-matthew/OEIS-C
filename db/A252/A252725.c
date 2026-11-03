@@ -13,12 +13,14 @@
  *            a(5)=214, a(6)=262, a(7)=270, a(8)=354, a(9)=434
  * Range:     u8 n <= 5, u16 n <= 31, u32 n <= 79, u64 n <= 175, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* 1‑indexed cache (index 0 unused) */
 static size_t cache_cap = 0;    /* highest index currently cached */
@@ -32,9 +34,9 @@ static void ensure_cache(idx_t n)
     seq_t *new_cache = NULL;
 
     if (cache == NULL) {
-        new_cache = (seq_t *)malloc((new_cap + 1) * sizeof(seq_t));
+        new_cache = mem_new(seq_t, (new_cap + 1));
     } else {
-        new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     }
     if (!new_cache)
         abort();

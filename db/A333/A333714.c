@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 128, u32 n <= 1114, u64 n <= 1114,
  *            u128 n <= 1114, big any n
- * Helpers:   divisor_count_u64
+ * Validated: full, pass, 1114 terms through n = 1114 (2026-11-02)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 static const int64_t DX[8] = { 1,  1,  0, -1, -1, -1,  0,  1 };
 static const int64_t DY[8] = { 0, -1, -1, -1,  0,  1,  1,  1 };
@@ -113,7 +114,7 @@ static void extend_walk(idx_t n)
             if (visited(cand)) continue;
 
             uint64_t cand_u = (uint64_t)cand;
-            int div = (int)divisor_count_u64(cand_u);
+            int div = (int)num_divisors(cand_u);
 
             if (div > best_div || (div == best_div && cand > best_num)) {
                 best_div = div;

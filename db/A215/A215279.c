@@ -8,14 +8,17 @@
  *            searching
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 68 terms through n = 941 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
         /* Ensure enough space in the cache */
         if (count == cap) {
             size_t newcap = cap ? cap * 2 : 128;
-            void *tmp = realloc(cache, newcap * sizeof(seq_t));
+            void *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp)    /* allocation failed – give up */
                 return (seq_t)0;
             cache = (seq_t *)tmp;  /* cast for C++ compatibility */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = decimal representation of (10*n) written in base (n+1)
  * Range:     u8 none, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   pow10
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
    values, so the implementation works for any seq_t width or an arbitrary
    precision integer type. */
 
-#include "../utils/pow10.h"
+#include <stdint.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static int decimal_digits(seq_t d)
 {

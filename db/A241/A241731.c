@@ -10,12 +10,16 @@
  *            - 30*c^2 + 20*c - 5, where b = floor(log2(n)), c = n + 1 - 2^b
  * Range:     u8 n <= 4, u16 n <= 24, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -24,7 +28,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* b = floor(log2(n)) */
-    unsigned b = floor_log2_uint64(n);
+    unsigned b = ilog2(n);
 
     /* 2^b as seq_t */
     seq_t two_pow_b = pow2(b);

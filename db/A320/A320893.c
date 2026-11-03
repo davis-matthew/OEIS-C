@@ -12,7 +12,8 @@
  *            of the found terms
  * Range:     u8 none, u16 n <= 22, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   fails_distinct_factor, is_graphical_simple
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,58 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/fails_distinct_factor.h"
-#include "../utils/is_graphical_simple.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------- */
+static bool is_graphical_simple(const uint64_t src[], size_t m)
+{
+    uint64_t sum = 0;
+    for (size_t i = 0; i < m; ++i) sum += src[i];
+    if (sum & 1ULL) return false;             /* sum must be even */
+
+    /* copy and sort descending */
+    uint64_t a[64];
+    for (size_t i = 0; i < m; ++i) a[i] = src[i];
+    for (size_t i = 0; i < m; ++i)
+        for (size_t j = i + 1; j < m; ++j)
+            if (a[j] > a[i]) {
+                uint64_t t = a[i]; a[i] = a[j]; a[j] = t;
+            }
+
+    /* Erdős–Gallai inequalities */
+    for (size_t k = 1; k <= m; ++k) {
+        uint64_t left = 0;
+        for (size_t i = 0; i < k; ++i) left += a[i];
+        uint64_t right = k * (k - 1);
+        for (size_t i = k; i < m; ++i)
+            right += (a[i] < k) ? a[i] : k;
+        if (left > right) return false;
+    }
+    return true;
+}
+
+/* ------------------------------------------------------------- */
+static bool fails_distinct_factor(uint64_t *exps, size_t m, uint64_t bigOmega)
+{
+    /* Exponents array is already in exps[] */
+    size_t total_masks = 1ULL << m;
+    for (size_t mask = 0; mask < total_masks; ++mask) {
+        uint64_t rem[64];
+        bool ok = true;
+        for (size_t i = 0; i < m; ++i) {
+            if ((mask >> i) & 1ULL) {         /* loop at vertex i */
+                if (exps[i] < 2) { ok = false; break; }
+                rem[i] = exps[i] - 2;
+            } else {
+                rem[i] = exps[i];
+            }
+        }
+        if (!ok) continue;
+        if (is_graphical_simple(rem, m))       /* distinct semiprime possible */
+            return false;
+    }
+    return true;                                /* cannot be distinct */
+}
 
 static uint64_t *spf = NULL;        /* smallest prime factor array     */
 static uint64_t spf_limit = 0;      /* current upper bound             */
@@ -106,7 +157,7 @@ seq_t a(idx_t n)
 
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         grow_spf(spf_cur_limit);
     }
 
@@ -121,7 +172,7 @@ seq_t a(idx_t n)
         if (satisfies(next_check)) {
             if (cache_used == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_used++] = (seq_t)next_check;
         }

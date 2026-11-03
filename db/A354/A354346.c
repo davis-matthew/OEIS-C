@@ -7,20 +7,47 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = 2*n - A064989( sigma( sigma( A003961(n) ) ) )
- * Range:     i8 n <= 11, i16 n <= 755, i32 n <= 9436, i64 n <= 9436,
- *            i128 n <= 9436, big any n
- * Helpers:   factor_u64, next_prime, prev_prime, seq_pow, sigma_of
+ * Range:     i8 n <= 11, i16 n <= 755, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 9436 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx, is_prime, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
-#include "../utils/prev_prime.h"
-#include "../utils/sigma_of.h"
-#include "../utils/seq_pow.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* A003961: shift the exponents in n's prime factorization to the next prime. */
 static seq_t shift_to_larger(idx_t n)
@@ -34,7 +61,7 @@ static seq_t shift_to_larger(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t p = primes[i];
         uint64_t np = next_prime(p);
-        seq_t term = seq_pow((seq_t)np, (idx_t)exps[i]); /* np^exps[i] */
+        seq_t term = ipow_idx((seq_t)np, (idx_t)exps[i]); /* np^exps[i] */
         prod *= term;
     }
     return prod;
@@ -57,7 +84,7 @@ static seq_t shift_to_smaller(seq_t x)
         if (p == 2)  /* drop the smallest prime (2) */
             continue;
         uint64_t lp = prev_prime(p);
-        seq_t term = seq_pow((seq_t)lp, (idx_t)exps[i]); /* lp^exps[i] */
+        seq_t term = ipow_idx((seq_t)lp, (idx_t)exps[i]); /* lp^exps[i] */
         prod *= term;
     }
     return prod;

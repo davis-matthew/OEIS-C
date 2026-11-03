@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Check whether an integer has no common digits in base‑3 and base‑7. */
 static bool good(uint64_t n)
@@ -59,7 +61,7 @@ static void grow_cache(idx_t need)
     idx_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) {
         /* In a robust program we would handle this error; here we
          * simply abort (sequence is unlikely to need > 2^32 terms). */
@@ -68,7 +70,7 @@ static void grow_cache(idx_t need)
     if (cache) {
         for (idx_t i = 0; i < cache_len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache     = new_cache;
     cache_cap = new_cap;

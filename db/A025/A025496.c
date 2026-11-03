@@ -9,6 +9,7 @@
  *            numbers F1 = 1, F2 = 2, F_k = F_{k-1} + F_{k-2})
  * Range:     u8 n <= 306, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 92 terms through n = 958 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

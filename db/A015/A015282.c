@@ -12,12 +12,14 @@
  *            sequence is period...
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1740 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Forward declaration required by the build system */
 seq_t a(idx_t n);
@@ -33,8 +35,8 @@ static void init_sequence(void)
         return;
 
     /* Allocate tables **/
-    phi_coef = (seq_t *)malloc(1189 * sizeof(seq_t));
-    period_terms = (seq_t *)malloc(1273 * sizeof(seq_t));
+    phi_coef = mem_new(seq_t, 1189);
+    period_terms = mem_new(seq_t, 1273);
 
     /* ---------- Build numerator (x^1273-1)(x-1) ---------- */
     seq_t num[1275] = {0};

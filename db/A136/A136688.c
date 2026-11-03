@@ -11,13 +11,16 @@
  *            otherwise 0
  * Range:     u8 n <= 59, u16 n <= 195, u32 n <= 641, u64 n <= 2364,
  *            u128 n <= 5050, big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 94 terms through n = 4780 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>          /* sqrt */
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
     idx_t j = ((r - 1) - k) >> 1;
 
     /* Compute binomial coefficient and multiply by 2^j. */
-    seq_t coeff = binom(r - j - 1, j);
+    seq_t coeff = binomial(r - j - 1, j);
     coeff = coeff * pow2(j);
     return coeff;
 }

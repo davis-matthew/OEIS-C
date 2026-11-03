@@ -10,6 +10,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 55, i16 n <= 79, i32 n <= 79, i64 n <= 79, i128 n <= 79,
  *            big any n
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,7 @@
  * never reaches an integer, a(n) = -1.  This implements OEIS A323356. */
 
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* count ones in the binary representation of a seq_t value */

@@ -12,14 +12,17 @@
  *            and has entries T(r,0)…T(r,r)
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 44, u64 n <= 119, u128 n <= 324,
  *            big any n
- * Helpers:   offset_row
+ * Validated: standard, pass, 61 terms through n = 9603 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/offset_row.h"
+#include <stdlib.h>
+#include <math.h>
+#include "../utils/triangular.h"
 
 /* Return the starting index of row r (0‑based). */
 
@@ -74,9 +77,9 @@ seq_t a(idx_t n)
 
     /* find row r such that offset_row(r) ≤ n < offset_row(r+1) */
     idx_t r = 0;
-    while (offset_row(r + 1) <= n)
+    while (triangular(r + 1) <= n)
         ++r;
 
-    idx_t k = n - offset_row(r);   /* column in the row */
+    idx_t k = n - triangular(r);   /* column in the row */
     return T(r, k);
 }

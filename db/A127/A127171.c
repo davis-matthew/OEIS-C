@@ -8,7 +8,8 @@
  * Formula:   a(n) = gpf(3-almost-prime(n+1)) - gpf(3-almost-prime(n))
  * Range:     i8 n <= 82, i16 n <= 82, i32 n <= 82, i64 n <= 82, i128 n <= 82,
  *            big any n
- * Helpers:   factor_u64, gpf
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-03)
+ * Helpers:   factor_u64, largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the build’s typedefs */
 extern seq_t a(idx_t n);
 
 /* Utility functions provided by the build */
-#include "../utils/factor_u64.h"     /* void factor_u64(uint64_t, uint64_t*, uint64_t*, size_t*); */
-#include "../utils/gpf.h"            /* uint64_t gpf(uint64_t); */       /* or largest_prime_factor */
+#include "../utils/factor_u64.h"
+#include "../utils/largest_prime_factor.h"
 
 /* Cached greatest prime factors of 3‑almost‑primes: gpf_arr[i] = gpf(A014612(i+1)) */
 static seq_t *gpf_arr = NULL;
@@ -43,7 +45,7 @@ static void extend_to(idx_t need)
     if (gpf_cap < need) {
         idx_t new_cap = gpf_cap ? gpf_cap * 2 : 64;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(gpf_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, gpf_arr, new_cap);
         if (!tmp) abort();   /* allocation failure */
         gpf_arr = tmp;
         gpf_cap = new_cap;

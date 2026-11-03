@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define PRECOMP_LIMIT 20000000ULL   /* 20 million – enough for n≈10000 */
 
@@ -65,7 +67,7 @@ static void _init_sequence(void)
     }
 
     /* allocate and fill the array */
-    _prime_seq = (seq_t *)malloc(count * sizeof(seq_t));
+    _prime_seq = mem_new(seq_t, count);
     if (!_prime_seq)
         exit(EXIT_FAILURE);
 

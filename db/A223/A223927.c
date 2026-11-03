@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 47, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;      /* pointer to memoised array (index 1..n) */
 static idx_t  seq_size = 0;    /* current maximum n stored (>=0) */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* initialise the table if not already */
     if (seq_size == 0) {
         seq_size = 9;
-        seq = (seq_t*)malloc(sizeof(seq_t) * (seq_size + 1)); /* +1 for 1‑based */
+        seq = mem_new(seq_t, (seq_size + 1)); /* +1 for 1‑based */
         seq[1] = (seq_t)9;
         seq[2] = (seq_t)54;
         seq[3] = (seq_t)218;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* extend the table if necessary */
     if ((idx_t)n > seq_size) {
         idx_t new_size = (idx_t)n;
-        seq_t *new_seq = (seq_t*)realloc(seq, sizeof(seq_t) * (new_size + 1));
+        seq_t *new_seq = mem_resize(seq_t, seq, (new_size + 1));
         if (!new_seq) /* allocation failed */
             return 0;
         seq = new_seq;

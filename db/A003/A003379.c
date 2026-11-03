@@ -9,7 +9,8 @@
  *            holds at least n terms, and a(n) is the n-th marked number
  * Range:     u8 n <= 2, u16 n <= 287, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3379_shor
+ * Validated: standard, pass, 62 terms through n = 9300 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/a3379_shor.h"
+
+static void a3379_shor(uint64_t *dst, const uint64_t *src, size_t W, uint64_t s) {
+    size_t q = (size_t)(s >> 6);
+    unsigned r = (unsigned)(s & 63);
+    size_t i;
+    if (q >= W) return;
+    for (i = W; i-- > q; ) {
+        uint64_t v = src[i - q] << r;
+        if (r && i - q >= 1) v |= src[i - q - 1] >> (64 - r);
+        dst[i] |= v;
+    }
+}
 
 static uint64_t *a3379_terms = NULL;
 static size_t a3379_cnt = 0;

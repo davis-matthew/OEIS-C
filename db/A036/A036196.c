@@ -10,6 +10,7 @@
  *            two give the expected results: a(2^k)=k
  * Range:     u8 n <= 178, u16 n <= 178, u32 n <= 178, u64 n <= 178,
  *            u128 n <= 178, big any n
+ * Validated: full, pass, 178 terms through n = 178 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

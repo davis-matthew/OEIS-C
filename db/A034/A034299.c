@@ -7,7 +7,8 @@
  * Formula:   a(n) = (2^(n+5)+(6n+13)(-1)^n-9)/36
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 127,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 45 terms through n = 957 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* Uses a 128‑bit intermediate for n ≤ 120 (works for 64‑bit builds),
    otherwise falls back to big_pow for arbitrary‑precision builds. */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
     }
 
     /* large indices – use big_pow for arbitrary‑precision sequence values */
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)(n + 5));
+    seq_t pow2 = ipow((seq_t)2, (seq_t)(n + 5));
     seq_t term = (seq_t)(6 * (uint64_t)n + 13);
     if (n & 1)
         term = -term;

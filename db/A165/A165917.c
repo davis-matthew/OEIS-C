@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 479, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 74 terms through n = 930 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

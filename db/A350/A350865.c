@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{p <= q, p+q=n, p prime, q prime} q
  * Range:     u8 n <= 63, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

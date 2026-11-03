@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 187, u64 n <= 187,
  *            u128 n <= 187, big any n
+ * Validated: standard, pass, 56 terms through n = 184 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

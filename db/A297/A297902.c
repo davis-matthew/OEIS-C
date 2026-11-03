@@ -13,13 +13,15 @@
  *            a(9)=63,a(10)=156,a(11)=311,a(12)=691,a(13)=1568
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 31, u64 n <= 59, u128 n <= 115,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,7 @@ seq_t a(idx_t n)
     if (cached_n_max < 13) {
         const size_t need = 13;
         if (cap < need) {
-            seq_t *new_cache = (seq_t*)realloc(cap ? cache : NULL,
-                                               need * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cap ? cache : NULL, need);
             if (!new_cache) abort();
             cache = new_cache;
             cap   = need;
@@ -58,8 +59,7 @@ seq_t a(idx_t n)
     /* Grow the cache to accommodate up to n */
     if ((size_t)n > cap) {
         size_t new_cap = (size_t)n;
-        seq_t *new_cache = (seq_t*)realloc(cache,
-                                           new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();
         cache = new_cache;
         cap   = new_cap;

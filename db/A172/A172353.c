@@ -11,7 +11,8 @@
  *            Padovan: P(0)=P(1)=P(2)=1, P(n)=P(n-2)+P(n-3) for n>=3
  * Range:     u8 n <= 45, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for Padovan numbers and their cumulative products. */
 static seq_t *padovan      = NULL; /* padovan[i] = P(i) for i = 0 .. padovan_size-1   */
@@ -34,8 +36,8 @@ ensure_precomp(idx_t max_needed)
         return;
 
     idx_t new_size = max_needed + 1;            /* need indices 0 .. max_needed */
-    seq_t *new_pad = (seq_t *)malloc(sizeof(seq_t) * new_size);
-    seq_t *new_cp  = (seq_t *)malloc(sizeof(seq_t) * (new_size + 1));
+    seq_t *new_pad = mem_new(seq_t, new_size);
+    seq_t *new_cp  = mem_new(seq_t, (new_size + 1));
     if (!new_pad || !new_cp) {
         /* Out of memory: abort the program because the sequence cannot
            be produced without the required data. */
@@ -55,8 +57,8 @@ ensure_precomp(idx_t max_needed)
         new_cp[i] = new_cp[i - 1] * new_pad[i - 1];
 
     /* Replace old buffers. */
-    if (padovan) free(padovan);
-    if (cp)      free(cp);
+    if (padovan) mem_free(padovan);
+    if (cp)      mem_free(cp);
 
     padovan      = new_pad;
     cp           = new_cp;

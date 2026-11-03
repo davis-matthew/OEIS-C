@@ -11,6 +11,7 @@
  *            position within that row
  * Range:     u8 n <= 46, u16 n <= 154, u32 n <= 562, u64 n <= 2146,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 107 terms through n = 4878 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

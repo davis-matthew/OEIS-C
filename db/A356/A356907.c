@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 13, i16 n <= 27, i32 n <= 40, i64 n <= 40, i128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* ---------- cache data ------------------------------------------- */
 static seq_t  *a_cache   = NULL;   /* a[0 .. a_size-1] */
@@ -35,7 +37,7 @@ static size_t a_size    = 0;       /* number of stored values (zero means no cac
 static void compute_up_to(idx_t n)
 {
     if ((size_t)n + 1 > a_cap) {
-        seq_t *tmp = (seq_t*)realloc(a_cache, ((size_t)n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, ((size_t)n + 1));
         if (!tmp) abort();
         a_cache = tmp;
         a_cap   = (size_t)n + 1;
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
 
     /* initialise cache on first call */
     if (!a_cache) {
-        a_cache = (seq_t*)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache) abort();
         a_cap   = 1;
         a_cache[0] = (seq_t)1;

@@ -11,7 +11,8 @@
  *            increasing. Implementation uses the direct defin...
  * Range:     u8 n <= 47, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -54,12 +56,12 @@ seq_t a(idx_t n)
     idx_t L = i > j ? i : j;
     if (L == 0) return 0;  /* safety, should not happen */
 
-    seq_t *fib = (seq_t *)malloc((L + 3) * sizeof(seq_t));
-    seq_t *s   = (seq_t *)malloc((L + 1) * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, (L + 3));
+    seq_t *s   = mem_new(seq_t, (L + 1));
     if (!fib || !s) {
         /* Memory allocation failed; return 0 as a safe fallback */
-        free(fib);
-        free(s);
+        mem_free(fib);
+        mem_free(s);
         return 0;
     }
 
@@ -77,8 +79,8 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= min_ij; ++k)
         result += s[i - k + 1] * s[j - k + 1];
 
-    free(s);
-    free(fib);
+    mem_free(s);
+    mem_free(fib);
 
     return result;
 }

@@ -10,7 +10,8 @@
  *            not a Fibonacci number
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------- Fibonacci pair (F(n),F(n+1)) by fast doubling */
 static void fib_pair(idx_t n, seq_t *fn, seq_t *fn1)
@@ -83,7 +85,7 @@ static void ensure_nonfib(size_t needed)
 
     if (nonfib_cap == 0) {
         nonfib_cap = 8;
-        nonfib_cache = (seq_t *)malloc(nonfib_cap * sizeof(seq_t));
+        nonfib_cache = mem_new(seq_t, nonfib_cap);
         if (!nonfib_cache) exit(1);
     }
 
@@ -92,7 +94,7 @@ static void ensure_nonfib(size_t needed)
         if (cur_test_int == 1) {
             if (nonfib_size >= nonfib_cap) {
                 size_t new_cap = nonfib_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(nonfib_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, nonfib_cache, new_cap);
                 if (!tmp) exit(1);
                 nonfib_cache = tmp;
                 nonfib_cap  = new_cap;
@@ -115,7 +117,7 @@ static void ensure_nonfib(size_t needed)
         /* non‑Fibonacci number */
         if (nonfib_size >= nonfib_cap) {
             size_t new_cap = nonfib_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(nonfib_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, nonfib_cache, new_cap);
             if (!tmp) exit(1);
             nonfib_cache = tmp;
             nonfib_cap  = new_cap;

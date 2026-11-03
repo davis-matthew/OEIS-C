@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   seq_gcd, seq_mul
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,20 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"   /* seq_mul(a,b) */
-#include "../utils/seq_gcd.h"   /* seq_gcd(a,b) */
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static inline void reduce_frac(seq_t *num, seq_t *den)
 {
-    seq_t g = seq_gcd(*num, *den);
+    seq_t g = gcd(*num, *den);
     if (g > 1)
     {
         *num = *num / g;
@@ -36,7 +45,7 @@ static inline void reduce_frac(seq_t *num, seq_t *den)
 static inline void add_frac(seq_t *num, seq_t *den,
                             seq_t an, seq_t ad)
 {
-    seq_t g = seq_gcd(*den, ad);
+    seq_t g = gcd(*den, ad);
     /* lcm = (*den / g) * ad   is the new denominator   */
     seq_t new_den = (*den / g) * ad;
     /* new numerator  = (*num) * (ad / g) + an * (*den / g) */
@@ -60,11 +69,11 @@ static void ensure_cache(idx_t n)
     if (n <= cache_n) return;
 
     size_t new_size = n + 1;
-    seq_t *nf = (seq_t*)realloc(fact,  new_size * sizeof(seq_t));
-    seq_t *nn = (seq_t*)realloc(numH,  new_size * sizeof(seq_t));
-    seq_t *dd = (seq_t*)realloc(denH,  new_size * sizeof(seq_t));
+    seq_t *nf = mem_resize(seq_t, fact, new_size);
+    seq_t *nn = mem_resize(seq_t, numH, new_size);
+    seq_t *dd = mem_resize(seq_t, denH, new_size);
 
-    if (!nf || !nn || !dd) { free(fact); free(numH); free(denH); exit(1); }
+    if (!nf || !nn || !dd) { mem_free(fact); mem_free(numH); mem_free(denH); exit(1); }
 
     fact = nf;  numH = nn;  denH = dd;
 
@@ -109,8 +118,8 @@ seq_t a(idx_t n)
 
             /* H(d) * H(e)  = (numH[d]*numH[e]) / (denH[d]*denH[e])   but
                we must reduce first to keep numbers small */
-            seq_t g1 = seq_gcd(numH[d], denH[e]);
-            seq_t g2 = seq_gcd(numH[e], denH[d]);
+            seq_t g1 = gcd(numH[d], denH[e]);
+            seq_t g2 = gcd(numH[e], denH[d]);
 
             seq_t prod_num = (numH[d]/g1) * (numH[e]/g2);
             seq_t prod_den = (denH[d]/g2) * (denH[e]/g1);
@@ -126,12 +135,12 @@ seq_t a(idx_t n)
     /* final result = fact[n] * s_num / s_den
        cancel gcd between fact[n] and s_den first */
 
-    seq_t g = seq_gcd(fact[n], s_den);
+    seq_t g = gcd(fact[n], s_den);
     seq_t fact_part = fact[n] / g;
     seq_t den_part  = s_den   / g;
 
     /* cancel possible remaining gcd between s_num and den_part */
-    g = seq_gcd(s_num, den_part);
+    g = gcd(s_num, den_part);
     seq_t num_part = s_num / g;
     den_part = den_part / g;
 

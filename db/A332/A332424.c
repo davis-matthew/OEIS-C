@@ -8,14 +8,17 @@
  * Formula:   a(n) = Sum_{p|n, p prime} (-1)^(pi(p)+1) * p
  * Range:     i8 n <= 69, i16 n <= 69, i32 n <= 69, i64 n <= 69, i128 n <= 69,
  *            big any n
- * Helpers:   _smallest_prime_factor, compute_pi
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   prime_pi, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +26,8 @@ seq_t a(idx_t n)
     uint64_t nn = (uint64_t)n;
     seq_t sum = 0;
     while (nn > 1) {
-        uint64_t p = _smallest_prime_factor(nn);
-        seq_t pi = compute_pi(p);
+        uint64_t p = smallest_prime_factor(nn);
+        seq_t pi = prime_pi(p);
         seq_t sign = (pi & 1) ? 1 : -1;
         sum += sign * (seq_t)p;
         while (nn % p == 0) {

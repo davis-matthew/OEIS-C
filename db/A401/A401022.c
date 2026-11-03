@@ -8,14 +8,33 @@
  *            3^(v3(n)+v3(n+1))
  * Range:     u8 n <= 62, u16 n <= 6559, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_v2, count_v3
+ * Validated: standard, pass, 96 terms through n = 9991 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_v2.h"
-#include "../utils/count_v3.h"
+
+/* Count multiplicity of prime 2 in x.  x is >0. */
+static inline int count_v2(uint64_t x) {
+    int c = 0;
+    while ((x & 1ULL) == 0 && x != 0) {
+        ++c;
+        x >>= 1;
+    }
+    return c;
+}
+
+/* Count multiplicity of prime 3 in x.  x is >0. */
+static inline int count_v3(uint64_t x) {
+    int c = 0;
+    while (x % 3ULL == 0 && x != 0) {
+        ++c;
+        x /= 3ULL;
+    }
+    return c;
+}
 
 seq_t a(idx_t n) {
     uint64_t n_val = (uint64_t)n;

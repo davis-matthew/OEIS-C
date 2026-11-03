@@ -10,14 +10,41 @@
  *            1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   count_neighbors, valid_trip
+ * Validated: standard, pass, 33 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_neighbors.h"
-#include "../utils/valid_trip.h"
+
+static inline int count_neighbors(int a, int b, int c, int j)
+{
+    int cnt = 0;
+    /* same row (b) */
+    if (j > 0 && (b >> (j - 1)) & 1) cnt++;
+    if (j < 4 && (b >> (j + 1)) & 1) cnt++;
+    /* above row (a) */
+    if ((a >> j) & 1) cnt++;
+    if (j > 0 && (a >> (j - 1)) & 1) cnt++;
+    if (j < 4 && (a >> (j + 1)) & 1) cnt++;
+    /* below row (c) */
+    if ((c >> j) & 1) cnt++;
+    if (j > 0 && (c >> (j - 1)) & 1) cnt++;
+    if (j < 4 && (c >> (j + 1)) & 1) cnt++;
+    return cnt;
+}
+
+static inline int valid_trip(int a, int b, int c)
+{
+    for (int j = 0; j < 5; ++j) {
+        if ((b >> j) & 1) {
+            int n = count_neighbors(a, b, c, j);
+            if (!(n == 2 || n == 3 || n == 5)) return 0;
+        }
+    }
+    return 1;
+}
 
 static uint32_t valid_mask[32][32];
 static int precomputed = 0;

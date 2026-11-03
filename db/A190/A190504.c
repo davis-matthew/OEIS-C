@@ -8,6 +8,7 @@
  * Formula:   a(n) = n + ⌊n·φ⌋ + ⌊n·(2·φ−1)⌋ + ⌊n·(3·φ−2)⌋ where φ = (1+√5)/2
  * Range:     u8 n <= 33, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

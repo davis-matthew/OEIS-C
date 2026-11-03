@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 0 if n is odd; otherwise a(n) = 2 * ∏_{p|n, p odd prime}
  *            (1 + p)
- * Range:     u8 n <= 185, u16 n <= 9792, u32 n <= 9792, u64 n <= 9792,
- *            u128 n <= 9792, big any n
+ * Range:     u8 n <= 185, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 110 terms through n = 9792 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

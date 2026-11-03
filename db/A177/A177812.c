@@ -7,8 +7,9 @@
  * Keywords:  nonn, tabf
  * Formula:   a(n) = binomial(r, k²), where r is the row containing n * and k
  *            is the position within that row (0 ≤ k ≤ ⌊√r⌋)
- * Range:     u8 n <= 20, u16 n <= 52, u32 n <= 64, u64 n <= 64, u128 n <= 64,
+ * Range:     u8 n <= 31, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

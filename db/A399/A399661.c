@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{j=1..n} j * A000081(j) * A000107(n-j)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 41, u128 n <= 82,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 46 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,20 @@
 
 /* External utilities */
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* -------------  Cached arrays  ----------------- */
 static seq_t *root = NULL;       /* A000081 up to current capacity   */

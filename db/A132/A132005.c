@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 42, u32 n <= 98, u64 n <= 237,
  *            u128 n <= 621, big any n
- * Helpers:   alloc_seq_array, cast_idx, seq_one
+ * Validated: standard, pass, 65 terms through n = 1163 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,19 @@
 #include <stdlib.h>
 
 /* Utility headers for dynamic allocation and the constant one */
-#include "../utils/alloc_seq_array.h"
-#include "../utils/seq_one.h"
-#include "../utils/cast_idx.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* Helper to create a seq_t value from an idx_t */
+static inline seq_t cast_idx(idx_t v) { return (seq_t)v; }
 
 /* Cache of computed rows.  triangle_cache[r][k] holds T(r,k). */
 static seq_t **triangle_cache = NULL;   /* array of pointers to rows */

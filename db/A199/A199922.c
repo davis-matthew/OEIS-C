@@ -12,12 +12,14 @@
  *            has length 1, row n>0 has length * 3^(n‑1)+1
  * Range:     u8 n <= 369, u16 n <= 3288, u32 n <= 3288, u64 n <= 3288,
  *            u128 n <= 3288, big any n
+ * Validated: standard, pass, 143 terms through n = 3265 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Ensure we have access to the gcd utility. */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -9,12 +9,15 @@
  *            floor((sqrt(1+8*n)-1)/2), k = n - r(r+1)/2
  * Range:     u8 n <= 23, u16 n <= 83, u32 n <= 286, u64 n <= 1056,
  *            u128 n <= 1325, big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 82 terms through n = 1210 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 static inline idx_t find_row(idx_t n)
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
     idx_t exp = (k < (r - k)) ? k : (r - k);
     seq_t factor = pow2(exp + 1) - 1;
 
-    seq_t bin = binom(r, k);
+    seq_t bin = binomial(r, k);
 
     return factor * bin;
 }

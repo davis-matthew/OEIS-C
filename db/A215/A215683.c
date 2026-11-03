@@ -11,22 +11,25 @@
  *            (m>=1) (u_m are tanh(x) EGF coefficients). All a...
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 13, i64 n <= 22, i128 n <= 23,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;   /* a(0) = 1 */
 
     /* Allocate arrays for u, g and a coefficients */
-    seq_t *u = (seq_t *) malloc((n + 2) * sizeof(seq_t));  /* u[0..n+1] needed */
-    seq_t *g = (seq_t *) malloc((n + 1) * sizeof(seq_t));  /* g[1..n] */
-    seq_t *f = (seq_t *) malloc((n + 1) * sizeof(seq_t));  /* f[0..n] */
+    seq_t *u = mem_new(seq_t, (n + 2));  /* u[0..n+1] needed */
+    seq_t *g = mem_new(seq_t, (n + 1));  /* g[1..n] */
+    seq_t *f = mem_new(seq_t, (n + 1));  /* f[0..n] */
 
     /* initialise u */
     u[0] = 0;
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
         seq_t sum = 0;
         idx_t i;
         for (i = 0; i <= m; ++i) {
-            seq_t term = binom(m, i);
+            seq_t term = binomial(m, i);
             term = term * u[i] * u[m - i];
             sum = sum + term;
         }
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
         seq_t sum = 0;
         idx_t k;
         for (k = 0; k <= m - 1; ++k) {
-            seq_t term = binom(m, k);
+            seq_t term = binomial(m, k);
             term = term * u[k] * u[m - k - 1];
             sum = sum + term;
         }
@@ -63,7 +66,7 @@ seq_t a(idx_t n)
         seq_t sum = 0;
         idx_t k;
         for (k = 1; k <= m; ++k) {
-            seq_t term = binom(m - 1, k - 1);
+            seq_t term = binomial(m - 1, k - 1);
             term = term * g[k] * f[m - k];
             sum = sum + term;
         }
@@ -73,9 +76,9 @@ seq_t a(idx_t n)
     seq_t result = f[n];
 
     /* free memory */
-    free(u);
-    free(g);
-    free(f);
+    mem_free(u);
+    mem_free(g);
+    mem_free(f);
 
     return result;
 }

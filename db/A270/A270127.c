@@ -10,12 +10,13 @@
  *            popcnt(m) + 2} (m ≥ 1) c(2m+1) = 3 · c(2m) (m ≥ 1)
  * Range:     u8 n <= 7, u16 n <= 75, u32 n <= 128, u64 n <= 128,
  *            u128 n <= 128, big any n
- * Helpers:   _popcount_idx
+ * Validated: standard, pass, 61 terms through n = 119 (2026-11-01)
+ * Helpers:   popcount_idx_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_popcount_idx.h"
+#include "../utils/popcount_idx_to_i32.h"
 /* Helper: floor of log₂ for non‑zero idx_t */
 static inline idx_t _floor_log2_idx(idx_t x) {
     idx_t r = 0;
@@ -32,7 +33,7 @@ static seq_t _stage_cells(idx_t n) {
     if ((n & 1ULL) == 0) {                 /* even n = 2m */
         idx_t m = n >> 1;
         idx_t log = _floor_log2_idx(m);
-        int pc = _popcount_idx(m);
+        int pc = popcount_idx_to_i32(m);
         seq_t exp = (seq_t)(log + pc + 2);
         return ((seq_t)1) << (unsigned int)exp;
     } else {                                /* odd n */
@@ -40,7 +41,7 @@ static seq_t _stage_cells(idx_t n) {
         idx_t m = n - 1;                    /* even predecessor */
         idx_t k = m >> 1;                   /* k = m/2 = (n-1)/2 */
         idx_t log = _floor_log2_idx(k);
-        int pc = _popcount_idx(k);
+        int pc = popcount_idx_to_i32(k);
         seq_t exp = (seq_t)(log + pc + 2);
         seq_t val = ((seq_t)1) << (unsigned int)exp;
         return (seq_t)3 * val;

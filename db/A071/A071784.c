@@ -12,12 +12,14 @@
  *            dynamic growth of a static cache
  * Range:     i8 n <= 27, i16 n <= 47, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* start with capacity for indices 0..4 (5 elements) */
         cache_cap = 5;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return (seq_t)0;  /* out of memory: fall back */
         cache[0] = 0;                       /* unused placeholder            */
         cache[1] = (seq_t)2;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if ((idx_t)(n + 1) > cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 5;
         while (new_cap <= n) new_cap *= 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (new_cache == NULL) return (seq_t)0;  /* out of memory: fall back */
         cache = new_cache;
         cache_cap = new_cap;

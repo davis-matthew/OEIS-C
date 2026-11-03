@@ -7,6 +7,7 @@
  * Formula:   a(n) = n/(n+1) * lcm(1,2,…,n+1) (offset 1)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 45, u128 n <= 87,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 2268 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,8 +9,9 @@
  * Formula:   a(n) = number of times that floor(n/2) must be applied until the
  *            resulting number is odious (i.e. has an odd number of 1‑bits in
  *            its binary representation)
- * Range:     u8 n <= 9617, u16 n <= 9617, u32 n <= 9617, u64 n <= 9617,
- *            u128 n <= 9617, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 136 terms through n = 9617 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

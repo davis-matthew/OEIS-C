@@ -11,7 +11,8 @@
  *            be made in any order
  * Range:     u8 n <= 112, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 84 terms through n = 9949 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t
 a(idx_t n)
@@ -39,7 +41,7 @@ a(idx_t n)
     if (cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        digit_cache = (seq_t *)realloc(digit_cache, new_cap * sizeof(seq_t));
+        digit_cache = mem_resize(seq_t, digit_cache, new_cap);
         cache_cap = new_cap;
     }
     if (log_cap <= (size_t)n) {

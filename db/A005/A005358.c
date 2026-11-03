@@ -10,14 +10,43 @@
  *            mu(k) * 5^(d/k) of them of degree d
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   a005358_irr, a005358_mu
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005358_irr.h"
-#include "../utils/a005358_mu.h"
+
+static int a005358_mu(uint64_t k) {
+  int r = 1;
+  uint64_t p;
+  for (p = 2; p * p <= k; p++) {
+    if (k % p == 0) {
+      k /= p;
+      if (k % p == 0) return 0;
+      r = -r;
+    }
+  }
+  if (k > 1) r = -r;
+  return r;
+}
+
+static uint64_t a005358_irr(uint64_t d) {
+  __int128 s = 0;
+  uint64_t k, j;
+  for (k = 1; k <= d; k++) {
+    if (d % k == 0) {
+      int m = a005358_mu(k);
+      if (m != 0) {
+        __int128 p = 1;
+        for (j = 0; j < d / k; j++) p *= 5;
+        s += m * p;
+      }
+    }
+  }
+  return (uint64_t)(s / (__int128)d);
+}
 
 seq_t a(idx_t n) {
   seq_t result = 0;

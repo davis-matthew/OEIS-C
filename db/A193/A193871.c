@@ -9,12 +9,15 @@
  *            decreasing row order (bottom-to-top)
  * Range:     u8 n <= 30, u16 n <= 59, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
     seq_t col = (seq_t)(col0 + 1);   /* k in the definition */
 
     /* Compute k^n - k + 1.  big_pow works with seq_t arguments. */
-    seq_t val = big_pow(col, row);
+    seq_t val = ipow(col, row);
     val -= col;
     val += 1;
     return val;

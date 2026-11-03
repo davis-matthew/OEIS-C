@@ -9,14 +9,18 @@
  *            computes the sequence and memoises it for arbitrary calls
  * Range:     u8 n <= 1, u16 n <= 2044, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 64 terms through n = 9801 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +39,7 @@ seq_t a(idx_t n)
         if (!init_done) {
                 idx_t cnt = 0;
                 for (idx_t k = 1; k <= 961 && cnt < 30; ++k) {
-                        if (mod_pow((seq_t)k, 30ULL, MOD) == (seq_t)1)
+                        if (powmod((seq_t)k, 30ULL, MOD) == (seq_t)1)
                                 init30[cnt++] = (seq_t)k;
                 }
                 init_done = true;
@@ -44,7 +48,7 @@ seq_t a(idx_t n)
         /* allocate cache if not already done */
         if (cache == NULL) {
                 cap = 30;
-                cache = (seq_t *)malloc(cap * sizeof(seq_t));
+                cache = mem_new(seq_t, cap);
                 if (!cache) abort();
                 for (idx_t i = 0; i < 30; ++i)
                         cache[i] = init30[i];
@@ -56,7 +60,7 @@ seq_t a(idx_t n)
                 size_t newcap = cap;
                 while (newcap < n)
                         newcap <<= 1;   /* double until sufficient */
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) abort();
                 cache = tmp;
                 cap = newcap;

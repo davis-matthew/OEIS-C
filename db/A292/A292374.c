@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 3732, u16 n <= 8251, u32 n <= 8251, u64 n <= 8251,
- *            u128 n <= 8251, big any n
- * Helpers:   none
+ * Range:     u8 n <= 3732, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 8251 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- constants ---------- */
 #define MAX_LIMIT  200000            /* maximum value for the prime sieve */
@@ -113,7 +115,7 @@ static void init_cache(void)
     if (cache_built) return;
     cache_built = true;
 
-    cache   = (seq_t *)calloc(CACHE_SIZE + 1, sizeof(seq_t));
+    cache   = mem_new(seq_t, CACHE_SIZE + 1);
     cached  = (unsigned char *)calloc(CACHE_SIZE + 1, sizeof(unsigned char));
     if (!cache || !cached) abort();
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 172, u32 n <= 684, u64 n <= 2731,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_overflows
+ * Validated: standard, pass, 75 terms through n = 9782 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/mul_overflows.h"
+#include "../utils/mem.h"
+
+/* Multiplication with overflow detection for unsigned integer types.
+   Returns true if overflow would occur, false otherwise, and sets *out. */
+static inline bool mul_overflows(seq_t a, unsigned b, seq_t *out)
+{
+    seq_t prod = a * (seq_t)b;
+    /* In unsigned arithmetic, overflow wraps; check by dividing back. */
+    if (b != 0 && prod / (seq_t)b != a)
+        return true;
+    *out = prod;
+    return false;
+}
 
 /* Node for the priority queue */
 struct Node {
@@ -89,7 +102,7 @@ seq_t a(idx_t n)
 
     /* Priority queue with a capacity that covers all pushes. */
     size_t heap_cap = 2 * n + 4; /* at most 2 pushes per pop */
-    struct Node *heap = (struct Node *)malloc(heap_cap * sizeof(struct Node));
+    struct Node *heap = mem_new(struct Node, heap_cap);
     size_t heap_size = 0;
 
     /* Seed the heap with the root nodes (1 for each type). */
@@ -143,6 +156,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(heap);
+    mem_free(heap);
     return result;
 }

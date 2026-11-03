@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∑_{p|n} (n/p)^10 (sum over distinct prime divisors p)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 19, u64 n <= 169,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 49 terms through n = 8283 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

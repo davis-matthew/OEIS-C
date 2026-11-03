@@ -10,7 +10,8 @@
  *            property, so it returns the correct value for any n≥1
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *a_vals      = NULL;  /* stored sequence values */
 static size_t a_cap       = 0;      /* capacity of a_vals   */
@@ -34,7 +36,7 @@ static uint64_t prime_index     = 0; /* current prime index (1‑based) */
 static void ensure_a_cap(void) {
     if (a_len == a_cap) {
         a_cap = a_cap ? a_cap * 2 : 8;
-        a_vals = (seq_t *)realloc(a_vals, a_cap * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, a_cap);
     }
 }
 

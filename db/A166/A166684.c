@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 6541, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 77 terms through n = 8547 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 
 /* Utilities for generating primes up to a limit */
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* Prime storage */

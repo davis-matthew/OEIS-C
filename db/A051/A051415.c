@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   digit_sum_u128
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_sum_u128.h"
+
+/*  Helper: digit sum of a 128‑bit integer (works for all sizes) */
+static inline uint32_t digit_sum_u128(unsigned __int128 x)
+{
+    uint32_t s = 0;
+    do {
+        s += (uint32_t)(x % 10);
+        x /= 10;
+    } while (x);
+    return s;
+}
 
 /* static state – maintained between calls */
 static bool *represent = NULL;          /* flags for representable numbers */

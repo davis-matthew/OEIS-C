@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 158, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 58 terms through n = 962 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *primes_congr = NULL;   /* array of primes ≡ 20 (mod 41) */
 static size_t cnt_congr    = 0;      /* number of cached primes */
@@ -30,7 +32,7 @@ static void append_prime(seq_t p)
 {
     if (cnt_congr >= cap_congr) {
         size_t new_cap = cap_congr ? cap_congr * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(primes_congr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, primes_congr, new_cap);
         if (!tmp) exit(EXIT_FAILURE); /* out of memory */
         primes_congr = tmp;
         cap_congr = new_cap;

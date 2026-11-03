@@ -8,12 +8,13 @@
  *            2*n))/7560
  * Range:     u8 n <= 0, u16 n <= 5, u32 n <= 23, u64 n <= 294,
  *            u128 n <= 10000, big any n
- * Helpers:   a006333_gcd
+ * Validated: standard, pass, 41 terms through n = 9855 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a006333_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     seq_t nn = (seq_t)n;
@@ -35,7 +36,7 @@ seq_t a(idx_t n) {
     f[8] = 2 * nn + 5;
 
     for (i = 0; i < 9 && d != 1; i++) {
-        seq_t g = a006333_gcd(f[i], d);
+        seq_t g = gcd(f[i], d);
         f[i] /= g;
         d /= g;
     }

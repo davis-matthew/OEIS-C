@@ -12,14 +12,23 @@
  *            odd) down to 0, then all indices descending by 2...
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   triangular_block
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/triangular_block.h"
+
+static inline idx_t triangular_block(idx_t j)
+{
+    /* Computes (j+2)*(j+3)/2 using 128‑bit arithmetic to avoid overflow */
+    __uint128_t t = (__uint128_t)(j + 2);
+    t = t * (j + 3);
+    t >>= 1;                            /* divide by 2 */
+    return (idx_t)t;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,13 +42,13 @@ seq_t a(idx_t n)
         /* Initialisation for row 1 */
         current_row = 1;
         coeff_cap = 2;                /* allocate a little buffer */
-        u_coeff = (seq_t*)malloc(coeff_cap * sizeof(seq_t));
-        v_coeff = (seq_t*)malloc(coeff_cap * sizeof(seq_t));
+        u_coeff = mem_new(seq_t, coeff_cap);
+        v_coeff = mem_new(seq_t, coeff_cap);
         u_coeff[0] = (seq_t)1;
         v_coeff[0] = (seq_t)1;
 
         terms_cap = 1;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms[0] = (seq_t)1;
         terms_len = 1;
     }
@@ -59,8 +61,8 @@ seq_t a(idx_t n)
         size_t new_row = current_row + 1;          /* next row size */
 
         /* Allocate space for the new coefficients */
-        seq_t *new_u = (seq_t*)malloc(new_row * sizeof(seq_t));
-        seq_t *new_v = (seq_t*)malloc(new_row * sizeof(seq_t));
+        seq_t *new_u = mem_new(seq_t, new_row);
+        seq_t *new_v = mem_new(seq_t, new_row);
 
         /* Compute new_u:  u_n(x) = x*u_{n-1}(x) + x*v_{n-1}(x) */
         new_u[0] = (seq_t)0;
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
         if (terms_len + new_row > terms_cap) {
             size_t new_cap = terms_cap ? terms_cap * 2 : 1;
             while (new_cap < terms_len + new_row) new_cap <<= 1;
-            terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, new_cap);
             terms_cap = new_cap;
         }
         for (size_t i = 0; i < new_row; ++i) {
@@ -94,8 +96,8 @@ seq_t a(idx_t n)
         }
 
         /* Release old coefficient arrays and set new ones as current */
-        free(u_coeff);
-        free(v_coeff);
+        mem_free(u_coeff);
+        mem_free(v_coeff);
         u_coeff = new_u;
         v_coeff = new_v;
         current_row = new_row;

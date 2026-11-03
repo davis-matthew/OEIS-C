@@ -7,7 +7,8 @@
  * Formula:   a(0) = 0, a(n) = n + (sum_{k=0}^{n-1} a(k)) mod n (n > 0)
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* The implementation keeps a memoised cache that grows on demand. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* a(n) for n = 0 .. top-1           */
 static seq_t *sums  = NULL;    /* sums[n] = Σ_{k=0}^{n-1} a(k)      */
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
     if ((size_t)n >= top) {
         size_t newsize = (size_t)n + 1;
         /* Reallocate a cache for a(n) values */
-        cache = (seq_t*)realloc(cache, newsize * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newsize);
         /* Reallocate a cache for prefix sums */
-        sums  = (seq_t*)realloc(sums,  newsize * sizeof(seq_t));
+        sums  = mem_resize(seq_t, sums, newsize);
 
         /* Compute entries from the previous top up to n */
         for (size_t i = top; i <= (size_t)n; ++i) {

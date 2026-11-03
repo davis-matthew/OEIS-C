@@ -10,7 +10,8 @@
  *            the divisor count and σ is the sum of divisors
  * Range:     u8 none, u16 none, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 #define TERMS_CAP 10000               /* maximum terms to cache */
 #define LIMIT 2000000                 /* upper bound for search */
@@ -45,7 +47,7 @@ static void init_spf(void)
 /* --------- Precompute enough terms for all requested indices --------- */
 static void init_terms(void)
 {
-    terms = (seq_t *)malloc(TERMS_CAP * sizeof(seq_t));
+    terms = mem_new(seq_t, TERMS_CAP);
     terms_len = 0;
 
     for (uint32_t k = 1; k <= LIMIT && terms_len < TERMS_CAP; ++k) {
@@ -63,7 +65,7 @@ static void init_terms(void)
             }
             tau_val *= (e + 1);
 
-            seq_t pe1 = pow_uint((uint64_t)p, (idx_t)(e + 1));
+            seq_t pe1 = ipow_u64_idx((uint64_t)p, (idx_t)(e + 1));
             sigma *= (pe1 - (seq_t)1) / (seq_t)(p - 1);
         }
 

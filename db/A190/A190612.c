@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9562 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute tau(n) – the number of divisors of n.  The function works for
    n up to the maximum value that fits in a uint64_t.  The result is held in
@@ -54,7 +56,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t need) {
     size_t new_cap = (*cap == 0) ? 16 : (*cap * 2);
     if (new_cap < need)
         new_cap = need;
-    seq_t *new_arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, *arr, new_cap);
     *arr = new_arr;
     *cap = new_cap;
 }

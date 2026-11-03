@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 8851, u16 n <= 8851, u32 n <= 8851, u64 n <= 8851,
- *            u128 n <= 8851, big any n
- * Helpers:   elements_for_total
+ * Range:     u8 n <= 11264, u16 n <= 11264, u32 n <= 11264, u64 n <= 11264,
+ *            u128 n <= 11264, big any n
+ * Validated: standard, pass, 121 terms through n = 8851 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
    length k, and the particular composition using combinatorial
    counting.  It works for any n ≥ 1. */
 #include <stdint.h>
-#include "../utils/elements_for_total.h"
+
+/* Number of elements contributed by all compositions of total t. */
+static idx_t elements_for_total(idx_t t)
+{
+    if (t == 0) return 0;
+    if (t == 1) return (idx_t)1;
+    /* f(t) = 2^{t-2} * (t+1)  for t >= 2 */
+    idx_t pow2 = ((idx_t)1) << (t - 2);   /* t-2 ≤ 62 for n ≤ 10000 */
+    return pow2 * (t + 1);
+}
 
 /* Pre–compute binomial coefficients up to 64, sufficient for n ≤ 10000.
    binom[n][k] = C(n,k) stored as idx_t. */

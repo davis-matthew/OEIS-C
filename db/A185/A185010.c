@@ -9,13 +9,17 @@
  *            A015518(n)=2*A015518(n-1)+3*A015518(n-2) for n≥3
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 38,
  *            big any n
- * Helpers:   catalan
+ * Validated: standard, pass, 38 terms through n = 914 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 /* We allocate a static array large enough for all calls that occur in the
    tests (n up to 10 000 → index n+1 ≤ 10 001).  The array is default
@@ -51,7 +55,7 @@ seq_t a(idx_t n)
         /* We use malloc and then construct the new elements one by one
            because we cannot rely on seq_t being a POD type. */
         size_t newsize = (size_t)(n + 2);                /* indices 0..n+1 */
-        seq_t *tmp = (seq_t *)malloc(newsize * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, newsize);
         if (!tmp) return (seq_t)0;   /* allocation failure sentinel */
 
         /* copy existing values */

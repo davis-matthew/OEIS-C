@@ -10,12 +10,14 @@
  *            order are O(1) per new term. Uses only integer arithmetic
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 33, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 1613 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* first call: allocate space and store the three base terms */
     if (cache == NULL) {
         if (need < 4) need = 4;          /* at least room for indices 1..3 */
-        cache = (seq_t*)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         if (!cache) abort();            /* fatal error if allocation fails */
 
         cap = need;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     }
     /* grow the cache if the requested n is larger than the current capacity */
     else if (need > cap) {
-        seq_t *tmp = (seq_t*)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) abort();
         cache = tmp;
         cap = need;

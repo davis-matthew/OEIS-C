@@ -7,7 +7,8 @@
  * Formula:   a(n) = ceiling(n^(3/2))
  * Range:     u8 n <= 40, u16 n <= 1625, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 79 terms through n = 9487 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,25 @@
 /* For seq_t types of size ≤ 8 bytes, a 128‑bit intermediate is used.  */
 /* For larger seq_t (arbitrary‑precision), the provided floor_sqrt helper is used.  */
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static inline unsigned long long sqrt128(unsigned __int128 x)
 {

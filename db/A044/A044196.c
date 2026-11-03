@@ -10,14 +10,28 @@
  *            does not
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   has_11_in_base8
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_11_in_base8.h"
+#include "../utils/mem.h"
+
+/* Return true if x (in base 8) contains two consecutive 1s. */
+static bool has_11_in_base8(seq_t x)
+{
+    int prev = -1;
+    while (x > 0) {
+        int d = (int)(x % 8);
+        if (d == 1 && prev == 1) return true;
+        prev = d;
+        x /= 8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +48,7 @@ seq_t a(idx_t n)
         if (ok) {
             if (len == cap) {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cap = new_cap;

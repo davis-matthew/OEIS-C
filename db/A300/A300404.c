@@ -9,7 +9,8 @@
  *            the Goodstein sequence starting at k is > n
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   add_limit, mul_limit
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/add_limit.h"
-#include "../utils/mul_limit.h"
+#include "../utils/mem.h"
+
+/* Utility: limit-aware addition (a + b). */
+static seq_t add_limit(seq_t a, seq_t b, seq_t limit)
+{
+    if (a > limit - b)
+        return limit + 1;
+    return a + b;
+}
+
+/* Utility: limit-aware multiplication (a * b). */
+static seq_t mul_limit(seq_t a, seq_t b, seq_t limit)
+{
+    if (a == 0 || b == 0)
+        return 0;
+    if (a > limit / b)
+        return limit + 1;                    /* overflow */
+    return a * b;
+}
 
 /* Work constant: maximum n we are prepared to answer (≥ 10000). */
 #define MAX_N 10000UL
@@ -113,7 +131,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Precompute until a maximum > MAX_N is found. */
         size_t alloc = 64;
-        maxVals = (seq_t *)malloc(alloc * sizeof(seq_t));
+        maxVals = mem_new(seq_t, alloc);
         if (!maxVals) exit(1);
         cap = alloc;
         maxCnt = 0;
@@ -123,7 +141,7 @@ seq_t a(idx_t n)
             seq_t mx = max_goodstein((seq_t)k, (seq_t)MAX_N);
             if (maxCnt >= cap) {        /* grow array */
                 size_t newcap = cap * 2;
-                seq_t *tmp = (seq_t *)realloc(maxVals, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, maxVals, newcap);
                 if (!tmp) exit(1);
                 maxVals = tmp;
                 cap = newcap;

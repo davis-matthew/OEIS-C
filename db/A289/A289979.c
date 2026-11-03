@@ -15,12 +15,14 @@
  *            function simulates that chase until equality o...
  * Range:     u8 n <= 24, u16 n <= 75, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
+ * Validated: standard, pass, 74 terms through n = 80 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>            /* for size_t */
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 
 #define MAX_STEPS ((size_t)1000000)   /* safety bound to avoid infinite loops */

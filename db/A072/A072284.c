@@ -8,7 +8,8 @@
  * Formula:   k is squarefree and k-1 is not squarefree (OEIS A072284)
  * Range:     u8 n <= 72, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Upper bound for prime sieve – enough to test any candidate used up to
    the first 10 000 terms.  Compile‑time constant required for static
@@ -73,7 +75,7 @@ static void _grow_cache(size_t n)
     if (_cache_cap > n) return;
     size_t new_cap = (_cache_cap == 0) ? 16 : _cache_cap * 2;
     while (new_cap <= n) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(_cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
     if (!tmp) abort();           /* abort on allocation failure */
     _cache = tmp;
     _cache_cap = new_cap;

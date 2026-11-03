@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   calc_c, phi
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/phi.h"   /* provides seq_t phi(idx_t m) */
-#include "../utils/calc_c.h"
+#include "../utils/totient.h"
+
+static seq_t calc_c(idx_t d)
+{
+    /* compute c(d) directly by the recurrence */
+    if (d == 1) return (seq_t)5;
+    if (d == 2) return (seq_t)25;
+    if (d == 3) return (seq_t)122;
+
+    seq_t c1 = (seq_t)5;     /* c(1) */
+    seq_t c2 = (seq_t)25;    /* c(2) */
+    seq_t c3 = (seq_t)122;   /* c(3) */
+    seq_t cur;
+
+    for (idx_t i = 4; i <= d; ++i) {
+        cur = (seq_t)5 * c3 - c1;   /* 5*c(n-1) - c(n-3)  */
+        c1 = c2;
+        c2 = c3;
+        c3 = cur;
+    }
+    return c3;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,12 +57,12 @@ seq_t a(idx_t n)
             idx_t d1 = i;
             idx_t d2 = n / i;
 
-            seq_t phi1 = phi(n / d1);
+            seq_t phi1 = totient(n / d1);
             seq_t c1   = calc_c(d1);
             sum = sum + phi1 * c1;
 
             if (d1 != d2) {
-                seq_t phi2 = phi(n / d2);
+                seq_t phi2 = totient(n / d2);
                 seq_t c2   = calc_c(d2);
                 sum = sum + phi2 * c2;
             }

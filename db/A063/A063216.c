@@ -9,12 +9,14 @@
  *            a(1)=1, a(2)=8, a(3)=14, a(4)=22, a(5)=28
  * Range:     u8 n <= 38, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[0] unused, cache[1].. hold values */
 static size_t cache_cap = 0;     /* allocated size (number of slots) */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache on the first use or when n exceeds capacity */
     if (cache == NULL) {
         cache_cap = (n > 5 ? n + 1 : 6);          /* plus one for 0‑based offset */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return 0;              /* allocation failure */
 
         /* Initialize the first five known terms.  cache[0] is unused. */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         max_computed = 5;
     } else if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = ((size_t)n + 1) * 2;      /* grow by factor 2 */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return 0;                /* reallocation failure */
         cache = tmp;
         cache_cap = new_cap;

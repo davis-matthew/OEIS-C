@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 21, u64 n <= 44, u128 n <= 90,
  *            big any n
- * Helpers:   mult2, mult4, mult6
+ * Validated: standard, pass, 42 terms through n = 197 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,16 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mult2.h"
-#include "../utils/mult4.h"
-#include "../utils/mult6.h"
+
+static inline seq_t mult2(seq_t x) { return x + x; }
+
+static inline seq_t mult4(seq_t x) { seq_t t = x + x; return t + t; }
+
+static inline seq_t mult6(seq_t x) {
+    seq_t t = x + x;   // 2*x
+    t += x;           // 3*x
+    return t + t;     // 6*x
+}
 
 seq_t a(idx_t n)
 {

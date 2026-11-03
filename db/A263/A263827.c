@@ -7,9 +7,10 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 2 * Σ_{d|n, n/d odd} σ(d) = 2 * σ(2^k) * Σ_{b|m} σ(b),
  *            where n = 2^k * m, m odd
- * Range:     u8 n <= 41, u16 n <= 5039, u32 n <= 8940, u64 n <= 8940,
- *            u128 n <= 8940, big any n
- * Helpers:   div_sigma_rec
+ * Range:     u8 n <= 41, u16 n <= 5039, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 8940 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,32 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/div_sigma_rec.h"
+
+/* cur_sigma is the product of σ(pᵉ) for the primes processed so far. */
+static void div_sigma_rec(int level, seq_t cur_sigma,
+                          const uint32_t *pf,
+                          const size_t *cexp,
+                          int cnt,
+                          seq_t *sum)
+{
+    if (level == cnt) {
+        *sum += cur_sigma;
+        return;
+    }
+    uint32_t p = pf[level];
+    size_t e = cexp[level];
+    seq_t sigma_factor = 1;   /* σ(p⁰) = 1 */
+    seq_t power = 1;          /* p⁰ */
+    /* exponent 0 */
+    div_sigma_rec(level + 1, cur_sigma, pf, cexp, cnt, sum);
+    /* exponents 1 .. e */
+    for (size_t exp = 1; exp <= e; ++exp) {
+        power *= (seq_t)p;
+        sigma_factor += power;  /* accumulate σ(p^exp) = 1 + p + … + p^exp */
+        div_sigma_rec(level + 1, cur_sigma * sigma_factor, pf, cexp,
+                      cnt, sum);
+    }
+}
 
 #define PRIME_LIMIT 100000
 static bool is_composite[PRIME_LIMIT + 1];

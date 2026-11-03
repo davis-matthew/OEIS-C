@@ -11,6 +11,7 @@
  *            hold the first 200 000 terms, which is far m...
  * Range:     u8 n <= 33, u16 n <= 1939, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 72 terms through n = 9690 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
 
 /* External linkage as requested. */
 seq_t a(idx_t n)

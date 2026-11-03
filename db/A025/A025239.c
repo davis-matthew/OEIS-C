@@ -8,7 +8,8 @@
  *            a(n-2)*a(2) (n ≥ 3)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 30, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Dynamic cache for previously computed values */
 static seq_t *cache = NULL;
@@ -30,14 +32,13 @@ static void ensure_cache_size(idx_t needed)
         if (new_cap <= (size_t)needed) {
             new_cap = (size_t)needed + 1;
         }
-        seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) abort();
         if (cache) {
-            memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+            mem_free(cache);
         }
-        memset(new_cache + cache_cap,
-               0, (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache = new_cache;
         cache_cap = new_cap;
     }

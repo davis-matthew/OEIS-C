@@ -12,12 +12,31 @@
  *            (1,1),(1,2),(2,1),(1,3),(2,2),(3,1),…
  * Range:     u8 n <= 28, u16 n <= 171, u32 n <= 861, u64 n <= 1830,
  *            u128 n <= 1830, big any n
- * Helpers:   find_sum_idx
+ * Validated: standard, pass, 74 terms through n = 1670 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/find_sum_idx.h"
+/* Find the unique integer s ≥ 2 such that s*(s-1)/2 ≥ m.
+   This gives the sum of the coordinates (row+col) for the m‑th element. */
+static idx_t find_sum_idx(idx_t m)
+{
+    idx_t low = 1, high = 2;
+    /* grow high until it satisfies the inequality */
+    while (((unsigned __int128)high * (high - 1)) / 2 < m)
+        high <<= 1;
+    /* binary search for the exact value */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1);
+        unsigned __int128 val = ((unsigned __int128)mid * (mid - 1)) / 2;
+        if (val >= m)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 /* --- local helpers -------------------------------------------------- */
 
 /* Fast doubling Fibonacci: returns F(n) and F(n+1) in *fn and *fn1. */

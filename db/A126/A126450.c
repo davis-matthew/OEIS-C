@@ -8,14 +8,16 @@
  * Formula:   a(n) = T(row, col) with * row = floor((sqrt(8n+1)-1)/2) * col =
  *            n - row*(row+1)/2 * T(r,k) = C( C(r+2,3) - C(k+2,3) + 1 , r-k )
  *            * (OEIS A126450)
- * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 27, u64 n <= 39, u128 n <= 39,
+ * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 27, u64 n <= 39, u128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Integer square root: floor(sqrt(x)) for 0 <= x < 2^64 */

@@ -9,7 +9,8 @@
  *            6^{n/d} where μ is the Möbius function
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    - No static libraries are used other than <stdlib.h>.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute Möbius μ(d) for 1<=d<=n.
    Returns 0 for non‑square‑free, 1 for even number of primes, -1 otherwise. */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if (n == 1) return 6;
 
     /* pre‑compute powers of 6: pow6[k] = 6^k, 0<=k<=n */
-    seq_t *pow6 = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *pow6 = mem_new(seq_t, (size_t)(n + 1));
     if (!pow6) abort();           /* insufficient memory – terminate */
     pow6[0] = 1;
     for (idx_t i = 1; i <= n; ++i) pow6[i] = pow6[i - 1] * (seq_t)6;
@@ -83,6 +85,6 @@ seq_t a(idx_t n)
     seq_t primitive = diff / (seq_t)n;    /* primitive necklaces count A032164(n) */
     seq_t result = pow6[n] - primitive;   /* a(n) = 6^n - primitive */
 
-    free(pow6);
+    mem_free(pow6);
     return result;
 }

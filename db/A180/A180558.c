@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 424, u32 n <= 1582, u64 n <= 1582,
  *            u128 n <= 1582, big any n
- * Helpers:   swap_78
+ * Validated: standard, pass, 62 terms through n = 1573 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,27 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/swap_78.h"
+#include "../utils/mem.h"
+
+/* Swaps digits 7 and 8 in a decimal integer. */
+static uint64_t swap_78(uint64_t n)
+{
+    if (n == 0) return 0;
+    uint8_t  digits[20];
+    size_t   len = 0;
+    while (n > 0) {
+        digits[len++] = n % 10;
+        n /= 10;
+    }
+    uint64_t res = 0;
+    for (size_t i = 0; i < len; ++i) {
+        uint8_t d = digits[len - 1 - i];
+        if (d == 7) d = 8;
+        else if (d == 8) d = 7;
+        res = res * 10 + d;
+    }
+    return res;
+}
 
 /* Forward declaration of the sequence function. */
 seq_t a(idx_t n);
@@ -46,7 +67,7 @@ static void ensure_res_cap(size_t needed)
     if (needed > res_cap) {
         size_t new_cap = res_cap ? res_cap * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, results, new_cap);
         if (!tmp) abort();
         results = tmp;
         res_cap = new_cap;

@@ -10,7 +10,8 @@
  *            once and returns the pre‑computed rank
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: full, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static tables: 100 entries for the natural numbers 1‑100. */
 static seq_t perm[100];
@@ -69,7 +71,7 @@ static void init(void)
         perm[i] = (seq_t)(i + 1);
 
     /* sort it using qsort (small enough for O(n log n) cost). */
-    qsort(perm, 100, sizeof(seq_t), cmp_lex);
+    mem_qsort(perm, 100, sizeof(seq_t), cmp_lex);
 
     /* compute the inverse rank array. */
     for (idx_t i = 0; i < 100; ++i) {

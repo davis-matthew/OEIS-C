@@ -9,6 +9,7 @@
  *            a(n) = -20*a(n-1) - 35*a(n-2) + 35*a(n-3) + 20*a(n-4) + a(n-5)
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 8, i64 n <= 15, i128 n <= 31,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 489 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

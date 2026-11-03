@@ -8,7 +8,8 @@
  * Formula:   a(n) is the nth positive integer satisfying the above property
  * Range:     u8 n <= 52, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   uint64_digits
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem, num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/uint64_digits.h"
+#include "../utils/num_digits_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- bigomega sieve (smallest prime factor + Ω) ---------- */
 static uint32_t *spf_arr = NULL;      /* smallest prime factor              */
@@ -73,7 +75,7 @@ static size_t seq_len = 0;
 static void add_term(seq_t val) {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
         if (!tmp) abort();
         seq_arr = tmp;
         seq_cap = new_cap;
@@ -103,7 +105,7 @@ seq_t a(idx_t n) {
     while (seq_len < n) {
         ensure_omega_limit((size_t)current);
 
-        int d = uint64_digits((uint64_t)current);
+        int d = num_digits_u64((uint64_t)current);
         bool ok = false;
         for (int pos = 1; pos < d && !ok; ++pos) {
             uint64_t power = pow10_tab[d - pos];
@@ -111,7 +113,7 @@ seq_t a(idx_t n) {
             uint64_t b_part = current % power;
 
             /* check that b_part has the required number of digits (no leading zeros) */
-            if (uint64_digits(b_part) != d - pos) continue;
+            if (num_digits_u64(b_part) != d - pos) continue;
 
             uint8_t oa = omega_arr[(size_t)a_part];
             uint8_t ob = omega_arr[(size_t)b_part];

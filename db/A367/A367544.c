@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{k=0..n} 2^k * [gcd(k, n) = 1]
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   _gcd_idx
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/_gcd_idx.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/gcd_idx.h"
 
 /* Euclidean algorithm for idx_t (uint64_t). */
 
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
         if (k == 0) {
             /* gcd(0, n) = n, only equal to 1 when n == 1. */
             if (n == 1) sum += value;
-        } else if (_gcd_idx(k, n) == 1) {
+        } else if (gcd_idx(k, n) == 1) {
             sum += value;
         }
         /* Prepare value for next iteration: 2^(k+1). */

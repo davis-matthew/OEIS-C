@@ -11,13 +11,15 @@
  *            element of this triangle read row‑by‑row
  * Range:     i8 n <= 12, i16 n <= 23, i32 n <= 49, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
 
     /* Allocate two rows of size r+1 (use index 1..r) */
     size_t sz = (size_t)(r + 1);
-    seq_t *prev = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *cur  = mem_new(seq_t, sz);
     if (!prev || !cur) {
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return (seq_t)0;
     }
 
@@ -59,8 +61,8 @@ seq_t a(idx_t n)
     seq_t result = prev[pos];
 
     /* Free temporary arrays */
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
 
     return result;
 }

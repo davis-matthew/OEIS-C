@@ -12,12 +12,14 @@
  *            n-1), where the coefficients p_i are listed below
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 41, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 42 terms through n = 207 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i < 13 && i <= limit; ++i) {
         idx_t m = limit - i;          /* n-1-i */
         idx_t k = m + 7;              /* choose k, 7 */
-        seq_t b = binom(k, 7);        /* binom(k,7) */
+        seq_t b = binomial(k, 7);        /* binom(k,7) */
         int c = coeffs[i];
         if (c > 0)
             pos += b * (seq_t)c;

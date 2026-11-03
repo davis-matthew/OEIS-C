@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = (19*5^n - 16*3^n + 1)/4
- * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 22, u128 n <= 22,
+ * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 26, u128 n <= 54,
  *            big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 39 terms through n = 972 (2026-11-03)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,10 +16,26 @@
 /* Recurrence: a(n) = 9*a(n-1) - 23*a(n-2) + 15*a(n-3),  a(0)=1, a(1)=12, a(2)=83 */
 
 #include <stdint.h>
-#include "../utils/mul_small.h"
+
+/* intermediate type: 128 bits at the fixed widths, seq_t for big (where
+   __int128 would truncate) */
+#ifdef __cplusplus
+typedef seq_t wide_u;
+typedef seq_t wide_s;
+#else
+typedef unsigned __int128 wide_u;
+typedef __int128 wide_s;
+#endif
+
+static inline seq_t mul_small(seq_t x, unsigned k)
+{
+    /* Use 128‑bit intermediate to avoid overflow. */
+    wide_u r = (wide_u)x * k;
+    return (seq_t)r;
+}
 
 #ifndef __SIZEOF_INT128__
-#error "__int128 support is required for this implementation"
+#error "wide_s support is required for this implementation"
 #endif
 
 seq_t a(idx_t n)

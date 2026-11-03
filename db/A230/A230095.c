@@ -11,7 +11,8 @@
  *            distinct prime factors, caching found values for repeated calls
  * Range:     u8 n <= 38, u16 n <= 8186, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9545 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- integer square root (64‑bit) ------------------------------ */
 static uint64_t isqrt_uint64(uint64_t v)
@@ -133,7 +135,7 @@ static void grow_cache(size_t needed)
 {
     if (needed <= cache_cap) return;
     cache_cap = cache_cap ? cache_cap * 2 : 16;
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 /* ---------- public sequence function --------------------------------- */

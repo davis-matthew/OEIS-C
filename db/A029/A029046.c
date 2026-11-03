@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    seq_t as well as for 8–128 bit unsigned types. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;   /* memoised table of partitions for 0..max_n */
 static idx_t dp_size = 0;  /* current number of allocated entries */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* If the table is too small, rebuild it for 0..n */
     if (!dp || dp_size <= n) {
         idx_t newsize = n + 1;
-        seq_t *newdp = (seq_t *)malloc(newsize * sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, newsize);
         if (!newdp) return 0; /* allocation failed – return 0 */
         /* initialise */
         for (idx_t i = 0; i < newsize; ++i) newdp[i] = 0;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
             }
         }
         /* replace old table */
-        free(dp);
+        mem_free(dp);
         dp = newdp;
         dp_size = newsize;
     }

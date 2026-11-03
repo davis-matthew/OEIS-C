@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n) + 2 - (prime(n) mod 4)
  * Range:     u8 n <= 54, u16 n <= 6542, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9701 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Dynamic storage for primes as seq_t values (0‑based index). */
 static seq_t *prime_tbl = NULL;
@@ -32,7 +34,7 @@ static void ensure_capacity(idx_t need)
     idx_t new_cap = prime_cap ? prime_cap << 1 : need;
     if (new_cap < need)
         new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(prime_tbl, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_tbl, new_cap);
     if (!tmp)
         abort();                 /* out of memory */
     prime_tbl = tmp;

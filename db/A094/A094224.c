@@ -7,7 +7,8 @@
  * Formula:   a(n) = min_{k=1..9} ord_10((10*n-1)/gcd(k,10*n-1))
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   gcd, multiplicative_order_of_10
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,22 @@
 /* where ord_10(m) is the multiplicative order of 10 modulo m. */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/multiplicative_order_of_10.h"
+
+static inline seq_t multiplicative_order_of_10(seq_t m)
+{
+    /* 10n - 1 never divisible by 2 or 5, so m is coprime to 10.
+       For m == 1 we define the order to be 1 (single digit). */
+    if (m == (seq_t)1) return (seq_t)1;
+    seq_t order = (seq_t)1;
+    seq_t val   = ((seq_t)10) % m;
+    while (val != (seq_t)1) {
+        val = (val * ((seq_t)10)) % m;
+        ++order;
+    }
+    return order;
+}
 
 seq_t a(idx_t n)
 {

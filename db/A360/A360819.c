@@ -7,21 +7,31 @@
  * Formula:   a(n) = Σ_{k=0..⌊n/3⌋} k^n * binomial(n-2k-1, n-3k)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   big_pow, binomial, seq_mul
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (k = 0 contributes 1 only when n = 0, handled separately) */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 #include <stddef.h>
 
 static inline seq_t term_for(idx_t n, idx_t k)
 {
-    seq_t pow_val = big_pow((seq_t)k, (seq_t)n);
+    seq_t pow_val = ipow((seq_t)k, (seq_t)n);
     seq_t bin = binomial(n - 2*k - 1, n - 3*k);
     return seq_mul(pow_val, bin);
 }

@@ -11,12 +11,14 @@
  *            (2n-2)
  * Range:     u8 n <= 17, u16 n <= 50, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 52 terms through n = 53 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* cumulative number of entries up to row r (inclusive) */

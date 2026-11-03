@@ -8,7 +8,8 @@
  *            prime(k) % 1000 (prime(k) is the k‑th prime number); offset 1
  * Range:     u8 none, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   grow_array_uint64, is_prime
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/grow_array_uint64.h"
+
+/* --- helpers --------------------------------------------------- */
+static void grow_array_uint64(uint64_t **p, size_t *cap, size_t *used, size_t new_used)
+{
+    if (*cap < new_used) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < new_used) new_cap <<= 1;
+        *p = (uint64_t *)realloc(*p, new_cap * sizeof(uint64_t));
+        *cap = new_cap;
+    }
+    *used = new_used;
+}
 
 /* --- prime storage -------------------------------------------- */
 static uint64_t *prime_arr   = NULL;   /* array of primes, 0‑based: prime_arr[0] = 2 */

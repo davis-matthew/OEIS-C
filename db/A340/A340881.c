@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{k=0}^{n-1} 2^(k(k+1)/2) * Π_{j=k+1}^{n-1} (2^j - 1)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 15,
  *            big any n
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

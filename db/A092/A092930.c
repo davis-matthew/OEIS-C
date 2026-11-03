@@ -10,7 +10,8 @@
  *            from (a(1)+…+a(n))/n = c_n
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global cache of the first few composite numbers. */
 static seq_t *comps = NULL;          /* composites, 0‑based index */
@@ -67,7 +69,7 @@ static void ensure_comps(idx_t need)
     /* Allocate or enlarge storage for composites. */
     if (comps_cap < need) {
         comps_cap = need * 2;
-        seq_t *tmp = (seq_t*)realloc(comps, comps_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, comps, comps_cap);
         comps = tmp;
     }
 
@@ -100,8 +102,8 @@ static void ensure_a(idx_t n)
 
     if (a_cap < n) {
         a_cap = n * 2;
-        seq_t *tmp_a   = (seq_t*)realloc(a_arr,   a_cap * sizeof(seq_t));
-        seq_t *tmp_sum = (seq_t*)realloc(sum_arr, (a_cap + 1) * sizeof(seq_t));
+        seq_t *tmp_a   = mem_resize(seq_t, a_arr, a_cap);
+        seq_t *tmp_sum = mem_resize(seq_t, sum_arr, (a_cap + 1));
         a_arr   = tmp_a;
         sum_arr = tmp_sum;
     }

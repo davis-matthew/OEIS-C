@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(1) = 1
    For n > 1, a(n) = 9 * a(n-1) + d(n-1), where d(k) = {1,3,0}[k mod 3] */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;     /* cache[0] unused, cache[1] = a(1) */
 static idx_t  cached_up_to = 0;   /* largest n for which cache[n] is defined */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         size_t new_size = (size_t)(n + 1) * sizeof(seq_t);
 
         /* Allocate or grow the cache */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, (new_size) / sizeof(seq_t));
         if (tmp == NULL) {                   /* allocation failed */
             /* In a competition environment, aborting is safer than returning garbage */
             abort();

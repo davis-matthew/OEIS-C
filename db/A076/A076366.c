@@ -12,13 +12,15 @@
  *            composite, A048864(x) = φ(x) − π(x−1) if x is prime,...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9365 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Adjust these limits if larger ranges are required.  The defaults
@@ -83,7 +85,7 @@ static void precompute(void)
     }
 
     /* allocate counter array and zero it */
-    count_arr = (seq_t *)calloc((size_t)MAX_N + 1, sizeof(seq_t));
+    count_arr = mem_new(seq_t, (size_t)MAX_N + 1);
 
     /* iterate over x, compute A048864(x) and tally */
     for (int x = 1; x <= MAX_X; ++x) {

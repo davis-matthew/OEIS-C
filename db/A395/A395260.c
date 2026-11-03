@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n^4 + 4*n^3 + 17*n^2 + 14*n + 12)/12
  * Range:     u8 n <= 2, u16 n <= 14, u32 n <= 474, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9731 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

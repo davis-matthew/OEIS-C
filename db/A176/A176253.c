@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   big_add, has_no_five
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,41 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/big_add.h"
-#include "../utils/has_no_five.h"
+
+/* a and b are arrays of decimal digits (LSB first), len_* are lengths.
+ * The result is stored in *out, which may be realloc'd.              */
+static void big_add(const uint8_t *a, size_t la,
+                    const uint8_t *b, size_t lb,
+                    uint8_t **out, size_t *len_out)
+{
+    size_t max = la > lb ? la : lb;
+    size_t new_cap = max + 1;
+    uint8_t *res = (uint8_t *)realloc(*out, new_cap);
+    if (!res) abort();
+    uint32_t carry = 0;
+    size_t i;
+    for (i = 0; i < max; ++i) {
+        uint32_t da = (i < la) ? a[i] : 0;
+        uint32_t db = (i < lb) ? b[i] : 0;
+        uint32_t sum = da + db + carry;
+        res[i] = sum % 10;
+        carry  = sum / 10;
+    }
+    if (carry) {
+        res[i++] = carry;
+    }
+    *len_out = i;
+    *out     = res;
+}
+
+/* check if a decimal number (digits LSB first) contains the digit 5 ----- */
+static bool has_no_five(const uint8_t *digits, size_t len)
+{
+    for (size_t i = 0; i < len; ++i) {
+        if (digits[i] == 5) return false;
+    }
+    return true;
+}
 
 /* static state ========================================================== */
 

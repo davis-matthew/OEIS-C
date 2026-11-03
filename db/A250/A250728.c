@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 7, u32 n <= 49, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
 
         /* allocate cache for a[0]..a[17] (index 0 unused for -) */
         cache_cap = 18;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         assert(cache);
         cache[0] = 0;          /* unused */
         cache_max = 0;         /* no values computed yet */
@@ -116,7 +118,7 @@ seq_t a(idx_t n)
             /* store result */
             if (cache_cap <= cache_max + 1) {
                 cache_cap = cache_max + 2;
-                seq_t *tmp = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 assert(tmp);
                 cache = tmp;
             }
@@ -132,7 +134,7 @@ seq_t a(idx_t n)
         /* ensure cache has enough space  */
         if (cache_cap <= n) {
             cache_cap = n + 1;
-            seq_t *tmp = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             assert(tmp);
             cache = tmp;
         }

@@ -10,7 +10,8 @@
  *            simple bignums
  * Range:     u8 n <= 47, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   A3067_cmp, A3067_mul, A3067_sub, A3067_win
+ * Validated: standard, pass, 73 terms through n = 908 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,44 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/A3067_cmp.h"
-#include "../utils/A3067_mul.h"
-#include "../utils/A3067_sub.h"
-#include "../utils/A3067_win.h"
+
+static int A3067_cmp(const uint32_t *a, size_t la, const uint32_t *b, size_t lb) {
+    size_t m = la > lb ? la : lb;
+    for (size_t i = m; i-- > 0;) {
+        uint32_t x = i < la ? a[i] : 0, y = i < lb ? b[i] : 0;
+        if (x != y) return x < y ? -1 : 1;
+    }
+    return 0;
+}
+
+static void A3067_mul(uint32_t *x, size_t *len, uint64_t m) {
+    uint64_t c = 0;
+    for (size_t i = 0; i < *len; i++) {
+        uint64_t v = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)v;
+        c = v >> 32;
+    }
+    while (c) { x[(*len)++] = (uint32_t)c; c >>= 32; }
+}
+
+static void A3067_sub(uint32_t *a, size_t la, const uint32_t *b, size_t lb) {
+    int64_t borrow = 0;
+    for (size_t i = 0; i < la; i++) {
+        int64_t d = (int64_t)a[i] - (int64_t)(i < lb ? b[i] : 0) - borrow;
+        borrow = d < 0;
+        a[i] = (uint32_t)d;
+    }
+}
+
+static uint64_t A3067_win(const uint32_t *x, size_t len, size_t s) {
+    size_t i = s / 32, off = s % 32;
+    unsigned __int128 v = 0;
+    for (int k = 2; k >= 0; k--) {
+        v <<= 32;
+        if (i + (size_t)k < len) v |= x[i + (size_t)k];
+    }
+    return (uint64_t)(v >> off);
+}
 
 static uint32_t *A3067_N, *A3067_D, *A3067_R, *A3067_T;
 static size_t A3067_ln, A3067_ld, A3067_cap;

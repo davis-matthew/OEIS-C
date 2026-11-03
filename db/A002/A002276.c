@@ -7,6 +7,7 @@
  * Formula:   a(n) = 10*a(n-1) + 2, a(0) = 0 (i.e. a(n) = 2*(10^n - 1)/9)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 39,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 196 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

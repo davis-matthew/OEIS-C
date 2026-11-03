@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 52, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   is_seen
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_seen.h"
+#include "../utils/mem.h"
+
+static bool is_seen(const seq_t *seen, size_t seen_size, seq_t val)
+{
+    for (size_t i = 0; i < seen_size; ++i)
+        if (seen[i] == val) return true;
+    return false;
+}
 
 /* ---------- helpers ---------- */
 
@@ -53,7 +61,7 @@ static size_t seen_capacity = 0;
 static void grow_cache(void)
 {
     size_t new_cap = (cache_capacity == 0) ? 1 : cache_capacity * 2;
-    seq_t *ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, cache, new_cap);
     if (!ptr) { abort(); }
     cache = ptr;
     cache_capacity = new_cap;
@@ -62,7 +70,7 @@ static void grow_cache(void)
 static void grow_seen(void)
 {
     size_t new_cap = (seen_capacity == 0) ? 1 : seen_capacity * 2;
-    seq_t *ptr = (seq_t *)realloc(seen, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, seen, new_cap);
     if (!ptr) { abort(); }
     seen = ptr;
     seen_capacity = new_cap;

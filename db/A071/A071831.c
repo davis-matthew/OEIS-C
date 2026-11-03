@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   pow2, seq_mul
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,15 @@
    This satisfies the recurrence a(n+7)=2*a(n) for n≥21.
 */
 #include <stdint.h>
-#include "../utils/pow2.h"      /* seq_t pow2(idx_t exp);  */
-#include "../utils/seq_mul.h"   /* seq_t seq_mul(seq_t a, seq_t b); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/pow2.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static const seq_t base_numer[7] = {1, 9, 5, 4, 3, 5, 15};
 /* exponent of 2 in the denominator of the base ratios */

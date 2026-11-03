@@ -7,16 +7,42 @@
  * Formula:   a(n) = i*j*(10^k-1)*(10^m-1)/81 (k,m ≥ 0, 0 ≤ i,j ≤ 9)
  * Range:     u8 n <= 13, u16 n <= 48, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   max_rep_len_for_type, pow10, seq_cmp
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>          /* malloc, free, qsort */
 #include <stdint.h>          /* uintptr_t for casts if needed */
-#include "../utils/pow10.h"  /* seq_t pow10(idx_t) */
-#include "../utils/seq_cmp.h" /* int seq_cmp(const void *, const void *) */
-#include "../utils/max_rep_len_for_type.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
+
+/* Maximum repdigit length needed to satisfy n up to about 10 000.
+   18 works for 64‑bit seq_t; 25 is more than enough for arbitrary precision. */
+static inline idx_t max_rep_len_for_type(void)
+{
+    return (sizeof(seq_t) <= 8) ? 18ULL : 25ULL;
+}
 
 static seq_t *seq_data = NULL;      /* pointer to the generated sorted list */
 static size_t seq_len  = 0;          /* number of unique values stored */
@@ -29,7 +55,7 @@ static void generate_sequence(void)
     const idx_t L = max_rep_len_for_type();               /* repdigit length */
     const size_t max_candidates = (size_t)L * (size_t)L * 81 + 1; /* +1 for zero */
 
-    seq_data = (seq_t*)malloc(max_candidates * sizeof(seq_t));
+    seq_data = mem_new(seq_t, max_candidates);
     if (!seq_data) exit(1);
     seq_len = 0;
     seq_data[seq_len++] = (seq_t)0;        /* zero product (k or m == 0) */
@@ -69,7 +95,7 @@ static void generate_sequence(void)
     }
 
     /* Sort and remove duplicates in place. */
-    qsort(seq_data, seq_len, sizeof(seq_t), seq_cmp);
+    mem_qsort(seq_data, seq_len, sizeof(seq_t), seq_cmp);
     size_t uniq = 1;
     for (size_t i = 1; i < seq_len; ++i) {
         if (seq_data[i] != seq_data[uniq - 1]) {

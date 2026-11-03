@@ -12,12 +12,14 @@
  *            a(10)=14555468, a(11)=119758148, a(12)=382358832
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 26, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* 1‑based cache */
 static size_t a_cache_cap = 0;  /* cache capacity (number of cells) */
@@ -32,13 +34,12 @@ static void ensure_cache(idx_t N)
     if (needed < 13) needed = 13;               /* indices 0..12 */
     if (a_cache == NULL)
     {
-        a_cache = (seq_t*)malloc(needed * sizeof(seq_t));
+        a_cache = mem_new(seq_t, needed);
         a_cache_cap = needed;
     }
     else if (a_cache_cap < needed)
     {
-        a_cache = (seq_t*)realloc(a_cache,
-                                  needed * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, needed);
         a_cache_cap = needed;
     }
 

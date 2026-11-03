@@ -13,13 +13,15 @@
  *            f(1) = 1, f(2) = 8, * f(i) = 8*f(i-1) + f(...
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 23, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Determine row r such that r(r+1)/2 <= n < (r+1)(r+2)/2 */
@@ -34,9 +36,9 @@ seq_t a(idx_t n) {
 
     /* Allocate temporary arrays */
     size_t sz = (size_t)(r + 1);
-    seq_t *prev = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *f    = (seq_t *)malloc((sz + 1) * sizeof(seq_t));  /* f[1..r] */
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *curr = mem_new(seq_t, sz);
+    seq_t *f    = mem_new(seq_t, (sz + 1));  /* f[1..r] */
 
     /* Compute the Fibonacci-like sequence f[1..r] */
     f[1] = (seq_t)1;
@@ -62,8 +64,8 @@ seq_t a(idx_t n) {
 
     seq_t result = prev[k];   /* a(n) = t(r,k) */
 
-    free(prev);
-    free(curr);
-    free(f);
+    mem_free(prev);
+    mem_free(curr);
+    mem_free(f);
     return result;
 }

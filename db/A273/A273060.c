@@ -7,6 +7,7 @@
  * Formula:   a(n) = phi(n!)/phi(n)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 421 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 #include <stdlib.h>          /* free() */
 #include <stdint.h>          /* uint64_t */
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /*  Static cache for prime numbers up to the largest requested n.  */

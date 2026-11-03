@@ -7,13 +7,15 @@
  * Formula:   a(n) = (n-2)^4 - a(n-1) - a(n-2), a(1)=0, a(2)=0
  * Range:     u8 n <= 6, u16 n <= 22, u32 n <= 337, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 4857 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached sequence terms.
    cache[0] = a(1), cache[1] = a(2), … */
@@ -30,7 +32,7 @@ static void ensure_cache_capacity(size_t needed)
     while (new_cap < needed) new_cap *= 2;
 
     /* Use an explicit cast so the code is valid in C++ as well. */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Initialise cache on the first call */
     if (cache == NULL) {
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 0; /* a(1) */
         cache[1] = 0; /* a(2) */
         cache_size = 2;

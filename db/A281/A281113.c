@@ -9,9 +9,10 @@
  * Formula:   a(n) = sum over all unordered factorizations of n of the product
  *            of g(part), where g(m) is the number of unordered factorizations
  *            of m. This function implements the definition directly
- * Range:     u8 n <= 191, u16 n <= 9591, u32 n <= 9591, u64 n <= 9591,
- *            u128 n <= 9591, big any n
- * Helpers:   divisor_count, gcd
+ * Range:     u8 n <= 191, u16 n <= 17279, u32 n <= 30030, u64 n <= 30030,
+ *            u128 n <= 30030, big any n
+ * Validated: standard, pass, 97 terms through n = 9591 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,13 +27,33 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper functions that may be provided by the
    utilities library.  They must be defined elsewhere.  If they are not
    needed for the build, the macros will be ignored. */
 #ifndef NO_UTILS
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/divisor_count.h"
+
+/* Smallest divisor count helper */
+static inline uint64_t divisor_count(uint64_t x, uint64_t *pr, int pcnt)
+{
+    uint64_t d = 1;
+    for (int i = 0; i < pcnt && (uint64_t)pr[i] * pr[i] <= x; ++i) {
+        uint64_t p = pr[i];
+        if (x % p == 0) {
+            uint64_t e = 0;
+            while (x % p == 0) {
+                x /= p;
+                ++e;
+            }
+            d *= (e + 1);
+        }
+    }
+    if (x > 1) d *= 2;          /* remaining prime factor */
+    return d;
+}
 #endif
 
 /* External linkage as required */
@@ -53,7 +74,7 @@ static void ensure_cache(idx_t idx)
     if (cache_size > idx)
         return;
     size_t new_cap = (size_t)(idx + 1);   /* make space for 0..idx */
-    g_cache = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+    g_cache = mem_resize(seq_t, g_cache, new_cap);
     if (!g_cache)
         abort(); /* out of memory */
     for (idx_t i = cache_size; i <= idx; ++i)

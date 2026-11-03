@@ -9,13 +9,15 @@
  *            (-1)^{Ω(k)} is the Liouville function
  * Range:     u8 n <= 526, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 8323 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache data */
 static idx_t   max_n  = 0;
@@ -34,7 +36,7 @@ static void extend_cache(idx_t n)
     /* Allocate new arrays */
     idx_t   *new_spf    = (idx_t*)malloc((new_n + 1) * sizeof(idx_t));
     int8_t  *new_lambda = (int8_t*)malloc((new_n + 1) * sizeof(int8_t));
-    seq_t   *new_a      = (seq_t*)malloc((new_n + 1) * sizeof(seq_t));
+    seq_t   *new_a      = mem_new(seq_t, (new_n + 1));
 
     if (!new_spf || !new_lambda || !new_a)
         exit(EXIT_FAILURE);   /* memory exhausted */
@@ -74,7 +76,7 @@ static void extend_cache(idx_t n)
     /* Replace old caches */
     free(spf);
     free(lambda);
-    free(a_cache);
+    mem_free(a_cache);
     spf    = new_spf;
     lambda = new_lambda;
     a_cache = new_a;

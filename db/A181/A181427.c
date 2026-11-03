@@ -7,6 +7,7 @@
  * Formula:   a(n) = n + n^2 if n odd, n + n^3 if n even
  * Range:     u8 n <= 7, u16 n <= 41, u32 n <= 1625, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 61 terms through n = 8633 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

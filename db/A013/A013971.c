@@ -8,15 +8,18 @@
  * Formula:   a(n) = sigma_23(n) = sum_{d|n} d^23
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 6, u128 n <= 47,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 29 terms through n = 9779 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
 
         /* Compute p^23 once (may overflow 64‑bit if it doesn't fit,
            but that's acceptable – the result will overflow as well). */
-        seq_t p_pow23 = big_pow((seq_t)p, (seq_t)23);
+        seq_t p_pow23 = ipow((seq_t)p, (seq_t)23);
 
         /* Compute 1 + p^23 + (p^23)^2 + … + (p^23)^e  */
         seq_t term = 1;

@@ -8,7 +8,8 @@
  *            floor((sqrt(8*n+1)-1)/2), k = n - r*(r+1)/2
  * Range:     u8 n <= 16, u16 n <= 39, u32 n <= 126, u64 n <= 419,
  *            u128 n <= 1565, big any n
- * Helpers:   build_primes_upto, pow_uint, seq_mul
+ * Validated: standard, pass, 71 terms through n = 4897 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,17 @@
    T(n,k)=binomial(3*n-k,3*n-3*k), indexed in row-major order. */
 
 #include <math.h>
-#include "../utils/pow_uint.h"       /* provides seq_t pow_uint(uint64_t base, idx_t exp); */
-#include "../utils/seq_mul.h"        /* provides seq_t seq_mul(seq_t a, seq_t b); */
-#include "../utils/build_primes_upto.h" /* provides void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 #include <stdlib.h> /* for malloc, free */
 
 /* Prime factor exponent in n! (Legendre's formula) */
@@ -75,7 +84,7 @@ static seq_t binom_safe(idx_t n, idx_t k)
         int e = legendre_exp(n, p) - legendre_exp(k, p) - legendre_exp(n - k, p);
         if (e <= 0)
             continue;
-        seq_t term = pow_uint((uint64_t)p, (idx_t)e);
+        seq_t term = ipow_u64_idx((uint64_t)p, (idx_t)e);
         result = seq_mul(result, term);
     }
 

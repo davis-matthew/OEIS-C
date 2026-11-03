@@ -6,8 +6,9 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = sqrt(n) if n is a perfect square, otherwise 1. a(0) = 0.
  *            Uses a binary‑search integer square root
- * Range:     u8 n <= 9862, u16 n <= 9862, u32 n <= 9862, u64 n <= 9862,
- *            u128 n <= 9862, big any n
+ * Range:     u8 n <= 65535, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9862 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

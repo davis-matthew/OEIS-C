@@ -9,13 +9,15 @@
  *            among a(1)…a(n‑1)
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9393 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* comparison for qsort on idx_t */
 static int cmp_idx(const void *a, const void *b) {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* expand cache if needed */
     if ((size_t)n + 1 > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, ((size_t)n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, ((size_t)n + 1));
         if (!tmp) abort();    /* simple OOM handling */
         cache = tmp;
         cache_size = (size_t)n + 1;

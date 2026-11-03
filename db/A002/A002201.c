@@ -13,7 +13,8 @@
  *            (Ramanujan's construction)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 24, u128 n <= 37,
  *            big any n
- * Helpers:   sh_eps, sh_isprime
+ * Validated: standard, pass, 41 terms through n = 365 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,11 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/sh_eps.h"
-#include "../utils/sh_isprime.h"
+#include "../utils/is_prime_u64.h"
+
+static long double sh_eps(uint64_t p, unsigned k) {
+    return log1pl(1.0L / (long double)(k + 1)) / logl((long double)p);
+}
 
 static uint64_t *s_choice = NULL;   /* prime multiplied in at each step */
 static idx_t s_count = 0;
@@ -71,7 +75,7 @@ static void sh_extend(idx_t n) {
             s_np++;
             sh_ensure_pcap(s_np + 1);
             uint64_t q = s_primes[s_np - 1] + 1;
-            while (!sh_isprime(q)) q++;
+            while (!is_prime_u64(q)) q++;
             s_primes[s_np] = q;
             s_exp[s_np] = 0;
             s_eps[s_np] = sh_eps(q, 0);

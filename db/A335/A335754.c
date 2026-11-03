@@ -11,20 +11,22 @@
  *            G.f. = ∏_{k≥1} (1+q^{3k-1}) * (1+q^{3k-2})/(1−q^{3k-2})
  * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate coefficient arrays */
-    seq_t *dp  = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *tmp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, (n + 1));
+    seq_t *tmp = mem_new(seq_t, (n + 1));
     if (!dp || !tmp) {
-        free(dp); free(tmp);
+        mem_free(dp); mem_free(tmp);
         return (seq_t)0;          /* unlikely failure */
     }
 
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(tmp);
+    mem_free(dp);
+    mem_free(tmp);
     return result;
 }

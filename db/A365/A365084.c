@@ -8,12 +8,14 @@
  *            initial values a(0)=1, a(1)=1, a(2)=-4, a(3)=6, a(4)=6, a(5)=-49
  * Range:     i8 n <= 7, i16 n <= 13, i32 n <= 26, i64 n <= 30, i128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for sequence values */
 static seq_t *seq_cache      = NULL; /* array of computed values   */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
         return;
 
     size_t new_cap = need * 2;
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_cache) {
         /* Abort on allocation failure */
         abort();

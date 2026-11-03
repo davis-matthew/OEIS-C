@@ -8,7 +8,8 @@
  *            p(k+1) + p(k+4) (p(k) is the k‑th prime)
  * Range:     u8 n <= 49, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint64_t *primes_arr = NULL;
 static size_t primes_cnt = 0;
@@ -67,7 +69,7 @@ static void compute_valid_indices(void)
         if (left == right) ++total;
     }
 
-    seq_t *tmp = (seq_t*)malloc(total * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, total);
     if (!tmp) exit(1);
 
     /* Record them */
@@ -78,7 +80,7 @@ static void compute_valid_indices(void)
         if (left == right) tmp[pos++] = (seq_t)k;
     }
 
-    free(validIdx_arr);
+    mem_free(validIdx_arr);
     validIdx_arr = tmp;
     valid_cnt = total;
 }

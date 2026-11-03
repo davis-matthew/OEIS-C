@@ -8,13 +8,15 @@
  *            (-2*n-6)*a(n+2) + a(n+3) = 0, a(0)=1, a(1)=1, a(2)=8
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 388 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for previously computed terms */
 static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* initial capacity */
         cache_cap = (n > 10) ? (n + 1) : 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         /* initialise base terms */
         cache[0] = (seq_t)1;
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap <= n) {
         size_t new_cap = cache_cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();
         cache = new_cache;
         cache_cap = new_cap;

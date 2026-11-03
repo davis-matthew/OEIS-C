@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   build_primes_upto, floor_sqrt
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Static cache of primes */
 static uint64_t *primes      = NULL;   /* array of primes up to current_limit */
@@ -69,7 +90,7 @@ static void ensure_terms(idx_t need) {
                     /* Append to terms cache. */
                     if (terms_len == terms_cap) {
                         size_t new_cap = terms_cap ? terms_cap * 2 : 64;
-                        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                         if (!tmp) abort();                 /* allocation failure */
                         terms = tmp;
                         terms_cap = new_cap;

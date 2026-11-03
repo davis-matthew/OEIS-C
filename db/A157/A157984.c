@@ -7,6 +7,7 @@
  * Formula:   a(n) = n!/(7 * 20!) (for n ≥ 21)
  * Range:     u8 n <= 22, u16 n <= 24, u32 n <= 27, u64 n <= 34, u128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 16 terms through n = 36 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

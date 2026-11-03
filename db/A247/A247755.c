@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 97, u16 n <= 1991, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 8250 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Rank of each digit in German alphabetical order:
    8(acht) < 3(drei) < 1(eins) < 5(fünf) < 9(neun) < 0(null)
@@ -63,8 +65,7 @@ seq_t a(idx_t n)
         if (is_valid(next_scan)) {
             if (cache_count == cache_capacity) {
                 idx_t new_cap = cache_capacity ? cache_capacity * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                              new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_capacity = new_cap;
             }

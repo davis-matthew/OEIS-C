@@ -11,12 +11,25 @@
  *            expansion)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binom10
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom10.h"
+/* binom10(m) = C(m,10) for m >= 10, 0 for m < 10.
+   Computed multiplicatively to keep intermediate values small. */
+static seq_t binom10(idx_t m)
+{
+    if (m < (idx_t)10) return (seq_t)0;
+    seq_t r = (seq_t)1;
+    for (idx_t i = (idx_t)1; i <= (idx_t)10; ++i)
+    {
+        r = r * (seq_t)(m - (idx_t)10 + i);
+        r = r / (seq_t)i;      /* exact division */
+    }
+    return r;
+}
 static const seq_t coeff[9] = {
     (seq_t)1,
     (seq_t)112,

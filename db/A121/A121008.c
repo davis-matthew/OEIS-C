@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   catalan
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 */
 
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     if (Ncap <= n) {
         idx_t newcap = Ncap ? Ncap << 1 : 1;
         while (newcap <= n) newcap <<= 1;
-        N = (seq_t *)realloc(N, newcap * sizeof(seq_t));
+        N = mem_resize(seq_t, N, newcap);
         for (idx_t i = Ncap; i < newcap; ++i) N[i] = 0;
         Ncap = newcap;
     }

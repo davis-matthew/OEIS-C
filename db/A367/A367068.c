@@ -11,7 +11,8 @@
  *            generated simultaneously with a(n)
  * Range:     u8 n <= 23, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;              /* highest n computed so far */
 static seq_t *a_arr = NULL;          /* a values, 1‑based */
@@ -35,11 +37,11 @@ static void ensure_array_cap(idx_t n)
     if ((idx_t)array_cap > n) return;
     size_t new_cap = array_cap ? array_cap << 1 : 8;
     while ((size_t)new_cap <= (size_t)n) new_cap <<= 1;
-    a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-    b_arr = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
+    b_arr = mem_resize(seq_t, b_arr, new_cap);
     if (new_cap > array_cap) {
-        memset(a_arr + array_cap, 0, (new_cap - array_cap) * sizeof(seq_t));
-        memset(b_arr + array_cap, 0, (new_cap - array_cap) * sizeof(seq_t));
+        mem_set(a_arr + array_cap, 0, (new_cap - array_cap) * sizeof(seq_t));
+        mem_set(b_arr + array_cap, 0, (new_cap - array_cap) * sizeof(seq_t));
     }
     array_cap = new_cap;
 }

@@ -10,15 +10,17 @@
  *            n by * r = floor((sqrt(8*n+1)-1)/2), c = n - r*(r+1)/2. *
  *            Recurrence for the triangle: T(0,0)=1; T(r,0)=1; T(r,r)=(2r-1)!!
  *            ; * T(r,c)=T(r-1,c)+(2r-1)*T(r-1,c-1). This fun...
- * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 44, u64 n <= 44, u128 n <= 44,
- *            big any n
- * Helpers:   int128_sqrt
+ * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 73, u64 n <= 183,
+ *            u128 n <= 459, big any n
+ * Validated: standard, pass, 61 terms through n = 9363 (2026-11-03)
+ * Helpers:   isqrt_u128_to_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/int128_sqrt.h"
+#include "../utils/isqrt_u128_to_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,13 +29,13 @@ seq_t a(idx_t n)
 
     /* Determine row r and column c of the flattened triangle. */
     unsigned __int128 t = (unsigned __int128)8 * n + 1;
-    idx_t fsqrt = int128_sqrt(t);           /* floor(sqrt(8*n+1)) */
+    idx_t fsqrt = isqrt_u128_to_idx(t);           /* floor(sqrt(8*n+1)) */
     idx_t r = (fsqrt - 1) / 2;              /* row index */
     idx_t prev = r * (r + 1) / 2;           /* number of elements before this row */
     idx_t c = n - prev;                     /* column within the row */
 
     /* Allocate column array for the current row, zero‑initialised. */
-    seq_t *row = (seq_t*)calloc((size_t)(r + 1), sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)(r + 1));
     if (!row)
         return (seq_t)0;                   /* out of memory */
 
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = row[c];
-    free(row);
+    mem_free(row);
     return result;
 }

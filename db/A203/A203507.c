@@ -11,14 +11,28 @@
  *            \sum_{d|k} 3*d * a(d-1)^{\,k/d}. The implementation memoise...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   seq_pow, seq_realloc
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -50,7 +64,7 @@ seq_t a(idx_t n)
         for (idx_t d = 1; d <= i; ++d) {
             if (i % d == 0) {
                 idx_t exp = i / d;
-                seq_t pow_val = seq_pow(aseq[d - 1], exp);
+                seq_t pow_val = ipow_idx(aseq[d - 1], exp);
                 seq_t term = pow_val * (((seq_t)3) * d);
                 Ki += term;
             }

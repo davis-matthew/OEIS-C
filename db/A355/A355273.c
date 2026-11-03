@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 3425, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime, prev_prime
+ * Validated: standard, pass, 71 terms through n = 9841 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,21 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
-#include "../utils/prev_prime.h"
+#include "../utils/mem.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 static seq_t *terms   = NULL;   /* stored sequence terms */
 static size_t   cnt    = 0;      /* number of terms stored */
@@ -30,7 +44,7 @@ static idx_t    last_p = 2;      /* last prime used to generate the next one */
 static void grow_terms(void)
 {
     size_t new_cap = (cap == 0) ? 8 : cap * 2;
-    seq_t *new_terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     if (!new_terms) abort();          /* allocation failure */
     terms = new_terms;
     cap = new_cap;

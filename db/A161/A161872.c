@@ -6,8 +6,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = smallest unhappy number in base n (or 0 if none)
- * Range:     u8 n <= 17, u16 n <= 8760, u32 n <= 8760, u64 n <= 8760,
- *            u128 n <= 8760, big any n
+ * Range:     u8 n <= 17, u16 n <= 10081, u32 n <= 10082, u64 n <= 10082,
+ *            u128 n <= 10082, big any n
+ * Validated: standard, pass, 115 terms through n = 8760 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

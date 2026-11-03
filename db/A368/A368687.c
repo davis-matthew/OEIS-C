@@ -9,12 +9,14 @@
  *            c_{k-1}+c_{k-2}+c_{k-3} for k>=4
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 38, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *c = NULL;          /* tribonacci numbers */
 static idx_t cap = 0;            /* current capacity of c[] */
@@ -29,7 +31,7 @@ static void ensure_c(idx_t n)
     while (new_cap <= n)
         new_cap *= 2;
 
-    seq_t *new_c = (seq_t *)calloc((size_t)new_cap, sizeof(seq_t));
+    seq_t *new_c = mem_new(seq_t, (size_t)new_cap);
     if (!new_c) {
         /* In a real system you would handle allocation failure */
         exit(EXIT_FAILURE);
@@ -44,7 +46,7 @@ static void ensure_c(idx_t n)
         new_c[i] = new_c[i-1] + new_c[i-2] + new_c[i-3];
 
     /* Replace the old array */
-    free(c);
+    mem_free(c);
     c = new_c;
     cap = new_cap;
 }

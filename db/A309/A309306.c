@@ -11,7 +11,8 @@
  *            but d(a*b) and d(|a‑b|) do
  * Range:     u8 n <= 10, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   divisor_count_u64, factor_u64
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   factor_u64, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdbool.h>
 
 #include "../utils/factor_u64.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* Helpers ----------------------------------------------------------- */
 
@@ -78,14 +80,14 @@ static bool is_valid_candidate(idx_t x)
         if (a == b)
             continue;               /* difference would be zero */
 
-        seq_t d_a = divisor_count_u64(a);
-        seq_t d_b = divisor_count_u64(b);
+        seq_t d_a = num_divisors(a);
+        seq_t d_b = num_divisors(b);
 
         if (xo % d_a == 0 || xo % d_b == 0)
             continue;
 
         idx_t diff = (b > a) ? b - a : a - b;
-        seq_t d_diff = divisor_count_u64(diff);
+        seq_t d_diff = num_divisors(diff);
         if (xo % d_diff != 0)
             continue;
 
@@ -107,7 +109,7 @@ static void ensure_cache_capacity(size_t needed)
     if (needed <= cache_cap)
         return;
     size_t new_cap = needed * 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort(); /* out of memory */
     cache = tmp;
     cache_cap = new_cap;

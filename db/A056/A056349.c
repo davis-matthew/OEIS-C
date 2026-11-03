@@ -11,7 +11,8 @@
  *            B(k,m)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   mu_value
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem, mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mu_value.h"
+#include "../utils/mobius_idx.h"
+#include "../utils/mem.h"
 
 /* ---------- helper: Euler φ(n) ----------------------------------- */
 static seq_t phi_value(idx_t n)
@@ -81,9 +83,9 @@ static void ensure_A343_cache(idx_t n)
     if (n < A343_cap) return;
     size_t newcap = (A343_cap > 0) ? A343_cap : 128;
     while (newcap <= (size_t)n) newcap <<= 1;
-    A343_cache   = (seq_t*)realloc(A343_cache,   newcap * sizeof(seq_t));
+    A343_cache   = mem_resize(seq_t, A343_cache, newcap);
     A343_valid  = (unsigned char*)realloc(A343_valid, newcap * sizeof(unsigned char));
-    memset(A343_cache + A343_cap, 0,            (newcap - A343_cap) * sizeof(seq_t));
+    mem_set(A343_cache + A343_cap, 0, (newcap - A343_cap) * sizeof(seq_t));
     memset(A343_valid + A343_cap, 0,            (newcap - A343_cap) * sizeof(unsigned char));
     A343_cap = newcap;
 }
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     seq_t neg = 0;
 
     for (idx_t d = 1; d * d <= n; ++d) if (n % d == 0) {
-        int mu_d = mu_value(d);
+        int mu_d = mobius_idx(d);
         if (mu_d != 0) {
             seq_t sub = A056343(n / d);
             if (mu_d > 0) pos += sub;
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
         }
         idx_t e = n / d;
         if (e != d) {
-            int mu_e = mu_value(e);
+            int mu_e = mobius_idx(e);
             if (mu_e != 0) {
                 seq_t sub = A056343(n / e);
                 if (mu_e > 0) pos += sub;

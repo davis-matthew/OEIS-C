@@ -9,12 +9,14 @@
  *            t(n) = 1299*t(n-1) - 1299*t(n-2) + t(n-3) (n ≥ 4)
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 5, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (tsize == 0) {
         tcap = (idx > 3 ? idx : 3);
-        t = (seq_t*)malloc(tcap * sizeof(seq_t));
+        t = mem_new(seq_t, tcap);
         if (!t) return 0;   /* allocation failed */
 
         /* first three terms */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if (idx > tcap) {
         size_t newcap = tcap;
         while (newcap < idx) newcap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(t, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, t, newcap);
         if (!tmp) return 0;   /* reallocation failed */
         t = tmp;
         tcap = newcap;

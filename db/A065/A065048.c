@@ -10,12 +10,14 @@
  *            of the first kind)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 418 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static arrays to keep current and previous Stirling rows */
@@ -30,13 +32,13 @@ seq_t a(idx_t n) {
     /* initialise storage on first call */
     if (!prev) {
         cap   = 1;
-        prev  = (seq_t*)malloc(cap  * sizeof(seq_t));
-        cur   = (seq_t*)malloc(cap  * sizeof(seq_t));
+        prev  = mem_new(seq_t, cap);
+        cur   = mem_new(seq_t, cap);
         if (!prev || !cur) return (seq_t)0; /* allocation failure */
 
         prev[0] = (seq_t)1;           /* s(0,0)=1 */
         a_cap   = 1;
-        a_vals  = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_vals  = mem_new(seq_t, a_cap);
         if (!a_vals) return (seq_t)0;
         current_n = 0;
     }
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     if ((size_t)n + 1 > a_cap) {
         size_t new_a_cap = a_cap ? a_cap * 2 : 1;
         while (new_a_cap < (size_t)n + 1) new_a_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(a_vals, new_a_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, new_a_cap);
         if (!tmp) return a_vals[current_n]; /* allocation failure */
         a_vals = tmp;
         a_cap  = new_a_cap;
@@ -59,8 +61,8 @@ seq_t a(idx_t n) {
         if ((size_t)r + 1 > cap) {
             size_t new_cap = cap ? cap * 2 : 1;
             while (new_cap < (size_t)r + 1) new_cap <<= 1;
-            seq_t *tmp1 = (seq_t*)realloc(prev, new_cap * sizeof(seq_t));
-            seq_t *tmp2 = (seq_t*)realloc(cur , new_cap * sizeof(seq_t));
+            seq_t *tmp1 = mem_resize(seq_t, prev, new_cap);
+            seq_t *tmp2 = mem_resize(seq_t, cur, new_cap);
             if (!tmp1 || !tmp2) return a_vals[current_n];
             prev = tmp1;
             cur  = tmp2;

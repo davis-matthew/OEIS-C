@@ -9,12 +9,14 @@
  *            2^((n-6)/2) (n even) * For odd n the term is zero
  * Range:     u8 n <= 13, u16 n <= 23, u32 n <= 49, u64 n <= 107,
  *            u128 n <= 231, big any n
+ * Validated: standard, pass, 62 terms through n = 974 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {

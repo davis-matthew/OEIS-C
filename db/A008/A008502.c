@@ -7,12 +7,30 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 44, u64 n <= 731, u128 n <= 1000,
  *            big any n
- * Helpers:   binom9_basic
+ * Validated: standard, pass, 41 terms through n = 920 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom9_basic.h"
+static seq_t binom9_basic(idx_t N)
+{
+    if (N < 9u) return 0;
+
+    /* Pascal triangle coefficients for k = 0 … 9 */
+    seq_t C[10] = { 0 };
+    C[0] = 1;
+
+    for (idx_t i = 1; i <= N; ++i) {
+        /* only indices up to min(i,9) are updated */
+        int j = (i < 9u) ? (int)i : 9;
+        for (int k = j; k >= 1; --k) {
+            C[k] += C[k-1];
+        }
+    }
+
+    return C[9];
+}
 /*  a(n) = binom(n+9,9) – binom(n,9)
  *
  *  The binomial coefficient is computed by a simple iterative

@@ -9,14 +9,18 @@
  *            (domain n ≥ 0)
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 33, u64 n <= 65, u128 n <= 127,
  *            big any n
- * Helpers:   mod_pow, pow2
+ * Validated: standard, pass, 49 terms through n = 975 (2026-11-01)
+ * Helpers:   pow2, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"  /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/pow2.h"     /* seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/pow2.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +30,7 @@ seq_t a(idx_t n)
     const uint64_t SHIFT = 27ULL;
 
     /* Compute y0 = 41^(n+27) (mod 81). The result fits in 32 bits. */
-    seq_t y0_seq = mod_pow((seq_t)41, n + SHIFT, MOD81);
+    seq_t y0_seq = powmod((seq_t)41, n + SHIFT, MOD81);
     uint32_t y0  = (uint32_t)y0_seq;   /* safe conversion – value < 81 */
 
     /* Compute 2^n */

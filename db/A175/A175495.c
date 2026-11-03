@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 77 terms through n = 8978 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* Expand the cache until we have at least n terms. */
     while (cache_len < n) {
-        uint64_t d = divisor_count_u64((uint64_t)next_k);
+        uint64_t d = num_divisors((uint64_t)next_k);
 
         bool passes;
         if (d >= 64) {
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
             /* Ensure there is space for the new term. */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* Allocation failure – unlikely, return 0 as a safe fallback. */
                     return (seq_t)0;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   calc_phi, divisor_count_u64, isPrimeGeneric, sigma_of
+ * Validated: standard, pass, 74 terms through n = 980 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem, num_divisors, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,48 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/calc_phi.h"          /* seq_t calc_phi(seq_t m) */
-#include "../utils/isPrimeGeneric.h"    /* bool isPrimeGeneric(seq_t n) */
-#include "../utils/sigma_of.h"          /* seq_t sigma_of(idx_t n) */
-#include "../utils/divisor_count_u64.h" /* uint64_t divisor_count_u64(uint64_t n) */
+#include <stddef.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Cache for the found terms */
 static seq_t *seq_cache = NULL;
@@ -39,7 +78,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = seq_cap == 0 ? 16 : seq_cap * 2;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 
@@ -47,7 +86,7 @@ static void grow_cache(size_t needed)
 static bool candidate_ok(uint64_t k)
 {
     /* φ(k)+1 must be prime */
-    seq_t phi = calc_phi((seq_t)k);
+    seq_t phi = totient_seq((seq_t)k);
     if (!isPrimeGeneric(phi + (seq_t)1))
         return false;
 
@@ -57,7 +96,7 @@ static bool candidate_ok(uint64_t k)
         return false;
 
     /* τ(k)+1 must be prime – compute divisor count */
-    uint64_t divcnt = divisor_count_u64(k);
+    uint64_t divcnt = num_divisors(k);
     if (!isPrimeGeneric((seq_t)(divcnt + 1)))
         return false;
 

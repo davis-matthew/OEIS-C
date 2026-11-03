@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 33, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const idx_t MAX_ROW = 200;          /* plenty for n≤10 000 */
 static const size_t STRIDE = MAX_ROW + 1;  /* array stride */
@@ -42,14 +44,14 @@ static void init_buffers(void)
         return;
 
     /* Allocate the 2‑D DP arrays (zeroed). */
-    dp_prev = (seq_t *)calloc(STRIDE * STRIDE, sizeof(seq_t));
-    dp_curr = (seq_t *)calloc(STRIDE * STRIDE, sizeof(seq_t));
+    dp_prev = mem_new(seq_t, STRIDE * STRIDE);
+    dp_curr = mem_new(seq_t, STRIDE * STRIDE);
 
     /* Allocate the row pointer array. */
     row_vals = (seq_t **)calloc(MAX_ROW + 1, sizeof(seq_t *));
 
     /* Row 0: T[0,0,0] = 1 */
-    row_vals[0] = (seq_t *)calloc(1, sizeof(seq_t));
+    row_vals[0] = mem_new(seq_t, 1);
     row_vals[0][0] = (seq_t)1;
     dp_prev[0] = (seq_t)1;        /* base value for row 0 */
 
@@ -89,7 +91,7 @@ static void ensure_rows(idx_t need)
         }
 
         /* Store diagonal values T[i,m,m] for m = 0..i */
-        row_vals[i] = (seq_t *)calloc((size_t)i + 1, sizeof(seq_t));
+        row_vals[i] = mem_new(seq_t, (size_t)i + 1);
         for (idx_t m = 0; m <= i; ++m)
             row_vals[i][m] = dp_curr[(size_t)m * STRIDE + m];
 

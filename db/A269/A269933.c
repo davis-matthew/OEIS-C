@@ -12,13 +12,15 @@
  *            adjacent * cells summing to 6
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define NUM_ROWS 343  /* 7^3 possible rows */
 
@@ -97,10 +99,10 @@ seq_t a(idx_t n) {
         }
 
         /* DP arrays */
-        dp0  = (seq_t*)calloc(NUM_ROWS, sizeof(seq_t));
-        dp1  = (seq_t*)calloc(NUM_ROWS, sizeof(seq_t));
-        ndp0 = (seq_t*)calloc(NUM_ROWS, sizeof(seq_t));
-        ndp1 = (seq_t*)calloc(NUM_ROWS, sizeof(seq_t));
+        dp0  = mem_new(seq_t, NUM_ROWS);
+        dp1  = mem_new(seq_t, NUM_ROWS);
+        ndp0 = mem_new(seq_t, NUM_ROWS);
+        ndp1 = mem_new(seq_t, NUM_ROWS);
 
         initialized = 1;
     }
@@ -111,7 +113,7 @@ seq_t a(idx_t n) {
     if (n >= ans_cap) {
         idx_t newcap = ans_cap ? ans_cap * 2 : 16;
         while (newcap <= n) newcap <<= 1;
-        answers = (seq_t*)realloc(answers, newcap * sizeof(seq_t));
+        answers = mem_resize(seq_t, answers, newcap);
         for (idx_t i = ans_cap; i < newcap; ++i) answers[i] = 0;
         ans_cap = newcap;
     }
@@ -133,8 +135,8 @@ seq_t a(idx_t n) {
 
     for (idx_t cur = max_cached + 1; cur <= n; ++cur) {
         /* clear new DP arrays */
-        memset(ndp0, 0, NUM_ROWS * sizeof(seq_t));
-        memset(ndp1, 0, NUM_ROWS * sizeof(seq_t));
+        mem_set(ndp0, 0, NUM_ROWS * sizeof(seq_t));
+        mem_set(ndp1, 0, NUM_ROWS * sizeof(seq_t));
 
         /* transitions */
         for (int r1 = 0; r1 < NUM_ROWS; ++r1) {

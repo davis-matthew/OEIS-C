@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 21, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   factor_u64, is_prime, pow_uint
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   factor_u64, ipow_u64_idx, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/pow_uint.h"    /* seq_t pow_uint(uint64_t base, idx_t exp); */
-#include "../utils/factor_u64.h"  /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t n); */
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* ---------- static cache of found terms ---------- */
 static seq_t *terms = NULL;
@@ -38,7 +40,7 @@ static void append_term(uint64_t val)
 {
     if (terms_cap <= terms_size) {
         size_t new_cap = terms_cap == 0 ? 16 : terms_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();
         terms = tmp;
         terms_cap = new_cap;
@@ -63,7 +65,7 @@ static void sigma_and_derivative_sum(uint64_t k, seq_t *sigma, seq_t *der_sum)
         uint64_t e  = ex[i];
 
         /* A_i = (p^{e+1} - 1)/(p-1) */
-        seq_t p_pow_e1 = pow_uint(p, e + 1);
+        seq_t p_pow_e1 = ipow_u64_idx(p, e + 1);
         seq_t A_i = (p_pow_e1 - 1) / ((seq_t)p - 1);
         A[i] = A_i;
 

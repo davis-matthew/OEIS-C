@@ -8,13 +8,25 @@
  *            decimal digits is a perfect cube (OEIS A062372)
  * Range:     u8 n <= 31, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   prod_nonzero
+ * Validated: standard, pass, 71 terms through n = 967 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/prod_nonzero.h"
+
+/* Compute the product of all non‑zero decimal digits of x. */
+static inline uint64_t prod_nonzero(uint64_t x)
+{
+    uint64_t prod = 1;
+    while (x) {
+        uint8_t d = x % 10;
+        if (d) prod *= d;
+        x /= 10;
+    }
+    return prod;
+}
 
 /* Integer floor cube root for a 64‑bit value.
    Uses binary search on the range [0, 2^21] because 2^21^3 = 2^63 > max 64‑bit. */

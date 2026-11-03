@@ -8,14 +8,36 @@
  *            10^n with 5^n | a(n) and a(n) == 1 (mod 2^n))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   a007185_pow5, seq_is_fixed_width
+ * Validated: standard, pass, 36 terms through n = 869 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/a007185_pow5.h"
+#include <stdint.h>
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t a007185_pow5(idx_t e) {
+    seq_t r = 1, b = 5;
+    while (e > 0) {
+        if (e & 1) r *= b;
+        e >>= 1;
+        if (e > 0) b *= b;
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     seq_t mask;

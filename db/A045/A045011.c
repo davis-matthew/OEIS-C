@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/cmp_seq_t.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -37,7 +49,7 @@ static void init_cache(void) {
     const idx_t MAX_LEN = 12;
     const size_t INITIAL_CAP = 20000;
     cache_cap = INITIAL_CAP;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) exit(1);
 
     for (idx_t m = 6; m <= MAX_LEN; ++m) {          /* base‑3 length     */
@@ -65,7 +77,7 @@ static void init_cache(void) {
                 /* grow storage if necessary */
                 if (cache_len == cache_cap) {
                     cache_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                     if (!tmp) exit(1);
                     cache = tmp;
                 }
@@ -75,7 +87,7 @@ static void init_cache(void) {
     }
 
     /* sort the generated numbers */
-    qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
 }
 
 seq_t a(idx_t n) {

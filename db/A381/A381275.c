@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 21, i128 n <= 22,
  *            big any n
- * Helpers:   alloc_seq_array, binomial
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,15 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/alloc_seq_array.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +50,7 @@ seq_t a(idx_t n)
 
         /* free the old cache if it existed */
         if (cache) {
-            free(cache);
+            mem_free(cache);
         }
 
         /* assign the new cache and update size */

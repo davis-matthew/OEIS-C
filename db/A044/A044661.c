@@ -10,14 +10,36 @@
  *            * Computed by brute‑force search
  * Range:     u8 n <= 3, u16 n <= 890, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   contains_32
+ * Validated: standard, pass, 55 terms through n = 965 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/contains_32.h"
+
+/* Check whether a given number x (in base 9) contains the adjacent
+ * digits 3 followed by 2. */
+static bool contains_32(seq_t x)
+{
+    if (x == 0) return false;
+
+    unsigned char digits[128];   /* enough for any 64‑bit value */
+    size_t len = 0;
+
+    while (x > 0) {
+        digits[len++] = (unsigned char)(x % 9);
+        x = x / 9;
+    }
+    if (len < 2) return false;
+
+    for (size_t i = len; i > 1; --i) {
+        if (digits[i - 1] == 3 && digits[i - 2] == 2)
+            return true;
+    }
+    return false;
+}
 
 /* Return the n‑th term of OEIS A044661.  Indexing starts at 1. */
 seq_t a(idx_t n)

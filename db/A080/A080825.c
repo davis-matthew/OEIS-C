@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   traj_len
+ * Validated: partial, pass, 98 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/traj_len.h"
+
+/* Return the number of steps from m down to 1 under the defined map,
+ * excluding m itself. This is the length of row m. */
+static idx_t traj_len(idx_t m)
+{
+    idx_t len = 0;
+    while (m > 1) {
+        if (m & 1U)
+            m -= 1U;
+        else
+            m >>= 1U;
+        ++len;
+    }
+    return len;
+}
 
 /* The build system supplies the actual definitions of seq_t and idx_t.
  * They are not redefined here. */

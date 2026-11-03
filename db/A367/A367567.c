@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{k=0..n} binomial(3*k,k) * binomial(2*k,k)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoized values */
 static size_t cache_capacity = 0;    /* allocated size of cache */
@@ -28,14 +30,14 @@ static void ensure_capacity(idx_t n)
         return;
 
     size_t new_cap = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     assert(tmp != NULL);
 
     /* copy already computed values */
     for (idx_t i = 0; i <= last_computed && i < cache_capacity; ++i)
         tmp[i] = cache[i];
 
-    free(cache);
+    mem_free(cache);
     cache = tmp;
     cache_capacity = new_cap;
 }

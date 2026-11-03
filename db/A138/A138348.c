@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   floor_sqrt, grow_seq_array, is_prime_generic, next_prime,
- *            seq_alloc_array
+ * Validated: standard, pass, 48 terms through n = 95 (2026-11-03)
+ * Helpers:   ipow_i32, is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,11 +24,46 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime_generic.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/seq_alloc_array.h"
-#include "../utils/grow_seq_array.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* Helper: test if n is a palindrome in the given base (base ≥ 2). */
 static bool is_palindrome_in_base(seq_t n, uint64_t base)
@@ -104,7 +139,7 @@ seq_t a(idx_t n)
         seq_t pp2   = p_big + (seq_t)2;
 
         /* Twin‑prime test: p+2 must also be prime. */
-        if (!is_prime_generic((idx_t)pp2))
+        if (!is_prime((idx_t)pp2))
             continue;
 
         /* Property test for both primes. */

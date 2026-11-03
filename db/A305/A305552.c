@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{d|n} binomial(2^(n/d - 1) + d - 1, d)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 997 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Compute binomial(N, k) for possibly very large N, with k small (≤n). */

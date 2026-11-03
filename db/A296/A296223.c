@@ -12,7 +12,8 @@
  *            sequences
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,11 +39,11 @@ seq_t a(idx_t n)
     if (!init) {
         /* allocate initial capacities */
         a_cap = 32;
-        a_arr = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_cap);
         a_len = 0;
 
         b_cap = 32;
-        b_arr = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_arr = mem_new(seq_t, b_cap);
         b_len = 0;
 
         used_small_size = 64;
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
             /* append to b array */
             if (b_cap <= b_len) {
                 b_cap = b_cap ? b_cap * 2 : 4;
-                b_arr = (seq_t *)realloc(b_arr, b_cap * sizeof(seq_t));
+                b_arr = mem_resize(seq_t, b_arr, b_cap);
             }
             b_arr[b_len] = (seq_t)cand;
             if (cand < used_small_size) used_small[(size_t)cand] = true;
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
         /* ensure a_array capacity */
         if (a_cap <= a_len) {
             a_cap = a_cap ? a_cap * 2 : 4;
-            a_arr = (seq_t *)realloc(a_arr, a_cap * sizeof(seq_t));
+            a_arr = mem_resize(seq_t, a_arr, a_cap);
         }
         a_len++;
     }

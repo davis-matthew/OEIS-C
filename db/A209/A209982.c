@@ -8,6 +8,7 @@
  * Formula:   a(n) = -12 + 32 * Sum_{k=1..n} phi(k) (for n>0, a(0)=0)
  * Range:     u8 n <= 4, u16 n <= 81, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 56 terms through n = 866 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

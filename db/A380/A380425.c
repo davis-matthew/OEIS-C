@@ -9,13 +9,17 @@
  *            a(0) = 1. This implements the OEIS A380425 definition
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 35 terms through n = 357 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,10 +35,10 @@ seq_t a(idx_t n)
         seq_t bin = binomial(n, k);
 
         /* k^(n-k)  (k and exponent are cast to seq_t) */
-        seq_t pow1 = big_pow((seq_t)k, (seq_t)(n - k));
+        seq_t pow1 = ipow((seq_t)k, (seq_t)(n - k));
 
         /* (n+2)^(k-1) */
-        seq_t pow2 = big_pow((seq_t)(n + 2), (seq_t)(k - 1));
+        seq_t pow2 = ipow((seq_t)(n + 2), (seq_t)(k - 1));
 
         /* term = bin * pow1 * pow2 */
         seq_t term = bin * pow1;

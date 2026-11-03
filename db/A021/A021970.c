@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Decimal digit of 1/966 (OEIS A021970) computed by long division. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         int rem_pos[m];                         /* remainder → position map (−1 = unseen). */
         for (unsigned i = 0; i < m; ++i) rem_pos[i] = -1;
 
-        digits = (seq_t *)malloc(1000 * sizeof(seq_t));  /* Max possible length ≈ m. */
+        digits = mem_new(seq_t, 1000);  /* Max possible length ≈ m. */
         unsigned pos = 0;                            /* Next index to store a digit. */
         unsigned remainder = 1 % m;
 

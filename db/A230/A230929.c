@@ -11,7 +11,8 @@
  *            3*a(n-3) for n >= 4
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* This function memoises the sequence to support any order of calls. */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Array cache for computed values (a(1) stored at cache[0]). */
 static seq_t *cache   = NULL;  /* 0‑initialised automatically. */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Initialise cache if first call. */
     if (!cache) {
         cap = 8;                       /* start with some space */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         len = 0;
     }
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if ((idx_t)n > cap) {
         size_t new_cap = cap;
         while ((idx_t)new_cap < (size_t)n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        cache = mem_resize(seq_t, cache, new_cap);
         cap   = new_cap;
     }
 

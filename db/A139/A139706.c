@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 88 terms through n = 7899 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,14 @@
 /* Algorithm: rotate the binary representation of n to the right until the
  * most‑significant bit becomes 1 again, then convert back to decimal. */
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
     /* n ≥ 1 */
     /* bit length of n */
-    unsigned len = floor_log2_uint64(n) + 1;
+    unsigned len = ilog2(n) + 1;
 
     /* count trailing zeros to locate the first 1 from the LSB side */
     unsigned tz = 0;

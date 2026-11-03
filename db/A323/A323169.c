@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = GCD{ x | φ(x) = n } (0 if φ(x) = n has no solution)
- * Range:     u8 n <= 91, u16 n <= 9667, u32 n <= 9667, u64 n <= 9667,
- *            u128 n <= 9667, big any n
- * Helpers:   gcd, seq_alloc
+ * Range:     u8 n <= 91, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9667 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_alloc.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *gcd_table = NULL;
 static int initialized = 0;

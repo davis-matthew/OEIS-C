@@ -10,12 +10,14 @@
  *            115, a(4) = 391, a(5) = 1267
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 38, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     
     if (!cache) {
         capacity = (n < 512) ? 1024 : (n * 2);
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         for (int i = 0; i < 6; i++) {
             cache[i] = init[i];
         }
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     
     while (n >= capacity) {
         capacity *= 2;
-        cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, capacity);
     }
     
     for (idx_t i = computed + 1; i <= n; i++) {

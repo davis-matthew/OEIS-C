@@ -7,14 +7,17 @@
  * Formula:   a(n) = A000010(A210719(n))
  * Range:     u8 n <= 80, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 79 terms through n = 9684 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 static seq_t *distinct_vals = NULL;
 static size_t distinct_len  = 0;
@@ -27,7 +30,7 @@ static void ensure_distinct_capacity(size_t needed)
     if (needed <= distinct_cap) return;
     size_t newcap = distinct_cap ? distinct_cap * 2 : 64;
     while (newcap < needed) newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(distinct_vals, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, distinct_vals, newcap);
     if (!tmp) abort();          /* memory exhaustion */
     distinct_vals = tmp;
     distinct_cap  = newcap;
@@ -51,7 +54,7 @@ seq_t a(idx_t n)
     /* Generate further φ values until we have at least n distinct ones. */
     while (distinct_len < (size_t)n) {
         ++last_m_processed;                       /* next m to evaluate */
-        seq_t phi_val = phi(last_m_processed);    /* φ(m) */
+        seq_t phi_val = totient(last_m_processed);    /* φ(m) */
 
         /* Check whether phi_val is already in the list. */
         bool duplicate = false;

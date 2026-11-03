@@ -10,12 +10,14 @@
  *            where Catalan(k) = (2k)!/(k!(k+1)!) and C(n,j) = n!/(j!(n-j)!)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 /* Computes the nth term of OEIS sequence A145844. */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for Catalan numbers 0..n */
     idx_t size = n + 1;
-    seq_t *cat = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *cat = mem_new(seq_t, size);
     if (!cat) {
         /* Out‑of‑memory: return 0 as a sentinel. */
         return (seq_t)0;
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(cat);
+    mem_free(cat);
     return result;
 }

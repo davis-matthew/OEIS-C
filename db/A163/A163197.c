@@ -8,13 +8,25 @@
  * Formula:   a(n) = (F(2n+1)^3 - 3*F(2n+1) - 2*(-1)^n) / 4
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 7, i64 n <= 15, i128 n <= 30,
  *            big any n
- * Helpers:   fib
+ * Validated: standard, pass, 36 terms through n = 435 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* Computes the n-th term of A163197 */
 seq_t a(idx_t n) {

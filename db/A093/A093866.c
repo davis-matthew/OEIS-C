@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, seq_alloc_new_array,
- *            seq_free_array
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,10 +28,16 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include <string.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* memoised cache of computed a(n) values */
 static seq_t *cache     = NULL;  /* array of values */
@@ -69,7 +75,7 @@ static void ensure_primes_up_to(uint64_t limit) {
 /* Extract distinct prime factors of n (assumed to fit in uint64_t). */
 static void factor_distinct(seq_t n, uint64_t *p, size_t *cnt) {
     uint64_t m = (uint64_t)n;                /* fit assumption is safe up to n ~ 1e19 */
-    uint64_t lim = _floor_isqrt_u64(m);
+    uint64_t lim = isqrt(m);
     ensure_primes_up_to(lim);
     *cnt = 0;
     for (size_t i = 0; i < prime_cnt && prime_list[i] <= lim; ++i) {

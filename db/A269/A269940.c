@@ -11,13 +11,15 @@
  *            col (row ≥ 0, 0 ≤ col ≤ row)
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- unsigned Stirling numbers of the first kind (cycle numbers) ---------- */
 static seq_t *stirling = NULL;   /* linear storage: trot[i * cap + j] = s(i,j) */
@@ -33,7 +35,7 @@ static void ensure_stirling(idx_t N)
     while (newcap <= N) newcap <<= 1;
 
     /* allocate new array */
-    seq_t *newptr = (seq_t *)calloc((size_t)newcap * (size_t)newcap, sizeof(seq_t));
+    seq_t *newptr = mem_new(seq_t, (size_t)newcap * (size_t)newcap);
     if (!newptr) abort();
 
     /* copy existing values */
@@ -42,7 +44,7 @@ static void ensure_stirling(idx_t N)
             newptr[i * newcap + j] = stirling[i * stirling_cap + j];
 
     /* free old array */
-    free(stirling);
+    mem_free(stirling);
     stirling = newptr;
 
     /* recompute all values up to newcap-1 (small, max ~150) */

@@ -11,14 +11,17 @@
  *            of primes and composites
  * Range:     u8 n <= 107, u16 n <= 6489, u32 n <= 6489, u64 n <= 6489,
  *            u128 n <= 6489, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 99 terms through n = 6292 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* ---------- prime cache ---------- */
 static seq_t           *prime_cache  = NULL;   /* array of primes          */
@@ -36,9 +39,9 @@ static void ensure_prime_cnt(size_t need)
         size_t new_cap = prime_cap == 0 ? 128 : prime_cap * 2;
         while (new_cap < need) new_cap *= 2;
         if (prime_cache == NULL)
-            prime_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            prime_cache = mem_new(seq_t, new_cap);
         else
-            prime_cache = (seq_t*)realloc(prime_cache, new_cap * sizeof(seq_t));
+            prime_cache = mem_resize(seq_t, prime_cache, new_cap);
         prime_cap = new_cap;
     }
 
@@ -66,9 +69,9 @@ static void ensure_comp_cnt(size_t need)
         size_t new_cap = comp_cap == 0 ? 128 : comp_cap * 2;
         while (new_cap < need) new_cap *= 2;
         if (comp_cache == NULL)
-            comp_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            comp_cache = mem_new(seq_t, new_cap);
         else
-            comp_cache = (seq_t*)realloc(comp_cache, new_cap * sizeof(seq_t));
+            comp_cache = mem_resize(seq_t, comp_cache, new_cap);
         comp_cap = new_cap;
     }
 

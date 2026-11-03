@@ -7,12 +7,14 @@
  * Formula:   a(n) = [x^(2n)] ((1+x)/(1-x))^45
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 8, u128 n <= 30,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 29 terms through n = 9857 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
     static char init = 0;
     if (!init) {
         for (int k = 0; k <= 45; ++k)
-            C45[k] = binom(45, (idx_t)k);            /* small numbers, fit in seq_t */
+            C45[k] = binomial(45, (idx_t)k);            /* small numbers, fit in seq_t */
         init = 1;
     }
 
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= maxk; ++k) {
         /* exponent of (1-x)^(-45) is (2n - k). */
         idx_t m = 44 + (2 * n - k);
-        seq_t term = C45[k] * binom(m, 44);
+        seq_t term = C45[k] * binomial(m, 44);
         result += term;
     }
 

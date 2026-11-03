@@ -8,6 +8,7 @@
  *            100-199, 1000-1999, 100000-199999,
  * Range:     u8 n <= 101, u16 n <= 1101, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 53 terms through n = 9169 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,12 +11,23 @@
  *            row‐wise (first r = 1, k = 0..1; then r = 2, k = 0..4; etc.)
  * Range:     u8 n <= 10, u16 n <= 14, u32 n <= 27, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   cumulative_terms
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/cumulative_terms.h"
+/* Helper: compute cumulative number of terms up to row r
+   S(r) = sum_{i=1..r} (i^2 + 1) = (r(r+1)(2r+1))/6 + r */
+static idx_t cumulative_terms(idx_t r)
+{
+    /* For r == 0 we return 0. */
+    if (r == 0) return 0;
+    __uint128_t prod = (__uint128_t)r * (r + 1) * (2 * r + 1);
+    __uint128_t sumsq = prod / 6;          /* exact division */
+    __uint128_t total = sumsq + r;         /* total terms up to row r */
+    return (idx_t)total;
+}
 
 /* Helper: falling factorial [m]_k = m * (m-1) * ... * (m-k+1) */
 static seq_t falling_factorial(seq_t m, idx_t k)

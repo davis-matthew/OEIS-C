@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   catalan
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,21 @@
 #include <stdlib.h>
 
 /* OEIS utility: Catalan numbers (Catalan(k) = binom(2k,k)/(k+1) ) */
-#include "../utils/catalan.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* multiplicative computation of the k‑th Catalan number */
+static seq_t catalan(idx_t k)
+{
+    seq_t c = (seq_t)1;          /* C(0) = 1 */
+    for (idx_t i = 1; i <= k; ++i) {
+        /* C(i) = C(i-1) * (4*i - 2) / (i + 1) */
+        seq_t num = c * (seq_t)(4 * i - 2);
+        seq_t den = (seq_t)(i + 1);
+        c = num / den;
+    }
+    return c;
+}
 
 static seq_t *a_cache = NULL;     /* a(n) values  */
 static seq_t *cat_cache = NULL;   /* Catalan(k) values  */
@@ -41,7 +56,7 @@ ensure_catalan_upto(idx_t n)
     if (n < cat_max)
         return;
     /* resize cat_cache if needed */
-    cat_cache = (seq_t *)realloc(cat_cache, (n + 1) * sizeof(seq_t));
+    cat_cache = mem_resize(seq_t, cat_cache, (n + 1));
     if (!cat_cache) abort();
     /* compute missing values */
     for (idx_t k = cat_max; k <= n; ++k)
@@ -56,7 +71,7 @@ ensure_a_upto(idx_t target)
     if (a_cache && a_max >= target)
         return;
     /* resize a_cache if needed */
-    a_cache = (seq_t *)realloc(a_cache, (target + 1) * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, (target + 1));
     if (!a_cache) abort();
 
     /* initialise base case if cache empty */

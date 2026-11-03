@@ -9,14 +9,28 @@
  *            Sum_{k=0}^{⌊m/5⌋} (m - 5k + 1)
  * Range:     u8 n <= 50, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   d, d_nonneg
+ * Validated: partial, pass, 49 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/d.h"
-#include "../utils/d_nonneg.h"
+
+static seq_t d(idx_t m)
+{
+    /* m is non‑negative */
+    idx_t t = m / 5;                     /* ⌊m/5⌋ */
+    seq_t term1 = (seq_t)(t + 1) * (seq_t)(m + 1);
+    seq_t term2 = (seq_t)5 * (seq_t)((t * (t + 1)) / 2);
+    return term1 - term2;
+}
+
+static inline seq_t d_nonneg(intmax_t m)
+{
+    if (m < 0) return 0;
+    return d((idx_t)m);
+}
 
 seq_t a(idx_t n)
 {

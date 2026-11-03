@@ -9,7 +9,8 @@
  *            contains all distinct sums of distinct proper divisors of k
  * Range:     u8 n <= 5059, u16 n <= 5363, u32 n <= 5363, u64 n <= 5363,
  *            u128 n <= 5363, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 5139 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Append a value to a dynamic array of seq_t */
 static void push_seq(seq_t **seq_p, size_t *len, size_t *cap, seq_t val)
 {
     if (*len >= *cap) {
         *cap = (*cap) ? (*cap) * 2 : 16;
-        *seq_p = (seq_t *)realloc(*seq_p, (*cap) * sizeof(seq_t));
+        *seq_p = mem_resize(seq_t, *seq_p, (*cap));
     }
     (*seq_p)[(*len)++] = val;
 }

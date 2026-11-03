@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   append
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/append.h"
+#include "../utils/mem.h"
+
+static inline void append(char *buf, size_t *pos, const char *s)
+{
+    size_t len = strlen(s);
+    memcpy(buf + *pos, s, len);
+    *pos += len;
+}
 
 static const char *const SMALL_WORDS[] = {
     "zero","one","two","three","four","five","six","seven","eight","nine",
@@ -151,7 +159,7 @@ static void ensure_cache(size_t need)
     if (need < CACHE_SIZE) return;
     if (CACHE == NULL) {
         CACHE_CAP = 64;
-        CACHE = (seq_t *)malloc(CACHE_CAP * sizeof(seq_t));
+        CACHE = mem_new(seq_t, CACHE_CAP);
         CACHE_SIZE = 0;
     }
     uint64_t cand = NEXT_CANDIDATE;
@@ -159,7 +167,7 @@ static void ensure_cache(size_t need)
         if (is_primitive(cand)) {
             if (CACHE_SIZE == CACHE_CAP) {
                 CACHE_CAP <<= 1;
-                CACHE = (seq_t *)realloc(CACHE, CACHE_CAP * sizeof(seq_t));
+                CACHE = mem_resize(seq_t, CACHE, CACHE_CAP);
             }
             CACHE[CACHE_SIZE++] = (seq_t)cand;
         }

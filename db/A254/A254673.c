@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 999, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 71 terms through n = 990 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* simple integer square root for uint64_t (used in trial division) */
 static uint64_t isqrt_u64(uint64_t n) {
@@ -42,7 +44,7 @@ static void grow_seq_arr(seq_t **arr, size_t *cap, size_t need) {
     if (*cap < need) {
         size_t newcap = (*cap ? *cap * 2 : 64);
         while (newcap < need) newcap <<= 1;
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }
@@ -68,7 +70,7 @@ seq_t a(idx_t n) {
 
     /* initialise static arrays on first call */
     if (!seq) {
-        seq = (seq_t *)malloc(64 * sizeof(seq_t));
+        seq = mem_new(seq_t, 64);
         seq_cap = 64;
     }
     if (!primes) {
@@ -112,7 +114,7 @@ seq_t a(idx_t n) {
 
         /* test if candidate + 4*prime_index is prime */
         uint64_t q = candidate + 4 * (uint64_t)prime_index;
-        if (is_prime_small(q)) {
+        if (is_prime_seq(q)) {
             /* append to sequence */
             grow_seq_arr(&seq, &seq_cap, seq_len + 1);
             seq[seq_len++] = (seq_t)candidate;

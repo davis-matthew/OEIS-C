@@ -12,7 +12,8 @@
  *            a(n)=a(n‑1)−a(n‑2)+a(n‑3)−a(n‑4)+a(n‑5)+a(n‑9)−a(n‑10)+a(n‑11)−a(n‑12)+a(n‑13)−a(n‑14)
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation. */
 static seq_t *cache = NULL;          /* array of computed values   */
@@ -36,7 +38,7 @@ static void init_cache(void)
     size_t need = 17;
     /* Ensure capacity; use a power‑of‑two size for easy growth. */
     cache_cap = 32;
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     for (size_t i = 0; i < need; ++i)
         cache[i] = init_vals[i];
     cache_len = need;
@@ -49,7 +51,7 @@ static void ensure_cap(size_t new_cap)
         return;
     while (cache_cap < new_cap)
         cache_cap <<= 1;
-    cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 /* Compute the n‑th term, memoising results for later calls. */

@@ -10,7 +10,8 @@
  *            a(9)=305, a(10)=561
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>       /* for uint64_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold indices up to n. */
     size_t needed = (size_t)n + 1;  /* include index 0 so that cache[n] is valid */
     if (needed > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();          /* out‑of‑memory */
         cache = tmp;
         cache_cap = needed;

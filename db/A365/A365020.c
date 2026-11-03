@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 213, u16 n <= 324, u32 n <= 324, u64 n <= 324,
  *            u128 n <= 324, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 305 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort / bsearch on uint64_t */
 static int cmp_uint64(const void *p1, const void *p2)
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
 
         /* Find all k ≤ MAX_K having a representation */
         size_t tmp_cap = 32;
-        seq_t *tmp = (seq_t *)malloc(tmp_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, tmp_cap);
         sol_cnt = 0;
         for (int k = 1; k <= MAX_K; ++k) {
             uint64_t target = pow5[k];
@@ -146,20 +148,20 @@ seq_t a(idx_t n)
             if (found) {
                 if (sol_cnt == tmp_cap) {
                     tmp_cap *= 2;
-                    tmp = (seq_t *)realloc(tmp, tmp_cap * sizeof(seq_t));
+                    tmp = mem_resize(seq_t, tmp, tmp_cap);
                 }
                 tmp[sol_cnt++] = (seq_t)k;   /* cast to seq_t */
             }
         }
 
         /* Store solutions sorted */
-        solutions = (seq_t *)malloc(sol_cnt * sizeof(seq_t));
+        solutions = mem_new(seq_t, sol_cnt);
         for (size_t i = 0; i < sol_cnt; ++i) {
             solutions[i] = tmp[i];
         }
 
         /* Free temporary data */
-        free(tmp);
+        mem_free(tmp);
         free(sum3);
         free(sum4);
 

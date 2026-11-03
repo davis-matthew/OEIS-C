@@ -12,14 +12,27 @@
  *            the...
  * Range:     u8 n <= 50, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   has_digit_ge3_uint64
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_digit_ge3_uint64.h"
+
+/* Helper: return true if the decimal representation of x contains
+   a digit greater than or equal to 3.  */
+static bool has_digit_ge3_uint64(uint64_t x)
+{
+    if (x == 0u) return false;          /* only used for primes ≥2 */
+    while (x > 0u) {
+        uint8_t d = (uint8_t)(x % 10u);
+        if (d >= 3u) return true;
+        x /= 10u;
+    }
+    return false;
+}
 
 /* Helper: trial‑division primality test on a 64‑bit unsigned integer. */
 static bool is_prime_uint64(uint64_t x)

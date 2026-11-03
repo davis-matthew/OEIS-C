@@ -11,7 +11,8 @@
  *            (25+24n+6n^2)*a(n+2)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   alloc_seq_array, free_cache
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 /* Helper allocation routines from the test harness */
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_cache.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;      /* cached terms                      */
 static size_t cache_cap = 0;      /* allocated capacity in terms        */

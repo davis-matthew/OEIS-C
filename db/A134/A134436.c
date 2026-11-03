@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 41, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,6 +41,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cache_cap ? 2 * cache_cap : 64;
         if (new_cap < cache_len + (n - cache_len))
             new_cap = cache_len + (n - cache_len);
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!new_cache) { /* out of memory; return 0 as sentinel */
             return 0;
         }
@@ -75,10 +77,10 @@ seq_t a(idx_t n)
     if (curr_n == 0) {
         curr_n = 1;
         /* P_1 = [1] */
-        P = (seq_t *)malloc(sizeof(seq_t));
+        P = mem_new(seq_t, 1);
         P[0] = 1;
         /* R_1 = [0,1] */
-        R = (seq_t *)malloc(2 * sizeof(seq_t));
+        R = mem_new(seq_t, 2);
         R[0] = 0;
         R[1] = 1;
         /* factorial of (curr_n-1) = 0! = 1 */
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
         fact = fact * (seq_t)(next_n - 1);
 
         /* ----- compute R_next(t) from R_prev(t) ----- */
-        seq_t *new_R = (seq_t *)malloc((size_t)(next_n + 1) * sizeof(seq_t));
+        seq_t *new_R = mem_new(seq_t, (size_t)(next_n + 1));
         new_R[0] = 0;
         new_R[1] = fact;
         for (idx_t k = 2; k <= next_n; ++k) {
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
         }
 
         /* ----- compute P_next(t) from R_prev(t) and P_prev(t) ----- */
-        seq_t *new_P = (seq_t *)malloc((size_t)next_n * sizeof(seq_t));
+        seq_t *new_P = mem_new(seq_t, (size_t)next_n);
         /* coefficient k = 0 */
         new_P[0] = P[0];
         for (idx_t k = 1; k < next_n; ++k) {
@@ -119,11 +121,11 @@ seq_t a(idx_t n)
         for (idx_t k = 0; k < next_n; ++k) {
             if (cache_len == cache_cap) {   /* grow cache if full */
                 idx_t new_cap = cache_cap ? 2 * cache_cap : 64;
-                seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_cap);
                 if (!new_cache) {
                     /* out of memory; return last computed value as fallback */
-                    free(new_P);
-                    free(new_R);
+                    mem_free(new_P);
+                    mem_free(new_R);
                     return 0;
                 }
                 cache = new_cache;
@@ -133,8 +135,8 @@ seq_t a(idx_t n)
         }
 
         /* ----- free previous row arrays and set new ones as current ----- */
-        free(P);
-        free(R);
+        mem_free(P);
+        mem_free(R);
         P = new_P;
         R = new_R;
         curr_n = next_n;

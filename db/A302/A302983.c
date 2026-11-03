@@ -9,7 +9,8 @@
  *            2*y^2 + 2^z + 3*2^w (x, y, z, w ≥ 0)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Allocate or grow the auxiliary array f that stores
@@ -25,13 +27,13 @@ seq_t a(idx_t n) {
     static idx_t f_cap = 0;
 
     if (f_cap < n + 1) {
-        free(f);
-        f = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        mem_free(f);
+        f = mem_new(seq_t, (n + 1));
         f_cap = n + 1;
     }
 
     /* Zero the array up to n. */
-    memset(f, 0, (n + 1) * sizeof(seq_t));
+    mem_set(f, 0, (n + 1) * sizeof(seq_t));
 
     /* Precompute all values m = x^2 + 2*y^2 ≤ n. */
     idx_t max_x = 0;

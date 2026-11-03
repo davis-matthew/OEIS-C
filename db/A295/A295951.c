@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 42, u64 n <= 88, u128 n <= 180,
  *            big any n
- * Helpers:   contains_a
+ * Validated: standard, pass, 52 terms through n = 1946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains_a.h"
+#include "../utils/mem.h"
+
+/* binary search: return true if val occurs in arr[0..len-1] */
+static bool contains_a(const seq_t *arr, size_t len, seq_t val)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        seq_t midv = arr[mid];
+        if (midv < val)
+            lo = mid + 1;
+        else if (midv > val)
+            hi = mid;
+        else
+            return true;
+    }
+    return false;
+}
 
 /* static storage for the two sequences and a candidate counter */
 static seq_t *a_cache = NULL;
@@ -40,8 +58,8 @@ static void ensure_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap : 8;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp_a = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-    seq_t *tmp_b = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp_a = mem_resize(seq_t, a_cache, new_cap);
+    seq_t *tmp_b = mem_resize(seq_t, b_cache, new_cap);
     a_cache = tmp_a;
     b_cache = tmp_b;
     cache_cap = new_cap;

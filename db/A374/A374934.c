@@ -9,6 +9,7 @@
  *            = 16*n - 72 for n ≥ 11
  * Range:     u8 n <= 18, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 15 terms through n = 18 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

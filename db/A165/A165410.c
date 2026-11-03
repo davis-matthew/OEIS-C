@@ -8,11 +8,13 @@
  *            2^(3k^2 + 5k + 2)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 10, i64 n <= 13, i128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

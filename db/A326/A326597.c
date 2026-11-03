@@ -12,12 +12,14 @@
  *            in O(n) time and O(n) memory
  * Range:     u8 n <= 21, u16 n <= 44, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* partitions into 10 positive parts only exist for n >= 10 */
@@ -26,12 +28,12 @@ seq_t a(idx_t n) {
     size_t size = (size_t)N + 1;/* number of dp states (0 … N)   */
 
     /* Allocate DP arrays for counts and sums of processed variables.  */
-    seq_t *count = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *sum   = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *count = mem_new(seq_t, size);
+    seq_t *sum   = mem_new(seq_t, size);
     if (!count || !sum) {
         /* In the unlikely event of allocation failure, return 0. */
-        if (count) free(count);
-        if (sum)   free(sum);
+        if (count) mem_free(count);
+        if (sum)   mem_free(sum);
         return 0;
     }
 
@@ -66,8 +68,8 @@ seq_t a(idx_t n) {
         totalSum   += sum[s];
     }
 
-    free(count);
-    free(sum);
+    mem_free(count);
+    mem_free(sum);
 
     /* Each partition contributes its counted sum plus 1 (for the +1
        in the expression a9 = b1' + … + d8' + 1). */

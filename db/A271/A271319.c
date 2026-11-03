@@ -8,18 +8,20 @@
  * Formula:   a(n) = A001221(A060354(n))
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 102 terms through n = 976 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
 
 seq_t a(idx_t n)
 {
     if (n < 2) return 0;
     uint64_t nn = (uint64_t)n;
     uint64_t val = nn + ((nn - 2) * nn * (nn - 1)) / 2;
-    return (seq_t)count_distinct_primes(val);
+    return (seq_t)omega(val);
 }

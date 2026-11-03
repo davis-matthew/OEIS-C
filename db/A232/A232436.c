@@ -11,7 +11,8 @@
  *            may appear with any exponent
  * Range:     u8 n <= 53, u16 n <= 8024, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9597 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* helper: test whether m satisfies the characterization */
 static bool is_valid(idx_t m)
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
         last_checked = 0;
     }
@@ -111,9 +113,9 @@ seq_t a(idx_t n)
         /* store the term */
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            seq_t *tmp = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-            memcpy(tmp, cache, cache_len * sizeof(seq_t));
-            free(cache);
+            seq_t *tmp = mem_new(seq_t, cache_cap);
+            mem_copy(tmp, cache, cache_len * sizeof(seq_t));
+            mem_free(cache);
             cache = tmp;
         }
         cache[cache_len++] = (seq_t)candidate;

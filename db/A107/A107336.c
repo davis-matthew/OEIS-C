@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    position.  Only additions, subtractions, and comparisons on
    seq_t are used.  No external utilities are required. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* initialise with the seed word "1"    */
     if (word == NULL) {
         cap = 64;                     /* initial capacity      */
-        word = (seq_t *)malloc(cap * sizeof(seq_t));
+        word = mem_new(seq_t, cap);
         if (!word) return 0;          /* out of memory         */
         word[0] = (seq_t)1;
         sz = 1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     while (sz <= (size_t)n) {
         /* compute new length upper‑bound: at most 6 times current */
         size_t new_cap = sz * 6;
-        seq_t *new_word = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_word = mem_new(seq_t, new_cap);
         if (!new_word) return 0;      /* out of memory         */
         size_t new_sz = 0;
 
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         }
 
         /* free old word and update pointers */
-        free(word);
+        mem_free(word);
         word = new_word;
         sz   = new_sz;
         cap  = new_cap;

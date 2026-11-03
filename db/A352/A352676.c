@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(x)) for any unsigned integer size. */
 static seq_t floor_sqrt(seq_t x)
@@ -51,7 +53,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t need)
         size_t newcap = (*cap == 0) ? 4 : *cap;
         while (newcap < need)
             newcap <<= 1;
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }

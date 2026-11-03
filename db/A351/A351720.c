@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 113, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9756 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static helper for dynamic array reallocation */
 static void grow_seq_array(seq_t **arr, size_t *cap, size_t need)
@@ -34,7 +36,7 @@ static void grow_seq_array(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t new_cap = (*cap == 0) ? 128 : (*cap << 1);
         while (new_cap < need) new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
 
         /* allocate dynamic sequence array */
         term_cap = 128;
-        term_list = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        term_list = mem_new(seq_t, term_cap);
         if (!term_list) { free(dp); return (seq_t)0; }
 
         /* collect all k such that k and k+1 are lazy‑Lucas‑Niven */

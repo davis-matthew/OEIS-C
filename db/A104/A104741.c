@@ -9,7 +9,8 @@
  *            first element r is moved to immediately after the r‑th prime
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #ifndef SIEVE_LIMIT
 #  define SIEVE_LIMIT 3500000         /* enough to collect MAX_R_INDEX primes */
 #endif
+#include "../utils/mem.h"
 
 /* global state variables */
 static bool     initialized = false;
@@ -55,12 +57,12 @@ ensure_head_at_cap(idx_t n)
     idx_t new_cap = head_at_cap ? head_at_cap * 2 : 128;
     while (new_cap < n + 1)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp)
         return;                           /* memory failure: give up */
     if (head_at) {
-        memcpy(tmp, head_at, head_at_size * sizeof(seq_t));
-        free(head_at);
+        mem_copy(tmp, head_at, head_at_size * sizeof(seq_t));
+        mem_free(head_at);
     }
     head_at = tmp;
     head_at_cap = new_cap;
@@ -120,7 +122,7 @@ init_everything(void)
     prev_arr[1] = 0;
 
     /* ----- initialize head_at memoisation table ------- */
-    head_at = (seq_t *)malloc(128 * sizeof(seq_t));
+    head_at = mem_new(seq_t, 128);
     if (!head_at)
         return;
     head_at_cap = 128;

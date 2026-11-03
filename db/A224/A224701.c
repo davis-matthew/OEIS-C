@@ -11,6 +11,7 @@
  *            satisfying n ≤ (k-1)*k/2
  * Range:     u8 n <= 10, u16 n <= 78, u32 n <= 406, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 67 terms through n = 1000 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

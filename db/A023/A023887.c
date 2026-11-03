@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{d|n} d^n (OEIS A023887)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 35 terms through n = 99 (2026-11-03)
+ * Helpers:   factor_u64, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdbool.h>
 
 /* utilities used */
-#include "../utils/big_pow.h"
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* cache for memoisation */
 static seq_t *a_cache = NULL;
@@ -32,15 +34,15 @@ static void ensure_cache(idx_t n)
         return;
 
     size_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         exit(1);
 
     if (a_cache) {
-        memcpy(new_cache, a_cache, a_cache_cap * sizeof(seq_t));
-        free(a_cache);
+        mem_copy(new_cache, a_cache, a_cache_cap * sizeof(seq_t));
+        mem_free(a_cache);
     }
-    memset(new_cache + a_cache_cap, 0, (new_cap - a_cache_cap) * sizeof(seq_t));
+    mem_set(new_cache + a_cache_cap, 0, (new_cap - a_cache_cap) * sizeof(seq_t));
 
     a_cache      = new_cache;
     a_cache_cap  = new_cap;
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
     seq_t exp_n = (seq_t)n;
 
     for (size_t i = 0; i < div_cnt; ++i)
-        sum += big_pow((seq_t)divs[i], exp_n);
+        sum += ipow((seq_t)divs[i], exp_n);
 
     free(divs);
 

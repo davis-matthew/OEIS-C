@@ -9,14 +9,16 @@
  *            of prime factors with multiplicity (A001222)
  * Range:     u8 n <= 3, u16 n <= 767, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes, count_prime_factors, pow2
+ * Validated: standard, pass, 65 terms through n = 9839 (2026-11-01)
+ * Helpers:   bigomega_seq, omega, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
-#include "../utils/count_prime_factors.h"
+#include <stdbool.h>
+#include "../utils/bigomega_seq.h"
+#include "../utils/omega.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -26,12 +28,12 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* ω(n) – number of distinct prime factors. */
-    idx_t distinct = count_distinct_primes((uint64_t)n);
+    idx_t distinct = omega((uint64_t)n);
 
     /* Ω(n) – total number of prime factors (with multiplicity). */
     /* count_prime_factors returns a seq_t, but its value fits in idx_t
        for all n that appear in the test suite. */
-    idx_t total = (idx_t)count_prime_factors((seq_t)n);
+    idx_t total = (idx_t)bigomega_seq((seq_t)n);
 
     /* exponent for 2. */
     idx_t exp = distinct + total + 2u;

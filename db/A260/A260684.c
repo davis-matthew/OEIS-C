@@ -10,18 +10,42 @@
  *            primes are exactly the primes with r/2 < p ≤ r, i.e., the primes
  *            in (r/2 , r]. The sequence a(n) is produced by writing each of
  *            these rows in order and reading the entries fro...
- * Range:     u8 n <= 3294, u16 n <= 9658, u32 n <= 9658, u64 n <= 9658,
- *            u128 n <= 9658, big any n
- * Helpers:   build_primes_upto, prime_first_ge, prime_first_gt
+ * Range:     u8 n <= 3294, u16 n <= 11167, u32 n <= 11167, u64 n <= 11167,
+ *            u128 n <= 11167, big any n
+ * Validated: standard, pass, 76 terms through n = 9658 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(idx_t limit, uint64_t **out, size_t *cnt) */
-#include "../utils/prime_first_ge.h"
-#include "../utils/prime_first_gt.h"
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
+
+/* Binary search helpers to locate prime indices */
+static size_t prime_first_ge(const uint64_t *arr, size_t n, uint64_t target)
+{
+    size_t lo = 0, hi = n;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] < target) lo = mid + 1;
+        else hi = mid;
+    }
+    return lo;
+}
+
+static size_t prime_first_gt(const uint64_t *arr, size_t n, uint64_t target)
+{
+    size_t lo = 0, hi = n;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] <= target) lo = mid + 1;
+        else hi = mid;
+    }
+    return lo;
+}
 
 /* Global state used for memoisation */
 static seq_t *cache      = NULL;   /* cache[n] = a(n) */
@@ -40,7 +64,7 @@ static void ensure_cache(idx_t target)
     /* Initialise cache on first use */
     if (cache == NULL) {
         cache_cap  = 8;
-        cache      = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache      = mem_new(seq_t, cache_cap);
         cache_size = 2;    /* indices 0 and 1 are unused */
     }
 
@@ -72,7 +96,7 @@ static void ensure_cache(idx_t target)
         for (size_t i = start; i < end; ++i) {
             if (cache_size >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
             cache[cache_size++] = (seq_t)prime_arr[i];

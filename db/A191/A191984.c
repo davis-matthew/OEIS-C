@@ -8,7 +8,8 @@
  *            for i,j ≥ 1
  * Range:     u8 n <= 37, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   sum_val
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/sum_val.h"
+#include "../utils/mem.h"
+
+/* compute one term 2^(i-1)+3·2^(j-1) */
+static seq_t sum_val(idx_t i, idx_t j) {
+    seq_t term1 = ((seq_t)1) << (unsigned long long)(i - 1);
+    seq_t term2 = ((seq_t)3) << (unsigned long long)(j - 1);
+    return term1 + term2;
+}
 
 /* ---------- visited set for (i,j) pairs ----------------------------------- */
 static uint64_t *visited_keys = NULL;
@@ -66,11 +74,11 @@ static size_t heap_sz  = 0;
 
 static void heap_init(void) {
     heap_cap = 64;
-    heap = (struct Node*)malloc(heap_cap * sizeof(struct Node));
+    heap = mem_new(struct Node, heap_cap);
     heap_sz = 0;
 }
 
-static void heap_free(void) { free(heap); }
+static void heap_free(void) { mem_free(heap); }
 
 static void heap_swap(struct Node *a, struct Node *b) {
     struct Node tmp = *a; *a = *b; *b = tmp;
@@ -79,7 +87,7 @@ static void heap_swap(struct Node *a, struct Node *b) {
 static void heap_push(const struct Node *node) {
     if (heap_sz >= heap_cap) {
         heap_cap <<= 1;
-        heap = (struct Node*)realloc(heap, heap_cap * sizeof(struct Node));
+        heap = mem_resize(struct Node, heap, heap_cap);
     }
     size_t k = heap_sz++;
     heap[k] = *node;

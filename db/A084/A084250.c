@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 typedef uint64_t idx_t;   /* assume idx_t is unsigned 64‑bit */
 
@@ -45,9 +47,9 @@ seq_t a(idx_t n)
     /* Initialise on first call. */
     if (a_seq == NULL) {
         a_cap = 64;
-        a_seq = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
         b_cap = 65;
-        b_seq = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_seq = mem_new(seq_t, b_cap);
 
         /* a(1) = 1, b(0) = 1, b(1) = a(1) / 1 = 1 */
         a_seq[1] = (seq_t)1;
@@ -93,11 +95,11 @@ seq_t a(idx_t n)
         /* Ensure capacity */
         if (a_len + 1 >= a_cap) {
             a_cap *= 2;
-            a_seq = (seq_t *)realloc(a_seq, a_cap * sizeof(seq_t));
+            a_seq = mem_resize(seq_t, a_seq, a_cap);
         }
         if (a_len + 1 >= b_cap) {
             b_cap *= 2;
-            b_seq = (seq_t *)realloc(b_seq, b_cap * sizeof(seq_t));
+            b_seq = mem_resize(seq_t, b_seq, b_cap);
         }
 
         /* Store new values */

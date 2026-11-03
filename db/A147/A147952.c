@@ -11,12 +11,14 @@
  *            (mod 3) a(n - a(floor((n-2)/3))) if n ≡ 2 (mod 3)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (n == 1u || n == 2u) return (seq_t)1;
 
     /* Allocate an array large enough for a[0]..a[n] */
-    seq_t *cache = (seq_t *)malloc((n + 1u) * sizeof(seq_t));
+    seq_t *cache = mem_new(seq_t, (n + 1u));
     if (!cache) return (seq_t)0; /* allocation failure – return 0 */
 
     /* initialise the first three values */
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = cache[n];
-    free(cache);
+    mem_free(cache);
     return result;
 }

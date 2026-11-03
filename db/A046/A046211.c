@@ -12,15 +12,38 @@
  *            implementation works for any seq_t supplied by the bui...
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 44, u128 n <= 84,
  *            big any n
- * Helpers:   mu_of, pow3
+ * Validated: standard, pass, 48 terms through n = 1946 (2026-11-02)
+ * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow3.h"     /* big‑integer 3^exp (seq_t) */
-#include "../utils/mu_of.h"
+#include <stddef.h>
+#include "../utils/pow3.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 seq_t a(idx_t n)
 {

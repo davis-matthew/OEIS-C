@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k=0}^{n} (1 + k*x)^5
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,17 +23,18 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t BINOM5[6] = {1, 5, 10, 10, 5, 1};
 
 seq_t a(idx_t n)
 {
     /* Allocate coefficient arrays, zero‑initialized. */
-    seq_t *dp   = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *newdp = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, n + 1);
+    seq_t *newdp = mem_new(seq_t, n + 1);
     if (!dp || !newdp) {
-        free(dp);
-        free(newdp);
+        mem_free(dp);
+        mem_free(newdp);
         return 0;            /* allocation failure guard */
     }
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         }
 
         /* Clear newdp array for convolution result. */
-        memset(newdp, 0, (n + 1) * sizeof(seq_t));
+        mem_set(newdp, 0, (n + 1) * sizeof(seq_t));
 
         /* Convolve dp with the 6‑term polynomial, truncating at degree n. */
         for (idx_t i = 0; i <= n; ++i) {
@@ -67,8 +69,8 @@ seq_t a(idx_t n)
 
     seq_t ans = dp[n];           /* coefficient of x^n */
 
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
 
     return ans;
 }

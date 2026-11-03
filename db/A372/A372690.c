@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 117, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, is_power_of_two
+ * Validated: standard, pass, 78 terms through n = 9836 (2026-11-01)
+ * Helpers:   is_pow2, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"   /* divisor_count_u64(uint64_t) -> seq_t */
-#include "../utils/is_power_of_two.h"     /* is_power_of_two(seq_t) -> bool */
+#include "../utils/is_pow2.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -32,10 +33,10 @@ seq_t a(idx_t n)
     uint64_t k = 1;           /* candidate k */
 
     while (true) {
-        seq_t d1 = divisor_count_u64(k);
-        seq_t d2 = divisor_count_u64(k + 1);
+        seq_t d1 = num_divisors(k);
+        seq_t d2 = num_divisors(k + 1);
 
-        if (is_power_of_two(d1) && is_power_of_two(d2)) {
+        if (is_pow2(d1) && is_pow2(d2)) {
             found++;
             if (found == n) {
                 return (seq_t)k;   /* found the n-th term */

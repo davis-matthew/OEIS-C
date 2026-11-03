@@ -9,14 +9,26 @@
  *            smallest integer with r*(r+1)/2 >= n, and k = n - (r-1)*r/2
  * Range:     u8 n <= 8, u16 n <= 25, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   binom, pow4
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/pow4.h"
+#include "../utils/binomial.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +47,7 @@ seq_t a(idx_t n)
     idx_t k    = n - prev;                 /* 1 ≤ k ≤ r */
 
     /* compute the triangle entry T(r,k) */
-    seq_t bin = binom(r + k - 1, 2 * k - 1);
+    seq_t bin = binomial(r + k - 1, 2 * k - 1);
     seq_t pow = pow4(k - 1);
     seq_t res = bin * pow;
     res = res * (seq_t)r;

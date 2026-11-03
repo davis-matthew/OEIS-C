@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 30, i16 n <= 71, i32 n <= 71, i64 n <= 71, i128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
 
         idx_t start = (max_row == (idx_t)-1) ? 0 : max_row + 1;
         for (idx_t rr = start; rr <= r; ++rr) {
-            seq_t *row = (seq_t*)calloc((size_t)rr + 1, sizeof *row);
+            seq_t *row = mem_new(seq_t, (size_t)rr + 1);
             if (!row) exit(1);           /* allocation failed */
 
             for (idx_t kk = 0; kk <= rr; ++kk) {

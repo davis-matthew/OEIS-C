@@ -9,9 +9,10 @@
  * Formula:   a(1) = 1, and for n > 1, a(n) = -∑_{d|n, d < n} A359820(n/d) ·
  *            a(d), where A359820(m) = 1 if parity(m) differs from
  *            parity(D(m)), D(m) is the arithmetic derivative
- * Range:     i8 n <= 9379, i16 n <= 9379, i32 n <= 9379, i64 n <= 9379,
- *            i128 n <= 9379, big any n
- * Helpers:   factor_u64
+ * Range:     i8 n <= 11519, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 113 terms through n = 9379 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* caches for a(n) (1-indexed) and f(n)=A359820(n) */
 static seq_t   *a_cache = NULL;
@@ -70,7 +72,7 @@ static void ensure_cache(idx_t n)
     if (cache_size >= n) return;
 
     idx_t new_size = n;
-    a_cache = (seq_t *)realloc(a_cache, (new_size + 1) * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, (new_size + 1));
     f_cache = (int *)realloc(f_cache, (new_size + 1) * sizeof(int));
 
     /* compute f for new indices */

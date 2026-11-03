@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   gcd, sum_mid
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,11 @@
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/sum_mid.h"
+
+/* Integer square root of x: floor(sqrt(x)) using 128-bit arithmetic */
+static inline unsigned __int128 sum_mid(idx_t mid) {
+    return (unsigned __int128)mid * (mid - 1u) / 2u;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  /* position 0 is outside the offset, return 0 */

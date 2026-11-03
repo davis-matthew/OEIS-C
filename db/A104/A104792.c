@@ -7,12 +7,30 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   square_pyramid
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/square_pyramid.h"
+static seq_t square_pyramid(idx_t m)
+{
+    seq_t a = (seq_t)m;          /* m          */
+    seq_t b = a + 1u;            /* m+1        */
+    seq_t c = (a << 1u) + 1u;    /* 2m+1       */
+
+    /* cancel divisor 2 */
+    if ((a & 1u) == 0u)           a >>= 1u;
+    else if ((b & 1u) == 0u)      b >>= 1u;
+    else                          c >>= 1u;
+
+    /* cancel divisor 3 */
+    if (a % 3u == 0u)             a /= 3u;
+    else if (b % 3u == 0u)        b /= 3u;
+    else                          c /= 3u;
+
+    return a * b * c;
+}
 /* Triangle A104792: T(n,k) = A000330(n-k) read by rows.
    For a flat index n (1‑based) we find the corresponding row and column,
    compute m = row - col, and return the square‑pyramidal number

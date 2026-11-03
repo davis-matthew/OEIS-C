@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 51,
  *            big any n
- * Helpers:   diff_of_rows
+ * Validated: standard, pass, 35 terms through n = 188 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,31 @@
  * uses matrix exponentiation over 9×9 matrices (9 possible rows).
  */
 #include <stdlib.h>
-#include "../utils/diff_of_rows.h"
+
+/* compute maximum minus upper median of four values (0..2) */
+static int diff_of_rows(const int r1[2], const int r2[2]) {
+    int a = r1[0], b = r1[1], c = r2[0], d = r2[1];
+    int freq[3] = {0,0,0};
+
+    freq[a]++; freq[b]++; freq[c]++; freq[d]++;
+
+    /* maximum value */
+    int M = 2;
+    if (freq[2] == 0) M = 1;
+    if (freq[2] == 0 && freq[1] == 0) M = 0;
+
+    /* second largest (upper median) */
+    int second;
+    if (freq[M] >= 2) {
+        second = M;
+    } else {
+        /* max of values < M */
+        second = M - 1;
+        while (second >= 0 && freq[second] == 0) second--;
+        if (second < 0) second = 0; /* safety, though should never happen */
+    }
+    return M - second; /* 0,1, or 2 */
+}
 
 #define ROWS 9
 

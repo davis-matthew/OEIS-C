@@ -9,6 +9,7 @@
  *            (n+3)*(n+2)*(449*n^5+3038*n^4+7759*n^3+9790*n^2+6264*n+1680)*(1+n)^2/10080
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 15, u64 n <= 193, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 195 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   a(n) = (1/4) * Σ_{d | (4*n-2), d≡1 (mod 4)} (d+3) for n ≥ 1
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   term_for_n
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,38 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/term_for_n.h"
+#include "../utils/mem.h"
+
+static inline seq_t term_for_n(idx_t n)
+{
+    /* m = 4*n - 2, always even and fit in idx_t */
+    idx_t m = 4 * n - 2;
+    seq_t sum = 0;
+
+    /* iterate through all divisors d <= sqrt(m) */
+    for (idx_t d = 1; d * d <= m; ++d)
+    {
+        if (m % d == 0)
+        {
+            /* d is a divisor */
+            if ((d & 3) == 1)            /* d ≡ 1 (mod 4) */
+            {
+                sum += (seq_t)d + 3;
+            }
+
+            /* paired divisor e = m/d, avoid double counting if d == e */
+            idx_t e = m / d;
+            if (e != d && (e & 3) == 1)  /* e ≡ 1 (mod 4) */
+            {
+                sum += (seq_t)e + 3;
+            }
+        }
+    }
+
+    /* final division by 4 gives the term */
+    sum /= (seq_t)4;
+    return sum;
+}
 
 /* Memoized scalar sequence function */
 seq_t a(idx_t n)
@@ -39,7 +71,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
             while (new_cap < need)
                 new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) /* allocation failure – abort */
                 return 0;
             cache = tmp;

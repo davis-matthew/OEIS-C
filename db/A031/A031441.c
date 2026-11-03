@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gpf, prev_prime
+ * Validated: standard, pass, 83 terms through n = 956 (2026-11-03)
+ * Helpers:   is_prime, largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,19 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"        /* uint64_t gpf(uint64_t x); */
-#include "../utils/prev_prime.h" /* idx_t prev_prime(idx_t n); */
+#include "../utils/is_prime.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +49,7 @@ seq_t a(idx_t n)
     /* grow array if needed */
     if ((size_t)n + 1 > cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL)                 /* allocation failure → zero */
             return (seq_t)0;
         cache = tmp;
@@ -52,7 +64,7 @@ seq_t a(idx_t n)
             seq_t prev = cache[i - 1];
             idx_t smaller_prime = prev_prime((idx_t)prev);
             uint64_t prod = ((uint64_t)smaller_prime) * ((uint64_t)prev) - 1;
-            cache[i] = (seq_t)gpf(prod);
+            cache[i] = (seq_t)largest_prime_factor(prod);
         }
     }
     cur_len = (size_t)n + 1;

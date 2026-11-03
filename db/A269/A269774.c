@@ -9,13 +9,15 @@
  *            (n>=4)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (need < 4) need = 4;
 
     if (cache == NULL || need > cache_sz) {
-        cache   = (seq_t*)realloc(cache, need * sizeof(seq_t));
+        cache   = mem_resize(seq_t, cache, need);
         cache_sz = need;
     }
 

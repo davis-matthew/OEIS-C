@@ -9,12 +9,26 @@
  *            enumeration of the reciprocal array with x = 3
  * Range:     u8 n <= 1057, u16 n <= 1830, u32 n <= 1830, u64 n <= 1830,
  *            u128 n <= 1830, big any n
- * Helpers:   reciprocal_T
+ * Validated: standard, pass, 94 terms through n = 1683 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reciprocal_T.h"
+static seq_t reciprocal_T(idx_t m, idx_t n)
+{
+    /* Compute T(m,n) = Sum_{k=0}^{m-1} floor((n*k+3)/m) */
+    seq_t sum = 0;
+    seq_t m_s = (seq_t)m;     /* cast m to the target type */
+    seq_t n_s = (seq_t)n;
+    const seq_t x = 3;        /* fixed value in the floor */
+
+    for (idx_t k = 0; k < m; ++k) {
+        seq_t term = (n_s * (seq_t)k + x) / m_s;
+        sum += term;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   generate_group
+ * Validated: full, pass, 9 terms through n = 8 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,25 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/generate_group.h"
+
+static void generate_group(uint8_t grp[24][8]) {
+    int cnt = 0;
+    for (int a = 0; a < 4; ++a)
+        for (int b = 0; b < 4; ++b) if (b != a)
+            for (int c = 0; c < 4; ++c) if (c != a && c != b)
+                for (int d = 0; d < 4; ++d) if (d != a && d != b && d != c) {
+                    grp[cnt][0] = a;
+                    grp[cnt][1] = b;
+                    grp[cnt][2] = c;
+                    grp[cnt][3] = d;
+                    grp[cnt][4] = a + 4;
+                    grp[cnt][5] = b + 4;
+                    grp[cnt][6] = c + 4;
+                    grp[cnt][7] = d + 4;
+                    ++cnt;
+                    if (cnt == 24) return;
+                }
+}
 
 static uint8_t adjacency[8];
 

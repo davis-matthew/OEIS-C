@@ -10,13 +10,15 @@
  *            numbers
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   is_prime_small, is_squarefree
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-02)
+ * Helpers:   is_prime_seq, is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
 #include "../utils/is_squarefree.h"
 
 /* static cache: a[1]…a[8] are stored; value 0 means not yet computed.
@@ -27,7 +29,7 @@ static inline bool composite_squarefree(seq_t x)
 {
     /* x must be > 1, composite and squarefree */
     if (x <= 3) return false;
-    if (is_prime_small(x)) return false;
+    if (is_prime_seq(x)) return false;
     if (!is_squarefree(x)) return false;
     return true;
 }

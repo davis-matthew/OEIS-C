@@ -10,7 +10,8 @@
  *            is the number of primes ≤ x
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for the sieve and the prime-count array */
 static idx_t   sieve_limit = 0;
@@ -29,15 +31,15 @@ static void recompute_sieve(idx_t limit)
 {
     /* free previous storage if any */
     if (prime_flag) free(prime_flag);
-    if (pi_arr)     free(pi_arr);
+    if (pi_arr)     mem_free(pi_arr);
 
     /* allocate with size limit+1 (including index 0) */
     prime_flag = (uint8_t *)malloc((limit + 1) * sizeof(uint8_t));
-    pi_arr     = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    pi_arr     = mem_new(seq_t, (limit + 1));
     if (!prime_flag || !pi_arr) {
         /* allocation failed: make the pointers NULL to avoid use */
         if (prime_flag) free(prime_flag);
-        if (pi_arr) free(pi_arr);
+        if (pi_arr) mem_free(pi_arr);
         prime_flag = NULL;
         pi_arr = NULL;
         sieve_limit = 0;

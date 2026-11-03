@@ -11,7 +11,8 @@
  *            A_k(m) = c_k(m)^3, c_k(0)=1, c_k(1)=[k even],...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   q31_mu
+ * Validated: standard, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/q31_mu.h"
+#include "../utils/mobius_idx.h"
 
 typedef struct { uint32_t *d; size_t n, cap; } q31_t;
 typedef struct { q31_t *c, *A, *R; size_t len, cap; } q31_ser;
@@ -206,7 +207,7 @@ seq_t a(idx_t n) {
     for (j = 1; j <= N; j++) {
         int mu;
         if (N % j) continue;
-        mu = q31_mu(j);
+        mu = mobius_idx(j);
         if (mu > 0) q31_add(&pos, &g_T[N / j]);
         else if (mu < 0) q31_add(&neg, &g_T[N / j]);
     }

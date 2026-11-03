@@ -7,12 +7,14 @@
  * Formula:   a(n) = interpret_base9_as_decimal(n-th prime)
  * Range:     u8 n <= 47, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 64 terms through n = 989 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     // Find the n-th prime
@@ -20,7 +22,7 @@ seq_t a(idx_t n) {
     uint64_t p = 2;
     
     while (count < n) {
-        if (is_prime(p)) {
+        if (is_prime_u64(p)) {
             count++;
             if (count == n) break;
         }

@@ -7,14 +7,26 @@
  * Formula:   a(n) = (10^(1 + floor((n-1) * log10 2)) + 1)^n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 4, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   big_pow, pow10
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* We use the supplied utilities pow10 and big_pow. */
-#include "../utils/pow10.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 #define LOG10_2_NUM  301029996ULL   /* floor(log10(2) * 1e9) */
 #define LOG10_2_DEN  1000000000ULL  /* scaling factor */
@@ -35,7 +47,7 @@ seq_t a(idx_t n)
     seq_t base = pow10(d);            /* 10^d as seq_t */
     base = base + (seq_t)1;           /* add 1 */
 
-    seq_t result = big_pow(base, (seq_t)n);  /* (10^d + 1)^n */
+    seq_t result = ipow(base, (seq_t)n);  /* (10^d + 1)^n */
 
     return result;
 }

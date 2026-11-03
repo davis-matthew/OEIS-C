@@ -8,13 +8,16 @@
  *            of 3^(n-1))
  * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 20, i64 n <= 40, i128 n <= 81,
  *            big any n
- * Helpers:   pow3
+ * Validated: standard, pass, 46 terms through n = 957 (2026-11-03)
+ * Helpers:   mem, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/pow3.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     if ((idx_t)n > cap)            /* need to extend the cache */
     {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) abort();        /* memory exhausted */
         cache = tmp;
 

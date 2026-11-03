@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
        bin_a[p] = C(a_cells,p).  Use the multiplicative recurrence
        to avoid factorials.  */
     size_t a_size = (size_t)a_cells + 1;
-    seq_t *bin_a = (seq_t *)malloc(a_size * sizeof(seq_t));
+    seq_t *bin_a = mem_new(seq_t, a_size);
     if (!bin_a) return 0;
     bin_a[0] = 1;
     for (idx_t p = 1; p <= a_cells; ++p) {
@@ -73,8 +75,8 @@ seq_t a(idx_t n)
     }
 
     size_t b_size = (size_t)b_cells + 1;
-    seq_t *bin_b = (seq_t *)malloc(b_size * sizeof(seq_t));
-    if (!bin_b) { free(bin_a); return 0; }
+    seq_t *bin_b = mem_new(seq_t, b_size);
+    if (!bin_b) { mem_free(bin_a); return 0; }
     bin_b[0] = 1;
     for (idx_t q = 1; q <= b_cells; ++q) {
         bin_b[q] = bin_b[q - 1] * (seq_t)(b_cells - (q - 1))
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(bin_a);
-    free(bin_b);
+    mem_free(bin_a);
+    mem_free(bin_b);
     return result;
 }

@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = the unique integer a such that a^(n^2/a) =
  *            gcd(n^n,∏_{k<n}k^k); a and n^2/a are integers, otherwise a(n)=0
- * Range:     u8 n <= 15, u16 n <= 1850, u32 n <= 9611, u64 n <= 9611,
- *            u128 n <= 9611, big any n
+ * Range:     u8 n <= 15, u16 n <= 1850, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 9611 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

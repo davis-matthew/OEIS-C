@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} mu(n/d) * d^n / phi(n) (OEIS A344210)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, calc_phi, floor_sqrt, mu_of
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow, ipow_i32, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,11 +17,50 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/calc_phi.h"
-#include "../utils/big_pow.h"
-#include "../utils/mu_of.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/totient_seq.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Recursive helper to generate all divisors of n and sum d^n weighted by mu. */
 static void
@@ -34,7 +74,7 @@ recur_divisors(size_t pos, seq_t cur_d, idx_t n,
         int mu = mu_of(n_div);
         if (mu == 0) return;
 
-        seq_t power = big_pow(cur_d, (seq_t)n);
+        seq_t power = ipow(cur_d, (seq_t)n);
         if (mu > 0) {
             *pos_sum += power;
         } else { /* mu == -1 */
@@ -97,6 +137,6 @@ seq_t a(idx_t n)
     seq_t sum = pos_sum - neg_sum;     /* pos_sum >= neg_sum for this sequence */
 
     /* Divide by phi(n). */
-    seq_t phi_n = calc_phi((seq_t)n);
+    seq_t phi_n = totient_seq((seq_t)n);
     return sum / phi_n;
 }

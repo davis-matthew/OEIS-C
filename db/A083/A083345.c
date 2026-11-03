@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy, frac
  * Formula:   a(n) = n' / gcd(n,n'), where n' = n * Σ e/p over prime powers
  *            p^e||n and gcd is the integer greatest common divisor
- * Range:     u8 n <= 267, u16 n <= 9612, u32 n <= 9612, u64 n <= 9612,
- *            u128 n <= 9612, big any n
+ * Range:     u8 n <= 267, u16 n <= 51869, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 101 terms through n = 9612 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

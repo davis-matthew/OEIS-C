@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -55,13 +57,13 @@ seq_t a(idx_t n)
     /* Allocate three row buffers of length r+1.  The buffers are
        reused for each successive row. */
     size_t sz   = (size_t)(r + 1);
-    seq_t *row0 = (seq_t *)malloc(sz * sizeof(seq_t)); /* T(0,0) */
-    seq_t *row1 = (seq_t *)malloc(sz * sizeof(seq_t)); /* T(1,0..1) */
-    seq_t *row2 = (seq_t *)malloc(sz * sizeof(seq_t)); /* temporary buffer */
+    seq_t *row0 = mem_new(seq_t, sz); /* T(0,0) */
+    seq_t *row1 = mem_new(seq_t, sz); /* T(1,0..1) */
+    seq_t *row2 = mem_new(seq_t, sz); /* temporary buffer */
 
     if (!row0 || !row1 || !row2) {
         /* Allocation failure – return 0 as a fallback. */
-        free(row0); free(row1); free(row2);
+        mem_free(row0); mem_free(row1); mem_free(row2);
         return (seq_t)0;
     }
 
@@ -101,9 +103,9 @@ seq_t a(idx_t n)
     seq_t result = prev[(size_t)c];
 
     /* Clean up allocations. */
-    free(row0);
-    free(row1);
-    free(row2);
+    mem_free(row0);
+    mem_free(row1);
+    mem_free(row2);
 
     return result;
 }

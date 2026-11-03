@@ -8,13 +8,15 @@
  * Formula:   a(0)=2, a(n)=a(n-1)+prime(n)+prime(n-1)
  * Range:     u8 n <= 9, u16 n <= 114, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 8999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- prime generation (trial division) ---------- */
 static uint64_t *prime_buf   = NULL; /* 0‑based index: prime_buf[0] = 2 */
@@ -58,12 +60,12 @@ seq_t a(idx_t n)
     /* allocate or grow the cache */
     if (a_cache == NULL) {
         a_cache_cap = n + 1;
-        a_cache = (seq_t*)malloc(a_cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_cap);
         a_cache[0] = (seq_t)2;      /* a(0) = 2 */
         a_cache_last = 0;
     } else if (a_cache_cap <= n) {
         a_cache_cap = n + 1;
-        a_cache = (seq_t*)realloc(a_cache, a_cache_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, a_cache_cap);
     }
 
     /* already computed? */

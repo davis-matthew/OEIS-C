@@ -10,7 +10,8 @@
  *            a(1)=4, a(2)=4, a(3)=11, a(4)=15, a(5)=21, a(6)=52, a(7)=118
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t seq_cache_size = 0;
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     size_t needed = (size_t)n + 1;
     if (needed < 8) needed = 8;
     if (needed > seq_cache_size) {
-        seq_t *tmp = (seq_t *)realloc(seq_cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, needed);
         if (!tmp) abort();      /* allocation failure */
         seq_cache = tmp;
         seq_cache_size = needed;

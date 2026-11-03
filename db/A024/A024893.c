@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _modpow_uint64
+ * Validated: standard, pass, 81 terms through n = 960 (2026-11-03)
+ * Helpers:   mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_modpow_uint64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 static bool _is_prime_uint64(uint64_t n)
 {
@@ -43,7 +45,7 @@ static bool _is_prime_uint64(uint64_t n)
     for (size_t i = 0; i < sizeof(bases)/sizeof(bases[0]); ++i) {
         uint64_t a = bases[i];
         if (a % n == 0U) continue;
-        uint64_t x = _modpow_uint64(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1U || x == n - 1U) continue;
         bool composite = true;
         for (uint64_t r = 1U; r < s; ++r) {
@@ -69,7 +71,7 @@ static void _ensure_capacity(idx_t needed)
     if (cap >= needed) return;
     idx_t newcap = (cap == 0) ? 8 : (cap << 1);
     while (newcap < needed) newcap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp) abort();           /* out of memory */
     cache = tmp;
     cap   = newcap;

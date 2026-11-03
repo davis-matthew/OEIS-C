@@ -12,7 +12,8 @@
  *            The function memoizes computed values; i...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   mul_small, pow10, seq_from_str
+ * Validated: standard, pass, 34 terms through n = 453 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,43 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/pow10.h"     /* seq_t pow10(idx_t exp);          */
-#include "../utils/mul_small.h" /* seq_t mul_small(seq_t x, unsigned int m); */
-#include "../utils/seq_from_str.h" /* seq_t seq_from_str(const char *s);       */
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 static seq_t *a_cache   = NULL;   /* memoization array   */
 static idx_t  a_max     = (idx_t)-1;/* highest index cached, -1 = none yet */
@@ -34,7 +69,7 @@ static void grow_cache(idx_t n)
     if (a_cap <= n) {
         size_t new_cap = a_cap ? a_cap * 2 : 16;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *new_ptr = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, a_cache, new_cap);
         if (!new_ptr) abort();                /* memory exhausted */
         a_cache = new_ptr;
         a_cap   = new_cap;

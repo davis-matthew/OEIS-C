@@ -8,13 +8,15 @@
  * Formula:   a(n) = (a(n-3) + a(n-1))*(a(n-2) + a(n-3)), a(1)=a(2)=a(3)=1
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 9, u64 n <= 10, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* enlarge the table if needed */
     if (cap <= (size_t)n) {
         size_t newcap = (size_t)n + 1;               /* indices 0…n */
-        seq_t *newptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, newcap);
         if (!newptr)                                 /* allocation failed */
             return 0;
         /* initialise new entries */

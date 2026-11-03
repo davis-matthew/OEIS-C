@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} mu(d) * floor(phi(n)/d)
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   calc_phi, factor_u64, mu_of
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   factor_u64, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,31 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/calc_phi.h"
-#include "../utils/mu_of.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/totient_seq.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 /* Recursive helper to generate all divisors of n from its prime factorisation. */
 static void gen_divisors(const uint64_t *primes, const uint64_t *exps,
@@ -41,7 +64,7 @@ static void gen_divisors(const uint64_t *primes, const uint64_t *exps,
 seq_t a(idx_t n)
 {
     /* Euler's totient of n. */
-    seq_t phi = calc_phi(n);
+    seq_t phi = totient_seq(n);
 
     /* 1. factorise n and generate its divisors. */
     uint64_t primes[64];

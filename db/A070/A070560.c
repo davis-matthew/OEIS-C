@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   fecundity
+ * Validated: partial, pass, 102 terms through n = 101 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,32 @@
    transitions before reaching 0, minus one.  The special case is a(0)=1. */
 
 #include <stdint.h>
-#include "../utils/fecundity.h"
+
+static seq_t fecundity(idx_t n) {
+    seq_t steps = 0;
+    seq_t x = n;
+    while (x != 0) {
+        seq_t p = 1;
+        seq_t t = x;
+        while (t > 0) {
+            seq_t d = t % 10;
+            if (d == 0) {          // product will be zero -> stop in this step
+                p = 0;
+                break;
+            }
+            p *= d;
+            t /= 10;
+        }
+        /* One step of the process */
+        steps++;
+        if (p == 0) {
+            /* next value is 0, sequence ends */
+            break;
+        }
+        x = x + p;
+    }
+    return steps - 1;               /* fecundity = steps - 1   */
+}
 
 seq_t a(idx_t n) {
     if (n == 0)

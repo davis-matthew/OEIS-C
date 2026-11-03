@@ -13,6 +13,7 @@
  *            description of A334870.)
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 30, u64 n <= 58, u128 n <= 106,
  *            big any n
+ * Validated: standard, pass, 74 terms through n = 963 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,7 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto() */
+#include "../utils/build_primes_upto.h"
 
 static uint64_t *primes = NULL;   /* primes up to current limit */
 static size_t    prime_cnt = 0;

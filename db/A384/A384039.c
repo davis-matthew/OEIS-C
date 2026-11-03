@@ -10,13 +10,14 @@
  *            } The function below implements this directly
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   power_uint64
+ * Validated: standard, pass, 85 terms through n = 8709 (2026-11-01)
+ * Helpers:   ipow_u64_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/power_uint64.h"
+#include "../utils/ipow_u64_u32.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
             result *= ((seq_t)2 - 1);
         } else {
             seq_t base = ((seq_t)2 * (seq_t)2) - (seq_t)2 + (seq_t)1; /* 2^2 - 2 + 1 */
-            result *= base * power_uint64(2, e - 2);
+            result *= base * ipow_u64_u32(2, e - 2);
         }
     }
 
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
             result *= ((seq_t)p - 1);
         } else {
             seq_t base = ((seq_t)p * (seq_t)p) - (seq_t)p + (seq_t)1; /* p^2 - p + 1 */
-            result *= base * power_uint64(p, e - 2);
+            result *= base * ipow_u64_u32(p, e - 2);
         }
     }
 

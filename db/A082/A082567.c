@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 355, u32 n <= 606, u64 n <= 606, u128 n <= 606,
  *            big any n
- * Helpers:   rev_two
+ * Validated: full, pass, 606 terms through n = 606 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/rev_two.h"
+
+/* Two‑digit reverse: rev(x) = (x%10)*10 + (x/10).  x is 0…59 or 0…24. */
+static inline seq_t rev_two(uint8_t x)
+{
+    return (seq_t)((x % 10) * 10 + (x / 10));
+}
 
 #define PAL_COUNT 606
 

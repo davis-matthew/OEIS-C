@@ -8,7 +8,8 @@
  *            where A001359 lists the smaller prime of each twin prime pair
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Array of the smaller prime of each twin prime pair. */
 static seq_t *twin_lower = NULL;
@@ -48,7 +50,7 @@ static void ensure_twin_primes(idx_t need)
                 ++new_cnt;
 
         /* Allocate an array holding all twins found so far. */
-        seq_t *tmp = (seq_t *)malloc(new_cnt * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cnt);
         if (!tmp)
             exit(EXIT_FAILURE);
 
@@ -59,7 +61,7 @@ static void ensure_twin_primes(idx_t need)
                 tmp[idx++] = (seq_t)primes[i];
 
         /* Replace the old twin array (if any). */
-        free(twin_lower);
+        mem_free(twin_lower);
         twin_lower = tmp;
         twin_cnt   = (idx_t)new_cnt;
 

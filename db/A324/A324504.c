@@ -8,17 +8,19 @@
  * Formula:   a(n) = denominator of Σ_{d|n} d / τ(d) where τ(d) = number of
  *            divisors of d. The sum is taken as a rational, and the result
  *            returned is the denominator of the reduced fraction
- * Range:     u8 n <= 15, u16 n <= 6999, u32 n <= 9934, u64 n <= 9934,
- *            u128 n <= 9934, big any n
- * Helpers:   factor_u64, seq_gcd
+ * Range:     u8 n <= 15, u16 n <= 6999, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 101 terms through n = 9934 (2026-11-01)
+ * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 /* Recursive generation of all divisors of a number given its prime
    factorisation.  For each divisor d it also records τ(d). */
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     seq_t D = 1;
     for (int i = 0; i < count; ++i) {
         seq_t t = (seq_t)taus[i];
-        seq_t g = seq_gcd(D, t);
+        seq_t g = gcd(D, t);
         D = (D / g) * t;
     }
 
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
     }
 
     /* Reduce the fraction N/D and return the denominator. */
-    seq_t g = seq_gcd(N, D);
+    seq_t g = gcd(N, D);
     seq_t result = D / g;
 
     free(divs);

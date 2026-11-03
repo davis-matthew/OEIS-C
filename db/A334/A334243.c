@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * [x^n] exp(n*(1 + x - exp(x)))
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 11, i64 n <= 18, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /*  Bell_k(x) is the complete Bell polynomial: Bell_{k+1}(x) = x * sum_{j=0}^k binom(k,j) * Bell_j(x) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,10 +25,10 @@ seq_t a(idx_t n)
     size_t sz = (size_t)n + 1U;                /* array size */
 
     /* allocate arrays for Bell polynomials and powers of n */
-    seq_t *B     = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *pow_n = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *B     = mem_new(seq_t, sz);
+    seq_t *pow_n = mem_new(seq_t, sz);
     if (!B || !pow_n) {
-        free(B); free(pow_n);
+        mem_free(B); mem_free(pow_n);
         return (seq_t)0;                      /* allocation failed */
     }
 
@@ -69,8 +71,8 @@ seq_t a(idx_t n)
         }
     }
 
-    free(B);
-    free(pow_n);
+    mem_free(B);
+    mem_free(pow_n);
 
     return result;
 }

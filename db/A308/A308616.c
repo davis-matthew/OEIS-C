@@ -7,16 +7,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Σ_{4b+3u+1=n} binomial(2b+u, u) * Catalan(b)
- * Range:     u8 n <= 20, u16 n <= 33, u32 n <= 58, u64 n <= 106,
+ * Range:     u8 n <= 21, u16 n <= 33, u32 n <= 58, u64 n <= 106,
  *            u128 n <= 200, big any n
+ * Validated: standard, pass, 66 terms through n = 917 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t, idx_t); */
-#include "../utils/catalan.h"    /* provides seq_t catalan(idx_t); */
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/catalan.h"
 
 seq_t a(idx_t n)
 {

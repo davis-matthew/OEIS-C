@@ -11,7 +11,8 @@
  *            the first n+1 symbols
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 94 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>   /* malloc, free */
 #include <stddef.h>   /* size_t */
 #include <stdbool.h>  /* bool */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* cached word */
 static size_t cache_len = 0;    /* number of symbols in cache */
@@ -28,7 +30,7 @@ static size_t cache_len = 0;    /* number of symbols in cache */
 static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {
-        cache = (seq_t*)malloc(1 * sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)1;
         cache_len = 1;
     }
@@ -45,7 +47,7 @@ static void ensure_cache(idx_t n)
         }
 
         /* Allocate new buffer */
-        seq_t *new_cache = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
 
         /* Perform expansion */
         size_t pos = 0;
@@ -64,7 +66,7 @@ static void ensure_cache(idx_t n)
         }
 
         /* Replace old cache */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
     }

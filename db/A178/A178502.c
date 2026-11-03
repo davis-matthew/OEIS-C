@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *terms      = NULL;   /* cached sequence terms          */
 static size_t terms_len  = 0;      /* number of terms cached         */
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
         if ((rem << 1) < cn) {
             if (terms_len == terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                 if (!tmp) exit(1);
                 terms = tmp;
             }

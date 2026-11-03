@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..⌊n/2⌋} binomial(n,k) * binomial(3*n-3*k, n-2*k)
- * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 21,
+ * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 21, u128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,8 @@
 /* This implementation uses the provided helper binomial function and works for
    any seq_t (fixed-width or arbitrary precision). */
 
-#include "../utils/binomial.h"  /* assumes binomial is available via utils */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

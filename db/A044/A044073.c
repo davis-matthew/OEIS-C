@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 3976, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9402 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* true if x in base‑4 contains the adjacent digit pair 3,0 (3 followed by 0) */
 static bool has30(seq_t x)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             /* Grow array if needed */
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap == 0 ? (size_t)8 : terms_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp)
                     abort();         /* allocation failure */
                 terms = tmp;

@@ -10,16 +10,30 @@
  *            n≥4. a(1)=1, a(2)=11, a(3)=111, ... etc
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 15, u128 n <= 22,
  *            big any n
- * Helpers:   digit_len, pow10, seq_one
+ * Validated: standard, pass, 35 terms through n = 116 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_one.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static idx_t cached_n = 0;
 static seq_t *pad = NULL;
@@ -32,11 +46,11 @@ static void ensure_capacity(idx_t n)
     /* Grow arrays to hold indices 1..n */
     size_t newlen = (size_t)n;
     if (!pad) {
-        pad = (seq_t*)malloc(sizeof(seq_t) * newlen);
-        concat = (seq_t*)malloc(sizeof(seq_t) * newlen);
+        pad = mem_new(seq_t, newlen);
+        concat = mem_new(seq_t, newlen);
     } else {
-        pad = (seq_t*)realloc(pad, sizeof(seq_t) * newlen);
-        concat = (seq_t*)realloc(concat, sizeof(seq_t) * newlen);
+        pad = mem_resize(seq_t, pad, newlen);
+        concat = mem_resize(seq_t, concat, newlen);
     }
 
     /* Compute Padovan numbers and cumulative concatenations */
@@ -55,7 +69,7 @@ static void ensure_capacity(idx_t n)
         if (i == 1) {
             concat[idx] = pad[idx];
         } else {
-            idx_t d   = digit_len(pad[idx]);  /* number of decimal digits */
+            idx_t d   = num_digits(pad[idx]);  /* number of decimal digits */
             seq_t p10 = pow10(d);             /* 10^d as seq_t */
             concat[idx] = concat[idx-1] * p10 + pad[idx];
         }

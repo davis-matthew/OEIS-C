@@ -7,14 +7,28 @@
  * Formula:   a(n) = 24*a(n-1) - 578*(n-1)*a(n-2) (n ≥ 2), a(0)=1, a(1)=24
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 5, i64 n <= 11, i128 n <= 20,
  *            big any n
- * Helpers:   free_seq_array, seq_alloc_array
+ * Validated: standard, pass, 32 terms through n = 373 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 10, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
  
 /* Constants */
 #define NUM_ROWS 4096          /* 4^6  rows */
@@ -133,8 +135,8 @@ seq_t a(idx_t n)
     if (!init_done) build_transfers();
 
     /* DP arrays: use two rows of seq_t */
-    seq_t *dp  = (seq_t*)calloc(NUM_ROWS, sizeof(seq_t));
-    seq_t *nex = (seq_t*)calloc(NUM_ROWS, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, NUM_ROWS);
+    seq_t *nex = mem_new(seq_t, NUM_ROWS);
     seq_t result = 0;
 
     size_t steps = (size_t)n;   /* number of transitions = n */
@@ -145,7 +147,7 @@ seq_t a(idx_t n)
 
         for (size_t step = 0; step < steps; ++step) {
             /* zero nex */
-            memset(nex, 0, NUM_ROWS * sizeof(seq_t));
+            mem_set(nex, 0, NUM_ROWS * sizeof(seq_t));
 
             for (size_t i = 0; i < NUM_ROWS; ++i) {
                 seq_t val = dp[i];
@@ -168,7 +170,7 @@ seq_t a(idx_t n)
             result += dp[i];
     }
 
-    free(dp);
-    free(nex);
+    mem_free(dp);
+    mem_free(nex);
     return result;
 }

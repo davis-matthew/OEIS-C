@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 32, u64 n <= 59, u128 n <= 113,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 2653 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
         a(n) = 28*a(n‑4) – 28*a(n‑8) + a(n‑12)          */
 
 #include <stdlib.h>   /* for malloc and realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* term cache, 1‑based indexing */
 static idx_t  cache_len = 0;  /* highest index stored in cache */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise cache and first 12 terms on first call */
     if (cache == NULL) {
         cache_len = 12;
-        cache = (seq_t *)malloc((cache_len + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_len + 1));
         if (!cache) return 0;                 /* allocation failure – unlikely in test */
         cache[0] = 0;                         /* unused element */
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     if (n <= cache_len) return cache[n];
 
     /* grow the cache to hold indices up to n */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) return 0;                 /* allocation failure */
     cache = new_cache;
 

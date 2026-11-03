@@ -7,6 +7,7 @@
  * Formula:   a(n) = sigma(n^2) (sum of the divisors of n squared)
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 2250, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 64 terms through n = 9943 (2026-11-01)
  * Helpers:   factor_uint64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

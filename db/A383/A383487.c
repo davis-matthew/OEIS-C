@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 19, u64 n <= 5000, u128 n <= 5000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 4713 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the required types.  The compiler provides
    appropriate typedefs for seq_t and idx_t. */
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
        elements that are inserted during the process.  This upper bound
        keeps the reallocation logic simple. */
     const size_t heap_cap = prime_count + target;
-    Node *heap = (Node *)malloc(heap_cap * sizeof(Node));
+    Node *heap = mem_new(Node, heap_cap);
     if (!heap) return 0;              /* allocation failure */
 
     /* Initialize heap with p^2 for every prime p ≡ 3 mod 4. */
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
         Node top = heap[0];
         ++count;
         if (count == target) {          /* requested term found */
-            free(heap);
+            mem_free(heap);
             return top.value;
         }
 

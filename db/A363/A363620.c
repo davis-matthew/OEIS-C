@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 77, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/compute_pi.h"   /* seq_t compute_pi(idx_t) */
+#include "../utils/prime_pi.h"
 
 /* Integer square root: floor(sqrt(n)) */
 static idx_t int_sqrt(idx_t n)
@@ -110,7 +111,7 @@ static seq_t reverse_weighted_sum(idx_t n)
     /* If a prime > sqrt(n) remains, it appears once. */
     if (remaining > 1) {
         /* compute_pi(remaining) gives the index of that prime. */
-        seq_t prime_idx = compute_pi(remaining);
+        seq_t prime_idx = prime_pi(remaining);
         if (k < sizeof(indices) / sizeof(indices[0]))
             indices[k++] = prime_idx;
         else

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: partial, pass, 49 terms through n = 50 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
  * Formula: a(n) = smallest prime factor of n^2 + n + 1
  */
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -29,6 +31,6 @@ seq_t a(idx_t n)
     unsigned __int128 v128 = (unsigned __int128)un * un + un + 1;
     uint64_t v = (uint64_t)v128;   /* safe for n <= ~10^9 (our test range is <=10^4) */
 
-    uint64_t spf = _smallest_prime_factor(v);
+    uint64_t spf = smallest_prime_factor(v);
     return (seq_t)spf;
 }

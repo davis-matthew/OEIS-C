@@ -8,11 +8,13 @@
  * Formula:   a(n) = Numerator[Sum[k^2/(n-k+1),{k,1,n}]]
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 21, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Computes the n-th term of OEIS sequence A119389.

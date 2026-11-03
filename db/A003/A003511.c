@@ -8,14 +8,36 @@
  *            floor(n*(1+sqrt(3))/2)
  * Range:     u8 n <= 187, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a003511_isqrt3, a003511_isqrt3_seq
+ * Validated: standard, pass, 87 terms through n = 9810 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a003511_isqrt3.h"
-#include "../utils/a003511_isqrt3_seq.h"
+
+static unsigned __int128 a003511_isqrt3(uint64_t n) {
+    unsigned __int128 x = (unsigned __int128)n * n * 3u;
+    unsigned __int128 g = (unsigned __int128)n * 2u; /* g >= sqrt(3)*n */
+    if (g == 0) return 0;
+    for (;;) {
+        unsigned __int128 y = (g + x / g) / 2u;
+        if (y >= g) break;
+        g = y;
+    }
+    return g;
+}
+
+static seq_t a003511_isqrt3_seq(idx_t n) {
+    seq_t x = (seq_t)n * (seq_t)n * 3;
+    seq_t g = (seq_t)n * 2;
+    for (;;) {
+        seq_t y = (g + x / g) / 2;
+        if (y >= g) break;
+        g = y;
+    }
+    return g;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;

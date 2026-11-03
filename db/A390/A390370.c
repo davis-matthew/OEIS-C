@@ -11,14 +11,30 @@
  *            of the prime power
  * Range:     u8 n <= 119, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isigma_prime_power
+ * Validated: standard, pass, 87 terms through n = 9574 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/isigma_prime_power.h"
+
+static seq_t
+isigma_prime_power(uint64_t p, uint64_t e)
+{
+    seq_t prod   = (seq_t)1;
+    seq_t pow_val = (seq_t)p;        /* p^(2^0) */
+    uint64_t mask = e;
+    while (mask) {
+        if (mask & 1ULL)
+            prod *= ((seq_t)1 + pow_val);
+        mask >>= 1;
+        if (mask)
+            pow_val *= pow_val;      /* p^(2^(b+1)) */
+    }
+    return prod;
+}
 
 seq_t a(idx_t n)
 {

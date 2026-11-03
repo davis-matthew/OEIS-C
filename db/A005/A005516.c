@@ -12,13 +12,44 @@
  *            o...
  * Range:     u8 n <= 17, u16 n <= 24, u32 n <= 55, u64 n <= 375,
  *            u128 n <= 1000, big any n
- * Helpers:   acc_div24
+ * Validated: standard, pass, 45 terms through n = 993 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/acc_div24.h"
+
+/* Adds w*C(N,k) to (*Q)*24 + (*R), never forming a value larger than w*C(N,k)/24. */
+static void acc_div24(uint64_t N, int k, uint64_t w, seq_t *Q, uint64_t *R) {
+    uint64_t f[16];
+    int i, j;
+    for (i = 0; i < k; i++) f[i] = N - (uint64_t)i;
+    /* cancel k! from the factors, prime by prime */
+    for (j = 2; j <= k; j++) {
+        int x = j, p;
+        for (p = 2; x > 1; p++) {
+            while (x % p == 0) {
+                x /= p;
+                for (i = 0; i < k; i++) {
+                    if (f[i] % (uint64_t)p == 0) { f[i] /= (uint64_t)p; break; }
+                }
+            }
+        }
+    }
+    {
+        seq_t q = 0;
+        uint64_t r = w;
+        q += r / 24; r %= 24;
+        for (i = 0; i < k; i++) {
+            uint64_t rf = r * f[i];
+            q = q * (seq_t)f[i] + (seq_t)(rf / 24);
+            r = rf % 24;
+        }
+        *Q += q;
+        *R += r;
+    }
+}
 
 seq_t a(idx_t n) {
     seq_t Q = 0;

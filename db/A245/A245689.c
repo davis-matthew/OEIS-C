@@ -10,6 +10,7 @@
  *            supplied by the build
  * Range:     u8 n <= 256, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 93 terms through n = 996 (2026-11-02)
  * Helpers:   build_primes, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -26,10 +27,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/build_primes.h"   /* void build_primes(idx_t limit,
-                                      idx_t **out, size_t *cnt); */
-#include "../utils/factor_u64.h"     /* void factor_u64(uint64_t n,
-                                      uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/factor_u64.h"
 
 /* -------------------------------------------------------------------- */
 /*  Hold the prime table:  static for all calls of a().                */

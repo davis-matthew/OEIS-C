@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 29, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* State representation and constants                                   */
@@ -101,7 +103,7 @@ static void _impl_init(void)
 
     /* Allocate cache for a(1) (indices 0..1) */
     _impl_cache_cap = 4;   /* room for index 0 (unused) and 1 and maybe 2 */
-    _impl_cache = (seq_t *)malloc(_impl_cache_cap * sizeof(seq_t));
+    _impl_cache = mem_new(seq_t, _impl_cache_cap);
     if (_impl_cache == NULL) abort();
     for (size_t i = 0; i < _impl_cache_cap; ++i) _impl_cache[i] = 0;
     _impl_cache[1] = a1;
@@ -145,7 +147,7 @@ seq_t a(idx_t n)
         /* Resize cache if necessary */
         if (_impl_max_n + 1 >= _impl_cache_cap) {
             size_t new_cap = (_impl_max_n + 2) * 2;
-            seq_t *new_cache = (seq_t *)realloc(_impl_cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, _impl_cache, new_cap);
             if (!new_cache) abort();
             for (size_t i = _impl_cache_cap; i < new_cap; ++i)
                 new_cache[i] = 0;

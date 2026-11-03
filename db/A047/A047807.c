@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2/3 E_4^3 + 1/3 E_6^2
  * Range:     i8 n <= 0, i16 n <= 1, i32 n <= 4, i64 n <= 15, i128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 static idx_t  global_max_n = 0;
 static seq_t *sigma3      = NULL;
@@ -39,20 +41,20 @@ static void ensure_tables(idx_t N)
         return;
 
     /* free old tables */
-    if (sigma3)   free(sigma3);
-    if (sigma5)   free(sigma5);
-    if (conv2_3)  free(conv2_3);
-    if (conv3_3)  free(conv3_3);
-    if (conv2_5)  free(conv2_5);
+    if (sigma3)   mem_free(sigma3);
+    if (sigma5)   mem_free(sigma5);
+    if (conv2_3)  mem_free(conv2_3);
+    if (conv3_3)  mem_free(conv3_3);
+    if (conv2_5)  mem_free(conv2_5);
 
     global_max_n = N;
     size_t sz = (size_t)(N + 1);
 
-    sigma3  = (seq_t *)calloc(sz, sizeof(seq_t));
-    sigma5  = (seq_t *)calloc(sz, sizeof(seq_t));
-    conv2_3 = (seq_t *)calloc(sz, sizeof(seq_t));
-    conv3_3 = (seq_t *)calloc(sz, sizeof(seq_t));
-    conv2_5 = (seq_t *)calloc(sz, sizeof(seq_t));
+    sigma3  = mem_new(seq_t, sz);
+    sigma5  = mem_new(seq_t, sz);
+    conv2_3 = mem_new(seq_t, sz);
+    conv3_3 = mem_new(seq_t, sz);
+    conv2_5 = mem_new(seq_t, sz);
 
     /* ----- divisor sums σ3, σ5 --------------------------------- */
     for (idx_t d = 1; d <= N; ++d) {

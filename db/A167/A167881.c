@@ -10,7 +10,8 @@
  *            for n≥17
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   free_seq_array, pow2
+ * Validated: standard, pass, 48 terms through n = 492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/pow2.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Compute 2^exp for any exponent that may not fit in the bit width of seq_t. */
+static seq_t pow2(idx_t exp)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= (seq_t)2;
+    return res;
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* allocate / free helpers ----------------------------------------- */
 static seq_t *allocate_seq_array(size_t n) {
-    return (seq_t *)malloc(sizeof(seq_t) * n);
+    return mem_new(seq_t, n);
 }
 
 /* cache for computed values --------------------------------------- */
@@ -56,7 +72,7 @@ static void ensure_values_up_to(idx_t n) {
 
     /* grow the array to hold indices up to n (inclusive) */
     seq_t *new_cache = allocate_seq_array(n + 1);
-    memcpy(new_cache, cache, sizeof(seq_t) * cache_len);
+    mem_copy(new_cache, cache, sizeof(seq_t) * cache_len);
     free_seq_array(cache);
     cache = new_cache;
 

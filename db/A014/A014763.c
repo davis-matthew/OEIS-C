@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 908 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Multiply two polynomials A (degree da) and B (degree db).
  *  Result is written into a newly allocated array of length da+db+1.
@@ -44,7 +46,7 @@ static seq_t *poly_mul(const seq_t *A, size_t da,
                        const seq_t *B, size_t db, size_t *dout)
 {
     size_t d = da + db;
-    seq_t *C = (seq_t *)calloc(d + 1, sizeof(seq_t));
+    seq_t *C = mem_new(seq_t, d + 1);
     if (!C) return NULL;
     for (size_t i = 0; i <= da; ++i)
         if (A[i] != 0)
@@ -64,13 +66,13 @@ static seq_t *poly_div(const seq_t *num, size_t dn,
                        size_t *dout)
 {
     size_t qlen = dn - dd + 1;
-    seq_t *q = (seq_t *)calloc(qlen, sizeof(seq_t));
-    seq_t *r = (seq_t *)calloc(dn + 1, sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, qlen);
+    seq_t *r = mem_new(seq_t, dn + 1);
     if (!q || !r) {
-        free(q); free(r);
+        mem_free(q); mem_free(r);
         return NULL;
     }
-    memcpy(r, num, (dn + 1) * sizeof(seq_t));
+    mem_copy(r, num, (dn + 1) * sizeof(seq_t));
 
     for (int i = (int)dn; i >= (int)dd; --i) {
         seq_t coeff = r[i];
@@ -81,7 +83,7 @@ static seq_t *poly_div(const seq_t *num, size_t dn,
                 r[shift + j] -= coeff * den[j];
         }
     }
-    free(r);
+    mem_free(r);
     *dout = qlen - 1;
     return q;
 }
@@ -101,18 +103,18 @@ seq_t a(idx_t n)
         size_t *phi_deg = (size_t *)calloc(N + 1, sizeof(size_t));
 
         /* Φ₁(x) = x – 1. */
-        seq_t *p1 = (seq_t *)calloc(2, sizeof(seq_t));
+        seq_t *p1 = mem_new(seq_t, 2);
         p1[1] = 1;  p1[0] = -1;
         phi[1] = p1;  phi_deg[1] = 1;
 
         /* Compute Φ_k for k = 2 … N. */
         for (int k = 2; k <= N; ++k) {
             /* Polynomial x^k – 1. */
-            seq_t *poly = (seq_t *)calloc(k + 1, sizeof(seq_t));
+            seq_t *poly = mem_new(seq_t, k + 1);
             poly[k] = 1;  poly[0] = -1;
 
             /* Product of Φ_d for all proper divisors d of k. */
-            seq_t *prod = (seq_t *)calloc(1, sizeof(seq_t));
+            seq_t *prod = mem_new(seq_t, 1);
             prod[0] = 1;
             size_t dprod = 0; /* degree of prod */
 
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
                 if (k % d == 0) {
                     size_t newdeg;
                     seq_t *tmp = poly_mul(prod, dprod, phi[d], phi_deg[d], &newdeg);
-                    free(prod);
+                    mem_free(prod);
                     prod = tmp;  dprod = newdeg;
                 }
             }
@@ -129,8 +131,8 @@ seq_t a(idx_t n)
             size_t dphi;
             seq_t *phi_k = poly_div(poly, k, prod, dprod, &dphi);
 
-            free(prod);
-            free(poly);
+            mem_free(prod);
+            mem_free(poly);
 
             phi[k] = phi_k;
             phi_deg[k] = dphi;
@@ -151,7 +153,7 @@ seq_t a(idx_t n)
         }
 
         /* Free temporary tables. */
-        for (int k = 1; k <= N; ++k) free(phi[k]);
+        for (int k = 1; k <= N; ++k) mem_free(phi[k]);
         free(phi);
         free(phi_deg);
 

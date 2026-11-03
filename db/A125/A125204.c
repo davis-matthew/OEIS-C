@@ -7,12 +7,14 @@
  * Formula:   a(0)=0, a(1)=1; a(n)=a(n-1)+a(a(n-1) mod n) for n>=2
  * Range:     u8 n <= 17, u16 n <= 63, u32 n <= 178, u64 n <= 647,
  *            u128 n <= 2350, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 4526 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* types seq_t and idx_t are provided by the build */
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     /* initialise first two values */
     if (cache_len == 0) {
-        cache     = (seq_t *)calloc(2, sizeof(seq_t));
+        cache     = mem_new(seq_t, 2);
         if (cache == NULL) abort();           /* memory exhausted */
         cache[0]  = (seq_t)0;
         cache[1]  = (seq_t)1;
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* if n≥current cache size, extend cache and compute the missing terms */
     if (n >= cache_len) {
         /* allocate memory for indices 0..n */
-        seq_t *new_cache = (seq_t *)realloc(cache, ((size_t)n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, ((size_t)n + 1));
         if (new_cache == NULL) abort();
         cache = new_cache;
 

@@ -13,13 +13,15 @@
  *            r...
  * Range:     u8 n <= 40, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdint.h>   /* uint64_t for idx_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Return value for a(1)=1 and for n<=0 use 0 (out of range). */
@@ -38,14 +40,14 @@ seq_t a(idx_t n) {
     if (built_row == 1 && Uprev == NULL) {
         /* Row 1 : u(1)=1 , v(1)=1 */
         Ulen = Vlen = 1;
-        Uprev = (seq_t*)malloc(sizeof(seq_t));
-        Vprev = (seq_t*)malloc(sizeof(seq_t));
+        Uprev = mem_new(seq_t, 1);
+        Vprev = mem_new(seq_t, 1);
         Uprev[0] = 1;
         Vprev[0] = 1;
 
         /* Flattened list starts with the sole coefficient of v(1,x). */
         flat_len = 1;
-        flat = (seq_t*)malloc(sizeof(seq_t));
+        flat = mem_new(seq_t, 1);
         flat[0] = 1;
     }
 
@@ -55,8 +57,8 @@ seq_t a(idx_t n) {
         size_t next_len = (size_t)next_row;
 
         /* Allocate arrays for u(n,x) and v(n,x). */
-        seq_t *Unext = (seq_t*)malloc(sizeof(seq_t) * next_len);
-        seq_t *Vnext = (seq_t*)malloc(sizeof(seq_t) * next_len);
+        seq_t *Unext = mem_new(seq_t, next_len);
+        seq_t *Vnext = mem_new(seq_t, next_len);
 
         /* ---- Compute u(n,x) ---- */
         /* Unext[i] starts at 0. */
@@ -86,14 +88,14 @@ seq_t a(idx_t n) {
         }
 
         /* ---- Append coefficients of v(n,x) to the flattened array ---- */
-        flat = (seq_t*)realloc(flat, sizeof(seq_t) * (flat_len + next_len));
+        flat = mem_resize(seq_t, flat, (flat_len + next_len));
         for (size_t i = 0; i < next_len; ++i) {
             flat[flat_len + i] = Vnext[i];
         }
         flat_len += next_len;
 
         /* ---- Prepare for next iteration ---- */
-        free(Uprev);   free(Vprev);
+        mem_free(Uprev);   mem_free(Vprev);
         Uprev = Unext; Vprev = Vnext;
         Ulen = Vlen = next_len;
         built_row = next_row;

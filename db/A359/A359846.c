@@ -11,12 +11,13 @@
  *            arbitrary‑precision arithmetic provided by the build
  * Range:     u8 none, u16 none, u32 n <= 0, u64 n <= 1, u128 n <= 3,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 23 terms through n = 91 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"   /* seq_t pow_int(seq_t base, idx_t exp) */
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
     if ((n & 1ULL) == 0) {
         idx_t k   = n >> 1;                     /* k = n/2                     */
         idx_t exp = 6 + 18 * k;                  /* exponent for 10^exp           */
-        seq_t pow10 = pow_int((seq_t)10, exp);   /* 10^exp                       */
+        seq_t pow10 = ipow_idx((seq_t)10, exp);   /* 10^exp                       */
         seq_t val = pow10;
         val *= (seq_t)25;                        /* 25 * 10^exp                  */
         val += (seq_t)2;                         /* 25 * 10^exp + 2              */
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
     {
         idx_t k   = n >> 1;                     /* floor((n-1)/2)              */
         idx_t exp = 10 + 18 * k;                /* exponent for 10^exp           */
-        seq_t pow10 = pow_int((seq_t)10, exp);  /* 10^exp                       */
+        seq_t pow10 = ipow_idx((seq_t)10, exp);  /* 10^exp                       */
         seq_t val = pow10;
         val *= (seq_t)16;                        /* 16 * 10^exp                  */
         val += (seq_t)2;                         /* 16 * 10^exp + 2              */

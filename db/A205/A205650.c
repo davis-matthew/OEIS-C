@@ -7,6 +7,7 @@
  * Formula:   a(n) = (1,6,8,6,1,9,8,3,1,3,8,9)[ (n-1) mod 12 ]
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

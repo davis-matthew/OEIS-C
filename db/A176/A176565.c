@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   big_binom
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
  * the element at index n in the flattened triangle. */
 
 #include <stdlib.h>
-#include "../utils/big_binom.h"
+#include "../utils/mem.h"
+
+/*  The result is always exact for integer a,b.      */
+static seq_t big_binom(seq_t a, idx_t b)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = 1; i <= b; ++i) {
+        seq_t num = a - (seq_t)(i - 1);
+        res = res * num;
+        res = res / (seq_t)i;          /* exact division   */
+    }
+    return res;
+}
 
 /* ------------------------------------------- */
 /*  Helper: multiplicative binomial coefficient */
@@ -40,7 +53,7 @@ static void ensure_partitions(idx_t n)
 
     /* Allocate array large enough to hold up to n (inclusive).  */
     idx_t need = n + 1;
-    seq_t *tmp = (seq_t *)realloc(partition_cache, (size_t)need * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, partition_cache, (size_t)need);
     if (!tmp)
         exit(1);                 /* memory exhausted */
     partition_cache = tmp;

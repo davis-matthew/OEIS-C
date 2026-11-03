@@ -8,13 +8,15 @@
  *            a(n-1-3k) · (n-1)! / (k!·(n-1-3k)!) where a(0)=1
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
  
 static seq_t *cache = NULL;          /* stores a(0)..a(n) */
@@ -27,7 +29,7 @@ static void extend_a_cache(idx_t up_to)
         return;                        /* already have enough entries */
 
     idx_t new_size = up_to + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
         exit(EXIT_FAILURE);
     cache = new_cache;

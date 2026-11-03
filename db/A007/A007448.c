@@ -8,12 +8,14 @@
  * Formula:   a(n+1) = 1 + min(2*a(floor(n/2)), 3*a(floor(n/3))), a(0) = 1
  * Range:     u8 n <= 254, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -37,7 +39,7 @@ static void add_to_cache(idx_t n, seq_t val) {
     if (cache.len == cache.cap) {
         cache.cap = cache.cap == 0 ? 16 : cache.cap * 2;
         cache.keys = (idx_t *)realloc(cache.keys, cache.cap * sizeof(idx_t));
-        cache.values = (seq_t *)realloc(cache.values, cache.cap * sizeof(seq_t));
+        cache.values = mem_resize(seq_t, cache.values, cache.cap);
     }
     cache.keys[cache.len] = n;
     cache.values[cache.len] = val;

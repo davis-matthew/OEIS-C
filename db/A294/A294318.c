@@ -7,12 +7,14 @@
  * Formula:   a(n) = prod_{k=0..n} (3*k + 1)!
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* a(0) .. a(k) */
 static size_t cache_len = 0;          /* number of elements in cache */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* resize cache to hold terms up to n */
     size_t new_len = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache)
         return 0;   /* allocation failed */
     cache = new_cache;

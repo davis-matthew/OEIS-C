@@ -12,15 +12,51 @@
  *            lcm of the parts, z(lambda) = Prod_i i^m_i *...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   h612_gcd, h612_rec
+ * Validated: standard, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/h612_gcd.h"
-#include "../utils/h612_rec.h"
+#include "../utils/gcd_u64.h"
+
+static void h612_rec(int rem, int maxp, int *m, int n, seq_t nf, seq_t *total) {
+    if (rem == 0) {
+        uint64_t L = 1;
+        int i;
+        for (i = 1; i <= n; i++)
+            if (m[i]) L = L / gcd_u64(L, (uint64_t)i) * (uint64_t)i;
+        unsigned __int128 sum = 0;
+        uint64_t k;
+        for (k = 0; k < L; k++) {
+            uint64_t cyc = 0;
+            for (i = 1; i <= n; i++)
+                if (m[i]) cyc += (uint64_t)m[i] * gcd_u64((uint64_t)i, k);
+            sum += (unsigned __int128)1 << cyc;
+        }
+        uint64_t c = (uint64_t)(sum / L);
+        seq_t z = 1;
+        for (i = 1; i <= n; i++) {
+            int j;
+            for (j = 1; j <= m[i]; j++) {
+                z *= (seq_t)i;
+                z *= (seq_t)j;
+            }
+        }
+        seq_t term = nf / z;
+        term <<= (int)(c - 1);
+        *total += term;
+        return;
+    }
+    int p;
+    for (p = (rem < maxp ? rem : maxp); p >= 1; p--) {
+        m[p]++;
+        h612_rec(rem - p, p, m, n, nf, total);
+        m[p]--;
+    }
+}
 
 seq_t a(idx_t n) {
     /* detect fixed width of seq_t */

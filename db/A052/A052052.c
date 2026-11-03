@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   cube_has_equal_freq
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,33 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cube_has_equal_freq.h"
+#include "../utils/mem.h"
+
+/* Return true if every digit that appears in x occurs exactly
+ * `target` times, where `target` is the first non‑zero frequency
+ * and `target` ≥ 2.  Never accepts x == 0. */
+static bool cube_has_equal_freq(seq_t x)
+{
+    unsigned int freq[10] = {0};
+
+    if (x == 0) return false;
+    seq_t t = x;
+    while (t > 0) {
+        unsigned int d = (unsigned int)(t % (seq_t)10);
+        freq[d]++;
+        t /= (seq_t)10;
+    }
+
+    unsigned int target = 0;
+    for (int i = 0; i < 10; ++i)
+        if (freq[i] > 0) { target = freq[i]; break; }
+
+    if (target < 2) return false;
+    for (int i = 0; i < 10; ++i)
+        if (freq[i] > 0 && freq[i] != target) return false;
+
+    return true;
+}
 
 /* Ensure *arr has room for at least `need` elements.  The
  * array is reallocated with doubling growth.  `arr` must
@@ -32,7 +59,7 @@ static void ensure_cap(size_t *cap, size_t need, seq_t **arr)
 {
     if (*cap == 0) *cap = 16;
     while (*cap < need) *cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, *cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
 }
 
 /* Return the n-th term of the sequence (n ≥ 1).  For n < 1

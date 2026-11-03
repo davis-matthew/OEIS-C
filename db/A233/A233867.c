@@ -9,14 +9,16 @@
  *            φ(m) is prime}|
  * Range:     u8 n <= 569, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, phi_of_num
+ * Validated: standard, pass, 116 terms through n = 9883 (2026-11-01)
+ * Helpers:   is_prime, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* is_prime(idx_t) */
-#include "../utils/phi_of_num.h"
+#include <stdbool.h>
+#include "../utils/is_prime.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         if (m >= two_n) {
             break;   /* m must be strictly less than 2*n */
         }
-        seq_t phi_k = phi_of_num(k);      /* φ(k) */
+        seq_t phi_k = totient(k);      /* φ(k) */
         seq_t phi_m = (seq_t)k * phi_k;   /* φ(k²) = k * φ(k) */
         seq_t p = limit - phi_m;          /* 2*n - 1 - φ(m) */
         if (p > 0 && is_prime((idx_t)p)) {

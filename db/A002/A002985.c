@@ -11,7 +11,8 @@
  *            = [x^m] 1/((1-x)^2*(1-x^2)*(1-x^4))
  * Range:     u8 n <= 12, u16 n <= 26, u32 n <= 63, u64 n <= 163,
  *            u128 n <= 200, big any n
- * Helpers:   w2985_a008804, w2985_from_limbs
+ * Validated: standard, pass, 56 terms through n = 197 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/w2985_a008804.h"
-#include "../utils/w2985_from_limbs.h"
+
+static seq_t w2985_from_limbs(const uint32_t *x, size_t len) {
+    seq_t r = 0;
+    size_t i;
+    int s;
+    for (i = len; i-- > 0;) {
+        for (s = 0; s < 32; s++) r += r;
+        r += (seq_t)x[i];
+    }
+    return r;
+}
+
+static seq_t w2985_a008804(idx_t m) {
+    uint64_t sum = 0;
+    uint32_t parts[2];
+    idx_t j;
+    for (j = 0; 4 * j <= m; j++) {
+        uint64_t t = (uint64_t)(m - 4 * j);
+        sum += t + 1 + t * t / 4;
+    }
+    parts[0] = (uint32_t)(sum & 0xffffffffu);
+    parts[1] = (uint32_t)(sum >> 32);
+    return w2985_from_limbs(parts, 2);
+}
 
 static uint32_t **w2985_b = NULL;  /* exact b(m), little-endian 32-bit limbs */
 static size_t *w2985_len = NULL;

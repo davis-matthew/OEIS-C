@@ -8,14 +8,16 @@
  * Formula:   a(n) = product_{p^e||n} (4p-2)^e (a(1)=1)
  * Range:     u8 n <= 11, u16 n <= 95, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _smallest_prime_factor, pow_uint
+ * Validated: standard, pass, 66 terms through n = 942 (2026-11-01)
+ * Helpers:   ipow_u64_idx, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/pow_uint.h"
+#include <stddef.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/smallest_prime_factor.h"
 
 /* Computes the OEIS sequence A167330.
  *   a(1) = 1
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     while (m > 1)
     {
-        uint64_t p = _smallest_prime_factor(m);
+        uint64_t p = smallest_prime_factor(m);
         if (p == 0)          /* should not happen for m > 1 */
             break;
 
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
             ++exp;
         }
 
-        seq_t term = pow_uint((uint64_t)(4ULL * p - 2ULL), exp);
+        seq_t term = ipow_u64_idx((uint64_t)(4ULL * p - 2ULL), exp);
         res *= term;
     }
 

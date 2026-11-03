@@ -10,6 +10,7 @@
  *            when compiling as C++
  * Range:     u8 n <= 48, u16 n <= 134, u32 n <= 416, u64 n <= 1368,
  *            u128 n <= 4760, big any n
+ * Validated: standard, pass, 87 terms through n = 9960 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

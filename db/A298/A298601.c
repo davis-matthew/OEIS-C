@@ -7,19 +7,21 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥2} (1 − x^(k^2))
  * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n‑th term of OEIS A298601.
  * The DP runs in O(n √n) time and uses O(n) space. */
 seq_t a(idx_t n)
 {
     /* Allocate DP array of length n+1 and initialize to 0. */
-    seq_t *coeff = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (n + 1));
     if (coeff == NULL) return 0;            /* allocation failed – return 0 */
 
     for (idx_t i = 0; i <= n; ++i)
@@ -35,6 +37,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coeff[n];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

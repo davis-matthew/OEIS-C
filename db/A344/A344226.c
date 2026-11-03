@@ -8,15 +8,18 @@
  *            prime factors of d
  * Range:     u8 n <= 17, u16 n <= 41, u32 n <= 1049, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 86 terms through n = 9795 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Recursive enumeration of all divisors of n, given its prime factorisation. */
 static void enumerate_divs(size_t idx, seq_t cur, unsigned w,
@@ -24,7 +27,7 @@ static void enumerate_divs(size_t idx, seq_t cur, unsigned w,
                            size_t cnt, seq_t *sum, seq_t sn)
 {
     if (idx == cnt) {
-        seq_t contrib = pow_uint((uint64_t)sn, (idx_t)w) / cur;
+        seq_t contrib = ipow_u64_idx((uint64_t)sn, (idx_t)w) / cur;
         *sum += contrib;
         return;
     }

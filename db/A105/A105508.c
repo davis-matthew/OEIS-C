@@ -9,7 +9,8 @@
  *            m-th Fibonacci number equals 8
  * Range:     u8 n <= 15, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Precomputed constants needed to determine the leading digit
    of Fib(m) without constructing the number itself. */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Initial allocation. */
     if (indices == NULL) {
         cap = 128;
-        indices = (seq_t*)malloc(cap * sizeof(seq_t));
+        indices = mem_new(seq_t, cap);
     }
 
     /* Continue scanning Fibonacci indices until we have
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             /* Grow the array if necessary. */
             if (found == cap) {
                 cap <<= 1;
-                indices = (seq_t*)realloc(indices, cap * sizeof(seq_t));
+                indices = mem_resize(seq_t, indices, cap);
             }
             indices[found++] = (seq_t)last_m;
         }

@@ -9,15 +9,17 @@
  *            p^(2^floor(log2(e)))
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 84 terms through n = 9971 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* return the largest power of two that does not exceed e */
 static uint64_t highest_power_of_two_le(uint64_t e) {
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
         uint64_t p  = primes_buf[i];
         uint64_t e  = exps_buf[i];
         uint64_t exp2 = highest_power_of_two_le(e);
-        result *= big_pow((seq_t)p, (seq_t)exp2);
+        result *= ipow((seq_t)p, (seq_t)exp2);
     }
     return result;
 }

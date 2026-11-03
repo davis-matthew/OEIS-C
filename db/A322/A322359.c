@@ -6,17 +6,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = lcm(∏(p-1), ∏(p+1)) over distinct prime divisors p of n
- * Range:     u8 n <= 22, u16 n <= 366, u32 n <= 9623, u64 n <= 9623,
- *            u128 n <= 9623, big any n
- * Helpers:   build_primes_upto, seq_gcd
+ * Range:     u8 n <= 22, u16 n <= 366, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 88 terms through n = 9623 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 static uint64_t *prime_list = NULL;   /* primes up to the current limit */
 static size_t   prime_cnt  = 0;       /* number of primes in the list */
@@ -60,6 +62,6 @@ seq_t a(idx_t n)
         prod_plus  = prod_plus  * ((seq_t)p + 1);
     }
 
-    seq_t g = seq_gcd(prod_minus, prod_plus);
+    seq_t g = gcd(prod_minus, prod_plus);
     return (prod_minus / g) * prod_plus;   /* lcm = a/g * b */
 }

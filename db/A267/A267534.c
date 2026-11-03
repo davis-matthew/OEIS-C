@@ -12,7 +12,8 @@
  *            iteratively modulo 2^64; this is sufficient b...
  * Range:     u8 n <= 73, u16 n <= 500, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   must_fail_three_square
+ * Validated: standard, pass, 77 terms through n = 412 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/must_fail_three_square.h"
+#include "../utils/mem.h"
+
+/* Helper to test whether a 64‑bit value cannot be written as a sum of
+   three squares.  It implements the condition for numbers of the form
+   4^a*(8b+7). */
+static bool must_fail_three_square(unsigned long long x)
+{
+    if (x == 0ULL) return false;   /* never occurs for Lucas numbers */
+    unsigned v2 = 0;                /* 2‑adic valuation */
+    unsigned long long t = x;
+    while ((t & 1ULL) == 0ULL) {
+        t >>= 1;
+        ++v2;
+    }
+    unsigned a = v2 >> 1;           /* floor(v2/2) */
+    if ((a << 1) >= 64) return false; /* shift would overflow */
+    unsigned long long m = x >> (a << 1);
+    return (m & 7ULL) == 7ULL;
+}
 
 /* The sequence function.  It memoises computed terms so calls may
    arrive in any order.  All computations use only integer arithmetic. */
@@ -40,11 +59,11 @@ seq_t a(idx_t n)
         init = true;
         /* initial capacity */
         ccap = 64;
-        cache = (seq_t*)malloc(ccap * sizeof(seq_t));
+        cache = mem_new(seq_t, ccap);
 
         /* handle k = 1 immediately – value is 1 which is representable */
         if (must_fail_three_square(lucas_prev)) {
-            if (clen >= ccap) { ccap <<= 1; cache = (seq_t*)realloc(cache, ccap * sizeof(seq_t)); }
+            if (clen >= ccap) { ccap <<= 1; cache = mem_resize(seq_t, cache, ccap); }
             cache[clen++] = (seq_t)1;
         }
         /* lucas_last is already 1, lucas_prev holds L1. */
@@ -65,7 +84,7 @@ seq_t a(idx_t n)
         if (must_fail_three_square(lk)) {
             if (clen >= ccap) {
                 ccap <<= 1;
-                cache = (seq_t*)realloc(cache, ccap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, ccap);
             }
             cache[clen++] = (seq_t)k;
         }

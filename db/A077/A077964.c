@@ -8,13 +8,15 @@
  *            2*a(n-3) (from 1/(1+2x^2-2x^3))
  * Range:     i8 n <= 11, i16 n <= 22, i32 n <= 46, i64 n <= 91, i128 n <= 185,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         idx_t oldsize = bufsize;
         idx_t newsize = n + 1;     /* exactly enough for n */
 
-        seq_t *newbuf = (seq_t *)malloc(newsize * sizeof(seq_t));
+        seq_t *newbuf = mem_new(seq_t, newsize);
         if (!newbuf) {
             /* if allocation fails, abort (should not happen for n ≈ 10000) */
             exit(1);
@@ -33,14 +35,14 @@ seq_t a(idx_t n)
 
         /* copy old values */
         if (oldsize > 0)
-            memcpy(newbuf, buf, oldsize * sizeof(seq_t));
+            mem_copy(newbuf, buf, oldsize * sizeof(seq_t));
 
         /* initialise new entries to 0 (they will be overwritten) */
         if (newsize > oldsize)
             memset((char *)newbuf + oldsize * sizeof(seq_t), 0,
                    (newsize - oldsize) * sizeof(seq_t));
 
-        free(buf);
+        mem_free(buf);
         buf = newbuf;
         bufsize = newsize;
 

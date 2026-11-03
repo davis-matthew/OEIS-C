@@ -7,12 +7,14 @@
  * Formula:   divisors of 2^43 - 1, listed in increasing order
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *a, const void *b) {
     seq_t x = *(const seq_t *)a;
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     
     if (!divs) {
         seq_t N = ((seq_t)1 << 43) - 1;
-        divs = (seq_t *)malloc(64 * sizeof(seq_t));
+        divs = mem_new(seq_t, 64);
         
         for (seq_t i = 1; i <= N / i; i++) {
             if (N % i == 0) {
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
             }
         }
         
-        qsort(divs, ndivs, sizeof(seq_t), cmp_seq);
+        mem_qsort(divs, ndivs, sizeof(seq_t), cmp_seq);
     }
     
     if (n >= 1 && (size_t)n <= ndivs) {

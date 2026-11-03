@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 43, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    any order of calls. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #if defined(__cplusplus)
 /* C++: use seq_t arithmetic directly */
@@ -52,13 +54,13 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1;   /* include index 0 */
     if (!cache) {
         cache_cap = needed;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0; /* allocation failure, unlikely */
         for (size_t i = 0; i < cache_cap; ++i) cache[i] = 0;
         for (idx_t i = 1; i <= 6; ++i) cache[i] = init[i];
         cache_max = 6;
     } else if (needed > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) return cache[cache_max]; /* fallback: return last known */
         cache = tmp;
         for (size_t i = cache_cap; i < needed; ++i) cache[i] = 0;

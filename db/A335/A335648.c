@@ -11,14 +11,27 @@
  *            hard‑coded. A static cache of computed values all...
  * Range:     u8 n <= 5, u16 n <= 18, u32 n <= 175, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_array, free_cache
+ * Validated: standard, pass, 55 terms through n = 9754 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_cache.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Return a(n) for the OEIS sequence A335648 */
 seq_t a(idx_t n)

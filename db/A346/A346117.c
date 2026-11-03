@@ -7,12 +7,14 @@
  * Formula:   a(n) = 1 + Σ_{d|n-2} a(d) for n ≥ 3; a(1) = a(2) = 1
  * Range:     u8 n <= 31, u16 n <= 159, u32 n <= 1381, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9800 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* array of computed terms, index 0 unused */
 static idx_t a_cache_cap = 0;          /* current allocated capacity (>= n+1) */
@@ -23,7 +25,7 @@ static void a_ensure_cache(idx_t n)
 {
     if (n + 1 <= a_cache_cap) return;
     size_t new_cap = (size_t)(n + 1);
-    void *tmp = realloc(a_cache, new_cap * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) abort();                       /* allocation failure → abort */
     a_cache = (seq_t *)tmp;
     a_cache_cap = (idx_t)new_cap;

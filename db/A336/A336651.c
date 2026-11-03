@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy, mult
  * Formula:   a(n) = ∏_{p odd, p|n} p^{v_p(n)-1} (i.e. odd part of n divided
  *            by its largest squarefree divisor), with a(2^e)=1 for all e
- * Range:     u8 n <= 2186, u16 n <= 9825, u32 n <= 9825, u64 n <= 9825,
- *            u128 n <= 9825, big any n
+ * Range:     u8 n <= 2186, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9825 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

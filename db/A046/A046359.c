@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 18, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   factor_u64, is_palindrome, is_prime
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   factor_u64, is_palindrome_base, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,8 +32,9 @@
 #include <stdbool.h>
 #include <limits.h>
 #include "../utils/factor_u64.h"
+#include "../utils/is_palindrome_base.h"
 #include "../utils/is_prime.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < cnt; ++i)
             sum += (seq_t)primes[i] * (seq_t)exps[i];
 
-        if (sum == 0 || !is_palindrome(sum, 10))
+        if (sum == 0 || !is_palindrome_base(sum, 10))
             continue;
 
         /* Convert sum to uint64_t for the modulus test (safe
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         /* New valid term found: store it */
         if (cache_len == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) {
                 exit(EXIT_FAILURE);     /* allocation failure */
             }

@@ -10,6 +10,7 @@
  *            + a(n-3) for n > 3, with a(1)=32, a(2)=72, a(3)=129)
  * Range:     u8 n <= 3, u16 n <= 62, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
+ * Validated: standard, pass, 58 terms through n = 176 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

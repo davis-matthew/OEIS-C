@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 296, u32 n <= 296, u64 n <= 296,
  *            u128 n <= 296, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 295 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -------------- Utility: modular exponentiation for 64‑bit modulus ------------- */
 static inline uint64_t modpow2(uint64_t base, uint64_t exp, uint64_t mod)
@@ -129,8 +131,7 @@ seq_t a(idx_t n)
             if (p == 0) continue;                /* exponent e has no square divisor */
             if (seqSize == seqCap) {
                 seqCap = seqCap ? seqCap * 2 : 1024;
-                seqVals = (seq_t *)realloc(seqVals,
-                                            seqCap * sizeof(seq_t));
+                seqVals = mem_resize(seq_t, seqVals, seqCap);
             }
             seqVals[seqSize++] = (seq_t)p;        /* cast to seq_t */
         }

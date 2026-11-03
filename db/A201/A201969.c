@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    computes coefficients a(n) iteratively using convolution. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static storage for dynamic arrays */
 static idx_t max_n = 0;
@@ -29,17 +31,17 @@ static void ensure_capacity(idx_t n) {
     size_t new_cap = arr_cap ? arr_cap * 2 : 64;
     while (new_cap < (size_t)(n + 1))
         new_cap *= 2;
-    seq_t *new_a = (seq_t*)malloc(new_cap * sizeof(seq_t));
-    seq_t *new_c = (seq_t*)malloc(new_cap * sizeof(seq_t));
-    seq_t *new_d = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, new_cap);
+    seq_t *new_c = mem_new(seq_t, new_cap);
+    seq_t *new_d = mem_new(seq_t, new_cap);
     for (size_t i = 0; i < arr_cap; ++i) {
         new_a[i] = a_arr[i];
         new_c[i] = c_arr[i];
         new_d[i] = d_arr[i];
     }
-    free(a_arr);
-    free(c_arr);
-    free(d_arr);
+    mem_free(a_arr);
+    mem_free(c_arr);
+    mem_free(d_arr);
     a_arr = new_a;
     c_arr = new_c;
     d_arr = new_d;

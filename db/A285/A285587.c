@@ -11,7 +11,8 @@
  *            (1 - q^2)(1 - q^7)(1 - q^12)... (product modulo 5)
  * Range:     i8 n <= 38, i16 n <= 63, i32 n <= 63, i64 n <= 63, i128 n <= 63,
  *            big any n
- * Helpers:   div_by_factor, mul_minus_factor
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/div_by_factor.h"
-#include "../utils/mul_minus_factor.h"
+#include "../utils/mem.h"
+
+/* multiply polynomial p[0..N-1] by 1/(1 - q^m)  (in place) */
+static void div_by_factor(seq_t *p, idx_t N, idx_t m)
+{
+    /* ascending loop to accumulate contributions of all powers of q^m */
+    for (idx_t i = m; i < N; ++i) {
+        p[i] += p[i - m];
+    }
+}
+
+/* multiply polynomial p[0..N-1] by (1 - q^m)  (in place) */
+static void mul_minus_factor(seq_t *p, idx_t N, idx_t m)
+{
+    /* descending loop to use original coefficients */
+    for (idx_t i = N; i-- > m; ) {
+        p[i] -= p[i - m];
+    }
+}
 
 static seq_t *a_seq = NULL;     /* array of coefficients a(0..cap-1) */
 static idx_t  a_cap = 0;        /* current capacity of a_seq */
@@ -43,13 +61,13 @@ static void conv(const seq_t *a, const seq_t *b, seq_t *c, idx_t N)
 static void build_series(idx_t N)
 {
     if (N >= a_cap) {               /* free previous storage */
-        free(a_seq);
+        mem_free(a_seq);
         a_seq = NULL;
         a_cap = 0;
     }
 
     a_cap = N + 1;
-    a_seq = (seq_t *)malloc(a_cap * sizeof(seq_t));
+    a_seq = mem_new(seq_t, a_cap);
 
     if (N == 0) {                   /* trivial case */
         a_seq[0] = 0;
@@ -58,7 +76,7 @@ static void build_series(idx_t N)
 
     /* ---------- compute v = q * P  ---------- */
     /* length of P is N (coefficients 0..N-1) because after shift we need up to N */
-    seq_t *P = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *P = mem_new(seq_t, N);
     P[0] = 1;                       /* start with constant term 1 */
 
     /* numerator factors: exponents 5+25k and 20+25k */
@@ -69,15 +87,15 @@ static void build_series(idx_t N)
     for (idx_t m = 10; m < N; m += 25)  div_by_factor(P, N, m);
     for (idx_t m = 15; m < N; m += 25)  div_by_factor(P, N, m);
 
-    seq_t *v = (seq_t *)calloc(a_cap, sizeof(seq_t));
+    seq_t *v = mem_new(seq_t, a_cap);
     v[0] = 0;                           /* constant term of v is 0 */
     for (idx_t i = 1; i <= N; ++i)      v[i] = P[i - 1];   /* shift by one */
 
     /* ---------- compute v^2, v^3, v^4, v^5 ---------- */
-    seq_t *v2 = (seq_t *)calloc(a_cap, sizeof(seq_t));
-    seq_t *v3 = (seq_t *)calloc(a_cap, sizeof(seq_t));
-    seq_t *v4 = (seq_t *)calloc(a_cap, sizeof(seq_t));
-    seq_t *v5 = (seq_t *)calloc(a_cap, sizeof(seq_t));
+    seq_t *v2 = mem_new(seq_t, a_cap);
+    seq_t *v3 = mem_new(seq_t, a_cap);
+    seq_t *v4 = mem_new(seq_t, a_cap);
+    seq_t *v5 = mem_new(seq_t, a_cap);
 
     conv(v, v, v2, N);          /* v^2 */
     conv(v2, v, v3, N);         /* v^3 */
@@ -90,12 +108,12 @@ static void build_series(idx_t N)
     }
 
     /* free temporary arrays */
-    free(P);
-    free(v);
-    free(v2);
-    free(v3);
-    free(v4);
-    free(v5);
+    mem_free(P);
+    mem_free(v);
+    mem_free(v2);
+    mem_free(v3);
+    mem_free(v4);
+    mem_free(v5);
 }
 
 /* public function required by the judge */

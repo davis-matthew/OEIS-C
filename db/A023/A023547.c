@@ -11,13 +11,15 @@
  *            otherwise b(k) = 1. The values b(k) are dense 1‑v...
  * Range:     u8 n <= 24, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(v)) for unsigned 64–bit values. */
 static inline idx_t int_sqrt(idx_t v)
@@ -60,11 +62,11 @@ seq_t a(idx_t n)
         if (n > cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 4 : cache_cap;
             while (new_cap < (size_t)n) new_cap <<= 1;
-            seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_new(seq_t, new_cap);
             if (!new_arr) exit(EXIT_FAILURE);
             for (size_t i = 0; i < cache_cap; ++i)
                 new_arr[i] = a_cache[i];
-            free(a_cache);
+            mem_free(a_cache);
             a_cache = new_arr;
             cache_cap = new_cap;
         }

@@ -8,8 +8,9 @@
  * Formula:   a(n) = Sum_{k=0..2} A121548(n,k) (number of compositions of n
  *            into at most 2 positive Fibonacci numbers, with a single type of
  *            1)
- * Range:     u8 n <= 9932, u16 n <= 9932, u32 n <= 9932, u64 n <= 9932,
- *            u128 n <= 9932, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 111 terms through n = 9932 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

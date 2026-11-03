@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   power_ull
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-02)
+ * Helpers:   ipow_u64_i32_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    distinct sums, sorted in increasing order. */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/power_ull.h"
+#include "../utils/ipow_u64_i32_to_u64.h"
 
 static const seq_t primes[4] = {2, 3, 5, 7};
 
@@ -30,8 +31,8 @@ static void generate_sequence(void) {
         for (int j = 0; j < 4; ++j) if (j != i) {
             for (int k = 0; k < 4; ++k) if (k != i && k != j) {
                 for (int l = 0; l < 4; ++l) if (l != i && l != j && l != k) {
-                    unsigned long long p1 = power_ull((unsigned long long)primes[i], (int)primes[j]);
-                    unsigned long long p2 = power_ull((unsigned long long)primes[k], (int)primes[l]);
+                    unsigned long long p1 = ipow_u64_i32_to_u64((unsigned long long)primes[i], (int)primes[j]);
+                    unsigned long long p2 = ipow_u64_i32_to_u64((unsigned long long)primes[k], (int)primes[l]);
                     seq_t sum = (seq_t)(p1 + p2);
                     values[count++] = sum;
                 }
@@ -77,8 +78,8 @@ seq_t a(idx_t n) {
             for (int j = 0; j < 4; ++j) if (j != i) {
                 for (int k = 0; k < 4; ++k) if (k != i && k != j) {
                     for (int l = 0; l < 4; ++l) if (l != i && l != j && l != k) {
-                        unsigned long long p1 = power_ull((unsigned long long)primes[i], (int)primes[j]);
-                        unsigned long long p2 = power_ull((unsigned long long)primes[k], (int)primes[l]);
+                        unsigned long long p1 = ipow_u64_i32_to_u64((unsigned long long)primes[i], (int)primes[j]);
+                        unsigned long long p2 = ipow_u64_i32_to_u64((unsigned long long)primes[k], (int)primes[l]);
                         values[count++] = (seq_t)(p1 + p2);
                     }
                 }

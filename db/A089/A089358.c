@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n‑th integer k with k^2 - 3 k + 3 prime
  * Range:     u8 n <= 66, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Deterministic Miller‑Rabin primality test for 64‑bit integers.      */
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
     /* Grow cache when needed */
     if (capacity == 0) {
         capacity = 16;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
     }
 
     /* Find terms until we have at least n of them */
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
         if (isPrime(val)) {
             if (count == capacity) {
                 capacity <<= 1;
-                cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, capacity);
             }
             cache[count++] = (seq_t)next_k;
         }

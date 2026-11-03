@@ -7,15 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of integer pairs (x,y) with 0 < x < y < n, x + y =
  *            n, and all of 6x-1, 6x+1, 6y-1, 6y+1 are prime
- * Range:     u8 n <= 9469, u16 n <= 9469, u32 n <= 9469, u64 n <= 9469,
- *            u128 n <= 9469, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 116 terms through n = 9469 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {

@@ -9,13 +9,15 @@
  *            partitions of n into parts 10 and 11
  * Range:     u8 n <= 113, u16 n <= 197, u32 n <= 366, u64 n <= 708,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed values with memoization */
 static seq_t *cache = NULL;          /* array holding a(0)...a(k) */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
     /* Allocate initial cache if necessary. */
     if (cache == NULL) {
         size_t init_size = 12;          /* indices 0..11 */
-        cache = (seq_t *)malloc(init_size * sizeof(seq_t));
+        cache = mem_new(seq_t, init_size);
         if (!cache)
             return;                    /* allocation failure; leave cache NULL */
 
@@ -56,7 +58,7 @@ static void ensure_cache(idx_t n)
     while (curr_size < new_size)
         curr_size <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, curr_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, curr_size);
     if (!tmp)
         return;                        /* realloc failed; leave cache unchanged */
     cache = tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   popcnt6
+ * Validated: standard, pass, 32 terms through n = 163 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,11 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/popcnt6.h"
+
+static inline uint8_t popcnt6(unsigned int x)
+{
+    return (uint8_t)__builtin_popcount((unsigned)x & 0x3Fu);
+}
 
 seq_t a(idx_t n)
 {

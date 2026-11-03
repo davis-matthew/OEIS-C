@@ -10,7 +10,8 @@
  *            q^(1/24) ∏_{k≥1} (1 - q^k)
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: standard, pass, 98 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,15 @@
    computes a(n) in O(n^2) time, which is fast enough for
    n ≤ 10000. */
 
-#include "../utils/seq_alloc_new_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 seq_t a(idx_t n)
 {
@@ -68,6 +77,6 @@ seq_t a(idx_t n)
        destroyed when coeff goes out of scope; in the C
        compilations the function returns a value, so we free
        the allocated memory to avoid a leak. */
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

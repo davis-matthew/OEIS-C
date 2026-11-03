@@ -8,6 +8,7 @@
  * Formula:   a(n) = 6*n+7 if n%4==0, 6*n+5 if n%4==2, 6*n+6 if n is odd
  * Range:     u8 n <= 41, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 71 terms through n = 991 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

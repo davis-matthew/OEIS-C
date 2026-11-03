@@ -10,13 +10,15 @@
  *            row‑wise
  * Range:     u8 n <= 17, u16 n <= 30, u32 n <= 73, u64 n <= 152,
  *            u128 n <= 419, big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 58 terms through n = 1309 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     idx_t k = n - cum;
     idx_t pairs = r * (r - 1) / 2;
 
-    seq_t coeff   = binom(pairs, k);  /* binomial coefficient */
+    seq_t coeff   = binomial(pairs, k);  /* binomial coefficient */
     seq_t two_pow = pow2(k);           /* 2^k */
     return coeff * two_pow;
 }

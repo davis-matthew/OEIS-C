@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 42, u32 n <= 131, u64 n <= 402,
  *            u128 n <= 1375, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9532 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    is the nth element when the triangle is read row by row. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;   /* array of pointers to rows */
 static size_t rows = 0;           /* number of rows already built */
@@ -35,7 +37,7 @@ static void ensure_rows_up_to(size_t i)
     if (!triangle) abort();             /* out of memory */
 
     for (size_t r = rows; r <= i; ++r) {
-        triangle[r] = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+        triangle[r] = mem_new(seq_t, (r + 1));
         if (!triangle[r]) abort();     /* out of memory */
 
         triangle[r][0] = 1;                 /* first element of each row */

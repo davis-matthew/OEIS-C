@@ -5,14 +5,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, mult
  * Formula:   a(n) = μ(n) if 5∤n; otherwise a(n) = μ(n) + 5 · μ(n/5)
- * Range:     i8 n <= 9808, i16 n <= 9808, i32 n <= 9808, i64 n <= 9808,
- *            i128 n <= 9808, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 105 terms through n = 9808 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses the provided mobius routine from the utils library. */
+#include <stdint.h>
 #include "../utils/mobius.h"
 
 seq_t a(idx_t n)

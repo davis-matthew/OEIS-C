@@ -13,13 +13,15 @@
  *            the recurrence for k=1). The sequence a(...
  * Range:     u8 n <= 50, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  ----  static cache  ----  */
 static seq_t *A_cache = NULL;     /* flattened 2‑D array */
@@ -35,7 +37,7 @@ static void ensure_table(idx_t need_i, idx_t need_j)
     if (new_rows <= A_rows && new_cols <= A_cols)
         return;                       /* already large enough */
 
-    seq_t *newA = (seq_t *)malloc(new_rows * new_cols * sizeof (seq_t));
+    seq_t *newA = mem_new(seq_t, new_rows * new_cols);
     if (newA == NULL)
         abort();                      /* allocation failure */
 
@@ -61,7 +63,7 @@ static void ensure_table(idx_t need_i, idx_t need_j)
     }
 
     /* replace old cache */
-    free(A_cache);
+    mem_free(A_cache);
     A_cache = newA;
     A_rows  = new_rows;
     A_cols  = new_cols;

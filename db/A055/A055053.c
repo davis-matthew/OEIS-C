@@ -10,13 +10,15 @@
  *            results
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Public API as required by the framework */
 seq_t a(idx_t n) {
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     static size_t cap = 0;
     if (count == 0) {
         cap = 64;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         if (!terms)
             return 0;  /* allocation failed: return 0 as error */
     }
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
             /* Store the term, growing array if necessary */
             if (count == cap) {
                 cap *= 2;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
                 if (!terms)
                     return 0;  /* allocation failed */
             }

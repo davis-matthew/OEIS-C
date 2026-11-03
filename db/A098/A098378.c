@@ -9,13 +9,31 @@
  *            the traditional Ethiopic (Geez) number system
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   ethiopic_multiplier_count, ethiopic_unit_count
+ * Validated: partial, pass, 104 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/ethiopic_multiplier_count.h"
-#include "../utils/ethiopic_unit_count.h"
+static inline seq_t ethiopic_multiplier_count(idx_t k) {
+    /* Characters needed for the multiplier of 100^k
+       k = 1 → ፻ (100)            → 1 character
+       k = 2 → ፼ (10 000)          → 1 character
+       k ≥ 3 → k copies of ፻      → k characters */
+    if (k == 1) return 1;     /* ፻   */
+    if (k == 2) return 1;     /* ፼   */
+    return (seq_t)k;          /* k copies of ፻ */
+}
+
+static inline seq_t ethiopic_unit_count(idx_t d) {
+    /* Characters needed to represent a number 0 < d < 100 in base-100
+       (tens digit + optional units digit) */
+    if (d == 0) return 0;
+    seq_t c = 0;
+    if (d >= 10) c++;        /* tens character (10,20,…,90) */
+    if (d % 10 != 0) c++;    /* units character (1–9) */
+    return c;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;     /* offset starts at 1, but harmless */

@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 21, i16 n <= 41, i32 n <= 80, i64 n <= 159,
  *            i128 n <= 317, big any n
+ * Validated: standard, pass, 66 terms through n = 906 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

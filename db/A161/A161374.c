@@ -8,11 +8,13 @@
  *            a(3q+2)=2^(2q). * For n<=8 the values are: 0,1,2,4,8,10,16,22
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache of primes and cumulative sums modulo 6. */
 static uint32_t *prime_list = NULL;    /* primes, 0‑based */
@@ -36,7 +38,7 @@ ensure_primes(uint32_t need)
     while (new_cap < need)
         new_cap *= 2;
     prime_list = (uint32_t *)realloc(prime_list, new_cap * sizeof(uint32_t));
-    cum_sum    = (seq_t   *)realloc(cum_sum,    new_cap * sizeof(seq_t));
+    cum_sum    = mem_resize(seq_t, cum_sum, new_cap);
 
     /* Generate missing primes. */
     for (uint32_t i = prime_cnt; i < need; ++i) {

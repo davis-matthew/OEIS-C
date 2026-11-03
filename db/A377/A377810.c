@@ -7,12 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (k+1)^(k-1) * binomial(n+k+1, n-k)/k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* compute factorial(n) */
@@ -30,7 +33,7 @@ seq_t a(idx_t n) {
         if (k == 0) {
             p = 1;                 /* (1)^(-1) is treated as 1 */
         } else {
-            p = big_pow((seq_t)(k + 1), (seq_t)(k - 1));
+            p = ipow((seq_t)(k + 1), (seq_t)(k - 1));
         }
 
         seq_t term = f * p;

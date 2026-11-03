@@ -9,12 +9,14 @@
  *            n > 24; initial values are a(1)=201, a(2)=299, …, a(24)=49942
  * Range:     u8 n <= 1, u16 n <= 25, u32 n <= 71, u64 n <= 164, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Ensure capacity for up to n elements. */
     if (cache_cap < n) {
         idx_t new_cap = (n > 24) ? n : 24;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                       /* allocation failure */
         if (!cache) { /* first allocation: copy the initial 24 terms */
             static const seq_t init[24] = {

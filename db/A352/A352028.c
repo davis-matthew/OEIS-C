@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 31, u64 n <= 127,
  *            u128 n <= 1023, big any n
- * Helpers:   sieve_check_bit, sieve_set_bit
+ * Validated: standard, pass, 53 terms through n = 9965 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,15 @@
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/sieve_check_bit.h"
-#include "../utils/sieve_set_bit.h"
+
+static inline bool sieve_check_bit(const unsigned char *s, uint64_t i) {
+    return (s[i >> 3] & (1U << (i & 7))) != 0;
+}
+
+/* Helper to set and check bits in the sieve bitset */
+static inline void sieve_set_bit(unsigned char *s, uint64_t i) {
+    s[i >> 3] |= (1U << (i & 7));
+}
 
 /* Power with small exponent */
 static seq_t pow_small(seq_t base, unsigned exp) {

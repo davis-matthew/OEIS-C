@@ -9,6 +9,7 @@
  *            1,3,7,9,11,13,21,23,25,27,31,33,39,49,53,63 (mod 68)
  * Range:     u8 n <= 23, u16 n <= 3264, u32 n <= 9978, u64 n <= 9978,
  *            u128 n <= 9978, big any n
+ * Validated: standard, pass, 71 terms through n = 9961 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1881 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime table (sieve of Eratosthenes) -------------------- */
 static uint32_t *primes = NULL;
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
     while (cache_size < (size_t)n) {
         /* Record current integer if it satisfies the condition */
         if (tau_curr - tau_next == (seq_t)2U) {
-            seq_t *tmp = (seq_t *)realloc(cache, (cache_size + 1U) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (cache_size + 1U));
             if (!tmp) abort();
             cache = tmp;
             cache[cache_size] = (seq_t)last_checked;

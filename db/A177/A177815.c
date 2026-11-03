@@ -7,16 +7,33 @@
  * Formula:   a(n) = binomial(r, j^3) where r is the row index and j is the
  *            offset within that row (0‑based). Each row r contains
  *            binomial(r, m^3) for m = 0 .. floor(r^(1/3))
- * Range:     u8 n <= 25, u16 n <= 40, u32 n <= 53, u64 n <= 53, u128 n <= 53,
+ * Range:     u8 n <= 28, u16 n <= 49, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   binomial, int_cube_root
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/int_cube_root.h"
+#include <stdint.h>
+#include <limits.h>
 #include "../utils/binomial.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* Cumulative number of terms up to and including each row.
    cumulative[i] = sum_{k=0}^{i} (floor(k^(1/3)) + 1) */

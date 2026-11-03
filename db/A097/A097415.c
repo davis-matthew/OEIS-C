@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 2998, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 8978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    k·log10(2) with a high‑precision integer approximation. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define LOG10_2_NUM 301029995663981ULL   /* floor(log10(2)*1e15) */
 #define LOG10_9_NUM 954242509439324ULL   /* floor(log10(9)*1e15) */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
             if (seq_cap <= seq_len) {
                 size_t new_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
                 while (new_cap <= seq_len) new_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                 if (!tmp) exit(1);           /* allocation failure */
                 seq = tmp;
                 seq_cap = new_cap;

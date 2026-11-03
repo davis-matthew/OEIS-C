@@ -9,17 +9,19 @@
  *            x^(7k-2)) (1 - x^(7k-5)))
  * Range:     i8 n <= 97, i16 n <= 266, i32 n <= 826, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* allocate coefficient array a[0..n] */
     idx_t len = n + 1;
-    seq_t *coeff = (seq_t *)malloc((size_t)len * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (size_t)len);
     if (!coeff) return (seq_t)0;          /* out of memory – return 0 */
 
     /* initialise: coeff[0] = 1, others 0 */
@@ -45,6 +47,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = coeff[n];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

@@ -12,14 +12,16 @@
  *            is the sequence obtained by reading the rows of the triangle
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computation of A334945 via irregular triangle read by rows. */
 
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Find the row that contains the n-th element */
     while (1) {
         ++r;
-        idx_t sqrt_term = int_sqrt((idx_t)1 + (idx_t)24 * r);
+        idx_t sqrt_term = isqrt((idx_t)1 + (idx_t)24 * r);
         kmax = ((idx_t)1 + sqrt_term) / (idx_t)6;   /* floor((1+sqrt(1+24r))/6) */
         cumulative += kmax;
         if (cumulative >= n) break;

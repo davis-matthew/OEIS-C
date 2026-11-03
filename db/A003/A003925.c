@@ -7,22 +7,23 @@
  * Formula:   a(n) = 8^(n^2) * Product_{i=1}^{n} (8^(2i) - 1)
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   a000248_pow
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000248_pow.h"
-
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     // Compute 8^(n^2)
     idx_t n_sq = n * n;
-    seq_t result = a000248_pow((seq_t)8, n_sq);
+    seq_t result = ipow_idx((seq_t)8, n_sq);
     
     // Compute Product_{i=1}^{n} (8^(2i) - 1)
     for (idx_t i = 1; i <= n; i++) {
-        seq_t power = a000248_pow((seq_t)8, 2 * i);
+        seq_t power = ipow_idx((seq_t)8, 2 * i);
         result *= (power - 1);
     }
     

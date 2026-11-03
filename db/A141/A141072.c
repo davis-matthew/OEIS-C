@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 35, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    The computation uses only integer arithmetic on seq_t. */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (cache_size < n)
     {
         idx_t new_size = n;                     /* need indices up to n inclusive */
-        seq_t *tmp = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_size + 1));
         if (tmp == NULL)
             abort();                            /* allocation failed */
         cache = tmp;

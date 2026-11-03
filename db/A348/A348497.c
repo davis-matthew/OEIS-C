@@ -10,8 +10,9 @@
  *            A003415(n) if n is not a perfect square, A003415(n)/2 if n is a
  *            perfect square. Here A003415(n) is the arithmetic derivative:
  *            A003415(n) = sum_{p^e || n} e * n / p (p prime, e exponent)
- * Range:     u8 n <= 95, u16 n <= 9856, u32 n <= 9856, u64 n <= 9856,
- *            u128 n <= 9856, big any n
+ * Range:     u8 n <= 95, u16 n <= 12287, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 102 terms through n = 9856 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

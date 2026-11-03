@@ -10,7 +10,8 @@
  *            n‑th non‑cubefree number)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 8917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- configuration -------------------------------------------------- */
 #define MAX_N  20000          /* pre‑compute up to at least 10000 terms   */
@@ -68,7 +70,7 @@ static void init_static(void)
 
     build_spf();
 
-    noncube_counts = (seq_t *)malloc((size_t)MAX_N * sizeof(seq_t));
+    noncube_counts = mem_new(seq_t, (size_t)MAX_N);
     if (!noncube_counts) exit(1);
 
     idx_t found = 0;
@@ -83,7 +85,7 @@ static void init_static(void)
     if (found < MAX_N) {
         /* Fallback: increase LIMIT and recompute (unlikely for MAX_N=20000) */
         free(spf);
-        free(noncube_counts);
+        mem_free(noncube_counts);
         /* rescale limit (increase by factor 2) */
         /* Simple approach: reallocate with larger LIMIT */
         /* For brevity we assume the initial LIMIT suffices. */

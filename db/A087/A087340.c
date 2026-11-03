@@ -11,7 +11,8 @@
  *            the n‑th term is found
  * Range:     u8 n <= 13, u16 n <= 794, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digitProduct
+ * Validated: standard, pass, 64 terms through n = 978 (2026-11-03)
+ * Helpers:   digit_product_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/digitProduct.h"
+#include "../utils/digit_product_u64.h"
+#include "../utils/mem.h"
 
 /*-------------------- helper functions --------------------*/
 
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
 {
     if (cache == NULL) {
         cap = 32;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) abort();
     }
     while (cached < (size_t)n) {
@@ -95,11 +97,11 @@ seq_t a(idx_t n)
         if (!isPrime(last_checked)) continue;
         uint64_t s = digitSum(last_checked);
         if (!isPrime(s)) continue;
-        uint64_t p = digitProduct(last_checked);
+        uint64_t p = digit_product_u64(last_checked);
         if (!isPrime(p + 1)) continue;
         if (cached == cap) {
             cap *= 2;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
             if (cache == NULL) abort();
         }
         cache[cached++] = (seq_t)last_checked;

@@ -10,13 +10,14 @@
  *            function
  * Range:     u8 n <= 29, u16 n <= 419, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi_of
+ * Validated: standard, pass, 81 terms through n = 8914 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi_of.h"
+#include "../utils/totient.h"
 
 /* --- local helper to compute sigma(n) --------------------------- */
 static seq_t sigma_of( idx_t n )
@@ -43,7 +44,7 @@ seq_t a( idx_t n )
     seq_t nseq   = (seq_t)n;
     seq_t half   = nseq * (nseq + 1) / 2;   /* n*(n+1)/2 */
     seq_t sigma  = sigma_of( n );            /* sum of divisors of n */
-    seq_t phi    = phi_of( n );              /* Euler's totient of n */
+    seq_t phi    = totient( n );              /* Euler's totient of n */
     seq_t nphi   = nseq * phi / 2;           /* n*phi(n)/2 */
 
     return 1 + half - sigma - nphi;

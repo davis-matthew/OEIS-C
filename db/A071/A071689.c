@@ -8,13 +8,23 @@
  *            + z + t}
  * Range:     u8 n <= 52, u16 n <= 199, u32 n <= 199, u64 n <= 199,
  *            u128 n <= 199, big any n
- * Helpers:   prod_gt_limit
+ * Validated: standard, pass, 76 terms through n = 194 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/prod_gt_limit.h"
+
+static inline int prod_gt_limit(idx_t a, idx_t b, idx_t c, idx_t limit)
+{
+    if (a == 0 || b == 0 || c == 0) return 0;
+    if (a > limit) return 1;
+    unsigned __int128 prod_ab = (unsigned __int128)a * b;
+    if (prod_ab > limit) return 1;
+    if (c > 0 && prod_ab > (unsigned __int128)limit / c) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {

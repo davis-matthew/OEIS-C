@@ -8,7 +8,8 @@
  *            derangements of m elements
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Used from: A182661, OEIS: Expansion of x^3*exp(-x)/(3*(1-x)) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised derangement numbers D[0..] */
 static seq_t *D_cache = NULL;
@@ -29,7 +31,7 @@ static void ensure_D_up_to(idx_t m)
     /* Grow capacity to at least m+1 */
     idx_t new_cap = D_cache_cap ? D_cache_cap : 2;
     while (new_cap <= m) new_cap *= 2;
-    D_cache = (seq_t *)realloc(D_cache, new_cap * sizeof(seq_t));
+    D_cache = mem_resize(seq_t, D_cache, new_cap);
     /* Compute missing values */
     for (idx_t i = D_cache_len; i <= m; ++i) {
         if (i == 0) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* width of the arrays */
 #define NUM_ROWS 6
@@ -122,14 +124,14 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         precompute();
-        dp_cur = (seq_t*)malloc(NUM_STATES * sizeof(seq_t));
-        dp_next = (seq_t*)malloc(NUM_STATES * sizeof(seq_t));
+        dp_cur = mem_new(seq_t, NUM_STATES);
+        dp_next = mem_new(seq_t, NUM_STATES);
         if (!dp_cur || !dp_next) return 0;    /* memory failure */
 
 #ifdef __cplusplus
         /* construct objects for user-defined seq_t */
-        for (int i = 0; i < NUM_STATES; ++i) new (&dp_cur[i]) seq_t();
-        for (int i = 0; i < NUM_STATES; ++i) new (&dp_next[i]) seq_t();
+        for (int i = 0; i < NUM_STATES; ++i) *(&dp_cur[i]) = (seq_t)0;
+        for (int i = 0; i < NUM_STATES; ++i) *(&dp_next[i]) = (seq_t)0;
 #endif
         initialized = true;
     }

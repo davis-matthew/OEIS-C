@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   rc_next
+ * Validated: standard, pass, 91 terms through n = 918 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
  */
 
 #include <stdint.h>
-#include "../utils/rc_next.h"
+
+static inline void rc_next(long long *x, long long *y)
+{
+    /* next state: (x', y') = (odd_part(-3*y + 1), odd_part(3*x + 1)) */
+    long long nx = -3 * (*y) + 1;
+    while ((nx & 1LL) == 0)
+        nx >>= 1;                 /* remove all factors of 2 */
+    long long ny = 3 * (*x) + 1;
+    while ((ny & 1LL) == 0)
+        ny >>= 1;                 /* remove all factors of 2 */
+    *x = nx;
+    *y = ny;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = 3*n*a(n-1) + 1, a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* The function remembers previously computed values, so it works
    efficiently even if calls come in arbitrary order. */
 #include <stdlib.h>  /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of computed terms */
 static idx_t cache_cap = 0;      /* current allocated capacity */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     while (new_cap < n + 1)
         new_cap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     /* realloc may return NULL only if size == 0; the caller never asks for
        zero size, so no failure handling is needed here. */
     cache = tmp;

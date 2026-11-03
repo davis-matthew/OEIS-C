@@ -11,15 +11,31 @@
  *            E(0,0) = 1, E(m,0) = 0, E(m,k) = E(m,k-1) + E(m-1,m-k),...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   a306_alloc0, a306_grow
+ * Validated: standard, pass, 34 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a306_alloc0.h"
-#include "../utils/a306_grow.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *a306_alloc0(idx_t len)
+{
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a306_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = a306_alloc0(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *zz = 0;    /* zigzag numbers A000111(0..have-1) */
 static seq_t *row = 0;   /* last boustrophedon row */

@@ -9,15 +9,33 @@
  *            positive square plus a positive cube (x^2 + y^3, x,y > 0)
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega, int_cube_root, int_sqrt
+ * Validated: standard, pass, 121 terms through n = 9931 (2026-11-03)
+ * Helpers:   bigomega, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/int_cube_root.h"
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include <limits.h>
 #include "../utils/bigomega.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 static seq_t *sum_values = NULL;   /* sorted unique sums (=A055394) */
 static size_t sum_count = 0;       /* number of stored sums           */
@@ -44,8 +62,8 @@ static void init_sums(idx_t required)
     idx_t limit = 300000;            /* starting bound -- sufficient for n≈10⁴ */
     while (1) {
         idx_t y_max = int_cube_root(limit);
-        size_t est_cap = (size_t)(y_max + 1) * (size_t)(int_sqrt(limit) + 1);
-        seq_t *tmp = (seq_t *)malloc(sizeof(seq_t) * est_cap);
+        size_t est_cap = (size_t)(y_max + 1) * (size_t)(isqrt(limit) + 1);
+        seq_t *tmp = mem_new(seq_t, est_cap);
         if (!tmp)
             abort();                 /* allocation failure */
 
@@ -55,13 +73,13 @@ static void init_sums(idx_t required)
             if (y3 > limit)
                 break;
             idx_t rem = limit - y3;
-            idx_t x_max = int_sqrt(rem);
+            idx_t x_max = isqrt(rem);
             for (idx_t x = 1; x <= x_max; ++x) {
                 tmp[tot++] = (seq_t)x * (seq_t)x + (seq_t)y3;
             }
         }
 
-        qsort(tmp, tot, sizeof(seq_t), seq_compare);
+        mem_qsort(tmp, tot, sizeof(seq_t), seq_compare);
 
         /* Deduplicate */
         size_t uniq = 0;
@@ -71,12 +89,12 @@ static void init_sums(idx_t required)
         }
 
         /* Shrink buffer to fit */
-        seq_t *shrink = (seq_t *)realloc(tmp, sizeof(seq_t) * uniq);
+        seq_t *shrink = mem_resize(seq_t, tmp, uniq);
         if (shrink) tmp = shrink; /* realloc may fail only with zero size */
 
         /* Replace previous list */
         if (sum_values)
-            free(sum_values);
+            mem_free(sum_values);
         sum_values = tmp;
         sum_count  = uniq;
 

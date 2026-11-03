@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 444 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (!dp || dp_computed < n) {
         /* recompute the whole sequence up to n from scratch */
         dp_computed = n;
-        dp = (seq_t *)realloc(dp, (size_t)(dp_computed + 1) * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, (size_t)(dp_computed + 1));
         for (idx_t i = 0; i <= dp_computed; ++i)
             dp[i] = (seq_t)0;
         dp[0] = (seq_t)1;

@@ -9,7 +9,8 @@
  *            nonprime. 1 is the first nonprime, 2 is the first prime, etc
  * Range:     u8 n <= 58, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"  /* provides is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Forward declarations of internal helpers */
 static void ensure_lists(idx_t n);
@@ -57,8 +59,8 @@ static void recompute_sieve(idx_t limit)
         if (!isprime[i]) ++np_cnt;
 
     /* Allocate new lists */
-    seq_t *new_primes = (seq_t *)malloc((p_cnt + 1) * sizeof(seq_t));
-    seq_t *new_nonprimes = (seq_t *)malloc((np_cnt + 1) * sizeof(seq_t));
+    seq_t *new_primes = mem_new(seq_t, (p_cnt + 1));
+    seq_t *new_nonprimes = mem_new(seq_t, (np_cnt + 1));
     if (!new_primes || !new_nonprimes) {
         /* minimal error handling */
     }
@@ -70,8 +72,8 @@ static void recompute_sieve(idx_t limit)
     for (idx_t i = 1; i <= limit; ++i) if (!isprime[i]) new_nonprimes[np_idx++] = (seq_t)i;
 
     /* Free old memory if present */
-    free(primes);
-    free(nonprimes);
+    mem_free(primes);
+    mem_free(nonprimes);
 
     /* Commit new data */
     primes = new_primes;

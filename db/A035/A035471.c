@@ -8,6 +8,7 @@
  * Formula:   a(0) = 1; for n > 0, a(n) = (16·n³ + 8·n)/3
  * Range:     u8 n <= 2, u16 n <= 15, u32 n <= 765, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 47 terms through n = 835 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

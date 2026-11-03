@@ -9,7 +9,8 @@
  *            multi-limb integers)
  * Range:     u8 n <= 10, u16 n <= 1719, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   eq_limbs, geq_limbs
+ * Validated: standard, pass, 67 terms through n = 7886 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/eq_limbs.h"
-#include "../utils/geq_limbs.h"
+
+static bool eq_limbs(const uint64_t *x, const uint64_t *y, int m) {
+    int i;
+    for (i = 0; i < m; i++)
+        if (x[i] != y[i]) return false;
+    return true;
+}
+
+static bool geq_limbs(const uint64_t *x, const uint64_t *y, int m) {
+    int i;
+    for (i = m - 1; i >= 0; i--) {
+        if (x[i] != y[i]) return x[i] > y[i];
+    }
+    return true;
+}
 
 typedef unsigned __int128 u128_t;
 

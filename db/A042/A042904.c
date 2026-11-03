@@ -8,12 +8,14 @@
  *            continued fraction
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 17, u64 n <= 34, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const idx_t D   = 984;   /* discriminant */
 static const idx_t A0  = 31;    /* floor(sqrt(984)) */
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
 
     /* extend the cache to hold indices 0..n */
     size_t new_size = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp)
         abort();                      /* out of memory (should not happen in tests) */
     cache = tmp;

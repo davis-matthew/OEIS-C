@@ -13,7 +13,8 @@
  *            written in reversed lexicographic order
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 96, u64 n <= 683,
  *            u128 n <= 9295, big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: standard, pass, 66 terms through n = 9113 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 #define MAX_ROW 500     /* sufficient for any index ≤ 10000          */
 #define PRIME_LIMIT 2000/* ensure enough primes for first MAX_ROW  */
@@ -121,7 +122,7 @@ seq_t a(idx_t n)
     {
         if (parts[i] == 0)
             continue;
-        seq_t pow_val = big_pow((seq_t)prime_array[i], (seq_t)parts[i]);
+        seq_t pow_val = ipow((seq_t)prime_array[i], (seq_t)parts[i]);
         result = result * pow_val;
     }
 

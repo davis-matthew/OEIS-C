@@ -11,7 +11,8 @@
  *            sufficient for the required range of n (≤ 10 000)....
  * Range:     u8 n <= 235, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse_in_base_uint64
+ * Validated: standard, pass, 85 terms through n = 9957 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/reverse_in_base_uint64.h"
+
+/*--- Reverse in given base --------------------------------------------*/
+static uint64_t reverse_in_base_uint64(uint64_t x, uint64_t base)
+{
+    uint64_t rev = 0;
+    while (x > 0) {
+        uint64_t d = x % base;
+        rev = rev * base + d;
+        x /= base;
+    }
+    return rev;
+}
 
 /*--- Prime sieve -------------------------------------------------------*/
 static uint64_t *prime_list = NULL;

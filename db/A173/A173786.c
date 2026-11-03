@@ -9,6 +9,7 @@
  *            = n - row*(row+1)/2
  * Range:     u8 n <= 34, u16 n <= 134, u32 n <= 526, u64 n <= 2078,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 5107 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Return the nth term of the triangle A173786. */

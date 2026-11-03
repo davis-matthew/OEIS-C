@@ -7,16 +7,19 @@
  * Keywords:  nonn
  * Formula:   a(n) = gcd(n, A003968(n)), where A003968(p^e) = p * (p+1)^(e-1)
  *            and is multiplicative
- * Range:     u8 n <= 79, u16 n <= 9956, u32 n <= 9956, u64 n <= 9956,
- *            u128 n <= 9956, big any n
+ * Range:     u8 n <= 79, u16 n <= 19999, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 9956 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 static seq_t compute_A003968_uint64(uint64_t n)
 {

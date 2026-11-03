@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state for memoisation */
@@ -45,8 +47,7 @@ seq_t a(idx_t n) {
 
         /* ---- resize array of a(n) values ---- */
         if (n + 1 > max_n + 1) { /* realloc must be large enough to hold indices up to n */
-            seq_t *new_a_vals = (seq_t *)realloc(a_vals,
-                                                 (n + 1) * sizeof(seq_t));
+            seq_t *new_a_vals = mem_resize(seq_t, a_vals, (n + 1));
             /* initialise new part (unused) to zero – not strictly required */
             for (idx_t i = max_n + 1; i <= n; ++i) new_a_vals[i] = 0;
             a_vals = new_a_vals;

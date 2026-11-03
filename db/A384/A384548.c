@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2304580733 * a(n-1) mod 2^32, with a(1)=1
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 39 terms through n = 8345 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

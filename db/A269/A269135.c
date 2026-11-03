@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 26, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const seq_t first_terms[10] = {
     (seq_t)1,  (seq_t)6,  (seq_t)8,  (seq_t)10,
@@ -72,7 +74,7 @@ static void recompute_twins(idx_t limit)
 
     /* Build twin‑prime products */
     size_t cap   = 128;
-    seq_t *new_tab = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *new_tab = mem_new(seq_t, cap);
     if (!new_tab) { free(is_prime); return; }
 
     size_t count = 0;
@@ -83,7 +85,7 @@ static void recompute_twins(idx_t limit)
 
             if (count == cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(new_tab, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, new_tab, cap);
                 if (!tmp) break;                 /* OOM – stop building */
                 new_tab = tmp;
             }
@@ -92,7 +94,7 @@ static void recompute_twins(idx_t limit)
     }
 
     /* Replace old table */
-    free(twin_products);
+    mem_free(twin_products);
     twin_products = new_tab;
     twin_count    = count;
     twin_cap      = cap;

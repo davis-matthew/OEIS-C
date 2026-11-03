@@ -10,7 +10,8 @@
  *            repeated residue of s(k) mod n
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     static size_t cache_cap = 0;
     if ((size_t)n > cache_cap) {
         size_t new_cap = (n > 1) ? n * 2 : 2;
-        seq_t *tmp = (seq_t*)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) abort();
         for (size_t i = cache_cap + 1; i <= new_cap; ++i) tmp[i] = 0;
         cache = tmp;

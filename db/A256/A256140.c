@@ -8,8 +8,9 @@
  * Formula:   a(n) is the entry read by antidiagonals upwards from the square
  *            array T(n,k) = n^popcount(k), with rows indexed by n and columns
  *            by k
- * Range:     u8 n <= 111, u16 n <= 510, u32 n <= 5522, u64 n <= 9318,
- *            u128 n <= 9318, big any n
+ * Range:     u8 n <= 111, u16 n <= 510, u32 n <= 5522, u64 n <= 11324,
+ *            u128 n <= 11324, big any n
+ * Validated: standard, pass, 121 terms through n = 9318 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  *            of three pentagonal numbers
  * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static idx_t current_limit = 0;                 /* current maximum number computed */
@@ -102,7 +104,7 @@ static void rebuild_limit(size_t limit)
         if (!sum3) {                      /* add to cache */
             if (memo_len == memo_cap) {
                 memo_cap = memo_cap ? memo_cap * 2 : 256;
-                memo = (seq_t *)realloc(memo, memo_cap * sizeof(seq_t));
+                memo = mem_resize(seq_t, memo, memo_cap);
                 if (!memo) return;
             }
             memo[memo_len++] = (seq_t)x;
@@ -115,7 +117,7 @@ static void ensure_terms(idx_t n)
 {
     if (!initialized) {
         memo_cap = 256;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (!memo)
             return;
         /* start with an initial reasonable limit */

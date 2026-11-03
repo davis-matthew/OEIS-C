@@ -11,11 +11,13 @@
  *            Gaussian binomial triangle (A022166)
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 4, i64 n <= 6, i128 n <= 9,
  *            big any n
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Gaussian binomial coefficient [N,K]_q with q = 2 */

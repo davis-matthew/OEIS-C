@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of ordered pairs (i,j) with 3^i + 3^j = 2n
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 106 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* cache for computed values */
 static seq_t *cache = NULL;
@@ -31,7 +33,7 @@ static size_t powers_cap = 0;
 static void grow_seq_arr(seq_t **arr, size_t *len, size_t *cap, size_t new_cap) {
     if (*cap < new_cap) {
         size_t alloc = new_cap > 0 ? new_cap : 4;
-        seq_t *tmp = (seq_t *)realloc(*arr, alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, alloc);
         if (!tmp) exit(EXIT_FAILURE);
         *arr = tmp;
         *cap = alloc;

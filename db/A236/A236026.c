@@ -10,7 +10,8 @@
  *            sigma(n)^(1/tau(n)))
  * Range:     u8 n <= 30, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* --- static data ---------------------------------------------------- */
 
@@ -66,17 +68,17 @@ static void ensure_record_capacity(void)
 {
     if (rec_cap == 0) {
         rec_cap = INITIAL_CAP;
-        records = (seq_t *)malloc(rec_cap * sizeof(seq_t));
+        records = mem_new(seq_t, rec_cap);
 #ifdef __cplusplus
-        for (size_t i = 0; i < rec_cap; ++i) new (&records[i]) seq_t();
+        for (size_t i = 0; i < rec_cap; ++i) *(&records[i]) = (seq_t)0;
 #endif
     } else if (rec_len >= rec_cap) {
         rec_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(records, rec_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, records, rec_cap);
         if (!tmp) exit(EXIT_FAILURE);        /* unrecoverable in this context */
         records = tmp;
 #ifdef __cplusplus
-        for (size_t i = rec_len; i < rec_cap; ++i) new (&records[i]) seq_t();
+        for (size_t i = rec_len; i < rec_cap; ++i) *(&records[i]) = (seq_t)0;
 #endif
     }
 }

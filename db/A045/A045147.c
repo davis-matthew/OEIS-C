@@ -10,13 +10,14 @@
  *            zeros are not allowed. The sequence is indexed from n = 1
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   combination
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   binomial_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/combination.h"
+#include "../utils/binomial_idx.h"
 
 /* ---------- combinatorial helpers ---------- */
 
@@ -37,8 +38,8 @@ static idx_t count_combos(idx_t positions, idx_t need2, idx_t need3)
     if (need2 > positions) return 0;
     if (need3 > positions - need2) return 0;
 
-    idx_t c1  = combination(positions,     need2);
-    idx_t c2  = combination(positions - need2, need3);
+    idx_t c1  = binomial_idx(positions,     need2);
+    idx_t c2  = binomial_idx(positions - need2, need3);
     idx_t free = positions - need2 - need3;
     idx_t pow2 = pow2_u64(free);
 
@@ -56,8 +57,8 @@ static idx_t count_len(idx_t L)
         idx_t need3 = 4 - (d == 3);
         if (need2 > L - 1) continue;
         if (need3 > L - 1 - need2) continue;
-        idx_t c1   = combination(L - 1, need2);
-        idx_t c2   = combination(L - 1 - need2, need3);
+        idx_t c1   = binomial_idx(L - 1, need2);
+        idx_t c2   = binomial_idx(L - 1 - need2, need3);
         idx_t free = (L - 1) - need2 - need3;
         idx_t pow2 = pow2_u64(free);
         total += c1 * c2 * pow2;

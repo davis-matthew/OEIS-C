@@ -8,14 +8,34 @@
  * Formula:   numbers k such that phi(k) > phi(k+1) > phi(k+2)
  * Range:     u8 none, u16 n <= 654, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, phi
+ * Validated: standard, pass, 61 terms through n = 9861 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/phi.h"
-#include "../utils/append_candidate.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/totient.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -28,9 +48,9 @@ seq_t a(idx_t n) {
     while (cache_len < (size_t)n) {
         ++tested_k;                 /* next k to check */
 
-        seq_t phi_k   = phi(tested_k);
-        seq_t phi_k1  = phi(tested_k + 1);
-        seq_t phi_k2  = phi(tested_k + 2);
+        seq_t phi_k   = totient(tested_k);
+        seq_t phi_k1  = totient(tested_k + 1);
+        seq_t phi_k2  = totient(tested_k + 2);
 
         if (phi_k > phi_k1 && phi_k1 > phi_k2) {
             append_candidate(&cache, &cache_len, &cache_cap,

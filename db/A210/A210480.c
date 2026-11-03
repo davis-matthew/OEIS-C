@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of primes p < n such that p-1 and p+1 are
  *            practical, and n-p is prime or practical
- * Range:     u8 n <= 9316, u16 n <= 9316, u32 n <= 9316, u64 n <= 9316,
- *            u128 n <= 9316, big any n
+ * Range:     u8 n <= 60000, u16 n <= 60000, u32 n <= 60000, u64 n <= 60000,
+ *            u128 n <= 60000, big any n
+ * Validated: standard, pass, 116 terms through n = 9316 (2026-11-01)
  * Helpers:   build_primes_upto, build_spf, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 
 /* helpers */
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/build_spf.h"
 #include "../utils/is_prime.h"

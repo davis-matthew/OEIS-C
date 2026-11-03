@@ -9,6 +9,7 @@
  * Formula:   a(n) = (n-1)*n^2*(n+1)*(8-5*n^2+n^4)/48
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
    any seq_t implementation (unsigned integer, big‑int class) and is
    O(1) in time. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

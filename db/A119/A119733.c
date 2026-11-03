@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(0) = 0; if n is even: a(n) = 2 * a(n/2); * if n is odd: a(n) =
  *            2 * a(n/2) + 3^popcount(n/2)
- * Range:     u8 n <= 58, u16 n <= 2030, u32 n <= 8500, u64 n <= 8500,
- *            u128 n <= 8500, big any n
+ * Range:     u8 n <= 58, u16 n <= 2030, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 82 terms through n = 8500 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

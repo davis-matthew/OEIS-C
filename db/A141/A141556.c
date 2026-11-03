@@ -12,7 +12,8 @@
  *            order
  * Range:     u8 n <= 13, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   is_prime_generic
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_prime_generic.h"   /* bool is_prime_generic(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static uint8_t  *prime_sieve      = NULL;   /* 1 = prime, 0 = composite */
 static size_t   sieve_limit       = 0;      /* current size of the sieve */
@@ -125,7 +127,7 @@ static void ensure_composite_idx(idx_t need)
 static inline bool is_composite_seq(seq_t v)
 {
     if (v <= (seq_t)1) return false;
-    return !is_prime_generic((idx_t)v);
+    return !is_prime((idx_t)v);
 }
 
 /* Grow the sequence cache if needed. */
@@ -133,7 +135,7 @@ static void maybe_grow_seq_cache(void)
 {
     if (seq_cache_len < seq_cache_cap) return;
     size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 8;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();
     seq_cache = tmp;
     seq_cache_cap = new_cap;

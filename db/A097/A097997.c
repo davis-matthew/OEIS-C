@@ -10,7 +10,8 @@
  *            terms
  * Range:     u8 n <= 12, u16 n <= 631, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint32_t *prime_list   = NULL;   /* primes generated so far      */
 static size_t   prime_len    = 0;       /* number of primes stored      */
@@ -95,7 +97,7 @@ static void ensure_terms_up_to(size_t target)
             seq_t val = (seq_t)sum;
             if (term_len == term_cap) {
                 size_t new_cap = term_cap ? term_cap * 2 : 64;
-                seq_t *tmp = (seq_t*)realloc(term_list, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, term_list, new_cap);
                 if (!tmp) abort();
                 term_list = tmp;
                 term_cap = new_cap;

@@ -7,19 +7,20 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Smallest base-8 palindrome >= n (in base 10) */
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n)
 {
     seq_t m = (seq_t)n;
-    while (!is_palindrome(m, (idx_t)8))
+    while (!is_palindrome_base(m, (idx_t)8))
         ++m;
     return m;
 }

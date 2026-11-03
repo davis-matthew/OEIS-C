@@ -7,14 +7,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl, look
  * Formula:   not stated
- * Range:     u8 n <= 9120, u16 n <= 9120, u32 n <= 9120, u64 n <= 9120,
- *            u128 n <= 9120, big any n
- * Helpers:   semi_map
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 107 terms through n = 9120 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/semi_map.h"
+static seq_t semi_map(seq_t x, seq_t n_val)
+{
+    /* x -> floor(n_val / x) + (n_val mod x) */
+    return (n_val / x) + (n_val % x);
+}
 /* Implements A357554:
    The sequence is given by a triangular array T(n,k) (1 ≤ k ≤ n).
    Starting with x = k, repeatedly apply

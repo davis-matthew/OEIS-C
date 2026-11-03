@@ -7,13 +7,15 @@
  * Formula:   a(n) = (pi(2n-1) - pi(n-1)) * (sum of all primes p <= n)
  * Range:     u8 n <= 16, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment. */
 
@@ -26,9 +28,9 @@ seq_t a(idx_t n)
     /* Allocate sieve and prefix sums.  Cast calloc return to the correct types. */
     unsigned char *is_prime = (unsigned char *)calloc((size_t)(limit + 1), 1);
     idx_t *prime_cnt = (idx_t *)calloc((size_t)(limit + 1), sizeof(idx_t));
-    seq_t *prime_sum = (seq_t *)calloc((size_t)(limit + 1), sizeof(seq_t));
+    seq_t *prime_sum = mem_new(seq_t, (size_t)(limit + 1));
     if (!is_prime || !prime_cnt || !prime_sum) {
-        free(is_prime); free(prime_cnt); free(prime_sum);
+        free(is_prime); free(prime_cnt); mem_free(prime_sum);
         return (seq_t)0;
     }
 
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     /* Clean up */
     free(is_prime);
     free(prime_cnt);
-    free(prime_sum);
+    mem_free(prime_sum);
 
     return result;
 }

@@ -8,15 +8,36 @@
  * Formula:   primes that cannot be represented as x*y + x + y with x >= y > 1
  * Range:     u8 n <= 7, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   floor_sqrt, is_prime
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   ipow_i32, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 #include "../utils/is_prime.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ------------------------------------------- */
 /*  Cache for the sequence a(n).                */
@@ -71,7 +92,7 @@ static void ensure_cache(idx_t need)
         if (!has_rep) {
             if (len == cap) {            /* grow capacity */
                 cap = cap ? cap * 2 : 8;
-                seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
             }
             seq[len++] = (seq_t)p;
         }

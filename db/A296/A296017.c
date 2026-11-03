@@ -10,7 +10,8 @@
  *            rows
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Helper: check the adjacency condition for a single cell row. */
 static inline bool satisfies(uint64_t prev, uint64_t curr, uint64_t next) {
@@ -72,12 +74,12 @@ seq_t a(idx_t n) {
     }
 
     /* DP initialization: before any rows we have (prevprev=0, prev=0) = 1. */
-    memset(dp_cur, 0, sizeof(seq_t) * STATES);
+    mem_set(dp_cur, 0, sizeof(seq_t) * STATES);
     dp_cur[0] = 1;
 
     /* Process each of the n rows. */
     for (idx_t row = 0; row < n; ++row) {
-        memset(dp_next, 0, sizeof(seq_t) * STATES);
+        mem_set(dp_next, 0, sizeof(seq_t) * STATES);
 
         for (size_t idx = 0; idx < STATES; ++idx) {
             seq_t val = dp_cur[idx];

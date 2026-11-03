@@ -11,7 +11,8 @@
  *            the terms
  * Range:     u8 none, u16 n <= 5058, u32 n <= 5058, u64 n <= 5058,
  *            u128 n <= 5058, big any n
- * Helpers:   sq
+ * Validated: standard, pass, 69 terms through n = 5029 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sq.h"
+#include "../utils/mem.h"
+
+/* Helper to square an idx_t without overflow (using 128‑bit). */
+static inline idx_t sq(idx_t a) {
+    return (idx_t)((unsigned __int128)a * a);
+}
 
 /* Compile‑time limit for precomputation ----------------------------------- */
 /* Adjust if more terms are needed. */
@@ -74,16 +80,16 @@ static void init(void) {
 
     /* Collect terms that meet the 8‑representations threshold */
     terms_cap = 1024;
-    terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     terms_count = 0;
     for (idx_t s = 1; s <= LIMIT_N; ++s) {
         if (cnt[s] >= 8) {
             if (terms_count >= terms_cap) {
                 terms_cap <<= 1;
-                seq_t *new_terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *new_terms = mem_resize(seq_t, terms, terms_cap);
                 if (!new_terms) { /* allocation failure – abort */
                     free(cnt);
-                    free(terms);
+                    mem_free(terms);
                     terms = NULL;
                     memset((void *)&initialized, 1, sizeof(initialized));
                     return;

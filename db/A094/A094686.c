@@ -9,13 +9,15 @@
  *            values to answer subsequent calls efficiently
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 48, u64 n <= 94, u128 n <= 186,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;          /* stored values of a(n)            */
 static unsigned char *valid = NULL;    /* 1 → value computed, 0 → not yet  */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     idx_t old_len = cache_len;                 /* length before possible growth */
     if (n + 1 > cache_len) {
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) abort();               /* allocation failure */
 
         unsigned char *new_valid = (unsigned char *)realloc(valid, new_len);

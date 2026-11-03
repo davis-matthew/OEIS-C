@@ -9,12 +9,14 @@
  *            0 or 2 (mod 3) a(n) = a(⌊n/3⌋) + (⌊n/3⌋ mod 2)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9596 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise cache with a(0) */
     if (cache == NULL) {
         size = 1;
-        cache = (seq_t *)realloc(NULL, size * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, size);
         if (!cache) return (seq_t)0;            /* allocation failed */
         cache[0] = (seq_t)0;
         last = 0;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         /* grow to at least n+1 elements (geometric growth for speed) */
         while (size <= n)
             size = (size == 0) ? 1 : size * 2;
-        cache = (seq_t *)realloc(cache, size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, size);
         if (!cache) return (seq_t)0;            /* allocation failed */
 
         /* compute terms from last+1 up to n inclusive */

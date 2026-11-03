@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, mult
  * Formula:   not stated
- * Range:     i8 n <= 9806, i16 n <= 9806, i32 n <= 9806, i64 n <= 9806,
- *            i128 n <= 9806, big any n
+ * Range:     i8 n <= 101250, i16 n <= 101250, i32 n <= 101250,
+ *            i64 n <= 101250, i128 n <= 101250, big any n
+ * Validated: standard, pass, 141 terms through n = 9806 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

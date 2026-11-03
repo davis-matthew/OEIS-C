@@ -10,7 +10,8 @@
  *            construction using gcd
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Ensure the cache array is large enough for index n. */
     if (seq == NULL) {
         alloc = 16;
-        seq = (seq_t *)malloc(alloc * sizeof(seq_t));
+        seq = mem_new(seq_t, alloc);
         if (!seq) return (seq_t)0;    /* allocation failure fallback */
         seq[0] = 0;                  /* unused entry for 1‑based indexing */
     }
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         size_t new_alloc = alloc * 2;
         while ((size_t)n >= new_alloc)
             new_alloc *= 2;
-        seq = (seq_t *)realloc(seq, new_alloc * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_alloc);
         if (!seq) return (seq_t)0;    /* allocation failure fallback */
         alloc = new_alloc;
     }

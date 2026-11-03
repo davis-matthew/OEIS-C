@@ -10,13 +10,25 @@
  *            (offset 1): a(1)=4, a(2)=36, a(3)=236, a(4)=1528, a(5)=9858
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   multiply_small
+ * Validated: standard, pass, 36 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/multiply_small.h"
+#include "../utils/mem.h"
+
+static inline seq_t multiply_small(seq_t a, unsigned m)
+{
+    /* Multiply by a small integer by repeated addition. Works for all
+       seq_t types (built‑in or arbitrary‑precision) that support +. */
+    seq_t res = a;
+    for (unsigned i = 1; i < m; ++i) {
+        res += a;
+    }
+    return res;
+}
 
 /* memoisation array (zero‑based: cache[0] = a(1)) */
 static seq_t *cache = NULL;
@@ -35,7 +47,7 @@ seq_t a(idx_t n)
         size_t old_size = cache_size;
         size_t new_size = (size_t)n;
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         cache = tmp;
 

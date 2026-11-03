@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n‑th prime p such that -(p‑1)^p ≡ p (mod (2p‑1))
  * Range:     u8 n <= 5, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Small helper – binary modular exponentiation using 128‑bit
  * arithmetic when available to avoid overflow. */
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
             if (size + 1 > cap)
             {
                 cap = cap ? 2 * cap : 8;
-                list = (seq_t *)realloc(list, cap * sizeof(seq_t));
+                list = mem_resize(seq_t, list, cap);
                 if (!list)
                     exit(EXIT_FAILURE);
             }

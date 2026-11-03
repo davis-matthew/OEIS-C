@@ -8,12 +8,14 @@
  * Formula:   a(n) = #{ 1 <= i < j < n : a(i)+a(j) < n }, a(1)=a(2)=1
  * Range:     u8 n <= 75, u16 n <= 402, u32 n <= 402, u64 n <= 402,
  *            u128 n <= 402, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 386 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,14 +32,14 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* start with a modest initial size */
         cache_cap = (n > 4 ? n + 1 : 5);
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         cache[1]  = cache[2] = 1;
         computed  = 2;
     }
     if (n >= cache_cap) {
         idx_t new_cap = cache_cap * 2;
         if (new_cap <= (idx_t)n) new_cap = (idx_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { /* allocation failure – abort */
             /* In the judging environment this path should never be reached */
             exit(1);

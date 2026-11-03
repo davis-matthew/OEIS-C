@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((n + 1)^7 - (1 + (-1)^n)/2)/2
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 22, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,6 +10,7 @@
  *            n>=7: a(n) = a(n-1) + a(n-2) - a(n-3) + a(n-6)
  * Range:     u8 n <= 19, u16 n <= 36, u32 n <= 69, u64 n <= 136,
  *            u128 n <= 270, big any n
+ * Validated: standard, pass, 63 terms through n = 862 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

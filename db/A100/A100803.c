@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2*(prime(n+1)-prime(n))-1 (OEIS A100803)
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Prime storage ---------------------------------------------------------- */
 static idx_t prime_count = 0;   /* number of primes stored */
@@ -63,8 +65,7 @@ static void ensure_primes(idx_t need)
     /* A simple over‑estimate of the array size is used to avoid many
        reallocs during the fill loop.                                     */
     size_t proposed_capacity = estimate / 10 + 100; /* enough for p_k ~ k ln k */
-    seq_t *new_list = (seq_t *)realloc(prime_list,
-                                       proposed_capacity * sizeof(seq_t));
+    seq_t *new_list = mem_resize(seq_t, prime_list, proposed_capacity);
     if (!new_list) {
         free(is_composite);
         return;

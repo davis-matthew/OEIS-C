@@ -9,13 +9,15 @@
  *            morphism 0 -> 01, 1 -> 202, 2 -> ε (empty string)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache containing the computed prefix of the infinite word. */
 static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     /* Initialisation: start with the word "0". */
     if (cache == NULL) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)0;
     }
 
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t n)
         if (new_len == 0) break;   /* no more symbols can be produced */
 
         /* Allocate space for the new word and build it. */
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         size_t pos = 0;
         for (idx_t i = 0; i < (idx_t)cache_len; ++i) {
             seq_t v = cache[i];
@@ -59,7 +61,7 @@ static void ensure_cache(idx_t n)
         }
 
         /* Replace old word by the new one. */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
     }

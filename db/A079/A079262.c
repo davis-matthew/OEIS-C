@@ -11,12 +11,14 @@
  *            calls (in any order) are fast
  * Range:     u8 n <= 16, u16 n <= 24, u32 n <= 40, u64 n <= 72, u128 n <= 136,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Persistent storage of computed terms.  The array grows as needed. */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     /* Initialise the first eight terms on the first call. */
     if (memo == NULL) {
         memo_cap = 8;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (!memo) return (seq_t)0;           /* out of memory – return 0 */
         for (idx_t i = 0; i < 7; ++i) memo[i] = (seq_t)0;
         memo[7] = (seq_t)1;
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
         /* Grow the array if necessary. */
         if (k >= memo_cap) {
             idx_t new_cap = memo_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, memo, new_cap);
             if (!tmp) return (seq_t)0;   /* allocation failed */
             memo = tmp;
             memo_cap = new_cap;

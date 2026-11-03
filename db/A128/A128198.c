@@ -14,12 +14,41 @@
  *            (n*k+1)*(VarScheme(k,n-1)+k^n);
  * Range:     u8 n <= 24, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   arr_with_k_n
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/arr_with_k_n.h"
+/* Compute ArrScheme(k, n) for non‑negative integer k and n. */
+static inline seq_t arr_with_k_n(idx_t k, idx_t n)
+{
+    /* Base values for n = 0 */
+    seq_t pow   = 1;   /* k^0       */
+    seq_t var   = 1;   /* Var(k,0)  */
+    seq_t arr   = 1;   /* Arr(k,0)  */
+
+    for (idx_t i = 1; i <= n; ++i)
+    {
+        /* k^i */
+        pow *= (seq_t)k;
+
+        /* Temporary value V_{i-1} + k^i, used for Arr(k,i) and Var(k,i) */
+        seq_t temp = var + pow;
+
+        /* Arr(k,i) = V_{i-1} + k^i */
+        arr = temp;
+
+        /* Multiplier (i*k + 1) – use 128‑bit to avoid overflow in intermediate */
+        __int128 mult128 = (__int128)i * k + 1;
+
+        /* Var(k,i) = (i*k+1)*(V_{i-1} + k^i) */
+        __int128 var128 = mult128 * (__int128)temp;
+
+        var = (seq_t)var128;
+    }
+    return arr;
+}
 
 /* Find d such that d*(d+1)/2 <= n < (d+1)*(d+2)/2  using binary search. */
 static inline idx_t diag_of(idx_t n)

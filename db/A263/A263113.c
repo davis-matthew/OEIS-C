@@ -12,7 +12,8 @@
  *            column‑residue triplet modulo 7
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed transition tables.  343 = 7³ possible column residues. */
 static int  trans[343][6];
@@ -72,7 +74,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n + 1 <= cache_len)
         return;
     size_t new_len = ((size_t)n + 1) * 2;
-    seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) abort();
     cache = tmp;
     cache_len = new_len;
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
     /* Initialise DP and cache only once */
     static bool initialized = false;
     if (!initialized) {
-        memset(dp, 0, sizeof(dp));
+        mem_set(dp, 0, sizeof(dp));
         dp[0] = 1;          /* start with all column residues = 0 */
         current_rows = 0;
         ensure_cache(20);   /* initial cache capacity */
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
     idx_t target_rows = n + 2;
     while (current_rows < target_rows) {
         /* Transition: add one more row */
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
 
         for (int s = 0; s < 343; s++) {
             seq_t val = dp[s];
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
             }
         }
 
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
         current_rows++;
 
         /* Record value for this n once at least 3 rows have been built

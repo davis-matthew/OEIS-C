@@ -7,14 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = a(n-1-a(a(n-1))) + a(a(a(n-1))) for n > 1, a(0) = 0, a(1)
  *            = 1
- * Range:     u8 n <= 592, u16 n <= 9863, u32 n <= 9863, u64 n <= 9863,
- *            u128 n <= 9863, big any n
- * Helpers:   none
+ * Range:     u8 n <= 592, u16 n <= 65535, u32 n <= 65535, u64 n <= 65535,
+ *            u128 n <= 65535, big any n
+ * Validated: standard, pass, 86 terms through n = 9863 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (!cache)
     {
         cap = n + 1;                                 /* we need indices 0..n */
-        cache = (seq_t *)malloc((size_t)cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cap);
         cache[0] = 0;
         cache[1] = 1;
 
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* Grow the cache to accommodate index n. */
     size_t old_cap = cap;
     cap = n + 1;
-    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cap);
 
     /* Extend the cache: compute new values from old_cap up to n. */
     for (idx_t i = old_cap; i <= n; ++i)

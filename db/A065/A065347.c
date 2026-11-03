@@ -12,7 +12,8 @@
  *            binomial(2k,k) using Legendre’s formula
  * Range:     u8 n <= 220, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   vp_factorial
+ * Validated: standard, pass, 86 terms through n = 799 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,14 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/vp_factorial.h"
+#include "../utils/mem.h"
+
+static unsigned int vp_factorial(idx_t n, uint32_t p)
+{
+    unsigned int sum = 0;
+    while (n) { n /= p; sum += n; }
+    return sum;
+}
 
 #define SIEVE_LIMIT 1000000u   /* large enough for all requested terms */
 
@@ -80,7 +88,7 @@ static void ensure_zero_capacity(size_t need)
     if (zero_cap >= need) return;
     size_t newcap = zero_cap == 0 ? 16 : zero_cap * 2;
     while (newcap < need) newcap *= 2;
-    seq_t *tmp = (seq_t*)realloc(zero_pos, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, zero_pos, newcap);
     if (!tmp) abort();
     zero_pos = tmp;
     zero_cap = newcap;

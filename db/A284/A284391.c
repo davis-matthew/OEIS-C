@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    It keeps the generated word and its parity in static variables to
    allow multiple independent calls. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *lim_word = NULL;   /* array of symbols, 0 or 1 */
 static idx_t  lim_len  = 0;      /* current length of lim_word   */
@@ -29,7 +31,7 @@ static int    lim_parity = 0;    /* 0 = even iteration, 1 = odd iteration */
 static void expand(void)
 {
     size_t new_cap = (size_t)lim_len * 3;        /* upper bound on new size */
-    seq_t *new_word = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_word = mem_new(seq_t, new_cap);
     if (!new_word) abort();
 
     size_t pos = 0;
@@ -44,7 +46,7 @@ static void expand(void)
         }
     }
 
-    free(lim_word);
+    mem_free(lim_word);
     lim_word = new_word;
     lim_len  = (idx_t)pos;
     lim_parity ^= 1;                             /* toggle parity */
@@ -55,7 +57,7 @@ static void expand(void)
 static void ensure_len(idx_t n)
 {
     if (lim_word == NULL) {                     /* first‑time initialization */
-        lim_word   = (seq_t *)malloc(sizeof(seq_t));
+        lim_word   = mem_new(seq_t, 1);
         if (!lim_word) abort();
         lim_word[0] = (seq_t)0;                 /* seed word = "0"       */
         lim_len    = 1;

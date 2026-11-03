@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 21, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  * extra memory besides a cache of computed values.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;      /* cache of a(n) */
 static size_t cache_capacity = 0;    /* allocated size */
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
 {
     if (!seq_cache) {
         cache_capacity = 1;
-        seq_cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_capacity);
         if (!seq_cache) return;          /* allocation failed – silently fail */
         seq_cache[0] = 0;
         /* dp_state already initialized to values for n=0 */
@@ -59,7 +61,7 @@ static void ensure_cache(idx_t n)
         idx_t i = cache_last + 1;
         if ((size_t)i >= cache_capacity) {
             size_t new_cap = i + 1;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             if (!tmp) return; /* memory error; silently leave cache incomplete */
             seq_cache = tmp;
             cache_capacity = new_cap;

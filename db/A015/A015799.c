@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = the nth integer m such that φ(m)+8 | σ(m)
- * Range:     u8 n <= 4, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
+ * Range:     u8 n <= 4, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static void ensure_primes_up_to_limit(uint32_t limit);
 static void add_prime(uint32_t p);
@@ -42,7 +44,7 @@ static void init_static_state(void)
     /* Will generate primes incrementally.  No need to pre-fill here. */
 
     cache_cap = 8;
-    cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, NULL, cache_cap);
     cache_len = 0;
     initialized = true;
 }
@@ -121,7 +123,7 @@ seq_t a(idx_t n)
             /* Store the found integer in the cache. */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 8 : 2 * cache_cap;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 129, u32 n <= 723, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 827 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    1, 3, 4, 7, 11, 18, … using standard dynamic programming. */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     }
 
     /* dynamic programming for restricted partitions */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return 0;                     /* out-of-memory guard */
     for (size_t i = 0; i <= (size_t)n; ++i) {
         dp[i] = 0;
@@ -56,6 +58,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -8,18 +8,21 @@
  * Keywords:  nonn
  * Formula:   a(n) = LCM_{p^e||n} (q^(e+1)-1)/(q-1), where q = nextPrime(p).
  *            For n = 1, a(1) = 1
- * Range:     u8 n <= 12, u16 n <= 1023, u32 n <= 9311, u64 n <= 9311,
- *            u128 n <= 9311, big any n
- * Helpers:   factor_u64, next_prime, seq_gcd, seq_pow
+ * Range:     u8 n <= 12, u16 n <= 1023, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 90 terms through n = 9311 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_idx, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/next_prime.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_gcd.h"
-#include "../utils/seq_pow.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/next_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -36,10 +39,10 @@ seq_t a(idx_t n)
         uint64_t e = exps[i];
         uint64_t q = next_prime(p);                 /* next prime after p */
 
-        seq_t pow = seq_pow((seq_t)q, (idx_t)(e + 1));   /* q^(e+1) */
+        seq_t pow = ipow_idx((seq_t)q, (idx_t)(e + 1));   /* q^(e+1) */
         seq_t val = (pow - 1) / (seq_t)(q - 1);          /* (q^(e+1)-1)/(q-1) */
 
-        seq_t g   = seq_gcd(result, val);               /* gcd(result,val) */
+        seq_t g   = gcd(result, val);               /* gcd(result,val) */
         seq_t tmp = result / g;                         /* result/gcd */
         result = tmp * val;                             /* lcm part */
     }

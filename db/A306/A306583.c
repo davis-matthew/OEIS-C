@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   enumerate
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/enumerate.h"
+#include "../utils/mem.h"
+
+/* Recursive enumeration of all sums Σ s_i·i! with s_i ∈ {-1,0,1} */
+static void enumerate(int pos, int max_pos, int64_t cur, const int64_t *fact,
+                      size_t Nmax, unsigned char *rep)
+{
+    if (pos > max_pos) {
+        if (cur > 0 && (size_t)cur <= Nmax)
+            rep[(size_t)cur] = 1;
+        return;
+    }
+    /* coefficient 0 */
+    enumerate(pos + 1, max_pos, cur, fact, Nmax, rep);
+    /* coefficient +1 */
+    enumerate(pos + 1, max_pos, cur + fact[pos], fact, Nmax, rep);
+    /* coefficient -1 */
+    enumerate(pos + 1, max_pos, cur - fact[pos], fact, Nmax, rep);
+}
 
 static seq_t *nonrep_vals = NULL;   /* array of non‑representable values */
 static size_t nonrep_cnt  = 0;       /* number of values stored */
@@ -62,7 +80,7 @@ static void build_tables(void)
 
     /* Estimated number of non‑representables */
     size_t est = (size_t)NMAX - 200000;   /* rough lower bound  */
-    nonrep_vals = (seq_t*)malloc(est * sizeof(seq_t));
+    nonrep_vals = mem_new(seq_t, est);
     if (!nonrep_vals)
         abort();
 
@@ -71,7 +89,7 @@ static void build_tables(void)
         if (!rep[i]) {
             if (pos == est) {               /* grow array if needed */
                 est *= 2;
-                nonrep_vals = (seq_t*)realloc(nonrep_vals, est * sizeof(seq_t));
+                nonrep_vals = mem_resize(seq_t, nonrep_vals, est);
                 if (!nonrep_vals)
                     abort();
             }

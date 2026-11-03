@@ -8,7 +8,8 @@
  *            of m and f(1) = 1, f(k) = prime(k-1) for k ≥ 2
  * Range:     u8 n <= 17, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- global cache -------------------------------------------- */
 static seq_t *sigma_arr = NULL;   /* σ[1..N] */
@@ -68,16 +70,16 @@ static void recompute_up_to(idx_t n)
     size_t N = (size_t)n;
 
     /* ---- compute σ array ------------------------------------ */
-    free(sigma_arr);
-    sigma_arr = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    mem_free(sigma_arr);
+    sigma_arr = mem_new(seq_t, N + 1);
     if (!sigma_arr) abort();
     for (size_t i = 1; i <= N; ++i)
         for (size_t j = i; j <= N; j += i)
             sigma_arr[j] += (seq_t)i;
 
     /* ---- compute f array ------------------------------------ */
-    free(f_arr);
-    f_arr = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    mem_free(f_arr);
+    f_arr = mem_new(seq_t, N + 1);
     if (!f_arr) abort();
 
     f_arr[1] = (seq_t)1;          /* f(1) = 1 */

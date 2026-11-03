@@ -6,14 +6,16 @@
  * Keywords:  sign
  * Formula:   a(n) = (1/(n+1)) * Sum_{k=0..floor(n/2)} (-1)^k *
  *            binomial(2*n-2*k+1, k) * binomial(2*n-2*k, n-2*k)
- * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 14, i64 n <= 29, i128 n <= 29,
+ * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 17, i64 n <= 29, i128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -8,12 +8,23 @@
  *            least n
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   exponent_of_11_in_factorial
+ * Validated: standard, pass, 67 terms through n = 988 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/exponent_of_11_in_factorial.h"
+static inline idx_t exponent_of_11_in_factorial(idx_t k)
+{
+    /* Compute e_11(k!) = ⌊k/11⌋ + ⌊k/121⌋ + …  */
+    idx_t cnt = 0;
+    while (k)
+    {
+        k /= 11;
+        cnt += k;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

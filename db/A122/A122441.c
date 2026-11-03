@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 13, i64 n <= 24, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 1087 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* incremental cache for the sequence */
 static seq_t *cache = NULL;
@@ -40,7 +42,7 @@ static void init_cache(void)
     if (cached_n != (idx_t)-1)
         return;
     capacity = 3;
-    cache = (seq_t*)malloc(capacity * sizeof(seq_t));
+    cache = mem_new(seq_t, capacity);
     cache[0] = (seq_t)1;
     cache[1] = (seq_t)-1;
     cache[2] = (seq_t)1;
@@ -55,7 +57,7 @@ static void grow_cache(idx_t need)
     size_t new_cap = capacity ? capacity * 2 : 1;
     if (new_cap < need + 1)
         new_cap = need + 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     capacity = new_cap;
 }

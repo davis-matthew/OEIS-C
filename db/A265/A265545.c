@@ -12,13 +12,17 @@
  *            digit of m
  * Range:     u8 n <= 26, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   max8
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/max8.h"
+
+static inline uint8_t max8(uint8_t x, uint8_t y) {
+    return x > y ? x : y;
+}
 
 seq_t a(idx_t n) {
     /* Special case: n = 0 → 0 */

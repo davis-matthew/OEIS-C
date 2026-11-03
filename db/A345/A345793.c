@@ -8,7 +8,8 @@
  *            way
  * Range:     u8 n <= 120, u16 n <= 176, u32 n <= 176, u64 n <= 176,
  *            u128 n <= 176, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 174 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute the nth term of A345793.  The function is memoised, so
    future calls, even out of order, reuse the pre‑computed table. */
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
 
         /* ------------------ Extract the unique sums ---------------------- */
         size_t cap = 1024;
-        unique = (seq_t *)malloc(cap * sizeof(seq_t));
+        unique = mem_new(seq_t, cap);
         if (!unique) { free(dp); return 0; }
         unique_len = 0;
 
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
             if (dp[9 * (MAX_SUM + 1) + s] == 1) {
                 if (unique_len >= cap) {
                     cap <<= 1;                         /* grow vector */
-                    seq_t *tmp = (seq_t *)realloc(unique, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, unique, cap);
                     if (!tmp) { free(dp); return 0; }
                     unique = tmp;
                 }

@@ -8,7 +8,8 @@
  * Formula:   a(n) = minimal Σx_i such that Σ binomial(x_i,2) = n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9410 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* (OEIS A336640)                                              */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Minimal sum of arguments whose binomial(·,2) values sum to n. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
        computed on the fly; old ones remain untouched.               */
     if (n + 1 > sz)
     {
-        seq_t *new_dp = (seq_t *)realloc(dp, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, (size_t)(n + 1));
         if (!new_dp) abort();
         dp = new_dp;
 

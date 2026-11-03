@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} n^phi(d)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 23,
  *            big any n
- * Helpers:   big_pow, build_spf, calc_phi
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   build_spf, ipow, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/calc_phi.h"
 #include "../utils/build_spf.h"
+#include "../utils/ipow.h"
+#include "../utils/totient_seq.h"
 
 /* ---------- global cache for smallest prime factors ---------- */
 static idx_t  cache_limit = 0;    /* highest index built so far   */
@@ -47,8 +48,8 @@ static void dfs_sum(const idx_t *factors, const uint8_t *exps,
 {
     if (idx == fcount) {
         /* cur is a divisor d of n */
-        seq_t phi_d = calc_phi((seq_t)cur);          /* φ(d)  */
-        seq_t term  = big_pow((seq_t)n, phi_d);     /* n^φ(d)*/
+        seq_t phi_d = totient_seq((seq_t)cur);          /* φ(d)  */
+        seq_t term  = ipow((seq_t)n, phi_d);     /* n^φ(d)*/
         *sum += term;
         return;
     }

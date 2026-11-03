@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   ensure_sum_cap, ensure_twin_cap
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,33 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ensure_sum_cap.h"
-#include "../utils/ensure_twin_cap.h"
+#include "../utils/mem.h"
+
+/* ensure sum_* array can hold index idx */
+static void ensure_sum_cap(uint8_t **arr, size_t *cap, size_t idx)
+{
+    if (idx < *cap) return;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 256;
+    while (new_cap <= idx) new_cap <<= 1;
+    uint8_t *tmp = (uint8_t *)realloc(*arr, new_cap);
+    if (!tmp) abort();
+    if (new_cap > *cap) {
+        for (size_t i = *cap; i < new_cap; ++i) tmp[i] = 0;
+    }
+    *arr  = tmp;
+    *cap  = new_cap;
+}
+
+/* ensure prime array can hold count */
+static void ensure_twin_cap(size_t *cap, size_t *cnt, uint64_t **arr)
+{
+    if (*cnt < *cap) return;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 64;
+    uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(uint64_t));
+    if (!tmp) abort();
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* ---------- Miller‑Rabin primality test for 64‑bit numbers ---------- */
 static inline uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod)
@@ -96,7 +122,7 @@ static void ensure_cache_cap(size_t cnt)
     if (cnt < cache_cap) return;
     size_t new_cap = (cache_cap) ? (cache_cap << 1) : 64;
     if (new_cap < cnt) new_cap = cnt;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

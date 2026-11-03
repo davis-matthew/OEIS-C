@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 890 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  *     12, 40, 220, 768, 14808, 51700, 285520, 996852
  */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* Ensure room for at least the first 8 terms. */
         capacity = 8;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) abort();
 
         /* store the first 8 known terms */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         if (newCap == 0) newCap = 8;
         while (newCap < (size_t)n) newCap <<= 1;   /* double until big enough */
 
-        seq_t *tmp = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newCap);
         if (!tmp) abort();
         cache = tmp;
         capacity = newCap;

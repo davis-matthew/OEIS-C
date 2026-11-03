@@ -12,16 +12,22 @@
  *            prod_{hooks...
  * Range:     u8 n <= 5, u16 n <= 27, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   cmp_u64, ipow_u, mobius
+ * Validated: full, pass, 27 terms through n = 27 (2026-11-02)
+ * Helpers:   ipow_u64_i32_to_u64, mobius_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/cmp_u64.h"
-#include "../utils/ipow_u.h"
-#include "../utils/mobius.h"
+#include <string.h>
+#include "../utils/ipow_u64_i32_to_u64.h"
+#include "../utils/mobius_i32.h"
+
+static int cmp_u64(const void *x, const void *y) {
+    uint64_t a = *(const uint64_t *)x, b = *(const uint64_t *)y;
+    return (a > b) - (a < b);
+}
 
 #define GN 5
 #define GQ 2
@@ -61,9 +67,9 @@ static void part_factors(int pi, int d, uint64_t *num, uint64_t *den) {
     for (i = 0; i < L; i++)
         for (j = 0; j < ptab[pi][i]; j++) {
             int h = ptab[pi][i] + conj[j] - i - j - 1;
-            dn *= ipow_u(GQ, d * h) - 1;
+            dn *= ipow_u64_i32_to_u64(GQ, d * h) - 1;
         }
-    *num = ipow_u(GQ, d * nl);
+    *num = ipow_u64_i32_to_u64(GQ, d * nl);
     *den = dn;
 }
 
@@ -94,12 +100,12 @@ static void build(void) {
         int64_t s = 0;
         int64_t nd;
         for (e = 1; e <= d; e++)
-            if (d % e == 0) s += (int64_t)mobius(d / e) * (int64_t)ipow_u(GQ, e);
+            if (d % e == 0) s += (int64_t)mobius_i32(d / e) * (int64_t)ipow_u64_i32_to_u64(GQ, e);
         nd = s / d;
         if (d == 1) nd -= 1; /* exclude f = x */
         for (i = 0; i < nd; i++) slots[nslots++] = d;
     }
-    for (i = 1; i <= GN; i++) psi *= ipow_u(GQ, i) - 1;
+    for (i = 1; i <= GN; i++) psi *= ipow_u64_i32_to_u64(GQ, i) - 1;
     cnt = 0;
     gen(0, GN, psi, 1);
     qsort(degs, (size_t)cnt, sizeof(uint64_t), cmp_u64);

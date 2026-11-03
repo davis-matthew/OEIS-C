@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 890, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has20
+ * Validated: standard, pass, 56 terms through n = 9943 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has20.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑9 representation of val contains "20". */
+static bool has20(seq_t val)
+{
+    int prev = -1;
+    while (val > 0) {
+        int digit = (int)(val % 9);
+        /* Digits are processed least‑significant first, so we
+           detect "20" when we see a 0 followed by a 2. */
+        if (prev == 0 && digit == 2)
+            return true;
+        prev = digit;
+        val /= 9;
+    }
+    return false;
+}
 
 /* Cache of found terms */
 static seq_t *_cache = NULL;
@@ -35,7 +52,7 @@ static void ensure_cache(idx_t n)
         if (has20(cand) && !has20(cand - 1)) {
             if (_len >= _cap) {
                 size_t newcap = (_cap == 0) ? 64 : _cap * 2;
-                seq_t *tmp = (seq_t *)realloc(_cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, _cache, newcap);
                 _cache = tmp;
                 _cap = newcap;
             }

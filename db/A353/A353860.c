@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 27, u32 n <= 53, u64 n <= 107,
  *            u128 n <= 203, big any n
- * Helpers:   compute_mu_upto
+ * Validated: standard, pass, 66 terms through n = 936 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,38 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/compute_mu_upto.h"
+
+/* Compute Möbius function μ up to N using a linear sieve */
+static void compute_mu_upto(idx_t N, int8_t *mu)
+{
+    if (N == 0) return;
+    mu[0] = 0;
+    if (N >= 1) mu[1] = 1;
+
+    size_t *primes = (size_t *)malloc((size_t)(N + 1) * sizeof(size_t));
+    uint8_t *composite = (uint8_t *)calloc((size_t)(N + 1), sizeof(uint8_t));
+    size_t pc = 0;
+
+    for (idx_t i = 2; i <= N; ++i) {
+        if (!composite[i]) {
+            primes[pc++] = i;
+            mu[i] = -1;
+        }
+        for (size_t j = 0; j < pc && i * primes[j] <= N; ++j) {
+            idx_t v = i * primes[j];
+            composite[v] = 1;
+            if (i % primes[j] == 0) {
+                mu[v] = 0;
+                break;
+            } else {
+                mu[v] = -mu[i];
+            }
+        }
+    }
+
+    free(primes);
+    free(composite);
+}
 
 /* Forward declaration of seq_t and idx_t – provided by the build system */
 extern seq_t a(idx_t n);

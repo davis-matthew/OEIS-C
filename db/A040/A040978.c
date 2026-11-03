@@ -10,7 +10,8 @@
  *            congruence is true because 0 is a 5th power mod 17
  * Range:     u8 n <= 43, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, is_prime, mod_pow
+ * Validated: standard, pass, 64 terms through n = 942 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -42,7 +45,7 @@ seq_t a(idx_t n) {
                 /* Ensure capacity */
                 if (size == cap) {
                     size_t new_cap = (cap == 0) ? 16 : cap * 2;
-                    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                     if (!new_cache) return (seq_t)0;
                     cache = new_cache;
                     cap = new_cap;
@@ -51,11 +54,11 @@ seq_t a(idx_t n) {
             } else {
                 seq_t g = gcd((seq_t)5, (seq_t)(p - 1));
                 uint64_t exp = (p - 1) / (uint64_t)g;
-                seq_t r = mod_pow((seq_t)17, exp, (seq_t)p);
+                seq_t r = powmod((seq_t)17, exp, (seq_t)p);
                 if (r == (seq_t)1) {
                     if (size == cap) {
                         size_t new_cap = (cap == 0) ? 16 : cap * 2;
-                        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                         if (!new_cache) return (seq_t)0;
                         cache = new_cache;
                         cap = new_cap;

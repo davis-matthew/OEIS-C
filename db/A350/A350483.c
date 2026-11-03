@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 19, i16 n <= 35, i32 n <= 66, i64 n <= 66, i128 n <= 66,
+ * Range:     i8 n <= 23, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,8 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/binomial.h"   /* declares seq_t binomial(idx_t a, idx_t b); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 /* a and idx_t are provided by the build. */
 
 static seq_t *cache = NULL;       /* 1‑based array of computed values    */
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     /* Extend the cache if necessary */
     if (n > cached) {
         size_t new_size = (size_t)n + 1;            /* +1 for 1‑based indexing      */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) exit(1);                     /* allocation failure          */
         cache = new_cache;
 

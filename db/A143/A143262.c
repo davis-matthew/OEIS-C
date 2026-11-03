@@ -10,13 +10,14 @@
  *            of n
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 121 terms through n = 996 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 /* Small helper to compute the bit length of an unsigned 64‑bit integer.
    For x > 0 it returns floor(log2(x)) + 1. */
@@ -29,7 +30,7 @@ seq_t a(idx_t n) {
     uint64_t n64 = (uint64_t)n;
 
     /* Number of divisors of n (sequence term we need). */
-    seq_t divs_seq = divisor_count_u64(n64);
+    seq_t divs_seq = num_divisors(n64);
     uint64_t d64 = (uint64_t)divs_seq;        /* safe: divisor count < 2^32 */
 
     /* Lengths of binary representations. */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 219, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 86 terms through n = 8691 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,12 +25,13 @@
  */
 
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 static bool has_at_least_two_zeros(seq_t x)
 {
     /* Count the number of bits in x (excluding leading zeros). */
-    unsigned bits = bitlen_seq_t(x);
+    unsigned bits = bit_length(x);
     /* Count the number of 1 bits using the classic “x & (x-1)” trick. */
     unsigned ones = 0;
     seq_t y = x;

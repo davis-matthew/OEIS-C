@@ -11,16 +11,36 @@
  *            8*sigma(k) for odd k, 0 for even k; [q^k] A^2 = r_8(k) =
  *            16*s(k),...
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 47, u64 n <= 3905,
- *            u128 n <= 9090, big any n
- * Helpers:   alloc_zero, release, s_of
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 45 terms through n = 9090 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/s_of.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* s(k) = Sum_{d|k} (-1)^(k+d) d^3, always nonnegative */
+static seq_t s_of(const seq_t *s3, idx_t k)
+{
+    if (k & 1) return s3[k];
+    idx_t o = k;
+    while ((o & 1) == 0) o >>= 1;
+    return s3[k / 2] * 8 - s3[o];
+}
 
 seq_t a(idx_t n)
 {

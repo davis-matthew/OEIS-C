@@ -8,13 +8,15 @@
  *            a(1)=2, a(2)=3, a(3)=7, a(4)=8, a(5)=19
  * Range:     u8 n <= 10, u16 n <= 24, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (sz < 6)
     {
         size_t new_sz = 6;
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (!tmp) return (seq_t)0;          /* out‑of‑memory, unlikely in tests */
         cache = tmp;
         sz = 6;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
     /* grow cache to fit up to index n */
     size_t new_sz = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_sz);
     if (!tmp) return (seq_t)0;
     cache = tmp;
     sz = new_sz;

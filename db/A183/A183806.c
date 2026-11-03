@@ -13,13 +13,15 @@
  *            -1692000*a(n-16)-1053000*a(n-17) Initial values (a...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const int coeff[17] = {
     6, 81, -425, -1968, 10277, 16576,
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Initial allocation */
     if (memo == NULL) {
         memo_cap = 18;                         /* indices 0..17 */
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (!memo) abort();                    /* out of memory */
         memo[0] = 0;                           /* unused */
         for (int i = 0; i < 17; ++i) {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > memo_cap) {
         size_t new_cap = (size_t)(n + 1);
         if (new_cap < 2 * memo_cap) new_cap = 2 * memo_cap;
-        seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (!tmp) abort();
         memo = tmp;
         memo_cap = new_cap;

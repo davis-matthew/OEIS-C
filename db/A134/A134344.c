@@ -9,14 +9,15 @@
  *            factors (counted with multiplicity) is prime
  * Range:     u8 n <= 45, u16 n <= 4483, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mean_prime
+ * Validated: standard, pass, 73 terms through n = 9892 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mean_prime.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;            /* off‑set 1, undefined below */
@@ -46,7 +47,7 @@ seq_t a(idx_t n) {
         if (k > 1) {
             if (sum % k == 0) {
                 seq_t mean = sum / k;
-                if (mean_prime(mean)) {
+                if (is_prime_seq(mean)) {
                     ++count;
                     if (count == n) return (seq_t)m;
                 }

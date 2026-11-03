@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 105, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 59 terms through n = 9714 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,14 +21,15 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
     uint64_t m = 3;           /* start with the first odd integer that can give a term */
     while (count < n) {
         uint64_t sq = m * m;  /* m² fits in 64‑bit for all intended use */
-        if (!is_prime(sq + 2)) {   /* m² + 2 composite → include this square */
+        if (!is_prime_u64(sq + 2)) {   /* m² + 2 composite → include this square */
             ++count;
             if (count == n)
                 return (seq_t)sq;

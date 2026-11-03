@@ -7,13 +7,15 @@
  * Formula:   a(n) = (n-1)*n!*(n-1)!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Lazy initialization of cache (factorial 0! = 1) */
     if (fact_cache == NULL) {
-        fact_cache = (seq_t*)malloc(1 * sizeof(seq_t));   /* for index 0 */
+        fact_cache = mem_new(seq_t, 1);   /* for index 0 */
         fact_cache[0] = (seq_t)1;     /* 0! = 1 */
         fact_cache_cap = 0;
     }
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if ((size_t)n > fact_cache_cap) {
         size_t old_cap = fact_cache_cap;
         size_t new_cap = (size_t)n;   /* we need up to index n */
-        seq_t *tmp = (seq_t*)realloc(fact_cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_cache, (new_cap + 1));
         fact_cache = tmp;
         for (size_t i = old_cap + 1; i <= new_cap; ++i) {
             fact_cache[i] = fact_cache[i - 1] * (seq_t)i;

@@ -9,13 +9,15 @@
  *            a(1)=a(2)=a(3)=a(4)=0, a(5)=2, a(6)=0
  * Range:     u8 n <= 23, u16 n <= 38, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cache of already computed terms */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_capacity(idx_t n)
     while (newcap <= (size_t)n)
         newcap <<= 1;          /* double until we can hold n */
 
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp && newcap > 0) {
         /* Allocation failed – terminate (cannot continue safely) */
         exit(EXIT_FAILURE);

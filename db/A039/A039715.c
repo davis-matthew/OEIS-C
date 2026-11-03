@@ -7,13 +7,15 @@
  * Formula:   a(n) = prime(n) mod 17
  * Range:     u8 n <= 54, u16 n <= 7041, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9005 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         /* Allocate the prime buffer if needed */
         if (!primes) {
             cap = 32;
-            primes = (seq_t*)malloc(cap * sizeof(seq_t));
+            primes = mem_new(seq_t, cap);
         }
 
         uint64_t cand;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
                 /* Grow the prime array if necessary */
                 if (prime_count == cap) {
                     cap <<= 1;
-                    primes = (seq_t*)realloc(primes, cap * sizeof(seq_t));
+                    primes = mem_resize(seq_t, primes, cap);
                 }
                 primes[prime_count++] = (seq_t)cand;
             }

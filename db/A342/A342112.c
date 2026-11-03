@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(n^5 / 10)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

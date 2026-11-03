@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
    The implementation follows that recurrence iteratively, using the helper
    function floor_log2_uint64() to locate the highest power of two ≤ n. */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 /* Computes A089401 for a given n (n ≥ 1).  Returns 0 for n == 0 to avoid
    undefined behaviour when called with an index below the offset. */
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Process n by repeatedly stripping off its highest power of two. */
     while (1) {
-        idx_t m = floor_log2_uint64(n);   /* m = ⌊log₂ n⌋, 2^m ≤ n < 2^(m+1) */
+        idx_t m = ilog2(n);   /* m = ⌊log₂ n⌋, 2^m ≤ n < 2^(m+1) */
         idx_t p = ((idx_t)1) << m;        /* p = 2^m */
 
         if (n == p) {                    /* n itself is a power of two */

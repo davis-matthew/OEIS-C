@@ -12,7 +12,8 @@
  *            + 2
  * Range:     u8 none, u16 none, u32 n <= 7, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 30 terms through n = 654 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 /*            for all n >= 4 */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,10 +31,10 @@ seq_t a(idx_t n)
         return 0;
 
     /* Compute the power terms using the provided big_pow utility. */
-    seq_t p31 = big_pow((seq_t)31, (seq_t)(n - 3));
-    seq_t p15 = big_pow((seq_t)15, (seq_t)(n - 3));
-    seq_t p07 = big_pow((seq_t)7,  (seq_t)(n - 3));
-    seq_t p03 = big_pow((seq_t)3,  (seq_t)(n - 1));
+    seq_t p31 = ipow((seq_t)31, (seq_t)(n - 3));
+    seq_t p15 = ipow((seq_t)15, (seq_t)(n - 3));
+    seq_t p07 = ipow((seq_t)7,  (seq_t)(n - 3));
+    seq_t p03 = ipow((seq_t)3,  (seq_t)(n - 1));
 
     /* Assemble the formula term by term. */
     seq_t term1 = p31 * (seq_t)3375;

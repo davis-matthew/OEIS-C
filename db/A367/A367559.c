@@ -8,6 +8,7 @@
  *            floor((sqrt(8*n+1)-1)/2) is the diagonal index
  * Range:     i8 n <= 34, i16 n <= 134, i32 n <= 526, i64 n <= 2078,
  *            i128 n <= 8254, big any n
+ * Validated: standard, pass, 82 terms through n = 9919 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* The computation finds the coordinates (i,j) of the element on the
    antidiagonal read with descending i, then returns T(i,j)=2^j-i. */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

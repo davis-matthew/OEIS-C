@@ -12,6 +12,7 @@
  *            a(n) = 360
  * Range:     u8 none, u16 n <= 7, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

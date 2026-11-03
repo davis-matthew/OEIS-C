@@ -9,13 +9,21 @@
  *            a(3)=392, a(4)=392, a(5)=56, a(6)=392
  * Range:     u8 n <= 2, u16 n <= 12, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   pow49
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>  /* for size_t */
-#include "../utils/pow49.h"
+
+static seq_t pow49(idx_t exp) {
+    seq_t result = 1;
+    for (idx_t i = 0; i < exp; ++i) {
+        result *= 49;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     /* pattern of the first 6 terms */

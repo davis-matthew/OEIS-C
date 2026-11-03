@@ -9,7 +9,8 @@
  *            q+2 are both prime } and r and r+2 are both prime
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 96 terms through n = 8490 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static idx_t sieve_max = 0;
 static bool *prime_flag = NULL;        /* prime_flag[i] == true if i is prime */
@@ -31,7 +33,7 @@ static void recompute(idx_t limit) {
 
     if (prime_flag) free(prime_flag);
     if (prime_list) free(prime_list);
-    if (twin_prefix) free(twin_prefix);
+    if (twin_prefix) mem_free(twin_prefix);
 
     sieve_max = limit;
     prime_flag = (bool*)malloc((limit + 1) * sizeof(bool));
@@ -62,7 +64,7 @@ static void recompute(idx_t limit) {
         if (prime_flag[i]) prime_list[k++] = i;
 
     /* Build twin‑prime prefix sums. */
-    twin_prefix = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+    twin_prefix = mem_new(seq_t, (limit + 1));
     if (!twin_prefix) exit(1);
     twin_prefix[0] = 0;
     for (idx_t i = 1; i <= limit; ++i) {
@@ -86,7 +88,7 @@ seq_t a(idx_t n) {
         if (p >= n) break;
         idx_t m = n - p;
         seq_t r = twin_prefix[m];
-        if (is_prime_small(r) && is_prime_small(r + 2))
+        if (is_prime_seq(r) && is_prime_seq(r + 2))
             ++result;
     }
     return result;

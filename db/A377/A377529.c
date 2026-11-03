@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (k+1) * k^(n-k)/(n-k)!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence implementation using the e.g.f. 1/(1 - x*exp(x))^2 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
 
     /* initialise storage */
     if (!b) {
-        b = (seq_t *)malloc(sizeof(seq_t));
-        a_arr = (seq_t *)malloc(sizeof(seq_t));
+        b = mem_new(seq_t, 1);
+        a_arr = mem_new(seq_t, 1);
         if (!b || !a_arr) return (seq_t)0;   /* out of memory; caller may ignore */
         b[0] = (seq_t)1;      /* f(0) = 1 */
         a_arr[0] = (seq_t)1;  /* a(0) = 1 */
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
     /* extend precomputation up to requested n */
     if (n > computed) {
         idx_t new_cap = n + 1;
-        b = (seq_t *)realloc(b, new_cap * sizeof(seq_t));
-        a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        b = mem_resize(seq_t, b, new_cap);
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
         if (!b || !a_arr) return (seq_t)0; /* allocation failure */
 
         for (idx_t m = computed + 1; m <= n; ++m) {

@@ -7,14 +7,16 @@
  * Formula:   a(n) = Σ_{d|n} d^φ(n/d)
  * Range:     u8 n <= 19, u16 n <= 33, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   big_pow, phi
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   ipow, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -25,16 +27,16 @@ seq_t a(idx_t n)
             /* divisor d = i,  m = n/d */
             seq_t d = (seq_t)i;
             seq_t m = (seq_t)n / d;
-            seq_t phi_val = phi((idx_t)m);
-            seq_t term = big_pow(d, phi_val);
+            seq_t phi_val = totient((idx_t)m);
+            seq_t term = ipow(d, phi_val);
             sum += term;
 
             /* if this is not the square root, process the paired divisor */
             if (i != m) {
                 d = (seq_t)m;          /* d = n/i */
                 m = (seq_t)n / d;      /* m = i */
-                phi_val = phi((idx_t)m);
-                term = big_pow(d, phi_val);
+                phi_val = totient((idx_t)m);
+                term = ipow(d, phi_val);
                 sum += term;
             }
         }

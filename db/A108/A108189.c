@@ -6,15 +6,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = (n-1)*(a(n-2)+a(n-3)) Recurrence with initial values:
  *            a(1)=0, a(2)=1, a(3)=1 offset: 1
- * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 19, u64 n <= 26, u128 n <= 26,
+ * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 19, u64 n <= 32, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 748 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* memoization array (1‑based) */
 static size_t dp_cap = 0;         /* capacity of dp */
@@ -29,7 +31,7 @@ static void ensure_capacity(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, new_cap);
     if (!tmp) exit(1);            /* realloc failed – terminate */
     dp = tmp;
     dp_cap = new_cap;

@@ -11,14 +11,32 @@
  *            M = P*Q, u_0 = e_0, u_k = M u_{k-1}, a(n) =...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   alloc_zero, grow_zero
+ * Validated: standard, pass, 32 terms through n = 580 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/grow_zero.h"
-#include "../utils/alloc_zero.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 /* even orbits: 0 empty, 1 {0,1}, 2 {0,j}, 3 {j,k}, 4 size4 missing 0/1, 5 size4 missing j */
 /* odd orbits:  0 {0}, 1 {j}, 2 {0,1,j}, 3 {0,j,k}, 4 {2,3,4}, 5 full */

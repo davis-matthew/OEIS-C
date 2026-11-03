@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_N 10000
 
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     /* compute up to n */
     /* initialise for first row if not done yet */
     if (cache_n == 0) {
-        memset(dp_prev, 0, sizeof(dp_prev));
+        mem_set(dp_prev, 0, sizeof(dp_prev));
         for (size_t cfg = 0; cfg < 256; ++cfg) {
             uint8_t h = h_count[cfg];
             if (h <= 1) dp_prev[cfg][h] += (seq_t)1;
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
     }
 
     for (idx_t row = cache_n + 1; row <= n; ++row) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (size_t prev = 0; prev < 256; ++prev) {
             seq_t v0 = dp_prev[prev][0];
             seq_t v1 = dp_prev[prev][1];
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp_prev, dp_next, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_next, sizeof(dp_prev));
 
         seq_t sum = 0;
         for (size_t cfg = 0; cfg < 256; ++cfg) sum += dp_prev[cfg][1];

@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∑_{k=1..n} [n choose k]_2 * a(n-k) * 2^{k*(n-k)}
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Ensure that a realloc result is correctly typed for both C and C++. */
 static void enlarge(seq_t **arr, size_t *cap, size_t needed)
@@ -26,7 +28,7 @@ static void enlarge(seq_t **arr, size_t *cap, size_t needed)
     size_t newcap = (*cap == 0) ? 1 : (*cap << 1);
     while (newcap < needed)
         newcap <<= 1;
-    *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap = newcap;
 }
 

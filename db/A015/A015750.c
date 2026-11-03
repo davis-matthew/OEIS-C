@@ -9,12 +9,14 @@
  *            parts {1,2,3,4,6,7,…}
  * Range:     u8 n <= 31, u16 n <= 83, u32 n <= 247, u64 n <= 811,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* dp[i] = number of partitions of i with distinct parts ≠5 */
 static idx_t max_n = (idx_t)-1;   /* highest n for which dp is valid */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (dp == NULL || n > max_n)
     {
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, new_size);
         if (new_dp == NULL) exit(EXIT_FAILURE);
         dp = new_dp;
 

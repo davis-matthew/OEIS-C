@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Fast gcd for 64‑bit integers ------------------------------------------------*/
 static uint64_t gcd64(uint64_t a, uint64_t b)
@@ -69,7 +71,7 @@ static void generate_all(void)
     /* Dynamically grow the array of terms.                                      */
     size_t term_cap = 40000;
     size_t term_len = 0;
-    Term *terms = (Term *)malloc(term_cap * sizeof(Term));
+    Term *terms = mem_new(Term, term_cap);
     if (!terms) exit(1);
 
     /* Enumerate Euclid parameters m,n generating primitive triples.           */
@@ -100,7 +102,7 @@ static void generate_all(void)
             /* Term meets all criteria – store it */
             if (term_len == term_cap) {
                 term_cap *= 2;
-                terms = (Term *)realloc(terms, term_cap * sizeof(Term));
+                terms = mem_resize(Term, terms, term_cap);
                 if (!terms) exit(1);
             }
             Term *t = &terms[term_len++];
@@ -111,15 +113,15 @@ static void generate_all(void)
     }
 
     /* Sort by k then by j */
-    qsort(terms, term_len, sizeof(Term), cmp_terms);
+    mem_qsort(terms, term_len, sizeof(Term), cmp_terms);
 
     /* Transfer sorted i-values to the static output array */
-    i_vals = (seq_t *)malloc(term_len * sizeof(seq_t));
+    i_vals = mem_new(seq_t, term_len);
     if (!i_vals) exit(1);
     for (size_t i = 0; i < term_len; ++i) i_vals[i] = terms[i].i;
     values_len = term_len;
 
-    free(terms);
+    mem_free(terms);
 }
 
 /* Sequence function requested by the problem ---------------------------------*/

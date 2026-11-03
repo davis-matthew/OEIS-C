@@ -9,6 +9,7 @@
  *            definition above: a(n) = Lucas(n+1) + (1 if n even, -2 if n odd)
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 45, u64 n <= 91, u128 n <= 183,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 953 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

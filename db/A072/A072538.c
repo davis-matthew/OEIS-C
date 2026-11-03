@@ -7,7 +7,8 @@
  * Formula:   a(n) = (n <= 3) ? prime(n) : prime(n+1) (Offset 1)
  * Range:     i8 n <= 9, i16 n <= 9, i32 n <= 9, i64 n <= 9, i128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Dynamic array of all primes. */
 static seq_t *primes = NULL;
@@ -30,7 +32,7 @@ static void ensure_prime_cap(size_t need)
     size_t new_cap = prime_cap ? prime_cap << 1 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, primes, new_cap);
     primes = tmp;
     prime_cap = new_cap;
 }

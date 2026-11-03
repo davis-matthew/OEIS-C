@@ -8,19 +8,22 @@
  * Formula:   a(n) = 12 * (2^(n+1) - 1), n ≥ 1
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 27, u64 n <= 59, u128 n <= 100,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 46 terms through n = 98 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n < 1)            /* offset is 1, values for n<1 are undefined */
         return 0;
     /* Compute 2^(n+1) as a seq_t */
-    seq_t val = seq_pow((seq_t)2, n + 1); /* 2^(n+1) */
+    seq_t val = ipow_idx((seq_t)2, n + 1); /* 2^(n+1) */
     val -= (seq_t)1;                      /* 2^(n+1) - 1 */
     val *= (seq_t)12;                     /* 12 * (2^(n+1) - 1) */
     return val;

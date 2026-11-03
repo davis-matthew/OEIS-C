@@ -9,13 +9,15 @@
  *            (r+1)(r+2)/2 and k = n - r(r+1)/2
  * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,11 +34,11 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Build Eulerian numbers row by row, exactly, using arbitrary‑precision arithmetic. */
-    seq_t *prev = (seq_t*)calloc(1, sizeof(seq_t));  /* row 1: [1] */
+    seq_t *prev = mem_new(seq_t, 1);  /* row 1: [1] */
     prev[0] = (seq_t)1;
 
     for (idx_t m = 2; m <= M; ++m) {
-        seq_t *curr = (seq_t*)calloc((size_t)m, sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, (size_t)m);
         curr[0] = (seq_t)1;
         curr[m - 1] = (seq_t)1;
 
@@ -46,13 +48,13 @@ seq_t a(idx_t n)
             curr[j] = part1 + part2;  /* exact value, no modulus yet */
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;                 /* prepare for next iteration */
     }
 
     /* prev now holds the exact Eulerian numbers of row M.
        Reduce the required entry modulo M and return. */
     seq_t result = prev[k] % (seq_t)M;
-    free(prev);
+    mem_free(prev);
     return result;
 }

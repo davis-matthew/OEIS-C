@@ -10,16 +10,17 @@
  *            Collatz orbit of n after the element n itself, iterated until 1
  *            is reached. If the orbit never reaches 1 the function returns
  *            (seq_t)-1
- * Range:     u8 n <= 8414, u16 n <= 8414, u32 n <= 8414, u64 n <= 8414,
- *            u128 n <= 8414, big any n
- * Helpers:   popcount_uint128
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8414 (2026-11-01)
+ * Helpers:   popcount_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/popcount_uint128.h"
+#include "../utils/popcount_u128.h"
 
 /* Compute a(n) */
 seq_t a(idx_t n)
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
         }
 
         /* Update maximum binary weight */
-        unsigned w = popcount_uint128(cur);
+        unsigned w = popcount_u128(cur);
         if (w > max_weight) {
             max_weight = (seq_t)w;
         }

@@ -9,13 +9,17 @@
  * Formula:   a(n) = C(n,10) * Sum_{j=1..10} Stirling2(10,j) * j^(n-10)
  * Range:     u8 none, u16 none, u32 n <= 12, u64 n <= 21, u128 n <= 39,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 31 terms through n = 868 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Stirling numbers S(10,j) for j=0..10 */
 static const int STIRLING_INT[11] = {
@@ -32,7 +36,7 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     for (idx_t j = 1; j <= 10; ++j) {
-        seq_t powj = big_pow((seq_t)j, exp);          /* j^(n-10) */
+        seq_t powj = ipow((seq_t)j, exp);          /* j^(n-10) */
         sum += (seq_t)STIRLING_INT[j] * powj;
     }
 

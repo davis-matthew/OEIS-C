@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n,k) * binomial((n-1)*(k+1), n-k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 36 terms through n = 140 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stddef.h>    /* size_t */
 #include <stdbool.h>   /* bool */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Static cache of computed terms. */
 static seq_t *a_cache = NULL;
@@ -34,7 +37,7 @@ static void _ensure_cache(idx_t n)
     if ((size_t)n < a_cache_len)
         return;
     size_t new_len = (n < 64) ? 64 : ((size_t)n + 1) * 2;
-    seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache) { /* fallback: no memory, return old cache */
         return;
     }
@@ -45,7 +48,7 @@ static void _ensure_cache(idx_t n)
     for (size_t i = a_cache_len; i < new_len; ++i)
         new_cache[i] = 0;
     /* Replace old cache */
-    free(a_cache);
+    mem_free(a_cache);
     a_cache = new_cache;
     a_cache_len = new_len;
 }

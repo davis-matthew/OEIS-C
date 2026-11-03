@@ -12,7 +12,8 @@
  *            all T(n,k) for n>=0, 0<=k<=floor((n-1)/3))
  * Range:     u8 n <= 30, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 /* ------------------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------- */
 /* Static storage for the memoised sequence and the DP tables.                */
@@ -45,7 +47,7 @@ static void ensure_a_capacity(idx_t need)
     size_t new_cap = a_cap ? a_cap : 1;
     while (new_cap < (size_t)need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_arr, new_cap);
     if (!tmp)
         abort();
     a_arr = tmp;
@@ -64,8 +66,8 @@ static void ensure_dp_capacity(idx_t need_k)
         new_cap <<= 1;
     size_t elems = new_cap * 8;
 
-    seq_t *tmp_prev = (seq_t *)realloc(dp_prev, elems * sizeof(seq_t));
-    seq_t *tmp_cur  = (seq_t *)realloc(dp_cur,  elems * sizeof(seq_t));
+    seq_t *tmp_prev = mem_resize(seq_t, dp_prev, elems);
+    seq_t *tmp_cur  = mem_resize(seq_t, dp_cur, elems);
     if (!tmp_prev || !tmp_cur)
         abort();
 

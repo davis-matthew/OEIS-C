@@ -9,6 +9,7 @@
  *            30*C(n,6)+2100*C(n,7)+25200*C(n,8)+86625*C(n,9)+116550*C(n,10)+69300*C(n,11)+15400*C(n,12)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 16, u64 n <= 96, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 960 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 24, u32 n <= 91, u64 n <= 312,
  *            u128 n <= 1084, big any n
- * Helpers:   ensure_capacity_idx, get_prime, seq_mul
+ * Validated: standard, pass, 55 terms through n = 9558 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,9 +32,79 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "../utils/get_prime.h"   /* get_prime(n): returns the n‑th prime */
-#include "../utils/seq_mul.h"     /* seq_mul(a,b): multiplies seq_t values */
-#include "../utils/ensure_capacity_idx.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Return the k‑th prime (k ≥ 1).  On first call the prime list
+   is built incrementally using trial division.  The list is
+   stored in a static array which is expanded as necessary.   */
+static uint32_t get_prime(idx_t k)
+{
+    static uint32_t *pr = NULL;     /* array of primes */
+    static size_t sz   = 0;         /* number of primes stored */
+    static size_t cap  = 0;         /* allocated capacity */
+    static uint32_t cand = 3;       /* candidate after 2 */
+
+    /* initialise the prime table on first use */
+    if (sz == 0) {
+        cap = 8;
+        pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+        if (!pr) abort();
+        sz = 0;
+    }
+
+    /* grow the array until we have at least k primes */
+    while (sz < (size_t)k) {
+        if (sz == 0) {                /* add the first prime */
+            pr[sz++] = 2;
+            continue;
+        }
+
+        /* find the next prime candidate */
+        uint32_t p = cand;
+        bool ok = true;
+        for (size_t i = 0; i < sz; ++i) {
+            uint32_t prime = pr[i];
+            if ((uint64_t)prime * prime > (uint64_t)p) break;
+            if (p % prime == 0) { ok = false; break; }
+        }
+
+        if (!ok) {                    /* not prime – keep searching */
+            cand += 2;                /* only odd numbers remain */
+            continue;
+        }
+
+        /* prime found – store it, grow table if needed */
+        if (sz == cap) {
+            cap <<= 1;
+            pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+            if (!pr) abort();
+        }
+        pr[sz++] = p;
+        cand = p + 2;
+    }
+
+    return pr[(size_t)k - 1];
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static void ensure_capacity_idx(idx_t **arr, size_t *cap, size_t needed)
+{
+    if (*cap >= needed) return;
+    size_t new_cap = (*cap == 0) ? 16 : (*cap * 2);
+    while (new_cap < needed) new_cap <<= 1;
+    idx_t *tmp = (idx_t *)malloc(new_cap * sizeof(idx_t));
+    if (*arr) {
+        memcpy(tmp, *arr, (*cap) * sizeof(idx_t));
+        free(*arr);
+    }
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* ------------------------------------------------------------------ */
 /* dynamic array helpers                                              */
@@ -43,10 +114,10 @@ static void ensure_capacity_seq(seq_t **arr, size_t *cap, size_t needed)
     if (*cap >= needed) return;
     size_t new_cap = (*cap == 0) ? 16 : (*cap * 2);
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (*arr) {
-        memcpy(tmp, *arr, (*cap) * sizeof(seq_t));
-        free(*arr);
+        mem_copy(tmp, *arr, (*cap) * sizeof(seq_t));
+        mem_free(*arr);
     }
     *arr = tmp;
     *cap = new_cap;

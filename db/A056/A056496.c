@@ -9,14 +9,15 @@
  *            i)/2} (term added only if (n/d - i) is even and >=0)
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Binomial coefficients C(5,i) for i = 0..2 */
 static const seq_t _binom5[3] = {(seq_t)1, (seq_t)5, (seq_t)10};
@@ -64,7 +65,7 @@ seq_t a(idx_t n)
                     idx_t diff = t - (idx_t)i;
                     if (diff & 1u) continue;   /* (t - i) must be even */
                     idx_t exp = diff >> 1;      /* (t - i)/2   */
-                    seq_t pow5 = big_pow((seq_t)5, (seq_t)exp);
+                    seq_t pow5 = ipow((seq_t)5, (seq_t)exp);
                     contrib += pow5 * _binom5[i];
                 }
                 if (mu > 0) result += contrib;
@@ -84,7 +85,7 @@ seq_t a(idx_t n)
                     idx_t diff = t - (idx_t)i;
                     if (diff & 1u) continue;
                     idx_t exp = diff >> 1;
-                    seq_t pow5 = big_pow((seq_t)5, (seq_t)exp);
+                    seq_t pow5 = ipow((seq_t)5, (seq_t)exp);
                     contrib += pow5 * _binom5[i];
                 }
                 if (mu > 0) result += contrib;

@@ -9,12 +9,14 @@
  *            form for A365131
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         seq_t Ck = (seq_t)0;
         if (k >= k_min) {
             if (k == k_min) {
-                Ck = binom((idx_t)(3 * k), (idx_t)(n - k));
+                Ck = binomial((idx_t)(3 * k), (idx_t)(n - k));
             } else {
                 /* Recurrence for binom(3k, n-k) from the previous term */
                 seq_t num = Cprev;

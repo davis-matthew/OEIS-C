@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(n) = 2*a(n-1) - a(n-2) + a(n-5) - 2*a(n-6) + a(n-7);
    Initial values: a(0)=0, a(1)=1, a(2)=6, a(3)=13, a(4)=22, a(5)=35, a(6)=49. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of computed terms. The cache is grown as needed
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* Ensure initial terms are present */
     if (sz == 0) {
         cap = 8;   /* at least 7 initial terms + a dummy placeholder */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)6;
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     if (n + 1 > cap) {
         idx_t new_cap = cap;
         while (new_cap <= n) new_cap *= 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 

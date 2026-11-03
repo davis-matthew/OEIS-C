@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 893 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Computes the sum of the digits of x in the specified base (8 or 9). */
 static inline seq_t digit_sum_in_base(seq_t x, unsigned base)
@@ -61,11 +63,11 @@ seq_t a(idx_t n)
             /* Ensure sufficient capacity */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *new_ptr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_ptr = mem_new(seq_t, new_cap);
                 if (cache) {
                     for (size_t i = 0; i < cache_len; ++i)
                         new_ptr[i] = cache[i];
-                    free(cache);
+                    mem_free(cache);
                 }
                 cache = new_ptr;
                 cache_cap = new_cap;

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_buf
+ * Validated: standard, pass, 72 terms through n = 9935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/ensure_buf.h"
+#include "../utils/mem.h"
+
+/* Ensure that buffer 'buf' with capacity '*cap' can hold at least
+   'need' elements.  The current number of valid elements is '*len'
+   (not used by the routine, but supplied for symmetry). */
+static void ensure_buf(idx_t need, seq_t **buf, size_t *cap, idx_t *len)
+{
+    (void)len; /* unused */
+    if (need < *cap)
+        return;
+    size_t new_cap = *cap ? *cap << 1 : 2;
+    while (new_cap < (size_t)need)
+        new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *buf, new_cap);
+    if (!tmp)
+        exit(1);
+    *buf = tmp;
+    *cap = new_cap;
+}
 
 /* ---------- static storage ---------- */
 static seq_t *a_buf = NULL;
@@ -65,8 +84,8 @@ static void init_global(void)
     if (a_buf != NULL) /* already initialised */
         return;
 
-    a_buf = (seq_t *)calloc(4, sizeof(seq_t));
-    b_buf = (seq_t *)calloc(4, sizeof(seq_t));
+    a_buf = mem_new(seq_t, 4);
+    b_buf = mem_new(seq_t, 4);
     present = (bool *)calloc(10, sizeof(bool));
     if (!a_buf || !b_buf || !present)
         exit(1);

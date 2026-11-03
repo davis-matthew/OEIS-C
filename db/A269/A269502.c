@@ -10,7 +10,8 @@
  *            computed sequentially and cached
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 static seq_t *values = NULL;     /* cache of a(n) */
 static size_t values_cap = 0;
@@ -36,10 +39,10 @@ static void ensure_values_cap(size_t needed)
     size_t new_cap = values_cap ? values_cap << 1 : 1;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, values, new_cap);
     if (!tmp)
         abort();
-    memset(tmp + values_cap, 0, (new_cap - values_cap) * sizeof(seq_t));
+    mem_set(tmp + values_cap, 0, (new_cap - values_cap) * sizeof(seq_t));
     values = tmp;
     values_cap = new_cap;
 }
@@ -73,7 +76,7 @@ seq_t a(idx_t n)
             } else {
                 /* bits of k */
                 idx_t tk = k;
-                unsigned L = floor_log2_uint64(tk) + 1;
+                unsigned L = ilog2(tk) + 1;
                 uint8_t bits[64];
                 for (unsigned i = 0; i < L; ++i)
                     bits[i] = (uint8_t)((tk >> (L - 1 - i)) & 1ULL);

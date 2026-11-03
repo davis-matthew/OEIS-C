@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 1145 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th term of A276904.  */
 seq_t a(idx_t n)
@@ -39,10 +41,10 @@ seq_t a(idx_t n)
     const size_t max_size = 3 * (size_t)n + 1;
 
     /* Two buffers for the dynamic programming rows. */
-    seq_t *dp0 = (seq_t*)calloc(max_size, sizeof(seq_t));
-    seq_t *dp1 = (seq_t*)calloc(max_size, sizeof(seq_t));
+    seq_t *dp0 = mem_new(seq_t, max_size);
+    seq_t *dp1 = mem_new(seq_t, max_size);
     if (!dp0 || !dp1) {          /* allocation failure – return 0 */
-        free(dp0); free(dp1);
+        mem_free(dp0); mem_free(dp1);
         return 0;
     }
 
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
     if (prev_max >= 2) result = dp0[2];
 
     /* Clean up */
-    free(dp0);
-    free(dp1);
+    mem_free(dp0);
+    mem_free(dp1);
     return result;
 }

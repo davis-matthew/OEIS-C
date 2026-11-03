@@ -8,12 +8,14 @@
  *            k)|/(n-3*k)!
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) for all n >= 0 (with a(0)=0).  The function is
    memoisation‑free: each call is independent.  It uses O(n²/4) time
@@ -27,26 +29,26 @@ seq_t a(idx_t n)
     size_t ksize = (size_t)kmax + 1;           /* arrays are 0..kmax */
 
     /* factorials of 0 .. kmax (small ones) */
-    seq_t *fact_small = (seq_t *)malloc(ksize * sizeof(seq_t));
+    seq_t *fact_small = mem_new(seq_t, ksize);
     if (!fact_small) return 0;
     fact_small[0] = 1;
     for (idx_t i = 1; i <= kmax; ++i)
         fact_small[i] = fact_small[i - 1] * (seq_t)i;
 
     /* suffix products: suff[m] = m! / n!  (i.e. product of (m+1)..n) */
-    seq_t *suff = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    if (!suff) { free(fact_small); return 0; }
+    seq_t *suff = mem_new(seq_t, (n + 1));
+    if (!suff) { mem_free(fact_small); return 0; }
     suff[n] = 1;
     for (idx_t m = n; m-- > 0; )          /* descending from n-1 to 0 */
         suff[m] = suff[m + 1] * (seq_t)(m + 1);
 
     /* arrays for Stirling-1 (unsigned) numbers.
        cur holds the row for current m, next is the new row. */
-    seq_t *cur = (seq_t *)calloc(ksize, sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(ksize * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, ksize);
+    seq_t *next = mem_new(seq_t, ksize);
     if (!cur || !next) {
-        free(fact_small); free(suff);
-        free(cur); free(next);
+        mem_free(fact_small); mem_free(suff);
+        mem_free(cur); mem_free(next);
         return 0;
     }
     cur[0] = 1;                    /* Stirling(0,0) = 1 */
@@ -77,9 +79,9 @@ seq_t a(idx_t n)
         }
     }
 
-    free(fact_small);
-    free(suff);
-    free(cur);
-    free(next);
+    mem_free(fact_small);
+    mem_free(suff);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

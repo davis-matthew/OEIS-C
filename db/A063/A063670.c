@@ -11,6 +11,7 @@
  *            number is then interpreted in base 10
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 36, u64 n <= 66, u128 n <= 130,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 996 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 typedef struct { int32_t *c; idx_t deg; } poly_t;

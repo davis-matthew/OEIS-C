@@ -11,12 +11,14 @@
  *            2 are irrelevant)
  * Range:     i8 n <= 56, i16 n <= 61, i32 n <= 61, i64 n <= 61, i128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         idx_t new_size = n + 1;
         /* ensure a bit more room for future growth */
         if (new_size < 256) new_size = 256;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();          /* out of memory */
         cache = tmp;
         /* initialize new entries to zero (they will be overwritten soon) */

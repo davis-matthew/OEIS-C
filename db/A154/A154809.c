@@ -9,19 +9,21 @@
  *            and fast enough for n up to about 10000
  * Range:     u8 n <= 225, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 87 terms through n = 8282 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Test whether a seq_t value has a palindromic binary representation. */
 static bool is_bin_palindrome(seq_t x)
 {
     /* 0 and 1 are palindromes. */
-    unsigned len = bitlen_seq_t(x);
+    unsigned len = bit_length(x);
     seq_t one = 1;          /* use a seq_t instance for bit masking */
 
     for (unsigned i = 0; i < len / 2; ++i) {

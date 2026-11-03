@@ -8,6 +8,7 @@
  *            154*n^5 - 70*n^6 + 11*n^7) / 5040 for n>0 a(0) = 1
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 58, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 51 terms through n = 962 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

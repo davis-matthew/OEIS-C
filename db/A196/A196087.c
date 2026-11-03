@@ -9,13 +9,20 @@
  *            of n A006128(n) = total number of parts over all partitions of n
  * Range:     u8 n <= 10, u16 n <= 27, u32 n <= 90, u64 n <= 328,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_alloc_array
+ * Validated: standard, pass, 56 terms through n = 917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_alloc_array.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Provide a simple allocator for seq_t arrays if the project
    does not expose one.  This implementation uses malloc and

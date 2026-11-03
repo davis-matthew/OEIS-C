@@ -10,13 +10,15 @@
  *            values: a(1)=10, a(2)=25, a(3)=64, a(4)=164
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 22, u64 n <= 45, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache   = NULL;
 static idx_t seq_cache_sz = 0;     /* number of stored terms */
@@ -34,7 +36,7 @@ static void seq_ensure_cache(idx_t needed)
 
     seq_t *new_ptr;
 #ifdef __cplusplus
-    new_ptr = reinterpret_cast<seq_t*>(realloc(seq_cache, new_cap * sizeof(seq_t)));
+    new_ptr = reinterpret_cast<seq_t*>(mem_resize(seq_t, seq_cache, new_cap));
 #else
     new_ptr = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
 #endif

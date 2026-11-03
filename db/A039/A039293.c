@@ -10,13 +10,15 @@
  *            6
  * Range:     u8 n <= 36, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* stored qualifying numbers          */
 static idx_t cache_len = 0;           /* number of entries cached           */
@@ -28,7 +30,7 @@ static void extend_cache(idx_t needed)
     if (needed <= cache_cap) return;
     idx_t new_cap = (cache_cap > 0 ? cache_cap : 16);
     while (new_cap < needed) new_cap <<= 1;   /* double until enough */
-    seq_t *ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, cache, new_cap);
     if (!ptr) abort(); /* allocation failed */
     cache = ptr;
     cache_cap = new_cap;

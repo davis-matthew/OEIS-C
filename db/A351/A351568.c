@@ -7,9 +7,10 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = σ( max unitary square divisor of n ) where σ(x) is the
  *            sum of all divisors of x
- * Range:     u8 n <= 48, u16 n <= 9250, u32 n <= 9250, u64 n <= 9250,
- *            u128 n <= 9250, big any n
- * Helpers:   big_pow, factor_u64
+ * Range:     u8 n <= 48, u16 n <= 22499, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 115 terms through n = 9250 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 /* Use the helper routines that are provided in the utilities. */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Return a(n) for n >= 1 (a(1) = 1). */
 seq_t a(idx_t n)
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
             seq_t exp = (seq_t)(e + 1);        /* exponent for p^(e+1) */
 
             /* Compute p^(e+1). */
-            seq_t pow = big_pow(p, exp);
+            seq_t pow = ipow(p, exp);
 
             /* σ(p^e) = (p^(e+1)-1)/(p-1). */
             seq_t num = pow - 1;

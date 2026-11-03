@@ -8,13 +8,15 @@
  *            a(k)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 10, i64 n <= 16, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised arrays for a(n) and Stirling numbers of the second kind
    for the current row.  All allocations grow only as needed. */
@@ -33,7 +35,7 @@ static void ensure_a_capacity(size_t needed)
     if (a_cap < needed) {
         size_t new_cap = a_cap ? a_cap << 1 : 16;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();
         a_cache = tmp;
         a_cap   = new_cap;
@@ -46,7 +48,7 @@ static void ensure_S_capacity(size_t needed)
     if (S_cap < needed) {
         size_t new_cap = S_cap ? S_cap << 1 : 16;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(S, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, S, new_cap);
         if (!tmp) abort();
         S = tmp;
         S_cap = new_cap;

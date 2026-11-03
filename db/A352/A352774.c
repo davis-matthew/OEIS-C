@@ -10,7 +10,8 @@
  *            factor with (a(n-2)+a(n-1)) or (a(n-2)*a(n-1)). a(1)=1, a(2)=2
  * Range:     u8 n <= 14, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (seq_len == 0) {
         /* allocate sequence array: cap 4, positions 1 and 2 used */
         seq_cap = 4;
-        seq = (seq_t*)malloc(sizeof(seq_t) * seq_cap);
+        seq = mem_new(seq_t, seq_cap);
         seq[1] = 1;
         seq[2] = 2;
         seq_len = 2;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
             size_t new_cap = seq_cap ? seq_cap * 2 : 4;
             while (new_cap < (size_t)(cur + 1))
                 new_cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             seq = tmp;
             seq_cap = new_cap;

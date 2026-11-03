@@ -10,6 +10,7 @@
  *            (sqrt(8n+1)-1)/2 ), c = n - r(r+1)/2
  * Range:     u8 n <= 37, u16 n <= 122, u32 n <= 412, u64 n <= 1274,
  *            u128 n <= 1274, big any n
+ * Validated: standard, pass, 82 terms through n = 1154 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 /* The sequence is read row‑by‑row, so a(0)=T(0,0), a(1)=T(1,0),
    a(2)=T(1,1), a(3)=T(2,0), … */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

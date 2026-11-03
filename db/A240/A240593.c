@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
 
         /* Prepare term cache. */
         termsCap = 128;
-        terms = (seq_t *)malloc(termsCap * sizeof(seq_t));
+        terms = mem_new(seq_t, termsCap);
 
         initialized = true;
     }
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
                     /* Store the smaller member of the qualifying pair. */
                     if (termsLen == termsCap) {
                         termsCap <<= 1;
-                        terms = (seq_t *)realloc(terms, termsCap * sizeof(seq_t));
+                        terms = mem_resize(seq_t, terms, termsCap);
                     }
                     terms[termsLen++] = (seq_t)prevCsf;
                 }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum of base-16 digits of the n-th prime
  * Range:     u8 n <= 54, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@
    and returns that value as a seq_t. */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/build_primes.h"
 
 static idx_t *primes = NULL;

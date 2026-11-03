@@ -8,15 +8,17 @@
  *            (k+1)*(n-k)! )
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* prod = n!/(n-k)! for current k, starts with k=0 (prod=1) */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
         seq_t binom3 = binomial((idx_t)(3 * k + 1), k);
 
         /* Compute k^(n-k) */
-        seq_t pow_term = big_pow((seq_t)k, (seq_t)(n - k));
+        seq_t pow_term = ipow((seq_t)k, (seq_t)(n - k));
 
         /* Term numerator */
         seq_t term = prod;

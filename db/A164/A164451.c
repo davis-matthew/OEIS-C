@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 42, u64 n <= 85, u128 n <= 171,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 460 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;    /* dp[len*8 + state] */
 static idx_t max_n = 0;     /* highest n for which dp is built */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* First call: initialise dp with row 0 only. */
     if (dp == NULL) {
-        dp = (seq_t *)calloc( (size_t)1 * 8 , sizeof(seq_t));
+        dp = mem_new(seq_t, (size_t)1 * 8);
         if (dp == NULL) abort();   /* allocation failure */
         dp[0] = 1;                 /* dp[0][0] = 1 */
         max_n = 0;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if (n > max_n) {
         idx_t new_max = n;
         size_t new_size = (size_t)(new_max + 1) * 8 * sizeof(seq_t);
-        seq_t *tmp = (seq_t *)realloc(dp, new_size);
+        seq_t *tmp = mem_resize(seq_t, dp, (new_size) / sizeof(seq_t));
         if (tmp == NULL) abort();
         dp = tmp;
 

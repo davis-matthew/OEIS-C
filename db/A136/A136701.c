@@ -8,14 +8,28 @@
  *            the exponents of 3 and 5 in n!
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   powmod_int
+ * Validated: standard, pass, 109 terms through n = 9683 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/powmod_int.h"
+
+/* helper: modular exponentiation mod 15 for small bases */
+static seq_t powmod_int(seq_t base, idx_t exp)
+{
+    seq_t res = 1;
+    while (exp)
+    {
+        if (exp & 1)
+            res = (res * base) % 15;
+        base = (base * base) % 15;
+        exp >>= 1;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

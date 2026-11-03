@@ -9,7 +9,8 @@
  *            a(n-1) * A006939(n), a(0)=1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   ensure_seq_cap
+ * Validated: standard, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/ensure_seq_cap.h"
+#include "../utils/mem.h"
+
+/* -------------------------------------------------------------------- */
+static void ensure_seq_cap(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        if (new_cap < need) new_cap = need;
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+}
 
 /* -------------------------------------------------------------------- */
 /*   global state (cached values)                                      */

@@ -9,7 +9,8 @@
  * Formula:   a(n) = Π_{p^e ∥ n} Π_{q^β ∥ e} (q^β – 1) (with a(1)=1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   uphi_of_exponent
+ * Validated: standard, pass, 103 terms through n = 9627 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,28 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/uphi_of_exponent.h"
+
+/* Compute uphi(e) = ∏_{q^β ∥ e} (q^β – 1) */
+static seq_t uphi_of_exponent(idx_t e)
+{
+    seq_t res = 1;
+    idx_t tmp = e;
+    for (idx_t p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            idx_t pow = 1;
+            while (tmp % p == 0) {
+                tmp /= p;
+                pow *= p;
+            }
+            res *= (pow - 1);
+        }
+    }
+    if (tmp > 1) {
+        /* tmp is prime */
+        res *= (tmp - 1);
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

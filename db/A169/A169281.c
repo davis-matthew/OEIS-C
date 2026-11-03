@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
 
     /* initialise on first call */
     if (!a_arr) {
-        a_arr   = (seq_t *)malloc( sizeof(seq_t) );   /* a[0]   */
-        cum_arr = (seq_t *)malloc( 2 * sizeof(seq_t) ); /* cum[0], cum[1] */
+        a_arr   = mem_new(seq_t, 1);   /* a[0]   */
+        cum_arr = mem_new(seq_t, 2); /* cum[0], cum[1] */
 
         /* base values a(0) = 1, cum(0) = 0, cum(1) = a(0) */
         a_arr[0]   = (seq_t)1;
@@ -56,8 +58,8 @@ seq_t a(idx_t n)
         size_t new_size  = (size_t)(n + 1);
         size_t new_cum   = (size_t)(n + 2);
 
-        a_arr = (seq_t *)realloc(a_arr, new_size * sizeof(seq_t));
-        cum_arr = (seq_t *)realloc(cum_arr, new_cum * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_size);
+        cum_arr = mem_resize(seq_t, cum_arr, new_cum);
 
         /* iterate over new indices */
         for (idx_t i = max_n + 1; i <= n; ++i) {

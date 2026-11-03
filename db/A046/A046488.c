@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_palindrome.h"   /* bool is_palindrome(seq_t x, idx_t base); */
+#include "../utils/is_palindrome_base.h"
 
 /* Forward declaration of helper functions */
 static seq_t make_pal(uint64_t half, bool odd);
@@ -52,7 +53,7 @@ seq_t a(idx_t n) {
         sum += pal;
 
         /* If the sum itself is a palindrome, count it */
-        if (is_palindrome(sum, 10)) {
+        if (is_palindrome_base(sum, 10)) {
             counted++;
             if (counted == (idx_t)n)
                 return sum;

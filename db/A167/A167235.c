@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   free_seq_array, p_val, seq_alloc_array
+ * Validated: standard, pass, 32 terms through n = 491 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,9 +37,30 @@
  */
 
 #include <stddef.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/p_val.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Helper: return the numerator coefficient p[n] */
+static inline seq_t p_val(idx_t n)
+{
+    if (n == 0)          return (seq_t)1;
+    if (n == 14)         return (seq_t)1;
+    if (n <= 13)         return (seq_t)2;
+    return (seq_t)0;
+}
 
 /* Cached values of the sequence */
 static seq_t *cache   = NULL;

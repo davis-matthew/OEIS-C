@@ -8,9 +8,10 @@
  * Formula:   a(n) = the n-th positive integer whose Zeckendorf representation
  *            contains the same number of odd-valued and even-valued Fibonacci
  *            summands
- * Range:     u8 n <= 45, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 45, u16 n <= 4321, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 72 terms through n = 8567 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* initialise the Fibonacci list */
     if (fibs_len == 0) {
         fibs_cap = 8;
-        fibs = (seq_t *)malloc(fibs_cap * sizeof(seq_t));
+        fibs = mem_new(seq_t, fibs_cap);
         fibs[0] = (seq_t)1;
         fibs[1] = (seq_t)2;
         fibs_len = 2;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if (found_len < n) {
         if (found_cap < n) {
             found_cap = n * 2;
-            found = (seq_t *)realloc(found, found_cap * sizeof(seq_t));
+            found = mem_resize(seq_t, found, found_cap);
         }
 
         /* generate terms until we have at least n of them */
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
                     seq_t next = fibs[fibs_len - 1] + fibs[fibs_len - 2];
                     if (fibs_len == fibs_cap) {
                         fibs_cap = fibs_cap * 2 + 1;
-                        fibs = (seq_t *)realloc(fibs, fibs_cap * sizeof(seq_t));
+                        fibs = mem_resize(seq_t, fibs, fibs_cap);
                     }
                     fibs[fibs_len++] = next;
                 }

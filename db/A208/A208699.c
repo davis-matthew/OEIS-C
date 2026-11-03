@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 56,
  *            big any n
- * Helpers:   triple_forbidden
+ * Validated: standard, pass, 37 terms through n = 203 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,14 @@
  */
 
 #include <stdbool.h>
-#include "../utils/triple_forbidden.h"
+
+/* Check whether the triple of bits (a,b,c) is forbidden
+ * (horizontal patterns 001 and 100). */
+static bool triple_forbidden(unsigned a, unsigned b, unsigned c)
+{
+    unsigned t = (a << 2) | (b << 1) | c;
+    return t == 1 || t == 4;   /* 001 or 100 */
+}
 
 /* List of the 10 admissible column patterns (4 bits). */
 static const unsigned pattern[10] = {0,1,3,6,7,8,9,12,14,15};

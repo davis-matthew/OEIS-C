@@ -12,9 +12,10 @@
  *            next term. If s is odd, append the decimal digits of s (most
  *            significant digit first). The next step always uses the pair
  *            starting with a(k+1)
- * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100, u128 none,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
+ *            u128 n <= 100, big any n
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute a(n).  Returns 0 if n == 0 (undefined). */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     size_t target = (size_t)n;
 
     /* Allocate space for at most target terms. */
-    seq_t *seq = (seq_t *)malloc(target * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, target + 3);     /* the seed writes 2 terms */
     if (!seq) return (seq_t)0;            /* allocation failure */
 
     seq[0] = 1;              /* a(1) */
@@ -69,6 +71,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[target - 1];
-    free(seq);
+    mem_free(seq);
     return result;
 }

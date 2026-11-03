@@ -9,13 +9,15 @@
  *            root 2. The first element a(1)=2
  * Range:     u8 n <= 31, u16 n <= 1023, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 8141 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include standard headers required for the implementation. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Special case: the sequence is 1‑based; return 0 for n=0 (unused). */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
        because each of the first n popped nodes generates at most two
        children. */
     size_t cap = 2 * (size_t)n + 10;
-    seq_t *q = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, cap);
     if (!q) return (seq_t)0;  /* Allocation failure (unlikely in tests). */
 
     size_t head = 0, tail = 0;
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
         seq_t val = q[head++];
         ++seen;
         if (seen == n) {
-            free(q);
+            mem_free(q);
             return val;
         }
 
@@ -49,8 +51,8 @@ seq_t a(idx_t n) {
         if (left != val) {
             if (tail >= cap) {            /* Grow the queue if needed. */
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(q, cap * sizeof(seq_t));
-                if (!tmp) { free(q); return (seq_t)0; }
+                seq_t *tmp = mem_resize(seq_t, q, cap);
+                if (!tmp) { mem_free(q); return (seq_t)0; }
                 q = tmp;
             }
             q[tail++] = left;
@@ -58,8 +60,8 @@ seq_t a(idx_t n) {
 
         if (tail >= cap) {
             cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(q, cap * sizeof(seq_t));
-            if (!tmp) { free(q); return (seq_t)0; }
+            seq_t *tmp = mem_resize(seq_t, q, cap);
+            if (!tmp) { mem_free(q); return (seq_t)0; }
             q = tmp;
         }
         q[tail++] = right;
@@ -67,6 +69,6 @@ seq_t a(idx_t n) {
 
     /* If the loop exits without returning, n was too large for the
        allocated capacity (impossible with 2*n+10).  Return 0 safely. */
-    free(q);
+    mem_free(q);
     return (seq_t)0;
 }

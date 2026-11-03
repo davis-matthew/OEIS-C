@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for the sequences and a bitset of used integers. */
 static seq_t *a_seq = NULL, *b_seq = NULL, *c_seq = NULL;
@@ -40,9 +42,9 @@ static void ensure_seq_cap(idx_t need) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 32;
         while ((idx_t)new_cap <= need)
             new_cap *= 2;
-        seq_t *new_a = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
-        seq_t *new_b = (seq_t *)realloc(b_seq, new_cap * sizeof(seq_t));
-        seq_t *new_c = (seq_t *)realloc(c_seq, new_cap * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_seq, new_cap);
+        seq_t *new_b = mem_resize(seq_t, b_seq, new_cap);
+        seq_t *new_c = mem_resize(seq_t, c_seq, new_cap);
         if (!new_a || !new_b || !new_c)
             abort();  /* out‑of‑memory */
         a_seq = new_a;

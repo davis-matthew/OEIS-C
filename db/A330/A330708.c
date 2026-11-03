@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 396, u32 n <= 490, u64 n <= 490,
  *            u128 n <= 490, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 480 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Static tables for fast look‑ups of sums of two nonzero squares. */
 static uint64_t *sum_bits = NULL;   /* bit i set iff i = a^2 + b^2 (a,b>0) */
@@ -75,7 +77,7 @@ static void cache_append(seq_t v)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();
         seq_cache = tmp;
         seq_cap   = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 3, u64 n <= 5, u128 n <= 8,
  *            big any n
- * Helpers:   digits, pow_uint
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow_u64_idx, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,17 +18,18 @@
 
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/digits.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/num_digits_idx.h"
 
 seq_t a(idx_t n)
 {
     /* Special case: n == 1 equals 14^0. */
     if (n == 1)
-        return pow_uint(14, 0);
+        return ipow_u64_idx(14, 0);
 
     /* Number of decimal digits of n. */
-    int len = digits(n);
+    int len = num_digits_idx(n);
     if (len <= 0)
         return 0;      /* should not happen for n >= 1 */
 
@@ -53,6 +55,6 @@ seq_t a(idx_t n)
             /* 14^e fits in seq_t for arbitrary precision builds; pow_uint
              * constructs the value using arbitrary-precision arithmetic.
              */
-            return pow_uint(14, e);
+            return ipow_u64_idx(14, e);
     }
 }

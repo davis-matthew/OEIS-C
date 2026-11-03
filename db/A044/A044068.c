@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   maybe_grow
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/maybe_grow.h"
+#include "../utils/mem.h"
+
+/* expand the cache array if it would overflow */
+static void maybe_grow( seq_t **array, size_t *size, size_t *cap )
+{
+    if (*size >= *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *array, newcap);
+        if (!tmp)                            /* allocation failure – abort */
+            abort();
+        *array = tmp;
+        *cap   = newcap;
+    }
+}
 
 /* check whether x in base‑4 has the substring 1,3 */
 static bool has13(seq_t x)

@@ -8,20 +8,22 @@
  * Formula:   a(n) = 3*(60 + 5*2^(n+2) + 3^n)
  * Range:     u8 none, u16 n <= 8, u32 n <= 19, u64 n <= 39, u128 n <= 79,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 40 terms through n = 199 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
     /* 2^(n+2) : exponent fits in an int for all n <= 10000 */
-    seq_t two_pow  = pow_seq((seq_t)2, (int)(n + 2));
+    seq_t two_pow  = ipow_i32((seq_t)2, (int)(n + 2));
 
     /* 3^n */
-    seq_t three_pow = pow_seq((seq_t)3, (int)n);
+    seq_t three_pow = ipow_i32((seq_t)3, (int)n);
 
     /* compute inner term 60 + 5*2^(n+2) + 3^n */
     seq_t inner = (seq_t)60

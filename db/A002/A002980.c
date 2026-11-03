@@ -11,13 +11,24 @@
  *            k^2*w_k. Start with w = c and apply this j times: then...
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 19, i128 n <= 19,
  *            big any n
- * Helpers:   A_grow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/A_grow.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -38,7 +49,7 @@ static void build(idx_t N) {
     }
     top -= 2;
   }
-  free(w);
+  mem_free(w);
   memo = r;
   memo_len = N + 1;
 }

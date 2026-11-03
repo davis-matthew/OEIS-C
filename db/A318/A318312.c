@@ -6,16 +6,18 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = 2^A000041(n) (multiplicative with a(p^e)=2^p(e))
  * Range:     u8 n <= 63, u16 n <= 255, u32 n <= 1023, u64 n <= 4095,
- *            u128 n <= 8979, big any n
- * Helpers:   big_pow, factor_u64
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 128 terms through n = 8979 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* pre‑compute partition numbers p(e)=A000041(e) for e≤64 */
 static uint32_t part_tbl[65];
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
 
     for (size_t i = 0; i < cnt; ++i) {
         unsigned e = (unsigned)exps_buf[i];
-        seq_t term = big_pow((seq_t)2, (seq_t)part_tbl[e]);
+        seq_t term = ipow((seq_t)2, (seq_t)part_tbl[e]);
         result *= term;
     }
 

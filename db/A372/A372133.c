@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 54, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* first few primes, 1‑based indexing */
 static const uint32_t primes_by_index[201] = {
@@ -143,9 +145,9 @@ seq_t a(idx_t n)
     if (n > cache_n) {
         size_t new_cap = (size_t)n;
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, new_cap);
         } else if (new_cap > (size_t)cache_n) {
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
         }
 
         /* compute missing terms sequentially */

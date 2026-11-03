@@ -12,12 +12,14 @@
  *            n ≥ 1) returns the correct value, regardless of call order
  * Range:     u8 n <= 8, u16 n <= 23, u32 n <= 52, u64 n <= 110, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache: cache[i] holds a(i) for i ≥ 1.  Index 0 is unused. */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
 
     /* Allocate space for indices 1..n (index 0 unused). */
     size_t new_len = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache) abort();          /* memory allocation failed */
     cache = new_cache;
 

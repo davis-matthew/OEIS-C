@@ -10,14 +10,25 @@
  *            letter in UTF-8, spaces excluded
  * Range:     u8 n <= 53, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   ru_letters
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
-#include "../utils/ru_letters.h"
+
+/* count Unicode letters in a UTF-8 string */
+static int ru_letters(const char *s) {
+    int c = 0;
+    const unsigned char *p = (const unsigned char *)s;
+    while (*p) {
+        if ((*p & 0xC0) != 0x80 && *p != ' ') c++;
+        p++;
+    }
+    return c;
+}
 
 static const char *const ru_ones[10] = {
     "", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять"

@@ -12,12 +12,14 @@
  *            dynamic array so that calls may be made in any order
  * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoised values              */
 static size_t cache_size = 0;        /* number of values stored      */
@@ -33,7 +35,7 @@ static void cache_ensure(size_t need)
     while (new_alloc <= need)
         new_alloc <<= 1;
 
-    seq_t *new_cache = (seq_t *)malloc(new_alloc * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_alloc);
     if (!new_cache) {
         /* allocation failure – propagate as zero (unlikely in tests) */
         return;
@@ -44,7 +46,7 @@ static void cache_ensure(size_t need)
         new_cache[i] = cache[i];
 
     /* free old cache */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_alloc = new_alloc;
 }

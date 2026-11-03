@@ -7,86 +7,33 @@
  * Keywords:  sign, changed
  * Formula:   not stated
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
- *            i128 none, big any n
+ *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 102 terms through n = 8936 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* 
-   Algorithmic description:
-   For a given index n (1‑based), form the nth standard composition via
-   the mapping described in A066099:
-      1. Write n in binary.
-      2. Read the bits from least significant to most significant; the
-         positions (1‑based) of 1​'s form a strictly increasing sequence.
-      3. Prepend a zero to this sequence, take successive differences,
-         and reverse the resulting list.  The reverse list is the
-         composition of n.
-   Once the composition q = (q1, q2, …, qk) is obtained, compute its
-   0‑based partial alternating sums:
-      S0 = 0,
-      for i = 1..k:  Si = (-1)^i * Σ_{j=1..i} (-1)^j * qj .
-   (These Si correspond to the “row” of A391983 for the composition.)
-   a(n) is the minimum of the odd‑index (i = 1,3,5,…) partial sums Si.
-   The implementation below follows this procedure directly,
-   using only integer arithmetic allowed by the build environment.
-*/
+/* A392706: the least part at an even (0-based) position of row n of A391983:
+ * the partial alternating sums q_1, q_2 - q_1, q_3 - q_2 + q_1, ... of the n-th
+ * composition q in standard order (the gaps between the 1 bits of n, read
+ * from the top). Computed directly from the bits of n. */
 
 #include <stdint.h>
-#include <stdbool.h>
 
 seq_t a(idx_t n)
 {
-    /* Build the list of 1‑bit positions (1‑based) from n,
-       pre‑pend 0, compute differences, and reverse.   */
-    unsigned pos[65];          /* pos[0] = 0, then bit positions    */
-    unsigned poscnt = 1;       /* start with the leading zero      */
-    unsigned i;
-    idx_t tmp = n;             /* n >= 1, bit operations are safe */
-
-    for (i = 0; tmp; ++i) {
-        if (tmp & 1) {
-            pos[poscnt++] = i + 1;   /* bit position + 1 (1‑based)   */
-        }
-        tmp >>= 1;
+    if (n < 1) return (seq_t)0;
+    uint64_t x = (uint64_t)n;
+    int pos[64], np = 0;                      /* 1-based positions of the 1 bits, low first */
+    for (int i = 0; i < 64; ++i) if ((x >> i) & 1) pos[np++] = i + 1;
+    /* parts, most significant first: differences of 0, pos[0], pos[1], ... reversed */
+    int64_t s = 0, best = INT64_MAX;
+    for (int j = 0; j < np; ++j) {
+        int k = np - 1 - j;                   /* part j comes from the gap below pos[k] */
+        int64_t q = pos[k] - (k ? pos[k - 1] : 0);
+        s = q - s;                            /* pas_j = q_j - pas_(j-1) */
+        if (!(j & 1) && s < best) best = s;
     }
-
-    /* Differences between successive positions give composition parts. */
-    seq_t diff[65];
-    unsigned diffcnt = poscnt - 1;
-    unsigned j;
-    for (j = 1; j < poscnt; ++j) {
-        diff[j - 1] = (seq_t)(pos[j] - pos[j - 1]);  /* strictly positive */
-    }
-
-    /* Scan the parts from left to right (reversed diff order),
-       computing alternating partial sums and tracking the min at odd
-       indices (i = 1,3,5,…).                               */
-    bool first = true;
-    seq_t best = 0;
-    seq_t alt   = 0;          /* current alternating sum Σ(-1)^j qj */
-
-    for (j = 0; j < diffcnt; ++j) {
-        unsigned idx = j + 1;                         /* 1‑based part index          */
-        seq_t part = diff[diffcnt - 1 - j];           /* reverse the diff order       */
-
-        /* Update the alternating sum: add (-1)^idx * part. */
-        if (idx & 1) {                /* odd index → sign = -1       */
-            alt -= part;
-        } else {                      /* even index → sign = +1      */
-            alt += part;
-        }
-
-        /* Partial sum Si = (-1)^idx * alt for odd idx. */
-        if (idx & 1) {
-            seq_t Si = -alt;          /* (-1)^odd = -1              */
-            if (first || Si < best) {
-                best = Si;
-                first = false;
-            }
-        }
-    }
-
-    return best;
+    return (seq_t)best;
 }

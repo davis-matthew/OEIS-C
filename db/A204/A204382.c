@@ -10,6 +10,7 @@
  *            = 2, L_1 = 2, L_k = 2·L_{k‑1} + L_{k‑2} (k≥2)
  * Range:     i8 n <= 6, i16 n <= 11, i32 n <= 25, i64 n <= 50, i128 n <= 99,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 494 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

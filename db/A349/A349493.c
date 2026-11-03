@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static void ensure_used_cap(size_t needed, uint8_t **used, size_t *used_cap)
 {
@@ -44,7 +46,7 @@ static void ensure_seq_cap(size_t needed, seq_t **seq, size_t *seq_cap)
     if (needed < *seq_cap) return;
     size_t new_cap = (*seq_cap == 0) ? 4 : *seq_cap << 1;
     while (new_cap <= needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(*seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *seq, new_cap);
     if (!tmp) abort();
     *seq = tmp;
     *seq_cap = new_cap;

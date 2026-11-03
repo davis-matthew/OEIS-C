@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{j=0..floor((n+3)/3)} binomial(n-2*j+3, j+4)
  * Range:     u8 n <= 6, u16 n <= 19, u32 n <= 48, u64 n <= 106, u128 n <= 222,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 53 terms through n = 989 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /* Author: adapted for arbitrary‑precision seq_t. */
 
 #include <stdint.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 /* multiplicative binomial computation that never overflows seq_t
  * (uses successive gcd reductions). */
@@ -30,12 +31,12 @@ static seq_t binom_small(idx_t n, idx_t k)
         seq_t den = i;
 
         /* reduce num/den by their gcd */
-        seq_t g1 = seq_gcd(num, den);
+        seq_t g1 = gcd(num, den);
         num /= g1;
         den /= g1;
 
         /* reduce res/den by their gcd */
-        seq_t g2 = seq_gcd(res, den);
+        seq_t g2 = gcd(res, den);
         res /= g2;
         den /= g2;                   /* den should now be 1 */
 

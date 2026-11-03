@@ -11,7 +11,8 @@
  *            complementary sequences
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 41, u64 n <= 87, u128 n <= 180,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 1718 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static arrays to memoise a() and b(), plus a bitmap of used b-values */
 static seq_t *aArr   = NULL;
@@ -37,7 +39,7 @@ static void ensure_a_cap(size_t need) {
     if (need <= aCap) return;
     size_t newCap = aCap ? aCap << 1 : 8;
     while (newCap < need) newCap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(aArr, newCap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, aArr, newCap);
     if (tmp == NULL) abort();
     aArr = tmp;
     aCap = newCap;
@@ -48,7 +50,7 @@ static void ensure_b_cap(size_t need) {
     if (need <= bCap) return;
     size_t newCap = bCap ? bCap << 1 : 8;
     while (newCap < need) newCap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(bArr, newCap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, bArr, newCap);
     if (tmp == NULL) abort();
     bArr = tmp;
     bCap = newCap;

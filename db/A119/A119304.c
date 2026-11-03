@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 65, u64 n <= 230, u128 n <= 860,
+ * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 65, u64 n <= 230, u128 n <= 860,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 63 terms through n = 7892 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* Triangle read by rows: a(n) = binomial(4r - c, r - c)
  * where r = floor((sqrt(8n+1)-1)/2) and c = n - r*(r+1)/2            */
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -34,5 +36,5 @@ seq_t a(idx_t n)
     idx_t upper = 4 * r - c;   /* upper index */
     idx_t lower = r - c;       /* lower index */
 
-    return binom(upper, lower);
+    return binomial(upper, lower);
 }

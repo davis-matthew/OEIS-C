@@ -8,13 +8,15 @@
  * Formula:   a(n) = (1 - n^2)^(n-1)
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 6, i64 n <= 10, i128 n <= 16,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 29 terms through n = 75 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* 
  * seq_t a(idx_t n)
@@ -30,5 +32,5 @@ seq_t a(idx_t n) {
     /* Exponent is (n-1), cast to seq_t since big_pow expects seq_t */
     seq_t exp = (seq_t)(n - 1);
 
-    return big_pow(base, exp);
+    return ipow(base, exp);
 }

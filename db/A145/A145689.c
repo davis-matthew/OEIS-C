@@ -10,7 +10,8 @@
  *            4k^2+1
  * Range:     u8 n <= 7, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   gcd64
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <time.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* --- 64‑bit modular arithmetic ------------------------------------ */
 static uint64_t mulmod64(uint64_t a, uint64_t b, uint64_t mod) {
@@ -89,7 +91,7 @@ static uint64_t pollard(uint64_t n) {
             x = (mulmod64(x, x, n) + c) % n;
             y = (mulmod64(y, y, n) + c) % n;
             y = (mulmod64(y, y, n) + c) % n;
-            d = gcd64(x > y ? x - y : y - x, n);
+            d = gcd_u64(x > y ? x - y : y - x, n);
         }
         if (d != n)
             return d;
@@ -115,7 +117,7 @@ static void grow_seq_arr(seq_t * *arr, size_t *cap, size_t need) {
         size_t new_cap = (*cap == 0) ? 8 : *cap << 1;
         if (new_cap < need)
             new_cap = need;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: full, pass, 59 terms through n = 59 (2026-11-02)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +45,7 @@ seq_t a(idx_t n)
             for (uint8_t d = 1; d <= maxd; ++d) {
                 unsigned int tmp = (unsigned int)m * 100u + (unsigned int)d;
                 seq_t val = (seq_t)tmp;
-                if (is_prime_small(val))
+                if (is_prime_seq(val))
                     dates[pos++] = val;
             }
         }

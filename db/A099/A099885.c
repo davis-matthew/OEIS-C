@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
  */
 
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Cache for T(k) values */
 static seq_t *t_cache = NULL;
@@ -34,7 +37,7 @@ static void ensure_t_cache(idx_t needed)
 
     /* Grow cache */
     size_t new_len = needed + 1;
-    t_cache = (seq_t *)realloc(t_cache, new_len * sizeof(seq_t));
+    t_cache = mem_resize(seq_t, t_cache, new_len);
     for (idx_t k = t_cache_len; k <= needed; ++k)
     {
         seq_t sum = 0;

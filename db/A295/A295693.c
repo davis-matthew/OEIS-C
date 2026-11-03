@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of the sequence (1‑based). */
 seq_t a(idx_t n) {
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
         while ((M + 1) * (M + 1) <= MAX) ++M;
 
         /* Squares of the allowed integers */
-        seq_t *squares = (seq_t *)malloc((size_t)(M + 1) * sizeof(seq_t));
+        seq_t *squares = mem_new(seq_t, (size_t)(M + 1));
         if (!squares) return 0; /* Allocation failure */
         squares[0] = (seq_t)0;
         for (idx_t i = 1; i <= M; ++i)
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
 
         /* Count representations: cnt[s] = number of 6‑tuples (a≤b≤c≤d≤e≤f) with sum s. */
         size_t *cnt = (size_t *)calloc((size_t)MAX + 1, sizeof(size_t));
-        if (!cnt) { free(squares); return 0; }
+        if (!cnt) { mem_free(squares); return 0; }
 
         for (idx_t a = 1; a <= M; ++a) {
             seq_t s1 = squares[a];
@@ -72,7 +74,7 @@ seq_t a(idx_t n) {
                 }
             }
         }
-        free(squares);
+        mem_free(squares);
 
         /* Count total number of terms with exactly three representations. */
         size_t tlen = 0;
@@ -80,7 +82,7 @@ seq_t a(idx_t n) {
             if (cnt[v] == 3) ++tlen;
 
         /* Allocate array for the terms. */
-        cache = (seq_t *)malloc(tlen * sizeof(seq_t));
+        cache = mem_new(seq_t, tlen);
         if (!cache) { free(cnt); return 0; }
 
         /* Fill the array in increasing order of the value. */

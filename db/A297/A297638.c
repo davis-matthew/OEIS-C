@@ -9,13 +9,15 @@
  *            24*a(n-6) a(1)=4, a(2)=8, a(3)=29, a(4)=69, a(5)=200, a(6)=552
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cache for already computed values */
 static idx_t max_computed = 0;      /* largest n already stored in cache */
@@ -30,7 +32,7 @@ static void init_cache(void)
 
     /* Start with a reasonable capacity; will grow as needed */
     cache_cap = 64;
-    cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (cache == NULL)          /* allocation failed – abort program */
         abort();
 
@@ -52,7 +54,7 @@ static void extend_cache(idx_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap <= (size_t)(needed + 1))
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp == NULL)
         abort();                /* out‑of‑memory */
     cache = tmp;

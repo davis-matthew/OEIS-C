@@ -7,14 +7,15 @@
  * Formula:   a(n) = Sum_{d|n, d<n} phi(n-d)
  * Range:     u8 n <= 59, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 68 terms through n = 69 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/phi.h"  /* provides seq_t phi(idx_t) or seq_t calc_phi(seq_t) */
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -26,14 +27,14 @@ seq_t a(idx_t n)
         if (n % i == 0) {
             /* divisor i */
             if (i < n) {
-                seq_t val = phi((idx_t)(n - i));
+                seq_t val = totient((idx_t)(n - i));
                 sum += val;
             }
 
             /* divisor n / i */
             idx_t d2 = n / i;
             if (d2 != i && d2 < n) {
-                seq_t val2 = phi((idx_t)(n - d2));
+                seq_t val2 = totient((idx_t)(n - d2));
                 sum += val2;
             }
         }

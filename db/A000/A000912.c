@@ -9,18 +9,19 @@
  *            C(0) = 1, C(k+1) = C(k)*2*(2k+1)/(k+2)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 36, u128 n <= 69,
  *            big any n
- * Helpers:   a912_cat, a912_gcd
+ * Validated: standard, pass, 43 terms through n = 179 (2026-11-01)
+ * Helpers:   catalan, gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a912_cat.h"
-#include "../utils/a912_gcd.h"
+#include "../utils/catalan.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
-    seq_t cn = a912_cat(n);
+    seq_t cn = catalan(n);
     if (n % 2 == 0)
         return cn;
-    return cn - a912_cat((n - 1) / 2);
+    return cn - catalan((n - 1) / 2);
 }

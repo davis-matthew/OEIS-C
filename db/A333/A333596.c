@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   digit_diff_base4
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 /* Recurrence: a(0)=0,
    a(n)=a(n-1)+(#1's and #3's in base‑4 rep of n)–(#0's and #2's in base‑4 rep of n) */
 #include <stdlib.h>
-#include "../utils/digit_diff_base4.h"
+#include "../utils/mem.h"
+
+/* Helper that counts the signed difference for a given n */
+static inline int digit_diff_base4(idx_t n)
+{
+    int diff = 0;
+    while (n) {
+        unsigned digit = (unsigned)(n & 3); /* n % 4 */
+        if (digit == 1 || digit == 3)      diff++;
+        else                                diff--;
+        n >>= 2; /* n /= 4 */
+    }
+    return diff;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +46,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_cap) {
         size_t new_cap = (cache_cap > 0) ? cache_cap * 2 : 16;
         while (new_cap <= n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { /* allocation failure – abort gracefully */
             return 0;
         }

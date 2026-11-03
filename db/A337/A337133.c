@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9736 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             if (seen[(size_t)i]) ++seq_len;
 
         /* allocate array to store the sorted values */
-        seq = (seq_t*)malloc(seq_len * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_len);
         if (seq == NULL) { free(seen); return 0; }
 
         /* collect the values in order */

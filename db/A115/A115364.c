@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, mult, nonn
  * Formula:   a(n) = binomial(v2(n)+2, 2) = (v2(n)+1)*(v2(n)+2)/2
- * Range:     u8 n <= 9657, u16 n <= 9657, u32 n <= 9657, u64 n <= 9657,
- *            u128 n <= 9657, big any n
+ * Range:     u8 n <= 16383, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 109 terms through n = 9657 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

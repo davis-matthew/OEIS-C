@@ -6,8 +6,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = product of the digits of n written in factorial base
  *            (with digits 0..k for the k-th position)
- * Range:     u8 n <= 2758, u16 n <= 9637, u32 n <= 9637, u64 n <= 9637,
- *            u128 n <= 9637, big any n
+ * Range:     u8 n <= 2758, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 112 terms through n = 9637 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

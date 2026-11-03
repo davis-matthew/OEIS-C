@@ -10,14 +10,17 @@
  *            n+1. Off‑by‑one: a(1) = 36, a(2) = 210, …
  * Range:     u8 n <= 2, u16 n <= 82, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 61 terms through n = 975 (2026-11-01)
  * Helpers:   bigomega, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/is_prime.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
+#include "../utils/is_prime.h"
 
 /* Maximum number of sequence elements that the static cache can hold.
    This should be large enough for all practical uses (e.g., n up to

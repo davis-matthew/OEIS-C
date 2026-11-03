@@ -8,6 +8,7 @@
  *            ((n+9)/18)*[(n mod 3)=0])
  * Range:     u8 none, u16 n <= 21, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

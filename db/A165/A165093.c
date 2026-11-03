@@ -9,12 +9,14 @@
  *            trajectory of n under the base‑8 Kaprekar map (A165090)
  * Range:     u8 n <= 65, u16 n <= 4096, u32 n <= 4096, u64 n <= 4096,
  *            u128 n <= 4096, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 3922 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Utility: comparison function for qsort on unsigned 8‑bit digits    */
@@ -75,14 +77,14 @@ static void grow_seq_array(seq_t **arr, size_t *cap, size_t needed)
     while (new_cap < needed)
         new_cap *= 2;
 
-    seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)
         return; /* allocation failure; caller will handle */
 
     /* Copy existing elements, constructing them if needed */
     for (size_t i = 0; i < *cap; ++i) {
 #if defined(__cplusplus)
-        new (&new_arr[i]) seq_t((*arr)[i]);   /* copy constructor */
+        *(&new_arr[i]) = (seq_t)((*arr)[i]);   /* copy constructor */
 #else
         new_arr[i] = (*arr)[i];
 #endif
@@ -91,11 +93,11 @@ static void grow_seq_array(seq_t **arr, size_t *cap, size_t needed)
     /* Destroy old objects if C++ */
 #if defined(__cplusplus)
     for (size_t i = 0; i < *cap; ++i) {
-        (*arr)[i].~seq_t();
+(void)0;  /* mem_free destroys the elements */
     }
 #endif
 
-    free(*arr);
+    mem_free(*arr);
     *arr = new_arr;
     *cap = new_cap;
 }
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     /* Initialize storage once */
     if (!seen) {
         cap = 4;
-        seen = (seq_t*)malloc(cap * sizeof(seq_t));
+        seen = mem_new(seq_t, cap);
     }
 
     seq_t x = (seq_t)n;

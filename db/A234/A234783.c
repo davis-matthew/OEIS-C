@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 7, u128 n <= 16,
  *            big any n
- * Helpers:   rows_compatible
+ * Validated: standard, pass, 27 terms through n = 188 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,7 +38,33 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/rows_compatible.h"
+
+/* Compatibility test for two rows.
+ * Rows are arrays of 6 elements.  Returns true iff all vertical neighbours
+ * differ and each 2×2 block has exactly two clockwise edge increases.     */
+static bool rows_compatible(const uint8_t *x, const uint8_t *y)
+{
+    /* vertical restriction: no equal values in the same column */
+    for (int j = 0; j < 6; ++j)
+        if (x[j] == y[j])
+            return false;
+
+    /* 2×2 block condition for each pair of adjacent columns */
+    for (int j = 0; j < 5; ++j) {
+        int inc = 0;
+        uint8_t a = x[j];       /* top left   */
+        uint8_t b = x[j + 1];   /* top right  */
+        uint8_t c = y[j];       /* bottom left*/
+        uint8_t d = y[j + 1];   /* bottom right*/
+        if (b > a) inc++;          /* a→b   */
+        if (d > b) inc++;          /* b→d   */
+        if (c > d) inc++;          /* d→c   */
+        if (a > c) inc++;          /* c→a   */
+        if (inc != 2)
+            return false;
+    }
+    return true;
+}
 
 /* Number of admissible rows of length 6 over {0,1,2,3} with no equal neighbours */
 #define NUM_ROWS 972

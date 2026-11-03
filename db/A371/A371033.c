@@ -9,12 +9,15 @@
  * Formula:   a(n) = 2^(n*(n+1)/2) - 1 - a(n-1), a(1)=1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
         seq_t triangular = (seq_t)i * ((seq_t)i + 1) / 2;
 
         /* 2^(T_i) */
-        seq_t pow_val = big_pow((seq_t)2, triangular);
+        seq_t pow_val = ipow((seq_t)2, triangular);
 
         /* a(i) = 2^(T_i) - 1 - a(i-1) */
         cur = pow_val - (seq_t)1 - prev;

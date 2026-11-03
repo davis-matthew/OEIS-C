@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 57, u64 n <= 141,
  *            u128 n <= 386, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1125 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------- static storage for tables ------------- */
 static seq_t *fact = NULL;          /* factorials: fact[i] = i!      */
@@ -49,7 +51,7 @@ static void ensure_tables(idx_t r_needed)
 
     /* ---- factorial table ---- */
     if (fact_size < req) {
-        seq_t *new_fact = (seq_t*)realloc(fact, req * sizeof(seq_t));
+        seq_t *new_fact = mem_resize(seq_t, fact, req);
         if (!new_fact) {  /* out‑of‑memory fallback: leave tables unmodified */
             return;
         }
@@ -75,7 +77,7 @@ static void ensure_tables(idx_t r_needed)
         }
         /* For new rows from S_size .. req-1, allocate and compute */
         for (size_t i = S_size; i < req; ++i) {
-            new_S[i] = (seq_t*)calloc(i + 1, sizeof(seq_t));
+            new_S[i] = mem_new(seq_t, i + 1);
             if (!new_S[i]) {
                 return;   /* out‑of‑memory fallback */
             }

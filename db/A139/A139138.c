@@ -9,13 +9,15 @@
  *            divisors)
  * Range:     u8 n <= 100, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9905 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Allocate initial storage if needed */
     if (!terms) {
         cap   = 32;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we have at least n */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         if (count >= 2) {                /* store qualifying number */
             if (len >= cap) {            /* grow storage if needed */
                 cap = cap ? cap * 2 : 32;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[len++] = x;
         }

@@ -7,14 +7,15 @@
  * Formula:   a(n) = Product_{i=1..n , j=1..n} (i+2*j)*(2*i+j)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Return a(n) for sequence A368068 */
 seq_t a(idx_t n)
@@ -44,7 +45,7 @@ seq_t a(idx_t n)
             continue;
 
         idx_t exponent = 2 * freq;            /* both (i+2j) and (2i+j) */
-        seq_t mul_val = big_pow((seq_t)m, (seq_t)exponent);
+        seq_t mul_val = ipow((seq_t)m, (seq_t)exponent);
         result = result * mul_val;
     }
     return result;

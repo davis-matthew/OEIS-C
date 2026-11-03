@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-2)*a(n-1) - a(n-2) - a(n-1); a(1)=3, a(2)=4
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 8, u64 n <= 10, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for realloc, exit */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* 1‑based cache of computed terms */
 static size_t cap = 0;             /* allocated size of cache (+1 for index 0) */
@@ -26,7 +28,7 @@ static void ensure_capacity(size_t needed)
     size_t newcap = cap ? cap * 2 : 4;
     if (newcap < needed)
         newcap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp)
         exit(1);            /* out of memory – terminate program */
     cache = tmp;

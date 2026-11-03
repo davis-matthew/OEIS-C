@@ -9,13 +9,15 @@
  *            a(2)=3. This recurrence is used for all n >= 3
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 387 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values for memoisation. */
 static seq_t *cache = NULL;
@@ -29,9 +31,9 @@ static void ensure_cache(idx_t n)
 
     idx_t new_cap = n + 1;
     if (cache == NULL) {
-        cache = (seq_t *)malloc((size_t)new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)new_cap);
     } else {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp) {
             /* allocation failure – abort. */
             abort();

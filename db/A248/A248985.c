@@ -12,7 +12,8 @@
  *            form the overlap of consecutive windows
  * Range:     u8 none, u16 n <= 8, u32 n <= 29, u64 n <= 69, u128 n <= 149,
  *            big any n
- * Helpers:   idx4, idx5
+ * Validated: standard, pass, 43 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/idx4.h"
-#include "../utils/idx5.h"
+#include "../utils/mem.h"
+
+/* Encoding of a 4‑tuple (a,b,c,d) ∈ {0..6}^4 */
+static inline int idx4(int a,int b,int c,int d)
+{
+    return (((a*7)+b)*7 + c)*7 + d;
+}
+
+/* Encoding of a 5‑tuple (a,b,c,d,e) */
+static inline int idx5(int a,int b,int c,int d,int e)
+{
+    return ((((a*7)+b)*7 + c)*7 + d)*7 + e;
+}
 
 /* Size of state space: 7^4 = 2401 4‑tuples */
 #define N4 2401
@@ -93,8 +105,8 @@ static void init(void)
     }
 
     /* --- 3. Allocate DP vectors ------------------------------------ */
-    dp_cur  = (seq_t*)calloc(N4, sizeof(seq_t));
-    dp_next = (seq_t*)malloc(N4 * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, N4);
+    dp_next = mem_new(seq_t, N4);
     for (int i = 0; i < N4; ++i) dp_cur[i] = 1;   /* length 4 sequences */
 }
 
@@ -110,7 +122,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cache_len)
     {
         cache_len = (size_t)n;
-        seq_cache = (seq_t*)realloc(seq_cache, cache_len * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, cache_len);
     }
 
     /* If requested term is already available, return it */
@@ -121,7 +133,7 @@ seq_t a(idx_t n)
     for (idx_t step = cached_n + 1; step <= n; ++step)
     {
         /* Transition */
-        memset(dp_next, 0, N4 * sizeof(seq_t));
+        mem_set(dp_next, 0, N4 * sizeof(seq_t));
         for (int st = 0; st < N4; ++st)
         {
             seq_t val = dp_cur[st];

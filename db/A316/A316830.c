@@ -9,6 +9,7 @@
  *            is the k-th Thue–Morse bit: parity of popcount(k)
  * Range:     u8 n <= 5461, u16 n <= 5461, u32 n <= 5461, u64 n <= 5461,
  *            u128 n <= 5461, big any n
+ * Validated: standard, pass, 102 terms through n = 5268 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

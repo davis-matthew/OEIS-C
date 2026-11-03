@@ -12,14 +12,35 @@
  *            a(n)) is divisible by n
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 27, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *a_arr = NULL;    /* a[1] .. a[max]  (index 0 unused) */
 static seq_t *b_arr = NULL;    /* b[1] .. b[max]  (index 0 unused) */
@@ -32,8 +53,8 @@ static void ensure_capacity(idx_t n)
     if (cap > (size_t)n) return;            /* already big enough */
 
     size_t new_cap = (size_t)n + 1;         /* indices 0..n */
-    a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-    b_arr = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
+    b_arr = mem_resize(seq_t, b_arr, new_cap);
     cap = new_cap;
 }
 

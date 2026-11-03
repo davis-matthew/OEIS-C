@@ -11,14 +11,20 @@
  *            time after pre‑computing the needed * p...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, to_seq
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
-#include "../utils/to_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Convert idx_t to seq_t */
+static inline seq_t to_seq(idx_t v) { return (seq_t)v; }
 
 /* ---------- Cache for a(n) values ---------- */
 static seq_t *A_cache = NULL;   /* array of cached a(n) */
@@ -30,7 +36,7 @@ static void ensure_a_cache(idx_t idx)
 {
     size_t needed = (size_t)idx + 1;
     if (needed > A_cap) {
-        seq_t *tmp = (seq_t *)realloc(A_cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A_cache, needed);
         if (!tmp) abort();          /* allocation failure */
         A_cache = tmp;
         A_cap   = needed;
@@ -46,7 +52,7 @@ static void ensure_p_cache(idx_t idx)
 {
     size_t needed = (size_t)idx + 1;
     if (needed > P_cap) {
-        seq_t *tmp = (seq_t *)realloc(P_cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, P_cache, needed);
         if (!tmp) abort();          /* allocation failure */
         P_cache = tmp;
         for (size_t i = P_cap; i < needed; ++i) {
@@ -55,7 +61,7 @@ static void ensure_p_cache(idx_t idx)
             else {
                 seq_t base = to_seq(2 * i + 1);
                 seq_t exp  = to_seq(i - 1);
-                P_cache[i] = big_pow(base, exp);
+                P_cache[i] = ipow(base, exp);
             }
         }
         P_cap = needed;
@@ -96,7 +102,7 @@ static void compute_up_to(idx_t n)
 seq_t a(idx_t n)
 {
     if (!A_cache) {                           /* first call: allocate */
-        A_cache = (seq_t *)malloc(sizeof(seq_t) * (size_t)(n + 1));
+        A_cache = mem_new(seq_t, (size_t)(n + 1));
         if (!A_cache) abort();
         A_cap = n + 1;
     }

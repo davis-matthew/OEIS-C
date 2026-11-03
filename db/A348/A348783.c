@@ -11,14 +11,24 @@
  *            For example, a(10)=11, a(11)=20, a(100)=110
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   count_digits_seq, pow10
+ * Validated: standard, pass, 51 terms through n = 7039 (2026-11-01)
+ * Helpers:   num_digits_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/count_digits_seq.h"
+#include "../utils/num_digits_seq.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +52,7 @@ seq_t a(idx_t n)
     for (int d = 9; d >= 0; --d)
     {
         seq_t c = (seq_t)cnt[d];
-        idx_t len = count_digits_seq(c);
+        idx_t len = num_digits_seq(c);
         seq_t shift = pow10(len);
         res = res * shift + c;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    Reference: OEIS A162760
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* allocate or grow cache if needed */
     if (n < 5) {  /* n is in the initial range */
         if (!cache || cap < 5) {
-            cache = (seq_t *)realloc(cache, 5 * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, 5);
             if (!cache) exit(EXIT_FAILURE);
             for (idx_t i = 0; i < 5; ++i) cache[i] = init[i];
             cap = 5;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* ensure capacity for at least n+1 terms */
     if (n + 1 > cap) {
         idx_t newCap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newCap);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         /* if cache was uninitialized, fill initial values */

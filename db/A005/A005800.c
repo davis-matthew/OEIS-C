@@ -12,7 +12,8 @@
  *            limbs
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   a5800_add, a5800_divsmall, a5800_nbits
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,32 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a5800_add.h"
-#include "../utils/a5800_divsmall.h"
-#include "../utils/a5800_nbits.h"
+
+static void a5800_add(uint32_t *a, const uint32_t *b, size_t L) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        c += (uint64_t)a[i] + b[i];
+        a[i] = (uint32_t)c;
+        c >>= 32;
+    }
+}
+
+static void a5800_divsmall(uint32_t *a, size_t L, uint32_t d) {
+    uint64_t r = 0;
+    size_t i = L;
+    while (i-- > 0) {
+        uint64_t cur = (r << 32) | a[i];
+        a[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static size_t a5800_nbits(uint64_t x) {
+    size_t b = 0;
+    while (x) { b++; x >>= 1; }
+    return b ? b : 1;
+}
 
 seq_t a(idx_t n) {
     uint64_t K = 6 * (uint64_t)n;

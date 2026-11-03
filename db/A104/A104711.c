@@ -10,12 +10,14 @@
  *            the entry * T(r,m) of the Triangle T(n,m) defined in A104711
  * Range:     u8 n <= 17, u16 n <= 59, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
      */
     seq_t sum = 0;
     for (idx_t k = m; k <= r; ++k) {
-        seq_t c1 = binom(k, m - 1);   /* C(k, m-1) */
-        seq_t c2 = binom(k, m);       /* C(k, m)   */
+        seq_t c1 = binomial(k, m - 1);   /* C(k, m-1) */
+        seq_t c2 = binomial(k, m);       /* C(k, m)   */
         seq_t prod = c1 * c2;        /* product may be large */
         seq_t term = prod / (seq_t)k;/* exact division */
         sum += term;

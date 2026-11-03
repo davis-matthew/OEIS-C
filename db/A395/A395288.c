@@ -8,13 +8,15 @@
  * Formula:   a(n) = n * Σ_{j=0}^{n-1} binomial(n-1,j) * n^j * Bell(n-1-j)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 386 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper for computing Bell numbers. */
 static void compute_bell_upto(idx_t N);
@@ -31,7 +33,7 @@ static void compute_bell_upto(idx_t N)
         return;                /* Already have enough. */
 
     size_t new_cap = (size_t)(N + 1);
-    seq_t *tmp = (seq_t*)realloc(bell, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, bell, new_cap);
     if (!tmp) abort();
     bell = tmp;
 

@@ -8,7 +8,8 @@
  *            (mod p). Equivalently, 2^( (p-1)/gcd(62,p-1) ) ≠ 1 (mod p)
  * Range:     u8 n <= 11, u16 n <= 946, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_sqrt, mod_pow
+ * Validated: standard, pass, 71 terms through n = 946 (2026-11-03)
+ * Helpers:   ipow_i32, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
-#include "../utils/floor_sqrt.h"
+#include <string.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static uint64_t gcd_uint64(uint64_t a, uint64_t b) {
     while (b) {
@@ -34,7 +55,7 @@ static void ensure_cap(seq_t **arr, size_t *cnt, size_t *cap, size_t add) {
         size_t newcap = (*cap == 0 ? 16 : (*cap << 1));
         while (*cnt + add > newcap)
             newcap <<= 1;
-        *arr = (seq_t*)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }
@@ -94,7 +115,7 @@ seq_t a(idx_t n) {
         uint64_t g      = gcd_uint64(62ULL, rem62);
         uint64_t exp    = (uint64_t)(p_minus_1 / g);
 
-        seq_t r = mod_pow((seq_t)2, exp, candidate);
+        seq_t r = powmod((seq_t)2, exp, candidate);
         if (r != (seq_t)1) {
             ensure_cap(&good_primes, &good_cnt, &good_cap, 1);
             good_primes[good_cnt++] = candidate;

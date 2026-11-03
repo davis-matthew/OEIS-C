@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 8941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for n >= 1 */
 seq_t a(idx_t n)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         idx_t new_cap = (cache_cap == 0) ? 1 : cache_cap * 2;
         while (new_cap < n) new_cap <<= 1;
         queue_refresh:
-        seq_t *new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
         if (!new_cache) {
             /* Out of memory; keep old cache and return 0 (should not happen for 10000) */
             return 0;

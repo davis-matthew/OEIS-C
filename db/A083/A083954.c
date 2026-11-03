@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 4684 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The build supplies seq_t (unsigned) and idx_t (uint64_t).  */
 extern idx_t _floor_isqrt_u64(idx_t);  /* unused */
@@ -52,7 +54,7 @@ static void ensure_capacity(idx_t n)
     pow2  = (int64_t *)realloc(pow2,  new_cap * sizeof(int64_t));
     pow3  = (int64_t *)realloc(pow3,  new_cap * sizeof(int64_t));
     pow4  = (int64_t *)realloc(pow4,  new_cap * sizeof(int64_t));
-    a_seq = (seq_t   *)realloc(a_seq, new_cap * sizeof(seq_t));
+    a_seq = mem_resize(seq_t, a_seq, new_cap);
     for (size_t i = cap; i < new_cap; ++i) {
         b[i]     = 0;
         pow2[i]  = 0;

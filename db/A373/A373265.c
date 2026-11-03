@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, gcd, seq_alloc_new_array
+ * Validated: standard, pass, 83 terms through n = 9351 (2026-11-03)
+ * Helpers:   gcd, mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,14 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
+#include <math.h>
 #include "../utils/gcd.h"
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/seq_alloc_new_array.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 static seq_t *seq = NULL;      /* cached sequence values       */
 static size_t seq_len = 0;     /* number of stored terms       */
@@ -37,8 +43,8 @@ static void append_seq(uint64_t val)
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
         seq_t *newp = seq_alloc_new_array(new_cap);
         if (!newp) exit(EXIT_FAILURE);
-        if (seq) memcpy(newp, seq, seq_len * sizeof(seq_t));
-        free(seq);
+        if (seq) mem_copy(newp, seq, seq_len * sizeof(seq_t));
+        mem_free(seq);
         seq = newp;
         seq_cap = new_cap;
     }
@@ -51,7 +57,7 @@ static bool is_candidate(uint64_t n)
     seq_t deriv = 0;
     uint64_t tmp = n;
     while (tmp > 1) {
-        uint64_t p = _smallest_prime_factor(tmp);
+        uint64_t p = smallest_prime_factor(tmp);
         uint64_t e = 0;
         while (tmp % p == 0) { tmp /= p; ++e; }
         deriv += (seq_t)n * (seq_t)e / (seq_t)p;

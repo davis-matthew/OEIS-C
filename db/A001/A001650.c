@@ -7,15 +7,16 @@
  * Formula:   a(n) = 1 + 2*floor(sqrt(n-1))
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a000037_isqrt
+ * Validated: standard, pass, 93 terms through n = 9095 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000037_isqrt.h"
-
+#include <stdint.h>
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
-    uint64_t sqrt_val = a000037_isqrt(n - 1);
+    uint64_t sqrt_val = isqrt_u64(n - 1);
     return (seq_t)(1 + 2 * sqrt_val);
 }

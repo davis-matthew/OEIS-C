@@ -10,13 +10,15 @@
  *            (r*(r-1)*(r-2))*Stirling2(k,3)
  * Range:     u8 n <= 13, u16 n <= 34, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static tables for powers of two and Stirling numbers S(k,3) */
 static seq_t *pow2_tbl   = NULL;
@@ -33,8 +35,8 @@ static void ensure_tables(idx_t n)
     idx_t new_len = n + 1;               /* indices 0..n */
     if (pow2_len == 0) {
         /* initial allocation */
-        pow2_tbl  = (seq_t*)malloc(new_len * sizeof(seq_t));
-        stir3_tbl = (seq_t*)malloc(new_len * sizeof(seq_t));
+        pow2_tbl  = mem_new(seq_t, new_len);
+        stir3_tbl = mem_new(seq_t, new_len);
         pow2_len  = new_len;
         stir3_len = new_len;
         pow2_tbl[0] = (seq_t)1;
@@ -50,8 +52,8 @@ static void ensure_tables(idx_t n)
     }
     else {
         /* expand existing tables */
-        pow2_tbl  = (seq_t*)realloc(pow2_tbl,  new_len * sizeof(seq_t));
-        stir3_tbl = (seq_t*)realloc(stir3_tbl, new_len * sizeof(seq_t));
+        pow2_tbl  = mem_resize(seq_t, pow2_tbl, new_len);
+        stir3_tbl = mem_resize(seq_t, stir3_tbl, new_len);
         /* new pow2 entries */
         for (idx_t i = pow2_len; i < new_len; ++i)
             pow2_tbl[i] = pow2_tbl[i-1] * ((seq_t)2);

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has31_oct
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
  */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has31_oct.h"
+#include "../utils/mem.h"
+
+static bool has31_oct(seq_t v)
+{
+    // Return true if the base‑8 representation of v contains the
+    // consecutive digits 3 followed by 1.
+    seq_t prev = 8;              // sentinel outside 0..7
+    while (v != 0) {
+        seq_t d = v % 8;
+        v /= 8;
+        if (d == 3 && prev == 1) return true;
+        prev = d;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +51,7 @@ seq_t a(idx_t n)
     /* initialise cache the first time */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* generate terms until we have the requested one */
@@ -48,8 +63,8 @@ seq_t a(idx_t n)
         if (cur_has && !prev_has_last) {   /* n-1 had no "31", n does */
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
-                if (!tmp) { free(cache); return 0; }
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+                if (!tmp) { mem_free(cache); return 0; }
                 cache = tmp;
                 cache_cap = new_cap;
             }

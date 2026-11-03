@@ -13,7 +13,8 @@
  *            the set of possible last rows of the big matrix
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 24,
  *            big any n
- * Helpers:   ctzll
+ * Validated: standard, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   ctz_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/ctzll.h"
+#include "../utils/ctz_u64.h"
 
 /* ---------- auxiliary bit‑count helper ---------- */
 #if defined(__GNUC__) || defined(__clang__)
@@ -30,6 +31,7 @@
 #else
 
 #endif
+#include "../utils/mem.h"
 
 /* ---------- local data structures ---------- */
 typedef struct Edge {
@@ -107,7 +109,7 @@ static void build_graph(void)
             uint64_t dest = 0;
             uint64_t tmp = S;
             while (tmp) {
-                int x = ctzll(tmp);
+                int x = ctz_u64(tmp);
                 tmp &= tmp - 1;
                 dest |= dest_rows[x][m];
             }
@@ -158,15 +160,15 @@ seq_t a(idx_t n)
         build_graph();
 
     const size_t M = state_count;
-    seq_t *dp_cur  = (seq_t *)calloc(M, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(M, sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, M);
+    seq_t *dp_next = mem_new(seq_t, M);
     if (!dp_cur || !dp_next) exit(1);
 
     dp_cur[0] = (seq_t)1;      /* start with the initial state */
 
     for (idx_t step = 0; step < n; ++step) {
         /* reset dp_next to zero */
-        memset(dp_next, 0, M * sizeof(seq_t));
+        mem_set(dp_next, 0, M * sizeof(seq_t));
 
         for (size_t i = 0; i < M; ++i) {
             seq_t val = dp_cur[i];
@@ -187,7 +189,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < M; ++i)
         result += dp_cur[i];
 
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return result;
 }

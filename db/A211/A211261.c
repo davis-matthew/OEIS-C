@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = floor(d(2n)/2) - 1, where d(m) = number of divisors of m.
  *            d(2n) is computed from the prime factorisation of n
- * Range:     u8 n <= 9765, u16 n <= 9765, u32 n <= 9765, u64 n <= 9765,
- *            u128 n <= 9765, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 115 terms through n = 9765 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

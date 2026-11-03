@@ -8,13 +8,15 @@
  *            and 2ⁿ
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Digit mask: bit d is set iff digit d occurs */
 typedef uint16_t digit_mask_t;
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
         pow2.d[0] = 1U;
 
         /* allocate space for first value */
-        values      = (seq_t *)malloc(sizeof(seq_t));
+        values      = mem_new(seq_t, 1);
         digitMaskPow = (digit_mask_t *)malloc(sizeof(digit_mask_t));
 
         digitMaskPow[0] = digits_mask_bigint(&pow2);
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
 
     if (n > lastComputed) {
         idx_t newSize = n + 1;
-        values      = (seq_t *)realloc(values, newSize * sizeof(seq_t));
+        values      = mem_resize(seq_t, values, newSize);
         digitMaskPow = (digit_mask_t *)realloc(digitMaskPow, newSize * sizeof(digit_mask_t));
 
         for (idx_t i = lastComputed + 1; i <= n; ++i) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 39, u64 n <= 75, u128 n <= 149,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 1477 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Hard‑coded first eight terms */
 static const seq_t _base[8] = {
@@ -39,7 +41,7 @@ static idx_t  last_computed = (idx_t)-1;   /* sentinel */
 static void init_cache(void)
 {
     cache_size = 8;
-    cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_size);
     if (!cache) return;          /* allocation failure – silent */
     for (idx_t i = 0; i < 8; ++i)
         cache[i] = _base[i];
@@ -59,8 +61,7 @@ seq_t a(idx_t n)
 
     /* Increase the allocation if necessary. */
     if (n + (idx_t)1 > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      (size_t)(n + (idx_t)1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + (idx_t)1));
         if (!tmp)               /* allocation failure – return 0 */
             return 0;
         cache = tmp;

@@ -10,7 +10,8 @@
  *            such k exists
  * Range:     i8 n <= 3, i16 n <= 16, i32 n <= 18, i64 n <= 18, i128 n <= 18,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* Compute base^exp for seq_t, exp is idx_t. */
 static seq_t pow_seq_t(seq_t base, idx_t exp)
@@ -54,11 +57,11 @@ static bool is_prime_seq(seq_t n)
         unsigned long long aull = bases[i];
         if ((seq_t)aull >= n) continue;
         seq_t a = (seq_t)aull;
-        seq_t x = mod_pow(a, (uint64_t)d, n);
+        seq_t x = powmod(a, (uint64_t)d, n);
         if (x == 1 || x == n-1) continue;
         bool composite = true;
         for (unsigned r = 1; r < s; ++r) {
-            x = mod_pow(x, 2ULL, n);   /* x = x^2 mod n */
+            x = powmod(x, 2ULL, n);   /* x = x^2 mod n */
             if (x == n-1) { composite = false; break; }
         }
         if (composite) return false;

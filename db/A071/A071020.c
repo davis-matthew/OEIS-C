@@ -12,19 +12,41 @@
  *            n=0
  * Range:     i8 n <= 9, i16 n <= 27, i32 n <= 65, i64 n <= 67, i128 n <= 67,
  *            big any n
- * Helpers:   alloc_seq_array, antidiagonal_coordinates, binom,
- *            free_seq_array, gcd
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   binomial, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/binom.h"
-#include "../utils/antidiagonal_coordinates.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Locate the coordinates (i,j) in the antidiagonal enumeration.
+   n >= 0.  Returns i and j via pointers. */
+static void antidiagonal_coordinates(idx_t n, idx_t *i, idx_t *j)
+{
+    idx_t d = 0;
+    while ((d + 1) * (d + 2) / 2 <= n) ++d;
+    idx_t prev = d * (d + 1) / 2;
+    idx_t k = n - prev;          /* position along the diagonal (0‑based) */
+    *i = k;
+    *j = d - k;
+}
 
 /* Cached Bernoulli numbers */
 static seq_t *B_num = NULL;   /* numerator of B_k          */
@@ -65,7 +87,7 @@ static void ensure_bernoulli(idx_t need)
 
         for (idx_t k = 0; k < m; ++k)
         {
-            seq_t bin   = binom(m + 1, k);          /* C(m+1,k) */
+            seq_t bin   = binomial(m + 1, k);          /* C(m+1,k) */
             seq_t t_num = bin * B_num[k];           /* numerator of term */
             seq_t t_den = B_den[k];                /* denominator of term */
 

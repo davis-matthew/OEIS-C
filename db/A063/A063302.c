@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 46, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *mem = NULL;          /* dynamic cache of values */
 static size_t mem_used = 0;        /* first unused index (size of valid data) */
@@ -39,13 +41,13 @@ static void init_cache(void)
 
     /* Allocate a small array that can hold indices 0…13. */
     mem_cap = 16;
-    mem = (seq_t *)malloc(mem_cap * sizeof(seq_t));
+    mem = mem_new(seq_t, mem_cap);
     if (!mem) return;                      /* allocation failed – undefined */
 
     /* validate that the allocated capacity is large enough */
     if (mem_cap < 14) {
         mem_cap = 14;
-        mem = (seq_t *)realloc(mem, mem_cap * sizeof(seq_t));
+        mem = mem_resize(seq_t, mem, mem_cap);
         if (!mem) return;
     }
 
@@ -81,7 +83,7 @@ static void ensure_up_to(idx_t n)
     if ((size_t)n >= mem_cap) {
         size_t new_cap = mem_cap ? mem_cap * 2 : 16;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 16;
-        seq_t *tmp = (seq_t *)realloc(mem, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, mem, new_cap);
         if (tmp) {
             mem = tmp;
             mem_cap = new_cap;

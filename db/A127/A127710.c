@@ -11,12 +11,14 @@
  *            W[n][m]. * For any index n, let r be the row such that r(r...
  * Range:     i8 n <= 56, i16 n <= 56, i32 n <= 56, i64 n <= 56, i128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,12 +46,12 @@ seq_t a(idx_t n)
     idx_t c = n - (r * (r + 1)) / 2;
 
     /* Allocate arrays for W and suffix sums */
-    seq_t *W = (seq_t *)malloc((r + 2) * sizeof(seq_t));
-    seq_t *suffix = (seq_t *)malloc((r + 2) * sizeof(seq_t));
+    seq_t *W = mem_new(seq_t, (r + 2));
+    seq_t *suffix = mem_new(seq_t, (r + 2));
     if (!W || !suffix) {
         /* In the unlikely event of allocation failure, return 0 */
-        if (W) free(W);
-        if (suffix) free(suffix);
+        if (W) mem_free(W);
+        if (suffix) mem_free(suffix);
         return (seq_t)0;
     }
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     /* Result is (c+1) * W[c] */
     seq_t result = (seq_t)(c + 1) * W[c];
 
-    free(W);
-    free(suffix);
+    mem_free(W);
+    mem_free(suffix);
     return result;
 }

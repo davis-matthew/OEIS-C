@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* global static data to be built once */
 static uint8_t  next_arr[64 * 64][64];
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
 
     static seq_t dp[64][64];
     static seq_t ndp[64][64];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* initial state: previous row = 0, current row can be any pattern */
     for (int r = 0; r < 64; ++r)
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
 
     /* iterate over the remaining rows */
     for (idx_t step = 1; step < n; ++step) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int prev = 0; prev < 64; ++prev) {
             for (int curr = 0; curr < 64; ++curr) {
                 seq_t val = dp[prev][curr];
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
         }
         /* swap dp and ndp */
         seq_t (*tmp)[64] = dp;
-        memcpy(dp, ndp, sizeof(dp)); /* copy results back */
+        mem_copy(dp, ndp, sizeof(dp)); /* copy results back */
     }
 
     /* final answer: pick transitions that end with a trailing zero row */

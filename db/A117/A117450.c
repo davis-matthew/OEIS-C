@@ -8,14 +8,23 @@
  *            a(1)=1, a(2)=2, a(3)=3, a(4)=4, a(5)=7, a(6)=9
  * Range:     u8 n <= 35, u16 n <= 571, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   deallocate_cache
+ * Validated: standard, pass, 74 terms through n = 941 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/deallocate_cache.h"
+
+static void deallocate_cache(seq_t *ptr)
+{
+#ifdef __cplusplus
+    delete[] ptr;
+#else
+    free(ptr);
+#endif
+}
 
 static seq_t *allocate_cache(idx_t len)
 {

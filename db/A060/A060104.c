@@ -7,12 +7,14 @@
  * Formula:   a(n) = (2*n^2+10*n+7)*binomial(n+6,6)/7
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom_n_k
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_n_k.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
     unsigned __int128 t1   = 2*nn*nn + 10*nn + 7;
 
     /* binomial(n+6,6) is provided by the helper */
-    seq_t bin = binom_n_k(n + 6, 6);
+    seq_t bin = binomial(n + 6, 6);
 
     /* multiply, divide by 7, then cast back to seq_t */
     unsigned __int128 prod = t1 * (unsigned __int128)bin;

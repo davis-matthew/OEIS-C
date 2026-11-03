@@ -10,12 +10,32 @@
  *            defined as one
  * Range:     i8 n <= 99, i16 n <= 99, i32 n <= 99, i64 n <= 99, i128 n <= 99,
  *            big any n
- * Helpers:   base3_runs
+ * Validated: partial, pass, 100 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/base3_runs.h"
+/* Return the number of runs in the base‑3 representation of n. */
+static seq_t base3_runs(idx_t n)
+{
+    /* By definition, 0 has one run ("0"). */
+    if (n == 0)
+        return 1;
+
+    seq_t runs = 1;                 /* first run starts with least significant digit */
+    int prev = (int)(n % 3);
+    n /= 3;
+    while (n) {
+        int cur = (int)(n % 3);
+        if (cur != prev) {
+            ++runs;
+            prev = cur;
+        }
+        n /= 3;
+    }
+    return runs;
+}
 
 /* a(n) = first differences of A043555, i.e. runs(n+1) - runs(n). */
 seq_t a(idx_t n)

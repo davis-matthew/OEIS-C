@@ -12,13 +12,15 @@
  *            all shifted contributions to the final sequence....
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle the trivial case */
@@ -28,22 +30,22 @@ seq_t a(idx_t n) {
     size_t sz = (size_t)n + 1;
 
     /* Allocate working arrays */
-    seq_t *lucas  = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *dp_cur = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *dp_next= (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *a_arr  = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *lucas  = mem_new(seq_t, sz);
+    seq_t *dp_cur = mem_new(seq_t, sz);
+    seq_t *dp_next= mem_new(seq_t, sz);
+    seq_t *a_arr  = mem_new(seq_t, sz);
 
     if (!lucas || !dp_cur || !dp_next || !a_arr) {
         /* Memory allocation failed – return 0 as a safe fallback */
-        free(lucas); free(dp_cur); free(dp_next); free(a_arr);
+        mem_free(lucas); mem_free(dp_cur); mem_free(dp_next); mem_free(a_arr);
         return (seq_t)0;
     }
 
     /* Initialize arrays with zero */
-    memset(lucas,  0, sz * sizeof(seq_t));
-    memset(dp_cur, 0, sz * sizeof(seq_t));
-    memset(dp_next,0, sz * sizeof(seq_t));
-    memset(a_arr,  0, sz * sizeof(seq_t));
+    mem_set(lucas, 0, sz * sizeof(seq_t));
+    mem_set(dp_cur, 0, sz * sizeof(seq_t));
+    mem_set(dp_next, 0, sz * sizeof(seq_t));
+    mem_set(a_arr, 0, sz * sizeof(seq_t));
 
     /* Pre‑compute Lucas numbers (L_1 = 1, L_2 = 3) */
     lucas[1] = (seq_t)1;
@@ -93,10 +95,10 @@ seq_t a(idx_t n) {
     seq_t result = a_arr[n];
 
     /* Clean up */
-    free(lucas);
-    free(dp_cur);
-    free(dp_next);
-    free(a_arr);
+    mem_free(lucas);
+    mem_free(dp_cur);
+    mem_free(dp_next);
+    mem_free(a_arr);
 
     return result;
 }

@@ -13,6 +13,7 @@
  *            them cached. The sums are stored in 64‑bit unsigned int...
  * Range:     u8 n <= 460, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 119 terms through n = 9552 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -45,9 +46,9 @@ static void ensure_cache(idx_t n)
         return;   /* already cached */
 
     /* free any previous data */
-    free((void *)sum_lpf_u);
-    free((void *)sum_spf_u);
-    free((void *)spf);
+    free(sum_lpf_u);
+    free(sum_spf_u);
+    free(spf);
     sum_lpf_u = sum_spf_u = NULL;
     spf = NULL;
 
@@ -69,10 +70,10 @@ static void ensure_cache(idx_t n)
     sum_lpf_u = (uint64_t *)malloc((size_t)(n + 1) * sizeof(uint64_t));
     sum_spf_u = (uint64_t *)malloc((size_t)(n + 1) * sizeof(uint64_t));
     if (!sum_lpf_u || !sum_spf_u) {
-        free((void *)spf);
+        free(spf);
         spf = NULL;
-        free((void *)sum_lpf_u);
-        free((void *)sum_spf_u);
+        free(sum_lpf_u);
+        free(sum_spf_u);
         sum_lpf_u = sum_spf_u = NULL;
         return;
     }

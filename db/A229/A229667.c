@@ -13,13 +13,15 @@
  *            memoisation
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 21, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Allocate (or grow) storage so that it can hold up to max(n, INIT_N) entries */
     idx_t need = (n > INIT_N) ? n : INIT_N;
     if (cache_size < need) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * need);
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) abort();                     /* allocation failure */
         /* zero‑initialise newly added entries */
         for (idx_t i = cache_size; i < need; ++i) tmp[i] = (seq_t)0;

@@ -12,7 +12,8 @@
  *            ascending order
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*   Small prime sieve (up to 1 000 000) for trial division factorisation
@@ -63,11 +65,11 @@ static void init_globals(void)
     init_sieve_small();
 
     set_cap = 16;
-    set = (seq_t *)malloc(set_cap * sizeof(seq_t));
+    set = mem_new(seq_t, set_cap);
     set_cnt = 0;
 
     frontier_cap = 16;
-    frontier = (seq_t *)malloc(frontier_cap * sizeof(seq_t));
+    frontier = mem_new(seq_t, frontier_cap);
     frontier_cnt = 0;
     frontier_pos = 0;
 
@@ -97,7 +99,7 @@ static void add_prime(uint64_t p)
     /* ensure capacity for set */
     if (set_cnt >= set_cap) {
         size_t ncap = set_cap ? set_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(set, ncap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, set, ncap);
         if (!tmp) abort();
         set = tmp;
         set_cap = ncap;
@@ -111,7 +113,7 @@ static void add_prime(uint64_t p)
     /* enqueue to frontier if not already queued */
     if (frontier_cnt >= frontier_cap) {
         size_t ncap = frontier_cap ? frontier_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(frontier, ncap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, frontier, ncap);
         if (!tmp) abort();
         frontier = tmp;
         frontier_cap = ncap;

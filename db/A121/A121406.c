@@ -8,7 +8,8 @@
  * Formula:   a(1)=a(2)=0; a(3)=2; for n>=4, a(n)=(prime(n-1)-2)*a(n-1)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 11, u64 n <= 17, u128 n <= 27,
  *            big any n
- * Helpers:   grow_prime_cap
+ * Validated: standard, pass, 37 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_prime_cap.h"
+#include "../utils/mem.h"
+
+/* Helper to grow uint32_t array of primes */
+static void grow_prime_cap(size_t *cap, uint32_t **ptr, size_t needed)
+{
+    if (*cap >= needed) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    *ptr = (uint32_t *)realloc(*ptr, new_cap * sizeof(uint32_t));
+    if (*ptr == NULL) abort();
+    *cap = new_cap;
+}
 
 /* Helper to grow a zero‑initialised array of seq_t */
 static void grow_seq_cache(idx_t *cap, seq_t **ptr, idx_t needed)
@@ -24,7 +36,7 @@ static void grow_seq_cache(idx_t *cap, seq_t **ptr, idx_t needed)
     if (*cap >= needed) return;
     idx_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
     while (new_cap < needed) new_cap <<= 1;
-    *ptr = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    *ptr = mem_resize(seq_t, *ptr, new_cap);
     if (*ptr == NULL) abort();
     *cap = new_cap;
 }

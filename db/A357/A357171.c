@@ -9,7 +9,8 @@
  *            strictly increasing order (OEIS A357171)
  * Range:     u8 n <= 9, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   build_inc_digits
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,14 +18,22 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/build_inc_digits.h"
+#include "../utils/mem.h"
+
+static void build_inc_digits(seq_t *arr, size_t *cnt, seq_t num, int last_digit) {
+    arr[(*cnt)++] = num;
+    for (int d = last_digit + 1; d <= 9; ++d) {
+        seq_t next = num * (seq_t)10 + (seq_t)d;
+        build_inc_digits(arr, cnt, next, d);
+    }
+}
 
 static seq_t *inc_digits;
 static size_t inc_count;
 
 static void init_inc_digits(void) {
     if (inc_digits != NULL) return;          /* already initialized */
-    inc_digits = (seq_t *)malloc(sizeof(seq_t) * 512);
+    inc_digits = mem_new(seq_t, 512);
     size_t cnt = 0;
     for (int d = 1; d <= 9; ++d) {
         build_inc_digits(inc_digits, &cnt, (seq_t)d, d);

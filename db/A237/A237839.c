@@ -9,7 +9,8 @@
  *            prime } . Then q and q+2 are both prime }|
  * Range:     u8 n <= 160, u16 n <= 1100, u32 n <= 1100, u64 n <= 1100,
  *            u128 n <= 1100, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 96 terms through n = 1040 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/is_prime_small.h"   /* is_prime_small(seq_t) */
+#include "../utils/is_prime_seq.h"
 
 static idx_t sieve_limit = 0;           /* current sieve upper bound          */
 static uint8_t *sieve_bits = NULL;      /* bitset for odd composites (≥3)     */
@@ -111,8 +112,8 @@ seq_t a(idx_t n)
         idx_t limit_k = k * n;
         size_t q = count_twin_leq(limit_k);
         if (q >= 2 &&
-            is_prime_small((seq_t)q) &&
-            is_prime_small((seq_t)(q + 2)))
+            is_prime_seq((seq_t)q) &&
+            is_prime_seq((seq_t)(q + 2)))
             ++result;
     }
     return result;

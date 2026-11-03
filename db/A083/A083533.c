@@ -10,13 +10,15 @@
  *            list of distinct values of Euler's totient function
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9660 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define MAX_N 2000000        /* maximum n for which φ(n) is precomputed */
 
@@ -50,7 +52,7 @@ static void init(void)
     }
 
     /* Allocate array for differences of consecutive distinct φ values. */
-    diffs = (seq_t *)malloc(MAX_N * sizeof(seq_t));  /* upper bound */
+    diffs = mem_new(seq_t, MAX_N);  /* upper bound */
 
     /* Build the diff array. */
     int lastVal = -1;

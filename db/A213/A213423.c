@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 
 #include <stdlib.h>   /* for malloc, free */
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 static seq_t *p_arr = NULL;   /* partition numbers p[0..max] */
 static idx_t  p_max = 0;      /* highest index computed so far */
@@ -47,7 +49,7 @@ ensure_partitions(idx_t n)
         return;
 
     /* Allocate new array */
-    seq_t *new_arr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, (size_t)(n + 1));
     if (!new_arr)
         return; /* allocation failed; caller will get zeroed values */
 
@@ -67,7 +69,7 @@ ensure_partitions(idx_t n)
 
     /* Free old array if present */
     if (p_arr)
-        free(p_arr);
+        mem_free(p_arr);
 
     p_arr = new_arr;
     p_max = n;

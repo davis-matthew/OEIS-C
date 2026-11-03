@@ -8,6 +8,7 @@
  *            for n ≥ 5, a(n) = 111*a(n-1) - 1110*a(n-2) + 1000*a(n-3)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 16,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

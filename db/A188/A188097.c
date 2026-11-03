@@ -13,12 +13,14 @@
  *            a(11) = 29585, a(12) = 35384, a(13) = 46623,...
  * Range:     u8 none, u16 none, u32 n <= 58, u64 n <= 148, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Memoization using static storage */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* First call: allocate and initialise base terms */
     if (!seq) {
         cap = 16;                     /* capacity at least 16 (>15) */
-        seq = (seq_t *)malloc((cap + 1) * sizeof(seq_t));
+        seq = mem_new(seq_t, (cap + 1));
         if (!seq) { /* allocation failed – abort */ abort(); }
 
         seq[0] = 0;                    /* unused */
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
         while (new_cap < (size_t)n) {
             new_cap <<= 1;            /* double until large enough */
         }
-        seq = (seq_t *)realloc(seq, (new_cap + 1) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (new_cap + 1));
         if (!seq) { /* reallocation failed – abort */ abort(); }
         cap = new_cap;
     }

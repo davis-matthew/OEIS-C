@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 39, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * ((1 - z^3)(1 - z^6)(1 - z^9)(1 - z^12)(1 - z^15)(1 - z^18)(1 - z^27))
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute coefficient of z^(3n) in the above rational function */
 seq_t a(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     idx_t needM = 3 * n + maxDegInN;
 
     /* allocate array for partition numbers c[0 .. needM] */
-    seq_t *c = (seq_t *)calloc(needM + 1, sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, needM + 1);
     if (!c)
         return 0; /* allocation failure (unlikely) */
 
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(c);
+    mem_free(c);
     return result;
 }

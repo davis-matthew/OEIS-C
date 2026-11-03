@@ -7,11 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 23,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 322 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#ifdef __cplusplus
+#include <vector>
+#endif
 /* OEIS A047056: Quintuple factorial numbers
  * Formula: a(n) = ∏_{k=0}^{n-1} (5*k+3)
  * Recurrence: a(0)=1, a(n) = (5*n-2)*a(n-1) for n>=1

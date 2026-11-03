@@ -12,7 +12,8 @@
  *            results * for subsequent calls
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_adjacent47or74
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/has_adjacent47or74.h"
+#include "../utils/mem.h"
+
+/* Test whether a seq_t number contains the adjacent
+ * digits '47' or '74'. */
+static bool has_adjacent47or74(seq_t x)
+{
+    int prev = -1;
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)10);
+        if ((prev == 4 && d == 7) || (prev == 7 && d == 4))
+            return true;
+        prev = d;
+        x = x / (seq_t)10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +48,7 @@ seq_t a(idx_t n)
 
     if (terms == NULL) {                     /* initialise cache */
         cap = 16;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         if (!terms) exit(EXIT_FAILURE);
     }
 
@@ -46,7 +62,7 @@ seq_t a(idx_t n)
             if (!has_adjacent47or74(sm1)) {
                 if (sz == cap) {               /* grow cache if needed */
                     cap *= 2;
-                    terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, cap);
                     if (!terms) exit(EXIT_FAILURE);
                 }
                 terms[sz++] = sk;

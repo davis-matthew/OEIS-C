@@ -7,11 +7,13 @@
  * Formula:   a(n) = C(5*n-1, 2*n)/3 (OEIS A259550)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute the binomial coefficient C(N, K) with exact arithmetic,

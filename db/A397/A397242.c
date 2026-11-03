@@ -10,12 +10,14 @@
  *            recurrence (6) from the OEIS entry
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 495 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cache of computed terms */
 static idx_t  cache_size   = 0;   /* allocated size of seq_cache */
@@ -26,14 +28,14 @@ seq_t a(idx_t n)
     /* Allocate and initialise cache on first call */
     if (seq_cache == NULL) {
         cache_size = (n > 1 ? n + 1 : 2);
-        seq_cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_size);
         seq_cache[0] = (seq_t)1;
         seq_cache[1] = (seq_t)1;
         computed_max = 1;
     } else if (cache_size <= n) {
         size_t new_size = cache_size * 2;
         if (new_size <= n) new_size = n + 1;
-        seq_cache = (seq_t*)realloc(seq_cache, new_size * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_size);
         cache_size = new_size;
     }
 

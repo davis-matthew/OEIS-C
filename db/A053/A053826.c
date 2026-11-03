@@ -8,7 +8,8 @@
  *            = 0 for e ≥ 3. (Dirichlet inverse of σ₄)
  * Range:     i8 n <= 4, i16 n <= 13, i32 n <= 213, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   pow4_idx
+ * Validated: standard, pass, 53 terms through n = 9142 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,14 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow4_idx.h"
+
+/* Compute p⁴ in a width large enough for the required inputs.
+   The value is converted to seq_t at the end.               */
+static inline seq_t pow4_idx(idx_t p)
+{
+    unsigned long long pw = (unsigned long long)p * p * p * p;
+    return (seq_t)pw;
+}
 
 seq_t a(idx_t n)
 {

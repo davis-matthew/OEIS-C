@@ -10,6 +10,7 @@
  *            numbers r(r+1)/2 give the cumulative counts of terms
  * Range:     u8 n <= 24, u16 n <= 111, u32 n <= 449, u64 n <= 1918,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 71 terms through n = 5013 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
    T(n,k) = 2/Beta(n-k+1,k) - 1 = 2*(n-k+1)*C(n,k-1) - 1        */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

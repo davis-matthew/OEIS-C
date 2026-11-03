@@ -8,13 +8,15 @@
  *            51, 57, 69, 87, 93, 111, 123, 129, 141, 159, 175}
  * Range:     u8 n <= 23, u16 n <= 2450, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9599 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static const seq_t first16[16] = {
     6, 15, 21, 33, 39, 51, 57, 69,
@@ -38,7 +40,7 @@ static void _ensure_prime_count(idx_t need)
         size_t new_cap = (_prime_cap == 0 ? 16 : _prime_cap << 1);
         while (new_cap < need)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(_prime_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _prime_arr, new_cap);
         if (!tmp)
             return;                /* out of memory – silently fail */
         _prime_arr = tmp;

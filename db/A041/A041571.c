@@ -9,12 +9,14 @@
  *            a(7)=10123, a(8)=25235, a(9)=136298, a(10)=297831, a(11)=731960
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 17, u64 n <= 32, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;      /* memoised values */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     if (!cache) {
         cap = sn + 1;
         if (cap < 12) cap = 12;      /* must store the 12 seeds */
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;        /* allocation failed */
 
         static const seq_t init[12] = {
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
         size_t old_cap = cap;
         size_t new_cap = sn + 1;     /* exact capacity needed */
         if (new_cap < old_cap) new_cap = old_cap;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;          /* allocation failed */
         cache = tmp;
         cap = new_cap;

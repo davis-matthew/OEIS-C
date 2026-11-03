@@ -9,15 +9,26 @@
  *            exponent k we also test the next integer base
  * Range:     u8 n <= 30, u16 n <= 30, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, bitlen_seq
+ * Validated: standard, pass, 117 terms through n = 9821 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/bitlen_seq.h"
+#include <stdlib.h>
+#include "../utils/ipow.h"
+
+/* Bit length of a seq_t value (at least 1 for v==0) */
+static inline unsigned long bitlen_seq(seq_t v) {
+    unsigned long b = 0;
+    while (v) {
+        v >>= 1;
+        ++b;
+    }
+    return (b == 0) ? 1 : b;
+}
 
 /* Absolute difference between two seq_t values. */
 static seq_t seq_abs(seq_t a, seq_t b)
@@ -35,7 +46,7 @@ static seq_t kth_root_floor(seq_t n, idx_t k)
     while (low <= high)
     {
         seq_t mid = (low + high) / 2;
-        seq_t val = big_pow(mid, (seq_t)k);
+        seq_t val = ipow(mid, (seq_t)k);
         if (val <= n)
         {
             ans = mid;
@@ -72,7 +83,7 @@ seq_t a(idx_t n)
         seq_t base = kth_root_floor(n_seq, k);
 
         /* Perfect power for the floor root. */
-        seq_t pow_floor = big_pow(base, (seq_t)k);
+        seq_t pow_floor = ipow(base, (seq_t)k);
         seq_t diff1 = seq_abs(n_seq, pow_floor);
         if (diff1 == 0)
             return (seq_t)0;
@@ -80,7 +91,7 @@ seq_t a(idx_t n)
             best = diff1;
 
         /* Check the next possible base (base+1). */
-        seq_t pow_ceiling = big_pow(base + (seq_t)1, (seq_t)k);
+        seq_t pow_ceiling = ipow(base + (seq_t)1, (seq_t)k);
         seq_t diff2 = seq_abs(n_seq, pow_ceiling);
         if (diff2 < best)
             best = diff2;

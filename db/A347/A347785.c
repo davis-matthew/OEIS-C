@@ -8,7 +8,8 @@
  * Formula:   a(n) = number of compositions of n into at most 4 powers of 2
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage function as required */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (dp == NULL) {
         /* Initial allocation for n = 0 */
         dp_capacity = 5;                     /* (0+1)*5 */
-        dp = (seq_t*)malloc(dp_capacity * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_capacity);
         if (!dp) { /* allocation failed – abort gracefully */ abort(); }
 
         /* dp[0][0] = 1, others 0 */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     size_t needed = ((size_t)n + 1) * 5;
     if (needed > dp_capacity) {
         dp_capacity = needed;
-        seq_t *new_dp = (seq_t*)realloc(dp, dp_capacity * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, dp_capacity);
         if (!new_dp) { /* reallocation failed – abort */ abort(); }
         dp = new_dp;
     }

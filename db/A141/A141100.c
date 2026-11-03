@@ -9,7 +9,8 @@
  *            pairs using a * two‑pointer scan over the sorted list
  * Range:     u8 n <= 165, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   free_seq_array, seq_alloc_new_array
+ * Validated: standard, pass, 110 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,17 @@
 #include <stdint.h>
 
 /* Helpers for arbitrary‑precision seq_t */
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq_array.h"
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Static state for memoised sieve and composite list. */
 static idx_t   current_limit     = 0;          /* largest number already sieved */

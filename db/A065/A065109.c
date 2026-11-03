@@ -9,12 +9,14 @@
  *            floor((sqrt(8*n+1)-1)/2), k = n - r*(r+1)/2
  * Range:     i8 n <= 21, i16 n <= 68, i32 n <= 257, i64 n <= 914,
  *            i128 n <= 3508, big any n
+ * Validated: standard, pass, 76 terms through n = 6198 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

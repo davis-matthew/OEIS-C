@@ -12,7 +12,8 @@
  *            each length it computes the minimal n that yield...
  * Range:     u8 none, u16 n <= 6, u32 n <= 35, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, floor_sqrt, pow10, triangular_m
+ * Validated: standard, pass, 51 terms through n = 9990 (2026-11-01)
+ * Helpers:   ipow_i32, num_digits, triangular_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,38 @@
 /*  Utility includes provided by the build system  */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow10.h"         /* seq_t pow10(idx_t); */
-#include "../utils/digit_len.h"     /* unsigned digit_len(seq_t); */
-#include "../utils/floor_sqrt.h"   /* seq_t floor_sqrt(seq_t); */
-#include "../utils/triangular_m.h"
+#include <stdlib.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/num_digits.h"
+#include "../utils/triangular_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* minimal m such that triangular_m(m) >= x  */
 static inline idx_t m_at_least(seq_t x)
@@ -34,7 +63,7 @@ static inline idx_t m_at_least(seq_t x)
     idx_t m = ((idx_t)sqrtD - 1) / 2;   /* floor of (-1+sqrtD)/2 */
 
     /* adjust upward if needed */
-    if (triangular_m(m) < x)
+    if (triangular_idx(m) < x)
         m++;
     return m;
 }
@@ -48,8 +77,8 @@ static inline idx_t m_at_most(seq_t high_minus1)
 seq_t a(idx_t n)
 {
     /* Tn = n*(n+1)/2  */
-    const seq_t Tn = triangular_m(n);
-    const unsigned L = digit_len(Tn);          /* number of decimal digits of Tn */
+    const seq_t Tn = triangular_idx(n);
+    const unsigned L = num_digits(Tn);          /* number of decimal digits of Tn */
 
     /* search over candidate lengths: len(Tm) = L + k, k >= 1 */
     for (idx_t k = 1; ; ++k)
@@ -66,6 +95,6 @@ seq_t a(idx_t n)
             continue;                          /* no valid m for this k */
 
         /* The first valid m gives the smallest triangular number */
-        return triangular_m(m_min);
+        return triangular_idx(m_min);
     }
 }

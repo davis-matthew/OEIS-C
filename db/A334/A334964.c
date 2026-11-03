@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 6055, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_cube_root_u64, _gcd_seq, _is_sum_of_three_coprime_cubes
+ * Validated: standard, pass, 78 terms through n = 9876 (2026-11-03)
+ * Helpers:   gcd, icbrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,36 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_floor_cube_root_u64.h"
-#include "../utils/_gcd_seq.h"
-#include "../utils/_is_sum_of_three_coprime_cubes.h"
+#include "../utils/gcd.h"
+#include "../utils/icbrt_u64.h"
+#include "../utils/mem.h"
+
+/* ----------  test if n is a sum of three coprime positive cubes  ---------- */
+static bool _is_sum_of_three_coprime_cubes(seq_t n)
+{
+    if (n < 3) return false;                     /* 1^3 + 1^3 + 1^3 = 3 */
+
+    uint64_t max_i = icbrt_u64((uint64_t)n - 2);
+    for (uint64_t i = 1; i <= max_i; ++i) {
+        uint64_t icub = i * i * i;
+        uint64_t rem1 = (uint64_t)n - icub;
+
+        uint64_t max_j = icbrt_u64(rem1 - 1);
+        for (uint64_t j = 1; j <= max_j; ++j) {
+            uint64_t jcub = j * j * j;
+            uint64_t rem2 = rem1 - jcub;
+
+            uint64_t k = icbrt_u64(rem2);
+            unsigned __int128 kcub = (unsigned __int128)k * k * k;
+            if (kcub == rem2 && k >= 1) {
+                seq_t g = gcd((seq_t)i, (seq_t)j);
+                g = gcd(g, (seq_t)k);
+                if (g == 1) return true;
+            }
+        }
+    }
+    return false;
+}
 
 /* ----------  helper: GCD for seq_t  ---------- */
 
@@ -39,7 +67,7 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n) {
         ++checked_up_to;
         if (_is_sum_of_three_coprime_cubes((seq_t)checked_up_to)) {
-            seq_t *tmp = (seq_t *)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (cache_len + 1));
             /* realloc with a NULL pointer behaves like malloc */
             if (!tmp) {                 /* allocation failed – return zero */
                 cache = NULL;

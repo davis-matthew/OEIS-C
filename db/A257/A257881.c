@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 172, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 732 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Parameters for the difference hash: positive and negative values
@@ -85,7 +87,7 @@ static void ensure_capacity(idx_t need) {
     if (need <= capacity) return;
     idx_t cap = capacity ? capacity * 2 : 16;
     while (cap < need) cap <<= 1;
-    seq_t *newA = (seq_t *)realloc(A, (cap + 1) * sizeof(seq_t));
+    seq_t *newA = mem_resize(seq_t, A, (cap + 1));
     int64_t *newD = (int64_t *)realloc(D, (cap + 1) * sizeof(int64_t));
     A = newA;   D = newD;
     capacity = cap;
@@ -98,7 +100,7 @@ static void ensure_capacity(idx_t need) {
 static void init_sequence(void) {
     computed  = 1;
     capacity  = 16;
-    A = (seq_t *)malloc((capacity + 1) * sizeof(seq_t));
+    A = mem_new(seq_t, (capacity + 1));
     D = (int64_t *)malloc((capacity + 1) * sizeof(int64_t));
 
     A[1] = (seq_t)2;      /* a(1)=2 */

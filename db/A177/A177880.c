@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9868 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequence values */
 static seq_t *seq_arr   = NULL;   /* dynamic array of terms */
@@ -61,7 +63,7 @@ static inline void push_back(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = (seq_cap == 0u) ? 16u : seq_cap * 2u;
-        seq_t *new_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, seq_arr, new_cap);
         /* (The tests never trigger out of memory.) */
         seq_arr = new_arr;
         seq_cap = new_cap;

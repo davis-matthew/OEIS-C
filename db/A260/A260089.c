@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    This is the Euler transform of the specified periodic sequence.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     /* Extend and compute a_cache[0..req-1] if needed */
     if (a_len < req)
     {
-        seq_t *tmp = (seq_t *)realloc(a_cache, req * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, req);
         if (!tmp) return 0;
         a_cache = tmp;
         if (a_len == 0)

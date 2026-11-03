@@ -9,7 +9,8 @@
  *            (exponent k ≥ 2)
  * Range:     u8 n <= 27, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   compare_pow_seq, is_perfect_power, is_prime, kth_root_floor
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,73 @@
 #include <stdlib.h>
 #include <limits.h>
 #include "../utils/is_prime.h"
-#include "../utils/compare_pow_seq.h"
-#include "../utils/is_perfect_power.h"
-#include "../utils/kth_root_floor.h"
+
+/* Compare mid^k to limit: returns -1 if <, 0 if ==, 1 if > */
+static int compare_pow_seq(const seq_t mid, uint64_t k, const seq_t limit)
+{
+    seq_t res = 1;
+    for (uint64_t i = 0; i < k; ++i)
+    {
+        res *= mid;
+        if (res > limit) return 1;
+    }
+    if (res == limit) return 0;
+    return -1;
+}
+
+/* Compute floor of k-th root of x (the largest m such that m^k ≤ x) */
+static seq_t kth_root_floor(const seq_t x, uint64_t k)
+{
+    seq_t lo = 1;
+    seq_t hi = 2;
+
+    /* Find an upper bound */
+    while (compare_pow_seq(hi, k, x) <= 0)
+    {
+        hi = hi + hi;          /* double hi */
+    }
+
+    /* Binary search between lo and hi */
+    while (lo < hi)
+    {
+        seq_t mid = lo + (hi - lo) / 2;
+        int cmp = compare_pow_seq(mid, k, x);
+        if (cmp == 0) return mid;
+        if (cmp < 0)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+
+    /* lo == hi: check if lo^k == x, otherwise lo-1 is the floor root */
+    if (compare_pow_seq(lo, k, x) == 0)
+        return lo;
+    else
+        return lo - 1;
+}
+
+/* Test whether x > 1 and is a perfect power with exponent k ≥ 2 */
+static bool is_perfect_power(const seq_t x)
+{
+    if (x < 4) return false;   /* 1,2,3 are not perfect powers */
+
+    seq_t two = 2;
+    for (uint64_t k = 2; ; ++k)
+    {
+        /* If 2^k > x, further exponents will be > x as well */
+        if (compare_pow_seq(two, k, x) > 0)
+            break;
+
+        seq_t m = kth_root_floor(x, k);
+        seq_t val = 1;
+        for (uint64_t i = 0; i < k; ++i)
+            val *= m;
+
+        if (val == x)
+            return true;
+    }
+    return false;
+}
 
 /* Maximum prime to sieve initially. Adjust if larger p are needed. */
 #define PRIME_LIMIT 5000000

@@ -12,7 +12,8 @@
  *            recurrence of order 19 is obtained from the character...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Standard headers */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Matrix dimension */
 #define N 19
@@ -84,7 +86,7 @@ static void init_once(void)
     }
 
     /* Compute a(0)..a(N). a(0)=1. For n≥1, a(n)=trace(M^n). */
-    cache = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    cache = mem_new(seq_t, N + 1);
     cache[0] = 1; /* a(0) */
     cache_size = N;
 
@@ -130,7 +132,7 @@ seq_t a(idx_t n)
     {
         size_t old_size = cache_size;
         size_t new_size = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         for (size_t i = old_size; i <= n; i++)
         {
             seq_t sum = 0;

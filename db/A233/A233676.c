@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 24, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 /* The routine assumes that seq_t and idx_t are defined elsewhere. */
 #include <stdbool.h>
 #include <stdlib.h>   /* for malloc and realloc */
+#include "../utils/mem.h"
 
 static bool adjacency[64][64] = {0};
 static bool adj_initialized = false;
@@ -86,11 +88,11 @@ static void ensure_cache(idx_t n)
     /* Grow the cache array if necessary. */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * (cache_cap + 1));
+        cache = mem_new(seq_t, (cache_cap + 1));
     }
     while (cache_cap < n) {
         cache_cap *= 2;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * (cache_cap + 1));
+        cache = mem_resize(seq_t, cache, (cache_cap + 1));
     }
 
     /* Initialize DP counts for step 0 (arrays of height 1). */

@@ -9,14 +9,17 @@
  *            index. Otherwise a(n) = 0
  * Range:     i8 n <= 66, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   _floor_isqrt_u64, is_prime, mobius
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   is_prime, isqrt, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Includes only the utilities required to compute the formula. */
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/isqrt.h"
 #include "../utils/mobius.h"
 
 /* Return the n-th term of OEIS sequence A143518. */
@@ -25,7 +28,7 @@ seq_t a(idx_t n) {
 
     /* Compute row index r.  r = ceil((-1 + sqrt(1+8n))/2). */
     idx_t t   = 1 + (idx_t)8 * n;         /* 1 + 8n */
-    idx_t s   = _floor_isqrt_u64(t);      /* floor sqrt(1+8n) */
+    idx_t s   = isqrt(t);      /* floor sqrt(1+8n) */
     idx_t r   = (s - 1) / 2;              /* floor part of the root */
     if (r * (r + 1) / 2 < n) r++;         /* adjust to ceil */
 

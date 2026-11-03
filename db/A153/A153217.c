@@ -7,16 +7,19 @@
  * Formula:   a(n) = n^(n+3) - (n+3)^n
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 7, i64 n <= 13, i128 n <= 16,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
-    seq_t term1 = big_pow((seq_t)n, (seq_t)(n + 3));
-    seq_t term2 = big_pow((seq_t)(n + 3), (seq_t)n);
+    seq_t term1 = ipow((seq_t)n, (seq_t)(n + 3));
+    seq_t term2 = ipow((seq_t)(n + 3), (seq_t)n);
     return term1 - term2;
 }

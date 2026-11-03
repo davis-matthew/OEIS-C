@@ -10,18 +10,20 @@
  *            (the coefficients of the rising factorial x(x+1)...(x+n-1))
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     idx_t N = n + 1, i, j, p;
-    seq_t *c = (seq_t *)calloc((size_t)(n + 2), sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (size_t)(n + 2));
     unsigned char *comp = (unsigned char *)calloc((size_t)(N + 1), 1);
     idx_t *pe = (idx_t *)calloc((size_t)(N + 1), sizeof(idx_t)); /* max exponent of p with p^e <= N */
     seq_t res = 0;
@@ -64,6 +66,6 @@ seq_t a(idx_t n)
 
     free(comp);
     free(pe);
-    free(c);
+    mem_free(c);
     return res;
 }

@@ -7,15 +7,17 @@
  * Formula:   a(n) = 1 + 2^(prime(n+1) - prime(n)) (offset 1)
  * Range:     u8 n <= 23, u16 n <= 98, u32 n <= 216, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, seq_pow
+ * Validated: standard, pass, 85 terms through n = 831 (2026-11-01)
+ * Helpers:   ipow_idx, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/is_prime.h"
-#include "../utils/seq_pow.h"
 
 seq_t a(idx_t n)
 {
@@ -53,6 +55,6 @@ seq_t a(idx_t n)
 
     /* compute the prime gap and the term */
     idx_t gap = primes[n] - primes[n - 1];
-    seq_t pow2 = seq_pow((seq_t)2, gap);
+    seq_t pow2 = ipow_idx((seq_t)2, gap);
     return pow2 + (seq_t)1;
 }

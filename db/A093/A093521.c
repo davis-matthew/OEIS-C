@@ -10,8 +10,9 @@
  *            separated by a single 0. Sequence is indexed with offset 1 *
  *            (a(1)=1). The routine generates the primes on demand and * scans
  *            the runs until the requested position is...
- * Range:     u8 n <= 7672, u16 n <= 7672, u32 n <= 7672, u64 n <= 7672,
- *            u128 n <= 7672, big any n
+ * Range:     u8 n <= 24235, u16 n <= 24235, u32 n <= 24235, u64 n <= 24235,
+ *            u128 n <= 24235, big any n
+ * Validated: standard, pass, 127 terms through n = 7672 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

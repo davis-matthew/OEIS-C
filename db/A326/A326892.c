@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look, base
  * Formula:   not stated
- * Range:     u8 n <= 24, u16 n <= 9175, u32 n <= 9175, u64 n <= 9175,
- *            u128 n <= 9175, big any n
- * Helpers:   none
+ * Range:     u8 n <= 24, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 76 terms through n = 9175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------- */
 /* Simple primality tests for idx_t and seq_t values.              */
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
     /* Resize storage if needed. */
     if (n > cache_cap) {
         cache_cap = n;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Compute missing terms up to n. */

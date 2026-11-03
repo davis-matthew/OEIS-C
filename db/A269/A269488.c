@@ -9,13 +9,15 @@
  *            Initial values: a(1)=3, a(2)=9, a(3)=27, a(4)=77, a(5)=215
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 44, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include the standard header for memory allocation */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the nth term of OEIS sequence A269488. */
 seq_t a(idx_t n)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         size_t newcap = (cap > 0) ? cap * 2 : 16;
         if (newcap < (size_t)n)
             newcap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp)
             return 0; /* allocation failure – unlikely in tests */
         cache = tmp;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     {
         /* We need at least 5 entries for the recurrence base. */
         size_t initcap = (cap > 0) ? cap : 16;
-        cache = (seq_t *)malloc(initcap * sizeof(seq_t));
+        cache = mem_new(seq_t, initcap);
         if (!cache)
             return 0; /* allocation failure */
         cache[0] = 3;   /* a(1) */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = lcm(n, n - tau(n)) where tau(n) = number of divisors of n
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   _tau_uint64, gcd
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   gcd, num_divisors_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,12 +16,12 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/_tau_uint64.h"
+#include "../utils/num_divisors_u64.h"
 
 seq_t a(idx_t n)
 {
     seq_t un   = (seq_t)n;
-    seq_t tau  = _tau_uint64((uint64_t)n);
+    seq_t tau  = num_divisors_u64((uint64_t)n);
     seq_t diff = un - tau;      /* safe: tau(n) <= n for n >= 1 */
 
     if (diff == (seq_t)0)

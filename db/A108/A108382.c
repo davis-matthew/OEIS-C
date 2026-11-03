@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 30, u32 n <= 35, u64 n <= 35, u128 n <= 35,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 2, u16 n <= 30, u32 n <= 8189, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 51 terms through n = 9530 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Forward declarations */
 static void generate_length(size_t len);
@@ -40,7 +43,7 @@ static const unsigned mask_bits[3] = {1u << 0, 1u << 1, 1u << 2};
 static void add_prime(seq_t val) {
     if (prime_list_size == prime_list_cap) {
         size_t new_cap = (prime_list_cap == 0) ? 16 : prime_list_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(prime_list, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_list, new_cap);
         if (!tmp) exit(EXIT_FAILURE);   /* allocation failed */
         prime_list = tmp;
         prime_list_cap = new_cap;
@@ -55,7 +58,7 @@ static void add_prime(seq_t val) {
    number is prime, then store it. */
 static void recurse_digits(uint64_t prefix, unsigned mask, size_t rem) {
     if (rem == 0) {
-        if ((mask & 7u) == 7u && is_prime(prefix))
+        if ((mask & 7u) == 7u && is_prime_u64(prefix))
             add_prime((seq_t)prefix);
         return;
     }

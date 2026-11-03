@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 25, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   base7_nondecreasing
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/base7_nondecreasing.h"
+#include "../utils/mem.h"
+
+/* Return true iff the base‑7 representation of x has non‑decreasing digits. */
+static bool base7_nondecreasing(seq_t x)
+{
+    if (x == 0)
+        return true;                /* 0 is handled before this call */
+
+    int last = 7;                   /* larger than any digit 0..6 */
+    seq_t t = x;
+    while (t > 0) {
+        int d = (int)(t % 7);
+        if (d > last) return false;
+        last = d;
+        t /= 7;
+    }
+    return true;
+}
 
 /* --------- static cache ---------------------------------------------------- */
 static seq_t *cache = NULL;          /* dynamic array of found numbers      */
@@ -38,7 +56,7 @@ static void append_to_cache(seq_t val)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;
@@ -73,7 +91,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first term (0). */
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache_len = 0;
         append_to_cache(0);          /* a(1) = 0 */

@@ -8,7 +8,8 @@
  *            chosen from {0,1,3,5,7,9} and that contains at least one 0
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const int firstDigits[5] = {1, 3, 5, 7, 9};
 static const int tailDigits[6]  = {0, 1, 3, 5, 7, 9};
@@ -31,10 +33,10 @@ static void grow_cache(size_t new_cap) {
     if (new_cap <= cache_cap) return;
     size_t cap = cache_cap ? cache_cap * 2 : 16;
     while (cap < new_cap) cap *= 2;
-    seq_t *newptr = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_t *newptr = mem_new(seq_t, cap);
     if (cache) {
-        memcpy(newptr, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(newptr, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = newptr;
     cache_cap = cap;

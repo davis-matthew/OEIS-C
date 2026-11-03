@@ -7,14 +7,18 @@
  * Formula:   a(n) = min{p_j}^{min{k_j}} where n = Π p_j^k_j
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <limits.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -41,5 +45,5 @@ seq_t a(idx_t n)
     }
 
     /* compute minp^minexp in the seq_t domain */
-    return seq_pow((seq_t)minp, (idx_t)minexp);
+    return ipow_idx((seq_t)minp, (idx_t)minexp);
 }

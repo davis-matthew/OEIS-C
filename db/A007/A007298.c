@@ -11,14 +11,45 @@
  *            F(1..m). Increase m until there are at least n such values
  * Range:     u8 n <= 58, u16 n <= 236, u32 n <= 995, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a7298_sift, a7298_sort
+ * Validated: standard, pass, 76 terms through n = 865 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/a7298_sift.h"
-#include "../utils/a7298_sort.h"
+
+static void a7298_sift(seq_t *v, idx_t r, idx_t end) {
+    while (2 * r + 1 < end) {
+        idx_t c = 2 * r + 1;
+        if (c + 1 < end && v[c] < v[c + 1]) c++;
+        if (v[r] < v[c]) {
+            seq_t t = v[r];
+            v[r] = v[c];
+            v[c] = t;
+            r = c;
+        } else {
+            return;
+        }
+    }
+}
+
+static void a7298_sort(seq_t *v, idx_t len) {
+    if (len < 2) return;
+    idx_t i = len / 2;
+    while (i > 0) {
+        i--;
+        a7298_sift(v, i, len);
+    }
+    idx_t end = len;
+    while (end > 1) {
+        end--;
+        seq_t t = v[0];
+        v[0] = v[end];
+        v[end] = t;
+        a7298_sift(v, 0, end);
+    }
+}
 
 #define A7298_MAXM 400
 

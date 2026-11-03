@@ -9,8 +9,9 @@
  *            - 2. a = floor of P's unique real root > 0 (found by doubling
  *            and bisection on the sign of P(t)). Then replace P(x) by y^3 *
  *            P(a + 1/y) and repeat. Exact multi-precision i...
- * Range:     u8 n <= 34, u16 n <= 9088, u32 n <= 9088, u64 n <= 9088,
- *            u128 n <= 9088, big any n
+ * Range:     u8 n <= 34, u16 n <= 19999, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 99 terms through n = 9088 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

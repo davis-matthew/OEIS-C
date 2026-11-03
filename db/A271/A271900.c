@@ -11,18 +11,20 @@
  *            memory, well * within the requirements for n up to ~...
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate the dynamic programming table */
     size_t sz = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp)
         return 0;            /* allocation failure – should not happen */
 
@@ -45,6 +47,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

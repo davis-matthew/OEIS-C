@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} (-3)^k * binomial(n,k)^3
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 11, i64 n <= 21, i128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 1012 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
         return cache[(size_t)n];
 
     if (cap < (size_t)(n + 1)) {
-        cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         cap   = (size_t)(n + 1);
     }
 

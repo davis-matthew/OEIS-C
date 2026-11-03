@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1193, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small, mod_pow
+ * Validated: standard, pass, 75 terms through n = 9954 (2026-11-02)
+ * Helpers:   is_prime_seq, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(seq_t num)   */
-#include "../utils/mod_pow.h"          /* seq_t mod_pow(seq_t base,
-                                            uint64_t exp, seq_t mod) */
+#include <string.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod.h"
 
 /* Cache of primes congruent to 1 mod 16.  */
 static uint32_t *primes16 = NULL;      /* stored primes ≡1 (mod 16)       */
@@ -38,7 +39,7 @@ static uint32_t next_candidate = 17;   /* next odd number ≡1 (mod 16)    */
 static void ensure_primes16(idx_t n)
 {
     while (primes16_cnt < n) {
-        if (is_prime_small((seq_t)next_candidate)) {
+        if (is_prime_seq((seq_t)next_candidate)) {
             if (primes16_cnt == primes16_cap) {
                 size_t new_cap = primes16_cap ? (primes16_cap << 1) : 64;
                 void *tmp = realloc(primes16, new_cap * sizeof(uint32_t));
@@ -88,7 +89,7 @@ static uint32_t primitive_root(uint32_t p)
     for (uint32_t g = 2; g < p; ++g) {
         bool ok = true;
         for (size_t i = 0; i < pcnt && ok; ++i) {
-            seq_t val = mod_pow((seq_t)g, m / pf[i], (seq_t)p);
+            seq_t val = powmod((seq_t)g, m / pf[i], (seq_t)p);
             if (val == 1) ok = false;
         }
         if (ok) return g;
@@ -109,7 +110,7 @@ seq_t a(idx_t n)
     seq_t min_k = 0;             /* zero is used as sentinel                        */
     for (uint64_t j = 0; j < 8; ++j) {
         uint64_t exp = exp_base + j * exp_step;
-        seq_t k = mod_pow((seq_t)g, exp, (seq_t)p);
+        seq_t k = powmod((seq_t)g, exp, (seq_t)p);
         if (k == 0) continue; /* should not happen */
         if (min_k == 0 || k < min_k) min_k = k;
     }

@@ -7,17 +7,36 @@
  * Keywords:  sign
  * Formula:   a(n) = A082052(n) - n * where A082052(n) = sum of the divisors d
  *            of n with d % 4 != 1
- * Range:     i8 n <= 95, i16 n <= 9492, i32 n <= 9492, i64 n <= 9492,
- *            i128 n <= 9492, big any n
- * Helpers:   add_divisors_not4k1, factor_u64
+ * Range:     i8 n <= 95, i16 n <= 12599, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9492 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/add_divisors_not4k1.h"
+
+/* Recursively walk all divisors of n, adding those not of the form 4k+1 */
+static void add_divisors_not4k1(const uint64_t *pr, const uint64_t *exps,
+                                size_t pos, size_t cnt, uint64_t cur,
+                                seq_t *sum)
+{
+    if (pos == cnt) {                     /* reached a divisor */
+        if (cur % 4 != 1)
+            *sum += (seq_t)cur;
+        return;
+    }
+    uint64_t p = pr[pos];
+    uint64_t tmp = cur;
+    for (uint64_t e = 0; e <= exps[pos]; ++e) {
+        add_divisors_not4k1(pr, exps, pos + 1, cnt, tmp, sum);
+        tmp *= p;
+    }
+}
 
 seq_t a(idx_t n)
 {

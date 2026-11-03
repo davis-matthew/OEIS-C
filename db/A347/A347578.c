@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into at most 4 prime parts
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   sieve_primes
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,11 @@
 /* Computes a(n) exactly using DP over primes up to n. */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +28,7 @@ seq_t a(idx_t n)
 
     /* DP table dp[s][k] stored as dp[s*5 + k], k = 0..4 */
     size_t sz = (size_t)(n + 1) * 5;
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) return (seq_t)0;
 
     /* initialise to zero, then dp[0][0] = 1 */
@@ -54,7 +59,7 @@ seq_t a(idx_t n)
     }
 
     /* free resources */
-    free(dp);
+    mem_free(dp);
     free(primes);
 
     return result;

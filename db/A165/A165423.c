@@ -8,13 +8,15 @@
  * Formula:   a(1)=1, a(2)=5, a(3)=5, a(n)=a(n-1)^2 for n>=4
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes OEIS sequence A165423 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_size)
     {
         size_t new_size = (size_t)n + 1;   /* +1 so that cache[n] is valid */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache)
             return 0;   /* Allocation failure – return zero as fallback */
 

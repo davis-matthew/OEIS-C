@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 94 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --- local gcd for 64‑bit integers --------------------------------- */
 static inline uint64_t gcd_uint64(uint64_t a, uint64_t b)
@@ -60,7 +62,7 @@ ensure_cache_capacity(size_t add)
     if (cache_len + add <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap : 64;
     while (new_cap < cache_len + add) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     assert(tmp != NULL);
     cache = tmp;
     cache_cap = new_cap;
@@ -72,7 +74,7 @@ append_to_cache(const seq_t *src, size_t cnt)
 {
     if (cnt == 0) return;
     ensure_cache_capacity(cnt);
-    memcpy(cache + cache_len, src, cnt * sizeof(seq_t));
+    mem_copy(cache + cache_len, src, cnt * sizeof(seq_t));
     cache_len += cnt;
 }
 
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
         bool *visited = (bool *)calloc(msize, sizeof(bool));
         assert(visited != NULL);
 
-        seq_t *row = (seq_t *)malloc(msize * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, msize);
         assert(row != NULL);
         size_t count = 0;
 
@@ -109,11 +111,11 @@ seq_t a(idx_t n)
         }
 
         /* sort the distinct residues */
-        if (count > 1) qsort(row, count, sizeof(seq_t), seq_cmp);
+        if (count > 1) mem_qsort(row, count, sizeof(seq_t), seq_cmp);
 
         append_to_cache(row, count);
 
-        free(row);
+        mem_free(row);
         free(visited);
         ++next_row;
     }

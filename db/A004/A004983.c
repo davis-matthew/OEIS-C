@@ -8,13 +8,14 @@
  *            Product_{k=0..n-1} (4*k - 3))
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 13, i64 n <= 24, i128 n <= 46,
  *            big any n
- * Helpers:   a004983_gcd_u64
+ * Validated: standard, pass, 39 terms through n = 966 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a004983_gcd_u64.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
   seq_t result = 1;
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
     seq_t si = (seq_t)i;
     seq_t ap = result < 0 ? -result : result;
     uint64_t r = (uint64_t)(long long)(ap % si);
-    uint64_t g = a004983_gcd_u64((uint64_t)i, r);
+    uint64_t g = gcd_u64((uint64_t)i, r);
     seq_t sg = (seq_t)g;
     seq_t m = 2 * (4 * si - 7);
     /* i/g divides m exactly since the result is an integer and gcd(result/g, i/g) = 1 */

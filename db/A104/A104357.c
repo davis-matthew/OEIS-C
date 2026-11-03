@@ -7,7 +7,8 @@
  * Formula:   a(n) = (a(n-1)+1)*A006530(n) - 1, a(1) = 0
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 27, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 625 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* State maintained between calls */
 static idx_t max_computed = 0;          /* largest n for which pref is valid   */
@@ -31,7 +33,7 @@ ensure_up_to(idx_t n)
 
     /* Allocate enough room for indices up to n (>= max_computed+1) */
     size_t new_cap = (size_t)(n + 1) * 2;
-    seq_t *new_pref    = (seq_t *)realloc(pref,    new_cap * sizeof(seq_t));
+    seq_t *new_pref    = mem_resize(seq_t, pref, new_cap);
     uint64_t *new_factor = (uint64_t *)realloc(factor_arr, new_cap * sizeof(uint64_t));
     if (!new_pref || !new_factor) {
         /* Allocation failed – abort the program */

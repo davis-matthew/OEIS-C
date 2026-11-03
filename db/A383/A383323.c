@@ -11,13 +11,16 @@
  *            formula)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +36,8 @@ seq_t a(idx_t n)
     seq_t cn4 = binomial(n, 4);   /* C(n,4) */
 
     /* powers of 3 and 2 */
-    seq_t pow3 = pow_uint(3, n - 1);   /* 3^(n-1) */
-    seq_t pow2 = pow_uint(2, n - 3);   /* 2^(n-3) */
+    seq_t pow3 = ipow_u64_idx(3, n - 1);   /* 3^(n-1) */
+    seq_t pow2 = ipow_u64_idx(2, n - 3);   /* 2^(n-3) */
 
     /* term1 = 3^(n-1)*(n+3) */
     seq_t term1 = pow3 * ((seq_t)n + (seq_t)3);

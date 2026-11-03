@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 160, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9638 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t  val;   /* value produced from this k */
@@ -48,7 +50,7 @@ static void heap_init(void)
 {
     if (!heap) {
         heap_cap = 16;
-        heap = (node_t *)malloc(heap_cap * sizeof(node_t));
+        heap = mem_new(node_t, heap_cap);
         heap_size = 0;
     }
 }
@@ -56,7 +58,7 @@ static void heap_init(void)
 static void heap_expand(void)
 {
     size_t new_cap = heap_cap ? heap_cap * 2 : 16;
-    node_t *tmp = (node_t *)realloc(heap, new_cap * sizeof(node_t));
+    node_t *tmp = mem_resize(node_t, heap, new_cap);
     if (!tmp) abort();
     heap = tmp;
     heap_cap = new_cap;
@@ -105,7 +107,7 @@ static void results_init(void)
 {
     if (!values) {
         cap = 16;
-        values = (seq_t *)malloc(cap * sizeof(seq_t));
+        values = mem_new(seq_t, cap);
         ks     = (idx_t *)malloc(cap * sizeof(idx_t));
         sz     = 0;
     }
@@ -114,7 +116,7 @@ static void results_init(void)
 static void results_expand(void)
 {
     size_t new_cap = cap ? cap * 2 : 16;
-    seq_t *val_tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+    seq_t *val_tmp = mem_resize(seq_t, values, new_cap);
     idx_t *k_tmp   = (idx_t *)realloc(ks,     new_cap * sizeof(idx_t));
     if (!val_tmp || !k_tmp) abort();
     values = val_tmp; ks = k_tmp; cap = new_cap;

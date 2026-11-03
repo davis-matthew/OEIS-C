@@ -12,20 +12,22 @@
  *            recurrence a(n) = a(n-1) - a(n-2) + 2 a(n-6) - a(n-7)...
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 28, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment. */
 seq_t a(idx_t n)
 {
     /* Allocate arrays for the sequence and its autocorrelation (convolution). */
     size_t len = (size_t)n + 1;               /* use signed+size_t safely */
-    seq_t *arr = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *conv = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, len);
+    seq_t *conv = mem_new(seq_t, len);
     if (!arr || !conv) {                      /* allocation failed */
         return (seq_t)0;                      /* caller must handle error */
     }
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[(size_t)n];
-    free(arr);
-    free(conv);
+    mem_free(arr);
+    mem_free(conv);
     return result;
 }

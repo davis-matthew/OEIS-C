@@ -8,12 +8,13 @@
  *            reduction at each step
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   a007410_gcd
+ * Validated: standard, pass, 33 terms through n = 185 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a007410_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     seq_t p = 0, q = 1;
@@ -23,12 +24,12 @@ seq_t a(idx_t n) {
         seq_t k4 = ks * ks * ks * ks;
 
         /* p/q + 1/k4 over the common denominator lcm(q, k4) */
-        seq_t g1 = a007410_gcd(q, k4);
+        seq_t g1 = gcd(q, k4);
         seq_t m = k4 / g1;
         seq_t np = p * m + q / g1;
         seq_t nq = q * m;
 
-        seq_t g = a007410_gcd(np, nq);
+        seq_t g = gcd(np, nq);
         p = np / g;
         q = nq / g;
     }

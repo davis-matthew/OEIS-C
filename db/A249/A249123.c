@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 135, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow6_u128
+ * Validated: standard, pass, 79 terms through n = 9907 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
  */
 
 #include <stdint.h>
-#include "../utils/pow6_u128.h"
+
+/* helper: 128‑bit power of 6 for a 64‑bit integer */
+static inline unsigned __int128 pow6_u128(uint64_t x)
+{
+    unsigned __int128 t = x;
+    return t * t * t * t * t * t;        /* x^6 */
+}
 
 /* main sequence function */
 seq_t a(idx_t n)

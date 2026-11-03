@@ -14,14 +14,24 @@
  *            programming recurrence
  * Range:     u8 n <= 70, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   _antidiag_coordinates
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_antidiag_coordinates.h"
+#include "../utils/mem.h"
+
+static void _antidiag_coordinates(idx_t n, idx_t *h, idx_t *k)
+{
+    idx_t d = 0;
+    while (((d + 1) * (d + 2)) / 2 <= n) d++;
+    idx_t offset = n - (d * (d + 1)) / 2;
+    *h = offset;
+    *k = d - offset;
+}
 
 #define MAXD 200   /* sufficient for n up to about 10000 (h,k ≤ 141) */
 
@@ -32,11 +42,11 @@ seq_t a(idx_t n)
     if (h >= MAXD || k >= MAXD) {
         /* Index out of pre‑allocated table; fall back to dynamic array */
         size_t width = (size_t)(k + 1);
-        seq_t *prev = (seq_t *)calloc(width, sizeof(seq_t));
-        seq_t *curr = (seq_t *)calloc(width, sizeof(seq_t));
+        seq_t *prev = mem_new(seq_t, width);
+        seq_t *curr = mem_new(seq_t, width);
         if (!prev || !curr) {
-            free(prev);
-            free(curr);
+            mem_free(prev);
+            mem_free(curr);
             return (seq_t)0;
         }
         for (idx_t i = 0; i <= h; ++i) {
@@ -57,8 +67,8 @@ seq_t a(idx_t n)
             seq_t *tmp = prev; prev = curr; curr = tmp;
         }
         seq_t result = prev[k];
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return result;
     }
 

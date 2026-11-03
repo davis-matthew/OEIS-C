@@ -8,15 +8,18 @@
  * Formula:   a(n) = 2^n -
  *            [binomial(n,0)+binomial(n,1)+binomial(n,2)+binomial(n,3)+binomial(n,4)+
  *            (n>4?1:0)]
- * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 32, u64 n <= 34, u128 n <= 34,
+ * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 32, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

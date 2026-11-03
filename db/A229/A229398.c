@@ -11,13 +11,15 @@
  *            a(4)=711, a(5)=3357, a(6)=15952, a(7)=75965, a(8)=362012
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 28, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t base[8] = {
     (seq_t)8, (seq_t)34, (seq_t)153, (seq_t)711,
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         size_t newcap = n;
         if (newcap < 64) newcap = 64;          /* small initial size */
         if (newcap < cap * 2) newcap = cap * 2;/* double when needed */
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return (seq_t)0; /* allocation failed */
         cache = tmp;
         cap   = newcap;

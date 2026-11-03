@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[15] = {
     1, 3, 6, 11, 18, 21, 23, 26, 29, 32, 39, 48, 49, 49, 52
@@ -43,7 +45,7 @@ ensure_cache(idx_t n)
         /* First allocation and copy initial values. */
         size_t cap = 15;
         if (n + 1 > cap) cap = n + 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return false;
         for (idx_t i = 0; i < 15; ++i) cache[i] = init_vals[i];
         cache_len = cap;
@@ -55,7 +57,7 @@ ensure_cache(idx_t n)
     /* Grow the cache.  double the size until it fits. */
     size_t new_cap = cache_len * 2;
     if (new_cap < n + 1) new_cap = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return false;   /* allocation failure */
     cache = tmp;
     cache_len = new_cap;

@@ -7,15 +7,18 @@
  * Formula:   a(n) = n + Sum_{d|n, d>1} d*(d^n - 1)/(d - 1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 35 terms through n = 334 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* Recursively enumerate all divisors > 1 of n.  
    cur holds the product of the chosen prime powers so far. */
@@ -30,7 +33,7 @@ static void traverse_divisors(const uint64_t *primes,
     if (pos == cnt) {
         if (cur == (seq_t)1) return;           /* skip divisor 1 */
         seq_t d   = cur;
-        seq_t dn  = big_pow(d, (seq_t)n);      /* d^n */
+        seq_t dn  = ipow(d, (seq_t)n);      /* d^n */
         dn -= (seq_t)1;
         dn *= d;
         dn /= (d - (seq_t)1);                  /* d*(d^n-1)/(d-1) */

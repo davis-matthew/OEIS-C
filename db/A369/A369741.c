@@ -5,17 +5,20 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = \sum_{p|n,\;p\text{ prime}}\,p^{\Omega(n/p)}
- * Range:     u8 n <= 55, u16 n <= 271, u32 n <= 2623, u64 n <= 9794,
- *            u128 n <= 9794, big any n
- * Helpers:   big_pow, factor_u64
+ * Range:     u8 n <= 55, u16 n <= 271, u32 n <= 2623, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 90 terms through n = 9794 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n <= 1) return 0;          /* a(1)=0 */
@@ -37,7 +40,7 @@ seq_t a(idx_t n) {
     seq_t result = 0;
 
     for (size_t i = 0; i < cnt; ++i) {
-        seq_t term = big_pow((seq_t)primes[i], exp);
+        seq_t term = ipow((seq_t)primes[i], exp);
         result += term;
     }
     return result;

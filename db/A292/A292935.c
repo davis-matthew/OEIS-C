@@ -7,12 +7,14 @@
  * Formula:   a(n) = (-1)^n * A000110(n) (Bell numbers)
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 15, i64 n <= 25, i128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 411 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  a(0) = 1, a(1) = -1, a(2) = 2, a(3) = -5, …  */
 
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Allocate / grow array as needed */
     idx_t needed = n + 1;          /* we need indices 0 … n */
     if (needed > bell_cap) {
-        bell = (seq_t *)realloc(bell, needed * sizeof(seq_t));
+        bell = mem_resize(seq_t, bell, needed);
         bell_cap = (size_t)needed;
     }
 

@@ -9,13 +9,15 @@
  *            (Digital root: if sum % 9 == 0 return 9, else return sum % 9)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for sequence values */
 static seq_t *cache = NULL;   /* array of computed terms              */
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
         size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
         while (new_cap < needed) new_cap *= 2;
 
-        seq_t *new_buf = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, new_cap);
         if (!new_buf) exit(1);                    /* allocation failure */
 
         if (cache != NULL) {
             for (size_t i = 0; i < cache_len; ++i) new_buf[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache     = new_buf;
         cache_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---- helper: test whether x is of the form 3^m-2^n (m,n >= 0) */
 static bool is_representable(seq_t x)
@@ -72,7 +74,7 @@ static void ensure_cap(size_t need)
     size_t new_cap = mis_cap ? mis_cap * 2 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(missing, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, missing, new_cap);
     if (!tmp)
         exit(1);                          /* memory allocation failed */
     missing = tmp;
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!missing) {
         mis_cap = 16;
-        missing = (seq_t *)malloc(mis_cap * sizeof(seq_t));
+        missing = mem_new(seq_t, mis_cap);
         if (!missing)
             exit(1);
     }

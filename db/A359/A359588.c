@@ -10,14 +10,16 @@
  *            = -∑_{d|n, d<n} A083346(n/d) * a(d). The function below computes
  *            a(n) multiplicatively from the prime-power decomposition of
  *            n....
- * Range:     i8 n <= 128, i16 n <= 9989, i32 n <= 9989, i64 n <= 9989,
- *            i128 n <= 9989, big any n
- * Helpers:   none
+ * Range:     i8 n <= 128, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 85 terms through n = 9989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
             /* compute Dirichlet inverse for p^exp:
                g[0] = 1, g[i] = -sum_{j=1..i} f(p^j)*g[i-j]        */
-            seq_t *g = (seq_t *)malloc((exp + 1) * sizeof(seq_t));
+            seq_t *g = mem_new(seq_t, (exp + 1));
             if (!g) return 0;               /* allocation failed – abort */
 
             g[0] = 1;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             }
 
             result *= g[exp];
-            free(g);
+            mem_free(g);
         }
     }
 

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n, d<n} A000041(d-1)
  * Range:     u8 n <= 35, u16 n <= 89, u32 n <= 257, u64 n <= 835,
  *            u128 n <= 2919, big any n
- * Helpers:   ensure_capacity
+ * Validated: standard, pass, 85 terms through n = 9921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,42 @@
 /* Special case: a(1) = 1 */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/ensure_capacity.h"   /* provides ensure_capacity */
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 static seq_t *partitions = NULL;   /* partitions[k] = A000041(k) */
 static size_t part_cap = 0;        /* allocated slots in partitions */
@@ -28,7 +64,7 @@ static void compute_partitions_up_to(idx_t up_to)
     if (up_to <= max_calc) return;
 
     /* allocate enough space */
-    ensure_capacity(up_to + 1, &part_cap, (void **)&partitions, sizeof(seq_t));
+    ensure_capacity(up_to + 1, &part_cap, OEISC_VPP(&partitions), sizeof(seq_t));
 
     /* initialise the single known value */
     if (max_calc == 0) {

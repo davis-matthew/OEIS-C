@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stddef.h>   /* for size_t and NULL */
 #include <string.h>   /* for memset, memcpy */
+#include "../utils/mem.h"
 
 static unsigned char valid_mask[16][16][16];
 static int valid_computed = 0;
@@ -65,14 +67,14 @@ seq_t a(idx_t n)
        ending with two rows of masks prev (i‑1) and cur (i).                 */
     static seq_t dp[16][16];
     static seq_t ndp[16][16];
-    memset(dp, 0, sizeof dp);
+    mem_set(dp, 0, sizeof dp);
 
     /* first row: prev = 0 (virtual empty row above), cur = any mask */
     for (int r = 0; r < 16; ++r) dp[0][r] = 1;
 
     /* process rows 2 … n */
     for (idx_t step = 2; step <= n; ++step) {
-        memset(ndp, 0, sizeof ndp);
+        mem_set(ndp, 0, sizeof ndp);
         for (int prev = 0; prev < 16; ++prev) {
             for (int cur = 0; cur < 16; ++cur) {
                 seq_t ways = dp[prev][cur];
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, ndp, sizeof dp);
+        mem_copy(dp, ndp, sizeof dp);
     }
 
     /* final row: below row is all zeros */

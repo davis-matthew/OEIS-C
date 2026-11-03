@@ -7,13 +7,15 @@
  * Formula:   sum of 8 positive cubes; a(n) = 142 + n for n > 478
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9847 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define LIMIT 1000
 
@@ -63,7 +65,7 @@ static void compute_sequence(void) {
     }
     
     // Allocate and populate the cached terms
-    cached_terms = (seq_t *)malloc(count * sizeof(seq_t));
+    cached_terms = mem_new(seq_t, count);
     cached_count = count;
     
     idx_t idx = 0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   calc_phi, grow_seq, sigma_of
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,38 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/calc_phi.h"
-#include "../utils/sigma_of.h"
-#include "../utils/grow_seq.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Global state -------------------------------------------------------------- */
 static seq_t *seq_arr = NULL;      /* array of computed sums (the OEIS sequence) */
@@ -44,7 +74,7 @@ static void init_state(void)
 {
     if (!seq_arr) {
         seq_cap = 256;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
     }
 
     if (!sum_flag) {
@@ -88,7 +118,7 @@ static void extend_balanced(uint64_t new_max)
 
     /* Test numbers from max_bal_checked+1 up to new_max */
     for (uint64_t k = max_bal_checked + 1; k <= new_max; ++k) {
-        seq_t phi = calc_phi((seq_t)k);
+        seq_t phi = totient_seq((seq_t)k);
         seq_t sigma = sigma_of((idx_t)k);
         if (sigma % phi == 0) {            /* k is balanced */
             /* Record sums with all previous balanced numbers, including itself */

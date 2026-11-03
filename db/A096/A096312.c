@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   bigomega, maxdigit
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/bigomega.h"
-#include "../utils/maxdigit.h"
+#include "../utils/mem.h"
+
+/* Helper: compute maximum decimal digit of an unsigned integer. */
+static inline idx_t maxdigit(idx_t x)
+{
+    idx_t md = 0;
+    while (x) {
+        idx_t d = x % 10;
+        if (d > md) md = d;
+        x /= 10;
+    }
+    return md;
+}
 
 /* Helper: grow a dynamic array if needed. */
 static inline void ensure_cache_cap(size_t needed, size_t *cap, seq_t **ptr)
@@ -31,7 +44,7 @@ static inline void ensure_cache_cap(size_t needed, size_t *cap, seq_t **ptr)
     if (needed > *cap) {
         size_t new_cap = *cap ? (*cap << 1) : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
         if (!tmp) abort(); /* Out‑of‑memory */
         *ptr = tmp;
         *cap = new_cap;

@@ -14,7 +14,8 @@
  *            keeps a mask * of the presence of '1's...
  * Range:     u8 n <= 43, u16 n <= 151, u32 n <= 559, u64 n <= 2143,
  *            u128 n <= 8383, big any n
- * Helpers:   antidiagonal_coords, seq_pow
+ * Validated: standard, pass, 94 terms through n = 9109 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/antidiagonal_coords.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+
+/* mapping from linear index n to pair (i,j) on the antidiagonals of T */
+static inline void antidiagonal_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    /* find s such that (s+1)(s+2)/2 <= n < (s+2)(s+3)/2 */
+    idx_t s = 0;
+    while (((s + 1) * (s + 2)) / 2 <= n) ++s;
+    idx_t pos = n - (s * (s + 1)) / 2;  /* 0 <= pos <= s */
+    *i = pos;
+    *j = s - pos;
+}
 
 /* Compute A(n,k) */
 static seq_t compute_A(idx_t n, idx_t k)
@@ -36,7 +48,7 @@ static seq_t compute_A(idx_t n, idx_t k)
     while (tmp) { ++D_max; tmp >>= 1; }
 
     /* No forbidden distances => 2^n */
-    if (D_max == 0) return seq_pow((seq_t)2, n);
+    if (D_max == 0) return ipow_idx((seq_t)2, n);
 
     /* Bitmask of forbidden distances (bit d-1 means distance d is forbidden) */
     uint64_t forb_mask = 0;

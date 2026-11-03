@@ -9,13 +9,15 @@
  *            pair
  * Range:     u8 n <= 6, u16 n <= 51, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
                 ++max_pairs;
 
         /* allocate cache (index 0 unused) */
-        cache = (seq_t*)malloc((max_pairs + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (max_pairs + 1));
         if (!cache)
         {
             free(prime);

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 221, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----------  Types  ---------- */
 typedef uint64_t idx_t;   /* index type required by the build */
@@ -121,7 +123,7 @@ static void ensure_cache(idx_t new_cap) {
     cache = new_buf;
     cache_cap = new_cap;
 #else
-    seq_t *new_buf = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     if (!new_buf)
         abort();
     cache = new_buf;

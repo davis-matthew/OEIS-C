@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   gcd64
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- small primes for trial division ---------- */
 static const uint64_t SMALL_PRIMES[] = {
@@ -108,7 +110,7 @@ static uint64_t pollard_rho(uint64_t n) {
             y = (mod_mul64(y, y, n) + c) % n;
             y = (mod_mul64(y, y, n) + c) % n;
             uint64_t diff = x > y ? x - y : y - x;
-            d = gcd64(diff, n);
+            d = gcd_u64(diff, n);
         }
         if (d != n) return d;
         ++c;
@@ -137,7 +139,7 @@ static uint64_t LAST_CAND = 3;   /* next odd candidate to test */
 static void seq_push_back(seq_t val) {
     if (SEQ_LEN + 1 > SEQ_CAP) {
         size_t newcap = SEQ_CAP ? SEQ_CAP << 1 : 8;
-        seq_t *tmp = (seq_t *)realloc(SEQ, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, SEQ, newcap);
         if (!tmp) exit(1);   /* abort if memory allocation fails */
         SEQ = tmp;
         SEQ_CAP = newcap;

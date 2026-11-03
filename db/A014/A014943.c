@@ -11,13 +11,15 @@
  *            and memoises results so that calls in any order remain ef...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array indexed from 1 */
 static idx_t cache_cap = 0;      /* cached array size (number of elements) */
@@ -28,7 +30,7 @@ static void grow_cache(idx_t n)
     if (n + 1 <= cache_cap) return;          /* already large enough */
 
     idx_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) return;                  /* allocation failed – rely on caller */
 
     if (cache) {
@@ -38,10 +40,10 @@ static void grow_cache(idx_t n)
         /* Initialise the newly allocated tail to zero. */
         for (idx_t i = cache_cap; i < new_cap; ++i)
             new_cache[i] = 0;
-        free(cache);
+        mem_free(cache);
     } else {
         /* First allocation – zero‑init the whole array. */
-        memset(new_cache, 0, sizeof(seq_t) * new_cap);
+        mem_set(new_cache, 0, sizeof(seq_t) * new_cap);
     }
     cache = new_cache;
     cache_cap = new_cap;

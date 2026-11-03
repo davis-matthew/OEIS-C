@@ -12,12 +12,14 @@
  *            12*sin(n*PI/2))/8 for n>2)
  * Range:     u8 n <= 29, u16 n <= 509, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9736 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* memoised computation of the sequence */
 seq_t a(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         /* choose an initial capacity that can hold at least the
            first 9 terms; grow it automatically later */
         cache_size = 16;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return (seq_t)0;          /* abort on allocation failure */
         for (idx_t i = 0; i < 9; ++i)
             cache[i] = init_vals[i];
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t new_size = cache_size;
         while (new_size <= n) new_size <<= 1;        /* double until large enough */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return (seq_t)0;             /* abort on realloc failure */
         cache = new_cache;
         cache_size = new_size;

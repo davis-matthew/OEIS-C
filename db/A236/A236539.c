@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute floor(sqrt(x)) for unsigned 128‑bit values.  Works on
  * compilers supporting the built‑in __uint128_t type. */
@@ -50,7 +52,7 @@ static void push_area(seq_t val)
 {
     if (area_cnt == area_cap) {
         area_cap = area_cap ? area_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(areas, area_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, areas, area_cap);
         if (!tmp) abort();
         areas = tmp;
     }
@@ -121,7 +123,7 @@ static void compute_areas(void)
     }
 
     /* Sort, deduplicate, and finalize the array. */
-    qsort(areas, area_cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(areas, area_cnt, sizeof(seq_t), cmp_seq);
     size_t uniq = 0;
     for (size_t i = 0; i < area_cnt; ++i) {
         if (uniq == 0 || areas[i] != areas[uniq - 1]) {

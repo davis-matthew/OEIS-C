@@ -9,7 +9,8 @@
  *            prime(2k-1)
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   build_next_prime_sequence
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,42 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/build_next_prime_sequence.h"
+
+static uint32_t *build_next_prime_sequence(size_t required_len)
+{
+    /* Dynamically grow a prime list until it contains at least required_len primes. */
+    static uint32_t *primes = NULL;
+    static size_t primes_len = 0, primes_cap = 0;
+    static uint32_t next_candidate = 2;
+
+    while (primes_len < required_len) {
+        bool is_prime = true;
+        for (size_t i = 0; i < primes_len; ++i) {
+            uint32_t p = primes[i];
+            if ((uint64_t)p * (uint64_t)p > (uint64_t)next_candidate)
+                break;
+            if (next_candidate % p == 0) {
+                is_prime = false;
+                break;
+            }
+        }
+        if (is_prime) {
+            if (primes_len == primes_cap) {
+                primes_cap = primes_cap ? primes_cap << 1 : 16;
+                primes = (uint32_t *)realloc(primes, primes_cap * sizeof(uint32_t));
+            }
+            primes[primes_len++] = next_candidate;
+        }
+        /* advance to the next odd number after 2; skip even numbers thereafter */
+        if (next_candidate == 2)
+            next_candidate = 3;
+        else if (next_candidate == 3)
+            next_candidate = 5;
+        else
+            next_candidate += 2;
+    }
+    return primes;
+}
 
 seq_t a(idx_t n)
 {

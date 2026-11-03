@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   pal_ok
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pal_ok.h"
+
+/* Helper: true if a palindrome has no digit that divides it */
+static bool pal_ok(seq_t p)
+{
+    seq_t tmp = p;
+    while (tmp > 0) {
+        int d = (int)(tmp % 10);
+        if (d <= 1)
+            return false;                 /* digit 0 or 1 => fail */
+        if (p % (seq_t)d == 0)
+            return false;                 /* divisible by this digit */
+        tmp /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

@@ -11,12 +11,14 @@
  *            sorts them, and returns * the nth smallest (1‑based)
  * Range:     u8 none, u16 none, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *a, const void *b) {
     const seq_t *x = (const seq_t *)a;
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
         count = idx;   /* 30940 */
 
         /* Sort the generated numbers to obtain the increasing order. */
-        qsort(table, count, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(table, count, sizeof(seq_t), cmp_seq_t);
         initialized = 1;
     }
 

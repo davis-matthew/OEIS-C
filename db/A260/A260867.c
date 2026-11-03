@@ -7,7 +7,8 @@
  * Formula:   a(n) = least k > 1 that divides A260868(n) + 2^k – 2
  * Range:     u8 n <= 10, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- helpers ----- */
 
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
             if (count >= capacity)         /* grow cache if needed   */
             {
                 capacity = capacity ? capacity << 1 : 16;
-                void *ptr = realloc(cached, capacity * sizeof(seq_t));
+                void *ptr = mem_resize(seq_t, cached, capacity);
                 if (!ptr) exit(EXIT_FAILURE);
                 cached = (seq_t *)ptr;
             }

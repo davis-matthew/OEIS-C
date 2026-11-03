@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
  * and let c = i - r(r+1)/2. Then a(i)=T(r,c).
  */
 
+#include <stdint.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

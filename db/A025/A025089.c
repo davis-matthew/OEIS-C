@@ -9,12 +9,14 @@
  *            and L_k = L_{k-1} + L_{k-2} (Lucas numbers)
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,16 +31,16 @@ seq_t a(idx_t n)
         idx_t newsize = (n + 1) * 2;          /* double to reduce reallocs */
         if (size == 0) {
             /* first allocation: also set initial Lua values 1 and 3 */
-            lucas = (seq_t *)realloc(NULL, (newsize) * sizeof(seq_t));
-            res   = (seq_t *)realloc(NULL, (newsize) * sizeof(seq_t));
+            lucas = mem_resize(seq_t, NULL, (newsize));
+            res   = mem_resize(seq_t, NULL, (newsize));
             size  = newsize;
             if (size > 2) {                   /* fill L_1 = 1, L_2 = 3 */
                 lucas[1] = (seq_t)1;
                 lucas[2] = (seq_t)3;
             }
         } else {
-            lucas = (seq_t *)realloc(lucas, newsize * sizeof(seq_t));
-            res   = (seq_t *)realloc(res,   newsize * sizeof(seq_t));
+            lucas = mem_resize(seq_t, lucas, newsize);
+            res   = mem_resize(seq_t, res, newsize);
             size  = newsize;
         }
     }

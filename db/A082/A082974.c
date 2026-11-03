@@ -8,13 +8,15 @@
  *            is the k‑th prime (p(1)=2)
  * Range:     u8 n <= 53, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- Prime infrastructure ----------------------------------- */
 static uint32_t *prime_array   = NULL;   /* 0‑based: prime_array[0] = 2          */
@@ -74,7 +76,7 @@ static void extend_cache_to(idx_t n)
     ensure_primes_upto_index(n);           /* need p(n) and p(n+1) */
 
     /* Reallocate cache to new size */
-    seq_t *new_cache = (seq_t *)realloc(term_cache, (size_t)n * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, term_cache, (size_t)n);
     if (!new_cache) exit(1);
     term_cache = new_cache;
 

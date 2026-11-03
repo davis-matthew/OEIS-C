@@ -10,13 +10,15 @@
  *            square array. The denominator simplifies to (k*n)^n
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Find the antidiagonal sum S such that S*(S-1)/2 >= n */
@@ -35,5 +37,5 @@ seq_t a(idx_t n) {
     /* Compute denominator = (row*col)^row */
     seq_t base = (seq_t)row * (seq_t)col;  /* k*n */
     seq_t exp  = (seq_t)row;               /* n */
-    return big_pow(base, exp);
+    return ipow(base, exp);
 }

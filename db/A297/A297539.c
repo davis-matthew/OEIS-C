@@ -12,12 +12,14 @@
  *            38*a(n-3) - 40*a(n-4) + 7*a(n-5) - 296*a(n-6) + 9...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[14] = {
     (seq_t)1,           (seq_t)11,      (seq_t)35,
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
     /* grow allocation if necessary */
     if (cache_size < (size_t)n + 1) {
         size_t new_size = (size_t)n + 1;
-        seq_t *p = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, new_size);
         if (!p) abort();      /* allocation failure */
         cache = p;
         cache_size = new_size;

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 64, u32 n <= 9725, u64 n <= 9725,
- *            u128 n <= 9725, big any n
- * Helpers:   none
+ * Range:     u8 n <= 4, u16 n <= 64, u32 n <= 12664, u64 n <= 12664,
+ *            u128 n <= 12664, big any n
+ * Validated: standard, pass, 56 terms through n = 9725 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    the requested index is reached and returns the nth element
    (1‑based). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *a, const void *b)
 {
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         dfs_gen(0, 0, m, counts, &seq_len, seq);
         /* sort all generated terms; the earlier terms are already
            smaller because their binary length is shorter.           */
-        qsort(seq, seq_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(seq, seq_len, sizeof(seq_t), cmp_seq);
     }
     return seq[(size_t)n - 1];
 }

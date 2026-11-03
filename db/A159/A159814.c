@@ -7,13 +7,15 @@
  * Formula:   a(n) = Euler transform of period‑4 sequence [-2, -1, -2, -7, …]
  * Range:     i8 n <= 9, i16 n <= 101, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(1) is the constant coefficient of the eta‑quotient product.          */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,10 +31,10 @@ seq_t a(idx_t n)
     /* First call: initialise storage */
     if (!coeff) {
         coeff_cap = 1;
-        coeff = (seq_t *)malloc(coeff_cap * sizeof(seq_t));
+        coeff = mem_new(seq_t, coeff_cap);
         if (!coeff) return (seq_t)0;
         coeff[0] = (seq_t)1;               /* constant term of the series    */
-        S     = (seq_t *)malloc(coeff_cap * sizeof(seq_t));
+        S     = mem_new(seq_t, coeff_cap);
         if (!S) return (seq_t)0;
         S[0] = 0;
     }
@@ -48,12 +50,12 @@ seq_t a(idx_t n)
     if (idx >= coeff_cap) {
         new_cap = coeff_cap ? coeff_cap << 1 : 1;
         while (new_cap <= idx) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(coeff, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, coeff, new_cap);
         if (!tmp) return (seq_t)0;
         coeff = tmp;
         coeff_cap = new_cap;
 
-        tmp = (seq_t *)realloc(S, new_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, S, new_cap);
         if (!tmp) return (seq_t)0;
         S = tmp;
     }

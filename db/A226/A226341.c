@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 207, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   ceil_div_pos, floor_div_pos, gcd_ext, update_bounds
+ * Validated: standard, pass, 65 terms through n = 196 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,53 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <limits.h>
-#include "../utils/ceil_div_pos.h"
-#include "../utils/floor_div_pos.h"
-#include "../utils/gcd_ext.h"
-#include "../utils/update_bounds.h"
+
+/* Ceil division for positive divisor. */
+static inline long long ceil_div_pos(long long num, long long den) {
+    if (num >= 0) return (num + den - 1) / den;
+    /* truncates toward zero gives the ceil for negative numbers. */
+    return num / den;
+}
+
+/* Floor division for positive divisor. */
+static inline long long floor_div_pos(long long num, long long den) {
+    if (num >= 0) return num / den;
+    /* adjust when negative. */
+    return (num - den + 1) / den;
+}
+
+/* Euclidean algorithm: returns gcd(a,b) and sets *x,*y such that a*(*x)+b*(*y)=gcd. */
+static inline long long gcd_ext(long long a, long long b, long long *x, long long *y) {
+    if (b == 0) { *x = 1; *y = 0; return a >= 0 ? a : -a; }
+    long long x1, y1;
+    long long g = gcd_ext(b, a % b, &x1, &y1);
+    *x = y1;
+    *y = x1 - (a / b) * y1;
+    return g;
+}
+
+/* Update k-interval based on constraint A*k in [L,R]. */
+static int update_bounds(long long A, long long offset, long long N,
+                         long long *k_low, long long *k_high) {
+    if (A == 0) {
+        if (offset < -N || offset > N) return 0;  /* empty interval */
+        return 1;                                /* no restriction on k */
+    }
+    long long L = -N - offset;
+    long long R =  N - offset;
+    long long den = llabs(A);
+    long long low, high;
+    if (A > 0) {
+        low  = ceil_div_pos(L, den);
+        high = floor_div_pos(R, den);
+    } else { /* A < 0 */
+        low  = ceil_div_pos(-R, den);
+        high = floor_div_pos(-L, den);
+    }
+    if (low  > *k_low) *k_low = low;
+    if (high < *k_high) *k_high = high;
+    return *k_low <= *k_high;
+}
 
 /* Standard Euclidean gcd. */
 static inline long long gcd_ll(long long a, long long b) {

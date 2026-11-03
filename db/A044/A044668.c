@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_40_in_base9
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_40_in_base9.h"
+
+/* Check whether a number has the substring "40" in its base‑9 representation. */
+static bool has_40_in_base9(seq_t x)
+{
+    seq_t prev = -1;            /* previous (higher‑order) digit */
+    while (x > 0) {
+        int d = (int)(x % 9);   /* least‑significant base‑9 digit */
+        x /= 9;
+        if (d == 4 && prev == 0)  /* pattern 4 (higher) followed by 0 (lower) */
+            return true;
+        prev = d;
+    }
+    return false;
+}
 
 /* --------------------------------------------------------------------- */
 /* Dynamic array to cache computed terms.                                */

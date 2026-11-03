@@ -12,6 +12,7 @@
  *            A_l(10). The fraction is maintained as...
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 11,
  *            big any n
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

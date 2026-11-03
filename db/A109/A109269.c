@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   mod_mul
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,15 +17,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* Miller–Rabin primality test for 64‑bit integers */
 
 static inline uint64_t mod_pow(uint64_t a, uint64_t e, uint64_t m) {
     uint64_t r = 1 % m;
     while (e) {
-        if (e & 1) r = mod_mul(r, a, m);
-        a = mod_mul(a, a, m);
+        if (e & 1) r = mulmod(r, a, m);
+        a = mulmod(a, a, m);
         e >>= 1;
     }
     return r;
@@ -48,7 +51,7 @@ static inline bool is_prime_64(uint64_t n) {
         if (x == 1 || x == n-1) continue;
         bool cont = false;
         for (int r = 1; r < s; ++r) {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { cont = true; break; }
         }
         if (!cont) return false;
@@ -86,7 +89,7 @@ seq_t a(idx_t n) {
         if ( (unsigned __int128)sq * 2ULL < (unsigned __int128)(p + q) ) {
             if (buflen == bufcap) {
                 bufcap = (bufcap == 0) ? 16 : bufcap * 2;
-                buf = (seq_t*)realloc(buf, bufcap * sizeof(seq_t));
+                buf = mem_resize(seq_t, buf, bufcap);
             }
             buf[buflen++] = (seq_t)candidate;
         }

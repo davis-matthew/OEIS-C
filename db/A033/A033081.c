@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 65, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state */
 static seq_t *cache      = NULL;   /* array of generated numbers   */
@@ -34,7 +36,7 @@ static size_t heap_sz    = 0;      /* number of elements in heap  */
 static void heap_grow(void)
 {
     size_t new_cap = heap_cap ? heap_cap << 1 : 8;
-    heap = (seq_t *)realloc(heap, new_cap * sizeof(seq_t));
+    heap = mem_resize(seq_t, heap, new_cap);
     heap_cap = new_cap;
 }
 
@@ -83,12 +85,12 @@ seq_t a(idx_t n)
     /* initialize static tables on first use */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
     if (heap == NULL) {
         heap_cap = 8;
-        heap = (seq_t *)malloc(heap_cap * sizeof(seq_t));
+        heap = mem_new(seq_t, heap_cap);
         heap_sz = 0;
         /* start with all one‑digit positive numbers */
         for (seq_t d = 1; d <= 9; ++d) heap_push(d);
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
         /* store the next term */
         if (cache_len == cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = v;
 

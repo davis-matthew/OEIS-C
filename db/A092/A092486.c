@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = n+3 for n≡0 (mod 4); a(n) = n+1 for n≡1 or 3 (mod 4);
  *            a(n) = n−1 for n≡2 (mod 4)
- * Range:     u8 n <= 254, u16 n <= 9764, u32 n <= 9764, u64 n <= 9764,
- *            u128 n <= 9764, big any n
+ * Range:     u8 n <= 254, u16 n <= 20003, u32 n <= 20003, u64 n <= 20003,
+ *            u128 n <= 20003, big any n
+ * Validated: standard, pass, 88 terms through n = 9764 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

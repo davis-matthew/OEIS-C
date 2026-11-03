@@ -8,14 +8,16 @@
  * Formula:   a(n) = Σ_{k=0}^{15} coeff[k] * binom(n - k + 9, 9) with coeff =
  *            {1, -4, 4, 28, -93, 72, 359, -1398, 2628, -3330, 3096, -2058,
  *            881, -194, 5, 4}
- * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 28, u64 n <= 28, u128 n <= 28,
+ * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     seq_t neg = 0;
     for (idx_t i = 0; i < 16 && i <= n; ++i) {
         int c = coeff[i];
-        seq_t bin = binom((idx_t)(n - i + 9), (idx_t)9);
+        seq_t bin = binomial((idx_t)(n - i + 9), (idx_t)9);
         if (c > 0)
             pos += bin * (seq_t)c;
         else if (c < 0)

@@ -12,13 +12,24 @@
  *            directed edge (src→dst) to 1 for 0→1 (a), 2 for 1→2 (b),...
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   encode_move
+ * Validated: standard, pass, 94 terms through n = 9864 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/encode_move.h"
+
+static inline seq_t encode_move(int src, int dst)
+{
+    if (src == 0 && dst == 1) return (seq_t)1;   /* a  */
+    if (src == 1 && dst == 2) return (seq_t)2;   /* b  */
+    if (src == 2 && dst == 0) return (seq_t)3;   /* c  */
+    if (src == 1 && dst == 0) return (seq_t)-1;  /* A  */
+    if (src == 2 && dst == 1) return (seq_t)-2;  /* B  */
+    if (src == 0 && dst == 2) return (seq_t)-3;  /* C  */
+    return 0;  /* unreachable */
+}
 
 seq_t a(idx_t n)
 {

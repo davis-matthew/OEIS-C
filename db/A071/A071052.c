@@ -9,13 +9,15 @@
  *            cellular‑automaton triangle
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* ---- first call: allocate and initialise ---- */
     if (!zero_cnt) {
-        zero_cnt = (seq_t *)malloc(sizeof(seq_t));
+        zero_cnt = mem_new(seq_t, 1);
         if (!zero_cnt) abort();          /* allocation failure */
         zero_cnt[0] = 0;                /* a(0) = 0 */
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
 
         /* Store number of zeros: zeros = new_len - ones */
         seq_t zeros = (seq_t)new_len - ones;
-        seq_t *tmpz = (seq_t *)realloc(zero_cnt, sizeof(seq_t) * (max_n + 2));
+        seq_t *tmpz = mem_resize(seq_t, zero_cnt, (max_n + 2));
         if (!tmpz) abort();
         zero_cnt = tmpz;
         zero_cnt[max_n + 1] = zeros;

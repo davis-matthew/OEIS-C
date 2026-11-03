@@ -9,7 +9,8 @@
  *            product of two primes)
  * Range:     u8 n <= 13, u16 n <= 128, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, grow_seq, is_prime_small
+ * Validated: standard, pass, 64 terms through n = 994 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,23 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/grow_seq.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static seq_t *cum_sums = NULL;          /* a(n) values, a(0)=1 */
 static size_t cum_cap = 0;              /* allocated capacity for cum_sums */
@@ -57,7 +72,7 @@ static bool is_semiprime(uint64_t n)
 static bool is_chen_prime(uint64_t p)
 {
     uint64_t q = p + 2;
-    if (is_prime_small((seq_t)q)) return true;
+    if (is_prime_seq((seq_t)q)) return true;
     return is_semiprime(q);
 }
 

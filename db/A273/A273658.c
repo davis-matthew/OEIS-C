@@ -9,14 +9,16 @@
  * Formula:   a(n) = binomial(n,8) * Σ_{j=1..8} Stirling2(8,j) * j^(n-8)
  * Range:     u8 none, u16 n <= 8, u32 n <= 12, u64 n <= 22, u128 n <= 41,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: standard, pass, 32 terms through n = 976 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     idx_t exp   = n - 8;
 
     for (idx_t j = 1; j <= 8; ++j) {
-        seq_t pow_val = pow_uint((uint64_t)j, exp);   /* j^(n-8) */
+        seq_t pow_val = ipow_u64_idx((uint64_t)j, exp);   /* j^(n-8) */
         seq_t sj      = (seq_t)S_vals[j];            /* Stirling2(8,j) */
         sum += pow_val * sj;
     }

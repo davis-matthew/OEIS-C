@@ -9,7 +9,8 @@
  *            a prime power
  * Range:     u8 n <= 167, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_two_distinct_prime_factors
+ * Validated: standard, pass, 105 terms through n = 995 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
    if so, add to the sum. Complexity is fine for n up to about 10000. */
 
 #include <stdbool.h>
-#include "../utils/has_two_distinct_prime_factors.h"
+
+static bool has_two_distinct_prime_factors(idx_t x)
+{
+    if (x < 6)                /* 6 is the smallest composite with two distinct prime factors */
+        return false;
+    idx_t m = x;
+    int distinct = 0;
+    for (idx_t p = 2; p <= m / p && distinct < 2; ++p) {
+        if (m % p == 0) {
+            ++distinct;
+            while (m % p == 0)
+                m /= p;
+        }
+    }
+    if (m > 1)
+        ++distinct;
+    return distinct >= 2;
+}
 
 seq_t a(idx_t n)
 {

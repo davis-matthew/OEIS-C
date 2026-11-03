@@ -8,7 +8,8 @@
  *            prime
  * Range:     u8 n <= 13, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   seq_malloc, seq_realloc
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_malloc.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 static bool isPrime64(uint64_t n) {
     if (n < 2) return false;

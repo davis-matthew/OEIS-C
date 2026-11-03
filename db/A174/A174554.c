@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2 + lcm(2,3,4,...,n) (OEIS A174554)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   build_primes_upto, seq_mul, seq_one, seq_pow
+ * Validated: partial, pass, 27 terms through n = 28 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,10 +16,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_one.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static uint64_t *prime_arr = NULL;      /* array of primes up to current max n */
 static size_t prime_count = 0;          /* number of primes in prime_arr      */
@@ -57,7 +64,7 @@ seq_t a(idx_t n)
         }
 
         /* Multiply L by p^exp. */
-        seq_t pp = seq_pow((seq_t)p, (idx_t)exp);
+        seq_t pp = ipow_idx((seq_t)p, (idx_t)exp);
         L = seq_mul(L, pp);
     }
 

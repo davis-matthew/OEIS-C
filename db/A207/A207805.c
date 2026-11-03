@@ -11,7 +11,8 @@
  *            OEIS entry
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 10, u64 n <= 22, u128 n <= 46,
  *            big any n
- * Helpers:   row_allowed, triple_allowed
+ * Validated: standard, pass, 35 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,34 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/row_allowed.h"
-#include "../utils/triple_allowed.h"
+#include "../utils/mem.h"
+
+/* check if a row mask satisfies horizontal constraints
+   (no 000 or 001 in any consecutive triple) */
+static int row_allowed(int m)
+{
+    for (int i = 0; i + 2 < 5; ++i) {
+        int b0 = (m >> i) & 1;
+        int b1 = (m >> (i + 1)) & 1;
+        int b2 = (m >> (i + 2)) & 1;
+        if (b0 == 0 && b1 == 0 && b2 == 0) return 0;
+        if (b0 == 0 && b1 == 0 && b2 == 1) return 0;
+    }
+    return 1;
+}
+
+/* check if a vertical triple (p,c,n) is allowed (not 010 or 101)
+   for all five columns */
+static int triple_allowed(int p, int c, int n)
+{
+    for (int j = 0; j < 5; ++j) {
+        int b0 = (p >> j) & 1;
+        int b1 = (n >> j) & 1;
+        int b2 = (c >> j) & 1;
+        if (b0 == b1 && b2 != b0) return 0;
+    }
+    return 1;
+}
 
 static void init(void);
 
@@ -78,7 +105,7 @@ static void init(void)
     cache_computed = 2; /* a(1) and a(2) are known */
     if (cache == NULL) {
         cache_cap = 2;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(1);
     }
     cache[0] = 16;          /* a(1) */
@@ -103,7 +130,7 @@ seq_t a(idx_t n)
     /* Ensure cache big enough */
     if (n > cache_cap) {
         size_t new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = new_cap;

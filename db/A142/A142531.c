@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 268, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 60 terms through n = 887 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *specialPrimes = NULL;
 static size_t specialCap = 0;
@@ -26,7 +28,7 @@ static idx_t last_k = 0;
 static void add_prime(seq_t value) {
     if (specialLen == specialCap) {
         size_t newCap = (specialCap == 0) ? 8 : specialCap * 2;
-        seq_t *newArr = (seq_t *)realloc(specialPrimes, newCap * sizeof(seq_t));
+        seq_t *newArr = mem_resize(seq_t, specialPrimes, newCap);
         if (!newArr) abort();
         specialPrimes = newArr;
         specialCap = newCap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 189, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    For n ≥ 20, N[n] = 0. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int D[20] = {
     1,  /* D0 */
@@ -79,10 +81,10 @@ static void ensure_cache(idx_t n)
 
     /* Allocate or reallocate.  Use explicit cast for C++. */
     if (cache == NULL) {
-        cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        cache = mem_new(seq_t, new_size);
         if (cache == NULL) abort();
     } else if (new_size > cache_size) {
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) abort();
         cache = tmp;
     }

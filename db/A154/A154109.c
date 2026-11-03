@@ -12,7 +12,8 @@
  *            recurrence)
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* ---- Typedefs – supplied by the build ---- */
 typedef uint64_t idx_t;   /* index type – unsigned 64‑bit */
@@ -36,6 +46,17 @@ static size_t A_cap      = 0;
 static seq_t cum_sum     = (seq_t)0;      /* Σ_{k=1}^{i-1} A[k] */
 
 /* ---- Ensure enough space for an array ---- */
+#ifdef __cplusplus
+template <class T>
+static void grow(T **ptr, size_t *cap, size_t need, size_t elem_size) {
+    if (*cap >= need) return;
+    size_t new_cap = (*cap > 0) ? (*cap << 1) : 1;
+    while (new_cap < need) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
 static void grow(void **ptr, size_t *cap, size_t need, size_t elem_size) {
     if (*cap >= need) return;
     size_t new_cap = (*cap > 0) ? (*cap << 1) : 1;
@@ -44,11 +65,12 @@ static void grow(void **ptr, size_t *cap, size_t need, size_t elem_size) {
     *ptr = tmp;
     *cap = new_cap;
 }
+#endif
 
 /* ---- Compute Bell numbers B[0..up_to] (Bell[0] = 1) ---- */
 static void ensure_trueB(size_t up_to) {
     if (trueB_len > up_to) return;
-    grow((void **)&trueB, &trueB_cap, up_to + 1, sizeof(seq_t));
+    grow(OEISC_VPP(&trueB), &trueB_cap, up_to + 1, sizeof(seq_t));
     if (trueB_len == 0) {
         trueB[0] = (seq_t)1;          /* B[0] = 1 */
         trueB_len = 1;
@@ -75,7 +97,7 @@ static void ensure_A(size_t up_to) {
     /* Make sure Bell numbers up to up_to are ready */
     ensure_trueB(up_to);
 
-    grow((void **)&A, &A_cap, up_to + 1, sizeof(seq_t));
+    grow(OEISC_VPP(&A), &A_cap, up_to + 1, sizeof(seq_t));
     /* A[0] is unused; initialise if not set */
     if (A_len == 0) A[0] = (seq_t)0;
 

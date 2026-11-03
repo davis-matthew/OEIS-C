@@ -13,12 +13,14 @@
  *            1625872. * The function computes a(n) for all n ≥ 1,...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 43, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[15] = {
     0,                      /* dummy for 0‑index */
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap < n) {
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();
         seq_cache = tmp;
         cache_cap = (idx_t)new_cap;

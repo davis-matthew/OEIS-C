@@ -12,6 +12,7 @@
  *            of 3's. It builds the word from the right end, incre...
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 25, u64 n <= 26, u128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

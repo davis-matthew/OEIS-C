@@ -12,12 +12,14 @@
  *            a(12)=146, a(13)=379, a(14)=379, a(15)=2)
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types provided by the build */
 extern seq_t a(idx_t n);
@@ -56,12 +58,12 @@ static void ensure_cache_up_to(idx_t n)
     /* Allocate or grow buffer as necessary */
     idx_t needed = n + 1;
     if (cache == NULL) {
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (cache == NULL)
             exit(1);
         cache_cap = needed;
     } else if (cache_cap < needed) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (tmp == NULL)
             exit(1);
         cache = tmp;

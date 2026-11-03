@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 9220, u16 n <= 9220, u32 n <= 9220, u64 n <= 9220,
- *            u128 n <= 9220, big any n
- * Helpers:   enumerate_i
+ * Range:     u8 n <= 11355, u16 n <= 11355, u32 n <= 11355, u64 n <= 11355,
+ *            u128 n <= 11355, big any n
+ * Validated: standard, pass, 102 terms through n = 9220 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,48 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/enumerate_i.h"
+#include "../utils/mem.h"
+
+/*  Recursive enumeration of all integers i (≤n) formed by the prime
+ *  factors of n.  For each i, compute k = ceil(a/e) for each prime
+ *  and take its maximum.  The frequency of each k is accumulated in
+ *  the array 'counts'.  'max_a' contains the maximum exponent allowed
+ *  for each prime (so that p^a ≤ n).  'cur_val' is the current product
+ *  and 'cur_k' is the current maximum k value.
+ */
+static void
+enumerate_i( size_t   idx,
+             uint64_t cur_val,
+             int       cur_k,
+             uint64_t  n,
+             const uint64_t primes[],
+             const uint64_t exponents[],
+             const int     max_a[],
+             size_t        num_primes,
+             seq_t        *counts )
+{
+    if (idx == num_primes) {
+        ++counts[cur_k];
+        return;
+    }
+
+    uint64_t  p       = primes[idx];
+    uint64_t  e       = exponents[idx];
+    uint64_t  val     = cur_val;
+    int       a       = 0;
+    for (; a <= max_a[idx]; ++a) {
+        int k_for_this = (a + (int)e - 1) / (int)e;   /* ceil(a/e) */
+        int new_k      = cur_k > k_for_this ? cur_k : k_for_this;
+
+        enumerate_i(idx + 1, val, new_k, n,
+                    primes, exponents, max_a, num_primes, counts);
+
+        if (a == max_a[idx]) break;           /* last allowed a */
+        /* multiply by p for next exponent a+1 unless product would exceed n */
+        if (val > n / p) break;
+        val *= p;
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /*  Factor n into distinct prime bases (p_i) and exponents (e_i). A
@@ -75,7 +117,7 @@ row_counts(uint64_t row_n, seq_t **out_counts, size_t *out_len)
 {
     /* Special case n==1: only integer 1 with k=0. */
     if (row_n == 1) {
-        seq_t *arr = (seq_t *)calloc(1, sizeof(seq_t));
+        seq_t *arr = mem_new(seq_t, 1);
         arr[0]     = (seq_t)1;
         *out_counts = arr;
         *out_len    = 1;
@@ -102,7 +144,7 @@ row_counts(uint64_t row_n, seq_t **out_counts, size_t *out_len)
     }
 
     size_t len = (size_t)kmax_est + 1;
-    seq_t *counts = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *counts = mem_new(seq_t, len);
 
     enumerate_i(0, 1, 0, row_n,
                 primes, exponents, max_a, num_primes, counts);

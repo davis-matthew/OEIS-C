@@ -10,13 +10,15 @@
  *            incrementally and caches the corresponding ratios
  * Range:     u8 n <= 11, u16 n <= 306, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9635 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build.              */
 /* seq_t  – unsigned integer or bigint class          */
@@ -64,7 +66,7 @@ static void cache_value(seq_t val)
 {
     if (a_size == a_cap) {
         a_cap = (a_cap == 0) ? 16 : a_cap * 2;
-        a_vals = (seq_t *)realloc(a_vals, a_cap * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, a_cap);
     }
     a_vals[a_size++] = val;
 }

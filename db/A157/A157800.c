@@ -8,12 +8,14 @@
  *            a(0) = 1, a(1) = 6, and a(n) = 3ⁿ for odd n ≥ 3
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 35, u128 n <= 71,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 249 (2026-11-01)
  * Helpers:   is_prime, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/is_prime.h"
 #include "../utils/pow3.h"
 

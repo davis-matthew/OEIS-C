@@ -11,7 +11,8 @@
  *            the numerator as a bignum
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   g3300_inv, g3300_pw
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   modinv
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/g3300_inv.h"
-#include "../utils/g3300_pw.h"
+#include "../utils/modinv.h"
+
+static uint64_t g3300_pw(uint64_t b, int e, uint64_t p) {
+    uint64_t r = 1 % p;
+    b %= p;
+    while (e > 0) {
+        if (e & 1) r = r * b % p;
+        b = b * b % p;
+        e >>= 1;
+    }
+    return r;
+}
 
 typedef struct { uint32_t *d; size_t len, cap; } g3300_big;
 
@@ -216,7 +227,7 @@ static void g3300_step(idx_t n) {
         for (i = 0; i < np; i++) {
             uint64_t p = g_pr[i], C = 1 % p;
             for (j = 0; j < nc; j++) C = C * g3300_pw(g_pr[g_ci[j]], g_cc[j], p) % p;
-            if (C) g_xr[i] = (uint32_t)((uint64_t)g_xr[i] * g3300_inv(C, p) % p);
+            if (C) g_xr[i] = (uint32_t)((uint64_t)g_xr[i] * modinv(C, p) % p);
         }
         for (j = 0; j < nc; j++) g_xr[g_ci[j]] = g3300_mod(&g_X, g_pr[g_ci[j]]);
     }

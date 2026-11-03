@@ -10,6 +10,7 @@
  *            positive integers not of the form round(2^(k+2)/5)
  * Range:     u8 n <= 24, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 /* Note: pow2(x) is provided by the build utilities. */
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Compute floor(log2(x)) for a 128‑bit unsigned integer. */

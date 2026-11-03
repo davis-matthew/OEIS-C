@@ -9,9 +9,10 @@
  * Formula:   a(n) = 1 if the greatest prime factor of A000593(n) ( = sum of
  *            odd divisors of n ) is at least as large as the greatest prime
  *            factor of n, else 0
- * Range:     u8 n <= 9355, u16 n <= 9355, u32 n <= 9355, u64 n <= 9355,
- *            u128 n <= 9355, big any n
- * Helpers:   lpf
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 137 terms through n = 9355 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/lpf.h"      /* idx_t lpf(idx_t n); */
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 static uint64_t max_prime_factor(uint64_t x)
 {

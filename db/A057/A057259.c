@@ -8,7 +8,8 @@
  *            + 6^n + 5^n
  * Range:     u8 n <= 17, u16 n <= 105, u32 n <= 125, u64 n <= 125,
  *            u128 n <= 125, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 124 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* modular exponentiation: base^exp mod mod, works for 64‑bit values. */
 static inline uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -45,7 +47,7 @@ static void push_term(seq_t value)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();           /* out of memory */
         terms = tmp;
         terms_cap = new_cap;

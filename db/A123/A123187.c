@@ -8,13 +8,15 @@
  *            n - r*(r+1)/2
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom, pow_uint
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     idx_t k = n - offset;
 
     /* compute the coefficient */
-    seq_t bin = binom(r, k);         /* C(r,k)          */
-    seq_t pow = pow_uint(13, k);     /* 13^k            */
+    seq_t bin = binomial(r, k);         /* C(r,k)          */
+    seq_t pow = ipow_u64_idx(13, k);     /* 13^k            */
     return bin * pow;
 }

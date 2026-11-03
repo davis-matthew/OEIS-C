@@ -14,8 +14,8 @@
  *            performed by enumerating all 54 choose 5 hands an...
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   can_full_house, can_one_pair, can_two_pair, match_full_house,
- *            match_one_pair, match_two_pair, popcount16
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,13 +23,125 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/can_full_house.h"
-#include "../utils/can_one_pair.h"
-#include "../utils/can_two_pair.h"
-#include "../utils/match_full_house.h"
-#include "../utils/match_one_pair.h"
-#include "../utils/match_two_pair.h"
-#include "../utils/popcount16.h"
+
+/* helper to check full house with jokers */
+static bool match_full_house(const int cnt[13])
+{
+    int c3 = 0, c2 = 0;
+    for (int r = 0; r < 13; ++r) {
+        if (cnt[r] == 3)  ++c3;
+        else if (cnt[r] == 2)  ++c2;
+        else if (cnt[r] == 0)  continue;
+        else return false;
+    }
+    return c3 == 1 && c2 == 1;
+}
+
+/* try all joker assignments to create the target hand type */
+static bool can_full_house(const int base[13], int jokers)
+{
+    int tmp[13];
+    if (jokers == 0) {
+        memcpy(tmp, base, sizeof(tmp));
+        return match_full_house(tmp);
+    }
+    if (jokers == 1) {
+        for (int r = 0; r < 13; ++r) {
+            memcpy(tmp, base, sizeof(tmp));
+            ++tmp[r];
+            if (match_full_house(tmp)) return true;
+        }
+    } else { /* jokers == 2 */
+        for (int r1 = 0; r1 < 13; ++r1) {
+            for (int r2 = 0; r2 < 13; ++r2) {
+                memcpy(tmp, base, sizeof(tmp));
+                ++tmp[r1];
+                ++tmp[r2];
+                if (match_full_house(tmp)) return true;
+            }
+        }
+    }
+    return false;
+}
+
+static bool match_one_pair(const int cnt[13])
+{
+    int c2 = 0, c1 = 0;
+    for (int r = 0; r < 13; ++r) {
+        if (cnt[r] == 2)  ++c2;
+        else if (cnt[r] == 1)  ++c1;
+        else if (cnt[r] == 0)  continue;
+        else return false;
+    }
+    return c2 == 1 && c1 == 3;
+}
+
+static bool can_one_pair(const int base[13], int jokers)
+{
+    int tmp[13];
+    if (jokers == 0) {
+        memcpy(tmp, base, sizeof(tmp));
+        return match_one_pair(tmp);
+    }
+    if (jokers == 1) {
+        for (int r = 0; r < 13; ++r) {
+            memcpy(tmp, base, sizeof(tmp));
+            ++tmp[r];
+            if (match_one_pair(tmp)) return true;
+        }
+    } else {
+        for (int r1 = 0; r1 < 13; ++r1) {
+            for (int r2 = 0; r2 < 13; ++r2) {
+                memcpy(tmp, base, sizeof(tmp));
+                ++tmp[r1];
+                ++tmp[r2];
+                if (match_one_pair(tmp)) return true;
+            }
+        }
+    }
+    return false;
+}
+
+static bool match_two_pair(const int cnt[13])
+{
+    int c2 = 0, c1 = 0;
+    for (int r = 0; r < 13; ++r) {
+        if (cnt[r] == 2)  ++c2;
+        else if (cnt[r] == 1)  ++c1;
+        else if (cnt[r] == 0)  continue;
+        else return false;
+    }
+    return c2 == 2 && c1 == 1;
+}
+
+static bool can_two_pair(const int base[13], int jokers)
+{
+    int tmp[13];
+    if (jokers == 0) {
+        memcpy(tmp, base, sizeof(tmp));
+        return match_two_pair(tmp);
+    }
+    if (jokers == 1) {
+        for (int r = 0; r < 13; ++r) {
+            memcpy(tmp, base, sizeof(tmp));
+            ++tmp[r];
+            if (match_two_pair(tmp)) return true;
+        }
+    } else {
+        for (int r1 = 0; r1 < 13; ++r1) {
+            for (int r2 = 0; r2 < 13; ++r2) {
+                memcpy(tmp, base, sizeof(tmp));
+                ++tmp[r1];
+                ++tmp[r2];
+                if (match_two_pair(tmp)) return true;
+            }
+        }
+    }
+    return false;
+}
+
+/* popcount for a 16‑bit mask */
+static inline int popcount16(uint16_t x) { return __builtin_popcount(x); }
 
 /* 5‑card straight masks (Ace low and high are both valid) */
 static const uint16_t straight_masks[10] = {

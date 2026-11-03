@@ -10,7 +10,8 @@
  *            (-p)^(e/2) if p≡5,7 (mod 8) and e even
  * Range:     i8 n <= 7, i16 n <= 1853, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   build_primes_upto, floor_sqrt, pow_seq
+ * Validated: standard, pass, 115 terms through n = 9396 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"          /* seq_t pow_seq(seq_t base, int exp); */
-#include "../utils/floor_sqrt.h"      /* seq_t floor_sqrt(seq_t x); */
-#include "../utils/build_primes_upto.h"/* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Static storage for the prime list. */
 static uint64_t *prime_list = NULL;
@@ -78,11 +96,11 @@ static seq_t b_of_uint64(uint64_t m)
 
             if (p % 8 == 1 || p % 8 == 3)
             {
-                result *= pow_seq((seq_t)p, half);
+                result *= ipow_i32((seq_t)p, half);
             }
             else  /* p % 8 == 5 or 7 */
             {
-                seq_t mult = pow_seq((seq_t)p, half);
+                seq_t mult = ipow_i32((seq_t)p, half);
                 if (half & 1)  /* (-p)^(half) = -p^(half) when half odd */
                     mult = -mult;
                 result *= mult;

@@ -11,7 +11,8 @@
  *            a(n−i)
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 823 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Poly ---------------------------------------------------------------------*/
 typedef struct {
@@ -32,7 +34,7 @@ static Poly poly_mul(const Poly *a, const Poly *b)
 {
     Poly p;
     p.len = a->len + b->len - 1;
-    p.c   = (seq_t*)calloc(p.len, sizeof(seq_t));
+    p.c   = mem_new(seq_t, p.len);
     for (size_t i = 0; i < a->len; ++i) {
         if (a->c[i] == (seq_t)0) continue;
         for (size_t j = 0; j < b->len; ++j) {
@@ -48,7 +50,7 @@ static Poly poly_div(const Poly *num, const Poly *den)
 {
     if (den->len == 1) {                 /* divisor is 1 */
         Poly q;
-        q.c   = (seq_t*)malloc(num->len * sizeof(seq_t));
+        q.c   = mem_new(seq_t, (num->len * sizeof(seq_t)) / sizeof(seq_t));
         q.len = num->len;
         for (size_t i = 0; i < num->len; ++i) q.c[i] = num->c[i];
         return q;
@@ -56,11 +58,11 @@ static Poly poly_div(const Poly *num, const Poly *den)
 
     const size_t nd = num->len - den->len + 1;
     Poly q;
-    q.c   = (seq_t*)calloc(nd, sizeof(seq_t));
+    q.c   = mem_new(seq_t, nd);
     q.len = nd;
 
     /* mutable copy of numerator */
-    seq_t *r = (seq_t*)calloc(num->len, sizeof(seq_t));
+    seq_t *r = mem_new(seq_t, num->len);
     for (size_t i = 0; i < num->len; ++i) r[i] = num->c[i];
 
     for (int k = (int)num->len - 1; k >= (int)den->len - 1; --k) {
@@ -72,7 +74,7 @@ static Poly poly_div(const Poly *num, const Poly *den)
             r[shift + j] -= coef * den->c[j];
         }
     }
-    free(r);
+    mem_free(r);
     return q;
 }
 
@@ -81,7 +83,7 @@ static Poly poly_pow_minus_one(size_t k)
 {
     Poly p;
     p.len = k + 1;
-    p.c   = (seq_t*)calloc(p.len, sizeof(seq_t));
+    p.c   = mem_new(seq_t, p.len);
     p.c[0] = -(seq_t)1;       /* constant term -1 */
     p.c[k] = (seq_t)1;        /* leading term +1 */
     return p;
@@ -90,7 +92,7 @@ static Poly poly_pow_minus_one(size_t k)
 /* Free polynomial memory */
 static void poly_free(Poly *p)
 {
-    if (p->c) free(p->c);
+    if (p->c) mem_free(p->c);
     p->c   = NULL;
     p->len = 0;
 }
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
         static const size_t neg_k[] = {319, 87, 33, 1};
 
         /* Build the product of positive factors */
-        Poly pos = {.c = (seq_t*)calloc(1, sizeof(seq_t)), .len = 1};
+        Poly pos = {.c = mem_new(seq_t, 1), .len = 1};
         pos.c[0] = (seq_t)1;
         for (size_t i = 0; i < sizeof(pos_k)/sizeof(pos_k[0]); ++i) {
             Poly fac = poly_pow_minus_one(pos_k[i]);
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
         }
 
         /* Build the product of negative factors */
-        Poly neg = {.c = (seq_t*)calloc(1, sizeof(seq_t)), .len = 1};
+        Poly neg = {.c = mem_new(seq_t, 1), .len = 1};
         neg.c[0] = (seq_t)1;
         for (size_t i = 0; i < sizeof(neg_k)/sizeof(neg_k[0]); ++i) {
             Poly fac = poly_pow_minus_one(neg_k[i]);

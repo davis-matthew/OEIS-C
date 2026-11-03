@@ -7,6 +7,7 @@
  * Formula:   a(n) = 225*a(n-1), a(0) = 15
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 15,
  *            big any n
+ * Validated: standard, pass, 28 terms through n = 199 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

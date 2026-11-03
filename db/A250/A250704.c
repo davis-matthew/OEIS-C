@@ -13,7 +13,8 @@
  *            node * (4096 possible nodes). Transitio...
  * Range:     u8 none, u16 none, u32 n <= 5, u64 n <= 24, u128 n <= 110,
  *            big any n
- * Helpers:   digit, ok_transition
+ * Validated: standard, pass, 32 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,37 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit.h"
-#include "../utils/ok_transition.h"
+#include "../utils/mem.h"
+
+/* Helper to extract a row digit (0..3) at column j [0..5] */
+static inline int digit(int row, int j)
+{
+    return (row >> (2 * j)) & 3;
+}
+
+/* Test whether a transition from `prev` to `curr` is allowed. */
+static bool ok_transition(int prev, int curr)
+{
+    int prev_min = digit(prev, 0) < digit(curr, 0) ? digit(prev, 0) : digit(curr, 0);
+    int curr_min;
+
+    /* check sum condition for j=1..5 */
+    for (int j = 1; j <= 5; ++j) {
+        int sum_prev = digit(prev, j) + digit(prev, j - 1);
+        int sum_curr = digit(curr, j) + digit(curr, j - 1);
+        if (sum_curr < sum_prev)
+            return false;
+    }
+
+    /* check min non‑decreasing along j */
+    for (int j = 1; j <= 5; ++j) {
+        curr_min = digit(prev, j) < digit(curr, j) ? digit(prev, j) : digit(curr, j);
+        if (curr_min < prev_min)
+            return false;
+        prev_min = curr_min;
+    }
+    return true;
+}
 
 #define MAX_STATES 4096   /* 4^6 */
 
@@ -65,8 +95,8 @@ static void init_graph(void)
     }
 
     /* Allocate DP arrays. */
-    dp      = (seq_t *)malloc(sizeof(seq_t) * MAX_STATES);
-    dp_new  = (seq_t *)malloc(sizeof(seq_t) * MAX_STATES);
+    dp      = mem_new(seq_t, MAX_STATES);
+    dp_new  = mem_new(seq_t, MAX_STATES);
     if (!dp || !dp_new) {
         exit(1);
     }

@@ -10,7 +10,8 @@
  *            binomial(2*r,2*k)
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 35, u64 n <= 78, u128 n <= 209,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 61 terms through n = 9971 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Cache for the Euler numbers E_{m} = A000364(m) (m = 0..max). */
 static seq_t *euler = NULL;          /* array of computed Euler numbers */
@@ -37,7 +39,7 @@ static void ensure_euler(idx_t max)
         size_t new_cap = euler_cap ? euler_cap : 1;
         while (new_cap < needed)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(euler, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, euler, new_cap);
         euler = tmp;
         euler_cap = new_cap;
     }

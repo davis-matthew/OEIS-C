@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) - 98*(n-1)*a(n-2); a(0) = 1; a(1) = 1;
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 7, i64 n <= 13, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -23,7 +25,7 @@ static void expand_cache(size_t needed)
 {
     if (needed <= cache_size)
         return;
-    seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, needed);
     if (!new_cache)
         abort();                 /* allocation failed */
     cache = new_cache;

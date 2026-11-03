@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_perfect_odd_square
+ * Validated: standard, pass, 117 terms through n = 9800 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,18 @@
 /* For each n >= 0 */
 
 #include <stdbool.h>
-#include "../utils/is_perfect_odd_square.h"
+
+/* Return true iff v is a perfect square of an odd integer. */
+static inline bool is_perfect_odd_square(seq_t v)
+{
+    if (v == 0)
+        return false;
+    for (seq_t k = (seq_t)1; k * k <= v; k += (seq_t)2) {
+        if (k * k == v)
+            return true;
+    }
+    return false;
+}
 
 /* OEIS A033776 */
 seq_t a(idx_t n)

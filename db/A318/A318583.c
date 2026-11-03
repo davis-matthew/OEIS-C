@@ -6,9 +6,10 @@
  * Keywords:  sign, look
  * Formula:   for n>2, a(n+2) = Σ_{d|n} μ(n/d)·a(d) a(1)=1, a(2)=1, a(3)=1,
  *            a(4)=0 (offset 1)
- * Range:     i8 n <= 73, i16 n <= 473, i32 n <= 2813, i64 n <= 9105,
- *            i128 n <= 9105, big any n
- * Helpers:   none
+ * Range:     i8 n <= 73, i16 n <= 473, i32 n <= 2813, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 91 terms through n = 9105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for memoised values */
 static seq_t *cache = NULL;
@@ -81,7 +83,7 @@ static void ensure_cache_upto(idx_t n)
     if (new_cap < (size_t)n + 1) new_cap = n + 1;
 
     seq_t *new_cache =
-        (seq_t *)realloc(cache, new_cap * sizeof(seq_t));  /* C++ cast */
+        mem_resize(seq_t, cache, new_cap);  /* C++ cast */
     if (!new_cache) exit(1);
     cache = new_cache;
     cache_cap = new_cap;

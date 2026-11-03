@@ -8,14 +8,15 @@
  * Formula:   a(n) = 1 if n = k*(4*k+1) for some integer k, otherwise 0
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   u128_isqrt
+ * Validated: standard, pass, 103 terms through n = 927 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/u128_isqrt.h"
+#include "../utils/isqrt_u128.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
     unsigned __int128 D = (unsigned __int128)1 + (unsigned __int128)16 * (unsigned __int128)n;
 
     /* s = floor(sqrt(D)) */
-    unsigned __int128 s = u128_isqrt(D);
+    unsigned __int128 s = isqrt_u128(D);
 
     /* Must be a perfect square */
     if (s * s != D)

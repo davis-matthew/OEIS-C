@@ -12,7 +12,8 @@
  *            call * with arbitrary n is answered in O(n) time
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 899 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Persistent cache of found terms */
@@ -63,7 +65,7 @@ seq_t a(idx_t n) {
                     cache_cap = 16;
                 else
                     cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) abort();           /* out of memory */
             }
             cache[cache_len++] = (seq_t)x;

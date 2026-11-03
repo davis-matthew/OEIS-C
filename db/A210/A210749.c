@@ -13,7 +13,8 @@
  *            a(1)=1, a(2)=3, a(3...
  * Range:     u8 n <= 23, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t **u_rows = NULL;           /* pointers to the stored rows of u */
 static size_t   row_cap = 0;            /* current capacity of u_rows array */
@@ -41,8 +43,8 @@ static void ensure_row_cap(size_t needed) {
 
 /* Build the very first row (r = 1), initializing prev_u/prev_v. */
 static void init_first_row(void) {
-    seq_t *base_u = (seq_t*)malloc(sizeof(seq_t));
-    seq_t *base_v = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *base_u = mem_new(seq_t, 1);
+    seq_t *base_v = mem_new(seq_t, 1);
     base_u[0] = (seq_t)1;
     base_v[0] = (seq_t)1;
 
@@ -58,8 +60,8 @@ static void init_first_row(void) {
 static void build_next_row(void) {
     idx_t     r = rows_used;              /* previous row number (1‑based) */
     idx_t     len = r + 1;                /* length of the new row               */
-    seq_t *next_u = (seq_t*)malloc(len * sizeof(seq_t));
-    seq_t *next_v = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *next_u = mem_new(seq_t, len);
+    seq_t *next_v = mem_new(seq_t, len);
 
     for (idx_t k = 0; k < len; ++k) {
         seq_t u_val = 0;
@@ -87,7 +89,7 @@ static void build_next_row(void) {
     ++rows_used;
 
     /* Free the previous v array – its values are no longer needed. */
-    free(prev_v);
+    mem_free(prev_v);
 
     /* Update prev_u and prev_v to the freshly computed arrays. */
     prev_u = next_u;

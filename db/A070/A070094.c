@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   uc_gcd
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/uc_gcd.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     if (n >= cap) {
         idx_t newcap = n + 1;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         computed = (unsigned char *)realloc(computed, newcap * sizeof(unsigned char));
         /* Mark new entries as not yet computed */
         for (idx_t i = cap; i < newcap; ++i) computed[i] = 0;
@@ -72,8 +74,8 @@ seq_t a(idx_t n)
             if (lhs <= rhs) continue;
 
             /* Primitive: gcd(a,b,c) == 1 */
-            unsigned long long g = uc_gcd(ua, ub);
-            g = uc_gcd(g, uc);
+            unsigned long long g = gcd_u64(ua, ub);
+            g = gcd_u64(g, uc);
             if (g == 1) ++count;
         }
     }

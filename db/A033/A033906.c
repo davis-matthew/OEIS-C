@@ -5,17 +5,29 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = a(n-1) + sorted_digits(a(n-1)) with a(1) = 20, a(2) = 22
- * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 32, u64 n <= 32, u128 none,
+ * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t sorted_digits(seq_t x)
 {
@@ -42,7 +54,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;    /* safety guard */
 
     if (cap < (size_t)(n + 1)) {
-        size_t new_cap = (size_t)(n + 1);
+        size_t new_cap = (size_t)(n + 1 < 3 ? 3 : n + 1);   /* cache[1], cache[2] are set below */
         seq_t *new_cache = alloc_seq_array(new_cap);
         if (!new_cache) return (seq_t)0; /* allocation failure */
 

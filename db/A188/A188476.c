@@ -11,12 +11,14 @@
  *            a(7)=150
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[8] = { (seq_t)1, (seq_t)1, (seq_t)2, (seq_t)6,
                                     (seq_t)12, (seq_t)27, (seq_t)65, (seq_t)150 };
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
         cache_cap = 8;
         if ((size_t)n + 1 > cache_cap)
             cache_cap = (size_t)n + 1;
-        cached = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cached = mem_new(seq_t, cache_cap);
         for (size_t i = 0; i < 8; ++i)
             cached[i] = init_vals[i];
         cache_size = 8;
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = cache_cap * 2;
         if ((size_t)n + 1 > new_cap)
             new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cached, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cached, new_cap);
         cached = tmp;
         cache_cap = new_cap;
     }

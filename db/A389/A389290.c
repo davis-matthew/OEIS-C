@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/3⌋} binomial(n+k-1,k) * binomial(k,n-3k)
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 28, u64 n <= 53, u128 n <= 103,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 999 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

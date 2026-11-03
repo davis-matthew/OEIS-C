@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    a(6)=188394, a(7)=1107926, a(8)=6519094, a(9)=38356642 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Invariant: cache[1..computed_max] contain a(1..computed_max) */
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     if (cache_size <= n) {
         size_t new_size = (size_t)n + 1;               /* +1 so index n is valid          */
         /* realloc returns void* in C, void* in C++ as well; cast to seq_t* */
-        void *tmp = realloc(cache, new_size * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         cache = (seq_t*)tmp;
 

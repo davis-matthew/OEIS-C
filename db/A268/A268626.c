@@ -12,14 +12,25 @@
  *            –3537110*a(n‑6) +9593166*a(n‑7) –18693789*a(n‑8) +2...
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   parse_uint
+ * Validated: standard, pass, 31 terms through n = 192 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/parse_uint.h"
+
+/* Parse a decimal unsigned integer string into seq_t.  Works for all seq_t types. */
+static seq_t parse_uint(const char *s)
+{
+    seq_t val = 0;
+    while (*s) {
+        val = val * (seq_t)10 + (seq_t)(*s - '0');
+        ++s;
+    }
+    return val;
+}
 
 /* Initial values as strings.  Stored to avoid large integer literals. */
 static const char * const init_str[15] = {

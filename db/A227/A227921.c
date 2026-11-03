@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 5763, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, odious_uint64
+ * Validated: standard, pass, 73 terms through n = 8535 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/odious_uint64.h"
+#include "../utils/mem.h"
+
+/* Determine whether an unsigned 64‑bit integer is odious. */
+static inline bool odious_uint64(uint64_t x)
+{
+    return (__builtin_popcountll(x) & 1) != 0;
+}
 
 /* Check that every divisor of x is odious.  x is assumed odd and < 2^64. */
 static bool all_divisors_odious(uint64_t x)
@@ -67,7 +74,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache if first call. */
     if (cache == NULL) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();
     }
 
@@ -91,7 +98,7 @@ seq_t a(idx_t n)
             if (all_divisors_odious(cand)) {
                 if (size == cap) {           /* grow until capacity */
                     cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cap);
                     if (!tmp) abort();
                     cache = tmp;
                 }

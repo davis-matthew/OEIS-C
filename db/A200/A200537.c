@@ -11,14 +11,28 @@
  *            {1,1,5,9,8,24,20,16,16})
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   mul_small
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static const unsigned short Ncoeff[9] = {1, 1, 5, 9, 8, 24, 20, 16, 16};
 
@@ -26,7 +40,7 @@ seq_t a(idx_t n)
 {
     /* Allocate temporary array for dynamic programming */
     size_t sz = (size_t)n + 1;
-    seq_t  *seq = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t  *seq = mem_new(seq_t, sz);
     if (!seq) return (seq_t)0;        /* allocation failure -> zero */
 
     /* Base cases */
@@ -46,6 +60,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

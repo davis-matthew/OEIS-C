@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + sum_{i>=0, j>=0, 2*i+3*j=n} a(i)*a(j); a(0)=1
  * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 157, u64 n <= 566,
  *            u128 n <= 1030, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 879 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for the sequence values. */
 static seq_t *A_cache = NULL;
@@ -25,7 +27,7 @@ static void ensure_capacity(idx_t n)
     if (n < A_cap) return;
     idx_t newcap = A_cap ? A_cap << 1 : 4;
     while (newcap <= n) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(A_cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A_cache, newcap);
     if (!tmp) abort();                       /* Allocation failed. */
     A_cache = tmp;
     A_cap   = newcap;

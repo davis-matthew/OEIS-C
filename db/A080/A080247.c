@@ -11,13 +11,15 @@
  *            the triangle is read by rows
  * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 135, u64 n <= 434,
  *            u128 n <= 1484, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static storage for the computed triangle */
 static seq_t **triangle_rows = NULL;
@@ -44,7 +46,7 @@ static void compute_rows_up_to(size_t max_r)
 {
     if (triangle_rows[0] == NULL)  /* first call: create row 0 */
     {
-        triangle_rows[0] = (seq_t*)malloc(1 * sizeof(seq_t));
+        triangle_rows[0] = mem_new(seq_t, 1);
         if (!triangle_rows[0]) abort();
         triangle_rows[0][0] = (seq_t)1;
     }
@@ -54,7 +56,7 @@ static void compute_rows_up_to(size_t max_r)
         if (triangle_rows[r] != NULL) continue; /* already computed */
 
         /* allocate current row */
-        triangle_rows[r] = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+        triangle_rows[r] = mem_new(seq_t, (r + 1));
         if (!triangle_rows[r]) abort();
 
         seq_t *prev = triangle_rows[r - 1];

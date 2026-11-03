@@ -7,14 +7,33 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 30, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   mask_and_check
+ * Validated: full, pass, 48 terms through n = 48 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* A115922: numbers k such that k and 2*k combined are the digits 0‑9 exactly once. */
 #include <stdbool.h>
-#include "../utils/mask_and_check.h"
+
+/* Compute the digit mask of x and check that no digit repeats.
+   On success *mask = bitmask, return true.
+   On failure (duplicate digit) return false. */
+static bool mask_and_check(seq_t x, uint16_t *mask)
+{
+    uint16_t m = 0;
+    while (x > 0)
+    {
+        unsigned d = (unsigned)(x % 10);
+        uint16_t bit = 1u << d;
+        if (m & bit)
+            return false;          /* duplicate digit */
+        m |= bit;
+        x /= 10;
+    }
+    *mask = m;
+    return true;
+}
 
 /* Return number of decimal digits of x.  Assumes x > 0. */
 static unsigned digit_len(seq_t x)

@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of permutations of 1..n with i-7 <= p(i) <= i+3
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 34, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 400 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,10 +32,10 @@ seq_t a(idx_t n)
     const unsigned FULL_MASK = MASKS - 1;           /* all‑1 mask of width W */
 
     /* DP arrays */
-    seq_t *dp  = (seq_t*)calloc(MASKS, sizeof(seq_t));
-    seq_t *ndp = (seq_t*)calloc(MASKS, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, MASKS);
+    seq_t *ndp = mem_new(seq_t, MASKS);
     if (!dp || !ndp) {
-        free(dp); free(ndp);
+        mem_free(dp); mem_free(ndp);
         return (seq_t)0;
     }
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
        [i-LEFT , i+RIGHT] that lies outside 1..n.                      */
     uint32_t *bound = (uint32_t*)malloc((n + 2) * sizeof(uint32_t));
     if (!bound) {
-        free(dp); free(ndp);
+        mem_free(dp); mem_free(ndp);
         return (seq_t)0;
     }
     for (idx_t i = 1; i <= n + 1; ++i) {
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     for (idx_t i = 1; i <= n; ++i) {
         uint32_t bound_next = bound[i + 1];
         /* zero ndp */
-        memset(ndp, 0, MASKS * sizeof(seq_t));
+        mem_set(ndp, 0, MASKS * sizeof(seq_t));
 
         for (int mask = 0; mask < MASKS; ++mask) {
             seq_t ways = dp[mask];
@@ -92,8 +94,8 @@ seq_t a(idx_t n)
     seq_t result = dp[FULL_MASK];
 
     /* clean up */
-    free(dp);
-    free(ndp);
+    mem_free(dp);
+    mem_free(ndp);
     free(bound);
     return result;
 }

@@ -9,12 +9,14 @@
  *            a(k)=0 for k<0)
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (table_cap <= need) {
         idx_t new_cap = table_cap ? table_cap << 1 : 16;
         if (new_cap <= need) new_cap = need + 1;
-        seq_t *tmp = (seq_t *)realloc(table, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, table, new_cap);
         if (!tmp) exit(EXIT_FAILURE);            /* allocation failed */
         table = tmp;
         table_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 111, u16 n <= 1574, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9503 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *smooth = NULL;    /* array of generated numbers */
 static size_t smooth_cap = 0;   /* allocated capacity */
@@ -32,7 +34,7 @@ static void ensure_smooth(idx_t n)
     /* initialise storage if needed */
     if (smooth == NULL) {
         smooth_cap = 64;
-        smooth = (seq_t*)malloc(smooth_cap * sizeof(seq_t));
+        smooth = mem_new(seq_t, smooth_cap);
         smooth[0] = (seq_t)1;         /* a(1) = 1 */
         smooth_len = 1;
         for (int i = 0; i < 6; ++i) indices[i] = 0;
@@ -42,7 +44,7 @@ static void ensure_smooth(idx_t n)
     while (smooth_len < n) {
         if (smooth_len == smooth_cap) {
             smooth_cap = (smooth_cap == 0) ? 64 : smooth_cap * 2;
-            smooth = (seq_t*)realloc(smooth, smooth_cap * sizeof(seq_t));
+            smooth = mem_resize(seq_t, smooth, smooth_cap);
         }
 
         seq_t candidates[6];

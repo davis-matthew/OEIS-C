@@ -8,6 +8,7 @@
  *            n*(n+1)*(n+2)*a(n) Initial values: a(0)=1, a(1)=1, a(2)=4
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 30,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 428 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

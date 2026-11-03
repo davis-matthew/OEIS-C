@@ -10,12 +10,14 @@
  *            The function uses memoisation to support arbitrary call order
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 13, u64 n <= 26, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of computed terms (0‑based) */
 static size_t cached = 0;     /* number of elements in 'cache' */
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
         /* need to extend the cache up to 'idx' */
         size_t newcap = idx + 1;
         if (!cache) {
-            cache = (seq_t *)malloc(newcap * sizeof(seq_t));
+            cache = mem_new(seq_t, newcap);
         } else {
-            cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, newcap);
         }
         /* initialise new entries */
         for (size_t i = cached; i <= idx; ++i) {

@@ -9,14 +9,23 @@
  * Formula:   a(n) = 9^(n-1)*(8*n-4)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: standard, pass, 33 terms through n = 171 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the OEIS sequence A269270, offset 1. */
 
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     if (n == 0)

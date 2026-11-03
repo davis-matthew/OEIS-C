@@ -9,12 +9,14 @@
  *            9, 11, 25, 33, 41, 121,
  * Range:     u8 n <= 21, u16 n <= 153, u32 n <= 5913, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9257 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Precompute factorials 1! … len! */
-    seq_t *fact = (seq_t *)malloc((len + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (len + 1));
     fact[0] = (seq_t)1;
     for (idx_t i = 1; i <= len; ++i)
         fact[i] = fact[i - 1] * (seq_t)i;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     idx_t mid_factor = (len & 1) ? (m + 2) : (idx_t)1;   /* (mid+1) if odd */
 
     /* Allocate array for the digits of the palindrome */
-    seq_t *digit = (seq_t *)malloc((len + 1) * sizeof(seq_t));
+    seq_t *digit = mem_new(seq_t, (len + 1));
     digit[1] = (seq_t)1;              /* d1 must be 1 */
     digit[len] = (seq_t)1;            /* dk must be 1 */
 
@@ -101,9 +103,9 @@ seq_t a(idx_t n)
         value += digit[i] * fact[i];
 
     /* Free allocated memory */
-    free(fact);
+    mem_free(fact);
     free(prod_from);
-    free(digit);
+    mem_free(digit);
 
     return value;
 }

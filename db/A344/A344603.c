@@ -7,8 +7,9 @@
  * Formula:   The nth element is the nth triangular number whose binary
  *            Hamming weight is also a triangular number. a(n) = T_k where
  *            k*(k+1)/2 is triangular and popcount(T_k) is triangular
- * Range:     u8 n <= 6, u16 n <= 80, u32 n <= 9970, u64 n <= 9970,
- *            u128 n <= 9970, big any n
+ * Range:     u8 n <= 6, u16 n <= 80, u32 n <= 16431, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 61 terms through n = 9970 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

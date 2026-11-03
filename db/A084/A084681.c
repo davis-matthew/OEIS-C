@@ -9,7 +9,8 @@
  *            exists (i.e., gcd(10,9*n)>1) a(n)=0
  * Range:     u8 n <= 28, u16 n <= 5388, u32 n <= 8908, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_phi, gcd_seq_t, mod_pow_seq
+ * Validated: standard, pass, 110 terms through n = 9499 (2026-11-01)
+ * Helpers:   gcd, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,20 +18,39 @@
 /* Required helpers */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/gcd_seq_t.h"
-#include "../utils/calc_phi.h"
-#include "../utils/mod_pow_seq.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/gcd.h"
+#include "../utils/totient_seq.h"
+
+/* Binary exponentiation: base^exp mod mod */
+static seq_t mod_pow_seq(seq_t base, uint64_t exp, seq_t mod)
+{
+    if (mod == 0)
+        return 0;  /* undefined, but avoid division by zero */
+
+    seq_t result = 1 % mod;
+    base %= mod;
+
+    while (exp) {
+        if (exp & 1)
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     /* Compute m = 9*n (in seq_t) */
     seq_t m = (seq_t)n * 9;
 
     /* If 10 and m are not coprime, order does not exist */
-    if (gcd_seq_t(m, (seq_t)10) != (seq_t)1)
+    if (gcd(m, (seq_t)10) != (seq_t)1)
         return (seq_t)0;
 
     /* φ(m) */
-    seq_t phi_seq = calc_phi(m);
+    seq_t phi_seq = totient_seq(m);
     /* Assume φ(m) fits in uint64_t for n up to ~10^5 (as in tests) */
     uint64_t order = (uint64_t)phi_seq;
     if (order == 0) return (seq_t)0; /* defensive */

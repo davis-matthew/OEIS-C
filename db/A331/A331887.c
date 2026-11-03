@@ -8,14 +8,30 @@
  * Formula:   a(n) = [x^n] Product_{k: gcd(n,k)>1} (1 + x^k)
  * Range:     u8 n <= 47, u16 n <= 119, u32 n <= 329, u64 n <= 1049,
  *            u128 n <= 3779, big any n
- * Helpers:   get_distinct_prime_factors
+ * Validated: standard, pass, 87 terms through n = 9915 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/get_distinct_prime_factors.h"
+#include "../utils/mem.h"
+
+/* Helper to factor n and return its distinct prime factors.
+   factors[] must be large enough (e.g. 64). */
+static void get_distinct_prime_factors(idx_t n, idx_t *factors, size_t *fc)
+{
+    *fc = 0;
+    idx_t temp = n;
+    for (idx_t p = 2; p <= temp / p; ++p) {
+        if (temp % p == 0) {
+            factors[(*fc)++] = p;
+            while (temp % p == 0) temp /= p;
+        }
+    }
+    if (temp > 1) factors[(*fc)++] = temp;
+}
 
 /* Count partitions of n into distinct parts all sharing a common factor > 1 with n. */
 static bool is_prime_factor_set = false;    /* unused – kept for future extension */
@@ -44,7 +60,7 @@ seq_t a(idx_t n)
     }
 
     /* DP array for partitions into distinct allowed parts */
-    seq_t *dp = (seq_t*)calloc(size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
     if (!dp) {
         free(allow);
         return (seq_t)0;
@@ -59,7 +75,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(allow);
     return result;
 }

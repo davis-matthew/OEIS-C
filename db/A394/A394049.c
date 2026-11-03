@@ -12,7 +12,8 @@
  *            number
  * Range:     u8 n <= 16, u16 n <= 797, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9579 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 /* seq_t and idx_t are provided by the framework */
 
 /*--- global state -----------------------------------------------------*/
@@ -36,7 +38,7 @@ static idx_t  cur_limit = 0;     /* highest number processed by the sieve */
 /* ensure that s_list can hold at least (n+s_cap-1)/s_cap elements */
 static void resize_s_list(size_t new_cap)
 {
-    seq_t *tmp = (seq_t *)realloc(s_list, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, s_list, new_cap);
     if (!tmp) abort();  /* allocation failure */
     s_list = tmp;
     s_cap = new_cap;

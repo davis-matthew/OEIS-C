@@ -11,13 +11,16 @@
  *            gcd(p_n,D_n), D_n = n! (n even) or (n-1)! (n odd)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 30,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 38 terms through n = 939 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *raw_num = NULL;   /* raw (un‑reduced) numerators */
 static seq_t *ans_num = NULL;   /* reduced numerators = a(n) */
@@ -34,8 +37,8 @@ static void ensure_cache(idx_t n)
     /* Initial allocation */
     if (len == 0) {
         cap = 4;
-        raw_num = (seq_t *)malloc(cap * sizeof(seq_t));
-        ans_num = (seq_t *)malloc(cap * sizeof(seq_t));
+        raw_num = mem_new(seq_t, cap);
+        ans_num = mem_new(seq_t, cap);
         if (!raw_num || !ans_num) abort();
 
         raw_num[0] = (seq_t)1;  ans_num[0] = (seq_t)1;  /* c_0 = 1/1 */
@@ -48,8 +51,8 @@ static void ensure_cache(idx_t n)
     /* Grow capacity if needed */
     if ((size_t)(n + 1) > cap) {
         while ((size_t)(n + 1) > cap) cap <<= 1;
-        raw_num = (seq_t *)realloc(raw_num, cap * sizeof(seq_t));
-        ans_num = (seq_t *)realloc(ans_num, cap * sizeof(seq_t));
+        raw_num = mem_resize(seq_t, raw_num, cap);
+        ans_num = mem_resize(seq_t, ans_num, cap);
         if (!raw_num || !ans_num) abort();
     }
 

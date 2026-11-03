@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,9 @@
  * arrive in increasing order of n. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -41,9 +44,9 @@ seq_t a(idx_t n)
         idx_t mid  = k * k;                  /* k^2        */
         idx_t high = k * (k + 1);            /* k*(k+1)    */
 
-        seq_t pi_low  = compute_pi(low);
-        seq_t pi_mid  = compute_pi(mid);
-        seq_t pi_high = compute_pi(high);
+        seq_t pi_low  = prime_pi(low);
+        seq_t pi_mid  = prime_pi(mid);
+        seq_t pi_high = prime_pi(high);
 
         if ((pi_mid - pi_low) == sn && (pi_high - pi_mid) == sn)
             return (seq_t)k;

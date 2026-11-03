@@ -10,7 +10,8 @@
  *            (multiplicative definition for A383864)
  * Range:     u8 n <= 119, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd_int, pow_uint
+ * Validated: standard, pass, 82 terms through n = 8528 (2026-11-01)
+ * Helpers:   factor_u64, gcd_i32, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,11 @@
 #include <stddef.h>
 
 /* Utilities used by this function. */
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/gcd_int.h"
-#include "../utils/pow_uint.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -47,8 +50,8 @@ seq_t a(idx_t n)
             if (e % d == 0) {
                 uint64_t other = e / d;
                 /* gcd(d, e/d) must be 1. */
-                if (gcd_int((int)d, (int)other) == 1)
-                    sum += pow_uint(p, (idx_t)d);
+                if (gcd_i32((int)d, (int)other) == 1)
+                    sum += ipow_u64_idx(p, (idx_t)d);
             }
         }
         result *= sum;

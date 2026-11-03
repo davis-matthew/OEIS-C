@@ -9,12 +9,14 @@
  *            1) - 1) / 2) and p = n - r*(r + 1)/2
  * Range:     u8 n <= 31, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 89 terms through n = 999 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Integer square root of a seq_t value using binary search. */
 static inline seq_t isqrt_seq(seq_t x)

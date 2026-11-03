@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 26, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,6 +24,7 @@
  * {m+1,…,n}.  Each such choice contributes C(m,4t)*C(n-m,t).
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

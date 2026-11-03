@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   octal_distinct_idx
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/octal_distinct_idx.h"
+#include "../utils/mem.h"
+
+/* Test whether an unsigned integer has distinct octal digits. */
+static bool octal_distinct_idx(idx_t x)
+{
+    unsigned int mask = 0;          /* bits 0–7 indicate seen octal digits */
+
+    if (x == 0) return true;        /* 0 has one digit 0 */
+
+    while (x > 0) {
+        unsigned int d = (unsigned int)(x % 8);
+        if (mask & (1U << d))
+            return false;           /* digit repeated */
+        mask |= (1U << d);
+        x /= 8;
+    }
+    return true;
+}
 
 /* The sequence function. */
 seq_t a(idx_t n)
@@ -51,7 +69,7 @@ seq_t a(idx_t n)
         /* grow the array if necessary */
         if (cache_len == cache_cap) {
             cache_cap = (cache_cap == 0) ? 4 : (cache_cap << 1);
-            cache = (seq_t *)realloc(cache, (size_t)cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (size_t)cache_cap);
         }
 
         /* store the term */

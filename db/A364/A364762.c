@@ -8,11 +8,13 @@
  *            binomial(4*k, n-k)
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 15, i64 n <= 26, i128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

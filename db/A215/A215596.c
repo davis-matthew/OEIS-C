@@ -10,7 +10,8 @@
  *            ψ(-x)·f(-x^4)^3
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * Complexity: O(n^2), fast enough for n ≤ ~10000. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff = NULL;   /* coefficient array a[0..N]   */
 static size_t coeff_cap = 0;  /* allocated capacity          */
@@ -27,7 +29,7 @@ static size_t coeff_cap = 0;  /* allocated capacity          */
 static void ensure_capacity(size_t need)
 {
     if (coeff_cap < need) {
-        seq_t *new_coeff = (seq_t *)realloc(coeff, need * sizeof(seq_t));
+        seq_t *new_coeff = mem_resize(seq_t, coeff, need);
         coeff = new_coeff;
         coeff_cap = need;
     }

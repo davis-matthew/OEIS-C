@@ -13,7 +13,8 @@
  *            rows of the (n+2)×4 array
  * Range:     u8 none, u16 n <= 9, u32 n <= 24, u64 n <= 54, u128 n <= 114,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Preconditions: the build supplies idx_t (uint64_t) and seq_t
  * (unsigned integer or arbitrary‑precision class).  No further
@@ -159,11 +161,11 @@ static void compute_initial_terms(void)
     init_row_vals();
     build_adjacency();
 
-    init_cache = (seq_t *)calloc(26, sizeof(seq_t));
+    init_cache = mem_new(seq_t, 26);
     init_len   = 26;
 
-    seq_t *dp  = (seq_t *)calloc(STATES, sizeof(seq_t));
-    seq_t *ndp = (seq_t *)calloc(STATES, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, STATES);
+    seq_t *ndp = mem_new(seq_t, STATES);
 
     /* All two‑row states are admissible before any rows are placed */
     for (int i = 0; i < STATES; ++i) dp[i] = (seq_t)1;
@@ -192,8 +194,8 @@ static void compute_initial_terms(void)
         seq_t *tmp = dp; dp = ndp; ndp = tmp;
     }
 
-    free(dp);
-    free(ndp);
+    mem_free(dp);
+    mem_free(ndp);
 }
 
 /* ------------------------------------------------------------------ */
@@ -217,7 +219,7 @@ seq_t a(idx_t n)
         if (cache_cap < n) {
             idx_t new_cap = n * 2;
             if (new_cap < 32) new_cap = 32;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 

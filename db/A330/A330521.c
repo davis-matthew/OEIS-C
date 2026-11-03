@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   digit_sum, digits_of, pow10
+ * Validated: standard, pass, 94 terms through n = 3975 (2026-11-03)
+ * Helpers:   digit_sum, mem, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,8 +40,18 @@
 #include <stdbool.h>
 
 #include "../utils/digit_sum.h"
-#include "../utils/digits_of.h"
-#include "../utils/pow10.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* ----------  Used‑set (sorted array)  ---------- */
 static seq_t *used_arr = NULL;      /* sorted array of used numbers   */
@@ -50,7 +61,7 @@ static size_t used_count = 0;       /* number of elements used_arr   */
 static void used_init(void)
 {
     used_cap = 16;
-    used_arr = (seq_t *)calloc(used_cap, sizeof(seq_t));
+    used_arr = mem_new(seq_t, used_cap);
     used_count = 0;
 }
 
@@ -71,7 +82,7 @@ static void used_insert(seq_t key)
 {
     if (used_count == used_cap) {
         used_cap <<= 1;
-        used_arr = (seq_t *)realloc(used_arr, used_cap * sizeof(seq_t));
+        used_arr = mem_resize(seq_t, used_arr, used_cap);
     }
     /* binary search for insertion point */
     size_t lo = 0, hi = used_count;
@@ -110,14 +121,13 @@ static size_t suffix_find_or_create(seq_t ds)
 
     if (suffixes_len == suffixes_cap) {
         size_t new_cap = suffixes_cap ? suffixes_cap * 2 : 8;
-        suffixes = (suffix_entry_t *)realloc(suffixes,
-                                             new_cap * sizeof(suffix_entry_t));
+        suffixes = mem_resize(suffix_entry_t, suffixes, new_cap);
         suffixes_cap = new_cap;
     }
 
     suffix_entry_t *e = &suffixes[suffixes_len++];
     e->ds = ds;
-    e->base = pow10((idx_t)digits_of((idx_t)ds));
+    e->base = pow10((idx_t)num_digits_idx((idx_t)ds));
     e->cur = ds; /* will be advanced to the next unused value on use */
     return suffixes_len - 1;
 }
@@ -130,7 +140,7 @@ static size_t seq_len   = 0;    /* number of terms generated    */
 static void seq_init(void)
 {
     seq_cap = 64;
-    seq = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq_len = 1;
     seq[0] = 1;
 
@@ -169,7 +179,7 @@ seq_t a(idx_t n)
         /* store the term */
         if (seq_len == seq_cap) {
             seq_cap <<= 1;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = val;
         used_insert(val);

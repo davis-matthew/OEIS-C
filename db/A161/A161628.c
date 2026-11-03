@@ -10,14 +10,17 @@
  *            k^(r-k). This is the row‑major flattening of the OEIS triangle
  * Range:     i8 n <= 12, i16 n <= 25, i32 n <= 60, i64 n <= 145,
  *            i128 n <= 370, big any n
- * Helpers:   binom_n_k, seq_pow
+ * Validated: standard, pass, 61 terms through n = 1170 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom_n_k.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -36,9 +39,9 @@ seq_t a(idx_t n)
     if (k == 0) return (seq_t)0;
 
     /* Compute the binomial coefficient and the powers. */
-    seq_t binom = binom_n_k(r, k);
-    seq_t pow1  = seq_pow((seq_t)(k + 1), k - 1);  /* (k+1)^(k-1) */
-    seq_t pow2  = seq_pow((seq_t)k, r - k);        /* k^(r-k) */
+    seq_t binom = binomial(r, k);
+    seq_t pow1  = ipow_idx((seq_t)(k + 1), k - 1);  /* (k+1)^(k-1) */
+    seq_t pow2  = ipow_idx((seq_t)k, r - k);        /* k^(r-k) */
 
     /* Multiply the factors. */
     seq_t result = binom;

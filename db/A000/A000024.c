@@ -11,15 +11,23 @@
  *            has order 2). Count = (sum_{m<=N} g0(m) + sum_{...
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 35, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   isq, prefc
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/isq.h"
-#include "../utils/prefc.h"
+#include "../utils/isqrt_u64.h"
+
+static int64_t prefc(uint64_t v, const int *tab, unsigned per)
+{
+    int64_t s = 0;
+    unsigned k, lim = (unsigned)(v % per);
+    for (k = 1; k <= lim; k++) s += tab[k];
+    return s;
+}
 
 static const int T40[40] = {
     0, 1, 0,-1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0,-1, 0, 1,
@@ -70,7 +78,7 @@ static int64_t rec(uint64_t v, size_t j, int which)
 
 static uint64_t count_upto(uint64_t N)
 {
-    uint64_t r = isq(N);
+    uint64_t r = isqrt_u64(N);
     size_t m = 0, k, i;
     g_N = N; g_r = r;
     g_w = (uint64_t *)malloc(sizeof(uint64_t) * (size_t)(2 * r + 3));

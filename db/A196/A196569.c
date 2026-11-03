@@ -8,11 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 4, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   binom, binom_contains
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-02)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#ifdef __cplusplus
+#include <vector>
+#endif
 /* Sequence A196569: a(n) is the n-th binomial coefficient C(m,4)
    that can be represented as a concatenation of two or more
    binomial coefficients of the form C(k,4) in decimal notation. */
@@ -25,8 +29,26 @@
 #include <stdbool.h>
 
 /* Include the binomial helper from the utils package. */
-#include "../utils/binom.h"
-#include "../utils/binom_contains.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+
+/* --------------------------------------------------------------------
+   Binary search helper to test whether a value exists in a sorted array.
+   ----------------------------------------------------------- */
+static bool binom_contains(const seq_t *arr, size_t len, seq_t key)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = lo + (hi - lo) / 2;
+        if (arr[mid] < key)
+            lo = mid + 1;
+        else if (arr[mid] > key)
+            hi = mid;
+        else
+            return true;
+    }
+    return false;
+}
 
 /* --------------------------------------------------------------------
    Convert a seq_t value to a decimal string.
@@ -122,7 +144,7 @@ seq_t a(idx_t n)
 
     /* Generate terms until we have at least n elements. */
     while (seq_vec.size() < (size_t)n) {
-        seq_t val = binom(next_m, 4);          /* C(next_m,4) */
+        seq_t val = binomial(next_m, 4);          /* C(next_m,4) */
         if (is_concatable(val,
                           binom_vec.data(),
                           binom_vec.size()))
@@ -159,7 +181,7 @@ seq_t a(idx_t n)
         }
 
         /* Compute next binomial value. */
-        seq_t val = binom(next_m, 4);
+        seq_t val = binomial(next_m, 4);
 
         /* Test for concatenation and store if appropriate. */
         if (is_concatable(val, binom_vals, binom_len)) {

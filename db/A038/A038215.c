@@ -7,17 +7,26 @@
  * Formula:   a(n) = binomial(i,j) * 2^(i-j) * 9^j, where i =
  *            floor((sqrt(8*n+1)-1)/2), j = n - i*(i+1)/2 Corresponds to
  *            row‑major enumeration of the triangle T(i,j)
- * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 44, u64 n <= 44, u128 n <= 44,
+ * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   binomial, pow2, pow_int, seq_mul
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
+ * Helpers:   binomial, ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 #include "../utils/pow2.h"
-#include "../utils/pow_int.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,6 +40,6 @@ seq_t a(idx_t n)
 
     seq_t val = binomial(i, j);
     val = seq_mul(val, pow2(i - j));
-    val = seq_mul(val, pow_int((seq_t)9, j));
+    val = seq_mul(val, ipow_idx((seq_t)9, j));
     return val;
 }

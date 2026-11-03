@@ -11,6 +11,7 @@
  *            compute (row*col + 1)^2
  * Range:     u8 n <= 38, u16 n <= 542, u32 n <= 1325, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1242 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

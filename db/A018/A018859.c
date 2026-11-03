@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 2, u128 n <= 8,
  *            big any n
- * Helpers:   mul_small, seq_pow
+ * Validated: standard, pass, 27 terms through n = 461 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,22 @@
 /* This function computes OEIS A018859: a(n) = the smallest power of 4
    whose decimal representation begins with the digits of n (n ≥ 1). */
 
-#include "../utils/mul_small.h"   /* mul_small */
-#include "../utils/seq_pow.h"     /* seq_pow */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static inline int digits_of(idx_t x)
 /* Return the number of decimal digits of a positive integer x. */
@@ -53,7 +68,7 @@ seq_t a(idx_t n)
 
         /* compute divisor = 10^(len_cur - len_n) */
         idx_t shift = (idx_t)(len_cur - len_n);
-        seq_t divisor = (shift == 0) ? (seq_t)1 : seq_pow((seq_t)10, shift);
+        seq_t divisor = (shift == 0) ? (seq_t)1 : ipow_idx((seq_t)10, shift);
 
         /* most significant len_n digits of cur */
         seq_t high = cur / divisor;

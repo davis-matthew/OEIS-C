@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 1093, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow2, trailing_zeros_seq_t
+ * Validated: standard, pass, 68 terms through n = 9694 (2026-11-03)
+ * Helpers:   ctz_seq_to_u32, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/ctz_seq_to_u32.h"
 #include "../utils/pow2.h"
-#include "../utils/trailing_zeros_seq_t.h"
+#include "../utils/mem.h"
 
 /* Simple popcount for seq_t.  Works for built-in or arbitrary precision
    integer types that support bitwise operations and shift. */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;            /* allocation failure */
         cache[0] = 0;                    /* a(0) = 0 */
         cache_len = 1;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             continue;
         }
 
-        unsigned tz = trailing_zeros_seq_t(val);
+        unsigned tz = ctz_seq_to_u32(val);
         int bc   = popcount_seq_t(val);
         seq_t p2 = pow2(tz);              /* 2^tz */
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
             /* Ensure enough space */
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) return 0;        /* allocation failure */
                 cache = tmp;
             }

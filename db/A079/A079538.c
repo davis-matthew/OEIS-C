@@ -9,14 +9,15 @@
  *            totient and d(n) the number of divisors
  * Range:     i8 n <= 4, i16 n <= 16, i32 n <= 2458, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   seq_pow_uint
+ * Validated: standard, pass, 72 terms through n = 9421 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow_uint.h"
+#include "../utils/ipow_idx.h"
 
 /* The build supplies the integer types seq_t (signed) and idx_t (unsigned). */
 
@@ -64,8 +65,8 @@ seq_t a(idx_t n)
 
             /* update σ_2(n) using the formula for a prime power p^exp
                σ_2(p^exp) = (p^{2(exp+1)} – 1) / (p^2 – 1)  */
-            seq_t p2      = seq_pow_uint((seq_t)p, 2);          /* p^2   */
-            seq_t num     = seq_pow_uint((seq_t)p, 2 * (exp + 1)) - 1; /* p^{2(exp+1)} – 1 */
+            seq_t p2      = ipow_idx((seq_t)p, 2);          /* p^2   */
+            seq_t num     = ipow_idx((seq_t)p, 2 * (exp + 1)) - 1; /* p^{2(exp+1)} – 1 */
             seq_t den     = p2 - 1;     /* p^2 – 1 */
             sigma *= num / den;
         }

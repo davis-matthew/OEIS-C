@@ -8,13 +8,26 @@
  *            under the "sum of fifth powers of digits" function has period 22
  * Range:     u8 none, u16 none, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   digit_fifth_sum
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digit_fifth_sum.h"
+
+/* Helper: compute sum of fifth powers of decimal digits. */
+static inline seq_t digit_fifth_sum(seq_t x)
+{
+    static const seq_t pow5[10] = {0,1,32,243,1024,3125,7776,16807,32768,59049};
+    seq_t s = 0;
+    while (x > 0) {
+        seq_t d = x % (seq_t)10;
+        s += pow5[(int)d];
+        x /= (seq_t)10;
+    }
+    return s;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   int_cube_root_u64
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,28 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/int_cube_root_u64.h"
+#include "../utils/mem.h"
+
+/* Integer cube root for a 64‑bit unsigned value, returned as seq_t. */
+static inline seq_t int_cube_root_u64(idx_t x)
+{
+    idx_t low = 0;
+    /* 2^21^3 < 2^63, so cube root of any 64‑bit number < 2^21 */
+    idx_t high = (x > (((idx_t)1 << 21) - 1) ? ((idx_t)1 << 21) - 1 : x);
+    idx_t mid, res = 0;
+    while (low <= high) {
+        mid = low + ((high - low) >> 1);
+        idx_t mid2 = mid * mid;           /* mid <= 2^21 ⇒ mid2 <= 2^42 */
+        idx_t mid3 = mid2 * mid;          /* mid3 <= 2^63-1   */
+        if (mid3 <= x) {
+            res = mid;
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+    return (seq_t)res;
+}
 
 /* Integer square root for a 64‑bit unsigned value, returned as seq_t. */
 static inline seq_t int_sqrt_u64(idx_t x)
@@ -57,7 +79,7 @@ seq_t a(idx_t n)
             /* store the value */
             if (cnt >= cap) {
                 size_t new_cap = cap ? cap * 2 : 128;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort(); /* out of memory */
                 cache = tmp;
                 cap   = new_cap;

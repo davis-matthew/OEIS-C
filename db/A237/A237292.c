@@ -7,17 +7,59 @@
  * Formula:   a(n) = ord_{(2n+1)^2}(2) / ord_{2n+1}(2)
  * Range:     u8 n <= 7, u16 n <= 3755, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_uint64_simple, gcd_uint64, lcm_uint64, mod_pow
+ * Validated: standard, pass, 79 terms through n = 9631 (2026-11-01)
+ * Helpers:   gcd_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"   /* mod_pow(seq_t base, uint64_t exp, seq_t mod) */
-#include "../utils/factor_uint64_simple.h"
-#include "../utils/gcd_uint64.h"
-#include "../utils/lcm_uint64.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/powmod.h"
+
+/* Simple trial‑division factorisation for numbers up to ~4e8. */
+static void factor_uint64_simple(uint64_t n, uint64_t *pf, uint64_t *pe, size_t *cnt) {
+    *cnt = 0;
+    if (n == 0) return;
+    /* factor 2 */
+    if ((n & 1ULL) == 0) {
+        uint64_t e = 0;
+        while ((n & 1ULL) == 0) {
+            n >>= 1;
+            e++;
+        }
+        pf[(*cnt)] = 2ULL;
+        pe[(*cnt)] = e;
+        (*cnt)++;
+    }
+    /* odd factors */
+    for (uint64_t p = 3ULL; p * p <= n; p += 2ULL) {
+        if (n % p == 0) {
+            uint64_t e = 0;
+            while (n % p == 0) {
+                n /= p;
+                e++;
+            }
+            pf[(*cnt)] = p;
+            pe[(*cnt)] = e;
+            (*cnt)++;
+        }
+    }
+    if (n > 1) {
+        pf[(*cnt)] = n;
+        pe[(*cnt)] = 1;
+        (*cnt)++;
+    }
+}
+
+static uint64_t lcm_uint64(uint64_t a, uint64_t b) {
+    if (a == 0 || b == 0) return 0;
+    return a / gcd_u64(a, b) * b;
+}
 
 /* GCD and LCM for uint64_t */
 
@@ -38,7 +80,7 @@ static uint64_t order_of_two_mod_prime_power(uint64_t prime, uint64_t exp) {
         uint64_t f = pf[i];
         while (order % f == 0) {
             uint64_t cand = order / f;
-            if (mod_pow((seq_t)2, cand, (seq_t)q) == (seq_t)1) {
+            if (powmod((seq_t)2, cand, (seq_t)q) == (seq_t)1) {
                 order = cand;
             } else {
                 break;

@@ -10,35 +10,38 @@
  *            n*(n-1)*(n-2)*3^(n-3)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 40 terms through n = 992 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     seq_t result = 0;
     seq_t N = (seq_t)n;
 
     /* First term: 6^n */
-    result = big_pow((seq_t)6, N);
+    result = ipow((seq_t)6, N);
 
     /* Second term: -3*n*5^(n-1) */
     if (n >= 1) {
-        seq_t term = ( (seq_t)3 * N * big_pow((seq_t)5, (seq_t)(n-1)) );
+        seq_t term = ( (seq_t)3 * N * ipow((seq_t)5, (seq_t)(n-1)) );
         result -= term;
     }
 
     /* Third term: +3*n*(n-1)*4^(n-2) */
     if (n >= 2) {
-        seq_t term = ( (seq_t)3 * N * (seq_t)(n-1) * big_pow((seq_t)4, (seq_t)(n-2)) );
+        seq_t term = ( (seq_t)3 * N * (seq_t)(n-1) * ipow((seq_t)4, (seq_t)(n-2)) );
         result += term;
     }
 
     /* Fourth term: -n*(n-1)*(n-2)*3^(n-3) */
     if (n >= 3) {
-        seq_t term = ( N * (seq_t)(n-1) * (seq_t)(n-2) * big_pow((seq_t)3, (seq_t)(n-3)) );
+        seq_t term = ( N * (seq_t)(n-1) * (seq_t)(n-2) * ipow((seq_t)3, (seq_t)(n-3)) );
         result -= term;
     }
 

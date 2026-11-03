@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   build_spf, gcd, pow_uint
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   build_spf, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_uint.h"
-#include "../utils/gcd.h"
 #include "../utils/build_spf.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* static storage for smallest prime factors up to the current maximum n */
 static idx_t *spf = NULL;
@@ -43,7 +44,7 @@ static seq_t psi_mod(idx_t k, seq_t mod)
             ++e;
         }
         /* part = p^(e-1) * (p+1)   (mod mod)   */
-        seq_t part = pow_uint(p, e == 0 ? 0 : e - 1);
+        seq_t part = ipow_u64_idx(p, e == 0 ? 0 : e - 1);
         part *= (p + 1);
         part %= mod;
         prod *= part;

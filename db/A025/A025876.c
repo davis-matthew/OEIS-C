@@ -8,7 +8,8 @@
  *            Initial values: a(0)=1, a(1)=a(2)=a(3)=a(4)=0
  * Range:     u8 n <= 318, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 4490 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* The function memoises results so that any order of calls works and
    each new value is computed in O(1). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Expand cache if necessary */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         /* Compute values from the first missing index up to n */
         for (idx_t i = cache_size; i <= n; ++i) {
             if (i == 0) {

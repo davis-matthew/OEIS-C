@@ -7,7 +7,8 @@
  * Formula:   a(n) = 3*(4*n+2)!/(3*n+3)!
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 33 terms through n = 316 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /*  Recurrence: 3*(3*n+2)*(3*n+1)*(n+1)*a(n) =
  *               8*n*(4*n+1)*(2*n+1)*(4*n-1)*a(n-1)  ,  a(0)=1  */
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cache of already computed terms   */
 static idx_t seq_cache_size = 0;  /* number of elements stored in cache */
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
 {
     /* Ensure cache[0] = 1 (a(0)) */
     if (seq_cache_size == 0) {
-        seq_cache = (seq_t*)malloc(sizeof(seq_t));
+        seq_cache = mem_new(seq_t, 1);
         if (!seq_cache) return 0;                 /* out of memory; treat as 0   */
         seq_cache[0] = (seq_t)1;
         seq_cache_size = 1;
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     /* Expand cache up to needed index */
     if (n + 1 > seq_cache_size) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) return 0;                       /* out of memory; treat as 0   */
         seq_cache = tmp;
         /* Compute missing terms */

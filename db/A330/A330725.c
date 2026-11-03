@@ -8,15 +8,31 @@
  * Keywords:  nonn, look
  * Formula:   a(0) = 0; for n > 0: if σ(n) > a(n-1) then a(n) = a(n-1) + σ(n)
  *            else a(n) = a(n-1) - σ(n) where σ(n) is the sum of divisors of n
- * Range:     u8 n <= 59, u16 n <= 9717, u32 n <= 9717, u64 n <= 9717,
- *            u128 n <= 9717, big any n
- * Helpers:   sigma_of
+ * Range:     u8 n <= 59, u16 n <= 12011, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 80 terms through n = 9717 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* memoised cache of the sequence values */
 static seq_t *cache = NULL;
@@ -31,7 +47,7 @@ seq_t a(idx_t n)
     /* initialise cache if needed */
     if (cache_len == 0) {
         cache_len = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache)
             return (seq_t)0;                    /* out of memory */
         cache[0] = (seq_t)0;
@@ -43,8 +59,7 @@ seq_t a(idx_t n)
 
     /* grow cache to accommodate indices up to n */
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t*)realloc(cache,
-                                 (size_t)new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_len);
     if (!tmp)
         return (seq_t)0;                        /* out of memory */
     cache = tmp;

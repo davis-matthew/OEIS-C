@@ -7,13 +7,15 @@
  * Formula:   a(n) = 2*a(n-1) - a(n-2) + a(n-4); a(0) = a(1) = a(2) = a(3) = 1
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 48, u64 n <= 94, u128 n <= 186,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 469 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     if (!initialized) {
         initialized = true;
         cache_len = 100;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = cache[1] = cache[2] = cache[3] = 1;
     }
     
@@ -34,12 +36,12 @@ seq_t a(idx_t n) {
     
     if (cache_len <= n) {
         idx_t new_len = (n + 1) * 2;
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         
         for (idx_t i = 0; i < cache_len; i++) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         
         cache = new_cache;
         cache_len = new_len;

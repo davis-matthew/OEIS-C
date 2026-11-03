@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         }
 
         /* ---- 3. Collect all non‑excluded numbers. ------------ */
-        seq_t *tmp_cache = (seq_t *)malloc(sizeof(seq_t) * mem_lim);
+        seq_t *tmp_cache = mem_new(seq_t, mem_lim);
         if (!tmp_cache) {
             free(excluded);
             free(prime_arr);
@@ -90,14 +92,14 @@ seq_t a(idx_t n)
         /* Did we reach the required number of terms? */
         if (collected >= needed) {
             /* Replace old cache with the new one */
-            free(cache);
+            mem_free(cache);
             cache      = tmp_cache;
             cache_len  = collected;
             break;  /* cache is ready */
         }
 
         /* Not enough terms; discard and try again with a larger bound */
-        free(tmp_cache);
+        mem_free(tmp_cache);
         limit *= 2;   /* grow limit exponentially to keep O(n) overall */
     }
 

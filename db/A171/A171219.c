@@ -10,13 +10,22 @@
  *            This short formula reproduces the same values
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   val_k
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/val_k.h"
+
+/* value of the k‑th block (i.e. A168388(2k+1)) */
+static seq_t val_k(uint64_t k)
+{
+    seq_t kk = (seq_t)k;
+    seq_t t  = kk * (kk + 1) * (2 * kk + 1);
+    t /= 3;            /* t = k(k+1)(2k+1)/3, divisible by 1 */
+    return 1 + (seq_t)2 * t;   /* 1 + 2t = the required value */
+}
 
 /* cumulative length of the first k blocks */
 static seq_t S(uint64_t k)

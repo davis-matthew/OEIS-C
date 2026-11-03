@@ -11,7 +11,8 @@
  *            This implementation follows the recurrence directly
  * Range:     u8 n <= 231, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Persistent state for memoisation */
 static idx_t max_n = 0;               /* largest index computed so far     */
@@ -39,7 +41,7 @@ static void ensure_values_capacity(idx_t n)
     if (n <= (idx_t)values_cap) return;
     size_t new_cap = values_cap ? values_cap * 2 : 8;
     while (new_cap < (size_t)n) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(values, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, values, (new_cap + 1));
     if (!new_arr) abort();          /* fatal if allocation fails */
     values = new_arr;
     values_cap = new_cap;

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 7093, u32 n <= 9699, u64 n <= 9699,
- *            u128 n <= 9699, big any n
- * Helpers:   gcd
+ * Range:     u8 n <= 15, u16 n <= 7093, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 74 terms through n = 9699 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* comparison routine for qsort */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
 
         if (cnt >= n)                            /* we have enough values */
         {
-            qsort(cvals, cnt, sizeof(seq_t), cmp_seq_t);
+            mem_qsort(cvals, cnt, sizeof(seq_t), cmp_seq_t);
             seq_t result = cvals[n - 1];
 #if defined(__cplusplus)
             delete [] cvals;

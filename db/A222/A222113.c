@@ -11,14 +11,17 @@
  *            and evaluating that representation in base n+1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 227 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* 1‑based cache of already computed terms */
 static seq_t *seq_cache = NULL;   /* array entry 0 unused */
@@ -31,7 +34,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n + 1 <= cache_cap)
         return;
     size_t new_cap = ((size_t)n + 1) * 2;          /* double to reduce reallocs */
-    void *p = realloc(seq_cache, new_cap * sizeof(seq_t));
+    void *p = mem_resize(seq_t, seq_cache, new_cap);
     if (!p)
         abort();                         /* out of memory */
     seq_cache = (seq_t *)p;
@@ -54,7 +57,7 @@ static seq_t eval_seq(seq_t val, idx_t base)
         seq_t digit = rem % (seq_t)base;   /* 0 ≤ digit < base */
         if (digit) {
             seq_t exp = eval_seq(digit_pos, base);   /* hereditary value of the exponent */
-            seq_t term = big_pow((seq_t)(base + 1), exp);
+            seq_t term = ipow((seq_t)(base + 1), exp);
             sum += term * digit;
         }
         rem /= (seq_t)base;

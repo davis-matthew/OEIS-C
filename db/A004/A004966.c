@@ -9,13 +9,26 @@
  *            phi^11 = (199 + 89*sqrt(5))/2 and 89^2*5 = 39605
  * Range:     u8 n <= 1, u16 n <= 34, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   u128_to_seq
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/u128_to_seq.h"
+#include <stdlib.h>
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 static unsigned __int128 isqrt_u128(unsigned __int128 x) {
     unsigned __int128 res = 0;

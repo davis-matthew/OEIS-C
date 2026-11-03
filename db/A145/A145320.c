@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence A145320: Numbers n such that there exists x∈ℕ with (x+31)^3‑x^3=n².
    a(1)=6727, a(2)=163472827, a(n+2)=24302·a(n+1)−a(n). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         if (new_size < 2) new_size = 2;
 
         /* Allocate or enlarge the cache – works in C and C++ */
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
 
         /* Initialise base values if the cache was empty */
         if (cache_size == 0) {

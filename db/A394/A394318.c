@@ -14,7 +14,8 @@
  *            reading the triangle row‑by‑row: * a(0)=T(0,0), a(1)=T...
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 16, u64 n <= 39, u128 n <= 99,
  *            big any n
- * Helpers:   free_seq_array
+ * Validated: standard, pass, 44 terms through n = 9601 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,11 +23,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/free_seq_array.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Helper to allocate a new array of seq_t elements.  */
 static seq_t *alloc_seq_array(size_t n) {
-    return (seq_t *)malloc(n * sizeof(seq_t));
+    return mem_new(seq_t, n);
 }
 
 /* Helper to free a seq_t array.  */

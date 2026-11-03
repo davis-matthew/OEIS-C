@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 9 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* 5-variable permutations – 120! */
 #define NUM_PERMS 120
@@ -124,7 +126,7 @@ seq_t a(idx_t n) {
         qsort(cans, antichain_count, sizeof(uint32_t), cmp_uint32);
 
         /* count unique classes per size (popcount) */
-        memset(results, 0, sizeof(results));
+        mem_set(results, 0, sizeof(results));
         for (int i = 0; i < antichain_count; ++i) {
             if (i > 0 && cans[i] == cans[i - 1]) continue; /* duplicate */
             int sz = __builtin_popcount(cans[i]);           /* size of antichain */

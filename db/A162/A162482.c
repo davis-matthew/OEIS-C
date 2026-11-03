@@ -10,12 +10,14 @@
  *            (26n−65)*a(n−3) –17(n−4)*a(n−4) + (6n−33)*a(n−5) –(n−7)*a(n−6)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_size = 6;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache)
             return (seq_t)0;    /* out of memory */
         for (idx_t i = 0; i < 6; ++i)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     /* extend the cached values up to n */
     if (n >= cache_size) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache)
             return (seq_t)0;    /* out of memory */
         cache = new_cache;

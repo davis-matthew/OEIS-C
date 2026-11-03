@@ -8,6 +8,7 @@
  * Formula:   a(n) = n^5 + 5*n^4 + (11/2)*n^3 + n^2 - (1/2)*n
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 80, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 183 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

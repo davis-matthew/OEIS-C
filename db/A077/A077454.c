@@ -8,7 +8,8 @@
  *            p^(3e+1) + 1)/(p^2 + p + 1)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 40, u64 n <= 1626,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, int_sqrt
+ * Validated: standard, pass, 46 terms through n = 9857 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 /* static cache for primes */
 static uint64_t *primes = NULL;            /* array of primes */
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Prepare prime list up to sqrt(n) */
-    idx_t limit = int_sqrt(n);
+    idx_t limit = isqrt(n);
     if (limit > prime_limit) {
         if (primes)
             free(primes);

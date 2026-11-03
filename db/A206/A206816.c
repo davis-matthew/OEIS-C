@@ -7,12 +7,14 @@
  * Formula:   a(n) = Σ_{j=1}^{n-1} (n! - j!)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 387 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact = NULL;          /* factorials: fact[k] = k!  */
 static seq_t *psum = NULL;          /* prefix sums: psum[k] = Σ_{j=1}^{k} j! */
@@ -23,8 +25,8 @@ static void extend_tables(idx_t n)
 {
     if (n <= max_n) return;
     /* Reallocate arrays to hold indices 0..n */
-    fact   = (seq_t *)realloc(fact,   sizeof(seq_t) * (n + 1));
-    psum   = (seq_t *)realloc(psum,   sizeof(seq_t) * (n + 1));
+    fact   = mem_resize(seq_t, fact, (n + 1));
+    psum   = mem_resize(seq_t, psum, (n + 1));
 
     /* Initialize base case if this is the first time */
     if (max_n == 0) {

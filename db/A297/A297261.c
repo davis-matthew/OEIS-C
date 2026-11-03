@@ -10,14 +10,44 @@
  *            this property, and caches results for repeated queries
  * Range:     u8 n <= 100, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isgood
+ * Validated: standard, pass, 74 terms through n = 9187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isgood.h"
+#include "../utils/mem.h"
+
+/* Return true iff the base‑7 down‑variation of x is greater than its up‑variation. */
+static bool isgood(seq_t x)
+{
+    if (x == (seq_t)0) return false;
+
+    /* Extract base‑7 digits (least significant first). */
+    unsigned char da[64];
+    size_t len = 0;
+    seq_t t = x;
+    while (t > (seq_t)0) {
+        seq_t r = t % (seq_t)7;
+        da[len++] = (unsigned char)((int)(r));
+        t = t / (seq_t)7;
+    }
+    if (len == 0) da[len++] = 0;   /* x==0 case, never happens here */
+
+    seq_t uv = (seq_t)0, dv = (seq_t)0;
+
+    for (size_t i = len-1; i > 0; --i) {
+        unsigned int hi = da[i];
+        unsigned int lo = da[i-1];
+        if (hi > lo)
+            dv += (seq_t)(hi - lo);
+        else if (lo > hi)
+            uv += (seq_t)(lo - hi);
+    }
+    return dv > uv;
+}
 
 /* Cache of computed terms. */
 static seq_t *terms   = NULL;
@@ -33,7 +63,7 @@ static void ensure_cache(size_t need)
     size_t newcap = terms_cap ? terms_cap*2 : 16;
     while (newcap < need)
         newcap *= 2;
-    terms = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, newcap);
     terms_cap = newcap;
 }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_multiset
+ * Validated: standard, pass, 103 terms through n = 980 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,37 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/factor_multiset.h"
+
+/* ----------------------------------------------------------------------
+ * Factorise n into its multiset of prime factors (with multiplicity).
+ * The factor array is stored in 'facts' and its length in '*cnt'.
+ * The total sum of the factors is returned in '*sum'.
+ * ---------------------------------------------------------------------- */
+static void factor_multiset(idx_t n,
+                            unsigned long long facts[], size_t *cnt, idx_t *sum)
+{
+    *cnt = 0;
+    *sum = 0;
+
+    while (n % 2 == 0) {
+        facts[(*cnt)++] = 2;
+        *sum += 2;
+        n /= 2;
+    }
+
+    for (idx_t p = 3; (p * p) <= n; p += 2) {
+        while (n % p == 0) {
+            facts[(*cnt)++] = p;
+            *sum += p;
+            n /= p;
+        }
+    }
+
+    if (n > 1) {                     /* n is now a prime > sqrt(original n) */
+        facts[(*cnt)++] = n;
+        *sum += n;
+    }
+}
 
 /* ----------------------------------------------------------------------
  * DP bitset for subset sums.

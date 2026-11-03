@@ -14,13 +14,15 @@
  *            recurrence
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
  
 static seq_t *cache = NULL;          /* cache[0] unused, indices 1…n */
 static size_t cache_len = 0;        /* highest index for which cache[i] is valid */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise cache with the base values if not yet done */
     if (cache_len == 0) {
         cache_cap = 16;                         /* initial capacity */
-        cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         if (!cache) abort();                     /* allocation failure */
  
         /* set unused entry 0 to 0 */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < (size_t)(n + 1)) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                        /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

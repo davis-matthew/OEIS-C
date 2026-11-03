@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 511, u16 n <= 9573, u32 n <= 9573, u64 n <= 9573,
- *            u128 n <= 9573, big any n
- * Helpers:   none
+ * Range:     u8 n <= 511, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 101 terms through n = 9573 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Allocate or grow a static cache to hold already computed values.
    Use the provided seq_t type directly. */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold up to n elements. */
     if ((idx_t)cap < n) {
         size_t newcap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();    /* allocation failure */
         /* Zero‑initialize any newly allocated slots. */
         for (size_t i = cap; i < newcap; ++i)

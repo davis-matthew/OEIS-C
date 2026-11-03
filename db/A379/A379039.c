@@ -8,14 +8,28 @@
  *            binomial(4*k+2,n-k)/(2*k+1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 20,
  *            big any n
- * Helpers:   compute_w_div
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/compute_w_div.h"
+#include "../utils/mem.h"
+
+/* compute w_div[k] = binomial(4*k+2,k)/(2*k+1)    */
+static seq_t compute_w_div(idx_t k) {
+    if (k == 0) return (seq_t)1;
+    /* bin = binomial(4*k+2,k) */
+    seq_t bin = 1;
+    idx_t n_minus_k = 3*k + 2;                /* 4k+2 - k */
+    for (idx_t i = 1; i <= k; ++i) {
+        bin = bin * (seq_t)(n_minus_k + i);
+        bin = bin / (seq_t)i;
+    }
+    return bin / (seq_t)(2*k + 1);
+}
 
 static idx_t max_computed_n = (idx_t)-1;          /* last index for which a(n) is known */
 static size_t array_size = 0;                     /* current size of allocated arrays */
@@ -28,9 +42,9 @@ static void ensure_arrays(idx_t need) {
     size_t new_size = (size_t)need + 1;
     if (new_size <= array_size) return;
     if (a_vals == NULL) {
-        a_vals = (seq_t*)malloc(new_size * sizeof(seq_t));
-        w_div  = (seq_t*)malloc(new_size * sizeof(seq_t));
-        b_term = (seq_t*)malloc(new_size * sizeof(seq_t));
+        a_vals = mem_new(seq_t, new_size);
+        w_div  = mem_new(seq_t, new_size);
+        b_term = mem_new(seq_t, new_size);
         array_size = new_size;
         /* initialise new elements to 0 */
         for (size_t i = 0; i < new_size; ++i) {
@@ -39,9 +53,9 @@ static void ensure_arrays(idx_t need) {
             b_term[i] = 0;
         }
     } else {
-        a_vals = (seq_t*)realloc(a_vals, new_size * sizeof(seq_t));
-        w_div  = (seq_t*)realloc(w_div,  new_size * sizeof(seq_t));
-        b_term = (seq_t*)realloc(b_term, new_size * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, new_size);
+        w_div  = mem_resize(seq_t, w_div, new_size);
+        b_term = mem_resize(seq_t, b_term, new_size);
         /* initialise new elements to 0 */
         for (size_t i = array_size; i < new_size; ++i) {
             a_vals[i] = 0;

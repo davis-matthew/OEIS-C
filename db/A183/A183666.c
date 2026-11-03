@@ -9,21 +9,24 @@
  *            434, offset 1
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 37 terms through n = 185 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* n is 1-based index; compute using the closed‑form expression */
-    seq_t pow7 = big_pow((seq_t)7, (seq_t)n);
-    seq_t pow6 = big_pow((seq_t)6, (seq_t)n);
-    seq_t pow5 = big_pow((seq_t)5, (seq_t)n);
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)n);
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n);
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
+    seq_t pow7 = ipow((seq_t)7, (seq_t)n);
+    seq_t pow6 = ipow((seq_t)6, (seq_t)n);
+    seq_t pow5 = ipow((seq_t)5, (seq_t)n);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)n);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)n);
 
     seq_t res = 0;
     res += (seq_t)7   * pow7;

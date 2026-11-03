@@ -9,14 +9,29 @@
  *            Implements an O( n^(1/4) ) algorithm using symmetry
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   floor_root4_u64
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_root4_u64.h"
+
+/* Compute ⌊v^(1/4)⌋ for a 64‑bit unsigned integer v. */
+static inline idx_t floor_root4_u64(idx_t v)
+{
+    /* 65536⁴ = 2⁶⁴ > v_max.  The search interval is [0,65536]. */
+    idx_t lo = 0, hi = 65536;
+    while (lo < hi) {
+        idx_t mid = (lo + hi + 1) >> 1;
+        /* Use 128‑bit to avoid overflow of mid⁴. */
+        __uint128_t p = (unsigned __int128)mid * mid;
+        p = p * p;                     /* p = mid⁴   */
+        if (p <= v) lo = mid; else hi = mid - 1;
+    }
+    return lo;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

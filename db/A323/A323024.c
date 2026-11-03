@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1742, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9499 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <sys/types.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static size_t seq_cap   = 0;
@@ -68,7 +70,7 @@ static void cache_append(seq_t val)
 {
     if (seq_len >= seq_cap) {
         size_t new_cap = seq_cap == 0 ? 16 : seq_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         seq_cache = tmp;
         seq_cap = new_cap;
     }

@@ -9,6 +9,7 @@
  *            (-1)^n/32 + 31/32
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of decimal digits of n^100
  * Range:     u8 n <= 50, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   digit_count_big
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,23 @@
  * its decimal digits.  All arithmetic is integer only. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/digit_count_big.h"
+
+/* Compute the decimal digit length of a non‑zero big integer in base 1e9. */
+static int digit_count_big(const uint32_t *d, size_t len)
+{
+    uint32_t msd = d[len - 1];
+    int msd_digits = 0;
+    if (msd >= 100000000U)          msd_digits = 9;
+    else if (msd >= 10000000U)     msd_digits = 8;
+    else if (msd >= 1000000U)      msd_digits = 7;
+    else if (msd >= 100000U)       msd_digits = 6;
+    else if (msd >= 10000U)        msd_digits = 5;
+    else if (msd >= 1000U)         msd_digits = 4;
+    else if (msd >= 100U)          msd_digits = 3;
+    else if (msd >= 10U)           msd_digits = 2;
+    else                           msd_digits = 1;
+    return (int)((len - 1) * 9 + msd_digits);
+}
 
 static const uint32_t BASE = 1000000000U;        /* 1e9, fits in 32 bits */
 

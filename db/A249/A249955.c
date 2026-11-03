@@ -13,7 +13,8 @@
  *            precomputed bitmap identifies the forbidden 6‑...
  * Range:     u8 none, u16 n <= 4, u32 n <= 15, u64 n <= 38, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* precompute which 6‑digit windows are forbidden */
 static bool bad_window[4096];
@@ -62,7 +64,7 @@ seq_t a(idx_t n) {
 
     if (L > computedUpTo) {
         size_t newSize = L + 1;           /* indices 0 … L */
-        seq_t *tmp = (seq_t*)realloc(aLen, newSize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, aLen, newSize);
         if (!tmp) {                      /* allocation failed */
             return 0;
         }
@@ -72,12 +74,12 @@ seq_t a(idx_t n) {
         /* DP arrays: state space is 4^5 = 1024  (last 5 digits) */
         static seq_t dp[1024];
         static seq_t newdp[1024];
-        memset(dp, 0, sizeof(dp));
+        mem_set(dp, 0, sizeof(dp));
         dp[0] = 1;                       /* empty sequence */
         aLen[0] = 1;                     /* length 0 count */
 
         for (size_t len = 0; len < newSize - 1; ++len) {
-            memset(newdp, 0, sizeof(newdp));
+            mem_set(newdp, 0, sizeof(newdp));
             for (int mask = 0; mask < 1024; ++mask) {
                 seq_t cur = dp[mask];
                 if (cur == 0) continue;
@@ -95,7 +97,7 @@ seq_t a(idx_t n) {
             for (int mask = 0; mask < 1024; ++mask) sum += newdp[mask];
             aLen[len + 1] = sum;
             /* copy newdp into dp for next iteration */
-            memcpy(dp, newdp, sizeof(dp));
+            mem_copy(dp, newdp, sizeof(dp));
         }
         computedUpTo = L;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   ensure_seq_capacity
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/ensure_seq_capacity.h"
+#include "../utils/mem.h"
+
+/* capacity management for the results array */
+static void ensure_seq_capacity(seq_t **a, size_t *len, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t newcap = (*cap == 0) ? 8 : *cap * 2;
+        while (newcap < need) newcap <<= 1;
+        *a = mem_resize(seq_t, *a, newcap);
+        *cap = newcap;
+    }
+}
 
 static seq_t *results = NULL;
 static size_t results_len = 0, results_cap = 0;

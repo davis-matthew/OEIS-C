@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A000035( A365800(n) )
- * Range:     u8 n <= 120, u16 n <= 9690, u32 n <= 9690, u64 n <= 9690,
- *            u128 n <= 9690, big any n
- * Helpers:   none
+ * Range:     u8 n <= 120, u16 n <= 9690, u32 n <= 101025, u64 n <= 101025,
+ *            u128 n <= 101025, big any n
+ * Validated: standard, pass, 136 terms through n = 9690 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *f_cache = NULL;              /* parity of f(n) */
 static unsigned char *tri_cache = NULL;    /* 1 if index is triangular */
@@ -31,19 +33,8 @@ static size_t f_size = 0;                  /* current allocation size */
 static void *resize_array(void *old, size_t old_count, size_t new_count,
                           size_t elem_size)
 {
-    if (old == NULL) {
-#ifdef __cplusplus
-        return new char[new_count * elem_size];
-#else
-        return malloc(new_count * elem_size);
-#endif
-    }
-#ifdef __cplusplus
-    void *newptr = realloc(old, new_count * elem_size);
-#else
-    void *newptr = realloc(old, new_count * elem_size);
-#endif
-    return newptr;
+    (void)old_count;
+    return realloc(old, new_count * elem_size);     /* plain memory only (realloc(NULL) allocates) */
 }
 
 /* Ensure that f_cache and tri_cache are large enough for indices up to n. */
@@ -54,15 +45,9 @@ static void ensure_cache(idx_t n)
         return;
 
     /* resize f_cache */
-    void *new_f = resize_array(f_cache, f_size, required,
-                               sizeof(seq_t));
+    seq_t *new_f = mem_resize(seq_t, f_cache, required);    /* seq_t: mem_resize */
     if (!new_f) return; /* out of memory; silently ignore */
-
-#ifdef __cplusplus
-    f_cache = static_cast<seq_t*>(new_f);
-#else
-    f_cache = (seq_t*)new_f;
-#endif
+    f_cache = new_f;
 
     /* resize tri_cache */
     void *new_tri = resize_array(tri_cache, f_size, required,

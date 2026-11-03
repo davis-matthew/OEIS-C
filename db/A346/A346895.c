@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 22, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 459 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* function prototype from the build environment */
 seq_t *seq_realloc(seq_t *old, size_t old_cap, size_t new_cap);
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* ensure array is large enough for index n */
     if ((size_t)(n + 1) > cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_val = (seq_t *)realloc(val, new_cap * sizeof(seq_t));
+        seq_t *new_val = mem_resize(seq_t, val, new_cap);
         if (!new_val) return 0;   /* allocation failure – return 0 as a safety */
         val = new_val;
         cap = new_cap;

@@ -8,13 +8,25 @@
  * Formula:   a(n) = floor(concat(odd numbers 1..(2n-1)) / (n(n+1)/2))
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 13, u128 n <= 23,
  *            big any n
- * Helpers:   digits, pow10
+ * Validated: standard, pass, 34 terms through n = 343 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/digits.h"   /* digits(idx_t) */
-#include "../utils/pow10.h"   /* pow10(idx_t) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 extern seq_t a(idx_t n)
 {
@@ -31,7 +43,7 @@ extern seq_t a(idx_t n)
 
     for (idx_t k = 1; k <= n; ++k) {
         idx_t odd = 2 * k - 1;          /* current odd number */
-        int d = digits(odd);           /* number of decimal digits of odd */
+        int d = num_digits_idx(odd);           /* number of decimal digits of odd */
 
         /* Process digits of 'odd' from most significant to least significant */
         for (int pos = d - 1; pos >= 0; --pos) {

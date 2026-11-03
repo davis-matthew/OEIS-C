@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   high_pow2
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/high_pow2.h"
+#include "../utils/mem.h"
+
+/* highest power of two <= n (n >= 1) */
+static idx_t high_pow2(idx_t n)
+{
+    idx_t p = 1;
+    while ((p << 1) <= n) p <<= 1;
+    return p;
+}
 
 /* Cache for computed values */
 static seq_t *cache = NULL;
@@ -37,8 +46,7 @@ static void ensure_cache(idx_t n)
     seq_t *tmp_seq = NULL;
     bool  *tmp_bool = NULL;
 #if defined(__cplusplus)
-    tmp_seq  = reinterpret_cast<seq_t*>(
-                   realloc(static_cast<void*>(cache), new_size * sizeof(seq_t)));
+    tmp_seq  = mem_resize(seq_t, cache, new_size);
     tmp_bool = reinterpret_cast<bool*>(
                    realloc(static_cast<void*>(got),   new_size * sizeof(bool)));
 #else

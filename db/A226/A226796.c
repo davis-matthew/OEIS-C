@@ -9,15 +9,18 @@
  *            are all distinct (each appears exactly once)
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   digit_frequencies, digit_len
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   digit_frequencies, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_frequencies.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise once */
     if (!initialized) {
         const idx_t LIMIT_MAX = 1000000ULL;  /* 1e6 is more than enough for all qualifying numbers */
-        candidates = (seq_t *)malloc(LIMIT_MAX * sizeof(seq_t));
+        candidates = mem_new(seq_t, LIMIT_MAX);
         cand_count = 0;
 
         unsigned int freq[10];
@@ -48,12 +51,12 @@ seq_t a(idx_t n)
 
         /* shrink the array to the actual size */
         if (cand_count < LIMIT_MAX) {
-            seq_t *tmp = (seq_t *)realloc(candidates, cand_count * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, candidates, cand_count);
             if (tmp) candidates = tmp;
         }
 
         if (cand_count > 0)
-            max_digit_len = digit_len(candidates[cand_count - 1]); /* number of decimal digits of the largest qualifying x */
+            max_digit_len = num_digits(candidates[cand_count - 1]); /* number of decimal digits of the largest qualifying x */
         else
             max_digit_len = 0;
 

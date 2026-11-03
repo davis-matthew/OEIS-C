@@ -13,12 +13,14 @@
  *            (left diagonal) T(n,n) = 1 (right diagonal) T(n...
  * Range:     u8 n <= 69, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **tri = NULL;      /* array of pointers to each row          */
 static size_t max_row = 0;     /* number of rows that have been built     */
@@ -30,7 +32,7 @@ static void ensure_tri_rows(idx_t need)
 {
     while (max_row <= need) {
         size_t len = max_row + 1;           /* number of elements in new row   */
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) abort();                  /* out of memory */
         if (max_row == 0) {
             row[0] = (seq_t)1;              /* T(0,0) = 1                      */

@@ -7,17 +7,20 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sum_{d|n} φ(n/d) * (A003959(d)-d)
- * Range:     u8 n <= 31, u16 n <= 767, u32 n <= 9322, u64 n <= 9322,
- *            u128 n <= 9322, big any n
- * Helpers:   factor_u64, phi
+ * Range:     u8 n <= 31, u16 n <= 767, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 96 terms through n = 9322 (2026-11-01)
+ * Helpers:   factor_u64, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 static void dfs_divs(const uint64_t *primes, const uint64_t *exps, size_t cnt,
                      size_t idx, uint64_t cur_div, seq_t cur_f,
@@ -25,7 +28,7 @@ static void dfs_divs(const uint64_t *primes, const uint64_t *exps, size_t cnt,
 {
     if (idx == cnt) {
         uint64_t q = n / cur_div;
-        seq_t phi_q = phi((idx_t)q);
+        seq_t phi_q = totient((idx_t)q);
         seq_t diff = cur_f - (seq_t)cur_div;
         *sum += phi_q * diff;
         return;

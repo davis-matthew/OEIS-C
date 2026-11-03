@@ -11,6 +11,7 @@
  *            T(r,0)=T(r,r)=1
  * Range:     u8 n <= 39, u16 n <= 159, u32 n <= 576, u64 n <= 2240,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 5149 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,7 +12,8 @@
  *            satisfied when X is above Y and Z is below Y. Th...
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* pre–computed tables ********************************************************/
 static unsigned char lr[64][6];                 /* left/right neighbor count in row */
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
     /* DP arrays */
     static seq_t ways[4096];
     static seq_t newways[4096];
-    memset(ways, 0, sizeof(ways));
+    mem_set(ways, 0, sizeof(ways));
 
     /* initial states: X = 0 (virtual top row), Y = first row pattern */
     for (int y = 0; y < 64; ++y) {
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
 
     /* iterate for rows 2..n */
     for (idx_t step = 2; step <= n; ++step) {
-        memset(newways, 0, sizeof(newways));
+        mem_set(newways, 0, sizeof(newways));
         for (int idx = 0; idx < 4096; ++idx) {
             seq_t val = ways[idx];
             if (val == (seq_t)0) continue;
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap arrays */
-        memcpy(ways, newways, sizeof(ways));
+        mem_copy(ways, newways, sizeof(ways));
     }
 
     /* final check – last row Y must be satisfied with above X and below 0 */

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 54, u64 n <= 54, u128 n <= 54,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 19, u16 n <= 2011, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 70 terms through n = 9711 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 /* --------------------- Prime management --------------------- */
 static uint64_t       *prime_tbl   = NULL;   /* array of primes (1‑based indexing) */
@@ -39,7 +41,7 @@ static void generate_next_prime(void) {
     static uint64_t last = 1;                 /* last prime added */
     uint64_t cand = last + 1;
     if (cand < 2) cand = 2;
-    while (!is_prime(cand)) ++cand;
+    while (!is_prime_u64(cand)) ++cand;
     if (prime_cnt == prime_cap) grow_prime_tbl(prime_cap ? prime_cap * 2 : 16);
     prime_tbl[prime_cnt++] = cand;
     last = cand;
@@ -51,27 +53,14 @@ static void ensure_primes_up_to_index(idx_t idx) {
 }
 
 /* --------------------- Semiprime test --------------------- */
-static bool is_semiprime(seq_t x) {
-    if (x <= (seq_t)1) return false;
-    idx_t  count = 0;
-    seq_t  tmp   = x;
-
-    /* ensure we have primes up to sqrt(tmp) */
-    while (prime_cnt == 0 ||
-           ((seq_t)prime_tbl[prime_cnt-1] * (seq_t)prime_tbl[prime_cnt-1] <= tmp))
-        generate_next_prime();
-
-    for (idx_t i = 0; i < prime_cnt; ++i) {
-        seq_t p = (seq_t)prime_tbl[i];
-        if (p * p > tmp) break;
-        while (tmp % p == 0) {
-            ++count;
-            if (count > 2) return false;
-            tmp /= p;
-        }
-    }
-    if (tmp > (seq_t)1) ++count;
-    return count == 2;
+/* in 64 bits (trial division to sqrt(x) in seq_t timed out under big): x
+   is a semiprime iff it is not prime and either x/d is prime for its least
+   prime factor d <= cbrt(x), or it has no factor <= cbrt(x) at all */
+static bool is_semiprime(uint64_t x) {
+    if (x < 4 || is_prime_u64(x)) return false;
+    for (uint64_t d = 2; d * d * d <= x; ++d)
+        if (x % d == 0) return is_prime_u64(x / d);
+    return true;
 }
 
 /* --------------------- Sequence caching --------------------- */
@@ -103,9 +92,8 @@ seq_t a(idx_t n) {
         /* ensure we have primes p_k and p_{k+1} */
         ensure_primes_up_to_index(last_checked_k + 1);
 
-        seq_t prod =
-            (seq_t)prime_tbl[last_checked_k-1] *
-            (seq_t)prime_tbl[last_checked_k] - (seq_t)1;
+        uint64_t prod =
+            prime_tbl[last_checked_k-1] * prime_tbl[last_checked_k] - 1;
 
         if (is_semiprime(prod)) {
             if (terms_cnt == terms_cap) grow_terms_tbl();

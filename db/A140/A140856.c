@@ -10,7 +10,8 @@
  *            order
  * Range:     u8 n <= 1, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_cache = NULL;   /* cached primes */
 static idx_t  cache_size  = 0;       /* number of primes stored   */
@@ -30,7 +32,7 @@ static void ensure_prime_cache_cap(idx_t needed)
     if (cache_cap < cache_size + needed) {
         idx_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
         if (new_cap < cache_size + needed) new_cap = cache_size + needed;
-        seq_t *tmp = (seq_t *)realloc(prime_cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_cache, (size_t)new_cap);
         if (!tmp) abort();        /* allocation failure */
         prime_cache = tmp;
         cache_cap   = new_cap;

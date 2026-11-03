@@ -10,7 +10,8 @@
  *            the sum of its digits
  * Range:     u8 n <= 36, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a082943_is_valid
+ * Validated: standard, pass, 73 terms through n = 950 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,30 @@
  *  The search stops once the n‑th such number has been found.  */
 
 #include <stdbool.h>
-#include "../utils/a082943_is_valid.h"
+
+/*  Return true iff v satisfies the conditions of A082943.  */
+static bool a082943_is_valid(seq_t v)
+{
+    seq_t tmp = v;
+    seq_t digit_sum = 0;
+
+    while (tmp > 0) {
+        seq_t d = tmp % 10;          /* current decimal digit          */
+        if (d == 0)                  /* digit zero is forbidden        */
+            return false;
+        if (v % d == 0)              /* v divisible by this digit?     */
+            return false;
+        digit_sum += d;              /* accumulate digit sum           */
+        tmp /= 10;
+    }
+
+    if (digit_sum == 0)              /* should not occur (v>0)          */
+        return false;
+    if (v % digit_sum == 0)          /* divisible by sum of digits?    */
+        return false;
+
+    return true;
+}
 
 /*  External entry point required by the build.  */
 seq_t a(idx_t n)

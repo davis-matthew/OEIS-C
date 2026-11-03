@@ -9,12 +9,14 @@
  *            four 3's
  * Range:     u8 none, u16 n <= 2374, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 8209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 /* Comparison function for qsort */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         idx_t Lmax = L - 1;
         size_t capacity = total_terms;
 
-        seq_t *buf = (seq_t*)malloc(capacity * sizeof(seq_t));
+        seq_t *buf = mem_new(seq_t, capacity);
         if (!buf) return (seq_t)0;                            /* allocation failure (unlikely) */
 
         size_t idx_val = 0;
@@ -103,10 +105,10 @@ seq_t a(idx_t n)
         }
 
         /* Sort the entire list */
-        qsort(buf, idx_val, sizeof(seq_t), seq_compare);
+        mem_qsort(buf, idx_val, sizeof(seq_t), seq_compare);
 
         /* Replace old cache */
-        free(cache);
+        mem_free(cache);
         cache = buf;
         cache_len = idx_val;
     }

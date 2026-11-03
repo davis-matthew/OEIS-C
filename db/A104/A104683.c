@@ -8,13 +8,15 @@
  *            and (x_k,y_k) = (3x_{k-1}+4y_{k-1}, 2x_{k-1}+3y_{k-1})
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 51, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Arrays holding the k‑th pair (x_k , y_k).  */
 static seq_t *x_arr = NULL;
@@ -33,8 +35,8 @@ ensure_pairs(idx_t target)
         new_cap <<= 1;
 
     if (new_cap > pair_cnt) {
-        seq_t *nx = (seq_t *)realloc(x_arr, new_cap * sizeof(seq_t));
-        seq_t *ny = (seq_t *)realloc(y_arr, new_cap * sizeof(seq_t));
+        seq_t *nx = mem_resize(seq_t, x_arr, new_cap);
+        seq_t *ny = mem_resize(seq_t, y_arr, new_cap);
         x_arr = nx;
         y_arr = ny;
         /* pair_cnt remains the count of already generated pairs. */

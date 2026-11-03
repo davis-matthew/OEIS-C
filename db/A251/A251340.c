@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 115 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS 4096   /* 4^6 */
 
@@ -116,14 +118,14 @@ static void init(void)
     adj_start[ROWS] = pos;   /* sentinel */
 
     /* Allocate DP vectors. */
-    dp_cur  = (seq_t *)calloc(ROWS, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(ROWS, sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, ROWS);
+    dp_next = mem_new(seq_t, ROWS);
     for (r = 0; r < ROWS; ++r)
         dp_cur[r] = (seq_t)1;   /* first row can be anything */
 
     /* Initialise cache. */
     cache_capacity = 1;
-    cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_capacity);
     /* cache[0] unused. */
 }
 
@@ -136,7 +138,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = cache_capacity ? cache_capacity * 2 : 1;
     while ((size_t)n >= new_cap)
         new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     cache = new_cache;
     cache_capacity = new_cap;
 }
@@ -153,7 +155,7 @@ seq_t a(idx_t n)
     /* Compute up to n if not already done. */
     for (idx_t step = max_cached + 1; step <= n; ++step) {
         /* Zero dp_next vector. */
-        memset(dp_next, 0, ROWS * sizeof(seq_t));
+        mem_set(dp_next, 0, ROWS * sizeof(seq_t));
 
         /* For each current row, propagate to its neighbors. */
         seq_t total = (seq_t)0;

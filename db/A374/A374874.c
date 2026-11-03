@@ -7,14 +7,17 @@
  * Formula:   a(n) = ∏_{k=0}^{n} ( 2^k + (n-k)! )
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *factorial_cache = NULL;
 static idx_t   factorial_max  = 0;
@@ -27,14 +30,13 @@ static void ensure_factorial(idx_t n)
         size_t new_cap = (factorial_cap < 2) ? 2 : factorial_cap;
         while (new_cap <= (size_t)n) new_cap *= 2;
 
-        seq_t *new_fact = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_fact = mem_new(seq_t, new_cap);
         if (!new_fact) abort();
 
         if (factorial_cache)
         {
-            memcpy(new_fact, factorial_cache,
-                   (size_t)(factorial_max + 1) * sizeof(seq_t));
-            free(factorial_cache);
+            mem_copy(new_fact, factorial_cache, (size_t)(factorial_max + 1) * sizeof(seq_t));
+            mem_free(factorial_cache);
         }
 
         factorial_cache = new_fact;

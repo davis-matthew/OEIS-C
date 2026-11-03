@@ -9,7 +9,8 @@
  *            the digits of p is also a semiprime
  * Range:     u8 n <= 4, u16 n <= 15, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* factorial values for digits 0–9 */
 static const seq_t FACT[10] = {
@@ -82,7 +84,7 @@ static void init_sieve(void)
 
     /* build the sequence vector */
     terms_cap = 128;
-    terms     = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+    terms     = mem_new(seq_t, terms_cap);
 
     for (size_t i = 4; i <= LIMIT; ++i) {
         if (omega[i] != 2) continue;         /* not a semiprime */
@@ -101,7 +103,7 @@ static void init_sieve(void)
         /* store the value */
         if (terms_size == terms_cap) {
             terms_cap <<= 1;
-            terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, terms_cap);
         }
         terms[terms_size++] = (seq_t)i;
     }

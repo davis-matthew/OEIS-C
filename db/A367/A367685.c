@@ -8,7 +8,8 @@
  *            kernel
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- global static data ---------- */
 static seq_t *a_cache      = NULL;  /* cached sequence values */
@@ -107,7 +109,7 @@ static void ensure_a_cache(idx_t n)
         if (mmk != (seq_t)0 && val % mmk == 0) {
             if (a_cache_len == a_cache_cap) {
                 size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
                 if (!tmp) abort();
                 a_cache = tmp;
                 a_cache_cap = new_cap;

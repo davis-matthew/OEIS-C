@@ -8,6 +8,7 @@
  * Formula:   a(n) = #{ m < n | m is a perfect power and gcd(m,n)=1 }
  * Range:     u8 n <= 324, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 100 terms through n = 9774 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Integer square root: floor(sqrt(x)) for unsigned 64‑bit integer. */

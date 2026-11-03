@@ -10,7 +10,8 @@
  *            numbers. The array A is read by downward antidiagonals
  * Range:     i8 n <= 64, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* static cache for the base sequence A013929 */
 static seq_t *base_seq = NULL;   /* stores the nonsquarefree numbers */
@@ -29,7 +31,7 @@ static void ensure_base(idx_t need)
 {
     if (need + 1 <= base_len) return;          /* already have enough */
 
-    seq_t *new_seq = (seq_t*)malloc((need + 1) * sizeof(seq_t));
+    seq_t *new_seq = mem_new(seq_t, (need + 1));
     idx_t count  = 0;
     uint64_t num = 4;                          /* first nonsquarefree number */
 
@@ -45,7 +47,7 @@ static void ensure_base(idx_t need)
         ++num;
     }
 
-    free(base_seq);
+    mem_free(base_seq);
     base_seq = new_seq;
     base_len = need + 1;
 }

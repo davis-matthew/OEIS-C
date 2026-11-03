@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   sqfree
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-02)
+ * Helpers:   is_squarefree_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    Fields with odd class number have discriminant -4, -8 or -p, so this search covers
    every term. */
 #include <stdbool.h>
-#include "../utils/sqfree.h"
+#include "../utils/is_squarefree_i64.h"
 
 /* number of reduced forms (a,b,c), b^2 - 4ac = -d, |b| <= a <= c */
 static long classno(long d)
@@ -49,7 +50,7 @@ seq_t a(idx_t n)
   while ((idx_t)nfound < n && next <= LIMIT) {
     long d = next;
     next += 4;
-    if (sqfree(d) && classno(d) == 3 && nfound < 64)
+    if (is_squarefree_i64(d) && classno(d) == 3 && nfound < 64)
       found[nfound++] = d;
   }
   if (n < 1 || n > (idx_t)nfound) return (seq_t)0;

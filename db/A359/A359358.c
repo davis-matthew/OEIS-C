@@ -9,6 +9,7 @@
  * Formula:   a(n) = A056239(n) - A001222(n) * A055396(n)
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,6 +26,7 @@
 #include <limits.h>
 
 /* Include helpers that provide prime generation and prime factorisation */
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
 

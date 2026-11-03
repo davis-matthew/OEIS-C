@@ -9,14 +9,37 @@
  *            else b(m) = 0
  * Range:     i8 n <= 1035, i16 n <= 1035, i32 n <= 1035, i64 n <= 1035,
  *            i128 n <= 1035, big any n
- * Helpers:   is_triangular_plus_one
+ * Validated: standard, pass, 99 terms through n = 942 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_triangular_plus_one.h"
+
+/* Test whether m = t(t-1)/2 + 1 for some integer t ≥ 1.
+   Equivalent: 8*m−7 is a perfect square and the square is odd. */
+static bool is_triangular_plus_one(idx_t m)
+{
+    __int128 val = (__int128)8 * m - 7;
+    if (val <= 0)
+        return false;
+
+    idx_t low = 0, high = (idx_t)1 << 32;   /* high enough for all m on test */
+    while (low <= high)
+    {
+        idx_t mid = low + ((high - low) >> 1);
+        __int128 sq = (__int128)mid * mid;
+        if (sq == val)
+            return (mid & 1) != 0;
+        if (sq < val)
+            low = mid + 1;
+        else
+            high = mid - 1;
+    }
+    return false;
+}
 
 /* Returns 1, -1 or 0 according to the Möbius function μ for d ≥ 1. */
 static seq_t mu_of(idx_t d)

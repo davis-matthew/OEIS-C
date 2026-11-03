@@ -12,7 +12,8 @@
  *            cycles of g acting on {0,1}^n. The sum runs over...
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   u_gcd, u_phi, v2
+ * Validated: standard, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   ctz_u64, gcd_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/u_gcd.h"
-#include "../utils/u_phi.h"
-#include "../utils/v2.h"
+#include "../utils/ctz_u64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/totient_u64.h"
 
 static int g_n;
 static int P[64], Q[64];
@@ -35,12 +36,12 @@ static long long fexp(uint64_t e)
 {
     long long E = 0;
     int k;
-    int ve = v2(e);
+    int ve = ctz_u64(e);
     for (k = 1; k <= g_n; k++) {
-        if (P[k]) E += (long long)P[k] * (long long)u_gcd(e, (uint64_t)k);
+        if (P[k]) E += (long long)P[k] * (long long)gcd_u64(e, (uint64_t)k);
         if (Q[k]) {
-            if (ve <= v2((uint64_t)k)) return -1;
-            E += (long long)Q[k] * (long long)u_gcd(e, (uint64_t)k);
+            if (ve <= ctz_u64((uint64_t)k)) return -1;
+            E += (long long)Q[k] * (long long)gcd_u64(e, (uint64_t)k);
         }
     }
     return E;
@@ -68,14 +69,14 @@ static void process(void)
     uint64_t C;
     int k, i, even, j;
     for (k = 1; k <= g_n; k++) {
-        if (P[k]) ord = ord / u_gcd(ord, (uint64_t)k) * (uint64_t)k;
-        if (Q[k]) ord = ord / u_gcd(ord, (uint64_t)(2 * k)) * (uint64_t)(2 * k);
+        if (P[k]) ord = ord / gcd_u64(ord, (uint64_t)k) * (uint64_t)k;
+        if (Q[k]) ord = ord / gcd_u64(ord, (uint64_t)(2 * k)) * (uint64_t)(2 * k);
     }
     for (e = 1; e <= ord; e++) {
         if (ord % e == 0) {
             long long E = fexp(e);
             if (E >= 0)
-                S += (unsigned __int128)u_phi(ord / e) << E;
+                S += (unsigned __int128)totient_u64(ord / e) << E;
         }
     }
     C = (uint64_t)(S / ord);

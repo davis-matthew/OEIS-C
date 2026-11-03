@@ -7,7 +7,8 @@
  * Keywords:  nonn
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 3, u128 n <= 13, big any n
- * Helpers:   none
+ * Validated: standard, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed sorted triples (x,y,z) with 0≤x≤y≤z≤3. */
 #define MAX_TRIPLES 20
@@ -86,22 +88,22 @@ static void init_chain_counts(idx_t maxL) {
     /* Allocate or grow chain_counts array. */
     if (chain_cap <= maxL) {
         idx_t new_cap = maxL + 1;   /* include index 0 which is unused */
-        seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (!new_arr) return; /* allocation failure – silently abort */
         if (chain_counts) {
-            memcpy(new_arr, chain_counts, chain_cap * sizeof(seq_t));
-            free(chain_counts);
+            mem_copy(new_arr, chain_counts, chain_cap * sizeof(seq_t));
+            mem_free(chain_counts);
         }
         chain_counts = new_arr;
         chain_cap   = new_cap;
     }
     /* Allocate or grow DP buffers. */
     if (dp_cap < MAX_TRIPLES) {
-        seq_t *new_prev = (seq_t*)malloc(MAX_TRIPLES * sizeof(seq_t));
-        seq_t *new_curr = (seq_t*)malloc(MAX_TRIPLES * sizeof(seq_t));
+        seq_t *new_prev = mem_new(seq_t, MAX_TRIPLES);
+        seq_t *new_curr = mem_new(seq_t, MAX_TRIPLES);
         if (!new_prev || !new_curr) return;
-        if (dp_prev) free(dp_prev);
-        if (dp_curr) free(dp_curr);
+        if (dp_prev) mem_free(dp_prev);
+        if (dp_curr) mem_free(dp_curr);
         dp_prev = new_prev;
         dp_curr = new_curr;
         dp_cap  = MAX_TRIPLES;

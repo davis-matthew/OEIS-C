@@ -8,12 +8,15 @@
  * Formula:   a(n) = A004186(A000045(n))
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/digit_counts.h"
 
 /* Compute the n-th Fibonacci number (F(0)=0, F(1)=1). */

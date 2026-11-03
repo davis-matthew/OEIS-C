@@ -9,6 +9,7 @@
  *            36*sigma_3(n/6), where sigma_3(m) = sum_{d|m} d^3
  * Range:     i8 n <= 3, i16 n <= 25, i32 n <= 854, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 54 terms through n = 9473 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

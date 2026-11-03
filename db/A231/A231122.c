@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 101 terms through n = 7611 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 static uint64_t primes[10001];
 static size_t prime_cnt = 0;
@@ -76,7 +77,7 @@ seq_t a(idx_t n)
     init_primes();
 
     uint64_t count = 0;
-    idx_t sqrt_n = _floor_isqrt_u64(n);
+    idx_t sqrt_n = isqrt(n);
 
     for (idx_t d = 1; d <= sqrt_n; ++d) {
         if (n % d != 0)

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state */
 static idx_t seq_len   = 0;
@@ -94,14 +96,14 @@ static void maybe_grow_seq(void)
 {
     if (seq_len >= seq_cap) {
         seq_cap *= 2;
-        seq_arr = (seq_t*)realloc(seq_arr, seq_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
     }
 }
 static void maybe_grow_surv(void)
 {
     if (surv_len >= surv_cap) {
         surv_cap *= 2;
-        surv_arr = (seq_t*)realloc(surv_arr, surv_cap * sizeof(seq_t));
+        surv_arr = mem_resize(seq_t, surv_arr, surv_cap);
     }
 }
 
@@ -112,8 +114,8 @@ seq_t a(idx_t n)
 
     /* one‑time initialization */
     if (!seq_arr) {
-        seq_arr   = (seq_t*)malloc(seq_cap * sizeof(seq_t));
-        surv_arr  = (seq_t*)malloc(surv_cap * sizeof(seq_t));
+        seq_arr   = mem_new(seq_t, seq_cap);
+        surv_arr  = mem_new(seq_t, surv_cap);
         extend_cross(2048);               /* small initial sieve */
     }
 

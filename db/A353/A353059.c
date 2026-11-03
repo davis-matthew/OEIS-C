@@ -6,10 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
- *            big any n
- * Helpers:   digit_counts, factor_u64, is_prime_small, seq_alloc_new_array,
- *            seq_realloc
+ * Range:     u8 n <= 2, u16 n <= 483, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 62 terms through n = 9151 (2026-11-03)
+ * Helpers:   digit_counts, factor_u64, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,11 +22,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"
+#include <stddef.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/digit_counts.h"
-#include "../utils/is_prime_small.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+    /* one allocation scheme for every width (the C++ branch here used
+       new[]/delete[] on memory from mem_new) */
+    (void)old_cap;
+    seq_t *p = mem_resize(seq_t, old, new_cap ? new_cap : 1);
+    if (!p) abort();
+    return p;
+}
 
 seq_t a(idx_t n)
 {
@@ -57,7 +71,7 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n) {
         uint64_t k = next_candidate++;
         /* Skip primes – the sequence contains only composites */
-        if (is_prime_small(k))
+        if (is_prime_seq(k))
             continue;
 
         /* Digit set of k */

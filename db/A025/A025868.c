@@ -10,12 +10,14 @@
  *            recomputed from scratch whenever a larger index is requested
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const idx_t parts[3] = {4, 7, 9};
 
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 {
     /* First call – allocate space for n+1 entries. */
     if (dp == NULL) {
-        dp = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        dp = mem_new(seq_t, (n + 1));
         if (dp == NULL)
             return (seq_t)0;   /* out‑of‑memory fallback */
         max_computed = n;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
 
     /* Expand the cache if n is beyond what we have already computed. */
     if (n > max_computed) {
-        seq_t *new_dp = (seq_t *)realloc(dp, sizeof(seq_t) * (n + 1));
+        seq_t *new_dp = mem_resize(seq_t, dp, (n + 1));
         if (new_dp == NULL)
             return (seq_t)0;   /* out‑of‑memory fallback */
         dp = new_dp;

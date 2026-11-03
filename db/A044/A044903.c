@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Sequence A044903: a(n) is the nth positive integer whose binary run
    lengths alternate odd, even, odd, … starting with odd.  The
    implementation keeps a cache and checks each candidate for the

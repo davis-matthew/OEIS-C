@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of OEIS sequence A059294. */
 seq_t a(idx_t n) {
@@ -36,15 +38,15 @@ seq_t a(idx_t n) {
     /* --- Initialisation on first use ------------------------------------- */
     if (cache == NULL) {
         /* Allocate cache for a(0) */
-        cache = (seq_t *)calloc(1, sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;                     /* allocation fail */
         cache[0] = (seq_t)1;
         cache_len = 1;
 
         /* Allocate two row buffers for row 0 */
         row_cap = 1;
-        row_prev = (seq_t *)calloc(row_cap, sizeof(seq_t));
-        row_curr = (seq_t *)calloc(row_cap, sizeof(seq_t));
+        row_prev = mem_new(seq_t, row_cap);
+        row_curr = mem_new(seq_t, row_cap);
         if (!row_prev || !row_curr) return (seq_t)0;     /* allocation fail */
         row_prev[0] = (seq_t)1;    /* T(0,0)=1 */
     }
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
 
     /* --- Grow the cache to hold indices up to n -------------------------- */
     if ((size_t)n + 1 > cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, ((size_t)n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, ((size_t)n + 1));
         if (!tmp) return (seq_t)0;                     /* allocation fail */
         cache = tmp;
         /* cache_len remains old_cache_len; newly allocated slots are
@@ -68,8 +70,8 @@ seq_t a(idx_t n) {
     /* --- Ensure the row buffers have sufficient capacity ---------------- */
     if ((size_t)n + 1 > row_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp_prev = (seq_t *)realloc(row_prev, new_cap * sizeof(seq_t));
-        seq_t *tmp_curr = (seq_t *)realloc(row_curr, new_cap * sizeof(seq_t));
+        seq_t *tmp_prev = mem_resize(seq_t, row_prev, new_cap);
+        seq_t *tmp_curr = mem_resize(seq_t, row_curr, new_cap);
         if (!tmp_prev || !tmp_curr) return (seq_t)0;    /* allocation fail */
         row_prev = tmp_prev;
         row_curr = tmp_curr;

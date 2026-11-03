@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   digit_len, digit_sum
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   digit_sum, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
 
 /* Utility header providing digit_sum(seq_t) and digit_len(seq_t). */
 #include "../utils/digit_sum.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 /* -- static state for memoisation ------------------------------------- */
 
@@ -51,7 +53,7 @@ static bool has_one_solution(seq_t k)
         seq_t n = k * (seq_t)S;
 
         /* Number of decimal digits of n */
-        idx_t d = (idx_t)digit_len(n);
+        idx_t d = (idx_t)num_digits(n);
 
         /* If S exceeds the maximum possible digit sum for n, stop. */
         if (S > 9 * d) break;
@@ -72,7 +74,7 @@ static void ensure_capacity(idx_t new_cap)
     if (capacity >= new_cap) return;
     idx_t cap = capacity == 0 ? 16 : capacity;
     while (cap < new_cap) cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, cap);
     if (!tmp) exit(EXIT_FAILURE);  /* allocation failure */
     terms = tmp;
     capacity = cap;

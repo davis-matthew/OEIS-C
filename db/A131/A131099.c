@@ -10,6 +10,7 @@
  *            2 (mod 3) 0 (e odd) if p ≡ 2 (mod 3)
  * Range:     u8 n <= 90, u16 n <= 8280, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 92 terms through n = 9917 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

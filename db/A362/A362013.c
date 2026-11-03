@@ -10,15 +10,18 @@
  *            T(r,k) = C(r,k) * (2^(r-1)−1)^(r−k) (r≥0, 0≤k≤r)
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 27, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* For n = 0, the triangular array entry is T(0,0)=1. */
 
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -37,10 +40,10 @@ seq_t a(idx_t n)
     seq_t base = ((seq_t)1 << (r - 1)) - 1;
 
     /* Compute (2^(r-1)-1)^(r-k). */
-    seq_t pow = big_pow(base, r - k);
+    seq_t pow = ipow(base, r - k);
 
     /* Compute binomial coefficient C(r,k). */
-    seq_t comb = binom(r, k);
+    seq_t comb = binomial(r, k);
 
     /* Final result. */
     return comb * pow;

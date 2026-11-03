@@ -10,20 +10,22 @@
  *            h(n-1) + (n-1)*h(n-2), h(0)=h(1)=1
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 24, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 544 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n_idx) {
     if (n_idx < 1) return 0;
 
     idx_t n = n_idx;
 
-    seq_t *d_g = (seq_t *)calloc(n + 1, sizeof(seq_t));
-    seq_t *d_h = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *d_g = mem_new(seq_t, n + 1);
+    seq_t *d_h = mem_new(seq_t, n + 1);
 
     d_g[0] = 1;
     d_h[0] = 1;
@@ -55,8 +57,8 @@ seq_t a(idx_t n_idx) {
 
     seq_t result = d_g[n] - d_h[n];
 
-    free(d_g);
-    free(d_h);
+    mem_free(d_g);
+    mem_free(d_h);
 
     return result;
 }

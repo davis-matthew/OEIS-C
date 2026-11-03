@@ -7,13 +7,15 @@
  * Formula:   a(n) = (7*n + 2)*Catalan(n) (Catalan(n) = (2n)!/(n!(n+1)!) )
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cat_cache = NULL;   /* cache of Catalan numbers C(0)..C(k) */
 static idx_t cat_cached = 0;      /* highest n cached so far (index) */
@@ -24,7 +26,7 @@ static void ensure_cat_cache(idx_t need)
     if (cat_cached >= need) return;
     idx_t new_size = (cat_cached == 0) ? 1 : cat_cached << 1;
     while (new_size <= need) new_size <<= 1;
-    cat_cache = (seq_t*)realloc(cat_cache, new_size * sizeof(seq_t));
+    cat_cache = mem_resize(seq_t, cat_cache, new_size);
     /* Initialize the new entries up to need */
     if (cat_cached == 0) {
         cat_cache[0] = 1;
@@ -49,7 +51,7 @@ static void compute_catalan_upto(idx_t n)
 static seq_t catalan(idx_t n)
 {
     if (cat_cached == 0) {
-        cat_cache = (seq_t*)malloc(sizeof(seq_t));
+        cat_cache = mem_new(seq_t, 1);
         cat_cache[0] = 1;
         cat_cached = 0;
     }

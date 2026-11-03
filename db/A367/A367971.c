@@ -8,12 +8,14 @@
  *            binomial(n-1,k-1) * a(n-k) (n >= 1)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The following types are provided by the build system.
    seq_t : unsigned integer type (possibly arbitrary‑precision).
@@ -26,14 +28,14 @@ seq_t a(idx_t n)
        seq_t.  For integer types this is fine; for arbitrary‑precision
        types the build system has to provide a trivial constructor
        that will be called by malloc. */
-    seq_t *fact = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *C    = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *arr  = (seq_t *)calloc((n + 1), sizeof(seq_t)); /* a[0..n] */
+    seq_t *fact = mem_new(seq_t, (n + 1));
+    seq_t *C    = mem_new(seq_t, (n + 1));
+    seq_t *arr  = mem_new(seq_t, (n + 1)); /* a[0..n] */
 
     if (!fact || !C || !arr) { /* memory failure – abort */
-        if (fact) free(fact);
-        if (C)    free(C);
-        if (arr)  free(arr);
+        if (fact) mem_free(fact);
+        if (C)    mem_free(C);
+        if (arr)  mem_free(arr);
         return (seq_t)0;
     }
 
@@ -73,9 +75,9 @@ seq_t a(idx_t n)
     seq_t result = arr[n];
 
     /* Clean up */
-    free(fact);
-    free(C);
-    free(arr);
+    mem_free(fact);
+    mem_free(C);
+    mem_free(arr);
 
     return result;
 }

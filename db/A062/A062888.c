@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   build_pal_with_rem
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,48 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/build_pal_with_rem.h"
+
+/* Build a palindrome from the half part and optional middle digit.
+   The result is returned as a `seq_t`; its remainder modulo `p`
+   is stored in `rem_out` (if non‑NULL). */
+static seq_t build_pal_with_rem(uint32_t p,
+                                uint64_t half,
+                                int half_len,
+                                bool odd_len,
+                                uint8_t mid,
+                                uint64_t *rem_out)
+{
+    /* Extract digits of `half` into an array (least significant first). */
+    uint8_t dig[20] = {0};
+    uint64_t tmp = half;
+    for (int i = 0; i < half_len; ++i) {
+        dig[i] = (uint8_t)(tmp % 10u);
+        tmp /= 10u;
+    }
+
+    seq_t pal = 0;
+    uint64_t rem = 0;
+
+    /* Most significant to least significant of the half. */
+    for (int i = half_len - 1; i >= 0; --i) {
+        pal = pal * 10 + dig[i];
+        rem = (rem * 10 + dig[i]) % p;
+    }
+
+    if (odd_len) {
+        pal = pal * 10 + mid;
+        rem = (rem * 10 + mid) % p;
+    }
+
+    /* Least significant to most significant of the half (mirror). */
+    for (int i = 0; i < half_len; ++i) {
+        pal = pal * 10 + dig[i];
+        rem = (rem * 10 + dig[i]) % p;
+    }
+
+    if (rem_out) *rem_out = rem;
+    return pal;
+}
 
 /* ------- Utility: power of ten for 64‑bit integers ------- */
 static uint64_t pow10_uint64(int e)

@@ -12,8 +12,8 @@
  *            E = C(n,n/2) if n is even, else 0. a(0...
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 21, u64 n <= 37, u128 n <= 70,
  *            big any n
- * Helpers:   mp_binom, mp_div_small, mp_mul_small, mp_pow2, mp_zero,
- *            totient_u
+ * Validated: standard, pass, 44 terms through n = 1621 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +21,47 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mp_binom.h"
-#include "../utils/mp_div_small.h"
-#include "../utils/mp_mul_small.h"
-#include "../utils/mp_pow2.h"
-#include "../utils/mp_zero.h"
-#include "../utils/totient_u.h"
+#include "../utils/totient_u64.h"
+
+static void mp_div_small(uint32_t *a, size_t L, uint64_t m) {
+    uint64_t rem = 0;
+    size_t i = L;
+    while (i > 0) {
+        i--;
+        uint64_t cur = (rem << 32) | a[i];
+        a[i] = (uint32_t)(cur / m);
+        rem = cur % m;
+    }
+}
+
+static void mp_mul_small(uint32_t *a, size_t L, uint64_t m) {
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)a[i] * m + carry;
+        a[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+}
+
+static void mp_zero(uint32_t *a, size_t L) { memset(a, 0, L * sizeof(uint32_t)); }
+
+static void mp_binom(uint32_t *a, size_t L, uint64_t m, uint64_t k) {
+    uint64_t i;
+    mp_zero(a, L);
+    a[0] = 1;
+    if (k > m) { a[0] = 0; return; }
+    if (k > m - k) k = m - k;
+    for (i = 0; i < k; i++) {
+        mp_mul_small(a, L, m - i);
+        mp_div_small(a, L, i + 1);
+    }
+}
+
+static void mp_pow2(uint32_t *a, size_t L, uint64_t e) {
+    mp_zero(a, L);
+    a[e / 32] = (uint32_t)1 << (e % 32);
+}
 
 static void mp_add(uint32_t *acc, const uint32_t *x, size_t L) {
     uint64_t carry = 0;
@@ -49,7 +84,7 @@ seq_t a(idx_t n) {
 
     for (d = 1; d <= N; d++) {
         if (N % d != 0) continue;
-        uint64_t ph = totient_u(N / d);
+        uint64_t ph = totient_u64(N / d);
         if (d % 2 == 0) {
             mp_binom(tmp, L, d, d / 2);
             mp_mul_small(tmp, L, ph);

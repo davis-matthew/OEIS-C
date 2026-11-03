@@ -11,7 +11,8 @@
  *            of T in row‑major order. * * This implementation builds th...
  * Range:     u8 n <= 21, u16 n <= 67, u32 n <= 195, u64 n <= 712,
  *            u128 n <= 2646, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 73 terms through n = 4781 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/binomial.h"    /* seq_t binomial(idx_t a, idx_t b); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* ---------- cache ------------------------------------------- */
 static seq_t *cache = NULL;          /* flattened table of T(n,k) */
@@ -44,7 +46,7 @@ static void ensure_cache_capacity(size_t n)
     if (n >= cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, new_cap);
         if (!p) abort();          /* allocation failure */
         cache = p;
         cache_cap = new_cap;

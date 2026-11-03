@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{i=1..⌊n/2⌋+1} i! * (n-i+2)!
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of factorials */
 static seq_t *fact_table = NULL;
@@ -27,7 +29,7 @@ static void ensure_factorials(idx_t max_n)
         return;  /* already have enough */
 
     /* resize the table */
-    fact_table = (seq_t *)realloc(fact_table, need * sizeof(seq_t));
+    fact_table = mem_resize(seq_t, fact_table, need);
     if (!fact_table)
         exit(1); /* allocation failure */
 

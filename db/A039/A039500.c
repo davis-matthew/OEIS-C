@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 10, u16 n <= 421, u32 n <= 8373, u64 n <= 8373,
- *            u128 n <= 8373, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10, u16 n <= 421, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 78 terms through n = 8373 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* See that status[0] is unused; indexes correspond to the value k.
    0 = unknown, 1 = reaches 1, 2 = does not reach 1 (loops). */
@@ -126,7 +128,7 @@ static void ensure_good_cap(idx_t n)
     if (n <= good_cap) return;
     size_t new_cap = good_cap > 0 ? good_cap * 2 : 16;
     while (new_cap < (size_t)n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(good_list, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, good_list, new_cap);
     if (!tmp) exit(1);
     good_list = tmp;
     good_cap = new_cap;

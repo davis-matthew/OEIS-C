@@ -14,6 +14,7 @@
  *            non‑negative components
  * Range:     u8 n <= 50, u16 n <= 145, u32 n <= 145, u64 n <= 145,
  *            u128 n <= 145, big any n
+ * Validated: full, pass, 145 terms through n = 145 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

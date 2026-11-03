@@ -9,8 +9,9 @@
  * Formula:   a(n) = A003958(sigma(n)) - A003958(n) where A003958 is
  *            multiplicative with a(p^e) = (p-1)^e and sigma is the
  *            sum-of-divisors function
- * Range:     i8 n <= 48, i16 n <= 8487, i32 n <= 8487, i64 n <= 8487,
- *            i128 n <= 8487, big any n
+ * Range:     i8 n <= 48, i16 n <= 14399, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 90 terms through n = 8487 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 9762 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Euclidean GCD for idx_t (uint64_t) */
 static inline idx_t u64gcd(idx_t a, idx_t b)
@@ -53,7 +55,7 @@ static void init_cache(void)
     /* Temporary storage for all odd long legs (may be many). */
     size_t vals_cap = 1024;
     size_t vals_len = 0;
-    seq_t *vals = (seq_t *)malloc(vals_cap * sizeof(seq_t));
+    seq_t *vals = mem_new(seq_t, vals_cap);
     if (!vals) exit(1);
 
     /* Generate primitive Pythagorean triples */
@@ -73,8 +75,8 @@ static void init_cache(void)
             /* store the odd long leg */
             if (vals_len == vals_cap) {
                 vals_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(vals, vals_cap * sizeof(seq_t));
-                if (!tmp) { free(vals); exit(1); }
+                seq_t *tmp = mem_resize(seq_t, vals, vals_cap);
+                if (!tmp) { mem_free(vals); exit(1); }
                 vals = tmp;
             }
             vals[vals_len++] = (seq_t)a_val;
@@ -82,13 +84,13 @@ static void init_cache(void)
     }
 
     /* Sort all values */
-    qsort(vals, vals_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(vals, vals_len, sizeof(seq_t), cmp_seq);
 
     /* Count duplicates and collect those with count >= 2 */
     size_t res_cap = 128;
     size_t res_len = 0;
-    seq_t *res = (seq_t *)malloc(res_cap * sizeof(seq_t));
-    if (!res) { free(vals); exit(1); }
+    seq_t *res = mem_new(seq_t, res_cap);
+    if (!res) { mem_free(vals); exit(1); }
 
     /* Scan sorted array */
     if (vals_len > 0) {
@@ -101,8 +103,8 @@ static void init_cache(void)
                 if (count >= 2) {
                     if (res_len == res_cap) {
                         res_cap <<= 1;
-                        seq_t *tmp = (seq_t *)realloc(res, res_cap * sizeof(seq_t));
-                        if (!tmp) { free(vals); free(res); exit(1); }
+                        seq_t *tmp = mem_resize(seq_t, res, res_cap);
+                        if (!tmp) { mem_free(vals); mem_free(res); exit(1); }
                         res = tmp;
                     }
                     res[res_len++] = current;
@@ -115,8 +117,8 @@ static void init_cache(void)
         if (count >= 2) {
             if (res_len == res_cap) {
                 res_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(res, res_cap * sizeof(seq_t));
-                if (!tmp) { free(vals); free(res); exit(1); }
+                seq_t *tmp = mem_resize(seq_t, res, res_cap);
+                if (!tmp) { mem_free(vals); mem_free(res); exit(1); }
                 res = tmp;
             }
             res[res_len++] = current;
@@ -124,7 +126,7 @@ static void init_cache(void)
     }
 
     /* Free the temporary array */
-    free(vals);
+    mem_free(vals);
 
     /* Cache is ready */
     cache = res;

@@ -7,12 +7,15 @@
  * Formula:   a(n) = ceil(n/2) - pi(2n) + pi(n-1)
  * Range:     i8 n <= 136, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   compute_pi
+ * Validated: standard, pass, 90 terms through n = 942 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +26,8 @@ seq_t a(idx_t n)
     idx_t two_n = n + n;
 
     /* prime counting function values */
-    seq_t pi_2n  = compute_pi(two_n);
-    seq_t pi_n1  = compute_pi(n - 1);
+    seq_t pi_2n  = prime_pi(two_n);
+    seq_t pi_n1  = prime_pi(n - 1);
 
     /* compute the sequence value */
     return ceil_n2 - pi_2n + pi_n1;

@@ -11,13 +11,15 @@
  *            increases along each diagonal)
  * Range:     u8 n <= 3, u16 n <= 21, u32 n <= 105, u64 n <= 465,
  *            u128 n <= 1953, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 71 terms through n = 9959 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"   /* big_pow(seq_t, seq_t) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     idx_t j = 1 + offset;
 
     /* 4^i using the provided big‑integer power routine. */
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)i);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)i);
 
     /* Compute the linear coefficient: 6*j-1 for odd i, 6*j-5 for even i. */
     seq_t coeff;

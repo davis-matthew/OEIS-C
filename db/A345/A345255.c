@@ -12,6 +12,7 @@
  *            brackets denote the Iverson bracket, i.e. 1 if...
  * Range:     i8 n <= 86, i16 n <= 86, i32 n <= 86, i64 n <= 86, i128 n <= 86,
  *            big any n
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

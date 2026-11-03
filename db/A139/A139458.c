@@ -8,6 +8,7 @@
  *            {1,1,1,1,1,1,2,3,4,1,1,2,3,1,1,1,2,1,2,1,1,1,3,2,1,1,4,3,2,1}
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

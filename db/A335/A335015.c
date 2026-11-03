@@ -9,7 +9,8 @@
  *            (sorted in non‑decreasing order)
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t values. */
 static int cmp_seq(const void *p1, const void *p2)
@@ -71,10 +73,10 @@ seq_t a(idx_t n)
         }
 
         /* Sort the collected minima. */
-        qsort(tmp, tcnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(tmp, tcnt, sizeof(seq_t), cmp_seq);
 
         /* Allocate final result array. */
-        vals = (seq_t *)malloc(tcnt * sizeof(seq_t));
+        vals = mem_new(seq_t, tcnt);
         for (size_t i = 0; i < tcnt; ++i) vals[i] = tmp[i];
         sz = tcnt;
     }

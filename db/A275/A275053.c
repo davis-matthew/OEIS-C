@@ -7,13 +7,15 @@
  * Formula:   a(0)=1; a(n+1)=a(n)*3*(2+9*n)*(1+9*n)*(7+9*n)/((n+1)^2*(3*n+2))
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 7, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 173 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* local Euclidean gcd for unsigned seq_t */
 static inline seq_t seq_gcd_local(seq_t a, seq_t b)
@@ -32,7 +34,7 @@ static void ensure_capacity_seq(seq_t **arr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t newcap = (*cap > 0) ? (*cap << 1) : 4;
         while (newcap < needed) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
         *arr = tmp;
         *cap = newcap;
     }

@@ -9,13 +9,15 @@
  *            Initial values: a(0)=0, a(1)=0, a(2)=0, a(3)=1
  * Range:     u8 n <= 23, u16 n <= 43, u32 n <= 81, u64 n <= 155,
  *            u128 n <= 307, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Standard library for memory allocation */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;      /* cache of computed values */
 static size_t memo_len = 0;     /* number of computed entries */
@@ -30,7 +32,7 @@ ensure_cache(idx_t n)
 
     /* Allocate space for indices 0 .. n inclusive. */
     size_t new_len = (size_t)n + 1;
-    seq_t *new_arr = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, memo, new_len);
     if (!new_arr)
         abort();              /* allocation failed */
 

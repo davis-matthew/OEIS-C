@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
+ * Validated: full, pass, 14 terms through n = 14 (2026-11-02)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/sieve_first_n_primes.h"   /* declares: void sieve_first_n_primes(idx_t n, uint32_t **primes_out, size_t *cnt_out); */
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/sieve_first_n_primes.h"
 
 static uint32_t *prime_arr   = NULL;   /* array of the first primes */
 static size_t    prime_cnt   = 0;      /* number of primes stored */

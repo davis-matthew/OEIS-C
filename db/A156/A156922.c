@@ -10,12 +10,14 @@
  *            a(4)=5280, a(5)=29658
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,9 +42,9 @@ seq_t a(idx_t n)
     if (n + 1 > cache_len) {
         size_t needed = (size_t)(n + 1);
         if (cache == NULL) {
-            cache = (seq_t *)malloc(needed * sizeof(seq_t));
+            cache = mem_new(seq_t, needed);
         } else {
-            cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, needed);
         }
         /* initialise new positions that are still in the initial table */
         for (size_t i = cache_len; i < 6; ++i)

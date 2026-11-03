@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 135, u32 n <= 491, u64 n <= 2059,
  *            u128 n <= 8503, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 8533 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (flat == NULL) {
         /* poly initially equals f(0) = 1  (empty product) */
         poly_len = 1;
-        poly = (seq_t *)malloc(poly_len * sizeof(seq_t));
+        poly = mem_new(seq_t, poly_len);
         poly[0] = 1;
     }
 
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         ++current_row;                            /* new row number        */
         size_t row_len = poly_len + current_row - 1; /* convolution length */
 
-        seq_t *row = (seq_t *)calloc(row_len, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, row_len);
         for (size_t i = 0; i < poly_len; ++i) {
             seq_t v = poly[i];
             for (size_t k = 0; k < (size_t)current_row; ++k) {
@@ -67,16 +69,16 @@ seq_t a(idx_t n)
             /* grow capacity exponentially for efficiency               */
             flat_cap = flat_cap ? flat_cap * 2 : 64;
             while (flat_len + row_len > flat_cap) flat_cap *= 2;
-            flat = (seq_t *)realloc(flat, flat_cap * sizeof(seq_t));
+            flat = mem_resize(seq_t, flat, flat_cap);
         }
-        memcpy(flat + flat_len, row, row_len * sizeof(seq_t));
+        mem_copy(flat + flat_len, row, row_len * sizeof(seq_t));
         flat_len += row_len;
 
-        free(row);          /* row buffer no longer needed */
+        mem_free(row);          /* row buffer no longer needed */
 
         /* ---- 3. update poly for the next iteration ---------------- */
         size_t new_poly_len = poly_len + 2 * current_row - 1;
-        seq_t *new_poly = (seq_t *)calloc(new_poly_len, sizeof(seq_t));
+        seq_t *new_poly = mem_new(seq_t, new_poly_len);
         for (size_t i = 0; i < poly_len; ++i) {
             seq_t v = poly[i];
             for (size_t k = 0; k < (size_t)(2 * current_row); ++k) {
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(poly);
+        mem_free(poly);
         poly = new_poly;
         poly_len = new_poly_len;
     }

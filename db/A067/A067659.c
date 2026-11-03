@@ -12,12 +12,14 @@
  *            satisfies the time limit)
  * Range:     u8 n <= 33, u16 n <= 85, u32 n <= 250, u64 n <= 813,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,12 +28,12 @@ seq_t a(idx_t n)
 
     /* Allocate arrays that hold even‑ and odd‑parity partition counts. */
     size_t len = (size_t)n + 1;
-    seq_t *even = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *odd  = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *even = mem_new(seq_t, len);
+    seq_t *odd  = mem_new(seq_t, len);
     if (!even || !odd)
     {
-        free(even);
-        free(odd);
+        mem_free(even);
+        mem_free(odd);
         return (seq_t)0;          /* allocation failure – return 0 */
     }
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = odd[n];
-    free(even);
-    free(odd);
+    mem_free(even);
+    mem_free(odd);
     return result;
 }

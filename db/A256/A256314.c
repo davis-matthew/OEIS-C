@@ -12,26 +12,28 @@
  *            degree....
  * Range:     u8 n <= 9, u16 n <= 38, u32 n <= 624, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 900 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* dp[i] = partitions of i into at most 5 parts */
 static idx_t dp_max = 0;      /* current maximum degree of dp */
 
 static void recompute(idx_t max_deg)
 {
-    seq_t *newdp = (seq_t*)malloc((max_deg + 1) * sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, (max_deg + 1));
     if (!newdp) exit(1);
     for (idx_t i = 0; i <= max_deg; ++i) newdp[i] = 0;
     newdp[0] = 1;
     for (idx_t part = 1; part <= 5; ++part)
         for (idx_t s = part; s <= max_deg; ++s)
             newdp[s] += newdp[s - part];
-    if (dp) free(dp);
+    if (dp) mem_free(dp);
     dp = newdp;
     dp_max = max_deg;
 }

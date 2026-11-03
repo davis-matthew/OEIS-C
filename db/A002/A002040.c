@@ -11,22 +11,24 @@
  *            c(g)*g*a(m-g+1)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 25, u64 n <= 50, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 263 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a2040_cache = NULL;
 static idx_t a2040_len = 0;
 
 static void a2040_extend(idx_t newlen) {
-    seq_t *buf = (seq_t *)malloc((size_t)newlen * sizeof(seq_t));
-    memset((void *)buf, 0, (size_t)newlen * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, (size_t)newlen);
+    mem_set(buf, 0, (size_t)newlen * sizeof(seq_t));
     for (idx_t i = 0; i < a2040_len; i++) buf[i] = a2040_cache[i];
-    if (a2040_cache) free((void *)a2040_cache);
+    if (a2040_cache) mem_free(a2040_cache);
     a2040_cache = buf;
     for (idx_t m = a2040_len; m < newlen; m++) {
         if (m == 0) { a2040_cache[0] = 1; continue; }

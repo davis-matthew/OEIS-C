@@ -10,7 +10,8 @@
  *            * rad(d)∤k/d and rad(k/d)∤d, where k = A375055(n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 103 terms through n = 9717 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* ----- helper: recursively enumerate all divisors of k and count the
  * qualified pairs ----- */
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
         if (cnt > 0) {
             if (cache_len >= cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 64;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = cnt;
         }

@@ -9,13 +9,15 @@
  *            numbers summing to n
  * Range:     u8 n <= 13, u16 n <= 558, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  A059160 – ordered ways of writing n as a sum of 5 generalized pentagonal numbers */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,11 +43,11 @@ seq_t a(idx_t n)
 
     /* ---------- dynamic programming for 5‑fold convolution ---------- */
     size_t len = (size_t)n + 1;
-    seq_t *prev = (seq_t*)calloc(len, sizeof(seq_t));
-    seq_t *cur  = (seq_t*)calloc(len, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, len);
+    seq_t *cur  = mem_new(seq_t, len);
     if (!prev || !cur) {
         free(pent);
-        free(prev); free(cur);
+        mem_free(prev); mem_free(cur);
         return 0;   /* Out of memory */
     }
 
@@ -72,8 +74,8 @@ seq_t a(idx_t n)
 
     /* ---------- clean up ---------- */
     free(pent);
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
 
     return result;
 }

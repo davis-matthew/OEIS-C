@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(0)=1, a(1)=16, a(2)=179, a(3)=1766;
    a(n)=16*a(n-1)-77*a(n-2)+134*a(n-3)-72*a(n-4)  for n>3 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* memoization array */
 static idx_t  cache_cap = 0;       /* capacity of the array (elements) */
@@ -30,13 +32,13 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache if necessary. */
     if (cache == NULL) {
         cache_cap = n + 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;                     /* allocation failure */
         /* store the initial 4 values */
         for (idx_t i = 0; i < 4; ++i) cache[i] = init_vals[i];
         last_computed = 3;
     } else if (cache_cap <= n) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return 0;                     /* allocation failure */
         cache = tmp;
         cache_cap = n + 1;

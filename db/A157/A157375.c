@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2401*n^2 - 980*n + 99
  * Range:     u8 none, u16 n <= 5, u32 n <= 1337, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 45 terms through n = 9792 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

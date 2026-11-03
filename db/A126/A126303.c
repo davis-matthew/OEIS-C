@@ -13,7 +13,8 @@
  *            such integer is used to trace * a rooted ordered tree an...
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   isDyck, oddDepthCount
+ * Validated: partial, pass, 102 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,57 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isDyck.h"
-#include "../utils/oddDepthCount.h"
+#include "../utils/mem.h"
+
+/* Test whether x is a Dyck word (balanced parentheses). */
+static bool isDyck(uint64_t x)
+{
+    if (x == 0) return false;              /* empty string is handled separately */
+
+    /* Determine bit length. */
+    int len = 0;
+    uint64_t tmp = x;
+    while (tmp) {
+        ++len;
+        tmp >>= 1;
+    }
+    if (len & 1) return false;              /* odd length cannot be balanced */
+
+    int bal = 0;
+    for (int i = len - 1; i >= 0; --i) {
+        if ((x >> i) & 1ULL) bal++;         /* '(' */
+        else {
+            bal--;
+            if (bal < 0) return false;     /* went below zero – not a Dyck word */
+        }
+    }
+    return bal == 0;                        /* must finish at zero */
+}
+
+/* Count nodes at odd depth for a Dyck word stored in x. */
+static seq_t oddDepthCount(uint64_t x)
+{
+    int depth = 0;
+    seq_t odd = 0;
+
+    /* Bit length. */
+    int len = 0;
+    uint64_t tmp = x;
+    while (tmp) {
+        ++len;
+        tmp >>= 1;
+    }
+
+    for (int i = len - 1; i >= 0; --i) {
+        if ((x >> i) & 1ULL) {              /* move down: create a node */
+            ++depth;
+            if (depth & 1) ++odd;           /* count if depth is odd */
+        } else {                            /* move up */
+            --depth;
+        }
+    }
+    return odd;
+}
 
 /* External function required by the test harness. */
 seq_t a(idx_t n)
@@ -36,7 +86,7 @@ seq_t a(idx_t n)
     /* First call: initialise cache with a(0)=0. */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;          /* out of memory – should not happen */
         cache[0] = 0;                  /* a(0) = 0 (empty tree) */
         cache_size = 1;
@@ -52,7 +102,7 @@ seq_t a(idx_t n)
                     /* Grow the array if necessary. */
                     if (cache_size == cache_cap) {
                         cache_cap *= 2;
-                        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                        cache = mem_resize(seq_t, cache, cache_cap);
                         if (!cache) return 0; /* allocation failed */
                     }
                     cache[cache_size++] = val;

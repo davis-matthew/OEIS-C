@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   allowed_residue, is_prime
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/allowed_residue.h"
+#include "../utils/mem.h"
+
+/* check whether r is one of the admissible residues modulo 30 */
+static inline bool allowed_residue(idx_t r)
+{
+    return r == 1 || r == 11 || r == 13 ||
+           r == 17 || r == 19 || r == 29;
+}
 
 /* static storage for memoized terms */
 static seq_t *cache      = NULL;    /* array of cached values      */
@@ -30,10 +38,10 @@ static idx_t  last_start = 11;      /* next candidate to test     */
 static void grow_cache(size_t new_cap)
 {
     if (cache == NULL) {
-        cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
         cache_cap = new_cap;
     } else if (new_cap > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

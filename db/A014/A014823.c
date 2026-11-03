@@ -11,13 +11,32 @@
  *            coefficients of the cyclotomic polynomial Φ₈₁₄(x)
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   poly_div_ll
+ * Validated: standard, pass, 97 terms through n = 978 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/poly_div_ll.h"
+
+static void poly_div_ll(const long long *num, size_t dn,
+                        const long long *den, size_t dd,
+                        long long *quo, size_t *dquo) {
+    long long rem[865];
+    for (size_t i = 0; i <= dn; ++i) rem[i] = num[i];
+    for (size_t i = 0; i <= dn; ++i) quo[i] = 0;
+    for (int i = (int)dn; i >= (int)dd; --i) {
+        long long coeff = rem[i];
+        if (coeff != 0) {
+            size_t shift = i - dd;
+            quo[shift] += coeff;          /* leading coeff of den is 1 */
+            for (size_t j = 0; j <= dd; ++j) {
+                rem[shift + j] -= coeff * den[j];
+            }
+        }
+    }
+    *dquo = dn - dd;
+}
 
 /* ---------- Polynomial arithmetic in long long (intermediate values) ---------- */
 

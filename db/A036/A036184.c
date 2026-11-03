@@ -8,6 +8,7 @@
  *            0, a(0) = 0. This is the discrete logarithm base 6 modulo 109
  * Range:     u8 n <= 108, u16 n <= 108, u32 n <= 108, u64 n <= 108,
  *            u128 n <= 108, big any n
+ * Validated: full, pass, 108 terms through n = 108 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,13 +10,14 @@
  *            phi(n+1) if k == 1, phi(n+1)/2 if k > 1
  * Range:     u8 n <= 261, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   exponent_of_two
+ * Validated: standard, pass, 93 terms through n = 829 (2026-11-01)
+ * Helpers:   ctz_idx_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/exponent_of_two.h"
+#include "../utils/ctz_idx_to_i32.h"
 
 /* Return the value of Euler's totient function φ(m).  */
 static seq_t compute_phi(idx_t m)
@@ -40,7 +41,7 @@ static seq_t compute_phi(idx_t m)
 seq_t a(idx_t n)
 {
     /* n ≥ 1 by the offset of the sequence. */
-    int k = exponent_of_two(n);
+    int k = ctz_idx_to_i32(n);
 
     if (k == 0) {                       /* n odd */
         idx_t half = (n + 1) / 2;

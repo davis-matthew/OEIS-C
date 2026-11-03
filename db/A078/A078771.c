@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{p^e‖n} (p^e - p*e) (additive)
- * Range:     u8 n <= 342, u16 n <= 9220, u32 n <= 9220, u64 n <= 9220,
- *            u128 n <= 9220, big any n
+ * Range:     u8 n <= 342, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9220 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

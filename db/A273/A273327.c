@@ -10,12 +10,14 @@
  *            a(2)=17
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +25,8 @@ seq_t a(idx_t n)
     if (n == 1) return 5;
     if (n == 2) return 17;
 
-    seq_t pow4 = pow_uint(4, n - 2);
-    seq_t pow3 = pow_uint(3, n - 3);
+    seq_t pow4 = ipow_u64_idx(4, n - 2);
+    seq_t pow3 = ipow_u64_idx(3, n - 3);
 
     return (seq_t)19 * pow4 - (seq_t)16 * pow3 + 1;
 }

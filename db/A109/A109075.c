@@ -12,20 +12,22 @@
  *            otherwise. It also skips all n for * which the digit sum...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   is_prime
+ * Validated: full, pass, 10 terms through n = 9 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 static void dfs_rest(idx_t depth, uint64_t cur, uint64_t used_mask,
                      idx_t m, seq_t *cnt)
 {
     if (depth == m) {
-        if (is_prime(cur))
+        if (is_prime_u64(cur))
             ++(*cnt);
         return;
     }

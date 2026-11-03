@@ -10,7 +10,8 @@
  *            exists (which should not happen for the tested indices)
  * Range:     i8 none, i16 none, i32 n <= 2, i64 n <= 8, i128 n <= 8,
  *            big any n
- * Helpers:   _floor_isqrt_u64, bitlen_seq_t
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   bit_length, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* Limit up to which perfect powers are generated.
    1e12 is sufficient for n up to about 10 000 and covers all known solutions in
@@ -93,7 +95,7 @@ static bool is_perfect_power(seq_t x)
         return p != NULL;
     }
 
-    idx_t max_exp = bitlen_seq_t(x);
+    idx_t max_exp = bit_length(x);
     for (idx_t e = (idx_t)2; e <= max_exp; ++e) {
         seq_t root = nth_root_floor(x, e);
         if (root <= (seq_t)1) break;   /* no further matches possible */
@@ -110,13 +112,13 @@ static void init_powers(void)
     /* Rough upper bound on number of perfect powers <= MAX_LIMIT:
        roughly sqrt(MAX_LIMIT).  The estimate below is generous. */
     const size_t ESTIMATE = 1200000;
-    seq_t *tmp = (seq_t *)malloc(ESTIMATE * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, ESTIMATE);
     if (!tmp) return;  /* allocation failure */
 
     size_t count = 0;
     tmp[count++] = (seq_t)1;   /* 1 is a perfect power */
 
-    idx_t max_base = _floor_isqrt_u64(MAX_LIMIT);
+    idx_t max_base = isqrt(MAX_LIMIT);
     for (idx_t base = (idx_t)2; base <= max_base; ++base) {
         seq_t val = (seq_t)base * base;   /* base^2 */
         for (idx_t exp = (idx_t)2; ; ++exp) {
@@ -129,7 +131,7 @@ static void init_powers(void)
     }
 
     /* Sort and deduplicate */
-    qsort(tmp, count, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(tmp, count, sizeof(seq_t), cmp_seq_t);
     size_t unique = 0;
     for (size_t i = 0; i < count; ++i) {
         if (i == 0 || tmp[i] != tmp[i - 1])
@@ -137,16 +139,16 @@ static void init_powers(void)
     }
 
     /* Allocate final array for powers. */
-    powers = (seq_t *)malloc(unique * sizeof(seq_t));
+    powers = mem_new(seq_t, unique);
     if (!powers) {
-        free(tmp);
+        mem_free(tmp);
         return;
     }
     for (size_t i = 0; i < unique; ++i)
         powers[i] = tmp[i];
     powers_size = (idx_t)unique;
 
-    free(tmp);
+    mem_free(tmp);
 }
 
 /* --------------------------------------------------------------------- */

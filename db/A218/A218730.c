@@ -7,13 +7,15 @@
  * Formula:   a(0) = 0, a(1) = 1, a(n) = 28*a(n-1) - 27*a(n-2) (n >= 2)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 695 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached values of a(n) */
 static idx_t cache_size = 0;     /* number of cached entries */
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t req)
         return;                     /* already available */
 
     size_t new_size = (size_t)(req + 1);
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)                /* memory allocation failed */
         return;
 
@@ -36,7 +38,6 @@ static void ensure_cache(idx_t req)
         if (new_size > 1)
             new_cache[1] = (seq_t)1;
     } else if (cache_size == 1) {
-        new_cache[0] = cache[0];
         new_cache[1] = (seq_t)1;
     }
     /* For cache_size >= 2 the first two entries are already

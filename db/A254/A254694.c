@@ -11,6 +11,7 @@
  *            maximum equals the minimum of the remaining three terms
  * Range:     u8 none, u16 n <= 4, u32 n <= 16, u64 n <= 37, u128 n <= 80,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 205 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

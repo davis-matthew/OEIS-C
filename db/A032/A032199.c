@@ -8,13 +8,15 @@
  *            c(1)=3, c(2)=19, and for k ≥ 3, c(k) = 5·c(k‑1) – 2·c(k‑2) + 4
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *phi_cache   = NULL;
 static seq_t *c_cache     = NULL;
@@ -29,9 +31,9 @@ static void ensure_cache(idx_t need)
 
     /* Allocate new space (C++ needs a cast to avoid a conversion warning). */
     size_t new_size = (size_t)(need + 1);                      /* indices 0..need */
-    phi_cache  = (seq_t *)realloc(phi_cache,  new_size * sizeof(seq_t));
-    c_cache    = (seq_t *)realloc(c_cache,    new_size * sizeof(seq_t));
-    conv_cache = (seq_t *)realloc(conv_cache, new_size * sizeof(seq_t));
+    phi_cache  = mem_resize(seq_t, phi_cache, new_size);
+    c_cache    = mem_resize(seq_t, c_cache, new_size);
+    conv_cache = mem_resize(seq_t, conv_cache, new_size);
 
     /* Initialise new slots to zero. */
     for (idx_t i = cached_max + 1; i <= need; ++i) {

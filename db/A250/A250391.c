@@ -11,12 +11,14 @@
  *            * {3, 230, 2535, 7539, 7322, 2335, 196})
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 15, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 38 terms through n = 209 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b); */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static const seq_t coeffs[7] = {
     (seq_t)6,
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k < 7; ++k) {
         idx_t t = base - k;          /* t = n + 7 - k = (n-1-k)+8 */
         if (t >= 8) {
-            seq_t term = binom(t, 8);
+            seq_t term = binomial(t, 8);
             /* multiply by the small integer coefficient */
             sum += coeffs[k] * term;
         }

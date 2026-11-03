@@ -9,7 +9,8 @@
  *            odd number 2n-1)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 42, u64 n <= 3565,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint64_to_seq
+ * Validated: standard, pass, 45 terms through n = 9887 (2026-11-01)
+ * Helpers:   ipow_u64_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdbool.h>
 
 /* Utility for computing p^exp as seq_t directly */
-#include "../utils/pow_uint64_to_seq.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/ipow_u64_i32.h"
 
 static bool primes_inited = false;
 static int primes[20000];
@@ -57,7 +60,7 @@ static seq_t sigma5(uint64_t m)
                 temp /= p;
                 ++e;
             }
-            seq_t p5 = pow_uint64_to_seq((uint64_t)p, 5);   /* p^5 as seq_t */
+            seq_t p5 = ipow_u64_i32((uint64_t)p, 5);   /* p^5 as seq_t */
             seq_t term = 1;
             seq_t power = 1;
             for (int i = 0; i < e; ++i)
@@ -70,7 +73,7 @@ static seq_t sigma5(uint64_t m)
     }
     if (temp > 1)   /* remaining prime factor */
     {
-        seq_t p5 = pow_uint64_to_seq(temp, 5);
+        seq_t p5 = ipow_u64_i32(temp, 5);
         result *= (1 + p5);
     }
     return result;

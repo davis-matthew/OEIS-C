@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{k=1..n} (-1)^(k+1)*phi(k)
  * Range:     u8 n <= 48, u16 n <= 802, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9501 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *alt = NULL;          /* alternating sums, alt[0] = 0        */
 static idx_t  alt_max = 0;         /* current maximum precalculated index */
@@ -32,7 +34,7 @@ static void ensure_alt_upto(idx_t n)
 
     /* Allocate temporary array for phi values */
     size_t sz = (size_t)(n + 1);
-    seq_t *phi = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, sz);
     if (!phi)
         return;  /* allocation failed – leave alt unchanged */
 
@@ -49,9 +51,9 @@ static void ensure_alt_upto(idx_t n)
     }
 
     /* Allocate new alternating‑sum array */
-    seq_t *new_alt = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *new_alt = mem_new(seq_t, sz);
     if (!new_alt) {
-        free(phi);
+        mem_free(phi);
         return;
     }
 
@@ -63,11 +65,11 @@ static void ensure_alt_upto(idx_t n)
             new_alt[i] = new_alt[i - 1] - phi[i];
     }
 
-    free(phi);
+    mem_free(phi);
 
     /* Replace old table */
     if (alt)
-        free(alt);
+        mem_free(alt);
     alt      = new_alt;
     alt_max  = n;
 }

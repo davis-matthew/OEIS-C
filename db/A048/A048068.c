@@ -10,12 +10,14 @@
  *            of the elements are ≤ (n-4)/2
  * Range:     u8 n <= 17, u16 n <= 27, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

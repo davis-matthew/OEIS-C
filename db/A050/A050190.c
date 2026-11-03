@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*floor(binomial(n-1,4)/5)
  * Range:     u8 n <= 10, u16 n <= 25, u32 n <= 222, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 50 terms through n = 985 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

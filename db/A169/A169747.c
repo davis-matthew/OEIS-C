@@ -10,7 +10,8 @@
  *            in the sequence, else a(2n-1)+a(n)
  * Range:     u8 n <= 110, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------- */
 /* Lightweight open‑addressing hash set for seq_t values (sentinel 0).       */
@@ -47,7 +49,7 @@ static void hash_ensure_cap(size_t need)
     while (new_cap < need) new_cap <<= 1;          /* power of two */
 
     /* Reallocate and rehash existing entries. */
-    seq_t *new_tbl = (seq_t*)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_tbl = mem_new(seq_t, new_cap);
     if (!new_tbl) abort();
 
     /* Rehash old elements. */
@@ -58,7 +60,7 @@ static void hash_ensure_cap(size_t need)
         while (new_tbl[h] != 0) h = (h+1) & (new_cap-1);
         new_tbl[h] = v;
     }
-    free(hash_tbl);
+    mem_free(hash_tbl);
     hash_tbl = new_tbl;
     hash_cap = new_cap;
 }
@@ -105,7 +107,7 @@ static void cache_ensure_cap(idx_t n)
     if (new_cap < 16) new_cap = 16;
     while (new_cap <= (size_t)(n + 1)) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
 
     /* Zero out newly added entries. */

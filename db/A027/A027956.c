@@ -8,13 +8,25 @@
  *            5089*n^3 + 1260*n^4 + 280*n^5 + 16*n^7)/630 for n >= 4; a(3) = 1
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 15, u64 n <= 41, u128 n <= 88,
  *            big any n
- * Helpers:   fib
+ * Validated: standard, pass, 42 terms through n = 993 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {

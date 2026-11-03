@@ -11,14 +11,15 @@
  *            It then returns n^(n+1)/k - (n+1)^n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 150 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"   /* big_pow(seq_t base, seq_t exp) */
+#include "../utils/ipow.h"
 
 static void dfs_divs(int idx,
                      uint64_t cur,
@@ -72,8 +73,8 @@ seq_t a(idx_t n)
     }
 
     /* 2. Compute N = n^(n+1) and A = (n+1)^n */
-    seq_t N = big_pow((seq_t)n, (seq_t)(n + 1));
-    seq_t A = big_pow((seq_t)(n + 1), (seq_t)n);
+    seq_t N = ipow((seq_t)n, (seq_t)(n + 1));
+    seq_t A = ipow((seq_t)(n + 1), (seq_t)n);
 
     /* 3. Compute t = floor(N/A) */
     seq_t t_seq = N / A;                     /* integer division is floor for positives */

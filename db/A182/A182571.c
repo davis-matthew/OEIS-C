@@ -8,7 +8,8 @@
  *            The function returns the n‑th such prime (a(1) = 53)
  * Range:     u8 n <= 11, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   next_prime
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* How to obtain successive primes – this header provides
    uint64_t next_prime(uint64_t n); that returns the smallest prime
@@ -49,7 +51,7 @@ ensure_fib(seq_t limit)
     if (fib_len < 2) {
         if (fib_cap < 2) {
             fib_cap = 4;
-            fib_seq = (seq_t *)realloc(fib_seq, fib_cap * sizeof(seq_t));
+            fib_seq = mem_resize(seq_t, fib_seq, fib_cap);
         }
         fib_seq[0] = (seq_t)1;
         fib_seq[1] = (seq_t)2;
@@ -69,7 +71,7 @@ ensure_fib(seq_t limit)
 
         if (fib_len == fib_cap) {
             size_t new_cap = fib_cap ? fib_cap * 2 : 4;
-            seq_t *tmp = (seq_t *)realloc(fib_seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib_seq, new_cap);
             if (!tmp) abort(); /* unrecoverable allocation failure */
             fib_seq = tmp;
             fib_cap = new_cap;
@@ -84,7 +86,7 @@ cache_append(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();
         seq_cache = tmp;
         cache_cap = new_cap;

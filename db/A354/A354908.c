@@ -10,7 +10,8 @@
  *            enumerates k, tests collapsibility, and returns the n‑th such k
  * Range:     u8 n <= 52, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   comp_from_k
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,33 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/comp_from_k.h"
+
+/* Auxiliary: build the k‑th composition according to A066099. */
+static void comp_from_k(idx_t k, int *parts, int *len)
+{
+    int pos[64];
+    int pos_len = 0;
+    idx_t t = k;
+    int bit = 1;
+    while (t) {
+        if (t & 1ULL)
+            pos[pos_len++] = bit;          /* 1‑based bit position */
+        t >>= 1;
+        bit++;
+    }
+    /* prepend 0 and compute first differences */
+    int diff[64];
+    int diff_len = 0;
+    int prev = 0;
+    for (int i = 0; i < pos_len; ++i) {
+        diff[diff_len++] = pos[i] - prev;
+        prev = pos[i];
+    }
+    /* reverse to obtain the composition */
+    *len = diff_len;
+    for (int i = 0; i < diff_len; ++i)
+        parts[i] = diff[diff_len - 1 - i];
+}
 
 /* Depth‑first search for collapsibility.  No memoisation – the state space is
    small (max 20 parts).  The recursion depth is at most 19. */

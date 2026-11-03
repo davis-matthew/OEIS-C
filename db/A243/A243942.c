@@ -8,10 +8,13 @@
  * Formula:   a(n) = Sum_{k=1..n} C(n-1, k-1) * Stirling2(n+k, k), a(0)=1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -21,13 +24,13 @@ seq_t a(idx_t n)
 
     /* Allocate two rows for the Stirling triangle, plus a column for the
        needed diagonal entries.  All arrays are initialized to zero.      */
-    seq_t *prev = (seq_t*)calloc(max_k + 1, sizeof(seq_t));
-    seq_t *curr = (seq_t*)calloc(max_k + 1, sizeof(seq_t));
-    seq_t *diag = (seq_t*)calloc(max_k + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, max_k + 1);
+    seq_t *curr = mem_new(seq_t, max_k + 1);
+    seq_t *diag = mem_new(seq_t, max_k + 1);
     if (!prev || !curr || !diag) {
         /* Allocation failure – in a real system we would handle it.
            Here we simply return 0.                                   */
-        free(prev); free(curr); free(diag);
+        mem_free(prev); mem_free(curr); mem_free(diag);
         return (seq_t)0;
     }
 
@@ -78,9 +81,9 @@ seq_t a(idx_t n)
         bin = bin * num / (seq_t)k;
     }
 
-    free(prev);
-    free(curr);
-    free(diag);
+    mem_free(prev);
+    mem_free(curr);
+    mem_free(diag);
 
     return result;
 }

@@ -10,7 +10,8 @@
  *            prime
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   compute_for_prime
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,37 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/compute_for_prime.h"
+
+/* Compute the value for a single prime p.  Return 0 if no m satisfies. */
+static seq_t compute_for_prime(uint32_t p)
+{
+    if (p <= 5) return (seq_t)0;          /* known to give 0 in the sequence */
+
+    const uint64_t P = p;
+    for (uint32_t m = 1; m < p; ++m) {
+        /* m = 1 or m = p-1 always produce extra solutions. */
+        if (m == 1 || m == p - 1) continue;
+
+        uint64_t cur = m;                 /* holds m^e mod p, starting with e=1 */
+        bool bad = false;
+
+        /* Check constraints for e = 2 .. p-2. */
+        for (uint32_t e = 2; e <= p - 2; ++e) {
+            cur = (cur * m) % P;          /* m^e */
+
+            uint64_t r1 = P - e;          /* -e  (mod p) */
+            uint64_t r2 = (P + 1 - e) % P;/* 1-e (mod p) */
+
+            if (cur == r1 || cur == r2) {
+                bad = true;
+                break;
+            }
+        }
+
+        if (!bad) return (seq_t)m;
+    }
+    return (seq_t)0;
+}
 
 /* The build supplies the types seq_t and idx_t; we use them as is. */
 

@@ -11,7 +11,8 @@
  *            lower_median has the same value over all subblocks
  * Range:     u8 none, u16 n <= 3, u32 n <= 8, u64 n <= 19, u128 n <= 40,
  *            big any n
- * Helpers:   compute_exp
+ * Validated: standard, pass, 33 terms through n = 188 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,31 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_exp.h"
+
+/* Compute the "value" of a 2×2 subblock given the two rows a,b
+   and the column offset col (0 for left block, 1 for right block).   */
+static inline int
+compute_exp(const uint8_t a[3], const uint8_t b[3], int col)
+{
+    uint8_t arr[4];
+    if (col == 0) {
+        arr[0] = a[0]; arr[1] = a[1]; arr[2] = b[0]; arr[3] = b[1];
+    } else {
+        arr[0] = a[1]; arr[1] = a[2]; arr[2] = b[1]; arr[3] = b[2];
+    }
+    /* simple bubble sort for 4 elements */
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            if (arr[j] > arr[j + 1]) {
+                uint8_t t = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = t;
+            }
+        }
+    }
+    /* expression: max + upper_median + min – lower_median */
+    return arr[3] + arr[2] + arr[0] - arr[1];
+}
 
 seq_t
 a(idx_t n)

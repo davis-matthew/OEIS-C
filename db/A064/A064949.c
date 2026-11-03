@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sum_{i|n, j|n} min(i,j)
- * Range:     u8 n <= 29, u16 n <= 2159, u32 n <= 9015, u64 n <= 9015,
- *            u128 n <= 9015, big any n
+ * Range:     u8 n <= 29, u16 n <= 2159, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 77 terms through n = 9015 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,14 +10,17 @@
  *            converted to (row,col) by n = row(row+1)/2 + col, 0≤col≤row
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"      /* seq_t binom(idx_t N, idx_t K); */
+#include <sys/types.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *fac = NULL;           /* fac[i] = i! */
 static size_t fac_len = 0;          /* number of entries stored */
@@ -28,14 +31,14 @@ static void ensure_factorial(idx_t upto)
 {
     if (fac == NULL) {
         fac_cap = 8;
-        fac = (seq_t*)malloc(fac_cap * sizeof(seq_t));
+        fac = mem_new(seq_t, fac_cap);
         fac[0] = (seq_t)1;
         fac_len = 1;
     }
     while (fac_len <= (size_t)upto) {
         if (fac_len >= fac_cap) {
             fac_cap *= 2;
-            fac = (seq_t*)realloc(fac, fac_cap * sizeof(seq_t));
+            fac = mem_resize(seq_t, fac, fac_cap);
         }
         fac[fac_len] = fac[fac_len - 1] * (seq_t)fac_len;
         fac_len++;
@@ -79,6 +82,6 @@ seq_t a(idx_t n)
     }
 
     /* T(row,col) = C(row,col) * sum   */
-    seq_t bin = binom(row, col);
+    seq_t bin = binomial(row, col);
     return bin * sum;
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{j=0..n} Sum_{k=0..j} Stirling2(j - k, k)
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 21, u64 n <= 33, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 633 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n) = Sum_{i=0..n} D[i]. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0)
@@ -24,9 +26,9 @@ seq_t a(idx_t n) {
 
     /* Allocate arrays for Stirling numbers and diagonal sums. */
     size_t N = (size_t)n;
-    seq_t *S = (seq_t *)calloc(N + 2, sizeof(seq_t));   /* current row */
-    seq_t *T = (seq_t *)calloc(N + 2, sizeof(seq_t));   /* previous row */
-    seq_t *D = (seq_t *)calloc(N + 1, sizeof(seq_t));   /* diagonal sums */
+    seq_t *S = mem_new(seq_t, N + 2);   /* current row */
+    seq_t *T = mem_new(seq_t, N + 2);   /* previous row */
+    seq_t *D = mem_new(seq_t, N + 1);   /* diagonal sums */
 
     /* Row 0: S(0,0) = 1 */
     T[0] = (seq_t)1;

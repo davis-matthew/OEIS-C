@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, look
  * Formula:   not stated
- * Range:     u8 n <= 26, u16 n <= 2852, u32 n <= 9821, u64 n <= 9821,
- *            u128 n <= 9821, big any n
- * Helpers:   digit_count5, sum_digits5
+ * Range:     u8 n <= 26, u16 n <= 2852, u32 n <= 37057, u64 n <= 37057,
+ *            u128 n <= 37057, big any n
+ * Validated: standard, pass, 74 terms through n = 9821 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,29 @@
 /* For each n ≥ 0 return the largest integer x with x = n * sum_5(x) (0 if none) */
 
 #include <stddef.h>   /* for size_t (used only for array indices) */
-#include "../utils/digit_count5.h"
-#include "../utils/sum_digits5.h"
+
+/* Return the number of base‑5 digits of x.  Treat 0 as having one digit. */
+static seq_t digit_count5(seq_t x)
+{
+    seq_t cnt = 0;
+    if (x == 0) return 1;
+    while (x != 0) {
+        ++cnt;
+        x /= 5;
+    }
+    return cnt;
+}
+
+/* Return the sum of base‑5 digits of x. */
+static seq_t sum_digits5(seq_t x)
+{
+    seq_t sum = 0;
+    while (x != 0) {
+        sum += x % 5;
+        x   /= 5;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

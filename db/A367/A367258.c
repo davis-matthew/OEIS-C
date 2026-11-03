@@ -8,7 +8,8 @@
  *            k) / (2*n - k + 1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t max_comp = 1;      /* largest n that has been computed */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Ensure cache large enough */
     if (cache == NULL) {
         cache_cap = 2;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
         max_comp = 1;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap <= n) new_cap = n + 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

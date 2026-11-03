@@ -10,6 +10,7 @@
  *            and s(n) on the fly
  * Range:     u8 n <= 45, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
+ * Validated: standard, pass, 74 terms through n = 2267 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

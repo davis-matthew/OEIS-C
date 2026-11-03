@@ -9,7 +9,8 @@
  *            period 1034
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   poly_div_monic
+ * Validated: standard, pass, 97 terms through n = 9695 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,29 @@
    All values are stored modulo the period. */
 
 #include <stddef.h>   /* for size_t */
-#include "../utils/poly_div_monic.h"
+
+/* Divide polynomial num (degree dn) by monic divisor den (degree dd),
+   storing the quotient in res (degree dn‑dd).  The remainder is discarded. */
+static void poly_div_monic(const seq_t *num, size_t dn,
+                           const seq_t *den, size_t dd,
+                           seq_t *res)
+{
+    /* Working copy of the dividend */
+    seq_t tmp[1035];
+    size_t i;
+    for (i = 0; i <= dn; ++i) tmp[i] = num[i];
+    for (i = 0; i <= dn - dd; ++i) res[i] = 0;
+
+    for (int cur = (int)dn; cur >= (int)dd; --cur) {
+        seq_t q = tmp[cur];
+        res[cur - (int)dd] = q;
+        if (q != 0) {
+            for (i = 0; i <= dd; ++i) {
+                tmp[cur - (int)dd + i] -= q * den[i];
+            }
+        }
+    }
+}
 
 static seq_t period[1034];
 static int initialized = 0;

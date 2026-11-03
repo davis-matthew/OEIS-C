@@ -9,7 +9,8 @@
  *            in the n-th prime number (with offset 1)
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_len, is_prime
+ * Validated: standard, pass, 78 terms through n = 804 (2026-11-01)
+ * Helpers:   is_prime, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -63,7 +64,7 @@ seq_t a(idx_t n)
     seq_t p = (seq_t)primes[n - 1];
 
     /* Transform the prime */
-    int len = digit_len(p);
+    int len = num_digits(p);
     /* A sufficient stack buffer for the expected size of primes */
     char digits[200];
     seq_t tmp = p;

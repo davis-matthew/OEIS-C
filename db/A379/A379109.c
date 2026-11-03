@@ -9,9 +9,10 @@
  * Formula:   a(n) = Sum_{d|n} A046692(d) * A336923(n/d). The function below
  *            implements the multiplicative characterization given in the OEIS
  *            entry
- * Range:     i8 n <= 109, i16 n <= 9169, i32 n <= 9169, i64 n <= 9169,
- *            i128 n <= 9169, big any n
- * Helpers:   is_mersenne_prime_uint64, is_small_prime_exp
+ * Range:     i8 n <= 109, i16 n <= 24034, i32 n <= 32769, i64 n <= 32769,
+ *            i128 n <= 32769, big any n
+ * Validated: standard, pass, 98 terms through n = 9169 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,27 @@
 /* include standard headers needed by this function */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_mersenne_prime_uint64.h"
-#include "../utils/is_small_prime_exp.h"
+
+/* helper: check if an exponent is a small prime (≤13) */
+static inline bool is_small_prime_exp(int exp)
+{
+    switch (exp) {
+        case 2: case 3: case 5: case 7: case 11: case 13: return true;
+        default: return false;
+    }
+}
+
+/* helper: determine whether p is a Mersenne prime (p = 2^q - 1 with q prime) */
+static inline bool is_mersenne_prime_uint64(uint64_t p)
+{
+    if (p < 3) return false;                /* smallest Mersenne prime is 3 */
+    uint64_t q = p + 1ULL;
+    /* test whether q is a power of two */
+    if ((q & (q - 1)) != 0) return false;
+    /* log2(q) gives the exponent q */
+    int exp = __builtin_ctzll(q);
+    return is_small_prime_exp(exp);
+}
 
 /* multiplicative contribution of a prime power p^e */
 static inline seq_t a_prime_power(uint64_t p, int e)

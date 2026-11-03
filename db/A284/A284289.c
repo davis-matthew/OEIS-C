@@ -9,7 +9,8 @@
  *            (excluding 1)
  * Range:     u8 n <= 59, u16 n <= 215, u32 n <= 863, u64 n <= 8639,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, floor_sqrt
+ * Validated: standard, pass, 107 terms through n = 9916 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,26 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *cache = NULL;       /* cached values of a(n) */
 static bool *computed = NULL;     /* flags indicating cached entries */
@@ -82,7 +102,7 @@ static void ensure_cache_size(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap *= 2;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     bool  *new_comp  = (bool  *)realloc(computed, new_cap * sizeof(bool));
     if (!new_cache || !new_comp)
         abort();
@@ -91,7 +111,7 @@ static void ensure_cache_size(idx_t n)
     computed = new_comp;
 
     /* initialise new entries */
-    memset(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+    mem_set(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
     memset(computed + cache_cap, 0, (new_cap - cache_cap) * sizeof(bool));
 
     cache_cap = new_cap;
@@ -140,7 +160,7 @@ seq_t a(idx_t n)
     }
 
     /* Coin‑change DP to count partitions */
-    seq_t *dp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp) {
         free(parts);
         abort();
@@ -158,7 +178,7 @@ seq_t a(idx_t n)
     cache[n] = result;
     computed[n] = true;
 
-    free(dp);
+    mem_free(dp);
     free(parts);
     return result;
 }

@@ -8,12 +8,15 @@
  *            840)/48
  * Range:     u8 none, u16 n <= 5, u32 n <= 12, u64 n <= 18, u128 n <= 29,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 34 terms through n = 187 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-# include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -42,11 +45,11 @@ seq_t a(idx_t n)
 
     if (n >= 8) {
         /* n^(n-8) with a non‑negative exponent */
-        seq_t pow = seq_pow(nn, n - 8);
+        seq_t pow = ipow_idx(nn, n - 8);
         return div48 * pow;
     } else {
         /* For n < 8 we divide by n^(8-n) instead of multiplying by a negative power */
-        seq_t denom = seq_pow(nn, 8 - n);
+        seq_t denom = ipow_idx(nn, 8 - n);
         return div48 / denom;
     }
 }

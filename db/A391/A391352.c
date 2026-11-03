@@ -9,7 +9,8 @@
  *            prime > 3*k) - 3*k, i.e. 6*k = p + q for consecutive primes p<q
  * Range:     u8 n <= 21, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Dynamic array of primes (uint64_t).                                 */
@@ -84,7 +86,7 @@ static void grow_cache_cap(size_t needed)
     size_t newcap = cache_cap ? cache_cap * 2 : 8;
     if (newcap < needed)
         newcap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp && newcap != 0)
         abort(); /* allocation failure */
     cache = tmp;

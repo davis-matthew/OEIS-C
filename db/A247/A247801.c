@@ -11,13 +11,15 @@
  *            numeric value
  * Range:     u8 n <= 1, u16 n <= 55, u32 n <= 992, u64 n <= 992,
  *            u128 n <= 992, big any n
- * Helpers:   none
+ * Validated: full, pass, 992 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Danish order of digits: 1,5,4,9,0,8,6,7,2,3 */
 static const int orderDigits[10] = {1,5,4,9,0,8,6,7,2,3};
@@ -66,7 +68,7 @@ static void init_sequence(void)
         seq_arr[cnt++] = val;
     }
     seq_len = cnt;                 /* should be 992 */
-    qsort(seq_arr, seq_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(seq_arr, seq_len, sizeof(seq_t), cmp_seq_t);
     seq_inited = true;
 }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 8588 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
  * word of length at least n is obtained.  The sequence contains
  * only the values 0 and 1. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,14 +27,14 @@ seq_t a(idx_t n)
     /* initialise the fixed point seed */
     if (buf_len == 0) {
         buf_len = 1;
-        buf = (seq_t *)malloc(buf_len * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_len);
         buf[0] = (seq_t)0;
     }
 
     /* grow the word until it is long enough for the requested n */
     while (buf_len < (size_t)n) {
         size_t old_len = buf_len;
-        seq_t *newbuf = (seq_t *)malloc(4 * old_len * sizeof(seq_t));
+        seq_t *newbuf = mem_new(seq_t, 4 * old_len);
         size_t pos = 0;
 
         for (size_t i = 0; i < old_len; ++i) {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(buf);
+        mem_free(buf);
         buf     = newbuf;
         buf_len = pos;   /* actual length after expansion */
     }

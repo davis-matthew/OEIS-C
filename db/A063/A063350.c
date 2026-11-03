@@ -11,12 +11,14 @@
  *            = 1990, a(12) = 2216, a(13) = 2446
  * Range:     i8 n <= 2, i16 n <= 41, i32 n <= 41, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle indices below the offset arbitrarily */
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     /* Initialise cache on first call */
     if (cache == NULL) {
         capacity = base_size;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL) exit(1);  /* Allocation failed */
         for (size_t i = 0; i < base_size; ++i)
             cache[i] = base_vals[i];
@@ -67,7 +69,7 @@ seq_t a(idx_t n) {
         size_t new_capacity = capacity * 2;
         while (new_capacity < n - base_start + 1)
             new_capacity *= 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_capacity);
         if (new_cache == NULL) exit(1);  /* Allocation failed */
         cache = new_cache;
         capacity = new_capacity;

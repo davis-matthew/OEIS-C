@@ -9,13 +9,15 @@
  *            continued‑fraction coefficients of √949
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 39, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Build the period of the continued fraction for √949
    and store it in *period (dynamic array). */
@@ -45,7 +47,7 @@ static void init_period(seq_t **period, size_t *len) {
     }
 
     *len = count;
-    *period = (seq_t *)malloc(count * sizeof(seq_t));
+    *period = mem_new(seq_t, count);
     for (size_t i = 0; i < count; ++i) (*period)[i] = (seq_t)tmp[i];
     free(tmp);
 }

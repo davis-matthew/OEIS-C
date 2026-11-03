@@ -10,14 +10,34 @@
  *            fraction of sqrt(454)
  * Range:     u8 none, u16 n <= 10, u32 n <= 22, u64 n <= 39, u128 n <= 80,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 45 terms through n = 164 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* coefficient of the linear recurrence */
 static const seq_t COEF = (seq_t)33832080168351370ULL;
@@ -64,7 +84,7 @@ seq_t a(idx_t n)
 {
     /* initialise cache on first call */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(68 * sizeof(seq_t));
+        cache = mem_new(seq_t, 68);
         if (cache == NULL) return (seq_t)0;     /* allocation failure */
         generate_initial_terms(cache);
         cached_len = 68;
@@ -73,7 +93,7 @@ seq_t a(idx_t n)
     /* extend cache if required */
     if (n >= cached_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) return (seq_t)0;       /* allocation failure */
         cache = tmp;
         for (idx_t i = cached_len; i <= n; ++i)

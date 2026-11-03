@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 129, u32 n <= 129, u64 n <= 129,
  *            u128 n <= 129, big any n
- * Helpers:   exp_fact
+ * Validated: standard, pass, 84 terms through n = 118 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* This implementation finds the n‑th term of OEIS A056651.
    A k is included iff every exponent in the prime factorisation of
    binom(k, floor(k/2)) is at most 2.  The function tests each k
@@ -21,7 +23,16 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/exp_fact.h"
+
+/* Legendre function: exponent of `p` in `n!`. */
+static inline idx_t exp_fact(idx_t n, idx_t p) {
+    idx_t e = 0;
+    while (n) {
+        n /= p;
+        e += n;
+    }
+    return e;
+}
 
 static const idx_t SIEVE_LIMIT = 200000;   /* safe upper bound for n ≤ 10000 */
 static uint64_t *prime_list = NULL;

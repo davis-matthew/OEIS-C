@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 39, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow5_128
+ * Validated: standard, pass, 55 terms through n = 975 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,13 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow5_128.h"
+
+/* Helper: compute x^5 in unsigned __int128 */
+static inline unsigned __int128 pow5_128(idx_t x) {
+    unsigned __int128 xx = (unsigned __int128)x;
+    unsigned __int128 r  = xx * xx * xx * xx * xx;
+    return r;
+}
 
 typedef struct {
     unsigned __int128 diff128; /* 128‑bit difference for ordering */

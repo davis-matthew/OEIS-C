@@ -8,7 +8,8 @@
  *            number. (OEIS A180499)
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1625, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 9786 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global state ----------------------------------------------------------- */
 static seq_t *cubefree_cache = NULL;   /* array of cubefree numbers       */
@@ -104,8 +106,7 @@ static void grow_cubefree_cache(idx_t need)
         if (cubefree) {
             if (cubefree_cnt == cubefree_cap) {
                 size_t new_cap = cubefree_cap ? cubefree_cap * 2 : 16;
-                seq_t *tmp     = (seq_t *)realloc(cubefree_cache,
-                                                new_cap * sizeof(seq_t));
+                seq_t *tmp     = mem_resize(seq_t, cubefree_cache, new_cap);
                 cubefree_cache = tmp;
                 cubefree_cap   = new_cap;
             }

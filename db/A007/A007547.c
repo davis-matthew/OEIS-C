@@ -12,15 +12,34 @@
  *            2 steps...
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 233, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pg_largest_proper_divisor, u128_to_seq
+ * Validated: standard, pass, 50 terms through n = 890 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/pg_largest_proper_divisor.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static uint64_t pg_largest_proper_divisor(uint64_t N) {
+    uint64_t p;
+    if (N % 2 == 0) return N / 2;
+    for (p = 3; p * p <= N; p += 2)
+        if (N % p == 0) return N / p;
+    return 1;
+}
 
 typedef unsigned __int128 pg_u128;
 

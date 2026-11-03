@@ -8,13 +8,15 @@
  *            ± n(n+1)/2 ≡ 0 (mod n)
  * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 37, u64 n <= 71, u128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 1888 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,8 +24,8 @@ seq_t a(idx_t n)
 
     size_t sz = (size_t)n;
     /* Allocate two arrays for DP */
-    seq_t *dp = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *ndp = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
+    seq_t *ndp = mem_new(seq_t, sz);
     if (!dp || !ndp) return 0;     /* allocation failed */
 
     /* First triangular number (1) is fixed with a plus sign */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[0];
-    free(dp);
-    free(ndp);
+    mem_free(dp);
+    mem_free(ndp);
     return result;
 }

@@ -13,13 +13,15 @@
  *            a(1)=0, a(2)=10, a(3)=28, a(4)=42, a(5)=100, a(6)=290,...
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 24, u64 n <= 48, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a single term using the recurrence.  The function uses two
    accumulator variables: 'pos' for the sum of positive coefficients and
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
 
     if (!cache) {                /* first call – allocate and seed */
         cache_cap = 18;          /* at least 17 elements + dummy 0 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;    /* allocation failure fallback */
         for (idx_t i = 1; i <= 17; ++i)
             cache[i] = init[i];
@@ -132,7 +134,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap * 2;
         while (new_cap <= (size_t)n + 1)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;      /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

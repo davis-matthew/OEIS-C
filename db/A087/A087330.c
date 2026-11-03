@@ -9,12 +9,14 @@
  *            a(n) = (360*n + 405*n*10^n - 220*10^n + 220) / 162)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* pow10[i] = 10^i as seq_t */
 static seq_t *pow10 = NULL;
@@ -27,7 +29,7 @@ static void ensure_pow10(idx_t max_n)
     if (need <= pow10_len)
         return;
 
-    pow10 = (seq_t *)realloc(pow10, need * sizeof(seq_t));
+    pow10 = mem_resize(seq_t, pow10, need);
     if (pow10_len == 0) {
         pow10[0] = (seq_t)1;
         pow10_len = 1;

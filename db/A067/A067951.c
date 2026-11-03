@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k|n, 1 <= k <= n} a(n-k), with a(0)=1
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 45, u64 n <= 91, u128 n <= 181,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 4023 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,14 +24,14 @@ seq_t a(idx_t n)
     /* Initialise the cache with the first term */
     if (cache_size == 0) {
         cache_size = 1;
-        cache = (seq_t *)malloc((size_t)cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_size);
         cache[0] = 1;
     }
 
     /* Extend the cache up to index n if necessary */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        cache = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)new_size);
         for (idx_t i = cache_size; i <= n; ++i) {
             seq_t sum = 0;
             /* Enumerate all positive divisors d of i */

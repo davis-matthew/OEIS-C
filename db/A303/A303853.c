@@ -9,7 +9,8 @@
  *            number of n)
  * Range:     u8 n <= 12, u16 n <= 37, u32 n <= 117, u64 n <= 398,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------- partition number cache ------------------------------------ */
 static seq_t *p_cache = NULL;   /* array of p(k) for 0 <= k <= p_max   */
@@ -28,7 +30,7 @@ static idx_t  p_max  = 0;       /* current maximum k computed          */
 static void compute_partitions(idx_t limit)
 {
     size_t new_cap = (size_t)(limit + 1);
-    seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort();               /* allocation failure */
 
     /* initialize all entries to zero */
@@ -60,7 +62,7 @@ static void compute_partitions(idx_t limit)
     }
 
     /* replace old cache */
-    free(p_cache);
+    mem_free(p_cache);
     p_cache = new_arr;
     p_max   = limit;
 }

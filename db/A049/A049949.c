@@ -11,14 +11,19 @@
  *            Initial values: a(1)=1, a(2)=2, a(3)=1
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   ilog2, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *a_arr = NULL;          /* a[1..] */
 static seq_t *pref_arr = NULL;       /* prefix sums: pref[i]=a(1)+...+a(i) */
@@ -33,8 +38,8 @@ static void ensure_capacity(idx_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < (size_t)needed)
         new_cap <<= 1;
-    seq_t *new_a = (seq_t *)malloc(new_cap * sizeof(seq_t));
-    seq_t *new_pref = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_new(seq_t, new_cap);
+    seq_t *new_pref = mem_new(seq_t, new_cap);
     if (!new_a || !new_pref) {
         /* allocation failed – abort */
         exit(EXIT_FAILURE);
@@ -45,8 +50,8 @@ static void ensure_capacity(idx_t needed)
         new_pref[i] = pref_arr[i];
     }
     /* free old arrays */
-    free(a_arr);
-    free(pref_arr);
+    mem_free(a_arr);
+    mem_free(pref_arr);
     a_arr = new_a;
     pref_arr = new_pref;
     cache_cap = (idx_t)new_cap;
@@ -76,7 +81,7 @@ seq_t a(idx_t n)
                 pref_arr[3] = pref_arr[2] + a_arr[3];
             } else {
                 /* recurrence for i >= 4 */
-                idx_t p = floor_log2_uint64(i - 2);               /* p satisfies 2^p < i-1 <= 2^(p+1) */
+                idx_t p = ilog2(i - 2);               /* p satisfies 2^p < i-1 <= 2^(p+1) */
                 seq_t two_pow = pow2(p + 1);                       /* 2^(p+1) */
                 seq_t m_seq = two_pow + (seq_t)2 - (seq_t)i;         /* compute m as seq_t */
                 idx_t m = (idx_t)m_seq;                            /* convert to index (fits in idx_t) */
@@ -98,7 +103,7 @@ seq_t a(idx_t n)
                 a_arr[3] = (seq_t)1;
                 pref_arr[3] = pref_arr[2] + a_arr[3];
             } else {
-                idx_t p = floor_log2_uint64(i - 2);
+                idx_t p = ilog2(i - 2);
                 seq_t two_pow = pow2(p + 1);
                 seq_t m_seq = two_pow + (seq_t)2 - (seq_t)i;
                 idx_t m = (idx_t)m_seq;

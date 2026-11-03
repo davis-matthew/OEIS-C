@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 176, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9384 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort used to sort divisors of type seq_t. */
 static int cmp_seqt(const void *a, const void *b)
@@ -79,7 +81,7 @@ static bool is_distended(uint64_t n)
     }
 
     /* Sort the divisor list.  */
-    qsort(divisors, dcnt, sizeof(seq_t), cmp_seqt);
+    mem_qsort(divisors, dcnt, sizeof(seq_t), cmp_seqt);
 
     /* Check the distended condition.  */
     seq_t sum = 0;
@@ -101,7 +103,7 @@ static uint64_t last_checked  = 0;   /* last integer examined    */
 static void grow_sequence(void)
 {
     size_t new_cap = distended_cap ? distended_cap * 2 : 16;
-    seq_t *new_arr = (seq_t *)realloc(distended_seq, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, distended_seq, new_cap);
     if (!new_arr) abort();           /* terminate on allocation error */
     distended_seq = new_arr;
     distended_cap = new_cap;

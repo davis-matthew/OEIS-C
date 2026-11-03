@@ -8,12 +8,14 @@
  *            a(0)=1, a(1)=3, a(2)=8, a(3)=22;
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_vals[4] = { (seq_t)1, (seq_t)3, (seq_t)8, (seq_t)22 };
 
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* ensure cache is large enough to hold the first four values */
     if (cache_len < 4) {
         idx_t new_len = 4;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
         cache[0] = base_vals[0];
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* extend the cache up to the requested index if necessary */
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
         for (idx_t i = cache_len; i <= n; ++i) {

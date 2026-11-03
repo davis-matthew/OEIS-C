@@ -8,18 +8,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = number of trailing 1‑bits in binary of σ(A003961(n²))
- * Range:     u8 n <= 4, u16 n <= 36, u32 n <= 1636, u64 n <= 9659,
- *            u128 n <= 9659, big any n
- * Helpers:   build_primes_upto, pow_seq
+ * Range:     u8 n <= 4, u16 n <= 36, u32 n <= 1636, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9659 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_seq.h"
-
+#include "../utils/ipow_i32.h"
 
 static uint64_t *g_primes = NULL;
 static size_t g_prime_cnt = 0;
@@ -69,7 +70,7 @@ seq_t a(idx_t n)
             }
             uint64_t q = next_prime_of(p);
             int exp = (int)(2 * e + 1);   /* exponent for the σ‑term */
-            seq_t powq = pow_seq((seq_t)q, exp);
+            seq_t powq = ipow_i32((seq_t)q, exp);
             seq_t numer = powq - 1;
             seq_t denom = (seq_t)q - 1;
             seq_t term = numer / denom;
@@ -82,7 +83,7 @@ seq_t a(idx_t n)
         uint64_t p = m;
         uint64_t q = next_prime_of(p);
         int exp = 3;                      /* 2*1 + 1 */
-        seq_t powq = pow_seq((seq_t)q, exp);
+        seq_t powq = ipow_i32((seq_t)q, exp);
         seq_t numer = powq - 1;
         seq_t denom = (seq_t)q - 1;
         seq_t term = numer / denom;

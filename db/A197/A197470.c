@@ -13,12 +13,14 @@
  *            a(5)=181, a(6)=374, a(7)=1300, a(8)=2886, a(9)=9446, a(10)=...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 22, u64 n <= 44, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: multiply a seq_t by a small constant without overflow.
    For small seq_t types (≤8 bytes) we use unsigned __int128 to hold
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Allocate initial storage if first call. */
     if (!buf) {
         cap = 16;                      /* accommodate initial 16 values */
-        buf = (seq_t *)calloc(cap + 1, sizeof(seq_t)); /* +1 for 1‑based indexing */
+        buf = mem_new(seq_t, cap + 1); /* +1 for 1‑based indexing */
         if (!buf) abort();             /* allocation failed */
         for (idx_t i = 1; i <= 16; ++i)
             buf[i] = init[i];
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     if (n > cap) {
         idx_t newcap = cap;
         while (newcap < n) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(buf, (newcap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, (newcap + 1));
         if (!tmp) abort();
         buf = tmp;
         cap = newcap;

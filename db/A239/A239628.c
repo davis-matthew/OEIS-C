@@ -13,13 +13,15 @@
  *            == 0 and δ = 1 otherwise. The value is minimal * w...
  * Range:     u8 n <= 9, u16 n <= 24, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
         idx_t b = n - 2 * a - delta;              /* b ≥ 0 by construction */
 
         /* Compute 2^a and 3^b using the supplied big‑int routine. */
-        seq_t p2 = pow_uint(2, a);
-        seq_t p3 = pow_uint(3, b);
+        seq_t p2 = ipow_u64_idx(2, a);
+        seq_t p3 = ipow_u64_idx(3, b);
 
         seq_t candidate = p2 * p3;                /* product is integer value of N */
 

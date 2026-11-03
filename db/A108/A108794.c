@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_digits, is_prime, is_semiprime_uint64
+ * Validated: standard, pass, 69 terms through n = 886 (2026-11-03)
+ * Helpers:   is_prime_u64, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,32 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/is_semiprime_uint64.h"
-#include "../utils/count_digits.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits_idx.h"
+
+/* true if x is the product of exactly two primes (possibly the same) */
+static bool is_semiprime_uint64(uint64_t x)
+{
+    if (x < 4)
+        return false;
+    uint64_t d = 0;
+    if (x % 2 == 0)
+        d = 2;
+    else {
+        for (uint64_t dd = 3; dd <= x / dd; dd += 2) {
+            if (x % dd == 0) {
+                d = dd;
+                break;
+            }
+        }
+    }
+    if (d == 0)
+        return false;                      /* x is prime */
+    uint64_t second = x / d;
+    return is_prime_u64(second);
+}
 
 static const uint64_t pow10_arr[20] = {
     1ULL,
@@ -52,8 +76,8 @@ seq_t a(idx_t n)
     idx_t found = 0;
     uint64_t cand = 2;
     while (1) {
-        if (is_prime(cand)) {
-            idx_t L = count_digits(cand);
+        if (is_prime_u64(cand)) {
+            idx_t L = num_digits_idx(cand);
             uint64_t power = pow10_arr[L];
             uint64_t complement = power - cand;
             if (is_semiprime_uint64(complement)) {

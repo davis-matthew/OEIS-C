@@ -5,14 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = A079309(floor(n/2))
- * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 31, u64 n <= 35, u128 n <= 35,
+ * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
 
     seq_t res = (seq_t)1;      /* a(2) = 1 corresponds to k = 1 */
     for (idx_t i = 2; i <= k; ++i) {
-        res += binom(2 * i - 1, i);   /* add C(2i-1, i) */
+        res += binomial(2 * i - 1, i);   /* add C(2i-1, i) */
     }
     return res;
 }

@@ -8,12 +8,14 @@
  * Formula:   a(n) = 2^(n-3) * n^(n-5) * (n-2) * (n-3)^2
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 15 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -22,9 +24,9 @@ seq_t a(idx_t n)
         return (seq_t)1;
     }
     /* For n >= 5 the formula uses only non‑negative exponents */
-    seq_t pow2   = pow_seq((seq_t)2,        (int)(n - 3)); /* 2^(n-3)   */
-    seq_t pown   = pow_seq((seq_t)n,        (int)(n - 5)); /* n^(n-5)   */
-    seq_t pown3  = pow_seq((seq_t)(n - 3),  2);           /* (n-3)^2   */
+    seq_t pow2   = ipow_i32((seq_t)2,        (int)(n - 3)); /* 2^(n-3)   */
+    seq_t pown   = ipow_i32((seq_t)n,        (int)(n - 5)); /* n^(n-5)   */
+    seq_t pown3  = ipow_i32((seq_t)(n - 3),  2);           /* (n-3)^2   */
 
     seq_t result = pow2;
     result = result * pown;

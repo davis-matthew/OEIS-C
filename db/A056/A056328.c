@@ -12,7 +12,8 @@
  *            rational generating function * A(x)=x^...
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (buf == NULL) {
         /* Allocate space for indices 0..7 (index 0 unused). */
         buf_size = 8;
-        buf = (seq_t *)malloc(buf_size * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_size);
         if (!buf) return 0;           /* allocation failed: return 0 as safe default */
 
         buf[0] = 0;                /* unused */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         /* Ensure the buffer is large enough. */
         if (i + 1 > buf_size) {
             size_t new_size = (i + 1) * 2;
-            seq_t *new_buf = (seq_t *)realloc(buf, new_size * sizeof(seq_t));
+            seq_t *new_buf = mem_resize(seq_t, buf, new_size);
             if (!new_buf) return 0;   /* reallocation failed */
             buf     = new_buf;
             buf_size = new_size;

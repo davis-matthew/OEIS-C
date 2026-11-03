@@ -11,14 +11,15 @@
  *            triangles, c' = part of c made of primes == 1 mod 4.)...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 28, u128 n <= 55,
  *            big any n
- * Helpers:   powseq
+ * Validated: standard, pass, 46 terms through n = 1350 (2026-11-01)
+ * Helpers:   ipow_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/powseq.h"
+#include "../utils/ipow_i64.h"
 
 #define NP 40
 
@@ -72,6 +73,6 @@ seq_t a(idx_t n) {
     best_len = 0;
     rec(m, m, 0, 0.0);
     for (i = 0; i < best_len; i++)
-        r *= powseq((seq_t)pr[i], (best_f[i] - 1) / 2);
+        r *= ipow_i64((seq_t)pr[i], (best_f[i] - 1) / 2);
     return r;
 }

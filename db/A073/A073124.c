@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(1+prime(n)) - prime(prime(n))
  * Range:     u8 n <= 54, u16 n <= 7093, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 8030 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static data for lazy initialisation -------------------------------- */
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
 
         /* 2. Rough upper bound on π(LIMIT) (≈ LIMIT / ln LIMIT). */
         const size_t EST = LIMIT / 10 + 10;
-        prime_arr = (seq_t*)malloc(EST * sizeof(seq_t));
+        prime_arr = mem_new(seq_t, EST);
         if (!prime_arr) { free(sieve); return 0; }
 
         for (idx_t i = 2; i <= LIMIT; ++i) {

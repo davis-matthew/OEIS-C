@@ -9,7 +9,8 @@
  *            distinct primes exist with m = p*q + r (p,q are unordered)
  * Range:     u8 n <= 23, u16 n <= 2490, u32 n <= 6567, u64 n <= 6567,
  *            u128 n <= 6567, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 5932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------------------------- */
 /*  Parameters (choose values large enough for n up to 10000)              */
@@ -206,7 +208,7 @@ static void init_seq(void)
     }
 
     /* ----- Allocate cache for minimal m per count -------------------- */
-    min_m_for_n = (seq_t *)calloc((size_t)N_MAX + 1, sizeof(seq_t));
+    min_m_for_n = mem_new(seq_t, (size_t)N_MAX + 1);
     if (!min_m_for_n) {
         free(primes); free(is_prime_flag); free(is_semiprime);
         free(A); free(B); free(cnt);

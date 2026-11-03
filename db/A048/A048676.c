@@ -8,6 +8,7 @@
  *            where p_i is the i‑th prime (p_1 = 2)
  * Range:     u8 n <= 16, u16 n <= 46, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,9 +18,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/pow2.h"
-#include "../utils/factor_u64.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/pow2.h"
 
 /* Utility: find the 1‑based index of prime `p` in the globally cached
    prime table.  It returns 0 if p is not found (which should never

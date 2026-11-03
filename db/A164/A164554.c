@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward chunk for comparator used by qsort */
 static int cmp_seq(const void *a, const void *b)
@@ -119,7 +121,7 @@ static void precompute(void)
     }
 
     /* sort the sequence in increasing order */
-    qsort(peculiar, pec_count, sizeof(seq_t), cmp_seq);
+    mem_qsort(peculiar, pec_count, sizeof(seq_t), cmp_seq);
 
     precomputed = true;
 }

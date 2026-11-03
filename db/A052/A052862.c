@@ -9,12 +9,14 @@
  *            (number of preferential arrangements)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 396 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>    /* malloc, free, realloc */
+#include "../utils/mem.h"
 
 /*  Static cache for the ordered Bell numbers A000670(k).  */
 static seq_t *A000 = NULL;   /* array of size capA, valid indices 0..maxA-1 */
@@ -31,7 +33,7 @@ static void ensure_A000(idx_t target)
     if ((size_t)target + 1 > capA)
     {
         size_t new_cap = (size_t)target + 1;
-        seq_t *newA = (seq_t *)realloc(A000, new_cap * sizeof(seq_t));
+        seq_t *newA = mem_resize(seq_t, A000, new_cap);
         if (!newA)                 /* allocation failed: leave state unchanged */
             return;
         A000 = newA;

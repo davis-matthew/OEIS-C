@@ -7,17 +7,20 @@
  * Formula:   a(n) = 19*28^(n-1) for n>0, a(0)=1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 34 terms through n = 495 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"   /* Provides seq_pow(seq_t, idx_t) */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0)
         return 1;                      /* a(0) = 1 */
     /* Compute 19 * 28^(n-1) using arbitrary‑precision exponentiation */
-    return 19 * seq_pow((seq_t)28, n - 1);
+    return 19 * ipow_idx((seq_t)28, n - 1);
 }

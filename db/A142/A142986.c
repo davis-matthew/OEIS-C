@@ -7,7 +7,8 @@
  * Formula:   a(n) = n*(n+1)/2 (not used here)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 17, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 241 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[n-1] holds a(n) */
 static idx_t cache_size = 0;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (cache_size < n) {
         idx_t new_size = n;
         /* realloc may be called with null pointer */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();          /* terminate on allocation failure */
         cache = tmp;
 

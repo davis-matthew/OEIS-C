@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 96, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9464 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external linkage ------------------------------------------------------ */
 seq_t a(idx_t n)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         if (cap < (size_t)n) {
             size_t new_cap = cap ? cap * 2 : 8;
             if (new_cap < (size_t)n) new_cap = n;
-            seq_t *tmp = (seq_t *)realloc(table, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, table, new_cap);
             if (!tmp) abort();          /* out of memory */
             table = tmp;
             cap   = new_cap;

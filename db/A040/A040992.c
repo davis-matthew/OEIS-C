@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime p such that x^6 = 2 has a solution mod p
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 69 terms through n = 965 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Euclidean GCD for uint64_t */
 static uint64_t ugcd_uint64(uint64_t a, uint64_t b)
@@ -29,6 +40,20 @@ static uint64_t ugcd_uint64(uint64_t a, uint64_t b)
 }
 
 /* Resize or allocate a dynamic array of elements of given size */
+#ifdef __cplusplus
+template <class T>
+static T *grow_array(T **ptr, size_t *cnt, size_t *cap, size_t elem_size)
+{
+    if (*cnt >= *cap) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        if (!tmp) abort();          /* out of memory */
+        *ptr = tmp;
+        *cap = new_cap;
+    }
+    return *ptr;
+}
+#else
 static void *grow_array(void **ptr, size_t *cnt, size_t *cap, size_t elem_size)
 {
     if (*cnt >= *cap) {
@@ -40,6 +65,7 @@ static void *grow_array(void **ptr, size_t *cnt, size_t *cap, size_t elem_size)
     }
     return *ptr;
 }
+#endif
 
 /* Sequence function */
 seq_t a(idx_t n)
@@ -64,7 +90,7 @@ seq_t a(idx_t n)
 
         if (is_prime) {
             /* Store the prime */
-            grow_array((void **)&primes, &primes_cnt, &primes_cap, sizeof(uint64_t));
+            grow_array(OEISC_VPP(&primes), &primes_cnt, &primes_cap, sizeof(uint64_t));
             primes[primes_cnt++] = candidate;
 
             /* Check whether the prime satisfies the sixth‑power condition */
@@ -74,12 +100,12 @@ seq_t a(idx_t n)
             } else {
                 uint64_t g = ugcd_uint64(6ULL, candidate - 1ULL);
                 uint64_t exp = (candidate - 1ULL) / g;
-                seq_t val = mod_pow(2, exp, candidate);
+                seq_t val = powmod(2, exp, candidate);
                 if (val == 1) good = true;
             }
 
             if (good) {
-                grow_array((void **)&good_primes, &good_cnt, &good_cap, sizeof(seq_t));
+                grow_array(OEISC_VPP(&good_primes), &good_cnt, &good_cap, sizeof(seq_t));
                 good_primes[good_cnt++] = candidate;
             }
         }

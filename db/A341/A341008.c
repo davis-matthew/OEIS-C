@@ -8,17 +8,19 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 3999, u32 n <= 5001, u64 n <= 5001,
  *            u128 n <= 5001, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 4813 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Numbers whose sum of even digits and sum of odd digits differ by 7 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Utility: reallocate a seq_t array (provided by the utils) */
-#define seq_alloc_new(cap)  ((seq_t*)malloc((cap)*sizeof(seq_t)))
-#define seq_realloc(old, oldcap, newcap) ((seq_t*)realloc((old), (newcap)*sizeof(seq_t)))
+#define seq_alloc_new(cap)  (mem_new(seq_t, (cap)))
+#define seq_realloc(old, oldcap, newcap) (mem_resize(seq_t, (old), (newcap)))
 
 /* Return the n-th integer whose sum of even digits and sum of odd digits
  * differ by 7 (|sum_even - sum_odd| = 7).  a(1) = 7.  Uses lazy

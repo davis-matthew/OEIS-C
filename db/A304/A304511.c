@@ -7,13 +7,15 @@
  * Formula:   a(n) = 318*2^n - 186 (n>=1)
  * Range:     u8 none, u16 n <= 7, u32 n <= 23, u64 n <= 55, u128 n <= 119,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 856 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2.h"  /* for pow2(idx_t) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

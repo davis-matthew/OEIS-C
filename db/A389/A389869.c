@@ -8,6 +8,7 @@
  *            k!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 269 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Implementation uses the identity a(n) = Σ binomial(n-k, n-3k) * (k+1)^(k-1) * (n! / k!) */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Small power: base^exp, exp is an idx_t (non‑negative). */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 173, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 8522 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Rational value of B(n, −½) as (num / 2^den).  The numerator
    may be negative; the denominator is a power of 2. */
@@ -91,7 +93,7 @@ static void grow_keep(size_t need)
     if (keep_cap < need) {
         size_t newcap = (keep_cap == 0) ? 8 : (keep_cap << 1);
         while (newcap < need) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(keeps, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, keeps, newcap);
         keeps = tmp;
         keep_cap = newcap;
     }

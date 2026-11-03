@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 39, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  seq_t  and  idx_t  are supplied by the build environment.
      Do NOT define them here.  */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
 #ifdef __cplusplus
         /* C++: need an explicit cast of the void* returned by realloc() */
-        tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        tmp = mem_resize(seq_t, cache, new_len);
 #else
         /* C: implicit conversion from void* to the required type is OK */
         tmp = realloc(cache, new_len * sizeof(seq_t));

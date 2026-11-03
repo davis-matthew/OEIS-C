@@ -9,13 +9,14 @@
  *            + 1 (for n ≥ 1)
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   _floor_log2_idx
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   ilog2_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/_floor_log2_idx.h"
+#include "../utils/ilog2_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,6 +27,6 @@ seq_t a(idx_t n)
         return (seq_t)(2 * a(m) + 1);
     } else {                           /* n is odd: n = 2 * m + 1 */
         idx_t m = n >> 1;              /* m = (n-1)/2 */
-        return (seq_t)(2 * a(m) + _floor_log2_idx(m) + 1);
+        return (seq_t)(2 * a(m) + ilog2_idx(m) + 1);
     }
 }

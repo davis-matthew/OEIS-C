@@ -7,9 +7,10 @@
  * Keywords:  sign
  * Formula:   a(0) = 0; for n > 0, a(n) = a(n-1) + (A008966(4n-1) –
  *            A008966(4n+1))
- * Range:     i8 n <= 33, i16 n <= 8495, i32 n <= 9801, i64 n <= 9801,
- *            i128 n <= 9801, big any n
- * Helpers:   is_squarefree
+ * Range:     i8 n <= 33, i16 n <= 8495, i32 n <= 11111, i64 n <= 11111,
+ *            i128 n <= 11111, big any n
+ * Validated: standard, pass, 122 terms through n = 9801 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* One‑time initialization (C++ cast to seq_t* required) */
     if (cached_n == (idx_t)-1) {
         cache_size = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;   /* allocation failure – should not occur */
         cache[0] = (seq_t)0;           /* a(0) = 0 */
         cached_n = 0;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         idx_t new_size = n + 1;
         if (new_size < cache_size * 2)
             new_size = cache_size * 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return cache[cached_n]; /* fallback on allocation failure */
         cache = tmp;
         cache_size = new_size;

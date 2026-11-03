@@ -9,13 +9,28 @@
  *            2*a(n) = (2n)! [x^(2n)] 1/(2*cos(x)-1))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 17,
  *            big any n
- * Helpers:   a001028_grow
+ * Validated: standard, pass, 30 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a001028_grow.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *a001028_z(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a001028_grow(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = a001028_z(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *A_memo = NULL;   /* A_memo[k] = a(k), k = 1..A_cnt */
 static idx_t A_cnt = 0;

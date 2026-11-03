@@ -9,12 +9,14 @@
  *            number of the second kind
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 20, u64 n <= 32, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 291 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,11 +26,11 @@ seq_t a(idx_t n)
     idx_t m_max = n + 1;                    /* maximum row index needed */
     size_t len  = (size_t)m_max + 1;        /* array size for the two rows */
 
-    seq_t *row_prev = (seq_t*)calloc(len, sizeof(seq_t));  /* zeroed row 0 */
-    seq_t *row_cur  = (seq_t*)calloc(len, sizeof(seq_t));
+    seq_t *row_prev = mem_new(seq_t, len);  /* zeroed row 0 */
+    seq_t *row_cur  = mem_new(seq_t, len);
     if (!row_prev || !row_cur) {
-        free(row_prev);
-        free(row_cur);
+        mem_free(row_prev);
+        mem_free(row_cur);
         return (seq_t)0;
     }
 
@@ -61,8 +63,8 @@ seq_t a(idx_t n)
         row_cur  = tmp;
     }
 
-    free(row_prev);
-    free(row_cur);
+    mem_free(row_prev);
+    mem_free(row_cur);
 
     return result;
 }

@@ -9,15 +9,18 @@
  * Formula:   a(n) = n * (C(n) - 2^n + binomial(n,2) + 2) for n ≥ 4 where C(n)
  *            is the nth Catalan number. The first four terms are defined
  *            explicitly: a(0)=1, a(1)=1, a(2)=2, a(3)=6
- * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 24, u128 n <= 24,
+ * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 24, u128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

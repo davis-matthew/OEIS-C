@@ -13,7 +13,8 @@
  *            dynamic array so that repeated calls, even in arbi...
  * Range:     u8 n <= 61, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bigomega, count_distinct_primes
+ * Validated: standard, pass, 73 terms through n = 916 (2026-11-03)
+ * Helpers:   bigomega, mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/bigomega.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* start with a small capacity and allocate */
         seq_cap = 32;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         seq_len   = 0;
         next_candidate = 3;
         initialized = true;
@@ -48,12 +50,12 @@ seq_t a(idx_t n)
     while (seq_len < target) {
         /* test the current odd number */
         if ((bigomega(next_candidate) & 1) &&
-            (count_distinct_primes((uint64_t)next_candidate) & 1)) {
+            (omega((uint64_t)next_candidate) & 1)) {
 
             /* grow cache if needed */
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = (seq_t)next_candidate;
         }

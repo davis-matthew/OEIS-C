@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2*a(n-1) - a(n-2) - 2*a(n-3), with a(0)=1, a(1)=2, a(2)=3
  * Range:     i8 n <= 9, i16 n <= 19, i32 n <= 42, i64 n <= 82, i128 n <= 168,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Generates the sequence Expansion of 1/(1‑2*x+x^2+2*x^3) (OEIS A077942) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,9 +28,9 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_cap) {
         size_t new_cap = (size_t)n + 1;
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, new_cap);
         } else {
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
         }
         cache_cap = new_cap;
     }

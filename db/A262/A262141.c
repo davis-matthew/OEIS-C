@@ -10,6 +10,7 @@
  *            a(n)=39*a(n-1)-39*a(n-2)+a(n-3) for n>3 (OEIS A262141)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
+ * Validated: standard, pass, 31 terms through n = 632 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   series_sum
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
    binary‑searching the base m that would give the target sum.  */
 
 #include <stdbool.h>
-#include "../utils/series_sum.h"
+
+static seq_t series_sum(seq_t h, idx_t m)
+{
+    seq_t sum = h;
+    seq_t div = h / (seq_t)m;
+    while (div != 0)
+    {
+        sum += div;
+        div /= (seq_t)m;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

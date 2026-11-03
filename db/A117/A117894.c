@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 118, u32 n <= 403, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1226 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root: returns floor(sqrt(x)) for uint64_t x. */
 static idx_t isqrt_u64(idx_t x)
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
 
     if (pell == NULL) {
         pell_len = 2;                        /* store P0 and P1 */
-        pell = (seq_t *)malloc(pell_len * sizeof(seq_t));
+        pell = mem_new(seq_t, pell_len);
         if (!pell)
             abort();
         pell[0] = (seq_t)0;                 /* P0 */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
     idx_t need = k + 1;                      /* we need Pell[need] */
     if (need >= pell_len) {
         size_t new_len = (size_t)need + 1;
-        seq_t *tmp = (seq_t *)realloc(pell, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pell, new_len);
         if (!tmp)
             abort();
         pell = tmp;

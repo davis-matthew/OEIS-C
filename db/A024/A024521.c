@@ -9,7 +9,8 @@
  *            pre‑computed and cached
  * Range:     i8 n <= 10, i16 n <= 20, i32 n <= 20, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n)
 {
@@ -50,7 +52,7 @@ extern seq_t a(idx_t n)
             if (sieve[i]) ++cnt;
         prime_cnt = cnt;
 
-        prefix = (seq_t*)malloc((prime_cnt + 1) * sizeof(seq_t));
+        prefix = mem_new(seq_t, (prime_cnt + 1));
         if (!prefix) { free(sieve); return 0; }
 
         prefix[0] = 0;          /* sum of zero primes is 0 */

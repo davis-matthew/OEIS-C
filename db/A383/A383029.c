@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 103 terms through n = 8370 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Maximum number of distinct prime factors for any 64‑bit integer
  * (enough for our brute‑force factorisation). */
@@ -51,13 +53,13 @@ seq_t a(idx_t n)
         if (need > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap << 1 : 16;
             while (new_cap < need) new_cap <<= 1;
-            seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, new_cap);
             if (!new_cache)
                 return 0;                /* memory allocation failed */
             if (cache) {
                 for (idx_t i = 0; i < computed; i++)
                     new_cache[i] = cache[i];
-                free(cache);
+                mem_free(cache);
             }
             cache     = new_cache;
             cache_cap = new_cap;

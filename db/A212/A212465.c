@@ -11,13 +11,15 @@
  *            three symbols
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 15, u64 n <= 34, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------- */
 /*  Static cache for previously computed terms                       */
@@ -44,7 +46,7 @@ ensure_cache(idx_t target)
     if (a_cache == NULL) {
         /* initial allocation */
         a_cache_cap = needed > 128 ? needed : 128;
-        a_cache = (seq_t *)malloc(a_cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_cap);
         if (a_cache == NULL) abort();
         for (size_t i = 0; i < a_cache_cap; ++i)
             a_cache[i] = 0;
@@ -56,7 +58,7 @@ ensure_cache(idx_t target)
         size_t new_cap = a_cache_cap;
         while (new_cap < needed)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (tmp == NULL) abort();
         a_cache = tmp;
         for (size_t i = a_cache_cap; i < new_cap; ++i)

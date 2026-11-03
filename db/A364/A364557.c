@@ -10,6 +10,7 @@
  *            identities of the involved OEIS sequences
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 136, u64 n <= 312,
  *            u128 n <= 726, big any n
+ * Validated: standard, pass, 90 terms through n = 9946 (2026-11-01)
  * Helpers:   build_primes_upto, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

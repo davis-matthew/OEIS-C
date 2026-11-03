@@ -9,7 +9,8 @@
  *            nonnegative integers x and y, given in increasing order
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 69 terms through n = 9422 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 #ifndef Y_MAX
 /* Upper bound on y.  64 is safe for n up to many thousands even with
@@ -54,7 +56,7 @@ static inline void swap_nodes(node_t *a, node_t *b) {
 static void heap_push(node_t node) {
     if (heap_size == heap_cap) {
         heap_cap <<= 1;
-        heap = (node_t *)realloc(heap, heap_cap * sizeof(node_t));
+        heap = mem_resize(node_t, heap, heap_cap);
     }
     size_t i = heap_size++;
     heap[i] = node;
@@ -95,7 +97,7 @@ static void grow_cache(idx_t need) {
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -106,13 +108,13 @@ static void init_once(void) {
         return;
     initialized = true;
 
-    heap = (node_t *)malloc(heap_cap * sizeof(node_t));
+    heap = mem_new(node_t, heap_cap);
     if (!heap)
         abort();
 
     /* initialise cache */
     cache_cap = 16;
-    seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, cache_cap);
     if (!seq_cache)
         abort();
     cache_len = 0;

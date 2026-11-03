@@ -10,11 +10,13 @@
  *            (a(n-1)+a(n-2)+...+a(n-37)) - 946 * a(n-38);
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 
 #ifdef __cplusplus

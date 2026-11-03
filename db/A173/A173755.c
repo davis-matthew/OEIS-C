@@ -10,12 +10,14 @@
  *            and k = n - r*(r+1)/2 is the column index in row r
  * Range:     i8 n <= 13, i16 n <= 43, i32 n <= 151, i64 n <= 559,
  *            i128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1143 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

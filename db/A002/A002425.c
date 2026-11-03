@@ -9,7 +9,8 @@
  *            Brent-Zimmermann recurrence T(j) = (j-k)*T(j-1) + (j-k+2)*T(j)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 15, u128 n <= 24,
  *            big any n
- * Helpers:   tz_limbs, tz_width
+ * Validated: standard, pass, 34 terms through n = 270 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/tz_limbs.h"
-#include "../utils/tz_width.h"
+
+/* limbs enough for T(j) < (2j)! <= (2j)^(2j) */
+static size_t tz_limbs(idx_t j) {
+    uint64_t m = 2 * (uint64_t)j, lg = 1;
+    while (((uint64_t)1 << lg) < m) lg++;
+    return (size_t)((m * lg + 64) / 32 + 1);
+}
+
+static int tz_width(void) {
+    seq_t x = 1;
+    int w = 0;
+    while (x != 0 && w < 300) { x = (seq_t)(x * 2); w++; }
+    return w;
+}
 
 static uint32_t *tz_data = 0;
 static size_t *tz_off = 0;

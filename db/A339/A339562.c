@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Sieve data                                                          */
@@ -100,7 +102,7 @@ static void seq_append(seq_t val)
     if (seq_len == seq_cap)
     {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_arr = (seq_t*)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, new_cap);
         seq_cap = new_cap;
     }
     seq_arr[seq_len++] = val;
@@ -112,7 +114,7 @@ static void init_sequence(void)
         init_sieve();
     if (seq_arr == NULL)
     {
-        seq_arr = (seq_t*)malloc(16 * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, 16);
         seq_cap = 16;
         seq_len = 0;
     }

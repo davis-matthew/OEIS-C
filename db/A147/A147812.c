@@ -9,7 +9,8 @@
  *            gap(next_prime(p), next_prime(next_prime(p))) (gap = difference)
  * Range:     u8 n <= 23, u16 n <= 3098, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 59 terms through n = 9776 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Cache of qualifying primes */
 static seq_t *qual_cache    = NULL;
@@ -59,7 +61,7 @@ static void ensure_cache(idx_t need)
     if ((size_t)need <= qual_cap) return;
     size_t new_cap = qual_cap ? qual_cap << 1 : 8;
     if (new_cap < (size_t)need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(qual_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, qual_cache, new_cap);
     if (!tmp) exit(1);
     qual_cache = tmp;
     qual_cap = new_cap;

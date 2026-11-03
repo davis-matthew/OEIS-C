@@ -12,14 +12,18 @@
  *            0)
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 39, u64 n <= 60, u128 n <= 110,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 61 terms through n = 1309 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *A_cache = NULL;   /* 2‑D flat array */
 static size_t dim = 0;          /* current dimension (rows = cols = dim) */
@@ -30,7 +34,7 @@ static void ensure_size(size_t need)
     if (dim >= need) return;
 
     /* resize */
-    seq_t *new_cache = (seq_t *)realloc(A_cache, need * need * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, A_cache, need * need);
     if (!new_cache) abort();
     A_cache = new_cache;
 
@@ -54,14 +58,14 @@ static void ensure_size(size_t need)
                         {
                             /* divisor d */
                             seq_t expd = (seq_t)k * (seq_t)d + (seq_t)1 + (seq_t)(j / d);
-                            inner += big_pow((seq_t)d, expd);
+                            inner += ipow((seq_t)d, expd);
 
                             /* paired divisor j/d */
                             if (d != j / d)
                             {
                                 seq_t d2 = (seq_t)(j / d);
                                 seq_t expd2 = (seq_t)k * d2 + (seq_t)1 + (seq_t)d;
-                                inner += big_pow(d2, expd2);
+                                inner += ipow(d2, expd2);
                             }
                         }
                     }

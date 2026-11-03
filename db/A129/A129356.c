@@ -9,12 +9,14 @@
  *            k(k+2)·xᵏ⁺¹ - k(k+1)/2·xᵏ⁺²]
  * Range:     i8 n <= 5, i16 n <= 14, i32 n <= 29, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     size_t sz = (size_t)(n + 1);
-    seq_t *coeff = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, sz);
     if (!coeff)
         return (seq_t)0;              /* memory error – not expected */
 
@@ -50,6 +52,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coeff[n];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

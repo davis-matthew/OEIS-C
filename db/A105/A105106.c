@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   a(n) = the nth integer k such that 1000*k + 101 is prime
- * Range:     u8 n <= 53, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 53, u16 n <= 9755, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9877 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc/realloc */
+#include "../utils/mem.h"
 
 /* 64‑bit modular multiplication using unsigned __int128 when available. */
 static uint64_t mulmod64(uint64_t a, uint64_t b, uint64_t m)
@@ -106,7 +108,7 @@ static void ensure_capacity(idx_t min_needed)
     /* Grow capacity to at least twice the current or min_needed, whichever is larger. */
     idx_t new_cap = cached_cap ? cached_cap * 2 : 16;
     if (new_cap < min_needed) new_cap = min_needed;
-    seq_t *new_arr = (seq_t *)realloc(cached, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cached, new_cap);
     if (!new_arr) { /* allocation failed – abort the program in a compliant way */
         abort();
     }

@@ -10,8 +10,9 @@
  *            antidiagonals, where * T(n,k) = (n * 2^max(0, w(k)-w(n))) XOR (k
  *            * 2^max(0, w(n)-w(k))), * with w(x) = number of binary digits of
  *            x (0 has w(0)=0)
- * Range:     u8 n <= 7089, u16 n <= 7089, u32 n <= 7089, u64 n <= 7089,
- *            u128 n <= 7089, big any n
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 7089 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

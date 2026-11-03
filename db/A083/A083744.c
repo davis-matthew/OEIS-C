@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 361, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 70 terms through n = 7591 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/isPrime.h"   /* declares bool isPrime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first entry */
     if (cache == NULL) {
         cache_cap = 2;                          /* at least two slots (indices 0…2) */
-        cache     = (seq_t *)malloc((cache_cap + 1) * sizeof(seq_t));
+        cache     = mem_new(seq_t, (cache_cap + 1));
         if (!cache) { exit(EXIT_FAILURE); }
         cache[1] = (seq_t)1;      /* a(1) = 1 */
         cache_size = 1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (n > cache_cap) {
         idx_t new_cap = n + 1;   /* we need indices 0…new_cap */
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) { exit(EXIT_FAILURE); }
         cache     = tmp;
         cache_cap = new_cap;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         seq_t cand   = prev + (seq_t)i;          /* candidate value */
 
         /* Test if candidate is composite (i.e., not prime and ≠ 1) */
-        if (cand > (seq_t)1 && !isPrime((idx_t)cand))
+        if (cand > (seq_t)1 && !is_prime((idx_t)cand))
             cache[i] = cand;    /* use candidate if composite */
         else
             cache[i] = prev;    /* keep previous value if candidate is prime */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>  /* for size_t */
+#include "../utils/mem.h"
 
 /* Static cache of A000749 values. */
 static seq_t *A_cache = NULL;
@@ -36,7 +38,7 @@ static void ensure_A(idx_t needed)
 
     /* Reallocate the cache to hold new_len entries. */
     size_t new_len = (size_t)needed + 1;
-    seq_t *tmp = (seq_t *)realloc(A_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A_cache, new_len);
     if (!tmp)
         abort();  /* allocation failed */
 

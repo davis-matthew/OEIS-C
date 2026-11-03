@@ -11,12 +11,14 @@
  *            a(8)=92, a(9)=129, a(10)=169, a(11)=224
  * Range:     u8 n <= 11, u16 n <= 76, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed values */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
 
     /* allocate initial cache and fill first 11 terms */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * 12);
+        cache = mem_new(seq_t, 12);
         for (idx_t i = 1; i <= 11; ++i)
             cache[i] = init[i];
         computed_up_to = 11;
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
         return cache[n];
 
     /* grow cache to accommodate new n */
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) return 0;   /* allocation failed, return 0 */
     cache = new_cache;
 

@@ -7,12 +7,14 @@
  * Formula:   a(n) = floor((1+sqrt(3))^n)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Ensure at least the first two terms are available */
     if (len == 0) {
         /* allocate space for S[0] and S[1] */
-        S = (seq_t *)realloc(S, 2 * sizeof(seq_t));
+        S = mem_resize(seq_t, S, 2);
         S[0] = (seq_t)2;  /* S(0) = 2 */
         S[1] = (seq_t)2;  /* S(1) = 2 */
         len  = 2;
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Extend the cache up to index n if needed */
     if (n >= len) {
         size_t new_len = (size_t)(n + 1);
-        S = (seq_t *)realloc(S, new_len * sizeof(seq_t));
+        S = mem_resize(seq_t, S, new_len);
 
         seq_t two = (seq_t)2;
         for (idx_t i = len; i <= n; ++i) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 9, u128 n <= 21,
  *            big any n
- * Helpers:   subblock_k
+ * Validated: standard, pass, 28 terms through n = 167 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/subblock_k.h"
+#include "../utils/mem.h"
+
+/* compute the value K for a single 2×2 subblock */
+static inline int subblock_k(int a0, int a1, int b0, int b1)
+{
+    int arr[4] = {a0, a1, b0, b1};
+    int t;
+    if (arr[0] > arr[1]) { t = arr[0]; arr[0] = arr[1]; arr[1] = t; }
+    if (arr[2] > arr[3]) { t = arr[2]; arr[2] = arr[3]; arr[3] = t; }
+    if (arr[0] > arr[2]) { t = arr[0]; arr[0] = arr[2]; arr[2] = t; }
+    if (arr[1] > arr[3]) { t = arr[1]; arr[1] = arr[3]; arr[3] = t; }
+    if (arr[1] > arr[2]) { t = arr[1]; arr[1] = arr[2]; arr[2] = t; }
+    /* sorted: arr[0] <= arr[1] <= arr[2] <= arr[3] */
+    return arr[3] + arr[0] - arr[1];   /* values 0..3 */
+}
 
 #define STATES 1024   /* 4^5 */
 
@@ -123,8 +138,8 @@ static void init_adjacency(void)
 
     /* allocate DP working arrays */
     for (k = 0; k < 4; ++k) {
-        dp_prev[k] = (seq_t*)malloc(STATES * sizeof(seq_t));
-        dp_curr[k] = (seq_t*)malloc(STATES * sizeof(seq_t));
+        dp_prev[k] = mem_new(seq_t, STATES);
+        dp_curr[k] = mem_new(seq_t, STATES);
         if (!dp_prev[k] || !dp_curr[k]) abort();
     }
 
@@ -141,7 +156,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_allocated > n) return;
     size_t needed = (size_t)n + 1;                /* indices 0..n */
-    seq_t *tmp = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (!tmp) abort();
     cache = tmp;
     cache_allocated = (idx_t)needed;
@@ -168,7 +183,7 @@ seq_t a(idx_t n)
     for (idx_t cur = cache_highest; cur < n; ++cur) {
         /* compute dp_curr from dp_prev for next height */
         for (int k = 0; k < 4; ++k)
-            memset(dp_curr[k], 0, STATES * sizeof(seq_t));
+            mem_set(dp_curr[k], 0, STATES * sizeof(seq_t));
 
         for (int k = 0; k < 4; ++k) {
             for (int i = 0; i < STATES; ++i) {

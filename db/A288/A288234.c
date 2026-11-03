@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* integer floor square root of a 64‑bit unsigned integer */
 static inline seq_t floor_sqrt_uint64(uint64_t x)
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* grow coefficient cache if necessary */
     if (c_cap < need) {
         size_t new_cap = need;
-        seq_t *new_c = (seq_t *)realloc(c, new_cap * sizeof(seq_t));
+        seq_t *new_c = mem_resize(seq_t, c, new_cap);
         if (!new_c) return 0;           /* silently return zero on OOM */
         c = new_c;
         c_cap = new_cap;
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     /* grow sequence cache if necessary */
     if (a_cap < need) {
         size_t new_cap = need;
-        seq_t *new_a = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_arr, new_cap);
         if (!new_a) return 0;
         a_arr = new_a;
         a_cap = new_cap;

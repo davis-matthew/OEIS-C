@@ -10,7 +10,8 @@
  *            No closed form formula is known, so a search algorithm is used
  * Range:     u8 none, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static uint32_t *cnt = NULL;     /* count of representations per sum   */
 static size_t   cnt_len = 0;     /* length of cnt array                */
@@ -59,8 +61,8 @@ static void recompute_terms(int new_max_i)
         if (cnt[s] == 2) ++new_terms_cnt;
 
     /* allocate terms array */
-    free(terms);
-    terms = (seq_t*)malloc(new_terms_cnt * sizeof(seq_t));
+    mem_free(terms);
+    terms = mem_new(seq_t, new_terms_cnt);
     terms_len = new_terms_cnt;
 
     /* fill terms array in ascending order */

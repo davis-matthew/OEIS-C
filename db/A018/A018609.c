@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   cmp_divs
+ * Validated: full, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,13 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/cmp_divs.h"
+#include "../utils/mem.h"
+
+static int cmp_divs(const void *a, const void *b) {
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    return (*x < *y) ? -1 : (*x > *y);
+}
 
 static seq_t divs[30];
 static size_t div_count = 0;
@@ -39,7 +46,7 @@ static void init_divs(void) {
         }
     }
     div_count = idx;        /* should be 30 */
-    qsort(divs, div_count, sizeof(seq_t), cmp_divs);
+    mem_qsort(divs, div_count, sizeof(seq_t), cmp_divs);
     divs_initialized = 1;
 }
 

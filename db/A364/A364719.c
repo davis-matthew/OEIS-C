@@ -11,14 +11,16 @@
  *            subsequent calls are serviced in O(1)
  * Range:     u8 n <= 2, u16 n <= 708, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 63 terms through n = 8915 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"   /* divisor_count_u64(uint64_t n) */
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,16 +37,16 @@ seq_t a(idx_t n)
         last++;
         idx_t k = last;
 
-        seq_t d0 = divisor_count_u64((uint64_t)k);
-        seq_t d1 = divisor_count_u64((uint64_t)(k + 1));
-        seq_t d2 = divisor_count_u64((uint64_t)(k + 2));
-        seq_t d3 = divisor_count_u64((uint64_t)(k + 3));
+        seq_t d0 = num_divisors((uint64_t)k);
+        seq_t d1 = num_divisors((uint64_t)(k + 1));
+        seq_t d2 = num_divisors((uint64_t)(k + 2));
+        seq_t d3 = num_divisors((uint64_t)(k + 3));
 
         if (d0 > d1 && d1 > d2 && d2 > d3) {
             /* Resize cache if necessary */
             if (size >= cap) {
                 size_t new_cap = cap < 16 ? 16 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();          /* out of memory */
                 cache = tmp;
                 cap   = new_cap;

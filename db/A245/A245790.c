@@ -9,13 +9,15 @@
  *            a(n‑j) for n ≥ 5 where binom(n, j) = n!/(j!(n‑j)!)
  * Range:     u8 n <= 10, u16 n <= 14, u32 n <= 19, u64 n <= 29, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 387 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache for n = 0 */
     if (buf == NULL) {
-        buf = (seq_t*)malloc(sizeof(seq_t));
+        buf = mem_new(seq_t, 1);
         if (buf == NULL) return (seq_t)0;   /* allocation failed */
         buf[0] = (seq_t)1;
         max_n = 0;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Compute up to the requested n if necessary */
     if (n > max_n) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(buf, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_size);
         if (tmp == NULL) return (seq_t)0;   /* allocation failed */
         buf = tmp;
 

@@ -10,13 +10,15 @@
  *            is unused
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 16, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Note: The function assumes seq_t and idx_t are supplied by the build. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
         /* Allocate or enlarge each T[k] array (k=1..5). */
         for (int k = 1; k <= 5; ++k) {
-            T[k] = (seq_t *)realloc(T[k], newlen * sizeof(seq_t));
+            T[k] = mem_resize(seq_t, T[k], newlen);
             if (!T[k]) abort();                 /* allocation failed           */
             /* initialise new entries to 0  */
             for (idx_t i = maxN + 1; i <= n; ++i)
@@ -44,8 +46,8 @@ seq_t a(idx_t n)
         }
 
         /* Allocate or enlarge Stirling number arrays. */
-        s_prev = (seq_t *)realloc(s_prev, newlen * sizeof(seq_t));
-        s_curr = (seq_t *)realloc(s_curr, newlen * sizeof(seq_t));
+        s_prev = mem_resize(seq_t, s_prev, newlen);
+        s_curr = mem_resize(seq_t, s_curr, newlen);
         if (!s_prev || !s_curr) abort();        /* allocation failed           */
         for (idx_t i = maxN + 1; i <= n; ++i) {
             s_prev[i] = 0;

@@ -8,12 +8,14 @@
  *            polynomial has degree 231 and is symmetric: a(n) = a(231-n)
  * Range:     u8 n <= 231, u16 n <= 231, u32 n <= 231, u64 n <= 231,
  *            u128 n <= 231, big any n
- * Helpers:   none
+ * Validated: full, pass, 232 terms through n = 231 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const idx_t EXPS[11] = {1,5,9,13,17,21,25,29,33,37,41};
 static const idx_t MAX_DEG   = 231;          /* 1+5+...+41 */
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Static cache of coefficients, built once */
     static seq_t *coeff = NULL;
     if (!coeff) {
-        coeff = (seq_t *)malloc(ARRAY_SIZE * sizeof(seq_t));
+        coeff = mem_new(seq_t, ARRAY_SIZE);
         if (!coeff) return 0;              /* allocation failure, return 0 */
 
         /* initialise to zero */

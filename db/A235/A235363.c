@@ -7,7 +7,8 @@
  * Formula:   a(n) = (1 + ∑_{k=1}^{2n} k^{2n}) mod (2n+1)
  * Range:     u8 n <= 71, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,11 @@
 /* This implements the OEIS sequence A235363 using modular
    exponentiation. It works for any seq_t and idx_t sizes
    supported by the build environment. */
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +39,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 1; k < limit; ++k) {
         /* Compute k^exp (mod m) efficiently */
-        seq_t term = mod_pow((seq_t)k, exp, m);
+        seq_t term = powmod((seq_t)k, exp, m);
 
         /* Add term modulo m */
         sum += term;

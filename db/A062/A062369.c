@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n} d * tau(n/d)^2 (tau = number of divisors)
  * Range:     u8 n <= 23, u16 n <= 1439, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 76 terms through n = 4530 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

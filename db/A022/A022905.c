@@ -9,7 +9,8 @@
  *            1
  * Range:     u8 n <= 10, u16 n <= 42, u32 n <= 293, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 876 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Dynamic cache: cache[0] is unused; cache[1]..cache[cap-1] contain
    computed terms. A value of 0 indicates "not yet computed". */
@@ -36,7 +38,7 @@ static void ensure_cache_size(idx_t n)
     size_t new_cap = (size_t)(n + 1);
     /* realloc may return NULL if memory cannot be allocated; abort to
        avoid undefined behaviour. */
-    seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_cap);
     if (!p) abort();
     /* Initialise new slots to 0. */
     for (size_t i = cache_cap; i < new_cap; ++i) {

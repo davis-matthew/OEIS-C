@@ -10,7 +10,8 @@
  *            43
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   digit_square_sum_of_square
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/digit_square_sum_of_square.h"
+
+/* Return the sum of the squares of the base‑43 digits of n^2. */
+static seq_t digit_square_sum_of_square(seq_t n)
+{
+    seq_t sq = n * n;
+    seq_t sum = 0;
+    seq_t t = sq;
+    while (t) {
+        seq_t d = t % 43;
+        sum += d * d;
+        t /= 43;
+    }
+    return sum;
+}
 
 /* a(idx_t n) – 1‑based indexing (a(1)=0, a(2)=1, …)
    Works for all provided seq_t and idx_t types. */

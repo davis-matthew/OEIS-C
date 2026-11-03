@@ -10,9 +10,10 @@
  *            obtained by reading the square array A(n,k) by antidiagonals.
  *            A(n,k) contains the maximal runs of consecutive 1's that appear
  *            in both binary expansions of n and k
- * Range:     u8 n <= 9511, u16 n <= 9511, u32 n <= 9511, u64 n <= 9511,
- *            u128 n <= 9511, big any n
- * Helpers:   antidiagonal_sum, floor_log2_uint64
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 9511 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,21 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/antidiagonal_sum.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
+
+/* Return the sum s such that s*(s+1)/2 <= n < (s+1)*(s+2)/2.
+   This is the index of the antidiagonal that contains n. */
+static idx_t antidiagonal_sum(idx_t n)
+{
+    idx_t s = 0;
+    idx_t acc = 0;
+    while (acc + (s + 1) <= n) {
+        acc += s + 1;
+        s++;
+    }
+    return s;
+}
 
 /* Compute A(n,k) as defined in the OEIS entry.  The result type is
    seq_t, but all bitwise logic is performed using idx_t (uint64_t)
@@ -33,8 +47,8 @@ static seq_t compute_A(idx_t n, idx_t k)
 
     const idx_t BITS = (idx_t)sizeof(seq_t) * CHAR_BIT;
     /* bit lengths of n and k; 0 has length 0 */
-    idx_t bitlen_n = n == 0 ? 0U : floor_log2_uint64(n) + 1;
-    idx_t bitlen_k = k == 0 ? 0U : floor_log2_uint64(k) + 1;
+    idx_t bitlen_n = n == 0 ? 0U : ilog2(n) + 1;
+    idx_t bitlen_k = k == 0 ? 0U : ilog2(k) + 1;
 
     seq_t result = (seq_t)0;
     idx_t pos = 0;

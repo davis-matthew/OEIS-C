@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   append_candidate, match54_in_base6
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,47 @@
  * digits 5.  The base‑6 representation of n+1 then contains no "54". */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/append_candidate.h"
-#include "../utils/match54_in_base6.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+static bool match54_in_base6(idx_t x)
+{
+    unsigned char dig[64];
+    size_t len = 0;
+    idx_t t = x;
+    do {
+        dig[len++] = (unsigned char)(t % 6);
+        t /= 6;
+    } while (t);
+
+    bool found = false;
+    for (size_t k = 0; k + 1 < len; ++k) {
+        if (dig[k] == 4 && dig[k + 1] == 5) {
+            if (!found) found = true;
+            for (size_t j = 0; j < k; ++j) {
+                if (dig[j] != 5) return false;
+            }
+        }
+    }
+    return found;
+}
 
 seq_t a(idx_t n)
 {

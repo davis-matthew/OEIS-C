@@ -11,12 +11,14 @@
  *            a(1)=T(1,1), * a(2)=T(2,1), a(3)=T(2,2), a(4)=T(3,1), …
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
         /* compute new rows from maxrow+1 up to r */
         for (idx_t i = maxrow + 1; i <= r; ++i) {
-            tri[i] = (seq_t *)malloc(sizeof(seq_t) * (i + 1));
+            tri[i] = mem_new(seq_t, (i + 1));
             tri[i][0] = 0;                     /* unused slot */
             if (i == 1) {                      /* base row */
                 tri[1][1] = (seq_t)1;

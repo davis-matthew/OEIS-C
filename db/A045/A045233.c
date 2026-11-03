@@ -11,13 +11,15 @@
  *            increasing base‑5 length and lexicographic order of the digits
  * Range:     u8 n <= 28, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;    /* stored sequence values */
 static size_t cache_cap  = 0;        /* current capacity of cache */
@@ -29,7 +31,7 @@ static void append_to_cache(seq_t val)
 {
     if (cache_sz == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
     cache[cache_sz++] = val;

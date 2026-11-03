@@ -7,13 +7,17 @@
  * Formula:   a(n) = sigma_13(n) / gcd(sigma_13(n), n^13)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 30, u128 n <= 920,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 35 terms through n = 9550 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static seq_t _gcd_seq_t(seq_t a, seq_t b)
 {
@@ -42,7 +46,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         /* term contribution: 1 + p^13 + p^26 + ... + p^(13*e) */
         seq_t term = (seq_t)1;
-        seq_t base_pow = big_pow((seq_t)primes[i], (seq_t)K);  /* p^13 */
+        seq_t base_pow = ipow((seq_t)primes[i], (seq_t)K);  /* p^13 */
         seq_t p_pow = (seq_t)1;
         for (uint64_t j = 1; j <= exps[i]; ++j) {
             p_pow *= base_pow;          /* p^(13*j) */
@@ -52,7 +56,7 @@ seq_t a(idx_t n)
     }
 
     /* n^13 */
-    seq_t n_pow_13 = big_pow((seq_t)n, (seq_t)13ULL);
+    seq_t n_pow_13 = ipow((seq_t)n, (seq_t)13ULL);
 
     /* reduction: a(n) = sigma / gcd(sigma, n^13) */
     seq_t g = _gcd_seq_t(sigma, n_pow_13);

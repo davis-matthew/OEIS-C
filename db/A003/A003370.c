@@ -9,15 +9,23 @@
  *            terms are known
  * Range:     u8 n <= 2, u16 n <= 20, u32 n <= 2143, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a003370_cmp_u64, a003370_p7
+ * Validated: standard, pass, 56 terms through n = 9981 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a003370_cmp_u64.h"
-#include "../utils/a003370_p7.h"
+
+static int a003370_cmp_u64(const void *p, const void *q) {
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
+
+static uint64_t a003370_p7(uint64_t b) {
+    return b * b * b * b * b * b * b;
+}
 
 static uint64_t *a003370_vals = NULL;
 static idx_t a003370_cnt = 0;

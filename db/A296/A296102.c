@@ -11,19 +11,21 @@
  *            is needed. The routine works for any index order...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0; /* undefined, but harmless */
 
     /* Allocate temporary array of size n+1 (index 0 unused). */
-    seq_t *ab = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *ab = mem_new(seq_t, (n + 1));
     if (!ab) abort();
 
     /* Fill known initial values. */
@@ -49,6 +51,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = ab[n];
-    free(ab);
+    mem_free(ab);
     return result;
 }

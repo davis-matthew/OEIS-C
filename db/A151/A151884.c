@@ -8,7 +8,8 @@
  * Formula:   a(n) = n! * ( Σ_{odd i ≤ n} 1/i + Σ_{odd i ≤ n/2} 1/i² )
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 397 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *factorials = NULL;
 static idx_t max_fact  = 0;
@@ -30,12 +32,12 @@ seq_t a(idx_t n)
     if (n > max_fact) {
         size_t new_size = (size_t)(n + 1);   /* include factorial[0] */
         if (!factorials) {
-            factorials = (seq_t *)malloc(new_size * sizeof(seq_t));
+            factorials = mem_new(seq_t, new_size);
             if (!factorials)
                 return (seq_t)0;           /* allocation failure */
             factorials[0] = (seq_t)1;
         } else {
-            seq_t *tmp = (seq_t *)realloc(factorials, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, factorials, new_size);
             if (!tmp)
                 return (seq_t)0;           /* reallocation failure */
             factorials = tmp;

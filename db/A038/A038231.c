@@ -10,15 +10,35 @@
  *            T(r,j)
  * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 121, u64 n <= 438,
  *            u128 n <= 1660, big any n
- * Helpers:   binomial, pow4, seq_mul
+ * Validated: standard, pass, 71 terms through n = 7313 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/pow4.h"
-#include "../utils/seq_mul.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,14 +7,37 @@
  * Formula:   a(n) = LCM { tau(1), …, tau(n) }
  * Range:     u8 n <= 35, u16 n <= 1023, u32 n <= 4096, u64 n <= 4096,
  *            u128 n <= 4096, big any n
- * Helpers:   gcd, tau_from_spf
+ * Validated: standard, pass, 72 terms through n = 4064 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/tau_from_spf.h"
+#include "../utils/mem.h"
+
+/* Compute tau(n) using precomputed spf array                       */
+static uint32_t tau_from_spf(idx_t n, const uint32_t *pf) {
+    if (n <= 1) return 1;
+    uint32_t res  = 1;
+    uint32_t last = pf[n];
+    uint32_t cnt  = 0;
+    while (n > 1) {
+        uint32_t p = pf[n];
+        if (p == last) {
+            ++cnt;
+        } else {
+            res *= (cnt + 1);
+            last = p;
+            cnt  = 1;
+        }
+        n /= p;
+    }
+    res *= (cnt + 1);
+    return res;
+}
 
 static idx_t     max_n = 0;                /* largest n already evaluated   */
 static seq_t    *a_arr = NULL;            /* a(n) values cache             */
@@ -39,7 +62,7 @@ static void build_spf(idx_t N, uint32_t *table) {
 seq_t a(idx_t n) {
     /* initial allocation on first call */
     if (a_arr == NULL) {
-        a_arr = (seq_t *)malloc(sizeof(seq_t));
+        a_arr = mem_new(seq_t, 1);
         a_arr[0] = (seq_t)1;
     }
 
@@ -57,7 +80,7 @@ seq_t a(idx_t n) {
 
     /* Expand a_arr to hold up to a[n] */
     if (n + 1 > max_n + 1) {
-        seq_t *new_a = (seq_t *)realloc(a_arr, (n + 1) * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_arr, (n + 1));
         a_arr = new_a;
     }
 

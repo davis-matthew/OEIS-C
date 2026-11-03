@@ -6,8 +6,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = multiplicative; for each prime power p^e in n, a(p^e) =
  *            p^e if p divides e, otherwise 1
- * Range:     u8 n <= 255, u16 n <= 9973, u32 n <= 9973, u64 n <= 9973,
- *            u128 n <= 9973, big any n
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 124 terms through n = 9973 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

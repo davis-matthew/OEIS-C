@@ -11,14 +11,27 @@
  *            increasing sequences satisfying this recurrence
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   grow_seq_buf
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/grow_seq_buf.h"
+#include "../utils/mem.h"
+
+/* Helper: grow a buffer to hold at least 'needed' elements. */
+static void grow_seq_buf(seq_t **buf, size_t *cap, size_t needed)
+{
+    if (needed > *cap)
+    {
+        size_t new_cap = (*cap) ? (*cap << 1) : 16;
+        while (new_cap < needed) new_cap <<= 1;
+        *buf = mem_resize(seq_t, *buf, new_cap);
+        *cap = new_cap;
+    }
+}
 
 static seq_t *aseq = NULL;   /* values of a */
 static size_t acap = 0;      /* capacity of aseq */

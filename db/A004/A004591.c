@@ -9,7 +9,8 @@
  *            using multiword integers
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a004591_cmp, a004591_mulsmall, a004591_shl, a004591_sub
+ * Validated: standard, pass, 118 terms through n = 9803 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,46 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a004591_cmp.h"
-#include "../utils/a004591_mulsmall.h"
-#include "../utils/a004591_shl.h"
-#include "../utils/a004591_sub.h"
+
+static int a004591_cmp(const uint32_t *x, const uint32_t *y, size_t L) {
+    size_t i = L;
+    while (i > 0) {
+        i--;
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+/* v = q*d + d*d */
+static void a004591_mulsmall(uint32_t *v, const uint32_t *q, size_t L, uint32_t d) {
+    uint64_t carry = (uint64_t)d * d;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)q[i] * d + carry;
+        v[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+}
+
+static void a004591_shl(uint32_t *x, size_t L, unsigned s) {
+    uint32_t carry = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint32_t nx = (x[i] << s) | carry;
+        carry = x[i] >> (32 - s);
+        x[i] = nx;
+    }
+}
+
+static void a004591_sub(uint32_t *x, const uint32_t *y, size_t L) {
+    uint64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] - y[i] - borrow;
+        x[i] = (uint32_t)t;
+        borrow = (t >> 63) & 1;
+    }
+}
 
 static unsigned char *a004591_dig = NULL;
 static idx_t a004591_ndig = 0;

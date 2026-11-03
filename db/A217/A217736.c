@@ -8,7 +8,8 @@
  *            ω(n)=2)
  * Range:     u8 n <= 4, u16 n <= 28, u32 n <= 1010, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 9323 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Test for primality of a 64‑bit integer --------------------------------- */
 static bool is_prime(idx_t n)
@@ -71,7 +73,7 @@ static void ensure_pref(size_t needed)
     /* Allocate or grow the prefix array if necessary */
     if (pref_cap == 0) {
         pref_cap = 16;
-        pref = (seq_t *)malloc(pref_cap * sizeof(seq_t));
+        pref = mem_new(seq_t, pref_cap);
         if (!pref) return; /* allocation failure – callers will see 0 */
     }
 
@@ -82,7 +84,7 @@ static void ensure_pref(size_t needed)
             /* enlarge array if full */
             if (pref_len == pref_cap) {
                 size_t new_cap = pref_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(pref, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, pref, new_cap);
                 if (!tmp) return;     /* allocation failure */
                 pref = tmp;
                 pref_cap = new_cap;

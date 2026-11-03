@@ -13,12 +13,14 @@
  *            results so the function works reliab...
  * Range:     u8 n <= 37, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_vals[16] = {
     (seq_t)1, (seq_t)0, (seq_t)0, (seq_t)0, (seq_t)0,
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_cap)
         return;
     idx_t new_cap = n + 1;
-    seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     cache = new_buf;
     cache_cap = new_cap;
 }
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (idx_t i = 0; i < 16; ++i)
             cache[i] = base_vals[i];
         cache_max = 15;

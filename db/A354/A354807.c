@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = [A346241(n) < 0] (Dirichlet inverse of the sequence whose
  *            n-th term is the arithmetic derivative d(n) with d(1)=1)
- * Range:     u8 n <= 9935, u16 n <= 9935, u32 n <= 9935, u64 n <= 9935,
- *            u128 n <= 9935, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9935 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

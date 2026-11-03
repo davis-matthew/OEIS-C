@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   seq_cmp
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,18 @@
 /* Divisors of 861 in ascending order */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_cmp.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* Helper to use the provided seq_cmp for qsort */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -45,7 +57,7 @@ static void init_divisors(void)
         }
     }
     /* Sort ascending using the supplied comparator */
-    qsort(divisors, 8, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(divisors, 8, sizeof(seq_t), cmp_seq_t);
     divisors_initialized = true;
 }
 

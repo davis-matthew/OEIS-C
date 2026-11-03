@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 143, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 56 terms through n = 977 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* Computes primes of the form 47*n + 5 by a simple primality test. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;         // offset starts at 1, but guard just in case
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
 
     while (count < n) {
         candidate = 47ULL * k + 5ULL;
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             count++;
         }
         k++;

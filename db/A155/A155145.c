@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 14, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   BIT_CLEAR, BIT_TEST
+ * Validated: standard, pass, 49 terms through n = 895 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,17 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/BIT_CLEAR.h"
-#include "../utils/BIT_TEST.h"
+
+static inline void BIT_CLEAR(unsigned char *arr, idx_t idx)
+{
+    arr[idx >> 3] &= ~(1U << (idx & 7));
+}
+
+/* ----- bit‑set helpers ------------------------------------------------- */
+static inline bool BIT_TEST(const unsigned char *arr, idx_t idx)
+{
+    return (arr[idx >> 3] >> (idx & 7)) & 1U;
+}
 
 /* ----- static state ---------------------------------------------------- */
 static bool            initialized   = false;

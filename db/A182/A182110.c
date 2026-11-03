@@ -14,13 +14,15 @@
  *            concaten...
  * Range:     u8 n <= 190, u16 n <= 1205, u32 n <= 7353, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 108 terms through n = 9178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ----------  Helpers for S_k(z)  ---------- */
 static seq_t **S_coeff = NULL;   /* pointers to coefficient arrays of S_k(z) */
@@ -46,14 +48,14 @@ static void ensure_S(size_t max_k)
     for (size_t k = S_count; k <= max_k; ++k) {
         if (k == 0) {
             /* S_0(z) = 1 */
-            S_coeff[0] = (seq_t*)malloc(sizeof(seq_t));
+            S_coeff[0] = mem_new(seq_t, 1);
             S_coeff[0][0] = (seq_t)1;
             S_deg[0] = 0;
         } else {
             /* S_k(z) = S_{k-1}(z) * (1 + z^k) */
             size_t prev_deg = S_deg[k-1];
             size_t new_deg  = prev_deg + k;             /* degree increase by k */
-            seq_t *new_poly = (seq_t*)calloc(new_deg + 1, sizeof(seq_t));
+            seq_t *new_poly = mem_new(seq_t, new_deg + 1);
             for (size_t i = 0; i <= prev_deg; ++i) {
                 new_poly[i]     += S_coeff[k-1][i];          /* coefficient *1 */
                 new_poly[i + k] += S_coeff[k-1][i];          /* coefficient *z^k */
@@ -77,7 +79,7 @@ static void append_to_seq(const seq_t *coeff, size_t len)
     if (seq_len + len > seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 2048 : seq_cap * 2;
         while (seq_len + len > new_cap) new_cap <<= 1;
-        seq_global = (seq_t*)realloc(seq_global, new_cap * sizeof(seq_t));
+        seq_global = mem_resize(seq_t, seq_global, new_cap);
         seq_cap   = new_cap;
     }
     for (size_t i = 0; i < len; ++i) seq_global[seq_len++] = coeff[i];
@@ -88,7 +90,7 @@ static void compute_and_append_T(size_t n)
 {
     /* The polynomial has degree binom(n‑1,2) */
     size_t deg_T = (n - 1) * (n - 2) / 2;
-    seq_t *T = (seq_t*)calloc(deg_T + 1, sizeof(seq_t));
+    seq_t *T = mem_new(seq_t, deg_T + 1);
 
     /* Ensure necessary S_k(z) are ready.  For the sums we need
      * S_k with k up to n‑3 (cause i=1 gives k=n‑3).  (Even for n=2 the
@@ -133,7 +135,7 @@ static void compute_and_append_T(size_t n)
 
     /* Append the coefficients of T_n to the global sequence */
     append_to_seq(T, deg_T + 1);
-    free(T);
+    mem_free(T);
 }
 
 /* ----------  Public function required by the framework  ---------- */

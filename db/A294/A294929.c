@@ -8,15 +8,17 @@
  *            integer d>1 is abundant when the sum of its positive divisors
  *            Σ(d) exceeds 2*d; the proper sum Σ(d)–d is thus > d. a(n) counts
  *            those d|n with d<n and Σ(d)>2*d
- * Range:     u8 n <= 794, u16 n <= 9251, u32 n <= 9251, u64 n <= 9251,
- *            u128 n <= 9251, big any n
- * Helpers:   none
+ * Range:     u8 n <= 794, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 136 terms through n = 9251 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,13 +36,13 @@ seq_t a(idx_t n)
         idx_t new_size = n;
 
         /* free old memory, if any */
-        if (a_cache)        free(a_cache);
-        if (sigma_cache)    free(sigma_cache);
+        if (a_cache)        mem_free(a_cache);
+        if (sigma_cache)    mem_free(sigma_cache);
         if (abundant_cache) free(abundant_cache);
 
         /* allocate zero‑initialized arrays */
-        a_cache          = (seq_t*)calloc((size_t)(new_size + 1), sizeof(seq_t));
-        sigma_cache      = (seq_t*)calloc((size_t)(new_size + 1), sizeof(seq_t));
+        a_cache          = mem_new(seq_t, (size_t)(new_size + 1));
+        sigma_cache      = mem_new(seq_t, (size_t)(new_size + 1));
         abundant_cache   = (bool*)calloc((size_t)(new_size + 1), sizeof(bool));
 
         /* compute σ(i) = sum of all positive divisors of i */

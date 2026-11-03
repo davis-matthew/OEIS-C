@@ -7,19 +7,21 @@
  * Formula:   a(n) = (Sum_{k=0..n} 5^(n-k) * binomial(n,k) * binomial(2k,k))^2
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: standard, pass, 32 terms through n = 518 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     seq_t sum  = 0;
-    seq_t pow5 = seq_pow((seq_t)5, n);
+    seq_t pow5 = ipow_idx((seq_t)5, n);
 
     for (idx_t k = 0; k <= n; ++k) {
         seq_t bin_n_k = binomial(n, k);          /* C(n,k)  */

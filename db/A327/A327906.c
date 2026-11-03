@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 101, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_integer_mean_factorization
+ * Validated: standard, pass, 78 terms through n = 9545 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,36 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_integer_mean_factorization.h"
+#include "../utils/mem.h"
+
+/* Recursively test whether there exists a factorization of rem
+   into >=2 factors (each >= min_factor) whose average is an integer. */
+static bool has_integer_mean_factorization(uint64_t rem,
+                                           uint64_t sum,
+                                           size_t count,
+                                           uint64_t min_factor)
+{
+    /* Take rem itself as a factor (closes the partition) */
+    if (rem >= min_factor)
+    {
+        uint64_t new_sum = sum + rem;
+        size_t new_count = count + 1;
+        if (new_count >= 2 && new_sum % new_count == 0)
+            return true;
+    }
+
+    /* Enumerate smaller divisors in non‑decreasing order to avoid duplicates */
+    for (uint64_t d = min_factor; d * d <= rem; ++d)
+    {
+        if (rem % d != 0) continue;
+        uint64_t q = rem / d;
+        if (q < d) continue;          /* keep factors non‑decreasing */
+        if (has_integer_mean_factorization(q, sum + d, count + 1, d))
+            return true;
+    }
+
+    return false;
+}
 
 /* Utility: test whether a uint64_t is prime (trial division) */
 static bool is_prime_u64(uint64_t n)
@@ -61,7 +91,7 @@ static void ensure_cache_capacity(size_t needed)
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
     while (new_cap < needed) new_cap *= 2;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (new_cache == NULL) exit(EXIT_FAILURE); /* out of memory */
     cache     = new_cache;
     cache_cap = new_cap;

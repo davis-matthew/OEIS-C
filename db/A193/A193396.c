@@ -9,6 +9,7 @@
  * Formula:   a(n) = (8*n^4 + 24*n^3 + 28*n^2 + 213*n + 33*(-1)^n - 246)/3
  * Range:     u8 none, u16 n <= 8, u32 n <= 198, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 50 terms through n = 9727 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

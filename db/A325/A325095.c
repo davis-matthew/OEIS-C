@@ -7,14 +7,16 @@
  * Formula:   a(n) counts subsets of {1..n} with pairwise disjoint binary
  *            1‑bits. Computation by dynamic programming over the bit mask of
  *            already used bits
- * Range:     u8 n <= 31, u16 n <= 271, u32 n <= 9974, u64 n <= 9974,
- *            u128 n <= 9974, big any n
- * Helpers:   none
+ * Range:     u8 n <= 31, u16 n <= 271, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 72 terms through n = 9974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,12 +36,12 @@ seq_t a(idx_t n)
     static seq_t *dp = NULL;
     static size_t dp_cap = 0;
     if (dp_cap < size) {
-        seq_t *newdp = (seq_t *)calloc(size, sizeof(seq_t));
-        free(dp);
+        seq_t *newdp = mem_new(seq_t, size);
+        mem_free(dp);
         dp = newdp;
         dp_cap = size;
     } else {
-        memset(dp, 0, size * sizeof(seq_t));
+        mem_set(dp, 0, size * sizeof(seq_t));
     }
 
     dp[0] = (seq_t)1;

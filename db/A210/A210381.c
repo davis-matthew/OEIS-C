@@ -12,13 +12,15 @@
  *            = 0 for k<0 or k>n. * The sequence list...
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t      max_row   = (idx_t)-1;   /* number of rows computed – 1 if uninitialised */
 static idx_t     *base      = NULL;       /* base[row] = offset of first element of row in flat array */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         base[0] = 0;                          /* offset of row 0 */
 
         flat_cap = 1;
-        triangle = (seq_t*)malloc(flat_cap * sizeof(seq_t));
+        triangle = mem_new(seq_t, flat_cap);
         triangle[0] = (seq_t)1;                /* T(0,0) */
 
         seq_len = 1;                          /* number of values stored */
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         if (needed > flat_cap) {
             size_t new_cap = flat_cap ? flat_cap * 2 : 1;
             if (needed > new_cap) new_cap = needed;
-            seq_t *tmp = (seq_t*)realloc(triangle, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, triangle, new_cap);
             triangle = tmp;
             flat_cap = new_cap;
         }

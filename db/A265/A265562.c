@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   next_palindrome
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,39 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/next_palindrome.h"
+
+/* Advance the palindrome stored in *digits to the next larger
+   base‑4 palindrome.  *len receives the new length (may increase). */
+static void next_palindrome(uint8_t **digits, size_t *len)
+{
+    size_t l = *len;
+    int i = (int)(l - 1) / 2;      /* left middle index (or the lower middle) */
+    int j = (int)(l / 2);          /* right middle index (same for odd length) */
+    int carry = 1;                 /* increment by one */
+    uint8_t *d = *digits;
+
+    while (i >= 0 && carry) {
+        int sum = d[i] + carry;
+        carry = sum / 4;
+        d[i] = sum % 4;
+        d[j] = d[i];               /* maintain the palindrome symmetry */
+        i--; j++;
+    }
+
+    if (carry) {
+        /* overflow: create a longer palindrome 100...001 (base‑4) */
+        size_t newlen = l + 1;
+        uint8_t *newd = (uint8_t*)malloc(newlen);
+        if (!newd) abort();        /* unrecoverable memory failure */
+        newd[0] = 1;
+        for (size_t k = 1; k < newlen; ++k)
+            newd[k] = 0;
+        newd[newlen - 1] = 1;
+        free(d);
+        *digits = newd;
+        *len = newlen;
+    }
+}
 
 /* a(n) returns the smallest integer m ≥ n such that m is a palindrome
    when written in base 4.  The result is given in ordinary decimal

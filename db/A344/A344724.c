@@ -7,15 +7,28 @@
  * Formula:   a(n) = Sum_{k=1..n} (-1)^(k+1) * floor(n/k)^n
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array, seq_pow
+ * Validated: standard, pass, 34 terms through n = 360 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +42,7 @@ seq_t a(idx_t n)
         idx_t base = n / k;              /* floor(n/k) */
         seq_t term = pow_cache[(size_t)base];
         if (term == 0) {                 /* not yet computed */
-            term = seq_pow((seq_t)base, n);
+            term = ipow_idx((seq_t)base, n);
             pow_cache[(size_t)base] = term;
         }
         if (k & 1)                       /* odd k -> add */

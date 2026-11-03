@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 523, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 58 terms through n = 9725 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(uint64_t) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* comparison helper for qsort */
 static int compare_seq(const void *a, const void *b)
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
     /* initialise allocation once */
     if (primes == NULL) {
         primes_cap = 8;
-        primes = (seq_t*)malloc(primes_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, primes_cap);
     }
 
     /* loop until we have at least n primes */
@@ -69,13 +72,13 @@ seq_t a(idx_t n)
                 __int128 val_128 = (__int128)x * x + y2;
                 if (val_128 > limit) break;
                 uint64_t val = (uint64_t)val_128;
-                if (is_prime(val)) {
+                if (is_prime_u64(val)) {
                     /* grow array if needed */
                     if (primes_cnt >= primes_cap) {
                         size_t new_cap = primes_cap * 2;
-                        seq_t *tmp = (seq_t*)realloc(primes, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, primes, new_cap);
                         if (!tmp) {      /* malloc failed – abort */
-                            free(primes);
+                            mem_free(primes);
                             primes = NULL;
                             primes_cnt = primes_cap = 0;
                             return 0;
@@ -90,7 +93,7 @@ seq_t a(idx_t n)
 
         /* sort and deduplicate the collected primes */
         if (primes_cnt > 1) {
-            qsort(primes, primes_cnt, sizeof(seq_t), compare_seq);
+            mem_qsort(primes, primes_cnt, sizeof(seq_t), compare_seq);
         }
         size_t uniq = 0;
         for (size_t i = 0; i < primes_cnt; ++i) {

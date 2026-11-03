@@ -7,6 +7,7 @@
  * Formula:   a(n) = decimal integer whose digits are the base‑n
  *            representation of 56
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

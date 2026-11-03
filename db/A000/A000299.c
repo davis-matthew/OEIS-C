@@ -11,15 +11,34 @@
  *            a(n) = t_4(n) - t_3(n)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 67, u128 n <= 139,
  *            big any n
- * Helpers:   my_fixed_width, zalloc_s
+ * Validated: standard, pass, 50 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/zalloc_s.h"
-#include "../utils/my_fixed_width.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_s(idx_t n)
+{
+    seq_t *p = mem_new(seq_t, (size_t)n);
+    idx_t i;
+    for (i = 0; i < n; i++) p[i] = 0;
+    return p;
+}
+
+static int my_fixed_width(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) {
+        x <<= 1;
+        if (x == 0) return 1;
+    }
+    return 0;
+}
 
 static int fw_mode = -1;
 static idx_t cap = 0;

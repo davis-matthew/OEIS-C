@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   ensure_capacity
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,42 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/ensure_capacity.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 /* static cache for the sequence values and for the intermediary coefficients c(k) */
 static seq_t *a_cache = NULL;   /* a(n) values */
@@ -44,13 +80,13 @@ seq_t a(idx_t n)
 {
     /* initialise caches on first call */
     if (a_cache == NULL) {
-        ensure_capacity(1, &a_cap, (void **)&a_cache, sizeof(seq_t));
+        ensure_capacity(1, &a_cap, OEISC_VPP(&a_cache), sizeof(seq_t));
         a_cache[0] = (seq_t)-1;          /* a(0) = -1 */
         a_used = 1;
     }
 
     if (c_cache == NULL) {
-        ensure_capacity(1, &c_cap, (void **)&c_cache, sizeof(seq_t));
+        ensure_capacity(1, &c_cap, OEISC_VPP(&c_cache), sizeof(seq_t));
         c_cache[0] = (seq_t)1;           /* c(0) = 1 */
         c_used = 1;
     }
@@ -71,7 +107,7 @@ seq_t a(idx_t n)
 
             seq_t val = (seq_t)temp;      /* cast back to seq_t (may truncate) */
 
-            ensure_capacity(c_used + 1, &c_cap, (void **)&c_cache, sizeof(seq_t));
+            ensure_capacity(c_used + 1, &c_cap, OEISC_VPP(&c_cache), sizeof(seq_t));
             c_cache[c_used] = val;
             ++c_used;
         }
@@ -84,7 +120,7 @@ seq_t a(idx_t n)
 
         seq_t val = (seq_t)sum;           /* cast back to seq_t (may truncate) */
 
-        ensure_capacity(a_used + 1, &a_cap, (void **)&a_cache, sizeof(seq_t));
+        ensure_capacity(a_used + 1, &a_cap, OEISC_VPP(&a_cache), sizeof(seq_t));
         a_cache[a_used] = val;
         ++a_used;
     }

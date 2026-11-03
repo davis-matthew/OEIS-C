@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* provides static bool is_prime(uint64_t) */
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Dynamic cache for computed terms. */
 static seq_t *terms = NULL;
@@ -42,12 +46,12 @@ static void ensure_terms(idx_t n)
         uint64_t val = (uint64_t)val128;   /* safe for all values needed here */
 
         /* Test for primality and store if prime. */
-        if (is_prime(val))
+        if (is_prime_u64(val))
         {
             if (terms_size == terms_cap)
             {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) abort(); /* allocation failure */
                 terms = tmp;
                 terms_cap = new_cap;

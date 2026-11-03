@@ -11,7 +11,8 @@
  *            for digits that appear), in increasing * digit order
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 22, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   digit_frequencies, seq_one
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,12 @@
 /*  Includes required by the helper utilities. */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/digit_frequencies.h"   /* void digit_frequencies(seq_t x, unsigned int freq[10]); */
-#include "../utils/seq_one.h"             /* seq_t seq_one(void); */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 /*  Compute one step of the sequence using only arithmetic
  *  on seq_t values.  The function assumes that freq[d]
@@ -72,9 +77,9 @@ seq_t a(idx_t n)
         size_t new_size = n;
         seq_t *tmp = NULL;
         if (cache == NULL)
-            tmp = (seq_t *)malloc(new_size * sizeof(seq_t));
+            tmp = mem_new(seq_t, new_size);
         else
-            tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            tmp = mem_resize(seq_t, cache, new_size);
 
         if (!tmp)
             return (seq_t)0;         /* allocation failure – unlikely */

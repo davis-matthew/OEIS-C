@@ -13,13 +13,29 @@
  *            a(5)=1,a(6)=1,a(7)=1,a(8)=1,a(9)=2,a(10)=3,a(11)=4
  * Range:     u8 n <= 23, u16 n <= 38, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   ensure_allocated
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/ensure_allocated.h"
+
+/* Grow the memoisation array if the requested index is beyond its capacity */
+static void ensure_allocated(idx_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    size_t new_cap = *cap;
+    if (needed > new_cap) {
+        new_cap = (new_cap == 0) ? needed : new_cap;
+        while (new_cap < needed)
+            new_cap <<= 1;           /* double size */
+        *cap = new_cap;
+        void *tmp = realloc(*ptr, new_cap * elem_size);
+        if (!tmp)
+            exit(EXIT_FAILURE);
+        *ptr = tmp;
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -12,9 +12,10 @@
  *            square (according to squared Euclidean distance, tie‑broken by
  *            the spiral index). The function generates the sequence by
  *            simulation
- * Range:     u8 n <= 629, u16 n <= 9710, u32 n <= 9710, u64 n <= 9710,
- *            u128 n <= 9710, big any n
- * Helpers:   hash_pair
+ * Range:     u8 n <= 484, u16 n <= 22325, u32 n <= 22325, u64 n <= 22325,
+ *            u128 n <= 22325, big any n
+ * Validated: full, pass, 22326 terms through n = 22325 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/hash_pair.h"
+#include "../utils/mem.h"
+
+/* Simple 64‑bit mix */
+static inline uint64_t hash_pair(int64_t x, int64_t y)
+{
+    uint64_t h = (uint64_t)x;
+    h ^= (uint64_t)y + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);
+    return h;
+}
 
 #ifndef max64
 #define max64(a,b) ((a) > (b) ? (a) : (b))
@@ -134,7 +143,7 @@ static void cache_init(size_t init_cap)
 {
     cache_cap = init_cap;
     cache_size = 1;
-    seq_cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+    seq_cache = mem_new(seq_t, cache_cap);
     seq_cache[0] = (seq_t)0;      /* a(0) = 0 */
 }
 
@@ -142,7 +151,7 @@ static void cache_append(seq_t val)
 {
     if (cache_size >= cache_cap) {
         size_t new_cap = cache_cap << 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();
         seq_cache = tmp;
         cache_cap = new_cap;

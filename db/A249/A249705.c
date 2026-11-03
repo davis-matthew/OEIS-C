@@ -11,7 +11,8 @@
  *            equals the minimum of the remaining two terms
  * Range:     u8 none, u16 n <= 5, u32 n <= 17, u64 n <= 40, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <string.h>   /* for memset */
 #include <stdint.h>   /* for uint64_t etc */
+#include "../utils/mem.h"
 
 /* Mapping from triple (x,y,z) to index 0..342 and back.
    These tables are built once upon the first call. */
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
 
     /* iterate n times to add the remaining elements */
     for (idx_t step = 0; step < n; ++step) {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
 
         for (int s = 0; s < 343; ++s) {
             seq_t cur = dp[s];
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
                     newdp[t] = newdp[t] + cur;
                 }
         }
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
     }
 
     /* the answer is the total number of sequences of length n+3,

@@ -8,12 +8,14 @@
  *            a(2)=3 Corresponds to the expansion of 1/(1+2*x+x^2-2*x^3)
  * Range:     i8 n <= 9, i16 n <= 19, i32 n <= 42, i64 n <= 82, i128 n <= 168,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* --- initialise on first call ------------------------------------ */
     if (cache == NULL) {
         cache_len = 3;              /* we store a0,a1,a2 at least */
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) abort(); /* fatal */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)-2;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         size_t new_len = cache_len;
         while (new_len < (size_t)(n + 1))
             new_len *= 2;          /* geometric growth */
-        seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) abort();
         cache = tmp;
         cache_len = new_len;

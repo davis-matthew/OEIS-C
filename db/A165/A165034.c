@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3125, u16 n <= 3125, u32 n <= 3125, u64 n <= 3125,
  *            u128 n <= 3125, big any n
- * Helpers:   kaprekar_step_ull
+ * Validated: standard, pass, 121 terms through n = 3097 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,35 @@
  * detection to find the pre‑period length μ. */
 
 #include <stdint.h>
-#include "../utils/kaprekar_step_ull.h"
+
+static unsigned long long kaprekar_step_ull(unsigned long long v)
+{
+    /* Count the base‑5 digits of v.  For v==0 we treat it as a single
+       digit 0, so that max==min==0 and step(v)==0. */
+    unsigned cnt[5] = {0};
+    if (v == 0) {
+        cnt[0] = 1;
+    } else {
+        while (v) {
+            unsigned d = (unsigned)(v % 5);
+            cnt[d]++;
+            v /= 5;
+        }
+    }
+
+    /* Build the maximum and minimum numbers possible from these
+       digits. */
+    unsigned long long max = 0, min = 0;
+    for (int d = 4; d >= 0; --d) {
+        for (unsigned k = 0; k < cnt[d]; ++k)
+            max = max * 5 + d;
+    }
+    for (int d = 0; d <= 4; ++d) {
+        for (unsigned k = 0; k < cnt[d]; ++k)
+            min = min * 5 + d;
+    }
+    return max - min;
+}
 
 seq_t a(idx_t n)
 {

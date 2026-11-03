@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 1290, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   modpow_ull
+ * Validated: standard, pass, 80 terms through n = 9013 (2026-11-03)
+ * Helpers:   mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/modpow_ull.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* Cache the sequence values so that calls may be in arbitrary order. */
 static seq_t  *cache   = NULL;   /* 1‑based index array */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         else
         {
             /* 19^k mod k == 1 ?  Use fast 64‑bit modular exponentiation. */
-            uint64_t mod_res = modpow_ull(19, (uint64_t)k, (uint64_t)k);
+            uint64_t mod_res = powmod_u64(19, (uint64_t)k, (uint64_t)k);
             ok = (mod_res == 1ULL);
         }
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 size_t new_cap = cache_cap ? (cache_cap << 1) : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) /* memory failure – return 0 (unlikely in tests) */
                     return 0;
                 cache = tmp;

@@ -6,9 +6,10 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 1 if n is neither squarefree nor powerful, otherwise 0;
  *            a(n) = 0 for n=1
- * Range:     u8 n <= 9994, u16 n <= 9994, u32 n <= 9994, u64 n <= 9994,
- *            u128 n <= 9994, big any n
- * Helpers:   sieve_primes_upto
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9994 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,49 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/sieve_primes_upto.h"
+
+/* simple prime sieve up to limit (inclusive) */
+static void sieve_primes_upto(idx_t limit, uint64_t **prime_arr, size_t *cnt)
+{
+    if (limit < 2) {
+        *prime_arr = NULL;
+        *cnt = 0;
+        return;
+    }
+
+    size_t sz = (size_t)limit + 1;
+    uint8_t *is_comp = (uint8_t *)calloc(sz, sizeof(uint8_t));
+    if (!is_comp) {
+        *prime_arr = NULL;
+        *cnt = 0;
+        return;
+    }
+
+    size_t est = (size_t)(limit / 2 + 10);
+    uint64_t *pr = (uint64_t *)malloc(est * sizeof(uint64_t));
+    if (!pr) {
+        free(is_comp);
+        *prime_arr = NULL;
+        *cnt = 0;
+        return;
+    }
+
+    size_t c = 0;
+    for (idx_t i = 2; i <= limit; ++i) {
+        if (!is_comp[i]) {
+            if (c < est)
+                pr[c++] = (uint64_t)i;
+            if ((idx_t)i * (idx_t)i <= limit) {
+                for (idx_t j = (idx_t)i * (idx_t)i; j <= limit; j += i)
+                    is_comp[j] = 1;
+            }
+        }
+    }
+
+    free(is_comp);
+    *prime_arr = pr;
+    *cnt = c;
+}
 
 /* integer square‑root (floor) using binary search */
 static inline idx_t int_isqrt(idx_t n)

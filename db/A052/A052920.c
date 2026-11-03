@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-3) + a(n-5), a(0)=1, a(1)=0, a(2)=0, a(3)=1, a(4)=0
  * Range:     u8 n <= 39, u16 n <= 70, u32 n <= 132, u64 n <= 257,
  *            u128 n <= 508, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (!initialized)
     {
         cache_cap = 5;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;          /* allocation failure: return 0 */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)0;
@@ -50,10 +52,10 @@ seq_t a(idx_t n)
         {
             size_t new_cap = cache_cap ? cache_cap : 5;
             while (new_cap <= idx) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return (seq_t)0;         /* allocation failure */
             /* initialise new slots to zero */
-            memset(tmp + cache_len, 0, (new_cap - cache_len) * sizeof(seq_t));
+            mem_set(tmp + cache_len, 0, (new_cap - cache_len) * sizeof(seq_t));
             cache = tmp;
             cache_cap = new_cap;
         }

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*n*(2*n+1)*a(n-1) + (-1)^n, a(0) = 1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 145 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         /* first call: allocate space for the initial term a(0) = 1 */
         capacity = 1;
         size     = 1;
-        cache    = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache    = mem_new(seq_t, capacity);
         if (cache == NULL) return (seq_t)0;  /* out of memory: return 0 */
         cache[0] = (seq_t)1;
     }
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         if (size == capacity) {
             size_t new_capacity = capacity * 2;
             if (new_capacity == 0) new_capacity = 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
             if (tmp == NULL) return (seq_t)0;  /* out of memory */
             cache = tmp;
             capacity = new_capacity;

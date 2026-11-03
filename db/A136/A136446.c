@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 54, u16 n <= 9648, u32 n <= 9648, u64 n <= 9648,
- *            u128 n <= 9648, big any n
- * Helpers:   none
+ * Range:     u8 n <= 54, u16 n <= 16044, u32 n <= 24491, u64 n <= 24491,
+ *            u128 n <= 24491, big any n
+ * Validated: standard, pass, 72 terms through n = 9648 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true iff k has a subset of its proper divisors >1 that sums to k. */
 static bool has_subset_sum(uint64_t k)
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

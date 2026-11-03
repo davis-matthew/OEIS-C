@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 60, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  a(n,m) = 3*(3*m-n+1)*a(n-1,m)/n + m*a(n-1,m-1)/n   for n>=m>=1
     a(n,m)=0 if n<m or m=0;  a(1,1)=1
@@ -37,14 +39,14 @@ seq_t a(idx_t n)
         /* compute next row r = prev_len + 1 (row numbers are 1‑based) */
         idx_t r   = (idx_t)(prev_len + 1);
         size_t cur_len = (size_t)r;
-        seq_t *cur = (seq_t*)malloc(cur_len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, cur_len);
         if (!cur) abort(); /* out of memory */
 
         /* make sure cache has enough space */
         if (cache_size + cur_len > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 1;
             while (new_cap < cache_size + cur_len) new_cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = new_cap;
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         }
 
         /* prepare for the next iteration */
-        free(prev);
+        mem_free(prev);
         prev = cur;
         prev_len = cur_len;
     }

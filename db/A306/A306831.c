@@ -9,13 +9,15 @@
  *            = 2 × t² for some integer t, w(k) = 0 otherwise
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root (floor) for unsigned 64‑bit values */
 static idx_t
@@ -50,7 +52,7 @@ ensure_capacity(idx_t n)
 
     size_t new_cap = (size_t)(n + 1);
 
-    a_vals  = (seq_t *)realloc(a_vals,  new_cap * sizeof(seq_t));
+    a_vals  = mem_resize(seq_t, a_vals, new_cap);
     w_vals  = (unsigned char *)realloc(w_vals, new_cap * sizeof(unsigned char));
 
     /* initialise new entries */

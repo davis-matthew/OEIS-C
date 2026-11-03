@@ -9,12 +9,14 @@
  *            4*a(n-4), with a(1)=2, a(2)=8, a(3)=33, a(4)=134
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Allocate or expand cache if necessary */
     if (!cache) {
         size_t alloc = (n > 4) ? (size_t)n + 1 : 5;   /* ensure space for indices 1..4 */
-        cache = (seq_t*)malloc(sizeof(seq_t) * alloc);
+        cache = mem_new(seq_t, alloc);
         if (!cache) return 0;                       /* allocation failure */
 
         /* initialise the first four terms (always present) */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     if (n > cache_size) {
         /* Expand the array to hold up to n */
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * ((size_t)n + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, ((size_t)n + 1));
         if (!tmp) return 0;                       /* allocation failure */
         cache = tmp;
 

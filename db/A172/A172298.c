@@ -8,7 +8,8 @@
  *            odd n>1 give 0)
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 17, i64 n <= 27, i128 n <= 34,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Internal rational representation. */
 typedef struct {
@@ -63,13 +65,13 @@ seq_t a(idx_t n)
     /* Allocate minimal required space. */
     if (capacity == 0) {
         capacity = 1;
-        A = (Rat *)malloc(capacity * sizeof(Rat));
-        B = (Rat *)malloc(capacity * sizeof(Rat));
+        A = mem_new(Rat, capacity);
+        B = mem_new(Rat, capacity);
     }
     if ((idx_t)(capacity) <= n) {
         size_t newcap = (size_t)(n + 1);
-        A = (Rat *)realloc(A, newcap * sizeof(Rat));
-        B = (Rat *)realloc(B, newcap * sizeof(Rat));
+        A = mem_resize(Rat, A, newcap);
+        B = mem_resize(Rat, B, newcap);
         capacity = newcap;
     }
 

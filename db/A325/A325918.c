@@ -10,13 +10,15 @@
  *            a(3)=1, a(4)=1, a(5)=1, …
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 29, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
     const size_t max_h = (size_t)n;   /* highest possible altitude */
     const size_t stride = 6;          /* 3 states × 2 parity values */
 
-    seq_t *cur  = (seq_t *)calloc((max_h + 1) * stride, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc((max_h + 1) * stride, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, (max_h + 1) * stride);
+    seq_t *next = mem_new(seq_t, (max_h + 1) * stride);
     if (!cur || !next) return (seq_t)0;   /* allocation failure */
 
     /* Start at altitude 0, normal state (0), even parity (0). */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     for (idx_t pos = 0; pos < n; ++pos) {
         /* Clear the buffer for the next step. */
-        memset(next, 0, (max_h + 1) * stride * sizeof(seq_t));
+        mem_set(next, 0, (max_h + 1) * stride * sizeof(seq_t));
 
         for (size_t h = 0; h <= (size_t)pos; ++h) {
             const size_t base = h * stride;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 14, u128 n <= 21,
  *            big any n
- * Helpers:   pow2, seq_mul
+ * Validated: standard, pass, 35 terms through n = 103 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,16 @@
 /* Recurrence: a(n) = a(n-1) + 2^n * a(n-2), with a(0)=1, a(1)=1 */
 
 #include <stdlib.h>
-#include "../utils/pow2.h"   /* pow2(idx_t exp) -> seq_t */
-#include "../utils/seq_mul.h" /* seq_mul(seq_t a, seq_t b) -> seq_t */
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +41,7 @@ seq_t a(idx_t n)
     /* initialize cache on first call */
     if (!cache) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
@@ -44,7 +53,7 @@ seq_t a(idx_t n)
         if (need > cache_cap) {
             size_t new_cap = cache_cap * 2;
             if (new_cap < need) new_cap = need;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = new_cap;

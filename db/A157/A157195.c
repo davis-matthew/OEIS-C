@@ -9,7 +9,8 @@
  *            all proper divisors of n
  * Range:     u8 n <= 17, u16 n <= 35, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Simple prime factorization for n ≤ 10⁴. */
 static void factor_uint64(uint64_t n, uint64_t *primes, uint64_t *exps, size_t *cnt)
@@ -69,7 +70,7 @@ seq_t a(idx_t n)
     seq_t result = 1;
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t exp = exps[i] * (d - 2) / 2;
-        seq_t term   = big_pow((seq_t)primes[i], (seq_t)exp);
+        seq_t term   = ipow((seq_t)primes[i], (seq_t)exp);
         result *= term;
     }
     return result;

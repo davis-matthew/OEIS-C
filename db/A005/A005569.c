@@ -10,14 +10,16 @@
  *            4)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   g64, gseq
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   gcd, gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/g64.h"
-#include "../utils/gseq.h"
+#include <stdlib.h>
+#include "../utils/gcd.h"
+#include "../utils/gcd_u64.h"
 
 /* Catalan number C(m), computed multiplicatively with reduction */
 static seq_t catalan(idx_t m) {
@@ -26,7 +28,7 @@ static seq_t catalan(idx_t m) {
     for (k = 1; k <= m; k++) {
         uint64_t num = 2 * (2 * (uint64_t)k - 1);
         uint64_t den = (uint64_t)k + 1;
-        uint64_t g = g64(num, den);
+        uint64_t g = gcd_u64(num, den);
         num /= g; den /= g;
         /* den now divides c */
         if ((seq_t)den != 0) c /= (seq_t)den;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     {
         uint64_t num = 2 * (2 * (uint64_t)n + 1);
         uint64_t den = (uint64_t)n + 2;
-        uint64_t g = g64(num, den);
+        uint64_t g = gcd_u64(num, den);
         num /= g; den /= g;
         cn1 = cn;
         if ((seq_t)den != 0) cn1 /= (seq_t)den;
@@ -50,11 +52,11 @@ seq_t a(idx_t n) {
 
     uint64_t nn = 2 * (uint64_t)n * (5 * (uint64_t)n + 7);
     uint64_t d = ((uint64_t)n + 2) * ((uint64_t)n + 3);
-    uint64_t g = g64(nn, d);
+    uint64_t g = gcd_u64(nn, d);
     nn /= g; d /= g;
 
     /* d divides cn*cn1 */
-    seq_t g2 = gseq(cn, (seq_t)d);
+    seq_t g2 = gcd(cn, (seq_t)d);
     if (g2 != 0) {
         cn /= g2;
         uint64_t g2u = (uint64_t)(unsigned long long)g2;

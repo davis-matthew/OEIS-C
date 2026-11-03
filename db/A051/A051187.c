@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 10, i32 n <= 28, i64 n <= 36, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,15 +47,15 @@ seq_t a(idx_t n)
     size_t c = (size_t)(n - prev_sum);   /* 1‑based column within this row */
 
     /* Allocate memory for the previous row (row 1) */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     if (!prev) return (seq_t)0;  /* fallback on allocation failure */
     prev[0] = (seq_t)1;          /* T(1,1) */
 
     /* Build rows from 2 up to r, stopping when we reach the desired row */
     for (size_t row = 2; row <= r; row++) {
-        seq_t *curr = (seq_t *)malloc(row * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, row);
         if (!curr) {
-            free(prev);
+            mem_free(prev);
             return (seq_t)0;
         }
 
@@ -75,13 +77,13 @@ seq_t a(idx_t n)
         /* If this is the target row, retrieve the value */
         if (row == r) {
             seq_t result = curr[c - 1];
-            free(prev);
-            free(curr);
+            mem_free(prev);
+            mem_free(curr);
             return result;
         }
 
         /* Prepare for next iteration */
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 

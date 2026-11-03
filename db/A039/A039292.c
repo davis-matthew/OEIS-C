@@ -9,7 +9,8 @@
  *            of 3's and 4's
  * Range:     u8 n <= 36, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   append_candidate, has_equal_nonzero_3s_and_4s
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,38 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/append_candidate.h"
-#include "../utils/has_equal_nonzero_3s_and_4s.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+/* Return true iff x has the same non‑zero number of digits 3 and 4 in base‑5. */
+static inline bool has_equal_nonzero_3s_and_4s(seq_t x)
+{
+    seq_t y = x;
+    int c3 = 0, c4 = 0;
+    do {
+        uint8_t d = (uint8_t)(y % 5);
+        if (d == 3) c3++;
+        else if (d == 4) c4++;
+        y /= 5;
+    } while (y);
+    return c3 > 0 && c3 == c4;
+}
 
 /* Memoised storage of the sequence. */
 static seq_t *cache          = NULL;  /* array of sequence values */

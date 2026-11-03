@@ -11,12 +11,14 @@
  *            seq_t. All arithmetic is exact.)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 377 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;      /* array of A000670 values */
 static idx_t A_len = 0;      /* count of computed elements */
@@ -29,9 +31,9 @@ static void ensure_A(idx_t n)
     /* resize storage */
     size_t new_len = (size_t)(n + 1);
     if (A_len == 0) {
-        A = (seq_t*)malloc(new_len * sizeof(seq_t));
+        A = mem_new(seq_t, new_len);
     } else {
-        A = (seq_t*)realloc(A, new_len * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_len);
     }
 
     /* initialize from current length up to new_len-1 */

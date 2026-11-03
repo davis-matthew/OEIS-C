@@ -13,7 +13,8 @@
  *            have at least two digits
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   strip_leading_zeroes
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/strip_leading_zeroes.h"
+
+/* Helper: strip leading zeros from a decimal string, leaving at least one
+   digit. For example "025" becomes "25", "000" becomes "0". */
+static void strip_leading_zeroes(char *s)
+{
+    size_t len = strlen(s);
+    size_t i = 0;
+    while (i + 1 < len && s[i] == '0') {
+        ++i;
+    }
+    if (i > 0) {
+        memmove(s, s + i, len - i + 1);  /* include terminating null */
+    }
+}
 
 /* Helper: duplicate a C string (used for the Fibonacci cache). */
 static char *dup_str(const char *s)

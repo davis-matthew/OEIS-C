@@ -9,14 +9,22 @@
  *            * divisible by n, otherwise 0
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static idx_t gcd_idx(idx_t a, idx_t b)
 {
@@ -50,7 +58,7 @@ seq_t a(idx_t n)
 
     if (l > 9) return 0;    /* no one‑digit multiplier fits */
 
-    seq_t pow10n = seq_pow(10, n);
+    seq_t pow10n = ipow_idx(10, n);
     seq_t k = (seq_t)l;
     return seq_mul(pow10n, k);
 }

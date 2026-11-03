@@ -8,7 +8,8 @@
  * Formula:   a(n) = a(n-1) + a(floor(n/2)) + 1, a(1) = 0
  * Range:     u8 n <= 21, u16 n <= 90, u32 n <= 620, u64 n <= 8421,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 8243 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * grows only as far as needed.  The implementation uses only integer
  * arithmetic and the standard library. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_table = NULL;   /* memoisation table, 1‑based */
 static idx_t a_max = 0;         /* maximal index that has been filled */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* First call: allocate table up to n and initialise all entries. */
     if (a_table == NULL) {
-        a_table = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+        a_table = mem_new(seq_t, (size_t)(n + 1));
         if (!a_table)
             return (seq_t)0; /* allocation failure – unlikely in tests */
 
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
 
     /* Grow the table to accommodate n.  New entries are computed
      * using the recurrence and rely only on already known values. */
-    seq_t *tmp = (seq_t*)realloc(a_table, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_table, (size_t)(n + 1));
     if (!tmp)
         return (seq_t)0; /* allocation failure – unlikely in tests */
 

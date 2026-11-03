@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 21, u64 n <= 46, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
    coefficient a[0] and works for any n ≥ 0. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state for memoisation */
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
         /* initialise with the first term (k = 0) */
         prev = a0;                 /* h[0]                         */
         cache_len = (n < 32) ? 32 : (size_t)(n + 1);
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = a0;
         computed_upto = 0;
         /* set continued‑fraction state after term 0 */
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
         /* Grow cache to accommodate n+1 entries */
         size_t new_len = cache_len;
         while (new_len <= (size_t)n) new_len <<= 1;
-        cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         cache_len = new_len;
 
         /* Compute terms from computed_upto+1 up to n */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9339 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * function is lazy and will generate terms up to the requested
  * index using O(n) time and O(n) space. */ 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *buf = NULL;          /* buffer for the sequence */
 static size_t buf_cap = 0;         /* current capacity of buf */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Ensure buffer has enough space for indices 0..n */
     if (n + 1 > (idx_t)buf_cap) {
         size_t newcap = (size_t)n + 5;      /* a few spare slots */
-        seq_t *tmp = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, newcap);
         if (!tmp)  /* allocation failed – return 0 (should not happen) */
             return (seq_t)0;
         buf = tmp;

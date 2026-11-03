@@ -8,7 +8,8 @@
  *            a(1)=2, a(2)=59, a(3)=97,
  * Range:     u8 n <= 7, u16 n <= 724, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 61 terms through n = 845 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* static cache of primes we have discovered */
 static seq_t *prime_cache     = NULL;
@@ -30,7 +32,7 @@ static void ensure_prime_cache_capacity(size_t needed)
     if (needed <= prime_cache_cap) return;
     size_t new_cap = needed * 2;
     if (new_cap < 8) new_cap = 8;
-    seq_t *ptr = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, prime_cache, new_cap);
     prime_cache = ptr;
     prime_cache_cap = new_cap;
 }
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     while (prime_cache_size < n) {
         uint64_t x = next_candidate++;
         if ((x % 19ULL) == 1ULL || (x % 19ULL) == 2ULL) {
-            if (is_prime_small(x)) {
+            if (is_prime_seq(x)) {
                 ensure_prime_cache_capacity(prime_cache_size + 1);
                 prime_cache[prime_cache_size++] = (seq_t)x;
             }

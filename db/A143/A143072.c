@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 7046, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_power_of_two
+ * Validated: standard, pass, 76 terms through n = 9355 (2026-11-03)
+ * Helpers:   is_pow2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* initialise storage */
     if (!seq) {
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
 
     /* Generate terms until we have at least n */
@@ -53,13 +55,13 @@ seq_t a(idx_t n)
 
             /* Check the power‑of‑two conditions */
             if (pop > 0 && zeros > 0 &&
-                is_power_of_two((seq_t)pop) &&
-                is_power_of_two((seq_t)zeros)) {
+                is_pow2((seq_t)pop) &&
+                is_pow2((seq_t)zeros)) {
 
                 /* Grow storage if necessary */
                 if (seq_len == seq_cap) {
                     seq_cap <<= 1;
-                    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                 }
                 seq[seq_len++] = cand;
                 next_search = (seq_t)(v + 1);

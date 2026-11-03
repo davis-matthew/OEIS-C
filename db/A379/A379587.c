@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
  *  order (i = s down to 0).  The term a(n) is the value at position n in this
  *  traversal. */
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     seq_t base = (seq_t)k;
     seq_t exp  = (seq_t)i;
 
-    seq_t pow_val = big_pow(base, exp);   /* base^i  */
+    seq_t pow_val = ipow(base, exp);   /* base^i  */
     seq_t one      = (seq_t)1;
     seq_t val_minus = pow_val - one;      /* k^i - 1 */
     seq_t sq = val_minus * val_minus;     /* (k^i - 1)^2 */

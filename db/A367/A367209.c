@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 42, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,10 +38,11 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *alloc_row(size_t len)
 {
-    seq_t *p = (seq_t *)malloc(sizeof(seq_t) * len);
+    seq_t *p = mem_new(seq_t, len);
     if (!p) exit(EXIT_FAILURE);
     return p;
 }

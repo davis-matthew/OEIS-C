@@ -10,14 +10,32 @@
  *            of 2 that contains 666)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_non_overlapping666
+ * Validated: standard, pass, 104 terms through n = 8876 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/count_non_overlapping666.h"
+#include "../utils/mem.h"
+
+/* Count non‑overlapping "666" patterns in the decimal digits array.
+   The array is stored least‑significant digit first. */
+static seq_t count_non_overlapping666(const uint8_t *d, size_t len)
+{
+    seq_t  cnt = 0;
+    size_t i = 0;
+    while (i + 2 < len) {
+        if (d[i] == 6 && d[i+1] == 6 && d[i+2] == 6) {
+            ++cnt;
+            i += 3;                  /* skip to avoid overlap */
+        } else {
+            ++i;
+        }
+    }
+    return cnt;
+}
 
 static uint8_t *digits = NULL;          /* least significant digit first */
 static size_t   digits_len = 0;         /* current number of digits    */
@@ -47,7 +65,7 @@ static void ensure_cache_cap(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = (cache_cap==0) ? 64 : cache_cap;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_cap);
     if (!p) abort();
     cache     = p;
     cache_cap = new_cap;

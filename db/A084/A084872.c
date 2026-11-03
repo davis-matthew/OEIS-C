@@ -10,13 +10,14 @@
  *            + 870*4^n - 1740*3^n + 744*2^n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   pow128
+ * Validated: standard, pass, 33 terms through n = 627 (2026-11-01)
+ * Helpers:   ipow_i32_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow128.h"
+#include "../utils/ipow_i32_idx.h"
 
 #ifndef __cplusplus
 
@@ -54,7 +55,7 @@ seq_t a(idx_t n)
     __int128 sum = 0;
     for (int i = 0; i < 20; ++i)
     {
-        __int128 p = pow128(bases[i], n);
+        __int128 p = ipow_i32_idx(bases[i], n);
         sum += (__int128)coeffs[i] * p;
     }
     return (seq_t)(sum / 120);

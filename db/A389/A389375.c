@@ -9,11 +9,13 @@
  *            binomial(n-k-1,n-3*k)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 23, u64 n <= 43, u128 n <= 83,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 907 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -11,14 +11,25 @@
  *            occurrence of a 9 is found
  * Range:     i8 n <= 21, i16 n <= 22, i32 n <= 22, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   contains9
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/contains9.h"
+
+/* check whether a 64‑bit unsigned integer contains the digit 9 */
+static bool contains9(uint64_t x)
+{
+    while (x > 0) {
+        if (x % 10 == 9)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

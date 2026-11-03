@@ -11,14 +11,30 @@
  *            smallest product that exceeds n+1; * 4. retur...
  * Range:     u8 n <= 17, u16 n <= 269, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gen_divisors_rec
+ * Validated: standard, pass, 74 terms through n = 8889 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gen_divisors_rec.h"
+
+static void gen_divisors_rec(const uint64_t *pr, const uint32_t *exp,
+                             size_t cnt, size_t idx, uint64_t cur,
+                             uint64_t *out, size_t *c)
+{
+    if (idx == cnt) {
+        out[(*c)++] = cur;
+        return;
+    }
+    uint64_t p = pr[idx];
+    uint64_t val = 1;
+    for (uint32_t e = 0; e <= exp[idx]; ++e) {
+        gen_divisors_rec(pr, exp, cnt, idx + 1, cur * val, out, c);
+        val *= p;
+    }
+}
 
 static void factor_uint64(uint64_t n, uint64_t *pr, uint32_t *exp,
                           size_t *cnt)

@@ -8,12 +8,18 @@
  * Formula:   not stated
  * Range:     u8 n <= 1325, u16 n <= 1325, u32 n <= 1325, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   f_mod3
+ * Validated: standard, pass, 121 terms through n = 1320 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/f_mod3.h"
+/* helper: Legendre symbol of C(i,2) modulo 3, returns 0 or 1 */
+static inline seq_t f_mod3(idx_t i)
+{
+    idx_t r = i % 6;
+    return (r == 2 || r == 5) ? (seq_t)1 : (seq_t)0;
+}
 /*  A117904 – Number triangle:     T(n,k)=1 if L(C(n,2)/3)=L(C(k,2)/3) else 0
     The sequence returned is the flattened triangle (row‑major order):
       a(n) = T(row, col)   where

@@ -10,8 +10,9 @@
  *            j) - (j mod w). The global index n is mapped to the pair (i,j)
  *            with i decreasing along each antidiagonal, then a(i,j) is
  *            computed as (j + (i+1) - 1 - 2*(j mod (i+1)))
- * Range:     u8 n <= 9395, u16 n <= 9395, u32 n <= 9395, u64 n <= 9395,
- *            u128 n <= 9395, big any n
+ * Range:     u8 n <= 11475, u16 n <= 11475, u32 n <= 11475, u64 n <= 11475,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 107 terms through n = 9395 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

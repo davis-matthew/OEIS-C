@@ -12,18 +12,30 @@
  *            integer, and the arbitrary‑precision utilities oth...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   phi, pow2, pow3, pow4, pow_int128
+ * Validated: standard, pass, 43 terms through n = 969 (2026-11-01)
+ * Helpers:   ipow_i32_idx, pow2, pow3, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/phi.h"
+#include "../utils/ipow_i32_idx.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
-#include "../utils/pow4.h"
-#include "../utils/pow_int128.h"
+#include "../utils/totient.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,22 +52,22 @@ seq_t a(idx_t n)
 
             /* first divisor d */
             idx_t m1 = n / d;
-            __int128 p2  = pow_int128(2, m1);
-            __int128 p3  = pow_int128(3, m1);
-            __int128 p4  = pow_int128(4, m1);
+            __int128 p2  = ipow_i32_idx(2, m1);
+            __int128 p3  = ipow_i32_idx(3, m1);
+            __int128 p4  = ipow_i32_idx(4, m1);
             __int128 part = p4 - (__int128)4 * p3 + (__int128)6 * p2 - (__int128)4;
-            sum += (unsigned __int128)phi(d) * (unsigned __int128)part;
+            sum += (unsigned __int128)totient(d) * (unsigned __int128)part;
 
             /* second divisor n/d, if distinct */
             idx_t d2 = n / d;
             if (d2 != d)
             {
                 idx_t m2 = n / d2;
-                __int128 p2b = pow_int128(2, m2);
-                __int128 p3b = pow_int128(3, m2);
-                __int128 p4b = pow_int128(4, m2);
+                __int128 p2b = ipow_i32_idx(2, m2);
+                __int128 p3b = ipow_i32_idx(3, m2);
+                __int128 p4b = ipow_i32_idx(4, m2);
                 __int128 partb = p4b - (__int128)4 * p3b + (__int128)6 * p2b - (__int128)4;
-                sum += (unsigned __int128)phi(d2) * (unsigned __int128)partb;
+                sum += (unsigned __int128)totient(d2) * (unsigned __int128)partb;
             }
         }
 
@@ -77,7 +89,7 @@ seq_t a(idx_t n)
             seq_t t2 = pow2(m1);
             part += (seq_t)6 * t2;
             part -= (seq_t)4;
-            sum += phi(d) * part;
+            sum += totient(d) * part;
 
             /* second divisor n/d, if distinct */
             idx_t d2 = n / d;
@@ -90,7 +102,7 @@ seq_t a(idx_t n)
                 seq_t t2b = pow2(m2);
                 partb += (seq_t)6 * t2b;
                 partb -= (seq_t)4;
-                sum += phi(d2) * partb;
+                sum += totient(d2) * partb;
             }
         }
 

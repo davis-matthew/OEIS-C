@@ -7,15 +7,17 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = Sum_{d|n, d<n} A034968(d) where A034968(d) = sum of
  *            digits of d in factorial base
- * Range:     u8 n <= 6299, u16 n <= 9876, u32 n <= 9876, u64 n <= 9876,
- *            u128 n <= 9876, big any n
- * Helpers:   none
+ * Range:     u8 n <= 6299, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9876 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute factorial base digit sum for n. */
 static seq_t factorial_digit_sum(idx_t n)
@@ -56,7 +58,7 @@ static void ensure_fac_cache(idx_t n)
     if (n < fac_cache_cap) return;
     idx_t new_cap = fac_cache_cap ? fac_cache_cap << 1 : 16;
     while (new_cap <= n) new_cap <<= 1;
-    fac_cache = (seq_t*)realloc(fac_cache, (size_t)new_cap * sizeof(seq_t));
+    fac_cache = mem_resize(seq_t, fac_cache, (size_t)new_cap);
     for (idx_t i = fac_cache_cap; i < new_cap; ++i) fac_cache[i] = 0;
     fac_cache_cap = new_cap;
 }

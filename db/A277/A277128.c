@@ -8,7 +8,8 @@
  *            prime factorisation (i.e. A019530(n) ≠ A007947(n))
  * Range:     u8 n <= 8, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached list of terms.  The first term (n==1) is 1, by definition. */
 static seq_t *term_arr = NULL;
@@ -62,7 +64,7 @@ static void add_term(seq_t val)
 {
     if (term_cnt >= term_cap) {
         term_cap = term_cap ? term_cap * 2 : 1024;
-        term_arr = (seq_t *)realloc(term_arr, term_cap * sizeof(seq_t));
+        term_arr = mem_resize(seq_t, term_arr, term_cap);
     }
     term_arr[term_cnt++] = val;
 }

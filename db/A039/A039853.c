@@ -11,13 +11,15 @@
  *            4 (mod 5). 2. Set A[i] = P0[i] (partitions wit...
  * Range:     u8 n <= 24, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *G = NULL;          /* P0 values */
 static seq_t *A = NULL;          /* a(n) values */
@@ -30,8 +32,8 @@ static void grow(idx_t n)
     if (cap > n) return;                     /* already large enough */
 
     size_t newcap = (size_t)(n + 1) * 2;      /* grow factor 2 */
-    seq_t *tmpG = (seq_t *)realloc(G, newcap * sizeof(seq_t));
-    seq_t *tmpA = (seq_t *)realloc(A, newcap * sizeof(seq_t));
+    seq_t *tmpG = mem_resize(seq_t, G, newcap);
+    seq_t *tmpA = mem_resize(seq_t, A, newcap);
 
     if (!tmpG || !tmpA)                       /* allocation failed */
         exit(EXIT_FAILURE);

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 1420, u32 n <= 9650, u64 n <= 9650,
- *            u128 n <= 9650, big any n
- * Helpers:   none
+ * Range:     u8 none, u16 n <= 1420, u32 n <= 60000, u64 n <= 60000,
+ *            u128 n <= 60000, big any n
+ * Validated: standard, pass, 52 terms through n = 9650 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool has_pattern(idx_t value)
 {
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         /* Ensure the cache has enough capacity. */
         if (cache_size >= cache_cap) {
             size_t new_cap = cache_cap ? (cache_cap << 1) : 64;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();          /* allocation failure */
             cache     = tmp;
             cache_cap = new_cap;

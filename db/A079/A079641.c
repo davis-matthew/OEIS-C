@@ -9,13 +9,15 @@
  *            Stirling2(n,i) * |Stirling1(i,k)| (OEIS A079641)
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Internal storage for Stirling numbers and the flattened sequence */
 static seq_t **s1_rows = NULL;          /* S1 rows, indexed by n (1‑based) */
@@ -46,7 +48,7 @@ static void grow_flat(size_t needed)
     if (flat_cap >= needed) return;
     size_t new_cap = flat_cap ? flat_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    flat = (seq_t *)realloc(flat, new_cap * sizeof(seq_t));
+    flat = mem_resize(seq_t, flat, new_cap);
     flat_cap = new_cap;
 }
 
@@ -57,7 +59,7 @@ static void ensure_rows(idx_t target_row)
         idx_t n = max_rows + 1;           /* next row to compute          */
         /* Allocate storage for S1 row n */
         grow_rows_cap(n + 1);             /* need index n                 */
-        seq_t *s1_row = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+        seq_t *s1_row = mem_new(seq_t, (size_t)n + 1);
 
         /* Compute S1(n,k) for k=1..n */
         if (n == 1) {
@@ -74,7 +76,7 @@ static void ensure_rows(idx_t target_row)
         s1_rows[n] = s1_row;
 
         /* Allocate and compute S2(n,k) for k=1..n */
-        seq_t *s2_curr = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+        seq_t *s2_curr = mem_new(seq_t, (size_t)n + 1);
         if (n == 1) {
             s2_curr[1] = 1;                /* base case S2(1,1)=1         */
         } else {
@@ -96,7 +98,7 @@ static void ensure_rows(idx_t target_row)
         }
 
         /* Prepare for next iteration */
-        free(s2_prev);
+        mem_free(s2_prev);
         s2_prev = s2_curr;
         s2_prev_len = n + 1;
         max_rows = n;

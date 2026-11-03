@@ -7,13 +7,26 @@
  * Formula:   a(n) = Sum_{k = 1..n} binomial(k + 2^(n - k) - 1, k - 1)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 18, u128 n <= 25,
  *            big any n
- * Helpers:   binom_pow_r, pow2
+ * Validated: standard, pass, 37 terms through n = 120 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/binom_pow_r.h"
+
+/* Compute binomial(pow + r, r) where pow = 2^(n-k) and r = k-1.
+   Formula reduces to C(pow + r, r) = Π_{i=1..r} (pow + i) / i. */
+static seq_t binom_pow_r(seq_t pow, idx_t r)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = (idx_t)1; i <= r; ++i)
+    {
+        res = (res * (pow + (seq_t)i)) / (seq_t)i;
+    }
+    return res;
+}
 
 /* OEIS sequence A323776 */
 seq_t a(idx_t n)

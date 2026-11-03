@@ -8,13 +8,26 @@
  *            Initial values: a(0)=1,a(1)=1,a(2)=1,a(3)=1,a(4)=1,a(5)=2
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   mul_shift_add
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mul_shift_add.h"
+#include "../utils/mem.h"
+
+/* Multiplication by a small integer using shifts and additions only. */
+static inline seq_t mul_shift_add(seq_t x, unsigned int m)
+{
+    seq_t res = 0;
+    while (m) {
+        if (m & 1u) res += x;
+        x <<= 1;
+        m >>= 1;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -25,7 +38,7 @@ seq_t a(idx_t n)
     /* initialise the first six values once */
     if (dp == NULL) {
         cap = 64;
-        dp  = (seq_t *)malloc(cap * sizeof(seq_t));
+        dp  = mem_new(seq_t, cap);
         if (dp == NULL) return 0;            /* allocation failed */
 
         dp[0] = 1; dp[1] = 1; dp[2] = 1;
@@ -39,7 +52,7 @@ seq_t a(idx_t n)
     if ((idx_t)(n + 1) > cap) {
         idx_t newcap = cap;
         while ((idx_t)(n + 1) > newcap) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(dp, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, newcap);
         if (tmp == NULL) return 0;            /* allocation failed */
         dp = tmp;
         cap = newcap;

@@ -10,8 +10,8 @@
  *            OEIS
  * Range:     u8 n <= 31, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, is_prime, next_prime, seq_alloc_new_array,
- *            seq_free_array
+ * Validated: standard, pass, 74 terms through n = 955 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +19,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/factor_u64.h"
 #include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
-#include "../utils/factor_u64.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* compute a(n) for a given composite number m */
 static seq_t compute(uint64_t m) {

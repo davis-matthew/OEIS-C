@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, easy
  * Formula:   a(n) = ⌊√n⌋ * (⌊√n⌋ + 1) - n
- * Range:     i8 n <= 9978, i16 n <= 9978, i32 n <= 9978, i64 n <= 9978,
- *            i128 n <= 9978, big any n
+ * Range:     i8 n <= 10200, i16 n <= 10200, i32 n <= 10200, i64 n <= 10200,
+ *            i128 n <= 10200, big any n
+ * Validated: standard, pass, 116 terms through n = 9978 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

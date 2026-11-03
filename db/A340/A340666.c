@@ -11,14 +11,40 @@
  *            A340666
  * Range:     u8 n <= 39, u16 n <= 81, u32 n <= 197, u64 n <= 472,
  *            u128 n <= 1191, big any n
- * Helpers:   A_of_n_k, pow2k_value
+ * Validated: standard, pass, 94 terms through n = 9689 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/A_of_n_k.h"
-#include "../utils/pow2k_value.h"
+#include "../utils/pow2.h"
+
+/* Build A(n,k): replace each 0 in the binary representation of n by k zeros. */
+static seq_t A_of_n_k(idx_t n, idx_t k)
+{
+    if (n == 0)
+        return 0;
+
+    /* Find most significant bit index of n. */
+    idx_t msb = 0;
+    idx_t t   = n;
+    while ((t >>= 1) != 0)
+        ++msb;
+
+    seq_t pow2k = pow2(k);
+    seq_t res   = 0;
+
+    for (int pos = (int)msb; pos >= 0; --pos)
+    {
+        if ((n >> pos) & 1u)
+            res = res * 2 + 1;
+        else
+            res = res * pow2k;
+    }
+
+    return res;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

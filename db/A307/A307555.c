@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 16, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoised a(n) values */
 static idx_t  cached_up_to = 0;      /* highest n whose a(n) is known */
@@ -46,7 +48,7 @@ static void init_cache(void)
     if (cache != NULL)
         return;
 
-    cache = (seq_t*)calloc(9, sizeof(seq_t));
+    cache = mem_new(seq_t, 9);
     if (cache == NULL)
         abort();
 
@@ -72,7 +74,7 @@ static void ensure_cache_size(idx_t n)
         return;
 
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (new_cache == NULL)
         abort();
     cache = new_cache;

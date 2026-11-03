@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 23, u64 n <= 58, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define STATES   3125   /* 5^5 possible last‑5‑digit states */
 #define DIGITS   5
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
     /* initialise static tables -------------------------------------- */
     if (!ready) {
         /* allocate DP buffers */
-        dp      = (seq_t*)malloc(STATES * sizeof(seq_t));
-        dp_next = (seq_t*)malloc(STATES * sizeof(seq_t));
+        dp      = mem_new(seq_t, STATES);
+        dp_next = mem_new(seq_t, STATES);
         if (!dp || !dp_next) return 0; /* allocation failure */
 
         /* all 5‑digit suffixes are initially possible */
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
             ans_cap = 1;
         while (ans_cap <= (size_t)n)
             ans_cap <<= 1;
-        ans = (seq_t*)realloc(ans, ans_cap * sizeof(seq_t));
+        ans = mem_resize(seq_t, ans, ans_cap);
         if (!ans) return 0; /* allocation failure */
 
         /* iterate through lengths from max_n+1 to n */

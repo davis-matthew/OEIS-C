@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Equivalent closed form: a(n) = (52*7^n - 112)/21.  */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t cache_len  = 0;
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
         return;
 
     idx_t old_len = cache_len;          /* how far we had computed */
-    seq_cache = (seq_t *)realloc(seq_cache, (size_t)n * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, (size_t)n);
     cache_len = n;                      /* we now have storage up to n */
 
     /* Initialise the first terms if we were empty */

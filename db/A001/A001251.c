@@ -12,13 +12,18 @@
  *            alternating permutations, where every run has exactly 2...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   zal
+ * Validated: standard, pass, 38 terms through n = 440 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/zal.h"
+#include "../utils/mem.h"
+
+static seq_t *zal(idx_t len) {
+  return mem_new(seq_t, (size_t)len);
+}
 
 static seq_t *res = 0;
 static idx_t rescap = 0; /* res[1..rescap] valid */
@@ -80,9 +85,9 @@ static void compute(idx_t N) {
     tmp = AD; AD = nAD; nAD = tmp;
   }
 
-  free(U1); free(U2); free(D1); free(D2); free(AU); free(AD);
-  free(nU1); free(nU2); free(nD1); free(nD2); free(nAU); free(nAD);
-  if (res) free(res);
+  mem_free(U1); mem_free(U2); mem_free(D1); mem_free(D2); mem_free(AU); mem_free(AD);
+  mem_free(nU1); mem_free(nU2); mem_free(nD1); mem_free(nD2); mem_free(nAU); mem_free(nAD);
+  if (res) mem_free(res);
   res = r;
   rescap = N;
 }

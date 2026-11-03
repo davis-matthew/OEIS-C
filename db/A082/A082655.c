@@ -12,7 +12,8 @@
  *            are counted; any other character is ignored. The set of...
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Global state (static to preserve across calls)             */
@@ -129,10 +131,10 @@ seq_t a(idx_t n)
     if (n > cur_max) {
         size_t new_size = (size_t)n;
         /* Resize dp with realloc */
-        seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_size);
         if (tmp == NULL) {
             /* Allocation failed – fall back to recomputing completely */
-            free(dp);
+            mem_free(dp);
             dp = NULL;
             cur_max = 0;
             /* reset letter state */
@@ -157,7 +159,7 @@ seq_t a(idx_t n)
         for (int i = 0; i < 26; ++i) seen_letters[i] = false;
         cur_distinct = 0;
         cur_max = 0;
-        if (dp) { free(dp); dp = NULL; }
+        if (dp) { mem_free(dp); dp = NULL; }
 
         for (size_t i = 1; i <= n; ++i) {
             add_number_letters((idx_t)i);

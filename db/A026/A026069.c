@@ -13,13 +13,15 @@
  *            positions. * Complexity: O(n²) time, O(n) memory
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 23, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 /* Remember: do NOT add any STORAGE-QUALIFIER to the typedefs below. */
@@ -35,10 +37,10 @@ seq_t a(idx_t n)
     size_t offset = (size_t)n;                  /* index of position 0 */
 
     /* Allocate two DP rows. */
-    seq_t *dp   = (seq_t *)calloc(size,   sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(size,   sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, size);
+    seq_t *next = mem_new(seq_t, size);
     if (!dp || !next) {
-        free(dp); free(next);
+        mem_free(dp); mem_free(next);
         return 0;
     }
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* Iterate over each step of the walk. */
     for (idx_t step = 1; step <= n; ++step) {
         /* Reset the next row. */
-        memset(next, 0, size * sizeof(seq_t));
+        mem_set(next, 0, size * sizeof(seq_t));
 
         for (size_t idx = 0; idx < size; ++idx) {
             seq_t val = dp[idx];
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     /* Answer is the number of ways to be at position 2 after n steps. */
     seq_t result = dp[2 + offset];
 
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

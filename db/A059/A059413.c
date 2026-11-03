@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 27, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 /* No external libraries are required; only the build‑provided types. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
         if (new_cap > cap) {
             cap = new_cap;
             /* reallocate each array */
-            pow2 = (seq_t *)realloc(pow2, cap * sizeof(seq_t));
-            psi  = (seq_t *)realloc(psi,  cap * sizeof(seq_t));
-            A    = (seq_t *)realloc(A,    cap * sizeof(seq_t));
+            pow2 = mem_resize(seq_t, pow2, cap);
+            psi  = mem_resize(seq_t, psi, cap);
+            A    = mem_resize(seq_t, A, cap);
             /* initialise the added entries lazily below */
         }
 

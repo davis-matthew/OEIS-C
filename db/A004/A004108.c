@@ -11,7 +11,8 @@
  *            z(T) = Prod_k k^m_k m_k! (m_k = multiplicity of par...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 11, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   addto, divsmall, gcd_i, mulacc, mulsmall, subfrom
+ * Validated: standard, pass, 36 terms through n = 50 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +20,73 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/addto.h"
-#include "../utils/divsmall.h"
-#include "../utils/gcd_i.h"
-#include "../utils/mulacc.h"
-#include "../utils/mulsmall.h"
-#include "../utils/subfrom.h"
+#include "../utils/gcd_i32.h"
+
+static void addto(uint32_t *a, int L, const uint32_t *b, int Lb)
+{
+    uint64_t carry = 0;
+    int i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)a[i] + (i < Lb ? b[i] : 0) + carry;
+        a[i] = (uint32_t)t;
+        carry = t >> 32;
+        if (i >= Lb && !carry) break;
+    }
+}
+
+static void divsmall(uint32_t *x, int len, uint64_t d)
+{
+    uint64_t rem = 0;
+    int i;
+    for (i = len - 1; i >= 0; i--) {
+        uint64_t cur = (rem << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+}
+
+static void mulacc(uint32_t *acc, int L, const uint32_t *x, int Lx, const uint32_t *y, int Ly)
+{
+    int i, j, k;
+    for (i = 0; i < Lx && i < L; i++) {
+        uint64_t carry = 0;
+        if (!x[i]) continue;
+        for (j = 0; j < Ly && i + j < L; j++) {
+            uint64_t t = (uint64_t)x[i] * y[j] + acc[i + j] + carry;
+            acc[i + j] = (uint32_t)t;
+            carry = t >> 32;
+        }
+        for (k = i + j; carry && k < L; k++) {
+            uint64_t t = (uint64_t)acc[k] + carry;
+            acc[k] = (uint32_t)t;
+            carry = t >> 32;
+        }
+    }
+}
+
+static void mulsmall(uint32_t *x, int len, uint32_t c)
+{
+    uint64_t carry = 0;
+    int i;
+    for (i = 0; i < len; i++) {
+        uint64_t t = (uint64_t)x[i] * c + carry;
+        x[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+}
+
+static void subfrom(uint32_t *a, int L, const uint32_t *b, int Lb)
+{
+    uint64_t borrow = 0;
+    int i;
+    for (i = 0; i < L; i++) {
+        uint64_t bi = (i < Lb ? b[i] : 0) + borrow;
+        uint64_t ai = a[i];
+        if (ai >= bi) { a[i] = (uint32_t)(ai - bi); borrow = 0; }
+        else { a[i] = (uint32_t)(ai + ((uint64_t)1 << 32) - bi); borrow = 1; }
+        if (i >= Lb && !borrow) break;
+    }
+}
 
 static int bitlen_u(uint64_t k) { int b = 0; while (k) { b++; k >>= 1; } return b; }
 
@@ -116,7 +178,7 @@ static uint32_t *bfun(int n)
     gParts = (int *)calloc((size_t)n + 1, sizeof(int));
     gG = (int *)calloc((size_t)(n + 1) * (n + 1), sizeof(int));
     for (i = 1; i <= n; i++)
-        for (k = 1; k <= n; k++) gG[i * (n + 1) + k] = gcd_i(i, k);
+        for (k = 1; k <= n; k++) gG[i * (n + 1) + k] = gcd_i32(i, k);
     gMst[0] = 1;
     for (k = 2; k <= n; k++) mulsmall(gMst, gML, (uint32_t)k);
     gPoly[0] = 1;

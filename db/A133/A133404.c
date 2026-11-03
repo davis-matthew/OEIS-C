@@ -12,7 +12,8 @@
  *            etc
  * Range:     u8 n <= 83, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 7499 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /*  Global static tables for phi and cumulative term counts up to order m   */
 /*----------------------------------------------------------------------------*/
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Number of terms already precomputed (maximum order m) */
 static idx_t _max_order = 0;
@@ -38,7 +40,7 @@ static void _ensure_up_to(idx_t m)
 
     /* Allocate larger arrays */
     _phi  = (idx_t *)realloc(_phi,  (m + 1) * sizeof(idx_t));
-    _cum  = (seq_t *)realloc(_cum,  (m + 1) * sizeof(seq_t));
+    _cum  = mem_resize(seq_t, _cum, (m + 1));
     if (!_phi || !_cum) return;            /* allocation failed – nothing we can do */
 
     /* Compute Euler’s totient function for 1..m using a classic sieve */

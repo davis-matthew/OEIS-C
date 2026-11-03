@@ -11,14 +11,25 @@
  *            and q = (s−n)/2 are integers in A005836. Then return p
  * Range:     u8 n <= 71, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   base3_only_01
+ * Validated: standard, pass, 88 terms through n = 9989 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/base3_only_01.h"
+
+static bool base3_only_01(seq_t x)
+{
+    while (x)
+    {
+        if ((x % 3) == 2)
+            return false;
+        x /= 3;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

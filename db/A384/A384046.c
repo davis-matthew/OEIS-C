@@ -8,8 +8,9 @@
  * Formula:   a(n) enumerates, row by row, the integers k (1≤k≤r) such that
  *            for every prime power p^e dividing r, p^e does NOT divide k. The
  *            sequence a(n) is the nth element of this flattened triangle
- * Range:     u8 n <= 9323, u16 n <= 9323, u32 n <= 9323, u64 n <= 9323,
- *            u128 n <= 9323, big any n
+ * Range:     u8 n <= 10204, u16 n <= 10204, u32 n <= 10204, u64 n <= 10204,
+ *            u128 n <= 10204, big any n
+ * Validated: standard, pass, 111 terms through n = 9323 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

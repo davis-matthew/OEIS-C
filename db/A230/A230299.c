@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9398 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    search is safe. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declarations of helpers */
 static inline seq_t digit_sum(seq_t v);
@@ -59,7 +61,7 @@ static int ensure_b1(seq_t limit)
 {
     if (b1_sz == 0) {
         b1_cap = 16;
-        b1 = (seq_t *)malloc(b1_cap * sizeof(seq_t));
+        b1 = mem_new(seq_t, b1_cap);
         if (!b1) return -1;
         b1[0] = 1;
         b1_sz = 1;
@@ -68,7 +70,7 @@ static int ensure_b1(seq_t limit)
         seq_t next = next_b(b1[b1_sz - 1]);
         if (b1_sz == b1_cap) {
             size_t new_cap = b1_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(b1, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, b1, new_cap);
             if (!tmp) return -1;
             b1 = tmp;
             b1_cap = new_cap;
@@ -82,7 +84,7 @@ static int ensure_b3(seq_t limit)
 {
     if (b3_sz == 0) {
         b3_cap = 16;
-        b3 = (seq_t *)malloc(b3_cap * sizeof(seq_t));
+        b3 = mem_new(seq_t, b3_cap);
         if (!b3) return -1;
         b3[0] = 3;
         b3_sz = 1;
@@ -91,7 +93,7 @@ static int ensure_b3(seq_t limit)
         seq_t next = next_b(b3[b3_sz - 1]);
         if (b3_sz == b3_cap) {
             size_t new_cap = b3_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(b3, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, b3, new_cap);
             if (!tmp) return -1;
             b3 = tmp;
             b3_cap = new_cap;
@@ -105,7 +107,7 @@ static int ensure_b9(seq_t limit)
 {
     if (b9_sz == 0) {
         b9_cap = 16;
-        b9 = (seq_t *)malloc(b9_cap * sizeof(seq_t));
+        b9 = mem_new(seq_t, b9_cap);
         if (!b9) return -1;
         b9[0] = 9;
         b9_sz = 1;
@@ -114,7 +116,7 @@ static int ensure_b9(seq_t limit)
         seq_t next = next_b(b9[b9_sz - 1]);
         if (b9_sz == b9_cap) {
             size_t new_cap = b9_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(b9, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, b9, new_cap);
             if (!tmp) return -1;
             b9 = tmp;
             b9_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 42, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_primitive_root, mod_pow_uint32
+ * Validated: standard, pass, 51 terms through n = 953 (2026-11-01)
+ * Helpers:   powmod_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_primitive_root.h"
-#include "../utils/mod_pow_uint32.h"
+#include "../utils/powmod_u32.h"
+
+/*---  check whether g is primitive root modulo p (p prime) ---------------*/
+static int is_primitive_root(uint32_t p, int g, int *factors, int fcnt)
+{
+    for (int i = 0; i < fcnt; ++i) {
+        uint32_t e = (p - 1) / factors[i];
+        if (powmod_u32((uint32_t)g, e, p) == 1) return 0;
+    }
+    return 1;
+}
 
 /*---  small prime sieve up to 6000 -----------------------------------------*/
 static int small_primes[900];

@@ -12,6 +12,7 @@
  *            the triple (bit_i(prev2),bit_i(prev1),bit_i(newcol)) may not...
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 19, u64 n <= 43, u128 n <= 92,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 187 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

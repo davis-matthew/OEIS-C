@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Return true iff the binary popcount of x is even. */
 static bool even_popcount(seq_t x)
@@ -124,7 +127,7 @@ seq_t a(idx_t n)
         if (cntA == cntB) {
             if (seq_len == seq_cap) {
                 seq_cap = (seq_cap == 0) ? 64 : seq_cap * 2;
-                seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
             }
             seq_arr[seq_len++] = m;
         }

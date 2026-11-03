@@ -12,20 +12,22 @@
  *            a(10)=90000, a(11)=319225, a(12)=1132096, a(13)=4020025
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- helper allocation routine ------------------------------------ */
 static inline seq_t *alloc_seq_arr(size_t n) {
-    return (seq_t *)calloc(n, sizeof(seq_t));
+    return mem_new(seq_t, n);
 }
 static inline void free_seq_arr(seq_t *p) {
-    free(p);
+    mem_free(p);
 }
 
 /* ---------- main sequence function -------------------------------------- */

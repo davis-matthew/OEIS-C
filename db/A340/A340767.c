@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 601, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9595 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external linkage as required */
 seq_t a(idx_t n)
@@ -40,10 +42,10 @@ seq_t a(idx_t n)
 
         /* free old arrays if any (not strictly necessary) */
         if (is_prime) free(is_prime);
-        if (cum)      free(cum);
+        if (cum)      mem_free(cum);
 
         is_prime = (uint8_t*)malloc(new_size);
-        cum     = (seq_t*)malloc(new_size * sizeof(seq_t));
+        cum     = mem_new(seq_t, new_size);
         if (!is_prime || !cum) {
             /* allocation failure: return 0 as a safe fallback */
             return 0;

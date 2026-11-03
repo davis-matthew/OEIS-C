@@ -12,7 +12,8 @@
  *            increasing number of parts and lexicographically
  * Range:     u8 n <= 108, u16 n <= 108, u32 n <= 108, u64 n <= 108,
  *            u128 n <= 108, big any n
- * Helpers:   append_candidate
+ * Validated: partial, pass, 108 terms through n = 108 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/append_candidate.h" /* provided helper */
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 static seq_t *term_cache = NULL;      /* flattened array of parts           */
 static size_t term_cache_len = 0;     /* number of cached terms             */
@@ -37,7 +55,7 @@ static void ensure_fib_upto(idx_t limit)
 {
     if (fib_len == 0) {
         fib_cap = 4;
-        fib_arr = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib_arr = mem_new(seq_t, fib_cap);
         fib_arr[0] = 1;
         fib_arr[1] = 2;
         fib_len = 2;
@@ -45,7 +63,7 @@ static void ensure_fib_upto(idx_t limit)
     while (fib_len > 0 && fib_arr[fib_len - 1] <= limit) {
         if (fib_cap <= fib_len) {
             fib_cap = fib_cap ? fib_cap * 2 : 4;
-            fib_arr = (seq_t *)realloc(fib_arr, fib_cap * sizeof(seq_t));
+            fib_arr = mem_resize(seq_t, fib_arr, fib_cap);
         }
         seq_t next = fib_arr[fib_len - 1] + fib_arr[fib_len - 2];
         fib_arr[fib_len++] = next;

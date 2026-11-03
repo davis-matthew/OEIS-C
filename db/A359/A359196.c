@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 119, u16 n <= 719, u32 n <= 2519, u64 n <= 9755,
- *            u128 n <= 9755, big any n
- * Helpers:   none
+ * Range:     u8 n <= 119, u16 n <= 719, u32 n <= 2519, u64 n <= 15119,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9755 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
 
     /* ---- subset‑sum DP: count ways to reach each sum up to target ----- */
     size_t dp_size = (size_t)target + 1;              /* indices 0 .. target */
-    seq_t *dp = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) {
         free(divs);
         return 0;
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[target];
 
-    free(dp);
+    mem_free(dp);
     free(divs);
     return result;
 }

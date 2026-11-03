@@ -11,15 +11,24 @@
  *            a(p^e)=(1+(-1)^e)/2 for primes p≡5 or 7 (mod 8)
  * Range:     u8 n <= 2500, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   is_mod13, is_mod57
+ * Validated: standard, pass, 103 terms through n = 2478 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_mod13.h"
-#include "../utils/is_mod57.h"
+
+/* Check if a prime is congruent to 1 or 3 mod 8 */
+static inline bool is_mod13(uint64_t p) {
+    return (p & 7ULL) == 1 || (p & 7ULL) == 3;
+}
+
+/* Check if a prime is congruent to 5 or 7 mod 8 */
+static inline bool is_mod57(uint64_t p) {
+    return (p & 7ULL) == 5 || (p & 7ULL) == 7;
+}
 
 /* The sequence function ----------------------------------------------- */
 seq_t a(idx_t n)

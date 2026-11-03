@@ -9,7 +9,8 @@
  *            a(2)=1 Implementation uses recursion with memoisation
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 288 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Includes required for the standard types and dynamic allocation. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache structure to store computed values. */
 struct _seq_cache_s {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise the cache the first time the function is called. */
     if (_a_cache.data == NULL) {
         _a_cache.size = 4;                                 /* initial capacity */
-        _a_cache.data = (seq_t*)calloc(_a_cache.size, sizeof(seq_t));
+        _a_cache.data = mem_new(seq_t, _a_cache.size);
         _a_cache.data[0] = 0;   /* a(0) */
         _a_cache.data[1] = 0;   /* a(1) */
         _a_cache.data[2] = 1;   /* a(2) */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         idx_t new_size = _a_cache.size;
         while (new_size <= n) new_size <<= 1;
         if (new_size == 0) new_size = 1;
-        _a_cache.data = (seq_t*)realloc(_a_cache.data, new_size * sizeof(seq_t));
+        _a_cache.data = mem_resize(seq_t, _a_cache.data, new_size);
         for (idx_t i = _a_cache.size; i < new_size; ++i)
             _a_cache.data[i] = 0;
         _a_cache.size = new_size;

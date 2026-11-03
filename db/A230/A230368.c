@@ -9,13 +9,15 @@
  *            (Equivalently: if m even → 4^m – 1; if m odd → 4^m + 1.)
  * Range:     u8 n <= 19, u16 n <= 35, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     idx_t m = n >> 2;          /* m = n / 4 */
-    seq_t pow4_m = seq_pow((seq_t)4, m);   /* 4^m */
+    seq_t pow4_m = ipow_idx((seq_t)4, m);   /* 4^m */
 
     /* For even m, (-4)^m = 4^m → |4^m – 1| = 4^m – 1.  For odd m,
        (-4)^m = –4^m → |–4^m – 1| = 4^m + 1. */

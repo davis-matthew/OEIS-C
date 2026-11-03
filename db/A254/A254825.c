@@ -10,7 +10,8 @@
  *            Implements a DP on * cumulative residues modulo 30
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 161 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const unsigned char M_bool[30] = {
     1,0,1,1,1,1,1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,1,1,0,1,1,1,1,1,0
@@ -48,12 +50,11 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold up to n terms. */
     if ((size_t)n > cache_size) {
         size_t new_size = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) exit(1);                 /* allocation failure */
         /* Zero the newly added slots if any. */
         if (new_size > cache_size)
-            memset(tmp + cache_size, 0,
-                   (new_size - cache_size) * sizeof(seq_t));
+            mem_set(tmp + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
         cache = tmp;
         cache_size = new_size;
     }
@@ -61,7 +62,7 @@ seq_t a(idx_t n)
     /* Compute new terms up to n. */
     while (last_n < n) {
         /* Transition from dp_cur to dp_next. */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (int r = 0; r < 30; ++r) {
             if (dp_cur[r] == 0) continue; /* skip zero entries */

@@ -8,7 +8,8 @@
  * Formula:   a(n) = σ(n) / gcd(n·τ(n), σ(n))
  * Range:     u8 n <= 16, u16 n <= 2436, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf, gcd, seq_pow
+ * Validated: standard, pass, 96 terms through n = 9881 (2026-11-03)
+ * Helpers:   build_spf, gcd, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/gcd.h"
 #include "../utils/build_spf.h"
-#include "../utils/seq_pow.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* ---------- cached smallest‑prime‑factor array ---------- */
 static idx_t *spf      = NULL;        /* spf[i] = smallest prime factor of i, i ≥ 2 */
@@ -51,7 +53,7 @@ ensure_cache(idx_t n)
     if (n + 1 <= cache_sz) return;     /* already large enough */
 
     /* Reallocate cache to accommodate indices 0…n */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) abort();             /* allocation failure – stop safely */
 
     /* Initialize newly added entries to 0 (sentinel). */
@@ -90,7 +92,7 @@ a(idx_t n)
         tau *= (seq_t)(e + 1);
 
         /* σ(p^e) = (p^(e+1) – 1) / (p – 1) */
-        seq_t p_pow = seq_pow((seq_t)p, e + 1); /* p^(e+1) */
+        seq_t p_pow = ipow_idx((seq_t)p, e + 1); /* p^(e+1) */
         seq_t numer = p_pow - (seq_t)1;
         seq_t denom = (seq_t)p - (seq_t)1;
         seq_t part  = numer / denom;

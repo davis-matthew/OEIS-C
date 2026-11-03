@@ -10,12 +10,49 @@
  * Formula:   numbers k such that LR0(k) < LR1(k)
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   lr0_lr1
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/lr0_lr1.h"
+/* Computes the longest runs of zeros and ones in the binary
+   representation of x.  The results are returned through *l0 and *l1. */
+static inline void lr0_lr1(idx_t x, idx_t *l0, idx_t *l1)
+{
+    idx_t cur      = x & 1ULL;   /* current run bit (0 or 1)          */
+    idx_t run      = 1ULL;       /* length of the current run         */
+    idx_t best0    = 0ULL;       /* best zero run found so far        */
+    idx_t best1    = 0ULL;       /* best one run found so far         */
+
+    x >>= 1ULL;
+    while (x) {
+        idx_t bit = x & 1ULL;
+        if (bit == cur) {
+            run++;                   /* extend current run              */
+        } else {
+            /* finish the run that just ended */
+            if (cur) {                /* it was a run of ones            */
+                if (run > best1) best1 = run;
+            } else {                  /* it was a run of zeros           */
+                if (run > best0) best0 = run;
+            }
+            cur   = bit;              /* start new run                   */
+            run   = 1ULL;
+        }
+        x >>= 1ULL;
+    }
+
+    /* process the final run */
+    if (cur) {
+        if (run > best1) best1 = run;
+    } else {
+        if (run > best0) best0 = run;
+    }
+
+    *l0 = best0;
+    *l1 = best1;
+}
 /* LR0(k) = longest run of zeros in binary representation of k  */
 /* LR1(k) = longest run of ones  in binary representation of k */
 

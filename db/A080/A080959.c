@@ -10,13 +10,14 @@
  *            binomial(i+t, t) / t. The sequence starts with a(1)=1
  * Range:     i8 n <= 19, i16 n <= 35, i32 n <= 90, i64 n <= 230,
  *            i128 n <= 594, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 1217 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static inline seq_t factorial_seq(idx_t k) {
     seq_t f = 1;
@@ -44,7 +45,7 @@ seq_t a(idx_t n) {
     seq_t kfact = factorial_seq(j);
     seq_t sum = 0;
     for (idx_t t = 1; t <= j; ++t) {
-        seq_t bin = binom((idx_t)(i + t), t);          /* binomial(i+t, t) */
+        seq_t bin = binomial((idx_t)(i + t), t);          /* binomial(i+t, t) */
         seq_t term = (kfact / (seq_t)t) * bin;         /* j! / t * binom(...) */
         if ((t & 1) == 0) term = -term;                /* (-1)^(t+1) sign */
         sum += term;

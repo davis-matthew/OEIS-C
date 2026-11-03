@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 9, u128 n <= 20,
  *            big any n
- * Helpers:   inc_ok
+ * Validated: standard, pass, 28 terms through n = 208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/inc_ok.h"
+
+/* Test whether the sequence of 4 digits can be appended to a mask, obeying the
+   rule that a new value k (k>0) may only appear after all smaller values have
+   already appeared.  The resulting mask is returned in outmask. */
+static bool inc_ok(uint8_t mask, const uint8_t digits[4], uint8_t *outmask)
+{
+    uint8_t m = mask;
+    for (int i = 0; i < 4; ++i) {
+        uint8_t v = digits[i];
+        if (v > 0) {
+            if (((m >> (v - 1)) & 1) == 0) return false;  /* skip value */
+        }
+        m |= 1 << v;
+    }
+    *outmask = m;
+    return true;
+}
 
 /* Transition structure for DP */
 typedef struct { uint8_t pat; uint8_t newmask; } Transition;

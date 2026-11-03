@@ -8,11 +8,13 @@
  * Formula:   a(n) = n! * [x^n] exp(x)*((1+x)*I0(2x)+x*I1(2x)) (OEIS A092690)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 79,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 944 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime, powmod64, seq_alloc_new_array
+ * Validated: standard, pass, 74 terms through n = 960 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,16 @@
 /* Required utilities */
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
 #include "../utils/next_prime.h"
-#include "../utils/powmod64.h"
-#include "../utils/seq_alloc_new_array.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /*--------------------------------------------------------------------------*/
 /* Return the nth term of the sequence.  All values are stored in a static
@@ -58,7 +66,7 @@ seq_t a(idx_t n)
                 /* by Fermat's little theorem the congruence x^59≡2 has a
                    solution iff 2^((p-1)/59) ≡ 1 (mod p)                */
                 uint64_t exp = (p - 1) / 59;
-                uint64_t val = powmod64(2, exp, p);
+                uint64_t val = powmod_u64(2, exp, p);
                 include = (val == 1);
             }
         }
@@ -72,7 +80,7 @@ seq_t a(idx_t n)
                     /* copy existing contents */
                     for (size_t i = 0; i < seq_len; ++i)
                         new_arr[i] = seq_values[i];
-                    free(seq_values);
+                    mem_free(seq_values);
                 }
                 seq_values = new_arr;
                 seq_cap    = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   append_candidate, is_prime_small, multiply_by_11
+ * Validated: standard, pass, 76 terms through n = 995 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,44 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/append_candidate.h"
-#include "../utils/multiply_by_11.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+static void multiply_by_11(uint8_t *digs, size_t *len, size_t *cap)
+{
+    uint16_t carry = 0;
+    for (size_t i = 0; i < *len; ++i) {
+        uint16_t prod = (uint16_t)digs[i] * 11 + carry;
+        digs[i] = (uint8_t)(prod % 10);
+        carry   = prod / 10;
+    }
+    while (carry) {
+        if (*len == *cap) {
+            *cap *= 2;
+            digs = (uint8_t*)realloc(digs, *cap);
+        }
+        digs[*len] = (uint8_t)(carry % 10);
+        carry      = carry / 10;
+        ++(*len);
+    }
+}
 
 static seq_t digit_sum_array(const uint8_t *digs, size_t len)
 {
@@ -42,7 +78,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* allocate storage for terms */
         terms_cap = 16;
-        terms = (seq_t*)malloc(sizeof(seq_t) * terms_cap);
+        terms = mem_new(seq_t, terms_cap);
 
         /* initialise decimal digits array for 11^0 = 1 */
         digits_cap = 32;
@@ -67,7 +103,7 @@ seq_t a(idx_t n)
         seq_t dsum = digit_sum_array(digits, digits_len);
 
         /* test primality of the digit sum */
-        if (is_prime_small(dsum))
+        if (is_prime_seq(dsum))
             append_candidate(&terms, &terms_len, &terms_cap, (seq_t)next_k);
     }
 

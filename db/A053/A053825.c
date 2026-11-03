@@ -9,6 +9,7 @@
  *            computes a(n) for any n >= 1 using prime factorisation
  * Range:     i8 n <= 5, i16 n <= 32, i32 n <= 1229, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 58 terms through n = 9050 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

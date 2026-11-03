@@ -9,7 +9,8 @@
  *            is prime
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 71 terms through n = 943 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Append a seq_t value to a dynamic array. */
 static void append_seq(seq_t **arr, size_t *len, size_t *cap, seq_t val) {
     if (*len >= *cap) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap * 2);
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         *arr = tmp;
         *cap = new_cap;
     }

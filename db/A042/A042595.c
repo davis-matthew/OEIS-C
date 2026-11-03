@@ -8,6 +8,7 @@
  *            = {1,2,1,5,1,1,1,3,5,2,9,8,9,2,5,3,1,1,1,5,1,2,1,56}
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 21, u64 n <= 39, u128 n <= 82,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 199 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

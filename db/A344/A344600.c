@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} phi(k) * (floor(n/k)^4 - floor((n-1)/k)^4)
  * Range:     u8 n <= 4, u16 n <= 25, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
     directory. */
 
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* --------------------------------------------------------------- */
 /*  Helper: compute phi[1..n]  ----------------------------------- */
@@ -54,7 +63,7 @@ seq_t a(idx_t n)
         return (seq_t)0;        /* safety for n < 1, although not needed */
 
     /* Allocate storage for phi[1..n] */
-    seq_t *phi = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, (n + 1));
     if (!phi)
         return (seq_t)0;        /* out of memory – unlikely for the expected n */
 
@@ -85,6 +94,6 @@ seq_t a(idx_t n)
         sum += prod;
     }
 
-    free(phi);
+    mem_free(phi);
     return sum;
 }

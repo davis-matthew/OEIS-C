@@ -8,7 +8,8 @@
  *            equals 43
  * Range:     u8 none, u16 none, u32 n <= 5400, u64 n <= 5400, u128 n <= 5400,
  *            big any n
- * Helpers:   add_seq, digit_sum_uint64, is_prime
+ * Validated: standard, pass, 46 terms through n = 5197 (2026-11-03)
+ * Helpers:   digit_sum_u64, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/digit_sum_uint64.h"
-#include "../utils/add_seq.h"
+#include <stddef.h>
+#include "../utils/digit_sum_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* enlarge array to store seq_t values */
+static void add_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val) {
+    if (*cap == 0) {
+        *cap  = 4;
+        *arr  = mem_new(seq_t, (*cap));
+    }
+    if (*size == *cap) {
+        *cap <<= 1;
+        *arr  = mem_resize(seq_t, *arr, (*cap));
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 static seq_t *prime_sum_43 = NULL;   /* dynamic array of primes with digit sum 43 */
 static idx_t     sz          = 0;    /* number of stored terms                */
@@ -32,7 +48,7 @@ static void ensure_terms(idx_t need)
 {
     while (sz < need) {
         /* Find the next prime whose digit sum is 43                      */
-        while (!(is_prime(candidate) && digit_sum_uint64(candidate) == 43)) {
+        while (!(is_prime_u64(candidate) && digit_sum_u64(candidate) == 43)) {
             /* Avoid overflow of the 64‑bit counter – for the demands of
                the test suite the values stay well below 2^63.           */
             candidate++;

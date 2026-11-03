@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 34, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   reallocate_vector
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,7 +39,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/reallocate_vector.h"
+
+/* helper to realloc a seq_t array; works in C and C++ */
+static seq_t *reallocate_vector(seq_t *old, idx_t old_cap, idx_t new_cap) {
+    seq_t *newp;
+#ifdef __cplusplus
+    newp = new seq_t[new_cap];
+    for (idx_t i = 0; i < old_cap; ++i) newp[i] = old[i];
+    delete [] old;
+#else
+    newp = (seq_t *)malloc((size_t)new_cap * sizeof(seq_t));
+    memcpy(newp, old, (size_t)old_cap * sizeof(seq_t));
+    free(old);
+#endif
+    return newp;
+}
 
 /* static caches (initialised on first call) */
 static seq_t *a_cache = NULL;

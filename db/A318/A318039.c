@@ -12,7 +12,8 @@
  *            OEIS A318039.)
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 25, u64 n <= 46, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 /* External types supplied by the build */
 #include <stddef.h> /* for size_t */
+#include "../utils/mem.h"
 
 /* Function prototype as required */
 seq_t a(idx_t n)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         if (cache_cap < required) {
             size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
             while (new_cap < required) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();          /* allocation failed */
             cache    = tmp;
             cache_cap = new_cap;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         /* Expand to at least 8 slots to allow index 0..7 */
         if (cache_cap < 8) {
             size_t new_cap = 8;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = new_cap;
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         /* Ensure enough space for the new element */
         if (cache_len + 1 >= cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = new_cap;

@@ -9,13 +9,15 @@
  *            floor(((sqrt(8*n+1)-1)/2)), k = n - r*(r+1)/2
  * Range:     u8 n <= 20, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Find the row number r for a given linear index n (0‑based). */
 static idx_t
@@ -52,8 +54,8 @@ seq_t a(idx_t n)
 
     /* First call: allocate for row 0 */
     if (M == NULL) {
-        M = (seq_t *)malloc(sizeof(seq_t));
-        prefix = (seq_t *)malloc(sizeof(seq_t));
+        M = mem_new(seq_t, 1);
+        prefix = mem_new(seq_t, 1);
         if (!M || !prefix) return (seq_t)0;   /* allocation failure */
         M[0] = (seq_t)1;
         prefix[0] = M[0];
@@ -63,8 +65,8 @@ seq_t a(idx_t n)
     /* Extend cache if needed */
     if (r > maxR) {
         size_t newSize = (size_t)(r + 1);
-        seq_t *tmpM = (seq_t *)realloc(M, newSize * sizeof(seq_t));
-        seq_t *tmpPr = (seq_t *)realloc(prefix, newSize * sizeof(seq_t));
+        seq_t *tmpM = mem_resize(seq_t, M, newSize);
+        seq_t *tmpPr = mem_resize(seq_t, prefix, newSize);
         if (!tmpM || !tmpPr) return (seq_t)0;   /* allocation failure */
 
         M = tmpM;

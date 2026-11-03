@@ -12,13 +12,15 @@
  *            function. * * The implementation keeps the sequence in a...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* full sequence storage             */
 static size_t  seq_cap = 0;        /* capacity of seq                   */
@@ -33,7 +35,7 @@ ensure_capacity(idx_t n)
     size_t need = (size_t)n + 1;
     if (seq_cap < need) {
         size_t newcap = need > 35 ? need : 35;
-        seq_t *newseq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+        seq_t *newseq = mem_resize(seq_t, seq, newcap);
         if (!newseq) { abort(); }
         seq = newseq;
         seq_cap = newcap;

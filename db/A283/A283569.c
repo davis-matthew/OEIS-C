@@ -12,7 +12,8 @@
  *            a(n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 static bool exc_done = false;
@@ -83,23 +85,23 @@ static void ensure_upto(idx_t n)
 
     if (!cache) {
         cache_size = n + 1;
-        cache = (seq_t *)malloc((size_t)cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_size);
     } else if (n + 1 > cache_size) {
         cache_size = n + 1;
-        cache = (seq_t *)realloc(cache, (size_t)cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)cache_size);
     }
     cache[0] = 0;
 
     /* initialise for the first row if starting from scratch */
     if (current_len == 0) {
-        memset(dp, 0, sizeof(dp));
+        mem_set(dp, 0, sizeof(dp));
         for (uint32_t p = 0; p < 32; ++p) dp[0][p][0] = (seq_t)1;
         current_len = 1;
         cache[1] = compute_final_result();
     }
 
     for (idx_t len = current_len + 1; len <= n; ++len) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (uint32_t a = 0; a < 32; ++a) {
             for (uint32_t b = 0; b < 32; ++b) {
                 for (int used = 0; used < 2; ++used) {
@@ -114,7 +116,7 @@ static void ensure_upto(idx_t n)
                 }
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
         cache[len] = compute_final_result();
     }
     current_len = n;

@@ -10,6 +10,7 @@
  *            each F_k+1 are considered in order, duplicates are removed
  * Range:     u8 n <= 22, u16 n <= 44, u32 n <= 90, u64 n <= 182,
  *            u128 n <= 368, big any n
+ * Validated: standard, pass, 65 terms through n = 1849 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

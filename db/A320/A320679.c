@@ -11,7 +11,8 @@
  *            pairs in 3 different ways)
  * Range:     u8 n <= 11, u16 n <= 41, u32 n <= 941, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   overlap
+ * Validated: standard, pass, 61 terms through n = 2462 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,35 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/overlap.h"
+
+/* number of overlapping pair combinations for sums s ≠ t */
+static inline seq_t overlap(idx_t s, idx_t t, idx_t n) {
+    idx_t L = 1;
+    if (s > n) {
+        idx_t tmp = s - n;
+        if (tmp > L) L = tmp;
+    }
+    if (t > n) {
+        idx_t tmp = t - n;
+        if (tmp > L) L = tmp;
+    }
+    idx_t U = n;
+    if (s > 1 && s - 1 < U) U = s - 1;
+    if (t > 1 && t - 1 < U) U = t - 1;
+    if (U < L) return 0;
+
+    seq_t cnt = (seq_t)(U - L + 1);
+
+    if ((s & 1) == 0) {
+        idx_t x = s / 2;
+        if (x >= L && x <= U) cnt--;
+    }
+    if ((t & 1) == 0) {
+        idx_t x = t / 2;
+        if (x >= L && x <= U) cnt--;
+    }
+    return cnt;
+}
 
 /* count of unordered pairs {i,j}, 1 ≤ i < j ≤ n, i + j = s */
 static idx_t pair_count(idx_t s, idx_t n) {

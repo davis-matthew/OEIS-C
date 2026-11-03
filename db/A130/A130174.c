@@ -6,16 +6,19 @@
  * Keywords:  base, easy, nonn
  * Formula:   a(n) = a(n-1) + 1 + A055642(a(n-1)) for n>1, a(1) = 0 where
  *            A055642(x) is the number of decimal digits in x
- * Range:     u8 n <= 74, u16 n <= 9270, u32 n <= 9270, u64 n <= 9270,
- *            u128 n <= 9270, big any n
- * Helpers:   digit_len
+ * Range:     u8 n <= 74, u16 n <= 11316, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 78 terms through n = 9270 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_len.h"   /* provides int digit_len(seq_t) */
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? cap << 1 : 16;
         if (new_cap < needed)
             new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp && new_cap != 0)   /* allocation failed */
             abort();                /* cannot recover */
         cache = tmp;
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
             cache[0] = (seq_t)0;
         } else {
             seq_t prev = cache[i-1];
-            seq_t inc  = (seq_t)1 + (seq_t)digit_len(prev);
+            seq_t inc  = (seq_t)1 + (seq_t)num_digits(prev);
             cache[i]   = prev + inc;
         }
     }

@@ -10,8 +10,9 @@
  *            -Sum_{d|n, d<n} A187074(n/d) * a(d) Multiplicative with: a(2^e)
  *            = A010892(e) (period 6: 1,0,-1,-1,0,1 …) a(3^e) = 0 a(p) = -1
  *            for p ≥ 5 a(p^e) = 0 for e > 1, p ≥ 5
- * Range:     i8 n <= 9774, i16 n <= 9774, i32 n <= 9774, i64 n <= 9774,
- *            i128 n <= 9774, big any n
+ * Range:     i8 n <= 100000, i16 n <= 100000, i32 n <= 100000,
+ *            i64 n <= 100000, i128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9774 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

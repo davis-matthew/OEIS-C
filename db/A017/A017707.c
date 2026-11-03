@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 7, u128 n <= 56,
  *            big any n
- * Helpers:   factor_u64, seq_gcd, seq_mul, seq_pow
+ * Validated: standard, pass, 30 terms through n = 9042 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,10 +16,17 @@
 /* Numerator of sigma_22(n)/n^22: a(n) = sigma_22(n)/gcd(sigma_22(n), n^22) */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +45,7 @@ seq_t a(idx_t n)
         /* Sum_{i=0..e} p^{22i} computed iteratively */
         seq_t term   = (seq_t)1;          /* start with i=0 */
         seq_t factor = (seq_t)1;          /* p^{22*i} for current i */
-        seq_t p22 = seq_pow((seq_t)p, 22ULL);
+        seq_t p22 = ipow_idx((seq_t)p, 22ULL);
 
         for (uint64_t i = 1; i <= e; ++i) {
             factor = seq_mul(factor, p22);
@@ -47,7 +55,7 @@ seq_t a(idx_t n)
         sigma = seq_mul(sigma, term);
     }
 
-    seq_t n_pow = seq_pow((seq_t)n, 22ULL);
-    seq_t g = seq_gcd(sigma, n_pow);
+    seq_t n_pow = ipow_idx((seq_t)n, 22ULL);
+    seq_t g = gcd(sigma, n_pow);
     return sigma / g;
 }

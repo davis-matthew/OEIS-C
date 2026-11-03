@@ -8,7 +8,8 @@
  *            6,
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of global helpers (externally defined in utils) */
 static seq_t *comp_lpf = NULL;   /* array of least prime factors of composites */
@@ -63,7 +65,7 @@ static void ensure_sieve(idx_t n_needed)
         if (spf[i] != i)
             ++new_count;
 
-    seq_t *new_comp = (seq_t *)realloc(comp_lpf, (size_t)new_count * sizeof(seq_t));
+    seq_t *new_comp = mem_resize(seq_t, comp_lpf, (size_t)new_count);
     if (!new_comp)
         return;                /* allocation failed – leave function */
     comp_lpf = new_comp;

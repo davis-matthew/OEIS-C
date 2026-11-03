@@ -11,7 +11,8 @@
  *            the total number of prime factors of m (with m...
  * Range:     i8 n <= 91, i16 n <= 91, i32 n <= 91, i64 n <= 91, i128 n <= 91,
  *            big any n
- * Helpers:   omega_uint
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   bigomega_u64_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/omega_uint.h"
+#include "../utils/bigomega_u64_to_i32.h"
 
 /* ---- local helpers ---- */
 static bool is_prime_uint(uint64_t n)
@@ -65,7 +66,7 @@ seq_t a(idx_t n)
     uint64_t q = r / k;
     if (is_square_uint(q)) return 0;        /* perfect square quotient gives 0 */
 
-    int omega = omega_uint(q);
+    int omega = bigomega_u64_to_i32(q);
     if ((omega & 1) == 0)                  /* even Ω → positive */
         return (seq_t)k;
     else                                   /* odd Ω → negative */

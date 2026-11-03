@@ -10,13 +10,40 @@
  *            P(x)^4 * [x^j] P(x)^8|
  * Range:     u8 n <= 5, u16 n <= 39, u32 n <= 2231, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a2292_smul
+ * Validated: standard, pass, 56 terms through n = 9820 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a2292_smul.h"
+
+/* multiply series f (length L) in place by P^3 = Sum (-1)^k (2k+1) x^(k(k+1)/2)  (kind 0)
+   or by P = 1 + Sum_{k>=1} (-1)^k (x^(k(3k-1)/2) + x^(k(3k+1)/2))  (kind 1) */
+static void a2292_smul(long long *f, long long L, int kind)
+{
+    long long i, k;
+    for (i = L - 1; i >= 0; i--) {
+        long long s = 0;
+        if (kind == 0) {
+            for (k = 0; k * (k + 1) / 2 <= i; k++) {
+                long long c = 2 * k + 1;
+                if (k & 1) c = -c;
+                s += c * f[i - k * (k + 1) / 2];
+            }
+        } else {
+            s = f[i];
+            for (k = 1; ; k++) {
+                long long t1 = k * (3 * k - 1) / 2, t2 = k * (3 * k + 1) / 2;
+                long long sg = (k & 1) ? -1 : 1;
+                if (t1 > i) break;
+                s += sg * f[i - t1];
+                if (t2 <= i) s += sg * f[i - t2];
+            }
+        }
+        f[i] = s;
+    }
+}
 
 seq_t a(idx_t n)
 {

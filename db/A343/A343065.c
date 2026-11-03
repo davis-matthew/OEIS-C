@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 typedef struct { seq_t a; seq_t b; } triple_t;
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         /* Pre-generate enough triples.  x <= MAX_X guarantees more than 20000 triples. */
         const idx_t MAX_X = 700;
         size_t capacity = 1024;
-        triples = (triple_t *)malloc(capacity * sizeof(triple_t));
+        triples = mem_new(triple_t, capacity);
         num_triples = 0;
         for (idx_t x = 2; x <= MAX_X; ++x) {
             idx_t x2 = x * x;
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
                 seq_t b_val = (seq_t)x * (seq_t)y;
                 if (num_triples >= capacity) {
                     capacity *= 2;
-                    triples = (triple_t *)realloc(triples, capacity * sizeof(triple_t));
+                    triples = mem_resize(triple_t, triples, capacity);
                 }
                 triples[num_triples].a = a_val;
                 triples[num_triples].b = b_val;
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
             }
         }
         /* sort by a then b */
-        qsort(triples, num_triples, sizeof(triple_t), triple_cmp);
+        mem_qsort(triples, num_triples, sizeof(triple_t), triple_cmp);
         initialized = true;
     }
 

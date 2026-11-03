@@ -12,7 +12,8 @@
  *            parts of size s whose sum is n. Any permutatio...
  * Range:     u8 n <= 65, u16 n <= 75, u32 n <= 102, u64 n <= 198,
  *            u128 n <= 569, big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: standard, pass, 54 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/seq_alloc_new_array.h"   /* for seq_alloc_new_array */
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /* forward declaration of seq_t and idx_t are provided by the build */
 extern uint64_t _floor_isqrt_u64(idx_t n);
@@ -46,7 +52,7 @@ static void init_tables(void)
     for (i = 0; i <= MAX_N; ++i)
     {
         parts[i] = seq_alloc_new_array(MAX_K + 1);  /* create a row of length MAX_K+1 */
-        memset(parts[i], 0, (MAX_K + 1) * sizeof(seq_t));
+        mem_set(parts[i], 0, (MAX_K + 1) * sizeof(seq_t));
     }
 
     /* base: P(0,0) = 1 */
@@ -65,7 +71,7 @@ static void init_tables(void)
     }
 
     /* compute Eulerian numbers up to n=MAX_K and m=9 */
-    memset(euler, 0, sizeof(euler));
+    mem_set(euler, 0, sizeof(euler));
     for (j = 0; j <= MAX_K; ++j)
         euler[j][0] = 1;        /* A(n,0) = 1 for all n */
 

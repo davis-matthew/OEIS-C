@@ -7,9 +7,10 @@
  * Formula:   a(n) is the nth smallest quadratic residue modulo 65537 (i.e.,
  *            the nth element in the sorted list of {k^2 mod 65537 | 0 ≤ k <
  *            65537})
- * Range:     u8 n <= 125, u16 n <= 9613, u32 n <= 9613, u64 n <= 9613,
- *            u128 n <= 9613, big any n
- * Helpers:   none
+ * Range:     u8 n <= 125, u16 n <= 32768, u32 n <= 32769, u64 n <= 32769,
+ *            u128 n <= 32769, big any n
+ * Validated: full, pass, 32769 terms through n = 32769 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *squares = NULL;
 static size_t squares_len = 0;
@@ -42,7 +44,7 @@ static void init_squares(void)
             ++count;
 
     squares_len = count;
-    squares = (seq_t *)malloc(squares_len * sizeof(seq_t));
+    squares = mem_new(seq_t, squares_len);
 
     /* Fill the array with sorted residues. */
     size_t pos = 0;

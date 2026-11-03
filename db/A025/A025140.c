@@ -11,7 +11,8 @@
  *            product of the selected coefficients
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* allocate array for C(n,0)..C(n,m) */
     size_t len = (size_t)(m + 1);
-    seq_t *binom = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *binom = mem_new(seq_t, len);
     if (!binom)
         return (seq_t)0;                    /* failure: return 0 */
 
@@ -53,6 +55,6 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i <= m; ++i)
         sum += prod / binom[i];
 
-    free(binom);
+    mem_free(binom);
     return sum;
 }

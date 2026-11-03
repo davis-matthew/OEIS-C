@@ -9,22 +9,25 @@
  *            implements OEIS sequence A135827
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   big_pow
+ * Validated: full, pass, 4 terms through n = 3 (2026-11-02)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     if ((n & 1) == 0) {              /* n even */
         seq_t exp = (seq_t)(n + 1);   /* exponent = n+1 */
-        seq_t res = big_pow((seq_t)11, exp);
+        seq_t res = ipow((seq_t)11, exp);
         return 3 * res;
     } else {                          /* n odd */
         seq_t exp = (seq_t)n;         /* exponent = n */
-        seq_t res = big_pow((seq_t)7, exp);
+        seq_t res = ipow((seq_t)7, exp);
         return 27 * res;
     }
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binom_k8_exp
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom_k8_exp.h"
+
+/* binomial coefficient binom(k^8 + e - 1, e) */
+static seq_t binom_k8_exp(idx_t k, int e)
+{
+    seq_t res = 1;
+    seq_t k8 = 1;
+    for (int i = 0; i < 8; ++i)
+        k8 *= (seq_t)k;
+    for (int i = 1; i <= e; ++i)
+        res = res * (k8 + (seq_t)(i - 1)) / (seq_t)i;
+    return res;
+}
 
 /* compare integers for qsort */
 static int cmp_int(const void *a, const void *b)

@@ -10,7 +10,8 @@
  *            linear recurrence of order 17 for n>23
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compatibility with both C11 and C++17:
    The types seq_t and idx_t are defined externally by the build system. */
@@ -160,11 +162,11 @@ a(idx_t n)
     static idx_t max_n = 24;
 
     if (!rec) {
-        rec = (seq_t *)malloc((max_n + 1) * sizeof(seq_t));
+        rec = mem_new(seq_t, (max_n + 1));
         for (idx_t i = 1; i <= max_n; ++i) rec[i] = base[(idx_t)i];
     }
     if (n > max_n) {
-        rec = (seq_t *)realloc(rec, (n + 1) * sizeof(seq_t));
+        rec = mem_resize(seq_t, rec, (n + 1));
         for (idx_t i = max_n + 1; i <= n; ++i) {
             seq_t v = 0;
             v += rec[i - 1];

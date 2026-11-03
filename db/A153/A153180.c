@@ -7,6 +7,7 @@
  * Formula:   a(n) = L(13*n)/L(n) (Lucas numbers)
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 11,
  *            big any n
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
  * Helpers:   fib_pair
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 15, i32 n <= 31, i64 n <= 36, i128 n <= 36,
  *            big any n
- * Helpers:   alloc_seq_array, seq_free_array
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,18 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/alloc_seq_array.h"   /* alloc_seq_array, seq_alloc_new_array */
-#include "../utils/seq_free_array.h"   /* seq_free_array */
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Static storage for the sequence and the auxiliary S(k) values */
 static seq_t *a_vals = NULL;          /* a_vals[i] holds a(i)           */

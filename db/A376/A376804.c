@@ -8,13 +8,15 @@
  *            binomial(n,n-3k)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Memoized array of the coefficients R[k] = 3^k * Π_{i=0}^{k-1}(1+3i)/k! */
 static seq_t *R = NULL;
@@ -25,7 +27,7 @@ static void ensure_R(idx_t kmax)
 {
     if (Rlen > kmax) return;                 /* already long enough */
     size_t newlen = (size_t)kmax + 1;
-    seq_t *tmp = (seq_t*)realloc(R, newlen * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, R, newlen);
     if (!tmp) abort();                      /* allocation failed */
     R = tmp;
     for (idx_t k = Rlen; k <= kmax; ++k) {

@@ -9,7 +9,8 @@
  *            (k+i)^n ≡ 0 (mod n)
  * Range:     u8 n <= 39, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   swap_ull
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/swap_ull.h"
+
+/* simple integer swap for unsigned long long */
+static void swap_ull(unsigned long long *a, unsigned long long *b)
+{
+    unsigned long long t = *a;
+    *a = *b;
+    *b = t;
+}
 
 /* fast modular power with indices of type idx_t */
 static idx_t pow_mod_idx(idx_t base, idx_t exp, idx_t mod)

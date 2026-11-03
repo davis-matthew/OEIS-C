@@ -7,6 +7,7 @@
  * Formula:   a(n) = nth prime p such that p + 14 is composite
  * Range:     u8 n <= 37, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

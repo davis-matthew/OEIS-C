@@ -9,14 +9,47 @@
  *            C(k+1) = C(k) * (4*k-2) / (k+1)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   _ensure_capacity
+ * Validated: standard, pass, 40 terms through n = 171 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/_ensure_capacity.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Local helper to grow an array (similar to ensure_capacity) */
+#ifdef __cplusplus
+template <class T>
+static void _ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (*cap < needed) {
+        size_t new_cap = (*cap) ? (*cap) * 2 : 1;
+        while (new_cap < needed) new_cap *= 2;
+        *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+}
+#else
+static void _ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (*cap < needed) {
+        size_t new_cap = (*cap) ? (*cap) * 2 : 1;
+        while (new_cap < needed) new_cap *= 2;
+        *ptr = realloc(*ptr, new_cap * elem_size);
+        *cap = new_cap;
+    }
+}
+#endif
 
 /* External linkage sequence function */
 seq_t a(idx_t n)
@@ -29,13 +62,13 @@ seq_t a(idx_t n)
 
     /* initialise caches for n = 0 */
     if (a_len == 0) {
-        _ensure_capacity(1, &a_cap, (void **)&a_cache, sizeof(seq_t));
+        _ensure_capacity(1, &a_cap, OEISC_VPP(&a_cache), sizeof(seq_t));
         a_cache[0] = (seq_t)0;
         a_len = 1;
     }
     /* initialise Catalan cache for C(0) = 1 */
     if (cat_len == 0) {
-        _ensure_capacity(1, &cat_cap, (void **)&cat_cache, sizeof(seq_t));
+        _ensure_capacity(1, &cat_cap, OEISC_VPP(&cat_cache), sizeof(seq_t));
         cat_cache[0] = (seq_t)1;
         cat_len = 1;
     }
@@ -44,8 +77,8 @@ seq_t a(idx_t n)
         return a_cache[n];
 
     /* Ensure arrays large enough for indices 0..n */
-    _ensure_capacity(n + 1, &a_cap, (void **)&a_cache, sizeof(seq_t));
-    _ensure_capacity(n + 1, &cat_cap, (void **)&cat_cache, sizeof(seq_t));
+    _ensure_capacity(n + 1, &a_cap, OEISC_VPP(&a_cache), sizeof(seq_t));
+    _ensure_capacity(n + 1, &cat_cap, OEISC_VPP(&cat_cache), sizeof(seq_t));
 
     /* Compute terms from current length up to n, inclusive */
     for (idx_t i = a_len; i <= n; ++i) {

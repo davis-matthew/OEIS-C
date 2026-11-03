@@ -9,7 +9,8 @@
  * Formula:   a(n) = A373158(n) / gcd(A108951(n), A373158(n))
  * Range:     u8 n <= 20, u16 n <= 33, u32 n <= 57, u64 n <= 117,
  *            u128 n <= 205, big any n
- * Helpers:   _smallest_prime_factor, build_primes_upto, gcd
+ * Validated: standard, pass, 90 terms through n = 4016 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/gcd.h"
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
+#include "../utils/smallest_prime_factor.h"
 
 /* Global data: list of primes up to the maximum prime needed so far. */
 static uint64_t *prime_list   = NULL;   /* array of primes, sorted ascending */
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
 
     while (temp != 1)
     {
-        uint64_t prime = _smallest_prime_factor(temp);
+        uint64_t prime = smallest_prime_factor(temp);
         int      exp   = 0;
         while (temp % prime == 0)
         {

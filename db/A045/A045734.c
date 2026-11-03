@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   seq_to_str
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,26 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/seq_to_str.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* Return true if the decimal representation of f starts with prefix_buf[0..len-1] */
 static bool has_prefix(seq_t f, const char *prefix_buf, size_t prefix_len)

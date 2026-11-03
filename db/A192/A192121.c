@@ -9,12 +9,14 @@
  *            <= 40, j >= 0, sorted ascending with duplicates removed
  * Range:     u8 n <= 10, u16 n <= 46, u32 n <= 166, u64 n <= 694,
  *            u128 n <= 2461, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 2443 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *p1, const void *p2)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (!uniqueVals) {
         /* 2501 = Σ_{i=0}^{40} (3i+1) */
         const size_t total = 2501;
-        seq_t *vals = (seq_t *)malloc(total * sizeof(seq_t));
+        seq_t *vals = mem_new(seq_t, total);
         if (!vals) return 0; /* allocation failure */
 
         size_t pos = 0;
@@ -49,11 +51,11 @@ seq_t a(idx_t n)
         }
 
         /* sort all values */
-        qsort(vals, total, sizeof(seq_t), cmp_seq);
+        mem_qsort(vals, total, sizeof(seq_t), cmp_seq);
 
         /* deduplicate */
-        uniqueVals = (seq_t *)malloc(total * sizeof(seq_t));
-        if (!uniqueVals) { free(vals); return 0; }
+        uniqueVals = mem_new(seq_t, total);
+        if (!uniqueVals) { mem_free(vals); return 0; }
         uniqCount = 0;
         for (size_t i = 0; i < total; ++i) {
             if (i == 0 || vals[i] != vals[i-1]) {
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(vals);
+        mem_free(vals);
     }
 
     if (n == 0 || n > uniqCount) return 0; /* out of bounds */

@@ -11,16 +11,27 @@
  *            (-1)^j r_j (n-1-j)!. The forbidden board splits into paths...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   a7710_gcd, alloc_zero, release
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/a7710_gcd.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 seq_t a(idx_t n) {
     idx_t N = n - 1;
@@ -45,7 +56,7 @@ seq_t a(idx_t n) {
     for (i = 1; i <= N; i++) f[i] = f[i - 1] * (seq_t)i;
 
     for (k = 1; k < n; k++) {
-        idx_t g = a7710_gcd(n, k), L = n / g;
+        idx_t g = gcd_idx(n, k), L = n / g;
         idx_t twok = (2 * k) % n, kp1 = (k + 1) % n;
         idx_t maxm = 0;
         for (i = 0; i < hsz; i++) hist[i] = 0;

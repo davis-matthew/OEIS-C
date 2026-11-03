@@ -7,12 +7,15 @@
  * Formula:   a(n) = 3^n - n^4
  * Range:     i8 n <= 3, i16 n <= 9, i32 n <= 19, i64 n <= 39, i128 n <= 80,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 45 terms through n = 185 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +23,7 @@ seq_t a(idx_t n)
     seq_t n_seq = (seq_t)n;
 
     /* Compute 3^n */
-    seq_t pow3 = big_pow((seq_t)3, n_seq);
+    seq_t pow3 = ipow((seq_t)3, n_seq);
 
     /* Compute n^4 (multiplication is safe for the range of n used) */
     seq_t n4 = n_seq * n_seq * n_seq * n_seq;

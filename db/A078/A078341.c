@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 40, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
    a(n) is the nth element listed row‑wise, offset 1
 */
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t **T = NULL;     /* array of pointers to rows */
 static idx_t maxRow = (idx_t)-1; /* highest row computed */

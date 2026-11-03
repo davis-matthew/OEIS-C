@@ -9,6 +9,7 @@
  *            + 2*p(n+9) - p(n+10) where p(k) is the partition number of k
  * Range:     u8 n <= 26, u16 n <= 57, u32 n <= 153, u64 n <= 467,
  *            u128 n <= 1567, big any n
+ * Validated: standard, pass, 69 terms through n = 9621 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

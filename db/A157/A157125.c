@@ -6,15 +6,18 @@
  * Keywords:  easy, sign
  * Formula:   a(n) = Sum_{k=0..n} (-1)^C(n-k+1,2) * binomial(floor((n-k)/2),k)
  *            * Catalan(k)
- * Range:     i8 n <= 14, i16 n <= 26, i32 n <= 40, i64 n <= 40, i128 n <= 40,
+ * Range:     i8 n <= 17, i16 n <= 28, i32 n <= 40, i64 n <= 40, i128 n <= 40,
  *            big any n
- * Helpers:   binom, catalan
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
+ * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n) {
@@ -28,7 +31,7 @@ seq_t a(idx_t n) {
         idx_t prod = (t + 1) * t;
         idx_t parity = (prod >> 1) & 1;      /* 0 = even, 1 = odd */
 
-        seq_t bin = binom(half, k);
+        seq_t bin = binomial(half, k);
         seq_t cat = catalan(k);
         seq_t term = bin * cat;
         if (parity) term = -term;           /* multiply by (-1) if odd */

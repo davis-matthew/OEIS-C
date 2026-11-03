@@ -10,7 +10,8 @@
  *            listed in anti‑diagonal order 00,10,01,20,11,02,…
  * Range:     u8 n <= 92, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
- * Helpers:   antidiagonal_coords, seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 93 terms through n = 92 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,28 @@
    a(n)=T(i,j) where (i,j) are the anti‑diagonal coordinates of n.  */
 
 #include <stddef.h>
-#include "../utils/antidiagonal_coords.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* mapping from linear index n to pair (i,j) on the antidiagonals of T */
+static inline void antidiagonal_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    /* find s such that (s+1)(s+2)/2 <= n < (s+2)(s+3)/2 */
+    idx_t s = 0;
+    while (((s + 1) * (s + 2)) / 2 <= n) ++s;
+    idx_t pos = n - (s * (s + 1)) / 2;  /* 0 <= pos <= s */
+    *i = pos;
+    *j = s - pos;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *tbl = NULL;      /* flat 2‑D table: tbl[i*sz + j] = T(i,j) */
 static size_t sz  = 0;          /* current side length of tbl */

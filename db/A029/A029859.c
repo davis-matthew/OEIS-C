@@ -10,7 +10,8 @@
  *            if k is even, with σ(k) the sum of divisors of k
  * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <type_traits>
 #endif
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------- globals ------------- */
 static seq_t *a_cache = NULL;          /* a(n) values    */
@@ -31,8 +33,8 @@ static void ensure_cache(idx_t n)
     if (n < cache_size) return;          /* already computed */
 
     idx_t new_size = n + 1;
-    a_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
-    s_cache = (seq_t *)realloc(s_cache, new_size * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_size);
+    s_cache = mem_resize(seq_t, s_cache, new_size);
 
     /* compute divisor sum σ(k) for 0 ≤ k < new_size   */
     uint64_t *sigma = (uint64_t *)malloc(new_size * sizeof(uint64_t));

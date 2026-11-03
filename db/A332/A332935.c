@@ -7,13 +7,33 @@
  * Formula:   a(n) = sum_{d|n} ceil(d^(3/2))
  * Range:     u8 n <= 4, u16 n <= 25, u32 n <= 1008, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 72 terms through n = 9974 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static inline seq_t ceil_sqrt_cubed(idx_t d)
 {

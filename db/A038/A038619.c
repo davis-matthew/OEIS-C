@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 29, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    a(8)=28,  a(9)=68, a(10)=88, a(11)=108, a(12)=188, a(13)=200.
    For n ≥ 14: a(n) = 10*a(n-7) + 8.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* 1‑based cache of already computed terms */
 static size_t  cached_len = 0;   /* last valid index in cache (≥0) */
@@ -33,11 +35,11 @@ static void init_terms(void)
     if (cap < 14)
         cap = 14;
     if (cache == NULL) {
-        cache = (seq_t *)malloc((cap + 1) * sizeof(seq_t)); /* index 0 unused */
+        cache = mem_new(seq_t, (cap + 1)); /* index 0 unused */
         if (!cache) abort();
         cached_len = 0;
     } else if (cap > cached_len + 1) {
-        seq_t *tmp = (seq_t *)realloc(cache, (cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (cap + 1));
         if (!tmp) abort();
         cache = tmp;
     }
@@ -70,11 +72,11 @@ static void ensure_cache(idx_t n)
     if (need < 13)          /* we always need at least 13 slots for init */
         need = 13;
     if (cache == NULL) {
-        cache = (seq_t *)malloc((need + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (need + 1));
         if (!cache) abort();
         cached_len = 0;
     } else if (need > cached_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, (need + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (need + 1));
         if (!tmp) abort();
         cache = tmp;
     }

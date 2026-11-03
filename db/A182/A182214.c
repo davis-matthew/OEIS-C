@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2 if n mod 4 = 0 or 1, 3 if n mod 4 = 3, 4 if n mod 4 = 2
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
+ * Validated: partial, pass, 77 terms through n = 79 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,12 +8,14 @@
  *            5*a(n-2) + a(n-3) - a(n-4) for n > 3
  * Range:     i8 n <= 7, i16 n <= 12, i32 n <= 26, i64 n <= 53, i128 n <= 109,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 871 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for already computed values.  */
 static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ static void ensure_cache_size(idx_t n)
 
     /* Grow cache to at least n+1 entries.  */
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) abort();                     /* out of memory */
 
     cache = new_cache;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
 {
     /* Create initial cache if this is the first call.  */
     if (!cache) {
-        cache = (seq_t *)malloc(4 * sizeof(seq_t));
+        cache = mem_new(seq_t, 4);
         if (!cache) abort();                     /* out of memory */
         cache[0] = 1;
         cache[1] = (seq_t)-2;

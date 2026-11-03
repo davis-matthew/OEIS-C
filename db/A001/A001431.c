@@ -11,7 +11,8 @@
  *            of size lcm(i,j), and a k-cycle by itself give...
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 22, u64 n <= 35, u128 n <= 40,
  *            big any n
- * Helpers:   q1431_gcd
+ * Validated: standard, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/q1431_gcd.h"
+#include "../utils/gcd_i32.h"
 
 typedef unsigned __int128 q1431_u128;
 
@@ -147,7 +148,7 @@ static void q1431_dfs(int depth, int t, int maxk, uint64_t w)
         if (k % 2 == 0) q1431_mulfac(f, k / 2, 1);
         for (i = 0; i < q_nd; i++) {
             int j = q_dv[i];
-            int g = q1431_gcd(j, k);
+            int g = gcd_i32(j, k);
             long long l = (long long)(j / g) * k;
             if (l <= q_m) q1431_mulfac(f, (int)l, (uint64_t)g * (uint64_t)q_dc[i]);
         }

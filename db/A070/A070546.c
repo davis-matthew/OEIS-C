@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 551, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9790 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;               /* size for array allocation */
 
     /* Allocate array for τ(k) for k from 0 to N. */
-    seq_t *tau = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *tau = mem_new(seq_t, (N + 1));
     if (!tau) return 0;                  /* allocation failed – return 0 */
 
     /* Initialize to zero and compute divisor counts via a simple sieve. */
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
         if (x == 1) count++;            /* gcd(k, τ(k)) == 1 */
     }
 
-    free(tau);
+    mem_free(tau);
     return count;
 }

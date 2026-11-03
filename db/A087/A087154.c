@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of partitions of n into distinct nonsquares
  * Range:     u8 n <= 40, u16 n <= 100, u32 n <= 287, u64 n <= 911,
  *            u128 n <= 3128, big any n
+ * Validated: standard, pass, 78 terms through n = 8839 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

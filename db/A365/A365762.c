@@ -7,13 +7,17 @@
  * Formula:   a(n) = gcd(n, product_of_digits(n))
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
  * Helpers:   digit_product, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_product.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     seq_t x = (seq_t)n;

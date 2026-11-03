@@ -9,7 +9,8 @@
  *            A057826(m) is the greatest k with phi(k) = m
  * Range:     u8 n <= 72, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   brute_best_k, phi
+ * Validated: standard, pass, 83 terms through n = 9055 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,27 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/phi.h"   /* contains static seq_t phi(idx_t m) */
-#include "../utils/brute_best_k.h"
+#include "../utils/totient.h"
+
+/* fallback to brute force (only used if φ(n) > MAX_LIMIT) */
+static seq_t brute_best_k(uint64_t target_phi)
+{
+    uint64_t best = 0;
+    for (uint64_t k = 1; k * k <= target_phi * target_phi; ++k) {
+        /* compute φ(k) by integer factorisation (simple trial division) */
+        uint64_t tmp = k;
+        uint64_t phi_k = k;
+        for (uint64_t d = 2; d * d <= tmp; ++d) {
+            if (tmp % d == 0) {
+                while (tmp % d == 0) tmp /= d;
+                phi_k -= phi_k / d;
+            }
+        }
+        if (tmp > 1) phi_k -= phi_k / tmp;
+        if (phi_k == target_phi && k > best) best = k;
+    }
+    return (seq_t)best;
+}
 
 #define MAX_LIMIT 5000000ULL   /* pre‑compute φ up to this size */
 
@@ -77,7 +97,7 @@ seq_t a(idx_t n)
     if (n <= 2ULL) return (seq_t)2ULL;
 
     /* compute φ(n) */
-    seq_t phi_val_seq = phi((idx_t)n);    /* φ is defined in phi.h */
+    seq_t phi_val_seq = totient((idx_t)n);    /* φ is defined in phi.h */
     uint64_t phi_val  = (uint64_t)phi_val_seq; /* fits in 64‑bit */
 
     /* If φ(n) is 1 (occurs only for n = 1,2) we also return 2. */

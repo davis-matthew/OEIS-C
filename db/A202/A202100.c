@@ -13,6 +13,7 @@
  *            O = floor((j+2)/2). The sequence starts at a(...
  * Range:     u8 n <= 1, u16 n <= 23, u32 n <= 125, u64 n <= 511,
  *            u128 n <= 544, big any n
+ * Validated: standard, pass, 53 terms through n = 445 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 
 /* The binomial coefficient helper is provided by the build. */
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static inline idx_t ceil_div2(idx_t x) { return (x + 1) >> 1; }

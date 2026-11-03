@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 8870, u16 n <= 8870, u32 n <= 8870, u64 n <= 8870,
- *            u128 n <= 8870, big any n
- * Helpers:   none
+ * Range:     u8 n <= 14640, u16 n <= 14640, u32 n <= 14640, u64 n <= 14640,
+ *            u128 n <= 14640, big any n
+ * Validated: standard, pass, 115 terms through n = 8870 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  *  integral and arbitrary‑precision seq_t types.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer floor square root:   sqrt_floor(n) = ⌊√n⌋ */
 static idx_t int_sqrt(idx_t x)
@@ -62,7 +64,7 @@ static void ensure_rows(idx_t target_row)
     while (rows_len <= target_row) {
         size_t r = rows_len;                      /* index of new row */
         size_t len = 2 * r + 1;                   /* length of new row */
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) abort();                        /* OOM */
 
         if (r == 0) {          /* first row */

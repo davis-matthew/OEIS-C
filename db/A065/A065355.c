@@ -7,12 +7,14 @@
  * Formula:   a(n) = n! - Sum_{k=0}^{n-1} k!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 
    Compute a(n) for OEIS sequence A065355.
@@ -30,8 +32,8 @@ seq_t a(idx_t n) {
     if (size == 0) {
         /* initial allocation */
         capacity = 16;
-        fact = (seq_t *)malloc(capacity * sizeof(seq_t));
-        sum_fact = (seq_t *)malloc(capacity * sizeof(seq_t));
+        fact = mem_new(seq_t, capacity);
+        sum_fact = mem_new(seq_t, capacity);
         if (!fact || !sum_fact) return 0; /* out of memory, return 0 as safe fallback */
         fact[0] = 1;           /* 0! = 1 */
         sum_fact[0] = 1;       /* sum of 0! */
@@ -42,8 +44,8 @@ seq_t a(idx_t n) {
         if (need > capacity) {
             /* Expand capacity exponentially to avoid frequent reallocs */
             while (capacity < need) capacity <<= 1;
-            fact = (seq_t *)realloc(fact, capacity * sizeof(seq_t));
-            sum_fact = (seq_t *)realloc(sum_fact, capacity * sizeof(seq_t));
+            fact = mem_resize(seq_t, fact, capacity);
+            sum_fact = mem_resize(seq_t, sum_fact, capacity);
             if (!fact || !sum_fact) return 0; /* out of memory */
         }
         /* Compute factorials and cumulative sums up to n */

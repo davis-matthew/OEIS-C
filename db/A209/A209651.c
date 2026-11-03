@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 33, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 */
 #include <stdint.h>
 #include <string.h>  /* for memset, if needed */
+#include "../utils/mem.h"
 
 static const int ALLOWED[8] = {
     0x0,  /* 0000 */
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
     /* Dynamic programming arrays */
     static seq_t dp[64];
     static seq_t next[64];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initialise for the first two columns (any allowed pair) */
     for (int i = 0; i < 8; ++i)

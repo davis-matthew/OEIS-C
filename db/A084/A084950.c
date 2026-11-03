@@ -11,6 +11,7 @@
  *            increasing r and within each row increasing m (starting at 0)
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 48, u64 n <= 120,
  *            u128 n <= 323, big any n
+ * Validated: standard, pass, 65 terms through n = 5673 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

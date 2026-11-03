@@ -9,7 +9,8 @@
  *            )*a(n+1) + ( -13*n-2*n^2-21 )*a(n+2) + ( n+5 )*a(n+3) = 0
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 10, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed terms */
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     if (n + 1 > cache_cap) {
         size_t new_cap = n + 1;
         if (new_cap < 4) new_cap = 4;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         cache = new_cache;
         cache_cap = new_cap;
     }

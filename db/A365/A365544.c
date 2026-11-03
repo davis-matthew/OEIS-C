@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2^n - 3^floor((n-1)/2) * 2^(n%2==0 ? 2 : 1)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   pow2, pow_seq
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
+ * Helpers:   ipow_i32, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp) */
-#include "../utils/pow_seq.h" /* provides seq_t pow_seq(seq_t base, int exp) */
+#include "../utils/ipow_i32.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
     seq_t total = pow2(n);
 
     /* 3^m  (each pair can contribute 0,1, or 2 -> 3 choices)  */
-    seq_t pair_choices = pow_seq((seq_t)3, (int)m);
+    seq_t pair_choices = ipow_i32((seq_t)3, (int)m);
 
     /* 2^f for the free elements */
     seq_t free_choices = pow2((idx_t)f);

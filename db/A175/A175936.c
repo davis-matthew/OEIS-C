@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[n] = dp[n][n]   */
 static size_t cache_cap = 0;         /* allocated cache size */
@@ -53,27 +55,27 @@ static void ensure_capacity(idx_t n)
     cache_cap = need;
 
     /* Reallocate cache */
-    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
     if (!tmp) abort();
     cache = tmp;
     if (old < cache_cap)
-        memset(&cache[old], 0, (cache_cap - old) * sizeof(seq_t));
+        mem_set(&cache[old], 0, (cache_cap - old) * sizeof(seq_t));
 
     /* Reallocate row buffers */
     for (int r = 0; r < 3; ++r) {
-        tmp = (seq_t *)realloc(prev[r], cache_cap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, prev[r], cache_cap);
         if (!tmp) abort();
         prev[r] = tmp;
         if (old < cache_cap)
-            memset(&prev[r][old], 0, (cache_cap - old) * sizeof(seq_t));
+            mem_set(&prev[r][old], 0, (cache_cap - old) * sizeof(seq_t));
     }
 
     /* Reallocate current buffer */
-    tmp = (seq_t *)realloc(cur, cache_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, cur, cache_cap);
     if (!tmp) abort();
     cur = tmp;
     if (old < cache_cap)
-        memset(&cur[old], 0, (cache_cap - old) * sizeof(seq_t));
+        mem_set(&cur[old], 0, (cache_cap - old) * sizeof(seq_t));
 }
 
 seq_t a(idx_t n)

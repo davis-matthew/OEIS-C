@@ -13,7 +13,8 @@
  *            j=1..m; new fractions that have appeared before...
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* --- Fraction type ----------------------------------------------------- */
 typedef struct {
@@ -81,7 +83,7 @@ static int hash_insert_unique(seq_t num, seq_t den, size_t idx)
 static void grow_fractions(void)
 {
     size_t new_cap = cap ? cap * 2U : 64U;
-    fraction_t *tmp = (fraction_t *)realloc(fractions, new_cap * sizeof(fraction_t));
+    fraction_t *tmp = mem_resize(fraction_t, fractions, new_cap);
     if (!tmp) abort();
     fractions = tmp;
     cap = new_cap;
@@ -94,7 +96,7 @@ static void init_static(void)
     /* -1 sentinel for empty hash slots */
     for (int i = 0; i < HASH_SIZE; ++i) hash_table[i] = -1;
     cap = 64U;
-    fractions = (fraction_t *)malloc(cap * sizeof(fraction_t));
+    fractions = mem_new(fraction_t, cap);
     if (!fractions) abort();
     len = 0;
     /* Insert the starting fraction 1/1 */

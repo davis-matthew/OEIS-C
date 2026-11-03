@@ -8,9 +8,10 @@
  * Keywords:  nonn, frac
  * Formula:   a(n) = A353752(n) / gcd(A062401(n), A353752(n)) where A353752(n)
  *            = ∏_{p^e || n} φ(σ(p^e)) A062401(n) = φ(σ(n))
- * Range:     u8 n <= 1144, u16 n <= 9980, u32 n <= 9980, u64 n <= 9980,
- *            u128 n <= 9980, big any n
- * Helpers:   factor_u64, gcd, phi, sigma_of
+ * Range:     u8 n <= 1144, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9980 (2026-11-01)
+ * Helpers:   factor_u64, gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,26 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/sigma_of.h"
-#include "../utils/phi.h"
 #include "../utils/gcd.h"
+#include "../utils/totient.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -54,13 +71,13 @@ seq_t a(idx_t n)
         }
 
         /* φ(σ(p^e)) */
-        seq_t phi_sigma = phi((idx_t)sigma);
+        seq_t phi_sigma = totient((idx_t)sigma);
         prod *= phi_sigma;
     }
 
     /* Compute A062401(n) = φ(σ(n)). */
     seq_t sigma_n   = sigma_of(n);
-    seq_t a062401   = phi((idx_t)sigma_n);
+    seq_t a062401   = totient((idx_t)sigma_n);
 
     /* Return A353752(n) / gcd(A062401(n), A353752(n)). */
     seq_t denom   = gcd(a062401, prod);

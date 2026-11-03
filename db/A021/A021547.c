@@ -8,13 +8,15 @@
  *            decimal expansion)
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system */
 
@@ -26,7 +28,7 @@ static void _a547_init(void) {
     if (_a547_inited) return;
     const idx_t denom = 543;          /* denominator of the fraction */
     /* The period of 1/543 divides φ(543)=360; allocate that many slots */
-    seq_t *buf = (seq_t *)malloc(360 * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, 360);
     if (!buf) return;                 /* allocation failed – ignore cleanup */
 
     idx_t rem = 1;

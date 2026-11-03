@@ -12,12 +12,14 @@
  *            1‑indexed, row m has m entries). For example: 1 1 2 2...
  * Range:     u8 n <= 25, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,25 +33,25 @@ seq_t a(idx_t n)
     idx_t pos      = n - prev_tri - 1;   /* 0‑based index within the row */
 
     /* allocate initial row n=1 */
-    seq_t *uPrev = (seq_t *)malloc(sizeof(seq_t));
-    seq_t *vPrev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *uPrev = mem_new(seq_t, 1);
+    seq_t *vPrev = mem_new(seq_t, 1);
     if (!uPrev || !vPrev) return 0;     /* allocation failure guard */
     uPrev[0] = 1;
     vPrev[0] = 1;
 
     if (r == 1) {                       /* row 1 has only one entry */
         seq_t res = uPrev[0];
-        free(uPrev);
-        free(vPrev);
+        mem_free(uPrev);
+        mem_free(vPrev);
         return res;
     }
 
     /* build rows up to r */
     for (idx_t i = 2; i <= r; ++i) {
-        seq_t *uNew = (seq_t *)malloc(i * sizeof(seq_t));
-        seq_t *vNew = (seq_t *)malloc(i * sizeof(seq_t));
+        seq_t *uNew = mem_new(seq_t, i);
+        seq_t *vNew = mem_new(seq_t, i);
         if (!uNew || !vNew) {
-            free(uPrev); free(vPrev);
+            mem_free(uPrev); mem_free(vPrev);
             return 0;                   /* allocation failure guard */
         }
 
@@ -74,15 +76,15 @@ seq_t a(idx_t n)
         vNew[i - 1] = vPrev[i - 2] * 2;
 
         /* free previous row and shift */
-        free(uPrev);
-        free(vPrev);
+        mem_free(uPrev);
+        mem_free(vPrev);
         uPrev = uNew;
         vPrev = vNew;
     }
 
     seq_t result = uPrev[pos];
 
-    free(uPrev);
-    free(vPrev);
+    mem_free(uPrev);
+    mem_free(vPrev);
     return result;
 }

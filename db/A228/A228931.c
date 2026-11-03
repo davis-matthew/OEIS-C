@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1)^2 - 2, with a(1) = 2, a(2) = -6
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 5, i64 n <= 6, i128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes A228931: Optimal ascending continued fraction expansion of sqrt(2)-1.
  * This sequence satisfies a(1)=2, a(2)=-6, and for n>2:
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         cache_cap = 4;                /* Small initial capacity. */
         cache_len = 2;                /* We store a(1) and a(2). */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;         /* Out‑of‑memory; caller will treat 0 as error. */
         cache[0] = (seq_t)2;          /* a(1) */
         cache[1] = (seq_t)(-6);       /* a(2) */
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
         if (cache_cap < (size_t)n) {
             size_t new_cap = cache_cap;
             while (new_cap < (size_t)n) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0;       /* Out‑of‑memory; propagate failure. */
             cache = tmp;
             cache_cap = new_cap;

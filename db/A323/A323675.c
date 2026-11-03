@@ -9,13 +9,14 @@
  *            i*x^(m+1))^(m+1), where i^2 = -1
  * Range:     i8 n <= 21, i16 n <= 68, i32 n <= 214, i64 n <= 769,
  *            i128 n <= 2848, big any n
- * Helpers:   binom_c
+ * Validated: standard, pass, 113 terms through n = 4874 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_c.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
                 idx_t e = m - a + k;
                 if ((e & 1) == 0) {
                     /* binomial coefficients */
-                    seq_t bin2 = binom_c(m + k, k);         /* C(m+k, k) = C(m+k, m) */
+                    seq_t bin2 = binomial(m + k, k);         /* C(m+k, k) = C(m+k, m) */
                     seq_t term = bin1 * bin2;
 
                     /* Sign from (-1)^k * (-1)^{e/2} */

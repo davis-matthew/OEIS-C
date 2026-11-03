@@ -6,14 +6,17 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = pi(n + 1) – pi(n – 2)
- * Range:     u8 n <= 9059, u16 n <= 9059, u32 n <= 9059, u64 n <= 9059,
- *            u128 n <= 9059, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9059 (2026-11-01)
  * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/prime_pi.h"
 
 /* Computes the n‑th term of sequence A168141. */

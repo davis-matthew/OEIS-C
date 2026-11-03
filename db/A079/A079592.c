@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* All indices are taken 1‑based: a(1) is the first term of the OEIS list. */
 static bool built = false;
@@ -62,7 +64,7 @@ static void build(void)
             /* store the qualifying prime */
             if (qual_len == temp_cap) {
                 temp_cap = temp_cap ? temp_cap << 1 : 32;
-                temp = (seq_t *)realloc(temp, (size_t)temp_cap * sizeof(seq_t));
+                temp = mem_resize(seq_t, temp, (size_t)temp_cap);
                 if (!temp) exit(1);
             }
             temp[qual_len++] = (seq_t)p;

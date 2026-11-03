@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   lpf
+ * Validated: standard, pass, 70 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
    where lpf(k) is the least prime factor of k. */
 
 #include <stdlib.h>
-#include "../utils/lpf.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +44,7 @@ seq_t a(idx_t n)
     /* Allocate an initial buffer if needed. */
     if (terms == NULL) {
         cap = 64;
-        terms = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, NULL, cap);
         if (terms == NULL) abort();  /* allocation failure */
     }
 
@@ -44,7 +55,7 @@ seq_t a(idx_t n)
             /* Grow the array if it is full. */
             if (cnt == cap) {
                 cap <<= 1;  /* double the capacity */
-                seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, cap);
                 if (tmp == NULL) abort();  /* allocation failure */
                 terms = tmp;
             }

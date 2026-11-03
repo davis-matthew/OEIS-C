@@ -9,20 +9,21 @@
  *            n^{n-1-l} ]
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
     if (n == 1) return 0;                 /* a(1) = 0 */
 
     /* n^(n-1) */
-    seq_t n_pow_n1 = pow_seq((seq_t)n, n - 1);
+    seq_t n_pow_n1 = ipow_i32((seq_t)n, n - 1);
 
     seq_t sum_pos = 0, sum_neg = 0;        /* will hold positive and negative contributions */
 
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
         comb = (comb * (seq_t)(n - l + 1)) / (seq_t)l;    /* integer division is exact */
 
         /* l^{l-1} = l^l / l */
-        seq_t l_pow   = pow_seq((seq_t)l, l);
+        seq_t l_pow   = ipow_i32((seq_t)l, l);
         seq_t temp    = l_pow / (seq_t)l;                 /* l^{l-1} */
 
         temp *= (seq_t)(l - 1);                          /* (l-1) * l^{l-1} */

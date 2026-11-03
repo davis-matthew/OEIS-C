@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 871, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, gcd, mul_mod64
+ * Validated: standard, pass, 63 terms through n = 8379 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd, isqrt, mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/gcd.h"
 #include "../utils/build_primes_upto.h"
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/mul_mod64.h"
+#include "../utils/gcd.h"
+#include "../utils/isqrt.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* Static storage for generated terms of the sequence */
 static seq_t *seq_terms = NULL;
@@ -60,7 +62,7 @@ static bool passes_condition(uint64_t n)
     seq_t tau = 1;
     uint64_t sigma_mod = 1 % n;  /* starts as 1 mod n */
 
-    uint64_t limit = _floor_isqrt_u64(n);
+    uint64_t limit = isqrt(n);
     ensure_primes_up_to(limit);
 
     for (size_t i = 0; i < primes_cnt && primes[i] <= limit; ++i) {
@@ -76,12 +78,12 @@ static bool passes_condition(uint64_t n)
             uint64_t sum_mod = 1 % n;
             uint64_t mult   = 1 % n;
             for (int j = 0; j < exp; ++j) {
-                mult = mul_mod64(mult, p, n);
+                mult = mulmod(mult, p, n);
                 sum_mod += mult;
                 if (sum_mod >= n) sum_mod -= n;
             }
             /* Update sigma_mod = sigma_mod * sum_mod (mod n) */
-            sigma_mod = mul_mod64(sigma_mod, sum_mod, n);
+            sigma_mod = mulmod(sigma_mod, sum_mod, n);
 
             /* Update tau */
             tau *= (seq_t)(exp + 1);
@@ -91,7 +93,7 @@ static bool passes_condition(uint64_t n)
     if (temp > 1) { /* remaining prime factor */
         uint64_t sum_mod = (1 + (temp % n));
         if (sum_mod >= n) sum_mod -= n;
-        sigma_mod = mul_mod64(sigma_mod, sum_mod, n);
+        sigma_mod = mulmod(sigma_mod, sum_mod, n);
         tau *= 2;
     }
 
@@ -105,7 +107,7 @@ static void ensure_seq_capacity(size_t needed)
     if (seq_cap < needed) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
         while (new_cap < needed) new_cap *= 2;
-        seq_terms = (seq_t *)realloc(seq_terms, new_cap * sizeof(seq_t));
+        seq_terms = mem_resize(seq_t, seq_terms, new_cap);
         seq_cap   = new_cap;
     }
 }

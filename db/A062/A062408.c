@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- 64‑bit primality test (deterministic Miller–Rabin) ---------- */
 static bool is_prime_u64(uint64_t n)
@@ -78,9 +80,9 @@ static idx_t next_k = 1;       /* next k to test for primality */
 static void append(seq_t val)
 {
     if (seq_len == 0) {
-        seq = (seq_t *)malloc(64 * sizeof(seq_t));
+        seq = mem_new(seq_t, 64);
     } else if (seq_len & 63) {   /* grow when a multiple of 64 is reached */
-        seq = (seq_t *)realloc(seq, (seq_len + 64) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (seq_len + 64));
     }
     seq[seq_len++] = val;
 }

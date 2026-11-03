@@ -8,6 +8,7 @@
  *            a(n) = 9·a(n−1) + 486·3^(n−5)
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 9, i64 n <= 19, i128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

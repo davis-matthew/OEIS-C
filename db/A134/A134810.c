@@ -11,6 +11,7 @@
  *            digits up to the centre (i.e., L = 2*k - 1). There are...
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 35, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: full, pass, 45 terms through n = 45 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

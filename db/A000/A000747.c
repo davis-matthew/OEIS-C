@@ -10,7 +10,8 @@
  *            A109449(n,k)*A000040(k+1)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 37,
  *            big any n
- * Helpers:   bt_grow
+ * Validated: standard, pass, 40 terms through n = 353 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/bt_grow.h"
+#include "../utils/mem.h"
+
+static seq_t *bt_grow(seq_t *old, idx_t oldlen, idx_t newcap) {
+    seq_t *p = mem_new(seq_t, (size_t)newcap);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    for (idx_t i = oldlen; i < newcap; i++) p[i] = 0;
+    mem_free(old);
+    return p;
+}
 
 static uint64_t *bt_pr = NULL;
 static idx_t bt_npr = 0;

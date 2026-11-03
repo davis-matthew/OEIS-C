@@ -9,12 +9,40 @@
  *            over prime factors p^e of (p*e) (sequence A001414)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   integer_log
+ * Validated: partial, pass, 70 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/integer_log.h"
+static seq_t integer_log(idx_t m)
+{
+    seq_t sum = 0;
+    idx_t exp;
+
+    /* count factor 2 */
+    exp = 0;
+    while ((m & 1ULL) == 0) {
+        exp++;
+        m >>= 1;
+    }
+    if (exp) sum += (seq_t)2 * exp;
+
+    /* odd factors */
+    for (idx_t p = 3; p <= m / p; p += 2) {
+        exp = 0;
+        while (m % p == 0) {
+            exp++;
+            m /= p;
+        }
+        if (exp) sum += (seq_t)p * exp;
+    }
+
+    /* remaining prime > 1 */
+    if (m > 1) sum += (seq_t)m;
+
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

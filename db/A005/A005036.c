@@ -14,7 +14,8 @@
  *            4]*(3m)!/(m!(2m+1)!) |m=(n-1)/4) / 8,...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 29, u128 n <= 53,
  *            big any n
- * Helpers:   term8, vp_fact, vp_small
+ * Validated: standard, pass, 46 terms through n = 98 (2026-11-01)
+ * Helpers:   valuation
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,46 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/term8.h"
-#include "../utils/vp_fact.h"
-#include "../utils/vp_small.h"
+#include "../utils/valuation.h"
+
+static uint64_t vp_fact(uint64_t N, uint64_t p) {
+    uint64_t e = 0;
+    while (N >= p) { N /= p; e += N; }
+    return e;
+}
+
+/* value = c * A! / (B! * C!) written as 8*q + low, low < 8 */
+static void term8(uint64_t c, uint64_t A, uint64_t B, uint64_t C,
+                  const unsigned char *comp, seq_t *qo, uint64_t *lowo) {
+    uint64_t lim = A > 6 ? A : 6;
+    uint64_t e2 = vp_fact(A, 2) + valuation(c, 2) - vp_fact(B, 2) - vp_fact(C, 2);
+    uint64_t s = e2 < 3 ? e2 : 3;
+    uint64_t D = (uint64_t)8 >> s;
+    seq_t q;
+    uint64_t r;
+    if (D == 1) { q = 1; r = 0; } else { q = 0; r = 1; }
+    uint64_t f = 1;
+    for (uint64_t p = 2; p <= lim; p++) {
+        if (comp[p]) continue;
+        uint64_t e;
+        if (p == 2) e = e2 - s;
+        else e = vp_fact(A, p) + valuation(c, p) - vp_fact(B, p) - vp_fact(C, p);
+        for (uint64_t i = 0; i < e; i++) {
+            if (f * p > ((uint64_t)1 << 24)) {
+                q = q * (idx_t)f + (seq_t)((r * f) / D);
+                r = (r * f) % D;
+                f = 1;
+            }
+            f *= p;
+        }
+    }
+    if (f > 1) {
+        q = q * (idx_t)f + (seq_t)((r * f) / D);
+        r = (r * f) % D;
+    }
+    *qo = q;
+    *lowo = r << s;
+}
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;

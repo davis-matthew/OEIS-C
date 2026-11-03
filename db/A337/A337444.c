@@ -8,7 +8,8 @@
  *            A000111(n-k)
  * Range:     i8 n <= 7, i16 n <= 10, i32 n <= 15, i64 n <= 24, i128 n <= 24,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *e_cache = NULL;    /* Euler up/down numbers A000111 */
 static seq_t *a_cache = NULL;    /* wanted sequence */
@@ -28,12 +30,12 @@ seq_t a(idx_t n) {
         size_t new_cap = n + 1;
 
         /* allocate new arrays */
-        seq_t *new_e = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        seq_t *new_a = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_e = mem_new(seq_t, new_cap);
+        seq_t *new_a = mem_new(seq_t, new_cap);
 
         /* compute Euler numbers up to n using Entringer recurrence */
-        seq_t *prev = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        seq_t *curr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *prev = mem_new(seq_t, new_cap);
+        seq_t *curr = mem_new(seq_t, new_cap);
 
         /* base case for n = 0 */
         new_e[0] = 1;
@@ -53,8 +55,8 @@ seq_t a(idx_t n) {
         }
 
         /* free temporary row arrays */
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
 
         /* compute a(n) up to n */
         new_a[0] = 1;
@@ -74,8 +76,8 @@ seq_t a(idx_t n) {
         }
 
         /* free old caches */
-        if (e_cache) free(e_cache);
-        if (a_cache) free(a_cache);
+        if (e_cache) mem_free(e_cache);
+        if (a_cache) mem_free(a_cache);
 
         e_cache = new_e;
         a_cache = new_a;

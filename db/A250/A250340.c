@@ -13,12 +13,14 @@
  *            29037004 (subsequent values are computed with the abo...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 18, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The sequence values are stored in a static cache that expands on demand. */
 static seq_t *seq_cache = NULL;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first nine terms if not yet done. */
     if (cache_size == 0) {
         cache_size = 9;
-        seq_cache  = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        seq_cache  = mem_new(seq_t, cache_size);
         if (!seq_cache) abort();               /* out‑of‑memory */
         for (idx_t i = 0; i < cache_size; ++i)
             seq_cache[i] = init[i];
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         return seq_cache[n - 1];
 
     /* Extend the cache up to the requested index using the recurrence. */
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, n * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, n);
     if (!new_cache) abort();                   /* out‑of‑memory */
     seq_cache = new_cache;
 

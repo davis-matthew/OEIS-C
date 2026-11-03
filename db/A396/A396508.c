@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 27, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *b_cache   = NULL;   /* b(m) values, indexed from 0 */
 static seq_t *sum_cache = NULL;   /* prefix sums sum_b[m] = Σ_{i=1}^m b(i) */
@@ -34,8 +36,8 @@ static void ensure_b_up_to(idx_t m_needed)
     /* First‑time initialisation */
     if (b_cache == NULL) {
         size_t init_cap = 8;
-        b_cache   = (seq_t *)malloc(init_cap * sizeof(seq_t));
-        sum_cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        b_cache   = mem_new(seq_t, init_cap);
+        sum_cache = mem_new(seq_t, init_cap);
         if (b_cache == NULL || sum_cache == NULL) {
             /* Allocation failure: terminate the program */
             exit(1);
@@ -65,8 +67,8 @@ static void ensure_b_up_to(idx_t m_needed)
     if (b_cap < needed) {
         size_t new_cap = b_cap ? b_cap : 8;
         while (new_cap < needed) new_cap <<= 1;
-        b_cache   = (seq_t *)realloc(b_cache,   new_cap * sizeof(seq_t));
-        sum_cache = (seq_t *)realloc(sum_cache, new_cap * sizeof(seq_t));
+        b_cache   = mem_resize(seq_t, b_cache, new_cap);
+        sum_cache = mem_resize(seq_t, sum_cache, new_cap);
         if (b_cache == NULL || sum_cache == NULL) exit(1);
         b_cap = new_cap;
     }

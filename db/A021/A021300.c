@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 1792 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    (offset 0, a(0) = 0, a(1) = 0, a(2) = 3, …). */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t  *cache   = NULL;   /* cached digits */
 static idx_t   cache_len = 0;    /* next free index (one past the last stored) */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
         while (new_cap < (size_t)(n + 1))
             new_cap *= 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

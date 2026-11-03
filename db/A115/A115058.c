@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, is_prime
+ * Validated: standard, pass, 70 terms through n = 972 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t x); */
-#include "../utils/build_primes_upto.h" /* void build_primes_upto(idx_t limit,
-                                         uint64_t **primes_out, size_t *cnt_out); */
+#include <stdint.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Ensure that the output array has at least `new_cap` slots.  */
 static void _ensure_output_capacity(size_t new_cap, seq_t **output, size_t *cap)
@@ -27,7 +29,7 @@ static void _ensure_output_capacity(size_t new_cap, seq_t **output, size_t *cap)
     if (new_cap > *cap)
     {
         *cap = new_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(*output, *cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *output, (*cap * sizeof(seq_t)) / sizeof(seq_t));
         *output = tmp;
     }
 }
@@ -45,7 +47,7 @@ static void _build_output(idx_t limit,
     build_primes_upto(limit, &primes, &prime_cnt);
 
     /* Reset output buffer. */
-    free(*output);
+    mem_free(*output);
     *output = NULL;
     *out_cnt = 0;
     *out_cap = 0;

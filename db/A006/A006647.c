@@ -11,7 +11,8 @@
  *            arithmetic is done modulo several 61-bit pri...
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 26, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   a6647_gcd
+ * Validated: partial, pass, 29 terms through n = 32 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/a6647_gcd.h"
+#include "../utils/gcd_i32.h"
 
 typedef unsigned __int128 a6647_u128;
 
@@ -100,7 +101,7 @@ static void a6647_dfs(int d, int prev, int rem) {
             if (r != 0 && r <= k) continue;
             memcpy(gPoly + (size_t)(d + 1) * lvsz, gPoly + (size_t)d * lvsz, lvsz * sizeof(uint64_t));
             for (j = 0; j < d; j++) {
-                int g = a6647_gcd(gPk[j], k);
+                int g = gcd_i32(gPk[j], k);
                 uint64_t L = (uint64_t)(gPk[j] / g) * (uint64_t)k;
                 uint64_t E = (uint64_t)g * (uint64_t)gPc[j] * (uint64_t)c;
                 a6647_apply(d + 1, L, E);

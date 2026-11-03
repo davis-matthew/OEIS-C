@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n,k) * (2^k - 1)^k
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   pow2, pow_seq
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   ipow_i32, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pow2.h"     /* seq_t pow2(idx_t exp); */
-#include "../utils/pow_seq.h"  /* seq_t pow_seq(seq_t base, int exp); */
+#include "../utils/ipow_i32.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Cache for previously computed values of a(n). */
 static seq_t *cache = NULL;
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_cap)
         return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();
     for (idx_t i = cache_cap; i <= n; ++i)
@@ -50,7 +52,7 @@ static void ensure_t_cache(idx_t n)
     if (n < t_cap)
         return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_t = (seq_t *)realloc(t_cache, new_cap * sizeof(seq_t));
+    seq_t *new_t = mem_resize(seq_t, t_cache, new_cap);
     if (!new_t)
         abort();
     for (idx_t i = t_cap; i <= n; ++i)
@@ -63,7 +65,7 @@ static void ensure_t_cache(idx_t n)
         {
             seq_t base   = pow2(i);             /* 2^i */
             seq_t base_minus_one = base - 1;    /* 2^i - 1 */
-            new_t[i] = pow_seq(base_minus_one, (int)i);
+            new_t[i] = ipow_i32(base_minus_one, (int)i);
         }
     }
     t_cache = new_t;

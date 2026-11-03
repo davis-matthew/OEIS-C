@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 838, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 8618 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Count the binary weight of a seq_t value */
 static unsigned int popcount_seq(seq_t v)
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (cache_len < n && cache_cap < n) {
         size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
         if (new_cap < n) new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort(); /* out of memory */
         cache = tmp;
         cache_cap = new_cap;

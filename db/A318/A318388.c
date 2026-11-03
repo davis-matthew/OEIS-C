@@ -7,15 +7,17 @@
  * Keywords:  sign, look
  * Formula:   a(1) = 1; a(n) = -floor(e * a(n/2)) if n is even, a(n) = n -
  *            a(n-1) if n is odd
- * Range:     i8 n <= 27, i16 n <= 973, i32 n <= 9885, i64 n <= 9885,
- *            i128 n <= 9885, big any n
- * Helpers:   none
+ * Range:     i8 n <= 27, i16 n <= 973, i32 n <= 10752, i64 n <= 10752,
+ *            i128 n <= 10752, big any n
+ * Validated: standard, pass, 82 terms through n = 9885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 
 /* Fractional approximation of e: e ≈ 2718281828459045 / 1000000000000000
@@ -47,7 +49,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL || cache_size <= n) {
         size_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) abort();            /* unrecoverable allocation failure */
         cache = new_cache;
         cache_size = new_size;

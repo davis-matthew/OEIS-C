@@ -9,12 +9,14 @@
  *            ≥ 5 (remove the single‑part partition [n])
  * Range:     u8 n <= 38, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of partition counts up to the largest n seen so far */
 static seq_t *dp      = NULL; /* dp[i] = #partitions of i using parts ≥ 5 */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (n > max_n) {
         size_t new_cap = (size_t)n + 1;
         if (new_cap > dp_cap) {
-            seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, dp, new_cap);
             if (!tmp) {        /* allocation failure fallback */
                 return (seq_t)0;
             }

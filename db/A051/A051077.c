@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   grow_seq, is_prime, mod_pow
+ * Validated: standard, pass, 69 terms through n = 964 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,24 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stddef.h>
 #include "../utils/is_prime.h"
-#include "../utils/grow_seq.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Cached list of terms.  All values are stored in seq_t, which may
    be a primitive unsigned integer or an arbitrary‑precision class. */
@@ -53,7 +69,7 @@ static bool check_condition(uint64_t p)
     uint64_t exp = (p - 1) / d;           /* exponent to test               */
     seq_t base   = (seq_t)(p - 2);        /* -2 modulo p                    */
     seq_t mod    = (seq_t)p;
-    seq_t power  = mod_pow(base, exp, mod);
+    seq_t power  = powmod(base, exp, mod);
 
     return power == (seq_t)1;
 }

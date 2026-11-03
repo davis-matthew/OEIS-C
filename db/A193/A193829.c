@@ -8,9 +8,10 @@
  * Formula:   a(n) = flatten(list of differences between consecutive divisors
  *            of each integer * m ≥ 2, where m is processed in ascending order
  *            starting with 2)
- * Range:     u8 n <= 1211, u16 n <= 9810, u32 n <= 9810, u64 n <= 9810,
- *            u128 n <= 9810, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1211, u16 n <= 10469, u32 n <= 10469, u64 n <= 10469,
+ *            u128 n <= 10469, big any n
+ * Validated: standard, pass, 98 terms through n = 9810 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache for the sequence entries. */
 static seq_t *cache      = NULL;   /* array of seq_t values */
@@ -34,7 +36,7 @@ ensure_capacity(idx_t need)
     if (need <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;  /* out of memory – the sequence will be incomplete, but
                          * the build expects correct values only for valid indices. */
     cache = tmp;

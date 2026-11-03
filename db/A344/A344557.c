@@ -13,13 +13,15 @@
  *            values of T row by row: [0] 1 [1] 1, 1 [2] 5, 2, 1 [3...
  * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find the row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2. */
@@ -37,8 +39,8 @@ seq_t a(idx_t n) {
     /* Allocate two rows of size r+2 to avoid bounds checks on the
        rightmost element (which is 0 for interior calculations). */
     size_t sz = r + 2;
-    seq_t *prev = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *curr = mem_new(seq_t, sz);
     if (!prev || !curr) {          /* minimal safety check */
         /* In practice, a failure here is fatal for the sequence. */
         /* Returning 0 to satisfy the compiler, though this case
@@ -80,7 +82,7 @@ seq_t a(idx_t n) {
     seq_t result = prev[k];
 
     /* Free allocated memory */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

@@ -5,19 +5,21 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, nice, easy
  * Formula:   a(n) = C(n,1) + C(n,2) + C(n,3)
- * Range:     u8 n <= 11, u16 n <= 73, u32 n <= 2090, u64 n <= 5000,
+ * Range:     u8 n <= 11, u16 n <= 73, u32 n <= 2953, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 64 terms through n = 4480 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     seq_t result = 0;
-    if (n >= 1) result += binom(n, 1);
-    if (n >= 2) result += binom(n, 2);
-    if (n >= 3) result += binom(n, 3);
+    if (n >= 1) result += binomial(n, 1);
+    if (n >= 2) result += binomial(n, 2);
+    if (n >= 3) result += binomial(n, 3);
     return result;
 }

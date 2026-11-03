@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Adjust MAX_K if larger search space is needed. */
 #define MAX_K   20000
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
         /* Allocate initial cache */
         cache_cap = 128;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
 
         /* Prepare walk */
         visited[0] = true;
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 128;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 70, i16 n <= 70, i32 n <= 70, i64 n <= 70, i128 n <= 70,
  *            big any n
- * Helpers:   prime_pair
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/prime_pair.h"
+
+/* Convert prime p to its (real, imag) pair. */
+static void prime_pair(uint32_t p, seq_t *real, seq_t *imag)
+{
+    if (p == 2) {
+        *real = (seq_t)p;
+        *imag = (seq_t)0;
+    } else if (p % 4 == 1) {
+        *real = (seq_t)(p - 1);
+        *imag = (seq_t)1;
+    } else { /* p % 4 == 3 */
+        *real = (seq_t)(p + 1);
+        *imag = (seq_t)-1;
+    }
+}
 
 /* Global tables for sieve */
 static uint32_t *spf = NULL;        /* smallest prime factor for numbers ≤ limit */

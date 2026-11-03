@@ -8,6 +8,7 @@
  *            gap between consecutive primes in its factorisation
  * Range:     u8 n <= 86, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 75 terms through n = 9979 (2026-11-01)
  * Helpers:   factor_u64, is_squarefree, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,9 +17,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"    /* factor_u64 */
-#include "../utils/is_squarefree.h"/* is_squarefree */
-#include "../utils/next_prime.h"   /* next_prime */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/is_squarefree.h"
+#include "../utils/next_prime.h"
 
 /* Compute the n-th entry of OEIS sequence A073487. */
 seq_t a(idx_t n)

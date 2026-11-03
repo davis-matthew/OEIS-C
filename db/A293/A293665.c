@@ -7,12 +7,14 @@
  * Formula:   a(0) = 1; a(n) = -∑_{d|n} a(n-d)
  * Range:     i8 n <= 44, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 seq_t a(idx_t n)
 {
     static seq_t *cache = NULL;
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
         if (cap < req) {
             size_t newcap = cap ? cap * 2 : 16;
             if (newcap < req) newcap = req;
-            cache = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, newcap);
             cap = newcap;
         }
         for (idx_t k = len; k <= n; ++k) {

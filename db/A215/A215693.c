@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 113, u16 n <= 113, u32 n <= 113, u64 n <= 113,
  *            u128 n <= 113, big any n
- * Helpers:   copy_and_mask, fp_append
+ * Validated: partial, pass, 113 terms through n = 113 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,32 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/copy_and_mask.h"
-#include "../utils/fp_append.h"
+#include "../utils/mem.h"
+
+/* Copy a string into dest while updating a 26‑bit letter mask. */
+static inline void copy_and_mask(const char *src, size_t slen,
+                                 char *dest, size_t *pos,
+                                 uint32_t *mask) {
+    memcpy(dest + *pos, src, slen);
+    for (size_t k = 0; k < slen; ++k)
+        *mask |= 1u << (src[k] - 'a');
+    *pos += slen;
+}
+
+/* Append a string to fp, resizing as required. */
+static void fp_append(char **fp, size_t *len, size_t *cap,
+                      const char *src, size_t slen) {
+    if (*len + slen > *cap) {
+        size_t new_cap = *cap ? *cap << 1 : 1;
+        while (*len + slen > new_cap) new_cap <<= 1;
+        char *np = (char*)realloc(*fp, new_cap);
+        if (!np) abort();
+        *fp = np; *cap = new_cap;
+    }
+    memcpy(*fp + *len, src, slen);
+    *len += slen;
+    (*fp)[*len] = '\0';
+}
 
 /* English word fragments (all lower‑case). */
 static const char *const units[] = {
@@ -215,7 +240,7 @@ seq_t a(idx_t n) {
         if (seq_len + 1 > seq_cap) {
             size_t new_cap = seq_cap ? seq_cap << 1 : 1;
             while (seq_len + 1 > new_cap) new_cap <<= 1;
-            seq_t *newp = (seq_t*)realloc(seq, new_cap * sizeof *newp);
+            seq_t *newp = mem_resize(seq_t, seq, (new_cap * sizeof *newp) / sizeof(seq_t));
             if (!newp) abort();
             seq = newp; seq_cap = new_cap;
         }

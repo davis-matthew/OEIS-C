@@ -9,7 +9,8 @@
  *            the n-th prime and pi(x) is the prime counting function
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Types seq_t and idx_t are provided by the build system. */
 
@@ -51,8 +53,8 @@ static void make_sieve(size_t limit)
     }
 
     /* Build pi array. */
-    if (pi_arr) free(pi_arr);
-    pi_arr = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    if (pi_arr) mem_free(pi_arr);
+    pi_arr = mem_new(seq_t, (limit + 1));
     if (!pi_arr) { free(comp); return; }
     pi_arr[0] = pi_arr[1] = 0;
     seq_t cnt = 0;

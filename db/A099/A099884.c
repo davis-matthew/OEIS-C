@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 135, u32 n <= 527, u64 n <= 1080,
  *            u128 n <= 1080, big any n
- * Helpers:   diag_sum_floor
+ * Validated: standard, pass, 75 terms through n = 1073 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,25 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/diag_sum_floor.h"
+#include "../utils/mem.h"
+
+/* Helper to find the largest s such that s*(s+1)/2 <= n */
+static idx_t diag_sum_floor(idx_t n) {
+    idx_t low = 0;
+    idx_t high = 1;
+    /* Find an upper bound by doubling */
+    while ((unsigned __int128)high * (high + 1) / 2 <= n)
+        high <<= 1;
+    /* Binary search */
+    while (low + 1 < high) {
+        idx_t mid = low + (high - low) / 2;
+        if ((unsigned __int128)mid * (mid + 1) / 2 <= n)
+            low = mid;
+        else
+            high = mid;
+    }
+    return low;
+}
 
 /* Memoized array of F_t values (main diagonal) */
 static seq_t *F_cache = NULL;
@@ -39,7 +58,7 @@ static void ensure_F_capacity(size_t needed) {
     size_t new_cap = (F_cap == 0) ? 4 : F_cap << 1;
     while (new_cap <= needed)
         new_cap <<= 1;
-    seq_t *ptr = (seq_t *)realloc(F_cache, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, F_cache, new_cap);
     if (ptr == NULL) { /* allocation failed; stop execution */
         exit(EXIT_FAILURE);
     }

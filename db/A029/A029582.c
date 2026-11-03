@@ -9,13 +9,15 @@
  *            C(2m,2k+1) * T_{2k+1} * T_{2(m-1-k)+1} (m ≥ 1)
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 16, i64 n <= 24, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 /* ---- tangent number cache ---------------------------------------- */
 static seq_t *tan_cache = NULL;   /* tan_cache[m] = T_{2m+1}   */
@@ -27,7 +29,7 @@ static void ensure_tangent_cache(idx_t m_needed)
 {
     /* initial allocation */
     if (tan_cache == NULL) {
-        tan_cache = (seq_t *)malloc(sizeof(seq_t));
+        tan_cache = mem_new(seq_t, 1);
         if (!tan_cache) return; /* allocation failed */
         tan_cache[0] = (seq_t)1; /* T_1 = 1 */
         tan_max = 0;
@@ -36,7 +38,7 @@ static void ensure_tangent_cache(idx_t m_needed)
     /* enlarge cache if necessary */
     if (m_needed > tan_max) {
         size_t new_cap  = (size_t)(m_needed + 1);
-        seq_t *new_tbl = (seq_t *)realloc(tan_cache, new_cap * sizeof(seq_t));
+        seq_t *new_tbl = mem_resize(seq_t, tan_cache, new_cap);
         if (!new_tbl) return; /* reallocation failed */
         tan_cache = new_tbl;
 

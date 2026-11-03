@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 615, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len
+ * Validated: standard, pass, 92 terms through n = 9923 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 #define MAX_DIGITS 128            /* enough for seq_t up to 128 bits */
 
@@ -46,7 +49,7 @@ static void ensure_seq_cap(idx_t min_cap)
     if (seq_cap >= min_cap) return;
     idx_t new_cap = seq_cap ? seq_cap << 1 : 64;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, (size_t)new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, (size_t)new_cap);
     seq_cap = new_cap;
 }
 
@@ -56,7 +59,7 @@ static void append_term(seq_t val)
     ensure_seq_cap(seq_len + 1);
     seq[seq_len++] = val;
 
-    int d = digit_len(val);            /* number of decimal digits of val */
+    int d = num_digits(val);            /* number of decimal digits of val */
     if (d < 0) d = 0;                   /* safety, should not occur */
     if (d >= MAX_DIGITS) d = MAX_DIGITS - 1; /* clamp to array bounds */
     counts[d] += (seq_t)1;              /* increment counter for this length */
@@ -70,7 +73,7 @@ seq_t a(idx_t n)
     /* Initialise on first use. */
     if (seq_len == 0) {
         seq_cap = 64;
-        seq = (seq_t *)malloc((size_t)seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, (size_t)seq_cap);
         seq_len = 0;
 
         /* reset counts array */

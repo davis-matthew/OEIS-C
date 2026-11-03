@@ -11,12 +11,14 @@
  *            of sigma(k)/k (sigma = sum of divisors)
  * Range:     u8 n <= 67, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 4767 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- Helpers ----- */
 
@@ -31,8 +33,7 @@ static void ensure_sigma(idx_t upTo)
         return;                           /* already computed */
 
     /* Allocate or grow the cache. */
-    seq_t *tmp = (seq_t *)realloc(sigma_cache,
-                                  (size_t)(upTo + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, sigma_cache, (size_t)(upTo + 1));
     if (!tmp) {                            /* allocation failed */
         sigma_cache = NULL;
         max_sigma_computed = 0;

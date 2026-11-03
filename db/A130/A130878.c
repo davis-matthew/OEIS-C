@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} d(d) * Lucas(n/d)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *lucas = NULL;           /* Lucas numbers, 1‑based */
 static uint64_t *d_arr = NULL;        /* divisor counts, 1‑based */
@@ -33,7 +35,7 @@ static void ensure_capacity(idx_t n)
 
     size_t new_cap = (size_t)n + 1;
     /* realloc lucas */
-    seq_t *tmp_l = (seq_t *)realloc(lucas, new_cap * sizeof(seq_t));
+    seq_t *tmp_l = mem_resize(seq_t, lucas, new_cap);
     if (!tmp_l) abort();
     lucas = tmp_l;
 
@@ -43,7 +45,7 @@ static void ensure_capacity(idx_t n)
     d_arr = tmp_d;
 
     /* realloc a_arr */
-    seq_t *tmp_a = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp_a = mem_resize(seq_t, a_arr, new_cap);
     if (!tmp_a) abort();
     a_arr = tmp_a;
 

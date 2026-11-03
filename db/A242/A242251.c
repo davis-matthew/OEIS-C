@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 868, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --- static storage for the sequence and forbidden numbers ---------- */
 static seq_t *seq_terms   = NULL;   /* 1‑based array: seq_terms[i] = a(i) */
@@ -46,13 +48,13 @@ static void ensure_seq_terms(size_t idx)
     size_t new_cap = seq_cap ? seq_cap << 1 : 128;
     while (new_cap < idx) new_cap <<= 1;
 
-    seq_t *new_terms = (seq_t *)calloc(new_cap + 1, sizeof(seq_t));
+    seq_t *new_terms = mem_new(seq_t, new_cap + 1);
     if (!new_terms) abort();
 
     /* copy existing terms */
     if (seq_terms) {
-        memcpy(new_terms, seq_terms, (seq_cap + 1) * sizeof(seq_t));
-        free(seq_terms);
+        mem_copy(new_terms, seq_terms, (seq_cap + 1) * sizeof(seq_t));
+        mem_free(seq_terms);
     }
 
     seq_terms = new_terms;

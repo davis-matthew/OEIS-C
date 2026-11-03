@@ -11,12 +11,14 @@
  *            * antidiagonals: all pairs (k,m) with k+m = d...
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 178, u64 n <= 645,
  *            u128 n <= 2377, big any n
+ * Validated: standard, pass, 82 terms through n = 4186 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static inline idx_t triangular(idx_t t) { return t * (t + 1) / 2; }

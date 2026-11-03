@@ -8,7 +8,8 @@
  *            prime(k-1)) == 1
  * Range:     u8 n <= 11, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,33 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Helper: grow a dynamic array */
+#ifdef __cplusplus
+template <class T>
+static void grow_array(size_t *cap, T **arr, size_t needed, size_t elem_size)
+{
+    if (*cap >= needed)
+        return;
+    size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+    while (newcap < needed)
+        newcap <<= 1;
+    T *tmp = mem_resize(T, *arr, (newcap * elem_size) / sizeof(T));
+    if (!tmp)
+        abort();
+    *arr = tmp;
+    *cap = newcap;
+}
+#else
 static void grow_array(size_t *cap, void **arr, size_t needed, size_t elem_size)
 {
     if (*cap >= needed)
@@ -38,6 +64,7 @@ static void grow_array(size_t *cap, void **arr, size_t needed, size_t elem_size)
     *arr = tmp;
     *cap = newcap;
 }
+#endif
 
 /* ---------------------------------------------------------------------------
  * Prime generation (by trial division).  The primes are stored in a
@@ -72,7 +99,7 @@ static void add_next_prime(void)
             }
         }
         if (is_prime) {
-            grow_array(&prime_cap, (void **)&prime_vals, prime_cnt + 1, sizeof(uint64_t));
+            grow_array(&prime_cap, OEISC_VPP(&prime_vals), prime_cnt + 1, sizeof(uint64_t));
             prime_vals[prime_cnt++] = cand;
             return;
         }
@@ -120,7 +147,7 @@ static void ensure_seq_n_terms(idx_t n)
         seq_t sum_t = (seq_t)sum;
 
         if (gcd((seq_t)k, sum_t) == 1) {
-            grow_array(&seq_cap, (void **)&seq_cache, seq_cnt + 1, sizeof(seq_t));
+            grow_array(&seq_cap, OEISC_VPP(&seq_cache), seq_cnt + 1, sizeof(seq_t));
             seq_cache[seq_cnt++] = (seq_t)k;
         }
         ++k;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 180, u16 n <= 1986, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9840 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external integer types supplied by the build */
 extern seq_t a(idx_t n);
@@ -35,7 +37,7 @@ static void build_dp(idx_t limit)
     /* free any previous table */
     if (dp) {
         for (size_t p = 0; p <= 7; ++p) {
-            free(dp[p]);
+            mem_free(dp[p]);
         }
         free(dp);
         dp = NULL;
@@ -47,7 +49,7 @@ static void build_dp(idx_t limit)
     if (!dp) abort();
 
     for (size_t p = 0; p <= 7; ++p) {
-        dp[p] = (seq_t *)calloc((size_t)(limit + 1), sizeof(seq_t));
+        dp[p] = mem_new(seq_t, (size_t)(limit + 1));
         if (!dp[p]) abort();
     }
 

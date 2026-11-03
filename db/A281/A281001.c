@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 15, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   build_primes_upto, mod_pow
+ * Validated: partial, pass, 61 terms through n = 62 (2026-11-02)
+ * Helpers:   build_primes_upto, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,10 +26,10 @@
 #include <stdbool.h>
 
 /* Helper functions from the lib */
-#include "../utils/mod_pow.h"              /* mod_pow(seq_t base, uint64_t exp, seq_t mod) */
-#include "../utils/build_primes_upto.h"    /* build_primes_upto(idx_t limit,
-                                              uint64_t **primes_out,
-                                              size_t *cnt_out) */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/powmod.h"
 
 /* ---------- Prime sieve ----------
    We build a list of primes up to a fixed limit.  The limit is chosen
@@ -69,7 +70,7 @@ static seq_t smallest_wieferich(seq_t base)
     {
         uint64_t p = prime_list[i];
         seq_t    mod = (seq_t)p * (seq_t)p;                /* p²  */
-        seq_t    res = mod_pow(base % mod, p-1, mod);       /* b^(p-1) mod p² */
+        seq_t    res = powmod(base % mod, p-1, mod);       /* b^(p-1) mod p² */
         if (res == (seq_t)1) return (seq_t)p;
     }
 
@@ -80,7 +81,7 @@ static seq_t smallest_wieferich(seq_t base)
     {
         if (!is_prime_uint64(cand)) continue;
         seq_t mod = (seq_t)cand * (seq_t)cand;
-        seq_t res = mod_pow(base % mod, cand-1, mod);
+        seq_t res = powmod(base % mod, cand-1, mod);
         if (res == (seq_t)1) return (seq_t)cand;
     }
 }

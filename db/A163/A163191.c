@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{d|n} (d-1)^n (a(0) = 1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static idx_t *spf_arr = NULL;
 static idx_t spf_limit = 0;
@@ -48,7 +49,7 @@ static void add_divisor_terms(idx_t idx, idx_t cur, idx_t n,
     if (idx == pcnt) {
         if (cur > 1) {
             seq_t base = (seq_t)(cur - 1);
-            seq_t term = big_pow(base, (seq_t)n);
+            seq_t term = ipow(base, (seq_t)n);
             *sum += term;
         }
         return;

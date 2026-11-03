@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 10, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
- *            big any n
+ * Range:     u8 n <= 10, u16 n <= 2005, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 97 terms through n = 7114 (2026-11-01)
  * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime_seq.h"
 
 /* ------------------------------------------------------------------ */

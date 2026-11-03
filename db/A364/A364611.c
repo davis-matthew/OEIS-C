@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 47, u16 n <= 351, u32 n <= 6075, u64 n <= 9977,
- *            u128 n <= 9977, big any n
- * Helpers:   build_primes_upto, cache_has
+ * Range:     u8 n <= 47, u16 n <= 351, u32 n <= 6075, u64 n <= 15625,
+ *            u128 n <= 15625, big any n
+ * Validated: standard, pass, 79 terms through n = 9977 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,19 @@
    that is not already a term.  The sequence is indexed starting at 1. */
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/cache_has.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static bool cache_has(const seq_t *cache, size_t upto, seq_t val)
+{
+    for (size_t i = 1; i <= upto; ++i) {
+        if (cache[i] == val)
+            return true;
+    }
+    return false;
+}
 
 /* --------------------------------------------------------------------- */
 /* Helper: ensure that at least min_limit primes are available             */
@@ -67,9 +79,9 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (cache_len < (size_t)n) {
         size_t new_cap = n + 1;            /* index 0 unused, indices [1..n] valid */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {                  /* allocation failed – leave cache empty */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             return (seq_t)0;
         }

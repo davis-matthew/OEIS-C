@@ -9,12 +9,15 @@
  *            C(n,k) * 2^(n-k-1) for k < n, T(n,n) = (n+1) mod 2
  * Range:     u8 n <= 29, u16 n <= 92, u32 n <= 280, u64 n <= 958,
  *            u128 n <= 3593, big any n
+ * Validated: standard, pass, 81 terms through n = 8399 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

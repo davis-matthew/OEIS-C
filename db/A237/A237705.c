@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2634, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    number of primes below n per call, which is comfortably fast for n ≤ 10000. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for the sieve and pi table */
 static bool *prime_sieve = NULL;        /* prime_sieve[i] == true if i is prime */
@@ -41,7 +43,7 @@ static void ensure_sieve(idx_t n)
 
     /* allocate or extend the arrays, casting to avoid C++ conversion errors */
     prime_sieve = (bool *)realloc(prime_sieve, new_cap * sizeof(bool));
-    pi_cache    = (seq_t *)realloc(pi_cache,    new_cap * sizeof(seq_t));
+    pi_cache    = mem_resize(seq_t, pi_cache, new_cap);
 
     /* initialize all entries to true, then sieve out composites */
     for (size_t i = 0; i < new_cap; ++i)

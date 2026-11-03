@@ -8,7 +8,8 @@
  *            b(2)=2, b(4)=1 and b(n)=0 otherwise
  * Range:     i8 n <= 74, i16 n <= 74, i32 n <= 74, i64 n <= 74, i128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>   /* for uintptr_t if needed */
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* memoised values */
 static idx_t a_cache_len = 0;   /* number of indices stored (0..len-1) */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* grow the cache to include index n */
     if (n >= a_cache_len) {
         /* reallocate */
-        seq_t *new_cache = (seq_t*)realloc(a_cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, a_cache, (size_t)(n + 1));
         if (!new_cache) abort();               /* out of memory */
         a_cache = new_cache;
 

@@ -8,14 +8,17 @@
  *            n^(2*k)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 30 terms through n = 178 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,8 +42,8 @@ seq_t a(idx_t n)
         seq_t bin = binomial(two_n_plus_one, two_k_plus_one);
 
         /* (n^2-1)^(n-k)  and  n^(2*k)  */
-        seq_t pw1 = big_pow(n_sq_minus1, (seq_t)(n - k));
-        seq_t pw2 = big_pow(n_seq,         (seq_t)(2 * k));
+        seq_t pw1 = ipow(n_sq_minus1, (seq_t)(n - k));
+        seq_t pw2 = ipow(n_seq,         (seq_t)(2 * k));
 
         /* Multiply terms and accumulate */
         seq_t term = bin * pw1;

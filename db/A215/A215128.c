@@ -8,12 +8,14 @@
  *            A214372(k) is the coefficient of x^k in G(x)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static arrays to cache the coefficients of G(x), pair sums and triple sums */
 static seq_t *g     = NULL;   /* g[k] = coefficient of x^k in G(x)   */
@@ -29,9 +31,9 @@ static int ensure_size(idx_t up_to)
     idx_t old = g_sz;
     idx_t new_sz = up_to + 1;
 
-    seq_t *new_g  = (seq_t *)realloc(g,  new_sz * sizeof(seq_t));
-    seq_t *new_S2 = (seq_t *)realloc(S2, new_sz * sizeof(seq_t));
-    seq_t *new_T3 = (seq_t *)realloc(T3, new_sz * sizeof(seq_t));
+    seq_t *new_g  = mem_resize(seq_t, g, new_sz);
+    seq_t *new_S2 = mem_resize(seq_t, S2, new_sz);
+    seq_t *new_T3 = mem_resize(seq_t, T3, new_sz);
     if (!new_g || !new_S2 || !new_T3) return -1;
 
     g  = new_g;

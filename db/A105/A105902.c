@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
- *            big any n
- * Helpers:   add_uint64, modmul
+ * Range:     u8 n <= 15, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 71 terms through n = 977 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/add_uint64.h"
-#include "../utils/modmul.h"
+#include "../utils/mulmod.h"
+
+/* dynamic array helper – expands the array if necessary */
+static void add_uint64(uint64_t **arr, idx_t *cnt, idx_t *cap, uint64_t val)
+{
+    if (*cnt >= *cap)
+    {
+        *cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = (uint64_t*)realloc(*arr, (*cap) * sizeof(uint64_t));
+    }
+    (*arr)[*cnt] = val;
+    ++(*cnt);
+}
 
 /* modular exponentiation */
 static uint64_t modpow(uint64_t a, uint64_t e, uint64_t m)
@@ -32,8 +44,8 @@ static uint64_t modpow(uint64_t a, uint64_t e, uint64_t m)
     while (e)
     {
         if (e & 1U)
-            r = modmul(r, a, m);
-        a = modmul(a, a, m);
+            r = mulmod(r, a, m);
+        a = mulmod(a, a, m);
         e >>= 1;
     }
     return r;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   pow2, seq_mul
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,8 +33,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/seq_mul.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -49,7 +56,7 @@ seq_t a(idx_t n)
     idx_t k = n - terms_before - 1;               /* 0‑based index in row */
 
     /* allocate array big enough to hold all coefficients 0…r */
-    seq_t *poly = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+    seq_t *poly = mem_new(seq_t, (size_t)(r + 1));
     poly[0] = 1;                                 /* constant term */
 
     /* Build the polynomial by multiplying successive factors
@@ -58,7 +65,7 @@ seq_t a(idx_t n)
         seq_t factor = pow2(i);          /* 2^i  */
         factor = factor + 1;             /* 2^i + 1 */
 
-        seq_t *newc = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+        seq_t *newc = mem_new(seq_t, (size_t)(r + 1));
         for (idx_t j = 0; j <= i + 1; ++j) {
             seq_t val = 0;
             if (j <= i)   val = poly[j];
@@ -67,10 +74,10 @@ seq_t a(idx_t n)
         }
         /* copy back to poly */
         for (idx_t j = 0; j <= i + 1; ++j) poly[j] = newc[j];
-        free(newc);
+        mem_free(newc);
     }
 
     seq_t result = poly[k];
-    free(poly);
+    mem_free(poly);
     return result;
 }

@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 159, u16 n <= 1000, u32 n <= 8293, u64 n <= 9032,
- *            u128 n <= 9032, big any n
- * Helpers:   none
+ * Range:     u8 n <= 159, u16 n <= 1000, u32 n <= 8293, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 97 terms through n = 9032 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root for unsigned 64‑bit values */
 static idx_t int_sqrt(idx_t v) {
@@ -37,7 +39,7 @@ static idx_t int_sqrt(idx_t v) {
 /* Compute T(r,k) = partitions of k with no part divisible by (r+1) */
 static seq_t compute_T(idx_t r, idx_t k) {
     /* small k (≤ about 2000 for requested n); allocate on heap */
-    seq_t *dp = (seq_t *)malloc((k + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (k + 1));
     if (!dp) { /* out‑of‑memory: return 0 as a safe fallback */
         return 0;
     }
@@ -53,7 +55,7 @@ static seq_t compute_T(idx_t r, idx_t k) {
             dp[s] = dp[s] + dp[s - coin];
     }
     seq_t res = dp[k];
-    free(dp);
+    mem_free(dp);
     return res;
 }
 

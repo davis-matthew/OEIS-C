@@ -7,13 +7,15 @@
  * Keywords:  nonn, base, tabf
  * Formula:   a(n) = i + (n – S(i-1)) where S(k)=Σ_{t=1}^k digit_sum(t) and i
  *            is the smallest integer with S(i)≥n
- * Range:     u8 n <= 2270, u16 n <= 9280, u32 n <= 9280, u64 n <= 9280,
- *            u128 n <= 9280, big any n
+ * Range:     u8 n <= 2270, u16 n <= 13501, u32 n <= 13501, u64 n <= 13501,
+ *            u128 n <= 13501, big any n
+ * Validated: standard, pass, 86 terms through n = 9280 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 
 seq_t a(idx_t n)

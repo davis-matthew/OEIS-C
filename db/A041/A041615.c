@@ -8,13 +8,15 @@
  *            a(1)=18, a(2)=649, a(3)=11700
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External definitions provided by the build system: */
 /* typedef ... seq_t;   // integer type (uint8_t, uint16_t, ...,
@@ -37,7 +39,7 @@ static void ensure_cache_size(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         abort(); /* Allocation failure – terminate. */
 
@@ -47,7 +49,7 @@ static void ensure_cache_size(size_t needed)
 
     /* Free old cache array if it exists. */
     if (cache)
-        free(cache);
+        mem_free(cache);
 
     cache = new_cache;
     cache_cap = new_cap;

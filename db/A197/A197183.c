@@ -11,7 +11,8 @@
  *            a(n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_ull
+ * Validated: standard, pass, 102 terms through n = 9922 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_ull.h"
+
+/* Comparator for sorting unsigned long long integers */
+static int cmp_ull(const void *a, const void *b)
+{
+    unsigned long long x = *(const unsigned long long *)a;
+    unsigned long long y = *(const unsigned long long *)b;
+    if (x < y) return -1;
+    if (x > y) return 1;
+    return 0;
+}
 
 #define FAC_CNT 11                    /* 1! … 11! are enough for n up to 10000 */
 

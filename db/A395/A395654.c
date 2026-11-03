@@ -11,7 +11,8 @@
  *            q+6)
  * Range:     u8 n <= 18, u16 n <= 4706, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_seq_vec, grow_vec
+ * Validated: standard, pass, 77 terms through n = 9859 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,35 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/grow_seq_vec.h"
-#include "../utils/grow_vec.h"
+#include "../utils/mem.h"
+
+/* grow vector of seq_t */
+static void grow_seq_vec(seq_t **arr, size_t *cnt, size_t *cap, size_t need)
+{
+    if (*cnt >= *cap)
+    {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+        if (!tmp) abort();
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+
+/* ensure vector has capacity for at least 'need' elements */
+static void grow_vec(uint64_t **arr, size_t *cnt, size_t *cap, size_t need)
+{
+    if (*cnt >= *cap)
+    {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(uint64_t));
+        if (!tmp) abort();
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* ------------------------------------------------------------ */
 /*  Global mutable state                                         */

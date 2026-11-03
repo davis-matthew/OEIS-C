@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 575 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *bell_cache = NULL;    /* array of Bell numbers 0..size-1   */
 static idx_t bell_size = 0;         /* number of elements in bell_cache  */
@@ -44,16 +46,15 @@ seq_t a(idx_t n)
     if (n >= bell_size) {
         idx_t new_size = n + 1;
         /* allocate a new array */
-        seq_t *new_arr = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        seq_t *new_arr = mem_new(seq_t, new_size);
         if (!new_arr) return (seq_t)0; /* allocation failure → 0 */
 
         /* copy existing values and initialise the rest to 0 */
         if (bell_cache) {
-            memcpy(new_arr, bell_cache, bell_size * sizeof(seq_t));
-            free(bell_cache);
+            mem_copy(new_arr, bell_cache, bell_size * sizeof(seq_t));
+            mem_free(bell_cache);
         }
-        memset(new_arr + bell_size, 0,
-               (new_size - bell_size) * sizeof(seq_t));
+        mem_set(new_arr + bell_size, 0, (new_size - bell_size) * sizeof(seq_t));
 
         /* Ensure Bell(0) is defined */
         if (bell_size == 0) {

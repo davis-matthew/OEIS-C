@@ -8,12 +8,14 @@
  *            a(n-k) for n ≥ 1 (only even powers of the e.g.f. are taken)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* Allocate the cache if this is the first call   */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * 1);
+        cache = mem_new(seq_t, 1);
         if (!cache) exit(1);
         cache[0] = (seq_t)1;   /* a(0) = 1 */
         last_computed = 0;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (n > last_computed) {
         /* Ensure the cache is large enough   */
         idx_t new_size = (n + 1 > 2 ? n + 1 : 2);
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        cache = mem_resize(seq_t, cache, new_size);
         if (!cache) exit(1);
 
         /* Compute a[last_computed+1] .. a[n]   */

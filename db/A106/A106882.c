@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 1301, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_uint64, isPrime64
+ * Validated: standard, pass, 65 terms through n = 8580 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/isPrime64.h"   /* provides bool isPrime64(uint64_t) */
-#include "../utils/cmp_uint64.h"
+#include <string.h>
+#include <math.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Utility function for sorting uint64_t arrays with qsort.              */
+static int cmp_uint64(const void *a, const void *b)
+{
+    const uint64_t *pa = (const uint64_t *)a;
+    const uint64_t *pb = (const uint64_t *)b;
+    if (*pa < *pb) return -1;
+    if (*pa > *pb) return 1;
+    return 0;
+}
 
 static seq_t *prime_cache = NULL;   /* array of found primes */
 static size_t prime_cache_len = 0;  /* number of stored primes */
@@ -69,7 +82,7 @@ static void build_cache(uint64_t limit)
     }
 
     /* Allocate array for primes. */
-    seq_t *tmp = (seq_t *)realloc(prime_cache, uniq_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_cache, uniq_len);
     if (!tmp) {
         free(cand);
         return;
@@ -79,13 +92,13 @@ static void build_cache(uint64_t limit)
 
     for (size_t i = 0; i < uniq_len; ++i) {
         uint64_t v = cand[i];
-        if (isPrime64(v)) {
+        if (is_prime_u64(v)) {
             prime_cache[prime_cache_len++] = (seq_t)v;
         }
     }
 
     /* Shrink to the number of primes found. */
-    tmp = (seq_t *)realloc(prime_cache, prime_cache_len * sizeof(seq_t));
+    tmp = mem_resize(seq_t, prime_cache, prime_cache_len);
     if (tmp) prime_cache = tmp;
 
     free(cand);
@@ -107,7 +120,7 @@ seq_t a(idx_t n)
     while (prime_cache_len < (size_t)n) {
         cache_limit *= 10;
         /* Rebuild from scratch to keep the code simple and correct. */
-        free(prime_cache);
+        mem_free(prime_cache);
         prime_cache = NULL;
         prime_cache_len = 0;
         build_cache(cache_limit);

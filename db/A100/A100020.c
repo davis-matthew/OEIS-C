@@ -9,15 +9,17 @@
  *            integers
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   is_prime, modpow_uint64
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   is_prime_u64, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
-#include "../utils/modpow_uint64.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/powmod_u64.h"
 
 /* compute a(n) */
 seq_t a(idx_t n) {
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
 
     /* search odd primes in increasing order */
     for (uint64_t p = 3; ; p += 2) {
-        if (!is_prime(p)) continue;    /* skip composites */
+        if (!is_prime_u64(p)) continue;    /* skip composites */
 
         /* see if p divides n */
         if (nn % p == 0) {
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
                 /* unit part must be a quadratic residue modulo p */
                 uint64_t m = tmp;       /* odd part after removing all p factors */
                 uint64_t exp = (p - 1) / 2;
-                if (modpow_uint64(m % p, exp, p) == 1)
+                if (powmod_u64(m % p, exp, p) == 1)
                     return (seq_t)p;
             }
             /* otherwise continue searching */
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
 
         /* p does not divide n: check Legendre symbol (n|p) */
         uint64_t exp = (p - 1) / 2;
-        if (modpow_uint64(nn % p, exp, p) == 1)
+        if (powmod_u64(nn % p, exp, p) == 1)
             return (seq_t)p;
     }
 }

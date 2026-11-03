@@ -12,7 +12,8 @@
  *            cycle is odd]), where E = Sum floor(c_i/2) + Sum_{i<j...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   gcd_i
+ * Validated: standard, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/gcd_i.h"
+#include "../utils/gcd_i32.h"
 
 typedef struct { uint32_t *d; size_t n, cap; } bn;
 
@@ -137,7 +138,7 @@ static void leaf(void) {
         c += m;
         if (p & 1) hasodd = 1;
         E += m * (p / 2) + p * m * (m - 1) / 2;
-        for (l = j + 1; l < t; l++) E += m * (long long)mm[l] * gcd_i(pp[j], pp[l]);
+        for (l = j + 1; l < t; l++) E += m * (long long)mm[l] * gcd_i32(pp[j], pp[l]);
     }
     ex = 2 * E - c + hasodd;
     bn_copy(&g_tc, &g_fact);

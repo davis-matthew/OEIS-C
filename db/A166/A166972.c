@@ -11,7 +11,8 @@
  *            term of the triangle having linear index n (a(1)=1, a(2)=1, …)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 47, u64 n <= 109,
  *            u128 n <= 282, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 269 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* ------------------------------------------------------------ */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Big integer / integer types are provided by the build
    (seq_t, idx_t). */
@@ -71,7 +73,7 @@ static void add_row(idx_t len)
     }
 
     /* Allocate and compute the new row */
-    seq_t *row = (seq_t*)malloc((size_t)len * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)len);
     if (!row) exit(1);
 
     row[0] = 1;                    /* T(len,1) = 1 */

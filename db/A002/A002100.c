@@ -10,20 +10,45 @@
  *            primes)
  * Range:     u8 n <= 93, u16 n <= 206, u32 n <= 537, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_semiprime_2distinct
+ * Validated: standard, pass, 99 terms through n = 944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_semiprime_2distinct.h"
+#include "../utils/mem.h"
+
+static bool is_semiprime_2distinct(uint64_t n) {
+    if (n < 6) return false;
+    
+    uint64_t temp = n;
+    
+    // Find and divide out the first prime factor exactly once
+    for (uint64_t p = 2; p * p <= n; p++) {
+        if (temp % p == 0) {
+            temp /= p;
+            // Check if p appears again
+            if (temp % p == 0) return false;
+            
+            // Check if temp is prime
+            if (temp < 2) return false;
+            for (uint64_t q = 2; q * q <= temp; q++) {
+                if (temp % q == 0) return false;
+            }
+            return true;
+        }
+    }
+    
+    return false;
+}
 
 seq_t a(idx_t n) {
     if (n < 6) return 0;
     
     // Allocate DP array for counting partitions
-    seq_t *dp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp) return 0;
     
     dp[0] = 1;  // empty partition
@@ -39,6 +64,6 @@ seq_t a(idx_t n) {
     }
     
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

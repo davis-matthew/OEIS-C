@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   _first_t_ge
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,34 @@
  */
 
 #include <stdint.h>
-#include "../utils/_first_t_ge.h"
+
+/* Find the minimal t ≥ 2 such that (t-1)*t/2 ≥ n.
+ * Uses binary search on t with 128‑bit arithmetic to
+ * avoid overflow.                                  */
+static inline idx_t _first_t_ge(idx_t n)
+{
+    idx_t low = 1, high = 1;
+
+    /* Exponentially increase upper bound */
+    while ((((__uint128_t)(high - 1) * high) / 2) < n) {
+        high <<= 1;
+        if (high == 0) {            /* overflow: fall back to max shift */
+            high = (idx_t)1 << 63;
+            break;
+        }
+    }
+
+    /* Binary search between low and high inclusive */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1);
+        __uint128_t sum = ((__uint128_t)(mid - 1) * mid) / 2;
+        if (sum >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;                       /* this t satisfies (t-1)*t/2 ≥ n */
+}
 
 seq_t a(idx_t n)
 {

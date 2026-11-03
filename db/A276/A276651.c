@@ -9,14 +9,15 @@
  *            prime divisors of n and d is the decimal representation of p
  * Range:     u8 n <= 201, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 91 terms through n = 916 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd_seq.h"
+#include "../utils/gcd.h"
 
 /* 10^e as seq_t (e is 0 … 5 for n ≤ 10 000) */
 static seq_t pow10_uint(idx_t e)
@@ -78,6 +79,6 @@ seq_t a(idx_t n)
     }
 
     seq_t D = pow10_uint((idx_t)maxLen);
-    seq_t g = gcd_seq(N, D);
+    seq_t g = gcd(N, D);
     return N / g;
 }

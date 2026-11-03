@@ -9,13 +9,16 @@
  *            enumerated row‑major)
  * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 62, u64 n <= 134,
  *            u128 n <= 374, big any n
- * Helpers:   binomial, seq_pow
+ * Validated: standard, pass, 82 terms through n = 9521 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* Find the largest r such that r(r+1)/2 <= n. */
 static inline idx_t
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     for (idx_t j = 0; j <= k; ++j) {
-        seq_t pow_val = seq_pow((seq_t)(k - j), r);
+        seq_t pow_val = ipow_idx((seq_t)(k - j), r);
         seq_t bin_val = binomial(r, j);
         sum = sum + pow_val * bin_val;
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 1348, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_zero_free_base3_u64
+ * Validated: standard, pass, 73 terms through n = 9462 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_zero_free_base3_u64.h"
+
+/* ------------------------------------------------------------------ */
+static bool is_zero_free_base3_u64(uint64_t x)
+{
+    /* special case: zero is not considered part of the sequence */
+    if (x == 0) return false;
+    while (x > 0) {
+        if ((x % 3ULL) == 0ULL) return false;
+        x /= 3ULL;
+    }
+    return true;
+}
 
 /* ------------------------------------------------------------------ */
 /* Prime helper – generates all primes up to LIMIT (inclusive).       */

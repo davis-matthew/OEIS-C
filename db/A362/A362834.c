@@ -12,13 +12,15 @@
  *            d*(d+1)/2, k0 = d - n0
  * Range:     u8 n <= 32, u16 n <= 62, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const idx_t MAX_N = 250; /* safely covers up to n≈10000 */
 
@@ -31,8 +33,8 @@ static int initialized = 0;
 static void prepare(void)
 {
     if (initialized) return;
-    fact = (seq_t*)malloc(sizeof(seq_t) * (MAX_N + 1));
-    stirling = (seq_t*)malloc(sizeof(seq_t) * (MAX_N + 1) * (MAX_N + 1));
+    fact = mem_new(seq_t, (MAX_N + 1));
+    stirling = mem_new(seq_t, (MAX_N + 1) * (MAX_N + 1));
 
     /* factorials */
     fact[0] = 1;

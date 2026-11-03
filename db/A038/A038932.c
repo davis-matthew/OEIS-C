@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, powmod64
+ * Validated: standard, pass, 62 terms through n = 963 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/powmod64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* True iff 53 is a quadratic non‑residue modulo the odd prime p
    (for p = 53 it returns false because 53 ≡ 0 (mod 53)). */
@@ -28,7 +30,7 @@ static bool is_non_square_mod_53(uint64_t p)
 {
     /* Euler’s criterion: (53|p) ≡ 53^((p-1)/2) (mod p).
        It equals p‑1 iff the Legendre symbol is –1. */
-    return powmod64(53, (p - 1) / 2, p) == p - 1;
+    return powmod_u64(53, (p - 1) / 2, p) == p - 1;
 }
 
 /* Cached sequence values and generation state */
@@ -47,8 +49,7 @@ static void ensure_cache_capacity(idx_t need)
     while (new_cap < need)
         new_cap = new_cap * 2;
 
-    seq_t *tmp = (seq_t *)realloc(cache,
-                                  (size_t)new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
     /* realloc failure is unlikely for the required sizes */
     cache = tmp;
     cache_cap = new_cap;

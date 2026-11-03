@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*  Static storage for the pre‑computed table.  */
 static seq_t *data    = NULL;  /* 1‑D continuous buffer   */
@@ -44,16 +46,14 @@ static void ensure_s(idx_t s)
     size_t new_stride = (size_t)new_s + 1;
 
     /* Allocate new buffer and clear it.  */
-    seq_t *new_data = (seq_t *)calloc((size_t)new_s * new_stride, sizeof(seq_t));
+    seq_t *new_data = mem_new(seq_t, (size_t)new_s * new_stride);
     if (!new_data)
         abort();   /* memory exhaustion */
 
     /* Copy existing data into the new layout.  */
     if (old_s > 0) {
         for (idx_t r = 0; r < old_s; ++r) {
-            memcpy(&new_data[r * new_stride],
-                   &data[r * (old_s + 1)],
-                   (size_t)(old_s + 1) * sizeof(seq_t));
+            mem_copy(&new_data[r * new_stride], &data[r * (old_s + 1)], (size_t)(old_s + 1) * sizeof(seq_t));
         }
     }
 
@@ -74,7 +74,7 @@ static void ensure_s(idx_t s)
         }
     }
 
-    free(data);
+    mem_free(data);
     data   = new_data;
     cur_s  = new_s;
     stride = new_stride;

@@ -12,7 +12,8 @@
  *            gcd(p_i,p_j) is the number of edge orbits, and z(p) = P...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 11, u64 n <= 15, u128 n <= 20,
  *            big any n
- * Helpers:   gcd_i
+ * Validated: standard, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/gcd_i.h"
+#include "../utils/gcd_i32.h"
 
 static int CL_, AL_;
 static uint32_t *coef_, *acc_, *tmp_;
@@ -97,7 +98,7 @@ static void rec(int maxL, int rem, int depth, long long m, int e, int o, int c1,
         int i, c;
         uint32_t *nx = cf + CL_;
         if (L == 1 && c1 == 0 && c2 == 0 && rem < 2) continue;
-        for (i = 0; i < depth; i++) g += (long long)pcnt_[i] * gcd_i(L, plen_[i]);
+        for (i = 0; i < depth; i++) g += (long long)pcnt_[i] * gcd_i32(L, plen_[i]);
         memcpy(nx, cf, (size_t)CL_ * sizeof(uint32_t));
         for (c = 1; c * L <= rem; c++) {
             long long nm;

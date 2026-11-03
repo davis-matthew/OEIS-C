@@ -10,12 +10,14 @@
  *            a(5)=52, a(6)=72, a(7)=100
  * Range:     i8 n <= 7, i16 n <= 46, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* allocate some initial space (at least 8) */
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         /* store the first 8 known terms */
         for (idx_t i = 0; i < 8; ++i)
             cache[i] = init[i];
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     if (n >= cap) {
         idx_t newcap = cap;
         while (newcap <= n) newcap <<= 1;   /* double until large enough */
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cap   = newcap;
     }
 

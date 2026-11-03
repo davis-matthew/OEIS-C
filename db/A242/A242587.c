@@ -7,12 +7,14 @@
  * Formula:   G.f.: 1/Product_{r>=1} (1-3*x^r)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array a[0..current_max] */
 static idx_t current_max = 0; /* highest index currently computed */
@@ -21,7 +23,7 @@ static idx_t current_max = 0; /* highest index currently computed */
 static void compute_full(idx_t N)
 {
     /* Allocate or resize cache */
-    seq_t *new_cache = (seq_t *)realloc(cache, (N + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (N + 1));
     if (!new_cache) abort();   /* allocation failure */
     cache = new_cache;
 

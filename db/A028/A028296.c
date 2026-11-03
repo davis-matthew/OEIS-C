@@ -7,13 +7,15 @@
  * Formula:   a(n) = -∑_{i=0}^{n-1} a(i)*C(2*n,2*i), a(0)=1
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 7, i64 n <= 11, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the n-th term of OEIS sequence A028296 (Euler numbers E_{2n}) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;          /* cache of computed terms */
 static size_t A_cap = 0;         /* allocated capacity of A */
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Allocate initial storage and set a(0) = 1 */
     if (A == NULL) {
         A_cap = 8;
-        A = (seq_t*)malloc(A_cap * sizeof(seq_t));
+        A = mem_new(seq_t, A_cap);
         for (size_t i = 0; i < A_cap; ++i) A[i] = 0;
         A[0] = 1;
         cur_max = 0;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= A_cap) {
         size_t new_cap = A_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(A, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, new_cap);
         if (tmp == NULL) { /* allocation failed; fallback */
             return 0;
         }

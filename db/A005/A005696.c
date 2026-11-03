@@ -11,7 +11,8 @@
  *            an N-position has 1 + the least remoteness among its P-op...
  * Range:     u8 n <= 9, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   bdt_oddpart
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   odd_part_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/bdt_oddpart.h"
+#include "../utils/odd_part_u64.h"
 
 /* remoteness of m if it is <= d, otherwise -1 */
 static int bdt_rem(uint64_t m, int d)
@@ -29,8 +30,8 @@ static int bdt_rem(uint64_t m, int d)
     bool allKnown = true;
     if (m == 1) return 0;
     if (d == 0) return -1;
-    opt[0] = bdt_oddpart(3 * m + 1);
-    opt[1] = bdt_oddpart(3 * m - 1);
+    opt[0] = odd_part_u64(3 * m + 1);
+    opt[1] = odd_part_u64(3 * m - 1);
     for (i = 0; i < 2; i++) {
         int r = bdt_rem(opt[i], d - 1);
         if (r < 0) {

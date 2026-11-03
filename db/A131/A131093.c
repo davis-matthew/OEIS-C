@@ -8,12 +8,14 @@
  * Formula:   a(1) = 1, a(n) = a(n-1) + sum of odd a(k) for 1 ≤ k < n
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 30, u64 n <= 59, u128 n <= 117,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         if (size == 0)
         {
             cap = 1;
-            vals = (seq_t *)malloc(cap * sizeof(seq_t));
+            vals = mem_new(seq_t, cap);
             vals[0] = 1;           /* a(1) */
             odd_sum = 1;           /* a(1) is odd */
             size = 1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         /* Extend the sequence up to n */
         if ((size_t)n > cap)
             cap = (size_t)n;            /* grow enough for this call */
-        vals = (seq_t *)realloc(vals, cap * sizeof(seq_t));
+        vals = mem_resize(seq_t, vals, cap);
 
         for (size_t i = size; i < (size_t)n; ++i)
         {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
  * This function linearises the triangle T(n,k)=C(4n,2k) row‑wise.
  */
 #include <stdbool.h>
-#include "../utils/seq_gcd.h"   /* seq_gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
 
 /* multiplicative binomial coefficient that works for any seq_t
  * (including 64‑bit and arbitrary‑precision). */
@@ -35,12 +36,12 @@ static seq_t my_binom(idx_t N, idx_t K)
         seq_t den = (seq_t)i;             /* denominator */
 
         /* reduce factors with each other first */
-        seq_t g = seq_gcd(num, den);
+        seq_t g = gcd(num, den);
         num /= g;
         den /= g;
 
         /* reduce denominator with current result */
-        g = seq_gcd(result, den);
+        g = gcd(result, den);
         result /= g;
         den /= g;
 

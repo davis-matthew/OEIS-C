@@ -8,12 +8,17 @@
  *            9^(-1) mod n, the multiplicative inverse of 9 modulo n
  * Range:     u8 n <= 288, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 81 terms through n = 9455 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"   /* mod_pow(seq_t base, uint64_t exp, seq_t mod) */
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     /* Off‑shelf rule: anything divisible by 3 has no inverse of 9. */
@@ -39,5 +44,5 @@ seq_t a(idx_t n) {
 
     /* Apply Euler's theorem: 9^(φ(n)-1) ≡ 9^(-1) (mod n). */
     seq_t base = (seq_t)9;
-    return mod_pow(base, exp, mod);
+    return powmod(base, exp, mod);
 }

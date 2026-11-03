@@ -10,15 +10,29 @@
  *            cache[] stores computed values
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 29, u128 n <= 58,
  *            big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: standard, pass, 40 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"   /* alloc_seq(size_t)  */
-#include "../utils/free_seq.h"    /* free_seq(seq_t*)   */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

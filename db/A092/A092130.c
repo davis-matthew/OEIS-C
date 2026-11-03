@@ -12,13 +12,15 @@
  *            part at most once
  * Range:     u8 n <= 116, u16 n <= 280, u32 n <= 786, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Forward declaration – types are supplied by the build. */
 extern void *xzmalloc(size_t);  /* if needed */
@@ -32,13 +34,13 @@ static void recompute(idx_t size)
 {
     if (dp_cap < size) {   /* enlarge array */
         /* free old array if any */
-        free(dp);
-        dp = (seq_t *)malloc((size_t)size * sizeof(seq_t));
+        mem_free(dp);
+        dp = mem_new(seq_t, (size_t)size);
         dp_cap = size;
     }
 
     /* initialise dp to zero */
-    memset(dp, 0, (size_t)size * sizeof(seq_t));
+    mem_set(dp, 0, (size_t)size * sizeof(seq_t));
     dp[0] = 1;            /* empty sum exists */
 
     /* iterate over allowed distinct parts: 4,7,10,… ≤ size‑1 */

@@ -11,7 +11,8 @@
  *            indexed from 1; a(1)=8, a(2)=34, …
  * Range:     u8 n <= 22, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- configuration ---------- */
 static const idx_t MAX_LIMIT = 10000000;   /* enough for n up to ~10 k */
@@ -135,7 +137,7 @@ static void seq_grow(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 128;
     while (new_cap < needed) new_cap *= 2;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     if (!seq) abort();
     seq_cap = new_cap;
 }

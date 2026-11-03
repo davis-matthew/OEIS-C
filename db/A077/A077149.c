@@ -12,14 +12,49 @@
  *            many integers ≤x are divisible by at least on...
  * Range:     u8 n <= 16, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   count_divisible, distinct_prime_factors
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/count_divisible.h"
-#include "../utils/distinct_prime_factors.h"
+
+/* Count integers ≤x divisible by at least one prime in primes[0..cnt-1]. */
+static seq_t count_divisible(idx_t x, const seq_t *primes, size_t cnt) {
+    seq_t total = 0;
+    idx_t subsets = ((idx_t)1 << cnt) - 1;
+    for (idx_t mask = 1; mask <= subsets; ++mask) {
+        seq_t prod = 1;
+        size_t bits = 0;
+        for (idx_t i = 0; i < cnt; ++i) {
+            if (mask & ((idx_t)1 << i)) {
+                prod *= primes[i];
+                ++bits;
+            }
+        }
+        if (bits & 1) {
+            total += x / prod;
+        } else {
+            total -= x / prod;
+        }
+    }
+    return total;
+}
+
+/* Return the distinct prime factors of n in pf[], setting *cnt. */
+static void distinct_prime_factors(idx_t n, seq_t *pf, size_t *cnt) {
+    size_t c = 0;
+    idx_t x = n;
+    for (idx_t p = 2; p * p <= x; ++p) {
+        if (x % p == 0) {
+            pf[c++] = p;
+            while (x % p == 0) x /= p;
+        }
+    }
+    if (x > 1) pf[c++] = x;
+    *cnt = c;
+}
 
 seq_t a(idx_t n) {
     if (n == (idx_t)1) return (seq_t)3;          /* defined by OEIS */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, max_digit_uint64
+ * Validated: standard, pass, 70 terms through n = 968 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/max_digit_uint64.h"
+
+/* Return the maximum decimal digit of a 64‑bit unsigned integer. */
+static uint64_t max_digit_uint64(uint64_t x)
+{
+    uint64_t d = 0;
+    while (x != 0) {
+        uint64_t dig = x % 10;
+        if (dig > d) d = dig;
+        if (d == 9) return 9;
+        x /= 10;
+    }
+    return d;
+}
 
 seq_t a(idx_t n)
 {

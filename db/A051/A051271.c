@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2^n + ∏_{i=1..n} (p_i – 1) (p_i = i‑th prime)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 350 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------ */
 /*   static data shared between calls                                      */
@@ -82,7 +84,7 @@ static void ensure_values(idx_t n)
     if (n + 1 > values_cap) {
         size_t new_cap = (values_cap == 0) ? 16 : values_cap;
         while (new_cap <= n) new_cap <<= 1;   /* double until big enough */
-        seq_t *tmp = (seq_t*)realloc(values, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, values, new_cap);
         if (!tmp) abort();
         values = tmp;
         values_cap = new_cap;

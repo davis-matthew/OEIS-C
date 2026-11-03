@@ -8,14 +8,17 @@
  *            smallest prime factor)
  * Range:     u8 n <= 525, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _smallest_prime_factor, largest_prime_factor
+ * Validated: standard, pass, 105 terms through n = 985 (2026-11-01)
+ * Helpers:   largest_prime_factor, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"   /* uint64_t _smallest_prime_factor(uint64_t n); */
-#include "../utils/largest_prime_factor.h"     /* uint64_t largest_prime_factor(uint64_t n); */
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/largest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n) {
     /* n is unsigned 64‑bit; handle n == 1 separately */
@@ -24,7 +27,7 @@ seq_t a(idx_t n) {
     /* Compute the largest and smallest prime factors using helper routines */
     uint64_t n64 = (uint64_t)n;                    /* safe conversion because n <= UINT64_MAX */
     uint64_t lpf = largest_prime_factor(n64);      /* largest prime factor of n */
-    uint64_t spf = _smallest_prime_factor(n64);    /* smallest prime factor of n */
+    uint64_t spf = smallest_prime_factor(n64);    /* smallest prime factor of n */
 
     /* difference fits in seq_t because lpf >= spf and both <= n */
     return (seq_t)(lpf - spf);

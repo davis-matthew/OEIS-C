@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{k=1..n} (100 - 10/k)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 14,
  *            big any n
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

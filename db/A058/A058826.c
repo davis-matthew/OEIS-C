@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9701 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const size_t LIMIT = 5000000UL;   /* sieve range */
 
@@ -84,7 +86,7 @@ static void build_terms(void)
 
     /* Collect qualifying numbers into the terms list. */
     term_cap = 2048;
-    terms = (seq_t*)malloc(term_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, term_cap);
     term_count = 0;
 
     for (size_t n = 2; n <= LIMIT; ++n) {
@@ -93,7 +95,7 @@ static void build_terms(void)
             is_cototient[n]) {
             if (term_count == term_cap) {
                 term_cap <<= 1;
-                terms = (seq_t*)realloc(terms, term_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, term_cap);
             }
             terms[term_count++] = (seq_t)n;   /* cast to seq_t */
         }

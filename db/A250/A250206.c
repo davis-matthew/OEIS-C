@@ -7,14 +7,18 @@
  * Formula:   a(n) = least base b > 1 such that b^φ(n) ≡ 1 (mod n²)
  * Range:     u8 n <= 15, u16 n <= 330, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, mod_pow
+ * Validated: standard, pass, 88 terms through n = 953 (2026-11-01)
+ * Helpers:   factor_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 static inline uint64_t calc_phi_uint64(uint64_t n)
 /* Compute φ(n) for n ≥ 1.  The result fits in 64 bits for the
@@ -41,7 +45,7 @@ seq_t a(idx_t n)
     seq_t mod = (seq_t)n * (seq_t)n;
 
     for (seq_t b = 2; ; ++b) {
-        if (mod_pow(b, phi, mod) == (seq_t)1) {
+        if (powmod(b, phi, mod) == (seq_t)1) {
             return b;
         }
     }

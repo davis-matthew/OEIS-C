@@ -9,7 +9,8 @@
  *            (mod p)
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 71 terms through n = 980 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Greatest common divisor for 64‑bit unsigned integers. */
 static inline uint64_t gcd64(uint64_t a, uint64_t b) {
@@ -90,12 +93,12 @@ seq_t a(idx_t n) {
 
         uint64_t g = gcd64(45ULL, p - 1);
         uint64_t exp = (p - 1) / g;
-        seq_t r = mod_pow((seq_t)2, exp, (seq_t)p);
+        seq_t r = powmod((seq_t)2, exp, (seq_t)p);
 
         if (r != (seq_t)1ULL) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 1;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cache_cap = new_cap;

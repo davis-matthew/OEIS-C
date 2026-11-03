@@ -9,14 +9,36 @@
  *            1, E_4 = 5, E_6 = 61, E_8 = 1385, …)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow, binom_2n_2k
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
-#include "../utils/binom_2n_2k.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* helper: compute binomial coefficient C(2n, 2k) in a loop. */
+static seq_t binom_2n_2k(idx_t n, idx_t k)
+{
+    /* returns C(2n, 2k) for 0 <= k <= n.  The routine uses
+       a multiplicative recurrence to avoid factorials.
+       binom = C(2n, 0) = 1 initially.
+    */
+    if (k == 0) return 1;
+    seq_t binom = 1;
+    for (idx_t i = 0; i < k; ++i) {
+        seq_t num1 = (seq_t)(2 * n - 2 * i);
+        seq_t num2 = (seq_t)(2 * n - 2 * i - 1);
+        seq_t den1 = (seq_t)(2 * i + 2);
+        seq_t den2 = (seq_t)(2 * i + 1);
+        binom = (binom * num1 * num2) / (den1 * den2);
+    }
+    return binom;
+}
 
 /* dynamically allocated array of Euler numbers (indexed by k, i.e. E_{2k}). */
 static seq_t *euler = NULL;
@@ -32,8 +54,8 @@ static void ensure_euler(idx_t n)
 
     size_t new_cap = (size_t)(n + 1);
     seq_t *tmp = (euler == NULL)
-                 ? (seq_t*)calloc(new_cap, sizeof(seq_t))
-                 : (seq_t*)realloc(euler, new_cap * sizeof(seq_t));
+                 ? mem_new(seq_t, new_cap)
+                 : mem_resize(seq_t, euler, new_cap);
     euler = tmp;
 
     /* initialize first element if not yet set */
@@ -74,7 +96,7 @@ seq_t a(idx_t n)
 {
     idx_t needed_k = n >> 1;   /* floor(n/2) */
     if (euler_cap == 0) {
-        euler = (seq_t*)calloc(1, sizeof(seq_t));
+        euler = mem_new(seq_t, 1);
         euler[0] = 1;
         euler_cap = 0;
     }
@@ -88,7 +110,7 @@ seq_t a(idx_t n)
         if (k == 0) {
             power = (n == 0) ? 1 : 0;   /* (0)^{n} */
         } else {
-            power = big_pow((seq_t)(2 * k), (seq_t)(n - 2 * k));
+            power = ipow((seq_t)(2 * k), (seq_t)(n - 2 * k));
         }
 
         seq_t term = euler[k] * power * binom;

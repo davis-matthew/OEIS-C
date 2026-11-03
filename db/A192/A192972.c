@@ -9,12 +9,14 @@
  *            0, a(1) = 1, a(2) = 3, a(3) = 12, a(4) = 33
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 40, u64 n <= 86, u128 n <= 178,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- memoized recurrence implementation ---------- */
 static seq_t *cache = NULL;   /* cached values of a(0), a(1), ...            */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
         new_len = 5;
 
     /* Reallocate cache array to the new size. */
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     cache = tmp;   /* naive allocation error handling omitted */
 
     /* If this is the first allocation, set the first five values. */

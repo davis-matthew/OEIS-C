@@ -9,7 +9,8 @@
  *            digit sum and the digit product of P(k) are also pentagonal
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 1796, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_product, digit_sum, floor_sqrt, seq_alloc, seq_realloc
+ * Validated: standard, pass, 53 terms through n = 9576 (2026-11-01)
+ * Helpers:   digit_product, digit_sum, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,49 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/digit_sum.h"
+#include <stdint.h>
 #include "../utils/digit_product.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/digit_sum.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Static cache of found terms */
 static seq_t *cache      = NULL;   /* array of terms */

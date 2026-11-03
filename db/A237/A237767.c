@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_product, floor_cube_root
+ * Validated: standard, pass, 66 terms through n = 998 (2026-11-03)
+ * Helpers:   digit_product, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,32 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/digit_product.h"
-#include "../utils/floor_cube_root.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *seq_realloc(seq_t *old, size_t /*old_cap*/, size_t new_cap)
 {
     /* realloc returns void*, cast to seq_t* for C/C++ compatibility */
-    return (seq_t *)realloc(old, new_cap * sizeof(seq_t));
+    return mem_resize(seq_t, old, new_cap);
 }
 
 /* Return the nth element (1‑based) of OEIS A237767. */

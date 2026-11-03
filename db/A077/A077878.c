@@ -8,6 +8,7 @@
  *            a(2)=1, a(3)=-4, a(n) = 2*a(n-1) - 3*a(n-2) + 2*a(n-4) for n ≥ 4
  * Range:     i8 n <= 8, i16 n <= 20, i32 n <= 37, i64 n <= 37, i128 n <= 37,
  *            big any n
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

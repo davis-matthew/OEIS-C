@@ -9,13 +9,15 @@
  *            a Fibonacci number
  * Range:     i8 n <= 89, i16 n <= 89, i32 n <= 89, i64 n <= 89, i128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* The Fibonacci numbers are stored in a static dynamic array.  */
 static seq_t *fibs = NULL;
@@ -31,7 +33,7 @@ static void ensure_fib_capacity(size_t needed)
     size_t new_cap = fibs_cap ? fibs_cap << 1 : 2;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(fibs, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fibs, new_cap);
     if (tmp == NULL) {
         /* Out of memory: abort, failing to compute the sequence.  */
         abort();

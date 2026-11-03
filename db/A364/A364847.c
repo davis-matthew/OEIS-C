@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{d|n} d * A060594(n/d)
  * Range:     u8 n <= 59, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   A060594_value
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,46 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/A060594_value.h"
+
+/* Helper: number of solutions to x^2 ≡ 1 (mod m) */
+static seq_t A060594_value(idx_t m)
+{
+    /* count exponent of 2 */
+    idx_t exp2 = 0;
+    while ((m & 1U) == 0U)
+    {
+        m >>= 1U;
+        exp2++;
+    }
+
+    /* after removing powers of 2, m is odd */
+    idx_t cnt_odd = 0;
+    idx_t temp = m;
+    for (idx_t p = 3U; p * p <= temp; p += 2U)
+    {
+        if (temp % p == 0U)
+        {
+            cnt_odd++;
+            while (temp % p == 0U)
+                temp /= p;
+        }
+    }
+    if (temp > 1U)   /* remaining prime factor */
+        cnt_odd++;
+
+    seq_t res = 1;
+    for (idx_t i = 0; i < cnt_odd; ++i)
+        res <<= 1U;   /* multiply by 2 for each distinct odd prime */
+
+    /* multiply by the factor contributed by powers of 2 */
+    if (exp2 >= 3U)
+        res *= 4U;
+    else if (exp2 == 2U)
+        res *= 2U;
+    /* exp2 == 0 or 1 -> multiply by 1 (nothing to do) */
+
+    return res;
+}
 
 seq_t a(idx_t n)
 {

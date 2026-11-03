@@ -7,7 +7,8 @@
  * Formula:   a(n) = digit of the decimal expansion of 1/698 at position n
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise storage on first call */
     if (digits == NULL) {
         digits_cap = 16;
-        digits = (seq_t *)malloc(digits_cap * sizeof(seq_t));
+        digits = mem_new(seq_t, digits_cap);
     }
 
     /* Grow the cache if needed */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         size_t new_cap = digits_cap;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;                 /* double until large enough */
-        seq_t *tmp = (seq_t *)realloc(digits, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, digits, new_cap);
         digits = tmp;
         digits_cap = new_cap;
     }

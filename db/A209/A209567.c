@@ -12,13 +12,15 @@
  *            u(n,x)=x*u(n‑1,x)+v(n‑1,x) v(n,x)=x*u(n‑1,x)+(x+1)*v(...
  * Range:     u8 n <= 39, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t **u_coeff = NULL;   /* u_coeff[k] points to array of length k
                                     containing coefficients of u(k,x) */
@@ -38,9 +40,9 @@ static void prepare_u_v(idx_t k_needed)
 
     /* Base case: u(1) and v(1) */
     if (max_k_prepared == 0) {
-        u_coeff[1] = (seq_t *)malloc(sizeof(seq_t));
+        u_coeff[1] = mem_new(seq_t, 1);
         u_coeff[1][0] = (seq_t)1;
-        v_coeff[1] = (seq_t *)malloc(sizeof(seq_t));
+        v_coeff[1] = mem_new(seq_t, 1);
         v_coeff[1][0] = (seq_t)1;
         max_k_prepared = 1;
     }
@@ -51,8 +53,8 @@ static void prepare_u_v(idx_t k_needed)
         seq_t *u_prev = u_coeff[k - 1];
         seq_t *v_prev = v_coeff[k - 1];
 
-        seq_t *u_cur = (seq_t *)malloc(sizeof(seq_t) * k);
-        seq_t *v_cur = (seq_t *)malloc(sizeof(seq_t) * k);
+        seq_t *u_cur = mem_new(seq_t, k);
+        seq_t *v_cur = mem_new(seq_t, k);
 
         /* u(k) = x*u(k-1) + v(k-1) */
         /* constant term */

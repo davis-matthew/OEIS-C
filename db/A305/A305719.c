@@ -8,14 +8,23 @@
  *            digit of k² equals the last decimal digit of k²
  * Range:     u8 n <= 29, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   first_digit_seq_t
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/first_digit_seq_t.h"
+#include "../utils/mem.h"
+
+/* Compute the most significant decimal digit of a seq_t value. */
+static inline seq_t first_digit_seq_t(seq_t x)
+{
+    while (x >= (seq_t)10)
+        x /= (seq_t)10;
+    return x;
+}
 
 static seq_t *cache = NULL;     /* memoised terms           */
 static size_t cache_len = 0;    /* number of terms stored   */
@@ -38,9 +47,9 @@ static void grow_cache(size_t min_cap)
         if (new_cap < min_cap)
             new_cap = min_cap;
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, new_cap);
         } else {
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
         }
         cache_cap = new_cap;
     }

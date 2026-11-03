@@ -11,6 +11,7 @@
  *            of its first differences (A057820)
  * Range:     i8 n <= 76, i16 n <= 76, i32 n <= 76, i64 n <= 76, i128 n <= 76,
  *            big any n
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
 
 static idx_t *prime_powers = NULL;   /* prime powers, 0‑based; prime_powers[0] = 1   */
 static size_t prime_pow_size = 0;    /* current number of stored elements          */

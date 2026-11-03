@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   A059973_Rec
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,24 @@
    using only a fixed array of four elements. */
 
 #include <stdint.h>
-#include "../utils/A059973_Rec.h"
+
+static seq_t A059973_Rec(idx_t k) {
+    if (k == 0) return (seq_t)0;
+    if (k == 1) return (seq_t)1;
+    if (k == 2) return (seq_t)1;
+    if (k == 3) return (seq_t)2;
+    seq_t prev[4];
+    prev[0] = (seq_t)0; /* a_0 */
+    prev[1] = (seq_t)1; /* a_1 */
+    prev[2] = (seq_t)1; /* a_2 */
+    prev[3] = (seq_t)2; /* a_3 */
+    for (idx_t i = 4; i <= k; ++i) {
+        seq_t term4 = prev[(i - 2) & 3] * (seq_t)4;
+        seq_t term1 = prev[(i - 4) & 3];
+        prev[i & 3] = term4 + term1;
+    }
+    return prev[k & 3];
+}
 
 seq_t a(idx_t n) {
     if (n < 1) return (seq_t)0;     /* undefined for n < 1, but safe */

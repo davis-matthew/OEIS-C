@@ -7,8 +7,9 @@
  * Formula:   a(n) is the nth partial quotient in the continued‑fraction
  *            expansion of √70. a(0) = ⌊√70⌋ = 8 and the subsequent terms
  *            repeat with period 6: 2, 1, 2, 1, 2, 16
- * Range:     u8 n <= 8397, u16 n <= 8397, u32 n <= 8397, u64 n <= 8397,
- *            u128 n <= 8397, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 8397 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            that substring. The function generates this sequence on demand
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   has24
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has24.h"
+#include "../utils/mem.h"
+
+static bool has24(seq_t x)
+{
+    if (x == 0) return false;
+    uint8_t digits[64];
+    size_t len = 0;
+    while (x != 0) {
+        digits[len++] = (uint8_t)(x % 9);
+        x /= 9;
+    }
+    for (size_t i = len; i > 1; --i) {
+        if (digits[i - 1] == 2 && digits[i - 2] == 4) return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +55,7 @@ seq_t a(idx_t n)
                 if (size + 1 > cap) {
                     if (cap == 0) cap = 16;
                     while (cap < size + 1) cap <<= 1;
-                    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                 }
                 cache[size++] = v;
                 next = v + 1;          /* next search starts after v */

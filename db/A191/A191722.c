@@ -12,12 +12,21 @@
  *            count_{k=1}^{d-1}k < n ≤ count_{k=1}^d k (d = diagonal...
  * Range:     u8 n <= 21, u16 n <= 78, u32 n <= 300, u64 n <= 1176,
  *            u128 n <= 4656, big any n
- * Helpers:   nextS
+ * Validated: standard, pass, 73 terms through n = 4912 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/nextS.h"
+static inline seq_t nextS(seq_t x)
+{
+    /* S(x) = 5*floor((x+1)/2) + (x even ? 1 : 0) */
+    seq_t y = (x + 1) / 2;          /* floor((x+1)/2)          */
+    seq_t s = y * 5;                /* 5*y                     */
+    if ((x & 1) == 0)               /* x even?                 */
+        s += 1;                     /* add 1 for even x        */
+    return s;
+}
 
 static inline seq_t row_start(idx_t i)
 {

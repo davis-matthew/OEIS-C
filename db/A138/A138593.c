@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 1315, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 8562 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Each node represents one arithmetic progression with difference k =
  * the length of the consecutive block.  val holds the current term in the
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     if (Kmax < 5) Kmax = 5;
 
     /* Allocate heap.  Size_t is sufficient for the small sizes used. */
-    node_t *heap = (node_t *)malloc((size_t)Kmax * sizeof(node_t));
+    node_t *heap = mem_new(node_t, (size_t)Kmax);
     if (!heap) return 0;  /* allocation failure */
 
     /* Initialise heap: first term of each progression k=5..Kmax+4 is
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
             ++count;
             if (count == n) {
                 seq_t result = top->val;
-                free(heap);
+                mem_free(heap);
                 return result;
             }
             last = top->val;

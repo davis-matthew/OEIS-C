@@ -11,17 +11,19 @@
  *            optionally include the special part of si...
  * Range:     u8 n <= 14, u16 n <= 38, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Allocate DP array: dp[m] = number of ways to sum to m after processing
        parts up to current k, including any subset of special parts processed. */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;           /* fallback on allocation failure */
 
     for (idx_t i = 0; i <= n; ++i) dp[i] = 0;
@@ -43,6 +45,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

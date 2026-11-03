@@ -12,13 +12,15 @@
  *            entry.)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 815 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* cached values of the sequence */
 static seq_t *cache = NULL;
@@ -31,7 +33,7 @@ static void grow_cache(idx_t n)
     if (n < cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap << 1 : 1;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     /* if realloc fails, abort – the program is not expected to continue */
     if (!new_cache) abort();
     cache = new_cache;

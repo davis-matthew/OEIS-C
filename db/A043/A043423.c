@@ -7,14 +7,24 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 693, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   zeros_in_base8
+ * Validated: standard, pass, 53 terms through n = 8435 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence: a(n) = nth integer that has exactly three 0's in its base‑8 representation. */
 #include <stdint.h>
-#include "../utils/zeros_in_base8.h"
+
+static inline idx_t zeros_in_base8(seq_t x)
+{
+    idx_t cnt = 0;
+    while (x > 0u) {
+        if ((x % 8u) == 0u) cnt++;
+        x /= 8u;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

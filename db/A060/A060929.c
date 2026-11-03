@@ -8,7 +8,8 @@
  *            numbers L(k) defined by L(0)=2, L(1)=1, L(k)=L(k-1)+L(k-2)
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 30, u64 n <= 72, u128 n <= 160,
  *            big any n
- * Helpers:   fib_seq, fib_uint128
+ * Validated: standard, pass, 43 terms through n = 974 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,30 @@
  * operations for C++ builds. */
 
 #include <stdint.h>
-#include "../utils/fib_seq.h"
-#include "../utils/fib_uint128.h"
+
+/* C++ build: seq_t may be an arbitrary‑precision integer type. */
+static void fib_seq(idx_t n, seq_t *fn, seq_t *fn1)
+{
+    if (n == 0) { *fn = 0; *fn1 = 1; return; }
+    seq_t a, b;
+    fib_seq(n >> 1, &a, &b);
+    seq_t c = a * (b * 2 - a);
+    seq_t d = a * a + b * b;
+    if (n & 1) { *fn = d; *fn1 = c + d; }
+    else { *fn = c; *fn1 = d; }
+}
+
+/* C build: use unsigned __int128 for safe intermediate arithmetic. */
+static void fib_uint128(idx_t n, unsigned __int128 *fn, unsigned __int128 *fn1)
+{
+    if (n == 0) { *fn = 0; *fn1 = 1; return; }
+    unsigned __int128 a, b;
+    fib_uint128(n >> 1, &a, &b);
+    unsigned __int128 c = a * ((b << 1) - a);
+    unsigned __int128 d = a * a + b * b;
+    if (n & 1) { *fn = d; *fn1 = c + d; }
+    else { *fn = c; *fn1 = d; }
+}
 
 #ifdef __cplusplus
 

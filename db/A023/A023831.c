@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_p [ v_p((4n)!) – v_p((n+1)!) – v_p((3n-1)!) ]
  * Range:     u8 n <= 749, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega_factorial, sieve_primes
+ * Validated: standard, pass, 93 terms through n = 8436 (2026-11-01)
+ * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,26 @@
 /* where v_p(m!) = Σ_{i≥1} floor(m/p^i) is the exponent of prime p in m! */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
-#include "../utils/bigomega_factorial.h"
+
+/* Compute Σ_p v_p(m!) for all primes p ≤ m using Legendre's formula. */
+static seq_t
+bigomega_factorial(idx_t m, const idx_t *primes, size_t primes_cnt)
+{
+    seq_t sum = 0;
+    for (size_t i = 0; i < primes_cnt && primes[i] <= m; ++i) {
+        idx_t p = primes[i];
+        idx_t t = m / p;
+        while (t) {
+            sum += t;
+            t /= p;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

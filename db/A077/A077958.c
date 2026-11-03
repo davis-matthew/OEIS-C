@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^(n/3) if n mod 3 = 0, otherwise a(n) = 0
  * Range:     u8 n <= 23, u16 n <= 47, u32 n <= 95, u64 n <= 191,
  *            u128 n <= 383, big any n
+ * Validated: standard, pass, 87 terms through n = 968 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

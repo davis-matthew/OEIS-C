@@ -7,6 +7,7 @@
  * Formula:   a(n) = interpret Fibonacci(n) base-8 digits as base-10
  * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 43, u64 n <= 85, u128 n <= 168,
  *            big any n
+ * Validated: standard, pass, 56 terms through n = 970 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

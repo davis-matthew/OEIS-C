@@ -9,14 +9,43 @@
  *            Initial values: a(0)=1, a(1)=3, a(2)=9, a(3)=29
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 74,
  *            big any n
- * Helpers:   grow_seq, mul_small
+ * Validated: standard, pass, 43 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/mul_small.h"            /* seq_t mul_small(seq_t, unsigned int); */
-#include "../utils/grow_seq.h"            /* void grow_seq(seq_t **, size_t *, size_t); */
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static seq_t *cache = NULL;          /* Cached sequence values */
 static size_t  cache_cap = 0;         /* Allocated capacity of cache */

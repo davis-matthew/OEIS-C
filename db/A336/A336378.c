@@ -8,7 +8,8 @@
  *            prime(k+1)) = 1. The first terms are a(1)=2, a(2)=3, a(3)=7,
  * Range:     u8 n <= 10, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static uint64_t *prime_array   = NULL; /* array of primes */
 static size_t    prime_count   = 0;     /* number of primes stored */
@@ -73,7 +75,7 @@ static void grow_terms(size_t min_cap)
     size_t new_cap = term_cap == 0 ? 16 : term_cap * 2;
     if (new_cap < min_cap)
         new_cap = min_cap;
-    term_arr = (seq_t *)realloc(term_arr, new_cap * sizeof(seq_t));
+    term_arr = mem_resize(seq_t, term_arr, new_cap);
     term_cap = new_cap;
 }
 

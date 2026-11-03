@@ -10,15 +10,44 @@
  *            (duplicates omitted)
  * Range:     u8 n <= 27, u16 n <= 2398, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_array, grow_arr, seq_is_fixed_width
+ * Validated: standard, pass, 71 terms through n = 9983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/alloc_array.h"
-#include "../utils/grow_arr.h"
-#include "../utils/seq_is_fixed_width.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_array(idx_t n) {
+    seq_t *p = mem_new(seq_t, (n + 1));
+    for (idx_t i = 0; i <= n; i++) {
+        p[i] = 0;
+    }
+    return p;
+}
+
+static seq_t *grow_arr(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *r = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) r[i] = old[i];
+    if (old) mem_free(old);
+    return r;
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     static seq_t *s = NULL;

@@ -11,7 +11,8 @@
  *            *Stirling1(n,m)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,9 @@
  * sufficient for n up to about 10,000.
  */
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* base values */
@@ -36,12 +39,12 @@ seq_t a(idx_t n) {
     if (n == 1) return (seq_t)1;
 
     /* allocate arrays for a[0..n] and factorial 0..(n-1) */
-    seq_t *A = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *fact = (seq_t*)malloc(n * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (n + 1));
+    seq_t *fact = mem_new(seq_t, n);
     if (!A || !fact) {
         /* memory allocation failed – return 0 as a safe fallback */
-        if (A) free(A);
-        if (fact) free(fact);
+        if (A) mem_free(A);
+        if (fact) mem_free(fact);
         return (seq_t)0;
     }
 
@@ -58,7 +61,7 @@ seq_t a(idx_t n) {
         seq_t sum = (seq_t)0;
         for (idx_t k = 1; k < i; ++k) {
             /* binomial C(i-1, k-1) */
-            seq_t bin = binom(i - 1, k - 1);
+            seq_t bin = binomial(i - 1, k - 1);
             /* term 1: 2 * a_k * a_{i-k} * bin */
             seq_t prod    = A[k] * A[i - k];
             prod          = prod * (seq_t)2 * bin;
@@ -84,7 +87,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = A[n];
-    free(A);
-    free(fact);
+    mem_free(A);
+    mem_free(fact);
     return result;
 }

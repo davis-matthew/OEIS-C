@@ -12,6 +12,7 @@
  *            value * The algorithm iterates until n becomes 1...
  * Range:     u8 n <= 135, u16 n <= 135, u32 n <= 135, u64 n <= 135,
  *            u128 n <= 135, big any n
+ * Validated: partial, pass, 135 terms through n = 135 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

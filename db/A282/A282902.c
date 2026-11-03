@@ -10,8 +10,8 @@
  *            antidiagonals downwards
  * Range:     u8 n <= 12, u16 n <= 32, u32 n <= 82, u64 n <= 216,
  *            u128 n <= 604, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, mod_pow, mul_small,
- *            pow_seq, seq_mul
+ * Validated: standard, pass, 71 terms through n = 9696 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32, isqrt, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +19,30 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
-#include "../utils/pow_seq.h"
-#include "../utils/seq_mul.h"
-#include "../utils/mul_small.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/isqrt.h"
+#include "../utils/powmod.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static bool primes_init = false;
 static uint64_t primes_arr[300];
@@ -38,7 +56,7 @@ static seq_t order_mod_p(uint64_t p)
     for (size_t fi = 0; fi < primes_cnt && primes_arr[fi] * primes_arr[fi] <= r; ++fi) {
         uint64_t q = primes_arr[fi];
         while (r % q == 0) {
-            seq_t v = mod_pow((seq_t)2, r / q, (seq_t)p);
+            seq_t v = powmod((seq_t)2, r / q, (seq_t)p);
             if (v == (seq_t)1)
                 r /= q;
             else
@@ -69,7 +87,7 @@ seq_t a(idx_t n)
 
     /* find diagonal d : (d-1)d/2 > m */
     uint64_t t = 1 + 8 * m;
-    uint64_t sqrt_t = _floor_isqrt_u64(t);
+    uint64_t sqrt_t = isqrt(t);
     uint64_t d = (1 + sqrt_t) / 2 + 1;
     while ((d - 1) * d / 2 <= m) ++d;
     while ((d - 2) * (d - 1) / 2 > m) --d;
@@ -89,7 +107,7 @@ seq_t a(idx_t n)
 
     /* special case p = 2 : order is 2·3^(k-1) */
     if (p_val == 2) {
-        seq_t pow3 = pow_seq((seq_t)3, (int)(j - 1));
+        seq_t pow3 = ipow_i32((seq_t)3, (int)(j - 1));
         return mul_small(pow3, 2);
     }
 
@@ -101,7 +119,7 @@ seq_t a(idx_t n)
     uint64_t s = 1;
     seq_t modulus = mul_small((seq_t)p_val, (unsigned)p_val); /* p^2 */
     while (true) {
-        seq_t val = mod_pow((seq_t)2, r_uint, modulus);
+        seq_t val = powmod((seq_t)2, r_uint, modulus);
         if (val == (seq_t)1) {
             ++s;
             modulus = mul_small(modulus, (unsigned)p_val);
@@ -116,6 +134,6 @@ seq_t a(idx_t n)
         return r;
 
     uint64_t exp_needed = j - s;
-    seq_t p_pow = pow_seq((seq_t)p_val, (int)exp_needed);
+    seq_t p_pow = ipow_i32((seq_t)p_val, (int)exp_needed);
     return seq_mul(r, p_pow);
 }

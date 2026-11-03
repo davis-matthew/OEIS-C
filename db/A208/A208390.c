@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are provided by the build configuration. */
 static seq_t *cache = NULL;      /* array holding computed terms (index 0 unused) */
@@ -45,12 +47,12 @@ ensure_cache_size(idx_t idx)
     idx_t new_cap = cache_size ? cache_size * 2 : 16;
     if (new_cap <= idx)
         new_cap = idx + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
     if (!tmp)
         return; /* in a real program we would handle the error */
     /* Zero‑initialize new entries */
     if (new_cap > cache_size)
-        memset(tmp + cache_size, 0, (size_t)(new_cap - cache_size) * sizeof(seq_t));
+        mem_set(tmp + cache_size, 0, (size_t)(new_cap - cache_size) * sizeof(seq_t));
     cache = tmp;
     cache_size = new_cap;
 }

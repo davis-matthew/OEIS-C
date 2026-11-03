@@ -10,6 +10,7 @@
  *            '1221'^p * a(8p) = '11121' + '1221'^(p-1)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 77,
  *            big any n
+ * Validated: full, pass, 103 terms through n = 103 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

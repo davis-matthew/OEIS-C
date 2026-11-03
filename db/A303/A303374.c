@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   node_val_lt
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/node_val_lt.h"
+#include "../utils/mem.h"
+
+/* Helper: comparison of two nodes in the min‑heap.  Only the value is used
+ * for ordering; in case of equality the order is arbitrary (duplicates are
+ * de‑duplicated when inserted into the result cache). */
+static int node_val_lt(const void *p, const void *q) {
+    const seq_t *x = (const seq_t*)p;
+    const seq_t *y = (const seq_t*)q;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* Node structure representing one entry in the heap: value of a^4 + b^6,
  * current a, fixed b, and pre‑computed b^6 to speed up generation of the
@@ -45,8 +57,7 @@ static void heap_swap(struct Node *x, struct Node *y) {
 static void heap_push(const struct Node *node) {
     if (heap_size == heap_cap) {                /* grow heap if needed */
         size_t new_cap = heap_cap ? heap_cap * 2 : 64;
-        struct Node *new_arr = (struct Node*)realloc(heap_arr,
-                                                    new_cap * sizeof(struct Node));
+        struct Node *new_arr = mem_resize(struct Node, heap_arr, new_cap);
         if (!new_arr) exit(1);
         heap_arr = new_arr;
         heap_cap = new_cap;
@@ -89,7 +100,7 @@ static size_t cache_cap = 0;        /* allocated capacity of cache */
 /* Grows the cache array when needed. */
 static void cache_grow(void) {
     size_t new_cap = cache_cap ? cache_cap * 2 : 1024;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);
     cache = tmp;
     cache_cap = new_cap;
@@ -103,7 +114,7 @@ static void generate_to(idx_t n) {
     if (heap_arr == NULL) {
         const uint64_t MAX_B = 200;
         heap_cap = MAX_B + 10;
-        heap_arr = (struct Node*)malloc(heap_cap * sizeof(struct Node));
+        heap_arr = mem_new(struct Node, heap_cap);
         if (!heap_arr) exit(1);
         heap_size = 0;
         for (uint64_t b = 1; b <= MAX_B; ++b) {

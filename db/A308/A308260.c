@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{1 ≤ k ≤ n, gcd(n,k)=1} prime(k)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 10, u64 n <= 16, u128 n <= 23,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static inline idx_t gcd_idx(idx_t a, idx_t b)
 {
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
 {
     if (n >= g_cache_cap) {
         size_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, g_cache, new_cap);
         if (!new_cache) exit(EXIT_FAILURE);
         g_cache = new_cache;
         for (size_t i = g_cache_cap; i <= (size_t)n; ++i) {

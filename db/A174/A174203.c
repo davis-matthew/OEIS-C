@@ -12,7 +12,8 @@
  *            binary number, which is interpreted in base 10
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *b_values = NULL;          /* array b(k) = value after deletion for number k   */
@@ -65,14 +67,14 @@ ensure_computed(idx_t target_k)
 {
     if (!init_done) {
         /* initialise: compute b(0) first */
-        b_values = (seq_t *)malloc((target_k + 1) * sizeof(seq_t));
+        b_values = mem_new(seq_t, (target_k + 1));
         zero_cnt = 0; one_cnt = 0;
         for (idx_t k = 0; k <= target_k; ++k)
             b_values[k] = build_value(k);
         max_k = target_k;
         init_done = true;
     } else if (target_k > max_k) {
-        b_values = (seq_t *)realloc(b_values, (target_k + 1) * sizeof(seq_t));
+        b_values = mem_resize(seq_t, b_values, (target_k + 1));
         for (idx_t k = max_k + 1; k <= target_k; ++k)
             b_values[k] = build_value(k);
         max_k = target_k;

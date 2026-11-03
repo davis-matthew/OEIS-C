@@ -7,14 +7,58 @@
  * Formula:   a(n) = Sum_{d^2|n} Omega(n/d^2)
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   simple_factor
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/simple_factor.h"
+
+/* Factor n into primes[] and exps[], returns the number of prime factors in *cnt.
+   The function is a simple trial‑division routine adequate for n up to at least 1e6
+   (and considerably larger) and does not rely on external helpers. */
+static void simple_factor(uint64_t n, uint64_t *primes, uint64_t *exponents, size_t *cnt)
+{
+    size_t c = 0;
+    uint64_t tmp = n;
+    if (tmp == 0) {
+        *cnt = 0;
+        return;
+    }
+    /* handle factor 2 */
+    if ((tmp & 1ULL) == 0) {
+        uint64_t e = 0;
+        while ((tmp & 1ULL) == 0) {
+            tmp >>= 1;
+            e++;
+        }
+        primes[c] = 2ULL;
+        exponents[c] = e;
+        c++;
+    }
+    /* handle odd factors */
+    for (uint64_t p = 3ULL; p <= tmp / p; p += 2ULL) {
+        if (tmp % p == 0) {
+            uint64_t e = 0;
+            while (tmp % p == 0) {
+                tmp /= p;
+                e++;
+            }
+            primes[c] = p;
+            exponents[c] = e;
+            c++;
+        }
+    }
+    /* remaining prime */
+    if (tmp > 1ULL) {
+        primes[c] = tmp;
+        exponents[c] = 1ULL;
+        c++;
+    }
+    *cnt = c;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

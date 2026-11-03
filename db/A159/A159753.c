@@ -7,12 +7,14 @@
  * Formula:   a(n) = 21^n * Hermite(n, 10/21)
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 6, i64 n <= 10, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 365 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Initialise cache with first two values a(0)=1, a(1)=20 */
     if (buf == NULL) {
         cap = 2;
-        buf = (seq_t *)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         if (!buf) return (seq_t)0;   /* allocation failure – return zero */
         buf[0] = (seq_t)1;          /* a(0) */
         buf[1] = (seq_t)20;         /* a(1) */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t newcap = cap ? cap : 1;
         while (newcap <= (size_t)n) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, newcap);
         if (!tmp) return (seq_t)0;   /* reallocation failure – return zero */
         buf = tmp;
         cap = newcap;

@@ -7,13 +7,15 @@
  * Formula:   a(n) = 2*a(n-1) + v_2(n), with a(0) = 0
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 3284 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Here v_2(n) is the exponent of the largest power of 2 dividing n */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache_len == 0) {
         idx_t size = n + 1;                    /* n may be 0 */
-        cache = (seq_t*)calloc(size, sizeof(seq_t));
+        cache = mem_new(seq_t, size);
         cache_len = size;
         cache[0] = (seq_t)0;                   /* a(0) = 0 */
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* Extend cache to include up to n */
     idx_t old_len = cache_len;
     idx_t new_len = n + 1;
-    cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     cache_len = new_len;
 
     for (idx_t k = old_len; k <= n; ++k) {

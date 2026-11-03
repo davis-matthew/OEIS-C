@@ -12,18 +12,36 @@
  *            where F is Fibonacci and φ is Euler’s totient
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 22, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   _floor_isqrt_u64, diff_abs, diff_sign, fib, phi
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   isqrt, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/fib.h"
-#include "../utils/phi.h"
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/diff_abs.h"
-#include "../utils/diff_sign.h"
+#include "../utils/isqrt.h"
+#include "../utils/totient.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
+
+static inline seq_t diff_abs(seq_t a, seq_t b) {
+    return (a >= b) ? (a - b) : (b - a);
+}
+
+/* auxiliary – sign of a‑b in unsigned arithmetic */
+static inline int diff_sign(seq_t a, seq_t b) {
+    return a >= b ? 1 : -1;
+}
 
 seq_t a(idx_t n) {
     /* Handle n = 0 or negative indices gracefully – undefined in OEIS */
@@ -67,18 +85,18 @@ seq_t a(idx_t n) {
     else              neg += t4_mag;
 
     /* Term 5: (1/2)*Σ_{s|n} φ(n/s)*F(2s)  → multiply by 5 for common denom 10 */
-    idx_t limit = _floor_isqrt_u64(n);
+    idx_t limit = isqrt(n);
     for (idx_t d = 1; d <= limit; ++d) {
         if (n % d == 0) {
             /* divisor d */
             idx_t s1 = d;
             idx_t s2 = n / d;
-            seq_t phi_s2 = phi(s2);                    /* φ(n/s1) */
+            seq_t phi_s2 = totient(s2);                    /* φ(n/s1) */
             seq_t f2s1 = fib(2 * s1);
             pos += phi_s2 * f2s1 * (seq_t)5;           /* 5*φ*F(2s) */
 
             if (s1 != s2) {                            /* counterpart divisor */
-                seq_t phi_s1 = phi(s1);                 /* φ(n/s2) = φ(d) */
+                seq_t phi_s1 = totient(s1);                 /* φ(n/s2) = φ(d) */
                 seq_t f2s2 = fib(2 * s2);
                 pos += phi_s1 * f2s2 * (seq_t)5;        /* 5*φ*F(2s) */
             }

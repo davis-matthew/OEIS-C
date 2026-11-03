@@ -7,16 +7,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if the odd part of n has exactly one distinct prime
  *            divisor, 0 otherwise
- * Range:     u8 n <= 9878, u16 n <= 9878, u32 n <= 9878, u64 n <= 9878,
- *            u128 n <= 9878, big any n
- * Helpers:   count_distinct_primes
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9878 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* count distinct odd prime factors of the odd part */
-    int distinct = count_distinct_primes(m);
+    int distinct = omega(m);
 
     return (seq_t)(distinct == 1 ? 1 : 0);
 }

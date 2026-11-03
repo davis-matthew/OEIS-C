@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 60 terms through n = 979 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Integer square root of a 64‑bit unsigned integer (floor). */
 static uint64_t isqrt_u64(uint64_t x)
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
         prime_list[prime_cnt++] = 3;
         prime_list[prime_cnt++] = 5;   /* 5 is needed for correct division */
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         initialized = true;
     }
 
@@ -98,12 +101,12 @@ seq_t a(idx_t n)
         uint64_t e = (p - 1) / 3;
 
         /* test whether 20^e ≡ 1 (mod p) */
-        seq_t pow = mod_pow((seq_t)20, e, (seq_t)p);
+        seq_t pow = powmod((seq_t)20, e, (seq_t)p);
         if (pow != (seq_t)1) {
             /* p has no solution of x^3 ≡ 20 (mod p) */
             if (seq_cnt == seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_cnt++] = (seq_t)p;
         }

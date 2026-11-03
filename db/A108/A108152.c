@@ -8,12 +8,14 @@
  *            a(1)=0, a(2)=2
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialize the buffer on first call */
     if (buf_len == 0) {
         buf_cap = 3;
-        buf = (seq_t *)malloc((size_t)buf_cap * sizeof(seq_t));
+        buf = mem_new(seq_t, (size_t)buf_cap);
         buf[0] = (seq_t)1;
         buf[1] = (seq_t)0;
         buf[2] = (seq_t)2;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
         if (buf_len == buf_cap) {
             buf_cap = buf_cap ? buf_cap * 2 : 4;
-            buf = (seq_t *)realloc(buf, (size_t)buf_cap * sizeof(seq_t));
+            buf = mem_resize(seq_t, buf, (size_t)buf_cap);
         }
         buf[buf_len++] = val;
     }

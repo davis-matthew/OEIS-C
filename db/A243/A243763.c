@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 82, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   conv_seq
+ * Validated: standard, pass, 62 terms through n = 936 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,22 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/conv_seq.h"
+#include "../utils/mem.h"
+
+/* convolution of a[0..asz-1] with b[0..bsz-1] into res[0..rsz-1] */
+static inline void conv_seq(const seq_t *a, size_t asz,
+                            const seq_t *b, size_t bsz,
+                            seq_t *res, size_t rsz)
+{
+    for (size_t i = 0; i < asz; ++i) {
+        seq_t ai = a[i];
+        if (!ai) continue;
+        size_t maxj = (i + bsz > rsz) ? (rsz > i ? rsz - i : 0) : bsz;
+        for (size_t j = 0; j < maxj; ++j) {
+            res[i + j] += ai * b[j];
+        }
+    }
+}
 
 static seq_t *phi_arr   = NULL;
 static seq_t *psi_arr   = NULL;
@@ -47,16 +63,16 @@ static void build_up_to(idx_t n)
     size_t sz = (size_t)n + 1;
 
     /* free previous data */
-    free(phi_arr);  free(psi_arr);
-    free(phi3_arr); free(psi4_arr);
-    free(g_arr);
+    mem_free(phi_arr);  mem_free(psi_arr);
+    mem_free(phi3_arr); mem_free(psi4_arr);
+    mem_free(g_arr);
 
     /* allocate fresh arrays */
-    phi_arr   = (seq_t*)calloc(sz, sizeof(seq_t));
-    psi_arr   = (seq_t*)calloc(sz, sizeof(seq_t));
-    phi3_arr = (seq_t*)calloc(sz, sizeof(seq_t));
-    psi4_arr = (seq_t*)calloc(sz, sizeof(seq_t));
-    g_arr    = (seq_t*)calloc(sz, sizeof(seq_t));
+    phi_arr   = mem_new(seq_t, sz);
+    psi_arr   = mem_new(seq_t, sz);
+    phi3_arr = mem_new(seq_t, sz);
+    psi4_arr = mem_new(seq_t, sz);
+    g_arr    = mem_new(seq_t, sz);
 
     /* phi(q) = 1 + 2∑_{k≥1} q^{k^2} */
     phi_arr[0] = 1;
@@ -73,16 +89,16 @@ static void build_up_to(idx_t n)
     }
 
     /* phi^3 = phi * phi * phi */
-    seq_t *tmp = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, sz);
     conv_seq(phi_arr, sz, phi_arr, sz, tmp, sz);     /* phi^2 */
     conv_seq(tmp, sz, phi_arr, sz, phi3_arr, sz);    /* phi^3 */
-    free(tmp);
+    mem_free(tmp);
 
     /* psi^4 = (psi^2)^2 */
-    tmp = (seq_t*)calloc(sz, sizeof(seq_t));
+    tmp = mem_new(seq_t, sz);
     conv_seq(psi_arr, sz, psi_arr, sz, tmp, sz);     /* psi^2 */
     conv_seq(tmp, sz, tmp, sz, psi4_arr, sz);        /* psi^4 */
-    free(tmp);
+    mem_free(tmp);
 
     /* G = phi^3 * psi^4 */
     conv_seq(phi3_arr, sz, psi4_arr, sz, g_arr, sz);

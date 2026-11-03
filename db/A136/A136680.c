@@ -10,7 +10,8 @@
  *            f(k)=f(k-1)+k^(k-2)*f(k-2)
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 35, u64 n <= 65, u128 n <= 104,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 71 terms through n = 444 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *f_cache = NULL;   /* cache for f(k) */
 static size_t f_size = 0;       /* number of initialized entries */
@@ -31,7 +34,7 @@ static void ensure_f(size_t k)
     if (f_cap < need) {
         size_t new_cap = f_cap ? f_cap * 2 : 2;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(f_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, f_cache, new_cap);
         if (!tmp) abort();          /* out of memory */
         f_cache = tmp;
         f_cap   = new_cap;
@@ -42,7 +45,7 @@ static void ensure_f(size_t k)
         } else if (i == 1) {
             f_cache[1] = 1;
         } else {
-            seq_t p = big_pow((seq_t)i, (seq_t)(i - 2));
+            seq_t p = ipow((seq_t)i, (seq_t)(i - 2));
             f_cache[i] = f_cache[i - 1] + p * f_cache[i - 2];
         }
     }

@@ -13,13 +13,15 @@
  *            - (t^2+t^3) S_{n-3} + t^4 S_{n-4...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     int i;
 
     for (i = 0; i < 5; i++)
-        buf[i] = (seq_t *)calloc((size_t)len, sizeof(seq_t));
+        buf[i] = mem_new(seq_t, (size_t)len);
 
     for (m = 0; m <= n; m++) {
         seq_t *cur = buf[m % 5];
@@ -68,6 +70,6 @@ seq_t a(idx_t n)
         fact *= (seq_t)(n - k + 1);
     }
 
-    for (i = 0; i < 5; i++) free(buf[i]);
+    for (i = 0; i < 5; i++) mem_free(buf[i]);
     return res;
 }

@@ -8,7 +8,8 @@
  *            solution
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 71 terms through n = 960 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 /* Value a(n) is the nth such prime (OEIS offset 1). */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
@@ -36,7 +39,7 @@ seq_t a(idx_t n) {
                 g = 1;
             }
             uint64_t exp = dm1 / g;
-            seq_t res = mod_pow((seq_t)2, exp, (seq_t)candidate);
+            seq_t res = powmod((seq_t)2, exp, (seq_t)candidate);
             if (res != (seq_t)1) {
                 count++;
                 if (count == n)

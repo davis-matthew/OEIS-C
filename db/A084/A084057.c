@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*a(n-1) + 4*a(n-2), a(0)=1, a(1)=1
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 38, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache to store computed terms */
 static seq_t *a_cache = NULL;
@@ -24,7 +26,7 @@ static void ensure_cap(size_t need) {
     if (a_cap < need) {
         size_t new_cap = a_cap ? a_cap * 2 : 2;
         while (new_cap < need) new_cap *= 2;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cap  = new_cap;
     }
 }
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     /* Initialise cache on first call */
     if (a_cache == NULL) {
         a_cap = 2;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)1;
         a_cache[1] = (seq_t)1;
         a_last = 1;

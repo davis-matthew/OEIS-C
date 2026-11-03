@@ -9,13 +9,15 @@
  * Formula:   a(0) = 1; a(n) = -Sum_{k=0..floor((n-1)/8)} a(k)*a(n-8*k-1)
  * Range:     i8 n <= 35, i16 n <= 70, i32 n <= 147, i64 n <= 287,
  *            i128 n <= 579, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The function is called repeatedly with arbitrary n in any order.
    We keep a static cache (dp) that grows as necessary.  The array is
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (dp == NULL) {
         dp_cap  = 256;              /* start with a small capacity */
-        dp      = (seq_t*)malloc(dp_cap * sizeof(seq_t));
+        dp      = mem_new(seq_t, dp_cap);
         if (dp == NULL) abort();   /* can't continue without storage */
         dp[0] = 1;                 /* a(0) = 1 */
         dp_size = 1;
@@ -42,10 +44,10 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > dp_cap) {
         size_t new_cap = dp_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *newdp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, new_cap);
         if (newdp == NULL) abort();
         for (size_t i = 0; i < dp_size; ++i) newdp[i] = dp[i];
-        free(dp);
+        mem_free(dp);
         dp = newdp;
         dp_cap = new_cap;
     }

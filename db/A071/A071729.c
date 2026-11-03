@@ -9,21 +9,23 @@
  *            0) where a4(k) = 4/(2k+4) * binom(2k+4, k) a5(k) = 5/(2k+5) *
  *            binom(2k+5, k) C(x) is the Catalan generating function: C(x) = Σ
  *            cat(k)x^k
- * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 23, u128 n <= 23,
+ * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     /* a4(n) */
     idx_t denom4 = 2 * n + 4;
-    seq_t coeff = binom(denom4, n);          /* binom(2n+4, n) */
+    seq_t coeff = binomial(denom4, n);          /* binom(2n+4, n) */
     coeff = coeff * (seq_t)4;                /* multiply by 4   */
     coeff = coeff / (seq_t)denom4;           /* divide by 2n+4   */
 
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (n >= 3) {
         idx_t m = n - 3;
         idx_t denom5 = 2 * m + 5;
-        seq_t term5 = binom(denom5, m);      /* binom(2m+5, m)  */
+        seq_t term5 = binomial(denom5, m);      /* binom(2m+5, m)  */
         term5 = term5 * (seq_t)5;            /* multiply by 5    */
         term5 = term5 / (seq_t)denom5;       /* divide by 2m+5   */
         coeff += term5;

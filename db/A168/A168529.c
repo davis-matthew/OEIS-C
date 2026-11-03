@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1407, u64 n <= 1407, u128 n <= 1407,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 1407 terms through n = 1407 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>   /* uint64_t */
 #include <stdbool.h>  /* bool, false, true */
 #include <stdlib.h>   /* malloc, qsort */
+#include "../utils/mem.h"
 
 /* Comparison function for qsort: works for integer and arbitrary‑precision
    types that provide operator< in C++ or normal < in C. */
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
 
         /* 3. generate all candidates and test primality */
         const size_t MAX_PAIRS = 11000;          /* exceeds 143*142/2 = 10203 */
-        cache = (seq_t *)malloc(sizeof(seq_t) * MAX_PAIRS);
+        cache = mem_new(seq_t, MAX_PAIRS);
         cache_len = 0;
 
         for (size_t i = 0; i < p_cnt; ++i) {
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
         }
 
         /* 4. sort the cache */
-        qsort(cache, cache_len, sizeof(seq_t), seq_cmp);
+        mem_qsort(cache, cache_len, sizeof(seq_t), seq_cmp);
     }
 
     /* --------------------------------------------------------------------- */

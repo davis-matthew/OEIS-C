@@ -7,13 +7,15 @@
  * Formula:   a(n) = Π_{i=1..n} Π_{d|i} τ(d) (τ = number of divisors)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 19, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The build will provide seq_t and idx_t. */
 static idx_t  max_n_computed = 0;   /* largest n already processed         */
@@ -39,7 +41,7 @@ static void ensure_size(idx_t n)
         tau_size = need;
     }
     if (cache_size < need) {
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         cache = tmp;
         cache_size = need;
     }

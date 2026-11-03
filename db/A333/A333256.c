@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   decreasing_composition
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,37 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/decreasing_composition.h"
+
+/* Helper: returns true iff the composition associated with k is
+   strictly decreasing.  k is interpreted as an unsigned 64‑bit
+   integer. */
+static bool decreasing_composition(idx_t k)
+{
+    if (k == 0)            /* empty composition (k = 0) is acceptable */
+        return true;
+
+    idx_t temp = k;
+    int prev_idx = -1;     /* index of the previous set bit */
+    int prev_gap = 0;      /* previous gap size (D_{j-1}) */
+    bool first = true;     /* flag for the first set bit */
+
+    while (temp) {
+        /* locate the lowest set bit (zero‑based index) */
+        int idx = __builtin_ctzll(temp);   /* CTZ works on unsigned long long */
+        if (first) {
+            prev_gap = idx + 1;            /* D1 = idx + 1 */
+            first = false;
+        } else {
+            int cur_gap = idx - prev_idx;   /* D_j = idx - previous_index */
+            if (cur_gap <= prev_gap)       /* need strictly increasing gaps */
+                return false;
+            prev_gap = cur_gap;
+        }
+        prev_idx = idx;
+        temp &= temp - 1;                 /* clear lowest set bit */
+    }
+    return true;
+}
 
 /* Main sequence function.  a(1) = 0 according to the OEIS offset. */
 seq_t a(idx_t n)

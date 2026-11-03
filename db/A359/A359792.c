@@ -7,8 +7,9 @@
  * Keywords:  sign
  * Formula:   a(n) = (-1)^A003415(n), where A003415(n) is the arithmetic
  *            derivative of n
- * Range:     i8 n <= 9081, i16 n <= 9081, i32 n <= 9081, i64 n <= 9081,
- *            i128 n <= 9081, big any n
+ * Range:     i8 n <= 20000, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9081 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,30 +12,32 @@
  *            programming over step number and * current height
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 29, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 690 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;
 
     /* arrays sized to accommodate heights up to n */
     idx_t sz = n + 2;
-    seq_t *cnt = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *area = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *cnt_next = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *area_next = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, sz);
+    seq_t *area = mem_new(seq_t, sz);
+    seq_t *cnt_next = mem_new(seq_t, sz);
+    seq_t *area_next = mem_new(seq_t, sz);
 
     cnt[0] = (seq_t)1;  /* one empty path at height 0 */
 
     for (idx_t step = 0; step < n; ++step) {
         /* clear next arrays */
-        memset(cnt_next, 0, sz * sizeof(seq_t));
-        memset(area_next, 0, sz * sizeof(seq_t));
+        mem_set(cnt_next, 0, sz * sizeof(seq_t));
+        mem_set(area_next, 0, sz * sizeof(seq_t));
 
         idx_t max_y = step;  /* reachable heights after 'step' steps */
 
@@ -89,10 +91,10 @@ seq_t a(idx_t n) {
     seq_t result = area[0]; /* only paths ending at height 0 count */
 
     /* free allocated memory */
-    free(cnt);
-    free(area);
-    free(cnt_next);
-    free(area_next);
+    mem_free(cnt);
+    mem_free(area);
+    mem_free(cnt_next);
+    mem_free(area_next);
 
     return result;
 }

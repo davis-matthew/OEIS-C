@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -----  Static cache  ----- */
 static seq_t *a_cache  = NULL;   /* cache of computed a(n)   */
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
 
     /* Grow a_cache to at least n elements if necessary */
     if (cache_cap < (size_t)n) {
-        seq_t *tmp = (seq_t *)realloc(a_cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, n);
         if (!tmp) abort();
         a_cache = tmp;
         cache_cap = n;

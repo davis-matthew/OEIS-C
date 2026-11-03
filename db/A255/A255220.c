@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 21, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    (All arithmetic performed in the build‑time type seq_t) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function is required to have external linkage. */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Allocate cache if this is the first call.  Ensure at least 6 slots. */
     if (cache == NULL) {
         size_t init_sz = (size_t)((n > 6) ? n : 6);
-        cache = (seq_t *)malloc(init_sz * sizeof(seq_t));
+        cache = mem_new(seq_t, init_sz);
         /* Initialise the first six values – the sequence is defined from a(1). */
         cache[0] = (seq_t)23;
         cache[1] = (seq_t)28;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Grow the cache to hold up to n terms. */
     size_t new_sz = (size_t)n;
     if (new_sz > cached_n) {
-        cache = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_sz);
         /* Compute missing terms using the recurrence.  The loop starts
            from the first index that is not yet computed (cached_n).  */
         for (size_t i = cached_n; i < new_sz; ++i) {

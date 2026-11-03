@@ -8,13 +8,15 @@
  *            Initial values: a(0)=0, a(1)=0, a(2)=0, a(3)=1, a(4)=4
  * Range:     i8 n <= 10, i16 n <= 19, i32 n <= 36, i64 n <= 74, i128 n <= 146,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         cap = 16;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)0;
         cache[2] = (seq_t)0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (n >= cap) {
         size_t new_cap = cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Allocation failed; return zero as a safe fallback */
             return (seq_t)0;

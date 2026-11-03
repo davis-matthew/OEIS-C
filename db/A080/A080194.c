@@ -8,13 +8,15 @@
  *            which is divisible by 7 (i.e. a 4‑smooth number with a 7 factor)
  * Range:     u8 n <= 24, u16 n <= 329, u32 n <= 4775, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9710 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state for on‑demand generation of the sequence. */
 static seq_t *h      = NULL; /* all 4‑smooth numbers (2,3,5,7) */
@@ -28,7 +30,7 @@ static void ensure_h_capacity(void)
 {
     if (h_cap <= h_len) {
         size_t new_cap = h_cap ? h_cap << 1 : 256;
-        seq_t *nv = (seq_t *)realloc(h, new_cap * sizeof(seq_t));
+        seq_t *nv = mem_resize(seq_t, h, new_cap);
         if (!nv) abort();
         h = nv;
         h_cap = new_cap;
@@ -40,7 +42,7 @@ static void ensure_h7_capacity(void)
 {
     if (h7_cap <= h7_len) {
         size_t new_cap = h7_cap ? h7_cap << 1 : 256;
-        seq_t *nv = (seq_t *)realloc(h7, new_cap * sizeof(seq_t));
+        seq_t *nv = mem_resize(seq_t, h7, new_cap);
         if (!nv) abort();
         h7 = nv;
         h7_cap = new_cap;

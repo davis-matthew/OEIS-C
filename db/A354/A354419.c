@@ -8,13 +8,15 @@
  *            1 (n ≥ 2) Recurrence derived from the e.g.f. log(1+4*x)*exp(x)/4
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 14, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 347 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Ensure stdlib is available for size_t, realloc, NULL */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external types provided by the build environment */
 extern seq_t a(idx_t n);
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (cap < needed) {
         size_t new_cap = (cap == 0) ? 2 : cap;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;          /* allocation failure, unlikely in tests */
         cache = tmp;
         cap   = new_cap;

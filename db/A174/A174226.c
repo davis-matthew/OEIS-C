@@ -10,7 +10,8 @@
  *            A034897)
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --- Static state shared among calls ----------------------------------- */
 static seq_t *partial_sums   = NULL;   /* a(1)..a(n) as they are found          */
@@ -31,12 +33,12 @@ static uint32_t *spf          = NULL;   /* smallest prime factor array          
 static void ensure_partial_cap(size_t new_cap)
 {
     if (partial_cap >= new_cap) return;
-    seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) abort(); /* cannot happen on sane systems */
     if (partial_sums)
     {
-        memcpy(tmp, partial_sums, partial_cap * sizeof(seq_t));
-        free(partial_sums);
+        mem_copy(tmp, partial_sums, partial_cap * sizeof(seq_t));
+        mem_free(partial_sums);
     }
     partial_sums = tmp;
     partial_cap  = new_cap;

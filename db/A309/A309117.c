@@ -11,13 +11,15 @@
  *            2*a(n-7) - a(n-8)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Internal cache for memoised values */
 static seq_t *cache = NULL;
@@ -47,13 +49,13 @@ static void ensure_cache_capacity(idx_t n)
         new_cap = required;
     if (cache == NULL)
     {
-        cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
         if (cache == NULL)
             abort(); /* allocation failed */
     }
     else
     {
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             abort();
         cache = tmp;

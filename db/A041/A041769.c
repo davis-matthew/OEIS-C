@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Initial values: a(0)=1, a(1)=8, a(2)=321, a(3)=2576 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of computed terms.  Dynamic resizing ensures we always have
    enough space for the current request and the 4 initial values. */
@@ -42,7 +44,7 @@ static void grow_cache(idx_t needed)
     while (new_len < (size_t)needed)
         new_len <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp)
         abort();                 /* allocation failure: terminate program */
     cache = tmp;

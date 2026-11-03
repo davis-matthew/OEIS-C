@@ -12,12 +12,14 @@
  *            partitions that contain at least one part of each type
  * Range:     u8 n <= 89, u16 n <= 205, u32 n <= 569, u64 n <= 1773,
  *            u128 n <= 6047, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9773 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,15 +33,15 @@ seq_t a(idx_t n)
     /* Re‑compute data if a larger n is requested */
     if (n > current_max) {
         /* free old arrays */
-        if (dp_all) free(dp_all);
-        if (dp8)   free(dp8);
-        if (dp6)   free(dp6);
+        if (dp_all) mem_free(dp_all);
+        if (dp8)   mem_free(dp8);
+        if (dp6)   mem_free(dp6);
 
         /* allocate new arrays */
         size_t sz = (size_t)(n + 1);
-        dp_all = (seq_t*)calloc(sz, sizeof(seq_t));
-        dp8   = (seq_t*)calloc(sz, sizeof(seq_t));
-        dp6   = (seq_t*)calloc(sz, sizeof(seq_t));
+        dp_all = mem_new(seq_t, sz);
+        dp8   = mem_new(seq_t, sz);
+        dp6   = mem_new(seq_t, sz);
 
         if (!dp_all || !dp8 || !dp6) return 0;  /* allocation failed */
 

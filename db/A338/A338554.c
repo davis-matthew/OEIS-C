@@ -8,7 +8,8 @@
  * Formula:   a(n) = A018783(n) - A000005(n) + 1
  * Range:     u8 n <= 33, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache of partition numbers up to the largest n requested so far */
 static seq_t *p_cache = NULL;
@@ -26,7 +28,7 @@ static idx_t p_cache_size = 0;
 /* generate partition numbers p[0..N] using pentagonal number theorem */
 static void partition_cache(idx_t N)
 {
-    seq_t *newp = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, (N + 1));
     if (!newp) return;
     newp[0] = 1;
     for (idx_t m = 1; m <= N; ++m) {
@@ -43,7 +45,7 @@ static void partition_cache(idx_t N)
         }
         newp[m] = sum;
     }
-    free(p_cache);
+    mem_free(p_cache);
     p_cache = newp;
     p_cache_size = N + 1;
 }

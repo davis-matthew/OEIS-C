@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    The a(n) sequence is the row‑wise flattening of the coefficients of u(n,x). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
 
     for (size_t row = 1; row <= (size_t)m; ++row) {
         size_t len = row;
-        seq_t *u_cur = (seq_t*)malloc(len * sizeof(seq_t));
-        seq_t *v_cur = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *u_cur = mem_new(seq_t, len);
+        seq_t *v_cur = mem_new(seq_t, len);
         if (!u_cur || !v_cur)
             return (seq_t)0;          /* allocation failure */
 
@@ -67,8 +69,8 @@ seq_t a(idx_t n)
         }
 
         /* discard previous row */
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_cur;
         v_prev = v_cur;
         len_prev = len;
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
 
     seq_t result = u_prev[pos - 1];
 
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
     return result;
 }

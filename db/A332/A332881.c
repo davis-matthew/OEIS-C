@@ -7,8 +7,9 @@
  * Keywords:  nonn, frac
  * Formula:   a(n) = denominator of Sum_{d|n} mu(d)^2/d (i.e. the denominator
  *            of the sum of reciprocals of the squarefree divisors of n)
- * Range:     u8 n <= 256, u16 n <= 9875, u32 n <= 9875, u64 n <= 9875,
- *            u128 n <= 9875, big any n
+ * Range:     u8 n <= 256, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 9875 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

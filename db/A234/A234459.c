@@ -8,7 +8,8 @@
  * Formula:   a(n) = (∏_{x<y≤n} (x² + y²)) · n! · Re( (1+i)ⁿ · i^{n(n‑1)/2} )
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 4, i64 n <= 5, i128 n <= 7,
  *            big any n
- * Helpers:   cmplx_mul
+ * Validated: standard, pass, 24 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/cmplx_mul.h"
+#include "../utils/mem.h"
+
+/* Helper to multiply a complex number (r + i·i) by (a + i·b) and store in (cr, ci). */
+static inline void cmplx_mul(seq_t r, seq_t i, seq_t a, seq_t b,
+                             seq_t *cr, seq_t *ci)
+{
+    *cr = r * a - i * b;
+    *ci = r * b + i * a;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,13 +50,13 @@ seq_t a(idx_t n)
 
         /* Allocate or reallocate homogeneously using calloc for zero init. */
         if (cap == 0) {
-            real_part = (seq_t *)calloc(new_cap, sizeof(seq_t));
-            imag_part = (seq_t *)calloc(new_cap, sizeof(seq_t));
-            fact_prod = (seq_t *)calloc(new_cap, sizeof(seq_t));
+            real_part = mem_new(seq_t, new_cap);
+            imag_part = mem_new(seq_t, new_cap);
+            fact_prod = mem_new(seq_t, new_cap);
         } else {
-            real_part = (seq_t *)realloc(real_part, new_cap * sizeof(seq_t));
-            imag_part = (seq_t *)realloc(imag_part, new_cap * sizeof(seq_t));
-            fact_prod = (seq_t *)realloc(fact_prod, new_cap * sizeof(seq_t));
+            real_part = mem_resize(seq_t, real_part, new_cap);
+            imag_part = mem_resize(seq_t, imag_part, new_cap);
+            fact_prod = mem_resize(seq_t, fact_prod, new_cap);
         }
         /* Initialise any new entries to zero. */
         for (size_t i = cap + 1; i < new_cap; ++i) {

@@ -10,7 +10,8 @@
  *            Equivalently, 2·S(k‑1) = S(a‑1) + S(b) where S(x) = x(x+1)/2
  * Range:     u8 n <= 146, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9626 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* integer square root on unsigned __int128, result fits in uint64_t */
 static inline unsigned long long isqrt128(unsigned __int128 v)
@@ -69,7 +71,7 @@ static void ensure_cache(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 32;
     if (new_cap < need) new_cap = need;
-    seq_t *new_arr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_arr) exit(1);
     seq_cache = new_arr;
     seq_cap = new_cap;

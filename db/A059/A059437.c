@@ -10,7 +10,8 @@
  *            name of n (0 for vowel or “y”, 1 for consonant)
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   is_vowel, scale_last_letter
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,25 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_vowel.h"
-#include "../utils/scale_last_letter.h"
+
+/* Determine if a character is a vowel or 'y' (treated as vowel) */
+static bool is_vowel(char c)
+{
+    switch (c) {
+    case 'a': case 'e': case 'i': case 'o': case 'u': case 'y':
+        return true;
+    default:
+        return false;
+    }
+}
+
+/* Last letter of the scale word for the j‑th group (j >= 1):
+   1 => "thousand" (d), 2 => "million" (n), 3 => "billion" (n), etc. */
+static char scale_last_letter(unsigned int j)
+{
+    /* thousand ends with d; all higher scales end with n */
+    return (j == 1) ? 'd' : 'n';
+}
 
 /* The function signature required by the build environment: */
 seq_t a(idx_t n);

@@ -11,12 +11,14 @@
  *            routine works for any seq_t and idx_t provided by t...
  * Range:     i8 n <= 12, i16 n <= 21, i32 n <= 37, i64 n <= 37, i128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < (idx_t)1) return (seq_t)0;          /* defined only for n ≥ 1 */
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     size_t N = (size_t)n;                       /* convert to portable size_t */
 
     /* allocate array for the sequence terms (index 0 unused) */
-    seq_t *seq = (seq_t *)malloc(sizeof(seq_t) * (N + 1));
+    seq_t *seq = mem_new(seq_t, (N + 1));
     if (!seq) return (seq_t)0;                  /* allocation failed */
 
     for (size_t i = 0; i <= N; ++i) seq[i] = (seq_t)0;
@@ -34,8 +36,8 @@ seq_t a(idx_t n) {
     size_t maxK = (N + 2) / 3;                  /* floor((N+2)/3) */
     size_t maxBinomSize = 3 * maxK;             /* enough for all rows */
 
-    seq_t *binom = (seq_t *)malloc(sizeof(seq_t) * maxBinomSize);
-    if (!binom) { free(seq); return (seq_t)0; }
+    seq_t *binom = mem_new(seq_t, maxBinomSize);
+    if (!binom) { mem_free(seq); return (seq_t)0; }
 
     /* main loop over k */
     for (size_t k = 1; k <= maxK; ++k) {
@@ -65,7 +67,7 @@ seq_t a(idx_t n) {
 
     seq_t result = seq[N];
 
-    free(binom);
-    free(seq);
+    mem_free(binom);
+    mem_free(seq);
     return result;
 }

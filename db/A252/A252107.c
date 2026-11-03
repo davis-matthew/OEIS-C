@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 19, u32 n <= 57, u64 n <= 131, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Constants */
 #define NUM_ROWS 64          /* 4^3 possible rows (0..3)^3 */
@@ -111,8 +113,8 @@ seq_t a(idx_t n)
 
     /* Allocate DP arrays on first call */
     if (!dp_ready) {
-        dp_cur   = (seq_t *)malloc(NUM_STATES * sizeof(seq_t));
-        dp_next  = (seq_t *)malloc(NUM_STATES * sizeof(seq_t));
+        dp_cur   = mem_new(seq_t, NUM_STATES);
+        dp_next  = mem_new(seq_t, NUM_STATES);
         if (!dp_cur || !dp_next) exit(1);
         dp_ready = true;
     }

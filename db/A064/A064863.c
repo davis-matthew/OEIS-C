@@ -7,7 +7,8 @@
  * Formula:   a(n) = period of the regular continued fraction for sqrt(11*n^2)
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   uint128_isqrt
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/uint128_isqrt.h"
+#include "../utils/isqrt_u128.h"
 
 /* Return the period of the continued fraction of sqrt(11*n^2).           */
 seq_t a(idx_t n)
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
     unsigned __int128 D   = 11ULL * nn * nn;
 
     /* a0 = floor(sqrt(D)) (128‑bit).                          */
-    unsigned __int128 a0  = uint128_isqrt(D);
+    unsigned __int128 a0  = isqrt_u128(D);
 
     /* continued‑fraction variables (128‑bit). */
     unsigned __int128 m    = 0;

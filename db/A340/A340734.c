@@ -8,13 +8,15 @@
  *            divide 2n
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t values */
 static int cmp_seq(const void *p1, const void *p2) {
@@ -37,18 +39,18 @@ seq_t a(idx_t n) {
 
     /* Collect divisors (unsorted) */
     size_t est = 64;
-    seq_t *divs   = (seq_t *)malloc(est * sizeof(seq_t));
+    seq_t *divs   = mem_new(seq_t, est);
     size_t dcnt   = 0;
 
     for (size_t i = 1; (seq_t)i * (seq_t)i <= two_n; ++i) {
         if (two_n % i == 0) {
-            if (dcnt >= est) { est <<= 1; divs = (seq_t *)realloc(divs, est * sizeof(seq_t)); }
+            if (dcnt >= est) { est <<= 1; divs = mem_resize(seq_t, divs, est); }
             divs[dcnt++] = (seq_t)i;
             div_lookup[i] = 1;
 
             size_t j = (size_t)(two_n / i);
             if (j != i) {
-                if (dcnt >= est) { est <<= 1; divs = (seq_t *)realloc(divs, est * sizeof(seq_t)); }
+                if (dcnt >= est) { est <<= 1; divs = mem_resize(seq_t, divs, est); }
                 divs[dcnt++] = (seq_t)j;
                 div_lookup[j] = 1;
             }
@@ -56,7 +58,7 @@ seq_t a(idx_t n) {
     }
 
     /* Sort divisors */
-    qsort(divs, dcnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(divs, dcnt, sizeof(seq_t), cmp_seq);
 
     seq_t count = 0;
 
@@ -77,7 +79,7 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(divs);
+    mem_free(divs);
     free(div_lookup);
     return count;
 }

@@ -7,13 +7,16 @@
  * Formula:   a(n) = Product_{i=1..10} ((-8)^(n-i+1)-1)/((-8)^i-1)
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 23 terms through n = 118 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
        for i = 1..10 we need: |(-8)^(n-i+1) - 1|   */
     for (idx_t i = 1; i <= 10; ++i) {
         idx_t exp_num = n - i + 1;           /* exponent in numerator */
-        seq_t pow_val = big_pow((seq_t)8, (seq_t)exp_num);
+        seq_t pow_val = ipow((seq_t)8, (seq_t)exp_num);
 
         if (exp_num & 1U) { /* odd exponent -> -(8^e) - 1 = -(8^e+1) */
             abs_num[i - 1] = pow_val + 1;
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
        for i = 1..10 we need: |(-8)^i - 1|   */
     for (idx_t i = 1; i <= 10; ++i) {
         idx_t exp_den = i;
-        seq_t pow_val = big_pow((seq_t)8, (seq_t)exp_den);
+        seq_t pow_val = ipow((seq_t)8, (seq_t)exp_den);
 
         if (exp_den & 1U) { /* odd exponent -> -(8^i) - 1 = -(8^i+1) */
             abs_den[i - 1] = pow_val + 1;

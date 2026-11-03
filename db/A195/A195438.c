@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 1219, u128 n <= 1219,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 1219 terms through n = 1219 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /*  Static cache of the 1219 numbers, generated once. */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
         /* There are 900 000 candidates, but we know only 1219 are valid,
            so allocate the maximum necessary for simplicity. */
         const size_t max_candidates = 900000;
-        cache = (seq_t *)malloc(max_candidates * sizeof(seq_t));
+        cache = mem_new(seq_t, max_candidates);
         if (!cache) return (seq_t)0;   /* allocation failure */
 
         size_t found = 0;
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
         }
         cache_len = found;
         /* Optionally shrink allocated memory: */
-        cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
     }
 
     /* If n is within range, return the nth term; otherwise return 0. */

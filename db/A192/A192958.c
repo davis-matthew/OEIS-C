@@ -8,6 +8,7 @@
  * Formula:   a(n) = 6*Fibonacci(n+1) - (2*n+5)
  * Range:     i8 n <= 7, i16 n <= 18, i32 n <= 41, i64 n <= 87, i128 n <= 179,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 902 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

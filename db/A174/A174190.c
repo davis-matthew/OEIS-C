@@ -9,14 +9,40 @@
  *            1 and rows containing 0 ≤ m < n
  * Range:     i8 n <= 30, i16 n <= 62, i32 n <= 62, i64 n <= 62, i128 n <= 62,
  *            big any n
- * Helpers:   gcd, idx_to_row_m
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"
 #include <stdbool.h>
-#include "../utils/idx_to_row_m.h"
+#include <stdint.h>
+#include "../utils/gcd.h"
+
+/* Convert linear index n (1‑based) to triangle row r and column m.
+   After the call r >= 1, 0 <= m < r. */
+static void idx_to_row_m(idx_t n, idx_t *row, idx_t *col)
+{
+    /* Find smallest r s.t. r*(r+1)/2 >= n. */
+    idx_t low = 1, high = n, r = n;
+    while (low <= high) {
+        idx_t mid = low + (high - low) / 2;
+        seq_t tri = (seq_t)mid * (mid + 1) / 2;
+        if (tri >= (seq_t)n) {
+            r = mid;
+            if (mid == 0) break;
+            high = mid - 1;
+        } else {
+            low = mid + 1;
+        }
+    }
+
+    *row = r;
+    /* Triangular number of previous row: (r-1)*r/2. */
+    seq_t tri_prev = (seq_t)(r - 1) * r / 2;
+    *col = (idx_t)((seq_t)n - tri_prev - 1);   /* 0‑based column */
+}
+#include <stdbool.h>
 
 /* OEIS A174190 */
 seq_t a(idx_t n)

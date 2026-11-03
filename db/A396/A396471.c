@@ -10,17 +10,35 @@
  *            cumulative lengths of the rows of the triangle: let L_r =
  *            Σ_{i=0}^{r} (Fibonacci(i+3) – 1), then row r contains the terms
  *            a(L_{r-1}), …, a(L_r – 1)
- * Range:     u8 n <= 2343, u16 n <= 9398, u32 n <= 9398, u64 n <= 9398,
- *            u128 n <= 9398, big any n
- * Helpers:   alloc_seq_array, fib
+ * Range:     u8 n <= 2343, u16 n <= 10925, u32 n <= 10925, u64 n <= 10925,
+ *            u128 n <= 10925, big any n
+ * Validated: standard, pass, 106 terms through n = 9398 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/fib.h"
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 #define MAX_ROWS 1000   /* plenty for n ≤ 10 000 */
 

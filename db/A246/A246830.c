@@ -12,6 +12,7 @@
  *            function is row‑wise traversal of the triangle T(n...
  * Range:     u8 n <= 81, u16 n <= 8255, u32 n <= 8255, u64 n <= 8255,
  *            u128 n <= 8255, big any n
+ * Validated: standard, pass, 82 terms through n = 7779 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 175, u16 n <= 4401, u32 n <= 5439, u64 n <= 5439,
  *            u128 n <= 5439, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 4789 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Choose a limit larger than the largest term (1290740). */
 static const idx_t LIMIT = 1300000ULL;          /* \aMAX */
@@ -72,7 +74,7 @@ static void init_seq(void)
     }
 
     /* Allocate array for the sequence. */
-    seq_array = (seq_t *)malloc(count * sizeof(seq_t));
+    seq_array = mem_new(seq_t, count);
     if (!seq_array) abort();
     seq_len = count;
 

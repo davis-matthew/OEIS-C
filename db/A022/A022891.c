@@ -8,6 +8,7 @@
  *            p(k+2)+p(k+4). Computed by searching primes
  * Range:     u8 n <= 5, u16 n <= 447, u32 n <= 501, u64 n <= 501,
  *            u128 n <= 501, big any n
+ * Validated: standard, pass, 61 terms through n = 414 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,15 +7,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = sum of the divisors of n that are in the set {d(k) | 1 <=
  *            k <= n}, where d(k) is the number of positive divisors of k
- * Range:     u8 n <= 1369, u16 n <= 9991, u32 n <= 9991, u64 n <= 9991,
- *            u128 n <= 9991, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1369, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 107 terms through n = 9991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* --- 1. Compute divisor counts d[1..n] --- */
     /* Allocate array of seq_t of length n+1 */
-    seq_t *d = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *d = mem_new(seq_t, (size_t)(n + 1));
     if (!d) return 0;
 
     d[0] = 0;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Allocate presence array for divisor counts that appear */
     bool *mark = (bool *)malloc(mark_size * sizeof(bool));
     if (!mark) {
-        free(d);
+        mem_free(d);
         return 0;
     }
     for (size_t i = 0; i < mark_size; ++i) mark[i] = false;
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     }
 
     /* --- 4. Clean up and return result --- */
-    free(d);
+    mem_free(d);
     free(mark);
     return sum;
 }

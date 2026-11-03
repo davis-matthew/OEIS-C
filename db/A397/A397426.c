@@ -9,12 +9,15 @@
  *            pass through at least four of the grid points
  * Range:     u8 n <= 11, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   gcd_int
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_int.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/gcd_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
 
     for (idx_t dx = 1; dx <= max_step; ++dx) {
         for (idx_t dy = 1; dy <= max_step; ++dy) {
-            if (gcd_int((int)dx, (int)dy) != 1) continue;
+            if (gcd_i32((int)dx, (int)dy) != 1) continue;
 
             idx_t lX = S - 3 * dx;
             idx_t lY = S - 3 * dy;

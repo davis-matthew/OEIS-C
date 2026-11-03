@@ -9,12 +9,14 @@
  *            9*(n-3)²*a(n-4) + 27*(n-3)*(n-4)*a(n-5) for n ≥ 6
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 11, i64 n <= 18, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of previously computed terms */
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     /* initialise cache with the first six terms */
     if (cache == NULL) {
         cache_size = 6;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         cache[0] = 1;
         cache[1] = -1;
         cache[2] = 3;
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     /* extend cache up to n, if necessary */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) {            /* allocation failed – fall back to minimal result */
             /* this branch is unlikely in the test harness */
             cache = new_cache;

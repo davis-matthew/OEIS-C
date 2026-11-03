@@ -10,7 +10,8 @@
  *            q = 1 for p=2, and q = prev_prime(p) for odd primes
  * Range:     u8 n <= 16, u16 n <= 262, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   prev_prime
+ * Validated: standard, pass, 80 terms through n = 9652 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,18 @@ static inline seq_t pow_seq(seq_t base, idx_t exp)
 }
 
 /* --- Main sequence function ------------------------------------------- */
-#include "../utils/prev_prime.h"
+#include <stdbool.h>
+#include "../utils/is_prime.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 seq_t a(idx_t n)
 {

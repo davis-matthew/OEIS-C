@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = the smallest m such that sum_{k=1}^{m} k! ≥ n, with
  *            a(0)=0 (i.e. each integer m occurs m! times in the sequence)
- * Range:     u8 n <= 9450, u16 n <= 9450, u32 n <= 9450, u64 n <= 9450,
- *            u128 n <= 9450, big any n
+ * Range:     u8 n <= 46234, u16 n <= 46234, u32 n <= 46234, u64 n <= 46234,
+ *            u128 n <= 46234, big any n
+ * Validated: standard, pass, 121 terms through n = 9450 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

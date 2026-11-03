@@ -8,16 +8,18 @@
  *            numbers
  * Range:     u8 n <= 86, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 7257 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* allocate result array */
-    seq_t *res = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, (size_t)(n + 1));
     if (!res) return 0; /* allocation failure, return 0 as safe fallback */
 
     for (idx_t i = 0; ; ++i) {
@@ -38,6 +40,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = res[(size_t)n];
-    free(res);
+    mem_free(res);
     return result;
 }

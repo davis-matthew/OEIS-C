@@ -7,14 +7,16 @@
  * Keywords:  easy, nonn, tabl, changed
  * Formula:   a(n) = T(r,k) where r = ⌊(√(8n+1)−1)/2⌋, * k = n − r(r+1)/2. *
  *            T(r,k) = binomial((r+k)/2 , k) if r+k is even, else 0
- * Range:     u8 n <= 81, u16 n <= 388, u32 n <= 1274, u64 n <= 1274,
+ * Range:     u8 n <= 126, u16 n <= 388, u32 n <= 1274, u64 n <= 1274,
  *            u128 n <= 1274, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 107 terms through n = 1152 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -40,5 +42,5 @@ seq_t a(idx_t n)
 
     /* Compute the binomial coefficient. */
     idx_t sum = (r + col) >> 1;             /* (r+col)/2 */
-    return binom(sum, col);
+    return binomial(sum, col);
 }

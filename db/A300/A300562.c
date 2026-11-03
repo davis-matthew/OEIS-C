@@ -8,6 +8,7 @@
  * Formula:   a(n) = A007088(A300563(n))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
  * Helpers:   build_primes, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,8 +20,10 @@
  
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/build_primes.h"     /* void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
-#include "../utils/factor_u64.h"      /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/build_primes.h"
+#include "../utils/factor_u64.h"
  
 static idx_t *primes = NULL;       /* array of primes (idx_t = uint64_t) */
 static size_t primes_cnt = 0;      /* number of primes in the array */

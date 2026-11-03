@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort – works for any integer type seq_t. */
 static int seq_cmp(const void *p1, const void *p2)
@@ -46,7 +48,7 @@ static void build_cache(void)
     const idx_t YMAX = 2500;      /* sufficient for n up to ~10 000 */
 
     size_t capacity = 256;
-    seq_t *buf = (seq_t *)malloc(capacity * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, capacity);
     if (!buf)
         return;
 
@@ -64,8 +66,8 @@ static void build_cache(void)
 
             if (len == capacity) {
                 capacity <<= 1;
-                seq_t *tmp = (seq_t *)realloc(buf, capacity * sizeof(seq_t));
-                if (!tmp) { free(buf); return; }
+                seq_t *tmp = mem_resize(seq_t, buf, capacity);
+                if (!tmp) { mem_free(buf); return; }
                 buf = tmp;
             }
             buf[len++] = val;
@@ -73,13 +75,13 @@ static void build_cache(void)
     }
 
     /* Sort the generated values. */
-    qsort(buf, len, sizeof(seq_t), seq_cmp);
+    mem_qsort(buf, len, sizeof(seq_t), seq_cmp);
 
     /* Deduplicate sorted array into a new buffer. */
     size_t uniq = 0;
-    seq_t *uniq_buf = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *uniq_buf = mem_new(seq_t, len);
     if (!uniq_buf) {
-        free(buf);
+        mem_free(buf);
         return;
     }
 
@@ -91,7 +93,7 @@ static void build_cache(void)
         }
     }
 
-    free(buf);
+    mem_free(buf);
 
     cache = uniq_buf;
     cache_len = uniq;

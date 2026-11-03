@@ -9,7 +9,8 @@
  *            m+2 are all congruent to 1 modulo 4
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   odd_part_congruent1
+ * Validated: standard, pass, 69 terms through n = 974 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/odd_part_congruent1.h"
+
+static inline bool odd_part_congruent1(seq_t x)
+{
+    /* Remove all factors of two. */
+    while ((x & 1) == 0)
+        x >>= 1;
+    /* The remaining odd part must be 1 modulo 4. */
+    return (x & 3) == 1;
+}
 
 seq_t a(idx_t n)
 {

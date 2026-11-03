@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 736, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   all_odd_digits, grow_seq_array, has_odd_factorization, isqrt
+ * Validated: standard, pass, 85 terms through n = 9993 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,48 @@
 /* Include helpers from the utilities */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_seq_array.h"
-#include "../utils/all_odd_digits.h"
-#include "../utils/has_odd_factorization.h"
-#include "../utils/isqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
+
+/* Check if every decimal digit of x is odd [1,3,5,7,9]. */
+static inline bool all_odd_digits(unsigned long long x)
+{
+    if (x == 0) return false;           /* 0 has an even digit 0 */
+    while (x) {
+        unsigned d = x % 10;
+        if ((d & 1) == 0) return false; /* even digit found */
+        x /= 10;
+    }
+    return true;
+}
+
+/* Test whether n has a non‑trivial factorisation into two odd‑digit numbers. */
+static inline bool has_odd_factorization(unsigned long long n)
+{
+    if (n <= 1) return false;
+    unsigned long long limit = isqrt_u64(n);
+    for (unsigned long long d = 2; d <= limit; ++d) {
+        if (n % d == 0) {
+            unsigned long long q = n / d;
+            if (all_odd_digits(d) && all_odd_digits(q))
+                return true;
+        }
+    }
+    return false;
+}
 
 /* --------------------------------------------------------------- */
 /* Main sequence function                                         */

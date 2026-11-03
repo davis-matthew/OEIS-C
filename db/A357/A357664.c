@@ -7,14 +7,17 @@
  * Formula:   a(n) = Sum_{k=0..floor((n-1)/2)} 2^(n-1-k) * Stirling2(n,2*k+1)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;       /* cache of a(n) values       */
 static size_t cache_len = 0;        /* allocated length of cache   */
@@ -28,7 +31,7 @@ static void ensure_a_cache(idx_t needed)
 {
     if ((size_t)needed + 1 > cache_len) {
         size_t new_len = (size_t)needed + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_len);
         if (!tmp) abort();
         /* zero‑initialize the newly allocated part */
         for (size_t i = cache_len; i < new_len; ++i)
@@ -42,13 +45,13 @@ static void ensure_a_cache(idx_t needed)
 static void init_static(void)
 {
     if (!a_cache) {
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache) abort();
         a_cache[0] = (seq_t)0;   /* a(0) = 0 */
         cache_len = 1;
     }
     if (!S_prev) {
-        S_prev = (seq_t *)malloc(sizeof(seq_t));
+        S_prev = mem_new(seq_t, 1);
         if (!S_prev) abort();
         S_prev[0] = (seq_t)1;    /* S(0,0) = 1 */
         S_prev_len = 1;
@@ -69,7 +72,7 @@ seq_t a(idx_t n)
     /* Build Stirling rows from cur_max+1 up to n */
     for (size_t next = (size_t)cur_max + 1; next <= (size_t)n; ++next) {
         size_t new_len = next + 1;
-        seq_t *S_new = (seq_t *)calloc(new_len, sizeof(seq_t));
+        seq_t *S_new = mem_new(seq_t, new_len);
         if (!S_new) abort();
 
         /* S_new[0] = 0 is already zero via calloc */
@@ -98,7 +101,7 @@ seq_t a(idx_t n)
         a_cache[next] = total;
 
         /* Prepare for next iteration */
-        free(S_prev);
+        mem_free(S_prev);
         S_prev = S_new;
         S_prev_len = new_len;
     }

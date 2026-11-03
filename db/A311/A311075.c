@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
        a(14)=59, a(15)=64
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_values[16] = {
     1, 4, 8, 11, 18, 19, 27, 29, 33, 38,
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate temporary buffer */
-    seq_t *buf = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, (n + 1));
     if (!buf) {
         /* Out‑of‑memory fallback; the test harness will not
            hit this case for the given constraints. */
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[n];
-    free(buf);
+    mem_free(buf);
     return result;
 }

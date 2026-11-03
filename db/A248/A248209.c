@@ -10,7 +10,8 @@
  *            brute‑force * search; no closed form is known
  * Range:     u8 n <= 2, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   distinct_digit_mask
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/distinct_digit_mask.h"
+#include "../utils/mem.h"
+
+static inline int distinct_digit_mask(seq_t v)
+{
+    int mask = 0;
+    if (v == 0) return 1 << 0;          /* only digit 0 */
+    while (v) {
+        int d = (int)(v % (seq_t)10);
+        mask |= 1 << d;
+        v /= (seq_t)10;
+    }
+    return mask;
+}
 
 static inline seq_t digit_sum(seq_t v)
 {
@@ -45,7 +58,7 @@ seq_t a(idx_t n)
         if (distinct_digit_mask(cur) == distinct_digit_mask(diff)) {
             if (used >= capacity) {
                 size_t newcap = capacity ? capacity * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, newcap);
                 if (!tmp) exit(1);  /* allocation failure */
                 terms = tmp;
                 capacity = newcap;

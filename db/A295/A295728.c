@@ -12,12 +12,14 @@
  *            The cache grows exponentially (doubling) * t...
  * Range:     i8 n <= 9, i16 n <= 20, i32 n <= 43, i64 n <= 89, i128 n <= 181,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 1868 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of already computed terms */
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         capacity = 4;
         count = 4;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) abort();
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)-1;
@@ -53,7 +55,7 @@ seq_t a(idx_t n) {
     while ((size_t)n >= capacity)
         capacity = capacity ? capacity * 2 : 4;
 
-    seq_t *tmp = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, capacity);
     if (!tmp) abort();
     cache = tmp;
 

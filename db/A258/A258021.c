@@ -8,6 +8,7 @@
  * Formula:   a(n) = n if n == floor(tan(n)), else a(n) = a(floor(tan(n)))
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 137 terms through n = 9545 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* simple open-addressing hash table for (uint64_t) → seq_t maps          */
@@ -50,7 +52,7 @@ static void table_init(table_t *t, size_t init_cap)
     t->capacity = init_cap;
     t->count    = 0;
     t->keys     = (uint64_t *)malloc(init_cap * sizeof(uint64_t));
-    t->vals     = (seq_t *)malloc(init_cap * sizeof(seq_t));
+    t->vals     = mem_new(seq_t, init_cap);
     t->used     = (unsigned char *)malloc(init_cap * sizeof(unsigned char));
     if (!t->keys || !t->vals || !t->used) exit(1);
     memset(t->used, 0, init_cap);
@@ -68,7 +70,7 @@ static void table_grow(table_t *t)
     uint64_t   *new_keys =
         (uint64_t *)malloc(new_cap * sizeof(uint64_t));
     seq_t      *new_vals =
-        (seq_t *)malloc(new_cap * sizeof(seq_t));
+        mem_new(seq_t, new_cap);
     unsigned char *new_used =
         (unsigned char *)malloc(new_cap * sizeof(unsigned char));
     if (!new_keys || !new_vals || !new_used) exit(1);
@@ -85,7 +87,7 @@ static void table_grow(table_t *t)
         new_used[pos] = 1;
     }
     free(t->keys);
-    free(t->vals);
+    mem_free(t->vals);
     free(t->used);
     t->keys = new_keys;
     t->vals = new_vals;
@@ -121,7 +123,7 @@ static void seq_reserve(size_t needed)
     if (needed < cache_size) return;
     size_t new_size = cache_size ? cache_size : 128;
     while (new_size <= needed) new_size <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_size);
     if (!seq_cache) exit(1);
     cache_size = new_size;
 }

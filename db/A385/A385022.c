@@ -10,6 +10,7 @@
  *            mod 3 = 0, 2*t*(t-1) if (n-1) mod 3 = 1, 2*t*(t-1)+1 otherwise
  * Range:     i8 n <= 7, i16 n <= 31, i32 n <= 48, i64 n <= 48, i128 n <= 48,
  *            big any n
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,6 +7,7 @@
  * Formula:   a(n) counts triples (u,v,w) with 1 ≤ u < v < w and u·v·w = n
  * Range:     u8 n <= 1459, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 136 terms through n = 9807 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -13,15 +13,16 @@
  *            floor(log2(n+1)). The computation proceeds by dir...
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
-
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 static inline seq_t rev_bits(seq_t x, idx_t bits)
 {
@@ -34,7 +35,7 @@ static inline seq_t rev_bits(seq_t x, idx_t bits)
 seq_t a(idx_t n)
 {
     /* Determine the number of bits ('rows') for this index */
-    idx_t bits = floor_log2_uint64(n + 1);
+    idx_t bits = ilog2(n + 1);
 
     /* Calculate the offset (k) within the row */
     idx_t start = ((idx_t)1 << bits) - 1;

@@ -11,13 +11,22 @@
  *            and base = (r−1)(2r−3). The offset P is P =...
  * Range:     u8 n <= 253, u16 n <= 9730, u32 n <= 9730, u64 n <= 9730,
  *            u128 n <= 9730, big any n
- * Helpers:   cumulative_sum_uint64
+ * Validated: standard, pass, 82 terms through n = 8804 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/cumulative_sum_uint64.h"
+
+/* Cumulative row length: S(r) = 2r² − r */
+static inline seq_t cumulative_sum_uint64(uint64_t r)
+{
+    /* Use 128‑bit to avoid overflow of 64‑bit intermediate */
+    __uint128_t rr = r;
+    __uint128_t value = 2 * rr * rr - rr;
+    return (seq_t)value;
+}
 
 /* Integer square root of a 64‑bit unsigned integer */
 static inline uint64_t floor_isqrt_u64(uint64_t x)

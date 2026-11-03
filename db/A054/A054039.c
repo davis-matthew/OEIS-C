@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   count_distinct_decimal_digits
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,31 @@
  * computed indices.
  */
 #include <stdbool.h>
-#include "../utils/count_distinct_decimal_digits.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
+
+/* ----- utility: count distinct decimal digits of a seq_t value ----- */
+static inline int count_distinct_decimal_digits(seq_t x)
+{
+    unsigned int mask = 0;            /* 10 bits for digits 0‑9 */
+    while (x != 0) {
+        /* x % 10 and x /= 10 work for any seq_t that supports % and /,
+           including primitive unsigned types and arbitrary‑precision
+           integer classes.  The digit is always 0‑9. */
+        uint64_t d = (uint64_t)(x % 10);
+        mask |= 1u << d;
+        x /= 10;
+    }
+    /* Count set bits in ``mask``.  For the 10 possible digits this
+       is trivial and fast. */
+    int cnt = 0;
+    while (mask) {
+        cnt += mask & 1;
+        mask >>= 1;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

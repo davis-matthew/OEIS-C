@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
        with exactly k prime parts (k = 0…5). */
     size_t N = (size_t)n;
     size_t dp_size = (N + 1) * 6;
-    seq_t *dp = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) { free(primes); return (seq_t)0; }
 
     /* Base condition: one way to write 0 with 0 parts. */
@@ -68,7 +71,7 @@ seq_t a(idx_t n)
         result += dp[baseN + k];
     }
 
-    free(dp);
+    mem_free(dp);
     free(primes);
     return result;
 }

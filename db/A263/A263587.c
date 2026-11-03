@@ -12,12 +12,14 @@
  *            = 2439
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 34, u64 n <= 78, u128 n <= 169,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
 
         seq_t *tmp;
 #if defined(__cplusplus)
-        tmp = static_cast<seq_t*>(realloc(cache, newsize * sizeof(seq_t)));
+        tmp = mem_resize(seq_t, cache, newsize);
 #else
         tmp = (seq_t*)realloc(cache, newsize * sizeof(seq_t));
 #endif

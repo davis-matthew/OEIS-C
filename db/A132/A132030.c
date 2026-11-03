@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{k=0..⌊log_6 n⌋} ⌊n/6^k⌋ (OEIS A132030)
  * Range:     u8 n <= 41, u16 n <= 251, u32 n <= 3215, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9237 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

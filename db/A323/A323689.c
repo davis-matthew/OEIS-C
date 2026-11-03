@@ -12,13 +12,14 @@
  *            contributions are combined as real integers; all i...
  * Range:     i8 n <= 11, i16 n <= 44, i32 n <= 167, i64 n <= 666,
  *            i128 n <= 2599, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 99 terms through n = 9176 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static void add_divisor_terms(idx_t k, idx_t n, seq_t *real_sum, seq_t *imag_sum)
 {
@@ -27,8 +28,8 @@ static void add_divisor_terms(idx_t k, idx_t n, seq_t *real_sum, seq_t *imag_sum
 
     for (idx_t j = 0; j <= maxj; ++j) {
         idx_t m = t - j;
-        seq_t bin1 = binom(k, j);
-        seq_t bin2 = binom(k + m, m);
+        seq_t bin1 = binomial(k, j);
+        seq_t bin2 = binomial(k + m, m);
         seq_t val = bin1 * bin2;        /* product fits into seq_t for needed n */
 
         idx_t s = k + t - 2 * j;        /* exponent of i in the factor */

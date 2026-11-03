@@ -8,14 +8,26 @@
  *            3^{k‑1} + 5^{k‑1} + 15^{k‑1} and a(0)=1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 24,
  *            big any n
- * Helpers:   seq_alloc_array, seq_free_array
+ * Validated: standard, pass, 32 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>                 /* size_t for memory allocation */
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* External types supplied by the build */
 typedef uint64_t idx_t;            /* index type */

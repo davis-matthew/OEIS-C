@@ -8,13 +8,15 @@
  * Formula:   a(n) = a(n - a(n-3)) + 3, a(0)=1, a(1)=2, a(2)=3
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9753 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,12 +29,12 @@ seq_t a(idx_t n)
         if (cap < needed) {
             idx_t newcap = cap ? cap * 2 : 16;
             while (newcap < needed) newcap *= 2;
-            seq_t *newcache = (seq_t*)malloc((size_t)newcap * sizeof(seq_t));
+            seq_t *newcache = mem_new(seq_t, (size_t)newcap);
             if (!newcache) return (seq_t)0;   /* allocation failed */
             if (cache) {
                 for (idx_t i = 0; i < len; ++i)
                     newcache[i] = cache[i];
-                free(cache);
+                mem_free(cache);
             }
             cache = newcache;
             cap   = newcap;

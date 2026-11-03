@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 21, u64 n <= 41, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const unsigned period[] = {1, 4, 5, 1, 1, 6, 1, 4, 1, 6, 1, 1, 5, 4, 1, 50};
 #define PERIOD_LEN (sizeof(period) / sizeof(period[0]))
@@ -43,9 +45,9 @@ static void compute_to(idx_t n)
     seq_t *tmp;
 
     if (den == NULL) {
-        tmp = (seq_t *)malloc(sizeof(seq_t) * (size_t)new_len);
+        tmp = mem_new(seq_t, (size_t)new_len);
     } else {
-        tmp = (seq_t *)realloc(den, sizeof(seq_t) * (size_t)new_len);
+        tmp = mem_resize(seq_t, den, (size_t)new_len);
     }
     if (!tmp)
         abort();                    /* allocation failed */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 906 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,13 +22,14 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Append an element to a dynamic array of seq_t values. */
 static int seq_append( seq_t **buf, size_t *cap, size_t *len, seq_t val )
 {
     if (*len >= *cap) {
         size_t newcap = (*cap == 0) ? 64 : (*cap << 1);
-        seq_t *tmp = (seq_t*)realloc( *buf, newcap * sizeof(seq_t) );
+        seq_t *tmp = mem_resize(seq_t, *buf, newcap);
         if (!tmp) return -1;
         *buf = tmp;
         *cap = newcap;

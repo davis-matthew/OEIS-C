@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 59, u64 n <= 144,
  *            u128 n <= 367, big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 82 terms through n = 864 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,10 @@
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Find the row r such that r*(r+1)/2 ≤ n < (r+1)*(r+2)/2. */
 static inline idx_t _row_of(idx_t n)
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Compute k^r */
-    seq_t pow_k_r = big_pow((seq_t)k, (seq_t)r);
+    seq_t pow_k_r = ipow((seq_t)k, (seq_t)r);
 
     /* Compute Σ_{m=0}^{r-k} binomial(r,m) */
     seq_t sum = 0;

@@ -9,7 +9,8 @@
  *            is 3 }
  * Range:     u8 n <= 10, u16 n <= 692, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 121 terms through n = 932 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,14 +19,15 @@
    the interval [0.3, 0.4).  The calculation is done exactly using integer
    arithmetic with the helper int_sqrt from utils. */
 
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     /* The result never exceeds n, so seq_t is ample for any needed type. */
     seq_t count = 0;
 
     /* floor(sqrt(n)) gives upper bound for integer part of sqrt(m). */
-    idx_t maxp = int_sqrt(n);
+    idx_t maxp = isqrt(n);
 
     for (idx_t p = 0; p <= maxp; ++p) {
         /* Compute bounds for m such that p ≤ √m < p+1 and

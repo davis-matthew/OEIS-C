@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 257, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 67 terms through n = 961 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
    previous differences. */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"          /* provides bool isPrime(idx_t) */
+#include "../utils/is_prime.h"
 
 #define MAX_TERMS 20000                  /* > required 10000 */
 
@@ -55,7 +56,7 @@ extern seq_t a(idx_t n)
 
         /* search for the next term */
         while (true) {
-            if (isPrime(cand)) {
+            if (is_prime(cand)) {
                 seq_t diff = (seq_t)(cand - prev);
                 if (!diff_used(diff, 0, terms_len - 1)) {
                     a_terms[terms_len] = (seq_t)cand;

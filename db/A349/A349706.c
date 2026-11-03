@@ -9,14 +9,16 @@
  *            where T(n,k) = Σ_{j=0..k} binomial(k,j) * j^n
  * Range:     u8 n <= 38, u16 n <= 81, u32 n <= 177, u64 n <= 443,
  *            u128 n <= 1186, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 82 terms through n = 9653 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     seq_t binom = 1; /* C(k_val,0) */
     for (idx_t j = 0; j <= k_val; ++j) {
-        seq_t power = seq_pow((seq_t)j, n_val);
+        seq_t power = ipow_idx((seq_t)j, n_val);
         sum += binom * power;
         if (j < k_val) {
             binom = binom * (seq_t)(k_val - j);

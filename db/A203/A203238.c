@@ -10,7 +10,8 @@
  *            -8, 10, …))
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Recurrence:  a(1)=1,  a(n)=x_n·a(n‑1)+P_{n‑1}  with  x_n=(-1)^{n+1}·2n and P_k=∏_{i=1}^k x_i. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
 
     if (cap == 0) {
         cap = 16;
-        a_cache = (seq_t*)malloc((cap + 1) * sizeof(seq_t));
-        p_cache = (seq_t*)malloc((cap + 1) * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (cap + 1));
+        p_cache = mem_new(seq_t, (cap + 1));
         if (!a_cache || !p_cache) return 0;
 
         p_cache[0] = 1;
@@ -44,8 +46,8 @@ seq_t a(idx_t n)
         if (n > cap) {
             size_t newcap = cap ? cap << 1 : 16;
             while (newcap < (size_t)n) newcap <<= 1;
-            seq_t *tmpa = (seq_t*)realloc(a_cache, (newcap + 1) * sizeof(seq_t));
-            seq_t *tmpb = (seq_t*)realloc(p_cache, (newcap + 1) * sizeof(seq_t));
+            seq_t *tmpa = mem_resize(seq_t, a_cache, (newcap + 1));
+            seq_t *tmpb = mem_resize(seq_t, p_cache, (newcap + 1));
             if (!tmpa || !tmpb) return 0;
             a_cache = tmpa;
             p_cache = tmpb;

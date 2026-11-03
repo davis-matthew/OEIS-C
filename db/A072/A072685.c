@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   is_prime_len
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   is_prime_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_len.h"
+#include "../utils/is_prime_i32.h"
 
 /* Letter counts for units 1–19 (index 0 unused; 20 handled separately). */
 static const int unit_len[20] = {
@@ -128,7 +129,7 @@ seq_t a(idx_t n)
     idx_t num = 1;
     while (count < n) {
         int len = letters_len(num);
-        if (is_prime_len(len)) {
+        if (is_prime_i32(len)) {
             count++;
             if (count == n)
                 return (seq_t)num;

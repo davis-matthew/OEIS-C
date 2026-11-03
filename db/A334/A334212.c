@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   build_primes, mul_mod_u64
+ * Validated: partial, pass, 78 terms through n = 79 (2026-11-01)
+ * Helpers:   build_primes, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/build_primes.h"
-#include "../utils/mul_mod_u64.h"
+#include "../utils/mulmod.h"
 
 /* --- modular multiplication using 128‑bit arithmetic -------------------------------- */
 
@@ -39,8 +40,8 @@ static inline uint64_t pow_mod_u64(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t res = 1 % mod;
     while (exp) {
         if (exp & 1ULL)
-            res = mul_mod_u64(res, base, mod);
-        base = mul_mod_u64(base, base, mod);
+            res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1ULL;
     }
     return res;

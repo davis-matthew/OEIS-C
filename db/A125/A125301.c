@@ -8,6 +8,7 @@
  *            floor(n/3) and n%3 gives the case
  * Range:     u8 n <= 19, u16 n <= 118, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 77 terms through n = 962 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,13 +9,15 @@
  *            first kind
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 13, i64 n <= 21, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Internal storage for the sequence values and Stirling1(k,5). */
 static seq_t *a_cache = NULL;   /* a_cache[0..max_n] */
@@ -31,7 +33,7 @@ static void grow_cache(seq_t **arr, idx_t *cap, idx_t need, size_t elem_size) {
     if (need < *cap) return;
     if (*cap == 0) *cap = 256;
     while (*cap <= need) *cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, *cap * elem_size);
+    *arr = mem_resize(seq_t, *arr, (*cap * elem_size) / sizeof(seq_t));
 }
 
 /* Ensure that s5_cache[0..limit] holds Stirling1(k,5) for 0 ≤ k ≤ limit. */

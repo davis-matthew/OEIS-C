@@ -11,6 +11,7 @@
  *            terms are enumerated with m increasing from 3 to s-3
  * Range:     u8 n <= 19, u16 n <= 1200, u32 n <= 1277, u64 n <= 1277,
  *            u128 n <= 1277, big any n
+ * Validated: standard, pass, 71 terms through n = 1202 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

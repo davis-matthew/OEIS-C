@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{d|n} 2^(d-1) * Catalan((n/d)-1)
- * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 26, u128 n <= 26,
+ * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 20, u64 n <= 26, u128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
  * Helpers:   catalan, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,8 +15,11 @@
 
 /*          (Catalan(k) is returned by catalan(k), 0‑based) */
 
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

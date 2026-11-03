@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 70 terms through n = 929 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
         /* find next odd composite not divisible by 5 */
         uint64_t cand = next_candidate;
         while (1) {
-            if ((cand % 5U) != 0U && !is_prime_small(cand)) {
+            if ((cand % 5U) != 0U && !is_prime_seq(cand)) {
                 /* cand is odd by construction, composite and not multiple of 5 */
                 break;
             }
@@ -49,7 +50,7 @@ seq_t a(idx_t n)
 
         /* compute a(n): smallest prime p > cand with p ≡ cand (mod 10) */
         uint64_t p = cand + 10U;
-        while (!is_prime_small(p)) {
+        while (!is_prime_seq(p)) {
             p += 10U;
         }
 

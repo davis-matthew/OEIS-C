@@ -9,7 +9,8 @@
  *            p(n,k) = number of integer partitions of n into exactly k parts
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 147, u128 n <= 235,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 229 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define PARTS 32
 #define K1 (PARTS + 1)
@@ -37,7 +39,7 @@ static void ensure_dp(idx_t nmax) {
     size_t new_size = new_rows * K1;
 
     /* Allocate (or reallocate) the table. */
-    seq_t *newdp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+    seq_t *newdp = mem_resize(seq_t, dp, new_size);
     if (!newdp) {
         /* Allocation failed: leave dp unchanged and let caller handle. */
         return;

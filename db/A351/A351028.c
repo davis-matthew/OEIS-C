@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static cache for already computed values */
 static seq_t  *cache   = NULL;   /* array of a(0)..a(n) */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap >= sz)
         return;
 
-    seq_t  *new_cache   = (seq_t *)realloc(cache,   sz * sizeof(seq_t));
+    seq_t  *new_cache   = mem_resize(seq_t, cache, sz);
     bool   *new_comp    = (bool   *)realloc(computed, sz * sizeof(bool));
     if (!new_cache || !new_comp) {
         /* in a contest setting we exit on memory failure */

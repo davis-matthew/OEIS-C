@@ -6,13 +6,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = D_{n-2} - 6·D_{n-3} + 9·D_{n-4} with D_0 = 1 and D_k =
  *            2·D_{k-1} + (2k+1)·binomial(2k,k)
- * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 28, u128 n <= 28,
+ * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 28 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

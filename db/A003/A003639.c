@@ -10,7 +10,8 @@
  *            omega = number of distinct prime factors
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   is_squarefree_ll, nth_squarefree, omega_ll
+ * Validated: partial, pass, 104 terms through n = 104 (2026-11-01)
+ * Helpers:   is_squarefree_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,43 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_squarefree_ll.h"
-#include "../utils/nth_squarefree.h"
-#include "../utils/omega_ll.h"
+#include "../utils/is_squarefree_i64.h"
+
+static long long nth_squarefree(idx_t n) {
+    static long long *cache = 0;
+    static idx_t cnt = 0, cap = 0;
+    static long long last = 0;
+    if (n <= cnt) return cache[n - 1];
+    while (cnt < n) {
+        last++;
+        if (is_squarefree_i64(last)) {
+            if (cnt == cap) {
+                idx_t nc = cap ? cap * 2 : 1024;
+                long long *nb = (long long *)malloc((size_t)nc * sizeof(long long));
+                idx_t i;
+                for (i = 0; i < cnt; i++) nb[i] = cache[i];
+                free(cache);
+                cache = nb;
+                cap = nc;
+            }
+            cache[cnt++] = last;
+        }
+    }
+    return cache[n - 1];
+}
+
+static int omega_ll(long long x) {
+    int t = 0;
+    long long p;
+    for (p = 2; p * p <= x; p++) {
+        if (x % p == 0) {
+            t++;
+            while (x % p == 0) x /= p;
+        }
+    }
+    if (x > 1) t++;
+    return t;
+}
 
 seq_t a(idx_t n) {
     long long m = nth_squarefree(n);

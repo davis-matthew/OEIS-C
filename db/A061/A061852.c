@@ -12,7 +12,8 @@
  *            one non‑zero digit
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 38, u64 n <= 407,
  *            u128 n <= 10000, big any n
- * Helpers:   valid_no_singleton
+ * Validated: standard, pass, 43 terms through n = 7819 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/valid_no_singleton.h"
+
+/* Auxiliary: check that no digit appears as an isolated run of length 1 */
+static bool valid_no_singleton(const uint8_t *d, size_t len)
+{
+    size_t i = 0;
+    while (i < len) {
+        uint8_t cur = d[i];
+        size_t j = i;
+        while (j < len && d[j] == cur) ++j;
+        if ((j - i) == 1) return false;   /* singleton run detected */
+        i = j;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

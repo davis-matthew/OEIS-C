@@ -10,7 +10,8 @@
  *            gcd(k,sigma(k))
  * Range:     u8 none, u16 n <= 3, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   divisor_count_u64, gcd, is_prime, phi, sigma_of
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem, num_divisors, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,25 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/phi.h"
-#include "../utils/sigma_of.h"
-#include "../utils/divisor_count_u64.h"
 #include "../utils/is_prime.h"
+#include "../utils/num_divisors.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -43,9 +59,9 @@ seq_t a(idx_t n)
             continue;
 
         /* Compute required arithmetic functions. */
-        seq_t phi_k   = phi(k);
+        seq_t phi_k   = totient(k);
         seq_t sigma_k = sigma_of(k);
-        uint64_t tau_k = divisor_count_u64(k);
+        uint64_t tau_k = num_divisors(k);
 
         seq_t g1 = gcd((seq_t)k, phi_k);
         seq_t g2 = gcd((seq_t)k, (seq_t)tau_k);
@@ -55,8 +71,7 @@ seq_t a(idx_t n)
             /* Expand cache if necessary. */
             if (seq_len + 1 > seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq_list = (seq_t *)realloc(seq_list,
-                                            seq_cap * sizeof(seq_t));
+                seq_list = mem_resize(seq_t, seq_list, seq_cap);
             }
             seq_list[seq_len++] = (seq_t)k;
         }

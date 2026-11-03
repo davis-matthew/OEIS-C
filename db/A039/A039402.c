@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 7958, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9736 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
    number of 1's and 2's; computed by brute‑force search. */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
 
 static bool has_equal_1_2(seq_t x)

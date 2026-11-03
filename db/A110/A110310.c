@@ -8,12 +8,14 @@
  *            values: a(0) = 1, a(1) = -7, a(2) = 36, a(3) = -173
  * Range:     i8 n <= 2, i16 n <= 6, i32 n <= 13, i64 n <= 27, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static memoization buffer */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     if (memo == NULL) {
         idx_t cap = n + 1;
         if (cap < 4) cap = 4;           /* ensure room for the first four terms   */
-        memo = (seq_t *)malloc(cap * sizeof(seq_t));
+        memo = mem_new(seq_t, cap);
         if (memo == NULL) return (seq_t)0;  /* allocation failure */
 
         memo[0] = (seq_t)1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     if (n + 1 > memo_cap) {
         idx_t new_cap = memo_cap << 1;          /* double */
         if (new_cap <= n + 1) new_cap = n + 1;  /* ensure enough space */
-        seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (tmp == NULL) return (seq_t)0;      /* allocation failure */
         memo = tmp;
         memo_cap = new_cap;

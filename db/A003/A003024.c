@@ -8,14 +8,21 @@
  *            1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   a003024_pow2, alloc_zero
+ * Validated: standard, pass, 32 terms through n = 75 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/a003024_pow2.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -32,7 +39,7 @@ seq_t a(idx_t n) {
 
         seq_t pos = 0, neg = 0;
         for (idx_t k = 1; k <= i; k++) {
-            seq_t term = C[k] * a003024_pow2(k * (i - k)) * dp[i - k];
+            seq_t term = C[k] * pow2(k * (i - k)) * dp[i - k];
             if (k & 1) pos += term;
             else neg += term;
         }
@@ -40,7 +47,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(C);
+    mem_free(dp);
+    mem_free(C);
     return result;
 }

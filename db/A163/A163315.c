@@ -9,13 +9,15 @@
  *            a(1)=4, a(2)=12, a(3)=36, a(4)=108, a(5)=318
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 20, u64 n <= 40, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;      /* array of computed values          */
 static size_t  cache_len  = 0;        /* number of values stored          */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* start with room for at least the first 6 values             */
         cache_cap = 16;
-        seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
         static const seq_t base[6] = {1, 4, 12, 36, 108, 318};
         for (size_t i = 0; i < 6; ++i)
             seq_cache[i] = base[i];
@@ -47,8 +49,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap;
             while (new_cap < new_len)
                 new_cap <<= 1;                /* double until big enough */
-            seq_cache = (seq_t *)realloc(seq_cache,
-                                          new_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, new_cap);
             cache_cap = new_cap;
         }
 

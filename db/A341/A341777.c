@@ -8,7 +8,8 @@
  *            numbers
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 95 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /*    array of size (n+1)×7 so that we can index with size_t safely.     */
     /* ---------------------------------------------------------------------- */
     size_t cells = (size_t)(n + 1U) * 7U;
-    seq_t *dp = (seq_t*)calloc(cells, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, cells);
     if (!dp) { free(tet); return 0; }
 
     dp[0 * 7U + 0U] = 1;             /* one way to build sum 0 with 0 parts */
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     /* ---------------------------------------------------------------------- */
     /* 5. Free temporary memory.                                             */
     /* ---------------------------------------------------------------------- */
-    free(dp);
+    mem_free(dp);
     free(tet);
     return result;
 }

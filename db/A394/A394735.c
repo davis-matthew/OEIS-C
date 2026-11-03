@@ -9,7 +9,8 @@
  *            perfect power (including 1 as 1^e)
  * Range:     u8 n <= 17, u16 n <= 1669, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   is_perfect_power_u64, next_prime
+ * Validated: standard, pass, 70 terms through n = 2392 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,30 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/next_prime.h"
-#include "../utils/is_perfect_power_u64.h"
+#include "../utils/mem.h"
+
+/* integer perfect‑power test for 0 <= x < 2^64.
+   1 is considered a perfect power (1^e). */
+static bool is_perfect_power_u64(uint64_t x)
+{
+    if (x <= 1) return true;               /* 1 is treated as a perfect power */
+    for (uint64_t e = 2; e <= 64; ++e) {
+        uint64_t lo = 2, hi = 1ULL << (64 / e);  /* upper bound for the base */
+        if (hi < 2) hi = 2;
+        while (lo <= hi) {
+            uint64_t mid = (lo + hi) >> 1;
+            __uint128_t val = 1;
+            for (uint64_t i = 0; i < e; ++i) {
+                val *= mid;
+                if (val > x) break;
+            }
+            if (val == x) return true;
+            if (val < x) lo = mid + 1;
+            else hi = mid - 1;
+        }
+    }
+    return false;
+}
 
 static seq_t *seq = NULL;          /* buffer of terms found so far */
 static size_t seq_cap = 0;          /* capacity of the buffer */
@@ -32,7 +56,7 @@ seq_t a(idx_t n)
     /* lazy initialisation */
     if (!initialized) {
         seq_cap = 8;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) return (seq_t)0;            /* allocation failed – unlikely */
         seq_len = 0;
         next_to_process = 2;                  /* start from the first prime */
@@ -49,7 +73,7 @@ seq_t a(idx_t n)
             /* store pk in the results array */
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
                 if (!seq) return (seq_t)0;    /* reallocation failed */
             }
             seq[seq_len++] = (seq_t)pk;

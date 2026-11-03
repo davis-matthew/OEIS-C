@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   ensure_pow10mod, pow_seq
+ * Validated: standard, pass, 33 terms through n = 310 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"
-#include "../utils/ensure_pow10mod.h"
+#include "../utils/ipow_i32.h"
+
+/* Ensure pow10[0..needed] exists; pow10[i] = 10^i mod n. */
+static void ensure_pow10mod(idx_t n, idx_t **pow10, size_t *cap, size_t needed)
+{
+    if (*cap == 0) {
+        *cap = 1;
+        *pow10 = (idx_t*)malloc(sizeof(idx_t));
+        if (!*pow10) exit(1);
+        (*pow10)[0] = 1 % n;
+    }
+    while (*cap <= needed) {
+        size_t newcap = (*cap) * 2;
+        idx_t *tmp = (idx_t*)realloc(*pow10, newcap * sizeof(idx_t));
+        if (!tmp) exit(1);
+        for (size_t i = *cap; i < newcap; ++i)
+            tmp[i] = (tmp[i - 1] * 10ULL) % n;
+        *pow10 = tmp;
+        *cap = newcap;
+    }
+}
 
 /* fast integer digit length, used for n up to 2^64-1 */
 static inline int digit_len(idx_t x)
@@ -38,7 +58,7 @@ static seq_t build_value(idx_t start, idx_t n)
     for (idx_t i = 0; i < n; ++i) {
         idx_t num = start + i;
         int d = digit_len(num);
-        seq_t pow10d = pow_seq((seq_t)10, d);
+        seq_t pow10d = ipow_i32((seq_t)10, d);
         val = val * pow10d + (seq_t)num;
     }
     return val;

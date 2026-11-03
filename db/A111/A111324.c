@@ -8,7 +8,8 @@
  *            prime(i) ≡ 0 (mod 10)
  * Range:     u8 n <= 28, u16 n <= 6671, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 74 terms through n = 9533 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Generate more terms until we have at least n of them. */
     while (size < (size_t)n) {
         /* Find next prime. */
-        while (!is_prime(cand)) {
+        while (!is_prime_u64(cand)) {
             ++cand;
         }
         uint64_t p = cand;

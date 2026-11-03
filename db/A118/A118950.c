@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 184, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9785 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* local helper: test if the input has at least one digit in {2,3,5,7} */
 static inline bool has_prime_digit(seq_t x) {
@@ -38,7 +40,7 @@ static void ensure_capacity(size_t needed) {
     if (cap >= needed) return;
     size_t new_cap = cap ? cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) {
         /* allocation failed; terminate program */
         exit(1);

@@ -12,6 +12,7 @@
  *            r, column c is obtained by the above closed‑fo...
  * Range:     u8 n <= 15, u16 n <= 253, u32 n <= 253, u64 n <= 253,
  *            u128 n <= 253, big any n
+ * Validated: standard, pass, 66 terms through n = 248 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

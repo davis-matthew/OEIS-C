@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{i=prime(n)}^{prime(n+1)-1} i
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 98,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 9934 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

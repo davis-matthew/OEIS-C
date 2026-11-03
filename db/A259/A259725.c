@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 51, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(a)) for any unsigned integral type. */
 static seq_t int_sqrt(seq_t a)
@@ -51,7 +53,7 @@ static void ensure_cache(size_t newcap)
     size_t newsize = cache_cap ? cache_cap * 2 : 16;
     while (newsize < newcap)
         newsize <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newsize);
     if (!tmp)
         abort();                  /* out of memory */
     cache = tmp;

@@ -10,16 +10,18 @@
  * Formula:   T(n,k) = (1/n) * binom(n,k) * * Σ_{j=0}^{n-k} binom(n-k,j) *
  *            binom(n+2j, k+j-1) * a(n) = flattened row‑by‑row read of T(n,k)
  *            (0‑based indices)
- * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 46, u64 n <= 46, u128 n <= 46,
+ * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t, idx_t) */
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 /* ----- find the row r such that r(r+1)/2 <= idx < (r+1)(r+2)/2 ----- */
 static idx_t find_row(idx_t idx)
@@ -46,11 +48,11 @@ static seq_t triangle_T(idx_t n, idx_t k)
     if (n == 0)            /* T(0,0) = 1 */
         return (seq_t)1;
 
-    seq_t bin_nk = binom(n, k);   /* binom(n,k) fits in seq_t */
+    seq_t bin_nk = binomial(n, k);   /* binom(n,k) fits in seq_t */
     unsigned __int128 sum = 0;
 
     for (idx_t j = 0; j <= n - k; ++j) {
-        seq_t term = binom(n - k, j) * binom(n + 2 * j, k + j - 1);
+        seq_t term = binomial(n - k, j) * binomial(n + 2 * j, k + j - 1);
         sum += (unsigned __int128)term;
     }
 

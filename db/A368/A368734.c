@@ -12,12 +12,14 @@
  *            g(2k) = f(k)+g(k); g(2k+1) = f(k);
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *f_x = NULL;
 static seq_t *f_y = NULL;
@@ -31,10 +33,10 @@ static void grow_capacity(size_t min_cap)
     if (capacity >= min_cap) return;
     size_t new_cap = capacity ? capacity << 1 : 1;
     while (new_cap < min_cap) new_cap <<= 1;
-    f_x = (seq_t*)realloc(f_x, (new_cap + 1) * sizeof(seq_t));
-    f_y = (seq_t*)realloc(f_y, (new_cap + 1) * sizeof(seq_t));
-    g_z = (seq_t*)realloc(g_z, (new_cap + 1) * sizeof(seq_t));
-    g_t = (seq_t*)realloc(g_t, (new_cap + 1) * sizeof(seq_t));
+    f_x = mem_resize(seq_t, f_x, (new_cap + 1));
+    f_y = mem_resize(seq_t, f_y, (new_cap + 1));
+    g_z = mem_resize(seq_t, g_z, (new_cap + 1));
+    g_t = mem_resize(seq_t, g_t, (new_cap + 1));
     capacity = new_cap;
 }
 

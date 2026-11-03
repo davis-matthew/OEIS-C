@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   smallest_prime_factor_uint64
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,16 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/smallest_prime_factor_uint64.h"
+
+static inline uint64_t smallest_prime_factor_uint64(uint64_t n)
+{
+    if (n % 3 == 0) return 3;
+    for (uint64_t d = 5; d * d <= n; d += 2)
+    {
+        if (n % d == 0) return d;
+    }
+    return n;   /* n itself is prime or 1 */
+}
 
 /* ---------- 64‑bit helper functions ---------------------------------- */
 static inline bool is_prime_uint64(uint64_t n)

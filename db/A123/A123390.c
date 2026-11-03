@@ -10,8 +10,9 @@
  *            value is even. The row length is v2(r)+1 (where v2 is the
  *            exponent of 2 in r). Thus for the n-th term (1‑based) we find
  *            the row r such that the cumulative number of terms up...
- * Range:     u8 n <= 502, u16 n <= 9973, u32 n <= 9973, u64 n <= 9973,
- *            u128 n <= 9973, big any n
+ * Range:     u8 n <= 502, u16 n <= 19995, u32 n <= 19995, u64 n <= 19995,
+ *            u128 n <= 19995, big any n
+ * Validated: standard, pass, 97 terms through n = 9973 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

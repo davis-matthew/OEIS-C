@@ -11,7 +11,8 @@
  *            from a multiset DP that also avoids division
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 21, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   a647_ch2, a647_ch3, alloc_zero
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,31 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/a647_ch2.h"
-#include "../utils/a647_ch3.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+/* x*(x-1)/2 */
+static seq_t a647_ch2(seq_t x) {
+    if (x % 2 == 0) return (x / 2) * (x - 1);
+    return x * ((x - 1) / 2);
+}
+
+/* c*(c+1)*(c+2)/6 */
+static seq_t a647_ch3(seq_t c) {
+    seq_t f0 = c, f1 = c + 1, f2 = c + 2;
+    int r = (int)(long long)(c % 3);
+    if (r == 0) f0 /= 3;
+    else if (r == 1) f2 /= 3;
+    else f1 /= 3;
+    if (c % 2 == 0) f0 /= 2;
+    else f1 /= 2;
+    return f0 * f1 * f2;
+}
 
 static seq_t *g_T = 0, *g_S = 0, *g_D = 0, *g_BD = 0, *g_D2 = 0;
 static idx_t g_N = 0;

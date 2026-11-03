@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{i=1..n} (4^(n+i) - 1)/(4^i - 1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

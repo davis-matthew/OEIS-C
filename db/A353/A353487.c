@@ -8,8 +8,9 @@
  * Formula:   a(n) = A276086(2*n) mod 4 * Computed as the parity of the
  *            exponents of primes ≡3 (mod 4) * in the primorial‑base expansion
  *            of 2*n. Return 1 when the parity * is even, otherwise 3
- * Range:     u8 n <= 104, u16 n <= 9718, u32 n <= 9718, u64 n <= 9718,
- *            u128 n <= 9718, big any n
+ * Range:     u8 n <= 104, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 122 terms through n = 9718 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

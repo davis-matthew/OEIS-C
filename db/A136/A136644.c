@@ -14,7 +14,8 @@
  *            p_{n‑1} of degree n‑1, * written with ascending coefficient...
  * Range:     i8 n <= 48, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external types supplied by the build environment */
  /* seq_t : signed integer or arbitrary‑precision class */
@@ -45,7 +47,7 @@ static void ensure_cache_capacity(size_t needed)
     if (cached_cap < needed) {
         size_t newcap = cached_cap ? cached_cap * 2 : 16;
         while (newcap < needed) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cached_seq, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cached_seq, newcap);
         cached_seq = tmp;
         cached_cap = newcap;
     }
@@ -74,12 +76,12 @@ static void ensure_polynomial(size_t k)
 
     /* Initial polynomials */
     if (polys_cnt == 0) {          /* p_0 = [1] */
-        polys[0] = (seq_t *)malloc(sizeof(seq_t));
+        polys[0] = mem_new(seq_t, 1);
         polys[0][0] = (seq_t)1;
         polys_cnt = 1;
     }
     if (polys_cnt == 1) {          /* p_1 = [-1, 1] */
-        polys[1] = (seq_t *)malloc(2 * sizeof(seq_t));
+        polys[1] = mem_new(seq_t, 2);
         polys[1][0] = (seq_t)-1;
         polys[1][1] = (seq_t)1;
         polys_cnt = 2;
@@ -95,7 +97,7 @@ static void ensure_polynomial(size_t k)
         seq_t *prev2 = polys[idx - 2];
 
         /* Allocate new polynomial (length idx+1) */
-        seq_t *next = (seq_t *)malloc((idx + 1) * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, (idx + 1));
 
         /* Leading term of (λ-1)p_{idx-1} part */
         next[0] = (seq_t)-prev1[0];          /* -c[0]  */

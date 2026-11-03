@@ -8,19 +8,21 @@
  *            ≡ 1 (mod 5ⁿ). The function computes a(n) for all n ≥ 1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 38,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 34 terms through n = 998 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow_seq.h"    /* for pow_seq(seq_t base, int exp) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
     /* 5ⁿ and 2ⁿ */
-    seq_t pow5   = pow_seq((seq_t)5, (int)n);      /* 5ᵒⁿ */
-    seq_t pow2n  = pow_seq((seq_t)2, (int)n);      /* 2ᵒⁿ */
+    seq_t pow5   = ipow_i32((seq_t)5, (int)n);      /* 5ᵒⁿ */
+    seq_t pow2n  = ipow_i32((seq_t)2, (int)n);      /* 2ᵒⁿ */
 
     /* inv2 = (5ⁿ + 1) / 2  ≡ inverse of 2 modulo 5ⁿ   */
     seq_t inv2   = (pow5 + (seq_t)1) >> 1;         /* (5ⁿ+1)/2 */

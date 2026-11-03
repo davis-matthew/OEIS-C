@@ -9,8 +9,9 @@
  * Formula:   a(n) = [C>0] * C C is the difference A-B of the last round
  *            before A and B become equal in the Flavius sieve process
  *            described in the OEIS entry
- * Range:     u8 n <= 292, u16 n <= 9314, u32 n <= 9314, u64 n <= 9314,
- *            u128 n <= 9314, big any n
+ * Range:     u8 n <= 292, u16 n <= 10707, u32 n <= 10707, u64 n <= 10707,
+ *            u128 n <= 10707, big any n
+ * Validated: standard, pass, 136 terms through n = 9314 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

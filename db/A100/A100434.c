@@ -8,12 +8,14 @@
  *            = (4*a(n-1) - a(n-2))/3 if n is odd
  * Range:     i8 n <= 4, i16 n <= 11, i32 n <= 22, i64 n <= 48, i128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         idx_t needed = n + 1;          /* we need indices 0 .. n inclusive */
         if (buf_cap < needed) {
             idx_t new_cap = needed * 2;  /* grow capacity to avoid frequent reallocs */
-            seq_t *tmp = (seq_t*)realloc(buf, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, buf, new_cap);
             buf = tmp;
             buf_cap = new_cap;
         }

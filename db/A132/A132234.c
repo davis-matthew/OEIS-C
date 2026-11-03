@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 802, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 62 terms through n = 933 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
  * testing of numbers of the form 30k + 19.  The function caches
  * found terms so that calls can be made in any order. */
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,12 +34,11 @@ seq_t a(idx_t n)
     /* extend cache until we have at least n terms */
     while (len < n) {
         /* test whether current candidate is prime */
-        if (is_prime_small(next_candidate)) {
+        if (is_prime_seq(next_candidate)) {
             /* grow the dynamic array if necessary */
             if (len == cap) {
                 size_t new_cap   = (cap == 0) ? 8 : cap << 1;
-                seq_t *new_cache = (seq_t *)realloc(cache,
-                                                     new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) {
                     /* allocation failure – terminate */
                     exit(EXIT_FAILURE);

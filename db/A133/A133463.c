@@ -11,17 +11,20 @@
  *            5*A111575(4n+3)
  * Range:     u8 n <= 17, u16 n <= 37, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     idx_t n_div = n / 4;
-    seq_t pow3  = big_pow((seq_t)3, (seq_t)n_div);
+    seq_t pow3  = ipow((seq_t)3, (seq_t)n_div);
     seq_t mult  = (seq_t)((n % 4) + 2);
     return pow3 * mult;
 }

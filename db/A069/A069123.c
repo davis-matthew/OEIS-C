@@ -14,15 +14,45 @@
  *            (largest part...
  * Range:     u8 n <= 18, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   find_partition, gen_partition_rec
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/find_partition.h"
-#include "../utils/gen_partition_rec.h"
+
+/* ---------- recursion to find the t‑th partition of n ---------- */
+static bool gen_partition_rec(int rem, int max_part, int target,
+                              int *cnt, int *tmp, int pos,
+                              int *out_part, int *out_len)
+{
+    if (rem == 0) {
+        if (*cnt == target) {
+            for (int i = 0; i < pos; ++i) out_part[i] = tmp[i];
+            *out_len = pos;
+            return true;
+        }
+        (*cnt)++;
+        return false;
+    }
+    for (int part = (rem < max_part ? rem : max_part); part >= 1; --part) {
+        tmp[pos] = part;
+        if (gen_partition_rec(rem - part, part, target,
+                              cnt, tmp, pos + 1,
+                              out_part, out_len))
+            return true;
+    }
+    return false;
+}
+
+static void find_partition(int n, int target, int *out_part, int *out_len)
+{
+    int cnt = 0;
+    int tmp[500];
+    (void)gen_partition_rec(n, n, target, &cnt, tmp, 0, out_part, out_len);
+}
 
 /* ---------- partition numbers (p(k)) ---------- */
 static int part_num[501];

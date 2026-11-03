@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 8788, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9621 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* static state */
 static seq_t *balance_cache = NULL;   /* array of found terms */
@@ -37,7 +39,7 @@ static void grow_cache(size_t new_len)
     while (new_cap < new_len)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(balance_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, balance_cache, new_cap);
     if (!tmp)
         abort();               /* unrecoverable allocation failure */
 

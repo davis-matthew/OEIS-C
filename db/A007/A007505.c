@@ -10,7 +10,8 @@
  *            u(k-2) == 0)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 9, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   jac_from_res, jac_odd, odd_part, seq_is_big, u128_to_seq
+ * Validated: standard, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   jacobi, odd_part_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,35 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_big.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/jac_from_res.h"
-#include "../utils/jac_odd.h"
-#include "../utils/odd_part.h"
+#include "../utils/jacobi.h"
+#include "../utils/odd_part_u64.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+/* (m/N) for N = 7 mod 8, given N mod m' where m' = odd part of m */
+static int jac_from_res(uint64_t modd, uint64_t res) {
+    if (modd == 1) return 1;
+    int s = ((modd & 3) == 3) ? -1 : 1;
+    return s * jacobi(res, modd);
+}
 
 #define NSP 300
 
@@ -74,7 +99,7 @@ static bool test_big(idx_t k) {
     seq_t N = bigT - 1;
     uint64_t P;
     for (P = 3; ; P++) {
-        uint64_t m1 = odd_part(P - 2), m2 = odd_part(P + 2);
+        uint64_t m1 = odd_part_u64(P - 2), m2 = odd_part_u64(P + 2);
         uint64_t r1 = (uint64_t)(long long)(N % (seq_t)m1);
         uint64_t r2 = (uint64_t)(long long)(N % (seq_t)m2);
         int j1 = jac_from_res(m1, r1), j2 = jac_from_res(m2, r2);
@@ -92,7 +117,7 @@ static bool test_fixed(idx_t k) {
     u128 N = ((u128)3 << k) - 1;
     uint64_t P;
     for (P = 3; ; P++) {
-        uint64_t m1 = odd_part(P - 2), m2 = odd_part(P + 2);
+        uint64_t m1 = odd_part_u64(P - 2), m2 = odd_part_u64(P + 2);
         int j1 = jac_from_res(m1, (uint64_t)(N % m1));
         int j2 = jac_from_res(m2, (uint64_t)(N % m2));
         if (j1 == 0 || j2 == 0) return false;

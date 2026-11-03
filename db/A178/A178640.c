@@ -13,13 +13,15 @@
  *            and * integer powers are obtained via seq_pow. All ar...
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 30, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 static inline idx_t triangular(idx_t r)
 {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         seq_t base = (seq_t)5 + ((seq_t)(k - i)) * (seq_t)8;
 
         /* Raise base to the power r */
-        seq_t power = seq_pow(base, r);
+        seq_t power = ipow_idx(base, r);
 
         /* Term to add or subtract */
         seq_t term = binom * power;

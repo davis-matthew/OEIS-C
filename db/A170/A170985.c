@@ -7,6 +7,7 @@
  * Formula:   a(n) = carryless product of n with itself in base 4
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 4095, u64 n <= 4095,
  *            u128 n <= 4095, big any n
+ * Validated: standard, pass, 82 terms through n = 4011 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

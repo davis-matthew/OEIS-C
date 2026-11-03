@@ -10,7 +10,8 @@
  *            a(n) is obtained by reading the triangle row‑by‑row
  * Range:     u8 n <= 21, u16 n <= 42, u32 n <= 82, u64 n <= 164,
  *            u128 n <= 328, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 69 terms through n = 1976 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* ---------- internal cache ---------- */
 static seq_t **cache = NULL;
@@ -50,7 +52,7 @@ static void ensure_row(idx_t row)
         size_t prev_len = (r == 0) ? 0 : ((size_t)1ULL << (r - 1));
         size_t new_len  = ((size_t)1ULL << r);
 
-        seq_t *new_row = (seq_t *)calloc(new_len, sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
         if (!new_row) exit(1);   /* allocation failure */
 
         if (r == 0) {            /* F_0(x) = x  → coefficient of x^1 is 1 */

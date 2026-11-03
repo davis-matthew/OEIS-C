@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1)^2 + 4*a(n-1), a(0) = 2
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Ensure we have terms up to index n */
     if (cache_size <= (size_t)n) {
         size_t new_size = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
 
         /* Compute any missing terms */
         for (size_t i = cache_size; i <= (size_t)n; ++i) {

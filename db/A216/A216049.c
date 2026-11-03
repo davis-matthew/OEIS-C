@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types provided by the build system */
 typedef uint64_t idx_t;               /* index type   */
@@ -115,7 +117,7 @@ static void build_sequence(void)
     ntt(arr, nfft, true);                     /* inverse transform */
 
     /* ---------- allocate result array ---------- */
-    a_vals = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
+    a_vals = mem_new(seq_t, MAX_N + 1);
 
     /* ---------- populate a_vals ----------
        Only even m with m/2 prime (sigma=1) can yield odd ordered count.   */

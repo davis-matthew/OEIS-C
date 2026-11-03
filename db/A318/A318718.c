@@ -11,7 +11,8 @@
  *            divisor > 1
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   _gcd32
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   gcd_u32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_gcd32.h"
+#include "../utils/gcd_u32.h"
+#include "../utils/mem.h"
 
 /* global initialization flag and tables */
 static bool          _initialized = false;
@@ -81,7 +83,7 @@ static bool _qualifies(uint32_t n)
         uint32_t pi = _prime_idx[p];
         if (pi <= 1U) return false;          /* prime 2 or error */
         if (g == 0U) g = pi;
-        else        g = _gcd32(g, pi);
+        else        g = gcd_u32(g, pi);
         if (g == 1U) return false;           /* gcd dropped to 1 */
     }
     return g > 1U;
@@ -95,7 +97,7 @@ static void _extend_cache(idx_t n)
     if (_cache_cap < (size_t)n) {
         size_t new_cap = _cache_cap == 0 ? 256 : _cache_cap;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
         if (!tmp) abort();
         _cache = tmp;
         _cache_cap = new_cap;

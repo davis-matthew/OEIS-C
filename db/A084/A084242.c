@@ -9,13 +9,15 @@
  *            in the continued fraction of n/k is maximum
  * Range:     u8 n <= 384, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9718 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include only standard headers that can be used in both C11 and C++17 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (n > cache_size) {
         idx_t new_size = n;
         /* Allocate new memory block */
-        seq_t *new_cache = (seq_t *)malloc((new_size + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (new_size + 1));
         if (!new_cache) {
             /* Allocation failed – return 0 (should not happen in test harness) */
             return (seq_t)0;
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache */
-        free(a_cache);
+        mem_free(a_cache);
         a_cache = new_cache;
         cache_size = new_size;
     }

@@ -7,12 +7,21 @@
  * Formula:   a(n) = (10^n - 1)*(10^(2*n-1) - 1)/81
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 13,
  *            big any n
- * Helpers:   repunit_of
+ * Validated: standard, pass, 28 terms through n = 309 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/repunit_of.h"
+static seq_t repunit_of(idx_t len)
+{
+    /* build the integer consisting of `len` decimal 1’s:
+       1, 11, 111, … */
+    seq_t r = 0;
+    while (len--)          /* idx_t is unsigned, no underflow signedness issue */
+        r = r * 10 + 1;
+    return r;
+}
 /*  = repunit(n) * repunit(2*n-1)  for n >= 1  */
 
 seq_t a(idx_t n)

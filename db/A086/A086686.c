@@ -7,7 +7,8 @@
  * Formula:   a(n) = #{ i : 1 <= i <= n, i*n-1 is prime }
  * Range:     u8 n <= 16, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   mod_mul128
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mod_mul128.h"
+#include "../utils/mulmod.h"
 
 /* Fast modular exponentiation */
 static uint64_t mod_pow(uint64_t a, uint64_t d, uint64_t mod)
@@ -30,8 +31,8 @@ static uint64_t mod_pow(uint64_t a, uint64_t d, uint64_t mod)
     uint64_t r = 1;
     while (d)
     {
-        if (d & 1) r = mod_mul128(r, a, mod);
-        a = mod_mul128(a, a, mod);
+        if (d & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         d >>= 1;
     }
     return r;
@@ -64,7 +65,7 @@ static int is_prime_uint64(uint64_t n)
         int cont = 0;
         for (uint64_t r = 1; r < s; ++r)
         {
-            x = mod_mul128(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { cont = 1; break; }
         }
         if (!cont) return 0;

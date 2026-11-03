@@ -7,15 +7,27 @@
  * Formula:   a(0) = 1 ; a(n) = Sum_{k=0..n-1} binomial(n+2*k , n-k-1) * a(k)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   alloc_cache, binomial, free_cache
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/alloc_cache.h"
-#include "../utils/free_cache.h"
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache = NULL;          /* array of computed terms */
 static size_t cache_cap = 0;         /* allocated size of cache  */

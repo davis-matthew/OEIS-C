@@ -10,9 +10,10 @@
  *            ≥ 2) Recurrence for T(n,k) with n > 1, k > 1: T(1,k) = 1 T(n,k)
  *            = T(n-1,k) + (n % k == 0 ? T(n/k,k) : 0) All values are computed
  *            in type seq_t (built‑in or arbitrary‑precision)
- * Range:     u8 n <= 92, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
- *            big any n
- * Helpers:   int_sqrt
+ * Range:     u8 n <= 596, u16 n <= 12247, u32 n <= 124751, u64 n <= 124751,
+ *            u128 n <= 124751, big any n
+ * Validated: standard, pass, 107 terms through n = 8361 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #if defined(__cplusplus)
 #  include <new>
 #endif
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
 
     /* 1. Map linear index n to triangle coordinates (r,k). */
     idx_t offset = n - 2U;                     /* zero‑based position in sequence */
-    idx_t sq = int_sqrt(1ULL + 8ULL * offset); /* integer floor of sqrt */
+    idx_t sq = isqrt(1ULL + 8ULL * offset); /* integer floor of sqrt */
     idx_t r = (sq + 1ULL) / 2ULL + 1ULL;       /* row number, r ≥ 2 */
     idx_t prev_sum = (r - 1ULL) * (r - 2ULL) / 2ULL; /* total terms before row r */
     idx_t pos_in_row = offset - prev_sum;      /* 0‑based index within row r */

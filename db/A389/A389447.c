@@ -11,16 +11,20 @@
  *            that are divisible by every prime dividing n. The function
  *            computes σ(n)/A057723(n) = ∏ (p^{e+1}−1) / (p·(p^e−1)) over the
  *            prime factorization p^e of n, reduces the resul...
- * Range:     u8 n <= 16, u16 n <= 573, u32 n <= 9791, u64 n <= 9791,
- *            u128 n <= 9791, big any n
- * Helpers:   factor_u64, gcd, seq_pow
+ * Range:     u8 n <= 16, u16 n <= 573, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 97 terms through n = 9791 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -44,8 +48,8 @@ seq_t a(idx_t n)
         size_t   e   = (size_t)ex[i];
 
         seq_t pseq          = (seq_t)p;
-        seq_t p_pow_e       = seq_pow(pseq, (idx_t)e);           /* p^e   */
-        seq_t p_pow_e_plus1 = seq_pow(pseq, (idx_t)(e + 1));     /* p^{e+1} */
+        seq_t p_pow_e       = ipow_idx(pseq, (idx_t)e);           /* p^e   */
+        seq_t p_pow_e_plus1 = ipow_idx(pseq, (idx_t)(e + 1));     /* p^{e+1} */
 
         /* Individual fraction: (p^{e+1}-1) / (p*(p^e-1)) */
         seq_t N_i = p_pow_e_plus1 - (seq_t)1;                    /* numerator part */

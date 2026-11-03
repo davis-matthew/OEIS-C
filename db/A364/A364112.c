@@ -8,7 +8,8 @@
  *            3*x/(exp(-3*x)+exp(-x)+exp(x))
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if ((idx_t)(cache_cap) < n + 1) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         if (!new_arr) return 0; /* allocation failure, return 0 */
         cache = new_arr;
         cache_cap = new_cap;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if ((idx_t)(B_cap) < n + 1) {
         size_t new_cap = B_cap ? B_cap * 2 : 1;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *new_arr = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, B, new_cap);
         if (!new_arr) return 0;
         B = new_arr;
         B_cap = new_cap;

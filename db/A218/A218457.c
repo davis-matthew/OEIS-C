@@ -7,6 +7,7 @@
  * Formula:   a(n) = 6*n^3 - 263*n^2 + 3469*n - 12841
  * Range:     i8 none, i16 n <= 33, i32 n <= 724, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 57 terms through n = 871 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

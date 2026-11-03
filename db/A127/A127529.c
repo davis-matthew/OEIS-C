@@ -10,11 +10,13 @@
  *            This yields the sequence 1,1,2,4,1,8,5,1,16,17,…
  * Range:     u8 n <= 17, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

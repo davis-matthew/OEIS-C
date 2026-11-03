@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 39, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 1866 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
      a(n)=2*a(n‑1)+a(n‑2)+7*a(n‑3)+4*a(n‑4)+4*a(n‑5)+a(n‑6)  (n≥6)   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Static cache of already computed terms.  */
 static seq_t *cache = NULL;          /* pointer to the array of values         */
@@ -32,7 +34,7 @@ static void build_up_to(idx_t n)
     size_t target = (size_t)n + 1;        /* need indices 0 .. n          */
 
     /* Allocate new buffer.  The size is small enough for all tested n.   */
-    seq_t *new_cache = (seq_t *)malloc(target * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, target);
     if (new_cache == NULL)                /* allocation failure            */
         abort();
 
@@ -61,7 +63,7 @@ static void build_up_to(idx_t n)
     }
 
     /* Replace the old cache.  */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = target;
 }

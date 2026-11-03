@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 33, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    Initial values: a(0)=1, a(1)=1, a(2)=0.  */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find the antidiagonal index s such that
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
     idx_t kmax0 = K_target + 3 * N;   /* maximal k needed in row 0 */
 
     /* Allocate and initialise row 0.  */
-    seq_t *prev = (seq_t *)malloc((size_t)(kmax0 + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(kmax0 + 1));
     if (!prev) return (seq_t)0;  /* fallback on allocation failure */
     for (idx_t i = 0; i <= kmax0; ++i) {
         prev[i] = (seq_t)1;
@@ -60,8 +62,8 @@ seq_t a(idx_t n) {
     /* Compute rows 1 .. N.  */
     for (idx_t i = 1; i <= N; ++i) {
         idx_t kmax_i = K_target + 3 * (N - i);   /* maximal k in this row */
-        seq_t *cur = (seq_t *)malloc((size_t)(kmax_i + 1) * sizeof(seq_t));
-        if (!cur) { free(prev); return (seq_t)0; }  /* allocation failure */
+        seq_t *cur = mem_new(seq_t, (size_t)(kmax_i + 1));
+        if (!cur) { mem_free(prev); return (seq_t)0; }  /* allocation failure */
 
         cur[0] = (seq_t)0;  /* T(n,0)=0 for n>0 */
         for (idx_t k = 1; k <= kmax_i; ++k) {
@@ -69,11 +71,11 @@ seq_t a(idx_t n) {
             cur[k] = cur[k - 1] + prev[k + 1] + prev[k + 3];
         }
 
-        free(prev);
+        mem_free(prev);
         prev = cur;  /* next iteration uses this as the previous row */
     }
 
     seq_t result = prev[K_target];
-    free(prev);
+    mem_free(prev);
     return result;
 }

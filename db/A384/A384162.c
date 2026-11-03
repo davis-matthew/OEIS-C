@@ -8,13 +8,15 @@
  * Formula:   a(n) = [x^n] n*x/(1 - x*(1 - x + n))
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,23 +32,23 @@ seq_t a(idx_t n)
 
     /* Resize arrays if the requested n is larger than current capacity */
     if (n > max_alloc) {
-        free(prev);
-        free(cur);
-        free(a_arr);
-        free(power);
+        mem_free(prev);
+        mem_free(cur);
+        mem_free(a_arr);
+        mem_free(power);
         size_t sz = (size_t)(n + 1);
-        prev  = (seq_t *)malloc(sz * sizeof(seq_t));
-        cur   = (seq_t *)malloc(sz * sizeof(seq_t));
-        a_arr = (seq_t *)malloc(sz * sizeof(seq_t));
-        power = (seq_t *)malloc(sz * sizeof(seq_t));
+        prev  = mem_new(seq_t, sz);
+        cur   = mem_new(seq_t, sz);
+        a_arr = mem_new(seq_t, sz);
+        power = mem_new(seq_t, sz);
         max_alloc = n;
     }
 
     /* Initialize arrays to zero up to n */
-    memset(prev,  0, (size_t)(n + 1) * sizeof(seq_t));
-    memset(cur,   0, (size_t)(n + 1) * sizeof(seq_t));
-    memset(a_arr, 0, (size_t)(n + 1) * sizeof(seq_t));
-    memset(power, 0, (size_t)(n + 1) * sizeof(seq_t));
+    mem_set(prev, 0, (size_t)(n + 1) * sizeof(seq_t));
+    mem_set(cur, 0, (size_t)(n + 1) * sizeof(seq_t));
+    mem_set(a_arr, 0, (size_t)(n + 1) * sizeof(seq_t));
+    mem_set(power, 0, (size_t)(n + 1) * sizeof(seq_t));
 
     /* power[i] = 1 for all i (since (n‑1)^0 = 1) */
     for (idx_t i = 1; i <= n; ++i)

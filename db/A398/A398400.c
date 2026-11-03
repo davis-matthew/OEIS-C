@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, digit_count
+ * Validated: standard, pass, 79 terms through n = 983 (2026-11-01)
+ * Helpers:   build_primes_upto, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,10 @@
 #include <stdbool.h>
 
 /* required utilities */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto() */
-#include "../utils/digit_count.h"        /* digit_count() */
+#include <math.h>
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/num_digits0.h"
 
 /* prime cache (zero‑based) */
 static uint64_t *prime_cache = NULL;
@@ -80,7 +83,7 @@ seq_t a(idx_t n)
 
     for (size_t step = 1; step <= MAX_STEPS && idx < prime_cache_cnt; ++step, ++idx) {
         uint64_t prime = prime_cache[idx];
-        uint64_t d = digit_count(prime);           /* number of decimal digits */
+        uint64_t d = num_digits0(prime);           /* number of decimal digits */
         uint64_t ten_pow = pow10_mod(d, p_n);
 
         /* Update remainder: (rem * 10^d + prime) mod p_n */

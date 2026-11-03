@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 171, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /*---------- Global memoisation storage ------------------------------------*/
 static seq_t *A = NULL;          /* a-sequence, 1‑based index */
@@ -59,7 +61,7 @@ static bool contains_a_seq(const seq_t *arr, size_t l, seq_t val)
 static inline void assign_seq_at(seq_t *arr, size_t idx, seq_t val)
 {
 #ifdef __cplusplus
-    new (&arr[idx]) seq_t(val);
+    *(&arr[idx]) = (seq_t)(val);
 #else
     arr[idx] = val;
 #endif
@@ -71,7 +73,7 @@ static void realloc_and_expand(size_t new_cap)
     seq_t  *newA;
     int64_t *newD;
 #if defined(__cplusplus)
-    newA = static_cast<seq_t*>(realloc(A, (new_cap + 1) * sizeof(seq_t)));
+    newA = mem_resize(seq_t, A, (new_cap + 1));
     newD = static_cast<int64_t*>(realloc(D, (new_cap + 1) * sizeof(int64_t)));
 #else
     newA = (seq_t*)realloc(A, (new_cap + 1) * sizeof(seq_t));
@@ -91,7 +93,7 @@ static void ensure_len(idx_t n)
         A_cap = 16;
         /* allocate raw memory (no constructor needed for trivial types) */
 #if defined(__cplusplus)
-        A = static_cast<seq_t*>(malloc((A_cap + 1) * sizeof(seq_t)));
+        A = mem_new(seq_t, (A_cap + 1));
         D = static_cast<int64_t*>(malloc((A_cap + 1) * sizeof(int64_t)));
 #else
         A = (seq_t*)malloc((A_cap + 1) * sizeof(seq_t));

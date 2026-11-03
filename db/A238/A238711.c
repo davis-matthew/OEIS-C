@@ -7,6 +7,7 @@
  * Formula:   a(n) = product of all primes p such that 2n - p is prime
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 20, u64 n <= 38, u128 n <= 59,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 1881 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,8 @@
 #include <stdbool.h>
 
 /* Utilities used for prime generation and primality testing */
-#include "../utils/build_primes_upto.h"   /* void build_primes_upto(idx_t limit, uint64_t **out, size_t *cnt); */
-#include "../utils/is_prime.h"           /* bool is_prime(idx_t n); */
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 static uint64_t *prime_list = NULL;    /* list of primes up to current_limit */
 static size_t prime_cnt   = 0;          /* number of primes in prime_list */

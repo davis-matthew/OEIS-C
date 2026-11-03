@@ -10,13 +10,29 @@
  *            second_child(0) = 1, second_child(1) = 0, second_child(2) = 0
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   first_child, second_child
+ * Validated: partial, pass, 102 terms through n = 101 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/first_child.h"
-#include "../utils/second_child.h"
+static inline seq_t first_child(seq_t x) {
+    switch ((int)x) {
+        case 0: return 0;
+        case 1: return 2;
+        case 2: return 1;
+        default: return 0;   /* unreachable */
+    }
+}
+
+static inline seq_t second_child(seq_t x) {
+    switch ((int)x) {
+        case 0: return 1;
+        case 1: return 0;
+        case 2: return 0;
+        default: return 0;   /* unreachable */
+    }
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;

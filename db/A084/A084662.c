@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = a(n-1) + gcd(a(n-1), n), a(1) = 4
- * Range:     u8 n <= 100, u16 n <= 9475, u32 n <= 9475, u64 n <= 9475,
- *            u128 n <= 9475, big any n
- * Helpers:   none
+ * Range:     u8 n <= 100, u16 n <= 30322, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 82 terms through n = 9475 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
     as larger indices are requested. */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Euclidean algorithm for unsigned seq_t values */
 static seq_t seq_gcd(seq_t a, seq_t b)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Initialize cache on first call */
     if (cache_len == 0) {
         cache_size = 2;                     /* indices 0 and 1 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = (seq_t)0;                /* unused, for convenience */
         cache[1] = (seq_t)4;                /* a(1) = 4   */
         cache_len = 1;
@@ -53,9 +55,9 @@ seq_t a(idx_t n)
     /* Grow array if necessary */
     if ((idx_t)cache_size <= n) {
         size_t new_size = (size_t)n + 2;    /* +2 to allow indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) {                         /* allocation failed: return 0 */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_len = 0;
             cache_size = 0;

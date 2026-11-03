@@ -12,18 +12,63 @@
  *            b_k*(m+7*t_k)*g(m-t_k) with eta(q)^3 = Sum_k b_k q^(t_k), b_...
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 3, u64 n <= 13, u128 n <= 53,
  *            big any n
- * Helpers:   alloc_zero, mulpow, release, seq_is_big, u128_to_seq
+ * Validated: standard, pass, 32 terms through n = 9706 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/mulpow.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+/* f *= (1 + s*q^k)^e in place, s = -1 if neg else +1 */
+static void mulpow(seq_t *f, idx_t N, idx_t k, int e, int neg) {
+    idx_t c[49];
+    idx_t i, j;
+    c[0] = 1;
+    for (j = 1; j <= e; j++) c[j] = c[j - 1] * (e - j + 1) / j;
+    for (i = N - 1; i >= k; i--) {
+        seq_t acc = f[i];
+        for (j = 1; j <= e && j * k <= i; j++) {
+            seq_t term = f[i - j * k] * c[j];
+            if (neg && (j & 1)) acc -= term;
+            else acc += term;
+        }
+        f[i] = acc;
+    }
+}
 
 /* ---------- arbitrary-precision path ---------- */
 static seq_t *G = NULL, *E = NULL;

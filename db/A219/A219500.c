@@ -10,15 +10,30 @@
  * Formula:   a(n) = Σ_{k=0}^8 c[k] * binom(n - k + 4, 5) where c = [6, -25,
  *            59, -77, 46, 0, -10, 1, 1] (All arithmetic is exact when
  *            performed in seq_t.)
- * Range:     u8 n <= 4, u16 n <= 15, u32 n <= 67, u64 n <= 67, u128 n <= 67,
+ * Range:     u8 n <= 5, u16 n <= 22, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   binom, mul_small
+ * Validated: standard, pass, 53 terms through n = 67 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/mul_small.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +48,7 @@ seq_t a(idx_t n)
         if (n < (idx_t)(k + 1))
             continue;
 
-        seq_t B = binom(n - k + 4, 5);               /* binom(n - k + 4, 5)   */
+        seq_t B = binomial(n - k + 4, 5);               /* binom(n - k + 4, 5)   */
         int    coeff = c[k];
 
         if (coeff >= 0) {

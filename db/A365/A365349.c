@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 899, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 79 terms through n = 8238 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,10 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
 
         /* sigma(p^f) = (p^(f+1) – 1) / (p – 1) */
         seq_t p_seq = (seq_t)p;
-        seq_t numerator   = big_pow(p_seq, (seq_t)(f + 1ULL)) - (seq_t)1;
+        seq_t numerator   = ipow(p_seq, (seq_t)(f + 1ULL)) - (seq_t)1;
         seq_t denominator = p_seq - (seq_t)1;
         seq_t sigma = numerator / denominator;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 4096, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, grow_seq, mul_mod64, seq_alloc
+ * Validated: standard, pass, 71 terms through n = 9842 (2026-11-03)
+ * Helpers:   gcd, mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,10 +26,35 @@
  *  Complexity: about O(n log n) for n terms.
  */
 
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/mul_mod64.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/grow_seq.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static seq_t *cache = NULL;         /* cached terms */
 static size_t cache_cap = 0;        /* capacity of cache */
@@ -43,10 +69,10 @@ static uint64_t fib_mod_u64(idx_t n, uint64_t mod) {
     int bits = 63 - __builtin_clzll(n);
     for (int i = bits; i >= 0; --i) {
         /* Compute F(2k) and F(2k+1) from (a, b) = (F(k), F(k+1)) */
-        uint64_t t1 = mul_mod64(2ULL, b, mod);
+        uint64_t t1 = mulmod(2ULL, b, mod);
         uint64_t t2 = (t1 + mod - a) % mod;          /*  (2*F(k+1) - F(k)) mod mod */
-        uint64_t c  = mul_mod64(a, t2, mod);          /* F(2k)   */
-        uint64_t d  = (mul_mod64(a, a, mod) + mul_mod64(b, b, mod)) % mod; /* F(2k+1) */
+        uint64_t c  = mulmod(a, t2, mod);          /* F(2k)   */
+        uint64_t d  = (mulmod(a, a, mod) + mulmod(b, b, mod)) % mod; /* F(2k+1) */
 
         a = c;
         b = d;

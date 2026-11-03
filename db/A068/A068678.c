@@ -10,7 +10,8 @@
  *            precomputed prime sieve up to 20 000 000
  * Range:     u8 n <= 17, u16 n <= 1967, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bit_is_set, bit_set
+ * Validated: standard, pass, 69 terms through n = 9974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/bit_is_set.h"
-#include "../utils/bit_set.h"
+#include "../utils/mem.h"
+
+/* Helper bit operations */
+static inline bool bit_is_set(const unsigned char *bits, uint32_t idx)
+{
+    return (bits[idx >> 3] >> (idx & 7U)) & 1U;
+}
+
+static inline void bit_set(unsigned char *bits, uint32_t idx)
+{
+    bits[idx >> 3] |= 1U << (idx & 7U);
+}
 
 /* Prime sieve parameters */
 #define PRIME_LIMIT 20000000UL          /* must be large enough for all needed 9m and m9 */
@@ -68,7 +79,7 @@ static void ensure_cache(size_t new_cap)
     if (cache_cap >= new_cap) return;
     size_t new_capacity = cache_cap ? cache_cap * 2 : 4;
     if (new_capacity < new_cap) new_capacity = new_cap;
-    seq_t *new_ptr = (seq_t *)realloc(cache_terms, new_capacity * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache_terms, new_capacity);
     if (!new_ptr) abort();          /* out of memory */
     cache_terms = new_ptr;
     cache_cap = new_capacity;

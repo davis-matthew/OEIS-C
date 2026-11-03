@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 60, u32 n <= 198, u64 n <= 720,
  *            u128 n <= 1226, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 71 terms through n = 1191 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
                 k = s - m
                 output A(m+2, k)
 */
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -60,8 +62,8 @@ seq_t a(idx_t n)
     idx_t max_i = (k * 2 < n_prime) ? (k * 2) : n_prime; /* i ≤ n_prime   */
     for (idx_t i = 1; i <= max_i; ++i)
     {
-        seq_t bin_n_i   = binom(n_prime, i);
-        seq_t bin_2k_1_i_1 = binom(2 * k - 1, i - 1);
+        seq_t bin_n_i   = binomial(n_prime, i);
+        seq_t bin_2k_1_i_1 = binomial(2 * k - 1, i - 1);
         seq_t pow2_i = (seq_t)1 << i;          /* 2^i  */
         sum += pow2_i * bin_n_i * bin_2k_1_i_1;
     }

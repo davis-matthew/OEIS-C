@@ -13,14 +13,26 @@
  *            1871372035777249125681 These va...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: standard, pass, 32 terms through n = 492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_from_str.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 #define PRE_LEN 15  /* number of pre‑computed terms (indices 0 … 14) */
 
@@ -58,7 +70,7 @@ static void ensure_pre(void)
 
     pre_cap = PRE_LEN;
     pre_len = PRE_LEN;
-    pre = (seq_t *)malloc(pre_cap * sizeof(seq_t));
+    pre = mem_new(seq_t, pre_cap);
     for (idx_t i = 0; i < PRE_LEN; ++i) {
         pre[i] = seq_from_str(init_str[i]);
     }
@@ -75,10 +87,10 @@ static void ensure_cache(idx_t n)
         new_cap <<= 1;           /* double until big enough */
     }
 
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (cache) {
-        memcpy(new_arr, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_arr, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_arr;
     cache_cap = new_cap;
@@ -105,9 +117,9 @@ extern seq_t a(idx_t n)
         /* Ensure cache is large enough to hold the initial terms. */
         if (cache_cap < PRE_LEN) {
             size_t new_cap = PRE_LEN;
-            seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
-            memcpy(new_arr, pre, PRE_LEN * sizeof(seq_t));
-            free(cache);
+            seq_t *new_arr = mem_new(seq_t, new_cap);
+            mem_copy(new_arr, pre, PRE_LEN * sizeof(seq_t));
+            mem_free(cache);
             cache = new_arr;
             cache_cap = new_cap;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 125, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   c_of
+ * Validated: standard, pass, 79 terms through n = 2438 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/c_of.h"
+#include "../utils/mem.h"
+
+/* helper: period‑12 coefficient c(k) */
+static inline int c_of(int k)
+{
+    static const int arr[13] = { 0,  3, -2,  2, -1,  3, -6,
+                                 3, -1,  2, -2,  3, -4 };
+    return arr[(k - 1) % 12 + 1];
+}
 
 /* main function */
 seq_t a(idx_t n)
@@ -46,7 +55,7 @@ seq_t a(idx_t n)
         if (N + 1 > A_cap) {
             size_t new_cap = N + 1;
             if (new_cap < 256) new_cap = 256;
-            A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+            A = mem_resize(seq_t, A, new_cap);
             A_cap = new_cap;
         }
 

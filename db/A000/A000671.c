@@ -12,18 +12,20 @@
  *            has out-degree <= 2, then * enumerate multisets of...
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 29, u64 n <= 55, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
     if (n == 1) return 1;
     
-    seq_t *trees2 = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *trees2 = mem_new(seq_t, n + 1);
     trees2[1] = 1;
     
     for (idx_t i = 2; i <= n; i++) {
@@ -77,6 +79,6 @@ seq_t a(idx_t n) {
         }
     }
     
-    free(trees2);
+    mem_free(trees2);
     return result;
 }

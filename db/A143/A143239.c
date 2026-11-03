@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1275, i16 n <= 1275, i32 n <= 1275, i64 n <= 1275,
  *            i128 n <= 1275, big any n
- * Helpers:   mobius, upper_row_bound
+ * Validated: standard, pass, 121 terms through n = 1264 (2026-11-01)
+ * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,14 @@
    Finally a(n) = mu(k) * (m/k) if k | m, otherwise 0. */
 #include <stdint.h>
 #include "../utils/mobius.h"
-#include "../utils/upper_row_bound.h"
+
+/* Return an upper bound for the row number of position n.
+   For n ≤ 2^64-1, row m ≤ sqrt(2n) < 2^32, so a 34‑bit upper bound
+   is sufficient. */
+static idx_t upper_row_bound(idx_t n)
+{
+    return ((idx_t)1) << 34;
+}
 
 /* Binary search to find the smallest m such that m*(m+1)/2 ≥ n.  */
 static idx_t find_row(idx_t n)

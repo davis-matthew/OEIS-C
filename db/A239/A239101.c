@@ -11,7 +11,8 @@
  *            1,2,1,4,2,1,10,5,2,1,26,13,6,2,1,70,35,16,7,2,1,192,96,45,
  * Range:     u8 n <= 27, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* 64‑bit helper to compute m*(m+1)/2 without overflow for m <= 2^32 */
 static inline idx_t triangular(idx_t m)
@@ -54,7 +56,7 @@ static void _ensure_rows(idx_t m)
     }
 
     for (idx_t i = _rows_used; i <= m; ++i) {
-        seq_t *row = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (!row)
             exit(1);                /* out of memory */
         _rows[i] = row;

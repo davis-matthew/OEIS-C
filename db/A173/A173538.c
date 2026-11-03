@@ -9,13 +9,15 @@
  *            with a(0)=1, a(1)=1, a(2)=2, a(3)=3
  * Range:     u8 n <= 31, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h> /* for memcpy */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Initialise cache and base terms on first call */
     if (cache == NULL) {
         cache_cap = 8;                     /* start with room for 0 … 7 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;        /* out of memory – unlikely in tests */
 
         /* base values */
@@ -47,10 +49,10 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap * 2;
         if (new_cap < (size_t)n + 1)
             new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) return (seq_t)0;         /* failure */
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

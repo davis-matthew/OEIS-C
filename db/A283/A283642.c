@@ -13,12 +13,14 @@
  *            arithmetic operators.)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 110 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoised values */
 static idx_t  cache_len = 0;  /* number of elements stored */
@@ -32,8 +34,7 @@ ensure_cache(idx_t n)
 
     /* Grow the cache to hold indices up to n. */
     idx_t new_len = n + 1;
-    seq_t *new_cache = (seq_t *)realloc((void *)cache,
-                                         new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache)
         abort();                       /* OOM – terminate */
     cache = new_cache;

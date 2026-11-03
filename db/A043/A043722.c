@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _runs_mod3
+ * Validated: standard, pass, 70 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
  * a number of runs congruent to 1 modulo 3. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_runs_mod3.h"
+#include "../utils/mem.h"
+
+/* Return the number of runs in the binary representation of x modulo 3 */
+static int _runs_mod3(seq_t x)
+{
+    int runs = 0;
+    int prev = -1;
+    while (x > (seq_t)0) {
+        int bit = (int)(x & (seq_t)1);
+        if (bit != prev) {
+            ++runs;
+            prev = bit;
+        }
+        x >>= 1;
+    }
+    return runs % 3;
+}
 
 /* Static cache for already computed terms */
 static seq_t *_cache = NULL;   /* array of terms */
@@ -32,7 +49,7 @@ static void _ensure_capacity(size_t needed)
     size_t new_cap = _cap ? _cap * 2 : 16;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
     _cache = tmp;
     _cap   = new_cap;
 }

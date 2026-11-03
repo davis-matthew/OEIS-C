@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1850, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *g_factor = NULL;      /* array of computed lucky factors, 1‑based */
 static idx_t   g_max_n   = 0;        /* maximum n for which g_factor is computed */
@@ -35,7 +37,7 @@ static void compute_upto(idx_t N)
     for (size_t i = 0; i < (size_t)N; ++i) alive[i] = (uint64_t)(i + 1);
 
     /* allocate factor array */
-    seq_t *fac = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *fac = mem_new(seq_t, (size_t)(N + 1));
     if (!fac) {
         free(alive);
         return;
@@ -70,7 +72,7 @@ static void compute_upto(idx_t N)
     free(alive);
 
     /* free old factor array and store the new one */
-    if (g_factor) free(g_factor);
+    if (g_factor) mem_free(g_factor);
     g_factor = fac;
     g_max_n  = N;
 }

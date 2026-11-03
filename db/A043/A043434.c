@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_three_base8
+ * Validated: standard, pass, 62 terms through n = 900 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,18 @@
 /* Sequence: Numbers having two 3’s in base 8.  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_three_base8.h"
+
+/* Count how many 3’s occur in the base‑8 representation of x. */
+static int count_three_base8(seq_t x)
+{
+    int cnt = 0;
+    while (x > 0) {
+        if ((x % 8) == 3)
+            ++cnt;
+        x /= 8;
+    }
+    return cnt;
+}
 
 /* Retrieve the n‑th term of the sequence. */
 seq_t a(idx_t n)

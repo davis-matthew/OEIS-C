@@ -11,7 +11,8 @@
  *            number of prime factors of i (with multiplicity)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  static data for memoisation  */
 static idx_t   precomp_n = 0;                    /* >= 1, upto which prefix sums are computed   */
@@ -35,7 +37,7 @@ static void compute_prefix_up_to(idx_t n)
     /* Reallocate arrays to hold up to n */
     spf     = (uint32_t *)realloc(spf,     (N + 1) * sizeof(uint32_t));
     omegaA  = (uint8_t  *)realloc(omegaA,  (N + 1) * sizeof(uint8_t));
-    pref    = (seq_t   *)realloc(pref,     (N + 1) * sizeof(seq_t));
+    pref    = mem_resize(seq_t, pref, (N + 1));
 
     if (!spf || !omegaA || !pref) { /* allocation failed */
         abort();

@@ -11,13 +11,14 @@
  *            25
  * Range:     u8 n <= 12, u16 n <= 12, u32 n <= 16, u64 n <= 22, u128 n <= 46,
  *            big any n
- * Helpers:   idx_gcd
+ * Validated: standard, pass, 50 terms through n = 994 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/idx_gcd.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
 
     for (idx_t d = 1; d <= 9; ++d) {
         /* Reduce the problem to finding a repunit R_m divisible by n' */
-        idx_t g = idx_gcd(n, d);
+        idx_t g = gcd_idx(n, d);
         idx_t nprime = n / g;          /* n' = n / gcd(n,d) */
         if (nprime % 2 == 0 || nprime % 5 == 0)
             continue;                  /* no repunit can be divisible by n' */

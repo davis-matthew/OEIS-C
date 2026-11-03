@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_INIT   200         /* number of terms used to discover recurrence */
 #define PRIME1    1000000007LL /* first prime for BM */
@@ -117,13 +119,13 @@ static void compute_terms(seq_t *out, size_t N)
     static seq_t dp_nxt[MAX_INIT + 1][MAX_INIT + 1];
     size_t i, j, step;
 
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
     dp_cur[0][0] = 1;
     out[0] = 1;
 
     for (step = 0; step < N; ++step) {
         for (i = 0; i <= N; ++i)
-            memset(dp_nxt[i], 0, (N + 1) * sizeof(seq_t));
+            mem_set(dp_nxt[i], 0, (N + 1) * sizeof(seq_t));
 
         for (j = 0; j <= step; ++j) {
             for (i = 0; i <= step; ++i) {
@@ -143,7 +145,7 @@ static void compute_terms(seq_t *out, size_t N)
         out[step + 1] = total;
 
         for (i = 0; i <= N; ++i)
-            memcpy(dp_cur[i], dp_nxt[i], (N + 1) * sizeof(seq_t));
+            mem_copy(dp_cur[i], dp_nxt[i], (N + 1) * sizeof(seq_t));
     }
 }
 
@@ -238,7 +240,7 @@ static void init(void)
 
     /* 4. Store initial terms and allocate array */
     size_t cap = (MAX_INIT + 1);
-    terms = (seq_t *)malloc(cap * sizeof(seq_t));
+    terms = mem_new(seq_t, cap);
     for (size_t i = 0; i <= MAX_INIT; ++i) terms[i] = init_vals[i];
     terms_size = MAX_INIT + 1;
 
@@ -262,7 +264,7 @@ seq_t a(idx_t n)
             else
                 val -= v * (seq_t)(-rec_coeff[i]);
         }
-        terms = (seq_t *)realloc(terms, (k + 1) * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, (k + 1));
         terms[k] = val;
     }
     terms_size = (size_t)n + 1;

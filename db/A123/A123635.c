@@ -8,6 +8,7 @@
  *            odd_prime(k) is the k-th odd prime (3,5,7,11,...)
  * Range:     u8 n <= 29, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 static uint32_t *prime_cache = NULL;

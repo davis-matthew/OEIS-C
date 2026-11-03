@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 #define MAX_LEN 24            /* maximum length of substrings tracked  */
 
@@ -44,7 +46,7 @@ static idx_t used_cap   = 0;
 static void used_init(void)
 {
     used_cap = 8;
-    used_list = (seq_t *)malloc(used_cap * sizeof(seq_t));
+    used_list = mem_new(seq_t, used_cap);
     used_len = 0;
 }
 
@@ -62,7 +64,7 @@ static void used_insert(seq_t v)
         return;
     if (used_len == used_cap) {
         used_cap <<= 1;
-        used_list = (seq_t *)realloc(used_list, used_cap * sizeof(seq_t));
+        used_list = mem_resize(seq_t, used_list, used_cap);
     }
     used_list[used_len++] = v;
 }
@@ -115,7 +117,7 @@ static void addNumber(seq_t v)
         process_bit(0);
         return;
     }
-    unsigned len = bitlen_seq_t(v);
+    unsigned len = bit_length(v);
     for (int i = (int)len - 1; i >= 0; --i) {
         uint8_t bit = (uint8_t)((v >> i) & 1ULL);
         process_bit(bit);
@@ -130,7 +132,7 @@ static void ensure_seq_cap(idx_t needed)
     idx_t new_cap = seq_cap ? seq_cap << 1 : 4;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 
@@ -163,7 +165,7 @@ seq_t a(idx_t n)
                 continue;
             }
             seq_t sum = prev + cand;
-            unsigned len = bitlen_seq_t(sum);
+            unsigned len = bit_length(sum);
 
             /* Build the binary pattern of 'sum' (MSB first) */
             uint64_t sum_pattern = 0;

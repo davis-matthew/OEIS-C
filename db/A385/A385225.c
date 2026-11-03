@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 2169, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 6461, big any n
- * Helpers:   build_primes_upto, grow_seq, mod_pow, next_prime
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 75 terms through n = 9137 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,25 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
-#include "../utils/next_prime.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/grow_seq.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Check whether the multiplicative order of -5 mod p is odd. */
 static bool odd_order_minus5(uint64_t p, uint64_t *prime_list, size_t prime_cnt)
@@ -44,7 +60,7 @@ static bool odd_order_minus5(uint64_t p, uint64_t *prime_list, size_t prime_cnt)
             while (tmp % q == 0) tmp /= q;
             while (ord % q == 0) {
                 uint64_t cand = ord / q;
-                if (mod_pow((seq_t)g, cand, (seq_t)p) == (seq_t)1)
+                if (powmod((seq_t)g, cand, (seq_t)p) == (seq_t)1)
                     ord = cand;
                 else
                     break;
@@ -55,7 +71,7 @@ static bool odd_order_minus5(uint64_t p, uint64_t *prime_list, size_t prime_cnt)
         uint64_t q = tmp;
         while (ord % q == 0) {
             uint64_t cand = ord / q;
-            if (mod_pow((seq_t)g, cand, (seq_t)p) == (seq_t)1)
+            if (powmod((seq_t)g, cand, (seq_t)p) == (seq_t)1)
                 ord = cand;
             else
                 break;
@@ -86,6 +102,12 @@ seq_t a(idx_t n)
         if (odd_order_minus5(last_prime, prime_list, prime_cnt)) {
             if (cache_len >= cache_cap)
                 grow_seq(&cache, &cache_cap, 1);
+            if (cache_len >= cache_cap) {                 /* grow before storing */
+                cache_cap = cache_cap ? 2 * cache_cap : 16;
+                seq_t *grown_ = mem_resize(seq_t, cache, cache_cap);
+                if (!grown_) abort();
+                cache = grown_;
+            }
             cache[cache_len++] = (seq_t)last_prime;
         }
     }

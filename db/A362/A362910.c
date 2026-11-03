@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t val;      /* p * q */
@@ -44,7 +46,7 @@ static seq_t *a_vals = NULL;
 static void heap_grow(void)
 {
     size_t new_cap = (heap_cap == 0) ? 16 : heap_cap * 2;
-    heap = (node_t *)realloc(heap, new_cap * sizeof(node_t));
+    heap = mem_resize(node_t, heap, new_cap);
     heap_cap = new_cap;
 }
 
@@ -98,7 +100,7 @@ static node_t heap_pop(void)
 static void a_grow(void)
 {
     size_t new_cap = (a_cap == 0) ? 256 : a_cap * 2;
-    a_vals = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+    a_vals = mem_resize(seq_t, a_vals, new_cap);
     a_cap = new_cap;
 }
 
@@ -115,7 +117,7 @@ static void init(void)
     build_primes_upto(prime_limit, &prime_buf, &prime_cnt);
 
     heap_cap = (heap_size = 0);
-    heap = (node_t *)malloc(heap_cap * sizeof(node_t));
+    heap = mem_new(node_t, heap_cap);
 
     /* Push initial nodes p * p for every prime p */
     for (size_t i = 0; i < prime_cnt; ++i) {
@@ -124,7 +126,7 @@ static void init(void)
     }
 
     a_cap = 256;
-    a_vals = (seq_t *)malloc(a_cap * sizeof(seq_t));
+    a_vals = mem_new(seq_t, a_cap);
     a_len = 0;
 }
 

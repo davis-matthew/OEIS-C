@@ -12,14 +12,53 @@
  *            minimal number * of integer squares summing to k
  * Range:     u8 n <= 7, u16 n <= 95, u32 n <= 1024, u64 n <= 1024,
  *            u128 n <= 1024, big any n
- * Helpers:   can_two_squares, floor_sqrt
+ * Validated: standard, pass, 111 terms through n = 1015 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/can_two_squares.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* test if n can be expressed as a sum of two squares.  All primes p ≡ 3 (mod 4)
+ * must occur with even exponent in the prime factorization of n. */
+static int can_two_squares(uint64_t n)
+{
+    uint64_t t = n;
+    for (uint64_t p = 2; p * p <= t; ++p) {
+        if (t % p == 0) {
+            int exp = 0;
+            while (t % p == 0) {
+                t /= p;
+                exp++;
+            }
+            if ((p & 3) == 3 && (exp & 1) == 1)
+                return 0;   /* cannot be a sum of two squares */
+        }
+    }
+    if (t > 1 && (t & 3) == 3)
+        return 0;
+    return 1;
+}
 
 /* minimal number of squares that represent n (1 ≤ result ≤ 4).  n > 0. */
 static seq_t min_squares(seq_t n)

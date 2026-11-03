@@ -8,7 +8,8 @@
  * Formula:   a(n) = A074141(n) - 2*A074141(n-1) for n>0 with a(0) = 1
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 35, u64 n <= 75, u128 n <= 156,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* A074141 is generated as the coefficient of 1/Product_{k>=1} (1-(k+1)x^k)   */
 /* The recurrence is derived from the generating function */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *f_cache = NULL;
 static size_t f_cache_cap = 0;
@@ -28,7 +30,7 @@ static void compute_f(size_t N)
         return;
 
     /* Allocate new cache */
-    seq_t *new_cache = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (N + 1));
     if (!new_cache)
         return; /* failure can be handled by the caller */
 
@@ -46,7 +48,7 @@ static void compute_f(size_t N)
     }
 
     /* Replace old cache */
-    free(f_cache);
+    mem_free(f_cache);
     f_cache = new_cache;
     f_cache_cap = N + 1;
 }

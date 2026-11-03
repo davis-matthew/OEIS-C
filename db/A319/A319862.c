@@ -10,13 +10,16 @@
  *            = r*(r+1)/2 + k (flattened triangle)
  * Range:     u8 n <= 35, u16 n <= 135, u32 n <= 527, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 82 terms through n = 1280 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/seq_pow.h"   /* seq_pow */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t m)
 {
@@ -38,5 +41,5 @@ seq_t a(idx_t m)
     int denom_exp = (int)(r - v2);
 
     /* T(r,k) = 2^denom_exp */
-    return seq_pow((seq_t)2, (idx_t)denom_exp);
+    return ipow_idx((seq_t)2, (idx_t)denom_exp);
 }

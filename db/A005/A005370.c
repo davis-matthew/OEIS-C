@@ -7,12 +7,23 @@
  * Formula:   a(n) = Fibonacci(Fibonacci(n+1) + 1)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 8, u64 n <= 10, u128 n <= 11,
  *            big any n
- * Helpers:   mat_mult
+ * Validated: standard, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mat_mult.h"
+static void mat_mult(seq_t *a, seq_t *b, seq_t *result) {
+    seq_t tmp[4];
+    tmp[0] = a[0]*b[0] + a[1]*b[2];
+    tmp[1] = a[0]*b[1] + a[1]*b[3];
+    tmp[2] = a[2]*b[0] + a[3]*b[2];
+    tmp[3] = a[2]*b[1] + a[3]*b[3];
+    result[0] = tmp[0];
+    result[1] = tmp[1];
+    result[2] = tmp[2];
+    result[3] = tmp[3];
+}
 
 static seq_t fibonacci(seq_t k) {
     if (k == 0) return 0;

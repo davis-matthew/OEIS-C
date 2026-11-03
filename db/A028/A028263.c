@@ -10,12 +10,14 @@
  *            n. (Pascal rule)
  * Range:     u8 n <= 38, u16 n <= 159, u32 n <= 575, u64 n <= 2239,
  *            u128 n <= 8575, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9614 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;          /* pointers to each row */
 static idx_t rows_alloc = 0;         /* allocated number of rows */
@@ -47,7 +49,7 @@ static void ensure_rows(idx_t r) {
     while (rows_used <= r) {
         idx_t i = rows_used;          /* next row to compute */
         /* allocate storage for the new row */
-        seq_t *row = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (!row) abort();            /* allocation failure */
 
         if (i == 0) {

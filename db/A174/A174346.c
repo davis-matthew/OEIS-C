@@ -11,14 +11,35 @@
  *            (indexing starts at 1)
  * Range:     u8 n <= 17, u16 n <= 40, u32 n <= 112, u64 n <= 364,
  *            u128 n <= 1275, big any n
- * Helpers:   binomial_fu, pow3_u
+ * Validated: standard, pass, 71 terms through n = 1211 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial_fu.h"
-#include "../utils/pow3_u.h"
+
+static seq_t binomial_fu(idx_t n, idx_t k) {
+    if (k > n) return (seq_t)0;
+    if (k > n - k) k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
+
+static seq_t pow3_u(idx_t e) {
+    seq_t result = 1;
+    seq_t base = 3;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;        /* undefined for n==0, return 0 for safety */

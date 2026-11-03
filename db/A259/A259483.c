@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 40, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Static cache for the sequence values */
 static seq_t *cache = NULL;         /* array of seq_t values */
@@ -56,7 +58,7 @@ static void ensure_cache(idx_t n)
 
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_used < n) {
@@ -67,7 +69,7 @@ static void ensure_cache(idx_t n)
         /* Store the candidate */
         if (cache_used == cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_used++] = (seq_t)next_candidate;
         ++next_candidate;

@@ -9,13 +9,22 @@
  *            T(i-1,i-k), a(n) = T(n,n)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 22, u128 n <= 37,
  *            big any n
- * Helpers:   alloc_array
+ * Validated: standard, pass, 38 terms through n = 370 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_array.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_array(idx_t n) {
+    seq_t *p = mem_new(seq_t, (n + 1));
+    for (idx_t i = 0; i <= n; i++) {
+        p[i] = 0;
+    }
+    return p;
+}
 
 static seq_t *memo = NULL;
 static seq_t *rowA = NULL;
@@ -37,9 +46,9 @@ seq_t a(idx_t n) {
             m[i] = memo[i];
             ra[i] = rowA[i];
         }
-        if (memo) free(memo);
-        if (rowA) free(rowA);
-        if (rowB) free(rowB);
+        if (memo) mem_free(memo);
+        if (rowA) mem_free(rowA);
+        if (rowB) mem_free(rowB);
         memo = m;
         rowA = ra;
         rowB = rb;

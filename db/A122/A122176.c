@@ -10,6 +10,7 @@
  *            in OEIS A122176)
  * Range:     u8 n <= 30, u16 n <= 70, u32 n <= 178, u64 n <= 477,
  *            u128 n <= 1344, big any n
+ * Validated: standard, pass, 82 terms through n = 9078 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

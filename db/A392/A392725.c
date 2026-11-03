@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 42, i16 n <= 1050, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 73 terms through n = 8667 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with a(1) */
     if (len == 0) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();
         cache[0] = (seq_t)1;
         len = 1;
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
     /* ensure capacity */
     while (cap < n) {
         size_t new_cap = cap ? cap * 2 : 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cap = new_cap;

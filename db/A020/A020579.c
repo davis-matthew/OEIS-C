@@ -7,19 +7,22 @@
  * Formula:   a(n) = 6*6^n - 32*8^n + 27*9^n
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 37 terms through n = 168 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Compute the necessary powers of 6, 8, and 9. */
-    seq_t pow6 = big_pow((seq_t)6, (seq_t)n);
-    seq_t pow8 = big_pow((seq_t)8, (seq_t)n);
-    seq_t pow9 = big_pow((seq_t)9, (seq_t)n);
+    seq_t pow6 = ipow((seq_t)6, (seq_t)n);
+    seq_t pow8 = ipow((seq_t)8, (seq_t)n);
+    seq_t pow9 = ipow((seq_t)9, (seq_t)n);
 
     /* Scale each power by its coefficient. */
     seq_t term6 = ((seq_t)6) * pow6;

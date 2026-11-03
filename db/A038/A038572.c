@@ -6,8 +6,9 @@
  * Keywords:  easy, base, nonn, nice
  * Formula:   a(n) = 0 for n = 0; otherwise a(n) = (n >> 1) | ((n & 1) <<
  *            (len-1)), where len = number of bits needed to represent n
- * Range:     u8 n <= 255, u16 n <= 9529, u32 n <= 9529, u64 n <= 9529,
- *            u128 n <= 9529, big any n
+ * Range:     u8 n <= 255, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 90 terms through n = 9529 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

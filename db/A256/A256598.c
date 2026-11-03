@@ -12,14 +12,17 @@
  *            memoising all earlier rows * in a single flat array. It work...
  * Range:     u8 n <= 64, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   odd_part
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem, odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/odd_part.h"
+#include "../utils/mem.h"
 
 /* flat storage of all triangle terms */
 static seq_t *tri_flat   = NULL;
@@ -39,7 +42,7 @@ ensure_capacity(size_t need)
     while (new_cap < need) new_cap <<= 1;
 
     /* Use reinterpret_cast for C++ and cast for C. */
-    seq_t *p = (seq_t *)realloc(tri_flat, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, tri_flat, new_cap);
     if (!p) abort();          /* insufficient memory */
     tri_flat = p;
     tri_cap  = new_cap;

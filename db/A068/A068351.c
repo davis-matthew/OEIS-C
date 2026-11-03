@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 14, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   build_primes_upto, build_spf
+ * Validated: standard, pass, 58 terms through n = 2373 (2026-11-03)
+ * Helpers:   build_primes_upto, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_spf.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 static const idx_t LIMIT_N          = 500000;      /* maximal n to test */
 static const idx_t LIMIT_PRIME_VAL  = 30000000;    /* prime value bound */
@@ -60,7 +62,7 @@ static void init_sequence(void)
     size_t raw_cnt = 0;
     build_primes_upto(LIMIT_PRIME_VAL, &primes_raw, &raw_cnt);
     primes_cnt = raw_cnt;
-    primes_seq = (seq_t*)malloc(primes_cnt * sizeof(seq_t));
+    primes_seq = mem_new(seq_t, primes_cnt);
     for (size_t i = 0; i < primes_cnt; ++i) {
         primes_seq[i] = (seq_t)primes_raw[i];
     }
@@ -68,7 +70,7 @@ static void init_sequence(void)
 
     /* Allocate initial cache for terms */
     terms_cap   = 128;
-    terms_cache = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+    terms_cache = mem_new(seq_t, terms_cap);
 
     initialized = true;
 }
@@ -78,7 +80,7 @@ static void append_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         terms_cap *= 2;
-        terms_cache = (seq_t*)realloc(terms_cache, terms_cap * sizeof(seq_t));
+        terms_cache = mem_resize(seq_t, terms_cache, terms_cap);
     }
     terms_cache[terms_len++] = val;
 }

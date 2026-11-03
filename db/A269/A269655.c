@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ALPH        8          /* alphabet size 0..7 */
 #define PAIR_BITS   7          /* 7 possible consecutive pairs */
@@ -39,14 +41,14 @@ seq_t a(idx_t n)
     seq_t *nxt = nxt_storage;
 
     /* initialise state for length 1: no pairs used yet */
-    memset(cur, 0, STATES * sizeof(seq_t));
-    memset(nxt, 0, STATES * sizeof(seq_t));
+    mem_set(cur, 0, STATES * sizeof(seq_t));
+    mem_set(nxt, 0, STATES * sizeof(seq_t));
     for (idx_t last = 0; last < ALPH; ++last)
         cur[(size_t)last * MASKS] = (seq_t)1;
 
     /* DP from length 2 up to n */
     for (idx_t pos = 1; pos < n; ++pos) {
-        memset(nxt, 0, STATES * sizeof(seq_t));
+        mem_set(nxt, 0, STATES * sizeof(seq_t));
 
         for (idx_t last = 0; last < ALPH; ++last) {
             for (idx_t mask = 0; mask < MASKS; ++mask) {

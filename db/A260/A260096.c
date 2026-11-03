@@ -13,6 +13,7 @@
  *            (n‑1)-th...
  * Range:     u8 n <= 1, u16 n <= 24, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
+ * Validated: full, pass, 30 terms through n = 30 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

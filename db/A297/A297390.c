@@ -9,6 +9,7 @@
  *            values (offset 1): a(1) = 3 a(2) = 9 a(3) = 19 a(4) = 57
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 46, u128 n <= 92,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 207 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

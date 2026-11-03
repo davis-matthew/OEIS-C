@@ -13,7 +13,8 @@
  *            programming over all subsets of the parts
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* The sequence is defined for n >= 1; a(1) = 0. */
@@ -62,7 +64,7 @@ seq_t a(idx_t n) {
 
     /* Dynamic programming over subsets of the parts. */
     const size_t states = 1U << m;
-    seq_t *dp = (seq_t *)calloc(states, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, states);
     if (!dp) return (seq_t)0;  /* fallback on allocation failure */
 
     /* Base case: single‑element subsets. */
@@ -95,6 +97,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[states - 1];
-    free(dp);
+    mem_free(dp);
     return result;
 }

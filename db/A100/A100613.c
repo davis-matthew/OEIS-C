@@ -9,10 +9,13 @@
  *            phi(k) and phi(k) is Euler's totient function
  * Range:     u8 n <= 26, u16 n <= 409, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 790 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 #ifdef __cplusplus
 #include <cstdlib>
@@ -30,8 +33,8 @@ static void rebuild_phi(size_t n)
     size_t newCap = maxN == 0 ? n + 1 : maxN;
     while (newCap <= n) newCap *= 2;
 
-    phi = (seq_t *)realloc(phi, newCap * sizeof(seq_t));
-    sumPhi = (seq_t *)realloc(sumPhi, newCap * sizeof(seq_t));
+    phi = mem_resize(seq_t, phi, newCap);
+    sumPhi = mem_resize(seq_t, sumPhi, newCap);
     if (!phi || !sumPhi) { /* memory error; abort */
         exit(1);
     }

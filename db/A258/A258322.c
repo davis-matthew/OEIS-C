@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2500, i16 n <= 2500, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   b_of
+ * Validated: standard, pass, 99 terms through n = 2347 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,59 @@
  */
 
 #include <stdint.h>
-#include "../utils/b_of.h"
+
+static seq_t b_of(idx_t n)
+{
+    if (n == 1) return 1;
+    seq_t prod = 1;
+    idx_t m = n;
+
+    for (idx_t d = 2; d * d <= m; ++d)
+    {
+        if (m % d == 0)
+        {
+            int e = 0;
+            while (m % d == 0)
+            {
+                m /= d;
+                ++e;
+            }
+
+            seq_t bpe;
+            if (d == 2)
+                bpe = -1;
+            else if (d == 3)
+                bpe = (e & 1) ? 0 : 2;        /* e even => 2, e odd  => 0 */
+            else if (d % 4 == 3)
+                bpe = (e & 1) ? 0 : 1;        /* e even => 1, e odd => 0 */
+            else
+                bpe = e + 1;                  /* p ≡ 1 (mod 4) */
+
+            prod *= bpe;
+            if (prod == 0) return 0;
+        }
+    }
+
+    if (m > 1)   /* Remaining prime factor */
+    {
+        idx_t p = m;
+        int e = 1;
+        seq_t bpe;
+        if (p == 2)
+            bpe = -1;
+        else if (p == 3)
+            bpe = 0;                      /* e is 1 => odd => 0 */
+        else if (p % 4 == 3)
+            bpe = 0;                      /* odd exponent */
+        else
+            bpe = 2;                      /* e = 1 => e+1 = 2 */
+
+        prod *= bpe;
+        if (prod == 0) return 0;
+    }
+
+    return prod;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,18 +9,20 @@
  * Formula:   a(n) = length of maximal common prefix of the binary expansions
  *            of n and A003961(n), where A003961 is fully multiplicative with
  *            a(p) = nextprime(p)
- * Range:     u8 n <= 9829, u16 n <= 9829, u32 n <= 9829, u64 n <= 9829,
- *            u128 n <= 9829, big any n
- * Helpers:   _smallest_prime_factor, floor_log2_uint64, next_prime
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9829 (2026-11-01)
+ * Helpers:   ilog2, next_prime, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"          /* uint64_t next_prime(uint64_t) */
-#include "../utils/_smallest_prime_factor.h" /* uint64_t _smallest_prime_factor(uint64_t) */
-#include "../utils/floor_log2_uint64.h"  /* unsigned floor_log2_uint64(idx_t) */
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/next_prime.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     uint64_t m    = (uint64_t)n;
 
     while (m > 1) {
-        uint64_t p   = _smallest_prime_factor(m);
+        uint64_t p   = smallest_prime_factor(m);
         uint64_t exp = 0;
 
         while (m % p == 0) {
@@ -50,8 +52,8 @@ seq_t a(idx_t n)
     }
 
     /* Length (in bits) of the binary representations of n and prod. */
-    unsigned len_n = floor_log2_uint64(n) + 1;
-    unsigned len_p = floor_log2_uint64(prod) + 1;
+    unsigned len_n = ilog2(n) + 1;
+    unsigned len_p = ilog2(prod) + 1;
     unsigned minlen = (len_n < len_p) ? len_n : len_p;
 
     /* Count matching most significant bits. */

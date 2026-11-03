@@ -8,6 +8,7 @@
  * Formula:   a(n) = concat(6n-5, 6n-4, 6n-3, 6n-2, 6n-1, 6n) / 6
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 166, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 911 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

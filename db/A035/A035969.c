@@ -11,14 +11,29 @@
  *            unbounded‑knapsack DP
  * Range:     u8 n <= 17, u16 n <= 46, u32 n <= 143, u64 n <= 478,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq, allowed_part
+ * Validated: standard, pass, 63 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/alloc_seq.h"   /* provides seq_t *alloc_seq(size_t) */
-#include "../utils/allowed_part.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static inline int allowed_part(idx_t part)
+{
+    int r = part % 17;
+    return r != 0 && r != 8 && r != 9;
+}
 
 seq_t a(idx_t n)
 {

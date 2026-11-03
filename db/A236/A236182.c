@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=1..n} prime(k)^6
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 12, u64 n <= 165, u128 n <= 1000,
  *            big any n
- * Helpers:   grow_uint32_arr
+ * Validated: standard, pass, 39 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_uint32_arr.h"
+#include "../utils/mem.h"
+
+static void grow_uint32_arr(uint32_t **arr, size_t *cap, size_t min_needed)
+{
+    if (*cap >= min_needed) return;
+    size_t new_cap = (*cap > 0) ? *cap * 2 : 16;
+    if (new_cap < min_needed) new_cap = min_needed;
+    uint32_t *tmp = (uint32_t *)realloc(*arr, new_cap * sizeof(uint32_t));
+    if (tmp) { *arr = tmp; *cap = new_cap; }
+}
 
 /* Grow helpers – expand an array to at least min_needed capacity. */
 static void grow_seq_arr(seq_t **arr, size_t *cap, size_t min_needed)
@@ -28,7 +38,7 @@ static void grow_seq_arr(seq_t **arr, size_t *cap, size_t min_needed)
     if (*cap >= min_needed) return;
     size_t new_cap = (*cap > 0) ? *cap * 2 : 16;
     if (new_cap < min_needed) new_cap = min_needed;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (tmp) { *arr = tmp; *cap = new_cap; }
 }
 

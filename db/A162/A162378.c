@@ -8,13 +8,15 @@
  *            i.e. the product of the polynomials f(m) = (1‑x^m)/(1‑x)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global storage for the full product polynomial */
 static seq_t *poly_cache = NULL;
@@ -34,7 +36,7 @@ static void compute_polynomial(void)
 
     /* Start with the polynomial 1. */
     poly_deg = 0;
-    poly_cache = (seq_t *)malloc((poly_deg + 1) * sizeof(seq_t));
+    poly_cache = mem_new(seq_t, (poly_deg + 1));
     poly_cache[0] = (seq_t)1;
 
     /* Convolve with each (1 + x + … + x^{m-1}) polynomial. */
@@ -42,7 +44,7 @@ static void compute_polynomial(void)
     {
         idx_t m = m_list[f];
         idx_t new_deg = poly_deg + (m - 1);
-        seq_t *new_poly = (seq_t *)malloc((new_deg + 1) * sizeof(seq_t));
+        seq_t *new_poly = mem_new(seq_t, (new_deg + 1));
 
         seq_t s = 0;          /* running window sum */
         for (idx_t i = 0; i <= new_deg; ++i)
@@ -54,7 +56,7 @@ static void compute_polynomial(void)
             new_poly[i] = s;
         }
 
-        free(poly_cache);
+        mem_free(poly_cache);
         poly_cache = new_poly;
         poly_deg   = new_deg;
     }

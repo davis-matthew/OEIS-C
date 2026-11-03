@@ -8,9 +8,10 @@
  * Formula:   a(n) = largest member of the n‑th connected component of the
  *            graph of base‑2 prime strings (P(L,2)), enumerated in order of
  *            increasing smallest prime of each component
- * Range:     u8 n <= 22, u16 n <= 1355, u32 n <= 9330, u64 n <= 9330,
- *            u128 n <= 9330, big any n
- * Helpers:   bitlen32, bsearch_uint32
+ * Range:     u8 n <= 22, u16 n <= 1355, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 99 terms through n = 9330 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,29 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bitlen32.h"
-#include "../utils/bsearch_uint32.h"
+#include "../utils/mem.h"
+
+/* bit length of a non‑zero 32‑bit value */
+static inline size_t bitlen32(uint32_t x) {
+    /* GCC / Clang __builtin_clz works for unsigned int (32 bits)   */
+    return 32 - __builtin_clz(x);
+}
+
+/* binary search for key in a sorted array of uint32_t.
+   Returns index of key or n if not found. */
+static inline size_t bsearch_uint32(const uint32_t *arr, size_t n, uint32_t key) {
+    size_t lo = 0, hi = n;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        uint32_t v = arr[mid];
+        if (v == key) return mid;
+        if (v < key)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return n;          /* not found */
+}
 
 /* ----  Sequence construction  ---- */
 static bool seq_initialized = false;
@@ -71,7 +93,7 @@ static void build_sequence(void) {
 
     /* container for component maxima */
     size_t comp_cap = 1024;
-    seq_t *comp = (seq_t*)malloc(comp_cap * sizeof(seq_t));
+    seq_t *comp = mem_new(seq_t, comp_cap);
     size_t comp_cnt = 0;
 
     /* iterate over all primes in ascending order */
@@ -109,7 +131,7 @@ static void build_sequence(void) {
         /* store component maximum */
         if (comp_cnt == comp_cap) {
             comp_cap <<= 1;
-            comp = (seq_t*)realloc(comp, comp_cap * sizeof(seq_t));
+            comp = mem_resize(seq_t, comp, comp_cap);
         }
         comp[comp_cnt++] = (seq_t)comp_max;
     }

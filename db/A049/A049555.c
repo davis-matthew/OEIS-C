@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, mod_pow
+ * Validated: standard, pass, 74 terms through n = 950 (2026-11-01)
+ * Helpers:   build_primes_upto, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             }
             /* p ≡ 1 (mod 23). Need to check 2^((p-1)/23) ≡ 1 (mod p). */
             uint64_t exp = (p - 1) / 23;
-            seq_t m = mod_pow((seq_t)2, exp, (seq_t)p);
+            seq_t m = powmod((seq_t)2, exp, (seq_t)p);
             if (m == (seq_t)1) {
                 found++;
                 if (found == n) return (seq_t)p;

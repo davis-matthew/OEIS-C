@@ -9,7 +9,8 @@
  *            distinct value of the Euler totient sequence A002202
  * Range:     u8 n <= 7476, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 113 terms through n = 8725 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  seq_t and idx_t are defined by the build system  */
 static seq_t *seq_values = NULL;   /* 1‑based array: seq_values[n] = a(n) */
@@ -38,7 +40,7 @@ static void precompute(void)
         idx_t *phi = (idx_t *)calloc(limit + 1, sizeof(idx_t));
         unsigned char *is_composite = (unsigned char *)calloc(limit + 1, sizeof(unsigned char));
         unsigned char *seen = (unsigned char *)calloc(limit + 1, sizeof(unsigned char));
-        seq_t *even_cnt = (seq_t *)calloc(limit + 1, sizeof(seq_t));
+        seq_t *even_cnt = mem_new(seq_t, limit + 1);
 
         /*  Linear sieve for Euler's totient  */
         idx_t *pr = (idx_t *)malloc((limit/10 + 10) * sizeof(idx_t));
@@ -87,7 +89,7 @@ static void precompute(void)
 
         if (distinct_cnt >= MAX_N) {
             /*  Prepare the final sequence array  */
-            seq_values = (seq_t *)malloc((MAX_N + 1) * sizeof(seq_t));
+            seq_values = mem_new(seq_t, (MAX_N + 1));
             seq_len = MAX_N;
             for (idx_t i = 1; i <= MAX_N; ++i) {
                 seq_values[i] = even_cnt[distinct[i-1]];
@@ -97,7 +99,7 @@ static void precompute(void)
             free(phi);
             free(is_composite);
             free(seen);
-            free(even_cnt);
+            mem_free(even_cnt);
             free(distinct);
             break;          /*  computation complete  */
         }
@@ -106,7 +108,7 @@ static void precompute(void)
         free(phi);
         free(is_composite);
         free(seen);
-        free(even_cnt);
+        mem_free(even_cnt);
         free(distinct);
         limit *= 2;
     }

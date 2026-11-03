@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static bool is_prime_small(idx_t n)
 {
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         }
 
         /* Collect primes <= 96 that are not representable */
-        terms = (seq_t *)calloc(prime_cnt, sizeof(seq_t));
+        terms = mem_new(seq_t, prime_cnt);
         if (terms != NULL) {
             for (size_t i = 0; i < prime_cnt; ++i) {
                 uint64_t p = primes_local[i];

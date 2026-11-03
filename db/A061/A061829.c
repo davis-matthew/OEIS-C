@@ -11,15 +11,40 @@
  *            allow arbitrary call order
  * Range:     u8 n <= 11, u16 n <= 531, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   all_odd_digits_seq_t, next_odd
+ * Validated: standard, pass, 65 terms through n = 9089 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/all_odd_digits_seq_t.h"
-#include "../utils/next_odd.h"
+#include "../utils/mem.h"
+
+/* Test whether all decimal digits of x are odd.  Assumes x>0. */
+static bool all_odd_digits_seq_t(seq_t x)
+{
+    while (x > (seq_t)0) {
+        seq_t d = x % (seq_t)10;
+        if ((d & (seq_t)1) == (seq_t)0)      /* even digit found */
+            return false;
+        x /= (seq_t)10;
+    }
+    return true;
+}
+
+/* Return the next number after k that has all odd decimal digits.
+   k is itself a number with all odd digits (except the special case k==0). */
+static seq_t next_odd(seq_t k)
+{
+    if (k == (seq_t)0)          /* special starting point */
+        return (seq_t)1;
+
+    seq_t cand = k + (seq_t)2;   /* start with next odd number */
+    while (!all_odd_digits_seq_t(cand))
+        cand += (seq_t)2;
+    return cand;
+}
 
 /* Public entry point defined by the judge. */
 seq_t a(idx_t n)
@@ -37,7 +62,7 @@ seq_t a(idx_t n)
         size_t new_cap = buf_cap > 0 ? buf_cap : 16;
         while (new_cap < (size_t)n)
             new_cap <<= 1;
-        void *p = realloc(buf, new_cap * sizeof(seq_t));
+        void *p = mem_resize(seq_t, buf, new_cap);
         buf = (seq_t *)p;
         buf_cap = new_cap;
     }

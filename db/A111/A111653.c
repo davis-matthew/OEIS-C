@@ -8,14 +8,18 @@
  *            and C_m is the m‑th composite number
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *composites = NULL;   /* array of composites (0‑based) */
@@ -30,7 +34,7 @@ static void ensure_comp_capacity(size_t cap)
         return;
     size_t new_cap = comp_cap ? comp_cap * 2 : 16;
     if (new_cap < cap) new_cap = cap;
-    composites = (seq_t *)realloc(composites, new_cap * sizeof(seq_t));
+    composites = mem_resize(seq_t, composites, new_cap);
     comp_cap = new_cap;
 }
 
@@ -39,7 +43,7 @@ static void generate_composites(idx_t m)
 {
     while (comp_size < m) {
         /* find next composite */
-        while (is_prime(next_test))
+        while (is_prime_u64(next_test))
             ++next_test;
         /* store it */
         ensure_comp_capacity((size_t)(comp_size + 1));

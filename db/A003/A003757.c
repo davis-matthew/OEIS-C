@@ -8,19 +8,21 @@
  *            a(2)=1, a(3)=6, a(4)=13
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 155 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
 
 static void ensure_computed(idx_t n) {
     if (memo == NULL) {
-        memo = (seq_t *)malloc(5 * sizeof(seq_t));
+        memo = mem_new(seq_t, 5);
         memo[0] = 0;
         memo[1] = 1;
         memo[2] = 1;
@@ -34,7 +36,7 @@ static void ensure_computed(idx_t n) {
     idx_t new_len = memo_len;
     while (new_len <= n) new_len <<= 1;
     
-    memo = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+    memo = mem_resize(seq_t, memo, new_len);
     
     for (idx_t i = memo_len; i <= n; i++) {
         memo[i] = memo[i-1] + 6*memo[i-2] + memo[i-3] - memo[i-4];

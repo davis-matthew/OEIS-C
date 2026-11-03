@@ -11,7 +11,8 @@
  *            (the 7‑tuples of digits 0‑3)
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 20, u128 n <= 191,
  *            big any n
- * Helpers:   is_unimodal_vector
+ * Validated: standard, pass, 31 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_unimodal_vector.h"
+#include "../utils/mem.h"
+
+/* Check if the vector represented by `idx` (base‑4 digits) is unimodal. */
+static bool is_unimodal_vector(uint32_t idx) {
+    /* Extract the 7 digits */
+    unsigned d[7];
+    uint32_t v = idx;
+    for (int i = 0; i < 7; ++i) {
+        d[i] = v & 3u;
+        v >>= 2;
+    }
+    /* Scan once: nondecreasing part */
+    int i = 0;
+    while (i < 6 && d[i] <= d[i + 1]) ++i;
+    /* Scan nonincreasing part */
+    while (i < 6 && d[i] >= d[i + 1]) ++i;
+    return i == 6;
+}
 
 /* Maximum number of states: 4^7 = 16384 */
 #define N_STATES (1u << 14)   /* 2^(2*7) */
@@ -42,12 +60,12 @@ seq_t a(idx_t n) {
 
     static seq_t dp[N_STATES];
     static seq_t next[N_STATES];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     dp[0] = 1;                     /* state of all zeros */
 
     for (idx_t step = 0; step < n; ++step) {
         /* Copy current DP to next (will be transformed). */
-        memcpy(next, dp, sizeof(dp));
+        mem_copy(next, dp, sizeof(dp));
 
         /* Prefix sums along each dimension (base‑4). */
         for (int d = 0; d < 7; ++d) {
@@ -64,7 +82,7 @@ seq_t a(idx_t n) {
             if (!unimodal[i]) next[i] = 0;
 
         /* Prepare for next iteration. */
-        memcpy(dp, next, sizeof(dp));
+        mem_copy(dp, next, sizeof(dp));
     }
 
     /* Sum over all unimodal states. */

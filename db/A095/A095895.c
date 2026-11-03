@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -43,6 +44,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  A095895:  sequence coefficient function */
 seq_t a(idx_t n)
@@ -54,10 +56,10 @@ seq_t a(idx_t n)
     /* 1.  Sieve for distinct–prime‑product P(k) (A007947)          */
     /* ------------------------------------------------------------ */
     const size_t N = (size_t)n;
-    seq_t *pdp = (seq_t *)malloc((N + 1) * sizeof(seq_t));   /* P(k)          */
-    seq_t *b   = (seq_t *)malloc((N + 1) * sizeof(seq_t));   /* b(k) = k*P(k) */
-    seq_t *g   = (seq_t *)malloc((N + 1) * sizeof(seq_t));   /* g(k)          */
-    seq_t *a   = (seq_t *)malloc((N + 1) * sizeof(seq_t));   /* a(k)          */
+    seq_t *pdp = mem_new(seq_t, (N + 1));   /* P(k)          */
+    seq_t *b   = mem_new(seq_t, (N + 1));   /* b(k) = k*P(k) */
+    seq_t *g   = mem_new(seq_t, (N + 1));   /* g(k)          */
+    seq_t *a   = mem_new(seq_t, (N + 1));   /* a(k)          */
 
     if (!pdp || !b || !g || !a) {                      /* safety check */
         return 0;
@@ -134,10 +136,10 @@ seq_t a(idx_t n)
     /* ------------------------------------------------------------ */
     seq_t result = a[N];
 
-    free(pdp);
-    free(b);
-    free(g);
-    free(a);
+    mem_free(pdp);
+    mem_free(b);
+    mem_free(g);
+    mem_free(a);
 
     return result;
 }

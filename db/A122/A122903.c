@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static uint32_t *primes      = NULL; /* list of odd primes */
 static size_t  primes_cnt   = 0;
@@ -134,7 +136,7 @@ static void append_to_cache(seq_t val)
 {
     if (cache.size == cache.cap) {
         size_t new_cap = cache.cap ? cache.cap * 2 : 128;
-        seq_t *new_data = (seq_t *)realloc(cache.data, new_cap * sizeof(seq_t));
+        seq_t *new_data = mem_resize(seq_t, cache.data, new_cap);
         if (!new_data) exit(1);
         cache.data = new_data;
         cache.cap  = new_cap;

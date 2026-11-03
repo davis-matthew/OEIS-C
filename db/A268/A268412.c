@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 135, u16 n <= 8256, u32 n <= 8256, u64 n <= 8256,
  *            u128 n <= 8256, big any n
- * Helpers:   even_runs
+ * Validated: standard, pass, 80 terms through n = 8094 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
    is found. */
 
 #include <stdbool.h>
-#include "../utils/even_runs.h"
+
+/* Return true iff x has an even number of runs of 1's in binary. */
+static inline bool even_runs(seq_t x)
+{
+    bool prev1 = false;
+    int runs = 0;
+    while (x != 0) {
+        bool curr = (x & 1) != 0;
+        if (curr && !prev1)
+            runs++;
+        prev1 = curr;
+        x >>= 1;
+    }
+    return (runs & 1) == 0;
+}
 
 /* The actual sequence function.  idx_t is unsigned integer type. */
 seq_t a(idx_t n)

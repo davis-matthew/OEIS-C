@@ -12,7 +12,8 @@
  *            two of its left/up/left‑up neighbors. Offset: 1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   validate_first_row
+ * Validated: standard, pass, 30 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,28 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/validate_first_row.h"
+
+/* Validate a row when no up neighbors are present (first row). */
+static bool validate_first_row(unsigned short row, int *newmax) {
+    int curmax = -1;
+    for (int j = 0; j < 3; ++j) {
+        int val = (row >> (2 * j)) & 3;
+        if (val > curmax && val != curmax + 1)
+            return false;
+        if (val > curmax)
+            curmax = val;
+        int equalCnt = 0;
+        if (j > 0) {
+            int left = (row >> (2 * (j - 1))) & 3;
+            if (left == val)
+                ++equalCnt;
+        }
+        if (equalCnt > 2)
+            return false;
+    }
+    *newmax = curmax;
+    return true;
+}
 
 /* Transition table: for each (prevmax, prevrow) store all
    admissible (currow, newmax) pairs. */

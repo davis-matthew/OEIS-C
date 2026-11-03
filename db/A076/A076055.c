@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 5167, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, rev
+ * Validated: standard, pass, 71 terms through n = 9322 (2026-11-03)
+ * Helpers:   is_prime, mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/rev.h"
 #include "../utils/is_prime.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of found terms */
 static size_t      used = 0;     /* number of elements stored */
@@ -33,7 +35,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = capacity ? capacity << 1 : 16;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) {
         /* Allocation failed – terminate */
         abort();
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         if (is_prime(v))
             continue; /* v is prime, not composite */
 
-        uint64_t rev_v = rev(v);
+        uint64_t rev_v = reverse_digits_idx(v);
         if (is_prime(rev_v)) {
             /* v is composite and its reverse is prime */
             ensure_capacity(used + 1);

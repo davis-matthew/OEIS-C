@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 4932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  Static tables for prime factors and ω-values  */
 static uint64_t *spf = NULL;          /* smallest prime factor, 1‑based   */
@@ -96,11 +98,11 @@ static void append_apex(seq_t val)
 {
     if (apex_cap == 0) {
         apex_cap = 16;
-        apex_arr = (seq_t *)malloc(apex_cap * sizeof(seq_t));
+        apex_arr = mem_new(seq_t, apex_cap);
         if (!apex_arr) exit(1);
     } else if (apex_cnt >= apex_cap) {
         apex_cap <<= 1;
-        apex_arr = (seq_t *)realloc(apex_arr, apex_cap * sizeof(seq_t));
+        apex_arr = mem_resize(seq_t, apex_arr, apex_cap);
         if (!apex_arr) exit(1);
     }
     apex_arr[apex_cnt++] = val;

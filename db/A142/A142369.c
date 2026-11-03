@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 140, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 57 terms through n = 973 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n) = the n-th prime that is congruent to 18 modulo 47 (search by trial). */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_17_or_71
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,31 @@
    while the base‑9 representation of k − 1 does not contain such
    a pair. */
 #include <stdbool.h>
-#include "../utils/has_17_or_71.h"
+
+/* Test whether x's base‑9 representation contains the digits 1 and 7
+   side‑by‑side in either order. */
+static bool has_17_or_71(seq_t x)
+{
+    if (x == (seq_t)0) return false;   /* 0 has digits "0" only */
+
+    /* digits[0] = least‑significant digit, digits[len‑1] = most‑significant */
+    unsigned int digits[128];
+    int len = 0;
+    seq_t t = x;
+    while (t > (seq_t)0) {
+        digits[len++] = (unsigned int)(t % (seq_t)9);
+        t /= (seq_t)9;
+    }
+
+    /* Looking for 17 or 71: digits[i] more significant than digits[i‑1] */
+    for (int i = 1; i < len; ++i) {
+        unsigned int d = digits[i];
+        unsigned int d_prev = digits[i - 1];
+        if ((d == 1 && d_prev == 7) || (d == 7 && d_prev == 1))
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

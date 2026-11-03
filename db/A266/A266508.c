@@ -9,12 +9,14 @@
  * Formula:   a(n) = floor((100*10^n + 89)/99) (OEIS A266508)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache of computed terms      */
 static idx_t  cache_len = 0;     /* number of terms stored       */
@@ -23,7 +25,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_len <= n) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();             /* no memory – abort          */
         cache = tmp;
 

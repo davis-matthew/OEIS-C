@@ -7,7 +7,8 @@
  * Formula:   a(1) = 1, a(n) = n - a(n-1) + a(a(n-1)) - a(a(a(n-1)))
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL; /* 1‑based array of terms */
 /* Largest n having a computed value */
@@ -37,7 +39,7 @@ static void grow_cache(size_t needed)
         new_cap = needed;
 
     /* Allocate new larger array */
-    seq_t *new_cache = (seq_t *)malloc((new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (new_cap + 1));
     if (!new_cache) {
         /* Allocation failed – abort. The problem environment usually
            terminates the program on such fatal errors. */
@@ -48,7 +50,7 @@ static void grow_cache(size_t needed)
     if (cache != NULL) {
         for (size_t i = 1; i <= cache_cap; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     cache       = new_cache;

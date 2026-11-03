@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 6130, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, mod_pow
+ * Validated: standard, pass, 73 terms through n = 9978 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,11 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +51,7 @@ seq_t a(idx_t n)
         build_primes_upto(primes_limit, &all_primes, &primes_cnt);
         idx_next = 0;
         valid_cap = 64;
-        valid = (seq_t *)malloc(valid_cap * sizeof(seq_t));
+        valid = mem_new(seq_t, valid_cap);
         valid_cnt = 0;
         initialized = true;
     }
@@ -73,7 +77,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < primes_cnt && all_primes[i] * all_primes[i] <= temp; ++i) {
             uint64_t p = all_primes[i];
             if (temp % p == 0) {
-                seq_t r = mod_pow((seq_t)2, (idx_t)p, (seq_t)q);
+                seq_t r = powmod((seq_t)2, (idx_t)p, (seq_t)q);
                 if (r == (seq_t)1) {
                     excluded = true;
                     break;
@@ -84,7 +88,7 @@ seq_t a(idx_t n)
             }
         }
         if (!excluded && temp > 1) {  /* remaining prime factor */
-            seq_t r = mod_pow((seq_t)2, (idx_t)temp, (seq_t)q);
+            seq_t r = powmod((seq_t)2, (idx_t)temp, (seq_t)q);
             if (r == (seq_t)1) {
                 excluded = true;
             }
@@ -93,7 +97,7 @@ seq_t a(idx_t n)
         if (!excluded) {
             if (valid_cnt >= valid_cap) {
                 valid_cap = valid_cap ? valid_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(valid, valid_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, valid, valid_cap);
                 if (!tmp) {
                     /* Memory allocation failed, abort */
                     return (seq_t)0;

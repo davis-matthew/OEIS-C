@@ -9,7 +9,8 @@
  *            for n > 1 where prime_i is the (i+1)‑th prime (prime_0 = 2)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow, build_primes
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   build_primes, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/build_primes.h"   /* declares build_primes() */
-#include "../utils/big_pow.h"       /* declares big_pow() */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/build_primes.h"
+#include "../utils/ipow.h"
 
 /* --- prime cache --------------------------------------------------- */
 static idx_t *prime_list = NULL;   /* array of primes (idx_t == uint64_t) */
@@ -53,7 +56,7 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i < m; ++i) {
         idx_t exp   = (m - i) * (m - i);      /* square exponent */
         seq_t prime = (seq_t)prime_list[i];
-        seq_t term  = big_pow(prime, (seq_t)exp);
+        seq_t term  = ipow(prime, (seq_t)exp);
         result *= term;
     }
 

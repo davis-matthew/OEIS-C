@@ -9,7 +9,8 @@
  *            divisors d of k
  * Range:     u8 n <= 66, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   check_record_recursive
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/check_record_recursive.h"
+#include "../utils/mem.h"
+
+/* recursion to test record condition */
+static bool check_record_recursive(uint64_t cur, size_t idx, size_t cnt,
+                                   uint32_t *pr, uint32_t *exp,
+                                   seq_t S_n, uint64_t n, seq_t *S_cache) {
+    if (idx == cnt) {
+        if (cur == n) return true;          /* skip the number itself */
+        return S_cache[cur] < S_n;
+    }
+    uint64_t pow_val = 1;
+    for (uint32_t k = 0; k <= exp[idx]; ++k) {
+        if (!check_record_recursive(cur * pow_val, idx + 1, cnt,
+                                    pr, exp, S_n, n, S_cache))
+            return false;
+        pow_val *= pr[idx];
+    }
+    return true;
+}
 
 /* static data */
 static uint32_t *spf = NULL;          /* smallest prime factor table */
@@ -117,7 +136,7 @@ static void ensure_S_cache(size_t need) {
     if (need < S_cache_cap) return;
     size_t new_cap = S_cache_cap ? S_cache_cap : 1;
     while (new_cap <= need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(S_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, S_cache, new_cap);
     S_cache = tmp;
     S_cache_cap = new_cap;
 }
@@ -134,7 +153,7 @@ static void ensure_seq_vals(size_t need) {
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap : 1;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
     seq_vals = tmp;
     seq_cap = new_cap;
 }

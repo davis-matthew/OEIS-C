@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 34, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache – shared between calls */
 static seq_t *seq_cache  = NULL;
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise the cache with the first two terms */
     if (seq_cache == NULL) {
         seq_cache_len = 2;
-        seq_cache = (seq_t *)malloc(seq_cache_len * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cache_len);
         if (!seq_cache) return (seq_t)0;          /* allocation failure */
         seq_cache[0] = (seq_t)2;                 /* a(0) */
         seq_cache[1] = (seq_t)4;                 /* a(1) */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Grow the cache to contain the requested index */
     size_t old_len = seq_cache_len;
     seq_cache_len = idx + 1;
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, seq_cache_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, seq_cache_len);
     if (!new_cache) return (seq_t)0;              /* allocation failure */
     seq_cache = new_cache;
 

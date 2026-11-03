@@ -9,20 +9,22 @@
  *            sqrt(1-4x)) / (2x) is the generating function * for the Catalan
  *            numbers. In other words, * a(n) = coeff(C^3, n) + coeff(C^4,
  *            n-4) (with the second term zero for n<4)
- * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 24, u128 n <= 24,
+ * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* coefficient of x^n in C(x)^p :  p/(2n+p) * binom(2n+p, n) */
 static seq_t coeff_pow_p(idx_t p, idx_t n)
 {
     idx_t N = 2 * n + p;                       /* total for binomial */
-    seq_t comb = binom(N, n);                  /* binom(2n+p, n)   */
+    seq_t comb = binomial(N, n);                  /* binom(2n+p, n)   */
     seq_t num  = (seq_t)p * comb;              /* p * comb         */
     seq_t den  = (seq_t)N;                     /* 2n + p           */
     return num / den;                          /* integer division */

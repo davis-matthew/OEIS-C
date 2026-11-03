@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   C_of_n, S_of_t
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,26 @@
  */
 
 #include <stdint.h>
-#include "../utils/C_of_n.h"
-#include "../utils/S_of_t.h"
+
+/* internal helper: cumulative elements up to and including row n
+ * C(n) = (n+1)(n+2)/2
+ */
+static inline __int128 C_of_n(idx_t n)
+{
+    __int128 N = (__int128)n + 1;        // N = n+1
+    return N * (N + 1) / 2;
+}
+
+/* internal helper: cumulative elements up to and including triangle t
+ * S(t) = sum_{s=0}^t (s+1)(s+2)/2
+ */
+static inline __int128 S_of_t(idx_t t)
+{
+    __int128 N = (__int128)t + 1;          // N = t+1
+    __int128 sum_sq = N * (N + 1) * (2 * N + 1) / 6;   // sum of squares up to N
+    __int128 sum_1  = N * (N + 1) / 2;               // sum of first N integers
+    return (sum_sq + sum_1) / 2;       // S(t) as derived
+}
 
 /* The main sequence function */
 seq_t a(idx_t n)

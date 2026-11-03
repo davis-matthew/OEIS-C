@@ -10,7 +10,8 @@
  *            s(m)=(-1)^k
  * Range:     u8 n <= 13, u16 n <= 38, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   pentagonal_sign
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pentagonal_sign.h"
+
+/* Sign of the pentagonal term for m = 2n+1  ; 0 if not pentagonal   */
+static int pentagonal_sign(idx_t m) {
+    for (idx_t k = 1; ; ++k) {
+        idx_t g1 = k * (3 * k - 1) / 2;
+        if (g1 > m) break;
+        if (g1 == m) return (k & 1) ? -1 : 1;   /* (-1)^k */
+
+        idx_t g2 = k * (3 * k + 1) / 2;
+        if (g2 == m) return (k & 1) ? -1 : 1;
+    }
+    return 0;
+}
 
 #if defined(__cplusplus)
 /* In C++ use value‑initialising new[]( ) */

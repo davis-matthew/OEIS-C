@@ -9,7 +9,8 @@
  *            where p is prime
  * Range:     u8 n <= 56, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   build_primes_upto, cmp_seq_t
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/cmp_seq_t.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t pow_limit(seq_t base, seq_t exp, seq_t limit) {
     seq_t result = 1;
@@ -44,7 +55,7 @@ seq_t a(idx_t n) {
 
         /* Prepare candidate array */
         size_t list_cap = 1024;
-        seq_t *cand = (seq_t *)malloc(list_cap * sizeof(seq_t));
+        seq_t *cand = mem_new(seq_t, list_cap);
         size_t list_len = 0;
 
         /* Add 1 */
@@ -54,7 +65,7 @@ seq_t a(idx_t n) {
         for (size_t i = 0; i < primes_cnt; ++i) {
             if (list_len == list_cap) {
                 list_cap <<= 1;
-                cand = (seq_t *)realloc(cand, list_cap * sizeof(seq_t));
+                cand = mem_resize(seq_t, cand, list_cap);
             }
             cand[list_len++] = (seq_t)primes_arr[i];
         }
@@ -70,7 +81,7 @@ seq_t a(idx_t n) {
                 if (val > bound_seq) break;   /* subsequent exponents grow */
                 if (list_len == list_cap) {
                     list_cap <<= 1;
-                    cand = (seq_t *)realloc(cand, list_cap * sizeof(seq_t));
+                    cand = mem_resize(seq_t, cand, list_cap);
                 }
                 cand[list_len++] = val;
             }
@@ -79,7 +90,7 @@ seq_t a(idx_t n) {
         free(primes_arr);
 
         /* Sort candidates and remove duplicates */
-        qsort(cand, list_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(cand, list_len, sizeof(seq_t), cmp_seq_t);
         size_t uniq = 0;
         for (size_t i = 0; i < list_len; ++i) {
             if (uniq == 0 || cmp_seq_t(&cand[uniq - 1], &cand[i]) != 0) {
@@ -90,10 +101,10 @@ seq_t a(idx_t n) {
 
         if (list_len >= n) {
             seq_t result = cand[n - 1];
-            free(cand);
+            mem_free(cand);
             return result;
         }
-        free(cand);
+        mem_free(cand);
         bound <<= 1;            /* double bound and try again */
     }
 }

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 767 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
    Offset: 0
    Remark: Uses the 'binomial' routine from ../utils/binomial.h. */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Return a(n).  The result is exact as long as it fits in type seq_t. */

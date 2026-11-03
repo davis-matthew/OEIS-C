@@ -10,14 +10,26 @@
  *            down step from height k to k-1 has weight c(k), a(0) = 1
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 21,
  *            big any n
- * Helpers:   alloc_zero, release
+ * Validated: standard, pass, 34 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *a005647_cache = 0;
 static idx_t a005647_count = 0;

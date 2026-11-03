@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 27, u64 n <= 55, u128 n <= 107,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Denominators of continued fraction convergents to sqrt(212) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
 
     if (cache_size <= n) {
         size_t new_size = n + 1;            /* include index 0..n */
-        seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         /* base case */
         new_cache[0] = (seq_t)1;            /* q0 = 1 */
 
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
             q_prev = q_curr;
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = (idx_t)new_size;
     }

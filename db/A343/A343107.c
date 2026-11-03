@@ -12,7 +12,8 @@
  *            of "good" numbers, growing the cache unti...
  * Range:     u8 n <= 155, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9736 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- internal state --------------------------------------------------- */
 static unsigned char *bad = NULL;       /* bad[i] = 1 if i has a divisor ≡1(mod8) */
@@ -48,7 +50,7 @@ static void rebuild_to_limit(size_t limit)
 
     /* Rebuild the list of good numbers */
     size_t new_cap = limit / 2 + 64;
-    seq_t *tmp_good = (seq_t *)realloc(good, new_cap * sizeof(seq_t));
+    seq_t *tmp_good = mem_resize(seq_t, good, new_cap);
     if (!tmp_good) abort();
     good = tmp_good;
     good_cap = new_cap;
@@ -58,7 +60,7 @@ static void rebuild_to_limit(size_t limit)
         if (!bad[i]) {
             if (good_len >= good_cap) {
                 good_cap *= 2;
-                seq_t *tmp2 = (seq_t *)realloc(good, good_cap * sizeof(seq_t));
+                seq_t *tmp2 = mem_resize(seq_t, good, good_cap);
                 if (!tmp2) abort();
                 good = tmp2;
             }

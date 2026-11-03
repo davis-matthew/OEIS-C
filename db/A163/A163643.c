@@ -9,17 +9,40 @@
  *            a(n-1) that is coprime to n
  * Range:     u8 n <= 106, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   allocate_seq_array, gcd, is_prime_small, seq_realloc
+ * Validated: standard, pass, 79 terms through n = 6887 (2026-11-01)
+ * Helpers:   gcd, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Dependency utilities */
 #include <stdbool.h>
-#include "../utils/allocate_seq_array.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/is_prime_small.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <assert.h>
 #include "../utils/gcd.h"
+#include "../utils/is_prime_seq.h"
+
+static seq_t *allocate_seq_array(size_t n)
+{
+#ifdef __cplusplus
+    return new seq_t[n];
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Cached sequence storage */
 static seq_t *seq_cache = NULL;     /* array of computed values   */
@@ -60,7 +83,7 @@ seq_t a(idx_t n)
 
         while (true) {
             /* Composite check: >1 and not prime */
-            if (cand > (seq_t)1 && !is_prime_small(cand)) {
+            if (cand > (seq_t)1 && !is_prime_seq(cand)) {
                 seq_t sn = (seq_t)cur_n;   /* n as seq_t for gcd */
                 if (gcd(cand, sn) == (seq_t)1) {
                     break; /* found the desired term */

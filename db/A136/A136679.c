@@ -8,7 +8,8 @@
  * Formula:   a(n) = |{(x,y,z) ∈ [1,n-1]^3 : x^2 + y^2 ≡ z^2 (mod n)}|
  * Range:     u8 n <= 15, u16 n <= 199, u32 n <= 215, u64 n <= 215,
  *            u128 n <= 215, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 213 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,9 +38,9 @@ seq_t a(idx_t n)
     /* Reallocate auxiliary arrays if n exceeds the current capacity. */
     if (n > alloc_n) {
         free(sq);
-        free(freq);
+        mem_free(freq);
         sq = (idx_t *)malloc(n * sizeof(idx_t));
-        freq = (seq_t *)malloc(n * sizeof(seq_t));
+        freq = mem_new(seq_t, n);
         if (!sq || !freq) {
             /* Memory allocation failed; return 0 as a safe fallback. */
             return (seq_t)0;

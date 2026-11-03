@@ -9,7 +9,8 @@
  *            * no partial sum is prime
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 29, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,18 +39,18 @@ seq_t a(idx_t n)
 
     /* DP: dp_prev[s] = number of prefix ways reaching sum s after k elements. */
     size_t prev_max = 0;
-    seq_t *dp_prev = (seq_t *)calloc(prev_max + 1, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, prev_max + 1);
     if (!dp_prev) { free(isPrime); return (seq_t)0; }
     dp_prev[0] = (seq_t)1;
 
     for (size_t step = 1; step <= 7; ++step) {
         size_t curr_max = step * max_val;
-        seq_t *dp_curr = (seq_t *)calloc(curr_max + 1, sizeof(seq_t));
-        if (!dp_curr) { free(dp_prev); free(isPrime); return (seq_t)0; }
+        seq_t *dp_curr = mem_new(seq_t, curr_max + 1);
+        if (!dp_curr) { mem_free(dp_prev); free(isPrime); return (seq_t)0; }
 
         /* Prefix sums of dp_prev for efficient range queries. */
-        seq_t *prefix = (seq_t *)calloc(prev_max + 1, sizeof(seq_t));
-        if (!prefix) { free(dp_curr); free(dp_prev); free(isPrime); return (seq_t)0; }
+        seq_t *prefix = mem_new(seq_t, prev_max + 1);
+        if (!prefix) { mem_free(dp_curr); mem_free(dp_prev); free(isPrime); return (seq_t)0; }
         if (prev_max >= 0) {
             prefix[0] = dp_prev[0];
             for (size_t i = 1; i <= prev_max; ++i) prefix[i] = prefix[i - 1] + dp_prev[i];
@@ -64,8 +66,8 @@ seq_t a(idx_t n)
             if (!isPrime[t]) dp_curr[t] = sum;
         }
 
-        free(prefix);
-        free(dp_prev);
+        mem_free(prefix);
+        mem_free(dp_prev);
         dp_prev = dp_curr;
         prev_max = curr_max;
     }
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     seq_t total = (seq_t)0;
     for (size_t i = 0; i <= prev_max; ++i) total += dp_prev[i];
 
-    free(dp_prev);
+    mem_free(dp_prev);
     free(isPrime);
     return total;
 }

@@ -10,6 +10,7 @@
  *            a(n) = 2n+9 for even n >= 6, * a(n) = 2n+3 for odd n >= 7
  * Range:     u8 n <= 24, u16 n <= 24, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 24 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

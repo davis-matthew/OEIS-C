@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *E_arr = NULL;      /* Euler zigzag numbers E_k              */
 static seq_t *f_arr = NULL;      /* binomial transforms f_k               */
@@ -40,9 +42,9 @@ ensure_up_to(idx_t n)
     /* Allocate arrays on first call */
     if (E_arr == NULL) {
         size_t sz = sizeof(seq_t);
-        E_arr = (seq_t *)malloc(sz);
-        f_arr = (seq_t *)malloc(sz);
-        a_arr = (seq_t *)malloc(sz);
+        E_arr = mem_new(seq_t, (sz) / sizeof(seq_t));
+        f_arr = mem_new(seq_t, (sz) / sizeof(seq_t));
+        a_arr = mem_new(seq_t, (sz) / sizeof(seq_t));
         if (!E_arr || !f_arr || !a_arr) exit(1);  /* abort on OOM */
 
         E_arr[0] = (seq_t)1;
@@ -56,9 +58,9 @@ ensure_up_to(idx_t n)
 
     /* Grow arrays to hold indices up to n */
     size_t new_cap = (size_t)(n + 1);
-    E_arr = (seq_t *)realloc(E_arr, new_cap * sizeof(seq_t));
-    f_arr = (seq_t *)realloc(f_arr, new_cap * sizeof(seq_t));
-    a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    E_arr = mem_resize(seq_t, E_arr, new_cap);
+    f_arr = mem_resize(seq_t, f_arr, new_cap);
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
     if (!E_arr || !f_arr || !a_arr) exit(1);   /* abort on OOM */
 
     /* Compute new values sequentially */

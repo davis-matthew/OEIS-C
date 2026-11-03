@@ -6,20 +6,22 @@
  * Keywords:  nonn, easy
  * Formula:   Concatenation of blocks where block k = (1, 3, ..., 2k-1, 2k,
  *            2k-2, ..., 2)
- * Range:     u8 n <= 9783, u16 n <= 9783, u32 n <= 9783, u64 n <= 9783,
- *            u128 n <= 9783, big any n
- * Helpers:   a000037_isqrt
+ * Range:     u8 n <= 10100, u16 n <= 10100, u32 n <= 10100, u64 n <= 10100,
+ *            u128 n <= 10100, big any n
+ * Validated: standard, pass, 116 terms through n = 9783 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000037_isqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
         
     // Find which block k the index n falls into
     // Block k has length 2k and ends at position k(k+1)
-    idx_t k = a000037_isqrt(n);
+    idx_t k = isqrt_u64(n);
     while (k * (k + 1) < n) {
         k++;
     }

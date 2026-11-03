@@ -9,13 +9,15 @@
  *            P_m(t) is the number of partitions of t into at most m parts
  * Range:     u8 n <= 32, u16 n <= 76, u32 n <= 215, u64 n <= 691,
  *            u128 n <= 2409, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 8699 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,12 +51,12 @@ seq_t a(idx_t n)
         size_t size   = (size_t)(new_k + 1) * stride;
 
         /* Allocate the new table. The cast is required for C++ builds. */
-        seq_t *newpt = (seq_t *)malloc(size * sizeof(seq_t));
+        seq_t *newpt = mem_new(seq_t, size);
         if (!newpt)
             return 0; /* allocation failure (unlikely) */
 
         /* Initialise to 0; set P[0][0] = 1. */
-        memset(newpt, 0, size * sizeof(seq_t));
+        mem_set(newpt, 0, size * sizeof(seq_t));
         newpt[0] = 1;
 
         /* Build partitions DP: P[k][m] = P[k-1][m] + P[k][m-k] (if m>=k). */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old table. */
-        free(ptab);
+        mem_free(ptab);
         ptab       = newpt;
         tables_n   = new_n;
         tables_k   = new_k;

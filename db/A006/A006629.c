@@ -10,13 +10,14 @@
  *            1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 25, u128 n <= 48,
  *            big any n
- * Helpers:   a006629_gcd
+ * Validated: standard, pass, 40 terms through n = 194 (2026-11-01)
+ * Helpers:   gcd_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a006629_gcd.h"
+#include "../utils/gcd_u128.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
         unsigned __int128 kk = (unsigned __int128)k;
         unsigned __int128 num = (3 * kk + 3) * (3 * kk + 2) * (3 * kk + 1) * (kk + 1);
         unsigned __int128 den = kk * (2 * kk + 3) * (2 * kk + 2) * (kk + 2);
-        unsigned __int128 g = a006629_gcd(num, den);
+        unsigned __int128 g = gcd_u128(num, den);
         num /= g;
         den /= g;
         /* den divides r exactly since r*num/den is an integer and gcd(num,den)=1 */

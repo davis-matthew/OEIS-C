@@ -9,6 +9,7 @@
  *            3958*n/3 - 614
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 25 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

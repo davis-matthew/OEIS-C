@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   T_val
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,27 @@
 */
 
 #include <stdint.h>
-#include "../utils/T_val.h"
+
+static seq_t T_val(idx_t row, idx_t col) {
+    /* Compute T(row, col) using the recurrence and initial values */
+    seq_t r = (seq_t)row;
+    if (col == 1) return 2 * r;
+    if (col == 2) return 7 * r + 2;
+    if (col == 3) return 15 * r + 9;
+    if (col == 4) return 26 * r + 24;
+
+    /* Iterate using the order‑4 recurrence */
+    seq_t t1 = 2 * r;          /* k = 1   */
+    seq_t t2 = 7 * r + 2;      /* k = 2   */
+    seq_t t3 = 15 * r + 9;     /* k = 3   */
+    seq_t t4 = 26 * r + 24;    /* k = 4   */
+    seq_t cur;
+    for (idx_t k = 5; k <= col; ++k) {
+        cur = 4 * t4 - 6 * t3 + 4 * t2 - t1;
+        t1 = t2; t2 = t3; t3 = t4; t4 = cur;
+    }
+    return t4;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0; /* offset is 1, but guard against misuse */

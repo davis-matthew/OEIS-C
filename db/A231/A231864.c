@@ -9,13 +9,15 @@
  *            derivative of i (i' = Σ a_j * i / p_j for i = Π p_j^{a_j})
  * Range:     u8 n <= 9, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for partial sums.  prefix[i] holds a(i) for i≥1. */
 static seq_t *prefix = NULL;   /* array indices use idx_t; prefix[0] unused */
@@ -27,7 +29,7 @@ static void ensure_prefix(idx_t n)
     if (n + 1 <= prefix_cap) return;            /* already big enough */
 
     size_t new_cap = n + 1;                      /* indices 0..n */
-    seq_t *tmp = (seq_t *)realloc(prefix, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prefix, new_cap);
     if (!tmp) return;                           /* allocation failed */
     /* zero-initialize the new entries */
     for (idx_t i = prefix_cap; i < new_cap; ++i)

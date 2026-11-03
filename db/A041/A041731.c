@@ -11,13 +11,41 @@
  *            - a(n-32) (recurrence)
  * Range:     u8 none, u16 n <= 15, u32 n <= 31, u64 n <= 61, u128 n <= 118,
  *            big any n
- * Helpers:   compute_base_terms
+ * Validated: standard, pass, 50 terms through n = 174 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/compute_base_terms.h"
+#include "../utils/mem.h"
+
+static void compute_base_terms(seq_t *cache) {
+    const seq_t S = (seq_t)385;
+    seq_t m = 0;
+    seq_t d = 1;
+    seq_t aPrev = (seq_t)19;             /* a0 */
+    seq_t q_prevprev = 0;                /* q_{-1} */
+    seq_t q_prev = 1;                    /* q_0 = 1 */
+
+    cache[0] = q_prev;                   /* a(0) */
+
+    for (idx_t i = 1; i < 32; ++i) {
+        seq_t mNew = d * aPrev - m;
+        seq_t dNew = (S - mNew * mNew) / d;
+        seq_t aCur = ((seq_t)19 + mNew) / dNew;
+        seq_t qCur = aCur * q_prev + q_prevprev;
+
+        cache[i] = qCur;
+
+        /* shift for next step */
+        m = mNew;
+        d = dNew;
+        aPrev = aCur;
+        q_prevprev = q_prev;
+        q_prev = qCur;
+    }
+}
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -27,7 +55,7 @@ seq_t a(idx_t n) {
     /* Allocate initial cache */
     if (cache_size == 0) {
         cache_size = (n + 1 > 32 ? n + 1 : 32);
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;          /* allocation failure – not expected */
         compute_base_terms(cache);
         computed = 31;                 /* base terms up to index 31 are ready */
@@ -35,7 +63,7 @@ seq_t a(idx_t n) {
 
     /* Grow cache if needed for the current n */
     if (n + 1 > cache_size) {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         if (!cache) return 0;          /* allocation failure – not expected */
         cache_size = n + 1;
     }

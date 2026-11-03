@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl, easy
  * Formula:   not stated
- * Range:     u8 n <= 9981, u16 n <= 9981, u32 n <= 9981, u64 n <= 9981,
- *            u128 n <= 9981, big any n
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 121 terms through n = 9981 (2026-11-01)
  * Helpers:   bigomega, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
    mapping n to the antidiagonal pair (m,n) and summing the absolute
    differences of exponents in their prime factorizations. */
 #include <stdint.h>
-#include "../utils/gcd.h"
+#include <stdlib.h>
 #include "../utils/bigomega.h"
+#include "../utils/gcd.h"
 
 static inline idx_t int_gcd(idx_t a, idx_t b)
 {

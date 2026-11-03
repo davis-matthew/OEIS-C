@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   pow2_minus1
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
  * otherwise 2^k−1 where k = n – (r−1)r/2 – 1 (the offset within the row).
  */
 #include <stddef.h>
-#include "../utils/pow2_minus1.h"
+
+static seq_t pow2_minus1(idx_t k)
+{
+    /* compute 2^k − 1 by repeated multiplication (no undefined shifts) */
+    seq_t val = 1;
+    for (idx_t i = 0; i < k; ++i)
+        val = val * 2;
+    return val - 1;
+}
 
 seq_t a(idx_t n)
 {

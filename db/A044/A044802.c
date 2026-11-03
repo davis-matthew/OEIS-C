@@ -9,14 +9,30 @@
  *            substring "89" but the decimal representation of k+1 does not
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has89
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has89.h"
+#include "../utils/mem.h"
+
+/* Helper that checks whether x contains the digit pair 8 followed by 9. */
+static bool has89(seq_t x)
+{
+    if (x < 10) return false;          /* need at least two digits */
+    seq_t prev = x % 10;                /* units digit */
+    x = x / 10;
+    while (x > 0) {
+        seq_t d = x % 10;
+        if (d == 8 && prev == 9) return true;
+        prev = d;
+        x = x / 10;
+    }
+    return false;
+}
 
 /* Main function definition */
 seq_t a(idx_t n)
@@ -40,7 +56,7 @@ seq_t a(idx_t n)
             /* In the rare case the cache is full, grow it. */
             if (cache_cap <= cache_size) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-                seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
                 if (!new_arr) {                 /* allocation failed */
                     /* In a robust build you might handle this differently. */
                     exit(EXIT_FAILURE);

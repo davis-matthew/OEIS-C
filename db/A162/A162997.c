@@ -9,7 +9,8 @@
  * Formula:   A(n,k) = bottom‑right element of [[1,n],[1,n+1]]^k
  * Range:     u8 n <= 22, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   bottom_right
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,23 @@
    i.e. a(0)=A(0,1), a(1)=A(0,2), a(2)=A(1,1), ... */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/bottom_right.h"
+
+/* Bottom‑right element of [[1,n],[1,n+1]]^k.
+   Uses the recurrence w_k = (n+2)*w_{k-1} - w_{k-2},
+   with w_0 = 1, w_1 = n+1. */
+static seq_t bottom_right(seq_t n, idx_t k)
+{
+    if (k == 0) return 1;
+    seq_t w_prev2 = 1;             /* w_0 */
+    seq_t w_prev1 = n + 1;         /* w_1 */
+    if (k == 1) return w_prev1;
+    for (idx_t t = 2; t <= k; ++t) {
+        seq_t w_cur = (n + 2) * w_prev1 - w_prev2;
+        w_prev2 = w_prev1;
+        w_prev1 = w_cur;
+    }
+    return w_prev1;
+}
 
 /* Return the (s‑th) antidiagonal coordinate (row, column) for index n. */
 static void coords(idx_t n, idx_t *row, idx_t *col)

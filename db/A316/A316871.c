@@ -13,12 +13,14 @@
  *            99, 425, 1877, 8333, 36900, 163433, 724406, * 32109...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  recurrence coefficients for a(n-1) … a(n-16)  */
 static const int coeff[16] = {
@@ -49,7 +51,7 @@ grow_cache(size_t needed)
         return;
 
     /*  realloc returns void* in C++  */
-    seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, needed);
     if (!tmp)
         abort();          /*  allocation failure  */
 

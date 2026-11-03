@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   G_value
+ * Validated: partial, pass, 96 terms through n = 95 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,31 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/G_value.h"
+
+static seq_t G_value(idx_t n, idx_t mminus1)
+{
+    /* Compute G[n,mminus1] using the recurrence.  mminus1 ≥ 1. */
+    if (n == 0) return 1;
+    if (n == 1) return 1;
+    if (n == 2) return 2;
+
+    /* G[0] = 1, G[1] = 1 for any mminus1 */
+    seq_t prev2 = 1;               /* G[cur-2] */
+    seq_t prev1 = 1;               /* G[cur-1] */
+    seq_t cur;                     /* G[cur] */
+
+    for (idx_t cur_n = 2; cur_n <= n; ++cur_n) {
+        if (cur_n == 2) {
+            cur = 2;
+        } else {
+            /* G[cur] = G[cur-1] + mminus1 * G[cur-2] */
+            cur = prev1 + (seq_t)mminus1 * prev2;
+        }
+        prev2 = prev1;
+        prev1 = cur;
+    }
+    return cur;
+}
 
 seq_t a(idx_t n)
 {

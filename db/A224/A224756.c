@@ -11,7 +11,8 @@
  *            of m equals d
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 26,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,19 @@
 #include <stdbool.h>
 
 /* Utility headers for arbitrary‑precision and decimal digit helpers */
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Forward declaration of helper to get the leading decimal digit */
 static seq_t leading_digit(seq_t x);
@@ -38,7 +50,7 @@ seq_t a(idx_t n)
     /* On first call, allocate minimal storage and set a(1) */
     if (cache == NULL) {
         cache_size = 2;                                    /* indices 0..1 */
-        cache     = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_size);
         if (!cache) exit(1);
         cache[1] = (seq_t)5;                               /* a(1) = 5 */
         max_index = 1;
@@ -47,7 +59,7 @@ seq_t a(idx_t n)
     /* Grow allocation if necessary */
     if (n >= cache_size) {
         size_t new_size = n + 1;                            /* indices up to n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) exit(1);
         cache = tmp;
         cache_size = new_size;
@@ -79,7 +91,7 @@ seq_t a(idx_t n)
 /* Return the leading decimal digit of x */
 static seq_t leading_digit(seq_t x)
 {
-    int len = digit_len(x);                                 /* number of digits */
+    int len = num_digits(x);                                 /* number of digits */
     seq_t pow = pow10((idx_t)(len - 1));                     /* 10^(len-1) */
     return x / pow;                                         /* leading digit */
 }

@@ -12,15 +12,35 @@
  *            array by anti‑diagonals (i+j constant)
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   allocate_table, free_table
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/allocate_table.h"
-#include "../utils/free_table.h"
+
+/* Allocate a raw buffer for a table of size (S+1)*(S+1). */
+static seq_t *allocate_table(idx_t S)
+{
+    size_t total = (size_t)(S + 1) * (S + 1);
+#if defined(__cplusplus)
+    return new seq_t[total];
+#else
+    return (seq_t*)calloc(total, sizeof(seq_t));
+#endif
+}
+
+/* Free the previously allocated table. */
+static void free_table(seq_t *tbl)
+{
+#if defined(__cplusplus)
+    delete[] tbl;
+#else
+    free(tbl);
+#endif
+}
 
 static seq_t *A_table = NULL;   /* flat array of size (S+1)*(S+1) */
 static idx_t  A_sz    = 0;      /* current maximum index S */

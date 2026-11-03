@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 465, u32 n <= 465, u64 n <= 465, u128 n <= 465,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 465 terms through n = 465 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define OFFSET 400         /* mapping real index k to array[i] : i = k + OFFSET */
 
@@ -40,7 +42,7 @@ static bool seq_neg_done = false;    /* flag whether negative part has been init
 static void seq_reserve(size_t min_size)
 {
     if (seq_cache_size < min_size) {
-        seq_t *new_cache = (seq_t*)realloc(seq_cache, min_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, min_size);
         if (!new_cache) exit(EXIT_FAILURE);
         /* Zero the newly added part */
         for (size_t i = seq_cache_size; i < min_size; ++i) new_cache[i] = 0;

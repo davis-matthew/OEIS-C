@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime p such that p ≡ 2 (mod 43)
  * Range:     u8 n <= 2, u16 n <= 159, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 58 terms through n = 884 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Compute the nth prime congruent to 2 modulo 43. */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary */
             if (size + 1 > cap) {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, new_cap);
                 if (!tmp) { /* allocation failed – abort */
                     abort();
                 }

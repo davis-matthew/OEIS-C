@@ -10,7 +10,8 @@
  *            first many terms (more than 10k) are available
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* maximum bound for precomputed numbers (chosen to cover >10000 terms) */
 #define LIMIT_VAL 1000000000ULL
@@ -73,7 +75,7 @@ static void generate_sequence(void)
     /* tmp array for all generated numbers */
     size_t cap = 1024;
     size_t cnt = 0;
-    seq_t *numbers = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_t *numbers = mem_new(seq_t, cap);
 
     const seq_t LIMIT = (seq_t)LIMIT_VAL;
 
@@ -108,7 +110,7 @@ static void generate_sequence(void)
                     /* store val */
                     if (cnt == cap) {
                         cap <<= 1;
-                        numbers = (seq_t*)realloc(numbers, cap * sizeof(seq_t));
+                        numbers = mem_resize(seq_t, numbers, cap);
                     }
                     numbers[cnt++] = val;
                 }
@@ -117,10 +119,10 @@ static void generate_sequence(void)
     }
 
     /* sort the generated numbers */
-    qsort(numbers, cnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(numbers, cnt, sizeof(seq_t), cmp_seq_t);
 
     /* deduplicate */
-    seq_t *uniq = (seq_t*)malloc(cnt * sizeof(seq_t));
+    seq_t *uniq = mem_new(seq_t, cnt);
     size_t uniq_cnt = 0;
     for (size_t i = 0; i < cnt; ++i) {
         if (uniq_cnt == 0 || numbers[i] != uniq[uniq_cnt - 1]) {
@@ -128,7 +130,7 @@ static void generate_sequence(void)
         }
     }
 
-    free(numbers);
+    mem_free(numbers);
     cache = uniq;
     cache_size = uniq_cnt;
 

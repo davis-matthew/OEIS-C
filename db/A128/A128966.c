@@ -11,14 +11,30 @@
  *            P[0] = 0, P[1] = x+1, P[n] = (x+1)*P[n-1] + x*P[n-2] (n ≥ 2)
  * Range:     u8 n <= 39, u16 n <= 126, u32 n <= 417, u64 n <= 1507,
  *            u128 n <= 5509, big any n
- * Helpers:   find_row_and_index
+ * Validated: standard, pass, 85 terms through n = 7983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/find_row_and_index.h"
+#include "../utils/mem.h"
+
+/* Locate the row r and column k for a given index n.  */
+static void find_row_and_index(idx_t n, idx_t *r, idx_t *k)
+{
+    idx_t row = 0;
+    idx_t col_sum = 0;  /* sum of lengths of previous rows */
+    idx_t remaining = n;
+
+    while (remaining >= (row + 1)) {
+        remaining -= (row + 1);
+        ++row;
+    }
+    *r = row;
+    *k = remaining;
+}
 
 /* Static cache of rows of the polynomials.  rows[i] points to an array of
    length i+1 containing the coefficients of P[i]. */
@@ -41,7 +57,7 @@ static void ensure_rows(idx_t r)
     /* Compute missing rows */
     for (idx_t i = rows_used; i <= r; ++i) {
         size_t len = (size_t)(i + 1);
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (row == NULL) {
             /* abort on allocation failure */
             exit(1);

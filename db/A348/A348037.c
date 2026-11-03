@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = n / gcd(n, A003968(n)) where A003968(n) is multiplicative
  *            with a(pᵉ) = p·(p+1)^(e−1)
- * Range:     u8 n <= 511, u16 n <= 9557, u32 n <= 9557, u64 n <= 9557,
- *            u128 n <= 9557, big any n
+ * Range:     u8 n <= 511, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9557 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static inline seq_t pow_seq_t(seq_t base, unsigned long long exp)

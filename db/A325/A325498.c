@@ -10,7 +10,8 @@
  *            with a(1)=3, a(2)=1, …
  * Range:     u8 n <= 3009, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* cache for A036668 values (A[0] = A(1)) */
 static seq_t *A = NULL;
@@ -35,7 +37,7 @@ static void ensure_a_capacity(size_t need) {
     if (need <= A_cap) return;
     size_t new_cap = A_cap ? A_cap << 1 : 1;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A, new_cap);
     if (!tmp) abort();
     A = tmp;
     A_cap = new_cap;

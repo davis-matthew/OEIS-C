@@ -11,13 +11,15 @@
  *            A306832
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ensure that *ptr has at least 'needed' elements.
    new elements are zeroed. */
@@ -26,10 +28,10 @@ static void ensure_capacity(size_t needed, seq_t **ptr, size_t *cap)
     if (needed <= *cap)
         return;
     size_t new_cap = needed * 2 + 16;
-    seq_t *new_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (*ptr) {
-        memcpy(new_arr, *ptr, (*cap) * sizeof(seq_t));
-        free(*ptr);
+        mem_copy(new_arr, *ptr, (*cap) * sizeof(seq_t));
+        mem_free(*ptr);
     }
     *ptr = new_arr;
     *cap = new_cap;

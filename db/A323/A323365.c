@@ -8,14 +8,16 @@
  * Formula:   a(n) = A002487(n) + A317843(n) where A002487 is Stern's diatomic
  *            sequence and A317843 is its Dirichlet inverse. The function
  *            memoises both sequences
- * Range:     i8 n <= 472, i16 n <= 9651, i32 n <= 9651, i64 n <= 9651,
- *            i128 n <= 9651, big any n
- * Helpers:   none
+ * Range:     i8 n <= 472, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9651 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? cap : 2;
         while (new_cap <= (size_t)n) new_cap <<= 1;
 
-        f = (seq_t *)realloc(f, new_cap * sizeof(seq_t));
-        g = (seq_t *)realloc(g, new_cap * sizeof(seq_t));
+        f = mem_resize(seq_t, f, new_cap);
+        g = mem_resize(seq_t, g, new_cap);
         /* Zero-initialize new slots.  */
         for (size_t i = cap; i < new_cap; ++i) {
             f[i] = 0;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* multiplicative binomial coefficient, result in seq_t */
 static inline seq_t binom_val(idx_t n, idx_t k)
@@ -50,13 +52,13 @@ static size_t rows_cnt = 0;
 static void init(void)
 {
     /* Bell(0) = 1 */
-    bell = (seq_t *)malloc(sizeof(seq_t));
+    bell = mem_new(seq_t, 1);
     bell[0] = (seq_t)1;
     bell_cnt = 1;
 
     /* row 0 : [1] */
     rows = (seq_t **)malloc(sizeof(seq_t *));
-    rows[0] = (seq_t *)malloc(sizeof(seq_t));
+    rows[0] = mem_new(seq_t, 1);
     rows[0][0] = (seq_t)1;
     rows_cnt = 1;
 }
@@ -75,7 +77,7 @@ static void compute_bell_to(idx_t n)
             sum = sum + c * b;
         }
 
-        bell = (seq_t *)realloc(bell, (bell_cnt + 1) * sizeof(seq_t));
+        bell = mem_resize(seq_t, bell, (bell_cnt + 1));
         bell[bell_cnt] = sum;
         ++bell_cnt;
     }
@@ -90,7 +92,7 @@ static void compute_rows_to(idx_t r)
         /* ensure Bell(cur) is available */
         compute_bell_to(cur);
 
-        seq_t *row = (seq_t *)malloc((cur + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (cur + 1));
 
         /* first element */
         row[0] = bell[cur];

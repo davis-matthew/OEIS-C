@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n^6-4*n^5+5*n^4-2*n^3)/12, for n>=3
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 33 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

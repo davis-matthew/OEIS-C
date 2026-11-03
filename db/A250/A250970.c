@@ -13,13 +13,15 @@
  *            restriction. It is computed by transfer–...
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   bits
+ * Validated: standard, pass, 30 terms through n = 192 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bits.h"
+
+static int bits(int state, int pos) { return (state >> pos) & 1; }
 
 #define STATES 64  /* 6-bit rows */
 

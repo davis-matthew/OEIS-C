@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 10 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Board masks for the 8 winning lines (bits 0..8). */
 static const uint32_t WIN_MASKS[8] = {
@@ -113,7 +115,7 @@ static void compute_counts(void)
 {
     if (COUNT_INITIALIZED) return;
 
-    memset(COUNT, 0, sizeof(COUNT));
+    mem_set(COUNT, 0, sizeof(COUNT));
     memset(VISITED, 0, sizeof(VISITED));
     memset(SOLVED, 127, sizeof(SOLVED));
 

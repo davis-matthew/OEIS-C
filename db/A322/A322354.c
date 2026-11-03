@@ -8,9 +8,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = gcd(rad(n), ∏_{p|n}(p+2)) where rad(n) = ∏_{p|n} p
  *            (product of distinct prime factors)
- * Range:     u8 n <= 77, u16 n <= 9827, u32 n <= 9827, u64 n <= 9827,
- *            u128 n <= 9827, big any n
- * Helpers:   none
+ * Range:     u8 n <= 77, u16 n <= 15015, u32 n <= 15015, u64 n <= 15015,
+ *            u128 n <= 15015, big any n
+ * Validated: standard, pass, 121 terms through n = 9827 (2026-11-02)
+ * Helpers:   build_primes_upto, gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "./../utils/gcd.h"
-#include "./../utils/int_sqrt.h"
-#include "./../utils/build_primes_upto.h"
-#include "./../utils/seq_mul.h"
+#include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
+#include "../utils/isqrt.h"
 
 /* static cache for primes up to the largest limit needed so far */
 static uint64_t *prime_cache = NULL;  /* array of primes */
@@ -55,7 +55,7 @@ seq_t a(idx_t n)
 
     /* Factor n into distinct prime factors using the cached prime list */
     uint64_t temp = (uint64_t)n;
-    idx_t     sqrt_n = int_sqrt(n);            /* sqrt of original n */
+    idx_t     sqrt_n = isqrt(n);            /* sqrt of original n */
     ensure_primes_upto(sqrt_n);                /* prime list up to sqrt_n */
 
     seq_t rad  = (seq_t)1;     /* rad(n) */
@@ -65,8 +65,8 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < prime_cnt && prime_cache[i] * (uint64_t)prime_cache[i] <= temp; ++i) {
         uint64_t p = prime_cache[i];
         if (temp % p == 0) {
-            rad  = seq_mul(rad,  (seq_t)p);
-            prod = seq_mul(prod, (seq_t)(p + 2));
+            rad  = rad * (seq_t)p;
+            prod = prod * (seq_t)(p + 2);
 
             /* remove all copies of p from temp */
             while (temp % p == 0)
@@ -76,8 +76,8 @@ seq_t a(idx_t n)
 
     /* if temp > 1 it is a remaining prime factor larger than sqrt(n) */
     if (temp > 1) {
-        rad  = seq_mul(rad,  (seq_t)temp);
-        prod = seq_mul(prod, (seq_t)(temp + 2));
+        rad  = rad * (seq_t)temp;
+        prod = prod * (seq_t)(temp + 2);
     }
 
     /* return gcd(rad, prod) */

@@ -13,14 +13,17 @@
  *            is obtained by flattening the triangle...
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,8 +48,8 @@ seq_t a(idx_t n)
         size_t new_cap = cap ? cap * 2 : 1;
         while (new_cap < need)
             new_cap <<= 1;
-        prev = (seq_t *)realloc(prev, sizeof(seq_t) * new_cap);
-        curr = (seq_t *)realloc(curr, sizeof(seq_t) * new_cap);
+        prev = mem_resize(seq_t, prev, new_cap);
+        curr = mem_resize(seq_t, curr, new_cap);
         cap = new_cap;
     }
 

@@ -10,12 +10,14 @@
  *            (a(0)=a(1)=0 are unused but defined for safety)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initialise base table on first call */
     if (cache == NULL) {
         cache_len = 6;                     /* store indices 0..5 */
-        cache = (seq_t *)realloc(NULL, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_len);
         if (cache == NULL) return 0;       /* allocation failure returns 0 */
         cache[0] = 0;
         cache[1] = 0;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     if (n >= cache_len) {
         idx_t new_len = n + 1;            /* need indices up to n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) return 0;        /* allocation failure returns 0 */
         cache = tmp;
         /* Compute new entries using the recurrence */

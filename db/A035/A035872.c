@@ -8,12 +8,14 @@
  *            C(46-d+n, n) for n ≥ 1
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -29,9 +31,9 @@ seq_t a(idx_t n)
         if (n_minus1 < d - 1)
             break;
 
-        seq_t term = binom(47, d);
-        term = term * binom(n_minus1, d - 1);
-        term = term * binom(46 - d + n, n);
+        seq_t term = binomial(47, d);
+        term = term * binomial(n_minus1, d - 1);
+        term = term * binomial(46 - d + n, n);
         sum += term;
     }
 

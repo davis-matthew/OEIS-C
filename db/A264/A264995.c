@@ -9,8 +9,9 @@
  *            integer obtained by reversing the base‑5 digits of k. This
  *            implements the bijective base‑5 reverse true for all n ≥ 0. The
  *            function is self‑inverse and satisfies a(5*n) = 5·a(n)
- * Range:     u8 n <= 127, u16 n <= 9361, u32 n <= 9361, u64 n <= 9361,
- *            u128 n <= 9361, big any n
+ * Range:     u8 n <= 127, u16 n <= 15625, u32 n <= 15625, u64 n <= 15625,
+ *            u128 n <= 15625, big any n
+ * Validated: standard, pass, 98 terms through n = 9361 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

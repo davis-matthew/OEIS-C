@@ -11,12 +11,14 @@
  *            of *periodic* length‑n words with trace ≡ r (mod 6). T...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The build supplies the integer types seq_t and idx_t. */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Expand tables if the requested n is larger than already computed. */
     if (n > maxN) {
         /* Resize pow6 */
-        seq_t *new_pow6 = (seq_t *)realloc(pow6, (n + 1) * sizeof(seq_t));
+        seq_t *new_pow6 = mem_resize(seq_t, pow6, (n + 1));
         if (!new_pow6) exit(1);          /* allocation failure */
         pow6 = new_pow6;
         if (maxN == 0) pow6[0] = (seq_t)1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
             pow6[i] = pow6[i - 1] * (seq_t)6;
 
         /* Resize f */
-        seq_t *new_f = (seq_t *)realloc(f, (n + 1) * 6 * sizeof(seq_t));
+        seq_t *new_f = mem_resize(seq_t, f, (n + 1) * 6);
         if (!new_f) exit(1);
         f = new_f;
 

@@ -8,8 +8,9 @@
  * Formula:   a(n) = T(r,k) where r = floor((sqrt(8*n+1)-1)/2), k = n -
  *            r*(r+1)/2, and T(r,k) = 0 if (r-k) is odd; otherwise T(r,k) = 1
  *            if 4 divides (r-k); else T(r,k) = -1
- * Range:     i8 n <= 8778, i16 n <= 8778, i32 n <= 8778, i64 n <= 8778,
- *            i128 n <= 8778, big any n
+ * Range:     i8 n <= 11475, i16 n <= 11475, i32 n <= 11475, i64 n <= 11475,
+ *            i128 n <= 11475, big any n
+ * Validated: standard, pass, 94 terms through n = 8778 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

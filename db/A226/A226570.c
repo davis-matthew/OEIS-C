@@ -7,13 +7,16 @@
  * Formula:   a(n) = ( sum_{k=1..n} (k+1)! ) mod n
  * Range:     u8 n <= 267, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_mul
+ * Validated: standard, pass, 115 terms through n = 9901 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_mul.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +27,7 @@ seq_t a(idx_t n)
 
     /* compute factorials 2! ... (n+1)! modulo n and accumulate the sum */
     for (uint64_t i = 2; i <= n + 1; ++i) {
-        fact = mod_mul(fact, i, mod);            /* factorial mod n */
+        fact = mulmod(fact, i, mod);            /* factorial mod n */
         __uint128_t tmp = (__uint128_t)sum + fact;/* avoid overflow */
         sum = (uint64_t)(tmp % mod);              /* sum modulo n */
     }

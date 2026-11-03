@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9573 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #ifndef MAX_I
 #define MAX_I 70000   /* sufficient for all tests of the b‑file */
 #endif
+#include "../utils/mem.h"
 
 typedef struct {
     idx_t diff;   /* the difference value n */
@@ -68,7 +70,7 @@ static void init(void)
     if (initialized)
         return;
 
-    diff_table = (DiffEntry *)malloc(sizeof(DiffEntry) * MAX_I);
+    diff_table = mem_new(DiffEntry, MAX_I);
     if (!diff_table) {
         /* Allocation failure – aborting is acceptable for this context. */
         abort();
@@ -89,7 +91,7 @@ static void init(void)
     }
 
     /* Sort by diff value. */
-    qsort(diff_table, MAX_I, sizeof(DiffEntry), cmp_diff);
+    mem_qsort(diff_table, MAX_I, sizeof(DiffEntry), cmp_diff);
 
     /* Aggregate counts for equal diffs. */
     size_t write = 0;

@@ -5,13 +5,15 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy, less
  * Formula:   a(n) = 2*(1 + (-1)^n)*binomial(n, n/2) - 3*(-1)^n
- * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 65, u128 n <= 129,
+ * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
+ * Validated: standard, pass, 60 terms through n = 996 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

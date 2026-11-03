@@ -10,12 +10,14 @@
  *            The sequence is the triangle read row by row
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Temporary storage for the rows of the triangle. */
 static seq_t **rows = NULL;      /* array of pointers to rows   */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Initialise the first row on the first call. */
     if (rows_count == 0) {
         ensure_rows_capacity(0);
-        rows[0] = (seq_t*)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = 1;                /* T(0,0)=1 */
         rows_count = 1;
     }
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 
         ensure_rows_capacity(nr);
 
-        seq_t *newrow = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *newrow = mem_new(seq_t, len);
 
         /* First element of the new row. */
         newrow[0] = 1;                 /* T(n,0)=1 */

@@ -8,6 +8,7 @@
  *            a(1)=0, a(2)=1, a(3)=3
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 38, u64 n <= 75, u128 n <= 149,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 938 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

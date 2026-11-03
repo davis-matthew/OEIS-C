@@ -8,15 +8,18 @@
  *            a(n)=∏_{p prime, p-1 | n+1} p^{1+v_p((n+1)/(p-1))}
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 70, u64 n <= 418,
  *            u128 n <= 2518, big any n
- * Helpers:   is_prime, pow_uint
+ * Validated: standard, pass, 90 terms through n = 9979 (2026-11-01)
+ * Helpers:   ipow_u64_idx, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Implementation uses the helper functions from the utils library. */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_u64_idx.h"
 #include "../utils/is_prime.h"
-#include "../utils/pow_uint.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
                     div /= p;
                     ++e;
                 }
-                result *= pow_uint(p, e + 1);
+                result *= ipow_u64_idx(p, e + 1);
             }
 
             /* complementary divisor, skip if identical to avoid double counting */
@@ -63,7 +66,7 @@ seq_t a(idx_t n)
                         div /= p;
                         ++e;
                     }
-                    result *= pow_uint(p, e + 1);
+                    result *= ipow_u64_idx(p, e + 1);
                 }
             }
         }

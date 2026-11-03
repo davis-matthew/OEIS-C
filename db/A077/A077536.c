@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    n ≤ 10 000 is well below a few hundred thousands of candidates. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build system. */
 seq_t a(idx_t n)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Initialise the queue with the one‑digit numbers. */
     if (queue == NULL) {
         q_cap = 1024;
-        queue = (seq_t *)malloc(q_cap * sizeof(seq_t));
+        queue = mem_new(seq_t, q_cap);
         if (!queue) return 0;     /* Out of memory: return 0 as error code */
 
         queue[q_tail++] = (seq_t)2;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     if (terms_size + 1 > terms_cap) {
         if (terms_cap == 0) terms_cap = 1024;
         else               terms_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
         if (!tmp) return 0;   /* Out of memory */
         terms = tmp;
     }
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
             if (q_tail == q_cap) {
                 /* Grow the queue */
                 q_cap = q_cap ? q_cap * 2 : 1024;
-                seq_t *tmpq = (seq_t *)realloc(queue, q_cap * sizeof(seq_t));
+                seq_t *tmpq = mem_resize(seq_t, queue, q_cap);
                 if (!tmpq) return 0;  /* Out of memory */
                 queue = tmpq;
             }

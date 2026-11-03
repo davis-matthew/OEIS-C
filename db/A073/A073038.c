@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  Helper:  sieve of Eratosthenes up to 100 000 to test 5‑digit windows  */
 static bool window_prime[100000] = {0};
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
         init_window_primes();
 
         seq_cap    = 64;
-        seq_terms  = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_terms  = mem_new(seq_t, seq_cap);
         if (!seq_terms) exit(1);
 
         init_done = true;
@@ -137,8 +139,7 @@ seq_t a(idx_t n)
                 /* store the 5‑digit prime value */
                 if (seq_len == seq_cap) {
                     seq_cap = seq_cap ? seq_cap * 2 : 64;
-                    seq_terms = (seq_t*)realloc(seq_terms,
-                                                seq_cap * sizeof(seq_t));
+                    seq_terms = mem_resize(seq_t, seq_terms, seq_cap);
                     if (!seq_terms) exit(1);
                 }
                 seq_terms[seq_len++] = (seq_t)win_val;

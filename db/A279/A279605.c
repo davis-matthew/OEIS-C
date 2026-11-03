@@ -13,14 +13,36 @@
  *            row 1 are -1)
  * Range:     i8 n <= 1325, i16 n <= 1325, i32 n <= 1325, i64 n <= 1325,
  *            i128 n <= 1325, big any n
- * Helpers:   knight_dist_infinite
+ * Validated: standard, pass, 107 terms through n = 1250 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/knight_dist_infinite.h"
+
+static seq_t knight_dist_infinite(seq_t dx, seq_t dy)
+{
+    /* Ensure dx >= dy. */
+    if (dx < dy) {
+        seq_t t = dx; dx = dy; dy = t;
+    }
+
+    /* Special cases that cannot be handled by the general formula. */
+    if (dx == 1 && dy == 0) return 3;   /* 2‑1 knight move */
+    if (dx == 2 && dy == 2) return 4;   /* unreachable pattern */
+
+    seq_t d = (dx + 1) / 2;
+    seq_t d2 = (dx + dy + 2) / 3;
+    if (d2 > d) d = d2;
+
+    /* Adjust for parity: the knight distance parity alternates with
+       the sum of coordinates. */
+    if ( (d + (dx + dy) % 2) & 1 ) d++;
+
+    return d;
+}
 
 static idx_t int_sqrt_u64(idx_t n)
 {

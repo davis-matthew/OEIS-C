@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   generate_seq
+ * Validated: full, pass, 96 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,50 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/generate_seq.h"
+#include "../utils/mem.h"
+
+/* Back‑tracking generator of all admissible numbers.  Temp array must
+   be large enough to hold all 15120 permutations. */
+static void generate_seq(int pos, int used_mask, int digits[],
+                         seq_t *temp, size_t *cnt)
+{
+    if (pos == 5) {
+        uint16_t digit_mask = 0;
+        for (int i = 0; i < 5; ++i) {
+            digit_mask |= 1 << (digits[i] - 1);
+        }
+        uint16_t diff_mask = 0;
+        bool ok = true;
+        for (int i = 0; i < 4; ++i) {
+            int d = digits[i] > digits[i + 1] ? digits[i] - digits[i + 1]
+                                             : digits[i + 1] - digits[i];
+            uint16_t bit = 1 << (d - 1);            /* d ∈ 1..8 */
+            if (diff_mask & bit) {                  /* duplicate diff  */
+                ok = false;
+                break;
+            }
+            diff_mask |= bit;
+        }
+        if (!ok) return;
+        if (digit_mask & diff_mask) return;        /* overlap digits/diffs */
+        if ((digit_mask | diff_mask) != 0x1FF) return; /* must cover 1..9 */
+
+        /* build the 5‑digit number */
+        seq_t num = 0;
+        for (int i = 0; i < 5; ++i) {
+            num = num * 10 + digits[i];
+        }
+        temp[(*cnt)++] = num;
+        return;
+    }
+
+    for (int d = 1; d <= 9; ++d) {
+        int bit = 1 << (d - 1);
+        if (used_mask & bit) continue;
+        digits[pos] = d;
+        generate_seq(pos + 1, used_mask | bit, digits, temp, cnt);
+    }
+}
 
 /* Helper: comparator for qsort */
 static int seq_cmp(const void *a, const void *b)
@@ -51,7 +95,7 @@ seq_t a(idx_t n)
         generate_seq(0, 0, digits, temp, &temp_cnt);
 
         /* sort the collected numbers */
-        qsort(temp, temp_cnt, sizeof(seq_t), seq_cmp);
+        mem_qsort(temp, temp_cnt, sizeof(seq_t), seq_cmp);
 
         /* copy to static cache */
         cache_cnt = temp_cnt;

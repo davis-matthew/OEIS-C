@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const int daysInMonth[12] = {31,28,31,30,31,30,31,31,30,31,30,31};
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     static bool initialized = false;
 
     if (!initialized) {
-        values = (seq_t *)malloc(total * sizeof(seq_t));
+        values = mem_new(seq_t, total);
         if (!values) return (seq_t)0;        /* allocation failed */
         idx_t pos = 0;
         for (int day = 1; day <= 31; ++day) {

@@ -9,12 +9,14 @@
  *            a(n-1)*(n+1)*(4*(n+4))/(n^2*(n+6)) a(0) = 2
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 19, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[0..last] holds a(k) */
 static idx_t  last  = 0;
@@ -23,14 +25,14 @@ seq_t a(idx_t n)
 {
     /* Grow cache if needed */
     if (cache == NULL) {
-        cache = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         if (cache == NULL) abort();
         cache[0] = (seq_t)2;    /* a(0) */
         last = 0;
     }
     if (last < n) {
         size_t newsize = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (tmp == NULL) abort();
         cache = tmp;
         for (idx_t k = last + 1; k <= n; ++k) {

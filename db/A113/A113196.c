@@ -9,6 +9,7 @@
  * Formula:   a(n) = F(n) / ∏_{p^e‖n} F(p^e) (F(k) = k-th Fibonacci number)
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 47, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
  * Helpers:   fib_fast
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

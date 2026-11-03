@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 106, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   accumulate_divisors
+ * Validated: standard, pass, 94 terms through n = 9568 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,25 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/accumulate_divisors.h"
+
+/* Helper to generate all divisors of a number given its prime factorisation
+   and accumulate the sum of those that are ≡ 1 (mod 3). */
+static void
+accumulate_divisors(uint64_t cur, size_t idx,
+                    const uint32_t *primes, const uint8_t *exps,
+                    size_t fcnt, seq_t *sum)
+{
+    if (idx == fcnt) {
+        if ((cur % 3ULL) == 1ULL)
+            *sum += (seq_t)cur;
+        return;
+    }
+    uint64_t val = cur;
+    for (uint8_t e = 0; e <= exps[idx]; ++e) {
+        accumulate_divisors(val, idx + 1, primes, exps, fcnt, sum);
+        val *= (uint64_t)primes[idx];
+    }
+}
 
 /* Prime table – built once on first call. */
 static uint32_t primes[6000];

@@ -9,7 +9,8 @@
  *            Sum_{k>=0} q^(k*(k+1)), so that theta_2^4 = 16*q*P^4
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   alloc_zero, mul_P, release
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,29 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/mul_P.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* mul_P: recovered from the generator log of A003783. */
+
+static void mul_P(seq_t *s, idx_t len) {
+  for (idx_t i = len; i-- > 0;) {
+    seq_t acc = 0;
+    for (idx_t k = 1; k * (k + 1) <= i; k++) acc += s[i - k * (k + 1)];
+    s[i] += acc;
+  }
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,11 +28,12 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper to allocate a row of given length (initialized to 0). */
 static seq_t *alloc_row(size_t len)
 {
-    return (seq_t *)calloc(len, sizeof(seq_t));
+    return mem_new(seq_t, len);
 }
 
 /* Cached data: arrays of pointers to coefficient arrays of u and v. */

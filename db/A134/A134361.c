@@ -8,12 +8,14 @@
  *            (3‑smooth)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of 3‑smooth numbers */
 static seq_t *smooth = NULL;      /* array of computed 3‑smooth numbers */
@@ -26,7 +28,7 @@ static void smooth_init(void)
 {
     if (smooth == NULL) {
         smooth_cap = 16;
-        smooth = (seq_t *)malloc(smooth_cap * sizeof(seq_t));
+        smooth = mem_new(seq_t, smooth_cap);
         if (smooth == NULL) { /* allocation failed – abort with zero */
             smooth_len = 0;
             return;
@@ -42,7 +44,7 @@ static void smooth_grow(size_t min_cap)
     if (min_cap > smooth_cap) {
         size_t new_cap = smooth_cap ? smooth_cap * 2 : 1;
         while (new_cap < min_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(smooth, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, smooth, new_cap);
         if (tmp == NULL) return;     /* keep old memory on failure */
         smooth = tmp;
         smooth_cap = new_cap;

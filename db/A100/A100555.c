@@ -8,7 +8,8 @@
  * Formula:   a(n) = (ceil(sqrt(2*n + 1)))^2
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   isqrt
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
  * sum of n (not necessarily distinct) primes.  The minimal m is the
  * smallest integer with m² ≥ 2n + 1. */
 #include <stdbool.h>
-#include "../utils/isqrt.h"
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
     seq_t val = (seq_t)n * 2 + 1;
 
     /* Integer square root: floor(sqrt(val)). */
-    seq_t s   = isqrt(val);
+    seq_t s   = isqrt_seq(val);
 
     /* If s*s < val, increase s to get ceil(sqrt(val)). */
     if (s * s < val)

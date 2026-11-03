@@ -12,18 +12,64 @@
  *            (1/L) Sum_{d|L} mu(L/d) 2^(Sum_i gcd(d,lambda_i))...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   m872_exps, m872_fixed, m872_from128, m872_gcd, m872_mu
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_i64, mobius_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/m872_exps.h"
-#include "../utils/m872_fixed.h"
-#include "../utils/m872_from128.h"
-#include "../utils/m872_gcd.h"
-#include "../utils/m872_mu.h"
+#include "../utils/gcd_i64.h"
+#include "../utils/mobius_i64.h"
+
+/* E[k] = log2 of the number of fixed functions for class k */
+static void m872_exps(const int *p, int k, unsigned long long *E)
+{
+    long long m = 1, L, d;
+    int i, j;
+    for (i = 0; i < k; i++) m = m / gcd_i64(m, p[i]) * p[i];
+    for (j = 0; j < 5; j++) E[j] = 0;
+    for (L = 1; L <= m; L++) {
+        long long s = 0;
+        unsigned long long c;
+        if (m % L) continue;
+        for (d = 1; d <= L; d++) {
+            int mu;
+            long long F = 0;
+            if (L % d) continue;
+            mu = mobius_i64(L / d);
+            if (!mu) continue;
+            for (i = 0; i < k; i++) F += gcd_i64(d, p[i]);
+            s += mu * (1LL << F);
+        }
+        c = (unsigned long long)(s / L);
+        E[0] += 3 * c;
+        E[1] += c * (L % 2 == 0 ? 3 : 2);
+        E[2] += c * (L % 3 == 0 ? 3 : 1);
+        E[3] += c * (L % 4 == 0 ? 3 : (L % 2 == 0 ? 2 : 1));
+        E[4] += c * (L % 7 == 0 ? 3 : 0);
+    }
+}
+
+static int m872_fixed(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return x == 0;
+}
+
+static seq_t m872_from128(unsigned __int128 v)
+{
+    seq_t r = 0;
+    int i;
+    for (i = 127; i >= 0; i--) {
+        r = r * 2;
+        if ((v >> i) & 1) r += 1;
+    }
+    return r;
+}
 
 static const unsigned m872_cnt[5] = {1, 21, 56, 42, 48};
 

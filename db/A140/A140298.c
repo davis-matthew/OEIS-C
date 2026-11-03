@@ -9,12 +9,14 @@
  *            a(3n+3)=a(3n+2)+a(3n);
  * Range:     u8 n <= 14, u16 n <= 29, u32 n <= 59, u64 n <= 121,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0; /* number of elements already computed */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialize cache on first call. */
     if (cache == NULL) {
         cache_cap = 64u;              /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)                 /* out of memory */
             exit(EXIT_FAILURE);
         cache[0] = (seq_t)1;         /* a(0) = 1 */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap;
             while (new_cap <= idx)
                 new_cap <<= 1;           /* double until large enough */
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)
                 exit(EXIT_FAILURE);
             cache = tmp;

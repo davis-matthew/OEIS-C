@@ -7,6 +7,7 @@
  * Formula:   a(n) = 6^n * (1-4*n)
  * Range:     i8 n <= 1, i16 n <= 4, i32 n <= 9, i64 n <= 21, i128 n <= 46,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 812 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

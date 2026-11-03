@@ -8,7 +8,8 @@
  *            p1=2)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* static storage for primes and the corresponding prefix products   */
 static uint64_t *primes  = NULL;  /* primes[i] = (i+1)-th prime       */
@@ -44,7 +46,7 @@ static void ensure_primes(idx_t need)
     if (prod_cap < (size_t)need) {
         size_t new_cap = prod_cap ? prod_cap << 1 : 32;
         if (new_cap < (size_t)need) new_cap = need;
-        seq_t *tmp2 = (seq_t *)realloc(prod_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp2 = mem_resize(seq_t, prod_arr, new_cap);
         if (!tmp2) return;                     /* out of memory – abort silently */
         prod_arr = tmp2;
         prod_cap = new_cap;

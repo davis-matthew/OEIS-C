@@ -12,7 +12,8 @@
  *            d(d+1)/2...
  * Range:     u8 n <= 56, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const double PHI  = (1.0 + sqrt(5.0)) / 2.0;
 static const double PHI2 = PHI * PHI;   /* φ² */
@@ -44,7 +46,7 @@ static void rebuild_table(idx_t needed)
     /* free old */
     if (table) {
         for (idx_t r = 1; r <= cached_rows; ++r)
-            free(table[r]);
+            mem_free(table[r]);
         free(table);
     }
 
@@ -52,7 +54,7 @@ static void rebuild_table(idx_t needed)
     table = (seq_t**)malloc((cached_rows + 1) * sizeof(seq_t*));
 
     for (idx_t r = 1; r <= cached_rows; ++r) {
-        table[r] = (seq_t*)malloc((cached_rows + 1) * sizeof(seq_t));
+        table[r] = mem_new(seq_t, (cached_rows + 1));
 
         idx_t a1_i = (r == 1) ? 1 : floor_phi2(r) - 2;
         idx_t a2_i = a1_i + floor_phi(r);

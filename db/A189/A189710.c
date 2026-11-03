@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 6552, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9632 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- prime generation ---------- */
 static uint64_t *primes = NULL;          /* array of primes */
@@ -107,7 +109,7 @@ static void generate_up_to(idx_t target_n)
     /* allocate storage for terms if necessary */
     if (terms == NULL) {
         terms_cap = 64;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     while ((idx_t)max_n < target_n) {
@@ -121,7 +123,7 @@ static void generate_up_to(idx_t target_n)
         if (second == first - 1) {
             if (terms_cap <= max_n) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[max_n++] = (seq_t)m;   /* cast to seq_t */
         }

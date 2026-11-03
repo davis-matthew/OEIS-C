@@ -12,12 +12,14 @@
  *            with a(1)=0, a(2)=0, a(3)=0, a(4)=3, a(5)=15
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache   = NULL;   /* cache[0] unused */
 static idx_t  max_computed = 0;     /* last index computed */
@@ -26,7 +28,7 @@ static idx_t  max_computed = 0;     /* last index computed */
 static void init_cache(void)
 {
     if (!seq_cache) {
-        seq_cache   = (seq_t*)calloc(6, sizeof(seq_t));
+        seq_cache   = mem_new(seq_t, 6);
         if (!seq_cache) exit(EXIT_FAILURE);
         seq_cache[1] = (seq_t)0;
         seq_cache[2] = (seq_t)0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (n + 1 > (idx_t)seq_cache[0]) { /* seq_cache[0] unused, so use allocation size read via malloc */
         size_t needed = n + 1;
-        seq_t *tmp = (seq_t*)realloc(seq_cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, needed);
         if (!tmp) exit(EXIT_FAILURE);
         /* initialize new elements to zero */
         for (idx_t j = max_computed + 1; j < needed; ++j) tmp[j] = 0;

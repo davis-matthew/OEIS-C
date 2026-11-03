@@ -11,13 +11,28 @@
  *            the * representation of k‑1 does not contain such a pair
  * Range:     u8 n <= 11, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has_adjacent_0_1
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_adjacent_0_1.h"
+
+static bool has_adjacent_0_1(idx_t x)
+{
+    int prev = -1;          /* previous (higher significance) digit */
+    while (x > 0) {
+        int d = x % 6;
+        if (prev != -1) {
+            if ((prev == 0 && d == 1) || (prev == 1 && d == 0))
+                return true;
+        }
+        prev = d;
+        x /= 6;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

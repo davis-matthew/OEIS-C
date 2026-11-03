@@ -7,13 +7,15 @@
  * Formula:   a(n) = 1 + 4n + 4*Sum_{k=1..n} tau(k)
  * Range:     u8 n <= 15, u16 n <= 1884, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9134 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for divisor counts and their prefix sums */
 static uint32_t *tau       = NULL;   /* tau[i] = number of divisors of i, 1 <= i <= cap */
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t up_to)
 
     /* reallocate arrays: cast for C++ compatibility */
     uint32_t *tmp_tau   = (uint32_t *)realloc(tau,   (new_cap + 1) * sizeof(uint32_t));
-    seq_t    *tmp_sum   = (seq_t    *)realloc(sumTau,(new_cap + 1) * sizeof(seq_t  ));
+    seq_t    *tmp_sum   = mem_resize(seq_t, sumTau, (new_cap + 1));
     if (!tmp_tau || !tmp_sum) abort();
 
     /* zero the entire array; older values are recomputed anyway */

@@ -9,7 +9,8 @@
  *            reverse(a(n‑2))
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,19 @@
 #include <stdint.h>          /* for uint64_t (idx_t) */
 #include <stddef.h>          /* for size_t */
 
-#include "../utils/pow10.h"    /* seq_t pow10(idx_t e);            */
-#include "../utils/digit_len.h"/* int  digit_len(seq_t x);          */
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* a(1) = 1, a(2) = 2, a(n) = rev(a(n-1)) || rev(a(n-2))   */
 seq_t a(idx_t n)
@@ -37,8 +49,8 @@ seq_t a(idx_t n)
     if (capacity <= n)
     {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp_vals = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
-        seq_t *tmp_rev  = (seq_t *)realloc(rev_values, new_cap * sizeof(seq_t));
+        seq_t *tmp_vals = mem_resize(seq_t, values, new_cap);
+        seq_t *tmp_rev  = mem_resize(seq_t, rev_values, new_cap);
         if (!tmp_vals || !tmp_rev)
             abort();                      /* memory exhausted */
         values      = tmp_vals;
@@ -62,12 +74,12 @@ seq_t a(idx_t n)
         else
         {
             /* a(i) = rev(a(i-1)) || rev(a(i-2)) */
-            int len_ai2  = digit_len(values[i-2]);   /* same as len(rev of a(i-2)) */
+            int len_ai2  = num_digits(values[i-2]);   /* same as len(rev of a(i-2)) */
             seq_t part1  = rev_values[i-1] * pow10(len_ai2);
             values[i]    = part1 + rev_values[i-2];
 
             /* rev(a(i)) = a(i-2) || a(i-1) */
-            int len_ai1  = digit_len(values[i-1]);   /* length of a(i-1) */
+            int len_ai1  = num_digits(values[i-1]);   /* length of a(i-1) */
             seq_t rev_part1 = values[i-2] * pow10(len_ai1);
             rev_values[i]    = rev_part1 + values[i-1];
         }

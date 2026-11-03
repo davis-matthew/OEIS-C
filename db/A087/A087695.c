@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 1745, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_sieve
+ * Validated: standard, pass, 69 terms through n = 9750 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/build_sieve.h"
+#include "../utils/mem.h"
+
+/* Build a simple Eratosthenes sieve up to 'limit' (inclusive). */
+static void build_sieve(uint8_t *sp, idx_t limit)
+{
+    memset(sp, 1, (size_t)limit + 1);
+    if (limit >= 0) sp[0] = 0;
+    if (limit >= 1) sp[1] = 0;
+    for (idx_t p = 2; p * p <= limit; ++p) {
+        if (sp[p]) {
+            for (idx_t q = p * p; q <= limit; q += p) sp[q] = 0;
+        }
+    }
+}
 
 /* The types seq_t and idx_t are supplied by the build environment. */
 
@@ -64,7 +78,7 @@ static void ensure_terms(idx_t needed)
             /* grow cache if necessary */
             if (cached_terms == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) exit(1);
                 cache = new_cache;
                 cache_cap = new_cap;

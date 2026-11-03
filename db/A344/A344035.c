@@ -9,9 +9,10 @@
  *            distinct ways. We compute the sequence by dynamic programming
  *            over cube “coins” and collect all sums that occur exactly four
  *            times. The sequence is generated lazily on the first call
- * Range:     u8 none, u16 n <= 5861, u32 n <= 7935, u64 n <= 7935,
- *            u128 n <= 7935, big any n
- * Helpers:   none
+ * Range:     u8 none, u16 n <= 5861, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 68 terms through n = 7935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build system */
 extern seq_t a(idx_t n);
@@ -91,15 +93,14 @@ static void build_sequence(void)
     /* ----------------------------------------------------------------- */
     /* 4. Extract all sums with exactly four representations. */
     seq_cap = 256;            /* initial array capacity */
-    seq_values = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_values = mem_new(seq_t, seq_cap);
     seq_len = 0;
 
     for (idx_t s = 1; s <= MAX_SUM; ++s) {
         if (dp[5 * V + s] == 4) {               /* exactly four ways */
             if (seq_len == seq_cap) {           /* grow array */
                 seq_cap <<= 1;
-                seq_values = (seq_t *)realloc(seq_values,
-                                               seq_cap * sizeof(seq_t));
+                seq_values = mem_resize(seq_t, seq_values, seq_cap);
             }
             seq_values[seq_len++] = (seq_t)s;
         }

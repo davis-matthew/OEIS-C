@@ -13,7 +13,8 @@
  *            using dynamic programming over admissible digits
  * Range:     u8 n <= 7, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* external integer types supplied by the build */
 extern seq_t a(idx_t n);
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     /* memo[pos][prev] = #completions from position pos (0‑rightmost) to the left,
        given that the previous (right‑side) digit is 'prev'.             */
     seq_t memo[MAXL + 1][MAXL + 2];
-    memset(memo, 0, sizeof(memo));
+    mem_set(memo, 0, sizeof(memo));
 
     /* Base case: beyond the leftmost digit there is exactly one completion. */
     for (idx_t prev = 1; prev <= L + 1; ++prev)

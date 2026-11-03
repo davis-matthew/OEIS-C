@@ -12,12 +12,14 @@
  *            9580060, 27910024, 78204775, 213775147, 575554760
  * Range:     u8 none, u16 n <= 1, u32 n <= 11, u64 n <= 31, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[9] = {
     (seq_t)35064ULL,
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Grow the cache to hold at least n terms. */
     if (cache_size < n) {
         /* realloc returns void* in C; cast explicitly for C and let C++ accept it. */
-        seq_t *new_cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, n);
         if (!new_cache) abort();            /* allocation failure */
         cache = new_cache;
 

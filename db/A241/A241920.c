@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 802, u16 n <= 8270, u32 n <= 8270, u64 n <= 8270,
- *            u128 n <= 8270, big any n
- * Helpers:   build_primes_upto
+ * Range:     u8 n <= 802, u16 n <= 10081, u32 n <= 10081, u64 n <= 10081,
+ *            u128 n <= 10081, big any n
+ * Validated: standard, pass, 86 terms through n = 8270 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/build_primes_upto.h"   /* provides void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ---------- static state used for caching ---------- */
 static idx_t  primes_max = 0;      /* maximum index up to which primes are stored */
@@ -107,7 +110,7 @@ static void make_cumulative_up_to(idx_t target_n)
     /* initialise first time */
     if (!cum) {
         cum_cap = 64;
-        cum     = (seq_t *)calloc(cum_cap, sizeof(seq_t));
+        cum     = mem_new(seq_t, cum_cap);
         cum[0]  = 0;
         cum_len = 0;
     }
@@ -116,7 +119,7 @@ static void make_cumulative_up_to(idx_t target_n)
         /* prepare capacity for the next index */
         if (cum_len + 1 >= cum_cap) {
             cum_cap <<= 1;
-            cum = (seq_t *)realloc(cum, cum_cap * sizeof(seq_t));
+            cum = mem_resize(seq_t, cum, cum_cap);
         }
 
         size_t idx = cum_len + 1;                /* next integer to process */

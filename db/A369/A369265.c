@@ -7,14 +7,15 @@
  * Formula:   a(n) = 1/(n+1) * Σ_{k=0..⌊n/3⌋} C(n+1,k) * C(3n-3k+1, n-3k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The sequence is defined for n ≥ 0 and has no small‐n offset. */
 #include <stdbool.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 /* Compute binomial coefficient C(a,b) using only seq_t arithmetic.
    The routine cancels intermediate factors with gcds to keep values
@@ -32,11 +33,11 @@ binom_multiplicative(idx_t a, idx_t b)
         /* Multiply by (a - b + i) and divide by i, cancelling common factors. */
         seq_t num = (seq_t)(a - b + i);
         seq_t den = (seq_t)i;
-        seq_t g = seq_gcd(num, den);
+        seq_t g = gcd(num, den);
         num /= g;
         den /= g;
 
-        g = seq_gcd(res, den);
+        g = gcd(res, den);
         res /= g;
         den /= g;               /* den should now be 1 */
 

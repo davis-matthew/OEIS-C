@@ -7,14 +7,17 @@
  * Formula:   a(n) = prime(9*n - 6) (index offset 1)
  * Range:     u8 n <= 6, u16 n <= 727, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 59 terms through n = 982 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_list   = NULL; /* array of computed primes (1‑based) */
 static idx_t  prime_count  = 0;    /* number of primes currently stored */
@@ -30,10 +33,10 @@ static void ensure_primes(idx_t need)
 
     /* Expand the array if needed */
     if (prime_list == NULL) {
-        prime_list = (seq_t *)malloc(need * sizeof(seq_t));
+        prime_list = mem_new(seq_t, need);
         if (!prime_list) abort();
     } else if (prime_count < need) {
-        seq_t *tmp = (seq_t *)realloc(prime_list, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_list, need);
         if (!tmp) abort();
         prime_list = tmp;
     }

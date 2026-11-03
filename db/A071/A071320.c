@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 38, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 9854 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static uint32_t *spf = NULL;            /* smallest prime factor table   */
 static const size_t MAX_LIMIT = 20000000U; /* pre‑computed sieving limit    */
@@ -79,7 +81,7 @@ static void push_term(seq_t v)
 {
     if (terms_len == terms_cap) {
         terms_cap = terms_cap ? terms_cap * 2 : 8;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_len++] = v;
 }

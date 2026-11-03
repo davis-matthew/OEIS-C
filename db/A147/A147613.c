@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   is_jacobsthal
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,29 @@
    Computation: iterate integers and skip those x satisfying 3*x±1 is a power of 2. */
 
 #include <stdbool.h>
-#include "../utils/is_jacobsthal.h"
+
+/* Test whether a given `x` is a Jacobsthal number:
+   J(n) = (2^n - (-1)^n)/3  =>  2^n = 3*x ± 1.
+   So `x` is Jacobsthal iff either 3*x+1 or 3*x-1 is a power of 2. */
+static inline bool is_jacobsthal(seq_t x)
+{
+    /* 3*x + 1 */
+    seq_t t1 = x + x + x;      /* 3*x   */
+    t1 = t1 + (seq_t)1;        /* 3*x+1 */
+    bool ok = false;
+    if (t1 != 0 && ((t1 & (t1 - (seq_t)1)) == 0))
+        ok = true;
+
+    /* 3*x - 1 (only if x > 0 to avoid underflow) */
+    if (x > 0) {
+        seq_t t2 = x + x + x;  /* 3*x   */
+        t2 = t2 - (seq_t)1;    /* 3*x-1 */
+        if (t2 != 0 && ((t2 & (t2 - (seq_t)1)) == 0))
+            ok = true;
+    }
+
+    return ok;
+}
 
 /* a(n) returns the n-th number not appearing in A001045 (Jacobsthal numbers).
    The sequence is 1‑indexed. */

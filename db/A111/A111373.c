@@ -10,13 +10,36 @@
  *            otherwise
  * Range:     u8 n <= 55, u16 n <= 302, u32 n <= 946, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   binom, row_of
+ * Validated: standard, pass, 121 terms through n = 1243 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/row_of.h"
+#include <stdint.h>
+#include <sys/types.h>
+#include "../utils/binomial.h"
+
+static inline idx_t
+row_of(idx_t n)                 /* return r with r(r+1)/2 ≤ n < (r+1)(r+2)/2 */
+{
+    idx_t low  = 0;
+    idx_t high = 1;
+    /* exponential search to find an upper bound */
+    while ((unsigned __int128)high * (high + 1) / 2 <= n) {
+        low  = high;
+        high <<= 1;              /* double high */
+    }
+    /* binary search between low (inclusive) and high (inclusive) */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1) + 1; /* upper mid to avoid infinite loop */
+        if ((unsigned __int128)mid * (mid + 1) / 2 <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,7 +51,7 @@ seq_t a(idx_t n)
     if (diff % 3 != 0) return (seq_t)0;/* non‑zero diagonal only when divisible by 3 */
 
     idx_t m = diff / 3;                 /* m ≥ 1  */
-    seq_t bin = binom(r, m - 1);        /* C(r, m-1) */
+    seq_t bin = binomial(r, m - 1);        /* C(r, m-1) */
 
     seq_t value = bin * 3 * (k + 1);    /* (3 * bin * (k+1)) */
     value = value / diff;              /* divide by (r-k) */

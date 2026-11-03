@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 945, u64 n <= 945, u128 n <= 945,
  *            big any n
- * Helpers:   reverse_decimal, seq_realloc
+ * Validated: standard, pass, 49 terms through n = 921 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,20 @@
 /* Recurrence: a(1) = 100057,
    a(n) = reverse_decimal(a(n-1)) + 2  for n > 1 */
 #include <stddef.h>
-#include "../utils/reverse_decimal.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +59,7 @@ seq_t a(idx_t n)
 
     /* Compute any missing terms up to the requested index */
     for (size_t i = cache_len; i < (size_t)n; ++i) {
-        cache[i] = reverse_decimal(cache[i - 1]) + (seq_t)2;
+        cache[i] = reverse_digits(cache[i - 1]) + (seq_t)2;
     }
     cache_len = (size_t)n;
 

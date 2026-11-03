@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 127, u32 n <= 8769, u64 n <= 8769,
- *            u128 n <= 8769, big any n
- * Helpers:   big_pow, build_primes_upto, int_sqrt, next_prime
+ * Range:     u8 n <= 15, u16 n <= 127, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 88 terms through n = 8769 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow, isqrt, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,9 +29,9 @@
 #include <stdint.h>
 
 #include "../utils/build_primes_upto.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/ipow.h"
+#include "../utils/isqrt.h"
 #include "../utils/next_prime.h"
-#include "../utils/big_pow.h"
 
 /* Cached prime table for factorisation */
 static bool primes_ready = false;
@@ -90,7 +91,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Need primes up to sqrt(n) + a safety margin */
-    idx_t needed = int_sqrt(n) + 10;
+    idx_t needed = isqrt(n) + 10;
     ensure_primes(needed);
 
     factorise((uint64_t)n);
@@ -113,7 +114,7 @@ seq_t a(idx_t n)
         }
 
         /* Multiply q^exp into the result */
-        seq_t pow_val = big_pow((seq_t)q, (seq_t)exp);
+        seq_t pow_val = ipow((seq_t)q, (seq_t)exp);
         result *= pow_val;
     }
 

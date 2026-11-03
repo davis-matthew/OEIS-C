@@ -11,16 +11,24 @@
  *            transforms (multisets of branches). Then t(n) = #...
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 28, u64 n <= 50, u128 n <= 92,
  *            big any n
- * Helpers:   a3426_fixed, a3426_gcd, a3426_half
+ * Validated: standard, pass, 49 terms through n = 974 (2026-11-01)
+ * Helpers:   gcd_idx, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a3426_fixed.h"
-#include "../utils/a3426_gcd.h"
-#include "../utils/a3426_half.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/triangular_seq.h"
+
+static int a3426_fixed(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x = (seq_t)(x * 2);
+    return x == 0;
+}
 
 #define A3426_MAXN 10001
 
@@ -37,7 +45,7 @@ static void a3426_mul(seq_t *G, idx_t len, idx_t k, seq_t m)
     for (j = 1; j <= jmax; j++) {
         seq_t num = m + (seq_t)(j - 1);
         idx_t r = (idx_t)(long long)(num % (seq_t)j);
-        idx_t g = a3426_gcd(j, r);
+        idx_t g = gcd_idx(j, r);
         a3426_coef[j] = (a3426_coef[j - 1] / (seq_t)(j / g)) * (num / (seq_t)g);
     }
     for (s = len - 1; s >= k; s--) {
@@ -66,8 +74,8 @@ static seq_t a3426_fixed_calc(idx_t n)
         idx_t h = n / 2;
         seq_t Fh = a3426_G[h - 1] - (seq_t)(h == 2 ? 1 : 0);
         seq_t Rh = a3426_Gr[h - 1];
-        t += a3426_half(Rh);
-        b += a3426_half(Fh);
+        t += triangular_seq(Rh);
+        b += triangular_seq(Fh);
     }
     return t - b;
 }
@@ -115,8 +123,8 @@ static seq_t a3426_big_calc(idx_t n)
     if (n == 3) b -= 1;
     if (n % 2 == 0) {
         idx_t h = n / 2;
-        t += a3426_half(a3426_BR[h]);
-        b += a3426_half(a3426_BF[h]);
+        t += triangular_seq(a3426_BR[h]);
+        b += triangular_seq(a3426_BF[h]);
     }
     return t - b;
 }

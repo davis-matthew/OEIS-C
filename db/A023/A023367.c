@@ -10,13 +10,26 @@
  *            decimal (base 10)
  * Range:     u8 n <= 10, u16 n <= 14, u32 n <= 17, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   base3_to_base4
+ * Validated: standard, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
-#include "../utils/base3_to_base4.h"
+
+static seq_t base3_to_base4(seq_t v)
+{
+    seq_t result = 0;
+    seq_t power  = 1;
+    while (v > 0) {
+        seq_t d    = v % 3;     /* current base‑3 digit (0..2) */
+        v         /= 3;
+        result    += d * power;/* add digit in base‑4 place */
+        power     *= 4;        /* advance base‑4 place */
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

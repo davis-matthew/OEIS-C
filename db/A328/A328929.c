@@ -15,7 +15,8 @@
  *            Euclidean distance to the origin, then by the standar...
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   abs32, hash_mix, ring_of, spiral_idx
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,10 +26,45 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/abs32.h"
-#include "../utils/hash_mix.h"
-#include "../utils/ring_of.h"
-#include "../utils/spiral_idx.h"
+#include "../utils/mem.h"
+
+/* Utility functions --------------------------------------------------- */
+static inline int32_t abs32(int32_t v) { return v >= 0 ? v : -v; }
+
+/* Simple 64‑bit mix – enough for a small table ----------------------- */
+static inline uint64_t hash_mix(uint64_t h)
+{
+    h ^= h >> 33;
+    h *= 0xff51afd7ed558ccdULL;
+    h ^= h >> 33;
+    return h;
+}
+
+/* Chebyshev distance from the origin (square ring number) ------------- */
+static inline int32_t ring_of(int32_t x, int32_t y)
+{
+    int32_t ax = abs32(x), ay = abs32(y);
+    return ax > ay ? ax : ay;
+}
+
+/* Ulam spiral index (0‑based) of a coordinate -------------------------- */
+static seq_t spiral_idx(int32_t x, int32_t y)
+{
+    int32_t r = ring_of(x, y);
+    if (r == 0) return 0; /* (0,0) */
+    uint64_t t = (uint64_t)(2 * r - 1) * (2 * r - 1); /* last number of previous ring (0‑based) */
+    uint64_t offset;
+    if (x == r && y != -r) {          /* right side, excluding corner */
+        offset = (uint64_t)(y + r - 1);
+    } else if (y == r) {              /* top side */
+        offset = (uint64_t)(2 * r) + (r - 1 - x);
+    } else if (x == -r) {             /* left side */
+        offset = (uint64_t)(4 * r) + (r - 1 - y);
+    } else {                          /* bottom side */
+        offset = (uint64_t)(6 * r) + (x + r - 1);
+    }
+    return (seq_t)(t + 1 + offset);   /* convert to 0‑based index */
+}
 
 /* Hash table for visited coordinates ------------------------------------
    Uses open addressing with a separate “used” flag array so that the key
@@ -92,7 +128,7 @@ static void seq_ensure(size_t need)
     if (need < seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 256;
     while (new_cap <= need) new_cap <<= 1;
-    seq_arr = (seq_t*)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, new_cap);
     seq_cap = new_cap;
 }
 

@@ -13,6 +13,7 @@
  *            sum_{i=0}^{r} (⌊i/2⌋+1) > n and then k = n - sum_{i=0}^...
  * Range:     u8 n <= 32, u16 n <= 105, u32 n <= 334, u64 n <= 1210,
  *            u128 n <= 2549, big any n
+ * Validated: standard, pass, 82 terms through n = 2544 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_more_pits_than_peaks
+ * Validated: standard, pass, 70 terms through n = 9630 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,46 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_more_pits_than_peaks.h"
+#include "../utils/mem.h"
+
+/* Return true if 'val' has strictly more pits than peaks in its base‑6
+   representation. */
+static bool has_more_pits_than_peaks(seq_t val)
+{
+    uint8_t digits[32];          /* enough for 6^32 > 2^192 > any practical value */
+    size_t len = 0;
+    seq_t t = val;
+
+    /* Extract base‑6 digits (least significant first). */
+    if (t == 0) {
+        digits[0] = 0;
+        len = 1;
+    } else {
+        while (t > 0) {
+            digits[len++] = (uint8_t)(t % 6);
+            t /= 6;
+        }
+    }
+
+    if (len < 3)            /* no interior digits ⇒ pits = peaks = 0 */
+        return false;
+
+    int pits   = 0;
+    int peaks  = 0;
+
+    for (size_t i = 1; i + 1 < len; ++i) {
+        uint8_t a = digits[i - 1];
+        uint8_t b = digits[i];
+        uint8_t c = digits[i + 1];
+
+        if (a > b && b < c)
+            ++pits;
+        else if (a < b && b > c)
+            ++peaks;
+    }
+
+    return pits > peaks;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +78,7 @@ seq_t a(idx_t n)
             /* Grow array if necessary. */
             if (len + 1 > cap) {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(data, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, data, new_cap);
                 if (!tmp) return 0;     /* out of memory – unlikely in tests */
                 data = tmp;
                 cap  = new_cap;

@@ -12,13 +12,38 @@
  *            that array by southwest‑to‑northeast antidiagonals
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   next_class_value
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/next_class_value.h"
+
+static inline seq_t next_class_value(int cls, idx_t cnt)
+{
+    switch (cls) {
+        case 0: /* class 0: 0,4,8,12,… */
+            return (seq_t)4 * cnt;
+        case 1: /* class 1: 1,7,9,15,17,23,… */
+            if ((cnt & 1) == 0)
+                return (seq_t)1 + (seq_t)8 * (cnt >> 1);
+            else
+                return (seq_t)7 + (seq_t)8 * (cnt >> 1);
+        case 2: /* class 2: 2,6,10,14,18,22,… */
+            if ((cnt & 1) == 0)
+                return (seq_t)2 + (seq_t)8 * (cnt >> 1);
+            else
+                return (seq_t)6 + (seq_t)8 * (cnt >> 1);
+        case 3: /* class 3: 3,5,11,13,19,21,… */
+            if ((cnt & 1) == 0)
+                return (seq_t)3 + (seq_t)8 * (cnt >> 1);
+            else
+                return (seq_t)5 + (seq_t)8 * (cnt >> 1);
+        default:
+            return 0; /* never reached */
+    }
+}
 
 seq_t a(idx_t n)
 {

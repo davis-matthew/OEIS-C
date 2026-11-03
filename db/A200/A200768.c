@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{p|n} p^n
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   build_primes_upto, pow_uint
+ * Validated: standard, pass, 38 terms through n = 343 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/pow_uint.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Cache of all primes up to the largest n for which a() has been called. */
 static uint64_t *prime_cache = NULL;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         if (p > temp / p)
             break;
         if (temp % p == 0) {
-            sum += pow_uint(p, n);
+            sum += ipow_u64_idx(p, n);
             while (temp % p == 0)
                 temp /= p;
         }
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
     /* Any remaining factor is a prime > sqrt(original n). */
     if (temp > 1)
-        sum += pow_uint(temp, n);
+        sum += ipow_u64_idx(temp, n);
 
     return sum;
 }

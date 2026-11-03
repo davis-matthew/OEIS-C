@@ -8,11 +8,13 @@
  *            for 1 ≤ i ≤ n, where p(i) is the i‑th prime
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   egcd64, mod_inverse
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /*  Use the Chinese Remainder Theorem iteratively.  For each new prime
     we solve                m' = m + M·k              (mod M·p^2)
     with                       M · k ≡ p – m  (mod p^2)
@@ -23,8 +25,29 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/egcd64.h"
-#include "../utils/mod_inverse.h"
+
+/* ---------- small 64‑bit extended GCD (used only for inverses) ---------- */
+static long long egcd64(long long a, long long b, long long *x, long long *y)
+{
+    if (b == 0) { *x = 1; *y = 0; return a; }
+    long long x1, y1;
+    long long g = egcd64(b, a % b, &x1, &y1);
+    *x = y1;
+    *y = x1 - (a / b) * y1;
+    return g;
+}
+
+/* modular inverse for a (mod m), where a,m < 2^63  */
+static inline seq_t mod_inverse(seq_t a, seq_t m)
+{
+    long long x, y;
+    long long aa = (long long)a;
+    long long mm = (long long)m;
+    egcd64(aa, mm, &x, &y);          /* gcd = 1   */
+    long long inv = x % mm;
+    if (inv < 0) inv += mm;
+    return (seq_t)inv;
+}
 
 /* ---------- small sieve of Eratosthenes ---------- */
 #define PRIME_CAP 200000          /* enough for the 10 000th prime (≈104 729) */

@@ -8,15 +8,15 @@
  *            primes]
  * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 2245, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 53 terms through n = 8783 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
-
+#include "../utils/is_prime_u64.h"
 
 static uint64_t *prime_cache = NULL;
 static idx_t cache_capacity = 0;
@@ -44,7 +44,7 @@ static void extend_prime_cache(idx_t needed_primes) {
     }
     
     while (prime_cache_len < needed_primes) {
-        if (is_prime(next_candidate)) {
+        if (is_prime_u64(next_candidate)) {
             prime_cache[prime_cache_len] = next_candidate;
             prime_cache_len++;
         }

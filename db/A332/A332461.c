@@ -9,6 +9,7 @@
  * Formula:   a(n) = Product_{d|n, d>1} A000040(A297113(d))
  * Range:     u8 n <= 11, u16 n <= 47, u32 n <= 119, u64 n <= 479,
  *            u128 n <= 2519, big any n
+ * Validated: standard, pass, 80 terms through n = 9980 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -40,12 +41,12 @@ static void ensure_precompute(idx_t n)
     if (limit <= g_limit) return;          /* already enough */
 
     /* free any previous allocations */
-    free((void*)g_spf);
-    free((void*)g_omega_tot);
-    free((void*)g_omega_dist);
-    free((void*)g_lpf);
-    free((void*)g_primes);
-    free((void*)g_prime_idx);
+    free(g_spf);
+    free(g_omega_tot);
+    free(g_omega_dist);
+    free(g_lpf);
+    free(g_primes);
+    free(g_prime_idx);
 
     /* allocate new tables */
     g_spf        = (uint32_t*)calloc((size_t)limit + 1, sizeof(uint32_t));

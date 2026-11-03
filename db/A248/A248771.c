@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏ p^{⌊v_p(n!)/6⌋} (product over all primes p ≤ n)
  * Range:     u8 n <= 26, u16 n <= 45, u32 n <= 74, u64 n <= 113,
  *            u128 n <= 197, big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: standard, pass, 66 terms through n = 962 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 /* The helper functions used below are supplied by the build. */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
 
         uint64_t exp = e / 6;           /* exponent of p in the answer */
         if (exp > 0) {
-            seq_t pk = big_pow((seq_t)p, (seq_t)exp);
+            seq_t pk = ipow((seq_t)p, (seq_t)exp);
             result *= pk;
         }
     }

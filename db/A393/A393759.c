@@ -12,13 +12,20 @@
  *            a(0)=0, a(1)=1, a(2)=1, a(3)=4, a(4)=29, a(5)=336
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   seq_alloc_array
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_alloc_array.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* compute binomial coefficient C(n,k) for 0 <= k <= 6 using multiplicative formula */
 static inline seq_t binom_n_k(idx_t n, idx_t k)
@@ -57,7 +64,7 @@ static idx_t ensure_cache(idx_t n)
     for (idx_t i = old_cap; i < new_cap; ++i)
         new_cache[i] = 0;
 
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
     return old_cap;

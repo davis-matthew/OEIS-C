@@ -7,12 +7,21 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   count4_base6
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count4_base6.h"
+static inline seq_t count4_base6(seq_t x) {
+    seq_t cnt = 0;
+    while (x) {
+        if ((x % 6) == 4)
+            cnt++;
+        x /= 6;
+    }
+    return cnt;
+}
 /* Sequence A043388: nth integer whose base‑6 representation contains
    exactly four 4’s.  Computed by brute‑force enumeration. */
 

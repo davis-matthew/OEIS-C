@@ -7,7 +7,8 @@
  * Formula:   a(n) = (prime(n)+1)*(prime(n+1)+1)/4 (OEIS A079079)
  * Range:     u8 n <= 10, u16 n <= 96, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   prime_limit_estimate
+ * Validated: standard, pass, 62 terms through n = 9883 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/prime_limit_estimate.h"
+
+/* sieve upper bound estimate for the n-th prime (works well up to n ~ 10^6) */
+static size_t prime_limit_estimate(idx_t n)
+{
+    /* n >= 1 */
+    double nn = (double)n;
+    double limit = nn * (log(nn) + log(log(nn)));
+    /* add a safety margin */
+    return (size_t)(limit + 10.0);
+}
 
 /* static cache of primes */
 static uint32_t *prime_cache = NULL;

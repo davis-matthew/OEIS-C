@@ -12,7 +12,8 @@
  *            factorisation of n. * Each prime factor p give...
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external types supplied by the build system */
 seq_t a(idx_t n);  /* declaration only, defined below */
@@ -91,7 +93,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_cap > n) return;
     size_t new_cap = (size_t)(n + 1);
-    seq_t  *new_val  = (seq_t *)realloc(cache_val, new_cap * sizeof(seq_t));
+    seq_t  *new_val  = mem_resize(seq_t, cache_val, new_cap);
     unsigned char *new_flag =
         (unsigned char *)realloc(cache_flag, new_cap * sizeof(unsigned char));
     if (!new_val || !new_flag) return; /* out of memory – silent failure */

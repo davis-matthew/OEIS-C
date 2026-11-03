@@ -13,13 +13,15 @@
  *            a(6)=3893, a(7)=23769, a(8)=145280, a(9)=887980, a(10)=...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoization table, index 0 unused */
 static idx_t  cached_max = 0;        /* highest index currently stored */
@@ -53,9 +55,9 @@ seq_t a(idx_t n)
         idx_t new_max = n;
         /* allocate/reallocate cache */
         if (cached_max == 0) {
-            cache = (seq_t *)malloc((new_max + 1) * sizeof(seq_t));
+            cache = mem_new(seq_t, (new_max + 1));
         } else {
-            cache = (seq_t *)realloc(cache, (new_max + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (new_max + 1));
         }
         /* initialize new slots to 0 */
         for (idx_t i = cached_max + 1; i <= new_max; ++i)

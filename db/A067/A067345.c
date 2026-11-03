@@ -10,22 +10,23 @@
  *            square array T(n,k) = (T(n,k-1) * n^2 - Catalan(k-1)) / (n-1),
  *            T(n,1) = 1, T(1,k) = Catalan(k), where Catalan(k) =
  *            binom(2k,k)/(k+1)
- * Range:     u8 n <= 6, u16 n <= 28, u32 n <= 58, u64 n <= 58, u128 n <= 58,
+ * Range:     u8 n <= 15, u16 n <= 45, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>            /* for size_t */
 #include <stdint.h>            /* common integer types */
-#include "../utils/binom.h"    /* provides seq_t binom(idx_t,idx_t) */
+#include "../utils/binomial.h"
 
 /* Catalan number using binom.  Works for all k≥0. */
 static seq_t catalan(idx_t k)
 {
     if (k == 0) return (seq_t)1;
-    seq_t c = binom(2 * k, k);      /* binom returns seq_t   */
+    seq_t c = binomial(2 * k, k);      /* binom returns seq_t   */
     return c / (k + 1);              /* exact division        */
 }
 

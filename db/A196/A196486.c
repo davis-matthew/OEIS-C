@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 82, u32 n <= 323, u64 n <= 1280,
  *            u128 n <= 5096, big any n
- * Helpers:   bitlen_seq_t, pow2, pow3
+ * Validated: standard, pass, 67 terms through n = 7836 (2026-11-01)
+ * Helpers:   bit_length, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,21 +19,23 @@
    the k‑th term of row r is 3^r − 2^k   (k = 1…floor(log₂(3^r))).
    This implementation walks rows until the input index is reached,
    then returns the corresponding term. */
-#include "../utils/pow3.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/bit_length.h"
 #include "../utils/pow2.h"
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {
     idx_t r = 1;
     seq_t p = pow3(r);
-    unsigned rowlen = bitlen_seq_t(p) - 1;
+    unsigned rowlen = bit_length(p) - 1;
     idx_t cum = rowlen;          /* total terms up to current row */
 
     while (cum < n) {
         ++r;
         p = pow3(r);
-        rowlen = bitlen_seq_t(p) - 1;
+        rowlen = bit_length(p) - 1;
         cum += (idx_t)rowlen;
     }
 

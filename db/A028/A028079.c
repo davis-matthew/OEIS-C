@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Formula: a(n) = (5*9^(n+3) - 9*8^(n+3) + 5*6^(n+3) - 3^(n+3)) / 90
    Implemented by an O(n) recurrence that avoids large intermediate powers. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
     /* initialise caches up to index 3 (covers first terms) */
     if (a_cache == NULL) {
         cache_cap = 4;                     /* indices 0..3 will fit      */
-        a_cache  = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
-        f2_cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
-        f3_cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        a_cache  = mem_new(seq_t, cache_cap);
+        f2_cache = mem_new(seq_t, cache_cap);
+        f3_cache = mem_new(seq_t, cache_cap);
 
         f1_pow = 1;                         /* 3^0 */
         /* n = 0 */
@@ -70,9 +72,9 @@ seq_t a(idx_t n)
             while (new_cap < needed)
                 new_cap <<= 1;  /* double until sufficient */
 
-            a_cache  = (seq_t*)realloc(a_cache,  new_cap * sizeof(seq_t));
-            f2_cache = (seq_t*)realloc(f2_cache, new_cap * sizeof(seq_t));
-            f3_cache = (seq_t*)realloc(f3_cache, new_cap * sizeof(seq_t));
+            a_cache  = mem_resize(seq_t, a_cache, new_cap);
+            f2_cache = mem_resize(seq_t, f2_cache, new_cap);
+            f3_cache = mem_resize(seq_t, f3_cache, new_cap);
             cache_cap = new_cap;
         }
 

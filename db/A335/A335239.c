@@ -11,7 +11,8 @@
  *            considered not coprime unless they equal 1)
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     /* initialise storage on first invocation */
     if (!fails) {
         cap = 128;
-        fails = (seq_t *)malloc(cap * sizeof(seq_t));
+        fails = mem_new(seq_t, cap);
         if (!fails) return 0; /* allocation failure – unlikely in tests */
     }
 
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
     while (len < n) {
         /* k == 0 is always a failure (empty composition) */
         if (current_k == (idx_t)0) {
-            if (len == cap) { cap <<= 1; fails = (seq_t *)realloc(fails, cap * sizeof(seq_t)); }
+            if (len == cap) { cap <<= 1; fails = mem_resize(seq_t, fails, cap); }
             fails[len++] = (seq_t)0;
             current_k++;
             continue;
@@ -84,7 +87,7 @@ seq_t a(idx_t n)
         if (!coprime) {
             if (len == cap) {
                 cap <<= 1;
-                fails = (seq_t *)realloc(fails, cap * sizeof(seq_t));
+                fails = mem_resize(seq_t, fails, cap);
             }
             fails[len++] = (seq_t)current_k;
         }

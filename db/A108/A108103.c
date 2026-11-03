@@ -10,6 +10,7 @@
  *            τ(1)=121, τ(2)=3, τ(3)=313
  * Range:     u8 n <= 1200, u16 n <= 1200, u32 n <= 1200, u64 n <= 1200,
  *            u128 n <= 1200, big any n
+ * Validated: standard, pass, 121 terms through n = 1193 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

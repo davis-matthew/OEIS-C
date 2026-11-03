@@ -7,12 +7,14 @@
  * Formula:   a(n) = [x^(2n)] ((1+x)/(1-x))^12
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 8, u64 n <= 64, u128 n <= 3668,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 38 terms through n = 9144 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= kmax; ++k) {
         /* binom(11+N-k, N-k) returned as seq_t */
-        seq_t term = C12[k] * binom(11 + N - k, N - k);
+        seq_t term = C12[k] * binomial(11 + N - k, N - k);
         result += term;
     }
 

@@ -8,13 +8,15 @@
  *            values: a(2) = 1, a(3) = 43, a(4) = 2150. Offset 2
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 174 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static size_t cache_len = 0;
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Ensure cache can hold indices up to n */
     if (cache_len <= n) {
         size_t new_len = n + 1;              /* indices 0..n inclusive */
-        seq_t *new_cache = (seq_t *)realloc(seq_cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, new_len);
         if (!new_cache)
             exit(EXIT_FAILURE);             /* allocation failure */
         seq_cache = new_cache;

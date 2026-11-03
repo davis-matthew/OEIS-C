@@ -11,14 +11,28 @@
  *            constant)
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   diag_of_n
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/diag_of_n.h"
+#include "../utils/mem.h"
+
+/* ----------  Diagonal lookup helpers  ---------- */
+static idx_t diag_of_n(idx_t n)
+{
+    idx_t lo = 1, hi = 1;
+    while (hi * (hi + 1) / 2 < n) hi <<= 1;
+    while (lo < hi) {
+        idx_t mid = (lo + hi) >> 1;
+        if (mid * (mid + 1) / 2 >= n) hi = mid;
+        else                           lo = mid + 1;
+    }
+    return lo;                                   /* smallest d with d(d+1)/2 >= n */
+}
 
 /* ----------  Fixed‑point representation of √3  ---------- */
 typedef unsigned __int128 u128;
@@ -81,7 +95,7 @@ static void grow_cache(void)
 {
     if (cache_cap == 0)      cache_cap = 16;
     else                      cache_cap <<= 1;
-    cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 seq_t a(idx_t n)

@@ -12,13 +12,16 @@
  *            residual stays non‑negative. Update the residual as Rnum...
  * Range:     u8 n <= 30, u16 n <= 30, u32 n <= 30, u64 n <= 33, u128 n <= 34,
  *            big any n
- * Helpers:   gcd
+ * Validated: full, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache of computed a(i) */
 static size_t cache_cap;             /* cache capacity */
@@ -32,7 +35,7 @@ static void init_cache(void)
 {
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         if (cache == NULL) abort();
         prev_val = 0;
         Rnum = 4;
@@ -45,7 +48,7 @@ static void grow_cache(size_t need)
 {
     size_t cap = cache_cap;
     while (cap < need) cap <<= 1;
-    seq_t *newptr = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, cache, cap);
     if (newptr == NULL) abort();
     cache = newptr;
     cache_cap = cap;

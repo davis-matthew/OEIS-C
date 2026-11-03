@@ -12,7 +12,8 @@
  *            T...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 25, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   integer_sqrt_ceil
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/integer_sqrt_ceil.h"
+#include "../utils/mem.h"
+
+/* internal helpers                                                 */
+static idx_t integer_sqrt_ceil(idx_t n)
+{
+    /* r^2 < n ≤ (r+1)^2  →  r = floor(sqrt(n-1)) + 1
+       Since n ≥ 1 in our usage, this is safe.               */
+    idx_t r = 1;
+    while (r * r < n) ++r;
+    return r;
+}
 
 /*------------------------------------------------------------*/
 
@@ -39,7 +50,7 @@ static void ensure_rows(idx_t row_needed)
         /* create new row */
         idx_t const new_row = max_row + 1;
         size_t const len = 2 * new_row - 1;   /* number of k‑values: k=2..2n  */
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) exit(EXIT_FAILURE);
 
         if (new_row == 1)

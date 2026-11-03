@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(0)=1; for n>0, a(n)=a(log2(n))+1 if n is a power of 2,
  *            otherwise a(n)=1
- * Range:     u8 n <= 9477, u16 n <= 9477, u32 n <= 9477, u64 n <= 9477,
- *            u128 n <= 9477, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 115 terms through n = 9477 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

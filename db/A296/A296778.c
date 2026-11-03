@@ -9,12 +9,14 @@
  *            equivalent to ((2^n-2)^2)/2 for n = 3.)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
+ * Validated: partial, pass, 6 terms through n = 7 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

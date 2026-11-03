@@ -12,12 +12,14 @@
  *            T(4,2), a(5) = T(5,2), a(6) = T(5,3), … This function comput...
  * Range:     u8 n <= 10, u16 n <= 26, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 48 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Integer square root of a 64‑bit value using 128‑bit multiplication. */

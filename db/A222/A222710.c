@@ -7,12 +7,14 @@
  * Formula:   a(n) = Σ_{m≥1} p(n-10m) – Σ_{m≥1} p(n-11m)
  * Range:     u8 n <= 32, u16 n <= 62, u32 n <= 152, u64 n <= 448,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 809 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *partition = NULL;
 static idx_t part_cap = 0;
@@ -23,7 +25,7 @@ static void compute_partitions_upto(idx_t idx)
         return;
 
     idx_t new_cap = idx + 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)
         exit(1);
 
@@ -52,7 +54,7 @@ static void compute_partitions_upto(idx_t idx)
         new_arr[n] = pos - neg;
     }
 
-    free(partition);
+    mem_free(partition);
     partition = new_arr;
     part_cap = new_cap;
 }

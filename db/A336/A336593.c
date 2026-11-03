@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 6523, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_exp_mod4_3
+ * Validated: standard, pass, 70 terms through n = 9944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,39 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_exp_mod4_3.h"
+#include "../utils/mem.h"
+
+/* Return true iff any prime exponent in the factorisation of x is
+   congruent to 3 modulo 4.  The test operates only on 64‑bit values
+   (the candidate numbers fit in uint64_t for the required range). */
+static bool has_exp_mod4_3(uint64_t x)
+{
+    uint64_t n = x;
+    unsigned exp = 0;
+
+    /* factor 2 */
+    exp = 0;
+    while ((n & 1ULL) == 0) {
+        n >>= 1;
+        exp++;
+    }
+    if ((exp & 3U) == 3U) return true;          /* exp ≡ 3 (mod 4) */
+
+    /* factor odd primes, up to sqrt(n) */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            exp = 0;
+            while (n % p == 0) {
+                n /= p;
+                exp++;
+            }
+            if ((exp & 3U) == 3U) return true;
+        }
+    }
+
+    /* if a prime factor remains (exponent 1), 1 ≡ 1 (mod 4) so not 3 */
+    return false;
+}
 
 /* --------- memoisation storage -------------------------------------- */
 
@@ -36,7 +69,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);
     cache     = tmp;
     cache_cap = new_cap;
